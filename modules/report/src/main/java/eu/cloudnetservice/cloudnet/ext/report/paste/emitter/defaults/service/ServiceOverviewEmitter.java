@@ -31,7 +31,7 @@ public class ServiceOverviewEmitter implements ReportDataEmitter<ICloudService> 
     for (var snapshot : services) {
       builder
         .append("Name: ")
-        .append(snapshot.getName())
+        .append(snapshot.name())
         .append(" | Lifecycle: ")
         .append(snapshot.getLifeCycle())
         .append("\n");

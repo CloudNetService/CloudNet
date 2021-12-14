@@ -95,7 +95,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
       .sendSingleQueryAsync()
       .get(5, TimeUnit.SECONDS, null);
     // read the result service info from the buffer
-    return result == null ? null : result.getContent().readObject(ServiceInfoSnapshot.class);
+    return result == null ? null : result.content().readObject(ServiceInfoSnapshot.class);
   }
 
   protected @Nullable IClusterNodeServer peekLogicNodeServer(@NotNull ServiceConfiguration configuration) {
@@ -136,7 +136,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     // include all groups which are matching the service configuration
     CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfigurations().stream()
       .filter(group -> group.getTargetEnvironments().contains(configuration.getServiceId().getEnvironmentName()))
-      .forEach(group -> configuration.getGroups().add(group.getName()));
+      .forEach(group -> configuration.getGroups().add(group.name()));
     // include each group component in the service configuration
     for (var group : configuration.getGroups()) {
       // get the group

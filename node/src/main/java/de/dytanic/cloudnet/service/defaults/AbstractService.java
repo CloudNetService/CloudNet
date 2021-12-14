@@ -140,14 +140,14 @@ public abstract class AbstractService implements ICloudService {
     boolean staticService
   ) {
     // validate the service name
-    if (!ServiceTask.NAMING_PATTERN.matcher(serviceId.getName()).matches()) {
+    if (!ServiceTask.NAMING_PATTERN.matcher(serviceId.name()).matches()) {
       throw new IllegalArgumentException(
-        "Service name \"" + serviceId.getName() + "\" must match pattern \"" + ServiceTask.NAMING_PATTERN + "\"");
+        "Service name \"" + serviceId.name() + "\" must match pattern \"" + ServiceTask.NAMING_PATTERN + "\"");
     }
     // resolve the path of the service in the logical directory
     return staticService
-      ? manager.getPersistentServicesDirectoryPath().resolve(serviceId.getName())
-      : manager.getTempDirectoryPath().resolve(String.format("%s_%s", serviceId.getName(), serviceId.getUniqueId()));
+      ? manager.getPersistentServicesDirectoryPath().resolve(serviceId.name())
+      : manager.getTempDirectoryPath().resolve(String.format("%s_%s", serviceId.name(), serviceId.getUniqueId()));
   }
 
   @Override
@@ -165,12 +165,12 @@ public abstract class AbstractService implements ICloudService {
     // check if the service is able to serve the request
     if (this.networkChannel != null) {
       var response = ChannelMessage.builder()
-        .targetService(this.getServiceId().getName())
+        .targetService(this.getServiceId().name())
         .message("request_update_service_information")
         .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
         .build()
         .sendSingleQuery();
-      return response == null ? this.currentServiceInfo : response.getContent().readObject(ServiceInfoSnapshot.class);
+      return response == null ? this.currentServiceInfo : response.content().readObject(ServiceInfoSnapshot.class);
     } else {
       return this.currentServiceInfo;
     }
@@ -565,7 +565,7 @@ public abstract class AbstractService implements ICloudService {
       .write(this.serviceDirectory.resolve(WRAPPER_CONFIG_PATH));
     // load the ssl configuration if enabled
     var sslConfiguration = this.getNodeConfiguration().getServerSslConfig();
-    if (sslConfiguration.isEnabled()) {
+    if (sslConfiguration.enabled()) {
       this.copySslConfiguration(sslConfiguration);
     }
     // add all components
@@ -583,16 +583,16 @@ public abstract class AbstractService implements ICloudService {
   protected void copySslConfiguration(@NotNull SSLConfiguration configuration) {
     var wrapperDir = this.serviceDirectory.resolve(".wrapper");
     // copy the certificate if available
-    if (configuration.getCertificatePath() != null && Files.exists(configuration.getCertificatePath())) {
-      FileUtils.copy(configuration.getCertificatePath(), wrapperDir.resolve("certificate"));
+    if (configuration.certificatePath() != null && Files.exists(configuration.certificatePath())) {
+      FileUtils.copy(configuration.certificatePath(), wrapperDir.resolve("certificate"));
     }
     // copy the private key if available
-    if (configuration.getPrivateKeyPath() != null && Files.exists(configuration.getPrivateKeyPath())) {
-      FileUtils.copy(configuration.getPrivateKeyPath(), wrapperDir.resolve("privateKey"));
+    if (configuration.privateKeyPath() != null && Files.exists(configuration.privateKeyPath())) {
+      FileUtils.copy(configuration.privateKeyPath(), wrapperDir.resolve("privateKey"));
     }
     // copy the trust certificate if available
-    if (configuration.getTrustCertificatePath() != null && Files.exists(configuration.getTrustCertificatePath())) {
-      FileUtils.copy(configuration.getTrustCertificatePath(), wrapperDir.resolve("trustCertificate"));
+    if (configuration.trustCertificatePath() != null && Files.exists(configuration.trustCertificatePath())) {
+      FileUtils.copy(configuration.trustCertificatePath(), wrapperDir.resolve("trustCertificate"));
     }
   }
 

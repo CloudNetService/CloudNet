@@ -103,7 +103,7 @@ public abstract class AbstractServiceLogCache implements IServiceConsoleLogCache
     }
     // print the line to the console if enabled
     if (this.alwaysPrintErrorStreamToConsole && comesFromErrorStream) {
-      LOGGER.warning(String.format("[%s/SERR]: %s", this.service.getServiceId().getName(), entry));
+      LOGGER.warning(String.format("[%s/SERR]: %s", this.service.getServiceId().name(), entry));
     }
     // add the line
     this.cachedLogMessages.add(entry);

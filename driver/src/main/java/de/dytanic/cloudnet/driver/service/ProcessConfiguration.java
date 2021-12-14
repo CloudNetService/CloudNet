@@ -103,7 +103,7 @@ public class ProcessConfiguration implements Cloneable {
     }
 
     public @NotNull Builder environment(@NotNull ServiceEnvironmentType environment) {
-      this.environment = environment.getName();
+      this.environment = environment.name();
       return this;
     }
 

@@ -42,10 +42,10 @@ public class DefaultSpecificTemplateStorage implements SpecificTemplateStorage {
   }
 
   public static DefaultSpecificTemplateStorage of(@NotNull ServiceTemplate template, @NotNull TemplateStorage storage) {
-    if (!storage.getName().equals(template.getStorage())) {
+    if (!storage.name().equals(template.getStorage())) {
       throw new IllegalArgumentException(String.format(
         "Storage '%s' doesn't match the storage of the template ('%s')",
-        storage.getName(),
+        storage.name(),
         template.getStorage()));
     }
     return new DefaultSpecificTemplateStorage(template, storage);
@@ -60,8 +60,8 @@ public class DefaultSpecificTemplateStorage implements SpecificTemplateStorage {
   }
 
   @Override
-  public @NotNull String getName() {
-    return this.storage.getName();
+  public @NotNull String name() {
+    return this.storage.name();
   }
 
   @Override

@@ -178,7 +178,7 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
     @NotNull Collection<PermissionGroup> groups,
     @Nullable String[] taskGroups, @NotNull Collection<String> travelledGroups) {
     for (var permissionGroup : groups) {
-      if (permissionGroup != null && travelledGroups.add(permissionGroup.getName())) {
+      if (permissionGroup != null && travelledGroups.add(permissionGroup.name())) {
         this.collectPermissionsInto(target, permissionGroup, taskGroups);
         this.collectAllGroupPermissionsInto(target, this.getGroupsOf(permissionGroup), taskGroups, travelledGroups);
       }

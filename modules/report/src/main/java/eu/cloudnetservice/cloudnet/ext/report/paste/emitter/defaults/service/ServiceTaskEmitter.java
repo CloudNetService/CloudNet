@@ -32,7 +32,7 @@ public class ServiceTaskEmitter implements ReportDataEmitter<ICloudService> {
     }
 
     builder
-      .append(" - Task ").append(serviceTask.getName()).append(" - \n")
+      .append(" - Task ").append(serviceTask.name()).append(" - \n")
       .append(JsonDocument.newDocument(serviceTask).toPrettyJson()).append("\n")
       .append(" - Task END - \n\n");
   }

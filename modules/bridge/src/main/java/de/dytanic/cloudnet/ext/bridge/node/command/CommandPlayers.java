@@ -82,7 +82,7 @@ public class CommandPlayers {
   @Suggestions("onlinePlayers")
   public List<String> suggestOnlinePlayers(CommandContext<?> $, String input) {
     return this.playerManager.getOnlinePlayers().values().stream()
-      .map(INameable::getName)
+      .map(INameable::name)
       .collect(Collectors.toList());
   }
 
@@ -102,7 +102,7 @@ public class CommandPlayers {
     return CloudNet.getInstance().getCloudServiceProvider().getCloudServices()
       .stream()
       .filter(snapshot -> ServiceEnvironmentType.isMinecraftServer(snapshot.getServiceId().getEnvironment()))
-      .map(INameable::getName)
+      .map(INameable::name)
       .collect(Collectors.toList());
   }
 
@@ -144,7 +144,7 @@ public class CommandPlayers {
   public void displayOnlinePlayers(@NotNull CommandSource source) {
     for (var player : this.playerManager.getOnlinePlayers().values()) {
       source.sendMessage(
-        "Name: " + player.getName() +
+        "Name: " + player.name() +
           " | UUID: " + player.getUniqueId() +
           " | Proxy: " + player.getLoginService().getServerName() +
           " | Service: " + player.getConnectedService().getServerName());
@@ -162,7 +162,7 @@ public class CommandPlayers {
     @NotNull CommandSource source,
     @NotNull @Argument(value = "player", parserName = "offlinePlayer") CloudOfflinePlayer offlinePlayer
   ) {
-    source.sendMessage("CloudPlayer: " + offlinePlayer.getName() + " | " + offlinePlayer.getUniqueId());
+    source.sendMessage("CloudPlayer: " + offlinePlayer.name() + " | " + offlinePlayer.getUniqueId());
     source.sendMessage("First login: " + DATE_FORMAT.format(offlinePlayer.getFirstLoginTimeMillis()));
     source.sendMessage("Last login: " + DATE_FORMAT.format(offlinePlayer.getLastLoginTimeMillis()));
     // check if we have more information about the player
@@ -188,7 +188,7 @@ public class CommandPlayers {
   ) {
     this.playerManager.deleteCloudOfflinePlayer(player);
     source.sendMessage(I18n.trans("module-bridge-command-players-delete-player")
-      .replace("%name%", player.getName())
+      .replace("%name%", player.name())
       .replace("%uniqueId%", player.getUniqueId().toString()));
   }
 
@@ -203,7 +203,7 @@ public class CommandPlayers {
     player.getPlayerExecutor().kick(reasonComponent);
 
     source.sendMessage(I18n.trans("module-bridge-command-players-kick-player")
-      .replace("%name%", player.getName())
+      .replace("%name%", player.name())
       .replace("%uniqueId%", player.getUniqueId().toString())
       .replace("%reason%", reason == null ? "No reason given" : reason));
 
@@ -222,7 +222,7 @@ public class CommandPlayers {
   ) {
     player.getPlayerExecutor().sendMessage(AdventureSerializerUtil.serialize(message));
     source.sendMessage(I18n.trans("module-bridge-command-players-send-player-message")
-      .replace("%name%", player.getName())
+      .replace("%name%", player.name())
       .replace("%uniqueId%", player.getUniqueId().toString()));
   }
 
@@ -233,14 +233,14 @@ public class CommandPlayers {
     @NotNull @Argument("server") ServiceInfoSnapshot server
   ) {
     if (BridgeServiceProperties.IS_ONLINE.get(server).orElse(false)) {
-      player.getPlayerExecutor().connect(server.getName());
+      player.getPlayerExecutor().connect(server.name());
 
       source.sendMessage(I18n.trans("module-bridge-command-players-send-player-server")
-        .replace("%name%", player.getName())
+        .replace("%name%", player.name())
         .replace("%uniqueId%", player.getUniqueId().toString()));
     } else {
       source.sendMessage(I18n.trans("module-bridge-command-players-send-player-server-not-found")
-        .replace("%name%", player.getName())
+        .replace("%name%", player.name())
         .replace("%uniqueId%", player.getUniqueId().toString()));
     }
   }

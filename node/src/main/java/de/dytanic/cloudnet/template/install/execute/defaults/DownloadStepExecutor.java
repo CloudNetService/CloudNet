@@ -38,7 +38,7 @@ public class DownloadStepExecutor implements InstallStepExecutor {
     @NotNull Set<Path> inputPaths
   ) throws IOException {
     var targetPath = workingDirectory.resolve(
-      Paths.get(installInformation.getServiceVersionType().getName() + ".jar"));
+      Paths.get(installInformation.getServiceVersionType().name() + ".jar"));
 
     ConsoleProgressWrappers.wrapDownload(
       installInformation.getServiceVersion().getUrl(),

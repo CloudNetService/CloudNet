@@ -21,41 +21,16 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import lombok.EqualsAndHashCode;
-import lombok.EqualsAndHashCode.Include;
-import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
-@ToString
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class SyncProxyLoginConfiguration {
-
-  @Include
-  protected final String targetGroup;
-
-  protected final boolean maintenance;
-
-  protected final int maxPlayers;
-
-  protected final Set<String> whitelist;
-  protected final List<SyncProxyMotd> motds;
-  protected final List<SyncProxyMotd> maintenanceMotds;
-
-  protected SyncProxyLoginConfiguration(
-    @NotNull String targetGroup,
-    boolean maintenance,
-    int maxPlayers,
-    @NotNull Set<String> whitelist,
-    @NotNull List<SyncProxyMotd> motds,
-    @NotNull List<SyncProxyMotd> maintenanceMotds
-  ) {
-    this.targetGroup = targetGroup;
-    this.maintenance = maintenance;
-    this.maxPlayers = maxPlayers;
-    this.whitelist = whitelist;
-    this.motds = motds;
-    this.maintenanceMotds = maintenanceMotds;
-  }
+public record SyncProxyLoginConfiguration(
+  @NotNull String targetGroup,
+  boolean maintenance,
+  int maxPlayers,
+  @NotNull Set<String> whitelist,
+  @NotNull List<SyncProxyMotd> motds,
+  @NotNull List<SyncProxyMotd> maintenanceMotds
+) {
 
   public static @NotNull Builder builder() {
     return new Builder();
@@ -63,12 +38,12 @@ public class SyncProxyLoginConfiguration {
 
   public static @NotNull Builder builder(@NotNull SyncProxyLoginConfiguration configuration) {
     return builder()
-      .targetGroup(configuration.getTargetGroup())
-      .maxPlayers(configuration.getMaxPlayers())
-      .maintenance(configuration.isMaintenance())
-      .whitelist(configuration.getWhitelist())
-      .motds(configuration.getMotds())
-      .maintenanceMotds(configuration.getMaintenanceMotds());
+      .targetGroup(configuration.targetGroup())
+      .maxPlayers(configuration.maxPlayers())
+      .maintenance(configuration.maintenance())
+      .whitelist(configuration.whitelist())
+      .motds(configuration.motds())
+      .maintenanceMotds(configuration.maintenanceMotds());
   }
 
   public static @NotNull SyncProxyLoginConfiguration createDefault(@NotNull String targetGroup) {
@@ -95,28 +70,21 @@ public class SyncProxyLoginConfiguration {
       .build();
   }
 
-  public @NotNull String getTargetGroup() {
-    return this.targetGroup;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof SyncProxyLoginConfiguration that)) {
+      return false;
+    }
+
+    return this.targetGroup.equals(that.targetGroup);
   }
 
-  public boolean isMaintenance() {
-    return this.maintenance;
-  }
-
-  public int getMaxPlayers() {
-    return this.maxPlayers;
-  }
-
-  public @NotNull Set<String> getWhitelist() {
-    return this.whitelist;
-  }
-
-  public @NotNull List<SyncProxyMotd> getMotds() {
-    return this.motds;
-  }
-
-  public @NotNull List<SyncProxyMotd> getMaintenanceMotds() {
-    return this.maintenanceMotds;
+  @Override
+  public int hashCode() {
+    return this.targetGroup.hashCode();
   }
 
   public static class Builder {

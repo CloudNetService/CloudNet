@@ -52,22 +52,22 @@ public final class ChannelMessageReceiveEvent extends NetworkEvent {
 
   @NotNull
   public ChannelMessageSender getSender() {
-    return this.channelMessage.getSender();
+    return this.channelMessage.sender();
   }
 
   @NotNull
   public Collection<ChannelMessageTarget> getTargets() {
-    return this.channelMessage.getTargets();
+    return this.channelMessage.targets();
   }
 
   @NotNull
   public String getChannel() {
-    return this.channelMessage.getChannel();
+    return this.channelMessage.channel();
   }
 
-  @Nullable
+  @NotNull
   public String getMessage() {
-    return this.channelMessage.getMessage();
+    return this.channelMessage.message();
   }
 
   @NotNull
@@ -77,7 +77,7 @@ public final class ChannelMessageReceiveEvent extends NetworkEvent {
 
   @NotNull
   public DataBuf getContent() {
-    return this.channelMessage.getContent();
+    return this.channelMessage.content();
   }
 
   public boolean isQuery() {

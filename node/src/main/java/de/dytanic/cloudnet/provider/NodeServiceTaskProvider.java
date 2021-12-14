@@ -60,11 +60,11 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     nodeInstance.getDataSyncRegistry().registerHandler(
       DataSyncHandler.<ServiceTask>builder()
         .key("task")
-        .nameExtractor(INameable::getName)
+        .nameExtractor(INameable::name)
         .convertObject(ServiceTask.class)
         .writer(this::addPermanentServiceTaskSilently)
         .dataCollector(this::getPermanentServiceTasks)
-        .currentGetter(task -> this.getServiceTask(task.getName()))
+        .currentGetter(task -> this.getServiceTask(task.name()))
         .build());
 
     if (Files.exists(TASKS_DIRECTORY)) {
@@ -153,13 +153,13 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
   public void addPermanentServiceTaskSilently(@NotNull ServiceTask serviceTask) {
     // cache locally
-    this.serviceTasks.put(serviceTask.getName(), serviceTask);
+    this.serviceTasks.put(serviceTask.name(), serviceTask);
     this.writeServiceTask(serviceTask);
   }
 
   public void removePermanentServiceTaskSilently(@NotNull ServiceTask serviceTask) {
     // remove from cache
-    this.serviceTasks.remove(serviceTask.getName());
+    this.serviceTasks.remove(serviceTask.name());
     // remove the local file if it exists
     FileUtils.delete(this.getTaskFile(serviceTask));
   }
@@ -167,13 +167,13 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   public void setPermanentServiceTasksSilently(@NotNull Collection<ServiceTask> serviceTasks) {
     // update the cache
     this.serviceTasks.clear();
-    serviceTasks.forEach(task -> this.serviceTasks.put(task.getName(), task));
+    serviceTasks.forEach(task -> this.serviceTasks.put(task.name(), task));
     // store all tasks
     this.writeAllServiceTasks();
   }
 
   protected @NotNull Path getTaskFile(@NotNull ServiceTask task) {
-    return TASKS_DIRECTORY.resolve(task.getName() + ".json");
+    return TASKS_DIRECTORY.resolve(task.name() + ".json");
   }
 
   protected void writeServiceTask(@NotNull ServiceTask serviceTask) {
@@ -201,7 +201,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
       var task = JsonDocument.newDocument(file).toInstanceOf(ServiceTask.class);
       // check if the file name is still up-to-date
       var taskName = file.getFileName().toString().replace(".json", "");
-      if (!taskName.equals(task.getName())) {
+      if (!taskName.equals(task.name())) {
         // rename the file
         FileUtils.move(file, this.getTaskFile(task), StandardCopyOption.REPLACE_EXISTING);
       }

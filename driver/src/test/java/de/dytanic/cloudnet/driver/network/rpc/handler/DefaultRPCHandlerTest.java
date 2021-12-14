@@ -185,7 +185,7 @@ public class DefaultRPCHandlerTest {
       // the integers submitted summed up
       result += integers.stream().mapToInt(Integer::intValue).sum();
       // the thread ids summed up
-      return result + snapshot.getThreads().stream().mapToLong(ThreadSnapshot::getId).sum();
+      return result + snapshot.getThreads().stream().mapToLong(ThreadSnapshot::id).sum();
     }
 
     public Map<Long, Map<String, String>> handleProcessSnapshot(ProcessSnapshot s, List<Integer> i, int primaryId) {

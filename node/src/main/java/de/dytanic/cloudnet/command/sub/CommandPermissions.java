@@ -90,7 +90,7 @@ public final class CommandPermissions {
 
   @Suggestions("permissionGroup")
   public List<String> suggestPermissionGroup(CommandContext<CommandSource> $, String input) {
-    return this.permissionManagement().getGroups().stream().map(INameable::getName).collect(Collectors.toList());
+    return this.permissionManagement().getGroups().stream().map(INameable::name).collect(Collectors.toList());
   }
 
   @Parser(name = "timeUnit")
@@ -176,7 +176,7 @@ public final class CommandPermissions {
   @CommandMethod("permissions|perms delete user <name>")
   public void deleteUser(CommandSource source, @Argument("name") PermissionUser user) {
     if (this.permissionManagement().deletePermissionUser(user)) {
-      source.sendMessage(I18n.trans("command-permissions-delete-user-successful").replace("%name%", user.getName()));
+      source.sendMessage(I18n.trans("command-permissions-delete-user-successful").replace("%name%", user.name()));
     } else {
       source.sendMessage(I18n.trans("command-permissions-user-not-found"));
     }
@@ -185,7 +185,7 @@ public final class CommandPermissions {
   @CommandMethod("permissions|perms delete group <name>")
   public void deleteGroup(CommandSource source, @Argument("name") PermissionGroup group) {
     if (this.permissionManagement().deletePermissionGroup(group)) {
-      source.sendMessage(I18n.trans("command-permissions-delete-group-successful").replace("%name%", group.getName()));
+      source.sendMessage(I18n.trans("command-permissions-delete-group-successful").replace("%name%", group.name()));
     } else {
       source.sendMessage(I18n.trans("command-permissions-group-not-found"));
     }
@@ -193,7 +193,7 @@ public final class CommandPermissions {
 
   @CommandMethod("permissions|perms user <user>")
   public void displayUserInformation(CommandSource source, @Argument("user") PermissionUser permissionUser) {
-    source.sendMessage(permissionUser.getUniqueId() + ":" + permissionUser.getName());
+    source.sendMessage(permissionUser.getUniqueId() + ":" + permissionUser.name());
     source.sendMessage("Potency: " + permissionUser.getPotency());
     source.sendMessage("Groups:");
 
@@ -208,7 +208,7 @@ public final class CommandPermissions {
     if (permissionUser.getGroups().isEmpty()) {
       var defaultGroup = this.permissionManagement().getDefaultPermissionGroup();
       if (defaultGroup != null) {
-        source.sendMessage(defaultGroup.getName() + ": LIFETIME");
+        source.sendMessage(defaultGroup.name() + ": LIFETIME");
       }
     }
 
@@ -245,7 +245,7 @@ public final class CommandPermissions {
     @Argument(value = "duration", parserName = "timeUnit") Long time
   ) {
     this.updateUser(permissionUser,
-      user -> user.addGroup(permissionGroup.getName(), time == null ? 0 : time), source);
+      user -> user.addGroup(permissionGroup.name(), time == null ? 0 : time), source);
   }
 
   @CommandMethod("permissions|perms user <user> add permission <permission> [potency] [targetGroup] [duration]")
@@ -276,7 +276,7 @@ public final class CommandPermissions {
     @Argument("user") PermissionUser permissionUser,
     @Argument("group") PermissionGroup permissionGroup
   ) {
-    this.updateUser(permissionUser, user -> user.removeGroup(permissionGroup.getName()), source);
+    this.updateUser(permissionUser, user -> user.removeGroup(permissionGroup.name()), source);
   }
 
   @CommandMethod("permissions|perms group")
@@ -333,7 +333,7 @@ public final class CommandPermissions {
     @Argument("group") PermissionGroup permissionGroup,
     @Argument("name") PermissionGroup targetGroup
   ) {
-    this.updateGroup(permissionGroup, group -> permissionGroup.getGroups().add(targetGroup.getName()));
+    this.updateGroup(permissionGroup, group -> permissionGroup.getGroups().add(targetGroup.name()));
   }
 
   @CommandMethod("permissions|perms group <group> add permission <permission> [potency] [targetGroup] [duration]")
@@ -364,11 +364,11 @@ public final class CommandPermissions {
     @Argument("group") PermissionGroup permissionGroup,
     @Argument("name") PermissionGroup targetGroup
   ) {
-    this.updateGroup(permissionGroup, group -> permissionGroup.getGroups().remove(targetGroup.getName()));
+    this.updateGroup(permissionGroup, group -> permissionGroup.getGroups().remove(targetGroup.name()));
   }
 
   private void displayGroup(CommandSource source, PermissionGroup permissionGroup) {
-    source.sendMessage("- " + permissionGroup.getName() + " | Potency: " + permissionGroup.getPotency());
+    source.sendMessage("- " + permissionGroup.name() + " | Potency: " + permissionGroup.getPotency());
     source.sendMessage("- Inherits: " + Arrays.toString(permissionGroup.getGroups().toArray()));
     source.sendMessage("- Default:" + permissionGroup.isDefaultGroup());
     source.sendMessage("- SortId: " + permissionGroup.getSortId());
@@ -419,7 +419,7 @@ public final class CommandPermissions {
     }
 
     if (targetGroup != null) {
-      permissible.addPermission(targetGroup.getName(), permission);
+      permissible.addPermission(targetGroup.name(), permission);
     } else {
       permissible.addPermission(permission);
     }
@@ -429,7 +429,7 @@ public final class CommandPermissions {
 
   private void removePermission(IPermissible permissible, String permission, GroupConfiguration targetGroup) {
     if (targetGroup != null) {
-      permissible.removePermission(permission, targetGroup.getName());
+      permissible.removePermission(permission, targetGroup.name());
     } else {
       permissible.removePermission(permission);
     }
@@ -458,7 +458,7 @@ public final class CommandPermissions {
     permissionUserConsumer.accept(permissionUser);
     this.permissionManagement().updateUser(permissionUser);
     source.sendMessage(
-      I18n.trans("command-permissions-user-update").replace("%name%", permissionUser.getName()));
+      I18n.trans("command-permissions-user-update").replace("%name%", permissionUser.name()));
   }
 
   private IPermissionManagement permissionManagement() {

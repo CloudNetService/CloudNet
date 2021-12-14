@@ -111,7 +111,7 @@ public class NodePlayerManager implements IPlayerManager {
       .alwaysForce()
       .key("cloud_player")
       .convertObject(CloudPlayer.class)
-      .nameExtractor(CloudPlayer::getName)
+      .nameExtractor(CloudPlayer::name)
       .dataCollector(this.onlinePlayers::values)
       .currentGetter(player -> this.onlinePlayers.get(player.getUniqueId()))
       .writer(player -> this.onlinePlayers.put(player.getUniqueId(), player))
@@ -136,7 +136,7 @@ public class NodePlayerManager implements IPlayerManager {
   @Override
   public @Nullable CloudPlayer getFirstOnlinePlayer(@NotNull String name) {
     for (var player : this.onlinePlayers.values()) {
-      if (player.getName().equalsIgnoreCase(name)) {
+      if (player.name().equalsIgnoreCase(name)) {
         return player;
       }
     }
@@ -146,7 +146,7 @@ public class NodePlayerManager implements IPlayerManager {
   @Override
   public @NotNull List<? extends CloudPlayer> getOnlinePlayers(@NotNull String name) {
     return this.onlinePlayers.values().stream()
-      .filter(cloudPlayer -> cloudPlayer.getName().equalsIgnoreCase(name))
+      .filter(cloudPlayer -> cloudPlayer.name().equalsIgnoreCase(name))
       .collect(Collectors.toList());
   }
 
@@ -192,7 +192,7 @@ public class NodePlayerManager implements IPlayerManager {
     return this.offlinePlayerCache.asMap().values().stream()
       .filter(Optional::isPresent)
       .map(Optional::get)
-      .filter(player -> player.getName().equalsIgnoreCase(name))
+      .filter(player -> player.name().equalsIgnoreCase(name))
       .findFirst()
       .orElseGet(() -> IPlayerManager.super.getFirstOfflinePlayer(name));
   }
@@ -340,7 +340,7 @@ public class NodePlayerManager implements IPlayerManager {
     if (cloudPlayer == null) {
       // try to load the player using the name and the login service
       for (var player : this.getOnlinePlayers().values()) {
-        if (player.getName().equals(connectionInfo.name())
+        if (player.name().equals(connectionInfo.name())
           && player.getLoginService() != null
           && player.getLoginService().getUniqueId().equals(connectionInfo.networkService().getUniqueId())) {
           cloudPlayer = player;

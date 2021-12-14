@@ -48,7 +48,7 @@ public final class VelocityHubCommand implements SimpleCommand {
       } else {
         // try to get a fallback for the player
         var hub = this.management.getFallback(player)
-          .flatMap(service -> this.proxyServer.getServer(service.getName()))
+          .flatMap(service -> this.proxyServer.getServer(service.name()))
           .orElse(null);
         // check if a fallback was found
         if (hub != null) {

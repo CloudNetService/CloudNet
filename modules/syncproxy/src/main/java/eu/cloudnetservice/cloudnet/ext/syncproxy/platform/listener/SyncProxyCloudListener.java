@@ -69,7 +69,7 @@ public final class SyncProxyCloudListener<P> {
 
   private void notifyPlayers(@NotNull String key, @NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
     // only message the players if we are supposed to
-    if (!this.management.getConfiguration().showIngameServicesStartStopMessages()) {
+    if (!this.management.getConfiguration().ingameServiceStartStopMessages()) {
       return;
     }
     for (var onlinePlayer : this.management.getOnlinePlayers()) {

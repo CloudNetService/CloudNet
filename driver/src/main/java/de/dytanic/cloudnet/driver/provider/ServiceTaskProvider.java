@@ -168,7 +168,7 @@ public interface ServiceTaskProvider {
    */
   @NotNull
   default ITask<Void> removePermanentServiceTaskAsync(@NotNull ServiceTask serviceTask) {
-    return this.removePermanentServiceTaskByNameAsync(serviceTask.getName());
+    return this.removePermanentServiceTaskByNameAsync(serviceTask.name());
   }
 
 }

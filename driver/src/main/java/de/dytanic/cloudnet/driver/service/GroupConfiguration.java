@@ -72,7 +72,7 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
   }
 
   @Override
-  public @NotNull String getName() {
+  public @NotNull String name() {
     return this.name;
   }
 

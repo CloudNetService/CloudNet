@@ -33,7 +33,7 @@ public class GlobalChannelMessageListener {
 
   @EventListener
   public void handleChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
-    if (event.getChannel().equals(AbstractSignManagement.SIGN_CHANNEL_NAME) && event.getMessage() != null) {
+    if (event.getChannel().equals(AbstractSignManagement.SIGN_CHANNEL_NAME)) {
       switch (event.getMessage()) {
         case AbstractSignManagement.SIGN_CREATED -> this.signManagement.handleInternalSignCreate(
             event.getContent().readObject(Sign.class));

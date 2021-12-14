@@ -97,7 +97,7 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
 
   public static @NotNull ServiceTask.Builder builder(@NotNull ServiceTask serviceTask) {
     return builder()
-      .name(serviceTask.getName())
+      .name(serviceTask.name())
       .javaCommand(serviceTask.getJavaCommand())
       .runtime(serviceTask.getRuntime())
       .nameSplitter(serviceTask.getNameSplitter())
@@ -125,7 +125,7 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
   }
 
   @Override
-  public @NotNull String getName() {
+  public @NotNull String name() {
     return this.name;
   }
 

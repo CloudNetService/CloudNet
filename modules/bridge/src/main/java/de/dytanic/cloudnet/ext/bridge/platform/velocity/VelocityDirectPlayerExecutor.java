@@ -66,7 +66,7 @@ final class VelocityDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
   public void connectSelecting(@NotNull ServerSelectorType selectorType) {
     this.management.getCachedServices().stream()
       .sorted(selectorType.getComparator())
-      .map(server -> this.proxyServer.getServer(server.getName()))
+      .map(server -> this.proxyServer.getServer(server.name()))
       .filter(Optional::isPresent)
       .map(Optional::get)
       .findFirst()
@@ -79,7 +79,7 @@ final class VelocityDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
     this.playerSupplier.get().stream()
       .map(player -> new Pair<>(player, this.management.getFallback(player)))
       .filter(pair -> pair.getSecond().isPresent())
-      .map(pair -> new Pair<>(pair.getFirst(), this.proxyServer.getServer(pair.getSecond().get().getName())))
+      .map(pair -> new Pair<>(pair.getFirst(), this.proxyServer.getServer(pair.getSecond().get().name())))
       .filter(pair -> pair.getSecond().isPresent())
       .forEach(pair -> pair.getFirst().createConnectionRequest(pair.getSecond().get()).fireAndForget());
   }
@@ -89,7 +89,7 @@ final class VelocityDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
     this.management.getCachedServices().stream()
       .filter(service -> service.getConfiguration().getGroups().contains(group))
       .sorted(selectorType.getComparator())
-      .map(service -> this.proxyServer.getServer(service.getName()))
+      .map(service -> this.proxyServer.getServer(service.name()))
       .filter(Optional::isPresent)
       .map(Optional::get)
       .forEach(
@@ -101,7 +101,7 @@ final class VelocityDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
     this.management.getCachedServices().stream()
       .filter(service -> service.getServiceId().getTaskName().equals(task))
       .sorted(selectorType.getComparator())
-      .map(service -> this.proxyServer.getServer(service.getName()))
+      .map(service -> this.proxyServer.getServer(service.name()))
       .filter(Optional::isPresent)
       .map(Optional::get)
       .forEach(

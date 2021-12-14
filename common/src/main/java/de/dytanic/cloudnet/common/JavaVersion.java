@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 
-public enum JavaVersion implements INameable {
+public enum JavaVersion {
 
   UNKNOWN(-1, -1D, "Unknown Java"),
   JAVA_8(8, 52D, "Java 8"),
@@ -69,8 +69,7 @@ public enum JavaVersion implements INameable {
     return this.versionId;
   }
 
-  @Override
-  public @NotNull String getName() {
+  public @NotNull String displayName() {
     return this.name;
   }
 

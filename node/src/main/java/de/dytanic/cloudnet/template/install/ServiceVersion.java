@@ -85,7 +85,7 @@ public class ServiceVersion implements INameable {
       .orElseGet(() -> maxJavaVersion.map(javaVersion::isSupportedByMax).orElse(true));
   }
 
-  public @NotNull String getName() {
+  public @NotNull String name() {
     return this.name;
   }
 

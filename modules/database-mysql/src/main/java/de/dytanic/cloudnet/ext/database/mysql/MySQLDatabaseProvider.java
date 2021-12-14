@@ -120,7 +120,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public @NotNull String getName() {
+  public @NotNull String name() {
     return this.config.getString("database");
   }
 

@@ -60,18 +60,18 @@ public final class CommandTemplate {
     .defaultFormatter(ColumnFormatter.builder().columnTitles("Storage", "Prefix", "Name").build())
     .column(ServiceTemplate::getStorage)
     .column(ServiceTemplate::getPrefix)
-    .column(ServiceTemplate::getName)
+    .column(ServiceTemplate::name)
     .build();
   private static final RowBasedFormatter<Pair<ServiceVersionType, ServiceVersion>> VERSIONS =
     RowBasedFormatter.<Pair<ServiceVersionType, ServiceVersion>>builder()
       .defaultFormatter(ColumnFormatter.builder()
         .columnTitles("Target", "Name", "Deprecated", "Min Java", "Max Java")
         .build())
-      .column(pair -> pair.getFirst().getName())
-      .column(pair -> pair.getSecond().getName())
+      .column(pair -> pair.getFirst().name())
+      .column(pair -> pair.getSecond().name())
       .column(pair -> pair.getSecond().isDeprecated())
-      .column(pair -> pair.getSecond().getMinJavaVersion().orElse(JavaVersion.JAVA_8).getName())
-      .column(pair -> pair.getSecond().getMaxJavaVersion().map(JavaVersion::getName).orElse("No maximum"))
+      .column(pair -> pair.getSecond().getMinJavaVersion().orElse(JavaVersion.JAVA_8).name())
+      .column(pair -> pair.getSecond().getMaxJavaVersion().map(JavaVersion::name).orElse("No maximum"))
       .build();
 
   @Parser(suggestions = "serviceTemplate")
@@ -111,7 +111,7 @@ public final class CommandTemplate {
   public List<String> suggestTemplateStorage(CommandContext<CommandSource> $, String input) {
     return CloudNet.getInstance().getAvailableTemplateStorages()
       .stream()
-      .map(INameable::getName)
+      .map(INameable::name)
       .collect(Collectors.toList());
   }
 
@@ -143,7 +143,7 @@ public final class CommandTemplate {
     return type.getVersions()
       .stream()
       .filter(ServiceVersion::canRun)
-      .map(INameable::getName)
+      .map(INameable::name)
       .collect(Collectors.toList());
   }
 
@@ -170,15 +170,15 @@ public final class CommandTemplate {
         .getServiceVersionTypes()
         .values().stream()
         .flatMap(type -> type.getVersions().stream()
-          .sorted(Comparator.comparing(ServiceVersion::getName))
+          .sorted(Comparator.comparing(ServiceVersion::name))
           .map(version -> new Pair<>(type, version)))
         .collect(Collectors.toList());
     } else {
       versions = CloudNet.getInstance().getServiceVersionProvider().getServiceVersionTypes()
-        .get(versionType.getName().toLowerCase())
+        .get(versionType.name().toLowerCase())
         .getVersions()
         .stream()
-        .sorted(Comparator.comparing(ServiceVersion::getName))
+        .sorted(Comparator.comparing(ServiceVersion::name))
         .map(version -> new Pair<>(versionType, version))
         .collect(Collectors.toList());
     }
@@ -205,8 +205,8 @@ public final class CommandTemplate {
 
     if (!versionType.canInstall(serviceVersion, javaVersion)) {
       source.sendMessage(I18n.trans("command-template-install-wrong-java")
-        .replace("%version%", versionType.getName() + "-" + serviceVersion.getName())
-        .replace("%java%", javaVersion.getName()));
+        .replace("%version%", versionType.name() + "-" + serviceVersion.name())
+        .replace("%java%", javaVersion.name()));
       if (!forceInstall) {
         return;
       }
@@ -214,7 +214,7 @@ public final class CommandTemplate {
 
     CloudNet.getInstance().getMainThread().runTask(() -> {
       source.sendMessage(I18n.trans("command-template-install-try")
-        .replace("%version%", versionType.getName() + "-" + serviceVersion.getName())
+        .replace("%version%", versionType.name() + "-" + serviceVersion.name())
         .replace("%template%", serviceTemplate.toString()));
 
       var installInformation = InstallInformation.builder()
@@ -227,12 +227,12 @@ public final class CommandTemplate {
 
       if (CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(installInformation, forceInstall)) {
         source.sendMessage(I18n.trans("command-template-install-success")
-          .replace("%version%", versionType.getName() + "-" + serviceVersion.getName())
+          .replace("%version%", versionType.name() + "-" + serviceVersion.name())
           .replace("%template%", serviceTemplate.toString())
         );
       } else {
         source.sendMessage(I18n.trans("command-template-install-failed")
-          .replace("%version%", versionType.getName() + "-" + serviceVersion.getName())
+          .replace("%version%", versionType.name() + "-" + serviceVersion.name())
           .replace("%template%", serviceTemplate.toString())
         );
       }

@@ -50,11 +50,11 @@ public final class PlatformInformationListener {
 
   @EventListener
   public void handleServiceTaskAdd(@NotNull ServiceTaskAddEvent event) {
-    this.management.handleTaskUpdate(event.getTask().getName(), event.getTask());
+    this.management.handleTaskUpdate(event.getTask().name(), event.getTask());
   }
 
   @EventListener
   public void handleServiceTaskRemove(@NotNull ServiceTaskRemoveEvent event) {
-    this.management.handleTaskUpdate(event.getTask().getName(), null);
+    this.management.handleTaskUpdate(event.getTask().name(), null);
   }
 }

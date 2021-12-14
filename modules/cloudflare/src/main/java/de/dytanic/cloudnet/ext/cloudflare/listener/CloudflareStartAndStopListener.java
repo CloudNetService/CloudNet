@@ -56,7 +56,7 @@ public final class CloudflareStartAndStopListener {
       if (recordDetail != null) {
         LOGGER
           .info(I18n.trans("module-cloudflare-create-dns-record-for-service")
-            .replace("%service%", event.getService().getServiceId().getName())
+            .replace("%service%", event.getService().getServiceId().name())
             .replace("%domain%", entry.getDomainName())
             .replace("%recordId%", recordDetail.getId())
           );
@@ -71,7 +71,7 @@ public final class CloudflareStartAndStopListener {
         for (var detail : this.cloudFlareAPI.deleteAllRecords(event.getService())) {
           LOGGER
             .info(I18n.trans("module-cloudflare-delete-dns-record-for-service")
-              .replace("%service%", event.getService().getServiceId().getName())
+              .replace("%service%", event.getService().getServiceId().name())
               .replace("%domain%", entry.getDomainName())
               .replace("%recordId%", detail.getId())
             );

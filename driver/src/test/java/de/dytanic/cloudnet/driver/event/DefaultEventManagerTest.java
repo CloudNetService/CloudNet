@@ -78,7 +78,7 @@ public class DefaultEventManagerTest {
     eventManager.registerListener(new TestListener());
 
     var channelMessage = Mockito.mock(ChannelMessage.class);
-    Mockito.when(channelMessage.getChannel()).thenReturn("passed");
+    Mockito.when(channelMessage.channel()).thenReturn("passed");
 
     var event = new ChannelMessageReceiveEvent(
       channelMessage,
@@ -88,10 +88,10 @@ public class DefaultEventManagerTest {
     Assertions.assertSame(event, eventManager.callEvent(event));
 
     Assertions.assertNotNull(event.getQueryResponse());
-    Assertions.assertEquals("abc", event.getQueryResponse().getChannel());
+    Assertions.assertEquals("abc", event.getQueryResponse().channel());
 
-    Assertions.assertNotNull(event.getQueryResponse().getContent());
-    Assertions.assertEquals("passed", event.getQueryResponse().getContent().readString());
+    Assertions.assertNotNull(event.getQueryResponse().content());
+    Assertions.assertEquals("passed", event.getQueryResponse().content().readString());
   }
 
   @Test

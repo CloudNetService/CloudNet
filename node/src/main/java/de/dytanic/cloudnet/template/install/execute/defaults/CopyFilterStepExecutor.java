@@ -48,7 +48,7 @@ public class CopyFilterStepExecutor implements InstallStepExecutor {
     if (copy == null) {
       throw new IllegalStateException(String.format(
         "Missing copy property on service version %s!",
-        installInformation.getServiceVersion().getName()));
+        installInformation.getServiceVersion().name()));
     }
 
     List<Map.Entry<Pattern, String>> patterns = copy.entrySet().stream()

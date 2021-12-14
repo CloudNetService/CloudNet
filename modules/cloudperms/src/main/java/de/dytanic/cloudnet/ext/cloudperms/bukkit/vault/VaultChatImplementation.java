@@ -37,7 +37,7 @@ public class VaultChatImplementation extends Chat {
       .findFirst();
 
     return optionalPermissionUser
-      .map(permissionUser -> this.permissionManagement.getHighestPermissionGroup(permissionUser).getName());
+      .map(permissionUser -> this.permissionManagement.getHighestPermissionGroup(permissionUser).name());
   }
 
   private Optional<PermissionUser> permissionUserByName(String name) {

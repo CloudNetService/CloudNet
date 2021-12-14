@@ -25,37 +25,17 @@ import de.dytanic.cloudnet.driver.provider.CloudMessenger;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import java.util.ArrayList;
 import java.util.Collection;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@ToString
-@EqualsAndHashCode
-public class ChannelMessage {
-
-  private final String channel;
-  private final String message;
-
-  private final DataBuf content;
-  private final ChannelMessageSender sender;
-
-  private final Collection<ChannelMessageTarget> targets;
-
-  protected ChannelMessage(
-    @NotNull String channel,
-    @Nullable String message,
-    @NotNull DataBuf content,
-    @NotNull ChannelMessageSender sender,
-    @NotNull Collection<ChannelMessageTarget> targets
-  ) {
-    this.channel = channel;
-    this.message = message;
-    this.content = content;
-    this.sender = sender;
-    this.targets = targets;
-  }
+public record ChannelMessage(
+  @NotNull String channel,
+  @NotNull String message,
+  @NotNull DataBuf content,
+  @NotNull ChannelMessageSender sender,
+  @NotNull Collection<ChannelMessageTarget> targets
+) {
 
   @Contract(" -> new")
   public static @NotNull Builder builder() {
@@ -67,47 +47,27 @@ public class ChannelMessage {
     return builder().channel("").target(input.sender.getType(), input.sender.getName());
   }
 
-  public @NotNull ChannelMessageSender getSender() {
-    return this.sender;
-  }
-
-  public @NotNull String getChannel() {
-    return this.channel;
-  }
-
-  public @Nullable String getMessage() {
-    return this.message;
-  }
-
-  public @NotNull DataBuf getContent() {
-    return this.content;
-  }
-
-  public @NotNull Collection<ChannelMessageTarget> getTargets() {
-    return this.targets;
-  }
-
   public void send() {
-    this.getMessenger().sendChannelMessage(this);
+    this.messenger().sendChannelMessage(this);
   }
 
   public @NotNull ITask<Collection<ChannelMessage>> sendQueryAsync() {
-    return this.getMessenger().sendChannelMessageQueryAsync(this);
+    return this.messenger().sendChannelMessageQueryAsync(this);
   }
 
   public @NotNull ITask<ChannelMessage> sendSingleQueryAsync() {
-    return this.getMessenger().sendSingleChannelMessageQueryAsync(this);
+    return this.messenger().sendSingleChannelMessageQueryAsync(this);
   }
 
   public @NotNull Collection<ChannelMessage> sendQuery() {
-    return this.getMessenger().sendChannelMessageQuery(this);
+    return this.messenger().sendChannelMessageQuery(this);
   }
 
   public @Nullable ChannelMessage sendSingleQuery() {
-    return this.getMessenger().sendSingleChannelMessageQuery(this);
+    return this.messenger().sendSingleChannelMessageQuery(this);
   }
 
-  private @NotNull CloudMessenger getMessenger() {
+  private @NotNull CloudMessenger messenger() {
     return CloudNetDriver.getInstance().getMessenger();
   }
 
@@ -131,7 +91,7 @@ public class ChannelMessage {
       return this;
     }
 
-    public @NotNull Builder message(@Nullable String message) {
+    public @NotNull Builder message(@NotNull String message) {
       this.message = message;
       return this;
     }
@@ -191,6 +151,7 @@ public class ChannelMessage {
     @Contract(" -> new")
     public @NotNull ChannelMessage build() {
       Verify.verifyNotNull(this.channel, "No channel provided");
+      Verify.verifyNotNull(this.message, "No message provided");
       Verify.verify(!this.targets.isEmpty(), "No targets provided");
 
       return new ChannelMessage(

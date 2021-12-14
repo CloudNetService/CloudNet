@@ -239,8 +239,8 @@ public class JVMService extends AbstractService {
   ) {
     // collect all names of environment names
     var environments = this.nodeInstance.getServiceVersionProvider().getServiceVersionTypes().values().stream()
-      .filter(environment -> environment.getEnvironmentType().equals(environmentType.getName()))
-      .map(ServiceEnvironment::getName)
+      .filter(environment -> environment.getEnvironmentType().equals(environmentType.name()))
+      .map(ServiceEnvironment::name)
       .collect(Collectors.collectingAndThen(Collectors.toSet(), result -> {
         // add a default fallback value which applied to all environments
         result.add("application");

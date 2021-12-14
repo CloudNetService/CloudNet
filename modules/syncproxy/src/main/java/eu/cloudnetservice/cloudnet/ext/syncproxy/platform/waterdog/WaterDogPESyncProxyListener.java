@@ -51,16 +51,16 @@ public final class WaterDogPESyncProxyListener {
 
       event.setPlayerCount(onlinePlayers);
 
-      if (motd.isAutoSlot()) {
-        maxPlayers = Math.min(loginConfiguration.getMaxPlayers(), onlinePlayers + motd.getAutoSlotMaxPlayersDistance());
+      if (motd.autoSlot()) {
+        maxPlayers = Math.min(loginConfiguration.maxPlayers(), onlinePlayers + motd.autoSlotMaxPlayersDistance());
       } else {
-        maxPlayers = loginConfiguration.getMaxPlayers();
+        maxPlayers = loginConfiguration.maxPlayers();
       }
       event.setMaximumPlayerCount(maxPlayers);
 
       // bedrock has just to lines that are separated  from each other
-      var mainMotd = motd.format(motd.getFirstLine(), onlinePlayers, maxPlayers);
-      var subMotd = motd.format(motd.getSecondLine(), onlinePlayers, maxPlayers);
+      var mainMotd = motd.format(motd.firstLine(), onlinePlayers, maxPlayers);
+      var subMotd = motd.format(motd.secondLine(), onlinePlayers, maxPlayers);
 
       event.setMotd(mainMotd);
       event.setSubMotd(subMotd);
@@ -74,21 +74,21 @@ public final class WaterDogPESyncProxyListener {
     }
 
     var proxiedPlayer = event.getPlayer();
-    if (loginConfiguration.isMaintenance()) {
+    if (loginConfiguration.maintenance()) {
       // the player is either whitelisted or has the permission to join during maintenance, ignore him
       if (this.syncProxyManagement.checkPlayerMaintenance(proxiedPlayer)) {
         return;
       }
       event.setCancelReason(
-        this.syncProxyManagement.getConfiguration().getMessage("player-login-not-whitelisted", null));
+        this.syncProxyManagement.getConfiguration().message("player-login-not-whitelisted", null));
       event.setCancelled(true);
 
       return;
     }
     // check if the proxy is full and if the player is allowed to join or not
-    if (this.syncProxyManagement.getOnlinePlayerCount() >= loginConfiguration.getMaxPlayers()
+    if (this.syncProxyManagement.getOnlinePlayerCount() >= loginConfiguration.maxPlayers()
       && !proxiedPlayer.hasPermission("cloudnet.syncproxy.fulljoin")) {
-      event.setCancelReason(this.syncProxyManagement.getConfiguration().getMessage("player-login-full-server", null));
+      event.setCancelReason(this.syncProxyManagement.getConfiguration().message("player-login-full-server", null));
       event.setCancelled(true);
     }
   }

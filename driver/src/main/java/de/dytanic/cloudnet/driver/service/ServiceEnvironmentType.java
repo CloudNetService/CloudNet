@@ -106,7 +106,7 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements INa
 
   public static @NotNull Builder builder(@NotNull ServiceEnvironmentType type) {
     return builder()
-      .name(type.getName())
+      .name(type.name())
       .properties(type.getProperties().clone())
       .defaultServiceStartPort(type.getDefaultServiceStartPort())
       .defaultProcessArguments(type.getDefaultProcessArguments());
@@ -121,7 +121,7 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements INa
   }
 
   @Override
-  public @NotNull String getName() {
+  public @NotNull String name() {
     return this.name;
   }
 

@@ -55,7 +55,7 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
     var groups = this.loadGroups();
     if (!groups.isEmpty()) {
       for (var group : groups) {
-        this.permissionGroupCache.put(group.getName(), group);
+        this.permissionGroupCache.put(group.name(), group);
       }
     }
 
@@ -78,7 +78,7 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
       this.permissionGroupCache.invalidateAll();
 
       for (var group : permissionGroups) {
-        this.permissionGroupCache.put(group.getName(), group);
+        this.permissionGroupCache.put(group.name(), group);
       }
     }
 
@@ -157,7 +157,7 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
   @Override
   public boolean containsOneUser(@NotNull String name) {
     for (var permissionUser : this.permissionUserCache.asMap().values()) {
-      if (permissionUser.getName().equals(name)) {
+      if (permissionUser.name().equals(name)) {
         return true;
       }
     }
@@ -249,7 +249,7 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
   @Override
   public PermissionUser getFirstUser(String name) {
     for (var permissionUser : this.permissionUserCache.asMap().values()) {
-      if (permissionUser.getName().equals(name)) {
+      if (permissionUser.name().equals(name)) {
         return permissionUser;
       }
     }

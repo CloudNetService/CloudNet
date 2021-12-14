@@ -59,7 +59,7 @@ public final class NodePlayerChannelMessageListener {
 
   @EventListener
   public void handle(@NotNull ChannelMessageReceiveEvent event) {
-    if (event.getChannel().equals(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME) && event.getMessage() != null) {
+    if (event.getChannel().equals(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)) {
       // a message regarding a player event
       switch (event.getMessage()) {
         // player login on a local proxy instance

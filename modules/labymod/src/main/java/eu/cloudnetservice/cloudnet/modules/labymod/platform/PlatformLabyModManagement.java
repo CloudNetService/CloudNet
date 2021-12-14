@@ -143,7 +143,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
 
     if (server != null) {
       // retrieve the service the player is connected to
-      this.bridgeManagement.getCachedService(snapshot -> snapshot.getName().equals(server)).ifPresent(service -> {
+      this.bridgeManagement.getCachedService(snapshot -> snapshot.name().equals(server)).ifPresent(service -> {
         // construct the new discord rpc for the login server
         var discordRPC = this.constructRPCInfo(cloudPlayer, service);
         if (discordRPC != null) {
@@ -307,7 +307,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
         this.sendPluginMessage(player, discordRPCData);
       }
 
-      player.getPlayerExecutor().connect(serviceInfoSnapshot.getName());
+      player.getPlayerExecutor().connect(serviceInfoSnapshot.name());
     }
   }
 

@@ -43,12 +43,12 @@ public final class PacketServerChannelMessageListener implements IPacketListener
   public void handle(@NotNull INetworkChannel channel, @NotNull IPacket packet) {
     var message = packet.getContent().readObject(ChannelMessage.class);
     // mark the index of the data buf
-    message.getContent().disableReleasing().startTransaction();
+    message.content().disableReleasing().startTransaction();
     // call the receive event
     var response = this.eventManager.callEvent(
       new ChannelMessageReceiveEvent(message, channel, packet.getUniqueId() != null)).getQueryResponse();
     // reset the index
-    message.getContent().redoTransaction();
+    message.content().redoTransaction();
     // if the response is already present do not redirect the message to the messenger
     if (response != null) {
       channel.sendPacketSync(packet.constructResponse(DataBuf.empty().writeObject(Collections.singleton(response))));
@@ -56,15 +56,15 @@ public final class PacketServerChannelMessageListener implements IPacketListener
       // do not redirect the channel message to the cluster to prevent infinite loops
       if (packet.getUniqueId() != null) {
         var responses = this.messenger
-          .sendChannelMessageQueryAsync(message, message.getSender().getType() == DriverEnvironment.WRAPPER)
+          .sendChannelMessageQueryAsync(message, message.sender().getType() == DriverEnvironment.WRAPPER)
           .get(20, TimeUnit.SECONDS, Collections.emptyList());
         // respond with the available responses
         channel.sendPacket(packet.constructResponse(DataBuf.empty().writeObject(responses)));
       } else {
-        this.messenger.sendChannelMessage(message, message.getSender().getType() == DriverEnvironment.WRAPPER);
+        this.messenger.sendChannelMessage(message, message.sender().getType() == DriverEnvironment.WRAPPER);
       }
     }
     // force release the message
-    message.getContent().enableReleasing().release();
+    message.content().enableReleasing().release();
   }
 }

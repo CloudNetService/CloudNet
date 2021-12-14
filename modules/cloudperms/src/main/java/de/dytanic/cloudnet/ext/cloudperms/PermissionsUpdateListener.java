@@ -70,7 +70,7 @@ public final class PermissionsUpdateListener<P> {
         var playerUniqueId = this.uniqueIdLookup.apply(player);
         // get the associated user
         var user = CloudNetDriver.getInstance().getPermissionManagement().getUser(playerUniqueId);
-        if (user != null && user.inGroup(event.getPermissionGroup().getName())) {
+        if (user != null && user.inGroup(event.getPermissionGroup().name())) {
           // update the command tree of the player
           this.commandTreeUpdater.accept(player);
         }

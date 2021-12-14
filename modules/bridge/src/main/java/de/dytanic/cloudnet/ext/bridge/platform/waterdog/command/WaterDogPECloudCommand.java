@@ -53,12 +53,12 @@ public final class WaterDogPECloudCommand extends Command {
       // get the command info
       var command = CloudNetDriver.getInstance().getNodeInfoProvider().getConsoleCommand(commandLine);
       // check if the sender has the required permission to execute the command
-      if (command != null && command.getPermission() != null) {
+      if (command != null) {
         if (!sender.hasPermission(command.getPermission())) {
           sender.sendMessage(new TextContainer(this.management.getConfiguration().getMessage(
             Locale.ENGLISH,
             "command-cloud-sub-command-no-permission"
-          ).replace("%command%", command.getName())));
+          ).replace("%command%", command.name())));
           return true;
         }
       }

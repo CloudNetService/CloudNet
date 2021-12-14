@@ -73,7 +73,7 @@ public class NodeSignsListener {
 
   @EventListener
   public void handleChannelMessage(ChannelMessageReceiveEvent event) {
-    if (event.getChannel().equals(AbstractSignManagement.SIGN_CHANNEL_NAME) && event.getMessage() != null) {
+    if (event.getChannel().equals(AbstractSignManagement.SIGN_CHANNEL_NAME)) {
       switch (event.getMessage()) {
         // config request
         case AbstractPlatformSignManagement.REQUEST_CONFIG -> event.setBinaryResponse(

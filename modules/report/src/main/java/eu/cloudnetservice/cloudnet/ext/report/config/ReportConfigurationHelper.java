@@ -32,7 +32,7 @@ public final class ReportConfigurationHelper {
   /**
    * Reads a {@link ReportConfiguration} from the file at the given location. If an old version of the config is
    * detected a conversion is done and the file is rewritten. In the case, that the file is empty, the default {@link
-   * ReportConfiguration#DEFAULT} configuration is written to the file.
+   * ReportConfiguration#builder()} configuration is written to the file.
    *
    * @param location the location of the file to read from.
    * @return the read {@link ReportConfiguration} configuration.
@@ -47,14 +47,12 @@ public final class ReportConfigurationHelper {
       document.write(location.getParent().resolve("config.json.old"));
       // convert config and rewrite the file
       var configuration = convertConfiguration(document);
-      write(configuration, location);
 
-      return configuration;
+      return write(configuration, location);
     }
     // check if we need to create a new configuration
     if (document.isEmpty()) {
-      write(ReportConfiguration.DEFAULT, location);
-      return ReportConfiguration.DEFAULT;
+      return write(ReportConfiguration.builder().build(), location);
     }
     // the document has a configuration
     return document.toInstanceOf(ReportConfiguration.class);
@@ -67,8 +65,9 @@ public final class ReportConfigurationHelper {
    * @param configuration the configuration to write.
    * @param location      the location to save the configuration to.
    */
-  public static void write(@NotNull ReportConfiguration configuration, @NotNull Path location) {
+  public static @NotNull ReportConfiguration write(@NotNull ReportConfiguration configuration, @NotNull Path location) {
     JsonDocument.newDocument(configuration).write(location);
+    return configuration;
   }
 
   /**

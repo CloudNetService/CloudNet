@@ -71,7 +71,7 @@ public class CommandInfo implements INameable {
   }
 
   @Override
-  public @NotNull String getName() {
+  public @NotNull String name() {
     return this.name;
   }
 

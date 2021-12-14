@@ -85,6 +85,6 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
 
   @NotNull
   private String decideApiProjectName(@NotNull ServiceVersionType type) {
-    return type.getName().toLowerCase();
+    return type.name().toLowerCase();
   }
 }

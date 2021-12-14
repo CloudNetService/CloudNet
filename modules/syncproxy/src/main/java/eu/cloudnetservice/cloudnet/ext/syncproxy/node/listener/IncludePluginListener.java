@@ -45,10 +45,10 @@ public final class IncludePluginListener {
     }
 
     var syncProxyConfiguration = this.management.getConfiguration();
-    var groupEntryExists = syncProxyConfiguration.getLoginConfigurations().stream()
+    var groupEntryExists = syncProxyConfiguration.loginConfigurations().stream()
       .anyMatch(loginConfiguration -> service.getServiceConfiguration().getGroups()
-        .contains(loginConfiguration.getTargetGroup()))
-      || syncProxyConfiguration.getTabListConfigurations().stream()
+        .contains(loginConfiguration.targetGroup()))
+      || syncProxyConfiguration.tabListConfigurations().stream()
       .anyMatch(tabListConfiguration -> service.getServiceConfiguration().getGroups()
         .contains(tabListConfiguration.getTargetGroup()));
 

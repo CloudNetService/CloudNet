@@ -54,15 +54,15 @@ public final class BungeeCordSyncProxyListener implements Listener {
       var onlinePlayers = this.syncProxyManagement.getOnlinePlayerCount();
       int maxPlayers;
 
-      if (motd.isAutoSlot()) {
-        maxPlayers = Math.min(loginConfiguration.getMaxPlayers(), onlinePlayers + motd.getAutoSlotMaxPlayersDistance());
+      if (motd.autoSlot()) {
+        maxPlayers = Math.min(loginConfiguration.maxPlayers(), onlinePlayers + motd.autoSlotMaxPlayersDistance());
       } else {
-        maxPlayers = loginConfiguration.getMaxPlayers();
+        maxPlayers = loginConfiguration.maxPlayers();
       }
 
       ServerPing response = event.getResponse();
 
-      var protocolText = motd.format(motd.getProtocolText(), onlinePlayers, maxPlayers);
+      var protocolText = motd.format(motd.protocolText(), onlinePlayers, maxPlayers);
       // check if there is a protocol text in the config
       if (protocolText != null) {
         response.setVersion(new Protocol(protocolText, 1));
@@ -70,12 +70,12 @@ public final class BungeeCordSyncProxyListener implements Listener {
 
       // map the playerInfo from the config to ServerPing.Players to display other information
       var players = new Players(maxPlayers, onlinePlayers,
-        Arrays.stream(motd.getPlayerInfo()).map(s -> new PlayerInfo(s.replace("&", "§"),
+        Arrays.stream(motd.playerInfo()).map(s -> new PlayerInfo(s.replace("&", "§"),
           UUID.randomUUID())).toArray(PlayerInfo[]::new));
 
       response.setPlayers(players);
       response.setDescriptionComponent(new TextComponent(TextComponent.fromLegacyText(
-        motd.format(motd.getFirstLine() + "\n" + motd.getSecondLine(), onlinePlayers, maxPlayers))));
+        motd.format(motd.firstLine() + "\n" + motd.secondLine(), onlinePlayers, maxPlayers))));
 
       event.setResponse(response);
     }
@@ -90,22 +90,22 @@ public final class BungeeCordSyncProxyListener implements Listener {
 
     ProxiedPlayer player = new PendingConnectionProxiedPlayer(event.getConnection());
 
-    if (loginConfiguration.isMaintenance()) {
+    if (loginConfiguration.maintenance()) {
       // the player is either whitelisted or has the permission to join during maintenance, ignore him
       if (this.syncProxyManagement.checkPlayerMaintenance(player)) {
         return;
       }
       event.setCancelReason(TextComponent.fromLegacyText(
-        this.syncProxyManagement.getConfiguration().getMessage("player-login-not-whitelisted", null)));
+        this.syncProxyManagement.getConfiguration().message("player-login-not-whitelisted", null)));
       event.setCancelled(true);
 
       return;
     }
     // check if the proxy is full and if the player is allowed to join or not
-    if (this.syncProxyManagement.getOnlinePlayerCount() >= loginConfiguration.getMaxPlayers()
+    if (this.syncProxyManagement.getOnlinePlayerCount() >= loginConfiguration.maxPlayers()
       && !player.hasPermission("cloudnet.syncproxy.fulljoin")) {
       event.setCancelReason(TextComponent.fromLegacyText(
-        this.syncProxyManagement.getConfiguration().getMessage("player-login-full-server", null)));
+        this.syncProxyManagement.getConfiguration().message("player-login-full-server", null)));
       event.setCancelled(true);
     }
   }

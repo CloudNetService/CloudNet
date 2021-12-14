@@ -109,7 +109,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public @NotNull String getName() {
+  public @NotNull String name() {
     return this.storageConfig.getStorage();
   }
 

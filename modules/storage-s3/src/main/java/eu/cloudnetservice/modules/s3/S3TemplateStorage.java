@@ -94,7 +94,7 @@ public class S3TemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public @NotNull String getName() {
+  public @NotNull String name() {
     return this.getConfig().getName();
   }
 
@@ -448,7 +448,7 @@ public class S3TemplateStorage implements TemplateStorage {
   }
 
   protected @NotNull String getBucketPath(@NotNull ServiceTemplate template) {
-    return String.format("%s/%s", template.getPrefix(), template.getName());
+    return String.format("%s/%s", template.getPrefix(), template.name());
   }
 
   protected @NotNull String getBucketPath(@NotNull ServiceTemplate template, @NotNull String subPath) {

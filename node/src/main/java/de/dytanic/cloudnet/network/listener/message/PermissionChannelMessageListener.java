@@ -48,9 +48,8 @@ public final class PermissionChannelMessageListener {
 
   @EventListener
   public void handleChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
-    if (event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      && event.getMessage() != null
-      && event.getMessage().startsWith("permissions_")) {
+    if (event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL) && event.getMessage()
+        .startsWith("permissions_")) {
       // permission message - handler
       switch (event.getMessage().replaceFirst("permissions_", "")) {
         // user add

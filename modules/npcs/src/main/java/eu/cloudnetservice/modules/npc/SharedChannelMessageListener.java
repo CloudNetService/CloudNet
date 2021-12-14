@@ -33,7 +33,7 @@ public final class SharedChannelMessageListener {
 
   @EventListener
   public void handle(@NotNull ChannelMessageReceiveEvent event) {
-    if (event.getChannel().equals(AbstractNPCManagement.NPC_CHANNEL_NAME) && event.getMessage() != null) {
+    if (event.getChannel().equals(AbstractNPCManagement.NPC_CHANNEL_NAME)) {
       switch (event.getMessage()) {
         // a new npc was created
         case AbstractNPCManagement.NPC_CREATED -> this.npcManagement.handleInternalNPCCreate(

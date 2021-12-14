@@ -70,7 +70,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
   }
 
   public void sendChannelMessage(@NotNull ChannelMessage message, boolean allowClusterRedirect) {
-    for (var channel : this.findChannels(message.getTargets(), allowClusterRedirect)) {
+    for (var channel : this.findChannels(message.targets(), allowClusterRedirect)) {
       channel.sendPacket(new PacketServerChannelMessage(message));
     }
   }
@@ -80,7 +80,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     boolean allowClusterRedirect
   ) {
     // filter the channels we need to send the message to
-    var channels = this.findChannels(message.getTargets(), allowClusterRedirect);
+    var channels = this.findChannels(message.targets(), allowClusterRedirect);
     // the result we generate
     Set<ChannelMessage> result = new HashSet<>();
     var task = new CountingTask<Collection<ChannelMessage>>(result, channels.size());
@@ -223,7 +223,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     return snapshots.stream()
       .map(service -> {
         // check if the service is running locally
-        var localService = this.cloudServiceManager.getLocalCloudService(service.getServiceId().getName());
+        var localService = this.cloudServiceManager.getLocalCloudService(service.getServiceId().name());
         if (localService != null) {
           return localService.getNetworkChannel();
         }

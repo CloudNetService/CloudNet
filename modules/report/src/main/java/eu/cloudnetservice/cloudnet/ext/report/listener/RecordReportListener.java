@@ -43,7 +43,7 @@ public final class RecordReportListener {
     }
 
     var configuration = this.reportModule.getReportConfiguration();
-    var serviceLifetimeSetting = configuration.getServiceLifetime();
+    var serviceLifetimeSetting = configuration.serviceLifetime();
     // -1 is used to disable the log printing.
     if (serviceLifetimeSetting == -1L) {
       return;
@@ -54,7 +54,7 @@ public final class RecordReportListener {
     if (connectedTime <= serviceLifetimeSetting) {
       var consoleLogCache = event.getService().getServiceConsoleLogCache().update();
       for (var logMessage : consoleLogCache.getCachedLogMessages()) {
-        LOGGER.severe(String.format("[%s] %s", event.getServiceInfo().getName(), logMessage));
+        LOGGER.severe(String.format("[%s] %s", event.getServiceInfo().name(), logMessage));
       }
     }
   }
@@ -62,7 +62,7 @@ public final class RecordReportListener {
   @EventListener
   public void handleServiceCrash(CloudServiceCrashEvent event) {
     // check if the user disabled records
-    if (!this.reportModule.getReportConfiguration().isSaveRecords()) {
+    if (!this.reportModule.getReportConfiguration().saveRecords()) {
       return;
     }
     // we have to create the record
@@ -77,11 +77,11 @@ public final class RecordReportListener {
       return;
     }
     // check if the user disabled records
-    if (!this.reportModule.getReportConfiguration().isSaveRecords()) {
+    if (!this.reportModule.getReportConfiguration().saveRecords()) {
       return;
     }
     // check if the user only wants to save reports for crashed services
-    if (this.reportModule.getReportConfiguration().isSaveOnCrashOnly()) {
+    if (this.reportModule.getReportConfiguration().saveOnCrashOnly()) {
       return;
     }
     // create the record

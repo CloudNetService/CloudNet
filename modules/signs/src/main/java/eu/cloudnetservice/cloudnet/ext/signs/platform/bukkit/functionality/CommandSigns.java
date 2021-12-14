@@ -138,7 +138,7 @@ public class CommandSigns extends BaseTabExecutor {
     }
     if (args.length == 2 && args[0].equalsIgnoreCase("create")) {
       return CloudNetDriver.getInstance().getGroupConfigurationProvider().getGroupConfigurations().stream()
-        .map(GroupConfiguration::getName)
+        .map(GroupConfiguration::name)
         .collect(Collectors.toList());
     }
     // unable to tab complete

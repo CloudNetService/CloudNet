@@ -307,21 +307,21 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
 
   @Override
   public void addGroupSilently(@NotNull PermissionGroup permissionGroup) {
-    this.groups.put(permissionGroup.getName(), permissionGroup);
+    this.groups.put(permissionGroup.name(), permissionGroup);
     // save the groups
     this.saveGroups();
   }
 
   @Override
   public void updateGroupSilently(@NotNull PermissionGroup permissionGroup) {
-    this.groups.put(permissionGroup.getName(), permissionGroup);
+    this.groups.put(permissionGroup.name(), permissionGroup);
     // save the groups
     this.saveGroups();
   }
 
   @Override
   public void deleteGroupSilently(@NotNull PermissionGroup permissionGroup) {
-    this.groups.remove(permissionGroup.getName());
+    this.groups.remove(permissionGroup.name());
     // save the groups
     this.saveGroups();
   }
@@ -332,7 +332,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
     // set the provided groups
     if (groups != null) {
       for (PermissionGroup group : groups) {
-        this.groups.put(group.getName(), group);
+        this.groups.put(group.name(), group);
       }
       // save the groups
       this.saveGroups();
@@ -368,7 +368,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
     if (groups != null) {
       // add all groups
       for (var group : groups) {
-        this.groups.put(group.getName(), group);
+        this.groups.put(group.name(), group);
       }
       // save the file again to update the fields in the permission group
       this.saveGroups();

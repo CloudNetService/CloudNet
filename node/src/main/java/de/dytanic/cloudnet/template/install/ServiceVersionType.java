@@ -43,7 +43,7 @@ public class ServiceVersionType extends ServiceEnvironment {
 
   public @NotNull Optional<ServiceVersion> getVersion(@NotNull String name) {
     return this.versions.stream()
-      .filter(serviceVersion -> serviceVersion.getName().equalsIgnoreCase(name))
+      .filter(serviceVersion -> serviceVersion.name().equalsIgnoreCase(name))
       .findFirst();
   }
 

@@ -44,7 +44,7 @@ public class V2HttpHandlerTemplateStorages extends V2HttpHandler {
   protected void handleStorageListRequest(IHttpContext context) {
     this.ok(context)
       .body(this.success().append("storages", this.getCloudNet().getAvailableTemplateStorages().stream()
-        .map(INameable::getName).collect(Collectors.toList())).toString())
+        .map(INameable::name).collect(Collectors.toList())).toString())
       .context()
       .closeAfter(true)
       .cancelNext();

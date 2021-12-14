@@ -69,12 +69,12 @@ public final class CommandService {
   // there are different ways to display the services
   private static final RowBasedFormatter<ServiceInfoSnapshot> NAMES_ONLY = RowBasedFormatter.<ServiceInfoSnapshot>builder()
     .defaultFormatter(ColumnFormatter.builder().columnTitles("Name", "UID").build())
-    .column(ServiceInfoSnapshot::getName)
+    .column(ServiceInfoSnapshot::name)
     .column(service -> service.getServiceId().getUniqueId())
     .build();
   private static final RowBasedFormatter<ServiceInfoSnapshot> SERVICES = RowBasedFormatter.<ServiceInfoSnapshot>builder()
     .defaultFormatter(ColumnFormatter.builder().columnTitles("Name", "Lifecycle", "Node", "State").build())
-    .column(ServiceInfoSnapshot::getName)
+    .column(ServiceInfoSnapshot::name)
     .column(ServiceInfoSnapshot::getLifeCycle)
     .column(service -> service.getServiceId().getNodeUniqueId())
     .column(service -> service.isConnected() ? "Connected" : "Not connected")
@@ -88,7 +88,7 @@ public final class CommandService {
   public List<String> suggestService(CommandContext<CommandSource> $, String input) {
     return CloudNet.getInstance().getCloudServiceProvider().getCloudServices()
       .stream()
-      .map(INameable::getName)
+      .map(INameable::name)
       .collect(Collectors.toList());
   }
 
@@ -183,7 +183,7 @@ public final class CommandService {
           // find a matching template
           return service.getConfiguration().getTemplates().stream()
             .filter(st -> st.getPrefix().equalsIgnoreCase(service.getServiceId().getTaskName()))
-            .filter(st -> st.getName().equalsIgnoreCase("default"))
+            .filter(st -> st.name().equalsIgnoreCase("default"))
             .map(st -> new Pair<>(service.provider(), st))
             .findFirst()
             .orElse(null);
@@ -205,7 +205,7 @@ public final class CommandService {
       // send a message for each service we did copy the template of
       //noinspection ConstantConditions
       source.sendMessage(I18n.trans("command-copy-success")
-        .replace("%name%", target.getFirst().getServiceInfoSnapshot().getName())
+        .replace("%name%", target.getFirst().getServiceInfoSnapshot().name())
         .replace("%template%", target.getSecond().toString()));
     }
   }
@@ -222,13 +222,13 @@ public final class CommandService {
     for (var matchedService : matchedServices) {
       if (matchedService.provider().toggleScreenEvents(ChannelMessageSender.self(), "service:screen")) {
         for (var cachedLogMessage : matchedService.provider().getCachedLogMessages()) {
-          LOGGER.info(String.format("&b[%s] %s", matchedService.getName(), cachedLogMessage));
+          LOGGER.info(String.format("&b[%s] %s", matchedService.name(), cachedLogMessage));
         }
         source.sendMessage(
-          I18n.trans("command-service-toggle-enabled").replace("%name%", matchedService.getName()));
+          I18n.trans("command-service-toggle-enabled").replace("%name%", matchedService.name()));
       } else {
         source.sendMessage(
-          I18n.trans("command-service-toggle-disabled").replace("%name%", matchedService.getName()));
+          I18n.trans("command-service-toggle-disabled").replace("%name%", matchedService.name()));
       }
     }
   }
@@ -309,7 +309,7 @@ public final class CommandService {
 
   @EventListener(channel = "service:screen")
   public void handleLogEntry(CloudServiceLogEntryEvent event) {
-    LOGGER.info(String.format("&b[%s] %s", event.getServiceInfo().getName(), event.getLine()));
+    LOGGER.info(String.format("&b[%s] %s", event.getServiceInfo().name(), event.getLine()));
   }
 
   private void displayServiceInfo(CommandSource source, @Nullable ServiceInfoSnapshot service,
@@ -321,7 +321,7 @@ public final class CommandService {
     Collection<String> list = new ArrayList<>(Arrays.asList(
       " ",
       "* CloudService: " + service.getServiceId().getUniqueId().toString(),
-      "* Name: " + service.getServiceId().getName(),
+      "* Name: " + service.getServiceId().name(),
       "* Node: " + service.getServiceId().getNodeUniqueId(),
       "* Address: " + service.getAddress().getHost() + ":" + service.getAddress().getPort()
     ));

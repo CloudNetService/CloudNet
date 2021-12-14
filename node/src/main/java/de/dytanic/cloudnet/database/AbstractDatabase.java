@@ -39,7 +39,7 @@ public abstract class AbstractDatabase implements LocalDatabase, Database {
   }
 
   @Override
-  public @NotNull String getName() {
+  public @NotNull String name() {
     return this.name;
   }
 

@@ -92,7 +92,7 @@ final class VelocityPlayerManagementListener {
   public void handleInitialServerChoose(@NotNull PlayerChooseInitialServerEvent event) {
     // filter the next fallback
     event.setInitialServer(this.management.getFallback(event.getPlayer())
-      .flatMap(service -> this.proxyServer.getServer(service.getName()))
+      .flatMap(service -> this.proxyServer.getServer(service.name()))
       .orElse(null));
   }
 
@@ -101,7 +101,7 @@ final class VelocityPlayerManagementListener {
     // check if the player is still active
     if (event.getPlayer().isActive()) {
       event.setResult(this.management.getFallback(event.getPlayer(), event.getServer().getServerInfo().getName())
-        .flatMap(service -> this.proxyServer.getServer(service.getName()))
+        .flatMap(service -> this.proxyServer.getServer(service.name()))
         .map(server -> {
           // only notify the player if the fallback is the server the player is connected to
           var curServer = event.getPlayer().getCurrentServer().map(ServerConnection::getServerInfo).orElse(null);
@@ -132,7 +132,7 @@ final class VelocityPlayerManagementListener {
       // the player switched the service
       event.getPlayer().getCurrentServer()
         .flatMap(server -> this.management
-          .getCachedService(service -> server.getServerInfo().getName().equals(service.getName()))
+          .getCachedService(service -> server.getServerInfo().getName().equals(service.name()))
           .map(BridgeServiceHelper::createServiceInfo))
         .ifPresent(info -> ProxyPlatformHelper.sendChannelMessageServiceSwitch(event.getPlayer().getUniqueId(), info));
     }
@@ -158,8 +158,8 @@ final class VelocityPlayerManagementListener {
     var playerLocale = event.getPlayer().getEffectiveLocale();
     var message = event.getServerKickReason().orElse(null);
     // use the current result if it is Notify - velocity already created a friendly reason for us
-    if (message == null && event.getResult() instanceof Notify) {
-      message = ((Notify) event.getResult()).getMessageComponent();
+    if (message == null && event.getResult() instanceof Notify notify) {
+      message = notify.getMessageComponent();
     }
     // check if we have a reason component
     if (message != null) {

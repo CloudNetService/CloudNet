@@ -56,7 +56,7 @@ public final class CloudSimpleNameTagsListener<P> {
         var playerUniqueId = this.nameTagsManager.getPlayerUniqueId(player);
         // get the associated user
         var user = CloudNetDriver.getInstance().getPermissionManagement().getUser(playerUniqueId);
-        if (user != null && user.inGroup(event.getPermissionGroup().getName())) {
+        if (user != null && user.inGroup(event.getPermissionGroup().name())) {
           this.nameTagsManager.updateNameTagsFor(player);
         }
       }

@@ -182,7 +182,7 @@ public class V2HttpAuthentication {
     return Jwts.builder()
       .setIssuer(ISSUER)
       .signWith(SIGN_KEY)
-      .setSubject(subject.getName())
+      .setSubject(subject.name())
       .setId(session.getUniqueId())
       .setIssuedAt(Calendar.getInstance().getTime())
       .claim("uniqueId", subject.getUniqueId())

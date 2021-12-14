@@ -96,7 +96,7 @@ public class MongoDBDatabaseProvider extends AbstractDatabaseProvider {
   }
 
   @Override
-  public @NotNull String getName() {
+  public @NotNull String name() {
     return "mongodb";
   }
 }

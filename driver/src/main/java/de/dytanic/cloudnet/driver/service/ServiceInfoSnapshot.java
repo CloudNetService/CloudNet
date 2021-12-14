@@ -129,8 +129,8 @@ public class ServiceInfoSnapshot extends JsonDocPropertyHolder
   }
 
   @Override
-  public @NotNull String getName() {
-    return this.getServiceId().getName();
+  public @NotNull String name() {
+    return this.getServiceId().name();
   }
 
   @Override

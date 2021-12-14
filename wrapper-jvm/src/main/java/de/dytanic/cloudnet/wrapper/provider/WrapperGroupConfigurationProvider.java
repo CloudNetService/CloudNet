@@ -73,6 +73,6 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
 
   @Override
   public void removeGroupConfiguration(@NotNull GroupConfiguration groupConfiguration) {
-    this.removeGroupConfigurationByName(groupConfiguration.getName());
+    this.removeGroupConfigurationByName(groupConfiguration.name());
   }
 }

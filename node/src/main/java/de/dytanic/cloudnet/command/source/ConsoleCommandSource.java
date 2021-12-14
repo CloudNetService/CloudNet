@@ -30,7 +30,7 @@ public class ConsoleCommandSource implements CommandSource {
    * @return "Console" for the console command source.
    */
   @Override
-  public @NotNull String getName() {
+  public @NotNull String name() {
     return "Console";
   }
 

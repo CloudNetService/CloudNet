@@ -63,9 +63,9 @@ public final class CommandReport {
   @Parser(suggestions = "pasteService")
   public PasteService defaultPasteServiceParser(CommandContext<CommandSource> $, Queue<String> input) {
     var name = input.remove();
-    return this.reportModule.getReportConfiguration().getPasteServers()
+    return this.reportModule.getReportConfiguration().pasteServers()
       .stream()
-      .filter(service -> service.getName().equalsIgnoreCase(name))
+      .filter(service -> service.name().equalsIgnoreCase(name))
       .findFirst()
       .orElseThrow(
         () -> new ArgumentNotAvailableException(I18n.trans("command-paste-paste-service-not-found")));
@@ -73,9 +73,9 @@ public final class CommandReport {
 
   @Suggestions("pasteService")
   public List<String> suggestPasteService(CommandContext<CommandSource> $, String input) {
-    return this.reportModule.getReportConfiguration().getPasteServers()
+    return this.reportModule.getReportConfiguration().pasteServers()
       .stream()
-      .map(INameable::getName)
+      .map(INameable::name)
       .collect(Collectors.toList());
   }
 
@@ -93,7 +93,7 @@ public final class CommandReport {
   public List<String> suggestService(CommandContext<CommandSource> $, String input) {
     return CloudNet.getInstance().getCloudServiceProvider().getLocalCloudServices()
       .stream()
-      .map(service -> service.getServiceId().getName())
+      .map(service -> service.getServiceId().name())
       .collect(Collectors.toList());
   }
 
@@ -193,13 +193,13 @@ public final class CommandReport {
       return service;
     }
 
-    var pasteServices = this.reportModule.getReportConfiguration().getPasteServers();
+    var pasteServices = this.reportModule.getReportConfiguration().pasteServers();
     // there are no paste services, use fallback
     if (pasteServices.isEmpty()) {
       return PasteService.FALLBACK;
     }
     // use the first in the configuration
-    return this.reportModule.getReportConfiguration().getPasteServers().get(0);
+    return this.reportModule.getReportConfiguration().pasteServers().get(0);
   }
 
 }

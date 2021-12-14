@@ -170,12 +170,12 @@ public class VaultPermissionImplementation extends Permission {
     var optionalPermissionUser = this.permissionUserByName(player);
 
     return optionalPermissionUser.map(permissionUser ->
-      this.permissionManagement.getHighestPermissionGroup(permissionUser).getName()).orElse(null);
+      this.permissionManagement.getHighestPermissionGroup(permissionUser).name()).orElse(null);
   }
 
   @Override
   public String[] getGroups() {
-    return this.permissionManagement.getGroups().stream().map(INameable::getName).toArray(String[]::new);
+    return this.permissionManagement.getGroups().stream().map(INameable::name).toArray(String[]::new);
   }
 
   @Override

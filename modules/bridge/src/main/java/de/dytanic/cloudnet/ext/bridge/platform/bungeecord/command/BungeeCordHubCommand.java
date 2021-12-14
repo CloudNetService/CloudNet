@@ -51,7 +51,7 @@ public final class BungeeCordHubCommand extends Command {
       } else {
         // try to get a fallback for the player
         ServerInfo hub = this.management.getFallback(player)
-          .map(service -> ProxyServer.getInstance().getServerInfo(service.getName()))
+          .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
           .orElse(null);
         // check if a fallback was found
         if (hub != null) {

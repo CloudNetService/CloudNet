@@ -85,7 +85,7 @@ public class DefaultTaskSetup implements DefaultSetup {
                         IDocument<?> properties = type.getProperties();
                         return JAVA_PROXY.get(properties) || PE_PROXY.get(properties);
                       })
-                      .map(ServiceEnvironmentType::getName)
+                      .map(ServiceEnvironmentType::name)
                       .collect(Collectors.toList())))
                   .build(),
                 // Java command
@@ -132,7 +132,7 @@ public class DefaultTaskSetup implements DefaultSetup {
                         IDocument<?> properties = type.getProperties();
                         return JAVA_SERVER.get(properties) || PE_SERVER.get(properties);
                       })
-                      .map(ServiceEnvironmentType::getName)
+                      .map(ServiceEnvironmentType::name)
                       .collect(Collectors.toList())))
                   .build(),
                 // Java command
@@ -202,7 +202,7 @@ public class DefaultTaskSetup implements DefaultSetup {
     // register the group
     CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration(GroupConfiguration.builder()
       .name(groupName)
-      .addTargetEnvironment(environment.getName())
+      .addTargetEnvironment(environment.name())
       .addTemplate(groupTemplate)
       .build());
 
@@ -243,11 +243,11 @@ public class DefaultTaskSetup implements DefaultSetup {
     @NotNull Pair<String, JavaVersion> javaVersion
   ) {
     return this.getVersionProvider().getServiceVersionTypes().values().stream()
-      .filter(versionType -> versionType.getEnvironmentType().equals(type.getName()))
+      .filter(versionType -> versionType.getEnvironmentType().equals(type.name()))
       .flatMap(serviceVersionType -> serviceVersionType.getVersions()
         .stream()
         .filter(version -> version.canRun(javaVersion.getSecond()))
-        .map(version -> String.format("%s-%s", serviceVersionType.getName(), version.getName())))
+        .map(version -> String.format("%s-%s", serviceVersionType.name(), version.name())))
       .collect(Collectors.collectingAndThen(Collectors.toList(), result -> {
         result.add("none");
         return result;

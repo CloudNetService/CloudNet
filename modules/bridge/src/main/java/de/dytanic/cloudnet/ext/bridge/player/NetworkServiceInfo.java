@@ -45,7 +45,7 @@ public final class NetworkServiceInfo {
   }
 
   public @NotNull String getServerName() {
-    return this.serviceId.getName();
+    return this.serviceId.name();
   }
 
   public @NotNull String getTaskName() {

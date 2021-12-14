@@ -51,7 +51,7 @@ public final class Record {
    */
   public static @Nullable Record forService(@NotNull Path baseDirectory, @NotNull ICloudService service) {
     var directory = baseDirectory.resolve(
-      service.getServiceId().getName() + "-" + service.getServiceId().getUniqueId()).normalize().toAbsolutePath();
+      service.getServiceId().name() + "-" + service.getServiceId().getUniqueId()).normalize().toAbsolutePath();
 
     if (Files.exists(directory)) {
       return null;
@@ -119,7 +119,7 @@ public final class Record {
    */
   public void notifySuccess() {
     LOGGER.info(I18n.trans("module-report-create-record-success")
-      .replace("%service%", this.service.getServiceId().getName())
+      .replace("%service%", this.service.getServiceId().name())
       .replace("%file%", this.directory.toString()));
   }
 

@@ -60,7 +60,7 @@ public final class CommandProviderTest {
 
     var testCommandByAlias = commandProvider.getCommand("test1");
     Assertions.assertNotNull(testCommandByAlias);
-    Assertions.assertNotEquals("test1", testCommand.getName());
+    Assertions.assertNotEquals("test1", testCommand.name());
     Assertions.assertEquals(testCommandByAlias, testCommandByAlias);
   }
 

@@ -29,5 +29,5 @@ public interface INameable {
    *
    * @return the name of this instance.
    */
-  @NotNull String getName();
+  @NotNull String name();
 }

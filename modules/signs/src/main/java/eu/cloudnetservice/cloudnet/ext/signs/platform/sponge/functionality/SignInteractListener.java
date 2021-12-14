@@ -68,9 +68,9 @@ public class SignInteractListener {
             this.signManagement.getSignsConfiguration().sendMessage(
               "server-connecting-message",
               m -> player.sendMessage(AdventureSerializerUtil.serialize(m)),
-              m -> m.replace("%server%", interactEvent.getTarget().get().getName()));
+              m -> m.replace("%server%", interactEvent.getTarget().get().name()));
             this.getPlayerManager().getPlayerExecutor(player.uniqueId())
-              .connect(interactEvent.getTarget().get().getName());
+              .connect(interactEvent.getTarget().get().name());
           }
         }
       }

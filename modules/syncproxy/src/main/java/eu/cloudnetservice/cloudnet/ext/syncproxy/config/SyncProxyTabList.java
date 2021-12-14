@@ -58,7 +58,7 @@ public class SyncProxyTabList {
     int maxPlayers
   ) {
     input = input
-      .replace("%proxy%", Wrapper.getInstance().getServiceId().getName())
+      .replace("%proxy%", Wrapper.getInstance().getServiceId().name())
       .replace("%proxy_uniqueId%", Wrapper.getInstance().getServiceId().getUniqueId().toString())
       .replace("%proxy_task_name%", Wrapper.getInstance().getServiceId().getTaskName())
       .replace("%time%", DATE_FORMAT.format(System.currentTimeMillis()))
@@ -78,7 +78,7 @@ public class SyncProxyTabList {
             .replace("%suffix%", group.getSuffix())
             .replace("%display%", group.getDisplay())
             .replace("%color%", group.getColor())
-            .replace("%group%", group.getName());
+            .replace("%group%", group.name());
         }
       }
     }

@@ -67,7 +67,7 @@ public final class CloudPermissionsHelper {
       management.acquireLock(permissionUser);
     }
 
-    if (shouldUpdateName && !name.equals(permissionUser.getName())) {
+    if (shouldUpdateName && !name.equals(permissionUser.name())) {
       permissionUser.setName(name);
       permissionsManagement.updateUserAsync(permissionUser);
     }

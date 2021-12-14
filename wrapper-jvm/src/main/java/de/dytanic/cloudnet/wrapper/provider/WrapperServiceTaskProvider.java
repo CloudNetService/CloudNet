@@ -72,6 +72,6 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
 
   @Override
   public void removePermanentServiceTask(@NotNull ServiceTask serviceTask) {
-    this.removePermanentServiceTaskByName(serviceTask.getName());
+    this.removePermanentServiceTaskByName(serviceTask.name());
   }
 }

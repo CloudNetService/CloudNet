@@ -64,7 +64,7 @@ public final class CommandGroups {
 
   @Suggestions("groupConfiguration")
   public List<String> suggestGroups(CommandContext<CommandSource> $, String input) {
-    return this.groupProvider().getGroupConfigurations().stream().map(INameable::getName).collect(Collectors.toList());
+    return this.groupProvider().getGroupConfigurations().stream().map(INameable::name).collect(Collectors.toList());
   }
 
   @CommandMethod("groups delete <name>")
@@ -96,14 +96,14 @@ public final class CommandGroups {
     source.sendMessage("- Groups");
     source.sendMessage(" ");
     for (var group : groups) {
-      source.sendMessage("- " + group.getName());
+      source.sendMessage("- " + group.name());
     }
   }
 
   @CommandMethod("groups group <name>")
   public void displayGroup(CommandSource source, @Argument("name") GroupConfiguration group) {
     Collection<String> messages = new ArrayList<>();
-    messages.add("Name: " + group.getName());
+    messages.add("Name: " + group.name());
     messages.add("Environments:" + Arrays.toString(group.getTargetEnvironments().toArray()));
 
     CommandServiceConfiguration.applyServiceConfigurationDisplay(messages, group);
@@ -116,7 +116,7 @@ public final class CommandGroups {
     @Argument("name") GroupConfiguration group,
     @Argument("environment") ServiceEnvironmentType environmentType
   ) {
-    group.getTargetEnvironments().add(environmentType.getName());
+    group.getTargetEnvironments().add(environmentType.name());
     this.groupProvider().addGroupConfiguration(group);
     source.sendMessage(I18n.trans("command-groups-add-environment-success"));
   }
@@ -127,7 +127,7 @@ public final class CommandGroups {
     @Argument("name") GroupConfiguration group,
     @Argument("environment") ServiceEnvironmentType environmentType
   ) {
-    if (group.getTargetEnvironments().remove(environmentType.getName())) {
+    if (group.getTargetEnvironments().remove(environmentType.name())) {
       this.groupProvider().addGroupConfiguration(group);
       source.sendMessage(I18n.trans("command-groups-remove-environment-success"));
     } else {

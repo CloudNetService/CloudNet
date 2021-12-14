@@ -63,7 +63,7 @@ public class ServiceTemplate implements INameable, Comparable<ServiceTemplate>, 
 
   public static @NotNull Builder builder(@NotNull ServiceTemplate template) {
     return builder()
-      .name(template.getName())
+      .name(template.name())
       .prefix(template.getPrefix())
       .storage(template.getStorage())
       .priority(template.getPriority())
@@ -115,7 +115,7 @@ public class ServiceTemplate implements INameable, Comparable<ServiceTemplate>, 
   }
 
   @Override
-  public @NotNull String getName() {
+  public @NotNull String name() {
     return this.name;
   }
 

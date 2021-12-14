@@ -61,7 +61,7 @@ public final class CommandMigrate {
   public List<String> suggestDatabaseProvider(CommandContext<CommandSource> $, String input) {
     return CloudNet.getInstance().getServicesRegistry().getServices(AbstractDatabaseProvider.class)
       .stream()
-      .map(INameable::getName)
+      .map(INameable::name)
       .collect(Collectors.toList());
   }
 
@@ -106,8 +106,8 @@ public final class CommandMigrate {
     this.executeIfNotCurrentProvider(targetDatabaseProvider, AbstractDatabaseProvider::close);
 
     source.sendMessage(I18n.trans("command-migrate-success")
-      .replace("%source%", sourceDatabaseProvider.getName())
-      .replace("%target%", targetDatabaseProvider.getName()));
+      .replace("%source%", sourceDatabaseProvider.name())
+      .replace("%target%", targetDatabaseProvider.name()));
   }
 
   private boolean executeIfNotCurrentProvider(@NotNull AbstractDatabaseProvider sourceProvider,

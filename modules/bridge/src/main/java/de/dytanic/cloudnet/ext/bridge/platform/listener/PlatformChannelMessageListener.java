@@ -54,9 +54,8 @@ public final class PlatformChannelMessageListener {
 
   @EventListener
   public void handleConfigurationChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
-    if (event.getChannel().equals(BridgeManagement.BRIDGE_CHANNEL_NAME)
-      && event.getMessage() != null
-      && event.getMessage().equals("update_bridge_configuration")) {
+    if (event.getChannel().equals(BridgeManagement.BRIDGE_CHANNEL_NAME) && event.getMessage()
+      .equals("update_bridge_configuration")) {
       // read the config
       var configuration = event.getContent().readObject(BridgeConfiguration.class);
       // set the configuration
@@ -66,7 +65,7 @@ public final class PlatformChannelMessageListener {
 
   @EventListener
   public void handlePlayerChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
-    if (event.getChannel().equals(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME) && event.getMessage() != null) {
+    if (event.getChannel().equals(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)) {
       // a message regarding a player event
       switch (event.getMessage()) {
         // offline player update
@@ -143,7 +142,7 @@ public final class PlatformChannelMessageListener {
 
   @EventListener
   public void handlePlayerExecutorChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
-    if (event.getChannel().equals(BridgeManagement.BRIDGE_PLAYER_EXECUTOR_CHANNEL_NAME) && event.getMessage() != null) {
+    if (event.getChannel().equals(BridgeManagement.BRIDGE_PLAYER_EXECUTOR_CHANNEL_NAME)) {
       // the target unique id is always the first argument
       var executor = this.management.getDirectPlayerExecutor(event.getContent().readUniqueId());
       // a message regarding a player executor request

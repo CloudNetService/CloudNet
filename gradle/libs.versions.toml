@@ -82,6 +82,7 @@ junitParams = { group = "org.junit.jupiter", name = "junit-jupiter-params", vers
 junitEngine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junit" }
 
 # general testing
+mockitoInline = { group = "org.mockito", name = "mockito-inline", version.ref = "mockito" }
 mockito = { group = "org.mockito", name = "mockito-junit-jupiter", version.ref = "mockito" }
 minaSshdServer = { group = "org.apache.sshd", name = "sshd-sftp", version.ref = "minaSshdServer" }
 tyrus = { group = "org.glassfish.tyrus.bundles", name = "tyrus-standalone-client", version.ref = "tyrusClient" }
@@ -132,6 +133,7 @@ protocolLib = { group = "com.github.dmulloy2", name = "ProtocolLib", version.ref
 [bundles]
 
 unirest = ["unirest", "unirestGson"]
+mockito = ["mockito", "mockitoInline"]
 mysql = ["mysqlConnector", "hikariCp"]
 cloud = ["cloudCore", "cloudAnnotations"]
 netty = ["nettyHandler", "nettyCodecHttp"]

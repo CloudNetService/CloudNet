@@ -45,7 +45,7 @@ public final class NodeChannelMessageListener {
 
   @EventListener
   public void handleChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
-    if (event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL) && event.getMessage() != null) {
+    if (event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
       switch (event.getMessage()) {
         // update a single node info snapshot
         case "update_node_info_snapshot" -> {

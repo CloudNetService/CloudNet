@@ -160,7 +160,7 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
       .buffer(DataBuf.empty().writeObject(groups))
       .build()
       .sendSingleQuery();
-    return response == null ? Collections.emptySet() : response.getContent().readObject(Sign.COLLECTION_TYPE);
+    return response == null ? Collections.emptySet() : response.content().readObject(Sign.COLLECTION_TYPE);
   }
 
   @Override

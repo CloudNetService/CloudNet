@@ -92,7 +92,7 @@ public final class WildcardUtil {
     } else {
       var pattern = prepare(regex, caseSensitive);
       return pattern == null ? new ArrayList<>() : inputValues.stream()
-        .filter(t -> pattern.matcher(t.getName()).matches())
+        .filter(t -> pattern.matcher(t.name()).matches())
         .collect(Collectors.toList());
     }
   }
@@ -115,7 +115,7 @@ public final class WildcardUtil {
     } else {
       var pattern = prepare(regex, caseSensitive);
       return pattern != null && values.stream()
-        .anyMatch(t -> pattern.matcher(t.getName()).matches());
+        .anyMatch(t -> pattern.matcher(t.name()).matches());
     }
   }
 

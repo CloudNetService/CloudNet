@@ -103,7 +103,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
       DataSyncHandler.<ServiceInfoSnapshot>builder()
         .key("services")
         .alwaysForce()
-        .nameExtractor(INameable::getName)
+        .nameExtractor(INameable::name)
         .dataCollector(this::getCloudServices)
         .convertObject(ServiceInfoSnapshot.class)
         .writer(ser -> {
@@ -113,7 +113,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
             this.handleServiceUpdate(ser, node.getChannel());
           }
         })
-        .currentGetter(group -> this.getSpecificProviderByName(group.getName()).getServiceInfoSnapshot())
+        .currentGetter(group -> this.getSpecificProviderByName(group.name()).getServiceInfoSnapshot())
         .build());
     // schedule the updating of the local service log cache
     nodeInstance.getMainThread().scheduleTask(() -> {
@@ -123,11 +123,11 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
           // detect dead services and stop them
           if (service.isAlive()) {
             service.getServiceConsoleLogCache().update();
-            LOGGER.fine("Updated service log cache of %s", null, service.getServiceId().getName());
+            LOGGER.fine("Updated service log cache of %s", null, service.getServiceId().name());
           } else {
             nodeInstance.getEventManager().callEvent(new CloudServiceCrashEvent(service));
             service.stop();
-            LOGGER.fine("Stopped dead service %s", null, service.getServiceId().getName());
+            LOGGER.fine("Stopped dead service %s", null, service.getServiceId().name());
           }
         }
       }
@@ -144,7 +144,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   public @NotNull SpecificCloudServiceProvider getSpecificProviderByName(@NotNull String serviceName) {
     return this.knownServices.values().stream()
       .filter(provider -> provider.getServiceInfoSnapshot() != null)
-      .filter(provider -> provider.getServiceInfoSnapshot().getServiceId().getName().equals(serviceName))
+      .filter(provider -> provider.getServiceInfoSnapshot().getServiceId().name().equals(serviceName))
       .findFirst()
       .orElse(EmptySpecificCloudServiceProvider.INSTANCE);
   }
@@ -390,7 +390,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   @Override
   public @NotNull SpecificCloudServiceProvider selectOrCreateService(@NotNull ServiceTask task) {
     // get all services of the given task, map it to its node unique id
-    var prepared = this.getCloudServicesByTask(task.getName())
+    var prepared = this.getCloudServicesByTask(task.name())
       .stream()
       .filter(taskService -> taskService.getLifeCycle() == ServiceLifeCycle.PREPARED)
       .map(service -> {

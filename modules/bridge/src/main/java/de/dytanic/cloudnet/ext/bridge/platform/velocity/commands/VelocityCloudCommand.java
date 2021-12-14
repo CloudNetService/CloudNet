@@ -53,14 +53,14 @@ public final class VelocityCloudCommand implements SimpleCommand {
       // get the command info
       var command = CloudNetDriver.getInstance().getNodeInfoProvider().getConsoleCommand(commandLine);
       // check if the sender has the required permission to execute the command
-      if (command != null && command.getPermission() != null) {
+      if (command != null) {
         if (!invocation.source().hasPermission(command.getPermission())) {
           invocation.source().sendMessage(serialize(this.management.getConfiguration().getMessage(
             invocation.source() instanceof Player
               ? ((Player) invocation.source()).getEffectiveLocale()
               : Locale.ENGLISH,
             "command-cloud-sub-command-no-permission"
-          ).replace("%command%", command.getName())));
+          ).replace("%command%", command.name())));
           return;
         }
       }

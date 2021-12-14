@@ -56,7 +56,7 @@ public final class S3TemplateStorageModule extends DriverModule {
   @ModuleTask(event = ModuleLifeCycle.STOPPED)
   public void handleStop() {
     this.storage.close();
-    this.getServiceRegistry().unregisterService(TemplateStorage.class, this.storage.getName());
+    this.getServiceRegistry().unregisterService(TemplateStorage.class, this.storage.name());
   }
 
   public void writeConfig(@NotNull S3TemplateStorageConfig config) {

@@ -45,7 +45,7 @@ final class NodePlayerProvider implements PlayerProvider {
 
   @Override
   public @NotNull Collection<String> names() {
-    return this.playerSupplier.get().map(CloudPlayer::getName).collect(Collectors.toSet());
+    return this.playerSupplier.get().map(CloudPlayer::name).collect(Collectors.toSet());
   }
 
   @Override

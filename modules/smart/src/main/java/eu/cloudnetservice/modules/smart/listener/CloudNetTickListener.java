@@ -67,9 +67,9 @@ public final class CloudNetTickListener {
   private void handleSmartEntries() {
     CloudNet.getInstance().getServiceTaskProvider().getPermanentServiceTasks().forEach(task -> {
       var config = this.module.getSmartConfig(task);
-      if (config != null && config.isEnabled()) {
+      if (config != null && config.enabled()) {
         // get all services of the task
-        var services = this.getServiceManager().getCloudServicesByTask(task.getName());
+        var services = this.getServiceManager().getCloudServicesByTask(task.name());
         // get all prepared services
         Collection<ServiceInfoSnapshot> preparedServices = services.stream()
           .filter(service -> service.getLifeCycle() == ServiceLifeCycle.PREPARED)
@@ -103,10 +103,10 @@ public final class CloudNetTickListener {
     for (var service : onlineServices) {
       // check if the service should be stopped
       var playerLoad = SmartUtil.getPlayerPercentage(service);
-      if (playerLoad <= config.getPercentOfPlayersToCheckShouldStopTheService()) {
+      if (playerLoad <= config.percentOfPlayersToCheckShouldStopTheService()) {
         // get the auto stop ticker for the service
         var stopTicker = this.autoStopTicks.computeIfAbsent(
-          service.getServiceId().getUniqueId(), $ -> new AtomicLong(config.getAutoStopTimeByUnusedServiceInSeconds()));
+          service.getServiceId().getUniqueId(), $ -> new AtomicLong(config.autoStopTimeByUnusedServiceInSeconds()));
         if (stopTicker.decrementAndGet() <= 0) {
           // stop the service now
           service.provider().stop();
@@ -127,7 +127,7 @@ public final class CloudNetTickListener {
     allServices.addAll(preparedServices);
     allServices.addAll(runningServices);
     // check the prepared service count now as they don't count to the maximum services
-    if (config.getPreparedServices() > preparedServices.size()) {
+    if (config.preparedServices() > preparedServices.size()) {
       var service = this.createService(task, config, allServices);
       // create only one service per heartbeat
       if (service != null) {
@@ -135,12 +135,12 @@ public final class CloudNetTickListener {
       }
     }
     // check if the maximum service count is reached
-    if (config.getMaxServices() > 0 && runningServices.size() >= config.getMaxServices()) {
+    if (config.maxServices() > 0 && runningServices.size() >= config.maxServices()) {
       return;
     }
     // only start services by the smart module if the smart min service count overrides the task min service count
-    if (config.getSmartMinServiceCount() > task.getMinServiceCount()
-      && config.getSmartMinServiceCount() > runningServices.size()) {
+    if (config.smartMinServiceCount() > task.getMinServiceCount()
+      && config.smartMinServiceCount() > runningServices.size()) {
       var service = this.createService(task, config, runningServices);
       // check if the service was created successfully and start it
       if (service != null) {
@@ -150,11 +150,11 @@ public final class CloudNetTickListener {
       }
     }
     // check if the auto-start based on the player count is enabled
-    if (config.getPercentOfPlayersToCheckShouldStopTheService() < 0) {
+    if (config.percentOfPlayersToCheckShouldStopTheService() < 0) {
       return;
     }
     // validate that we can start a service now
-    var nextAutoStartTime = this.autoStartBlocks.get(task.getName());
+    var nextAutoStartTime = this.autoStartBlocks.get(task.name());
     if (nextAutoStartTime != null && nextAutoStartTime >= System.currentTimeMillis()) {
       return;
     }
@@ -174,15 +174,15 @@ public final class CloudNetTickListener {
     var absoluteMaximum = maximumPlayers / runningServices.size();
     // create the percentage
     var percentage = SmartUtil.getPercentage(absoluteOnline, absoluteMaximum);
-    if (percentage >= config.getPercentOfPlayersForANewServiceByInstance()) {
+    if (percentage >= config.percentOfPlayersForANewServiceByInstance()) {
       var service = this.createService(task, config, runningServices);
       // check if the service was created successfully and start it
       if (service != null) {
         service.provider().start();
         // block player based service starting now
         this.autoStartBlocks.put(
-          task.getName(),
-          System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(config.getForAnewInstanceDelayTimeInSeconds()));
+          task.name(),
+          System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(config.forAnewInstanceDelayTimeInSeconds()));
       }
     }
   }
@@ -194,7 +194,7 @@ public final class CloudNetTickListener {
   ) {
     // check if we should decide directly which node server we use
     NodeServer server = null;
-    if (config.isSplitLogicallyOverNodes()) {
+    if (config.splitLogicallyOverNodes()) {
       server = this.selectNodeServer(services);
     }
     // create a new service based on the task

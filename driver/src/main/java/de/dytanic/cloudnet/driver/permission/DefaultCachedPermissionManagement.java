@@ -77,7 +77,7 @@ public abstract class DefaultCachedPermissionManagement extends DefaultPermissio
 
   @Override
   public void acquireLock(@NotNull PermissionGroup group) {
-    this.permissionGroupLocks.computeIfAbsent(group.getName(), name -> new AtomicInteger()).incrementAndGet();
+    this.permissionGroupLocks.computeIfAbsent(group.name(), name -> new AtomicInteger()).incrementAndGet();
   }
 
   @Override
@@ -88,7 +88,7 @@ public abstract class DefaultCachedPermissionManagement extends DefaultPermissio
 
   @Override
   public boolean isLocked(@NotNull PermissionGroup group) {
-    var lockCount = this.permissionGroupLocks.get(group.getName());
+    var lockCount = this.permissionGroupLocks.get(group.name());
     return lockCount != null && lockCount.get() > 0;
   }
 
@@ -102,7 +102,7 @@ public abstract class DefaultCachedPermissionManagement extends DefaultPermissio
 
   @Override
   public void unlock(@NotNull PermissionGroup group) {
-    var lockCount = this.permissionGroupLocks.get(group.getName());
+    var lockCount = this.permissionGroupLocks.get(group.name());
     if (lockCount != null) {
       lockCount.decrementAndGet();
     }
@@ -115,7 +115,7 @@ public abstract class DefaultCachedPermissionManagement extends DefaultPermissio
 
   @Override
   public void unlockFully(@NotNull PermissionGroup group) {
-    this.permissionGroupLocks.remove(group.getName());
+    this.permissionGroupLocks.remove(group.name());
   }
 
   protected void handleUserRemove(@NotNull UUID key, @NotNull PermissionUser user, @NotNull RemovalCause cause) {

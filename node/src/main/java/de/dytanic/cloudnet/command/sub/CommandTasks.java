@@ -81,7 +81,7 @@ public final class CommandTasks {
     .defaultFormatter(ColumnFormatter.builder()
       .columnTitles("Name", "MinServiceCount", "Maintenance", "Nodes", "StartPort")
       .build())
-    .column(ServiceTask::getName)
+    .column(ServiceTask::name)
     .column(ServiceTask::getMinServiceCount)
     .column(ServiceTask::isMaintenance)
     .column(task -> task.getAssociatedNodes().isEmpty() ? "All" : String.join(", ", task.getAssociatedNodes()))
@@ -107,7 +107,7 @@ public final class CommandTasks {
 
   @Suggestions("serviceTask")
   public List<String> suggestTask(CommandContext<CommandSource> $, String input) {
-    return this.taskProvider().getPermanentServiceTasks().stream().map(INameable::getName).collect(Collectors.toList());
+    return this.taskProvider().getPermanentServiceTasks().stream().map(INameable::name).collect(Collectors.toList());
   }
 
   @Parser(suggestions = "serviceTask")
@@ -211,7 +211,7 @@ public final class CommandTasks {
   public void displayTask(CommandSource source, @Argument("name") Collection<ServiceTask> serviceTasks) {
     for (var serviceTask : serviceTasks) {
       Collection<String> messages = new ArrayList<>();
-      messages.add("Name: " + serviceTask.getName());
+      messages.add("Name: " + serviceTask.name());
       messages.add("Groups: " + Arrays.toString(serviceTask.getGroups().toArray()));
       messages.add("Max heap memory: " + serviceTask.getProcessConfiguration().getMaxHeapMemorySize());
       messages.add("Maintenance: " + serviceTask.isMaintenance());
@@ -242,7 +242,7 @@ public final class CommandTasks {
       source.sendMessage(
         I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "minServiceCount")
-          .replace("%name%", task.getName())
+          .replace("%name%", task.name())
           .replace("%value%", amount.toString())
       );
     }
@@ -259,7 +259,7 @@ public final class CommandTasks {
       source.sendMessage(
         I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "maintenance")
-          .replace("%name%", task.getName())
+          .replace("%name%", task.name())
           .replace("%value%", String.valueOf(enabled))
       );
     }
@@ -276,7 +276,7 @@ public final class CommandTasks {
       source.sendMessage(
         I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "maxHeapMemory")
-          .replace("%name%", task.getName())
+          .replace("%name%", task.name())
           .replace("%value%", amount.toString())
       );
     }
@@ -293,7 +293,7 @@ public final class CommandTasks {
       source.sendMessage(
         I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "startPort")
-          .replace("%name%", task.getName())
+          .replace("%name%", task.name())
           .replace("%value%", amount.toString())
       );
     }
@@ -310,7 +310,7 @@ public final class CommandTasks {
       source.sendMessage(
         I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "autoDeleteOnStop")
-          .replace("%name%", task.getName())
+          .replace("%name%", task.name())
           .replace("%value%", String.valueOf(enabled))
       );
     }
@@ -327,7 +327,7 @@ public final class CommandTasks {
       source.sendMessage(
         I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "staticServices")
-          .replace("%name%", task.getName())
+          .replace("%name%", task.name())
           .replace("%value%", String.valueOf(enabled))
       );
     }
@@ -344,7 +344,7 @@ public final class CommandTasks {
       source.sendMessage(
         I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "staticServices")
-          .replace("%name%", task.getName())
+          .replace("%name%", task.name())
           .replace("%value%", String.valueOf(environmentType))
       );
     }
@@ -361,7 +361,7 @@ public final class CommandTasks {
       source.sendMessage(
         I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "disableIpRewrite")
-          .replace("%name%", task.getName())
+          .replace("%name%", task.name())
           .replace("%value%", String.valueOf(enabled))
       );
     }
@@ -378,7 +378,7 @@ public final class CommandTasks {
       source.sendMessage(
         I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "javaCommand")
-          .replace("%name%", task.getName())
+          .replace("%name%", task.name())
           .replace("%value%", executable.getFirst())
       );
     }
@@ -399,7 +399,7 @@ public final class CommandTasks {
       source.sendMessage(
         I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "node")
-          .replace("%name%", task.getName())
+          .replace("%name%", task.name())
           .replace("%value%", node)
       );
     }
@@ -412,16 +412,16 @@ public final class CommandTasks {
     @Argument("group") GroupConfiguration group
   ) {
     for (var task : serviceTasks) {
-      if (task.getGroups().contains(group.getName())) {
+      if (task.getGroups().contains(group.name())) {
         continue;
       }
 
-      this.updateTask(task, builder -> builder.addGroup(group.getName()));
+      this.updateTask(task, builder -> builder.addGroup(group.name()));
       source.sendMessage(
         I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "group")
-          .replace("%name%", task.getName())
-          .replace("%value%", group.getName())
+          .replace("%name%", task.name())
+          .replace("%value%", group.name())
       );
     }
   }
@@ -437,7 +437,7 @@ public final class CommandTasks {
       source.sendMessage(
         I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "node")
-          .replace("%name%", task.getName())
+          .replace("%name%", task.name())
           .replace("%value%", node)
       );
     }
@@ -454,7 +454,7 @@ public final class CommandTasks {
       source.sendMessage(
         I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "group")
-          .replace("%name%", task.getName())
+          .replace("%name%", task.name())
           .replace("%value%", group)
       );
     }
@@ -476,7 +476,7 @@ public final class CommandTasks {
       source.sendMessage(
         I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "deployment")
-          .replace("%name%", serviceTask.getName())
+          .replace("%name%", serviceTask.name())
           .replace("%value%", template.getFullName())
       );
     }
@@ -493,7 +493,7 @@ public final class CommandTasks {
       source.sendMessage(
         I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "template")
-          .replace("%name%", serviceTask.getName())
+          .replace("%name%", serviceTask.name())
           .replace("%value%", template.getFullName())
       );
     }
@@ -513,7 +513,7 @@ public final class CommandTasks {
       source.sendMessage(
         I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "inclusion")
-          .replace("%name%", serviceTask.getName())
+          .replace("%name%", serviceTask.name())
           .replace("%value%", inclusion.getUrl())
       );
     }
@@ -532,7 +532,7 @@ public final class CommandTasks {
       source.sendMessage(
         I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "jvmOptions")
-          .replace("%name%", serviceTask.getName())
+          .replace("%name%", serviceTask.name())
           .replace("%value%", jvmOptions)
       );
     }
@@ -551,7 +551,7 @@ public final class CommandTasks {
       source.sendMessage(
         I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "processParameters")
-          .replace("%name%", serviceTask.getName())
+          .replace("%name%", serviceTask.name())
           .replace("%value%", processParameters)
       );
     }
@@ -573,7 +573,7 @@ public final class CommandTasks {
       source.sendMessage(
         I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "deployment")
-          .replace("%name%", serviceTask.getName())
+          .replace("%name%", serviceTask.name())
           .replace("%value%", template.getFullName())
       );
     }
@@ -590,7 +590,7 @@ public final class CommandTasks {
       source.sendMessage(
         I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "template")
-          .replace("%name%", serviceTask.getName())
+          .replace("%name%", serviceTask.name())
           .replace("%value%", template.getFullName())
       );
     }
@@ -610,7 +610,7 @@ public final class CommandTasks {
       source.sendMessage(
         I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "inclusion")
-          .replace("%name%", serviceTask.getName())
+          .replace("%name%", serviceTask.name())
           .replace("%value%", inclusion.getUrl())
       );
     }
@@ -629,7 +629,7 @@ public final class CommandTasks {
       source.sendMessage(
         I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "jvmOptions")
-          .replace("%name%", serviceTask.getName())
+          .replace("%name%", serviceTask.name())
           .replace("%value%", String.join(", ", serviceTask.getJvmOptions()))
       );
     }
@@ -648,7 +648,7 @@ public final class CommandTasks {
       source.sendMessage(
         I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "processParameters")
-          .replace("%name%", serviceTask.getName())
+          .replace("%name%", serviceTask.name())
           .replace("%value%", String.join(", ", serviceTask.getProcessParameters()))
       );
     }
@@ -661,7 +661,7 @@ public final class CommandTasks {
       source.sendMessage(
         I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "jvmOptions")
-          .replace("%name%", serviceTask.getName())
+          .replace("%name%", serviceTask.name())
           .replace("%value%", "empty")
       );
     }
@@ -674,7 +674,7 @@ public final class CommandTasks {
       source.sendMessage(
         I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "processParameters")
-          .replace("%name%", serviceTask.getName())
+          .replace("%name%", serviceTask.name())
           .replace("%value%", "empty")
       );
     }

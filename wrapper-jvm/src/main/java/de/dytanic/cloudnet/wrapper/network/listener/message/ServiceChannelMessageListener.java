@@ -39,7 +39,7 @@ public final class ServiceChannelMessageListener {
 
   @EventListener
   public void handleChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
-    if (event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL) && event.getMessage() != null) {
+    if (event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
       switch (event.getMessage()) {
         // update of a service in the network
         case "update_service_info" -> {

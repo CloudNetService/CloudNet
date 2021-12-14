@@ -54,7 +54,7 @@ public class LocalTemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public @NotNull String getName() {
+  public @NotNull String name() {
     return LOCAL_TEMPLATE_STORAGE;
   }
 
@@ -267,6 +267,6 @@ public class LocalTemplateStorage implements TemplateStorage {
   }
 
   protected @NotNull Path getTemplatePath(@NotNull ServiceTemplate template) {
-    return this.storageDirectory.resolve(template.getPrefix()).resolve(template.getName());
+    return this.storageDirectory.resolve(template.getPrefix()).resolve(template.name());
   }
 }

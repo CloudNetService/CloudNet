@@ -48,11 +48,11 @@ public final class CloudNetLocalServiceListener {
       }
       // get the smart entry for the service
       var config = this.module.getSmartConfig(task);
-      if (config != null && config.isEnabled()) {
+      if (config != null && config.enabled()) {
         Set<ServiceTemplate> templates = new HashSet<>(event.getService().getWaitingTemplates());
         templates.removeAll(task.getTemplates());
         // apply the template installer
-        switch (config.getTemplateInstaller()) {
+        switch (config.templateInstaller()) {
           // installs all templates of the service
           case INSTALL_ALL -> templates.addAll(task.getTemplates());
 
@@ -80,7 +80,7 @@ public final class CloudNetLocalServiceListener {
           case INSTALL_BALANCED -> {
             var services = CloudNet.getInstance()
               .getCloudServiceProvider()
-              .getCloudServicesByTask(task.getName());
+              .getCloudServicesByTask(task.name());
             // find the least used template add register it as a service template
             task.getTemplates().stream()
               .min(Comparator.comparingLong(template -> services.stream()
@@ -96,7 +96,7 @@ public final class CloudNetLocalServiceListener {
         event.getService().getWaitingTemplates().clear();
         event.getService().getWaitingTemplates().addAll(templates);
         // include templates and inclusions now if configured so
-        if (config.isDirectTemplatesAndInclusionsSetup()) {
+        if (config.directTemplatesAndInclusionsSetup()) {
           event.getService().includeWaitingServiceTemplates();
           event.getService().includeWaitingServiceInclusions();
         }

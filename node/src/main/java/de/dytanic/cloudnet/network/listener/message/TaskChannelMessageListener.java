@@ -46,7 +46,7 @@ public final class TaskChannelMessageListener {
 
   @EventListener
   public void handleChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
-    if (event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL) && event.getMessage() != null) {
+    if (event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
       switch (event.getMessage()) {
         // set tasks
         case "set_service_tasks" -> {

@@ -67,7 +67,7 @@ public final class SFTPTemplateStorageModule extends DriverModule {
       this.config = JsonDocument.newDocument(this.getConfigPath()).toInstanceOf(SFTPTemplateStorageConfig.class);
       // init the storage
       this.storage = new SFTPTemplateStorage(this.config);
-      this.getServiceRegistry().registerService(TemplateStorage.class, this.storage.getName(), this.storage);
+      this.getServiceRegistry().registerService(TemplateStorage.class, this.storage.name(), this.storage);
       // register the cluster sync handler
       CloudNet.getInstance().getDataSyncRegistry().registerHandler(DataSyncHandler.<SFTPTemplateStorageConfig>builder()
         .key("sftp-storage-config")
@@ -85,7 +85,7 @@ public final class SFTPTemplateStorageModule extends DriverModule {
   @ModuleTask(event = ModuleLifeCycle.STOPPED)
   public void handleStop() throws IOException {
     this.storage.close();
-    this.getServiceRegistry().unregisterService(TemplateStorage.class, this.storage.getName());
+    this.getServiceRegistry().unregisterService(TemplateStorage.class, this.storage.name());
   }
 
   public void writeConfig(@NotNull SFTPTemplateStorageConfig config) {

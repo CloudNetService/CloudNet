@@ -162,7 +162,7 @@ public final class CloudNetTick {
     for (var task : this.cloudNet.getServiceTaskProvider().getPermanentServiceTasks()) {
       if (!task.isMaintenance()) {
         // get the count of running services
-        var runningServiceCount = this.cloudNet.getCloudServiceProvider().getCloudServicesByTask(task.getName())
+        var runningServiceCount = this.cloudNet.getCloudServiceProvider().getCloudServicesByTask(task.name())
           .stream()
           .filter(taskService -> taskService.getLifeCycle() == ServiceLifeCycle.RUNNING)
           .count();

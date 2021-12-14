@@ -84,7 +84,7 @@ final class WaterDogPEPlayerManagementListener {
     } else {
       // the player switched the service
       this.management
-        .getCachedService(service -> service.getName().equals(event.getNewClient().getServerInfo().getServerName()))
+        .getCachedService(service -> service.name().equals(event.getNewClient().getServerInfo().getServerName()))
         .map(BridgeServiceHelper::createServiceInfo)
         .ifPresent(info -> ProxyPlatformHelper.sendChannelMessageServiceSwitch(event.getPlayer().getUniqueId(), info));
     }

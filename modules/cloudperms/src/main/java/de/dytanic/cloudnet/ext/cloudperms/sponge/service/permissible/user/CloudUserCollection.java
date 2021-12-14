@@ -82,7 +82,7 @@ public final class CloudUserCollection extends AbstractSubjectCollection {
   @Override
   public CompletableFuture<? extends Set<String>> allIdentifiers() {
     return CompletableFuture.supplyAsync(() -> this.management.getUsers().stream()
-      .map(PermissionUser::getName)
+      .map(PermissionUser::name)
       .collect(Collectors.toSet()));
   }
 

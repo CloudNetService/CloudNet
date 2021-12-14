@@ -199,7 +199,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
       // add the service to the tried ones
       .map(service -> {
         // we cannot flat-map because of the orElseGet
-        service.ifPresent(ser -> profile.selectService(ser.getName()));
+        service.ifPresent(ser -> profile.selectService(ser.name()));
         return service;
       }).orElseGet(() -> {
         // check if the configuration has a default fallback task
@@ -210,7 +210,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
         return this.getAnyTaskService(config.getDefaultFallbackTask(), profile, currentServerName)
           .map(service -> {
             // select as the service we are connecting to
-            profile.selectService(service.getName());
+            profile.selectService(service.name());
             return service;
           });
       });
@@ -224,7 +224,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     // get the currently applying fallback config
     var config = Preconditions.checkNotNull(this.currentFallbackConfiguration);
     // get all groups of the service the player is currently on
-    var currentGroups = this.getCachedService(service -> service.getName().equals(currentServerName))
+    var currentGroups = this.getCachedService(service -> service.name().equals(currentServerName))
       .map(service -> service.getConfiguration().getGroups())
       .orElse(Collections.emptySet());
     // find all matching fallback configurations
@@ -244,7 +244,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     @NotNull Function<String, Boolean> permissionTester
   ) {
     // check if the current server of the player is given
-    return this.getCachedService(service -> service.getName().equals(currentServerName))
+    return this.getCachedService(service -> service.name().equals(currentServerName))
       .map(service -> this.getPossibleFallbacks(currentServerName, virtualHost, permissionTester)
         .anyMatch(fallback -> service.getServiceId().getTaskName().equals(fallback.getTask())))
       .orElse(false);
@@ -259,11 +259,11 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
       // check if the service is associated with the task of the fallback
       .filter(service -> service.getServiceId().getTaskName().equals(task))
       // check if the player failed to connect to that fallback during the current iteration
-      .filter(service -> !profile.hasTried(service.getName()))
+      .filter(service -> !profile.hasTried(service.name()))
       // check if the service is marked as joinable
       .filter(service -> service.isConnected() && BridgeServiceProperties.IS_ONLINE.get(service).orElse(false))
       // check if the player is not currently connected to that service
-      .filter(service -> currentServerName == null || !service.getName().equals(currentServerName))
+      .filter(service -> currentServerName == null || !service.name().equals(currentServerName))
       // find the service with the lowest player count known to use
       .min((optionA, optionB) -> {
         int playersOnOptionA = BridgeServiceProperties.ONLINE_COUNT.get(optionA).orElse(0);

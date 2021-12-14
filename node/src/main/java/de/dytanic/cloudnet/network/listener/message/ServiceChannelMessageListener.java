@@ -49,7 +49,7 @@ public final class ServiceChannelMessageListener {
 
   @EventListener
   public void handleChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
-    if (event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL) && event.getMessage() != null) {
+    if (event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
       switch (event.getMessage()) {
         // request to start a service
         case "node_to_head_start_service" -> {

@@ -140,7 +140,7 @@ public abstract class SimpleNameTagsManager<P> {
       highestSortIdLength == sortIdLength
         ? sortIdLength
         : String.format("%0" + highestSortIdLength + "d", group.getSortId()),
-      group.getName());
+      group.name());
     // shorten the name if needed
     return teamName.length() > 16 ? teamName.substring(0, 16) : teamName;
   }

@@ -112,7 +112,7 @@ public abstract class AbstractPermissible extends JsonDocPropertyHolder implemen
   }
 
   @Override
-  public @NotNull String getName() {
+  public @NotNull String name() {
     return this.name;
   }
 

@@ -39,7 +39,7 @@ public class WrapperDatabase implements Database {
   }
 
   @Override
-  public @NotNull String getName() {
+  public @NotNull String name() {
     return this.name;
   }
 

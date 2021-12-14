@@ -71,7 +71,7 @@ final class ClusterNodeServerUtils {
     // iterate over all local services - if the service is connected append it as target
     for (var service : CloudNet.getInstance().getCloudServiceProvider().getLocalCloudServices()) {
       if (service.getNetworkChannel() != null) {
-        builder.target(Type.SERVICE, service.getServiceId().getName());
+        builder.target(Type.SERVICE, service.getServiceId().name());
       }
     }
     // for chaining

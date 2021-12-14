@@ -36,7 +36,7 @@ public final class NodeChannelMessageListener {
 
   @EventListener
   public void handle(@NotNull ChannelMessageReceiveEvent event) {
-    if (event.getChannel().equals(AbstractNPCManagement.NPC_CHANNEL_NAME) && event.getMessage() != null) {
+    if (event.getChannel().equals(AbstractNPCManagement.NPC_CHANNEL_NAME)) {
       switch (event.getMessage()) {
         // deletes an existing npc
         case PlatformNPCManagement.NPC_DELETE -> this.management.deleteNPC(

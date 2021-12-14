@@ -52,20 +52,20 @@ public final class PermissionCacheListener {
   @EventListener
   public void handle(@NotNull PermissionAddGroupEvent event) {
     this.permissionManagement.getCachedPermissionGroups().put(
-      event.getPermissionGroup().getName(),
+      event.getPermissionGroup().name(),
       event.getPermissionGroup());
   }
 
   @EventListener
   public void handle(@NotNull PermissionUpdateGroupEvent event) {
     this.permissionManagement.getCachedPermissionGroups().put(
-      event.getPermissionGroup().getName(),
+      event.getPermissionGroup().name(),
       event.getPermissionGroup());
   }
 
   @EventListener
   public void handle(@NotNull PermissionDeleteGroupEvent event) {
-    this.permissionManagement.getCachedPermissionGroups().remove(event.getPermissionGroup().getName());
+    this.permissionManagement.getCachedPermissionGroups().remove(event.getPermissionGroup().name());
   }
 
   @EventListener
@@ -73,7 +73,7 @@ public final class PermissionCacheListener {
     this.permissionManagement.getCachedPermissionGroups().clear();
 
     for (PermissionGroup permissionGroup : event.getGroups()) {
-      this.permissionManagement.getCachedPermissionGroups().put(permissionGroup.getName(), permissionGroup);
+      this.permissionManagement.getCachedPermissionGroups().put(permissionGroup.name(), permissionGroup);
     }
   }
 }

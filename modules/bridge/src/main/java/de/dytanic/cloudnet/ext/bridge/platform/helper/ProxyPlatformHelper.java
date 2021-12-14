@@ -41,7 +41,7 @@ public final class ProxyPlatformHelper {
       .buffer(DataBuf.empty().writeObject(playerInfo))
       .build()
       .sendSingleQuery();
-    return result == null ? Result.allowed() : result.getContent().readObject(Result.class);
+    return result == null ? Result.allowed() : result.content().readObject(Result.class);
   }
 
   public static void sendChannelMessageLoginSuccess(@NotNull NetworkPlayerProxyInfo info) {

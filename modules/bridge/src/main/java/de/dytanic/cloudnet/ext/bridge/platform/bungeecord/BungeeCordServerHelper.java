@@ -54,7 +54,7 @@ final class BungeeCordServerHelper {
     } catch (NoSuchMethodException | IllegalAccessException ex) {
       // using the default BungeeCord way
       serverRegisterHandler = service -> ProxyServer.getInstance().getServers().put(
-        service.getName(),
+        service.name(),
         constructServerInfo(service));
     }
     // find the best method to remove a server from the proxy
@@ -65,14 +65,14 @@ final class BungeeCordServerHelper {
       // the waterfall method is available
       serverUnregisterHandler = service -> {
         try {
-          removeServerNamed.invoke(ProxyServer.getInstance().getConfig(), service.getName());
+          removeServerNamed.invoke(ProxyServer.getInstance().getConfig(), service.name());
         } catch (Throwable throwable) {
           throw new RuntimeException("Unable to unregister service using Waterfall 'removeServerNamed':", throwable);
         }
       };
     } catch (NoSuchMethodException | IllegalAccessException ex) {
       // using the default BungeeCord way
-      serverUnregisterHandler = service -> ProxyServer.getInstance().getServers().remove(service.getName());
+      serverUnregisterHandler = service -> ProxyServer.getInstance().getServers().remove(service.name());
     }
     // assign the static fields to the best available method
     SERVER_REGISTER_HANDLER = serverRegisterHandler;
@@ -85,7 +85,7 @@ final class BungeeCordServerHelper {
 
   private static @NotNull ServerInfo constructServerInfo(@NotNull ServiceInfoSnapshot snapshot) {
     return ProxyServer.getInstance().constructServerInfo(
-      snapshot.getName(),
+      snapshot.name(),
       new InetSocketAddress(snapshot.getConnectAddress().getHost(), snapshot.getConnectAddress().getPort()),
       "Just another CloudNet provided service info",
       false);

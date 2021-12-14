@@ -108,7 +108,7 @@ public final class CommandConfig {
     this.updateNodeConfig();
     source.sendMessage(I18n.trans("command-node-set-java-command")
       .replace("%executable%", executable.getFirst())
-      .replace("%ver%", executable.getSecond().getName()));
+      .replace("%ver%", executable.getSecond().name()));
   }
 
   @CommandMethod("config node set defaultJVMFlags <flag>")

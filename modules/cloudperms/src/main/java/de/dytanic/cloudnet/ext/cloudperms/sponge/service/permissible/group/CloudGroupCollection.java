@@ -63,14 +63,14 @@ public final class CloudGroupCollection extends AbstractSubjectCollection {
   @Override
   public Collection<? extends Subject> loadedSubjects() {
     return this.management.getGroups().stream()
-      .map(group -> new PermissionGroupSubject(group.getName(), this, group, this.management))
+      .map(group -> new PermissionGroupSubject(group.name(), this, group, this.management))
       .collect(Collectors.toList());
   }
 
   @Override
   public CompletableFuture<? extends Set<String>> allIdentifiers() {
     return CompletableFuture.completedFuture(this.management.getGroups().stream()
-      .map(PermissionGroup::getName)
+      .map(PermissionGroup::name)
       .collect(Collectors.toSet()));
   }
 
@@ -80,14 +80,14 @@ public final class CloudGroupCollection extends AbstractSubjectCollection {
     Cause cause
   ) {
     return CompletableFuture.completedFuture(this.management.getGroups().stream().collect(Collectors.toMap(
-      group -> this.newSubjectReference(group.getName()),
+      group -> this.newSubjectReference(group.name()),
       group -> this.management.hasPermission(group, Permission.of(permission)))));
   }
 
   @Override
   public Map<? extends Subject, Boolean> loadedWithPermission(String permission, Cause cause) {
     return this.management.getGroups().stream().collect(Collectors.toMap(
-      group -> new PermissionGroupSubject(group.getName(), this, group, this.management),
+      group -> new PermissionGroupSubject(group.name(), this, group, this.management),
       group -> this.management.hasPermission(group, Permission.of(permission))));
   }
 }

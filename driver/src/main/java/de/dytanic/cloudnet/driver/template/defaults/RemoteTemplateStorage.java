@@ -57,7 +57,7 @@ public class RemoteTemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public @NotNull String getName() {
+  public @NotNull String name() {
     return this.name;
   }
 
@@ -103,7 +103,7 @@ public class RemoteTemplateStorage implements TemplateStorage {
       .build()
       .sendSingleQuery();
     // check if we got a response
-    if (response == null || !response.getContent().readBoolean()) {
+    if (response == null || !response.content().readBoolean()) {
       return null;
     }
     // the file is transferred and should be readable
@@ -195,7 +195,7 @@ public class RemoteTemplateStorage implements TemplateStorage {
       .build()
       .sendSingleQuery();
     // check if we got a response
-    if (response == null || !response.getContent().readBoolean()) {
+    if (response == null || !response.content().readBoolean()) {
       return null;
     }
     // the file is transferred and should be readable

@@ -115,7 +115,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
 
   protected void handleNodeCreateRequest(IHttpContext context) {
     var server = this.body(context.request()).toInstanceOf(NetworkClusterNode.class);
-    if (server == null || server.getUniqueId() == null || server.getListeners() == null) {
+    if (server == null || server.getListeners() == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing node server information").toString())
         .context()

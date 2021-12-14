@@ -93,11 +93,11 @@ public final class BridgeServiceHelper {
       return value;
     }
     // replace all service id placeholders
-    value = value.replace("%name%", service.getServiceId().getName());
+    value = value.replace("%name%", service.getServiceId().name());
     value = value.replace("%task%", service.getServiceId().getTaskName());
     value = value.replace("%node%", service.getServiceId().getNodeUniqueId());
     value = value.replace("%unique_id%", service.getServiceId().getUniqueId().toString());
-    value = value.replace("%environment%", service.getServiceId().getEnvironment().getName());
+    value = value.replace("%environment%", service.getServiceId().getEnvironment().name());
     value = value.replace("%task_id%", Integer.toString(service.getServiceId().getTaskServiceId()));
     value = value.replace("%uid%", service.getServiceId().getUniqueId().toString().split("-")[0]);
     // general service information

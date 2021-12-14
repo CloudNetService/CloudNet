@@ -72,7 +72,7 @@ public class BuildStepExecutor implements InstallStepExecutor {
       arguments.add(path.getFileName().toString());
       arguments.addAll(
         parameters.stream()
-          .map(parameter -> parameter.replace("%version%", version.getName()))
+          .map(parameter -> parameter.replace("%version%", version.name()))
           .collect(Collectors.toList()));
 
       var expectedExitCode = version.getProperties().getInt("exitCode", 0);

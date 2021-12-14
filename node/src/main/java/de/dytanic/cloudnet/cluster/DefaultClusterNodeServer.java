@@ -104,9 +104,9 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
     } else {
       // send and await a response
       var response = channelMessage.sendSingleQuery();
-      if (response != null && response.getContent().readBoolean()) {
+      if (response != null && response.content().readBoolean()) {
         // there was overridden data we need to handle
-        this.cloudNet.getDataSyncRegistry().handle(response.getContent(), true);
+        this.cloudNet.getDataSyncRegistry().handle(response.content(), true);
       }
     }
   }

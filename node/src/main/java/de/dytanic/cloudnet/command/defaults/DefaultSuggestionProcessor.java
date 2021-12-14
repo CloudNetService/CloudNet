@@ -42,7 +42,7 @@ final class DefaultSuggestionProcessor implements CommandSuggestionProcessor<Com
   ) {
     // check if the user tries to complete all command roots
     if (!context.getCommandContext().getRawInputJoined().contains(" ")) {
-      return this.provider.getCommands().stream().map(INameable::getName).collect(Collectors.toList());
+      return this.provider.getCommands().stream().map(INameable::name).collect(Collectors.toList());
     }
     // is the queue is empty just use a blank string.
     String input;

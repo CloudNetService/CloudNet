@@ -523,7 +523,7 @@ public final class NPCCommand extends BaseTabExecutor {
       switch (args.length) {
         case 2:
           return CloudNetDriver.getInstance().getGroupConfigurationProvider().getGroupConfigurations().stream()
-            .map(GroupConfiguration::getName)
+            .map(GroupConfiguration::name)
             .collect(Collectors.toList());
         case 3:
           return NPC_TYPES;
@@ -592,7 +592,7 @@ public final class NPCCommand extends BaseTabExecutor {
           // target group
           case "tg", "targetgroup" -> CloudNetDriver.getInstance().getGroupConfigurationProvider()
             .getGroupConfigurations().stream()
-            .map(GroupConfiguration::getName)
+            .map(GroupConfiguration::name)
             .collect(Collectors.toList());
           // item slots
           case "items" -> new ArrayList<>(VALID_ITEM_SLOTS.keySet());

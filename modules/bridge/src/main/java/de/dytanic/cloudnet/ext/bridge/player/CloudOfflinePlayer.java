@@ -50,7 +50,7 @@ public class CloudOfflinePlayer extends JsonDocPropertyHolder implements Cloneab
     return new CloudOfflinePlayer(
       onlineVariant.getFirstLoginTimeMillis(),
       onlineVariant.getLastLoginTimeMillis(),
-      onlineVariant.getName(),
+      onlineVariant.name(),
       onlineVariant.getNetworkPlayerProxyInfo().clone());
   }
 
@@ -59,7 +59,7 @@ public class CloudOfflinePlayer extends JsonDocPropertyHolder implements Cloneab
   }
 
   @Override
-  public @NotNull String getName() {
+  public @NotNull String name() {
     return this.name;
   }
 

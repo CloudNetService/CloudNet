@@ -35,7 +35,7 @@ public final class GroupChannelMessageListener {
 
   @EventListener
   public void handle(@NotNull ChannelMessageReceiveEvent event) {
-    if (event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL) && event.getMessage() != null) {
+    if (event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
       switch (event.getMessage()) {
         // add group
         case "add_group_configuration" -> {

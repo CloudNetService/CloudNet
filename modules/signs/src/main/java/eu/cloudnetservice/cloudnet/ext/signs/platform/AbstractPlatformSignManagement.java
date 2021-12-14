@@ -75,7 +75,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
       .targetNode(Wrapper.getInstance().getNodeUniqueId())
       .build()
       .sendSingleQuery();
-    return response == null ? null : response.getContent().readObject(SignsConfiguration.class);
+    return response == null ? null : response.content().readObject(SignsConfiguration.class);
   }
 
   @Override
@@ -97,7 +97,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
     var response = this.channelMessage(SIGN_BULK_DELETE)
       .buffer(DataBuf.empty().writeString(group).writeNullable(templatePath, Mutable::writeString))
       .build().sendSingleQuery();
-    return response == null ? 0 : response.getContent().readInt();
+    return response == null ? 0 : response.content().readInt();
   }
 
   @Override
@@ -122,7 +122,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
       if (handlingSign == null) {
         handlingSign = this.getNextFreeSign(snapshot);
         // in all cases we need to remove the old waiting assignment
-        this.waitingAssignments.removeIf(s -> s.getName().equals(snapshot.getName()));
+        this.waitingAssignments.removeIf(s -> s.name().equals(snapshot.name()));
         if (handlingSign == null) {
           this.waitingAssignments.add(snapshot);
           return;
@@ -142,7 +142,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
         handlingSign.setCurrentTarget(null);
         this.updateSign(handlingSign);
       } else {
-        this.waitingAssignments.removeIf(s -> s.getName().equals(snapshot.getName()));
+        this.waitingAssignments.removeIf(s -> s.name().equals(snapshot.name()));
       }
     }
   }
@@ -343,7 +343,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
 
   protected @Nullable Sign getSignOf(@NotNull ServiceInfoSnapshot snapshot) {
     for (var value : this.signs.values()) {
-      if (value.getCurrentTarget() != null && value.getCurrentTarget().getName().equals(snapshot.getName())) {
+      if (value.getCurrentTarget() != null && value.getCurrentTarget().name().equals(snapshot.name())) {
         return value;
       }
     }

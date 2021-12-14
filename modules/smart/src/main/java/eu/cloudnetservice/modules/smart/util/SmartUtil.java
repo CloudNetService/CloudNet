@@ -34,7 +34,7 @@ public final class SmartUtil {
     int runningServices
   ) {
     // get the min service count
-    var minServiceCount = Math.max(task.getMinServiceCount(), config.getSmartMinServiceCount());
+    var minServiceCount = Math.max(task.getMinServiceCount(), config.smartMinServiceCount());
     // check if stopping the service would instantly cause a new service to start - beware
     return (runningServices - 1) > minServiceCount;
   }

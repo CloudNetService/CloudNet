@@ -58,7 +58,7 @@ public class ChannelMessageSender {
   }
 
   public boolean is(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
-    return this.type == DriverEnvironment.WRAPPER && this.name.equals(serviceInfoSnapshot.getName());
+    return this.type == DriverEnvironment.WRAPPER && this.name.equals(serviceInfoSnapshot.name());
   }
 
   public boolean is(@NotNull NetworkClusterNode node) {

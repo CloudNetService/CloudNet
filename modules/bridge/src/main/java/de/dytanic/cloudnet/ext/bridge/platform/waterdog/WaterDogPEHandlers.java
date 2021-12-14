@@ -37,7 +37,7 @@ final class WaterDogPEHandlers implements IForcedHostHandler, IReconnectHandler 
   @Override
   public ServerInfo resolveForcedHost(@Nullable String domain, @NotNull ProxiedPlayer player) {
     return this.management.getFallback(player.getUniqueId(), null, domain, player::hasPermission)
-      .map(server -> ProxyServer.getInstance().getServerInfo(server.getName()))
+      .map(server -> ProxyServer.getInstance().getServerInfo(server.name()))
       .orElse(null);
   }
 
@@ -53,7 +53,7 @@ final class WaterDogPEHandlers implements IForcedHostHandler, IReconnectHandler 
       .replace("%reason%", kickMessage));
     // filter the next fallback for the player
     return this.management.getFallback(player, oldServer.getServerName())
-      .map(server -> ProxyServer.getInstance().getServerInfo(server.getName()))
+      .map(server -> ProxyServer.getInstance().getServerInfo(server.name()))
       .orElse(null);
   }
 }

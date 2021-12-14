@@ -66,7 +66,7 @@ public class ServiceId implements INameable {
   }
 
   @Override
-  public @NotNull String getName() {
+  public @NotNull String name() {
     return this.taskName + this.nameSplitter + this.taskServiceId;
   }
 
@@ -124,7 +124,7 @@ public class ServiceId implements INameable {
 
   @Override
   public String toString() {
-    return this.getName() + ':' + this.uniqueId;
+    return this.name() + ':' + this.uniqueId;
   }
 
   public static class Builder {
@@ -172,7 +172,7 @@ public class ServiceId implements INameable {
 
     public @NotNull Builder environment(@NotNull ServiceEnvironmentType environment) {
       this.environment = environment;
-      this.environmentName = environment.getName();
+      this.environmentName = environment.name();
       return this;
     }
 

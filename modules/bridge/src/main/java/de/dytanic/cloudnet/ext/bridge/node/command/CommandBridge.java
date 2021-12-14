@@ -60,7 +60,7 @@ public class CommandBridge {
     var fallbacks = this.bridgeManagement.getConfiguration().getFallbackConfigurations()
       .stream();
     // don't allow duplicated entries
-    if (fallbacks.anyMatch(fallback -> fallback.getTargetGroup().equals(group.getName()))) {
+    if (fallbacks.anyMatch(fallback -> fallback.getTargetGroup().equals(group.name()))) {
       throw new ArgumentNotAvailableException(I18n.trans("module-bridge-command-entry-already-exists"));
     }
     return group;
@@ -69,7 +69,7 @@ public class CommandBridge {
   @Suggestions("bridgeGroups")
   public List<String> suggestBridgeGroups(@NotNull CommandContext<?> $, String input) {
     return this.groupConfigurationProvider.getGroupConfigurations().stream()
-      .map(INameable::getName)
+      .map(INameable::name)
       .filter(group -> this.bridgeManagement.getConfiguration().getFallbackConfigurations().stream()
         .noneMatch(fallback -> fallback.getTargetGroup().equals(group)))
       .collect(Collectors.toList());
@@ -82,7 +82,7 @@ public class CommandBridge {
   ) {
     // create a new configuration for the given target group
     var fallbackConfiguration = new ProxyFallbackConfiguration(
-      group.getName(),
+      group.name(),
       "Lobby",
       Collections.emptyList());
     var configuration = this.bridgeManagement.getConfiguration();

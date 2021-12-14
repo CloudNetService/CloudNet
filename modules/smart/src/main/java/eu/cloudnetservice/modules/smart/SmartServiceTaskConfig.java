@@ -16,58 +16,22 @@
 
 package eu.cloudnetservice.modules.smart;
 
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
-@ToString
-@EqualsAndHashCode
-public class SmartServiceTaskConfig implements Comparable<SmartServiceTaskConfig> {
-
-  protected final boolean enabled;
-  protected final int priority;
-
-  protected final int maxServices;
-  protected final int preparedServices;
-  protected final int smartMinServiceCount;
-  protected final boolean splitLogicallyOverNodes;
-
-  protected final boolean directTemplatesAndInclusionsSetup;
-  protected final TemplateInstaller templateInstaller;
-
-  protected final int autoStopTimeByUnusedServiceInSeconds;
-  protected final int percentOfPlayersToCheckShouldStopTheService;
-
-  protected final int forAnewInstanceDelayTimeInSeconds;
-  protected final int percentOfPlayersForANewServiceByInstance;
-
-  protected SmartServiceTaskConfig(
-    boolean enabled,
-    int priority,
-    int maxServices,
-    int preparedServices,
-    int smartMinServiceCount,
-    boolean splitLogicallyOverNodes,
-    boolean directTemplatesAndInclusionsSetup,
-    @NotNull TemplateInstaller templateInstaller,
-    int autoStopTimeByUnusedServiceInSeconds,
-    int percentOfPlayersToCheckShouldStopTheService,
-    int forAnewInstanceDelayTimeInSeconds,
-    int percentOfPlayersForANewServiceByInstance
-  ) {
-    this.enabled = enabled;
-    this.priority = priority;
-    this.maxServices = maxServices;
-    this.preparedServices = preparedServices;
-    this.smartMinServiceCount = smartMinServiceCount;
-    this.splitLogicallyOverNodes = splitLogicallyOverNodes;
-    this.directTemplatesAndInclusionsSetup = directTemplatesAndInclusionsSetup;
-    this.templateInstaller = templateInstaller;
-    this.autoStopTimeByUnusedServiceInSeconds = autoStopTimeByUnusedServiceInSeconds;
-    this.percentOfPlayersToCheckShouldStopTheService = percentOfPlayersToCheckShouldStopTheService;
-    this.forAnewInstanceDelayTimeInSeconds = forAnewInstanceDelayTimeInSeconds;
-    this.percentOfPlayersForANewServiceByInstance = percentOfPlayersForANewServiceByInstance;
-  }
+public record SmartServiceTaskConfig(
+  boolean enabled,
+  int priority,
+  int maxServices,
+  int preparedServices,
+  int smartMinServiceCount,
+  boolean splitLogicallyOverNodes,
+  boolean directTemplatesAndInclusionsSetup,
+  @NotNull TemplateInstaller templateInstaller,
+  int autoStopTimeByUnusedServiceInSeconds,
+  int percentOfPlayersToCheckShouldStopTheService,
+  int forAnewInstanceDelayTimeInSeconds,
+  int percentOfPlayersForANewServiceByInstance
+) implements Comparable<SmartServiceTaskConfig> {
 
   public static @NotNull Builder builder() {
     return new Builder();
@@ -75,70 +39,22 @@ public class SmartServiceTaskConfig implements Comparable<SmartServiceTaskConfig
 
   public static @NotNull Builder builder(@NotNull SmartServiceTaskConfig config) {
     return builder()
-      .enabled(config.isEnabled())
-      .priority(config.getPriority())
+      .enabled(config.enabled())
+      .priority(config.priority())
 
-      .maxServices(config.getMaxServices())
-      .preparedServices(config.getPreparedServices())
-      .smartMinServiceCount(config.getSmartMinServiceCount())
-      .splitLogicallyOverNodes(config.isSplitLogicallyOverNodes())
+      .maxServices(config.maxServices())
+      .preparedServices(config.preparedServices())
+      .smartMinServiceCount(config.smartMinServiceCount())
+      .splitLogicallyOverNodes(config.splitLogicallyOverNodes())
 
-      .directTemplatesAndInclusionsSetup(config.isDirectTemplatesAndInclusionsSetup())
-      .templateInstaller(config.getTemplateInstaller())
+      .directTemplatesAndInclusionsSetup(config.directTemplatesAndInclusionsSetup())
+      .templateInstaller(config.templateInstaller())
 
-      .autoStopTimeByUnusedServiceInSeconds(config.getAutoStopTimeByUnusedServiceInSeconds())
-      .percentOfPlayersToCheckShouldStop(config.getPercentOfPlayersToCheckShouldStopTheService())
+      .autoStopTimeByUnusedServiceInSeconds(config.autoStopTimeByUnusedServiceInSeconds())
+      .percentOfPlayersToCheckShouldStop(config.percentOfPlayersToCheckShouldStopTheService())
 
-      .forAnewInstanceDelayTimeInSeconds(config.getForAnewInstanceDelayTimeInSeconds())
-      .percentOfPlayersForANewServiceByInstance(config.getPercentOfPlayersForANewServiceByInstance());
-  }
-
-  public boolean isEnabled() {
-    return this.enabled;
-  }
-
-  public int getPriority() {
-    return this.priority;
-  }
-
-  public int getMaxServices() {
-    return this.maxServices;
-  }
-
-  public int getPreparedServices() {
-    return this.preparedServices;
-  }
-
-  public int getSmartMinServiceCount() {
-    return this.smartMinServiceCount;
-  }
-
-  public boolean isSplitLogicallyOverNodes() {
-    return this.splitLogicallyOverNodes;
-  }
-
-  public boolean isDirectTemplatesAndInclusionsSetup() {
-    return this.directTemplatesAndInclusionsSetup;
-  }
-
-  public @NotNull TemplateInstaller getTemplateInstaller() {
-    return this.templateInstaller;
-  }
-
-  public int getAutoStopTimeByUnusedServiceInSeconds() {
-    return this.autoStopTimeByUnusedServiceInSeconds;
-  }
-
-  public int getPercentOfPlayersToCheckShouldStopTheService() {
-    return this.percentOfPlayersToCheckShouldStopTheService;
-  }
-
-  public int getForAnewInstanceDelayTimeInSeconds() {
-    return this.forAnewInstanceDelayTimeInSeconds;
-  }
-
-  public int getPercentOfPlayersForANewServiceByInstance() {
-    return this.percentOfPlayersForANewServiceByInstance;
+      .forAnewInstanceDelayTimeInSeconds(config.forAnewInstanceDelayTimeInSeconds())
+      .percentOfPlayersForANewServiceByInstance(config.percentOfPlayersForANewServiceByInstance());
   }
 
   @Override

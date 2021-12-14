@@ -59,7 +59,7 @@ public final class ChatFormatter {
       .replace("%name%", playerName)
       .replace("%display_name%", displayName)
       .replace("%uniqueId%", playerId.toString())
-      .replace("%group%", group == null ? "" : group.getName())
+      .replace("%group%", group == null ? "" : group.name())
       .replace("%display%", group == null ? "" : group.getDisplay())
       .replace("%prefix%", group == null ? "" : group.getPrefix())
       .replace("%suffix%", group == null ? "" : group.getSuffix())

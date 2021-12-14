@@ -49,12 +49,12 @@ public final class BungeeCordCloudCommand extends Command {
       // get the command info
       var command = CloudNetDriver.getInstance().getNodeInfoProvider().getConsoleCommand(commandLine);
       // check if the sender has the required permission to execute the command
-      if (command != null && command.getPermission() != null) {
+      if (command != null) {
         if (!sender.hasPermission(command.getPermission())) {
           sender.sendMessage(fromLegacyText(this.management.getConfiguration().getMessage(
             ((ProxiedPlayer) sender).getLocale(),
             "command-cloud-sub-command-no-permission"
-          ).replace("%command%", command.getName())));
+          ).replace("%command%", command.name())));
           return;
         }
       }

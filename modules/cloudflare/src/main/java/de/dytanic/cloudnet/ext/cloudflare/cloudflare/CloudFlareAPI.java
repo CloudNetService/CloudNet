@@ -60,7 +60,7 @@ public class CloudFlareAPI implements AutoCloseable {
       var result = this.sendRequestAndReadResponse(connection, record);
 
       var content = result.getDocument("result");
-      if (result.getBoolean("success") && content != null) {
+      if (result.getBoolean("success")) {
         var id = content.getString("id");
         if (id != null) {
           LOGGER.fine(
@@ -115,7 +115,7 @@ public class CloudFlareAPI implements AutoCloseable {
       var result = this.sendRequestAndReadResponse(connection);
 
       var content = result.getDocument("result");
-      if (content != null && content.contains("id")) {
+      if (content.contains("id")) {
         LOGGER.fine("Successfully deleted record " + id + " for configuration " + configuration);
         return true;
       }

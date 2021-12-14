@@ -124,16 +124,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
     var key = body.getString("key");
     var filter = body.getDocument("filter");
 
-    if (key == null && filter == null) {
-      this.badRequest(context)
-        .body(this.failure().append("reason", "Key or filter is required").toString())
-        .context()
-        .closeAfter(true)
-        .cancelNext();
-      return;
-    }
-
-    var result = filter == null ? Collections.singleton(database.get(key)) : database.get(filter);
+    var result = database.get(filter);
     this.ok(context)
       .body(this.success().append("result", result).toString())
       .context()
@@ -222,9 +213,9 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
     var key = body.getString("key");
     var data = body.getDocument("document");
 
-    if (key == null || data == null) {
+    if (key == null) {
       this.badRequest(context)
-        .body(this.failure().append("reason", key == null ? "Missing key" : "Missing value").toString())
+        .body(this.failure().append("reason", "Missing key").toString())
         .context()
         .closeAfter(true)
         .cancelNext();

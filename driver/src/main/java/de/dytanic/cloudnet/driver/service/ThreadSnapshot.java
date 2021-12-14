@@ -16,32 +16,20 @@
 
 package de.dytanic.cloudnet.driver.service;
 
+import de.dytanic.cloudnet.common.INameable;
 import java.lang.Thread.State;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * The information of a thread running on any process in the Cloud.
  */
-@ToString
-@EqualsAndHashCode
-public class ThreadSnapshot implements Cloneable {
-
-  private final long id;
-  private final int priority;
-  private final boolean daemon;
-
-  private final String name;
-  private final State threadState;
-
-  protected ThreadSnapshot(long id, int priority, boolean daemon, @NotNull String name, @NotNull State threadState) {
-    this.id = id;
-    this.priority = priority;
-    this.daemon = daemon;
-    this.name = name;
-    this.threadState = threadState;
-  }
+public record ThreadSnapshot(
+  long id,
+  int priority,
+  boolean daemon,
+  @NotNull String name,
+  @NotNull State threadState
+) implements INameable, Cloneable {
 
   public static @NotNull ThreadSnapshot from(@NotNull Thread thread) {
     return new ThreadSnapshot(
@@ -50,26 +38,6 @@ public class ThreadSnapshot implements Cloneable {
       thread.isDaemon(),
       thread.getName(),
       thread.getState());
-  }
-
-  public long getId() {
-    return this.id;
-  }
-
-  public @NotNull String getName() {
-    return this.name;
-  }
-
-  public @NotNull Thread.State getThreadState() {
-    return this.threadState;
-  }
-
-  public boolean isDaemon() {
-    return this.daemon;
-  }
-
-  public int getPriority() {
-    return this.priority;
   }
 
   @Override

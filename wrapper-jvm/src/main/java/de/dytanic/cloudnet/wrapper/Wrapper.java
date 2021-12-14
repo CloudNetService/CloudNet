@@ -177,7 +177,7 @@ public class Wrapper extends CloudNetDriver {
    */
   @Override
   public @NotNull String getComponentName() {
-    return this.getServiceId().getName();
+    return this.getServiceId().name();
   }
 
   @Override

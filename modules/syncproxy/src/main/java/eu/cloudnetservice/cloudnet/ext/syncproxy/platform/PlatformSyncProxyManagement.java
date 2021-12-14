@@ -73,14 +73,14 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
     this.configuration = configuration;
     this.eventManager.callEvent(new SyncProxyConfigurationUpdateEvent(configuration));
 
-    this.currentLoginConfiguration = configuration.getLoginConfigurations()
+    this.currentLoginConfiguration = configuration.loginConfigurations()
       .stream()
       .filter(loginConfiguration -> Wrapper.getInstance().getServiceConfiguration().getGroups()
-        .contains(loginConfiguration.getTargetGroup()))
+        .contains(loginConfiguration.targetGroup()))
       .findFirst()
       .orElse(null);
 
-    this.currentTabListConfiguration = configuration.getTabListConfigurations()
+    this.currentTabListConfiguration = configuration.tabListConfigurations()
       .stream()
       .filter(tabListConfiguration -> Wrapper.getInstance().getServiceConfiguration().getGroups()
         .contains(tabListConfiguration.getTargetGroup()))
@@ -107,9 +107,9 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
     }
 
     var motds =
-      this.currentLoginConfiguration.isMaintenance()
-        ? this.currentLoginConfiguration.getMaintenanceMotds()
-        : this.currentLoginConfiguration.getMotds();
+      this.currentLoginConfiguration.maintenance()
+        ? this.currentLoginConfiguration.maintenanceMotds()
+        : this.currentLoginConfiguration.motds();
 
     if (motds.isEmpty()) {
       return null;
@@ -124,14 +124,14 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
       return;
     }
     // check if the maintenance is enabled, if not we dont need to apply anything
-    if (!this.currentLoginConfiguration.isMaintenance()) {
+    if (!this.currentLoginConfiguration.maintenance()) {
       return;
     }
 
     for (var onlinePlayer : this.getOnlinePlayers()) {
       // check if the player is allowed to join
       if (!this.checkPlayerMaintenance(onlinePlayer)) {
-        this.disconnectPlayer(onlinePlayer, this.configuration.getMessage("player-login-not-whitelisted", null));
+        this.disconnectPlayer(onlinePlayer, this.configuration.message("player-login-not-whitelisted", null));
       }
     }
   }
@@ -153,7 +153,7 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
       return 0;
     }
 
-    return this.currentLoginConfiguration.getMaxPlayers();
+    return this.currentLoginConfiguration.maxPlayers();
   }
 
   public void cacheServiceInfoSnapshot(@NotNull ServiceInfoSnapshot snapshot) {
@@ -175,8 +175,8 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
     @NotNull String key,
     @NotNull ServiceInfoSnapshot serviceInfoSnapshot
   ) {
-    return this.configuration.getMessage(key, message -> message
-      .replace("%service%", serviceInfoSnapshot.getName())
+    return this.configuration.message(key, message -> message
+      .replace("%service%", serviceInfoSnapshot.name())
       .replace("%node%", serviceInfoSnapshot.getServiceId().getNodeUniqueId()));
   }
 
@@ -227,14 +227,14 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
       return false;
     }
 
-    return snapshot.getConfiguration().getGroups().contains(this.currentLoginConfiguration.getTargetGroup());
+    return snapshot.getConfiguration().getGroups().contains(this.currentLoginConfiguration.targetGroup());
   }
 
   public boolean checkPlayerMaintenance(@NotNull P player) {
     if (this.currentLoginConfiguration == null) {
       return false;
     }
-    var whitelist = this.currentLoginConfiguration.getWhitelist();
+    var whitelist = this.currentLoginConfiguration.whitelist();
     if (whitelist.contains(this.getPlayerName(player))
       || whitelist.contains(this.getPlayerUniqueId(player).toString())) {
       return true;

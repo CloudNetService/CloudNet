@@ -90,9 +90,9 @@ public final class CloudNetReportModule extends DriverModule {
   }
 
   public @NotNull Path getCurrentRecordDirectory() {
-    var date = this.reportConfiguration.getDateFormat().format(System.currentTimeMillis());
+    var date = this.reportConfiguration.dateFormat().format(System.currentTimeMillis());
     var recordBaseDestination = this.moduleWrapper.getDataDirectory()
-      .resolve(this.reportConfiguration.getRecordDestination());
+      .resolve(this.reportConfiguration.recordDestination());
     var timeBasedDestination = recordBaseDestination.resolve(date);
     if (timeBasedDestination.equals(this.currentRecordDirectory)) {
       return this.currentRecordDirectory;

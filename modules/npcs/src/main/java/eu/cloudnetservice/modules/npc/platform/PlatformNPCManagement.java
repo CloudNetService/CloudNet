@@ -70,7 +70,7 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
       .targetNode(Wrapper.getInstance().getNodeUniqueId())
       .build()
       .sendSingleQuery();
-    return response == null ? null : response.getContent().readObject(NPCConfiguration.class);
+    return response == null ? null : response.content().readObject(NPCConfiguration.class);
   }
 
   @Override
@@ -92,7 +92,7 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
     var response = this.channelMessage(NPC_BULK_DELETE)
       .buffer(DataBuf.empty().writeString(group))
       .build().sendSingleQuery();
-    return response == null ? 0 : response.getContent().readInt();
+    return response == null ? 0 : response.content().readInt();
   }
 
   @Override
@@ -100,7 +100,7 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
     var response = this.channelMessage(NPC_ALL_DELETE)
       .buffer(DataBuf.empty().writeObject(this.npcs.keySet()))
       .build().sendSingleQuery();
-    return response == null ? 0 : response.getContent().readInt();
+    return response == null ? 0 : response.content().readInt();
   }
 
   @Override
@@ -108,7 +108,7 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
     var response = this.channelMessage(NPC_GET_NPCS_BY_GROUP)
       .buffer(DataBuf.empty().writeObject(groups))
       .build().sendSingleQuery();
-    return response == null ? Collections.emptySet() : response.getContent().readObject(NPC.COLLECTION_NPC);
+    return response == null ? Collections.emptySet() : response.content().readObject(NPC.COLLECTION_NPC);
   }
 
   @Override

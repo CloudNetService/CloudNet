@@ -41,7 +41,7 @@ public class PasteService implements INameable {
    * @return the name of this PasteService - the user can use this to decide where to upload a paste
    */
   @Override
-  public @NotNull String getName() {
+  public @NotNull String name() {
     return this.name;
   }
 

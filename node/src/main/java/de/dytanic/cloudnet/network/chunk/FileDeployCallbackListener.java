@@ -51,7 +51,7 @@ public final class FileDeployCallbackListener {
 
   @EventListener
   public void handle(@NotNull ChannelMessageReceiveEvent event) {
-    if (event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL) && event.getMessage() != null) {
+    if (event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
       switch (event.getMessage()) {
         case "remote_templates_zip_template" -> this.handleInputRequest(event, TemplateStorage::zipTemplate);
         case "remote_templates_template_file" -> {

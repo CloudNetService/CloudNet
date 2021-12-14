@@ -102,7 +102,7 @@ final class BungeeCordPlayerManagementListener implements Listener {
     // initial connect reasons, LOBBY_FALLBACK will be used if the initial fallback is not present
     if (event.getReason() == Reason.JOIN_PROXY || event.getReason() == Reason.LOBBY_FALLBACK) {
       ServerInfo target = this.management.getFallback(event.getPlayer())
-        .map(service -> ProxyServer.getInstance().getServerInfo(service.getName()))
+        .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
         .orElse(null);
       // check if the server is present
       if (target != null) {
@@ -118,7 +118,7 @@ final class BungeeCordPlayerManagementListener implements Listener {
   public void handle(@NotNull ServerKickEvent event) {
     if (event.getPlayer().isConnected()) {
       ServerInfo target = this.management.getFallback(event.getPlayer(), event.getKickedFrom().getName())
-        .map(service -> ProxyServer.getInstance().getServerInfo(service.getName()))
+        .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
         .orElse(null);
       // check if the server is present
       if (target != null) {
@@ -153,7 +153,7 @@ final class BungeeCordPlayerManagementListener implements Listener {
       // server switch
       // the player switched the service
       this.management
-        .getCachedService(service -> service.getName().equals(event.getServer().getInfo().getName()))
+        .getCachedService(service -> service.name().equals(event.getServer().getInfo().getName()))
         .map(BridgeServiceHelper::createServiceInfo)
         .ifPresent(info -> ProxyPlatformHelper.sendChannelMessageServiceSwitch(event.getPlayer().getUniqueId(), info));
     }

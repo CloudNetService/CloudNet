@@ -66,7 +66,7 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
   public void connectSelecting(@NotNull ServerSelectorType selectorType) {
     this.management.getCachedServices().stream()
       .sorted(selectorType.getComparator())
-      .map(service -> ProxyServer.getInstance().getServerInfo(service.getName()))
+      .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
       .filter(Objects::nonNull)
       .findFirst()
       .ifPresent(server -> this.playerSupplier.get().forEach(player -> player.connect(server)));
@@ -77,7 +77,7 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
     this.playerSupplier.get().stream()
       .map(player -> new Pair<>(player, this.management.getFallback(player)))
       .filter(pair -> pair.getSecond().isPresent())
-      .map(p -> new Pair<>(p.getFirst(), ProxyServer.getInstance().getServerInfo(p.getSecond().get().getName())))
+      .map(p -> new Pair<>(p.getFirst(), ProxyServer.getInstance().getServerInfo(p.getSecond().get().name())))
       .filter(pair -> pair.getSecond() != null)
       .forEach(pair -> pair.getFirst().connect(pair.getSecond()));
   }
@@ -87,7 +87,7 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
     this.management.getCachedServices().stream()
       .filter(service -> service.getConfiguration().getGroups().contains(group))
       .sorted(selectorType.getComparator())
-      .map(service -> ProxyServer.getInstance().getServerInfo(service.getName()))
+      .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
       .filter(Objects::nonNull)
       .forEach(server -> this.playerSupplier.get().forEach(player -> player.connect(server)));
   }
@@ -97,7 +97,7 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
     this.management.getCachedServices().stream()
       .filter(service -> service.getServiceId().getTaskName().equals(task))
       .sorted(selectorType.getComparator())
-      .map(service -> ProxyServer.getInstance().getServerInfo(service.getName()))
+      .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
       .filter(Objects::nonNull)
       .forEach(server -> this.playerSupplier.get().forEach(player -> player.connect(server)));
   }

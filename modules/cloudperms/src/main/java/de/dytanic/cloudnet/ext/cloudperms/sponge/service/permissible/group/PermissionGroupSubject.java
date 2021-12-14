@@ -49,7 +49,7 @@ final class PermissionGroupSubject extends AbstractSubject<PermissionGroup> {
     return this.data.getGroups().stream()
       .map(this.permissionManagement::getGroup)
       .filter(Objects::nonNull)
-      .map(group -> this.source.newSubjectReference(group.getName()))
+      .map(group -> this.source.newSubjectReference(group.name()))
       .collect(Collectors.toList());
   }
 

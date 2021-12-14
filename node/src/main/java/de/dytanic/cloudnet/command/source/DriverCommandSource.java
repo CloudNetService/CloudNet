@@ -29,7 +29,7 @@ public class DriverCommandSource implements CommandSource {
    * @return "Driver" for the driver command source.
    */
   @Override
-  public @NotNull String getName() {
+  public @NotNull String name() {
     return "Driver";
   }
 

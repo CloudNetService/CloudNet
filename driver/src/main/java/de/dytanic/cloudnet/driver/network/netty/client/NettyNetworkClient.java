@@ -143,23 +143,23 @@ public class NettyNetworkClient implements DefaultNetworkComponent, INetworkClie
   }
 
   private void init() throws Exception {
-    if (this.sslConfiguration != null && this.sslConfiguration.isEnabled()) {
-      if (this.sslConfiguration.getCertificatePath() != null && this.sslConfiguration.getPrivateKeyPath() != null) {
+    if (this.sslConfiguration != null && this.sslConfiguration.enabled()) {
+      if (this.sslConfiguration.certificatePath() != null && this.sslConfiguration.privateKeyPath() != null) {
         var builder = SslContextBuilder.forClient();
 
-        if (this.sslConfiguration.getTrustCertificatePath() != null) {
-          try (var stream = Files.newInputStream(this.sslConfiguration.getTrustCertificatePath())) {
+        if (this.sslConfiguration.trustCertificatePath() != null) {
+          try (var stream = Files.newInputStream(this.sslConfiguration.trustCertificatePath())) {
             builder.trustManager(stream);
           }
         } else {
           builder.trustManager(InsecureTrustManagerFactory.INSTANCE);
         }
 
-        try (var cert = Files.newInputStream(this.sslConfiguration.getCertificatePath());
-          var privateKey = Files.newInputStream(this.sslConfiguration.getPrivateKeyPath())) {
+        try (var cert = Files.newInputStream(this.sslConfiguration.certificatePath());
+          var privateKey = Files.newInputStream(this.sslConfiguration.privateKeyPath())) {
           this.sslContext = builder
             .keyManager(cert, privateKey)
-            .clientAuth(this.sslConfiguration.isClientAuth() ? ClientAuth.REQUIRE : ClientAuth.OPTIONAL)
+            .clientAuth(this.sslConfiguration.clientAuth() ? ClientAuth.REQUIRE : ClientAuth.OPTIONAL)
             .build();
         }
       } else {

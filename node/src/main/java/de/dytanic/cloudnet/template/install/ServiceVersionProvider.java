@@ -139,9 +139,9 @@ public class ServiceVersionProvider {
       this.getEnvironmentType(versionType.getEnvironmentType()).isPresent(),
       "Missing environment %s for service version %s",
       versionType.getEnvironmentType(),
-      versionType.getName());
+      versionType.name());
     // register the service version
-    this.serviceVersionTypes.put(versionType.getName().toLowerCase(), versionType);
+    this.serviceVersionTypes.put(versionType.name().toLowerCase(), versionType);
   }
 
   public @NotNull Optional<ServiceVersionType> getServiceVersionType(@NotNull String name) {
@@ -149,7 +149,7 @@ public class ServiceVersionProvider {
   }
 
   public void registerServiceEnvironmentType(@NotNull ServiceEnvironmentType environmentType) {
-    this.serviceEnvironmentTypes.put(environmentType.getName().toUpperCase(), environmentType);
+    this.serviceEnvironmentTypes.put(environmentType.name().toUpperCase(), environmentType);
   }
 
   public @NotNull Optional<ServiceEnvironmentType> getEnvironmentType(@NotNull String name) {
@@ -158,8 +158,8 @@ public class ServiceVersionProvider {
 
   public boolean installServiceVersion(@NotNull InstallInformation information, boolean force) {
     var fullVersionIdentifier = String.format("%s-%s",
-      information.getServiceVersionType().getName(),
-      information.getServiceVersion().getName());
+      information.getServiceVersionType().name(),
+      information.getServiceVersion().name());
 
     if (!force
       && information.getInstallerExecutable().isEmpty()
@@ -168,7 +168,7 @@ public class ServiceVersionProvider {
       throw new IllegalArgumentException(String.format(
         "Cannot run %s on %s",
         fullVersionIdentifier,
-        JavaVersion.getRuntimeVersion().getName()));
+        JavaVersion.getRuntimeVersion().name()));
     }
 
     if (information.getServiceVersion().isDeprecated()) {
@@ -180,7 +180,7 @@ public class ServiceVersionProvider {
       for (var file : information.getTemplateStorage().listFiles("", false)) {
         if (file != null) {
           for (ServiceEnvironment environment : this.serviceVersionTypes.values()) {
-            if (file.getName().toLowerCase().contains(environment.getName()) && file.getName().endsWith(".jar")) {
+            if (file.getName().toLowerCase().contains(environment.name()) && file.getName().endsWith(".jar")) {
               information.getTemplateStorage().deleteFile(file.getPath());
             }
           }
