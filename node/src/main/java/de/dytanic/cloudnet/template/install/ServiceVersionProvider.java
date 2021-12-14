@@ -162,7 +162,7 @@ public class ServiceVersionProvider {
       information.getServiceVersion().getName());
 
     if (!force
-      && !information.getInstallerExecutable().isPresent()
+      && information.getInstallerExecutable().isEmpty()
       && !information.getServiceVersionType().canInstall(information.getServiceVersion())
     ) {
       throw new IllegalArgumentException(String.format(

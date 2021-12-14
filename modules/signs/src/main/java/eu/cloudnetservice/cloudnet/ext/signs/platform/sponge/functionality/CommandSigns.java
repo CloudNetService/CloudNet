@@ -58,7 +58,7 @@ public class CommandSigns implements CommandExecutor {
     if (type != null) {
       if (type.equalsIgnoreCase("create") && targetGroup != null) {
         var hit = this.getTargetBlock(player);
-        if (!hit.isPresent()) {
+        if (hit.isEmpty()) {
           return CommandResult.success();
         }
 
@@ -97,7 +97,7 @@ public class CommandSigns implements CommandExecutor {
         return CommandResult.success();
       } else if (type.equalsIgnoreCase("remove")) {
         var hit = this.getTargetBlock(player);
-        if (!hit.isPresent()) {
+        if (hit.isEmpty()) {
           return CommandResult.success();
         }
 
@@ -134,7 +134,7 @@ public class CommandSigns implements CommandExecutor {
       .select(block -> block.blockState().type().key(RegistryTypes.BLOCK_TYPE).formatted().endsWith("_sign"))
       .execute();
     // check if the player is facing a sign
-    if (!result.isPresent() || !(result.get().selectedObject() instanceof org.spongepowered.api.block.entity.Sign)) {
+    if (result.isEmpty() || !(result.get().selectedObject() instanceof org.spongepowered.api.block.entity.Sign)) {
       this.signManagement.getSignsConfiguration().sendMessage(
         "command-cloudsign-not-looking-at-sign",
         message -> player.sendMessage(Component.text(message)));

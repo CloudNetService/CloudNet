@@ -191,7 +191,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
       // get all services we have cached of the task
       .map(fallback -> new Pair<>(fallback, this.getAnyTaskService(fallback.getTask(), profile, currentServerName)))
       // filter out all fallbacks that have no services
-      .filter(possibility -> !possibility.getSecond().isPresent())
+      .filter(possibility -> possibility.getSecond().isEmpty())
       // get the first possibility with the highest priority
       .min(Comparator.comparing(Pair::getFirst))
       // extract the target service
