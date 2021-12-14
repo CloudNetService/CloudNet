@@ -127,14 +127,13 @@ public final class CommandPermissions {
     var unit = time.charAt(length - 1);
     // select the timeunit based on the entered unit of the user
     switch (unit) {
-      case 'm': {
+      case 'm' -> {
         return TimeUnit.MINUTES.toMillis(unitTime) + System.currentTimeMillis();
       }
-      case 'h': {
+      case 'h' -> {
         return TimeUnit.HOURS.toMillis(unitTime) + System.currentTimeMillis();
       }
-      default:
-      case 'd': {
+      default -> {
         return TimeUnit.DAYS.toMillis(unitTime) + System.currentTimeMillis();
       }
     }

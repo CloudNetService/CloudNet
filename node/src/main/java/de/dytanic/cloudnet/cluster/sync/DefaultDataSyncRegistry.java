@@ -145,12 +145,12 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
             LOGGER.info(I18n.trans("cluster-sync-change-decision-question"));
             // wait for the decision and apply
             switch (this.waitForCorrectMergeInput(CloudNet.getInstance().getConsole())) {
-              case 1:
+              case 1 -> {
                 // accept theirs - write the change
                 handler.write(data);
                 LOGGER.info(I18n.trans("cluster-sync-accepted-theirs"));
-                break;
-              case 2:
+              }
+              case 2 -> {
                 // accept yours - check if we already have a result buf
                 if (result == null) {
                   result = DataBuf.empty().writeBoolean(true);
@@ -158,14 +158,13 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
                 // write the current data to the result buf
                 this.serializeData(current, handler, result);
                 LOGGER.info(I18n.trans("cluster-sync-accept-yours"));
-                break;
-              case 3:
-                // skip the current change
-                LOGGER.info(I18n.trans("cluster-sync-skip"));
-                break;
-              default:
-                // cannot happen
-                break;
+              }
+              case 3 ->
+                  // skip the current change
+                  LOGGER.info(I18n.trans("cluster-sync-skip"));
+              default -> {
+              }
+              // cannot happen
             }
           } catch (Exception exception) {
             LOGGER.severe("Exception processing diff on key %s with %s and %s", null, key, data, current);

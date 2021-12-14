@@ -328,20 +328,16 @@ public class NettyHttpServerTest extends NetworkTestCase {
       "/test",
       ($, context) -> context.upgrade().addListener((channel, type, content) -> {
         switch (type) {
-          case TEXT:
+          case TEXT -> {
             Assertions.assertEquals("request", new String(content, StandardCharsets.UTF_8));
             channel.sendWebSocketFrame(WebSocketFrameType.TEXT, "response");
-            break;
-          case PING:
-            channel.sendWebSocketFrame(WebSocketFrameType.PONG, "response2");
-            break;
-          case BINARY:
+          }
+          case PING -> channel.sendWebSocketFrame(WebSocketFrameType.PONG, "response2");
+          case BINARY -> {
             Assertions.assertArrayEquals(new byte[]{0, 5, 6}, content);
             channel.close(1001, "Successful close");
-            break;
-          default:
-            Assertions.fail("Unexpected frame type " + type);
-            break;
+          }
+          default -> Assertions.fail("Unexpected frame type " + type);
         }
       })
     );

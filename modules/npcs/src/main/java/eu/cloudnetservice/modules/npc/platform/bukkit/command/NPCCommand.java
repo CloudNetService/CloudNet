@@ -160,8 +160,7 @@ public final class NPCCommand extends BaseTabExecutor {
     if (args.length == 1) {
       switch (args[0].toLowerCase()) {
         // remove the nearest npc
-        case "rm":
-        case "remove": {
+        case "rm", "remove" -> {
           var npc = this.getNearestNPC(player.getLocation());
           if (npc == null) {
             sender.sendMessage("§cNo npc in range found! Make sure the npc you want to edit is in a 5 block radius.");
@@ -172,9 +171,9 @@ public final class NPCCommand extends BaseTabExecutor {
           sender.sendMessage("§cThe npc was removed successfully! This may take a few seconds to show effect!");
           return true;
         }
+
         // removes all npcs in unloaded worlds
-        case "cu":
-        case "cleanup": {
+        case "cu", "cleanup" -> {
           this.management.getTrackedEntities().values().stream()
             .map(PlatformSelectorEntity::getNPC)
             .filter(npc -> Bukkit.getWorld(npc.getLocation().getWorld()) == null)
@@ -186,9 +185,9 @@ public final class NPCCommand extends BaseTabExecutor {
             });
           return true;
         }
+
         // copies the current npc
-        case "cp":
-        case "copy": {
+        case "cp", "copy" -> {
           var npc = this.getNearestNPC(player.getLocation());
           if (npc == null) {
             sender.sendMessage("§cNo npc in range found! Make sure the npc you want to edit is in a 5 block radius.");
@@ -204,15 +203,16 @@ public final class NPCCommand extends BaseTabExecutor {
           }
           return true;
         }
+
         // clears the clipboard
-        case "ccb":
-        case "clearclipboard": {
+        case "ccb", "clearclipboard" -> {
           player.removeMetadata(COPIED_NPC_KEY, this.plugin);
           sender.sendMessage("§7Your clipboard was cleared §asuccessfully§7.");
           return true;
         }
+
         // cuts the npc
-        case "cut": {
+        case "cut" -> {
           var npc = this.getNearestNPC(player.getLocation());
           if (npc == null) {
             sender.sendMessage("§cNo npc in range found! Make sure the npc you want to edit is in a 5 block radius.");
@@ -230,8 +230,9 @@ public final class NPCCommand extends BaseTabExecutor {
           }
           return true;
         }
+
         // pastes the npc
-        case "paste": {
+        case "paste" -> {
           var values = player.getMetadata(COPIED_NPC_KEY);
           if (values.isEmpty()) {
             sender.sendMessage("§cThere is no npc in your clipboard!");
@@ -247,8 +248,9 @@ public final class NPCCommand extends BaseTabExecutor {
           player.removeMetadata(COPIED_NPC_KEY, this.plugin);
           return true;
         }
+
         // lists all npcs
-        case "list": {
+        case "list" -> {
           sender.sendMessage(String.format("§7There are §6%s §7selector mobs:", this.management.getNPCs().size()));
           for (var npc : this.management.getNPCs()) {
             sender.sendMessage(String.format(
@@ -263,7 +265,7 @@ public final class NPCCommand extends BaseTabExecutor {
           }
           return true;
         }
-        default: {
+        default -> {
           sender.sendMessage(String.format("§cUnknown sub-command option: §6%s§c.", args[0]));
           return true;
         }
@@ -281,7 +283,7 @@ public final class NPCCommand extends BaseTabExecutor {
       // find the option the player is trying to edit
       switch (args[1].toLowerCase()) {
         // edit of the display name
-        case "display": {
+        case "display" -> {
           var displayName = String.join(" ", Arrays.copyOfRange(args, 2, args.length)).trim();
           if (displayName.length() > 16) {
             sender.sendMessage("§cThe display name can only contain up to 16 chars.");
@@ -293,9 +295,9 @@ public final class NPCCommand extends BaseTabExecutor {
             .build();
           break;
         }
+
         // enable that the npc looks at the player
-        case "lap":
-        case "lookatplayer": {
+        case "lap", "lookatplayer" -> {
           if (this.canChangeSetting(sender, npc)) {
             updatedNpc = NPC.builder(npc).lookAtPlayer(this.parseBoolean(args[2])).build();
             break;
@@ -303,9 +305,9 @@ public final class NPCCommand extends BaseTabExecutor {
             return true;
           }
         }
+
         // if the npc should imitate the player
-        case "ip":
-        case "imitateplayer": {
+        case "ip", "imitateplayer" -> {
           if (this.canChangeSetting(sender, npc)) {
             updatedNpc = NPC.builder(npc).imitatePlayer(this.parseBoolean(args[2])).build();
             break;
@@ -313,9 +315,9 @@ public final class NPCCommand extends BaseTabExecutor {
             return true;
           }
         }
+
         // if the npc should use the skin of the player being spawned to
-        case "ups":
-        case "useplayerskin": {
+        case "ups", "useplayerskin" -> {
           if (this.canChangeSetting(sender, npc)) {
             updatedNpc = NPC.builder(npc).usePlayerSkin(this.parseBoolean(args[2])).build();
             break;
@@ -323,9 +325,9 @@ public final class NPCCommand extends BaseTabExecutor {
             return true;
           }
         }
+
         // sets the glowing color
-        case "gc":
-        case "glowingcolor": {
+        case "gc", "glowingcolor" -> {
           // try to parse the color
           var chatColor = ChatColor.getByChar(args[2]);
           if (chatColor == null) {
@@ -347,9 +349,9 @@ public final class NPCCommand extends BaseTabExecutor {
           }
           break;
         }
+
         // sets if the npc should "fly" with an elytra
-        case "fwe":
-        case "flyingwithelytra": {
+        case "fwe", "flyingwithelytra" -> {
           if (this.canChangeSetting(sender, npc)) {
             var enabled = this.parseBoolean(args[2]);
             updatedNpc = NPC.builder(npc).flyingWithElytra(enabled).build();
@@ -363,9 +365,9 @@ public final class NPCCommand extends BaseTabExecutor {
             return true;
           }
         }
+
         // the floating item of the npc
-        case "fi":
-        case "floatingitem": {
+        case "fi", "floatingitem" -> {
           // convert null to "no item"
           if (args[2].equalsIgnoreCase("null")) {
             updatedNpc = NPC.builder(npc).floatingItem(null).build();
@@ -381,9 +383,9 @@ public final class NPCCommand extends BaseTabExecutor {
             break;
           }
         }
+
         // the left click action
-        case "lca":
-        case "leftclickaction": {
+        case "lca", "leftclickaction" -> {
           var action = Enums.getIfPresent(ClickAction.class, args[2].toUpperCase()).orNull();
           if (action == null) {
             sender.sendMessage(String.format(
@@ -395,9 +397,9 @@ public final class NPCCommand extends BaseTabExecutor {
             break;
           }
         }
+
         // the right click action
-        case "rca":
-        case "rightclickaction": {
+        case "rca", "rightclickaction" -> {
           var action = Enums.getIfPresent(ClickAction.class, args[2].toUpperCase()).orNull();
           if (action == null) {
             sender.sendMessage(String.format(
@@ -409,8 +411,9 @@ public final class NPCCommand extends BaseTabExecutor {
             break;
           }
         }
+
         // sets the items
-        case "items": {
+        case "items" -> {
           if (args.length != 4) {
             sender.sendMessage("§cInvalid usage! Use §6/cn edit items <slot> <material>§c!");
             return true;
@@ -434,9 +437,9 @@ public final class NPCCommand extends BaseTabExecutor {
           updatedNpc = npc;
           break;
         }
+
         // edit the info lines
-        case "il":
-        case "infolines": {
+        case "il", "infolines" -> {
           if (args.length < 4) {
             sender.sendMessage("§cInvalid usage! Use §6/cn edit il <index> <new line content>§c!");
             return true;
@@ -471,8 +474,9 @@ public final class NPCCommand extends BaseTabExecutor {
             break;
           }
         }
+
         // change the profile (will force-set the entity type to npc)
-        case "profile": {
+        case "profile" -> {
           var profile = new Profile(args[2]);
           if (!profile.complete()) {
             sender.sendMessage(String.format("§cUnable to complete profile of §6%s§c!", args[2]));
@@ -485,9 +489,9 @@ public final class NPCCommand extends BaseTabExecutor {
             break;
           }
         }
+
         // change the entity type (will force-set the entity type to entity)
-        case "et":
-        case "entitytype": {
+        case "et", "entitytype" -> {
           var entityType = Enums.getIfPresent(EntityType.class, args[2].toUpperCase()).orNull();
           if (entityType == null) {
             sender.sendMessage(String.format("§cNo such entity type: §6%s§c.", args[2].toUpperCase()));
@@ -497,16 +501,18 @@ public final class NPCCommand extends BaseTabExecutor {
             break;
           }
         }
+
         // sets the target group of the npc
-        case "tg":
-        case "targetgroup": {
+        case "tg", "targetgroup" -> {
           updatedNpc = NPC.builder(npc).targetGroup(args[2]).build();
           break;
         }
+
         // unknown option
-        default:
+        default -> {
           sender.sendMessage(String.format("§cNo option with name §6%s §cfound!", args[1].toLowerCase()));
           return true;
+        }
       }
       // update & notify
       this.management.createNPC(updatedNpc);
@@ -583,63 +589,40 @@ public final class NPCCommand extends BaseTabExecutor {
       }
       // value options
       if (args.length == 3) {
-        switch (args[1].toLowerCase()) {
+        return switch (args[1].toLowerCase()) {
           // true-false options
-          case "lap":
-          case "lookatplayer":
-          case "ip":
-          case "imitateplayer":
-          case "ups":
-          case "useplayerskin":
-          case "fwe":
-          case "flyingwithelytra":
-            return TRUE_FALSE;
+          case "lap", "lookatplayer", "ip", "imitateplayer", "ups", "useplayerskin", "fwe", "flyingwithelytra" -> TRUE_FALSE;
           // click action options
-          case "lca":
-          case "leftclickaction":
-          case "rca":
-          case "rightclickaction":
-            return CLICK_ACTIONS;
+          case "lca", "leftclickaction", "rca", "rightclickaction" -> CLICK_ACTIONS;
           // color options
-          case "gc":
-          case "glowingcolor":
-            return Arrays.stream(ChatColor.values())
-              .filter(ChatColor::isColor)
-              .map(color -> String.valueOf(color.getChar()))
-              .collect(Collectors.toList());
+          case "gc", "glowingcolor" -> Arrays.stream(ChatColor.values())
+            .filter(ChatColor::isColor)
+            .map(color -> String.valueOf(color.getChar()))
+            .collect(Collectors.toList());
           // entity type
-          case "et":
-          case "entitytype":
-            return Arrays.stream(EntityType.values())
-              .filter(EntityType::isAlive)
-              .filter(EntityType::isSpawnable)
-              .filter(type -> type != EntityType.PLAYER)
-              .map(Enum::name)
-              .collect(Collectors.toList());
+          case "et", "entitytype" -> Arrays.stream(EntityType.values())
+            .filter(EntityType::isAlive)
+            .filter(EntityType::isSpawnable)
+            .filter(type -> type != EntityType.PLAYER)
+            .map(Enum::name)
+            .collect(Collectors.toList());
           // npc skin profile
-          case "profile":
-            return Arrays.asList("derklaro", "juliarn", "0utplayyyy");
+          case "profile" -> Arrays.asList("derklaro", "juliarn", "0utplayyyy");
           // target group
-          case "tg":
-          case "targetgroup":
-            return CloudNetDriver.getInstance().getGroupConfigurationProvider().getGroupConfigurations().stream()
-              .map(GroupConfiguration::getName)
-              .collect(Collectors.toList());
+          case "tg", "targetgroup" -> CloudNetDriver.getInstance().getGroupConfigurationProvider()
+            .getGroupConfigurations().stream()
+            .map(GroupConfiguration::getName)
+            .collect(Collectors.toList());
           // item slots
-          case "items":
-            return new ArrayList<>(VALID_ITEM_SLOTS.keySet());
+          case "items" -> new ArrayList<>(VALID_ITEM_SLOTS.keySet());
           // info lines top level
-          case "il":
-          case "infolines":
-            return Arrays.asList("0", "1", "2", "3", "4", "5", "6", "7", "8", "9");
+          case "il", "infolines" -> Arrays.asList("0", "1", "2", "3", "4", "5", "6", "7", "8", "9");
           // floating item
-          case "fi":
-          case "floatingitem":
-            return Arrays.stream(Material.values()).map(Material::name).collect(Collectors.toList());
+          case "fi", "floatingitem" -> Arrays.stream(Material.values()).map(Material::name)
+            .collect(Collectors.toList());
           // unknown or non-completable option
-          default:
-            return Collections.emptyList();
-        }
+          default -> Collections.emptyList();
+        };
       }
       // more...
       if (args.length == 4 && args[1].equalsIgnoreCase("items")) {

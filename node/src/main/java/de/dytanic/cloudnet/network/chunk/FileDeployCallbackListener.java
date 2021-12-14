@@ -39,17 +39,14 @@ public final class FileDeployCallbackListener {
   @EventListener
   public void handle(@NotNull ChunkedPacketSessionOpenEvent event) {
     switch (event.getSession().getTransferChannel()) {
-      case "deploy_service_template":
-        event.setHandler(new DefaultFileChunkedPacketHandler(event.getSession(), TemplateDeployCallback.INSTANCE));
-        break;
-      case "deploy_single_file":
-        event.setHandler(new DefaultFileChunkedPacketHandler(event.getSession(), TemplateFileDeployCallback.INSTANCE));
-        break;
-      case "deploy_static_service":
-        event.setHandler(new DefaultFileChunkedPacketHandler(event.getSession(), StaticServiceDeployCallback.INSTANCE));
-        break;
-      default:
-        break;
+      case "deploy_service_template" -> event.setHandler(
+          new DefaultFileChunkedPacketHandler(event.getSession(), TemplateDeployCallback.INSTANCE));
+      case "deploy_single_file" -> event.setHandler(
+          new DefaultFileChunkedPacketHandler(event.getSession(), TemplateFileDeployCallback.INSTANCE));
+      case "deploy_static_service" -> event.setHandler(
+          new DefaultFileChunkedPacketHandler(event.getSession(), StaticServiceDeployCallback.INSTANCE));
+      default -> {
+      }
     }
   }
 
@@ -57,16 +54,14 @@ public final class FileDeployCallbackListener {
   public void handle(@NotNull ChannelMessageReceiveEvent event) {
     if (event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL) && event.getMessage() != null) {
       switch (event.getMessage()) {
-        case "remote_templates_zip_template":
-          this.handleInputRequest(event, TemplateStorage::zipTemplate);
-          break;
-        case "remote_templates_template_file":
+        case "remote_templates_zip_template" -> this.handleInputRequest(event, TemplateStorage::zipTemplate);
+        case "remote_templates_template_file" -> {
           // read the path info first
           var path = event.getContent().readString();
           this.handleInputRequest(event, (storage, template) -> storage.newInputStream(template, path));
-          break;
-        default:
-          break;
+        }
+        default -> {
+        }
       }
     }
   }

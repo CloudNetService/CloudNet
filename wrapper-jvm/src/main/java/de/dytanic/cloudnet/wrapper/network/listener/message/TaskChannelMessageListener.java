@@ -38,20 +38,20 @@ public final class TaskChannelMessageListener {
     if (event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL) && event.getMessage() != null) {
       switch (event.getMessage()) {
         // add task
-        case "add_service_task": {
+        case "add_service_task" -> {
           var task = event.getContent().readObject(ServiceTask.class);
           this.eventManager.callEvent(new ServiceTaskAddEvent(task));
         }
-        break;
+
         // remove task
-        case "remove_service_task": {
+        case "remove_service_task" -> {
           var task = event.getContent().readObject(ServiceTask.class);
           this.eventManager.callEvent(new ServiceTaskRemoveEvent(task));
         }
-        break;
+
         // none of our business
-        default:
-          break;
+        default -> {
+        }
       }
     }
   }

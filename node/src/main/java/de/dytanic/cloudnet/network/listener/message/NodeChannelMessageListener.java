@@ -50,7 +50,7 @@ public final class NodeChannelMessageListener {
     if (event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL) && event.getMessage() != null) {
       switch (event.getMessage()) {
         // update a single node info snapshot
-        case "update_node_info_snapshot": {
+        case "update_node_info_snapshot" -> {
           var snapshot = event.getContent().readObject(NetworkClusterNodeInfoSnapshot.class);
           // get the associated node server
           var server = this.nodeServerProvider.getNodeServer(snapshot.getNode().getUniqueId());
@@ -59,33 +59,33 @@ public final class NodeChannelMessageListener {
             this.eventManager.callEvent(new NetworkClusterNodeInfoUpdateEvent(event.getNetworkChannel(), snapshot));
           }
         }
-        break;
+
         // handles the sync requests of cluster data
-        case "sync_cluster_data": {
+        case "sync_cluster_data" -> {
           // handle the sync and send back the data to override on the caller
           var result = this.dataSyncRegistry.handle(event.getContent(), event.getContent().readBoolean());
           if (result != null && event.isQuery()) {
             event.setBinaryResponse(result);
           }
         }
-        break;
+
         // handles the shutdown of a cluster node
-        case "cluster_node_shutdown": {
+        case "cluster_node_shutdown" -> {
           CloudNet.getInstance().stop();
         }
-        break;
+
         // request of the full cluster data set
-        case "request_initial_cluster_data": {
+        case "request_initial_cluster_data" -> {
           var server = this.nodeServerProvider.getNodeServer(event.getNetworkChannel());
           if (server != null) {
             // do not force the sync - the user can decide which changes should be used
             server.syncClusterData(CloudNet.getInstance().getConfig().getForceInitialClusterDataSync());
           }
         }
-        break;
+
         // none of our business
-        default:
-          break;
+        default -> {
+        }
       }
     }
   }

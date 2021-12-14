@@ -306,23 +306,13 @@ public class DefaultModuleProvider implements IModuleProvider {
     var handler = this.moduleProviderHandler;
     if (handler != null) {
       switch (lifeCycle) {
-        case LOADED:
-          handler.handlePostModuleLoad(wrapper);
-          break;
-        case STARTED:
-          handler.handlePostModuleStart(wrapper);
-          break;
-        case RELOADING:
-          handler.handlePostModuleReload(wrapper);
-          break;
-        case STOPPED:
-          handler.handlePostModuleStop(wrapper);
-          break;
-        case UNLOADED:
-          handler.handlePostModuleUnload(wrapper);
-          break;
-        default:
-          break;
+        case LOADED -> handler.handlePostModuleLoad(wrapper);
+        case STARTED -> handler.handlePostModuleStart(wrapper);
+        case RELOADING -> handler.handlePostModuleReload(wrapper);
+        case STOPPED -> handler.handlePostModuleStop(wrapper);
+        case UNLOADED -> handler.handlePostModuleUnload(wrapper);
+        default -> {
+        }
       }
     }
   }

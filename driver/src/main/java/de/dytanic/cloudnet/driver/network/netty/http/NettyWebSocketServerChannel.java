@@ -121,22 +121,12 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
     Preconditions.checkNotNull(webSocketFrameType);
     Preconditions.checkNotNull(bytes);
 
-    WebSocketFrame webSocketFrame;
-
-    switch (webSocketFrameType) {
-      case PING:
-        webSocketFrame = new PingWebSocketFrame(Unpooled.buffer(bytes.length).writeBytes(bytes));
-        break;
-      case PONG:
-        webSocketFrame = new PongWebSocketFrame(Unpooled.buffer(bytes.length).writeBytes(bytes));
-        break;
-      case TEXT:
-        webSocketFrame = new TextWebSocketFrame(Unpooled.buffer(bytes.length).writeBytes(bytes));
-        break;
-      default:
-        webSocketFrame = new BinaryWebSocketFrame(Unpooled.buffer(bytes.length).writeBytes(bytes));
-        break;
-    }
+    WebSocketFrame webSocketFrame = switch (webSocketFrameType) {
+      case PING -> new PingWebSocketFrame(Unpooled.buffer(bytes.length).writeBytes(bytes));
+      case PONG -> new PongWebSocketFrame(Unpooled.buffer(bytes.length).writeBytes(bytes));
+      case TEXT -> new TextWebSocketFrame(Unpooled.buffer(bytes.length).writeBytes(bytes));
+      default -> new BinaryWebSocketFrame(Unpooled.buffer(bytes.length).writeBytes(bytes));
+    };
 
     this.channel.writeAndFlush(webSocketFrame).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
     return this;

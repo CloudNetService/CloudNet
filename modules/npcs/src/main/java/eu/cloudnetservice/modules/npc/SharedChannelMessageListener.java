@@ -36,25 +36,25 @@ public final class SharedChannelMessageListener {
     if (event.getChannel().equals(AbstractNPCManagement.NPC_CHANNEL_NAME) && event.getMessage() != null) {
       switch (event.getMessage()) {
         // a new npc was created
-        case AbstractNPCManagement.NPC_CREATED:
-          this.npcManagement.handleInternalNPCCreate(event.getContent().readObject(NPC.class));
-          break;
+        case AbstractNPCManagement.NPC_CREATED -> this.npcManagement.handleInternalNPCCreate(
+            event.getContent().readObject(NPC.class));
+
         // a npc was deleted
-        case AbstractNPCManagement.NPC_DELETED:
-          this.npcManagement.handleInternalNPCRemove(event.getContent().readObject(WorldPosition.class));
-          break;
+        case AbstractNPCManagement.NPC_DELETED -> this.npcManagement.handleInternalNPCRemove(
+            event.getContent().readObject(WorldPosition.class));
+
         // multiple npcs were deleted - remove then one by one
-        case AbstractNPCManagement.NPC_BULK_DELETE:
+        case AbstractNPCManagement.NPC_BULK_DELETE -> {
           Collection<WorldPosition> positions = event.getContent().readObject(WorldPosition.COL_TYPE);
           positions.forEach(this.npcManagement::handleInternalNPCRemove);
-          break;
+        }
         // the npc configuration was updated
-        case AbstractNPCManagement.NPC_CONFIGURATION_UPDATE:
-          this.npcManagement.handleInternalNPCConfigUpdate(event.getContent().readObject(NPCConfiguration.class));
-          break;
+        case AbstractNPCManagement.NPC_CONFIGURATION_UPDATE -> this.npcManagement.handleInternalNPCConfigUpdate(
+            event.getContent().readObject(NPCConfiguration.class));
+
         // not our business
-        default:
-          break;
+        default -> {
+        }
       }
     }
   }

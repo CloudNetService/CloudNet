@@ -111,16 +111,11 @@ public abstract class AbstractSubject<T extends IPermissible> implements Subject
 
   protected @NotNull Tristate getPermissionValue(@NotNull Permission permission) {
     var result = this.permissionManagement.getPermissionResult(this.data, permission);
-    switch (result) {
-      case ALLOWED:
-        return Tristate.TRUE;
-      case DENIED:
-        return Tristate.FALSE;
-      case FORBIDDEN:
-        return Tristate.UNDEFINED;
-      default:
-        throw new IllegalStateException("Unhandled permission check result: " + result);
-    }
+    return switch (result) {
+      case ALLOWED -> Tristate.TRUE;
+      case DENIED -> Tristate.FALSE;
+      case FORBIDDEN -> Tristate.UNDEFINED;
+    };
   }
 
   protected abstract boolean isChild(@NotNull String parent);

@@ -79,18 +79,14 @@ public final class LayoutUtil {
         }
       }
       // get the correct layout based on the entry, group layout and state
-      switch (state) {
-        case EMPTY_ONLINE:
-          return groupConfiguration == null ? entry.getEmptyLayout() : groupConfiguration.getEmptyLayout();
-        case ONLINE:
-          return groupConfiguration == null ? entry.getOnlineLayout() : groupConfiguration.getOnlineLayout();
-        case FULL_ONLINE:
-          return entry.isSwitchToSearchingWhenServiceIsFull()
-            ? entry.getSearchingLayout()
-            : groupConfiguration == null ? entry.getFullLayout() : groupConfiguration.getFullLayout();
-        default:
-          throw new IllegalStateException("Unexpected service state: " + state);
-      }
+      return switch (state) {
+        case EMPTY_ONLINE -> groupConfiguration == null ? entry.getEmptyLayout() : groupConfiguration.getEmptyLayout();
+        case ONLINE -> groupConfiguration == null ? entry.getOnlineLayout() : groupConfiguration.getOnlineLayout();
+        case FULL_ONLINE -> entry.isSwitchToSearchingWhenServiceIsFull()
+          ? entry.getSearchingLayout()
+          : groupConfiguration == null ? entry.getFullLayout() : groupConfiguration.getFullLayout();
+        default -> throw new IllegalStateException("Unexpected service state: " + state);
+      };
     }
   }
 }

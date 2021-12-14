@@ -38,20 +38,20 @@ public final class GroupChannelMessageListener {
     if (event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL) && event.getMessage() != null) {
       switch (event.getMessage()) {
         // add group
-        case "add_group_configuration": {
+        case "add_group_configuration" -> {
           var configuration = event.getContent().readObject(GroupConfiguration.class);
           this.eventManager.callEvent(new GroupConfigurationAddEvent(configuration));
         }
-        break;
+
         // remove group
-        case "remove_group_configuration": {
+        case "remove_group_configuration" -> {
           var configuration = event.getContent().readObject(GroupConfiguration.class);
           this.eventManager.callEvent(new GroupConfigurationRemoveEvent(configuration));
         }
-        break;
+
         // none of our business
-        default:
-          break;
+        default -> {
+        }
       }
     }
   }

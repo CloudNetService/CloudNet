@@ -35,23 +35,20 @@ public class GlobalChannelMessageListener {
   public void handleChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
     if (event.getChannel().equals(AbstractSignManagement.SIGN_CHANNEL_NAME) && event.getMessage() != null) {
       switch (event.getMessage()) {
-        case AbstractSignManagement.SIGN_CREATED:
-          this.signManagement.handleInternalSignCreate(event.getContent().readObject(Sign.class));
-          break;
-        case AbstractSignManagement.SIGN_DELETED:
-          this.signManagement.handleInternalSignRemove(event.getContent().readObject(WorldPosition.class));
-          break;
-        case AbstractSignManagement.SIGN_BULK_DELETE:
+        case AbstractSignManagement.SIGN_CREATED -> this.signManagement.handleInternalSignCreate(
+            event.getContent().readObject(Sign.class));
+        case AbstractSignManagement.SIGN_DELETED -> this.signManagement.handleInternalSignRemove(
+            event.getContent().readObject(WorldPosition.class));
+        case AbstractSignManagement.SIGN_BULK_DELETE -> {
           Collection<WorldPosition> positions = event.getContent().readObject(WorldPosition.COL_TYPE);
           for (var position : positions) {
             this.signManagement.handleInternalSignRemove(position);
           }
-          break;
-        case AbstractSignManagement.SIGN_CONFIGURATION_UPDATE:
-          this.signManagement.handleInternalSignConfigUpdate(event.getContent().readObject(SignsConfiguration.class));
-          break;
-        default:
-          break;
+        }
+        case AbstractSignManagement.SIGN_CONFIGURATION_UPDATE -> this.signManagement.handleInternalSignConfigUpdate(
+            event.getContent().readObject(SignsConfiguration.class));
+        default -> {
+        }
       }
     }
   }

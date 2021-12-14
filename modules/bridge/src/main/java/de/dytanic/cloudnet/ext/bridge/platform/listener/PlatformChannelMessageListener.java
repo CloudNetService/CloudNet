@@ -71,74 +71,73 @@ public final class PlatformChannelMessageListener {
       // a message regarding a player event
       switch (event.getMessage()) {
         // offline player update
-        case "update_offline_cloud_player": {
+        case "update_offline_cloud_player" -> {
           // read the player
           var player = event.getContent().readObject(CloudOfflinePlayer.class);
           // push the change
           this.eventManager.callEvent(new BridgeUpdateCloudOfflinePlayerEvent(player));
         }
-        break;
+
         // online player update
-        case "update_online_cloud_player": {
+        case "update_online_cloud_player" -> {
           // read the player
           var player = event.getContent().readObject(CloudPlayer.class);
           // push the change
           this.eventManager.callEvent(new BridgeUpdateCloudPlayerEvent(player));
         }
-        break;
+
         // offline player delete
-        case "delete_offline_cloud_player": {
+        case "delete_offline_cloud_player" -> {
           // read the player
           var player = event.getContent().readObject(CloudOfflinePlayer.class);
           // push the change
           this.eventManager.callEvent(new BridgeDeleteCloudOfflinePlayerEvent(player));
         }
-        break;
+
         // player login request
-        case "process_cloud_player_login": {
+        case "process_cloud_player_login" -> {
           // read the player
           var player = event.getContent().readObject(CloudPlayer.class);
           // push the change
           this.eventManager.callEvent(new BridgeProxyPlayerLoginEvent(player));
         }
-        break;
+
         // player disconnection
-        case "process_cloud_player_logout": {
+        case "process_cloud_player_logout" -> {
           // read the player
           var player = event.getContent().readObject(CloudPlayer.class);
           // call the event locally
           this.eventManager.callEvent(new BridgeProxyPlayerDisconnectEvent(player));
         }
-        break;
+
         // player service switch
-        case "cloud_player_service_switch": {
+        case "cloud_player_service_switch" -> {
           // read the information
           var player = event.getContent().readObject(CloudPlayer.class);
           var previous = event.getContent().readObject(NetworkServiceInfo.class);
           // fire the event
           this.eventManager.callEvent(new BridgeProxyPlayerServerSwitchEvent(player, previous));
         }
-        break;
+
         // player server login
-        case "cloud_player_server_login": {
+        case "cloud_player_server_login" -> {
           // read the information
           var player = event.getContent().readObject(CloudPlayer.class);
           var serviceInfo = event.getContent().readObject(NetworkServiceInfo.class);
           // fire the event
           this.eventManager.callEvent(new BridgeServerPlayerLoginEvent(player, serviceInfo));
         }
-        break;
+
         // player server disconnect
-        case "cloud_player_server_disconnect": {
+        case "cloud_player_server_disconnect" -> {
           // read the information
           var player = event.getContent().readObject(CloudPlayer.class);
           var serviceInfo = event.getContent().readObject(NetworkServiceInfo.class);
           // fire the event
           this.eventManager.callEvent(new BridgeServerPlayerDisconnectEvent(player, serviceInfo));
         }
-        break;
-        default:
-          break;
+        default -> {
+        }
       }
     }
   }
@@ -151,54 +150,46 @@ public final class PlatformChannelMessageListener {
       // a message regarding a player executor request
       switch (event.getMessage()) {
         // connect to a service
-        case "connect_to_service":
-          executor.connect(event.getContent().readString());
-          break;
+        case "connect_to_service" -> executor.connect(event.getContent().readString());
+
         // connect using the given selector
-        case "connect_to_selector":
-          executor.connectSelecting(event.getContent().readObject(ServerSelectorType.class));
-          break;
+        case "connect_to_selector" -> executor.connectSelecting(
+            event.getContent().readObject(ServerSelectorType.class));
+
         // connect to a fallback
-        case "connect_to_fallback":
-          executor.connectToFallback();
-          break;
+        case "connect_to_fallback" -> executor.connectToFallback();
+
         // connect to a group
-        case "connect_to_group":
-          executor.connectToGroup(
+        case "connect_to_group" -> executor.connectToGroup(
             event.getContent().readString(),
             event.getContent().readObject(ServerSelectorType.class));
-          break;
+
         // connect to a task
-        case "connect_to_task":
-          executor.connectToTask(
+        case "connect_to_task" -> executor.connectToTask(
             event.getContent().readString(),
             event.getContent().readObject(ServerSelectorType.class));
-          break;
+
         // kick a player from the current service
-        case "kick_player":
-          executor.kick(event.getContent().readObject(Component.class));
-          break;
+        case "kick_player" -> executor.kick(event.getContent().readObject(Component.class));
+
         // send a title to the player
-        case "send_title":
-          executor.sendTitle(event.getContent().readObject(Title.class));
-          break;
+        case "send_title" -> executor.sendTitle(event.getContent().readObject(Title.class));
+
         // send a chat message to the player
-        case "send_chat_message":
-          executor.sendChatMessage(
+        case "send_chat_message" -> executor.sendChatMessage(
             event.getContent().readObject(Component.class),
             event.getContent().readNullable(DataBuf::readString));
-          break;
+
         // send a plugin message to the player
-        case "send_plugin_message":
-          executor.sendPluginMessage(event.getContent().readString(), event.getContent().readByteArray());
-          break;
+        case "send_plugin_message" -> executor.sendPluginMessage(event.getContent().readString(),
+            event.getContent().readByteArray());
+
         // sends a chat message like when a player does type into the chat
-        case "dispatch_proxy_command":
-          executor.dispatchProxyCommand(event.getContent().readString());
-          break;
+        case "dispatch_proxy_command" -> executor.dispatchProxyCommand(event.getContent().readString());
+
         // unable to handle
-        default:
-          break;
+        default -> {
+        }
       }
     }
   }

@@ -40,38 +40,37 @@ public final class NodeChannelMessageListener {
     if (event.getChannel().equals(AbstractNPCManagement.NPC_CHANNEL_NAME) && event.getMessage() != null) {
       switch (event.getMessage()) {
         // deletes an existing npc
-        case PlatformNPCManagement.NPC_DELETE:
-          this.management.deleteNPC(event.getContent().readObject(WorldPosition.class));
-          break;
+        case PlatformNPCManagement.NPC_DELETE -> this.management.deleteNPC(
+            event.getContent().readObject(WorldPosition.class));
+
         // creates a new npc
-        case PlatformNPCManagement.NPC_CREATE:
-          this.management.createNPC(event.getContent().readObject(NPC.class));
-          break;
+        case PlatformNPCManagement.NPC_CREATE -> this.management.createNPC(event.getContent().readObject(NPC.class));
+
         // bulk deletes all npcs of a given group
-        case PlatformNPCManagement.NPC_BULK_DELETE:
+        case PlatformNPCManagement.NPC_BULK_DELETE -> {
           var deleted = this.management.deleteAllNPCs(event.getContent().readString());
           event.setBinaryResponse(DataBuf.empty().writeInt(deleted));
-          break;
+        }
         // deletes all npcs
-        case PlatformNPCManagement.NPC_ALL_DELETE:
-          event.setBinaryResponse(DataBuf.empty().writeInt(this.management.deleteAllNPCs()));
-          break;
+        case PlatformNPCManagement.NPC_ALL_DELETE -> event.setBinaryResponse(
+            DataBuf.empty().writeInt(this.management.deleteAllNPCs()));
+
         // get all npcs of a specific group
-        case PlatformNPCManagement.NPC_GET_NPCS_BY_GROUP:
+        case PlatformNPCManagement.NPC_GET_NPCS_BY_GROUP -> {
           var npcs = this.management.getNPCs(event.getContent().readObject(String[].class));
           event.setBinaryResponse(DataBuf.empty().writeObject(npcs));
-          break;
+        }
         // request of a service for the npc config
-        case PlatformNPCManagement.NPC_REQUEST_CONFIG:
-          event.setBinaryResponse(DataBuf.empty().writeObject(this.management.getNPCConfiguration()));
-          break;
+        case PlatformNPCManagement.NPC_REQUEST_CONFIG -> event.setBinaryResponse(
+            DataBuf.empty().writeObject(this.management.getNPCConfiguration()));
+
         // set the npc config
-        case PlatformNPCManagement.NPC_SET_CONFIG:
-          this.management.setNPCConfiguration(event.getContent().readObject(NPCConfiguration.class));
-          break;
+        case PlatformNPCManagement.NPC_SET_CONFIG -> this.management.setNPCConfiguration(
+            event.getContent().readObject(NPCConfiguration.class));
+
         // not our business
-        default:
-          break;
+        default -> {
+        }
       }
     }
   }

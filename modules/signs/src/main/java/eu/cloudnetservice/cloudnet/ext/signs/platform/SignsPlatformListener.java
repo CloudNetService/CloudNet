@@ -37,16 +37,9 @@ public class SignsPlatformListener {
   @EventListener
   public void handle(@NotNull CloudServiceLifecycleChangeEvent event) {
     switch (event.getNewLifeCycle()) {
-      case STOPPED:
-      case DELETED:
-        this.signManagement.handleServiceRemove(event.getServiceInfo());
-        break;
-      case RUNNING:
-        this.signManagement.handleServiceAdd(event.getServiceInfo());
-        break;
-      default:
-        this.signManagement.handleServiceUpdate(event.getServiceInfo());
-        break;
+      case STOPPED, DELETED -> this.signManagement.handleServiceRemove(event.getServiceInfo());
+      case RUNNING -> this.signManagement.handleServiceAdd(event.getServiceInfo());
+      default -> this.signManagement.handleServiceUpdate(event.getServiceInfo());
     }
   }
 }

@@ -104,14 +104,10 @@ public class PlatformLabyModManagement implements LabyModManagement {
     }
 
     switch (dataKey) {
-      case "INFO":
-        this.handleInformationPublish(cloudPlayer, server, jsonData);
-        break;
-      case "discord_rpc":
-        this.handleDiscordRPC(cloudPlayer, jsonData);
-        break;
-      default:
-        break;
+      case "INFO" -> this.handleInformationPublish(cloudPlayer, server, jsonData);
+      case "discord_rpc" -> this.handleDiscordRPC(cloudPlayer, jsonData);
+      default -> {
+      }
     }
   }
 

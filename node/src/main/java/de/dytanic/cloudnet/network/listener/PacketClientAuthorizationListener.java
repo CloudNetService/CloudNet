@@ -44,7 +44,7 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
       // handle the authorization
       switch (type) {
         // NODE -> NODE
-        case NODE_TO_NODE: {
+        case NODE_TO_NODE -> {
           // read the required data for the node auth
           var clusterId = content.readUniqueId();
           var node = content.readObject(NetworkClusterNode.class);
@@ -64,21 +64,22 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
               channel.sendPacketSync(new PacketServerAuthorizationResponse(true));
               // call the auth success event
               CloudNet.getInstance().getEventManager().callEvent(
-                new NetworkClusterNodeAuthSuccessEvent(nodeServer, channel));
+                  new NetworkClusterNodeAuthSuccessEvent(nodeServer, channel));
               // do not search for more nodes
               return;
             }
           }
           break;
         }
+
         // WRAPPER -> NODE
-        case WRAPPER_TO_NODE: {
+        case WRAPPER_TO_NODE -> {
           // read the required data for the wrapper auth
           var connectionKey = content.readString();
           var id = content.readObject(ServiceId.class);
           // get the cloud service associated with the service id
           var service = CloudNet.getInstance().getCloudServiceProvider()
-            .getLocalCloudService(id.getUniqueId());
+              .getLocalCloudService(id.getUniqueId());
           // we can only accept the connection if the service is present, and the connection key is correct
           if (service != null && service.getConnectionKey().equals(connectionKey)) {
             // update the cloud service
@@ -97,8 +98,8 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
           }
           break;
         }
-        default:
-          break;
+        default -> {
+        }
       }
     }
     // auth not successful

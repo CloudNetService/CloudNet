@@ -72,17 +72,10 @@ public class CompletedTask<V> implements ITask<V> {
   public @NotNull ITask<V> addListener(@NotNull ITaskListener<V> listener) {
     // invoke the listener directly based on the result uni stage
     switch (this.uniStage) {
-      case UNI_DONE:
-        listener.onComplete(this, (V) this.uniResult);
-        break;
-      case UNI_CANCEL:
-        listener.onCancelled(this);
-        break;
-      case UNI_EXCEPTIONALLY:
-        listener.onFailure(this, (Throwable) this.uniResult);
-        break;
-      default:
-        throw new IllegalStateException("Invalid uni completion stage " + this.uniStage);
+      case UNI_DONE -> listener.onComplete(this, (V) this.uniResult);
+      case UNI_CANCEL -> listener.onCancelled(this);
+      case UNI_EXCEPTIONALLY -> listener.onFailure(this, (Throwable) this.uniResult);
+      default -> throw new IllegalStateException("Invalid uni completion stage " + this.uniStage);
     }
 
     return this;
@@ -139,20 +132,20 @@ public class CompletedTask<V> implements ITask<V> {
 
   @Override
   public V get() throws InterruptedException, ExecutionException {
-    switch (this.uniStage) {
-      case UNI_DONE:
+    return switch (this.uniStage) {
+      case UNI_DONE ->
         // normal completion - return the result
-        return (V) this.uniResult;
-      case UNI_CANCEL:
+        (V) this.uniResult;
+      case UNI_CANCEL ->
         // cancelled - throw cancellation exception
         throw new CancellationException();
-      case UNI_EXCEPTIONALLY:
+      case UNI_EXCEPTIONALLY ->
         // completed with an exception - rethrow
         throw new ExecutionException((Throwable) this.uniResult);
-      default:
+      default ->
         // should not happen
         throw new IllegalStateException("Invalid uni stage result " + this.uniResult);
-    }
+    };
   }
 
   @Override

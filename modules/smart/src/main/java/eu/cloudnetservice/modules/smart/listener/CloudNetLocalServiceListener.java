@@ -58,12 +58,12 @@ public final class CloudNetLocalServiceListener {
         // apply the template installer
         switch (config.getTemplateInstaller()) {
           // installs all templates of the service
-          case INSTALL_ALL: {
+          case INSTALL_ALL -> {
             templates.addAll(task.getTemplates());
           }
-          break;
+
           // installs a random amount of templates
-          case INSTALL_RANDOM: {
+          case INSTALL_RANDOM -> {
             if (!task.getTemplates().isEmpty()) {
               // get the amount of templates to install
               var amount = ThreadLocalRandom.current().nextInt(1, task.getTemplates().size());
@@ -72,18 +72,18 @@ public final class CloudNetLocalServiceListener {
                 .forEach(i -> templates.add(Iterables.get(task.getTemplates(), i)));
             }
           }
-          break;
+
           // installs one random template
-          case INSTALL_RANDOM_ONCE: {
+          case INSTALL_RANDOM_ONCE -> {
             if (!task.getTemplates().isEmpty()) {
               // get the template to install
               var index = ThreadLocalRandom.current().nextInt(0, task.getTemplates().size());
               templates.add(Iterables.get(task.getTemplates(), index));
             }
           }
-          break;
+
           // installs the templates balanced
-          case INSTALL_BALANCED: {
+          case INSTALL_BALANCED -> {
             var services = CloudNet.getInstance()
               .getCloudServiceProvider()
               .getCloudServicesByTask(task.getName());
@@ -95,9 +95,8 @@ public final class CloudNetLocalServiceListener {
                 .count()))
               .ifPresent(templates::add);
           }
-          break;
-          default:
-            break;
+          default -> {
+          }
         }
         // refresh the waiting templates
         event.getService().getWaitingTemplates().clear();

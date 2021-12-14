@@ -42,37 +42,37 @@ public final class ServiceChannelMessageListener {
     if (event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL) && event.getMessage() != null) {
       switch (event.getMessage()) {
         // update of a service in the network
-        case "update_service_info": {
+        case "update_service_info" -> {
           var snapshot = event.getContent().readObject(ServiceInfoSnapshot.class);
           // update locally and call the event
           this.eventManager.callEvent(new CloudServiceUpdateEvent(snapshot));
         }
-        break;
+
         // update of a service lifecycle in the network
-        case "update_service_lifecycle": {
+        case "update_service_lifecycle" -> {
           var lifeCycle = event.getContent().readObject(ServiceLifeCycle.class);
           var snapshot = event.getContent().readObject(ServiceInfoSnapshot.class);
           // update locally and call the event
           this.eventManager.callEvent(new CloudServiceLifecycleChangeEvent(lifeCycle, snapshot));
         }
-        break;
+
         // force update request of the service info
-        case "request_update_service_information": {
+        case "request_update_service_information" -> {
           event.setBinaryResponse(DataBuf.empty().writeObject(Wrapper.getInstance().configureServiceInfoSnapshot()));
         }
-        break;
+
         // call the event for a new line in the log of the service
-        case "screen_new_line": {
+        case "screen_new_line" -> {
           var snapshot = event.getContent().readObject(ServiceInfoSnapshot.class);
           var eventChannel = event.getContent().readString();
           var line = event.getContent().readString();
 
           this.eventManager.callEvent(eventChannel, new CloudServiceLogEntryEvent(snapshot, line));
         }
-        break;
+
         // none of our business
-        default:
-          break;
+        default -> {
+        }
       }
     }
   }
