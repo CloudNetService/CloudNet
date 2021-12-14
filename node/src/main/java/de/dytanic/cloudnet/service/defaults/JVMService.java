@@ -68,7 +68,8 @@ public class JVMService extends AbstractService {
     "-Dfile.encoding=UTF-8",
     "-Dclient.encoding.override=UTF-8",
     "-DIReallyKnowWhatIAmDoingISwear=true",
-    "-Djline.terminal=jline.UnsupportedTerminal");
+    "-Djline.terminal=jline.UnsupportedTerminal",
+    "-Dlog4j2.formatMsgNoLookups=true");
 
   protected volatile Process process;
 

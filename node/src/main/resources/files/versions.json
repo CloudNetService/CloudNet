@@ -62,7 +62,8 @@
         "PAPER_API",
         "DOWNLOAD",
         "BUILD",
-        "COPY_FILTER"
+        "COPY_FILTER",
+        "ZIP_FILE_FILTER"
       ],
       "website": "https://papermc.io",
       "versions": [
@@ -116,6 +117,7 @@
         {
           "name": "1.16.5",
           "url": "https://papermc.io/api/v2/projects/paper/versions/1.16.5/builds/790/downloads/paper-1.16.5-792.jar",
+          "deprecated": true,
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
@@ -128,48 +130,64 @@
         {
           "name": "1.15.2",
           "url": "https://papermc.io/api/v2/projects/paper/versions/1.15.2/builds/391/downloads/paper-1.15.2-391.jar",
+          "deprecated": true,
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
+            ],
+            "filteredFiles": [
+              "org/apache/logging/log4j/core/lookup/JndiLookup.class"
             ]
           }
         },
         {
           "name": "1.14.4",
           "url": "https://papermc.io/api/v2/projects/paper/versions/1.14.4/builds/243/downloads/paper-1.14.4-243.jar",
+          "deprecated": true,
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
+            ],
+            "filteredFiles": [
+              "org/apache/logging/log4j/core/lookup/JndiLookup.class"
             ]
           }
         },
         {
           "name": "1.13.2",
           "url": "https://papermc.io/api/v2/projects/paper/versions/1.13.2/builds/655/downloads/paper-1.13.2-655.jar",
+          "deprecated": true,
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
+            ],
+            "filteredFiles": [
+              "org/apache/logging/log4j/core/lookup/JndiLookup.class"
             ]
           }
         },
         {
           "name": "1.12.2",
           "url": "https://papermc.io/api/v2/projects/paper/versions/1.12.2/builds/1618/downloads/paper-1.12.2-1618.jar",
+          "deprecated": true,
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
+            ],
+            "filteredFiles": [
+              "org/apache/logging/log4j/core/lookup/JndiLookup.class"
             ]
           }
         },
@@ -184,6 +202,9 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
+            ],
+            "filteredFiles": [
+              "org/apache/logging/log4j/core/lookup/JndiLookup.class"
             ]
           }
         },
@@ -195,7 +216,10 @@
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
-            }
+            },
+            "filteredFiles": [
+              "org/apache/logging/log4j/core/lookup/JndiLookup.class"
+            ]
           }
         },
         {
@@ -206,7 +230,10 @@
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
-            }
+            },
+            "filteredFiles": [
+              "org/apache/logging/log4j/core/lookup/JndiLookup.class"
+            ]
           }
         },
         {
@@ -217,7 +244,10 @@
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
-            }
+            },
+            "filteredFiles": [
+              "org/apache/logging/log4j/core/lookup/JndiLookup.class"
+            ]
           }
         }
       ]
@@ -264,19 +294,6 @@
           "name": "1.16.5",
           "url": "https://api.pl3x.net/v2/purpur/1.16.5/latest/download",
           "maxJavaVersion": 16,
-          "properties": {
-            "copy": {
-              "cache/patched.*\\.jar": "purpur.jar"
-            },
-            "jvmOptions": [
-              "-Dpaperclip.patchonly=true"
-            ]
-          }
-        },
-        {
-          "name": "1.15.2",
-          "url": "https://api.pl3x.net/v2/purpur/1.15.2/latest/download",
-          "maxJavaVersion": 14,
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "purpur.jar"
