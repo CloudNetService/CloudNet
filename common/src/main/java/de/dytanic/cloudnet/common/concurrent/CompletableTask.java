@@ -20,6 +20,7 @@ import de.dytanic.cloudnet.common.function.ThrowableFunction;
 import de.dytanic.cloudnet.common.function.ThrowableSupplier;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -169,13 +170,9 @@ public class CompletableTask<V> extends CompletableFuture<V> implements ITask<V>
   }
 
   protected @NotNull Collection<ITaskListener<V>> initListeners() {
-    if (this.listeners == null) {
-      // ConcurrentLinkedQueue gives us O(1) insertion using CAS - results under moderate
-      // load in the fastest insert and read times
-      return this.listeners = new ConcurrentLinkedQueue<>();
-    } else {
-      return this.listeners;
-    }
+    // ConcurrentLinkedQueue gives us O(1) insertion using CAS - results under moderate
+    // load in the fastest insert and read times
+    return Objects.requireNonNullElseGet(this.listeners, () -> this.listeners = new ConcurrentLinkedQueue<>());
   }
 
   protected void depopulateListeners() {

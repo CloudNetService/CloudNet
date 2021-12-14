@@ -23,6 +23,7 @@ import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -147,11 +148,7 @@ public final class BukkitCloudPermissionsPermissible extends PermissibleBase {
     for (var entry : parent.getChildren().entrySet()) {
       if (entry.getKey().equalsIgnoreCase(inName)) {
         PermissionCheckResult result;
-        if (lastParent != null) {
-          result = parentAcceptor.apply(lastParent);
-        } else {
-          result = parentAcceptor.apply(parent);
-        }
+        result = parentAcceptor.apply(Objects.requireNonNullElse(lastParent, parent));
 
         if (result != PermissionCheckResult.DENIED) {
           return PermissionCheckResult.fromBoolean(entry.getValue());

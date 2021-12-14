@@ -17,6 +17,7 @@
 package eu.cloudnetservice.cloudnet.ext.signs.configuration;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.ToString;
@@ -95,10 +96,6 @@ public class SignLayoutsHolder {
   }
 
   protected AtomicInteger getCurrentAnimationIndexOrInit() {
-    if (this.currentAnimation == null) {
-      return this.currentAnimation = new AtomicInteger(-1);
-    } else {
-      return this.currentAnimation;
-    }
+    return Objects.requireNonNullElseGet(this.currentAnimation, () -> this.currentAnimation = new AtomicInteger(-1));
   }
 }
