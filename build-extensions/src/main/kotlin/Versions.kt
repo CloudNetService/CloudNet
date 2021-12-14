@@ -23,7 +23,7 @@ object Versions {
   // plugin versions
   const val shadow = "7.1.0"
   const val blossom = "1.3.0"
-  const val juppiter = "0.1.2"
+  const val juppiter = "0.2.0"
 
   // external tools
   const val checkstyleTools = "9.1"
