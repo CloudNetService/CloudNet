@@ -117,7 +117,7 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
   public @NotNull Collection<Sign> getSigns(@NotNull String[] groups) {
     var allGroups = Arrays.asList(groups);
     return this.signs.values().stream()
-      .filter(sign -> allGroups.contains(sign.getLocation().getGroup()))
+      .filter(sign -> allGroups.contains(sign.getLocation().group()))
       .collect(Collectors.toList());
   }
 
@@ -139,7 +139,10 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
   }
 
   protected String getDocumentKey(@NotNull WorldPosition position) {
-    return position.getWorld() + '.' + position.getGroup() + '.' + position.getX()
-      + '.' + position.getY() + '.' + position.getZ();
+    return position.world()
+      + '.' + position.group()
+      + '.' + position.x()
+      + '.' + position.y()
+      + '.' + position.z();
   }
 }

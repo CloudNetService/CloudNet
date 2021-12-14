@@ -97,12 +97,12 @@ public class CloudNetSignsModule extends DriverModule {
             oldSign.getTargetGroup(),
             oldSign.getTemplatePath(),
             new WorldPosition(
-              oldSign.getWorldPosition().getX(),
-              oldSign.getWorldPosition().getY(),
-              oldSign.getWorldPosition().getZ(),
+              oldSign.getWorldPosition().x(),
+              oldSign.getWorldPosition().y(),
+              oldSign.getWorldPosition().z(),
               0,
               0,
-              oldSign.getWorldPosition().getWorld(),
+              oldSign.getWorldPosition().world(),
               oldSign.getProvidedGroup()
             )));
         }

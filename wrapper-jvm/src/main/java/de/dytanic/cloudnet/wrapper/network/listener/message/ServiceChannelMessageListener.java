@@ -57,9 +57,8 @@ public final class ServiceChannelMessageListener {
         }
 
         // force update request of the service info
-        case "request_update_service_information" -> {
-          event.setBinaryResponse(DataBuf.empty().writeObject(Wrapper.getInstance().configureServiceInfoSnapshot()));
-        }
+        case "request_update_service_information" -> event.setBinaryResponse(DataBuf.empty()
+          .writeObject(Wrapper.getInstance().configureServiceInfoSnapshot()));
 
         // call the event for a new line in the log of the service
         case "screen_new_line" -> {

@@ -68,9 +68,7 @@ public final class NodeChannelMessageListener {
         }
 
         // handles the shutdown of a cluster node
-        case "cluster_node_shutdown" -> {
-          CloudNet.getInstance().stop();
-        }
+        case "cluster_node_shutdown" -> CloudNet.getInstance().stop();
 
         // request of the full cluster data set
         case "request_initial_cluster_data" -> {

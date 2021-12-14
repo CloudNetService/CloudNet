@@ -209,7 +209,7 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
   }
 
   protected @Nullable Location locationFromWorldPosition(@NotNull WorldPosition position) {
-    var level = Server.getInstance().getLevelByName(position.getWorld());
-    return level == null ? null : new Location(position.getX(), position.getY(), position.getZ(), level);
+    var level = Server.getInstance().getLevelByName(position.world());
+    return level == null ? null : new Location(position.x(), position.y(), position.z(), level);
   }
 }

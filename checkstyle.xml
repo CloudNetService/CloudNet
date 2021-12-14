@@ -223,7 +223,7 @@
     <module name="RecordComponentName">
       <message key="name.invalidPattern"
         value="Record component name ''{0}'' must match pattern ''{1}''."/>
-      <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
+      <property name="format" value="^[a-z]([a-zA-Z0-9]*)*$"/>
     </module>
     <module name="RecordTypeParameterName">
       <message key="name.invalidPattern"

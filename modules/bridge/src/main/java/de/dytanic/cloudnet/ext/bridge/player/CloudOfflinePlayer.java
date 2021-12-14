@@ -55,7 +55,7 @@ public class CloudOfflinePlayer extends JsonDocPropertyHolder implements Cloneab
   }
 
   public @NotNull UUID getUniqueId() {
-    return this.lastNetworkPlayerProxyInfo.getUniqueId();
+    return this.lastNetworkPlayerProxyInfo.uniqueId();
   }
 
   @Override
@@ -64,7 +64,7 @@ public class CloudOfflinePlayer extends JsonDocPropertyHolder implements Cloneab
   }
 
   public @UnknownNullability String getXBoxId() {
-    return this.lastNetworkPlayerProxyInfo.getXBoxId();
+    return this.lastNetworkPlayerProxyInfo.xBoxId();
   }
 
   public long getFirstLoginTimeMillis() {

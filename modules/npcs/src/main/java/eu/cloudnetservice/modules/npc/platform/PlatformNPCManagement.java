@@ -121,7 +121,7 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
   @Override
   public void handleInternalNPCCreate(@NotNull NPC npc) {
     // check if the npc is on this group
-    if (Wrapper.getInstance().getServiceConfiguration().getGroups().contains(npc.getLocation().getGroup())) {
+    if (Wrapper.getInstance().getServiceConfiguration().getGroups().contains(npc.getLocation().group())) {
       super.handleInternalNPCCreate(npc);
       // remove the old selector npc
       var entity = this.trackedEntities.remove(npc.getLocation());

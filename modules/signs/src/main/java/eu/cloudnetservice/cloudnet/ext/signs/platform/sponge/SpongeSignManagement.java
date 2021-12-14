@@ -201,8 +201,8 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
   }
 
   protected @Nullable Location<ServerWorld, ?> locationFromWorldPosition(@NotNull WorldPosition position) {
-    return Sponge.server().worldManager().world(ResourceKey.resolve(position.getWorld()))
-      .map(world -> ServerLocation.of(world, position.getX(), position.getY(), position.getZ()))
+    return Sponge.server().worldManager().world(ResourceKey.resolve(position.world()))
+      .map(world -> ServerLocation.of(world, position.x(), position.y(), position.z()))
       .orElse(null);
   }
 }

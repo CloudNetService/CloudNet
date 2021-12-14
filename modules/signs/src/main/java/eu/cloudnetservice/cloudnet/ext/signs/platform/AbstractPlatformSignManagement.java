@@ -193,7 +193,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
 
   @Override
   public void handleInternalSignRemove(@NotNull WorldPosition position) {
-    if (Wrapper.getInstance().getServiceConfiguration().getGroups().contains(position.getGroup())) {
+    if (Wrapper.getInstance().getServiceConfiguration().getGroups().contains(position.group())) {
       var sign = this.getSignAt(position);
       if (sign != null && sign.getCurrentTarget() != null) {
         this.waitingAssignments.add(sign.getCurrentTarget());

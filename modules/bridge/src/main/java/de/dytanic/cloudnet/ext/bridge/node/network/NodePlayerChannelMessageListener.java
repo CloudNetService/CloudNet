@@ -69,7 +69,7 @@ public final class NodePlayerChannelMessageListener {
           // create the event
           var preLoginEvent = new LocalPlayerPreLoginEvent(info);
           // set the event cancelled by default if the player is already connected
-          if (this.playerManager.getOnlinePlayer(info.getUniqueId()) != null) {
+          if (this.playerManager.getOnlinePlayer(info.uniqueId()) != null) {
             preLoginEvent.setResult(Result.denied(Component.text(this.bridgeManagement.getConfiguration().getMessage(
                 Locale.ENGLISH,
                 "already-connected"))));

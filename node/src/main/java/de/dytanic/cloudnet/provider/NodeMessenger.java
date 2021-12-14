@@ -212,9 +212,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
             this.cloudServiceManager.getCloudServicesByGroup(target.getName()),
             allowClusterRedirect);
       }
-      default -> {
-        throw new IllegalArgumentException("Unhandled ChannelMessageTarget.Type: " + target.getType());
-      }
+      default -> throw new IllegalArgumentException("Unhandled ChannelMessageTarget.Type: " + target.getType());
     }
   }
 

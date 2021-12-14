@@ -174,12 +174,12 @@ public final class NPCCommand extends BaseTabExecutor {
         case "cu", "cleanup" -> {
           this.management.getTrackedEntities().values().stream()
             .map(PlatformSelectorEntity::getNPC)
-            .filter(npc -> Bukkit.getWorld(npc.getLocation().getWorld()) == null)
+            .filter(npc -> Bukkit.getWorld(npc.getLocation().world()) == null)
             .forEach(npc -> {
               this.management.deleteNPC(npc);
               sender.sendMessage(String.format(
                 "§cAn entity in the world §6%s §cwas removed! This may take a few seconds to show effect!",
-                npc.getLocation().getWorld()));
+                npc.getLocation().world()));
             });
           return true;
         }
@@ -256,10 +256,10 @@ public final class NPCCommand extends BaseTabExecutor {
               npc.getDisplayName(),
               npc.getNpcType(),
               npc.getNpcType() == NPCType.ENTITY ? npc.getEntityType() : "props: " + npc.getProfileProperties().size(),
-              (int) npc.getLocation().getX(),
-              (int) npc.getLocation().getY(),
-              (int) npc.getLocation().getZ(),
-              npc.getLocation().getWorld()));
+              (int) npc.getLocation().x(),
+              (int) npc.getLocation().y(),
+              (int) npc.getLocation().z(),
+              npc.getLocation().world()));
           }
           return true;
         }
@@ -291,14 +291,12 @@ public final class NPCCommand extends BaseTabExecutor {
           updatedNpc = NPC.builder(npc)
             .displayName(ChatColor.translateAlternateColorCodes('&', displayName))
             .build();
-          break;
         }
 
         // enable that the npc looks at the player
         case "lap", "lookatplayer" -> {
           if (this.canChangeSetting(sender, npc)) {
             updatedNpc = NPC.builder(npc).lookAtPlayer(this.parseBoolean(args[2])).build();
-            break;
           } else {
             return true;
           }
@@ -308,7 +306,6 @@ public final class NPCCommand extends BaseTabExecutor {
         case "ip", "imitateplayer" -> {
           if (this.canChangeSetting(sender, npc)) {
             updatedNpc = NPC.builder(npc).imitatePlayer(this.parseBoolean(args[2])).build();
-            break;
           } else {
             return true;
           }
@@ -318,7 +315,6 @@ public final class NPCCommand extends BaseTabExecutor {
         case "ups", "useplayerskin" -> {
           if (this.canChangeSetting(sender, npc)) {
             updatedNpc = NPC.builder(npc).usePlayerSkin(this.parseBoolean(args[2])).build();
-            break;
           } else {
             return true;
           }
@@ -345,7 +341,6 @@ public final class NPCCommand extends BaseTabExecutor {
           } else {
             updatedNpc = NPC.builder(npc).glowing(true).glowingColor(String.valueOf(chatColor.getChar())).build();
           }
-          break;
         }
 
         // sets if the npc should "fly" with an elytra
@@ -358,7 +353,6 @@ public final class NPCCommand extends BaseTabExecutor {
               sender.sendMessage("§cEnabling elytra-flying might lead to weird-looking behaviour when imitate "
                 + "and lookAt player is enabled! Consider disabling these options.");
             }
-            break;
           } else {
             return true;
           }
@@ -378,7 +372,6 @@ public final class NPCCommand extends BaseTabExecutor {
             return true;
           } else {
             updatedNpc = NPC.builder(npc).floatingItem(material.name()).build();
-            break;
           }
         }
 
@@ -392,7 +385,6 @@ public final class NPCCommand extends BaseTabExecutor {
             return true;
           } else {
             updatedNpc = NPC.builder(npc).leftClickAction(action).build();
-            break;
           }
         }
 
@@ -406,7 +398,6 @@ public final class NPCCommand extends BaseTabExecutor {
             return true;
           } else {
             updatedNpc = NPC.builder(npc).rightClickAction(action).build();
-            break;
           }
         }
 
@@ -433,7 +424,6 @@ public final class NPCCommand extends BaseTabExecutor {
           // a little hack here :)
           npc.getItems().put(slot, item.name());
           updatedNpc = npc;
-          break;
         }
 
         // edit the info lines
@@ -455,7 +445,6 @@ public final class NPCCommand extends BaseTabExecutor {
             if (npc.getInfoLines().size() > index) {
               npc.getInfoLines().remove((int) index);
               updatedNpc = npc;
-              break;
             } else {
               sender.sendMessage(String.format("§cNo info line at index §6%d§c.", index));
               return true;
@@ -469,7 +458,6 @@ public final class NPCCommand extends BaseTabExecutor {
               npc.getInfoLines().add(content);
             }
             updatedNpc = npc;
-            break;
           }
         }
 
@@ -484,7 +472,6 @@ public final class NPCCommand extends BaseTabExecutor {
                 .map(property -> new ProfileProperty(property.getName(), property.getValue(), property.getSignature()))
                 .collect(Collectors.toSet()))
               .build();
-            break;
           }
         }
 
@@ -496,15 +483,11 @@ public final class NPCCommand extends BaseTabExecutor {
             return true;
           } else {
             updatedNpc = NPC.builder(npc).entityType(entityType.name()).build();
-            break;
           }
         }
 
         // sets the target group of the npc
-        case "tg", "targetgroup" -> {
-          updatedNpc = NPC.builder(npc).targetGroup(args[2]).build();
-          break;
-        }
+        case "tg", "targetgroup" -> updatedNpc = NPC.builder(npc).targetGroup(args[2]).build();
 
         // unknown option
         default -> {

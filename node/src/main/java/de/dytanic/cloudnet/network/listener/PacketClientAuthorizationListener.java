@@ -65,7 +65,6 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
               return;
             }
           }
-          break;
         }
 
         // WRAPPER -> NODE
@@ -92,7 +91,6 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
             // do not search for other services
             return;
           }
-          break;
         }
         default -> {
         }

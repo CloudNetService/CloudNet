@@ -165,7 +165,7 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
 
   @Override
   public void handleInternalSignCreate(@NotNull Sign sign) {
-    if (Wrapper.getInstance().getServiceConfiguration().getGroups().contains(sign.getLocation().getGroup())) {
+    if (Wrapper.getInstance().getServiceConfiguration().getGroups().contains(sign.getLocation().group())) {
       super.handleInternalSignCreate(sign);
     }
   }

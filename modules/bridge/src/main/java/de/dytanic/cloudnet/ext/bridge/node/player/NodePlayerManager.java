@@ -295,7 +295,7 @@ public class NodePlayerManager implements IPlayerManager {
     @NotNull NetworkPlayerProxyInfo networkPlayerProxyInfo,
     @Nullable NetworkPlayerServerInfo networkPlayerServerInfo
   ) {
-    var loginLock = this.playerReadWriteLocks.get(networkPlayerProxyInfo.getUniqueId());
+    var loginLock = this.playerReadWriteLocks.get(networkPlayerProxyInfo.uniqueId());
     try {
       // ensure that we handle only one login message at a time
       loginLock.lock();
@@ -309,7 +309,7 @@ public class NodePlayerManager implements IPlayerManager {
     @NotNull NetworkPlayerProxyInfo networkPlayerProxyInfo,
     @Nullable NetworkPlayerServerInfo networkPlayerServerInfo
   ) {
-    var networkService = networkPlayerProxyInfo.getNetworkService();
+    var networkService = networkPlayerProxyInfo.networkService();
     var cloudPlayer = this.selectPlayerForLogin(networkPlayerProxyInfo, networkPlayerServerInfo);
     // check if the login service is a proxy and set the proxy as the login service if so
     if (ServiceEnvironmentType.isMinecraftProxy(networkService.getServiceId().getEnvironment())) {
@@ -319,10 +319,10 @@ public class NodePlayerManager implements IPlayerManager {
     // Set more information according to the server information which the proxy can't provide
     if (networkPlayerServerInfo != null) {
       cloudPlayer.setNetworkPlayerServerInfo(networkPlayerServerInfo);
-      cloudPlayer.setConnectedService(networkPlayerServerInfo.getNetworkService());
+      cloudPlayer.setConnectedService(networkPlayerServerInfo.networkService());
 
       if (cloudPlayer.getLoginService() == null) {
-        cloudPlayer.setLoginService(networkPlayerServerInfo.getNetworkService());
+        cloudPlayer.setLoginService(networkPlayerServerInfo.networkService());
       }
     }
     // update the player into the database and notify the other nodes
@@ -336,13 +336,13 @@ public class NodePlayerManager implements IPlayerManager {
     @Nullable NetworkPlayerServerInfo serverInfo
   ) {
     // check if the player is already loaded
-    var cloudPlayer = this.getOnlinePlayer(connectionInfo.getUniqueId());
+    var cloudPlayer = this.getOnlinePlayer(connectionInfo.uniqueId());
     if (cloudPlayer == null) {
       // try to load the player using the name and the login service
       for (var player : this.getOnlinePlayers().values()) {
-        if (player.getName().equals(connectionInfo.getName())
+        if (player.getName().equals(connectionInfo.name())
           && player.getLoginService() != null
-          && player.getLoginService().getUniqueId().equals(connectionInfo.getNetworkService().getUniqueId())) {
+          && player.getLoginService().getUniqueId().equals(connectionInfo.networkService().getUniqueId())) {
           cloudPlayer = player;
           break;
         }
@@ -353,8 +353,8 @@ public class NodePlayerManager implements IPlayerManager {
         var cloudOfflinePlayer = this.getOrRegisterOfflinePlayer(connectionInfo);
         // convert the offline player to an online version using all provided information
         cloudPlayer = new CloudPlayer(
-          connectionInfo.getNetworkService(),
-          serverInfo == null ? connectionInfo.getNetworkService() : serverInfo.getNetworkService(),
+          connectionInfo.networkService(),
+          serverInfo == null ? connectionInfo.networkService() : serverInfo.networkService(),
           connectionInfo,
           serverInfo,
           JsonDocument.newDocument(),
@@ -433,16 +433,16 @@ public class NodePlayerManager implements IPlayerManager {
   }
 
   public @NotNull CloudOfflinePlayer getOrRegisterOfflinePlayer(@NotNull NetworkPlayerProxyInfo proxyInfo) {
-    var cloudOfflinePlayer = this.getOfflinePlayer(proxyInfo.getUniqueId());
+    var cloudOfflinePlayer = this.getOfflinePlayer(proxyInfo.uniqueId());
     // check if the player is already present
     if (cloudOfflinePlayer == null) {
       // create a new player and cache it, the insert into the database will be done later during the login
       cloudOfflinePlayer = new CloudOfflinePlayer(
         System.currentTimeMillis(),
         System.currentTimeMillis(),
-        proxyInfo.getName(),
+        proxyInfo.name(),
         proxyInfo);
-      this.offlinePlayerCache.put(proxyInfo.getUniqueId(), Optional.of(cloudOfflinePlayer));
+      this.offlinePlayerCache.put(proxyInfo.uniqueId(), Optional.of(cloudOfflinePlayer));
     }
     // the selected player
     return cloudOfflinePlayer;

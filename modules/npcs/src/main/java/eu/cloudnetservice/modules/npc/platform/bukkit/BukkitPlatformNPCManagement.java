@@ -152,14 +152,14 @@ public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location,
 
   @Override
   public @NotNull Location toPlatformLocation(@NotNull WorldPosition position) {
-    var world = Bukkit.getWorld(position.getWorld());
+    var world = Bukkit.getWorld(position.world());
     return new Location(
       world,
-      position.getX(),
-      position.getY(),
-      position.getZ(),
-      (float) position.getYaw(),
-      (float) position.getPitch());
+      position.x(),
+      position.y(),
+      position.z(),
+      (float) position.yaw(),
+      (float) position.pitch());
   }
 
   @Override

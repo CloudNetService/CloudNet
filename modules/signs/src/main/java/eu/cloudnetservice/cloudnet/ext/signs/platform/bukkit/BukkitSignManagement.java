@@ -221,7 +221,7 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
   }
 
   protected @Nullable Location worldPositionToLocation(@NotNull WorldPosition position) {
-    var world = Bukkit.getWorld(position.getWorld());
-    return world == null ? null : new Location(world, position.getX(), position.getY(), position.getZ());
+    var world = Bukkit.getWorld(position.world());
+    return world == null ? null : new Location(world, position.x(), position.y(), position.z());
   }
 }

@@ -18,49 +18,14 @@ package de.dytanic.cloudnet.ext.bridge.player;
 
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import java.util.UUID;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.UnknownNullability;
+import org.jetbrains.annotations.Nullable;
 
-@ToString
-@EqualsAndHashCode
-public final class NetworkPlayerServerInfo {
-
-  private final UUID uniqueId;
-
-  private final String name;
-  private final String xBoxId;
-
-  private final HostAndPort address;
-  private final NetworkServiceInfo networkService;
-
-  public NetworkPlayerServerInfo(UUID uniqueId, String name, String xBoxId, HostAndPort address,
-    NetworkServiceInfo networkService) {
-    this.uniqueId = uniqueId;
-    this.name = name;
-    this.xBoxId = xBoxId;
-    this.address = address;
-    this.networkService = networkService;
-  }
-
-  public @NotNull UUID getUniqueId() {
-    return this.uniqueId;
-  }
-
-  public @NotNull String getName() {
-    return this.name;
-  }
-
-  public @UnknownNullability String getXBoxId() {
-    return this.xBoxId;
-  }
-
-  public @NotNull HostAndPort getAddress() {
-    return this.address;
-  }
-
-  public @NotNull NetworkServiceInfo getNetworkService() {
-    return this.networkService;
-  }
+public record NetworkPlayerServerInfo(
+  @NotNull UUID uniqueId,
+  @NotNull String name,
+  @Nullable String xBoxId,
+  @NotNull HostAndPort address,
+  @NotNull NetworkServiceInfo networkService
+) {
 }

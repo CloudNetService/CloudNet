@@ -65,13 +65,13 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
   }
 
   static @NotNull String getDocumentKey(@NotNull WorldPosition position) {
-    return position.getWorld()
-      + '.' + position.getGroup()
-      + '.' + position.getX()
-      + '.' + position.getY()
-      + '.' + position.getZ()
-      + '.' + position.getYaw()
-      + '.' + position.getPitch();
+    return position.world()
+      + '.' + position.group()
+      + '.' + position.x()
+      + '.' + position.y()
+      + '.' + position.z()
+      + '.' + position.yaw()
+      + '.' + position.pitch();
   }
 
   @Override
@@ -134,7 +134,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
     Arrays.sort(groups);
     // filter all npcs
     return this.npcs.values().stream()
-      .filter(npc -> Arrays.binarySearch(groups, npc.getLocation().getGroup()) >= 0)
+      .filter(npc -> Arrays.binarySearch(groups, npc.getLocation().group()) >= 0)
       .collect(Collectors.toList());
   }
 

@@ -54,9 +54,7 @@ public final class CloudNetLocalServiceListener {
         // apply the template installer
         switch (config.getTemplateInstaller()) {
           // installs all templates of the service
-          case INSTALL_ALL -> {
-            templates.addAll(task.getTemplates());
-          }
+          case INSTALL_ALL -> templates.addAll(task.getTemplates());
 
           // installs a random amount of templates
           case INSTALL_RANDOM -> {
