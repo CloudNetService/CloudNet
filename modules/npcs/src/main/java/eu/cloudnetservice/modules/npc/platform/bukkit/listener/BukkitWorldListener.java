@@ -18,8 +18,6 @@ package eu.cloudnetservice.modules.npc.platform.bukkit.listener;
 
 import eu.cloudnetservice.modules.npc.platform.PlatformSelectorEntity;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
-import java.util.Collection;
-import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -71,11 +69,11 @@ public final class BukkitWorldListener implements Listener {
 
   @EventHandler(priority = EventPriority.LOWEST)
   public void handleWorldSave(@NotNull WorldSaveEvent event) {
-    Collection<PlatformSelectorEntity<?, ?, ?, ?>> entities = this.management.getTrackedEntities().values().stream()
+    var entities = this.management.getTrackedEntities().values().stream()
       .filter(PlatformSelectorEntity::isSpawned)
       .filter(PlatformSelectorEntity::removeWhenWorldSaving)
       .filter(npc -> npc.getLocation().getWorld().getUID().equals(event.getWorld().getUID()))
-      .collect(Collectors.toList());
+      .toList();
     // remove all mobs
     entities.forEach(PlatformSelectorEntity::remove);
     // re-spawn all entities after 2 seconds - just hope the world save is done

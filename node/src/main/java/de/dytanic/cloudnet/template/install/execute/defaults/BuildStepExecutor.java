@@ -70,10 +70,7 @@ public class BuildStepExecutor implements InstallStepExecutor {
 
       arguments.add("-jar");
       arguments.add(path.getFileName().toString());
-      arguments.addAll(
-        parameters.stream()
-          .map(parameter -> parameter.replace("%version%", version.name()))
-          .collect(Collectors.toList()));
+      arguments.addAll(parameters.stream().map(parameter -> parameter.replace("%version%", version.name())).toList());
 
       var expectedExitCode = version.getProperties().getInt("exitCode", 0);
       var exitCode = this.buildProcessAndWait(arguments, workDir);

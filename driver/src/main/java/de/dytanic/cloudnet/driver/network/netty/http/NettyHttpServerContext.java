@@ -93,7 +93,7 @@ final class NettyHttpServerContext implements IHttpContext {
           cookie.isSecure(),
           cookie.wrap(),
           cookie.maxAge()
-        )).collect(Collectors.toList()));
+        )).toList());
     }
 
     this.updateHeaderResponse();

@@ -51,7 +51,7 @@ public class ColumnTextFormatterTest {
       StandardCharsets.UTF_8
     ))) {
       var output = formatter.formatLines(entries);
-      Collection<String> expected = reader.lines().collect(Collectors.toList());
+      Collection<String> expected = reader.lines().toList();
 
       Assertions.assertLinesMatch(expected.stream(), output.stream());
     } catch (IOException exception) {
