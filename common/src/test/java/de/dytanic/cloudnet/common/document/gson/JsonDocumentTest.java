@@ -17,6 +17,8 @@
 package de.dytanic.cloudnet.common.document.gson;
 
 import de.dytanic.cloudnet.common.document.property.FunctionalDocProperty;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -33,7 +35,20 @@ public class JsonDocumentTest {
 
     Assertions.assertEquals("bar", document.getString("foo"));
     Assertions.assertEquals(4, document.getInt("number"));
-    Assertions.assertEquals("myData", document.get("test", TestClass.class).data);
+  }
+
+  @Test
+  void testRecordReading() {
+    var document = this.getDummyDocument();
+    var record = document.get("test", TestRecord.class);
+
+    Assertions.assertEquals("myData", record.data);
+
+    Assertions.assertEquals(4, record.worldItems().get("1").size());
+    Assertions.assertEquals(5, record.worldItems().get("2").size());
+
+    Assertions.assertArrayEquals(new Integer[]{1, 2, 3, 4}, record.worldItems().get("1").toArray(new Integer[0]));
+    Assertions.assertArrayEquals(new Integer[]{5, 6, 7, 8, 9}, record.worldItems().get("2").toArray(new Integer[0]));
   }
 
   @Test
@@ -41,7 +56,7 @@ public class JsonDocumentTest {
     var document = this.getDummyDocument();
 
     Assertions.assertNull(document.remove("foo").getString("foo"));
-    Assertions.assertNull(document.remove("test").get("test", TestClass.class));
+    Assertions.assertNull(document.remove("test").get("test", TestRecord.class));
     Assertions.assertEquals(0, document.remove("number").getInt("number"));
   }
 
@@ -71,7 +86,7 @@ public class JsonDocumentTest {
     return JsonDocument.newDocument()
       .append("foo", "bar")
       .append("number", 4)
-      .append("test", new TestClass("myData"));
+      .append("test", new TestRecord("myData", Map.of("1", List.of(1, 2, 3, 4), "2", List.of(5, 6, 7, 8, 9))));
   }
 
   private FunctionalDocProperty<String> getJsonDocProperty() {
@@ -83,7 +98,7 @@ public class JsonDocumentTest {
     );
   }
 
-  private record TestClass(String data) {
+  private record TestRecord(String data, Map<String, List<Integer>> worldItems) {
 
   }
 }
