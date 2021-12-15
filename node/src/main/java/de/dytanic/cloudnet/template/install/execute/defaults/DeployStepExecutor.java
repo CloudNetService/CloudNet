@@ -39,7 +39,7 @@ public class DeployStepExecutor implements InstallStepExecutor {
       }
 
       var relativePath = workingDirectory.relativize(path).toString().replace("\\", "/");
-      try (var outputStream = info.getTemplateStorage().newOutputStream(relativePath)) {
+      try (var outputStream = info.templateStorage().newOutputStream(relativePath)) {
         Files.copy(path, Objects.requireNonNull(outputStream));
       }
     }

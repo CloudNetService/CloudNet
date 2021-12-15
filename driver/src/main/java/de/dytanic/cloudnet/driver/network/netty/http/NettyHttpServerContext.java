@@ -77,7 +77,7 @@ final class NettyHttpServerContext implements IHttpContext {
     this.nettyHttpServer = nettyHttpServer;
     this.channel = channel;
     this.httpRequest = httpRequest;
-    this.nettyChannel = channel.getChannel();
+    this.nettyChannel = channel.channel();
 
     this.httpServerRequest = new NettyHttpServerRequest(this, httpRequest, pathParameters, uri);
     this.httpServerResponse = new NettyHttpServerResponse(this, httpRequest);

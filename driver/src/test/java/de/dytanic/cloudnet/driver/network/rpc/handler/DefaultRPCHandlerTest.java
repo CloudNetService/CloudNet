@@ -171,21 +171,15 @@ public class DefaultRPCHandlerTest {
     Map<Long, Map<String, String>> handleProcessSnapshot2(ProcessSnapshot s, List<Integer> i, int primaryId);
   }
 
-  public static final class TestApiClass {
-
-    private final AtomicLong eventCounter;
-
-    public TestApiClass(AtomicLong eventCounter) {
-      this.eventCounter = eventCounter;
-    }
+  public record TestApiClass(AtomicLong eventCounter) {
 
     static long calculateResult(ProcessSnapshot snapshot, List<Integer> integers, int primary) {
       // some values from the snapshot and the fixed 187 argument
-      long result = primary + snapshot.getCurrentLoadedClassCount() + snapshot.getPid();
+      long result = primary + snapshot.currentLoadedClassCount() + snapshot.pid();
       // the integers submitted summed up
       result += integers.stream().mapToInt(Integer::intValue).sum();
       // the thread ids summed up
-      return result + snapshot.getThreads().stream().mapToLong(ThreadSnapshot::id).sum();
+      return result + snapshot.threads().stream().mapToLong(ThreadSnapshot::id).sum();
     }
 
     public Map<Long, Map<String, String>> handleProcessSnapshot(ProcessSnapshot s, List<Integer> i, int primaryId) {

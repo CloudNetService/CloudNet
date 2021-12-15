@@ -524,7 +524,7 @@ public abstract class AbstractService implements ICloudService {
   protected boolean canStartNow() {
     // check jvm heap size
     if (this.cloudServiceManager.getCurrentUsedHeapMemory()
-      + this.getServiceConfiguration().getProcessConfig().getMaxHeapMemorySize()
+      + this.getServiceConfiguration().getProcessConfig().maxHeapMemorySize()
       >= this.getNodeConfiguration().getMaxMemory()) {
       // schedule a retry
       if (this.getNodeConfiguration().isRunBlockedServiceStartTryLaterAutomatic()) {

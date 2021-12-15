@@ -105,7 +105,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
       return server == null || !server.isAvailable() ? null : server;
     }
     // extract the max heap memory from the snapshot which will be used for later memory usage comparison
-    var mh = configuration.getProcessConfig().getMaxHeapMemorySize();
+    var mh = configuration.getProcessConfig().maxHeapMemorySize();
     // find the best node server
     return this.nodeServerProvider.getNodeServers().stream()
       .filter(IClusterNodeServer::isAvailable)
@@ -120,12 +120,12 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
         var chain = ComparisonChain.start()
           .compare(left.getNodeInfoSnapshot().getUsedMemory() + mh, right.getNodeInfoSnapshot().getUsedMemory() + mh);
         // only include the cpu usage if both nodes can provide a value
-        if (left.getNodeInfoSnapshot().getProcessSnapshot().getSystemCpuUsage() >= 0
-          && right.getNodeInfoSnapshot().getProcessSnapshot().getSystemCpuUsage() >= 0) {
+        if (left.getNodeInfoSnapshot().getProcessSnapshot().systemCpuUsage() >= 0
+          && right.getNodeInfoSnapshot().getProcessSnapshot().systemCpuUsage() >= 0) {
           // add the system usage to the chain
           chain = chain.compare(
-            left.getNodeInfoSnapshot().getProcessSnapshot().getSystemCpuUsage(),
-            right.getNodeInfoSnapshot().getProcessSnapshot().getSystemCpuUsage());
+            left.getNodeInfoSnapshot().getProcessSnapshot().systemCpuUsage(),
+            right.getNodeInfoSnapshot().getProcessSnapshot().systemCpuUsage());
         }
         // use the result of the comparison
         return chain.result();
@@ -147,8 +147,8 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
         configuration.getTemplates().addAll(config.getTemplates());
         configuration.getDeployments().addAll(config.getDeployments());
 
-        configuration.getProcessConfig().getJvmOptions().addAll(config.getJvmOptions());
-        configuration.getProcessConfig().getProcessParameters().addAll(config.getProcessParameters());
+        configuration.getProcessConfig().jvmOptions().addAll(config.getJvmOptions());
+        configuration.getProcessConfig().processParameters().addAll(config.getProcessParameters());
       }
     }
   }

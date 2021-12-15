@@ -172,8 +172,8 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
 
     var answerType = entry.getAnswerType();
     // write the recommendation if given
-    if (answerType.getRecommendation() != null) {
-      this.console.setCommandInputValue(answerType.getRecommendation());
+    if (answerType.recommendation() != null) {
+      this.console.setCommandInputValue(answerType.recommendation());
     }
     // check for possible answers
     if (!answerType.getPossibleAnswers().isEmpty()) {

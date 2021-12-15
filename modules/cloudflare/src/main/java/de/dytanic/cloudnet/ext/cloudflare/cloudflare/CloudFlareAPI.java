@@ -86,7 +86,7 @@ public class CloudFlareAPI implements AutoCloseable {
 
   public boolean deleteRecord(@NotNull DnsRecordDetail recordDetail) {
     Preconditions.checkNotNull(recordDetail, "recordDetail");
-    return this.deleteRecord(recordDetail.getConfigurationEntry(), recordDetail.getId());
+    return this.deleteRecord(recordDetail.configurationEntry(), recordDetail.id());
   }
 
   @NotNull

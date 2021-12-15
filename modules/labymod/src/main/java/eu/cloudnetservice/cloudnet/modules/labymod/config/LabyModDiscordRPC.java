@@ -21,15 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
 
-public class LabyModDiscordRPC {
-
-  protected final boolean enabled;
-  protected final Collection<String> excludedGroups;
-
-  protected LabyModDiscordRPC(boolean enabled, @NotNull Collection<String> excludedGroups) {
-    this.enabled = enabled;
-    this.excludedGroups = excludedGroups;
-  }
+public record LabyModDiscordRPC(boolean enabled, @NotNull Collection<String> excludedGroups) {
 
   public static @NotNull Builder builder() {
     return new Builder();
@@ -37,25 +29,17 @@ public class LabyModDiscordRPC {
 
   public static @NotNull Builder builder(@NotNull LabyModDiscordRPC discordRPC) {
     return builder()
-      .enabled(discordRPC.isEnabled())
-      .excludedGroups(discordRPC.getExcludedGroups());
+      .enabled(discordRPC.enabled())
+      .excludedGroups(discordRPC.excludedGroups());
   }
 
-  public boolean isEnabled() {
-    return this.enabled;
-  }
-
-  public @NotNull Collection<String> getExcludedGroups() {
-    return this.excludedGroups;
-  }
-
-  public boolean isExcluded(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
+  public boolean isEnabled(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
     for (var excludedGroup : this.excludedGroups) {
       if (serviceInfoSnapshot.getConfiguration().getGroups().contains(excludedGroup)) {
-        return true;
+        return false;
       }
     }
-    return false;
+    return true;
   }
 
   public static class Builder {
@@ -82,5 +66,4 @@ public class LabyModDiscordRPC {
       return new LabyModDiscordRPC(this.enabled, this.excludedGroups);
     }
   }
-
 }

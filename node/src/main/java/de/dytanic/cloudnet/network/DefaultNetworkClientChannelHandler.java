@@ -50,7 +50,7 @@ public final class DefaultNetworkClientChannelHandler implements INetworkChannel
       channel.sendPacket(new PacketClientAuthorization(
         PacketClientAuthorization.PacketAuthorizationType.NODE_TO_NODE,
         DataBuf.empty()
-          .writeUniqueId(CloudNet.getInstance().getConfig().getClusterConfig().getClusterId())
+          .writeUniqueId(CloudNet.getInstance().getConfig().getClusterConfig().clusterId())
           .writeObject(CloudNet.getInstance().getConfig().getIdentity())));
 
       LOGGER.fine(I18n.trans("client-network-channel-init")

@@ -58,8 +58,8 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
 
     hikariConfig.setJdbcUrl(String.format(
       CONNECT_URL_FORMAT,
-      endpoint.getAddress().getHost(), endpoint.getAddress().getPort(),
-      endpoint.getDatabase(), endpoint.isUseSsl(), endpoint.isUseSsl()
+      endpoint.address().getHost(), endpoint.address().getPort(),
+      endpoint.database(), endpoint.useSsl(), endpoint.useSsl()
     ));
     hikariConfig.setDriverClassName("com.mysql.cj.jdbc.Driver");
     hikariConfig.setUsername(this.config.getString("username"));

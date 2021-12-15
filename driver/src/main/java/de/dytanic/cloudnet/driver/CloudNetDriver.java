@@ -260,8 +260,8 @@ public abstract class CloudNetDriver {
    *
    * @return the PID as an int or -1, if it couldn't be fetched
    */
-  public int getOwnPID() {
-    return ProcessSnapshot.getOwnPID();
+  public long getOwnPID() {
+    return ProcessSnapshot.ownPID();
   }
 
   @NotNull

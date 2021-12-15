@@ -19,25 +19,16 @@ package de.dytanic.cloudnet.driver;
 import java.util.regex.Pattern;
 import org.jetbrains.annotations.NotNull;
 
-public class CloudNetVersion {
+public record CloudNetVersion(
+  int major,
+  int minor,
+  int patch,
+  @NotNull String revision,
+  @NotNull String versionType,
+  @NotNull String versionTitle
+) {
 
-  protected static final Pattern VERSION_PATTERN = Pattern.compile("(\\d+).(\\d+).(\\d+)(.*)");
-
-  private final int major;
-  private final int minor;
-  private final int patch;
-  private final String revision;
-  private final String versionType;
-  private final String versionTitle;
-
-  public CloudNetVersion(int major, int minor, int patch, String revision, String versionType, String versionTitle) {
-    this.major = major;
-    this.minor = minor;
-    this.patch = patch;
-    this.revision = revision;
-    this.versionType = versionType;
-    this.versionTitle = versionTitle;
-  }
+  private static final Pattern VERSION_PATTERN = Pattern.compile("(\\d+).(\\d+).(\\d+)(.*)");
 
   public static @NotNull CloudNetVersion fromClassInformation(@NotNull Package source) {
     // read the version title
@@ -79,30 +70,6 @@ public class CloudNetVersion {
     }
     // unable to determine version information
     throw new RuntimeException("Unable to determine version from " + source.getImplementationVersion());
-  }
-
-  public int getMajor() {
-    return this.major;
-  }
-
-  public int getMinor() {
-    return this.minor;
-  }
-
-  public int getPatch() {
-    return this.patch;
-  }
-
-  public @NotNull String getRevision() {
-    return this.revision;
-  }
-
-  public @NotNull String getVersionType() {
-    return this.versionType;
-  }
-
-  public @NotNull String getVersionTitle() {
-    return this.versionTitle;
   }
 
   @Override

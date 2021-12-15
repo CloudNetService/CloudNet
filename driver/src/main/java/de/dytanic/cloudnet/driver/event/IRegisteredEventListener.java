@@ -22,19 +22,19 @@ public interface IRegisteredEventListener extends Comparable<IRegisteredEventLis
 
   void fireEvent(@NotNull Event event);
 
-  @NotNull EventListener getEventListener();
+  @NotNull EventListener eventListener();
 
-  @NotNull EventPriority getPriority();
+  @NotNull EventPriority priority();
 
-  @NotNull String getChannel();
+  @NotNull String channel();
 
-  @NotNull Object getInstance();
+  @NotNull Object instance();
 
-  @NotNull Class<?> getEventClass();
+  @NotNull Class<?> eventClass();
 
   @Override
   default int compareTo(@NotNull IRegisteredEventListener other) {
-    var compareResult = this.getPriority().compareTo(other.getPriority());
+    var compareResult = this.priority().compareTo(other.priority());
     return compareResult == 0 ? 1 : compareResult;
   }
 }

@@ -214,6 +214,8 @@ public class NPC extends JsonDocPropertyHolder {
 
   public static final class Builder {
 
+    private final JsonDocument properties = JsonDocument.newDocument();
+
     private NPCType npcType;
     private String targetGroup;
 
@@ -237,7 +239,6 @@ public class NPC extends JsonDocPropertyHolder {
     private ClickAction rightClickAction = ClickAction.OPEN_INVENTORY;
 
     private Map<Integer, String> items = new HashMap<>();
-    private JsonDocument properties = JsonDocument.newDocument();
 
     public @NotNull Builder entityType(@NotNull String entityType) {
       this.npcType = NPCType.ENTITY;
@@ -348,28 +349,7 @@ public class NPC extends JsonDocPropertyHolder {
     }
   }
 
-  public static class ProfileProperty {
+  public record ProfileProperty(@NotNull String name, @NotNull String value, @Nullable String signature) {
 
-    private final String name;
-    private final String value;
-    private final String signature;
-
-    public ProfileProperty(String name, String value, String signature) {
-      this.name = name;
-      this.value = value;
-      this.signature = signature;
-    }
-
-    public @NotNull String getName() {
-      return this.name;
-    }
-
-    public @NotNull String getValue() {
-      return this.value;
-    }
-
-    public @Nullable String getSignature() {
-      return this.signature;
-    }
   }
 }

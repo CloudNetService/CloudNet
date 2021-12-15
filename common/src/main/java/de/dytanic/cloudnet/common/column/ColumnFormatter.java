@@ -91,11 +91,11 @@ public class ColumnFormatter {
         // get the spaces we need to append
         String ourSpaces;
         // compute the cache - if the title is too short append to the title, otherwise append to the column value
-        if (titleLength > entries[i].getColumnMinLength()) {
+        if (titleLength > entries[i].columnMinLength()) {
           ourSpaces = "";
-          spaceCache[i] = " ".repeat(titleLength - entries[i].getColumnMinLength()).intern();
+          spaceCache[i] = " ".repeat(titleLength - entries[i].columnMinLength()).intern();
         } else {
-          ourSpaces = " ".repeat(entries[i].getColumnMinLength() - titleLength).intern();
+          ourSpaces = " ".repeat(entries[i].columnMinLength() - titleLength).intern();
           spaceCache[i] = "";
         }
         // print the header entry
@@ -115,7 +115,7 @@ public class ColumnFormatter {
       // reset the string builder
       builder.setLength(0);
       // get the amount of times we need to loop to fill everything
-      var repeatCount = this.columnTitles.length * entries[0].getFormattedEntries().length;
+      var repeatCount = this.columnTitles.length * entries[0].formattedEntries().length;
       // format each row
       var currentDepth = 0;
       for (var i = 0; i <= repeatCount; i++) {
@@ -144,7 +144,7 @@ public class ColumnFormatter {
         builder
           .append(this.columnLeftBracket)
           .append(this.leftSpacer)
-          .append(entries[index].getFormattedEntries()[currentDepth])
+          .append(entries[index].formattedEntries()[currentDepth])
           .append(spaces)
           .append(this.rightSpacer)
           .append(this.columnRightBracket);

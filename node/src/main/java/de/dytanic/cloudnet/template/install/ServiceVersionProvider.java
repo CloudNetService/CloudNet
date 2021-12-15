@@ -158,12 +158,12 @@ public class ServiceVersionProvider {
 
   public boolean installServiceVersion(@NotNull InstallInformation information, boolean force) {
     var fullVersionIdentifier = String.format("%s-%s",
-      information.getServiceVersionType().name(),
-      information.getServiceVersion().name());
+      information.serviceVersionType().name(),
+      information.serviceVersion().name());
 
     if (!force
-      && information.getInstallerExecutable().isEmpty()
-      && !information.getServiceVersionType().canInstall(information.getServiceVersion())
+      && information.installerExecCommand().isEmpty()
+      && !information.serviceVersionType().canInstall(information.serviceVersion())
     ) {
       throw new IllegalArgumentException(String.format(
         "Cannot run %s on %s",
@@ -171,17 +171,17 @@ public class ServiceVersionProvider {
         JavaVersion.getRuntimeVersion().name()));
     }
 
-    if (information.getServiceVersion().isDeprecated()) {
+    if (information.serviceVersion().isDeprecated()) {
       LOGGER.warning(I18n.trans("versions-installer-deprecated-version"));
     }
 
     try {
       // delete all old application files to prevent that they are used to start the service
-      for (var file : information.getTemplateStorage().listFiles("", false)) {
+      for (var file : information.templateStorage().listFiles("", false)) {
         if (file != null) {
           for (ServiceEnvironment environment : this.serviceVersionTypes.values()) {
             if (file.getName().toLowerCase().contains(environment.name()) && file.getName().endsWith(".jar")) {
-              information.getTemplateStorage().deleteFile(file.getPath());
+              information.templateStorage().deleteFile(file.getPath());
             }
           }
         }
@@ -194,12 +194,12 @@ public class ServiceVersionProvider {
     var cachedFilePath = VERSION_CACHE_PATH.resolve(fullVersionIdentifier);
 
     try {
-      if (information.isCacheFiles() && Files.exists(cachedFilePath)) {
+      if (information.cacheFiles() && Files.exists(cachedFilePath)) {
         InstallStep.DEPLOY.execute(information, cachedFilePath, Files.walk(cachedFilePath).collect(Collectors.toSet()));
       } else {
         Files.createDirectories(workingDirectory);
 
-        List<InstallStep> installSteps = new ArrayList<>(information.getServiceVersionType().getInstallSteps());
+        List<InstallStep> installSteps = new ArrayList<>(information.serviceVersionType().getInstallSteps());
         installSteps.add(InstallStep.DEPLOY);
 
         Set<Path> lastStepResult = new HashSet<>();
@@ -207,7 +207,7 @@ public class ServiceVersionProvider {
           lastStepResult = installStep.execute(information, workingDirectory, lastStepResult);
         }
 
-        if (information.getServiceVersion().isCacheFiles()) {
+        if (information.serviceVersion().isCacheFiles()) {
           for (var path : lastStepResult) {
             var targetPath = cachedFilePath.resolve(workingDirectory.relativize(path));
             Files.createDirectories(targetPath.getParent());
@@ -217,9 +217,9 @@ public class ServiceVersionProvider {
         }
       }
 
-      for (var entry : information.getServiceVersion().getAdditionalDownloads().entrySet()) {
+      for (var entry : information.serviceVersion().getAdditionalDownloads().entrySet()) {
         ConsoleProgressWrappers.wrapDownload(entry.getKey(), stream -> {
-          try (var out = information.getTemplateStorage().newOutputStream(entry.getKey())) {
+          try (var out = information.templateStorage().newOutputStream(entry.getKey())) {
             FileUtils.copy(stream, out);
           }
         });

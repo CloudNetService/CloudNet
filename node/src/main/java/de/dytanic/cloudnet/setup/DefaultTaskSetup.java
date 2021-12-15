@@ -189,7 +189,7 @@ public class DefaultTaskSetup implements DefaultSetup {
       .minServiceCount(1)
       .autoDeleteOnStop(true)
       .maxHeapMemory(maxHeapMemory)
-      .javaCommand(javaCommand.getFirst())
+      .javaCommand(javaCommand.first())
       .serviceEnvironmentType(environment)
       .groups(Collections.singletonList(groupName))
       .startPort(environment.getDefaultServiceStartPort())
@@ -215,10 +215,10 @@ public class DefaultTaskSetup implements DefaultSetup {
     // install the service template
     this.initializeTemplate(template, environment, true);
     CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(InstallInformation.builder()
-      .serviceVersion(version.getSecond())
-      .serviceVersionType(version.getFirst())
+      .serviceVersion(version.second())
+      .serviceVersionType(version.first())
       .toTemplate(template)
-      .executable(javaCommand.getFirst())
+      .executable(javaCommand.first())
       .build(), false);
   }
 
@@ -246,7 +246,7 @@ public class DefaultTaskSetup implements DefaultSetup {
       .filter(versionType -> versionType.getEnvironmentType().equals(type.name()))
       .flatMap(serviceVersionType -> serviceVersionType.getVersions()
         .stream()
-        .filter(version -> version.canRun(javaVersion.getSecond()))
+        .filter(version -> version.canRun(javaVersion.second()))
         .map(version -> String.format("%s-%s", serviceVersionType.name(), version.name())))
       .collect(Collectors.collectingAndThen(Collectors.toList(), result -> {
         result.add("none");

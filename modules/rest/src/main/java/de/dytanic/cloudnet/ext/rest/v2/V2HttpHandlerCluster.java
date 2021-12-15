@@ -134,7 +134,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
     }
 
     var configuration = this.getConfiguration();
-    configuration.getClusterConfig().getNodes().add(server);
+    configuration.getClusterConfig().nodes().add(server);
     configuration.save();
 
     this.getNodeProvider().setClusterServers(configuration.getClusterConfig());
@@ -157,7 +157,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
       return;
     }
 
-    var removed = this.getConfiguration().getClusterConfig().getNodes().removeIf(
+    var removed = this.getConfiguration().getClusterConfig().nodes().removeIf(
       node -> node.getUniqueId().equals(uniqueId));
     if (removed) {
       this.getConfiguration().save();
@@ -188,7 +188,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
       return;
     }
 
-    var registered = this.getConfiguration().getClusterConfig().getNodes()
+    var registered = this.getConfiguration().getClusterConfig().nodes()
       .stream()
       .filter(node -> node.getUniqueId().equals(server.getUniqueId()))
       .findFirst()

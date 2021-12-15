@@ -90,7 +90,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
 
   @Override
   public void setClusterServers(@NotNull NetworkCluster networkCluster) {
-    for (var clusterNode : networkCluster.getNodes()) {
+    for (var clusterNode : networkCluster.nodes()) {
       NodeServer nodeServer = this.getNodeServer(clusterNode.getUniqueId());
       if (nodeServer != null) {
         nodeServer.setNodeInfo(clusterNode);
@@ -100,7 +100,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
     }
 
     for (var clusterNodeServer : this.nodeServers) {
-      var node = networkCluster.getNodes()
+      var node = networkCluster.nodes()
         .stream()
         .filter(cluNode -> cluNode.getUniqueId().equalsIgnoreCase(clusterNodeServer.getNodeInfo().getUniqueId()))
         .findFirst()

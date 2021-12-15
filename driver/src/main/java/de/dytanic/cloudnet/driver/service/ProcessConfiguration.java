@@ -20,32 +20,15 @@ import com.google.common.base.Verify;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
-@ToString
-@EqualsAndHashCode
-public class ProcessConfiguration implements Cloneable {
-
-  protected final String environment;
-  protected final int maxHeapMemorySize;
-
-  protected final Set<String> jvmOptions;
-  protected final Set<String> processParameters;
-
-  protected ProcessConfiguration(
-    @NotNull String environment,
-    int maxHeapMemorySize,
-    @NotNull Set<String> jvmOptions,
-    @NotNull Set<String> processParameters
-  ) {
-    this.maxHeapMemorySize = maxHeapMemorySize;
-    this.environment = environment;
-    this.jvmOptions = jvmOptions;
-    this.processParameters = processParameters;
-  }
+public record ProcessConfiguration(
+  @NotNull String environment,
+  int maxHeapMemorySize,
+  @NotNull Set<String> jvmOptions,
+  @NotNull Set<String> processParameters
+) implements Cloneable {
 
   public static @NotNull Builder builder() {
     return new Builder();
@@ -53,26 +36,10 @@ public class ProcessConfiguration implements Cloneable {
 
   public static @NotNull Builder builder(@NotNull ProcessConfiguration configuration) {
     return builder()
-      .maxHeapMemorySize(configuration.getMaxHeapMemorySize())
-      .environment(configuration.getEnvironment())
-      .jvmOptions(configuration.getJvmOptions())
-      .processParameters(configuration.getProcessParameters());
-  }
-
-  public @NotNull String getEnvironment() {
-    return this.environment;
-  }
-
-  public int getMaxHeapMemorySize() {
-    return this.maxHeapMemorySize;
-  }
-
-  public @NotNull Set<String> getJvmOptions() {
-    return this.jvmOptions;
-  }
-
-  public @NotNull Set<String> getProcessParameters() {
-    return this.processParameters;
+      .maxHeapMemorySize(configuration.maxHeapMemorySize())
+      .environment(configuration.environment())
+      .jvmOptions(configuration.jvmOptions())
+      .processParameters(configuration.processParameters());
   }
 
   @Override

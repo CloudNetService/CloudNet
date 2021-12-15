@@ -159,12 +159,12 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
 
   @Override
   public @NotNull Collection<String> getJvmOptions() {
-    return this.processConfiguration.getJvmOptions();
+    return this.processConfiguration.jvmOptions();
   }
 
   @Override
   public @NotNull Collection<String> getProcessParameters() {
-    return this.processConfiguration.getProcessParameters();
+    return this.processConfiguration.processParameters();
   }
 
   public @NotNull Collection<String> getGroups() {

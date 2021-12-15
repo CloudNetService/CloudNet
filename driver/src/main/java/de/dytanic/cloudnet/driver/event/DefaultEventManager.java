@@ -36,7 +36,7 @@ public class DefaultEventManager implements IEventManager {
   @Override
   public @NotNull IEventManager unregisterListeners(@NotNull ClassLoader classLoader) {
     for (var entry : this.listeners.entries()) {
-      if (entry.getValue().getInstance().getClass().getClassLoader().equals(classLoader)) {
+      if (entry.getValue().instance().getClass().getClassLoader().equals(classLoader)) {
         this.listeners.remove(entry.getKey(), entry.getValue());
       }
     }
@@ -47,7 +47,7 @@ public class DefaultEventManager implements IEventManager {
   @Override
   public @NotNull IEventManager unregisterListener(Object @NotNull ... listeners) {
     for (var entry : this.listeners.entries()) {
-      if (Arrays.stream(listeners).anyMatch(instance -> instance.equals(entry.getValue().getInstance()))) {
+      if (Arrays.stream(listeners).anyMatch(instance -> instance.equals(entry.getValue().instance()))) {
         this.listeners.remove(entry.getKey(), entry.getValue());
       }
     }
@@ -64,7 +64,7 @@ public class DefaultEventManager implements IEventManager {
       if (listeners.size() == 1) {
         var listener = listeners.get(0);
         // check if the event gets called on the same channel as the listener is listening to
-        if (listener.getChannel().equals(channel)) {
+        if (listener.channel().equals(channel)) {
           listener.fireEvent(event);
         }
       } else {
@@ -74,7 +74,7 @@ public class DefaultEventManager implements IEventManager {
         // post the event to the listeners
         for (var listener : targets) {
           // check if the event gets called on the same channel as the listener is listening to
-          if (listener.getChannel().equals(channel)) {
+          if (listener.channel().equals(channel)) {
             listener.fireEvent(event);
           }
         }

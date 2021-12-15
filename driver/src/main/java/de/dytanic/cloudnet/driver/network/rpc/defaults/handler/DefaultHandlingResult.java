@@ -22,24 +22,12 @@ import de.dytanic.cloudnet.driver.network.rpc.defaults.MethodInformation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class DefaultHandlingResult implements HandlingResult {
-
-  private final boolean wasSuccessful;
-  private final Object invocationResult;
-  private final RPCHandler invocationHandler;
-  private final MethodInformation methodInformation;
-
-  protected DefaultHandlingResult(
-    boolean wasSuccessful,
-    @Nullable Object invocationResult,
-    @NotNull RPCHandler invocationHandler,
-    @NotNull MethodInformation methodInformation
-  ) {
-    this.wasSuccessful = wasSuccessful;
-    this.invocationResult = invocationResult;
-    this.invocationHandler = invocationHandler;
-    this.methodInformation = methodInformation;
-  }
+public record DefaultHandlingResult(
+  boolean wasSuccessful,
+  @Nullable Object invocationResult,
+  @NotNull RPCHandler invocationHandler,
+  @NotNull MethodInformation targetMethodInformation
+) implements HandlingResult {
 
   public static @NotNull HandlingResult success(
     @NotNull MethodInformation methodInformation,
@@ -55,25 +43,5 @@ public class DefaultHandlingResult implements HandlingResult {
     @NotNull Throwable result
   ) {
     return new DefaultHandlingResult(false, result, invocationHandler, information);
-  }
-
-  @Override
-  public boolean wasSuccessful() {
-    return this.wasSuccessful;
-  }
-
-  @Override
-  public Object getInvocationResult() {
-    return this.invocationResult;
-  }
-
-  @Override
-  public @NotNull RPCHandler getHandler() {
-    return this.invocationHandler;
-  }
-
-  @Override
-  public @NotNull MethodInformation getTargetMethodInformation() {
-    return this.methodInformation;
   }
 }

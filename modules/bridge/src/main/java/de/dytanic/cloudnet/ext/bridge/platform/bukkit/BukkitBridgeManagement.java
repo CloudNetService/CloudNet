@@ -86,12 +86,12 @@ final class BukkitBridgeManagement extends PlatformBridgeManagement<Player, Netw
 
   @Override
   public boolean isOnAnyFallbackInstance(@NotNull Player player) {
-    return this.isOnAnyFallbackInstance(this.ownNetworkServiceInfo.getServerName(), null, player::hasPermission);
+    return this.isOnAnyFallbackInstance(this.ownNetworkServiceInfo.serverName(), null, player::hasPermission);
   }
 
   @Override
   public @NotNull Optional<ServiceInfoSnapshot> getFallback(@NotNull Player player) {
-    return this.getFallback(player, this.ownNetworkServiceInfo.getServerName());
+    return this.getFallback(player, this.ownNetworkServiceInfo.serverName());
   }
 
   @Override

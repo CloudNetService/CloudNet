@@ -29,17 +29,15 @@ import java.nio.file.Path;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class Record {
+/**
+ * Constructs a new record with the already resolved directory for the record.
+ *
+ * @param directory the directory to store the record files in
+ * @param service   the service that this record is used for
+ */
+public record RecordMaker(@NotNull Path directory, @NotNull ICloudService service) {
 
-  private static final Logger LOGGER = LogManager.getLogger(Record.class);
-
-  private final Path directory;
-  private final ICloudService service;
-
-  private Record(Path directory, ICloudService service) {
-    this.directory = directory;
-    this.service = service;
-  }
+  private static final Logger LOGGER = LogManager.getLogger(RecordMaker.class);
 
   /**
    * Constructs a new Record with the given baseDirectory, the resulting directory is resolved with the name and the
@@ -49,7 +47,7 @@ public final class Record {
    * @param service       the service that this record is used for
    * @return the new Record for the service, null if the directory for the services already exists
    */
-  public static @Nullable Record forService(@NotNull Path baseDirectory, @NotNull ICloudService service) {
+  public static @Nullable RecordMaker forService(@NotNull Path baseDirectory, @NotNull ICloudService service) {
     var directory = baseDirectory.resolve(
       service.getServiceId().name() + "-" + service.getServiceId().getUniqueId()).normalize().toAbsolutePath();
 
@@ -68,8 +66,8 @@ public final class Record {
    * @param service   the service that this record is used for
    * @return the new Record for the service
    */
-  public static Record of(@NotNull Path directory, @NotNull ICloudService service) {
-    return new Record(directory, service);
+  public static RecordMaker of(@NotNull Path directory, @NotNull ICloudService service) {
+    return new RecordMaker(directory, service);
   }
 
   /**
@@ -122,5 +120,4 @@ public final class Record {
       .replace("%service%", this.service.getServiceId().name())
       .replace("%file%", this.directory.toString()));
   }
-
 }

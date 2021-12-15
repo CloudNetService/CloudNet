@@ -18,32 +18,14 @@ package eu.cloudnetservice.modules.npc.configuration;
 
 import org.jetbrains.annotations.NotNull;
 
-public class LabyModEmoteConfiguration {
-
-  private final int[] emoteIds;
-  private final int[] onJoinEmoteIds;
-  private final int[] onKnockbackEmoteIds;
-
-  private final long minEmoteDelayTicks;
-  private final long maxEmoteDelayTicks;
-
-  private final boolean syncEmotesBetweenNPCs;
-
-  protected LabyModEmoteConfiguration(
-    int[] emoteIds,
-    int[] onJoinEmoteIds,
-    int[] onKnockbackEmoteIds,
-    long minEmoteDelayTicks,
-    long maxEmoteDelayTicks,
-    boolean syncEmotesBetweenNPCs
-  ) {
-    this.emoteIds = emoteIds;
-    this.onJoinEmoteIds = onJoinEmoteIds;
-    this.onKnockbackEmoteIds = onKnockbackEmoteIds;
-    this.minEmoteDelayTicks = minEmoteDelayTicks;
-    this.maxEmoteDelayTicks = maxEmoteDelayTicks;
-    this.syncEmotesBetweenNPCs = syncEmotesBetweenNPCs;
-  }
+public record LabyModEmoteConfiguration(
+  int[] emoteIds,
+  int[] onJoinEmoteIds,
+  int[] onKnockbackEmoteIds,
+  long minEmoteDelayTicks,
+  long maxEmoteDelayTicks,
+  boolean syncEmotesBetweenNPCs
+) {
 
   public static @NotNull Builder builder() {
     return new Builder();
@@ -51,36 +33,12 @@ public class LabyModEmoteConfiguration {
 
   public static @NotNull Builder builder(@NotNull LabyModEmoteConfiguration configuration) {
     return builder()
-      .emoteIds(configuration.getEmoteIds())
-      .onJoinEmoteIds(configuration.getOnJoinEmoteIds())
-      .onKnockbackEmoteIds(configuration.getOnKnockbackEmoteIds())
-      .minEmoteDelayTicks(configuration.getMinEmoteDelayTicks())
-      .maxEmoteDelayTicks(configuration.getMaxEmoteDelayTicks())
-      .syncEmotesBetweenNPCs(configuration.isSyncEmotesBetweenNPCs());
-  }
-
-  public int[] getEmoteIds() {
-    return this.emoteIds;
-  }
-
-  public int[] getOnJoinEmoteIds() {
-    return this.onJoinEmoteIds;
-  }
-
-  public int[] getOnKnockbackEmoteIds() {
-    return this.onKnockbackEmoteIds;
-  }
-
-  public long getMinEmoteDelayTicks() {
-    return this.minEmoteDelayTicks;
-  }
-
-  public long getMaxEmoteDelayTicks() {
-    return this.maxEmoteDelayTicks;
-  }
-
-  public boolean isSyncEmotesBetweenNPCs() {
-    return this.syncEmotesBetweenNPCs;
+      .emoteIds(configuration.emoteIds())
+      .onJoinEmoteIds(configuration.onJoinEmoteIds())
+      .onKnockbackEmoteIds(configuration.onKnockbackEmoteIds())
+      .minEmoteDelayTicks(configuration.minEmoteDelayTicks())
+      .maxEmoteDelayTicks(configuration.maxEmoteDelayTicks())
+      .syncEmotesBetweenNPCs(configuration.syncEmotesBetweenNPCs());
   }
 
   public static final class Builder {

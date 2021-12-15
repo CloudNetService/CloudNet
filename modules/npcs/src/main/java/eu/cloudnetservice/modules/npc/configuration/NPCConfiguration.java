@@ -21,24 +21,14 @@ import java.util.Collection;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
 
-public class NPCConfiguration {
-
-  private final List<NPCConfigurationEntry> entries;
-
-  public NPCConfiguration(List<NPCConfigurationEntry> entries) {
-    this.entries = entries;
-  }
+public record NPCConfiguration(@NotNull List<NPCConfigurationEntry> entries) {
 
   public static @NotNull Builder builder() {
     return new Builder();
   }
 
   public static @NotNull Builder builder(@NotNull NPCConfiguration configuration) {
-    return builder().entries(configuration.getEntries());
-  }
-
-  public @NotNull List<NPCConfigurationEntry> getEntries() {
-    return this.entries;
+    return builder().entries(configuration.entries());
   }
 
   public static class Builder {

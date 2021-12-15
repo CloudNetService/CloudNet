@@ -24,15 +24,10 @@ import java.net.URL;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-final class ClassLoaderContentStreamProvider implements ContentStreamProvider {
-
-  private final String pathPrefix;
-  private final ClassLoader contentSource;
-
-  public ClassLoaderContentStreamProvider(String pathPrefix, ClassLoader contentSource) {
-    this.pathPrefix = pathPrefix;
-    this.contentSource = contentSource;
-  }
+record ClassLoaderContentStreamProvider(
+  @NotNull String pathPrefix,
+  @NotNull ClassLoader contentSource
+) implements ContentStreamProvider {
 
   @Override
   public @Nullable StreamableContent provideContent(@NotNull String path) {
@@ -42,27 +37,21 @@ final class ClassLoaderContentStreamProvider implements ContentStreamProvider {
     var contentLocationUrl = this.contentSource.getResource(resourceLocation);
     return contentLocationUrl == null
       ? null
-      : new URLStreamableContent(FileMimeTypeHelper.getFileType(resourceLocation), contentLocationUrl);
+      : URLStreamableContent.of(FileMimeTypeHelper.getFileType(resourceLocation), contentLocationUrl);
   }
 
-  private static final class URLStreamableContent implements StreamableContent {
+  private record URLStreamableContent(
+    @NotNull String contentType,
+    @NotNull URL contentLocationUrl
+  ) implements StreamableContent {
 
-    private final String contentType;
-    private final URL contentLocationUrl;
-
-    public URLStreamableContent(String contentType, URL contentLocationUrl) {
-      this.contentType = contentType + "; charset=UTF-8";
-      this.contentLocationUrl = contentLocationUrl;
+    public static @NotNull URLStreamableContent of(@NotNull String contentType, @NotNull URL contentLocationUrl) {
+      return new URLStreamableContent(contentType + "; charset=UTF-8", contentLocationUrl);
     }
 
     @Override
     public @NotNull InputStream openStream() throws IOException {
       return this.contentLocationUrl.openStream();
-    }
-
-    @Override
-    public @NotNull String contentType() {
-      return this.contentType;
     }
   }
 }

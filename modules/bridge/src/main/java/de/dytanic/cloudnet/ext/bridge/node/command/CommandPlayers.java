@@ -146,8 +146,8 @@ public class CommandPlayers {
       source.sendMessage(
         "Name: " + player.name() +
           " | UUID: " + player.getUniqueId() +
-          " | Proxy: " + player.getLoginService().getServerName() +
-          " | Service: " + player.getConnectedService().getServerName());
+          " | Proxy: " + player.getLoginService().serverName() +
+          " | Service: " + player.getConnectedService().serverName());
     }
     source.sendMessage("=> Online players " + this.playerManager.getOnlineCount());
   }
@@ -167,8 +167,8 @@ public class CommandPlayers {
     source.sendMessage("Last login: " + DATE_FORMAT.format(offlinePlayer.getLastLoginTimeMillis()));
     // check if we have more information about the player
     if (offlinePlayer instanceof CloudPlayer onlinePlayer) {
-      source.sendMessage("Proxy: " + onlinePlayer.getLoginService().getServerName());
-      source.sendMessage("Service: " + onlinePlayer.getConnectedService().getServerName());
+      source.sendMessage("Proxy: " + onlinePlayer.getLoginService().serverName());
+      source.sendMessage("Service: " + onlinePlayer.getConnectedService().serverName());
       source.sendMessage("Online Properties: ");
       // print the online properties of the player per line
       for (var line : onlinePlayer.getOnlineProperties().toPrettyJson().split("\n")) {

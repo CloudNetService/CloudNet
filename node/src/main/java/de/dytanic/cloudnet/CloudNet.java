@@ -192,13 +192,13 @@ public class CloudNet extends CloudNetDriver {
       "h2",
       new H2DatabaseProvider(
         System.getProperty("cloudnet.database.h2.path", "local/database/h2"),
-        !this.configuration.getClusterConfig().getNodes().isEmpty()));
+        !this.configuration.getClusterConfig().nodes().isEmpty()));
     this.servicesRegistry.registerService(
       AbstractDatabaseProvider.class,
       "xodus",
       new XodusDatabaseProvider(
         new File(System.getProperty("cloudnet.database.xodus.path", "local/database/xodus")),
-        !this.configuration.getClusterConfig().getNodes().isEmpty()));
+        !this.configuration.getClusterConfig().nodes().isEmpty()));
 
     // initialize the default database provider
     this.setDatabaseProvider(this.servicesRegistry.getService(

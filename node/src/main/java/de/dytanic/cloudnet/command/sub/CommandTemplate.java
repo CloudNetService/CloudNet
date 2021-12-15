@@ -67,11 +67,11 @@ public final class CommandTemplate {
       .defaultFormatter(ColumnFormatter.builder()
         .columnTitles("Target", "Name", "Deprecated", "Min Java", "Max Java")
         .build())
-      .column(pair -> pair.getFirst().name())
-      .column(pair -> pair.getSecond().name())
-      .column(pair -> pair.getSecond().isDeprecated())
-      .column(pair -> pair.getSecond().getMinJavaVersion().orElse(JavaVersion.JAVA_8).name())
-      .column(pair -> pair.getSecond().getMaxJavaVersion().map(JavaVersion::name).orElse("No maximum"))
+      .column(pair -> pair.first().name())
+      .column(pair -> pair.second().name())
+      .column(pair -> pair.second().isDeprecated())
+      .column(pair -> pair.second().getMinJavaVersion().orElse(JavaVersion.JAVA_8).name())
+      .column(pair -> pair.second().getMaxJavaVersion().map(JavaVersion::name).orElse("No maximum"))
       .build();
 
   @Parser(suggestions = "serviceTemplate")

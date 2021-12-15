@@ -83,12 +83,7 @@ public class JsonDocumentTest {
     );
   }
 
-  private static class TestClass {
+  private record TestClass(String data) {
 
-    private final String data;
-
-    public TestClass(String data) {
-      this.data = data;
-    }
   }
 }

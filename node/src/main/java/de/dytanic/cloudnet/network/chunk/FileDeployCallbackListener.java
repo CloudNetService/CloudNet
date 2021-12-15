@@ -37,7 +37,7 @@ public final class FileDeployCallbackListener {
 
   @EventListener
   public void handle(@NotNull ChunkedPacketSessionOpenEvent event) {
-    switch (event.getSession().getTransferChannel()) {
+    switch (event.getSession().transferChannel()) {
       case "deploy_service_template" -> event.setHandler(
           new DefaultFileChunkedPacketHandler(event.getSession(), TemplateDeployCallback.INSTANCE));
       case "deploy_single_file" -> event.setHandler(

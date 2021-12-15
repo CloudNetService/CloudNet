@@ -83,12 +83,12 @@ final class SpongeBridgeManagement extends PlatformBridgeManagement<ServerPlayer
 
   @Override
   public boolean isOnAnyFallbackInstance(@NotNull ServerPlayer player) {
-    return this.isOnAnyFallbackInstance(this.ownNetworkServiceInfo.getServerName(), null, player::hasPermission);
+    return this.isOnAnyFallbackInstance(this.ownNetworkServiceInfo.serverName(), null, player::hasPermission);
   }
 
   @Override
   public @NotNull Optional<ServiceInfoSnapshot> getFallback(@NotNull ServerPlayer player) {
-    return this.getFallback(player, this.ownNetworkServiceInfo.getServerName());
+    return this.getFallback(player, this.ownNetworkServiceInfo.serverName());
   }
 
   @Override

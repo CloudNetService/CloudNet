@@ -49,7 +49,7 @@ public final class BridgeLocalProxyPlayerDisconnectListener {
       }
       // test if any player has the login service but is not connected to it
       for (var value : this.playerManager.getOnlinePlayers().values()) {
-        if (value.getLoginService().getServiceId().getUniqueId().equals(info.getServiceId().getUniqueId())) {
+        if (value.getLoginService().serviceId().getUniqueId().equals(info.getServiceId().getUniqueId())) {
           // the player is on the service
           var match = Iterables.tryFind(
             players,
@@ -76,7 +76,7 @@ public final class BridgeLocalProxyPlayerDisconnectListener {
     if (ServiceEnvironmentType.isMinecraftProxy(snapshot.getServiceId().getEnvironment())) {
       // test if any player has the stopped service as the login service
       for (var value : this.playerManager.getOnlinePlayers().values()) {
-        if (value.getLoginService().getServiceId().getUniqueId().equals(snapshot.getServiceId().getUniqueId())) {
+        if (value.getLoginService().serviceId().getUniqueId().equals(snapshot.getServiceId().getUniqueId())) {
           // the player was connected to that proxy, log him out now
           this.playerManager.logoutPlayer(value);
         }

@@ -47,7 +47,7 @@ public final class CommandMe {
       CloudNet.getInstance().getVersion() + " by Dytanic & the CloudNet Community",
       "Discord: https://discord.cloudnetservice.eu/",
       " ",
-      "ClusterId: " + cloudNet.getConfig().getClusterConfig().getClusterId(),
+      "ClusterId: " + cloudNet.getConfig().getClusterConfig().clusterId(),
       "NodeId: " + cloudNet.getConfig().getIdentity().getUniqueId(),
       "Head-NodeId: " + cloudNet.getClusterNodeServerProvider().getHeadNode().getNodeInfo().getUniqueId(),
       "CPU usage: (P/S) " + CPUUsageResolver.FORMAT.format(CPUUsageResolver.getProcessCPUUsage()) + "/"

@@ -104,14 +104,14 @@ public class ChunkedPacketSenderTest {
   private void validatePacket(IPacket packet, UUID sessionId, AtomicInteger splits, byte[] data) {
     var info = packet.getContent().readObject(ChunkSessionInformation.class);
 
-    Assertions.assertEquals(256, info.getChunkSize());
-    Assertions.assertEquals(sessionId, info.getSessionUniqueId());
-    Assertions.assertEquals("hello_world", info.getTransferChannel());
+    Assertions.assertEquals(256, info.chunkSize());
+    Assertions.assertEquals(sessionId, info.sessionUniqueId());
+    Assertions.assertEquals("hello_world", info.transferChannel());
     Assertions.assertEquals(splits.get(), packet.getContent().readInt());
 
-    Assertions.assertEquals("hello", info.getTransferInformation().readString());
-    Assertions.assertEquals(10, info.getTransferInformation().readInt());
-    Assertions.assertEquals("world", info.getTransferInformation().readString());
+    Assertions.assertEquals("hello", info.transferInformation().readString());
+    Assertions.assertEquals(10, info.transferInformation().readInt());
+    Assertions.assertEquals("world", info.transferInformation().readString());
 
     var isFinalPacket = packet.getContent().readBoolean();
     Assertions.assertEquals(splits.get() == data.length / 256, isFinalPacket);

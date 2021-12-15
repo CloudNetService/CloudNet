@@ -168,7 +168,7 @@ public class NodePlayerExecutor implements PlayerExecutor {
       // the player must be connected to proceed
       Preconditions.checkNotNull(player, "Target player %s is not connected (anymore)", this.targetUniqueId);
       // target the login service of the player
-      message = ChannelMessage.builder().targetService(player.getLoginService().getServerName());
+      message = ChannelMessage.builder().targetService(player.getLoginService().serverName());
     }
     // set the internal bridge channel
     return message.channel(BridgeManagement.BRIDGE_PLAYER_EXECUTOR_CHANNEL_NAME);

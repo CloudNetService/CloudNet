@@ -117,7 +117,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     this.configuration = configuration;
     this.eventManager.callEvent(new BridgeConfigurationUpdateEvent(configuration));
     this.currentFallbackConfiguration = configuration.getFallbackConfigurations().stream()
-      .filter(config -> Wrapper.getInstance().getServiceConfiguration().getGroups().contains(config.getTargetGroup()))
+      .filter(config -> Wrapper.getInstance().getServiceConfiguration().getGroups().contains(config.targetGroup()))
       .findFirst()
       .orElse(null);
   }
@@ -191,11 +191,11 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
       // get all services we have cached of the task
       .map(fallback -> new Pair<>(fallback, this.getAnyTaskService(fallback.getTask(), profile, currentServerName)))
       // filter out all fallbacks that have no services
-      .filter(possibility -> possibility.getSecond().isEmpty())
+      .filter(possibility -> possibility.second().isEmpty())
       // get the first possibility with the highest priority
-      .min(Comparator.comparing(Pair::getFirst))
+      .min(Comparator.comparing(Pair::first))
       // extract the target service
-      .map(Pair::getSecond)
+      .map(Pair::second)
       // add the service to the tried ones
       .map(service -> {
         // we cannot flat-map because of the orElseGet
@@ -203,11 +203,11 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
         return service;
       }).orElseGet(() -> {
         // check if the configuration has a default fallback task
-        if (config.getDefaultFallbackTask() == null) {
+        if (config.defaultFallbackTask() == null) {
           return Optional.empty();
         }
         // get any service associated with the task
-        return this.getAnyTaskService(config.getDefaultFallbackTask(), profile, currentServerName)
+        return this.getAnyTaskService(config.defaultFallbackTask(), profile, currentServerName)
           .map(service -> {
             // select as the service we are connecting to
             profile.selectService(service.name());
@@ -228,7 +228,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
       .map(service -> service.getConfiguration().getGroups())
       .orElse(Collections.emptySet());
     // find all matching fallback configurations
-    return config.getFallbacks().stream()
+    return config.fallbacks().stream()
       // check if a forced host is required
       .filter(fallback -> fallback.getForcedHost() == null || fallback.getForcedHost().equals(virtualHost))
       // check if the player has the permission to connect to the fallback

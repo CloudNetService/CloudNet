@@ -60,15 +60,15 @@ public class DefaultEventManagerTest {
 
     Assertions.assertEquals(
       EventPriority.HIGH,
-      eventManager.listeners.get(ChannelMessageReceiveEvent.class).iterator().next().getPriority());
+      eventManager.listeners.get(ChannelMessageReceiveEvent.class).iterator().next().priority());
     Assertions.assertEquals(
       EventPriority.NORMAL,
-      eventManager.listeners.get(CloudServiceLifecycleChangeEvent.class).iterator().next().getPriority());
+      eventManager.listeners.get(CloudServiceLifecycleChangeEvent.class).iterator().next().priority());
 
     Assertions.assertEquals("*",
-      eventManager.listeners.get(ChannelMessageReceiveEvent.class).iterator().next().getChannel());
+      eventManager.listeners.get(ChannelMessageReceiveEvent.class).iterator().next().channel());
     Assertions.assertEquals("123",
-      eventManager.listeners.get(CloudServiceLifecycleChangeEvent.class).iterator().next().getChannel());
+      eventManager.listeners.get(CloudServiceLifecycleChangeEvent.class).iterator().next().channel());
   }
 
   @Test

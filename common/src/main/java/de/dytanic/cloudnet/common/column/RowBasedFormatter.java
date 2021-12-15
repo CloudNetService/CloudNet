@@ -25,18 +25,10 @@ import java.util.Objects;
 import java.util.function.Function;
 import org.jetbrains.annotations.NotNull;
 
-public class RowBasedFormatter<T> {
-
-  private final ColumnFormatter defaultFormatter;
-  private final List<Function<T, Object>> columns;
-
-  protected RowBasedFormatter(
-    @NotNull ColumnFormatter defaultFormatter,
-    @NotNull List<Function<T, Object>> columns
-  ) {
-    this.defaultFormatter = defaultFormatter;
-    this.columns = columns;
-  }
+public record RowBasedFormatter<T>(
+  @NotNull ColumnFormatter defaultFormatter,
+  @NotNull List<Function<T, Object>> columns
+) {
 
   public static <T> @NotNull Builder<T> builder() {
     return new Builder<>();
@@ -55,8 +47,8 @@ public class RowBasedFormatter<T> {
       // wrap the formatted string to a column entry
       var entry = ColumnEntry.wrap(formatted);
       // validate that the entry is valid
-      if (entry.getFormattedEntries().length == 0
-        || (i != 0 && result[i - 1].getFormattedEntries().length != entry.getFormattedEntries().length)) {
+      if (entry.formattedEntries().length == 0
+        || (i != 0 && result[i - 1].formattedEntries().length != entry.formattedEntries().length)) {
         return new ColumnEntry[0];
       }
       // all valid - append

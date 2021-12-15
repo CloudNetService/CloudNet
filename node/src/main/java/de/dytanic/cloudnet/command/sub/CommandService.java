@@ -197,16 +197,16 @@ public final class CommandService {
     }
 
     for (var target : targets) {
-      target.getFirst().addServiceDeployment(ServiceDeployment.builder()
-        .template(target.getSecond())
+      target.first().addServiceDeployment(ServiceDeployment.builder()
+        .template(target.second())
         .excludes(this.parseExcludes(excludes))
         .build());
-      target.getFirst().removeAndExecuteDeployments();
+      target.first().removeAndExecuteDeployments();
       // send a message for each service we did copy the template of
       //noinspection ConstantConditions
       source.sendMessage(I18n.trans("command-copy-success")
-        .replace("%name%", target.getFirst().getServiceInfoSnapshot().name())
-        .replace("%template%", target.getSecond().toString()));
+        .replace("%name%", target.first().getServiceInfoSnapshot().name())
+        .replace("%template%", target.second().toString()));
     }
   }
 
@@ -375,12 +375,12 @@ public final class CommandService {
     list.add("* ServiceInfoSnapshot | " + DATE_FORMAT.format(service.getCreationTime()));
 
     list.addAll(Arrays.asList(
-      "PID: " + service.getProcessSnapshot().getPid(),
+      "PID: " + service.getProcessSnapshot().pid(),
       "CPU usage: " + CPUUsageResolver.FORMAT
-        .format(service.getProcessSnapshot().getCpuUsage()) + "%",
-      "Threads: " + service.getProcessSnapshot().getThreads().size(),
-      "Heap usage: " + (service.getProcessSnapshot().getHeapUsageMemory() / 1048576) + "/" +
-        (service.getProcessSnapshot().getMaxHeapMemory() / 1048576) + "MB",
+        .format(service.getProcessSnapshot().cpuUsage()) + "%",
+      "Threads: " + service.getProcessSnapshot().threads().size(),
+      "Heap usage: " + (service.getProcessSnapshot().heapUsageMemory() / 1048576) + "/" +
+        (service.getProcessSnapshot().maxHeapMemory() / 1048576) + "MB",
       " "
     ));
 

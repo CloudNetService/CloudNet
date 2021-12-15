@@ -189,17 +189,17 @@ public abstract class BukkitPlatformSelectorEntity
     ItemLayout layout;
     switch (state) {
       case EMPTY_ONLINE:
-        layout = layouts.getEmptyLayout();
+        layout = layouts.emptyLayout();
         break;
       case FULL_ONLINE:
-        if (configuration.isShowFullServices()) {
-          layout = layouts.getFullLayout();
+        if (configuration.showFullServices()) {
+          layout = layouts.fullLayout();
           break;
         } else {
           return;
         }
       case ONLINE:
-        layout = layouts.getOnlineLayout();
+        layout = layouts.onlineLayout();
         break;
       default:
         return;
@@ -324,19 +324,19 @@ public abstract class BukkitPlatformSelectorEntity
   }
 
   protected @Nullable ItemStack buildItemStack(@NotNull ItemLayout layout, @Nullable ServiceInfoSnapshot service) {
-    var material = Material.matchMaterial(layout.getMaterial());
+    var material = Material.matchMaterial(layout.material());
     if (material != null) {
-      var item = layout.getSubId() == -1
+      var item = layout.subId() == -1
         ? new ItemStack(material)
-        : new ItemStack(material, 1, (byte) layout.getSubId());
+        : new ItemStack(material, 1, (byte) layout.subId());
       // apply the meta
       var meta = item.getItemMeta();
       if (meta != null) {
         meta.setDisplayName(BridgeServiceHelper.fillCommonPlaceholders(
-          layout.getDisplayName(),
+          layout.displayName(),
           this.npc.getTargetGroup(),
           service));
-        meta.setLore(layout.getLore().stream()
+        meta.setLore(layout.lore().stream()
           .map(line -> BridgeServiceHelper.fillCommonPlaceholders(line, this.npc.getTargetGroup(), service))
           .collect(Collectors.toList()));
         // set the meta again
@@ -355,8 +355,8 @@ public abstract class BukkitPlatformSelectorEntity
 
   protected void rebuildInventory(@NotNull InventoryConfiguration configuration) {
     // calculate the inventory size
-    var inventorySize = configuration.getInventorySize();
-    if (configuration.isDynamicSize()) {
+    var inventorySize = configuration.inventorySize();
+    if (configuration.dynamicSize()) {
       inventorySize = this.serviceItems.size();
       // try to make it to the next higher possible inventory size
       while (inventorySize == 0 || (inventorySize < 54 && inventorySize % 9 != 0)) {
@@ -371,7 +371,7 @@ public abstract class BukkitPlatformSelectorEntity
     // remove all current contents
     inventory.clear();
     // add the fixed items
-    for (var entry : configuration.getFixedItems().entrySet()) {
+    for (var entry : configuration.fixedItems().entrySet()) {
       // check if the item would exceed the inventory size
       if (entry.getKey() < inventorySize) {
         // build and set the item
@@ -396,7 +396,7 @@ public abstract class BukkitPlatformSelectorEntity
 
   protected double getHeightAddition(int lineNumber) {
     var entry = this.npcManagement.getApplicableNPCConfigurationEntry();
-    return entry == null ? lineNumber : entry.getInfoLineDistance() * lineNumber;
+    return entry == null ? lineNumber : entry.infoLineDistance() * lineNumber;
   }
 
   protected abstract void spawn0();

@@ -105,11 +105,11 @@ public final class BridgeServiceHelper {
     value = value.replace("%runtime%", service.getConfiguration().getRuntime());
     value = value.replace("%port%", Integer.toString(service.getConfiguration().getPort()));
     // process information
-    value = value.replace("%pid%", Integer.toString(service.getProcessSnapshot().getPid()));
-    value = value.replace("%threads%", Integer.toString(service.getProcessSnapshot().getThreads().size()));
-    value = value.replace("%heap_usage%", Long.toString(service.getProcessSnapshot().getHeapUsageMemory()));
-    value = value.replace("%max_heap_usage%", Long.toString(service.getProcessSnapshot().getMaxHeapMemory()));
-    value = value.replace("%cpu_usage%", CPUUsageResolver.FORMAT.format(service.getProcessSnapshot().getCpuUsage()));
+    value = value.replace("%pid%", Long.toString(service.getProcessSnapshot().pid()));
+    value = value.replace("%threads%", Integer.toString(service.getProcessSnapshot().threads().size()));
+    value = value.replace("%heap_usage%", Long.toString(service.getProcessSnapshot().heapUsageMemory()));
+    value = value.replace("%max_heap_usage%", Long.toString(service.getProcessSnapshot().maxHeapMemory()));
+    value = value.replace("%cpu_usage%", CPUUsageResolver.FORMAT.format(service.getProcessSnapshot().cpuUsage()));
     // bridge information
     value = value.replace("%online%",
       BridgeServiceProperties.IS_ONLINE.get(service).orElse(false) ? "Online" : "Offline");

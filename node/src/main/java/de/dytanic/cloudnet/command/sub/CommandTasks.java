@@ -138,7 +138,7 @@ public final class CommandTasks {
   @Parser(name = "nodeId", suggestions = "clusterNode")
   public String defaultClusterNodeParser(CommandContext<CommandSource> $, Queue<String> input) {
     var nodeId = input.remove();
-    for (var node : CloudNet.getInstance().getConfig().getClusterConfig().getNodes()) {
+    for (var node : CloudNet.getInstance().getConfig().getClusterConfig().nodes()) {
       if (node.getUniqueId().equals(nodeId)) {
         return nodeId;
       }
@@ -149,7 +149,7 @@ public final class CommandTasks {
 
   @Suggestions("clusterNode")
   public List<String> suggestNode(CommandContext<CommandSource> $, String input) {
-    return CloudNet.getInstance().getConfig().getClusterConfig().getNodes()
+    return CloudNet.getInstance().getConfig().getClusterConfig().nodes()
       .stream()
       .map(NetworkClusterNode::getUniqueId)
       .collect(Collectors.toList());
@@ -213,7 +213,7 @@ public final class CommandTasks {
       Collection<String> messages = new ArrayList<>();
       messages.add("Name: " + serviceTask.name());
       messages.add("Groups: " + Arrays.toString(serviceTask.getGroups().toArray()));
-      messages.add("Max heap memory: " + serviceTask.getProcessConfiguration().getMaxHeapMemorySize());
+      messages.add("Max heap memory: " + serviceTask.getProcessConfiguration().maxHeapMemorySize());
       messages.add("Maintenance: " + serviceTask.isMaintenance());
       messages.add(
         "Nodes:" + (serviceTask.getAssociatedNodes().isEmpty() ? "All"
@@ -224,7 +224,7 @@ public final class CommandTasks {
       messages.add("Static services: " + serviceTask.isStaticServices());
       messages.add("Auto delete on stop: " + serviceTask.isAutoDeleteOnStop());
       messages.add("Deleted files after stop: " + Arrays.toString(serviceTask.getDeletedFilesAfterStop().toArray()));
-      messages.add("Environment: " + serviceTask.getProcessConfiguration().getEnvironment());
+      messages.add("Environment: " + serviceTask.getProcessConfiguration().environment());
 
       CommandServiceConfiguration.applyServiceConfigurationDisplay(messages, serviceTask);
       source.sendMessage(messages);
@@ -374,12 +374,12 @@ public final class CommandTasks {
     @Argument(value = "executable", parserName = "javaCommand") @Quoted Pair<String, JavaVersion> executable
   ) {
     for (var task : serviceTasks) {
-      this.updateTask(task, builder -> builder.javaCommand(executable.getFirst()));
+      this.updateTask(task, builder -> builder.javaCommand(executable.first()));
       source.sendMessage(
         I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "javaCommand")
           .replace("%name%", task.name())
-          .replace("%value%", executable.getFirst())
+          .replace("%value%", executable.first())
       );
     }
   }

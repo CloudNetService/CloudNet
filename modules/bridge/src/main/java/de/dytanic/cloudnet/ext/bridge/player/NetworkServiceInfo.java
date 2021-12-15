@@ -20,43 +20,28 @@ import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceId;
 import java.util.Set;
 import java.util.UUID;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
-@ToString
-@EqualsAndHashCode
-public final class NetworkServiceInfo {
-
-  private final Set<String> groups;
-  private final ServiceId serviceId;
+public record NetworkServiceInfo(@NotNull Set<String> groups, @NotNull ServiceId serviceId) {
 
   public NetworkServiceInfo(@NotNull Set<String> groups, @NotNull ServiceId serviceId) {
     this.groups = groups;
     this.serviceId = serviceId;
   }
 
-  public @NotNull ServiceEnvironmentType getEnvironment() {
+  public @NotNull ServiceEnvironmentType environment() {
     return this.serviceId.getEnvironment();
   }
 
-  public @NotNull UUID getUniqueId() {
+  public @NotNull UUID uniqueId() {
     return this.serviceId.getUniqueId();
   }
 
-  public @NotNull String getServerName() {
+  public @NotNull String serverName() {
     return this.serviceId.name();
   }
 
-  public @NotNull String getTaskName() {
+  public @NotNull String taskName() {
     return this.serviceId.getTaskName();
-  }
-
-  public @NotNull ServiceId getServiceId() {
-    return this.serviceId;
-  }
-
-  public @NotNull Set<String> getGroups() {
-    return this.groups;
   }
 }

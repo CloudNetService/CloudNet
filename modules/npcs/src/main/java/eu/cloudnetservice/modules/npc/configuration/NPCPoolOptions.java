@@ -18,17 +18,7 @@ package eu.cloudnetservice.modules.npc.configuration;
 
 import org.jetbrains.annotations.NotNull;
 
-public class NPCPoolOptions {
-
-  private final int spawnDistance;
-  private final int actionDistance;
-  private final long tabListRemoveTicks;
-
-  protected NPCPoolOptions(int spawnDistance, int actionDistance, long tabListRemoveTicks) {
-    this.spawnDistance = spawnDistance;
-    this.actionDistance = actionDistance;
-    this.tabListRemoveTicks = tabListRemoveTicks;
-  }
+public record NPCPoolOptions(int spawnDistance, int actionDistance, long tabListRemoveTicks) {
 
   public static @NotNull Builder builder() {
     return new Builder();
@@ -36,21 +26,9 @@ public class NPCPoolOptions {
 
   public static @NotNull Builder builder(@NotNull NPCPoolOptions options) {
     return builder()
-      .spawnDistance(options.getSpawnDistance())
-      .actionDistance(options.getActionDistance())
-      .tabListRemoveTicks(options.getTabListRemoveTicks());
-  }
-
-  public int getSpawnDistance() {
-    return this.spawnDistance;
-  }
-
-  public int getActionDistance() {
-    return this.actionDistance;
-  }
-
-  public long getTabListRemoveTicks() {
-    return this.tabListRemoveTicks;
+      .spawnDistance(options.spawnDistance())
+      .actionDistance(options.actionDistance())
+      .tabListRemoveTicks(options.tabListRemoveTicks());
   }
 
   public static final class Builder {

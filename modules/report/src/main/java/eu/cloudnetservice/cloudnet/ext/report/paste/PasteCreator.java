@@ -24,15 +24,7 @@ import eu.cloudnetservice.cloudnet.ext.report.paste.emitter.EmitterRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class PasteCreator {
-
-  private final PasteService pasteService;
-  private final EmitterRegistry registry;
-
-  public PasteCreator(@NotNull PasteService pasteService, @NotNull EmitterRegistry registry) {
-    this.pasteService = pasteService;
-    this.registry = registry;
-  }
+public record PasteCreator(@NotNull PasteService pasteService, @NotNull EmitterRegistry registry) {
 
   /**
    * Creates a new paste by emitting all ICloudService emitters and collecting their data.
@@ -93,6 +85,6 @@ public final class PasteCreator {
     }
 
     var document = JsonDocument.fromJsonString(response);
-    return String.format("%s/%s", this.pasteService.getServiceUrl(), document.getString("key"));
+    return String.format("%s/%s", this.pasteService.serviceUrl(), document.getString("key"));
   }
 }

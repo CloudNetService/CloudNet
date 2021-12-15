@@ -327,7 +327,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
       .map(SpecificCloudServiceProvider::getServiceInfoSnapshot)
       .filter(Objects::nonNull)
       .filter(snapshot -> snapshot.getLifeCycle() == ServiceLifeCycle.RUNNING)
-      .mapToInt(snapshot -> snapshot.getConfiguration().getProcessConfig().getMaxHeapMemorySize())
+      .mapToInt(snapshot -> snapshot.getConfiguration().getProcessConfig().maxHeapMemorySize())
       .sum();
   }
 
@@ -336,7 +336,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
     return this.getLocalCloudServices().stream()
       .map(SpecificCloudServiceProvider::getServiceInfoSnapshot)
       .filter(Objects::nonNull)
-      .mapToInt(snapshot -> snapshot.getConfiguration().getProcessConfig().getMaxHeapMemorySize())
+      .mapToInt(snapshot -> snapshot.getConfiguration().getProcessConfig().maxHeapMemorySize())
       .sum();
   }
 
@@ -401,35 +401,35 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
         return nodeServer == null ? null : new Pair<>(service, nodeServer);
       })
       .filter(Objects::nonNull)
-      .filter(pair -> pair.getSecond().isAvailable())
+      .filter(pair -> pair.second().isAvailable())
       .filter(pair -> {
         // filter out all nodes which are not able to start the service
-        var nodeInfoSnapshot = pair.getSecond().getNodeInfoSnapshot();
-        var maxHeapMemory = pair.getFirst().getConfiguration().getProcessConfig().getMaxHeapMemorySize();
+        var nodeInfoSnapshot = pair.second().getNodeInfoSnapshot();
+        var maxHeapMemory = pair.first().getConfiguration().getProcessConfig().maxHeapMemorySize();
         // used + heap_of_service <= max
         return nodeInfoSnapshot.getUsedMemory() + maxHeapMemory <= nodeInfoSnapshot.getMaxMemory();
       })
       .min((left, right) -> {
         // begin by comparing the heap memory usage
         var chain = ComparisonChain.start().compare(
-          left.getSecond().getNodeInfoSnapshot().getUsedMemory()
-            + left.getFirst().getConfiguration().getProcessConfig().getMaxHeapMemorySize(),
-          right.getSecond().getNodeInfoSnapshot().getUsedMemory()
-            + right.getFirst().getConfiguration().getProcessConfig().getMaxHeapMemorySize());
+          left.second().getNodeInfoSnapshot().getUsedMemory()
+            + left.first().getConfiguration().getProcessConfig().maxHeapMemorySize(),
+          right.second().getNodeInfoSnapshot().getUsedMemory()
+            + right.first().getConfiguration().getProcessConfig().maxHeapMemorySize());
         // only include the cpu usage if both nodes can provide a value
-        if (left.getSecond().getNodeInfoSnapshot().getProcessSnapshot().getSystemCpuUsage() >= 0
-          && right.getSecond().getNodeInfoSnapshot().getProcessSnapshot().getSystemCpuUsage() >= 0) {
+        if (left.second().getNodeInfoSnapshot().getProcessSnapshot().systemCpuUsage() >= 0
+          && right.second().getNodeInfoSnapshot().getProcessSnapshot().systemCpuUsage() >= 0) {
           // add the system usage to the chain
           chain = chain.compare(
-            left.getSecond().getNodeInfoSnapshot().getProcessSnapshot().getSystemCpuUsage(),
-            right.getSecond().getNodeInfoSnapshot().getProcessSnapshot().getSystemCpuUsage());
+            left.second().getNodeInfoSnapshot().getProcessSnapshot().systemCpuUsage(),
+            right.second().getNodeInfoSnapshot().getProcessSnapshot().systemCpuUsage());
         }
         // use the result of the comparison
         return chain.result();
       }).orElse(null);
     // check if we found a prepared service
     if (prepared != null) {
-      return prepared.getFirst().provider();
+      return prepared.first().provider();
     } else {
       // create a new service
       var service = CloudNet.getInstance()

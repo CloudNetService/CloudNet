@@ -18,26 +18,8 @@ package de.dytanic.cloudnet.driver.network.cluster;
 
 import java.util.Collection;
 import java.util.UUID;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
-@ToString
-@EqualsAndHashCode
-public class NetworkCluster {
+public record NetworkCluster(@NotNull UUID clusterId, @NotNull Collection<NetworkClusterNode> nodes) {
 
-  private final UUID clusterId;
-  private final Collection<NetworkClusterNode> nodes;
-
-  public NetworkCluster(UUID clusterId, Collection<NetworkClusterNode> nodes) {
-    this.clusterId = clusterId;
-    this.nodes = nodes;
-  }
-
-  public UUID getClusterId() {
-    return this.clusterId;
-  }
-
-  public Collection<NetworkClusterNode> getNodes() {
-    return this.nodes;
-  }
 }

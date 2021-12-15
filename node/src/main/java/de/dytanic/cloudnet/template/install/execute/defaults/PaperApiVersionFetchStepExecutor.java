@@ -41,11 +41,11 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
     @NotNull Set<Path> inputPaths
   ) {
     // check if we need to fetch using the paper api
-    var enabled = installInformation.getServiceVersion().getProperties().getBoolean("fetchOverPaperApi");
-    var versionGroup = installInformation.getServiceVersion().getProperties().getString("versionGroup");
+    var enabled = installInformation.serviceVersion().getProperties().getBoolean("fetchOverPaperApi");
+    var versionGroup = installInformation.serviceVersion().getProperties().getString("versionGroup");
     if (enabled && versionGroup != null) {
       // resolve the project name we should use for the api request
-      var project = this.decideApiProjectName(installInformation.getServiceVersionType());
+      var project = this.decideApiProjectName(installInformation.serviceVersionType());
       var versionInformation = this.makeRequest(String.format(VERSION_LIST_URL, project, versionGroup));
       // check if there are any builds for the version
       if (versionInformation.contains("builds")) {
@@ -57,7 +57,7 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
         if (newestBuild.isPresent()) {
           // set the download url of the service version required in the download step
           int build = newestBuild.get();
-          installInformation.getServiceVersion()
+          installInformation.serviceVersion()
             .setUrl(String.format(DOWNLOAD_URL, project, versionGroup, build, project, versionGroup, build));
         } else {
           throw new IllegalStateException(

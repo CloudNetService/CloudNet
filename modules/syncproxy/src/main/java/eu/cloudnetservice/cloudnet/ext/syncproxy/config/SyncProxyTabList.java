@@ -23,23 +23,11 @@ import eu.cloudnetservice.cloudnet.ext.syncproxy.SyncProxyConstants;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.UUID;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
-@ToString
-@EqualsAndHashCode
-public class SyncProxyTabList {
+public record SyncProxyTabList(String header, String footer) {
 
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");
-
-  protected final String header;
-  protected final String footer;
-
-  protected SyncProxyTabList(@NotNull String header, @NotNull String footer) {
-    this.header = header;
-    this.footer = footer;
-  }
 
   public static @NotNull Builder builder() {
     return new Builder();
@@ -47,8 +35,8 @@ public class SyncProxyTabList {
 
   public static @NotNull Builder builder(@NotNull SyncProxyTabList tabList) {
     return builder()
-      .header(tabList.getHeader())
-      .footer(tabList.getFooter());
+      .header(tabList.header())
+      .footer(tabList.footer());
   }
 
   public static @NotNull String replaceTabListItem(
@@ -84,14 +72,6 @@ public class SyncProxyTabList {
     }
 
     return input.replace("&", "§");
-  }
-
-  public @NotNull String getHeader() {
-    return this.header;
-  }
-
-  public @NotNull String getFooter() {
-    return this.footer;
   }
 
   public static class Builder {

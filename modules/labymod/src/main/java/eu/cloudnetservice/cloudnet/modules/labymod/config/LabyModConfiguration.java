@@ -19,36 +19,16 @@ package eu.cloudnetservice.cloudnet.modules.labymod.config;
 import com.google.common.base.Verify;
 import org.jetbrains.annotations.NotNull;
 
-public class LabyModConfiguration {
-
-  protected final boolean enabled;
-  protected final LabyModServiceDisplay discordRPC;
-  protected final LabyModServiceDisplay gameModeSwitchMessages;
-  protected final LabyModDiscordRPC discordJoinMatch;
-  protected final LabyModDiscordRPC discordSpectateMatch;
-  protected final String loginDomain;
-  protected final LabyModBanner banner;
-  protected final LabyModPermissions permissions;
-
-  public LabyModConfiguration(
-    boolean enabled,
-    @NotNull LabyModServiceDisplay discordRPC,
-    @NotNull LabyModServiceDisplay gameModeSwitchMessages,
-    @NotNull LabyModDiscordRPC discordJoinMatch,
-    @NotNull LabyModDiscordRPC discordSpectateMatch,
-    @NotNull String loginDomain,
-    @NotNull LabyModBanner banner,
-    @NotNull LabyModPermissions permissions
-  ) {
-    this.enabled = enabled;
-    this.discordRPC = discordRPC;
-    this.gameModeSwitchMessages = gameModeSwitchMessages;
-    this.discordJoinMatch = discordJoinMatch;
-    this.discordSpectateMatch = discordSpectateMatch;
-    this.loginDomain = loginDomain;
-    this.banner = banner;
-    this.permissions = permissions;
-  }
+public record LabyModConfiguration(
+  boolean enabled,
+  @NotNull LabyModServiceDisplay discordRPC,
+  @NotNull LabyModServiceDisplay gameModeSwitchMessages,
+  @NotNull LabyModDiscordRPC discordJoinMatch,
+  @NotNull LabyModDiscordRPC discordSpectateMatch,
+  @NotNull String loginDomain,
+  @NotNull LabyModBanner banner,
+  @NotNull LabyModPermissions permissions
+) {
 
   public static @NotNull Builder builder() {
     return new Builder();
@@ -56,101 +36,84 @@ public class LabyModConfiguration {
 
   public static @NotNull Builder builder(@NotNull LabyModConfiguration configuration) {
     return builder()
-      .enabled(configuration.isEnabled())
-      .discordRPC(configuration.getDiscordRPC())
-      .gameModeSwitch(configuration.getGameModeSwitchMessages())
-      .joinMatch(configuration.getDiscordJoinMatch())
-      .spectateMatch(configuration.getDiscordSpectateMatch())
-      .loginDomain(configuration.getLoginDomain())
-      .banner(configuration.getBanner())
-      .permissions(configuration.getPermissions());
+      .enabled(configuration.enabled())
+      .discordRPC(configuration.discordRPC())
+      .gameModeSwitch(configuration.gameModeSwitchMessages())
+      .joinMatch(configuration.discordJoinMatch())
+      .spectateMatch(configuration.discordSpectateMatch())
+      .loginDomain(configuration.loginDomain())
+      .banner(configuration.banner())
+      .permissions(configuration.permissions());
   }
 
-  public boolean isEnabled() {
-    return this.enabled;
-  }
-
-  public @NotNull LabyModServiceDisplay getDiscordRPC() {
-    return this.discordRPC;
-  }
-
-  public @NotNull LabyModServiceDisplay getGameModeSwitchMessages() {
-    return this.gameModeSwitchMessages;
-  }
-
-  public @NotNull LabyModDiscordRPC getDiscordJoinMatch() {
-    return this.discordJoinMatch;
-  }
-
-  public @NotNull LabyModDiscordRPC getDiscordSpectateMatch() {
-    return this.discordSpectateMatch;
-  }
-
-  public @NotNull String getLoginDomain() {
-    return this.loginDomain;
-  }
-
-  public @NotNull LabyModBanner getBanner() {
-    return this.banner;
-  }
-
-  public @NotNull LabyModPermissions getPermissions() {
-    return this.permissions;
-  }
-
+  @SuppressWarnings("HttpUrlsUsage") // LabyMod 1.8 is too old
   public static class Builder {
 
     private boolean enabled = true;
+
     private LabyModServiceDisplay discordRPC = new LabyModServiceDisplay(true, "Playing on %name%");
     private LabyModServiceDisplay gameModeSwitch = new LabyModServiceDisplay(true, "§bCloud§fNet §8➢ §e%name%");
+
     private LabyModDiscordRPC discordJoinMatch = LabyModDiscordRPC.builder().build();
     private LabyModDiscordRPC discordSpectateMatch = LabyModDiscordRPC.builder().build();
+
     private String loginDomain = "mc.cloudnetservice.eu";
-    private LabyModBanner banner = new LabyModBanner(false,
+    private LabyModBanner banner = new LabyModBanner(
+      false,
       "http://dl.cloudnetservice.eu/data/minecraft/CloudNet-LabyMod-Banner.png");
+
     private LabyModPermissions permissions = LabyModPermissions.builder().build();
 
-    public @NotNull Builder enabled(boolean enabled) {
+    public @NotNull
+    Builder enabled(boolean enabled) {
       this.enabled = enabled;
       return this;
     }
 
-    public @NotNull Builder discordRPC(@NotNull LabyModServiceDisplay serviceDisplay) {
+    public @NotNull
+    Builder discordRPC(@NotNull LabyModServiceDisplay serviceDisplay) {
       this.discordRPC = serviceDisplay;
       return this;
     }
 
-    public @NotNull Builder gameModeSwitch(@NotNull LabyModServiceDisplay serviceDisplay) {
+    public @NotNull
+    Builder gameModeSwitch(@NotNull LabyModServiceDisplay serviceDisplay) {
       this.gameModeSwitch = serviceDisplay;
       return this;
     }
 
-    public @NotNull Builder joinMatch(@NotNull LabyModDiscordRPC joinMatch) {
+    public @NotNull
+    Builder joinMatch(@NotNull LabyModDiscordRPC joinMatch) {
       this.discordJoinMatch = joinMatch;
       return this;
     }
 
-    public @NotNull Builder spectateMatch(@NotNull LabyModDiscordRPC spectateMatch) {
+    public @NotNull
+    Builder spectateMatch(@NotNull LabyModDiscordRPC spectateMatch) {
       this.discordSpectateMatch = spectateMatch;
       return this;
     }
 
-    public @NotNull Builder loginDomain(@NotNull String domain) {
+    public @NotNull
+    Builder loginDomain(@NotNull String domain) {
       this.loginDomain = domain;
       return this;
     }
 
-    public @NotNull Builder banner(@NotNull LabyModBanner banner) {
+    public @NotNull
+    Builder banner(@NotNull LabyModBanner banner) {
       this.banner = banner;
       return this;
     }
 
-    public @NotNull Builder permissions(@NotNull LabyModPermissions permissions) {
+    public @NotNull
+    Builder permissions(@NotNull LabyModPermissions permissions) {
       this.permissions = permissions;
       return this;
     }
 
-    public @NotNull LabyModConfiguration build() {
+    public @NotNull
+    LabyModConfiguration build() {
       Verify.verifyNotNull(this.discordRPC, "Missing discord rpc");
       Verify.verifyNotNull(this.gameModeSwitch, "Missing gamemode switch");
       Verify.verifyNotNull(this.discordJoinMatch, "Missing discord join match");

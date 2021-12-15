@@ -56,12 +56,12 @@ public final class PacketServerChannelMessageListener implements IPacketListener
       // do not redirect the channel message to the cluster to prevent infinite loops
       if (packet.getUniqueId() != null) {
         var responses = this.messenger
-          .sendChannelMessageQueryAsync(message, message.sender().getType() == DriverEnvironment.WRAPPER)
+          .sendChannelMessageQueryAsync(message, message.sender().type() == DriverEnvironment.WRAPPER)
           .get(20, TimeUnit.SECONDS, Collections.emptyList());
         // respond with the available responses
         channel.sendPacket(packet.constructResponse(DataBuf.empty().writeObject(responses)));
       } else {
-        this.messenger.sendChannelMessage(message, message.sender().getType() == DriverEnvironment.WRAPPER);
+        this.messenger.sendChannelMessage(message, message.sender().type() == DriverEnvironment.WRAPPER);
       }
     }
     // force release the message

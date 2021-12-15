@@ -148,7 +148,7 @@ public final class CommandCluster {
 
   @Suggestions("networkClusterNode")
   public List<String> suggestNetworkClusterNode(CommandContext<CommandSource> $, String input) {
-    return CloudNet.getInstance().getConfig().getClusterConfig().getNodes()
+    return CloudNet.getInstance().getConfig().getClusterConfig().nodes()
       .stream()
       .map(NetworkClusterNode::getUniqueId)
       .collect(Collectors.toList());
@@ -177,7 +177,7 @@ public final class CommandCluster {
   @Parser(name = "noNodeId", suggestions = "clusterNode")
   public String noClusterNodeParser(CommandContext<CommandSource> $, Queue<String> input) {
     var nodeId = input.remove();
-    for (var node : CloudNet.getInstance().getConfig().getClusterConfig().getNodes()) {
+    for (var node : CloudNet.getInstance().getConfig().getClusterConfig().nodes()) {
       if (node.getUniqueId().equals(nodeId)) {
         throw new ArgumentNotAvailableException(I18n.trans("command-tasks-node-not-found"));
       }
@@ -221,7 +221,7 @@ public final class CommandCluster {
     var nodeConfig = CloudNet.getInstance().getConfig();
     var networkCluster = nodeConfig.getClusterConfig();
     // add the new node to the cluster config
-    networkCluster.getNodes().add(new NetworkClusterNode(nodeId, new HostAndPort[]{hostAndPort}));
+    networkCluster.nodes().add(new NetworkClusterNode(nodeId, new HostAndPort[]{hostAndPort}));
     nodeConfig.setClusterConfig(networkCluster);
     // write the changes to the file
     nodeConfig.save();
@@ -233,7 +233,7 @@ public final class CommandCluster {
     var nodeConfig = CloudNet.getInstance().getConfig();
     var cluster = nodeConfig.getClusterConfig();
     // try to remove the node from the cluster config
-    if (cluster.getNodes().remove(node)) {
+    if (cluster.nodes().remove(node)) {
       // update the cluster config in the node config
       nodeConfig.setClusterConfig(cluster);
       // write the node config
@@ -399,12 +399,12 @@ public final class CommandCluster {
           + "/" + node.getNodeInfoSnapshot().getMaxMemory() + " MB",
         " ",
         "CPU usage process: " + CPUUsageResolver.FORMAT
-          .format(node.getNodeInfoSnapshot().getProcessSnapshot().getCpuUsage()) + "%",
+          .format(node.getNodeInfoSnapshot().getProcessSnapshot().cpuUsage()) + "%",
         "CPU usage system: " + CPUUsageResolver.FORMAT
-          .format(node.getNodeInfoSnapshot().getProcessSnapshot().getSystemCpuUsage()) + "%",
-        "Threads: " + node.getNodeInfoSnapshot().getProcessSnapshot().getThreads().size(),
-        "Heap usage: " + (node.getNodeInfoSnapshot().getProcessSnapshot().getHeapUsageMemory() / (1024 * 1024)) + "/" +
-          (node.getNodeInfoSnapshot().getProcessSnapshot().getMaxHeapMemory() / (1024 * 1024)) + "MB",
+          .format(node.getNodeInfoSnapshot().getProcessSnapshot().systemCpuUsage()) + "%",
+        "Threads: " + node.getNodeInfoSnapshot().getProcessSnapshot().threads().size(),
+        "Heap usage: " + (node.getNodeInfoSnapshot().getProcessSnapshot().heapUsageMemory() / (1024 * 1024)) + "/" +
+          (node.getNodeInfoSnapshot().getProcessSnapshot().maxHeapMemory() / (1024 * 1024)) + "MB",
         " "
       ));
     }

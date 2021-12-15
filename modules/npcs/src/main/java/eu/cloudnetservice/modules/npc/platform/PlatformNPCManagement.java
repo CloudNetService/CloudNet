@@ -186,8 +186,8 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
   }
 
   public @Nullable NPCConfigurationEntry getApplicableNPCConfigurationEntry() {
-    for (var entry : this.npcConfiguration.getEntries()) {
-      if (Wrapper.getInstance().getServiceConfiguration().getGroups().contains(entry.getTargetGroup())) {
+    for (var entry : this.npcConfiguration.entries()) {
+      if (Wrapper.getInstance().getServiceConfiguration().getGroups().contains(entry.targetGroup())) {
         return entry;
       }
     }
@@ -201,7 +201,7 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
       throw new IllegalStateException("no npc config entry for the current service groups found");
     }
     // find an inventory configuration which explicitly targets a group of the snapshot
-    return entry.getInventoryConfiguration();
+    return entry.inventoryConfiguration();
   }
 
   public void handleServiceUpdate(@NotNull ServiceInfoSnapshot service) {
@@ -228,7 +228,7 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
     if (emoteIds.length == 0) {
       // no ids - skip
       return -2;
-    } else if (configuration.isSyncEmotesBetweenNPCs()) {
+    } else if (configuration.syncEmotesBetweenNPCs()) {
       // return a random id from the emote list
       return emoteIds[ThreadLocalRandom.current().nextInt(0, emoteIds.length)];
     } else {

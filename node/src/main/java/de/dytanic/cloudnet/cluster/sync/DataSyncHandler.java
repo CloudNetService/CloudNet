@@ -20,7 +20,7 @@ import com.google.common.base.Verify;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import java.lang.reflect.Type;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -28,54 +28,23 @@ import java.util.function.UnaryOperator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class DataSyncHandler<T> {
-
-  private final String key;
-  private final boolean alwaysForceApply;
-  private final DataConverter<T> converter;
-
-  private final Consumer<T> writer;
-  private final UnaryOperator<T> currentGetter;
-  private final Function<T, String> nameExtractor;
-  private final Supplier<Collection<T>> dataCollector;
-
-  protected DataSyncHandler(
-    @NotNull String key,
-    boolean alwaysForceApply,
-    @NotNull DataConverter<T> converter,
-    @NotNull Consumer<T> writer,
-    @NotNull UnaryOperator<T> currentGetter,
-    @NotNull Function<T, String> nameExtractor,
-    @NotNull Supplier<Collection<T>> dataCollector
-  ) {
-    this.key = key;
-    this.alwaysForceApply = alwaysForceApply;
-    this.converter = converter;
-    this.writer = writer;
-    this.currentGetter = currentGetter;
-    this.nameExtractor = nameExtractor;
-    this.dataCollector = dataCollector;
-  }
+public record DataSyncHandler<T>(
+  @NotNull String key,
+  boolean alwaysForceApply,
+  @NotNull DataConverter<T> converter,
+  @NotNull Consumer<T> writer,
+  @NotNull UnaryOperator<T> currentGetter,
+  @NotNull Function<T, String> nameExtractor,
+  @NotNull Supplier<Collection<T>> dataCollector
+) {
 
   public static <T> @NotNull Builder<T> builder() {
     return new Builder<>();
   }
 
-  public @NotNull String getKey() {
-    return this.key;
-  }
-
-  public boolean isAlwaysForceApply() {
-    return this.alwaysForceApply;
-  }
-
   @SuppressWarnings("unchecked")
   public @NotNull String getName(@NotNull Object obj) {
     return this.nameExtractor.apply((T) obj);
-  }
-
-  public @NotNull DataConverter<T> getConverter() {
-    return this.converter;
   }
 
   @SuppressWarnings("unchecked")
@@ -165,7 +134,7 @@ public class DataSyncHandler<T> {
     }
 
     public @NotNull Builder<T> singletonCollector(@NotNull Supplier<T> dataCollector) {
-      return this.dataCollector(() -> Collections.singleton(dataCollector.get()));
+      return this.dataCollector(() -> List.of(dataCollector.get()));
     }
 
     public @NotNull DataSyncHandler<T> build() {

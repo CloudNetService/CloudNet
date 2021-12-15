@@ -97,10 +97,10 @@ public class JVMService extends AbstractService {
     }
 
     // get the agent class of the application (if any)
-    var agentClass = applicationInformation.getSecond().getMainAttributes().getValue("Premain-Class");
+    var agentClass = applicationInformation.second().mainAttributes().getValue("Premain-Class");
     if (agentClass == null) {
       // some old versions named the agent class 'Launcher-Agent-Class' - try that
-      agentClass = applicationInformation.getSecond().getMainAttributes().getValue("Launcher-Agent-Class");
+      agentClass = applicationInformation.second().mainAttributes().getValue("Launcher-Agent-Class");
     }
 
     // prepare the service startup
@@ -112,27 +112,27 @@ public class JVMService extends AbstractService {
 
     // add all jvm flags
     arguments.addAll(this.getNodeConfiguration().getDefaultJVMFlags().getJvmFlags());
-    arguments.addAll(this.getServiceConfiguration().getProcessConfig().getJvmOptions());
+    arguments.addAll(this.getServiceConfiguration().getProcessConfig().jvmOptions());
 
     // override some default configuration options
     arguments.addAll(DEFAULT_JVM_SYSTEM_PROPERTIES);
-    arguments.add("-javaagent:" + wrapperInformation.getFirst().toAbsolutePath());
+    arguments.add("-javaagent:" + wrapperInformation.first().toAbsolutePath());
     arguments.add("-Dcloudnet.wrapper.messages.language=" + I18n.getLanguage());
 
     // add the class path and the main class of the wrapper
     arguments.add("-cp");
-    arguments.add(wrapperInformation.getFirst().toAbsolutePath().toString());
-    arguments.add(wrapperInformation.getSecond().getValue("Main-Class")); // the main class we want to invoke first
+    arguments.add(wrapperInformation.first().toAbsolutePath().toString());
+    arguments.add(wrapperInformation.second().getValue("Main-Class")); // the main class we want to invoke first
 
     // add all internal process parameters (they will be removed by the wrapper before starting the application)
-    arguments.add(applicationInformation.getSecond().getMainAttributes().getValue("Main-Class"));
+    arguments.add(applicationInformation.second().mainAttributes().getValue("Main-Class"));
     arguments.add(String.valueOf(agentClass)); // the agent class might be null
-    arguments.add(applicationInformation.getFirst().toAbsolutePath().toString());
-    arguments.add(Boolean.toString(applicationInformation.getSecond().isPreloadJarContent()));
+    arguments.add(applicationInformation.first().toAbsolutePath().toString());
+    arguments.add(Boolean.toString(applicationInformation.second().preloadJarContent()));
 
     // add all process parameters
     arguments.addAll(environmentType.getDefaultProcessArguments());
-    arguments.addAll(this.getServiceConfiguration().getProcessConfig().getProcessParameters());
+    arguments.addAll(this.getServiceConfiguration().getProcessConfig().processParameters());
 
     // try to start the process like that
     try {
@@ -313,22 +313,7 @@ public class JVMService extends AbstractService {
     }
   }
 
-  protected static class ApplicationStartupInformation {
+  protected record ApplicationStartupInformation(boolean preloadJarContent, @NotNull Attributes mainAttributes) {
 
-    private final boolean preloadJarContent;
-    private final Attributes mainAttributes;
-
-    public ApplicationStartupInformation(boolean preloadJarContent, @NotNull Attributes mainAttributes) {
-      this.preloadJarContent = preloadJarContent;
-      this.mainAttributes = mainAttributes;
-    }
-
-    public boolean isPreloadJarContent() {
-      return this.preloadJarContent;
-    }
-
-    public @NotNull Attributes getMainAttributes() {
-      return this.mainAttributes;
-    }
   }
 }

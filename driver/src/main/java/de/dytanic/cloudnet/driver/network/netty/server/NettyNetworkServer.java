@@ -137,7 +137,7 @@ public class NettyNetworkServer extends NettySSLServer implements DefaultNetwork
     this.closeChannels();
 
     for (var entry : this.channelFutures.values()) {
-      entry.getSecond().cancel(true);
+      entry.second().cancel(true);
     }
 
     this.bossEventLoopGroup.shutdownGracefully();

@@ -60,7 +60,7 @@ public class CommandBridge {
     var fallbacks = this.bridgeManagement.getConfiguration().getFallbackConfigurations()
       .stream();
     // don't allow duplicated entries
-    if (fallbacks.anyMatch(fallback -> fallback.getTargetGroup().equals(group.name()))) {
+    if (fallbacks.anyMatch(fallback -> fallback.targetGroup().equals(group.name()))) {
       throw new ArgumentNotAvailableException(I18n.trans("module-bridge-command-entry-already-exists"));
     }
     return group;
@@ -71,7 +71,7 @@ public class CommandBridge {
     return this.groupConfigurationProvider.getGroupConfigurations().stream()
       .map(INameable::name)
       .filter(group -> this.bridgeManagement.getConfiguration().getFallbackConfigurations().stream()
-        .noneMatch(fallback -> fallback.getTargetGroup().equals(group)))
+        .noneMatch(fallback -> fallback.targetGroup().equals(group)))
       .collect(Collectors.toList());
   }
 

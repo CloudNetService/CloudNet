@@ -99,8 +99,8 @@ public final class BukkitFunctionalityListener implements Listener {
   public void playOnJoinEmoteIds(@NotNull PlayerJoinEvent event) {
     var entry = this.management.getApplicableNPCConfigurationEntry();
     if (entry != null) {
-      var onJoinEmoteIds = entry.getEmoteConfiguration().getOnJoinEmoteIds();
-      var selectedNpcId = this.management.getRandomEmoteId(entry.getEmoteConfiguration(), onJoinEmoteIds);
+      var onJoinEmoteIds = entry.emoteConfiguration().onJoinEmoteIds();
+      var selectedNpcId = this.management.getRandomEmoteId(entry.emoteConfiguration(), onJoinEmoteIds);
       // check if an emote id could be selected
       if (selectedNpcId >= -1) {
         // play the emote to all npcs

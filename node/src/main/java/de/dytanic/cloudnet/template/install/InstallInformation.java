@@ -23,57 +23,20 @@ import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class InstallInformation {
-
-  private final ServiceVersion serviceVersion;
-  private final ServiceVersionType serviceVersionType;
-
-  private final boolean cacheFiles;
-  private final String installerExecutable;
-  private final ServiceTemplate serviceTemplate;
-  private final SpecificTemplateStorage templateStorage;
-
-  protected InstallInformation(
-    @NotNull ServiceVersion serviceVersion,
-    @NotNull ServiceVersionType serviceVersionType,
-    boolean cacheFiles,
-    @Nullable String installerExecutable,
-    @NotNull ServiceTemplate serviceTemplate,
-    @NotNull SpecificTemplateStorage templateStorage
-  ) {
-    this.serviceVersion = serviceVersion;
-    this.serviceVersionType = serviceVersionType;
-    this.cacheFiles = cacheFiles;
-    this.installerExecutable = installerExecutable;
-    this.serviceTemplate = serviceTemplate;
-    this.templateStorage = templateStorage;
-  }
+public record InstallInformation(
+  @NotNull ServiceVersion serviceVersion,
+  @NotNull ServiceVersionType serviceVersionType,
+  boolean cacheFiles,
+  @Nullable String installerExecutable,
+  @NotNull ServiceTemplate serviceTemplate,
+  @NotNull SpecificTemplateStorage templateStorage
+) {
 
   public static @NotNull Builder builder() {
     return new Builder();
   }
 
-  public @NotNull ServiceVersionType getServiceVersionType() {
-    return this.serviceVersionType;
-  }
-
-  public @NotNull ServiceVersion getServiceVersion() {
-    return this.serviceVersion;
-  }
-
-  public @NotNull SpecificTemplateStorage getTemplateStorage() {
-    return this.templateStorage;
-  }
-
-  public boolean isCacheFiles() {
-    return this.cacheFiles;
-  }
-
-  public @NotNull ServiceTemplate getServiceTemplate() {
-    return this.serviceTemplate;
-  }
-
-  public @NotNull Optional<String> getInstallerExecutable() {
+  public @NotNull Optional<String> installerExecCommand() {
     return Optional.ofNullable(this.installerExecutable);
   }
 

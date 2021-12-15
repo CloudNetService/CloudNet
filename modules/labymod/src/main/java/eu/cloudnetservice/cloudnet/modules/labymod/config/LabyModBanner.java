@@ -18,21 +18,6 @@ package eu.cloudnetservice.cloudnet.modules.labymod.config;
 
 import org.jetbrains.annotations.NotNull;
 
-public class LabyModBanner {
+public record LabyModBanner(boolean enabled, @NotNull String bannerUrl) {
 
-  private final boolean enabled;
-  private final String bannerUrl;
-
-  public LabyModBanner(boolean enabled, @NotNull String bannerUrl) {
-    this.enabled = enabled;
-    this.bannerUrl = bannerUrl;
-  }
-
-  public boolean isEnabled() {
-    return this.enabled;
-  }
-
-  public @NotNull String getBannerUrl() {
-    return this.bannerUrl;
-  }
 }

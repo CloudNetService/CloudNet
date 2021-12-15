@@ -16,27 +16,10 @@
 
 package de.dytanic.cloudnet.ext.cloudperms.node.config;
 
-import java.util.Collections;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
 
-public class CloudPermissionConfig {
+public record CloudPermissionConfig(boolean enabled, @NotNull List<String> excludedGroups) {
 
-  public static final CloudPermissionConfig DEFAULT = new CloudPermissionConfig(true, Collections.emptyList());
-
-  private final boolean enabled;
-  private final List<String> excludedGroups;
-
-  public CloudPermissionConfig(boolean enabled, List<String> excludedGroups) {
-    this.enabled = enabled;
-    this.excludedGroups = excludedGroups;
-  }
-
-  public boolean isEnabled() {
-    return this.enabled;
-  }
-
-  public @NotNull List<String> getExcludedGroups() {
-    return this.excludedGroups;
-  }
+  public static final CloudPermissionConfig DEFAULT = new CloudPermissionConfig(true, List.of());
 }

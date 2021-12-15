@@ -20,28 +20,13 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceHelper;
 import org.jetbrains.annotations.Nullable;
 
-public class LabyModServiceDisplay {
-
-  protected final boolean enabled;
-  protected final String format;
-
-  public LabyModServiceDisplay(boolean enabled, @Nullable String format) {
-    this.enabled = enabled;
-    this.format = format;
-  }
-
-  public boolean isEnabled() {
-    return this.enabled;
-  }
+public record LabyModServiceDisplay(boolean enabled, @Nullable String format) {
 
   public @Nullable String getDisplay(@Nullable ServiceInfoSnapshot serviceInfoSnapshot) {
     if (serviceInfoSnapshot == null || this.format == null || !this.enabled) {
       return null;
+    } else {
+      return BridgeServiceHelper.fillCommonPlaceholders(this.format, null, serviceInfoSnapshot);
     }
-    return BridgeServiceHelper.fillCommonPlaceholders(this.format, null, serviceInfoSnapshot);
-  }
-
-  public @Nullable String getFormat() {
-    return this.format;
   }
 }

@@ -104,11 +104,11 @@ public final class CommandConfig {
     CommandSource source,
     @Argument(value = "executable", parserName = "javaCommand") Pair<String, JavaVersion> executable
   ) {
-    this.nodeConfig().setJVMCommand(executable.getFirst());
+    this.nodeConfig().setJVMCommand(executable.first());
     this.updateNodeConfig();
     source.sendMessage(I18n.trans("command-node-set-java-command")
-      .replace("%executable%", executable.getFirst())
-      .replace("%ver%", executable.getSecond().name()));
+      .replace("%executable%", executable.first())
+      .replace("%ver%", executable.second().name()));
   }
 
   @CommandMethod("config node set defaultJVMFlags <flag>")

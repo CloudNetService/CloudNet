@@ -59,9 +59,9 @@ public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location,
     var entry = this.getApplicableNPCConfigurationEntry();
     if (entry != null) {
       this.npcPool = NPCPool.builder(plugin)
-        .actionDistance(entry.getNpcPoolOptions().getActionDistance())
-        .spawnDistance(entry.getNpcPoolOptions().getSpawnDistance())
-        .tabListRemoveTicks(entry.getNpcPoolOptions().getTabListRemoveTicks())
+        .actionDistance(entry.npcPoolOptions().actionDistance())
+        .spawnDistance(entry.npcPoolOptions().spawnDistance())
+        .tabListRemoveTicks(entry.npcPoolOptions().tabListRemoveTicks())
         .build();
     } else {
       this.npcPool = NPCPool.builder(plugin).build();
@@ -74,12 +74,12 @@ public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location,
       var configEntry = this.getApplicableNPCConfigurationEntry();
       if (configEntry != null) {
         // check if knock back is enabled
-        var distance = configEntry.getKnockbackDistance();
-        var strength = configEntry.getKnockbackStrength();
+        var distance = configEntry.knockbackDistance();
+        var strength = configEntry.knockbackStrength();
         if (distance > 0 && strength > 0) {
           // select the knockback emote id now (sometimes we need to play them sync for all npcs)
-          var labyModEmotes = configEntry.getEmoteConfiguration().getOnKnockbackEmoteIds();
-          var emoteId = this.getRandomEmoteId(configEntry.getEmoteConfiguration(), labyModEmotes);
+          var labyModEmotes = configEntry.emoteConfiguration().onKnockbackEmoteIds();
+          var emoteId = this.getRandomEmoteId(configEntry.emoteConfiguration(), labyModEmotes);
           //
           for (var value : this.trackedEntities.values()) {
             if (value.isSpawned()) {
@@ -187,21 +187,21 @@ public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location,
     // only start the task if not yet running
     if (this.npcEmoteTask == null || force) {
       var ent = this.getApplicableNPCConfigurationEntry();
-      if (ent != null && ent.getEmoteConfiguration().getMinEmoteDelayTicks() > 0) {
+      if (ent != null && ent.emoteConfiguration().minEmoteDelayTicks() > 0) {
         // get the delay for the next npc emote play
         long delay;
-        if (ent.getEmoteConfiguration().getMaxEmoteDelayTicks() > ent.getEmoteConfiguration().getMinEmoteDelayTicks()) {
+        if (ent.emoteConfiguration().maxEmoteDelayTicks() > ent.emoteConfiguration().minEmoteDelayTicks()) {
           delay = ThreadLocalRandom.current().nextLong(
-            ent.getEmoteConfiguration().getMinEmoteDelayTicks(),
-            ent.getEmoteConfiguration().getMaxEmoteDelayTicks());
+            ent.emoteConfiguration().minEmoteDelayTicks(),
+            ent.emoteConfiguration().maxEmoteDelayTicks());
         } else {
-          delay = ent.getEmoteConfiguration().getMinEmoteDelayTicks();
+          delay = ent.emoteConfiguration().minEmoteDelayTicks();
         }
         // run the task
         this.npcEmoteTask = Bukkit.getScheduler().runTaskLaterAsynchronously(this.plugin, () -> {
           // select an emote to play
-          var emotes = ent.getEmoteConfiguration().getEmoteIds();
-          var emoteId = this.getRandomEmoteId(ent.getEmoteConfiguration(), emotes);
+          var emotes = ent.emoteConfiguration().emoteIds();
+          var emoteId = this.getRandomEmoteId(ent.emoteConfiguration(), emotes);
           // check if we can select an emote
           if (emoteId >= -1) {
             // play the emote on each npc

@@ -208,15 +208,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
     return collection;
   }
 
+  private record RegistryEntry<T>(@NotNull String name, @NotNull T service) {
 
-  private static final class RegistryEntry<T> {
-
-    private final T service;
-    private final String name;
-
-    public RegistryEntry(@NotNull String name, @NotNull T service) {
-      this.name = name;
-      this.service = service;
-    }
   }
 }

@@ -19,15 +19,10 @@ package de.dytanic.cloudnet.common.column;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
-public final class ColumnEntry {
-
-  private final int columnMinLength;
-  private final String[] formattedEntries;
-
-  private ColumnEntry(int columnMinLength, String[] formattedEntries) {
-    this.columnMinLength = columnMinLength;
-    this.formattedEntries = formattedEntries;
-  }
+public record ColumnEntry(
+  @Range(from = 0, to = Integer.MAX_VALUE) int columnMinLength,
+  @NotNull String[] formattedEntries
+) {
 
   public static @NotNull ColumnEntry wrap(@NotNull String @NotNull ... entries) {
     // get the longest entry and fill all other entries with spaces
@@ -46,13 +41,5 @@ public final class ColumnEntry {
     }
     // parsing successful!
     return new ColumnEntry(longestLength, entries);
-  }
-
-  public @Range(from = 0, to = Integer.MAX_VALUE) int getColumnMinLength() {
-    return this.columnMinLength;
-  }
-
-  public @NotNull String @NotNull [] getFormattedEntries() {
-    return this.formattedEntries;
   }
 }

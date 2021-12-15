@@ -59,14 +59,14 @@ public class RPCPacketListener implements IPacketListener {
             // only invoke upcoming methods if there was a previous result
             lastResult = this.handleRaw(
               buf.readString(),
-              this.buildContext(channel, buf, lastResult.getInvocationResult(), true));
+              this.buildContext(channel, buf, lastResult.invocationResult(), true));
           } else {
             // an exception was thrown previously, break
             buf.readString(); // remove the handler information which is not necessary
             result = this.serializeResult(
               lastResult,
-              lastResult.getHandler().getDataBufFactory(),
-              lastResult.getHandler().getObjectMapper(),
+              lastResult.invocationHandler().getDataBufFactory(),
+              lastResult.invocationHandler().getObjectMapper(),
               this.buildContext(channel, buf, null, true));
             break;
           }
@@ -80,7 +80,7 @@ public class RPCPacketListener implements IPacketListener {
         // the last handler decides over the method invocation result
         result = this.handle(
           buf.readString(),
-          this.buildContext(channel, buf, lastResult.getInvocationResult(), true));
+          this.buildContext(channel, buf, lastResult.invocationResult(), true));
       }
     } else {
       // just invoke the method
@@ -115,16 +115,16 @@ public class RPCPacketListener implements IPacketListener {
     // check if the sender expect the result of the method
     if (context.expectsMethodResult()) {
       // check if the method return void
-      if (result.wasSuccessful() && result.getTargetMethodInformation().isVoidMethod()) {
+      if (result.wasSuccessful() && result.targetMethodInformation().isVoidMethod()) {
         return dataBufFactory.createWithExpectedSize(2)
           .writeBoolean(true) // was successful
           .writeBoolean(false);
       } else if (result.wasSuccessful()) {
         // successful - write the result of the invocation
-        return objectMapper.writeObject(dataBufFactory.createEmpty().writeBoolean(true), result.getInvocationResult());
+        return objectMapper.writeObject(dataBufFactory.createEmpty().writeBoolean(true), result.invocationResult());
       } else {
         // not successful - send some basic information about the result
-        var throwable = (Throwable) result.getInvocationResult();
+        var throwable = (Throwable) result.invocationResult();
         return ExceptionalResultUtils.serializeThrowable(dataBufFactory.createEmpty().writeBoolean(false), throwable);
       }
     }

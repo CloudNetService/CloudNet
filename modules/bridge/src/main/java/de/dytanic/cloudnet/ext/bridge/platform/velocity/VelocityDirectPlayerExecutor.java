@@ -78,10 +78,10 @@ final class VelocityDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
   public void connectToFallback() {
     this.playerSupplier.get().stream()
       .map(player -> new Pair<>(player, this.management.getFallback(player)))
-      .filter(pair -> pair.getSecond().isPresent())
-      .map(pair -> new Pair<>(pair.getFirst(), this.proxyServer.getServer(pair.getSecond().get().name())))
-      .filter(pair -> pair.getSecond().isPresent())
-      .forEach(pair -> pair.getFirst().createConnectionRequest(pair.getSecond().get()).fireAndForget());
+      .filter(pair -> pair.second().isPresent())
+      .map(pair -> new Pair<>(pair.first(), this.proxyServer.getServer(pair.second().get().name())))
+      .filter(pair -> pair.second().isPresent())
+      .forEach(pair -> pair.first().createConnectionRequest(pair.second().get()).fireAndForget());
   }
 
   @Override

@@ -229,10 +229,10 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
         .deployments(task.getDeployments())
         .inclusions(task.getIncludes())
 
-        .environment(task.getProcessConfiguration().getEnvironment())
-        .maxHeapMemory(task.getProcessConfiguration().getMaxHeapMemorySize())
-        .jvmOptions(task.getProcessConfiguration().getJvmOptions())
-        .processParameters(task.getProcessConfiguration().getProcessParameters())
+        .environment(task.getProcessConfiguration().environment())
+        .maxHeapMemory(task.getProcessConfiguration().maxHeapMemorySize())
+        .jvmOptions(task.getProcessConfiguration().jvmOptions())
+        .processParameters(task.getProcessConfiguration().processParameters())
         .startPort(task.getStartPort());
     }
 

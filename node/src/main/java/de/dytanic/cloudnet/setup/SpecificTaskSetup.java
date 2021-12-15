@@ -145,7 +145,7 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
       .minServiceCount(animation.getResult("taskMinServices"))
       .serviceEnvironmentType(environment)
       .startPort(animation.getResult("taskStartPort"))
-      .javaCommand(javaVersion.getFirst())
+      .javaCommand(javaVersion.first())
       .addTemplate(defaultTemplate)
       .nameSplitter(animation.getResult("taskNameSplitter"))
       .build();
@@ -158,10 +158,10 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
     this.initializeTemplate(defaultTemplate, environment, true);
     // install the chosen version
     CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(InstallInformation.builder()
-      .serviceVersionType(version.getFirst())
-      .serviceVersion(version.getSecond())
+      .serviceVersionType(version.first())
+      .serviceVersion(version.second())
       .toTemplate(defaultTemplate)
-      .executable(javaVersion.getFirst())
+      .executable(javaVersion.first())
       .build(), false);
   }
 }

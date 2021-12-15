@@ -55,7 +55,7 @@ public class BuildStepExecutor implements InstallStepExecutor {
     @NotNull Path workDir,
     @NotNull Set<Path> paths
   ) throws IOException {
-    var version = information.getServiceVersion();
+    var version = information.serviceVersion();
 
     Collection<String> jvmOptions = version.getProperties().get("jvmOptions", STRING_LIST_TYPE);
     List<String> parameters = version.getProperties().get("parameters", STRING_LIST_TYPE, new ArrayList<>());
@@ -63,7 +63,7 @@ public class BuildStepExecutor implements InstallStepExecutor {
     for (var path : paths) {
       List<String> arguments = new ArrayList<>();
 
-      arguments.add(information.getInstallerExecutable().orElse(CloudNet.getInstance().getConfig().getJVMCommand()));
+      arguments.add(information.installerExecCommand().orElse(CloudNet.getInstance().getConfig().getJVMCommand()));
       if (jvmOptions != null) {
         arguments.addAll(jvmOptions);
       }
@@ -131,17 +131,11 @@ public class BuildStepExecutor implements InstallStepExecutor {
     return -1;
   }
 
-  private static class BuildOutputRedirector implements Runnable {
-
-    private final Process process;
-    private final InputStream source;
-    private final BiConsumer<String, Process> handler;
-
-    public BuildOutputRedirector(Process process, InputStream source, BiConsumer<String, Process> handler) {
-      this.process = process;
-      this.source = source;
-      this.handler = handler;
-    }
+  private record BuildOutputRedirector(
+    @NotNull Process process,
+    @NotNull InputStream source,
+    @NotNull BiConsumer<String, Process> handler
+  ) implements Runnable {
 
     @Override
     public void run() {

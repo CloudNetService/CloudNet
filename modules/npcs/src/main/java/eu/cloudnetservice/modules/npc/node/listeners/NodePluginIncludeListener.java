@@ -61,8 +61,8 @@ public final class NodePluginIncludeListener {
       var type = event.getService().getServiceConfiguration().getServiceId().getEnvironment();
       if (ServiceEnvironmentType.isMinecraftServer(type)) {
         // check if we have an entry for the current group
-        var hasEntry = this.management.getNPCConfiguration().getEntries().stream()
-          .anyMatch(entry -> event.getConfiguration().getGroups().contains(entry.getTargetGroup()));
+        var hasEntry = this.management.getNPCConfiguration().entries().stream()
+          .anyMatch(entry -> event.getConfiguration().getGroups().contains(entry.targetGroup()));
         if (hasEntry) {
           var pluginsDirectory = event.getService().getDirectory().resolve("plugins");
           // copy protocol lib

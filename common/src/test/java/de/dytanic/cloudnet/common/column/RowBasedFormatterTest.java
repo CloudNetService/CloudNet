@@ -66,18 +66,7 @@ public class RowBasedFormatterTest {
     }
   }
 
-  private static final class Player {
+  private record Player(String name, String rank, String world, int hp) {
 
-    private final String name;
-    private final String rank;
-    private final String world;
-    private final int hp;
-
-    public Player(String name, String rank, String world, int hp) {
-      this.name = name;
-      this.rank = rank;
-      this.world = world;
-      this.hp = hp;
-    }
   }
 }

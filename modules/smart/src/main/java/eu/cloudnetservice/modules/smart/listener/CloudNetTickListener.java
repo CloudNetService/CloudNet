@@ -222,8 +222,8 @@ public final class CloudNetTickListener {
       .map(node -> new Pair<>(node, services.stream()
         .filter(service -> service.getServiceId().getNodeUniqueId().equals(node.getNodeInfo().getUniqueId()))
         .count()))
-      .min(Comparator.comparingLong(Pair::getSecond))
-      .map(Pair::getFirst)
+      .min(Comparator.comparingLong(Pair::second))
+      .map(Pair::first)
       .orElse(null);
   }
 

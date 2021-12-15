@@ -16,20 +16,14 @@
 
 package de.dytanic.cloudnet.driver.network.chunk.defaults.splitter;
 
-import com.google.common.collect.ImmutableList;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import java.util.Collection;
 import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
 
-public class NetworkChannelsPacketSplitter implements Consumer<IPacket> {
-
-  private final Collection<INetworkChannel> channels;
-
-  public NetworkChannelsPacketSplitter(@NotNull Collection<INetworkChannel> channels) {
-    this.channels = ImmutableList.copyOf(channels);
-  }
+public record NetworkChannelsPacketSplitter(@NotNull Collection<INetworkChannel> channels)
+  implements Consumer<IPacket> {
 
   @Override
   public void accept(@NotNull IPacket packet) {

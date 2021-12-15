@@ -36,8 +36,8 @@ public final class IncludePluginListener {
   public void handle(@NotNull CloudServicePreLifecycleEvent event) {
     // check if we should copy the module
     if (event.getTargetLifecycle() == ServiceLifeCycle.RUNNING
-      && this.permissionsModule.getPermissionsConfig().isEnabled()
-      && this.permissionsModule.getPermissionsConfig().getExcludedGroups().stream()
+      && this.permissionsModule.getPermissionsConfig().enabled()
+      && this.permissionsModule.getPermissionsConfig().excludedGroups().stream()
       .noneMatch(group -> event.getService().getServiceConfiguration().getGroups().contains(group))) {
       // get the target of the copy
       var plugins = event.getService().getDirectory().resolve("plugins");

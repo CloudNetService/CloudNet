@@ -109,7 +109,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
             .info(I18n.trans("module-cloudflare-create-dns-record-for-service")
               .replace("%service%", cloudConfig.getIdentity().getUniqueId())
               .replace("%domain%", entry.getDomainName())
-              .replace("%recordId%", recordDetail.getId())
+              .replace("%recordId%", recordDetail.id())
             );
         }
       }

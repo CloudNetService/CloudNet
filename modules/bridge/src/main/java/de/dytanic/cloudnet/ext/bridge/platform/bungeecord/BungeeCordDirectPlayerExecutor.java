@@ -78,10 +78,10 @@ final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
   public void connectToFallback() {
     this.playerSupplier.get().stream()
       .map(player -> new Pair<>(player, this.management.getFallback(player)))
-      .filter(pair -> pair.getSecond().isPresent())
-      .map(p -> new Pair<>(p.getFirst(), ProxyServer.getInstance().getServerInfo(p.getSecond().get().name())))
-      .filter(pair -> pair.getSecond() != null)
-      .forEach(pair -> pair.getFirst().connect(pair.getSecond(), Reason.PLUGIN));
+      .filter(pair -> pair.second().isPresent())
+      .map(p -> new Pair<>(p.first(), ProxyServer.getInstance().getServerInfo(p.second().get().name())))
+      .filter(pair -> pair.second() != null)
+      .forEach(pair -> pair.first().connect(pair.second(), Reason.PLUGIN));
   }
 
   @Override

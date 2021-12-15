@@ -46,12 +46,12 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
 
   @Override
   public void registerHandler(@NotNull DataSyncHandler<?> handler) {
-    this.handlers.putIfAbsent(handler.getKey(), handler);
+    this.handlers.putIfAbsent(handler.key(), handler);
   }
 
   @Override
   public void unregisterHandler(@NotNull DataSyncHandler<?> handler) {
-    this.handlers.remove(handler.getKey());
+    this.handlers.remove(handler.key());
   }
 
   @Override
@@ -84,7 +84,7 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
     // append all handler content to the buf
     for (var handler : this.handlers.values()) {
       // check if we should include the handler
-      if (selectedHandlers.length > 0 && Arrays.binarySearch(selectedHandlers, handler.getKey()) < 0) {
+      if (selectedHandlers.length > 0 && Arrays.binarySearch(selectedHandlers, handler.key()) < 0) {
         continue;
       }
       // extract the whole content from the handler
@@ -119,10 +119,10 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
         var handler = this.handlers.get(key);
         if (handler != null) {
           // read the synced data
-          var data = handler.getConverter().parse(syncData);
+          var data = handler.converter().parse(syncData);
           var current = handler.getCurrent(data);
           // check if we need to ask for user input to continue the sync
-          if (force || handler.isAlwaysForceApply() || current == null || current.equals(data)) {
+          if (force || handler.alwaysForceApply() || current == null || current.equals(data)) {
             // write the data and continue
             handler.write(data);
             continue;
@@ -188,7 +188,7 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
     @NotNull DataBuf.Mutable target
   ) {
     // append the information
-    target.writeString(handler.getKey());
+    target.writeString(handler.key());
     // write the data
     var buf = DataBuf.empty();
     handler.serialize(buf, data);

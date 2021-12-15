@@ -25,13 +25,7 @@ import java.nio.file.Path;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-final class FileContentStreamProvider implements ContentStreamProvider {
-
-  private final Path workingDirectory;
-
-  public FileContentStreamProvider(Path workingDirectory) {
-    this.workingDirectory = workingDirectory;
-  }
+record FileContentStreamProvider(@NotNull Path workingDirectory) implements ContentStreamProvider {
 
   @Override
   public @Nullable StreamableContent provideContent(@NotNull String path) {

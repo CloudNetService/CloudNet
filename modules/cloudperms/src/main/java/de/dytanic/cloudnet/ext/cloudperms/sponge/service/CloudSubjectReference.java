@@ -17,35 +17,21 @@
 package de.dytanic.cloudnet.ext.cloudperms.sponge.service;
 
 import java.util.concurrent.CompletableFuture;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.SubjectReference;
 
-public final class CloudSubjectReference implements SubjectReference {
-
-  private final String collectionId;
-  private final String subjectId;
-
-  private final PermissionService permsService;
-
-  public CloudSubjectReference(String collectionId, String subjectId, PermissionService permsService) {
-    this.collectionId = collectionId;
-    this.subjectId = subjectId;
-    this.permsService = permsService;
-  }
-
-  @Override
-  public String collectionIdentifier() {
-    return this.collectionId;
-  }
-
-  @Override
-  public String subjectIdentifier() {
-    return this.subjectId;
-  }
+public record CloudSubjectReference(
+  @NotNull String collectionIdentifier,
+  @NotNull String subjectIdentifier,
+  @NotNull PermissionService permsService
+) implements SubjectReference {
 
   @Override
   public CompletableFuture<? extends Subject> resolve() {
-    return this.permsService.loadCollection(this.collectionId).thenCompose(col -> col.loadSubject(this.subjectId));
+    return this.permsService
+      .loadCollection(this.collectionIdentifier)
+      .thenCompose(col -> col.loadSubject(this.subjectIdentifier));
   }
 }

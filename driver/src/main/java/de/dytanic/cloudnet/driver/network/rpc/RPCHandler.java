@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.driver.network.rpc;
 
 import de.dytanic.cloudnet.driver.network.rpc.defaults.MethodInformation;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.UnknownNullability;
 
 public interface RPCHandler extends RPCProvider {
 
@@ -31,10 +32,10 @@ public interface RPCHandler extends RPCProvider {
 
     boolean wasSuccessful();
 
-    Object getInvocationResult();
+    @UnknownNullability Object invocationResult();
 
-    @NotNull RPCHandler getHandler();
+    @NotNull RPCHandler invocationHandler();
 
-    @NotNull MethodInformation getTargetMethodInformation();
+    @NotNull MethodInformation targetMethodInformation();
   }
 }

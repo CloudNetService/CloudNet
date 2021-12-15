@@ -216,8 +216,8 @@ public final class CommandSyncProxy {
       for (var tabList : syncProxyTabListConfiguration.getEntries()) {
         source.sendMessage(
           "- " + index++,
-          "Header: " + tabList.getHeader(),
-          "Footer: " + tabList.getFooter()
+          "Header: " + tabList.header(),
+          "Footer: " + tabList.footer()
         );
       }
     }

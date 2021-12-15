@@ -21,30 +21,14 @@ import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class LabyModPlayerOptions {
-
-  protected final String version;
-  protected final long creationTime;
-  protected final UUID joinSecret;
-  protected final long lastJoinSecretRedeem;
-  protected final UUID spectateSecret;
-  protected final long lastSpectateSecretRedeem;
-
-  protected LabyModPlayerOptions(
-    @NotNull String version,
-    long creationTime,
-    @Nullable UUID joinSecret,
-    long lastJoinSecretRedeem,
-    @Nullable UUID spectateSecret,
-    long lastSpectateSecretRedeem
-  ) {
-    this.version = version;
-    this.creationTime = creationTime;
-    this.joinSecret = joinSecret;
-    this.lastJoinSecretRedeem = lastJoinSecretRedeem;
-    this.spectateSecret = spectateSecret;
-    this.lastSpectateSecretRedeem = lastSpectateSecretRedeem;
-  }
+public record LabyModPlayerOptions(
+  @NotNull String version,
+  long creationTime,
+  @Nullable UUID joinSecret,
+  long lastJoinSecretRedeem,
+  @Nullable UUID spectateSecret,
+  long lastSpectateSecretRedeem
+) {
 
   public static @NotNull Builder builder() {
     return new Builder();
@@ -52,36 +36,12 @@ public class LabyModPlayerOptions {
 
   public static @NotNull Builder builder(@NotNull LabyModPlayerOptions playerOptions) {
     return builder()
-      .version(playerOptions.getVersion())
-      .creationTime(playerOptions.getCreationTime())
-      .joinSecret(playerOptions.getJoinSecret())
-      .joinRedeemTime(playerOptions.getLastJoinSecretRedeem())
-      .spectateSecret(playerOptions.getSpectateSecret())
-      .spectateRedeemTime(playerOptions.getLastSpectateSecretRedeem());
-  }
-
-  public @NotNull String getVersion() {
-    return this.version;
-  }
-
-  public long getCreationTime() {
-    return this.creationTime;
-  }
-
-  public @Nullable UUID getJoinSecret() {
-    return this.joinSecret;
-  }
-
-  public long getLastJoinSecretRedeem() {
-    return this.lastJoinSecretRedeem;
-  }
-
-  public @Nullable UUID getSpectateSecret() {
-    return this.spectateSecret;
-  }
-
-  public long getLastSpectateSecretRedeem() {
-    return this.lastSpectateSecretRedeem;
+      .version(playerOptions.version())
+      .creationTime(playerOptions.creationTime())
+      .joinSecret(playerOptions.joinSecret())
+      .joinRedeemTime(playerOptions.lastJoinSecretRedeem())
+      .spectateSecret(playerOptions.spectateSecret())
+      .spectateRedeemTime(playerOptions.lastSpectateSecretRedeem());
   }
 
   public static class Builder {

@@ -26,25 +26,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
-public final class FunctionalDocProperty<E> implements DocProperty<E> {
-
-  private final Function<IDocument<?>, E> reader;
-  private final BiConsumer<E, IDocument<?>> writer;
-
-  private final Consumer<IDocument<?>> remover;
-  private final Predicate<IDocument<?>> containsTester;
-
-  public FunctionalDocProperty(
-    @NotNull Function<IDocument<?>, E> reader,
-    @NotNull BiConsumer<E, IDocument<?>> writer,
-    @NotNull Consumer<IDocument<?>> remover,
-    @NotNull Predicate<IDocument<?>> containsTester
-  ) {
-    this.reader = reader;
-    this.writer = writer;
-    this.remover = remover;
-    this.containsTester = containsTester;
-  }
+public record FunctionalDocProperty<E>(
+  @NotNull Function<IDocument<?>, E> reader,
+  @NotNull BiConsumer<E, IDocument<?>> writer,
+  @NotNull Consumer<IDocument<?>> remover,
+  @NotNull Predicate<IDocument<?>> containsTester
+) implements DocProperty<E> {
 
   public static @NotNull <E> Builder<E> builder() {
     return new Builder<>();

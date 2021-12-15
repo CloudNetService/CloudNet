@@ -58,7 +58,7 @@ public final class CloudflareStartAndStopListener {
           .info(I18n.trans("module-cloudflare-create-dns-record-for-service")
             .replace("%service%", event.getService().getServiceId().name())
             .replace("%domain%", entry.getDomainName())
-            .replace("%recordId%", recordDetail.getId())
+            .replace("%recordId%", recordDetail.id())
           );
       }
     });
@@ -73,7 +73,7 @@ public final class CloudflareStartAndStopListener {
             .info(I18n.trans("module-cloudflare-delete-dns-record-for-service")
               .replace("%service%", event.getService().getServiceId().name())
               .replace("%domain%", entry.getDomainName())
-              .replace("%recordId%", detail.getId())
+              .replace("%recordId%", detail.id())
             );
         }
       });

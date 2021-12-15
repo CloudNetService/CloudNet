@@ -21,20 +21,12 @@ import java.util.ArrayList;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
 
-public class ItemLayout {
-
-  private final String material;
-  private final int subId;
-
-  private final String displayName;
-  private final List<String> lore;
-
-  protected ItemLayout(String material, int subId, String displayName, List<String> lore) {
-    this.material = material;
-    this.subId = subId;
-    this.displayName = displayName;
-    this.lore = lore;
-  }
+public record ItemLayout(
+  @NotNull String material,
+  int subId,
+  @NotNull String displayName,
+  @NotNull List<String> lore
+) {
 
   public static @NotNull Builder builder() {
     return new Builder();
@@ -42,26 +34,10 @@ public class ItemLayout {
 
   public static @NotNull Builder builder(@NotNull ItemLayout layout) {
     return builder()
-      .material(layout.getMaterial())
-      .subId(layout.getSubId())
-      .displayName(layout.getDisplayName())
-      .lore(layout.getLore());
-  }
-
-  public @NotNull String getMaterial() {
-    return this.material;
-  }
-
-  public int getSubId() {
-    return this.subId;
-  }
-
-  public @NotNull String getDisplayName() {
-    return this.displayName;
-  }
-
-  public @NotNull List<String> getLore() {
-    return this.lore;
+      .material(layout.material())
+      .subId(layout.subId())
+      .displayName(layout.displayName())
+      .lore(layout.lore());
   }
 
   public static class Builder {

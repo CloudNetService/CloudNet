@@ -82,7 +82,7 @@ public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
         new UUID(ThreadLocalRandom.current().nextLong(), 0),
         this.npc.getDisplayName(),
         this.npc.getProfileProperties().stream()
-          .map(prop -> new Property(prop.getName(), prop.getValue(), prop.getSignature()))
+          .map(prop -> new Property(prop.name(), prop.value(), prop.signature()))
           .collect(Collectors.toSet())
       ))
       .location(this.npcLocation)

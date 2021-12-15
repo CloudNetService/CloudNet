@@ -29,7 +29,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
-public final class QuestionAnswerType<T> {
+public record QuestionAnswerType<T>(
+  @NotNull Parser<T> parser,
+  @Nullable String recommendation,
+  @NotNull Supplier<Collection<String>> possibleResults,
+  @NotNull Collection<BiConsumer<QuestionAnswerType<T>, T>> resultListener,
+  @NotNull BiFunction<QuestionAnswerType<?>, String, String> invalidInputSupplier
+) {
 
   private static final BiFunction<QuestionAnswerType<?>, String, String> DEFAULT_INVALID_SUPPLIER = (type, $) -> {
     // check if there are possible results
@@ -41,26 +47,6 @@ public final class QuestionAnswerType<T> {
     }
   };
 
-  private final Parser<T> parser;
-  private final String recommendation;
-  private final Supplier<Collection<String>> possibleResults;
-  private final Collection<BiConsumer<QuestionAnswerType<T>, T>> resultListener;
-  private final BiFunction<QuestionAnswerType<?>, String, String> invalidInputSupplier;
-
-  private QuestionAnswerType(
-    @NotNull Parser<T> parser,
-    @Nullable String recommendation,
-    @NotNull Supplier<Collection<String>> possibleResults,
-    @NotNull Collection<BiConsumer<QuestionAnswerType<T>, T>> resultListener,
-    @NotNull BiFunction<QuestionAnswerType<?>, String, String> invalidInputSupplier
-  ) {
-    this.parser = parser;
-    this.recommendation = recommendation;
-    this.possibleResults = possibleResults;
-    this.resultListener = resultListener;
-    this.invalidInputSupplier = invalidInputSupplier;
-  }
-
   public static @NotNull <T> Builder<T> builder() {
     return new Builder<>();
   }
@@ -68,10 +54,6 @@ public final class QuestionAnswerType<T> {
   @Unmodifiable
   public @NotNull Collection<String> getPossibleAnswers() {
     return this.possibleResults.get();
-  }
-
-  public @Nullable String getRecommendation() {
-    return this.recommendation;
   }
 
   public @NotNull String getInvalidInputMessage(@NotNull String inputLine) {

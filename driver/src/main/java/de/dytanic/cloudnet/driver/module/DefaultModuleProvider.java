@@ -170,7 +170,7 @@ public class DefaultModuleProvider implements IModuleProvider {
       var repositories = this.collectModuleProvidedRepositories(moduleConfiguration);
       var dependencies = this.loadDependencies(repositories, moduleConfiguration);
       // create the class loader for the module
-      var loader = new FinalizeURLClassLoader(url, dependencies.getFirst());
+      var loader = new FinalizeURLClassLoader(url, dependencies.first());
       loader.registerGlobally();
       // try to load and create the main class instance
       var mainModuleClass = loader.loadClass(moduleConfiguration.getMainClass());
@@ -184,7 +184,7 @@ public class DefaultModuleProvider implements IModuleProvider {
       // create an instance of the class and the main module wrapper
       var moduleInstance = (IModule) mainModuleClass.getConstructor().newInstance();
       IModuleWrapper moduleWrapper = new DefaultModuleWrapper(url, moduleInstance, dataDirectory,
-        this, loader, dependencies.getSecond(), moduleConfiguration);
+        this, loader, dependencies.second(), moduleConfiguration);
       // initialize the module instance now
       moduleInstance.init(loader, moduleWrapper, moduleConfiguration);
       // register the module, load it and return the created wrapper

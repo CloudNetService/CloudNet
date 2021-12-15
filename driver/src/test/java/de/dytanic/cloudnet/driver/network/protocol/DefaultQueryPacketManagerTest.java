@@ -33,13 +33,13 @@ public class DefaultQueryPacketManagerTest {
     var mockedPacket = this.mockUniqueIdAblePacket();
     QueryPacketManager manager = new DefaultQueryPacketManager(Mockito.mock(INetworkChannel.class));
 
-    manager.sendQueryPacket(mockedPacket.getFirst());
+    manager.sendQueryPacket(mockedPacket.first());
 
-    Assertions.assertTrue(manager.hasWaitingHandler(mockedPacket.getSecond().get()));
-    Assertions.assertNotNull(manager.getWaitingHandlers().get(mockedPacket.getSecond().get()));
+    Assertions.assertTrue(manager.hasWaitingHandler(mockedPacket.second().get()));
+    Assertions.assertNotNull(manager.getWaitingHandlers().get(mockedPacket.second().get()));
 
-    Assertions.assertTrue(manager.unregisterWaitingHandler(mockedPacket.getSecond().get()));
-    Assertions.assertFalse(manager.hasWaitingHandler(mockedPacket.getSecond().get()));
+    Assertions.assertTrue(manager.unregisterWaitingHandler(mockedPacket.second().get()));
+    Assertions.assertFalse(manager.hasWaitingHandler(mockedPacket.second().get()));
   }
 
   @Test
@@ -48,9 +48,9 @@ public class DefaultQueryPacketManagerTest {
     var mockedPacket = this.mockUniqueIdAblePacket();
     QueryPacketManager manager = new DefaultQueryPacketManager(Mockito.mock(INetworkChannel.class));
 
-    manager.sendQueryPacket(mockedPacket.getFirst(), uniqueId);
+    manager.sendQueryPacket(mockedPacket.first(), uniqueId);
 
-    Assertions.assertEquals(uniqueId, mockedPacket.getSecond().get());
+    Assertions.assertEquals(uniqueId, mockedPacket.second().get());
     Assertions.assertTrue(manager.hasWaitingHandler(uniqueId));
     Assertions.assertNotNull(manager.getWaitingHandlers().get(uniqueId));
 
@@ -63,10 +63,10 @@ public class DefaultQueryPacketManagerTest {
     var mockedPacket = this.mockUniqueIdAblePacket();
     QueryPacketManager manager = new DefaultQueryPacketManager(Mockito.mock(INetworkChannel.class));
 
-    var task = manager.sendQueryPacket(mockedPacket.getFirst());
+    var task = manager.sendQueryPacket(mockedPacket.first());
 
-    Assertions.assertEquals(task, manager.getWaitingHandler(mockedPacket.getSecond().get()));
-    Assertions.assertFalse(manager.hasWaitingHandler(mockedPacket.getSecond().get()));
+    Assertions.assertEquals(task, manager.getWaitingHandler(mockedPacket.second().get()));
+    Assertions.assertFalse(manager.hasWaitingHandler(mockedPacket.second().get()));
   }
 
   @Test
@@ -75,13 +75,13 @@ public class DefaultQueryPacketManagerTest {
     var mockedPacket = this.mockUniqueIdAblePacket();
     QueryPacketManager manager = new DefaultQueryPacketManager(Mockito.mock(INetworkChannel.class), 2000);
 
-    var task = manager.sendQueryPacket(mockedPacket.getFirst());
-    Assertions.assertTrue(manager.hasWaitingHandler(mockedPacket.getSecond().get()));
+    var task = manager.sendQueryPacket(mockedPacket.first());
+    Assertions.assertTrue(manager.hasWaitingHandler(mockedPacket.second().get()));
 
     Thread.sleep(2500);
 
-    Assertions.assertNull(manager.getWaitingHandler(mockedPacket.getSecond().get()));
-    manager.sendQueryPacket(mockedPacket.getFirst());
+    Assertions.assertNull(manager.getWaitingHandler(mockedPacket.second().get()));
+    manager.sendQueryPacket(mockedPacket.first());
 
     Assertions.assertTrue(task.isDone());
   }

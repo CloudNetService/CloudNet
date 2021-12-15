@@ -24,32 +24,14 @@ import kong.unirest.UnirestException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class PasteService implements INameable {
+public record PasteService(@NotNull String name, @NotNull String serviceUrl) implements INameable {
 
   public static final PasteService FALLBACK = new PasteService("fallback", "https://just-paste.it");
   private static final Logger LOGGER = LogManager.getLogger(PasteService.class);
 
-  private final String name;
-  private final String serviceUrl;
-
   public PasteService(@NotNull String name, @NotNull String serviceUrl) {
     this.name = name;
     this.serviceUrl = serviceUrl.endsWith("/") ? serviceUrl.substring(0, serviceUrl.length() - 1) : serviceUrl;
-  }
-
-  /**
-   * @return the name of this PasteService - the user can use this to decide where to upload a paste
-   */
-  @Override
-  public @NotNull String name() {
-    return this.name;
-  }
-
-  /**
-   * @return the url of the service without trailing '/'
-   */
-  public @NotNull String getServiceUrl() {
-    return this.serviceUrl;
   }
 
   /**

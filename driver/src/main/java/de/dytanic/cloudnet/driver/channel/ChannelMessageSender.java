@@ -21,25 +21,13 @@ import de.dytanic.cloudnet.driver.DriverEnvironment;
 import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget.Type;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
-@ToString
-@EqualsAndHashCode
-public class ChannelMessageSender {
+public record ChannelMessageSender(@NotNull String name, @NotNull DriverEnvironment type) {
 
   private static final ChannelMessageSender SELF = of(
     CloudNetDriver.getInstance().getComponentName(),
     CloudNetDriver.getInstance().getDriverEnvironment());
-
-  private final String name;
-  private final DriverEnvironment type;
-
-  protected ChannelMessageSender(@NotNull String name, @NotNull DriverEnvironment type) {
-    this.name = name;
-    this.type = type;
-  }
 
   public static @NotNull ChannelMessageSender of(@NotNull String name, @NotNull DriverEnvironment environment) {
     return new ChannelMessageSender(name, environment);
@@ -47,14 +35,6 @@ public class ChannelMessageSender {
 
   public static @NotNull ChannelMessageSender self() {
     return SELF;
-  }
-
-  public @NotNull String getName() {
-    return this.name;
-  }
-
-  public @NotNull DriverEnvironment getType() {
-    return this.type;
   }
 
   public boolean is(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {

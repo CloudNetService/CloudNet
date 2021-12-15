@@ -45,7 +45,7 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
           var clusterId = content.readUniqueId();
           var node = content.readObject(NetworkClusterNode.class);
           // check if the cluster id matches
-          if (!CloudNet.getInstance().getConfig().getClusterConfig().getClusterId().equals(clusterId)) {
+          if (!CloudNet.getInstance().getConfig().getClusterConfig().clusterId().equals(clusterId)) {
             break;
           }
           // search for the node server which represents the connected node and initialize it

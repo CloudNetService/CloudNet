@@ -155,9 +155,9 @@ public class NodePlayerManager implements IPlayerManager {
     return this.onlinePlayers.values()
       .stream()
       .filter(cloudPlayer ->
-        (cloudPlayer.getLoginService() != null && cloudPlayer.getLoginService().getEnvironment() == environment)
+        (cloudPlayer.getLoginService() != null && cloudPlayer.getLoginService().environment() == environment)
           || (cloudPlayer.getConnectedService() != null
-          && cloudPlayer.getConnectedService().getEnvironment() == environment))
+          && cloudPlayer.getConnectedService().environment() == environment))
       .collect(Collectors.toList());
   }
 
@@ -170,16 +170,16 @@ public class NodePlayerManager implements IPlayerManager {
   public @NotNull PlayerProvider taskOnlinePlayers(@NotNull String task) {
     return new NodePlayerProvider(() -> this.onlinePlayers.values()
       .stream()
-      .filter(cloudPlayer -> cloudPlayer.getConnectedService().getTaskName().equalsIgnoreCase(task)
-        || cloudPlayer.getLoginService().getTaskName().equalsIgnoreCase(task)));
+      .filter(cloudPlayer -> cloudPlayer.getConnectedService().taskName().equalsIgnoreCase(task)
+        || cloudPlayer.getLoginService().taskName().equalsIgnoreCase(task)));
   }
 
   @Override
   public @NotNull PlayerProvider groupOnlinePlayers(@NotNull String group) {
     return new NodePlayerProvider(() -> this.onlinePlayers.values()
       .stream()
-      .filter(cloudPlayer -> cloudPlayer.getConnectedService().getGroups().contains(group)
-        || cloudPlayer.getLoginService().getGroups().contains(group)));
+      .filter(cloudPlayer -> cloudPlayer.getConnectedService().groups().contains(group)
+        || cloudPlayer.getLoginService().groups().contains(group)));
   }
 
   @Override
@@ -312,7 +312,7 @@ public class NodePlayerManager implements IPlayerManager {
     var networkService = networkPlayerProxyInfo.networkService();
     var cloudPlayer = this.selectPlayerForLogin(networkPlayerProxyInfo, networkPlayerServerInfo);
     // check if the login service is a proxy and set the proxy as the login service if so
-    if (ServiceEnvironmentType.isMinecraftProxy(networkService.getServiceId().getEnvironment())) {
+    if (ServiceEnvironmentType.isMinecraftProxy(networkService.serviceId().getEnvironment())) {
       // a proxy should be able to change the login service
       cloudPlayer.setLoginService(networkService);
     }
@@ -342,7 +342,7 @@ public class NodePlayerManager implements IPlayerManager {
       for (var player : this.getOnlinePlayers().values()) {
         if (player.name().equals(connectionInfo.name())
           && player.getLoginService() != null
-          && player.getLoginService().getUniqueId().equals(connectionInfo.networkService().getUniqueId())) {
+          && player.getLoginService().uniqueId().equals(connectionInfo.networkService().uniqueId())) {
           cloudPlayer = player;
           break;
         }
@@ -407,17 +407,17 @@ public class NodePlayerManager implements IPlayerManager {
           var loginService = registeredPlayer.getLoginService();
           // check if we already know the same service
           if (!Objects.equals(newLoginService, loginService)
-            && ServiceEnvironmentType.isMinecraftProxy(newLoginService.getEnvironment())
-            && (loginService == null || !ServiceEnvironmentType.isMinecraftProxy(loginService.getEnvironment()))) {
+            && ServiceEnvironmentType.isMinecraftProxy(newLoginService.environment())
+            && (loginService == null || !ServiceEnvironmentType.isMinecraftProxy(loginService.environment()))) {
             cloudPlayer.setLoginService(newLoginService);
             needsUpdate = true;
           }
         }
         // check if the player has a known connected service which is not a proxy
         if (cloudPlayer.getConnectedService() != null
-          && ServiceEnvironmentType.isMinecraftProxy(cloudPlayer.getConnectedService().getEnvironment())) {
+          && ServiceEnvironmentType.isMinecraftProxy(cloudPlayer.getConnectedService().environment())) {
           var connectedService = registeredPlayer.getConnectedService();
-          if (connectedService != null && ServiceEnvironmentType.isMinecraftServer(connectedService.getEnvironment())) {
+          if (connectedService != null && ServiceEnvironmentType.isMinecraftServer(connectedService.environment())) {
             cloudPlayer.setConnectedService(connectedService);
             needsUpdate = true;
           }

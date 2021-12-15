@@ -214,9 +214,9 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
     int onlinePlayers,
     int maxPlayers
   ) {
-    var header = SyncProxyTabList.replaceTabListItem(tabList.getHeader(), this.getPlayerUniqueId(player),
+    var header = SyncProxyTabList.replaceTabListItem(tabList.header(), this.getPlayerUniqueId(player),
       onlinePlayers, maxPlayers);
-    var footer = SyncProxyTabList.replaceTabListItem(tabList.getFooter(), this.getPlayerUniqueId(player),
+    var footer = SyncProxyTabList.replaceTabListItem(tabList.footer(), this.getPlayerUniqueId(player),
       onlinePlayers, maxPlayers);
 
     this.setPlayerTabList(player, header, footer);

@@ -69,7 +69,7 @@ public class CloudNetNPCModule extends DriverModule {
                 this.convertItemLayout(entry.getFullItem())))
               .fixedItems(entry.getInventoryLayout().entrySet().stream()
                 .map(mapEntry -> new Pair<>(mapEntry.getKey(), this.convertItemLayout(mapEntry.getValue())))
-                .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond)))
+                .collect(Collectors.toMap(Pair::first, Pair::second)))
               .showFullServices(entry.isShowFullServices())
               .inventorySize(entry.getInventorySize())
               .build())

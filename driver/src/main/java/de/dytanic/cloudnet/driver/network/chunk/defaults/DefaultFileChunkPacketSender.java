@@ -59,7 +59,7 @@ public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider i
   public @NotNull ITask<TransferStatus> transferChunkedData() {
     return CompletableTask.supply(() -> {
       var readCalls = 0;
-      var backingArray = new byte[this.chunkSessionInformation.getChunkSize()];
+      var backingArray = new byte[this.chunkSessionInformation.chunkSize()];
 
       while (true) {
         var bytesRead = this.source.read(backingArray);
@@ -76,7 +76,7 @@ public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider i
           // close the stream after reading the final chunk
           this.source.close();
           // release the extra content now
-          this.chunkSessionInformation.getTransferInformation().enableReleasing().release();
+          this.chunkSessionInformation.transferInformation().enableReleasing().release();
           // successful transfer
           return TransferStatus.SUCCESS;
         }

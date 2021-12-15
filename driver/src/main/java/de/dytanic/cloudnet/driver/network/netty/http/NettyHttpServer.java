@@ -39,9 +39,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class NettyHttpServer extends NettySSLServer implements IHttpServer {
 
@@ -53,7 +52,7 @@ public class NettyHttpServer extends NettySSLServer implements IHttpServer {
   protected final EventLoopGroup bossGroup = NettyUtils.newEventLoopGroup();
   protected final EventLoopGroup workerGroup = NettyUtils.newEventLoopGroup();
 
-  public NettyHttpServer() throws Exception {
+  public NettyHttpServer() {
     this(null);
   }
 
@@ -201,7 +200,7 @@ public class NettyHttpServer extends NettySSLServer implements IHttpServer {
   @Override
   public void close() {
     for (var entry : this.channelFutures.values()) {
-      entry.getSecond().cancel(true);
+      entry.second().cancel(true);
     }
 
     this.bossGroup.shutdownGracefully();
@@ -209,27 +208,15 @@ public class NettyHttpServer extends NettySSLServer implements IHttpServer {
     this.clearHandlers();
   }
 
-  @ToString
-  @EqualsAndHashCode
-  public static class HttpHandlerEntry implements Comparable<HttpHandlerEntry> {
-
-    public final String path;
-    public final Integer port;
-    public final int priority;
-
-    public final IHttpHandler httpHandler;
-
-    public HttpHandlerEntry(String path, IHttpHandler httpHandler, Integer port, int priority) {
-      this.path = path;
-      this.httpHandler = httpHandler;
-      this.port = port;
-      this.priority = priority;
-    }
+  public record HttpHandlerEntry(
+    @NotNull String path,
+    @NotNull IHttpHandler httpHandler,
+    @Nullable Integer port,
+    int priority
+  ) implements Comparable<HttpHandlerEntry> {
 
     @Override
     public int compareTo(@NotNull HttpHandlerEntry httpHandlerEntry) {
-      Preconditions.checkNotNull(httpHandlerEntry);
-
       return this.priority + httpHandlerEntry.priority;
     }
   }

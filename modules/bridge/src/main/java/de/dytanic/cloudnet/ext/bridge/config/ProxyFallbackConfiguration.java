@@ -17,39 +17,13 @@
 package de.dytanic.cloudnet.ext.bridge.config;
 
 import java.util.List;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@ToString
-@EqualsAndHashCode
-public final class ProxyFallbackConfiguration {
+public record ProxyFallbackConfiguration(
+  @NotNull String targetGroup,
+  @Nullable String defaultFallbackTask,
+  @NotNull List<ProxyFallback> fallbacks
+) {
 
-  private final String targetGroup;
-  private final String defaultFallbackTask;
-
-  private final List<ProxyFallback> fallbacks;
-
-  public ProxyFallbackConfiguration(
-    @NotNull String targetGroup,
-    @Nullable String defaultFallbackTask,
-    @NotNull List<ProxyFallback> fallbacks
-  ) {
-    this.targetGroup = targetGroup;
-    this.defaultFallbackTask = defaultFallbackTask;
-    this.fallbacks = fallbacks;
-  }
-
-  public @NotNull String getTargetGroup() {
-    return this.targetGroup;
-  }
-
-  public @Nullable String getDefaultFallbackTask() {
-    return this.defaultFallbackTask;
-  }
-
-  public @NotNull List<ProxyFallback> getFallbacks() {
-    return this.fallbacks;
-  }
 }

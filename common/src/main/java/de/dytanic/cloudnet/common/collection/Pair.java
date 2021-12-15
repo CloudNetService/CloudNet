@@ -16,8 +16,6 @@
 
 package de.dytanic.cloudnet.common.collection;
 
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import org.jetbrains.annotations.UnknownNullability;
 
 /**
@@ -28,34 +26,6 @@ import org.jetbrains.annotations.UnknownNullability;
  * @param <F> the first type, which you want to define
  * @param <S> the second type which you want to define
  */
-@ToString
-@EqualsAndHashCode
-public class Pair<F, S> {
+public record Pair<F, S>(@UnknownNullability F first, @UnknownNullability S second) {
 
-  /**
-   * The reference of the first value and the type of F
-   *
-   * @see F
-   */
-  protected final F first;
-
-  /**
-   * The reference of the second value and the type of S
-   *
-   * @see S
-   */
-  protected final S second;
-
-  public Pair(@UnknownNullability F first, @UnknownNullability S second) {
-    this.first = first;
-    this.second = second;
-  }
-
-  public @UnknownNullability F getFirst() {
-    return this.first;
-  }
-
-  public @UnknownNullability S getSecond() {
-    return this.second;
-  }
 }

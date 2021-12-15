@@ -26,11 +26,11 @@ public final class TemplateStorageCallbackListener {
 
   @EventListener
   public void handle(@NotNull ChunkedPacketSessionOpenEvent event) {
-    if (event.getSession().getTransferChannel().equals("request_template_file_result")) {
+    if (event.getSession().transferChannel().equals("request_template_file_result")) {
       event.setHandler(new DefaultFileChunkedPacketHandler(
         event.getSession(),
         null,
-        FileUtils.TEMP_DIR.resolve(event.getSession().getSessionUniqueId().toString())));
+        FileUtils.TEMP_DIR.resolve(event.getSession().sessionUniqueId().toString())));
     }
   }
 }
