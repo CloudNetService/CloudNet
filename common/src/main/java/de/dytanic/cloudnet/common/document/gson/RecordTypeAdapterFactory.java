@@ -45,7 +45,7 @@ final class RecordTypeAdapterFactory implements TypeAdapterFactory {
     }
 
     // get the delegate adapter which would be responsible normally
-    TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
+    var delegate = gson.getDelegateAdapter(this, type);
     return new RecordTypeAdapter<>(gson, delegate, type.getRawType());
   }
 
@@ -109,7 +109,7 @@ final class RecordTypeAdapterFactory implements TypeAdapterFactory {
         return null;
       } else {
         // the resulting arguments
-        Object[] arguments = new Object[this.componentTypes.size()];
+        var arguments = new Object[this.componentTypes.size()];
 
         // read the full object
         in.beginObject();
@@ -127,7 +127,7 @@ final class RecordTypeAdapterFactory implements TypeAdapterFactory {
 
         // validate the arguments
         for (int i = 0; i < arguments.length; i++) {
-          Class<?> argumentType = this.recordComponentTypes[i];
+          var argumentType = this.recordComponentTypes[i];
           if (argumentType.isPrimitive() && arguments[i] == null) {
             // the entry is missing the json object - use the default one
             arguments[i] = Defaults.defaultValue(argumentType);
