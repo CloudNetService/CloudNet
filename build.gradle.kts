@@ -63,6 +63,9 @@ subprojects {
 
   tasks.withType<Test> {
     useJUnitPlatform()
+    testLogging {
+      events("started", "passed", "skipped", "failed")
+    }
   }
 
   tasks.withType<JavaCompile> {
