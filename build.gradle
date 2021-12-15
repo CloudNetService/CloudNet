@@ -61,15 +61,9 @@ allprojects {
     }
 
     maven {
-      name 'vault'
-      url 'https://repo.md-5.net/repository/releases'
-    }
-
-    maven {
       name 'jitpack.io'
       url 'https://jitpack.io'
     }
-
   }
 
   project.ext {
