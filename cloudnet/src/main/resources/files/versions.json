@@ -8,7 +8,8 @@
         "PAPER_API",
         "DOWNLOAD",
         "BUILD",
-        "COPY_FILTER"
+        "COPY_FILTER",
+        "ZIP_FILE_FILTER"
       ],
       "website": "https://papermc.io",
       "versions": [
