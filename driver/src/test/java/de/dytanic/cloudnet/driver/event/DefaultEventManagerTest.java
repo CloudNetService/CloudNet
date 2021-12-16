@@ -25,6 +25,7 @@ import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -73,6 +74,7 @@ public class DefaultEventManagerTest {
 
   @Test
   @Order(10)
+  @Disabled("https://github.com/raphw/byte-buddy/issues/1175 & https://gitlab.ow2.org/asm/asm/-/issues/317959")
   void testEventCall() {
     IEventManager eventManager = new DefaultEventManager();
     eventManager.registerListener(new TestListener());
