@@ -160,7 +160,7 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
     if (ServiceEnvironmentType.isMinecraftProxy(snapshot.getServiceId().getEnvironment())
       && this.checkServiceGroup(snapshot)) {
       this.proxyOnlineCountCache.put(snapshot.getServiceId().getUniqueId(),
-        BridgeServiceProperties.MAX_PLAYERS.get(snapshot).orElse(0));
+        BridgeServiceProperties.ONLINE_COUNT.get(snapshot).orElse(0));
       this.updateTabList();
     }
   }
