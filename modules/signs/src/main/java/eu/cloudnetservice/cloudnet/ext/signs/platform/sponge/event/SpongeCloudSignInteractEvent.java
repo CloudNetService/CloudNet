@@ -40,23 +40,23 @@ public class SpongeCloudSignInteractEvent implements Event, Cancellable {
     this.cause = cause;
     this.player = player;
     this.sign = sign;
-    this.target = sign.getCurrentTarget();
+    this.target = sign.currentTarget();
     this.cancelled = cancelled;
   }
 
-  public @NotNull ServerPlayer getPlayer() {
+  public @NotNull ServerPlayer player() {
     return this.player;
   }
 
-  public @NotNull Sign getSign() {
+  public @NotNull Sign sign() {
     return this.sign;
   }
 
-  public @NotNull Optional<ServiceInfoSnapshot> getTarget() {
+  public @NotNull Optional<ServiceInfoSnapshot> target() {
     return Optional.ofNullable(this.target);
   }
 
-  public void setTarget(@Nullable ServiceInfoSnapshot target) {
+  public void target(@Nullable ServiceInfoSnapshot target) {
     this.target = target;
   }
 

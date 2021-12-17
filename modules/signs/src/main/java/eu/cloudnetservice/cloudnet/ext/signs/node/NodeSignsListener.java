@@ -60,14 +60,14 @@ public class NodeSignsListener {
   public void handleSetupComplete(@NotNull SetupCompleteEvent event) {
     SignEntryTaskSetup.handleSetupComplete(
       event.getSetup(),
-      this.signManagement.getSignsConfiguration(),
+      this.signManagement.signsConfiguration(),
       this.signManagement);
   }
 
   @EventListener
   public void includePluginIfNecessary(@NotNull CloudServicePreLifecycleEvent event) {
     if (event.getTargetLifecycle() == ServiceLifeCycle.RUNNING) {
-      SignPluginInclusion.includePluginTo(event.getService(), this.signManagement.getSignsConfiguration());
+      SignPluginInclusion.includePluginTo(event.getService(), this.signManagement.signsConfiguration());
     }
   }
 
@@ -77,7 +77,7 @@ public class NodeSignsListener {
       switch (event.message()) {
         // config request
         case AbstractPlatformSignManagement.REQUEST_CONFIG -> event.binaryResponse(
-            DataBuf.empty().writeObject(this.signManagement.getSignsConfiguration()));
+            DataBuf.empty().writeObject(this.signManagement.signsConfiguration()));
 
         // delete all signs
         case AbstractPlatformSignManagement.SIGN_ALL_DELETE -> {
@@ -101,12 +101,12 @@ public class NodeSignsListener {
           event.binaryResponse(DataBuf.empty().writeInt(deleted));
         }
         // set the sign config
-        case AbstractPlatformSignManagement.SET_SIGN_CONFIG -> this.signManagement.setSignsConfiguration(
+        case AbstractPlatformSignManagement.SET_SIGN_CONFIG -> this.signManagement.signsConfiguration(
             event.content().readObject(SignsConfiguration.class));
 
         // get all signs of a group
         case PlatformSignManagement.SIGN_GET_SIGNS_BY_GROUPS -> {
-          var signs = this.signManagement.getSigns(event.content().readObject(String[].class));
+          var signs = this.signManagement.signs(event.content().readObject(String[].class));
           event.binaryResponse(DataBuf.empty().writeObject(signs));
         }
         // set the sign configuration without a re-publish to the cluster

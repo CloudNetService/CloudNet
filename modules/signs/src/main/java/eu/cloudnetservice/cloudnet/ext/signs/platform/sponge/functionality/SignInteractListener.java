@@ -54,7 +54,7 @@ public class SignInteractListener {
         && event.block().location().get().blockEntity().isPresent()
         && event.block().location().get().blockEntity().get() instanceof org.spongepowered.api.block.entity.Sign) {
         // get the cloud sign at the position
-        var sign = this.signManagement.getSignAt(
+        var sign = this.signManagement.signAt(
           (org.spongepowered.api.block.entity.Sign) event.block().location().get().blockEntity().get());
         if (sign != null) {
           var canConnect = this.signManagement.canConnect(sign, player::hasPermission);
@@ -64,20 +64,20 @@ public class SignInteractListener {
             player, sign, !canConnect);
           Sponge.eventManager().post(interactEvent);
 
-          if (!interactEvent.isCancelled() && interactEvent.getTarget().isPresent()) {
-            this.signManagement.getSignsConfiguration().sendMessage(
+          if (!interactEvent.isCancelled() && interactEvent.target().isPresent()) {
+            this.signManagement.signsConfiguration().sendMessage(
               "server-connecting-message",
               m -> player.sendMessage(AdventureSerializerUtil.serialize(m)),
-              m -> m.replace("%server%", interactEvent.getTarget().get().name()));
-            this.getPlayerManager().playerExecutor(player.uniqueId())
-              .connect(interactEvent.getTarget().get().name());
+              m -> m.replace("%server%", interactEvent.target().get().name()));
+            this.playerManager().playerExecutor(player.uniqueId())
+              .connect(interactEvent.target().get().name());
           }
         }
       }
     }
   }
 
-  protected @NotNull IPlayerManager getPlayerManager() {
+  protected @NotNull IPlayerManager playerManager() {
     return CloudNetDriver.instance().servicesRegistry().firstService(IPlayerManager.class);
   }
 }

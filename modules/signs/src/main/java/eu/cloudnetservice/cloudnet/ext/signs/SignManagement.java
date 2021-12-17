@@ -34,7 +34,7 @@ public interface SignManagement {
    * @param position the position the sign is located at
    * @return the sign at the given location or null if there is no sign
    */
-  @Nullable Sign getSignAt(@NotNull WorldPosition position);
+  @Nullable Sign signAt(@NotNull WorldPosition position);
 
   /**
    * Creates a new sign.
@@ -86,7 +86,7 @@ public interface SignManagement {
    *
    * @return all registered signs.
    */
-  @NotNull Collection<Sign> getSigns();
+  @NotNull Collection<Sign> signs();
 
   /**
    * Get all signs of the specified groups.
@@ -94,21 +94,21 @@ public interface SignManagement {
    * @param groups the groups the signs are created on
    * @return all signs that are created on the given groups
    */
-  @NotNull Collection<Sign> getSigns(@NotNull String[] groups);
+  @NotNull Collection<Sign> signs(@NotNull String[] groups);
 
   /**
    * Get the current sign configuration.
    *
    * @return the current sign configuration
    */
-  @NotNull SignsConfiguration getSignsConfiguration();
+  @NotNull SignsConfiguration signsConfiguration();
 
   /**
    * Sets the sign configuration and updates it to all connected components.
    *
    * @param configuration the new signs configuration.
    */
-  void setSignsConfiguration(@NotNull SignsConfiguration configuration);
+  void signsConfiguration(@NotNull SignsConfiguration configuration);
 
   // Internal methods
 

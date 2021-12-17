@@ -93,7 +93,7 @@ public final class BukkitCompatibility {
     throw new UnsupportedOperationException();
   }
 
-  public static @Nullable BlockFace getFacing(@NotNull BlockState blockState) {
+  public static @Nullable BlockFace facing(@NotNull BlockState blockState) {
     if (WALL_SIGN_CLASS != null && GET_BLOCK_DATA != null && WALL_SIGN_GET_FACING != null) {
       // modern bukkit lookup is possible
       try {
@@ -115,7 +115,7 @@ public final class BukkitCompatibility {
     return null;
   }
 
-  public static void setSignGlowing(@NotNull org.bukkit.block.Sign sign, @NotNull SignLayout layout) {
+  public static void signGlowing(@NotNull org.bukkit.block.Sign sign, @NotNull SignLayout layout) {
     if (SET_GLOWING != null && SET_DYE_COLOR != null && layout.glowingColor() != null) {
       // try to find the defined dye color
       var color = Enums.getIfPresent(DyeColor.class, layout.glowingColor().toUpperCase()).orNull();

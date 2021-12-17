@@ -53,8 +53,8 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
     super(signsConfiguration);
     // get the signs for the current group
     var groups = Wrapper.getInstance().serviceConfiguration().groups().toArray(new String[0]);
-    for (var sign : this.getSigns(groups)) {
-      this.signs.put(sign.getLocation(), sign);
+    for (var sign : this.signs(groups)) {
+      this.signs.put(sign.location(), sign);
     }
   }
 
@@ -84,9 +84,9 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
    *
    * @param t the sign type extend
    * @return The sign at the given location or null if there is no sign at the given location.
-   * @see #getSignAt(WorldPosition)
+   * @see #signAt(WorldPosition)
    */
-  public abstract @Nullable Sign getSignAt(@NotNull T t);
+  public abstract @Nullable Sign signAt(@NotNull T t);
 
   /**
    * Creates a sign at the given platform sign extend location.
@@ -147,15 +147,15 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
    * @return the signs of all groups the wrapper belongs to.
    */
   @Override
-  public @NotNull Collection<Sign> getSigns() {
-    return super.getSigns();
+  public @NotNull Collection<Sign> signs() {
+    return super.signs();
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public @NotNull Collection<Sign> getSigns(@NotNull String[] groups) {
+  public @NotNull Collection<Sign> signs(@NotNull String[] groups) {
     var response = this.channelMessage(SIGN_GET_SIGNS_BY_GROUPS)
       .buffer(DataBuf.empty().writeObject(groups))
       .build()
@@ -165,7 +165,7 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
 
   @Override
   public void handleInternalSignCreate(@NotNull Sign sign) {
-    if (Wrapper.getInstance().serviceConfiguration().groups().contains(sign.getLocation().group())) {
+    if (Wrapper.getInstance().serviceConfiguration().groups().contains(sign.location().group())) {
       super.handleInternalSignCreate(sign);
     }
   }
@@ -187,9 +187,9 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
    *
    * @return a sign configuration entry from the sign configuration which targets a group the wrapper belongs to.
    */
-  public @Nullable SignConfigurationEntry getApplicableSignConfigurationEntry() {
-    for (var entry : this.signsConfiguration.getConfigurationEntries()) {
-      if (Wrapper.getInstance().serviceConfiguration().groups().contains(entry.getTargetGroup())) {
+  public @Nullable SignConfigurationEntry applicableSignConfigurationEntry() {
+    for (var entry : this.signsConfiguration.configurationEntries()) {
+      if (Wrapper.getInstance().serviceConfiguration().groups().contains(entry.targetGroup())) {
         return entry;
       }
     }

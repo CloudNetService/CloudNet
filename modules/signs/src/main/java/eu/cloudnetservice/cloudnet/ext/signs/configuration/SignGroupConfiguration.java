@@ -27,27 +27,31 @@ public class SignGroupConfiguration implements Cloneable {
   public SignGroupConfiguration() {
   }
 
-  public SignGroupConfiguration(String targetGroup, SignLayoutsHolder emptyLayout, SignLayoutsHolder onlineLayout,
-    SignLayoutsHolder fullLayout) {
+  public SignGroupConfiguration(
+    String targetGroup,
+    SignLayoutsHolder emptyLayout,
+    SignLayoutsHolder onlineLayout,
+    SignLayoutsHolder fullLayout
+  ) {
     this.targetGroup = targetGroup;
     this.emptyLayout = emptyLayout;
     this.onlineLayout = onlineLayout;
     this.fullLayout = fullLayout;
   }
 
-  public String getTargetGroup() {
+  public String targetGroup() {
     return this.targetGroup;
   }
 
-  public SignLayoutsHolder getEmptyLayout() {
+  public SignLayoutsHolder emptyLayout() {
     return this.emptyLayout;
   }
 
-  public SignLayoutsHolder getOnlineLayout() {
+  public SignLayoutsHolder onlineLayout() {
     return this.onlineLayout;
   }
 
-  public SignLayoutsHolder getFullLayout() {
+  public SignLayoutsHolder fullLayout() {
     return this.fullLayout;
   }
 

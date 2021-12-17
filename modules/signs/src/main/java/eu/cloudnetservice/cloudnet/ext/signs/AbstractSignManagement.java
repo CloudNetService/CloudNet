@@ -54,7 +54,7 @@ public abstract class AbstractSignManagement implements SignManagement {
    * {@inheritDoc}
    */
   @Override
-  public @Nullable Sign getSignAt(@NotNull WorldPosition position) {
+  public @Nullable Sign signAt(@NotNull WorldPosition position) {
     return this.signs.get(position);
   }
 
@@ -63,7 +63,7 @@ public abstract class AbstractSignManagement implements SignManagement {
    */
   @Override
   public void deleteSign(@NotNull Sign sign) {
-    this.deleteSign(sign.getLocation());
+    this.deleteSign(sign.location());
   }
 
   /**
@@ -78,7 +78,7 @@ public abstract class AbstractSignManagement implements SignManagement {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull Collection<Sign> getSigns() {
+  public @NotNull Collection<Sign> signs() {
     return this.signs.values();
   }
 
@@ -86,7 +86,7 @@ public abstract class AbstractSignManagement implements SignManagement {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull SignsConfiguration getSignsConfiguration() {
+  public @NotNull SignsConfiguration signsConfiguration() {
     return this.signsConfiguration;
   }
 
@@ -94,7 +94,7 @@ public abstract class AbstractSignManagement implements SignManagement {
    * {@inheritDoc}
    */
   @Override
-  public void setSignsConfiguration(@NotNull SignsConfiguration signsConfiguration) {
+  public void signsConfiguration(@NotNull SignsConfiguration signsConfiguration) {
     this.signsConfiguration = signsConfiguration;
   }
 
@@ -110,7 +110,7 @@ public abstract class AbstractSignManagement implements SignManagement {
 
   @Override
   public void handleInternalSignCreate(@NotNull Sign sign) {
-    this.signs.put(sign.getLocation(), sign);
+    this.signs.put(sign.location(), sign);
   }
 
   @Override

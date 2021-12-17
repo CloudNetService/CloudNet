@@ -49,7 +49,7 @@ public class BukkitSignsPlugin extends JavaPlugin {
 
   @Override
   public void onDisable() {
-    BukkitSignManagement.getDefaultInstance().unregisterFromServiceRegistry();
+    BukkitSignManagement.defaultInstance().unregisterFromServiceRegistry();
     CloudNetDriver.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
   }
 }

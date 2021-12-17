@@ -46,7 +46,7 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
     this.plugin = plugin;
   }
 
-  public static NukkitSignManagement getDefaultInstance() {
+  public static NukkitSignManagement defaultInstance() {
     return (NukkitSignManagement) CloudNetDriver.instance().servicesRegistry()
       .firstService(SignManagement.class);
   }
@@ -76,7 +76,7 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
   }
 
   protected void pushUpdate0(@NotNull Sign sign, @NotNull SignLayout layout) {
-    var location = this.locationFromWorldPosition(sign.getLocation());
+    var location = this.locationFromWorldPosition(sign.location());
     if (location != null && location.getLevel().isChunkLoaded(location.getChunkX(), location.getChunkZ())) {
       var blockEntity = location.getLevel().getBlockEntity(location);
       if (blockEntity instanceof BlockEntitySign entitySign) {
@@ -107,8 +107,8 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
   }
 
   @Override
-  public @Nullable Sign getSignAt(@NotNull BlockEntitySign blockEntitySign) {
-    return this.getSignAt(this.locationToWorldPosition(blockEntitySign.getLocation()));
+  public @Nullable Sign signAt(@NotNull BlockEntitySign blockEntitySign) {
+    return this.signAt(this.locationToWorldPosition(blockEntitySign.getLocation()));
   }
 
   @Override
@@ -122,12 +122,12 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
     @NotNull String group,
     @Nullable String templatePath
   ) {
-    var entry = this.getApplicableSignConfigurationEntry();
+    var entry = this.applicableSignConfigurationEntry();
     if (entry != null) {
       var sign = new Sign(
         group,
         templatePath,
-        this.locationToWorldPosition(blockEntitySign.getLocation(), entry.getTargetGroup()));
+        this.locationToWorldPosition(blockEntitySign.getLocation(), entry.targetGroup()));
       this.createSign(sign);
       return sign;
     }
@@ -155,26 +155,26 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
   @Override
   protected void startKnockbackTask() {
     Server.getInstance().getScheduler().scheduleDelayedRepeatingTask(this.plugin, () -> {
-      var entry = this.getApplicableSignConfigurationEntry();
+      var entry = this.applicableSignConfigurationEntry();
       if (entry != null) {
-        var configuration = entry.getKnockbackConfiguration();
-        if (configuration.isValidAndEnabled()) {
-          var distance = configuration.getDistance();
+        var configuration = entry.knockbackConfiguration();
+        if (configuration.validAndEnabled()) {
+          var distance = configuration.distance();
 
           for (var value : this.signs.values()) {
-            var location = this.locationFromWorldPosition(value.getLocation());
+            var location = this.locationFromWorldPosition(value.location());
             if (location != null && location.getLevel().isChunkLoaded(location.getChunkX(), location.getChunkZ())
               && location.getLevel().getBlockEntity(location) instanceof BlockEntitySign) {
               var axisAlignedBB = new SimpleAxisAlignedBB(location, location)
                 .expand(distance, distance, distance);
 
               for (var entity : location.getLevel().getNearbyEntities(axisAlignedBB)) {
-                if (entity instanceof Player && (configuration.getBypassPermission() == null
-                  || !((Player) entity).hasPermission(configuration.getBypassPermission()))) {
+                if (entity instanceof Player && (configuration.bypassPermission() == null
+                  || !((Player) entity).hasPermission(configuration.bypassPermission()))) {
                   var vector = entity.getPosition()
                     .subtract(location)
                     .normalize()
-                    .multiply(configuration.getStrength());
+                    .multiply(configuration.strength());
                   vector.y = 0.2D;
                   entity.setMotion(vector);
                 }

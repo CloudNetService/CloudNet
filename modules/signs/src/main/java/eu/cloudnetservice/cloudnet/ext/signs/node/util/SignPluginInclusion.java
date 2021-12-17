@@ -49,8 +49,8 @@ public final class SignPluginInclusion {
   }
 
   public static boolean hasConfigurationEntry(@NotNull Collection<String> groups, @NotNull SignsConfiguration config) {
-    for (var entry : config.getConfigurationEntries()) {
-      if (groups.contains(entry.getTargetGroup())) {
+    for (var entry : config.configurationEntries()) {
+      if (groups.contains(entry.targetGroup())) {
         return true;
       }
     }

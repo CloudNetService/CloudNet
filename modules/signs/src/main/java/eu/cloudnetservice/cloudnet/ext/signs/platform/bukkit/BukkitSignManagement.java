@@ -43,7 +43,7 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
     this.plugin = plugin;
   }
 
-  public static BukkitSignManagement getDefaultInstance() {
+  public static BukkitSignManagement defaultInstance() {
     return (BukkitSignManagement) CloudNetDriver.instance().servicesRegistry()
       .firstService(SignManagement.class);
   }
@@ -73,7 +73,7 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
   }
 
   protected void pushUpdate0(@NotNull Sign sign, @NotNull SignLayout layout) {
-    var location = this.worldPositionToLocation(sign.getLocation());
+    var location = this.worldPositionToLocation(sign.location());
     if (location != null) {
       var chunkX = NumberConversions.floor(location.getX()) >> 4;
       var chunkZ = NumberConversions.floor(location.getZ()) >> 4;
@@ -81,7 +81,7 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
       if (location.getWorld().isChunkLoaded(chunkX, chunkZ)) {
         var block = location.getBlock();
         if (block.getState() instanceof org.bukkit.block.Sign bukkitSign) {
-          BukkitCompatibility.setSignGlowing(bukkitSign, layout);
+          BukkitCompatibility.signGlowing(bukkitSign, layout);
 
           var replaced = this.replaceLines(sign, layout);
           if (replaced != null) {
@@ -103,7 +103,7 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
     var material =
       layout.blockMaterial() == null ? null : Material.getMaterial(layout.blockMaterial().toUpperCase());
     if (material != null && material.isBlock()) {
-      var face = BukkitCompatibility.getFacing(block.getState());
+      var face = BukkitCompatibility.facing(block.getState());
       if (face != null) {
         var behind = block.getRelative(face.getOppositeFace()).getState();
         if (layout.blockSubId() >= 0) {
@@ -118,8 +118,8 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
   }
 
   @Override
-  public @Nullable Sign getSignAt(@NotNull org.bukkit.block.Sign sign) {
-    return this.getSignAt(this.locationToWorldPosition(sign.getLocation()));
+  public @Nullable Sign signAt(@NotNull org.bukkit.block.Sign sign) {
+    return this.signAt(this.locationToWorldPosition(sign.getLocation()));
   }
 
   @Override
@@ -133,12 +133,12 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
     @NotNull String group,
     @Nullable String templatePath
   ) {
-    var entry = this.getApplicableSignConfigurationEntry();
+    var entry = this.applicableSignConfigurationEntry();
     if (entry != null) {
       var created = new Sign(
         group,
         templatePath,
-        this.locationToWorldPosition(sign.getLocation(), entry.getTargetGroup()));
+        this.locationToWorldPosition(sign.getLocation(), entry.targetGroup()));
       this.createSign(created);
       return created;
     }
@@ -167,14 +167,14 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
   @Override
   protected void startKnockbackTask() {
     Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
-      var entry = this.getApplicableSignConfigurationEntry();
+      var entry = this.applicableSignConfigurationEntry();
       if (entry != null) {
-        var configuration = entry.getKnockbackConfiguration();
-        if (configuration.isValidAndEnabled()) {
-          var distance = configuration.getDistance();
+        var configuration = entry.knockbackConfiguration();
+        if (configuration.validAndEnabled()) {
+          var distance = configuration.distance();
 
           for (var value : this.signs.values()) {
-            var location = this.worldPositionToLocation(value.getLocation());
+            var location = this.worldPositionToLocation(value.location());
             if (location != null) {
               var chunkX = (int) Math.floor(location.getX()) >> 4;
               var chunkZ = (int) Math.floor(location.getZ()) >> 4;
@@ -184,12 +184,12 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
                 location.getWorld()
                   .getNearbyEntities(location, distance, distance, distance)
                   .stream()
-                  .filter(entity -> entity instanceof Player && (configuration.getBypassPermission() == null
-                    || !entity.hasPermission(configuration.getBypassPermission())))
+                  .filter(entity -> entity instanceof Player && (configuration.bypassPermission() == null
+                    || !entity.hasPermission(configuration.bypassPermission())))
                   .forEach(entity -> entity.setVelocity(entity.getLocation().toVector()
                     .subtract(location.toVector())
                     .normalize()
-                    .multiply(configuration.getStrength())));
+                    .multiply(configuration.strength())));
               }
             }
           }

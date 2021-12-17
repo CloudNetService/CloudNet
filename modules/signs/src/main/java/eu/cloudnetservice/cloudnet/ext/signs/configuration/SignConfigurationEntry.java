@@ -145,75 +145,75 @@ public class SignConfigurationEntry implements Cloneable {
       }, block, -1, null);
   }
 
-  public String getTargetGroup() {
+  public String targetGroup() {
     return this.targetGroup;
   }
 
-  public void setTargetGroup(String targetGroup) {
+  public void targetGroup(String targetGroup) {
     this.targetGroup = targetGroup;
   }
 
-  public boolean isSwitchToSearchingWhenServiceIsFull() {
+  public boolean switchToSearchingWhenServiceIsFull() {
     return this.switchToSearchingWhenServiceIsFull;
   }
 
-  public void setSwitchToSearchingWhenServiceIsFull(boolean switchToSearchingWhenServiceIsFull) {
+  public void switchToSearchingWhenServiceIsFull(boolean switchToSearchingWhenServiceIsFull) {
     this.switchToSearchingWhenServiceIsFull = switchToSearchingWhenServiceIsFull;
   }
 
-  public KnockbackConfiguration getKnockbackConfiguration() {
+  public KnockbackConfiguration knockbackConfiguration() {
     return this.knockbackConfiguration;
   }
 
-  public void setKnockbackConfiguration(KnockbackConfiguration knockbackConfiguration) {
+  public void knockbackConfiguration(KnockbackConfiguration knockbackConfiguration) {
     this.knockbackConfiguration = knockbackConfiguration;
   }
 
-  public List<SignGroupConfiguration> getGroupConfigurations() {
+  public List<SignGroupConfiguration> groupConfigurations() {
     return this.groupConfigurations;
   }
 
-  public void setGroupConfigurations(List<SignGroupConfiguration> groupConfigurations) {
+  public void groupConfigurations(List<SignGroupConfiguration> groupConfigurations) {
     this.groupConfigurations = groupConfigurations;
   }
 
-  public SignLayoutsHolder getSearchingLayout() {
+  public SignLayoutsHolder searchingLayout() {
     return this.searchingLayout;
   }
 
-  public void setSearchingLayout(SignLayoutsHolder searchingLayout) {
+  public void searchingLayout(SignLayoutsHolder searchingLayout) {
     this.searchingLayout = searchingLayout;
   }
 
-  public SignLayoutsHolder getStartingLayout() {
+  public SignLayoutsHolder startingLayout() {
     return this.startingLayout;
   }
 
-  public void setStartingLayout(SignLayoutsHolder startingLayout) {
+  public void startingLayout(SignLayoutsHolder startingLayout) {
     this.startingLayout = startingLayout;
   }
 
-  public SignLayoutsHolder getEmptyLayout() {
+  public SignLayoutsHolder emptyLayout() {
     return this.emptyLayout;
   }
 
-  public void setEmptyLayout(SignLayoutsHolder emptyLayout) {
+  public void emptyLayout(SignLayoutsHolder emptyLayout) {
     this.emptyLayout = emptyLayout;
   }
 
-  public SignLayoutsHolder getOnlineLayout() {
+  public SignLayoutsHolder onlineLayout() {
     return this.onlineLayout;
   }
 
-  public void setOnlineLayout(SignLayoutsHolder onlineLayout) {
+  public void onlineLayout(SignLayoutsHolder onlineLayout) {
     this.onlineLayout = onlineLayout;
   }
 
-  public SignLayoutsHolder getFullLayout() {
+  public SignLayoutsHolder fullLayout() {
     return this.fullLayout;
   }
 
-  public void setFullLayout(SignLayoutsHolder fullLayout) {
+  public void fullLayout(SignLayoutsHolder fullLayout) {
     this.fullLayout = fullLayout;
   }
 
@@ -266,39 +266,39 @@ public class SignConfigurationEntry implements Cloneable {
       this.bypassPermission = bypassPermission;
     }
 
-    public boolean isEnabled() {
+    public boolean enabled() {
       return this.enabled;
     }
 
-    public void setEnabled(boolean enabled) {
+    public void enabled(boolean enabled) {
       this.enabled = enabled;
     }
 
-    public double getDistance() {
+    public double distance() {
       return this.distance;
     }
 
-    public void setDistance(double distance) {
+    public void distance(double distance) {
       this.distance = distance;
     }
 
-    public double getStrength() {
+    public double strength() {
       return this.strength;
     }
 
-    public void setStrength(double strength) {
+    public void strength(double strength) {
       this.strength = strength;
     }
 
-    public String getBypassPermission() {
+    public String bypassPermission() {
       return this.bypassPermission;
     }
 
-    public void setBypassPermission(String bypassPermission) {
+    public void bypassPermission(String bypassPermission) {
       this.bypassPermission = bypassPermission;
     }
 
-    public boolean isValidAndEnabled() {
+    public boolean validAndEnabled() {
       return this.enabled && this.strength > 0 && this.distance > 0;
     }
 

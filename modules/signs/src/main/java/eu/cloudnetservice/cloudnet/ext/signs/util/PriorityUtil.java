@@ -33,17 +33,17 @@ public final class PriorityUtil {
     throw new UnsupportedOperationException();
   }
 
-  public static int getPriority(@NotNull ServiceInfoSnapshot snapshot) {
+  public static int priority(@NotNull ServiceInfoSnapshot snapshot) {
     // Get the state of the service
-    return getPriority(snapshot, false);
+    return priority(snapshot, false);
   }
 
-  public static int getPriority(@NotNull ServiceInfoSnapshot snapshot, @Nullable SignConfigurationEntry entry) {
+  public static int priority(@NotNull ServiceInfoSnapshot snapshot, @Nullable SignConfigurationEntry entry) {
     // Get the state of the service
-    return getPriority(snapshot, entry != null && entry.isSwitchToSearchingWhenServiceIsFull());
+    return priority(snapshot, entry != null && entry.switchToSearchingWhenServiceIsFull());
   }
 
-  public static int getPriority(@NotNull ServiceInfoSnapshot snapshot, boolean lowerFullToSearching) {
+  public static int priority(@NotNull ServiceInfoSnapshot snapshot, boolean lowerFullToSearching) {
     // Get the state of the service
     var state = BridgeServiceHelper.guessStateFromServiceInfoSnapshot(snapshot);
     return switch (state) {
@@ -59,7 +59,6 @@ public final class PriorityUtil {
       case STARTING, STOPPED ->
           // this sign should only be on the wall when there is no other service
           1;
-      default -> 0;
     };
   }
 }

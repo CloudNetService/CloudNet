@@ -35,7 +35,7 @@ public class NukkitCloudSignInteractEvent extends PlayerEvent implements Cancell
   public NukkitCloudSignInteractEvent(@NotNull Player who, @NotNull Sign sign, boolean cancelled) {
     this.player = who;
     this.sign = sign;
-    this.target = sign.getCurrentTarget();
+    this.target = sign.currentTarget();
     this.setCancelled(cancelled);
   }
 
@@ -43,11 +43,11 @@ public class NukkitCloudSignInteractEvent extends PlayerEvent implements Cancell
     return HANDLER_LIST;
   }
 
-  public Sign getSign() {
+  public Sign sign() {
     return this.sign;
   }
 
-  public Optional<ServiceInfoSnapshot> getTarget() {
+  public Optional<ServiceInfoSnapshot> target() {
     return Optional.ofNullable(this.target);
   }
 }

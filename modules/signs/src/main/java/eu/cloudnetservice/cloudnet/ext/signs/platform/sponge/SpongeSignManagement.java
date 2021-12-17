@@ -51,7 +51,7 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
     this.syncExecutor = Sponge.server().scheduler().executor(plugin);
   }
 
-  public static SpongeSignManagement getDefaultInstance() {
+  public static SpongeSignManagement defaultInstance() {
     return (SpongeSignManagement) CloudNetDriver.instance().servicesRegistry()
       .firstService(SignManagement.class);
   }
@@ -81,7 +81,7 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
   }
 
   protected void pushUpdate0(@NotNull Sign sign, @NotNull SignLayout layout) {
-    var location = this.locationFromWorldPosition(sign.getLocation());
+    var location = this.locationFromWorldPosition(sign.location());
     if (location != null) {
       // no need if the chunk is loaded - the tile entity is not available if the chunk is unloaded
       var entity = location.blockEntity().orElse(null);
@@ -111,8 +111,8 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
   }
 
   @Override
-  public @Nullable Sign getSignAt(@NotNull org.spongepowered.api.block.entity.Sign sign) {
-    return this.getSignAt(this.locationToWorldPosition(sign.serverLocation()));
+  public @Nullable Sign signAt(@NotNull org.spongepowered.api.block.entity.Sign sign) {
+    return this.signAt(this.locationToWorldPosition(sign.serverLocation()));
   }
 
   @Override
@@ -126,12 +126,12 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
     @NotNull String group,
     @Nullable String templatePath
   ) {
-    var entry = this.getApplicableSignConfigurationEntry();
+    var entry = this.applicableSignConfigurationEntry();
     if (entry != null) {
       var created = new Sign(
         group,
         templatePath,
-        this.locationToWorldPosition(sign.serverLocation(), entry.getTargetGroup()));
+        this.locationToWorldPosition(sign.serverLocation(), entry.targetGroup()));
       this.createSign(created);
       return created;
     }
@@ -162,23 +162,23 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
   @Override
   protected void startKnockbackTask() {
     this.syncExecutor.scheduleAtFixedRate(() -> {
-      var entry = this.getApplicableSignConfigurationEntry();
+      var entry = this.applicableSignConfigurationEntry();
       if (entry != null) {
-        var configuration = entry.getKnockbackConfiguration();
-        if (configuration.isValidAndEnabled()) {
-          var distance = configuration.getDistance();
+        var configuration = entry.knockbackConfiguration();
+        if (configuration.validAndEnabled()) {
+          var distance = configuration.distance();
 
           for (var position : this.signs.keySet()) {
             var location = this.locationFromWorldPosition(position);
             if (location != null) {
               for (Entity entity : location.world().nearbyEntities(location.position(), distance)) {
-                if (entity instanceof ServerPlayer && (configuration.getBypassPermission() == null
-                  || !((ServerPlayer) entity).hasPermission(configuration.getBypassPermission()))) {
+                if (entity instanceof ServerPlayer && (configuration.bypassPermission() == null
+                  || !((ServerPlayer) entity).hasPermission(configuration.bypassPermission()))) {
                   var vector = entity.location()
                     .position()
                     .sub(location.position())
                     .normalize()
-                    .mul(configuration.getStrength());
+                    .mul(configuration.strength());
                   entity.velocity().set(new Vector3d(vector.x(), 0.2D, vector.z()));
                 }
               }

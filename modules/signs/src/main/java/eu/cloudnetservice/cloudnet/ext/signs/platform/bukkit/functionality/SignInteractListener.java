@@ -36,11 +36,11 @@ public class SignInteractListener implements Listener {
 
   @EventHandler
   public void handle(PlayerInteractEvent event) {
-    var entry = this.signManagement.getApplicableSignConfigurationEntry();
+    var entry = this.signManagement.applicableSignConfigurationEntry();
     if (entry != null && event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock() != null
       && event.getClickedBlock().getState() instanceof org.bukkit.block.Sign) {
 
-      var sign = this.signManagement.getSignAt((org.bukkit.block.Sign) event.getClickedBlock().getState());
+      var sign = this.signManagement.signAt((org.bukkit.block.Sign) event.getClickedBlock().getState());
       if (sign != null) {
         var canConnect = this.signManagement.canConnect(sign, event.getPlayer()::hasPermission);
 
@@ -48,17 +48,17 @@ public class SignInteractListener implements Listener {
           !canConnect);
         Bukkit.getPluginManager().callEvent(interactEvent);
 
-        if (!interactEvent.isCancelled() && interactEvent.getTarget().isPresent()) {
-          this.signManagement.getSignsConfiguration().sendMessage("server-connecting-message",
-            event.getPlayer()::sendMessage, m -> m.replace("%server%", interactEvent.getTarget().get().name()));
-          this.getPlayerManager().playerExecutor(event.getPlayer().getUniqueId())
-            .connect(interactEvent.getTarget().get().name());
+        if (!interactEvent.isCancelled() && interactEvent.target().isPresent()) {
+          this.signManagement.signsConfiguration().sendMessage("server-connecting-message",
+            event.getPlayer()::sendMessage, m -> m.replace("%server%", interactEvent.target().get().name()));
+          this.playerManager().playerExecutor(event.getPlayer().getUniqueId())
+            .connect(interactEvent.target().get().name());
         }
       }
     }
   }
 
-  protected IPlayerManager getPlayerManager() {
+  protected IPlayerManager playerManager() {
     return CloudNetDriver.instance().servicesRegistry().firstService(IPlayerManager.class);
   }
 }

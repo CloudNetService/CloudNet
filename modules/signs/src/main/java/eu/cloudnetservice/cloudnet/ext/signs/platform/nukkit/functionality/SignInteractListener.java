@@ -36,12 +36,12 @@ public class SignInteractListener implements Listener {
 
   @EventHandler
   public void handle(PlayerInteractEvent event) {
-    var entry = this.signManagement.getApplicableSignConfigurationEntry();
+    var entry = this.signManagement.applicableSignConfigurationEntry();
     if (entry != null && event.getAction() == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK
       && event.getBlock() != null) {
       var blockEntity = event.getBlock().getLevel().getBlockEntity(event.getBlock().getLocation());
       if (blockEntity instanceof BlockEntitySign) {
-        var sign = this.signManagement.getSignAt((BlockEntitySign) blockEntity);
+        var sign = this.signManagement.signAt((BlockEntitySign) blockEntity);
         if (sign != null) {
           var canConnect = this.signManagement.canConnect(sign, event.getPlayer()::hasPermission);
 
@@ -49,18 +49,18 @@ public class SignInteractListener implements Listener {
             !canConnect);
           Server.getInstance().getPluginManager().callEvent(interactEvent);
 
-          if (!interactEvent.isCancelled() && interactEvent.getTarget().isPresent()) {
-            this.signManagement.getSignsConfiguration().sendMessage("server-connecting-message",
-              event.getPlayer()::sendMessage, m -> m.replace("%server%", interactEvent.getTarget().get().name()));
-            this.getPlayerManager().playerExecutor(event.getPlayer().getUniqueId())
-              .connect(interactEvent.getTarget().get().name());
+          if (!interactEvent.isCancelled() && interactEvent.target().isPresent()) {
+            this.signManagement.signsConfiguration().sendMessage("server-connecting-message",
+              event.getPlayer()::sendMessage, m -> m.replace("%server%", interactEvent.target().get().name()));
+            this.playerManager().playerExecutor(event.getPlayer().getUniqueId())
+              .connect(interactEvent.target().get().name());
           }
         }
       }
     }
   }
 
-  protected IPlayerManager getPlayerManager() {
+  protected IPlayerManager playerManager() {
     return CloudNetDriver.instance().servicesRegistry().firstService(IPlayerManager.class);
   }
 }
