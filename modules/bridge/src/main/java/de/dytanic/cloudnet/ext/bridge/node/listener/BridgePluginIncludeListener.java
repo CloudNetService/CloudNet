@@ -18,9 +18,8 @@ package de.dytanic.cloudnet.ext.bridge.node.listener;
 
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.event.EventListener;
-import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.util.DefaultModuleHelper;
-import de.dytanic.cloudnet.event.service.CloudServicePreLifecycleEvent;
+import de.dytanic.cloudnet.event.service.CloudServicePreProcessStartEvent;
 import de.dytanic.cloudnet.ext.bridge.BridgeManagement;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,10 +32,9 @@ public final class BridgePluginIncludeListener {
   }
 
   @EventListener
-  public void handle(@NotNull CloudServicePreLifecycleEvent event) {
+  public void handle(@NotNull CloudServicePreProcessStartEvent event) {
     // check if we should copy the module
-    if (event.getTargetLifecycle() == ServiceLifeCycle.RUNNING
-      && this.management.configuration().excludedGroups().stream()
+    if (this.management.configuration().excludedGroups().stream()
       .noneMatch(group -> event.getService().getServiceConfiguration().groups().contains(group))) {
       // get the target of the copy
       var plugins = event.getService().getDirectory().resolve("plugins");

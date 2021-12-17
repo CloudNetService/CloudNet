@@ -22,8 +22,7 @@ import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
-import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
-import de.dytanic.cloudnet.event.service.CloudServicePreLifecycleEvent;
+import de.dytanic.cloudnet.event.service.CloudServicePreProcessStartEvent;
 import de.dytanic.cloudnet.event.setup.SetupCompleteEvent;
 import de.dytanic.cloudnet.event.setup.SetupInitiateEvent;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
@@ -65,10 +64,8 @@ public class NodeSignsListener {
   }
 
   @EventListener
-  public void includePluginIfNecessary(@NotNull CloudServicePreLifecycleEvent event) {
-    if (event.getTargetLifecycle() == ServiceLifeCycle.RUNNING) {
-      SignPluginInclusion.includePluginTo(event.getService(), this.signManagement.getSignsConfiguration());
-    }
+  public void includePluginIfNecessary(@NotNull CloudServicePreProcessStartEvent event) {
+    SignPluginInclusion.includePluginTo(event.getService(), this.signManagement.getSignsConfiguration());
   }
 
   @EventListener
@@ -77,7 +74,7 @@ public class NodeSignsListener {
       switch (event.message()) {
         // config request
         case AbstractPlatformSignManagement.REQUEST_CONFIG -> event.binaryResponse(
-            DataBuf.empty().writeObject(this.signManagement.getSignsConfiguration()));
+          DataBuf.empty().writeObject(this.signManagement.getSignsConfiguration()));
 
         // delete all signs
         case AbstractPlatformSignManagement.SIGN_ALL_DELETE -> {
@@ -88,21 +85,21 @@ public class NodeSignsListener {
         }
         // create a new sign
         case AbstractPlatformSignManagement.SIGN_CREATE -> this.signManagement.createSign(
-            event.content().readObject(Sign.class));
+          event.content().readObject(Sign.class));
 
         // delete an existing sign
         case AbstractPlatformSignManagement.SIGN_DELETE -> this.signManagement.deleteSign(
-            event.content().readObject(WorldPosition.class));
+          event.content().readObject(WorldPosition.class));
 
         // delete all signs
         case AbstractPlatformSignManagement.SIGN_BULK_DELETE -> {
           var deleted = this.signManagement
-              .deleteAllSigns(event.content().readString(), event.content().readNullable(DataBuf::readString));
+            .deleteAllSigns(event.content().readString(), event.content().readNullable(DataBuf::readString));
           event.binaryResponse(DataBuf.empty().writeInt(deleted));
         }
         // set the sign config
         case AbstractPlatformSignManagement.SET_SIGN_CONFIG -> this.signManagement.setSignsConfiguration(
-            event.content().readObject(SignsConfiguration.class));
+          event.content().readObject(SignsConfiguration.class));
 
         // get all signs of a group
         case PlatformSignManagement.SIGN_GET_SIGNS_BY_GROUPS -> {
@@ -111,7 +108,7 @@ public class NodeSignsListener {
         }
         // set the sign configuration without a re-publish to the cluster
         case NodeSignManagement.NODE_TO_NODE_SET_SIGN_CONFIGURATION -> this.signManagement.handleInternalSignConfigUpdate(
-            event.content().readObject(SignsConfiguration.class));
+          event.content().readObject(SignsConfiguration.class));
         default -> {
         }
       }

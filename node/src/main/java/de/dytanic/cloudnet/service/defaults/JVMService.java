@@ -33,6 +33,8 @@ import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
+import de.dytanic.cloudnet.event.service.CloudServicePostProcessStartEvent;
+import de.dytanic.cloudnet.event.service.CloudServicePreProcessStartEvent;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.service.ServiceConfigurationPreparer;
 import de.dytanic.cloudnet.service.defaults.log.ProcessServiceLogCache;
@@ -82,6 +84,7 @@ public class JVMService extends AbstractService {
 
   @Override
   protected void startProcess() {
+    this.eventManager.callEvent(new CloudServicePreProcessStartEvent(this));
     var environmentType = this.getServiceConfiguration().serviceId().environment();
     // load the wrapper information if possible
     var wrapperInformation = this.prepareWrapperFile();
@@ -137,6 +140,7 @@ public class JVMService extends AbstractService {
     // try to start the process like that
     try {
       this.process = new ProcessBuilder(arguments).directory(this.serviceDirectory.toFile()).start();
+      this.eventManager.callEvent(new CloudServicePostProcessStartEvent(this, this.process.toHandle()));
     } catch (IOException exception) {
       LOGGER.severe("Unable to start process in %s with command line %s",
         exception,
@@ -192,11 +196,10 @@ public class JVMService extends AbstractService {
   }
 
   protected void initLogHandler() {
-    super.logCache.addHandler((source, line) -> {
+    super.logCache.addHandler(($, line) -> {
       for (var logTarget : super.logTargets.entrySet()) {
         if (logTarget.getKey().equals(ChannelMessageSender.self().toTarget())) {
-          this.nodeInstance.eventManager()
-            .callEvent(logTarget.getValue(), new CloudServiceLogEntryEvent(this.lastServiceInfo, line));
+          this.eventManager.callEvent(logTarget.getValue(), new CloudServiceLogEntryEvent(this.lastServiceInfo, line));
         } else {
           ChannelMessage.builder()
             .target(logTarget.getKey())

@@ -20,9 +20,8 @@ import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.console.animation.progressbar.ConsoleProgressWrappers;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
-import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.util.DefaultModuleHelper;
-import de.dytanic.cloudnet.event.service.CloudServicePreLifecycleEvent;
+import de.dytanic.cloudnet.event.service.CloudServicePreProcessStartEvent;
 import eu.cloudnetservice.modules.npc.AbstractNPCManagement;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -55,8 +54,8 @@ public final class NodePluginIncludeListener {
   }
 
   @EventListener
-  public void includePluginIfNecessary(@NotNull CloudServicePreLifecycleEvent event) {
-    if (event.getTargetLifecycle() == ServiceLifeCycle.RUNNING && this.didDownloadProtocolLib.get()) {
+  public void includePluginIfNecessary(@NotNull CloudServicePreProcessStartEvent event) {
+    if (this.didDownloadProtocolLib.get()) {
       var type = event.getService().getServiceConfiguration().serviceId().environment();
       if (ServiceEnvironmentType.isMinecraftServer(type)) {
         // check if we have an entry for the current group

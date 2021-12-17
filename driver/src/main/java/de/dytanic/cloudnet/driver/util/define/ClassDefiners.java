@@ -42,9 +42,9 @@ public final class ClassDefiners {
   static {
     // check the lookup definer first - the unsafe defining method is available for newer jvm implementation but should
     // not be used.
-    if (LookupClassDefiner.isAvailable()) {
+    if (LookupClassDefiner.available()) {
       DEFINER = new LookupClassDefiner();
-    } else if (UnsafeClassDefiner.isAvailable()) {
+    } else if (UnsafeClassDefiner.available()) {
       DEFINER = new UnsafeClassDefiner();
     } else {
       DEFINER = new FallbackClassDefiner();

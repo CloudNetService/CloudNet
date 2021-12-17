@@ -19,9 +19,8 @@ package eu.cloudnetservice.cloudnet.ext.syncproxy.node.listener;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
-import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.util.DefaultModuleHelper;
-import de.dytanic.cloudnet.event.service.CloudServicePreLifecycleEvent;
+import de.dytanic.cloudnet.event.service.CloudServicePreProcessStartEvent;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.node.NodeSyncProxyManagement;
 import org.jetbrains.annotations.NotNull;
 
@@ -34,11 +33,7 @@ public final class IncludePluginListener {
   }
 
   @EventListener
-  public void handleLifecycleUpdate(@NotNull CloudServicePreLifecycleEvent event) {
-    if (event.getTargetLifecycle() != ServiceLifeCycle.RUNNING) {
-      return;
-    }
-
+  public void handleLifecycleUpdate(@NotNull CloudServicePreProcessStartEvent event) {
     var service = event.getService();
     if (!ServiceEnvironmentType.isMinecraftProxy(service.getServiceId().environment())) {
       return;
@@ -46,11 +41,9 @@ public final class IncludePluginListener {
 
     var syncProxyConfiguration = this.management.getConfiguration();
     var groupEntryExists = syncProxyConfiguration.loginConfigurations().stream()
-      .anyMatch(loginConfiguration -> service.getServiceConfiguration().groups()
-        .contains(loginConfiguration.targetGroup()))
+      .anyMatch(config -> service.getServiceConfiguration().groups().contains(config.targetGroup()))
       || syncProxyConfiguration.tabListConfigurations().stream()
-      .anyMatch(tabListConfiguration -> service.getServiceConfiguration().groups()
-        .contains(tabListConfiguration.getTargetGroup()));
+      .anyMatch(config -> service.getServiceConfiguration().groups().contains(config.getTargetGroup()));
 
     if (groupEntryExists) {
       var pluginsFolder = event.getService().getDirectory().resolve("plugins");
