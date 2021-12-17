@@ -45,7 +45,7 @@ final class UnsafeClassDefiner implements ClassDefiner {
   static {
     Method defineAnonymousClass = null;
 
-    if (UnsafeAccess.isAvailable()) {
+    if (UnsafeAccess.available()) {
       try {
         // find the define method
         var defineAnonymousClassMethod = UnsafeAccess.UNSAFE_CLASS.getDeclaredMethod("defineAnonymousClass",
@@ -67,7 +67,7 @@ final class UnsafeClassDefiner implements ClassDefiner {
    *
    * @return if the {@code defineAnonymousClass} is available and this defining method can be used.
    */
-  public static boolean isAvailable() {
+  public static boolean available() {
     return DEFINE_ANONYMOUS_CLASS != null;
   }
 
