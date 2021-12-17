@@ -59,31 +59,31 @@ public final class S3TemplateStorageConfig {
     this.endpointOverride = endpointOverride;
   }
 
-  public @NotNull String getName() {
+  public @NotNull String name() {
     return this.name;
   }
 
-  public @NotNull String getBucket() {
+  public @NotNull String bucket() {
     return this.bucket;
   }
 
-  public @NotNull String getRegion() {
+  public @NotNull String region() {
     return this.region;
   }
 
-  public boolean isDualstackEndpointEnabled() {
+  public boolean dualstackEndpointEnabled() {
     return this.dualstackEndpointEnabled;
   }
 
-  public @NotNull String getAccessKey() {
+  public @NotNull String accessKey() {
     return this.accessKey;
   }
 
-  public @NotNull String getSecretKey() {
+  public @NotNull String secretKey() {
     return this.secretKey;
   }
 
-  public @Nullable URI getEndpointOverride() {
+  public @Nullable URI endpointOverride() {
     if (this.endpointOverride != null) {
       try {
         var uri = URI.create(this.endpointOverride);
