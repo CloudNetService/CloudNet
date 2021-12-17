@@ -47,7 +47,7 @@ final class BukkitCompatibility {
     throw new UnsupportedOperationException();
   }
 
-  public static void setTeamColor(@NotNull Team team, @NotNull ChatColor color) {
+  public static void teamColor(@NotNull Team team, @NotNull ChatColor color) {
     // check if the method is available
     if (SET_COLOR != null) {
       // set the team color

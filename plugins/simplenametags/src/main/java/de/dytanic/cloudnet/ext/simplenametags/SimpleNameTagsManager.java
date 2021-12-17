@@ -48,14 +48,14 @@ public abstract class SimpleNameTagsManager<P> {
       // reset the scoreboard of the current player
       this.resetScoreboard(player);
       // set the team entries for each player connected to the server
-      for (P onlinePlayer : this.getOnlinePlayers()) {
+      for (P onlinePlayer : this.onlinePlayers()) {
         // reset the scoreboard for the player
         this.resetScoreboard(onlinePlayer);
         // add the player to the score board for this player
         this.registerPlayerToTeam(player, onlinePlayer, groupTeamName, group);
 
         // get the permission group for the player
-        var onlinePlayerGroup = this.getPermissionGroup(this.getPlayerUniqueId(onlinePlayer), onlinePlayer);
+        var onlinePlayerGroup = this.getPermissionGroup(this.playerUniqueId(onlinePlayer), onlinePlayer);
         if (onlinePlayerGroup != null) {
           // get the team name of the group
           var onlinePlayerGroupTeamName = this.selectTeamName(onlinePlayerGroup, maxSortIdLength);
@@ -64,15 +64,15 @@ public abstract class SimpleNameTagsManager<P> {
         }
       }
       // set the players display name
-      this.setDisplayName(player, group.display() + playerName);
+      this.displayName(player, group.display() + playerName);
     }
   }
 
   public abstract void updateNameTagsFor(@NotNull P player);
 
-  public abstract @NotNull UUID getPlayerUniqueId(@NotNull P player);
+  public abstract @NotNull UUID playerUniqueId(@NotNull P player);
 
-  public abstract void setDisplayName(@NotNull P player, @NotNull String displayName);
+  public abstract void displayName(@NotNull P player, @NotNull String displayName);
 
   public abstract void resetScoreboard(@NotNull P player);
 
@@ -82,9 +82,9 @@ public abstract class SimpleNameTagsManager<P> {
     @NotNull String name,
     @NotNull PermissionGroup group);
 
-  public abstract @NotNull Collection<? extends P> getOnlinePlayers();
+  public abstract @NotNull Collection<? extends P> onlinePlayers();
 
-  public abstract @Nullable P getOnlinePlayer(@NotNull UUID uniqueId);
+  public abstract @Nullable P onlinePlayer(@NotNull UUID uniqueId);
 
   protected char getColorChar(@NotNull PermissionGroup group) {
     // check if the color of the group is given and valid
@@ -129,7 +129,7 @@ public abstract class SimpleNameTagsManager<P> {
     // post the choose event to let the user modify the permission group of the player (for example to nick a player)
     return CloudNetDriver.instance().eventManager()
       .callEvent(new PrePlayerPrefixSetEvent<>(platformPlayer, group))
-      .getGroup();
+      .group();
   }
 
   protected @NotNull String selectTeamName(@NotNull PermissionGroup group, int highestSortIdLength) {

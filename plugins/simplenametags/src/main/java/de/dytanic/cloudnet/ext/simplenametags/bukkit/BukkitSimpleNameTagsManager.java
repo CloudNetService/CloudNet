@@ -39,12 +39,12 @@ final class BukkitSimpleNameTagsManager extends SimpleNameTagsManager<Player> {
   }
 
   @Override
-  public @NotNull UUID getPlayerUniqueId(@NotNull Player player) {
+  public @NotNull UUID playerUniqueId(@NotNull Player player) {
     return player.getUniqueId();
   }
 
   @Override
-  public void setDisplayName(@NotNull Player player, @NotNull String displayName) {
+  public void displayName(@NotNull Player player, @NotNull String displayName) {
     player.setDisplayName(ChatColor.translateAlternateColorCodes('&', displayName));
   }
 
@@ -75,19 +75,19 @@ final class BukkitSimpleNameTagsManager extends SimpleNameTagsManager<Player> {
     // set the team color if possible
     var teamColor = ChatColor.getByChar(this.getColorChar(group));
     if (teamColor != null) {
-      BukkitCompatibility.setTeamColor(team, teamColor);
+      BukkitCompatibility.teamColor(team, teamColor);
     }
     // register the player to the team
     team.addEntry(player.getName());
   }
 
   @Override
-  public @NotNull Collection<? extends Player> getOnlinePlayers() {
+  public @NotNull Collection<? extends Player> onlinePlayers() {
     return Bukkit.getOnlinePlayers();
   }
 
   @Override
-  public @Nullable Player getOnlinePlayer(@NotNull UUID uniqueId) {
+  public @Nullable Player onlinePlayer(@NotNull UUID uniqueId) {
     return Bukkit.getPlayer(uniqueId);
   }
 }

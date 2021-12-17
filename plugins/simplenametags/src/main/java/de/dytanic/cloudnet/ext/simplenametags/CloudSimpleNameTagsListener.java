@@ -40,7 +40,7 @@ public final class CloudSimpleNameTagsListener<P> {
   public void handle(PermissionUpdateUserEvent event) {
     this.syncTaskExecutor.execute(() -> {
       // get the player if online
-      var player = this.nameTagsManager.getOnlinePlayer(event.permissionUser().uniqueId());
+      var player = this.nameTagsManager.onlinePlayer(event.permissionUser().uniqueId());
       if (player != null) {
         // update the name tag of the player
         this.nameTagsManager.updateNameTagsFor(player);
@@ -52,8 +52,8 @@ public final class CloudSimpleNameTagsListener<P> {
   public void handle(PermissionUpdateGroupEvent event) {
     this.syncTaskExecutor.execute(() -> {
       // find all matching players
-      for (P player : this.nameTagsManager.getOnlinePlayers()) {
-        var playerUniqueId = this.nameTagsManager.getPlayerUniqueId(player);
+      for (P player : this.nameTagsManager.onlinePlayers()) {
+        var playerUniqueId = this.nameTagsManager.playerUniqueId(player);
         // get the associated user
         var user = CloudNetDriver.instance().permissionManagement().user(playerUniqueId);
         if (user != null && user.inGroup(event.permissionGroup().name())) {

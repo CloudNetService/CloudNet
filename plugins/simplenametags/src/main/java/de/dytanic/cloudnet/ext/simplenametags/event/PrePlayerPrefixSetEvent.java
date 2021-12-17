@@ -30,15 +30,15 @@ public class PrePlayerPrefixSetEvent<P> extends Event {
     this.group = group;
   }
 
-  public @NotNull P getPlayer() {
+  public @NotNull P player() {
     return this.player;
   }
 
-  public @NotNull PermissionGroup getGroup() {
+  public @NotNull PermissionGroup group() {
     return this.group;
   }
 
-  public void setGroup(@NotNull PermissionGroup group) {
+  public void group(@NotNull PermissionGroup group) {
     this.group = group;
   }
 }

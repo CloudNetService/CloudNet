@@ -44,12 +44,12 @@ final class SpongeSimpleNameTagsManager extends SimpleNameTagsManager<ServerPlay
   }
 
   @Override
-  public @NotNull UUID getPlayerUniqueId(@NotNull ServerPlayer player) {
+  public @NotNull UUID playerUniqueId(@NotNull ServerPlayer player) {
     return player.uniqueId();
   }
 
   @Override
-  public void setDisplayName(@NotNull ServerPlayer player, @NotNull String displayName) {
+  public void displayName(@NotNull ServerPlayer player, @NotNull String displayName) {
     player.displayName().set(AdventureSerializerUtil.serialize(displayName));
   }
 
@@ -86,12 +86,12 @@ final class SpongeSimpleNameTagsManager extends SimpleNameTagsManager<ServerPlay
   }
 
   @Override
-  public @NotNull Collection<? extends ServerPlayer> getOnlinePlayers() {
+  public @NotNull Collection<? extends ServerPlayer> onlinePlayers() {
     return Sponge.server().onlinePlayers();
   }
 
   @Override
-  public @Nullable ServerPlayer getOnlinePlayer(@NotNull UUID uniqueId) {
+  public @Nullable ServerPlayer onlinePlayer(@NotNull UUID uniqueId) {
     return Sponge.server().player(uniqueId).orElse(null);
   }
 }
