@@ -30,7 +30,7 @@ final class Premain {
 
   static Instrumentation instrumentation;
 
-  public static void premain(@NonNull String agentArgs, @NonNull Instrumentation inst) {
+  public static void premain(@Nullable String agentArgs, @NonNull Instrumentation inst) {
     Premain.instrumentation = inst;
   }
 
