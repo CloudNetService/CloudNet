@@ -243,11 +243,20 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     @Nullable String virtualHost,
     @NotNull Function<String, Boolean> permissionTester
   ) {
+    // get the currently applying fallback config
+    var config = Preconditions.checkNotNull(this.currentFallbackConfiguration);
     // check if the current server of the player is given
     return this.cachedService(service -> service.name().equals(currentServerName))
-      .map(service -> this.possibleFallbacks(currentServerName, virtualHost, permissionTester)
-        .anyMatch(fallback -> service.serviceId().taskName().equals(fallback.task())))
-      .orElse(false);
+      .map(service -> {
+        // check if the configuration has a default fallback task
+        if (config.defaultFallbackTask() != null
+          && service.serviceId().taskName().equals(config.defaultFallbackTask())) {
+          return true;
+        }
+        // check if the player is on any fallback configuration
+        return this.possibleFallbacks(currentServerName, virtualHost, permissionTester)
+          .anyMatch(fallback -> service.serviceId().taskName().equals(fallback.task()));
+      }).orElse(false);
   }
 
   protected @NotNull Optional<ServiceInfoSnapshot> anyTaskService(
