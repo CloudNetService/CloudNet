@@ -28,7 +28,7 @@ public class GroupConfigurationAddEvent extends Event {
     this.configuration = configuration;
   }
 
-  public @NotNull GroupConfiguration getConfiguration() {
+  public @NotNull GroupConfiguration configuration() {
     return configuration;
   }
 }

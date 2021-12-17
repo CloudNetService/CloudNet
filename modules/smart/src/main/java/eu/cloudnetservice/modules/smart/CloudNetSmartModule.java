@@ -32,7 +32,7 @@ public class CloudNetSmartModule extends DriverModule {
 
   @ModuleTask(event = ModuleLifeCycle.STARTED, order = Byte.MAX_VALUE)
   public void rewriteOldSmartTaskEntries() {
-    for (var task : this.getDriver().getServiceTaskProvider().getPermanentServiceTasks()) {
+    for (var task : this.driver().serviceTaskProvider().permanentServiceTasks()) {
       // check if the task had a smart config entry previously
       if (task.properties().contains("smartConfig")) {
         var smartEntry = task.properties().getDocument("smartConfig");
@@ -59,7 +59,7 @@ public class CloudNetSmartModule extends DriverModule {
             .build();
           // append the new smart entry and update the service
           task.properties().append("smartConfig", config);
-          this.getDriver().getServiceTaskProvider().addPermanentServiceTask(task);
+          this.driver().serviceTaskProvider().addPermanentServiceTask(task);
         }
       }
     }
@@ -67,12 +67,12 @@ public class CloudNetSmartModule extends DriverModule {
 
   @ModuleTask(event = ModuleLifeCycle.STARTED, order = 64)
   public void addMissingSmartConfigurationEntries() {
-    for (var task : this.getDriver().getServiceTaskProvider().getPermanentServiceTasks()) {
+    for (var task : this.driver().serviceTaskProvider().permanentServiceTasks()) {
       // check if the service task needs a smart entry
       if (!task.properties().contains("smartConfig")) {
         task.properties().append("smartConfig", SmartServiceTaskConfig.builder().build());
         // update the task
-        CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask(task);
+        CloudNet.getInstance().serviceTaskProvider().addPermanentServiceTask(task);
       }
     }
   }

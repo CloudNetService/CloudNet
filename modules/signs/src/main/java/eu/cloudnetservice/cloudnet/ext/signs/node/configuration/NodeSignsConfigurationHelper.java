@@ -112,7 +112,7 @@ public final class NodeSignsConfigurationHelper {
 
   @Contract("_ -> new")
   private static @NotNull SignLayout convertSignLayout(@NotNull de.dytanic.cloudnet.ext.signs.SignLayout oldLayout) {
-    return new SignLayout(oldLayout.getLines(), oldLayout.getBlockType(), oldLayout.getSubId());
+    return new SignLayout(oldLayout.getLines(), oldLayout.getBlockType(), oldLayout.getSubId(), null);
   }
 
   @Contract("_ -> new")

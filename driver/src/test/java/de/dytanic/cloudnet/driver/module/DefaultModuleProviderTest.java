@@ -45,6 +45,6 @@ public final class DefaultModuleProviderTest {
     Assertions.assertNotNull(moduleWrapper.unloadModule());
     Assertions.assertEquals("unloaded", System.getProperty("module_test_state"));
 
-    Assertions.assertEquals(0, moduleProvider.getModules().size());
+    Assertions.assertEquals(0, moduleProvider.modules().size());
   }
 }

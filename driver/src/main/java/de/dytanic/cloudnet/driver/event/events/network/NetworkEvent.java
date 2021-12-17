@@ -28,7 +28,7 @@ public abstract class NetworkEvent extends DriverEvent {
     this.channel = channel;
   }
 
-  public @NotNull INetworkChannel getNetworkChannel() {
+  public @NotNull INetworkChannel networkChannel() {
     return this.channel;
   }
 }

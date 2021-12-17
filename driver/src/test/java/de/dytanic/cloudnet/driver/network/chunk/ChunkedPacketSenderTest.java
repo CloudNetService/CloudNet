@@ -102,22 +102,22 @@ public class ChunkedPacketSenderTest {
   }
 
   private void validatePacket(IPacket packet, UUID sessionId, AtomicInteger splits, byte[] data) {
-    var info = packet.getContent().readObject(ChunkSessionInformation.class);
+    var info = packet.content().readObject(ChunkSessionInformation.class);
 
     Assertions.assertEquals(256, info.chunkSize());
     Assertions.assertEquals(sessionId, info.sessionUniqueId());
     Assertions.assertEquals("hello_world", info.transferChannel());
-    Assertions.assertEquals(splits.get(), packet.getContent().readInt());
+    Assertions.assertEquals(splits.get(), packet.content().readInt());
 
     Assertions.assertEquals("hello", info.transferInformation().readString());
     Assertions.assertEquals(10, info.transferInformation().readInt());
     Assertions.assertEquals("world", info.transferInformation().readString());
 
-    var isFinalPacket = packet.getContent().readBoolean();
+    var isFinalPacket = packet.content().readBoolean();
     Assertions.assertEquals(splits.get() == data.length / 256, isFinalPacket);
 
     if (isFinalPacket) {
-      Assertions.assertEquals(data.length / 256, packet.getContent().readInt());
+      Assertions.assertEquals(data.length / 256, packet.content().readInt());
     }
 
     // this prevents a weird bug happening. When copying an array beginning at the length of the array (in this case
@@ -130,7 +130,7 @@ public class ChunkedPacketSenderTest {
 
     Assertions.assertArrayEquals(
       contentAtPosition,
-      packet.getContent().readByteArray());
+      packet.content().readByteArray());
   }
 
   private INetworkChannel mockNetworkChannel(Consumer<IPacket> packetSyncSendHandler) {

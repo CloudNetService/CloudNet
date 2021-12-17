@@ -22,13 +22,13 @@ import org.jetbrains.annotations.NotNull;
 
 public final class PermissionServiceSetEvent extends DriverEvent {
 
-  private final IPermissionManagement permissionManager;
+  private final IPermissionManagement permissionManagement;
 
-  public PermissionServiceSetEvent(@NotNull IPermissionManagement permissionManager) {
-    this.permissionManager = permissionManager;
+  public PermissionServiceSetEvent(@NotNull IPermissionManagement permissionManagement) {
+    this.permissionManagement = permissionManagement;
   }
 
-  public @NotNull IPermissionManagement getPermissionManager() {
-    return this.permissionManager;
+  public @NotNull IPermissionManagement permissionManagement() {
+    return this.permissionManagement;
   }
 }

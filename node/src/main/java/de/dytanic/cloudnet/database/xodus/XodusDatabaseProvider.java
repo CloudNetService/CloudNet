@@ -74,7 +74,7 @@ public class XodusDatabaseProvider extends AbstractDatabaseProvider {
   }
 
   @Override
-  public @NotNull LocalDatabase getDatabase(@NotNull String name) {
+  public @NotNull LocalDatabase database(@NotNull String name) {
     return this.cachedDatabaseInstances.computeIfAbsent(name, $ -> this.environment.computeInTransaction(txn -> {
       var store = this.environment.openStore(name, StoreConfig.WITHOUT_DUPLICATES_WITH_PREFIXING, txn);
       return new XodusDatabase(name, this.executorService, store, this);
@@ -95,7 +95,7 @@ public class XodusDatabaseProvider extends AbstractDatabaseProvider {
   }
 
   @Override
-  public @NotNull Collection<String> getDatabaseNames() {
+  public @NotNull Collection<String> databaseNames() {
     return this.environment.computeInReadonlyTransaction(txn -> this.environment.getAllStoreNames(txn));
   }
 

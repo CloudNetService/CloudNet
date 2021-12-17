@@ -58,16 +58,16 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
   }
 
   @Override
-  public @NotNull Collection<String> getJvmOptions() {
+  public @NotNull Collection<String> jvmOptions() {
     return this.jvmOptions;
   }
 
   @Override
-  public @NotNull Collection<String> getProcessParameters() {
+  public @NotNull Collection<String> processParameters() {
     return this.processParameters;
   }
 
-  public @NotNull Collection<String> getTargetEnvironments() {
+  public @NotNull Collection<String> targetEnvironments() {
     return this.targetEnvironments;
   }
 

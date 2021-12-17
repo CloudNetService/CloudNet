@@ -40,7 +40,7 @@ public abstract class AbstractNPCManagement implements NPCManagement {
 
   public AbstractNPCManagement(@Nullable NPCConfiguration npcConfiguration) {
     this.npcConfiguration = npcConfiguration;
-    CloudNetDriver.getInstance().getEventManager().registerListener(new SharedChannelMessageListener(this));
+    CloudNetDriver.instance().eventManager().registerListener(new SharedChannelMessageListener(this));
   }
 
   @Override
@@ -70,12 +70,12 @@ public abstract class AbstractNPCManagement implements NPCManagement {
 
   @Override
   public void registerToServiceRegistry() {
-    CloudNetDriver.getInstance().getServicesRegistry().registerService(NPCManagement.class, "NPCManagement", this);
+    CloudNetDriver.instance().servicesRegistry().registerService(NPCManagement.class, "NPCManagement", this);
   }
 
   @Override
   public void unregisterFromServiceRegistry() {
-    CloudNetDriver.getInstance().getServicesRegistry().unregisterService(NPCManagement.class, "NPCManagement");
+    CloudNetDriver.instance().servicesRegistry().unregisterService(NPCManagement.class, "NPCManagement");
   }
 
   @Override

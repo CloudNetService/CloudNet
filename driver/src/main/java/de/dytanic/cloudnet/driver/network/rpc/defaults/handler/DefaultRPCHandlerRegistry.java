@@ -30,7 +30,7 @@ public class DefaultRPCHandlerRegistry implements RPCHandlerRegistry {
   protected final Map<String, RPCHandler> handlers = new ConcurrentHashMap<>();
 
   @Override
-  public @NotNull @UnmodifiableView Map<String, RPCHandler> getRegisteredHandlers() {
+  public @NotNull @UnmodifiableView Map<String, RPCHandler> registeredHandlers() {
     return Collections.unmodifiableMap(this.handlers);
   }
 
@@ -45,23 +45,23 @@ public class DefaultRPCHandlerRegistry implements RPCHandlerRegistry {
   }
 
   @Override
-  public @Nullable RPCHandler getHandler(@NotNull Class<?> targetClass) {
-    return this.getHandler(targetClass.getCanonicalName());
+  public @Nullable RPCHandler handler(@NotNull Class<?> targetClass) {
+    return this.handler(targetClass.getCanonicalName());
   }
 
   @Override
-  public @Nullable RPCHandler getHandler(@NotNull String targetClassName) {
+  public @Nullable RPCHandler handler(@NotNull String targetClassName) {
     return this.handlers.get(targetClassName);
   }
 
   @Override
   public boolean registerHandler(@NotNull RPCHandler rpcHandler) {
-    return this.handlers.put(rpcHandler.getTargetClass().getCanonicalName(), rpcHandler) == null;
+    return this.handlers.put(rpcHandler.targetClass().getCanonicalName(), rpcHandler) == null;
   }
 
   @Override
   public boolean unregisterHandler(@NotNull RPCHandler rpcHandler) {
-    return this.unregisterHandler(rpcHandler.getTargetClass());
+    return this.unregisterHandler(rpcHandler.targetClass());
   }
 
   @Override

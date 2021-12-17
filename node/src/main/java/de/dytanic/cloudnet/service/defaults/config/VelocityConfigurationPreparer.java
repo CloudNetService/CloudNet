@@ -35,7 +35,7 @@ public class VelocityConfigurationPreparer extends AbstractServiceConfigurationP
           line = String.format(
             "bind = \"%s:%d\"",
             nodeInstance.getConfig().getHostAddress(),
-            cloudService.getServiceConfiguration().getPort());
+            cloudService.getServiceConfiguration().port());
         }
         return line;
       });

@@ -49,7 +49,7 @@ public final class WrappedInputStream extends FilterInputStream {
   }
 
   @Override
-  public int read(byte[] b) throws IOException {
+  public int read(byte @NotNull [] b) throws IOException {
     var read = this.in.read(b);
     if (read != -1) {
       this.animation.stepBy(read);
@@ -58,7 +58,7 @@ public final class WrappedInputStream extends FilterInputStream {
   }
 
   @Override
-  public int read(byte[] b, int off, int len) throws IOException {
+  public int read(byte @NotNull [] b, int off, int len) throws IOException {
     var read = this.in.read(b, off, len);
     if (read != -1) {
       this.animation.stepBy(read);

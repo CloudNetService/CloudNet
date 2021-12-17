@@ -30,10 +30,10 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
   private final RPCSender rpcSender;
 
   public WrapperGroupConfigurationProvider(@NotNull Wrapper wrapper) {
-    this.rpcSender = wrapper.getRPCProviderFactory().providerForClass(
-      wrapper.getNetworkClient(),
+    this.rpcSender = wrapper.rpcProviderFactory().providerForClass(
+      wrapper.networkClient(),
       GroupConfigurationProvider.class);
-    wrapper.getEventManager().registerListener(new GroupChannelMessageListener(wrapper.getEventManager()));
+    wrapper.eventManager().registerListener(new GroupChannelMessageListener(wrapper.eventManager()));
   }
 
   @Override
@@ -42,18 +42,18 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
   }
 
   @Override
-  public @NotNull Collection<GroupConfiguration> getGroupConfigurations() {
-    return this.rpcSender.invokeMethod("getGroupConfigurations").fireSync();
+  public @NotNull Collection<GroupConfiguration> groupConfigurations() {
+    return this.rpcSender.invokeMethod("groupConfigurations").fireSync();
   }
 
   @Override
-  public void setGroupConfigurations(@NotNull Collection<GroupConfiguration> groupConfigurations) {
-    this.rpcSender.invokeMethod("setGroupConfigurations").fireSync();
+  public void groupConfigurations(@NotNull Collection<GroupConfiguration> groupConfigurations) {
+    this.rpcSender.invokeMethod("groupConfigurations").fireSync();
   }
 
   @Override
-  public @Nullable GroupConfiguration getGroupConfiguration(@NotNull String name) {
-    return this.rpcSender.invokeMethod("getGroupConfiguration").fireSync();
+  public @Nullable GroupConfiguration groupConfiguration(@NotNull String name) {
+    return this.rpcSender.invokeMethod("groupConfiguration").fireSync();
   }
 
   @Override

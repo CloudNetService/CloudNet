@@ -46,12 +46,12 @@ public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider i
   }
 
   @Override
-  public @NotNull InputStream getSource() {
+  public @NotNull InputStream source() {
     return this.source;
   }
 
   @Override
-  public @NotNull Consumer<IPacket> getChunkPacketSplitter() {
+  public @NotNull Consumer<IPacket> packetSplitter() {
     return this.packetSplitter;
   }
 

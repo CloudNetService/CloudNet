@@ -49,44 +49,44 @@ public final class ServiceChannelMessageListener {
 
   @EventListener
   public void handleChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
-    if (event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
-      switch (event.getMessage()) {
+    if (event.channel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
+      switch (event.message()) {
         // request to start a service
         case "node_to_head_start_service" -> {
-          var configuration = event.getContent().readObject(ServiceConfiguration.class);
-          event.setBinaryResponse(DataBuf.empty().writeObject(
+          var configuration = event.content().readObject(ServiceConfiguration.class);
+          event.binaryResponse(DataBuf.empty().writeObject(
               this.cloudServiceFactory.createCloudService(configuration)));
         }
 
         // request to start a service on the local node
         case "head_node_to_node_start_service" -> {
-          var configuration = event.getContent().readObject(ServiceConfiguration.class);
-          event.setBinaryResponse(DataBuf.empty().writeObject(
-              this.serviceManager.createLocalCloudService(configuration).getServiceInfoSnapshot()));
+          var configuration = event.content().readObject(ServiceConfiguration.class);
+          event.binaryResponse(DataBuf.empty().writeObject(
+              this.serviceManager.createLocalCloudService(configuration).serviceInfo()));
         }
 
         // update of a service in the network
         case "update_service_info" -> {
-          var snapshot = event.getContent().readObject(ServiceInfoSnapshot.class);
+          var snapshot = event.content().readObject(ServiceInfoSnapshot.class);
           // update locally and call the event
-          this.serviceManager.handleServiceUpdate(snapshot, event.getNetworkChannel());
+          this.serviceManager.handleServiceUpdate(snapshot, event.networkChannel());
           this.eventManager.callEvent(new CloudServiceUpdateEvent(snapshot));
         }
 
         // update of a service lifecycle in the network
         case "update_service_lifecycle" -> {
-          var lifeCycle = event.getContent().readObject(ServiceLifeCycle.class);
-          var snapshot = event.getContent().readObject(ServiceInfoSnapshot.class);
+          var lifeCycle = event.content().readObject(ServiceLifeCycle.class);
+          var snapshot = event.content().readObject(ServiceInfoSnapshot.class);
           // update locally and call the event
-          this.serviceManager.handleServiceUpdate(snapshot, event.getNetworkChannel());
+          this.serviceManager.handleServiceUpdate(snapshot, event.networkChannel());
           this.eventManager.callEvent(new CloudServiceLifecycleChangeEvent(lifeCycle, snapshot));
         }
 
         // call the event for a new line in the log of the service
         case "screen_new_line" -> {
-          var snapshot = event.getContent().readObject(ServiceInfoSnapshot.class);
-          var eventChannel = event.getContent().readString();
-          var line = event.getContent().readString();
+          var snapshot = event.content().readObject(ServiceInfoSnapshot.class);
+          var eventChannel = event.content().readString();
+          var line = event.content().readString();
 
           this.eventManager.callEvent(eventChannel, new CloudServiceLogEntryEvent(snapshot, line));
         }

@@ -64,7 +64,7 @@ final class BungeeCordPlayerManagementListener implements Listener {
       // we need to wrap the proxied player to allow permission checks
       ProxiedPlayer player = new PendingConnectionProxiedPlayer(event.getConnection());
       // check if maintenance is activated
-      if (task.isMaintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
+      if (task.maintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
         event.setCancelled(true);
         event.setCancelReason(TextComponent.fromLegacyText(this.management.getConfiguration().getMessage(
           Locale.ENGLISH,

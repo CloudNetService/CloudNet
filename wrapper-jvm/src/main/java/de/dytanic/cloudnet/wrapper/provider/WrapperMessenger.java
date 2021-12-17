@@ -34,7 +34,7 @@ public class WrapperMessenger extends DefaultMessenger implements CloudMessenger
   private final INetworkComponent component;
 
   public WrapperMessenger(@NotNull Wrapper wrapper) {
-    this.component = wrapper.getNetworkClient();
+    this.component = wrapper.networkClient();
   }
 
   @Override
@@ -44,11 +44,11 @@ public class WrapperMessenger extends DefaultMessenger implements CloudMessenger
 
   @Override
   public @NotNull Collection<ChannelMessage> sendChannelMessageQuery(@NotNull ChannelMessage channelMessage) {
-    return this.component.getFirstChannel()
-      .getQueryPacketManager()
+    return this.component.firstChannel()
+      .queryPacketManager()
       .sendQueryPacket(new PacketServerChannelMessage(channelMessage))
       .join()
-      .getContent()
+      .content()
       .readObject(MESSAGES);
   }
 }

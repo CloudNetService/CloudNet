@@ -35,17 +35,17 @@ public final class TaskChannelMessageListener {
 
   @EventListener
   public void handleChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
-    if (event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
-      switch (event.getMessage()) {
+    if (event.channel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
+      switch (event.message()) {
         // add task
         case "add_service_task" -> {
-          var task = event.getContent().readObject(ServiceTask.class);
+          var task = event.content().readObject(ServiceTask.class);
           this.eventManager.callEvent(new ServiceTaskAddEvent(task));
         }
 
         // remove task
         case "remove_service_task" -> {
-          var task = event.getContent().readObject(ServiceTask.class);
+          var task = event.content().readObject(ServiceTask.class);
           this.eventManager.callEvent(new ServiceTaskRemoveEvent(task));
         }
 

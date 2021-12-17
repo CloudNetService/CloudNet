@@ -78,14 +78,14 @@ public class DefaultRPCHandlerTest {
     });
     // the channel to which the result should be sent
     var resultChannel = Mockito.mock(INetworkChannel.class);
-    Mockito.when(resultChannel.getQueryPacketManager()).thenReturn(manager);
+    Mockito.when(resultChannel.queryPacketManager()).thenReturn(manager);
     // sender
     var channel = Mockito.mock(INetworkChannel.class);
     Mockito
       .doAnswer(invocation -> {
         // the packet has no unique id yet, set one
         IPacket packet = invocation.getArgument(0);
-        packet.setUniqueId(UUID.randomUUID());
+        packet.uniqueId(UUID.randomUUID());
         // post the packet to the listener
         listener.handle(resultChannel, packet);
         return resultListener.get();
@@ -94,7 +94,7 @@ public class DefaultRPCHandlerTest {
       .sendQueryAsync(Mockito.any(IPacket.class));
     // network component
     var component = Mockito.mock(INetworkComponent.class);
-    Mockito.when(component.getFirstChannel()).thenReturn(channel);
+    Mockito.when(component.firstChannel()).thenReturn(channel);
     // RPC sender
     var sender = factory.providerForClass(component, TestApiClass.class);
     var nestedSender = factory.providerForClass(component, TestApiClassNested.class);
@@ -119,14 +119,14 @@ public class DefaultRPCHandlerTest {
     resultListener.set(new CompletableTask<>());
     // with correct argument
     result = sender
-      .invokeMethod("getNestedClass", "Test1234")
+      .invokeMethod("nestedClass", "Test1234")
       .join(nestedSender.invokeMethod("handleProcessSnapshot1", snapshot, integers, 187))
       .fireSync();
     Assertions.assertNull(result);
     // with a correct call to get a result
     resultListener.set(new CompletableTask<>());
     result = sender
-      .invokeMethod("getNestedClass", "Test123")
+      .invokeMethod("nestedClass", "Test123")
       .join(nestedSender.invokeMethod("handleProcessSnapshot1", snapshot, integers, 187))
       .fireSync();
     // ensure that the result is there
@@ -139,7 +139,7 @@ public class DefaultRPCHandlerTest {
     resultListener.set(new CompletableTask<>());
     try {
       sender
-        .invokeMethod("getNestedClass", "Test123")
+        .invokeMethod("nestedClass", "Test123")
         .join(nestedSender.invokeMethod("handleProcessSnapshot1", snapshot, integers, 185))
         .fireSync();
       Assertions.fail("A call to handleProcessSnapshot1 with the invalid argument '185' should result in an exception");
@@ -154,7 +154,7 @@ public class DefaultRPCHandlerTest {
     // triple join :)
     resultListener.set(new CompletableTask<>());
     result = sender
-      .invokeMethod("getNestedClass", "Test123")
+      .invokeMethod("nestedClass", "Test123")
       .join(nestedSender.invokeMethod("toVeryNested", 1234))
       .join(veryNestedSender.invokeMethod("handleProcessSnapshot2", snapshot, integers, 187))
       .fireSync();
@@ -188,7 +188,7 @@ public class DefaultRPCHandlerTest {
         ImmutableMap.of("test1", "test2", "test3", "test4"));
     }
 
-    public TestApiClassNested getNestedClass(String arg) {
+    public TestApiClassNested nestedClass(String arg) {
       return arg.equals("Test123") ? new TestApiClassNested() : null;
     }
   }

@@ -31,15 +31,15 @@ public final class ChunkedPacketSessionOpenEvent extends Event {
     this.sessionInformation = sessionInformation;
   }
 
-  public @NotNull ChunkSessionInformation getSession() {
+  public @NotNull ChunkSessionInformation session() {
     return this.sessionInformation;
   }
 
-  public @Nullable ChunkedPacketHandler getHandler() {
+  public @Nullable ChunkedPacketHandler handler() {
     return this.chunkedPacketHandler;
   }
 
-  public void setHandler(@Nullable ChunkedPacketHandler chunkedPacketHandler) {
+  public void handler(@Nullable ChunkedPacketHandler chunkedPacketHandler) {
     this.chunkedPacketHandler = chunkedPacketHandler;
   }
 }

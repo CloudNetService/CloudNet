@@ -111,7 +111,7 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
     // holds the result of the handle - null by default indicates no result
     DataBuf.Mutable result = null;
     // handle the incoming data as long as there is data
-    while (input.getReadableBytes() > 0) {
+    while (input.readableBytes() > 0) {
       // The data information
       var key = input.readString();
       try (var syncData = input.readDataBuf()) {

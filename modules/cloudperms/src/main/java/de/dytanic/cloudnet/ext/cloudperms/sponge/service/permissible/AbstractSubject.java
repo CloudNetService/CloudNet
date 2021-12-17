@@ -109,7 +109,7 @@ public abstract class AbstractSubject<T extends IPermissible> implements Subject
   }
 
   protected @NotNull Tristate getPermissionValue(@NotNull Permission permission) {
-    var result = this.permissionManagement.getPermissionResult(this.data, permission);
+    var result = this.permissionManagement.permissionResult(this.data, permission);
     return switch (result) {
       case ALLOWED -> Tristate.TRUE;
       case DENIED -> Tristate.FALSE;

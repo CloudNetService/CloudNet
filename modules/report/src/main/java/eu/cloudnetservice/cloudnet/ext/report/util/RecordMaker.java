@@ -49,7 +49,7 @@ public record RecordMaker(@NotNull Path directory, @NotNull ICloudService servic
    */
   public static @Nullable RecordMaker forService(@NotNull Path baseDirectory, @NotNull ICloudService service) {
     var directory = baseDirectory.resolve(
-      service.getServiceId().name() + "-" + service.getServiceId().getUniqueId()).normalize().toAbsolutePath();
+      service.getServiceId().name() + "-" + service.getServiceId().uniqueId()).normalize().toAbsolutePath();
 
     if (Files.exists(directory)) {
       return null;
@@ -79,7 +79,7 @@ public record RecordMaker(@NotNull Path directory, @NotNull ICloudService servic
       var targetDirectory = this.directory.resolve("logs");
       FileUtils.createDirectory(targetDirectory);
 
-      if (this.service.getServiceId().getEnvironment().equals(ServiceEnvironmentType.BUNGEECORD)) {
+      if (this.service.getServiceId().environment().equals(ServiceEnvironmentType.BUNGEECORD)) {
         FileUtils.walkFileTree(this.service.getDirectory(),
           (root, current) -> FileUtils.copy(current, targetDirectory.resolve(root.relativize(current))), false,
           "proxy.log*");
@@ -96,7 +96,7 @@ public record RecordMaker(@NotNull Path directory, @NotNull ICloudService servic
    */
   public void writeCachedConsoleLog() {
     try {
-      Files.write(this.directory.resolve("cachedConsoleLog.txt"), this.service.getCachedLogMessages());
+      Files.write(this.directory.resolve("cachedConsoleLog.txt"), this.service.cachedLogMessages());
     } catch (IOException exception) {
       LOGGER.severe("Unable to write cached console logs", exception);
     }
@@ -107,7 +107,7 @@ public record RecordMaker(@NotNull Path directory, @NotNull ICloudService servic
    * de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot} ServiceInfoSnapshot of the service.
    */
   public void writeServiceInfoSnapshot() {
-    JsonDocument.newDocument("serviceInfoSnapshot", this.service.getServiceInfoSnapshot())
+    JsonDocument.newDocument("serviceInfoSnapshot", this.service.serviceInfo())
       .append("lastServiceInfoSnapshot", this.service.getLastServiceInfoSnapshot())
       .write(this.directory.resolve("ServiceInfoSnapshots.json"));
   }

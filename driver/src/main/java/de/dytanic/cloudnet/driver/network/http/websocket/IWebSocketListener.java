@@ -18,12 +18,17 @@ package de.dytanic.cloudnet.driver.network.http.websocket;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import org.jetbrains.annotations.NotNull;
 
 public interface IWebSocketListener {
 
-  void handle(IWebSocketChannel channel, WebSocketFrameType type, byte[] bytes) throws Exception;
+  void handle(@NotNull IWebSocketChannel channel, @NotNull WebSocketFrameType type, byte[] bytes) throws Exception;
 
-  default void handleClose(IWebSocketChannel channel, AtomicInteger statusCode, AtomicReference<String> reasonText) {
+  default void handleClose(
+    @NotNull IWebSocketChannel channel,
+    @NotNull AtomicInteger statusCode,
+    @NotNull AtomicReference<String> reasonText
+  ) {
 
   }
 }

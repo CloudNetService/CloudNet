@@ -60,13 +60,13 @@ public interface SpecificTemplateStorage extends INameable {
    * Gets the template this class is wrapping.
    */
   @NotNull
-  ServiceTemplate getTargetTemplate();
+  ServiceTemplate targetTemplate();
 
   /**
    * Gets the storage this class is wrapping.
    */
   @NotNull
-  TemplateStorage getWrappedStorage();
+  TemplateStorage wrappedStorage();
 
   /**
    * @see TemplateStorage#deployDirectory(Path, ServiceTemplate, Predicate)
@@ -156,10 +156,10 @@ public interface SpecificTemplateStorage extends INameable {
   InputStream newInputStream(@NotNull String path) throws IOException;
 
   /**
-   * @see TemplateStorage#getFileInfo(ServiceTemplate, String)
+   * @see TemplateStorage#fileInfo(ServiceTemplate, String)
    */
   @Nullable
-  FileInfo getFileInfo(@NotNull String path) throws IOException;
+  FileInfo fileInfo(@NotNull String path) throws IOException;
 
   /**
    * @see TemplateStorage#listFiles(ServiceTemplate, String, boolean)
@@ -290,10 +290,10 @@ public interface SpecificTemplateStorage extends INameable {
   ITask<InputStream> newInputStreamAsync(@NotNull String path);
 
   /**
-   * @see TemplateStorage#getFileInfoAsync(ServiceTemplate, String)
+   * @see TemplateStorage#fileInfoAsync(ServiceTemplate, String)
    */
   @NotNull
-  ITask<FileInfo> getFileInfoAsync(@NotNull String path);
+  ITask<FileInfo> fileInfoAsync(@NotNull String path);
 
   /**
    * @see TemplateStorage#listFilesAsync(ServiceTemplate, String, boolean)

@@ -182,7 +182,7 @@ public class DefaultObjectMapper implements ObjectMapper {
       // get the registered serializer for the type
       ObjectSerializer<?> serializer = null;
       for (TypeToken<?> type : typeToken.getTypes()) {
-        serializer = this.getSerializerForType(type);
+        serializer = this.serializerForType(type);
         if (serializer != null && serializer.preWriteCheckAccepts(obj)) {
           break;
         }
@@ -205,7 +205,7 @@ public class DefaultObjectMapper implements ObjectMapper {
       // get the registered serializer for the type
       ObjectSerializer<?> serializer = null;
       for (TypeToken<?> subType : typeToken.getTypes()) {
-        serializer = this.getSerializerForType(subType);
+        serializer = this.serializerForType(subType);
         if (serializer != null && serializer.preReadCheckAccepts(type)) {
           break;
         }
@@ -219,7 +219,7 @@ public class DefaultObjectMapper implements ObjectMapper {
     });
   }
 
-  protected @Nullable ObjectSerializer<?> getSerializerForType(@NotNull TypeToken<?> typeToken) {
+  protected @Nullable ObjectSerializer<?> serializerForType(@NotNull TypeToken<?> typeToken) {
     var byType = this.registeredSerializers.get(typeToken.getType());
     return byType == null ? this.registeredSerializers.get(typeToken.getRawType()) : byType;
   }

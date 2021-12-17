@@ -33,7 +33,7 @@ public final class CloudNetTickEvent extends DriverEvent {
   }
 
   @Override
-  public boolean isShowDebug() {
+  public boolean showDebug() {
     return false;
   }
 }

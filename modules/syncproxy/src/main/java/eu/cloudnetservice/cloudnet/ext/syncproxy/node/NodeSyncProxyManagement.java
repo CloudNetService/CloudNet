@@ -49,7 +49,7 @@ public class NodeSyncProxyManagement implements SyncProxyManagement {
     // write the configuration to the file
     this.setConfigurationSilently(configuration);
     // call the local event for the update of the config
-    this.syncProxyModule.getEventManager().callEvent(new SyncProxyConfigurationUpdateEvent(configuration));
+    this.syncProxyModule.eventManager().callEvent(new SyncProxyConfigurationUpdateEvent(configuration));
     // send an update with the configuration to other components
     configuration.sendUpdate();
   }

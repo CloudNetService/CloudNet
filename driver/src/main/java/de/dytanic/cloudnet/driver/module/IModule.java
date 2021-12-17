@@ -17,14 +17,16 @@
 package de.dytanic.cloudnet.driver.module;
 
 import com.google.common.base.VerifyException;
+import de.dytanic.cloudnet.common.INameable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents the main class of a module.
  *
  * @see de.dytanic.cloudnet.driver.module.driver.DriverModule
  */
-public interface IModule {
+public interface IModule extends INameable {
 
   /**
    * Initializes the module with the necessary information. This method can only be called once.
@@ -42,29 +44,29 @@ public interface IModule {
    *
    * @return the module wrapper which is associated with this module.
    */
-  @NotNull IModuleWrapper getModuleWrapper();
+  @NotNull IModuleWrapper moduleWrapper();
 
   /**
    * Get the class loader which is responsible for this module.
    *
    * @return the class loader which is responsible for this module.
    */
-  @NotNull ClassLoader getClassLoader();
+  @NotNull ClassLoader classLoader();
 
   /**
    * Get the module configuration which was deserialized based on the information located in the module.
    *
    * @return the module configuration located in this module file.
    */
-  @NotNull ModuleConfiguration getModuleConfig();
+  @NotNull ModuleConfiguration moduleConfig();
 
   /**
    * Get the group of this module.
    *
    * @return the group id of this module.
    */
-  default String getGroup() {
-    return this.getModuleConfig().getGroup();
+  default @NotNull String group() {
+    return this.moduleConfig().group();
   }
 
   /**
@@ -72,8 +74,9 @@ public interface IModule {
    *
    * @return the name of this module.
    */
-  default String getName() {
-    return this.getModuleConfig().getName();
+  @Override
+  default @NotNull String name() {
+    return this.moduleConfig().name();
   }
 
   /**
@@ -81,8 +84,8 @@ public interface IModule {
    *
    * @return the version of this module.
    */
-  default String getVersion() {
-    return this.getModuleConfig().getVersion();
+  default @NotNull String version() {
+    return this.moduleConfig().version();
   }
 
   /**
@@ -90,8 +93,8 @@ public interface IModule {
    *
    * @return the website of this module.
    */
-  default String getWebsite() {
-    return this.getModuleConfig().getWebsite();
+  default @Nullable String website() {
+    return this.moduleConfig().website();
   }
 
   /**
@@ -99,7 +102,7 @@ public interface IModule {
    *
    * @return the description of this module.
    */
-  default String getDescription() {
-    return this.getModuleConfig().getDescription();
+  default @Nullable String description() {
+    return this.moduleConfig().description();
   }
 }

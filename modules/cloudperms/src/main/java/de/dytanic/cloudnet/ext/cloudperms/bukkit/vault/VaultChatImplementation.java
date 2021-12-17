@@ -33,19 +33,19 @@ public class VaultChatImplementation extends Chat {
   }
 
   private Optional<String> userPermissionGroupName(String username) {
-    var optionalPermissionUser = this.permissionManagement.getUsersByName(username).stream()
+    var optionalPermissionUser = this.permissionManagement.usersByName(username).stream()
       .findFirst();
 
     return optionalPermissionUser
-      .map(permissionUser -> this.permissionManagement.getHighestPermissionGroup(permissionUser).name());
+      .map(permissionUser -> this.permissionManagement.highestPermissionGroup(permissionUser).name());
   }
 
   private Optional<PermissionUser> permissionUserByName(String name) {
-    return this.permissionManagement.getUsersByName(name).stream().findFirst();
+    return this.permissionManagement.usersByName(name).stream().findFirst();
   }
 
   private Optional<PermissionGroup> permissionGroupByName(String name) {
-    return Optional.ofNullable(this.permissionManagement.getGroup(name));
+    return Optional.ofNullable(this.permissionManagement.group(name));
   }
 
   @Override
@@ -90,7 +90,7 @@ public class VaultChatImplementation extends Chat {
   public String getGroupPrefix(String world, String group) {
     var optionalPermissionGroup = this.permissionGroupByName(group);
 
-    return optionalPermissionGroup.map(PermissionGroup::getDisplay).orElse(null);
+    return optionalPermissionGroup.map(PermissionGroup::display).orElse(null);
   }
 
   @Override
@@ -98,7 +98,7 @@ public class VaultChatImplementation extends Chat {
     var optionalPermissionGroup = this.permissionGroupByName(group);
 
     optionalPermissionGroup.ifPresent(permissionGroup -> {
-      permissionGroup.setDisplay(prefix);
+      permissionGroup.display(prefix);
       this.permissionManagement.updateGroup(permissionGroup);
     });
   }
@@ -107,7 +107,7 @@ public class VaultChatImplementation extends Chat {
   public String getGroupSuffix(String world, String group) {
     var optionalPermissionGroup = this.permissionGroupByName(group);
 
-    return optionalPermissionGroup.map(PermissionGroup::getSuffix).orElse(null);
+    return optionalPermissionGroup.map(PermissionGroup::suffix).orElse(null);
   }
 
   @Override
@@ -115,7 +115,7 @@ public class VaultChatImplementation extends Chat {
     var optionalPermissionGroup = this.permissionGroupByName(group);
 
     optionalPermissionGroup.ifPresent(permissionGroup -> {
-      permissionGroup.setSuffix(suffix);
+      permissionGroup.suffix(suffix);
       this.permissionManagement.updateGroup(permissionGroup);
     });
   }

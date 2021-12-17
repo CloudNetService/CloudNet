@@ -51,10 +51,10 @@ public final class VelocityCloudCommand implements SimpleCommand {
     // skip the permission check if the source is the console
     if (!(invocation.source() instanceof ConsoleCommandSource)) {
       // get the command info
-      var command = CloudNetDriver.getInstance().getNodeInfoProvider().getConsoleCommand(commandLine);
+      var command = CloudNetDriver.instance().nodeInfoProvider().consoleCommand(commandLine);
       // check if the sender has the required permission to execute the command
       if (command != null) {
-        if (!invocation.source().hasPermission(command.getPermission())) {
+        if (!invocation.source().hasPermission(command.permission())) {
           invocation.source().sendMessage(serialize(this.management.getConfiguration().getMessage(
             invocation.source() instanceof Player
               ? ((Player) invocation.source()).getEffectiveLocale()
@@ -66,7 +66,7 @@ public final class VelocityCloudCommand implements SimpleCommand {
       }
     }
     // execute the command
-    CloudNetDriver.getInstance().getNodeInfoProvider().sendCommandLineAsync(commandLine).onComplete(messages -> {
+    CloudNetDriver.instance().nodeInfoProvider().sendCommandLineAsync(commandLine).onComplete(messages -> {
       for (var line : messages) {
         invocation.source().sendMessage(serialize(this.management.getConfiguration().getPrefix() + line));
       }
@@ -75,9 +75,9 @@ public final class VelocityCloudCommand implements SimpleCommand {
 
   @Override
   public @NotNull CompletableFuture<List<String>> suggestAsync(@NotNull Invocation invocation) {
-    return CompletableFuture.supplyAsync(() -> ImmutableList.copyOf(CloudNetDriver.getInstance()
-      .getNodeInfoProvider()
-      .getConsoleTabCompleteResults(String.join(" ", invocation.arguments()))));
+    return CompletableFuture.supplyAsync(() -> ImmutableList.copyOf(CloudNetDriver.instance()
+      .nodeInfoProvider()
+      .consoleTabCompleteResults(String.join(" ", invocation.arguments()))));
   }
 
   @Override

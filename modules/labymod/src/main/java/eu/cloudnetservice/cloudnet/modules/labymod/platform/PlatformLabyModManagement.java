@@ -45,11 +45,11 @@ public class PlatformLabyModManagement implements LabyModManagement {
   private LabyModConfiguration configuration;
 
   public PlatformLabyModManagement() {
-    this.rpcSender = Wrapper.getInstance().getRPCProviderFactory().providerForClass(
-      Wrapper.getInstance().getNetworkClient(),
+    this.rpcSender = Wrapper.getInstance().rpcProviderFactory().providerForClass(
+      Wrapper.getInstance().networkClient(),
       LabyModManagement.class);
-    this.playerManager = Wrapper.getInstance().getServicesRegistry().firstService(IPlayerManager.class);
-    this.bridgeManagement = Wrapper.getInstance().getServicesRegistry().firstService(PlatformBridgeManagement.class);
+    this.playerManager = Wrapper.getInstance().servicesRegistry().getFirstService(IPlayerManager.class);
+    this.bridgeManagement = Wrapper.getInstance().servicesRegistry().getFirstService(PlatformBridgeManagement.class);
     this.setConfigurationSilently(this.rpcSender.invokeMethod("getConfiguration").fireSync());
   }
 
@@ -222,7 +222,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
     // used to determine if we need to send the join secret
     var sendJoinSecret = false;
     // check if joining the match is enabled
-    if (joinMatch.enabled() && joinMatch.isEnabled(snapshot) && !IS_IN_GAME.get(snapshot).orElse(false)) {
+    if (joinMatch.enabled() && joinMatch.isEnabled(snapshot) && !IS_IN_GAME.read(snapshot).orElse(false)) {
       // create a new join secret
       playerOptionsBuilder.joinSecret(UUID.randomUUID());
       sendJoinSecret = true;
@@ -235,7 +235,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
     // used to determine if we need to send the spectate secret
     var sendSpectateSecret = false;
     // check if spectating a match is allowed
-    if (spectateMatch.enabled() && spectateMatch.isEnabled(snapshot) && IS_IN_GAME.get(snapshot).orElse(false)) {
+    if (spectateMatch.enabled() && spectateMatch.isEnabled(snapshot) && IS_IN_GAME.read(snapshot).orElse(false)) {
       // create a new spectate secret
       playerOptionsBuilder.spectateSecret(UUID.randomUUID());
       sendSpectateSecret = true;
@@ -297,8 +297,8 @@ public class PlatformLabyModManagement implements LabyModManagement {
   }
 
   protected void connectPlayer(@NotNull CloudPlayer player, @NotNull CloudPlayer target) {
-    var serviceInfoSnapshot = CloudNetDriver.getInstance().getCloudServiceProvider()
-      .getCloudService(target.getConnectedService().uniqueId());
+    var serviceInfoSnapshot = CloudNetDriver.instance().cloudServiceProvider()
+      .service(target.getConnectedService().uniqueId());
     // check if there is a service to connect to
     if (serviceInfoSnapshot != null) {
       // construct the updated discord rpc

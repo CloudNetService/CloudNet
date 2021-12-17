@@ -34,11 +34,11 @@ public class LocalGroupConfigurationAddEvent extends Event implements ICancelabl
     return this.group;
   }
 
-  public boolean isCancelled() {
+  public boolean cancelled() {
     return this.cancelled;
   }
 
-  public void setCancelled(boolean cancelled) {
+  public void cancelled(boolean cancelled) {
     this.cancelled = cancelled;
   }
 }

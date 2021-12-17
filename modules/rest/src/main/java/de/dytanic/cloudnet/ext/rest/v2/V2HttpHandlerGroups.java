@@ -49,7 +49,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
 
   protected void handleGroupListRequest(IHttpContext context) {
     this.ok(context)
-      .body(this.success().append("groups", this.getGroupProvider().getGroupConfigurations()).toString())
+      .body(this.success().append("groups", this.getGroupProvider().groupConfigurations()).toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -66,7 +66,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
 
   protected void handleGroupRequest(IHttpContext context) {
     this.handleWithGroupContext(context, name -> {
-      var configuration = this.getGroupProvider().getGroupConfiguration(name);
+      var configuration = this.getGroupProvider().groupConfiguration(name);
       if (configuration == null) {
         this.ok(context)
           .body(this.failure().append("reason", "Unknown configuration").toString())
@@ -135,6 +135,6 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
   }
 
   protected GroupConfigurationProvider getGroupProvider() {
-    return this.getCloudNet().getGroupConfigurationProvider();
+    return this.getCloudNet().groupConfigurationProvider();
   }
 }

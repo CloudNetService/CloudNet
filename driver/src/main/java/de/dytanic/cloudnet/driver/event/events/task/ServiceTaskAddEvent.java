@@ -18,17 +18,17 @@ package de.dytanic.cloudnet.driver.event.events.task;
 
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
+import org.jetbrains.annotations.NotNull;
 
 public final class ServiceTaskAddEvent extends Event {
 
   private final ServiceTask task;
 
-  public ServiceTaskAddEvent(ServiceTask task) {
+  public ServiceTaskAddEvent(@NotNull ServiceTask task) {
     this.task = task;
   }
 
-  public ServiceTask getTask() {
+  public @NotNull ServiceTask task() {
     return this.task;
   }
-
 }

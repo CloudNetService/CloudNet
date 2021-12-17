@@ -28,38 +28,38 @@ public final class CommandServiceConfiguration {
 
     messages.add("Includes:");
 
-    for (var inclusion : configurationBase.getIncludes()) {
-      messages.add("- " + inclusion.getUrl() + " => " + inclusion.getDestination());
+    for (var inclusion : configurationBase.includes()) {
+      messages.add("- " + inclusion.url() + " => " + inclusion.destination());
     }
 
     messages.add(" ");
     messages.add("Templates:");
 
-    for (var template : configurationBase.getTemplates()) {
+    for (var template : configurationBase.templates()) {
       messages.add("- " + template);
     }
 
     messages.add(" ");
     messages.add("Deployments:");
 
-    for (var deployment : configurationBase.getDeployments()) {
+    for (var deployment : configurationBase.deployments()) {
       messages.add("- ");
       messages.add(
-        "Template:  " + deployment.getTemplate());
-      messages.add("Excludes: " + deployment.getExcludes());
+        "Template:  " + deployment.template());
+      messages.add("Excludes: " + deployment.excludes());
     }
 
     messages.add(" ");
     messages.add("JVM Options:");
 
-    for (var jvmOption : configurationBase.getJvmOptions()) {
+    for (var jvmOption : configurationBase.jvmOptions()) {
       messages.add("- " + jvmOption);
     }
 
     messages.add(" ");
     messages.add("Process Parameters:");
 
-    for (var processParameters : configurationBase.getProcessParameters()) {
+    for (var processParameters : configurationBase.processParameters()) {
       messages.add("- " + processParameters);
     }
 

@@ -18,44 +18,45 @@ package de.dytanic.cloudnet.driver.network.http;
 
 import java.io.InputStream;
 import java.util.Map;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
 public interface IHttpMessage<T extends IHttpMessage<?>> {
 
-  IHttpContext context();
+  @NotNull IHttpContext context();
 
-  String header(String name);
+  @Nullable String header(@NotNull String name);
 
-  int headerAsInt(String name);
+  int headerAsInt(@NotNull String name);
 
-  boolean headerAsBoolean(String name);
+  boolean headerAsBoolean(@NotNull String name);
 
-  T header(String name, String value);
+  @NotNull T header(@NotNull String name, @NotNull String value);
 
-  T removeHeader(String name);
+  @NotNull T removeHeader(@NotNull String name);
 
-  T clearHeaders();
+  @NotNull T clearHeaders();
 
-  boolean hasHeader(String name);
+  boolean hasHeader(@NotNull String name);
 
-  Map<String, String> headers();
+  @NotNull Map<String, String> headers();
 
-  HttpVersion version();
+  @NotNull HttpVersion version();
 
-  T version(HttpVersion version);
+  @NotNull T version(@NotNull HttpVersion version);
 
   byte[] body();
 
-  String bodyAsString();
+  @NotNull String bodyAsString();
 
-  T body(byte[] byteArray);
+  @NotNull T body(byte[] byteArray);
 
-  T body(String text);
+  @NotNull T body(@NotNull String text);
 
   @UnknownNullability InputStream bodyStream();
 
-  T body(@Nullable InputStream body);
+  @NotNull T body(@Nullable InputStream body);
 
   boolean hasBody();
 }

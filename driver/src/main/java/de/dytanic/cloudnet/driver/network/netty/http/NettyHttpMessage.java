@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class NettyHttpMessage {
 
-  protected @NotNull HttpVersion getCloudNetHttpVersion(@NotNull io.netty.handler.codec.http.HttpVersion httpVersion) {
+  protected @NotNull HttpVersion versionFromNetty(@NotNull io.netty.handler.codec.http.HttpVersion httpVersion) {
     if (httpVersion == io.netty.handler.codec.http.HttpVersion.HTTP_1_1) {
       return HttpVersion.HTTP_1_1;
     } else {
@@ -29,7 +29,7 @@ public class NettyHttpMessage {
     }
   }
 
-  protected @NotNull io.netty.handler.codec.http.HttpVersion getNettyHttpVersion(@NotNull HttpVersion httpVersion) {
+  protected @NotNull io.netty.handler.codec.http.HttpVersion versionToNetty(@NotNull HttpVersion httpVersion) {
     if (httpVersion == HttpVersion.HTTP_1_1) {
       return io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
     } else {

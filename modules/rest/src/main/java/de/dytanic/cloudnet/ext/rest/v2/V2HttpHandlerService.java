@@ -89,7 +89,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
 
   protected void handleListServicesRequest(IHttpContext context) {
     this.ok(context)
-      .body(this.success().append("services", this.getGeneralServiceProvider().getCloudServices()).toString())
+      .body(this.success().append("services", this.getGeneralServiceProvider().services()).toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -191,7 +191,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
 
   protected void handleLogLinesRequest(IHttpContext context) {
     this.handleWithServiceContext(context, service -> this.ok(context)
-      .body(this.success().append("lines", service.provider().getCachedLogMessages()).toString())
+      .body(this.success().append("lines", service.provider().cachedLogMessages()).toString())
       .context()
       .closeAfter(true)
       .cancelNext()
@@ -200,8 +200,8 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
 
   protected void handleLiveLogRequest(IHttpContext context) {
     this.handleWithServiceContext(context, service -> {
-      var cloudService = this.getCloudNet().getCloudServiceProvider()
-        .getLocalCloudService(service.getServiceId().getUniqueId());
+      var cloudService = this.getCloudNet().cloudServiceProvider()
+        .getLocalCloudService(service.serviceId().uniqueId());
       if (cloudService != null) {
         var webSocketChannel = context.upgrade();
         if (webSocketChannel == null) {
@@ -238,7 +238,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
         // fallback to a service task name which has to exist
         var serviceTaskName = body.getString("serviceTaskName");
         if (serviceTaskName != null) {
-          var task = this.getCloudNet().getServiceTaskProvider().getServiceTask(serviceTaskName);
+          var task = this.getCloudNet().serviceTaskProvider().serviceTask(serviceTaskName);
           if (task != null) {
             configuration = ServiceConfiguration.builder(task).build();
           } else {
@@ -399,19 +399,19 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
   }
 
   protected GeneralCloudServiceProvider getGeneralServiceProvider() {
-    return this.getCloudNet().getCloudServiceProvider();
+    return this.getCloudNet().cloudServiceProvider();
   }
 
   protected CloudServiceFactory getServiceFactory() {
-    return this.getCloudNet().getCloudServiceFactory();
+    return this.getCloudNet().cloudServiceFactory();
   }
 
   protected ServiceInfoSnapshot getServiceByName(String name) {
-    return this.getGeneralServiceProvider().getCloudServiceByName(name);
+    return this.getGeneralServiceProvider().serviceByName(name);
   }
 
   protected ServiceInfoSnapshot getServiceById(UUID uniqueID) {
-    return this.getGeneralServiceProvider().getCloudService(uniqueID);
+    return this.getGeneralServiceProvider().service(uniqueID);
   }
 
   protected static class ConsoleHandlerWebSocketListener implements IWebSocketListener {
@@ -428,7 +428,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     }
 
     @Override
-    public void handle(IWebSocketChannel channel, WebSocketFrameType type, byte[] bytes) throws Exception {
+    public void handle(@NotNull IWebSocketChannel channel, @NotNull WebSocketFrameType type, byte[] bytes) throws Exception {
       if (type == WebSocketFrameType.TEXT) {
         var commandLine = new String(bytes, StandardCharsets.UTF_8);
         this.service.runCommand(commandLine);
@@ -436,7 +436,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     }
 
     @Override
-    public void handleClose(IWebSocketChannel channel, AtomicInteger statusCode, AtomicReference<String> reasonText) {
+    public void handleClose(@NotNull IWebSocketChannel channel, @NotNull AtomicInteger statusCode, @NotNull AtomicReference<String> reasonText) {
       this.logCache.removeHandler(this.watchingHandler);
     }
   }

@@ -34,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
 public interface ICloudService extends SpecificCloudServiceProvider {
 
   @Override
-  @NotNull ServiceInfoSnapshot getServiceInfoSnapshot();
+  @NotNull ServiceInfoSnapshot serviceInfo();
 
   @NotNull
   String getRuntime();

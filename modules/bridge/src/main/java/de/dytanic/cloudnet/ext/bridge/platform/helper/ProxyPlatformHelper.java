@@ -72,6 +72,6 @@ public final class ProxyPlatformHelper {
   }
 
   static @NotNull ChannelMessage.Builder toCurrentNode() {
-    return ChannelMessage.builder().targetNode(Wrapper.getInstance().getNodeUniqueId());
+    return ChannelMessage.builder().targetNode(Wrapper.getInstance().nodeUniqueId());
   }
 }

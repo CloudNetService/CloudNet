@@ -117,12 +117,12 @@ public abstract class AbstractService implements ICloudService {
     this.serviceConfigurationPreparer = serviceConfigurationPreparer;
 
     this.connectionKey = StringUtil.generateRandomString(64);
-    this.serviceDirectory = resolveServicePath(configuration.getServiceId(), manager, configuration.isStaticService());
+    this.serviceDirectory = resolveServicePath(configuration.serviceId(), manager, configuration.staticService());
 
     this.currentServiceInfo = new ServiceInfoSnapshot(
       System.currentTimeMillis(),
-      new HostAndPort(this.getNodeConfiguration().getHostAddress(), configuration.getPort()),
-      new HostAndPort(this.getNodeConfiguration().getConnectHostAddress(), configuration.getPort()),
+      new HostAndPort(this.getNodeConfiguration().getHostAddress(), configuration.port()),
+      new HostAndPort(this.getNodeConfiguration().getConnectHostAddress(), configuration.port()),
       ProcessSnapshot.empty(),
       configuration,
       -1,
@@ -131,7 +131,7 @@ public abstract class AbstractService implements ICloudService {
     this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.PREPARED);
 
     manager.registerLocalService(this);
-    nodeInstance.getEventManager().callEvent(new CloudServiceCreateEvent(this));
+    nodeInstance.eventManager().callEvent(new CloudServiceCreateEvent(this));
   }
 
   protected static @NotNull Path resolveServicePath(
@@ -147,17 +147,17 @@ public abstract class AbstractService implements ICloudService {
     // resolve the path of the service in the logical directory
     return staticService
       ? manager.getPersistentServicesDirectoryPath().resolve(serviceId.name())
-      : manager.getTempDirectoryPath().resolve(String.format("%s_%s", serviceId.name(), serviceId.getUniqueId()));
+      : manager.getTempDirectoryPath().resolve(String.format("%s_%s", serviceId.name(), serviceId.uniqueId()));
   }
 
   @Override
-  public @NotNull ServiceInfoSnapshot getServiceInfoSnapshot() {
+  public @NotNull ServiceInfoSnapshot serviceInfo() {
     return this.currentServiceInfo;
   }
 
   @Override
-  public boolean isValid() {
-    return this.currentServiceInfo.getLifeCycle() != ServiceLifeCycle.DELETED;
+  public boolean valid() {
+    return this.currentServiceInfo.lifeCycle() != ServiceLifeCycle.DELETED;
   }
 
   @Override
@@ -197,7 +197,7 @@ public abstract class AbstractService implements ICloudService {
   }
 
   @Override
-  public void setCloudServiceLifeCycle(@NotNull ServiceLifeCycle lifeCycle) {
+  public void updateLifecycle(@NotNull ServiceLifeCycle lifeCycle) {
     try {
       // prevent multiple service updates at the same time
       this.lifecycleLock.lock();
@@ -232,7 +232,7 @@ public abstract class AbstractService implements ICloudService {
         case STOPPED: {
           if (this.preLifecycleChange(ServiceLifeCycle.STOPPED)) {
             // check if we should delete the service when stopping
-            if (this.getServiceConfiguration().isAutoDeleteOnStop()) {
+            if (this.getServiceConfiguration().autoDeleteOnStop()) {
               this.doDelete();
               // update the current service info
               this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.DELETED);
@@ -273,7 +273,7 @@ public abstract class AbstractService implements ICloudService {
     ServiceRemoteInclusion inclusion;
     while ((inclusion = this.waitingRemoteInclusions.poll()) != null) {
       // prepare the connection from which we load the inclusion
-      var getRequest = Unirest.get(inclusion.getUrl());
+      var getRequest = Unirest.get(inclusion.url());
       // put the given http headers
       if (inclusion.properties().contains("httpHeaders")) {
         var headers = inclusion.properties().getDocument("httpHeaders");
@@ -283,23 +283,23 @@ public abstract class AbstractService implements ICloudService {
       }
       // check if we should load the inclusion
       if (!this.eventManager.callEvent(new CloudServicePreLoadInclusionEvent(this, inclusion, getRequest))
-        .isCancelled()) {
+        .cancelled()) {
         // get a target path based on the download url
         var destination = INCLUSION_TEMP_DIR.resolve(
-          Base64.getEncoder().encodeToString(inclusion.getUrl().getBytes(StandardCharsets.UTF_8)).replace('/', '_'));
+          Base64.getEncoder().encodeToString(inclusion.url().getBytes(StandardCharsets.UTF_8)).replace('/', '_'));
         // download the file from the given url to the temp path if it does not exist
         if (Files.notExists(destination)) {
           try {
             // we only support success codes for downloading the file
             getRequest.asFile(destination.toString());
           } catch (UnirestException exception) {
-            LOGGER.severe("Unable to download inclusion from %s to %s", exception.getCause(), inclusion.getUrl(),
+            LOGGER.severe("Unable to download inclusion from %s to %s", exception.getCause(), inclusion.url(),
               destination);
             continue;
           }
         }
         // resolve the desired output path
-        var target = this.serviceDirectory.resolve(inclusion.getDestination());
+        var target = this.serviceDirectory.resolve(inclusion.destination());
         FileUtils.ensureChild(this.serviceDirectory, target);
         // copy the file to the desired output path
         FileUtils.copy(destination, target);
@@ -326,14 +326,14 @@ public abstract class AbstractService implements ICloudService {
   @Override
   public void doDelete() {
     // stop the process if it's running
-    if (this.currentServiceInfo.getLifeCycle() == ServiceLifeCycle.RUNNING || this.isAlive()) {
+    if (this.currentServiceInfo.lifeCycle() == ServiceLifeCycle.RUNNING || this.isAlive()) {
       this.stopProcess();
     }
     // execute all deployments which are still waiting - delete all requested files before that
     this.doRemoveFilesAfterStop();
     this.removeAndExecuteDeployments();
     // remove the current directory if the service is not static
-    if (!this.getServiceConfiguration().isStaticService()) {
+    if (!this.getServiceConfiguration().staticService()) {
       FileUtils.delete(this.serviceDirectory);
     }
   }
@@ -355,7 +355,7 @@ public abstract class AbstractService implements ICloudService {
 
   @Override
   public @NotNull ServiceLifeCycle getLifeCycle() {
-    return this.currentServiceInfo.getLifeCycle();
+    return this.currentServiceInfo.lifeCycle();
   }
 
   @Override
@@ -365,12 +365,12 @@ public abstract class AbstractService implements ICloudService {
 
   @Override
   public @NotNull ServiceConfiguration getServiceConfiguration() {
-    return this.currentServiceInfo.getConfiguration();
+    return this.currentServiceInfo.configuration();
   }
 
   @Override
   public @NotNull ServiceId getServiceId() {
-    return this.currentServiceInfo.getServiceId();
+    return this.currentServiceInfo.serviceId();
   }
 
   @Override
@@ -394,9 +394,9 @@ public abstract class AbstractService implements ICloudService {
     // close the channel if the new channel is null
     if (this.networkChannel != null) {
       this.networkChannel.close();
-      this.currentServiceInfo.setConnectedTime(0);
+      this.currentServiceInfo.connectedTime(0);
     } else {
-      this.currentServiceInfo.setConnectedTime(System.currentTimeMillis());
+      this.currentServiceInfo.connectedTime(System.currentTimeMillis());
     }
     // set the new channel
     this.networkChannel = channel;
@@ -425,7 +425,7 @@ public abstract class AbstractService implements ICloudService {
   }
 
   @Override
-  public Queue<String> getCachedLogMessages() {
+  public Queue<String> cachedLogMessages() {
     return this.getServiceConsoleLogCache().getCachedLogMessages();
   }
 
@@ -446,19 +446,19 @@ public abstract class AbstractService implements ICloudService {
     this.waitingTemplates.stream()
       .filter(template -> {
         // always allow manual requests & non-static service copies
-        if (!automaticRequest || !this.getServiceConfiguration().isStaticService()) {
+        if (!automaticRequest || !this.getServiceConfiguration().staticService()) {
           return true;
         }
         // only allow this template to be copied if explicitly defined
-        return template.shouldAlwaysCopyToStaticServices();
+        return template.alwaysCopyToStaticServices();
       })
       .sorted()
       .forEachOrdered(template -> {
         // remove the entry
         this.waitingTemplates.remove(template);
         // check if we should load the template
-        var storage = template.storage().getWrappedStorage();
-        if (!this.eventManager.callEvent(new CloudServiceTemplateLoadEvent(this, storage, template)).isCancelled()) {
+        var storage = template.storage().wrappedStorage();
+        if (!this.eventManager.callEvent(new CloudServiceTemplateLoadEvent(this, storage, template)).cancelled()) {
           // the event is not cancelled - copy the template
           storage.copy(template, this.serviceDirectory);
         }
@@ -467,29 +467,29 @@ public abstract class AbstractService implements ICloudService {
 
   protected void executeDeployment(@NotNull ServiceDeployment deployment) {
     // check if we should execute the deployment
-    var storage = deployment.getTemplate().storage().getWrappedStorage();
-    if (!this.eventManager.callEvent(new CloudServiceDeploymentEvent(this, storage, deployment)).isCancelled()) {
+    var storage = deployment.template().storage().wrappedStorage();
+    if (!this.eventManager.callEvent(new CloudServiceDeploymentEvent(this, storage, deployment)).cancelled()) {
       // execute the deployment
-      storage.deployDirectory(this.serviceDirectory, deployment.getTemplate(), path -> {
+      storage.deployDirectory(this.serviceDirectory, deployment.template(), path -> {
         // normalize the name of the path
         var fileName = Files.isDirectory(path)
           ? path.getFileName().toString() + '/'
           : path.getFileName().toString();
         // check if the file is ignored
-        return deployment.getExcludes().stream().noneMatch(pattern -> fileName.matches(pattern.replace("*", "(.*)")))
+        return deployment.excludes().stream().noneMatch(pattern -> fileName.matches(pattern.replace("*", "(.*)")))
           && !DEFAULT_DEPLOYMENT_EXCLUSIONS.contains(fileName);
       });
     }
   }
 
   protected void doRemoveFilesAfterStop() {
-    for (var file : this.serviceConfiguration.getDeletedFilesAfterStop()) {
+    for (var file : this.serviceConfiguration.deletedFilesAfterStop()) {
       FileUtils.delete(this.serviceDirectory.resolve(file));
     }
   }
 
   protected boolean preLifecycleChange(@NotNull ServiceLifeCycle targetLifecycle) {
-    return !this.eventManager.callEvent(new CloudServicePreLifecycleEvent(this, targetLifecycle)).isCancelled();
+    return !this.eventManager.callEvent(new CloudServicePreLifecycleEvent(this, targetLifecycle)).cancelled();
   }
 
   protected void pushServiceInfoSnapshotUpdate(@NotNull ServiceLifeCycle lifeCycle) {
@@ -497,12 +497,12 @@ public abstract class AbstractService implements ICloudService {
     this.lastServiceInfo = this.currentServiceInfo;
     // update the current info
     this.currentServiceInfo = new ServiceInfoSnapshot(
-      this.lastServiceInfo.getCreationTime(),
-      this.lastServiceInfo.getAddress(),
-      this.lastServiceInfo.getConnectAddress(),
-      this.isAlive() ? this.lastServiceInfo.getProcessSnapshot() : ProcessSnapshot.empty(),
-      this.lastServiceInfo.getConfiguration(),
-      this.networkChannel == null ? -1 : this.lastServiceInfo.getConnectedTime(),
+      this.lastServiceInfo.creationTime(),
+      this.lastServiceInfo.address(),
+      this.lastServiceInfo.connectAddress(),
+      this.isAlive() ? this.lastServiceInfo.processSnapshot() : ProcessSnapshot.empty(),
+      this.lastServiceInfo.configuration(),
+      this.networkChannel == null ? -1 : this.lastServiceInfo.connectedTime(),
       Preconditions.checkNotNull(lifeCycle, "lifecycle"),
       this.lastServiceInfo.properties());
     // remove the service in the local manager if the service was deleted
@@ -516,7 +516,7 @@ public abstract class AbstractService implements ICloudService {
       .targetAll()
       .message("update_service_lifecycle")
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .buffer(DataBuf.empty().writeObject(this.lastServiceInfo.getLifeCycle()).writeObject(this.currentServiceInfo))
+      .buffer(DataBuf.empty().writeObject(this.lastServiceInfo.lifeCycle()).writeObject(this.currentServiceInfo))
       .build()
       .send();
   }
@@ -524,7 +524,7 @@ public abstract class AbstractService implements ICloudService {
   protected boolean canStartNow() {
     // check jvm heap size
     if (this.cloudServiceManager.getCurrentUsedHeapMemory()
-      + this.getServiceConfiguration().getProcessConfig().maxHeapMemorySize()
+      + this.getServiceConfiguration().processConfig().maxHeapMemorySize()
       >= this.getNodeConfiguration().getMaxMemory()) {
       // schedule a retry
       if (this.getNodeConfiguration().isRunBlockedServiceStartTryLaterAutomatic()) {
@@ -555,7 +555,7 @@ public abstract class AbstractService implements ICloudService {
     var firstStartup = Files.notExists(this.serviceDirectory);
     FileUtils.createDirectory(this.serviceDirectory);
     // write the configuration file for the service
-    var listeners = this.getNodeConfiguration().getIdentity().getListeners();
+    var listeners = this.getNodeConfiguration().getIdentity().listeners();
     JsonDocument.newDocument()
       .append("connectionKey", this.getConnectionKey())
       .append("serviceInfoSnapshot", this.currentServiceInfo)
@@ -569,9 +569,9 @@ public abstract class AbstractService implements ICloudService {
       this.copySslConfiguration(sslConfiguration);
     }
     // add all components
-    this.waitingTemplates.addAll(this.serviceConfiguration.getTemplates());
-    this.waitingDeployments.addAll(this.serviceConfiguration.getDeployments());
-    this.waitingRemoteInclusions.addAll(this.serviceConfiguration.getIncludes());
+    this.waitingTemplates.addAll(this.serviceConfiguration.templates());
+    this.waitingDeployments.addAll(this.serviceConfiguration.deployments());
+    this.waitingRemoteInclusions.addAll(this.serviceConfiguration.includes());
     // load the inclusions
     this.includeWaitingServiceInclusions();
     // check if we should load the templates of the service

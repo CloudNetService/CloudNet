@@ -51,8 +51,8 @@ public class RemoteTemplateStorage implements TemplateStorage {
   public RemoteTemplateStorage(@NotNull String name, @NotNull RPC baseRPC) {
     this.name = name;
     this.baseRPC = baseRPC;
-    this.sender = baseRPC.getSender().getFactory().providerForClass(
-      baseRPC.getSender().getAssociatedComponent(),
+    this.sender = baseRPC.sender().factory().providerForClass(
+      baseRPC.sender().associatedComponent(),
       TemplateStorage.class);
   }
 
@@ -80,7 +80,7 @@ public class RemoteTemplateStorage implements TemplateStorage {
       .source(inputStream)
       .transferChannel("deploy_service_template")
       .withExtraData(DataBuf.empty().writeString(this.name).writeObject(target).writeBoolean(true))
-      .toChannels(CloudNetDriver.getInstance().getNetworkClient().getFirstChannel())
+      .toChannels(CloudNetDriver.instance().networkClient().firstChannel())
       .build()
       .transferChunkedData()
       .get(5, TimeUnit.MINUTES, TransferStatus.FAILURE) == TransferStatus.SUCCESS;
@@ -98,7 +98,7 @@ public class RemoteTemplateStorage implements TemplateStorage {
     var response = ChannelMessage.builder()
       .message("remote_templates_zip_template")
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .targetNode(CloudNetDriver.getInstance().getNodeUniqueId())
+      .targetNode(CloudNetDriver.instance().nodeUniqueId())
       .buffer(DataBuf.empty().writeString(this.name).writeObject(template).writeUniqueId(responseId))
       .build()
       .sendSingleQuery();
@@ -152,7 +152,7 @@ public class RemoteTemplateStorage implements TemplateStorage {
       $ -> ChunkedPacketSender.forFileTransfer()
         .forFile(localPath)
         .transferChannel("deploy_single_file")
-        .toChannels(CloudNetDriver.getInstance().getNetworkClient().getFirstChannel())
+        .toChannels(CloudNetDriver.instance().networkClient().firstChannel())
         .withExtraData(
           DataBuf.empty().writeString(this.name).writeObject(template).writeString(path).writeBoolean(append))
         .build()
@@ -190,7 +190,7 @@ public class RemoteTemplateStorage implements TemplateStorage {
     var response = ChannelMessage.builder()
       .message("remote_templates_template_file")
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .targetNode(CloudNetDriver.getInstance().getNodeUniqueId())
+      .targetNode(CloudNetDriver.instance().nodeUniqueId())
       .buffer(DataBuf.empty().writeString(path).writeString(this.name).writeObject(template).writeUniqueId(responseId))
       .build()
       .sendSingleQuery();
@@ -203,8 +203,8 @@ public class RemoteTemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public @Nullable FileInfo getFileInfo(@NotNull ServiceTemplate template, @NotNull String path) {
-    return this.baseRPC.join(this.sender.invokeMethod("getFileInfo", template, path)).fireSync();
+  public @Nullable FileInfo fileInfo(@NotNull ServiceTemplate template, @NotNull String path) {
+    return this.baseRPC.join(this.sender.invokeMethod("fileInfo", template, path)).fireSync();
   }
 
   @Override
@@ -213,8 +213,8 @@ public class RemoteTemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public @NotNull Collection<ServiceTemplate> getTemplates() {
-    return this.baseRPC.join(this.sender.invokeMethod("getTemplates")).fireSync();
+  public @NotNull Collection<ServiceTemplate> templates() {
+    return this.baseRPC.join(this.sender.invokeMethod("templates")).fireSync();
   }
 
   @Override

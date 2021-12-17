@@ -42,12 +42,12 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
 
   public WrapperPermissionManagement(@NotNull Wrapper wrapper) {
     this.wrapper = wrapper;
-    this.rpcSender = wrapper.getRPCProviderFactory().providerForClass(
-      wrapper.getNetworkClient(),
+    this.rpcSender = wrapper.rpcProviderFactory().providerForClass(
+      wrapper.networkClient(),
       IPermissionManagement.class);
 
     this.cacheListener = new PermissionCacheListener(this);
-    this.channelMessageListener = new PermissionChannelMessageListener(wrapper.getEventManager(), this);
+    this.channelMessageListener = new PermissionChannelMessageListener(wrapper.eventManager(), this);
   }
 
   @Override
@@ -59,12 +59,12 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
       }
     }
 
-    this.wrapper.getEventManager().registerListeners(this.cacheListener, this.channelMessageListener);
+    this.wrapper.eventManager().registerListeners(this.cacheListener, this.channelMessageListener);
   }
 
   @Override
   public void close() {
-    this.wrapper.getEventManager().unregisterListener(this.cacheListener, this.channelMessageListener);
+    this.wrapper.eventManager().unregisterListener(this.cacheListener, this.channelMessageListener);
   }
 
   @Override
@@ -86,19 +86,19 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
   }
 
   @Override
-  public @NotNull Collection<PermissionGroup> getGroups() {
+  public @NotNull Collection<PermissionGroup> groups() {
     return this.permissionGroupCache.asMap().values();
   }
 
   @Override
-  public void setGroups(@Nullable Collection<? extends PermissionGroup> groups) {
-    this.rpcSender.invokeMethod("setGroups", groups).fireSync();
+  public void groups(@Nullable Collection<? extends PermissionGroup> groups) {
+    this.rpcSender.invokeMethod("groups", groups).fireSync();
   }
 
   @Override
-  public PermissionGroup getDefaultPermissionGroup() {
+  public PermissionGroup defaultPermissionGroup() {
     return this.permissionGroupCache.asMap().values().stream()
-      .filter(PermissionGroup::isDefaultGroup)
+      .filter(PermissionGroup::defaultGroup)
       .findFirst()
       .orElse(null);
   }
@@ -114,13 +114,13 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
   }
 
   @Override
-  public @NotNull PermissionCheckResult getPermissionResult(
+  public @NotNull PermissionCheckResult permissionResult(
     @NotNull IPermissible permissible,
     @NotNull Permission permission
   ) {
-    return this.getGroupsPermissionResult(
+    return this.groupsPermissionResult(
       permissible,
-      this.wrapper.getCurrentServiceInfoSnapshot().getConfiguration().getGroups().toArray(new String[0]),
+      this.wrapper.currentServiceInfo().configuration().groups().toArray(new String[0]),
       permission);
   }
 
@@ -166,14 +166,14 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
   }
 
   @Override
-  public @Nullable PermissionUser getUser(@NotNull UUID uniqueId) {
+  public @Nullable PermissionUser user(@NotNull UUID uniqueId) {
     var permissionUser = this.permissionUserCache.getIfPresent(uniqueId);
     if (permissionUser != null) {
       return permissionUser;
     }
 
-    permissionUser = this.rpcSender.invokeMethod("getUser", uniqueId).fireSync();
-    this.permissionUserCache.put(permissionUser.getUniqueId(), permissionUser);
+    permissionUser = this.rpcSender.invokeMethod("user", uniqueId).fireSync();
+    this.permissionUserCache.put(permissionUser.uniqueId(), permissionUser);
 
     return permissionUser;
   }
@@ -186,24 +186,24 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
     }
 
     permissionUser = this.rpcSender.invokeMethod("getOrCreateUser", uniqueId, name).fireSync();
-    this.permissionUserCache.put(permissionUser.getUniqueId(), permissionUser);
+    this.permissionUserCache.put(permissionUser.uniqueId(), permissionUser);
 
     return permissionUser;
   }
 
   @Override
-  public @NotNull List<PermissionUser> getUsersByName(@NotNull String name) {
-    return this.rpcSender.invokeMethod("getUsersByName", name).fireSync();
+  public @NotNull List<PermissionUser> usersByName(@NotNull String name) {
+    return this.rpcSender.invokeMethod("usersByName", name).fireSync();
   }
 
   @Override
-  public @NotNull Collection<PermissionUser> getUsers() {
-    return this.rpcSender.invokeMethod("getUsers").fireSync();
+  public @NotNull Collection<PermissionUser> users() {
+    return this.rpcSender.invokeMethod("users").fireSync();
   }
 
   @Override
-  public @NotNull Collection<PermissionUser> getUsersByGroup(@NotNull String group) {
-    return this.rpcSender.invokeMethod("getUsersByGroup", group).fireSync();
+  public @NotNull Collection<PermissionUser> usersByGroup(@NotNull String group) {
+    return this.rpcSender.invokeMethod("usersByGroup", group).fireSync();
   }
 
   @Override
@@ -232,12 +232,12 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
   }
 
   @Override
-  public @Nullable PermissionGroup getGroup(@NotNull String name) {
+  public @Nullable PermissionGroup group(@NotNull String name) {
     return this.permissionGroupCache.getIfPresent(name);
   }
 
   @Override
-  public IPermissionManagement getChildPermissionManagement() {
+  public IPermissionManagement childPermissionManagement() {
     return null;
   }
 
@@ -247,17 +247,17 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
   }
 
   @Override
-  public PermissionUser getFirstUser(String name) {
+  public PermissionUser firstUser(String name) {
     for (var permissionUser : this.permissionUserCache.asMap().values()) {
       if (permissionUser.name().equals(name)) {
         return permissionUser;
       }
     }
 
-    return this.rpcSender.invokeMethod("getFirstUser", name).fireSync();
+    return this.rpcSender.invokeMethod("firstUser", name).fireSync();
   }
 
   protected @NotNull Collection<PermissionGroup> loadGroups() {
-    return this.rpcSender.invokeMethod("getGroups").fireSync();
+    return this.rpcSender.invokeMethod("groups").fireSync();
   }
 }

@@ -59,7 +59,7 @@ final class BungeeCordBridgeManagement extends PlatformBridgeManagement<ProxiedP
     BridgeServiceHelper.MAX_PLAYERS.set(ProxyServer.getInstance().getConfig().getPlayerLimit());
     // init the default cache listeners
     this.cacheTester = CONNECTED_SERVICE_TESTER
-      .and(service -> ServiceEnvironmentType.JAVA_SERVER.get(service.getServiceId().getEnvironment().properties()));
+      .and(service -> ServiceEnvironmentType.JAVA_SERVER.get(service.serviceId().environment().properties()));
     // register each service matching the service cache tester
     this.cacheRegisterListener = BungeeCordServerHelper.SERVER_REGISTER_HANDLER;
     // unregister each service matching the service cache tester

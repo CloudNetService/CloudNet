@@ -22,6 +22,7 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketSender;
 import de.dytanic.cloudnet.driver.network.protocol.QueryPacketManager;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A NetworkChannel instance represents an open connection
@@ -31,22 +32,22 @@ public interface INetworkChannel extends IPacketSender {
   /**
    * Returns the unique channelId. The Channel Id begins with 1 and ends with Long.MAX_VALUE
    */
-  long getChannelId();
+  long channelId();
 
   /**
    * Returns the server address from this channel
    */
-  HostAndPort getServerAddress();
+  @NotNull HostAndPort serverAddress();
 
   /**
    * Returns the client address from this channel
    */
-  HostAndPort getClientAddress();
+  @NotNull HostAndPort clientAddress();
 
   /**
    * Returns the networkChannelHandler from this channel
    */
-  INetworkChannelHandler getHandler();
+  @NotNull INetworkChannelHandler handler();
 
   /**
    * Sets the channel handler for the channels. That is important for the handling of receiving packets or channel
@@ -54,28 +55,28 @@ public interface INetworkChannel extends IPacketSender {
    *
    * @param handler the handler, that should handle this channel
    */
-  void setHandler(INetworkChannelHandler handler);
+  void handler(@NotNull INetworkChannelHandler handler);
 
   /**
    * Returns the own packet listener registry. The packetRegistry is a sub registry of the network component packet
    * listener registry
    */
-  IPacketListenerRegistry getPacketRegistry();
+  @NotNull IPacketListenerRegistry packetRegistry();
 
-  @NotNull QueryPacketManager getQueryPacketManager();
+  @NotNull QueryPacketManager queryPacketManager();
 
   /**
    * Returns that, the channel based of the client site connection
    */
-  boolean isClientProvidedChannel();
+  boolean clientProvidedChannel();
 
-  IPacket sendQuery(@NotNull IPacket packet);
+  @Nullable IPacket sendQuery(@NotNull IPacket packet);
 
-  ITask<IPacket> sendQueryAsync(@NotNull IPacket packet);
+  @NotNull ITask<IPacket> sendQueryAsync(@NotNull IPacket packet);
 
-  boolean isWriteable();
+  boolean writeable();
 
-  boolean isActive();
+  boolean active();
 
   void close();
 }

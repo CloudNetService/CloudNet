@@ -56,7 +56,7 @@ public class SpongeSignsPlugin {
     // sponge events
     Sponge.eventManager().registerListeners(this.plugin, new SignInteractListener(this.plugin, this.signManagement));
     // cloudnet events
-    CloudNetDriver.getInstance().getEventManager().registerListeners(
+    CloudNetDriver.instance().eventManager().registerListeners(
       new GlobalChannelMessageListener(this.signManagement),
       new SignsPlatformListener(this.signManagement));
   }
@@ -64,7 +64,7 @@ public class SpongeSignsPlugin {
   @Listener
   public void handleShutdown(@NotNull StoppingEngineEvent<Server> event) {
     SpongeSignManagement.getDefaultInstance().unregisterFromServiceRegistry();
-    CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
+    CloudNetDriver.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
   }
 
   @Listener

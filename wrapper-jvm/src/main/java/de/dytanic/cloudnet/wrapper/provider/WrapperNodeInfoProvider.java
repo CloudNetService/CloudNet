@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.wrapper.provider;
 
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
@@ -32,29 +31,28 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
   private final RPCSender rpcSender;
 
   public WrapperNodeInfoProvider(@NotNull Wrapper wrapper) {
-    this.rpcSender = wrapper.getRPCProviderFactory().providerForClass(
-      wrapper.getNetworkClient(),
+    this.rpcSender = wrapper.rpcProviderFactory().providerForClass(
+      wrapper.networkClient(),
       NodeInfoProvider.class);
   }
 
   @Override
-  public @NotNull Collection<CommandInfo> getConsoleCommands() {
-    return this.rpcSender.invokeMethod("getConsoleCommands").fireSync();
+  public @NotNull Collection<CommandInfo> consoleCommands() {
+    return this.rpcSender.invokeMethod("consoleCommands").fireSync();
   }
 
   @Override
-  public @Nullable CommandInfo getConsoleCommand(@NotNull String commandLine) {
-    return this.rpcSender.invokeMethod("getConsoleCommand", commandLine).fireSync();
+  public @Nullable CommandInfo consoleCommand(@NotNull String commandLine) {
+    return this.rpcSender.invokeMethod("consoleCommand", commandLine).fireSync();
   }
 
   @Override
-  public @NotNull Collection<String> getConsoleTabCompleteResults(@NotNull String commandLine) {
-    return this.rpcSender.invokeMethod("getConsoleTabCompleteResults", commandLine).fireSync();
+  public @NotNull Collection<String> consoleTabCompleteResults(@NotNull String commandLine) {
+    return this.rpcSender.invokeMethod("consoleTabCompleteResults", commandLine).fireSync();
   }
 
   @Override
   public @NotNull Collection<String> sendCommandLine(@NotNull String commandLine) {
-    Preconditions.checkNotNull(commandLine);
     return this.rpcSender.invokeMethod("sendCommandLine", commandLine).fireSync();
   }
 
@@ -64,22 +62,22 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
   }
 
   @Override
-  public NetworkClusterNode[] getNodes() {
-    return this.rpcSender.invokeMethod("getNodes").fireSync();
+  public NetworkClusterNode[] nodes() {
+    return this.rpcSender.invokeMethod("nodes").fireSync();
   }
 
   @Override
-  public @Nullable NetworkClusterNode getNode(@NotNull String uniqueId) {
-    return this.rpcSender.invokeMethod("getNode", uniqueId).fireSync();
+  public @Nullable NetworkClusterNode node(@NotNull String uniqueId) {
+    return this.rpcSender.invokeMethod("node", uniqueId).fireSync();
   }
 
   @Override
-  public NetworkClusterNodeInfoSnapshot[] getNodeInfoSnapshots() {
-    return this.rpcSender.invokeMethod("getNodeInfoSnapshots").fireSync();
+  public NetworkClusterNodeInfoSnapshot[] nodeInfoSnapshots() {
+    return this.rpcSender.invokeMethod("nodeInfoSnapshots").fireSync();
   }
 
   @Override
-  public @Nullable NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot(@NotNull String uniqueId) {
-    return this.rpcSender.invokeMethod("getNodeInfoSnapshot", uniqueId).fireSync();
+  public @Nullable NetworkClusterNodeInfoSnapshot nodeInfoSnapshot(@NotNull String uniqueId) {
+    return this.rpcSender.invokeMethod("nodeInfoSnapshot", uniqueId).fireSync();
   }
 }

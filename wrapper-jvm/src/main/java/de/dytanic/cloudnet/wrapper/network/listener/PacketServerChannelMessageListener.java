@@ -31,12 +31,12 @@ public final class PacketServerChannelMessageListener implements IPacketListener
   @Override
   public void handle(@NotNull INetworkChannel channel, @NotNull IPacket packet) {
     // read the channel message from the buffer
-    var message = packet.getContent().readObject(ChannelMessage.class);
+    var message = packet.content().readObject(ChannelMessage.class);
     // get the query response if available
-    var response = CloudNetDriver.getInstance().getEventManager().callEvent(
-      new ChannelMessageReceiveEvent(message, channel, packet.getUniqueId() != null)).getQueryResponse();
+    var response = CloudNetDriver.instance().eventManager().callEvent(
+      new ChannelMessageReceiveEvent(message, channel, packet.uniqueId() != null)).queryResponse();
     // check if we need to respond to the channel message
-    if (response != null || packet.getUniqueId() != null) {
+    if (response != null || packet.uniqueId() != null) {
       // respond either using the query result or an empty result
       DataBuf content = response == null
         ? DataBuf.empty()

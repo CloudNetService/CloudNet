@@ -34,11 +34,11 @@ public class LocalServiceTaskAddEvent extends Event implements ICancelable {
     return this.task;
   }
 
-  public boolean isCancelled() {
+  public boolean cancelled() {
     return this.cancelled;
   }
 
-  public void setCancelled(boolean cancelled) {
+  public void cancelled(boolean cancelled) {
     this.cancelled = cancelled;
   }
 }

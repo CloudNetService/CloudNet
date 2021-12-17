@@ -158,7 +158,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
 
     // disable all commands of the console
     console.disableAllHandlers();
-    CloudNet.getInstance().getEventManager().callEvent(new SetupInitiateEvent(this));
+    CloudNet.getInstance().eventManager().callEvent(new SetupInitiateEvent(this));
   }
 
   @Override
@@ -259,7 +259,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
       answerType.postResult(result);
       this.results.put(entry.getKey(), result);
       // call the event
-      CloudNet.getInstance().getEventManager().callEvent(new SetupResponseEvent(this, entry, result));
+      CloudNet.getInstance().eventManager().callEvent(new SetupResponseEvent(this, entry, result));
       // re-draw the question line, add the given response to it
       this.console.writeRaw(this.eraseLines(Ansi.ansi().reset(), this.currentCursor + 1)
         .a("&r") // reset of the colors
@@ -293,7 +293,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
   public void resetConsole() {
     if (this.cancelled) {
       super.getConsole().forceWriteLine("&c" + I18n.trans("ca-question-list-cancelled"));
-      CloudNet.getInstance().getEventManager().callEvent(new SetupCancelledEvent(this));
+      CloudNet.getInstance().eventManager().callEvent(new SetupCancelledEvent(this));
       // reset the cancelled state
       this.cancelled = false;
     } else {
@@ -302,7 +302,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
         super.getConsole().forceWriteLine("&r" + this.footer);
       }
 
-      CloudNet.getInstance().getEventManager().callEvent(new SetupCompleteEvent(this));
+      CloudNet.getInstance().eventManager().callEvent(new SetupCompleteEvent(this));
     }
 
     try {

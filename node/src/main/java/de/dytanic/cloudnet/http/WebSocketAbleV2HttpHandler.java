@@ -54,7 +54,7 @@ public abstract class WebSocketAbleV2HttpHandler extends V2HttpHandler {
     }
 
     var ticket = this.authentication.getWebSocketTicketManager().findAndRemoveTicket(ticketId);
-    if (ticket == null || !ticket.getRequestingIp().equals(context.channel().clientAddress().getHost())) {
+    if (ticket == null || !ticket.getRequestingIp().equals(context.channel().clientAddress().host())) {
       this.send403(context, "Invalid ticket id or ticket not issued for client");
       return;
     }

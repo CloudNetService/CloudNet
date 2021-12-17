@@ -31,15 +31,15 @@ public class SignsPlatformListener {
 
   @EventListener
   public void handle(@NotNull CloudServiceUpdateEvent event) {
-    this.signManagement.handleServiceUpdate(event.getServiceInfo());
+    this.signManagement.handleServiceUpdate(event.serviceInfo());
   }
 
   @EventListener
   public void handle(@NotNull CloudServiceLifecycleChangeEvent event) {
-    switch (event.getNewLifeCycle()) {
-      case STOPPED, DELETED -> this.signManagement.handleServiceRemove(event.getServiceInfo());
-      case RUNNING -> this.signManagement.handleServiceAdd(event.getServiceInfo());
-      default -> this.signManagement.handleServiceUpdate(event.getServiceInfo());
+    switch (event.newLifeCycle()) {
+      case STOPPED, DELETED -> this.signManagement.handleServiceRemove(event.serviceInfo());
+      case RUNNING -> this.signManagement.handleServiceAdd(event.serviceInfo());
+      default -> this.signManagement.handleServiceUpdate(event.serviceInfo());
     }
   }
 }

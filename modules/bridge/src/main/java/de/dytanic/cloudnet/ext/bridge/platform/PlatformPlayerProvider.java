@@ -31,7 +31,7 @@ final class PlatformPlayerProvider implements PlayerProvider {
 
   public PlatformPlayerProvider(@NotNull RPC baseRPC) {
     this.baseRPC = baseRPC;
-    this.sender = baseRPC.getSender().getFactory().providerForClass(null, PlayerProvider.class);
+    this.sender = baseRPC.sender().factory().providerForClass(null, PlayerProvider.class);
   }
 
   @Override

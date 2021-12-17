@@ -52,17 +52,17 @@ public class DefaultQueryPacketManager implements QueryPacketManager {
   }
 
   @Override
-  public long getQueryTimeoutMillis() {
+  public long queryTimeoutMillis() {
     return this.queryTimeoutMillis;
   }
 
   @Override
-  public @NotNull INetworkChannel getNetworkChannel() {
+  public @NotNull INetworkChannel networkChannel() {
     return this.networkChannel;
   }
 
   @Override
-  public @NotNull @UnmodifiableView Map<UUID, CompletableTask<IPacket>> getWaitingHandlers() {
+  public @NotNull @UnmodifiableView Map<UUID, CompletableTask<IPacket>> waitingHandlers() {
     return Collections.unmodifiableMap(this.waitingHandlers.asMap());
   }
 
@@ -78,7 +78,7 @@ public class DefaultQueryPacketManager implements QueryPacketManager {
   }
 
   @Override
-  public @Nullable CompletableTask<IPacket> getWaitingHandler(@NotNull UUID queryUniqueId) {
+  public @Nullable CompletableTask<IPacket> waitingHandler(@NotNull UUID queryUniqueId) {
     var task = this.waitingHandlers.getIfPresent(queryUniqueId);
     if (task != null) {
       this.waitingHandlers.invalidate(queryUniqueId);
@@ -97,7 +97,7 @@ public class DefaultQueryPacketManager implements QueryPacketManager {
     var task = new CompletableTask<IPacket>();
     this.waitingHandlers.put(queryUniqueId, task);
     // set the unique id of the packet and send
-    packet.setUniqueId(queryUniqueId);
+    packet.uniqueId(queryUniqueId);
     this.networkChannel.sendPacket(packet);
     // return the created handler
     return task;
@@ -105,7 +105,7 @@ public class DefaultQueryPacketManager implements QueryPacketManager {
 
   protected @NotNull RemovalListener<UUID, CompletableTask<IPacket>> newRemovalListener() {
     return notification -> {
-      if (notification.wasEvicted()) {
+      if (notification.wasEvicted() && notification.getValue() != null) {
         notification.getValue().complete(Packet.EMPTY);
       }
     };

@@ -89,8 +89,8 @@ public class CommandPlayers {
   @Parser(suggestions = "playerService")
   public ServiceInfoSnapshot playerServiceParser(CommandContext<CommandSource> $, Queue<String> input) {
     var name = input.remove();
-    var serviceInfoSnapshot = CloudNet.getInstance().getCloudServiceProvider()
-      .getCloudServiceByName(name);
+    var serviceInfoSnapshot = CloudNet.getInstance().cloudServiceProvider()
+      .serviceByName(name);
     if (serviceInfoSnapshot == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-service-service-not-found"));
     }
@@ -99,9 +99,9 @@ public class CommandPlayers {
 
   @Suggestions("playerService")
   public List<String> suggestPlayerService(CommandContext<CommandSource> $, String input) {
-    return CloudNet.getInstance().getCloudServiceProvider().getCloudServices()
+    return CloudNet.getInstance().cloudServiceProvider().services()
       .stream()
-      .filter(snapshot -> ServiceEnvironmentType.isMinecraftServer(snapshot.getServiceId().getEnvironment()))
+      .filter(snapshot -> ServiceEnvironmentType.isMinecraftServer(snapshot.serviceId().environment()))
       .map(INameable::name)
       .collect(Collectors.toList());
   }
@@ -232,7 +232,7 @@ public class CommandPlayers {
     @NotNull @Argument("player") CloudPlayer player,
     @NotNull @Argument("server") ServiceInfoSnapshot server
   ) {
-    if (BridgeServiceProperties.IS_ONLINE.get(server).orElse(false)) {
+    if (BridgeServiceProperties.IS_ONLINE.read(server).orElse(false)) {
       player.getPlayerExecutor().connect(server.name());
 
       source.sendMessage(I18n.trans("module-bridge-command-players-send-player-server")

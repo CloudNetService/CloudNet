@@ -79,25 +79,25 @@ public class PermissionUser extends AbstractPermissible {
       && this.hashedPassword.equals(Base64.getEncoder().encodeToString(EncryptTo.encryptToSHA256(password)));
   }
 
-  public @NotNull UUID getUniqueId() {
+  public @NotNull UUID uniqueId() {
     return this.uniqueId;
   }
 
-  public @NotNull Collection<PermissionUserGroupInfo> getGroups() {
+  public @NotNull Collection<PermissionUserGroupInfo> groups() {
     return this.groups;
   }
 
-  public @NotNull String getHashedPassword() {
+  public @NotNull String hashedPassword() {
     return this.hashedPassword;
   }
 
   @Override
-  public @NotNull Collection<String> getGroupNames() {
-    return this.getGroups().stream().map(PermissionUserGroupInfo::getGroup).collect(Collectors.toList());
+  public @NotNull Collection<String> groupNames() {
+    return this.groups().stream().map(PermissionUserGroupInfo::group).collect(Collectors.toList());
   }
 
-  public @NotNull Optional<PermissionUserGroupInfo> getAssignedGroup(@NotNull String group) {
-    return this.groups.stream().filter(info -> info.getGroup().equalsIgnoreCase(group)).findFirst();
+  public @NotNull Optional<PermissionUserGroupInfo> findAssignedGroup(@NotNull String group) {
+    return this.groups.stream().filter(info -> info.group().equalsIgnoreCase(group)).findFirst();
   }
 
   public @NotNull PermissionUser addGroup(@NotNull String group) {
@@ -109,27 +109,27 @@ public class PermissionUser extends AbstractPermissible {
   }
 
   public @NotNull PermissionUser addGroup(@NotNull String group, long timeOutMillis) {
-    var groupInfo = this.getGroups().stream()
-      .filter(info -> info.getGroup().equalsIgnoreCase(group))
+    var groupInfo = this.groups().stream()
+      .filter(info -> info.group().equalsIgnoreCase(group))
       .findFirst()
       .orElse(null);
     // remove the old group before adding the new one
     if (groupInfo != null) {
-      this.removeGroup(groupInfo.getGroup());
+      this.removeGroup(groupInfo.group());
     }
     // add the new group info
     groupInfo = new PermissionUserGroupInfo(group, timeOutMillis);
-    this.getGroups().add(groupInfo);
+    this.groups().add(groupInfo);
     // for chaining
     return this;
   }
 
   public @NotNull PermissionUser removeGroup(@NotNull String group) {
-    this.groups.removeIf(info -> info.getGroup().equalsIgnoreCase(group));
+    this.groups.removeIf(info -> info.group().equalsIgnoreCase(group));
     return this;
   }
 
-  public @NotNull boolean inGroup(@NotNull String group) {
-    return this.getGroups().stream().anyMatch(info -> info.getGroup().equalsIgnoreCase(group));
+  public boolean inGroup(@NotNull String group) {
+    return this.groups().stream().anyMatch(info -> info.group().equalsIgnoreCase(group));
   }
 }

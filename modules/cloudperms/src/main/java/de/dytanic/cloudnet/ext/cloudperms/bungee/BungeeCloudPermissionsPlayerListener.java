@@ -62,7 +62,7 @@ public final class BungeeCloudPermissionsPlayerListener implements Listener {
     if (sender instanceof ProxiedPlayer) {
       UUID uniqueId = ((ProxiedPlayer) sender).getUniqueId(); // must not be set ¯\_(ツ)_/¯
       if (uniqueId != null) {
-        var permissionUser = this.permissionsManagement.getUser(uniqueId);
+        var permissionUser = this.permissionsManagement.user(uniqueId);
         if (permissionUser != null) {
           event.setHasPermission(
             this.permissionsManagement.hasPermission(permissionUser, Permission.of(event.getPermission())));

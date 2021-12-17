@@ -16,9 +16,6 @@
 
 package de.dytanic.cloudnet.driver.network.netty;
 
-import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.log.LogManager;
-import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketSendEvent;
 import de.dytanic.cloudnet.driver.network.DefaultNetworkChannel;
@@ -36,12 +33,16 @@ import org.jetbrains.annotations.Nullable;
 @Internal
 public final class NettyNetworkChannel extends DefaultNetworkChannel implements INetworkChannel {
 
-  private static final Logger LOGGER = LogManager.logger(NettyNetworkChannel.class);
-
   private final Channel channel;
 
-  public NettyNetworkChannel(Channel channel, IPacketListenerRegistry packetRegistry, INetworkChannelHandler handler,
-    HostAndPort serverAddress, HostAndPort clientAddress, boolean clientProvidedChannel) {
+  public NettyNetworkChannel(
+    @NotNull Channel channel,
+    @NotNull IPacketListenerRegistry packetRegistry,
+    @NotNull INetworkChannelHandler handler,
+    @NotNull HostAndPort serverAddress,
+    @NotNull HostAndPort clientAddress,
+    boolean clientProvidedChannel
+  ) {
     super(packetRegistry, serverAddress, clientAddress, clientProvidedChannel, handler);
     this.channel = channel;
   }
@@ -67,8 +68,6 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
 
   @Override
   public void sendPacket(@NotNull IPacket packet) {
-    Preconditions.checkNotNull(packet);
-
     if (this.channel.eventLoop().inEventLoop()) {
       this.writePacket(packet, true);
     } else {
@@ -78,8 +77,6 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
 
   @Override
   public void sendPacketSync(@NotNull IPacket packet) {
-    Preconditions.checkNotNull(packet);
-
     var future = this.writePacket(packet, true);
     if (future != null) {
       future.syncUninterruptibly();
@@ -87,19 +84,18 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
   }
 
   @Override
-  public boolean isWriteable() {
+  public boolean writeable() {
     return this.channel.isWritable();
   }
 
   @Override
-  public boolean isActive() {
+  public boolean active() {
     return this.channel.isActive();
   }
 
-  private @Nullable ChannelFuture writePacket(IPacket packet, boolean flushAfter) {
-    if (!CloudNetDriver.getInstance().getEventManager().callEvent(
-      new NetworkChannelPacketSendEvent(this, packet)
-    ).isCancelled()) {
+  private @Nullable ChannelFuture writePacket(@NotNull IPacket packet, boolean flushAfter) {
+    var event = CloudNetDriver.instance().eventManager().callEvent(new NetworkChannelPacketSendEvent(this, packet));
+    if (!event.cancelled()) {
       return flushAfter ? this.channel.writeAndFlush(packet) : this.channel.write(packet);
     } else {
       return null;
@@ -111,8 +107,7 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
     this.channel.close();
   }
 
-  public Channel getChannel() {
+  public @NotNull Channel channel() {
     return this.channel;
   }
-
 }

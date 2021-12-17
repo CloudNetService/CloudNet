@@ -44,7 +44,7 @@ final class NukkitPlayerManagementListener implements Listener {
     // check if the current task is present
     if (task != null) {
       // check if maintenance is activated
-      if (task.isMaintenance() && !event.getPlayer().hasPermission("cloudnet.bridge.maintenance")) {
+      if (task.maintenance() && !event.getPlayer().hasPermission("cloudnet.bridge.maintenance")) {
         event.setCancelled(true);
         event.setKickMessage(this.management.getConfiguration().getMessage(
           event.getPlayer().getLocale(),

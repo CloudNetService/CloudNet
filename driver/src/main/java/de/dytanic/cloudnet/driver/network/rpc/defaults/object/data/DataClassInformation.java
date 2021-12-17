@@ -92,11 +92,11 @@ public class DataClassInformation {
     return resultArray;
   }
 
-  public @NotNull DataClassInstanceCreator getInstanceCreator() {
+  public @NotNull DataClassInstanceCreator instanceCreator() {
     return this.instanceCreator;
   }
 
-  public @NotNull DataClassInformationWriter getInformationWriter() {
+  public @NotNull DataClassInformationWriter informationWriter() {
     return this.informationWriter;
   }
 }

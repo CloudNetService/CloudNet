@@ -46,26 +46,26 @@ public record SyncProxyTabList(String header, String footer) {
     int maxPlayers
   ) {
     input = input
-      .replace("%proxy%", Wrapper.getInstance().getServiceId().name())
-      .replace("%proxy_uniqueId%", Wrapper.getInstance().getServiceId().getUniqueId().toString())
-      .replace("%proxy_task_name%", Wrapper.getInstance().getServiceId().getTaskName())
+      .replace("%proxy%", Wrapper.getInstance().serviceId().name())
+      .replace("%proxy_uniqueId%", Wrapper.getInstance().serviceId().uniqueId().toString())
+      .replace("%proxy_task_name%", Wrapper.getInstance().serviceId().taskName())
       .replace("%time%", DATE_FORMAT.format(System.currentTimeMillis()))
       .replace("%online_players%", String.valueOf(onlinePlayers))
       .replace("%max_players%", String.valueOf(maxPlayers));
 
     if (SyncProxyConstants.CLOUD_PERMS_ENABLED) {
-      var permissionManagement = CloudNetDriver.getInstance().getPermissionManagement();
+      var permissionManagement = CloudNetDriver.instance().permissionManagement();
 
-      var permissionUser = permissionManagement.getUser(playerUniqueId);
+      var permissionUser = permissionManagement.user(playerUniqueId);
 
       if (permissionUser != null) {
-        var group = permissionManagement.getHighestPermissionGroup(permissionUser);
+        var group = permissionManagement.highestPermissionGroup(permissionUser);
 
         if (group != null) {
-          input = input.replace("%prefix%", group.getPrefix())
-            .replace("%suffix%", group.getSuffix())
-            .replace("%display%", group.getDisplay())
-            .replace("%color%", group.getColor())
+          input = input.replace("%prefix%", group.prefix())
+            .replace("%suffix%", group.suffix())
+            .replace("%display%", group.display())
+            .replace("%color%", group.color())
             .replace("%group%", group.name());
         }
       }

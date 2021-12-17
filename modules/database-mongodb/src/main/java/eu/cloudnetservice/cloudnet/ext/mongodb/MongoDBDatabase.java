@@ -180,7 +180,7 @@ public class MongoDBDatabase extends AbstractDatabase {
   }
 
   @Override
-  public long getDocumentsCount() {
+  public long documentCount() {
     return this.collection.estimatedDocumentCount();
   }
 

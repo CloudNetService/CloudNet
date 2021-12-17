@@ -45,7 +45,7 @@ final class StaticServiceDeployCallback implements Callback {
     var service = information.transferInformation().readString();
     var overwriteService = information.transferInformation().readBoolean();
 
-    var serviceManager = CloudNet.getInstance().getCloudServiceProvider();
+    var serviceManager = CloudNet.getInstance().cloudServiceProvider();
     // only copy the static service running with the same name
     if (serviceManager.getLocalCloudService(service) == null) {
       var servicePath = serviceManager.getPersistentServicesDirectoryPath().resolve(service);

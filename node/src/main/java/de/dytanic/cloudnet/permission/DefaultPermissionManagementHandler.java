@@ -107,7 +107,7 @@ public final class DefaultPermissionManagementHandler implements IPermissionMana
 
   @Override
   public void handleReloaded(@NotNull IPermissionManagement management) {
-    this.handleSetGroups(management, management.getGroups());
+    this.handleSetGroups(management, management.groups());
   }
 
   private @NotNull ChannelMessage.Builder baseMessage(@NotNull String subMessage) {

@@ -35,7 +35,7 @@ final class PlatformPlayerExecutor implements PlayerExecutor {
   public PlatformPlayerExecutor(@NotNull RPC baseRPC, @NotNull UUID targetUniqueId) {
     this.baseRPC = baseRPC;
     this.targetUniqueId = targetUniqueId;
-    this.sender = baseRPC.getSender().getFactory().providerForClass(null, PlayerExecutor.class);
+    this.sender = baseRPC.sender().factory().providerForClass(null, PlayerExecutor.class);
   }
 
   @Override

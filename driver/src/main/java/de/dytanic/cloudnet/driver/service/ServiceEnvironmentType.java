@@ -57,31 +57,31 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements INa
   public static final ServiceEnvironmentType NUKKIT = ServiceEnvironmentType.builder()
     .name("NUKKIT")
     .addDefaultProcessArgument("disable-ansi")
-    .properties(JsonDocument.newDocument().property(PE_SERVER, true))
+    .properties(JsonDocument.newDocument().setProperty(PE_SERVER, true))
     .build();
   public static final ServiceEnvironmentType MINECRAFT_SERVER = ServiceEnvironmentType.builder()
     .name("MINECRAFT_SERVER")
     .addDefaultProcessArgument("nogui")
-    .properties(JsonDocument.newDocument().property(JAVA_SERVER, true))
+    .properties(JsonDocument.newDocument().setProperty(JAVA_SERVER, true))
     .build();
   public static final ServiceEnvironmentType GLOWSTONE = ServiceEnvironmentType.builder()
     .name("GLOWSTONE")
-    .properties(JsonDocument.newDocument().property(JAVA_SERVER, true))
+    .properties(JsonDocument.newDocument().setProperty(JAVA_SERVER, true))
     .build();
   public static final ServiceEnvironmentType BUNGEECORD = ServiceEnvironmentType.builder()
     .name("BUNGEECORD")
     .defaultServiceStartPort(25565)
-    .properties(JsonDocument.newDocument().property(JAVA_PROXY, true))
+    .properties(JsonDocument.newDocument().setProperty(JAVA_PROXY, true))
     .build();
   public static final ServiceEnvironmentType VELOCITY = ServiceEnvironmentType.builder()
     .name("VELOCITY")
     .defaultServiceStartPort(25565)
-    .properties(JsonDocument.newDocument().property(JAVA_PROXY, true))
+    .properties(JsonDocument.newDocument().setProperty(JAVA_PROXY, true))
     .build();
   public static final ServiceEnvironmentType WATERDOG_PE = ServiceEnvironmentType.builder()
     .name("WATERDOG_PE")
     .defaultServiceStartPort(19132)
-    .properties(JsonDocument.newDocument().property(PE_PROXY, true))
+    .properties(JsonDocument.newDocument().setProperty(PE_PROXY, true))
     .build();
 
   private final String name;
@@ -108,8 +108,8 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements INa
     return builder()
       .name(type.name())
       .properties(type.properties().clone())
-      .defaultServiceStartPort(type.getDefaultServiceStartPort())
-      .defaultProcessArguments(type.getDefaultProcessArguments());
+      .defaultServiceStartPort(type.defaultStartPort())
+      .defaultProcessArguments(type.defaultProcessArguments());
   }
 
   public static boolean isMinecraftProxy(@NotNull ServiceEnvironmentType type) {
@@ -125,11 +125,11 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements INa
     return this.name;
   }
 
-  public int getDefaultServiceStartPort() {
+  public int defaultStartPort() {
     return this.defaultServiceStartPort;
   }
 
-  public @NotNull Collection<String> getDefaultProcessArguments() {
+  public @NotNull Collection<String> defaultProcessArguments() {
     return this.defaultProcessArguments;
   }
 

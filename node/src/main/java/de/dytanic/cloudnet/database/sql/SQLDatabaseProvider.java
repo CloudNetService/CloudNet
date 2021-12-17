@@ -47,7 +47,7 @@ public abstract class SQLDatabaseProvider extends AbstractDatabaseProvider {
   @Override
   public boolean containsDatabase(@NotNull String name) {
     this.removedOutdatedEntries();
-    for (var database : this.getDatabaseNames()) {
+    for (var database : this.databaseNames()) {
       if (database.equalsIgnoreCase(name)) {
         return true;
       }

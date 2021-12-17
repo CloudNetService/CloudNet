@@ -64,11 +64,11 @@ final class VelocityBridgeManagement extends PlatformBridgeManagement<Player, Ne
     BridgeServiceHelper.MAX_PLAYERS.set(proxyServer.getConfiguration().getShowMaxPlayers());
     // init the default cache listeners
     this.cacheTester = CONNECTED_SERVICE_TESTER
-      .and(service -> ServiceEnvironmentType.JAVA_SERVER.get(service.getServiceId().getEnvironment().properties()));
+      .and(service -> ServiceEnvironmentType.JAVA_SERVER.get(service.serviceId().environment().properties()));
     // register each service matching the service cache tester
     this.cacheRegisterListener = service -> proxyServer.registerServer(new ServerInfo(
       service.name(),
-      new InetSocketAddress(service.getConnectAddress().getHost(), service.getConnectAddress().getPort())));
+      new InetSocketAddress(service.connectAddress().host(), service.connectAddress().port())));
     // unregister each service matching the service cache tester
     this.cacheUnregisterListener = service -> proxyServer.getServer(service.name())
       .map(RegisteredServer::getServerInfo)

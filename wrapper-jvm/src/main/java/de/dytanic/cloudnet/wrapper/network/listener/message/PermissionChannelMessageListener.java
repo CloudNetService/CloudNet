@@ -48,53 +48,53 @@ public final class PermissionChannelMessageListener {
 
   @EventListener
   public void handleChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
-    if (event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL) && event.getMessage()
+    if (event.channel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL) && event.message()
         .startsWith("permissions_")) {
       // permission message - handler
-      switch (event.getMessage().replaceFirst("permissions_", "")) {
+      switch (event.message().replaceFirst("permissions_", "")) {
         // user add
         case "add_user" -> this.eventManager.callEvent(new PermissionAddUserEvent(
             this.permissionManagement,
-            event.getContent().readObject(PermissionUser.class)));
+            event.content().readObject(PermissionUser.class)));
 
         // user update
         case "update_user" -> this.eventManager.callEvent(new PermissionUpdateUserEvent(
             this.permissionManagement,
-            event.getContent().readObject(PermissionUser.class)));
+            event.content().readObject(PermissionUser.class)));
 
         // user remove
         case "delete_user" -> this.eventManager.callEvent(new PermissionDeleteUserEvent(
             this.permissionManagement,
-            event.getContent().readObject(PermissionUser.class)));
+            event.content().readObject(PermissionUser.class)));
 
         // group add
         case "add_group" -> {
           // read the group
-          var group = event.getContent().readObject(PermissionGroup.class);
+          var group = event.content().readObject(PermissionGroup.class);
           this.eventManager.callEvent(new PermissionAddGroupEvent(this.permissionManagement, group));
         }
 
         // group update
         case "update_group" -> {
           // read the group
-          var group = event.getContent().readObject(PermissionGroup.class);
+          var group = event.content().readObject(PermissionGroup.class);
           this.eventManager.callEvent(new PermissionUpdateGroupEvent(this.permissionManagement, group));
         }
 
         // group delete
         case "delete_group" -> {
           // read the group
-          var group = event.getContent().readObject(PermissionGroup.class);
+          var group = event.content().readObject(PermissionGroup.class);
           this.eventManager.callEvent(new PermissionDeleteGroupEvent(this.permissionManagement, group));
         }
 
         // group set
         case "set_groups" -> {
           // read the group
-          Collection<PermissionGroup> groups = event.getContent().readObject(PermissionGroup.COL_GROUPS);
+          Collection<PermissionGroup> groups = event.content().readObject(PermissionGroup.COL_GROUPS);
           this.eventManager.callEvent(new PermissionSetGroupsEvent(this.permissionManagement, groups));
         }
-        default -> throw new IllegalArgumentException("Unhandled permission message " + event.getMessage());
+        default -> throw new IllegalArgumentException("Unhandled permission message " + event.message());
       }
     }
   }

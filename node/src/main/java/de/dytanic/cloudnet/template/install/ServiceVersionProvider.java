@@ -136,9 +136,9 @@ public class ServiceVersionProvider {
   public void registerServiceVersionType(@NotNull ServiceVersionType versionType) {
     // ensure that we know the target environment for the service version
     Verify.verify(
-      this.getEnvironmentType(versionType.getEnvironmentType()).isPresent(),
+      this.getEnvironmentType(versionType.environmentType()).isPresent(),
       "Missing environment %s for service version %s",
-      versionType.getEnvironmentType(),
+      versionType.environmentType(),
       versionType.name());
     // register the service version
     this.serviceVersionTypes.put(versionType.name().toLowerCase(), versionType);
@@ -180,8 +180,8 @@ public class ServiceVersionProvider {
       for (var file : information.templateStorage().listFiles("", false)) {
         if (file != null) {
           for (ServiceEnvironment environment : this.serviceVersionTypes.values()) {
-            if (file.getName().toLowerCase().contains(environment.name()) && file.getName().endsWith(".jar")) {
-              information.templateStorage().deleteFile(file.getPath());
+            if (file.name().toLowerCase().contains(environment.name()) && file.name().endsWith(".jar")) {
+              information.templateStorage().deleteFile(file.path());
             }
           }
         }

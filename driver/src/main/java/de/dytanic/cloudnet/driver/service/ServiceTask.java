@@ -98,30 +98,30 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
   public static @NotNull ServiceTask.Builder builder(@NotNull ServiceTask serviceTask) {
     return builder()
       .name(serviceTask.name())
-      .javaCommand(serviceTask.getJavaCommand())
-      .runtime(serviceTask.getRuntime())
-      .nameSplitter(serviceTask.getNameSplitter())
+      .javaCommand(serviceTask.javaCommand())
+      .runtime(serviceTask.runtime())
+      .nameSplitter(serviceTask.nameSplitter())
 
-      .maintenance(serviceTask.isMaintenance())
-      .staticServices(serviceTask.isStaticServices())
-      .disableIpRewrite(serviceTask.isDisableIpRewrite())
-      .autoDeleteOnStop(serviceTask.isAutoDeleteOnStop())
+      .maintenance(serviceTask.maintenance())
+      .staticServices(serviceTask.staticServices())
+      .disableIpRewrite(serviceTask.disableIpRewrite())
+      .autoDeleteOnStop(serviceTask.autoDeleteOnStop())
 
-      .groups(serviceTask.getGroups())
-      .associatedNodes(serviceTask.getAssociatedNodes())
-      .deletedFilesAfterStop(serviceTask.getDeletedFilesAfterStop())
+      .groups(serviceTask.groups())
+      .associatedNodes(serviceTask.associatedNodes())
+      .deletedFilesAfterStop(serviceTask.deletedFilesAfterStop())
 
-      .jvmOptions(serviceTask.getJvmOptions())
-      .processParameters(serviceTask.getProcessParameters())
-      .templates(serviceTask.getTemplates())
-      .deployments(serviceTask.getDeployments())
-      .includes(serviceTask.getIncludes())
+      .jvmOptions(serviceTask.jvmOptions())
+      .processParameters(serviceTask.processParameters())
+      .templates(serviceTask.templates())
+      .deployments(serviceTask.deployments())
+      .includes(serviceTask.includes())
 
-      .startPort(serviceTask.getStartPort())
-      .minServiceCount(serviceTask.getMinServiceCount())
+      .startPort(serviceTask.startPort())
+      .minServiceCount(serviceTask.minServiceCount())
 
       .properties(serviceTask.properties().clone())
-      .processConfiguration(ProcessConfiguration.builder(serviceTask.getProcessConfiguration()));
+      .processConfiguration(ProcessConfiguration.builder(serviceTask.processConfiguration()));
   }
 
   @Override
@@ -129,65 +129,65 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
     return this.name;
   }
 
-  public @NotNull String getRuntime() {
+  public @NotNull String runtime() {
     return this.runtime;
   }
 
-  public @Nullable String getJavaCommand() {
+  public @Nullable String javaCommand() {
     return this.javaCommand;
   }
 
-  public @NotNull String getNameSplitter() {
+  public @NotNull String nameSplitter() {
     return this.nameSplitter;
   }
 
-  public boolean isDisableIpRewrite() {
+  public boolean disableIpRewrite() {
     return this.disableIpRewrite;
   }
 
-  public boolean isMaintenance() {
+  public boolean maintenance() {
     return this.maintenance;
   }
 
-  public boolean isAutoDeleteOnStop() {
+  public boolean autoDeleteOnStop() {
     return this.autoDeleteOnStop;
   }
 
-  public boolean isStaticServices() {
+  public boolean staticServices() {
     return this.staticServices;
   }
 
   @Override
-  public @NotNull Collection<String> getJvmOptions() {
+  public @NotNull Collection<String> jvmOptions() {
     return this.processConfiguration.jvmOptions();
   }
 
   @Override
-  public @NotNull Collection<String> getProcessParameters() {
+  public @NotNull Collection<String> processParameters() {
     return this.processConfiguration.processParameters();
   }
 
-  public @NotNull Collection<String> getGroups() {
+  public @NotNull Collection<String> groups() {
     return this.groups;
   }
 
-  public @NotNull Collection<String> getAssociatedNodes() {
+  public @NotNull Collection<String> associatedNodes() {
     return this.associatedNodes;
   }
 
-  public @NotNull Collection<String> getDeletedFilesAfterStop() {
+  public @NotNull Collection<String> deletedFilesAfterStop() {
     return this.deletedFilesAfterStop;
   }
 
-  public @NotNull ProcessConfiguration getProcessConfiguration() {
+  public @NotNull ProcessConfiguration processConfiguration() {
     return this.processConfiguration;
   }
 
-  public @Range(from = 1, to = 65535) int getStartPort() {
+  public @Range(from = 1, to = 65535) int startPort() {
     return this.startPort;
   }
 
-  public @Range(from = 0, to = Integer.MAX_VALUE) int getMinServiceCount() {
+  public @Range(from = 0, to = Integer.MAX_VALUE) int minServiceCount() {
     return this.minServiceCount;
   }
 
@@ -313,7 +313,7 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
 
     public @NotNull Builder serviceEnvironmentType(@NotNull ServiceEnvironmentType serviceEnvironmentType) {
       this.processConfiguration.environment(serviceEnvironmentType);
-      this.startPort = this.startPort == -1 ? serviceEnvironmentType.getDefaultServiceStartPort() : this.startPort;
+      this.startPort = this.startPort == -1 ? serviceEnvironmentType.defaultStartPort() : this.startPort;
 
       return this;
     }

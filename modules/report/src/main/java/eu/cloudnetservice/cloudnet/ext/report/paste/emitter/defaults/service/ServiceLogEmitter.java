@@ -23,7 +23,7 @@ public class ServiceLogEmitter implements ReportDataEmitter<ICloudService> {
 
   @Override
   public void emitData(StringBuilder builder, ICloudService context) {
-    for (var cachedLogMessage : context.getCachedLogMessages()) {
+    for (var cachedLogMessage : context.cachedLogMessages()) {
       builder.append(cachedLogMessage).append("\n");
     }
     builder.append("\n");

@@ -51,11 +51,11 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   private final Map<String, ServiceTask> serviceTasks = new ConcurrentHashMap<>();
 
   public NodeServiceTaskProvider(@NotNull CloudNet nodeInstance) {
-    this.eventManager = nodeInstance.getEventManager();
+    this.eventManager = nodeInstance.eventManager();
     this.eventManager.registerListener(new TaskChannelMessageListener(this.eventManager, this));
 
     // rpc
-    nodeInstance.getRPCProviderFactory().newHandler(ServiceTaskProvider.class, this).registerToDefaultRegistry();
+    nodeInstance.rpcProviderFactory().newHandler(ServiceTaskProvider.class, this).registerToDefaultRegistry();
     // cluster data sync
     nodeInstance.getDataSyncRegistry().registerHandler(
       DataSyncHandler.<ServiceTask>builder()
@@ -63,8 +63,8 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
         .nameExtractor(INameable::name)
         .convertObject(ServiceTask.class)
         .writer(this::addPermanentServiceTaskSilently)
-        .dataCollector(this::getPermanentServiceTasks)
-        .currentGetter(task -> this.getServiceTask(task.name()))
+        .dataCollector(this::permanentServiceTasks)
+        .currentGetter(task -> this.serviceTask(task.name()))
         .build());
 
     if (Files.exists(TASKS_DIRECTORY)) {
@@ -84,12 +84,12 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   }
 
   @Override
-  public @NotNull Collection<ServiceTask> getPermanentServiceTasks() {
+  public @NotNull Collection<ServiceTask> permanentServiceTasks() {
     return Collections.unmodifiableCollection(this.serviceTasks.values());
   }
 
   @Override
-  public void setPermanentServiceTasks(@NotNull Collection<ServiceTask> serviceTasks) {
+  public void permanentServiceTasks(@NotNull Collection<ServiceTask> serviceTasks) {
     this.setPermanentServiceTasksSilently(serviceTasks);
     // notify the cluster
     ChannelMessage.builder()
@@ -102,7 +102,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   }
 
   @Override
-  public @Nullable ServiceTask getServiceTask(@NotNull String name) {
+  public @Nullable ServiceTask serviceTask(@NotNull String name) {
     return this.serviceTasks.get(name);
   }
 
@@ -113,7 +113,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
   @Override
   public boolean addPermanentServiceTask(@NotNull ServiceTask serviceTask) {
-    if (!this.eventManager.callEvent(new LocalServiceTaskAddEvent(serviceTask)).isCancelled()) {
+    if (!this.eventManager.callEvent(new LocalServiceTaskAddEvent(serviceTask)).cancelled()) {
       this.addPermanentServiceTaskSilently(serviceTask);
       // notify the cluster
       ChannelMessage.builder()
@@ -130,7 +130,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
   @Override
   public void removePermanentServiceTaskByName(@NotNull String name) {
-    var task = this.getServiceTask(name);
+    var task = this.serviceTask(name);
     if (task != null) {
       this.removePermanentServiceTask(task);
     }
@@ -138,7 +138,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
   @Override
   public void removePermanentServiceTask(@NotNull ServiceTask serviceTask) {
-    if (!this.eventManager.callEvent(new LocalServiceTaskRemoveEvent(serviceTask)).isCancelled()) {
+    if (!this.eventManager.callEvent(new LocalServiceTaskRemoveEvent(serviceTask)).cancelled()) {
       this.removePermanentServiceTaskSilently(serviceTask);
       // notify the whole network
       ChannelMessage.builder()

@@ -54,7 +54,7 @@ public final class CommandGroups {
   public GroupConfiguration defaultGroupParser(CommandContext<CommandSource> $, Queue<String> input) {
     var name = input.remove();
 
-    var configuration = this.groupProvider().getGroupConfiguration(name);
+    var configuration = this.groupProvider().groupConfiguration(name);
     if (configuration == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-service-base-group-not-found"));
     }
@@ -64,12 +64,12 @@ public final class CommandGroups {
 
   @Suggestions("groupConfiguration")
   public List<String> suggestGroups(CommandContext<CommandSource> $, String input) {
-    return this.groupProvider().getGroupConfigurations().stream().map(INameable::name).collect(Collectors.toList());
+    return this.groupProvider().groupConfigurations().stream().map(INameable::name).collect(Collectors.toList());
   }
 
   @CommandMethod("groups delete <name>")
   public void deleteGroup(CommandSource source, @Argument("name") GroupConfiguration configuration) {
-    CloudNet.getInstance().getGroupConfigurationProvider().removeGroupConfiguration(configuration);
+    CloudNet.getInstance().groupConfigurationProvider().removeGroupConfiguration(configuration);
     source.sendMessage(I18n.trans("command-groups-delete-group"));
   }
 
@@ -82,13 +82,13 @@ public final class CommandGroups {
 
   @CommandMethod("groups reload")
   public void reloadGroups(CommandSource source) {
-    CloudNet.getInstance().getGroupConfigurationProvider().reload();
+    CloudNet.getInstance().groupConfigurationProvider().reload();
   }
 
   @CommandMethod("groups list")
   public void listGroups(CommandSource source) {
-    var groups = CloudNet.getInstance().getGroupConfigurationProvider()
-      .getGroupConfigurations();
+    var groups = CloudNet.getInstance().groupConfigurationProvider()
+      .groupConfigurations();
     if (groups.isEmpty()) {
       return;
     }
@@ -104,7 +104,7 @@ public final class CommandGroups {
   public void displayGroup(CommandSource source, @Argument("name") GroupConfiguration group) {
     Collection<String> messages = new ArrayList<>();
     messages.add("Name: " + group.name());
-    messages.add("Environments:" + Arrays.toString(group.getTargetEnvironments().toArray()));
+    messages.add("Environments:" + Arrays.toString(group.targetEnvironments().toArray()));
 
     CommandServiceConfiguration.applyServiceConfigurationDisplay(messages, group);
     source.sendMessage(messages);
@@ -116,7 +116,7 @@ public final class CommandGroups {
     @Argument("name") GroupConfiguration group,
     @Argument("environment") ServiceEnvironmentType environmentType
   ) {
-    group.getTargetEnvironments().add(environmentType.name());
+    group.targetEnvironments().add(environmentType.name());
     this.groupProvider().addGroupConfiguration(group);
     source.sendMessage(I18n.trans("command-groups-add-environment-success"));
   }
@@ -127,7 +127,7 @@ public final class CommandGroups {
     @Argument("name") GroupConfiguration group,
     @Argument("environment") ServiceEnvironmentType environmentType
   ) {
-    if (group.getTargetEnvironments().remove(environmentType.name())) {
+    if (group.targetEnvironments().remove(environmentType.name())) {
       this.groupProvider().addGroupConfiguration(group);
       source.sendMessage(I18n.trans("command-groups-remove-environment-success"));
     } else {
@@ -147,7 +147,7 @@ public final class CommandGroups {
       .excludes(this.parseExcludes(excludes))
       .build();
 
-    group.getDeployments().add(deployment);
+    group.deployments().add(deployment);
     this.updateGroup(group);
   }
 
@@ -157,7 +157,7 @@ public final class CommandGroups {
     @Argument("name") GroupConfiguration group,
     @Argument("template") ServiceTemplate template
   ) {
-    group.getTemplates().add(template);
+    group.templates().add(template);
     this.updateGroup(group);
   }
 
@@ -170,7 +170,7 @@ public final class CommandGroups {
   ) {
     var inclusion = ServiceRemoteInclusion.builder().url(url).destination(path).build();
 
-    group.getIncludes().add(inclusion);
+    group.includes().add(inclusion);
     this.updateGroup(group);
   }
 
@@ -181,7 +181,7 @@ public final class CommandGroups {
     @Greedy @Argument("options") String jvmOptions
   ) {
     for (var jvmOption : jvmOptions.split(" ")) {
-      group.getJvmOptions().add(jvmOption);
+      group.jvmOptions().add(jvmOption);
     }
     this.updateGroup(group);
   }
@@ -193,7 +193,7 @@ public final class CommandGroups {
     @Greedy @Argument("options") String processParameters
   ) {
     for (var processParameter : processParameters.split(" ")) {
-      group.getProcessParameters().add(processParameter);
+      group.processParameters().add(processParameter);
     }
     this.updateGroup(group);
   }
@@ -210,7 +210,7 @@ public final class CommandGroups {
       .excludes(this.parseExcludes(excludes))
       .build();
 
-    group.getDeployments().remove(deployment);
+    group.deployments().remove(deployment);
     this.updateGroup(group);
   }
 
@@ -220,7 +220,7 @@ public final class CommandGroups {
     @Argument("name") GroupConfiguration group,
     @Argument("template") ServiceTemplate template
   ) {
-    group.getTemplates().remove(template);
+    group.templates().remove(template);
     this.updateGroup(group);
   }
 
@@ -233,7 +233,7 @@ public final class CommandGroups {
   ) {
     var inclusion = ServiceRemoteInclusion.builder().url(url).destination(path).build();
 
-    group.getIncludes().remove(inclusion);
+    group.includes().remove(inclusion);
     this.updateGroup(group);
   }
 
@@ -244,7 +244,7 @@ public final class CommandGroups {
     @Greedy @Argument(value = "options") String jvmOptions
   ) {
     for (var jvmOption : jvmOptions.split(" ")) {
-      group.getJvmOptions().remove(jvmOption);
+      group.jvmOptions().remove(jvmOption);
     }
     this.updateGroup(group);
   }
@@ -256,14 +256,14 @@ public final class CommandGroups {
     @Greedy @Argument("options") String processParameters
   ) {
     for (var processParameter : processParameters.split(" ")) {
-      group.getProcessParameters().remove(processParameter);
+      group.processParameters().remove(processParameter);
     }
     this.updateGroup(group);
   }
 
   @CommandMethod("groups group <name> clear jvmOptions")
   public void clearJvmOptions(CommandSource source, @Argument("name") GroupConfiguration group) {
-    group.getJvmOptions().clear();
+    group.jvmOptions().clear();
     this.updateGroup(group);
   }
 
@@ -272,7 +272,7 @@ public final class CommandGroups {
   }
 
   private GroupConfigurationProvider groupProvider() {
-    return CloudNet.getInstance().getGroupConfigurationProvider();
+    return CloudNet.getInstance().groupConfigurationProvider();
   }
 
   private Collection<String> parseExcludes(@Nullable String excludes) {

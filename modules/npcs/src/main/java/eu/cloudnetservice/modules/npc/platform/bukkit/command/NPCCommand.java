@@ -522,7 +522,7 @@ public final class NPCCommand extends BaseTabExecutor {
     if (args[0].equalsIgnoreCase("create")) {
       switch (args.length) {
         case 2:
-          return CloudNetDriver.getInstance().getGroupConfigurationProvider().getGroupConfigurations().stream()
+          return CloudNetDriver.instance().groupConfigurationProvider().groupConfigurations().stream()
             .map(GroupConfiguration::name)
             .collect(Collectors.toList());
         case 3:
@@ -590,8 +590,8 @@ public final class NPCCommand extends BaseTabExecutor {
           // npc skin profile
           case "profile" -> Arrays.asList("derklaro", "juliarn", "0utplayyyy");
           // target group
-          case "tg", "targetgroup" -> CloudNetDriver.getInstance().getGroupConfigurationProvider()
-            .getGroupConfigurations().stream()
+          case "tg", "targetgroup" -> CloudNetDriver.instance().groupConfigurationProvider()
+            .groupConfigurations().stream()
             .map(GroupConfiguration::name)
             .collect(Collectors.toList());
           // item slots

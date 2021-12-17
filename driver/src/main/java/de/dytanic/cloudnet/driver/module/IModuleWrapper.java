@@ -36,7 +36,7 @@ public interface IModuleWrapper {
    * @return an immutable map of all module tasks which were detected in the main class of the module.
    */
   @NotNull
-  @Unmodifiable Map<ModuleLifeCycle, List<IModuleTaskEntry>> getModuleTasks();
+  @Unmodifiable Map<ModuleLifeCycle, List<IModuleTaskEntry>> moduleTasks();
 
   /**
    * Get all modules this module is depending on.
@@ -44,48 +44,48 @@ public interface IModuleWrapper {
    * @return an immutable set of all modules this module is depending on.
    */
   @NotNull
-  @Unmodifiable Set<ModuleDependency> getDependingModules();
+  @Unmodifiable Set<ModuleDependency> dependingModules();
 
   /**
    * Get the wrapped module instance of this wrapper.
    *
    * @return the wrapped module instance of this wrapper.
    */
-  @NotNull IModule getModule();
+  @NotNull IModule module();
 
   /**
    * Get the current lifecycle of this wrapper.
    *
    * @return the current lifecycle of this wrapper.
    */
-  @NotNull ModuleLifeCycle getModuleLifeCycle();
+  @NotNull ModuleLifeCycle moduleLifeCycle();
 
   /**
    * Get the module provider which loaded this module.
    *
    * @return the module provider which loaded this module.
    */
-  @NotNull IModuleProvider getModuleProvider();
+  @NotNull IModuleProvider moduleProvider();
 
   /**
    * Get the module configuration on which base the module was created.
    *
    * @return the module configuration on which base the module was created.
    */
-  @NotNull ModuleConfiguration getModuleConfiguration();
+  @NotNull ModuleConfiguration moduleConfiguration();
 
   /**
    * Get the class loader which is responsible for this module.
    *
    * @return the class loader which is responsible for this module.
    */
-  @NotNull ClassLoader getClassLoader();
+  @NotNull ClassLoader classLoader();
 
   /**
    * Changes the lifecycle of this module to {@link ModuleLifeCycle#LOADED} if possible and fires all associated tasks.
    *
    * @return the same instance of this class, for chaining.
-   * @see #getModuleTasks()
+   * @see #moduleTasks()
    * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
    * @see IModuleProvider#notifyPreModuleLifecycleChange(IModuleWrapper, ModuleLifeCycle)
    */
@@ -96,7 +96,7 @@ public interface IModuleWrapper {
    * tasks.
    *
    * @return the same instance of this class, for chaining.
-   * @see #getModuleTasks()
+   * @see #moduleTasks()
    * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
    * @see IModuleProvider#notifyPreModuleLifecycleChange(IModuleWrapper, ModuleLifeCycle)
    */
@@ -107,7 +107,7 @@ public interface IModuleWrapper {
    * tasks.
    *
    * @return the same instance of this class, for chaining.
-   * @see #getModuleTasks()
+   * @see #moduleTasks()
    * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
    * @see IModuleProvider#notifyPreModuleLifecycleChange(IModuleWrapper, ModuleLifeCycle)
    */
@@ -118,7 +118,7 @@ public interface IModuleWrapper {
    * tasks.
    *
    * @return the same instance of this class, for chaining.
-   * @see #getModuleTasks()
+   * @see #moduleTasks()
    * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
    * @see IModuleProvider#notifyPreModuleLifecycleChange(IModuleWrapper, ModuleLifeCycle)
    */
@@ -130,7 +130,7 @@ public interface IModuleWrapper {
    * module changes to {@link ModuleLifeCycle#UNUSEABLE}.
    *
    * @return the same instance of this class, for chaining.
-   * @see #getModuleTasks()
+   * @see #moduleTasks()
    * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
    * @see IModuleProvider#notifyPreModuleLifecycleChange(IModuleWrapper, ModuleLifeCycle)
    */
@@ -141,19 +141,19 @@ public interface IModuleWrapper {
    *
    * @return the data directory of this module.
    */
-  @NotNull Path getDataDirectory();
+  @NotNull Path dataDirectory();
 
   /**
    * Get the url from where the module was loaded.
    *
    * @return the url from where the module was loaded.
    */
-  @NotNull URL getUrl();
+  @NotNull URL url();
 
   /**
    * Get the uri from where the module was loaded.
    *
    * @return the uri from where the module was loaded.
    */
-  @NotNull URI getUri();
+  @NotNull URI uri();
 }

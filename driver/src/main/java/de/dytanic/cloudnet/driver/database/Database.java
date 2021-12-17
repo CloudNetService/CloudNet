@@ -114,7 +114,7 @@ public interface Database extends INameable, AutoCloseable {
   /**
    * @return the count of all persistent documents
    */
-  long getDocumentsCount();
+  long documentCount();
 
   /**
    * @return whether the database is synchronized (like MongoDB, MySQL) or not (like H2)
@@ -225,7 +225,7 @@ public interface Database extends INameable, AutoCloseable {
   /**
    * @return the count of all persistent documents
    */
-  default @NotNull ITask<Long> getDocumentsCountAsync() {
-    return CompletableTask.supply(this::getDocumentsCount);
+  default @NotNull ITask<Long> documentCountAsync() {
+    return CompletableTask.supply(this::documentCount);
   }
 }

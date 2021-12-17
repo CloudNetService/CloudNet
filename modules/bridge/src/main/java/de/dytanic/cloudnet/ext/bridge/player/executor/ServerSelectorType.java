@@ -24,11 +24,11 @@ import java.util.concurrent.ThreadLocalRandom;
 public enum ServerSelectorType {
 
   HIGHEST_PLAYERS((o1, o2) -> Integer.compare(
-    o1.getProperty(BridgeServiceProperties.ONLINE_COUNT).orElse(0),
-    o2.getProperty(BridgeServiceProperties.ONLINE_COUNT).orElse(0))),
+    o1.property(BridgeServiceProperties.ONLINE_COUNT).orElse(0),
+    o2.property(BridgeServiceProperties.ONLINE_COUNT).orElse(0))),
   LOWEST_PLAYERS((o1, o2) -> Integer.compare(
-    o2.getProperty(BridgeServiceProperties.ONLINE_COUNT).orElse(0),
-    o1.getProperty(BridgeServiceProperties.ONLINE_COUNT).orElse(0))),
+    o2.property(BridgeServiceProperties.ONLINE_COUNT).orElse(0),
+    o1.property(BridgeServiceProperties.ONLINE_COUNT).orElse(0))),
   RANDOM(Comparator.comparingInt(value -> ThreadLocalRandom.current().nextInt(2) - 1));
 
   private final Comparator<ServiceInfoSnapshot> comparator;

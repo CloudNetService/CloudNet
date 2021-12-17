@@ -36,7 +36,7 @@ public class DefaultQueryPacketManagerTest {
     manager.sendQueryPacket(mockedPacket.first());
 
     Assertions.assertTrue(manager.hasWaitingHandler(mockedPacket.second().get()));
-    Assertions.assertNotNull(manager.getWaitingHandlers().get(mockedPacket.second().get()));
+    Assertions.assertNotNull(manager.waitingHandlers().get(mockedPacket.second().get()));
 
     Assertions.assertTrue(manager.unregisterWaitingHandler(mockedPacket.second().get()));
     Assertions.assertFalse(manager.hasWaitingHandler(mockedPacket.second().get()));
@@ -52,7 +52,7 @@ public class DefaultQueryPacketManagerTest {
 
     Assertions.assertEquals(uniqueId, mockedPacket.second().get());
     Assertions.assertTrue(manager.hasWaitingHandler(uniqueId));
-    Assertions.assertNotNull(manager.getWaitingHandlers().get(uniqueId));
+    Assertions.assertNotNull(manager.waitingHandlers().get(uniqueId));
 
     Assertions.assertTrue(manager.unregisterWaitingHandler(uniqueId));
     Assertions.assertFalse(manager.hasWaitingHandler(uniqueId));
@@ -65,7 +65,7 @@ public class DefaultQueryPacketManagerTest {
 
     var task = manager.sendQueryPacket(mockedPacket.first());
 
-    Assertions.assertEquals(task, manager.getWaitingHandler(mockedPacket.second().get()));
+    Assertions.assertEquals(task, manager.waitingHandler(mockedPacket.second().get()));
     Assertions.assertFalse(manager.hasWaitingHandler(mockedPacket.second().get()));
   }
 
@@ -80,7 +80,7 @@ public class DefaultQueryPacketManagerTest {
 
     Thread.sleep(2500);
 
-    Assertions.assertNull(manager.getWaitingHandler(mockedPacket.second().get()));
+    Assertions.assertNull(manager.waitingHandler(mockedPacket.second().get()));
     manager.sendQueryPacket(mockedPacket.first());
 
     Assertions.assertTrue(task.isDone());
@@ -96,7 +96,7 @@ public class DefaultQueryPacketManagerTest {
         return null;
       })
       .when(packet)
-      .setUniqueId(Mockito.any());
+      .uniqueId(Mockito.any());
 
     return new Pair<>(packet, reference);
   }

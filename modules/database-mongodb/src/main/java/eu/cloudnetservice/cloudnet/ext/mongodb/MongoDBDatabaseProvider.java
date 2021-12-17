@@ -60,7 +60,7 @@ public class MongoDBDatabaseProvider extends AbstractDatabaseProvider {
   }
 
   @Override
-  public @NotNull LocalDatabase getDatabase(@NotNull String name) {
+  public @NotNull LocalDatabase database(@NotNull String name) {
     return this.cachedDatabaseInstances.computeIfAbsent(name, $ -> {
       var collection = this.mongoDatabase.getCollection(name);
       return new MongoDBDatabase(name, collection, this.executorService, this);
@@ -69,7 +69,7 @@ public class MongoDBDatabaseProvider extends AbstractDatabaseProvider {
 
   @Override
   public boolean containsDatabase(@NotNull String name) {
-    return this.getDatabaseNames().contains(name);
+    return this.databaseNames().contains(name);
   }
 
   @Override
@@ -81,7 +81,7 @@ public class MongoDBDatabaseProvider extends AbstractDatabaseProvider {
   }
 
   @Override
-  public @NotNull Collection<String> getDatabaseNames() {
+  public @NotNull Collection<String> databaseNames() {
     return this.mongoDatabase.listCollectionNames().into(new ArrayList<>());
   }
 

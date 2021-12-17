@@ -44,12 +44,12 @@ import org.jetbrains.annotations.NotNull;
 public final class CommandMigrate {
 
   private static final int DEFAULT_CHUNK_SIZE = 100;
-  private static final Logger LOGGER = LogManager.logger(CommandMigrate.class);
+  private static final Logger LOGGER = LogManager.getLogger(CommandMigrate.class);
 
   @Parser(suggestions = "databaseProvider")
   public AbstractDatabaseProvider defaultDatabaseProviderParser(CommandContext<CommandSource> $, Queue<String> input) {
-    var abstractDatabaseProvider = CloudNet.getInstance().getServicesRegistry()
-      .service(AbstractDatabaseProvider.class, input.remove());
+    var abstractDatabaseProvider = CloudNet.getInstance().servicesRegistry()
+      .getService(AbstractDatabaseProvider.class, input.remove());
 
     if (abstractDatabaseProvider == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-migrate-unknown-database-provider"));
@@ -59,7 +59,7 @@ public final class CommandMigrate {
 
   @Suggestions("databaseProvider")
   public List<String> suggestDatabaseProvider(CommandContext<CommandSource> $, String input) {
-    return CloudNet.getInstance().getServicesRegistry().services(AbstractDatabaseProvider.class)
+    return CloudNet.getInstance().servicesRegistry().getServices(AbstractDatabaseProvider.class)
       .stream()
       .map(INameable::name)
       .collect(Collectors.toList());
@@ -87,12 +87,12 @@ public final class CommandMigrate {
     }
 
     try {
-      for (var databaseName : sourceDatabaseProvider.getDatabaseNames()) {
+      for (var databaseName : sourceDatabaseProvider.databaseNames()) {
         source.sendMessage(
           I18n.trans("command-migrate-current-database").replace("%db%", databaseName));
 
-        var sourceDatabase = sourceDatabaseProvider.getDatabase(databaseName);
-        var targetDatabase = targetDatabaseProvider.getDatabase(databaseName);
+        var sourceDatabase = sourceDatabaseProvider.database(databaseName);
+        var targetDatabase = targetDatabaseProvider.database(databaseName);
 
         sourceDatabase.iterate(targetDatabase::insert, chunkSize);
       }
@@ -112,7 +112,7 @@ public final class CommandMigrate {
 
   private boolean executeIfNotCurrentProvider(@NotNull AbstractDatabaseProvider sourceProvider,
     @NotNull ThrowableConsumer<AbstractDatabaseProvider, ?> handler) {
-    if (!CloudNet.getInstance().getDatabaseProvider().equals(sourceProvider)) {
+    if (!CloudNet.getInstance().databaseProvider().equals(sourceProvider)) {
       try {
         handler.accept(sourceProvider);
       } catch (Throwable throwable) {

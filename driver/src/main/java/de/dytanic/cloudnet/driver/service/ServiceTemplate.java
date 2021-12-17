@@ -64,10 +64,10 @@ public class ServiceTemplate implements INameable, Comparable<ServiceTemplate>, 
   public static @NotNull Builder builder(@NotNull ServiceTemplate template) {
     return builder()
       .name(template.name())
-      .prefix(template.getPrefix())
-      .storage(template.getStorage())
-      .priority(template.getPriority())
-      .alwaysCopyToStaticServices(template.shouldAlwaysCopyToStaticServices());
+      .prefix(template.prefix())
+      .storage(template.storageName())
+      .priority(template.priority())
+      .alwaysCopyToStaticServices(template.alwaysCopyToStaticServices());
   }
 
   /**
@@ -119,11 +119,11 @@ public class ServiceTemplate implements INameable, Comparable<ServiceTemplate>, 
     return this.name;
   }
 
-  public @NotNull String getPrefix() {
+  public @NotNull String prefix() {
     return this.prefix;
   }
 
-  public @NotNull String getStorage() {
+  public @NotNull String storageName() {
     return this.storage;
   }
 
@@ -134,15 +134,15 @@ public class ServiceTemplate implements INameable, Comparable<ServiceTemplate>, 
    *
    * @return the priority of the template
    */
-  public int getPriority() {
+  public int priority() {
     return this.priority;
   }
 
-  public boolean shouldAlwaysCopyToStaticServices() {
+  public boolean alwaysCopyToStaticServices() {
     return this.alwaysCopyToStaticServices;
   }
 
-  public @NotNull String getFullName() {
+  public @NotNull String fullName() {
     return this.prefix + '/' + this.name;
   }
 
@@ -167,7 +167,7 @@ public class ServiceTemplate implements INameable, Comparable<ServiceTemplate>, 
    * @return a new instance of the {@link SpecificTemplateStorage} or null if the storage doesn't exist
    */
   public @Nullable SpecificTemplateStorage knownStorage() {
-    var storage = CloudNetDriver.getInstance().getTemplateStorage(this.storage);
+    var storage = CloudNetDriver.instance().templateStorage(this.storage);
     return storage != null ? SpecificTemplateStorage.of(this, storage) : null;
   }
 

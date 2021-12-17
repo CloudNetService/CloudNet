@@ -38,7 +38,7 @@ public final class PacketAuthorizationResponseListener implements IPacketListene
   @Override
   public void handle(@NotNull INetworkChannel channel, @NotNull IPacket packet) {
     // read the auth result
-    this.result = packet.getContent().readBoolean();
+    this.result = packet.content().readBoolean();
     // signal all listeners waiting for the auth
     try {
       this.lock.lock();

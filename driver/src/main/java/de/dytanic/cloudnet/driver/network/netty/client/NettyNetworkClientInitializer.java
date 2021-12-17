@@ -40,8 +40,8 @@ public class NettyNetworkClientInitializer extends ChannelInitializer<Channel> {
     if (this.nettyNetworkClient.sslContext != null) {
       var handler = this.nettyNetworkClient.sslContext.newHandler(
         channel.alloc(),
-        this.hostAndPort.getHost(),
-        this.hostAndPort.getPort());
+        this.hostAndPort.host(),
+        this.hostAndPort.port());
       channel.pipeline().addLast("ssl-handler", handler);
     }
 

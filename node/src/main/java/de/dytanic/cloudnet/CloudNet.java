@@ -94,7 +94,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public class CloudNet extends CloudNetDriver {
 
-  private static final Logger LOGGER = LogManager.logger(CloudNet.class);
+  private static final Logger LOGGER = LogManager.getLogger(CloudNet.class);
   private static final Path LAUNCHER_DIR = Paths.get(System.getProperty("cloudnet.launcher.dir", "launcher"));
 
   private final IConsole console;
@@ -119,7 +119,7 @@ public class CloudNet extends CloudNetDriver {
   protected CloudNet(@NotNull String[] args, @NotNull IConsole console, @NotNull Logger rootLogger) {
     super(Arrays.asList(args));
 
-    setInstance(this);
+    instance(this);
 
     // add the log handler here to capture all log lines of the startup
     this.logHandler.setFormatter(console.hasColorSupport()
@@ -147,13 +147,13 @@ public class CloudNet extends CloudNetDriver {
     this.groupConfigurationProvider = new NodeGroupConfigurationProvider(this);
 
     // permission management init
-    this.setPermissionManagement(new DefaultDatabasePermissionManagement(this));
-    this.getPermissionManagement().setPermissionManagementHandler(
+    this.permissionManagement(new DefaultDatabasePermissionManagement(this));
+    this.permissionManagement().setPermissionManagementHandler(
       new DefaultPermissionManagementHandler(this.eventManager));
 
-    this.moduleProvider.setModuleDependencyLoader(
+    this.moduleProvider.moduleDependencyLoader(
       new DefaultPersistableModuleDependencyLoader(LAUNCHER_DIR.resolve("libs")));
-    this.moduleProvider.setModuleProviderHandler(new NodeModuleProviderHandler(this));
+    this.moduleProvider.moduleProviderHandler(new NodeModuleProviderHandler(this));
 
     this.networkClient = new NettyNetworkClient(
       DefaultNetworkClientChannelHandler::new,
@@ -172,7 +172,7 @@ public class CloudNet extends CloudNetDriver {
   }
 
   public static @NotNull CloudNet getInstance() {
-    return (CloudNet) CloudNetDriver.getInstance();
+    return (CloudNet) CloudNetDriver.instance();
   }
 
   @Override
@@ -201,7 +201,7 @@ public class CloudNet extends CloudNetDriver {
         !this.configuration.getClusterConfig().nodes().isEmpty()));
 
     // initialize the default database provider
-    this.setDatabaseProvider(this.servicesRegistry.service(
+    this.setDatabaseProvider(this.servicesRegistry.getService(
       AbstractDatabaseProvider.class,
       this.configuration.getProperties().getString("database_provider", "xodus")));
 
@@ -210,7 +210,7 @@ public class CloudNet extends CloudNetDriver {
 
     // check if there is a database provider or initialize the default one
     if (this.databaseProvider == null || !this.databaseProvider.init()) {
-      this.setDatabaseProvider(this.servicesRegistry.service(AbstractDatabaseProvider.class, "xodus"));
+      this.setDatabaseProvider(this.servicesRegistry.getService(AbstractDatabaseProvider.class, "xodus"));
       if (this.databaseProvider == null || !this.databaseProvider.init()) {
         // unable to start without a database
         throw new IllegalStateException("No database provider selected for startup - Unable to proceed");
@@ -229,7 +229,7 @@ public class CloudNet extends CloudNetDriver {
     this.nodeServerProvider.getSelfNode().publishNodeInfoSnapshotUpdate();
 
     // network server init
-    for (var listener : this.configuration.getIdentity().getListeners()) {
+    for (var listener : this.configuration.getIdentity().listeners()) {
       this.networkServer.addListener(listener);
     }
     // http server init
@@ -239,7 +239,7 @@ public class CloudNet extends CloudNetDriver {
     // network client init
     Set<CompletableFuture<Void>> futures = new HashSet<>(); // all futures of connections
     for (var node : this.nodeServerProvider.getNodeServers()) {
-      var listeners = node.getNodeInfo().getListeners();
+      var listeners = node.getNodeInfo().listeners();
       // check if there are any listeners
       if (listeners.length > 0) {
         // get a random listener of the node
@@ -274,7 +274,7 @@ public class CloudNet extends CloudNetDriver {
       ChannelMessage.builder()
         .message("request_initial_cluster_data")
         .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-        .targetNode(this.nodeServerProvider.getHeadNode().getNodeInfo().getUniqueId())
+        .targetNode(this.nodeServerProvider.getHeadNode().getNodeInfo().uniqueId())
         .build()
         .send();
     }
@@ -316,7 +316,7 @@ public class CloudNet extends CloudNetDriver {
         this.moduleProvider.unloadAll();
 
         // close all services
-        this.getCloudServiceProvider().deleteAllCloudServices();
+        this.cloudServiceProvider().deleteAllCloudServices();
 
         // close all networking listeners
         this.httpServer.close();
@@ -335,18 +335,18 @@ public class CloudNet extends CloudNetDriver {
   }
 
   @Override
-  public @NotNull String getComponentName() {
-    return this.configuration.getIdentity().getUniqueId();
+  public @NotNull String componentName() {
+    return this.configuration.getIdentity().uniqueId();
   }
 
   @Override
-  public @NotNull String getNodeUniqueId() {
-    return this.configuration.getIdentity().getUniqueId();
+  public @NotNull String nodeUniqueId() {
+    return this.configuration.getIdentity().uniqueId();
   }
 
   @Override
-  public @NotNull TemplateStorage getLocalTemplateStorage() {
-    var localStorage = this.getTemplateStorage(ServiceTemplate.LOCAL_STORAGE);
+  public @NotNull TemplateStorage localTemplateStorage() {
+    var localStorage = this.templateStorage(ServiceTemplate.LOCAL_STORAGE);
     if (localStorage == null) {
       // this should never happen
       throw new UnsupportedOperationException("Local template storage is not present");
@@ -356,17 +356,17 @@ public class CloudNet extends CloudNetDriver {
   }
 
   @Override
-  public @Nullable TemplateStorage getTemplateStorage(@NotNull String storage) {
-    return this.servicesRegistry.service(TemplateStorage.class, storage);
+  public @Nullable TemplateStorage templateStorage(@NotNull String storage) {
+    return this.servicesRegistry.getService(TemplateStorage.class, storage);
   }
 
   @Override
-  public @NotNull Collection<TemplateStorage> getAvailableTemplateStorages() {
-    return this.servicesRegistry.services(TemplateStorage.class);
+  public @NotNull Collection<TemplateStorage> availableTemplateStorages() {
+    return this.servicesRegistry.getServices(TemplateStorage.class);
   }
 
   @Override
-  public @NotNull AbstractDatabaseProvider getDatabaseProvider() {
+  public @NotNull AbstractDatabaseProvider databaseProvider() {
     return this.databaseProvider;
   }
 
@@ -386,7 +386,7 @@ public class CloudNet extends CloudNetDriver {
   }
 
   @Override
-  public @NotNull INetworkClient getNetworkClient() {
+  public @NotNull INetworkClient networkClient() {
     return this.networkClient;
   }
 
@@ -394,7 +394,7 @@ public class CloudNet extends CloudNetDriver {
   public @NotNull Collection<String> sendCommandLineAsPermissionUser(@NotNull UUID uniqueId,
     @NotNull String commandLine) {
     // get the permission user
-    var user = this.permissionManagement.getUser(uniqueId);
+    var user = this.permissionManagement.user(uniqueId);
     if (user == null) {
       return Collections.emptyList();
     } else {
@@ -406,25 +406,25 @@ public class CloudNet extends CloudNetDriver {
   }
 
   @Override
-  public @NotNull NodeMessenger getMessenger() {
-    return (NodeMessenger) super.getMessenger();
+  public @NotNull NodeMessenger messenger() {
+    return (NodeMessenger) super.messenger();
   }
 
   @Override
-  public @NotNull ICloudServiceManager getCloudServiceProvider() {
-    return (ICloudServiceManager) super.getCloudServiceProvider();
+  public @NotNull ICloudServiceManager cloudServiceProvider() {
+    return (ICloudServiceManager) super.cloudServiceProvider();
   }
 
   @Override
-  public @NotNull NodePermissionManagement getPermissionManagement() {
-    return (NodePermissionManagement) super.getPermissionManagement();
+  public @NotNull NodePermissionManagement permissionManagement() {
+    return (NodePermissionManagement) super.permissionManagement();
   }
 
   @Override
-  public void setPermissionManagement(@NotNull IPermissionManagement management) {
+  public void permissionManagement(@NotNull IPermissionManagement management) {
     // nodes can only use node permission managements
     Preconditions.checkArgument(management instanceof NodePermissionManagement);
-    super.setPermissionManagement(management);
+    super.permissionManagement(management);
     // re-register the handler for the permission management - the call to super.setPermissionManagement will not exit
     // if the permission management is invalid
     this.rpcProviderFactory.newHandler(IPermissionManagement.class, management).registerToDefaultRegistry();

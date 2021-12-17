@@ -38,7 +38,7 @@ final class VelocityCloudPermissionFunction implements PermissionFunction {
       return Tristate.FALSE;
     }
 
-    var permissionUser = this.permissionsManagement.getUser(this.uniqueId);
+    var permissionUser = this.permissionsManagement.user(this.uniqueId);
     return
       (permissionUser != null && this.permissionsManagement.hasPermission(permissionUser, Permission.of(permission))) ?
         Tristate.TRUE : Tristate.FALSE;

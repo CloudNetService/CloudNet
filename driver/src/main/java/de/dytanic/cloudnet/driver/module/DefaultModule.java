@@ -48,7 +48,7 @@ public class DefaultModule implements IModule {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull IModuleWrapper getModuleWrapper() {
+  public @NotNull IModuleWrapper moduleWrapper() {
     return this.moduleWrapper;
   }
 
@@ -56,7 +56,7 @@ public class DefaultModule implements IModule {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull ClassLoader getClassLoader() {
+  public @NotNull ClassLoader classLoader() {
     return this.classLoader;
   }
 
@@ -64,7 +64,7 @@ public class DefaultModule implements IModule {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull ModuleConfiguration getModuleConfig() {
+  public @NotNull ModuleConfiguration moduleConfig() {
     return this.moduleConfig;
   }
 }

@@ -139,7 +139,7 @@ public final class CloudNetTick {
           // check if the node is marked for draining
           if (this.cloudNet.getClusterNodeServerProvider().getSelfNode().isDrain()) {
             // check if there are no services on the node
-            if (this.cloudNet.getCloudServiceProvider().getLocalCloudServices().isEmpty()) {
+            if (this.cloudNet.cloudServiceProvider().getLocalCloudServices().isEmpty()) {
               // stop the node as it's marked for draining
               this.cloudNet.stop();
             }
@@ -150,7 +150,7 @@ public final class CloudNetTick {
             this.startService();
           }
 
-          this.cloudNet.getEventManager().callEvent(this.tickEvent);
+          this.cloudNet.eventManager().callEvent(this.tickEvent);
         }
       } catch (Exception exception) {
         LOGGER.severe("Exception while ticking", exception);
@@ -159,16 +159,16 @@ public final class CloudNetTick {
   }
 
   private void startService() {
-    for (var task : this.cloudNet.getServiceTaskProvider().getPermanentServiceTasks()) {
-      if (!task.isMaintenance()) {
+    for (var task : this.cloudNet.serviceTaskProvider().permanentServiceTasks()) {
+      if (!task.maintenance()) {
         // get the count of running services
-        var runningServiceCount = this.cloudNet.getCloudServiceProvider().getCloudServicesByTask(task.name())
+        var runningServiceCount = this.cloudNet.cloudServiceProvider().servicesByTask(task.name())
           .stream()
-          .filter(taskService -> taskService.getLifeCycle() == ServiceLifeCycle.RUNNING)
+          .filter(taskService -> taskService.lifeCycle() == ServiceLifeCycle.RUNNING)
           .count();
         // check if we need to start a service
-        if (task.getMinServiceCount() > runningServiceCount) {
-          this.cloudNet.getCloudServiceProvider().selectOrCreateService(task).start();
+        if (task.minServiceCount() > runningServiceCount) {
+          this.cloudNet.cloudServiceProvider().selectOrCreateService(task).start();
         }
       }
     }

@@ -35,7 +35,7 @@ public class WrapperDatabase implements Database {
   public WrapperDatabase(@NotNull String name, @NotNull Wrapper wrapper, @NotNull RPC baseRPC) {
     this.name = name;
     this.baseRPC = baseRPC;
-    this.sender = wrapper.getRPCProviderFactory().providerForClass(wrapper.getNetworkClient(), Database.class);
+    this.sender = wrapper.rpcProviderFactory().providerForClass(wrapper.networkClient(), Database.class);
   }
 
   @Override
@@ -99,8 +99,8 @@ public class WrapperDatabase implements Database {
   }
 
   @Override
-  public long getDocumentsCount() {
-    return this.baseRPC.join(this.sender.invokeMethod("getDocumentsCount")).fireSync();
+  public long documentCount() {
+    return this.baseRPC.join(this.sender.invokeMethod("documentCount")).fireSync();
   }
 
   @Override

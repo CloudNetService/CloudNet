@@ -41,10 +41,10 @@ public class ModuleDependencyOutdatedException extends RuntimeException {
   ) {
     super(String.format(
       "Module %s:%s requires minimum %s version %d of %s:%s but is currently %d",
-      requiringModule.getModule().getGroup(), requiringModule.getModule().getName(),
+      requiringModule.module().group(), requiringModule.module().name(),
       semverIndex,
       required,
-      dependency.getGroup(), dependency.getName(),
+      dependency.group(), dependency.name(),
       actual
     ));
   }

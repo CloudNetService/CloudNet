@@ -23,7 +23,6 @@ import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.ext.rest.RestUtils;
 import de.dytanic.cloudnet.http.HttpSession;
 import de.dytanic.cloudnet.http.V2HttpHandler;
-import java.util.Collections;
 import java.util.function.BiConsumer;
 
 public class V2HttpHandlerDatabase extends V2HttpHandler {
@@ -70,7 +69,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
 
   protected void handleNamesRequest(IHttpContext context) {
     this.ok(context)
-      .body(this.success().append("names", this.getDatabaseProvider().getDatabaseNames()).toString())
+      .body(this.success().append("names", this.getDatabaseProvider().databaseNames()).toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -155,7 +154,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
     }
 
     this.ok(context)
-      .body(this.success().append("count", database.getDocumentsCount()).toString())
+      .body(this.success().append("count", database.documentCount()).toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -234,7 +233,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   protected DatabaseProvider getDatabaseProvider() {
-    return this.getCloudNet().getDatabaseProvider();
+    return this.getCloudNet().databaseProvider();
   }
 
   protected Database getDatabase(IHttpContext context) {
@@ -243,6 +242,6 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   protected Database getDatabase(String name) {
-    return this.getDatabaseProvider().getDatabase(name);
+    return this.getDatabaseProvider().database(name);
   }
 }

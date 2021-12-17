@@ -49,7 +49,7 @@ public final class RecordReportListener {
       return;
     }
 
-    var connectedTime = System.currentTimeMillis() - event.getServiceInfo().getConnectedTime();
+    var connectedTime = System.currentTimeMillis() - event.getServiceInfo().connectedTime();
     // check if we should print the log lines based on the online time.
     if (connectedTime <= serviceLifetimeSetting) {
       var consoleLogCache = event.getService().getServiceConsoleLogCache().update();

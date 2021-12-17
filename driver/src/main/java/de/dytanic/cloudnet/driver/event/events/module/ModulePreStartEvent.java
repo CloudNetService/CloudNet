@@ -20,27 +20,28 @@ import de.dytanic.cloudnet.driver.event.ICancelable;
 import de.dytanic.cloudnet.driver.module.IModuleProvider;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * This event is being called before a module has been started and the tasks with the lifecycle {@link
- * ModuleLifeCycle#STARTED} of this module have been fired. {@link IModuleWrapper#getModuleLifeCycle()} is still {@link
+ * ModuleLifeCycle#STARTED} of this module have been fired. {@link IModuleWrapper#moduleLifeCycle()} is still {@link
  * ModuleLifeCycle#LOADED} or {@link ModuleLifeCycle#STOPPED}.
  */
 public final class ModulePreStartEvent extends ModuleEvent implements ICancelable {
 
   private boolean cancelled = false;
 
-  public ModulePreStartEvent(IModuleProvider moduleProvider, IModuleWrapper module) {
+  public ModulePreStartEvent(@NotNull IModuleProvider moduleProvider, @NotNull IModuleWrapper module) {
     super(moduleProvider, module);
   }
 
   @Override
-  public boolean isCancelled() {
+  public boolean cancelled() {
     return this.cancelled;
   }
 
   @Override
-  public void setCancelled(boolean value) {
+  public void cancelled(boolean value) {
     this.cancelled = value;
   }
 }

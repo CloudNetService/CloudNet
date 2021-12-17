@@ -87,7 +87,7 @@ final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
   @Override
   public void connectToGroup(@NotNull String group, @NotNull ServerSelectorType selectorType) {
     this.management.getCachedServices().stream()
-      .filter(service -> service.getConfiguration().getGroups().contains(group))
+      .filter(service -> service.configuration().groups().contains(group))
       .sorted(selectorType.getComparator())
       .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
       .filter(Objects::nonNull)
@@ -97,7 +97,7 @@ final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
   @Override
   public void connectToTask(@NotNull String task, @NotNull ServerSelectorType selectorType) {
     this.management.getCachedServices().stream()
-      .filter(service -> service.getServiceId().getTaskName().equals(task))
+      .filter(service -> service.serviceId().taskName().equals(task))
       .sorted(selectorType.getComparator())
       .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
       .filter(Objects::nonNull)

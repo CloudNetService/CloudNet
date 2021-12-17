@@ -32,7 +32,7 @@ public final class DefaultDatabaseHandler implements IDatabaseHandler {
     @NotNull String key,
     @NotNull JsonDocument document
   ) {
-    CloudNetDriver.getInstance().getEventManager().callEvent(new DatabaseInsertEntryEvent(database, key, document));
+    CloudNetDriver.instance().eventManager().callEvent(new DatabaseInsertEntryEvent(database, key, document));
   }
 
   @Override
@@ -41,16 +41,16 @@ public final class DefaultDatabaseHandler implements IDatabaseHandler {
     @NotNull String key,
     @NotNull JsonDocument document
   ) {
-    CloudNetDriver.getInstance().getEventManager().callEvent(new DatabaseUpdateEntryEvent(database, key, document));
+    CloudNetDriver.instance().eventManager().callEvent(new DatabaseUpdateEntryEvent(database, key, document));
   }
 
   @Override
   public void handleDelete(@NotNull LocalDatabase database, @NotNull String key) {
-    CloudNetDriver.getInstance().getEventManager().callEvent(new DatabaseDeleteEntryEvent(database, key));
+    CloudNetDriver.instance().eventManager().callEvent(new DatabaseDeleteEntryEvent(database, key));
   }
 
   @Override
   public void handleClear(@NotNull LocalDatabase database) {
-    CloudNetDriver.getInstance().getEventManager().callEvent(new DatabaseClearEntriesEvent(database));
+    CloudNetDriver.instance().eventManager().callEvent(new DatabaseClearEntriesEvent(database));
   }
 }

@@ -49,7 +49,7 @@ public enum PermissionCheckResult {
   }
 
   public static PermissionCheckResult fromPermission(Permission permission) {
-    return fromBoolean(permission == null ? null : permission.getPotency() >= 0);
+    return fromBoolean(permission == null ? null : permission.potency() >= 0);
   }
 
   /**

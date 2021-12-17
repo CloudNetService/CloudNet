@@ -51,7 +51,7 @@ public final class SpongePlayerManagementListener {
     // check if the current task is present
     if (task != null) {
       // check if maintenance is activated
-      if (task.isMaintenance() && !user.hasPermission("cloudnet.bridge.maintenance")) {
+      if (task.maintenance() && !user.hasPermission("cloudnet.bridge.maintenance")) {
         event.setCancelled(true);
         event.setMessage(Component.text(this.management.getConfiguration().getMessage(
           Locale.ENGLISH,

@@ -54,15 +54,15 @@ public class DefaultModuleTaskEntry implements IModuleTaskEntry {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull IModule getModule() {
-    return this.moduleWrapper.getModule();
+  public @NotNull IModule module() {
+    return this.moduleWrapper.module();
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public @NotNull IModuleWrapper getModuleWrapper() {
+  public @NotNull IModuleWrapper moduleWrapper() {
     return this.moduleWrapper;
   }
 
@@ -70,7 +70,7 @@ public class DefaultModuleTaskEntry implements IModuleTaskEntry {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull ModuleTask getTaskInfo() {
+  public @NotNull ModuleTask taskInfo() {
     return this.moduleTask;
   }
 
@@ -78,7 +78,7 @@ public class DefaultModuleTaskEntry implements IModuleTaskEntry {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull MethodHandle getMethod() {
+  public @NotNull MethodHandle method() {
     return this.method;
   }
 
@@ -86,7 +86,7 @@ public class DefaultModuleTaskEntry implements IModuleTaskEntry {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull String getFullMethodSignature() {
+  public @NotNull String fullMethodSignature() {
     return this.fullMethodSignatureCached;
   }
 
@@ -95,6 +95,6 @@ public class DefaultModuleTaskEntry implements IModuleTaskEntry {
    */
   @Override
   public void fire() throws Throwable {
-    this.method.invoke(this.getModuleWrapper().getModule());
+    this.method.invoke(this.moduleWrapper().module());
   }
 }

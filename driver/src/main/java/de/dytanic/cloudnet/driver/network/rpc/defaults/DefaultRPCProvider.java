@@ -38,17 +38,17 @@ public abstract class DefaultRPCProvider implements RPCProvider {
   }
 
   @Override
-  public @NotNull Class<?> getTargetClass() {
+  public @NotNull Class<?> targetClass() {
     return this.targetClass;
   }
 
   @Override
-  public @NotNull ObjectMapper getObjectMapper() {
+  public @NotNull ObjectMapper objectMapper() {
     return this.objectMapper;
   }
 
   @Override
-  public @NotNull DataBufFactory getDataBufFactory() {
+  public @NotNull DataBufFactory dataBufFactory() {
     return this.dataBufFactory;
   }
 }

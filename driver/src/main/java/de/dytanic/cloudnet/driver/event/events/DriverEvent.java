@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.driver.event.Event;
 
 public abstract class DriverEvent extends Event {
 
-  public CloudNetDriver getDriver() {
-    return CloudNetDriver.getInstance();
+  public CloudNetDriver driver() {
+    return CloudNetDriver.instance();
   }
 }

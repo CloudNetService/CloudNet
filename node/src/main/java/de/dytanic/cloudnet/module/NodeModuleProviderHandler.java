@@ -38,26 +38,26 @@ public final class NodeModuleProviderHandler extends DefaultModuleProviderHandle
     super.handlePostModuleStop(moduleWrapper);
 
     // unregister all listeners from the http server
-    this.nodeInstance.getHttpServer().removeHandler(moduleWrapper.getClassLoader());
+    this.nodeInstance.getHttpServer().removeHandler(moduleWrapper.classLoader());
     // unregister all listeners added to the network handlers
-    this.nodeInstance.getNetworkClient().getPacketRegistry().removeListeners(moduleWrapper.getClassLoader());
-    this.nodeInstance.getNetworkServer().getPacketRegistry().removeListeners(moduleWrapper.getClassLoader());
+    this.nodeInstance.networkClient().packetRegistry().removeListeners(moduleWrapper.classLoader());
+    this.nodeInstance.getNetworkServer().packetRegistry().removeListeners(moduleWrapper.classLoader());
     // unregister all listeners added to the network channels
-    this.removeListeners(this.nodeInstance.getNetworkClient().getChannels(), moduleWrapper.getClassLoader());
-    this.removeListeners(this.nodeInstance.getNetworkServer().getChannels(), moduleWrapper.getClassLoader());
+    this.removeListeners(this.nodeInstance.networkClient().channels(), moduleWrapper.classLoader());
+    this.removeListeners(this.nodeInstance.getNetworkServer().channels(), moduleWrapper.classLoader());
     // unregister all listeners
-    this.nodeInstance.getEventManager().unregisterListeners(moduleWrapper.getClassLoader());
+    this.nodeInstance.eventManager().unregisterListeners(moduleWrapper.classLoader());
     // unregister all commands
-    this.nodeInstance.getCommandProvider().unregister(moduleWrapper.getClassLoader());
+    this.nodeInstance.getCommandProvider().unregister(moduleWrapper.classLoader());
     // unregister everything the module syncs to the cluster
-    this.nodeInstance.getDataSyncRegistry().unregisterHandler(moduleWrapper.getClassLoader());
+    this.nodeInstance.getDataSyncRegistry().unregisterHandler(moduleWrapper.classLoader());
     // unregister all object mappers which are registered
-    DefaultObjectMapper.DEFAULT_MAPPER.unregisterBindings(moduleWrapper.getClassLoader());
+    DefaultObjectMapper.DEFAULT_MAPPER.unregisterBindings(moduleWrapper.classLoader());
   }
 
   private void removeListeners(@NotNull Collection<INetworkChannel> channels, @NotNull ClassLoader loader) {
     for (var channel : channels) {
-      channel.getPacketRegistry().removeListeners(loader);
+      channel.packetRegistry().removeListeners(loader);
     }
   }
 }

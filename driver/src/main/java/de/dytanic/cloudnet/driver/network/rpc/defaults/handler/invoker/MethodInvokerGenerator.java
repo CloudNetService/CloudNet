@@ -68,8 +68,8 @@ public class MethodInvokerGenerator {
     try {
       var className = String.format(
         CLASS_NAME_FORMAT,
-        Type.getInternalName(methodInfo.getDefiningClass()),
-        methodInfo.getName(),
+        Type.getInternalName(methodInfo.definingClass()),
+        methodInfo.name(),
         StringUtil.generateRandomString(25));
       // init the class writer for a public final class implementing the MethodInvoker
       var cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
@@ -99,11 +99,11 @@ public class MethodInvokerGenerator {
         // get the instance field
         mv.visitVarInsn(ALOAD, 0);
         mv.visitFieldInsn(GETFIELD, className, "instance", OBJ_DESCRIPTOR);
-        mv.visitTypeInsn(CHECKCAST, Type.getInternalName(methodInfo.getDefiningClass()));
+        mv.visitTypeInsn(CHECKCAST, Type.getInternalName(methodInfo.definingClass()));
         // visit each argument of the method
-        var arguments = new Type[methodInfo.getArguments().length];
-        for (var i = 0; i < methodInfo.getArguments().length; i++) {
-          var rawType = TypeToken.of(methodInfo.getArguments()[i]).getRawType();
+        var arguments = new Type[methodInfo.arguments().length];
+        for (var i = 0; i < methodInfo.arguments().length; i++) {
+          var rawType = TypeToken.of(methodInfo.arguments()[i]).getRawType();
           // load the argument supplied for the index
           mv.visitVarInsn(ALOAD, 1);
           pushInt(mv, i);
@@ -119,16 +119,16 @@ public class MethodInvokerGenerator {
         }
         // invoke the method
         mv.visitMethodInsn(
-          methodInfo.getDefiningClass().isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL,
-          Type.getInternalName(methodInfo.getDefiningClass()),
-          methodInfo.getName(),
-          Type.getMethodDescriptor(Type.getType(methodInfo.getRawReturnType()), arguments),
-          methodInfo.getDefiningClass().isInterface());
+          methodInfo.definingClass().isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL,
+          Type.getInternalName(methodInfo.definingClass()),
+          methodInfo.name(),
+          Type.getMethodDescriptor(Type.getType(methodInfo.rawReturnType()), arguments),
+          methodInfo.definingClass().isInterface());
         // for a void return type return null, else return the method invocation result - respect primitives
-        if (methodInfo.isVoidMethod()) {
+        if (methodInfo.voidMethod()) {
           mv.visitInsn(ACONST_NULL);
-        } else if (methodInfo.getRawReturnType().isPrimitive()) {
-          primitiveToWrapper(mv, methodInfo.getRawReturnType());
+        } else if (methodInfo.rawReturnType().isPrimitive()) {
+          primitiveToWrapper(mv, methodInfo.rawReturnType());
         }
         // return the value of the stack
         mv.visitInsn(ARETURN);
@@ -140,16 +140,16 @@ public class MethodInvokerGenerator {
       cw.visitEnd();
       // define and make the constructor accessible
       var constructor = ClassDefiners.current()
-        .defineClass(className, methodInfo.getDefiningClass(), cw.toByteArray())
+        .defineClass(className, methodInfo.definingClass(), cw.toByteArray())
         .getDeclaredConstructor(Object.class);
       constructor.setAccessible(true);
       // instantiate
-      return (MethodInvoker) constructor.newInstance(methodInfo.getSourceInstance());
+      return (MethodInvoker) constructor.newInstance(methodInfo.sourceInstance());
     } catch (Exception exception) {
       throw new ClassCreationException(String.format(
         "Cannot generate rpc handler for method %s defined in class %s",
-        methodInfo.getName(),
-        methodInfo.getDefiningClass().getCanonicalName()
+        methodInfo.name(),
+        methodInfo.definingClass().getCanonicalName()
       ), exception);
     }
   }

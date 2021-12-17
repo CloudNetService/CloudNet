@@ -31,7 +31,7 @@ public interface IPacketListenerRegistry {
   /**
    * Returns the parent PacketListenerRegistry implementation instance if exists
    */
-  @Nullable IPacketListenerRegistry getParent();
+  @Nullable IPacketListenerRegistry parent();
 
   /**
    * Adds a new listeners for packets that are received on a specific channel
@@ -75,16 +75,16 @@ public interface IPacketListenerRegistry {
    * Returns all channelIds that the packet listener registry has listeners registered
    */
   @NotNull
-  @UnmodifiableView Collection<Integer> getChannels();
+  @UnmodifiableView Collection<Integer> channels();
 
   /**
    * Returns all listeners by all channels from the registry
    */
   @NotNull
-  @UnmodifiableView Collection<IPacketListener> getListeners();
+  @UnmodifiableView Collection<IPacketListener> listeners();
 
   @NotNull
-  @UnmodifiableView Map<Integer, Collection<IPacketListener>> getPacketListeners();
+  @UnmodifiableView Map<Integer, Collection<IPacketListener>> packetListeners();
 
   /**
    * Handles an incoming packet and invoke all listeners that are registered in this registry

@@ -109,7 +109,7 @@ public class ModuleConfiguration {
    *
    * @return if this module is a runtime module
    */
-  public boolean isRuntimeModule() {
+  public boolean runtimeModule() {
     return this.runtimeModule;
   }
 
@@ -128,7 +128,7 @@ public class ModuleConfiguration {
    *
    * @return the group id of this module.
    */
-  public @NotNull String getGroup() {
+  public @NotNull String group() {
     return this.group;
   }
 
@@ -137,7 +137,7 @@ public class ModuleConfiguration {
    *
    * @return the name of this module.
    */
-  public @NotNull String getName() {
+  public @NotNull String name() {
     return this.name;
   }
 
@@ -146,7 +146,7 @@ public class ModuleConfiguration {
    *
    * @return the version of this module.
    */
-  public @NotNull String getVersion() {
+  public @NotNull String version() {
     return this.version;
   }
 
@@ -155,7 +155,7 @@ public class ModuleConfiguration {
    *
    * @return the main class of this module.
    */
-  public @NotNull String getMainClass() {
+  public @NotNull String mainClass() {
     return this.main;
   }
 
@@ -164,7 +164,7 @@ public class ModuleConfiguration {
    *
    * @return the description of this module.
    */
-  public @Nullable String getDescription() {
+  public @Nullable String description() {
     return this.description;
   }
 
@@ -173,7 +173,7 @@ public class ModuleConfiguration {
    *
    * @return the author of this module.
    */
-  public @Nullable String getAuthor() {
+  public @Nullable String author() {
     return this.author;
   }
 
@@ -182,7 +182,7 @@ public class ModuleConfiguration {
    *
    * @return the website of this module.
    */
-  public @Nullable String getWebsite() {
+  public @Nullable String website() {
     return this.website;
   }
 
@@ -191,7 +191,7 @@ public class ModuleConfiguration {
    *
    * @return the data folder of this module.
    */
-  public @Nullable String getDataFolder() {
+  public @Nullable String dataFolder() {
     return this.dataFolder;
   }
 
@@ -202,7 +202,7 @@ public class ModuleConfiguration {
    *                                    data folder is specified explicitly.
    * @return the data folder in path form of this module.
    */
-  public @NotNull Path getDataFolder(@NotNull Path moduleProviderBaseDirectory) {
+  public @NotNull Path dataFolder(@NotNull Path moduleProviderBaseDirectory) {
     if (this.dataFolder == null) {
       // default data folder name based on the module name
       return moduleProviderBaseDirectory.resolve(this.name);
@@ -217,7 +217,7 @@ public class ModuleConfiguration {
    *
    * @return all defined repositories of this module.
    */
-  public @Nullable ModuleRepository[] getRepositories() {
+  public @Nullable ModuleRepository[] repositories() {
     return this.repositories;
   }
 
@@ -226,7 +226,7 @@ public class ModuleConfiguration {
    *
    * @return all defined dependencies of this module.
    */
-  public @Nullable ModuleDependency[] getDependencies() {
+  public @Nullable ModuleDependency[] dependencies() {
     return this.dependencies;
   }
 
@@ -235,7 +235,7 @@ public class ModuleConfiguration {
    *
    * @return all defined properties of this module.
    */
-  public @Nullable JsonDocument getProperties() {
+  public @Nullable JsonDocument properties() {
     return this.properties;
   }
 
@@ -245,7 +245,7 @@ public class ModuleConfiguration {
    *
    * @return the min java version number this module can run on.
    */
-  public int getMinJavaVersionId() {
+  public int minJavaVersionId() {
     return this.minJavaVersionId;
   }
 
@@ -254,7 +254,7 @@ public class ModuleConfiguration {
    *
    * @return the minimum java runtime version this module can run on.
    */
-  public @Nullable JavaVersion getMinJavaVersion() {
+  public @Nullable JavaVersion minJavaVersion() {
     return JavaVersion.fromVersion(this.minJavaVersionId).orElse(null);
   }
 
@@ -265,7 +265,7 @@ public class ModuleConfiguration {
    * @return if this module can run on the specified java version.
    */
   public boolean canRunOn(@NotNull JavaVersion javaVersion) {
-    var minJavaVersion = this.getMinJavaVersion();
+    var minJavaVersion = this.minJavaVersion();
     return minJavaVersion == null || minJavaVersion.isSupportedByMax(javaVersion);
   }
 

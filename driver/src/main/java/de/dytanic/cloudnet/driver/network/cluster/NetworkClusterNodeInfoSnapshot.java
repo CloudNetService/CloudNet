@@ -78,51 +78,51 @@ public class NetworkClusterNodeInfoSnapshot extends JsonDocPropertyHolder {
     this.properties = properties;
   }
 
-  public long getCreationTime() {
+  public long creationTime() {
     return this.creationTime;
   }
 
-  public long getStartupMillis() {
+  public long startupMillis() {
     return this.startupMillis;
   }
 
-  public int getMaxMemory() {
+  public int maxMemory() {
     return this.maxMemory;
   }
 
-  public int getUsedMemory() {
+  public int usedMemory() {
     return this.usedMemory;
   }
 
-  public int getReservedMemory() {
+  public int reservedMemory() {
     return this.reservedMemory;
   }
 
-  public int getCurrentServicesCount() {
+  public int currentServicesCount() {
     return this.currentServicesCount;
   }
 
-  public boolean isDrain() {
+  public boolean draining() {
     return this.drain;
   }
 
-  public @NotNull NetworkClusterNode getNode() {
+  public @NotNull NetworkClusterNode node() {
     return this.node;
   }
 
-  public @NotNull CloudNetVersion getVersion() {
+  public @NotNull CloudNetVersion version() {
     return this.version;
   }
 
-  public @NotNull ProcessSnapshot getProcessSnapshot() {
+  public @NotNull ProcessSnapshot processSnapshot() {
     return this.processSnapshot;
   }
 
-  public double getMaxCPUUsageToStartServices() {
+  public double maxProcessorUsageToStartServices() {
     return this.maxCPUUsageToStartServices;
   }
 
-  public @NotNull Collection<ModuleConfiguration> getModules() {
+  public @NotNull Collection<ModuleConfiguration> modules() {
     return this.modules;
   }
 }

@@ -65,7 +65,7 @@ public final class CommandCluster {
   private static final DateFormat DEFAULT_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
   private static final RowBasedFormatter<IClusterNodeServer> FORMATTER = RowBasedFormatter.<IClusterNodeServer>builder()
     .defaultFormatter(ColumnFormatter.builder().columnTitles("Name", "State", "Listeners").build())
-    .column(server -> server.getNodeInfo().getUniqueId())
+    .column(server -> server.getNodeInfo().uniqueId())
     .column(server -> {
       // we can display much more information if the node is connected
       if (server.isConnected()) {
@@ -82,7 +82,7 @@ public final class CommandCluster {
         return "Not connected";
       }
     })
-    .column(server -> Arrays.stream(server.getNodeInfo().getListeners())
+    .column(server -> Arrays.stream(server.getNodeInfo().listeners())
       .map(HostAndPort::toString)
       .collect(Collectors.joining(", ")))
     .build();
@@ -102,7 +102,7 @@ public final class CommandCluster {
   public List<String> suggestClusterNodeServer(CommandContext<CommandSource> $, String input) {
     return CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers()
       .stream()
-      .map(clusterNodeServer -> clusterNodeServer.getNodeInfo().getUniqueId())
+      .map(clusterNodeServer -> clusterNodeServer.getNodeInfo().uniqueId())
       .collect(Collectors.toList());
   }
 
@@ -112,7 +112,7 @@ public final class CommandCluster {
     var provider = CloudNet.getInstance().getClusterNodeServerProvider();
     var selfNode = provider.getSelfNode();
     // check if the user requested the one node
-    if (selfNode.getNodeInfo().getUniqueId().equals(nodeId)) {
+    if (selfNode.getNodeInfo().uniqueId().equals(nodeId)) {
       return selfNode;
     }
     NodeServer nodeServer = provider.getNodeServer(nodeId);
@@ -128,17 +128,17 @@ public final class CommandCluster {
     var provider = CloudNet.getInstance().getClusterNodeServerProvider();
     var nodes = provider.getNodeServers()
       .stream()
-      .map(clusterNodeServer -> clusterNodeServer.getNodeInfo().getUniqueId())
+      .map(clusterNodeServer -> clusterNodeServer.getNodeInfo().uniqueId())
       .collect(Collectors.toList());
     // add the own node to the suggestions
-    nodes.add(provider.getSelfNode().getNodeInfo().getUniqueId());
+    nodes.add(provider.getSelfNode().getNodeInfo().uniqueId());
     return nodes;
   }
 
   @Parser(suggestions = "networkClusterNode")
   public NetworkClusterNode defaultNetworkClusterNodeParser(CommandContext<CommandSource> $, Queue<String> input) {
     var nodeId = input.remove();
-    var clusterNode = CloudNet.getInstance().getNodeInfoProvider().getNode(nodeId);
+    var clusterNode = CloudNet.getInstance().nodeInfoProvider().node(nodeId);
     if (clusterNode == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-cluster-node-not-found"));
     }
@@ -150,7 +150,7 @@ public final class CommandCluster {
   public List<String> suggestNetworkClusterNode(CommandContext<CommandSource> $, String input) {
     return CloudNet.getInstance().getConfig().getClusterConfig().nodes()
       .stream()
-      .map(NetworkClusterNode::getUniqueId)
+      .map(NetworkClusterNode::uniqueId)
       .collect(Collectors.toList());
   }
 
@@ -178,7 +178,7 @@ public final class CommandCluster {
   public String noClusterNodeParser(CommandContext<CommandSource> $, Queue<String> input) {
     var nodeId = input.remove();
     for (var node : CloudNet.getInstance().getConfig().getClusterConfig().nodes()) {
-      if (node.getUniqueId().equals(nodeId)) {
+      if (node.uniqueId().equals(nodeId)) {
         throw new ArgumentNotAvailableException(I18n.trans("command-tasks-node-not-found"));
       }
     }
@@ -189,8 +189,8 @@ public final class CommandCluster {
   @Parser(name = "staticService", suggestions = "staticService")
   public String staticServiceParser(CommandContext<CommandSource> $, Queue<String> input) {
     var name = input.remove();
-    var manager = CloudNet.getInstance().getCloudServiceProvider();
-    if (manager.getCloudServiceByName(name) != null) {
+    var manager = CloudNet.getInstance().cloudServiceProvider();
+    if (manager.serviceByName(name) != null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-cluster-push-static-service-running"));
     }
     if (!Files.exists(manager.getPersistentServicesDirectoryPath().resolve(name))) {
@@ -261,7 +261,7 @@ public final class CommandCluster {
   ) {
     nodeServer.setDrain(enabled);
     source.sendMessage(I18n.trans("command-cluster-node-set-drain")
-      .replace("%value%", String.valueOf(enabled).replace("%node%", nodeServer.getNodeInfo().getUniqueId())));
+      .replace("%value%", String.valueOf(enabled).replace("%node%", nodeServer.getNodeInfo().uniqueId())));
   }
 
   @CommandMethod("cluster|clu sync")
@@ -275,9 +275,9 @@ public final class CommandCluster {
   public void pushTemplates(CommandSource source, @Argument("template") ServiceTemplate template) {
     // check if we need to push all templates or just a specific one
     if (template == null) {
-      var localStorage = CloudNet.getInstance().getLocalTemplateStorage();
+      var localStorage = CloudNet.getInstance().localTemplateStorage();
       // resolve and push all local templates
-      for (var localTemplate : localStorage.getTemplates()) {
+      for (var localTemplate : localStorage.templates()) {
         this.pushTemplate(source, localTemplate);
       }
     } else {
@@ -292,7 +292,7 @@ public final class CommandCluster {
     @Argument(value = "service", parserName = "staticService") String service,
     @Flag("overwrite") boolean overwrite
   ) {
-    var staticServicePath = CloudNet.getInstance().getCloudServiceProvider().getPersistentServicesDirectoryPath();
+    var staticServicePath = CloudNet.getInstance().cloudServiceProvider().getPersistentServicesDirectoryPath();
     // check if we need to push all static services or just a specific one
     if (service == null) {
       // resolve all existing static services, that are not running and push them
@@ -358,7 +358,7 @@ public final class CommandCluster {
   }
 
   private @NotNull List<String> resolveAllStaticServices() {
-    var manager = CloudNet.getInstance().getCloudServiceProvider();
+    var manager = CloudNet.getInstance().cloudServiceProvider();
     try {
       // walk through the static service directory
       return Files.walk(manager.getPersistentServicesDirectoryPath(), 1)
@@ -378,33 +378,33 @@ public final class CommandCluster {
   private void displayNode(CommandSource source, IClusterNodeServer node) {
     List<String> list = new ArrayList<>(Arrays.asList(
       " ",
-      "Id: " + node.getNodeInfo().getUniqueId() + (node.isHeadNode() ? " (Head)" : ""),
+      "Id: " + node.getNodeInfo().uniqueId() + (node.isHeadNode() ? " (Head)" : ""),
       "State: " + (node.isConnected() ? "Connected" : "Not connected"),
       " ",
       "Address: "
     ));
 
-    for (var hostAndPort : node.getNodeInfo().getListeners()) {
-      list.add("- " + hostAndPort.getHost() + ":" + hostAndPort.getPort());
+    for (var hostAndPort : node.getNodeInfo().listeners()) {
+      list.add("- " + hostAndPort.host() + ":" + hostAndPort.port());
     }
 
     if (node.getNodeInfoSnapshot() != null) {
       list.add(" ");
       list.add("* ClusterNodeInfoSnapshot from " + DEFAULT_FORMAT
-        .format(node.getNodeInfoSnapshot().getCreationTime()));
+        .format(node.getNodeInfoSnapshot().creationTime()));
 
       list.addAll(Arrays.asList(
-        "CloudServices (" + node.getNodeInfoSnapshot().getCurrentServicesCount() + ") memory usage (U/R/M): "
-          + node.getNodeInfoSnapshot().getUsedMemory() + "/" + node.getNodeInfoSnapshot().getReservedMemory()
-          + "/" + node.getNodeInfoSnapshot().getMaxMemory() + " MB",
+        "CloudServices (" + node.getNodeInfoSnapshot().currentServicesCount() + ") memory usage (U/R/M): "
+          + node.getNodeInfoSnapshot().usedMemory() + "/" + node.getNodeInfoSnapshot().reservedMemory()
+          + "/" + node.getNodeInfoSnapshot().maxMemory() + " MB",
         " ",
         "CPU usage process: " + CPUUsageResolver.FORMAT
-          .format(node.getNodeInfoSnapshot().getProcessSnapshot().cpuUsage()) + "%",
+          .format(node.getNodeInfoSnapshot().processSnapshot().cpuUsage()) + "%",
         "CPU usage system: " + CPUUsageResolver.FORMAT
-          .format(node.getNodeInfoSnapshot().getProcessSnapshot().systemCpuUsage()) + "%",
-        "Threads: " + node.getNodeInfoSnapshot().getProcessSnapshot().threads().size(),
-        "Heap usage: " + (node.getNodeInfoSnapshot().getProcessSnapshot().heapUsageMemory() / (1024 * 1024)) + "/" +
-          (node.getNodeInfoSnapshot().getProcessSnapshot().maxHeapMemory() / (1024 * 1024)) + "MB",
+          .format(node.getNodeInfoSnapshot().processSnapshot().systemCpuUsage()) + "%",
+        "Threads: " + node.getNodeInfoSnapshot().processSnapshot().threads().size(),
+        "Heap usage: " + (node.getNodeInfoSnapshot().processSnapshot().heapUsageMemory() / (1024 * 1024)) + "/" +
+          (node.getNodeInfoSnapshot().processSnapshot().maxHeapMemory() / (1024 * 1024)) + "MB",
         " "
       ));
     }

@@ -44,17 +44,17 @@ public final class CommandMe {
 
     var messages = Arrays.asList(
       " ",
-      CloudNet.getInstance().getVersion() + " by Dytanic & the CloudNet Community",
+      CloudNet.getInstance().version() + " by Dytanic & the CloudNet Community",
       "Discord: https://discord.cloudnetservice.eu/",
       " ",
       "ClusterId: " + cloudNet.getConfig().getClusterConfig().clusterId(),
-      "NodeId: " + cloudNet.getConfig().getIdentity().getUniqueId(),
-      "Head-NodeId: " + cloudNet.getClusterNodeServerProvider().getHeadNode().getNodeInfo().getUniqueId(),
-      "CPU usage: (P/S) " + CPUUsageResolver.FORMAT.format(CPUUsageResolver.processCPUUsage()) + "/"
+      "NodeId: " + cloudNet.getConfig().getIdentity().uniqueId(),
+      "Head-NodeId: " + cloudNet.getClusterNodeServerProvider().getHeadNode().getNodeInfo().uniqueId(),
+      "CPU usage: (P/S) " + CPUUsageResolver.FORMAT.format(CPUUsageResolver.getProcessCPUUsage()) + "/"
         +
-        CPUUsageResolver.FORMAT.format(CPUUsageResolver.systemCPUUsage()) + "/100%",
-      "Node services memory allocation (U/R/M): " + nodeInfoSnapshot.getUsedMemory() + "/" +
-        nodeInfoSnapshot.getReservedMemory() + "/" + nodeInfoSnapshot.getMaxMemory() + " MB",
+        CPUUsageResolver.FORMAT.format(CPUUsageResolver.getSystemCPUUsage()) + "/100%",
+      "Node services memory allocation (U/R/M): " + nodeInfoSnapshot.usedMemory() + "/" +
+        nodeInfoSnapshot.reservedMemory() + "/" + nodeInfoSnapshot.maxMemory() + " MB",
       "Threads: " + Thread.getAllStackTraces().keySet().size(),
       "Heap usage: " + (memoryMXBean.getHeapMemoryUsage().getUsed() / (1024 * 1024)) + "/" + (
         memoryMXBean.getHeapMemoryUsage().getMax() / (1024 * 1024)) + "MB",

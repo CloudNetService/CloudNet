@@ -89,7 +89,7 @@ public final class BukkitPermissionHelper {
   public static void injectPlayer(@NotNull Player player) throws Throwable {
     PERMISSIBLE_SETTER.invoke(
       player,
-      new BukkitCloudPermissionsPermissible(player, CloudNetDriver.getInstance().getPermissionManagement()));
+      new BukkitCloudPermissionsPermissible(player, CloudNetDriver.instance().permissionManagement()));
   }
 
   public static void resendCommandTree(@NotNull Player player) {

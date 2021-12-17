@@ -78,6 +78,6 @@ public class SignInteractListener {
   }
 
   protected @NotNull IPlayerManager getPlayerManager() {
-    return CloudNetDriver.getInstance().getServicesRegistry().firstService(IPlayerManager.class);
+    return CloudNetDriver.instance().servicesRegistry().getFirstService(IPlayerManager.class);
   }
 }

@@ -84,7 +84,7 @@ public class DefaultObjectMapperTest {
       Arguments.of(Arrays.asList(1234, 5678, 9012, 3456, 7890), Integer.class),
       Arguments.of(
         Arrays.asList(Collections.singleton("test"), Collections.singleton("test2"), Arrays.asList("test3", "test4")),
-        getParameterized(List.class, String.class)));
+        parameterized(List.class, String.class)));
   }
 
   static Stream<Arguments> mapDataProvider() {
@@ -93,20 +93,20 @@ public class DefaultObjectMapperTest {
       Arguments.of(ImmutableMap.of("test", 123, "test2", 456), String.class, Integer.class),
       Arguments.of(
         ImmutableMap.of("test", Arrays.asList(123, 456), "test2", Arrays.asList(678, 456)),
-        String.class, getParameterized(List.class, Integer.class)),
+        String.class, parameterized(List.class, Integer.class)),
       Arguments.of(
         ImmutableMap.of("test", ImmutableMap.of("test2", Arrays.asList(1234, 3456))),
-        String.class, getParameterized(Map.class, String.class, getParameterized(List.class, Integer.class))));
+        String.class, parameterized(Map.class, String.class, parameterized(List.class, Integer.class))));
   }
 
   static Stream<Arguments> optionalDataProvider() {
     return Stream.of(
       Arguments.of(Optional.of("test"), String.class),
       Arguments.of(Optional.of(1234), Integer.class),
-      Arguments.of(Optional.of(Arrays.asList("test", "test1")), getParameterized(List.class, String.class)),
+      Arguments.of(Optional.of(Arrays.asList("test", "test1")), parameterized(List.class, String.class)),
       Arguments.of(
         Optional.of(ImmutableMap.of("test", "test1", "test2", "test3")),
-        getParameterized(Map.class, String.class, String.class)));
+        parameterized(Map.class, String.class, String.class)));
   }
 
   static Stream<Arguments> dataClassProvider() {
@@ -137,7 +137,7 @@ public class DefaultObjectMapperTest {
     );
   }
 
-  private static Type getParameterized(Type rawType, Type... typeArguments) {
+  private static Type parameterized(Type rawType, Type... typeArguments) {
     return TypeToken.getParameterized(rawType, typeArguments).getType();
   }
 
@@ -182,7 +182,7 @@ public class DefaultObjectMapperTest {
     var buf = DataBuf.empty();
 
     mapper.writeObject(buf, list);
-    List<T> result = mapper.readObject(buf, getParameterized(List.class, parameterType));
+    List<T> result = mapper.readObject(buf, parameterized(List.class, parameterType));
 
     Assertions.assertNotNull(result);
     Assertions.assertIterableEquals(list, result);
@@ -196,7 +196,7 @@ public class DefaultObjectMapperTest {
     var buf = DataBuf.empty();
 
     mapper.writeObject(buf, map);
-    Map<K, V> result = mapper.readObject(buf, getParameterized(Map.class, keyType, valueType));
+    Map<K, V> result = mapper.readObject(buf, parameterized(Map.class, keyType, valueType));
 
     Assertions.assertNotNull(result);
     Assertions.assertTrue(Maps.difference(map, result).areEqual());
@@ -211,7 +211,7 @@ public class DefaultObjectMapperTest {
     var buf = DataBuf.empty();
 
     mapper.writeObject(buf, o);
-    Optional<T> result = mapper.readObject(buf, getParameterized(Optional.class, parameterType));
+    Optional<T> result = mapper.readObject(buf, parameterized(Optional.class, parameterType));
 
     Assertions.assertNotNull(result);
     Assertions.assertEquals(o.isPresent(), result.isPresent());

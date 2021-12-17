@@ -40,7 +40,7 @@ public enum EventPriority implements Comparator<EventPriority> {
     return Integer.compare(o1.value, o2.value);
   }
 
-  public int getValue() {
+  public int value() {
     return this.value;
   }
 }

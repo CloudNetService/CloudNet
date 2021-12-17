@@ -38,7 +38,7 @@ public class NukkitConfigurationPreparer extends AbstractServiceConfigurationPre
         properties.load(stream);
         // update the configuration
         properties.setProperty("server-ip", nodeInstance.getConfig().getHostAddress());
-        properties.setProperty("server-port", String.valueOf(cloudService.getServiceConfiguration().getPort()));
+        properties.setProperty("server-port", String.valueOf(cloudService.getServiceConfiguration().port()));
         // store the properties
         try (var out = Files.newOutputStream(configFile)) {
           properties.store(out, "Properties Config file - edited by CloudNet");

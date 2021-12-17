@@ -17,6 +17,7 @@
 package de.dytanic.cloudnet.driver.module;
 
 import com.google.common.base.Verify;
+import de.dytanic.cloudnet.common.INameable;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.ApiStatus.Internal;
@@ -27,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
  */
 @ToString
 @EqualsAndHashCode
-public class ModuleRepository {
+public class ModuleRepository implements INameable {
 
   private String name;
   private String url;
@@ -56,7 +57,8 @@ public class ModuleRepository {
    *
    * @return the name of this repository.
    */
-  public @NotNull String getName() {
+  @Override
+  public @NotNull String name() {
     return this.name;
   }
 
@@ -65,7 +67,7 @@ public class ModuleRepository {
    *
    * @return the url of this repository.
    */
-  public @NotNull String getUrl() {
+  public @NotNull String url() {
     return this.url;
   }
 

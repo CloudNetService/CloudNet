@@ -128,7 +128,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
   protected void handleFileInfoRequest(IHttpContext context) {
     this.handleWithFileTemplateContext(context, (template, storage, path) -> {
-      var info = storage.getFileInfoAsync(path).get();
+      var info = storage.fileInfoAsync(path).get();
       if (info == null) {
         this.notFound(context)
           .body(this.failure().append("reason", "Unknown file or directory").toString())

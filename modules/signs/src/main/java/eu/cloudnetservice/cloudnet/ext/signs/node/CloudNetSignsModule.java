@@ -23,7 +23,6 @@ import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.driver.module.driver.DriverModule;
-import de.dytanic.cloudnet.driver.util.DefaultModuleHelper;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import de.dytanic.cloudnet.ext.signs.SignConstants;
 import eu.cloudnetservice.cloudnet.ext.signs.GlobalChannelMessageListener;
@@ -38,7 +37,7 @@ public class CloudNetSignsModule extends DriverModule {
 
   protected static final String DATABASE_NAME = "cloudnet_signs";
 
-  private static final Logger LOGGER = LogManager.logger(CloudNetSignsModule.class);
+  private static final Logger LOGGER = LogManager.getLogger(CloudNetSignsModule.class);
 
   protected Database database;
   protected Path configurationPath;
@@ -46,8 +45,8 @@ public class CloudNetSignsModule extends DriverModule {
 
   @ModuleTask(order = 50)
   public void initialize() {
-    this.database = CloudNet.getInstance().getDatabaseProvider().getDatabase(DATABASE_NAME);
-    this.configurationPath = this.getModuleWrapper().getDataDirectory().resolve("config.json");
+    this.database = CloudNet.getInstance().databaseProvider().database(DATABASE_NAME);
+    this.configurationPath = this.moduleWrapper().dataDirectory().resolve("config.json");
   }
 
   @ModuleTask(order = 40)
@@ -72,14 +71,13 @@ public class CloudNetSignsModule extends DriverModule {
   @ModuleTask(order = 40, event = ModuleLifeCycle.STOPPED)
   public void handleStopping() throws Exception {
     this.database.close();
-    CloudNet.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
+    CloudNet.getInstance().eventManager().unregisterListeners(this.getClass().getClassLoader());
   }
 
   @Deprecated
   private void convertDatabaseIfNecessary() {
     // load old database document
-    Database database = CloudNet.getInstance().getDatabaseProvider()
-      .getDatabase(DefaultModuleHelper.DEFAULT_CONFIGURATION_DATABASE_NAME);
+    var database = CloudNet.getInstance().databaseProvider().database("cloudNet_module_configuration");
     var document = database.get("signs_store");
     // when the document is null the conversation already happened
     if (document != null) {
@@ -91,7 +89,7 @@ public class CloudNetSignsModule extends DriverModule {
       Collection<de.dytanic.cloudnet.ext.signs.Sign> oldSigns = document.get("signs", SignConstants.COLLECTION_SIGNS);
       if (oldSigns != null) {
         // convert the old sign entries
-        var management = CloudNet.getInstance().getServicesRegistry().firstService(SignManagement.class);
+        var management = CloudNet.getInstance().servicesRegistry().getFirstService(SignManagement.class);
         for (var oldSign : oldSigns) {
           management.createSign(new Sign(
             oldSign.getTargetGroup(),

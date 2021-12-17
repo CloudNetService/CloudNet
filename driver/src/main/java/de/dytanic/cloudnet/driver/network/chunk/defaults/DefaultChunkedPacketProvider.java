@@ -32,12 +32,12 @@ public abstract class DefaultChunkedPacketProvider implements ChunkedPacketProvi
   }
 
   @Override
-  public @NotNull TransferStatus getTransferStatus() {
+  public @NotNull TransferStatus transferStatus() {
     return this.transferStatus;
   }
 
   @Override
-  public @NotNull ChunkSessionInformation getSessionInformation() {
+  public @NotNull ChunkSessionInformation sessionInformation() {
     return this.chunkSessionInformation;
   }
 }

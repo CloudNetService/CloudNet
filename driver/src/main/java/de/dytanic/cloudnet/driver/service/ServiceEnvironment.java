@@ -35,7 +35,7 @@ public class ServiceEnvironment implements INameable, Cloneable {
   }
 
   public static @NotNull Builder builder(@NotNull ServiceEnvironment environment) {
-    return builder().name(environment.name()).environmentType(environment.getEnvironmentType());
+    return builder().name(environment.name()).environmentType(environment.environmentType());
   }
 
   @Override
@@ -43,7 +43,7 @@ public class ServiceEnvironment implements INameable, Cloneable {
     return this.name;
   }
 
-  public @NotNull String getEnvironmentType() {
+  public @NotNull String environmentType() {
     return this.environmentType;
   }
 

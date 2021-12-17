@@ -41,8 +41,8 @@ public final class NodeNetworkUtils {
   }
 
   static boolean shouldInitializeChannel(INetworkChannel channel, ChannelType type) {
-    return !CloudNetDriver.getInstance().getEventManager().callEvent(
-      new NetworkChannelInitEvent(channel, type)).isCancelled();
+    return !CloudNetDriver.instance().eventManager().callEvent(
+      new NetworkChannelInitEvent(channel, type)).cancelled();
   }
 
   public static void closeNodeServer(IClusterNodeServer clusterNodeServer) {
@@ -56,10 +56,10 @@ public final class NodeNetworkUtils {
   public static void addDefaultPacketListeners(@NotNull IPacketListenerRegistry registry, @NotNull CloudNet node) {
     registry.addListener(
       NetworkConstants.CHANNEL_MESSAGING_CHANNEL,
-      new PacketServerChannelMessageListener(node.getMessenger(), node.getEventManager()));
+      new PacketServerChannelMessageListener(node.messenger(), node.eventManager()));
     registry.addListener(
       NetworkConstants.INTERNAL_RPC_COM_CHANNEL,
-      new RPCPacketListener(node.getRPCHandlerRegistry()));
+      new RPCPacketListener(node.rpcHandlerRegistry()));
     registry.addListener(
       NetworkConstants.CHUNKED_PACKET_COM_CHANNEL,
       new ChunkedPacketListener(EventChunkHandlerFactory.withDefaultEventManager()));

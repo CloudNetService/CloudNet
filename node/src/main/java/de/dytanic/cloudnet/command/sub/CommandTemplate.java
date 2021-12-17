@@ -58,8 +58,8 @@ public final class CommandTemplate {
 
   private static final RowBasedFormatter<ServiceTemplate> LIST_FORMATTER = RowBasedFormatter.<ServiceTemplate>builder()
     .defaultFormatter(ColumnFormatter.builder().columnTitles("Storage", "Prefix", "Name").build())
-    .column(ServiceTemplate::getStorage)
-    .column(ServiceTemplate::getPrefix)
+    .column(ServiceTemplate::storageName)
+    .column(ServiceTemplate::prefix)
     .column(ServiceTemplate::name)
     .build();
   private static final RowBasedFormatter<Pair<ServiceVersionType, ServiceVersion>> VERSIONS =
@@ -91,7 +91,7 @@ public final class CommandTemplate {
 
   @Suggestions("serviceTemplate")
   public List<String> suggestServiceTemplate(CommandContext<CommandSource> $, String input) {
-    return CloudNet.getInstance().getLocalTemplateStorage().getTemplates()
+    return CloudNet.getInstance().localTemplateStorage().templates()
       .stream()
       .map(ServiceTemplate::toString)
       .collect(Collectors.toList());
@@ -99,7 +99,7 @@ public final class CommandTemplate {
 
   @Parser
   public TemplateStorage defaultTemplateStorageParser(CommandContext<CommandSource> $, Queue<String> input) {
-    var templateStorage = CloudNet.getInstance().getTemplateStorage(input.remove());
+    var templateStorage = CloudNet.getInstance().templateStorage(input.remove());
     if (templateStorage == null) {
       throw new ArgumentNotAvailableException(I18n.trans("ca-question-list-template-invalid-storage"));
     }
@@ -109,7 +109,7 @@ public final class CommandTemplate {
 
   @Suggestions("templateStorage")
   public List<String> suggestTemplateStorage(CommandContext<CommandSource> $, String input) {
-    return CloudNet.getInstance().getAvailableTemplateStorages()
+    return CloudNet.getInstance().availableTemplateStorages()
       .stream()
       .map(INameable::name)
       .collect(Collectors.toList());
@@ -152,11 +152,11 @@ public final class CommandTemplate {
     Collection<ServiceTemplate> templates;
     // get all templates if no specific template is given
     if (templateStorage == null) {
-      templates = CloudNet.getInstance().getServicesRegistry().services(TemplateStorage.class).stream()
-        .flatMap(storage -> storage.getTemplates().stream())
+      templates = CloudNet.getInstance().servicesRegistry().getServices(TemplateStorage.class).stream()
+        .flatMap(storage -> storage.templates().stream())
         .collect(Collectors.toList());
     } else {
-      templates = templateStorage.getTemplates();
+      templates = templateStorage.templates();
     }
 
     source.sendMessage(LIST_FORMATTER.format(templates));
@@ -245,8 +245,8 @@ public final class CommandTemplate {
     var templateStorage = template.storage();
     if (!templateStorage.exists()) {
       source.sendMessage(I18n.trans("command-template-delete-template-not-found")
-        .replace("%template%", template.getFullName())
-        .replace("%storage%", template.getStorage()));
+        .replace("%template%", template.fullName())
+        .replace("%storage%", template.storageName()));
       return;
     }
 
@@ -269,14 +269,14 @@ public final class CommandTemplate {
     try {
       if (TemplateStorageUtil.createAndPrepareTemplate(template, template.storage(), environmentType)) {
         source.sendMessage(I18n.trans("command-template-create-success")
-          .replace("%template%", template.getFullName())
-          .replace("%storage%", template.getStorage())
+          .replace("%template%", template.fullName())
+          .replace("%storage%", template.storageName())
         );
       }
     } catch (IOException exception) {
       source.sendMessage(I18n.trans("command-template-create-failed")
-        .replace("%template%", template.getFullName())
-        .replace("%storage%", template.getStorage())
+        .replace("%template%", template.fullName())
+        .replace("%storage%", template.storageName())
       );
     }
   }

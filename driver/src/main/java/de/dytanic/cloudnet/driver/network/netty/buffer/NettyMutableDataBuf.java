@@ -106,7 +106,7 @@ public class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBu
   public @NotNull DataBuf.Mutable writeDataBuf(@NotNull DataBuf buf) {
     buf.startTransaction();
     // write the content
-    this.writeInt(buf.getReadableBytes());
+    this.writeInt(buf.readableBytes());
     this.byteBuf.writeBytes(((NettyImmutableDataBuf) buf).byteBuf);
     // reset the data for later use
     buf.redoTransaction();

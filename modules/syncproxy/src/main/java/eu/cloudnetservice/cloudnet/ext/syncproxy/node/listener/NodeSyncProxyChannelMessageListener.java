@@ -41,21 +41,21 @@ public final class NodeSyncProxyChannelMessageListener {
 
   @EventListener
   public void handleConfigUpdate(ChannelMessageReceiveEvent event) {
-    if (!event.getChannel().equals(SyncProxyConstants.SYNC_PROXY_CHANNEL)) {
+    if (!event.channel().equals(SyncProxyConstants.SYNC_PROXY_CHANNEL)) {
       return;
     }
 
-    if (SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIG.equals(event.getMessage())) {
+    if (SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIG.equals(event.message())) {
       // read the configuration from the databuf
-      var configuration = event.getContent().readObject(SyncProxyConfiguration.class);
+      var configuration = event.content().readObject(SyncProxyConfiguration.class);
       // write the configuration silently to the file
       this.management.setConfigurationSilently(configuration);
       // call the local event for the update
       this.eventManager.callEvent(new SyncProxyConfigurationUpdateEvent(configuration));
-    } else if (SyncProxyConstants.SYNC_PROXY_CONFIG_REQUEST.equals(event.getMessage())) {
+    } else if (SyncProxyConstants.SYNC_PROXY_CONFIG_REQUEST.equals(event.message())) {
       var configuration = this.management.getConfiguration();
       // respond with the currently loaded configuration
-      event.setBinaryResponse(DataBuf.empty().writeObject(configuration));
+      event.binaryResponse(DataBuf.empty().writeObject(configuration));
     }
   }
 }

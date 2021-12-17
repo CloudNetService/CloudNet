@@ -29,10 +29,10 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
   private final RPCSender rpcSender;
 
   public WrapperServiceTaskProvider(@NotNull Wrapper wrapper) {
-    this.rpcSender = wrapper.getRPCProviderFactory().providerForClass(
-      wrapper.getNetworkClient(),
+    this.rpcSender = wrapper.rpcProviderFactory().providerForClass(
+      wrapper.networkClient(),
       ServiceTaskProvider.class);
-    wrapper.getEventManager().registerListener(new TaskChannelMessageListener(wrapper.getEventManager()));
+    wrapper.eventManager().registerListener(new TaskChannelMessageListener(wrapper.eventManager()));
   }
 
   @Override
@@ -41,18 +41,18 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
   }
 
   @Override
-  public @NotNull Collection<ServiceTask> getPermanentServiceTasks() {
-    return this.rpcSender.invokeMethod("getPermanentServiceTasks").fireSync();
+  public @NotNull Collection<ServiceTask> permanentServiceTasks() {
+    return this.rpcSender.invokeMethod("permanentServiceTasks").fireSync();
   }
 
   @Override
-  public void setPermanentServiceTasks(@NotNull Collection<ServiceTask> serviceTasks) {
-    this.rpcSender.invokeMethod("setPermanentServiceTasks", serviceTasks).fireSync();
+  public void permanentServiceTasks(@NotNull Collection<ServiceTask> serviceTasks) {
+    this.rpcSender.invokeMethod("permanentServiceTasks", serviceTasks).fireSync();
   }
 
   @Override
-  public ServiceTask getServiceTask(@NotNull String name) {
-    return this.rpcSender.invokeMethod("getServiceTask", name).fireSync();
+  public ServiceTask serviceTask(@NotNull String name) {
+    return this.rpcSender.invokeMethod("serviceTask", name).fireSync();
   }
 
   @Override

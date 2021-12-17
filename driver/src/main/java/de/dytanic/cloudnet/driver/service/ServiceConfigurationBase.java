@@ -44,19 +44,19 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
     this.properties = properties;
   }
 
-  public abstract @NotNull Collection<String> getJvmOptions();
+  public abstract @NotNull Collection<String> jvmOptions();
 
-  public abstract @NotNull Collection<String> getProcessParameters();
+  public abstract @NotNull Collection<String> processParameters();
 
-  public @NotNull Collection<ServiceRemoteInclusion> getIncludes() {
+  public @NotNull Collection<ServiceRemoteInclusion> includes() {
     return this.includes;
   }
 
-  public @NotNull Collection<ServiceTemplate> getTemplates() {
+  public @NotNull Collection<ServiceTemplate> templates() {
     return this.templates;
   }
 
-  public @NotNull Collection<ServiceDeployment> getDeployments() {
+  public @NotNull Collection<ServiceDeployment> deployments() {
     return this.deployments;
   }
 

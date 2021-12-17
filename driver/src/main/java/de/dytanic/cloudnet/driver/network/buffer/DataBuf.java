@@ -69,7 +69,7 @@ public interface DataBuf extends AutoCloseable {
 
   // utility for reading
 
-  int getReadableBytes();
+  int readableBytes();
 
   @NotNull DataBuf startTransaction();
 

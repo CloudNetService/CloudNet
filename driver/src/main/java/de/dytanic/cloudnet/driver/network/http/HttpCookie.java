@@ -16,40 +16,51 @@
 
 package de.dytanic.cloudnet.driver.network.http;
 
+import de.dytanic.cloudnet.common.INameable;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @ToString
 @EqualsAndHashCode
-public class HttpCookie {
+public class HttpCookie implements INameable {
 
-  protected String name;
-  protected String value;
-  protected String domain;
-  protected String path;
+  protected final String name;
+  protected final String value;
+  protected final String domain;
+  protected final String path;
 
-  protected boolean httpOnly;
-  protected boolean secure;
-  protected boolean wrap;
+  protected final boolean httpOnly;
+  protected final boolean secure;
+  protected final boolean wrap;
 
-  protected long maxAge;
+  protected final long maxAge;
 
-  public HttpCookie(String name, String value) {
-    this.name = name;
-    this.value = value;
-    this.maxAge = Long.MIN_VALUE;
+  public HttpCookie(@NotNull String name, @NotNull String value) {
+    this(name, value, null, null, Long.MAX_VALUE);
   }
 
-  public HttpCookie(String name, String value, String domain, String path, long maxAge) {
-    this.name = name;
-    this.value = value;
-    this.domain = domain;
-    this.path = path;
-    this.maxAge = maxAge;
+  public HttpCookie(
+    @NotNull String name,
+    @NotNull String value,
+    @Nullable String domain,
+    @Nullable String path,
+    long maxAge
+  ) {
+    this(name, value, domain, path, false, false, false, maxAge);
   }
 
-  public HttpCookie(String name, String value, String domain, String path, boolean httpOnly, boolean secure,
-    boolean wrap, long maxAge) {
+  public HttpCookie(
+    @NotNull String name,
+    @NotNull String value,
+    @Nullable String domain,
+    @Nullable String path,
+    boolean httpOnly,
+    boolean secure,
+    boolean wrap,
+    long maxAge
+  ) {
     this.name = name;
     this.value = value;
     this.domain = domain;
@@ -60,67 +71,36 @@ public class HttpCookie {
     this.maxAge = maxAge;
   }
 
-  public String getName() {
+  @Override
+  public @NotNull String name() {
     return this.name;
   }
 
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getValue() {
+  public @NotNull String value() {
     return this.value;
   }
 
-  public void setValue(String value) {
-    this.value = value;
-  }
-
-  public String getDomain() {
+  public @Nullable String domain() {
     return this.domain;
   }
 
-  public void setDomain(String domain) {
-    this.domain = domain;
-  }
-
-  public String getPath() {
+  public @Nullable String path() {
     return this.path;
   }
 
-  public void setPath(String path) {
-    this.path = path;
-  }
-
-  public long getMaxAge() {
+  public long maxAge() {
     return this.maxAge;
   }
 
-  public void setMaxAge(long maxAge) {
-    this.maxAge = maxAge;
-  }
-
-  public boolean isHttpOnly() {
+  public boolean httpOnly() {
     return this.httpOnly;
   }
 
-  public void setHttpOnly(boolean httpOnly) {
-    this.httpOnly = httpOnly;
-  }
-
-  public boolean isSecure() {
+  public boolean secure() {
     return this.secure;
   }
 
-  public void setSecure(boolean secure) {
-    this.secure = secure;
-  }
-
-  public boolean isWrap() {
+  public boolean wrap() {
     return this.wrap;
-  }
-
-  public void setWrap(boolean wrap) {
-    this.wrap = wrap;
   }
 }

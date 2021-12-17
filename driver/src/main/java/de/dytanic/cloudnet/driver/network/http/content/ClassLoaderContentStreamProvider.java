@@ -37,7 +37,7 @@ record ClassLoaderContentStreamProvider(
     var contentLocationUrl = this.contentSource.getResource(resourceLocation);
     return contentLocationUrl == null
       ? null
-      : URLStreamableContent.of(FileMimeTypeHelper.getFileType(resourceLocation), contentLocationUrl);
+      : URLStreamableContent.of(FileMimeTypeHelper.fileType(resourceLocation), contentLocationUrl);
   }
 
   private record URLStreamableContent(

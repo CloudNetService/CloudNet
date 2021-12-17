@@ -48,11 +48,11 @@ public final class CloudServiceTemplateLoadEvent extends CloudServiceEvent imple
     return this.template;
   }
 
-  public boolean isCancelled() {
+  public boolean cancelled() {
     return this.cancelled;
   }
 
-  public void setCancelled(boolean cancelled) {
+  public void cancelled(boolean cancelled) {
     this.cancelled = cancelled;
   }
 }

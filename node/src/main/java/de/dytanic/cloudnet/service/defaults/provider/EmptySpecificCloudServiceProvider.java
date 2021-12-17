@@ -36,12 +36,12 @@ public final class EmptySpecificCloudServiceProvider implements SpecificCloudSer
   }
 
   @Override
-  public @Nullable ServiceInfoSnapshot getServiceInfoSnapshot() {
+  public @Nullable ServiceInfoSnapshot serviceInfo() {
     return null;
   }
 
   @Override
-  public boolean isValid() {
+  public boolean valid() {
     return false;
   }
 
@@ -63,7 +63,7 @@ public final class EmptySpecificCloudServiceProvider implements SpecificCloudSer
   }
 
   @Override
-  public Queue<String> getCachedLogMessages() {
+  public Queue<String> cachedLogMessages() {
     return new LinkedBlockingDeque<>();
   }
 
@@ -73,7 +73,7 @@ public final class EmptySpecificCloudServiceProvider implements SpecificCloudSer
   }
 
   @Override
-  public void setCloudServiceLifeCycle(@NotNull ServiceLifeCycle lifeCycle) {
+  public void updateLifecycle(@NotNull ServiceLifeCycle lifeCycle) {
   }
 
   @Override

@@ -57,12 +57,12 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
     super(cloudNet);
 
     // register the event for channel message handling
-    cloudNet.getEventManager().registerListener(new NodeChannelMessageListener(
-      cloudNet.getEventManager(),
+    cloudNet.eventManager().registerListener(new NodeChannelMessageListener(
+      cloudNet.eventManager(),
       cloudNet.getDataSyncRegistry(),
       this));
     // schedule the task for updating of the local node information
-    cloudNet.getTaskExecutor().scheduleAtFixedRate(() -> {
+    cloudNet.taskExecutor().scheduleAtFixedRate(() -> {
       if (this.localNode.isAvailable()) {
         try {
           this.checkForDeadNodes();
@@ -80,7 +80,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
 
     for (var clusterNodeServer : this.getNodeServers()) {
       if (clusterNodeServer.getChannel() != null
-        && clusterNodeServer.getChannel().getChannelId() == channel.getChannelId()) {
+        && clusterNodeServer.getChannel().channelId() == channel.channelId()) {
         return clusterNodeServer;
       }
     }
@@ -91,7 +91,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
   @Override
   public void setClusterServers(@NotNull NetworkCluster networkCluster) {
     for (var clusterNode : networkCluster.nodes()) {
-      NodeServer nodeServer = this.getNodeServer(clusterNode.getUniqueId());
+      NodeServer nodeServer = this.getNodeServer(clusterNode.uniqueId());
       if (nodeServer != null) {
         nodeServer.setNodeInfo(clusterNode);
       } else {
@@ -102,12 +102,12 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
     for (var clusterNodeServer : this.nodeServers) {
       var node = networkCluster.nodes()
         .stream()
-        .filter(cluNode -> cluNode.getUniqueId().equalsIgnoreCase(clusterNodeServer.getNodeInfo().getUniqueId()))
+        .filter(cluNode -> cluNode.uniqueId().equalsIgnoreCase(clusterNodeServer.getNodeInfo().uniqueId()))
         .findFirst()
         .orElse(null);
       if (node == null) {
         this.nodeServers.removeIf(
-          nodeServer -> nodeServer.getNodeInfo().getUniqueId().equals(clusterNodeServer.getNodeInfo().getUniqueId()));
+          nodeServer -> nodeServer.getNodeInfo().uniqueId().equals(clusterNodeServer.getNodeInfo().uniqueId()));
       }
     }
   }
@@ -143,7 +143,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
       // send the template chunked to the cluster
       return ChunkedPacketSender.forFileTransfer()
         .transferChannel("deploy_service_template")
-        .withExtraData(DataBuf.empty().writeString(template.getStorage()).writeObject(template).writeBoolean(overwrite))
+        .withExtraData(DataBuf.empty().writeString(template.storageName()).writeObject(template).writeBoolean(overwrite))
         .toChannels(channels)
         .source(stream)
         .build()
@@ -195,11 +195,11 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
     for (var nodeServer : this.nodeServers) {
       if (nodeServer.isAvailable()) {
         var snapshot = nodeServer.getNodeInfoSnapshot();
-        if (snapshot != null && snapshot.getCreationTime() + MAX_NO_UPDATE_MILLIS < System.currentTimeMillis()) {
+        if (snapshot != null && snapshot.creationTime() + MAX_NO_UPDATE_MILLIS < System.currentTimeMillis()) {
           try {
             LOGGER.info(I18n.trans("cluster-server-idling-too-long")
-              .replace("%id%", nodeServer.getNodeInfo().getUniqueId())
-              .replace("%time%", TIME_FORMAT.format((System.currentTimeMillis() - snapshot.getCreationTime()) / 1000)));
+              .replace("%id%", nodeServer.getNodeInfo().uniqueId())
+              .replace("%time%", TIME_FORMAT.format((System.currentTimeMillis() - snapshot.creationTime()) / 1000)));
             nodeServer.close();
           } catch (Exception exception) {
             LOGGER.severe("Exception while closing server", exception);

@@ -47,8 +47,11 @@ public class DefaultJsonServiceProperty<T> implements ServiceProperty<T> {
   }
 
   @NotNull
-  public static <T> DefaultJsonServiceProperty<T> createFromType(@NotNull String key, @NotNull Type type,
-    boolean forbidModifications) {
+  public static <T> DefaultJsonServiceProperty<T> createFromType(
+    @NotNull String key,
+    @NotNull Type type,
+    boolean forbidModifications
+  ) {
     var property = new DefaultJsonServiceProperty<T>(key, type, null);
     property.allowModifications = !forbidModifications;
     return property;
@@ -61,16 +64,18 @@ public class DefaultJsonServiceProperty<T> implements ServiceProperty<T> {
 
   @NotNull
   @Override
-  public Optional<T> get(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
+  public Optional<T> read(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
     if (!serviceInfoSnapshot.properties().contains(this.key)) {
       return Optional.empty();
     }
-    return Optional.ofNullable(this.type != null ? serviceInfoSnapshot.properties().get(this.key, this.type)
+
+    return Optional.ofNullable(this.type != null
+      ? serviceInfoSnapshot.properties().get(this.key, this.type)
       : serviceInfoSnapshot.properties().get(this.key, this.classType));
   }
 
   @Override
-  public void set(@NotNull ServiceInfoSnapshot serviceInfoSnapshot, T value) {
+  public void write(@NotNull ServiceInfoSnapshot serviceInfoSnapshot, T value) {
     Preconditions.checkArgument(this.allowModifications, "This property doesn't support modifying the value");
     serviceInfoSnapshot.properties().append(this.key, value);
   }

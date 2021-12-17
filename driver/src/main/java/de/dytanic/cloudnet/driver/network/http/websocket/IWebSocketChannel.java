@@ -18,27 +18,27 @@ package de.dytanic.cloudnet.driver.network.http.websocket;
 
 import de.dytanic.cloudnet.driver.network.http.IHttpChannel;
 import java.util.Collection;
+import org.jetbrains.annotations.NotNull;
 
 public interface IWebSocketChannel extends AutoCloseable {
 
-  IWebSocketChannel addListener(IWebSocketListener... listeners);
+  @NotNull IWebSocketChannel addListener(@NotNull IWebSocketListener... listeners);
 
-  IWebSocketChannel removeListener(IWebSocketListener... listeners);
+  @NotNull IWebSocketChannel removeListener(@NotNull IWebSocketListener... listeners);
 
-  IWebSocketChannel removeListener(Collection<Class<? extends IWebSocketListener>> classes);
+  @NotNull IWebSocketChannel removeListener(@NotNull Collection<Class<? extends IWebSocketListener>> classes);
 
-  IWebSocketChannel removeListener(ClassLoader classLoader);
+  @NotNull IWebSocketChannel removeListener(@NotNull ClassLoader classLoader);
 
-  IWebSocketChannel clearListeners();
+  @NotNull IWebSocketChannel clearListeners();
 
-  Collection<IWebSocketListener> getListeners();
+  @NotNull Collection<IWebSocketListener> listeners();
 
-  IWebSocketChannel sendWebSocketFrame(WebSocketFrameType webSocketFrameType, String text);
+  @NotNull IWebSocketChannel sendWebSocketFrame(@NotNull WebSocketFrameType webSocketFrameType, @NotNull String text);
 
-  IWebSocketChannel sendWebSocketFrame(WebSocketFrameType webSocketFrameType, byte[] bytes);
+  @NotNull IWebSocketChannel sendWebSocketFrame(@NotNull WebSocketFrameType webSocketFrameType, byte[] bytes);
 
-  void close(int statusCode, String reasonText);
+  void close(int statusCode, @NotNull String reasonText);
 
-  IHttpChannel channel();
-
+  @NotNull IHttpChannel channel();
 }

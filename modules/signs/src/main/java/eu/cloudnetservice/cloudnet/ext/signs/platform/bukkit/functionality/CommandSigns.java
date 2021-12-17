@@ -137,7 +137,7 @@ public class CommandSigns extends BaseTabExecutor {
       return Arrays.asList("create", "remove", "removeall", "cleanup");
     }
     if (args.length == 2 && args[0].equalsIgnoreCase("create")) {
-      return CloudNetDriver.getInstance().getGroupConfigurationProvider().getGroupConfigurations().stream()
+      return CloudNetDriver.instance().groupConfigurationProvider().groupConfigurations().stream()
         .map(GroupConfiguration::name)
         .collect(Collectors.toList());
     }

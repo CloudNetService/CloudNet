@@ -16,10 +16,12 @@
 
 package de.dytanic.cloudnet.driver.network.http;
 
+import org.jetbrains.annotations.NotNull;
+
 public interface IMethodHttpHandler extends IHttpHandler {
 
   @Override
-  default void handle(String path, IHttpContext context) throws Exception {
+  default void handle(@NotNull String path, @NotNull IHttpContext context) throws Exception {
     switch (context.request().method().toUpperCase()) {
       case "GET" -> this.handleGet(path, context);
       case "POST" -> this.handlePost(path, context);
@@ -35,22 +37,21 @@ public interface IMethodHttpHandler extends IHttpHandler {
     }
   }
 
-  void handlePost(String path, IHttpContext context) throws Exception;
+  void handlePost(@NotNull String path, @NotNull IHttpContext context) throws Exception;
 
-  void handleGet(String path, IHttpContext context) throws Exception;
+  void handleGet(@NotNull String path, @NotNull IHttpContext context) throws Exception;
 
-  void handlePut(String path, IHttpContext context) throws Exception;
+  void handlePut(@NotNull String path, @NotNull IHttpContext context) throws Exception;
 
-  void handleHead(String path, IHttpContext context) throws Exception;
+  void handleHead(@NotNull String path, @NotNull IHttpContext context) throws Exception;
 
-  void handleDelete(String path, IHttpContext context) throws Exception;
+  void handleDelete(@NotNull String path, @NotNull IHttpContext context) throws Exception;
 
-  void handlePatch(String path, IHttpContext context) throws Exception;
+  void handlePatch(@NotNull String path, @NotNull IHttpContext context) throws Exception;
 
-  void handleTrace(String path, IHttpContext context) throws Exception;
+  void handleTrace(@NotNull String path, @NotNull IHttpContext context) throws Exception;
 
-  void handleOptions(String path, IHttpContext context) throws Exception;
+  void handleOptions(@NotNull String path, @NotNull IHttpContext context) throws Exception;
 
-  void handleConnect(String path, IHttpContext context) throws Exception;
-
+  void handleConnect(@NotNull String path, @NotNull IHttpContext context) throws Exception;
 }

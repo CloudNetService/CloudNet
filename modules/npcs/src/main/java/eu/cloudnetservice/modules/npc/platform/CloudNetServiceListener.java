@@ -32,9 +32,9 @@ final class CloudNetServiceListener {
 
   @EventListener
   public void handle(@NotNull CloudServiceLifecycleChangeEvent event) {
-    switch (event.getNewLifeCycle()) {
-      case RUNNING -> this.management.handleServiceUpdate(event.getServiceInfo());
-      case STOPPED, DELETED -> this.management.handleServiceRemove(event.getServiceInfo());
+    switch (event.newLifeCycle()) {
+      case RUNNING -> this.management.handleServiceUpdate(event.serviceInfo());
+      case STOPPED, DELETED -> this.management.handleServiceRemove(event.serviceInfo());
       default -> {
       }
     }
@@ -42,8 +42,8 @@ final class CloudNetServiceListener {
 
   @EventListener
   public void handle(@NotNull CloudServiceUpdateEvent event) {
-    if (event.getServiceInfo().getLifeCycle() == ServiceLifeCycle.RUNNING) {
-      this.management.handleServiceUpdate(event.getServiceInfo());
+    if (event.serviceInfo().lifeCycle() == ServiceLifeCycle.RUNNING) {
+      this.management.handleServiceUpdate(event.serviceInfo());
     }
   }
 }

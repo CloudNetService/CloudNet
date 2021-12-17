@@ -17,13 +17,14 @@
 package de.dytanic.cloudnet.driver.event.events.service;
 
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * This event will be called when any service is updated.
  */
 public final class CloudServiceUpdateEvent extends CloudServiceEvent {
 
-  public CloudServiceUpdateEvent(ServiceInfoSnapshot serviceInfo) {
+  public CloudServiceUpdateEvent(@NotNull ServiceInfoSnapshot serviceInfo) {
     super(serviceInfo);
   }
 }

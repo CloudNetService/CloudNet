@@ -70,27 +70,27 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
   }
 
   @Override
-  public @NotNull RPCSender getSender() {
+  public @NotNull RPCSender sender() {
     return this.sender;
   }
 
   @Override
-  public @NotNull String getClassName() {
+  public @NotNull String className() {
     return this.className;
   }
 
   @Override
-  public @NotNull String getMethodName() {
+  public @NotNull String methodName() {
     return this.methodName;
   }
 
   @Override
-  public @NotNull Object[] getArguments() {
+  public @NotNull Object[] arguments() {
     return this.arguments;
   }
 
   @Override
-  public @NotNull Type getExpectedResultType() {
+  public @NotNull Type expectedResultType() {
     return this.expectedResultType;
   }
 
@@ -107,17 +107,17 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
 
   @Override
   public void fireAndForget() {
-    this.fireAndForget(Objects.requireNonNull(this.sender.getAssociatedComponent().getFirstChannel()));
+    this.fireAndForget(Objects.requireNonNull(this.sender.associatedComponent().firstChannel()));
   }
 
   @Override
   public <T> @Nullable T fireSync() {
-    return this.fireSync(Objects.requireNonNull(this.sender.getAssociatedComponent().getFirstChannel()));
+    return this.fireSync(Objects.requireNonNull(this.sender.associatedComponent().firstChannel()));
   }
 
   @Override
   public @NotNull <T> ITask<T> fire() {
-    return this.fire(Objects.requireNonNull(this.sender.getAssociatedComponent().getFirstChannel()));
+    return this.fire(Objects.requireNonNull(this.sender.associatedComponent().firstChannel()));
   }
 
   @Override
@@ -148,7 +148,8 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
       .writeBoolean(false) // not a method chain
       .writeString(this.className)
       .writeString(this.methodName)
-      .writeBoolean(this.resultExpectation);
+      .writeBoolean(this.resultExpectation)
+      .writeInt(this.arguments.length);
     // write the arguments provided
     for (var argument : this.arguments) {
       this.objectMapper.writeObject(dataBuf, argument);
@@ -157,7 +158,7 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
     if (this.resultExpectation) {
       // now send the query and read the response
       return component.sendQueryAsync(new RPCQueryPacket(dataBuf))
-        .map(IPacket::getContent)
+        .map(IPacket::content)
         .map(content -> {
           if (content.readBoolean()) {
             // the execution did not throw an exception

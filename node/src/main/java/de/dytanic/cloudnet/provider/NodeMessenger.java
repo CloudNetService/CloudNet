@@ -50,7 +50,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
   protected final IClusterNodeServerProvider nodeServerProvider;
 
   public NodeMessenger(@NotNull CloudNet nodeInstance) {
-    this.cloudServiceManager = nodeInstance.getCloudServiceProvider();
+    this.cloudServiceManager = nodeInstance.cloudServiceProvider();
     this.nodeServerProvider = nodeInstance.getClusterNodeServerProvider();
   }
 
@@ -88,9 +88,9 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     for (var channel : channels) {
       channel.sendQueryAsync(new PacketServerChannelMessage(message)).onComplete(resultPacket -> {
         // check if we got an actual result from the request
-        if (resultPacket != Packet.EMPTY && resultPacket.getContent().getReadableBytes() > 0) {
+        if (resultPacket != Packet.EMPTY && resultPacket.content().readableBytes() > 0) {
           // add all resulting messages we got
-          result.addAll(resultPacket.getContent().readObject(COL_MSG));
+          result.addAll(resultPacket.content().readObject(COL_MSG));
         }
         // count down - one channel responded
         task.countDown();
@@ -120,7 +120,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     @NotNull ChannelMessageTarget target,
     boolean allowClusterRedirect
   ) {
-    switch (target.getType()) {
+    switch (target.type()) {
       // just include all known channels
       case ALL -> {
         Set<INetworkChannel> result = new HashSet<>();
@@ -139,11 +139,11 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
         // search for the matching node server
         if (allowClusterRedirect) {
           // check if a specific node server was selected or all node servers are targeted
-          if (target.getName() == null) {
+          if (target.name() == null) {
             return this.nodeServerProvider.getConnectedChannels();
           }
           // check if we know the target node server
-          var server = this.nodeServerProvider.getNodeServer(target.getName());
+          var server = this.nodeServerProvider.getNodeServer(target.name());
           return server == null || !server.isConnected()
               ? Collections.emptySet()
               : Collections.singleton(server.getChannel());
@@ -154,7 +154,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
       }
       case SERVICE -> {
         // check if a specific service was requested
-        if (target.getName() == null) {
+        if (target.name() == null) {
           // if no specific name is given just get all local channels
           Collection<INetworkChannel> channels = this.cloudServiceManager.getLocalCloudServices().stream()
               .map(ICloudService::getNetworkChannel)
@@ -168,7 +168,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
           return channels;
         } else {
           // check if the service is running locally - use the known channel then
-          var localService = this.cloudServiceManager.getLocalCloudService(target.getName());
+          var localService = this.cloudServiceManager.getLocalCloudService(target.name());
           if (localService != null) {
             return localService.getNetworkChannel() == null
                 ? Collections.emptySet()
@@ -178,14 +178,14 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
         // check if we are allowed to redirect the message to the node running the service
         if (allowClusterRedirect) {
           // if no specific service is given just send it to all nodes
-          if (target.getName() == null) {
+          if (target.name() == null) {
             return this.nodeServerProvider.getConnectedChannels();
           }
           // check if we know the service from the cluster
-          var service = this.cloudServiceManager.getCloudServiceByName(target.getName());
+          var service = this.cloudServiceManager.serviceByName(target.name());
           if (service != null) {
             // check if we know the target node server to send the channel message to instead
-            var server = this.nodeServerProvider.getNodeServer(service.getServiceId().getNodeUniqueId());
+            var server = this.nodeServerProvider.getNodeServer(service.serviceId().nodeUniqueId());
             return server == null || !server.isConnected()
                 ? Collections.emptySet()
                 : Collections.singleton(server.getChannel());
@@ -197,22 +197,22 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
       case TASK -> {
         // lookup all services of the given task
         return this.filterChannels(
-            this.cloudServiceManager.getCloudServicesByTask(target.getName()),
+            this.cloudServiceManager.servicesByTask(target.name()),
             allowClusterRedirect);
       }
       case ENVIRONMENT -> {
         // lookup all services of the given environment
         return this.filterChannels(
-            this.cloudServiceManager.getCloudServicesByEnvironment(target.getEnvironment()),
+            this.cloudServiceManager.servicesByEnvironment(target.environment()),
             allowClusterRedirect);
       }
       case GROUP -> {
         // lookup all services of the given group
         return this.filterChannels(
-            this.cloudServiceManager.getCloudServicesByGroup(target.getName()),
+            this.cloudServiceManager.servicesByGroup(target.name()),
             allowClusterRedirect);
       }
-      default -> throw new IllegalArgumentException("Unhandled ChannelMessageTarget.Type: " + target.getType());
+      default -> throw new IllegalArgumentException("Unhandled ChannelMessageTarget.Type: " + target.type());
     }
   }
 
@@ -223,7 +223,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     return snapshots.stream()
       .map(service -> {
         // check if the service is running locally
-        var localService = this.cloudServiceManager.getLocalCloudService(service.getServiceId().name());
+        var localService = this.cloudServiceManager.getLocalCloudService(service.serviceId().name());
         if (localService != null) {
           return localService.getNetworkChannel();
         }
@@ -231,7 +231,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
         if (allowClusterRedirect) {
           // check if we know the node on which the service is running
           var nodeServer = this.nodeServerProvider.getNodeServer(
-            service.getServiceId().getNodeUniqueId());
+            service.serviceId().nodeUniqueId());
           return nodeServer == null ? null : nodeServer.getChannel();
         }
         // no target found

@@ -16,41 +16,43 @@
 
 package de.dytanic.cloudnet.driver.network.http;
 
+import org.jetbrains.annotations.NotNull;
+
 public class MethodHttpHandlerAdapter implements IMethodHttpHandler {
 
   @Override
-  public void handlePost(String path, IHttpContext context) throws Exception {
+  public void handlePost(@NotNull String path, @NotNull IHttpContext context) throws Exception {
   }
 
   @Override
-  public void handleGet(String path, IHttpContext context) throws Exception {
+  public void handleGet(@NotNull String path, @NotNull IHttpContext context) throws Exception {
   }
 
   @Override
-  public void handlePut(String path, IHttpContext context) throws Exception {
+  public void handlePut(@NotNull String path, @NotNull IHttpContext context) throws Exception {
   }
 
   @Override
-  public void handleHead(String path, IHttpContext context) throws Exception {
+  public void handleHead(@NotNull String path, @NotNull IHttpContext context) throws Exception {
   }
 
   @Override
-  public void handleDelete(String path, IHttpContext context) throws Exception {
+  public void handleDelete(@NotNull String path, @NotNull IHttpContext context) throws Exception {
   }
 
   @Override
-  public void handlePatch(String path, IHttpContext context) throws Exception {
+  public void handlePatch(@NotNull String path, @NotNull IHttpContext context) throws Exception {
   }
 
   @Override
-  public void handleTrace(String path, IHttpContext context) throws Exception {
+  public void handleTrace(@NotNull String path, @NotNull IHttpContext context) throws Exception {
   }
 
   @Override
-  public void handleOptions(String path, IHttpContext context) throws Exception {
+  public void handleOptions(@NotNull String path, @NotNull IHttpContext context) throws Exception {
   }
 
   @Override
-  public void handleConnect(String path, IHttpContext context) throws Exception {
+  public void handleConnect(@NotNull String path, @NotNull IHttpContext context) throws Exception {
   }
 }

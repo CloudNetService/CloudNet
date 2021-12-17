@@ -52,10 +52,10 @@ public record SyncProxyMotd(
     }
 
     return input
-      .replace("%proxy%", Wrapper.getInstance().getServiceId().name())
-      .replace("%proxy_uniqueId%", String.valueOf(Wrapper.getInstance().getServiceId().getUniqueId()))
-      .replace("%task%", Wrapper.getInstance().getServiceId().getTaskName())
-      .replace("%node%", Wrapper.getInstance().getServiceId().getNodeUniqueId())
+      .replace("%proxy%", Wrapper.getInstance().serviceId().name())
+      .replace("%proxy_uniqueId%", String.valueOf(Wrapper.getInstance().serviceId().uniqueId()))
+      .replace("%task%", Wrapper.getInstance().serviceId().taskName())
+      .replace("%node%", Wrapper.getInstance().serviceId().nodeUniqueId())
       .replace("%online_players%", String.valueOf(onlinePlayers))
       .replace("%max_players%", String.valueOf(maxPlayers))
       .replace("&", "§");

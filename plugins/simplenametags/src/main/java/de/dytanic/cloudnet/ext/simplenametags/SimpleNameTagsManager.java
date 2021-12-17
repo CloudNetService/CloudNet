@@ -30,7 +30,7 @@ public abstract class SimpleNameTagsManager<P> {
   protected static final String TEAM_NAME_FORMAT = "%s%s";
 
   public SimpleNameTagsManager(@NotNull Executor syncTaskExecutor) {
-    CloudNetDriver.getInstance().getEventManager().registerListener(
+    CloudNetDriver.instance().eventManager().registerListener(
       new CloudSimpleNameTagsListener<>(syncTaskExecutor, this));
   }
 
@@ -39,8 +39,8 @@ public abstract class SimpleNameTagsManager<P> {
     var group = this.getPermissionGroup(playerUniqueId, player);
     if (group != null) {
       // find the highest sort id length of any known group on this instance
-      var maxSortIdLength = CloudNetDriver.getInstance().getPermissionManagement().getGroups().stream()
-        .map(PermissionGroup::getSortId)
+      var maxSortIdLength = CloudNetDriver.instance().permissionManagement().groups().stream()
+        .map(PermissionGroup::sortId)
         .mapToInt(i -> (int) Math.log10(i) + 1)
         .max()
         .orElse(0);
@@ -64,7 +64,7 @@ public abstract class SimpleNameTagsManager<P> {
         }
       }
       // set the players display name
-      this.setDisplayName(player, group.getDisplay() + playerName);
+      this.setDisplayName(player, group.display() + playerName);
     }
   }
 
@@ -88,21 +88,21 @@ public abstract class SimpleNameTagsManager<P> {
 
   protected char getColorChar(@NotNull PermissionGroup group) {
     // check if the color of the group is given and valid
-    if (group.getColor().length() == 2) {
+    if (group.color().length() == 2) {
       // check if the first char is a color indicator
-      var indicatorChar = group.getColor().charAt(0);
+      var indicatorChar = group.color().charAt(0);
       if (indicatorChar == '&' || indicatorChar == '§') {
         // the next char should be the color char then
-        return group.getColor().charAt(1);
+        return group.color().charAt(1);
       }
     }
     // search for the last color char in the prefix of the group
-    var length = group.getPrefix().length();
+    var length = group.prefix().length();
     for (var index = length - 2; index >= 0; index--) {
       // check if the current char is a color indicator char
-      var atPosition = group.getPrefix().charAt(index);
+      var atPosition = group.prefix().charAt(index);
       if (atPosition == '&' || atPosition == '§') {
-        return group.getPrefix().charAt(index + 1);
+        return group.prefix().charAt(index + 1);
       }
     }
     // no color char found
@@ -111,35 +111,35 @@ public abstract class SimpleNameTagsManager<P> {
 
   protected @Nullable PermissionGroup getPermissionGroup(@NotNull UUID playerUniqueId, @NotNull P platformPlayer) {
     // select the best permission group for the player
-    var user = CloudNetDriver.getInstance().getPermissionManagement().getUser(playerUniqueId);
+    var user = CloudNetDriver.instance().permissionManagement().user(playerUniqueId);
     // no user -> no group
     if (user == null) {
       return null;
     }
     // get the highest group of the player
-    var group = CloudNetDriver.getInstance().getPermissionManagement().getHighestPermissionGroup(user);
+    var group = CloudNetDriver.instance().permissionManagement().highestPermissionGroup(user);
     // no group -> try the default group
     if (group == null) {
-      group = CloudNetDriver.getInstance().getPermissionManagement().getDefaultPermissionGroup();
+      group = CloudNetDriver.instance().permissionManagement().defaultPermissionGroup();
       // no default group -> skip
       if (group == null) {
         return null;
       }
     }
     // post the choose event to let the user modify the permission group of the player (for example to nick a player)
-    return CloudNetDriver.getInstance().getEventManager()
+    return CloudNetDriver.instance().eventManager()
       .callEvent(new PrePlayerPrefixSetEvent<>(platformPlayer, group))
       .getGroup();
   }
 
   protected @NotNull String selectTeamName(@NotNull PermissionGroup group, int highestSortIdLength) {
     // get the length of the group's sort id
-    var sortIdLength = (int) Math.log10(group.getSortId()) + 1;
+    var sortIdLength = (int) Math.log10(group.sortId()) + 1;
     var teamName = String.format(
       TEAM_NAME_FORMAT,
       highestSortIdLength == sortIdLength
         ? sortIdLength
-        : String.format("%0" + highestSortIdLength + "d", group.getSortId()),
+        : String.format("%0" + highestSortIdLength + "d", group.sortId()),
       group.name());
     // shorten the name if needed
     return teamName.length() > 16 ? teamName.substring(0, 16) : teamName;

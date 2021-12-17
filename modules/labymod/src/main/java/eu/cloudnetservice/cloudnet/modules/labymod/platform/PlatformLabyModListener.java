@@ -32,7 +32,7 @@ public class PlatformLabyModListener {
 
   public PlatformLabyModListener(@NotNull PlatformLabyModManagement labyModManagement) {
     this.labyModManagement = labyModManagement;
-    this.bridgeManagement = Wrapper.getInstance().getServicesRegistry().firstService(PlatformBridgeManagement.class);
+    this.bridgeManagement = Wrapper.getInstance().servicesRegistry().getFirstService(PlatformBridgeManagement.class);
   }
 
   @EventListener
@@ -46,10 +46,10 @@ public class PlatformLabyModListener {
   @EventListener
   public void handleConfigUpdate(@NotNull ChannelMessageReceiveEvent event) {
     // handle incoming channel messages on the labymod channel
-    if (event.getChannel().equals(LabyModManagement.LABYMOD_MODULE_CHANNEL)
-      && LabyModManagement.LABYMOD_UPDATE_CONFIG.equals(event.getMessage())) {
+    if (event.channel().equals(LabyModManagement.LABYMOD_MODULE_CHANNEL)
+      && LabyModManagement.LABYMOD_UPDATE_CONFIG.equals(event.message())) {
       // update the configuration locally
-      this.labyModManagement.setConfigurationSilently(event.getContent().readObject(LabyModConfiguration.class));
+      this.labyModManagement.setConfigurationSilently(event.content().readObject(LabyModConfiguration.class));
     }
   }
 }

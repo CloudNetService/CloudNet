@@ -24,6 +24,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class DefaultRPCInvocationContext implements RPCInvocationContext {
 
+  protected int argumentCount;
+
   protected boolean expectsMethodResult;
   protected boolean normalizePrimitives;
   protected boolean strictInstanceUsage;
@@ -54,6 +56,11 @@ public class DefaultRPCInvocationContext implements RPCInvocationContext {
   }
 
   @Override
+  public int argumentCount() {
+    return this.argumentCount;
+  }
+
+  @Override
   public boolean expectsMethodResult() {
     return this.expectsMethodResult;
   }
@@ -69,22 +76,22 @@ public class DefaultRPCInvocationContext implements RPCInvocationContext {
   }
 
   @Override
-  public @NotNull String getMethodName() {
+  public @NotNull String methodName() {
     return this.methodName;
   }
 
   @Override
-  public @NotNull INetworkChannel getChannel() {
+  public @NotNull INetworkChannel channel() {
     return this.channel;
   }
 
   @Override
-  public @NotNull DataBuf getArgumentInformation() {
+  public @NotNull DataBuf argumentInformation() {
     return this.arguments;
   }
 
   @Override
-  public @NotNull Optional<Object> getWorkingInstance() {
+  public @NotNull Optional<Object> workingInstance() {
     return Optional.ofNullable(this.workingInstance);
   }
 }

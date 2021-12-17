@@ -43,7 +43,7 @@ public final class QueuedConsoleLogHandler extends AbstractHandler {
       this.cachedQueuedLogEntries.poll();
     }
 
-    CloudNetDriver.getInstance().getEventManager().callEvent(new LoggingEntryEvent(record));
+    CloudNetDriver.instance().eventManager().callEvent(new LoggingEntryEvent(record));
   }
 
   public @NotNull Queue<LogRecord> getCachedLogEntries() {

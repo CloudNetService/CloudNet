@@ -42,19 +42,19 @@ public class DefaultSpecificTemplateStorage implements SpecificTemplateStorage {
   }
 
   public static DefaultSpecificTemplateStorage of(@NotNull ServiceTemplate template, @NotNull TemplateStorage storage) {
-    if (!storage.name().equals(template.getStorage())) {
+    if (!storage.name().equals(template.storageName())) {
       throw new IllegalArgumentException(String.format(
         "Storage '%s' doesn't match the storage of the template ('%s')",
         storage.name(),
-        template.getStorage()));
+        template.storageName()));
     }
     return new DefaultSpecificTemplateStorage(template, storage);
   }
 
   public static DefaultSpecificTemplateStorage of(@NotNull ServiceTemplate template) {
-    var storage = CloudNetDriver.getInstance().getTemplateStorage(template.getStorage());
+    var storage = CloudNetDriver.instance().templateStorage(template.storageName());
     if (storage == null) {
-      throw new IllegalArgumentException(String.format("Storage '%s' not found", template.getStorage()));
+      throw new IllegalArgumentException(String.format("Storage '%s' not found", template.storageName()));
     }
     return new DefaultSpecificTemplateStorage(template, storage);
   }
@@ -65,12 +65,12 @@ public class DefaultSpecificTemplateStorage implements SpecificTemplateStorage {
   }
 
   @Override
-  public @NotNull ServiceTemplate getTargetTemplate() {
+  public @NotNull ServiceTemplate targetTemplate() {
     return this.template;
   }
 
   @Override
-  public @NotNull TemplateStorage getWrappedStorage() {
+  public @NotNull TemplateStorage wrappedStorage() {
     return this.storage;
   }
 
@@ -150,8 +150,8 @@ public class DefaultSpecificTemplateStorage implements SpecificTemplateStorage {
   }
 
   @Override
-  public @Nullable FileInfo getFileInfo(@NotNull String path) throws IOException {
-    return this.storage.getFileInfo(this.template, path);
+  public @Nullable FileInfo fileInfo(@NotNull String path) throws IOException {
+    return this.storage.fileInfo(this.template, path);
   }
 
   @Override
@@ -240,8 +240,8 @@ public class DefaultSpecificTemplateStorage implements SpecificTemplateStorage {
   }
 
   @Override
-  public @NotNull ITask<FileInfo> getFileInfoAsync(@NotNull String path) {
-    return this.storage.getFileInfoAsync(this.template, path);
+  public @NotNull ITask<FileInfo> fileInfoAsync(@NotNull String path) {
+    return this.storage.fileInfoAsync(this.template, path);
   }
 
   @Override

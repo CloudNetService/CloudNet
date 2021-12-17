@@ -94,7 +94,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
         this.client.loadKnownHosts(config.getKnownHostFile().toFile());
       }
       // connect to the server
-      this.client.connect(config.getAddress().getHost(), config.getAddress().getPort());
+      this.client.connect(config.getAddress().host(), config.getAddress().port());
       // authenticate the client with the correct auth method
       if (config.getSshKeyPath() != null) {
         this.client.authPublickey(
@@ -279,7 +279,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public @Nullable FileInfo getFileInfo(@NotNull ServiceTemplate template, @NotNull String path) {
+  public @Nullable FileInfo fileInfo(@NotNull ServiceTemplate template, @NotNull String path) {
     return this.executeWithClient(client -> {
       var attr = client.statExistence(this.constructRemotePath(template, path));
       return attr == null ? null : this.createFileInfo(attr, path);
@@ -313,7 +313,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public @NotNull Collection<ServiceTemplate> getTemplates() {
+  public @NotNull Collection<ServiceTemplate> templates() {
     return this.executeWithClient(client -> {
       Set<ServiceTemplate> templates = new HashSet<>();
       for (var info : client.ls(this.storageConfig.getBaseDirectory())) {
@@ -340,7 +340,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
     return String.format(
       REMOTE_DIR_FORMAT,
       this.storageConfig.getBaseDirectory(),
-      template.getFullName(),
+      template.fullName(),
       String.join("/", parents));
   }
 

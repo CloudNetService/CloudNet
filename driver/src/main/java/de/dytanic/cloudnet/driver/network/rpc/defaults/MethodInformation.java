@@ -59,13 +59,16 @@ public class MethodInformation {
     @Nullable Object instance,
     @NotNull Class<?> sourceClass,
     @NotNull String name,
-    @Nullable MethodInvokerGenerator generator
+    @Nullable MethodInvokerGenerator generator,
+    int argumentCount
   ) {
     // filter all technically possible methods
     Method method = null;
     for (var declaredMethod : sourceClass.getDeclaredMethods()) {
       // check if the method might be a candidate
-      if (declaredMethod.getName().equals(name) && !declaredMethod.isAnnotationPresent(RPCIgnore.class)) {
+      if (declaredMethod.getName().equals(name)
+        && !declaredMethod.isAnnotationPresent(RPCIgnore.class)
+        && declaredMethod.getParameterCount() == argumentCount) {
         if (method != null) {
           // we found more than one method we could call, fail here
           throw new CannotDecideException(name);
@@ -88,35 +91,35 @@ public class MethodInformation {
       generator);
   }
 
-  public @NotNull String getName() {
+  public @NotNull String name() {
     return this.name;
   }
 
-  public @NotNull Type getReturnType() {
+  public @NotNull Type returnType() {
     return this.returnType;
   }
 
-  public @NotNull Class<?> getRawReturnType() {
+  public @NotNull Class<?> rawReturnType() {
     return this.rawReturnType;
   }
 
-  public Type @NotNull [] getArguments() {
+  public Type @NotNull [] arguments() {
     return this.arguments;
   }
 
-  public boolean isVoidMethod() {
+  public boolean voidMethod() {
     return this.voidMethod;
   }
 
-  public Object getSourceInstance() {
+  public Object sourceInstance() {
     return this.sourceInstance;
   }
 
-  public @NotNull Class<?> getDefiningClass() {
+  public @NotNull Class<?> definingClass() {
     return this.definingClass;
   }
 
-  public MethodInvoker getMethodInvoker() {
+  public MethodInvoker methodInvoker() {
     return this.methodInvoker;
   }
 }

@@ -164,8 +164,8 @@ public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location,
 
   @Override
   protected boolean shouldTrack(@NotNull ServiceInfoSnapshot service) {
-    return service.getLifeCycle() == ServiceLifeCycle.RUNNING
-      && ServiceEnvironmentType.JAVA_SERVER.get(service.getServiceId().getEnvironment().properties());
+    return service.lifeCycle() == ServiceLifeCycle.RUNNING
+      && ServiceEnvironmentType.JAVA_SERVER.get(service.serviceId().environment().properties());
   }
 
   @Override

@@ -54,7 +54,7 @@ public final class PermissionsUpdateListener<P> {
   public void handle(PermissionUpdateUserEvent event) {
     this.syncTaskExecutor.execute(() -> {
       // get the player if online
-      var player = this.onlinePlayerLookup.apply(event.getPermissionUser().getUniqueId());
+      var player = this.onlinePlayerLookup.apply(event.permissionUser().uniqueId());
       if (player != null) {
         // update the command tree of the player
         this.commandTreeUpdater.accept(player);
@@ -69,8 +69,8 @@ public final class PermissionsUpdateListener<P> {
       for (P player : this.onlinePlayerSupplier.get()) {
         var playerUniqueId = this.uniqueIdLookup.apply(player);
         // get the associated user
-        var user = CloudNetDriver.getInstance().getPermissionManagement().getUser(playerUniqueId);
-        if (user != null && user.inGroup(event.getPermissionGroup().name())) {
+        var user = CloudNetDriver.instance().permissionManagement().user(playerUniqueId);
+        if (user != null && user.inGroup(event.permissionGroup().name())) {
           // update the command tree of the player
           this.commandTreeUpdater.accept(player);
         }

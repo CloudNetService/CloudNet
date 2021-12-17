@@ -24,9 +24,9 @@ import org.jetbrains.annotations.Nullable;
 
 public interface RPCProviderFactory {
 
-  @NotNull ObjectMapper getDefaultObjectMapper();
+  @NotNull ObjectMapper defaultObjectMapper();
 
-  @NotNull DataBufFactory getDefaultDataBufFactory();
+  @NotNull DataBufFactory defaultDataBufFactory();
 
   @NotNull RPCSender providerForClass(@Nullable INetworkComponent component, @NotNull Class<?> clazz);
 

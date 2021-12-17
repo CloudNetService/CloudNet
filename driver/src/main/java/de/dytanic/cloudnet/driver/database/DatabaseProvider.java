@@ -32,7 +32,7 @@ public interface DatabaseProvider {
    * @param name the name of the database
    * @return the corresponding database
    */
-  @NotNull Database getDatabase(@NotNull String name);
+  @NotNull Database database(@NotNull String name);
 
   /**
    * @param name the name of the database
@@ -49,7 +49,7 @@ public interface DatabaseProvider {
   /**
    * @return all present database names
    */
-  @NotNull Collection<String> getDatabaseNames();
+  @NotNull Collection<String> databaseNames();
 
   /**
    * @param name the name of the database
@@ -70,7 +70,7 @@ public interface DatabaseProvider {
   /**
    * @return all present database names
    */
-  default @NotNull ITask<Collection<String>> getDatabaseNamesAsync() {
-    return CompletableTask.supply(this::getDatabaseNames);
+  default @NotNull ITask<Collection<String>> databaseNamesAsync() {
+    return CompletableTask.supply(this::databaseNames);
   }
 }

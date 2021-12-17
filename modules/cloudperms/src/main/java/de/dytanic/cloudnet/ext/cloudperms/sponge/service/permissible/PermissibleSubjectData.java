@@ -72,17 +72,17 @@ public abstract class PermissibleSubjectData<T extends IPermissible> implements 
 
   @Override
   public Map<Set<Context>, Map<String, Boolean>> allPermissions() {
-    return this.management.getAllPermissions(this.permissible).stream().collect(
+    return this.management.allPermissions(this.permissible).stream().collect(
       Collectors.collectingAndThen(
-        Collectors.toMap(Permission::getName, perm -> perm.getPotency() >= 0),
+        Collectors.toMap(Permission::name, perm -> perm.potency() >= 0),
         result -> ImmutableMap.of(Collections.emptySet(), result)));
   }
 
   @Override
   public Map<String, Boolean> permissions(Set<Context> contexts) {
-    return this.management.getAllPermissions(this.permissible).stream().collect(Collectors.toMap(
-      Permission::getName,
-      perm -> perm.getPotency() >= 0));
+    return this.management.allPermissions(this.permissible).stream().collect(Collectors.toMap(
+      Permission::name,
+      perm -> perm.potency() >= 0));
   }
 
   @Override
@@ -133,7 +133,7 @@ public abstract class PermissibleSubjectData<T extends IPermissible> implements 
   @Override
   public CompletableFuture<Boolean> clearPermissions() {
     return CompletableFuture.supplyAsync(() -> {
-      this.permissible.getPermissions().forEach(perm -> this.permissible.removePermission(perm.getName()));
+      this.permissible.permissions().forEach(perm -> this.permissible.removePermission(perm.name()));
       this.updateIfEnabled(this.permissible);
       return true;
     });

@@ -82,7 +82,7 @@ public class JVMService extends AbstractService {
 
   @Override
   protected void startProcess() {
-    var environmentType = this.getServiceConfiguration().getServiceId().getEnvironment();
+    var environmentType = this.getServiceConfiguration().serviceId().environment();
     // load the wrapper information if possible
     var wrapperInformation = this.prepareWrapperFile();
     if (wrapperInformation == null) {
@@ -107,12 +107,12 @@ public class JVMService extends AbstractService {
     List<String> arguments = new ArrayList<>();
 
     // add the java command to start the service
-    var overriddenJavaCommand = this.getServiceConfiguration().getJavaCommand();
+    var overriddenJavaCommand = this.getServiceConfiguration().javaCommand();
     arguments.add(overriddenJavaCommand == null ? this.getNodeConfiguration().getJVMCommand() : overriddenJavaCommand);
 
     // add all jvm flags
     arguments.addAll(this.getNodeConfiguration().getDefaultJVMFlags().getJvmFlags());
-    arguments.addAll(this.getServiceConfiguration().getProcessConfig().jvmOptions());
+    arguments.addAll(this.getServiceConfiguration().processConfig().jvmOptions());
 
     // override some default configuration options
     arguments.addAll(DEFAULT_JVM_SYSTEM_PROPERTIES);
@@ -131,8 +131,8 @@ public class JVMService extends AbstractService {
     arguments.add(Boolean.toString(applicationInformation.second().preloadJarContent()));
 
     // add all process parameters
-    arguments.addAll(environmentType.getDefaultProcessArguments());
-    arguments.addAll(this.getServiceConfiguration().getProcessConfig().processParameters());
+    arguments.addAll(environmentType.defaultProcessArguments());
+    arguments.addAll(this.getServiceConfiguration().processConfig().processParameters());
 
     // try to start the process like that
     try {
@@ -195,7 +195,7 @@ public class JVMService extends AbstractService {
     super.logCache.addHandler((source, line) -> {
       for (var logTarget : super.logTargets.entrySet()) {
         if (logTarget.getKey().equals(ChannelMessageSender.self().toTarget())) {
-          this.nodeInstance.getEventManager()
+          this.nodeInstance.eventManager()
             .callEvent(logTarget.getValue(), new CloudServiceLogEntryEvent(this.lastServiceInfo, line));
         } else {
           ChannelMessage.builder()
@@ -239,7 +239,7 @@ public class JVMService extends AbstractService {
   ) {
     // collect all names of environment names
     var environments = this.nodeInstance.getServiceVersionProvider().getServiceVersionTypes().values().stream()
-      .filter(environment -> environment.getEnvironmentType().equals(environmentType.name()))
+      .filter(environment -> environment.environmentType().equals(environmentType.name()))
       .map(ServiceEnvironment::name)
       .collect(Collectors.collectingAndThen(Collectors.toSet(), result -> {
         // add a default fallback value which applied to all environments

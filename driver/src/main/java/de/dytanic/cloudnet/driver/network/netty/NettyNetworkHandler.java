@@ -38,12 +38,12 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Pa
   @Override
   public void channelInactive(@NotNull ChannelHandlerContext ctx) throws Exception {
     if (!ctx.channel().isActive() || !ctx.channel().isOpen() || !ctx.channel().isWritable()) {
-      if (this.channel.getHandler() != null) {
-        this.channel.getHandler().handleChannelClose(this.channel);
+      if (this.channel.handler() != null) {
+        this.channel.handler().handleChannelClose(this.channel);
       }
 
       ctx.channel().close();
-      this.getChannels().remove(this.channel);
+      this.channels().remove(this.channel);
     }
   }
 
@@ -61,11 +61,11 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Pa
 
   @Override
   protected void channelRead0(@NotNull ChannelHandlerContext ctx, @NotNull Packet msg) {
-    this.getPacketDispatcher().execute(() -> {
+    this.packetDispatcher().execute(() -> {
       try {
-        var uuid = msg.getUniqueId();
+        var uuid = msg.uniqueId();
         if (uuid != null) {
-          var task = this.channel.getQueryPacketManager().getWaitingHandler(uuid);
+          var task = this.channel.queryPacketManager().waitingHandler(uuid);
           if (task != null) {
             task.complete(msg);
             // don't post a query response packet to another handler at all
@@ -73,8 +73,8 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Pa
           }
         }
 
-        if (this.channel.getHandler() == null || this.channel.getHandler().handlePacketReceive(this.channel, msg)) {
-          this.channel.getPacketRegistry().handlePacket(this.channel, msg);
+        if (this.channel.handler() == null || this.channel.handler().handlePacketReceive(this.channel, msg)) {
+          this.channel.packetRegistry().handlePacket(this.channel, msg);
         }
       } catch (Exception exception) {
         LOGGER.severe("Exception whilst handling packet " + msg, exception);
@@ -82,7 +82,7 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Pa
     });
   }
 
-  protected abstract @NotNull Collection<INetworkChannel> getChannels();
+  protected abstract @NotNull Collection<INetworkChannel> channels();
 
-  protected abstract @NotNull Executor getPacketDispatcher();
+  protected abstract @NotNull Executor packetDispatcher();
 }

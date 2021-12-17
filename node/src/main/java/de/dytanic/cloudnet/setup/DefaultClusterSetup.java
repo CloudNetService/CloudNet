@@ -104,7 +104,7 @@ public class DefaultClusterSetup implements DefaultSetup {
           .map(node -> {
             HostAndPort address = animation.getResult("nodeHost-" + node);
             // whitelist the address
-            config.getIpWhitelist().add(address.getHost());
+            config.getIpWhitelist().add(address.host());
             // map to a node
             return new NetworkClusterNode(node, new HostAndPort[]{address});
           })

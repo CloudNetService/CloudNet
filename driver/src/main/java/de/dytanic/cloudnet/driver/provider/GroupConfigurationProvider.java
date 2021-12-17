@@ -42,14 +42,14 @@ public interface GroupConfigurationProvider {
    * @return a list containing the group configurations of all groups
    */
   @NotNull
-  @UnmodifiableView Collection<GroupConfiguration> getGroupConfigurations();
+  @UnmodifiableView Collection<GroupConfiguration> groupConfigurations();
 
   /**
    * Clears all existing groups and sets the given collection as the new groups
    *
    * @param groupConfigurations the new groups
    */
-  void setGroupConfigurations(@NotNull Collection<GroupConfiguration> groupConfigurations);
+  void groupConfigurations(@NotNull Collection<GroupConfiguration> groupConfigurations);
 
   /**
    * Gets a specific group by its name
@@ -57,8 +57,7 @@ public interface GroupConfigurationProvider {
    * @param name the name of the group
    * @return the group or {@code null} if no group with that name exists
    */
-  @Nullable
-  GroupConfiguration getGroupConfiguration(@NotNull String name);
+  @Nullable GroupConfiguration groupConfiguration(@NotNull String name);
 
   /**
    * Checks whether the group with a specific name exists
@@ -104,8 +103,8 @@ public interface GroupConfigurationProvider {
    * @return a list containing the group configurations of all groups
    */
   @NotNull
-  default ITask<Collection<GroupConfiguration>> getGroupConfigurationsAsync() {
-    return CompletableTask.supply(this::getGroupConfigurations);
+  default ITask<Collection<GroupConfiguration>> groupConfigurationsAsync() {
+    return CompletableTask.supply(() -> this.groupConfigurations());
   }
 
   /**
@@ -114,8 +113,8 @@ public interface GroupConfigurationProvider {
    * @param groupConfigurations the new groups
    */
   @NotNull
-  default ITask<Void> setGroupConfigurationsAsync(@NotNull Collection<GroupConfiguration> groupConfigurations) {
-    return CompletableTask.supply(() -> this.setGroupConfigurations(groupConfigurations));
+  default ITask<Void> groupConfigurationsAsync(@NotNull Collection<GroupConfiguration> groupConfigurations) {
+    return CompletableTask.supply(() -> this.groupConfigurations(groupConfigurations));
   }
 
   /**
@@ -125,8 +124,8 @@ public interface GroupConfigurationProvider {
    * @return the group or {@code null} if no group with that name exists
    */
   @NotNull
-  default ITask<GroupConfiguration> getGroupConfigurationAsync(@NotNull String name) {
-    return CompletableTask.supply(() -> this.getGroupConfiguration(name));
+  default ITask<GroupConfiguration> groupConfigurationAsync(@NotNull String name) {
+    return CompletableTask.supply(() -> this.groupConfiguration(name));
   }
 
   /**
@@ -170,5 +169,4 @@ public interface GroupConfigurationProvider {
   default ITask<Void> removeGroupConfigurationAsync(@NotNull GroupConfiguration groupConfiguration) {
     return CompletableTask.supply(() -> this.removeGroupConfiguration(groupConfiguration));
   }
-
 }

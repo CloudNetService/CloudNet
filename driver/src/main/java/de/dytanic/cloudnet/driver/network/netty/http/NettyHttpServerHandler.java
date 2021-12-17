@@ -40,6 +40,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.NotNull;
 
 @Internal
 final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> {
@@ -57,32 +58,32 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
   }
 
   @Override
-  public void channelActive(ChannelHandlerContext ctx) {
+  public void channelActive(@NotNull ChannelHandlerContext ctx) {
     this.channel = new NettyHttpChannel(ctx.channel(), this.connectedAddress,
       HostAndPort.fromSocketAddress(ctx.channel().remoteAddress()));
   }
 
   @Override
-  public void channelInactive(ChannelHandlerContext ctx) {
+  public void channelInactive(@NotNull ChannelHandlerContext ctx) {
     if (!ctx.channel().isActive() || !ctx.channel().isOpen() || !ctx.channel().isWritable()) {
       ctx.channel().close();
     }
   }
 
   @Override
-  public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+  public void exceptionCaught(@NotNull ChannelHandlerContext ctx, @NotNull Throwable cause) {
     if (!(cause instanceof IOException)) {
       LOGGER.severe("Exception was caught", cause);
     }
   }
 
   @Override
-  public void channelReadComplete(ChannelHandlerContext ctx) {
+  public void channelReadComplete(@NotNull ChannelHandlerContext ctx) {
     ctx.flush();
   }
 
   @Override
-  protected void channelRead0(ChannelHandlerContext ctx, HttpRequest msg) {
+  protected void channelRead0(@NotNull ChannelHandlerContext ctx, @NotNull HttpRequest msg) {
     if (msg.decoderResult().isFailure()) {
       ctx.channel().close();
       return;
@@ -91,7 +92,7 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
     this.handleMessage(ctx.channel(), msg);
   }
 
-  private void handleMessage(Channel channel, HttpRequest httpRequest) {
+  private void handleMessage(@NotNull Channel channel, @NotNull HttpRequest httpRequest) {
     var uri = URI.create(httpRequest.uri());
     var fullPath = uri.getPath();
 
@@ -110,7 +111,7 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
 
     for (var httpHandlerEntry : entries) {
       var handlerPathEntries = httpHandlerEntry.path().split("/");
-      context.setPathPrefix(httpHandlerEntry.path());
+      context.pathPrefix(httpHandlerEntry.path());
 
       if (this.handleMessage0(httpHandlerEntry, context, fullPath, pathEntries, handlerPathEntries)) {
         context.setLastHandler(httpHandlerEntry.httpHandler());
@@ -151,9 +152,14 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
     }
   }
 
-  private boolean handleMessage0(NettyHttpServer.HttpHandlerEntry httpHandlerEntry, NettyHttpServerContext context,
-    String fullPath, String[] pathEntries, String[] handlerPathEntries) {
-    if (httpHandlerEntry.port() != null && httpHandlerEntry.port() != this.connectedAddress.getPort()) {
+  private boolean handleMessage0(
+    @NotNull NettyHttpServer.HttpHandlerEntry httpHandlerEntry,
+    @NotNull NettyHttpServerContext context,
+    @NotNull String fullPath,
+    @NotNull String[] pathEntries,
+    @NotNull String[] handlerPathEntries
+  ) {
+    if (httpHandlerEntry.port() != null && httpHandlerEntry.port() != this.connectedAddress.port()) {
       return false;
     }
 

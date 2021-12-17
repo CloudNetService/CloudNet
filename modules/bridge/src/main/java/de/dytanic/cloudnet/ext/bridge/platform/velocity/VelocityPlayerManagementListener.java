@@ -65,7 +65,7 @@ final class VelocityPlayerManagementListener {
     // check if the current task is present
     if (task != null) {
       // check if maintenance is activated
-      if (task.isMaintenance() && !event.getPlayer().hasPermission("cloudnet.bridge.maintenance")) {
+      if (task.maintenance() && !event.getPlayer().hasPermission("cloudnet.bridge.maintenance")) {
         event.setResult(ComponentResult.denied(serialize(this.management.getConfiguration().getMessage(
           Locale.ENGLISH,
           "proxy-join-cancel-because-maintenance"))));

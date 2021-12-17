@@ -125,7 +125,7 @@ public class NodePlayerManager implements IPlayerManager {
 
   @Override
   public long getRegisteredCount() {
-    return this.getDatabase().getDocumentsCount();
+    return this.getDatabase().documentCount();
   }
 
   @Override
@@ -284,7 +284,7 @@ public class NodePlayerManager implements IPlayerManager {
   }
 
   protected @NotNull LocalDatabase getDatabase() {
-    return CloudNet.getInstance().getDatabaseProvider().getDatabase(this.databaseName);
+    return CloudNet.getInstance().databaseProvider().database(this.databaseName);
   }
 
   public @NotNull Map<UUID, CloudPlayer> getOnlinePlayers() {
@@ -312,7 +312,7 @@ public class NodePlayerManager implements IPlayerManager {
     var networkService = networkPlayerProxyInfo.networkService();
     var cloudPlayer = this.selectPlayerForLogin(networkPlayerProxyInfo, networkPlayerServerInfo);
     // check if the login service is a proxy and set the proxy as the login service if so
-    if (ServiceEnvironmentType.isMinecraftProxy(networkService.serviceId().getEnvironment())) {
+    if (ServiceEnvironmentType.isMinecraftProxy(networkService.serviceId().environment())) {
       // a proxy should be able to change the login service
       cloudPlayer.setLoginService(networkService);
     }
@@ -360,6 +360,7 @@ public class NodePlayerManager implements IPlayerManager {
           JsonDocument.newDocument(),
           cloudOfflinePlayer.getFirstLoginTimeMillis(),
           System.currentTimeMillis(),
+          connectionInfo.name(),
           cloudOfflinePlayer.getLastNetworkPlayerProxyInfo(),
           cloudOfflinePlayer.properties());
         // cache the online player for later use

@@ -31,14 +31,14 @@ public class RPCException extends RuntimeException {
   public RPCException(@NotNull RPCChain chain, @NotNull Exception root) {
     super(String.format(
       "Unable to get future result of chained rpc; stack: %s\n%s",
-      formatRPC(chain.getRootRPC()),
-      chain.getJoins().stream()
+      formatRPC(chain.head()),
+      chain.joins().stream()
         .map(RPCException::formatChainedRPCEntry)
         .collect(Collectors.joining("\n"))), root);
   }
 
   protected static @NotNull String formatRPC(@NotNull RPC rpc) {
-    return String.format("%s.%s(%s)", rpc.getClassName(), rpc.getMethodName(), Arrays.toString(rpc.getArguments()));
+    return String.format("%s.%s(%s)", rpc.className(), rpc.methodName(), Arrays.toString(rpc.arguments()));
   }
 
   protected static @NotNull String formatChainedRPCEntry(@NotNull RPC rpc) {

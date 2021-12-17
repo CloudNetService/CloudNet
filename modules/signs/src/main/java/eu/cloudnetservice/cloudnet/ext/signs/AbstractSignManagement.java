@@ -100,12 +100,12 @@ public abstract class AbstractSignManagement implements SignManagement {
 
   @Override
   public void registerToServiceRegistry() {
-    CloudNetDriver.getInstance().getServicesRegistry().registerService(SignManagement.class, "SignManagement", this);
+    CloudNetDriver.instance().servicesRegistry().registerService(SignManagement.class, "SignManagement", this);
   }
 
   @Override
   public void unregisterFromServiceRegistry() {
-    CloudNetDriver.getInstance().getServicesRegistry().unregisterService(SignManagement.class, "SignManagement");
+    CloudNetDriver.instance().servicesRegistry().unregisterService(SignManagement.class, "SignManagement");
   }
 
   @Override

@@ -83,7 +83,7 @@ public final class NettyUtils {
    * instead.
    *
    * @return a new packet dispatcher instance.
-   * @see #getThreadAmount()
+   * @see #threadAmount()
    */
   public static @NotNull Executor newPacketDispatcher() {
     // a cached pool with a thread idle-lifetime of 30 seconds
@@ -91,7 +91,7 @@ public final class NettyUtils {
     // at least one thread is always idling in this executor
     return new ThreadPoolExecutor(
       1,
-      getThreadAmount(),
+      threadAmount(),
       30L,
       TimeUnit.SECONDS,
       new SynchronousQueue<>(true),
@@ -114,7 +114,7 @@ public final class NettyUtils {
    *
    * @return a new channel factory for network clients based on the epoll availability.
    */
-  public static @NotNull ChannelFactory<? extends Channel> getClientChannelFactory() {
+  public static @NotNull ChannelFactory<? extends Channel> clientChannelFactory() {
     return Epoll.isAvailable() ? EpollSocketChannel::new : NioSocketChannel::new;
   }
 
@@ -123,7 +123,7 @@ public final class NettyUtils {
    *
    * @return a new channel factory for network servers based on the epoll availability.
    */
-  public static @NotNull ChannelFactory<? extends ServerChannel> getServerChannelFactory() {
+  public static @NotNull ChannelFactory<? extends ServerChannel> serverChannelFactory() {
     return Epoll.isAvailable() ? EpollServerSocketChannel::new : NioServerSocketChannel::new;
   }
 
@@ -194,8 +194,8 @@ public final class NettyUtils {
    *
    * @return the thread amount used by the packet dispatcher to dispatch incoming packets.
    */
-  public static @Range(from = 2, to = Integer.MAX_VALUE) int getThreadAmount() {
-    var environment = CloudNetDriver.getInstance().getDriverEnvironment();
+  public static @Range(from = 2, to = Integer.MAX_VALUE) int threadAmount() {
+    var environment = CloudNetDriver.instance().environment();
     return environment == DriverEnvironment.CLOUDNET ? Runtime.getRuntime().availableProcessors() * 2 : 4;
   }
 }

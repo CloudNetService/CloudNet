@@ -31,7 +31,7 @@ public interface IModuleDependencyLoader {
    * @param dependency    the dependency will should be converted to a download url.
    * @return an url targeting the source of the dependency from which it can be loaded.
    * @throws Exception if any exception occurs during the load of the dependency.
-   * @see ModuleDependency#getUrl()
+   * @see ModuleDependency#url()
    */
   @NotNull URL loadModuleDependencyByUrl(
     @NotNull ModuleConfiguration configuration, @NotNull ModuleDependency dependency) throws Exception;

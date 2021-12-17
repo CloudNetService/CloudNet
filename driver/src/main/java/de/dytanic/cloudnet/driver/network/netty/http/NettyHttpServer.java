@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.driver.network.netty.http;
 
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
@@ -38,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -67,7 +65,7 @@ public class NettyHttpServer extends NettySSLServer implements IHttpServer {
   }
 
   @Override
-  public boolean isSslEnabled() {
+  public boolean sslEnabled() {
     return this.sslContext != null;
   }
 
@@ -83,15 +81,11 @@ public class NettyHttpServer extends NettySSLServer implements IHttpServer {
 
   @Override
   public boolean addListener(@NotNull HostAndPort hostAndPort) {
-    Preconditions.checkNotNull(hostAndPort);
-    Preconditions.checkNotNull(hostAndPort.getHost());
-
     try {
-
-      if (!this.channelFutures.containsKey(hostAndPort.getPort())) {
-        return this.channelFutures.putIfAbsent(hostAndPort.getPort(), new Pair<>(hostAndPort, new ServerBootstrap()
+      if (!this.channelFutures.containsKey(hostAndPort.port())) {
+        return this.channelFutures.putIfAbsent(hostAndPort.port(), new Pair<>(hostAndPort, new ServerBootstrap()
           .group(this.bossGroup, this.workerGroup)
-          .channelFactory(NettyUtils.getServerChannelFactory())
+          .channelFactory(NettyUtils.serverChannelFactory())
           .childHandler(new NettyHttpServerInitializer(this, hostAndPort))
 
           .childOption(ChannelOption.IP_TOS, 24)
@@ -99,7 +93,7 @@ public class NettyHttpServer extends NettySSLServer implements IHttpServer {
           .childOption(ChannelOption.TCP_NODELAY, true)
           .childOption(ChannelOption.ALLOCATOR, ByteBufAllocator.DEFAULT)
 
-          .bind(hostAndPort.getHost(), hostAndPort.getPort())
+          .bind(hostAndPort.host(), hostAndPort.port())
           .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
           .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
 
@@ -115,23 +109,25 @@ public class NettyHttpServer extends NettySSLServer implements IHttpServer {
   }
 
   @Override
-  public IHttpServer registerHandler(String path, IHttpHandler... handlers) {
+  public @NotNull IHttpServer registerHandler(@NotNull String path, IHttpHandler... handlers) {
     return this.registerHandler(path, IHttpHandler.PRIORITY_NORMAL, handlers);
   }
 
   @Override
-  public IHttpServer registerHandler(String path, int priority, IHttpHandler... handlers) {
+  public @NotNull IHttpServer registerHandler(@NotNull String path, int priority, IHttpHandler... handlers) {
     return this.registerHandler(path, null, priority, handlers);
   }
 
   @Override
-  public IHttpServer registerHandler(String path, Integer port, int priority, IHttpHandler... handlers) {
-    Preconditions.checkNotNull(path);
-    Preconditions.checkNotNull(handlers);
-
+  public @NotNull IHttpServer registerHandler(
+    @NotNull String path, Integer port,
+    int priority,
+    IHttpHandler... handlers
+  ) {
     if (!path.startsWith("/")) {
       path = "/" + path;
     }
+
     if (path.endsWith("/") && !path.equals("/")) {
       path = path.substring(0, path.length() - 1);
     }
@@ -158,41 +154,32 @@ public class NettyHttpServer extends NettySSLServer implements IHttpServer {
   }
 
   @Override
-  public IHttpServer removeHandler(IHttpHandler handler) {
-    Preconditions.checkNotNull(handler);
-
+  public @NotNull IHttpServer removeHandler(@NotNull IHttpHandler handler) {
     this.registeredHandlers.removeIf(registeredHandler -> registeredHandler.httpHandler.equals(handler));
-
     return this;
   }
 
   @Override
-  public IHttpServer removeHandler(Class<? extends IHttpHandler> handler) {
-    Preconditions.checkNotNull(handler);
-
+  public @NotNull IHttpServer removeHandler(@NotNull Class<? extends IHttpHandler> handler) {
     this.registeredHandlers.removeIf(registeredHandler -> registeredHandler.httpHandler.getClass().equals(handler));
-
     return this;
   }
 
   @Override
-  public IHttpServer removeHandler(ClassLoader classLoader) {
-    Preconditions.checkNotNull(classLoader);
-
-    this.registeredHandlers
-      .removeIf(registeredHandler -> registeredHandler.httpHandler.getClass().getClassLoader().equals(classLoader));
-
+  public @NotNull IHttpServer removeHandler(@NotNull ClassLoader classLoader) {
+    this.registeredHandlers.removeIf(handler -> handler.httpHandler.getClass().getClassLoader().equals(classLoader));
     return this;
   }
 
   @Override
-  public Collection<IHttpHandler> getHttpHandlers() {
-    return this.registeredHandlers.stream().map(httpHandlerEntry -> httpHandlerEntry.httpHandler)
-      .collect(Collectors.toList());
+  public @NotNull Collection<IHttpHandler> httpHandlers() {
+    return this.registeredHandlers.stream()
+      .map(httpHandlerEntry -> httpHandlerEntry.httpHandler)
+      .toList();
   }
 
   @Override
-  public IHttpServer clearHandlers() {
+  public @NotNull IHttpServer clearHandlers() {
     this.registeredHandlers.clear();
     return this;
   }
