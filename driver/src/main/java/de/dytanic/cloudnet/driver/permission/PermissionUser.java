@@ -52,7 +52,7 @@ public class PermissionUser extends AbstractPermissible {
 
   public PermissionUser(
     @NonNull UUID uniqueId,
-    @NonNull String hashedPassword,
+    @Nullable String hashedPassword,
     @NonNull Collection<PermissionUserGroupInfo> groups,
     @NonNull String name,
     int potency,
@@ -87,7 +87,7 @@ public class PermissionUser extends AbstractPermissible {
     return this.groups;
   }
 
-  public @NonNull String hashedPassword() {
+  public @Nullable String hashedPassword() {
     return this.hashedPassword;
   }
 
