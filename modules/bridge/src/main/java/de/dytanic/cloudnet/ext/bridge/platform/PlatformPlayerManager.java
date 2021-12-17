@@ -45,32 +45,32 @@ final class PlatformPlayerManager implements IPlayerManager {
 
   @Override
   public @Range(from = 0, to = Integer.MAX_VALUE) int onlineCount() {
-    return this.sender.invokeMethod("getOnlineCount").fireSync();
+    return this.sender.invokeMethod("onlineCount").fireSync();
   }
 
   @Override
   public @Range(from = 0, to = Long.MAX_VALUE) long registeredCount() {
-    return this.sender.invokeMethod("getRegisteredCount").fireSync();
+    return this.sender.invokeMethod("registeredCount").fireSync();
   }
 
   @Override
   public @Nullable CloudPlayer onlinePlayer(@NotNull UUID uniqueId) {
-    return this.sender.invokeMethod("getOnlinePlayer", uniqueId).fireSync();
+    return this.sender.invokeMethod("onlinePlayer", uniqueId).fireSync();
   }
 
   @Override
   public @Nullable CloudPlayer firstOnlinePlayer(@NotNull String name) {
-    return this.sender.invokeMethod("getFirstOnlinePlayer", name).fireSync();
+    return this.sender.invokeMethod("firstOnlinePlayer", name).fireSync();
   }
 
   @Override
   public @NotNull List<? extends CloudPlayer> onlinePlayers(@NotNull String name) {
-    return this.sender.invokeMethod("getOnlinePlayers", name).fireSync();
+    return this.sender.invokeMethod("onlinePlayers", name).fireSync();
   }
 
   @Override
   public @NotNull List<? extends CloudPlayer> environmentOnlinePlayers(@NotNull ServiceEnvironmentType environment) {
-    return this.sender.invokeMethod("getEnvironmentOnlinePlayers", environment).fireSync();
+    return this.sender.invokeMethod("environmentOnlinePlayers", environment).fireSync();
   }
 
   @Override
@@ -90,22 +90,22 @@ final class PlatformPlayerManager implements IPlayerManager {
 
   @Override
   public @Nullable CloudOfflinePlayer offlinePlayer(@NotNull UUID uniqueId) {
-    return this.sender.invokeMethod("getOfflinePlayer", uniqueId).fireSync();
+    return this.sender.invokeMethod("offlinePlayer", uniqueId).fireSync();
   }
 
   @Override
   public @Nullable CloudOfflinePlayer firstOfflinePlayer(@NotNull String name) {
-    return this.sender.invokeMethod("getFirstOfflinePlayer", name).fireSync();
+    return this.sender.invokeMethod("firstOfflinePlayer", name).fireSync();
   }
 
   @Override
   public @NotNull List<? extends CloudOfflinePlayer> offlinePlayers(@NotNull String name) {
-    return this.sender.invokeMethod("getOfflinePlayers", name).fireSync();
+    return this.sender.invokeMethod("offlinePlayers", name).fireSync();
   }
 
   @Override
   public @NotNull List<? extends CloudOfflinePlayer> registeredPlayers() {
-    return this.sender.invokeMethod("getRegisteredPlayers").fireSync();
+    return this.sender.invokeMethod("registeredPlayers").fireSync();
   }
 
   @Override
@@ -130,6 +130,6 @@ final class PlatformPlayerManager implements IPlayerManager {
 
   @Override
   public @NotNull PlayerExecutor playerExecutor(@NotNull UUID uniqueId) {
-    return new PlatformPlayerExecutor(this.sender.invokeMethod("getPlayerExecutor", uniqueId), uniqueId);
+    return new PlatformPlayerExecutor(this.sender.invokeMethod("playerExecutor", uniqueId), uniqueId);
   }
 }

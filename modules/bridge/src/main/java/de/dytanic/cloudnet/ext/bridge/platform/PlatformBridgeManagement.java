@@ -97,7 +97,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     // create the network service info of this service
     this.ownNetworkServiceInfo = BridgeServiceHelper.createServiceInfo(wrapper.currentServiceInfo());
     // load the configuration using rpc - all updates will be received from the channel message
-    this.configurationSilently(this.sender.invokeMethod("getConfiguration").fireSync());
+    this.configurationSilently(this.sender.invokeMethod("configuration").fireSync());
     // register the common listeners
     wrapper.eventManager().registerListener(new PlatformInformationListener(this));
     wrapper.eventManager().registerListener(new PlatformChannelMessageListener(this.eventManager, this));
@@ -110,7 +110,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
 
   @Override
   public void configuration(@NotNull BridgeConfiguration configuration) {
-    this.sender.invokeMethod("setConfiguration", configuration).fireSync();
+    this.sender.invokeMethod("configuration", configuration).fireSync();
   }
 
   public void configurationSilently(@NotNull BridgeConfiguration configuration) {

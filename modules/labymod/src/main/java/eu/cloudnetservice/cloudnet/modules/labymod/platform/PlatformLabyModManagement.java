@@ -50,7 +50,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
       LabyModManagement.class);
     this.playerManager = Wrapper.getInstance().servicesRegistry().firstService(IPlayerManager.class);
     this.bridgeManagement = Wrapper.getInstance().servicesRegistry().firstService(PlatformBridgeManagement.class);
-    this.setConfigurationSilently(this.rpcSender.invokeMethod("getConfiguration").fireSync());
+    this.setConfigurationSilently(this.rpcSender.invokeMethod("configuration").fireSync());
   }
 
   @Override
@@ -60,7 +60,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
 
   @Override
   public void configuration(@NotNull LabyModConfiguration configuration) {
-    this.rpcSender.invokeMethod("setConfiguration", configuration).fireSync();
+    this.rpcSender.invokeMethod("configuration", configuration).fireSync();
   }
 
   public void setConfigurationSilently(@NotNull LabyModConfiguration configuration) {
