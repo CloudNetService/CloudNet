@@ -47,7 +47,7 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
 
   protected void handleVersionListRequest(IHttpContext context) {
     this.ok(context)
-      .body(this.success().append("versions", this.getVersionProvider().getServiceVersionTypes()).toString())
+      .body(this.success().append("versions", this.versionProvider().getServiceVersionTypes()).toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -64,7 +64,7 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
       return;
     }
 
-    var serviceVersion = this.getVersionProvider().getServiceVersionType(version).orElse(null);
+    var serviceVersion = this.versionProvider().getServiceVersionType(version).orElse(null);
     if (serviceVersion == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Unknown service version").toString())
@@ -82,12 +82,12 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
   }
 
   protected void handleVersionLoadRequest(IHttpContext context) {
-    var url = RestUtils.getFirst(context.request().queryParameters().get("url"), null);
+    var url = RestUtils.first(context.request().queryParameters().get("url"), null);
     if (url == null) {
-      this.getVersionProvider().loadDefaultVersionTypes();
+      this.versionProvider().loadDefaultVersionTypes();
     } else {
       try {
-        if (!this.getVersionProvider().loadServiceVersionTypes(url)) {
+        if (!this.versionProvider().loadServiceVersionTypes(url)) {
           this.ok(context).body(this.failure().toString()).context().closeAfter(true).cancelNext();
           return;
         }
@@ -115,11 +115,11 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
       return;
     }
 
-    this.getVersionProvider().registerServiceVersionType(type);
+    this.versionProvider().registerServiceVersionType(type);
     this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
   }
 
-  protected ServiceVersionProvider getVersionProvider() {
-    return this.getCloudNet().getServiceVersionProvider();
+  protected ServiceVersionProvider versionProvider() {
+    return this.node().getServiceVersionProvider();
   }
 }

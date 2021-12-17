@@ -186,11 +186,11 @@ public abstract class V2HttpHandler implements IHttpHandler {
     return JsonDocument.newDocument("success", false);
   }
 
-  protected CloudNet getCloudNet() {
+  protected CloudNet node() {
     return CloudNet.getInstance();
   }
 
-  protected IConfiguration getConfiguration() {
-    return this.getCloudNet().getConfig();
+  protected IConfiguration configuration() {
+    return this.node().getConfig();
   }
 }

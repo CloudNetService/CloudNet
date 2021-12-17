@@ -43,7 +43,7 @@ public class V2HttpHandlerTemplateStorages extends V2HttpHandler {
 
   protected void handleStorageListRequest(IHttpContext context) {
     this.ok(context)
-      .body(this.success().append("storages", this.getCloudNet().availableTemplateStorages().stream()
+      .body(this.success().append("storages", this.node().availableTemplateStorages().stream()
         .map(INameable::name).collect(Collectors.toList())).toString())
       .context()
       .closeAfter(true)
@@ -69,7 +69,7 @@ public class V2HttpHandlerTemplateStorages extends V2HttpHandler {
       return;
     }
 
-    var templateStorage = this.getCloudNet().templateStorage(storage);
+    var templateStorage = this.node().templateStorage(storage);
     if (templateStorage == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Unknown template storage").toString())

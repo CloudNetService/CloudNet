@@ -130,7 +130,7 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
   }
 
   protected IPlayerManager playerManager() {
-    return this.getCloudNet().servicesRegistry().firstService(IPlayerManager.class);
+    return this.node().servicesRegistry().firstService(IPlayerManager.class);
   }
 
 }

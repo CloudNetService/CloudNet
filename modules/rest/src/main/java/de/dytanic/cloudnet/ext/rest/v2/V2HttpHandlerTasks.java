@@ -49,7 +49,7 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
 
   protected void handleTaskListRequest(IHttpContext context) {
     this.ok(context)
-      .body(this.success().append("tasks", this.getTaskProvider().permanentServiceTasks()).toString())
+      .body(this.success().append("tasks", this.taskProvider().permanentServiceTasks()).toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -57,7 +57,7 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
 
   protected void handleTaskExistsRequest(IHttpContext context) {
     this.handleWithTaskContext(context, task -> this.ok(context)
-      .body(this.success().append("result", this.getTaskProvider().isServiceTaskPresent(task)).toString())
+      .body(this.success().append("result", this.taskProvider().isServiceTaskPresent(task)).toString())
       .context()
       .closeAfter(true)
       .cancelNext()
@@ -66,7 +66,7 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
 
   protected void handleTaskRequest(IHttpContext context) {
     this.handleWithTaskContext(context, task -> {
-      var serviceTask = this.getTaskProvider().serviceTask(task);
+      var serviceTask = this.taskProvider().serviceTask(task);
       if (serviceTask == null) {
         this.ok(context)
           .body(this.failure().append("reason", "Unknown service task").toString())
@@ -94,7 +94,7 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
       return;
     }
 
-    if (this.getTaskProvider().addPermanentServiceTask(serviceTask)) {
+    if (this.taskProvider().addPermanentServiceTask(serviceTask)) {
       this.response(context, HttpResponseCode.HTTP_CREATED).body(this.success().toString()).context()
         .closeAfter(true).cancelNext();
     } else {
@@ -104,9 +104,9 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
 
   protected void handleTaskDeleteRequest(IHttpContext context) {
     this.handleWithTaskContext(context, task -> {
-      var serviceTask = this.getTaskProvider().serviceTask(task);
+      var serviceTask = this.taskProvider().serviceTask(task);
       if (serviceTask != null) {
-        this.getTaskProvider().removePermanentServiceTask(serviceTask);
+        this.taskProvider().removePermanentServiceTask(serviceTask);
         this.ok(context)
           .body(this.success().toString())
           .context()
@@ -135,7 +135,7 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
     }
   }
 
-  protected ServiceTaskProvider getTaskProvider() {
-    return this.getCloudNet().serviceTaskProvider();
+  protected ServiceTaskProvider taskProvider() {
+    return this.node().serviceTaskProvider();
   }
 }

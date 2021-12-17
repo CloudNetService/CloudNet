@@ -19,7 +19,7 @@ package eu.cloudnetservice.modules.npc;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import java.util.Collection;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,18 +47,18 @@ public interface NPCManagement {
 
   // Internal methods
 
-  @ApiStatus.Internal
+  @Internal
   void registerToServiceRegistry();
 
-  @ApiStatus.Internal
+  @Internal
   void unregisterFromServiceRegistry();
 
-  @ApiStatus.Internal
+  @Internal
   void handleInternalNPCCreate(@NotNull NPC npc);
 
-  @ApiStatus.Internal
+  @Internal
   void handleInternalNPCRemove(@NotNull WorldPosition position);
 
-  @ApiStatus.Internal
+  @Internal
   void handleInternalNPCConfigUpdate(@NotNull NPCConfiguration configuration);
 }

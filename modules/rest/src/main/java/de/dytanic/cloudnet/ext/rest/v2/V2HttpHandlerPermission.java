@@ -67,7 +67,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
 
   protected void handlePermissionGroupList(IHttpContext context) {
     this.ok(context)
-      .body(this.success().append("groups", this.getPermissionManagement().groups()).toString())
+      .body(this.success().append("groups", this.permissionManagement().groups()).toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -101,7 +101,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
       return;
     }
 
-    this.getPermissionManagement().addPermissionGroup(permissionGroup);
+    this.permissionManagement().addPermissionGroup(permissionGroup);
     this.response(context, HttpResponseCode.HTTP_CREATED)
       .body(this.success().toString())
       .context()
@@ -111,7 +111,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
 
   protected void handleDeletePermissionGroupRequest(IHttpContext context) {
     this.handleWithPermissionGroupContext(context, false, group -> {
-      this.getPermissionManagement().deletePermissionGroup(group);
+      this.permissionManagement().deletePermissionGroup(group);
       this.ok(context)
         .body(this.success().toString())
         .context()
@@ -148,7 +148,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
       return;
     }
 
-    this.getPermissionManagement().addPermissionUser(permissionUser);
+    this.permissionManagement().addPermissionUser(permissionUser);
     this.response(context, HttpResponseCode.HTTP_CREATED)
       .body(this.success().toString())
       .context()
@@ -158,7 +158,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
 
   protected void handleDeletePermissionUserRequest(IHttpContext context) {
     this.handleWithPermissionUserContext(context, false, user -> {
-      this.getPermissionManagement().deletePermissionUser(user);
+      this.permissionManagement().deletePermissionUser(user);
       this.ok(context)
         .body(this.success().toString())
         .context()
@@ -182,7 +182,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
       return;
     }
     // try to get the group
-    var group = this.getPermissionManagement().group(groupName);
+    var group = this.permissionManagement().group(groupName);
     if (group == null && !mayBeNull) {
       this.ok(context)
         .body(this.failure().append("reason", "Unknown permission group").toString())
@@ -214,9 +214,9 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
     try {
       // try to parse a player unique id from the string
       var uniqueId = UUID.fromString(identifier);
-      user = this.getPermissionManagement().user(uniqueId);
+      user = this.permissionManagement().user(uniqueId);
     } catch (Exception exception) {
-      user = this.getPermissionManagement().firstUser(identifier);
+      user = this.permissionManagement().firstUser(identifier);
     }
     // check if the user is present before applying to the handler
     if (user == null && !mayBeNull) {
@@ -231,8 +231,8 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
     handler.accept(user);
   }
 
-  protected IPermissionManagement getPermissionManagement() {
-    return this.getCloudNet().permissionManagement();
+  protected IPermissionManagement permissionManagement() {
+    return this.node().permissionManagement();
   }
 
 }

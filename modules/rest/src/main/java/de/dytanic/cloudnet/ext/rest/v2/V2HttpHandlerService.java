@@ -89,7 +89,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
 
   protected void handleListServicesRequest(IHttpContext context) {
     this.ok(context)
-      .body(this.success().append("services", this.getGeneralServiceProvider().services()).toString())
+      .body(this.success().append("services", this.generalServiceProvider().services()).toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -106,7 +106,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
 
   protected void handleServiceStateUpdateRequest(IHttpContext context) {
     this.handleWithServiceContext(context, service -> {
-      var targetState = RestUtils.getFirst(context.request().queryParameters().get("target"));
+      var targetState = RestUtils.first(context.request().queryParameters().get("target"));
       if (targetState == null) {
         this.badRequest(context)
           .body(this.failure().append("reason", "Missing target state in query").toString())
@@ -153,7 +153,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
 
   protected void handleIncludeRequest(IHttpContext context) {
     this.handleWithServiceContext(context, service -> {
-      var type = RestUtils.getFirst(context.request().queryParameters().get("type"));
+      var type = RestUtils.first(context.request().queryParameters().get("type"));
       if (type != null) {
         if (type.equalsIgnoreCase("templates")) {
           service.provider().includeWaitingServiceTemplates();
@@ -182,7 +182,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
   protected void handleDeployResourcesRequest(IHttpContext context) {
     this.handleWithServiceContext(context, service -> {
       var removeDeployments = Boolean
-        .getBoolean(RestUtils.getFirst(context.request().queryParameters().get("remove"), "true"));
+        .getBoolean(RestUtils.first(context.request().queryParameters().get("remove"), "true"));
       service.provider().deployResources(removeDeployments);
 
       this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
@@ -200,7 +200,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
 
   protected void handleLiveLogRequest(IHttpContext context) {
     this.handleWithServiceContext(context, service -> {
-      var cloudService = this.getCloudNet().cloudServiceProvider()
+      var cloudService = this.node().cloudServiceProvider()
         .getLocalCloudService(service.serviceId().uniqueId());
       if (cloudService != null) {
         var webSocketChannel = context.upgrade();
@@ -238,7 +238,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
         // fallback to a service task name which has to exist
         var serviceTaskName = body.getString("serviceTaskName");
         if (serviceTaskName != null) {
-          var task = this.getCloudNet().serviceTaskProvider().serviceTask(serviceTaskName);
+          var task = this.node().serviceTaskProvider().serviceTask(serviceTaskName);
           if (task != null) {
             configuration = ServiceConfiguration.builder(task).build();
           } else {
@@ -257,7 +257,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
       }
     }
 
-    var snapshot = this.getServiceFactory().createCloudService(configuration);
+    var snapshot = this.serviceFactory().createCloudService(configuration);
     if (snapshot != null) {
       var start = body.getBoolean("start", false);
       if (start) {
@@ -280,7 +280,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
 
   protected void handleAddRequest(IHttpContext context) {
     this.handleWithServiceContext(context, service -> {
-      var type = RestUtils.getFirst(context.request().queryParameters().get("type"), null);
+      var type = RestUtils.first(context.request().queryParameters().get("type"), null);
       if (type == null) {
         this.badRequest(context)
           .body(this.failure().append("reason", "Missing type in query params").toString())
@@ -290,7 +290,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
       } else {
         var body = this.body(context.request());
         var flushAfter = Boolean
-          .getBoolean(RestUtils.getFirst(context.request().queryParameters().get("flush"), "false"));
+          .getBoolean(RestUtils.first(context.request().queryParameters().get("flush"), "false"));
 
         if (type.equalsIgnoreCase("template")) {
           var template = body.get("template", ServiceTemplate.class);
@@ -373,9 +373,9 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     try {
       // try to parse a unique id from that
       var serviceId = UUID.fromString(identifier);
-      serviceInfoSnapshot = this.getServiceById(serviceId);
+      serviceInfoSnapshot = this.serviceById(serviceId);
     } catch (Exception exception) {
-      serviceInfoSnapshot = this.getServiceByName(identifier);
+      serviceInfoSnapshot = this.serviceByName(identifier);
     }
     // check if the snapshot is present before applying to the handler
     if (serviceInfoSnapshot == null) {
@@ -398,20 +398,20 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
       .cancelNext();
   }
 
-  protected GeneralCloudServiceProvider getGeneralServiceProvider() {
-    return this.getCloudNet().cloudServiceProvider();
+  protected GeneralCloudServiceProvider generalServiceProvider() {
+    return this.node().cloudServiceProvider();
   }
 
-  protected CloudServiceFactory getServiceFactory() {
-    return this.getCloudNet().cloudServiceFactory();
+  protected CloudServiceFactory serviceFactory() {
+    return this.node().cloudServiceFactory();
   }
 
-  protected ServiceInfoSnapshot getServiceByName(String name) {
-    return this.getGeneralServiceProvider().serviceByName(name);
+  protected ServiceInfoSnapshot serviceByName(String name) {
+    return this.generalServiceProvider().serviceByName(name);
   }
 
-  protected ServiceInfoSnapshot getServiceById(UUID uniqueID) {
-    return this.getGeneralServiceProvider().service(uniqueID);
+  protected ServiceInfoSnapshot serviceById(UUID uniqueID) {
+    return this.generalServiceProvider().service(uniqueID);
   }
 
   protected static class ConsoleHandlerWebSocketListener implements IWebSocketListener {

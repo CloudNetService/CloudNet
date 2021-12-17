@@ -84,15 +84,15 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
   }
 
   protected void sendNodeInformation(IHttpContext context) {
-    var nodeServer = this.getCloudNet().getClusterNodeServerProvider().getSelfNode();
+    var nodeServer = this.node().getClusterNodeServerProvider().getSelfNode();
 
     var information = this.success()
       .append("title", CloudNet.class.getPackage().getImplementationTitle())
       .append("version", CloudNet.class.getPackage().getImplementationVersion())
       .append("nodeInfoSnapshot", nodeServer.getNodeInfoSnapshot())
       .append("lastNodeInfoSnapshot", nodeServer.getLastNodeInfoSnapshot())
-      .append("serviceCount", this.getCloudNet().cloudServiceProvider().serviceCount())
-      .append("clientConnections", super.getCloudNet().networkClient().channels().stream()
+      .append("serviceCount", this.node().cloudServiceProvider().serviceCount())
+      .append("clientConnections", super.node().networkClient().channels().stream()
         .map(INetworkChannel::serverAddress)
         .collect(Collectors.toList()));
     this.ok(context).body(information.toString()).context().closeAfter(true).cancelNext();
@@ -100,7 +100,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
 
   protected void handleNodeConfigRequest(IHttpContext context) {
     this.ok(context)
-      .body(this.success().append("config", this.getConfiguration()).toString())
+      .body(this.success().append("config", this.configuration()).toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -119,7 +119,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
 
     // a little workaround here, write the configuration to the file and load the used from there
     configuration.save();
-    this.getConfiguration().load();
+    this.configuration().load();
 
     this.ok(context)
       .body(this.success().toString())
@@ -129,16 +129,16 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
   }
 
   protected void handleReloadRequest(IHttpContext context) {
-    var type = RestUtils.getFirst(context.request().queryParameters().get("type"), "all").toLowerCase();
+    var type = RestUtils.first(context.request().queryParameters().get("type"), "all").toLowerCase();
     switch (type) {
       case "all":
         //TODO what to reload
         break;
       case "config":
-        this.getCloudNet().getConfig().load();
-        this.getCloudNet().serviceTaskProvider().reload();
-        this.getCloudNet().groupConfigurationProvider().reload();
-        this.getCloudNet().permissionManagement().reload();
+        this.node().getConfig().load();
+        this.node().serviceTaskProvider().reload();
+        this.node().groupConfigurationProvider().reload();
+        this.node().permissionManagement().reload();
         break;
       default:
         this.badRequest(context)
@@ -180,8 +180,8 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
         var commandLine = new String(bytes, StandardCharsets.UTF_8);
 
         var commandSource = new PermissionUserCommandSource(user,
-          V2HttpHandlerNode.this.getCloudNet().permissionManagement());
-        V2HttpHandlerNode.this.getCloudNet().getCommandProvider().execute(commandSource, commandLine).join();
+          V2HttpHandlerNode.this.node().permissionManagement());
+        V2HttpHandlerNode.this.node().getCommandProvider().execute(commandSource, commandLine).join();
 
         for (var message : commandSource.getMessages()) {
           this.channel.sendWebSocketFrame(WebSocketFrameType.TEXT, message);

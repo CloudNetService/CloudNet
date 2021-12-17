@@ -158,8 +158,8 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
   protected void handleFileListRequest(IHttpContext context) {
     this.handleWithTemplateContext(context, (template, storage) -> {
-      var dir = RestUtils.getFirst(context.request().queryParameters().get("directory"), "");
-      var deep = Boolean.parseBoolean(RestUtils.getFirst(context.request().queryParameters().get("deep"), "false"));
+      var dir = RestUtils.first(context.request().queryParameters().get("directory"), "");
+      var deep = Boolean.parseBoolean(RestUtils.first(context.request().queryParameters().get("deep"), "false"));
 
       var files = storage.listFilesAsync(dir, deep).get();
       this.ok(context)
@@ -230,7 +230,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
       var versionType = body.get("type", ServiceVersionType.class);
       if (versionType == null) {
-        versionType = this.getCloudNet().getServiceVersionProvider()
+        versionType = this.node().getServiceVersionProvider()
           .getServiceVersionType(body.getString("typeName", "")).orElse(null);
         if (versionType == null) {
           this.badRequest(context)
@@ -265,7 +265,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
         .toTemplate(template)
         .build();
 
-      if (this.getCloudNet().getServiceVersionProvider()
+      if (this.node().getServiceVersionProvider()
         .installServiceVersion(installInformation, forceInstall)) {
         this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
       } else {
@@ -353,7 +353,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
   protected void handleWithFileTemplateContext(IHttpContext context,
     ThrowableTriConsumer<ServiceTemplate, SpecificTemplateStorage, String, Exception> handler) {
     this.handleWithTemplateContext(context, (template, storage) -> {
-      var fileName = RestUtils.getFirst(context.request().queryParameters().get("path"), null);
+      var fileName = RestUtils.first(context.request().queryParameters().get("path"), null);
       if (fileName == null) {
         this.badRequest(context)
           .body(this.failure().append("reason", "Missing file name in path").toString())
