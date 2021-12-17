@@ -75,7 +75,7 @@ public final class SpongePlayerManagementListener {
       player.uniqueId(),
       this.management.ownNetworkServiceInfo());
     // update service info
-    this.executorService.schedule(() -> Wrapper.getInstance().publishServiceInfoUpdate(), 50, TimeUnit.MILLISECONDS);
+    this.executorService.schedule(() -> Wrapper.instance().publishServiceInfoUpdate(), 50, TimeUnit.MILLISECONDS);
   }
 
   @Listener
@@ -84,6 +84,6 @@ public final class SpongePlayerManagementListener {
       player.uniqueId(),
       this.management.ownNetworkServiceInfo());
     // update service info
-    this.executorService.schedule(() -> Wrapper.getInstance().publishServiceInfoUpdate(), 50, TimeUnit.MILLISECONDS);
+    this.executorService.schedule(() -> Wrapper.instance().publishServiceInfoUpdate(), 50, TimeUnit.MILLISECONDS);
   }
 }

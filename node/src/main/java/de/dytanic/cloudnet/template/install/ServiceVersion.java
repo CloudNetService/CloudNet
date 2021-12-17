@@ -35,7 +35,7 @@ public class ServiceVersion implements INameable {
   private boolean deprecated;
   private boolean cacheFiles = true;
 
-  private JsonDocument properties = JsonDocument.empty();
+  private JsonDocument properties = JsonDocument.emptyDocument();
   private Map<String, String> additionalDownloads = Collections.emptyMap();
 
   public ServiceVersion(

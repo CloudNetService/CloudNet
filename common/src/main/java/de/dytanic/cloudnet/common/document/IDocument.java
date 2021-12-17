@@ -140,7 +140,7 @@ public interface IDocument<R extends IDocument<R>>
 
   @UnknownNullability <T> T get(@NotNull String key, @NotNull Type type, @Nullable T def);
 
-  default boolean isEmpty() {
+  default boolean empty() {
     return this.size() == 0;
   }
 

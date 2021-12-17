@@ -68,7 +68,7 @@ public class JsonDocument implements IDocument<JsonDocument> {
     this.object = object;
   }
 
-  public static @NotNull JsonDocument empty() {
+  public static @NotNull JsonDocument emptyDocument() {
     return JsonDocument.EMPTY;
   }
 

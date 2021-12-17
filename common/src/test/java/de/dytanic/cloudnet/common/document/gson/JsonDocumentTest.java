@@ -62,7 +62,7 @@ public class JsonDocumentTest {
 
   @Test
   void testClear() {
-    Assertions.assertTrue(this.getDummyDocument().clear().isEmpty());
+    Assertions.assertTrue(this.getDummyDocument().clear().empty());
   }
 
   @Test

@@ -52,7 +52,7 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
   protected SyncProxyTabListConfiguration currentTabListConfiguration;
 
   protected PlatformSyncProxyManagement() {
-    var wrapper = Wrapper.getInstance();
+    var wrapper = Wrapper.instance();
 
     this.rpcSender = wrapper.rpcProviderFactory()
       .providerForClass(wrapper.networkClient(), SyncProxyManagement.class);
@@ -75,14 +75,14 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
 
     this.currentLoginConfiguration = configuration.loginConfigurations()
       .stream()
-      .filter(loginConfiguration -> Wrapper.getInstance().serviceConfiguration().groups()
+      .filter(loginConfiguration -> Wrapper.instance().serviceConfiguration().groups()
         .contains(loginConfiguration.targetGroup()))
       .findFirst()
       .orElse(null);
 
     this.currentTabListConfiguration = configuration.tabListConfigurations()
       .stream()
-      .filter(tabListConfiguration -> Wrapper.getInstance().serviceConfiguration().groups()
+      .filter(tabListConfiguration -> Wrapper.instance().serviceConfiguration().groups()
         .contains(tabListConfiguration.targetGroup()))
       .findFirst()
       .orElse(null);

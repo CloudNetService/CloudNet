@@ -70,7 +70,7 @@ final class BukkitPlayerManagementListener implements Listener {
       event.getPlayer().getUniqueId(),
       this.management.ownNetworkServiceInfo());
     // update the service info in the next tick
-    Bukkit.getScheduler().runTask(this.plugin, () -> Wrapper.getInstance().publishServiceInfoUpdate());
+    Bukkit.getScheduler().runTask(this.plugin, () -> Wrapper.instance().publishServiceInfoUpdate());
   }
 
   @EventHandler
@@ -79,6 +79,6 @@ final class BukkitPlayerManagementListener implements Listener {
       event.getPlayer().getUniqueId(),
       this.management.ownNetworkServiceInfo());
     // update the service info in the next tick
-    Bukkit.getScheduler().runTask(this.plugin, () -> Wrapper.getInstance().publishServiceInfoUpdate());
+    Bukkit.getScheduler().runTask(this.plugin, () -> Wrapper.instance().publishServiceInfoUpdate());
   }
 }

@@ -28,9 +28,9 @@ public final class WaterDogPESyncProxyPlugin extends Plugin {
   public void onEnable() {
     this.syncProxyManagement = new WaterDogPESyncProxyManagement(this.getProxy());
     // register the SyncProxyManagement in our service registry
-    this.syncProxyManagement.registerService(Wrapper.getInstance().servicesRegistry());
+    this.syncProxyManagement.registerService(Wrapper.instance().servicesRegistry());
     // register the event listener to handle service updates
-    Wrapper.getInstance().eventManager().registerListener(new SyncProxyCloudListener<>(this.syncProxyManagement));
+    Wrapper.instance().eventManager().registerListener(new SyncProxyCloudListener<>(this.syncProxyManagement));
     // register the waterdog ping & join listener
     new WaterDogPESyncProxyListener(this.syncProxyManagement, this.getProxy());
   }
@@ -38,9 +38,9 @@ public final class WaterDogPESyncProxyPlugin extends Plugin {
   @Override
   public void onDisable() {
     // unregister all listeners for cloudnet events
-    Wrapper.getInstance().eventManager().unregisterListeners(this.getClass().getClassLoader());
-    Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
+    Wrapper.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
+    Wrapper.instance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
     // remove the service from the registry
-    this.syncProxyManagement.unregisterService(Wrapper.getInstance().servicesRegistry());
+    this.syncProxyManagement.unregisterService(Wrapper.instance().servicesRegistry());
   }
 }

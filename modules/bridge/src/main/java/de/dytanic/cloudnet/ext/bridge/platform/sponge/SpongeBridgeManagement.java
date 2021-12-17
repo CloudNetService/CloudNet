@@ -44,7 +44,7 @@ final class SpongeBridgeManagement extends PlatformBridgeManagement<ServerPlayer
   private final PlayerExecutor directGlobalExecutor;
 
   public SpongeBridgeManagement() {
-    super(Wrapper.getInstance());
+    super(Wrapper.instance());
     // init fields
     this.directGlobalExecutor = new SpongeDirectPlayerExecutor(
       PlayerExecutor.GLOBAL_UNIQUE_ID,

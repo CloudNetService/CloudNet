@@ -114,7 +114,7 @@ public class XodusDatabase extends AbstractDatabase {
   @Override
   public @NotNull List<JsonDocument> get(@NotNull JsonDocument filters) {
     Map<String, Object> filterObjects = new HashMap<>();
-    if (!filters.isEmpty()) {
+    if (!filters.empty()) {
       for (var key : filters) {
         filterObjects.put(key, filters.get(key));
       }

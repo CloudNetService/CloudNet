@@ -80,7 +80,7 @@ final class WaterDogPEPlayerManagementListener {
       // the player logged in successfully if he is now connected to a service for the first time
       ProxyPlatformHelper.sendChannelMessageLoginSuccess(this.management.createPlayerInformation(event.getPlayer()));
       // update the service info
-      Wrapper.getInstance().publishServiceInfoUpdate();
+      Wrapper.instance().publishServiceInfoUpdate();
     } else {
       // the player switched the service
       this.management
@@ -97,7 +97,7 @@ final class WaterDogPEPlayerManagementListener {
     if (event.getPlayer().getServerInfo() != null) {
       ProxyPlatformHelper.sendChannelMessageDisconnected(event.getPlayer().getUniqueId());
       // update the service info
-      ProxyServer.getInstance().getScheduler().scheduleDelayed(Wrapper.getInstance()::publishServiceInfoUpdate, 1);
+      ProxyServer.getInstance().getScheduler().scheduleDelayed(Wrapper.instance()::publishServiceInfoUpdate, 1);
     }
     // always remove the player fallback profile
     this.management.removeFallbackProfile(event.getPlayer());

@@ -45,7 +45,7 @@ final class BukkitBridgeManagement extends PlatformBridgeManagement<Player, Netw
   private final PlayerExecutor directGlobalExecutor;
 
   public BukkitBridgeManagement(@NotNull Plugin plugin) {
-    super(Wrapper.getInstance());
+    super(Wrapper.instance());
     // init fields
     this.plugin = plugin;
     this.directGlobalExecutor = new BukkitDirectPlayerExecutor(

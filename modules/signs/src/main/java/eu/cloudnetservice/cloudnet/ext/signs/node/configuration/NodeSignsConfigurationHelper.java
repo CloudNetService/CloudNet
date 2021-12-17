@@ -70,7 +70,7 @@ public final class NodeSignsConfigurationHelper {
       return configuration;
     }
     // check if the configuration file already exists
-    if (configurationDocument.isEmpty()) {
+    if (configurationDocument.empty()) {
       // create a new configuration entry
       var configuration = SignsConfiguration.createDefaultJava("Lobby");
       write(configuration, path);

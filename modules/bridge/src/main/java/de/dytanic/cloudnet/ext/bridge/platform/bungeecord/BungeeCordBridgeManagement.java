@@ -47,7 +47,7 @@ final class BungeeCordBridgeManagement extends PlatformBridgeManagement<ProxiedP
   private final PlayerExecutor globalDirectPlayerExecutor;
 
   public BungeeCordBridgeManagement() {
-    super(Wrapper.getInstance());
+    super(Wrapper.instance());
     // init fields
     this.globalDirectPlayerExecutor = new BungeeCordDirectPlayerExecutor(
       PlayerExecutor.GLOBAL_UNIQUE_ID,

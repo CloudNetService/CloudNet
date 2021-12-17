@@ -50,7 +50,7 @@ final class VelocityBridgeManagement extends PlatformBridgeManagement<Player, Ne
   private final PlayerExecutor globalDirectPlayerExecutor;
 
   public VelocityBridgeManagement(@NotNull ProxyServer proxyServer) {
-    super(Wrapper.getInstance());
+    super(Wrapper.instance());
     // init fields
     this.proxyServer = proxyServer;
     this.globalDirectPlayerExecutor = new VelocityDirectPlayerExecutor(

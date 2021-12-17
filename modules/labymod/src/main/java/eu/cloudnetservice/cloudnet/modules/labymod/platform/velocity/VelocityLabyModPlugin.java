@@ -58,14 +58,14 @@ public class VelocityLabyModPlugin {
     this.proxy.getChannelRegistrar().register(new LegacyChannelIdentifier(LabyModManagement.LABYMOD_CLIENT_CHANNEL));
     this.proxy.getEventManager().register(this, new VelocityLabyModListener(labyModManagement));
     // register the common cloudnet listener for channel messages
-    Wrapper.getInstance().eventManager().registerListener(new PlatformLabyModListener(labyModManagement));
+    Wrapper.instance().eventManager().registerListener(new PlatformLabyModListener(labyModManagement));
   }
 
   @Subscribe
   public void handleProxyShutdown(@NotNull ProxyShutdownEvent event) {
     // unregister all listeners for cloudnet events
-    Wrapper.getInstance().eventManager().unregisterListeners(this.getClass().getClassLoader());
-    Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
+    Wrapper.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
+    Wrapper.instance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
   }
 
 }

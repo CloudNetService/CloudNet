@@ -47,7 +47,7 @@ final class WaterDogPEBridgeManagement extends PlatformBridgeManagement<ProxiedP
   private final PlayerExecutor globalDirectPlayerExecutor;
 
   public WaterDogPEBridgeManagement() {
-    super(Wrapper.getInstance());
+    super(Wrapper.instance());
     // init fields
     this.globalDirectPlayerExecutor = new WaterDogPEDirectPlayerExecutor(
       PlayerExecutor.GLOBAL_UNIQUE_ID,

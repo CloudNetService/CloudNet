@@ -72,7 +72,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
     var response = ChannelMessage.builder()
       .channel(SIGN_CHANNEL_NAME)
       .message(REQUEST_CONFIG)
-      .targetNode(Wrapper.getInstance().nodeUniqueId())
+      .targetNode(Wrapper.instance().nodeUniqueId())
       .build()
       .sendSingleQuery();
     return response == null ? null : response.content().readObject(SignsConfiguration.class);
@@ -193,7 +193,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
 
   @Override
   public void handleInternalSignRemove(@NotNull WorldPosition position) {
-    if (Wrapper.getInstance().serviceConfiguration().groups().contains(position.group())) {
+    if (Wrapper.instance().serviceConfiguration().groups().contains(position.group())) {
       var sign = this.signAt(position);
       if (sign != null && sign.currentTarget() != null) {
         this.waitingAssignments.add(sign.currentTarget());
@@ -219,7 +219,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
   }
 
   protected boolean shouldAssign(@NotNull ServiceInfoSnapshot snapshot) {
-    var currentEnv = Wrapper.getInstance().serviceId().environment();
+    var currentEnv = Wrapper.instance().serviceId().environment();
     var serviceEnv = snapshot.serviceId().environment();
 
     return (JAVA_SERVER.get(currentEnv.properties()) && JAVA_SERVER.get(serviceEnv.properties()))

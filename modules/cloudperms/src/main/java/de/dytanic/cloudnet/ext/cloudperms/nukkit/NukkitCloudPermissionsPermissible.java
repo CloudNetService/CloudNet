@@ -48,7 +48,7 @@ public final class NukkitCloudPermissionsPermissible extends PermissibleBase {
       return infos;
     }
 
-    for (var group : Wrapper.getInstance().serviceConfiguration().groups()) {
+    for (var group : Wrapper.instance().serviceConfiguration().groups()) {
       infos.putAll(
         this.permissionsManagement.allGroupPermissions(permissionUser, group)
           .stream()

@@ -29,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface IConfiguration {
 
-  boolean isFileExists();
+  boolean fileExists();
 
   @NotNull IConfiguration load();
 
@@ -156,7 +156,7 @@ public interface IConfiguration {
       this.jvmFlags = jvmFlags;
     }
 
-    public List<String> getJvmFlags() {
+    public List<String> jvmFlags() {
       return this.jvmFlags;
     }
 

@@ -55,7 +55,7 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
   public PlatformNPCManagement() {
     super(loadNPCConfiguration());
     // get the npcs for the current group
-    var groups = Wrapper.getInstance().serviceConfiguration().groups().toArray(new String[0]);
+    var groups = Wrapper.instance().serviceConfiguration().groups().toArray(new String[0]);
     for (var npc : this.npcs(groups)) {
       this.npcs.put(npc.location(), npc);
     }
@@ -67,7 +67,7 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
     var response = ChannelMessage.builder()
       .channel(NPC_CHANNEL_NAME)
       .message(NPC_REQUEST_CONFIG)
-      .targetNode(Wrapper.getInstance().nodeUniqueId())
+      .targetNode(Wrapper.instance().nodeUniqueId())
       .build()
       .sendSingleQuery();
     return response == null ? null : response.content().readObject(NPCConfiguration.class);
@@ -121,7 +121,7 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
   @Override
   public void handleInternalNPCCreate(@NotNull NPC npc) {
     // check if the npc is on this group
-    if (Wrapper.getInstance().serviceConfiguration().groups().contains(npc.location().group())) {
+    if (Wrapper.instance().serviceConfiguration().groups().contains(npc.location().group())) {
       super.handleInternalNPCCreate(npc);
       // remove the old selector npc
       var entity = this.trackedEntities.remove(npc.location());
@@ -167,7 +167,7 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
     return ChannelMessage.builder()
       .channel(NPC_CHANNEL_NAME)
       .message(message)
-      .target(Type.NODE, Wrapper.getInstance().nodeUniqueId());
+      .target(Type.NODE, Wrapper.instance().nodeUniqueId());
   }
 
   public void initialize() {
@@ -187,7 +187,7 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
 
   public @Nullable NPCConfigurationEntry applicableNPCConfigurationEntry() {
     for (var entry : this.npcConfiguration.entries()) {
-      if (Wrapper.getInstance().serviceConfiguration().groups().contains(entry.targetGroup())) {
+      if (Wrapper.instance().serviceConfiguration().groups().contains(entry.targetGroup())) {
         return entry;
       }
     }

@@ -142,15 +142,15 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
     return null;
   }
 
-  public HikariDataSource getHikariDataSource() {
+  public HikariDataSource hikariDataSource() {
     return this.hikariDataSource;
   }
 
-  public JsonDocument getConfig() {
+  public JsonDocument config() {
     return this.config;
   }
 
-  public List<MySQLConnectionEndpoint> getAddresses() {
+  public List<MySQLConnectionEndpoint> addresses() {
     return this.addresses;
   }
 

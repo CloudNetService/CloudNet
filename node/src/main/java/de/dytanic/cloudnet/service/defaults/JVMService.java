@@ -114,7 +114,7 @@ public class JVMService extends AbstractService {
     arguments.add(overriddenJavaCommand == null ? this.getNodeConfiguration().javaCommand() : overriddenJavaCommand);
 
     // add all jvm flags
-    arguments.addAll(this.getNodeConfiguration().defaultJVMFlags().getJvmFlags());
+    arguments.addAll(this.getNodeConfiguration().defaultJVMFlags().jvmFlags());
     arguments.addAll(this.serviceConfiguration().processConfig().jvmOptions());
 
     // override some default configuration options

@@ -134,7 +134,7 @@ public class Wrapper extends CloudNetDriver {
     super.driverEnvironment = DriverEnvironment.WRAPPER;
   }
 
-  public static @NotNull Wrapper getInstance() {
+  public static @NotNull Wrapper instance() {
     return (Wrapper) CloudNetDriver.instance();
   }
 

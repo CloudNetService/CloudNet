@@ -31,7 +31,7 @@ public final class CloudPermissionConfigHelper {
    */
   public static CloudPermissionConfig read(@NotNull Path location) {
     var document = JsonDocument.newDocument(location);
-    if (document.isEmpty()) {
+    if (document.empty()) {
       write(CloudPermissionConfig.DEFAULT, location);
       return CloudPermissionConfig.DEFAULT;
     }

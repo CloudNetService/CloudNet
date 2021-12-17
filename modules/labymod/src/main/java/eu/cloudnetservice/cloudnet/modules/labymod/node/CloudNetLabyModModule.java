@@ -42,7 +42,7 @@ public class CloudNetLabyModModule extends DriverModule {
     if (Files.exists(this.configPath())) {
       var config = this.readConfig().getDocument("config");
       // there is a config, run the conversion
-      if (!config.isEmpty()) {
+      if (!config.empty()) {
         // rewrite the config with all settings from the old config, but in the new format
         this.writeConfig(JsonDocument.newDocument(
           LabyModConfiguration.builder()

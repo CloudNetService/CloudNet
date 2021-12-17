@@ -44,7 +44,7 @@ public final class NukkitCloudPermissionsPlugin extends PluginBase {
   @Override
   public void onDisable() {
     CloudNetDriver.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
-    Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
+    Wrapper.instance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
   }
 
   private void injectPlayersCloudPermissible() {

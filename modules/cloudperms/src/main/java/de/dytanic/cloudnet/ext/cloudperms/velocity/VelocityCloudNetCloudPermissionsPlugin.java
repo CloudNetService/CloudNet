@@ -60,7 +60,7 @@ public final class VelocityCloudNetCloudPermissionsPlugin {
   @Subscribe
   public void handleShutdown(ProxyShutdownEvent event) {
     CloudNetDriver.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
-    Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
+    Wrapper.instance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
   }
 
   private void initPlayersPermissionFunction() {

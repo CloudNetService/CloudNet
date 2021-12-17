@@ -46,9 +46,9 @@ public record SyncProxyTabList(String header, String footer) {
     int maxPlayers
   ) {
     input = input
-      .replace("%proxy%", Wrapper.getInstance().serviceId().name())
-      .replace("%proxy_uniqueId%", Wrapper.getInstance().serviceId().uniqueId().toString())
-      .replace("%proxy_task_name%", Wrapper.getInstance().serviceId().taskName())
+      .replace("%proxy%", Wrapper.instance().serviceId().name())
+      .replace("%proxy_uniqueId%", Wrapper.instance().serviceId().uniqueId().toString())
+      .replace("%proxy_task_name%", Wrapper.instance().serviceId().taskName())
       .replace("%time%", DATE_FORMAT.format(System.currentTimeMillis()))
       .replace("%online_players%", String.valueOf(onlinePlayers))
       .replace("%max_players%", String.valueOf(maxPlayers));

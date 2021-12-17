@@ -27,7 +27,7 @@ public final class BukkitBridgePlugin extends JavaPlugin {
   public void onEnable() {
     // init the bridge management
     PlatformBridgeManagement<?, ?> management = new BukkitBridgeManagement(this);
-    management.registerServices(Wrapper.getInstance().servicesRegistry());
+    management.registerServices(Wrapper.instance().servicesRegistry());
     management.postInit();
     // register the bukkit listener
     Bukkit.getPluginManager().registerEvents(new BukkitPlayerManagementListener(this, management), this);

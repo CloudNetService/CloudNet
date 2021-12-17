@@ -127,7 +127,7 @@ final class VelocityPlayerManagementListener {
       // the player logged in successfully if he is now connected to a service for the first time
       ProxyPlatformHelper.sendChannelMessageLoginSuccess(this.management.createPlayerInformation(event.getPlayer()));
       // update the service info
-      Wrapper.getInstance().publishServiceInfoUpdate();
+      Wrapper.instance().publishServiceInfoUpdate();
     } else {
       // the player switched the service
       event.getPlayer().getCurrentServer()
@@ -148,7 +148,7 @@ final class VelocityPlayerManagementListener {
     if (status == LoginStatus.SUCCESSFUL_LOGIN || status == LoginStatus.PRE_SERVER_JOIN) {
       ProxyPlatformHelper.sendChannelMessageDisconnected(event.getPlayer().getUniqueId());
       // update the service info
-      Wrapper.getInstance().publishServiceInfoUpdate();
+      Wrapper.instance().publishServiceInfoUpdate();
     }
     // always remove the player fallback profile
     this.management.removeFallbackProfile(event.getPlayer());

@@ -30,14 +30,14 @@ public class BungeeCordLabyModPlugin extends Plugin {
     // register the plugin channel message listener
     this.getProxy().getPluginManager().registerListener(this, new BungeeCordLabyModListener(labyModManagement));
     // register the common cloudnet listener for channel messages
-    Wrapper.getInstance().eventManager().registerListener(new PlatformLabyModListener(labyModManagement));
+    Wrapper.instance().eventManager().registerListener(new PlatformLabyModListener(labyModManagement));
 
   }
 
   @Override
   public void onDisable() {
     // unregister all listeners for cloudnet events
-    Wrapper.getInstance().eventManager().unregisterListeners(this.getClass().getClassLoader());
-    Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
+    Wrapper.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
+    Wrapper.instance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
   }
 }

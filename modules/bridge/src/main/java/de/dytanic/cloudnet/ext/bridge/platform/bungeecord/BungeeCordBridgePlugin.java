@@ -32,7 +32,7 @@ public final class BungeeCordBridgePlugin extends Plugin {
   public void onEnable() {
     // init the management
     PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> management = new BungeeCordBridgeManagement();
-    management.registerServices(Wrapper.getInstance().servicesRegistry());
+    management.registerServices(Wrapper.instance().servicesRegistry());
     management.postInit();
     // register the listeners
     ProxyServer.getInstance().getPluginManager().registerListener(

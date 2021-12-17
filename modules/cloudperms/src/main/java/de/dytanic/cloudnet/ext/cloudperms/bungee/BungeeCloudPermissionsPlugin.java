@@ -33,6 +33,6 @@ public final class BungeeCloudPermissionsPlugin extends Plugin {
   @Override
   public void onDisable() {
     CloudNetDriver.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
-    Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
+    Wrapper.instance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
   }
 }

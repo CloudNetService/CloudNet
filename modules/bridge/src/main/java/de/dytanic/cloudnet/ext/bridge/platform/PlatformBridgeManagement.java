@@ -117,7 +117,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     this.configuration = configuration;
     this.eventManager.callEvent(new BridgeConfigurationUpdateEvent(configuration));
     this.currentFallbackConfiguration = configuration.fallbackConfigurations().stream()
-      .filter(config -> Wrapper.getInstance().serviceConfiguration().groups().contains(config.targetGroup()))
+      .filter(config -> Wrapper.instance().serviceConfiguration().groups().contains(config.targetGroup()))
       .findFirst()
       .orElse(null);
   }
@@ -144,7 +144,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
   }
 
   public void handleTaskUpdate(@NotNull String name, @Nullable ServiceTask task) {
-    if (Wrapper.getInstance().serviceId().taskName().equals(name)) {
+    if (Wrapper.instance().serviceId().taskName().equals(name)) {
       this.selfTask = task;
     }
   }
@@ -297,7 +297,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
   @Override
   public void postInit() {
     // publish a service update to append all property information
-    Wrapper.getInstance().publishServiceInfoUpdate();
+    Wrapper.instance().publishServiceInfoUpdate();
     // load all services and cache the ones which are matching the cache policy
     CloudNetDriver.instance().cloudServiceProvider().servicesAsync().onComplete(services -> {
       for (var service : services) {
@@ -306,7 +306,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     });
     // get the service task associated with this service if present
     this.selfTask = CloudNetDriver.instance().serviceTaskProvider()
-      .serviceTask(Wrapper.getInstance().serviceId().taskName());
+      .serviceTask(Wrapper.instance().serviceId().taskName());
   }
 
   public @NotNull NetworkServiceInfo ownNetworkServiceInfo() {

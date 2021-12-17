@@ -73,19 +73,19 @@ public enum JavaVersion {
     return this.name;
   }
 
-  public boolean isUnknown() {
+  public boolean unknown() {
     return this == UNKNOWN;
   }
 
   public boolean isSupported(@NotNull JavaVersion minJavaVersion, @NotNull JavaVersion maxJavaVersion) {
-    return this.isUnknown() || this.versionId >= minJavaVersion.versionId && this.versionId <= maxJavaVersion.versionId;
+    return this.unknown() || this.versionId >= minJavaVersion.versionId && this.versionId <= maxJavaVersion.versionId;
   }
 
   public boolean isSupportedByMin(@NotNull JavaVersion minRequiredJavaVersion) {
-    return this.isUnknown() || this.versionId >= minRequiredJavaVersion.versionId;
+    return this.unknown() || this.versionId >= minRequiredJavaVersion.versionId;
   }
 
   public boolean isSupportedByMax(@NotNull JavaVersion maxRequiredJavaVersion) {
-    return this.isUnknown() || this.versionId <= maxRequiredJavaVersion.versionId;
+    return this.unknown() || this.versionId <= maxRequiredJavaVersion.versionId;
   }
 }

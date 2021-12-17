@@ -50,7 +50,7 @@ public final class ReportConfigurationHelper {
       return write(configuration, location);
     }
     // check if we need to create a new configuration
-    if (document.isEmpty()) {
+    if (document.empty()) {
       return write(ReportConfiguration.builder().build(), location);
     }
     // the document has a configuration

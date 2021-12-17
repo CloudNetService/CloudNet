@@ -45,11 +45,11 @@ public class PlatformLabyModManagement implements LabyModManagement {
   private LabyModConfiguration configuration;
 
   public PlatformLabyModManagement() {
-    this.rpcSender = Wrapper.getInstance().rpcProviderFactory().providerForClass(
-      Wrapper.getInstance().networkClient(),
+    this.rpcSender = Wrapper.instance().rpcProviderFactory().providerForClass(
+      Wrapper.instance().networkClient(),
       LabyModManagement.class);
-    this.playerManager = Wrapper.getInstance().servicesRegistry().firstService(IPlayerManager.class);
-    this.bridgeManagement = Wrapper.getInstance().servicesRegistry().firstService(PlatformBridgeManagement.class);
+    this.playerManager = Wrapper.instance().servicesRegistry().firstService(IPlayerManager.class);
+    this.bridgeManagement = Wrapper.instance().servicesRegistry().firstService(PlatformBridgeManagement.class);
     this.setConfigurationSilently(this.rpcSender.invokeMethod("configuration").fireSync());
   }
 

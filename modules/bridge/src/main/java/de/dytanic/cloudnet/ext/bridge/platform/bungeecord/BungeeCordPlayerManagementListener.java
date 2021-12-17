@@ -148,7 +148,7 @@ final class BungeeCordPlayerManagementListener implements Listener {
     if (event.getPlayer().getServer() == null) {
       ProxyPlatformHelper.sendChannelMessageLoginSuccess(this.management.createPlayerInformation(event.getPlayer()));
       // update the service info
-      Wrapper.getInstance().publishServiceInfoUpdate();
+      Wrapper.instance().publishServiceInfoUpdate();
     } else {
       // server switch
       // the player switched the service
@@ -169,7 +169,7 @@ final class BungeeCordPlayerManagementListener implements Listener {
       // update the service info
       ProxyServer.getInstance().getScheduler().schedule(
         this.plugin,
-        Wrapper.getInstance()::publishServiceInfoUpdate,
+        Wrapper.instance()::publishServiceInfoUpdate,
         50,
         TimeUnit.MILLISECONDS);
     }

@@ -95,7 +95,7 @@ public final class JsonConfiguration implements IConfiguration {
     var oldRegistry = Path.of("local", "registry");
     if (Files.exists(oldRegistry)) {
       var entries = JsonDocument.newDocument(oldRegistry).getDocument("entries");
-      if (!entries.isEmpty()) {
+      if (!entries.empty()) {
         this.properties = JsonDocument.newDocument();
         this.properties.append(entries);
       }
@@ -115,7 +115,7 @@ public final class JsonConfiguration implements IConfiguration {
   }
 
   @Override
-  public boolean isFileExists() {
+  public boolean fileExists() {
     return Files.exists(CONFIG_FILE_PATH);
   }
 

@@ -68,7 +68,7 @@ final class NukkitPlayerManagementListener implements Listener {
       event.getPlayer().getUniqueId(),
       this.management.ownNetworkServiceInfo());
     // update the service info in the next tick
-    Server.getInstance().getScheduler().scheduleTask(this.plugin, Wrapper.getInstance()::publishServiceInfoUpdate);
+    Server.getInstance().getScheduler().scheduleTask(this.plugin, Wrapper.instance()::publishServiceInfoUpdate);
   }
 
   @EventHandler
@@ -77,6 +77,6 @@ final class NukkitPlayerManagementListener implements Listener {
       event.getPlayer().getUniqueId(),
       this.management.ownNetworkServiceInfo());
     // update the service info in the next tick
-    Server.getInstance().getScheduler().scheduleTask(this.plugin, Wrapper.getInstance()::publishServiceInfoUpdate);
+    Server.getInstance().getScheduler().scheduleTask(this.plugin, Wrapper.instance()::publishServiceInfoUpdate);
   }
 }

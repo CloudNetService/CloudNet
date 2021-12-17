@@ -52,7 +52,7 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
   protected PlatformSignManagement(SignsConfiguration signsConfiguration) {
     super(signsConfiguration);
     // get the signs for the current group
-    var groups = Wrapper.getInstance().serviceConfiguration().groups().toArray(new String[0]);
+    var groups = Wrapper.instance().serviceConfiguration().groups().toArray(new String[0]);
     for (var sign : this.signs(groups)) {
       this.signs.put(sign.location(), sign);
     }
@@ -165,7 +165,7 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
 
   @Override
   public void handleInternalSignCreate(@NotNull Sign sign) {
-    if (Wrapper.getInstance().serviceConfiguration().groups().contains(sign.location().group())) {
+    if (Wrapper.instance().serviceConfiguration().groups().contains(sign.location().group())) {
       super.handleInternalSignCreate(sign);
     }
   }
@@ -179,7 +179,7 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
   @Override
   protected ChannelMessage.Builder channelMessage(@NotNull String message) {
     return super.channelMessage(message)
-      .target(ChannelMessageTarget.Type.NODE, Wrapper.getInstance().nodeUniqueId());
+      .target(ChannelMessageTarget.Type.NODE, Wrapper.instance().nodeUniqueId());
   }
 
   /**
@@ -189,7 +189,7 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
    */
   public @Nullable SignConfigurationEntry applicableSignConfigurationEntry() {
     for (var entry : this.signsConfiguration.configurationEntries()) {
-      if (Wrapper.getInstance().serviceConfiguration().groups().contains(entry.targetGroup())) {
+      if (Wrapper.instance().serviceConfiguration().groups().contains(entry.targetGroup())) {
         return entry;
       }
     }

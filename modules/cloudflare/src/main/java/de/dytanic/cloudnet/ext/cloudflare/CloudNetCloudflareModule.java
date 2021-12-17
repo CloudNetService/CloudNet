@@ -101,7 +101,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
             ipv6Address ? DNSType.AAAA : DNSType.A,
             cloudConfig.identity().uniqueId() + "." + entry.domainName(),
             entry.hostAddress(),
-            JsonDocument.empty()
+            JsonDocument.emptyDocument()
           )
         );
         if (recordDetail != null) {

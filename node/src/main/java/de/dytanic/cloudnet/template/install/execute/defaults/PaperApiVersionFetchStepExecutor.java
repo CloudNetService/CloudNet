@@ -80,7 +80,7 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
     if (response.isSuccess()) {
       return JsonDocument.fromJsonString(response.getBody());
     }
-    return JsonDocument.empty();
+    return JsonDocument.emptyDocument();
   }
 
   @NotNull

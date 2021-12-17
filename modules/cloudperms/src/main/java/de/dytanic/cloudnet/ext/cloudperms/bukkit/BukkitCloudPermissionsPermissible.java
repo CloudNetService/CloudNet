@@ -54,7 +54,7 @@ public final class BukkitCloudPermissionsPermissible extends PermissibleBase {
 
     var user = CloudNetDriver.instance().permissionManagement().user(this.player.getUniqueId());
     if (user != null) {
-      for (var group : Wrapper.getInstance().serviceConfiguration().groups()) {
+      for (var group : Wrapper.instance().serviceConfiguration().groups()) {
         CloudNetDriver.instance()
           .permissionManagement()
           .allGroupPermissions(user, group)
