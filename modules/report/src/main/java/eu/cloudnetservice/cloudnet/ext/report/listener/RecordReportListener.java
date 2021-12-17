@@ -20,11 +20,13 @@ import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
-import de.dytanic.cloudnet.event.service.CloudServiceCrashEvent;
+import de.dytanic.cloudnet.event.service.CloudServicePreForceStopEvent;
 import de.dytanic.cloudnet.event.service.CloudServicePreLifecycleEvent;
+import de.dytanic.cloudnet.event.service.CloudServicePreProcessStartEvent;
 import de.dytanic.cloudnet.service.ICloudService;
 import eu.cloudnetservice.cloudnet.ext.report.CloudNetReportModule;
 import eu.cloudnetservice.cloudnet.ext.report.util.RecordMaker;
+import org.jetbrains.annotations.NotNull;
 
 public final class RecordReportListener {
 
@@ -36,12 +38,7 @@ public final class RecordReportListener {
   }
 
   @EventListener
-  public void handleServicePreStop(CloudServicePreLifecycleEvent event) {
-    // we just want to handle the stop lifecycle
-    if (event.getTargetLifecycle() != ServiceLifeCycle.STOPPED) {
-      return;
-    }
-
+  public void handleServicePreStop(@NotNull CloudServicePreProcessStartEvent event) {
     var configuration = this.reportModule.reportConfiguration();
     var serviceLifetimeSetting = configuration.serviceLifetime();
     // -1 is used to disable the log printing.
@@ -60,7 +57,7 @@ public final class RecordReportListener {
   }
 
   @EventListener
-  public void handleServiceCrash(CloudServiceCrashEvent event) {
+  public void handleServiceCrash(CloudServicePreForceStopEvent event) {
     // check if the user disabled records
     if (!this.reportModule.reportConfiguration().saveRecords()) {
       return;

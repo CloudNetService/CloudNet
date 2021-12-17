@@ -18,9 +18,8 @@ package de.dytanic.cloudnet.ext.cloudperms.node.listener;
 
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.event.EventListener;
-import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.util.DefaultModuleHelper;
-import de.dytanic.cloudnet.event.service.CloudServicePreLifecycleEvent;
+import de.dytanic.cloudnet.event.service.CloudServicePreProcessStartEvent;
 import de.dytanic.cloudnet.ext.cloudperms.node.CloudNetCloudPermissionsModule;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,10 +32,9 @@ public final class IncludePluginListener {
   }
 
   @EventListener
-  public void handle(@NotNull CloudServicePreLifecycleEvent event) {
+  public void handle(@NotNull CloudServicePreProcessStartEvent event) {
     // check if we should copy the module
-    if (event.getTargetLifecycle() == ServiceLifeCycle.RUNNING
-      && this.permissionsModule.getPermissionsConfig().enabled()
+    if (this.permissionsModule.getPermissionsConfig().enabled()
       && this.permissionsModule.getPermissionsConfig().excludedGroups().stream()
       .noneMatch(group -> event.getService().getServiceConfiguration().groups().contains(group))) {
       // get the target of the copy

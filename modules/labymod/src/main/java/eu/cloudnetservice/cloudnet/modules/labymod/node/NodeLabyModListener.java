@@ -20,9 +20,8 @@ import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
-import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.util.DefaultModuleHelper;
-import de.dytanic.cloudnet.event.service.CloudServicePreLifecycleEvent;
+import de.dytanic.cloudnet.event.service.CloudServicePreProcessStartEvent;
 import eu.cloudnetservice.cloudnet.modules.labymod.LabyModManagement;
 import eu.cloudnetservice.cloudnet.modules.labymod.config.LabyModConfiguration;
 import org.jetbrains.annotations.NotNull;
@@ -50,11 +49,7 @@ public class NodeLabyModListener {
   }
 
   @EventListener
-  public void handle(@NotNull CloudServicePreLifecycleEvent event) {
-    if (event.getTargetLifecycle() != ServiceLifeCycle.RUNNING) {
-      return;
-    }
-
+  public void handle(@NotNull CloudServicePreProcessStartEvent event) {
     var service = event.getService();
     if (!ServiceEnvironmentType.isMinecraftProxy(service.getServiceId().environment())) {
       return;

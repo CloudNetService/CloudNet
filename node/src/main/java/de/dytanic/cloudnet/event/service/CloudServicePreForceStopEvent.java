@@ -19,9 +19,9 @@ package de.dytanic.cloudnet.event.service;
 import de.dytanic.cloudnet.service.ICloudService;
 import org.jetbrains.annotations.NotNull;
 
-public final class CloudServiceCrashEvent extends CloudServiceEvent {
+public final class CloudServicePreForceStopEvent extends CloudServiceEvent {
 
-  public CloudServiceCrashEvent(@NotNull ICloudService service) {
+  public CloudServicePreForceStopEvent(@NotNull ICloudService service) {
     super(service);
   }
 }
