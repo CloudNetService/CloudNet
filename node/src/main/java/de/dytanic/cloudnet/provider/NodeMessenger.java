@@ -125,7 +125,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
       case ALL -> {
         Set<INetworkChannel> result = new HashSet<>();
         // all local services
-        this.cloudServiceManager.getLocalCloudServices().stream()
+        this.cloudServiceManager.localCloudService().stream()
             .map(ICloudService::getNetworkChannel)
             .filter(Objects::nonNull)
             .forEach(result::add);
@@ -156,7 +156,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
         // check if a specific service was requested
         if (target.name() == null) {
           // if no specific name is given just get all local channels
-          Collection<INetworkChannel> channels = this.cloudServiceManager.getLocalCloudServices().stream()
+          Collection<INetworkChannel> channels = this.cloudServiceManager.localCloudService().stream()
               .map(ICloudService::getNetworkChannel)
               .filter(Objects::nonNull)
               .collect(Collectors.toSet());
@@ -168,7 +168,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
           return channels;
         } else {
           // check if the service is running locally - use the known channel then
-          var localService = this.cloudServiceManager.getLocalCloudService(target.name());
+          var localService = this.cloudServiceManager.localCloudService(target.name());
           if (localService != null) {
             return localService.getNetworkChannel() == null
                 ? Collections.emptySet()
@@ -223,7 +223,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     return snapshots.stream()
       .map(service -> {
         // check if the service is running locally
-        var localService = this.cloudServiceManager.getLocalCloudService(service.serviceId().name());
+        var localService = this.cloudServiceManager.localCloudService(service.serviceId().name());
         if (localService != null) {
           return localService.getNetworkChannel();
         }

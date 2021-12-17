@@ -74,7 +74,7 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
           var id = content.readObject(ServiceId.class);
           // get the cloud service associated with the service id
           var service = CloudNet.getInstance().cloudServiceProvider()
-              .getLocalCloudService(id.uniqueId());
+              .localCloudService(id.uniqueId());
           // we can only accept the connection if the service is present, and the connection key is correct
           if (service != null && service.getConnectionKey().equals(connectionKey)) {
             // update the cloud service

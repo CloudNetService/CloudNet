@@ -69,7 +69,7 @@ public final class SFTPTemplateStorageModule extends DriverModule {
       this.storage = new SFTPTemplateStorage(this.config);
       this.serviceRegistry().registerService(TemplateStorage.class, this.storage.name(), this.storage);
       // register the cluster sync handler
-      CloudNet.getInstance().getDataSyncRegistry().registerHandler(DataSyncHandler.<SFTPTemplateStorageConfig>builder()
+      CloudNet.getInstance().dataSyncRegistry().registerHandler(DataSyncHandler.<SFTPTemplateStorageConfig>builder()
         .key("sftp-storage-config")
         .nameExtractor($ -> "SFTP Template Storage Config")
         .convertObject(SFTPTemplateStorageConfig.class)

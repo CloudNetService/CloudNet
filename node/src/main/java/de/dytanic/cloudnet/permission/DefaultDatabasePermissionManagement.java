@@ -68,7 +68,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   @Override
   public void init() {
     if (Files.notExists(GROUPS_FILE)) {
-      this.nodeInstance.getInstallation().registerSetup(new PermissionGroupSetup());
+      this.nodeInstance.installation().registerSetup(new PermissionGroupSetup());
       this.saveGroups(); // write an empty file to the groups file location
     } else {
       this.loadGroups();

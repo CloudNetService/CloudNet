@@ -133,7 +133,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
     this.previousHistory = console.getCommandHistory();
     this.previousPrintingEnabled = console.isPrintingEnabled();
     this.previousUseMatchingHistorySearch = console.isUsingMatchingHistoryComplete();
-    this.previousConsoleLines = CloudNet.getInstance().getLogHandler().getFormattedCachedLogLines();
+    this.previousConsoleLines = CloudNet.getInstance().logHandler().getFormattedCachedLogLines();
 
     // apply the console settings of the animation
     console.clearScreen();

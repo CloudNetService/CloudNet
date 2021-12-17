@@ -57,8 +57,8 @@ public class BuildStepExecutor implements InstallStepExecutor {
   ) throws IOException {
     var version = information.serviceVersion();
 
-    Collection<String> jvmOptions = version.getProperties().get("jvmOptions", STRING_LIST_TYPE);
-    List<String> parameters = version.getProperties().get("parameters", STRING_LIST_TYPE, new ArrayList<>());
+    Collection<String> jvmOptions = version.properties().get("jvmOptions", STRING_LIST_TYPE);
+    List<String> parameters = version.properties().get("parameters", STRING_LIST_TYPE, new ArrayList<>());
 
     for (var path : paths) {
       List<String> arguments = new ArrayList<>();
@@ -72,10 +72,10 @@ public class BuildStepExecutor implements InstallStepExecutor {
       arguments.add(path.getFileName().toString());
       arguments.addAll(parameters.stream().map(parameter -> parameter.replace("%version%", version.name())).toList());
 
-      var expectedExitCode = version.getProperties().getInt("exitCode", 0);
+      var expectedExitCode = version.properties().getInt("exitCode", 0);
       var exitCode = this.buildProcessAndWait(arguments, workDir);
 
-      if (!version.getProperties().getBoolean("disableExitCodeChecking") && exitCode != expectedExitCode) {
+      if (!version.properties().getBoolean("disableExitCodeChecking") && exitCode != expectedExitCode) {
         throw new IllegalStateException(String.format(
           "Process returned unexpected exit code! Got %d, expected %d",
           exitCode,

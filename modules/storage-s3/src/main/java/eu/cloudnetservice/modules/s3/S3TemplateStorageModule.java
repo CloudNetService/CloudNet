@@ -40,7 +40,7 @@ public final class S3TemplateStorageModule extends DriverModule {
       this.storage = new S3TemplateStorage(this);
       this.serviceRegistry().registerService(TemplateStorage.class, config.name(), this.storage);
       // register the cluster sync handler
-      CloudNet.getInstance().getDataSyncRegistry().registerHandler(DataSyncHandler.<S3TemplateStorageConfig>builder()
+      CloudNet.getInstance().dataSyncRegistry().registerHandler(DataSyncHandler.<S3TemplateStorageConfig>builder()
         .key("s3-storage-config")
         .nameExtractor($ -> "S3 Template Storage Config")
         .convertObject(S3TemplateStorageConfig.class)

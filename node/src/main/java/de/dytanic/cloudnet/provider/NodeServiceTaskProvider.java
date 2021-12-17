@@ -56,7 +56,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     // rpc
     nodeInstance.rpcProviderFactory().newHandler(ServiceTaskProvider.class, this).registerToDefaultRegistry();
     // cluster data sync
-    nodeInstance.getDataSyncRegistry().registerHandler(
+    nodeInstance.dataSyncRegistry().registerHandler(
       DataSyncHandler.<ServiceTask>builder()
         .key("task")
         .nameExtractor(INameable::name)
@@ -70,7 +70,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
       this.loadServiceTasks();
     } else {
       FileUtils.createDirectory(TASKS_DIRECTORY);
-      nodeInstance.getInstallation().registerSetup(new DefaultTaskSetup());
+      nodeInstance.installation().registerSetup(new DefaultTaskSetup());
     }
   }
 

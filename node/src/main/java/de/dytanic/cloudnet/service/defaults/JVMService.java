@@ -241,7 +241,7 @@ public class JVMService extends AbstractService {
     @NotNull ServiceEnvironmentType environmentType
   ) {
     // collect all names of environment names
-    var environments = this.nodeInstance.getServiceVersionProvider().getServiceVersionTypes().values().stream()
+    var environments = this.nodeInstance.serviceVersionProvider().serviceVersionTypes().values().stream()
       .filter(environment -> environment.environmentType().equals(environmentType.name()))
       .map(ServiceEnvironment::name)
       .collect(Collectors.collectingAndThen(Collectors.toSet(), result -> {

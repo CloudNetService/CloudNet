@@ -49,7 +49,7 @@ final class ClusterNodeServerUtils {
         // call the local change event
         CloudNet.getInstance().eventManager().callEvent(new CloudServiceLifecycleChangeEvent(lifeCycle, snapshot));
         // send the change to all service - all other nodes will handle the close as well (if there are any)
-        if (!CloudNet.getInstance().cloudServiceProvider().getLocalCloudServices().isEmpty()) {
+        if (!CloudNet.getInstance().cloudServiceProvider().localCloudService().isEmpty()) {
           targetLocalServices()
             .message("update_service_lifecycle")
             .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
@@ -69,7 +69,7 @@ final class ClusterNodeServerUtils {
   private static @NotNull ChannelMessage.Builder targetLocalServices() {
     var builder = ChannelMessage.builder();
     // iterate over all local services - if the service is connected append it as target
-    for (var service : CloudNet.getInstance().cloudServiceProvider().getLocalCloudServices()) {
+    for (var service : CloudNet.getInstance().cloudServiceProvider().localCloudService()) {
       if (service.getNetworkChannel() != null) {
         builder.target(Type.SERVICE, service.getServiceId().name());
       }

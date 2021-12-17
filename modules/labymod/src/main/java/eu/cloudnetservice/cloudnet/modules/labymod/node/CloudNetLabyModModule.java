@@ -78,7 +78,7 @@ public class CloudNetLabyModModule extends DriverModule {
     var configuration = this.readConfig().toInstanceOf(LabyModConfiguration.class);
     this.labyModManagement = new NodeLabyModManagement(this, configuration, this.rpcFactory());
     // sync the config of the module into the cluster
-    CloudNet.getInstance().getDataSyncRegistry().registerHandler(
+    CloudNet.getInstance().dataSyncRegistry().registerHandler(
       DataSyncHandler.<LabyModConfiguration>builder()
         .key("labymod-config")
         .nameExtractor($ -> "LabyMod Config")

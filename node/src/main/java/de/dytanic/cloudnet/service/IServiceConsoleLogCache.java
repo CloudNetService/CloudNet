@@ -24,26 +24,26 @@ import org.jetbrains.annotations.UnmodifiableView;
 public interface IServiceConsoleLogCache {
 
   @NotNull
-  Queue<String> getCachedLogMessages();
+  Queue<String> cachedLogMessages();
 
   @NotNull
   IServiceConsoleLogCache update();
 
   @NotNull
-  ICloudService getService();
+  ICloudService service();
 
-  int getLogCacheSize();
+  int logCacheSize();
 
-  void setLogCacheSize(int cacheSize);
+  void logCacheSize(int cacheSize);
 
   boolean alwaysPrintErrorStreamToConsole();
 
-  void setAlwaysPrintErrorStreamToConsole(boolean value);
+  void alwaysPrintErrorStreamToConsole(boolean value);
 
   void addHandler(@NotNull ServiceConsoleLineHandler handler);
 
   void removeHandler(@NotNull ServiceConsoleLineHandler handler);
 
   @NotNull
-  @UnmodifiableView Collection<ServiceConsoleLineHandler> getHandlers();
+  @UnmodifiableView Collection<ServiceConsoleLineHandler> handlers();
 }

@@ -97,7 +97,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
     this.addServicePreparer(ServiceEnvironmentType.WATERDOG_PE, new WaterdogPEConfigurationPreparer());
     this.addServicePreparer(ServiceEnvironmentType.MINECRAFT_SERVER, new VanillaServiceConfigurationPreparer());
     // cluster data sync
-    nodeInstance.getDataSyncRegistry().registerHandler(
+    nodeInstance.dataSyncRegistry().registerHandler(
       DataSyncHandler.<ServiceInfoSnapshot>builder()
         .key("services")
         .alwaysForce()
@@ -114,8 +114,8 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
         .currentGetter(group -> this.specificProviderByName(group.name()).serviceInfo())
         .build());
     // schedule the updating of the local service log cache
-    nodeInstance.getMainThread().scheduleTask(() -> {
-      for (var service : this.getLocalCloudServices()) {
+    nodeInstance.mainThread().scheduleTask(() -> {
+      for (var service : this.localCloudService()) {
         // we only need to look at running services
         if (service.getLifeCycle() == ServiceLifeCycle.RUNNING) {
           // detect dead services and stop them
@@ -281,21 +281,21 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
 
   @Override
   public void startAllCloudServices() {
-    this.getLocalCloudServices().forEach(SpecificCloudServiceProvider::start);
+    this.localCloudService().forEach(SpecificCloudServiceProvider::start);
   }
 
   @Override
   public void stopAllCloudServices() {
-    this.getLocalCloudServices().forEach(SpecificCloudServiceProvider::stop);
+    this.localCloudService().forEach(SpecificCloudServiceProvider::stop);
   }
 
   @Override
   public void deleteAllCloudServices() {
-    this.getLocalCloudServices().forEach(SpecificCloudServiceProvider::delete);
+    this.localCloudService().forEach(SpecificCloudServiceProvider::delete);
   }
 
   @Override
-  public @NotNull @UnmodifiableView Collection<ICloudService> getLocalCloudServices() {
+  public @NotNull @UnmodifiableView Collection<ICloudService> localCloudService() {
     return this.knownServices.values().stream()
       .filter(provider -> provider instanceof ICloudService) // -> ICloudService => local service
       .map(provider -> (ICloudService) provider)
@@ -303,25 +303,25 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   }
 
   @Override
-  public @Nullable ICloudService getLocalCloudService(@NotNull String name) {
+  public @Nullable ICloudService localCloudService(@NotNull String name) {
     var provider = this.specificProviderByName(name);
     return provider instanceof ICloudService ? (ICloudService) provider : null;
   }
 
   @Override
-  public @Nullable ICloudService getLocalCloudService(@NotNull UUID uniqueId) {
+  public @Nullable ICloudService localCloudService(@NotNull UUID uniqueId) {
     var provider = this.knownServices.get(uniqueId);
     return provider instanceof ICloudService ? (ICloudService) provider : null;
   }
 
   @Override
-  public @Nullable ICloudService getLocalCloudService(@NotNull ServiceInfoSnapshot snapshot) {
-    return this.getLocalCloudService(snapshot.serviceId().uniqueId());
+  public @Nullable ICloudService localCloudService(@NotNull ServiceInfoSnapshot snapshot) {
+    return this.localCloudService(snapshot.serviceId().uniqueId());
   }
 
   @Override
   public int getCurrentUsedHeapMemory() {
-    return this.getLocalCloudServices().stream()
+    return this.localCloudService().stream()
       .map(SpecificCloudServiceProvider::serviceInfo)
       .filter(Objects::nonNull)
       .filter(snapshot -> snapshot.lifeCycle() == ServiceLifeCycle.RUNNING)
@@ -331,7 +331,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
 
   @Override
   public int getCurrentReservedMemory() {
-    return this.getLocalCloudServices().stream()
+    return this.localCloudService().stream()
       .map(SpecificCloudServiceProvider::serviceInfo)
       .filter(Objects::nonNull)
       .mapToInt(snapshot -> snapshot.configuration().processConfig().maxHeapMemorySize())

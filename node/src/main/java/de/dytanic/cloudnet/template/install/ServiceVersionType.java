@@ -41,7 +41,7 @@ public class ServiceVersionType extends ServiceEnvironment {
     this.versions = versions;
   }
 
-  public @NotNull Optional<ServiceVersion> getVersion(@NotNull String name) {
+  public @NotNull Optional<ServiceVersion> version(@NotNull String name) {
     return this.versions.stream()
       .filter(serviceVersion -> serviceVersion.name().equalsIgnoreCase(name))
       .findFirst();
@@ -55,11 +55,11 @@ public class ServiceVersionType extends ServiceEnvironment {
     return !this.installSteps.contains(InstallStep.BUILD) || serviceVersion.canRun(javaVersion);
   }
 
-  public @NotNull List<InstallStep> getInstallSteps() {
+  public @NotNull List<InstallStep> installSteps() {
     return this.installSteps;
   }
 
-  public @NotNull Collection<ServiceVersion> getVersions() {
+  public @NotNull Collection<ServiceVersion> versions() {
     return this.versions;
   }
 }

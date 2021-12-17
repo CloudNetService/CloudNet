@@ -32,7 +32,7 @@ public final class CloudNetCloudPermissionsModule extends DriverModule {
 
   @ModuleTask(order = 127, event = ModuleLifeCycle.LOADED)
   public void init() {
-    CloudNet.getInstance().getDataSyncRegistry().registerHandler(DataSyncHandler.<CloudPermissionConfig>builder()
+    CloudNet.getInstance().dataSyncRegistry().registerHandler(DataSyncHandler.<CloudPermissionConfig>builder()
       .key("cloudperms-config")
       .convertObject(CloudPermissionConfig.class)
       .currentGetter($ -> this.permissionsConfig)

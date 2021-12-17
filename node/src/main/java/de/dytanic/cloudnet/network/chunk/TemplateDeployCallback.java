@@ -43,7 +43,7 @@ final class TemplateDeployCallback implements Callback {
     var storage = CloudNet.getInstance().templateStorage(storageName);
     if (storage != null) {
       // pause the ticking of CloudNet before writing the file into the template
-      CloudNet.getInstance().getMainThread().pause();
+      CloudNet.getInstance().mainThread().pause();
       try {
         // delete the template if requested
         if (overrideTemplate) {
@@ -53,7 +53,7 @@ final class TemplateDeployCallback implements Callback {
         storage.deploy(dataInput, template);
       } finally {
         // resume the main thread execution
-        CloudNet.getInstance().getMainThread().resume();
+        CloudNet.getInstance().mainThread().resume();
       }
     }
   }

@@ -59,7 +59,7 @@ public final class CloudNetTickListener {
   @EventListener
   public void handleTick(@NotNull CloudNetTickEvent event) {
     if (CloudNet.getInstance().getClusterNodeServerProvider().getSelfNode().isHeadNode()
-      && event.getTicker().getCurrentTick() % CloudNetTick.TPS == 0) {
+      && event.getTicker().currentTick() % CloudNetTick.TPS == 0) {
       this.handleSmartEntries();
     }
   }

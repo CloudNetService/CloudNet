@@ -68,9 +68,9 @@ public final class CommandTemplate {
         .build())
       .column(pair -> pair.first().name())
       .column(pair -> pair.second().name())
-      .column(pair -> pair.second().isDeprecated())
-      .column(pair -> pair.second().getMinJavaVersion().orElse(JavaVersion.JAVA_8).name())
-      .column(pair -> pair.second().getMaxJavaVersion().map(JavaVersion::name).orElse("No maximum"))
+      .column(pair -> pair.second().deprecated())
+      .column(pair -> pair.second().minJavaVersion().orElse(JavaVersion.JAVA_8).name())
+      .column(pair -> pair.second().maxJavaVersion().map(JavaVersion::name).orElse("No maximum"))
       .build();
 
   @Parser(suggestions = "serviceTemplate")
@@ -84,7 +84,7 @@ public final class CommandTemplate {
 
   @Parser
   public ServiceEnvironmentType defaultServiceEnvironmentTypeParser(CommandContext<?> $, Queue<String> input) {
-    return CloudNet.getInstance().getServiceVersionProvider().getEnvironmentType(input.remove())
+    return CloudNet.getInstance().serviceVersionProvider().getEnvironmentType(input.remove())
       .orElseThrow(() -> new ArgumentNotAvailableException("No such version type"));
   }
 
@@ -117,14 +117,14 @@ public final class CommandTemplate {
   @Parser(suggestions = "serviceVersionType")
   public ServiceVersionType defaultVersionTypeParser(CommandContext<CommandSource> $, Queue<String> input) {
     var versionTypeName = input.remove().toLowerCase();
-    return CloudNet.getInstance().getServiceVersionProvider().getServiceVersionType(versionTypeName)
+    return CloudNet.getInstance().serviceVersionProvider().getServiceVersionType(versionTypeName)
       .orElseThrow(() -> new ArgumentNotAvailableException(
         I18n.trans("ca-question-list-invalid-service-version")));
   }
 
   @Suggestions("serviceVersionType")
   public List<String> suggestServiceVersionType(CommandContext<CommandSource> $, String input) {
-    return new ArrayList<>(CloudNet.getInstance().getServiceVersionProvider().getServiceVersionTypes().keySet());
+    return new ArrayList<>(CloudNet.getInstance().serviceVersionProvider().serviceVersionTypes().keySet());
   }
 
   @Parser(suggestions = "version")
@@ -132,14 +132,14 @@ public final class CommandTemplate {
     var version = input.remove();
     ServiceVersionType type = context.get("versionType");
 
-    return type.getVersion(version).orElseThrow(
+    return type.version(version).orElseThrow(
       () -> new ArgumentNotAvailableException(I18n.trans("command-template-invalid-version")));
   }
 
   @Suggestions("version")
   public List<String> suggestVersions(CommandContext<CommandSource> context, String input) {
     ServiceVersionType type = context.get("versionType");
-    return type.getVersions()
+    return type.versions()
       .stream()
       .filter(ServiceVersion::canRun)
       .map(INameable::name)
@@ -165,17 +165,17 @@ public final class CommandTemplate {
   public void displayTemplateVersions(CommandSource source, @Argument("versionType") ServiceVersionType versionType) {
     Collection<Pair<ServiceVersionType, ServiceVersion>> versions;
     if (versionType == null) {
-      versions = CloudNet.getInstance().getServiceVersionProvider()
-        .getServiceVersionTypes()
+      versions = CloudNet.getInstance().serviceVersionProvider()
+        .serviceVersionTypes()
         .values().stream()
-        .flatMap(type -> type.getVersions().stream()
+        .flatMap(type -> type.versions().stream()
           .sorted(Comparator.comparing(ServiceVersion::name))
           .map(version -> new Pair<>(type, version)))
         .toList();
     } else {
-      versions = CloudNet.getInstance().getServiceVersionProvider().getServiceVersionTypes()
+      versions = CloudNet.getInstance().serviceVersionProvider().serviceVersionTypes()
         .get(versionType.name().toLowerCase())
-        .getVersions()
+        .versions()
         .stream()
         .sorted(Comparator.comparing(ServiceVersion::name))
         .map(version -> new Pair<>(versionType, version))
@@ -211,7 +211,7 @@ public final class CommandTemplate {
       }
     }
 
-    CloudNet.getInstance().getMainThread().runTask(() -> {
+    CloudNet.getInstance().mainThread().runTask(() -> {
       source.sendMessage(I18n.trans("command-template-install-try")
         .replace("%version%", versionType.name() + "-" + serviceVersion.name())
         .replace("%template%", serviceTemplate.toString()));
@@ -224,7 +224,7 @@ public final class CommandTemplate {
         .executable(resolvedExecutable.equals("java") ? null : resolvedExecutable)
         .build();
 
-      if (CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(installInformation, forceInstall)) {
+      if (CloudNet.getInstance().serviceVersionProvider().installServiceVersion(installInformation, forceInstall)) {
         source.sendMessage(I18n.trans("command-template-install-success")
           .replace("%version%", versionType.name() + "-" + serviceVersion.name())
           .replace("%template%", serviceTemplate.toString())
@@ -294,7 +294,7 @@ public final class CommandTemplate {
     var sourceStorage = sourceTemplate.storage();
     var targetStorage = targetTemplate.storage();
 
-    CloudNet.getInstance().getMainThread().runTask(() -> {
+    CloudNet.getInstance().mainThread().runTask(() -> {
       source.sendMessage(I18n.trans("command-template-copy")
         .replace("%sourceTemplate%", sourceTemplate.toString())
         .replace("%targetTemplate%", targetTemplate.toString())

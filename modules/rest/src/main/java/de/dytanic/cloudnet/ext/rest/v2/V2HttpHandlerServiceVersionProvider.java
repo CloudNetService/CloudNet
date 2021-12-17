@@ -47,7 +47,7 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
 
   protected void handleVersionListRequest(IHttpContext context) {
     this.ok(context)
-      .body(this.success().append("versions", this.versionProvider().getServiceVersionTypes()).toString())
+      .body(this.success().append("versions", this.versionProvider().serviceVersionTypes()).toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -120,6 +120,6 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
   }
 
   protected ServiceVersionProvider versionProvider() {
-    return this.node().getServiceVersionProvider();
+    return this.node().serviceVersionProvider();
   }
 }

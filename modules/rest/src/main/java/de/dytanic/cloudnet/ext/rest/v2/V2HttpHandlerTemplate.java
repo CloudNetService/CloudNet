@@ -230,7 +230,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
       var versionType = body.get("type", ServiceVersionType.class);
       if (versionType == null) {
-        versionType = this.node().getServiceVersionProvider()
+        versionType = this.node().serviceVersionProvider()
           .getServiceVersionType(body.getString("typeName", "")).orElse(null);
         if (versionType == null) {
           this.badRequest(context)
@@ -244,7 +244,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
       var version = body.get("version", ServiceVersion.class);
       if (version == null) {
-        version = versionType.getVersion(body.getString("versionName", "")).orElse(null);
+        version = versionType.version(body.getString("versionName", "")).orElse(null);
         if (version == null) {
           this.badRequest(context)
             .body(this.failure().append("reason", "Missing version or version name").toString())
@@ -256,7 +256,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
       }
 
       var forceInstall = body.getBoolean("force", false);
-      var cacheFiles = body.getBoolean("caches", version.isCacheFiles());
+      var cacheFiles = body.getBoolean("caches", version.cacheFiles());
 
       var installInformation = InstallInformation.builder()
         .serviceVersion(version)
@@ -265,7 +265,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
         .toTemplate(template)
         .build();
 
-      if (this.node().getServiceVersionProvider()
+      if (this.node().serviceVersionProvider()
         .installServiceVersion(installInformation, forceInstall)) {
         this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
       } else {

@@ -40,7 +40,7 @@ public class DownloadStepExecutor implements InstallStepExecutor {
       Path.of(installInformation.serviceVersionType().name() + ".jar"));
 
     ConsoleProgressWrappers.wrapDownload(
-      installInformation.serviceVersion().getUrl(),
+      installInformation.serviceVersion().url(),
       stream -> Files.copy(stream, targetPath, StandardCopyOption.REPLACE_EXISTING));
     return new HashSet<>(Collections.singleton(targetPath));
   }

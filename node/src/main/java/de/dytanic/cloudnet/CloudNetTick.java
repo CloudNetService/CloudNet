@@ -100,7 +100,7 @@ public final class CloudNetTick {
     this.tickPauseRequests.decrementAndGet();
   }
 
-  public long getCurrentTick() {
+  public long currentTick() {
     return this.currentTick.get();
   }
 
@@ -109,7 +109,7 @@ public final class CloudNetTick {
     long lastTickLength;
     var lastTick = System.currentTimeMillis();
 
-    while (this.cloudNet.isRunning()) {
+    while (this.cloudNet.running()) {
       try {
         // update the current tick we are in
         tick = this.currentTick.getAndIncrement();
@@ -139,7 +139,7 @@ public final class CloudNetTick {
           // check if the node is marked for draining
           if (this.cloudNet.getClusterNodeServerProvider().getSelfNode().isDrain()) {
             // check if there are no services on the node
-            if (this.cloudNet.cloudServiceProvider().getLocalCloudServices().isEmpty()) {
+            if (this.cloudNet.cloudServiceProvider().localCloudService().isEmpty()) {
               // stop the node as it's marked for draining
               this.cloudNet.stop();
             }

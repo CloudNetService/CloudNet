@@ -45,7 +45,7 @@ public final class ConsoleProgressWrappers {
     @NotNull String task,
     @NotNull String unitName
   ) {
-    return wrapIterator(collection, CloudNet.getInstance().getConsole(), task, unitName);
+    return wrapIterator(collection, CloudNet.getInstance().console(), task, unitName);
   }
 
   public static @NotNull <T> Iterator<T> wrapIterator(
@@ -73,7 +73,7 @@ public final class ConsoleProgressWrappers {
 
   public static void wrapDownload(@NotNull String url,
     @NotNull ThrowableConsumer<InputStream, IOException> streamHandler) {
-    wrapDownload(url, CloudNet.getInstance().getConsole(), streamHandler);
+    wrapDownload(url, CloudNet.getInstance().console(), streamHandler);
   }
 
   public static void wrapDownload(

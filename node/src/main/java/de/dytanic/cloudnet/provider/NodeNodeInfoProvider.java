@@ -43,7 +43,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
 
   @Override
   public @NotNull Collection<CommandInfo> consoleCommands() {
-    return CloudNet.getInstance().getCommandProvider().getCommands();
+    return CloudNet.getInstance().commandProvider().getCommands();
   }
 
   @Override
@@ -98,7 +98,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
     Preconditions.checkNotNull(commandLine);
 
     var driverCommandSource = new DriverCommandSource();
-    CloudNet.getInstance().getCommandProvider().execute(driverCommandSource, commandLine);
+    CloudNet.getInstance().commandProvider().execute(driverCommandSource, commandLine);
     return driverCommandSource.getMessages();
   }
 
@@ -121,11 +121,11 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
   @Nullable
   @Override
   public CommandInfo consoleCommand(@NotNull String commandLine) {
-    return CloudNet.getInstance().getCommandProvider().getCommand(commandLine);
+    return CloudNet.getInstance().commandProvider().getCommand(commandLine);
   }
 
   @Override
   public @NotNull Collection<String> consoleTabCompleteResults(@NotNull String commandLine) {
-    return CloudNet.getInstance().getCommandProvider().suggest(CommandSource.console(), commandLine);
+    return CloudNet.getInstance().commandProvider().suggest(CommandSource.console(), commandLine);
   }
 }

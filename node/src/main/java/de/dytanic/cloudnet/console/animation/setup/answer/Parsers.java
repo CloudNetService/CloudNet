@@ -84,17 +84,17 @@ public final class Parsers {
         throw ParserException.INSTANCE;
       }
       // get the type and version
-      var type = CloudNet.getInstance().getServiceVersionProvider()
+      var type = CloudNet.getInstance().serviceVersionProvider()
         .getServiceVersionType(result[0])
         .orElseThrow(() -> ParserException.INSTANCE);
-      var version = type.getVersion(result[1]).orElseThrow(() -> ParserException.INSTANCE);
+      var version = type.version(result[1]).orElseThrow(() -> ParserException.INSTANCE);
       // combine the result
       return new Pair<>(type, version);
     };
   }
 
   public static @NotNull Parser<ServiceEnvironmentType> serviceEnvironmentType() {
-    return input -> CloudNet.getInstance().getServiceVersionProvider()
+    return input -> CloudNet.getInstance().serviceVersionProvider()
       .getEnvironmentType(input)
       .orElseThrow(() -> ParserException.INSTANCE);
   }

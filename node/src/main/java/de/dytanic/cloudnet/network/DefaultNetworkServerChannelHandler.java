@@ -76,7 +76,7 @@ public final class DefaultNetworkServerChannelHandler implements INetworkChannel
 
     var cloudService = CloudNet.getInstance()
       .cloudServiceProvider()
-      .getLocalCloudServices()
+      .localCloudService()
       .stream()
       .filter(service -> service.getNetworkChannel() != null && service.getNetworkChannel().equals(channel))
       .findFirst()

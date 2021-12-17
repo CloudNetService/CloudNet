@@ -58,7 +58,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
     // register the event for channel message handling
     cloudNet.eventManager().registerListener(new NodeChannelMessageListener(
       cloudNet.eventManager(),
-      cloudNet.getDataSyncRegistry(),
+      cloudNet.dataSyncRegistry(),
       this));
     // schedule the task for updating of the local node information
     cloudNet.taskExecutor().scheduleAtFixedRate(() -> {
@@ -214,7 +214,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
       .targetNodes()
       .message("sync_cluster_data")
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .buffer(this.cloudNet.getDataSyncRegistry().prepareClusterData(true))
+      .buffer(this.cloudNet.dataSyncRegistry().prepareClusterData(true))
       .build()
       .send();
   }

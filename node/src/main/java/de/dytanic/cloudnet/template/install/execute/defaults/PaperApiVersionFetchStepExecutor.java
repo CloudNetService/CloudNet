@@ -41,8 +41,8 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
     @NotNull Set<Path> inputPaths
   ) {
     // check if we need to fetch using the paper api
-    var enabled = installInformation.serviceVersion().getProperties().getBoolean("fetchOverPaperApi");
-    var versionGroup = installInformation.serviceVersion().getProperties().getString("versionGroup");
+    var enabled = installInformation.serviceVersion().properties().getBoolean("fetchOverPaperApi");
+    var versionGroup = installInformation.serviceVersion().properties().getString("versionGroup");
     if (enabled && versionGroup != null) {
       // resolve the project name we should use for the api request
       var project = this.decideApiProjectName(installInformation.serviceVersionType());
@@ -58,7 +58,7 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
           // set the download url of the service version required in the download step
           int build = newestBuild.get();
           installInformation.serviceVersion()
-            .setUrl(String.format(DOWNLOAD_URL, project, versionGroup, build, project, versionGroup, build));
+            .url(String.format(DOWNLOAD_URL, project, versionGroup, build, project, versionGroup, build));
         } else {
           throw new IllegalStateException(
             "Unable to retrieve latest build for papermc project " + project + " version-group " + versionGroup);

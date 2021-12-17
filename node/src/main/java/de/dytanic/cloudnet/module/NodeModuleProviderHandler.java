@@ -38,19 +38,19 @@ public final class NodeModuleProviderHandler extends DefaultModuleProviderHandle
     super.handlePostModuleStop(moduleWrapper);
 
     // unregister all listeners from the http server
-    this.nodeInstance.getHttpServer().removeHandler(moduleWrapper.classLoader());
+    this.nodeInstance.httpServer().removeHandler(moduleWrapper.classLoader());
     // unregister all listeners added to the network handlers
     this.nodeInstance.networkClient().packetRegistry().removeListeners(moduleWrapper.classLoader());
-    this.nodeInstance.getNetworkServer().packetRegistry().removeListeners(moduleWrapper.classLoader());
+    this.nodeInstance.networkServer().packetRegistry().removeListeners(moduleWrapper.classLoader());
     // unregister all listeners added to the network channels
     this.removeListeners(this.nodeInstance.networkClient().channels(), moduleWrapper.classLoader());
-    this.removeListeners(this.nodeInstance.getNetworkServer().channels(), moduleWrapper.classLoader());
+    this.removeListeners(this.nodeInstance.networkServer().channels(), moduleWrapper.classLoader());
     // unregister all listeners
     this.nodeInstance.eventManager().unregisterListeners(moduleWrapper.classLoader());
     // unregister all commands
-    this.nodeInstance.getCommandProvider().unregister(moduleWrapper.classLoader());
+    this.nodeInstance.commandProvider().unregister(moduleWrapper.classLoader());
     // unregister everything the module syncs to the cluster
-    this.nodeInstance.getDataSyncRegistry().unregisterHandler(moduleWrapper.classLoader());
+    this.nodeInstance.dataSyncRegistry().unregisterHandler(moduleWrapper.classLoader());
     // unregister all object mappers which are registered
     DefaultObjectMapper.DEFAULT_MAPPER.unregisterBindings(moduleWrapper.classLoader());
   }

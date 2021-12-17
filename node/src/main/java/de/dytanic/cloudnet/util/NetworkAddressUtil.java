@@ -34,7 +34,7 @@ public final class NetworkAddressUtil {
     throw new UnsupportedOperationException();
   }
 
-  public static @NotNull Set<String> getAvailableIpAddresses() {
+  public static @NotNull Set<String> availableIPAddresses() {
     try {
       Set<String> addresses = new HashSet<>();
       // try to resolve all ip addresses available on the system
@@ -43,7 +43,7 @@ public final class NetworkAddressUtil {
         // get all addresses of the interface
         var inetAddresses = networkInterfaces.nextElement().getInetAddresses();
         while (inetAddresses.hasMoreElements()) {
-          addresses.add(getHostAddress(inetAddresses.nextElement()));
+          addresses.add(hostAddress(inetAddresses.nextElement()));
         }
       }
       // return the located addresses
@@ -53,19 +53,19 @@ public final class NetworkAddressUtil {
     }
   }
 
-  public static String getLocalAddress() {
+  public static String localAddress() {
     return LOCAL_ADDRESS;
   }
 
   private static @NotNull String findLocalAddress() {
     try {
-      return getHostAddress(InetAddress.getLocalHost());
+      return hostAddress(InetAddress.getLocalHost());
     } catch (UnknownHostException exception) {
       return "127.0.0.1";
     }
   }
 
-  private static @NotNull String getHostAddress(@NotNull InetAddress address) {
+  private static @NotNull String hostAddress(@NotNull InetAddress address) {
     if (address instanceof Inet6Address) {
       // get the host address of the inet address
       var hostAddress = address.getHostAddress();

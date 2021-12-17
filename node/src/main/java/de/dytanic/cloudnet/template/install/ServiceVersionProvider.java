@@ -170,7 +170,7 @@ public class ServiceVersionProvider {
         JavaVersion.runtimeVersion().name()));
     }
 
-    if (information.serviceVersion().isDeprecated()) {
+    if (information.serviceVersion().deprecated()) {
       LOGGER.warning(I18n.trans("versions-installer-deprecated-version"));
     }
 
@@ -198,7 +198,7 @@ public class ServiceVersionProvider {
       } else {
         Files.createDirectories(workingDirectory);
 
-        List<InstallStep> installSteps = new ArrayList<>(information.serviceVersionType().getInstallSteps());
+        List<InstallStep> installSteps = new ArrayList<>(information.serviceVersionType().installSteps());
         installSteps.add(InstallStep.DEPLOY);
 
         Set<Path> lastStepResult = new HashSet<>();
@@ -206,7 +206,7 @@ public class ServiceVersionProvider {
           lastStepResult = installStep.execute(information, workingDirectory, lastStepResult);
         }
 
-        if (information.serviceVersion().isCacheFiles()) {
+        if (information.serviceVersion().cacheFiles()) {
           for (var path : lastStepResult) {
             var targetPath = cachedFilePath.resolve(workingDirectory.relativize(path));
             Files.createDirectories(targetPath.getParent());
@@ -216,7 +216,7 @@ public class ServiceVersionProvider {
         }
       }
 
-      for (var entry : information.serviceVersion().getAdditionalDownloads().entrySet()) {
+      for (var entry : information.serviceVersion().additionalDownloads().entrySet()) {
         ConsoleProgressWrappers.wrapDownload(entry.getKey(), stream -> {
           try (var out = information.templateStorage().newOutputStream(entry.getKey())) {
             FileUtils.copy(stream, out);
@@ -235,12 +235,12 @@ public class ServiceVersionProvider {
   }
 
   @UnmodifiableView
-  public @NotNull Map<String, ServiceVersionType> getServiceVersionTypes() {
+  public @NotNull Map<String, ServiceVersionType> serviceVersionTypes() {
     return Collections.unmodifiableMap(this.serviceVersionTypes);
   }
 
   @UnmodifiableView
-  public @NotNull Map<String, ServiceEnvironmentType> getKnownEnvironments() {
+  public @NotNull Map<String, ServiceEnvironmentType> knownEnvironments() {
     return Collections.unmodifiableMap(this.serviceEnvironmentTypes);
   }
 }

@@ -181,7 +181,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
 
         var commandSource = new PermissionUserCommandSource(user,
           V2HttpHandlerNode.this.node().permissionManagement());
-        V2HttpHandlerNode.this.node().getCommandProvider().execute(commandSource, commandLine).join();
+        V2HttpHandlerNode.this.node().commandProvider().execute(commandSource, commandLine).join();
 
         for (var message : commandSource.getMessages()) {
           this.channel.sendWebSocketFrame(WebSocketFrameType.TEXT, message);

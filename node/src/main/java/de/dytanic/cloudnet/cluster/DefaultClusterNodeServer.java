@@ -96,7 +96,7 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
       .message("sync_cluster_data")
       .targetNode(this.nodeInfo.uniqueId())
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .buffer(this.cloudNet.getDataSyncRegistry().prepareClusterData(force))
+      .buffer(this.cloudNet.dataSyncRegistry().prepareClusterData(force))
       .build();
     // if the data sync is forced there is no need to wait for a response
     if (force) {
@@ -106,7 +106,7 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
       var response = channelMessage.sendSingleQuery();
       if (response != null && response.content().readBoolean()) {
         // there was overridden data we need to handle
-        this.cloudNet.getDataSyncRegistry().handle(response.content(), true);
+        this.cloudNet.dataSyncRegistry().handle(response.content(), true);
       }
     }
   }

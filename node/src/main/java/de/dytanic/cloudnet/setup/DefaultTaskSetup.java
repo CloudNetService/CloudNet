@@ -80,7 +80,7 @@ public class DefaultTaskSetup implements DefaultSetup {
                   .translatedQuestion("cloudnet-init-setup-tasks-proxy-environment")
                   .answerType(QuestionAnswerType.<ServiceEnvironmentType>builder()
                     .parser(serviceEnvironmentType())
-                    .possibleResults(this.getVersionProvider().getKnownEnvironments().values().stream()
+                    .possibleResults(this.getVersionProvider().knownEnvironments().values().stream()
                       .filter(type -> {
                         IDocument<?> properties = type.properties();
                         return JAVA_PROXY.get(properties) || PE_PROXY.get(properties);
@@ -127,7 +127,7 @@ public class DefaultTaskSetup implements DefaultSetup {
                   .translatedQuestion("cloudnet-init-setup-tasks-server-environment")
                   .answerType(QuestionAnswerType.<ServiceEnvironmentType>builder()
                     .parser(serviceEnvironmentType())
-                    .possibleResults(this.getVersionProvider().getKnownEnvironments().values().stream()
+                    .possibleResults(this.getVersionProvider().knownEnvironments().values().stream()
                       .filter(type -> {
                         IDocument<?> properties = type.properties();
                         return JAVA_SERVER.get(properties) || PE_SERVER.get(properties);
@@ -214,7 +214,7 @@ public class DefaultTaskSetup implements DefaultSetup {
 
     // install the service template
     this.initializeTemplate(template, environment, true);
-    CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(InstallInformation.builder()
+    CloudNet.getInstance().serviceVersionProvider().installServiceVersion(InstallInformation.builder()
       .serviceVersion(version.second())
       .serviceVersionType(version.first())
       .toTemplate(template)
@@ -242,9 +242,9 @@ public class DefaultTaskSetup implements DefaultSetup {
     @NotNull ServiceEnvironmentType type,
     @NotNull Pair<String, JavaVersion> javaVersion
   ) {
-    return this.getVersionProvider().getServiceVersionTypes().values().stream()
+    return this.getVersionProvider().serviceVersionTypes().values().stream()
       .filter(versionType -> versionType.environmentType().equals(type.name()))
-      .flatMap(serviceVersionType -> serviceVersionType.getVersions()
+      .flatMap(serviceVersionType -> serviceVersionType.versions()
         .stream()
         .filter(version -> version.canRun(javaVersion.second()))
         .map(version -> String.format("%s-%s", serviceVersionType.name(), version.name())))
@@ -255,6 +255,6 @@ public class DefaultTaskSetup implements DefaultSetup {
   }
 
   protected @NotNull ServiceVersionProvider getVersionProvider() {
-    return CloudNet.getInstance().getServiceVersionProvider();
+    return CloudNet.getInstance().serviceVersionProvider();
   }
 }

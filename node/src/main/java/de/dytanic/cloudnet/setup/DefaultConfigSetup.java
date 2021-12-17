@@ -37,13 +37,13 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
   private static final Collection<String> DEFAULT_WHITELIST = ImmutableSet.<String>builder()
     .add("127.0.0.1")
     .add("127.0.1.1")
-    .addAll(NetworkAddressUtil.getAvailableIpAddresses())
+    .addAll(NetworkAddressUtil.availableIPAddresses())
     .build();
 
   @Override
   public void applyQuestions(@NotNull ConsoleSetupAnimation animation) {
     // pre-save all available ip addresses
-    Collection<String> addresses = NetworkAddressUtil.getAvailableIpAddresses();
+    Collection<String> addresses = NetworkAddressUtil.availableIPAddresses();
     // apply the questions
     animation.addEntries(
       // eula agreement
@@ -68,7 +68,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
         .key("internalHost")
         .translatedQuestion("cloudnet-init-setup-internal-host")
         .answerType(QuestionAnswerType.<HostAndPort>builder()
-          .recommendation(NetworkAddressUtil.getLocalAddress() + ":1410")
+          .recommendation(NetworkAddressUtil.localAddress() + ":1410")
           .possibleResults(addresses.stream().map(addr -> addr + ":1410").toList())
           .parser(validatedHostAndPort(true)))
         .build(),
@@ -77,7 +77,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
         .key("webHost")
         .translatedQuestion("cloudnet-init-setup-web-host")
         .answerType(QuestionAnswerType.<HostAndPort>builder()
-          .recommendation(NetworkAddressUtil.getLocalAddress() + ":2812")
+          .recommendation(NetworkAddressUtil.localAddress() + ":2812")
           .possibleResults(addresses.stream().map(addr -> addr + ":2812").toList())
           .parser(validatedHostAndPort(true)))
         .build(),
@@ -87,7 +87,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
         .translatedQuestion("cloudnet-init-setup-host-address")
         .answerType(QuestionAnswerType.<HostAndPort>builder()
           .possibleResults(addresses)
-          .recommendation(NetworkAddressUtil.getLocalAddress())
+          .recommendation(NetworkAddressUtil.localAddress())
           .parser(validatedHostAndPort(false)))
         .build(),
       // maximum memory usage

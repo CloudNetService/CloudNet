@@ -73,7 +73,7 @@ public final class CloudNetReportModule extends DriverModule {
     // register our listener to handle stopping and deleted services
     this.registerListener(new RecordReportListener(this));
     // register the command of the module at the node
-    CloudNet.getInstance().getCommandProvider().register(new CommandReport(this));
+    CloudNet.getInstance().commandProvider().register(new CommandReport(this));
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)

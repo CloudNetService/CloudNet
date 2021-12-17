@@ -107,7 +107,7 @@ public final class JsonConfiguration implements IConfiguration {
   public static @NotNull IConfiguration loadFromFile(@NotNull CloudNet nodeInstance) {
     if (Files.notExists(CONFIG_FILE_PATH)) {
       // register the setup if the file does not exists
-      nodeInstance.getInstallation().registerSetup(new DefaultConfigSetup());
+      nodeInstance.installation().registerSetup(new DefaultConfigSetup());
       return new JsonConfiguration().load();
     } else {
       return JsonDocument.newDocument(CONFIG_FILE_PATH).toInstanceOf(JsonConfiguration.class).load();
@@ -128,7 +128,7 @@ public final class JsonConfiguration implements IConfiguration {
           "Node-" + StringUtil.generateRandomString(4)),
         ConfigurationUtils.get(
           "cloudnet.config.listeners",
-          new HostAndPort[]{new HostAndPort(NetworkAddressUtil.getLocalAddress(), 1410)},
+          new HostAndPort[]{new HostAndPort(NetworkAddressUtil.localAddress(), 1410)},
           ConfigurationUtils.HOST_AND_PORT_PARSER));
     }
 
@@ -156,7 +156,7 @@ public final class JsonConfiguration implements IConfiguration {
     if (this.ipWhitelist == null) {
       this.ipWhitelist = ConfigurationUtils.get(
         "cloudnet.config.ipWhitelist",
-        NetworkAddressUtil.getAvailableIpAddresses(),
+        NetworkAddressUtil.availableIPAddresses(),
         value -> ImmutableSet.copyOf(value.split(",")));
     }
 
@@ -221,7 +221,7 @@ public final class JsonConfiguration implements IConfiguration {
     }
 
     if (this.hostAddress == null) {
-      this.hostAddress = ConfigurationUtils.get("cloudnet.config.hostAddress", NetworkAddressUtil.getLocalAddress());
+      this.hostAddress = ConfigurationUtils.get("cloudnet.config.hostAddress", NetworkAddressUtil.localAddress());
     }
 
     if (this.connectHostAddress == null) {

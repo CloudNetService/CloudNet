@@ -50,7 +50,7 @@ public final class RecordReportListener {
     // check if we should print the log lines based on the online time.
     if (connectedTime <= serviceLifetimeSetting) {
       var consoleLogCache = event.getService().getServiceConsoleLogCache().update();
-      for (var logMessage : consoleLogCache.getCachedLogMessages()) {
+      for (var logMessage : consoleLogCache.cachedLogMessages()) {
         LOGGER.severe(String.format("[%s] %s", event.getServiceInfo().name(), logMessage));
       }
     }

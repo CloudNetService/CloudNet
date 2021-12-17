@@ -81,7 +81,7 @@ public final class CommandReport {
   @Parser(suggestions = "cloudService")
   public ICloudService singleServiceParser(CommandContext<CommandSource> $, Queue<String> input) {
     var name = input.remove();
-    var cloudService = CloudNet.getInstance().cloudServiceProvider().getLocalCloudService(name);
+    var cloudService = CloudNet.getInstance().cloudServiceProvider().localCloudService(name);
     if (cloudService == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-service-service-not-found"));
     }
@@ -90,7 +90,7 @@ public final class CommandReport {
 
   @Suggestions("cloudService")
   public List<String> suggestService(CommandContext<CommandSource> $, String input) {
-    return CloudNet.getInstance().cloudServiceProvider().getLocalCloudServices()
+    return CloudNet.getInstance().cloudServiceProvider().localCloudService()
       .stream()
       .map(service -> service.getServiceId().name())
       .toList();

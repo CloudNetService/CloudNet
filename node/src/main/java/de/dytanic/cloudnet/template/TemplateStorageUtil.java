@@ -34,12 +34,12 @@ public final class TemplateStorageUtil {
     throw new UnsupportedOperationException();
   }
 
-  public static @NotNull LocalTemplateStorage getLocalTemplateStorage() {
+  public static @NotNull LocalTemplateStorage localTemplateStorage() {
     return (LocalTemplateStorage) CloudNet.getInstance().localTemplateStorage();
   }
 
   public static @NotNull Path localPathInTemplate(@NotNull ServiceTemplate serviceTemplate, @NotNull String path) {
-    return getLocalTemplateStorage().getTemplatePath(serviceTemplate).resolve(path).normalize();
+    return localTemplateStorage().getTemplatePath(serviceTemplate).resolve(path).normalize();
   }
 
   public static boolean createAndPrepareTemplate(

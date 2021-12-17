@@ -52,7 +52,7 @@ public record InstallInformation(
 
     public @NotNull Builder serviceVersion(@NotNull ServiceVersion serviceVersion) {
       this.serviceVersion = serviceVersion;
-      this.cacheFiles = serviceVersion.isCacheFiles();
+      this.cacheFiles = serviceVersion.cacheFiles();
       return this;
     }
 

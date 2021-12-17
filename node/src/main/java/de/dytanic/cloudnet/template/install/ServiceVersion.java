@@ -61,11 +61,11 @@ public class ServiceVersion implements INameable {
   public ServiceVersion() {
   }
 
-  public boolean isCacheFiles() {
+  public boolean cacheFiles() {
     return this.cacheFiles;
   }
 
-  public boolean isDeprecated() {
+  public boolean deprecated() {
     return this.deprecated;
   }
 
@@ -89,27 +89,27 @@ public class ServiceVersion implements INameable {
     return this.name;
   }
 
-  public String getUrl() {
+  public String url() {
     return this.url;
   }
 
-  public void setUrl(@NotNull String url) {
+  public void url(@NotNull String url) {
     this.url = url;
   }
 
-  public @NotNull Optional<JavaVersion> getMinJavaVersion() {
+  public @NotNull Optional<JavaVersion> minJavaVersion() {
     return JavaVersion.fromVersion(this.minJavaVersion);
   }
 
-  public @NotNull Optional<JavaVersion> getMaxJavaVersion() {
+  public @NotNull Optional<JavaVersion> maxJavaVersion() {
     return JavaVersion.fromVersion(this.maxJavaVersion);
   }
 
-  public @NotNull JsonDocument getProperties() {
+  public @NotNull JsonDocument properties() {
     return this.properties;
   }
 
-  public @NotNull Map<String, String> getAdditionalDownloads() {
+  public @NotNull Map<String, String> additionalDownloads() {
     return this.additionalDownloads;
   }
 }

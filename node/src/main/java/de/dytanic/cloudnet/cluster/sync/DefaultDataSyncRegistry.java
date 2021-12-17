@@ -142,7 +142,7 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
             // print out the possibilities the user has now
             LOGGER.info(I18n.trans("cluster-sync-change-decision-question"));
             // wait for the decision and apply
-            switch (this.waitForCorrectMergeInput(CloudNet.getInstance().getConsole())) {
+            switch (this.waitForCorrectMergeInput(CloudNet.getInstance().console())) {
               case 1 -> {
                 // accept theirs - write the change
                 handler.write(data);

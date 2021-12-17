@@ -200,7 +200,7 @@ public class CloudNet extends CloudNetDriver {
         !this.configuration.getClusterConfig().nodes().isEmpty()));
 
     // initialize the default database provider
-    this.setDatabaseProvider(this.servicesRegistry.service(
+    this.databaseProvider(this.servicesRegistry.service(
       AbstractDatabaseProvider.class,
       this.configuration.getProperties().getString("database_provider", "xodus")));
 
@@ -209,7 +209,7 @@ public class CloudNet extends CloudNetDriver {
 
     // check if there is a database provider or initialize the default one
     if (this.databaseProvider == null || !this.databaseProvider.init()) {
-      this.setDatabaseProvider(this.servicesRegistry.service(AbstractDatabaseProvider.class, "xodus"));
+      this.databaseProvider(this.servicesRegistry.service(AbstractDatabaseProvider.class, "xodus"));
       if (this.databaseProvider == null || !this.databaseProvider.init()) {
         // unable to start without a database
         throw new IllegalStateException("No database provider selected for startup - Unable to proceed");
@@ -369,7 +369,7 @@ public class CloudNet extends CloudNetDriver {
     return this.databaseProvider;
   }
 
-  public void setDatabaseProvider(@Nullable AbstractDatabaseProvider databaseProvider) {
+  public void databaseProvider(@Nullable AbstractDatabaseProvider databaseProvider) {
     if (databaseProvider != null) {
       try {
         // check if we have an old database provider and close that one if the new database provider is ready and connected
@@ -442,43 +442,43 @@ public class CloudNet extends CloudNetDriver {
     return this.nodeServerProvider;
   }
 
-  public @NotNull CloudNetTick getMainThread() {
+  public @NotNull CloudNetTick mainThread() {
     return this.mainThread;
   }
 
-  public @NotNull CommandProvider getCommandProvider() {
+  public @NotNull CommandProvider commandProvider() {
     return this.commandProvider;
   }
 
-  public @NotNull IConsole getConsole() {
+  public @NotNull IConsole console() {
     return this.console;
   }
 
-  public @NotNull ServiceVersionProvider getServiceVersionProvider() {
+  public @NotNull ServiceVersionProvider serviceVersionProvider() {
     return this.serviceVersionProvider;
   }
 
-  public @NotNull INetworkServer getNetworkServer() {
+  public @NotNull INetworkServer networkServer() {
     return this.networkServer;
   }
 
-  public @NotNull IHttpServer getHttpServer() {
+  public @NotNull IHttpServer httpServer() {
     return this.httpServer;
   }
 
-  public @NotNull QueuedConsoleLogHandler getLogHandler() {
+  public @NotNull QueuedConsoleLogHandler logHandler() {
     return this.logHandler;
   }
 
-  public @NotNull DefaultInstallation getInstallation() {
+  public @NotNull DefaultInstallation installation() {
     return this.installation;
   }
 
-  public @NotNull DataSyncRegistry getDataSyncRegistry() {
+  public @NotNull DataSyncRegistry dataSyncRegistry() {
     return this.dataSyncRegistry;
   }
 
-  public boolean isRunning() {
+  public boolean running() {
     return this.running.get();
   }
 }

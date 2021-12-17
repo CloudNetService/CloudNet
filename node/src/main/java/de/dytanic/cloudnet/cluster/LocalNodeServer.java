@@ -61,7 +61,7 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
 
   @Override
   public boolean isAvailable() {
-    return this.cloudNet.isRunning() && this.nodeInfo != null;
+    return this.cloudNet.running() && this.nodeInfo != null;
   }
 
   @Override
@@ -77,7 +77,7 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
   @Override
   public @NotNull Collection<String> sendCommandLine(@NotNull String commandLine) {
     var commandSource = new DriverCommandSource();
-    this.cloudNet.getCommandProvider().execute(new DriverCommandSource(), commandLine);
+    this.cloudNet.commandProvider().execute(new DriverCommandSource(), commandLine);
 
     return commandSource.getMessages();
   }
@@ -89,7 +89,7 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
 
   @Override
   public @Nullable SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot snapshot) {
-    var service = this.cloudNet.cloudServiceProvider().getLocalCloudService(snapshot);
+    var service = this.cloudNet.cloudServiceProvider().localCloudService(snapshot);
     return service == null ? EmptySpecificCloudServiceProvider.INSTANCE : service;
   }
 
@@ -106,7 +106,7 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
       this.cloudNet.getConfig().getMaxMemory(),
       this.cloudNet.cloudServiceProvider().getCurrentUsedHeapMemory(),
       this.cloudNet.cloudServiceProvider().getCurrentReservedMemory(),
-      this.cloudNet.cloudServiceProvider().getLocalCloudServices().size(),
+      this.cloudNet.cloudServiceProvider().localCloudService().size(),
       this.drain,
       this.nodeInfo,
       this.cloudNet.version(),

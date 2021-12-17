@@ -201,7 +201,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
   protected void handleLiveLogRequest(IHttpContext context) {
     this.handleWithServiceContext(context, service -> {
       var cloudService = this.node().cloudServiceProvider()
-        .getLocalCloudService(service.serviceId().uniqueId());
+        .localCloudService(service.serviceId().uniqueId());
       if (cloudService != null) {
         var webSocketChannel = context.upgrade();
         if (webSocketChannel == null) {

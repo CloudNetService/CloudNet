@@ -51,22 +51,22 @@ public abstract class AbstractServiceLogCache implements IServiceConsoleLogCache
   }
 
   @Override
-  public @NotNull ICloudService getService() {
+  public @NotNull ICloudService service() {
     return this.service;
   }
 
   @Override
-  public @NotNull Queue<String> getCachedLogMessages() {
+  public @NotNull Queue<String> cachedLogMessages() {
     return this.cachedLogMessages;
   }
 
   @Override
-  public int getLogCacheSize() {
+  public int logCacheSize() {
     return this.logCacheSize;
   }
 
   @Override
-  public void setLogCacheSize(int cacheSize) {
+  public void logCacheSize(int cacheSize) {
     Preconditions.checkArgument(cacheSize >= 0, "Cache size must be higher or equal to 0");
     this.logCacheSize = cacheSize;
   }
@@ -77,7 +77,7 @@ public abstract class AbstractServiceLogCache implements IServiceConsoleLogCache
   }
 
   @Override
-  public void setAlwaysPrintErrorStreamToConsole(boolean value) {
+  public void alwaysPrintErrorStreamToConsole(boolean value) {
     this.alwaysPrintErrorStreamToConsole = value;
   }
 
@@ -92,7 +92,7 @@ public abstract class AbstractServiceLogCache implements IServiceConsoleLogCache
   }
 
   @Override
-  public @NotNull @UnmodifiableView Collection<ServiceConsoleLineHandler> getHandlers() {
+  public @NotNull @UnmodifiableView Collection<ServiceConsoleLineHandler> handlers() {
     return Collections.unmodifiableCollection(this.handlers);
   }
 

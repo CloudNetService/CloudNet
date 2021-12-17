@@ -37,7 +37,7 @@ public class ZipFileFilterStepExecutor implements InstallStepExecutor {
     @NotNull Path workingDirectory,
     @NotNull Set<Path> files
   ) throws IOException {
-    Collection<String> filesToRemove = info.serviceVersion().getProperties().get("filteredFiles", COL_STRINGS);
+    Collection<String> filesToRemove = info.serviceVersion().properties().get("filteredFiles", COL_STRINGS);
     Collection<Path> jarFiles = files.stream().filter(path -> path.getFileName().toString().endsWith(".jar")).toList();
     if (filesToRemove != null && !filesToRemove.isEmpty()) {
       // remove these files

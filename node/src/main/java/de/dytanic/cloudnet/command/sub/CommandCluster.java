@@ -365,7 +365,7 @@ public final class CommandCluster {
         // remove to root path we started at
         .filter(path -> !path.equals(manager.getPersistentServicesDirectoryPath()))
         // remove all services that are started, as we can't push them
-        .filter(path -> manager.getLocalCloudService(path.getFileName().toString()) == null)
+        .filter(path -> manager.localCloudService(path.getFileName().toString()) == null)
         // map to all names of the different services
         .map(path -> path.getFileName().toString())
         .toList();

@@ -45,7 +45,7 @@ public final class CommandProviderTest {
   @BeforeAll
   public static void initNode() {
     var node = NodeTestUtility.mockAndSetDriverInstance();
-    Mockito.when(node.getCommandProvider()).thenReturn(commandProvider);
+    Mockito.when(node.commandProvider()).thenReturn(commandProvider);
     Mockito.when(node.eventManager()).thenReturn(new DefaultEventManager());
     commandProvider.register(new CommandTest());
     commandProvider.register(new CommandHelpTest());

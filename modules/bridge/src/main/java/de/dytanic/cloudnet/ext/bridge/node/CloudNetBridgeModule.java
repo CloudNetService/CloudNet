@@ -124,7 +124,7 @@ public final class CloudNetBridgeModule extends DriverModule {
             var environment = serviceId.getString("environment", "");
             serviceId.append("environmentName", environment);
             // try to set the new environment
-            var env = CloudNet.getInstance().getServiceVersionProvider()
+            var env = CloudNet.getInstance().serviceVersionProvider()
               .getEnvironmentType(environment)
               .orElse(null);
             serviceId.append("environment", env);
@@ -163,12 +163,12 @@ public final class CloudNetBridgeModule extends DriverModule {
       this,
       configuration,
       this.eventManager(),
-      CloudNet.getInstance().getDataSyncRegistry(),
+      CloudNet.getInstance().dataSyncRegistry(),
       this.rpcFactory());
     management.registerServices(this.serviceRegistry());
     management.postInit();
     // register the cluster sync handler
-    CloudNet.getInstance().getDataSyncRegistry().registerHandler(DataSyncHandler.<BridgeConfiguration>builder()
+    CloudNet.getInstance().dataSyncRegistry().registerHandler(DataSyncHandler.<BridgeConfiguration>builder()
       .key("bridge-config")
       .nameExtractor($ -> "Bridge Config")
       .convertObject(BridgeConfiguration.class)
@@ -177,6 +177,6 @@ public final class CloudNetBridgeModule extends DriverModule {
       .currentGetter($ -> management.configuration())
       .build());
     // register the bridge command
-    CloudNet.getInstance().getCommandProvider().register(new CommandBridge(management));
+    CloudNet.getInstance().commandProvider().register(new CommandBridge(management));
   }
 }

@@ -91,7 +91,7 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
         .translatedQuestion("command-tasks-setup-question-environment")
         .answerType(QuestionAnswerType.<ServiceEnvironmentType>builder()
           .parser(serviceEnvironmentType())
-          .possibleResults(CloudNet.getInstance().getServiceVersionProvider().getKnownEnvironments().keySet()))
+          .possibleResults(CloudNet.getInstance().serviceVersionProvider().knownEnvironments().keySet()))
         .build(),
       QuestionListEntry.<Integer>builder()
         .key("taskStartPort")
@@ -157,7 +157,7 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
     // create the default template for the task
     this.initializeTemplate(defaultTemplate, environment, true);
     // install the chosen version
-    CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(InstallInformation.builder()
+    CloudNet.getInstance().serviceVersionProvider().installServiceVersion(InstallInformation.builder()
       .serviceVersionType(version.first())
       .serviceVersion(version.second())
       .toTemplate(defaultTemplate)

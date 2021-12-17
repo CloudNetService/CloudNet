@@ -68,7 +68,7 @@ public final class CloudNetSyncProxyModule extends DriverModule {
     // register the SyncProxyManagement to the ServiceRegistry
     this.nodeSyncProxyManagement.registerService(this.serviceRegistry());
     // sync the config of the module into the cluster
-    CloudNet.getInstance().getDataSyncRegistry().registerHandler(
+    CloudNet.getInstance().dataSyncRegistry().registerHandler(
       DataSyncHandler.<SyncProxyConfiguration>builder()
         .key("syncproxy-config")
         .nameExtractor($ -> "SyncProxy Config")
@@ -89,6 +89,6 @@ public final class CloudNetSyncProxyModule extends DriverModule {
   @ModuleTask(order = 60, event = ModuleLifeCycle.LOADED)
   public void registerCommands() {
     // register the syncproxy command to provide config management
-    CloudNet.getInstance().getCommandProvider().register(new CommandSyncProxy(this.nodeSyncProxyManagement));
+    CloudNet.getInstance().commandProvider().register(new CommandSyncProxy(this.nodeSyncProxyManagement));
   }
 }

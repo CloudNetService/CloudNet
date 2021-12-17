@@ -72,16 +72,16 @@ public interface ICloudServiceManager extends GeneralCloudServiceProvider {
   int getCurrentReservedMemory();
 
   @NotNull
-  @UnmodifiableView Collection<ICloudService> getLocalCloudServices();
+  @UnmodifiableView Collection<ICloudService> localCloudService();
 
   @Nullable
-  ICloudService getLocalCloudService(@NotNull String name);
+  ICloudService localCloudService(@NotNull String name);
 
   @Nullable
-  ICloudService getLocalCloudService(@NotNull UUID uniqueId);
+  ICloudService localCloudService(@NotNull UUID uniqueId);
 
   @Nullable
-  ICloudService getLocalCloudService(@NotNull ServiceInfoSnapshot snapshot);
+  ICloudService localCloudService(@NotNull ServiceInfoSnapshot snapshot);
 
   @Internal
   void registerLocalService(@NotNull ICloudService service);

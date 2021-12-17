@@ -62,7 +62,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
     // rpc
     nodeInstance.rpcProviderFactory().newHandler(GroupConfigurationProvider.class, this).registerToDefaultRegistry();
     // cluster data sync
-    nodeInstance.getDataSyncRegistry().registerHandler(
+    nodeInstance.dataSyncRegistry().registerHandler(
       DataSyncHandler.<GroupConfiguration>builder()
         .key("group_configuration")
         .nameExtractor(INameable::name)
