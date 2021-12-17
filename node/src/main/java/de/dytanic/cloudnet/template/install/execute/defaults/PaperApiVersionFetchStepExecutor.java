@@ -26,7 +26,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Set;
 import kong.unirest.Unirest;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
 
@@ -35,10 +35,10 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
   private static final Type INT_SET_TYPE = TypeToken.getParameterized(Set.class, Integer.class).getType();
 
   @Override
-  public @NotNull Set<Path> execute(
-    @NotNull InstallInformation installInformation,
-    @NotNull Path workingDirectory,
-    @NotNull Set<Path> inputPaths
+  public @NonNull Set<Path> execute(
+    @NonNull InstallInformation installInformation,
+    @NonNull Path workingDirectory,
+    @NonNull Set<Path> inputPaths
   ) {
     // check if we need to fetch using the paper api
     var enabled = installInformation.serviceVersion().properties().getBoolean("fetchOverPaperApi");
@@ -72,7 +72,7 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
     return Collections.emptySet();
   }
 
-  private JsonDocument makeRequest(@NotNull String apiUrl) {
+  private JsonDocument makeRequest(@NonNull String apiUrl) {
     var response = Unirest.get(apiUrl)
       .accept("application/json")
       .asString();
@@ -83,8 +83,8 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
     return JsonDocument.emptyDocument();
   }
 
-  @NotNull
-  private String decideApiProjectName(@NotNull ServiceVersionType type) {
+  @NonNull
+  private String decideApiProjectName(@NonNull ServiceVersionType type) {
     return type.name().toLowerCase();
   }
 }

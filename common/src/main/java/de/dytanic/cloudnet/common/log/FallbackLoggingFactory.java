@@ -19,14 +19,14 @@ package de.dytanic.cloudnet.common.log;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.LogManager;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 final class FallbackLoggingFactory implements LoggerFactory {
 
   private final Map<String, Logger> createdLoggers = new ConcurrentHashMap<>();
 
   @Override
-  public @NotNull Logger logger(@NotNull String name) {
+  public @NonNull Logger logger(@NonNull String name) {
     var registered = LogManager.getLogManager().getLogger(name);
     // check if this logger is already a wrapped logger
     if (registered instanceof Logger) {

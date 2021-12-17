@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * The LanguageManager is a static service, which handles messages from different languages, which are registered or
@@ -50,7 +50,7 @@ public final class I18n {
     throw new UnsupportedOperationException();
   }
 
-  public static void loadFromLanguageRegistryFile(@NotNull ClassLoader source) {
+  public static void loadFromLanguageRegistryFile(@NonNull ClassLoader source) {
     try (var reader = new BufferedReader(new InputStreamReader(
       Objects.requireNonNull(source.getResourceAsStream("languages.txt")),
       StandardCharsets.UTF_8))
@@ -76,7 +76,7 @@ public final class I18n {
    * @return the message which is defined in language cache or a fallback message like {@code "<language LANGUAGE not
    * found>"} or {@code "<message property not found in LANGUAGE>"}
    */
-  public static String trans(@NotNull String messageKey) {
+  public static String trans(@NonNull String messageKey) {
     if (language == null || !LANGUAGE_CACHE.containsKey(language)) {
       return "<language " + language + " not found>";
     }
@@ -91,7 +91,7 @@ public final class I18n {
    * @param language   the language, which should append
    * @param properties the properties which will add in the language as parameter
    */
-  public static void addLanguageFile(@NotNull String language, @NotNull Properties properties) {
+  public static void addLanguageFile(@NonNull String language, @NonNull Properties properties) {
     LANGUAGE_CACHE.computeIfAbsent(language, $ -> new Properties()).putAll(properties);
     LOGGER.fine("Registering language file %s with %d translations", null, language, properties.size());
   }
@@ -102,7 +102,7 @@ public final class I18n {
    * @param language the language, which should append
    * @param file     the properties which will add in the language as parameter
    */
-  public static void addLanguageFile(@NotNull String language, @NotNull Path file) {
+  public static void addLanguageFile(@NonNull String language, @NonNull Path file) {
     try (var inputStream = Files.newInputStream(file)) {
       addLanguageFile(language, inputStream);
     } catch (IOException exception) {
@@ -116,7 +116,7 @@ public final class I18n {
    * @param language    the language, which should append
    * @param inputStream the properties which will add in the language as parameter
    */
-  public static void addLanguageFile(@NotNull String language, @NotNull InputStream inputStream) {
+  public static void addLanguageFile(@NonNull String language, @NonNull InputStream inputStream) {
     try (Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
       addLanguageFile(language, reader);
     } catch (IOException exception) {
@@ -130,7 +130,7 @@ public final class I18n {
    * @param language the language, which should append
    * @param reader   the properties which will be added in the language as parameter
    */
-  public static void addLanguageFile(@NotNull String language, @NotNull Reader reader) {
+  public static void addLanguageFile(@NonNull String language, @NonNull Reader reader) {
     var properties = new Properties();
 
     try {
@@ -142,11 +142,11 @@ public final class I18n {
     addLanguageFile(language, properties);
   }
 
-  public static @NotNull String language() {
+  public static @NonNull String language() {
     return I18n.language;
   }
 
-  public static void language(@NotNull String language) {
+  public static void language(@NonNull String language) {
     I18n.language = language;
   }
 }

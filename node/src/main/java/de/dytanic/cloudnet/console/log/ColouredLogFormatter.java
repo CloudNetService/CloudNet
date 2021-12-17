@@ -23,7 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class ColouredLogFormatter extends Formatter {
 
@@ -48,7 +48,7 @@ public final class ColouredLogFormatter extends Formatter {
     return builder.toString();
   }
 
-  private @NotNull String color(@NotNull Level level) {
+  private @NonNull String color(@NonNull Level level) {
     var color = ConsoleColor.DARK_GRAY;
     if (level == Level.INFO) {
       color = ConsoleColor.GREEN;

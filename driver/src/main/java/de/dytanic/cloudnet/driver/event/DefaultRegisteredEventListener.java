@@ -19,20 +19,20 @@ package de.dytanic.cloudnet.driver.event;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.event.invoker.ListenerInvoker;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 record DefaultRegisteredEventListener(
-  @NotNull Object instance,
-  @NotNull String methodName,
-  @NotNull Class<?> eventClass,
-  @NotNull EventListener eventListener,
-  @NotNull ListenerInvoker listenerInvoker
+  @NonNull Object instance,
+  @NonNull String methodName,
+  @NonNull Class<?> eventClass,
+  @NonNull EventListener eventListener,
+  @NonNull ListenerInvoker listenerInvoker
 ) implements IRegisteredEventListener {
 
   private static final Logger LOGGER = LogManager.logger(DefaultRegisteredEventListener.class);
 
   @Override
-  public void fireEvent(@NotNull Event event) {
+  public void fireEvent(@NonNull Event event) {
     if (event.debug()) {
       LOGGER.fine(String.format(
         "Calling event %s on listener %s",
@@ -50,12 +50,12 @@ record DefaultRegisteredEventListener(
   }
 
   @Override
-  public @NotNull String channel() {
+  public @NonNull String channel() {
     return this.eventListener.channel();
   }
 
   @Override
-  public @NotNull EventPriority priority() {
+  public @NonNull EventPriority priority() {
     return this.eventListener.priority();
   }
 }

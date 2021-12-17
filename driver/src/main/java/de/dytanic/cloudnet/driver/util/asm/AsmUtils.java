@@ -24,7 +24,7 @@ import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.SIPUSH;
 
 import com.google.common.primitives.Primitives;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
@@ -34,7 +34,7 @@ public final class AsmUtils {
     throw new UnsupportedOperationException();
   }
 
-  public static void pushInt(@NotNull MethodVisitor mv, int value) {
+  public static void pushInt(@NonNull MethodVisitor mv, int value) {
     if (value < -1) {
       mv.visitLdcInsn(value);
     } else if (value <= 5) {
@@ -48,7 +48,7 @@ public final class AsmUtils {
     }
   }
 
-  public static void wrapperToPrimitive(@NotNull MethodVisitor mv, @NotNull Class<?> primitiveType) {
+  public static void wrapperToPrimitive(@NonNull MethodVisitor mv, @NonNull Class<?> primitiveType) {
     var wrapper = Primitives.wrap(primitiveType);
     // cast to the wrapper type
     mv.visitTypeInsn(CHECKCAST, org.objectweb.asm.Type.getInternalName(wrapper));
@@ -61,7 +61,7 @@ public final class AsmUtils {
       false);
   }
 
-  public static void primitiveToWrapper(@NotNull MethodVisitor mv, @NotNull Class<?> primitiveType) {
+  public static void primitiveToWrapper(@NonNull MethodVisitor mv, @NonNull Class<?> primitiveType) {
     var wrapper = Primitives.wrap(primitiveType);
     // invoke the valueOf method in the wrapper to class to convert the primitive type to an object
     mv.visitMethodInsn(

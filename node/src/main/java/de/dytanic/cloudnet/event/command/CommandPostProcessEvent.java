@@ -18,14 +18,14 @@ package de.dytanic.cloudnet.event.command;
 
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.driver.event.Event;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class CommandPostProcessEvent extends Event {
 
   private final String commandLine;
   private final CommandSource commandSource;
 
-  public CommandPostProcessEvent(@NotNull String commandLine, @NotNull CommandSource commandSource) {
+  public CommandPostProcessEvent(@NonNull String commandLine, @NonNull CommandSource commandSource) {
     this.commandLine = commandLine;
     this.commandSource = commandSource;
   }
@@ -33,7 +33,7 @@ public class CommandPostProcessEvent extends Event {
   /**
    * @return the command source that executed the given commandline.
    */
-  @NotNull
+  @NonNull
   public CommandSource commandSource() {
     return this.commandSource;
   }
@@ -41,7 +41,7 @@ public class CommandPostProcessEvent extends Event {
   /**
    * @return the command line that was executed.
    */
-  @NotNull
+  @NonNull
   public String commandLine() {
     return this.commandLine;
   }

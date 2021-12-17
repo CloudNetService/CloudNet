@@ -35,18 +35,18 @@ import eu.cloudnetservice.cloudnet.ext.signs.node.util.SignPluginInclusion;
 import eu.cloudnetservice.cloudnet.ext.signs.platform.AbstractPlatformSignManagement;
 import eu.cloudnetservice.cloudnet.ext.signs.platform.PlatformSignManagement;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class NodeSignsListener {
 
   protected final SignManagement signManagement;
 
-  public NodeSignsListener(@NotNull SignManagement signManagement) {
+  public NodeSignsListener(@NonNull SignManagement signManagement) {
     this.signManagement = signManagement;
   }
 
   @EventListener
-  public void handleSetupInitialize(@NotNull SetupInitiateEvent event) {
+  public void handleSetupInitialize(@NonNull SetupInitiateEvent event) {
     event.setup().entries().stream()
       .filter(entry -> entry.key().equals("taskEnvironment"))
       .findFirst()
@@ -56,7 +56,7 @@ public class NodeSignsListener {
   }
 
   @EventListener
-  public void handleSetupComplete(@NotNull SetupCompleteEvent event) {
+  public void handleSetupComplete(@NonNull SetupCompleteEvent event) {
     SignEntryTaskSetup.handleSetupComplete(
       event.setup(),
       this.signManagement.signsConfiguration(),
@@ -64,7 +64,7 @@ public class NodeSignsListener {
   }
 
   @EventListener
-  public void includePluginIfNecessary(@NotNull CloudServicePreProcessStartEvent event) {
+  public void includePluginIfNecessary(@NonNull CloudServicePreProcessStartEvent event) {
     SignPluginInclusion.includePluginTo(event.service(), this.signManagement.signsConfiguration());
   }
 

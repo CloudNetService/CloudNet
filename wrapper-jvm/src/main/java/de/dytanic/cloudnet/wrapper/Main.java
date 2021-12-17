@@ -25,7 +25,7 @@ import de.dytanic.cloudnet.common.log.defaults.DefaultLogFormatter;
 import de.dytanic.cloudnet.common.log.defaults.ThreadedLogRecordDispatcher;
 import de.dytanic.cloudnet.wrapper.log.InternalPrintStreamLogHandler;
 import java.nio.file.Path;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class Main {
 
@@ -44,7 +44,7 @@ public final class Main {
     wrapper.start();
   }
 
-  private static void initLogger(@NotNull Logger logger) {
+  private static void initLogger(@NonNull Logger logger) {
     LoggingUtils.removeHandlers(logger);
     var logFilePattern = Path.of(".wrapper", "logs", "wrapper.%g.log");
 

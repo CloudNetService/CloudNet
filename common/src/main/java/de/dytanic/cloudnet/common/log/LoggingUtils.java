@@ -20,7 +20,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * Util for the {@link Logger}
@@ -31,7 +31,7 @@ public final class LoggingUtils {
     throw new UnsupportedOperationException();
   }
 
-  public static @NotNull Level defaultLogLevel() {
+  public static @NonNull Level defaultLogLevel() {
     var defaultLogLevel = System.getProperty("cloudnet.logging.defaultlevel");
     if (defaultLogLevel == null) {
       return Level.INFO;
@@ -45,13 +45,13 @@ public final class LoggingUtils {
     }
   }
 
-  public static void removeHandlers(@NotNull Logger logger) {
+  public static void removeHandlers(@NonNull Logger logger) {
     for (var handler : logger.getHandlers()) {
       logger.removeHandler(handler);
     }
   }
 
-  public static void printStackTraceInto(@NotNull StringBuilder stringBuilder, @NotNull LogRecord record) {
+  public static void printStackTraceInto(@NonNull StringBuilder stringBuilder, @NonNull LogRecord record) {
     if (record.getThrown() != null) {
       var writer = new StringWriter();
       record.getThrown().printStackTrace(new PrintWriter(writer));

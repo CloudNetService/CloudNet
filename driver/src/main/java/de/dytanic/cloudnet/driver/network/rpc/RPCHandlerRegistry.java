@@ -17,30 +17,30 @@
 package de.dytanic.cloudnet.driver.network.rpc;
 
 import java.util.Map;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
 public interface RPCHandlerRegistry {
 
-  @NotNull
+  @NonNull
   @UnmodifiableView Map<String, RPCHandler> registeredHandlers();
 
-  boolean hasHandler(@NotNull Class<?> targetClass);
+  boolean hasHandler(@NonNull Class<?> targetClass);
 
-  boolean hasHandler(@NotNull String targetClassName);
+  boolean hasHandler(@NonNull String targetClassName);
 
-  @Nullable RPCHandler handler(@NotNull Class<?> targetClass);
+  @Nullable RPCHandler handler(@NonNull Class<?> targetClass);
 
-  @Nullable RPCHandler handler(@NotNull String targetClassName);
+  @Nullable RPCHandler handler(@NonNull String targetClassName);
 
-  boolean registerHandler(@NotNull RPCHandler rpcHandler);
+  boolean registerHandler(@NonNull RPCHandler rpcHandler);
 
-  boolean unregisterHandler(@NotNull RPCHandler rpcHandler);
+  boolean unregisterHandler(@NonNull RPCHandler rpcHandler);
 
-  boolean unregisterHandler(@NotNull Class<?> rpcHandlerTargetClass);
+  boolean unregisterHandler(@NonNull Class<?> rpcHandlerTargetClass);
 
-  boolean unregisterHandler(@NotNull String rpcHandlerTargetClassName);
+  boolean unregisterHandler(@NonNull String rpcHandlerTargetClassName);
 
-  void unregisterHandlers(@NotNull ClassLoader classLoader);
+  void unregisterHandlers(@NonNull ClassLoader classLoader);
 }

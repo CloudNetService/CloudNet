@@ -36,7 +36,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Unmodifiable;
 
 /**
@@ -103,7 +103,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull Map<ModuleLifeCycle, List<IModuleTaskEntry>> moduleTasks() {
+  public @NonNull Map<ModuleLifeCycle, List<IModuleTaskEntry>> moduleTasks() {
     return Collections.unmodifiableMap(this.tasks);
   }
 
@@ -111,7 +111,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull @Unmodifiable Set<ModuleDependency> dependingModules() {
+  public @NonNull @Unmodifiable Set<ModuleDependency> dependingModules() {
     return Collections.unmodifiableSet(this.dependingModules);
   }
 
@@ -119,7 +119,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull IModule module() {
+  public @NonNull IModule module() {
     return this.module;
   }
 
@@ -127,7 +127,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull ModuleLifeCycle moduleLifeCycle() {
+  public @NonNull ModuleLifeCycle moduleLifeCycle() {
     return this.lifeCycle.get();
   }
 
@@ -135,7 +135,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull IModuleProvider moduleProvider() {
+  public @NonNull IModuleProvider moduleProvider() {
     return this.provider;
   }
 
@@ -143,7 +143,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull ModuleConfiguration moduleConfiguration() {
+  public @NonNull ModuleConfiguration moduleConfiguration() {
     return this.moduleConfiguration;
   }
 
@@ -151,7 +151,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull ClassLoader classLoader() {
+  public @NonNull ClassLoader classLoader() {
     return this.classLoader;
   }
 
@@ -159,7 +159,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull IModuleWrapper loadModule() {
+  public @NonNull IModuleWrapper loadModule() {
     this.pushLifecycleChange(ModuleLifeCycle.LOADED, true);
     return this;
   }
@@ -168,7 +168,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull IModuleWrapper startModule() {
+  public @NonNull IModuleWrapper startModule() {
     if (this.moduleLifeCycle().canChangeTo(ModuleLifeCycle.STARTED)
       && this.provider.notifyPreModuleLifecycleChange(this, ModuleLifeCycle.STARTED)) {
       // Resolve all dependencies of this module to start them before this module
@@ -187,7 +187,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull IModuleWrapper reloadModule() {
+  public @NonNull IModuleWrapper reloadModule() {
     if (this.moduleLifeCycle().canChangeTo(ModuleLifeCycle.RELOADING)
       && this.provider.notifyPreModuleLifecycleChange(this, ModuleLifeCycle.RELOADING)) {
       // Resolve all dependencies of this module to reload them before this module
@@ -208,7 +208,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull IModuleWrapper stopModule() {
+  public @NonNull IModuleWrapper stopModule() {
     this.pushLifecycleChange(ModuleLifeCycle.STOPPED, true);
     return this;
   }
@@ -217,7 +217,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull IModuleWrapper unloadModule() {
+  public @NonNull IModuleWrapper unloadModule() {
     if (this.moduleLifeCycle().canChangeTo(ModuleLifeCycle.UNLOADED)) {
       this.pushLifecycleChange(ModuleLifeCycle.UNLOADED, true);
       // remove all known module tasks & dependencies
@@ -242,7 +242,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull Path dataDirectory() {
+  public @NonNull Path dataDirectory() {
     return this.dataDirectory;
   }
 
@@ -250,7 +250,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull URL url() {
+  public @NonNull URL url() {
     return this.source;
   }
 
@@ -258,7 +258,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull URI uri() {
+  public @NonNull URI uri() {
     return this.sourceUri;
   }
 
@@ -271,7 +271,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * @param module the module instance (better known as the module main class) to resolve the tasks of.
    * @return all sorted resolved tasks mapped to the lifecycle they will be called in.
    */
-  protected @NotNull Map<ModuleLifeCycle, List<IModuleTaskEntry>> resolveModuleTasks(@NotNull IModule module) {
+  protected @NonNull Map<ModuleLifeCycle, List<IModuleTaskEntry>> resolveModuleTasks(@NonNull IModule module) {
     Map<ModuleLifeCycle, List<IModuleTaskEntry>> result = new EnumMap<>(ModuleLifeCycle.class);
     // check all declared methods to get all methods of this and super classes
     for (var method : module.getClass().getDeclaredMethods()) {
@@ -310,7 +310,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * @param lifeCycle      the lifecycle to fire the tasks of.
    * @param notifyProvider if the module provider should be notified about the change or not.
    */
-  protected void pushLifecycleChange(@NotNull ModuleLifeCycle lifeCycle, boolean notifyProvider) {
+  protected void pushLifecycleChange(@NonNull ModuleLifeCycle lifeCycle, boolean notifyProvider) {
     var tasks = this.tasks.get(lifeCycle);
     if (this.moduleLifeCycle().canChangeTo(lifeCycle)) {
       this.moduleLifecycleUpdateLock.lock();
@@ -350,7 +350,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * @param entry the entry to fire.
    * @return {@code true} if the entry couldn't be fired successfully, {@code false} otherwise.
    */
-  protected boolean fireModuleTaskEntry(@NotNull IModuleTaskEntry entry) {
+  protected boolean fireModuleTaskEntry(@NonNull IModuleTaskEntry entry) {
     try {
       entry.fire();
       return false;

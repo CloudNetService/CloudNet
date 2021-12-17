@@ -26,15 +26,15 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class UnzipStepExecutor implements InstallStepExecutor {
 
   @Override
-  public @NotNull Set<Path> execute(
-    @NotNull InstallInformation installInformation,
-    @NotNull Path workingDirectory,
-    @NotNull Set<Path> inputPaths
+  public @NonNull Set<Path> execute(
+    @NonNull InstallInformation installInformation,
+    @NonNull Path workingDirectory,
+    @NonNull Set<Path> inputPaths
   ) throws IOException {
     Set<Path> resultPaths = new HashSet<>();
 

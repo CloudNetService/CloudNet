@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.driver.module;
 
 import com.google.common.base.VerifyException;
 import de.dytanic.cloudnet.common.INameable;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -37,35 +37,35 @@ public interface IModule extends INameable {
    * @throws VerifyException      if this module instance is already initialized.
    * @throws NullPointerException if the provided loader, wrapper or module config is null.
    */
-  void init(@NotNull ClassLoader loader, @NotNull IModuleWrapper wrapper, @NotNull ModuleConfiguration config);
+  void init(@NonNull ClassLoader loader, @NonNull IModuleWrapper wrapper, @NonNull ModuleConfiguration config);
 
   /**
    * Get the module wrapper which is associated with this module.
    *
    * @return the module wrapper which is associated with this module.
    */
-  @NotNull IModuleWrapper moduleWrapper();
+  @NonNull IModuleWrapper moduleWrapper();
 
   /**
    * Get the class loader which is responsible for this module.
    *
    * @return the class loader which is responsible for this module.
    */
-  @NotNull ClassLoader classLoader();
+  @NonNull ClassLoader classLoader();
 
   /**
    * Get the module configuration which was deserialized based on the information located in the module.
    *
    * @return the module configuration located in this module file.
    */
-  @NotNull ModuleConfiguration moduleConfig();
+  @NonNull ModuleConfiguration moduleConfig();
 
   /**
    * Get the group of this module.
    *
    * @return the group id of this module.
    */
-  default @NotNull String group() {
+  default @NonNull String group() {
     return this.moduleConfig().group();
   }
 
@@ -75,7 +75,7 @@ public interface IModule extends INameable {
    * @return the name of this module.
    */
   @Override
-  default @NotNull String name() {
+  default @NonNull String name() {
     return this.moduleConfig().name();
   }
 
@@ -84,7 +84,7 @@ public interface IModule extends INameable {
    *
    * @return the version of this module.
    */
-  default @NotNull String version() {
+  default @NonNull String version() {
     return this.moduleConfig().version();
   }
 

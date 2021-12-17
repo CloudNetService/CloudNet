@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.driver.module;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -35,7 +35,7 @@ public interface IModuleProvider {
    * @return the base directory of this module provider.
    * @see #moduleDirectoryPath(Path)
    */
-  @NotNull Path moduleDirectoryPath();
+  @NonNull Path moduleDirectoryPath();
 
   /**
    * Sets the base directory of this module provider. It will be used to provide the data directory for modules which
@@ -44,7 +44,7 @@ public interface IModuleProvider {
    * @param moduleDirectory the module directory to use.
    * @see #moduleDirectoryPath()
    */
-  void moduleDirectoryPath(@NotNull Path moduleDirectory);
+  void moduleDirectoryPath(@NonNull Path moduleDirectory);
 
   /**
    * Get the module provider handler of this provider or {@code null} when no handler is specified.
@@ -71,7 +71,7 @@ public interface IModuleProvider {
    * @see DefaultMemoryModuleDependencyLoader
    * @see DefaultPersistableModuleDependencyLoader
    */
-  @NotNull IModuleDependencyLoader moduleDependencyLoader();
+  @NonNull IModuleDependencyLoader moduleDependencyLoader();
 
   /**
    * Sets the module dependency loader which should be used by this provider.
@@ -81,7 +81,7 @@ public interface IModuleProvider {
    * @see DefaultMemoryModuleDependencyLoader
    * @see DefaultPersistableModuleDependencyLoader
    */
-  void moduleDependencyLoader(@NotNull IModuleDependencyLoader moduleDependencyLoader);
+  void moduleDependencyLoader(@NonNull IModuleDependencyLoader moduleDependencyLoader);
 
   /**
    * Get all loaded, started, stopped modules provided by this provider.
@@ -89,7 +89,7 @@ public interface IModuleProvider {
    * @return an immutable set of all loaded, started, stopped modules provided by this provider.
    * @see ModuleLifeCycle
    */
-  @NotNull
+  @NonNull
   @Unmodifiable Collection<IModuleWrapper> modules();
 
   /**
@@ -100,8 +100,8 @@ public interface IModuleProvider {
    * given group.
    * @see ModuleLifeCycle
    */
-  @NotNull
-  @Unmodifiable Collection<IModuleWrapper> modules(@NotNull String group);
+  @NonNull
+  @Unmodifiable Collection<IModuleWrapper> modules(@NonNull String group);
 
   /**
    * Get a module by the given name.
@@ -109,7 +109,7 @@ public interface IModuleProvider {
    * @param name the name of the module to get.
    * @return the module associated with the name or {@code null} if no such module is loaded.
    */
-  @Nullable IModuleWrapper module(@NotNull String name);
+  @Nullable IModuleWrapper module(@NonNull String name);
 
   /**
    * Loads a module from the given {@code url}.
@@ -123,7 +123,7 @@ public interface IModuleProvider {
    *                                                      information.
    * @throws AssertionError                               if any exception occurs during the load of the module.
    */
-  @Nullable IModuleWrapper loadModule(@NotNull URL url);
+  @Nullable IModuleWrapper loadModule(@NonNull URL url);
 
   /**
    * Loads the module by the file provided by the given {@code path}.
@@ -138,10 +138,10 @@ public interface IModuleProvider {
    * @throws AssertionError                               if any exception occurs during the load of the module.
    * @see #loadModule(URL)
    */
-  @Nullable IModuleWrapper loadModule(@NotNull Path path);
+  @Nullable IModuleWrapper loadModule(@NonNull Path path);
 
   // TODO: docs
-  @NotNull IModuleProvider loadAll();
+  @NonNull IModuleProvider loadAll();
 
   /**
    * Starts all modules which are loaded by this provided and can change to the started state.
@@ -150,7 +150,7 @@ public interface IModuleProvider {
    * @see IModuleWrapper#moduleLifeCycle()
    * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
    */
-  @NotNull IModuleProvider startAll();
+  @NonNull IModuleProvider startAll();
 
   /**
    * Reloads all modules which are loaded by this provided and can change to the started state.
@@ -159,7 +159,7 @@ public interface IModuleProvider {
    * @see IModuleWrapper#moduleLifeCycle()
    * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
    */
-  @NotNull IModuleProvider reloadAll();
+  @NonNull IModuleProvider reloadAll();
 
   /**
    * Stops all modules which are loaded by this provided and can change to the stopped state.
@@ -168,7 +168,7 @@ public interface IModuleProvider {
    * @see IModuleWrapper#moduleLifeCycle()
    * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
    */
-  @NotNull IModuleProvider stopAll();
+  @NonNull IModuleProvider stopAll();
 
   /**
    * Unloads all modules which are loaded by this provided and can change to the unloaded state.
@@ -177,7 +177,7 @@ public interface IModuleProvider {
    * @see IModuleWrapper#moduleLifeCycle()
    * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
    */
-  @NotNull IModuleProvider unloadAll();
+  @NonNull IModuleProvider unloadAll();
 
   /**
    * Called by an {@link IModuleWrapper} when the module is about to change its lifecycle state.
@@ -186,7 +186,7 @@ public interface IModuleProvider {
    * @param lifeCycle the lifecycle the wrapper want's to change to.
    * @return If the wrapper is allowed to change the lifecycle to the provided lifecycle.
    */
-  boolean notifyPreModuleLifecycleChange(@NotNull IModuleWrapper wrapper, @NotNull ModuleLifeCycle lifeCycle);
+  boolean notifyPreModuleLifecycleChange(@NonNull IModuleWrapper wrapper, @NonNull ModuleLifeCycle lifeCycle);
 
   /**
    * Called by an {@link IModuleWrapper} when the module changed its lifecycle state.
@@ -194,5 +194,5 @@ public interface IModuleProvider {
    * @param wrapper   the wrapper which changed the lifecycle.
    * @param lifeCycle the lifecycle the wrapper changed to.
    */
-  void notifyPostModuleLifecycleChange(@NotNull IModuleWrapper wrapper, @NotNull ModuleLifeCycle lifeCycle);
+  void notifyPostModuleLifecycleChange(@NonNull IModuleWrapper wrapper, @NonNull ModuleLifeCycle lifeCycle);
 }

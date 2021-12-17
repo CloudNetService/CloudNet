@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.cluster.sync;
 
+import lombok.NonNull;
 import org.javers.core.Changes;
 import org.javers.core.diff.changetype.ValueChange;
 import org.javers.core.diff.changetype.container.ContainerChange;
@@ -26,7 +27,6 @@ import org.javers.core.diff.changetype.map.EntryAddOrRemove;
 import org.javers.core.diff.changetype.map.EntryRemoved;
 import org.javers.core.diff.changetype.map.EntryValueChange;
 import org.javers.core.diff.changetype.map.MapChange;
-import org.jetbrains.annotations.NotNull;
 
 // LEFT OLD
 // RIGHT NEW
@@ -37,7 +37,7 @@ final class JaversPrettyPrint {
     throw new UnsupportedOperationException();
   }
 
-  public static String @NotNull [] prettyPrint(@NotNull String entryName, @NotNull Changes changes) {
+  public static String @NonNull [] prettyPrint(@NonNull String entryName, @NonNull Changes changes) {
     // initial information
     var builder = new StringBuilder("&rThere were &6")
       .append(changes.size())
@@ -60,7 +60,7 @@ final class JaversPrettyPrint {
     return builder.append(System.lineSeparator()).toString().split(System.lineSeparator());
   }
 
-  private static void printValueChange(@NotNull StringBuilder builder, @NotNull ValueChange change) {
+  private static void printValueChange(@NonNull StringBuilder builder, @NonNull ValueChange change) {
     // go over the possible change types
     switch (change.getChangeType()) {
       case PROPERTY_VALUE_CHANGED -> builder
@@ -89,7 +89,7 @@ final class JaversPrettyPrint {
 
   // Container change print helpers (collections & arrays)
 
-  private static void printContainerChange(@NotNull StringBuilder builder, @NotNull ContainerChange<?> change) {
+  private static void printContainerChange(@NonNull StringBuilder builder, @NonNull ContainerChange<?> change) {
     // initial information
     builder
       .append(" &r- &6").append(change.getPropertyName()) // name of the changed property
@@ -111,8 +111,8 @@ final class JaversPrettyPrint {
   }
 
   private static void printElementValueChange(
-    @NotNull StringBuilder builder,
-    @NotNull ElementValueChange change
+    @NonNull StringBuilder builder,
+    @NonNull ElementValueChange change
   ) {
     builder
       .append("    at index &6").append(change.getIndex()).append("&r: ")
@@ -122,9 +122,9 @@ final class JaversPrettyPrint {
   }
 
   private static void printElementAddOrRemoveChange(
-    @NotNull StringBuilder builder,
-    @NotNull ValueAddOrRemove change,
-    @NotNull String colorPrefix
+    @NonNull StringBuilder builder,
+    @NonNull ValueAddOrRemove change,
+    @NonNull String colorPrefix
   ) {
     builder
       .append("    at index &6").append(change.getIndex()).append("&r: ")
@@ -134,7 +134,7 @@ final class JaversPrettyPrint {
 
   // Map change print helpers
 
-  private static void printMapChange(@NotNull StringBuilder builder, @NotNull MapChange<?> change) {
+  private static void printMapChange(@NonNull StringBuilder builder, @NonNull MapChange<?> change) {
     // initial information
     builder
       .append(" &r- &6").append(change.getPropertyName()) // name of the changed property
@@ -156,8 +156,8 @@ final class JaversPrettyPrint {
   }
 
   private static void printEntryValueChange(
-    @NotNull StringBuilder builder,
-    @NotNull EntryValueChange change
+    @NonNull StringBuilder builder,
+    @NonNull EntryValueChange change
   ) {
     builder
       .append("    at &6").append(change.getKey()).append("&r: ")
@@ -167,9 +167,9 @@ final class JaversPrettyPrint {
   }
 
   private static void printEntryAddOrRemoveChange(
-    @NotNull StringBuilder builder,
-    @NotNull EntryAddOrRemove change,
-    @NotNull String colorPrefix
+    @NonNull StringBuilder builder,
+    @NonNull EntryAddOrRemove change,
+    @NonNull String colorPrefix
   ) {
     builder
       .append("    at &6").append(change.getKey()).append("&r: ")

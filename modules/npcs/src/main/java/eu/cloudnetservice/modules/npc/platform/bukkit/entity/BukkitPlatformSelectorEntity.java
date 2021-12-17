@@ -39,6 +39,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
+import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -51,7 +52,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.NumberConversions;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class BukkitPlatformSelectorEntity
@@ -73,9 +73,9 @@ public abstract class BukkitPlatformSelectorEntity
   protected volatile Inventory inventory;
 
   protected BukkitPlatformSelectorEntity(
-    @NotNull BukkitPlatformNPCManagement npcManagement,
-    @NotNull Plugin plugin,
-    @NotNull NPC npc
+    @NonNull BukkitPlatformNPCManagement npcManagement,
+    @NonNull Plugin plugin,
+    @NonNull NPC npc
   ) {
     this.npc = npc;
     this.plugin = plugin;
@@ -178,7 +178,7 @@ public abstract class BukkitPlatformSelectorEntity
   }
 
   @Override
-  public void trackService(@NotNull ServiceInfoSnapshot service) {
+  public void trackService(@NonNull ServiceInfoSnapshot service) {
     // get the current item
     var wrapper = this.serviceItems.get(service.serviceId().uniqueId());
     // build the item for the service
@@ -225,7 +225,7 @@ public abstract class BukkitPlatformSelectorEntity
   }
 
   @Override
-  public void stopTrackingService(@NotNull ServiceInfoSnapshot service) {
+  public void stopTrackingService(@NonNull ServiceInfoSnapshot service) {
     Bukkit.getScheduler().runTask(this.plugin, () -> {
       // get the old item wrapper
       var wrapper = this.serviceItems.remove(service.serviceId().uniqueId());
@@ -238,17 +238,17 @@ public abstract class BukkitPlatformSelectorEntity
   }
 
   @Override
-  public void handleLeftClickAction(@NotNull Player player) {
+  public void handleLeftClickAction(@NonNull Player player) {
     this.handleClickAction(player, this.npc.leftClickAction());
   }
 
   @Override
-  public void handleRightClickAction(@NotNull Player player) {
+  public void handleRightClickAction(@NonNull Player player) {
     this.handleClickAction(player, this.npc.rightClickAction());
   }
 
   @Override
-  public void handleInventoryInteract(@NotNull Inventory inv, @NotNull Player player, @NotNull ItemStack clickedItem) {
+  public void handleInventoryInteract(@NonNull Inventory inv, @NonNull Player player, @NonNull ItemStack clickedItem) {
     // find the server associated with the clicked item
     for (var wrapper : this.serviceItems.values()) {
       if (wrapper.itemStack().equals(clickedItem)) {
@@ -262,22 +262,22 @@ public abstract class BukkitPlatformSelectorEntity
   }
 
   @Override
-  public @NotNull Inventory selectorInventory() {
+  public @NonNull Inventory selectorInventory() {
     return this.inventory;
   }
 
   @Override
-  public @NotNull Set<Integer> infoLineEntityIds() {
+  public @NonNull Set<Integer> infoLineEntityIds() {
     return this.infoLineEntityIds;
   }
 
   @Override
-  public @NotNull NPC npc() {
+  public @NonNull NPC npc() {
     return this.npc;
   }
 
   @Override
-  public @NotNull Location location() {
+  public @NonNull Location location() {
     return this.npcLocation;
   }
 
@@ -289,7 +289,7 @@ public abstract class BukkitPlatformSelectorEntity
     return this.npcLocation.getWorld() != null && this.npcLocation.getWorld().isChunkLoaded(chunkX, chunkZ);
   }
 
-  protected void handleClickAction(@NotNull Player player, @NotNull ClickAction action) {
+  protected void handleClickAction(@NonNull Player player, @NonNull ClickAction action) {
     switch (action) {
       case OPEN_INVENTORY:
         player.openInventory(this.inventory);
@@ -323,7 +323,7 @@ public abstract class BukkitPlatformSelectorEntity
     }
   }
 
-  protected @Nullable ItemStack buildItemStack(@NotNull ItemLayout layout, @Nullable ServiceInfoSnapshot service) {
+  protected @Nullable ItemStack buildItemStack(@NonNull ItemLayout layout, @Nullable ServiceInfoSnapshot service) {
     var material = Material.matchMaterial(layout.material());
     if (material != null) {
       var item = layout.subId() == -1
@@ -353,7 +353,7 @@ public abstract class BukkitPlatformSelectorEntity
     this.infoLines.forEach(InfoLineWrapper::rebuildInfoLine);
   }
 
-  protected void rebuildInventory(@NotNull InventoryConfiguration configuration) {
+  protected void rebuildInventory(@NonNull InventoryConfiguration configuration) {
     // calculate the inventory size
     var inventorySize = configuration.inventorySize();
     if (configuration.dynamicSize()) {
@@ -390,7 +390,7 @@ public abstract class BukkitPlatformSelectorEntity
     }
   }
 
-  protected @NotNull IPlayerManager playerManager() {
+  protected @NonNull IPlayerManager playerManager() {
     return CloudNetDriver.instance().servicesRegistry().firstService(IPlayerManager.class);
   }
 
@@ -410,24 +410,24 @@ public abstract class BukkitPlatformSelectorEntity
     private volatile ItemStack itemStack;
     private volatile ServiceInfoSnapshot serviceInfoSnapshot;
 
-    public ServiceItemWrapper(@NotNull ItemStack itemStack, @NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
+    public ServiceItemWrapper(@NonNull ItemStack itemStack, @NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
       this.itemStack = itemStack;
       this.serviceInfoSnapshot = serviceInfoSnapshot;
     }
 
-    public @NotNull ItemStack itemStack() {
+    public @NonNull ItemStack itemStack() {
       return this.itemStack;
     }
 
-    public void itemStack(@NotNull ItemStack itemStack) {
+    public void itemStack(@NonNull ItemStack itemStack) {
       this.itemStack = itemStack;
     }
 
-    public @NotNull ServiceInfoSnapshot service() {
+    public @NonNull ServiceInfoSnapshot service() {
       return this.serviceInfoSnapshot;
     }
 
-    public void service(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
+    public void service(@NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
       this.serviceInfoSnapshot = serviceInfoSnapshot;
     }
   }

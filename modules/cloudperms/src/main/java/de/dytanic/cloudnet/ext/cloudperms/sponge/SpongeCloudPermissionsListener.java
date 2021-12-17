@@ -18,8 +18,8 @@ package de.dytanic.cloudnet.ext.cloudperms.sponge;
 
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
+import lombok.NonNull;
 import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
@@ -34,13 +34,13 @@ public final class SpongeCloudPermissionsListener {
 
   private final IPermissionManagement permissionManagement;
 
-  public SpongeCloudPermissionsListener(@NotNull IPermissionManagement permissionManagement) {
+  public SpongeCloudPermissionsListener(@NonNull IPermissionManagement permissionManagement) {
     this.permissionManagement = permissionManagement;
   }
 
   @IsCancelled(Tristate.FALSE)
   @Listener(order = Order.LAST)
-  public void handle(@NotNull ServerSideConnectionEvent.Login event, @NotNull @Root User user) {
+  public void handle(@NonNull ServerSideConnectionEvent.Login event, @NonNull @Root User user) {
     CloudPermissionsHelper.initPermissionUser(
       this.permissionManagement,
       user.uniqueId(),
@@ -53,7 +53,7 @@ public final class SpongeCloudPermissionsListener {
   }
 
   @Listener
-  public void handle(@NotNull ServerSideConnectionEvent.Disconnect event, @NotNull @Root ServerPlayer player) {
+  public void handle(@NonNull ServerSideConnectionEvent.Disconnect event, @NonNull @Root ServerPlayer player) {
     CloudPermissionsHelper.handlePlayerQuit(this.permissionManagement, player.uniqueId());
   }
 }

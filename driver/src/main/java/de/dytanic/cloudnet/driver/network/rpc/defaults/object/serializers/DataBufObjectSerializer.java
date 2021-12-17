@@ -20,26 +20,26 @@ import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectSerializer;
 import java.lang.reflect.Type;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DataBufObjectSerializer implements ObjectSerializer<DataBuf> {
 
   @Override
   public void write(
-    @NotNull DataBuf.Mutable dataBuf,
-    @NotNull DataBuf object,
-    @NotNull Type type,
-    @NotNull ObjectMapper caller
+    @NonNull DataBuf.Mutable dataBuf,
+    @NonNull DataBuf object,
+    @NonNull Type type,
+    @NonNull ObjectMapper caller
   ) {
     dataBuf.writeDataBuf(object);
   }
 
   @Override
   public @Nullable Object read(
-    @NotNull DataBuf source,
-    @NotNull Type type,
-    @NotNull ObjectMapper caller
+    @NonNull DataBuf source,
+    @NonNull Type type,
+    @NonNull ObjectMapper caller
   ) {
     return source.readDataBuf();
   }

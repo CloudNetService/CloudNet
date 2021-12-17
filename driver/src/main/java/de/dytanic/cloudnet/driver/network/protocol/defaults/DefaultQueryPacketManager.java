@@ -28,7 +28,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
@@ -57,28 +57,28 @@ public class DefaultQueryPacketManager implements QueryPacketManager {
   }
 
   @Override
-  public @NotNull INetworkChannel networkChannel() {
+  public @NonNull INetworkChannel networkChannel() {
     return this.networkChannel;
   }
 
   @Override
-  public @NotNull @UnmodifiableView Map<UUID, CompletableTask<IPacket>> waitingHandlers() {
+  public @NonNull @UnmodifiableView Map<UUID, CompletableTask<IPacket>> waitingHandlers() {
     return Collections.unmodifiableMap(this.waitingHandlers.asMap());
   }
 
   @Override
-  public boolean hasWaitingHandler(@NotNull UUID queryUniqueId) {
+  public boolean hasWaitingHandler(@NonNull UUID queryUniqueId) {
     return this.waitingHandlers.getIfPresent(queryUniqueId) != null;
   }
 
   @Override
-  public boolean unregisterWaitingHandler(@NotNull UUID queryUniqueId) {
+  public boolean unregisterWaitingHandler(@NonNull UUID queryUniqueId) {
     this.waitingHandlers.invalidate(queryUniqueId);
     return true;
   }
 
   @Override
-  public @Nullable CompletableTask<IPacket> waitingHandler(@NotNull UUID queryUniqueId) {
+  public @Nullable CompletableTask<IPacket> waitingHandler(@NonNull UUID queryUniqueId) {
     var task = this.waitingHandlers.getIfPresent(queryUniqueId);
     if (task != null) {
       this.waitingHandlers.invalidate(queryUniqueId);
@@ -87,12 +87,12 @@ public class DefaultQueryPacketManager implements QueryPacketManager {
   }
 
   @Override
-  public @NotNull CompletableTask<IPacket> sendQueryPacket(@NotNull IPacket packet) {
+  public @NonNull CompletableTask<IPacket> sendQueryPacket(@NonNull IPacket packet) {
     return this.sendQueryPacket(packet, UUID.randomUUID());
   }
 
   @Override
-  public @NotNull CompletableTask<IPacket> sendQueryPacket(@NotNull IPacket packet, @NotNull UUID queryUniqueId) {
+  public @NonNull CompletableTask<IPacket> sendQueryPacket(@NonNull IPacket packet, @NonNull UUID queryUniqueId) {
     // create & register the result handler
     var task = new CompletableTask<IPacket>();
     this.waitingHandlers.put(queryUniqueId, task);
@@ -103,7 +103,7 @@ public class DefaultQueryPacketManager implements QueryPacketManager {
     return task;
   }
 
-  protected @NotNull RemovalListener<UUID, CompletableTask<IPacket>> newRemovalListener() {
+  protected @NonNull RemovalListener<UUID, CompletableTask<IPacket>> newRemovalListener() {
     return notification -> {
       if (notification.wasEvicted() && notification.getValue() != null) {
         notification.getValue().complete(Packet.EMPTY);

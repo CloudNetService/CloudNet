@@ -29,20 +29,20 @@ import de.dytanic.cloudnet.driver.provider.NodeInfoProvider;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class NodeNodeInfoProvider implements NodeInfoProvider {
 
   private final IClusterNodeServerProvider clusterNodeServerProvider;
 
-  public NodeNodeInfoProvider(@NotNull CloudNet nodeInstance) {
+  public NodeNodeInfoProvider(@NonNull CloudNet nodeInstance) {
     this.clusterNodeServerProvider = nodeInstance.getClusterNodeServerProvider();
     nodeInstance.rpcProviderFactory().newHandler(NodeInfoProvider.class, this).registerToDefaultRegistry();
   }
 
   @Override
-  public @NotNull Collection<CommandInfo> consoleCommands() {
+  public @NonNull Collection<CommandInfo> consoleCommands() {
     return CloudNet.instance().commandProvider().commands();
   }
 
@@ -55,7 +55,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
 
   @Nullable
   @Override
-  public NetworkClusterNode node(@NotNull String uniqueId) {
+  public NetworkClusterNode node(@NonNull String uniqueId) {
     Preconditions.checkNotNull(uniqueId);
     // check if the current node is requested
     if (uniqueId.equals(this.clusterNodeServerProvider.selfNode().nodeInfo().uniqueId())) {
@@ -79,7 +79,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
 
   @Nullable
   @Override
-  public NetworkClusterNodeInfoSnapshot nodeInfoSnapshot(@NotNull String uniqueId) {
+  public NetworkClusterNodeInfoSnapshot nodeInfoSnapshot(@NonNull String uniqueId) {
     // check if the current node is requested
     if (uniqueId.equals(this.clusterNodeServerProvider.selfNode().nodeInfo().uniqueId())) {
       return this.clusterNodeServerProvider.selfNode().nodeInfoSnapshot();
@@ -94,7 +94,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
   }
 
   @Override
-  public @NotNull Collection<String> sendCommandLine(@NotNull String commandLine) {
+  public @NonNull Collection<String> sendCommandLine(@NonNull String commandLine) {
     Preconditions.checkNotNull(commandLine);
 
     var driverCommandSource = new DriverCommandSource();
@@ -103,7 +103,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
   }
 
   @Override
-  public @NotNull Collection<String> sendCommandLineToNode(@NotNull String nodeUniqueId, @NotNull String commandLine) {
+  public @NonNull Collection<String> sendCommandLineToNode(@NonNull String nodeUniqueId, @NonNull String commandLine) {
     Preconditions.checkNotNull(nodeUniqueId);
     // check if we should execute the command on the current node
     if (nodeUniqueId.equals(this.clusterNodeServerProvider.selfNode().nodeInfo().uniqueId())) {
@@ -120,12 +120,12 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
 
   @Nullable
   @Override
-  public CommandInfo consoleCommand(@NotNull String commandLine) {
+  public CommandInfo consoleCommand(@NonNull String commandLine) {
     return CloudNet.instance().commandProvider().command(commandLine);
   }
 
   @Override
-  public @NotNull Collection<String> consoleTabCompleteResults(@NotNull String commandLine) {
+  public @NonNull Collection<String> consoleTabCompleteResults(@NonNull String commandLine) {
     return CloudNet.instance().commandProvider().suggest(CommandSource.console(), commandLine);
   }
 }

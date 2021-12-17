@@ -19,8 +19,8 @@ package de.dytanic.cloudnet.ext.bridge.platform.bukkit;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.function.Function;
+import lombok.NonNull;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 final class BukkitUtil {
 
@@ -57,7 +57,7 @@ final class BukkitUtil {
     throw new UnsupportedOperationException();
   }
 
-  public static @NotNull String playerLocale(@NotNull Player player) {
+  public static @NonNull String playerLocale(@NonNull Player player) {
     return LOCALE_GETTER.apply(player);
   }
 }

@@ -23,7 +23,7 @@ import de.dytanic.cloudnet.driver.network.rpc.object.ObjectSerializer;
 import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class EnumObjectSerializer implements ObjectSerializer<Enum<?>> {
@@ -32,9 +32,9 @@ public class EnumObjectSerializer implements ObjectSerializer<Enum<?>> {
 
   @Override
   public @Nullable Enum<?> read(
-    @NotNull DataBuf source,
-    @NotNull Type type,
-    @NotNull ObjectMapper caller
+    @NonNull DataBuf source,
+    @NonNull Type type,
+    @NonNull ObjectMapper caller
   ) {
     // ensure that the method was called using a class as the type
     Verify.verify(type instanceof Class<?>, "Called enum read method without proving a class as type");
@@ -47,10 +47,10 @@ public class EnumObjectSerializer implements ObjectSerializer<Enum<?>> {
 
   @Override
   public void write(
-    @NotNull DataBuf.Mutable dataBuf,
-    @NotNull Enum<?> object,
-    @NotNull Type type,
-    @NotNull ObjectMapper caller
+    @NonNull DataBuf.Mutable dataBuf,
+    @NonNull Enum<?> object,
+    @NonNull Type type,
+    @NonNull ObjectMapper caller
   ) {
     dataBuf.writeInt(object.ordinal());
   }

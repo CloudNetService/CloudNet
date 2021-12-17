@@ -18,27 +18,27 @@ package de.dytanic.cloudnet.ext.simplenametags.event;
 
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class PrePlayerPrefixSetEvent<P> extends Event {
 
   private final P player;
   private volatile PermissionGroup group;
 
-  public PrePlayerPrefixSetEvent(@NotNull P player, @NotNull PermissionGroup group) {
+  public PrePlayerPrefixSetEvent(@NonNull P player, @NonNull PermissionGroup group) {
     this.player = player;
     this.group = group;
   }
 
-  public @NotNull P player() {
+  public @NonNull P player() {
     return this.player;
   }
 
-  public @NotNull PermissionGroup group() {
+  public @NonNull PermissionGroup group() {
     return this.group;
   }
 
-  public void group(@NotNull PermissionGroup group) {
+  public void group(@NonNull PermissionGroup group) {
     this.group = group;
   }
 }

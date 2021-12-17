@@ -69,7 +69,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import kong.unirest.Unirest;
 import kong.unirest.UnirestException;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class AbstractService implements ICloudService {
@@ -103,11 +103,11 @@ public abstract class AbstractService implements ICloudService {
   protected volatile ServiceInfoSnapshot currentServiceInfo;
 
   protected AbstractService(
-    @NotNull ServiceConfiguration configuration,
-    @NotNull ICloudServiceManager manager,
-    @NotNull IEventManager eventManager,
-    @NotNull CloudNet nodeInstance,
-    @NotNull ServiceConfigurationPreparer serviceConfigurationPreparer
+    @NonNull ServiceConfiguration configuration,
+    @NonNull ICloudServiceManager manager,
+    @NonNull IEventManager eventManager,
+    @NonNull CloudNet nodeInstance,
+    @NonNull ServiceConfigurationPreparer serviceConfigurationPreparer
   ) {
     this.eventManager = eventManager;
     this.nodeInstance = nodeInstance;
@@ -133,9 +133,9 @@ public abstract class AbstractService implements ICloudService {
     nodeInstance.eventManager().callEvent(new CloudServiceCreateEvent(this));
   }
 
-  protected static @NotNull Path resolveServicePath(
-    @NotNull ServiceId serviceId,
-    @NotNull ICloudServiceManager manager,
+  protected static @NonNull Path resolveServicePath(
+    @NonNull ServiceId serviceId,
+    @NonNull ICloudServiceManager manager,
     boolean staticService
   ) {
     // validate the service name
@@ -150,7 +150,7 @@ public abstract class AbstractService implements ICloudService {
   }
 
   @Override
-  public @NotNull ServiceInfoSnapshot serviceInfo() {
+  public @NonNull ServiceInfoSnapshot serviceInfo() {
     return this.currentServiceInfo;
   }
 
@@ -176,27 +176,27 @@ public abstract class AbstractService implements ICloudService {
   }
 
   @Override
-  public void addServiceTemplate(@NotNull ServiceTemplate serviceTemplate) {
+  public void addServiceTemplate(@NonNull ServiceTemplate serviceTemplate) {
     this.waitingTemplates.add(Preconditions.checkNotNull(serviceTemplate, "template"));
   }
 
   @Override
-  public void addServiceRemoteInclusion(@NotNull ServiceRemoteInclusion serviceRemoteInclusion) {
+  public void addServiceRemoteInclusion(@NonNull ServiceRemoteInclusion serviceRemoteInclusion) {
     this.waitingRemoteInclusions.add(Preconditions.checkNotNull(serviceRemoteInclusion, "remoteInclusion"));
   }
 
   @Override
-  public void addServiceDeployment(@NotNull ServiceDeployment serviceDeployment) {
+  public void addServiceDeployment(@NonNull ServiceDeployment serviceDeployment) {
     this.waitingDeployments.add(Preconditions.checkNotNull(serviceDeployment, "deployment"));
   }
 
   @Override
-  public @NotNull IServiceConsoleLogCache serviceConsoleLogCache() {
+  public @NonNull IServiceConsoleLogCache serviceConsoleLogCache() {
     return this.logCache;
   }
 
   @Override
-  public void updateLifecycle(@NotNull ServiceLifeCycle lifeCycle) {
+  public void updateLifecycle(@NonNull ServiceLifeCycle lifeCycle) {
     try {
       // prevent multiple service updates at the same time
       this.lifecycleLock.lock();
@@ -338,47 +338,47 @@ public abstract class AbstractService implements ICloudService {
   }
 
   @Override
-  public @NotNull Queue<ServiceRemoteInclusion> waitingIncludes() {
+  public @NonNull Queue<ServiceRemoteInclusion> waitingIncludes() {
     return this.waitingRemoteInclusions;
   }
 
   @Override
-  public @NotNull Queue<ServiceTemplate> waitingTemplates() {
+  public @NonNull Queue<ServiceTemplate> waitingTemplates() {
     return this.waitingTemplates;
   }
 
   @Override
-  public @NotNull Queue<ServiceDeployment> waitingDeployments() {
+  public @NonNull Queue<ServiceDeployment> waitingDeployments() {
     return this.waitingDeployments;
   }
 
   @Override
-  public @NotNull ServiceLifeCycle lifeCycle() {
+  public @NonNull ServiceLifeCycle lifeCycle() {
     return this.currentServiceInfo.lifeCycle();
   }
 
   @Override
-  public @NotNull ICloudServiceManager cloudServiceManager() {
+  public @NonNull ICloudServiceManager cloudServiceManager() {
     return this.cloudServiceManager;
   }
 
   @Override
-  public @NotNull ServiceConfiguration serviceConfiguration() {
+  public @NonNull ServiceConfiguration serviceConfiguration() {
     return this.currentServiceInfo.configuration();
   }
 
   @Override
-  public @NotNull ServiceId serviceId() {
+  public @NonNull ServiceId serviceId() {
     return this.currentServiceInfo.serviceId();
   }
 
   @Override
-  public @NotNull String connectionKey() {
+  public @NonNull String connectionKey() {
     return this.connectionKey;
   }
 
   @Override
-  public @NotNull Path directory() {
+  public @NonNull Path directory() {
     return this.serviceDirectory;
   }
 
@@ -402,7 +402,7 @@ public abstract class AbstractService implements ICloudService {
   }
 
   @Override
-  public @NotNull ServiceInfoSnapshot lastServiceInfoSnapshot() {
+  public @NonNull ServiceInfoSnapshot lastServiceInfoSnapshot() {
     return this.lastServiceInfo;
   }
 
@@ -418,7 +418,7 @@ public abstract class AbstractService implements ICloudService {
   }
 
   @Override
-  public void updateServiceInfoSnapshot(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
+  public void updateServiceInfoSnapshot(@NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
     this.lastServiceInfo = this.currentServiceInfo;
     this.currentServiceInfo = Preconditions.checkNotNull(serviceInfoSnapshot, "serviceInfoSnapshot");
   }
@@ -429,7 +429,7 @@ public abstract class AbstractService implements ICloudService {
   }
 
   @Override
-  public boolean toggleScreenEvents(@NotNull ChannelMessageSender channelMessageSender, @NotNull String channel) {
+  public boolean toggleScreenEvents(@NonNull ChannelMessageSender channelMessageSender, @NonNull String channel) {
     var target = channelMessageSender.toTarget();
     if (this.logTargets.remove(target) != null) {
       return false;
@@ -437,7 +437,7 @@ public abstract class AbstractService implements ICloudService {
     return this.logTargets.put(target, channel) == null;
   }
 
-  protected @NotNull IConfiguration getNodeConfiguration() {
+  protected @NonNull IConfiguration getNodeConfiguration() {
     return this.nodeInstance.getConfig();
   }
 
@@ -464,7 +464,7 @@ public abstract class AbstractService implements ICloudService {
       });
   }
 
-  protected void executeDeployment(@NotNull ServiceDeployment deployment) {
+  protected void executeDeployment(@NonNull ServiceDeployment deployment) {
     // check if we should execute the deployment
     var storage = deployment.template().storage().wrappedStorage();
     if (!this.eventManager.callEvent(new CloudServiceDeploymentEvent(this, storage, deployment)).cancelled()) {
@@ -487,11 +487,11 @@ public abstract class AbstractService implements ICloudService {
     }
   }
 
-  protected boolean preLifecycleChange(@NotNull ServiceLifeCycle targetLifecycle) {
+  protected boolean preLifecycleChange(@NonNull ServiceLifeCycle targetLifecycle) {
     return !this.eventManager.callEvent(new CloudServicePreLifecycleEvent(this, targetLifecycle)).cancelled();
   }
 
-  protected void pushServiceInfoSnapshotUpdate(@NotNull ServiceLifeCycle lifeCycle) {
+  protected void pushServiceInfoSnapshotUpdate(@NonNull ServiceLifeCycle lifeCycle) {
     // save the current service info
     this.lastServiceInfo = this.currentServiceInfo;
     // update the current info
@@ -579,7 +579,7 @@ public abstract class AbstractService implements ICloudService {
     this.serviceConfigurationPreparer.configure(this.nodeInstance, this);
   }
 
-  protected void copySslConfiguration(@NotNull SSLConfiguration configuration) {
+  protected void copySslConfiguration(@NonNull SSLConfiguration configuration) {
     var wrapperDir = this.serviceDirectory.resolve(".wrapper");
     // copy the certificate if available
     if (configuration.certificatePath() != null && Files.exists(configuration.certificatePath())) {

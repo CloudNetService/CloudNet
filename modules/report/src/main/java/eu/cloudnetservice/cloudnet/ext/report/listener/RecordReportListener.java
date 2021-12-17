@@ -26,7 +26,7 @@ import de.dytanic.cloudnet.event.service.CloudServicePreProcessStartEvent;
 import de.dytanic.cloudnet.service.ICloudService;
 import eu.cloudnetservice.cloudnet.ext.report.CloudNetReportModule;
 import eu.cloudnetservice.cloudnet.ext.report.util.RecordMaker;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class RecordReportListener {
 
@@ -38,7 +38,7 @@ public final class RecordReportListener {
   }
 
   @EventListener
-  public void handleServicePreStop(@NotNull CloudServicePreProcessStartEvent event) {
+  public void handleServicePreStop(@NonNull CloudServicePreProcessStartEvent event) {
     var configuration = this.reportModule.reportConfiguration();
     var serviceLifetimeSetting = configuration.serviceLifetime();
     // -1 is used to disable the log printing.

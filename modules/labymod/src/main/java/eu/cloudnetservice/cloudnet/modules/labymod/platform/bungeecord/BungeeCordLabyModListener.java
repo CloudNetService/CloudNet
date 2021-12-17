@@ -18,22 +18,22 @@ package eu.cloudnetservice.cloudnet.modules.labymod.platform.bungeecord;
 
 import eu.cloudnetservice.cloudnet.modules.labymod.LabyModManagement;
 import eu.cloudnetservice.cloudnet.modules.labymod.platform.PlatformLabyModManagement;
+import lombok.NonNull;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
-import org.jetbrains.annotations.NotNull;
 
 public class BungeeCordLabyModListener implements Listener {
 
   private final PlatformLabyModManagement labyModManagement;
 
-  public BungeeCordLabyModListener(@NotNull PlatformLabyModManagement labyModManagement) {
+  public BungeeCordLabyModListener(@NonNull PlatformLabyModManagement labyModManagement) {
     this.labyModManagement = labyModManagement;
   }
 
   @EventHandler
-  public void handlePluginMessage(@NotNull PluginMessageEvent event) {
+  public void handlePluginMessage(@NonNull PluginMessageEvent event) {
     var configuration = this.labyModManagement.configuration();
     if (configuration.enabled() && event.getTag().equals(LabyModManagement.LABYMOD_CLIENT_CHANNEL)) {
       if (event.getSender() instanceof ProxiedPlayer player) {

@@ -23,18 +23,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public record RowBasedFormatter<T>(
-  @NotNull ColumnFormatter defaultFormatter,
-  @NotNull List<Function<T, Object>> columns
+  @NonNull ColumnFormatter defaultFormatter,
+  @NonNull List<Function<T, Object>> columns
 ) {
 
-  public static <T> @NotNull Builder<T> builder() {
+  public static <T> @NonNull Builder<T> builder() {
     return new Builder<>();
   }
 
-  public @NotNull ColumnEntry[] convertToColumns(@NotNull Collection<T> input) {
+  public @NonNull ColumnEntry[] convertToColumns(@NonNull Collection<T> input) {
     var result = new ColumnEntry[this.columns.size()];
     // convert each
     var contents = input instanceof List ? (List<T>) input : new LinkedList<>(input);
@@ -58,15 +58,15 @@ public record RowBasedFormatter<T>(
     return result;
   }
 
-  public @NotNull ColumnEntry[] convertToColumns(@NotNull T... input) {
+  public @NonNull ColumnEntry[] convertToColumns(@NonNull T... input) {
     return this.convertToColumns(Arrays.asList(input));
   }
 
-  public @NotNull Collection<String> format(@NotNull Collection<T> input) {
+  public @NonNull Collection<String> format(@NonNull Collection<T> input) {
     return this.defaultFormatter.formatLines(this.convertToColumns(input));
   }
 
-  public @NotNull Collection<String> format(@NotNull T... input) {
+  public @NonNull Collection<String> format(@NonNull T... input) {
     return this.defaultFormatter.formatLines(this.convertToColumns(input));
   }
 
@@ -75,22 +75,22 @@ public record RowBasedFormatter<T>(
     private ColumnFormatter defaultFormatter;
     private List<Function<T, Object>> columns = new LinkedList<>();
 
-    public @NotNull Builder<T> defaultFormatter(@NotNull ColumnFormatter defaultFormatter) {
+    public @NonNull Builder<T> defaultFormatter(@NonNull ColumnFormatter defaultFormatter) {
       this.defaultFormatter = defaultFormatter;
       return this;
     }
 
-    public @NotNull Builder<T> columns(@NotNull List<Function<T, Object>> columns) {
+    public @NonNull Builder<T> columns(@NonNull List<Function<T, Object>> columns) {
       this.columns = new LinkedList<>(columns);
       return this;
     }
 
-    public @NotNull Builder<T> column(@NotNull Function<T, Object> converter) {
+    public @NonNull Builder<T> column(@NonNull Function<T, Object> converter) {
       this.columns.add(converter);
       return this;
     }
 
-    public @NotNull RowBasedFormatter<T> build() {
+    public @NonNull RowBasedFormatter<T> build() {
       Verify.verifyNotNull(this.defaultFormatter, "no default formatter given");
       Verify.verify(!this.columns.isEmpty(), "at least one column must be given");
 

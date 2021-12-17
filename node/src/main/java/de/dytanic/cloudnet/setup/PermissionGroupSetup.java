@@ -23,12 +23,12 @@ import de.dytanic.cloudnet.console.animation.setup.ConsoleSetupAnimation;
 import de.dytanic.cloudnet.console.animation.setup.answer.QuestionAnswerType;
 import de.dytanic.cloudnet.console.animation.setup.answer.QuestionListEntry;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class PermissionGroupSetup implements DefaultSetup {
 
   @Override
-  public void applyQuestions(@NotNull ConsoleSetupAnimation animation) {
+  public void applyQuestions(@NonNull ConsoleSetupAnimation animation) {
     animation.addEntries(
       QuestionListEntry.<Boolean>builder()
         .key("addDefaultGroups")
@@ -41,7 +41,7 @@ public class PermissionGroupSetup implements DefaultSetup {
   }
 
   @Override
-  public void handleResults(@NotNull ConsoleSetupAnimation animation) {
+  public void handleResults(@NonNull ConsoleSetupAnimation animation) {
     if (animation.result("addDefaultGroups")) {
       var adminPermissionGroup = new PermissionGroup("Admin", 100);
       adminPermissionGroup.addPermission("*");

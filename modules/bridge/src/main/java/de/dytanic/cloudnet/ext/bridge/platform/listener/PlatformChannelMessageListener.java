@@ -35,9 +35,9 @@ import de.dytanic.cloudnet.ext.bridge.player.CloudOfflinePlayer;
 import de.dytanic.cloudnet.ext.bridge.player.CloudPlayer;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.ext.bridge.player.executor.ServerSelectorType;
+import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
-import org.jetbrains.annotations.NotNull;
 
 public final class PlatformChannelMessageListener {
 
@@ -45,15 +45,15 @@ public final class PlatformChannelMessageListener {
   private final PlatformBridgeManagement<?, ?> management;
 
   public PlatformChannelMessageListener(
-    @NotNull IEventManager eventManager,
-    @NotNull PlatformBridgeManagement<?, ?> management
+    @NonNull IEventManager eventManager,
+    @NonNull PlatformBridgeManagement<?, ?> management
   ) {
     this.eventManager = eventManager;
     this.management = management;
   }
 
   @EventListener
-  public void handleConfigurationChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
+  public void handleConfigurationChannelMessage(@NonNull ChannelMessageReceiveEvent event) {
     if (event.channel().equals(BridgeManagement.BRIDGE_CHANNEL_NAME) && event.message()
       .equals("update_bridge_configuration")) {
       // read the config
@@ -64,7 +64,7 @@ public final class PlatformChannelMessageListener {
   }
 
   @EventListener
-  public void handlePlayerChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
+  public void handlePlayerChannelMessage(@NonNull ChannelMessageReceiveEvent event) {
     if (event.channel().equals(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)) {
       // a message regarding a player event
       switch (event.message()) {
@@ -141,7 +141,7 @@ public final class PlatformChannelMessageListener {
   }
 
   @EventListener
-  public void handlePlayerExecutorChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
+  public void handlePlayerExecutorChannelMessage(@NonNull ChannelMessageReceiveEvent event) {
     if (event.channel().equals(BridgeManagement.BRIDGE_PLAYER_EXECUTOR_CHANNEL_NAME)) {
       // the target unique id is always the first argument
       var executor = this.management.directPlayerExecutor(event.content().readUniqueId());

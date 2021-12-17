@@ -25,7 +25,7 @@ import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class BridgeServiceHelper {
@@ -56,7 +56,7 @@ public final class BridgeServiceHelper {
     }
   }
 
-  public static @NotNull ServiceInfoState guessStateFromServiceInfoSnapshot(@NotNull ServiceInfoSnapshot service) {
+  public static @NonNull ServiceInfoState guessStateFromServiceInfoSnapshot(@NonNull ServiceInfoSnapshot service) {
     // convert not running or ingame services to STOPPED
     if (service.lifeCycle() != ServiceLifeCycle.RUNNING
       || service.property(BridgeServiceProperties.IS_IN_GAME).orElse(false)) {
@@ -82,8 +82,8 @@ public final class BridgeServiceHelper {
     }
   }
 
-  public static @NotNull String fillCommonPlaceholders(
-    @NotNull String value,
+  public static @NonNull String fillCommonPlaceholders(
+    @NonNull String value,
     @Nullable String group,
     @Nullable ServiceInfoSnapshot service
   ) {
@@ -125,7 +125,7 @@ public final class BridgeServiceHelper {
     return value;
   }
 
-  public static @NotNull NetworkServiceInfo createServiceInfo(@NotNull ServiceInfoSnapshot snapshot) {
+  public static @NonNull NetworkServiceInfo createServiceInfo(@NonNull ServiceInfoSnapshot snapshot) {
     return new NetworkServiceInfo(snapshot.configuration().groups(), snapshot.serviceId());
   }
 

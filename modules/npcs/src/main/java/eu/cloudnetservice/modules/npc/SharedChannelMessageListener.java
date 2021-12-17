@@ -21,18 +21,18 @@ import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEven
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class SharedChannelMessageListener {
 
   private final NPCManagement npcManagement;
 
-  public SharedChannelMessageListener(@NotNull NPCManagement npcManagement) {
+  public SharedChannelMessageListener(@NonNull NPCManagement npcManagement) {
     this.npcManagement = npcManagement;
   }
 
   @EventListener
-  public void handle(@NotNull ChannelMessageReceiveEvent event) {
+  public void handle(@NonNull ChannelMessageReceiveEvent event) {
     if (event.channel().equals(AbstractNPCManagement.NPC_CHANNEL_NAME)) {
       switch (event.message()) {
         // a new npc was created

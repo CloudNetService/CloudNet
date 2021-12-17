@@ -23,8 +23,8 @@ import de.dytanic.cloudnet.driver.network.netty.NettyNetworkHandler;
 import io.netty.channel.ChannelHandlerContext;
 import java.util.Collection;
 import java.util.concurrent.Executor;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 
 @Internal
 public class NettyNetworkServerHandler extends NettyNetworkHandler {
@@ -38,7 +38,7 @@ public class NettyNetworkServerHandler extends NettyNetworkHandler {
   }
 
   @Override
-  public void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
+  public void channelActive(@NonNull ChannelHandlerContext ctx) throws Exception {
     this.networkServer.channels.add(this.channel = new NettyNetworkChannel(
       ctx.channel(),
       this.networkServer.packetRegistry(),
@@ -54,12 +54,12 @@ public class NettyNetworkServerHandler extends NettyNetworkHandler {
   }
 
   @Override
-  protected @NotNull Collection<INetworkChannel> channels() {
+  protected @NonNull Collection<INetworkChannel> channels() {
     return this.networkServer.channels;
   }
 
   @Override
-  protected @NotNull Executor packetDispatcher() {
+  protected @NonNull Executor packetDispatcher() {
     return this.networkServer.packetDispatcher();
   }
 }

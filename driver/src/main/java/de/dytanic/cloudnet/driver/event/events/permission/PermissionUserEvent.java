@@ -18,21 +18,21 @@ package de.dytanic.cloudnet.driver.event.events.permission;
 
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 abstract class PermissionUserEvent extends PermissionEvent {
 
   private final PermissionUser permissionUser;
 
   public PermissionUserEvent(
-    @NotNull IPermissionManagement permissionManagement,
-    @NotNull PermissionUser permissionUser
+    @NonNull IPermissionManagement permissionManagement,
+    @NonNull PermissionUser permissionUser
   ) {
     super(permissionManagement);
     this.permissionUser = permissionUser;
   }
 
-  public @NotNull PermissionUser permissionUser() {
+  public @NonNull PermissionUser permissionUser() {
     return this.permissionUser;
   }
 }

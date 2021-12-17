@@ -22,8 +22,8 @@ import de.dytanic.cloudnet.common.document.property.JsonDocPropertyHolder;
 import java.util.Collection;
 import java.util.HashSet;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Defines the properties for a service that is copied to a specified template. It contains the {@link ServiceTemplate}
@@ -38,36 +38,36 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
   protected final Collection<String> excludes;
 
   protected ServiceDeployment(
-    @NotNull ServiceTemplate template,
-    @NotNull Collection<String> excludes,
-    @NotNull JsonDocument properties
+    @NonNull ServiceTemplate template,
+    @NonNull Collection<String> excludes,
+    @NonNull JsonDocument properties
   ) {
     this.template = template;
     this.excludes = excludes;
     this.properties = properties;
   }
 
-  public static @NotNull Builder builder() {
+  public static @NonNull Builder builder() {
     return new Builder();
   }
 
-  public static @NotNull Builder builder(@NotNull ServiceDeployment deployment) {
+  public static @NonNull Builder builder(@NonNull ServiceDeployment deployment) {
     return builder()
       .template(deployment.template())
       .excludes(deployment.excludes())
       .properties(deployment.properties().clone());
   }
 
-  public @NotNull ServiceTemplate template() {
+  public @NonNull ServiceTemplate template() {
     return this.template;
   }
 
-  public @NotNull Collection<String> excludes() {
+  public @NonNull Collection<String> excludes() {
     return this.excludes;
   }
 
   @Override
-  public @NotNull ServiceDeployment clone() {
+  public @NonNull ServiceDeployment clone() {
     try {
       return (ServiceDeployment) super.clone();
     } catch (CloneNotSupportedException exception) {
@@ -81,27 +81,27 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
     protected Collection<String> excludes = new HashSet<>();
     protected JsonDocument properties = JsonDocument.newDocument();
 
-    public @NotNull Builder template(@NotNull ServiceTemplate template) {
+    public @NonNull Builder template(@NonNull ServiceTemplate template) {
       this.template = template;
       return this;
     }
 
-    public @NotNull Builder excludes(@NotNull Collection<String> excludes) {
+    public @NonNull Builder excludes(@NonNull Collection<String> excludes) {
       this.excludes = new HashSet<>(excludes);
       return this;
     }
 
-    public @NotNull Builder addExclude(@NotNull String exclude) {
+    public @NonNull Builder addExclude(@NonNull String exclude) {
       this.excludes.add(exclude);
       return this;
     }
 
-    public @NotNull Builder properties(@NotNull JsonDocument properties) {
+    public @NonNull Builder properties(@NonNull JsonDocument properties) {
       this.properties = properties;
       return this;
     }
 
-    public @NotNull ServiceDeployment build() {
+    public @NonNull ServiceDeployment build() {
       Verify.verifyNotNull(this.template, "no target template given");
       return new ServiceDeployment(this.template, this.excludes, this.properties);
     }

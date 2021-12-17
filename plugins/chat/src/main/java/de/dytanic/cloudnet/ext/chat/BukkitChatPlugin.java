@@ -16,13 +16,13 @@
 
 package de.dytanic.cloudnet.ext.chat;
 
+import lombok.NonNull;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
 
 public class BukkitChatPlugin extends JavaPlugin implements Listener {
 
@@ -38,7 +38,7 @@ public class BukkitChatPlugin extends JavaPlugin implements Listener {
   }
 
   @EventHandler(priority = EventPriority.HIGH)
-  public void handleChat(@NotNull AsyncPlayerChatEvent event) {
+  public void handleChat(@NonNull AsyncPlayerChatEvent event) {
     var player = event.getPlayer();
     var formattedMessage = ChatFormatter.buildFormat(
       player.getUniqueId(),

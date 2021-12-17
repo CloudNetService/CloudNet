@@ -23,25 +23,25 @@ import eu.cloudnetservice.cloudnet.ext.syncproxy.SyncProxyConstants;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.UUID;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public record SyncProxyTabList(String header, String footer) {
 
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");
 
-  public static @NotNull Builder builder() {
+  public static @NonNull Builder builder() {
     return new Builder();
   }
 
-  public static @NotNull Builder builder(@NotNull SyncProxyTabList tabList) {
+  public static @NonNull Builder builder(@NonNull SyncProxyTabList tabList) {
     return builder()
       .header(tabList.header())
       .footer(tabList.footer());
   }
 
-  public static @NotNull String replaceTabListItem(
-    @NotNull String input,
-    @NotNull UUID playerUniqueId,
+  public static @NonNull String replaceTabListItem(
+    @NonNull String input,
+    @NonNull UUID playerUniqueId,
     int onlinePlayers,
     int maxPlayers
   ) {
@@ -79,17 +79,17 @@ public record SyncProxyTabList(String header, String footer) {
     private String header;
     private String footer;
 
-    public @NotNull Builder header(@NotNull String header) {
+    public @NonNull Builder header(@NonNull String header) {
       this.header = header;
       return this;
     }
 
-    public @NotNull Builder footer(@NotNull String footer) {
+    public @NonNull Builder footer(@NonNull String footer) {
       this.footer = footer;
       return this;
     }
 
-    public @NotNull SyncProxyTabList build() {
+    public @NonNull SyncProxyTabList build() {
       Verify.verifyNotNull(this.header, "Missing header");
       Verify.verifyNotNull(this.footer, "Missing footer");
 

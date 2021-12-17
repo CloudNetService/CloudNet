@@ -24,12 +24,12 @@ import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import java.util.Collections;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class PacketServerChannelMessageListener implements IPacketListener {
 
   @Override
-  public void handle(@NotNull INetworkChannel channel, @NotNull IPacket packet) {
+  public void handle(@NonNull INetworkChannel channel, @NonNull IPacket packet) {
     // read the channel message from the buffer
     var message = packet.content().readObject(ChannelMessage.class);
     // get the query response if available

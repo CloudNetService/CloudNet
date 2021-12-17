@@ -25,7 +25,7 @@ import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.platform.listener.SyncProxyCloudListener;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 @Plugin(
   id = "cloudnet_syncproxy",
@@ -45,12 +45,12 @@ public final class VelocitySyncProxyPlugin {
   private VelocitySyncProxyManagement management;
 
   @Inject
-  public VelocitySyncProxyPlugin(@NotNull ProxyServer proxyServer) {
+  public VelocitySyncProxyPlugin(@NonNull ProxyServer proxyServer) {
     this.proxyServer = proxyServer;
   }
 
   @Subscribe
-  public void handleProxyInit(@NotNull ProxyInitializeEvent event) {
+  public void handleProxyInit(@NonNull ProxyInitializeEvent event) {
     this.management = new VelocitySyncProxyManagement(this.proxyServer, this);
     // register the SyncProxyManagement in our service registry
     this.management.registerService(Wrapper.instance().servicesRegistry());
@@ -61,7 +61,7 @@ public final class VelocitySyncProxyPlugin {
   }
 
   @Subscribe
-  public void handleProxyShutdown(@NotNull ProxyShutdownEvent event) {
+  public void handleProxyShutdown(@NonNull ProxyShutdownEvent event) {
     // unregister all listeners for cloudnet events
     Wrapper.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
     Wrapper.instance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());

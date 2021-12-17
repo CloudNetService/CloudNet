@@ -22,44 +22,44 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
 public record FunctionalDocProperty<E>(
-  @NotNull Function<IDocument<?>, E> reader,
-  @NotNull BiConsumer<E, IDocument<?>> writer,
-  @NotNull Consumer<IDocument<?>> remover,
-  @NotNull Predicate<IDocument<?>> containsTester
+  @NonNull Function<IDocument<?>, E> reader,
+  @NonNull BiConsumer<E, IDocument<?>> writer,
+  @NonNull Consumer<IDocument<?>> remover,
+  @NonNull Predicate<IDocument<?>> containsTester
 ) implements DocProperty<E> {
 
-  public static @NotNull <E> Builder<E> builder() {
+  public static @NonNull <E> Builder<E> builder() {
     return new Builder<>();
   }
 
-  public static @NotNull <E> Builder<E> forNamedProperty(@NotNull String propertyName) {
+  public static @NonNull <E> Builder<E> forNamedProperty(@NonNull String propertyName) {
     return FunctionalDocProperty.<E>builder()
       .remover(document -> document.remove(propertyName))
       .containsTester(document -> document.contains(propertyName));
   }
 
   @Override
-  public void remove(@NotNull IDocument<?> from) {
+  public void remove(@NonNull IDocument<?> from) {
     this.remover.accept(from);
   }
 
   @Override
-  public void append(@NotNull IDocument<?> to, @Nullable E value) {
+  public void append(@NonNull IDocument<?> to, @Nullable E value) {
     this.writer.accept(value, to);
   }
 
   @Override
-  public @UnknownNullability E get(@NotNull IDocument<?> from) {
+  public @UnknownNullability E get(@NonNull IDocument<?> from) {
     return this.reader.apply(from);
   }
 
   @Override
-  public boolean isAppendedTo(@NotNull IDocument<?> document) {
+  public boolean isAppendedTo(@NonNull IDocument<?> document) {
     return this.containsTester.test(document);
   }
 
@@ -71,27 +71,27 @@ public record FunctionalDocProperty<E>(
     private Consumer<IDocument<?>> remover;
     private Predicate<IDocument<?>> containsTester;
 
-    public @NotNull Builder<E> reader(@NotNull Function<IDocument<?>, E> reader) {
+    public @NonNull Builder<E> reader(@NonNull Function<IDocument<?>, E> reader) {
       this.reader = reader;
       return this;
     }
 
-    public @NotNull Builder<E> writer(@NotNull BiConsumer<E, IDocument<?>> writer) {
+    public @NonNull Builder<E> writer(@NonNull BiConsumer<E, IDocument<?>> writer) {
       this.writer = writer;
       return this;
     }
 
-    public @NotNull Builder<E> remover(@NotNull Consumer<IDocument<?>> remover) {
+    public @NonNull Builder<E> remover(@NonNull Consumer<IDocument<?>> remover) {
       this.remover = remover;
       return this;
     }
 
-    public @NotNull Builder<E> containsTester(@NotNull Predicate<IDocument<?>> containsTester) {
+    public @NonNull Builder<E> containsTester(@NonNull Predicate<IDocument<?>> containsTester) {
       this.containsTester = containsTester;
       return this;
     }
 
-    public @NotNull DocProperty<E> build() {
+    public @NonNull DocProperty<E> build() {
       Verify.verifyNotNull(this.reader, "no reader given");
       Verify.verifyNotNull(this.writer, "no writer given");
       Verify.verifyNotNull(this.reader, "no remover given");

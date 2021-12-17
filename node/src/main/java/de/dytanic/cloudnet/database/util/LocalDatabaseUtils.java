@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.database.util;
 
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class LocalDatabaseUtils {
 
@@ -28,7 +28,7 @@ public final class LocalDatabaseUtils {
     throw new UnsupportedOperationException();
   }
 
-  public static void bigWarningThatEveryoneCanSee(@NotNull String warning) {
+  public static void bigWarningThatEveryoneCanSee(@NonNull String warning) {
     LOGGER.warning("╔══════════════════════════════════════════════════════════════════╗");
     LOGGER.warning("║                               WARNING                             ");
     LOGGER.warning("║   " + warning);

@@ -18,13 +18,12 @@ package de.dytanic.cloudnet.driver.network.def;
 
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
-import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class PacketServerChannelMessage extends Packet {
 
-  public PacketServerChannelMessage(@NotNull ChannelMessage message) {
+  public PacketServerChannelMessage(@NonNull ChannelMessage message) {
     super(NetworkConstants.CHANNEL_MESSAGING_CHANNEL, DataBuf.empty().writeObject(message));
   }
 }

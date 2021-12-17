@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class DefaultPermissionManagement implements IPermissionManagement {
@@ -40,7 +40,7 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
   }
 
   @Override
-  public PermissionGroup highestPermissionGroup(@NotNull PermissionUser permissionUser) {
+  public PermissionGroup highestPermissionGroup(@NonNull PermissionUser permissionUser) {
     PermissionGroup permissionGroup = null;
 
     for (var group : this.groupsOf(permissionUser)) {
@@ -85,7 +85,7 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
   }
 
   @Override
-  @NotNull
+  @NonNull
   public Collection<PermissionGroup> groupsOf(@Nullable IPermissible permissible) {
     List<PermissionGroup> permissionGroups = new ArrayList<>();
 
@@ -108,34 +108,34 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
   }
 
   @Override
-  public @NotNull PermissionCheckResult permissionResult(
-    @NotNull IPermissible permissible,
-    @NotNull Permission permission
+  public @NonNull PermissionCheckResult permissionResult(
+    @NonNull IPermissible permissible,
+    @NonNull Permission permission
   ) {
     return PermissionCheckResult.fromPermission(
       this.findHighestPermission(this.collectAllPermissions(permissible, null), permission));
   }
 
   @Override
-  public @NotNull PermissionCheckResult groupPermissionResult(
-    @NotNull IPermissible permissible,
-    @NotNull String group,
-    @NotNull Permission permission
+  public @NonNull PermissionCheckResult groupPermissionResult(
+    @NonNull IPermissible permissible,
+    @NonNull String group,
+    @NonNull Permission permission
   ) {
     return this.groupsPermissionResult(permissible, new String[]{group}, permission);
   }
 
   @Override
-  public @NotNull PermissionCheckResult groupsPermissionResult(@NotNull IPermissible permissible,
-    @NotNull String[] groups,
-    @NotNull Permission permission) {
+  public @NonNull PermissionCheckResult groupsPermissionResult(@NonNull IPermissible permissible,
+    @NonNull String[] groups,
+    @NonNull Permission permission) {
     return PermissionCheckResult
       .fromPermission(this.findHighestPermission(this.collectAllPermissions(permissible, groups), permission));
   }
 
   @Override
   @Nullable
-  public Permission findHighestPermission(@NotNull Collection<Permission> permissions, @NotNull Permission permission) {
+  public Permission findHighestPermission(@NonNull Collection<Permission> permissions, @NonNull Permission permission) {
     Permission lastMatch = null;
     // search for a better match
     for (var permissionEntry : permissions) {
@@ -161,12 +161,12 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
     return lastMatch;
   }
 
-  protected Collection<Permission> collectAllPermissions(@NotNull IPermissible permissible, @Nullable String[] groups) {
+  protected Collection<Permission> collectAllPermissions(@NonNull IPermissible permissible, @Nullable String[] groups) {
     return this.collectAllPermissionsTo(new HashSet<>(), permissible, groups);
   }
 
-  protected Collection<Permission> collectAllPermissionsTo(@NotNull Collection<Permission> target,
-    @NotNull IPermissible permissible,
+  protected Collection<Permission> collectAllPermissionsTo(@NonNull Collection<Permission> target,
+    @NonNull IPermissible permissible,
     @Nullable String[] groups) {
     this.collectPermissionsInto(target, permissible, groups);
     this.collectAllGroupPermissionsInto(target, this.groupsOf(permissible), groups, new HashSet<>());
@@ -174,9 +174,9 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
     return target;
   }
 
-  protected void collectAllGroupPermissionsInto(@NotNull Collection<Permission> target,
-    @NotNull Collection<PermissionGroup> groups,
-    @Nullable String[] taskGroups, @NotNull Collection<String> travelledGroups) {
+  protected void collectAllGroupPermissionsInto(@NonNull Collection<Permission> target,
+    @NonNull Collection<PermissionGroup> groups,
+    @Nullable String[] taskGroups, @NonNull Collection<String> travelledGroups) {
     for (var permissionGroup : groups) {
       if (permissionGroup != null && travelledGroups.add(permissionGroup.name())) {
         this.collectPermissionsInto(target, permissionGroup, taskGroups);
@@ -185,7 +185,7 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
     }
   }
 
-  protected void collectPermissionsInto(@NotNull Collection<Permission> permissions, @NotNull IPermissible permissible,
+  protected void collectPermissionsInto(@NonNull Collection<Permission> permissions, @NonNull IPermissible permissible,
     @Nullable String[] groups) {
     permissions.addAll(permissible.permissions());
     if (groups != null) {
@@ -196,12 +196,12 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
   }
 
   @Override
-  public @NotNull Collection<Permission> allPermissions(@NotNull IPermissible permissible) {
+  public @NonNull Collection<Permission> allPermissions(@NonNull IPermissible permissible) {
     return this.allGroupPermissions(permissible, null);
   }
 
   @Override
-  public @NotNull Collection<Permission> allGroupPermissions(@NotNull IPermissible permissible, String group) {
+  public @NonNull Collection<Permission> allGroupPermissions(@NonNull IPermissible permissible, String group) {
     Collection<Permission> permissions = new ArrayList<>(permissible.permissions());
     if (group != null && permissible.groupPermissions().containsKey(group)) {
       permissions.addAll(permissible.groupPermissions().get(group));
@@ -213,7 +213,7 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
   }
 
   @Override
-  public PermissionGroup modifyGroup(@NotNull String name, @NotNull Consumer<PermissionGroup> modifier) {
+  public PermissionGroup modifyGroup(@NonNull String name, @NonNull Consumer<PermissionGroup> modifier) {
     var group = this.group(name);
 
     if (group != null) {
@@ -225,7 +225,7 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
   }
 
   @Override
-  public PermissionUser modifyUser(@NotNull UUID uniqueId, @NotNull Consumer<PermissionUser> modifier) {
+  public PermissionUser modifyUser(@NonNull UUID uniqueId, @NonNull Consumer<PermissionUser> modifier) {
     var user = this.user(uniqueId);
 
     if (user != null) {
@@ -237,7 +237,7 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
   }
 
   @Override
-  public @NotNull List<PermissionUser> modifyUsers(@NotNull String name, @NotNull Consumer<PermissionUser> modifier) {
+  public @NonNull List<PermissionUser> modifyUsers(@NonNull String name, @NonNull Consumer<PermissionUser> modifier) {
     var users = this.usersByName(name);
 
     for (var user : users) {

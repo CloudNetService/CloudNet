@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.driver.module;
 
 import com.google.common.base.Verify;
 import java.net.URL;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * A dependency loader which only creates a new url instance but will not save the dependency anywhere persistently.
@@ -34,9 +34,9 @@ public class DefaultMemoryModuleDependencyLoader implements IModuleDependencyLoa
    * {@inheritDoc}
    */
   @Override
-  public @NotNull URL loadModuleDependencyByUrl(
-    @NotNull ModuleConfiguration configuration,
-    @NotNull ModuleDependency dependency
+  public @NonNull URL loadModuleDependencyByUrl(
+    @NonNull ModuleConfiguration configuration,
+    @NonNull ModuleDependency dependency
   ) throws Exception {
     Verify.verifyNotNull(dependency.url(), "Dependency url must be given");
     return new URL(dependency.url());
@@ -46,10 +46,10 @@ public class DefaultMemoryModuleDependencyLoader implements IModuleDependencyLoa
    * {@inheritDoc}
    */
   @Override
-  public @NotNull URL loadModuleDependencyByRepository(
-    @NotNull ModuleConfiguration configuration,
-    @NotNull ModuleDependency dependency,
-    @NotNull String repositoryUrl
+  public @NonNull URL loadModuleDependencyByRepository(
+    @NonNull ModuleConfiguration configuration,
+    @NonNull ModuleDependency dependency,
+    @NonNull String repositoryUrl
   ) throws Exception {
     return new URL(String.format(
       REMOTE_DEPENDENCY_URL_FORMAT,

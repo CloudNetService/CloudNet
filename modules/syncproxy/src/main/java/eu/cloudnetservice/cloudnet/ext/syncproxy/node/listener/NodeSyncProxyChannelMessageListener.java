@@ -24,7 +24,7 @@ import eu.cloudnetservice.cloudnet.ext.syncproxy.SyncProxyConfigurationUpdateEve
 import eu.cloudnetservice.cloudnet.ext.syncproxy.SyncProxyConstants;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.config.SyncProxyConfiguration;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.node.NodeSyncProxyManagement;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class NodeSyncProxyChannelMessageListener {
 
@@ -32,8 +32,8 @@ public final class NodeSyncProxyChannelMessageListener {
   private final IEventManager eventManager;
 
   public NodeSyncProxyChannelMessageListener(
-    @NotNull NodeSyncProxyManagement management,
-    @NotNull IEventManager eventManager
+    @NonNull NodeSyncProxyManagement management,
+    @NonNull IEventManager eventManager
   ) {
     this.management = management;
     this.eventManager = eventManager;

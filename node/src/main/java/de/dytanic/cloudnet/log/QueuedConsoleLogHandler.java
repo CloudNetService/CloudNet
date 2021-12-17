@@ -24,7 +24,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.LogRecord;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * A logging handler for developers, that can easy handle and get the logging outputs from this node instance
@@ -46,11 +46,11 @@ public final class QueuedConsoleLogHandler extends AbstractHandler {
     CloudNetDriver.instance().eventManager().callEvent(new LoggingEntryEvent(record));
   }
 
-  public @NotNull Queue<LogRecord> cachedLogEntries() {
+  public @NonNull Queue<LogRecord> cachedLogEntries() {
     return this.cachedQueuedLogEntries;
   }
 
-  public @NotNull Queue<String> formattedCachedLogLines() {
+  public @NonNull Queue<String> formattedCachedLogLines() {
     return this.cachedQueuedLogEntries.stream()
       .map(this.getFormatter()::format)
       .collect(Collectors.toCollection(LinkedList::new));

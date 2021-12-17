@@ -28,12 +28,12 @@ import de.dytanic.cloudnet.event.network.NetworkClusterNodeAuthSuccessEvent;
 import de.dytanic.cloudnet.event.network.NetworkServiceAuthSuccessEvent;
 import de.dytanic.cloudnet.network.NodeNetworkUtils;
 import de.dytanic.cloudnet.network.packet.PacketServerAuthorizationResponse;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class PacketClientAuthorizationListener implements IPacketListener {
 
   @Override
-  public void handle(@NotNull INetworkChannel channel, @NotNull IPacket packet) {
+  public void handle(@NonNull INetworkChannel channel, @NonNull IPacket packet) {
     // read the core data
     var type = packet.content().readObject(PacketAuthorizationType.class);
     try (var content = packet.content().readDataBuf()) {

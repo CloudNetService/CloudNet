@@ -29,8 +29,8 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Supplier;
+import lombok.NonNull;
 import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
@@ -40,9 +40,9 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
   private final Supplier<Collection<? extends ProxiedPlayer>> playerSupplier;
 
   public WaterDogPEDirectPlayerExecutor(
-    @NotNull UUID uniqueId,
-    @NotNull PlatformBridgeManagement<ProxiedPlayer, ?> management,
-    @NotNull Supplier<Collection<? extends ProxiedPlayer>> playerSupplier
+    @NonNull UUID uniqueId,
+    @NonNull PlatformBridgeManagement<ProxiedPlayer, ?> management,
+    @NonNull Supplier<Collection<? extends ProxiedPlayer>> playerSupplier
   ) {
     this.uniqueId = uniqueId;
     this.management = management;
@@ -50,12 +50,12 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
   }
 
   @Override
-  public @NotNull UUID uniqueId() {
+  public @NonNull UUID uniqueId() {
     return this.uniqueId;
   }
 
   @Override
-  public void connect(@NotNull String serviceName) {
+  public void connect(@NonNull String serviceName) {
     var serverInfo = ProxyServer.getInstance().getServerInfo(serviceName);
     if (serverInfo != null) {
       this.playerSupplier.get().forEach(player -> player.connect(serverInfo));
@@ -63,7 +63,7 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
   }
 
   @Override
-  public void connectSelecting(@NotNull ServerSelectorType selectorType) {
+  public void connectSelecting(@NonNull ServerSelectorType selectorType) {
     this.management.cachedServices().stream()
       .sorted(selectorType.comparator())
       .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
@@ -83,7 +83,7 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
   }
 
   @Override
-  public void connectToGroup(@NotNull String group, @NotNull ServerSelectorType selectorType) {
+  public void connectToGroup(@NonNull String group, @NonNull ServerSelectorType selectorType) {
     this.management.cachedServices().stream()
       .filter(service -> service.configuration().groups().contains(group))
       .sorted(selectorType.comparator())
@@ -93,7 +93,7 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
   }
 
   @Override
-  public void connectToTask(@NotNull String task, @NotNull ServerSelectorType selectorType) {
+  public void connectToTask(@NonNull String task, @NonNull ServerSelectorType selectorType) {
     this.management.cachedServices().stream()
       .filter(service -> service.serviceId().taskName().equals(task))
       .sorted(selectorType.comparator())
@@ -103,19 +103,19 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
   }
 
   @Override
-  public void kick(@NotNull Component message) {
+  public void kick(@NonNull Component message) {
     this.playerSupplier.get()
       .forEach(player -> player.disconnect(new TextContainer(legacySection().serialize(message))));
   }
 
   @Override
-  public void sendMessage(@NotNull Component message) {
+  public void sendMessage(@NonNull Component message) {
     this.playerSupplier.get()
       .forEach(player -> player.sendMessage(new TextContainer(legacySection().serialize(message))));
   }
 
   @Override
-  public void sendChatMessage(@NotNull Component message, @Nullable String permission) {
+  public void sendChatMessage(@NonNull Component message, @Nullable String permission) {
     this.playerSupplier.get().forEach(player -> {
       if (permission == null || player.hasPermission(permission)) {
         player.sendMessage(new TextContainer(legacySection().serialize(message)));
@@ -124,12 +124,12 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
   }
 
   @Override
-  public void sendPluginMessage(@NotNull String tag, byte[] data) {
+  public void sendPluginMessage(@NonNull String tag, byte[] data) {
     // no-op
   }
 
   @Override
-  public void dispatchProxyCommand(@NotNull String command) {
+  public void dispatchProxyCommand(@NonNull String command) {
     this.playerSupplier.get().forEach(player -> player.chat(command));
   }
 }

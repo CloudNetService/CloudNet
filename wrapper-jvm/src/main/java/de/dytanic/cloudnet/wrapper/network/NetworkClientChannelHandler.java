@@ -27,12 +27,12 @@ import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.def.PacketClientAuthorization;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class NetworkClientChannelHandler implements INetworkChannelHandler {
 
   @Override
-  public void handleChannelInitialize(@NotNull INetworkChannel channel) {
+  public void handleChannelInitialize(@NonNull INetworkChannel channel) {
     var networkChannelInitEvent = new NetworkChannelInitEvent(channel, ChannelType.SERVER_CHANNEL);
     CloudNetDriver.instance().eventManager().callEvent(networkChannelInitEvent);
 
@@ -49,13 +49,13 @@ public class NetworkClientChannelHandler implements INetworkChannelHandler {
   }
 
   @Override
-  public boolean handlePacketReceive(@NotNull INetworkChannel channel, @NotNull Packet packet) {
+  public boolean handlePacketReceive(@NonNull INetworkChannel channel, @NonNull Packet packet) {
     return !CloudNetDriver.instance().eventManager().callEvent(
       new NetworkChannelPacketReceiveEvent(channel, packet)).cancelled();
   }
 
   @Override
-  public void handleChannelClose(@NotNull INetworkChannel channel) {
+  public void handleChannelClose(@NonNull INetworkChannel channel) {
     CloudNetDriver.instance().eventManager().callEvent(
       new NetworkChannelCloseEvent(channel, ChannelType.CLIENT_CHANNEL));
   }

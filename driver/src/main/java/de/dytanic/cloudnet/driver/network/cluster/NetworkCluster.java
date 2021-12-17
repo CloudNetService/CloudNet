@@ -18,8 +18,8 @@ package de.dytanic.cloudnet.driver.network.cluster;
 
 import java.util.Collection;
 import java.util.UUID;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
-public record NetworkCluster(@NotNull UUID clusterId, @NotNull Collection<NetworkClusterNode> nodes) {
+public record NetworkCluster(@NonNull UUID clusterId, @NonNull Collection<NetworkClusterNode> nodes) {
 
 }

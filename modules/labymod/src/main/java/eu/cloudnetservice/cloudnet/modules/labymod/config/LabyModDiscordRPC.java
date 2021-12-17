@@ -19,21 +19,21 @@ package eu.cloudnetservice.cloudnet.modules.labymod.config;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import java.util.ArrayList;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
-public record LabyModDiscordRPC(boolean enabled, @NotNull Collection<String> excludedGroups) {
+public record LabyModDiscordRPC(boolean enabled, @NonNull Collection<String> excludedGroups) {
 
-  public static @NotNull Builder builder() {
+  public static @NonNull Builder builder() {
     return new Builder();
   }
 
-  public static @NotNull Builder builder(@NotNull LabyModDiscordRPC discordRPC) {
+  public static @NonNull Builder builder(@NonNull LabyModDiscordRPC discordRPC) {
     return builder()
       .enabled(discordRPC.enabled())
       .excludedGroups(discordRPC.excludedGroups());
   }
 
-  public boolean isEnabled(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
+  public boolean isEnabled(@NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
     for (var excludedGroup : this.excludedGroups) {
       if (serviceInfoSnapshot.configuration().groups().contains(excludedGroup)) {
         return false;
@@ -47,22 +47,22 @@ public record LabyModDiscordRPC(boolean enabled, @NotNull Collection<String> exc
     private boolean enabled = true;
     private Collection<String> excludedGroups = new ArrayList<>();
 
-    public @NotNull Builder enabled(boolean enabled) {
+    public @NonNull Builder enabled(boolean enabled) {
       this.enabled = enabled;
       return this;
     }
 
-    public @NotNull Builder excludedGroups(@NotNull Collection<String> excludedGroups) {
+    public @NonNull Builder excludedGroups(@NonNull Collection<String> excludedGroups) {
       this.excludedGroups = new ArrayList<>(excludedGroups);
       return this;
     }
 
-    public @NotNull Builder addExcludedGroup(@NotNull String excludedGroup) {
+    public @NonNull Builder addExcludedGroup(@NonNull String excludedGroup) {
       this.excludedGroups.add(excludedGroup);
       return this;
     }
 
-    public @NotNull LabyModDiscordRPC build() {
+    public @NonNull LabyModDiscordRPC build() {
       return new LabyModDiscordRPC(this.enabled, this.excludedGroups);
     }
   }

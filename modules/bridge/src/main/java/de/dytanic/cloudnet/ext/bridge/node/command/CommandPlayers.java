@@ -42,8 +42,8 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Queue;
 import java.util.UUID;
+import lombok.NonNull;
 import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @CommandPermission("cloudnet.command.players")
@@ -54,7 +54,7 @@ public class CommandPlayers {
 
   private final NodePlayerManager playerManager;
 
-  public CommandPlayers(@NotNull NodePlayerManager playerManager) {
+  public CommandPlayers(@NonNull NodePlayerManager playerManager) {
     this.playerManager = playerManager;
   }
 
@@ -140,7 +140,7 @@ public class CommandPlayers {
   }
 
   @CommandMethod("players online")
-  public void displayOnlinePlayers(@NotNull CommandSource source) {
+  public void displayOnlinePlayers(@NonNull CommandSource source) {
     for (var player : this.playerManager.players().values()) {
       source.sendMessage(
         "Name: " + player.name() +
@@ -152,14 +152,14 @@ public class CommandPlayers {
   }
 
   @CommandMethod("players registered")
-  public void displayRegisteredCount(@NotNull CommandSource source) {
+  public void displayRegisteredCount(@NonNull CommandSource source) {
     source.sendMessage("=> Registered players " + this.playerManager.registeredCount());
   }
 
   @CommandMethod("players player <player>")
   public void displayPlayerInformation(
-    @NotNull CommandSource source,
-    @NotNull @Argument(value = "player", parserName = "offlinePlayer") CloudOfflinePlayer offlinePlayer
+    @NonNull CommandSource source,
+    @NonNull @Argument(value = "player", parserName = "offlinePlayer") CloudOfflinePlayer offlinePlayer
   ) {
     source.sendMessage("CloudPlayer: " + offlinePlayer.name() + " | " + offlinePlayer.uniqueId());
     source.sendMessage("First login: " + DATE_FORMAT.format(offlinePlayer.firstLoginTimeMillis()));
@@ -182,8 +182,8 @@ public class CommandPlayers {
 
   @CommandMethod("players player <player> delete")
   public void deletePlayer(
-    @NotNull CommandSource source,
-    @NotNull @Argument(value = "player", parserName = "offlinePlayer") CloudOfflinePlayer player
+    @NonNull CommandSource source,
+    @NonNull @Argument(value = "player", parserName = "offlinePlayer") CloudOfflinePlayer player
   ) {
     this.playerManager.deleteCloudOfflinePlayer(player);
     source.sendMessage(I18n.trans("module-bridge-command-players-delete-player")
@@ -193,8 +193,8 @@ public class CommandPlayers {
 
   @CommandMethod("players player <player> kick [reason]")
   public void kickPlayer(
-    @NotNull CommandSource source,
-    @NotNull @Argument("player") CloudPlayer player,
+    @NonNull CommandSource source,
+    @NonNull @Argument("player") CloudPlayer player,
     @Nullable @Greedy @Argument("reason") String reason,
     @Flag("force") boolean force
   ) {
@@ -215,9 +215,9 @@ public class CommandPlayers {
 
   @CommandMethod("players player <player> message <message>")
   public void messagePlayer(
-    @NotNull CommandSource source,
-    @NotNull @Argument("player") CloudPlayer player,
-    @NotNull @Greedy @Argument("message") String message
+    @NonNull CommandSource source,
+    @NonNull @Argument("player") CloudPlayer player,
+    @NonNull @Greedy @Argument("message") String message
   ) {
     player.playerExecutor().sendMessage(AdventureSerializerUtil.serialize(message));
     source.sendMessage(I18n.trans("module-bridge-command-players-send-player-message")
@@ -227,9 +227,9 @@ public class CommandPlayers {
 
   @CommandMethod("players player <player> connect <server>")
   public void connectPlayer(
-    @NotNull CommandSource source,
-    @NotNull @Argument("player") CloudPlayer player,
-    @NotNull @Argument("server") ServiceInfoSnapshot server
+    @NonNull CommandSource source,
+    @NonNull @Argument("player") CloudPlayer player,
+    @NonNull @Argument("server") ServiceInfoSnapshot server
   ) {
     if (BridgeServiceProperties.IS_ONLINE.read(server).orElse(false)) {
       player.playerExecutor().connect(server.name());

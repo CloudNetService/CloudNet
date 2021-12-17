@@ -25,52 +25,52 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public record DataSyncHandler<T>(
-  @NotNull String key,
+  @NonNull String key,
   boolean alwaysForceApply,
-  @NotNull DataConverter<T> converter,
-  @NotNull Consumer<T> writer,
-  @NotNull UnaryOperator<T> currentGetter,
-  @NotNull Function<T, String> nameExtractor,
-  @NotNull Supplier<Collection<T>> dataCollector
+  @NonNull DataConverter<T> converter,
+  @NonNull Consumer<T> writer,
+  @NonNull UnaryOperator<T> currentGetter,
+  @NonNull Function<T, String> nameExtractor,
+  @NonNull Supplier<Collection<T>> dataCollector
 ) {
 
-  public static <T> @NotNull Builder<T> builder() {
+  public static <T> @NonNull Builder<T> builder() {
     return new Builder<>();
   }
 
   @SuppressWarnings("unchecked")
-  public @NotNull String name(@NotNull Object obj) {
+  public @NonNull String name(@NonNull Object obj) {
     return this.nameExtractor.apply((T) obj);
   }
 
   @SuppressWarnings("unchecked")
-  public void write(@NotNull Object data) {
+  public void write(@NonNull Object data) {
     this.writer.accept((T) data);
   }
 
   @SuppressWarnings("unchecked")
-  public void serialize(@NotNull DataBuf.Mutable target, @NotNull Object data) {
+  public void serialize(@NonNull DataBuf.Mutable target, @NonNull Object data) {
     this.converter.write(target, (T) data);
   }
 
   @SuppressWarnings("unchecked")
-  public @Nullable T current(@NotNull Object toGet) {
+  public @Nullable T current(@NonNull Object toGet) {
     return this.currentGetter.apply((T) toGet);
   }
 
-  public @NotNull Collection<T> data() {
+  public @NonNull Collection<T> data() {
     return this.dataCollector.get();
   }
 
   public interface DataConverter<T> {
 
-    void write(@NotNull DataBuf.Mutable target, @NotNull T data);
+    void write(@NonNull DataBuf.Mutable target, @NonNull T data);
 
-    @NotNull T parse(@NotNull DataBuf input) throws Exception;
+    @NonNull T parse(@NonNull DataBuf input) throws Exception;
   }
 
   public static final class Builder<T> {
@@ -84,60 +84,60 @@ public record DataSyncHandler<T>(
     private Function<T, String> nameExtractor;
     private Supplier<Collection<T>> dataCollector;
 
-    public @NotNull Builder<T> key(@NotNull String key) {
+    public @NonNull Builder<T> key(@NonNull String key) {
       this.key = key;
       return this;
     }
 
-    public @NotNull Builder<T> alwaysForce() {
+    public @NonNull Builder<T> alwaysForce() {
       this.alwaysForceApply = true;
       return this;
     }
 
-    public @NotNull Builder<T> converter(@NotNull DataConverter<T> converter) {
+    public @NonNull Builder<T> converter(@NonNull DataConverter<T> converter) {
       this.converter = converter;
       return this;
     }
 
-    public @NotNull Builder<T> convertObject(@NotNull Type type) {
+    public @NonNull Builder<T> convertObject(@NonNull Type type) {
       return this.converter(new DataConverter<T>() {
         @Override
-        public void write(@NotNull DataBuf.Mutable target, @NotNull T data) {
+        public void write(@NonNull DataBuf.Mutable target, @NonNull T data) {
           target.writeObject(data);
         }
 
         @Override
-        public @NotNull T parse(@NotNull DataBuf input) {
+        public @NonNull T parse(@NonNull DataBuf input) {
           return input.readObject(type);
         }
       });
     }
 
-    public @NotNull Builder<T> writer(@NotNull Consumer<T> writer) {
+    public @NonNull Builder<T> writer(@NonNull Consumer<T> writer) {
       this.writer = writer;
       return this;
     }
 
-    public @NotNull Builder<T> currentGetter(@NotNull UnaryOperator<T> currentGetter) {
+    public @NonNull Builder<T> currentGetter(@NonNull UnaryOperator<T> currentGetter) {
       this.currentGetter = currentGetter;
       return this;
     }
 
-    public @NotNull Builder<T> nameExtractor(@NotNull Function<T, String> nameExtractor) {
+    public @NonNull Builder<T> nameExtractor(@NonNull Function<T, String> nameExtractor) {
       this.nameExtractor = nameExtractor;
       return this;
     }
 
-    public @NotNull Builder<T> dataCollector(@NotNull Supplier<Collection<T>> dataCollector) {
+    public @NonNull Builder<T> dataCollector(@NonNull Supplier<Collection<T>> dataCollector) {
       this.dataCollector = dataCollector;
       return this;
     }
 
-    public @NotNull Builder<T> singletonCollector(@NotNull Supplier<T> dataCollector) {
+    public @NonNull Builder<T> singletonCollector(@NonNull Supplier<T> dataCollector) {
       return this.dataCollector(() -> List.of(dataCollector.get()));
     }
 
-    public @NotNull DataSyncHandler<T> build() {
+    public @NonNull DataSyncHandler<T> build() {
       Verify.verifyNotNull(this.key, "no key given");
       Verify.verifyNotNull(this.writer, "no writer given");
       Verify.verifyNotNull(this.converter, "no converter given");

@@ -26,14 +26,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
 public record SyncProxyConfiguration(
-  @NotNull Set<SyncProxyLoginConfiguration> loginConfigurations,
-  @NotNull Set<SyncProxyTabListConfiguration> tabListConfigurations,
-  @NotNull Map<String, String> messages,
+  @NonNull Set<SyncProxyLoginConfiguration> loginConfigurations,
+  @NonNull Set<SyncProxyTabListConfiguration> tabListConfigurations,
+  @NonNull Map<String, String> messages,
   boolean ingameServiceStartStopMessages
 ) {
 
@@ -43,11 +43,11 @@ public record SyncProxyConfiguration(
     "service-start", "&7The service &e%service% &7is &astarting &7on node &e%node%&7...",
     "service-stop", "&7The service &e%service% &7is &cstopping &7on node &e%node%&7...");
 
-  public static @NotNull Builder builder() {
+  public static @NonNull Builder builder() {
     return new Builder();
   }
 
-  public static @NotNull Builder builder(@NotNull SyncProxyConfiguration configuration) {
+  public static @NonNull Builder builder(@NonNull SyncProxyConfiguration configuration) {
     return builder()
       .loginConfigurations(configuration.loginConfigurations())
       .tabListConfigurations(configuration.tabListConfigurations())
@@ -55,7 +55,7 @@ public record SyncProxyConfiguration(
       .ingameStartStopMessages(configuration.ingameServiceStartStopMessages());
   }
 
-  public static @NotNull SyncProxyConfiguration createDefault(@NotNull String targetGroup) {
+  public static @NonNull SyncProxyConfiguration createDefault(@NonNull String targetGroup) {
     return builder()
       .addLoginConfiguration(SyncProxyLoginConfiguration.createDefault(targetGroup))
       .addTabListConfiguration(SyncProxyTabListConfiguration.createDefault(targetGroup))
@@ -79,7 +79,7 @@ public record SyncProxyConfiguration(
     return null;
   }
 
-  public @UnknownNullability String message(@NotNull String key, @Nullable Function<String, String> modifier) {
+  public @UnknownNullability String message(@NonNull String key, @Nullable Function<String, String> modifier) {
     var message = this.messages.getOrDefault(key, DEFAULT_MESSAGES.get(key));
     if (message != null && modifier != null) {
       message = modifier.apply(message);
@@ -105,42 +105,42 @@ public record SyncProxyConfiguration(
     private Map<String, String> messages = new HashMap<>();
     private boolean ingameServiceStartStopMessages;
 
-    public @NotNull Builder loginConfigurations(@NotNull Set<SyncProxyLoginConfiguration> configurations) {
+    public @NonNull Builder loginConfigurations(@NonNull Set<SyncProxyLoginConfiguration> configurations) {
       this.loginConfigurations = new HashSet<>(configurations);
       return this;
     }
 
-    public @NotNull Builder addLoginConfiguration(@NotNull SyncProxyLoginConfiguration configuration) {
+    public @NonNull Builder addLoginConfiguration(@NonNull SyncProxyLoginConfiguration configuration) {
       this.loginConfigurations.add(configuration);
       return this;
     }
 
-    public @NotNull Builder tabListConfigurations(@NotNull Set<SyncProxyTabListConfiguration> configurations) {
+    public @NonNull Builder tabListConfigurations(@NonNull Set<SyncProxyTabListConfiguration> configurations) {
       this.tabListConfigurations = new HashSet<>(configurations);
       return this;
     }
 
-    public @NotNull Builder addTabListConfiguration(@NotNull SyncProxyTabListConfiguration configuration) {
+    public @NonNull Builder addTabListConfiguration(@NonNull SyncProxyTabListConfiguration configuration) {
       this.tabListConfigurations.add(configuration);
       return this;
     }
 
-    public @NotNull Builder messages(@NotNull Map<String, String> messages) {
+    public @NonNull Builder messages(@NonNull Map<String, String> messages) {
       this.messages = new HashMap<>(messages);
       return this;
     }
 
-    public @NotNull Builder addMessage(@NotNull String key, @NotNull String message) {
+    public @NonNull Builder addMessage(@NonNull String key, @NonNull String message) {
       this.messages.put(key, message);
       return this;
     }
 
-    public @NotNull Builder ingameStartStopMessages(boolean ingameMessages) {
+    public @NonNull Builder ingameStartStopMessages(boolean ingameMessages) {
       this.ingameServiceStartStopMessages = ingameMessages;
       return this;
     }
 
-    public @NotNull SyncProxyConfiguration build() {
+    public @NonNull SyncProxyConfiguration build() {
       return new SyncProxyConfiguration(
         this.loginConfigurations,
         this.tabListConfigurations,

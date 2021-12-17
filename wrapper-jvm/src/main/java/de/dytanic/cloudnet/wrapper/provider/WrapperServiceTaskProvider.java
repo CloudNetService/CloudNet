@@ -22,13 +22,13 @@ import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import de.dytanic.cloudnet.wrapper.network.listener.message.TaskChannelMessageListener;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class WrapperServiceTaskProvider implements ServiceTaskProvider {
 
   private final RPCSender rpcSender;
 
-  public WrapperServiceTaskProvider(@NotNull Wrapper wrapper) {
+  public WrapperServiceTaskProvider(@NonNull Wrapper wrapper) {
     this.rpcSender = wrapper.rpcProviderFactory().providerForClass(
       wrapper.networkClient(),
       ServiceTaskProvider.class);
@@ -41,37 +41,37 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
   }
 
   @Override
-  public @NotNull Collection<ServiceTask> permanentServiceTasks() {
+  public @NonNull Collection<ServiceTask> permanentServiceTasks() {
     return this.rpcSender.invokeMethod("permanentServiceTasks").fireSync();
   }
 
   @Override
-  public void permanentServiceTasks(@NotNull Collection<ServiceTask> serviceTasks) {
+  public void permanentServiceTasks(@NonNull Collection<ServiceTask> serviceTasks) {
     this.rpcSender.invokeMethod("permanentServiceTasks", serviceTasks).fireSync();
   }
 
   @Override
-  public ServiceTask serviceTask(@NotNull String name) {
+  public ServiceTask serviceTask(@NonNull String name) {
     return this.rpcSender.invokeMethod("serviceTask", name).fireSync();
   }
 
   @Override
-  public boolean serviceTaskPresent(@NotNull String name) {
+  public boolean serviceTaskPresent(@NonNull String name) {
     return this.rpcSender.invokeMethod("serviceTaskPresent", name).fireSync();
   }
 
   @Override
-  public boolean addPermanentServiceTask(@NotNull ServiceTask serviceTask) {
+  public boolean addPermanentServiceTask(@NonNull ServiceTask serviceTask) {
     return this.rpcSender.invokeMethod("addPermanentServiceTask", serviceTask).fireSync();
   }
 
   @Override
-  public void removePermanentServiceTaskByName(@NotNull String name) {
+  public void removePermanentServiceTaskByName(@NonNull String name) {
     this.rpcSender.invokeMethod("removePermanentServiceTaskByName", name).fireSync();
   }
 
   @Override
-  public void removePermanentServiceTask(@NotNull ServiceTask serviceTask) {
+  public void removePermanentServiceTask(@NonNull ServiceTask serviceTask) {
     this.removePermanentServiceTaskByName(serviceTask.name());
   }
 }

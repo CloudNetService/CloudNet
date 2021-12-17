@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.event.instance;
 
 import de.dytanic.cloudnet.CloudNetTick;
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class CloudNetTickEvent extends DriverEvent {
 
@@ -28,7 +28,7 @@ public final class CloudNetTickEvent extends DriverEvent {
     this.ticker = ticker;
   }
 
-  public @NotNull CloudNetTick ticker() {
+  public @NonNull CloudNetTick ticker() {
     return this.ticker;
   }
 

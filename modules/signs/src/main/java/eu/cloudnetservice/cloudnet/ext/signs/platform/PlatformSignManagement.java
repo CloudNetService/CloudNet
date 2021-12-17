@@ -33,8 +33,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -63,21 +63,21 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
    *
    * @param snapshot the service to handle
    */
-  public abstract void handleServiceAdd(@NotNull ServiceInfoSnapshot snapshot);
+  public abstract void handleServiceAdd(@NonNull ServiceInfoSnapshot snapshot);
 
   /**
    * Updates the service on the signs.
    *
    * @param snapshot the service to handle
    */
-  public abstract void handleServiceUpdate(@NotNull ServiceInfoSnapshot snapshot);
+  public abstract void handleServiceUpdate(@NonNull ServiceInfoSnapshot snapshot);
 
   /**
    * Removes the service from the signs.
    *
    * @param snapshot the service to handle
    */
-  public abstract void handleServiceRemove(@NotNull ServiceInfoSnapshot snapshot);
+  public abstract void handleServiceRemove(@NonNull ServiceInfoSnapshot snapshot);
 
   /**
    * Get the sign at the given platform sign extend location.
@@ -86,7 +86,7 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
    * @return The sign at the given location or null if there is no sign at the given location.
    * @see #signAt(WorldPosition)
    */
-  public abstract @Nullable Sign signAt(@NotNull T t);
+  public abstract @Nullable Sign signAt(@NonNull T t);
 
   /**
    * Creates a sign at the given platform sign extend location.
@@ -96,7 +96,7 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
    * @return the created sign or null if the sign couldn't be created.
    * @see #createSign(Object, String, String)
    */
-  public abstract @Nullable Sign createSign(@NotNull T t, @NotNull String group);
+  public abstract @Nullable Sign createSign(@NonNull T t, @NonNull String group);
 
   /**
    * Creates a sign at the given platform sign extend location.
@@ -106,7 +106,7 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
    * @param templatePath the template path the sign is targeting or null if none.
    * @return the created sign or null if the sign couldn't be created.
    */
-  public abstract @Nullable Sign createSign(@NotNull T t, @NotNull String group, @Nullable String templatePath);
+  public abstract @Nullable Sign createSign(@NonNull T t, @NonNull String group, @Nullable String templatePath);
 
   /**
    * Deletes the sign at the given platform sign extend location.
@@ -114,7 +114,7 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
    * @param t the sign type extend
    * @see #deleteSign(WorldPosition)
    */
-  public abstract void deleteSign(@NotNull T t);
+  public abstract void deleteSign(@NonNull T t);
 
   /**
    * Removes all signs where there is no sign block at this position
@@ -130,13 +130,13 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
    * @param permissionChecker a function which checks if the supplied string is set as a permission.
    * @return true if the permissible can connect using the sign, false otherwise
    */
-  public abstract boolean canConnect(@NotNull Sign sign, @NotNull Function<String, Boolean> permissionChecker);
+  public abstract boolean canConnect(@NonNull Sign sign, @NonNull Function<String, Boolean> permissionChecker);
 
   @Internal
   public abstract void initialize();
 
   @Internal
-  public abstract void initialize(@NotNull Map<SignLayoutsHolder, Set<Sign>> signsNeedingTicking);
+  public abstract void initialize(@NonNull Map<SignLayoutsHolder, Set<Sign>> signsNeedingTicking);
 
   @Internal
   protected abstract void startKnockbackTask();
@@ -147,7 +147,7 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
    * @return the signs of all groups the wrapper belongs to.
    */
   @Override
-  public @NotNull Collection<Sign> signs() {
+  public @NonNull Collection<Sign> signs() {
     return super.signs();
   }
 
@@ -155,7 +155,7 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
    * {@inheritDoc}
    */
   @Override
-  public @NotNull Collection<Sign> signs(@NotNull String[] groups) {
+  public @NonNull Collection<Sign> signs(@NonNull String[] groups) {
     var response = this.channelMessage(SIGN_GET_SIGNS_BY_GROUPS)
       .buffer(DataBuf.empty().writeObject(groups))
       .build()
@@ -164,7 +164,7 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
   }
 
   @Override
-  public void handleInternalSignCreate(@NotNull Sign sign) {
+  public void handleInternalSignCreate(@NonNull Sign sign) {
     if (Wrapper.instance().serviceConfiguration().groups().contains(sign.location().group())) {
       super.handleInternalSignCreate(sign);
     }
@@ -177,7 +177,7 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
    * @return the channel message builder for further configuration.
    */
   @Override
-  protected ChannelMessage.Builder channelMessage(@NotNull String message) {
+  protected ChannelMessage.Builder channelMessage(@NonNull String message) {
     return super.channelMessage(message)
       .target(ChannelMessageTarget.Type.NODE, Wrapper.instance().nodeUniqueId());
   }

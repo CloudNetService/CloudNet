@@ -16,11 +16,11 @@
 
 package de.dytanic.cloudnet.driver.network.http;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public interface IHttpResponse extends IHttpMessage<IHttpResponse> {
 
   int statusCode();
 
-  @NotNull IHttpResponse statusCode(int code);
+  @NonNull IHttpResponse statusCode(int code);
 }

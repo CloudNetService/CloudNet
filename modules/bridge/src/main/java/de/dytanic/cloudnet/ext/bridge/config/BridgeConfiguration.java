@@ -28,8 +28,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @ToString
@@ -74,13 +74,13 @@ public final class BridgeConfiguration extends JsonDocPropertyHolder {
   }
 
   public BridgeConfiguration(
-    @NotNull String prefix,
-    @NotNull Map<String, Map<String, String>> localizedMessages,
+    @NonNull String prefix,
+    @NonNull Map<String, Map<String, String>> localizedMessages,
     boolean logPlayerConnections,
-    @NotNull Collection<String> excludedGroups,
-    @NotNull Collection<String> hubCommandNames,
-    @NotNull Collection<ProxyFallbackConfiguration> fallbackConfigurations,
-    @NotNull JsonDocument properties
+    @NonNull Collection<String> excludedGroups,
+    @NonNull Collection<String> hubCommandNames,
+    @NonNull Collection<ProxyFallbackConfiguration> fallbackConfigurations,
+    @NonNull JsonDocument properties
   ) {
     this.prefix = prefix;
     this.localizedMessages = localizedMessages;
@@ -91,27 +91,27 @@ public final class BridgeConfiguration extends JsonDocPropertyHolder {
     this.properties = properties;
   }
 
-  public @NotNull String prefix() {
+  public @NonNull String prefix() {
     return this.prefix;
   }
 
-  public @NotNull Collection<ProxyFallbackConfiguration> fallbackConfigurations() {
+  public @NonNull Collection<ProxyFallbackConfiguration> fallbackConfigurations() {
     return this.fallbackConfigurations;
   }
 
-  public @NotNull Collection<String> hubCommandNames() {
+  public @NonNull Collection<String> hubCommandNames() {
     return this.hubCommandNames;
   }
 
-  public @NotNull Collection<String> excludedGroups() {
+  public @NonNull Collection<String> excludedGroups() {
     return this.excludedGroups;
   }
 
-  public @NotNull String message(@Nullable Locale locale, @NotNull String key) {
+  public @NonNull String message(@Nullable Locale locale, @NonNull String key) {
     return this.message(locale, key, true);
   }
 
-  public @NotNull String message(@Nullable Locale locale, @NotNull String key, boolean withPrefix) {
+  public @NonNull String message(@Nullable Locale locale, @NonNull String key, boolean withPrefix) {
     // try to get the messages of in the specified locale
     var messages = this.localizedMessages.get(locale == null ? "default" : locale.getLanguage());
     if (messages == null) {

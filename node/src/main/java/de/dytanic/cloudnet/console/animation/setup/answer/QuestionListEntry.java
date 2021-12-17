@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.console.animation.setup.answer;
 
 import com.google.common.base.Verify;
 import de.dytanic.cloudnet.common.language.I18n;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public record QuestionListEntry<T>(
   String key,
@@ -26,13 +26,13 @@ public record QuestionListEntry<T>(
   QuestionAnswerType<T> answerType
 ) {
 
-  public QuestionListEntry(@NotNull String key, @NotNull String question, @NotNull QuestionAnswerType<T> answerType) {
+  public QuestionListEntry(@NonNull String key, @NonNull String question, @NonNull QuestionAnswerType<T> answerType) {
     this.key = key;
     this.question = question;
     this.answerType = answerType;
   }
 
-  public static @NotNull <T> Builder<T> builder() {
+  public static @NonNull <T> Builder<T> builder() {
     return new Builder<>();
   }
 
@@ -42,35 +42,35 @@ public record QuestionListEntry<T>(
     private String question;
     private QuestionAnswerType<T> answerType;
 
-    public @NotNull
-    Builder<T> key(@NotNull String key) {
+    public @NonNull
+    Builder<T> key(@NonNull String key) {
       this.key = key;
       return this;
     }
 
-    public @NotNull
-    Builder<T> translatedQuestion(@NotNull String questionTranslationKey) {
+    public @NonNull
+    Builder<T> translatedQuestion(@NonNull String questionTranslationKey) {
       return this.question(I18n.trans(questionTranslationKey));
     }
 
-    public @NotNull
-    Builder<T> question(@NotNull String question) {
+    public @NonNull
+    Builder<T> question(@NonNull String question) {
       this.question = question;
       return this;
     }
 
-    public @NotNull
-    Builder<T> answerType(@NotNull QuestionAnswerType.Builder<T> type) {
+    public @NonNull
+    Builder<T> answerType(@NonNull QuestionAnswerType.Builder<T> type) {
       return this.answerType(type.build());
     }
 
-    public @NotNull
-    Builder<T> answerType(@NotNull QuestionAnswerType<T> type) {
+    public @NonNull
+    Builder<T> answerType(@NonNull QuestionAnswerType<T> type) {
       this.answerType = type;
       return this;
     }
 
-    public @NotNull
+    public @NonNull
     QuestionListEntry<T> build() {
       Verify.verifyNotNull(this.key, "no key given");
       Verify.verifyNotNull(this.question, "no question given");

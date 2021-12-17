@@ -32,7 +32,7 @@ import de.dytanic.cloudnet.event.cluster.LocalNodeSnapshotConfigureEvent;
 import de.dytanic.cloudnet.service.defaults.provider.EmptySpecificCloudServiceProvider;
 import java.util.Collection;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
@@ -44,8 +44,8 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
   private boolean drain;
 
   protected LocalNodeServer(
-    @NotNull CloudNet cloudNet,
-    @NotNull NodeServerProvider<? extends NodeServer> provider
+    @NonNull CloudNet cloudNet,
+    @NonNull NodeServerProvider<? extends NodeServer> provider
   ) {
     this.cloudNet = cloudNet;
     this.provider = provider;
@@ -55,7 +55,7 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
   }
 
   @Override
-  public @NotNull NodeServerProvider<? extends NodeServer> provider() {
+  public @NonNull NodeServerProvider<? extends NodeServer> provider() {
     return this.provider;
   }
 
@@ -75,7 +75,7 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
   }
 
   @Override
-  public @NotNull Collection<String> sendCommandLine(@NotNull String commandLine) {
+  public @NonNull Collection<String> sendCommandLine(@NonNull String commandLine) {
     var commandSource = new DriverCommandSource();
     this.cloudNet.commandProvider().execute(new DriverCommandSource(), commandLine);
 
@@ -83,12 +83,12 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
   }
 
   @Override
-  public @NotNull CloudServiceFactory cloudServiceFactory() {
+  public @NonNull CloudServiceFactory cloudServiceFactory() {
     return this.cloudNet.cloudServiceFactory();
   }
 
   @Override
-  public @Nullable SpecificCloudServiceProvider cloudServiceProvider(@NotNull ServiceInfoSnapshot snapshot) {
+  public @Nullable SpecificCloudServiceProvider cloudServiceProvider(@NonNull ServiceInfoSnapshot snapshot) {
     var service = this.cloudNet.cloudServiceProvider().localCloudService(snapshot);
     return service == null ? EmptySpecificCloudServiceProvider.INSTANCE : service;
   }

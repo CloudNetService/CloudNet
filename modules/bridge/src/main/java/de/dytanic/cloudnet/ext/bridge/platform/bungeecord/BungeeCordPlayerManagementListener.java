@@ -27,6 +27,7 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.net.InetSocketAddress;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+import lombok.NonNull;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -41,7 +42,6 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.event.EventHandler;
-import org.jetbrains.annotations.NotNull;
 
 final class BungeeCordPlayerManagementListener implements Listener {
 
@@ -49,15 +49,15 @@ final class BungeeCordPlayerManagementListener implements Listener {
   private final PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> management;
 
   public BungeeCordPlayerManagementListener(
-    @NotNull Plugin plugin,
-    @NotNull PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> management
+    @NonNull Plugin plugin,
+    @NonNull PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> management
   ) {
     this.plugin = plugin;
     this.management = management;
   }
 
   @EventHandler
-  public void handle(@NotNull LoginEvent event) {
+  public void handle(@NonNull LoginEvent event) {
     var task = this.management.selfTask();
     // check if the current task is present
     if (task != null) {
@@ -98,7 +98,7 @@ final class BungeeCordPlayerManagementListener implements Listener {
   }
 
   @EventHandler
-  public void handle(@NotNull ServerConnectEvent event) {
+  public void handle(@NonNull ServerConnectEvent event) {
     // initial connect reasons, LOBBY_FALLBACK will be used if the initial fallback is not present
     if (event.getReason() == Reason.JOIN_PROXY || event.getReason() == Reason.LOBBY_FALLBACK) {
       ServerInfo target = this.management.fallback(event.getPlayer())
@@ -115,7 +115,7 @@ final class BungeeCordPlayerManagementListener implements Listener {
   }
 
   @EventHandler
-  public void handle(@NotNull ServerKickEvent event) {
+  public void handle(@NonNull ServerKickEvent event) {
     if (event.getPlayer().isConnected()) {
       ServerInfo target = this.management.fallback(event.getPlayer(), event.getKickedFrom().getName())
         .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
@@ -143,7 +143,7 @@ final class BungeeCordPlayerManagementListener implements Listener {
   }
 
   @EventHandler
-  public void handle(@NotNull ServerConnectedEvent event) {
+  public void handle(@NonNull ServerConnectedEvent event) {
     // check if the player connection was initial
     if (event.getPlayer().getServer() == null) {
       ProxyPlatformHelper.sendChannelMessageLoginSuccess(this.management.createPlayerInformation(event.getPlayer()));
@@ -162,7 +162,7 @@ final class BungeeCordPlayerManagementListener implements Listener {
   }
 
   @EventHandler
-  public void handle(@NotNull PlayerDisconnectEvent event) {
+  public void handle(@NonNull PlayerDisconnectEvent event) {
     // check if the player was connected to a server before
     if (event.getPlayer().getServer() != null) {
       ProxyPlatformHelper.sendChannelMessageDisconnected(event.getPlayer().getUniqueId());

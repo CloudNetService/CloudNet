@@ -27,15 +27,15 @@ import dev.waterdog.waterdogpe.event.defaults.PlayerLoginEvent;
 import dev.waterdog.waterdogpe.event.defaults.TransferCompleteEvent;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
 import java.util.Locale;
+import lombok.NonNull;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.jetbrains.annotations.NotNull;
 
 final class WaterDogPEPlayerManagementListener {
 
   private final PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> management;
 
   public WaterDogPEPlayerManagementListener(
-    @NotNull PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> management
+    @NonNull PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> management
   ) {
     this.management = management;
     // subscribe to all events
@@ -44,7 +44,7 @@ final class WaterDogPEPlayerManagementListener {
     ProxyServer.getInstance().getEventManager().subscribe(PlayerDisconnectEvent.class, this::handleDisconnected);
   }
 
-  private void handleLogin(@NotNull PlayerLoginEvent event) {
+  private void handleLogin(@NonNull PlayerLoginEvent event) {
     var task = this.management.selfTask();
     // check if the current task is present
     if (task != null) {
@@ -75,7 +75,7 @@ final class WaterDogPEPlayerManagementListener {
     }
   }
 
-  private void handleTransfer(@NotNull TransferCompleteEvent event) {
+  private void handleTransfer(@NonNull TransferCompleteEvent event) {
     if (event.getOldClient() == null) {
       // the player logged in successfully if he is now connected to a service for the first time
       ProxyPlatformHelper.sendChannelMessageLoginSuccess(this.management.createPlayerInformation(event.getPlayer()));
@@ -92,7 +92,7 @@ final class WaterDogPEPlayerManagementListener {
     this.management.handleFallbackConnectionSuccess(event.getPlayer());
   }
 
-  private void handleDisconnected(@NotNull PlayerDisconnectEvent event) {
+  private void handleDisconnected(@NonNull PlayerDisconnectEvent event) {
     // check if the player successfully connected to a server before
     if (event.getPlayer().getServerInfo() != null) {
       ProxyPlatformHelper.sendChannelMessageDisconnected(event.getPlayer().getUniqueId());

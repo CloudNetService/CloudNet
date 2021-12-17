@@ -17,14 +17,14 @@
 package de.dytanic.cloudnet.ext.bridge.platform;
 
 import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
+import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
-import org.jetbrains.annotations.NotNull;
 
 public abstract class PlatformPlayerExecutorAdapter implements PlayerExecutor {
 
   @Override
-  public void sendTitle(@NotNull Title title) {
+  public void sendTitle(@NonNull Title title) {
     // get the title times
     var times = title.times();
     if (times == null) {
@@ -39,7 +39,7 @@ public abstract class PlatformPlayerExecutorAdapter implements PlayerExecutor {
       (int) times.fadeOut().toMillis() / 50);
   }
 
-  protected void sendTitle(@NotNull Component title, @NotNull Component subtitle, int fadeIn, int stay, int fadeOut) {
+  protected void sendTitle(@NonNull Component title, @NonNull Component subtitle, int fadeIn, int stay, int fadeOut) {
     // no-op
   }
 }

@@ -20,7 +20,7 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperties;
 import java.util.Comparator;
 import java.util.concurrent.ThreadLocalRandom;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public enum ServerSelectorType {
 
@@ -32,11 +32,11 @@ public enum ServerSelectorType {
 
   private final Comparator<ServiceInfoSnapshot> comparator;
 
-  ServerSelectorType(@NotNull Comparator<ServiceInfoSnapshot> comparator) {
+  ServerSelectorType(@NonNull Comparator<ServiceInfoSnapshot> comparator) {
     this.comparator = comparator;
   }
 
-  public @NotNull Comparator<ServiceInfoSnapshot> comparator() {
+  public @NonNull Comparator<ServiceInfoSnapshot> comparator() {
     return this.comparator;
   }
 }

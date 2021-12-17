@@ -25,16 +25,16 @@ import java.util.Collections;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
 public record QuestionAnswerType<T>(
-  @NotNull Parser<T> parser,
+  @NonNull Parser<T> parser,
   @Nullable String recommendation,
-  @NotNull Supplier<Collection<String>> possibleResults,
-  @NotNull Collection<BiConsumer<QuestionAnswerType<T>, T>> resultListener,
-  @NotNull BiFunction<QuestionAnswerType<?>, String, String> invalidInputSupplier
+  @NonNull Supplier<Collection<String>> possibleResults,
+  @NonNull Collection<BiConsumer<QuestionAnswerType<T>, T>> resultListener,
+  @NonNull BiFunction<QuestionAnswerType<?>, String, String> invalidInputSupplier
 ) {
 
   private static final BiFunction<QuestionAnswerType<?>, String, String> DEFAULT_INVALID_SUPPLIER = (type, $) -> {
@@ -47,20 +47,20 @@ public record QuestionAnswerType<T>(
     }
   };
 
-  public static @NotNull <T> Builder<T> builder() {
+  public static @NonNull <T> Builder<T> builder() {
     return new Builder<>();
   }
 
   @Unmodifiable
-  public @NotNull Collection<String> getPossibleAnswers() {
+  public @NonNull Collection<String> getPossibleAnswers() {
     return this.possibleResults.get();
   }
 
-  public @NotNull String getInvalidInputMessage(@NotNull String inputLine) {
+  public @NonNull String getInvalidInputMessage(@NonNull String inputLine) {
     return this.invalidInputSupplier.apply(this, inputLine);
   }
 
-  public @Nullable T tryParse(@NotNull String inputLine) throws Exception {
+  public @Nullable T tryParse(@NonNull String inputLine) throws Exception {
     return this.parser.parse(inputLine);
   }
 
@@ -71,14 +71,14 @@ public record QuestionAnswerType<T>(
     }
   }
 
-  public void thenAccept(@NotNull BiConsumer<QuestionAnswerType<T>, T> listener) {
+  public void thenAccept(@NonNull BiConsumer<QuestionAnswerType<T>, T> listener) {
     this.resultListener.add(listener);
   }
 
   @FunctionalInterface
   public interface Parser<T> {
 
-    @Nullable T parse(@NotNull String input) throws Exception;
+    @Nullable T parse(@NonNull String input) throws Exception;
   }
 
   public static final class Builder<T> {
@@ -89,40 +89,40 @@ public record QuestionAnswerType<T>(
     private Collection<BiConsumer<QuestionAnswerType<T>, T>> resultListener;
     private BiFunction<QuestionAnswerType<?>, String, String> invalidInputSupplier;
 
-    public @NotNull Builder<T> parser(@NotNull Parser<T> parser) {
+    public @NonNull Builder<T> parser(@NonNull Parser<T> parser) {
       this.parser = parser;
       return this;
     }
 
-    public @NotNull Builder<T> recommendation(@NotNull Object recommendation) {
+    public @NonNull Builder<T> recommendation(@NonNull Object recommendation) {
       return this.recommendation(String.valueOf(recommendation));
     }
 
-    public @NotNull Builder<T> recommendation(@NotNull String recommendation) {
+    public @NonNull Builder<T> recommendation(@NonNull String recommendation) {
       this.recommendation = recommendation;
       return this;
     }
 
-    public @NotNull Builder<T> possibleResults(@NotNull Collection<String> results) {
+    public @NonNull Builder<T> possibleResults(@NonNull Collection<String> results) {
       this.possibleResults = () -> new ArrayList<>(results);
       return this;
     }
 
-    public @NotNull Builder<T> possibleResults(@NotNull Supplier<Collection<String>> results) {
+    public @NonNull Builder<T> possibleResults(@NonNull Supplier<Collection<String>> results) {
       this.possibleResults = results;
       return this;
     }
 
-    public @NotNull Builder<T> possibleResults(String @NotNull ... results) {
+    public @NonNull Builder<T> possibleResults(String @NonNull ... results) {
       return this.possibleResults(Arrays.asList(results));
     }
 
-    public @NotNull Builder<T> resultListener(@NotNull Collection<BiConsumer<QuestionAnswerType<T>, T>> listeners) {
+    public @NonNull Builder<T> resultListener(@NonNull Collection<BiConsumer<QuestionAnswerType<T>, T>> listeners) {
       this.resultListener = new ArrayList<>(listeners);
       return this;
     }
 
-    public @NotNull Builder<T> addResultListener(@NotNull BiConsumer<QuestionAnswerType<T>, T> listener) {
+    public @NonNull Builder<T> addResultListener(@NonNull BiConsumer<QuestionAnswerType<T>, T> listener) {
       if (this.resultListener == null) {
         return this.resultListener(Collections.singleton(listener));
       } else {
@@ -131,20 +131,20 @@ public record QuestionAnswerType<T>(
       }
     }
 
-    public @NotNull Builder<T> invalidInputHandler(@NotNull BiFunction<QuestionAnswerType<?>, String, String> handler) {
+    public @NonNull Builder<T> invalidInputHandler(@NonNull BiFunction<QuestionAnswerType<?>, String, String> handler) {
       this.invalidInputSupplier = handler;
       return this;
     }
 
-    public @NotNull Builder<T> invalidInputMessage(@NotNull String message) {
+    public @NonNull Builder<T> invalidInputMessage(@NonNull String message) {
       return this.invalidInputHandler((__, ___) -> message);
     }
 
-    public @NotNull Builder<T> translatedInvalidInputMessage(@NotNull String messageTranslationKey) {
+    public @NonNull Builder<T> translatedInvalidInputMessage(@NonNull String messageTranslationKey) {
       return this.invalidInputMessage(I18n.trans(messageTranslationKey));
     }
 
-    public @NotNull QuestionAnswerType<T> build() {
+    public @NonNull QuestionAnswerType<T> build() {
       Verify.verifyNotNull(this.parser, "no parser given");
       return new QuestionAnswerType<>(
         this.parser,

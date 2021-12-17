@@ -19,11 +19,11 @@ package eu.cloudnetservice.cloudnet.bukkitcommands;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import lombok.NonNull;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.util.StringUtil;
-import org.jetbrains.annotations.NotNull;
 
 public abstract class BaseTabExecutor implements TabExecutor {
 
@@ -35,5 +35,5 @@ public abstract class BaseTabExecutor implements TabExecutor {
     return completions;
   }
 
-  protected abstract @NotNull Collection<String> tabComplete(@NotNull CommandSender sender, String @NotNull [] args);
+  protected abstract @NonNull Collection<String> tabComplete(@NonNull CommandSender sender, String @NonNull [] args);
 }

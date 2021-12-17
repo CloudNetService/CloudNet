@@ -20,7 +20,7 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import java.lang.reflect.Type;
 import java.util.Optional;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class DefaultJsonServiceProperty<T> implements ServiceProperty<T> {
 
@@ -36,20 +36,20 @@ public class DefaultJsonServiceProperty<T> implements ServiceProperty<T> {
     this.classType = classType;
   }
 
-  @NotNull
-  public static <T> DefaultJsonServiceProperty<T> createFromClass(@NotNull String key, @NotNull Class<T> classType) {
+  @NonNull
+  public static <T> DefaultJsonServiceProperty<T> createFromClass(@NonNull String key, @NonNull Class<T> classType) {
     return new DefaultJsonServiceProperty<>(key, null, classType);
   }
 
-  @NotNull
-  public static <T> DefaultJsonServiceProperty<T> createFromType(@NotNull String key, @NotNull Type type) {
+  @NonNull
+  public static <T> DefaultJsonServiceProperty<T> createFromType(@NonNull String key, @NonNull Type type) {
     return createFromType(key, type, false);
   }
 
-  @NotNull
+  @NonNull
   public static <T> DefaultJsonServiceProperty<T> createFromType(
-    @NotNull String key,
-    @NotNull Type type,
+    @NonNull String key,
+    @NonNull Type type,
     boolean forbidModifications
   ) {
     var property = new DefaultJsonServiceProperty<T>(key, type, null);
@@ -62,9 +62,9 @@ public class DefaultJsonServiceProperty<T> implements ServiceProperty<T> {
     return this;
   }
 
-  @NotNull
+  @NonNull
   @Override
-  public Optional<T> read(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
+  public Optional<T> read(@NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
     if (!serviceInfoSnapshot.properties().contains(this.key)) {
       return Optional.empty();
     }
@@ -75,7 +75,7 @@ public class DefaultJsonServiceProperty<T> implements ServiceProperty<T> {
   }
 
   @Override
-  public void write(@NotNull ServiceInfoSnapshot serviceInfoSnapshot, T value) {
+  public void write(@NonNull ServiceInfoSnapshot serviceInfoSnapshot, T value) {
     Preconditions.checkArgument(this.allowModifications, "This property doesn't support modifying the value");
     serviceInfoSnapshot.properties().append(this.key, value);
   }

@@ -22,13 +22,13 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
 public interface IPermissible extends INameable, DocPropertyHolder, Comparable<IPermissible> {
 
-  @NotNull Collection<String> groupNames();
+  @NonNull Collection<String> groupNames();
 
   /**
    * Sets the name of this permissible.
@@ -38,7 +38,7 @@ public interface IPermissible extends INameable, DocPropertyHolder, Comparable<I
    *
    * @param name the new name
    */
-  void name(@NotNull String name);
+  void name(@NonNull String name);
 
   /**
    * Gets the potency of this permissible. If this permissible is an {@link PermissionGroup}, {@link
@@ -70,7 +70,7 @@ public interface IPermissible extends INameable, DocPropertyHolder, Comparable<I
    * @return {@code true} if the permission has been added successfully or {@code false} if the given {@code permission}
    * was null
    */
-  boolean addPermission(@NotNull Permission permission);
+  boolean addPermission(@NonNull Permission permission);
 
   /**
    * Adds a new permission to this permissible and updates it if a permission with that name already exists. This
@@ -84,7 +84,7 @@ public interface IPermissible extends INameable, DocPropertyHolder, Comparable<I
    * @return {@code true} if the permission has been added successfully or {@code false} if the given {@code permission}
    * was null
    */
-  boolean addPermission(@NotNull String group, @NotNull Permission permission);
+  boolean addPermission(@NonNull String group, @NonNull Permission permission);
 
   /**
    * Removes a permission out of this permissible.
@@ -96,7 +96,7 @@ public interface IPermissible extends INameable, DocPropertyHolder, Comparable<I
    * @return {@code true} if the permission has been removed successfully or {@code false} if the given {@code
    * permission} doesn't exist
    */
-  boolean removePermission(@NotNull String permission);
+  boolean removePermission(@NonNull String permission);
 
   /**
    * Removes a permission for a specific group out of this permissible.
@@ -109,21 +109,21 @@ public interface IPermissible extends INameable, DocPropertyHolder, Comparable<I
    * @return {@code true} if the permission has been removed successfully or {@code false} if the given {@code
    * permission} doesn't exist
    */
-  boolean removePermission(@NotNull String group, @NotNull String permission);
+  boolean removePermission(@NonNull String group, @NonNull String permission);
 
   /**
    * Gets all effective global permissions. Permissions which are only effective on specific groups are not included.
    *
    * @return a mutable list of all permissions
    */
-  @NotNull Collection<Permission> permissions();
+  @NonNull Collection<Permission> permissions();
 
   /**
    * Gets all effective permissions on a specific group. Global permissions are not included.
    *
    * @return a mutable map containing mutable lists of permissions
    */
-  @NotNull Map<String, Collection<Permission>> groupPermissions();
+  @NonNull Map<String, Collection<Permission>> groupPermissions();
 
   /**
    * Gets a permission of this permissible by its name.
@@ -146,7 +146,7 @@ public interface IPermissible extends INameable, DocPropertyHolder, Comparable<I
    * @return {@code true} if the permission exists or {@code false} if the permission doesn't exist in this permissible
    * or this name is null
    */
-  default boolean isPermissionSet(@NotNull String name) {
+  default boolean isPermissionSet(@NonNull String name) {
     return this.permissions().stream().anyMatch(permission -> permission.name().equalsIgnoreCase(name));
   }
 
@@ -162,7 +162,7 @@ public interface IPermissible extends INameable, DocPropertyHolder, Comparable<I
    * @return {@code true} if the permission has been added successfully or {@code false} if the given {@code permission}
    * was null
    */
-  default boolean addPermission(@NotNull String permission) {
+  default boolean addPermission(@NonNull String permission) {
     return this.addPermission(permission, 0);
   }
 
@@ -179,7 +179,7 @@ public interface IPermissible extends INameable, DocPropertyHolder, Comparable<I
    * @return {@code true} if the permission has been added successfully or {@code false} if the given {@code permission}
    * was null
    */
-  default boolean addPermission(@NotNull String permission, boolean value) {
+  default boolean addPermission(@NonNull String permission, boolean value) {
     return this.addPermission(new Permission(permission, value ? 1 : -1));
   }
 
@@ -196,7 +196,7 @@ public interface IPermissible extends INameable, DocPropertyHolder, Comparable<I
    * @return {@code true} if the permission has been added successfully or {@code false} if the given {@code permission}
    * was null
    */
-  default boolean addPermission(@NotNull String permission, int potency) {
+  default boolean addPermission(@NonNull String permission, int potency) {
     return this.addPermission(new Permission(permission, potency));
   }
 
@@ -213,7 +213,7 @@ public interface IPermissible extends INameable, DocPropertyHolder, Comparable<I
    * @return {@code true} if the permission has been added successfully or {@code false} if the given {@code permission}
    * was null
    */
-  default boolean addPermission(@NotNull String group, @NotNull String permission) {
+  default boolean addPermission(@NonNull String group, @NonNull String permission) {
     return this.addPermission(group, permission, 0);
   }
 
@@ -231,7 +231,7 @@ public interface IPermissible extends INameable, DocPropertyHolder, Comparable<I
    * @return {@code true} if the permission has been added successfully or {@code false} if the given {@code permission}
    * was null
    */
-  default boolean addPermission(@NotNull String group, @NotNull String permission, int potency) {
+  default boolean addPermission(@NonNull String group, @NonNull String permission, int potency) {
     return this.addPermission(group, new Permission(permission, potency));
   }
 
@@ -253,11 +253,11 @@ public interface IPermissible extends INameable, DocPropertyHolder, Comparable<I
    * was null
    */
   default boolean addPermission(
-    @NotNull String group,
-    @NotNull String permission,
+    @NonNull String group,
+    @NonNull String permission,
     int potency,
     long time,
-    @NotNull TimeUnit unit
+    @NonNull TimeUnit unit
   ) {
     return this.addPermission(group, new Permission(
       permission,
@@ -284,8 +284,8 @@ public interface IPermissible extends INameable, DocPropertyHolder, Comparable<I
    * @return the result of this check
    */
   default PermissionCheckResult hasPermission(
-    @NotNull Collection<Permission> permissions,
-    @NotNull Permission permission
+    @NonNull Collection<Permission> permissions,
+    @NonNull Permission permission
   ) {
     return PermissionCheckResult.fromPermission(this.findMatchingPermission(permissions, permission));
   }
@@ -299,8 +299,8 @@ public interface IPermissible extends INameable, DocPropertyHolder, Comparable<I
    * @return the logic permission which has the highest potency.
    */
   default @Nullable Permission findMatchingPermission(
-    @NotNull Collection<Permission> permissions,
-    @NotNull Permission permission
+    @NonNull Collection<Permission> permissions,
+    @NonNull Permission permission
   ) {
     return CloudNetDriver.instance().permissionManagement().findHighestPermission(permissions, permission);
   }
@@ -313,7 +313,7 @@ public interface IPermissible extends INameable, DocPropertyHolder, Comparable<I
    * @param permission the permission to check for
    * @return the result of this check
    */
-  default PermissionCheckResult hasPermission(@NotNull String group, @NotNull Permission permission) {
+  default PermissionCheckResult hasPermission(@NonNull String group, @NonNull Permission permission) {
     return this.groupPermissions().containsKey(group)
       ? this.hasPermission(this.groupPermissions().get(group), permission)
       : PermissionCheckResult.DENIED;
@@ -325,7 +325,7 @@ public interface IPermissible extends INameable, DocPropertyHolder, Comparable<I
    * @param permission the permission to check for
    * @return the result of this check
    */
-  default PermissionCheckResult hasPermission(@NotNull Permission permission) {
+  default PermissionCheckResult hasPermission(@NonNull Permission permission) {
     return this.hasPermission(this.permissions(), permission);
   }
 
@@ -337,12 +337,12 @@ public interface IPermissible extends INameable, DocPropertyHolder, Comparable<I
    * @param permission the permission to check for
    * @return the result of this check
    */
-  default PermissionCheckResult hasPermission(@NotNull String permission) {
+  default PermissionCheckResult hasPermission(@NonNull String permission) {
     return this.hasPermission(new Permission(permission, 0));
   }
 
   @Override
-  default int compareTo(@NotNull IPermissible o) {
+  default int compareTo(@NonNull IPermissible o) {
     return this.potency() + o.potency();
   }
 }

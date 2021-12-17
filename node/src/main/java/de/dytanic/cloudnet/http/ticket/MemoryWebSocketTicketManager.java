@@ -25,7 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class MemoryWebSocketTicketManager implements WebSocketTicketManager {
@@ -36,38 +36,38 @@ public class MemoryWebSocketTicketManager implements WebSocketTicketManager {
   private final Map<String, WebSocketTicket> tickets = new ConcurrentHashMap<>();
 
   @Override
-  public @NotNull Collection<WebSocketTicket> tickets() {
+  public @NonNull Collection<WebSocketTicket> tickets() {
     this.removeOutdatedEntries();
     return Collections.unmodifiableCollection(this.tickets.values());
   }
 
   @Override
-  public @Nullable WebSocketTicket expireTicket(@NotNull String ticketId) {
+  public @Nullable WebSocketTicket expireTicket(@NonNull String ticketId) {
     this.removeOutdatedEntries();
     return this.tickets.remove(this.convertTicketId(ticketId));
   }
 
   @Override
-  public @Nullable WebSocketTicket findTicket(@NotNull String ticketId) {
+  public @Nullable WebSocketTicket findTicket(@NonNull String ticketId) {
     this.removeOutdatedEntries();
     return this.tickets.get(this.convertTicketId(ticketId));
   }
 
   @Override
-  public @Nullable WebSocketTicket findAndRemoveTicket(@NotNull String ticketId) {
+  public @Nullable WebSocketTicket findAndRemoveTicket(@NonNull String ticketId) {
     this.removeOutdatedEntries();
     return this.tickets.remove(this.convertTicketId(ticketId));
   }
 
   @Override
-  public @NotNull WebSocketTicket issueTicket(@NotNull IHttpRequest request, @NotNull HttpSession httpSession) {
+  public @NonNull WebSocketTicket issueTicket(@NonNull IHttpRequest request, @NonNull HttpSession httpSession) {
     return this.issueTicket(request, httpSession, DEFAULT_TICKET_TIMEOUT);
   }
 
   @Override
-  public @NotNull WebSocketTicket issueTicket(
-    @NotNull IHttpRequest request,
-    @NotNull HttpSession session,
+  public @NonNull WebSocketTicket issueTicket(
+    @NonNull IHttpRequest request,
+    @NonNull HttpSession session,
     long timeout
   ) {
     var ticket = new WebSocketTicket(
@@ -80,7 +80,7 @@ public class MemoryWebSocketTicketManager implements WebSocketTicketManager {
     return ticket;
   }
 
-  private @NotNull String convertTicketId(@NotNull String tickedId) {
+  private @NonNull String convertTicketId(@NonNull String tickedId) {
     return new String(EncryptTo.encryptToSHA256(tickedId), StandardCharsets.UTF_8);
   }
 

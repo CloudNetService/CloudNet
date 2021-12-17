@@ -19,20 +19,20 @@ package eu.cloudnetservice.modules.npc.configuration;
 import com.google.common.base.Verify;
 import java.util.ArrayList;
 import java.util.List;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public record ItemLayout(
-  @NotNull String material,
+  @NonNull String material,
   int subId,
-  @NotNull String displayName,
-  @NotNull List<String> lore
+  @NonNull String displayName,
+  @NonNull List<String> lore
 ) {
 
-  public static @NotNull Builder builder() {
+  public static @NonNull Builder builder() {
     return new Builder();
   }
 
-  public static @NotNull Builder builder(@NotNull ItemLayout layout) {
+  public static @NonNull Builder builder(@NonNull ItemLayout layout) {
     return builder()
       .material(layout.material())
       .subId(layout.subId())
@@ -47,7 +47,7 @@ public record ItemLayout(
     private String displayName;
     private List<String> lore = new ArrayList<>();
 
-    public Builder material(@NotNull String material) {
+    public Builder material(@NonNull String material) {
       this.material = material;
       return this;
     }
@@ -57,12 +57,12 @@ public record ItemLayout(
       return this;
     }
 
-    public Builder displayName(@NotNull String displayName) {
+    public Builder displayName(@NonNull String displayName) {
       this.displayName = displayName;
       return this;
     }
 
-    public Builder lore(@NotNull List<String> lore) {
+    public Builder lore(@NonNull List<String> lore) {
       this.lore = new ArrayList<>(lore);
       return this;
     }

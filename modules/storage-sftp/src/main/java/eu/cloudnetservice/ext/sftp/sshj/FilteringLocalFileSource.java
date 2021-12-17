@@ -21,9 +21,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import lombok.NonNull;
 import net.schmizz.sshj.xfer.FileSystemFile;
 import net.schmizz.sshj.xfer.LocalFileFilter;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class FilteringLocalFileSource extends FileSystemFile {
@@ -31,7 +31,7 @@ public final class FilteringLocalFileSource extends FileSystemFile {
   private final Path path;
   private final Predicate<Path> filter;
 
-  public FilteringLocalFileSource(@NotNull Path path, @Nullable Predicate<Path> filter) {
+  public FilteringLocalFileSource(@NonNull Path path, @Nullable Predicate<Path> filter) {
     super(path.toFile());
     this.path = path;
     this.filter = filter;

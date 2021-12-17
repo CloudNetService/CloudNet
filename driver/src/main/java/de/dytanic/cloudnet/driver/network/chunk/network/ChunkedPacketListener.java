@@ -24,19 +24,19 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class ChunkedPacketListener implements IPacketListener {
 
   private final Function<ChunkSessionInformation, ChunkedPacketHandler> handlerFactory;
   private final Map<ChunkSessionInformation, ChunkedPacketHandler> runningSessions = new ConcurrentHashMap<>();
 
-  public ChunkedPacketListener(@NotNull Function<ChunkSessionInformation, ChunkedPacketHandler> handlerFactory) {
+  public ChunkedPacketListener(@NonNull Function<ChunkSessionInformation, ChunkedPacketHandler> handlerFactory) {
     this.handlerFactory = handlerFactory;
   }
 
   @Override
-  public void handle(@NotNull INetworkChannel channel, @NotNull IPacket packet) throws Exception {
+  public void handle(@NonNull INetworkChannel channel, @NonNull IPacket packet) throws Exception {
     // read the chunk information from the buffer
     var information = packet.content().readObject(ChunkSessionInformation.class);
     // read the chunk index

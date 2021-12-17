@@ -16,11 +16,11 @@
 
 package de.dytanic.cloudnet.driver.network.rpc.exception;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class CannotDecideException extends RuntimeException {
 
-  public CannotDecideException(@NotNull String methodName) {
+  public CannotDecideException(@NonNull String methodName) {
     super(String.format(
       "Cannot decide which method to call by rpc; expected exactly one method with name %s.",
       methodName));

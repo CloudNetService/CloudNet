@@ -25,8 +25,8 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.concurrent.Executor;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 
 @Internal
 public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Packet> {
@@ -36,7 +36,7 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Pa
   protected volatile NettyNetworkChannel channel;
 
   @Override
-  public void channelInactive(@NotNull ChannelHandlerContext ctx) throws Exception {
+  public void channelInactive(@NonNull ChannelHandlerContext ctx) throws Exception {
     if (!ctx.channel().isActive() || !ctx.channel().isOpen() || !ctx.channel().isWritable()) {
       if (this.channel.handler() != null) {
         this.channel.handler().handleChannelClose(this.channel);
@@ -48,19 +48,19 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Pa
   }
 
   @Override
-  public void exceptionCaught(@NotNull ChannelHandlerContext ctx, @NotNull Throwable cause) {
+  public void exceptionCaught(@NonNull ChannelHandlerContext ctx, @NonNull Throwable cause) {
     if (!(cause instanceof IOException)) {
       LOGGER.severe("Exception in network handler", cause);
     }
   }
 
   @Override
-  public void channelReadComplete(@NotNull ChannelHandlerContext ctx) {
+  public void channelReadComplete(@NonNull ChannelHandlerContext ctx) {
     ctx.flush();
   }
 
   @Override
-  protected void channelRead0(@NotNull ChannelHandlerContext ctx, @NotNull Packet msg) {
+  protected void channelRead0(@NonNull ChannelHandlerContext ctx, @NonNull Packet msg) {
     this.packetDispatcher().execute(() -> {
       try {
         var uuid = msg.uniqueId();
@@ -82,7 +82,7 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Pa
     });
   }
 
-  protected abstract @NotNull Collection<INetworkChannel> channels();
+  protected abstract @NonNull Collection<INetworkChannel> channels();
 
-  protected abstract @NotNull Executor packetDispatcher();
+  protected abstract @NonNull Executor packetDispatcher();
 }

@@ -22,7 +22,7 @@ import de.dytanic.cloudnet.driver.event.invoker.ListenerInvokerGenerator;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class DefaultEventManager implements IEventManager {
 
@@ -34,7 +34,7 @@ public class DefaultEventManager implements IEventManager {
     CopyOnWriteArrayList::new);
 
   @Override
-  public @NotNull IEventManager unregisterListeners(@NotNull ClassLoader classLoader) {
+  public @NonNull IEventManager unregisterListeners(@NonNull ClassLoader classLoader) {
     for (var entry : this.listeners.entries()) {
       if (entry.getValue().instance().getClass().getClassLoader().equals(classLoader)) {
         this.listeners.remove(entry.getKey(), entry.getValue());
@@ -45,7 +45,7 @@ public class DefaultEventManager implements IEventManager {
   }
 
   @Override
-  public @NotNull IEventManager unregisterListener(Object @NotNull ... listeners) {
+  public @NonNull IEventManager unregisterListener(Object @NonNull ... listeners) {
     for (var entry : this.listeners.entries()) {
       if (Arrays.stream(listeners).anyMatch(instance -> instance.equals(entry.getValue().instance()))) {
         this.listeners.remove(entry.getKey(), entry.getValue());
@@ -56,7 +56,7 @@ public class DefaultEventManager implements IEventManager {
   }
 
   @Override
-  public <T extends Event> @NotNull T callEvent(@NotNull String channel, @NotNull T event) {
+  public <T extends Event> @NonNull T callEvent(@NonNull String channel, @NonNull T event) {
     // get all registered listeners of the event
     var listeners = this.listeners.get(event.getClass());
     if (!listeners.isEmpty()) {
@@ -85,7 +85,7 @@ public class DefaultEventManager implements IEventManager {
   }
 
   @Override
-  public @NotNull IEventManager registerListener(@NotNull Object listener) {
+  public @NonNull IEventManager registerListener(@NonNull Object listener) {
     // get all methods of the listener
     for (var method : listener.getClass().getDeclaredMethods()) {
       // check if the method can be used

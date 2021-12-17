@@ -23,38 +23,38 @@ import de.dytanic.cloudnet.driver.event.events.task.ServiceTaskAddEvent;
 import de.dytanic.cloudnet.driver.event.events.task.ServiceTaskRemoveEvent;
 import de.dytanic.cloudnet.ext.bridge.platform.PlatformBridgeManagement;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class PlatformInformationListener {
 
   private final PlatformBridgeManagement<?, ?> management;
 
-  public PlatformInformationListener(@NotNull PlatformBridgeManagement<?, ?> management) {
+  public PlatformInformationListener(@NonNull PlatformBridgeManagement<?, ?> management) {
     this.management = management;
   }
 
   @EventListener
-  public void handle(@NotNull ServiceInfoSnapshotConfigureEvent event) {
+  public void handle(@NonNull ServiceInfoSnapshotConfigureEvent event) {
     this.management.appendServiceInformation(event.serviceInfo());
   }
 
   @EventListener
-  public void handleLifecycleChange(@NotNull CloudServiceLifecycleChangeEvent event) {
+  public void handleLifecycleChange(@NonNull CloudServiceLifecycleChangeEvent event) {
     this.management.handleServiceUpdate(event.serviceInfo());
   }
 
   @EventListener
-  public void handleLifecycleChange(@NotNull CloudServiceUpdateEvent event) {
+  public void handleLifecycleChange(@NonNull CloudServiceUpdateEvent event) {
     this.management.handleServiceUpdate(event.serviceInfo());
   }
 
   @EventListener
-  public void handleServiceTaskAdd(@NotNull ServiceTaskAddEvent event) {
+  public void handleServiceTaskAdd(@NonNull ServiceTaskAddEvent event) {
     this.management.handleTaskUpdate(event.task().name(), event.task());
   }
 
   @EventListener
-  public void handleServiceTaskRemove(@NotNull ServiceTaskRemoveEvent event) {
+  public void handleServiceTaskRemove(@NonNull ServiceTaskRemoveEvent event) {
     this.management.handleTaskUpdate(event.task().name(), null);
   }
 }

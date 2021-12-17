@@ -32,7 +32,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class NodeSignManagement extends AbstractSignManagement implements SignManagement {
@@ -57,7 +57,7 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
   }
 
   @Override
-  public void createSign(@NotNull Sign sign) {
+  public void createSign(@NonNull Sign sign) {
     this.database.insert(this.documentKey(sign.location()), JsonDocument.newDocument(sign));
     this.signs.put(sign.location(), sign);
 
@@ -68,7 +68,7 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
   }
 
   @Override
-  public void deleteSign(@NotNull WorldPosition position) {
+  public void deleteSign(@NonNull WorldPosition position) {
     this.database.delete(this.documentKey(position));
     this.signs.remove(position);
 
@@ -79,7 +79,7 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
   }
 
   @Override
-  public int deleteAllSigns(@NotNull String group, @Nullable String templatePath) {
+  public int deleteAllSigns(@NonNull String group, @Nullable String templatePath) {
     var positions = this.signs.entrySet().stream()
       .filter(entry -> entry.getValue().targetGroup().equals(group)
         && (templatePath == null || templatePath.equals(entry.getValue().templatePath())))
@@ -114,7 +114,7 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
   }
 
   @Override
-  public @NotNull Collection<Sign> signs(@NotNull String[] groups) {
+  public @NonNull Collection<Sign> signs(@NonNull String[] groups) {
     var allGroups = Arrays.asList(groups);
     return this.signs.values().stream()
       .filter(sign -> allGroups.contains(sign.location().group()))
@@ -122,7 +122,7 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
   }
 
   @Override
-  public void signsConfiguration(@NotNull SignsConfiguration signsConfiguration) {
+  public void signsConfiguration(@NonNull SignsConfiguration signsConfiguration) {
     super.signsConfiguration(signsConfiguration);
 
     this.channelMessage(SIGN_CONFIGURATION_UPDATE)
@@ -133,12 +133,12 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
   }
 
   @Override
-  public void handleInternalSignConfigUpdate(@NotNull SignsConfiguration configuration) {
+  public void handleInternalSignConfigUpdate(@NonNull SignsConfiguration configuration) {
     super.handleInternalSignConfigUpdate(configuration);
     NodeSignsConfigurationHelper.write(configuration, this.configurationFilePath);
   }
 
-  protected String documentKey(@NotNull WorldPosition position) {
+  protected String documentKey(@NonNull WorldPosition position) {
     return position.world()
       + '.' + position.group()
       + '.' + position.x()

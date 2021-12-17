@@ -22,7 +22,7 @@ import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.service.defaults.JVMService;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class JVMServiceFactory extends AbstractServiceFactory {
 
@@ -35,9 +35,9 @@ public class JVMServiceFactory extends AbstractServiceFactory {
   }
 
   @Override
-  public @NotNull ICloudService createCloudService(
-    @NotNull ICloudServiceManager manager,
-    @NotNull ServiceConfiguration configuration
+  public @NonNull ICloudService createCloudService(
+    @NonNull ICloudServiceManager manager,
+    @NonNull ServiceConfiguration configuration
   ) {
     // validates the settings of the configuration
     this.validateConfiguration(manager, configuration);

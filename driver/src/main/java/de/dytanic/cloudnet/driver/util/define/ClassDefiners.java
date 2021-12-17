@@ -24,7 +24,7 @@
 
 package de.dytanic.cloudnet.driver.util.define;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * A holder class for the best class definer of the current jvm.
@@ -60,7 +60,7 @@ public final class ClassDefiners {
    *
    * @return the jvm static instance of the best definer for the current jvm implementation.
    */
-  public static @NotNull ClassDefiner current() {
+  public static @NonNull ClassDefiner current() {
     return DEFINER;
   }
 }

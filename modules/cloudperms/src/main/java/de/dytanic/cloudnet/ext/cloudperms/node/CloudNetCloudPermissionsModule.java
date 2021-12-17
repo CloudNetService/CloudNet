@@ -24,7 +24,7 @@ import de.dytanic.cloudnet.driver.module.driver.DriverModule;
 import de.dytanic.cloudnet.ext.cloudperms.node.config.CloudPermissionConfig;
 import de.dytanic.cloudnet.ext.cloudperms.node.config.CloudPermissionConfigHelper;
 import de.dytanic.cloudnet.ext.cloudperms.node.listener.IncludePluginListener;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class CloudNetCloudPermissionsModule extends DriverModule {
 
@@ -57,7 +57,7 @@ public final class CloudNetCloudPermissionsModule extends DriverModule {
     this.registerListener(new IncludePluginListener(this));
   }
 
-  public @NotNull CloudPermissionConfig getPermissionsConfig() {
+  public @NonNull CloudPermissionConfig getPermissionsConfig() {
     return this.permissionsConfig;
   }
 }

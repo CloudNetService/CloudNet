@@ -36,8 +36,8 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 
 @Internal
 final class NettyWebSocketServerChannel implements IWebSocketChannel {
@@ -48,55 +48,55 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
   private final IHttpChannel httpChannel;
 
   public NettyWebSocketServerChannel(
-    @NotNull IHttpChannel httpChannel,
-    @NotNull Channel channel
+    @NonNull IHttpChannel httpChannel,
+    @NonNull Channel channel
   ) {
     this.httpChannel = httpChannel;
     this.channel = channel;
   }
 
   @Override
-  public @NotNull IWebSocketChannel addListener(@NotNull IWebSocketListener... listeners) {
+  public @NonNull IWebSocketChannel addListener(@NonNull IWebSocketListener... listeners) {
     this.webSocketListeners.addAll(Arrays.asList(listeners));
     return this;
   }
 
   @Override
-  public @NotNull IWebSocketChannel removeListener(@NotNull IWebSocketListener... listeners) {
+  public @NonNull IWebSocketChannel removeListener(@NonNull IWebSocketListener... listeners) {
     this.webSocketListeners.removeIf(listener -> Arrays.asList(listeners).contains(listener));
     return this;
   }
 
   @Override
-  public @NotNull IWebSocketChannel removeListener(@NotNull Collection<Class<? extends IWebSocketListener>> classes) {
+  public @NonNull IWebSocketChannel removeListener(@NonNull Collection<Class<? extends IWebSocketListener>> classes) {
     this.webSocketListeners.removeIf(listener -> classes.contains(listener.getClass()));
     return this;
   }
 
   @Override
-  public @NotNull IWebSocketChannel removeListener(@NotNull ClassLoader classLoader) {
+  public @NonNull IWebSocketChannel removeListener(@NonNull ClassLoader classLoader) {
     this.webSocketListeners.removeIf(listener -> listener.getClass().getClassLoader().equals(classLoader));
     return this;
   }
 
   @Override
-  public @NotNull IWebSocketChannel clearListeners() {
+  public @NonNull IWebSocketChannel clearListeners() {
     this.webSocketListeners.clear();
     return this;
   }
 
   @Override
-  public @NotNull Collection<IWebSocketListener> listeners() {
+  public @NonNull Collection<IWebSocketListener> listeners() {
     return this.webSocketListeners;
   }
 
   @Override
-  public @NotNull IWebSocketChannel sendWebSocketFrame(@NotNull WebSocketFrameType type, @NotNull String text) {
+  public @NonNull IWebSocketChannel sendWebSocketFrame(@NonNull WebSocketFrameType type, @NonNull String text) {
     return this.sendWebSocketFrame(type, text.getBytes(StandardCharsets.UTF_8));
   }
 
   @Override
-  public @NotNull IWebSocketChannel sendWebSocketFrame(@NotNull WebSocketFrameType webSocketFrameType, byte[] bytes) {
+  public @NonNull IWebSocketChannel sendWebSocketFrame(@NonNull WebSocketFrameType webSocketFrameType, byte[] bytes) {
     WebSocketFrame webSocketFrame = switch (webSocketFrameType) {
       case PING -> new PingWebSocketFrame(Unpooled.buffer(bytes.length).writeBytes(bytes));
       case PONG -> new PongWebSocketFrame(Unpooled.buffer(bytes.length).writeBytes(bytes));
@@ -109,12 +109,12 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
   }
 
   @Override
-  public @NotNull IHttpChannel channel() {
+  public @NonNull IHttpChannel channel() {
     return this.httpChannel;
   }
 
   @Override
-  public void close(int statusCode, @NotNull String reasonText) {
+  public void close(int statusCode, @NonNull String reasonText) {
     var statusCodeReference = new AtomicInteger(statusCode);
     var reasonTextReference = new AtomicReference<>(reasonText);
 

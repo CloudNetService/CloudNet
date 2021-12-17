@@ -20,12 +20,12 @@ import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.chunk.ChunkedPacketSessionOpenEvent;
 import de.dytanic.cloudnet.driver.network.chunk.defaults.DefaultFileChunkedPacketHandler;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class TemplateStorageCallbackListener {
 
   @EventListener
-  public void handle(@NotNull ChunkedPacketSessionOpenEvent event) {
+  public void handle(@NonNull ChunkedPacketSessionOpenEvent event) {
     if (event.session().transferChannel().equals("request_template_file_result")) {
       event.handler(new DefaultFileChunkedPacketHandler(
         event.session(),

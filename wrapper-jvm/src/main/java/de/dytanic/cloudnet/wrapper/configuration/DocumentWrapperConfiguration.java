@@ -22,7 +22,7 @@ import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import java.nio.file.Path;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * The default json based wrapper configuration for the service. It loads only the configuration with the constructor
@@ -31,16 +31,16 @@ import org.jetbrains.annotations.NotNull;
  * @see IWrapperConfiguration
  */
 public record DocumentWrapperConfiguration(
-  @NotNull String connectionKey,
-  @NotNull HostAndPort targetListener,
-  @NotNull SSLConfiguration sslConfiguration,
-  @NotNull ServiceInfoSnapshot serviceInfoSnapshot,
-  @NotNull ServiceConfiguration serviceConfiguration) implements IWrapperConfiguration {
+  @NonNull String connectionKey,
+  @NonNull HostAndPort targetListener,
+  @NonNull SSLConfiguration sslConfiguration,
+  @NonNull ServiceInfoSnapshot serviceInfoSnapshot,
+  @NonNull ServiceConfiguration serviceConfiguration) implements IWrapperConfiguration {
 
   private static final Path WRAPPER_CONFIG_PATH = Path.of(
     System.getProperty("cloudnet.wrapper.config.path", ".wrapper/wrapper.json"));
 
-  public static @NotNull IWrapperConfiguration load() {
+  public static @NonNull IWrapperConfiguration load() {
     return JsonDocument.newDocument(WRAPPER_CONFIG_PATH).toInstanceOf(DocumentWrapperConfiguration.class);
   }
 }

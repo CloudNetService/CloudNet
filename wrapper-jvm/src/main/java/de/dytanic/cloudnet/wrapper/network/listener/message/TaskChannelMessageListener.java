@@ -23,18 +23,18 @@ import de.dytanic.cloudnet.driver.event.events.task.ServiceTaskAddEvent;
 import de.dytanic.cloudnet.driver.event.events.task.ServiceTaskRemoveEvent;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class TaskChannelMessageListener {
 
   private final IEventManager eventManager;
 
-  public TaskChannelMessageListener(@NotNull IEventManager eventManager) {
+  public TaskChannelMessageListener(@NonNull IEventManager eventManager) {
     this.eventManager = eventManager;
   }
 
   @EventListener
-  public void handleChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
+  public void handleChannelMessage(@NonNull ChannelMessageReceiveEvent event) {
     if (event.channel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
       switch (event.message()) {
         // add task

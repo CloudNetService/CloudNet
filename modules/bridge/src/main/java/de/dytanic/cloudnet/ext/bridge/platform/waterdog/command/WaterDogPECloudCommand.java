@@ -24,13 +24,13 @@ import dev.waterdog.waterdogpe.command.CommandSettings;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
 import dev.waterdog.waterdogpe.utils.types.TextContainer;
 import java.util.Locale;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class WaterDogPECloudCommand extends Command {
 
   private final PlatformBridgeManagement<?, ?> management;
 
-  public WaterDogPECloudCommand(@NotNull PlatformBridgeManagement<?, ?> management) {
+  public WaterDogPECloudCommand(@NonNull PlatformBridgeManagement<?, ?> management) {
     super("cloudnet", CommandSettings.builder()
       .setAliases(new String[]{"cloud", "cn"})
       .setPermission("cloudnet.command.cloudnet")
@@ -39,7 +39,7 @@ public final class WaterDogPECloudCommand extends Command {
   }
 
   @Override
-  public boolean onExecute(@NotNull CommandSender sender, @NotNull String alias, String @NotNull [] args) {
+  public boolean onExecute(@NonNull CommandSender sender, @NonNull String alias, String @NonNull [] args) {
     // check if any arguments are provided
     if (args.length == 0) {
       // <prefix> /cloudnet <command>

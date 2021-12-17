@@ -35,10 +35,10 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import lombok.NonNull;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jline.reader.Completer;
 import org.jline.reader.LineReader;
@@ -90,12 +90,12 @@ public final class JLine3Console implements IConsole {
   }
 
   @Override
-  public @NotNull Collection<AbstractConsoleAnimation> runningAnimations() {
+  public @NonNull Collection<AbstractConsoleAnimation> runningAnimations() {
     return this.runningAnimations.values();
   }
 
   @Override
-  public void startAnimation(@NotNull AbstractConsoleAnimation animation) {
+  public void startAnimation(@NonNull AbstractConsoleAnimation animation) {
     animation.console(this);
 
     var uniqueId = UUID.randomUUID();
@@ -127,7 +127,7 @@ public final class JLine3Console implements IConsole {
   }
 
   @Override
-  public @NotNull Collection<String> commandHistory() {
+  public @NonNull Collection<String> commandHistory() {
     List<String> result = new ArrayList<>();
     for (var entry : this.lineReader.getHistory()) {
       result.add(entry.line());
@@ -152,12 +152,12 @@ public final class JLine3Console implements IConsole {
   }
 
   @Override
-  public void commandInputValue(@NotNull String commandInputValue) {
+  public void commandInputValue(@NonNull String commandInputValue) {
     this.lineReader.getBuffer().write(commandInputValue);
   }
 
   @Override
-  @NotNull
+  @NonNull
   public ITask<String> readLine() {
     return this.consoleReadThread.currentTask();
   }
@@ -195,27 +195,27 @@ public final class JLine3Console implements IConsole {
   }
 
   @Override
-  public void addCommandHandler(@NotNull UUID uniqueId, @NotNull ConsoleInputHandler handler) {
+  public void addCommandHandler(@NonNull UUID uniqueId, @NonNull ConsoleInputHandler handler) {
     this.consoleInputHandler.put(uniqueId, handler);
   }
 
   @Override
-  public void removeCommandHandler(@NotNull UUID uniqueId) {
+  public void removeCommandHandler(@NonNull UUID uniqueId) {
     this.consoleInputHandler.remove(uniqueId);
   }
 
   @Override
-  public void addTabCompleteHandler(@NotNull UUID uniqueId, @NotNull ConsoleTabCompleteHandler handler) {
+  public void addTabCompleteHandler(@NonNull UUID uniqueId, @NonNull ConsoleTabCompleteHandler handler) {
     this.tabCompleteHandler.put(uniqueId, handler);
   }
 
   @Override
-  public void removeTabCompleteHandler(@NotNull UUID uniqueId) {
+  public void removeTabCompleteHandler(@NonNull UUID uniqueId) {
     this.tabCompleteHandler.remove(uniqueId);
   }
 
   @Override
-  public @NotNull IConsole write(@NotNull String text) {
+  public @NonNull IConsole write(@NonNull String text) {
     if (this.printingEnabled) {
       this.forceWrite(text);
     }
@@ -224,7 +224,7 @@ public final class JLine3Console implements IConsole {
   }
 
   @Override
-  public @NotNull IConsole writeLine(@NotNull String text) {
+  public @NonNull IConsole writeLine(@NonNull String text) {
     if (this.printingEnabled) {
       this.forceWriteLine(text);
     }
@@ -233,18 +233,18 @@ public final class JLine3Console implements IConsole {
   }
 
   @Override
-  public @NotNull IConsole forceWrite(@NotNull String text) {
+  public @NonNull IConsole forceWrite(@NonNull String text) {
     return this.writeRaw(Ansi.ansi().eraseLine(Ansi.Erase.ALL).toString() + '\r' + text + ConsoleColor.DEFAULT);
   }
 
   @Override
-  public @NotNull IConsole writeRaw(@NotNull String rawText) {
+  public @NonNull IConsole writeRaw(@NonNull String rawText) {
     this.print(ConsoleColor.toColouredString('&', rawText));
     return this;
   }
 
   @Override
-  public @NotNull IConsole forceWriteLine(@NotNull String text) {
+  public @NonNull IConsole forceWriteLine(@NonNull String text) {
     text = ConsoleColor.toColouredString('&', text);
     if (!text.endsWith(System.lineSeparator())) {
       text += System.lineSeparator();
@@ -311,23 +311,23 @@ public final class JLine3Console implements IConsole {
   }
 
   @Override
-  public @NotNull String prompt() {
+  public @NonNull String prompt() {
     return this.prompt;
   }
 
   @Override
-  public void prompt(@NotNull String prompt) {
+  public void prompt(@NonNull String prompt) {
     this.prompt = prompt;
     this.updatePrompt();
   }
 
   @Override
-  public @NotNull String screenName() {
+  public @NonNull String screenName() {
     return this.screenName;
   }
 
   @Override
-  public void screenName(@NotNull String screenName) {
+  public void screenName(@NonNull String screenName) {
     this.screenName = screenName;
   }
 
@@ -337,7 +337,7 @@ public final class JLine3Console implements IConsole {
   }
 
   @Override
-  public int displayLength(@NotNull String string) {
+  public int displayLength(@NonNull String string) {
     var result = 0;
     // count for the length of each char in the string
     for (var i = 0; i < string.length(); i++) {
@@ -354,7 +354,7 @@ public final class JLine3Console implements IConsole {
     this.lineReader.setPrompt(this.prompt);
   }
 
-  private void print(@NotNull String text) {
+  private void print(@NonNull String text) {
     this.lineReader.getTerminal().puts(InfoCmp.Capability.carriage_return);
     this.lineReader.getTerminal().puts(InfoCmp.Capability.clr_eol);
     this.lineReader.getTerminal().writer().print(text);
@@ -372,25 +372,25 @@ public final class JLine3Console implements IConsole {
     this.lineReader.callWidget(LineReader.REDISPLAY);
   }
 
-  private void toggleHandlers(boolean enabled, @NotNull Collection<?> handlers) {
+  private void toggleHandlers(boolean enabled, @NonNull Collection<?> handlers) {
     for (Object handler : handlers) {
       ((Toggleable) handler).enabled(enabled);
     }
   }
 
-  @NotNull
+  @NonNull
   @Internal
   LineReader getLineReader() {
     return this.lineReader;
   }
 
-  @NotNull
+  @NonNull
   @Internal
   Map<UUID, ConsoleInputHandler> getConsoleInputHandler() {
     return this.consoleInputHandler;
   }
 
-  @NotNull
+  @NonNull
   @Internal
   Map<UUID, ConsoleTabCompleteHandler> getTabCompleteHandlers() {
     return this.tabCompleteHandler;
@@ -448,26 +448,26 @@ public final class JLine3Console implements IConsole {
     private final Map<LineReader.Option, Boolean> options = new HashMap<>();
     private Completer completer;
 
-    private InternalLineReaderBuilder(@NotNull Terminal terminal) {
+    private InternalLineReaderBuilder(@NonNull Terminal terminal) {
       this.terminal = terminal;
     }
 
-    public @NotNull InternalLineReaderBuilder variable(@NotNull String name, @NotNull Object value) {
+    public @NonNull InternalLineReaderBuilder variable(@NonNull String name, @NonNull Object value) {
       this.variables.put(name, value);
       return this;
     }
 
-    public @NotNull InternalLineReaderBuilder option(@NotNull LineReader.Option option, boolean value) {
+    public @NonNull InternalLineReaderBuilder option(@NonNull LineReader.Option option, boolean value) {
       this.options.put(option, value);
       return this;
     }
 
-    public @NotNull InternalLineReaderBuilder completer(@NotNull Completer completer) {
+    public @NonNull InternalLineReaderBuilder completer(@NonNull Completer completer) {
       this.completer = completer;
       return this;
     }
 
-    public @NotNull InternalLineReader build() {
+    public @NonNull InternalLineReader build() {
       var reader = new InternalLineReader(this.terminal, "CloudNet-Console", this.variables);
       if (this.completer != null) {
         reader.setCompleter(this.completer);

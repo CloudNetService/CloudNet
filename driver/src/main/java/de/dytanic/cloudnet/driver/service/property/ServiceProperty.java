@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.driver.service.property;
 
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import java.util.Optional;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -34,8 +34,8 @@ public interface ServiceProperty<T> {
    * @param serviceInfoSnapshot the serviceInfoSnapshot to get the property
    * @return an optional with the value, might be empty
    */
-  @NotNull
-  Optional<T> read(@NotNull ServiceInfoSnapshot serviceInfoSnapshot);
+  @NonNull
+  Optional<T> read(@NonNull ServiceInfoSnapshot serviceInfoSnapshot);
 
   /**
    * Sets a property into the properties of the given {@link ServiceInfoSnapshot}. Some properties might not support
@@ -44,5 +44,5 @@ public interface ServiceProperty<T> {
    * @param serviceInfoSnapshot the serviceInfoSnapshot to modify the property in
    * @param value               the value to set or null to remove the property
    */
-  void write(@NotNull ServiceInfoSnapshot serviceInfoSnapshot, @Nullable T value);
+  void write(@NonNull ServiceInfoSnapshot serviceInfoSnapshot, @Nullable T value);
 }

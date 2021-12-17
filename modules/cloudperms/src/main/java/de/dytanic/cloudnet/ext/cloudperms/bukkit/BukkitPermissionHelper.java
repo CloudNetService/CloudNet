@@ -24,9 +24,9 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.util.regex.Pattern;
+import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 public final class BukkitPermissionHelper {
 
@@ -86,13 +86,13 @@ public final class BukkitPermissionHelper {
     throw new UnsupportedOperationException();
   }
 
-  public static void injectPlayer(@NotNull Player player) throws Throwable {
+  public static void injectPlayer(@NonNull Player player) throws Throwable {
     PERMISSIBLE_SETTER.invoke(
       player,
       new BukkitCloudPermissionsPermissible(player, CloudNetDriver.instance().permissionManagement()));
   }
 
-  public static void resendCommandTree(@NotNull Player player) {
+  public static void resendCommandTree(@NonNull Player player) {
     if (UPDATE_COMMAND_TREE != null) {
       try {
         UPDATE_COMMAND_TREE.invoke(player);

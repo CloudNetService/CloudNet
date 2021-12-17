@@ -18,12 +18,12 @@ package de.dytanic.cloudnet.driver.provider;
 
 import com.google.common.collect.Iterables;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public abstract class DefaultMessenger implements CloudMessenger {
 
   @Override
-  public ChannelMessage sendSingleChannelMessageQuery(@NotNull ChannelMessage channelMessage) {
+  public ChannelMessage sendSingleChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
     return Iterables.getFirst(this.sendChannelMessageQuery(channelMessage), null);
   }
 }

@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketHandler.Callback;
 import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import java.io.InputStream;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 final class TemplateDeployCallback implements Callback {
 
@@ -32,8 +32,8 @@ final class TemplateDeployCallback implements Callback {
 
   @Override
   public void handleSessionComplete(
-    @NotNull ChunkSessionInformation information,
-    @NotNull InputStream dataInput
+    @NonNull ChunkSessionInformation information,
+    @NonNull InputStream dataInput
   ) {
     // get the information for the deployment
     var storageName = information.transferInformation().readString();

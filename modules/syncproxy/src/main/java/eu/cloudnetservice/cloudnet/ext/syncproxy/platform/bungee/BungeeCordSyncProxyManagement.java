@@ -21,67 +21,67 @@ import eu.cloudnetservice.cloudnet.ext.syncproxy.platform.PlatformSyncProxyManag
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import lombok.NonNull;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManagement<ProxiedPlayer> {
 
   private final Plugin plugin;
 
-  public BungeeCordSyncProxyManagement(@NotNull Plugin plugin) {
+  public BungeeCordSyncProxyManagement(@NonNull Plugin plugin) {
     this.plugin = plugin;
     this.init();
   }
 
   @Override
-  public void registerService(@NotNull IServicesRegistry registry) {
+  public void registerService(@NonNull IServicesRegistry registry) {
     registry.registerService(PlatformSyncProxyManagement.class, "BungeeCordSyncProxyManagement", this);
   }
 
   @Override
-  public void unregisterService(@NotNull IServicesRegistry registry) {
+  public void unregisterService(@NonNull IServicesRegistry registry) {
     registry.unregisterService(PlatformSyncProxyManagement.class, "BungeeCordSyncProxyManagement");
   }
 
   @Override
-  public void schedule(@NotNull Runnable runnable, long time, @NotNull TimeUnit unit) {
+  public void schedule(@NonNull Runnable runnable, long time, @NonNull TimeUnit unit) {
     this.plugin.getProxy().getScheduler().schedule(this.plugin, runnable, time, unit);
   }
 
   @Override
-  public @NotNull Collection<ProxiedPlayer> onlinePlayers() {
+  public @NonNull Collection<ProxiedPlayer> onlinePlayers() {
     return this.plugin.getProxy().getPlayers();
   }
 
   @Override
-  public @NotNull String playerName(@NotNull ProxiedPlayer player) {
+  public @NonNull String playerName(@NonNull ProxiedPlayer player) {
     return player.getName();
   }
 
   @Override
-  public @NotNull UUID playerUniqueId(@NotNull ProxiedPlayer player) {
+  public @NonNull UUID playerUniqueId(@NonNull ProxiedPlayer player) {
     return player.getUniqueId();
   }
 
   @Override
-  public void playerTabList(@NotNull ProxiedPlayer player, @Nullable String header, @Nullable String footer) {
+  public void playerTabList(@NonNull ProxiedPlayer player, @Nullable String header, @Nullable String footer) {
     player.setTabHeader(
       this.asComponent(this.replaceTabPlaceholder(header, player)),
       this.asComponent(this.replaceTabPlaceholder(footer, player)));
   }
 
   @Override
-  public void disconnectPlayer(@NotNull ProxiedPlayer player, @NotNull String message) {
+  public void disconnectPlayer(@NonNull ProxiedPlayer player, @NonNull String message) {
     player.disconnect(this.asComponent(message));
   }
 
   @Override
-  public void messagePlayer(@NotNull ProxiedPlayer player, @Nullable String message) {
+  public void messagePlayer(@NonNull ProxiedPlayer player, @Nullable String message) {
     if (message == null) {
       return;
     }
@@ -90,7 +90,7 @@ public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManage
   }
 
   @Override
-  public boolean checkPlayerPermission(@NotNull ProxiedPlayer player, @NotNull String permission) {
+  public boolean checkPlayerPermission(@NonNull ProxiedPlayer player, @NonNull String permission) {
     return player.hasPermission(permission);
   }
 
@@ -102,7 +102,7 @@ public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManage
     return TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', message));
   }
 
-  private @Nullable String replaceTabPlaceholder(@Nullable String input, @NotNull ProxiedPlayer player) {
+  private @Nullable String replaceTabPlaceholder(@Nullable String input, @NonNull ProxiedPlayer player) {
     if (input == null) {
       return null;
     }

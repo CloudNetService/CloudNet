@@ -17,22 +17,22 @@
 package de.dytanic.cloudnet.cluster.sync;
 
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.UnknownNullability;
 
 public interface DataSyncRegistry {
 
-  void registerHandler(@NotNull DataSyncHandler<?> handler);
+  void registerHandler(@NonNull DataSyncHandler<?> handler);
 
-  void unregisterHandler(@NotNull DataSyncHandler<?> handler);
+  void unregisterHandler(@NonNull DataSyncHandler<?> handler);
 
-  void unregisterHandler(@NotNull String handlerKey);
+  void unregisterHandler(@NonNull String handlerKey);
 
-  void unregisterHandler(@NotNull ClassLoader loader);
+  void unregisterHandler(@NonNull ClassLoader loader);
 
-  boolean hasHandler(@NotNull String handlerKey);
+  boolean hasHandler(@NonNull String handlerKey);
 
-  @NotNull DataBuf.Mutable prepareClusterData(boolean force, String @NotNull ... selectedHandlers);
+  @NonNull DataBuf.Mutable prepareClusterData(boolean force, String @NonNull ... selectedHandlers);
 
-  @UnknownNullability DataBuf handle(@NotNull DataBuf input, boolean force);
+  @UnknownNullability DataBuf handle(@NonNull DataBuf input, boolean force);
 }

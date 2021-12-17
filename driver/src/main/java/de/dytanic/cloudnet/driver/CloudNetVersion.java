@@ -17,20 +17,20 @@
 package de.dytanic.cloudnet.driver;
 
 import java.util.regex.Pattern;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public record CloudNetVersion(
   int major,
   int minor,
   int patch,
-  @NotNull String revision,
-  @NotNull String versionType,
-  @NotNull String versionTitle
+  @NonNull String revision,
+  @NonNull String versionType,
+  @NonNull String versionTitle
 ) {
 
   private static final Pattern VERSION_PATTERN = Pattern.compile("(\\d+).(\\d+).(\\d+)(.*)");
 
-  public static @NotNull CloudNetVersion fromClassInformation(@NotNull Package source) {
+  public static @NonNull CloudNetVersion fromClassInformation(@NonNull Package source) {
     // read the version title
     var title = source.getImplementationTitle();
     // read the version

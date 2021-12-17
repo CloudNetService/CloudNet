@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.driver.network;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * Represents a client in the network which connect to a network server.
@@ -29,5 +29,5 @@ public interface INetworkClient extends INetworkComponent, AutoCloseable {
    * @param hostAndPort the target host to which the client should connect.
    * @return {@code true} if the connection was established successfully, {@code false} otherwise.
    */
-  boolean connect(@NotNull HostAndPort hostAndPort);
+  boolean connect(@NonNull HostAndPort hostAndPort);
 }

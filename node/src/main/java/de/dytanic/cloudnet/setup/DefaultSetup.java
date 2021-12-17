@@ -17,12 +17,12 @@
 package de.dytanic.cloudnet.setup;
 
 import de.dytanic.cloudnet.console.animation.setup.ConsoleSetupAnimation;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public interface DefaultSetup {
 
-  void applyQuestions(@NotNull ConsoleSetupAnimation animation);
+  void applyQuestions(@NonNull ConsoleSetupAnimation animation);
 
-  default void handleResults(@NotNull ConsoleSetupAnimation animation) {
+  default void handleResults(@NonNull ConsoleSetupAnimation animation) {
   }
 }

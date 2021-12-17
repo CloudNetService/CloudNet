@@ -20,15 +20,15 @@ import de.dytanic.cloudnet.driver.network.rpc.RPC;
 import de.dytanic.cloudnet.driver.network.rpc.RPCChain;
 import java.util.Arrays;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class RPCException extends RuntimeException {
 
-  public RPCException(@NotNull RPC rpc, @NotNull Exception root) {
+  public RPCException(@NonNull RPC rpc, @NonNull Exception root) {
     super(String.format("Unable to get yield result of rpc: %s", formatRPC(rpc)), root);
   }
 
-  public RPCException(@NotNull RPCChain chain, @NotNull Exception root) {
+  public RPCException(@NonNull RPCChain chain, @NonNull Exception root) {
     super(String.format(
       "Unable to get future result of chained rpc; stack: %s\n%s",
       formatRPC(chain.head()),
@@ -37,11 +37,11 @@ public class RPCException extends RuntimeException {
         .collect(Collectors.joining("\n"))), root);
   }
 
-  protected static @NotNull String formatRPC(@NotNull RPC rpc) {
+  protected static @NonNull String formatRPC(@NonNull RPC rpc) {
     return String.format("%s.%s(%s)", rpc.className(), rpc.methodName(), Arrays.toString(rpc.arguments()));
   }
 
-  protected static @NotNull String formatChainedRPCEntry(@NotNull RPC rpc) {
+  protected static @NonNull String formatChainedRPCEntry(@NonNull RPC rpc) {
     return String.format(" at %s", formatRPC(rpc));
   }
 }

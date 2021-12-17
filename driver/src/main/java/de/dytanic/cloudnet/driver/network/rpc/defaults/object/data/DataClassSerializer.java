@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DataClassSerializer implements ObjectSerializer<Object> {
@@ -38,9 +38,9 @@ public class DataClassSerializer implements ObjectSerializer<Object> {
 
   @Override
   public @Nullable Object read(
-    @NotNull DataBuf source,
-    @NotNull Type type,
-    @NotNull ObjectMapper caller
+    @NonNull DataBuf source,
+    @NonNull Type type,
+    @NonNull ObjectMapper caller
   ) {
     // ensure that the given type is a class & unwrap
     Verify.verify(type instanceof Class<?>, "Cannot call data class serializer on non-class");
@@ -65,10 +65,10 @@ public class DataClassSerializer implements ObjectSerializer<Object> {
 
   @Override
   public void write(
-    @NotNull DataBuf.Mutable dataBuf,
-    @NotNull Object object,
-    @NotNull Type type,
-    @NotNull ObjectMapper caller
+    @NonNull DataBuf.Mutable dataBuf,
+    @NonNull Object object,
+    @NonNull Type type,
+    @NonNull ObjectMapper caller
   ) {
     // ensure that the given type is a class & unwrap
     Verify.verify(type instanceof Class<?>, "Cannot call data class serializer on non-class");
@@ -86,7 +86,7 @@ public class DataClassSerializer implements ObjectSerializer<Object> {
     information.informationWriter().writeInformation(dataBuf, object, caller);
   }
 
-  protected @Nullable Object readArray(@NotNull DataBuf source, @NotNull Class<?> clazz, @NotNull ObjectMapper caller) {
+  protected @Nullable Object readArray(@NonNull DataBuf source, @NonNull Class<?> clazz, @NonNull ObjectMapper caller) {
     // read the array component type information
     var arrayType = clazz.getComponentType();
     // read the serialized array information
@@ -100,7 +100,7 @@ public class DataClassSerializer implements ObjectSerializer<Object> {
     return array;
   }
 
-  protected void writeArray(@NotNull DataBuf.Mutable dataBuf, @NotNull Object object, @NotNull ObjectMapper caller) {
+  protected void writeArray(@NonNull DataBuf.Mutable dataBuf, @NonNull Object object, @NonNull ObjectMapper caller) {
     // read the array information
     var arraySize = Array.getLength(object);
     // write the information about the array into the buffer

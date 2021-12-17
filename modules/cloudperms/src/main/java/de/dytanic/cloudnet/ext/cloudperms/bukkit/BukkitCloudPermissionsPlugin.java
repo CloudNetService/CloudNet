@@ -22,11 +22,11 @@ import de.dytanic.cloudnet.ext.cloudperms.bukkit.listener.BukkitCloudPermissions
 import de.dytanic.cloudnet.ext.cloudperms.bukkit.vault.VaultSupport;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.logging.Level;
+import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 
 public final class BukkitCloudPermissionsPlugin extends JavaPlugin {
 
@@ -58,7 +58,7 @@ public final class BukkitCloudPermissionsPlugin extends JavaPlugin {
   }
 
   @Internal
-  public void injectCloudPermissible(@NotNull Player player) {
+  public void injectCloudPermissible(@NonNull Player player) {
     try {
       BukkitPermissionHelper.injectPlayer(player);
     } catch (Throwable exception) {

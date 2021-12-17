@@ -19,15 +19,15 @@ package eu.cloudnetservice.cloudnet.ext.syncproxy.platform.waterdog;
 import dev.waterdog.waterdogpe.ProxyServer;
 import dev.waterdog.waterdogpe.event.defaults.PlayerLoginEvent;
 import dev.waterdog.waterdogpe.event.defaults.ProxyPingEvent;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class WaterDogPESyncProxyListener {
 
   private final WaterDogPESyncProxyManagement syncProxyManagement;
 
   public WaterDogPESyncProxyListener(
-    @NotNull WaterDogPESyncProxyManagement syncProxyManagement,
-    @NotNull ProxyServer proxyServer
+    @NonNull WaterDogPESyncProxyManagement syncProxyManagement,
+    @NonNull ProxyServer proxyServer
   ) {
     this.syncProxyManagement = syncProxyManagement;
 
@@ -36,7 +36,7 @@ public final class WaterDogPESyncProxyListener {
     proxyServer.getEventManager().subscribe(PlayerLoginEvent.class, this::handleProxyLogin);
   }
 
-  private void handleProxyPing(@NotNull ProxyPingEvent event) {
+  private void handleProxyPing(@NonNull ProxyPingEvent event) {
     var loginConfiguration = this.syncProxyManagement.currentLoginConfiguration();
     // check if we need to handle the proxy ping on this proxy instance
     if (loginConfiguration == null) {
@@ -67,7 +67,7 @@ public final class WaterDogPESyncProxyListener {
     }
   }
 
-  private void handleProxyLogin(@NotNull PlayerLoginEvent event) {
+  private void handleProxyLogin(@NonNull PlayerLoginEvent event) {
     var loginConfiguration = this.syncProxyManagement.currentLoginConfiguration();
     if (loginConfiguration == null) {
       return;

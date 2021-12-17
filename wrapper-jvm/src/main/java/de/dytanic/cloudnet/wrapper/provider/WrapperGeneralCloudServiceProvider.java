@@ -28,7 +28,7 @@ import de.dytanic.cloudnet.wrapper.network.listener.message.ServiceChannelMessag
 import java.util.Collection;
 import java.util.UUID;
 import java.util.function.Supplier;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class WrapperGeneralCloudServiceProvider implements GeneralCloudServiceProvider {
@@ -36,7 +36,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
   private final RPCSender rpcSender;
   private final Supplier<INetworkChannel> channelSupplier;
 
-  public WrapperGeneralCloudServiceProvider(@NotNull Wrapper wrapper) {
+  public WrapperGeneralCloudServiceProvider(@NonNull Wrapper wrapper) {
     this.rpcSender = wrapper.rpcProviderFactory().providerForClass(
       wrapper.networkClient(),
       GeneralCloudServiceProvider.class);
@@ -46,54 +46,54 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
   }
 
   @Override
-  public @NotNull SpecificCloudServiceProvider specificProvider(@NotNull UUID serviceUniqueId) {
+  public @NonNull SpecificCloudServiceProvider specificProvider(@NonNull UUID serviceUniqueId) {
     return new RemoteSpecificCloudServiceProvider(this, this.rpcSender, this.channelSupplier, serviceUniqueId);
   }
 
   @Override
-  public @NotNull SpecificCloudServiceProvider specificProviderByName(@NotNull String serviceName) {
+  public @NonNull SpecificCloudServiceProvider specificProviderByName(@NonNull String serviceName) {
     return new RemoteSpecificCloudServiceProvider(this, this.rpcSender, this.channelSupplier, serviceName);
   }
 
   @Override
-  public @NotNull Collection<UUID> servicesAsUniqueId() {
+  public @NonNull Collection<UUID> servicesAsUniqueId() {
     return this.rpcSender.invokeMethod("servicesAsUniqueId").fireSync();
   }
 
   @Override
-  public @Nullable ServiceInfoSnapshot serviceByName(@NotNull String name) {
+  public @Nullable ServiceInfoSnapshot serviceByName(@NonNull String name) {
     return this.rpcSender.invokeMethod("serviceByName", name).fireSync();
   }
 
   @Override
-  public @NotNull Collection<ServiceInfoSnapshot> services() {
+  public @NonNull Collection<ServiceInfoSnapshot> services() {
     return this.rpcSender.invokeMethod("services").fireSync();
   }
 
   @Override
-  public @NotNull Collection<ServiceInfoSnapshot> runningServices() {
+  public @NonNull Collection<ServiceInfoSnapshot> runningServices() {
     return this.rpcSender.invokeMethod("runningServices").fireSync();
   }
 
   @Override
-  public @NotNull Collection<ServiceInfoSnapshot> servicesByTask(@NotNull String taskName) {
+  public @NonNull Collection<ServiceInfoSnapshot> servicesByTask(@NonNull String taskName) {
     return this.rpcSender.invokeMethod("servicesByTask", taskName).fireSync();
   }
 
   @Override
-  public @NotNull Collection<ServiceInfoSnapshot> servicesByEnvironment(
-    @NotNull ServiceEnvironmentType environment
+  public @NonNull Collection<ServiceInfoSnapshot> servicesByEnvironment(
+    @NonNull ServiceEnvironmentType environment
   ) {
     return this.rpcSender.invokeMethod("servicesByEnvironment", environment).fireSync();
   }
 
   @Override
-  public @NotNull Collection<ServiceInfoSnapshot> servicesByGroup(@NotNull String group) {
+  public @NonNull Collection<ServiceInfoSnapshot> servicesByGroup(@NonNull String group) {
     return this.rpcSender.invokeMethod("servicesByGroup", group).fireSync();
   }
 
   @Override
-  public @Nullable ServiceInfoSnapshot service(@NotNull UUID uniqueId) {
+  public @Nullable ServiceInfoSnapshot service(@NonNull UUID uniqueId) {
     return this.rpcSender.invokeMethod("service", uniqueId).fireSync();
   }
 
@@ -103,12 +103,12 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
   }
 
   @Override
-  public int serviceCountByGroup(@NotNull String group) {
+  public int serviceCountByGroup(@NonNull String group) {
     return this.rpcSender.invokeMethod("serviceCountByGroup", group).fireSync();
   }
 
   @Override
-  public int serviceCountByTask(@NotNull String taskName) {
+  public int serviceCountByTask(@NonNull String taskName) {
     return this.rpcSender.invokeMethod("serviceCountByTask", taskName).fireSync();
   }
 }

@@ -18,11 +18,11 @@ package eu.cloudnetservice.cloudnet.modules.labymod.config;
 
 import com.google.common.base.Verify;
 import java.util.UUID;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public record LabyModPlayerOptions(
-  @NotNull String version,
+  @NonNull String version,
   long creationTime,
   @Nullable UUID joinSecret,
   long lastJoinSecretRedeem,
@@ -30,11 +30,11 @@ public record LabyModPlayerOptions(
   long lastSpectateSecretRedeem
 ) {
 
-  public static @NotNull Builder builder() {
+  public static @NonNull Builder builder() {
     return new Builder();
   }
 
-  public static @NotNull Builder builder(@NotNull LabyModPlayerOptions playerOptions) {
+  public static @NonNull Builder builder(@NonNull LabyModPlayerOptions playerOptions) {
     return builder()
       .version(playerOptions.version())
       .creationTime(playerOptions.creationTime())
@@ -53,37 +53,37 @@ public record LabyModPlayerOptions(
     private UUID spectateSecret;
     private long spectateRedeemTime = -1;
 
-    public @NotNull Builder version(@NotNull String version) {
+    public @NonNull Builder version(@NonNull String version) {
       this.version = version;
       return this;
     }
 
-    public @NotNull Builder creationTime(long creationTime) {
+    public @NonNull Builder creationTime(long creationTime) {
       this.creationTime = creationTime;
       return this;
     }
 
-    public @NotNull Builder joinSecret(@Nullable UUID joinSecret) {
+    public @NonNull Builder joinSecret(@Nullable UUID joinSecret) {
       this.joinSecret = joinSecret;
       return this;
     }
 
-    public @NotNull Builder joinRedeemTime(long time) {
+    public @NonNull Builder joinRedeemTime(long time) {
       this.joinRedeemTime = time;
       return this;
     }
 
-    public @NotNull Builder spectateSecret(@Nullable UUID spectateSecret) {
+    public @NonNull Builder spectateSecret(@Nullable UUID spectateSecret) {
       this.spectateSecret = spectateSecret;
       return this;
     }
 
-    public @NotNull Builder spectateRedeemTime(long time) {
+    public @NonNull Builder spectateRedeemTime(long time) {
       this.spectateRedeemTime = time;
       return this;
     }
 
-    public @NotNull LabyModPlayerOptions build() {
+    public @NonNull LabyModPlayerOptions build() {
       Verify.verifyNotNull(this.version, "Missing version");
 
       return new LabyModPlayerOptions(

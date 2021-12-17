@@ -67,8 +67,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.jar.JarFile;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnmodifiableView;
 
 /**
@@ -104,7 +104,7 @@ public class Wrapper extends CloudNetDriver {
   private ServiceInfoSnapshot lastServiceInfoSnapShot = this.config.serviceInfoSnapshot();
   private ServiceInfoSnapshot currentServiceInfoSnapshot = this.config.serviceInfoSnapshot();
 
-  protected Wrapper(@NotNull String[] args) {
+  protected Wrapper(@NonNull String[] args) {
     super(new ArrayList<>(Arrays.asList(args)));
 
     instance(this);
@@ -134,7 +134,7 @@ public class Wrapper extends CloudNetDriver {
     super.driverEnvironment = DriverEnvironment.WRAPPER;
   }
 
-  public static @NotNull Wrapper instance() {
+  public static @NonNull Wrapper instance() {
     return (Wrapper) CloudNetDriver.instance();
   }
 
@@ -175,12 +175,12 @@ public class Wrapper extends CloudNetDriver {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull String componentName() {
+  public @NonNull String componentName() {
     return this.serviceId().name();
   }
 
   @Override
-  public @NotNull TemplateStorage localTemplateStorage() {
+  public @NonNull TemplateStorage localTemplateStorage() {
     return this.templateStorage(ServiceTemplate.LOCAL_STORAGE);
   }
 
@@ -188,12 +188,12 @@ public class Wrapper extends CloudNetDriver {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull String nodeUniqueId() {
+  public @NonNull String nodeUniqueId() {
     return this.serviceId().nodeUniqueId();
   }
 
   @Override
-  public @NotNull TemplateStorage templateStorage(@NotNull String storage) {
+  public @NonNull TemplateStorage templateStorage(@NonNull String storage) {
     return new RemoteTemplateStorage(storage, this.rpcSender.invokeMethod("templateStorage", storage));
   }
 
@@ -201,7 +201,7 @@ public class Wrapper extends CloudNetDriver {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull Collection<TemplateStorage> availableTemplateStorages() {
+  public @NonNull Collection<TemplateStorage> availableTemplateStorages() {
     return this.rpcSender.invokeMethod("availableTemplateStorages").fireSync();
   }
 
@@ -211,7 +211,7 @@ public class Wrapper extends CloudNetDriver {
    * @see CloudNetDriver#sendCommandLineAsPermissionUser(UUID, String)
    */
   @Override
-  public @NotNull Collection<String> sendCommandLineAsPermissionUser(@NotNull UUID uniqueId, @NotNull String command) {
+  public @NonNull Collection<String> sendCommandLineAsPermissionUser(@NonNull UUID uniqueId, @NonNull String command) {
     return this.rpcSender.invokeMethod("sendCommandLineAsPermissionUser", uniqueId, command).fireSync();
   }
 
@@ -220,7 +220,7 @@ public class Wrapper extends CloudNetDriver {
    *
    * @return the ServiceId instance which was set in the config by the node
    */
-  public @NotNull ServiceId serviceId() {
+  public @NonNull ServiceId serviceId() {
     return this.serviceConfiguration().serviceId();
   }
 
@@ -229,7 +229,7 @@ public class Wrapper extends CloudNetDriver {
    *
    * @return the first instance which was set in the config by the node
    */
-  public @NotNull ServiceConfiguration serviceConfiguration() {
+  public @NonNull ServiceConfiguration serviceConfiguration() {
     return this.config.serviceConfiguration();
   }
 
@@ -239,7 +239,7 @@ public class Wrapper extends CloudNetDriver {
    *
    * @return the new ServiceInfoSnapshot instance
    */
-  @NotNull
+  @NonNull
   public ServiceInfoSnapshot createServiceInfoSnapshot() {
     return new ServiceInfoSnapshot(
       System.currentTimeMillis(),
@@ -276,7 +276,7 @@ public class Wrapper extends CloudNetDriver {
     this.publishServiceInfoUpdate(this.createServiceInfoSnapshot());
   }
 
-  public void publishServiceInfoUpdate(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
+  public void publishServiceInfoUpdate(@NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
     // add configuration stuff when updating the current service snapshot
     if (this.currentServiceInfoSnapshot.serviceId().equals(serviceInfoSnapshot.serviceId())) {
       this.configureServiceInfoSnapshot(serviceInfoSnapshot);
@@ -298,7 +298,7 @@ public class Wrapper extends CloudNetDriver {
    *
    * @param classLoader the ClassLoader from which the IPacketListener implementations derive.
    */
-  public void unregisterPacketListenersByClassLoader(@NotNull ClassLoader classLoader) {
+  public void unregisterPacketListenersByClassLoader(@NonNull ClassLoader classLoader) {
     this.networkClient.packetRegistry().removeListeners(classLoader);
 
     for (var channel : this.networkClient.channels()) {
@@ -394,28 +394,28 @@ public class Wrapper extends CloudNetDriver {
     return true;
   }
 
-  public @NotNull IWrapperConfiguration config() {
+  public @NonNull IWrapperConfiguration config() {
     return this.config;
   }
 
-  public @NotNull Path workingDirectory() {
+  public @NonNull Path workingDirectory() {
     return WORKING_DIRECTORY;
   }
 
   @UnmodifiableView
-  public @NotNull List<String> commandLineArguments() {
+  public @NonNull List<String> commandLineArguments() {
     return Collections.unmodifiableList(this.commandLineArguments);
   }
 
-  public @NotNull Thread mainThread() {
+  public @NonNull Thread mainThread() {
     return this.mainThread;
   }
 
-  public @NotNull ServiceInfoSnapshot lastServiceInfo() {
+  public @NonNull ServiceInfoSnapshot lastServiceInfo() {
     return this.lastServiceInfoSnapShot;
   }
 
-  public @NotNull ServiceInfoSnapshot currentServiceInfo() {
+  public @NonNull ServiceInfoSnapshot currentServiceInfo() {
     return this.currentServiceInfoSnapshot;
   }
 }

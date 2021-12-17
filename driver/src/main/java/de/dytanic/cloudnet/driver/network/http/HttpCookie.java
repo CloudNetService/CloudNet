@@ -18,8 +18,8 @@ package de.dytanic.cloudnet.driver.network.http;
 
 import de.dytanic.cloudnet.common.INameable;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @ToString
@@ -37,13 +37,13 @@ public class HttpCookie implements INameable {
 
   protected final long maxAge;
 
-  public HttpCookie(@NotNull String name, @NotNull String value) {
+  public HttpCookie(@NonNull String name, @NonNull String value) {
     this(name, value, null, null, Long.MAX_VALUE);
   }
 
   public HttpCookie(
-    @NotNull String name,
-    @NotNull String value,
+    @NonNull String name,
+    @NonNull String value,
     @Nullable String domain,
     @Nullable String path,
     long maxAge
@@ -52,8 +52,8 @@ public class HttpCookie implements INameable {
   }
 
   public HttpCookie(
-    @NotNull String name,
-    @NotNull String value,
+    @NonNull String name,
+    @NonNull String value,
     @Nullable String domain,
     @Nullable String path,
     boolean httpOnly,
@@ -72,11 +72,11 @@ public class HttpCookie implements INameable {
   }
 
   @Override
-  public @NotNull String name() {
+  public @NonNull String name() {
     return this.name;
   }
 
-  public @NotNull String value() {
+  public @NonNull String value() {
     return this.value;
   }
 

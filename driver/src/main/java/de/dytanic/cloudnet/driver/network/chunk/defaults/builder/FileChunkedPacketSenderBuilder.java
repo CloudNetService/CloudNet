@@ -22,11 +22,11 @@ import de.dytanic.cloudnet.driver.network.chunk.defaults.DefaultFileChunkPacketS
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class FileChunkedPacketSenderBuilder extends DefaultChunkedPacketSenderBuilder {
 
-  public @NotNull FileChunkedPacketSenderBuilder forFile(@NotNull Path path) {
+  public @NonNull FileChunkedPacketSenderBuilder forFile(@NonNull Path path) {
     try {
       this.source(Files.newInputStream(path));
       return this;
@@ -36,7 +36,7 @@ public class FileChunkedPacketSenderBuilder extends DefaultChunkedPacketSenderBu
   }
 
   @Override
-  protected @NotNull ChunkedPacketSender doBuild() {
+  protected @NonNull ChunkedPacketSender doBuild() {
     return new DefaultFileChunkPacketSender(new ChunkSessionInformation(
       this.chunkSize,
       this.sessionUniqueId,

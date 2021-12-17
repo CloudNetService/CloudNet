@@ -24,6 +24,7 @@ import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
 import eu.cloudnetservice.modules.npc.platform.bukkit.util.ReflectionUtil;
 import java.lang.invoke.MethodHandle;
+import lombok.NonNull;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Villager;
@@ -32,7 +33,6 @@ import org.bukkit.entity.Wither;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.jetbrains.annotations.NotNull;
 
 public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEntity {
 
@@ -55,9 +55,9 @@ public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEn
   protected volatile LivingEntity entity;
 
   public EntityBukkitPlatformSelectorEntity(
-    @NotNull BukkitPlatformNPCManagement npcManagement,
-    @NotNull Plugin plugin,
-    @NotNull NPC npc
+    @NonNull BukkitPlatformNPCManagement npcManagement,
+    @NonNull Plugin plugin,
+    @NonNull NPC npc
   ) {
     super(npcManagement, plugin, npc);
   }
@@ -68,7 +68,7 @@ public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEn
   }
 
   @Override
-  public @NotNull String scoreboardRepresentation() {
+  public @NonNull String scoreboardRepresentation() {
     return this.entity.getUniqueId().toString();
   }
 

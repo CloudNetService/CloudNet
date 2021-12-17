@@ -40,7 +40,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
@@ -52,7 +52,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
   private static final Format TIME_FORMAT = new DecimalFormat("##.###");
   private static final long MAX_NO_UPDATE_MILLIS = Long.getLong("cloudnet.max.node.idle.millis", 30_000);
 
-  public DefaultClusterNodeServerProvider(@NotNull CloudNet cloudNet) {
+  public DefaultClusterNodeServerProvider(@NonNull CloudNet cloudNet) {
     super(cloudNet);
 
     // register the event for channel message handling
@@ -74,7 +74,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
   }
 
   @Override
-  public @Nullable IClusterNodeServer nodeServer(@NotNull INetworkChannel channel) {
+  public @Nullable IClusterNodeServer nodeServer(@NonNull INetworkChannel channel) {
     Preconditions.checkNotNull(channel);
 
     for (var clusterNodeServer : this.nodeServers()) {
@@ -88,7 +88,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
   }
 
   @Override
-  public void clusterServers(@NotNull NetworkCluster networkCluster) {
+  public void clusterServers(@NonNull NetworkCluster networkCluster) {
     for (var clusterNode : networkCluster.nodes()) {
       NodeServer nodeServer = this.nodeServer(clusterNode.uniqueId());
       if (nodeServer != null) {
@@ -112,7 +112,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
   }
 
   @Override
-  public void sendPacket(@NotNull IPacket packet) {
+  public void sendPacket(@NonNull IPacket packet) {
     Preconditions.checkNotNull(packet);
 
     for (var nodeServer : this.nodeServers) {
@@ -121,7 +121,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
   }
 
   @Override
-  public void sendPacketSync(@NotNull IPacket packet) {
+  public void sendPacketSync(@NonNull IPacket packet) {
     Preconditions.checkNotNull(packet);
 
     for (var nodeServer : this.nodeServers) {
@@ -130,9 +130,9 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
   }
 
   @Override
-  public @NotNull ITask<TransferStatus> deployTemplateToCluster(
-    @NotNull ServiceTemplate template,
-    @NotNull InputStream stream,
+  public @NonNull ITask<TransferStatus> deployTemplateToCluster(
+    @NonNull ServiceTemplate template,
+    @NonNull InputStream stream,
     boolean overwrite
   ) {
     // collect all known & available channels in the cluster
@@ -153,9 +153,9 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
   }
 
   @Override
-  public @NotNull ITask<TransferStatus> deployStaticServiceToCluster(
-    @NotNull String name,
-    @NotNull InputStream stream,
+  public @NonNull ITask<TransferStatus> deployStaticServiceToCluster(
+    @NonNull String name,
+    @NonNull InputStream stream,
     boolean overwrite
   ) {
     // collect all known & available channels in the cluster
@@ -176,7 +176,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
 
   @Override
   @UnmodifiableView
-  public @NotNull Collection<INetworkChannel> connectedChannels() {
+  public @NonNull Collection<INetworkChannel> connectedChannels() {
     return this.nodeServers().stream()
       .map(IClusterNodeServer::channel)
       .filter(Objects::nonNull)
@@ -229,7 +229,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
     this.refreshHeadNode();
   }
 
-  private @NotNull Collection<INetworkChannel> collectClusterChannel() {
+  private @NonNull Collection<INetworkChannel> collectClusterChannel() {
     if (!this.nodeServers.isEmpty()) {
       // collect the network channels of the connected nodes
       return this.nodeServers

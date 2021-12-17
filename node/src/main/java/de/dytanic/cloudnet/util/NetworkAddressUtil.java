@@ -24,7 +24,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Set;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class NetworkAddressUtil {
 
@@ -34,7 +34,7 @@ public final class NetworkAddressUtil {
     throw new UnsupportedOperationException();
   }
 
-  public static @NotNull Set<String> availableIPAddresses() {
+  public static @NonNull Set<String> availableIPAddresses() {
     try {
       Set<String> addresses = new HashSet<>();
       // try to resolve all ip addresses available on the system
@@ -57,7 +57,7 @@ public final class NetworkAddressUtil {
     return LOCAL_ADDRESS;
   }
 
-  private static @NotNull String findLocalAddress() {
+  private static @NonNull String findLocalAddress() {
     try {
       return hostAddress(InetAddress.getLocalHost());
     } catch (UnknownHostException exception) {
@@ -65,7 +65,7 @@ public final class NetworkAddressUtil {
     }
   }
 
-  private static @NotNull String hostAddress(@NotNull InetAddress address) {
+  private static @NonNull String hostAddress(@NonNull InetAddress address) {
     if (address instanceof Inet6Address) {
       // get the host address of the inet address
       var hostAddress = address.getHostAddress();

@@ -19,12 +19,12 @@ package de.dytanic.cloudnet.driver.network.netty.http;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.http.IHttpChannel;
 import io.netty.channel.Channel;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public record NettyHttpChannel(
-  @NotNull Channel channel,
-  @NotNull HostAndPort serverAddress,
-  @NotNull HostAndPort clientAddress
+  @NonNull Channel channel,
+  @NonNull HostAndPort serverAddress,
+  @NonNull HostAndPort clientAddress
 ) implements IHttpChannel {
 
   @Override

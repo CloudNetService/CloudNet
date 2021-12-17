@@ -22,6 +22,7 @@ import com.github.juliarn.npc.event.PlayerNPCInteractEvent.Hand;
 import com.github.juliarn.npc.modifier.LabyModModifier.LabyModAction;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
 import java.util.concurrent.ThreadLocalRandom;
+import lombok.NonNull;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
@@ -31,19 +32,18 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class BukkitFunctionalityListener implements Listener {
 
   private final BukkitPlatformNPCManagement management;
 
-  public BukkitFunctionalityListener(@NotNull BukkitPlatformNPCManagement management) {
+  public BukkitFunctionalityListener(@NonNull BukkitPlatformNPCManagement management) {
     this.management = management;
   }
 
   @EventHandler
-  public void handle(@NotNull PlayerNPCInteractEvent event) {
+  public void handle(@NonNull PlayerNPCInteractEvent event) {
     if (event.getHand() == Hand.MAIN_HAND && event.getUseAction() != EntityUseAction.INTERACT_AT) {
       this.handleClick(
         event.getPlayer(),
@@ -54,7 +54,7 @@ public final class BukkitFunctionalityListener implements Listener {
   }
 
   @EventHandler
-  public void handle(@NotNull PlayerInteractEntityEvent event) {
+  public void handle(@NonNull PlayerInteractEntityEvent event) {
     this.handleClick(
       event.getPlayer(),
       event,
@@ -63,7 +63,7 @@ public final class BukkitFunctionalityListener implements Listener {
   }
 
   @EventHandler(ignoreCancelled = true)
-  public void handle(@NotNull EntityDamageByEntityEvent event) {
+  public void handle(@NonNull EntityDamageByEntityEvent event) {
     if (event.getDamager() instanceof Player) {
       this.handleClick(
         (Player) event.getDamager(),
@@ -74,7 +74,7 @@ public final class BukkitFunctionalityListener implements Listener {
   }
 
   @EventHandler
-  public void handle(@NotNull InventoryClickEvent event) {
+  public void handle(@NonNull InventoryClickEvent event) {
     var item = event.getCurrentItem();
     var inv = event.getClickedInventory();
     var clicker = event.getWhoClicked();
@@ -91,12 +91,12 @@ public final class BukkitFunctionalityListener implements Listener {
   }
 
   @EventHandler(priority = EventPriority.LOWEST)
-  public void handle(@NotNull PlayerJoinEvent event) {
+  public void handle(@NonNull PlayerJoinEvent event) {
     event.getPlayer().setScoreboard(this.management.scoreboard());
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
-  public void playOnJoinEmoteIds(@NotNull PlayerJoinEvent event) {
+  public void playOnJoinEmoteIds(@NonNull PlayerJoinEvent event) {
     var entry = this.management.applicableNPCConfigurationEntry();
     if (entry != null) {
       var onJoinEmoteIds = entry.emoteConfiguration().onJoinEmoteIds();
@@ -120,7 +120,7 @@ public final class BukkitFunctionalityListener implements Listener {
     }
   }
 
-  private void handleClick(@NotNull Player player, @Nullable Cancellable cancellable, int entityId, boolean left) {
+  private void handleClick(@NonNull Player player, @Nullable Cancellable cancellable, int entityId, boolean left) {
     management.trackedEntities().values().stream()
       .filter(npc -> npc.entityId() == entityId)
       .findFirst()

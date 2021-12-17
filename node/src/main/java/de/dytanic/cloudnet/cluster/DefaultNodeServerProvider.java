@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class DefaultNodeServerProvider<T extends NodeServer> implements NodeServerProvider<T> {
@@ -32,7 +32,7 @@ public abstract class DefaultNodeServerProvider<T extends NodeServer> implements
 
   protected volatile NodeServer headNode;
 
-  public DefaultNodeServerProvider(@NotNull CloudNet cloudNet) {
+  public DefaultNodeServerProvider(@NonNull CloudNet cloudNet) {
     this.cloudNet = cloudNet;
     this.localNode = new LocalNodeServer(cloudNet, this);
 
@@ -40,12 +40,12 @@ public abstract class DefaultNodeServerProvider<T extends NodeServer> implements
   }
 
   @Override
-  public @NotNull Collection<T> nodeServers() {
+  public @NonNull Collection<T> nodeServers() {
     return Collections.unmodifiableCollection(this.nodeServers);
   }
 
   @Override
-  public @Nullable T nodeServer(@NotNull String uniqueId) {
+  public @Nullable T nodeServer(@NonNull String uniqueId) {
     for (var nodeServer : this.nodeServers) {
       if (nodeServer.nodeInfo().uniqueId().equals(uniqueId)) {
         return nodeServer;
@@ -55,12 +55,12 @@ public abstract class DefaultNodeServerProvider<T extends NodeServer> implements
   }
 
   @Override
-  public @NotNull NodeServer headnode() {
+  public @NonNull NodeServer headnode() {
     return this.headNode;
   }
 
   @Override
-  public @NotNull LocalNodeServer selfNode() {
+  public @NonNull LocalNodeServer selfNode() {
     return this.localNode;
   }
 

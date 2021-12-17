@@ -22,30 +22,30 @@ import de.dytanic.cloudnet.ext.bridge.player.CloudPlayer;
 import de.dytanic.cloudnet.ext.bridge.player.PlayerProvider;
 import java.util.Collection;
 import java.util.UUID;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 final class PlatformPlayerProvider implements PlayerProvider {
 
   private final RPC baseRPC;
   private final RPCSender sender;
 
-  public PlatformPlayerProvider(@NotNull RPC baseRPC) {
+  public PlatformPlayerProvider(@NonNull RPC baseRPC) {
     this.baseRPC = baseRPC;
     this.sender = baseRPC.sender().factory().providerForClass(null, PlayerProvider.class);
   }
 
   @Override
-  public @NotNull Collection<? extends CloudPlayer> players() {
+  public @NonNull Collection<? extends CloudPlayer> players() {
     return this.baseRPC.join(this.sender.invokeMethod("players")).fireSync();
   }
 
   @Override
-  public @NotNull Collection<UUID> uniqueIds() {
+  public @NonNull Collection<UUID> uniqueIds() {
     return this.baseRPC.join(this.sender.invokeMethod("uniqueIds")).fireSync();
   }
 
   @Override
-  public @NotNull Collection<String> names() {
+  public @NonNull Collection<String> names() {
     return this.baseRPC.join(this.sender.invokeMethod("names")).fireSync();
   }
 

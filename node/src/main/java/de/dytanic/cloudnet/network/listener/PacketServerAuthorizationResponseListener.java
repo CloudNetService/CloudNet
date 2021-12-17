@@ -27,14 +27,14 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.network.NodeNetworkUtils;
 import java.util.Arrays;
 import java.util.Objects;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class PacketServerAuthorizationResponseListener implements IPacketListener {
 
   private static final Logger LOGGER = LogManager.logger(PacketServerAuthorizationResponseListener.class);
 
   @Override
-  public void handle(@NotNull INetworkChannel channel, @NotNull IPacket packet) {
+  public void handle(@NonNull INetworkChannel channel, @NonNull IPacket packet) {
     // check if the auth was successful
     if (packet.content().readBoolean()) {
       // search for the node to which the auth succeeded

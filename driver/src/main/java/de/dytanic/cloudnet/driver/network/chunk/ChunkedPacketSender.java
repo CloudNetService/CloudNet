@@ -25,38 +25,38 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.function.Consumer;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public interface ChunkedPacketSender extends ChunkedPacketProvider {
 
-  static @NotNull FileChunkedPacketSenderBuilder forFileTransfer() {
+  static @NonNull FileChunkedPacketSenderBuilder forFileTransfer() {
     return new FileChunkedPacketSenderBuilder();
   }
 
-  @NotNull InputStream source();
+  @NonNull InputStream source();
 
-  @NotNull Consumer<IPacket> packetSplitter();
+  @NonNull Consumer<IPacket> packetSplitter();
 
-  @NotNull ITask<TransferStatus> transferChunkedData();
+  @NonNull ITask<TransferStatus> transferChunkedData();
 
   interface Builder {
 
-    @NotNull Builder chunkSize(int chunkSize);
+    @NonNull Builder chunkSize(int chunkSize);
 
-    @NotNull Builder sessionUniqueId(@NotNull UUID uuid);
+    @NonNull Builder sessionUniqueId(@NonNull UUID uuid);
 
-    @NotNull Builder transferChannel(@NotNull String transferChannel);
+    @NonNull Builder transferChannel(@NonNull String transferChannel);
 
-    @NotNull Builder source(@NotNull InputStream source);
+    @NonNull Builder source(@NonNull InputStream source);
 
-    @NotNull Builder toChannels(INetworkChannel @NotNull ... channels);
+    @NonNull Builder toChannels(INetworkChannel @NonNull ... channels);
 
-    @NotNull Builder toChannels(@NotNull Collection<INetworkChannel> channels);
+    @NonNull Builder toChannels(@NonNull Collection<INetworkChannel> channels);
 
-    @NotNull Builder packetSplitter(@NotNull Consumer<IPacket> splitter);
+    @NonNull Builder packetSplitter(@NonNull Consumer<IPacket> splitter);
 
-    @NotNull Builder withExtraData(@NotNull DataBuf extraData);
+    @NonNull Builder withExtraData(@NonNull DataBuf extraData);
 
-    @NotNull ChunkedPacketSender build();
+    @NonNull ChunkedPacketSender build();
   }
 }

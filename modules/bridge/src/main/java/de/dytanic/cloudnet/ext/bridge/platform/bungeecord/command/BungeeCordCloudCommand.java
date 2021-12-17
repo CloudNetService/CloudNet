@@ -20,22 +20,22 @@ import static net.md_5.bungee.api.chat.TextComponent.fromLegacyText;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.bridge.platform.PlatformBridgeManagement;
+import lombok.NonNull;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
-import org.jetbrains.annotations.NotNull;
 
 public final class BungeeCordCloudCommand extends Command {
 
   private final PlatformBridgeManagement<?, ?> management;
 
-  public BungeeCordCloudCommand(@NotNull PlatformBridgeManagement<?, ?> management) {
+  public BungeeCordCloudCommand(@NonNull PlatformBridgeManagement<?, ?> management) {
     super("cloudnet", "cloudnet.command.cloudnet", "cloud");
     this.management = management;
   }
 
   @Override
-  public void execute(@NotNull CommandSender sender, String @NotNull [] args) {
+  public void execute(@NonNull CommandSender sender, String @NonNull [] args) {
     // check if any arguments are provided
     if (args.length == 0) {
       // <prefix> /cloudnet <command>

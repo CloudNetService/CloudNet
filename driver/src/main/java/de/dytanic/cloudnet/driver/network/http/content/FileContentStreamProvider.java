@@ -22,13 +22,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-record FileContentStreamProvider(@NotNull Path workingDirectory) implements ContentStreamProvider {
+record FileContentStreamProvider(@NonNull Path workingDirectory) implements ContentStreamProvider {
 
   @Override
-  public @Nullable StreamableContent provideContent(@NotNull String path) {
+  public @Nullable StreamableContent provideContent(@NonNull String path) {
     var targetPath = this.workingDirectory.resolve(path);
     if (Files.notExists(targetPath) || Files.isDirectory(targetPath)) {
       return null;
@@ -49,12 +49,12 @@ record FileContentStreamProvider(@NotNull Path workingDirectory) implements Cont
     }
 
     @Override
-    public @NotNull InputStream openStream() throws IOException {
+    public @NonNull InputStream openStream() throws IOException {
       return Files.newInputStream(this.path);
     }
 
     @Override
-    public @NotNull String contentType() {
+    public @NonNull String contentType() {
       return this.contentType;
     }
   }

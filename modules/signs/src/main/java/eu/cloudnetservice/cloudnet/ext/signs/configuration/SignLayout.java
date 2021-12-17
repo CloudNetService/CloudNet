@@ -16,12 +16,12 @@
 
 package eu.cloudnetservice.cloudnet.ext.signs.configuration;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public record SignLayout(
-  @NotNull String[] lines,
-  @NotNull String blockMaterial,
+  @NonNull String[] lines,
+  @NonNull String blockMaterial,
   int blockSubId,
   @Nullable String glowingColor
 ) {

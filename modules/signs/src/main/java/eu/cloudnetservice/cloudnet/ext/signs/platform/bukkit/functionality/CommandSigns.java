@@ -24,11 +24,11 @@ import eu.cloudnetservice.cloudnet.ext.signs.platform.PlatformSignManagement;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
+import lombok.NonNull;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 public class CommandSigns extends BaseTabExecutor {
 
@@ -130,7 +130,7 @@ public class CommandSigns extends BaseTabExecutor {
   }
 
   @Override
-  public @NotNull Collection<String> tabComplete(@NotNull CommandSender sender, String @NotNull [] args) {
+  public @NonNull Collection<String> tabComplete(@NonNull CommandSender sender, String @NonNull [] args) {
     if (args.length == 1) {
       // filter for all strings that partially match the input of the player
       return Arrays.asList("create", "remove", "removeall", "cleanup");

@@ -21,16 +21,16 @@ import de.dytanic.cloudnet.driver.util.FileMimeTypeHelper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 record ClassLoaderContentStreamProvider(
-  @NotNull String pathPrefix,
-  @NotNull ClassLoader contentSource
+  @NonNull String pathPrefix,
+  @NonNull ClassLoader contentSource
 ) implements ContentStreamProvider {
 
   @Override
-  public @Nullable StreamableContent provideContent(@NotNull String path) {
+  public @Nullable StreamableContent provideContent(@NonNull String path) {
     var resourceLocation = this.pathPrefix + path;
     Preconditions.checkArgument(!resourceLocation.contains(".."), "File traversal for path " + path);
 
@@ -41,16 +41,16 @@ record ClassLoaderContentStreamProvider(
   }
 
   private record URLStreamableContent(
-    @NotNull String contentType,
-    @NotNull URL contentLocationUrl
+    @NonNull String contentType,
+    @NonNull URL contentLocationUrl
   ) implements StreamableContent {
 
-    public static @NotNull URLStreamableContent of(@NotNull String contentType, @NotNull URL contentLocationUrl) {
+    public static @NonNull URLStreamableContent of(@NonNull String contentType, @NonNull URL contentLocationUrl) {
       return new URLStreamableContent(contentType + "; charset=UTF-8", contentLocationUrl);
     }
 
     @Override
-    public @NotNull InputStream openStream() throws IOException {
+    public @NonNull InputStream openStream() throws IOException {
       return this.contentLocationUrl.openStream();
     }
   }

@@ -16,12 +16,12 @@
 
 package de.dytanic.cloudnet.driver.network.http;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public interface IMethodHttpHandler extends IHttpHandler {
 
   @Override
-  default void handle(@NotNull String path, @NotNull IHttpContext context) throws Exception {
+  default void handle(@NonNull String path, @NonNull IHttpContext context) throws Exception {
     switch (context.request().method().toUpperCase()) {
       case "GET" -> this.handleGet(path, context);
       case "POST" -> this.handlePost(path, context);
@@ -37,21 +37,21 @@ public interface IMethodHttpHandler extends IHttpHandler {
     }
   }
 
-  void handlePost(@NotNull String path, @NotNull IHttpContext context) throws Exception;
+  void handlePost(@NonNull String path, @NonNull IHttpContext context) throws Exception;
 
-  void handleGet(@NotNull String path, @NotNull IHttpContext context) throws Exception;
+  void handleGet(@NonNull String path, @NonNull IHttpContext context) throws Exception;
 
-  void handlePut(@NotNull String path, @NotNull IHttpContext context) throws Exception;
+  void handlePut(@NonNull String path, @NonNull IHttpContext context) throws Exception;
 
-  void handleHead(@NotNull String path, @NotNull IHttpContext context) throws Exception;
+  void handleHead(@NonNull String path, @NonNull IHttpContext context) throws Exception;
 
-  void handleDelete(@NotNull String path, @NotNull IHttpContext context) throws Exception;
+  void handleDelete(@NonNull String path, @NonNull IHttpContext context) throws Exception;
 
-  void handlePatch(@NotNull String path, @NotNull IHttpContext context) throws Exception;
+  void handlePatch(@NonNull String path, @NonNull IHttpContext context) throws Exception;
 
-  void handleTrace(@NotNull String path, @NotNull IHttpContext context) throws Exception;
+  void handleTrace(@NonNull String path, @NonNull IHttpContext context) throws Exception;
 
-  void handleOptions(@NotNull String path, @NotNull IHttpContext context) throws Exception;
+  void handleOptions(@NonNull String path, @NonNull IHttpContext context) throws Exception;
 
-  void handleConnect(@NotNull String path, @NotNull IHttpContext context) throws Exception;
+  void handleConnect(@NonNull String path, @NonNull IHttpContext context) throws Exception;
 }

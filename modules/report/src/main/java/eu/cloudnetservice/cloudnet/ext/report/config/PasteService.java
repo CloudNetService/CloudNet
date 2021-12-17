@@ -21,15 +21,15 @@ import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import kong.unirest.Unirest;
 import kong.unirest.UnirestException;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public record PasteService(@NotNull String name, @NotNull String serviceUrl) implements INameable {
+public record PasteService(@NonNull String name, @NonNull String serviceUrl) implements INameable {
 
   public static final PasteService FALLBACK = new PasteService("fallback", "https://just-paste.it");
   private static final Logger LOGGER = LogManager.logger(PasteService.class);
 
-  public PasteService(@NotNull String name, @NotNull String serviceUrl) {
+  public PasteService(@NonNull String name, @NonNull String serviceUrl) {
     this.name = name;
     this.serviceUrl = serviceUrl.endsWith("/") ? serviceUrl.substring(0, serviceUrl.length() - 1) : serviceUrl;
   }
@@ -40,7 +40,7 @@ public record PasteService(@NotNull String name, @NotNull String serviceUrl) imp
    * @param content the content to upload to this service
    * @return the result of the upload - null if the content is empty or the upload failed
    */
-  public @Nullable String pasteToService(@NotNull String content) {
+  public @Nullable String pasteToService(@NonNull String content) {
     if (content.trim().isEmpty()) {
       return null;
     }

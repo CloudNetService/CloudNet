@@ -19,28 +19,28 @@ package de.dytanic.cloudnet.driver.network.rpc.defaults.handler;
 import de.dytanic.cloudnet.driver.network.rpc.RPCHandler;
 import de.dytanic.cloudnet.driver.network.rpc.RPCHandler.HandlingResult;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.MethodInformation;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public record DefaultHandlingResult(
   boolean wasSuccessful,
   @Nullable Object invocationResult,
-  @NotNull RPCHandler invocationHandler,
-  @NotNull MethodInformation targetMethodInformation
+  @NonNull RPCHandler invocationHandler,
+  @NonNull MethodInformation targetMethodInformation
 ) implements HandlingResult {
 
-  public static @NotNull HandlingResult success(
-    @NotNull MethodInformation methodInformation,
-    @NotNull RPCHandler invocationHandler,
+  public static @NonNull HandlingResult success(
+    @NonNull MethodInformation methodInformation,
+    @NonNull RPCHandler invocationHandler,
     @Nullable Object result
   ) {
     return new DefaultHandlingResult(true, result, invocationHandler, methodInformation);
   }
 
-  public static @NotNull HandlingResult failure(
-    @NotNull MethodInformation information,
-    @NotNull RPCHandler invocationHandler,
-    @NotNull Throwable result
+  public static @NonNull HandlingResult failure(
+    @NonNull MethodInformation information,
+    @NonNull RPCHandler invocationHandler,
+    @NonNull Throwable result
   ) {
     return new DefaultHandlingResult(false, result, invocationHandler, information);
   }

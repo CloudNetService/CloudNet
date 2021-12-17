@@ -27,7 +27,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.permission.Subject;
@@ -213,11 +213,11 @@ public abstract class PermissibleSubjectData<T extends IPermissible> implements 
     return CompletableFuture.completedFuture(true); // not supported
   }
 
-  protected void updateIfEnabled(@NotNull T data) {
+  protected void updateIfEnabled(@NonNull T data) {
     if (this.allowModify) {
       this.update(data);
     }
   }
 
-  protected abstract void update(@NotNull T data);
+  protected abstract void update(@NonNull T data);
 }

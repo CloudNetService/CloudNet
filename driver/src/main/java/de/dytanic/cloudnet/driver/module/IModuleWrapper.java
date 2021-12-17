@@ -22,7 +22,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Unmodifiable;
 
 /**
@@ -35,7 +35,7 @@ public interface IModuleWrapper {
    *
    * @return an immutable map of all module tasks which were detected in the main class of the module.
    */
-  @NotNull
+  @NonNull
   @Unmodifiable Map<ModuleLifeCycle, List<IModuleTaskEntry>> moduleTasks();
 
   /**
@@ -43,7 +43,7 @@ public interface IModuleWrapper {
    *
    * @return an immutable set of all modules this module is depending on.
    */
-  @NotNull
+  @NonNull
   @Unmodifiable Set<ModuleDependency> dependingModules();
 
   /**
@@ -51,35 +51,35 @@ public interface IModuleWrapper {
    *
    * @return the wrapped module instance of this wrapper.
    */
-  @NotNull IModule module();
+  @NonNull IModule module();
 
   /**
    * Get the current lifecycle of this wrapper.
    *
    * @return the current lifecycle of this wrapper.
    */
-  @NotNull ModuleLifeCycle moduleLifeCycle();
+  @NonNull ModuleLifeCycle moduleLifeCycle();
 
   /**
    * Get the module provider which loaded this module.
    *
    * @return the module provider which loaded this module.
    */
-  @NotNull IModuleProvider moduleProvider();
+  @NonNull IModuleProvider moduleProvider();
 
   /**
    * Get the module configuration on which base the module was created.
    *
    * @return the module configuration on which base the module was created.
    */
-  @NotNull ModuleConfiguration moduleConfiguration();
+  @NonNull ModuleConfiguration moduleConfiguration();
 
   /**
    * Get the class loader which is responsible for this module.
    *
    * @return the class loader which is responsible for this module.
    */
-  @NotNull ClassLoader classLoader();
+  @NonNull ClassLoader classLoader();
 
   /**
    * Changes the lifecycle of this module to {@link ModuleLifeCycle#LOADED} if possible and fires all associated tasks.
@@ -89,7 +89,7 @@ public interface IModuleWrapper {
    * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
    * @see IModuleProvider#notifyPreModuleLifecycleChange(IModuleWrapper, ModuleLifeCycle)
    */
-  @NotNull IModuleWrapper loadModule();
+  @NonNull IModuleWrapper loadModule();
 
   /**
    * Changes the lifecycle of this module to {@link ModuleLifeCycle#STARTED} if possible and fires all associated
@@ -100,7 +100,7 @@ public interface IModuleWrapper {
    * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
    * @see IModuleProvider#notifyPreModuleLifecycleChange(IModuleWrapper, ModuleLifeCycle)
    */
-  @NotNull IModuleWrapper startModule();
+  @NonNull IModuleWrapper startModule();
 
   /**
    * Changes the lifecycle of this module to {@link ModuleLifeCycle#RELOADING} if possible and fires all associated
@@ -111,7 +111,7 @@ public interface IModuleWrapper {
    * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
    * @see IModuleProvider#notifyPreModuleLifecycleChange(IModuleWrapper, ModuleLifeCycle)
    */
-  @NotNull IModuleWrapper reloadModule();
+  @NonNull IModuleWrapper reloadModule();
 
   /**
    * Changes the lifecycle of this module to {@link ModuleLifeCycle#STOPPED} if possible and fires all associated
@@ -122,7 +122,7 @@ public interface IModuleWrapper {
    * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
    * @see IModuleProvider#notifyPreModuleLifecycleChange(IModuleWrapper, ModuleLifeCycle)
    */
-  @NotNull IModuleWrapper stopModule();
+  @NonNull IModuleWrapper stopModule();
 
   /**
    * Changes the lifecycle of this module to {@link ModuleLifeCycle#UNLOADED} if possible and fires all associated
@@ -134,26 +134,26 @@ public interface IModuleWrapper {
    * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
    * @see IModuleProvider#notifyPreModuleLifecycleChange(IModuleWrapper, ModuleLifeCycle)
    */
-  @NotNull IModuleWrapper unloadModule();
+  @NonNull IModuleWrapper unloadModule();
 
   /**
    * Get the data directory of this module in which the module should store its configuration files.
    *
    * @return the data directory of this module.
    */
-  @NotNull Path dataDirectory();
+  @NonNull Path dataDirectory();
 
   /**
    * Get the url from where the module was loaded.
    *
    * @return the url from where the module was loaded.
    */
-  @NotNull URL url();
+  @NonNull URL url();
 
   /**
    * Get the uri from where the module was loaded.
    *
    * @return the uri from where the module was loaded.
    */
-  @NotNull URI uri();
+  @NonNull URI uri();
 }

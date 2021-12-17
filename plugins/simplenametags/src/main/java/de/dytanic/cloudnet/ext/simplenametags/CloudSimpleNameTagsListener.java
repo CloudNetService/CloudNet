@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.permission.PermissionUpdateGroupEvent;
 import de.dytanic.cloudnet.driver.event.events.permission.PermissionUpdateUserEvent;
 import java.util.concurrent.Executor;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class CloudSimpleNameTagsListener<P> {
 
@@ -29,8 +29,8 @@ public final class CloudSimpleNameTagsListener<P> {
   private final SimpleNameTagsManager<P> nameTagsManager;
 
   public CloudSimpleNameTagsListener(
-    @NotNull Executor syncTaskExecutor,
-    @NotNull SimpleNameTagsManager<P> nameTagsManager
+    @NonNull Executor syncTaskExecutor,
+    @NonNull SimpleNameTagsManager<P> nameTagsManager
   ) {
     this.syncTaskExecutor = syncTaskExecutor;
     this.nameTagsManager = nameTagsManager;

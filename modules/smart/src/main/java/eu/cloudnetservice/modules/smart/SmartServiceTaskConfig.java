@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.smart;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public record SmartServiceTaskConfig(
   boolean enabled,
@@ -26,18 +26,18 @@ public record SmartServiceTaskConfig(
   int smartMinServiceCount,
   boolean splitLogicallyOverNodes,
   boolean directTemplatesAndInclusionsSetup,
-  @NotNull TemplateInstaller templateInstaller,
+  @NonNull TemplateInstaller templateInstaller,
   int autoStopTimeByUnusedServiceInSeconds,
   int percentOfPlayersToCheckShouldStopTheService,
   int forAnewInstanceDelayTimeInSeconds,
   int percentOfPlayersForANewServiceByInstance
 ) implements Comparable<SmartServiceTaskConfig> {
 
-  public static @NotNull Builder builder() {
+  public static @NonNull Builder builder() {
     return new Builder();
   }
 
-  public static @NotNull Builder builder(@NotNull SmartServiceTaskConfig config) {
+  public static @NonNull Builder builder(@NonNull SmartServiceTaskConfig config) {
     return builder()
       .enabled(config.enabled())
       .priority(config.priority())
@@ -58,7 +58,7 @@ public record SmartServiceTaskConfig(
   }
 
   @Override
-  public int compareTo(@NotNull SmartServiceTaskConfig other) {
+  public int compareTo(@NonNull SmartServiceTaskConfig other) {
     return Integer.compare(this.priority, other.priority);
   }
 
@@ -89,67 +89,67 @@ public record SmartServiceTaskConfig(
     private int forAnewInstanceDelayTimeInSeconds = 300;
     private int percentOfPlayersForANewServiceByInstance = 100;
 
-    public @NotNull Builder enabled(boolean enabled) {
+    public @NonNull Builder enabled(boolean enabled) {
       this.enabled = enabled;
       return this;
     }
 
-    public @NotNull Builder priority(int priority) {
+    public @NonNull Builder priority(int priority) {
       this.priority = priority;
       return this;
     }
 
-    public @NotNull Builder maxServices(int maxServices) {
+    public @NonNull Builder maxServices(int maxServices) {
       this.maxServices = maxServices;
       return this;
     }
 
-    public @NotNull Builder preparedServices(int preparedServices) {
+    public @NonNull Builder preparedServices(int preparedServices) {
       this.preparedServices = preparedServices;
       return this;
     }
 
-    public @NotNull Builder smartMinServiceCount(int smartMinServiceCount) {
+    public @NonNull Builder smartMinServiceCount(int smartMinServiceCount) {
       this.smartMinServiceCount = smartMinServiceCount;
       return this;
     }
 
-    public @NotNull Builder splitLogicallyOverNodes(boolean splitLogicallyOverNodes) {
+    public @NonNull Builder splitLogicallyOverNodes(boolean splitLogicallyOverNodes) {
       this.splitLogicallyOverNodes = splitLogicallyOverNodes;
       return this;
     }
 
-    public @NotNull Builder directTemplatesAndInclusionsSetup(boolean directTemplatesAndInclusionsSetup) {
+    public @NonNull Builder directTemplatesAndInclusionsSetup(boolean directTemplatesAndInclusionsSetup) {
       this.directTemplatesAndInclusionsSetup = directTemplatesAndInclusionsSetup;
       return this;
     }
 
-    public @NotNull Builder templateInstaller(@NotNull TemplateInstaller templateInstaller) {
+    public @NonNull Builder templateInstaller(@NonNull TemplateInstaller templateInstaller) {
       this.templateInstaller = templateInstaller;
       return this;
     }
 
-    public @NotNull Builder autoStopTimeByUnusedServiceInSeconds(int autoStopTimeByUnusedServiceInSeconds) {
+    public @NonNull Builder autoStopTimeByUnusedServiceInSeconds(int autoStopTimeByUnusedServiceInSeconds) {
       this.autoStopTimeByUnusedServiceInSeconds = autoStopTimeByUnusedServiceInSeconds;
       return this;
     }
 
-    public @NotNull Builder percentOfPlayersToCheckShouldStop(int percentOfPlayersToCheckShouldStopTheService) {
+    public @NonNull Builder percentOfPlayersToCheckShouldStop(int percentOfPlayersToCheckShouldStopTheService) {
       this.percentOfPlayersToCheckShouldStopTheService = percentOfPlayersToCheckShouldStopTheService;
       return this;
     }
 
-    public @NotNull Builder forAnewInstanceDelayTimeInSeconds(int forAnewInstanceDelayTimeInSeconds) {
+    public @NonNull Builder forAnewInstanceDelayTimeInSeconds(int forAnewInstanceDelayTimeInSeconds) {
       this.forAnewInstanceDelayTimeInSeconds = forAnewInstanceDelayTimeInSeconds;
       return this;
     }
 
-    public @NotNull Builder percentOfPlayersForANewServiceByInstance(int percentOfPlayersForANewServiceByInstance) {
+    public @NonNull Builder percentOfPlayersForANewServiceByInstance(int percentOfPlayersForANewServiceByInstance) {
       this.percentOfPlayersForANewServiceByInstance = percentOfPlayersForANewServiceByInstance;
       return this;
     }
 
-    public @NotNull SmartServiceTaskConfig build() {
+    public @NonNull SmartServiceTaskConfig build() {
       return new SmartServiceTaskConfig(
         this.enabled,
         this.priority,

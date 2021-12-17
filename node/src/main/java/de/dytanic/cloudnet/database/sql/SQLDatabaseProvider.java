@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class SQLDatabaseProvider extends AbstractDatabaseProvider {
@@ -45,7 +45,7 @@ public abstract class SQLDatabaseProvider extends AbstractDatabaseProvider {
   }
 
   @Override
-  public boolean containsDatabase(@NotNull String name) {
+  public boolean containsDatabase(@NonNull String name) {
     this.removedOutdatedEntries();
     for (var database : this.databaseNames()) {
       if (database.equalsIgnoreCase(name)) {
@@ -71,12 +71,12 @@ public abstract class SQLDatabaseProvider extends AbstractDatabaseProvider {
     }
   }
 
-  public abstract @NotNull Connection connection();
+  public abstract @NonNull Connection connection();
 
-  public abstract int executeUpdate(@NotNull String query, @NotNull Object... objects);
+  public abstract int executeUpdate(@NonNull String query, @NonNull Object... objects);
 
   public abstract <T> T executeQuery(
-    @NotNull String query,
-    @NotNull ThrowableFunction<ResultSet, T, SQLException> callback,
-    @NotNull Object... objects);
+    @NonNull String query,
+    @NonNull ThrowableFunction<ResultSet, T, SQLException> callback,
+    @NonNull Object... objects);
 }

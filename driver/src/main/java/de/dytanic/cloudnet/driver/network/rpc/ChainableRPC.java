@@ -16,12 +16,12 @@
 
 package de.dytanic.cloudnet.driver.network.rpc;
 
+import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 public interface ChainableRPC extends RPCProvider {
 
-  @NotNull
+  @NonNull
   @Contract("_ -> new")
-  RPCChain join(@NotNull RPC rpc);
+  RPCChain join(@NonNull RPC rpc);
 }

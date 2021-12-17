@@ -38,8 +38,8 @@ import de.dytanic.cloudnet.ext.bridge.player.CloudPlayer;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerProxyInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import java.util.Locale;
+import lombok.NonNull;
 import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.NotNull;
 
 public final class NodePlayerChannelMessageListener {
 
@@ -48,9 +48,9 @@ public final class NodePlayerChannelMessageListener {
   private final BridgeManagement bridgeManagement;
 
   public NodePlayerChannelMessageListener(
-    @NotNull IEventManager eventManager,
-    @NotNull NodePlayerManager playerManager,
-    @NotNull BridgeManagement bridgeManagement
+    @NonNull IEventManager eventManager,
+    @NonNull NodePlayerManager playerManager,
+    @NonNull BridgeManagement bridgeManagement
   ) {
     this.eventManager = eventManager;
     this.playerManager = playerManager;
@@ -58,7 +58,7 @@ public final class NodePlayerChannelMessageListener {
   }
 
   @EventListener
-  public void handle(@NotNull ChannelMessageReceiveEvent event) {
+  public void handle(@NonNull ChannelMessageReceiveEvent event) {
     if (event.channel().equals(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)) {
       // a message regarding a player event
       switch (event.message()) {

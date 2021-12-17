@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import lombok.NonNull;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.ProxyServer;
@@ -37,13 +38,12 @@ import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.event.PermissionCheckEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent.Reason;
 import net.md_5.bungee.api.score.Scoreboard;
-import org.jetbrains.annotations.NotNull;
 
 public final class PendingConnectionProxiedPlayer implements ProxiedPlayer {
 
   private final PendingConnection connection;
 
-  public PendingConnectionProxiedPlayer(@NotNull PendingConnection connection) {
+  public PendingConnectionProxiedPlayer(@NonNull PendingConnection connection) {
     this.connection = connection;
   }
 

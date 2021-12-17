@@ -24,8 +24,8 @@ import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerProxyInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.UUID;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 
 @Internal
 public final class ProxyPlatformHelper {
@@ -34,7 +34,7 @@ public final class ProxyPlatformHelper {
     throw new UnsupportedOperationException();
   }
 
-  public static @NotNull Result sendChannelMessagePreLogin(@NotNull NetworkPlayerProxyInfo playerInfo) {
+  public static @NonNull Result sendChannelMessagePreLogin(@NonNull NetworkPlayerProxyInfo playerInfo) {
     var result = toCurrentNode()
       .message("proxy_player_pre_login")
       .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
@@ -44,7 +44,7 @@ public final class ProxyPlatformHelper {
     return result == null ? Result.allowed() : result.content().readObject(Result.class);
   }
 
-  public static void sendChannelMessageLoginSuccess(@NotNull NetworkPlayerProxyInfo info) {
+  public static void sendChannelMessageLoginSuccess(@NonNull NetworkPlayerProxyInfo info) {
     toCurrentNode()
       .message("proxy_player_login")
       .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
@@ -53,7 +53,7 @@ public final class ProxyPlatformHelper {
       .send();
   }
 
-  public static void sendChannelMessageServiceSwitch(@NotNull UUID playerId, @NotNull NetworkServiceInfo target) {
+  public static void sendChannelMessageServiceSwitch(@NonNull UUID playerId, @NonNull NetworkServiceInfo target) {
     toCurrentNode()
       .message("proxy_player_service_switch")
       .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
@@ -62,7 +62,7 @@ public final class ProxyPlatformHelper {
       .send();
   }
 
-  public static void sendChannelMessageDisconnected(@NotNull UUID playerUniqueId) {
+  public static void sendChannelMessageDisconnected(@NonNull UUID playerUniqueId) {
     toCurrentNode()
       .message("proxy_player_disconnect")
       .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
@@ -71,7 +71,7 @@ public final class ProxyPlatformHelper {
       .send();
   }
 
-  static @NotNull ChannelMessage.Builder toCurrentNode() {
+  static @NonNull ChannelMessage.Builder toCurrentNode() {
     return ChannelMessage.builder().targetNode(Wrapper.instance().nodeUniqueId());
   }
 }

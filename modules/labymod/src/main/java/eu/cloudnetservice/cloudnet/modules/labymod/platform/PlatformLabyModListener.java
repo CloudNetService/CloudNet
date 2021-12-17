@@ -23,20 +23,20 @@ import de.dytanic.cloudnet.ext.bridge.platform.PlatformBridgeManagement;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.cloudnet.modules.labymod.LabyModManagement;
 import eu.cloudnetservice.cloudnet.modules.labymod.config.LabyModConfiguration;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class PlatformLabyModListener {
 
   private final PlatformLabyModManagement labyModManagement;
   private final PlatformBridgeManagement<?, ?> bridgeManagement;
 
-  public PlatformLabyModListener(@NotNull PlatformLabyModManagement labyModManagement) {
+  public PlatformLabyModListener(@NonNull PlatformLabyModManagement labyModManagement) {
     this.labyModManagement = labyModManagement;
     this.bridgeManagement = Wrapper.instance().servicesRegistry().firstService(PlatformBridgeManagement.class);
   }
 
   @EventListener
-  public void handlePlayerServerSwitch(@NotNull BridgeProxyPlayerServerSwitchEvent event) {
+  public void handlePlayerServerSwitch(@NonNull BridgeProxyPlayerServerSwitchEvent event) {
     this.bridgeManagement.cachedService(event.target().uniqueId()).ifPresent(service -> {
       // let the management handle the new server
       this.labyModManagement.handleServerUpdate(event.cloudPlayer(), service);
@@ -44,7 +44,7 @@ public class PlatformLabyModListener {
   }
 
   @EventListener
-  public void handleConfigUpdate(@NotNull ChannelMessageReceiveEvent event) {
+  public void handleConfigUpdate(@NonNull ChannelMessageReceiveEvent event) {
     // handle incoming channel messages on the labymod channel
     if (event.channel().equals(LabyModManagement.LABYMOD_MODULE_CHANNEL)
       && LabyModManagement.LABYMOD_UPDATE_CONFIG.equals(event.message())) {

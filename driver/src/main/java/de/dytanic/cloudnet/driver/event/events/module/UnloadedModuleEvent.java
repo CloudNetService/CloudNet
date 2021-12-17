@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.driver.event.events.module;
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
 import de.dytanic.cloudnet.driver.module.IModuleProvider;
 import de.dytanic.cloudnet.driver.module.ModuleConfiguration;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * Defines events which will be called when a module is not yet instantiated.
@@ -36,8 +36,8 @@ public abstract class UnloadedModuleEvent extends DriverEvent {
    * @param moduleConfiguration the configuration of the module which got loaded as there is no instance yet created.
    */
   public UnloadedModuleEvent(
-    @NotNull IModuleProvider moduleProvider,
-    @NotNull ModuleConfiguration moduleConfiguration
+    @NonNull IModuleProvider moduleProvider,
+    @NonNull ModuleConfiguration moduleConfiguration
   ) {
     this.moduleProvider = moduleProvider;
     this.moduleConfiguration = moduleConfiguration;
@@ -48,7 +48,7 @@ public abstract class UnloadedModuleEvent extends DriverEvent {
    *
    * @return the module provider which loaded the module.
    */
-  public @NotNull IModuleProvider moduleProvider() {
+  public @NonNull IModuleProvider moduleProvider() {
     return this.moduleProvider;
   }
 
@@ -57,7 +57,7 @@ public abstract class UnloadedModuleEvent extends DriverEvent {
    *
    * @return the module configuration of the module.
    */
-  public @NotNull ModuleConfiguration moduleConfiguration() {
+  public @NonNull ModuleConfiguration moduleConfiguration() {
     return this.moduleConfiguration;
   }
 }

@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class NettyHttpServer extends NettySSLServer implements IHttpServer {
@@ -75,12 +75,12 @@ public class NettyHttpServer extends NettySSLServer implements IHttpServer {
   }
 
   @Override
-  public boolean addListener(@NotNull SocketAddress socketAddress) {
+  public boolean addListener(@NonNull SocketAddress socketAddress) {
     return this.addListener(HostAndPort.fromSocketAddress(socketAddress));
   }
 
   @Override
-  public boolean addListener(@NotNull HostAndPort hostAndPort) {
+  public boolean addListener(@NonNull HostAndPort hostAndPort) {
     try {
       if (!this.channelFutures.containsKey(hostAndPort.port())) {
         return this.channelFutures.putIfAbsent(hostAndPort.port(), new Pair<>(hostAndPort, new ServerBootstrap()
@@ -109,18 +109,18 @@ public class NettyHttpServer extends NettySSLServer implements IHttpServer {
   }
 
   @Override
-  public @NotNull IHttpServer registerHandler(@NotNull String path, IHttpHandler... handlers) {
+  public @NonNull IHttpServer registerHandler(@NonNull String path, IHttpHandler... handlers) {
     return this.registerHandler(path, IHttpHandler.PRIORITY_NORMAL, handlers);
   }
 
   @Override
-  public @NotNull IHttpServer registerHandler(@NotNull String path, int priority, IHttpHandler... handlers) {
+  public @NonNull IHttpServer registerHandler(@NonNull String path, int priority, IHttpHandler... handlers) {
     return this.registerHandler(path, null, priority, handlers);
   }
 
   @Override
-  public @NotNull IHttpServer registerHandler(
-    @NotNull String path, Integer port,
+  public @NonNull IHttpServer registerHandler(
+    @NonNull String path, Integer port,
     int priority,
     IHttpHandler... handlers
   ) {
@@ -154,32 +154,32 @@ public class NettyHttpServer extends NettySSLServer implements IHttpServer {
   }
 
   @Override
-  public @NotNull IHttpServer removeHandler(@NotNull IHttpHandler handler) {
+  public @NonNull IHttpServer removeHandler(@NonNull IHttpHandler handler) {
     this.registeredHandlers.removeIf(registeredHandler -> registeredHandler.httpHandler.equals(handler));
     return this;
   }
 
   @Override
-  public @NotNull IHttpServer removeHandler(@NotNull Class<? extends IHttpHandler> handler) {
+  public @NonNull IHttpServer removeHandler(@NonNull Class<? extends IHttpHandler> handler) {
     this.registeredHandlers.removeIf(registeredHandler -> registeredHandler.httpHandler.getClass().equals(handler));
     return this;
   }
 
   @Override
-  public @NotNull IHttpServer removeHandler(@NotNull ClassLoader classLoader) {
+  public @NonNull IHttpServer removeHandler(@NonNull ClassLoader classLoader) {
     this.registeredHandlers.removeIf(handler -> handler.httpHandler.getClass().getClassLoader().equals(classLoader));
     return this;
   }
 
   @Override
-  public @NotNull Collection<IHttpHandler> httpHandlers() {
+  public @NonNull Collection<IHttpHandler> httpHandlers() {
     return this.registeredHandlers.stream()
       .map(httpHandlerEntry -> httpHandlerEntry.httpHandler)
       .toList();
   }
 
   @Override
-  public @NotNull IHttpServer clearHandlers() {
+  public @NonNull IHttpServer clearHandlers() {
     this.registeredHandlers.clear();
     return this;
   }
@@ -196,14 +196,14 @@ public class NettyHttpServer extends NettySSLServer implements IHttpServer {
   }
 
   public record HttpHandlerEntry(
-    @NotNull String path,
-    @NotNull IHttpHandler httpHandler,
+    @NonNull String path,
+    @NonNull IHttpHandler httpHandler,
     @Nullable Integer port,
     int priority
   ) implements Comparable<HttpHandlerEntry> {
 
     @Override
-    public int compareTo(@NotNull HttpHandlerEntry httpHandlerEntry) {
+    public int compareTo(@NonNull HttpHandlerEntry httpHandlerEntry) {
       return this.priority + httpHandlerEntry.priority;
     }
   }

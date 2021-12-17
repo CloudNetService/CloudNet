@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.driver.network.protocol;
 
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import java.util.UUID;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -36,7 +36,7 @@ public interface IPacket {
    * @param content the content of the new packet
    * @return the new constructed packet
    */
-  @NotNull IPacket constructResponse(@NotNull DataBuf content);
+  @NonNull IPacket constructResponse(@NonNull DataBuf content);
 
   /**
    * Get the unique id of this packet. This field must not be defined if the packet has no unique id set. If the unique
@@ -69,7 +69,7 @@ public interface IPacket {
    *
    * @return the content of this packet.
    */
-  @NotNull DataBuf content();
+  @NonNull DataBuf content();
 
   /**
    * Get a unix timestamp of the creation milliseconds of this packet. When the packet is created by a decoder, the time

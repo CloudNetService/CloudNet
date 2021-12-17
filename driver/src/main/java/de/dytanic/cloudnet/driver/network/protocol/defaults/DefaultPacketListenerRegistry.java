@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
@@ -54,12 +54,12 @@ public class DefaultPacketListenerRegistry implements IPacketListenerRegistry {
   }
 
   @Override
-  public void addListener(int channel, @NotNull IPacketListener... listeners) {
+  public void addListener(int channel, @NonNull IPacketListener... listeners) {
     this.listeners.computeIfAbsent(channel, $ -> new CopyOnWriteArraySet<>()).addAll(Arrays.asList(listeners));
   }
 
   @Override
-  public void removeListener(int channel, @NotNull IPacketListener... listeners) {
+  public void removeListener(int channel, @NonNull IPacketListener... listeners) {
     var registeredListeners = this.listeners.get(channel);
     if (registeredListeners != null) {
       // remove all listeners if no specific listeners are provided
@@ -83,7 +83,7 @@ public class DefaultPacketListenerRegistry implements IPacketListenerRegistry {
   }
 
   @Override
-  public void removeListeners(@NotNull ClassLoader classLoader) {
+  public void removeListeners(@NonNull ClassLoader classLoader) {
     for (var entry : this.listeners.entrySet()) {
       entry.getValue().removeIf(listener -> listener.getClass().getClassLoader().equals(classLoader));
       if (entry.getValue().isEmpty()) {
@@ -103,24 +103,24 @@ public class DefaultPacketListenerRegistry implements IPacketListenerRegistry {
   }
 
   @Override
-  public @NotNull @UnmodifiableView Collection<Integer> channels() {
+  public @NonNull @UnmodifiableView Collection<Integer> channels() {
     return Collections.unmodifiableCollection(this.listeners.keySet());
   }
 
   @Override
-  public @NotNull @UnmodifiableView Collection<IPacketListener> listeners() {
+  public @NonNull @UnmodifiableView Collection<IPacketListener> listeners() {
     return this.listeners.values().stream()
       .flatMap(Collection::stream)
       .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableCollection));
   }
 
   @Override
-  public @NotNull @UnmodifiableView Map<Integer, Collection<IPacketListener>> packetListeners() {
+  public @NonNull @UnmodifiableView Map<Integer, Collection<IPacketListener>> packetListeners() {
     return Collections.unmodifiableMap(this.listeners);
   }
 
   @Override
-  public void handlePacket(@NotNull INetworkChannel channel, @NotNull IPacket packet) {
+  public void handlePacket(@NonNull INetworkChannel channel, @NonNull IPacket packet) {
     if (this.parent != null) {
       this.parent.handlePacket(channel, packet);
     }

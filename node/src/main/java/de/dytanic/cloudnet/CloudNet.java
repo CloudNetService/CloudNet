@@ -85,7 +85,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -115,7 +115,7 @@ public class CloudNet extends CloudNetDriver {
   private volatile IConfiguration configuration;
   private volatile AbstractDatabaseProvider databaseProvider;
 
-  protected CloudNet(@NotNull String[] args, @NotNull IConsole console, @NotNull Logger rootLogger) {
+  protected CloudNet(@NonNull String[] args, @NonNull IConsole console, @NonNull Logger rootLogger) {
     super(Arrays.asList(args));
 
     instance(this);
@@ -170,7 +170,7 @@ public class CloudNet extends CloudNetDriver {
     this.driverEnvironment = DriverEnvironment.CLOUDNET;
   }
 
-  public static @NotNull CloudNet instance() {
+  public static @NonNull CloudNet instance() {
     return (CloudNet) CloudNetDriver.instance();
   }
 
@@ -334,17 +334,17 @@ public class CloudNet extends CloudNetDriver {
   }
 
   @Override
-  public @NotNull String componentName() {
+  public @NonNull String componentName() {
     return this.configuration.identity().uniqueId();
   }
 
   @Override
-  public @NotNull String nodeUniqueId() {
+  public @NonNull String nodeUniqueId() {
     return this.configuration.identity().uniqueId();
   }
 
   @Override
-  public @NotNull TemplateStorage localTemplateStorage() {
+  public @NonNull TemplateStorage localTemplateStorage() {
     var localStorage = this.templateStorage(ServiceTemplate.LOCAL_STORAGE);
     if (localStorage == null) {
       // this should never happen
@@ -355,17 +355,17 @@ public class CloudNet extends CloudNetDriver {
   }
 
   @Override
-  public @Nullable TemplateStorage templateStorage(@NotNull String storage) {
+  public @Nullable TemplateStorage templateStorage(@NonNull String storage) {
     return this.servicesRegistry.service(TemplateStorage.class, storage);
   }
 
   @Override
-  public @NotNull Collection<TemplateStorage> availableTemplateStorages() {
+  public @NonNull Collection<TemplateStorage> availableTemplateStorages() {
     return this.servicesRegistry.services(TemplateStorage.class);
   }
 
   @Override
-  public @NotNull AbstractDatabaseProvider databaseProvider() {
+  public @NonNull AbstractDatabaseProvider databaseProvider() {
     return this.databaseProvider;
   }
 
@@ -385,13 +385,13 @@ public class CloudNet extends CloudNetDriver {
   }
 
   @Override
-  public @NotNull INetworkClient networkClient() {
+  public @NonNull INetworkClient networkClient() {
     return this.networkClient;
   }
 
   @Override
-  public @NotNull Collection<String> sendCommandLineAsPermissionUser(@NotNull UUID uniqueId,
-    @NotNull String commandLine) {
+  public @NonNull Collection<String> sendCommandLineAsPermissionUser(@NonNull UUID uniqueId,
+    @NonNull String commandLine) {
     // get the permission user
     var user = this.permissionManagement.user(uniqueId);
     if (user == null) {
@@ -405,22 +405,22 @@ public class CloudNet extends CloudNetDriver {
   }
 
   @Override
-  public @NotNull NodeMessenger messenger() {
+  public @NonNull NodeMessenger messenger() {
     return (NodeMessenger) super.messenger();
   }
 
   @Override
-  public @NotNull ICloudServiceManager cloudServiceProvider() {
+  public @NonNull ICloudServiceManager cloudServiceProvider() {
     return (ICloudServiceManager) super.cloudServiceProvider();
   }
 
   @Override
-  public @NotNull NodePermissionManagement permissionManagement() {
+  public @NonNull NodePermissionManagement permissionManagement() {
     return (NodePermissionManagement) super.permissionManagement();
   }
 
   @Override
-  public void permissionManagement(@NotNull IPermissionManagement management) {
+  public void permissionManagement(@NonNull IPermissionManagement management) {
     // nodes can only use node permission managements
     Preconditions.checkArgument(management instanceof NodePermissionManagement);
     super.permissionManagement(management);
@@ -429,52 +429,52 @@ public class CloudNet extends CloudNetDriver {
     this.rpcProviderFactory.newHandler(IPermissionManagement.class, management).registerToDefaultRegistry();
   }
 
-  public @NotNull IConfiguration getConfig() {
+  public @NonNull IConfiguration getConfig() {
     return this.configuration;
   }
 
-  public void setConfig(@NotNull IConfiguration configuration) {
+  public void setConfig(@NonNull IConfiguration configuration) {
     Preconditions.checkNotNull(configuration);
     this.configuration = configuration;
   }
 
-  public @NotNull IClusterNodeServerProvider getClusterNodeServerProvider() {
+  public @NonNull IClusterNodeServerProvider getClusterNodeServerProvider() {
     return this.nodeServerProvider;
   }
 
-  public @NotNull CloudNetTick mainThread() {
+  public @NonNull CloudNetTick mainThread() {
     return this.mainThread;
   }
 
-  public @NotNull CommandProvider commandProvider() {
+  public @NonNull CommandProvider commandProvider() {
     return this.commandProvider;
   }
 
-  public @NotNull IConsole console() {
+  public @NonNull IConsole console() {
     return this.console;
   }
 
-  public @NotNull ServiceVersionProvider serviceVersionProvider() {
+  public @NonNull ServiceVersionProvider serviceVersionProvider() {
     return this.serviceVersionProvider;
   }
 
-  public @NotNull INetworkServer networkServer() {
+  public @NonNull INetworkServer networkServer() {
     return this.networkServer;
   }
 
-  public @NotNull IHttpServer httpServer() {
+  public @NonNull IHttpServer httpServer() {
     return this.httpServer;
   }
 
-  public @NotNull QueuedConsoleLogHandler logHandler() {
+  public @NonNull QueuedConsoleLogHandler logHandler() {
     return this.logHandler;
   }
 
-  public @NotNull DefaultInstallation installation() {
+  public @NonNull DefaultInstallation installation() {
     return this.installation;
   }
 
-  public @NotNull DataSyncRegistry dataSyncRegistry() {
+  public @NonNull DataSyncRegistry dataSyncRegistry() {
     return this.dataSyncRegistry;
   }
 

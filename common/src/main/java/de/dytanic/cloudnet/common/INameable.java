@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.common;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * Represents a class which is identified by a name.
@@ -29,5 +29,5 @@ public interface INameable {
    *
    * @return the name of this instance.
    */
-  @NotNull String name();
+  @NonNull String name();
 }

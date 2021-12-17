@@ -31,7 +31,7 @@ import de.dytanic.cloudnet.driver.permission.Permission;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public abstract class V2HttpHandler implements IHttpHandler {
 
@@ -64,7 +64,7 @@ public abstract class V2HttpHandler implements IHttpHandler {
   }
 
   @Override
-  public void handle(@NotNull String path, @NotNull IHttpContext context) throws Exception {
+  public void handle(@NonNull String path, @NonNull IHttpContext context) throws Exception {
     if (context.request().method().equalsIgnoreCase("OPTIONS")) {
       this.sendOptions(context);
     } else {
@@ -123,7 +123,7 @@ public abstract class V2HttpHandler implements IHttpHandler {
   protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) {
   }
 
-  protected boolean testPermission(@NotNull PermissionUser user, @NotNull IHttpRequest request) {
+  protected boolean testPermission(@NonNull PermissionUser user, @NonNull IHttpRequest request) {
     if (this.requiredPermission == null || this.requiredPermission.isEmpty()) {
       return true;
     } else {
@@ -174,7 +174,7 @@ public abstract class V2HttpHandler implements IHttpHandler {
       .header("Access-Control-Allow-Origin", this.accessControlConfiguration.corsPolicy());
   }
 
-  protected JsonDocument body(@NotNull IHttpRequest request) {
+  protected JsonDocument body(@NonNull IHttpRequest request) {
     return JsonDocument.fromJsonBytes(request.body());
   }
 

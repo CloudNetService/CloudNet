@@ -24,18 +24,18 @@ import eu.cloudnetservice.modules.npc.AbstractNPCManagement;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import eu.cloudnetservice.modules.npc.platform.PlatformNPCManagement;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class NodeChannelMessageListener {
 
   private final AbstractNPCManagement management;
 
-  public NodeChannelMessageListener(@NotNull AbstractNPCManagement management) {
+  public NodeChannelMessageListener(@NonNull AbstractNPCManagement management) {
     this.management = management;
   }
 
   @EventListener
-  public void handle(@NotNull ChannelMessageReceiveEvent event) {
+  public void handle(@NonNull ChannelMessageReceiveEvent event) {
     if (event.channel().equals(AbstractNPCManagement.NPC_CHANNEL_NAME)) {
       switch (event.message()) {
         // deletes an existing npc

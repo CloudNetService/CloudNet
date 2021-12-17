@@ -38,7 +38,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
 
@@ -174,7 +174,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
     }
 
     @Override
-    public void handle(@NotNull IWebSocketChannel channel, @NotNull WebSocketFrameType type, byte[] bytes) throws Exception {
+    public void handle(@NonNull IWebSocketChannel channel, @NonNull WebSocketFrameType type, byte[] bytes) throws Exception {
       var user = this.httpSession.user();
       if (type == WebSocketFrameType.TEXT && user != null) {
         var commandLine = new String(bytes, StandardCharsets.UTF_8);
@@ -190,7 +190,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
     }
 
     @Override
-    public void handleClose(@NotNull IWebSocketChannel channel, @NotNull AtomicInteger statusCode, @NotNull AtomicReference<String> reasonText) {
+    public void handleClose(@NonNull IWebSocketChannel channel, @NonNull AtomicInteger statusCode, @NonNull AtomicReference<String> reasonText) {
       LogManager.rootLogger().removeHandler(this);
     }
 

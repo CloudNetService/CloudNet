@@ -37,12 +37,12 @@ import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.template.install.InstallInformation;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup {
 
   @Override
-  public void applyQuestions(@NotNull ConsoleSetupAnimation animation) {
+  public void applyQuestions(@NonNull ConsoleSetupAnimation animation) {
     animation.addEntries(
       QuestionListEntry.<String>builder()
         .key("taskName")
@@ -129,7 +129,7 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
   }
 
   @Override
-  public void handleResults(@NotNull ConsoleSetupAnimation animation) {
+  public void handleResults(@NonNull ConsoleSetupAnimation animation) {
     String name = animation.result("taskName");
     ServiceEnvironmentType environment = animation.result("taskEnvironment");
     Pair<ServiceVersionType, ServiceVersion> version = animation.result("taskServiceVersion");

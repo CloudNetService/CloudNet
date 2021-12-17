@@ -20,7 +20,7 @@ import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.rpc.RPCInvocationContext;
 import java.util.Optional;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class DefaultRPCInvocationContext implements RPCInvocationContext {
 
@@ -76,22 +76,22 @@ public class DefaultRPCInvocationContext implements RPCInvocationContext {
   }
 
   @Override
-  public @NotNull String methodName() {
+  public @NonNull String methodName() {
     return this.methodName;
   }
 
   @Override
-  public @NotNull INetworkChannel channel() {
+  public @NonNull INetworkChannel channel() {
     return this.channel;
   }
 
   @Override
-  public @NotNull DataBuf argumentInformation() {
+  public @NonNull DataBuf argumentInformation() {
     return this.arguments;
   }
 
   @Override
-  public @NotNull Optional<Object> workingInstance() {
+  public @NonNull Optional<Object> workingInstance() {
     return Optional.ofNullable(this.workingInstance);
   }
 }

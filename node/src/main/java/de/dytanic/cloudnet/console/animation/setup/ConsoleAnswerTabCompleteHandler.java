@@ -18,18 +18,18 @@ package de.dytanic.cloudnet.console.animation.setup;
 
 import de.dytanic.cloudnet.console.handler.ConsoleTabCompleteHandler;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 final class ConsoleAnswerTabCompleteHandler extends ConsoleTabCompleteHandler {
 
   private final Collection<String> possibleResults;
 
-  public ConsoleAnswerTabCompleteHandler(@NotNull Collection<String> possibleResults) {
+  public ConsoleAnswerTabCompleteHandler(@NonNull Collection<String> possibleResults) {
     this.possibleResults = possibleResults;
   }
 
   @Override
-  public @NotNull Collection<String> completeInput(@NotNull String line) {
+  public @NonNull Collection<String> completeInput(@NonNull String line) {
     if (line.trim().isEmpty()) {
       return this.possibleResults;
     } else {

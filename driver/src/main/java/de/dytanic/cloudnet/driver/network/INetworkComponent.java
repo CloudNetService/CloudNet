@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketSender;
 import java.util.Collection;
 import java.util.concurrent.Executor;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -42,7 +42,7 @@ public interface INetworkComponent extends IPacketSender {
    *
    * @return an immutable collection of all channels which are associated with this component.
    */
-  @NotNull
+  @NonNull
   @Unmodifiable Collection<INetworkChannel> channels();
 
   /**
@@ -59,14 +59,14 @@ public interface INetworkComponent extends IPacketSender {
    *
    * @return the dispatching executor for received packets in this channel.
    */
-  @NotNull Executor packetDispatcher();
+  @NonNull Executor packetDispatcher();
 
   /**
    * Get the packet listener registry which will be the root registry for all channels initialized by this component.
    *
    * @return the root packet listener for all associated channels.
    */
-  @NotNull IPacketListenerRegistry packetRegistry();
+  @NonNull IPacketListenerRegistry packetRegistry();
 
   /**
    * Closes all open connections associated with this network component.

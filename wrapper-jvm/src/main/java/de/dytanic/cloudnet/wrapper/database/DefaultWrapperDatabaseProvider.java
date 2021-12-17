@@ -21,14 +21,14 @@ import de.dytanic.cloudnet.driver.database.DatabaseProvider;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class DefaultWrapperDatabaseProvider implements DatabaseProvider {
 
   private final Wrapper wrapper;
   private final RPCSender rpcSender;
 
-  public DefaultWrapperDatabaseProvider(@NotNull Wrapper wrapper) {
+  public DefaultWrapperDatabaseProvider(@NonNull Wrapper wrapper) {
     this.wrapper = wrapper;
     this.rpcSender = wrapper.rpcProviderFactory().providerForClass(
       wrapper.networkClient(),
@@ -36,22 +36,22 @@ public class DefaultWrapperDatabaseProvider implements DatabaseProvider {
   }
 
   @Override
-  public @NotNull Database database(@NotNull String name) {
+  public @NonNull Database database(@NonNull String name) {
     return new WrapperDatabase(name, this.wrapper, this.rpcSender.invokeMethod("database", name));
   }
 
   @Override
-  public boolean containsDatabase(@NotNull String name) {
+  public boolean containsDatabase(@NonNull String name) {
     return this.rpcSender.invokeMethod("containsDatabase", name).fireSync();
   }
 
   @Override
-  public boolean deleteDatabase(@NotNull String name) {
+  public boolean deleteDatabase(@NonNull String name) {
     return this.rpcSender.invokeMethod("deleteDatabase", name).fireSync();
   }
 
   @Override
-  public @NotNull Collection<String> databaseNames() {
+  public @NonNull Collection<String> databaseNames() {
     return this.rpcSender.invokeMethod("databaseNames").fireSync();
   }
 }

@@ -18,11 +18,11 @@ package de.dytanic.cloudnet.driver.network.rpc.exception;
 
 import de.dytanic.cloudnet.driver.network.rpc.util.ReflectionUtils;
 import java.lang.reflect.Field;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class MissingFieldGetterException extends IllegalStateException {
 
-  public MissingFieldGetterException(@NotNull Class<?> sourceClass, @NotNull Field field) {
+  public MissingFieldGetterException(@NonNull Class<?> sourceClass, @NonNull Field field) {
     super(String.format(
       "Missing getter method for field %s from super serialisation class %s",
       ReflectionUtils.fieldToReadableString(field),

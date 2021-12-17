@@ -19,8 +19,8 @@ package de.dytanic.cloudnet.ext.bridge.config;
 import java.util.ArrayList;
 import java.util.Collection;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @ToString
@@ -35,16 +35,16 @@ public final class ProxyFallback implements Comparable<ProxyFallback> {
 
   private final Collection<String> availableOnGroups;
 
-  public ProxyFallback(int priority, @NotNull String task, @Nullable String permission, @Nullable String forcedHost) {
+  public ProxyFallback(int priority, @NonNull String task, @Nullable String permission, @Nullable String forcedHost) {
     this(priority, task, permission, forcedHost, new ArrayList<>());
   }
 
   public ProxyFallback(
     int priority,
-    @NotNull String task,
+    @NonNull String task,
     @Nullable String permission,
     @Nullable String forcedHost,
-    @NotNull Collection<String> availableOnGroups
+    @NonNull Collection<String> availableOnGroups
   ) {
     this.priority = priority;
     this.task = task;
@@ -53,7 +53,7 @@ public final class ProxyFallback implements Comparable<ProxyFallback> {
     this.availableOnGroups = availableOnGroups;
   }
 
-  public @NotNull String task() {
+  public @NonNull String task() {
     return this.task;
   }
 
@@ -61,7 +61,7 @@ public final class ProxyFallback implements Comparable<ProxyFallback> {
     return this.permission;
   }
 
-  public @NotNull Collection<String> availableOnGroups() {
+  public @NonNull Collection<String> availableOnGroups() {
     return this.availableOnGroups;
   }
 
@@ -74,7 +74,7 @@ public final class ProxyFallback implements Comparable<ProxyFallback> {
   }
 
   @Override
-  public int compareTo(@NotNull ProxyFallback o) {
+  public int compareTo(@NonNull ProxyFallback o) {
     return Integer.compare(o.priority, this.priority);
   }
 }

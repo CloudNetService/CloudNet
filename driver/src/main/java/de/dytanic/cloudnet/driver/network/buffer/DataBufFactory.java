@@ -17,23 +17,23 @@
 package de.dytanic.cloudnet.driver.network.buffer;
 
 import de.dytanic.cloudnet.driver.network.netty.buffer.NettyDataBufFactory;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public interface DataBufFactory {
 
-  static @NotNull DataBufFactory defaultFactory() {
+  static @NonNull DataBufFactory defaultFactory() {
     return NettyDataBufFactory.INSTANCE;
   }
 
-  @NotNull DataBuf.Mutable createEmpty();
+  @NonNull DataBuf.Mutable createEmpty();
 
-  @NotNull DataBuf createReadOnly();
+  @NonNull DataBuf createReadOnly();
 
-  @NotNull DataBuf createOf(byte @NotNull [] bytes);
+  @NonNull DataBuf createOf(byte @NonNull [] bytes);
 
-  @NotNull DataBuf copyOf(@NotNull DataBuf dataBuf);
+  @NonNull DataBuf copyOf(@NonNull DataBuf dataBuf);
 
-  @NotNull DataBuf.Mutable mutableCopyOf(@NotNull DataBuf dataBuf);
+  @NonNull DataBuf.Mutable mutableCopyOf(@NonNull DataBuf dataBuf);
 
-  @NotNull DataBuf.Mutable createWithExpectedSize(int byteSize);
+  @NonNull DataBuf.Mutable createWithExpectedSize(int byteSize);
 }

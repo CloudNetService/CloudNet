@@ -38,13 +38,13 @@ import de.dytanic.cloudnet.ext.bridge.platform.helper.ProxyPlatformHelper;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerProxyInfo;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.Locale;
+import lombok.NonNull;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.translation.GlobalTranslator;
-import org.jetbrains.annotations.NotNull;
 
 final class VelocityPlayerManagementListener {
 
@@ -52,15 +52,15 @@ final class VelocityPlayerManagementListener {
   private final PlatformBridgeManagement<Player, NetworkPlayerProxyInfo> management;
 
   public VelocityPlayerManagementListener(
-    @NotNull ProxyServer proxyServer,
-    @NotNull PlatformBridgeManagement<Player, NetworkPlayerProxyInfo> management
+    @NonNull ProxyServer proxyServer,
+    @NonNull PlatformBridgeManagement<Player, NetworkPlayerProxyInfo> management
   ) {
     this.proxyServer = proxyServer;
     this.management = management;
   }
 
   @Subscribe
-  public void handleLogin(@NotNull LoginEvent event) {
+  public void handleLogin(@NonNull LoginEvent event) {
     var task = this.management.selfTask();
     // check if the current task is present
     if (task != null) {
@@ -89,7 +89,7 @@ final class VelocityPlayerManagementListener {
   }
 
   @Subscribe
-  public void handleInitialServerChoose(@NotNull PlayerChooseInitialServerEvent event) {
+  public void handleInitialServerChoose(@NonNull PlayerChooseInitialServerEvent event) {
     // filter the next fallback
     event.setInitialServer(this.management.fallback(event.getPlayer())
       .flatMap(service -> this.proxyServer.getServer(service.name()))
@@ -97,7 +97,7 @@ final class VelocityPlayerManagementListener {
   }
 
   @Subscribe
-  public void handleServerKick(@NotNull KickedFromServerEvent event) {
+  public void handleServerKick(@NonNull KickedFromServerEvent event) {
     // check if the player is still active
     if (event.getPlayer().isActive()) {
       event.setResult(this.management.fallback(event.getPlayer(), event.getServer().getServerInfo().getName())
@@ -122,7 +122,7 @@ final class VelocityPlayerManagementListener {
   }
 
   @Subscribe
-  public void handleServiceConnected(@NotNull ServerPostConnectEvent event) {
+  public void handleServiceConnected(@NonNull ServerPostConnectEvent event) {
     if (event.getPreviousServer() == null) {
       // the player logged in successfully if he is now connected to a service for the first time
       ProxyPlatformHelper.sendChannelMessageLoginSuccess(this.management.createPlayerInformation(event.getPlayer()));
@@ -141,7 +141,7 @@ final class VelocityPlayerManagementListener {
   }
 
   @Subscribe
-  public void handleDisconnect(@NotNull DisconnectEvent event) {
+  public void handleDisconnect(@NonNull DisconnectEvent event) {
     // check if the player successfully connected to a server before
     // PRE_SERVER_JOIN will be used when the upstream server closes the connection to the player, we need to handle this
     var status = event.getLoginStatus();
@@ -154,7 +154,7 @@ final class VelocityPlayerManagementListener {
     this.management.removeFallbackProfile(event.getPlayer());
   }
 
-  private @NotNull Component getReasonComponent(@NotNull KickedFromServerEvent event) {
+  private @NonNull Component getReasonComponent(@NonNull KickedFromServerEvent event) {
     var playerLocale = event.getPlayer().getEffectiveLocale();
     var message = event.getServerKickReason().orElse(null);
     // use the current result if it is Notify - velocity already created a friendly reason for us

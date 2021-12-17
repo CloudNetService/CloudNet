@@ -20,7 +20,7 @@ import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public interface DefaultNetworkComponent extends INetworkComponent {
 
@@ -42,21 +42,21 @@ public interface DefaultNetworkComponent extends INetworkComponent {
   }
 
   @Override
-  default void sendPacket(@NotNull IPacket packet) {
+  default void sendPacket(@NonNull IPacket packet) {
     for (var channel : this.modifiableChannels()) {
       channel.sendPacket(packet);
     }
   }
 
   @Override
-  default void sendPacketSync(@NotNull IPacket packet) {
+  default void sendPacketSync(@NonNull IPacket packet) {
     for (var channel : this.modifiableChannels()) {
       channel.sendPacketSync(packet);
     }
   }
 
   @Override
-  default void sendPacket(@NotNull IPacket... packets) {
+  default void sendPacket(@NonNull IPacket... packets) {
     for (var channel : this.modifiableChannels()) {
       channel.sendPacket(packets);
     }

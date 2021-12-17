@@ -23,7 +23,7 @@ import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignsConfiguration;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -54,7 +54,7 @@ public abstract class AbstractSignManagement implements SignManagement {
    * {@inheritDoc}
    */
   @Override
-  public @Nullable Sign signAt(@NotNull WorldPosition position) {
+  public @Nullable Sign signAt(@NonNull WorldPosition position) {
     return this.signs.get(position);
   }
 
@@ -62,7 +62,7 @@ public abstract class AbstractSignManagement implements SignManagement {
    * {@inheritDoc}
    */
   @Override
-  public void deleteSign(@NotNull Sign sign) {
+  public void deleteSign(@NonNull Sign sign) {
     this.deleteSign(sign.location());
   }
 
@@ -70,7 +70,7 @@ public abstract class AbstractSignManagement implements SignManagement {
    * {@inheritDoc}
    */
   @Override
-  public int deleteAllSigns(@NotNull String group) {
+  public int deleteAllSigns(@NonNull String group) {
     return this.deleteAllSigns(group, null);
   }
 
@@ -78,7 +78,7 @@ public abstract class AbstractSignManagement implements SignManagement {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull Collection<Sign> signs() {
+  public @NonNull Collection<Sign> signs() {
     return this.signs.values();
   }
 
@@ -86,7 +86,7 @@ public abstract class AbstractSignManagement implements SignManagement {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull SignsConfiguration signsConfiguration() {
+  public @NonNull SignsConfiguration signsConfiguration() {
     return this.signsConfiguration;
   }
 
@@ -94,7 +94,7 @@ public abstract class AbstractSignManagement implements SignManagement {
    * {@inheritDoc}
    */
   @Override
-  public void signsConfiguration(@NotNull SignsConfiguration signsConfiguration) {
+  public void signsConfiguration(@NonNull SignsConfiguration signsConfiguration) {
     this.signsConfiguration = signsConfiguration;
   }
 
@@ -109,17 +109,17 @@ public abstract class AbstractSignManagement implements SignManagement {
   }
 
   @Override
-  public void handleInternalSignCreate(@NotNull Sign sign) {
+  public void handleInternalSignCreate(@NonNull Sign sign) {
     this.signs.put(sign.location(), sign);
   }
 
   @Override
-  public void handleInternalSignRemove(@NotNull WorldPosition position) {
+  public void handleInternalSignRemove(@NonNull WorldPosition position) {
     this.signs.remove(position);
   }
 
   @Override
-  public void handleInternalSignConfigUpdate(@NotNull SignsConfiguration configuration) {
+  public void handleInternalSignConfigUpdate(@NonNull SignsConfiguration configuration) {
     this.signsConfiguration = configuration;
   }
 
@@ -129,7 +129,7 @@ public abstract class AbstractSignManagement implements SignManagement {
    * @param message the message of the channel message.
    * @return the channel message builder for further configuration.
    */
-  protected ChannelMessage.Builder channelMessage(@NotNull String message) {
+  protected ChannelMessage.Builder channelMessage(@NonNull String message) {
     return ChannelMessage.builder()
       .channel(SIGN_CHANNEL_NAME)
       .message(message);

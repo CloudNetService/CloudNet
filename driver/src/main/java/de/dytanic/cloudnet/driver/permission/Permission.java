@@ -19,9 +19,9 @@ package de.dytanic.cloudnet.driver.permission;
 import de.dytanic.cloudnet.common.INameable;
 import java.util.concurrent.TimeUnit;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode
@@ -32,34 +32,34 @@ public final class Permission implements INameable, Comparable<Permission> {
   private int potency;
   private long timeOutMillis;
 
-  public Permission(@NotNull String name, int potency) {
+  public Permission(@NonNull String name, int potency) {
     this.name = name;
     this.potency = potency;
   }
 
-  public Permission(@NotNull String name, int potency, long time, @NotNull TimeUnit timeUnit) {
+  public Permission(@NonNull String name, int potency, long time, @NonNull TimeUnit timeUnit) {
     this.name = name;
     this.potency = potency;
     this.timeOutMillis = System.currentTimeMillis() + timeUnit.toMillis(time);
   }
 
-  public Permission(@NotNull String name) {
+  public Permission(@NonNull String name) {
     this.name = name;
   }
 
-  public Permission(@NotNull String name, int potency, long timeOutMillis) {
+  public Permission(@NonNull String name, int potency, long timeOutMillis) {
     this.name = name;
     this.potency = potency;
     this.timeOutMillis = timeOutMillis;
   }
 
   @Contract(value = "_ -> new", pure = true)
-  public static @NotNull Permission of(@NotNull String name) {
+  public static @NonNull Permission of(@NonNull String name) {
     return new Permission(name);
   }
 
   @Override
-  public @NotNull String name() {
+  public @NonNull String name() {
     return this.name;
   }
 
@@ -80,7 +80,7 @@ public final class Permission implements INameable, Comparable<Permission> {
   }
 
   @Override
-  public int compareTo(@NotNull Permission o) {
+  public int compareTo(@NonNull Permission o) {
     return Integer.compare(Math.abs(this.potency()), Math.abs(o.potency()));
   }
 }

@@ -24,7 +24,7 @@ import de.dytanic.cloudnet.driver.network.protocol.defaults.DefaultPacketListene
 import de.dytanic.cloudnet.driver.network.protocol.defaults.DefaultQueryPacketManager;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public abstract class DefaultNetworkChannel implements INetworkChannel {
 
@@ -58,12 +58,12 @@ public abstract class DefaultNetworkChannel implements INetworkChannel {
   }
 
   @Override
-  public @NotNull ITask<IPacket> sendQueryAsync(@NotNull IPacket packet) {
+  public @NonNull ITask<IPacket> sendQueryAsync(@NonNull IPacket packet) {
     return this.queryPacketManager.sendQueryPacket(packet);
   }
 
   @Override
-  public IPacket sendQuery(@NotNull IPacket packet) {
+  public IPacket sendQuery(@NonNull IPacket packet) {
     return this.sendQueryAsync(packet).get(5, TimeUnit.SECONDS, null);
   }
 
@@ -73,22 +73,22 @@ public abstract class DefaultNetworkChannel implements INetworkChannel {
   }
 
   @Override
-  public @NotNull IPacketListenerRegistry packetRegistry() {
+  public @NonNull IPacketListenerRegistry packetRegistry() {
     return this.packetRegistry;
   }
 
   @Override
-  public @NotNull QueryPacketManager queryPacketManager() {
+  public @NonNull QueryPacketManager queryPacketManager() {
     return this.queryPacketManager;
   }
 
   @Override
-  public @NotNull HostAndPort serverAddress() {
+  public @NonNull HostAndPort serverAddress() {
     return this.serverAddress;
   }
 
   @Override
-  public @NotNull HostAndPort clientAddress() {
+  public @NonNull HostAndPort clientAddress() {
     return this.clientAddress;
   }
 
@@ -98,12 +98,12 @@ public abstract class DefaultNetworkChannel implements INetworkChannel {
   }
 
   @Override
-  public @NotNull INetworkChannelHandler handler() {
+  public @NonNull INetworkChannelHandler handler() {
     return this.handler;
   }
 
   @Override
-  public void handler(@NotNull INetworkChannelHandler handler) {
+  public void handler(@NonNull INetworkChannelHandler handler) {
     this.handler = handler;
   }
 

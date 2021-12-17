@@ -18,17 +18,17 @@ package de.dytanic.cloudnet.driver.event.events.task;
 
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class ServiceTaskRemoveEvent extends Event {
 
   private final ServiceTask task;
 
-  public ServiceTaskRemoveEvent(@NotNull ServiceTask task) {
+  public ServiceTaskRemoveEvent(@NonNull ServiceTask task) {
     this.task = task;
   }
 
-  public @NotNull ServiceTask task() {
+  public @NonNull ServiceTask task() {
     return this.task;
   }
 }

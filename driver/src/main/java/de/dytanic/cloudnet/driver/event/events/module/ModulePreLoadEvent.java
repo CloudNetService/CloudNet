@@ -20,7 +20,7 @@ import de.dytanic.cloudnet.driver.event.ICancelable;
 import de.dytanic.cloudnet.driver.module.IModuleProvider;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * This event is being called after a module has been loaded and before the tasks with the lifecycle {@link
@@ -31,7 +31,7 @@ public final class ModulePreLoadEvent extends ModuleEvent implements ICancelable
 
   private boolean cancelled;
 
-  public ModulePreLoadEvent(@NotNull IModuleProvider moduleProvider, @NotNull IModuleWrapper module) {
+  public ModulePreLoadEvent(@NonNull IModuleProvider moduleProvider, @NonNull IModuleWrapper module) {
     super(moduleProvider, module);
   }
 

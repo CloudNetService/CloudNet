@@ -27,7 +27,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.function.Consumer;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public abstract class DefaultChunkedPacketSenderBuilder implements ChunkedPacketSender.Builder {
 
@@ -42,53 +42,53 @@ public abstract class DefaultChunkedPacketSenderBuilder implements ChunkedPacket
   protected DataBuf transferInformation = DataBuf.empty();
 
   @Override
-  public @NotNull ChunkedPacketSender.Builder chunkSize(int chunkSize) {
+  public @NonNull ChunkedPacketSender.Builder chunkSize(int chunkSize) {
     this.chunkSize = chunkSize;
     return this;
   }
 
   @Override
-  public @NotNull ChunkedPacketSender.Builder sessionUniqueId(@NotNull UUID uuid) {
+  public @NonNull ChunkedPacketSender.Builder sessionUniqueId(@NonNull UUID uuid) {
     this.sessionUniqueId = uuid;
     return this;
   }
 
   @Override
-  public @NotNull ChunkedPacketSender.Builder transferChannel(@NotNull String transferChannel) {
+  public @NonNull ChunkedPacketSender.Builder transferChannel(@NonNull String transferChannel) {
     this.transferChannel = transferChannel;
     return this;
   }
 
   @Override
-  public @NotNull ChunkedPacketSender.Builder source(@NotNull InputStream source) {
+  public @NonNull ChunkedPacketSender.Builder source(@NonNull InputStream source) {
     this.source = source;
     return this;
   }
 
   @Override
-  public @NotNull ChunkedPacketSender.Builder toChannels(INetworkChannel @NotNull ... channels) {
+  public @NonNull ChunkedPacketSender.Builder toChannels(INetworkChannel @NonNull ... channels) {
     return this.toChannels(Arrays.asList(channels));
   }
 
   @Override
-  public @NotNull ChunkedPacketSender.Builder toChannels(@NotNull Collection<INetworkChannel> channels) {
+  public @NonNull ChunkedPacketSender.Builder toChannels(@NonNull Collection<INetworkChannel> channels) {
     return this.packetSplitter(new NetworkChannelsPacketSplitter(channels));
   }
 
   @Override
-  public @NotNull ChunkedPacketSender.Builder packetSplitter(@NotNull Consumer<IPacket> splitter) {
+  public @NonNull ChunkedPacketSender.Builder packetSplitter(@NonNull Consumer<IPacket> splitter) {
     this.packetSplitter = splitter;
     return this;
   }
 
   @Override
-  public @NotNull ChunkedPacketSender.Builder withExtraData(@NotNull DataBuf extraData) {
+  public @NonNull ChunkedPacketSender.Builder withExtraData(@NonNull DataBuf extraData) {
     this.transferInformation = extraData.disableReleasing();
     return this;
   }
 
   @Override
-  public @NotNull ChunkedPacketSender build() {
+  public @NonNull ChunkedPacketSender build() {
     Verify.verifyNotNull(this.source, "no source given to send");
     Verify.verifyNotNull(this.packetSplitter, "no packet splitter provided");
     Verify.verifyNotNull(this.transferChannel, "no transfer channel provided");
@@ -98,5 +98,5 @@ public abstract class DefaultChunkedPacketSenderBuilder implements ChunkedPacket
     return this.doBuild();
   }
 
-  protected abstract @NotNull ChunkedPacketSender doBuild();
+  protected abstract @NonNull ChunkedPacketSender doBuild();
 }

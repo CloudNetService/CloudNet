@@ -24,8 +24,8 @@ import de.dytanic.cloudnet.driver.event.events.permission.PermissionSetGroupsEve
 import de.dytanic.cloudnet.driver.event.events.permission.PermissionUpdateGroupEvent;
 import de.dytanic.cloudnet.driver.event.events.permission.PermissionUpdateUserEvent;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 
 @Internal
 public final class PermissionCacheListener {
@@ -37,7 +37,7 @@ public final class PermissionCacheListener {
   }
 
   @EventListener
-  public void handle(@NotNull PermissionUpdateUserEvent event) {
+  public void handle(@NonNull PermissionUpdateUserEvent event) {
     var user = event.permissionUser();
     if (this.permissionManagement.cachedPermissionUsers().containsKey(user.uniqueId())) {
       this.permissionManagement.cachedPermissionUsers().put(user.uniqueId(), user);
@@ -45,31 +45,31 @@ public final class PermissionCacheListener {
   }
 
   @EventListener
-  public void handle(@NotNull PermissionDeleteUserEvent event) {
+  public void handle(@NonNull PermissionDeleteUserEvent event) {
     this.permissionManagement.cachedPermissionUsers().remove(event.permissionUser().uniqueId());
   }
 
   @EventListener
-  public void handle(@NotNull PermissionAddGroupEvent event) {
+  public void handle(@NonNull PermissionAddGroupEvent event) {
     this.permissionManagement.cachedPermissionGroups().put(
       event.permissionGroup().name(),
       event.permissionGroup());
   }
 
   @EventListener
-  public void handle(@NotNull PermissionUpdateGroupEvent event) {
+  public void handle(@NonNull PermissionUpdateGroupEvent event) {
     this.permissionManagement.cachedPermissionGroups().put(
       event.permissionGroup().name(),
       event.permissionGroup());
   }
 
   @EventListener
-  public void handle(@NotNull PermissionDeleteGroupEvent event) {
+  public void handle(@NonNull PermissionDeleteGroupEvent event) {
     this.permissionManagement.cachedPermissionGroups().remove(event.permissionGroup().name());
   }
 
   @EventListener
-  public void handle(@NotNull PermissionSetGroupsEvent event) {
+  public void handle(@NonNull PermissionSetGroupsEvent event) {
     this.permissionManagement.cachedPermissionGroups().clear();
 
     for (PermissionGroup permissionGroup : event.groups()) {

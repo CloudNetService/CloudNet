@@ -34,8 +34,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingDeque;
+import lombok.NonNull;
 import org.fusesource.jansi.Ansi;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
@@ -83,7 +83,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
     this.staticCursor = true;
   }
 
-  public void addEntries(QuestionListEntry<?> @NotNull ... entries) {
+  public void addEntries(QuestionListEntry<?> @NonNull ... entries) {
     if (entries.length != 0) {
       for (var entry : entries) {
         this.entries.offerLast(entry);
@@ -91,7 +91,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
     }
   }
 
-  public void addEntriesFirst(QuestionListEntry<?> @NotNull ... entries) {
+  public void addEntriesFirst(QuestionListEntry<?> @NonNull ... entries) {
     if (entries.length != 0) {
       for (var i = entries.length - 1; i >= 0; i--) {
         this.entries.offerFirst(entries[i]);
@@ -99,7 +99,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
     }
   }
 
-  public @NotNull Deque<QuestionListEntry<?>> entries() {
+  public @NonNull Deque<QuestionListEntry<?>> entries() {
     return this.entries;
   }
 
@@ -116,16 +116,16 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
   }
 
   @SuppressWarnings("unchecked")
-  public <T> T result(@NotNull String key) {
+  public <T> T result(@NonNull String key) {
     return (T) this.results.get(key);
   }
 
-  public boolean hasResult(@NotNull String key) {
+  public boolean hasResult(@NonNull String key) {
     return this.results.containsKey(key);
   }
 
   @Override
-  public void console(@NotNull IConsole console) {
+  public void console(@NonNull IConsole console) {
     super.console(console);
 
     // store the current console setting for resetting later
@@ -203,7 +203,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
     // add the command handler which handles the input
     this.console.addCommandHandler(this.handlerId, new ConsoleInputHandler() {
       @Override
-      public void handleInput(@NotNull String line) {
+      public void handleInput(@NonNull String line) {
         try {
           // check if the input was handled - wait for the response if not
           if (ConsoleSetupAnimation.this.handleInput(answerType, entry, line)) {
@@ -241,9 +241,9 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
   }
 
   protected boolean handleInput(
-    @NotNull QuestionAnswerType<?> answerType,
-    @NotNull QuestionListEntry<?> entry,
-    @NotNull String input
+    @NonNull QuestionAnswerType<?> answerType,
+    @NonNull QuestionListEntry<?> entry,
+    @NonNull String input
   ) throws InterruptedException {
     // check if the setup was cancelled using the input
     if (input.equalsIgnoreCase("cancel") && ConsoleSetupAnimation.this.cancellable) {
@@ -334,7 +334,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
     super.resetConsole();
   }
 
-  private String @NotNull [] updateCursor(String @NotNull ... texts) {
+  private String @NonNull [] updateCursor(String @NonNull ... texts) {
     Collection<String> result = new ArrayList<>(texts.length);
     var length = 0;
     for (var text : texts) {
@@ -348,7 +348,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
     return result.toArray(new String[0]);
   }
 
-  private @NotNull Ansi eraseLines(@NotNull Ansi ansi, int count) {
+  private @NonNull Ansi eraseLines(@NonNull Ansi ansi, int count) {
     for (var i = 0; i < count; i++) {
       ansi.cursorUp(1).eraseLine();
     }

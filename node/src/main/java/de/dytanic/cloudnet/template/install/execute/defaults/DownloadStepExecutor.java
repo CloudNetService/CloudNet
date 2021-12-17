@@ -26,15 +26,15 @@ import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class DownloadStepExecutor implements InstallStepExecutor {
 
   @Override
-  public @NotNull Set<Path> execute(
-    @NotNull InstallInformation installInformation,
-    @NotNull Path workingDirectory,
-    @NotNull Set<Path> inputPaths
+  public @NonNull Set<Path> execute(
+    @NonNull InstallInformation installInformation,
+    @NonNull Path workingDirectory,
+    @NonNull Set<Path> inputPaths
   ) throws IOException {
     var targetPath = workingDirectory.resolve(
       Path.of(installInformation.serviceVersionType().name() + ".jar"));

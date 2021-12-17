@@ -23,18 +23,18 @@ import de.dytanic.cloudnet.driver.event.events.group.GroupConfigurationAddEvent;
 import de.dytanic.cloudnet.driver.event.events.group.GroupConfigurationRemoveEvent;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class GroupChannelMessageListener {
 
   private final IEventManager eventManager;
 
-  public GroupChannelMessageListener(@NotNull IEventManager eventManager) {
+  public GroupChannelMessageListener(@NonNull IEventManager eventManager) {
     this.eventManager = eventManager;
   }
 
   @EventListener
-  public void handle(@NotNull ChannelMessageReceiveEvent event) {
+  public void handle(@NonNull ChannelMessageReceiveEvent event) {
     if (event.channel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
       switch (event.message()) {
         // add group

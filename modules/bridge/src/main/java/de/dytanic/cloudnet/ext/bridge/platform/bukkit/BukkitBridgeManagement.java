@@ -30,11 +30,11 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
+import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permissible;
 import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 final class BukkitBridgeManagement extends PlatformBridgeManagement<Player, NetworkPlayerServerInfo> {
@@ -44,7 +44,7 @@ final class BukkitBridgeManagement extends PlatformBridgeManagement<Player, Netw
   private final Plugin plugin;
   private final PlayerExecutor directGlobalExecutor;
 
-  public BukkitBridgeManagement(@NotNull Plugin plugin) {
+  public BukkitBridgeManagement(@NonNull Plugin plugin) {
     super(Wrapper.instance());
     // init fields
     this.plugin = plugin;
@@ -58,18 +58,18 @@ final class BukkitBridgeManagement extends PlatformBridgeManagement<Player, Netw
   }
 
   @Override
-  public void registerServices(@NotNull IServicesRegistry registry) {
+  public void registerServices(@NonNull IServicesRegistry registry) {
     registry.registerService(IPlayerManager.class, "PlayerManager", this.playerManager);
     registry.registerService(PlatformBridgeManagement.class, "BukkitBridgeManagement", this);
   }
 
   @Override
-  public @NotNull ServicePlayer wrapPlayer(@NotNull Player player) {
+  public @NonNull ServicePlayer wrapPlayer(@NonNull Player player) {
     return new ServicePlayer(player.getUniqueId(), player.getName());
   }
 
   @Override
-  public @NotNull NetworkPlayerServerInfo createPlayerInformation(@NotNull Player player) {
+  public @NonNull NetworkPlayerServerInfo createPlayerInformation(@NonNull Player player) {
     return new NetworkPlayerServerInfo(
       player.getUniqueId(),
       player.getName(),
@@ -79,44 +79,44 @@ final class BukkitBridgeManagement extends PlatformBridgeManagement<Player, Netw
   }
 
   @Override
-  public @NotNull BiFunction<Player, String, Boolean> permissionFunction() {
+  public @NonNull BiFunction<Player, String, Boolean> permissionFunction() {
     return PERM_FUNCTION;
   }
 
   @Override
-  public boolean isOnAnyFallbackInstance(@NotNull Player player) {
+  public boolean isOnAnyFallbackInstance(@NonNull Player player) {
     return this.isOnAnyFallbackInstance(this.ownNetworkServiceInfo.serverName(), null, player::hasPermission);
   }
 
   @Override
-  public @NotNull Optional<ServiceInfoSnapshot> fallback(@NotNull Player player) {
+  public @NonNull Optional<ServiceInfoSnapshot> fallback(@NonNull Player player) {
     return this.fallback(player, this.ownNetworkServiceInfo.serverName());
   }
 
   @Override
-  public @NotNull Optional<ServiceInfoSnapshot> fallback(@NotNull Player player, @Nullable String currServer) {
+  public @NonNull Optional<ServiceInfoSnapshot> fallback(@NonNull Player player, @Nullable String currServer) {
     return this.fallback(player.getUniqueId(), currServer, null, player::hasPermission);
   }
 
   @Override
-  public void handleFallbackConnectionSuccess(@NotNull Player player) {
+  public void handleFallbackConnectionSuccess(@NonNull Player player) {
     this.handleFallbackConnectionSuccess(player.getUniqueId());
   }
 
   @Override
-  public void removeFallbackProfile(@NotNull Player player) {
+  public void removeFallbackProfile(@NonNull Player player) {
     this.removeFallbackProfile(player.getUniqueId());
   }
 
   @Override
-  public @NotNull PlayerExecutor directPlayerExecutor(@NotNull UUID uniqueId) {
+  public @NonNull PlayerExecutor directPlayerExecutor(@NonNull UUID uniqueId) {
     return uniqueId.equals(PlayerExecutor.GLOBAL_UNIQUE_ID)
       ? this.directGlobalExecutor
       : new BukkitDirectPlayerExecutor(this.plugin, uniqueId, () -> Collections.singleton(Bukkit.getPlayer(uniqueId)));
   }
 
   @Override
-  public void appendServiceInformation(@NotNull ServiceInfoSnapshot snapshot) {
+  public void appendServiceInformation(@NonNull ServiceInfoSnapshot snapshot) {
     super.appendServiceInformation(snapshot);
     // append the bukkit specific information
     snapshot.properties().append("Online-Count", Bukkit.getOnlinePlayers().size());

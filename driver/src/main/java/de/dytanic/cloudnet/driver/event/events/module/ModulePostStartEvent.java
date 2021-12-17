@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.driver.event.events.module;
 import de.dytanic.cloudnet.driver.module.IModuleProvider;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * This event is being called after a module has been started and the tasks with the lifecycle {@link
@@ -28,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class ModulePostStartEvent extends ModuleEvent {
 
-  public ModulePostStartEvent(@NotNull IModuleProvider moduleProvider, @NotNull IModuleWrapper module) {
+  public ModulePostStartEvent(@NonNull IModuleProvider moduleProvider, @NonNull IModuleWrapper module) {
     super(moduleProvider, module);
   }
 }

@@ -25,20 +25,20 @@ import de.dytanic.cloudnet.ext.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class VelocityHubCommand implements SimpleCommand {
 
   private final ProxyServer proxyServer;
   private final PlatformBridgeManagement<Player, ?> management;
 
-  public VelocityHubCommand(@NotNull ProxyServer server, @NotNull PlatformBridgeManagement<Player, ?> management) {
+  public VelocityHubCommand(@NonNull ProxyServer server, @NonNull PlatformBridgeManagement<Player, ?> management) {
     this.proxyServer = server;
     this.management = management;
   }
 
   @Override
-  public void execute(@NotNull Invocation invocation) {
+  public void execute(@NonNull Invocation invocation) {
     if (invocation.source() instanceof Player player) {
       // check if the player is on a fallback already
       if (this.management.isOnAnyFallbackInstance(player)) {
@@ -72,7 +72,7 @@ public final class VelocityHubCommand implements SimpleCommand {
   }
 
   @Override
-  public @NotNull CompletableFuture<List<String>> suggestAsync(@NotNull Invocation invocation) {
+  public @NonNull CompletableFuture<List<String>> suggestAsync(@NonNull Invocation invocation) {
     return CompletableFuture.completedFuture(copyOf(this.management.configuration().hubCommandNames()));
   }
 }

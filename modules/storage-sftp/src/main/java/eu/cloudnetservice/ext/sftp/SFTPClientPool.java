@@ -23,11 +23,11 @@ import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
+import lombok.NonNull;
 import net.schmizz.concurrent.Promise;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.sftp.SFTPClient;
 import net.schmizz.sshj.sftp.SFTPEngine;
-import org.jetbrains.annotations.NotNull;
 
 public class SFTPClientPool {
 
@@ -41,12 +41,12 @@ public class SFTPClientPool {
   private final Queue<SFTPClientWrapper> pooledClients = new LinkedList<>();
   private final Queue<Promise<SFTPClientWrapper, RuntimeException>> clientReturnWaiters = new LinkedList<>();
 
-  public SFTPClientPool(int maxClients, @NotNull Callable<SSHClient> clientFactory) {
+  public SFTPClientPool(int maxClients, @NonNull Callable<SSHClient> clientFactory) {
     this.maxClients = maxClients;
     this.clientFactory = clientFactory;
   }
 
-  public @NotNull SFTPClientWrapper takeClient() {
+  public @NonNull SFTPClientWrapper takeClient() {
     try {
       this.lock.lock();
       // try to get a client from the pool
@@ -83,7 +83,7 @@ public class SFTPClientPool {
     }
   }
 
-  public void returnClient(@NotNull SFTPClientWrapper client) {
+  public void returnClient(@NonNull SFTPClientWrapper client) {
     try {
       this.lock.lock();
       // check if there is any promise waiting for a client
@@ -119,7 +119,7 @@ public class SFTPClientPool {
     }
   }
 
-  private @NotNull SFTPClientWrapper createAndRegisterClient() throws Exception {
+  private @NonNull SFTPClientWrapper createAndRegisterClient() throws Exception {
     // try to create the client first
     var client = new SFTPClientWrapper(new SFTPEngine(this.clientFactory.call()).init());
     // the client was created successfully - increase the created count

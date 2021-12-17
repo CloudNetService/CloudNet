@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.console.animation.progressbar.wrapper;
 import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.console.animation.progressbar.ConsoleProgressAnimation;
 import java.util.Iterator;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class WrappedIterator<T> implements Iterator<T> {
 
@@ -27,9 +27,9 @@ public final class WrappedIterator<T> implements Iterator<T> {
   private final ConsoleProgressAnimation animation;
 
   public WrappedIterator(
-    @NotNull Iterator<T> wrapped,
-    @NotNull IConsole console,
-    @NotNull ConsoleProgressAnimation animation
+    @NonNull Iterator<T> wrapped,
+    @NonNull IConsole console,
+    @NonNull ConsoleProgressAnimation animation
   ) {
     this.wrapped = wrapped;
     this.animation = animation;

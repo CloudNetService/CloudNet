@@ -39,7 +39,7 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 final class VelocityBridgeManagement extends PlatformBridgeManagement<Player, NetworkPlayerProxyInfo> {
@@ -49,7 +49,7 @@ final class VelocityBridgeManagement extends PlatformBridgeManagement<Player, Ne
   private final ProxyServer proxyServer;
   private final PlayerExecutor globalDirectPlayerExecutor;
 
-  public VelocityBridgeManagement(@NotNull ProxyServer proxyServer) {
+  public VelocityBridgeManagement(@NonNull ProxyServer proxyServer) {
     super(Wrapper.instance());
     // init fields
     this.proxyServer = proxyServer;
@@ -75,18 +75,18 @@ final class VelocityBridgeManagement extends PlatformBridgeManagement<Player, Ne
   }
 
   @Override
-  public void registerServices(@NotNull IServicesRegistry registry) {
+  public void registerServices(@NonNull IServicesRegistry registry) {
     registry.registerService(IPlayerManager.class, "PlayerManager", this.playerManager);
     registry.registerService(PlatformBridgeManagement.class, "VelocityBridgeManagement", this);
   }
 
   @Override
-  public @NotNull ServicePlayer wrapPlayer(@NotNull Player player) {
+  public @NonNull ServicePlayer wrapPlayer(@NonNull Player player) {
     return new ServicePlayer(player.getUniqueId(), player.getUsername());
   }
 
   @Override
-  public @NotNull NetworkPlayerProxyInfo createPlayerInformation(@NotNull Player player) {
+  public @NonNull NetworkPlayerProxyInfo createPlayerInformation(@NonNull Player player) {
     return new NetworkPlayerProxyInfo(
       player.getUniqueId(),
       player.getUsername(),
@@ -99,12 +99,12 @@ final class VelocityBridgeManagement extends PlatformBridgeManagement<Player, Ne
   }
 
   @Override
-  public @NotNull BiFunction<Player, String, Boolean> permissionFunction() {
+  public @NonNull BiFunction<Player, String, Boolean> permissionFunction() {
     return PERM_FUNCTION;
   }
 
   @Override
-  public boolean isOnAnyFallbackInstance(@NotNull Player player) {
+  public boolean isOnAnyFallbackInstance(@NonNull Player player) {
     return this.isOnAnyFallbackInstance(
       player.getCurrentServer().map(connection -> connection.getServerInfo().getName()).orElse(null),
       player.getVirtualHost().map(InetSocketAddress::getHostString).orElse(null),
@@ -112,14 +112,14 @@ final class VelocityBridgeManagement extends PlatformBridgeManagement<Player, Ne
   }
 
   @Override
-  public @NotNull Optional<ServiceInfoSnapshot> fallback(@NotNull Player player) {
+  public @NonNull Optional<ServiceInfoSnapshot> fallback(@NonNull Player player) {
     return this.fallback(
       player,
       player.getCurrentServer().map(connection -> connection.getServerInfo().getName()).orElse(null));
   }
 
   @Override
-  public @NotNull Optional<ServiceInfoSnapshot> fallback(@NotNull Player player, @Nullable String currServer) {
+  public @NonNull Optional<ServiceInfoSnapshot> fallback(@NonNull Player player, @Nullable String currServer) {
     return this.fallback(
       player.getUniqueId(),
       currServer,
@@ -128,17 +128,17 @@ final class VelocityBridgeManagement extends PlatformBridgeManagement<Player, Ne
   }
 
   @Override
-  public void handleFallbackConnectionSuccess(@NotNull Player player) {
+  public void handleFallbackConnectionSuccess(@NonNull Player player) {
     this.handleFallbackConnectionSuccess(player.getUniqueId());
   }
 
   @Override
-  public void removeFallbackProfile(@NotNull Player player) {
+  public void removeFallbackProfile(@NonNull Player player) {
     this.removeFallbackProfile(player.getUniqueId());
   }
 
   @Override
-  public @NotNull PlayerExecutor directPlayerExecutor(@NotNull UUID uniqueId) {
+  public @NonNull PlayerExecutor directPlayerExecutor(@NonNull UUID uniqueId) {
     return uniqueId.equals(PlayerExecutor.GLOBAL_UNIQUE_ID)
       ? this.globalDirectPlayerExecutor
       : new VelocityDirectPlayerExecutor(
@@ -149,7 +149,7 @@ final class VelocityBridgeManagement extends PlatformBridgeManagement<Player, Ne
   }
 
   @Override
-  public void appendServiceInformation(@NotNull ServiceInfoSnapshot snapshot) {
+  public void appendServiceInformation(@NonNull ServiceInfoSnapshot snapshot) {
     super.appendServiceInformation(snapshot);
     // append the velocity specific information
     snapshot.properties().append("Online-Count", this.proxyServer.getPlayerCount());

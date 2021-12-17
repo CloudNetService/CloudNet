@@ -23,7 +23,7 @@ import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
@@ -34,141 +34,141 @@ import org.jetbrains.annotations.UnknownNullability;
 public interface IDocument<R extends IDocument<R>>
   extends Serializable, DocPropertyHolder, IPersistable, IReadable, Iterable<String>, Cloneable {
 
-  @NotNull Collection<String> keys();
+  @NonNull Collection<String> keys();
 
   int size();
 
-  @NotNull R clear();
+  @NonNull R clear();
 
-  @NotNull R remove(@NotNull String key);
+  @NonNull R remove(@NonNull String key);
 
-  boolean contains(@NotNull String key);
+  boolean contains(@NonNull String key);
 
-  @UnknownNullability <T> T toInstanceOf(@NotNull Class<T> clazz);
+  @UnknownNullability <T> T toInstanceOf(@NonNull Class<T> clazz);
 
-  @UnknownNullability <T> T toInstanceOf(@NotNull Type clazz);
+  @UnknownNullability <T> T toInstanceOf(@NonNull Type clazz);
 
-  @NotNull R append(@NotNull String key, @Nullable Object value);
+  @NonNull R append(@NonNull String key, @Nullable Object value);
 
-  @NotNull R append(@NotNull String key, @Nullable Number value);
+  @NonNull R append(@NonNull String key, @Nullable Number value);
 
-  @NotNull R append(@NotNull String key, @Nullable Boolean value);
+  @NonNull R append(@NonNull String key, @Nullable Boolean value);
 
-  @NotNull R append(@NotNull String key, @Nullable String value);
+  @NonNull R append(@NonNull String key, @Nullable String value);
 
-  @NotNull R append(@NotNull String key, @Nullable Character value);
+  @NonNull R append(@NonNull String key, @Nullable Character value);
 
-  @NotNull R append(@NotNull String key, @Nullable R value);
+  @NonNull R append(@NonNull String key, @Nullable R value);
 
-  @NotNull R append(@Nullable R t);
+  @NonNull R append(@Nullable R t);
 
-  @NotNull R appendNull(@NotNull String key);
+  @NonNull R appendNull(@NonNull String key);
 
-  @NotNull R getDocument(@NotNull String key);
+  @NonNull R getDocument(@NonNull String key);
 
-  default int getInt(@NotNull String key) {
+  default int getInt(@NonNull String key) {
     return this.getInt(key, 0);
   }
 
-  default double getDouble(@NotNull String key) {
+  default double getDouble(@NonNull String key) {
     return this.getDouble(key, 0);
   }
 
-  default float getFloat(@NotNull String key) {
+  default float getFloat(@NonNull String key) {
     return this.getFloat(key, 0);
   }
 
-  default byte getByte(@NotNull String key) {
+  default byte getByte(@NonNull String key) {
     return this.getByte(key, (byte) 0);
   }
 
-  default short getShort(@NotNull String key) {
+  default short getShort(@NonNull String key) {
     return this.getShort(key, (short) 0);
   }
 
-  default long getLong(@NotNull String key) {
+  default long getLong(@NonNull String key) {
     return this.getLong(key, 0);
   }
 
-  default boolean getBoolean(@NotNull String key) {
+  default boolean getBoolean(@NonNull String key) {
     return this.getBoolean(key, false);
   }
 
-  default @UnknownNullability String getString(@NotNull String key) {
+  default @UnknownNullability String getString(@NonNull String key) {
     return this.getString(key, null);
   }
 
-  default char getChar(@NotNull String key) {
+  default char getChar(@NonNull String key) {
     return this.getChar(key, (char) 0);
   }
 
-  default @UnknownNullability Object get(@NotNull String key) {
+  default @UnknownNullability Object get(@NonNull String key) {
     return this.get(key, (Object) null);
   }
 
-  default @UnknownNullability <T> T get(@NotNull String key, @NotNull Class<T> clazz) {
+  default @UnknownNullability <T> T get(@NonNull String key, @NonNull Class<T> clazz) {
     return this.get(key, clazz, null);
   }
 
-  default @UnknownNullability <T> T get(@NotNull String key, @NotNull Type type) {
+  default @UnknownNullability <T> T get(@NonNull String key, @NonNull Type type) {
     return this.get(key, type, null);
   }
 
-  @UnknownNullability R getDocument(@NotNull String key, @Nullable R def);
+  @UnknownNullability R getDocument(@NonNull String key, @Nullable R def);
 
-  int getInt(@NotNull String key, int def);
+  int getInt(@NonNull String key, int def);
 
-  double getDouble(@NotNull String key, double def);
+  double getDouble(@NonNull String key, double def);
 
-  float getFloat(@NotNull String key, float def);
+  float getFloat(@NonNull String key, float def);
 
-  byte getByte(@NotNull String key, byte def);
+  byte getByte(@NonNull String key, byte def);
 
-  short getShort(@NotNull String key, short def);
+  short getShort(@NonNull String key, short def);
 
-  long getLong(@NotNull String key, long def);
+  long getLong(@NonNull String key, long def);
 
-  boolean getBoolean(@NotNull String key, boolean def);
+  boolean getBoolean(@NonNull String key, boolean def);
 
-  @UnknownNullability String getString(@NotNull String key, @Nullable String def);
+  @UnknownNullability String getString(@NonNull String key, @Nullable String def);
 
-  char getChar(@NotNull String key, char def);
+  char getChar(@NonNull String key, char def);
 
-  @UnknownNullability Object get(@NotNull String key, @Nullable Object def);
+  @UnknownNullability Object get(@NonNull String key, @Nullable Object def);
 
-  @UnknownNullability <T> T get(@NotNull String key, @NotNull Class<T> clazz, @Nullable T def);
+  @UnknownNullability <T> T get(@NonNull String key, @NonNull Class<T> clazz, @Nullable T def);
 
-  @UnknownNullability <T> T get(@NotNull String key, @NotNull Type type, @Nullable T def);
+  @UnknownNullability <T> T get(@NonNull String key, @NonNull Type type, @Nullable T def);
 
   default boolean empty() {
     return this.size() == 0;
   }
 
-  default @NotNull Stream<String> stream() {
+  default @NonNull Stream<String> stream() {
     return StreamSupport.stream(this.spliterator(), false);
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  default @NotNull <E> R property(@NotNull DocProperty<E> docProperty, @Nullable E val) {
+  default @NonNull <E> R property(@NonNull DocProperty<E> docProperty, @Nullable E val) {
     docProperty.append(this, val);
     return (R) this;
   }
 
   @Override
-  default <E> @UnknownNullability E property(@NotNull DocProperty<E> docProperty) {
+  default <E> @UnknownNullability E property(@NonNull DocProperty<E> docProperty) {
     return docProperty.get(this);
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  default @NotNull <E> R removeProperty(@NotNull DocProperty<E> docProperty) {
+  default @NonNull <E> R removeProperty(@NonNull DocProperty<E> docProperty) {
     docProperty.remove(this);
     return (R) this;
   }
 
   @Override
-  default <E> boolean hasProperty(@NotNull DocProperty<E> docProperty) {
+  default <E> boolean hasProperty(@NonNull DocProperty<E> docProperty) {
     return docProperty.isAppendedTo(this);
   }
 }

@@ -20,13 +20,13 @@ import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import java.util.Collection;
 import java.util.function.Consumer;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
-public record NetworkChannelsPacketSplitter(@NotNull Collection<INetworkChannel> channels)
+public record NetworkChannelsPacketSplitter(@NonNull Collection<INetworkChannel> channels)
   implements Consumer<IPacket> {
 
   @Override
-  public void accept(@NotNull IPacket packet) {
+  public void accept(@NonNull IPacket packet) {
     // disable releasing of the content as we need to content multiple times
     packet.content().disableReleasing();
     // write to all channels

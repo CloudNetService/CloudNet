@@ -18,17 +18,17 @@ package eu.cloudnetservice.cloudnet.ext.syncproxy;
 
 import de.dytanic.cloudnet.driver.event.Event;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.config.SyncProxyConfiguration;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class SyncProxyConfigurationUpdateEvent extends Event {
 
   private final SyncProxyConfiguration configuration;
 
-  public SyncProxyConfigurationUpdateEvent(@NotNull SyncProxyConfiguration configuration) {
+  public SyncProxyConfigurationUpdateEvent(@NonNull SyncProxyConfiguration configuration) {
     this.configuration = configuration;
   }
 
-  public @NotNull SyncProxyConfiguration configuration() {
+  public @NonNull SyncProxyConfiguration configuration() {
     return this.configuration;
   }
 }

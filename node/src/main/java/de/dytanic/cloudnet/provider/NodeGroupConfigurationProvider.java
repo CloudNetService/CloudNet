@@ -39,7 +39,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
@@ -55,7 +55,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
   private final IEventManager eventManager;
   private final Map<String, GroupConfiguration> groupConfigurations = new ConcurrentHashMap<>();
 
-  public NodeGroupConfigurationProvider(@NotNull CloudNet nodeInstance) {
+  public NodeGroupConfigurationProvider(@NonNull CloudNet nodeInstance) {
     this.eventManager = nodeInstance.eventManager();
     this.eventManager.registerListener(new GroupChannelMessageListener(this.eventManager, this));
 
@@ -90,12 +90,12 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
   }
 
   @Override
-  public @NotNull @UnmodifiableView Collection<GroupConfiguration> groupConfigurations() {
+  public @NonNull @UnmodifiableView Collection<GroupConfiguration> groupConfigurations() {
     return Collections.unmodifiableCollection(this.groupConfigurations.values());
   }
 
   @Override
-  public void groupConfigurations(@NotNull Collection<GroupConfiguration> groupConfigurations) {
+  public void groupConfigurations(@NonNull Collection<GroupConfiguration> groupConfigurations) {
     this.groupConfigurationSilently(groupConfigurations);
     // publish the change to the cluster
     ChannelMessage.builder()
@@ -108,17 +108,17 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
   }
 
   @Override
-  public @Nullable GroupConfiguration groupConfiguration(@NotNull String name) {
+  public @Nullable GroupConfiguration groupConfiguration(@NonNull String name) {
     return this.groupConfigurations.get(name);
   }
 
   @Override
-  public boolean groupConfigurationPresent(@NotNull String name) {
+  public boolean groupConfigurationPresent(@NonNull String name) {
     return this.groupConfigurations.containsKey(name);
   }
 
   @Override
-  public void addGroupConfiguration(@NotNull GroupConfiguration groupConfiguration) {
+  public void addGroupConfiguration(@NonNull GroupConfiguration groupConfiguration) {
     if (!this.eventManager.callEvent(new LocalGroupConfigurationAddEvent(groupConfiguration)).cancelled()) {
       this.addGroupConfigurationSilently(groupConfiguration);
       // publish the change to the cluster
@@ -133,7 +133,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
   }
 
   @Override
-  public void removeGroupConfigurationByName(@NotNull String name) {
+  public void removeGroupConfigurationByName(@NonNull String name) {
     var configuration = this.groupConfiguration(name);
     if (configuration != null) {
       this.removeGroupConfiguration(configuration);
@@ -141,7 +141,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
   }
 
   @Override
-  public void removeGroupConfiguration(@NotNull GroupConfiguration groupConfiguration) {
+  public void removeGroupConfiguration(@NonNull GroupConfiguration groupConfiguration) {
     if (!this.eventManager.callEvent(new LocalGroupConfigurationRemoveEvent(groupConfiguration)).cancelled()) {
       this.removeGroupConfigurationSilently(groupConfiguration);
       // publish the change to the cluster
@@ -155,21 +155,21 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
     }
   }
 
-  public void addGroupConfigurationSilently(@NotNull GroupConfiguration groupConfiguration) {
+  public void addGroupConfigurationSilently(@NonNull GroupConfiguration groupConfiguration) {
     // add the group to the local cache
     this.groupConfigurations.put(groupConfiguration.name(), groupConfiguration);
     // store the group file
     this.writeGroupConfiguration(groupConfiguration);
   }
 
-  public void removeGroupConfigurationSilently(@NotNull GroupConfiguration groupConfiguration) {
+  public void removeGroupConfigurationSilently(@NonNull GroupConfiguration groupConfiguration) {
     // remove the group from the cache
     this.groupConfigurations.remove(groupConfiguration.name());
     // remove the local file
     FileUtils.delete(this.groupFile(groupConfiguration));
   }
 
-  public void groupConfigurationSilently(@NotNull Collection<GroupConfiguration> groupConfigurations) {
+  public void groupConfigurationSilently(@NonNull Collection<GroupConfiguration> groupConfigurations) {
     // update the local cache
     this.groupConfigurations.clear();
     groupConfigurations.forEach(config -> this.groupConfigurations.put(config.name(), config));
@@ -190,11 +190,11 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
     }
   }
 
-  protected @NotNull Path groupFile(@NotNull GroupConfiguration configuration) {
+  protected @NonNull Path groupFile(@NonNull GroupConfiguration configuration) {
     return GROUP_DIRECTORY_PATH.resolve(configuration.name() + ".json");
   }
 
-  protected void writeGroupConfiguration(@NotNull GroupConfiguration configuration) {
+  protected void writeGroupConfiguration(@NonNull GroupConfiguration configuration) {
     JsonDocument.newDocument(configuration).write(this.groupFile(configuration));
   }
 

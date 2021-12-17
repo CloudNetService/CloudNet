@@ -22,9 +22,9 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import java.nio.file.Path;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -58,10 +58,10 @@ public class ModuleConfiguration {
   }
 
   public ModuleConfiguration(
-    @NotNull String group,
-    @NotNull String name,
-    @NotNull String version,
-    @NotNull String main
+    @NonNull String group,
+    @NonNull String name,
+    @NonNull String version,
+    @NonNull String main
   ) {
     this.group = Preconditions.checkNotNull(group, "group cannot be null");
     this.name = Preconditions.checkNotNull(name, "name cannot be null");
@@ -73,18 +73,18 @@ public class ModuleConfiguration {
   public ModuleConfiguration(
     boolean runtimeModule,
     boolean storesSensitiveData,
-    @NotNull String group,
-    @NotNull String name,
-    @NotNull String version,
-    @NotNull String main,
-    @NotNull String description,
-    @NotNull String author,
-    @NotNull String website,
-    @NotNull String dataFolder,
-    @NotNull ModuleRepository[] repositories,
-    @NotNull ModuleDependency[] dependencies,
+    @NonNull String group,
+    @NonNull String name,
+    @NonNull String version,
+    @NonNull String main,
+    @NonNull String description,
+    @NonNull String author,
+    @NonNull String website,
+    @NonNull String dataFolder,
+    @NonNull ModuleRepository[] repositories,
+    @NonNull ModuleDependency[] dependencies,
     int minJavaVersionId,
-    @NotNull JsonDocument properties
+    @NonNull JsonDocument properties
   ) {
     this.runtimeModule = runtimeModule;
     this.storesSensitiveData = storesSensitiveData;
@@ -127,7 +127,7 @@ public class ModuleConfiguration {
    *
    * @return the group id of this module.
    */
-  public @NotNull String group() {
+  public @NonNull String group() {
     return this.group;
   }
 
@@ -136,7 +136,7 @@ public class ModuleConfiguration {
    *
    * @return the name of this module.
    */
-  public @NotNull String name() {
+  public @NonNull String name() {
     return this.name;
   }
 
@@ -145,7 +145,7 @@ public class ModuleConfiguration {
    *
    * @return the version of this module.
    */
-  public @NotNull String version() {
+  public @NonNull String version() {
     return this.version;
   }
 
@@ -154,7 +154,7 @@ public class ModuleConfiguration {
    *
    * @return the main class of this module.
    */
-  public @NotNull String mainClass() {
+  public @NonNull String mainClass() {
     return this.main;
   }
 
@@ -201,7 +201,7 @@ public class ModuleConfiguration {
    *                                    data folder is specified explicitly.
    * @return the data folder in path form of this module.
    */
-  public @NotNull Path dataFolder(@NotNull Path moduleProviderBaseDirectory) {
+  public @NonNull Path dataFolder(@NonNull Path moduleProviderBaseDirectory) {
     if (this.dataFolder == null) {
       // default data folder name based on the module name
       return moduleProviderBaseDirectory.resolve(this.name);
@@ -263,7 +263,7 @@ public class ModuleConfiguration {
    * @param javaVersion the runtime version to check.
    * @return if this module can run on the specified java version.
    */
-  public boolean canRunOn(@NotNull JavaVersion javaVersion) {
+  public boolean canRunOn(@NonNull JavaVersion javaVersion) {
     var minJavaVersion = this.minJavaVersion();
     return minJavaVersion == null || minJavaVersion.isSupportedByMax(javaVersion);
   }
@@ -287,7 +287,7 @@ public class ModuleConfiguration {
    * @param fieldName the name of the field which gets checked.
    * @throws ModuleConfigurationPropertyNotFoundException if the given field value is null or empty.
    */
-  protected void validatePropertyNotNull(@Nullable String field, @NotNull String fieldName) {
+  protected void validatePropertyNotNull(@Nullable String field, @NonNull String fieldName) {
     if (field == null || field.trim().isEmpty()) {
       throw new ModuleConfigurationPropertyNotFoundException(fieldName);
     }

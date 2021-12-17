@@ -20,7 +20,7 @@ import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * The configuration mirror of the .wrapper/wrapper.json file in the working folder from the service process. It
@@ -35,21 +35,21 @@ public interface IWrapperConfiguration {
    *
    * @return the string which includes the key
    */
-  @NotNull String connectionKey();
+  @NonNull String connectionKey();
 
   /**
    * The address of a listener by the node
    *
    * @return the target local listener address of the node
    */
-  @NotNull HostAndPort targetListener();
+  @NonNull HostAndPort targetListener();
 
   /**
    * The first own serviceConfiguration with all important information about the service
    *
    * @return the instance of the ServiceConfiguration class
    */
-  @NotNull ServiceConfiguration serviceConfiguration();
+  @NonNull ServiceConfiguration serviceConfiguration();
 
   /**
    * The first serviceInfoSnapshot which has the important data for all next serviceInfoSnapshots, which the wrapper has
@@ -57,12 +57,12 @@ public interface IWrapperConfiguration {
    *
    * @return the serviceInfoSnapshot sample
    */
-  @NotNull ServiceInfoSnapshot serviceInfoSnapshot();
+  @NonNull ServiceInfoSnapshot serviceInfoSnapshot();
 
   /**
    * The ssl configuration, which needs for an optional ssl client connection.
    *
    * @return the configuration instance, which includes all important ssl settings, for a client ssl connection
    */
-  @NotNull SSLConfiguration sslConfiguration();
+  @NonNull SSLConfiguration sslConfiguration();
 }

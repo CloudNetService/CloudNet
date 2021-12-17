@@ -30,7 +30,7 @@ import de.dytanic.cloudnet.ext.bridge.event.BridgeConfigurationUpdateEvent;
 import de.dytanic.cloudnet.ext.bridge.node.network.NodeBridgeChannelMessageListener;
 import de.dytanic.cloudnet.ext.bridge.node.player.NodePlayerManager;
 import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class NodeBridgeManagement implements BridgeManagement {
 
@@ -41,11 +41,11 @@ public class NodeBridgeManagement implements BridgeManagement {
   private BridgeConfiguration configuration;
 
   public NodeBridgeManagement(
-    @NotNull CloudNetBridgeModule bridgeModule,
-    @NotNull BridgeConfiguration configuration,
-    @NotNull IEventManager eventManager,
-    @NotNull DataSyncRegistry registry,
-    @NotNull RPCProviderFactory providerFactory
+    @NonNull CloudNetBridgeModule bridgeModule,
+    @NonNull BridgeConfiguration configuration,
+    @NonNull IEventManager eventManager,
+    @NonNull DataSyncRegistry registry,
+    @NonNull RPCProviderFactory providerFactory
   ) {
     this.eventManager = eventManager;
     this.bridgeModule = bridgeModule;
@@ -59,12 +59,12 @@ public class NodeBridgeManagement implements BridgeManagement {
   }
 
   @Override
-  public @NotNull BridgeConfiguration configuration() {
+  public @NonNull BridgeConfiguration configuration() {
     return this.configuration;
   }
 
   @Override
-  public void configuration(@NotNull BridgeConfiguration configuration) {
+  public void configuration(@NonNull BridgeConfiguration configuration) {
     // update the configuration locally
     this.configurationSilently(configuration);
     // sync the config to the cluster
@@ -80,12 +80,12 @@ public class NodeBridgeManagement implements BridgeManagement {
   }
 
   @Override
-  public @NotNull IPlayerManager playerManager() {
+  public @NonNull IPlayerManager playerManager() {
     return this.playerManager;
   }
 
   @Override
-  public void registerServices(@NotNull IServicesRegistry registry) {
+  public void registerServices(@NonNull IServicesRegistry registry) {
     registry.registerService(IPlayerManager.class, "NodePlayerManager", this.playerManager);
   }
 
@@ -100,7 +100,7 @@ public class NodeBridgeManagement implements BridgeManagement {
     }
   }
 
-  public void configurationSilently(@NotNull BridgeConfiguration configuration) {
+  public void configurationSilently(@NonNull BridgeConfiguration configuration) {
     // set and write the config
     this.configuration = configuration;
     this.bridgeModule.writeConfig(JsonDocument.newDocument(configuration));

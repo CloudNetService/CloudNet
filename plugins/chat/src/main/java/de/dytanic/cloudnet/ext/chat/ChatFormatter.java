@@ -20,7 +20,7 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class ChatFormatter {
@@ -30,13 +30,13 @@ public final class ChatFormatter {
   }
 
   public static @Nullable String buildFormat(
-    @NotNull UUID playerId,
-    @NotNull String playerName,
-    @NotNull String displayName,
-    @NotNull String format,
-    @NotNull String message,
-    @NotNull Function<String, Boolean> permissionTester,
-    @NotNull BiFunction<Character, String, String> colorReplacer
+    @NonNull UUID playerId,
+    @NonNull String playerName,
+    @NonNull String displayName,
+    @NonNull String format,
+    @NonNull String message,
+    @NonNull Function<String, Boolean> permissionTester,
+    @NonNull BiFunction<Character, String, String> colorReplacer
   ) {
     var permissionUser = CloudNetDriver.instance().permissionManagement().user(playerId);
     // check if the cloud knows a permission player

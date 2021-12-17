@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.http;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import java.util.Map;
 import java.util.UUID;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public interface HttpSession {
@@ -28,21 +28,21 @@ public interface HttpSession {
 
   long refreshFor(long liveMillis);
 
-  @NotNull String uniqueId();
+  @NonNull String uniqueId();
 
-  @NotNull UUID userId();
+  @NonNull UUID userId();
 
   @Nullable PermissionUser user();
 
-  <T> T property(@NotNull String key);
+  <T> T property(@NonNull String key);
 
-  <T> T property(@NotNull String key, @Nullable T def);
+  <T> T property(@NonNull String key, @Nullable T def);
 
-  @NotNull HttpSession setProperty(@NotNull String key, @NotNull Object value);
+  @NonNull HttpSession setProperty(@NonNull String key, @NonNull Object value);
 
-  @NotNull HttpSession removeProperty(@NotNull String key);
+  @NonNull HttpSession removeProperty(@NonNull String key);
 
-  boolean hasProperty(@NotNull String key);
+  boolean hasProperty(@NonNull String key);
 
-  @NotNull Map<String, Object> properties();
+  @NonNull Map<String, Object> properties();
 }

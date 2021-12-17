@@ -19,22 +19,22 @@ package de.dytanic.cloudnet.ext.bridge.platform.bungeecord.command;
 import static net.md_5.bungee.api.chat.TextComponent.fromLegacyText;
 
 import de.dytanic.cloudnet.ext.bridge.platform.PlatformBridgeManagement;
+import lombok.NonNull;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ServerConnectEvent.Reason;
 import net.md_5.bungee.api.plugin.Command;
-import org.jetbrains.annotations.NotNull;
 
 public final class BungeeCordHubCommand extends Command {
 
   private final PlatformBridgeManagement<ProxiedPlayer, ?> management;
 
   public BungeeCordHubCommand(
-    @NotNull PlatformBridgeManagement<ProxiedPlayer, ?> management,
-    @NotNull String name,
-    String @NotNull ... aliases
+    @NonNull PlatformBridgeManagement<ProxiedPlayer, ?> management,
+    @NonNull String name,
+    String @NonNull ... aliases
   ) {
     super(name, null, aliases);
     this.management = management;

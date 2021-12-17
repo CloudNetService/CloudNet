@@ -24,7 +24,7 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacketSender;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import java.io.InputStream;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
@@ -41,7 +41,7 @@ public interface IClusterNodeServerProvider extends NodeServerProvider<IClusterN
    * @param channel the channel, that the node is connected with
    * @return the IClusterNodeServer instance or null if the node doesn't registered
    */
-  @Nullable IClusterNodeServer nodeServer(@NotNull INetworkChannel channel);
+  @Nullable IClusterNodeServer nodeServer(@NonNull INetworkChannel channel);
 
   /**
    * Set, replace or update all cluster nodes that are configured
@@ -49,14 +49,14 @@ public interface IClusterNodeServerProvider extends NodeServerProvider<IClusterN
    * @param networkCluster the specific cluster network node configuration, that can create new IClusterNodeServer
    *                       instances
    */
-  void clusterServers(@NotNull NetworkCluster networkCluster);
+  void clusterServers(@NonNull NetworkCluster networkCluster);
 
-  @NotNull
-  ITask<TransferStatus> deployTemplateToCluster(@NotNull ServiceTemplate template, @NotNull InputStream stream,
+  @NonNull
+  ITask<TransferStatus> deployTemplateToCluster(@NonNull ServiceTemplate template, @NonNull InputStream stream,
     boolean overwrite);
 
-  @NotNull
-  ITask<TransferStatus> deployStaticServiceToCluster(@NotNull String name, @NotNull InputStream stream,
+  @NonNull
+  ITask<TransferStatus> deployStaticServiceToCluster(@NonNull String name, @NonNull InputStream stream,
     boolean overwrite);
 
   /**
@@ -65,7 +65,7 @@ public interface IClusterNodeServerProvider extends NodeServerProvider<IClusterN
    * @return all node server network channels which are currently connected.
    */
   @UnmodifiableView
-  @NotNull Collection<INetworkChannel> connectedChannels();
+  @NonNull Collection<INetworkChannel> connectedChannels();
 
   /**
    * Get whether any other node is connected with this node.

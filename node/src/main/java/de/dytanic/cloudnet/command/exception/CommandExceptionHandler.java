@@ -37,7 +37,7 @@ import de.dytanic.cloudnet.event.command.CommandNotFoundEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class CommandExceptionHandler {
 
@@ -143,8 +143,8 @@ public class CommandExceptionHandler {
    * @return whether the cloud can handle the input or not
    */
   protected boolean replyWithCommandHelp(
-    @NotNull CommandSource source,
-    @NotNull List<CommandArgument<?, ?>> currentChain
+    @NonNull CommandSource source,
+    @NonNull List<CommandArgument<?, ?>> currentChain
   ) {
     if (currentChain.isEmpty()) {
       // the command chain is empty, let the user handle the response
@@ -188,7 +188,7 @@ public class CommandExceptionHandler {
    * @param source      the source to send the usages to
    * @param commandInfo the command to print the usage for
    */
-  protected void printDefaultUsage(@NotNull CommandSource source, @NotNull CommandInfo commandInfo) {
+  protected void printDefaultUsage(@NonNull CommandSource source, @NonNull CommandInfo commandInfo) {
     for (var usage : commandInfo.usage()) {
       source.sendMessage("- " + usage);
     }

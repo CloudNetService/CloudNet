@@ -26,7 +26,7 @@ import eu.cloudnetservice.modules.npc.AbstractNPCManagement;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class NodePluginIncludeListener {
 
@@ -37,7 +37,7 @@ public final class NodePluginIncludeListener {
   private final AbstractNPCManagement management;
   private final AtomicBoolean didDownloadProtocolLib = new AtomicBoolean();
 
-  public NodePluginIncludeListener(@NotNull AbstractNPCManagement management) {
+  public NodePluginIncludeListener(@NonNull AbstractNPCManagement management) {
     this.management = management;
     // try to download protocol lib
     ConsoleProgressWrappers.wrapDownload(
@@ -54,7 +54,7 @@ public final class NodePluginIncludeListener {
   }
 
   @EventListener
-  public void includePluginIfNecessary(@NotNull CloudServicePreProcessStartEvent event) {
+  public void includePluginIfNecessary(@NonNull CloudServicePreProcessStartEvent event) {
     if (this.didDownloadProtocolLib.get()) {
       var type = event.service().serviceConfiguration().serviceId().environment();
       if (ServiceEnvironmentType.isMinecraftServer(type)) {

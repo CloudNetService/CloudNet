@@ -20,7 +20,7 @@ import de.dytanic.cloudnet.common.registry.IServicesRegistry;
 import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import de.dytanic.cloudnet.ext.bridge.config.BridgeConfiguration;
 import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 @RPCValidation
 public interface BridgeManagement {
@@ -31,13 +31,13 @@ public interface BridgeManagement {
   String BRIDGE_PLAYER_CHANNEL_NAME = "bridge_internal_player_channel";
   String BRIDGE_PLAYER_EXECUTOR_CHANNEL_NAME = "bridge_internal_player_executor_channel";
 
-  @NotNull BridgeConfiguration configuration();
+  @NonNull BridgeConfiguration configuration();
 
-  void configuration(@NotNull BridgeConfiguration configuration);
+  void configuration(@NonNull BridgeConfiguration configuration);
 
-  @NotNull IPlayerManager playerManager();
+  @NonNull IPlayerManager playerManager();
 
-  void registerServices(@NotNull IServicesRegistry registry);
+  void registerServices(@NonNull IServicesRegistry registry);
 
   void postInit();
 }

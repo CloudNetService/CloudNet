@@ -20,7 +20,7 @@ import com.google.inject.Inject;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.cloudperms.PermissionsUpdateListener;
 import de.dytanic.cloudnet.ext.cloudperms.sponge.service.CloudPermsPermissionService;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
@@ -39,20 +39,20 @@ public final class SpongeCloudPermissionsPlugin {
   private final PermissionService service;
 
   @Inject
-  public SpongeCloudPermissionsPlugin(@NotNull PluginContainer pluginContainer) {
+  public SpongeCloudPermissionsPlugin(@NonNull PluginContainer pluginContainer) {
     this.plugin = pluginContainer;
     this.service = new CloudPermsPermissionService(CloudNetDriver.instance().permissionManagement());
   }
 
   @Listener
-  public void handle(@NotNull ConstructPluginEvent event) {
+  public void handle(@NonNull ConstructPluginEvent event) {
     Sponge.eventManager().registerListeners(
       this.plugin,
       new SpongeCloudPermissionsListener(CloudNetDriver.instance().permissionManagement()));
   }
 
   @Listener
-  public void handle(@NotNull StartingEngineEvent<Server> event) {
+  public void handle(@NonNull StartingEngineEvent<Server> event) {
     CloudNetDriver.instance().eventManager().registerListener(new PermissionsUpdateListener<>(
       event.engine().scheduler().executor(this.plugin),
       player -> Sponge.server().commandManager().updateCommandTreeForPlayer(player),
@@ -62,7 +62,7 @@ public final class SpongeCloudPermissionsPlugin {
   }
 
   @Listener
-  public void handlePermissionServiceProvide(@NotNull ProvideServiceEvent.EngineScoped<PermissionService> event) {
+  public void handlePermissionServiceProvide(@NonNull ProvideServiceEvent.EngineScoped<PermissionService> event) {
     event.suggest(() -> this.service);
   }
 }

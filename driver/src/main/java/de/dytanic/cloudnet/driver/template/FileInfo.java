@@ -21,12 +21,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public record FileInfo(
-  @NotNull String path,
-  @NotNull String name,
+  @NonNull String path,
+  @NonNull String name,
   boolean directory,
   boolean hidden,
   long creationTime,
@@ -35,26 +35,26 @@ public record FileInfo(
   long size
 ) {
 
-  @NotNull
-  public static FileInfo of(@NotNull Path path) throws IOException {
+  @NonNull
+  public static FileInfo of(@NonNull Path path) throws IOException {
     return of(path, (Path) null);
   }
 
-  @NotNull
-  public static FileInfo of(@NotNull Path fullPath, @NotNull BasicFileAttributes attributes) throws IOException {
+  @NonNull
+  public static FileInfo of(@NonNull Path fullPath, @NonNull BasicFileAttributes attributes) throws IOException {
     return of(fullPath, null, attributes);
   }
 
-  @NotNull
-  public static FileInfo of(@NotNull Path path, @Nullable Path relativePath) throws IOException {
+  @NonNull
+  public static FileInfo of(@NonNull Path path, @Nullable Path relativePath) throws IOException {
     return of(path, relativePath, Files.readAttributes(path, BasicFileAttributes.class));
   }
 
-  @NotNull
+  @NonNull
   public static FileInfo of(
-    @NotNull Path fullPath,
+    @NonNull Path fullPath,
     @Nullable Path relativePath,
-    @NotNull BasicFileAttributes attributes
+    @NonNull BasicFileAttributes attributes
   ) throws IOException {
     if (relativePath == null) {
       relativePath = fullPath;
@@ -71,8 +71,8 @@ public record FileInfo(
       attributes.size());
   }
 
-  @NotNull
-  public static FileInfo of(@NotNull File file) throws IOException {
+  @NonNull
+  public static FileInfo of(@NonNull File file) throws IOException {
     return of(file.toPath(), file.toPath());
   }
 }

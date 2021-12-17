@@ -30,7 +30,7 @@ import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
 import de.dytanic.cloudnet.driver.network.rpc.listener.RPCPacketListener;
 import de.dytanic.cloudnet.network.listener.PacketServerChannelMessageListener;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class NodeNetworkUtils {
 
@@ -53,7 +53,7 @@ public final class NodeNetworkUtils {
     }
   }
 
-  public static void addDefaultPacketListeners(@NotNull IPacketListenerRegistry registry, @NotNull CloudNet node) {
+  public static void addDefaultPacketListeners(@NonNull IPacketListenerRegistry registry, @NonNull CloudNet node) {
     registry.addListener(
       NetworkConstants.CHANNEL_MESSAGING_CHANNEL,
       new PacketServerChannelMessageListener(node.messenger(), node.eventManager()));

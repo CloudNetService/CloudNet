@@ -35,8 +35,8 @@ import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Iterator;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
@@ -64,23 +64,23 @@ public class JsonDocument implements IDocument<JsonDocument> {
     this(new JsonObject());
   }
 
-  protected JsonDocument(@NotNull JsonObject object) {
+  protected JsonDocument(@NonNull JsonObject object) {
     this.object = object;
   }
 
-  public static @NotNull JsonDocument emptyDocument() {
+  public static @NonNull JsonDocument emptyDocument() {
     return JsonDocument.EMPTY;
   }
 
-  public static @NotNull JsonDocument newDocument() {
+  public static @NonNull JsonDocument newDocument() {
     return new JsonDocument();
   }
 
-  public static @NotNull JsonDocument newDocument(@Nullable Object value) {
+  public static @NonNull JsonDocument newDocument(@Nullable Object value) {
     return new JsonDocument(value == null ? new JsonObject() : GSON.toJsonTree(value).getAsJsonObject());
   }
 
-  public static @NotNull JsonDocument newDocument(@NotNull String key, @Nullable Object value) {
+  public static @NonNull JsonDocument newDocument(@NonNull String key, @Nullable Object value) {
     // we can ignore null
     if (value == null) {
       return JsonDocument.newDocument().append(key, (Object) null);
@@ -101,28 +101,28 @@ public class JsonDocument implements IDocument<JsonDocument> {
     }
   }
 
-  public static @NotNull JsonDocument fromJsonBytes(byte[] bytes) {
+  public static @NonNull JsonDocument fromJsonBytes(byte[] bytes) {
     return fromJsonString(new String(bytes, StandardCharsets.UTF_8));
   }
 
-  public static @NotNull JsonDocument fromJsonString(@NotNull String json) {
+  public static @NonNull JsonDocument fromJsonString(@NonNull String json) {
     return new JsonDocument(JsonParser.parseString(json).getAsJsonObject());
   }
 
-  public static @NotNull JsonDocument newDocument(@NotNull InputStream stream) {
+  public static @NonNull JsonDocument newDocument(@NonNull InputStream stream) {
     var document = JsonDocument.newDocument();
     document.read(stream);
     return document;
   }
 
-  public static @NotNull JsonDocument newDocument(@NotNull Path path) {
+  public static @NonNull JsonDocument newDocument(@NonNull Path path) {
     var document = JsonDocument.newDocument();
     document.read(path);
     return document;
   }
 
   @Override
-  public @NotNull Collection<String> keys() {
+  public @NonNull Collection<String> keys() {
     return this.object.keySet();
   }
 
@@ -132,7 +132,7 @@ public class JsonDocument implements IDocument<JsonDocument> {
   }
 
   @Override
-  public @NotNull JsonDocument clear() {
+  public @NonNull JsonDocument clear() {
     for (var key : ImmutableSet.copyOf(this.object.keySet())) {
       this.object.remove(key);
     }
@@ -141,64 +141,64 @@ public class JsonDocument implements IDocument<JsonDocument> {
   }
 
   @Override
-  public @NotNull JsonDocument remove(@NotNull String key) {
+  public @NonNull JsonDocument remove(@NonNull String key) {
     this.object.remove(key);
     return this;
   }
 
   @Override
-  public boolean contains(@NotNull String key) {
+  public boolean contains(@NonNull String key) {
     return this.object.has(key);
   }
 
   @Override
-  public <T> @UnknownNullability T toInstanceOf(@NotNull Class<T> clazz) {
+  public <T> @UnknownNullability T toInstanceOf(@NonNull Class<T> clazz) {
     return GSON.fromJson(this.object, clazz);
   }
 
   @Override
-  public <T> @UnknownNullability T toInstanceOf(@NotNull Type clazz) {
+  public <T> @UnknownNullability T toInstanceOf(@NonNull Type clazz) {
     return GSON.fromJson(this.object, clazz);
   }
 
   @Override
-  public @NotNull JsonDocument append(@NotNull String key, @Nullable Object value) {
+  public @NonNull JsonDocument append(@NonNull String key, @Nullable Object value) {
     this.object.add(key, value == null ? JsonNull.INSTANCE : GSON.toJsonTree(value));
     return this;
   }
 
   @Override
-  public @NotNull JsonDocument append(@NotNull String key, @Nullable Number value) {
+  public @NonNull JsonDocument append(@NonNull String key, @Nullable Number value) {
     this.object.addProperty(key, value);
     return this;
   }
 
   @Override
-  public @NotNull JsonDocument append(@NotNull String key, @Nullable Boolean value) {
+  public @NonNull JsonDocument append(@NonNull String key, @Nullable Boolean value) {
     this.object.addProperty(key, value);
     return this;
   }
 
   @Override
-  public @NotNull JsonDocument append(@NotNull String key, @Nullable String value) {
+  public @NonNull JsonDocument append(@NonNull String key, @Nullable String value) {
     this.object.addProperty(key, value);
     return this;
   }
 
   @Override
-  public @NotNull JsonDocument append(@NotNull String key, @Nullable Character value) {
+  public @NonNull JsonDocument append(@NonNull String key, @Nullable Character value) {
     this.object.addProperty(key, value);
     return this;
   }
 
   @Override
-  public @NotNull JsonDocument append(@NotNull String key, @Nullable JsonDocument value) {
+  public @NonNull JsonDocument append(@NonNull String key, @Nullable JsonDocument value) {
     this.object.add(key, value == null ? JsonNull.INSTANCE : value.object);
     return this;
   }
 
   @Override
-  public @NotNull JsonDocument append(@Nullable JsonDocument document) {
+  public @NonNull JsonDocument append(@Nullable JsonDocument document) {
     if (document != null) {
       for (var entry : document.object.entrySet()) {
         this.object.add(entry.getKey(), entry.getValue());
@@ -209,90 +209,90 @@ public class JsonDocument implements IDocument<JsonDocument> {
   }
 
   @Override
-  public @NotNull JsonDocument appendNull(@NotNull String key) {
+  public @NonNull JsonDocument appendNull(@NonNull String key) {
     this.object.add(key, JsonNull.INSTANCE);
     return this;
   }
 
   @Override
-  public @NotNull JsonDocument getDocument(@NotNull String key) {
+  public @NonNull JsonDocument getDocument(@NonNull String key) {
     return this.getDocument(key, JsonDocument.newDocument());
   }
 
   @Override
-  public int getInt(@NotNull String key, int def) {
+  public int getInt(@NonNull String key, int def) {
     var element = this.object.get(key);
     return element == null || !element.isJsonPrimitive() ? def : element.getAsInt();
   }
 
   @Override
-  public double getDouble(@NotNull String key, double def) {
+  public double getDouble(@NonNull String key, double def) {
     var element = this.object.get(key);
     return element == null || !element.isJsonPrimitive() ? def : element.getAsDouble();
   }
 
   @Override
-  public float getFloat(@NotNull String key, float def) {
+  public float getFloat(@NonNull String key, float def) {
     var element = this.object.get(key);
     return element == null || !element.isJsonPrimitive() ? def : element.getAsFloat();
   }
 
   @Override
-  public byte getByte(@NotNull String key, byte def) {
+  public byte getByte(@NonNull String key, byte def) {
     var element = this.object.get(key);
     return element == null || !element.isJsonPrimitive() ? def : element.getAsByte();
   }
 
   @Override
-  public short getShort(@NotNull String key, short def) {
+  public short getShort(@NonNull String key, short def) {
     var element = this.object.get(key);
     return element == null || !element.isJsonPrimitive() ? def : element.getAsShort();
   }
 
   @Override
-  public long getLong(@NotNull String key, long def) {
+  public long getLong(@NonNull String key, long def) {
     var element = this.object.get(key);
     return element == null || !element.isJsonPrimitive() ? def : element.getAsLong();
   }
 
   @Override
-  public boolean getBoolean(@NotNull String key, boolean def) {
+  public boolean getBoolean(@NonNull String key, boolean def) {
     var element = this.object.get(key);
     return element == null || !element.isJsonPrimitive() ? def : element.getAsBoolean();
   }
 
   @Override
-  public @UnknownNullability String getString(@NotNull String key, @Nullable String def) {
+  public @UnknownNullability String getString(@NonNull String key, @Nullable String def) {
     var element = this.object.get(key);
     return element == null || !element.isJsonPrimitive() ? def : element.getAsString();
   }
 
   @Override
-  public char getChar(@NotNull String key, char def) {
+  public char getChar(@NonNull String key, char def) {
     var fullString = this.getString(key);
     return fullString != null && fullString.length() > 0 ? fullString.charAt(0) : def;
   }
 
   @Override
-  public @UnknownNullability Object get(@NotNull String key, @Nullable Object def) {
+  public @UnknownNullability Object get(@NonNull String key, @Nullable Object def) {
     var element = this.object.get(key);
     return element != null ? element : def;
   }
 
   @Override
-  public <T> @UnknownNullability T get(@NotNull String key, @NotNull Class<T> clazz, @Nullable T def) {
+  public <T> @UnknownNullability T get(@NonNull String key, @NonNull Class<T> clazz, @Nullable T def) {
     var element = this.object.get(key);
     return element == null || element.isJsonNull() ? def : GSON.fromJson(element, clazz);
   }
 
   @Override
-  public <T> @UnknownNullability T get(@NotNull String key, @NotNull Type type, @Nullable T def) {
+  public <T> @UnknownNullability T get(@NonNull String key, @NonNull Type type, @Nullable T def) {
     var element = this.object.get(key);
     return element == null || element.isJsonNull() ? def : GSON.fromJson(element, type);
   }
 
   @Override
-  public @UnknownNullability JsonDocument getDocument(@NotNull String key, @Nullable JsonDocument def) {
+  public @UnknownNullability JsonDocument getDocument(@NonNull String key, @Nullable JsonDocument def) {
     var element = this.object.get(key);
     if (element != null && element.isJsonObject()) {
       return new JsonDocument(element.getAsJsonObject());
@@ -302,13 +302,13 @@ public class JsonDocument implements IDocument<JsonDocument> {
   }
 
   @Override
-  public @NotNull IPersistable write(@NotNull Writer writer) {
+  public @NonNull IPersistable write(@NonNull Writer writer) {
     GSON.toJson(this.object, writer);
     return this;
   }
 
   @Override
-  public @NotNull IReadable read(@NotNull Reader reader) {
+  public @NonNull IReadable read(@NonNull Reader reader) {
     try {
       // parse the object
       var element = JsonParser.parseReader(reader);
@@ -326,27 +326,27 @@ public class JsonDocument implements IDocument<JsonDocument> {
   }
 
   @Override
-  public @NotNull JsonDocument properties() {
+  public @NonNull JsonDocument properties() {
     return this;
   }
 
   @Override
-  public @NotNull Iterator<String> iterator() {
+  public @NonNull Iterator<String> iterator() {
     return this.object.keySet().iterator();
   }
 
   @Override
   @SuppressWarnings("MethodDoesntCallSuperMethod")
-  public @NotNull JsonDocument clone() {
+  public @NonNull JsonDocument clone() {
     return new JsonDocument(this.object.deepCopy());
   }
 
-  public @NotNull String toPrettyJson() {
+  public @NonNull String toPrettyJson() {
     return GSON.toJson(this.object);
   }
 
   @Override
-  public @NotNull String toString() {
+  public @NonNull String toString() {
     return this.object.toString();
   }
 

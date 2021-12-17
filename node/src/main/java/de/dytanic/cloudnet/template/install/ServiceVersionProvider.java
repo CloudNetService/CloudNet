@@ -48,7 +48,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import kong.unirest.Unirest;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.UnmodifiableView;
 
 public class ServiceVersionProvider {
@@ -69,11 +69,11 @@ public class ServiceVersionProvider {
   private final Map<String, ServiceVersionType> serviceVersionTypes = new ConcurrentHashMap<>();
   private final Map<String, ServiceEnvironmentType> serviceEnvironmentTypes = new ConcurrentHashMap<>();
 
-  public ServiceVersionProvider(@NotNull IEventManager eventManager) {
+  public ServiceVersionProvider(@NonNull IEventManager eventManager) {
     eventManager.registerListener(new TemplatePrepareListener());
   }
 
-  public void loadServiceVersionTypesOrDefaults(@NotNull String url) {
+  public void loadServiceVersionTypesOrDefaults(@NonNull String url) {
     try {
       if (!this.loadServiceVersionTypes(url)) {
         this.loadDefaultVersionTypes();
@@ -83,7 +83,7 @@ public class ServiceVersionProvider {
     }
   }
 
-  public boolean loadServiceVersionTypes(@NotNull String url) throws IOException {
+  public boolean loadServiceVersionTypes(@NonNull String url) throws IOException {
     this.serviceVersionTypes.clear();
 
     return Unirest
@@ -132,7 +132,7 @@ public class ServiceVersionProvider {
     }
   }
 
-  public void registerServiceVersionType(@NotNull ServiceVersionType versionType) {
+  public void registerServiceVersionType(@NonNull ServiceVersionType versionType) {
     // ensure that we know the target environment for the service version
     Verify.verify(
       this.getEnvironmentType(versionType.environmentType()).isPresent(),
@@ -143,19 +143,19 @@ public class ServiceVersionProvider {
     this.serviceVersionTypes.put(versionType.name().toLowerCase(), versionType);
   }
 
-  public @NotNull Optional<ServiceVersionType> getServiceVersionType(@NotNull String name) {
+  public @NonNull Optional<ServiceVersionType> getServiceVersionType(@NonNull String name) {
     return Optional.ofNullable(this.serviceVersionTypes.get(name.toLowerCase()));
   }
 
-  public void registerServiceEnvironmentType(@NotNull ServiceEnvironmentType environmentType) {
+  public void registerServiceEnvironmentType(@NonNull ServiceEnvironmentType environmentType) {
     this.serviceEnvironmentTypes.put(environmentType.name().toUpperCase(), environmentType);
   }
 
-  public @NotNull Optional<ServiceEnvironmentType> getEnvironmentType(@NotNull String name) {
+  public @NonNull Optional<ServiceEnvironmentType> getEnvironmentType(@NonNull String name) {
     return Optional.ofNullable(this.serviceEnvironmentTypes.get(name.toUpperCase()));
   }
 
-  public boolean installServiceVersion(@NotNull InstallInformation information, boolean force) {
+  public boolean installServiceVersion(@NonNull InstallInformation information, boolean force) {
     var fullVersionIdentifier = String.format("%s-%s",
       information.serviceVersionType().name(),
       information.serviceVersion().name());
@@ -235,12 +235,12 @@ public class ServiceVersionProvider {
   }
 
   @UnmodifiableView
-  public @NotNull Map<String, ServiceVersionType> serviceVersionTypes() {
+  public @NonNull Map<String, ServiceVersionType> serviceVersionTypes() {
     return Collections.unmodifiableMap(this.serviceVersionTypes);
   }
 
   @UnmodifiableView
-  public @NotNull Map<String, ServiceEnvironmentType> knownEnvironments() {
+  public @NonNull Map<String, ServiceEnvironmentType> knownEnvironments() {
     return Collections.unmodifiableMap(this.serviceEnvironmentTypes);
   }
 }

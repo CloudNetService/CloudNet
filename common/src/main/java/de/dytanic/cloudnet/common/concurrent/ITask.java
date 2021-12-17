@@ -21,55 +21,55 @@ import java.util.Collection;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.UnmodifiableView;
 
 public interface ITask<V> extends Future<V> {
 
-  @NotNull ITask<V> addListener(@NotNull ITaskListener<V> listener);
+  @NonNull ITask<V> addListener(@NonNull ITaskListener<V> listener);
 
-  @NotNull ITask<V> clearListeners();
+  @NonNull ITask<V> clearListeners();
 
   @UnmodifiableView
-  @NotNull Collection<ITaskListener<V>> listeners();
+  @NonNull Collection<ITaskListener<V>> listeners();
 
   @UnknownNullability V getDef(@Nullable V def);
 
-  @UnknownNullability V get(long time, @NotNull TimeUnit timeUnit, @Nullable V def);
+  @UnknownNullability V get(long time, @NonNull TimeUnit timeUnit, @Nullable V def);
 
-  @NotNull <T> ITask<T> map(@NotNull ThrowableFunction<V, T, Throwable> mapper);
+  @NonNull <T> ITask<T> map(@NonNull ThrowableFunction<V, T, Throwable> mapper);
 
-  @NotNull
-  default ITask<V> onComplete(@NotNull Consumer<V> consumer) {
+  @NonNull
+  default ITask<V> onComplete(@NonNull Consumer<V> consumer) {
     return this.addListener(new ITaskListener<V>() {
       @Override
-      public void onComplete(@NotNull ITask<V> task, @Nullable V v) {
+      public void onComplete(@NonNull ITask<V> task, @Nullable V v) {
         consumer.accept(v);
       }
     });
   }
 
-  default @NotNull ITask<V> onFailure(@NotNull Consumer<Throwable> consumer) {
+  default @NonNull ITask<V> onFailure(@NonNull Consumer<Throwable> consumer) {
     return this.addListener(new ITaskListener<V>() {
       @Override
-      public void onFailure(@NotNull ITask<V> task, @NotNull Throwable th) {
+      public void onFailure(@NonNull ITask<V> task, @NonNull Throwable th) {
         consumer.accept(th);
       }
     });
   }
 
-  default @NotNull ITask<V> onCancelled(@NotNull Consumer<ITask<V>> consumer) {
+  default @NonNull ITask<V> onCancelled(@NonNull Consumer<ITask<V>> consumer) {
     return this.addListener(new ITaskListener<V>() {
       @Override
-      public void onCancelled(@NotNull ITask<V> task) {
+      public void onCancelled(@NonNull ITask<V> task) {
         consumer.accept(task);
       }
     });
   }
 
-  default @NotNull ITask<V> fireExceptionOnFailure() {
+  default @NonNull ITask<V> fireExceptionOnFailure() {
     return this.onFailure(Throwable::printStackTrace);
   }
 }

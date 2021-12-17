@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.driver.network.HostAndPort;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.function.Function;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 final class ConfigurationUtils {
@@ -49,16 +49,16 @@ final class ConfigurationUtils {
     throw new UnsupportedOperationException();
   }
 
-  public static @NotNull String get(@NotNull String propertyName, @NotNull String def) {
+  public static @NonNull String get(@NonNull String propertyName, @NonNull String def) {
     // try to read the value from the system properties
     var val = property(propertyName);
     return val == null ? def : val;
   }
 
-  public static @NotNull <T> T get(
-    @NotNull String propertyName,
-    @NotNull T def,
-    @NotNull Function<String, T> mapper
+  public static @NonNull <T> T get(
+    @NonNull String propertyName,
+    @NonNull T def,
+    @NonNull Function<String, T> mapper
   ) {
     // try to read the value from the system properties
     var val = property(propertyName);
@@ -74,7 +74,7 @@ final class ConfigurationUtils {
     }
   }
 
-  private static @Nullable String property(@NotNull String propertyName) {
+  private static @Nullable String property(@NonNull String propertyName) {
     var val = System.getProperty(propertyName);
     return val == null ? System.getenv(propertyName.replace('.', '_').toUpperCase()) : val;
   }

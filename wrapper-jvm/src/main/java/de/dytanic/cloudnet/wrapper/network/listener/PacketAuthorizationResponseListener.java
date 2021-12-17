@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class PacketAuthorizationResponseListener implements IPacketListener {
 
@@ -30,13 +30,13 @@ public final class PacketAuthorizationResponseListener implements IPacketListene
 
   private volatile boolean result;
 
-  public PacketAuthorizationResponseListener(@NotNull Lock lock, @NotNull Condition condition) {
+  public PacketAuthorizationResponseListener(@NonNull Lock lock, @NonNull Condition condition) {
     this.lock = lock;
     this.condition = condition;
   }
 
   @Override
-  public void handle(@NotNull INetworkChannel channel, @NotNull IPacket packet) {
+  public void handle(@NonNull INetworkChannel channel, @NonNull IPacket packet) {
     // read the auth result
     this.result = packet.content().readBoolean();
     // signal all listeners waiting for the auth

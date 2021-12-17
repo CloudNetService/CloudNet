@@ -30,7 +30,7 @@ import jetbrains.exodus.env.Environment;
 import jetbrains.exodus.env.EnvironmentConfig;
 import jetbrains.exodus.env.Environments;
 import jetbrains.exodus.env.StoreConfig;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class XodusDatabaseProvider extends AbstractDatabaseProvider {
 
@@ -74,7 +74,7 @@ public class XodusDatabaseProvider extends AbstractDatabaseProvider {
   }
 
   @Override
-  public @NotNull LocalDatabase database(@NotNull String name) {
+  public @NonNull LocalDatabase database(@NonNull String name) {
     return this.cachedDatabaseInstances.computeIfAbsent(name, $ -> this.environment.computeInTransaction(txn -> {
       var store = this.environment.openStore(name, StoreConfig.WITHOUT_DUPLICATES_WITH_PREFIXING, txn);
       return new XodusDatabase(name, this.executorService, store, this);
@@ -82,12 +82,12 @@ public class XodusDatabaseProvider extends AbstractDatabaseProvider {
   }
 
   @Override
-  public boolean containsDatabase(@NotNull String name) {
+  public boolean containsDatabase(@NonNull String name) {
     return this.environment.computeInReadonlyTransaction(txn -> this.environment.storeExists(name, txn));
   }
 
   @Override
-  public boolean deleteDatabase(@NotNull String name) {
+  public boolean deleteDatabase(@NonNull String name) {
     this.cachedDatabaseInstances.remove(name);
     this.environment.executeInTransaction(txn -> this.environment.removeStore(name, txn));
 
@@ -95,7 +95,7 @@ public class XodusDatabaseProvider extends AbstractDatabaseProvider {
   }
 
   @Override
-  public @NotNull Collection<String> databaseNames() {
+  public @NonNull Collection<String> databaseNames() {
     return this.environment.computeInReadonlyTransaction(txn -> this.environment.getAllStoreNames(txn));
   }
 
@@ -110,7 +110,7 @@ public class XodusDatabaseProvider extends AbstractDatabaseProvider {
   }
 
   @Override
-  public @NotNull String name() {
+  public @NonNull String name() {
     return "xodus";
   }
 }

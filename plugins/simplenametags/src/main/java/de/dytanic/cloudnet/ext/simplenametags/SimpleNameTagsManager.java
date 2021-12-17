@@ -22,19 +22,19 @@ import de.dytanic.cloudnet.ext.simplenametags.event.PrePlayerPrefixSetEvent;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.Executor;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class SimpleNameTagsManager<P> {
 
   protected static final String TEAM_NAME_FORMAT = "%s%s";
 
-  public SimpleNameTagsManager(@NotNull Executor syncTaskExecutor) {
+  public SimpleNameTagsManager(@NonNull Executor syncTaskExecutor) {
     CloudNetDriver.instance().eventManager().registerListener(
       new CloudSimpleNameTagsListener<>(syncTaskExecutor, this));
   }
 
-  public void updateNameTagsFor(@NotNull P player, @NotNull UUID playerUniqueId, @NotNull String playerName) {
+  public void updateNameTagsFor(@NonNull P player, @NonNull UUID playerUniqueId, @NonNull String playerName) {
     // get the permission group of the player
     var group = this.getPermissionGroup(playerUniqueId, player);
     if (group != null) {
@@ -68,25 +68,25 @@ public abstract class SimpleNameTagsManager<P> {
     }
   }
 
-  public abstract void updateNameTagsFor(@NotNull P player);
+  public abstract void updateNameTagsFor(@NonNull P player);
 
-  public abstract @NotNull UUID playerUniqueId(@NotNull P player);
+  public abstract @NonNull UUID playerUniqueId(@NonNull P player);
 
-  public abstract void displayName(@NotNull P player, @NotNull String displayName);
+  public abstract void displayName(@NonNull P player, @NonNull String displayName);
 
-  public abstract void resetScoreboard(@NotNull P player);
+  public abstract void resetScoreboard(@NonNull P player);
 
   public abstract void registerPlayerToTeam(
-    @NotNull P player,
-    @NotNull P scoreboardHolder,
-    @NotNull String name,
-    @NotNull PermissionGroup group);
+    @NonNull P player,
+    @NonNull P scoreboardHolder,
+    @NonNull String name,
+    @NonNull PermissionGroup group);
 
-  public abstract @NotNull Collection<? extends P> onlinePlayers();
+  public abstract @NonNull Collection<? extends P> onlinePlayers();
 
-  public abstract @Nullable P onlinePlayer(@NotNull UUID uniqueId);
+  public abstract @Nullable P onlinePlayer(@NonNull UUID uniqueId);
 
-  protected char getColorChar(@NotNull PermissionGroup group) {
+  protected char getColorChar(@NonNull PermissionGroup group) {
     // check if the color of the group is given and valid
     if (group.color().length() == 2) {
       // check if the first char is a color indicator
@@ -109,7 +109,7 @@ public abstract class SimpleNameTagsManager<P> {
     return ' ';
   }
 
-  protected @Nullable PermissionGroup getPermissionGroup(@NotNull UUID playerUniqueId, @NotNull P platformPlayer) {
+  protected @Nullable PermissionGroup getPermissionGroup(@NonNull UUID playerUniqueId, @NonNull P platformPlayer) {
     // select the best permission group for the player
     var user = CloudNetDriver.instance().permissionManagement().user(playerUniqueId);
     // no user -> no group
@@ -132,7 +132,7 @@ public abstract class SimpleNameTagsManager<P> {
       .group();
   }
 
-  protected @NotNull String selectTeamName(@NotNull PermissionGroup group, int highestSortIdLength) {
+  protected @NonNull String selectTeamName(@NonNull PermissionGroup group, int highestSortIdLength) {
     // get the length of the group's sort id
     var sortIdLength = (int) Math.log10(group.sortId()) + 1;
     var teamName = String.format(

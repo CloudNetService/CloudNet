@@ -24,13 +24,13 @@ import de.dytanic.cloudnet.driver.util.DefaultModuleHelper;
 import de.dytanic.cloudnet.event.service.CloudServicePreProcessStartEvent;
 import eu.cloudnetservice.cloudnet.modules.labymod.LabyModManagement;
 import eu.cloudnetservice.cloudnet.modules.labymod.config.LabyModConfiguration;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class NodeLabyModListener {
 
   private final NodeLabyModManagement labyModManagement;
 
-  public NodeLabyModListener(@NotNull NodeLabyModManagement labyModManagement) {
+  public NodeLabyModListener(@NonNull NodeLabyModManagement labyModManagement) {
     this.labyModManagement = labyModManagement;
   }
 
@@ -49,7 +49,7 @@ public class NodeLabyModListener {
   }
 
   @EventListener
-  public void handle(@NotNull CloudServicePreProcessStartEvent event) {
+  public void handle(@NonNull CloudServicePreProcessStartEvent event) {
     var service = event.service();
     if (!ServiceEnvironmentType.isMinecraftProxy(service.serviceId().environment())) {
       return;

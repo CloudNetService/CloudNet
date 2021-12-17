@@ -23,7 +23,7 @@ import de.dytanic.cloudnet.common.log.Logger;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.LogRecord;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class ThreadedLogRecordDispatcher extends Thread implements LogRecordDispatcher {
 
@@ -32,7 +32,7 @@ public final class ThreadedLogRecordDispatcher extends Thread implements LogReco
   private final Logger logger;
   private final BlockingQueue<LogRecord> queue;
 
-  private ThreadedLogRecordDispatcher(@NotNull Logger logger, @NotNull String threadName) {
+  private ThreadedLogRecordDispatcher(@NonNull Logger logger, @NonNull String threadName) {
     super(threadName);
     this.setDaemon(true);
     this.setPriority(Thread.MIN_PRIORITY);
@@ -43,11 +43,11 @@ public final class ThreadedLogRecordDispatcher extends Thread implements LogReco
     this.start();
   }
 
-  public static @NotNull ThreadedLogRecordDispatcher forLogger(@NotNull Logger logger) {
+  public static @NonNull ThreadedLogRecordDispatcher forLogger(@NonNull Logger logger) {
     return ThreadedLogRecordDispatcher.newInstance(logger, String.format(THREAD_NAME_FORMAT, logger.getName()));
   }
 
-  public static @NotNull ThreadedLogRecordDispatcher newInstance(@NotNull Logger logger, @NotNull String threadName) {
+  public static @NonNull ThreadedLogRecordDispatcher newInstance(@NonNull Logger logger, @NonNull String threadName) {
     Preconditions.checkNotNull(logger, "logger");
     Preconditions.checkArgument(!Strings.isNullOrEmpty(threadName), "Thread name must not be null or empty");
 
@@ -55,7 +55,7 @@ public final class ThreadedLogRecordDispatcher extends Thread implements LogReco
   }
 
   @Override
-  public void dispatchRecord(@NotNull LogRecord record) {
+  public void dispatchRecord(@NonNull LogRecord record) {
     if (!super.isInterrupted()) {
       this.queue.add(record);
     }

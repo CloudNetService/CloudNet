@@ -28,7 +28,7 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.cloudnet.modules.labymod.LabyModManagement;
 import eu.cloudnetservice.cloudnet.modules.labymod.platform.PlatformLabyModListener;
 import eu.cloudnetservice.cloudnet.modules.labymod.platform.PlatformLabyModManagement;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 @Plugin(
   id = "cloudnet_labymod",
@@ -46,12 +46,12 @@ public class VelocityLabyModPlugin {
   private final ProxyServer proxy;
 
   @Inject
-  public VelocityLabyModPlugin(@NotNull ProxyServer proxyServer) {
+  public VelocityLabyModPlugin(@NonNull ProxyServer proxyServer) {
     this.proxy = proxyServer;
   }
 
   @Subscribe
-  public void handleProxyInit(@NotNull ProxyInitializeEvent event) {
+  public void handleProxyInit(@NonNull ProxyInitializeEvent event) {
     // init the labymod management
     var labyModManagement = new PlatformLabyModManagement();
     // register the plugin channel message listener
@@ -62,7 +62,7 @@ public class VelocityLabyModPlugin {
   }
 
   @Subscribe
-  public void handleProxyShutdown(@NotNull ProxyShutdownEvent event) {
+  public void handleProxyShutdown(@NonNull ProxyShutdownEvent event) {
     // unregister all listeners for cloudnet events
     Wrapper.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
     Wrapper.instance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());

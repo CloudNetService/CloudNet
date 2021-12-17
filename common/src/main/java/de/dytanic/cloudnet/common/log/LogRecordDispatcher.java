@@ -17,9 +17,9 @@
 package de.dytanic.cloudnet.common.log;
 
 import java.util.logging.LogRecord;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public interface LogRecordDispatcher {
 
-  void dispatchRecord(@NotNull LogRecord record);
+  void dispatchRecord(@NonNull LogRecord record);
 }

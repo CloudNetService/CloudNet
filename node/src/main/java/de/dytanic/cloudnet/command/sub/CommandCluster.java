@@ -54,7 +54,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 @CommandAlias("clu")
 @CommandPermission("cloudnet.command.cluster")
@@ -306,9 +306,9 @@ public final class CommandCluster {
   }
 
   private void pushStaticService(
-    @NotNull CommandSource source,
-    @NotNull Path servicePath,
-    @NotNull String serviceName
+    @NonNull CommandSource source,
+    @NonNull Path servicePath,
+    @NonNull String serviceName
   ) {
     // zip the whole directory into a stream
     var stream = FileUtils.zipToStream(servicePath);
@@ -327,7 +327,7 @@ public final class CommandCluster {
       });
   }
 
-  private void pushTemplate(@NotNull CommandSource source, @NotNull ServiceTemplate template) {
+  private void pushTemplate(@NonNull CommandSource source, @NonNull ServiceTemplate template) {
     var templateName = template.toString();
     try {
       source.sendMessage(
@@ -357,7 +357,7 @@ public final class CommandCluster {
     }
   }
 
-  private @NotNull List<String> resolveAllStaticServices() {
+  private @NonNull List<String> resolveAllStaticServices() {
     var manager = CloudNet.instance().cloudServiceProvider();
     try {
       // walk through the static service directory

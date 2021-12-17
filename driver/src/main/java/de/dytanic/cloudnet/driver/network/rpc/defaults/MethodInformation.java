@@ -23,7 +23,7 @@ import de.dytanic.cloudnet.driver.network.rpc.defaults.handler.invoker.MethodInv
 import de.dytanic.cloudnet.driver.network.rpc.exception.CannotDecideException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class MethodInformation {
@@ -38,11 +38,11 @@ public class MethodInformation {
   private final MethodInvoker methodInvoker;
 
   public MethodInformation(
-    @NotNull String name,
-    @NotNull Type rType,
-    @NotNull Type[] arguments,
+    @NonNull String name,
+    @NonNull Type rType,
+    @NonNull Type[] arguments,
     @Nullable Object sourceInstance,
-    @NotNull Class<?> definingClass,
+    @NonNull Class<?> definingClass,
     @Nullable MethodInvokerGenerator generator
   ) {
     this.name = name;
@@ -55,10 +55,10 @@ public class MethodInformation {
     this.methodInvoker = generator == null ? null : generator.makeMethodInvoker(this);
   }
 
-  public static @NotNull MethodInformation find(
+  public static @NonNull MethodInformation find(
     @Nullable Object instance,
-    @NotNull Class<?> sourceClass,
-    @NotNull String name,
+    @NonNull Class<?> sourceClass,
+    @NonNull String name,
     @Nullable MethodInvokerGenerator generator,
     int argumentCount
   ) {
@@ -91,19 +91,19 @@ public class MethodInformation {
       generator);
   }
 
-  public @NotNull String name() {
+  public @NonNull String name() {
     return this.name;
   }
 
-  public @NotNull Type returnType() {
+  public @NonNull Type returnType() {
     return this.returnType;
   }
 
-  public @NotNull Class<?> rawReturnType() {
+  public @NonNull Class<?> rawReturnType() {
     return this.rawReturnType;
   }
 
-  public Type @NotNull [] arguments() {
+  public Type @NonNull [] arguments() {
     return this.arguments;
   }
 
@@ -115,7 +115,7 @@ public class MethodInformation {
     return this.sourceInstance;
   }
 
-  public @NotNull Class<?> definingClass() {
+  public @NonNull Class<?> definingClass() {
     return this.definingClass;
   }
 

@@ -31,12 +31,12 @@ import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class FileDeployCallbackListener {
 
   @EventListener
-  public void handle(@NotNull ChunkedPacketSessionOpenEvent event) {
+  public void handle(@NonNull ChunkedPacketSessionOpenEvent event) {
     switch (event.session().transferChannel()) {
       case "deploy_service_template" -> event.handler(
           new DefaultFileChunkedPacketHandler(event.session(), TemplateDeployCallback.INSTANCE));
@@ -50,7 +50,7 @@ public final class FileDeployCallbackListener {
   }
 
   @EventListener
-  public void handle(@NotNull ChannelMessageReceiveEvent event) {
+  public void handle(@NonNull ChannelMessageReceiveEvent event) {
     if (event.channel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
       switch (event.message()) {
         case "remote_templates_zip_template" -> this.handleInputRequest(event, TemplateStorage::zipTemplate);
@@ -66,8 +66,8 @@ public final class FileDeployCallbackListener {
   }
 
   private void handleInputRequest(
-    @NotNull ChannelMessageReceiveEvent event,
-    @NotNull ThrowableBiFunction<TemplateStorage, ServiceTemplate, InputStream, IOException> streamOpener
+    @NonNull ChannelMessageReceiveEvent event,
+    @NonNull ThrowableBiFunction<TemplateStorage, ServiceTemplate, InputStream, IOException> streamOpener
   ) {
     // read the information
     var storageName = event.content().readString();

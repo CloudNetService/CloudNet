@@ -18,17 +18,17 @@ package de.dytanic.cloudnet.driver.event.events.group;
 
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class GroupConfigurationAddEvent extends Event {
 
   private final GroupConfiguration configuration;
 
-  public GroupConfigurationAddEvent(@NotNull GroupConfiguration configuration) {
+  public GroupConfigurationAddEvent(@NonNull GroupConfiguration configuration) {
     this.configuration = configuration;
   }
 
-  public @NotNull GroupConfiguration configuration() {
+  public @NonNull GroupConfiguration configuration() {
     return configuration;
   }
 }

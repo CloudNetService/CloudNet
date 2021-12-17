@@ -26,9 +26,9 @@ import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.property.ServiceProperty;
 import java.util.Optional;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @ToString
@@ -50,13 +50,13 @@ public class ServiceInfoSnapshot extends JsonDocPropertyHolder
   @Internal
   public ServiceInfoSnapshot(
     long creationTime,
-    @NotNull HostAndPort address,
-    @NotNull HostAndPort connectAddress,
-    @NotNull ProcessSnapshot processSnapshot,
-    @NotNull ServiceConfiguration configuration,
+    @NonNull HostAndPort address,
+    @NonNull HostAndPort connectAddress,
+    @NonNull ProcessSnapshot processSnapshot,
+    @NonNull ServiceConfiguration configuration,
     long connectedTime,
-    @NotNull ServiceLifeCycle lifeCycle,
-    @NotNull JsonDocument properties
+    @NonNull ServiceLifeCycle lifeCycle,
+    @NonNull JsonDocument properties
   ) {
     this.creationTime = creationTime;
     this.connectedTime = connectedTime;
@@ -72,15 +72,15 @@ public class ServiceInfoSnapshot extends JsonDocPropertyHolder
     return this.creationTime;
   }
 
-  public @NotNull ServiceId serviceId() {
+  public @NonNull ServiceId serviceId() {
     return this.configuration.serviceId();
   }
 
-  public @NotNull HostAndPort address() {
+  public @NonNull HostAndPort address() {
     return this.address;
   }
 
-  public @NotNull HostAndPort connectAddress() {
+  public @NonNull HostAndPort connectAddress() {
     return this.connectAddress;
   }
 
@@ -106,35 +106,35 @@ public class ServiceInfoSnapshot extends JsonDocPropertyHolder
     this.lifeCycle = lifeCycle;
   }
 
-  public @NotNull ProcessSnapshot processSnapshot() {
+  public @NonNull ProcessSnapshot processSnapshot() {
     return this.processSnapshot;
   }
 
-  public @NotNull ServiceConfiguration configuration() {
+  public @NonNull ServiceConfiguration configuration() {
     return this.configuration;
   }
 
-  public @NotNull SpecificCloudServiceProvider provider() {
+  public @NonNull SpecificCloudServiceProvider provider() {
     return CloudNetDriver.instance()
       .cloudServiceProvider()
       .specificProvider(this.serviceId().uniqueId());
   }
 
-  public <T> @NotNull Optional<T> property(@NotNull ServiceProperty<T> property) {
+  public <T> @NonNull Optional<T> property(@NonNull ServiceProperty<T> property) {
     return property.read(this);
   }
 
-  public <T> void property(@NotNull ServiceProperty<T> property, @Nullable T value) {
+  public <T> void property(@NonNull ServiceProperty<T> property, @Nullable T value) {
     property.write(this, value);
   }
 
   @Override
-  public @NotNull String name() {
+  public @NonNull String name() {
     return this.serviceId().name();
   }
 
   @Override
-  public int compareTo(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
+  public int compareTo(@NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
     return ComparisonChain.start()
       .compare(this.serviceId().taskName(), serviceInfoSnapshot.serviceId().taskName())
       .compare(this.serviceId().taskServiceId(), serviceInfoSnapshot.serviceId().taskServiceId())
@@ -142,7 +142,7 @@ public class ServiceInfoSnapshot extends JsonDocPropertyHolder
   }
 
   @Override
-  public @NotNull ServiceInfoSnapshot clone() {
+  public @NonNull ServiceInfoSnapshot clone() {
     try {
       return (ServiceInfoSnapshot) super.clone();
     } catch (CloneNotSupportedException exception) {

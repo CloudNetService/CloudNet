@@ -27,18 +27,18 @@ import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class ServiceChannelMessageListener {
 
   private final IEventManager eventManager;
 
-  public ServiceChannelMessageListener(@NotNull IEventManager eventManager) {
+  public ServiceChannelMessageListener(@NonNull IEventManager eventManager) {
     this.eventManager = eventManager;
   }
 
   @EventListener
-  public void handleChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
+  public void handleChannelMessage(@NonNull ChannelMessageReceiveEvent event) {
     if (event.channel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
       switch (event.message()) {
         // update of a service in the network

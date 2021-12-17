@@ -20,21 +20,21 @@ import com.google.common.base.Verify;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Range;
 
 public record ProcessConfiguration(
-  @NotNull String environment,
+  @NonNull String environment,
   int maxHeapMemorySize,
-  @NotNull Set<String> jvmOptions,
-  @NotNull Set<String> processParameters
+  @NonNull Set<String> jvmOptions,
+  @NonNull Set<String> processParameters
 ) implements Cloneable {
 
-  public static @NotNull Builder builder() {
+  public static @NonNull Builder builder() {
     return new Builder();
   }
 
-  public static @NotNull Builder builder(@NotNull ProcessConfiguration configuration) {
+  public static @NonNull Builder builder(@NonNull ProcessConfiguration configuration) {
     return builder()
       .maxHeapMemorySize(configuration.maxHeapMemorySize())
       .environment(configuration.environment())
@@ -59,42 +59,42 @@ public record ProcessConfiguration(
     protected Set<String> jvmOptions = new HashSet<>();
     protected Set<String> processParameters = new HashSet<>();
 
-    public @NotNull Builder maxHeapMemorySize(@Range(from = 50, to = Integer.MAX_VALUE) int maxHeapMemorySize) {
+    public @NonNull Builder maxHeapMemorySize(@Range(from = 50, to = Integer.MAX_VALUE) int maxHeapMemorySize) {
       this.maxHeapMemorySize = maxHeapMemorySize;
       return this;
     }
 
-    public @NotNull Builder environment(@NotNull String environment) {
+    public @NonNull Builder environment(@NonNull String environment) {
       this.environment = environment;
       return this;
     }
 
-    public @NotNull Builder environment(@NotNull ServiceEnvironmentType environment) {
+    public @NonNull Builder environment(@NonNull ServiceEnvironmentType environment) {
       this.environment = environment.name();
       return this;
     }
 
-    public @NotNull Builder jvmOptions(@NotNull Collection<String> jvmOptions) {
+    public @NonNull Builder jvmOptions(@NonNull Collection<String> jvmOptions) {
       this.jvmOptions = new HashSet<>(jvmOptions);
       return this;
     }
 
-    public @NotNull Builder addJvmOption(@NotNull String jvmOption) {
+    public @NonNull Builder addJvmOption(@NonNull String jvmOption) {
       this.jvmOptions.add(jvmOption);
       return this;
     }
 
-    public @NotNull Builder processParameters(@NotNull Collection<String> processParameters) {
+    public @NonNull Builder processParameters(@NonNull Collection<String> processParameters) {
       this.processParameters = new HashSet<>(processParameters);
       return this;
     }
 
-    public @NotNull Builder addProcessParameter(@NotNull String processParameter) {
+    public @NonNull Builder addProcessParameter(@NonNull String processParameter) {
       this.processParameters.add(processParameter);
       return this;
     }
 
-    public @NotNull ProcessConfiguration build() {
+    public @NonNull ProcessConfiguration build() {
       Verify.verifyNotNull(this.environment, "no environment given");
       Verify.verify(this.maxHeapMemorySize >= 50, "heap memory must be at least 50 MB");
 

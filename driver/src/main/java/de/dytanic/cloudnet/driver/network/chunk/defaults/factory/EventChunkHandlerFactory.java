@@ -22,23 +22,23 @@ import de.dytanic.cloudnet.driver.event.events.chunk.ChunkedPacketSessionOpenEve
 import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketHandler;
 import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
 import java.util.function.Function;
+import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
-public record EventChunkHandlerFactory(@NotNull IEventManager eventManager)
+public record EventChunkHandlerFactory(@NonNull IEventManager eventManager)
   implements Function<ChunkSessionInformation, ChunkedPacketHandler> {
 
-  public static @NotNull EventChunkHandlerFactory withDefaultEventManager() {
+  public static @NonNull EventChunkHandlerFactory withDefaultEventManager() {
     return withEventManager(CloudNetDriver.instance().eventManager());
   }
 
-  public static @NotNull EventChunkHandlerFactory withEventManager(@NotNull IEventManager manager) {
+  public static @NonNull EventChunkHandlerFactory withEventManager(@NonNull IEventManager manager) {
     return new EventChunkHandlerFactory(manager);
   }
 
   @Override
   @Contract(pure = true)
-  public @NotNull ChunkedPacketHandler apply(@NotNull ChunkSessionInformation info) {
+  public @NonNull ChunkedPacketHandler apply(@NonNull ChunkSessionInformation info) {
     // get the chunked packet handler for the session
     var handler = this.eventManager.callEvent(new ChunkedPacketSessionOpenEvent(info)).handler();
     // check if there was a handler supplied

@@ -18,7 +18,7 @@ package eu.cloudnetservice.ext.sftp.config;
 
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import java.nio.file.Path;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
@@ -43,14 +43,14 @@ public class SFTPTemplateStorageConfig {
   }
 
   public SFTPTemplateStorageConfig(
-    @NotNull HostAndPort address,
-    @NotNull String storage,
-    @NotNull String username,
+    @NonNull HostAndPort address,
+    @NonNull String storage,
+    @NonNull String username,
     @Nullable String password,
     @Nullable Path sshKeyPath,
     @Nullable String sshKeyPassword,
     @Nullable Path knownHostFile,
-    @NotNull String baseDirectory,
+    @NonNull String baseDirectory,
     int clientPoolSize
   ) {
     this.address = address;
@@ -64,15 +64,15 @@ public class SFTPTemplateStorageConfig {
     this.clientPoolSize = clientPoolSize;
   }
 
-  public @NotNull HostAndPort address() {
+  public @NonNull HostAndPort address() {
     return this.address;
   }
 
-  public @NotNull String storage() {
+  public @NonNull String storage() {
     return this.storage;
   }
 
-  public @NotNull String username() {
+  public @NonNull String username() {
     return this.username;
   }
 
@@ -92,7 +92,7 @@ public class SFTPTemplateStorageConfig {
     return this.knownHostFile;
   }
 
-  public @NotNull String baseDirectory() {
+  public @NonNull String baseDirectory() {
     return this.baseDirectory;
   }
 

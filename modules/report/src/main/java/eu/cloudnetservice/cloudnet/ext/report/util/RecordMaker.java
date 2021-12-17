@@ -26,7 +26,7 @@ import de.dytanic.cloudnet.service.ICloudService;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -35,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
  * @param directory the directory to store the record files in
  * @param service   the service that this record is used for
  */
-public record RecordMaker(@NotNull Path directory, @NotNull ICloudService service) {
+public record RecordMaker(@NonNull Path directory, @NonNull ICloudService service) {
 
   private static final Logger LOGGER = LogManager.logger(RecordMaker.class);
 
@@ -47,7 +47,7 @@ public record RecordMaker(@NotNull Path directory, @NotNull ICloudService servic
    * @param service       the service that this record is used for
    * @return the new Record for the service, null if the directory for the services already exists
    */
-  public static @Nullable RecordMaker forService(@NotNull Path baseDirectory, @NotNull ICloudService service) {
+  public static @Nullable RecordMaker forService(@NonNull Path baseDirectory, @NonNull ICloudService service) {
     var directory = baseDirectory.resolve(
       service.serviceId().name() + "-" + service.serviceId().uniqueId()).normalize().toAbsolutePath();
 
@@ -66,7 +66,7 @@ public record RecordMaker(@NotNull Path directory, @NotNull ICloudService servic
    * @param service   the service that this record is used for
    * @return the new Record for the service
    */
-  public static RecordMaker of(@NotNull Path directory, @NotNull ICloudService service) {
+  public static RecordMaker of(@NonNull Path directory, @NonNull ICloudService service) {
     return new RecordMaker(directory, service);
   }
 

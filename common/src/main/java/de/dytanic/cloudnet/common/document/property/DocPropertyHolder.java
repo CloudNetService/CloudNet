@@ -17,19 +17,19 @@
 package de.dytanic.cloudnet.common.document.property;
 
 import de.dytanic.cloudnet.common.document.IDocument;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
 public interface DocPropertyHolder {
 
-  @NotNull <E> DocPropertyHolder property(@NotNull DocProperty<E> docProperty, @Nullable E val);
+  @NonNull <E> DocPropertyHolder property(@NonNull DocProperty<E> docProperty, @Nullable E val);
 
-  @UnknownNullability <E> E property(@NotNull DocProperty<E> docProperty);
+  @UnknownNullability <E> E property(@NonNull DocProperty<E> docProperty);
 
-  @NotNull <E> DocPropertyHolder removeProperty(@NotNull DocProperty<E> docProperty);
+  @NonNull <E> DocPropertyHolder removeProperty(@NonNull DocProperty<E> docProperty);
 
-  <E> boolean hasProperty(@NotNull DocProperty<E> docProperty);
+  <E> boolean hasProperty(@NonNull DocProperty<E> docProperty);
 
-  @NotNull IDocument<?> properties();
+  @NonNull IDocument<?> properties();
 }

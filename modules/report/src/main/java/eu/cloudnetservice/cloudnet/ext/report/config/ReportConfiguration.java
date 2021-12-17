@@ -21,22 +21,22 @@ import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public record ReportConfiguration(
   boolean saveRecords,
   boolean saveOnCrashOnly,
-  @NotNull Path recordDestination,
+  @NonNull Path recordDestination,
   long serviceLifetime,
-  @NotNull DateFormat dateFormat,
-  @NotNull List<PasteService> pasteServers
+  @NonNull DateFormat dateFormat,
+  @NonNull List<PasteService> pasteServers
 ) {
 
-  public static @NotNull Builder builder() {
+  public static @NonNull Builder builder() {
     return new Builder();
   }
 
-  public static @NotNull Builder builder(@NotNull ReportConfiguration configuration) {
+  public static @NonNull Builder builder(@NonNull ReportConfiguration configuration) {
     return builder()
       .saveRecords(configuration.saveRecords())
       .saveOnCrashOnly(configuration.saveOnCrashOnly())
@@ -54,37 +54,37 @@ public record ReportConfiguration(
     private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     private List<PasteService> pasteServers = List.of(new PasteService("default", "https://just-paste.it"));
 
-    public @NotNull Builder saveRecords(boolean saveRecords) {
+    public @NonNull Builder saveRecords(boolean saveRecords) {
       this.saveRecords = saveRecords;
       return this;
     }
 
-    public @NotNull Builder saveOnCrashOnly(boolean saveOnCrashOnly) {
+    public @NonNull Builder saveOnCrashOnly(boolean saveOnCrashOnly) {
       this.saveOnCrashOnly = saveOnCrashOnly;
       return this;
     }
 
-    public @NotNull Builder recordDestination(@NotNull Path recordDestination) {
+    public @NonNull Builder recordDestination(@NonNull Path recordDestination) {
       this.recordDestination = recordDestination;
       return this;
     }
 
-    public @NotNull Builder serviceLifetime(long serviceLifetime) {
+    public @NonNull Builder serviceLifetime(long serviceLifetime) {
       this.serviceLifetime = serviceLifetime;
       return this;
     }
 
-    public @NotNull Builder dateFormat(@NotNull DateFormat dateFormat) {
+    public @NonNull Builder dateFormat(@NonNull DateFormat dateFormat) {
       this.dateFormat = dateFormat;
       return this;
     }
 
-    public @NotNull Builder pasteServers(@NotNull List<PasteService> pasteServers) {
+    public @NonNull Builder pasteServers(@NonNull List<PasteService> pasteServers) {
       this.pasteServers = List.copyOf(pasteServers);
       return this;
     }
 
-    public @NotNull ReportConfiguration build() {
+    public @NonNull ReportConfiguration build() {
       Verify.verifyNotNull(this.recordDestination, "No recordDestination provided");
       Verify.verifyNotNull(this.dateFormat, "No dateFormat provided");
       Verify.verifyNotNull(this.pasteServers, "No pasteServers provided");

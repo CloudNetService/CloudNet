@@ -35,7 +35,7 @@ import de.dytanic.cloudnet.ext.bridge.config.ProxyFallbackConfiguration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 @CommandPermission("cloudnet.command.bridge")
 @Description("Management for the config of the bridge module")
@@ -44,13 +44,13 @@ public class CommandBridge {
   private final BridgeManagement bridgeManagement;
   private final GroupConfigurationProvider groupConfigurationProvider;
 
-  public CommandBridge(@NotNull BridgeManagement bridgeManagement) {
+  public CommandBridge(@NonNull BridgeManagement bridgeManagement) {
     this.bridgeManagement = bridgeManagement;
     this.groupConfigurationProvider = CloudNet.instance().groupConfigurationProvider();
   }
 
   @Parser(name = "bridgeGroups", suggestions = "bridgeGroups")
-  public GroupConfiguration bridgeGroupParser(@NotNull CommandContext<?> $, @NotNull Queue<String> input) {
+  public GroupConfiguration bridgeGroupParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var name = input.remove();
     var group = this.groupConfigurationProvider.groupConfiguration(name);
     if (group == null) {
@@ -66,7 +66,7 @@ public class CommandBridge {
   }
 
   @Suggestions("bridgeGroups")
-  public List<String> suggestBridgeGroups(@NotNull CommandContext<?> $, String input) {
+  public List<String> suggestBridgeGroups(@NonNull CommandContext<?> $, String input) {
     return this.groupConfigurationProvider.groupConfigurations().stream()
       .map(INameable::name)
       .filter(group -> this.bridgeManagement.configuration().fallbackConfigurations().stream()
@@ -76,8 +76,8 @@ public class CommandBridge {
 
   @CommandMethod("bridge create entry <targetGroup>")
   public void createBridgeEntry(
-    @NotNull CommandSource source,
-    @NotNull @Argument(value = "targetGroup", parserName = "bridgeGroups") GroupConfiguration group
+    @NonNull CommandSource source,
+    @NonNull @Argument(value = "targetGroup", parserName = "bridgeGroups") GroupConfiguration group
   ) {
     // create a new configuration for the given target group
     var fallbackConfiguration = new ProxyFallbackConfiguration(

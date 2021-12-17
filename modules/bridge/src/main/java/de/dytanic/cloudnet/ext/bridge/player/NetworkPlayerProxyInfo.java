@@ -18,19 +18,19 @@ package de.dytanic.cloudnet.ext.bridge.player;
 
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import java.util.UUID;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
 public record NetworkPlayerProxyInfo(
-  @NotNull UUID uniqueId,
-  @NotNull String name,
+  @NonNull UUID uniqueId,
+  @NonNull String name,
   @Nullable String xBoxId,
   @Range(from = 47, to = Integer.MAX_VALUE) int version,
-  @NotNull HostAndPort address,
-  @NotNull HostAndPort listener,
+  @NonNull HostAndPort address,
+  @NonNull HostAndPort listener,
   boolean onlineMode,
-  @NotNull NetworkServiceInfo networkService
+  @NonNull NetworkServiceInfo networkService
 ) implements Cloneable {
 
   /**

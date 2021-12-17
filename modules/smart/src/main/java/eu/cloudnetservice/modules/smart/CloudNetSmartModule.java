@@ -25,7 +25,7 @@ import eu.cloudnetservice.modules.smart.SmartServiceTaskConfig.TemplateInstaller
 import eu.cloudnetservice.modules.smart.listener.CloudNetLocalServiceListener;
 import eu.cloudnetservice.modules.smart.listener.CloudNetLocalServiceTaskListener;
 import eu.cloudnetservice.modules.smart.listener.CloudNetTickListener;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class CloudNetSmartModule extends DriverModule {
@@ -85,7 +85,7 @@ public class CloudNetSmartModule extends DriverModule {
       new CloudNetLocalServiceListener(this));
   }
 
-  public @Nullable SmartServiceTaskConfig smartConfig(@NotNull ServiceTask task) {
+  public @Nullable SmartServiceTaskConfig smartConfig(@NonNull ServiceTask task) {
     // try to get the smart config entry
     return task.properties().get("smartConfig", SmartServiceTaskConfig.class);
   }

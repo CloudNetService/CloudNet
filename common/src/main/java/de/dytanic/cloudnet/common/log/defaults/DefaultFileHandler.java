@@ -23,7 +23,7 @@ import java.nio.file.Path;
 import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class DefaultFileHandler extends FileHandler {
 
@@ -37,19 +37,19 @@ public final class DefaultFileHandler extends FileHandler {
     this.setEncoding(StandardCharsets.UTF_8.name());
   }
 
-  public static @NotNull DefaultFileHandler newInstance(@NotNull String pattern, boolean append) {
+  public static @NonNull DefaultFileHandler newInstance(@NonNull String pattern, boolean append) {
     return DefaultFileHandler.newInstance(pattern, DEFAULT_LIMIT, DEFAULT_COUNT, append);
   }
 
-  public static @NotNull DefaultFileHandler newInstance(@NotNull String pattern, int limit, int count, boolean append) {
+  public static @NonNull DefaultFileHandler newInstance(@NonNull String pattern, int limit, int count, boolean append) {
     return DefaultFileHandler.newInstance(Path.of(pattern), limit, count, append);
   }
 
-  public static @NotNull DefaultFileHandler newInstance(@NotNull Path pattern, boolean append) {
+  public static @NonNull DefaultFileHandler newInstance(@NonNull Path pattern, boolean append) {
     return DefaultFileHandler.newInstance(pattern, DEFAULT_LIMIT, DEFAULT_COUNT, append);
   }
 
-  public static @NotNull DefaultFileHandler newInstance(@NotNull Path pattern, int limit, int count, boolean append) {
+  public static @NonNull DefaultFileHandler newInstance(@NonNull Path pattern, int limit, int count, boolean append) {
     try {
       // check if the parent directory referenced by the pattern exists
       FileUtils.createDirectory(pattern.getParent());
@@ -59,7 +59,7 @@ public final class DefaultFileHandler extends FileHandler {
     }
   }
 
-  public @NotNull DefaultFileHandler withFormatter(@NotNull Formatter formatter) {
+  public @NonNull DefaultFileHandler withFormatter(@NonNull Formatter formatter) {
     super.setFormatter(formatter);
     return this;
   }

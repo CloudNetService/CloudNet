@@ -30,7 +30,7 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
 import de.dytanic.cloudnet.util.NetworkAddressUtil;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class DefaultConfigSetup extends DefaultClusterSetup {
 
@@ -41,7 +41,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
     .build();
 
   @Override
-  public void applyQuestions(@NotNull ConsoleSetupAnimation animation) {
+  public void applyQuestions(@NonNull ConsoleSetupAnimation animation) {
     // pre-save all available ip addresses
     Collection<String> addresses = NetworkAddressUtil.availableIPAddresses();
     // apply the questions
@@ -105,7 +105,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
   }
 
   @Override
-  public void handleResults(@NotNull ConsoleSetupAnimation animation) {
+  public void handleResults(@NonNull ConsoleSetupAnimation animation) {
     var config = CloudNet.instance().getConfig();
     // init the local node identity
     HostAndPort host = animation.result("internalHost");

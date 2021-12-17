@@ -19,9 +19,9 @@ package de.dytanic.cloudnet.driver.module;
 import com.google.common.base.Verify;
 import de.dytanic.cloudnet.common.INameable;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a repository in which a {@link ModuleDependency} can be located.
@@ -39,7 +39,7 @@ public class ModuleRepository implements INameable {
    * @param name the name of the repository, must be unique. Duplicate names will override each other.
    * @param url  the url of the repository.
    */
-  public ModuleRepository(@NotNull String name, @NotNull String url) {
+  public ModuleRepository(@NonNull String name, @NonNull String url) {
     this.name = name;
     this.url = url;
   }
@@ -58,7 +58,7 @@ public class ModuleRepository implements INameable {
    * @return the name of this repository.
    */
   @Override
-  public @NotNull String name() {
+  public @NonNull String name() {
     return this.name;
   }
 
@@ -67,7 +67,7 @@ public class ModuleRepository implements INameable {
    *
    * @return the url of this repository.
    */
-  public @NotNull String url() {
+  public @NonNull String url() {
     return this.url;
   }
 

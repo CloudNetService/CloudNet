@@ -25,7 +25,7 @@ import de.dytanic.cloudnet.driver.module.driver.DriverModule;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import eu.cloudnetservice.modules.s3.config.S3TemplateStorageConfig;
 import java.nio.file.Files;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class S3TemplateStorageModule extends DriverModule {
 
@@ -59,12 +59,12 @@ public final class S3TemplateStorageModule extends DriverModule {
     this.serviceRegistry().unregisterService(TemplateStorage.class, this.storage.name());
   }
 
-  public void writeConfig(@NotNull S3TemplateStorageConfig config) {
+  public void writeConfig(@NonNull S3TemplateStorageConfig config) {
     this.config = config;
     JsonDocument.newDocument(config).write(this.configPath());
   }
 
-  public @NotNull S3TemplateStorageConfig getConfig() {
+  public @NonNull S3TemplateStorageConfig getConfig() {
     return this.config;
   }
 }

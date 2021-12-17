@@ -26,7 +26,7 @@ import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class PermissionsUpdateListener<P> {
 
@@ -37,11 +37,11 @@ public final class PermissionsUpdateListener<P> {
   private final Supplier<Collection<? extends P>> onlinePlayerSupplier;
 
   public PermissionsUpdateListener(
-    @NotNull Executor syncTaskExecutor,
-    @NotNull Consumer<P> commandTreeUpdater,
-    @NotNull Function<P, UUID> uniqueIdLookup,
-    @NotNull Function<UUID, P> onlinePlayerLookup,
-    @NotNull Supplier<Collection<? extends P>> onlinePlayerSupplier
+    @NonNull Executor syncTaskExecutor,
+    @NonNull Consumer<P> commandTreeUpdater,
+    @NonNull Function<P, UUID> uniqueIdLookup,
+    @NonNull Function<UUID, P> onlinePlayerLookup,
+    @NonNull Supplier<Collection<? extends P>> onlinePlayerSupplier
   ) {
     this.syncTaskExecutor = syncTaskExecutor;
     this.commandTreeUpdater = commandTreeUpdater;

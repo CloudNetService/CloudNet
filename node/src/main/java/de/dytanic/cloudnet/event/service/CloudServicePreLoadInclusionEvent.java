@@ -20,7 +20,7 @@ import de.dytanic.cloudnet.driver.event.ICancelable;
 import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
 import de.dytanic.cloudnet.service.ICloudService;
 import kong.unirest.GetRequest;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class CloudServicePreLoadInclusionEvent extends CloudServiceEvent implements ICancelable {
 
@@ -30,9 +30,9 @@ public final class CloudServicePreLoadInclusionEvent extends CloudServiceEvent i
   private volatile boolean cancelled;
 
   public CloudServicePreLoadInclusionEvent(
-    @NotNull ICloudService cloudService,
-    @NotNull ServiceRemoteInclusion serviceRemoteInclusion,
-    @NotNull GetRequest request
+    @NonNull ICloudService cloudService,
+    @NonNull ServiceRemoteInclusion serviceRemoteInclusion,
+    @NonNull GetRequest request
   ) {
     super(cloudService);
 
@@ -40,11 +40,11 @@ public final class CloudServicePreLoadInclusionEvent extends CloudServiceEvent i
     this.request = request;
   }
 
-  public @NotNull ServiceRemoteInclusion inclusion() {
+  public @NonNull ServiceRemoteInclusion inclusion() {
     return this.serviceRemoteInclusion;
   }
 
-  public @NotNull GetRequest request() {
+  public @NonNull GetRequest request() {
     return this.request;
   }
 

@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class MongoDBDatabaseProvider extends AbstractDatabaseProvider {
 
@@ -60,7 +60,7 @@ public class MongoDBDatabaseProvider extends AbstractDatabaseProvider {
   }
 
   @Override
-  public @NotNull LocalDatabase database(@NotNull String name) {
+  public @NonNull LocalDatabase database(@NonNull String name) {
     return this.cachedDatabaseInstances.computeIfAbsent(name, $ -> {
       var collection = this.mongoDatabase.getCollection(name);
       return new MongoDBDatabase(name, collection, this.executorService, this);
@@ -68,12 +68,12 @@ public class MongoDBDatabaseProvider extends AbstractDatabaseProvider {
   }
 
   @Override
-  public boolean containsDatabase(@NotNull String name) {
+  public boolean containsDatabase(@NonNull String name) {
     return this.databaseNames().contains(name);
   }
 
   @Override
-  public boolean deleteDatabase(@NotNull String name) {
+  public boolean deleteDatabase(@NonNull String name) {
     this.cachedDatabaseInstances.remove(name);
     this.mongoDatabase.getCollection(name).drop();
 
@@ -81,7 +81,7 @@ public class MongoDBDatabaseProvider extends AbstractDatabaseProvider {
   }
 
   @Override
-  public @NotNull Collection<String> databaseNames() {
+  public @NonNull Collection<String> databaseNames() {
     return this.mongoDatabase.listCollectionNames().into(new ArrayList<>());
   }
 
@@ -96,7 +96,7 @@ public class MongoDBDatabaseProvider extends AbstractDatabaseProvider {
   }
 
   @Override
-  public @NotNull String name() {
+  public @NonNull String name() {
     return "mongodb";
   }
 }

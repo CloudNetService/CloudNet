@@ -57,7 +57,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.function.Consumer;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 @CommandPermission("cloudnet.command.tasks")
@@ -683,13 +683,13 @@ public final class CommandTasks {
     this.taskProvider().addPermanentServiceTask(task);
   }
 
-  private void updateTask(ServiceTask task, @NotNull Consumer<ServiceTask.Builder> consumer) {
+  private void updateTask(ServiceTask task, @NonNull Consumer<ServiceTask.Builder> consumer) {
     consumer
       .andThen(result -> this.updateTask(result.build()))
       .accept(ServiceTask.builder(task));
   }
 
-  private void updateTaskDirect(ServiceTask task, @NotNull Consumer<ServiceTask> consumer) {
+  private void updateTaskDirect(ServiceTask task, @NonNull Consumer<ServiceTask> consumer) {
     consumer.andThen(this::updateTask).accept(task);
   }
 

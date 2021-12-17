@@ -40,7 +40,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class JsonConfiguration implements IConfiguration {
 
@@ -104,7 +104,7 @@ public final class JsonConfiguration implements IConfiguration {
     }
   }
 
-  public static @NotNull IConfiguration loadFromFile(@NotNull CloudNet nodeInstance) {
+  public static @NonNull IConfiguration loadFromFile(@NonNull CloudNet nodeInstance) {
     if (Files.notExists(CONFIG_FILE_PATH)) {
       // register the setup if the file does not exists
       nodeInstance.installation().registerSetup(new DefaultConfigSetup());
@@ -120,7 +120,7 @@ public final class JsonConfiguration implements IConfiguration {
   }
 
   @Override
-  public @NotNull IConfiguration load() {
+  public @NonNull IConfiguration load() {
     if (this.identity == null) {
       this.identity = new NetworkClusterNode(
         ConfigurationUtils.get(
@@ -282,40 +282,40 @@ public final class JsonConfiguration implements IConfiguration {
   }
 
   @Override
-  public @NotNull IConfiguration save() {
+  public @NonNull IConfiguration save() {
     JsonDocument.newDocument(this).write(CONFIG_FILE_PATH);
     return this;
   }
 
   @Override
-  public @NotNull NetworkClusterNode identity() {
+  public @NonNull NetworkClusterNode identity() {
     return this.identity;
   }
 
   @Override
-  public void identity(@NotNull NetworkClusterNode identity) {
+  public void identity(@NonNull NetworkClusterNode identity) {
     this.identity = identity;
   }
 
   @Override
-  public @NotNull NetworkCluster clusterConfig() {
+  public @NonNull NetworkCluster clusterConfig() {
     return this.clusterConfig;
   }
 
   @Override
-  public void clusterConfig(@NotNull NetworkCluster clusterConfig) {
+  public void clusterConfig(@NonNull NetworkCluster clusterConfig) {
     Preconditions.checkNotNull(clusterConfig);
 
     this.clusterConfig = clusterConfig;
   }
 
   @Override
-  public @NotNull Collection<String> ipWhitelist() {
+  public @NonNull Collection<String> ipWhitelist() {
     return this.ipWhitelist != null ? this.ipWhitelist : (this.ipWhitelist = new HashSet<>());
   }
 
   @Override
-  public void ipWhitelist(@NotNull Collection<String> whitelist) {
+  public void ipWhitelist(@NonNull Collection<String> whitelist) {
     this.ipWhitelist = new HashSet<>(whitelist);
   }
 
@@ -370,84 +370,84 @@ public final class JsonConfiguration implements IConfiguration {
   }
 
   @Override
-  public @NotNull DefaultJVMFlags defaultJVMFlags() {
+  public @NonNull DefaultJVMFlags defaultJVMFlags() {
     return this.defaultJVMFlags;
   }
 
   @Override
-  public void defaultJVMFlags(@NotNull DefaultJVMFlags defaultJVMFlags) {
+  public void defaultJVMFlags(@NonNull DefaultJVMFlags defaultJVMFlags) {
     this.defaultJVMFlags = defaultJVMFlags;
   }
 
   @Override
-  public @NotNull String hostAddress() {
+  public @NonNull String hostAddress() {
     return this.hostAddress;
   }
 
   @Override
-  public void hostAddress(@NotNull String hostAddress) {
+  public void hostAddress(@NonNull String hostAddress) {
     this.hostAddress = hostAddress;
   }
 
   @Override
-  public @NotNull Collection<HostAndPort> httpListeners() {
+  public @NonNull Collection<HostAndPort> httpListeners() {
     return this.httpListeners != null ? this.httpListeners : (this.httpListeners = new ArrayList<>());
   }
 
   @Override
-  public void httpListeners(@NotNull Collection<HostAndPort> httpListeners) {
+  public void httpListeners(@NonNull Collection<HostAndPort> httpListeners) {
     Preconditions.checkNotNull(httpListeners);
 
     this.httpListeners = httpListeners;
   }
 
   @Override
-  public @NotNull String connectHostAddress() {
+  public @NonNull String connectHostAddress() {
     return this.connectHostAddress;
   }
 
   @Override
-  public void connectHostAddress(@NotNull String connectHostAddress) {
+  public void connectHostAddress(@NonNull String connectHostAddress) {
     this.connectHostAddress = connectHostAddress;
   }
 
   @Override
-  public @NotNull SSLConfiguration clientSSLConfig() {
+  public @NonNull SSLConfiguration clientSSLConfig() {
     return this.clientSslConfig;
   }
 
   @Override
-  public void clientSSLConfig(@NotNull SSLConfiguration clientSslConfig) {
+  public void clientSSLConfig(@NonNull SSLConfiguration clientSslConfig) {
     this.clientSslConfig = clientSslConfig;
   }
 
   @Override
-  public @NotNull SSLConfiguration serverSSLConfig() {
+  public @NonNull SSLConfiguration serverSSLConfig() {
     return this.serverSslConfig;
   }
 
   @Override
-  public void serverSSLConfig(@NotNull SSLConfiguration serverSslConfig) {
+  public void serverSSLConfig(@NonNull SSLConfiguration serverSslConfig) {
     this.serverSslConfig = serverSslConfig;
   }
 
   @Override
-  public @NotNull SSLConfiguration webSSLConfig() {
+  public @NonNull SSLConfiguration webSSLConfig() {
     return this.webSslConfig;
   }
 
   @Override
-  public void webSSLConfig(@NotNull SSLConfiguration webSslConfig) {
+  public void webSSLConfig(@NonNull SSLConfiguration webSslConfig) {
     this.webSslConfig = webSslConfig;
   }
 
   @Override
-  public @NotNull String javaCommand() {
+  public @NonNull String javaCommand() {
     return this.jvmCommand;
   }
 
   @Override
-  public void javaCommand(@NotNull String jvmCommand) {
+  public void javaCommand(@NonNull String jvmCommand) {
     this.jvmCommand = jvmCommand;
   }
 
@@ -472,12 +472,12 @@ public final class JsonConfiguration implements IConfiguration {
   }
 
   @Override
-  public @NotNull JsonDocument properties() {
+  public @NonNull JsonDocument properties() {
     return this.properties;
   }
 
   @Override
-  public void properties(@NotNull JsonDocument properties) {
+  public void properties(@NonNull JsonDocument properties) {
     this.properties = properties;
   }
 }

@@ -26,11 +26,11 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.logging.Level;
+import lombok.NonNull;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissibleBase;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionAttachmentInfo;
-import org.jetbrains.annotations.NotNull;
 
 public final class BukkitCloudPermissionsPermissible extends PermissibleBase {
 
@@ -44,12 +44,12 @@ public final class BukkitCloudPermissionsPermissible extends PermissibleBase {
     this.permissionsManagement = permissionsManagement;
   }
 
-  private @NotNull Set<Permission> getDefaultPermissions() {
+  private @NonNull Set<Permission> getDefaultPermissions() {
     return this.player.getServer().getPluginManager().getDefaultPermissions(false);
   }
 
   @Override
-  public @NotNull Set<PermissionAttachmentInfo> getEffectivePermissions() {
+  public @NonNull Set<PermissionAttachmentInfo> getEffectivePermissions() {
     Set<PermissionAttachmentInfo> infos = new HashSet<>();
 
     var user = CloudNetDriver.instance().permissionManagement().user(this.player.getUniqueId());
@@ -81,7 +81,7 @@ public final class BukkitCloudPermissionsPermissible extends PermissibleBase {
   }
 
   @Override
-  public boolean isPermissionSet(@NotNull String name) {
+  public boolean isPermissionSet(@NonNull String name) {
     return this.hasPermission(name);
   }
 
@@ -96,7 +96,7 @@ public final class BukkitCloudPermissionsPermissible extends PermissibleBase {
   }
 
   @Override
-  public boolean hasPermission(@NotNull String inName) {
+  public boolean hasPermission(@NonNull String inName) {
     try {
       var user = CloudNetDriver.instance().permissionManagement().user(this.player.getUniqueId());
       if (user == null) {

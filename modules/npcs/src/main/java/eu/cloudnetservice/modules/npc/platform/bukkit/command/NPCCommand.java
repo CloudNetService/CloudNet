@@ -37,6 +37,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -47,7 +48,6 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class NPCCommand extends BaseTabExecutor {
@@ -76,7 +76,7 @@ public final class NPCCommand extends BaseTabExecutor {
   private final Plugin plugin;
   private final BukkitPlatformNPCManagement management;
 
-  public NPCCommand(@NotNull Plugin plugin, @NotNull BukkitPlatformNPCManagement management) {
+  public NPCCommand(@NonNull Plugin plugin, @NonNull BukkitPlatformNPCManagement management) {
     this.plugin = plugin;
     this.management = management;
   }
@@ -515,7 +515,7 @@ public final class NPCCommand extends BaseTabExecutor {
   }
 
   @Override
-  public @NotNull Collection<String> tabComplete(@NotNull CommandSender sender, String @NotNull [] args) {
+  public @NonNull Collection<String> tabComplete(@NonNull CommandSender sender, String @NonNull [] args) {
     // top level commands
     if (args.length == 1) {
       return Arrays.asList("create", "edit", "remove", "cleanup", "list", "copy", "cut", "paste", "clearclipboard");
@@ -617,7 +617,7 @@ public final class NPCCommand extends BaseTabExecutor {
     return Collections.emptyList();
   }
 
-  private @Nullable NPC getNearestNPC(@NotNull Location location) {
+  private @Nullable NPC getNearestNPC(@NonNull Location location) {
     return this.management.trackedEntities().values().stream()
       .filter(PlatformSelectorEntity::spawned)
       .filter(entity -> entity.location().getWorld().getUID().equals(location.getWorld().getUID()))
@@ -627,11 +627,11 @@ public final class NPCCommand extends BaseTabExecutor {
       .orElse(null);
   }
 
-  private boolean parseBoolean(@NotNull String input) {
+  private boolean parseBoolean(@NonNull String input) {
     return input.contains("true") || input.contains("yes") || input.startsWith("y");
   }
 
-  private boolean canChangeSetting(@NotNull CommandSender sender, @NotNull NPC npc) {
+  private boolean canChangeSetting(@NonNull CommandSender sender, @NonNull NPC npc) {
     if (npc.npcType() != NPCType.PLAYER) {
       sender.sendMessage(String.format("§cThis option is not available for the npc type §6%s§c!", npc.entityType()));
       return false;

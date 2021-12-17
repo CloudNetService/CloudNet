@@ -49,7 +49,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.jetbrains.annotations.VisibleForTesting;
@@ -85,20 +85,20 @@ public abstract class CloudNetDriver {
 
   protected DriverEnvironment driverEnvironment = DriverEnvironment.EMBEDDED;
 
-  protected CloudNetDriver(@NotNull List<String> args) {
+  protected CloudNetDriver(@NonNull List<String> args) {
     this.commandLineArguments = args;
   }
 
   /**
    * @return a singleton instance of the CloudNetDriver
    */
-  @NotNull
+  @NonNull
   public static CloudNetDriver instance() {
     return CloudNetDriver.instance;
   }
 
   @VisibleForTesting
-  protected static void instance(@NotNull CloudNetDriver instance) {
+  protected static void instance(@NonNull CloudNetDriver instance) {
     CloudNetDriver.instance = instance;
   }
 
@@ -109,7 +109,7 @@ public abstract class CloudNetDriver {
   /**
    * Returns the name of this component. (e.g. Node-1, Lobby-1)
    */
-  @NotNull
+  @NonNull
   public abstract String componentName();
 
   /**
@@ -118,13 +118,13 @@ public abstract class CloudNetDriver {
    *
    * @return the uniqueId of the current node
    */
-  @NotNull
+  @NonNull
   public abstract String nodeUniqueId();
 
   /**
    * @return the set {@link CloudServiceFactory} for creating new services in the cloud
    */
-  @NotNull
+  @NonNull
   public CloudServiceFactory cloudServiceFactory() {
     return this.cloudServiceFactory;
   }
@@ -132,7 +132,7 @@ public abstract class CloudNetDriver {
   /**
    * @return the set {@link ServiceTaskProvider} for the management of service tasks
    */
-  @NotNull
+  @NonNull
   public ServiceTaskProvider serviceTaskProvider() {
     return this.serviceTaskProvider;
   }
@@ -140,7 +140,7 @@ public abstract class CloudNetDriver {
   /**
    * @return the set {@link NodeInfoProvider} which provides access to the local node or nodes in the cluster.
    */
-  @NotNull
+  @NonNull
   public NodeInfoProvider nodeInfoProvider() {
     return this.nodeInfoProvider;
   }
@@ -148,7 +148,7 @@ public abstract class CloudNetDriver {
   /**
    * @return the set {@link GroupConfigurationProvider} which manages the services groups
    */
-  @NotNull
+  @NonNull
   public GroupConfigurationProvider groupConfigurationProvider() {
     return this.groupConfigurationProvider;
   }
@@ -156,7 +156,7 @@ public abstract class CloudNetDriver {
   /**
    * @return the set {@link CloudMessenger} to communicate between services and nodes
    */
-  @NotNull
+  @NonNull
   public CloudMessenger messenger() {
     return this.messenger;
   }
@@ -165,7 +165,7 @@ public abstract class CloudNetDriver {
    * @return the current {@link IPermissionManagement}
    * @throws NullPointerException if there is no PermissionManagement available
    */
-  @NotNull
+  @NonNull
   public IPermissionManagement permissionManagement() {
     Preconditions.checkNotNull(this.permissionManagement, "no permission management available");
     return this.permissionManagement;
@@ -178,7 +178,7 @@ public abstract class CloudNetDriver {
    * @throws IllegalStateException if the current {@link IPermissionManagement} does not allow overwriting it and the
    *                               class names are not the same
    */
-  public void permissionManagement(@NotNull IPermissionManagement management) {
+  public void permissionManagement(@NonNull IPermissionManagement management) {
     Preconditions.checkNotNull(management, "new permission management is null");
     // if there is no old permission management or the old permission management can be overridden
     // we can just set the new one
@@ -214,7 +214,7 @@ public abstract class CloudNetDriver {
    * @return the local {@link TemplateStorage}
    * @throws IllegalStateException if the TemplateStorage is not present
    */
-  @NotNull
+  @NonNull
   public abstract TemplateStorage localTemplateStorage();
 
   /**
@@ -222,35 +222,35 @@ public abstract class CloudNetDriver {
    * @return the registered {@link TemplateStorage}, null if the storage does not exist
    */
   @Nullable
-  public abstract TemplateStorage templateStorage(@NotNull String storage);
+  public abstract TemplateStorage templateStorage(@NonNull String storage);
 
-  @NotNull
+  @NonNull
   public abstract Collection<TemplateStorage> availableTemplateStorages();
 
-  @NotNull
+  @NonNull
   public ITask<Collection<TemplateStorage>> availableTemplateStoragesAsync() {
     return CompletableTask.supply(this::availableTemplateStorages);
   }
 
-  public @NotNull DatabaseProvider databaseProvider() {
+  public @NonNull DatabaseProvider databaseProvider() {
     return this.databaseProvider;
   }
 
-  @NotNull
+  @NonNull
   public GeneralCloudServiceProvider cloudServiceProvider() {
     return this.generalCloudServiceProvider;
   }
 
-  public @NotNull INetworkClient networkClient() {
+  public @NonNull INetworkClient networkClient() {
     return this.networkClient;
   }
 
-  public abstract @NotNull Collection<String> sendCommandLineAsPermissionUser(@NotNull UUID uniqueId,
-    @NotNull String commandLine);
+  public abstract @NonNull Collection<String> sendCommandLineAsPermissionUser(@NonNull UUID uniqueId,
+    @NonNull String commandLine);
 
-  @NotNull
-  public ITask<Collection<String>> sendCommandLineAsPermissionUserAsync(@NotNull UUID uniqueId,
-    @NotNull String commandLine
+  @NonNull
+  public ITask<Collection<String>> sendCommandLineAsPermissionUserAsync(@NonNull UUID uniqueId,
+    @NonNull String commandLine
   ) {
     return CompletableTask.supply(() -> this.sendCommandLineAsPermissionUser(uniqueId, commandLine));
   }
@@ -264,47 +264,47 @@ public abstract class CloudNetDriver {
     return ProcessSnapshot.ownPID();
   }
 
-  @NotNull
+  @NonNull
   public IServicesRegistry servicesRegistry() {
     return this.servicesRegistry;
   }
 
-  @NotNull
+  @NonNull
   public IEventManager eventManager() {
     return this.eventManager;
   }
 
-  @NotNull
+  @NonNull
   public IModuleProvider moduleProvider() {
     return this.moduleProvider;
   }
 
-  @NotNull
+  @NonNull
   public ScheduledExecutorService taskExecutor() {
     return this.scheduler;
   }
 
-  @NotNull
+  @NonNull
   public RPCProviderFactory rpcProviderFactory() {
     return this.rpcProviderFactory;
   }
 
-  public @NotNull RPCHandlerRegistry rpcHandlerRegistry() {
+  public @NonNull RPCHandlerRegistry rpcHandlerRegistry() {
     return this.rpcHandlerRegistry;
   }
 
-  @NotNull
+  @NonNull
   public DriverEnvironment environment() {
     return this.driverEnvironment;
   }
 
-  @NotNull
+  @NonNull
   public CloudNetVersion version() {
     return this.cloudNetVersion;
   }
 
   @UnmodifiableView
-  public @NotNull List<String> commandLineArguments() {
+  public @NonNull List<String> commandLineArguments() {
     return Collections.unmodifiableList(this.commandLineArguments);
   }
 }

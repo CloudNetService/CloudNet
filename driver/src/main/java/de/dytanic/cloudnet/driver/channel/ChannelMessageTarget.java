@@ -19,9 +19,9 @@ package de.dytanic.cloudnet.driver.channel;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
@@ -37,13 +37,13 @@ public class ChannelMessageTarget {
   private final String name;
   private final ServiceEnvironmentType environment;
 
-  protected ChannelMessageTarget(@NotNull Type type, @Nullable String name) {
+  protected ChannelMessageTarget(@NonNull Type type, @Nullable String name) {
     this.type = type;
     this.name = name;
     this.environment = null;
   }
 
-  protected ChannelMessageTarget(@NotNull ServiceEnvironmentType environment) {
+  protected ChannelMessageTarget(@NonNull ServiceEnvironmentType environment) {
     this.type = Type.ENVIRONMENT;
     this.name = null;
     this.environment = environment;
@@ -56,11 +56,11 @@ public class ChannelMessageTarget {
     this.environment = environment;
   }
 
-  public static @NotNull ChannelMessageTarget environment(@NotNull ServiceEnvironmentType type) {
+  public static @NonNull ChannelMessageTarget environment(@NonNull ServiceEnvironmentType type) {
     return new ChannelMessageTarget(type);
   }
 
-  public static @NotNull ChannelMessageTarget of(@NotNull Type type, @Nullable String name) {
+  public static @NonNull ChannelMessageTarget of(@NonNull Type type, @Nullable String name) {
     Preconditions.checkArgument(type != Type.ENVIRONMENT, "Unable to target environment using name");
     // check if we have a constant value for the type
     if (name == null) {
@@ -79,7 +79,7 @@ public class ChannelMessageTarget {
     return new ChannelMessageTarget(type, name);
   }
 
-  public @NotNull Type type() {
+  public @NonNull Type type() {
     return this.type;
   }
 

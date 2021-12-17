@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.driver.module;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Verify;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * A default implementation of an {@link IModule} which holds some general information about the module.
@@ -33,8 +33,8 @@ public class DefaultModule implements IModule {
    * {@inheritDoc}
    */
   @Override
-  public void init(@NotNull ClassLoader loader, @NotNull IModuleWrapper wrapper,
-    @NotNull ModuleConfiguration config) {
+  public void init(@NonNull ClassLoader loader, @NonNull IModuleWrapper wrapper,
+    @NonNull ModuleConfiguration config) {
     // ensure that this is not initialized
     Verify.verify(this.classLoader == null || this.moduleWrapper == null || this.moduleConfig == null,
       "Cannot call init twice on a module wrapper");
@@ -48,7 +48,7 @@ public class DefaultModule implements IModule {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull IModuleWrapper moduleWrapper() {
+  public @NonNull IModuleWrapper moduleWrapper() {
     return this.moduleWrapper;
   }
 
@@ -56,7 +56,7 @@ public class DefaultModule implements IModule {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull ClassLoader classLoader() {
+  public @NonNull ClassLoader classLoader() {
     return this.classLoader;
   }
 
@@ -64,7 +64,7 @@ public class DefaultModule implements IModule {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull ModuleConfiguration moduleConfig() {
+  public @NonNull ModuleConfiguration moduleConfig() {
     return this.moduleConfig;
   }
 }

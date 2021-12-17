@@ -54,9 +54,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement {
@@ -80,7 +80,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
   protected volatile Consumer<ServiceInfoSnapshot> cacheRegisterListener;
   protected volatile Consumer<ServiceInfoSnapshot> cacheUnregisterListener;
 
-  public PlatformBridgeManagement(@NotNull Wrapper wrapper) {
+  public PlatformBridgeManagement(@NonNull Wrapper wrapper) {
     this.eventManager = wrapper.eventManager();
     this.cachedServices = new ConcurrentHashMap<>();
     this.fallbackProfiles = new ConcurrentHashMap<>();
@@ -104,16 +104,16 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
   }
 
   @Override
-  public @NotNull BridgeConfiguration configuration() {
+  public @NonNull BridgeConfiguration configuration() {
     return this.configuration;
   }
 
   @Override
-  public void configuration(@NotNull BridgeConfiguration configuration) {
+  public void configuration(@NonNull BridgeConfiguration configuration) {
     this.sender.invokeMethod("configuration", configuration).fireSync();
   }
 
-  public void configurationSilently(@NotNull BridgeConfiguration configuration) {
+  public void configurationSilently(@NonNull BridgeConfiguration configuration) {
     this.configuration = configuration;
     this.eventManager.callEvent(new BridgeConfigurationUpdateEvent(configuration));
     this.currentFallbackConfiguration = configuration.fallbackConfigurations().stream()
@@ -123,11 +123,11 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
   }
 
   @Override
-  public @NotNull IPlayerManager playerManager() {
+  public @NonNull IPlayerManager playerManager() {
     return this.playerManager;
   }
 
-  public void appendServiceInformation(@NotNull ServiceInfoSnapshot snapshot) {
+  public void appendServiceInformation(@NonNull ServiceInfoSnapshot snapshot) {
     snapshot.properties().append("Online", Boolean.TRUE);
     snapshot.properties().append("Motd", BridgeServiceHelper.MOTD.get());
     snapshot.properties().append("Extra", BridgeServiceHelper.EXTRA.get());
@@ -135,7 +135,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     snapshot.properties().append("Max-Players", BridgeServiceHelper.MAX_PLAYERS.get());
   }
 
-  public @NotNull Collection<ServiceInfoSnapshot> cachedServices() {
+  public @NonNull Collection<ServiceInfoSnapshot> cachedServices() {
     return this.cachedServices.values();
   }
 
@@ -143,21 +143,21 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     return this.selfTask;
   }
 
-  public void handleTaskUpdate(@NotNull String name, @Nullable ServiceTask task) {
+  public void handleTaskUpdate(@NonNull String name, @Nullable ServiceTask task) {
     if (Wrapper.instance().serviceId().taskName().equals(name)) {
       this.selfTask = task;
     }
   }
 
-  public @NotNull Optional<ServiceInfoSnapshot> cachedService(@NotNull Predicate<ServiceInfoSnapshot> filter) {
+  public @NonNull Optional<ServiceInfoSnapshot> cachedService(@NonNull Predicate<ServiceInfoSnapshot> filter) {
     return this.cachedServices.values().stream().filter(filter).findFirst();
   }
 
-  public @NotNull Optional<ServiceInfoSnapshot> cachedService(@NotNull UUID uniqueId) {
+  public @NonNull Optional<ServiceInfoSnapshot> cachedService(@NonNull UUID uniqueId) {
     return Optional.ofNullable(this.cachedServices.get(uniqueId));
   }
 
-  public void handleServiceUpdate(@NotNull ServiceInfoSnapshot snapshot) {
+  public void handleServiceUpdate(@NonNull ServiceInfoSnapshot snapshot) {
     // if the service is not yet cached check if we need to cache it
     if (!this.cachedServices.containsKey(snapshot.serviceId().uniqueId())) {
       // check if we should cache it
@@ -176,11 +176,11 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     }
   }
 
-  public @NotNull Optional<ServiceInfoSnapshot> fallback(
-    @NotNull UUID playerId,
+  public @NonNull Optional<ServiceInfoSnapshot> fallback(
+    @NonNull UUID playerId,
     @Nullable String currentServerName,
     @Nullable String virtualHost,
-    @NotNull Function<String, Boolean> permissionTester
+    @NonNull Function<String, Boolean> permissionTester
   ) {
     // get the currently applying fallback config
     var config = Preconditions.checkNotNull(this.currentFallbackConfiguration);
@@ -216,10 +216,10 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
       });
   }
 
-  public @NotNull Stream<ProxyFallback> possibleFallbacks(
+  public @NonNull Stream<ProxyFallback> possibleFallbacks(
     @Nullable String currentServerName,
     @Nullable String virtualHost,
-    @NotNull Function<String, Boolean> permissionTester
+    @NonNull Function<String, Boolean> permissionTester
   ) {
     // get the currently applying fallback config
     var config = Preconditions.checkNotNull(this.currentFallbackConfiguration);
@@ -241,7 +241,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
   public boolean isOnAnyFallbackInstance(
     @Nullable String currentServerName,
     @Nullable String virtualHost,
-    @NotNull Function<String, Boolean> permissionTester
+    @NonNull Function<String, Boolean> permissionTester
   ) {
     // get the currently applying fallback config
     var config = Preconditions.checkNotNull(this.currentFallbackConfiguration);
@@ -259,9 +259,9 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
       }).orElse(false);
   }
 
-  protected @NotNull Optional<ServiceInfoSnapshot> anyTaskService(
-    @NotNull String task,
-    @NotNull FallbackProfile profile,
+  protected @NonNull Optional<ServiceInfoSnapshot> anyTaskService(
+    @NonNull String task,
+    @NonNull FallbackProfile profile,
     @Nullable String currentServerName
   ) {
     return this.cachedServices.values().stream()
@@ -282,7 +282,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
       });
   }
 
-  public void handleFallbackConnectionSuccess(@NotNull UUID uniqueId) {
+  public void handleFallbackConnectionSuccess(@NonNull UUID uniqueId) {
     // if present clear the profile
     var profile = this.fallbackProfiles.get(uniqueId);
     if (profile != null) {
@@ -290,7 +290,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     }
   }
 
-  public void removeFallbackProfile(@NotNull UUID uniqueId) {
+  public void removeFallbackProfile(@NonNull UUID uniqueId) {
     this.fallbackProfiles.remove(uniqueId);
   }
 
@@ -309,25 +309,25 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
       .serviceTask(Wrapper.instance().serviceId().taskName());
   }
 
-  public @NotNull NetworkServiceInfo ownNetworkServiceInfo() {
+  public @NonNull NetworkServiceInfo ownNetworkServiceInfo() {
     return this.ownNetworkServiceInfo;
   }
 
-  public abstract @NotNull ServicePlayer wrapPlayer(@NotNull P player);
+  public abstract @NonNull ServicePlayer wrapPlayer(@NonNull P player);
 
-  public abstract @NotNull I createPlayerInformation(@NotNull P player);
+  public abstract @NonNull I createPlayerInformation(@NonNull P player);
 
-  public abstract @NotNull BiFunction<P, String, Boolean> permissionFunction();
+  public abstract @NonNull BiFunction<P, String, Boolean> permissionFunction();
 
-  public abstract boolean isOnAnyFallbackInstance(@NotNull P player);
+  public abstract boolean isOnAnyFallbackInstance(@NonNull P player);
 
-  public abstract @NotNull Optional<ServiceInfoSnapshot> fallback(@NotNull P player);
+  public abstract @NonNull Optional<ServiceInfoSnapshot> fallback(@NonNull P player);
 
-  public abstract @NotNull Optional<ServiceInfoSnapshot> fallback(@NotNull P player, @Nullable String currServer);
+  public abstract @NonNull Optional<ServiceInfoSnapshot> fallback(@NonNull P player, @Nullable String currServer);
 
-  public abstract void handleFallbackConnectionSuccess(@NotNull P player);
+  public abstract void handleFallbackConnectionSuccess(@NonNull P player);
 
-  public abstract void removeFallbackProfile(@NotNull P player);
+  public abstract void removeFallbackProfile(@NonNull P player);
 
-  public abstract @NotNull PlayerExecutor directPlayerExecutor(@NotNull UUID uniqueId);
+  public abstract @NonNull PlayerExecutor directPlayerExecutor(@NonNull UUID uniqueId);
 }

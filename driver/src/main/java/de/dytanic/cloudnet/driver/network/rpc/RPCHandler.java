@@ -17,16 +17,16 @@
 package de.dytanic.cloudnet.driver.network.rpc;
 
 import de.dytanic.cloudnet.driver.network.rpc.defaults.MethodInformation;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.UnknownNullability;
 
 public interface RPCHandler extends RPCProvider {
 
   void registerToDefaultRegistry();
 
-  void registerTo(@NotNull RPCHandlerRegistry registry);
+  void registerTo(@NonNull RPCHandlerRegistry registry);
 
-  @NotNull HandlingResult handle(@NotNull RPCInvocationContext context);
+  @NonNull HandlingResult handle(@NonNull RPCInvocationContext context);
 
   interface HandlingResult {
 
@@ -34,8 +34,8 @@ public interface RPCHandler extends RPCProvider {
 
     @UnknownNullability Object invocationResult();
 
-    @NotNull RPCHandler invocationHandler();
+    @NonNull RPCHandler invocationHandler();
 
-    @NotNull MethodInformation targetMethodInformation();
+    @NonNull MethodInformation targetMethodInformation();
   }
 }

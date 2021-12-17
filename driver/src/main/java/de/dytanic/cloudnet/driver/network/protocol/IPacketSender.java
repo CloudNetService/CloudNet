@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.driver.network.protocol;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * Represents a sender of packets who can receive packets too.
@@ -28,14 +28,14 @@ public interface IPacketSender {
    *
    * @param packet the packet to send.
    */
-  void sendPacket(@NotNull IPacket packet);
+  void sendPacket(@NonNull IPacket packet);
 
   /**
    * Sends a packet to this sender and blocks until the packet was flushed into the channel.
    *
    * @param packet the packet to send.
    */
-  void sendPacketSync(@NotNull IPacket packet);
+  void sendPacketSync(@NonNull IPacket packet);
 
   /**
    * Sends all given packets to this sender.
@@ -43,7 +43,7 @@ public interface IPacketSender {
    * @param packets the packets to send.
    * @see #sendPacket(IPacket)
    */
-  default void sendPacket(@NotNull IPacket... packets) {
+  default void sendPacket(@NonNull IPacket... packets) {
     for (var packet : packets) {
       this.sendPacket(packet);
     }
@@ -55,7 +55,7 @@ public interface IPacketSender {
    * @param packets the packets to send.
    * @see #sendPacketSync(IPacket)
    */
-  default void sendPacketSync(@NotNull IPacket... packets) {
+  default void sendPacketSync(@NonNull IPacket... packets) {
     for (var packet : packets) {
       this.sendPacketSync(packet);
     }

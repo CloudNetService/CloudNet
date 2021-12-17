@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.driver.network.rpc.defaults.handler.util;
 
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.rpc.exception.RPCExecutionException;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class ExceptionalResultUtils {
 
@@ -26,7 +26,7 @@ public final class ExceptionalResultUtils {
     throw new UnsupportedOperationException();
   }
 
-  public static @NotNull DataBuf serializeThrowable(@NotNull DataBuf.Mutable target, @NotNull Throwable throwable) {
+  public static @NonNull DataBuf serializeThrowable(@NonNull DataBuf.Mutable target, @NonNull Throwable throwable) {
     // write the class name and the message of the exception
     target
       .writeString(throwable.getClass().getSimpleName())
@@ -35,7 +35,7 @@ public final class ExceptionalResultUtils {
     return serializeFirstElement(target, throwable.getStackTrace());
   }
 
-  public static void rethrowException(@NotNull DataBuf source) {
+  public static void rethrowException(@NonNull DataBuf source) {
     // read the information about the exception name
     var exceptionClassName = source.readString();
     // read the information about the exception message (which may be null)
@@ -58,9 +58,9 @@ public final class ExceptionalResultUtils {
     throw new RPCExecutionException(exceptionClassName, exceptionMessage, formattedElement);
   }
 
-  private static @NotNull DataBuf serializeFirstElement(
-    @NotNull DataBuf.Mutable target,
-    StackTraceElement @NotNull [] elements
+  private static @NonNull DataBuf serializeFirstElement(
+    @NonNull DataBuf.Mutable target,
+    StackTraceElement @NonNull [] elements
   ) {
     if (elements.length == 0) {
       // no first element, skip

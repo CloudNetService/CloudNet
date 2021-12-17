@@ -23,7 +23,7 @@ import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class AbstractNPCManagement implements NPCManagement {
@@ -44,27 +44,27 @@ public abstract class AbstractNPCManagement implements NPCManagement {
   }
 
   @Override
-  public @Nullable NPC npcAt(@NotNull WorldPosition position) {
+  public @Nullable NPC npcAt(@NonNull WorldPosition position) {
     return this.npcs.get(position);
   }
 
   @Override
-  public void deleteNPC(@NotNull NPC npc) {
+  public void deleteNPC(@NonNull NPC npc) {
     this.deleteNPC(npc.location());
   }
 
   @Override
-  public @NotNull Collection<NPC> npcs() {
+  public @NonNull Collection<NPC> npcs() {
     return this.npcs.values();
   }
 
   @Override
-  public @NotNull NPCConfiguration npcConfiguration() {
+  public @NonNull NPCConfiguration npcConfiguration() {
     return this.npcConfiguration;
   }
 
   @Override
-  public void npcConfiguration(@NotNull NPCConfiguration configuration) {
+  public void npcConfiguration(@NonNull NPCConfiguration configuration) {
     this.npcConfiguration = configuration;
   }
 
@@ -79,21 +79,21 @@ public abstract class AbstractNPCManagement implements NPCManagement {
   }
 
   @Override
-  public void handleInternalNPCCreate(@NotNull NPC npc) {
+  public void handleInternalNPCCreate(@NonNull NPC npc) {
     this.npcs.put(npc.location(), npc);
   }
 
   @Override
-  public void handleInternalNPCRemove(@NotNull WorldPosition position) {
+  public void handleInternalNPCRemove(@NonNull WorldPosition position) {
     this.npcs.remove(position);
   }
 
   @Override
-  public void handleInternalNPCConfigUpdate(@NotNull NPCConfiguration configuration) {
+  public void handleInternalNPCConfigUpdate(@NonNull NPCConfiguration configuration) {
     this.npcConfiguration = configuration;
   }
 
-  protected ChannelMessage.Builder channelMessage(@NotNull String message) {
+  protected ChannelMessage.Builder channelMessage(@NonNull String message) {
     return ChannelMessage.builder()
       .channel(NPC_CHANNEL_NAME)
       .message(message);

@@ -22,18 +22,18 @@ import de.dytanic.cloudnet.console.handler.ConsoleInputHandler;
 import de.dytanic.cloudnet.console.handler.ConsoleTabCompleteHandler;
 import java.util.Collection;
 import java.util.UUID;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
 
 public interface IConsole extends AutoCloseable {
 
-  @NotNull
+  @NonNull
   @UnmodifiableView
   Collection<AbstractConsoleAnimation> runningAnimations();
 
-  void startAnimation(@NotNull AbstractConsoleAnimation animation);
+  void startAnimation(@NonNull AbstractConsoleAnimation animation);
 
   boolean animationRunning();
 
@@ -46,13 +46,13 @@ public interface IConsole extends AutoCloseable {
   }
 
   @Unmodifiable
-  @NotNull Collection<String> commandHistory();
+  @NonNull Collection<String> commandHistory();
 
   void commandHistory(@Nullable Collection<String> history);
 
-  void commandInputValue(@NotNull String commandInputValue);
+  void commandInputValue(@NonNull String commandInputValue);
 
-  @NotNull
+  @NonNull
   ITask<String> readLine();
 
   void enableAllHandlers();
@@ -67,23 +67,23 @@ public interface IConsole extends AutoCloseable {
 
   void disableAllTabCompleteHandlers();
 
-  void addCommandHandler(@NotNull UUID uniqueId, @NotNull ConsoleInputHandler handler);
+  void addCommandHandler(@NonNull UUID uniqueId, @NonNull ConsoleInputHandler handler);
 
-  void removeCommandHandler(@NotNull UUID uniqueId);
+  void removeCommandHandler(@NonNull UUID uniqueId);
 
-  void addTabCompleteHandler(@NotNull UUID uniqueId, @NotNull ConsoleTabCompleteHandler handler);
+  void addTabCompleteHandler(@NonNull UUID uniqueId, @NonNull ConsoleTabCompleteHandler handler);
 
-  void removeTabCompleteHandler(@NotNull UUID uniqueId);
+  void removeTabCompleteHandler(@NonNull UUID uniqueId);
 
-  @NotNull IConsole writeRaw(@NotNull String rawText);
+  @NonNull IConsole writeRaw(@NonNull String rawText);
 
-  @NotNull IConsole forceWrite(@NotNull String text);
+  @NonNull IConsole forceWrite(@NonNull String text);
 
-  @NotNull IConsole forceWriteLine(@NotNull String text);
+  @NonNull IConsole forceWriteLine(@NonNull String text);
 
-  @NotNull IConsole write(@NotNull String text);
+  @NonNull IConsole write(@NonNull String text);
 
-  @NotNull IConsole writeLine(@NotNull String text);
+  @NonNull IConsole writeLine(@NonNull String text);
 
   boolean hasColorSupport();
 
@@ -91,9 +91,9 @@ public interface IConsole extends AutoCloseable {
 
   void usingMatchingHistoryComplete(boolean matchingHistoryComplete);
 
-  @NotNull String prompt();
+  @NonNull String prompt();
 
-  void prompt(@NotNull String prompt);
+  void prompt(@NonNull String prompt);
 
   void resetPrompt();
 
@@ -103,11 +103,11 @@ public interface IConsole extends AutoCloseable {
 
   void clearScreen();
 
-  @NotNull String screenName();
+  @NonNull String screenName();
 
-  void screenName(@NotNull String name);
+  void screenName(@NonNull String name);
 
   int width();
 
-  int displayLength(@NotNull String string);
+  int displayLength(@NonNull String string);
 }

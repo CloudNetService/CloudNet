@@ -20,8 +20,8 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @ToString
@@ -37,16 +37,16 @@ public class CloudPlayer extends CloudOfflinePlayer {
   protected JsonDocument onlineProperties;
 
   public CloudPlayer(
-    @NotNull NetworkServiceInfo loginService,
-    @NotNull NetworkServiceInfo connectedService,
-    @NotNull NetworkPlayerProxyInfo networkPlayerProxyInfo,
+    @NonNull NetworkServiceInfo loginService,
+    @NonNull NetworkServiceInfo connectedService,
+    @NonNull NetworkPlayerProxyInfo networkPlayerProxyInfo,
     @Nullable NetworkPlayerServerInfo networkPlayerServerInfo,
-    @NotNull JsonDocument onlineProperties,
+    @NonNull JsonDocument onlineProperties,
     long firstLoginTimeMillis,
     long lastLoginTimeMillis,
-    @NotNull String name,
-    @NotNull NetworkPlayerProxyInfo lastNetworkPlayerProxyInfo,
-    @NotNull JsonDocument properties
+    @NonNull String name,
+    @NonNull NetworkPlayerProxyInfo lastNetworkPlayerProxyInfo,
+    @NonNull JsonDocument properties
   ) {
     super(firstLoginTimeMillis, lastLoginTimeMillis, name, lastNetworkPlayerProxyInfo);
     this.loginService = loginService;

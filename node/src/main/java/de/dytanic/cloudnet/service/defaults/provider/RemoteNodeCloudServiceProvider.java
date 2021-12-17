@@ -24,33 +24,33 @@ import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import de.dytanic.cloudnet.driver.provider.service.RemoteSpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import java.util.function.Supplier;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class RemoteNodeCloudServiceProvider extends RemoteSpecificCloudServiceProvider {
 
   private volatile ServiceInfoSnapshot snapshot;
 
   public RemoteNodeCloudServiceProvider(
-    @NotNull GeneralCloudServiceProvider provider,
-    @NotNull RPCSender providerSender,
-    @NotNull Supplier<INetworkChannel> channelSupplier,
-    @NotNull ServiceInfoSnapshot snapshot
+    @NonNull GeneralCloudServiceProvider provider,
+    @NonNull RPCSender providerSender,
+    @NonNull Supplier<INetworkChannel> channelSupplier,
+    @NonNull ServiceInfoSnapshot snapshot
   ) {
     super(provider, providerSender, channelSupplier, snapshot.serviceId().uniqueId());
     this.snapshot = snapshot;
   }
 
   @Override
-  public @NotNull ServiceInfoSnapshot serviceInfo() {
+  public @NonNull ServiceInfoSnapshot serviceInfo() {
     return this.snapshot;
   }
 
   @Override
-  public @NotNull ITask<ServiceInfoSnapshot> serviceInfoAsync() {
+  public @NonNull ITask<ServiceInfoSnapshot> serviceInfoAsync() {
     return CompletedTask.done(this.snapshot);
   }
 
-  public void snapshot(@NotNull ServiceInfoSnapshot snapshot) {
+  public void snapshot(@NonNull ServiceInfoSnapshot snapshot) {
     this.snapshot = snapshot;
   }
 }

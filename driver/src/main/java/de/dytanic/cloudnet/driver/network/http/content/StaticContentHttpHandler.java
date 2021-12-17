@@ -19,12 +19,12 @@ package de.dytanic.cloudnet.driver.network.http.content;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.network.http.IHttpHandler;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
-public record StaticContentHttpHandler(@NotNull ContentStreamProvider provider) implements IHttpHandler {
+public record StaticContentHttpHandler(@NonNull ContentStreamProvider provider) implements IHttpHandler {
 
   @Override
-  public void handle(@NotNull String path, @NotNull IHttpContext context) throws Exception {
+  public void handle(@NonNull String path, @NonNull IHttpContext context) throws Exception {
     path = path.replaceFirst(context.pathPrefix(), "");
     if (path.endsWith("/") || path.isEmpty()) {
       var pathPrefix = context.pathPrefix().endsWith("/")

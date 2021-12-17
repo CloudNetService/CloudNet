@@ -17,11 +17,11 @@
 package de.dytanic.cloudnet.service;
 
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 @FunctionalInterface
 public interface ICloudServiceFactory {
 
-  @NotNull
-  ICloudService createCloudService(@NotNull ICloudServiceManager manager, @NotNull ServiceConfiguration configuration);
+  @NonNull
+  ICloudService createCloudService(@NonNull ICloudServiceManager manager, @NonNull ServiceConfiguration configuration);
 }

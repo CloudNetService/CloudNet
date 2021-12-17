@@ -29,18 +29,18 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.function.UnaryOperator;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public abstract class AbstractServiceConfigurationPreparer implements ServiceConfigurationPreparer {
 
   protected static final Logger LOGGER = LogManager.logger(ServiceConfigurationPreparer.class);
 
-  protected boolean shouldRewriteIp(@NotNull CloudNet nodeInstance, @NotNull ICloudService service) {
+  protected boolean shouldRewriteIp(@NonNull CloudNet nodeInstance, @NonNull ICloudService service) {
     var task = nodeInstance.serviceTaskProvider().serviceTask(service.serviceId().taskName());
     return task == null || !task.disableIpRewrite();
   }
 
-  protected void copyCompiledFile(@NotNull String fileName, @NotNull Path targetLocation) {
+  protected void copyCompiledFile(@NonNull String fileName, @NonNull Path targetLocation) {
     if (Files.notExists(targetLocation)) {
       try (var stream = ServiceConfigurationPreparer.class.getClassLoader().getResourceAsStream(fileName)) {
         if (stream != null) {
@@ -53,7 +53,7 @@ public abstract class AbstractServiceConfigurationPreparer implements ServiceCon
     }
   }
 
-  protected void rewriteFile(@NotNull Path filePath, @NotNull UnaryOperator<String> mapper) {
+  protected void rewriteFile(@NonNull Path filePath, @NonNull UnaryOperator<String> mapper) {
     try {
       // collect the new lines rewritten by the given mapper
       Collection<String> newLines = Files.readAllLines(filePath)

@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.ext.cloudperms.node.config;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import java.nio.file.Path;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class CloudPermissionConfigHelper {
 
@@ -29,7 +29,7 @@ public final class CloudPermissionConfigHelper {
    * @param location the location of the file to read from
    * @return the read {@link CloudPermissionConfig} configuration
    */
-  public static CloudPermissionConfig read(@NotNull Path location) {
+  public static CloudPermissionConfig read(@NonNull Path location) {
     var document = JsonDocument.newDocument(location);
     if (document.empty()) {
       write(CloudPermissionConfig.DEFAULT, location);
@@ -45,7 +45,7 @@ public final class CloudPermissionConfigHelper {
    * @param config   the config to write
    * @param location the location to save the config to
    */
-  public static void write(@NotNull CloudPermissionConfig config, @NotNull Path location) {
+  public static void write(@NonNull CloudPermissionConfig config, @NonNull Path location) {
     JsonDocument.newDocument(config).write(location);
   }
 }

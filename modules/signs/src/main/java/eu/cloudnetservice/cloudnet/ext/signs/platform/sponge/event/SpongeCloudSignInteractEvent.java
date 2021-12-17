@@ -19,7 +19,7 @@ package eu.cloudnetservice.cloudnet.ext.signs.platform.sponge.event;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.ext.signs.Sign;
 import java.util.Optional;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Cancellable;
@@ -44,15 +44,15 @@ public class SpongeCloudSignInteractEvent implements Event, Cancellable {
     this.cancelled = cancelled;
   }
 
-  public @NotNull ServerPlayer player() {
+  public @NonNull ServerPlayer player() {
     return this.player;
   }
 
-  public @NotNull Sign sign() {
+  public @NonNull Sign sign() {
     return this.sign;
   }
 
-  public @NotNull Optional<ServiceInfoSnapshot> target() {
+  public @NonNull Optional<ServiceInfoSnapshot> target() {
     return Optional.ofNullable(this.target);
   }
 

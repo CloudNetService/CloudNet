@@ -30,7 +30,7 @@ import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.Iterator;
 import kong.unirest.Unirest;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class ConsoleProgressWrappers {
 
@@ -40,19 +40,19 @@ public final class ConsoleProgressWrappers {
     throw new UnsupportedOperationException();
   }
 
-  public static @NotNull <T> Iterator<T> wrapIterator(
-    @NotNull Collection<T> collection,
-    @NotNull String task,
-    @NotNull String unitName
+  public static @NonNull <T> Iterator<T> wrapIterator(
+    @NonNull Collection<T> collection,
+    @NonNull String task,
+    @NonNull String unitName
   ) {
     return wrapIterator(collection, CloudNet.instance().console(), task, unitName);
   }
 
-  public static @NotNull <T> Iterator<T> wrapIterator(
-    @NotNull Collection<T> collection,
-    @NotNull IConsole console,
-    @NotNull String task,
-    @NotNull String unitName
+  public static @NonNull <T> Iterator<T> wrapIterator(
+    @NonNull Collection<T> collection,
+    @NonNull IConsole console,
+    @NonNull String task,
+    @NonNull String unitName
   ) {
     return console.animationRunning() ? collection.iterator() : new WrappedIterator<>(
       collection.iterator(),
@@ -71,15 +71,15 @@ public final class ConsoleProgressWrappers {
         collection.size()));
   }
 
-  public static void wrapDownload(@NotNull String url,
-    @NotNull ThrowableConsumer<InputStream, IOException> streamHandler) {
+  public static void wrapDownload(@NonNull String url,
+    @NonNull ThrowableConsumer<InputStream, IOException> streamHandler) {
     wrapDownload(url, CloudNet.instance().console(), streamHandler);
   }
 
   public static void wrapDownload(
-    @NotNull String url,
-    @NotNull IConsole console,
-    @NotNull ThrowableConsumer<InputStream, IOException> streamHandler
+    @NonNull String url,
+    @NonNull IConsole console,
+    @NonNull ThrowableConsumer<InputStream, IOException> streamHandler
   ) {
     Unirest
       .get(url)

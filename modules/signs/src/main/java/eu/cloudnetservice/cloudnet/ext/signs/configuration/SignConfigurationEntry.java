@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class SignConfigurationEntry implements Cloneable {
 
@@ -56,7 +56,7 @@ public class SignConfigurationEntry implements Cloneable {
     this.fullLayout = fullLayout;
   }
 
-  public static @NotNull SignConfigurationEntry createDefault(String targetGroup, String onlineBlockType,
+  public static @NonNull SignConfigurationEntry createDefault(String targetGroup, String onlineBlockType,
     String fullBlockType, String startingBlock, String searchingBlock) {
     return new SignConfigurationEntry(
       targetGroup,
@@ -135,7 +135,7 @@ public class SignConfigurationEntry implements Cloneable {
     );
   }
 
-  protected static @NotNull SignLayout createLayout(String firstLine, String block, int amount) {
+  protected static @NonNull SignLayout createLayout(String firstLine, String block, int amount) {
     return new SignLayout(
       new String[]{
         "",

@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.driver.network;
 
 import java.net.SocketAddress;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * The network server represents a server that can register and receive INetworkClient connections and packets It is
@@ -36,7 +36,7 @@ public interface INetworkServer extends INetworkComponent, AutoCloseable {
    */
   boolean addListener(int port);
 
-  boolean addListener(@NotNull SocketAddress socketAddress);
+  boolean addListener(@NonNull SocketAddress socketAddress);
 
   /**
    * Binds the server to a specific address that is as parameter defined
@@ -44,5 +44,5 @@ public interface INetworkServer extends INetworkComponent, AutoCloseable {
    * @param hostAndPort the address that should the server bind
    * @return true when the binding was successful or false if an error was threw or the port is already bind
    */
-  boolean addListener(@NotNull HostAndPort hostAndPort);
+  boolean addListener(@NonNull HostAndPort hostAndPort);
 }

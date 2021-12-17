@@ -29,7 +29,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * Utility to find dependencies of a module, ensure that they are loaded and that there is no circular dependency.
@@ -55,9 +55,9 @@ public final class ModuleDependencyUtils {
    * @throws ModuleDependencyNotFoundException if a module dependency is missing.
    * @throws ModuleDependencyOutdatedException if the running module can not provide the minimum required version.
    */
-  public static @NotNull Set<IModuleWrapper> collectDependencies(
-    @NotNull IModuleWrapper caller,
-    @NotNull IModuleProvider moduleProvider
+  public static @NonNull Set<IModuleWrapper> collectDependencies(
+    @NonNull IModuleWrapper caller,
+    @NonNull IModuleProvider moduleProvider
   ) {
     // we create a queue of all wrappers we already visited and use the calling module as the head of it
     Deque<IModuleWrapper> visitedNodes = new ArrayDeque<>();
@@ -88,11 +88,11 @@ public final class ModuleDependencyUtils {
    * @throws ModuleDependencyOutdatedException if the running module can not provide the minimum required version.
    */
   private static void visitDependencies(
-    @NotNull Deque<IModuleWrapper> visitedNodes,
-    @NotNull Collection<ModuleDependency> dependencies,
-    @NotNull IModuleWrapper originalSource,
-    @NotNull IModuleWrapper dependencyHolder,
-    @NotNull IModuleProvider moduleProvider
+    @NonNull Deque<IModuleWrapper> visitedNodes,
+    @NonNull Collection<ModuleDependency> dependencies,
+    @NonNull IModuleWrapper originalSource,
+    @NonNull IModuleWrapper dependencyHolder,
+    @NonNull IModuleProvider moduleProvider
   ) {
     for (var dependency : dependencies) {
       var wrapper = associatedModuleWrapper(dependency, moduleProvider, dependencyHolder);
@@ -119,10 +119,10 @@ public final class ModuleDependencyUtils {
    * @throws ModuleDependencyNotFoundException if a module dependency is missing.
    * @throws ModuleDependencyOutdatedException if the running module can not provide the minimum required version.
    */
-  private static @NotNull IModuleWrapper associatedModuleWrapper(
-    @NotNull ModuleDependency dependency,
-    @NotNull IModuleProvider provider,
-    @NotNull IModuleWrapper dependencyHolder
+  private static @NonNull IModuleWrapper associatedModuleWrapper(
+    @NonNull ModuleDependency dependency,
+    @NonNull IModuleProvider provider,
+    @NonNull IModuleWrapper dependencyHolder
   ) {
     var wrapper = provider.module(dependency.name());
     // ensure that the wrapper is present
@@ -152,10 +152,10 @@ public final class ModuleDependencyUtils {
    * @throws ModuleDependencyOutdatedException if the running module can not provide the minimum required version.
    */
   private static void checkDependencyVersion(
-    @NotNull IModuleWrapper requiringModule,
-    @NotNull ModuleDependency dependency,
-    @NotNull Matcher dependencyVersion,
-    @NotNull Matcher moduleVersion
+    @NonNull IModuleWrapper requiringModule,
+    @NonNull ModuleDependency dependency,
+    @NonNull Matcher dependencyVersion,
+    @NonNull Matcher moduleVersion
   ) {
     // extract both major versions
     var moduleMajor = Integer.parseInt(moduleVersion.group(1));

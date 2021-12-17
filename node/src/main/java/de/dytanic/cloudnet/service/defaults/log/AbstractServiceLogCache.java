@@ -29,7 +29,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.UnmodifiableView;
 
 public abstract class AbstractServiceLogCache implements IServiceConsoleLogCache {
@@ -44,19 +44,19 @@ public abstract class AbstractServiceLogCache implements IServiceConsoleLogCache
   protected volatile int logCacheSize;
   protected volatile boolean alwaysPrintErrorStreamToConsole;
 
-  public AbstractServiceLogCache(@NotNull CloudNet cloudNet, @NotNull ICloudService service) {
+  public AbstractServiceLogCache(@NonNull CloudNet cloudNet, @NonNull ICloudService service) {
     this.service = service;
     this.logCacheSize = cloudNet.getConfig().maxServiceConsoleLogCacheSize();
     this.alwaysPrintErrorStreamToConsole = cloudNet.getConfig().printErrorStreamLinesFromServices();
   }
 
   @Override
-  public @NotNull ICloudService service() {
+  public @NonNull ICloudService service() {
     return this.service;
   }
 
   @Override
-  public @NotNull Queue<String> cachedLogMessages() {
+  public @NonNull Queue<String> cachedLogMessages() {
     return this.cachedLogMessages;
   }
 
@@ -82,21 +82,21 @@ public abstract class AbstractServiceLogCache implements IServiceConsoleLogCache
   }
 
   @Override
-  public void addHandler(@NotNull ServiceConsoleLineHandler handler) {
+  public void addHandler(@NonNull ServiceConsoleLineHandler handler) {
     this.handlers.add(Preconditions.checkNotNull(handler, "handler"));
   }
 
   @Override
-  public void removeHandler(@NotNull ServiceConsoleLineHandler handler) {
+  public void removeHandler(@NonNull ServiceConsoleLineHandler handler) {
     this.handlers.remove(Preconditions.checkNotNull(handler, "handler"));
   }
 
   @Override
-  public @NotNull @UnmodifiableView Collection<ServiceConsoleLineHandler> handlers() {
+  public @NonNull @UnmodifiableView Collection<ServiceConsoleLineHandler> handlers() {
     return Collections.unmodifiableCollection(this.handlers);
   }
 
-  protected void handleItem(@NotNull String entry, boolean comesFromErrorStream) {
+  protected void handleItem(@NonNull String entry, boolean comesFromErrorStream) {
     // drain the cache
     while (this.cachedLogMessages.size() > this.logCacheSize) {
       this.cachedLogMessages.poll();

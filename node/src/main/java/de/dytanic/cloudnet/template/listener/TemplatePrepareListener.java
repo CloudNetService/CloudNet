@@ -25,13 +25,13 @@ import de.dytanic.cloudnet.event.template.ServiceTemplateInstallEvent;
 import de.dytanic.cloudnet.template.TemplateStorageUtil;
 import java.io.IOException;
 import java.io.InputStream;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class TemplatePrepareListener {
 
   @EventListener
-  public void handle(@NotNull ServiceTemplateInstallEvent event) throws IOException {
+  public void handle(@NonNull ServiceTemplateInstallEvent event) throws IOException {
     if (event.environmentType().equals(ServiceEnvironmentType.BUNGEECORD)) {
       // config.yml & server icon
       this.prepareProxyTemplate(event.storage(), "config.yml", "files/bungee/config.yml");
@@ -80,9 +80,9 @@ public final class TemplatePrepareListener {
   }
 
   private void prepareProxyTemplate(
-    @NotNull SpecificTemplateStorage storage,
-    @NotNull String target,
-    @NotNull String internalPath
+    @NonNull SpecificTemplateStorage storage,
+    @NonNull String target,
+    @NonNull String internalPath
   ) throws IOException {
     try (var out = storage.newOutputStream(target); var in = this.resourceStream(internalPath)) {
       FileUtils.copy(in, out);
@@ -94,7 +94,7 @@ public final class TemplatePrepareListener {
     }
   }
 
-  private @Nullable InputStream resourceStream(@NotNull String path) {
+  private @Nullable InputStream resourceStream(@NonNull String path) {
     return TemplateStorageUtil.class.getClassLoader().getResourceAsStream(path);
   }
 }

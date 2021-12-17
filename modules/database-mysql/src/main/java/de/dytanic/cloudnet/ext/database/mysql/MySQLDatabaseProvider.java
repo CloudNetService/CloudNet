@@ -32,7 +32,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
 
@@ -88,7 +88,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public @NotNull LocalDatabase database(@NotNull String name) {
+  public @NonNull LocalDatabase database(@NonNull String name) {
     Preconditions.checkNotNull(name);
 
     this.removedOutdatedEntries();
@@ -97,7 +97,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public boolean deleteDatabase(@NotNull String name) {
+  public boolean deleteDatabase(@NonNull String name) {
     Preconditions.checkNotNull(name);
 
     this.cachedDatabaseInstances.remove(name);
@@ -105,7 +105,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public @NotNull Collection<String> databaseNames() {
+  public @NonNull Collection<String> databaseNames() {
     return this.executeQuery(
       "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='PUBLIC'",
       resultSet -> {
@@ -120,7 +120,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public @NotNull String name() {
+  public @NonNull String name() {
     return this.config.getString("database");
   }
 
@@ -132,7 +132,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public @NotNull Connection connection() {
+  public @NonNull Connection connection() {
     try {
       return this.hikariDataSource.getConnection();
     } catch (SQLException exception) {
@@ -155,7 +155,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public int executeUpdate(@NotNull String query, Object... objects) {
+  public int executeUpdate(@NonNull String query, Object... objects) {
     Preconditions.checkNotNull(query);
     Preconditions.checkNotNull(objects);
 
@@ -176,7 +176,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public <T> T executeQuery(@NotNull String query, @NotNull ThrowableFunction<ResultSet, T, SQLException> callback,
+  public <T> T executeQuery(@NonNull String query, @NonNull ThrowableFunction<ResultSet, T, SQLException> callback,
     Object... objects) {
     Preconditions.checkNotNull(query);
     Preconditions.checkNotNull(callback);

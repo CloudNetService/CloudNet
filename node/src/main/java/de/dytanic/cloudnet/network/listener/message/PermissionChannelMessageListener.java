@@ -31,7 +31,7 @@ import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.permission.NodePermissionManagement;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class PermissionChannelMessageListener {
 
@@ -39,15 +39,15 @@ public final class PermissionChannelMessageListener {
   private final NodePermissionManagement permissionManagement;
 
   public PermissionChannelMessageListener(
-    @NotNull IEventManager eventManager,
-    @NotNull NodePermissionManagement management
+    @NonNull IEventManager eventManager,
+    @NonNull NodePermissionManagement management
   ) {
     this.eventManager = eventManager;
     this.permissionManagement = management;
   }
 
   @EventListener
-  public void handleChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
+  public void handleChannelMessage(@NonNull ChannelMessageReceiveEvent event) {
     if (event.channel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL) && event.message()
         .startsWith("permissions_")) {
       // permission message - handler

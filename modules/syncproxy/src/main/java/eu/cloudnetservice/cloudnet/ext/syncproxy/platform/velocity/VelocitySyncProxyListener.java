@@ -27,19 +27,19 @@ import com.velocitypowered.api.proxy.server.ServerPing.SamplePlayer;
 import com.velocitypowered.api.proxy.server.ServerPing.Version;
 import java.util.Arrays;
 import java.util.UUID;
+import lombok.NonNull;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import org.jetbrains.annotations.NotNull;
 
 public final class VelocitySyncProxyListener {
 
   private final VelocitySyncProxyManagement syncProxyManagement;
 
-  public VelocitySyncProxyListener(@NotNull VelocitySyncProxyManagement syncProxyManagement) {
+  public VelocitySyncProxyListener(@NonNull VelocitySyncProxyManagement syncProxyManagement) {
     this.syncProxyManagement = syncProxyManagement;
   }
 
   @Subscribe
-  public void handleProxyPing(@NotNull ProxyPingEvent event) {
+  public void handleProxyPing(@NonNull ProxyPingEvent event) {
     var loginConfiguration = this.syncProxyManagement.currentLoginConfiguration();
     // check if we need to handle the proxy ping on this proxy instance
     if (loginConfiguration == null) {
@@ -87,7 +87,7 @@ public final class VelocitySyncProxyListener {
   }
 
   @Subscribe
-  public void handlePlayerLogin(@NotNull LoginEvent event) {
+  public void handlePlayerLogin(@NonNull LoginEvent event) {
     var loginConfiguration = this.syncProxyManagement.currentLoginConfiguration();
     if (loginConfiguration == null) {
       return;

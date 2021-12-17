@@ -39,7 +39,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class BuildStepExecutor implements InstallStepExecutor {
 
@@ -50,10 +50,10 @@ public class BuildStepExecutor implements InstallStepExecutor {
   private final Collection<Process> runningBuildProcesses = new CopyOnWriteArrayList<>();
 
   @Override
-  public @NotNull Set<Path> execute(
-    @NotNull InstallInformation information,
-    @NotNull Path workDir,
-    @NotNull Set<Path> paths
+  public @NonNull Set<Path> execute(
+    @NonNull InstallInformation information,
+    @NonNull Path workDir,
+    @NonNull Set<Path> paths
   ) throws IOException {
     var version = information.serviceVersion();
 
@@ -93,7 +93,7 @@ public class BuildStepExecutor implements InstallStepExecutor {
     }
   }
 
-  protected int buildProcessAndWait(@NotNull List<String> arguments, @NotNull Path workingDir) {
+  protected int buildProcessAndWait(@NonNull List<String> arguments, @NonNull Path workingDir) {
     return this.buildProcessAndWait(
       arguments,
       workingDir,
@@ -102,10 +102,10 @@ public class BuildStepExecutor implements InstallStepExecutor {
   }
 
   protected int buildProcessAndWait(
-    @NotNull List<String> arguments,
-    @NotNull Path workingDir,
-    @NotNull BiConsumer<String, Process> systemOutRedirector,
-    @NotNull BiConsumer<String, Process> systemErrRedirector
+    @NonNull List<String> arguments,
+    @NonNull Path workingDir,
+    @NonNull BiConsumer<String, Process> systemOutRedirector,
+    @NonNull BiConsumer<String, Process> systemErrRedirector
   ) {
     try {
       var process = new ProcessBuilder()
@@ -129,9 +129,9 @@ public class BuildStepExecutor implements InstallStepExecutor {
   }
 
   private record BuildOutputRedirector(
-    @NotNull Process process,
-    @NotNull InputStream source,
-    @NotNull BiConsumer<String, Process> handler
+    @NonNull Process process,
+    @NonNull InputStream source,
+    @NonNull BiConsumer<String, Process> handler
   ) implements Runnable {
 
     @Override

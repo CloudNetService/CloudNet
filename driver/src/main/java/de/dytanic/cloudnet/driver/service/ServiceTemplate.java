@@ -23,7 +23,7 @@ import de.dytanic.cloudnet.driver.template.SpecificTemplateStorage;
 import java.util.Arrays;
 import java.util.Objects;
 import lombok.EqualsAndHashCode;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
@@ -44,9 +44,9 @@ public class ServiceTemplate implements INameable, Comparable<ServiceTemplate>, 
   private final boolean alwaysCopyToStaticServices;
 
   protected ServiceTemplate(
-    @NotNull String prefix,
-    @NotNull String name,
-    @NotNull String storage,
+    @NonNull String prefix,
+    @NonNull String name,
+    @NonNull String storage,
     int priority,
     boolean alwaysCopyToStaticServices
   ) {
@@ -57,11 +57,11 @@ public class ServiceTemplate implements INameable, Comparable<ServiceTemplate>, 
     this.alwaysCopyToStaticServices = alwaysCopyToStaticServices;
   }
 
-  public static @NotNull Builder builder() {
+  public static @NonNull Builder builder() {
     return new Builder();
   }
 
-  public static @NotNull Builder builder(@NotNull ServiceTemplate template) {
+  public static @NonNull Builder builder(@NonNull ServiceTemplate template) {
     return builder()
       .name(template.name())
       .prefix(template.prefix())
@@ -79,7 +79,7 @@ public class ServiceTemplate implements INameable, Comparable<ServiceTemplate>, 
    * @param template the template in the specified format
    * @return the parsed {@link ServiceTemplate} or null if the format was invalid
    */
-  public static @Nullable ServiceTemplate parse(@NotNull String template) {
+  public static @Nullable ServiceTemplate parse(@NonNull String template) {
     // check if the template contains a storage-name splitter
     var parts = template.split(":");
     if (parts.length == 0 || parts.length > 2) {
@@ -107,7 +107,7 @@ public class ServiceTemplate implements INameable, Comparable<ServiceTemplate>, 
    * @param templates the templates in the specified format
    * @return an array of the parsed templates, this will not contain any null elements if any format is wrong
    */
-  public static ServiceTemplate @NotNull [] parseArray(@NotNull String templates) {
+  public static ServiceTemplate @NonNull [] parseArray(@NonNull String templates) {
     return Arrays.stream(templates.split(";"))
       .map(ServiceTemplate::parse)
       .filter(Objects::nonNull)
@@ -115,15 +115,15 @@ public class ServiceTemplate implements INameable, Comparable<ServiceTemplate>, 
   }
 
   @Override
-  public @NotNull String name() {
+  public @NonNull String name() {
     return this.name;
   }
 
-  public @NotNull String prefix() {
+  public @NonNull String prefix() {
     return this.prefix;
   }
 
-  public @NotNull String storageName() {
+  public @NonNull String storageName() {
     return this.storage;
   }
 
@@ -142,12 +142,12 @@ public class ServiceTemplate implements INameable, Comparable<ServiceTemplate>, 
     return this.alwaysCopyToStaticServices;
   }
 
-  public @NotNull String fullName() {
+  public @NonNull String fullName() {
     return this.prefix + '/' + this.name;
   }
 
   @Override
-  public @NotNull String toString() {
+  public @NonNull String toString() {
     return this.storage + ':' + this.prefix + '/' + this.name;
   }
 
@@ -157,7 +157,7 @@ public class ServiceTemplate implements INameable, Comparable<ServiceTemplate>, 
    * @return a new instance of the {@link SpecificTemplateStorage}
    * @throws IllegalArgumentException if the storage in this template doesn't exist
    */
-  public @NotNull SpecificTemplateStorage storage() {
+  public @NonNull SpecificTemplateStorage storage() {
     return SpecificTemplateStorage.of(this);
   }
 
@@ -172,7 +172,7 @@ public class ServiceTemplate implements INameable, Comparable<ServiceTemplate>, 
   }
 
   @Override
-  public @Range(from = -1, to = 1) int compareTo(@NotNull ServiceTemplate serviceTemplate) {
+  public @Range(from = -1, to = 1) int compareTo(@NonNull ServiceTemplate serviceTemplate) {
     return Integer.compare(this.priority, serviceTemplate.priority);
   }
 
@@ -194,32 +194,32 @@ public class ServiceTemplate implements INameable, Comparable<ServiceTemplate>, 
     private int priority;
     private boolean alwaysCopyToStaticServices;
 
-    public @NotNull Builder name(@NotNull String name) {
+    public @NonNull Builder name(@NonNull String name) {
       this.name = name;
       return this;
     }
 
-    public @NotNull Builder prefix(@NotNull String prefix) {
+    public @NonNull Builder prefix(@NonNull String prefix) {
       this.prefix = prefix;
       return this;
     }
 
-    public @NotNull Builder storage(@NotNull String storage) {
+    public @NonNull Builder storage(@NonNull String storage) {
       this.storage = storage;
       return this;
     }
 
-    public @NotNull Builder priority(int priority) {
+    public @NonNull Builder priority(int priority) {
       this.priority = priority;
       return this;
     }
 
-    public @NotNull Builder alwaysCopyToStaticServices(boolean alwaysCopyToStaticServices) {
+    public @NonNull Builder alwaysCopyToStaticServices(boolean alwaysCopyToStaticServices) {
       this.alwaysCopyToStaticServices = alwaysCopyToStaticServices;
       return this;
     }
 
-    public @NotNull ServiceTemplate build() {
+    public @NonNull ServiceTemplate build() {
       Verify.verifyNotNull(this.name, "no name given");
       Verify.verifyNotNull(this.prefix, "no prefix given");
 

@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketSender;
 import de.dytanic.cloudnet.driver.network.protocol.QueryPacketManager;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -37,17 +37,17 @@ public interface INetworkChannel extends IPacketSender {
   /**
    * Returns the server address from this channel
    */
-  @NotNull HostAndPort serverAddress();
+  @NonNull HostAndPort serverAddress();
 
   /**
    * Returns the client address from this channel
    */
-  @NotNull HostAndPort clientAddress();
+  @NonNull HostAndPort clientAddress();
 
   /**
    * Returns the networkChannelHandler from this channel
    */
-  @NotNull INetworkChannelHandler handler();
+  @NonNull INetworkChannelHandler handler();
 
   /**
    * Sets the channel handler for the channels. That is important for the handling of receiving packets or channel
@@ -55,24 +55,24 @@ public interface INetworkChannel extends IPacketSender {
    *
    * @param handler the handler, that should handle this channel
    */
-  void handler(@NotNull INetworkChannelHandler handler);
+  void handler(@NonNull INetworkChannelHandler handler);
 
   /**
    * Returns the own packet listener registry. The packetRegistry is a sub registry of the network component packet
    * listener registry
    */
-  @NotNull IPacketListenerRegistry packetRegistry();
+  @NonNull IPacketListenerRegistry packetRegistry();
 
-  @NotNull QueryPacketManager queryPacketManager();
+  @NonNull QueryPacketManager queryPacketManager();
 
   /**
    * Returns that, the channel based of the client site connection
    */
   boolean clientProvidedChannel();
 
-  @Nullable IPacket sendQuery(@NotNull IPacket packet);
+  @Nullable IPacket sendQuery(@NonNull IPacket packet);
 
-  @NotNull ITask<IPacket> sendQueryAsync(@NotNull IPacket packet);
+  @NonNull ITask<IPacket> sendQueryAsync(@NonNull IPacket packet);
 
   boolean writeable();
 

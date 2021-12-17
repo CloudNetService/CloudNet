@@ -20,26 +20,26 @@ import de.dytanic.cloudnet.common.INameable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * The commandInfo class allows to easily serialize the command information
  */
 public record CommandInfo(
-  @NotNull String name,
-  @NotNull Collection<String> aliases,
-  @NotNull String permission,
-  @NotNull String description,
-  @NotNull List<String> usage
+  @NonNull String name,
+  @NonNull Collection<String> aliases,
+  @NonNull String permission,
+  @NonNull String description,
+  @NonNull List<String> usage
 ) implements INameable {
 
   @Contract("_ -> new")
-  public static @NotNull CommandInfo empty(@NotNull String name) {
+  public static @NonNull CommandInfo empty(@NonNull String name) {
     return new CommandInfo(name, Collections.emptyList(), "", "", Collections.emptyList());
   }
 
-  public @NotNull String joinNameToAliases(@NotNull String separator) {
+  public @NonNull String joinNameToAliases(@NonNull String separator) {
     var result = this.name;
     if (!this.aliases.isEmpty()) {
       result += separator + String.join(separator, this.aliases);

@@ -25,7 +25,7 @@ import de.dytanic.cloudnet.driver.provider.DefaultMessenger;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.lang.reflect.Type;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class WrapperMessenger extends DefaultMessenger implements CloudMessenger {
 
@@ -33,17 +33,17 @@ public class WrapperMessenger extends DefaultMessenger implements CloudMessenger
 
   private final INetworkComponent component;
 
-  public WrapperMessenger(@NotNull Wrapper wrapper) {
+  public WrapperMessenger(@NonNull Wrapper wrapper) {
     this.component = wrapper.networkClient();
   }
 
   @Override
-  public void sendChannelMessage(@NotNull ChannelMessage channelMessage) {
+  public void sendChannelMessage(@NonNull ChannelMessage channelMessage) {
     this.component.sendPacket(new PacketServerChannelMessage(channelMessage));
   }
 
   @Override
-  public @NotNull Collection<ChannelMessage> sendChannelMessageQuery(@NotNull ChannelMessage channelMessage) {
+  public @NonNull Collection<ChannelMessage> sendChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
     return this.component.firstChannel()
       .queryPacketManager()
       .sendQueryPacket(new PacketServerChannelMessage(channelMessage))

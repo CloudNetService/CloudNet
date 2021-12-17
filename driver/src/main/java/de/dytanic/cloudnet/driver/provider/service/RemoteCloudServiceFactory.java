@@ -23,7 +23,7 @@ import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import java.util.function.Supplier;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class RemoteCloudServiceFactory implements CloudServiceFactory {
@@ -32,9 +32,9 @@ public class RemoteCloudServiceFactory implements CloudServiceFactory {
   private final Supplier<INetworkChannel> channelSupplier;
 
   public RemoteCloudServiceFactory(
-    @NotNull Supplier<INetworkChannel> channelSupplier,
-    @NotNull INetworkComponent defaultComponent,
-    @NotNull RPCProviderFactory factory
+    @NonNull Supplier<INetworkChannel> channelSupplier,
+    @NonNull INetworkComponent defaultComponent,
+    @NonNull RPCProviderFactory factory
   ) {
     this.channelSupplier = channelSupplier;
     this.rpcSender = factory.providerForClass(defaultComponent, CloudServiceFactory.class);

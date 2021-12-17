@@ -21,18 +21,18 @@ import com.velocitypowered.api.event.connection.PluginMessageEvent;
 import com.velocitypowered.api.proxy.Player;
 import eu.cloudnetservice.cloudnet.modules.labymod.LabyModManagement;
 import eu.cloudnetservice.cloudnet.modules.labymod.platform.PlatformLabyModManagement;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class VelocityLabyModListener {
 
   private final PlatformLabyModManagement labyModManagement;
 
-  public VelocityLabyModListener(@NotNull PlatformLabyModManagement labyModManagement) {
+  public VelocityLabyModListener(@NonNull PlatformLabyModManagement labyModManagement) {
     this.labyModManagement = labyModManagement;
   }
 
   @Subscribe
-  public void handlePluginMessage(@NotNull PluginMessageEvent event) {
+  public void handlePluginMessage(@NonNull PluginMessageEvent event) {
     var configuration = this.labyModManagement.configuration();
     if (configuration.enabled() && event.getIdentifier().getId().equals(LabyModManagement.LABYMOD_CLIENT_CHANNEL)) {
       if (event.getSource() instanceof Player player) {

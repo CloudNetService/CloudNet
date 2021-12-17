@@ -26,20 +26,20 @@ import cn.nukkit.plugin.Plugin;
 import de.dytanic.cloudnet.ext.bridge.platform.PlatformBridgeManagement;
 import de.dytanic.cloudnet.ext.bridge.platform.helper.ServerPlatformHelper;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 final class NukkitPlayerManagementListener implements Listener {
 
   private final Plugin plugin;
   private final PlatformBridgeManagement<?, ?> management;
 
-  public NukkitPlayerManagementListener(@NotNull Plugin plugin, @NotNull PlatformBridgeManagement<?, ?> management) {
+  public NukkitPlayerManagementListener(@NonNull Plugin plugin, @NonNull PlatformBridgeManagement<?, ?> management) {
     this.plugin = plugin;
     this.management = management;
   }
 
   @EventHandler
-  public void handle(@NotNull PlayerLoginEvent event) {
+  public void handle(@NonNull PlayerLoginEvent event) {
     var task = this.management.selfTask();
     // check if the current task is present
     if (task != null) {
@@ -63,7 +63,7 @@ final class NukkitPlayerManagementListener implements Listener {
   }
 
   @EventHandler
-  public void handle(@NotNull PlayerJoinEvent event) {
+  public void handle(@NonNull PlayerJoinEvent event) {
     ServerPlatformHelper.sendChannelMessageLoginSuccess(
       event.getPlayer().getUniqueId(),
       this.management.ownNetworkServiceInfo());
@@ -72,7 +72,7 @@ final class NukkitPlayerManagementListener implements Listener {
   }
 
   @EventHandler
-  public void handle(@NotNull PlayerQuitEvent event) {
+  public void handle(@NonNull PlayerQuitEvent event) {
     ServerPlatformHelper.sendChannelMessageDisconnected(
       event.getPlayer().getUniqueId(),
       this.management.ownNetworkServiceInfo());

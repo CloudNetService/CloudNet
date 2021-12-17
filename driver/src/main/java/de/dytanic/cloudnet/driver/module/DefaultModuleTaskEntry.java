@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.driver.module;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class DefaultModuleTaskEntry implements IModuleTaskEntry {
 
@@ -54,7 +54,7 @@ public class DefaultModuleTaskEntry implements IModuleTaskEntry {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull IModule module() {
+  public @NonNull IModule module() {
     return this.moduleWrapper.module();
   }
 
@@ -62,7 +62,7 @@ public class DefaultModuleTaskEntry implements IModuleTaskEntry {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull IModuleWrapper moduleWrapper() {
+  public @NonNull IModuleWrapper moduleWrapper() {
     return this.moduleWrapper;
   }
 
@@ -70,7 +70,7 @@ public class DefaultModuleTaskEntry implements IModuleTaskEntry {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull ModuleTask taskInfo() {
+  public @NonNull ModuleTask taskInfo() {
     return this.moduleTask;
   }
 
@@ -78,7 +78,7 @@ public class DefaultModuleTaskEntry implements IModuleTaskEntry {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull MethodHandle method() {
+  public @NonNull MethodHandle method() {
     return this.method;
   }
 
@@ -86,7 +86,7 @@ public class DefaultModuleTaskEntry implements IModuleTaskEntry {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull String fullMethodSignature() {
+  public @NonNull String fullMethodSignature() {
     return this.fullMethodSignatureCached;
   }
 

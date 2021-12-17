@@ -21,12 +21,12 @@ import de.dytanic.cloudnet.service.ICloudService;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Properties;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class VanillaServiceConfigurationPreparer extends AbstractServiceConfigurationPreparer {
 
   @Override
-  public void configure(@NotNull CloudNet nodeInstance, @NotNull ICloudService cloudService) {
+  public void configure(@NonNull CloudNet nodeInstance, @NonNull ICloudService cloudService) {
     // copy the default file
     var configFile = cloudService.directory().resolve("server.properties");
     this.copyCompiledFile("files/nms/server.properties", configFile);

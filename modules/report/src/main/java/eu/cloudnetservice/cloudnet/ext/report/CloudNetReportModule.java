@@ -38,7 +38,7 @@ import eu.cloudnetservice.cloudnet.ext.report.paste.emitter.defaults.service.Ser
 import eu.cloudnetservice.cloudnet.ext.report.paste.emitter.defaults.service.ServiceOverviewEmitter;
 import eu.cloudnetservice.cloudnet.ext.report.paste.emitter.defaults.service.ServiceTaskEmitter;
 import java.nio.file.Path;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class CloudNetReportModule extends DriverModule {
 
@@ -81,15 +81,15 @@ public final class CloudNetReportModule extends DriverModule {
     this.reloadConfiguration();
   }
 
-  public @NotNull EmitterRegistry emitterRegistry() {
+  public @NonNull EmitterRegistry emitterRegistry() {
     return this.registry;
   }
 
-  public @NotNull ReportConfiguration reportConfiguration() {
+  public @NonNull ReportConfiguration reportConfiguration() {
     return this.reportConfiguration;
   }
 
-  public @NotNull Path currentRecordDirectory() {
+  public @NonNull Path currentRecordDirectory() {
     var date = this.reportConfiguration.dateFormat().format(System.currentTimeMillis());
     var recordBaseDestination = this.moduleWrapper.dataDirectory()
       .resolve(this.reportConfiguration.recordDestination());

@@ -28,7 +28,7 @@ import de.dytanic.cloudnet.ext.bridge.platform.velocity.commands.VelocityCloudCo
 import de.dytanic.cloudnet.ext.bridge.platform.velocity.commands.VelocityHubCommand;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerProxyInfo;
 import java.util.Arrays;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 @Plugin(
   id = "cloudnet_bridge",
@@ -43,12 +43,12 @@ public final class VelocityBridgePlugin {
   private final ProxyServer proxy;
 
   @Inject
-  public VelocityBridgePlugin(@NotNull ProxyServer proxyServer) {
+  public VelocityBridgePlugin(@NonNull ProxyServer proxyServer) {
     this.proxy = proxyServer;
   }
 
   @Subscribe
-  public void handleProxyInit(@NotNull ProxyInitializeEvent event) {
+  public void handleProxyInit(@NonNull ProxyInitializeEvent event) {
     // init the bridge management
     PlatformBridgeManagement<Player, NetworkPlayerProxyInfo> management = new VelocityBridgeManagement(this.proxy);
     management.registerServices(CloudNetDriver.instance().servicesRegistry());

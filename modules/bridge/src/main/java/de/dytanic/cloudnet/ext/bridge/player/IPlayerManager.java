@@ -23,8 +23,8 @@ import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
 import java.util.List;
 import java.util.UUID;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Experimental;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
@@ -56,7 +56,7 @@ public interface IPlayerManager {
    * @param uniqueId the UUID of the player
    * @return the player if he is online or null if not
    */
-  @Nullable CloudPlayer onlinePlayer(@NotNull UUID uniqueId);
+  @Nullable CloudPlayer onlinePlayer(@NonNull UUID uniqueId);
 
   /**
    * Gets the first online player found by its name.
@@ -65,7 +65,7 @@ public interface IPlayerManager {
    * @return the online player if there is at least one player with the given name online or null if there is no player
    * with that name online
    */
-  default @Nullable CloudPlayer firstOnlinePlayer(@NotNull String name) {
+  default @Nullable CloudPlayer firstOnlinePlayer(@NonNull String name) {
     var players = this.onlinePlayers(name);
     return players.isEmpty() ? null : players.get(0);
   }
@@ -76,7 +76,7 @@ public interface IPlayerManager {
    * @param name the name of the player(s)
    * @return a list containing all online players in the cloud with the given name
    */
-  @NotNull List<? extends CloudPlayer> onlinePlayers(@NotNull String name);
+  @NonNull List<? extends CloudPlayer> onlinePlayers(@NonNull String name);
 
   /**
    * Gets a list of all online players on a specific environment.
@@ -84,24 +84,24 @@ public interface IPlayerManager {
    * @param environment the environment to get all players from
    * @return a list containing all players that are online on the given environment
    */
-  @NotNull List<? extends CloudPlayer> environmentOnlinePlayers(@NotNull ServiceEnvironmentType environment);
+  @NonNull List<? extends CloudPlayer> environmentOnlinePlayers(@NonNull ServiceEnvironmentType environment);
 
   /**
    * Gets a PlayerProvider which returns a list of all online players on the whole network.
    */
-  @NotNull PlayerProvider onlinePlayers();
+  @NonNull PlayerProvider onlinePlayers();
 
   /**
    * Gets a PlayerProvider which returns a list of all online players on a specific task.
    *
    * @return a list containing all players that are online on that task
    */
-  @NotNull PlayerProvider taskOnlinePlayers(@NotNull String task);
+  @NonNull PlayerProvider taskOnlinePlayers(@NonNull String task);
 
   /**
    * Gets a PlayerProvider which returns a list of all online players on a specific group.
    */
-  @NotNull PlayerProvider groupOnlinePlayers(@NotNull String group);
+  @NonNull PlayerProvider groupOnlinePlayers(@NonNull String group);
 
   /**
    * Gets a registered player by its UUID out of the cloud
@@ -109,7 +109,7 @@ public interface IPlayerManager {
    * @param uniqueId the UUID of the player
    * @return the player if he is registered in the cloud or null if not
    */
-  @Nullable CloudOfflinePlayer offlinePlayer(@NotNull UUID uniqueId);
+  @Nullable CloudOfflinePlayer offlinePlayer(@NonNull UUID uniqueId);
 
   /**
    * Gets the first registered player found by its name.
@@ -119,7 +119,7 @@ public interface IPlayerManager {
    * player with that name registered
    */
   @Nullable
-  default CloudOfflinePlayer firstOfflinePlayer(@NotNull String name) {
+  default CloudOfflinePlayer firstOfflinePlayer(@NonNull String name) {
     var players = this.offlinePlayers(name);
     return players.isEmpty() ? null : players.get(0);
   }
@@ -130,8 +130,8 @@ public interface IPlayerManager {
    * @param name the name of the player(s)
    * @return a list containing all players registered in the cloud with the given name
    */
-  @NotNull
-  List<? extends CloudOfflinePlayer> offlinePlayers(@NotNull String name);
+  @NonNull
+  List<? extends CloudOfflinePlayer> offlinePlayers(@NonNull String name);
 
   /**
    * Gets a list of all registered players in the network.
@@ -145,35 +145,35 @@ public interface IPlayerManager {
    * @return the list with every registered player in the cloud
    */
   @Experimental
-  @NotNull List<? extends CloudOfflinePlayer> registeredPlayers();
+  @NonNull List<? extends CloudOfflinePlayer> registeredPlayers();
 
   /**
    * Updates the given player to the database of the cloud and calls an update event on the whole network.
    *
    * @param cloudOfflinePlayer the player to be updated
    */
-  void updateOfflinePlayer(@NotNull CloudOfflinePlayer cloudOfflinePlayer);
+  void updateOfflinePlayer(@NonNull CloudOfflinePlayer cloudOfflinePlayer);
 
   /**
    * Updates the given player to the database of the cloud and calls the player update event.
    *
    * @param cloudPlayer the player to be updated
    */
-  void updateOnlinePlayer(@NotNull CloudPlayer cloudPlayer);
+  void updateOnlinePlayer(@NonNull CloudPlayer cloudPlayer);
 
   /**
    * Deletes the given player from the database and notifies all connected components.
    *
    * @param cloudOfflinePlayer the player to be deleted
    */
-  void deleteCloudOfflinePlayer(@NotNull CloudOfflinePlayer cloudOfflinePlayer);
+  void deleteCloudOfflinePlayer(@NonNull CloudOfflinePlayer cloudOfflinePlayer);
 
   /**
    * Gets the amount of online players on the network
    *
    * @return the online count as an int
    */
-  default @NotNull ITask<Integer> onlineCountAsync() {
+  default @NonNull ITask<Integer> onlineCountAsync() {
     return CompletableTask.supply(this::onlineCount);
   }
 
@@ -182,7 +182,7 @@ public interface IPlayerManager {
    *
    * @return the registered player count as an int
    */
-  default @NotNull ITask<Long> registeredCountAsync() {
+  default @NonNull ITask<Long> registeredCountAsync() {
     return CompletableTask.supply(this::registeredCount);
   }
 
@@ -192,7 +192,7 @@ public interface IPlayerManager {
    * @param uniqueId the UUID of the player
    * @return the player if he is online or null if not
    */
-  default @NotNull ITask<? extends CloudPlayer> onlinePlayerAsync(@NotNull UUID uniqueId) {
+  default @NonNull ITask<? extends CloudPlayer> onlinePlayerAsync(@NonNull UUID uniqueId) {
     return CompletableTask.supply(() -> this.onlinePlayer(uniqueId));
   }
 
@@ -203,8 +203,8 @@ public interface IPlayerManager {
    * @return the online player if there is at least one player with the given name online or null if there is no player
    * with that name online
    */
-  @NotNull
-  default ITask<CloudPlayer> firstOnlinePlayerAsync(@NotNull String name) {
+  @NonNull
+  default ITask<CloudPlayer> firstOnlinePlayerAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.firstOnlinePlayer(name));
   }
 
@@ -214,7 +214,7 @@ public interface IPlayerManager {
    * @param name the name of the player(s)
    * @return a list containing all online players in the cloud with the given name
    */
-  default @NotNull ITask<List<? extends CloudPlayer>> onlinePlayerAsync(@NotNull String name) {
+  default @NonNull ITask<List<? extends CloudPlayer>> onlinePlayerAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.onlinePlayers(name));
   }
 
@@ -224,7 +224,7 @@ public interface IPlayerManager {
    * @param env the environment to get all players from
    * @return a list containing all players that are online on the given environment
    */
-  default @NotNull ITask<List<? extends CloudPlayer>> onlinePlayerAsync(@NotNull ServiceEnvironmentType env) {
+  default @NonNull ITask<List<? extends CloudPlayer>> onlinePlayerAsync(@NonNull ServiceEnvironmentType env) {
     return CompletableTask.supply(() -> this.environmentOnlinePlayers(env));
   }
 
@@ -233,7 +233,7 @@ public interface IPlayerManager {
    *
    * @return a list containing all players that are online on the network
    */
-  default @NotNull ITask<CloudOfflinePlayer> offlinePlayerAsync(@NotNull UUID uniqueId) {
+  default @NonNull ITask<CloudOfflinePlayer> offlinePlayerAsync(@NonNull UUID uniqueId) {
     return CompletableTask.supply(() -> this.offlinePlayer(uniqueId));
   }
 
@@ -244,7 +244,7 @@ public interface IPlayerManager {
    * @return the registered player if there is at least one player with the given name registered or null if there is no
    * player with that name registered
    */
-  default @NotNull ITask<CloudOfflinePlayer> firstOfflinePlayerAsync(@NotNull String name) {
+  default @NonNull ITask<CloudOfflinePlayer> firstOfflinePlayerAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.firstOnlinePlayer(name));
   }
 
@@ -254,7 +254,7 @@ public interface IPlayerManager {
    * @param name the name of the player(s)
    * @return a list containing all players registered in the cloud with the given name
    */
-  default @NotNull ITask<List<? extends CloudOfflinePlayer>> offlinePlayerAsync(@NotNull String name) {
+  default @NonNull ITask<List<? extends CloudOfflinePlayer>> offlinePlayerAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.offlinePlayers(name));
   }
 
@@ -263,7 +263,7 @@ public interface IPlayerManager {
    *
    * @param cloudOfflinePlayer the player to be deleted
    */
-  default @NotNull ITask<Void> deleteCloudOfflinePlayerAsync(@NotNull CloudOfflinePlayer cloudOfflinePlayer) {
+  default @NonNull ITask<Void> deleteCloudOfflinePlayerAsync(@NonNull CloudOfflinePlayer cloudOfflinePlayer) {
     return CompletableTask.supply(() -> this.deleteCloudOfflinePlayer(cloudOfflinePlayer));
   }
 
@@ -272,7 +272,7 @@ public interface IPlayerManager {
    *
    * @param cloudOfflinePlayer the player to be updated
    */
-  default @NotNull ITask<Void> updateOfflinePlayerAsync(@NotNull CloudOfflinePlayer cloudOfflinePlayer) {
+  default @NonNull ITask<Void> updateOfflinePlayerAsync(@NonNull CloudOfflinePlayer cloudOfflinePlayer) {
     return CompletableTask.supply(() -> this.updateOfflinePlayer(cloudOfflinePlayer));
   }
 
@@ -281,7 +281,7 @@ public interface IPlayerManager {
    *
    * @param cloudPlayer the player to be updated
    */
-  default @NotNull ITask<Void> updateOnlinePlayerAsync(@NotNull CloudPlayer cloudPlayer) {
+  default @NonNull ITask<Void> updateOnlinePlayerAsync(@NonNull CloudPlayer cloudPlayer) {
     return CompletableTask.supply(() -> this.updateOnlinePlayer(cloudPlayer));
   }
 
@@ -290,7 +290,7 @@ public interface IPlayerManager {
    *
    * @return the constant {@link PlayerExecutor}
    */
-  @NotNull PlayerExecutor globalPlayerExecutor();
+  @NonNull PlayerExecutor globalPlayerExecutor();
 
   /**
    * Creates a new player executor to interact with the given player.
@@ -298,5 +298,5 @@ public interface IPlayerManager {
    * @param uniqueId the uniqueId of the player to interact with
    * @return a new {@link PlayerExecutor}
    */
-  @NotNull PlayerExecutor playerExecutor(@NotNull UUID uniqueId);
+  @NonNull PlayerExecutor playerExecutor(@NonNull UUID uniqueId);
 }

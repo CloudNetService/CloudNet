@@ -20,8 +20,8 @@ import com.google.common.base.Preconditions;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnknownNullability;
 
 /**
@@ -64,7 +64,7 @@ public class HostAndPort {
    * @throws IllegalArgumentException if the provided socketAddress isn't instanceof InetSocketAddress
    */
   @Contract("_ -> new")
-  public static @NotNull HostAndPort fromSocketAddress(@NotNull SocketAddress socketAddress) {
+  public static @NonNull HostAndPort fromSocketAddress(@NonNull SocketAddress socketAddress) {
     if (socketAddress instanceof InetSocketAddress inetSocketAddress) {
       return new HostAndPort(inetSocketAddress);
     }

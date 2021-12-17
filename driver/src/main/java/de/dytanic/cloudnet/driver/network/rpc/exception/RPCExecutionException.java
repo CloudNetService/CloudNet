@@ -16,11 +16,11 @@
 
 package de.dytanic.cloudnet.driver.network.rpc.exception;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class RPCExecutionException extends RuntimeException {
 
-  public RPCExecutionException(@NotNull String exceptionName, @NotNull String message, @NotNull String firstElement) {
+  public RPCExecutionException(@NonNull String exceptionName, @NonNull String message, @NonNull String firstElement) {
     super(String.format("%s(%s @ %s)", exceptionName, message, firstElement));
   }
 }

@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.npc.configuration;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public record LabyModEmoteConfiguration(
   int[] emoteIds,
@@ -27,11 +27,11 @@ public record LabyModEmoteConfiguration(
   boolean syncEmotesBetweenNPCs
 ) {
 
-  public static @NotNull Builder builder() {
+  public static @NonNull Builder builder() {
     return new Builder();
   }
 
-  public static @NotNull Builder builder(@NotNull LabyModEmoteConfiguration configuration) {
+  public static @NonNull Builder builder(@NonNull LabyModEmoteConfiguration configuration) {
     return builder()
       .emoteIds(configuration.emoteIds())
       .onJoinEmoteIds(configuration.onJoinEmoteIds())
@@ -82,7 +82,7 @@ public record LabyModEmoteConfiguration(
       return this;
     }
 
-    public @NotNull LabyModEmoteConfiguration build() {
+    public @NonNull LabyModEmoteConfiguration build() {
       return new LabyModEmoteConfiguration(
         this.emoteIds,
         this.onJoinEmoteIds,

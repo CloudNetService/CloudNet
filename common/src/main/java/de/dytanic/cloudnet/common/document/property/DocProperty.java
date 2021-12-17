@@ -17,17 +17,17 @@
 package de.dytanic.cloudnet.common.document.property;
 
 import de.dytanic.cloudnet.common.document.IDocument;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
 public interface DocProperty<E> {
 
-  void remove(@NotNull IDocument<?> from);
+  void remove(@NonNull IDocument<?> from);
 
-  void append(@NotNull IDocument<?> to, @Nullable E value);
+  void append(@NonNull IDocument<?> to, @Nullable E value);
 
-  @UnknownNullability E get(@NotNull IDocument<?> from);
+  @UnknownNullability E get(@NonNull IDocument<?> from);
 
-  boolean isAppendedTo(@NotNull IDocument<?> document);
+  boolean isAppendedTo(@NonNull IDocument<?> document);
 }

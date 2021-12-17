@@ -22,7 +22,7 @@ import de.dytanic.cloudnet.common.log.Logger;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class ReportConfigurationHelper {
 
@@ -36,7 +36,7 @@ public final class ReportConfigurationHelper {
    * @param location the location of the file to read from.
    * @return the read {@link ReportConfiguration} configuration.
    */
-  public static @NotNull ReportConfiguration read(@NotNull Path location) {
+  public static @NonNull ReportConfiguration read(@NonNull Path location) {
     var document = JsonDocument.newDocument(location);
 
     if (document.contains("savingRecords")) {
@@ -64,7 +64,7 @@ public final class ReportConfigurationHelper {
    * @param configuration the configuration to write.
    * @param location      the location to save the configuration to.
    */
-  public static @NotNull ReportConfiguration write(@NotNull ReportConfiguration configuration, @NotNull Path location) {
+  public static @NonNull ReportConfiguration write(@NonNull ReportConfiguration configuration, @NonNull Path location) {
     JsonDocument.newDocument(configuration).write(location);
     return configuration;
   }
@@ -75,7 +75,7 @@ public final class ReportConfigurationHelper {
    * @param document the document containing the old configuration.
    * @return the new converted configuration.
    */
-  private static ReportConfiguration convertConfiguration(@NotNull JsonDocument document) {
+  private static ReportConfiguration convertConfiguration(@NonNull JsonDocument document) {
     var saveRecords = document.getBoolean("savingRecords", true);
     var recordDestination = document.get("recordDestinationDirectory", Path.class, Path.of("records"));
     var pasteServices = Collections.singletonList(

@@ -32,20 +32,20 @@ import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.permission.handler.IPermissionManagementHandler;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class DefaultPermissionManagementHandler implements IPermissionManagementHandler {
 
   private final IEventManager eventManager;
 
-  public DefaultPermissionManagementHandler(@NotNull IEventManager eventManager) {
+  public DefaultPermissionManagementHandler(@NonNull IEventManager eventManager) {
     this.eventManager = eventManager;
   }
 
   @Override
   public void handleAddUser(
-    @NotNull IPermissionManagement management,
-    @NotNull PermissionUser user
+    @NonNull IPermissionManagement management,
+    @NonNull PermissionUser user
   ) {
     this.eventManager.callEvent(new PermissionAddUserEvent(management, user));
     this.baseMessage("add_user").buffer(DataBuf.empty().writeObject(user)).build().send();
@@ -53,8 +53,8 @@ public final class DefaultPermissionManagementHandler implements IPermissionMana
 
   @Override
   public void handleUpdateUser(
-    @NotNull IPermissionManagement management,
-    @NotNull PermissionUser user
+    @NonNull IPermissionManagement management,
+    @NonNull PermissionUser user
   ) {
     this.eventManager.callEvent(new PermissionUpdateUserEvent(management, user));
     this.baseMessage("update_user").buffer(DataBuf.empty().writeObject(user)).build().send();
@@ -62,8 +62,8 @@ public final class DefaultPermissionManagementHandler implements IPermissionMana
 
   @Override
   public void handleDeleteUser(
-    @NotNull IPermissionManagement management,
-    @NotNull PermissionUser user
+    @NonNull IPermissionManagement management,
+    @NonNull PermissionUser user
   ) {
     this.eventManager.callEvent(new PermissionDeleteUserEvent(management, user));
     this.baseMessage("delete_user").buffer(DataBuf.empty().writeObject(user)).build().send();
@@ -71,8 +71,8 @@ public final class DefaultPermissionManagementHandler implements IPermissionMana
 
   @Override
   public void handleAddGroup(
-    @NotNull IPermissionManagement management,
-    @NotNull PermissionGroup group
+    @NonNull IPermissionManagement management,
+    @NonNull PermissionGroup group
   ) {
     this.eventManager.callEvent(new PermissionAddGroupEvent(management, group));
     this.baseMessage("add_group").buffer(DataBuf.empty().writeObject(group)).build().send();
@@ -80,8 +80,8 @@ public final class DefaultPermissionManagementHandler implements IPermissionMana
 
   @Override
   public void handleUpdateGroup(
-    @NotNull IPermissionManagement management,
-    @NotNull PermissionGroup group
+    @NonNull IPermissionManagement management,
+    @NonNull PermissionGroup group
   ) {
     this.eventManager.callEvent(new PermissionUpdateGroupEvent(management, group));
     this.baseMessage("update_group").buffer(DataBuf.empty().writeObject(group)).build().send();
@@ -89,8 +89,8 @@ public final class DefaultPermissionManagementHandler implements IPermissionMana
 
   @Override
   public void handleDeleteGroup(
-    @NotNull IPermissionManagement management,
-    @NotNull PermissionGroup group
+    @NonNull IPermissionManagement management,
+    @NonNull PermissionGroup group
   ) {
     this.eventManager.callEvent(new PermissionDeleteGroupEvent(management, group));
     this.baseMessage("delete_group").buffer(DataBuf.empty().writeObject(group)).build().send();
@@ -98,19 +98,19 @@ public final class DefaultPermissionManagementHandler implements IPermissionMana
 
   @Override
   public void handleSetGroups(
-    @NotNull IPermissionManagement management,
-    @NotNull Collection<? extends PermissionGroup> groups
+    @NonNull IPermissionManagement management,
+    @NonNull Collection<? extends PermissionGroup> groups
   ) {
     this.eventManager.callEvent(new PermissionSetGroupsEvent(management, groups));
     this.baseMessage("set_groups").buffer(DataBuf.empty().writeObject(groups)).build().send();
   }
 
   @Override
-  public void handleReloaded(@NotNull IPermissionManagement management) {
+  public void handleReloaded(@NonNull IPermissionManagement management) {
     this.handleSetGroups(management, management.groups());
   }
 
-  private @NotNull ChannelMessage.Builder baseMessage(@NotNull String subMessage) {
+  private @NonNull ChannelMessage.Builder baseMessage(@NonNull String subMessage) {
     return ChannelMessage.builder()
       .targetAll()
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)

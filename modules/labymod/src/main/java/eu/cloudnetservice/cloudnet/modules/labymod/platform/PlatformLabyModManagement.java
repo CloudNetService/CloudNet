@@ -34,7 +34,7 @@ import eu.cloudnetservice.cloudnet.modules.labymod.LabyModManagement;
 import eu.cloudnetservice.cloudnet.modules.labymod.config.LabyModConfiguration;
 import eu.cloudnetservice.cloudnet.modules.labymod.config.LabyModPlayerOptions;
 import java.util.UUID;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class PlatformLabyModManagement implements LabyModManagement {
@@ -54,20 +54,20 @@ public class PlatformLabyModManagement implements LabyModManagement {
   }
 
   @Override
-  public @NotNull LabyModConfiguration configuration() {
+  public @NonNull LabyModConfiguration configuration() {
     return this.configuration;
   }
 
   @Override
-  public void configuration(@NotNull LabyModConfiguration configuration) {
+  public void configuration(@NonNull LabyModConfiguration configuration) {
     this.rpcSender.invokeMethod("configuration", configuration).fireSync();
   }
 
-  public void setConfigurationSilently(@NotNull LabyModConfiguration configuration) {
+  public void setConfigurationSilently(@NonNull LabyModConfiguration configuration) {
     this.configuration = configuration;
   }
 
-  public void handleServerUpdate(@NotNull CloudPlayer cloudPlayer, @NotNull ServiceInfoSnapshot snapshot) {
+  public void handleServerUpdate(@NonNull CloudPlayer cloudPlayer, @NonNull ServiceInfoSnapshot snapshot) {
     // construct the new discord rpc as the player switched the server
     var discordRPC = this.constructRPCInfo(cloudPlayer, snapshot);
     if (discordRPC != null) {
@@ -88,7 +88,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
     }
   }
 
-  public void handleIncomingClientMessage(@NotNull UUID playerId, @Nullable String server, byte @NotNull [] bytes) {
+  public void handleIncomingClientMessage(@NonNull UUID playerId, @Nullable String server, byte @NonNull [] bytes) {
     var dataBuf = DataBufFactory.defaultFactory().createOf(bytes);
     var dataKey = dataBuf.readString();
     var jsonData = JsonDocument.fromJsonString(dataBuf.readString());
@@ -108,9 +108,9 @@ public class PlatformLabyModManagement implements LabyModManagement {
   }
 
   protected void handleInformationPublish(
-    @NotNull CloudPlayer cloudPlayer,
+    @NonNull CloudPlayer cloudPlayer,
     @Nullable String server,
-    @NotNull JsonDocument jsonData
+    @NonNull JsonDocument jsonData
   ) {
     // check if we need to send the labymod permissions to the player
     var permissions = this.configuration.permissions();
@@ -154,7 +154,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
     }
   }
 
-  protected void handleDiscordRPC(@NotNull CloudPlayer cloudPlayer, @NotNull JsonDocument jsonData) {
+  protected void handleDiscordRPC(@NonNull CloudPlayer cloudPlayer, @NonNull JsonDocument jsonData) {
     var joinSecret = jsonData.get("joinSecret", UUID.class);
     if (joinSecret != null) {
       this.getPlayerByJoinSecret(joinSecret).onComplete(player -> {
@@ -203,8 +203,8 @@ public class PlatformLabyModManagement implements LabyModManagement {
   }
 
   protected @Nullable DataBuf constructRPCInfo(
-    @NotNull CloudPlayer cloudPlayer,
-    @NotNull ServiceInfoSnapshot snapshot
+    @NonNull CloudPlayer cloudPlayer,
+    @NonNull ServiceInfoSnapshot snapshot
   ) {
     var playingService = this.configuration.discordRPC().getDisplay(snapshot);
     // only create a rpc information if it's enabled and configured in the config
@@ -270,7 +270,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
     return DataBuf.empty().writeString("discord_rpc").writeString(labyModProtocolResponse.toString());
   }
 
-  protected @NotNull ITask<@Nullable CloudPlayer> getPlayerByJoinSecret(@NotNull UUID joinSecret) {
+  protected @NonNull ITask<@Nullable CloudPlayer> getPlayerByJoinSecret(@NonNull UUID joinSecret) {
     return CompletableTask.supply(() -> {
       for (CloudPlayer player : this.playerManager.onlinePlayers().players()) {
         var playerOptions = this.parsePlayerOptions(player);
@@ -283,7 +283,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
     });
   }
 
-  protected @NotNull ITask<CloudPlayer> getPlayerBySpectateSecret(@NotNull UUID spectateSecret) {
+  protected @NonNull ITask<CloudPlayer> getPlayerBySpectateSecret(@NonNull UUID spectateSecret) {
     return CompletableTask.supply(() -> {
       for (CloudPlayer player : this.playerManager.onlinePlayers().players()) {
         var playerOptions = this.parsePlayerOptions(player);
@@ -296,7 +296,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
     });
   }
 
-  protected void connectPlayer(@NotNull CloudPlayer player, @NotNull CloudPlayer target) {
+  protected void connectPlayer(@NonNull CloudPlayer player, @NonNull CloudPlayer target) {
     var serviceInfoSnapshot = CloudNetDriver.instance().cloudServiceProvider()
       .service(target.connectedService().uniqueId());
     // check if there is a service to connect to
@@ -311,15 +311,15 @@ public class PlatformLabyModManagement implements LabyModManagement {
     }
   }
 
-  protected void sendPluginMessage(@NotNull CloudPlayer player, @NotNull DataBuf dataBuf) {
+  protected void sendPluginMessage(@NonNull CloudPlayer player, @NonNull DataBuf dataBuf) {
     player.playerExecutor().sendPluginMessage(LABYMOD_CLIENT_CHANNEL, dataBuf.toByteArray());
   }
 
-  protected @Nullable LabyModPlayerOptions parsePlayerOptions(@NotNull CloudPlayer player) {
+  protected @Nullable LabyModPlayerOptions parsePlayerOptions(@NonNull CloudPlayer player) {
     return player.onlineProperties().get("labyModOptions", LabyModPlayerOptions.class);
   }
 
-  protected void updatePlayerOptions(@NotNull CloudPlayer cloudPlayer, @NotNull LabyModPlayerOptions playerOptions) {
+  protected void updatePlayerOptions(@NonNull CloudPlayer cloudPlayer, @NonNull LabyModPlayerOptions playerOptions) {
     cloudPlayer.onlineProperties().append("labyModOptions", playerOptions);
     this.playerManager.updateOnlinePlayer(cloudPlayer);
   }

@@ -28,8 +28,8 @@ import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import java.io.IOException;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 
 @Internal
 final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
@@ -43,26 +43,26 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
   }
 
   @Override
-  public void exceptionCaught(@NotNull ChannelHandlerContext ctx, @NotNull Throwable cause) {
+  public void exceptionCaught(@NonNull ChannelHandlerContext ctx, @NonNull Throwable cause) {
     if (!(cause instanceof IOException)) {
       LOGGER.severe("Exception was caught", cause);
     }
   }
 
   @Override
-  public void channelReadComplete(@NotNull ChannelHandlerContext ctx) {
+  public void channelReadComplete(@NonNull ChannelHandlerContext ctx) {
     ctx.flush();
   }
 
   @Override
-  public void channelInactive(@NotNull ChannelHandlerContext ctx) {
+  public void channelInactive(@NonNull ChannelHandlerContext ctx) {
     if (!ctx.channel().isActive() || !ctx.channel().isOpen() || !ctx.channel().isWritable()) {
       ctx.channel().close();
     }
   }
 
   @Override
-  protected void channelRead0(@NotNull ChannelHandlerContext ctx, @NotNull WebSocketFrame webSocketFrame) {
+  protected void channelRead0(@NonNull ChannelHandlerContext ctx, @NonNull WebSocketFrame webSocketFrame) {
     if (webSocketFrame instanceof PingWebSocketFrame) {
       this.invoke0(WebSocketFrameType.PING, webSocketFrame);
     }
@@ -84,7 +84,7 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
     }
   }
 
-  private void invoke0(@NotNull WebSocketFrameType type, @NotNull WebSocketFrame webSocketFrame) {
+  private void invoke0(@NonNull WebSocketFrameType type, @NonNull WebSocketFrame webSocketFrame) {
     var bytes = this.readContentFromWebSocketFrame(webSocketFrame);
     for (var listener : this.webSocketServerChannel.listeners()) {
       try {
@@ -95,7 +95,7 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
     }
   }
 
-  private byte[] readContentFromWebSocketFrame(@NotNull WebSocketFrame frame) {
+  private byte[] readContentFromWebSocketFrame(@NonNull WebSocketFrame frame) {
     var bytes = new byte[frame.content().readableBytes()];
     frame.content().getBytes(frame.content().readerIndex(), bytes);
     return bytes;

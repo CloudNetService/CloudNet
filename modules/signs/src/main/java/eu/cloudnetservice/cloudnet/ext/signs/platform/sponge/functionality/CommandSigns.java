@@ -18,9 +18,9 @@ package eu.cloudnetservice.cloudnet.ext.signs.platform.sponge.functionality;
 
 import eu.cloudnetservice.cloudnet.ext.signs.platform.PlatformSignManagement;
 import java.util.Optional;
+import lombok.NonNull;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.command.CommandExecutor;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.parameter.CommandContext;
@@ -40,12 +40,12 @@ public class CommandSigns implements CommandExecutor {
 
   protected final PlatformSignManagement<org.spongepowered.api.block.entity.Sign> signManagement;
 
-  public CommandSigns(@NotNull PlatformSignManagement<org.spongepowered.api.block.entity.Sign> signManagement) {
+  public CommandSigns(@NonNull PlatformSignManagement<org.spongepowered.api.block.entity.Sign> signManagement) {
     this.signManagement = signManagement;
   }
 
   @Override
-  public CommandResult execute(@NotNull CommandContext context) {
+  public CommandResult execute(@NonNull CommandContext context) {
     if (!(context.subject() instanceof ServerPlayer player)) {
       context.sendMessage(Identity.nil(), Component.text("Only players may execute this command"));
       return CommandResult.success();
@@ -125,7 +125,7 @@ public class CommandSigns implements CommandExecutor {
     return CommandResult.success();
   }
 
-  protected @NotNull Optional<RayTraceResult<LocatableBlock>> getTargetBlock(@NotNull ServerPlayer player) {
+  protected @NonNull Optional<RayTraceResult<LocatableBlock>> getTargetBlock(@NonNull ServerPlayer player) {
     var result = RayTrace.block()
       .limit(15)
       .world(player.world())

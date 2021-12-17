@@ -40,7 +40,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
 
@@ -49,34 +49,34 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
   protected final ICloudServiceManager cloudServiceManager;
   protected final IClusterNodeServerProvider nodeServerProvider;
 
-  public NodeMessenger(@NotNull CloudNet nodeInstance) {
+  public NodeMessenger(@NonNull CloudNet nodeInstance) {
     this.cloudServiceManager = nodeInstance.cloudServiceProvider();
     this.nodeServerProvider = nodeInstance.getClusterNodeServerProvider();
   }
 
   @Override
-  public void sendChannelMessage(@NotNull ChannelMessage message) {
+  public void sendChannelMessage(@NonNull ChannelMessage message) {
     this.sendChannelMessage(message, true);
   }
 
   @Override
-  public @NotNull ITask<Collection<ChannelMessage>> sendChannelMessageQueryAsync(@NotNull ChannelMessage message) {
+  public @NonNull ITask<Collection<ChannelMessage>> sendChannelMessageQueryAsync(@NonNull ChannelMessage message) {
     return this.sendChannelMessageQueryAsync(message, true);
   }
 
   @Override
-  public @NotNull Collection<ChannelMessage> sendChannelMessageQuery(@NotNull ChannelMessage channelMessage) {
+  public @NonNull Collection<ChannelMessage> sendChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
     return this.sendChannelMessageQueryAsync(channelMessage).get(20, TimeUnit.SECONDS, Collections.emptyList());
   }
 
-  public void sendChannelMessage(@NotNull ChannelMessage message, boolean allowClusterRedirect) {
+  public void sendChannelMessage(@NonNull ChannelMessage message, boolean allowClusterRedirect) {
     for (var channel : this.findChannels(message.targets(), allowClusterRedirect)) {
       channel.sendPacket(new PacketServerChannelMessage(message));
     }
   }
 
-  public @NotNull ITask<Collection<ChannelMessage>> sendChannelMessageQueryAsync(
-    @NotNull ChannelMessage message,
+  public @NonNull ITask<Collection<ChannelMessage>> sendChannelMessageQueryAsync(
+    @NonNull ChannelMessage message,
     boolean allowClusterRedirect
   ) {
     // filter the channels we need to send the message to
@@ -100,8 +100,8 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     return task;
   }
 
-  protected @NotNull Collection<INetworkChannel> findChannels(
-    @NotNull Collection<ChannelMessageTarget> targets,
+  protected @NonNull Collection<INetworkChannel> findChannels(
+    @NonNull Collection<ChannelMessageTarget> targets,
     boolean allowClusterRedirect
   ) {
     // check if there is only one channel
@@ -116,8 +116,8 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     }
   }
 
-  protected @NotNull Collection<INetworkChannel> findTargetChannels(
-    @NotNull ChannelMessageTarget target,
+  protected @NonNull Collection<INetworkChannel> findTargetChannels(
+    @NonNull ChannelMessageTarget target,
     boolean allowClusterRedirect
   ) {
     switch (target.type()) {
@@ -216,8 +216,8 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     }
   }
 
-  protected @NotNull Collection<INetworkChannel> filterChannels(
-    @NotNull Collection<ServiceInfoSnapshot> snapshots,
+  protected @NonNull Collection<INetworkChannel> filterChannels(
+    @NonNull Collection<ServiceInfoSnapshot> snapshots,
     boolean allowClusterRedirect
   ) {
     return snapshots.stream()

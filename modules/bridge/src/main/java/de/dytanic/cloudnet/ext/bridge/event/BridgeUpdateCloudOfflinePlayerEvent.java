@@ -18,17 +18,17 @@ package de.dytanic.cloudnet.ext.bridge.event;
 
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
 import de.dytanic.cloudnet.ext.bridge.player.CloudOfflinePlayer;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class BridgeUpdateCloudOfflinePlayerEvent extends DriverEvent {
 
   private final CloudOfflinePlayer cloudOfflinePlayer;
 
-  public BridgeUpdateCloudOfflinePlayerEvent(@NotNull CloudOfflinePlayer cloudOfflinePlayer) {
+  public BridgeUpdateCloudOfflinePlayerEvent(@NonNull CloudOfflinePlayer cloudOfflinePlayer) {
     this.cloudOfflinePlayer = cloudOfflinePlayer;
   }
 
-  public @NotNull CloudOfflinePlayer cloudOfflinePlayer() {
+  public @NonNull CloudOfflinePlayer cloudOfflinePlayer() {
     return this.cloudOfflinePlayer;
   }
 }

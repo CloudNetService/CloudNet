@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.command.source;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class DriverCommandSource implements CommandSource {
 
@@ -29,7 +29,7 @@ public class DriverCommandSource implements CommandSource {
    * @return "Driver" for the driver command source.
    */
   @Override
-  public @NotNull String name() {
+  public @NonNull String name() {
     return "Driver";
   }
 
@@ -37,7 +37,7 @@ public class DriverCommandSource implements CommandSource {
    * {@inheritDoc}
    */
   @Override
-  public void sendMessage(@NotNull String message) {
+  public void sendMessage(@NonNull String message) {
     this.messages.add(message);
   }
 
@@ -45,7 +45,7 @@ public class DriverCommandSource implements CommandSource {
    * {@inheritDoc}
    */
   @Override
-  public void sendMessage(@NotNull String... messages) {
+  public void sendMessage(@NonNull String... messages) {
     this.messages.addAll(Arrays.asList(messages));
   }
 
@@ -53,7 +53,7 @@ public class DriverCommandSource implements CommandSource {
    * {@inheritDoc}
    */
   @Override
-  public void sendMessage(@NotNull Collection<String> messages) {
+  public void sendMessage(@NonNull Collection<String> messages) {
     this.messages.addAll(messages);
   }
 
@@ -62,14 +62,14 @@ public class DriverCommandSource implements CommandSource {
    * @return always {@code true} as the driver is allowed to execute every command
    */
   @Override
-  public boolean checkPermission(@NotNull String permission) {
+  public boolean checkPermission(@NonNull String permission) {
     return true;
   }
 
   /**
    * @return all captured messages for the driver
    */
-  @NotNull
+  @NonNull
   public Collection<String> messages() {
     return this.messages;
   }

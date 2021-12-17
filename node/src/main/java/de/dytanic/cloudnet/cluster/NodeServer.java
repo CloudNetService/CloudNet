@@ -23,8 +23,8 @@ import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import java.util.Collection;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -32,7 +32,7 @@ import org.jetbrains.annotations.UnmodifiableView;
 @RPCValidation
 public interface NodeServer extends AutoCloseable {
 
-  @NotNull NodeServerProvider<? extends NodeServer> provider();
+  @NonNull NodeServerProvider<? extends NodeServer> provider();
 
   boolean headNode();
 
@@ -42,22 +42,22 @@ public interface NodeServer extends AutoCloseable {
 
   void drain(boolean drain);
 
-  @NotNull NetworkClusterNode nodeInfo();
+  @NonNull NetworkClusterNode nodeInfo();
 
   @Internal
-  void nodeInfo(@NotNull NetworkClusterNode nodeInfo);
+  void nodeInfo(@NonNull NetworkClusterNode nodeInfo);
 
   @UnknownNullability NetworkClusterNodeInfoSnapshot nodeInfoSnapshot();
 
   @Internal
-  void nodeInfoSnapshot(@NotNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot);
+  void nodeInfoSnapshot(@NonNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot);
 
   @UnknownNullability NetworkClusterNodeInfoSnapshot lastNodeInfoSnapshot();
 
-  @NotNull
-  @UnmodifiableView Collection<String> sendCommandLine(@NotNull String commandLine);
+  @NonNull
+  @UnmodifiableView Collection<String> sendCommandLine(@NonNull String commandLine);
 
-  @NotNull CloudServiceFactory cloudServiceFactory();
+  @NonNull CloudServiceFactory cloudServiceFactory();
 
-  @Nullable SpecificCloudServiceProvider cloudServiceProvider(@NotNull ServiceInfoSnapshot serviceInfoSnapshot);
+  @Nullable SpecificCloudServiceProvider cloudServiceProvider(@NonNull ServiceInfoSnapshot serviceInfoSnapshot);
 }

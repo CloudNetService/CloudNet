@@ -18,24 +18,24 @@ package eu.cloudnetservice.cloudnet.ext.syncproxy.config;
 
 import com.google.common.base.Verify;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public record SyncProxyMotd(
-  @NotNull String firstLine,
-  @NotNull String secondLine,
+  @NonNull String firstLine,
+  @NonNull String secondLine,
   boolean autoSlot,
   int autoSlotMaxPlayersDistance,
-  @NotNull String[] playerInfo,
+  @NonNull String[] playerInfo,
   @Nullable String protocolText
 ) {
 
-  public static @NotNull Builder builder() {
+  public static @NonNull Builder builder() {
     return new Builder();
   }
 
-  public static @NotNull Builder builder(@NotNull SyncProxyMotd motd) {
+  public static @NonNull Builder builder(@NonNull SyncProxyMotd motd) {
     return builder()
       .firstLine(motd.firstLine())
       .secondLine(motd.secondLine())
@@ -72,37 +72,37 @@ public record SyncProxyMotd(
     private String[] playerInfo = new String[0];
     private String protocolText;
 
-    public @NotNull Builder firstLine(@NotNull String firstLine) {
+    public @NonNull Builder firstLine(@NonNull String firstLine) {
       this.firstLine = firstLine;
       return this;
     }
 
-    public @NotNull Builder secondLine(@NotNull String secondLine) {
+    public @NonNull Builder secondLine(@NonNull String secondLine) {
       this.secondLine = secondLine;
       return this;
     }
 
-    public @NotNull Builder autoSlot(boolean autoSlot) {
+    public @NonNull Builder autoSlot(boolean autoSlot) {
       this.autoSlot = autoSlot;
       return this;
     }
 
-    public @NotNull Builder autoSlotDistance(int autoSlotDistance) {
+    public @NonNull Builder autoSlotDistance(int autoSlotDistance) {
       this.autoSlotMaxPlayersDistance = autoSlotDistance;
       return this;
     }
 
-    public @NotNull Builder playerInfo(String @NotNull [] playerInfo) {
+    public @NonNull Builder playerInfo(String @NonNull [] playerInfo) {
       this.playerInfo = playerInfo;
       return this;
     }
 
-    public @NotNull Builder protocolText(@Nullable String protocolText) {
+    public @NonNull Builder protocolText(@Nullable String protocolText) {
       this.protocolText = protocolText;
       return this;
     }
 
-    public @NotNull SyncProxyMotd build() {
+    public @NonNull SyncProxyMotd build() {
       Verify.verifyNotNull(this.firstLine, "Missing first line");
       Verify.verifyNotNull(this.secondLine, "Missing second line");
 

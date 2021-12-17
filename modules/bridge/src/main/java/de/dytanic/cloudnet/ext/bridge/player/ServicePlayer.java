@@ -20,29 +20,29 @@ import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.document.property.JsonDocPropertyHolder;
 import java.util.UUID;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class ServicePlayer extends JsonDocPropertyHolder implements Comparable<ServicePlayer>, INameable {
 
-  public ServicePlayer(@NotNull UUID uniqueId, @NotNull String name) {
+  public ServicePlayer(@NonNull UUID uniqueId, @NonNull String name) {
     this.properties = JsonDocument.newDocument().append("uniqueId", uniqueId).append("name", name);
   }
 
-  public ServicePlayer(@NotNull JsonDocument properties) {
+  public ServicePlayer(@NonNull JsonDocument properties) {
     this.properties = properties;
   }
 
-  public @NotNull UUID uniqueId() {
+  public @NonNull UUID uniqueId() {
     return this.properties.get("uniqueId", UUID.class);
   }
 
   @Override
-  public @NotNull String name() {
+  public @NonNull String name() {
     return this.properties.getString("name");
   }
 
   @Override
-  public int compareTo(@NotNull ServicePlayer o) {
+  public int compareTo(@NonNull ServicePlayer o) {
     return this.name().compareTo(o.name());
   }
 }

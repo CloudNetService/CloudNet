@@ -46,7 +46,7 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 @CommandAlias("perms")
@@ -403,7 +403,7 @@ public final class CommandPermissions {
   }
 
   private void addPermission(IPermissible permissible,
-    @NotNull String rawPermission,
+    @NonNull String rawPermission,
     @Nullable Integer potency,
     @Nullable Long timeOut,
     @Nullable GroupConfiguration targetGroup

@@ -38,7 +38,7 @@ import java.nio.file.Files;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class CloudNetNPCModule extends DriverModule {
 
@@ -133,7 +133,7 @@ public class CloudNetNPCModule extends DriverModule {
     management.registerToServiceRegistry();
   }
 
-  private @NotNull eu.cloudnetservice.modules.npc.configuration.NPCConfiguration loadConfig() {
+  private @NonNull eu.cloudnetservice.modules.npc.configuration.NPCConfiguration loadConfig() {
     if (Files.notExists(this.configPath())) {
       JsonDocument
         .newDocument(eu.cloudnetservice.modules.npc.configuration.NPCConfiguration.builder().build())
@@ -144,8 +144,8 @@ public class CloudNetNPCModule extends DriverModule {
       .toInstanceOf(eu.cloudnetservice.modules.npc.configuration.NPCConfiguration.class);
   }
 
-  private @NotNull ItemLayout convertItemLayout(
-    @NotNull eu.cloudnetservice.cloudnet.ext.npcs.configuration.NPCConfigurationEntry.ItemLayout oldLayout
+  private @NonNull ItemLayout convertItemLayout(
+    @NonNull eu.cloudnetservice.cloudnet.ext.npcs.configuration.NPCConfigurationEntry.ItemLayout oldLayout
   ) {
     return ItemLayout.builder()
       .material(oldLayout.material())

@@ -27,10 +27,10 @@ import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagemen
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
+import lombok.NonNull;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.NotNull;
 
 public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
 
@@ -43,10 +43,10 @@ public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
   protected volatile com.github.juliarn.npc.NPC handleNpc;
 
   public NPCBukkitPlatformSelector(
-    @NotNull BukkitPlatformNPCManagement npcManagement,
-    @NotNull Plugin plugin,
-    @NotNull NPC npc,
-    @NotNull NPCPool pool
+    @NonNull BukkitPlatformNPCManagement npcManagement,
+    @NonNull Plugin plugin,
+    @NonNull NPC npc,
+    @NonNull NPCPool pool
   ) {
     super(npcManagement, plugin, npc);
     this.npcPool = pool;
@@ -58,7 +58,7 @@ public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
   }
 
   @Override
-  public @NotNull String scoreboardRepresentation() {
+  public @NonNull String scoreboardRepresentation() {
     return this.handleNpc.getProfile().getName();
   }
 
@@ -134,7 +134,7 @@ public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
     return 1.09 + super.heightAddition(lineNumber);
   }
 
-  public @NotNull com.github.juliarn.npc.NPC handleNPC() {
+  public @NonNull com.github.juliarn.npc.NPC handleNPC() {
     return this.handleNpc;
   }
 }

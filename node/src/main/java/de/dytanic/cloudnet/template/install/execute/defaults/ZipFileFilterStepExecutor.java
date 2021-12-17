@@ -25,17 +25,17 @@ import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Set;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class ZipFileFilterStepExecutor implements InstallStepExecutor {
 
   private static final Type COL_STRINGS = TypeToken.getParameterized(Collection.class, String.class).getType();
 
   @Override
-  public @NotNull Set<Path> execute(
-    @NotNull InstallInformation info,
-    @NotNull Path workingDirectory,
-    @NotNull Set<Path> files
+  public @NonNull Set<Path> execute(
+    @NonNull InstallInformation info,
+    @NonNull Path workingDirectory,
+    @NonNull Set<Path> files
   ) throws IOException {
     Collection<String> filesToRemove = info.serviceVersion().properties().get("filteredFiles", COL_STRINGS);
     Collection<Path> jarFiles = files.stream().filter(path -> path.getFileName().toString().endsWith(".jar")).toList();

@@ -22,7 +22,7 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class ServiceVersion implements INameable {
 
@@ -39,14 +39,14 @@ public class ServiceVersion implements INameable {
   private Map<String, String> additionalDownloads = Collections.emptyMap();
 
   public ServiceVersion(
-    @NotNull String name,
-    @NotNull String url,
+    @NonNull String name,
+    @NonNull String url,
     int minJavaVersion,
     int maxJavaVersion,
     boolean deprecated,
     boolean cacheFiles,
-    @NotNull JsonDocument properties,
-    @NotNull Map<String, String> additionalDownloads
+    @NonNull JsonDocument properties,
+    @NonNull Map<String, String> additionalDownloads
   ) {
     this.name = name;
     this.url = url;
@@ -73,7 +73,7 @@ public class ServiceVersion implements INameable {
     return this.canRun(JavaVersion.runtimeVersion());
   }
 
-  public boolean canRun(@NotNull JavaVersion javaVersion) {
+  public boolean canRun(@NonNull JavaVersion javaVersion) {
     var minJavaVersion = JavaVersion.fromVersion(this.minJavaVersion);
     var maxJavaVersion = JavaVersion.fromVersion(this.maxJavaVersion);
 
@@ -85,7 +85,7 @@ public class ServiceVersion implements INameable {
       .orElseGet(() -> maxJavaVersion.map(javaVersion::isSupportedByMax).orElse(true));
   }
 
-  public @NotNull String name() {
+  public @NonNull String name() {
     return this.name;
   }
 
@@ -93,23 +93,23 @@ public class ServiceVersion implements INameable {
     return this.url;
   }
 
-  public void url(@NotNull String url) {
+  public void url(@NonNull String url) {
     this.url = url;
   }
 
-  public @NotNull Optional<JavaVersion> minJavaVersion() {
+  public @NonNull Optional<JavaVersion> minJavaVersion() {
     return JavaVersion.fromVersion(this.minJavaVersion);
   }
 
-  public @NotNull Optional<JavaVersion> maxJavaVersion() {
+  public @NonNull Optional<JavaVersion> maxJavaVersion() {
     return JavaVersion.fromVersion(this.maxJavaVersion);
   }
 
-  public @NotNull JsonDocument properties() {
+  public @NonNull JsonDocument properties() {
     return this.properties;
   }
 
-  public @NotNull Map<String, String> additionalDownloads() {
+  public @NonNull Map<String, String> additionalDownloads() {
     return this.additionalDownloads;
   }
 }

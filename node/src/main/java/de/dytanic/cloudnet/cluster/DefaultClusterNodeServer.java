@@ -31,7 +31,7 @@ import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import java.util.Collection;
 import java.util.Collections;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.UnknownNullability;
 
 public class DefaultClusterNodeServer extends DefaultNodeServer implements IClusterNodeServer {
@@ -45,9 +45,9 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
   private INetworkChannel channel;
 
   protected DefaultClusterNodeServer(
-    @NotNull CloudNet cloudNet,
-    @NotNull DefaultClusterNodeServerProvider provider,
-    @NotNull NetworkClusterNode nodeInfo
+    @NonNull CloudNet cloudNet,
+    @NonNull DefaultClusterNodeServerProvider provider,
+    @NonNull NetworkClusterNode nodeInfo
   ) {
     this.cloudNet = cloudNet;
     this.provider = provider;
@@ -72,21 +72,21 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
   }
 
   @Override
-  public void saveSendPacket(@NotNull IPacket packet) {
+  public void saveSendPacket(@NonNull IPacket packet) {
     if (this.channel != null) {
       this.channel.sendPacket(packet);
     }
   }
 
   @Override
-  public void saveSendPacketSync(@NotNull IPacket packet) {
+  public void saveSendPacketSync(@NonNull IPacket packet) {
     if (this.channel != null) {
       this.channel.sendPacketSync(packet);
     }
   }
 
   @Override
-  public boolean acceptableConnection(@NotNull INetworkChannel channel, @NotNull String nodeId) {
+  public boolean acceptableConnection(@NonNull INetworkChannel channel, @NonNull String nodeId) {
     return this.channel == null && this.nodeInfo.uniqueId().equals(nodeId);
   }
 
@@ -122,7 +122,7 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
   }
 
   @Override
-  public @NotNull Collection<String> sendCommandLine(@NotNull String commandLine) {
+  public @NonNull Collection<String> sendCommandLine(@NonNull String commandLine) {
     if (this.channel != null) {
       return this.rpcSender.invokeMethod("sendCommandLine", commandLine).fireSync(this.channel);
     }
@@ -131,12 +131,12 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
   }
 
   @Override
-  public @NotNull CloudServiceFactory cloudServiceFactory() {
+  public @NonNull CloudServiceFactory cloudServiceFactory() {
     return this.cloudServiceFactory;
   }
 
   @Override
-  public @NotNull SpecificCloudServiceProvider cloudServiceProvider(@NotNull ServiceInfoSnapshot snapshot) {
+  public @NonNull SpecificCloudServiceProvider cloudServiceProvider(@NonNull ServiceInfoSnapshot snapshot) {
     return this.cloudNet.cloudServiceProvider().specificProvider(snapshot.serviceId().uniqueId());
   }
 
@@ -154,7 +154,7 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
   }
 
   @Override
-  public @NotNull DefaultClusterNodeServerProvider provider() {
+  public @NonNull DefaultClusterNodeServerProvider provider() {
     return this.provider;
   }
 
@@ -176,12 +176,12 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
   }
 
   @Override
-  public void channel(@NotNull INetworkChannel channel) {
+  public void channel(@NonNull INetworkChannel channel) {
     this.channel = channel;
   }
 
   @Override
-  public void nodeInfoSnapshot(@NotNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot) {
+  public void nodeInfoSnapshot(@NonNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot) {
     if (this.currentSnapshot == null) {
       super.nodeInfoSnapshot(nodeInfoSnapshot);
       this.provider().refreshHeadNode();

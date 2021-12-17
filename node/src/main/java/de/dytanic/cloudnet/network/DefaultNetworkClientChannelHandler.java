@@ -32,7 +32,7 @@ import de.dytanic.cloudnet.driver.network.def.PacketClientAuthorization;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.network.listener.PacketServerAuthorizationResponseListener;
 import java.util.concurrent.atomic.AtomicLong;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class DefaultNetworkClientChannelHandler implements INetworkChannelHandler {
 
@@ -40,7 +40,7 @@ public final class DefaultNetworkClientChannelHandler implements INetworkChannel
   private static final Logger LOGGER = LogManager.logger(DefaultNetworkClientChannelHandler.class);
 
   @Override
-  public void handleChannelInitialize(@NotNull INetworkChannel channel) {
+  public void handleChannelInitialize(@NonNull INetworkChannel channel) {
     if (NodeNetworkUtils.shouldInitializeChannel(channel, ChannelType.CLIENT_CHANNEL)) {
       // add the result handler for the auth
       channel.packetRegistry().addListener(
@@ -62,13 +62,13 @@ public final class DefaultNetworkClientChannelHandler implements INetworkChannel
   }
 
   @Override
-  public boolean handlePacketReceive(@NotNull INetworkChannel channel, @NotNull Packet packet) {
+  public boolean handlePacketReceive(@NonNull INetworkChannel channel, @NonNull Packet packet) {
     return !CloudNetDriver.instance().eventManager().callEvent(
       new NetworkChannelPacketReceiveEvent(channel, packet)).cancelled();
   }
 
   @Override
-  public void handleChannelClose(@NotNull INetworkChannel channel) {
+  public void handleChannelClose(@NonNull INetworkChannel channel) {
     CloudNetDriver.instance().eventManager().callEvent(
       new NetworkChannelCloseEvent(channel, ChannelType.CLIENT_CHANNEL));
     CONNECTION_COUNTER.decrementAndGet();

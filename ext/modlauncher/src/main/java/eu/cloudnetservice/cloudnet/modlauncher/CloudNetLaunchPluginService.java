@@ -23,7 +23,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
 
@@ -60,7 +60,7 @@ public final class CloudNetLaunchPluginService implements ILaunchPluginService {
       pkg -> EXCLUDED_PACKAGE_STARTS.stream().noneMatch(pkg::startsWith));
   }
 
-  private @NotNull TransformingClassLoader getTransformingLoader() {
+  private @NonNull TransformingClassLoader getTransformingLoader() {
     try {
       var field = Launcher.class.getDeclaredField("classLoader");
       field.setAccessible(true);

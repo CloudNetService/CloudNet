@@ -42,7 +42,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class NettyNetworkServer extends NettySSLServer implements DefaultNetworkComponent, INetworkServer {
 
@@ -86,12 +86,12 @@ public class NettyNetworkServer extends NettySSLServer implements DefaultNetwork
   }
 
   @Override
-  public boolean addListener(@NotNull SocketAddress socketAddress) {
+  public boolean addListener(@NonNull SocketAddress socketAddress) {
     return this.addListener(HostAndPort.fromSocketAddress(socketAddress));
   }
 
   @Override
-  public boolean addListener(@NotNull HostAndPort hostAndPort) {
+  public boolean addListener(@NonNull HostAndPort hostAndPort) {
     // check if a server is already bound to the port
     if (!this.channelFutures.containsKey(hostAndPort.port())) {
       try {
@@ -141,29 +141,29 @@ public class NettyNetworkServer extends NettySSLServer implements DefaultNetwork
   }
 
   @Override
-  public @NotNull Collection<INetworkChannel> channels() {
+  public @NonNull Collection<INetworkChannel> channels() {
     return Collections.unmodifiableCollection(this.channels);
   }
 
   @Override
-  public @NotNull Executor packetDispatcher() {
+  public @NonNull Executor packetDispatcher() {
     return this.packetDispatcher;
   }
 
   @Override
-  public @NotNull Collection<INetworkChannel> modifiableChannels() {
+  public @NonNull Collection<INetworkChannel> modifiableChannels() {
     return this.channels;
   }
 
   @Override
-  public void sendPacketSync(@NotNull IPacket... packets) {
+  public void sendPacketSync(@NonNull IPacket... packets) {
     for (var channel : this.channels) {
       channel.sendPacketSync(packets);
     }
   }
 
   @Override
-  public @NotNull IPacketListenerRegistry packetRegistry() {
+  public @NonNull IPacketListenerRegistry packetRegistry() {
     return this.packetRegistry;
   }
 }

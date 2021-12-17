@@ -20,7 +20,7 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperties;
 import eu.cloudnetservice.modules.smart.SmartServiceTaskConfig;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class SmartUtil {
 
@@ -29,8 +29,8 @@ public final class SmartUtil {
   }
 
   public static boolean canStopNow(
-    @NotNull ServiceTask task,
-    @NotNull SmartServiceTaskConfig config,
+    @NonNull ServiceTask task,
+    @NonNull SmartServiceTaskConfig config,
     int runningServices
   ) {
     // get the min service count
@@ -39,7 +39,7 @@ public final class SmartUtil {
     return (runningServices - 1) > minServiceCount;
   }
 
-  public static double playerPercentage(@NotNull ServiceInfoSnapshot snapshot) {
+  public static double playerPercentage(@NonNull ServiceInfoSnapshot snapshot) {
     int onlinePlayers = BridgeServiceProperties.ONLINE_COUNT.read(snapshot).orElse(0);
     int maxPlayers = BridgeServiceProperties.MAX_PLAYERS.read(snapshot).orElse(1);
     // get the player percentage

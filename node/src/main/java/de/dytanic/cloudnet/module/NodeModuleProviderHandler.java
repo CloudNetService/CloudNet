@@ -23,18 +23,18 @@ import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class NodeModuleProviderHandler extends DefaultModuleProviderHandler implements IModuleProviderHandler {
 
   private final CloudNet nodeInstance;
 
-  public NodeModuleProviderHandler(@NotNull CloudNet nodeInstance) {
+  public NodeModuleProviderHandler(@NonNull CloudNet nodeInstance) {
     this.nodeInstance = nodeInstance;
   }
 
   @Override
-  public void handlePostModuleStop(@NotNull IModuleWrapper moduleWrapper) {
+  public void handlePostModuleStop(@NonNull IModuleWrapper moduleWrapper) {
     super.handlePostModuleStop(moduleWrapper);
 
     // unregister all listeners from the http server
@@ -55,7 +55,7 @@ public final class NodeModuleProviderHandler extends DefaultModuleProviderHandle
     DefaultObjectMapper.DEFAULT_MAPPER.unregisterBindings(moduleWrapper.classLoader());
   }
 
-  private void removeListeners(@NotNull Collection<INetworkChannel> channels, @NotNull ClassLoader loader) {
+  private void removeListeners(@NonNull Collection<INetworkChannel> channels, @NonNull ClassLoader loader) {
     for (var channel : channels) {
       channel.packetRegistry().removeListeners(loader);
     }

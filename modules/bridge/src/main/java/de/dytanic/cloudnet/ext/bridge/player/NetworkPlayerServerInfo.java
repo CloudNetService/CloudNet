@@ -18,14 +18,14 @@ package de.dytanic.cloudnet.ext.bridge.player;
 
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import java.util.UUID;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public record NetworkPlayerServerInfo(
-  @NotNull UUID uniqueId,
-  @NotNull String name,
+  @NonNull UUID uniqueId,
+  @NonNull String name,
   @Nullable String xBoxId,
-  @NotNull HostAndPort address,
-  @NotNull NetworkServiceInfo networkService
+  @NonNull HostAndPort address,
+  @NonNull NetworkServiceInfo networkService
 ) {
 }

@@ -24,9 +24,9 @@ import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class VelocitySyncProxyManagement extends PlatformSyncProxyManagement<Player> {
@@ -34,46 +34,46 @@ public final class VelocitySyncProxyManagement extends PlatformSyncProxyManageme
   private final ProxyServer proxyServer;
   private final VelocitySyncProxyPlugin plugin;
 
-  public VelocitySyncProxyManagement(@NotNull ProxyServer proxyServer, @NotNull VelocitySyncProxyPlugin plugin) {
+  public VelocitySyncProxyManagement(@NonNull ProxyServer proxyServer, @NonNull VelocitySyncProxyPlugin plugin) {
     this.proxyServer = proxyServer;
     this.plugin = plugin;
     this.init();
   }
 
   @Override
-  public void registerService(@NotNull IServicesRegistry registry) {
+  public void registerService(@NonNull IServicesRegistry registry) {
     registry.registerService(PlatformSyncProxyManagement.class, "VelocitySyncProxyManagement", this);
   }
 
   @Override
-  public void unregisterService(@NotNull IServicesRegistry registry) {
+  public void unregisterService(@NonNull IServicesRegistry registry) {
     registry.unregisterService(PlatformSyncProxyManagement.class, "VelocitySyncProxyManagement");
   }
 
   @Override
-  public void schedule(@NotNull Runnable runnable, long time, @NotNull TimeUnit unit) {
+  public void schedule(@NonNull Runnable runnable, long time, @NonNull TimeUnit unit) {
     this.proxyServer.getScheduler().buildTask(this.plugin, runnable)
       .delay(time, unit)
       .schedule();
   }
 
   @Override
-  public @NotNull Collection<Player> onlinePlayers() {
+  public @NonNull Collection<Player> onlinePlayers() {
     return this.proxyServer.getAllPlayers();
   }
 
   @Override
-  public @NotNull String playerName(@NotNull Player player) {
+  public @NonNull String playerName(@NonNull Player player) {
     return player.getUsername();
   }
 
   @Override
-  public @NotNull UUID playerUniqueId(@NotNull Player player) {
+  public @NonNull UUID playerUniqueId(@NonNull Player player) {
     return player.getUniqueId();
   }
 
   @Override
-  public void playerTabList(@NotNull Player player, @Nullable String header, @Nullable String footer) {
+  public void playerTabList(@NonNull Player player, @Nullable String header, @Nullable String footer) {
     if (header == null || footer == null) {
       player.getTabList().clearHeaderAndFooter();
       return;
@@ -85,12 +85,12 @@ public final class VelocitySyncProxyManagement extends PlatformSyncProxyManageme
   }
 
   @Override
-  public void disconnectPlayer(@NotNull Player player, @NotNull String message) {
+  public void disconnectPlayer(@NonNull Player player, @NonNull String message) {
     player.disconnect(this.asComponent(message));
   }
 
   @Override
-  public void messagePlayer(@NotNull Player player, @Nullable String message) {
+  public void messagePlayer(@NonNull Player player, @Nullable String message) {
     if (message == null) {
       return;
     }
@@ -99,7 +99,7 @@ public final class VelocitySyncProxyManagement extends PlatformSyncProxyManageme
   }
 
   @Override
-  public boolean checkPlayerPermission(@NotNull Player player, @NotNull String permission) {
+  public boolean checkPlayerPermission(@NonNull Player player, @NonNull String permission) {
     return player.hasPermission(permission);
   }
 
@@ -112,7 +112,7 @@ public final class VelocitySyncProxyManagement extends PlatformSyncProxyManageme
     return AdventureSerializerUtil.serialize(message);
   }
 
-  private String replaceTabPlaceholder(@NotNull String input, @NotNull Player player) {
+  private String replaceTabPlaceholder(@NonNull String input, @NonNull Player player) {
     var server = player.getCurrentServer()
       .map(serverConnection -> serverConnection.getServerInfo().getName())
       .orElse("");

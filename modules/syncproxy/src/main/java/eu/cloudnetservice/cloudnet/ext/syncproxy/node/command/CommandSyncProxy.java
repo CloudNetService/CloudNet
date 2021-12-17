@@ -34,13 +34,13 @@ import eu.cloudnetservice.cloudnet.ext.syncproxy.node.NodeSyncProxyManagement;
 import java.util.Collection;
 import java.util.List;
 import java.util.Queue;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class CommandSyncProxy {
 
   private final NodeSyncProxyManagement syncProxyManagement;
 
-  public CommandSyncProxy(@NotNull NodeSyncProxyManagement syncProxyManagement) {
+  public CommandSyncProxy(@NonNull NodeSyncProxyManagement syncProxyManagement) {
     this.syncProxyManagement = syncProxyManagement;
   }
 

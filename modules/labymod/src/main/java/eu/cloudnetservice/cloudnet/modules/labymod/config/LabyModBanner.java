@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.cloudnet.modules.labymod.config;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
-public record LabyModBanner(boolean enabled, @NotNull String bannerUrl) {
+public record LabyModBanner(boolean enabled, @NonNull String bannerUrl) {
 
 }

@@ -26,18 +26,18 @@ import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.event.service.CloudServicePostLifecycleEvent;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperties;
 import de.dytanic.cloudnet.ext.bridge.node.player.NodePlayerManager;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class BridgeLocalProxyPlayerDisconnectListener {
 
   private final NodePlayerManager playerManager;
 
-  public BridgeLocalProxyPlayerDisconnectListener(@NotNull NodePlayerManager playerManager) {
+  public BridgeLocalProxyPlayerDisconnectListener(@NonNull NodePlayerManager playerManager) {
     this.playerManager = playerManager;
   }
 
   @EventListener
-  public void handleServiceUpdate(@NotNull CloudServiceUpdateEvent event) {
+  public void handleServiceUpdate(@NonNull CloudServiceUpdateEvent event) {
     var info = event.serviceInfo();
     if (info.serviceId().nodeUniqueId().equals(CloudNetDriver.instance().componentName())
       && ServiceEnvironmentType.isMinecraftProxy(info.serviceId().environment())) {
@@ -66,13 +66,13 @@ public final class BridgeLocalProxyPlayerDisconnectListener {
   }
 
   @EventListener
-  public void handle(@NotNull CloudServicePostLifecycleEvent event) {
+  public void handle(@NonNull CloudServicePostLifecycleEvent event) {
     if (event.newLifeCycle() == ServiceLifeCycle.STOPPED) {
       this.handleCloudServiceRemove(event.serviceInfo());
     }
   }
 
-  private void handleCloudServiceRemove(@NotNull ServiceInfoSnapshot snapshot) {
+  private void handleCloudServiceRemove(@NonNull ServiceInfoSnapshot snapshot) {
     if (ServiceEnvironmentType.isMinecraftProxy(snapshot.serviceId().environment())) {
       // test if any player has the stopped service as the login service
       for (var value : this.playerManager.players().values()) {

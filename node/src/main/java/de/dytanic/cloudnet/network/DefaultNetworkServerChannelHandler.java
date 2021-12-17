@@ -31,14 +31,14 @@ import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.network.listener.PacketClientAuthorizationListener;
 import de.dytanic.cloudnet.service.ICloudService;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class DefaultNetworkServerChannelHandler implements INetworkChannelHandler {
 
   private static final Logger LOGGER = LogManager.logger(DefaultNetworkServerChannelHandler.class);
 
   @Override
-  public void handleChannelInitialize(@NotNull INetworkChannel channel) {
+  public void handleChannelInitialize(@NonNull INetworkChannel channel) {
     // check if the ip of the connecting client is allowed
     if (this.shouldDenyConnection(channel)) {
       channel.close();
@@ -60,13 +60,13 @@ public final class DefaultNetworkServerChannelHandler implements INetworkChannel
   }
 
   @Override
-  public boolean handlePacketReceive(@NotNull INetworkChannel channel, @NotNull Packet packet) {
+  public boolean handlePacketReceive(@NonNull INetworkChannel channel, @NonNull Packet packet) {
     return !CloudNetDriver.instance().eventManager().callEvent(
       new NetworkChannelPacketReceiveEvent(channel, packet)).cancelled();
   }
 
   @Override
-  public void handleChannelClose(@NotNull INetworkChannel channel) {
+  public void handleChannelClose(@NonNull INetworkChannel channel) {
     CloudNetDriver.instance().eventManager().callEvent(
       new NetworkChannelCloseEvent(channel, ChannelType.SERVER_CHANNEL));
 
@@ -92,7 +92,7 @@ public final class DefaultNetworkServerChannelHandler implements INetworkChannel
     }
   }
 
-  private void closeAsCloudService(@NotNull ICloudService cloudService, @NotNull INetworkChannel channel) {
+  private void closeAsCloudService(@NonNull ICloudService cloudService, @NonNull INetworkChannel channel) {
     // reset the service channel and connection time
     cloudService.networkChannel(null);
     cloudService.updateLifecycle(ServiceLifeCycle.STOPPED);
@@ -105,7 +105,7 @@ public final class DefaultNetworkServerChannelHandler implements INetworkChannel
       .replace("%clientAddress%", channel.clientAddress().host() + ":" + channel.clientAddress().port()));
   }
 
-  private boolean shouldDenyConnection(@NotNull INetworkChannel channel) {
+  private boolean shouldDenyConnection(@NonNull INetworkChannel channel) {
     return CloudNet.instance().getConfig().ipWhitelist()
       .stream()
       .noneMatch(channel.clientAddress().host()::equals);

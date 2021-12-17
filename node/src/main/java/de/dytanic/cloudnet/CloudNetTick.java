@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class CloudNetTick {
 
@@ -48,27 +48,27 @@ public final class CloudNetTick {
     this.cloudNet = cloudNet;
   }
 
-  public @NotNull ITask<Void> runTask(@NotNull Runnable runnable) {
+  public @NonNull ITask<Void> runTask(@NonNull Runnable runnable) {
     return this.runTask(() -> {
       runnable.run();
       return null;
     });
   }
 
-  public @NotNull <T> ITask<T> runTask(@NotNull Callable<T> callable) {
+  public @NonNull <T> ITask<T> runTask(@NonNull Callable<T> callable) {
     var task = new ScheduledTask<T>(callable, 0, 1, this.currentTick.get() + 1);
     this.processQueue.offer(task);
     return task;
   }
 
-  public @NotNull ITask<Void> runDelayedTask(@NotNull Runnable runnable, long delay, @NotNull TimeUnit timeUnit) {
+  public @NonNull ITask<Void> runDelayedTask(@NonNull Runnable runnable, long delay, @NonNull TimeUnit timeUnit) {
     return this.runDelayedTask(() -> {
       runnable.run();
       return null;
     }, delay, timeUnit);
   }
 
-  public @NotNull <T> ITask<T> runDelayedTask(@NotNull Callable<T> callable, long delay, @NotNull TimeUnit timeUnit) {
+  public @NonNull <T> ITask<T> runDelayedTask(@NonNull Callable<T> callable, long delay, @NonNull TimeUnit timeUnit) {
     var task = new ScheduledTask<T>(
       callable,
       0,
@@ -78,11 +78,11 @@ public final class CloudNetTick {
     return task;
   }
 
-  public @NotNull <T> ITask<T> scheduleTask(@NotNull Callable<T> callable, long delay) {
+  public @NonNull <T> ITask<T> scheduleTask(@NonNull Callable<T> callable, long delay) {
     return this.scheduleTask(callable, delay, -1);
   }
 
-  public @NotNull <T> ITask<T> scheduleTask(@NotNull Callable<T> callable, long delay, long maxExecutions) {
+  public @NonNull <T> ITask<T> scheduleTask(@NonNull Callable<T> callable, long delay, long maxExecutions) {
     var task = new ScheduledTask<T>(
       callable,
       delay,
@@ -194,7 +194,7 @@ public final class CloudNetTick {
      */
     private long nextScheduledTick;
 
-    public ScheduledTask(@NotNull Callable<T> callable, long tickPeriod, long executionTimes, long nextScheduledTick) {
+    public ScheduledTask(@NonNull Callable<T> callable, long tickPeriod, long executionTimes, long nextScheduledTick) {
       super(callable);
 
       this.tickPeriod = tickPeriod;

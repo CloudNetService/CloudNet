@@ -18,12 +18,12 @@ package de.dytanic.cloudnet.ext.cloudflare.cloudflare;
 
 import de.dytanic.cloudnet.ext.cloudflare.CloudflareConfigurationEntry;
 import de.dytanic.cloudnet.ext.cloudflare.dns.DNSRecord;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public record DnsRecordDetail(
-  @NotNull String id,
-  @NotNull DNSRecord dnsRecord,
-  @NotNull CloudflareConfigurationEntry configurationEntry
+  @NonNull String id,
+  @NonNull DNSRecord dnsRecord,
+  @NonNull CloudflareConfigurationEntry configurationEntry
 ) {
 
 }

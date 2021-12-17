@@ -25,18 +25,18 @@ import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.SyncProxyConstants;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.config.SyncProxyConfiguration;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.platform.PlatformSyncProxyManagement;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class SyncProxyCloudListener<P> {
 
   private final PlatformSyncProxyManagement<P> management;
 
-  public SyncProxyCloudListener(@NotNull PlatformSyncProxyManagement<P> management) {
+  public SyncProxyCloudListener(@NonNull PlatformSyncProxyManagement<P> management) {
     this.management = management;
   }
 
   @EventListener
-  public void handleServiceLifecycleChange(@NotNull CloudServiceLifecycleChangeEvent event) {
+  public void handleServiceLifecycleChange(@NonNull CloudServiceLifecycleChangeEvent event) {
     if (event.newLifeCycle() == ServiceLifeCycle.RUNNING) {
       // notify the players about a new service start
       this.notifyPlayers("start-service", event.serviceInfo());
@@ -49,7 +49,7 @@ public final class SyncProxyCloudListener<P> {
   }
 
   @EventListener
-  public void handleServiceUpdate(@NotNull CloudServiceUpdateEvent event) {
+  public void handleServiceUpdate(@NonNull CloudServiceUpdateEvent event) {
     // check if the service is not stopping, as this would lead to issues with the CloudServiceLifecycleChangeEvent
     if (event.serviceInfo().lifeCycle() != ServiceLifeCycle.STOPPED) {
       // cache the ServiceInfoSnapshot
@@ -58,7 +58,7 @@ public final class SyncProxyCloudListener<P> {
   }
 
   @EventListener
-  public void handleConfigUpdate(@NotNull ChannelMessageReceiveEvent event) {
+  public void handleConfigUpdate(@NonNull ChannelMessageReceiveEvent event) {
     // handle incoming channel messages on the syncproxy channel
     if (event.channel().equals(SyncProxyConstants.SYNC_PROXY_CHANNEL)
       && SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIG.equals(event.message())) {
@@ -67,7 +67,7 @@ public final class SyncProxyCloudListener<P> {
     }
   }
 
-  private void notifyPlayers(@NotNull String key, @NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
+  private void notifyPlayers(@NonNull String key, @NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
     // only message the players if we are supposed to
     if (!this.management.configuration().ingameServiceStartStopMessages()) {
       return;

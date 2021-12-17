@@ -25,8 +25,8 @@ import eu.cloudnetservice.cloudnet.ext.signs.SignManagement;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.cloudnet.ext.signs.node.configuration.SignConfigurationType;
 import java.util.Collections;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 
 @Internal
 public final class SignEntryTaskSetup {
@@ -46,8 +46,8 @@ public final class SignEntryTaskSetup {
   }
 
   public static void addSetupQuestionIfNecessary(
-    @NotNull ConsoleSetupAnimation animation,
-    @NotNull ServiceEnvironmentType type
+    @NonNull ConsoleSetupAnimation animation,
+    @NonNull ServiceEnvironmentType type
   ) {
     if (!animation.hasResult("generateDefaultSignConfigurationEntry")
       && ServiceEnvironmentType.isMinecraftServer(type)) {
@@ -56,9 +56,9 @@ public final class SignEntryTaskSetup {
   }
 
   public static void handleSetupComplete(
-    @NotNull ConsoleSetupAnimation animation,
-    @NotNull SignsConfiguration configuration,
-    @NotNull SignManagement signManagement
+    @NonNull ConsoleSetupAnimation animation,
+    @NonNull SignsConfiguration configuration,
+    @NonNull SignManagement signManagement
   ) {
     if (animation.hasResult("generateDefaultSignConfigurationEntry")) {
       String taskName = animation.result("taskName");

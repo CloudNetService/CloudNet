@@ -28,9 +28,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
@@ -57,19 +57,19 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
   protected volatile int port;
 
   protected ServiceConfiguration(
-    @NotNull ServiceId serviceId,
-    @NotNull ProcessConfiguration processConfig,
-    @NotNull String runtime,
+    @NonNull ServiceId serviceId,
+    @NonNull ProcessConfiguration processConfig,
+    @NonNull String runtime,
     @Nullable String javaCommand,
     boolean autoDeleteOnStop,
     boolean staticService,
-    @NotNull Set<String> groups,
-    @NotNull Set<String> deletedFilesAfterStop,
-    @NotNull Set<ServiceTemplate> templates,
-    @NotNull Set<ServiceDeployment> deployments,
-    @NotNull Set<ServiceRemoteInclusion> includes,
+    @NonNull Set<String> groups,
+    @NonNull Set<String> deletedFilesAfterStop,
+    @NonNull Set<ServiceTemplate> templates,
+    @NonNull Set<ServiceDeployment> deployments,
+    @NonNull Set<ServiceRemoteInclusion> includes,
     int port,
-    @NotNull JsonDocument properties
+    @NonNull JsonDocument properties
   ) {
     this.serviceId = serviceId;
     this.runtime = runtime;
@@ -86,15 +86,15 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     this.properties = properties;
   }
 
-  public static @NotNull Builder builder() {
+  public static @NonNull Builder builder() {
     return new Builder();
   }
 
-  public static @NotNull Builder builder(@NotNull ServiceTask task) {
+  public static @NonNull Builder builder(@NonNull ServiceTask task) {
     return builder().task(task);
   }
 
-  public @NotNull ServiceId serviceId() {
+  public @NonNull ServiceId serviceId() {
     return this.serviceId;
   }
 
@@ -110,31 +110,31 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     return this.javaCommand;
   }
 
-  public @NotNull String runtime() {
+  public @NonNull String runtime() {
     return this.runtime;
   }
 
-  public @NotNull Set<String> groups() {
+  public @NonNull Set<String> groups() {
     return this.groups;
   }
 
-  public @NotNull Set<String> deletedFilesAfterStop() {
+  public @NonNull Set<String> deletedFilesAfterStop() {
     return this.deletedFilesAfterStop;
   }
 
-  public @NotNull Set<ServiceTemplate> templates() {
+  public @NonNull Set<ServiceTemplate> templates() {
     return this.templates;
   }
 
-  public @NotNull Set<ServiceDeployment> deployments() {
+  public @NonNull Set<ServiceDeployment> deployments() {
     return this.deployments;
   }
 
-  public @NotNull Set<ServiceRemoteInclusion> includes() {
+  public @NonNull Set<ServiceRemoteInclusion> includes() {
     return this.includes;
   }
 
-  public @NotNull ProcessConfiguration processConfig() {
+  public @NonNull ProcessConfiguration processConfig() {
     return this.processConfig;
   }
 
@@ -151,12 +151,12 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     return CloudNetDriver.instance().cloudServiceFactory().createCloudService(this);
   }
 
-  public @NotNull ITask<ServiceInfoSnapshot> createNewServiceAsync() {
+  public @NonNull ITask<ServiceInfoSnapshot> createNewServiceAsync() {
     return CloudNetDriver.instance().cloudServiceFactory().createCloudServiceAsync(this);
   }
 
   @Override
-  public @NotNull ServiceConfiguration clone() {
+  public @NonNull ServiceConfiguration clone() {
     try {
       return (ServiceConfiguration) super.clone();
     } catch (CloneNotSupportedException exception) {
@@ -210,7 +210,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
      * Applies every option of the given {@link ServiceTask} object except for the Properties. This will override every
      * previously set option of this builder.
      */
-    public @NotNull Builder task(@NotNull ServiceTask task) {
+    public @NonNull Builder task(@NonNull ServiceTask task) {
       return this
         .task(task.name())
 
@@ -248,7 +248,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
      *     <li>{@link #allowedNodes(String...)} / {@link #allowedNodes(Collection)}</li>
      * </ul>
      */
-    public @NotNull Builder serviceId(@NotNull ServiceId.Builder serviceId) {
+    public @NonNull Builder serviceId(@NonNull ServiceId.Builder serviceId) {
       this.serviceId = serviceId;
       return this;
     }
@@ -257,12 +257,12 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
      * The task for the new service. No permanent task with that name has to exist. This will NOT use any options of the
      * given task, to do that use {@link #task(ServiceTask)}.
      */
-    public @NotNull Builder task(@NotNull String task) {
+    public @NonNull Builder task(@NonNull String task) {
       this.serviceId.taskName(task);
       return this;
     }
 
-    public @NotNull Builder environment(@NotNull String environment) {
+    public @NonNull Builder environment(@NonNull String environment) {
       this.serviceId.environment(environment);
       this.processConfig.environment(environment);
       return this;
@@ -271,7 +271,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     /**
      * The environment for the new service.
      */
-    public @NotNull Builder environment(@NotNull ServiceEnvironmentType environment) {
+    public @NonNull Builder environment(@NonNull ServiceEnvironmentType environment) {
       this.serviceId.environment(environment);
       this.processConfig.environment(environment);
       return this;
@@ -280,7 +280,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     /**
      * The task id for the new service (For example Lobby-1 would have the task id 1).
      */
-    public @NotNull Builder taskId(int taskId) {
+    public @NonNull Builder taskId(int taskId) {
       this.serviceId.taskServiceId(taskId);
       return this;
     }
@@ -288,7 +288,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     /**
      * The uniqueId for the new service.
      */
-    public @NotNull Builder uniqueId(@NotNull UUID uniqueId) {
+    public @NonNull Builder uniqueId(@NonNull UUID uniqueId) {
       this.serviceId.uniqueId(uniqueId);
       return this;
     }
@@ -296,12 +296,12 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     /**
      * the java command to start the service with if this is null the default value from the config.json will be used
      */
-    public @NotNull Builder javaCommand(@Nullable String javaCommand) {
+    public @NonNull Builder javaCommand(@Nullable String javaCommand) {
       this.javaCommand = javaCommand;
       return this;
     }
 
-    public @NotNull Builder nameSplitter(@NotNull String nameSplitter) {
+    public @NonNull Builder nameSplitter(@NonNull String nameSplitter) {
       this.serviceId.nameSplitter(nameSplitter);
       return this;
     }
@@ -310,12 +310,12 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
      * The node where the new service will start. If the service cannot be created on this node or the node doesn't
      * exist, it will NOT be created and {@link ServiceConfiguration#createNewService()} will return {@code null}.
      */
-    public @NotNull Builder node(@Nullable String nodeUniqueId) {
+    public @NonNull Builder node(@Nullable String nodeUniqueId) {
       this.serviceId.nodeUniqueId(nodeUniqueId);
       return this;
     }
 
-    public @NotNull Builder allowedNodes(String @NotNull ... allowedNodes) {
+    public @NonNull Builder allowedNodes(String @NonNull ... allowedNodes) {
       return this.allowedNodes(Arrays.asList(allowedNodes));
     }
 
@@ -323,7 +323,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
      * A list of all allowed nodes. CloudNet will choose the node with the most free resources. If a node is provided
      * using {@link #node(String)}, this option will be ignored.
      */
-    public @NotNull Builder allowedNodes(@NotNull Collection<String> allowedNodes) {
+    public @NonNull Builder allowedNodes(@NonNull Collection<String> allowedNodes) {
       this.serviceId.allowedNodes(allowedNodes);
       return this;
     }
@@ -332,7 +332,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
      * The runtime of the service. If none is provided, the default "jvm" is used. By default, CloudNet only provides
      * the "jvm" runtime, you can add your own with custom modules.
      */
-    public @NotNull Builder runtime(@NotNull String runtime) {
+    public @NonNull Builder runtime(@NonNull String runtime) {
       this.runtime = runtime;
       return this;
     }
@@ -341,7 +341,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
      * Whether this service should be deleted on stop (doesn't affect files of a static service) or the life cycle
      * should be changed to {@link ServiceLifeCycle#PREPARED}.
      */
-    public @NotNull Builder autoDeleteOnStop(boolean autoDeleteOnStop) {
+    public @NonNull Builder autoDeleteOnStop(boolean autoDeleteOnStop) {
       this.autoDeleteOnStop = autoDeleteOnStop;
       return this;
     }
@@ -349,14 +349,14 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     /**
      * Alias for {@code autoDeleteOnStop(true)}.
      */
-    public @NotNull Builder autoDeleteOnStop() {
+    public @NonNull Builder autoDeleteOnStop() {
       return this.autoDeleteOnStop(true);
     }
 
     /**
      * Whether the files should be deleted or saved on deletion of the service.
      */
-    public @NotNull Builder staticService(boolean staticService) {
+    public @NonNull Builder staticService(boolean staticService) {
       this.staticService = staticService;
       return this;
     }
@@ -364,7 +364,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     /**
      * Alias for {@code staticService(true)}.
      */
-    public @NotNull Builder staticService() {
+    public @NonNull Builder staticService() {
       return this.staticService(true);
     }
 
@@ -372,7 +372,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
      * The groups for the new service. CloudNet will apply every template, deployment and inclusion of the given groups
      * to the new service.
      */
-    public @NotNull Builder groups(@NotNull String @NotNull ... groups) {
+    public @NonNull Builder groups(@NonNull String @NonNull ... groups) {
       return this.groups(Arrays.asList(groups));
     }
 
@@ -380,7 +380,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
      * The groups for the new service. CloudNet will apply every template, deployment and inclusion of the given groups
      * to the new service.
      */
-    public @NotNull Builder groups(@NotNull Collection<String> groups) {
+    public @NonNull Builder groups(@NonNull Collection<String> groups) {
       this.groups = new HashSet<>(groups);
       return this;
     }
@@ -389,7 +389,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
      * The inclusions for the new service. They will be copied into the service directory before the service is started
      * or by calling {@link SpecificCloudServiceProvider#includeWaitingServiceInclusions()}.
      */
-    public @NotNull Builder inclusions(ServiceRemoteInclusion @NotNull ... inclusions) {
+    public @NonNull Builder inclusions(ServiceRemoteInclusion @NonNull ... inclusions) {
       return this.inclusions(Arrays.asList(inclusions));
     }
 
@@ -397,7 +397,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
      * The inclusions for the new service. They will be copied into the service directory before the service is started
      * or by calling {@link SpecificCloudServiceProvider#includeWaitingServiceInclusions()}.
      */
-    public @NotNull Builder inclusions(@NotNull Collection<ServiceRemoteInclusion> inclusions) {
+    public @NonNull Builder inclusions(@NonNull Collection<ServiceRemoteInclusion> inclusions) {
       this.includes = new HashSet<>(inclusions);
       return this;
     }
@@ -406,7 +406,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
      * The templates for the new service. They will be copied into the service directory before the service is started
      * or by calling {@link SpecificCloudServiceProvider#includeWaitingServiceTemplates()}.
      */
-    public @NotNull Builder templates(ServiceTemplate @NotNull ... templates) {
+    public @NonNull Builder templates(ServiceTemplate @NonNull ... templates) {
       return this.templates(Arrays.asList(templates));
     }
 
@@ -414,7 +414,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
      * The templates for the new service. They will be copied into the service directory before the service is started
      * or by calling {@link SpecificCloudServiceProvider#includeWaitingServiceTemplates()}.
      */
-    public @NotNull Builder templates(@NotNull Collection<ServiceTemplate> templates) {
+    public @NonNull Builder templates(@NonNull Collection<ServiceTemplate> templates) {
       this.templates = new HashSet<>(templates);
       return this;
     }
@@ -423,7 +423,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
      * The deployments for the new service. They will be copied into the template after the service is stopped or by
      * calling {@link SpecificCloudServiceProvider#removeAndExecuteDeployments()}.
      */
-    public @NotNull Builder deployments(ServiceDeployment @NotNull ... deployments) {
+    public @NonNull Builder deployments(ServiceDeployment @NonNull ... deployments) {
       return this.deployments(Arrays.asList(deployments));
     }
 
@@ -431,7 +431,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
      * The deployments for the new service. They will be copied into the template after the service is stopped or by
      * calling {@link SpecificCloudServiceProvider#removeAndExecuteDeployments()}.
      */
-    public @NotNull Builder deployments(@NotNull Collection<ServiceDeployment> deployments) {
+    public @NonNull Builder deployments(@NonNull Collection<ServiceDeployment> deployments) {
       this.deployments = new HashSet<>(deployments);
       return this;
     }
@@ -439,14 +439,14 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     /**
      * The files that should be deleted after the service has been stopped.
      */
-    public @NotNull Builder deleteFilesAfterStop(String @NotNull ... deletedFilesAfterStop) {
+    public @NonNull Builder deleteFilesAfterStop(String @NonNull ... deletedFilesAfterStop) {
       return this.deleteFilesAfterStop(Arrays.asList(deletedFilesAfterStop));
     }
 
     /**
      * The files that should be deleted after the service has been stopped.
      */
-    public @NotNull Builder deleteFilesAfterStop(@NotNull Collection<String> deletedFilesAfterStop) {
+    public @NonNull Builder deleteFilesAfterStop(@NonNull Collection<String> deletedFilesAfterStop) {
       this.deletedFilesAfterStop = new HashSet<>(deletedFilesAfterStop);
       return this;
     }
@@ -454,7 +454,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     /**
      * The max heap memory for the new service.
      */
-    public @NotNull Builder maxHeapMemory(int maxHeapMemory) {
+    public @NonNull Builder maxHeapMemory(int maxHeapMemory) {
       this.processConfig.maxHeapMemorySize(maxHeapMemory);
       return this;
     }
@@ -463,7 +463,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
      * The jvm options for the new service. They will be added directly before the "-Xmx" parameter in the startup
      * command.
      */
-    public @NotNull Builder jvmOptions(@NotNull Collection<String> jvmOptions) {
+    public @NonNull Builder jvmOptions(@NonNull Collection<String> jvmOptions) {
       this.processConfig.jvmOptions(jvmOptions);
       return this;
     }
@@ -472,18 +472,18 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
      * The jvm options for the new service. They will be added directly before the "-Xmx" parameter in the startup
      * command.
      */
-    public @NotNull Builder jvmOptions(@NotNull String @NotNull ... jvmOptions) {
+    public @NonNull Builder jvmOptions(@NonNull String @NonNull ... jvmOptions) {
       return this.jvmOptions(Arrays.asList(jvmOptions));
     }
 
-    public @NotNull Builder processParameters(String @NotNull ... processParameters) {
+    public @NonNull Builder processParameters(String @NonNull ... processParameters) {
       return this.processParameters(Arrays.asList(processParameters));
     }
 
     /**
      * The process parameters for the new service. This will be the last parameters that will be added to the command.
      */
-    public @NotNull Builder processParameters(@NotNull Collection<String> processParameters) {
+    public @NonNull Builder processParameters(@NonNull Collection<String> processParameters) {
       this.processConfig.processParameters(processParameters);
       return this;
     }
@@ -492,7 +492,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
      * The start port for the new service. CloudNet will test whether the port is used or not, it will count up 1 while
      * the port is used.
      */
-    public @NotNull Builder startPort(int startPort) {
+    public @NonNull Builder startPort(int startPort) {
       this.port = startPort;
       return this;
     }
@@ -501,12 +501,12 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
      * The default properties of the new service. CloudNet itself completely ignores them, but they can be useful if you
      * want to transport data from the component that has created the service to the new service.
      */
-    public @NotNull Builder properties(@NotNull JsonDocument properties) {
+    public @NonNull Builder properties(@NonNull JsonDocument properties) {
       this.properties = properties;
       return this;
     }
 
-    public @NotNull ServiceConfiguration build() {
+    public @NonNull ServiceConfiguration build() {
       Verify.verify(this.port > 0 && this.port <= 65535, "invalid port provided");
       return new ServiceConfiguration(
         this.serviceId.build(),

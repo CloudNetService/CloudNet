@@ -28,7 +28,7 @@ import de.dytanic.cloudnet.driver.network.rpc.defaults.handler.invoker.MethodInv
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler {
@@ -40,10 +40,10 @@ public class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler 
   protected final Map<String, MethodInformation> methodCache = new ConcurrentHashMap<>();
 
   public DefaultRPCHandler(
-    @NotNull Class<?> clazz,
+    @NonNull Class<?> clazz,
     @Nullable Object binding,
-    @NotNull ObjectMapper objectMapper,
-    @NotNull DataBufFactory dataBufFactory
+    @NonNull ObjectMapper objectMapper,
+    @NonNull DataBufFactory dataBufFactory
   ) {
     super(clazz, objectMapper, dataBufFactory);
 
@@ -58,12 +58,12 @@ public class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler 
   }
 
   @Override
-  public void registerTo(@NotNull RPCHandlerRegistry registry) {
+  public void registerTo(@NonNull RPCHandlerRegistry registry) {
     registry.registerHandler(this);
   }
 
   @Override
-  public @NotNull HandlingResult handle(@NotNull RPCInvocationContext context) {
+  public @NonNull HandlingResult handle(@NonNull RPCInvocationContext context) {
     // get the working instance
     var instance = context
       .workingInstance()

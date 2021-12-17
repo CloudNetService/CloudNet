@@ -19,8 +19,8 @@ package eu.cloudnetservice.cloudnet.ext.signs.util;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignConfigurationEntry;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -33,17 +33,17 @@ public final class PriorityUtil {
     throw new UnsupportedOperationException();
   }
 
-  public static int priority(@NotNull ServiceInfoSnapshot snapshot) {
+  public static int priority(@NonNull ServiceInfoSnapshot snapshot) {
     // Get the state of the service
     return priority(snapshot, false);
   }
 
-  public static int priority(@NotNull ServiceInfoSnapshot snapshot, @Nullable SignConfigurationEntry entry) {
+  public static int priority(@NonNull ServiceInfoSnapshot snapshot, @Nullable SignConfigurationEntry entry) {
     // Get the state of the service
     return priority(snapshot, entry != null && entry.switchToSearchingWhenServiceIsFull());
   }
 
-  public static int priority(@NotNull ServiceInfoSnapshot snapshot, boolean lowerFullToSearching) {
+  public static int priority(@NonNull ServiceInfoSnapshot snapshot, boolean lowerFullToSearching) {
     // Get the state of the service
     var state = BridgeServiceHelper.guessStateFromServiceInfoSnapshot(snapshot);
     return switch (state) {

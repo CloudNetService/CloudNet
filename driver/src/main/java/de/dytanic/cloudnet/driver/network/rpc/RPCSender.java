@@ -17,15 +17,15 @@
 package de.dytanic.cloudnet.driver.network.rpc;
 
 import de.dytanic.cloudnet.driver.network.INetworkComponent;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public interface RPCSender extends RPCProvider {
 
-  @NotNull RPCProviderFactory factory();
+  @NonNull RPCProviderFactory factory();
 
-  @NotNull INetworkComponent associatedComponent();
+  @NonNull INetworkComponent associatedComponent();
 
-  @NotNull RPC invokeMethod(@NotNull String methodName);
+  @NonNull RPC invokeMethod(@NonNull String methodName);
 
-  @NotNull RPC invokeMethod(@NotNull String methodName, Object... args);
+  @NonNull RPC invokeMethod(@NonNull String methodName, Object... args);
 }

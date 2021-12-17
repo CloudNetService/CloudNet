@@ -16,11 +16,11 @@
 
 package de.dytanic.cloudnet.common.log;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public interface LoggerFactory {
 
   String ROOT_LOGGER_NAME = "";
 
-  @NotNull Logger logger(@NotNull String name);
+  @NonNull Logger logger(@NonNull String name);
 }

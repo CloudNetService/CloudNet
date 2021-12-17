@@ -26,7 +26,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class CloudPermissionsHelper {
 
@@ -37,19 +37,19 @@ public final class CloudPermissionsHelper {
   }
 
   public static void initPermissionUser(
-    @NotNull IPermissionManagement permissionsManagement,
-    @NotNull UUID uniqueId,
-    @NotNull String name,
-    @NotNull Consumer<String> disconnectHandler
+    @NonNull IPermissionManagement permissionsManagement,
+    @NonNull UUID uniqueId,
+    @NonNull String name,
+    @NonNull Consumer<String> disconnectHandler
   ) {
     initPermissionUser(permissionsManagement, uniqueId, name, disconnectHandler, true);
   }
 
   public static void initPermissionUser(
-    @NotNull IPermissionManagement permissionsManagement,
-    @NotNull UUID uniqueId,
-    @NotNull String name,
-    @NotNull Consumer<String> disconnectHandler,
+    @NonNull IPermissionManagement permissionsManagement,
+    @NonNull UUID uniqueId,
+    @NonNull String name,
+    @NonNull Consumer<String> disconnectHandler,
     boolean shouldUpdateName
   ) {
     PermissionUser permissionUser;

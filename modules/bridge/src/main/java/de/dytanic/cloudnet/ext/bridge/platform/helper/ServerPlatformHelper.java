@@ -22,7 +22,7 @@ import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.ext.bridge.BridgeManagement;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import java.util.UUID;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class ServerPlatformHelper {
 
@@ -30,7 +30,7 @@ public final class ServerPlatformHelper {
     throw new UnsupportedOperationException();
   }
 
-  public static void sendChannelMessageLoginSuccess(@NotNull UUID playerUniqueId, @NotNull NetworkServiceInfo info) {
+  public static void sendChannelMessageLoginSuccess(@NonNull UUID playerUniqueId, @NonNull NetworkServiceInfo info) {
     toCurrentNode()
       .message("server_player_login")
       .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
@@ -39,7 +39,7 @@ public final class ServerPlatformHelper {
       .send();
   }
 
-  public static void sendChannelMessageDisconnected(@NotNull UUID playerUniqueId, @NotNull NetworkServiceInfo info) {
+  public static void sendChannelMessageDisconnected(@NonNull UUID playerUniqueId, @NonNull NetworkServiceInfo info) {
     toCurrentNode()
       .message("server_player_disconnect")
       .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)

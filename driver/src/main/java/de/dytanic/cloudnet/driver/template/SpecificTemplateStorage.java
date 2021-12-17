@@ -26,7 +26,7 @@ import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.function.Predicate;
 import java.util.zip.ZipInputStream;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public interface SpecificTemplateStorage extends INameable {
@@ -38,8 +38,8 @@ public interface SpecificTemplateStorage extends INameable {
    * @return a new instance of the {@link SpecificTemplateStorage}
    * @throws IllegalArgumentException if the storage of the given template doesn't exist
    */
-  @NotNull
-  static SpecificTemplateStorage of(@NotNull ServiceTemplate template) {
+  @NonNull
+  static SpecificTemplateStorage of(@NonNull ServiceTemplate template) {
     return DefaultSpecificTemplateStorage.of(template);
   }
 
@@ -51,44 +51,44 @@ public interface SpecificTemplateStorage extends INameable {
    * @return a new instance of the {@link SpecificTemplateStorage}
    * @throws IllegalArgumentException if the name of the storage doesn't match the name of the storage in the template
    */
-  @NotNull
-  static SpecificTemplateStorage of(@NotNull ServiceTemplate template, @NotNull TemplateStorage storage) {
+  @NonNull
+  static SpecificTemplateStorage of(@NonNull ServiceTemplate template, @NonNull TemplateStorage storage) {
     return DefaultSpecificTemplateStorage.of(template, storage);
   }
 
   /**
    * Gets the template this class is wrapping.
    */
-  @NotNull
+  @NonNull
   ServiceTemplate targetTemplate();
 
   /**
    * Gets the storage this class is wrapping.
    */
-  @NotNull
+  @NonNull
   TemplateStorage wrappedStorage();
 
   /**
    * @see TemplateStorage#deployDirectory(Path, ServiceTemplate, Predicate)
    */
-  boolean deploy(@NotNull Path directory, @Nullable Predicate<Path> fileFilter);
+  boolean deploy(@NonNull Path directory, @Nullable Predicate<Path> fileFilter);
 
   /**
    * @see TemplateStorage#deployDirectory(Path, ServiceTemplate)
    */
-  default boolean deploy(@NotNull Path directory) {
+  default boolean deploy(@NonNull Path directory) {
     return this.deploy(directory, null);
   }
 
   /**
    * @see TemplateStorage#deploy(InputStream, ServiceTemplate)
    */
-  boolean deploy(@NotNull InputStream inputStream);
+  boolean deploy(@NonNull InputStream inputStream);
 
   /**
    * @see TemplateStorage#copy(ServiceTemplate, Path)
    */
-  boolean copy(@NotNull Path directory);
+  boolean copy(@NonNull Path directory);
 
   /**
    * @see TemplateStorage#asZipInputStream(ServiceTemplate)
@@ -121,51 +121,51 @@ public interface SpecificTemplateStorage extends INameable {
    * @see TemplateStorage#appendOutputStream(ServiceTemplate, String)
    */
   @Nullable
-  OutputStream appendOutputStream(@NotNull String path) throws IOException;
+  OutputStream appendOutputStream(@NonNull String path) throws IOException;
 
   /**
    * @see TemplateStorage#newOutputStream(ServiceTemplate, String)
    */
   @Nullable
-  OutputStream newOutputStream(@NotNull String path) throws IOException;
+  OutputStream newOutputStream(@NonNull String path) throws IOException;
 
   /**
    * @see TemplateStorage#createFile(ServiceTemplate, String)
    */
-  boolean createFile(@NotNull String path) throws IOException;
+  boolean createFile(@NonNull String path) throws IOException;
 
   /**
    * @see TemplateStorage#createDirectory(ServiceTemplate, String)
    */
-  boolean createDirectory(@NotNull String path) throws IOException;
+  boolean createDirectory(@NonNull String path) throws IOException;
 
   /**
    * @see TemplateStorage#hasFile(ServiceTemplate, String)
    */
-  boolean hasFile(@NotNull String path) throws IOException;
+  boolean hasFile(@NonNull String path) throws IOException;
 
   /**
    * @see TemplateStorage#deleteFile(ServiceTemplate, String)
    */
-  boolean deleteFile(@NotNull String path) throws IOException;
+  boolean deleteFile(@NonNull String path) throws IOException;
 
   /**
    * @see TemplateStorage#newInputStream(ServiceTemplate, String)
    */
   @Nullable
-  InputStream newInputStream(@NotNull String path) throws IOException;
+  InputStream newInputStream(@NonNull String path) throws IOException;
 
   /**
    * @see TemplateStorage#fileInfo(ServiceTemplate, String)
    */
   @Nullable
-  FileInfo fileInfo(@NotNull String path) throws IOException;
+  FileInfo fileInfo(@NonNull String path) throws IOException;
 
   /**
    * @see TemplateStorage#listFiles(ServiceTemplate, String, boolean)
    */
   @Nullable
-  FileInfo[] listFiles(@NotNull String dir, boolean deep) throws IOException;
+  FileInfo[] listFiles(@NonNull String dir, boolean deep) throws IOException;
 
   /**
    * @see TemplateStorage#listFiles(ServiceTemplate, boolean)
@@ -179,7 +179,7 @@ public interface SpecificTemplateStorage extends INameable {
    * @see TemplateStorage#listFiles(ServiceTemplate, String)
    */
   @Nullable
-  default FileInfo[] listFiles(@NotNull String dir) throws IOException {
+  default FileInfo[] listFiles(@NonNull String dir) throws IOException {
     return this.listFiles(dir, true);
   }
 
@@ -194,117 +194,117 @@ public interface SpecificTemplateStorage extends INameable {
   /**
    * @see TemplateStorage#deployDirectoryAsync(Path, ServiceTemplate, Predicate)
    */
-  @NotNull
-  ITask<Boolean> deployAsync(@NotNull Path directory, @Nullable Predicate<Path> fileFilter);
+  @NonNull
+  ITask<Boolean> deployAsync(@NonNull Path directory, @Nullable Predicate<Path> fileFilter);
 
   /**
    * @see TemplateStorage#deployDirectoryAsync(Path, ServiceTemplate)
    */
-  @NotNull
-  default ITask<Boolean> deployAsync(@NotNull Path directory) {
+  @NonNull
+  default ITask<Boolean> deployAsync(@NonNull Path directory) {
     return this.deployAsync(directory, null);
   }
 
   /**
    * @see TemplateStorage#deployAsync(InputStream, ServiceTemplate)
    */
-  @NotNull
-  ITask<Boolean> deployAsync(@NotNull InputStream inputStream);
+  @NonNull
+  ITask<Boolean> deployAsync(@NonNull InputStream inputStream);
 
   /**
    * @see TemplateStorage#copyAsync(ServiceTemplate, Path)
    */
-  @NotNull
-  ITask<Boolean> copyAsync(@NotNull Path directory);
+  @NonNull
+  ITask<Boolean> copyAsync(@NonNull Path directory);
 
   /**
    * @see TemplateStorage#asZipInputStreamAsync(ServiceTemplate)
    */
-  @NotNull
+  @NonNull
   ITask<ZipInputStream> asZipInputStreamAsync();
 
   /**
    * @see TemplateStorage#zipTemplateAsync(ServiceTemplate)
    */
-  @NotNull
+  @NonNull
   ITask<InputStream> zipTemplateAsync();
 
   /**
    * @see TemplateStorage#deleteAsync(ServiceTemplate)
    */
-  @NotNull
+  @NonNull
   ITask<Boolean> deleteAsync();
 
   /**
    * @see TemplateStorage#createAsync(ServiceTemplate)
    */
-  @NotNull
+  @NonNull
   ITask<Boolean> createAsync();
 
   /**
    * @see TemplateStorage#hasAsync(ServiceTemplate)
    */
-  @NotNull
+  @NonNull
   ITask<Boolean> existsAsync();
 
   /**
    * @see TemplateStorage#appendOutputStreamAsync(ServiceTemplate, String)
    */
-  @NotNull
-  ITask<OutputStream> appendOutputStreamAsync(@NotNull String path);
+  @NonNull
+  ITask<OutputStream> appendOutputStreamAsync(@NonNull String path);
 
   /**
    * @see TemplateStorage#newOutputStreamAsync(ServiceTemplate, String)
    */
-  @NotNull
-  ITask<OutputStream> newOutputStreamAsync(@NotNull String path);
+  @NonNull
+  ITask<OutputStream> newOutputStreamAsync(@NonNull String path);
 
   /**
    * @see TemplateStorage#createFileAsync(ServiceTemplate, String)
    */
-  @NotNull
-  ITask<Boolean> createFileAsync(@NotNull String path);
+  @NonNull
+  ITask<Boolean> createFileAsync(@NonNull String path);
 
   /**
    * @see TemplateStorage#createDirectoryAsync(ServiceTemplate, String)
    */
-  @NotNull
-  ITask<Boolean> createDirectoryAsync(@NotNull String path);
+  @NonNull
+  ITask<Boolean> createDirectoryAsync(@NonNull String path);
 
   /**
    * @see TemplateStorage#hasFileAsync(ServiceTemplate, String)
    */
-  @NotNull
-  ITask<Boolean> hasFileAsync(@NotNull String path);
+  @NonNull
+  ITask<Boolean> hasFileAsync(@NonNull String path);
 
   /**
    * @see TemplateStorage#deleteFileAsync(ServiceTemplate, String)
    */
-  @NotNull
-  ITask<Boolean> deleteFileAsync(@NotNull String path);
+  @NonNull
+  ITask<Boolean> deleteFileAsync(@NonNull String path);
 
   /**
    * @see TemplateStorage#newInputStreamAsync(ServiceTemplate, String)
    */
-  @NotNull
-  ITask<InputStream> newInputStreamAsync(@NotNull String path);
+  @NonNull
+  ITask<InputStream> newInputStreamAsync(@NonNull String path);
 
   /**
    * @see TemplateStorage#fileInfoAsync(ServiceTemplate, String)
    */
-  @NotNull
-  ITask<FileInfo> fileInfoAsync(@NotNull String path);
+  @NonNull
+  ITask<FileInfo> fileInfoAsync(@NonNull String path);
 
   /**
    * @see TemplateStorage#listFilesAsync(ServiceTemplate, String, boolean)
    */
-  @NotNull
-  ITask<FileInfo[]> listFilesAsync(@NotNull String dir, boolean deep);
+  @NonNull
+  ITask<FileInfo[]> listFilesAsync(@NonNull String dir, boolean deep);
 
   /**
    * @see TemplateStorage#listFilesAsync(ServiceTemplate, boolean)
    */
-  @NotNull
+  @NonNull
   default ITask<FileInfo[]> listFilesAsync(boolean deep) {
     return this.listFilesAsync("", deep);
   }
@@ -312,15 +312,15 @@ public interface SpecificTemplateStorage extends INameable {
   /**
    * @see TemplateStorage#listFilesAsync(ServiceTemplate, String)
    */
-  @NotNull
-  default ITask<FileInfo[]> listFilesAsync(@NotNull String dir) {
+  @NonNull
+  default ITask<FileInfo[]> listFilesAsync(@NonNull String dir) {
     return this.listFilesAsync(dir, true);
   }
 
   /**
    * @see TemplateStorage#listFilesAsync(ServiceTemplate)
    */
-  @NotNull
+  @NonNull
   default ITask<FileInfo[]> listFilesAsync() {
     return this.listFilesAsync(true);
   }

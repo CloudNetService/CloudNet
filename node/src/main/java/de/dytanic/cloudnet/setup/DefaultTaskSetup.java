@@ -47,7 +47,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class DefaultTaskSetup implements DefaultSetup {
 
@@ -61,7 +61,7 @@ public class DefaultTaskSetup implements DefaultSetup {
   protected static final String GLOBAL_SERVER_GROUP_NAME = "Global-Server";
 
   @Override
-  public void applyQuestions(@NotNull ConsoleSetupAnimation animation) {
+  public void applyQuestions(@NonNull ConsoleSetupAnimation animation) {
     animation.addEntries(
       // proxy installation request
       QuestionListEntry.<Boolean>builder()
@@ -160,7 +160,7 @@ public class DefaultTaskSetup implements DefaultSetup {
   }
 
   @Override
-  public void handleResults(@NotNull ConsoleSetupAnimation animation) {
+  public void handleResults(@NonNull ConsoleSetupAnimation animation) {
     // proxy installation
     if (animation.result("installProxy")) {
       this.executeSetup(animation, "proxy", PROXY_TASK_NAME, GLOBAL_PROXY_GROUP_NAME, 256);
@@ -172,10 +172,10 @@ public class DefaultTaskSetup implements DefaultSetup {
   }
 
   protected void executeSetup(
-    @NotNull ConsoleSetupAnimation animation,
-    @NotNull String resultPrefix,
-    @NotNull String taskName,
-    @NotNull String groupName,
+    @NonNull ConsoleSetupAnimation animation,
+    @NonNull String resultPrefix,
+    @NonNull String taskName,
+    @NonNull String groupName,
     int maxHeapMemory
   ) {
     // read the responses
@@ -223,8 +223,8 @@ public class DefaultTaskSetup implements DefaultSetup {
   }
 
   protected void initializeTemplate(
-    @NotNull ServiceTemplate template,
-    @NotNull ServiceEnvironmentType environment,
+    @NonNull ServiceTemplate template,
+    @NonNull ServiceEnvironmentType environment,
     boolean installDefaultFiles
   ) {
     // install the template
@@ -238,9 +238,9 @@ public class DefaultTaskSetup implements DefaultSetup {
     }
   }
 
-  protected @NotNull Collection<String> completableServiceVersions(
-    @NotNull ServiceEnvironmentType type,
-    @NotNull Pair<String, JavaVersion> javaVersion
+  protected @NonNull Collection<String> completableServiceVersions(
+    @NonNull ServiceEnvironmentType type,
+    @NonNull Pair<String, JavaVersion> javaVersion
   ) {
     return this.getVersionProvider().serviceVersionTypes().values().stream()
       .filter(versionType -> versionType.environmentType().equals(type.name()))
@@ -254,7 +254,7 @@ public class DefaultTaskSetup implements DefaultSetup {
       }));
   }
 
-  protected @NotNull ServiceVersionProvider getVersionProvider() {
+  protected @NonNull ServiceVersionProvider getVersionProvider() {
     return CloudNet.instance().serviceVersionProvider();
   }
 }

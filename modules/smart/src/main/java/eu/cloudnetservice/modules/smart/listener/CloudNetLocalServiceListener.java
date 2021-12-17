@@ -27,18 +27,18 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class CloudNetLocalServiceListener {
 
   private final CloudNetSmartModule module;
 
-  public CloudNetLocalServiceListener(@NotNull CloudNetSmartModule module) {
+  public CloudNetLocalServiceListener(@NonNull CloudNetSmartModule module) {
     this.module = module;
   }
 
   @EventListener
-  public void handle(@NotNull CloudServicePostLifecycleEvent event) {
+  public void handle(@NonNull CloudServicePostLifecycleEvent event) {
     if (event.newLifeCycle() == ServiceLifeCycle.PREPARED) {
       var task = CloudNet.instance().serviceTaskProvider()
         .serviceTask(event.service().serviceId().taskName());

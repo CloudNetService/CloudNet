@@ -28,8 +28,8 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @ToString
@@ -40,7 +40,7 @@ public class PermissionUser extends AbstractPermissible {
   protected String hashedPassword;
   protected Collection<PermissionUserGroupInfo> groups;
 
-  public PermissionUser(@NotNull UUID uniqueId, @NotNull String name, @Nullable String password, int potency) {
+  public PermissionUser(@NonNull UUID uniqueId, @NonNull String name, @Nullable String password, int potency) {
     this.uniqueId = uniqueId;
     this.name = name;
     this.hashedPassword = password == null
@@ -51,15 +51,15 @@ public class PermissionUser extends AbstractPermissible {
   }
 
   public PermissionUser(
-    @NotNull UUID uniqueId,
-    @NotNull String hashedPassword,
-    @NotNull Collection<PermissionUserGroupInfo> groups,
-    @NotNull String name,
+    @NonNull UUID uniqueId,
+    @NonNull String hashedPassword,
+    @NonNull Collection<PermissionUserGroupInfo> groups,
+    @NonNull String name,
     int potency,
     long createdTime,
-    @NotNull List<Permission> permissions,
-    @NotNull Map<String, Collection<Permission>> groupPermissions,
-    @NotNull JsonDocument properties
+    @NonNull List<Permission> permissions,
+    @NonNull Map<String, Collection<Permission>> groupPermissions,
+    @NonNull JsonDocument properties
   ) {
     super(name, potency, createdTime, permissions, groupPermissions, properties);
     this.uniqueId = uniqueId;
@@ -79,36 +79,36 @@ public class PermissionUser extends AbstractPermissible {
       && this.hashedPassword.equals(Base64.getEncoder().encodeToString(EncryptTo.encryptToSHA256(password)));
   }
 
-  public @NotNull UUID uniqueId() {
+  public @NonNull UUID uniqueId() {
     return this.uniqueId;
   }
 
-  public @NotNull Collection<PermissionUserGroupInfo> groups() {
+  public @NonNull Collection<PermissionUserGroupInfo> groups() {
     return this.groups;
   }
 
-  public @NotNull String hashedPassword() {
+  public @NonNull String hashedPassword() {
     return this.hashedPassword;
   }
 
   @Override
-  public @NotNull Collection<String> groupNames() {
+  public @NonNull Collection<String> groupNames() {
     return this.groups().stream().map(PermissionUserGroupInfo::group).collect(Collectors.toList());
   }
 
-  public @NotNull Optional<PermissionUserGroupInfo> findAssignedGroup(@NotNull String group) {
+  public @NonNull Optional<PermissionUserGroupInfo> findAssignedGroup(@NonNull String group) {
     return this.groups.stream().filter(info -> info.group().equalsIgnoreCase(group)).findFirst();
   }
 
-  public @NotNull PermissionUser addGroup(@NotNull String group) {
+  public @NonNull PermissionUser addGroup(@NonNull String group) {
     return this.addGroup(group, 0L);
   }
 
-  public @NotNull PermissionUser addGroup(@NotNull String group, long time, @NotNull TimeUnit timeUnit) {
+  public @NonNull PermissionUser addGroup(@NonNull String group, long time, @NonNull TimeUnit timeUnit) {
     return this.addGroup(group, System.currentTimeMillis() + timeUnit.toMillis(time));
   }
 
-  public @NotNull PermissionUser addGroup(@NotNull String group, long timeOutMillis) {
+  public @NonNull PermissionUser addGroup(@NonNull String group, long timeOutMillis) {
     var groupInfo = this.groups().stream()
       .filter(info -> info.group().equalsIgnoreCase(group))
       .findFirst()
@@ -124,12 +124,12 @@ public class PermissionUser extends AbstractPermissible {
     return this;
   }
 
-  public @NotNull PermissionUser removeGroup(@NotNull String group) {
+  public @NonNull PermissionUser removeGroup(@NonNull String group) {
     this.groups.removeIf(info -> info.group().equalsIgnoreCase(group));
     return this;
   }
 
-  public boolean inGroup(@NotNull String group) {
+  public boolean inGroup(@NonNull String group) {
     return this.groups().stream().anyMatch(info -> info.group().equalsIgnoreCase(group));
   }
 }

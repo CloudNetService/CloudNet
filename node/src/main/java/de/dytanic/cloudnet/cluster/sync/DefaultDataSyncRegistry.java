@@ -27,10 +27,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.NonNull;
 import org.javers.core.Javers;
 import org.javers.core.JaversBuilder;
 import org.javers.core.diff.ListCompareAlgorithm;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DefaultDataSyncRegistry implements DataSyncRegistry {
@@ -45,22 +45,22 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
   private final Map<String, DataSyncHandler<?>> handlers = new ConcurrentHashMap<>();
 
   @Override
-  public void registerHandler(@NotNull DataSyncHandler<?> handler) {
+  public void registerHandler(@NonNull DataSyncHandler<?> handler) {
     this.handlers.putIfAbsent(handler.key(), handler);
   }
 
   @Override
-  public void unregisterHandler(@NotNull DataSyncHandler<?> handler) {
+  public void unregisterHandler(@NonNull DataSyncHandler<?> handler) {
     this.handlers.remove(handler.key());
   }
 
   @Override
-  public void unregisterHandler(@NotNull String handlerKey) {
+  public void unregisterHandler(@NonNull String handlerKey) {
     this.handlers.remove(handlerKey);
   }
 
   @Override
-  public void unregisterHandler(@NotNull ClassLoader loader) {
+  public void unregisterHandler(@NonNull ClassLoader loader) {
     for (var entry : this.handlers.entrySet()) {
       if (entry.getValue().getClass().getClassLoader().equals(loader)) {
         this.handlers.remove(entry.getKey());
@@ -70,13 +70,13 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
   }
 
   @Override
-  public boolean hasHandler(@NotNull String handlerKey) {
+  public boolean hasHandler(@NonNull String handlerKey) {
     return this.handlers.containsKey(handlerKey);
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  public @NotNull DataBuf.Mutable prepareClusterData(boolean force, String @NotNull ... selectedHandlers) {
+  public @NonNull DataBuf.Mutable prepareClusterData(boolean force, String @NonNull ... selectedHandlers) {
     // sort the handlers for later binary searches
     Arrays.sort(selectedHandlers);
     // the result data
@@ -107,7 +107,7 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
   }
 
   @Override
-  public @Nullable DataBuf handle(@NotNull DataBuf input, boolean force) {
+  public @Nullable DataBuf handle(@NonNull DataBuf input, boolean force) {
     // holds the result of the handle - null by default indicates no result
     DataBuf.Mutable result = null;
     // handle the incoming data as long as there is data
@@ -183,9 +183,9 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
   }
 
   protected void serializeData(
-    @NotNull Object data,
-    @NotNull DataSyncHandler<?> handler,
-    @NotNull DataBuf.Mutable target
+    @NonNull Object data,
+    @NonNull DataSyncHandler<?> handler,
+    @NonNull DataBuf.Mutable target
   ) {
     // append the information
     target.writeString(handler.key());
@@ -196,7 +196,7 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
     target.writeDataBuf(buf);
   }
 
-  protected int waitForCorrectMergeInput(@NotNull IConsole console) {
+  protected int waitForCorrectMergeInput(@NonNull IConsole console) {
     try {
       // disable all handlers of the console to prevent skips
       console.disableAllHandlers();
@@ -208,7 +208,7 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
     }
   }
 
-  protected int readMergeInput(@NotNull IConsole console) {
+  protected int readMergeInput(@NonNull IConsole console) {
     while (true) {
       // wait for an input
       var input = console.readLine().getDef(null);

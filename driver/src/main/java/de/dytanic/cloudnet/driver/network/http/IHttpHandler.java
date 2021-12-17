@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.driver.network.http;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 @FunctionalInterface
 public interface IHttpHandler {
@@ -26,5 +26,5 @@ public interface IHttpHandler {
   int PRIORITY_LOW = 16;
   int PRIORITY_LOWEST = 0;
 
-  void handle(@NotNull String path, @NotNull IHttpContext context) throws Exception;
+  void handle(@NonNull String path, @NonNull IHttpContext context) throws Exception;
 }

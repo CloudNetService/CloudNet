@@ -27,7 +27,7 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.provider.NodeMessenger;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class PacketServerChannelMessageListener implements IPacketListener {
 
@@ -40,7 +40,7 @@ public final class PacketServerChannelMessageListener implements IPacketListener
   }
 
   @Override
-  public void handle(@NotNull INetworkChannel channel, @NotNull IPacket packet) {
+  public void handle(@NonNull INetworkChannel channel, @NonNull IPacket packet) {
     var message = packet.content().readObject(ChannelMessage.class);
     // mark the index of the data buf
     message.content().disableReleasing().startTransaction();

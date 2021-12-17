@@ -43,8 +43,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Internal
@@ -72,11 +72,11 @@ final class NettyHttpServerContext implements IHttpContext {
   private volatile NettyWebSocketServerChannel webSocketServerChannel;
 
   public NettyHttpServerContext(
-    @NotNull NettyHttpServer nettyHttpServer,
-    @NotNull NettyHttpChannel channel,
-    @NotNull URI uri,
-    @NotNull Map<String, String> pathParameters,
-    @NotNull HttpRequest httpRequest
+    @NonNull NettyHttpServer nettyHttpServer,
+    @NonNull NettyHttpChannel channel,
+    @NonNull URI uri,
+    @NonNull Map<String, String> pathParameters,
+    @NonNull HttpRequest httpRequest
   ) {
     this.nettyHttpServer = nettyHttpServer;
     this.channel = channel;
@@ -149,17 +149,17 @@ final class NettyHttpServerContext implements IHttpContext {
   }
 
   @Override
-  public @NotNull IHttpChannel channel() {
+  public @NonNull IHttpChannel channel() {
     return this.channel;
   }
 
   @Override
-  public @NotNull IHttpRequest request() {
+  public @NonNull IHttpRequest request() {
     return this.httpServerRequest;
   }
 
   @Override
-  public @NotNull IHttpResponse response() {
+  public @NonNull IHttpResponse response() {
     return this.httpServerResponse;
   }
 
@@ -169,7 +169,7 @@ final class NettyHttpServerContext implements IHttpContext {
   }
 
   @Override
-  public @NotNull IHttpContext cancelNext(boolean cancelNext) {
+  public @NonNull IHttpContext cancelNext(boolean cancelNext) {
     this.cancelNext = cancelNext;
     return this;
   }
@@ -180,12 +180,12 @@ final class NettyHttpServerContext implements IHttpContext {
   }
 
   @Override
-  public @NotNull IHttpComponent<IHttpServer> component() {
+  public @NonNull IHttpComponent<IHttpServer> component() {
     return this.nettyHttpServer;
   }
 
   @Override
-  public @NotNull IHttpContext closeAfter(boolean value) {
+  public @NonNull IHttpContext closeAfter(boolean value) {
     this.closeAfter = value;
     return this;
   }
@@ -196,7 +196,7 @@ final class NettyHttpServerContext implements IHttpContext {
   }
 
   @Override
-  public HttpCookie cookie(@NotNull String name) {
+  public HttpCookie cookie(@NonNull String name) {
     return this.cookies.stream()
       .filter(httpCookie -> httpCookie.name().equalsIgnoreCase(name))
       .findFirst()
@@ -204,17 +204,17 @@ final class NettyHttpServerContext implements IHttpContext {
   }
 
   @Override
-  public @NotNull Collection<HttpCookie> cookies() {
+  public @NonNull Collection<HttpCookie> cookies() {
     return this.cookies;
   }
 
   @Override
-  public boolean hasCookie(@NotNull String name) {
+  public boolean hasCookie(@NonNull String name) {
     return this.cookies.stream().anyMatch(httpCookie -> httpCookie.name().equalsIgnoreCase(name));
   }
 
   @Override
-  public @NotNull IHttpContext cookies(@NotNull Collection<HttpCookie> cookies) {
+  public @NonNull IHttpContext cookies(@NonNull Collection<HttpCookie> cookies) {
     this.cookies.clear();
     this.cookies.addAll(cookies);
 
@@ -223,7 +223,7 @@ final class NettyHttpServerContext implements IHttpContext {
   }
 
   @Override
-  public @NotNull IHttpContext addCookie(@NotNull HttpCookie httpCookie) {
+  public @NonNull IHttpContext addCookie(@NonNull HttpCookie httpCookie) {
     var cookie = this.cookie(httpCookie.name());
     if (cookie != null) {
       this.removeCookie(cookie.name());
@@ -236,25 +236,25 @@ final class NettyHttpServerContext implements IHttpContext {
   }
 
   @Override
-  public @NotNull IHttpContext removeCookie(@NotNull String name) {
+  public @NonNull IHttpContext removeCookie(@NonNull String name) {
     this.cookies.removeIf(cookie -> cookie.name().equals(name));
     this.updateHeaderResponse();
     return this;
   }
 
   @Override
-  public @NotNull IHttpContext clearCookies() {
+  public @NonNull IHttpContext clearCookies() {
     this.cookies.clear();
     this.updateHeaderResponse();
     return this;
   }
 
   @Override
-  public @NotNull String pathPrefix() {
+  public @NonNull String pathPrefix() {
     return this.pathPrefix;
   }
 
-  public void pathPrefix(@NotNull String pathPrefix) {
+  public void pathPrefix(@NonNull String pathPrefix) {
     this.pathPrefix = pathPrefix;
   }
 
@@ -277,7 +277,7 @@ final class NettyHttpServerContext implements IHttpContext {
     }
   }
 
-  public void setLastHandler(@NotNull IHttpHandler lastHandler) {
+  public void setLastHandler(@NonNull IHttpHandler lastHandler) {
     this.lastHandler = lastHandler;
   }
 }

@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.util.DefaultModuleHelper;
 import de.dytanic.cloudnet.event.service.CloudServicePreProcessStartEvent;
 import de.dytanic.cloudnet.ext.cloudperms.node.CloudNetCloudPermissionsModule;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class IncludePluginListener {
 
@@ -32,7 +32,7 @@ public final class IncludePluginListener {
   }
 
   @EventListener
-  public void handle(@NotNull CloudServicePreProcessStartEvent event) {
+  public void handle(@NonNull CloudServicePreProcessStartEvent event) {
     // check if we should copy the module
     if (this.permissionsModule.getPermissionsConfig().enabled()
       && this.permissionsModule.getPermissionsConfig().excludedGroups().stream()

@@ -27,40 +27,40 @@ import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import java.nio.file.Path;
 import java.util.Queue;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public interface ICloudService extends SpecificCloudServiceProvider {
 
   @Override
-  @NotNull ServiceInfoSnapshot serviceInfo();
+  @NonNull ServiceInfoSnapshot serviceInfo();
 
-  @NotNull
+  @NonNull
   String runtime();
 
-  @NotNull Queue<ServiceRemoteInclusion> waitingIncludes();
+  @NonNull Queue<ServiceRemoteInclusion> waitingIncludes();
 
-  @NotNull Queue<ServiceTemplate> waitingTemplates();
+  @NonNull Queue<ServiceTemplate> waitingTemplates();
 
-  @NotNull Queue<ServiceDeployment> waitingDeployments();
+  @NonNull Queue<ServiceDeployment> waitingDeployments();
 
-  @NotNull
+  @NonNull
   ServiceLifeCycle lifeCycle();
 
-  @NotNull
+  @NonNull
   ICloudServiceManager cloudServiceManager();
 
-  @NotNull
+  @NonNull
   ServiceConfiguration serviceConfiguration();
 
-  @NotNull
+  @NonNull
   ServiceId serviceId();
 
-  @NotNull
+  @NonNull
   String connectionKey();
 
-  @NotNull
+  @NonNull
   Path directory();
 
   @Nullable
@@ -69,10 +69,10 @@ public interface ICloudService extends SpecificCloudServiceProvider {
   @Internal
   void networkChannel(@Nullable INetworkChannel channel);
 
-  @NotNull
+  @NonNull
   ServiceInfoSnapshot lastServiceInfoSnapshot();
 
-  @NotNull
+  @NonNull
   IServiceConsoleLogCache serviceConsoleLogCache();
 
   void doDelete();
@@ -82,5 +82,5 @@ public interface ICloudService extends SpecificCloudServiceProvider {
   void publishServiceInfoSnapshot();
 
   @Internal
-  void updateServiceInfoSnapshot(@NotNull ServiceInfoSnapshot serviceInfoSnapshot);
+  void updateServiceInfoSnapshot(@NonNull ServiceInfoSnapshot serviceInfoSnapshot);
 }

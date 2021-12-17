@@ -27,7 +27,7 @@ import de.dytanic.cloudnet.ext.bridge.platform.PlatformBridgeManagement;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class VelocityCloudCommand implements SimpleCommand {
 
@@ -38,7 +38,7 @@ public final class VelocityCloudCommand implements SimpleCommand {
   }
 
   @Override
-  public void execute(@NotNull Invocation invocation) {
+  public void execute(@NonNull Invocation invocation) {
     // check if any arguments are provided
     if (invocation.arguments().length == 0) {
       // <prefix> /cloudnet <command>
@@ -74,14 +74,14 @@ public final class VelocityCloudCommand implements SimpleCommand {
   }
 
   @Override
-  public @NotNull CompletableFuture<List<String>> suggestAsync(@NotNull Invocation invocation) {
+  public @NonNull CompletableFuture<List<String>> suggestAsync(@NonNull Invocation invocation) {
     return CompletableFuture.supplyAsync(() -> ImmutableList.copyOf(CloudNetDriver.instance()
       .nodeInfoProvider()
       .consoleTabCompleteResults(String.join(" ", invocation.arguments()))));
   }
 
   @Override
-  public boolean hasPermission(@NotNull Invocation invocation) {
+  public boolean hasPermission(@NonNull Invocation invocation) {
     return invocation.source().hasPermission("cloudnet.command.cloudnet");
   }
 }

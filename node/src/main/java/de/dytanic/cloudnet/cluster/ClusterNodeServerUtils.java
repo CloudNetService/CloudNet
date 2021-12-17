@@ -27,7 +27,7 @@ import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 final class ClusterNodeServerUtils {
 
@@ -37,7 +37,7 @@ final class ClusterNodeServerUtils {
     throw new UnsupportedOperationException();
   }
 
-  public static void handleNodeServerClose(@NotNull INetworkChannel channel, @NotNull IClusterNodeServer server) {
+  public static void handleNodeServerClose(@NonNull INetworkChannel channel, @NonNull IClusterNodeServer server) {
     for (var snapshot : CloudNet.instance().cloudServiceProvider().services()) {
       if (snapshot.serviceId().nodeUniqueId().equalsIgnoreCase(server.nodeInfo().uniqueId())) {
         // store the last lifecycle for the update event
@@ -66,7 +66,7 @@ final class ClusterNodeServerUtils {
       .replace("%clientAddress%", channel.clientAddress().toString()));
   }
 
-  private static @NotNull ChannelMessage.Builder targetLocalServices() {
+  private static @NonNull ChannelMessage.Builder targetLocalServices() {
     var builder = ChannelMessage.builder();
     // iterate over all local services - if the service is connected append it as target
     for (var service : CloudNet.instance().cloudServiceProvider().localCloudServices()) {

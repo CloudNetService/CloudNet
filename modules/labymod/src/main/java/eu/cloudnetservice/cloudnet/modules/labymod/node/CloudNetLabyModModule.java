@@ -31,7 +31,7 @@ import eu.cloudnetservice.cloudnet.modules.labymod.config.LabyModServiceDisplay;
 import java.nio.file.Files;
 import java.util.Collection;
 import java.util.Map;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class CloudNetLabyModModule extends DriverModule {
 
@@ -95,7 +95,7 @@ public class CloudNetLabyModModule extends DriverModule {
     this.registerListener(new NodeLabyModListener(this.labyModManagement));
   }
 
-  private @NotNull LabyModServiceDisplay convertDisplayEntry(@NotNull JsonDocument entry) {
+  private @NonNull LabyModServiceDisplay convertDisplayEntry(@NonNull JsonDocument entry) {
     var enabled = entry.getBoolean("enabled");
     var format = entry.getString("format");
     var displayType = entry.getString("displayType");

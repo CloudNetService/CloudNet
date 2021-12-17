@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.ext.cloudperms.sponge.service.permissible.user;
 
 import java.util.Objects;
 import java.util.UUID;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 final class UUIDUtil {
@@ -27,13 +27,13 @@ final class UUIDUtil {
     throw new UnsupportedOperationException();
   }
 
-  public static @NotNull UUID parseFromString(@NotNull String id) {
+  public static @NonNull UUID parseFromString(@NonNull String id) {
     var result = parseFromStringOrNull(id);
     Objects.requireNonNull(result, "Identifier \"" + id + "\" is not a valid unique id");
     return result;
   }
 
-  public static @Nullable UUID parseFromStringOrNull(@NotNull String id) {
+  public static @Nullable UUID parseFromStringOrNull(@NonNull String id) {
     try {
       return UUID.fromString(id);
     } catch (IllegalArgumentException exception) {

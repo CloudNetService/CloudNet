@@ -17,9 +17,9 @@
 package de.dytanic.cloudnet.ext.cloudperms.node.config;
 
 import java.util.List;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
-public record CloudPermissionConfig(boolean enabled, @NotNull List<String> excludedGroups) {
+public record CloudPermissionConfig(boolean enabled, @NonNull List<String> excludedGroups) {
 
   public static final CloudPermissionConfig DEFAULT = new CloudPermissionConfig(true, List.of());
 }

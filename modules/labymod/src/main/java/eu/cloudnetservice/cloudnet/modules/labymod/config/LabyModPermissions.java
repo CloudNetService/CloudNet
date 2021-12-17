@@ -20,7 +20,7 @@ import com.google.common.base.Verify;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.Map;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class LabyModPermissions {
 
@@ -44,7 +44,7 @@ public class LabyModPermissions {
   protected final boolean enabled;
   protected final Map<String, Boolean> permissions;
 
-  protected LabyModPermissions(boolean enabled, @NotNull Map<String, Boolean> labyModPermissions) {
+  protected LabyModPermissions(boolean enabled, @NonNull Map<String, Boolean> labyModPermissions) {
     this.enabled = enabled;
     this.permissions = labyModPermissions;
   }
@@ -57,7 +57,7 @@ public class LabyModPermissions {
     return this.enabled;
   }
 
-  public @NotNull Map<String, Boolean> permissions() {
+  public @NonNull Map<String, Boolean> permissions() {
     return this.permissions;
   }
 
@@ -66,22 +66,22 @@ public class LabyModPermissions {
     private boolean enabled = false;
     private Map<String, Boolean> permissions = new HashMap<>(DEFAULT_PERMISSIONS);
 
-    public @NotNull Builder enabled(boolean enabled) {
+    public @NonNull Builder enabled(boolean enabled) {
       this.enabled = enabled;
       return this;
     }
 
-    public @NotNull Builder permissions(@NotNull Map<String, Boolean> permissions) {
+    public @NonNull Builder permissions(@NonNull Map<String, Boolean> permissions) {
       this.permissions = new HashMap<>(permissions);
       return this;
     }
 
-    public @NotNull Builder addPermission(@NotNull String permission, @NotNull Boolean enabled) {
+    public @NonNull Builder addPermission(@NonNull String permission, @NonNull Boolean enabled) {
       this.permissions.put(permission, enabled);
       return this;
     }
 
-    public @NotNull LabyModPermissions build() {
+    public @NonNull LabyModPermissions build() {
       Verify.verifyNotNull(this.permissions, "Missing permissions");
 
       return new LabyModPermissions(this.enabled, this.permissions);

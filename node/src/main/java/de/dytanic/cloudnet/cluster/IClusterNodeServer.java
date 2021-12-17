@@ -18,25 +18,25 @@ package de.dytanic.cloudnet.cluster;
 
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.UnknownNullability;
 
 public interface IClusterNodeServer extends NodeServer, AutoCloseable {
 
   @Override
-  @NotNull IClusterNodeServerProvider provider();
+  @NonNull IClusterNodeServerProvider provider();
 
   @UnknownNullability INetworkChannel channel();
 
-  void channel(@NotNull INetworkChannel channel);
+  void channel(@NonNull INetworkChannel channel);
 
   boolean connected();
 
-  void saveSendPacket(@NotNull IPacket packet);
+  void saveSendPacket(@NonNull IPacket packet);
 
-  void saveSendPacketSync(@NotNull IPacket packet);
+  void saveSendPacketSync(@NonNull IPacket packet);
 
-  boolean acceptableConnection(@NotNull INetworkChannel channel, @NotNull String nodeId);
+  boolean acceptableConnection(@NonNull INetworkChannel channel, @NonNull String nodeId);
 
   void syncClusterData(boolean force);
 

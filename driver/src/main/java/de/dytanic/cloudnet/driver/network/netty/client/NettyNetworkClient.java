@@ -43,7 +43,7 @@ import java.util.Collections;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class NettyNetworkClient implements DefaultNetworkComponent, INetworkClient {
 
@@ -82,7 +82,7 @@ public class NettyNetworkClient implements DefaultNetworkComponent, INetworkClie
   }
 
   @Override
-  public boolean connect(@NotNull HostAndPort hostAndPort) {
+  public boolean connect(@NonNull HostAndPort hostAndPort) {
     Preconditions.checkNotNull(hostAndPort);
     Preconditions.checkNotNull(hostAndPort.host());
 
@@ -123,12 +123,12 @@ public class NettyNetworkClient implements DefaultNetworkComponent, INetworkClie
   }
 
   @Override
-  public @NotNull Collection<INetworkChannel> channels() {
+  public @NonNull Collection<INetworkChannel> channels() {
     return Collections.unmodifiableCollection(this.channels);
   }
 
   @Override
-  public @NotNull Executor packetDispatcher() {
+  public @NonNull Executor packetDispatcher() {
     return this.packetDispatcher;
   }
 
@@ -138,7 +138,7 @@ public class NettyNetworkClient implements DefaultNetworkComponent, INetworkClie
   }
 
   @Override
-  public @NotNull IPacketListenerRegistry packetRegistry() {
+  public @NonNull IPacketListenerRegistry packetRegistry() {
     return this.packetRegistry;
   }
 

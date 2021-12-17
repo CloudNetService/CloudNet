@@ -25,7 +25,7 @@ import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketHandler.Callback;
 import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
 import java.io.InputStream;
 import java.nio.file.Files;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 final class StaticServiceDeployCallback implements Callback {
 
@@ -38,8 +38,8 @@ final class StaticServiceDeployCallback implements Callback {
 
   @Override
   public void handleSessionComplete(
-    @NotNull ChunkSessionInformation information,
-    @NotNull InputStream dataInput
+    @NonNull ChunkSessionInformation information,
+    @NonNull InputStream dataInput
   ) {
     // read the information for the deployment of the static service
     var service = information.transferInformation().readString();

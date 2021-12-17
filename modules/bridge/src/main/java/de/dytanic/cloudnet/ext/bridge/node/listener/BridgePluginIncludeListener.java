@@ -21,18 +21,18 @@ import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.util.DefaultModuleHelper;
 import de.dytanic.cloudnet.event.service.CloudServicePreProcessStartEvent;
 import de.dytanic.cloudnet.ext.bridge.BridgeManagement;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class BridgePluginIncludeListener {
 
   private final BridgeManagement management;
 
-  public BridgePluginIncludeListener(@NotNull BridgeManagement management) {
+  public BridgePluginIncludeListener(@NonNull BridgeManagement management) {
     this.management = management;
   }
 
   @EventListener
-  public void handle(@NotNull CloudServicePreProcessStartEvent event) {
+  public void handle(@NonNull CloudServicePreProcessStartEvent event) {
     // check if we should copy the module
     if (this.management.configuration().excludedGroups().stream()
       .noneMatch(group -> event.service().serviceConfiguration().groups().contains(group))) {

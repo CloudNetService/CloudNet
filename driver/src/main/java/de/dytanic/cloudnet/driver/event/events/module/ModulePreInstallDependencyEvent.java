@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.driver.event.events.module;
 import de.dytanic.cloudnet.driver.module.IModuleProvider;
 import de.dytanic.cloudnet.driver.module.ModuleConfiguration;
 import de.dytanic.cloudnet.driver.module.ModuleDependency;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * This event is being called before a dependency for a module is being loaded.
@@ -47,7 +47,7 @@ public final class ModulePreInstallDependencyEvent extends UnloadedModuleEvent {
    *
    * @return the dependency which got loaded for the module.
    */
-  public @NotNull ModuleDependency moduleDependency() {
+  public @NonNull ModuleDependency moduleDependency() {
     return this.moduleDependency;
   }
 }

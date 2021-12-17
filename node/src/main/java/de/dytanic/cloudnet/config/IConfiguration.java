@@ -25,56 +25,56 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public interface IConfiguration {
 
   boolean fileExists();
 
-  @NotNull IConfiguration load();
+  @NonNull IConfiguration load();
 
-  @NotNull IConfiguration save();
+  @NonNull IConfiguration save();
 
-  @NotNull String hostAddress();
+  @NonNull String hostAddress();
 
-  void hostAddress(@NotNull String hostAddress);
+  void hostAddress(@NonNull String hostAddress);
 
-  @NotNull String connectHostAddress();
+  @NonNull String connectHostAddress();
 
-  void connectHostAddress(@NotNull String connectHostAddress);
+  void connectHostAddress(@NonNull String connectHostAddress);
 
-  @NotNull NetworkClusterNode identity();
+  @NonNull NetworkClusterNode identity();
 
-  void identity(@NotNull NetworkClusterNode identity);
+  void identity(@NonNull NetworkClusterNode identity);
 
-  @NotNull NetworkCluster clusterConfig();
+  @NonNull NetworkCluster clusterConfig();
 
-  void clusterConfig(@NotNull NetworkCluster clusterConfig);
+  void clusterConfig(@NonNull NetworkCluster clusterConfig);
 
-  @NotNull
+  @NonNull
   Collection<String> ipWhitelist();
 
-  void ipWhitelist(@NotNull Collection<String> whitelist);
+  void ipWhitelist(@NonNull Collection<String> whitelist);
 
-  @NotNull
+  @NonNull
   Collection<HostAndPort> httpListeners();
 
-  void httpListeners(@NotNull Collection<HostAndPort> httpListeners);
+  void httpListeners(@NonNull Collection<HostAndPort> httpListeners);
 
-  @NotNull
+  @NonNull
   SSLConfiguration clientSSLConfig();
 
-  void clientSSLConfig(@NotNull SSLConfiguration clientSslConfig);
+  void clientSSLConfig(@NonNull SSLConfiguration clientSslConfig);
 
-  @NotNull
+  @NonNull
   SSLConfiguration serverSSLConfig();
 
-  void serverSSLConfig(@NotNull SSLConfiguration serverSslConfig);
+  void serverSSLConfig(@NonNull SSLConfiguration serverSslConfig);
 
-  @NotNull
+  @NonNull
   SSLConfiguration webSSLConfig();
 
-  void webSSLConfig(@NotNull SSLConfiguration webSslConfig);
+  void webSSLConfig(@NonNull SSLConfiguration webSslConfig);
 
   double maxCPUUsageToStartServices();
 
@@ -96,13 +96,13 @@ public interface IConfiguration {
 
   void runBlockedServiceStartTryLaterAutomatic(boolean runBlockedServiceStartTryLaterAutomatic);
 
-  @NotNull DefaultJVMFlags defaultJVMFlags();
+  @NonNull DefaultJVMFlags defaultJVMFlags();
 
-  void defaultJVMFlags(@NotNull DefaultJVMFlags defaultJVMFlags);
+  void defaultJVMFlags(@NonNull DefaultJVMFlags defaultJVMFlags);
 
-  @NotNull String javaCommand();
+  @NonNull String javaCommand();
 
-  void javaCommand(@NotNull String javaCommand);
+  void javaCommand(@NonNull String javaCommand);
 
   int processTerminationTimeoutSeconds();
 
@@ -112,9 +112,9 @@ public interface IConfiguration {
 
   void forceInitialClusterDataSync(boolean forceInitialClusterDataSync);
 
-  @NotNull JsonDocument properties();
+  @NonNull JsonDocument properties();
 
-  void properties(@NotNull JsonDocument properties);
+  void properties(@NonNull JsonDocument properties);
 
   enum DefaultJVMFlags {
     NONE(Collections.emptyList()),

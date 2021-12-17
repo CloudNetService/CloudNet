@@ -20,7 +20,7 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import java.util.Optional;
 import java.util.function.BiFunction;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DefaultModifiableServiceProperty<I, T> implements ServiceProperty<T> {
@@ -47,15 +47,15 @@ public class DefaultModifiableServiceProperty<I, T> implements ServiceProperty<T
     return this;
   }
 
-  @NotNull
+  @NonNull
   @Override
-  public Optional<T> read(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
+  public Optional<T> read(@NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
     Preconditions.checkNotNull(this.getModifier, "This property doesn't support getting a value");
     return this.wrapped.read(serviceInfoSnapshot).map(i -> this.getModifier.apply(serviceInfoSnapshot, i));
   }
 
   @Override
-  public void write(@NotNull ServiceInfoSnapshot serviceInfoSnapshot, @Nullable T value) {
+  public void write(@NonNull ServiceInfoSnapshot serviceInfoSnapshot, @Nullable T value) {
     Preconditions.checkNotNull(this.setModifier, "This property doesn't support modifying a value");
     this.wrapped.write(serviceInfoSnapshot, this.setModifier.apply(serviceInfoSnapshot, value));
   }

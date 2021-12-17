@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class ColumnFormatter {
 
@@ -41,12 +41,12 @@ public class ColumnFormatter {
   private volatile Collection<String> formattedColumnTitles;
 
   protected ColumnFormatter(
-    @NotNull String leftSpacer,
-    @NotNull String rightSpacer,
+    @NonNull String leftSpacer,
+    @NonNull String rightSpacer,
     char columnLeftBracket,
     char columnRightBracket,
     char headerValuesSpacerChar,
-    @NotNull String[] columnTitles
+    @NonNull String[] columnTitles
   ) {
     this.leftSpacer = leftSpacer;
     this.rightSpacer = rightSpacer;
@@ -56,11 +56,11 @@ public class ColumnFormatter {
     this.columnTitles = columnTitles;
   }
 
-  public static @NotNull Builder builder() {
+  public static @NonNull Builder builder() {
     return new Builder();
   }
 
-  public @NotNull Collection<String> formatLines(ColumnEntry @NotNull ... entries) {
+  public @NonNull Collection<String> formatLines(ColumnEntry @NonNull ... entries) {
     // no entries - no pain, just format the header
     if (entries.length == 0) {
       if (this.formattedColumnTitles == null) {
@@ -165,42 +165,42 @@ public class ColumnFormatter {
 
     private List<String> columnTitles = new LinkedList<>();
 
-    public @NotNull Builder leftSpacer(@NotNull String leftSpacer) {
+    public @NonNull Builder leftSpacer(@NonNull String leftSpacer) {
       this.leftSpacer = leftSpacer;
       return this;
     }
 
-    public @NotNull Builder rightSpacer(@NotNull String rightSpacer) {
+    public @NonNull Builder rightSpacer(@NonNull String rightSpacer) {
       this.rightSpacer = rightSpacer;
       return this;
     }
 
-    public @NotNull Builder columnLeftBracket(char columnLeftBracket) {
+    public @NonNull Builder columnLeftBracket(char columnLeftBracket) {
       this.columnLeftBracket = columnLeftBracket;
       return this;
     }
 
-    public @NotNull Builder columnRightBracket(char columnRightBracket) {
+    public @NonNull Builder columnRightBracket(char columnRightBracket) {
       this.columnRightBracket = columnRightBracket;
       return this;
     }
 
-    public @NotNull Builder headerValuesSpacerChar(char headerValuesSpacerChar) {
+    public @NonNull Builder headerValuesSpacerChar(char headerValuesSpacerChar) {
       this.headerValuesSpacerChar = headerValuesSpacerChar;
       return this;
     }
 
-    public @NotNull Builder columnTitles(@NotNull List<String> columnTitles) {
+    public @NonNull Builder columnTitles(@NonNull List<String> columnTitles) {
       this.columnTitles = new LinkedList<>(columnTitles);
       return this;
     }
 
-    public @NotNull Builder columnTitles(@NotNull String... columnTitles) {
+    public @NonNull Builder columnTitles(@NonNull String... columnTitles) {
       this.columnTitles = Arrays.asList(columnTitles);
       return this;
     }
 
-    public @NotNull ColumnFormatter build() {
+    public @NonNull ColumnFormatter build() {
       Verify.verify(!this.columnTitles.isEmpty(), "At least one title must be given");
       return new ColumnFormatter(
         this.leftSpacer,

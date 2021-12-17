@@ -25,7 +25,7 @@ import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEven
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.event.cluster.NetworkClusterNodeInfoUpdateEvent;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class NodeChannelMessageListener {
 
@@ -34,9 +34,9 @@ public final class NodeChannelMessageListener {
   private final IClusterNodeServerProvider nodeServerProvider;
 
   public NodeChannelMessageListener(
-    @NotNull IEventManager eventManager,
-    @NotNull DataSyncRegistry dataSyncRegistry,
-    @NotNull IClusterNodeServerProvider nodeServerProvider
+    @NonNull IEventManager eventManager,
+    @NonNull DataSyncRegistry dataSyncRegistry,
+    @NonNull IClusterNodeServerProvider nodeServerProvider
   ) {
     this.eventManager = eventManager;
     this.dataSyncRegistry = dataSyncRegistry;
@@ -44,7 +44,7 @@ public final class NodeChannelMessageListener {
   }
 
   @EventListener
-  public void handleChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
+  public void handleChannelMessage(@NonNull ChannelMessageReceiveEvent event) {
     if (event.channel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
       switch (event.message()) {
         // update a single node info snapshot

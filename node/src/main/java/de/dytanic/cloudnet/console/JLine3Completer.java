@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.console;
 import de.dytanic.cloudnet.console.handler.Toggleable;
 import java.util.List;
 import java.util.Objects;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jline.reader.Candidate;
 import org.jline.reader.Completer;
 import org.jline.reader.LineReader;
@@ -29,12 +29,12 @@ final class JLine3Completer implements Completer {
 
   private final JLine3Console console;
 
-  public JLine3Completer(@NotNull JLine3Console console) {
+  public JLine3Completer(@NonNull JLine3Console console) {
     this.console = console;
   }
 
   @Override
-  public void complete(LineReader reader, @NotNull ParsedLine line, @NotNull List<Candidate> candidates) {
+  public void complete(LineReader reader, @NonNull ParsedLine line, @NonNull List<Candidate> candidates) {
     this.console.getTabCompleteHandlers().values().stream()
       .filter(Toggleable::enabled)
       .flatMap(handler -> handler.completeInput(line.line()).stream())

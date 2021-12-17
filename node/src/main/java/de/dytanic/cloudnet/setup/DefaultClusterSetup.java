@@ -35,12 +35,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class DefaultClusterSetup implements DefaultSetup {
 
   @Override
-  public void applyQuestions(@NotNull ConsoleSetupAnimation animation) {
+  public void applyQuestions(@NonNull ConsoleSetupAnimation animation) {
     animation.addEntries(
       QuestionListEntry.<Boolean>builder()
         .key("installCluster")
@@ -92,7 +92,7 @@ public class DefaultClusterSetup implements DefaultSetup {
   }
 
   @Override
-  public void handleResults(@NotNull ConsoleSetupAnimation animation) {
+  public void handleResults(@NonNull ConsoleSetupAnimation animation) {
     if (animation.result("installCluster")) {
       var config = CloudNet.instance().getConfig();
 

@@ -19,31 +19,31 @@ package eu.cloudnetservice.modules.npc;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import java.util.Collection;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public interface NPCManagement {
 
-  @Nullable NPC npcAt(@NotNull WorldPosition position);
+  @Nullable NPC npcAt(@NonNull WorldPosition position);
 
-  void createNPC(@NotNull NPC npc);
+  void createNPC(@NonNull NPC npc);
 
-  void deleteNPC(@NotNull NPC npc);
+  void deleteNPC(@NonNull NPC npc);
 
-  void deleteNPC(@NotNull WorldPosition position);
+  void deleteNPC(@NonNull WorldPosition position);
 
-  int deleteAllNPCs(@NotNull String group);
+  int deleteAllNPCs(@NonNull String group);
 
   int deleteAllNPCs();
 
-  @NotNull Collection<NPC> npcs();
+  @NonNull Collection<NPC> npcs();
 
-  @NotNull Collection<NPC> npcs(@NotNull String[] groups);
+  @NonNull Collection<NPC> npcs(@NonNull String[] groups);
 
-  @NotNull NPCConfiguration npcConfiguration();
+  @NonNull NPCConfiguration npcConfiguration();
 
-  void npcConfiguration(@NotNull NPCConfiguration configuration);
+  void npcConfiguration(@NonNull NPCConfiguration configuration);
 
   // Internal methods
 
@@ -54,11 +54,11 @@ public interface NPCManagement {
   void unregisterFromServiceRegistry();
 
   @Internal
-  void handleInternalNPCCreate(@NotNull NPC npc);
+  void handleInternalNPCCreate(@NonNull NPC npc);
 
   @Internal
-  void handleInternalNPCRemove(@NotNull WorldPosition position);
+  void handleInternalNPCRemove(@NonNull WorldPosition position);
 
   @Internal
-  void handleInternalNPCConfigUpdate(@NotNull NPCConfiguration configuration);
+  void handleInternalNPCConfigUpdate(@NonNull NPCConfiguration configuration);
 }

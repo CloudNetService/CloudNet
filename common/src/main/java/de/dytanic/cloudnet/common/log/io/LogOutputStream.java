@@ -24,7 +24,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class LogOutputStream extends ByteArrayOutputStream {
 
@@ -34,28 +34,28 @@ public final class LogOutputStream extends ByteArrayOutputStream {
   private final Level level;
   private final Logger logger;
 
-  private LogOutputStream(@NotNull Level level, @NotNull Logger logger) {
+  private LogOutputStream(@NonNull Level level, @NonNull Logger logger) {
     this.level = level;
     this.logger = logger;
   }
 
-  public static @NotNull LogOutputStream forSevere(@NotNull Logger logger) {
+  public static @NonNull LogOutputStream forSevere(@NonNull Logger logger) {
     return LogOutputStream.newInstance(logger, Level.SEVERE);
   }
 
-  public static @NotNull LogOutputStream forInformative(@NotNull Logger logger) {
+  public static @NonNull LogOutputStream forInformative(@NonNull Logger logger) {
     return LogOutputStream.newInstance(logger, Level.INFO);
   }
 
-  public static @NotNull LogOutputStream newInstance(@NotNull Logger logger, @NotNull Level level) {
+  public static @NonNull LogOutputStream newInstance(@NonNull Logger logger, @NonNull Level level) {
     return new LogOutputStream(level, logger);
   }
 
-  public @NotNull PrintStream toPrintStream() {
+  public @NonNull PrintStream toPrintStream() {
     return this.toPrintStream(DEFAULT_AUTO_FLUSH, DEFAULT_CHARSET);
   }
 
-  public @NotNull PrintStream toPrintStream(boolean autoFlush, @NotNull Charset charset) {
+  public @NonNull PrintStream toPrintStream(boolean autoFlush, @NonNull Charset charset) {
     try {
       return new PrintStream(this, autoFlush, charset.name());
     } catch (UnsupportedEncodingException exception) {

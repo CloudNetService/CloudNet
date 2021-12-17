@@ -23,41 +23,41 @@ import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.provider.NodeInfoProvider;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class WrapperNodeInfoProvider implements NodeInfoProvider {
 
   private final RPCSender rpcSender;
 
-  public WrapperNodeInfoProvider(@NotNull Wrapper wrapper) {
+  public WrapperNodeInfoProvider(@NonNull Wrapper wrapper) {
     this.rpcSender = wrapper.rpcProviderFactory().providerForClass(
       wrapper.networkClient(),
       NodeInfoProvider.class);
   }
 
   @Override
-  public @NotNull Collection<CommandInfo> consoleCommands() {
+  public @NonNull Collection<CommandInfo> consoleCommands() {
     return this.rpcSender.invokeMethod("consoleCommands").fireSync();
   }
 
   @Override
-  public @Nullable CommandInfo consoleCommand(@NotNull String commandLine) {
+  public @Nullable CommandInfo consoleCommand(@NonNull String commandLine) {
     return this.rpcSender.invokeMethod("consoleCommand", commandLine).fireSync();
   }
 
   @Override
-  public @NotNull Collection<String> consoleTabCompleteResults(@NotNull String commandLine) {
+  public @NonNull Collection<String> consoleTabCompleteResults(@NonNull String commandLine) {
     return this.rpcSender.invokeMethod("consoleTabCompleteResults", commandLine).fireSync();
   }
 
   @Override
-  public @NotNull Collection<String> sendCommandLine(@NotNull String commandLine) {
+  public @NonNull Collection<String> sendCommandLine(@NonNull String commandLine) {
     return this.rpcSender.invokeMethod("sendCommandLine", commandLine).fireSync();
   }
 
   @Override
-  public @NotNull Collection<String> sendCommandLineToNode(@NotNull String nodeUniqueId, @NotNull String commandLine) {
+  public @NonNull Collection<String> sendCommandLineToNode(@NonNull String nodeUniqueId, @NonNull String commandLine) {
     return this.rpcSender.invokeMethod("sendCommandLineToNode", nodeUniqueId, commandLine).fireSync();
   }
 
@@ -67,7 +67,7 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
   }
 
   @Override
-  public @Nullable NetworkClusterNode node(@NotNull String uniqueId) {
+  public @Nullable NetworkClusterNode node(@NonNull String uniqueId) {
     return this.rpcSender.invokeMethod("node", uniqueId).fireSync();
   }
 
@@ -77,7 +77,7 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
   }
 
   @Override
-  public @Nullable NetworkClusterNodeInfoSnapshot nodeInfoSnapshot(@NotNull String uniqueId) {
+  public @Nullable NetworkClusterNodeInfoSnapshot nodeInfoSnapshot(@NonNull String uniqueId) {
     return this.rpcSender.invokeMethod("nodeInfoSnapshot", uniqueId).fireSync();
   }
 }

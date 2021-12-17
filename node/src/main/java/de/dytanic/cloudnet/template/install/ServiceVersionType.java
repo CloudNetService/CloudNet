@@ -22,7 +22,7 @@ import de.dytanic.cloudnet.template.install.execute.InstallStep;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class ServiceVersionType extends ServiceEnvironment {
 
@@ -30,10 +30,10 @@ public class ServiceVersionType extends ServiceEnvironment {
   private final Collection<ServiceVersion> versions;
 
   public ServiceVersionType(
-    @NotNull String name,
-    @NotNull String environmentType,
-    @NotNull List<InstallStep> installSteps,
-    @NotNull Collection<ServiceVersion> versions
+    @NonNull String name,
+    @NonNull String environmentType,
+    @NonNull List<InstallStep> installSteps,
+    @NonNull Collection<ServiceVersion> versions
   ) {
     super(name, environmentType);
 
@@ -41,25 +41,25 @@ public class ServiceVersionType extends ServiceEnvironment {
     this.versions = versions;
   }
 
-  public @NotNull Optional<ServiceVersion> version(@NotNull String name) {
+  public @NonNull Optional<ServiceVersion> version(@NonNull String name) {
     return this.versions.stream()
       .filter(serviceVersion -> serviceVersion.name().equalsIgnoreCase(name))
       .findFirst();
   }
 
-  public boolean canInstall(@NotNull ServiceVersion serviceVersion) {
+  public boolean canInstall(@NonNull ServiceVersion serviceVersion) {
     return !this.installSteps.contains(InstallStep.BUILD) || serviceVersion.canRun();
   }
 
-  public boolean canInstall(@NotNull ServiceVersion serviceVersion, JavaVersion javaVersion) {
+  public boolean canInstall(@NonNull ServiceVersion serviceVersion, JavaVersion javaVersion) {
     return !this.installSteps.contains(InstallStep.BUILD) || serviceVersion.canRun(javaVersion);
   }
 
-  public @NotNull List<InstallStep> installSteps() {
+  public @NonNull List<InstallStep> installSteps() {
     return this.installSteps;
   }
 
-  public @NotNull Collection<ServiceVersion> versions() {
+  public @NonNull Collection<ServiceVersion> versions() {
     return this.versions;
   }
 }

@@ -23,41 +23,41 @@ import de.dytanic.cloudnet.driver.event.IEventManager;
 import de.dytanic.cloudnet.driver.module.DefaultModule;
 import de.dytanic.cloudnet.driver.network.rpc.RPCProviderFactory;
 import java.nio.file.Path;
+import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 public class DriverModule extends DefaultModule {
 
-  public @NotNull JsonDocument readConfig() {
+  public @NonNull JsonDocument readConfig() {
     return JsonDocument.newDocument(this.configPath());
   }
 
-  public void writeConfig(@NotNull JsonDocument config) {
+  public void writeConfig(@NonNull JsonDocument config) {
     config.write(this.configPath());
   }
 
-  protected @NotNull Path configPath() {
+  protected @NonNull Path configPath() {
     return this.moduleWrapper().dataDirectory().resolve("config.json");
   }
 
-  public final @NotNull IEventManager registerListener(Object @NotNull ... listener) {
+  public final @NonNull IEventManager registerListener(Object @NonNull ... listener) {
     return this.eventManager().registerListeners(listener);
   }
 
-  public final @NotNull IServicesRegistry serviceRegistry() {
+  public final @NonNull IServicesRegistry serviceRegistry() {
     return this.driver().servicesRegistry();
   }
 
-  public final @NotNull IEventManager eventManager() {
+  public final @NonNull IEventManager eventManager() {
     return this.driver().eventManager();
   }
 
-  public final @NotNull RPCProviderFactory rpcFactory() {
+  public final @NonNull RPCProviderFactory rpcFactory() {
     return this.driver().rpcProviderFactory();
   }
 
   @Contract(pure = true)
-  public final @NotNull CloudNetDriver driver() {
+  public final @NonNull CloudNetDriver driver() {
     return CloudNetDriver.instance();
   }
 }

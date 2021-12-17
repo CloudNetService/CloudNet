@@ -29,7 +29,7 @@ import de.dytanic.cloudnet.template.install.InstallInformation;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
 import java.io.IOException;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class V2HttpHandlerTemplate extends V2HttpHandler {
@@ -376,7 +376,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected IHttpResponse ok(@NotNull IHttpContext context, @NotNull String contentType) {
+  protected IHttpResponse ok(@NonNull IHttpContext context, @NonNull String contentType) {
     return context.response()
       .statusCode(HttpResponseCode.HTTP_OK)
       .header("Content-Type", contentType)

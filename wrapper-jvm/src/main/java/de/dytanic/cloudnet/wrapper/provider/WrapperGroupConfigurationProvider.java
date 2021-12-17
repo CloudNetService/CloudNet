@@ -22,14 +22,14 @@ import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import de.dytanic.cloudnet.wrapper.network.listener.message.GroupChannelMessageListener;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class WrapperGroupConfigurationProvider implements GroupConfigurationProvider {
 
   private final RPCSender rpcSender;
 
-  public WrapperGroupConfigurationProvider(@NotNull Wrapper wrapper) {
+  public WrapperGroupConfigurationProvider(@NonNull Wrapper wrapper) {
     this.rpcSender = wrapper.rpcProviderFactory().providerForClass(
       wrapper.networkClient(),
       GroupConfigurationProvider.class);
@@ -42,37 +42,37 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
   }
 
   @Override
-  public @NotNull Collection<GroupConfiguration> groupConfigurations() {
+  public @NonNull Collection<GroupConfiguration> groupConfigurations() {
     return this.rpcSender.invokeMethod("groupConfigurations").fireSync();
   }
 
   @Override
-  public void groupConfigurations(@NotNull Collection<GroupConfiguration> groupConfigurations) {
+  public void groupConfigurations(@NonNull Collection<GroupConfiguration> groupConfigurations) {
     this.rpcSender.invokeMethod("groupConfigurations").fireSync();
   }
 
   @Override
-  public @Nullable GroupConfiguration groupConfiguration(@NotNull String name) {
+  public @Nullable GroupConfiguration groupConfiguration(@NonNull String name) {
     return this.rpcSender.invokeMethod("groupConfiguration").fireSync();
   }
 
   @Override
-  public boolean groupConfigurationPresent(@NotNull String name) {
+  public boolean groupConfigurationPresent(@NonNull String name) {
     return this.rpcSender.invokeMethod("groupConfigurationPresent", name).fireSync();
   }
 
   @Override
-  public void addGroupConfiguration(@NotNull GroupConfiguration groupConfiguration) {
+  public void addGroupConfiguration(@NonNull GroupConfiguration groupConfiguration) {
     this.rpcSender.invokeMethod("addGroupConfiguration", groupConfiguration).fireAndForget();
   }
 
   @Override
-  public void removeGroupConfigurationByName(@NotNull String name) {
+  public void removeGroupConfigurationByName(@NonNull String name) {
     this.rpcSender.invokeMethod("removeGroupConfigurationByName", name).fireAndForget();
   }
 
   @Override
-  public void removeGroupConfiguration(@NotNull GroupConfiguration groupConfiguration) {
+  public void removeGroupConfiguration(@NonNull GroupConfiguration groupConfiguration) {
     this.removeGroupConfigurationByName(groupConfiguration.name());
   }
 }

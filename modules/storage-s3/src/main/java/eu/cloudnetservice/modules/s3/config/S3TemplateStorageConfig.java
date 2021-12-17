@@ -19,7 +19,7 @@ package eu.cloudnetservice.modules.s3.config;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import java.net.URI;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class S3TemplateStorageConfig {
@@ -42,12 +42,12 @@ public final class S3TemplateStorageConfig {
   }
 
   public S3TemplateStorageConfig(
-    @NotNull String name,
-    @NotNull String bucket,
-    @NotNull String region,
+    @NonNull String name,
+    @NonNull String bucket,
+    @NonNull String region,
     boolean dualstackEndpointEnabled,
-    @NotNull String accessKey,
-    @NotNull String secretKey,
+    @NonNull String accessKey,
+    @NonNull String secretKey,
     @Nullable String endpointOverride
   ) {
     this.name = name;
@@ -59,15 +59,15 @@ public final class S3TemplateStorageConfig {
     this.endpointOverride = endpointOverride;
   }
 
-  public @NotNull String name() {
+  public @NonNull String name() {
     return this.name;
   }
 
-  public @NotNull String bucket() {
+  public @NonNull String bucket() {
     return this.bucket;
   }
 
-  public @NotNull String region() {
+  public @NonNull String region() {
     return this.region;
   }
 
@@ -75,11 +75,11 @@ public final class S3TemplateStorageConfig {
     return this.dualstackEndpointEnabled;
   }
 
-  public @NotNull String accessKey() {
+  public @NonNull String accessKey() {
     return this.accessKey;
   }
 
-  public @NotNull String secretKey() {
+  public @NonNull String secretKey() {
     return this.secretKey;
   }
 

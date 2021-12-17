@@ -17,8 +17,8 @@
 package de.dytanic.cloudnet.ext.database.mysql.util;
 
 import de.dytanic.cloudnet.driver.network.HostAndPort;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
-public record MySQLConnectionEndpoint(boolean useSsl, @NotNull String database, @NotNull HostAndPort address) {
+public record MySQLConnectionEndpoint(boolean useSsl, @NonNull String database, @NonNull HostAndPort address) {
 
 }

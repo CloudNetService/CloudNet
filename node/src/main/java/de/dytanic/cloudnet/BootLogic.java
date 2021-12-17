@@ -29,7 +29,7 @@ import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.console.JLine3Console;
 import de.dytanic.cloudnet.console.log.ColouredLogFormatter;
 import java.nio.file.Path;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class BootLogic {
 
@@ -51,7 +51,7 @@ public final class BootLogic {
     nodeInstance.start();
   }
 
-  private static void initLoggerAndConsole(@NotNull IConsole console, @NotNull Logger logger) {
+  private static void initLoggerAndConsole(@NonNull IConsole console, @NonNull Logger logger) {
     var logFilePattern = Path.of("local", "logs", "cloudnet.%g.log");
     var consoleFormatter = console.hasColorSupport() ? new ColouredLogFormatter() : DefaultLogFormatter.END_CLEAN;
 

@@ -16,15 +16,15 @@
 
 package de.dytanic.cloudnet.common.column;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Range;
 
 public record ColumnEntry(
   @Range(from = 0, to = Integer.MAX_VALUE) int columnMinLength,
-  @NotNull String[] formattedEntries
+  @NonNull String[] formattedEntries
 ) {
 
-  public static @NotNull ColumnEntry wrap(@NotNull String @NotNull ... entries) {
+  public static @NonNull ColumnEntry wrap(@NonNull String @NonNull ... entries) {
     // get the longest entry and fill all other entries with spaces
     var longestLength = 0;
     for (var entry : entries) {

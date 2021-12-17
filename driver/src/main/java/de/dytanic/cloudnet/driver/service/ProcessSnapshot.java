@@ -23,7 +23,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.util.Collection;
 import java.util.Collections;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * A snapshot of a process in the Cloud which provides information about the cpu and memory usage, the running threads
@@ -39,7 +39,7 @@ public record ProcessSnapshot(
   long unloadedClassCount,
   long totalLoadedClassCount,
   int currentLoadedClassCount,
-  @NotNull Collection<ThreadSnapshot> threads
+  @NonNull Collection<ThreadSnapshot> threads
 ) implements Cloneable {
 
   // init them here to reduce lookup load

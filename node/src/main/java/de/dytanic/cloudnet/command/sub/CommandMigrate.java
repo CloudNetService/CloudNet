@@ -36,7 +36,7 @@ import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import java.util.List;
 import java.util.Queue;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 @CommandPermission("cloudnet.command.migrate")
 @Description("Migrate the database and other things that cloudnet uses")
@@ -109,8 +109,8 @@ public final class CommandMigrate {
       .replace("%target%", targetDatabaseProvider.name()));
   }
 
-  private boolean executeIfNotCurrentProvider(@NotNull AbstractDatabaseProvider sourceProvider,
-    @NotNull ThrowableConsumer<AbstractDatabaseProvider, ?> handler) {
+  private boolean executeIfNotCurrentProvider(@NonNull AbstractDatabaseProvider sourceProvider,
+    @NonNull ThrowableConsumer<AbstractDatabaseProvider, ?> handler) {
     if (!CloudNet.instance().databaseProvider().equals(sourceProvider)) {
       try {
         handler.accept(sourceProvider);

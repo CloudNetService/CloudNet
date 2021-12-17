@@ -26,7 +26,7 @@ package de.dytanic.cloudnet.driver.util.define;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * A class definer which defines classes using a class loader. This is a fallback method which will not work as expected
@@ -48,7 +48,7 @@ final class FallbackClassDefiner implements ClassDefiner {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull Class<?> defineClass(@NotNull String name, @NotNull Class<?> parent, byte[] bytecode) {
+  public @NonNull Class<?> defineClass(@NonNull String name, @NonNull Class<?> parent, byte[] bytecode) {
     return this.cache.computeIfAbsent(parent.getClassLoader(), DefiningClassLoader::new).defineClass(name, bytecode);
   }
 
@@ -77,7 +77,7 @@ final class FallbackClassDefiner implements ClassDefiner {
      * @param byteCode the bytecode of the class to define.
      * @return the constructed class object from the given {@code bytecode}.
      */
-    public @NotNull Class<?> defineClass(@NotNull String name, byte[] byteCode) {
+    public @NonNull Class<?> defineClass(@NonNull String name, byte[] byteCode) {
       return super.defineClass(name, byteCode, 0, byteCode.length);
     }
   }

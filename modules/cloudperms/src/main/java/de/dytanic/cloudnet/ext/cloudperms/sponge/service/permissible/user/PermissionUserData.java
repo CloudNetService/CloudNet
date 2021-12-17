@@ -22,7 +22,7 @@ import de.dytanic.cloudnet.ext.cloudperms.sponge.service.permissible.Permissible
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.SubjectReference;
@@ -40,7 +40,7 @@ final class PermissionUserData extends PermissibleSubjectData<PermissionUser> {
   }
 
   @Override
-  protected void update(@NotNull PermissionUser data) {
+  protected void update(@NonNull PermissionUser data) {
     this.management.updateUser(data);
   }
 

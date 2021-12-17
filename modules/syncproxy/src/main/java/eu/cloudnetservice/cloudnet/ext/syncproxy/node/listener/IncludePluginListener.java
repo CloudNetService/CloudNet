@@ -22,18 +22,18 @@ import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.util.DefaultModuleHelper;
 import de.dytanic.cloudnet.event.service.CloudServicePreProcessStartEvent;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.node.NodeSyncProxyManagement;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class IncludePluginListener {
 
   private final NodeSyncProxyManagement management;
 
-  public IncludePluginListener(@NotNull NodeSyncProxyManagement management) {
+  public IncludePluginListener(@NonNull NodeSyncProxyManagement management) {
     this.management = management;
   }
 
   @EventListener
-  public void handleLifecycleUpdate(@NotNull CloudServicePreProcessStartEvent event) {
+  public void handleLifecycleUpdate(@NonNull CloudServicePreProcessStartEvent event) {
     var service = event.service();
     if (!ServiceEnvironmentType.isMinecraftProxy(service.serviceId().environment())) {
       return;

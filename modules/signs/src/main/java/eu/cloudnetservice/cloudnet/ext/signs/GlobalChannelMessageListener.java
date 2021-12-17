@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEven
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignsConfiguration;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class GlobalChannelMessageListener {
 
@@ -32,7 +32,7 @@ public class GlobalChannelMessageListener {
   }
 
   @EventListener
-  public void handleChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
+  public void handleChannelMessage(@NonNull ChannelMessageReceiveEvent event) {
     if (event.channel().equals(AbstractSignManagement.SIGN_CHANNEL_NAME)) {
       switch (event.message()) {
         case AbstractSignManagement.SIGN_CREATED -> this.signManagement.handleInternalSignCreate(

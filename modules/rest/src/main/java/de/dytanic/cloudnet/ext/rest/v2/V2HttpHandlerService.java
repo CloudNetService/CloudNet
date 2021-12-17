@@ -39,7 +39,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
 
@@ -225,7 +225,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     });
   }
 
-  protected void handleCreateRequest(@NotNull IHttpContext context) {
+  protected void handleCreateRequest(@NonNull IHttpContext context) {
     var body = this.body(context.request());
     // check for a provided service configuration
     var configuration = body.get("serviceConfiguration", ServiceConfiguration.class);
@@ -428,7 +428,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     }
 
     @Override
-    public void handle(@NotNull IWebSocketChannel channel, @NotNull WebSocketFrameType type, byte[] bytes) throws Exception {
+    public void handle(@NonNull IWebSocketChannel channel, @NonNull WebSocketFrameType type, byte[] bytes) throws Exception {
       if (type == WebSocketFrameType.TEXT) {
         var commandLine = new String(bytes, StandardCharsets.UTF_8);
         this.service.runCommand(commandLine);
@@ -436,7 +436,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     }
 
     @Override
-    public void handleClose(@NotNull IWebSocketChannel channel, @NotNull AtomicInteger statusCode, @NotNull AtomicReference<String> reasonText) {
+    public void handleClose(@NonNull IWebSocketChannel channel, @NonNull AtomicInteger statusCode, @NonNull AtomicReference<String> reasonText) {
       this.logCache.removeHandler(this.watchingHandler);
     }
   }

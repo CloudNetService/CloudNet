@@ -25,7 +25,7 @@ import de.dytanic.cloudnet.driver.event.events.network.NetworkEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -40,8 +40,8 @@ public final class ChannelMessageReceiveEvent extends NetworkEvent {
   private ChannelMessage queryResponse;
 
   public ChannelMessageReceiveEvent(
-    @NotNull ChannelMessage message,
-    @NotNull INetworkChannel networkChannel,
+    @NonNull ChannelMessage message,
+    @NonNull INetworkChannel networkChannel,
     boolean query
   ) {
     super(networkChannel);
@@ -50,27 +50,27 @@ public final class ChannelMessageReceiveEvent extends NetworkEvent {
     this.query = query;
   }
 
-  public @NotNull ChannelMessageSender sender() {
+  public @NonNull ChannelMessageSender sender() {
     return this.channelMessage.sender();
   }
 
-  public @NotNull Collection<ChannelMessageTarget> targets() {
+  public @NonNull Collection<ChannelMessageTarget> targets() {
     return this.channelMessage.targets();
   }
 
-  public @NotNull String channel() {
+  public @NonNull String channel() {
     return this.channelMessage.channel();
   }
 
-  public @NotNull String message() {
+  public @NonNull String message() {
     return this.channelMessage.message();
   }
 
-  public @NotNull ChannelMessage channelMessage() {
+  public @NonNull ChannelMessage channelMessage() {
     return this.channelMessage;
   }
 
-  public @NotNull DataBuf content() {
+  public @NonNull DataBuf content() {
     return this.channelMessage.content();
   }
 
@@ -78,7 +78,7 @@ public final class ChannelMessageReceiveEvent extends NetworkEvent {
     return this.query;
   }
 
-  public void binaryResponse(@NotNull DataBuf dataBuf) {
+  public void binaryResponse(@NonNull DataBuf dataBuf) {
     this.queryResponse(ChannelMessage.buildResponseFor(this.channelMessage).buffer(dataBuf).build());
   }
 

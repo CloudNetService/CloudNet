@@ -54,7 +54,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -92,9 +92,9 @@ public class DataClassInvokerGenerator {
   private static final String INSTANCE_CREATOR_NAME_FORMAT = "%s$InstanceCreator";
   private static final String INFORMATION_WRITE_NAME_FORMAT = "%s$InformationWriter";
 
-  public @NotNull DataClassInstanceCreator createInstanceCreator(
-    @NotNull Class<?> clazz,
-    @NotNull java.lang.reflect.Type[] types
+  public @NonNull DataClassInstanceCreator createInstanceCreator(
+    @NonNull Class<?> clazz,
+    @NonNull java.lang.reflect.Type[] types
   ) {
     try {
       var className = String.format(INSTANCE_CREATOR_NAME_FORMAT, Type.getInternalName(clazz));
@@ -183,7 +183,7 @@ public class DataClassInvokerGenerator {
     }
   }
 
-  public @NotNull DataClassInformationWriter createWriter(@NotNull Class<?> clazz, @NotNull Collection<Field> fields) {
+  public @NonNull DataClassInformationWriter createWriter(@NonNull Class<?> clazz, @NonNull Collection<Field> fields) {
     try {
       var className = String.format(INFORMATION_WRITE_NAME_FORMAT, Type.getInternalName(clazz));
       // init the class writer for a public final class implementing the InstanceCreator
@@ -309,9 +309,9 @@ public class DataClassInvokerGenerator {
   }
 
   protected @Nullable Method findGetterForField(
-    @NotNull Collection<Method> methods,
-    @NotNull Field field,
-    @NotNull Predicate<Method> extraFilter
+    @NonNull Collection<Method> methods,
+    @NonNull Field field,
+    @NonNull Predicate<Method> extraFilter
   ) {
     Method choice = null;
     var fullFilter = this.commonFilter(field).and(extraFilter);
@@ -331,17 +331,17 @@ public class DataClassInvokerGenerator {
     return choice;
   }
 
-  protected @NotNull Predicate<Method> commonFilter(@NotNull Field field) {
+  protected @NonNull Predicate<Method> commonFilter(@NonNull Field field) {
     return method -> method.getReturnType().equals(field.getType());
   }
 
   public interface DataClassInstanceCreator {
 
-    @NotNull Object makeInstance(@NotNull DataBuf buf, @NotNull ObjectMapper context);
+    @NonNull Object makeInstance(@NonNull DataBuf buf, @NonNull ObjectMapper context);
   }
 
   public interface DataClassInformationWriter {
 
-    void writeInformation(@NotNull DataBuf.Mutable target, @NotNull Object obj, @NotNull ObjectMapper context);
+    void writeInformation(@NonNull DataBuf.Mutable target, @NonNull Object obj, @NonNull ObjectMapper context);
   }
 }

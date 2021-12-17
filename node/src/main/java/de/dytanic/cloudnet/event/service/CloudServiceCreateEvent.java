@@ -17,11 +17,11 @@
 package de.dytanic.cloudnet.event.service;
 
 import de.dytanic.cloudnet.service.ICloudService;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class CloudServiceCreateEvent extends CloudServiceEvent {
 
-  public CloudServiceCreateEvent(@NotNull ICloudService service) {
+  public CloudServiceCreateEvent(@NonNull ICloudService service) {
     super(service);
   }
 }

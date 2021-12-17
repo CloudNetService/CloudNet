@@ -17,10 +17,10 @@
 package de.dytanic.cloudnet.console;
 
 import java.util.regex.Pattern;
+import lombok.NonNull;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Attribute;
 import org.fusesource.jansi.Ansi.Color;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public enum ConsoleColor {
@@ -62,7 +62,7 @@ public enum ConsoleColor {
     this.ansiCode = ansiCode;
   }
 
-  public static @NotNull String toColouredString(char triggerChar, @NotNull String text) {
+  public static @NonNull String toColouredString(char triggerChar, @NonNull String text) {
     var content = convertRGBColors(triggerChar, text);
 
     var breakIndex = content.length() - 1;
@@ -81,7 +81,7 @@ public enum ConsoleColor {
     return content.toString();
   }
 
-  private static @NotNull StringBuffer convertRGBColors(char triggerChar, @NotNull String input) {
+  private static @NonNull StringBuffer convertRGBColors(char triggerChar, @NonNull String input) {
     var matcher = Pattern.compile(triggerChar + "#([0-9a-fA-F]){6}").matcher(input);
     var stringBuffer = new StringBuffer();
 
@@ -97,7 +97,7 @@ public enum ConsoleColor {
     return stringBuffer;
   }
 
-  public static @NotNull String stripColor(char triggerChar, @NotNull String input) {
+  public static @NonNull String stripColor(char triggerChar, @NonNull String input) {
     var content = stripRGBColors(triggerChar, input);
 
     var breakIndex = content.length() - 1;
@@ -111,7 +111,7 @@ public enum ConsoleColor {
     return content.toString();
   }
 
-  private static @NotNull StringBuffer stripRGBColors(char triggerChar, @NotNull String input) {
+  private static @NonNull StringBuffer stripRGBColors(char triggerChar, @NonNull String input) {
     var matcher = Pattern.compile(triggerChar + "#([0-9a-fA-F]){6}").matcher(input);
     var stringBuffer = new StringBuffer();
 
@@ -133,7 +133,7 @@ public enum ConsoleColor {
     return null;
   }
 
-  public static @Nullable ConsoleColor lastColor(char triggerChar, @NotNull String text) {
+  public static @Nullable ConsoleColor lastColor(char triggerChar, @NonNull String text) {
     text = text.trim();
     if (text.length() > 2 && text.charAt(text.length() - 2) == triggerChar) {
       return byChar(text.charAt(text.length() - 1));
@@ -143,15 +143,15 @@ public enum ConsoleColor {
   }
 
   @Override
-  public @NotNull String toString() {
+  public @NonNull String toString() {
     return this.ansiCode;
   }
 
-  public @NotNull String displayName() {
+  public @NonNull String displayName() {
     return this.name;
   }
 
-  public @NotNull String ansiCode() {
+  public @NonNull String ansiCode() {
     return this.ansiCode;
   }
 

@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.ext.simplenametags.sponge;
 
 import com.google.inject.Inject;
 import de.dytanic.cloudnet.ext.simplenametags.SimpleNameTagsManager;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
@@ -35,17 +35,17 @@ public final class SpongeSimpleNameTagsPlugin {
   private SimpleNameTagsManager<ServerPlayer> nameTagsManager;
 
   @Inject
-  public SpongeSimpleNameTagsPlugin(@NotNull PluginContainer pluginContainer) {
+  public SpongeSimpleNameTagsPlugin(@NonNull PluginContainer pluginContainer) {
     this.pluginContainer = pluginContainer;
   }
 
   @Listener
-  public void handle(@NotNull StartingEngineEvent<Server> event) {
+  public void handle(@NonNull StartingEngineEvent<Server> event) {
     this.nameTagsManager = new SpongeSimpleNameTagsManager(event.engine().scheduler().executor(pluginContainer));
   }
 
   @Listener
-  public void handle(@NotNull ServerSideConnectionEvent.Join event, @First @NotNull ServerPlayer player) {
+  public void handle(@NonNull ServerSideConnectionEvent.Join event, @First @NonNull ServerPlayer player) {
     this.nameTagsManager.updateNameTagsFor(player);
   }
 }

@@ -29,7 +29,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public abstract class SQLDatabase extends AbstractDatabase {
 
@@ -43,10 +43,10 @@ public abstract class SQLDatabase extends AbstractDatabase {
   protected final ExecutorService executorService;
 
   public SQLDatabase(
-    @NotNull SQLDatabaseProvider databaseProvider,
-    @NotNull String name,
+    @NonNull SQLDatabaseProvider databaseProvider,
+    @NonNull String name,
     long cacheRemovalDelay,
-    @NotNull ExecutorService executorService
+    @NonNull ExecutorService executorService
   ) {
     super(name, executorService, databaseProvider);
 
@@ -68,7 +68,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
   }
 
   @Override
-  public boolean insert(@NotNull String key, @NotNull JsonDocument document) {
+  public boolean insert(@NonNull String key, @NonNull JsonDocument document) {
     Preconditions.checkNotNull(key);
     Preconditions.checkNotNull(document);
 
@@ -87,7 +87,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
   }
 
   @Override
-  public boolean update(@NotNull String key, @NotNull JsonDocument document) {
+  public boolean update(@NonNull String key, @NonNull JsonDocument document) {
     Preconditions.checkNotNull(key);
     Preconditions.checkNotNull(document);
 
@@ -110,7 +110,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
   }
 
   @Override
-  public boolean contains(@NotNull String key) {
+  public boolean contains(@NonNull String key) {
     Preconditions.checkNotNull(key);
 
     return this.databaseProvider.executeQuery(
@@ -121,7 +121,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
   }
 
   @Override
-  public boolean delete(@NotNull String key) {
+  public boolean delete(@NonNull String key) {
     Preconditions.checkNotNull(key);
 
     this.databaseProvider.databaseHandler().handleDelete(this, key);
@@ -147,7 +147,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
   }
 
   @Override
-  public @NotNull List<JsonDocument> get(@NotNull String fieldName, Object fieldValue) {
+  public @NonNull List<JsonDocument> get(@NonNull String fieldName, Object fieldValue) {
     return this.databaseProvider.executeQuery(
       String.format("SELECT %s FROM `%s` WHERE %s LIKE ?", TABLE_COLUMN_VALUE, this.name, TABLE_COLUMN_VALUE),
       resultSet -> {
@@ -163,7 +163,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
   }
 
   @Override
-  public @NotNull List<JsonDocument> get(@NotNull JsonDocument filters) {
+  public @NonNull List<JsonDocument> get(@NonNull JsonDocument filters) {
     Preconditions.checkNotNull(filters);
 
     var stringBuilder = new StringBuilder("SELECT ").append(TABLE_COLUMN_VALUE).append(" FROM `")
@@ -204,7 +204,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
   }
 
   @Override
-  public @NotNull Collection<String> keys() {
+  public @NonNull Collection<String> keys() {
     return this.databaseProvider.executeQuery(
       String.format("SELECT %s FROM `%s`;", TABLE_COLUMN_KEY, this.name),
       resultSet -> {
@@ -219,7 +219,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
   }
 
   @Override
-  public @NotNull Collection<JsonDocument> documents() {
+  public @NonNull Collection<JsonDocument> documents() {
     return this.databaseProvider.executeQuery(
       String.format("SELECT %s FROM `%s`;", TABLE_COLUMN_VALUE, this.name),
       resultSet -> {
@@ -234,7 +234,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
   }
 
   @Override
-  public @NotNull Map<String, JsonDocument> entries() {
+  public @NonNull Map<String, JsonDocument> entries() {
     return this.databaseProvider.executeQuery(
       String.format("SELECT * FROM `%s`;", this.name),
       resultSet -> {
@@ -250,7 +250,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
   }
 
   @Override
-  public @NotNull Map<String, JsonDocument> filter(@NotNull BiPredicate<String, JsonDocument> predicate) {
+  public @NonNull Map<String, JsonDocument> filter(@NonNull BiPredicate<String, JsonDocument> predicate) {
     Preconditions.checkNotNull(predicate);
 
     return this.databaseProvider.executeQuery(
@@ -272,7 +272,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
   }
 
   @Override
-  public void iterate(@NotNull BiConsumer<String, JsonDocument> consumer) {
+  public void iterate(@NonNull BiConsumer<String, JsonDocument> consumer) {
     Preconditions.checkNotNull(consumer);
 
     this.databaseProvider.executeQuery(

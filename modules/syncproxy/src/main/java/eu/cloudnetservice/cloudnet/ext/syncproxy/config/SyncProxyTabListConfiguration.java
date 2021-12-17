@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.EqualsAndHashCode;
 import lombok.EqualsAndHashCode.Include;
+import lombok.NonNull;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -38,8 +38,8 @@ public class SyncProxyTabListConfiguration {
   protected final transient AtomicInteger currentEntry;
 
   protected SyncProxyTabListConfiguration(
-    @NotNull String targetGroup,
-    @NotNull List<SyncProxyTabList> entries,
+    @NonNull String targetGroup,
+    @NonNull List<SyncProxyTabList> entries,
     double animationsPerSecond
   ) {
     this.targetGroup = targetGroup;
@@ -49,18 +49,18 @@ public class SyncProxyTabListConfiguration {
     this.currentEntry = new AtomicInteger(-1);
   }
 
-  public static @NotNull Builder builder() {
+  public static @NonNull Builder builder() {
     return new Builder();
   }
 
-  public static @NotNull Builder builder(@NotNull SyncProxyTabListConfiguration configuration) {
+  public static @NonNull Builder builder(@NonNull SyncProxyTabListConfiguration configuration) {
     return builder()
       .targetGroup(configuration.targetGroup())
       .tabListEntries(configuration.entries())
       .animationsPerSecond(configuration.animationsPerSecond());
   }
 
-  public static @NotNull SyncProxyTabListConfiguration createDefault(String targetGroup) {
+  public static @NonNull SyncProxyTabListConfiguration createDefault(String targetGroup) {
     return builder()
       .targetGroup(targetGroup)
       .addTabListEntry(SyncProxyTabList.builder()
@@ -75,11 +75,11 @@ public class SyncProxyTabListConfiguration {
       .build();
   }
 
-  public @NotNull String targetGroup() {
+  public @NonNull String targetGroup() {
     return this.targetGroup;
   }
 
-  public @NotNull List<SyncProxyTabList> entries() {
+  public @NonNull List<SyncProxyTabList> entries() {
     return this.entries;
   }
 
@@ -87,7 +87,7 @@ public class SyncProxyTabListConfiguration {
     return this.animationsPerSecond;
   }
 
-  public @NotNull SyncProxyTabList tick() {
+  public @NonNull SyncProxyTabList tick() {
     if (this.currentEntry.incrementAndGet() >= this.entries.size()) {
       this.currentEntry.set(0);
     }
@@ -95,7 +95,7 @@ public class SyncProxyTabListConfiguration {
     return this.currentEntry();
   }
 
-  public @NotNull SyncProxyTabList currentEntry() {
+  public @NonNull SyncProxyTabList currentEntry() {
     return this.entries().get(this.currentTick());
   }
 
@@ -109,27 +109,27 @@ public class SyncProxyTabListConfiguration {
     private List<SyncProxyTabList> entries = new ArrayList<>();
     private double animationsPerSecond;
 
-    public @NotNull Builder targetGroup(@NotNull String targetGroup) {
+    public @NonNull Builder targetGroup(@NonNull String targetGroup) {
       this.targetGroup = targetGroup;
       return this;
     }
 
-    public @NotNull Builder tabListEntries(@NotNull List<SyncProxyTabList> entries) {
+    public @NonNull Builder tabListEntries(@NonNull List<SyncProxyTabList> entries) {
       this.entries = new ArrayList<>(entries);
       return this;
     }
 
-    public @NotNull Builder addTabListEntry(@NotNull SyncProxyTabList tabList) {
+    public @NonNull Builder addTabListEntry(@NonNull SyncProxyTabList tabList) {
       this.entries.add(tabList);
       return this;
     }
 
-    public @NotNull Builder animationsPerSecond(double animationsPerSecond) {
+    public @NonNull Builder animationsPerSecond(double animationsPerSecond) {
       this.animationsPerSecond = animationsPerSecond;
       return this;
     }
 
-    public @NotNull SyncProxyTabListConfiguration build() {
+    public @NonNull SyncProxyTabListConfiguration build() {
       Verify.verifyNotNull(this.targetGroup, "Missing targetGroup");
 
       return new SyncProxyTabListConfiguration(this.targetGroup, this.entries, this.animationsPerSecond);

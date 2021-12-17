@@ -21,13 +21,13 @@ import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.service.ICloudServiceFactory;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.util.PortValidator;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public abstract class AbstractServiceFactory implements ICloudServiceFactory {
 
   protected void validateConfiguration(
-    @NotNull ICloudServiceManager manager,
-    @NotNull ServiceConfiguration configuration
+    @NonNull ICloudServiceManager manager,
+    @NonNull ServiceConfiguration configuration
   ) {
     // set the node unique id
     configuration.serviceId().nodeUniqueId(CloudNet.instance().nodeUniqueId());
@@ -51,7 +51,7 @@ public abstract class AbstractServiceFactory implements ICloudServiceFactory {
     configuration.port(port);
   }
 
-  protected boolean isPortInUse(@NotNull ICloudServiceManager manager, int port) {
+  protected boolean isPortInUse(@NonNull ICloudServiceManager manager, int port) {
     // check if any local service has the port
     for (var cloudService : manager.localCloudServices()) {
       if (cloudService.serviceConfiguration().port() == port) {

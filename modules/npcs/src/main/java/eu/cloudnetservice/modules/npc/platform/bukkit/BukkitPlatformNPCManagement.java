@@ -31,6 +31,7 @@ import eu.cloudnetservice.modules.npc.platform.PlatformSelectorEntity;
 import eu.cloudnetservice.modules.npc.platform.bukkit.entity.EntityBukkitPlatformSelectorEntity;
 import eu.cloudnetservice.modules.npc.platform.bukkit.entity.NPCBukkitPlatformSelector;
 import java.util.concurrent.ThreadLocalRandom;
+import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -40,7 +41,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.NumberConversions;
-import org.jetbrains.annotations.NotNull;
 
 public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location, Player, ItemStack, Inventory> {
 
@@ -51,7 +51,7 @@ public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location,
 
   protected volatile BukkitTask npcEmoteTask;
 
-  public BukkitPlatformNPCManagement(@NotNull Plugin plugin) {
+  public BukkitPlatformNPCManagement(@NonNull Plugin plugin) {
     this.plugin = plugin;
     this.scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
 
@@ -129,16 +129,16 @@ public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location,
     }, 20, 5);
   }
 
-  @NotNull
+  @NonNull
   @Override
-  protected PlatformSelectorEntity<Location, Player, ItemStack, Inventory> createSelectorEntity(@NotNull NPC base) {
+  protected PlatformSelectorEntity<Location, Player, ItemStack, Inventory> createSelectorEntity(@NonNull NPC base) {
     return base.npcType() == NPCType.ENTITY
       ? new EntityBukkitPlatformSelectorEntity(this, this.plugin, base)
       : new NPCBukkitPlatformSelector(this, this.plugin, base, this.npcPool);
   }
 
   @Override
-  public @NotNull WorldPosition toWorldPosition(@NotNull Location location, @NotNull String group) {
+  public @NonNull WorldPosition toWorldPosition(@NonNull Location location, @NonNull String group) {
     Verify.verifyNotNull(location.getWorld(), "world unloaded");
     return new WorldPosition(
       location.getX(),
@@ -151,7 +151,7 @@ public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location,
   }
 
   @Override
-  public @NotNull Location toPlatformLocation(@NotNull WorldPosition position) {
+  public @NonNull Location toPlatformLocation(@NonNull WorldPosition position) {
     var world = Bukkit.getWorld(position.world());
     return new Location(
       world,
@@ -163,23 +163,23 @@ public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location,
   }
 
   @Override
-  protected boolean shouldTrack(@NotNull ServiceInfoSnapshot service) {
+  protected boolean shouldTrack(@NonNull ServiceInfoSnapshot service) {
     return service.lifeCycle() == ServiceLifeCycle.RUNNING
       && ServiceEnvironmentType.JAVA_SERVER.get(service.serviceId().environment().properties());
   }
 
   @Override
-  public void handleInternalNPCConfigUpdate(@NotNull NPCConfiguration configuration) {
+  public void handleInternalNPCConfigUpdate(@NonNull NPCConfiguration configuration) {
     super.handleInternalNPCConfigUpdate(configuration);
     // re-schedule the emote task if it's not yet running
     this.startEmoteTask(false);
   }
 
-  public @NotNull Scoreboard scoreboard() {
+  public @NonNull Scoreboard scoreboard() {
     return this.scoreboard;
   }
 
-  public @NotNull NPCPool npcPool() {
+  public @NonNull NPCPool npcPool() {
     return this.npcPool;
   }
 

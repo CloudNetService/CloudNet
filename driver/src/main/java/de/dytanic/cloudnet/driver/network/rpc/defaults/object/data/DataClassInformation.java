@@ -27,7 +27,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class DataClassInformation {
 
@@ -39,9 +39,9 @@ public class DataClassInformation {
     this.informationWriter = writer;
   }
 
-  public static @NotNull DataClassInformation createClassInformation(
-    @NotNull Class<?> clazz,
-    @NotNull DataClassInvokerGenerator generator
+  public static @NonNull DataClassInformation createClassInformation(
+    @NonNull Class<?> clazz,
+    @NonNull DataClassInvokerGenerator generator
   ) {
     // get all types of the fields we want to include into the constructor lookup
     var includedFields = collectFields(clazz);
@@ -61,7 +61,7 @@ public class DataClassInformation {
     return new DataClassInformation(instanceCreator, informationWriter);
   }
 
-  protected static @NotNull List<Field> collectFields(@NotNull Class<?> clazz) {
+  protected static @NonNull List<Field> collectFields(@NonNull Class<?> clazz) {
     List<Field> result = new ArrayList<>();
 
     var processing = clazz;
@@ -80,10 +80,10 @@ public class DataClassInformation {
   }
 
   @SuppressWarnings("unchecked")
-  protected static @NotNull <T, O> O[] transformToArray(
-    @NotNull Class<O> outType,
-    @NotNull List<T> in,
-    @NotNull Function<T, O> transformer
+  protected static @NonNull <T, O> O[] transformToArray(
+    @NonNull Class<O> outType,
+    @NonNull List<T> in,
+    @NonNull Function<T, O> transformer
   ) {
     var resultArray = (O[]) Array.newInstance(outType, in.size());
     for (var i = 0; i < in.size(); i++) {
@@ -92,11 +92,11 @@ public class DataClassInformation {
     return resultArray;
   }
 
-  public @NotNull DataClassInstanceCreator instanceCreator() {
+  public @NonNull DataClassInstanceCreator instanceCreator() {
     return this.instanceCreator;
   }
 
-  public @NotNull DataClassInformationWriter informationWriter() {
+  public @NonNull DataClassInformationWriter informationWriter() {
     return this.informationWriter;
   }
 }

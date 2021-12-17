@@ -23,7 +23,7 @@ import de.dytanic.cloudnet.driver.network.netty.codec.NettyPacketLengthDeseriali
 import de.dytanic.cloudnet.driver.network.netty.codec.NettyPacketLengthSerializer;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class NettyNetworkServerInitializer extends ChannelInitializer<Channel> {
 
@@ -36,7 +36,7 @@ public class NettyNetworkServerInitializer extends ChannelInitializer<Channel> {
   }
 
   @Override
-  protected void initChannel(@NotNull Channel ch) {
+  protected void initChannel(@NonNull Channel ch) {
     if (this.networkServer.sslContext != null) {
       ch.pipeline().addLast("ssl-handler", this.networkServer.sslContext.newHandler(ch.alloc()));
     }

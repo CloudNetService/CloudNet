@@ -29,7 +29,7 @@ import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class ServiceChannelMessageListener {
 
@@ -38,9 +38,9 @@ public final class ServiceChannelMessageListener {
   private final CloudServiceFactory cloudServiceFactory;
 
   public ServiceChannelMessageListener(
-    @NotNull IEventManager eventManager,
-    @NotNull ICloudServiceManager serviceManager,
-    @NotNull CloudServiceFactory cloudServiceFactory
+    @NonNull IEventManager eventManager,
+    @NonNull ICloudServiceManager serviceManager,
+    @NonNull CloudServiceFactory cloudServiceFactory
   ) {
     this.eventManager = eventManager;
     this.serviceManager = serviceManager;
@@ -48,7 +48,7 @@ public final class ServiceChannelMessageListener {
   }
 
   @EventListener
-  public void handleChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
+  public void handleChannelMessage(@NonNull ChannelMessageReceiveEvent event) {
     if (event.channel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
       switch (event.message()) {
         // request to start a service

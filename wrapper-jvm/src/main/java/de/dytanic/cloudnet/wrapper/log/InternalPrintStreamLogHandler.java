@@ -21,8 +21,8 @@ import java.io.PrintStream;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * A redirect log handler, to the origin output and error stream. The LogOutputStream will replace the System.out and
@@ -41,11 +41,11 @@ public final class InternalPrintStreamLogHandler extends AbstractHandler {
     super.setLevel(Level.ALL);
   }
 
-  public static @NotNull InternalPrintStreamLogHandler forSystemStreams() {
+  public static @NonNull InternalPrintStreamLogHandler forSystemStreams() {
     return InternalPrintStreamLogHandler.newInstance(System.out, System.err);
   }
 
-  public static @NotNull InternalPrintStreamLogHandler newInstance(PrintStream out, PrintStream err) {
+  public static @NonNull InternalPrintStreamLogHandler newInstance(PrintStream out, PrintStream err) {
     return new InternalPrintStreamLogHandler(out, err);
   }
 
@@ -55,7 +55,7 @@ public final class InternalPrintStreamLogHandler extends AbstractHandler {
     stream.println(super.getFormatter().format(record));
   }
 
-  public @NotNull InternalPrintStreamLogHandler withFormatter(@NotNull Formatter formatter) {
+  public @NonNull InternalPrintStreamLogHandler withFormatter(@NonNull Formatter formatter) {
     super.setFormatter(formatter);
     return this;
   }

@@ -18,45 +18,45 @@ package de.dytanic.cloudnet.driver.network.http;
 
 import java.io.InputStream;
 import java.util.Map;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
 public interface IHttpMessage<T extends IHttpMessage<?>> {
 
-  @NotNull IHttpContext context();
+  @NonNull IHttpContext context();
 
-  @Nullable String header(@NotNull String name);
+  @Nullable String header(@NonNull String name);
 
-  int headerAsInt(@NotNull String name);
+  int headerAsInt(@NonNull String name);
 
-  boolean headerAsBoolean(@NotNull String name);
+  boolean headerAsBoolean(@NonNull String name);
 
-  @NotNull T header(@NotNull String name, @NotNull String value);
+  @NonNull T header(@NonNull String name, @NonNull String value);
 
-  @NotNull T removeHeader(@NotNull String name);
+  @NonNull T removeHeader(@NonNull String name);
 
-  @NotNull T clearHeaders();
+  @NonNull T clearHeaders();
 
-  boolean hasHeader(@NotNull String name);
+  boolean hasHeader(@NonNull String name);
 
-  @NotNull Map<String, String> headers();
+  @NonNull Map<String, String> headers();
 
-  @NotNull HttpVersion version();
+  @NonNull HttpVersion version();
 
-  @NotNull T version(@NotNull HttpVersion version);
+  @NonNull T version(@NonNull HttpVersion version);
 
   byte[] body();
 
-  @NotNull String bodyAsString();
+  @NonNull String bodyAsString();
 
-  @NotNull T body(byte[] byteArray);
+  @NonNull T body(byte[] byteArray);
 
-  @NotNull T body(@NotNull String text);
+  @NonNull T body(@NonNull String text);
 
   @UnknownNullability InputStream bodyStream();
 
-  @NotNull T body(@Nullable InputStream body);
+  @NonNull T body(@Nullable InputStream body);
 
   boolean hasBody();
 }

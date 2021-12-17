@@ -25,7 +25,7 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class NukkitCloudPermissionsPermissible extends PermissibleBase {
@@ -67,12 +67,12 @@ public final class NukkitCloudPermissionsPermissible extends PermissibleBase {
   }
 
   @Override
-  public boolean isPermissionSet(@NotNull Permission perm) {
+  public boolean isPermissionSet(@NonNull Permission perm) {
     return this.isPermissionSet(perm.getName());
   }
 
   @Override
-  public boolean hasPermission(@NotNull Permission perm) {
+  public boolean hasPermission(@NonNull Permission perm) {
     return this.hasPermission(perm.getName());
   }
 

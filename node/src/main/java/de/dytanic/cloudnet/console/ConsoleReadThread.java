@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.console;
 
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.UserInterruptException;
@@ -64,7 +64,7 @@ public class ConsoleReadThread extends Thread {
     return null;
   }
 
-  protected @NotNull ITask<String> currentTask() {
+  protected @NonNull ITask<String> currentTask() {
     if (this.currentTask == null) {
       this.currentTask = new CompletableTask<>();
     }

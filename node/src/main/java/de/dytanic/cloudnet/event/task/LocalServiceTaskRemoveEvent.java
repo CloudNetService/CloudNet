@@ -19,18 +19,18 @@ package de.dytanic.cloudnet.event.task;
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.event.ICancelable;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class LocalServiceTaskRemoveEvent extends Event implements ICancelable {
 
   private final ServiceTask task;
   private volatile boolean cancelled;
 
-  public LocalServiceTaskRemoveEvent(@NotNull ServiceTask task) {
+  public LocalServiceTaskRemoveEvent(@NonNull ServiceTask task) {
     this.task = task;
   }
 
-  public @NotNull ServiceTask task() {
+  public @NonNull ServiceTask task() {
     return this.task;
   }
 

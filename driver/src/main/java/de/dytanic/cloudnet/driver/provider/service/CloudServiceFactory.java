@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -44,7 +44,7 @@ public interface CloudServiceFactory {
    * @param configuration the configuration for the new service
    * @return the info of the created service or null if the service couldn't be created
    */
-  default @NotNull ITask<ServiceInfoSnapshot> createCloudServiceAsync(@NotNull ServiceConfiguration configuration) {
+  default @NonNull ITask<ServiceInfoSnapshot> createCloudServiceAsync(@NonNull ServiceConfiguration configuration) {
     return CompletableTask.supply(() -> this.createCloudService(configuration));
   }
 }

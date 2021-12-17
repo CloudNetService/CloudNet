@@ -18,13 +18,13 @@ package de.dytanic.cloudnet.driver.network.chunk.data;
 
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import java.util.UUID;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public record ChunkSessionInformation(
   int chunkSize,
-  @NotNull UUID sessionUniqueId,
-  @NotNull String transferChannel,
-  @NotNull DataBuf transferInformation
+  @NonNull UUID sessionUniqueId,
+  @NonNull String transferChannel,
+  @NonNull DataBuf transferInformation
 ) {
 
   @Override

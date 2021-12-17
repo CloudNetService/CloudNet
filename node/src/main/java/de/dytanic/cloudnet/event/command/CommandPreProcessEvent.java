@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.event.command;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.event.ICancelable;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * This event is called before the actual processing of the given command is done. To cancel the execution of the
@@ -31,7 +31,7 @@ public class CommandPreProcessEvent extends Event implements ICancelable {
   private final CommandSource commandSource;
   private boolean cancelled = false;
 
-  public CommandPreProcessEvent(@NotNull String commandLine, @NotNull CommandSource commandSource) {
+  public CommandPreProcessEvent(@NonNull String commandLine, @NonNull CommandSource commandSource) {
     this.commandLine = commandLine;
     this.commandSource = commandSource;
   }
@@ -39,7 +39,7 @@ public class CommandPreProcessEvent extends Event implements ICancelable {
   /**
    * @return the command line that will be executed
    */
-  @NotNull
+  @NonNull
   public String commandLine() {
     return this.commandLine;
   }
@@ -47,7 +47,7 @@ public class CommandPreProcessEvent extends Event implements ICancelable {
   /**
    * @return the source that executes the command
    */
-  @NotNull
+  @NonNull
   public CommandSource commandSource() {
     return this.commandSource;
   }

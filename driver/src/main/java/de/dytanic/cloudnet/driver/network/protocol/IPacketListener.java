@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.driver.network.protocol;
 
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * An packet listeners, allows to handle incoming packets, from some channel, that use the IPacketListenerRegistry in
@@ -37,5 +37,5 @@ public interface IPacketListener {
    * @param packet  the received packet message, which should handle from the listener
    * @throws Exception catch the exception, if the handle throws one
    */
-  void handle(@NotNull INetworkChannel channel, @NotNull IPacket packet) throws Exception;
+  void handle(@NonNull INetworkChannel channel, @NonNull IPacket packet) throws Exception;
 }

@@ -17,15 +17,15 @@
 package de.dytanic.cloudnet.ext.cloudperms.sponge.service;
 
 import java.util.concurrent.CompletableFuture;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.SubjectReference;
 
 public record CloudSubjectReference(
-  @NotNull String collectionIdentifier,
-  @NotNull String subjectIdentifier,
-  @NotNull PermissionService permsService
+  @NonNull String collectionIdentifier,
+  @NonNull String subjectIdentifier,
+  @NonNull PermissionService permsService
 ) implements SubjectReference {
 
   @Override

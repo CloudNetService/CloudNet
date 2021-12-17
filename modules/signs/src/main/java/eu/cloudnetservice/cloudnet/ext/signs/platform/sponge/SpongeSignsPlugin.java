@@ -23,8 +23,8 @@ import eu.cloudnetservice.cloudnet.ext.signs.platform.AbstractPlatformSignManage
 import eu.cloudnetservice.cloudnet.ext.signs.platform.SignsPlatformListener;
 import eu.cloudnetservice.cloudnet.ext.signs.platform.sponge.functionality.CommandSigns;
 import eu.cloudnetservice.cloudnet.ext.signs.platform.sponge.functionality.SignInteractListener;
+import lombok.NonNull;
 import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.entity.Sign;
@@ -44,12 +44,12 @@ public class SpongeSignsPlugin {
   private AbstractPlatformSignManagement<Sign> signManagement;
 
   @Inject
-  public SpongeSignsPlugin(@NotNull PluginContainer plugin) {
+  public SpongeSignsPlugin(@NonNull PluginContainer plugin) {
     this.plugin = plugin;
   }
 
   @Listener
-  public void handleStart(@NotNull ConstructPluginEvent event) {
+  public void handleStart(@NonNull ConstructPluginEvent event) {
     this.signManagement = new SpongeSignManagement(this.plugin);
     this.signManagement.initialize();
     this.signManagement.registerToServiceRegistry();
@@ -62,13 +62,13 @@ public class SpongeSignsPlugin {
   }
 
   @Listener
-  public void handleShutdown(@NotNull StoppingEngineEvent<Server> event) {
+  public void handleShutdown(@NonNull StoppingEngineEvent<Server> event) {
     SpongeSignManagement.defaultInstance().unregisterFromServiceRegistry();
     CloudNetDriver.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
   }
 
   @Listener
-  public void handleCommandRegister(@NotNull RegisterCommandEvent<Command.Parameterized> event) {
+  public void handleCommandRegister(@NonNull RegisterCommandEvent<Command.Parameterized> event) {
     event.register(
       this.plugin,
       Command.builder()

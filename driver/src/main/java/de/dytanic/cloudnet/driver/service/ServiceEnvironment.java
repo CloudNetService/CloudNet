@@ -18,32 +18,32 @@ package de.dytanic.cloudnet.driver.service;
 
 import com.google.common.base.Verify;
 import de.dytanic.cloudnet.common.INameable;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class ServiceEnvironment implements INameable, Cloneable {
 
   private final String name;
   private final String environmentType;
 
-  protected ServiceEnvironment(@NotNull String name, @NotNull String environmentType) {
+  protected ServiceEnvironment(@NonNull String name, @NonNull String environmentType) {
     this.name = name;
     this.environmentType = environmentType;
   }
 
-  public static @NotNull Builder builder() {
+  public static @NonNull Builder builder() {
     return new Builder();
   }
 
-  public static @NotNull Builder builder(@NotNull ServiceEnvironment environment) {
+  public static @NonNull Builder builder(@NonNull ServiceEnvironment environment) {
     return builder().name(environment.name()).environmentType(environment.environmentType());
   }
 
   @Override
-  public @NotNull String name() {
+  public @NonNull String name() {
     return this.name;
   }
 
-  public @NotNull String environmentType() {
+  public @NonNull String environmentType() {
     return this.environmentType;
   }
 
@@ -61,22 +61,22 @@ public class ServiceEnvironment implements INameable, Cloneable {
     private String name;
     private String environmentType;
 
-    public @NotNull Builder name(@NotNull String name) {
+    public @NonNull Builder name(@NonNull String name) {
       this.name = name;
       return this;
     }
 
-    public @NotNull Builder environmentType(@NotNull String environmentType) {
+    public @NonNull Builder environmentType(@NonNull String environmentType) {
       this.environmentType = environmentType;
       return this;
     }
 
-    public @NotNull Builder environmentType(@NotNull ServiceEnvironmentType type) {
+    public @NonNull Builder environmentType(@NonNull ServiceEnvironmentType type) {
       this.environmentType = type.name();
       return this;
     }
 
-    public @NotNull ServiceEnvironment build() {
+    public @NonNull ServiceEnvironment build() {
       Verify.verifyNotNull(this.name, "no name given");
       Verify.verifyNotNull(this.environmentType, "no environment type given");
 

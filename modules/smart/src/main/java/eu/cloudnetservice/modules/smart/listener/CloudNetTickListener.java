@@ -42,7 +42,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class CloudNetTickListener {
@@ -52,12 +52,12 @@ public final class CloudNetTickListener {
   private final Map<String, Long> autoStartBlocks = new HashMap<>();
   private final Map<UUID, AtomicLong> autoStopTicks = new HashMap<>();
 
-  public CloudNetTickListener(@NotNull CloudNetSmartModule module) {
+  public CloudNetTickListener(@NonNull CloudNetSmartModule module) {
     this.module = module;
   }
 
   @EventListener
-  public void handleTick(@NotNull CloudNetTickEvent event) {
+  public void handleTick(@NonNull CloudNetTickEvent event) {
     if (CloudNet.instance().getClusterNodeServerProvider().selfNode().headNode()
       && event.ticker().currentTick() % CloudNetTick.TPS == 0) {
       this.handleSmartEntries();
@@ -90,10 +90,10 @@ public final class CloudNetTickListener {
   }
 
   private void handleAutoStop(
-    @NotNull ServiceTask task,
-    @NotNull SmartServiceTaskConfig config,
-    @NotNull Collection<ServiceInfoSnapshot> runningServices,
-    @NotNull Collection<ServiceInfoSnapshot> onlineServices
+    @NonNull ServiceTask task,
+    @NonNull SmartServiceTaskConfig config,
+    @NonNull Collection<ServiceInfoSnapshot> runningServices,
+    @NonNull Collection<ServiceInfoSnapshot> onlineServices
   ) {
     // check if we should stop a service now or if that operation would cause an instant restart of a service
     if (!SmartUtil.canStopNow(task, config, runningServices.size())) {
@@ -116,11 +116,11 @@ public final class CloudNetTickListener {
   }
 
   private void handleAutoStart(
-    @NotNull ServiceTask task,
-    @NotNull SmartServiceTaskConfig config,
-    @NotNull Collection<ServiceInfoSnapshot> preparedServices,
-    @NotNull Collection<ServiceInfoSnapshot> runningServices,
-    @NotNull Collection<ServiceInfoSnapshot> onlineServices
+    @NonNull ServiceTask task,
+    @NonNull SmartServiceTaskConfig config,
+    @NonNull Collection<ServiceInfoSnapshot> preparedServices,
+    @NonNull Collection<ServiceInfoSnapshot> runningServices,
+    @NonNull Collection<ServiceInfoSnapshot> onlineServices
   ) {
     // combine all prepared and running for logic splitting over nodes
     Collection<ServiceInfoSnapshot> allServices = new HashSet<>();
@@ -188,9 +188,9 @@ public final class CloudNetTickListener {
   }
 
   private @Nullable ServiceInfoSnapshot createService(
-    @NotNull ServiceTask task,
-    @NotNull SmartServiceTaskConfig config,
-    @NotNull Collection<ServiceInfoSnapshot> services
+    @NonNull ServiceTask task,
+    @NonNull SmartServiceTaskConfig config,
+    @NonNull Collection<ServiceInfoSnapshot> services
   ) {
     // check if we should decide directly which node server we use
     NodeServer server = null;
@@ -203,7 +203,7 @@ public final class CloudNetTickListener {
       .build());
   }
 
-  private @Nullable NodeServer selectNodeServer(@NotNull Collection<ServiceInfoSnapshot> services) {
+  private @Nullable NodeServer selectNodeServer(@NonNull Collection<ServiceInfoSnapshot> services) {
     // get all node servers
     Collection<? extends NodeServer> nodeServers = this.nodeServerProvider().nodeServers().stream()
       .filter(nodeServer -> nodeServer.available() && !nodeServer.drain())
@@ -227,15 +227,15 @@ public final class CloudNetTickListener {
       .orElse(null);
   }
 
-  private @NotNull ICloudServiceManager serviceManager() {
+  private @NonNull ICloudServiceManager serviceManager() {
     return CloudNet.instance().cloudServiceProvider();
   }
 
-  private @NotNull IClusterNodeServerProvider nodeServerProvider() {
+  private @NonNull IClusterNodeServerProvider nodeServerProvider() {
     return CloudNet.instance().getClusterNodeServerProvider();
   }
 
-  private @NotNull CloudServiceFactory serviceFactory() {
+  private @NonNull CloudServiceFactory serviceFactory() {
     return CloudNet.instance().cloudServiceFactory();
   }
 }

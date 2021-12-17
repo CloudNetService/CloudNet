@@ -20,6 +20,7 @@ import de.dytanic.cloudnet.ext.bridge.platform.PlatformBridgeManagement;
 import de.dytanic.cloudnet.ext.bridge.platform.helper.ServerPlatformHelper;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.Locale;
+import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -28,20 +29,19 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerLoginEvent.Result;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.NotNull;
 
 final class BukkitPlayerManagementListener implements Listener {
 
   private final Plugin plugin;
   private final PlatformBridgeManagement<?, ?> management;
 
-  public BukkitPlayerManagementListener(@NotNull Plugin plugin, @NotNull PlatformBridgeManagement<?, ?> management) {
+  public BukkitPlayerManagementListener(@NonNull Plugin plugin, @NonNull PlatformBridgeManagement<?, ?> management) {
     this.plugin = plugin;
     this.management = management;
   }
 
   @EventHandler
-  public void handle(@NotNull PlayerLoginEvent event) {
+  public void handle(@NonNull PlayerLoginEvent event) {
     var task = this.management.selfTask();
     // check if the current task is present
     if (task != null) {
@@ -65,7 +65,7 @@ final class BukkitPlayerManagementListener implements Listener {
   }
 
   @EventHandler
-  public void handle(@NotNull PlayerJoinEvent event) {
+  public void handle(@NonNull PlayerJoinEvent event) {
     ServerPlatformHelper.sendChannelMessageLoginSuccess(
       event.getPlayer().getUniqueId(),
       this.management.ownNetworkServiceInfo());
@@ -74,7 +74,7 @@ final class BukkitPlayerManagementListener implements Listener {
   }
 
   @EventHandler
-  public void handle(@NotNull PlayerQuitEvent event) {
+  public void handle(@NonNull PlayerQuitEvent event) {
     ServerPlatformHelper.sendChannelMessageDisconnected(
       event.getPlayer().getUniqueId(),
       this.management.ownNetworkServiceInfo());

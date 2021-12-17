@@ -25,7 +25,7 @@ import de.dytanic.cloudnet.driver.network.chunk.network.ChunkedPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import java.io.InputStream;
 import java.util.function.Consumer;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider implements ChunkedPacketSender {
 
@@ -35,9 +35,9 @@ public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider i
   protected final Consumer<IPacket> packetSplitter;
 
   public DefaultFileChunkPacketSender(
-    @NotNull ChunkSessionInformation sessionInformation,
-    @NotNull InputStream source,
-    @NotNull Consumer<IPacket> packetSplitter
+    @NonNull ChunkSessionInformation sessionInformation,
+    @NonNull InputStream source,
+    @NonNull Consumer<IPacket> packetSplitter
   ) {
     super(sessionInformation);
 
@@ -46,17 +46,17 @@ public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider i
   }
 
   @Override
-  public @NotNull InputStream source() {
+  public @NonNull InputStream source() {
     return this.source;
   }
 
   @Override
-  public @NotNull Consumer<IPacket> packetSplitter() {
+  public @NonNull Consumer<IPacket> packetSplitter() {
     return this.packetSplitter;
   }
 
   @Override
-  public @NotNull ITask<TransferStatus> transferChunkedData() {
+  public @NonNull ITask<TransferStatus> transferChunkedData() {
     return CompletableTask.supply(() -> {
       var readCalls = 0;
       var backingArray = new byte[this.chunkSessionInformation.chunkSize()];

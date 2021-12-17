@@ -21,9 +21,9 @@ import de.dytanic.cloudnet.ext.bridge.player.executor.ServerSelectorType;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.function.Supplier;
+import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 
@@ -33,25 +33,25 @@ final class SpongeDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
   private final Supplier<Collection<? extends ServerPlayer>> playerSupplier;
 
   public SpongeDirectPlayerExecutor(
-    @NotNull UUID targetUniqueId,
-    @NotNull Supplier<Collection<? extends ServerPlayer>> playerSupplier
+    @NonNull UUID targetUniqueId,
+    @NonNull Supplier<Collection<? extends ServerPlayer>> playerSupplier
   ) {
     this.targetUniqueId = targetUniqueId;
     this.playerSupplier = playerSupplier;
   }
 
   @Override
-  public @NotNull UUID uniqueId() {
+  public @NonNull UUID uniqueId() {
     return this.targetUniqueId;
   }
 
   @Override
-  public void connect(@NotNull String serviceName) {
+  public void connect(@NonNull String serviceName) {
     // no-op
   }
 
   @Override
-  public void connectSelecting(@NotNull ServerSelectorType selectorType) {
+  public void connectSelecting(@NonNull ServerSelectorType selectorType) {
     // no-op
   }
 
@@ -61,32 +61,32 @@ final class SpongeDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
   }
 
   @Override
-  public void connectToGroup(@NotNull String group, @NotNull ServerSelectorType selectorType) {
+  public void connectToGroup(@NonNull String group, @NonNull ServerSelectorType selectorType) {
     // no-op
   }
 
   @Override
-  public void connectToTask(@NotNull String task, @NotNull ServerSelectorType selectorType) {
+  public void connectToTask(@NonNull String task, @NonNull ServerSelectorType selectorType) {
     // no-op
   }
 
   @Override
-  public void kick(@NotNull Component message) {
+  public void kick(@NonNull Component message) {
     // no-op
   }
 
   @Override
-  public void sendTitle(@NotNull Title title) {
+  public void sendTitle(@NonNull Title title) {
     this.playerSupplier.get().forEach(player -> player.showTitle(title));
   }
 
   @Override
-  public void sendMessage(@NotNull Component message) {
+  public void sendMessage(@NonNull Component message) {
     this.playerSupplier.get().forEach(player -> player.sendMessage(message));
   }
 
   @Override
-  public void sendChatMessage(@NotNull Component message, @Nullable String permission) {
+  public void sendChatMessage(@NonNull Component message, @Nullable String permission) {
     this.playerSupplier.get().forEach(player -> {
       if (permission == null || player.hasPermission(permission)) {
         player.sendMessage(message);
@@ -95,12 +95,12 @@ final class SpongeDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
   }
 
   @Override
-  public void sendPluginMessage(@NotNull String tag, byte[] data) {
+  public void sendPluginMessage(@NonNull String tag, byte[] data) {
     // no-op
   }
 
   @Override
-  public void dispatchProxyCommand(@NotNull String command) {
+  public void dispatchProxyCommand(@NonNull String command) {
     // no-op
   }
 }

@@ -19,23 +19,23 @@ package de.dytanic.cloudnet.ext.bridge.event;
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
 import de.dytanic.cloudnet.ext.bridge.player.CloudPlayer;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class BridgeServerPlayerLoginEvent extends DriverEvent {
 
   private final CloudPlayer cloudPlayer;
   private final NetworkServiceInfo serviceInfo;
 
-  public BridgeServerPlayerLoginEvent(@NotNull CloudPlayer cloudPlayer, @NotNull NetworkServiceInfo serviceInfo) {
+  public BridgeServerPlayerLoginEvent(@NonNull CloudPlayer cloudPlayer, @NonNull NetworkServiceInfo serviceInfo) {
     this.cloudPlayer = cloudPlayer;
     this.serviceInfo = serviceInfo;
   }
 
-  public @NotNull CloudPlayer cloudPlayer() {
+  public @NonNull CloudPlayer cloudPlayer() {
     return this.cloudPlayer;
   }
 
-  public @NotNull NetworkServiceInfo service() {
+  public @NonNull NetworkServiceInfo service() {
     return this.serviceInfo;
   }
 }

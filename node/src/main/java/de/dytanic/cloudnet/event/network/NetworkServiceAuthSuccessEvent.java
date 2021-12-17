@@ -19,18 +19,18 @@ package de.dytanic.cloudnet.event.network;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.service.ICloudService;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class NetworkServiceAuthSuccessEvent extends NetworkEvent {
 
   private final ICloudService cloudService;
 
-  public NetworkServiceAuthSuccessEvent(@NotNull ICloudService cloudService, @NotNull INetworkChannel channel) {
+  public NetworkServiceAuthSuccessEvent(@NonNull ICloudService cloudService, @NonNull INetworkChannel channel) {
     super(channel);
     this.cloudService = cloudService;
   }
 
-  public @NotNull ICloudService cloudService() {
+  public @NonNull ICloudService cloudService() {
     return this.cloudService;
   }
 }

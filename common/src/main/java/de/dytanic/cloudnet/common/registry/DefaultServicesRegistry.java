@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * {@inheritDoc}
@@ -36,10 +36,10 @@ public class DefaultServicesRegistry implements IServicesRegistry {
    * {@inheritDoc}
    */
   @Override
-  public <T, E extends T> @NotNull IServicesRegistry registerService(
-    @NotNull Class<T> clazz,
-    @NotNull String name,
-    @NotNull E service
+  public <T, E extends T> @NonNull IServicesRegistry registerService(
+    @NonNull Class<T> clazz,
+    @NonNull String name,
+    @NonNull E service
   ) {
     this.providedServices.computeIfAbsent(clazz, c -> new CopyOnWriteArrayList<>())
       .add(new RegistryEntry<>(name, service));
@@ -50,9 +50,9 @@ public class DefaultServicesRegistry implements IServicesRegistry {
    * {@inheritDoc}
    */
   @Override
-  public <T, E extends T> @NotNull IServicesRegistry unregisterService(
-    @NotNull Class<T> clazz,
-    @NotNull Class<E> serviceClazz
+  public <T, E extends T> @NonNull IServicesRegistry unregisterService(
+    @NonNull Class<T> clazz,
+    @NonNull Class<E> serviceClazz
   ) {
     if (this.providedServices.containsKey(clazz)) {
       for (var registryEntry : this.providedServices.get(clazz)) {
@@ -73,7 +73,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
    * {@inheritDoc}
    */
   @Override
-  public <T, E extends T> @NotNull IServicesRegistry unregisterService(@NotNull Class<T> clazz, @NotNull E service) {
+  public <T, E extends T> @NonNull IServicesRegistry unregisterService(@NonNull Class<T> clazz, @NonNull E service) {
     if (this.providedServices.containsKey(clazz)) {
       for (var registryEntry : this.providedServices.get(clazz)) {
         if (registryEntry.service.equals(service)) {
@@ -95,7 +95,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
    * {@inheritDoc}
    */
   @Override
-  public <T> boolean containsService(@NotNull Class<T> clazz, @NotNull String name) {
+  public <T> boolean containsService(@NonNull Class<T> clazz, @NonNull String name) {
     if (this.providedServices.containsKey(clazz)) {
       for (var registryEntry : this.providedServices.get(clazz)) {
         if (registryEntry.name.equals(name)) {
@@ -111,7 +111,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
    * {@inheritDoc}
    */
   @Override
-  public <T> @NotNull IServicesRegistry unregisterService(@NotNull Class<T> clazz, @NotNull String name) {
+  public <T> @NonNull IServicesRegistry unregisterService(@NonNull Class<T> clazz, @NonNull String name) {
 
     if (this.providedServices.containsKey(clazz)) {
       for (var registryEntry : this.providedServices.get(clazz)) {
@@ -134,7 +134,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
    * {@inheritDoc}
    */
   @Override
-  public <T> @NotNull IServicesRegistry unregisterServices(@NotNull Class<T> clazz) {
+  public <T> @NonNull IServicesRegistry unregisterServices(@NonNull Class<T> clazz) {
     if (this.providedServices.containsKey(clazz)) {
       this.providedServices.get(clazz).clear();
       this.providedServices.remove(clazz);
@@ -147,7 +147,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull IServicesRegistry unregisterAll() {
+  public @NonNull IServicesRegistry unregisterAll() {
     this.providedServices.clear();
     return this;
   }
@@ -156,7 +156,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull IServicesRegistry unregisterAll(@NotNull ClassLoader classLoader) {
+  public @NonNull IServicesRegistry unregisterAll(@NonNull ClassLoader classLoader) {
     for (var item : this.providedServices.values()) {
       item.removeIf(entry -> entry.service.getClass().getClassLoader().equals(classLoader));
     }
@@ -168,7 +168,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull Collection<Class<?>> providedServices() {
+  public @NonNull Collection<Class<?>> providedServices() {
     return Collections.unmodifiableCollection(this.providedServices.keySet());
   }
 
@@ -177,7 +177,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
    */
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T service(@NotNull Class<T> clazz, @NotNull String name) {
+  public <T> T service(@NonNull Class<T> clazz, @NonNull String name) {
     T value = null;
 
     if (this.containsService(clazz, name)) {
@@ -197,7 +197,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
    */
   @Override
   @SuppressWarnings("unchecked")
-  public <T> @NotNull Collection<T> services(@NotNull Class<T> clazz) {
+  public <T> @NonNull Collection<T> services(@NonNull Class<T> clazz) {
     Collection<T> collection = new ArrayList<>();
     if (this.providedServices.containsKey(clazz)) {
       for (var entry : this.providedServices.get(clazz)) {
@@ -208,7 +208,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
     return collection;
   }
 
-  private record RegistryEntry<T>(@NotNull String name, @NotNull T service) {
+  private record RegistryEntry<T>(@NonNull String name, @NonNull T service) {
 
   }
 }

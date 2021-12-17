@@ -29,7 +29,7 @@ import eu.cloudnetservice.ext.sftp.config.SFTPTemplateStorageConfig;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class SFTPTemplateStorageModule extends DriverModule {
 
@@ -88,7 +88,7 @@ public final class SFTPTemplateStorageModule extends DriverModule {
     this.serviceRegistry().unregisterService(TemplateStorage.class, this.storage.name());
   }
 
-  public void writeConfig(@NotNull SFTPTemplateStorageConfig config) {
+  public void writeConfig(@NonNull SFTPTemplateStorageConfig config) {
     this.config = config;
     JsonDocument.newDocument(config).write(this.configPath());
   }

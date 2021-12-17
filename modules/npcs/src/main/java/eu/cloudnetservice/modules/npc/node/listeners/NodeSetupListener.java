@@ -26,7 +26,7 @@ import de.dytanic.cloudnet.event.setup.SetupInitiateEvent;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfigurationEntry;
 import eu.cloudnetservice.modules.npc.node.NodeNPCManagement;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class NodeSetupListener {
 
@@ -42,12 +42,12 @@ public final class NodeSetupListener {
 
   private final NodeNPCManagement management;
 
-  public NodeSetupListener(@NotNull NodeNPCManagement management) {
+  public NodeSetupListener(@NonNull NodeNPCManagement management) {
     this.management = management;
   }
 
   @EventListener
-  public void handle(@NotNull SetupInitiateEvent event) {
+  public void handle(@NonNull SetupInitiateEvent event) {
     event.setup().entries().stream()
       .filter(entry -> entry.key().equals("taskEnvironment"))
       .findFirst()
@@ -60,7 +60,7 @@ public final class NodeSetupListener {
   }
 
   @EventListener
-  public void handle(@NotNull SetupCompleteEvent event) {
+  public void handle(@NonNull SetupCompleteEvent event) {
     if (event.setup().hasResult("generateDefaultNPCConfigurationEntry")) {
       String taskName = event.setup().result("taskName");
       Boolean generateNPCConfig = event.setup().result("generateDefaultNPCConfigurationEntry");

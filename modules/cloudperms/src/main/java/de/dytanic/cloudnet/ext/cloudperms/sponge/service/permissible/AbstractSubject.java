@@ -22,7 +22,7 @@ import de.dytanic.cloudnet.driver.permission.Permission;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.spongepowered.api.event.Cause;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.permission.Subject;
@@ -104,11 +104,11 @@ public abstract class AbstractSubject<T extends IPermissible> implements Subject
     return this.identifier;
   }
 
-  protected @NotNull Optional<String> findOption(@NotNull String key) {
+  protected @NonNull Optional<String> findOption(@NonNull String key) {
     return Optional.ofNullable(this.data.properties().getString(key));
   }
 
-  protected @NotNull Tristate getPermissionValue(@NotNull Permission permission) {
+  protected @NonNull Tristate getPermissionValue(@NonNull Permission permission) {
     var result = this.permissionManagement.permissionResult(this.data, permission);
     return switch (result) {
       case ALLOWED -> Tristate.TRUE;
@@ -117,7 +117,7 @@ public abstract class AbstractSubject<T extends IPermissible> implements Subject
     };
   }
 
-  protected abstract boolean isChild(@NotNull String parent);
+  protected abstract boolean isChild(@NonNull String parent);
 
-  protected abstract @NotNull List<? extends SubjectReference> getParents();
+  protected abstract @NonNull List<? extends SubjectReference> getParents();
 }

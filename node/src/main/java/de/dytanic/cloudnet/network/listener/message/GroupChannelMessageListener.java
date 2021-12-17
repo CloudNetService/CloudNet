@@ -27,7 +27,7 @@ import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.provider.NodeGroupConfigurationProvider;
 import java.lang.reflect.Type;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class GroupChannelMessageListener {
 
@@ -37,15 +37,15 @@ public final class GroupChannelMessageListener {
   private final NodeGroupConfigurationProvider groupProvider;
 
   public GroupChannelMessageListener(
-    @NotNull IEventManager eventManager,
-    @NotNull NodeGroupConfigurationProvider groupProvider
+    @NonNull IEventManager eventManager,
+    @NonNull NodeGroupConfigurationProvider groupProvider
   ) {
     this.eventManager = eventManager;
     this.groupProvider = groupProvider;
   }
 
   @EventListener
-  public void handleChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
+  public void handleChannelMessage(@NonNull ChannelMessageReceiveEvent event) {
     if (event.channel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
       switch (event.message()) {
         // set groups

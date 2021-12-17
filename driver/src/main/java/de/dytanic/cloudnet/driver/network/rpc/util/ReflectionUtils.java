@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.driver.network.rpc.util;
 
 import java.lang.reflect.Field;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class ReflectionUtils {
 
@@ -25,7 +25,7 @@ public final class ReflectionUtils {
     throw new UnsupportedOperationException();
   }
 
-  public static @NotNull String fieldToReadableString(@NotNull Field field) {
+  public static @NonNull String fieldToReadableString(@NonNull Field field) {
     return String.format(
       "%s:%s@%s",
       field.getDeclaringClass().getCanonicalName(),

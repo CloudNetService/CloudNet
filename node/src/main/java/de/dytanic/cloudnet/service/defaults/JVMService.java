@@ -52,7 +52,7 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class JVMService extends AbstractService {
@@ -70,11 +70,11 @@ public class JVMService extends AbstractService {
   protected volatile Process process;
 
   public JVMService(
-    @NotNull ServiceConfiguration configuration,
-    @NotNull ICloudServiceManager manager,
-    @NotNull IEventManager eventManager,
-    @NotNull CloudNet nodeInstance,
-    @NotNull ServiceConfigurationPreparer serviceConfigurationPreparer
+    @NonNull ServiceConfiguration configuration,
+    @NonNull ICloudServiceManager manager,
+    @NonNull IEventManager eventManager,
+    @NonNull CloudNet nodeInstance,
+    @NonNull ServiceConfigurationPreparer serviceConfigurationPreparer
   ) {
     super(configuration, manager, eventManager, nodeInstance, serviceConfigurationPreparer);
     super.logCache = new ProcessServiceLogCache(() -> this.process, nodeInstance, this);
@@ -172,7 +172,7 @@ public class JVMService extends AbstractService {
   }
 
   @Override
-  public void runCommand(@NotNull String command) {
+  public void runCommand(@NonNull String command) {
     if (this.process != null) {
       try {
         var out = this.process.getOutputStream();
@@ -186,7 +186,7 @@ public class JVMService extends AbstractService {
   }
 
   @Override
-  public @NotNull String runtime() {
+  public @NonNull String runtime() {
     return "jvm";
   }
 
@@ -238,7 +238,7 @@ public class JVMService extends AbstractService {
   }
 
   protected @Nullable Pair<Path, ApplicationStartupInformation> prepareApplicationFile(
-    @NotNull ServiceEnvironmentType environmentType
+    @NonNull ServiceEnvironmentType environmentType
   ) {
     // collect all names of environment names
     var environments = this.nodeInstance.serviceVersionProvider().serviceVersionTypes().values().stream()
@@ -304,8 +304,8 @@ public class JVMService extends AbstractService {
   }
 
   protected @Nullable <T> Pair<Path, T> completeJarAttributeInformation(
-    @NotNull Path jarFilePath,
-    @NotNull ThrowableFunction<JarFile, T, IOException> mapper
+    @NonNull Path jarFilePath,
+    @NonNull ThrowableFunction<JarFile, T, IOException> mapper
   ) {
     // open the file and lookup the main class
     try (var jarFile = new JarFile(jarFilePath.toFile())) {
@@ -316,7 +316,7 @@ public class JVMService extends AbstractService {
     }
   }
 
-  protected record ApplicationStartupInformation(boolean preloadJarContent, @NotNull Attributes mainAttributes) {
+  protected record ApplicationStartupInformation(boolean preloadJarContent, @NonNull Attributes mainAttributes) {
 
   }
 }

@@ -25,8 +25,8 @@ import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -53,7 +53,7 @@ public class Sign implements Comparable<Sign> {
    * @param targetGroup   the group the sign is targeting
    * @param worldPosition the position of the sign in the world
    */
-  public Sign(@NotNull String targetGroup, @NotNull WorldPosition worldPosition) {
+  public Sign(@NonNull String targetGroup, @NonNull WorldPosition worldPosition) {
     this(targetGroup, null, worldPosition);
   }
 
@@ -64,13 +64,13 @@ public class Sign implements Comparable<Sign> {
    * @param templatePath  the template of this
    * @param worldPosition the position of the sign in the world
    */
-  public Sign(@NotNull String targetGroup, @Nullable String templatePath, @NotNull WorldPosition worldPosition) {
+  public Sign(@NonNull String targetGroup, @Nullable String templatePath, @NonNull WorldPosition worldPosition) {
     this.targetGroup = targetGroup;
     this.templatePath = templatePath;
     this.worldPosition = worldPosition;
   }
 
-  public @NotNull String targetGroup() {
+  public @NonNull String targetGroup() {
     return this.targetGroup;
   }
 
@@ -78,7 +78,7 @@ public class Sign implements Comparable<Sign> {
     return this.templatePath;
   }
 
-  public @NotNull WorldPosition location() {
+  public @NonNull WorldPosition location() {
     return this.worldPosition;
   }
 
@@ -127,7 +127,7 @@ public class Sign implements Comparable<Sign> {
   }
 
   @Override
-  public int compareTo(@NotNull Sign sign) {
+  public int compareTo(@NonNull Sign sign) {
     return Integer.compare(this.priority(), sign.priority());
   }
 }

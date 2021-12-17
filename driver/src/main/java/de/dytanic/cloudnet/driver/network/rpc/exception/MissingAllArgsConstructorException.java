@@ -17,11 +17,11 @@
 package de.dytanic.cloudnet.driver.network.rpc.exception;
 
 import java.util.Arrays;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class MissingAllArgsConstructorException extends IllegalStateException {
 
-  public MissingAllArgsConstructorException(@NotNull Class<?> clazz, @NotNull Class<?>[] arguments) {
+  public MissingAllArgsConstructorException(@NonNull Class<?> clazz, @NonNull Class<?>[] arguments) {
     super(String.format(
       "Missing all args constructor for class %s with args %s",
       clazz.getCanonicalName(),

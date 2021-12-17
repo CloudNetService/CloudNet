@@ -17,25 +17,25 @@
 package de.dytanic.cloudnet.driver.network.http;
 
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public interface IHttpComponent<T extends IHttpComponent<?>> extends AutoCloseable {
 
   boolean sslEnabled();
 
-  @NotNull T registerHandler(@NotNull String path, @NotNull IHttpHandler... handlers);
+  @NonNull T registerHandler(@NonNull String path, @NonNull IHttpHandler... handlers);
 
-  @NotNull T registerHandler(@NotNull String path, int priority, @NotNull IHttpHandler... handlers);
+  @NonNull T registerHandler(@NonNull String path, int priority, @NonNull IHttpHandler... handlers);
 
-  @NotNull T registerHandler(@NotNull String path, Integer port, int priority, @NotNull IHttpHandler... handlers);
+  @NonNull T registerHandler(@NonNull String path, Integer port, int priority, @NonNull IHttpHandler... handlers);
 
-  @NotNull T removeHandler(@NotNull IHttpHandler handler);
+  @NonNull T removeHandler(@NonNull IHttpHandler handler);
 
-  @NotNull T removeHandler(@NotNull Class<? extends IHttpHandler> handler);
+  @NonNull T removeHandler(@NonNull Class<? extends IHttpHandler> handler);
 
-  @NotNull T removeHandler(@NotNull ClassLoader classLoader);
+  @NonNull T removeHandler(@NonNull ClassLoader classLoader);
 
-  @NotNull Collection<IHttpHandler> httpHandlers();
+  @NonNull Collection<IHttpHandler> httpHandlers();
 
-  @NotNull T clearHandlers();
+  @NonNull T clearHandlers();
 }

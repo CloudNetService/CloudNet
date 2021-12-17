@@ -23,8 +23,8 @@ import de.dytanic.cloudnet.driver.module.ModuleConfiguration;
 import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
 import java.util.Collection;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
@@ -56,12 +56,12 @@ public class NetworkClusterNodeInfoSnapshot extends JsonDocPropertyHolder {
     int reservedMemory,
     int currentServicesCount,
     boolean drain,
-    @NotNull NetworkClusterNode node,
-    @NotNull CloudNetVersion version,
-    @NotNull ProcessSnapshot processSnapshot,
+    @NonNull NetworkClusterNode node,
+    @NonNull CloudNetVersion version,
+    @NonNull ProcessSnapshot processSnapshot,
     double maxCPUUsageToStartServices,
-    @NotNull Collection<ModuleConfiguration> modules,
-    @NotNull JsonDocument properties
+    @NonNull Collection<ModuleConfiguration> modules,
+    @NonNull JsonDocument properties
   ) {
     this.creationTime = creationTime;
     this.startupMillis = startupMillis;
@@ -106,15 +106,15 @@ public class NetworkClusterNodeInfoSnapshot extends JsonDocPropertyHolder {
     return this.drain;
   }
 
-  public @NotNull NetworkClusterNode node() {
+  public @NonNull NetworkClusterNode node() {
     return this.node;
   }
 
-  public @NotNull CloudNetVersion version() {
+  public @NonNull CloudNetVersion version() {
     return this.version;
   }
 
-  public @NotNull ProcessSnapshot processSnapshot() {
+  public @NonNull ProcessSnapshot processSnapshot() {
     return this.processSnapshot;
   }
 
@@ -122,7 +122,7 @@ public class NetworkClusterNodeInfoSnapshot extends JsonDocPropertyHolder {
     return this.maxCPUUsageToStartServices;
   }
 
-  public @NotNull Collection<ModuleConfiguration> modules() {
+  public @NonNull Collection<ModuleConfiguration> modules() {
     return this.modules;
   }
 }

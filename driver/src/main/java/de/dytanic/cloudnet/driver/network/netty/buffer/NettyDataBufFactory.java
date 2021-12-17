@@ -20,7 +20,7 @@ import com.google.common.base.Verify;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
 import io.netty.buffer.Unpooled;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class NettyDataBufFactory implements DataBufFactory {
 
@@ -30,34 +30,34 @@ public class NettyDataBufFactory implements DataBufFactory {
   }
 
   @Override
-  public @NotNull DataBuf.Mutable createEmpty() {
+  public @NonNull DataBuf.Mutable createEmpty() {
     return new NettyMutableDataBuf(Unpooled.buffer());
   }
 
   @Override
-  public @NotNull DataBuf createReadOnly() {
+  public @NonNull DataBuf createReadOnly() {
     return new NettyImmutableDataBuf(Unpooled.EMPTY_BUFFER);
   }
 
   @Override
-  public @NotNull DataBuf createOf(byte @NotNull [] bytes) {
+  public @NonNull DataBuf createOf(byte @NonNull [] bytes) {
     return new NettyImmutableDataBuf(Unpooled.wrappedBuffer(bytes));
   }
 
   @Override
-  public @NotNull DataBuf copyOf(@NotNull DataBuf dataBuf) {
+  public @NonNull DataBuf copyOf(@NonNull DataBuf dataBuf) {
     Verify.verify(dataBuf instanceof NettyImmutableDataBuf, "Factory only supports netty data buf copy");
     return new NettyImmutableDataBuf(Unpooled.copiedBuffer(((NettyImmutableDataBuf) dataBuf).byteBuf));
   }
 
   @Override
-  public @NotNull DataBuf.Mutable mutableCopyOf(@NotNull DataBuf dataBuf) {
+  public @NonNull DataBuf.Mutable mutableCopyOf(@NonNull DataBuf dataBuf) {
     Verify.verify(dataBuf instanceof NettyImmutableDataBuf, "Factory only supports netty data buf copy");
     return new NettyMutableDataBuf(Unpooled.copiedBuffer(((NettyImmutableDataBuf) dataBuf).byteBuf));
   }
 
   @Override
-  public @NotNull DataBuf.Mutable createWithExpectedSize(int byteSize) {
+  public @NonNull DataBuf.Mutable createWithExpectedSize(int byteSize) {
     return new NettyMutableDataBuf(Unpooled.buffer(byteSize));
   }
 }

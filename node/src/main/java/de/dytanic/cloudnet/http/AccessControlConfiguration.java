@@ -17,8 +17,8 @@
 package de.dytanic.cloudnet.http;
 
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode
@@ -35,11 +35,11 @@ public final class AccessControlConfiguration {
     this.accessControlMaxAge = accessControlMaxAge;
   }
 
-  public static @NotNull AccessControlConfiguration defaults() {
+  public static @NonNull AccessControlConfiguration defaults() {
     return AccessControlConfiguration.defaultConfiguration;
   }
 
-  public static void setDefaultConfiguration(@NotNull AccessControlConfiguration configuration) {
+  public static void setDefaultConfiguration(@NonNull AccessControlConfiguration configuration) {
     AccessControlConfiguration.defaultConfiguration = configuration;
   }
 

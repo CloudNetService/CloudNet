@@ -27,9 +27,9 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
+import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.jetbrains.annotations.NotNull;
 
 public final class VelocityCloudPermissionsPlayerListener {
 
@@ -38,9 +38,9 @@ public final class VelocityCloudPermissionsPlayerListener {
   private final IPermissionManagement permissionsManagement;
 
   public VelocityCloudPermissionsPlayerListener(
-    @NotNull ProxyServer proxyServer,
-    @NotNull PermissionProvider permissionProvider,
-    @NotNull IPermissionManagement permissionsManagement
+    @NonNull ProxyServer proxyServer,
+    @NonNull PermissionProvider permissionProvider,
+    @NonNull IPermissionManagement permissionsManagement
   ) {
     this.proxyServer = proxyServer;
     this.permissionProvider = permissionProvider;
@@ -48,7 +48,7 @@ public final class VelocityCloudPermissionsPlayerListener {
   }
 
   @Subscribe(order = PostOrder.LAST)
-  public void handle(@NotNull LoginEvent event) {
+  public void handle(@NonNull LoginEvent event) {
     if (event.getResult().isAllowed()) {
       CloudPermissionsHelper.initPermissionUser(
         this.permissionsManagement,
@@ -63,14 +63,14 @@ public final class VelocityCloudPermissionsPlayerListener {
   }
 
   @Subscribe
-  public void handle(@NotNull PermissionsSetupEvent event) {
+  public void handle(@NonNull PermissionsSetupEvent event) {
     if (event.getSubject() instanceof Player) {
       event.setProvider(this.permissionProvider);
     }
   }
 
   @Subscribe
-  public void handle(@NotNull DisconnectEvent event) {
+  public void handle(@NonNull DisconnectEvent event) {
     CloudPermissionsHelper.handlePlayerQuit(this.permissionsManagement, event.getPlayer().getUniqueId());
   }
 }

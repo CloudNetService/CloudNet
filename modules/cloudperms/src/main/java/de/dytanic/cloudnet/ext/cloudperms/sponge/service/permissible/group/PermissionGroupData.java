@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.SubjectReference;
@@ -41,7 +41,7 @@ final class PermissionGroupData extends PermissibleSubjectData<PermissionGroup> 
   }
 
   @Override
-  protected void update(@NotNull PermissionGroup data) {
+  protected void update(@NonNull PermissionGroup data) {
     this.management.updateGroup(data);
   }
 

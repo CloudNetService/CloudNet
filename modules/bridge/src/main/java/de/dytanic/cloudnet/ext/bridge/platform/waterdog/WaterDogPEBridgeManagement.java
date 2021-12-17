@@ -37,7 +37,7 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 final class WaterDogPEBridgeManagement extends PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> {
@@ -71,18 +71,18 @@ final class WaterDogPEBridgeManagement extends PlatformBridgeManagement<ProxiedP
   }
 
   @Override
-  public void registerServices(@NotNull IServicesRegistry registry) {
+  public void registerServices(@NonNull IServicesRegistry registry) {
     registry.registerService(IPlayerManager.class, "PlayerManager", this.playerManager);
     registry.registerService(PlatformBridgeManagement.class, "WaterDogPEBridgeManagement", this);
   }
 
   @Override
-  public @NotNull ServicePlayer wrapPlayer(@NotNull ProxiedPlayer player) {
+  public @NonNull ServicePlayer wrapPlayer(@NonNull ProxiedPlayer player) {
     return new ServicePlayer(player.getUniqueId(), player.getName());
   }
 
   @Override
-  public @NotNull NetworkPlayerProxyInfo createPlayerInformation(@NotNull ProxiedPlayer player) {
+  public @NonNull NetworkPlayerProxyInfo createPlayerInformation(@NonNull ProxiedPlayer player) {
     return new NetworkPlayerProxyInfo(
       player.getUniqueId(),
       player.getName(),
@@ -95,12 +95,12 @@ final class WaterDogPEBridgeManagement extends PlatformBridgeManagement<ProxiedP
   }
 
   @Override
-  public @NotNull BiFunction<ProxiedPlayer, String, Boolean> permissionFunction() {
+  public @NonNull BiFunction<ProxiedPlayer, String, Boolean> permissionFunction() {
     return PERM_FUNCTION;
   }
 
   @Override
-  public boolean isOnAnyFallbackInstance(@NotNull ProxiedPlayer player) {
+  public boolean isOnAnyFallbackInstance(@NonNull ProxiedPlayer player) {
     return this.isOnAnyFallbackInstance(
       player.getServerInfo() == null ? null : player.getServerInfo().getServerName(),
       player.getLoginData().getJoinHostname(),
@@ -108,13 +108,13 @@ final class WaterDogPEBridgeManagement extends PlatformBridgeManagement<ProxiedP
   }
 
   @Override
-  public @NotNull Optional<ServiceInfoSnapshot> fallback(@NotNull ProxiedPlayer player) {
+  public @NonNull Optional<ServiceInfoSnapshot> fallback(@NonNull ProxiedPlayer player) {
     return this.fallback(player, player.getServerInfo() == null ? null : player.getServerInfo().getServerName());
   }
 
   @Override
-  public @NotNull Optional<ServiceInfoSnapshot> fallback(
-    @NotNull ProxiedPlayer player,
+  public @NonNull Optional<ServiceInfoSnapshot> fallback(
+    @NonNull ProxiedPlayer player,
     @Nullable String currServer
   ) {
     return this.fallback(
@@ -125,17 +125,17 @@ final class WaterDogPEBridgeManagement extends PlatformBridgeManagement<ProxiedP
   }
 
   @Override
-  public void handleFallbackConnectionSuccess(@NotNull ProxiedPlayer player) {
+  public void handleFallbackConnectionSuccess(@NonNull ProxiedPlayer player) {
     this.handleFallbackConnectionSuccess(player.getUniqueId());
   }
 
   @Override
-  public void removeFallbackProfile(@NotNull ProxiedPlayer player) {
+  public void removeFallbackProfile(@NonNull ProxiedPlayer player) {
     this.removeFallbackProfile(player.getUniqueId());
   }
 
   @Override
-  public @NotNull PlayerExecutor directPlayerExecutor(@NotNull UUID uniqueId) {
+  public @NonNull PlayerExecutor directPlayerExecutor(@NonNull UUID uniqueId) {
     return uniqueId.equals(PlayerExecutor.GLOBAL_UNIQUE_ID)
       ? this.globalDirectPlayerExecutor
       : new WaterDogPEDirectPlayerExecutor(
@@ -145,7 +145,7 @@ final class WaterDogPEBridgeManagement extends PlatformBridgeManagement<ProxiedP
   }
 
   @Override
-  public void appendServiceInformation(@NotNull ServiceInfoSnapshot snapshot) {
+  public void appendServiceInformation(@NonNull ServiceInfoSnapshot snapshot) {
     super.appendServiceInformation(snapshot);
     // append the velocity specific information
     snapshot.properties().append("Online-Count", ProxyServer.getInstance().getPlayers().size());

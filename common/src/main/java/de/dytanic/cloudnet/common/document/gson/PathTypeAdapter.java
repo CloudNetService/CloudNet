@@ -23,15 +23,15 @@ import com.google.gson.stream.JsonWriter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Internal
 final class PathTypeAdapter extends TypeAdapter<Path> {
 
   @Override
-  public void write(@NotNull JsonWriter out, @Nullable Path value) throws IOException {
+  public void write(@NonNull JsonWriter out, @Nullable Path value) throws IOException {
     TypeAdapters.STRING.write(out, value == null ? null : value.toString().replace(File.separatorChar, '/'));
   }
 

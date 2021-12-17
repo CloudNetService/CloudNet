@@ -18,22 +18,22 @@ package de.dytanic.cloudnet.driver.event.events.service;
 
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class CloudServiceLifecycleChangeEvent extends CloudServiceEvent {
 
   private final ServiceLifeCycle lastLifeCycle;
 
-  public CloudServiceLifecycleChangeEvent(@NotNull ServiceLifeCycle lastLifeCycle, @NotNull ServiceInfoSnapshot info) {
+  public CloudServiceLifecycleChangeEvent(@NonNull ServiceLifeCycle lastLifeCycle, @NonNull ServiceInfoSnapshot info) {
     super(info);
     this.lastLifeCycle = lastLifeCycle;
   }
 
-  public @NotNull ServiceLifeCycle lastLifeCycle() {
+  public @NonNull ServiceLifeCycle lastLifeCycle() {
     return this.lastLifeCycle;
   }
 
-  public @NotNull ServiceLifeCycle newLifeCycle() {
+  public @NonNull ServiceLifeCycle newLifeCycle() {
     return this.serviceInfo.lifeCycle();
   }
 }

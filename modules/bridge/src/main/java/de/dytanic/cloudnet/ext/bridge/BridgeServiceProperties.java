@@ -28,7 +28,7 @@ import de.dytanic.cloudnet.driver.service.property.DefaultModifiableServicePrope
 import de.dytanic.cloudnet.driver.service.property.ServiceProperty;
 import de.dytanic.cloudnet.ext.bridge.player.ServicePlayer;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * Properties in ServiceInfos by the bridge module.
@@ -99,14 +99,14 @@ public final class BridgeServiceProperties {
     throw new UnsupportedOperationException();
   }
 
-  private static boolean emptyService(@NotNull ServiceInfoSnapshot service) {
+  private static boolean emptyService(@NonNull ServiceInfoSnapshot service) {
     return service.connected()
       && service.property(IS_ONLINE).orElse(false)
       && service.property(ONLINE_COUNT).isPresent()
       && service.property(ONLINE_COUNT).orElse(0) == 0;
   }
 
-  private static boolean fullService(@NotNull ServiceInfoSnapshot service) {
+  private static boolean fullService(@NonNull ServiceInfoSnapshot service) {
     return service.connected()
       && service.property(IS_ONLINE).orElse(false)
       && service.property(ONLINE_COUNT).isPresent()
@@ -114,11 +114,11 @@ public final class BridgeServiceProperties {
       && service.property(ONLINE_COUNT).orElse(0) >= service.property(MAX_PLAYERS).orElse(0);
   }
 
-  private static boolean startingService(@NotNull ServiceInfoSnapshot service) {
+  private static boolean startingService(@NonNull ServiceInfoSnapshot service) {
     return service.lifeCycle() == ServiceLifeCycle.RUNNING && !service.property(IS_ONLINE).orElse(false);
   }
 
-  private static boolean inGameService(@NotNull ServiceInfoSnapshot service) {
+  private static boolean inGameService(@NonNull ServiceInfoSnapshot service) {
     return service.lifeCycle() == ServiceLifeCycle.RUNNING && service.connected()
       && service.property(IS_ONLINE).orElse(false)
       && (service.property(MOTD).map(BridgeServiceProperties::matchesInGameString).orElse(false) ||
@@ -126,7 +126,7 @@ public final class BridgeServiceProperties {
       service.property(STATE).map(BridgeServiceProperties::matchesInGameString).orElse(false));
   }
 
-  private static boolean matchesInGameString(@NotNull String value) {
+  private static boolean matchesInGameString(@NonNull String value) {
     value = value.toLowerCase();
     return value.contains("ingame") || value.contains("running") || value.contains("playing");
   }

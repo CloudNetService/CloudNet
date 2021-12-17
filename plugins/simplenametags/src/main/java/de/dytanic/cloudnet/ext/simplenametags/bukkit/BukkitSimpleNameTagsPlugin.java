@@ -17,13 +17,13 @@
 package de.dytanic.cloudnet.ext.simplenametags.bukkit;
 
 import de.dytanic.cloudnet.ext.simplenametags.SimpleNameTagsManager;
+import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
 
 public final class BukkitSimpleNameTagsPlugin extends JavaPlugin implements Listener {
 
@@ -36,7 +36,7 @@ public final class BukkitSimpleNameTagsPlugin extends JavaPlugin implements List
   }
 
   @EventHandler
-  public void handle(@NotNull PlayerJoinEvent event) {
+  public void handle(@NonNull PlayerJoinEvent event) {
     this.nameTagsManager.updateNameTagsFor(event.getPlayer());
   }
 }

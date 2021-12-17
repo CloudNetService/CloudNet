@@ -20,8 +20,8 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.regex.Pattern;
+import lombok.NonNull;
 import org.bukkit.Bukkit;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class ReflectionUtil {
@@ -61,7 +61,7 @@ public final class ReflectionUtil {
     NMS_PACKAGE = nmsPackage;
   }
 
-  public static @NotNull Class<?> findNmsClass(String @NotNull ... names) {
+  public static @NonNull Class<?> findNmsClass(String @NonNull ... names) {
     for (var name : names) {
       try {
         return Class.forName(NMS_PACKAGE + name);
@@ -72,7 +72,7 @@ public final class ReflectionUtil {
     throw new IllegalArgumentException("No nms class named " + String.join(", ", names) + " in " + NMS_PACKAGE);
   }
 
-  public static @NotNull Class<?> findCraftBukkitClass(String @NotNull ... names) {
+  public static @NonNull Class<?> findCraftBukkitClass(String @NonNull ... names) {
     for (var name : names) {
       try {
         return Class.forName(CRAFT_BUKKIT_PACKAGE + name);
@@ -84,10 +84,10 @@ public final class ReflectionUtil {
       "No nms class named " + String.join(", ", names) + " in " + CRAFT_BUKKIT_PACKAGE);
   }
 
-  public static @NotNull MethodHandle findMethod(
-    @NotNull Class<?> clazz,
-    @NotNull Class<?>[] pts,
-    String @NotNull ... names
+  public static @NonNull MethodHandle findMethod(
+    @NonNull Class<?> clazz,
+    @NonNull Class<?>[] pts,
+    String @NonNull ... names
   ) {
     for (var name : names) {
       var handle = findMethod(clazz, name, pts);
@@ -98,7 +98,7 @@ public final class ReflectionUtil {
     throw new IllegalArgumentException("No method with name " + String.join(", ", names) + " in " + clazz);
   }
 
-  public static @NotNull MethodHandle findConstructor(Class<?> clazz, Class<?> @NotNull ... argumentTypes) {
+  public static @NonNull MethodHandle findConstructor(Class<?> clazz, Class<?> @NonNull ... argumentTypes) {
     try {
       return MethodHandles.lookup().findConstructor(clazz, MethodType.methodType(void.class, argumentTypes));
     } catch (NoSuchMethodException | IllegalAccessException exception) {
@@ -107,9 +107,9 @@ public final class ReflectionUtil {
   }
 
   public static @Nullable MethodHandle findMethod(
-    @NotNull Class<?> clazz,
-    @NotNull String name,
-    Class<?> @NotNull ... pts
+    @NonNull Class<?> clazz,
+    @NonNull String name,
+    Class<?> @NonNull ... pts
   ) {
     try {
       var method = clazz.getDeclaredMethod(name, pts);
@@ -120,7 +120,7 @@ public final class ReflectionUtil {
   }
 
   @SuppressWarnings("unchecked")
-  public static @Nullable <T> T staticFieldValue(@NotNull Class<?> origin, @NotNull String name) {
+  public static @Nullable <T> T staticFieldValue(@NonNull Class<?> origin, @NonNull String name) {
     try {
       var field = origin.getDeclaredField(name);
       return (T) field.get(null);

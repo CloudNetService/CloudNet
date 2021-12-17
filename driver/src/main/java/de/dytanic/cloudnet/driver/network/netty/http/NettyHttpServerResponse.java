@@ -29,7 +29,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 final class NettyHttpServerResponse extends NettyHttpMessage implements IHttpResponse {
 
@@ -53,36 +53,36 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements IHttpRes
   }
 
   @Override
-  public @NotNull IHttpResponse statusCode(int code) {
+  public @NonNull IHttpResponse statusCode(int code) {
     this.httpResponse.setStatus(HttpResponseStatus.valueOf(code));
     return this;
   }
 
   @Override
-  public @NotNull IHttpContext context() {
+  public @NonNull IHttpContext context() {
     return this.context;
   }
 
   @Override
-  public String header(@NotNull String name) {
+  public String header(@NonNull String name) {
     Preconditions.checkNotNull(name);
     return this.httpResponse.headers().getAsString(name);
   }
 
   @Override
-  public int headerAsInt(@NotNull String name) {
+  public int headerAsInt(@NonNull String name) {
     Preconditions.checkNotNull(name);
     return this.httpResponse.headers().getInt(name);
   }
 
   @Override
-  public boolean headerAsBoolean(@NotNull String name) {
+  public boolean headerAsBoolean(@NonNull String name) {
     Preconditions.checkNotNull(name);
     return Boolean.parseBoolean(this.httpResponse.headers().get(name));
   }
 
   @Override
-  public @NotNull IHttpResponse header(@NotNull String name, @NotNull String value) {
+  public @NonNull IHttpResponse header(@NonNull String name, @NonNull String value) {
     Preconditions.checkNotNull(name);
     Preconditions.checkNotNull(value);
 
@@ -91,26 +91,26 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements IHttpRes
   }
 
   @Override
-  public @NotNull IHttpResponse removeHeader(@NotNull String name) {
+  public @NonNull IHttpResponse removeHeader(@NonNull String name) {
     Preconditions.checkNotNull(name);
     this.httpResponse.headers().remove(name);
     return this;
   }
 
   @Override
-  public @NotNull IHttpResponse clearHeaders() {
+  public @NonNull IHttpResponse clearHeaders() {
     this.httpResponse.headers().clear();
     return this;
   }
 
   @Override
-  public boolean hasHeader(@NotNull String name) {
+  public boolean hasHeader(@NonNull String name) {
     Preconditions.checkNotNull(name);
     return this.httpResponse.headers().contains(name);
   }
 
   @Override
-  public @NotNull Map<String, String> headers() {
+  public @NonNull Map<String, String> headers() {
     Map<String, String> maps = new HashMap<>(this.httpResponse.headers().size());
 
     for (var key : this.httpResponse.headers().names()) {
@@ -121,12 +121,12 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements IHttpRes
   }
 
   @Override
-  public @NotNull HttpVersion version() {
+  public @NonNull HttpVersion version() {
     return super.versionFromNetty(this.httpResponse.protocolVersion());
   }
 
   @Override
-  public @NotNull IHttpResponse version(@NotNull HttpVersion version) {
+  public @NonNull IHttpResponse version(@NonNull HttpVersion version) {
     Preconditions.checkNotNull(version);
 
     this.httpResponse.setProtocolVersion(super.versionToNetty(version));
@@ -139,12 +139,12 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements IHttpRes
   }
 
   @Override
-  public @NotNull String bodyAsString() {
+  public @NonNull String bodyAsString() {
     return new String(this.body(), StandardCharsets.UTF_8);
   }
 
   @Override
-  public @NotNull IHttpResponse body(byte[] byteArray) {
+  public @NonNull IHttpResponse body(byte[] byteArray) {
     Preconditions.checkNotNull(byteArray);
 
     this.httpResponse.content().clear();
@@ -153,7 +153,7 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements IHttpRes
   }
 
   @Override
-  public @NotNull IHttpResponse body(@NotNull String text) {
+  public @NonNull IHttpResponse body(@NonNull String text) {
     Preconditions.checkNotNull(text);
 
     this.httpResponse.content().clear();
@@ -167,7 +167,7 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements IHttpRes
   }
 
   @Override
-  public @NotNull IHttpResponse body(InputStream body) {
+  public @NonNull IHttpResponse body(InputStream body) {
     if (this.responseInputStream != null) {
       try {
         this.responseInputStream.close();

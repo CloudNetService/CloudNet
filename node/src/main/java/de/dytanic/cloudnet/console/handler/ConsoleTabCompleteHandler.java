@@ -17,9 +17,9 @@
 package de.dytanic.cloudnet.console.handler;
 
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public abstract class ConsoleTabCompleteHandler extends Toggleable {
 
-  public abstract @NotNull Collection<String> completeInput(@NotNull String line);
+  public abstract @NonNull Collection<String> completeInput(@NonNull String line);
 }

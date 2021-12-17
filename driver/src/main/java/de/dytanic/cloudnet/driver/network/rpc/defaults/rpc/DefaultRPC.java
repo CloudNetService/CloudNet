@@ -33,7 +33,7 @@ import de.dytanic.cloudnet.driver.network.rpc.packet.RPCQueryPacket;
 import java.lang.reflect.Type;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DefaultRPC extends DefaultRPCProvider implements RPC {
@@ -47,13 +47,13 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
   private boolean resultExpectation = true;
 
   public DefaultRPC(
-    @NotNull RPCSender sender,
-    @NotNull Class<?> clazz,
-    @NotNull String methodName,
-    @NotNull Object[] arguments,
-    @NotNull ObjectMapper objectMapper,
-    @NotNull Type expectedResultType,
-    @NotNull DataBufFactory dataBufFactory
+    @NonNull RPCSender sender,
+    @NonNull Class<?> clazz,
+    @NonNull String methodName,
+    @NonNull Object[] arguments,
+    @NonNull ObjectMapper objectMapper,
+    @NonNull Type expectedResultType,
+    @NonNull DataBufFactory dataBufFactory
   ) {
     super(clazz, objectMapper, dataBufFactory);
 
@@ -65,37 +65,37 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
   }
 
   @Override
-  public @NotNull RPCChain join(@NotNull RPC rpc) {
+  public @NonNull RPCChain join(@NonNull RPC rpc) {
     return new DefaultRPCChain(this, rpc);
   }
 
   @Override
-  public @NotNull RPCSender sender() {
+  public @NonNull RPCSender sender() {
     return this.sender;
   }
 
   @Override
-  public @NotNull String className() {
+  public @NonNull String className() {
     return this.className;
   }
 
   @Override
-  public @NotNull String methodName() {
+  public @NonNull String methodName() {
     return this.methodName;
   }
 
   @Override
-  public @NotNull Object[] arguments() {
+  public @NonNull Object[] arguments() {
     return this.arguments;
   }
 
   @Override
-  public @NotNull Type expectedResultType() {
+  public @NonNull Type expectedResultType() {
     return this.expectedResultType;
   }
 
   @Override
-  public @NotNull RPC disableResultExpectation() {
+  public @NonNull RPC disableResultExpectation() {
     this.resultExpectation = false;
     return this;
   }
@@ -116,17 +116,17 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
   }
 
   @Override
-  public @NotNull <T> ITask<T> fire() {
+  public @NonNull <T> ITask<T> fire() {
     return this.fire(Objects.requireNonNull(this.sender.associatedComponent().firstChannel()));
   }
 
   @Override
-  public void fireAndForget(@NotNull INetworkChannel component) {
+  public void fireAndForget(@NonNull INetworkChannel component) {
     this.disableResultExpectation().fireSync(component);
   }
 
   @Override
-  public <T> @Nullable T fireSync(@NotNull INetworkChannel component) {
+  public <T> @Nullable T fireSync(@NonNull INetworkChannel component) {
     try {
       ITask<T> queryTask = this.fire(component);
       return queryTask.get();
@@ -142,7 +142,7 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
   }
 
   @Override
-  public @NotNull <T> ITask<T> fire(@NotNull INetworkChannel component) {
+  public @NonNull <T> ITask<T> fire(@NonNull INetworkChannel component) {
     // write the default needed information we need
     var dataBuf = this.dataBufFactory.createEmpty()
       .writeBoolean(false) // not a method chain

@@ -21,10 +21,10 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.net.InetSocketAddress;
 import java.util.function.Consumer;
+import lombok.NonNull;
 import net.md_5.bungee.api.ProxyConfig;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
-import org.jetbrains.annotations.NotNull;
 
 final class BungeeCordServerHelper {
 
@@ -83,7 +83,7 @@ final class BungeeCordServerHelper {
     throw new UnsupportedOperationException();
   }
 
-  private static @NotNull ServerInfo constructServerInfo(@NotNull ServiceInfoSnapshot snapshot) {
+  private static @NonNull ServerInfo constructServerInfo(@NonNull ServiceInfoSnapshot snapshot) {
     return ProxyServer.getInstance().constructServerInfo(
       snapshot.name(),
       new InetSocketAddress(snapshot.connectAddress().host(), snapshot.connectAddress().port()),

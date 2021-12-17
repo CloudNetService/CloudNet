@@ -33,7 +33,7 @@ import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class NodeCloudServiceFactory implements CloudServiceFactory {
@@ -41,7 +41,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
   private final ICloudServiceManager serviceManager;
   private final IClusterNodeServerProvider nodeServerProvider;
 
-  public NodeCloudServiceFactory(@NotNull CloudNet nodeInstance) {
+  public NodeCloudServiceFactory(@NonNull CloudNet nodeInstance) {
     this.serviceManager = nodeInstance.cloudServiceProvider();
     this.nodeServerProvider = nodeInstance.getClusterNodeServerProvider();
 
@@ -81,9 +81,9 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
   }
 
   protected @Nullable ServiceInfoSnapshot sendNodeServerStartRequest(
-    @NotNull String message,
-    @NotNull String targetNode,
-    @NotNull ServiceConfiguration configuration
+    @NonNull String message,
+    @NonNull String targetNode,
+    @NonNull ServiceConfiguration configuration
   ) {
     // send a request to the node to start a service
     var result = ChannelMessage.builder()
@@ -98,7 +98,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     return result == null ? null : result.content().readObject(ServiceInfoSnapshot.class);
   }
 
-  protected @Nullable IClusterNodeServer peekLogicNodeServer(@NotNull ServiceConfiguration configuration) {
+  protected @Nullable IClusterNodeServer peekLogicNodeServer(@NonNull ServiceConfiguration configuration) {
     // check if the node is already specified
     if (configuration.serviceId().nodeUniqueId() != null) {
       var server = this.nodeServerProvider.nodeServer(configuration.serviceId().nodeUniqueId());
@@ -132,7 +132,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
       }).orElse(null);
   }
 
-  protected void includeGroupComponents(@NotNull ServiceConfiguration configuration) {
+  protected void includeGroupComponents(@NonNull ServiceConfiguration configuration) {
     // include all groups which are matching the service configuration
     CloudNet.instance().groupConfigurationProvider().groupConfigurations().stream()
       .filter(group -> group.targetEnvironments().contains(configuration.serviceId().environmentName()))
@@ -153,7 +153,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     }
   }
 
-  protected void replaceServiceId(@NotNull ServiceConfiguration config) {
+  protected void replaceServiceId(@NonNull ServiceConfiguration config) {
     // check if the service id
     var serviceId = config.serviceId().taskServiceId();
     // check if the service id is invalid
@@ -172,7 +172,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     config.serviceId().taskServiceId(serviceId);
   }
 
-  protected void replaceServiceUniqueId(@NotNull ServiceConfiguration config) {
+  protected void replaceServiceUniqueId(@NonNull ServiceConfiguration config) {
     var uniqueId = config.serviceId().uniqueId();
     // check if the unique id is already taken
     while (this.serviceManager.service(uniqueId) != null) {

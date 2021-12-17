@@ -27,7 +27,7 @@ import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.provider.NodeServiceTaskProvider;
 import java.lang.reflect.Type;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class TaskChannelMessageListener {
 
@@ -37,15 +37,15 @@ public final class TaskChannelMessageListener {
   private final NodeServiceTaskProvider taskProvider;
 
   public TaskChannelMessageListener(
-    @NotNull IEventManager eventManager,
-    @NotNull NodeServiceTaskProvider taskProvider
+    @NonNull IEventManager eventManager,
+    @NonNull NodeServiceTaskProvider taskProvider
   ) {
     this.eventManager = eventManager;
     this.taskProvider = taskProvider;
   }
 
   @EventListener
-  public void handleChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
+  public void handleChannelMessage(@NonNull ChannelMessageReceiveEvent event) {
     if (event.channel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
       switch (event.message()) {
         // set tasks

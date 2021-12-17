@@ -19,6 +19,7 @@ package eu.cloudnetservice.cloudnet.ext.syncproxy.platform.bungee;
 import de.dytanic.cloudnet.ext.bridge.platform.bungeecord.PendingConnectionProxiedPlayer;
 import java.util.Arrays;
 import java.util.UUID;
+import lombok.NonNull;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.ServerPing.PlayerInfo;
 import net.md_5.bungee.api.ServerPing.Players;
@@ -29,18 +30,17 @@ import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.ProxyPingEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
-import org.jetbrains.annotations.NotNull;
 
 public final class BungeeCordSyncProxyListener implements Listener {
 
   private final BungeeCordSyncProxyManagement syncProxyManagement;
 
-  public BungeeCordSyncProxyListener(@NotNull BungeeCordSyncProxyManagement syncProxyManagement) {
+  public BungeeCordSyncProxyListener(@NonNull BungeeCordSyncProxyManagement syncProxyManagement) {
     this.syncProxyManagement = syncProxyManagement;
   }
 
   @EventHandler
-  public void handleProxyPing(@NotNull ProxyPingEvent event) {
+  public void handleProxyPing(@NonNull ProxyPingEvent event) {
     var loginConfiguration = this.syncProxyManagement.currentLoginConfiguration();
 
     // check if we need to handle the proxy ping on this proxy instance
@@ -82,7 +82,7 @@ public final class BungeeCordSyncProxyListener implements Listener {
   }
 
   @EventHandler
-  public void handleProxyLogin(@NotNull LoginEvent event) {
+  public void handleProxyLogin(@NonNull LoginEvent event) {
     var loginConfiguration = this.syncProxyManagement.currentLoginConfiguration();
     if (loginConfiguration == null) {
       return;

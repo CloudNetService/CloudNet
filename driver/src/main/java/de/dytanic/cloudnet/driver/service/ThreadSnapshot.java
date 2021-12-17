@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.driver.service;
 
 import de.dytanic.cloudnet.common.INameable;
 import java.lang.Thread.State;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * The information of a thread running on any process in the Cloud.
@@ -27,11 +27,11 @@ public record ThreadSnapshot(
   long id,
   int priority,
   boolean daemon,
-  @NotNull String name,
-  @NotNull State threadState
+  @NonNull String name,
+  @NonNull State threadState
 ) implements INameable, Cloneable {
 
-  public static @NotNull ThreadSnapshot from(@NotNull Thread thread) {
+  public static @NonNull ThreadSnapshot from(@NonNull Thread thread) {
     return new ThreadSnapshot(
       thread.getId(),
       thread.getPriority(),
@@ -41,7 +41,7 @@ public record ThreadSnapshot(
   }
 
   @Override
-  public @NotNull ThreadSnapshot clone() {
+  public @NonNull ThreadSnapshot clone() {
     try {
       return (ThreadSnapshot) super.clone();
     } catch (CloneNotSupportedException exception) {

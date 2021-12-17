@@ -18,6 +18,7 @@ package eu.cloudnetservice.modules.npc.platform.bukkit.listener;
 
 import eu.cloudnetservice.modules.npc.platform.PlatformSelectorEntity;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
+import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -27,20 +28,19 @@ import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.NumberConversions;
-import org.jetbrains.annotations.NotNull;
 
 public final class BukkitWorldListener implements Listener {
 
   private final Plugin plugin;
   private final BukkitPlatformNPCManagement management;
 
-  public BukkitWorldListener(@NotNull Plugin plugin, @NotNull BukkitPlatformNPCManagement management) {
+  public BukkitWorldListener(@NonNull Plugin plugin, @NonNull BukkitPlatformNPCManagement management) {
     this.plugin = plugin;
     this.management = management;
   }
 
   @EventHandler
-  public void handle(@NotNull ChunkLoadEvent event) {
+  public void handle(@NonNull ChunkLoadEvent event) {
     this.management.trackedEntities().values()
       .stream()
       .filter(npc -> !npc.spawned())
@@ -54,7 +54,7 @@ public final class BukkitWorldListener implements Listener {
   }
 
   @EventHandler
-  public void handle(@NotNull ChunkUnloadEvent event) {
+  public void handle(@NonNull ChunkUnloadEvent event) {
     this.management.trackedEntities().values()
       .stream()
       .filter(PlatformSelectorEntity::spawned)
@@ -68,7 +68,7 @@ public final class BukkitWorldListener implements Listener {
   }
 
   @EventHandler(priority = EventPriority.LOWEST)
-  public void handleWorldSave(@NotNull WorldSaveEvent event) {
+  public void handleWorldSave(@NonNull WorldSaveEvent event) {
     var entities = this.management.trackedEntities().values().stream()
       .filter(PlatformSelectorEntity::spawned)
       .filter(PlatformSelectorEntity::removeWhenWorldSaving)

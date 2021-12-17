@@ -38,7 +38,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class NodeServiceTaskProvider implements ServiceTaskProvider {
@@ -49,7 +49,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   private final IEventManager eventManager;
   private final Map<String, ServiceTask> serviceTasks = new ConcurrentHashMap<>();
 
-  public NodeServiceTaskProvider(@NotNull CloudNet nodeInstance) {
+  public NodeServiceTaskProvider(@NonNull CloudNet nodeInstance) {
     this.eventManager = nodeInstance.eventManager();
     this.eventManager.registerListener(new TaskChannelMessageListener(this.eventManager, this));
 
@@ -83,12 +83,12 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   }
 
   @Override
-  public @NotNull Collection<ServiceTask> permanentServiceTasks() {
+  public @NonNull Collection<ServiceTask> permanentServiceTasks() {
     return Collections.unmodifiableCollection(this.serviceTasks.values());
   }
 
   @Override
-  public void permanentServiceTasks(@NotNull Collection<ServiceTask> serviceTasks) {
+  public void permanentServiceTasks(@NonNull Collection<ServiceTask> serviceTasks) {
     this.permanentServiceTasksSilently(serviceTasks);
     // notify the cluster
     ChannelMessage.builder()
@@ -101,17 +101,17 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   }
 
   @Override
-  public @Nullable ServiceTask serviceTask(@NotNull String name) {
+  public @Nullable ServiceTask serviceTask(@NonNull String name) {
     return this.serviceTasks.get(name);
   }
 
   @Override
-  public boolean serviceTaskPresent(@NotNull String name) {
+  public boolean serviceTaskPresent(@NonNull String name) {
     return this.serviceTasks.containsKey(name);
   }
 
   @Override
-  public boolean addPermanentServiceTask(@NotNull ServiceTask serviceTask) {
+  public boolean addPermanentServiceTask(@NonNull ServiceTask serviceTask) {
     if (!this.eventManager.callEvent(new LocalServiceTaskAddEvent(serviceTask)).cancelled()) {
       this.addPermanentServiceTaskSilently(serviceTask);
       // notify the cluster
@@ -128,7 +128,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   }
 
   @Override
-  public void removePermanentServiceTaskByName(@NotNull String name) {
+  public void removePermanentServiceTaskByName(@NonNull String name) {
     var task = this.serviceTask(name);
     if (task != null) {
       this.removePermanentServiceTask(task);
@@ -136,7 +136,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   }
 
   @Override
-  public void removePermanentServiceTask(@NotNull ServiceTask serviceTask) {
+  public void removePermanentServiceTask(@NonNull ServiceTask serviceTask) {
     if (!this.eventManager.callEvent(new LocalServiceTaskRemoveEvent(serviceTask)).cancelled()) {
       this.removePermanentServiceTaskSilently(serviceTask);
       // notify the whole network
@@ -150,20 +150,20 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     }
   }
 
-  public void addPermanentServiceTaskSilently(@NotNull ServiceTask serviceTask) {
+  public void addPermanentServiceTaskSilently(@NonNull ServiceTask serviceTask) {
     // cache locally
     this.serviceTasks.put(serviceTask.name(), serviceTask);
     this.writeServiceTask(serviceTask);
   }
 
-  public void removePermanentServiceTaskSilently(@NotNull ServiceTask serviceTask) {
+  public void removePermanentServiceTaskSilently(@NonNull ServiceTask serviceTask) {
     // remove from cache
     this.serviceTasks.remove(serviceTask.name());
     // remove the local file if it exists
     FileUtils.delete(this.taskFile(serviceTask));
   }
 
-  public void permanentServiceTasksSilently(@NotNull Collection<ServiceTask> serviceTasks) {
+  public void permanentServiceTasksSilently(@NonNull Collection<ServiceTask> serviceTasks) {
     // update the cache
     this.serviceTasks.clear();
     serviceTasks.forEach(task -> this.serviceTasks.put(task.name(), task));
@@ -171,11 +171,11 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     this.writeAllServiceTasks();
   }
 
-  protected @NotNull Path taskFile(@NotNull ServiceTask task) {
+  protected @NonNull Path taskFile(@NonNull ServiceTask task) {
     return TASKS_DIRECTORY.resolve(task.name() + ".json");
   }
 
-  protected void writeServiceTask(@NotNull ServiceTask serviceTask) {
+  protected void writeServiceTask(@NonNull ServiceTask serviceTask) {
     JsonDocument.newDocument(serviceTask).write(this.taskFile(serviceTask));
   }
 

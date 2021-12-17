@@ -42,7 +42,7 @@ import de.dytanic.cloudnet.common.StringUtil;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.MethodInformation;
 import de.dytanic.cloudnet.driver.network.rpc.exception.ClassCreationException;
 import de.dytanic.cloudnet.driver.util.define.ClassDefiners;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
@@ -64,7 +64,7 @@ public class MethodInvokerGenerator {
   private static final String CLASS_NAME_FORMAT = "%s$GeneratedInvoker_%s_%s";
   private static final String NO_ARGS_CONSTRUCTOR_CLASS_NAME_FORMAT = "%s$GeneratedConstructorInvoker_%s";
 
-  public @NotNull MethodInvoker makeMethodInvoker(@NotNull MethodInformation methodInfo) {
+  public @NonNull MethodInvoker makeMethodInvoker(@NonNull MethodInformation methodInfo) {
     try {
       var className = String.format(
         CLASS_NAME_FORMAT,
@@ -154,7 +154,7 @@ public class MethodInvokerGenerator {
     }
   }
 
-  public @NotNull MethodInvoker makeNoArgsConstructorInvoker(@NotNull Class<?> clazz) {
+  public @NonNull MethodInvoker makeNoArgsConstructorInvoker(@NonNull Class<?> clazz) {
     try {
       // make a class name which is definitely unique for the class
       var className = String.format(

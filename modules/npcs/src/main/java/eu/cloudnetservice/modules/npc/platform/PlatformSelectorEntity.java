@@ -19,7 +19,7 @@ package eu.cloudnetservice.modules.npc.platform;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.npc.NPC;
 import java.util.Set;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public interface PlatformSelectorEntity<L, P, M, I> {
 
@@ -29,27 +29,27 @@ public interface PlatformSelectorEntity<L, P, M, I> {
 
   void update();
 
-  void trackService(@NotNull ServiceInfoSnapshot service);
+  void trackService(@NonNull ServiceInfoSnapshot service);
 
-  void stopTrackingService(@NotNull ServiceInfoSnapshot service);
+  void stopTrackingService(@NonNull ServiceInfoSnapshot service);
 
-  void handleRightClickAction(@NotNull P player);
+  void handleRightClickAction(@NonNull P player);
 
-  void handleLeftClickAction(@NotNull P player);
+  void handleLeftClickAction(@NonNull P player);
 
-  @NotNull I selectorInventory();
+  @NonNull I selectorInventory();
 
-  void handleInventoryInteract(@NotNull I inv, @NotNull P player, @NotNull M clickedItem);
+  void handleInventoryInteract(@NonNull I inv, @NonNull P player, @NonNull M clickedItem);
 
-  @NotNull NPC npc();
+  @NonNull NPC npc();
 
-  @NotNull L location();
+  @NonNull L location();
 
   int entityId();
 
-  @NotNull Set<Integer> infoLineEntityIds();
+  @NonNull Set<Integer> infoLineEntityIds();
 
-  @NotNull String scoreboardRepresentation();
+  @NonNull String scoreboardRepresentation();
 
   boolean removeWhenWorldSaving();
 

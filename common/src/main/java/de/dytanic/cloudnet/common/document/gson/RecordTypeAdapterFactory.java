@@ -30,15 +30,15 @@ import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Internal
 final class RecordTypeAdapterFactory implements TypeAdapterFactory {
 
   @Override
-  public <T> @Nullable TypeAdapter<T> create(@NotNull Gson gson, @NotNull TypeToken<T> type) {
+  public <T> @Nullable TypeAdapter<T> create(@NonNull Gson gson, @NonNull TypeToken<T> type) {
     // don't bother if the type is not a record
     if (!type.getRawType().isRecord()) {
       return null;
@@ -62,9 +62,9 @@ final class RecordTypeAdapterFactory implements TypeAdapterFactory {
     private final Constructor<?> constructor;
 
     public RecordTypeAdapter(
-      @NotNull Gson gson,
-      @NotNull TypeAdapter<T> delegate,
-      @NotNull Class<? super T> originalType
+      @NonNull Gson gson,
+      @NonNull TypeAdapter<T> delegate,
+      @NonNull Class<? super T> originalType
     ) {
       this.gson = gson;
       this.delegate = delegate;
@@ -95,14 +95,14 @@ final class RecordTypeAdapterFactory implements TypeAdapterFactory {
     }
 
     @Override
-    public void write(@NotNull JsonWriter out, @Nullable T value) throws IOException {
+    public void write(@NonNull JsonWriter out, @Nullable T value) throws IOException {
       // no need to think about it
       this.delegate.write(out, value);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public @Nullable T read(@NotNull JsonReader in) throws IOException {
+    public @Nullable T read(@NonNull JsonReader in) throws IOException {
       // skip nulls
       if (in.peek() == JsonToken.NULL) {
         in.nextNull();

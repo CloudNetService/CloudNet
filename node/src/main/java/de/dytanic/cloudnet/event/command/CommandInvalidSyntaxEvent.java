@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.event.command;
 
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.driver.event.Event;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class CommandInvalidSyntaxEvent extends Event {
 
@@ -27,9 +27,9 @@ public class CommandInvalidSyntaxEvent extends Event {
   private String response;
 
   public CommandInvalidSyntaxEvent(
-    @NotNull CommandSource source,
-    @NotNull String correctSyntax,
-    @NotNull String response
+    @NonNull CommandSource source,
+    @NonNull String correctSyntax,
+    @NonNull String response
   ) {
     this.source = source;
     this.correctSyntax = correctSyntax;
@@ -39,7 +39,7 @@ public class CommandInvalidSyntaxEvent extends Event {
   /**
    * @return the command source that executed the commandline.
    */
-  @NotNull
+  @NonNull
   public CommandSource commandSource() {
     return this.source;
   }
@@ -47,7 +47,7 @@ public class CommandInvalidSyntaxEvent extends Event {
   /**
    * @return the correct syntax for the executed command
    */
-  @NotNull
+  @NonNull
   public String correctSyntax() {
     return this.correctSyntax;
   }
@@ -55,7 +55,7 @@ public class CommandInvalidSyntaxEvent extends Event {
   /**
    * @return the translated invalid syntax message that is the user will receive
    */
-  @NotNull
+  @NonNull
   public String response() {
     return this.response;
   }
@@ -65,7 +65,7 @@ public class CommandInvalidSyntaxEvent extends Event {
    *
    * @param response the message that the user will receive
    */
-  public void response(@NotNull String response) {
+  public void response(@NonNull String response) {
     this.response = response;
   }
 }

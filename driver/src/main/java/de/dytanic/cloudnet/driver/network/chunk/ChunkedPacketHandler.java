@@ -20,18 +20,18 @@ import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
 import java.io.IOException;
 import java.io.InputStream;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public interface ChunkedPacketHandler extends ChunkedPacketProvider {
 
-  @NotNull Callback callback();
+  @NonNull Callback callback();
 
-  boolean handleChunkPart(int chunkPosition, @NotNull DataBuf dataBuf);
+  boolean handleChunkPart(int chunkPosition, @NonNull DataBuf dataBuf);
 
   interface Callback {
 
     void handleSessionComplete(
-      @NotNull ChunkSessionInformation information,
-      @NotNull InputStream dataInput) throws IOException;
+      @NonNull ChunkSessionInformation information,
+      @NonNull InputStream dataInput) throws IOException;
   }
 }

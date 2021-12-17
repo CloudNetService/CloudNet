@@ -34,7 +34,7 @@ import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class NodeNPCManagement extends AbstractNPCManagement {
 
@@ -42,10 +42,10 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
   private final Path configurationPath;
 
   public NodeNPCManagement(
-    @NotNull NPCConfiguration npcConfiguration,
-    @NotNull Database database,
-    @NotNull Path configPath,
-    @NotNull IEventManager eventManager
+    @NonNull NPCConfiguration npcConfiguration,
+    @NonNull Database database,
+    @NonNull Path configPath,
+    @NonNull IEventManager eventManager
   ) {
     super(npcConfiguration);
     this.database = database;
@@ -64,7 +64,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
     eventManager.registerListener(new NodeChannelMessageListener(this));
   }
 
-  static @NotNull String documentKey(@NotNull WorldPosition position) {
+  static @NonNull String documentKey(@NonNull WorldPosition position) {
     return position.world()
       + '.' + position.group()
       + '.' + position.x()
@@ -75,7 +75,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
   }
 
   @Override
-  public void createNPC(@NotNull NPC npc) {
+  public void createNPC(@NonNull NPC npc) {
     this.database.insert(documentKey(npc.location()), JsonDocument.newDocument(npc));
     this.npcs.put(npc.location(), npc);
 
@@ -86,7 +86,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
   }
 
   @Override
-  public void deleteNPC(@NotNull WorldPosition position) {
+  public void deleteNPC(@NonNull WorldPosition position) {
     this.npcs.remove(position);
     this.database.delete(documentKey(position));
 
@@ -97,7 +97,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
   }
 
   @Override
-  public int deleteAllNPCs(@NotNull String group) {
+  public int deleteAllNPCs(@NonNull String group) {
     Collection<WorldPosition> positions = this.npcs.entrySet().stream()
       .filter(entry -> entry.getValue().targetGroup().equals(group))
       .map(Entry::getKey)
@@ -130,7 +130,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
   }
 
   @Override
-  public @NotNull Collection<NPC> npcs(@NotNull String[] groups) {
+  public @NonNull Collection<NPC> npcs(@NonNull String[] groups) {
     Arrays.sort(groups);
     // filter all npcs
     return this.npcs.values().stream()
@@ -139,7 +139,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
   }
 
   @Override
-  public void npcConfiguration(@NotNull NPCConfiguration configuration) {
+  public void npcConfiguration(@NonNull NPCConfiguration configuration) {
     this.handleInternalNPCConfigUpdate(configuration);
     this.channelMessage(NPC_CONFIGURATION_UPDATE)
       .targetAll()
@@ -148,7 +148,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
   }
 
   @Override
-  public void handleInternalNPCConfigUpdate(@NotNull NPCConfiguration configuration) {
+  public void handleInternalNPCConfigUpdate(@NonNull NPCConfiguration configuration) {
     super.handleInternalNPCConfigUpdate(configuration);
     JsonDocument.newDocument(configuration).write(this.configurationPath);
   }

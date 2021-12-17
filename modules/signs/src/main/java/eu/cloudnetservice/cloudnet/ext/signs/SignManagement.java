@@ -19,8 +19,8 @@ package eu.cloudnetservice.cloudnet.ext.signs;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignsConfiguration;
 import java.util.Collection;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -34,28 +34,28 @@ public interface SignManagement {
    * @param position the position the sign is located at
    * @return the sign at the given location or null if there is no sign
    */
-  @Nullable Sign signAt(@NotNull WorldPosition position);
+  @Nullable Sign signAt(@NonNull WorldPosition position);
 
   /**
    * Creates a new sign.
    *
    * @param sign the sign to create
    */
-  void createSign(@NotNull Sign sign);
+  void createSign(@NonNull Sign sign);
 
   /**
    * Deletes the specified sign.
    *
    * @param sign the sign to delete.
    */
-  void deleteSign(@NotNull Sign sign);
+  void deleteSign(@NonNull Sign sign);
 
   /**
    * Deletes the sign at the given position.
    *
    * @param position the position of the sign to delete.
    */
-  void deleteSign(@NotNull WorldPosition position);
+  void deleteSign(@NonNull WorldPosition position);
 
   /**
    * Deletes all signs of the specified group.
@@ -63,7 +63,7 @@ public interface SignManagement {
    * @param group the group to delete the signs of
    * @return the amount of deleted signs
    */
-  int deleteAllSigns(@NotNull String group);
+  int deleteAllSigns(@NonNull String group);
 
   /**
    * Deletes all signs of the specified group.
@@ -72,7 +72,7 @@ public interface SignManagement {
    * @param templatePath the template path of the signs to delete
    * @return the amount of deleted signs
    */
-  int deleteAllSigns(@NotNull String group, @Nullable String templatePath);
+  int deleteAllSigns(@NonNull String group, @Nullable String templatePath);
 
   /**
    * Deletes all signs.
@@ -86,7 +86,7 @@ public interface SignManagement {
    *
    * @return all registered signs.
    */
-  @NotNull Collection<Sign> signs();
+  @NonNull Collection<Sign> signs();
 
   /**
    * Get all signs of the specified groups.
@@ -94,21 +94,21 @@ public interface SignManagement {
    * @param groups the groups the signs are created on
    * @return all signs that are created on the given groups
    */
-  @NotNull Collection<Sign> signs(@NotNull String[] groups);
+  @NonNull Collection<Sign> signs(@NonNull String[] groups);
 
   /**
    * Get the current sign configuration.
    *
    * @return the current sign configuration
    */
-  @NotNull SignsConfiguration signsConfiguration();
+  @NonNull SignsConfiguration signsConfiguration();
 
   /**
    * Sets the sign configuration and updates it to all connected components.
    *
    * @param configuration the new signs configuration.
    */
-  void signsConfiguration(@NotNull SignsConfiguration configuration);
+  void signsConfiguration(@NonNull SignsConfiguration configuration);
 
   // Internal methods
 
@@ -119,11 +119,11 @@ public interface SignManagement {
   void unregisterFromServiceRegistry();
 
   @Internal
-  void handleInternalSignCreate(@NotNull Sign sign);
+  void handleInternalSignCreate(@NonNull Sign sign);
 
   @Internal
-  void handleInternalSignRemove(@NotNull WorldPosition position);
+  void handleInternalSignRemove(@NonNull WorldPosition position);
 
   @Internal
-  void handleInternalSignConfigUpdate(@NotNull SignsConfiguration configuration);
+  void handleInternalSignConfigUpdate(@NonNull SignsConfiguration configuration);
 }

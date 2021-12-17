@@ -41,7 +41,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class V2HttpAuthentication {
@@ -74,13 +74,13 @@ public class V2HttpAuthentication {
     this.webSocketTicketManager = webSocketTicketManager;
   }
 
-  public @NotNull String createJwt(@NotNull PermissionUser subject, long sessionTimeMillis) {
+  public @NonNull String createJwt(@NonNull PermissionUser subject, long sessionTimeMillis) {
     var session = this.sessions().computeIfAbsent(subject.uniqueId().toString(),
       userUniqueId -> new DefaultHttpSession(System.currentTimeMillis() + sessionTimeMillis, subject.uniqueId()));
     return this.generateJwt(subject, session);
   }
 
-  public @NotNull LoginResult<PermissionUser> handleBasicLoginRequest(@NotNull IHttpRequest request) {
+  public @NonNull LoginResult<PermissionUser> handleBasicLoginRequest(@NonNull IHttpRequest request) {
     var authenticationHeader = request.header("Authorization");
     if (authenticationHeader == null) {
       return LoginResult.undefinedFailure();
@@ -104,7 +104,7 @@ public class V2HttpAuthentication {
     return LoginResult.undefinedFailure();
   }
 
-  public @NotNull LoginResult<HttpSession> handleBearerLoginRequest(@NotNull IHttpRequest request) {
+  public @NonNull LoginResult<HttpSession> handleBearerLoginRequest(@NonNull IHttpRequest request) {
     var authenticationHeader = request.header("Authorization");
     if (authenticationHeader == null) {
       return LoginResult.undefinedFailure();
@@ -141,7 +141,7 @@ public class V2HttpAuthentication {
     return LoginResult.undefinedFailure();
   }
 
-  public boolean expireSession(@NotNull IHttpRequest request) {
+  public boolean expireSession(@NonNull IHttpRequest request) {
     var session = this.handleBearerLoginRequest(request);
     if (session.succeeded()) {
       return this.expireSession(session.result());
@@ -150,11 +150,11 @@ public class V2HttpAuthentication {
     }
   }
 
-  public boolean expireSession(@NotNull HttpSession session) {
+  public boolean expireSession(@NonNull HttpSession session) {
     return this.sessions.remove(session.user().uniqueId().toString()) != null;
   }
 
-  public @NotNull LoginResult<Pair<HttpSession, String>> refreshJwt(@NotNull IHttpRequest request, long lifetime) {
+  public @NonNull LoginResult<Pair<HttpSession, String>> refreshJwt(@NonNull IHttpRequest request, long lifetime) {
     var session = this.handleBearerLoginRequest(request);
     if (session.succeeded()) {
       var httpSession = session.result();
@@ -164,12 +164,12 @@ public class V2HttpAuthentication {
     }
   }
 
-  public @NotNull String refreshJwt(@NotNull HttpSession session, long lifetime) {
+  public @NonNull String refreshJwt(@NonNull HttpSession session, long lifetime) {
     session.refreshFor(lifetime);
     return this.generateJwt(session.user(), session);
   }
 
-  protected @Nullable HttpSession sessionById(@NotNull String id) {
+  protected @Nullable HttpSession sessionById(@NonNull String id) {
     for (var session : this.sessions().values()) {
       if (session.uniqueId().equals(id)) {
         return session;
@@ -178,7 +178,7 @@ public class V2HttpAuthentication {
     return null;
   }
 
-  protected @NotNull String generateJwt(@NotNull PermissionUser subject, @NotNull HttpSession session) {
+  protected @NonNull String generateJwt(@NonNull PermissionUser subject, @NonNull HttpSession session) {
     return Jwts.builder()
       .setIssuer(ISSUER)
       .signWith(SIGN_KEY)
@@ -198,12 +198,12 @@ public class V2HttpAuthentication {
     }
   }
 
-  public @NotNull Map<String, HttpSession> sessions() {
+  public @NonNull Map<String, HttpSession> sessions() {
     this.cleanup();
     return this.sessions;
   }
 
-  public @NotNull WebSocketTicketManager webSocketTicketManager() {
+  public @NonNull WebSocketTicketManager webSocketTicketManager() {
     return this.webSocketTicketManager;
   }
 
@@ -216,7 +216,7 @@ public class V2HttpAuthentication {
       return (LoginResult<T>) UNDEFINED_RESULT;
     }
 
-    public static <T> LoginResult<T> success(@NotNull T result) {
+    public static <T> LoginResult<T> success(@NonNull T result) {
       return new LoginResult<>(result, null);
     }
 

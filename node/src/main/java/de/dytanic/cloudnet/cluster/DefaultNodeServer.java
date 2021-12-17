@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.cluster;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public abstract class DefaultNodeServer implements NodeServer {
 
@@ -33,12 +33,12 @@ public abstract class DefaultNodeServer implements NodeServer {
   }
 
   @Override
-  public @NotNull NetworkClusterNode nodeInfo() {
+  public @NonNull NetworkClusterNode nodeInfo() {
     return this.nodeInfo;
   }
 
   @Override
-  public void nodeInfo(@NotNull NetworkClusterNode nodeInfo) {
+  public void nodeInfo(@NonNull NetworkClusterNode nodeInfo) {
     this.nodeInfo = Preconditions.checkNotNull(nodeInfo, "nodeInfo");
   }
 
@@ -48,7 +48,7 @@ public abstract class DefaultNodeServer implements NodeServer {
   }
 
   @Override
-  public void nodeInfoSnapshot(@NotNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot) {
+  public void nodeInfoSnapshot(@NonNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot) {
     Preconditions.checkNotNull(nodeInfoSnapshot, "nodeInfoSnapshot");
 
     this.lastSnapshot = this.currentSnapshot == null ? nodeInfoSnapshot : this.currentSnapshot;

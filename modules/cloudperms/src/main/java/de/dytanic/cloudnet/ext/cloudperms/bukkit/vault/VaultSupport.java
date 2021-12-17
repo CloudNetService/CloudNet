@@ -18,11 +18,11 @@ package de.dytanic.cloudnet.ext.cloudperms.bukkit.vault;
 
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import java.util.logging.Level;
+import lombok.NonNull;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.ServicePriority;
-import org.jetbrains.annotations.NotNull;
 
 public final class VaultSupport {
 
@@ -30,7 +30,7 @@ public final class VaultSupport {
     throw new UnsupportedOperationException();
   }
 
-  public static void hook(@NotNull Plugin plugin, @NotNull IPermissionManagement management) {
+  public static void hook(@NonNull Plugin plugin, @NonNull IPermissionManagement management) {
     try {
       var services = plugin.getServer().getServicesManager();
 

@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.driver.database;
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * This DatabaseProvider gives access to different {@link Database}
@@ -32,30 +32,30 @@ public interface DatabaseProvider {
    * @param name the name of the database
    * @return the corresponding database
    */
-  @NotNull Database database(@NotNull String name);
+  @NonNull Database database(@NonNull String name);
 
   /**
    * @param name the name of the database
    * @return whether a database with the given name exists
    */
-  boolean containsDatabase(@NotNull String name);
+  boolean containsDatabase(@NonNull String name);
 
   /**
    * @param name the name of the database
    * @return true if the database was deleted successfully, false if not
    */
-  boolean deleteDatabase(@NotNull String name);
+  boolean deleteDatabase(@NonNull String name);
 
   /**
    * @return all present database names
    */
-  @NotNull Collection<String> databaseNames();
+  @NonNull Collection<String> databaseNames();
 
   /**
    * @param name the name of the database
    * @return whether a database with the given name exists
    */
-  default @NotNull ITask<Boolean> containsDatabaseAsync(@NotNull String name) {
+  default @NonNull ITask<Boolean> containsDatabaseAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.containsDatabase(name));
   }
 
@@ -63,14 +63,14 @@ public interface DatabaseProvider {
    * @param name the name of the database
    * @return true if the database was deleted successfully, false if not
    */
-  default @NotNull ITask<Boolean> deleteDatabaseAsync(@NotNull String name) {
+  default @NonNull ITask<Boolean> deleteDatabaseAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.deleteDatabase(name));
   }
 
   /**
    * @return all present database names
    */
-  default @NotNull ITask<Collection<String>> databaseNamesAsync() {
+  default @NonNull ITask<Collection<String>> databaseNamesAsync() {
     return CompletableTask.supply(this::databaseNames);
   }
 }

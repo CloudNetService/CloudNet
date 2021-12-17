@@ -18,22 +18,22 @@ package eu.cloudnetservice.modules.npc.platform.bukkit.listener;
 
 import eu.cloudnetservice.modules.npc.platform.PlatformSelectorEntity;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
+import lombok.NonNull;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
-import org.jetbrains.annotations.NotNull;
 
 public final class BukkitEntityProtectionListener implements Listener {
 
   private final BukkitPlatformNPCManagement management;
 
-  public BukkitEntityProtectionListener(@NotNull BukkitPlatformNPCManagement management) {
+  public BukkitEntityProtectionListener(@NonNull BukkitPlatformNPCManagement management) {
     this.management = management;
   }
 
   @EventHandler
-  public void handle(@NotNull EntityDamageEvent event) {
+  public void handle(@NonNull EntityDamageEvent event) {
     this.management.trackedEntities().values().stream()
       .filter(PlatformSelectorEntity::spawned)
       .filter(npc -> {
@@ -48,7 +48,7 @@ public final class BukkitEntityProtectionListener implements Listener {
   }
 
   @EventHandler
-  public void handle(@NotNull PlayerArmorStandManipulateEvent event) {
+  public void handle(@NonNull PlayerArmorStandManipulateEvent event) {
     this.management.trackedEntities().values().stream()
       .filter(PlatformSelectorEntity::spawned)
       .filter(npc -> npc.infoLineEntityIds().contains(event.getRightClicked().getEntityId()))

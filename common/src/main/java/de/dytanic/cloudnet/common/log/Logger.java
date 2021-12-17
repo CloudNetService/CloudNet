@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.common.log;
 
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class Logger extends java.util.logging.Logger {
@@ -27,41 +27,41 @@ public abstract class Logger extends java.util.logging.Logger {
     super(name, resourceBundleName);
   }
 
-  public abstract void forceLog(@NotNull LogRecord logRecord);
+  public abstract void forceLog(@NonNull LogRecord logRecord);
 
   public abstract @Nullable LogRecordDispatcher logRecordDispatcher();
 
   public abstract void logRecordDispatcher(@Nullable LogRecordDispatcher dispatcher);
 
-  public void fine(@NotNull String message, @Nullable Throwable throwable, Object @NotNull ... params) {
+  public void fine(@NonNull String message, @Nullable Throwable throwable, Object @NonNull ... params) {
     this.log(Level.FINE, this.doFormat(message, params), throwable);
   }
 
-  public void finer(@NotNull String message, @Nullable Throwable throwable, Object @NotNull ... params) {
+  public void finer(@NonNull String message, @Nullable Throwable throwable, Object @NonNull ... params) {
     this.log(Level.FINER, this.doFormat(message, params), throwable);
   }
 
-  public void finest(@NotNull String message, @Nullable Throwable throwable, Object @NotNull ... params) {
+  public void finest(@NonNull String message, @Nullable Throwable throwable, Object @NonNull ... params) {
     this.log(Level.FINEST, this.doFormat(message, params), throwable);
   }
 
-  public void severe(@NotNull String message, @Nullable Throwable throwable, Object @NotNull ... params) {
+  public void severe(@NonNull String message, @Nullable Throwable throwable, Object @NonNull ... params) {
     this.log(Level.SEVERE, this.doFormat(message, params), throwable);
   }
 
-  public void warning(@NotNull String message, @Nullable Throwable throwable, Object @NotNull ... params) {
+  public void warning(@NonNull String message, @Nullable Throwable throwable, Object @NonNull ... params) {
     this.log(Level.WARNING, this.doFormat(message, params), throwable);
   }
 
-  public void info(@NotNull String message, @Nullable Throwable throwable, Object @NotNull ... params) {
+  public void info(@NonNull String message, @Nullable Throwable throwable, Object @NonNull ... params) {
     this.log(Level.INFO, this.doFormat(message, params), throwable);
   }
 
-  public void config(@NotNull String message, @Nullable Throwable throwable, Object @NotNull ... params) {
+  public void config(@NonNull String message, @Nullable Throwable throwable, Object @NonNull ... params) {
     this.log(Level.CONFIG, this.doFormat(message, params), throwable);
   }
 
-  protected @NotNull String doFormat(@NotNull String message, Object @NotNull ... replacements) {
+  protected @NonNull String doFormat(@NonNull String message, Object @NonNull ... replacements) {
     return replacements.length == 0 ? message : String.format(message, replacements);
   }
 }

@@ -24,7 +24,7 @@ import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignConfigurationEntr
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignGroupConfiguration;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignLayout;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignLayoutsHolder;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -36,22 +36,22 @@ public final class LayoutUtil {
     throw new UnsupportedOperationException();
   }
 
-  public static SignLayout layout(@NotNull SignConfigurationEntry entry, @NotNull Sign sign,
+  public static SignLayout layout(@NonNull SignConfigurationEntry entry, @NonNull Sign sign,
     @Nullable ServiceInfoSnapshot snapshot) {
     return layoutHolder(entry, sign, snapshot).currentLayout();
   }
 
   public static SignLayout layoutAndTick(
-    @NotNull SignConfigurationEntry entry,
-    @NotNull Sign sign,
+    @NonNull SignConfigurationEntry entry,
+    @NonNull Sign sign,
     @Nullable ServiceInfoSnapshot snapshot
   ) {
     return layoutHolder(entry, sign, snapshot).tick().currentLayout();
   }
 
   public static SignLayoutsHolder layoutHolder(
-    @NotNull SignConfigurationEntry entry,
-    @NotNull Sign sign,
+    @NonNull SignConfigurationEntry entry,
+    @NonNull Sign sign,
     @Nullable ServiceInfoSnapshot snapshot
   ) {
     // check if no snapshot is used for the check process - return the searchig layout in that case

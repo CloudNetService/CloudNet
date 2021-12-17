@@ -41,7 +41,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 @CommandAlias("module")
 @CommandPermission("cloudnet.commands.modules")
@@ -251,7 +251,7 @@ public final class CommandModules {
     wrapper.unloadModule();
   }
 
-  private boolean canLoadModule(@NotNull Path path) {
+  private boolean canLoadModule(@NonNull Path path) {
     return this.provider.modules().stream().noneMatch(module -> {
       try {
         return module.url().equals(path.toUri().toURL());
@@ -261,7 +261,7 @@ public final class CommandModules {
     });
   }
 
-  private void printBasicModuleInfos(@NotNull CommandSource source, @NotNull IModuleWrapper module) {
+  private void printBasicModuleInfos(@NonNull CommandSource source, @NonNull IModuleWrapper module) {
     source.sendMessage("Module: " + module.module().name());
     source.sendMessage(" - Lifecycle: " + module.moduleLifeCycle());
     source.sendMessage(" - Version: " + module.module().version());

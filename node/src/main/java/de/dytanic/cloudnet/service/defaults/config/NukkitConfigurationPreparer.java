@@ -21,12 +21,12 @@ import de.dytanic.cloudnet.service.ICloudService;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Properties;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class NukkitConfigurationPreparer extends AbstractServiceConfigurationPreparer {
 
   @Override
-  public void configure(@NotNull CloudNet nodeInstance, @NotNull ICloudService cloudService) {
+  public void configure(@NonNull CloudNet nodeInstance, @NonNull ICloudService cloudService) {
     // check if we should run now
     if (this.shouldRewriteIp(nodeInstance, cloudService)) {
       // copy the default file

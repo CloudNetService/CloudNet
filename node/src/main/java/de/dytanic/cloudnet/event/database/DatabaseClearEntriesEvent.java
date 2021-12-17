@@ -17,11 +17,11 @@
 package de.dytanic.cloudnet.event.database;
 
 import de.dytanic.cloudnet.driver.database.Database;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class DatabaseClearEntriesEvent extends DatabaseEvent {
 
-  public DatabaseClearEntriesEvent(@NotNull Database database) {
+  public DatabaseClearEntriesEvent(@NonNull Database database) {
     super(database);
   }
 }

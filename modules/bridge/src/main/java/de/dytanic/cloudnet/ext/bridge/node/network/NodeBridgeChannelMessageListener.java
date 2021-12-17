@@ -23,7 +23,7 @@ import de.dytanic.cloudnet.ext.bridge.BridgeManagement;
 import de.dytanic.cloudnet.ext.bridge.config.BridgeConfiguration;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeConfigurationUpdateEvent;
 import de.dytanic.cloudnet.ext.bridge.node.NodeBridgeManagement;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class NodeBridgeChannelMessageListener {
 
@@ -31,15 +31,15 @@ public final class NodeBridgeChannelMessageListener {
   private final NodeBridgeManagement management;
 
   public NodeBridgeChannelMessageListener(
-    @NotNull NodeBridgeManagement management,
-    @NotNull IEventManager eventManager
+    @NonNull NodeBridgeManagement management,
+    @NonNull IEventManager eventManager
   ) {
     this.management = management;
     this.eventManager = eventManager;
   }
 
   @EventListener
-  public void handle(@NotNull ChannelMessageReceiveEvent event) {
+  public void handle(@NonNull ChannelMessageReceiveEvent event) {
     if (event.channel().equals(BridgeManagement.BRIDGE_CHANNEL_NAME)
       && event.message().equals("update_bridge_configuration")) {
       // read the config

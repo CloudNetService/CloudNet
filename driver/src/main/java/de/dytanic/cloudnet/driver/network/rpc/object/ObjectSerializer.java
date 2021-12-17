@@ -18,37 +18,37 @@ package de.dytanic.cloudnet.driver.network.rpc.object;
 
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import java.lang.reflect.Type;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public interface ObjectSerializer<T> {
 
-  @Nullable Object read(@NotNull DataBuf source, @NotNull Type type, @NotNull ObjectMapper caller);
+  @Nullable Object read(@NonNull DataBuf source, @NonNull Type type, @NonNull ObjectMapper caller);
 
   @SuppressWarnings("unchecked")
   default void writeObject(
-    @NotNull DataBuf.Mutable dataBuf,
-    @NotNull Object object,
-    @NotNull Type type,
-    @NotNull ObjectMapper caller
+    @NonNull DataBuf.Mutable dataBuf,
+    @NonNull Object object,
+    @NonNull Type type,
+    @NonNull ObjectMapper caller
   ) {
     this.write(dataBuf, (T) object, type, caller);
   }
 
   default void write(
-    @NotNull DataBuf.Mutable dataBuf,
-    @NotNull T object,
-    @NotNull Type type,
-    @NotNull ObjectMapper caller
+    @NonNull DataBuf.Mutable dataBuf,
+    @NonNull T object,
+    @NonNull Type type,
+    @NonNull ObjectMapper caller
   ) {
     throw new UnsupportedOperationException();
   }
 
-  default boolean preWriteCheckAccepts(@NotNull Object object) {
+  default boolean preWriteCheckAccepts(@NonNull Object object) {
     return true;
   }
 
-  default boolean preReadCheckAccepts(@NotNull Type type) {
+  default boolean preReadCheckAccepts(@NonNull Type type) {
     return true;
   }
 }

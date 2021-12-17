@@ -56,7 +56,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -77,7 +77,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   protected final Map<String, ICloudServiceFactory> cloudServiceFactories = new ConcurrentHashMap<>();
   protected final Map<ServiceEnvironmentType, ServiceConfigurationPreparer> preparers = new ConcurrentHashMap<>();
 
-  public DefaultCloudServiceManager(@NotNull CloudNet nodeInstance) {
+  public DefaultCloudServiceManager(@NonNull CloudNet nodeInstance) {
     this.clusterNodeServerProvider = nodeInstance.getClusterNodeServerProvider();
     // rpc init
     this.sender = nodeInstance.rpcProviderFactory().providerForClass(null, GeneralCloudServiceProvider.class);
@@ -134,12 +134,12 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   }
 
   @Override
-  public @NotNull SpecificCloudServiceProvider specificProvider(@NotNull UUID serviceUniqueId) {
+  public @NonNull SpecificCloudServiceProvider specificProvider(@NonNull UUID serviceUniqueId) {
     return this.knownServices.getOrDefault(serviceUniqueId, EmptySpecificCloudServiceProvider.INSTANCE);
   }
 
   @Override
-  public @NotNull SpecificCloudServiceProvider specificProviderByName(@NotNull String serviceName) {
+  public @NonNull SpecificCloudServiceProvider specificProviderByName(@NonNull String serviceName) {
     return this.knownServices.values().stream()
       .filter(provider -> provider.serviceInfo() != null)
       .filter(provider -> provider.serviceInfo().serviceId().name().equals(serviceName))
@@ -148,7 +148,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   }
 
   @Override
-  public @UnmodifiableView @NotNull Collection<UUID> servicesAsUniqueId() {
+  public @UnmodifiableView @NonNull Collection<UUID> servicesAsUniqueId() {
     return this.knownServices.values().stream()
       .filter(provider -> provider.serviceInfo() != null)
       .map(provider -> provider.serviceInfo().serviceId().uniqueId())
@@ -156,7 +156,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   }
 
   @Override
-  public @UnmodifiableView @NotNull Collection<ServiceInfoSnapshot> services() {
+  public @UnmodifiableView @NonNull Collection<ServiceInfoSnapshot> services() {
     return this.knownServices.values().stream()
       .map(SpecificCloudServiceProvider::serviceInfo)
       .filter(Objects::nonNull)
@@ -164,7 +164,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   }
 
   @Override
-  public @UnmodifiableView @NotNull Collection<ServiceInfoSnapshot> runningServices() {
+  public @UnmodifiableView @NonNull Collection<ServiceInfoSnapshot> runningServices() {
     return this.knownServices.values().stream()
       .map(SpecificCloudServiceProvider::serviceInfo)
       .filter(Objects::nonNull)
@@ -173,7 +173,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   }
 
   @Override
-  public @UnmodifiableView @NotNull Collection<ServiceInfoSnapshot> servicesByTask(@NotNull String taskName) {
+  public @UnmodifiableView @NonNull Collection<ServiceInfoSnapshot> servicesByTask(@NonNull String taskName) {
     return this.knownServices.values().stream()
       .map(SpecificCloudServiceProvider::serviceInfo)
       .filter(Objects::nonNull)
@@ -182,8 +182,8 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   }
 
   @Override
-  public @UnmodifiableView @NotNull Collection<ServiceInfoSnapshot> servicesByEnvironment(
-    @NotNull ServiceEnvironmentType environment
+  public @UnmodifiableView @NonNull Collection<ServiceInfoSnapshot> servicesByEnvironment(
+    @NonNull ServiceEnvironmentType environment
   ) {
     return this.knownServices.values().stream()
       .map(SpecificCloudServiceProvider::serviceInfo)
@@ -193,7 +193,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   }
 
   @Override
-  public @UnmodifiableView @NotNull Collection<ServiceInfoSnapshot> servicesByGroup(@NotNull String group) {
+  public @UnmodifiableView @NonNull Collection<ServiceInfoSnapshot> servicesByGroup(@NonNull String group) {
     return this.knownServices.values().stream()
       .map(SpecificCloudServiceProvider::serviceInfo)
       .filter(Objects::nonNull)
@@ -207,75 +207,75 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   }
 
   @Override
-  public int serviceCountByGroup(@NotNull String group) {
+  public int serviceCountByGroup(@NonNull String group) {
     return this.servicesByGroup(group).size();
   }
 
   @Override
-  public int serviceCountByTask(@NotNull String taskName) {
+  public int serviceCountByTask(@NonNull String taskName) {
     return this.servicesByTask(taskName).size();
   }
 
   @Override
-  public @Nullable ServiceInfoSnapshot serviceByName(@NotNull String name) {
+  public @Nullable ServiceInfoSnapshot serviceByName(@NonNull String name) {
     return this.specificProviderByName(name).serviceInfo();
   }
 
   @Override
-  public @Nullable ServiceInfoSnapshot service(@NotNull UUID uniqueId) {
+  public @Nullable ServiceInfoSnapshot service(@NonNull UUID uniqueId) {
     return this.specificProvider(uniqueId).serviceInfo();
   }
 
   @Override
-  public @NotNull Collection<ICloudServiceFactory> cloudServiceFactories() {
+  public @NonNull Collection<ICloudServiceFactory> cloudServiceFactories() {
     return Collections.unmodifiableCollection(this.cloudServiceFactories.values());
   }
 
   @Override
-  public @NotNull Optional<ICloudServiceFactory> cloudServiceFactory(@NotNull String runtime) {
+  public @NonNull Optional<ICloudServiceFactory> cloudServiceFactory(@NonNull String runtime) {
     return Optional.ofNullable(this.cloudServiceFactories.get(runtime));
   }
 
   @Override
-  public void addCloudServiceFactory(@NotNull String runtime, @NotNull ICloudServiceFactory factory) {
+  public void addCloudServiceFactory(@NonNull String runtime, @NonNull ICloudServiceFactory factory) {
     this.cloudServiceFactories.putIfAbsent(runtime, factory);
   }
 
   @Override
-  public void removeCloudServiceFactory(@NotNull String runtime) {
+  public void removeCloudServiceFactory(@NonNull String runtime) {
     this.cloudServiceFactories.remove(runtime);
   }
 
   @Override
-  public @NotNull Collection<ServiceConfigurationPreparer> servicePreparers() {
+  public @NonNull Collection<ServiceConfigurationPreparer> servicePreparers() {
     return Collections.unmodifiableCollection(this.preparers.values());
   }
 
   @Override
-  public @NotNull Optional<ServiceConfigurationPreparer> servicePreparer(@NotNull ServiceEnvironmentType type) {
+  public @NonNull Optional<ServiceConfigurationPreparer> servicePreparer(@NonNull ServiceEnvironmentType type) {
     return Optional.ofNullable(this.preparers.get(type));
   }
 
   @Override
   public void addServicePreparer(
-    @NotNull ServiceEnvironmentType type,
-    @NotNull ServiceConfigurationPreparer preparer
+    @NonNull ServiceEnvironmentType type,
+    @NonNull ServiceConfigurationPreparer preparer
   ) {
     this.preparers.putIfAbsent(type, preparer);
   }
 
   @Override
-  public void removeServicePreparer(@NotNull ServiceEnvironmentType type) {
+  public void removeServicePreparer(@NonNull ServiceEnvironmentType type) {
     this.preparers.remove(type);
   }
 
   @Override
-  public @NotNull Path tempDirectory() {
+  public @NonNull Path tempDirectory() {
     return TEMP_SERVICE_DIR;
   }
 
   @Override
-  public @NotNull Path persistentServicesDirectory() {
+  public @NonNull Path persistentServicesDirectory() {
     return PERSISTENT_SERVICE_DIR;
   }
 
@@ -295,7 +295,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   }
 
   @Override
-  public @NotNull @UnmodifiableView Collection<ICloudService> localCloudServices() {
+  public @NonNull @UnmodifiableView Collection<ICloudService> localCloudServices() {
     return this.knownServices.values().stream()
       .filter(provider -> provider instanceof ICloudService) // -> ICloudService => local service
       .map(provider -> (ICloudService) provider)
@@ -303,19 +303,19 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   }
 
   @Override
-  public @Nullable ICloudService localCloudService(@NotNull String name) {
+  public @Nullable ICloudService localCloudService(@NonNull String name) {
     var provider = this.specificProviderByName(name);
     return provider instanceof ICloudService ? (ICloudService) provider : null;
   }
 
   @Override
-  public @Nullable ICloudService localCloudService(@NotNull UUID uniqueId) {
+  public @Nullable ICloudService localCloudService(@NonNull UUID uniqueId) {
     var provider = this.knownServices.get(uniqueId);
     return provider instanceof ICloudService ? (ICloudService) provider : null;
   }
 
   @Override
-  public @Nullable ICloudService localCloudService(@NotNull ServiceInfoSnapshot snapshot) {
+  public @Nullable ICloudService localCloudService(@NonNull ServiceInfoSnapshot snapshot) {
     return this.localCloudService(snapshot.serviceId().uniqueId());
   }
 
@@ -339,17 +339,17 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   }
 
   @Override
-  public void registerLocalService(@NotNull ICloudService service) {
+  public void registerLocalService(@NonNull ICloudService service) {
     this.knownServices.putIfAbsent(service.serviceId().uniqueId(), service);
   }
 
   @Override
-  public void unregisterLocalService(@NotNull ICloudService service) {
+  public void unregisterLocalService(@NonNull ICloudService service) {
     this.knownServices.remove(service.serviceId().uniqueId());
   }
 
   @Override
-  public void handleServiceUpdate(@NotNull ServiceInfoSnapshot snapshot, @UnknownNullability INetworkChannel source) {
+  public void handleServiceUpdate(@NonNull ServiceInfoSnapshot snapshot, @UnknownNullability INetworkChannel source) {
     // deleted services were removed on the other node - remove it here too
     if (snapshot.lifeCycle() == ServiceLifeCycle.DELETED) {
       this.knownServices.remove(snapshot.serviceId().uniqueId());
@@ -375,7 +375,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   }
 
   @Override
-  public @NotNull ICloudService createLocalCloudService(@NotNull ServiceConfiguration configuration) {
+  public @NonNull ICloudService createLocalCloudService(@NonNull ServiceConfiguration configuration) {
     // get the cloud service factory for the configuration
     var factory = this.cloudServiceFactories.get(configuration.runtime());
     if (factory == null) {
@@ -386,7 +386,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   }
 
   @Override
-  public @NotNull SpecificCloudServiceProvider selectOrCreateService(@NotNull ServiceTask task) {
+  public @NonNull SpecificCloudServiceProvider selectOrCreateService(@NonNull ServiceTask task) {
     // get all services of the given task, map it to its node unique id
     var prepared = this.servicesByTask(task.name())
       .stream()
