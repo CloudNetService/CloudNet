@@ -37,7 +37,7 @@ public class EmitterRegistry {
    * @return an unmodifiable collection of all registered emitters.
    */
   @UnmodifiableView
-  public @NotNull Collection<ReportDataEmitter<?>> getEmitters() {
+  public @NotNull Collection<ReportDataEmitter<?>> emitters() {
     return Collections.unmodifiableCollection(this.emitters.values());
   }
 
@@ -49,7 +49,7 @@ public class EmitterRegistry {
    */
   @UnmodifiableView
   @SuppressWarnings("unchecked")
-  public <T> @NotNull Collection<ReportDataEmitter<T>> getEmitters(@NotNull Class<T> clazz) {
+  public <T> @NotNull Collection<ReportDataEmitter<T>> emitters(@NotNull Class<T> clazz) {
     return this.emitters.get(clazz)
       .stream()
       .map(emitter -> (ReportDataEmitter<T>) emitter)

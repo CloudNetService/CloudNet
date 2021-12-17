@@ -42,7 +42,7 @@ public final class RecordReportListener {
       return;
     }
 
-    var configuration = this.reportModule.getReportConfiguration();
+    var configuration = this.reportModule.reportConfiguration();
     var serviceLifetimeSetting = configuration.serviceLifetime();
     // -1 is used to disable the log printing.
     if (serviceLifetimeSetting == -1L) {
@@ -62,7 +62,7 @@ public final class RecordReportListener {
   @EventListener
   public void handleServiceCrash(CloudServiceCrashEvent event) {
     // check if the user disabled records
-    if (!this.reportModule.getReportConfiguration().saveRecords()) {
+    if (!this.reportModule.reportConfiguration().saveRecords()) {
       return;
     }
     // we have to create the record
@@ -77,11 +77,11 @@ public final class RecordReportListener {
       return;
     }
     // check if the user disabled records
-    if (!this.reportModule.getReportConfiguration().saveRecords()) {
+    if (!this.reportModule.reportConfiguration().saveRecords()) {
       return;
     }
     // check if the user only wants to save reports for crashed services
-    if (this.reportModule.getReportConfiguration().saveOnCrashOnly()) {
+    if (this.reportModule.reportConfiguration().saveOnCrashOnly()) {
       return;
     }
     // create the record
@@ -90,7 +90,7 @@ public final class RecordReportListener {
 
   private void createRecord(ICloudService cloudService) {
     // we need to check and create the record directory as it's time based.
-    var recordCreator = RecordMaker.forService(this.reportModule.getCurrentRecordDirectory(), cloudService);
+    var recordCreator = RecordMaker.forService(this.reportModule.currentRecordDirectory(), cloudService);
     // unable to create records as the directory already exists
     if (recordCreator == null) {
       return;

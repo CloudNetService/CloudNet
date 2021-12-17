@@ -56,7 +56,7 @@ public record PasteCreator(@NotNull PasteService pasteService, @NotNull EmitterR
    */
   public <T> @NotNull String collectData(Class<T> clazz, T context) {
     var content = new StringBuilder();
-    for (var emitter : this.registry.getEmitters(clazz)) {
+    for (var emitter : this.registry.emitters(clazz)) {
       emitter.emitData(content, context);
     }
 

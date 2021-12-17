@@ -62,7 +62,7 @@ public final class CommandReport {
   @Parser(suggestions = "pasteService")
   public PasteService defaultPasteServiceParser(CommandContext<CommandSource> $, Queue<String> input) {
     var name = input.remove();
-    return this.reportModule.getReportConfiguration().pasteServers()
+    return this.reportModule.reportConfiguration().pasteServers()
       .stream()
       .filter(service -> service.name().equalsIgnoreCase(name))
       .findFirst()
@@ -72,7 +72,7 @@ public final class CommandReport {
 
   @Suggestions("pasteService")
   public List<String> suggestPasteService(CommandContext<CommandSource> $, String input) {
-    return this.reportModule.getReportConfiguration().pasteServers()
+    return this.reportModule.reportConfiguration().pasteServers()
       .stream()
       .map(INameable::name)
       .toList();
@@ -99,7 +99,7 @@ public final class CommandReport {
   @CommandMethod("report|paste node [pasteService]")
   public void pasteNode(CommandSource source, @Argument("pasteService") PasteService pasteService) {
     var pasteCreator = new PasteCreator(this.fallbackPasteService(pasteService),
-      this.reportModule.getEmitterRegistry());
+      this.reportModule.emitterRegistry());
     var selfNode = CloudNet.getInstance().getClusterNodeServerProvider().getSelfNode()
       .getNodeInfoSnapshot();
 
@@ -120,7 +120,7 @@ public final class CommandReport {
     @Argument("service") ICloudService service
   ) {
     var pasteCreator = new PasteCreator(this.fallbackPasteService(pasteService),
-      this.reportModule.getEmitterRegistry());
+      this.reportModule.emitterRegistry());
 
     var response = pasteCreator.createServicePaste(service);
     if (response == null) {
@@ -134,7 +134,7 @@ public final class CommandReport {
 
   @CommandMethod("report|paste thread-dump")
   public void reportThreadDump(CommandSource source) {
-    var file = this.reportModule.getCurrentRecordDirectory().resolve(System.currentTimeMillis() + "-threaddump.txt");
+    var file = this.reportModule.currentRecordDirectory().resolve(System.currentTimeMillis() + "-threaddump.txt");
 
     if (this.createThreadDump(file)) {
       source.sendMessage(
@@ -146,7 +146,7 @@ public final class CommandReport {
 
   @CommandMethod("report|paste heap-dump")
   public void reportHeapDump(CommandSource source, @Flag("live") boolean live) {
-    var file = this.reportModule.getCurrentRecordDirectory().resolve(System.currentTimeMillis() + "-heapdump.hprof");
+    var file = this.reportModule.currentRecordDirectory().resolve(System.currentTimeMillis() + "-heapdump.hprof");
 
     if (this.createHeapDump(file, live)) {
       source.sendMessage(
@@ -192,13 +192,13 @@ public final class CommandReport {
       return service;
     }
 
-    var pasteServices = this.reportModule.getReportConfiguration().pasteServers();
+    var pasteServices = this.reportModule.reportConfiguration().pasteServers();
     // there are no paste services, use fallback
     if (pasteServices.isEmpty()) {
       return PasteService.FALLBACK;
     }
     // use the first in the configuration
-    return this.reportModule.getReportConfiguration().pasteServers().get(0);
+    return this.reportModule.reportConfiguration().pasteServers().get(0);
   }
 
 }

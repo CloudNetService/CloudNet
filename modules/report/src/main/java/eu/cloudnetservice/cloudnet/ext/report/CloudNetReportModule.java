@@ -47,7 +47,7 @@ public final class CloudNetReportModule extends DriverModule {
   private EmitterRegistry registry;
   private Path currentRecordDirectory;
 
-  public static CloudNetReportModule getInstance() {
+  public static CloudNetReportModule instance() {
     return CloudNetReportModule.instance;
   }
 
@@ -81,15 +81,15 @@ public final class CloudNetReportModule extends DriverModule {
     this.reloadConfiguration();
   }
 
-  public @NotNull EmitterRegistry getEmitterRegistry() {
+  public @NotNull EmitterRegistry emitterRegistry() {
     return this.registry;
   }
 
-  public @NotNull ReportConfiguration getReportConfiguration() {
+  public @NotNull ReportConfiguration reportConfiguration() {
     return this.reportConfiguration;
   }
 
-  public @NotNull Path getCurrentRecordDirectory() {
+  public @NotNull Path currentRecordDirectory() {
     var date = this.reportConfiguration.dateFormat().format(System.currentTimeMillis());
     var recordBaseDestination = this.moduleWrapper.dataDirectory()
       .resolve(this.reportConfiguration.recordDestination());
