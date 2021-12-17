@@ -58,7 +58,7 @@ final class LookupClassDefiner implements ClassDefiner {
     Object hiddenClassOptions = null;
     Method defineHiddenMethod = null;
 
-    if (UnsafeAccess.isAvailable()) {
+    if (UnsafeAccess.available()) {
       try {
         // get the trusted lookup field
         var implLookup = Lookup.class.getDeclaredField("IMPL_LOOKUP");
@@ -115,7 +115,7 @@ final class LookupClassDefiner implements ClassDefiner {
    *
    * @return if the lookup class definer requirements are met to use the definer in the current jvm.
    */
-  public static boolean isAvailable() {
+  public static boolean available() {
     return TRUSTED_LOOKUP != null && HIDDEN_CLASS_OPTIONS != null && DEFINE_HIDDEN_METHOD != null;
   }
 
