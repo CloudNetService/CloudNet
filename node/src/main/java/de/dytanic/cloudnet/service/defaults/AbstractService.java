@@ -264,7 +264,7 @@ public abstract class AbstractService implements ICloudService {
 
   @Override
   public void includeWaitingServiceTemplates() {
-    this.includeWaitingServiceTemplates(false);
+    this.includeWaitingServiceTemplates(true);
   }
 
   @Override
@@ -441,11 +441,11 @@ public abstract class AbstractService implements ICloudService {
     return this.nodeInstance.getConfig();
   }
 
-  protected void includeWaitingServiceTemplates(boolean automaticRequest) {
+  protected void includeWaitingServiceTemplates(boolean force) {
     this.waitingTemplates.stream()
       .filter(template -> {
         // always allow manual requests & non-static service copies
-        if (!automaticRequest || !this.getServiceConfiguration().staticService()) {
+        if (force || !this.getServiceConfiguration().staticService()) {
           return true;
         }
         // only allow this template to be copied if explicitly defined
