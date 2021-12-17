@@ -35,21 +35,21 @@ public interface IWrapperConfiguration {
    *
    * @return the string which includes the key
    */
-  @NotNull String getConnectionKey();
+  @NotNull String connectionKey();
 
   /**
    * The address of a listener by the node
    *
    * @return the target local listener address of the node
    */
-  @NotNull HostAndPort getTargetListener();
+  @NotNull HostAndPort targetListener();
 
   /**
    * The first own serviceConfiguration with all important information about the service
    *
    * @return the instance of the ServiceConfiguration class
    */
-  @NotNull ServiceConfiguration getServiceConfiguration();
+  @NotNull ServiceConfiguration serviceConfiguration();
 
   /**
    * The first serviceInfoSnapshot which has the important data for all next serviceInfoSnapshots, which the wrapper has
@@ -57,12 +57,12 @@ public interface IWrapperConfiguration {
    *
    * @return the serviceInfoSnapshot sample
    */
-  @NotNull ServiceInfoSnapshot getServiceInfoSnapshot();
+  @NotNull ServiceInfoSnapshot serviceInfoSnapshot();
 
   /**
    * The ssl configuration, which needs for an optional ssl client connection.
    *
    * @return the configuration instance, which includes all important ssl settings, for a client ssl connection
    */
-  @NotNull SSLConfiguration getSSLConfig();
+  @NotNull SSLConfiguration sslConfiguration();
 }

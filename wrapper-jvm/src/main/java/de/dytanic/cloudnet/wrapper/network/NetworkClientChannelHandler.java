@@ -44,8 +44,8 @@ public class NetworkClientChannelHandler implements INetworkChannelHandler {
     networkChannelInitEvent.networkChannel().sendPacket(new PacketClientAuthorization(
       PacketClientAuthorization.PacketAuthorizationType.WRAPPER_TO_NODE,
       DataBuf.empty()
-        .writeString(Wrapper.getInstance().config().getConnectionKey())
-        .writeObject(Wrapper.getInstance().config().getServiceConfiguration().serviceId())));
+        .writeString(Wrapper.getInstance().config().connectionKey())
+        .writeObject(Wrapper.getInstance().config().serviceConfiguration().serviceId())));
   }
 
   @Override

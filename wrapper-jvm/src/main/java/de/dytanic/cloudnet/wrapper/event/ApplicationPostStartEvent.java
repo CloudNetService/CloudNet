@@ -62,19 +62,19 @@ public final class ApplicationPostStartEvent extends DriverEvent {
     this.classLoader = classLoader;
   }
 
-  public @NotNull Wrapper getCloudNetWrapper() {
+  public @NotNull Wrapper wrapper() {
     return this.cloudNetWrapper;
   }
 
-  public @NotNull Class<?> getApplicationMainClass() {
+  public @NotNull Class<?> applicationMainClass() {
     return this.applicationMainClass;
   }
 
-  public @NotNull Thread getApplicationThread() {
+  public @NotNull Thread applicationThread() {
     return this.applicationThread;
   }
 
-  public @NotNull ClassLoader getClassLoader() {
+  public @NotNull ClassLoader classLoader() {
     return this.classLoader;
   }
 }

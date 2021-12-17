@@ -55,15 +55,15 @@ public final class ApplicationPreStartEvent extends DriverEvent {
     this.arguments = arguments;
   }
 
-  public @NotNull Wrapper getCloudNetWrapper() {
+  public @NotNull Wrapper wrapper() {
     return this.cloudNetWrapper;
   }
 
-  public @NotNull Class<?> getClazz() {
+  public @NotNull Class<?> clazz() {
     return this.applicationMainClass;
   }
 
-  public @NotNull Collection<String> getArguments() {
+  public @NotNull Collection<String> arguments() {
     return this.arguments;
   }
 }

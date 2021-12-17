@@ -101,8 +101,8 @@ public class Wrapper extends CloudNetDriver {
    * The ServiceInfoSnapshot instances. The current ServiceInfoSnapshot instance is the last send object snapshot from
    * this process. The lastServiceInfoSnapshot is the element which was send before.
    */
-  private ServiceInfoSnapshot lastServiceInfoSnapShot = this.config.getServiceInfoSnapshot();
-  private ServiceInfoSnapshot currentServiceInfoSnapshot = this.config.getServiceInfoSnapshot();
+  private ServiceInfoSnapshot lastServiceInfoSnapShot = this.config.serviceInfoSnapshot();
+  private ServiceInfoSnapshot currentServiceInfoSnapshot = this.config.serviceInfoSnapshot();
 
   protected Wrapper(@NotNull String[] args) {
     super(new ArrayList<>(Arrays.asList(args)));
@@ -111,7 +111,7 @@ public class Wrapper extends CloudNetDriver {
 
     this.cloudNetVersion = CloudNetVersion.fromClassInformation(Wrapper.class.getPackage());
 
-    super.networkClient = new NettyNetworkClient(NetworkClientChannelHandler::new, this.config.getSSLConfig());
+    super.networkClient = new NettyNetworkClient(NetworkClientChannelHandler::new, this.config.sslConfiguration());
     this.rpcSender = this.rpcProviderFactory.providerForClass(this.networkClient, CloudNetDriver.class);
 
     super.databaseProvider = new DefaultWrapperDatabaseProvider(this);
@@ -230,7 +230,7 @@ public class Wrapper extends CloudNetDriver {
    * @return the first instance which was set in the config by the node
    */
   public @NotNull ServiceConfiguration serviceConfiguration() {
-    return this.config.getServiceConfiguration();
+    return this.config.serviceConfiguration();
   }
 
   /**
@@ -317,7 +317,7 @@ public class Wrapper extends CloudNetDriver {
       var listener = new PacketAuthorizationResponseListener(lock, condition);
       // register the listener to the packet registry and connect to the target listener
       this.networkClient.packetRegistry().addListener(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL, listener);
-      this.networkClient.connect(this.config.getTargetListener());
+      this.networkClient.connect(this.config.targetListener());
 
       // wait for the authentication response
       var wasDone = condition.await(30, TimeUnit.SECONDS);
