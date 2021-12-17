@@ -41,7 +41,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -129,7 +128,7 @@ public class DefaultModuleProvider implements IModuleProvider {
   public @NotNull Collection<IModuleWrapper> modules(@NotNull String group) {
     return this.modules.stream()
       .filter(module -> module.moduleConfiguration().group().equals(group))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   /**

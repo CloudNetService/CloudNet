@@ -28,7 +28,6 @@ import de.dytanic.cloudnet.driver.service.property.DefaultModifiableServicePrope
 import de.dytanic.cloudnet.driver.service.property.ServiceProperty;
 import de.dytanic.cloudnet.ext.bridge.player.ServicePlayer;
 import java.util.Collection;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -94,7 +93,7 @@ public final class BridgeServiceProperties {
     .<Collection<JsonDocument>, Collection<ServicePlayer>>wrap(
       createFromType("Players", new TypeToken<Collection<JsonDocument>>() {
       }.getType()))
-    .modifyGet(($, documents) -> documents.stream().map(ServicePlayer::new).collect(Collectors.toList()));
+    .modifyGet(($, documents) -> documents.stream().map(ServicePlayer::new).toList());
 
   private BridgeServiceProperties() {
     throw new UnsupportedOperationException();

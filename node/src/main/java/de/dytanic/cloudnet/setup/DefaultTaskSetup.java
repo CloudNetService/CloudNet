@@ -86,7 +86,7 @@ public class DefaultTaskSetup implements DefaultSetup {
                         return JAVA_PROXY.get(properties) || PE_PROXY.get(properties);
                       })
                       .map(ServiceEnvironmentType::name)
-                      .collect(Collectors.toList())))
+                      .toList()))
                   .build(),
                 // Java command
                 QuestionListEntry.<Pair<String, JavaVersion>>builder()
@@ -133,7 +133,7 @@ public class DefaultTaskSetup implements DefaultSetup {
                         return JAVA_SERVER.get(properties) || PE_SERVER.get(properties);
                       })
                       .map(ServiceEnvironmentType::name)
-                      .collect(Collectors.toList())))
+                      .toList()))
                   .build(),
                 // Java command
                 QuestionListEntry.<Pair<String, JavaVersion>>builder()

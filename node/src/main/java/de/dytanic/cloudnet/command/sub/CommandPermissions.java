@@ -46,7 +46,6 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -90,7 +89,7 @@ public final class CommandPermissions {
 
   @Suggestions("permissionGroup")
   public List<String> suggestPermissionGroup(CommandContext<CommandSource> $, String input) {
-    return this.permissionManagement().groups().stream().map(INameable::name).collect(Collectors.toList());
+    return this.permissionManagement().groups().stream().map(INameable::name).toList();
   }
 
   @Parser(name = "timeUnit")

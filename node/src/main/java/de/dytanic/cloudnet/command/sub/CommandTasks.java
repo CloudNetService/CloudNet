@@ -57,7 +57,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -107,7 +106,7 @@ public final class CommandTasks {
 
   @Suggestions("serviceTask")
   public List<String> suggestTask(CommandContext<CommandSource> $, String input) {
-    return this.taskProvider().permanentServiceTasks().stream().map(INameable::name).collect(Collectors.toList());
+    return this.taskProvider().permanentServiceTasks().stream().map(INameable::name).toList();
   }
 
   @Parser(suggestions = "serviceTask")
@@ -152,7 +151,7 @@ public final class CommandTasks {
     return CloudNet.getInstance().getConfig().getClusterConfig().nodes()
       .stream()
       .map(NetworkClusterNode::uniqueId)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @CommandMethod(value = "tasks setup", requiredSender = ConsoleCommandSource.class)

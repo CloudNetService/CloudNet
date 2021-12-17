@@ -51,15 +51,17 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class NPCCommand extends BaseTabExecutor {
+  
+  private static final Material[] MATERIALS = Material.values();
 
   private static final List<String> TRUE_FALSE = Arrays.asList("true", "yes", "y", "false", "no", "n");
 
   private static final List<String> NPC_TYPES = Arrays.stream(NPCType.values())
     .map(Enum::name)
-    .collect(Collectors.toList());
+    .toList();
   private static final List<String> CLICK_ACTIONS = Arrays.stream(ClickAction.values())
     .map(Enum::name)
-    .collect(Collectors.toList());
+    .toList();
   private static final Map<String, Integer> VALID_ITEM_SLOTS = ImmutableMap.<String, Integer>builder()
     .put("MAIN_HAND", 0)
     .put("OFF_HAND", 1)
@@ -524,7 +526,7 @@ public final class NPCCommand extends BaseTabExecutor {
         case 2:
           return CloudNetDriver.instance().groupConfigurationProvider().groupConfigurations().stream()
             .map(GroupConfiguration::name)
-            .collect(Collectors.toList());
+            .toList();
         case 3:
           return NPC_TYPES;
         case 4: {
@@ -537,7 +539,7 @@ public final class NPCCommand extends BaseTabExecutor {
                 .filter(EntityType::isSpawnable)
                 .filter(entityType -> entityType != EntityType.PLAYER)
                 .map(Enum::name)
-                .collect(Collectors.toList());
+                .toList();
             } else {
               return Arrays.asList("derklaro", "juliarn", "0utplayyyy");
             }
@@ -579,35 +581,36 @@ public final class NPCCommand extends BaseTabExecutor {
           case "gc", "glowingcolor" -> Arrays.stream(ChatColor.values())
             .filter(ChatColor::isColor)
             .map(color -> String.valueOf(color.getChar()))
-            .collect(Collectors.toList());
+            .toList();
           // entity type
           case "et", "entitytype" -> Arrays.stream(EntityType.values())
             .filter(EntityType::isAlive)
             .filter(EntityType::isSpawnable)
             .filter(type -> type != EntityType.PLAYER)
             .map(Enum::name)
-            .collect(Collectors.toList());
+            .toList();
           // npc skin profile
           case "profile" -> Arrays.asList("derklaro", "juliarn", "0utplayyyy");
           // target group
           case "tg", "targetgroup" -> CloudNetDriver.instance().groupConfigurationProvider()
             .groupConfigurations().stream()
             .map(GroupConfiguration::name)
-            .collect(Collectors.toList());
+            .toList();
           // item slots
           case "items" -> new ArrayList<>(VALID_ITEM_SLOTS.keySet());
           // info lines top level
           case "il", "infolines" -> Arrays.asList("0", "1", "2", "3", "4", "5", "6", "7", "8", "9");
           // floating item
-          case "fi", "floatingitem" -> Arrays.stream(Material.values()).map(Material::name)
-            .collect(Collectors.toList());
+          case "fi", "floatingitem" -> Arrays.stream(MATERIALS)
+            .map(Material::name)
+            .toList();
           // unknown or non-completable option
           default -> Collections.emptyList();
         };
       }
       // more...
       if (args.length == 4 && args[1].equalsIgnoreCase("items")) {
-        return Arrays.stream(Material.values()).map(Material::name).collect(Collectors.toList());
+        return Arrays.stream(MATERIALS).map(Material::name).toList();
       }
     }
     // unable to tab-complete

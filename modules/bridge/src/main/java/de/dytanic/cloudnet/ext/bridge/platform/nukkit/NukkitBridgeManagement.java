@@ -33,7 +33,6 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -123,6 +122,6 @@ final class NukkitBridgeManagement extends PlatformBridgeManagement<Player, Netw
     // players
     snapshot.properties().append("Players", Server.getInstance().getOnlinePlayers().values().stream()
       .map(this::createPlayerInformation)
-      .collect(Collectors.toList()));
+      .toList());
   }
 }

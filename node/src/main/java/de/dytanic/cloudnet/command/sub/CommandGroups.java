@@ -43,7 +43,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.Nullable;
 
 @CommandPermission("cloudnet.command.groups")
@@ -64,7 +63,7 @@ public final class CommandGroups {
 
   @Suggestions("groupConfiguration")
   public List<String> suggestGroups(CommandContext<CommandSource> $, String input) {
-    return this.groupProvider().groupConfigurations().stream().map(INameable::name).collect(Collectors.toList());
+    return this.groupProvider().groupConfigurations().stream().map(INameable::name).toList();
   }
 
   @CommandMethod("groups delete <name>")

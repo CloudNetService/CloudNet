@@ -36,7 +36,6 @@ import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import java.util.List;
 import java.util.Queue;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 
 @CommandPermission("cloudnet.command.migrate")
@@ -62,7 +61,7 @@ public final class CommandMigrate {
     return CloudNet.getInstance().servicesRegistry().services(AbstractDatabaseProvider.class)
       .stream()
       .map(INameable::name)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @CommandMethod(value = "migrate database|db <database-from> <database-to>", requiredSender = ConsoleCommandSource.class)

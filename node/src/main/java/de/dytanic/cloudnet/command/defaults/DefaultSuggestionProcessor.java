@@ -57,7 +57,7 @@ final class DefaultSuggestionProcessor implements CommandSuggestionProcessor<Com
       // check if clouds suggestion matches the input and the command is registered
       if (StringUtil.startsWithIgnoreCase(suggestion, input)
         && (context.getCommandContext().getRawInput().size() > 1 || this.provider.getCommand(suggestion) != null)) {
-        suggestions.add(suggestion);
+        suggestions.add(suggestion.toLowerCase());
       }
     }
     return suggestions;

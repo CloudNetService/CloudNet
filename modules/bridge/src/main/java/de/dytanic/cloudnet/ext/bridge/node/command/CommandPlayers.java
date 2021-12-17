@@ -42,7 +42,6 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Queue;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -83,7 +82,7 @@ public class CommandPlayers {
   public List<String> suggestOnlinePlayers(CommandContext<?> $, String input) {
     return this.playerManager.getOnlinePlayers().values().stream()
       .map(INameable::name)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Parser(suggestions = "playerService")
@@ -103,7 +102,7 @@ public class CommandPlayers {
       .stream()
       .filter(snapshot -> ServiceEnvironmentType.isMinecraftServer(snapshot.serviceId().environment()))
       .map(INameable::name)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Parser(name = "offlinePlayer")

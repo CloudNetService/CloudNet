@@ -33,7 +33,6 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.PendingConnection;
@@ -149,7 +148,7 @@ final class BungeeCordBridgeManagement extends PlatformBridgeManagement<ProxiedP
     // players
     snapshot.properties().append("Players", ProxyServer.getInstance().getPlayers().stream()
       .map(this::createPlayerInformation)
-      .collect(Collectors.toList()));
+      .toList());
   }
 
   private @Nullable String getVirtualHostString(@NotNull PendingConnection connection) {

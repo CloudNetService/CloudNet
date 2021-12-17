@@ -30,7 +30,6 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -124,6 +123,6 @@ final class SpongeBridgeManagement extends PlatformBridgeManagement<ServerPlayer
     // players
     snapshot.properties().append("Players", Sponge.server().onlinePlayers().stream()
       .map(this::createPlayerInformation)
-      .collect(Collectors.toList()));
+      .toList());
   }
 }

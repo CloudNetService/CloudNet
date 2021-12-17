@@ -89,7 +89,7 @@ public final class CommandService {
     return CloudNet.getInstance().cloudServiceProvider().services()
       .stream()
       .map(INameable::name)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Parser(suggestions = "service")
@@ -118,7 +118,7 @@ public final class CommandService {
       .filter(service -> taskName == null || service.serviceId().taskName().equalsIgnoreCase(taskName))
       .filter(service -> groupName == null || service.configuration().groups().contains(groupName))
       .sorted()
-      .collect(Collectors.toList());
+      .toList();
 
     // there are different ways to list services
     if (useNamesOnly) {

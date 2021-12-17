@@ -40,7 +40,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -181,7 +180,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
     return this.getNodeServers().stream()
       .map(IClusterNodeServer::getChannel)
       .filter(Objects::nonNull)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Override
@@ -238,7 +237,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
         .filter(IClusterNodeServer::isAvailable)
         .map(IClusterNodeServer::getChannel)
         .filter(Objects::nonNull)
-        .collect(Collectors.toList());
+        .toList();
     } else {
       return Collections.emptyList();
     }

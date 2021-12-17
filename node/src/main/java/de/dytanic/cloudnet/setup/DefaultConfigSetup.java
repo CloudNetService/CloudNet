@@ -30,7 +30,6 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
 import de.dytanic.cloudnet.util.NetworkAddressUtil;
 import java.util.Collection;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 
 public class DefaultConfigSetup extends DefaultClusterSetup {
@@ -70,7 +69,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
         .translatedQuestion("cloudnet-init-setup-internal-host")
         .answerType(QuestionAnswerType.<HostAndPort>builder()
           .recommendation(NetworkAddressUtil.getLocalAddress() + ":1410")
-          .possibleResults(addresses.stream().map(addr -> addr + ":1410").collect(Collectors.toList()))
+          .possibleResults(addresses.stream().map(addr -> addr + ":1410").toList())
           .parser(validatedHostAndPort(true)))
         .build(),
       // web server host
@@ -79,7 +78,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
         .translatedQuestion("cloudnet-init-setup-web-host")
         .answerType(QuestionAnswerType.<HostAndPort>builder()
           .recommendation(NetworkAddressUtil.getLocalAddress() + ":2812")
-          .possibleResults(addresses.stream().map(addr -> addr + ":2812").collect(Collectors.toList()))
+          .possibleResults(addresses.stream().map(addr -> addr + ":2812").toList())
           .parser(validatedHostAndPort(true)))
         .build(),
       // service bind host address

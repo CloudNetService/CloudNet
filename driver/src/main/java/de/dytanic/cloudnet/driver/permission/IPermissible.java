@@ -22,9 +22,9 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
 public interface IPermissible extends INameable, DocPropertyHolder, Comparable<IPermissible> {
 
@@ -42,8 +42,8 @@ public interface IPermissible extends INameable, DocPropertyHolder, Comparable<I
 
   /**
    * Gets the potency of this permissible. If this permissible is an {@link PermissionGroup}, {@link
-   * IPermissionManagement#highestPermissionGroup(PermissionUser)} is sorted by the potency. If this permissible is
-   * an {@link PermissionUser}, in CloudNet it has no specific meaning, but of course you can use it for whatever you
+   * IPermissionManagement#highestPermissionGroup(PermissionUser)} is sorted by the potency. If this permissible is an
+   * {@link PermissionUser}, in CloudNet it has no specific meaning, but of course you can use it for whatever you
    * want.
    *
    * @return the potency of this permissible
@@ -266,12 +266,14 @@ public interface IPermissible extends INameable, DocPropertyHolder, Comparable<I
   }
 
   /**
-   * Gets a list of the names of all global permissions of this permissible. Modifications of this list are useless.
+   * Gets a list of the names of all global permissions of this permissible. Modifications to this list are not possible.
    *
    * @return a mutable list of all names of the permissions
    */
-  default Collection<String> permissionNames() {
-    return this.permissions().stream().map(Permission::name).collect(Collectors.toList());
+  default @Unmodifiable Collection<String> permissionNames() {
+    return this.permissions().stream()
+      .map(Permission::name)
+      .toList();
   }
 
   /**

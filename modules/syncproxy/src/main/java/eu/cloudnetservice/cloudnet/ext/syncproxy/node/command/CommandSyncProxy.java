@@ -34,7 +34,6 @@ import eu.cloudnetservice.cloudnet.ext.syncproxy.node.NodeSyncProxyManagement;
 import java.util.Collection;
 import java.util.List;
 import java.util.Queue;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 
 public final class CommandSyncProxy {
@@ -61,7 +60,7 @@ public final class CommandSyncProxy {
     return this.syncProxyManagement.getConfiguration().loginConfigurations()
       .stream()
       .map(SyncProxyLoginConfiguration::targetGroup)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Parser(name = "newConfiguration", suggestions = "newConfiguration")
@@ -92,7 +91,7 @@ public final class CommandSyncProxy {
     return CloudNet.getInstance().groupConfigurationProvider().groupConfigurations()
       .stream()
       .map(INameable::name)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @CommandMethod("syncproxy|sp list")

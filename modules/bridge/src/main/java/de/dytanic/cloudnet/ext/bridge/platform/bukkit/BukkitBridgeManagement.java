@@ -30,7 +30,6 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permissible;
@@ -125,6 +124,6 @@ final class BukkitBridgeManagement extends PlatformBridgeManagement<Player, Netw
     // players
     snapshot.properties().append("Players", Bukkit.getOnlinePlayers().stream()
       .map(this::createPlayerInformation)
-      .collect(Collectors.toList()));
+      .toList());
   }
 }

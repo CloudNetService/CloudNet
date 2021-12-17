@@ -24,7 +24,6 @@ import eu.cloudnetservice.cloudnet.ext.signs.platform.PlatformSignManagement;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -139,7 +138,7 @@ public class CommandSigns extends BaseTabExecutor {
     if (args.length == 2 && args[0].equalsIgnoreCase("create")) {
       return CloudNetDriver.instance().groupConfigurationProvider().groupConfigurations().stream()
         .map(GroupConfiguration::name)
-        .collect(Collectors.toList());
+        .toList();
     }
     // unable to tab complete
     return ImmutableList.of();

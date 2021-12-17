@@ -101,7 +101,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
     Collection<WorldPosition> positions = this.npcs.entrySet().stream()
       .filter(entry -> entry.getValue().getTargetGroup().equals(group))
       .map(Entry::getKey)
-      .collect(Collectors.toList());
+      .toList();
     positions.forEach(position -> {
       this.npcs.remove(position);
       this.database.delete(getDocumentKey(position));

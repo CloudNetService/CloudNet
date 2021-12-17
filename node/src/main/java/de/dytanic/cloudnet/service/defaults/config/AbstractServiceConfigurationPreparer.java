@@ -29,7 +29,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class AbstractServiceConfigurationPreparer implements ServiceConfigurationPreparer {
@@ -60,7 +59,7 @@ public abstract class AbstractServiceConfigurationPreparer implements ServiceCon
       Collection<String> newLines = Files.readAllLines(filePath)
         .stream()
         .map(mapper)
-        .collect(Collectors.toList());
+        .toList();
       // write the new content to the same file
       Files.write(
         filePath,

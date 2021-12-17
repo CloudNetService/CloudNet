@@ -49,7 +49,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Queue;
-import java.util.stream.Collectors;
 
 @CommandAlias("t")
 @CommandPermission("cloudnet.command.templates")
@@ -94,7 +93,7 @@ public final class CommandTemplate {
     return CloudNet.getInstance().localTemplateStorage().templates()
       .stream()
       .map(ServiceTemplate::toString)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Parser
@@ -112,7 +111,7 @@ public final class CommandTemplate {
     return CloudNet.getInstance().availableTemplateStorages()
       .stream()
       .map(INameable::name)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Parser(suggestions = "serviceVersionType")
@@ -144,7 +143,7 @@ public final class CommandTemplate {
       .stream()
       .filter(ServiceVersion::canRun)
       .map(INameable::name)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @CommandMethod("template|t list [storage]")
@@ -154,7 +153,7 @@ public final class CommandTemplate {
     if (templateStorage == null) {
       templates = CloudNet.getInstance().servicesRegistry().services(TemplateStorage.class).stream()
         .flatMap(storage -> storage.templates().stream())
-        .collect(Collectors.toList());
+        .toList();
     } else {
       templates = templateStorage.templates();
     }
@@ -172,7 +171,7 @@ public final class CommandTemplate {
         .flatMap(type -> type.getVersions().stream()
           .sorted(Comparator.comparing(ServiceVersion::name))
           .map(version -> new Pair<>(type, version)))
-        .collect(Collectors.toList());
+        .toList();
     } else {
       versions = CloudNet.getInstance().getServiceVersionProvider().getServiceVersionTypes()
         .get(versionType.name().toLowerCase())
@@ -180,7 +179,7 @@ public final class CommandTemplate {
         .stream()
         .sorted(Comparator.comparing(ServiceVersion::name))
         .map(version -> new Pair<>(versionType, version))
-        .collect(Collectors.toList());
+        .toList();
     }
 
     source.sendMessage(VERSIONS.format(versions));

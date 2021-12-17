@@ -103,7 +103,7 @@ public final class CommandCluster {
     return CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers()
       .stream()
       .map(clusterNodeServer -> clusterNodeServer.getNodeInfo().uniqueId())
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Parser(suggestions = "selfNodeServer")
@@ -129,7 +129,7 @@ public final class CommandCluster {
     var nodes = provider.getNodeServers()
       .stream()
       .map(clusterNodeServer -> clusterNodeServer.getNodeInfo().uniqueId())
-      .collect(Collectors.toList());
+      .toList();
     // add the own node to the suggestions
     nodes.add(provider.getSelfNode().getNodeInfo().uniqueId());
     return nodes;
@@ -151,7 +151,7 @@ public final class CommandCluster {
     return CloudNet.getInstance().getConfig().getClusterConfig().nodes()
       .stream()
       .map(NetworkClusterNode::uniqueId)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Parser
@@ -368,7 +368,7 @@ public final class CommandCluster {
         .filter(path -> manager.getLocalCloudService(path.getFileName().toString()) == null)
         // map to all names of the different services
         .map(path -> path.getFileName().toString())
-        .collect(Collectors.toList());
+        .toList();
     } catch (IOException e) {
       // we can't find any static service
       return Collections.emptyList();

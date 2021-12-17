@@ -44,7 +44,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Queue;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.Nullable;
 
 @CommandAlias("paste")
@@ -76,7 +75,7 @@ public final class CommandReport {
     return this.reportModule.getReportConfiguration().pasteServers()
       .stream()
       .map(INameable::name)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Parser(suggestions = "cloudService")
@@ -94,7 +93,7 @@ public final class CommandReport {
     return CloudNet.getInstance().cloudServiceProvider().getLocalCloudServices()
       .stream()
       .map(service -> service.getServiceId().name())
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @CommandMethod("report|paste node [pasteService]")

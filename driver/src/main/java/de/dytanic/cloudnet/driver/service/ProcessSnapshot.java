@@ -23,7 +23,6 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -77,7 +76,7 @@ public record ProcessSnapshot(
       CLASS_LOADING_MX_BEAN.getUnloadedClassCount(),
       CLASS_LOADING_MX_BEAN.getTotalLoadedClassCount(),
       CLASS_LOADING_MX_BEAN.getLoadedClassCount(),
-      Thread.getAllStackTraces().keySet().stream().map(ThreadSnapshot::from).collect(Collectors.toList()));
+      Thread.getAllStackTraces().keySet().stream().map(ThreadSnapshot::from).toList());
   }
 
   /**

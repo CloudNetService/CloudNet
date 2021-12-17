@@ -56,7 +56,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
@@ -153,7 +152,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
     return this.knownServices.values().stream()
       .filter(provider -> provider.serviceInfo() != null)
       .map(provider -> provider.serviceInfo().serviceId().uniqueId())
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Override
@@ -161,7 +160,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
     return this.knownServices.values().stream()
       .map(SpecificCloudServiceProvider::serviceInfo)
       .filter(Objects::nonNull)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Override
@@ -170,7 +169,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
       .map(SpecificCloudServiceProvider::serviceInfo)
       .filter(Objects::nonNull)
       .filter(snapshot -> snapshot.lifeCycle() == ServiceLifeCycle.RUNNING)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Override
@@ -179,7 +178,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
       .map(SpecificCloudServiceProvider::serviceInfo)
       .filter(Objects::nonNull)
       .filter(snapshot -> snapshot.serviceId().taskName().equals(taskName))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Override
@@ -190,7 +189,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
       .map(SpecificCloudServiceProvider::serviceInfo)
       .filter(Objects::nonNull)
       .filter(snapshot -> snapshot.serviceId().environment().equals(environment))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Override
@@ -199,7 +198,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
       .map(SpecificCloudServiceProvider::serviceInfo)
       .filter(Objects::nonNull)
       .filter(snapshot -> snapshot.configuration().groups().contains(group))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Override
@@ -300,7 +299,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
     return this.knownServices.values().stream()
       .filter(provider -> provider instanceof ICloudService) // -> ICloudService => local service
       .map(provider -> (ICloudService) provider)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Override

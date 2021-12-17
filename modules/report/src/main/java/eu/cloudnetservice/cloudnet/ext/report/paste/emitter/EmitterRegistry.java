@@ -21,7 +21,6 @@ import com.google.common.collect.Multimap;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnmodifiableView;
 
@@ -54,7 +53,7 @@ public class EmitterRegistry {
     return this.emitters.get(clazz)
       .stream()
       .map(emitter -> (ReportDataEmitter<T>) emitter)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   /**

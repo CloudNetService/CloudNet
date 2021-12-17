@@ -35,7 +35,6 @@ import de.dytanic.cloudnet.ext.bridge.config.ProxyFallbackConfiguration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 
 @CommandPermission("cloudnet.command.bridge")
@@ -72,7 +71,7 @@ public class CommandBridge {
       .map(INameable::name)
       .filter(group -> this.bridgeManagement.getConfiguration().getFallbackConfigurations().stream()
         .noneMatch(fallback -> fallback.targetGroup().equals(group)))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @CommandMethod("bridge create entry <targetGroup>")

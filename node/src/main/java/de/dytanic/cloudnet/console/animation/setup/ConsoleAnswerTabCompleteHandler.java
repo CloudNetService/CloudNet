@@ -18,7 +18,6 @@ package de.dytanic.cloudnet.console.animation.setup;
 
 import de.dytanic.cloudnet.console.handler.ConsoleTabCompleteHandler;
 import java.util.Collection;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 
 final class ConsoleAnswerTabCompleteHandler extends ConsoleTabCompleteHandler {
@@ -36,7 +35,7 @@ final class ConsoleAnswerTabCompleteHandler extends ConsoleTabCompleteHandler {
     } else {
       return this.possibleResults.stream()
         .filter(result -> result.regionMatches(true, 0, line, 0, line.length()))
-        .collect(Collectors.toList());
+        .toList();
     }
   }
 }

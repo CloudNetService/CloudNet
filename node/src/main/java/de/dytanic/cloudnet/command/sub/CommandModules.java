@@ -41,7 +41,6 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 
 @CommandAlias("module")
@@ -84,7 +83,7 @@ public final class CommandModules {
         .filter(path -> !Files.isDirectory(path))
         .filter(this::canLoadModule)
         .map(path -> path.getFileName().toString())
-        .collect(Collectors.toList());
+        .toList();
     } catch (IOException e) {
       return Collections.emptyList();
     }
@@ -106,7 +105,7 @@ public final class CommandModules {
     return this.provider.modules()
       .stream()
       .map(module -> module.module().name())
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Parser(name = "toStartModule", suggestions = "toStartModule")
@@ -125,7 +124,7 @@ public final class CommandModules {
     return this.provider.modules().stream()
       .filter(wrapper -> wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.STARTED))
       .map(wrapper -> wrapper.module().name())
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Parser(name = "toReloadModule", suggestions = "toReloadModule")
@@ -144,7 +143,7 @@ public final class CommandModules {
     return this.provider.modules().stream()
       .filter(wrapper -> wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.RELOADING))
       .map(wrapper -> wrapper.module().name())
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Parser(name = "toStopModule", suggestions = "toStopModule")
@@ -163,7 +162,7 @@ public final class CommandModules {
     return this.provider.modules().stream()
       .filter(wrapper -> wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.STOPPED))
       .map(wrapper -> wrapper.module().name())
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Parser(name = "toUnloadModule", suggestions = "toUnloadModule")
@@ -182,7 +181,7 @@ public final class CommandModules {
     return this.provider.modules().stream()
       .filter(wrapper -> wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.UNLOADED))
       .map(wrapper -> wrapper.module().name())
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @CommandMethod("modules|module info <module>")
