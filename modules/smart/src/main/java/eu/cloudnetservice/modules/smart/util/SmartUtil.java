@@ -39,14 +39,14 @@ public final class SmartUtil {
     return (runningServices - 1) > minServiceCount;
   }
 
-  public static double getPlayerPercentage(@NotNull ServiceInfoSnapshot snapshot) {
+  public static double playerPercentage(@NotNull ServiceInfoSnapshot snapshot) {
     int onlinePlayers = BridgeServiceProperties.ONLINE_COUNT.read(snapshot).orElse(0);
     int maxPlayers = BridgeServiceProperties.MAX_PLAYERS.read(snapshot).orElse(1);
     // get the player percentage
-    return getPercentage(onlinePlayers, maxPlayers);
+    return percentage(onlinePlayers, maxPlayers);
   }
 
-  public static double getPercentage(double value, double max) {
+  public static double percentage(double value, double max) {
     return ((value * 100) / max);
   }
 }

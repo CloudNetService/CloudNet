@@ -66,10 +66,10 @@ public final class CloudNetTickListener {
 
   private void handleSmartEntries() {
     CloudNet.getInstance().serviceTaskProvider().permanentServiceTasks().forEach(task -> {
-      var config = this.module.getSmartConfig(task);
+      var config = this.module.smartConfig(task);
       if (config != null && config.enabled()) {
         // get all services of the task
-        var services = this.getServiceManager().servicesByTask(task.name());
+        var services = this.serviceManager().servicesByTask(task.name());
         // get all prepared services
         Collection<ServiceInfoSnapshot> preparedServices = services.stream()
           .filter(service -> service.lifeCycle() == ServiceLifeCycle.PREPARED)
@@ -102,7 +102,7 @@ public final class CloudNetTickListener {
     // go over all online services
     for (var service : onlineServices) {
       // check if the service should be stopped
-      var playerLoad = SmartUtil.getPlayerPercentage(service);
+      var playerLoad = SmartUtil.playerPercentage(service);
       if (playerLoad <= config.percentOfPlayersToCheckShouldStopTheService()) {
         // get the auto stop ticker for the service
         var stopTicker = this.autoStopTicks.computeIfAbsent(
@@ -173,7 +173,7 @@ public final class CloudNetTickListener {
     var absoluteOnline = onlinePlayers / runningServices.size();
     var absoluteMaximum = maximumPlayers / runningServices.size();
     // create the percentage
-    var percentage = SmartUtil.getPercentage(absoluteOnline, absoluteMaximum);
+    var percentage = SmartUtil.percentage(absoluteOnline, absoluteMaximum);
     if (percentage >= config.percentOfPlayersForANewServiceByInstance()) {
       var service = this.createService(task, config, runningServices);
       // check if the service was created successfully and start it
@@ -198,19 +198,19 @@ public final class CloudNetTickListener {
       server = this.selectNodeServer(services);
     }
     // create a new service based on the task
-    return this.getServiceFactory().createCloudService(ServiceConfiguration.builder(task)
+    return this.serviceFactory().createCloudService(ServiceConfiguration.builder(task)
       .node(server == null ? null : server.getNodeInfo().uniqueId())
       .build());
   }
 
   private @Nullable NodeServer selectNodeServer(@NotNull Collection<ServiceInfoSnapshot> services) {
     // get all node servers
-    Collection<? extends NodeServer> nodeServers = this.getNodeServerProvider().getNodeServers().stream()
+    Collection<? extends NodeServer> nodeServers = this.nodeServerProvider().getNodeServers().stream()
       .filter(nodeServer -> nodeServer.isAvailable() && !nodeServer.isDrain())
       .map(nodeServer -> (NodeServer) nodeServer) // looks stupid but transforms the stream type (we love generics)
       .collect(Collectors.collectingAndThen(Collectors.toSet(), set -> {
         // add the local node to the list if the node is not draining
-        var local = this.getNodeServerProvider().getSelfNode();
+        var local = this.nodeServerProvider().getSelfNode();
         if (!local.isDrain()) {
           set.add(local);
         }
@@ -227,15 +227,15 @@ public final class CloudNetTickListener {
       .orElse(null);
   }
 
-  private @NotNull ICloudServiceManager getServiceManager() {
+  private @NotNull ICloudServiceManager serviceManager() {
     return CloudNet.getInstance().cloudServiceProvider();
   }
 
-  private @NotNull IClusterNodeServerProvider getNodeServerProvider() {
+  private @NotNull IClusterNodeServerProvider nodeServerProvider() {
     return CloudNet.getInstance().getClusterNodeServerProvider();
   }
 
-  private @NotNull CloudServiceFactory getServiceFactory() {
+  private @NotNull CloudServiceFactory serviceFactory() {
     return CloudNet.getInstance().cloudServiceFactory();
   }
 }

@@ -85,7 +85,7 @@ public class CloudNetSmartModule extends DriverModule {
       new CloudNetLocalServiceListener(this));
   }
 
-  public @Nullable SmartServiceTaskConfig getSmartConfig(@NotNull ServiceTask task) {
+  public @Nullable SmartServiceTaskConfig smartConfig(@NotNull ServiceTask task) {
     // try to get the smart config entry
     return task.properties().get("smartConfig", SmartServiceTaskConfig.class);
   }

@@ -47,7 +47,7 @@ public final class CloudNetLocalServiceListener {
         return;
       }
       // get the smart entry for the service
-      var config = this.module.getSmartConfig(task);
+      var config = this.module.smartConfig(task);
       if (config != null && config.enabled()) {
         Set<ServiceTemplate> templates = new HashSet<>(event.getService().getWaitingTemplates());
         templates.removeAll(task.templates());
