@@ -58,22 +58,22 @@ public final class VelocitySyncProxyManagement extends PlatformSyncProxyManageme
   }
 
   @Override
-  public @NotNull Collection<Player> getOnlinePlayers() {
+  public @NotNull Collection<Player> onlinePlayers() {
     return this.proxyServer.getAllPlayers();
   }
 
   @Override
-  public @NotNull String getPlayerName(@NotNull Player player) {
+  public @NotNull String playerName(@NotNull Player player) {
     return player.getUsername();
   }
 
   @Override
-  public @NotNull UUID getPlayerUniqueId(@NotNull Player player) {
+  public @NotNull UUID playerUniqueId(@NotNull Player player) {
     return player.getUniqueId();
   }
 
   @Override
-  public void setPlayerTabList(@NotNull Player player, @Nullable String header, @Nullable String footer) {
+  public void playerTabList(@NotNull Player player, @Nullable String header, @Nullable String footer) {
     if (header == null || footer == null) {
       player.getTabList().clearHeaderAndFooter();
       return;

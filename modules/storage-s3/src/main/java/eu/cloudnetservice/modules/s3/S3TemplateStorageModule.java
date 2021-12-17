@@ -38,7 +38,7 @@ public final class S3TemplateStorageModule extends DriverModule {
       this.config = JsonDocument.newDocument(this.configPath()).toInstanceOf(S3TemplateStorageConfig.class);
       // init the storage
       this.storage = new S3TemplateStorage(this);
-      this.serviceRegistry().registerService(TemplateStorage.class, config.getName(), this.storage);
+      this.serviceRegistry().registerService(TemplateStorage.class, config.name(), this.storage);
       // register the cluster sync handler
       CloudNet.getInstance().getDataSyncRegistry().registerHandler(DataSyncHandler.<S3TemplateStorageConfig>builder()
         .key("s3-storage-config")

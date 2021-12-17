@@ -55,9 +55,9 @@ public class SyncProxyTabListConfiguration {
 
   public static @NotNull Builder builder(@NotNull SyncProxyTabListConfiguration configuration) {
     return builder()
-      .targetGroup(configuration.getTargetGroup())
-      .tabListEntries(configuration.getEntries())
-      .animationsPerSecond(configuration.getAnimationsPerSecond());
+      .targetGroup(configuration.targetGroup())
+      .tabListEntries(configuration.entries())
+      .animationsPerSecond(configuration.animationsPerSecond());
   }
 
   public static @NotNull SyncProxyTabListConfiguration createDefault(String targetGroup) {
@@ -75,15 +75,15 @@ public class SyncProxyTabListConfiguration {
       .build();
   }
 
-  public @NotNull String getTargetGroup() {
+  public @NotNull String targetGroup() {
     return this.targetGroup;
   }
 
-  public @NotNull List<SyncProxyTabList> getEntries() {
+  public @NotNull List<SyncProxyTabList> entries() {
     return this.entries;
   }
 
-  public double getAnimationsPerSecond() {
+  public double animationsPerSecond() {
     return this.animationsPerSecond;
   }
 
@@ -92,14 +92,14 @@ public class SyncProxyTabListConfiguration {
       this.currentEntry.set(0);
     }
 
-    return this.getCurrentEntry();
+    return this.currentEntry();
   }
 
-  public @NotNull SyncProxyTabList getCurrentEntry() {
-    return this.getEntries().get(this.getCurrentTick());
+  public @NotNull SyncProxyTabList currentEntry() {
+    return this.entries().get(this.currentTick());
   }
 
-  public int getCurrentTick() {
+  public int currentTick() {
     return this.currentEntry.get();
   }
 

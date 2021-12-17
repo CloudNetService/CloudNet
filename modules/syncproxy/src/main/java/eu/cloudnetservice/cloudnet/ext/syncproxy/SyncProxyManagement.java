@@ -24,9 +24,9 @@ import org.jetbrains.annotations.NotNull;
 @RPCValidation
 public interface SyncProxyManagement {
 
-  @NotNull SyncProxyConfiguration getConfiguration();
+  @NotNull SyncProxyConfiguration configuration();
 
-  void setConfiguration(@NotNull SyncProxyConfiguration configuration);
+  void configuration(@NotNull SyncProxyConfiguration configuration);
 
   void registerService(@NotNull IServicesRegistry registry);
 

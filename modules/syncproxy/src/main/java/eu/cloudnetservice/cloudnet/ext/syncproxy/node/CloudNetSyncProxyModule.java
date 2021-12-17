@@ -38,7 +38,7 @@ public final class CloudNetSyncProxyModule extends DriverModule {
     instance = this;
   }
 
-  public static CloudNetSyncProxyModule getInstance() {
+  public static CloudNetSyncProxyModule instance() {
     return CloudNetSyncProxyModule.instance;
   }
 
@@ -73,9 +73,9 @@ public final class CloudNetSyncProxyModule extends DriverModule {
         .key("syncproxy-config")
         .nameExtractor($ -> "SyncProxy Config")
         .convertObject(SyncProxyConfiguration.class)
-        .writer(this.nodeSyncProxyManagement::setConfiguration)
-        .singletonCollector(this.nodeSyncProxyManagement::getConfiguration)
-        .currentGetter($ -> this.nodeSyncProxyManagement.getConfiguration())
+        .writer(this.nodeSyncProxyManagement::configuration)
+        .singletonCollector(this.nodeSyncProxyManagement::configuration)
+        .currentGetter($ -> this.nodeSyncProxyManagement.configuration())
         .build());
   }
 
