@@ -26,13 +26,12 @@ import de.dytanic.cloudnet.event.service.CloudServicePreLifecycleEvent;
 import eu.cloudnetservice.modules.npc.AbstractNPCManagement;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 
 public final class NodePluginIncludeListener {
 
-  private static final Path PROTOCOLLIB_CACHE_PATH = Paths.get(
+  private static final Path PROTOCOLLIB_CACHE_PATH = Path.of(
     System.getProperty("cloudnet.tempDir", "temp"),
     "caches", "ProtocolLib.jar");
 

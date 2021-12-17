@@ -21,7 +21,6 @@ import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectSerializer;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,7 +32,7 @@ public class PathObjectSerializer implements ObjectSerializer<Path> {
     @NotNull Type type,
     @NotNull ObjectMapper caller
   ) {
-    return Paths.get(source.readString());
+    return Path.of(source.readString());
   }
 
   @Override

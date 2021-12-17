@@ -36,7 +36,6 @@ import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -59,7 +58,7 @@ public class ServiceVersionProvider {
     "https://cloudnetservice.eu/cloudnet/versions.json");
   private static final Logger LOGGER = LogManager.logger(ServiceVersionProvider.class);
 
-  private static final Path VERSION_CACHE_PATH = Paths.get(
+  private static final Path VERSION_CACHE_PATH = Path.of(
     System.getProperty("cloudnet.versioncache.path", "local/versioncache"));
 
   private static final int VERSIONS_FILE_VERSION = 3;

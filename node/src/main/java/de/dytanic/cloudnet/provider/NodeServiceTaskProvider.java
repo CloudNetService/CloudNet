@@ -33,7 +33,6 @@ import de.dytanic.cloudnet.network.listener.message.TaskChannelMessageListener;
 import de.dytanic.cloudnet.setup.DefaultTaskSetup;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.Collections;
@@ -44,7 +43,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
-  private static final Path TASKS_DIRECTORY = Paths.get(
+  private static final Path TASKS_DIRECTORY = Path.of(
     System.getProperty("cloudnet.config.tasks.directory.path", "local/tasks"));
 
   private final IEventManager eventManager;

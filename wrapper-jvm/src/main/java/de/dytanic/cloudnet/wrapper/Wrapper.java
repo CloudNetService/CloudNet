@@ -57,7 +57,6 @@ import de.dytanic.cloudnet.wrapper.provider.WrapperServiceTaskProvider;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -80,7 +79,7 @@ import org.jetbrains.annotations.UnmodifiableView;
  */
 public class Wrapper extends CloudNetDriver {
 
-  private static final Path WORKING_DIRECTORY = Paths.get("");
+  private static final Path WORKING_DIRECTORY = Path.of("");
   private static final Logger LOGGER = LogManager.logger(Wrapper.class);
 
   /**
@@ -129,7 +128,7 @@ public class Wrapper extends CloudNetDriver {
       this.rpcProviderFactory);
 
     super.moduleProvider.moduleProviderHandler(new DefaultModuleProviderHandler());
-    super.moduleProvider.moduleDirectoryPath(Paths.get(".wrapper", "modules"));
+    super.moduleProvider.moduleDirectoryPath(Path.of(".wrapper", "modules"));
 
     super.permissionManagement(new WrapperPermissionManagement(this));
     super.driverEnvironment = DriverEnvironment.WRAPPER;
@@ -349,7 +348,7 @@ public class Wrapper extends CloudNetDriver {
     // get all the information provided through the command line
     var mainClass = this.commandLineArguments.remove(0);
     var premainClass = this.commandLineArguments.remove(0);
-    var appFile = Paths.get(this.commandLineArguments.remove(0));
+    var appFile = Path.of(this.commandLineArguments.remove(0));
     var preLoadAppJar = Boolean.parseBoolean(this.commandLineArguments.remove(0));
 
     var loader = ClassLoader.getSystemClassLoader();

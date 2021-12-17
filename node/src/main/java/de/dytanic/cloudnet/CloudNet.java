@@ -74,7 +74,6 @@ import de.dytanic.cloudnet.template.LocalTemplateStorage;
 import de.dytanic.cloudnet.template.install.ServiceVersionProvider;
 import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -95,7 +94,7 @@ import org.jetbrains.annotations.Nullable;
 public class CloudNet extends CloudNetDriver {
 
   private static final Logger LOGGER = LogManager.logger(CloudNet.class);
-  private static final Path LAUNCHER_DIR = Paths.get(System.getProperty("cloudnet.launcher.dir", "launcher"));
+  private static final Path LAUNCHER_DIR = Path.of(System.getProperty("cloudnet.launcher.dir", "launcher"));
 
   private final IConsole console;
   private final CommandProvider commandProvider;
@@ -185,7 +184,7 @@ public class CloudNet extends CloudNetDriver {
     this.servicesRegistry.registerService(
       TemplateStorage.class,
       "local",
-      new LocalTemplateStorage(Paths.get(System.getProperty("cloudnet.storage.local", "local/templates"))));
+      new LocalTemplateStorage(Path.of(System.getProperty("cloudnet.storage.local", "local/templates"))));
     // init the default database providers
     this.servicesRegistry.registerService(
       AbstractDatabaseProvider.class,

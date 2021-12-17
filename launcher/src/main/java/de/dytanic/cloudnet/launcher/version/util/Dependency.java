@@ -17,7 +17,6 @@
 package de.dytanic.cloudnet.launcher.version.util;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -54,7 +53,7 @@ public class Dependency {
     var fileName = String
       .format("%s-%s%s.jar", this.name, this.fileVersion, (this.classifier != null ? "-" + this.classifier : ""));
 
-    return Paths.get(this.group.replace(".", "/"), this.name, this.version, fileName);
+    return Path.of(this.group.replace(".", "/"), this.name, this.version, fileName);
   }
 
   public String getRepository() {

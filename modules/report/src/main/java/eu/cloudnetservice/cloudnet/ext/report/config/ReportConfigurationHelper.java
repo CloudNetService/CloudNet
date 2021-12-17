@@ -20,7 +20,6 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import org.jetbrains.annotations.NotNull;
@@ -78,7 +77,7 @@ public final class ReportConfigurationHelper {
    */
   private static ReportConfiguration convertConfiguration(@NotNull JsonDocument document) {
     var saveRecords = document.getBoolean("savingRecords", true);
-    var recordDestination = document.get("recordDestinationDirectory", Path.class, Paths.get("records"));
+    var recordDestination = document.get("recordDestinationDirectory", Path.class, Path.of("records"));
     var pasteServices = Collections.singletonList(
       new PasteService("default", document.getString("pasteServerUrl", "https://just-paste.it")));
     var serviceLifetime = document.getLong("serviceLifetimeLogPrint", 5000L);

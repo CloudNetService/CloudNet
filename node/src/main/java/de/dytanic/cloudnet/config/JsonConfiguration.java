@@ -32,7 +32,6 @@ import de.dytanic.cloudnet.setup.DefaultConfigSetup;
 import de.dytanic.cloudnet.util.NetworkAddressUtil;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -45,7 +44,7 @@ import org.jetbrains.annotations.NotNull;
 
 public final class JsonConfiguration implements IConfiguration {
 
-  public static final Path CONFIG_FILE_PATH = Paths.get(
+  public static final Path CONFIG_FILE_PATH = Path.of(
     System.getProperty("cloudnet.config.json.path", "config.json"));
 
   private static final Function<String, SSLConfiguration> SSL_CONFIG_PARSER = value -> {
@@ -54,9 +53,9 @@ public final class JsonConfiguration implements IConfiguration {
       return new SSLConfiguration(
         Boolean.parseBoolean(values[0]),
         Boolean.parseBoolean(values[1]),
-        values.length == 5 ? Paths.get(values[2]) : null,
-        Paths.get(values[values.length - 2]),
-        Paths.get(values[values.length - 1]));
+        values.length == 5 ? Path.of(values[2]) : null,
+        Path.of(values[values.length - 2]),
+        Path.of(values[values.length - 1]));
     }
     // unable to parse
     return null;
@@ -93,7 +92,7 @@ public final class JsonConfiguration implements IConfiguration {
 
   public JsonConfiguration() {
     // TODO: remove in 4.1
-    var oldRegistry = Paths.get("local", "registry");
+    var oldRegistry = Path.of("local", "registry");
     if (Files.exists(oldRegistry)) {
       var entries = JsonDocument.newDocument(oldRegistry).getDocument("entries");
       if (!entries.isEmpty()) {
@@ -243,8 +242,8 @@ public final class JsonConfiguration implements IConfiguration {
           false,
           false,
           null,
-          Paths.get("cert.pem"),
-          Paths.get("private.pem")),
+          Path.of("cert.pem"),
+          Path.of("private.pem")),
         SSL_CONFIG_PARSER);
     }
 
@@ -255,8 +254,8 @@ public final class JsonConfiguration implements IConfiguration {
           false,
           false,
           null,
-          Paths.get("cert.pem"),
-          Paths.get("private.pem")),
+          Path.of("cert.pem"),
+          Path.of("private.pem")),
         SSL_CONFIG_PARSER);
     }
 
@@ -267,8 +266,8 @@ public final class JsonConfiguration implements IConfiguration {
           false,
           false,
           null,
-          Paths.get("cert.pem"),
-          Paths.get("private.pem")),
+          Path.of("cert.pem"),
+          Path.of("private.pem")),
         SSL_CONFIG_PARSER);
     }
 

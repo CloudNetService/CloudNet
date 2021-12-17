@@ -28,7 +28,7 @@ import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import eu.cloudnetservice.ext.sftp.config.SFTPTemplateStorageConfig;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import org.jetbrains.annotations.NotNull;
 
 public final class SFTPTemplateStorageModule extends DriverModule {
@@ -50,7 +50,7 @@ public final class SFTPTemplateStorageModule extends DriverModule {
         config.getString("storage"),
         config.getString("username"),
         config.getString("password"),
-        config.getString("sshKeyPath") == null ? null : Paths.get(config.getString("sshKeyPath")),
+        config.getString("sshKeyPath") == null ? null : Path.of(config.getString("sshKeyPath")),
         config.getString("sshKeyPassword") == null ? null : config.getString("sshKeyPassword"),
         null,
         config.getString("baseDirectory"),

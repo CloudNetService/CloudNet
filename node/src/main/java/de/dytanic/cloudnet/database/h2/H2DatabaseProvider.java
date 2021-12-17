@@ -21,7 +21,6 @@ import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.database.sql.SQLDatabaseProvider;
 import de.dytanic.cloudnet.database.util.LocalDatabaseUtils;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -52,7 +51,7 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
 
   public H2DatabaseProvider(@NotNull String h2File, boolean runsInCluster, @Nullable ExecutorService executorService) {
     super(executorService);
-    this.h2dbFile = Paths.get(h2File);
+    this.h2dbFile = Path.of(h2File);
     this.runsInCluster = runsInCluster;
   }
 

@@ -49,7 +49,6 @@ import de.dytanic.cloudnet.service.defaults.factory.JVMServiceFactory;
 import de.dytanic.cloudnet.service.defaults.provider.EmptySpecificCloudServiceProvider;
 import de.dytanic.cloudnet.service.defaults.provider.RemoteNodeCloudServiceProvider;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -65,9 +64,9 @@ import org.jetbrains.annotations.UnmodifiableView;
 
 public class DefaultCloudServiceManager implements ICloudServiceManager {
 
-  protected static final Path TEMP_SERVICE_DIR = Paths.get(
+  protected static final Path TEMP_SERVICE_DIR = Path.of(
     System.getProperty("cloudnet.tempDir.services", "temp/services"));
-  protected static final Path PERSISTENT_SERVICE_DIR = Paths.get(
+  protected static final Path PERSISTENT_SERVICE_DIR = Path.of(
     System.getProperty("cloudnet.persistable.services.path", "local/services"));
 
   private static final Logger LOGGER = LogManager.logger(ICloudServiceManager.class);

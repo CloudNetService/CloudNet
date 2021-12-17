@@ -46,7 +46,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 public final class SFTPTemplateStorageTest {
 
   private static final int PORT;
-  private static final Path BASE_PATH = Paths.get("").resolve("build").toAbsolutePath();
+  private static final Path BASE_PATH = Path.of("").resolve("build").toAbsolutePath();
   private static final ServiceTemplate TEMPLATE = ServiceTemplate.builder()
     .prefix("global")
     .name("proxy")

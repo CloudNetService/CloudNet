@@ -34,7 +34,6 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
@@ -61,7 +60,7 @@ import org.jetbrains.annotations.Nullable;
 @Internal
 public final class FileUtils {
 
-  public static final Path TEMP_DIR = Paths.get(System.getProperty("cloudnet.tempDir", "temp"));
+  public static final Path TEMP_DIR = Path.of(System.getProperty("cloudnet.tempDir", "temp"));
 
   private static final Logger LOGGER = LogManager.logger(FileUtils.class);
   private static final DirectoryStream.Filter<Path> ACCEPTING_FILTER = $ -> true;

@@ -30,7 +30,6 @@ import de.dytanic.cloudnet.permission.handler.PermissionManagementHandlerAdapter
 import de.dytanic.cloudnet.setup.PermissionGroupSetup;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -46,7 +45,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   implements NodePermissionManagement {
 
   private static final String USER_DB_NAME = "cloudnet_permission_users";
-  private static final Path GROUPS_FILE = Paths.get(
+  private static final Path GROUPS_FILE = Path.of(
     System.getProperty("cloudnet.permissions.json.path", "local/permissions.json"));
 
   protected final CloudNet nodeInstance;

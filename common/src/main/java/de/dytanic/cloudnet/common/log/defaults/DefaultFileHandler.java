@@ -20,7 +20,6 @@ import de.dytanic.cloudnet.common.io.FileUtils;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
@@ -43,7 +42,7 @@ public final class DefaultFileHandler extends FileHandler {
   }
 
   public static @NotNull DefaultFileHandler newInstance(@NotNull String pattern, int limit, int count, boolean append) {
-    return DefaultFileHandler.newInstance(Paths.get(pattern), limit, count, append);
+    return DefaultFileHandler.newInstance(Path.of(pattern), limit, count, append);
   }
 
   public static @NotNull DefaultFileHandler newInstance(@NotNull Path pattern, boolean append) {

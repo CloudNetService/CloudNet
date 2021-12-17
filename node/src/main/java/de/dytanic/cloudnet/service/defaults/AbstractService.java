@@ -57,7 +57,6 @@ import de.dytanic.cloudnet.service.ServiceConfigurationPreparer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
@@ -78,7 +77,7 @@ public abstract class AbstractService implements ICloudService {
   protected static final Logger LOGGER = LogManager.logger(AbstractService.class);
 
   protected static final Path INCLUSION_TEMP_DIR = FileUtils.TEMP_DIR.resolve("inclusions");
-  protected static final Path WRAPPER_CONFIG_PATH = Paths.get(".wrapper", "wrapper.json");
+  protected static final Path WRAPPER_CONFIG_PATH = Path.of(".wrapper", "wrapper.json");
   protected static final Collection<String> DEFAULT_DEPLOYMENT_EXCLUSIONS = Arrays.asList("wrapper.jar", ".wrapper/");
 
   protected final IEventManager eventManager;

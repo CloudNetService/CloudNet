@@ -22,7 +22,6 @@ import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -33,7 +32,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class DocumentWrapperConfiguration implements IWrapperConfiguration {
 
-  private static final Path WRAPPER_CONFIG_PATH = Paths.get(
+  private static final Path WRAPPER_CONFIG_PATH = Path.of(
     System.getProperty("cloudnet.wrapper.config.path", ".wrapper/wrapper.json"));
 
   private final String connectionKey;

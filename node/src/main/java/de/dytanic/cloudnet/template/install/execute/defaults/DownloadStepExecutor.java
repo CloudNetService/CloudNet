@@ -22,7 +22,6 @@ import de.dytanic.cloudnet.template.install.execute.InstallStepExecutor;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.HashSet;
@@ -38,7 +37,7 @@ public class DownloadStepExecutor implements InstallStepExecutor {
     @NotNull Set<Path> inputPaths
   ) throws IOException {
     var targetPath = workingDirectory.resolve(
-      Paths.get(installInformation.serviceVersionType().name() + ".jar"));
+      Path.of(installInformation.serviceVersionType().name() + ".jar"));
 
     ConsoleProgressWrappers.wrapDownload(
       installInformation.serviceVersion().getUrl(),

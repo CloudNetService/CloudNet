@@ -30,7 +30,6 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -48,7 +47,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class DefaultModuleProvider implements IModuleProvider {
 
-  protected static final Path DEFAULT_MODULE_DIR = Paths.get("modules");
+  protected static final Path DEFAULT_MODULE_DIR = Path.of("modules");
   protected static final Logger LOGGER = LogManager.logger(DefaultModuleProvider.class);
   protected static final IModuleDependencyLoader DEFAULT_DEPENDENCY_LOADER = new DefaultMemoryModuleDependencyLoader();
 

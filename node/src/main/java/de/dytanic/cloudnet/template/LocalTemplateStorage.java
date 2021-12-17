@@ -28,7 +28,6 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -212,7 +211,7 @@ public class LocalTemplateStorage implements TemplateStorage {
     @NotNull String path
   ) throws IOException {
     var filePath = this.getTemplatePath(template).resolve(path);
-    return Files.exists(filePath) ? FileInfo.of(filePath, Paths.get(path)) : null;
+    return Files.exists(filePath) ? FileInfo.of(filePath, Path.of(path)) : null;
   }
 
   @Override

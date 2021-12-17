@@ -23,7 +23,6 @@ import com.google.gson.stream.JsonWriter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -39,6 +38,6 @@ final class PathTypeAdapter extends TypeAdapter<Path> {
   @Override
   public @Nullable Path read(JsonReader in) throws IOException {
     var path = TypeAdapters.STRING.read(in);
-    return path == null ? null : Paths.get(path);
+    return path == null ? null : Path.of(path);
   }
 }

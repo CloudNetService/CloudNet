@@ -21,7 +21,6 @@ import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.ApiStatus.Internal;
@@ -208,7 +207,7 @@ public class ModuleConfiguration {
       return moduleProviderBaseDirectory.resolve(this.name);
     } else {
       // get the data folder of this module from the root directory of the cloud
-      return FileUtils.resolve(Paths.get(""), this.dataFolder.split("/"));
+      return FileUtils.resolve(Path.of(""), this.dataFolder.split("/"));
     }
   }
 

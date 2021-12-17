@@ -34,7 +34,6 @@ import de.dytanic.cloudnet.network.listener.message.GroupChannelMessageListener;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.Collections;
@@ -46,9 +45,9 @@ import org.jetbrains.annotations.UnmodifiableView;
 
 public class NodeGroupConfigurationProvider implements GroupConfigurationProvider {
 
-  private static final Path OLD_GROUPS_FILE = Paths.get(
+  private static final Path OLD_GROUPS_FILE = Path.of(
     System.getProperty("cloudnet.config.groups.path", "local/groups.json"));
-  private static final Path GROUP_DIRECTORY_PATH = Paths.get(
+  private static final Path GROUP_DIRECTORY_PATH = Path.of(
     System.getProperty("cloudnet.config.groups.directory.path", "local/groups"));
 
   private static final Type TYPE = TypeToken.getParameterized(Collection.class, GroupConfiguration.class).getType();

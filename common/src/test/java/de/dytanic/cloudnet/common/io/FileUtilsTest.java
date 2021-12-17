@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 
 public final class FileUtilsTest {
 
-  private static final Path TEST_DIR = Paths.get("build", "testDirectory");
+  private static final Path TEST_DIR = Path.of("build", "testDirectory");
 
   @BeforeAll
   static void setupTestDirectories() {
