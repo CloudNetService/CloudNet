@@ -49,11 +49,11 @@ public final class NodeSyncProxyChannelMessageListener {
       // read the configuration from the databuf
       var configuration = event.content().readObject(SyncProxyConfiguration.class);
       // write the configuration silently to the file
-      this.management.setConfigurationSilently(configuration);
+      this.management.configurationSilently(configuration);
       // call the local event for the update
       this.eventManager.callEvent(new SyncProxyConfigurationUpdateEvent(configuration));
     } else if (SyncProxyConstants.SYNC_PROXY_CONFIG_REQUEST.equals(event.message())) {
-      var configuration = this.management.getConfiguration();
+      var configuration = this.management.configuration();
       // respond with the currently loaded configuration
       event.binaryResponse(DataBuf.empty().writeObject(configuration));
     }

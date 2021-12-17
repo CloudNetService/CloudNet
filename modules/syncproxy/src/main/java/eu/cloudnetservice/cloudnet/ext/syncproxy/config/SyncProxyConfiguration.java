@@ -64,7 +64,7 @@ public record SyncProxyConfiguration(
       .build();
   }
 
-  public static @Nullable SyncProxyConfiguration getConfigurationFromNode() {
+  public static @Nullable SyncProxyConfiguration configurationFromNode() {
     var response = ChannelMessage.builder()
       .channel(SyncProxyConstants.SYNC_PROXY_CHANNEL)
       .message(SyncProxyConstants.SYNC_PROXY_CONFIG_REQUEST)

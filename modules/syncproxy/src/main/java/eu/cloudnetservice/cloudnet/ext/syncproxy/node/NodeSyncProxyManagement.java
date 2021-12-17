@@ -40,14 +40,14 @@ public class NodeSyncProxyManagement implements SyncProxyManagement {
   }
 
   @Override
-  public @NotNull SyncProxyConfiguration getConfiguration() {
+  public @NotNull SyncProxyConfiguration configuration() {
     return this.configuration;
   }
 
   @Override
-  public void setConfiguration(@NotNull SyncProxyConfiguration configuration) {
+  public void configuration(@NotNull SyncProxyConfiguration configuration) {
     // write the configuration to the file
-    this.setConfigurationSilently(configuration);
+    this.configurationSilently(configuration);
     // call the local event for the update of the config
     this.syncProxyModule.eventManager().callEvent(new SyncProxyConfigurationUpdateEvent(configuration));
     // send an update with the configuration to other components
@@ -64,7 +64,7 @@ public class NodeSyncProxyManagement implements SyncProxyManagement {
     registry.unregisterService(SyncProxyManagement.class, "NodeSyncProxyManagement");
   }
 
-  public void setConfigurationSilently(@NotNull SyncProxyConfiguration configuration) {
+  public void configurationSilently(@NotNull SyncProxyConfiguration configuration) {
     this.configuration = configuration;
     this.syncProxyModule.writeConfig(JsonDocument.newDocument(configuration));
   }

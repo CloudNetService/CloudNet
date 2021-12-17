@@ -28,7 +28,7 @@ public class SyncProxyConfigurationUpdateEvent extends Event {
     this.configuration = configuration;
   }
 
-  public @NotNull SyncProxyConfiguration getConfiguration() {
+  public @NotNull SyncProxyConfiguration configuration() {
     return this.configuration;
   }
 }

@@ -39,11 +39,11 @@ public final class IncludePluginListener {
       return;
     }
 
-    var syncProxyConfiguration = this.management.getConfiguration();
+    var syncProxyConfiguration = this.management.configuration();
     var groupEntryExists = syncProxyConfiguration.loginConfigurations().stream()
       .anyMatch(config -> service.getServiceConfiguration().groups().contains(config.targetGroup()))
       || syncProxyConfiguration.tabListConfigurations().stream()
-      .anyMatch(config -> service.getServiceConfiguration().groups().contains(config.getTargetGroup()));
+      .anyMatch(config -> service.getServiceConfiguration().groups().contains(config.targetGroup()));
 
     if (groupEntryExists) {
       var pluginsFolder = event.getService().getDirectory().resolve("plugins");

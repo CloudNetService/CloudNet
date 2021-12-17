@@ -51,22 +51,22 @@ public final class WaterDogPESyncProxyManagement extends PlatformSyncProxyManage
   }
 
   @Override
-  public @NotNull Collection<ProxiedPlayer> getOnlinePlayers() {
+  public @NotNull Collection<ProxiedPlayer> onlinePlayers() {
     return this.proxyServer.getPlayers().values();
   }
 
   @Override
-  public @NotNull String getPlayerName(@NotNull ProxiedPlayer player) {
+  public @NotNull String playerName(@NotNull ProxiedPlayer player) {
     return player.getName();
   }
 
   @Override
-  public @NotNull UUID getPlayerUniqueId(@NotNull ProxiedPlayer player) {
+  public @NotNull UUID playerUniqueId(@NotNull ProxiedPlayer player) {
     return player.getUniqueId();
   }
 
   @Override
-  public void setPlayerTabList(@NotNull ProxiedPlayer player, @Nullable String header, @Nullable String footer) {
+  public void playerTabList(@NotNull ProxiedPlayer player, @Nullable String header, @Nullable String footer) {
     // there is no support for header and footer
   }
 

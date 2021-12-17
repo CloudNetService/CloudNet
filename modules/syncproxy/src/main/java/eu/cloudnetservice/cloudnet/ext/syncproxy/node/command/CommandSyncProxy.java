@@ -48,7 +48,7 @@ public final class CommandSyncProxy {
   public SyncProxyLoginConfiguration loginConfigurationParser(CommandContext<CommandSource> $, Queue<String> input) {
     var name = input.remove();
 
-    return this.syncProxyManagement.getConfiguration().loginConfigurations()
+    return this.syncProxyManagement.configuration().loginConfigurations()
       .stream()
       .filter(login -> login.targetGroup().equals(name)).findFirst()
       .orElseThrow(
@@ -57,7 +57,7 @@ public final class CommandSyncProxy {
 
   @Suggestions("loginConfiguration")
   public List<String> suggestLoginConfigurations(CommandContext<CommandSource> $, String input) {
-    return this.syncProxyManagement.getConfiguration().loginConfigurations()
+    return this.syncProxyManagement.configuration().loginConfigurations()
       .stream()
       .map(SyncProxyLoginConfiguration::targetGroup)
       .toList();
@@ -72,15 +72,15 @@ public final class CommandSyncProxy {
       throw new ArgumentNotAvailableException(I18n.trans("command-service-base-group-not-found"));
     }
 
-    if (this.syncProxyManagement.getConfiguration().loginConfigurations()
+    if (this.syncProxyManagement.configuration().loginConfigurations()
       .stream()
       .anyMatch(login -> login.targetGroup().equalsIgnoreCase(name))) {
       throw new ArgumentNotAvailableException(I18n.trans("module-syncproxy-command-create-entry-group-already-exists"));
     }
 
-    if (this.syncProxyManagement.getConfiguration().tabListConfigurations()
+    if (this.syncProxyManagement.configuration().tabListConfigurations()
       .stream()
-      .anyMatch(tabList -> tabList.getTargetGroup().equalsIgnoreCase(name))) {
+      .anyMatch(tabList -> tabList.targetGroup().equalsIgnoreCase(name))) {
       throw new ArgumentNotAvailableException(I18n.trans("module-syncproxy-command-create-entry-group-already-exists"));
     }
     return name;
@@ -96,7 +96,7 @@ public final class CommandSyncProxy {
 
   @CommandMethod("syncproxy|sp list")
   public void listConfigurations(CommandSource source) {
-    this.displayListConfiguration(source, this.syncProxyManagement.getConfiguration());
+    this.displayListConfiguration(source, this.syncProxyManagement.configuration());
   }
 
   @CommandMethod("syncproxy|sp create entry <targetGroup>")
@@ -107,8 +107,8 @@ public final class CommandSyncProxy {
     var loginConfiguration = SyncProxyLoginConfiguration.createDefault(name);
     var tabListConfiguration = SyncProxyTabListConfiguration.createDefault(name);
 
-    this.syncProxyManagement.getConfiguration().loginConfigurations().add(loginConfiguration);
-    this.syncProxyManagement.getConfiguration().tabListConfigurations().add(tabListConfiguration);
+    this.syncProxyManagement.configuration().loginConfigurations().add(loginConfiguration);
+    this.syncProxyManagement.configuration().tabListConfigurations().add(tabListConfiguration);
     this.updateSyncProxyConfiguration();
 
     source.sendMessage(I18n.trans("module-syncproxy-command-create-entry-success"));
@@ -132,8 +132,8 @@ public final class CommandSyncProxy {
       .maxPlayers(amount)
       .build();
 
-    this.syncProxyManagement.setConfigurationSilently(
-      SyncProxyConfiguration.builder(this.syncProxyManagement.getConfiguration())
+    this.syncProxyManagement.configurationSilently(
+      SyncProxyConfiguration.builder(this.syncProxyManagement.configuration())
         .addLoginConfiguration(updatedLoginConfiguration)
         .build());
 
@@ -182,8 +182,8 @@ public final class CommandSyncProxy {
       .maintenance(enabled)
       .build();
 
-    this.syncProxyManagement.setConfigurationSilently(
-      SyncProxyConfiguration.builder(this.syncProxyManagement.getConfiguration())
+    this.syncProxyManagement.configurationSilently(
+      SyncProxyConfiguration.builder(this.syncProxyManagement.configuration())
         .addLoginConfiguration(updatedLoginConfiguration)
         .build());
 
@@ -193,7 +193,7 @@ public final class CommandSyncProxy {
   }
 
   private void updateSyncProxyConfiguration() {
-    this.syncProxyManagement.setConfiguration(this.syncProxyManagement.getConfiguration());
+    this.syncProxyManagement.configuration(this.syncProxyManagement.configuration());
   }
 
   private void displayListConfiguration(CommandSource source, SyncProxyConfiguration syncProxyConfiguration) {
@@ -205,14 +205,14 @@ public final class CommandSyncProxy {
     for (var syncProxyTabListConfiguration : syncProxyConfiguration
       .tabListConfigurations()) {
       source.sendMessage(
-        "* " + syncProxyTabListConfiguration.getTargetGroup(),
-        "AnimationsPerSecond: " + syncProxyTabListConfiguration.getAnimationsPerSecond(),
+        "* " + syncProxyTabListConfiguration.targetGroup(),
+        "AnimationsPerSecond: " + syncProxyTabListConfiguration.animationsPerSecond(),
         " ",
         "Entries: "
       );
 
       var index = 1;
-      for (var tabList : syncProxyTabListConfiguration.getEntries()) {
+      for (var tabList : syncProxyTabListConfiguration.entries()) {
         source.sendMessage(
           "- " + index++,
           "Header: " + tabList.header(),

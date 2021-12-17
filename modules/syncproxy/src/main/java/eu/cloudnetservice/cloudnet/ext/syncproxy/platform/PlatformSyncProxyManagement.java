@@ -66,7 +66,7 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
   }
 
   protected void init() {
-    this.setConfigurationSilently(this.rpcSender.invokeMethod("getConfiguration").fireSync());
+    this.setConfigurationSilently(this.rpcSender.invokeMethod("configuration").fireSync());
   }
 
   public void setConfigurationSilently(@NotNull SyncProxyConfiguration configuration) {
@@ -83,7 +83,7 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
     this.currentTabListConfiguration = configuration.tabListConfigurations()
       .stream()
       .filter(tabListConfiguration -> Wrapper.getInstance().serviceConfiguration().groups()
-        .contains(tabListConfiguration.getTargetGroup()))
+        .contains(tabListConfiguration.targetGroup()))
       .findFirst()
       .orElse(null);
 
@@ -92,16 +92,16 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
   }
 
   @Override
-  public @NotNull SyncProxyConfiguration getConfiguration() {
+  public @NotNull SyncProxyConfiguration configuration() {
     return this.configuration;
   }
 
   @Override
-  public void setConfiguration(@NotNull SyncProxyConfiguration configuration) {
-    this.rpcSender.invokeMethod("setConfiguration", configuration).fireSync();
+  public void configuration(@NotNull SyncProxyConfiguration configuration) {
+    this.rpcSender.invokeMethod("configuration", configuration).fireSync();
   }
 
-  public @Nullable SyncProxyMotd getRandomMotd() {
+  public @Nullable SyncProxyMotd randomMotd() {
     if (this.currentLoginConfiguration == null) {
       return null;
     }
@@ -128,7 +128,7 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
       return;
     }
 
-    for (var onlinePlayer : this.getOnlinePlayers()) {
+    for (var onlinePlayer : this.onlinePlayers()) {
       // check if the player is allowed to join
       if (!this.checkPlayerMaintenance(onlinePlayer)) {
         this.disconnectPlayer(onlinePlayer, this.configuration.message("player-login-not-whitelisted", null));
@@ -136,19 +136,19 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
     }
   }
 
-  public @Nullable SyncProxyLoginConfiguration getCurrentLoginConfiguration() {
+  public @Nullable SyncProxyLoginConfiguration currentLoginConfiguration() {
     return this.currentLoginConfiguration;
   }
 
-  public @Nullable SyncProxyTabListConfiguration getCurrentTabListConfiguration() {
+  public @Nullable SyncProxyTabListConfiguration currentTabListConfiguration() {
     return this.currentTabListConfiguration;
   }
 
-  public int getOnlinePlayerCount() {
+  public int onlinePlayerCount() {
     return this.proxyOnlineCountCache.values().stream().mapToInt(value -> value).sum();
   }
 
-  protected int getMaxPlayerCount() {
+  protected int maxPlayerCount() {
     if (this.currentLoginConfiguration == null) {
       return 0;
     }
@@ -172,7 +172,7 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
     }
   }
 
-  public @Nullable String getServiceUpdateMessage(
+  public @Nullable String serviceUpdateMessage(
     @NotNull String key,
     @NotNull ServiceInfoSnapshot serviceInfoSnapshot
   ) {
@@ -182,11 +182,11 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
   }
 
   protected void scheduleTabListUpdate() {
-    if (this.currentTabListConfiguration != null && !this.currentTabListConfiguration.getEntries().isEmpty()) {
+    if (this.currentTabListConfiguration != null && !this.currentTabListConfiguration.entries().isEmpty()) {
       var tabList = this.currentTabListConfiguration.tick();
 
       this.schedule(this::scheduleTabListUpdate,
-        (long) (1000D / this.currentTabListConfiguration.getAnimationsPerSecond()),
+        (long) (1000D / this.currentTabListConfiguration.animationsPerSecond()),
         TimeUnit.MILLISECONDS);
 
       this.updateTabList(tabList);
@@ -194,17 +194,17 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
   }
 
   public void updateTabList() {
-    if (this.currentTabListConfiguration == null || this.currentTabListConfiguration.getEntries().isEmpty()) {
+    if (this.currentTabListConfiguration == null || this.currentTabListConfiguration.entries().isEmpty()) {
       return;
     }
 
-    this.updateTabList(this.currentTabListConfiguration.getCurrentEntry());
+    this.updateTabList(this.currentTabListConfiguration.currentEntry());
   }
 
   protected void updateTabList(@NotNull SyncProxyTabList tabList) {
-    var onlinePlayers = this.getOnlinePlayerCount();
-    var maxPlayers = this.getMaxPlayerCount();
-    for (var onlinePlayer : this.getOnlinePlayers()) {
+    var onlinePlayers = this.onlinePlayerCount();
+    var maxPlayers = this.maxPlayerCount();
+    for (var onlinePlayer : this.onlinePlayers()) {
       this.updateTabList(onlinePlayer, tabList, onlinePlayers, maxPlayers);
     }
   }
@@ -215,12 +215,12 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
     int onlinePlayers,
     int maxPlayers
   ) {
-    var header = SyncProxyTabList.replaceTabListItem(tabList.header(), this.getPlayerUniqueId(player),
+    var header = SyncProxyTabList.replaceTabListItem(tabList.header(), this.playerUniqueId(player),
       onlinePlayers, maxPlayers);
-    var footer = SyncProxyTabList.replaceTabListItem(tabList.footer(), this.getPlayerUniqueId(player),
+    var footer = SyncProxyTabList.replaceTabListItem(tabList.footer(), this.playerUniqueId(player),
       onlinePlayers, maxPlayers);
 
-    this.setPlayerTabList(player, header, footer);
+    this.playerTabList(player, header, footer);
   }
 
   protected boolean checkServiceGroup(@NotNull ServiceInfoSnapshot snapshot) {
@@ -236,8 +236,8 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
       return false;
     }
     var whitelist = this.currentLoginConfiguration.whitelist();
-    if (whitelist.contains(this.getPlayerName(player))
-      || whitelist.contains(this.getPlayerUniqueId(player).toString())) {
+    if (whitelist.contains(this.playerName(player))
+      || whitelist.contains(this.playerUniqueId(player).toString())) {
       return true;
     }
 
@@ -246,13 +246,13 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
 
   public abstract void schedule(@NotNull Runnable runnable, long time, @NotNull TimeUnit unit);
 
-  public abstract @NotNull Collection<P> getOnlinePlayers();
+  public abstract @NotNull Collection<P> onlinePlayers();
 
-  public abstract @NotNull String getPlayerName(@NotNull P player);
+  public abstract @NotNull String playerName(@NotNull P player);
 
-  public abstract @NotNull UUID getPlayerUniqueId(@NotNull P player);
+  public abstract @NotNull UUID playerUniqueId(@NotNull P player);
 
-  public abstract void setPlayerTabList(@NotNull P player, @Nullable String header, @Nullable String footer);
+  public abstract void playerTabList(@NotNull P player, @Nullable String header, @Nullable String footer);
 
   public abstract void disconnectPlayer(@NotNull P player, @NotNull String message);
 
