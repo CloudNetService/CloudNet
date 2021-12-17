@@ -67,7 +67,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
     this.config.setLoggerFactory(NopLoggerFactory.INSTANCE);
     this.config.setKeepAliveProvider(KeepAliveProvider.HEARTBEAT);
     // init the pool
-    this.pool = new SFTPClientPool(config.getClientPoolSize(), () -> {
+    this.pool = new SFTPClientPool(config.clientPoolSize(), () -> {
       var client = this.client;
       // check if the client was ever initialized
       if (client != null) {
@@ -86,22 +86,22 @@ public class SFTPTemplateStorage implements TemplateStorage {
       this.client.setConnectTimeout(5000);
       this.client.setRemoteCharset(StandardCharsets.UTF_8);
       // load the known hosts file if given
-      if (config.getKnownHostFile() == null) {
+      if (config.knownHostFile() == null) {
         // always trust the server
         this.client.addHostKeyVerifier(new PromiscuousVerifier());
       } else {
         // load the known hosts file
-        this.client.loadKnownHosts(config.getKnownHostFile().toFile());
+        this.client.loadKnownHosts(config.knownHostFile().toFile());
       }
       // connect to the server
-      this.client.connect(config.getAddress().host(), config.getAddress().port());
+      this.client.connect(config.address().host(), config.address().port());
       // authenticate the client with the correct auth method
-      if (config.getSshKeyPath() != null) {
+      if (config.sshKeyPath() != null) {
         this.client.authPublickey(
-          config.getUsername(),
-          this.client.loadKeys(config.getSshKeyPath().toString(), config.getSshKeyPassword()));
+          config.username(),
+          this.client.loadKeys(config.sshKeyPath().toString(), config.sshKeyPassword()));
       } else {
-        this.client.authPassword(config.getUsername(), config.getPassword());
+        this.client.authPassword(config.username(), config.password());
       }
       // return the created client
       return this.client;
@@ -110,7 +110,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
 
   @Override
   public @NotNull String name() {
-    return this.storageConfig.getStorage();
+    return this.storageConfig.storage();
   }
 
   @Override
@@ -316,13 +316,13 @@ public class SFTPTemplateStorage implements TemplateStorage {
   public @NotNull Collection<ServiceTemplate> templates() {
     return this.executeWithClient(client -> {
       Set<ServiceTemplate> templates = new HashSet<>();
-      for (var info : client.ls(this.storageConfig.getBaseDirectory())) {
+      for (var info : client.ls(this.storageConfig.baseDirectory())) {
         if (info.isDirectory()) {
-          for (var template : client.ls(this.storageConfig.getBaseDirectory() + '/' + info.getName())) {
+          for (var template : client.ls(this.storageConfig.baseDirectory() + '/' + info.getName())) {
             templates.add(ServiceTemplate.builder()
               .prefix(info.getName())
               .name(template.getName())
-              .storage(this.storageConfig.getStorage())
+              .storage(this.storageConfig.storage())
               .build());
           }
         }
@@ -339,7 +339,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
   protected @NotNull String constructRemotePath(@NotNull ServiceTemplate template, String @NotNull ... parents) {
     return String.format(
       REMOTE_DIR_FORMAT,
-      this.storageConfig.getBaseDirectory(),
+      this.storageConfig.baseDirectory(),
       template.fullName(),
       String.join("/", parents));
   }
