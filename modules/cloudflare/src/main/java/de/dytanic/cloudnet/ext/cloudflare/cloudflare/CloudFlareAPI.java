@@ -56,7 +56,7 @@ public class CloudFlareAPI implements AutoCloseable {
 
     try {
       var connection = this
-        .prepareRequest(String.format(ZONE_RECORDS_ENDPOINT, configuration.getZoneId()), "POST", configuration);
+        .prepareRequest(String.format(ZONE_RECORDS_ENDPOINT, configuration.zoneId()), "POST", configuration);
       var result = this.sendRequestAndReadResponse(connection, record);
 
       var content = result.getDocument("result");
@@ -110,7 +110,7 @@ public class CloudFlareAPI implements AutoCloseable {
 
     try {
       var connection = this
-        .prepareRequest(String.format(ZONE_RECORDS_MANAGEMENT_ENDPOINT, configuration.getZoneId(), id), "DELETE",
+        .prepareRequest(String.format(ZONE_RECORDS_MANAGEMENT_ENDPOINT, configuration.zoneId(), id), "DELETE",
           configuration);
       var result = this.sendRequestAndReadResponse(connection);
 
@@ -140,11 +140,11 @@ public class CloudFlareAPI implements AutoCloseable {
       .contentType("application/json")
       .accept("application/json");
 
-    if (entry.getAuthenticationMethod() == CloudflareConfigurationEntry.AuthenticationMethod.GLOBAL_KEY) {
-      bodyRequest.header("X-Auth-Email", entry.getEmail());
-      bodyRequest.header("X-Auth-Key", entry.getApiToken());
+    if (entry.authenticationMethod() == CloudflareConfigurationEntry.AuthenticationMethod.GLOBAL_KEY) {
+      bodyRequest.header("X-Auth-Email", entry.email());
+      bodyRequest.header("X-Auth-Key", entry.apiToken());
     } else {
-      bodyRequest.header("Authorization", "Bearer " + entry.getApiToken());
+      bodyRequest.header("Authorization", "Bearer " + entry.apiToken());
     }
 
     return bodyRequest;
@@ -185,18 +185,18 @@ public class CloudFlareAPI implements AutoCloseable {
   }
 
   @NotNull
-  public Collection<DnsRecordDetail> getCreatedRecords(@NotNull UUID serviceUniqueId) {
+  public Collection<DnsRecordDetail> createdRecords(@NotNull UUID serviceUniqueId) {
     Preconditions.checkNotNull(serviceUniqueId, "serviceUniqueId");
     return this.createdRecords.get(serviceUniqueId);
   }
 
   @NotNull
-  public Collection<DnsRecordDetail> getCreatedRecords() {
+  public Collection<DnsRecordDetail> createdRecords() {
     return this.createdRecords.values();
   }
 
   @NotNull
-  public Collection<UUID> getServiceUniqueIds() {
+  public Collection<UUID> serviceUniqueIds() {
     return this.createdRecords.keys();
   }
 }

@@ -44,7 +44,7 @@ final class VelocityCloudPermissionFunction implements PermissionFunction {
         Tristate.TRUE : Tristate.FALSE;
   }
 
-  public UUID getUniqueId() {
+  public UUID uniqueId() {
     return this.uniqueId;
   }
 }

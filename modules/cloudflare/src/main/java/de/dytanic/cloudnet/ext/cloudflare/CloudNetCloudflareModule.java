@@ -46,7 +46,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
     instance = this;
   }
 
-  public static CloudNetCloudflareModule getInstance() {
+  public static CloudNetCloudflareModule instance() {
     return CloudNetCloudflareModule.instance;
   }
 
@@ -60,7 +60,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
         new ArrayList<>(Collections.singletonList(
           new CloudflareConfigurationEntry(
             false,
-            this.getInitialHostAddress(),
+            this.initialHostAddress(),
             "user@example.com",
             "api_token_string",
             "zoneId",
@@ -84,11 +84,11 @@ public final class CloudNetCloudflareModule extends DriverModule {
   public void addedDefaultCloudflareDNSServices() {
     var cloudConfig = CloudNet.getInstance().getConfig();
 
-    for (var entry : this.getCloudflareConfiguration().getEntries()) {
-      if (entry.isEnabled()) {
+    for (var entry : this.cloudFlareConfiguration().entries()) {
+      if (entry.enabled()) {
         boolean ipv6Address;
         try {
-          ipv6Address = InetAddress.getByName(entry.getHostAddress()) instanceof Inet6Address;
+          ipv6Address = InetAddress.getByName(entry.hostAddress()) instanceof Inet6Address;
         } catch (UnknownHostException exception) {
           LOGGER.severe("Host address of entry " + entry + " is invalid!", exception);
           continue;
@@ -99,8 +99,8 @@ public final class CloudNetCloudflareModule extends DriverModule {
           entry,
           new DefaultDNSRecord(
             ipv6Address ? DNSType.AAAA : DNSType.A,
-            cloudConfig.getIdentity().uniqueId() + "." + entry.getDomainName(),
-            entry.getHostAddress(),
+            cloudConfig.getIdentity().uniqueId() + "." + entry.domainName(),
+            entry.hostAddress(),
             JsonDocument.empty()
           )
         );
@@ -108,7 +108,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
           LOGGER
             .info(I18n.trans("module-cloudflare-create-dns-record-for-service")
               .replace("%service%", cloudConfig.getIdentity().uniqueId())
-              .replace("%domain%", entry.getDomainName())
+              .replace("%domain%", entry.domainName())
               .replace("%recordId%", recordDetail.id())
             );
         }
@@ -132,7 +132,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
     this.cloudFlareAPI.close();
   }
 
-  private String getInitialHostAddress() {
+  private String initialHostAddress() {
     try {
       return InetAddress.getLocalHost().getHostAddress();
     } catch (Exception ex) {
@@ -140,15 +140,15 @@ public final class CloudNetCloudflareModule extends DriverModule {
     }
   }
 
-  public CloudflareConfiguration getCloudflareConfiguration() {
+  public CloudflareConfiguration cloudFlareConfiguration() {
     return this.cloudflareConfiguration;
   }
 
-  public void setCloudflareConfiguration(CloudflareConfiguration cloudflareConfiguration) {
+  public void cloudflareConfiguration(CloudflareConfiguration cloudflareConfiguration) {
     this.cloudflareConfiguration = cloudflareConfiguration;
   }
 
-  public CloudFlareAPI getCloudFlareAPI() {
+  public CloudFlareAPI cloudFlareAPI() {
     return this.cloudFlareAPI;
   }
 }

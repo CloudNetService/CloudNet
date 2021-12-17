@@ -45,51 +45,51 @@ public class DNSRecord {
   public DNSRecord() {
   }
 
-  public String getType() {
+  public String type() {
     return this.type;
   }
 
-  public void setType(String type) {
+  public void type(String type) {
     this.type = type;
   }
 
-  public String getName() {
+  public String name() {
     return this.name;
   }
 
-  public void setName(String name) {
+  public void name(String name) {
     this.name = name;
   }
 
-  public String getContent() {
+  public String content() {
     return this.content;
   }
 
-  public void setContent(String content) {
+  public void content(String content) {
     this.content = content;
   }
 
-  public int getTtl() {
+  public int ttl() {
     return this.ttl;
   }
 
-  public void setTtl(int ttl) {
+  public void ttl(int ttl) {
     this.ttl = ttl;
   }
 
-  public boolean isProxied() {
+  public boolean proxied() {
     return this.proxied;
   }
 
-  public void setProxied(boolean proxied) {
+  public void proxied(boolean proxied) {
     this.proxied = proxied;
   }
 
-  public JsonDocument getData() {
+  public JsonDocument data() {
     return this.data;
   }
 
-  public void setData(JsonDocument data) {
+  public void data(JsonDocument data) {
     this.data = data;
   }
 }

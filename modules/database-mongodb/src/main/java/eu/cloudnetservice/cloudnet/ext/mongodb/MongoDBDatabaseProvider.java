@@ -54,7 +54,7 @@ public class MongoDBDatabaseProvider extends AbstractDatabaseProvider {
   @Override
   public boolean init() throws Exception {
     this.mongoClient = MongoClients.create(this.config.buildConnectionUri());
-    this.mongoDatabase = this.mongoClient.getDatabase(this.config.getDatabase());
+    this.mongoDatabase = this.mongoClient.getDatabase(this.config.database());
 
     return true;
   }

@@ -83,7 +83,7 @@ final class VelocityPlayerManagementListener {
     // check if the player is allowed to log in
     var loginResult = ProxyPlatformHelper.sendChannelMessagePreLogin(
       this.management.createPlayerInformation(event.getPlayer()));
-    if (!loginResult.isAllowed()) {
+    if (!loginResult.permitLogin()) {
       event.setResult(ComponentResult.denied(loginResult.result()));
     }
   }

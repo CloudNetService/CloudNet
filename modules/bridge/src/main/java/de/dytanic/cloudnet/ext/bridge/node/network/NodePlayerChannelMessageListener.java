@@ -120,7 +120,7 @@ public final class NodePlayerChannelMessageListener {
           // read the player
           var player = event.content().readObject(CloudPlayer.class);
           // push the change
-          this.playerManager.getOnlinePlayers().remove(player.uniqueId());
+          this.playerManager.players().remove(player.uniqueId());
           this.playerManager.pushOfflinePlayerCache(player.uniqueId(), CloudOfflinePlayer.offlineCopy(player));
           // call the event locally
           this.eventManager.callEvent(new BridgeProxyPlayerDisconnectEvent(player));

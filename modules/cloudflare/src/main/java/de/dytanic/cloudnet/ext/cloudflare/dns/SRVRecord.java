@@ -48,22 +48,22 @@ public class SRVRecord extends DNSRecord {
   public static SRVRecord forConfiguration(CloudflareConfigurationEntry entry,
     CloudflareGroupConfiguration configuration, int port) {
     return new SRVRecord(
-      String.format("_minecraft._tcp.%s", entry.getDomainName()),
+      String.format("_minecraft._tcp.%s", entry.domainName()),
       String.format(
         "SRV %s %s %s %s.%s",
-        configuration.getPriority(),
-        configuration.getWeight(),
+        configuration.priority(),
+        configuration.weight(),
         port,
         CloudNet.getInstance().getConfig().getIdentity().uniqueId(),
-        entry.getDomainName()
+        entry.domainName()
       ),
       "_minecraft",
       "_tcp",
-      configuration.getSub().equals("@") ? entry.getDomainName() : configuration.getSub(),
-      configuration.getPriority(),
-      configuration.getWeight(),
+      configuration.sub().equals("@") ? entry.domainName() : configuration.sub(),
+      configuration.priority(),
+      configuration.weight(),
       port,
-      CloudNet.getInstance().getConfig().getIdentity().uniqueId() + "." + entry.getDomainName()
+      CloudNet.getInstance().getConfig().getIdentity().uniqueId() + "." + entry.domainName()
     );
   }
 }

@@ -36,35 +36,35 @@ public class CloudflareGroupConfiguration {
     this.weight = weight;
   }
 
-  public String getName() {
+  public String name() {
     return this.name;
   }
 
-  public void setName(String name) {
+  public void name(String name) {
     this.name = name;
   }
 
-  public String getSub() {
+  public String sub() {
     return this.sub;
   }
 
-  public void setSub(String sub) {
+  public void sub(String sub) {
     this.sub = sub;
   }
 
-  public int getPriority() {
+  public int priority() {
     return this.priority;
   }
 
-  public void setPriority(int priority) {
+  public void priority(int priority) {
     this.priority = priority;
   }
 
-  public int getWeight() {
+  public int weight() {
     return this.weight;
   }
 
-  public void setWeight(int weight) {
+  public void weight(int weight) {
     this.weight = weight;
   }
 

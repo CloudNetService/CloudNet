@@ -34,8 +34,15 @@ public class CloudflareConfigurationEntry {
 
   protected Collection<CloudflareGroupConfiguration> groups;
 
-  public CloudflareConfigurationEntry(boolean enabled, String hostAddress, String email, String apiToken, String zoneId,
-    String domainName, Collection<CloudflareGroupConfiguration> groups) {
+  public CloudflareConfigurationEntry(
+    boolean enabled,
+    String hostAddress,
+    String email,
+    String apiToken,
+    String zoneId,
+    String domainName,
+    Collection<CloudflareGroupConfiguration> groups
+  ) {
     this.enabled = enabled;
     this.hostAddress = hostAddress;
     this.email = email;
@@ -45,77 +52,77 @@ public class CloudflareConfigurationEntry {
     this.groups = groups;
   }
 
-  public boolean isEnabled() {
+  public boolean enabled() {
     return this.enabled;
   }
 
-  public void setEnabled(boolean enabled) {
+  public void enabled(boolean enabled) {
     this.enabled = enabled;
   }
 
-  public AuthenticationMethod getAuthenticationMethod() {
+  public AuthenticationMethod authenticationMethod() {
     return this.authenticationMethod;
   }
 
-  public void setAuthenticationMethod(AuthenticationMethod authenticationMethod) {
+  public void authenticationMethod(AuthenticationMethod authenticationMethod) {
     this.authenticationMethod = authenticationMethod;
   }
 
-  public String getHostAddress() {
+  public String hostAddress() {
     return this.hostAddress;
   }
 
-  public void setHostAddress(String hostAddress) {
+  public void hostAddress(String hostAddress) {
     this.hostAddress = hostAddress;
   }
 
-  public String getEmail() {
+  public String email() {
     return this.email;
   }
 
-  public void setEmail(String email) {
+  public void email(String email) {
     this.email = email;
   }
 
-  public String getApiToken() {
+  public String apiToken() {
     return this.apiToken;
   }
 
-  public void setApiToken(String apiToken) {
+  public void apiToken(String apiToken) {
     this.apiToken = apiToken;
   }
 
-  public String getZoneId() {
+  public String zoneId() {
     return this.zoneId;
   }
 
-  public void setZoneId(String zoneId) {
+  public void zoneId(String zoneId) {
     this.zoneId = zoneId;
   }
 
-  public String getDomainName() {
+  public String domainName() {
     return this.domainName;
   }
 
-  public void setDomainName(String domainName) {
+  public void domainName(String domainName) {
     this.domainName = domainName;
   }
 
-  public Collection<CloudflareGroupConfiguration> getGroups() {
+  public Collection<CloudflareGroupConfiguration> groups() {
     return this.groups;
   }
 
-  public void setGroups(Collection<CloudflareGroupConfiguration> groups) {
+  public void groups(Collection<CloudflareGroupConfiguration> groups) {
     this.groups = groups;
   }
 
   @Override
   public String toString() {
-    return "CloudflareConfigurationEntry(enabled=" + this.isEnabled()
-      + ", authenticationMethod=" + this.getAuthenticationMethod()
-      + ", hostAddress=" + this.getHostAddress()
-      + ", domainName=" + this.getDomainName()
-      + ", groups=" + this.getGroups()
+    return "CloudflareConfigurationEntry(enabled=" + this.enabled()
+      + ", authenticationMethod=" + this.authenticationMethod()
+      + ", hostAddress=" + this.hostAddress()
+      + ", domainName=" + this.domainName()
+      + ", groups=" + this.groups()
       + ")";
   }
 

@@ -57,7 +57,7 @@ public final class CloudflareStartAndStopListener {
         LOGGER
           .info(I18n.trans("module-cloudflare-create-dns-record-for-service")
             .replace("%service%", event.getService().getServiceId().name())
-            .replace("%domain%", entry.getDomainName())
+            .replace("%domain%", entry.domainName())
             .replace("%recordId%", recordDetail.id())
           );
       }
@@ -72,7 +72,7 @@ public final class CloudflareStartAndStopListener {
           LOGGER
             .info(I18n.trans("module-cloudflare-delete-dns-record-for-service")
               .replace("%service%", event.getService().getServiceId().name())
-              .replace("%domain%", entry.getDomainName())
+              .replace("%domain%", entry.domainName())
               .replace("%recordId%", detail.id())
             );
         }
@@ -82,12 +82,12 @@ public final class CloudflareStartAndStopListener {
 
   private void handle0(ICloudService cloudService,
     BiConsumer<CloudflareConfigurationEntry, CloudflareGroupConfiguration> handler) {
-    for (var entry : CloudNetCloudflareModule.getInstance().getCloudflareConfiguration()
-      .getEntries()) {
-      if (entry != null && entry.isEnabled() && entry.getGroups() != null && !entry.getGroups().isEmpty()) {
-        for (var groupConfiguration : entry.getGroups()) {
+    for (var entry : CloudNetCloudflareModule.instance().cloudFlareConfiguration()
+      .entries()) {
+      if (entry != null && entry.enabled() && entry.groups() != null && !entry.groups().isEmpty()) {
+        for (var groupConfiguration : entry.groups()) {
           if (groupConfiguration != null
-            && cloudService.getServiceConfiguration().groups().contains(groupConfiguration.getName())) {
+            && cloudService.getServiceConfiguration().groups().contains(groupConfiguration.name())) {
             handler.accept(entry, groupConfiguration);
           }
         }

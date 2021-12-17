@@ -78,7 +78,7 @@ public class NodePlayerManager implements IPlayerManager {
     .build(new CacheLoader<UUID, Optional<CloudOfflinePlayer>>() {
       @Override
       public Optional<CloudOfflinePlayer> load(@NotNull UUID uniqueId) {
-        var document = NodePlayerManager.this.getDatabase().get(uniqueId.toString());
+        var document = NodePlayerManager.this.database().get(uniqueId.toString());
         if (document == null) {
           return Optional.empty();
         } else {
@@ -125,7 +125,7 @@ public class NodePlayerManager implements IPlayerManager {
 
   @Override
   public long registeredCount() {
-    return this.getDatabase().documentCount();
+    return this.database().documentCount();
   }
 
   @Override
@@ -199,14 +199,14 @@ public class NodePlayerManager implements IPlayerManager {
 
   @Override
   public @NotNull List<? extends CloudOfflinePlayer> offlinePlayers(@NotNull String name) {
-    return this.getDatabase().get(JsonDocument.newDocument("name", name)).stream()
+    return this.database().get(JsonDocument.newDocument("name", name)).stream()
       .map(document -> document.toInstanceOf(CloudOfflinePlayer.class))
       .collect(Collectors.toList());
   }
 
   @Override
   public @NotNull List<? extends CloudOfflinePlayer> registeredPlayers() {
-    return this.getDatabase().entries().values().stream()
+    return this.database().entries().values().stream()
       .map(doc -> doc.toInstanceOf(CloudOfflinePlayer.class))
       .filter(Objects::nonNull)
       .collect(Collectors.toList());
@@ -217,7 +217,7 @@ public class NodePlayerManager implements IPlayerManager {
     // push the change to the cache
     this.pushOfflinePlayerCache(player.uniqueId(), player);
     // update the database
-    this.getDatabase().update(player.uniqueId().toString(), JsonDocument.newDocument(player));
+    this.database().update(player.uniqueId().toString(), JsonDocument.newDocument(player));
     // notify the cluster
     ChannelMessage.builder()
       .targetAll()
@@ -251,7 +251,7 @@ public class NodePlayerManager implements IPlayerManager {
     // push the change to the cache
     this.pushOfflinePlayerCache(cloudOfflinePlayer.uniqueId(), null);
     // delete from the database
-    this.getDatabase().delete(cloudOfflinePlayer.uniqueId().toString());
+    this.database().delete(cloudOfflinePlayer.uniqueId().toString());
     // notify the cluster
     ChannelMessage.builder()
       .targetAll()
@@ -283,11 +283,11 @@ public class NodePlayerManager implements IPlayerManager {
     this.pushOfflinePlayerCache(cloudPlayer.uniqueId(), CloudOfflinePlayer.offlineCopy(cloudPlayer));
   }
 
-  protected @NotNull LocalDatabase getDatabase() {
+  protected @NotNull LocalDatabase database() {
     return CloudNet.getInstance().databaseProvider().database(this.databaseName);
   }
 
-  public @NotNull Map<UUID, CloudPlayer> getOnlinePlayers() {
+  public @NotNull Map<UUID, CloudPlayer> players() {
     return this.onlinePlayers;
   }
 
@@ -339,7 +339,7 @@ public class NodePlayerManager implements IPlayerManager {
     var cloudPlayer = this.onlinePlayer(connectionInfo.uniqueId());
     if (cloudPlayer == null) {
       // try to load the player using the name and the login service
-      for (var player : this.getOnlinePlayers().values()) {
+      for (var player : this.players().values()) {
         if (player.name().equals(connectionInfo.name())
           && player.loginService() != null
           && player.loginService().uniqueId().equals(connectionInfo.networkService().uniqueId())) {
@@ -375,7 +375,7 @@ public class NodePlayerManager implements IPlayerManager {
     // push the player into the cache
     this.pushOnlinePlayerCache(cloudPlayer);
     // update the database
-    this.getDatabase().insert(
+    this.database().insert(
       cloudPlayer.uniqueId().toString(),
       JsonDocument.newDocument(CloudOfflinePlayer.offlineCopy(cloudPlayer)));
     // notify the other nodes that we received the login
@@ -470,7 +470,7 @@ public class NodePlayerManager implements IPlayerManager {
     // update the offline version of the player into the cache
     this.pushOfflinePlayerCache(cloudPlayer.uniqueId(), offlinePlayer);
     // push the change to the database
-    this.getDatabase().insert(offlinePlayer.uniqueId().toString(), JsonDocument.newDocument(offlinePlayer));
+    this.database().insert(offlinePlayer.uniqueId().toString(), JsonDocument.newDocument(offlinePlayer));
     // notify the cluster
     ChannelMessage.builder()
       .targetAll()

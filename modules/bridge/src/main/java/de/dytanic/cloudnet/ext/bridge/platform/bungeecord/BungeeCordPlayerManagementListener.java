@@ -91,7 +91,7 @@ final class BungeeCordPlayerManagementListener implements Listener {
       new HostAndPort((InetSocketAddress) event.getConnection().getListener().getSocketAddress()),
       event.getConnection().isOnlineMode(),
       this.management.ownNetworkServiceInfo()));
-    if (!loginResult.isAllowed()) {
+    if (!loginResult.permitLogin()) {
       event.setCancelled(true);
       event.setCancelReason(TextComponent.fromLegacyText(legacySection().serialize(loginResult.result())));
     }

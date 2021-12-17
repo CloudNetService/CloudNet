@@ -33,7 +33,7 @@ public final class CloudNetMySQLDatabaseModule extends DriverModule {
 
   private static CloudNetMySQLDatabaseModule instance;
 
-  public static CloudNetMySQLDatabaseModule getInstance() {
+  public static CloudNetMySQLDatabaseModule instance() {
     return CloudNetMySQLDatabaseModule.instance;
   }
 

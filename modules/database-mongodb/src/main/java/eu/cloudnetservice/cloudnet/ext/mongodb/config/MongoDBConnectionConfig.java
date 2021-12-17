@@ -53,8 +53,16 @@ public class MongoDBConnectionConfig {
     );
   }
 
-  public MongoDBConnectionConfig(String databaseServiceName, String host, int port, String authSource,
-    String username, String password, String database, String overridingConnectionUri) {
+  public MongoDBConnectionConfig(
+    String databaseServiceName,
+    String host,
+    int port,
+    String authSource,
+    String username,
+    String password,
+    String database,
+    String overridingConnectionUri
+  ) {
     this.databaseServiceName = databaseServiceName;
     this.host = host;
     this.port = port;
@@ -65,35 +73,35 @@ public class MongoDBConnectionConfig {
     this.overridingConnectionUri = overridingConnectionUri;
   }
 
-  public String getDatabaseServiceName() {
+  public String databaseServiceName() {
     return this.databaseServiceName;
   }
 
-  public String getHost() {
+  public String host() {
     return this.host;
   }
 
-  public int getPort() {
+  public int port() {
     return this.port;
   }
 
-  public String getAuthSource() {
+  public String authSource() {
     return this.authSource;
   }
 
-  public String getUsername() {
+  public String username() {
     return this.username;
   }
 
-  public String getPassword() {
+  public String password() {
     return this.password;
   }
 
-  public String getDatabase() {
+  public String database() {
     return this.database;
   }
 
-  public String getOverridingConnectionUri() {
+  public String overridingConnectionUri() {
     return this.overridingConnectionUri;
   }
 

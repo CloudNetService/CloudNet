@@ -80,7 +80,7 @@ public class CommandPlayers {
 
   @Suggestions("onlinePlayers")
   public List<String> suggestOnlinePlayers(CommandContext<?> $, String input) {
-    return this.playerManager.getOnlinePlayers().values().stream()
+    return this.playerManager.players().values().stream()
       .map(INameable::name)
       .toList();
   }
@@ -141,7 +141,7 @@ public class CommandPlayers {
 
   @CommandMethod("players online")
   public void displayOnlinePlayers(@NotNull CommandSource source) {
-    for (var player : this.playerManager.getOnlinePlayers().values()) {
+    for (var player : this.playerManager.players().values()) {
       source.sendMessage(
         "Name: " + player.name() +
           " | UUID: " + player.uniqueId() +

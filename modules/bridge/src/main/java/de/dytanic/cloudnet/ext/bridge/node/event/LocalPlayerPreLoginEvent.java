@@ -64,7 +64,7 @@ public final class LocalPlayerPreLoginEvent extends DriverEvent {
       return new Result(false, reason);
     }
 
-    public boolean isAllowed() {
+    public boolean permitLogin() {
       return this.allowed;
     }
 
