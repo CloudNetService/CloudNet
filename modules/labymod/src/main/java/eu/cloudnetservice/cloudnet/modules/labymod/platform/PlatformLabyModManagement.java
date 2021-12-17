@@ -54,12 +54,12 @@ public class PlatformLabyModManagement implements LabyModManagement {
   }
 
   @Override
-  public @NotNull LabyModConfiguration getConfiguration() {
+  public @NotNull LabyModConfiguration configuration() {
     return this.configuration;
   }
 
   @Override
-  public void setConfiguration(@NotNull LabyModConfiguration configuration) {
+  public void configuration(@NotNull LabyModConfiguration configuration) {
     this.rpcSender.invokeMethod("setConfiguration", configuration).fireSync();
   }
 
@@ -114,9 +114,9 @@ public class PlatformLabyModManagement implements LabyModManagement {
   ) {
     // check if we need to send the labymod permissions to the player
     var permissions = this.configuration.permissions();
-    if (permissions.isEnabled()) {
+    if (permissions.enabled()) {
       // convert the map into a json document because of the stupidus api
-      var jsonWrappedPermissions = JsonDocument.newDocument(permissions.getPermissions());
+      var jsonWrappedPermissions = JsonDocument.newDocument(permissions.permissions());
       DataBuf permissionData = DataBuf.empty()
         .writeString("PERMISSIONS")
         .writeString(jsonWrappedPermissions.toString());

@@ -53,11 +53,11 @@ public class LabyModPermissions {
     return new Builder();
   }
 
-  public boolean isEnabled() {
+  public boolean enabled() {
     return this.enabled;
   }
 
-  public @NotNull Map<String, Boolean> getPermissions() {
+  public @NotNull Map<String, Boolean> permissions() {
     return this.permissions;
   }
 

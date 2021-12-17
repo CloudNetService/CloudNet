@@ -40,13 +40,13 @@ public class NodeLabyModManagement implements LabyModManagement {
   }
 
   @Override
-  public @NotNull LabyModConfiguration getConfiguration() {
+  public @NotNull LabyModConfiguration configuration() {
     return this.configuration;
   }
 
   @Override
-  public void setConfiguration(@NotNull LabyModConfiguration configuration) {
-    this.setConfigurationSilently(configuration);
+  public void configuration(@NotNull LabyModConfiguration configuration) {
+    this.configurationSilently(configuration);
 
     ChannelMessage.builder()
       .channel(LabyModManagement.LABYMOD_MODULE_CHANNEL)
@@ -56,7 +56,7 @@ public class NodeLabyModManagement implements LabyModManagement {
       .send();
   }
 
-  public void setConfigurationSilently(@NotNull LabyModConfiguration configuration) {
+  public void configurationSilently(@NotNull LabyModConfiguration configuration) {
     this.configuration = configuration;
     this.labyModModule.writeConfig(JsonDocument.newDocument(configuration));
   }

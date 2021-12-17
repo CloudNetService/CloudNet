@@ -27,7 +27,7 @@ public interface LabyModManagement {
   String LABYMOD_MODULE_CHANNEL = "labymod_internal";
   String LABYMOD_UPDATE_CONFIG = "update_labymod_config";
 
-  @NotNull LabyModConfiguration getConfiguration();
+  @NotNull LabyModConfiguration configuration();
 
-  void setConfiguration(@NotNull LabyModConfiguration configuration);
+  void configuration(@NotNull LabyModConfiguration configuration);
 }

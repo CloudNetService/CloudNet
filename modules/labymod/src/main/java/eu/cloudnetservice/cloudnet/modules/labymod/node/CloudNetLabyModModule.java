@@ -83,9 +83,9 @@ public class CloudNetLabyModModule extends DriverModule {
         .key("labymod-config")
         .nameExtractor($ -> "LabyMod Config")
         .convertObject(LabyModConfiguration.class)
-        .writer(this.labyModManagement::setConfiguration)
-        .singletonCollector(this.labyModManagement::getConfiguration)
-        .currentGetter($ -> this.labyModManagement.getConfiguration())
+        .writer(this.labyModManagement::configuration)
+        .singletonCollector(this.labyModManagement::configuration)
+        .currentGetter($ -> this.labyModManagement.configuration())
         .build());
   }
 

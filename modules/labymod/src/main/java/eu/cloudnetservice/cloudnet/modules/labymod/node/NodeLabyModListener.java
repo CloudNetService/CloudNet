@@ -45,7 +45,7 @@ public class NodeLabyModListener {
       // read the configuration from the databuf
       var configuration = event.content().readObject(LabyModConfiguration.class);
       // write the configuration silently to the file
-      this.labyModManagement.setConfigurationSilently(configuration);
+      this.labyModManagement.configurationSilently(configuration);
     }
   }
 

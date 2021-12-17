@@ -34,10 +34,9 @@ public class BungeeCordLabyModListener implements Listener {
 
   @EventHandler
   public void handlePluginMessage(@NotNull PluginMessageEvent event) {
-    var configuration = this.labyModManagement.getConfiguration();
+    var configuration = this.labyModManagement.configuration();
     if (configuration.enabled() && event.getTag().equals(LabyModManagement.LABYMOD_CLIENT_CHANNEL)) {
-      if (event.getSender() instanceof ProxiedPlayer) {
-        var player = (ProxiedPlayer) event.getSender();
+      if (event.getSender() instanceof ProxiedPlayer player) {
         this.labyModManagement.handleIncomingClientMessage(
           player.getUniqueId(),
           player.getServer() == null ? null : player.getServer().getInfo().getName(),
