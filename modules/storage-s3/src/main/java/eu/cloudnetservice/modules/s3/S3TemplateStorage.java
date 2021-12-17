@@ -64,7 +64,7 @@ import software.amazon.awssdk.services.s3.model.S3Object;
 
 public class S3TemplateStorage implements TemplateStorage {
 
-  private static final Logger LOGGER = LogManager.getLogger(S3TemplateStorage.class);
+  private static final Logger LOGGER = LogManager.logger(S3TemplateStorage.class);
 
   private final S3Client client;
   private final S3TemplateStorageModule module;

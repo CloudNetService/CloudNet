@@ -36,9 +36,9 @@ public final class Main {
   public static synchronized void main(String... args) throws Throwable {
     // language init
     I18n.loadFromLanguageRegistryFile(Main.class.getClassLoader());
-    I18n.selectLanguage(System.getProperty("cloudnet.wrapper.messages.language", "english"));
+    I18n.language(System.getProperty("cloudnet.wrapper.messages.language", "english"));
     // logger init
-    initLogger(LogManager.getRootLogger());
+    initLogger(LogManager.rootLogger());
     // boot the wrapper
     var wrapper = new Wrapper(args);
     wrapper.start();
@@ -48,8 +48,8 @@ public final class Main {
     LoggingUtils.removeHandlers(logger);
     var logFilePattern = Paths.get(".wrapper", "logs", "wrapper.%g.log");
 
-    logger.setLevel(LoggingUtils.getDefaultLogLevel());
-    logger.setLogRecordDispatcher(ThreadedLogRecordDispatcher.forLogger(logger));
+    logger.setLevel(LoggingUtils.defaultLogLevel());
+    logger.logRecordDispatcher(ThreadedLogRecordDispatcher.forLogger(logger));
 
     logger.addHandler(InternalPrintStreamLogHandler.forSystemStreams().withFormatter(DefaultLogFormatter.END_CLEAN));
     logger.addHandler(

@@ -31,7 +31,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class SFTPClientPool {
 
-  private static final Logger LOGGER = LogManager.getLogger(SFTPClientPool.class);
+  private static final Logger LOGGER = LogManager.logger(SFTPClientPool.class);
 
   private final int maxClients;
   private final Callable<SSHClient> clientFactory;

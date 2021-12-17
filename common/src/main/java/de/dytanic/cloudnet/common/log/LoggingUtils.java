@@ -31,7 +31,7 @@ public final class LoggingUtils {
     throw new UnsupportedOperationException();
   }
 
-  public static @NotNull Level getDefaultLogLevel() {
+  public static @NotNull Level defaultLogLevel() {
     var defaultLogLevel = System.getProperty("cloudnet.logging.defaultlevel");
     if (defaultLogLevel == null) {
       return Level.INFO;

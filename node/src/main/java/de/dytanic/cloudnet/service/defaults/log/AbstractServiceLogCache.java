@@ -34,7 +34,7 @@ import org.jetbrains.annotations.UnmodifiableView;
 
 public abstract class AbstractServiceLogCache implements IServiceConsoleLogCache {
 
-  protected static final Logger LOGGER = LogManager.getLogger(AbstractServiceLogCache.class);
+  protected static final Logger LOGGER = LogManager.logger(AbstractServiceLogCache.class);
 
   protected final ICloudService service;
 

@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 public final class S3TemplateStorageConfig {
 
-  private static final Logger LOGGER = LogManager.getLogger(S3TemplateStorageConfig.class);
+  private static final Logger LOGGER = LogManager.logger(S3TemplateStorageConfig.class);
 
   private final String name;
   private final String bucket;

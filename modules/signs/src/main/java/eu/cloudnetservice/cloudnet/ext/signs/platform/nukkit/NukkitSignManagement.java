@@ -48,7 +48,7 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
 
   public static NukkitSignManagement getDefaultInstance() {
     return (NukkitSignManagement) CloudNetDriver.getInstance().getServicesRegistry()
-      .getFirstService(SignManagement.class);
+      .firstService(SignManagement.class);
   }
 
   @Override

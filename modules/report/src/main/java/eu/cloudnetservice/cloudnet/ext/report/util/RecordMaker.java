@@ -37,7 +37,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public record RecordMaker(@NotNull Path directory, @NotNull ICloudService service) {
 
-  private static final Logger LOGGER = LogManager.getLogger(RecordMaker.class);
+  private static final Logger LOGGER = LogManager.logger(RecordMaker.class);
 
   /**
    * Constructs a new Record with the given baseDirectory, the resulting directory is resolved with the name and the

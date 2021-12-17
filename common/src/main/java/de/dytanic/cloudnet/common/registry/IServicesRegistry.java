@@ -123,7 +123,7 @@ public interface IServicesRegistry {
    * @param <T>   the interface or abstract type which you want the implementation providing for
    * @return the service implementation of the base class or the base class himself
    */
-  @Nullable <T> T getService(@NotNull Class<T> clazz, @NotNull String name);
+  @Nullable <T> T service(@NotNull Class<T> clazz, @NotNull String name);
 
   /**
    * Returns the service implementation or null from this registry
@@ -132,8 +132,8 @@ public interface IServicesRegistry {
    * @param <T>   the interface or abstract type which you want the implementation providing for
    * @return the first service implementation found registered for the provided class
    */
-  default @UnknownNullability <T> T getFirstService(@NotNull Class<T> clazz) {
-    return Iterables.getFirst(this.getServices(clazz), null);
+  default @UnknownNullability <T> T firstService(@NotNull Class<T> clazz) {
+    return Iterables.getFirst(this.services(clazz), null);
   }
 
   /**
@@ -144,5 +144,5 @@ public interface IServicesRegistry {
    * @return the service implementations of the base class or the base class himself
    */
   @UnmodifiableView
-  @NotNull <T> Collection<T> getServices(@NotNull Class<T> clazz);
+  @NotNull <T> Collection<T> services(@NotNull Class<T> clazz);
 }

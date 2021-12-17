@@ -59,7 +59,7 @@ final class WaterDogPEBridgeManagement extends PlatformBridgeManagement<ProxiedP
     BridgeServiceHelper.MAX_PLAYERS.set(ProxyServer.getInstance().getConfiguration().getMaxPlayerCount());
     // init the default cache listeners
     this.cacheTester = CONNECTED_SERVICE_TESTER
-      .and(service -> ServiceEnvironmentType.PE_SERVER.get(service.getServiceId().getEnvironment().getProperties()));
+      .and(service -> ServiceEnvironmentType.PE_SERVER.get(service.getServiceId().getEnvironment().properties()));
     // register each service matching the service cache tester
     this.cacheRegisterListener = service -> ProxyServer.getInstance().getServerInfoMap().put(
       service.name(),
@@ -149,10 +149,10 @@ final class WaterDogPEBridgeManagement extends PlatformBridgeManagement<ProxiedP
   public void appendServiceInformation(@NotNull ServiceInfoSnapshot snapshot) {
     super.appendServiceInformation(snapshot);
     // append the velocity specific information
-    snapshot.getProperties().append("Online-Count", ProxyServer.getInstance().getPlayers().size());
-    snapshot.getProperties().append("Version", WaterdogPE.version().baseVersion());
+    snapshot.properties().append("Online-Count", ProxyServer.getInstance().getPlayers().size());
+    snapshot.properties().append("Version", WaterdogPE.version().baseVersion());
     // players
-    snapshot.getProperties().append("Players", ProxyServer.getInstance().getPlayers().values().stream()
+    snapshot.properties().append("Players", ProxyServer.getInstance().getPlayers().values().stream()
       .map(this::createPlayerInformation)
       .collect(Collectors.toList()));
   }

@@ -34,8 +34,8 @@ public class CloudNetSmartModule extends DriverModule {
   public void rewriteOldSmartTaskEntries() {
     for (var task : this.getDriver().getServiceTaskProvider().getPermanentServiceTasks()) {
       // check if the task had a smart config entry previously
-      if (task.getProperties().contains("smartConfig")) {
-        var smartEntry = task.getProperties().getDocument("smartConfig");
+      if (task.properties().contains("smartConfig")) {
+        var smartEntry = task.properties().getDocument("smartConfig");
         // check if the task still uses the old format
         if (smartEntry.contains("dynamicMemoryAllocationRange")) {
           // rewrite the old config
@@ -58,7 +58,7 @@ public class CloudNetSmartModule extends DriverModule {
 
             .build();
           // append the new smart entry and update the service
-          task.getProperties().append("smartConfig", config);
+          task.properties().append("smartConfig", config);
           this.getDriver().getServiceTaskProvider().addPermanentServiceTask(task);
         }
       }
@@ -69,8 +69,8 @@ public class CloudNetSmartModule extends DriverModule {
   public void addMissingSmartConfigurationEntries() {
     for (var task : this.getDriver().getServiceTaskProvider().getPermanentServiceTasks()) {
       // check if the service task needs a smart entry
-      if (!task.getProperties().contains("smartConfig")) {
-        task.getProperties().append("smartConfig", SmartServiceTaskConfig.builder().build());
+      if (!task.properties().contains("smartConfig")) {
+        task.properties().append("smartConfig", SmartServiceTaskConfig.builder().build());
         // update the task
         CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask(task);
       }
@@ -87,6 +87,6 @@ public class CloudNetSmartModule extends DriverModule {
 
   public @Nullable SmartServiceTaskConfig getSmartConfig(@NotNull ServiceTask task) {
     // try to get the smart config entry
-    return task.getProperties().get("smartConfig", SmartServiceTaskConfig.class);
+    return task.properties().get("smartConfig", SmartServiceTaskConfig.class);
   }
 }

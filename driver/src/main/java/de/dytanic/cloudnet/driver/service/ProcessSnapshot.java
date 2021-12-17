@@ -69,8 +69,8 @@ public record ProcessSnapshot(
   public static ProcessSnapshot self() {
     return new ProcessSnapshot(
       ownPID(),
-      CPUUsageResolver.getProcessCPUUsage(),
-      CPUUsageResolver.getSystemCPUUsage(),
+      CPUUsageResolver.processCPUUsage(),
+      CPUUsageResolver.systemCPUUsage(),
       MEMORY_MX_BEAN.getHeapMemoryUsage().getMax(),
       MEMORY_MX_BEAN.getHeapMemoryUsage().getUsed(),
       MEMORY_MX_BEAN.getNonHeapMemoryUsage().getUsed(),

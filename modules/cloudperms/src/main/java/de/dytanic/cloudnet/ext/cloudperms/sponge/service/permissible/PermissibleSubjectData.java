@@ -161,9 +161,9 @@ public abstract class PermissibleSubjectData<T extends IPermissible> implements 
 
   @Override
   public Map<Set<Context>, Map<String, String>> allOptions() {
-    return ImmutableMap.of(Collections.emptySet(), this.permissible.getProperties().stream()
-      .filter(key -> this.permissible.getProperties().getString(key) != null)
-      .collect(Collectors.toMap(Function.identity(), this.permissible.getProperties()::getString)));
+    return ImmutableMap.of(Collections.emptySet(), this.permissible.properties().stream()
+      .filter(key -> this.permissible.properties().getString(key) != null)
+      .collect(Collectors.toMap(Function.identity(), this.permissible.properties()::getString)));
   }
 
   @Override
@@ -174,7 +174,7 @@ public abstract class PermissibleSubjectData<T extends IPermissible> implements 
   @Override
   public CompletableFuture<Boolean> setOption(Set<Context> contexts, String key, @Nullable String value) {
     return CompletableFuture.supplyAsync(() -> {
-      this.permissible.getProperties().append(key, value);
+      this.permissible.properties().append(key, value);
       this.updateIfEnabled(this.permissible);
       return true;
     });
@@ -183,7 +183,7 @@ public abstract class PermissibleSubjectData<T extends IPermissible> implements 
   @Override
   public CompletableFuture<Boolean> setOptions(Set<Context> $, Map<String, String> options, TransferMethod $1) {
     return CompletableFuture.supplyAsync(() -> {
-      options.forEach(this.permissible.getProperties()::append);
+      options.forEach(this.permissible.properties()::append);
       this.updateIfEnabled(this.permissible);
       return true;
     });
@@ -192,7 +192,7 @@ public abstract class PermissibleSubjectData<T extends IPermissible> implements 
   @Override
   public CompletableFuture<Boolean> clearOptions() {
     return CompletableFuture.supplyAsync(() -> {
-      this.permissible.getProperties().clear();
+      this.permissible.properties().clear();
       this.updateIfEnabled(this.permissible);
       return true;
     });

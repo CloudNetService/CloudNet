@@ -44,12 +44,12 @@ import org.jetbrains.annotations.NotNull;
 public final class CommandMigrate {
 
   private static final int DEFAULT_CHUNK_SIZE = 100;
-  private static final Logger LOGGER = LogManager.getLogger(CommandMigrate.class);
+  private static final Logger LOGGER = LogManager.logger(CommandMigrate.class);
 
   @Parser(suggestions = "databaseProvider")
   public AbstractDatabaseProvider defaultDatabaseProviderParser(CommandContext<CommandSource> $, Queue<String> input) {
     var abstractDatabaseProvider = CloudNet.getInstance().getServicesRegistry()
-      .getService(AbstractDatabaseProvider.class, input.remove());
+      .service(AbstractDatabaseProvider.class, input.remove());
 
     if (abstractDatabaseProvider == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-migrate-unknown-database-provider"));
@@ -59,7 +59,7 @@ public final class CommandMigrate {
 
   @Suggestions("databaseProvider")
   public List<String> suggestDatabaseProvider(CommandContext<CommandSource> $, String input) {
-    return CloudNet.getInstance().getServicesRegistry().getServices(AbstractDatabaseProvider.class)
+    return CloudNet.getInstance().getServicesRegistry().services(AbstractDatabaseProvider.class)
       .stream()
       .map(INameable::name)
       .collect(Collectors.toList());

@@ -35,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
 @Internal
 public final class BukkitCompatibility {
 
-  private static final Logger LOGGER = LogManager.getLogger(BukkitCompatibility.class);
+  private static final Logger LOGGER = LogManager.logger(BukkitCompatibility.class);
 
   private static final Class<?> WALL_SIGN_CLASS;
 

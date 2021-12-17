@@ -361,7 +361,7 @@ public class NodePlayerManager implements IPlayerManager {
           cloudOfflinePlayer.getFirstLoginTimeMillis(),
           System.currentTimeMillis(),
           cloudOfflinePlayer.getLastNetworkPlayerProxyInfo(),
-          cloudOfflinePlayer.getProperties());
+          cloudOfflinePlayer.properties());
         // cache the online player for later use
         this.onlinePlayers.put(cloudPlayer.getUniqueId(), cloudPlayer);
       }

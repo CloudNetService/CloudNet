@@ -36,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
 @Internal
 public final class NettyNetworkChannel extends DefaultNetworkChannel implements INetworkChannel {
 
-  private static final Logger LOGGER = LogManager.getLogger(NettyNetworkChannel.class);
+  private static final Logger LOGGER = LogManager.logger(NettyNetworkChannel.class);
 
   private final Channel channel;
 

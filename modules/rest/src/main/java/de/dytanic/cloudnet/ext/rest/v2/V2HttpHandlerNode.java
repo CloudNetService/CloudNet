@@ -157,7 +157,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
       var handler = new WebSocketLogHandler(session, channel, DefaultLogFormatter.END_LINE_SEPARATOR);
 
       channel.addListener(handler);
-      LogManager.getRootLogger().addHandler(handler);
+      LogManager.rootLogger().addHandler(handler);
     }
   }
 
@@ -190,7 +190,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
 
     @Override
     public void handleClose(IWebSocketChannel channel, AtomicInteger statusCode, AtomicReference<String> reasonText) {
-      LogManager.getRootLogger().removeHandler(this);
+      LogManager.rootLogger().removeHandler(this);
     }
 
     @Override

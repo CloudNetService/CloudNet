@@ -70,7 +70,7 @@ public class ServiceVersion implements INameable {
   }
 
   public boolean canRun() {
-    return this.canRun(JavaVersion.getRuntimeVersion());
+    return this.canRun(JavaVersion.runtimeVersion());
   }
 
   public boolean canRun(@NotNull JavaVersion javaVersion) {

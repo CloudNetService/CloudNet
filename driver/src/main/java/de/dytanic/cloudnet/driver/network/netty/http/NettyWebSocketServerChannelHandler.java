@@ -33,7 +33,7 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 @Internal
 final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 
-  private static final Logger LOGGER = LogManager.getLogger(NettyWebSocketServerChannelHandler.class);
+  private static final Logger LOGGER = LogManager.logger(NettyWebSocketServerChannelHandler.class);
 
   private final NettyWebSocketServerChannel webSocketServerChannel;
 

@@ -31,7 +31,7 @@ import org.jetbrains.annotations.NotNull;
 @Internal
 public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Packet> {
 
-  private static final Logger LOGGER = LogManager.getLogger(NettyNetworkHandler.class);
+  private static final Logger LOGGER = LogManager.logger(NettyNetworkHandler.class);
 
   protected volatile NettyNetworkChannel channel;
 

@@ -60,7 +60,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
   public static final String SIGN_ALL_DELETE = "signs_sign_delete_all";
   public static final String SIGN_BULK_DELETE = "signs_sign_bulk_delete";
   protected static final int TPS = 20;
-  private static final Logger LOGGER = LogManager.getLogger(AbstractPlatformSignManagement.class);
+  private static final Logger LOGGER = LogManager.logger(AbstractPlatformSignManagement.class);
   protected final AtomicInteger currentTick = new AtomicInteger();
   protected final Queue<ServiceInfoSnapshot> waitingAssignments = new ConcurrentLinkedQueue<>();
 
@@ -222,8 +222,8 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
     var currentEnv = Wrapper.getInstance().getServiceId().getEnvironment();
     var serviceEnv = snapshot.getServiceId().getEnvironment();
 
-    return (JAVA_SERVER.get(currentEnv.getProperties()) && JAVA_SERVER.get(serviceEnv.getProperties()))
-      || PE_SERVER.get(currentEnv.getProperties()) && PE_SERVER.get(serviceEnv.getProperties());
+    return (JAVA_SERVER.get(currentEnv.properties()) && JAVA_SERVER.get(serviceEnv.properties()))
+      || PE_SERVER.get(currentEnv.properties()) && PE_SERVER.get(serviceEnv.properties());
   }
 
   protected void tryAssign(@NotNull ServiceInfoSnapshot snapshot) {

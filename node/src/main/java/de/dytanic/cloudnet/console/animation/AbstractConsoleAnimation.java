@@ -28,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class AbstractConsoleAnimation implements Runnable {
 
-  protected static final Logger LOGGER = LogManager.getLogger(AbstractConsoleAnimation.class);
+  protected static final Logger LOGGER = LogManager.logger(AbstractConsoleAnimation.class);
 
   protected final int updateInterval;
   protected final Collection<Runnable> finishHandler = new ArrayList<>();

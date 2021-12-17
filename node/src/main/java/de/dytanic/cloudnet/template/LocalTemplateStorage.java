@@ -44,7 +44,7 @@ import org.jetbrains.annotations.Nullable;
 public class LocalTemplateStorage implements TemplateStorage {
 
   public static final String LOCAL_TEMPLATE_STORAGE = "local";
-  protected static final Logger LOGGER = LogManager.getLogger(LocalTemplateStorage.class);
+  protected static final Logger LOGGER = LogManager.logger(LocalTemplateStorage.class);
 
   private final Path storageDirectory;
 

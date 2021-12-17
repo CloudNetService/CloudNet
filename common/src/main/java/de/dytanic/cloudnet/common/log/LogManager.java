@@ -27,19 +27,19 @@ public final class LogManager {
     throw new UnsupportedOperationException();
   }
 
-  public static @NotNull Logger getRootLogger() {
-    return LogManager.getLogger(LoggerFactory.ROOT_LOGGER_NAME);
+  public static @NotNull Logger rootLogger() {
+    return LogManager.logger(LoggerFactory.ROOT_LOGGER_NAME);
   }
 
-  public static @NotNull Logger getLogger(@NotNull Class<?> caller) {
-    return LogManager.getLogger(caller.getName());
+  public static @NotNull Logger logger(@NotNull Class<?> caller) {
+    return LogManager.logger(caller.getName());
   }
 
-  public static @NotNull Logger getLogger(@NotNull String name) {
-    return LogManager.getLoggerFactory().getLogger(name);
+  public static @NotNull Logger logger(@NotNull String name) {
+    return LogManager.loggerFactory().logger(name);
   }
 
-  public static @NotNull LoggerFactory getLoggerFactory() {
+  public static @NotNull LoggerFactory loggerFactory() {
     return LOGGER_FACTORY;
   }
 

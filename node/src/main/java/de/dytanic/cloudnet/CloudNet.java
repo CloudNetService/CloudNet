@@ -94,7 +94,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public class CloudNet extends CloudNetDriver {
 
-  private static final Logger LOGGER = LogManager.getLogger(CloudNet.class);
+  private static final Logger LOGGER = LogManager.logger(CloudNet.class);
   private static final Path LAUNCHER_DIR = Paths.get(System.getProperty("cloudnet.launcher.dir", "launcher"));
 
   private final IConsole console;
@@ -201,7 +201,7 @@ public class CloudNet extends CloudNetDriver {
         !this.configuration.getClusterConfig().nodes().isEmpty()));
 
     // initialize the default database provider
-    this.setDatabaseProvider(this.servicesRegistry.getService(
+    this.setDatabaseProvider(this.servicesRegistry.service(
       AbstractDatabaseProvider.class,
       this.configuration.getProperties().getString("database_provider", "xodus")));
 
@@ -210,7 +210,7 @@ public class CloudNet extends CloudNetDriver {
 
     // check if there is a database provider or initialize the default one
     if (this.databaseProvider == null || !this.databaseProvider.init()) {
-      this.setDatabaseProvider(this.servicesRegistry.getService(AbstractDatabaseProvider.class, "xodus"));
+      this.setDatabaseProvider(this.servicesRegistry.service(AbstractDatabaseProvider.class, "xodus"));
       if (this.databaseProvider == null || !this.databaseProvider.init()) {
         // unable to start without a database
         throw new IllegalStateException("No database provider selected for startup - Unable to proceed");
@@ -357,12 +357,12 @@ public class CloudNet extends CloudNetDriver {
 
   @Override
   public @Nullable TemplateStorage getTemplateStorage(@NotNull String storage) {
-    return this.servicesRegistry.getService(TemplateStorage.class, storage);
+    return this.servicesRegistry.service(TemplateStorage.class, storage);
   }
 
   @Override
   public @NotNull Collection<TemplateStorage> getAvailableTemplateStorages() {
-    return this.servicesRegistry.getServices(TemplateStorage.class);
+    return this.servicesRegistry.services(TemplateStorage.class);
   }
 
   @Override

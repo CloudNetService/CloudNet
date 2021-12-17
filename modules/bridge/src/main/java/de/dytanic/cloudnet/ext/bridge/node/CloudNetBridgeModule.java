@@ -45,7 +45,7 @@ import net.kyori.adventure.title.Title;
 
 public final class CloudNetBridgeModule extends DriverModule {
 
-  private static final Logger LOGGER = LogManager.getLogger(CloudNetBridgeModule.class);
+  private static final Logger LOGGER = LogManager.logger(CloudNetBridgeModule.class);
 
   @ModuleTask(order = 50, event = ModuleLifeCycle.LOADED)
   public void initNetworkHelpers() {

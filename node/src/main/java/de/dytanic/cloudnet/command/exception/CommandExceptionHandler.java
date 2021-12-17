@@ -41,7 +41,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class CommandExceptionHandler {
 
-  protected static final Logger LOGGER = LogManager.getLogger(CommandExceptionHandler.class);
+  protected static final Logger LOGGER = LogManager.logger(CommandExceptionHandler.class);
 
   private final DefaultCommandProvider commandProvider;
 

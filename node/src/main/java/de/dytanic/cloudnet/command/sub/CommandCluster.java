@@ -61,7 +61,7 @@ import org.jetbrains.annotations.NotNull;
 @Description("Manages the cluster and provides information about it")
 public final class CommandCluster {
 
-  private static final Logger LOGGER = LogManager.getLogger(CommandCluster.class);
+  private static final Logger LOGGER = LogManager.logger(CommandCluster.class);
   private static final DateFormat DEFAULT_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
   private static final RowBasedFormatter<IClusterNodeServer> FORMATTER = RowBasedFormatter.<IClusterNodeServer>builder()
     .defaultFormatter(ColumnFormatter.builder().columnTitles("Name", "State", "Listeners").build())

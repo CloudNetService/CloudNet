@@ -24,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class MagmaInstallerExecutor extends BuildStepExecutor {
 
-  private static final Logger LOGGER = LogManager.getLogger(MagmaInstallerExecutor.class);
+  private static final Logger LOGGER = LogManager.logger(MagmaInstallerExecutor.class);
 
   @Override
   protected int buildProcessAndWait(@NotNull List<String> arguments, @NotNull Path workingDir) {

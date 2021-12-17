@@ -49,7 +49,7 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 @Internal
 final class NettyHttpServerContext implements IHttpContext {
 
-  private static final Logger LOGGER = LogManager.getLogger(NettyHttpServerContext.class);
+  private static final Logger LOGGER = LogManager.logger(NettyHttpServerContext.class);
 
   private final Collection<HttpCookie> cookies = new ArrayList<>();
 

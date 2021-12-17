@@ -29,7 +29,7 @@ record DefaultRegisteredEventListener(
   @NotNull ListenerInvoker listenerInvoker
 ) implements IRegisteredEventListener {
 
-  private static final Logger LOGGER = LogManager.getLogger(DefaultRegisteredEventListener.class);
+  private static final Logger LOGGER = LogManager.logger(DefaultRegisteredEventListener.class);
 
   @Override
   public void fireEvent(@NotNull Event event) {

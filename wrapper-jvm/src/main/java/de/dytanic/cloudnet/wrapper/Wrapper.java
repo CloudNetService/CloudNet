@@ -81,7 +81,7 @@ import org.jetbrains.annotations.UnmodifiableView;
 public class Wrapper extends CloudNetDriver {
 
   private static final Path WORKING_DIRECTORY = Paths.get("");
-  private static final Logger LOGGER = LogManager.getLogger(Wrapper.class);
+  private static final Logger LOGGER = LogManager.logger(Wrapper.class);
 
   /**
    * The configuration of the wrapper, which was created from the CloudNet node. The properties are mirrored from the
@@ -250,7 +250,7 @@ public class Wrapper extends CloudNetDriver {
       this.getServiceConfiguration(),
       this.currentServiceInfoSnapshot.getConnectedTime(),
       ServiceLifeCycle.RUNNING,
-      this.currentServiceInfoSnapshot.getProperties());
+      this.currentServiceInfoSnapshot.properties());
   }
 
   @Internal

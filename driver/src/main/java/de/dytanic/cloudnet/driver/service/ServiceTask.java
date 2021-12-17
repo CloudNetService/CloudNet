@@ -120,7 +120,7 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
       .startPort(serviceTask.getStartPort())
       .minServiceCount(serviceTask.getMinServiceCount())
 
-      .properties(serviceTask.getProperties().clone())
+      .properties(serviceTask.properties().clone())
       .processConfiguration(ProcessConfiguration.builder(serviceTask.getProcessConfiguration()));
   }
 

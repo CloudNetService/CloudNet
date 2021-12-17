@@ -38,7 +38,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class DefaultModuleProviderHandler implements IModuleProviderHandler {
 
-  private static final Logger LOGGER = LogManager.getLogger(DefaultModuleProviderHandler.class);
+  private static final Logger LOGGER = LogManager.logger(DefaultModuleProviderHandler.class);
 
   @Override
   public boolean handlePreModuleLoad(@NotNull IModuleWrapper moduleWrapper) {

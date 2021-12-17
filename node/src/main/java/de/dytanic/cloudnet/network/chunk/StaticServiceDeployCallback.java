@@ -31,7 +31,7 @@ final class StaticServiceDeployCallback implements Callback {
 
   public static final StaticServiceDeployCallback INSTANCE = new StaticServiceDeployCallback();
 
-  private static final Logger LOGGER = LogManager.getLogger(StaticServiceDeployCallback.class);
+  private static final Logger LOGGER = LogManager.logger(StaticServiceDeployCallback.class);
 
   private StaticServiceDeployCallback() {
   }

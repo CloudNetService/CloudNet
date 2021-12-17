@@ -35,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class DefaultDataSyncRegistry implements DataSyncRegistry {
 
-  private static final Logger LOGGER = LogManager.getLogger(DefaultDataSyncRegistry.class);
+  private static final Logger LOGGER = LogManager.logger(DefaultDataSyncRegistry.class);
   private static final Javers JAVERS = JaversBuilder.javers()
     .withInitialChanges(false)
     .withTerminalChanges(false)

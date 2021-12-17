@@ -67,19 +67,19 @@ public class JsonDocumentTest {
 
   @Test
   void testJsonDocPropertyAppend() {
-    Assertions.assertEquals(4, this.getDummyDocument().setProperty(this.getJsonDocProperty(), "test124").size());
+    Assertions.assertEquals(4, this.getDummyDocument().property(this.getJsonDocProperty(), "test124").size());
   }
 
   @Test
   void testJsonDocPropertyRead() {
-    var document = this.getDummyDocument().setProperty(this.getJsonDocProperty(), "test124");
-    Assertions.assertEquals("test124", document.getProperty(this.getJsonDocProperty()));
+    var document = this.getDummyDocument().property(this.getJsonDocProperty(), "test124");
+    Assertions.assertEquals("test124", document.property(this.getJsonDocProperty()));
   }
 
   @Test
   void testJsonDocPropertyRemove() {
-    var document = this.getDummyDocument().setProperty(this.getJsonDocProperty(), "test124");
-    Assertions.assertNull(document.removeProperty(this.getJsonDocProperty()).getProperty(this.getJsonDocProperty()));
+    var document = this.getDummyDocument().property(this.getJsonDocProperty(), "test124");
+    Assertions.assertNull(document.removeProperty(this.getJsonDocProperty()).property(this.getJsonDocProperty()));
   }
 
   private JsonDocument getDummyDocument() {

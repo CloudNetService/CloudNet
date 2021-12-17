@@ -177,7 +177,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
    */
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T getService(@NotNull Class<T> clazz, @NotNull String name) {
+  public <T> T service(@NotNull Class<T> clazz, @NotNull String name) {
     T value = null;
 
     if (this.containsService(clazz, name)) {
@@ -197,7 +197,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
    */
   @Override
   @SuppressWarnings("unchecked")
-  public <T> @NotNull Collection<T> getServices(@NotNull Class<T> clazz) {
+  public <T> @NotNull Collection<T> services(@NotNull Class<T> clazz) {
     Collection<T> collection = new ArrayList<>();
     if (this.providedServices.containsKey(clazz)) {
       for (var entry : this.providedServices.get(clazz)) {

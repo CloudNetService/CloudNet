@@ -34,7 +34,7 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class AbstractServiceConfigurationPreparer implements ServiceConfigurationPreparer {
 
-  protected static final Logger LOGGER = LogManager.getLogger(ServiceConfigurationPreparer.class);
+  protected static final Logger LOGGER = LogManager.logger(ServiceConfigurationPreparer.class);
 
   protected boolean shouldRewriteIp(@NotNull CloudNet nodeInstance, @NotNull ICloudService service) {
     var task = nodeInstance.getServiceTaskProvider().getServiceTask(service.getServiceId().getTaskName());

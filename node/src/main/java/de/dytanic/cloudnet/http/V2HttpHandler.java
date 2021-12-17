@@ -37,7 +37,7 @@ public abstract class V2HttpHandler implements IHttpHandler {
 
   protected static final V2HttpAuthentication DEFAULT_AUTH = new V2HttpAuthentication();
 
-  protected static final Logger LOGGER = LogManager.getLogger(V2HttpHandler.class);
+  protected static final Logger LOGGER = LogManager.logger(V2HttpHandler.class);
 
   protected final String requiredPermission;
   protected final String[] supportedRequestMethods;

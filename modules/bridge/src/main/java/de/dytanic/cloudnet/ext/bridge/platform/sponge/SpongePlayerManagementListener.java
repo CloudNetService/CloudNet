@@ -59,7 +59,7 @@ public final class SpongePlayerManagementListener {
         return;
       }
       // check if a custom permission is required to join
-      var permission = task.getProperties().getString("requiredPermission");
+      var permission = task.properties().getString("requiredPermission");
       if (permission != null && !user.hasPermission(permission)) {
         event.setCancelled(true);
         event.setMessage(Component.text(this.management.getConfiguration().getMessage(

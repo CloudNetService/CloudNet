@@ -32,7 +32,7 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 @Internal
 public final class NettyPacketDecoder extends ByteToMessageDecoder {
 
-  private static final Logger LOGGER = LogManager.getLogger(NettyPacketDecoder.class);
+  private static final Logger LOGGER = LogManager.logger(NettyPacketDecoder.class);
 
   @Override
   protected void decode(ChannelHandlerContext ctx, ByteBuf byteBuf, List<Object> out) {

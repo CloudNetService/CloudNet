@@ -34,7 +34,7 @@ import org.jetbrains.annotations.NotNull;
 
 public final class NodeNetworkUtils {
 
-  private static final Logger LOGGER = LogManager.getLogger(NodeNetworkUtils.class);
+  private static final Logger LOGGER = LogManager.logger(NodeNetworkUtils.class);
 
   private NodeNetworkUtils() {
     throw new UnsupportedOperationException();

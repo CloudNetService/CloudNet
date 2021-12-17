@@ -38,7 +38,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class I18n {
 
-  private static final Logger LOGGER = LogManager.getLogger(I18n.class);
+  private static final Logger LOGGER = LogManager.logger(I18n.class);
   private static final Map<String, Properties> LANGUAGE_CACHE = new ConcurrentHashMap<>();
 
   /**
@@ -142,11 +142,11 @@ public final class I18n {
     addLanguageFile(language, properties);
   }
 
-  public static @NotNull String getLanguage() {
+  public static @NotNull String language() {
     return I18n.language;
   }
 
-  public static void selectLanguage(@NotNull String language) {
+  public static void language(@NotNull String language) {
     I18n.language = language;
   }
 }

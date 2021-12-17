@@ -33,7 +33,7 @@ public interface ITask<V> extends Future<V> {
   @NotNull ITask<V> clearListeners();
 
   @UnmodifiableView
-  @NotNull Collection<ITaskListener<V>> getListeners();
+  @NotNull Collection<ITaskListener<V>> listeners();
 
   @UnknownNullability V getDef(@Nullable V def);
 

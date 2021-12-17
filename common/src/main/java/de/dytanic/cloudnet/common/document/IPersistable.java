@@ -34,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public interface IPersistable {
 
-  Logger LOGGER = LogManager.getLogger(IPersistable.class);
+  Logger LOGGER = LogManager.logger(IPersistable.class);
 
   @NotNull IPersistable write(@NotNull Writer writer);
 

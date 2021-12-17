@@ -27,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
 public record PasteService(@NotNull String name, @NotNull String serviceUrl) implements INameable {
 
   public static final PasteService FALLBACK = new PasteService("fallback", "https://just-paste.it");
-  private static final Logger LOGGER = LogManager.getLogger(PasteService.class);
+  private static final Logger LOGGER = LogManager.logger(PasteService.class);
 
   public PasteService(@NotNull String name, @NotNull String serviceUrl) {
     this.name = name;

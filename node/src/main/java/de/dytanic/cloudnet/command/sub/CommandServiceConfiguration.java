@@ -67,7 +67,7 @@ public final class CommandServiceConfiguration {
 
     messages.add("Properties: ");
 
-    messages.addAll(Arrays.asList(configurationBase.getProperties().toPrettyJson().split("\n")));
+    messages.addAll(Arrays.asList(configurationBase.properties().toPrettyJson().split("\n")));
     messages.add(" ");
   }
 }

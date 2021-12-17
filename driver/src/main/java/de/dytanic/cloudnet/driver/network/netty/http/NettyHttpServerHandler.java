@@ -44,7 +44,7 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 @Internal
 final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> {
 
-  private static final Logger LOGGER = LogManager.getLogger(NettyHttpServerHandler.class);
+  private static final Logger LOGGER = LogManager.logger(NettyHttpServerHandler.class);
 
   private final NettyHttpServer nettyHttpServer;
   private final HostAndPort connectedAddress;

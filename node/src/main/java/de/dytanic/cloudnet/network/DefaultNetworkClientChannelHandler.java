@@ -37,7 +37,7 @@ import org.jetbrains.annotations.NotNull;
 public final class DefaultNetworkClientChannelHandler implements INetworkChannelHandler {
 
   private static final AtomicLong CONNECTION_COUNTER = new AtomicLong();
-  private static final Logger LOGGER = LogManager.getLogger(DefaultNetworkClientChannelHandler.class);
+  private static final Logger LOGGER = LogManager.logger(DefaultNetworkClientChannelHandler.class);
 
   @Override
   public void handleChannelInitialize(@NotNull INetworkChannel channel) {

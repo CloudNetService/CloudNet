@@ -51,7 +51,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class DefaultTaskSetup implements DefaultSetup {
 
-  protected static final Logger LOGGER = LogManager.getLogger(DefaultTaskSetup.class);
+  protected static final Logger LOGGER = LogManager.logger(DefaultTaskSetup.class);
 
   protected static final String PROXY_TASK_NAME = "Proxy";
   protected static final String LOBBY_TASK_NAME = "Lobby";
@@ -82,7 +82,7 @@ public class DefaultTaskSetup implements DefaultSetup {
                     .parser(serviceEnvironmentType())
                     .possibleResults(this.getVersionProvider().getKnownEnvironments().values().stream()
                       .filter(type -> {
-                        IDocument<?> properties = type.getProperties();
+                        IDocument<?> properties = type.properties();
                         return JAVA_PROXY.get(properties) || PE_PROXY.get(properties);
                       })
                       .map(ServiceEnvironmentType::name)
@@ -129,7 +129,7 @@ public class DefaultTaskSetup implements DefaultSetup {
                     .parser(serviceEnvironmentType())
                     .possibleResults(this.getVersionProvider().getKnownEnvironments().values().stream()
                       .filter(type -> {
-                        IDocument<?> properties = type.getProperties();
+                        IDocument<?> properties = type.properties();
                         return JAVA_SERVER.get(properties) || PE_SERVER.get(properties);
                       })
                       .map(ServiceEnvironmentType::name)

@@ -52,7 +52,7 @@ public final class JLine3Console implements IConsole {
 
   private static final String USER = System.getProperty("user.name");
   private static final String VERSION = CloudNet.class.getPackage().getImplementationVersion();
-  private static final Logger LOGGER = LogManager.getLogger(JLine3Console.class);
+  private static final Logger LOGGER = LogManager.logger(JLine3Console.class);
 
   private final Map<UUID, ConsoleInputHandler> consoleInputHandler = new ConcurrentHashMap<>();
   private final Map<UUID, ConsoleTabCompleteHandler> tabCompleteHandler = new ConcurrentHashMap<>();

@@ -33,7 +33,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public interface IReadable {
 
-  Logger LOGGER = LogManager.getLogger(IReadable.class);
+  Logger LOGGER = LogManager.logger(IReadable.class);
 
   @NotNull IReadable read(@NotNull Reader reader);
 

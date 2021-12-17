@@ -30,13 +30,13 @@ public class JsonDocPropertyHolder implements DocPropertyHolder {
   protected JsonDocument properties = JsonDocument.newDocument();
 
   @Override
-  public @NotNull <E> DocPropertyHolder setProperty(@NotNull DocProperty<E> docProperty, @Nullable E val) {
+  public @NotNull <E> DocPropertyHolder property(@NotNull DocProperty<E> docProperty, @Nullable E val) {
     docProperty.append(this.properties, val);
     return this;
   }
 
   @Override
-  public <E> @UnknownNullability E getProperty(@NotNull DocProperty<E> docProperty) {
+  public <E> @UnknownNullability E property(@NotNull DocProperty<E> docProperty) {
     return docProperty.get(this.properties);
   }
 
@@ -52,7 +52,7 @@ public class JsonDocPropertyHolder implements DocPropertyHolder {
   }
 
   @Override
-  public @NotNull JsonDocument getProperties() {
+  public @NotNull JsonDocument properties() {
     return this.properties;
   }
 }

@@ -31,7 +31,7 @@ import org.jetbrains.annotations.NotNull;
 
 final class ClusterNodeServerUtils {
 
-  private static final Logger LOGGER = LogManager.getLogger(ClusterNodeServerUtils.class);
+  private static final Logger LOGGER = LogManager.logger(ClusterNodeServerUtils.class);
 
   private ClusterNodeServerUtils() {
     throw new UnsupportedOperationException();

@@ -72,7 +72,7 @@ final class VelocityPlayerManagementListener {
         return;
       }
       // check if a custom permission is required to join
-      var permission = task.getProperties().getString("requiredPermission");
+      var permission = task.properties().getString("requiredPermission");
       if (permission != null && !event.getPlayer().hasPermission(permission)) {
         event.setResult(ComponentResult.denied(serialize(this.management.getConfiguration().getMessage(
           Locale.ENGLISH,

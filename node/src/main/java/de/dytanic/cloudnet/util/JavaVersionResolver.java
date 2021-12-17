@@ -48,7 +48,7 @@ public final class JavaVersionResolver {
   public static JavaVersion resolveFromJavaExecutable(String input) {
     // the default java command input can always evaluate in the current runtime version
     if (input.equals("java")) {
-      return JavaVersion.getRuntimeVersion();
+      return JavaVersion.runtimeVersion();
     }
 
     try {

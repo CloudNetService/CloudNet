@@ -201,7 +201,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
         .cancelNext();
     } else {
       //TODO: registered.setListeners(server.getListeners());
-      registered.getProperties().append(server.getProperties());
+      registered.properties().append(server.properties());
       this.getConfiguration().save();
       this.getNodeProvider().setClusterServers(this.getConfiguration().getClusterConfig());
 

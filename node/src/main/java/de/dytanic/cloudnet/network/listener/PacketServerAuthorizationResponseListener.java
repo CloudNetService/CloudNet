@@ -31,7 +31,7 @@ import org.jetbrains.annotations.NotNull;
 
 public final class PacketServerAuthorizationResponseListener implements IPacketListener {
 
-  private static final Logger LOGGER = LogManager.getLogger(PacketServerAuthorizationResponseListener.class);
+  private static final Logger LOGGER = LogManager.logger(PacketServerAuthorizationResponseListener.class);
 
   @Override
   public void handle(@NotNull INetworkChannel channel, @NotNull IPacket packet) {

@@ -48,7 +48,7 @@ public enum JavaVersion {
     this.name = name;
   }
 
-  public static @NotNull JavaVersion getRuntimeVersion() {
+  public static @NotNull JavaVersion runtimeVersion() {
     var versionId = Double.parseDouble(System.getProperty("java.class.version"));
     return fromVersionId(versionId).orElse(UNKNOWN);
   }
@@ -61,11 +61,11 @@ public enum JavaVersion {
     return Arrays.stream(JAVA_VERSIONS).filter(javaVersion -> javaVersion.version == version).findFirst();
   }
 
-  public int getVersion() {
+  public int version() {
     return this.version;
   }
 
-  public double getVersionId() {
+  public double versionId() {
     return this.versionId;
   }
 

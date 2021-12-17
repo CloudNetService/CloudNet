@@ -52,7 +52,7 @@ import org.jetbrains.annotations.Nullable;
 public class SFTPTemplateStorage implements TemplateStorage {
 
   protected static final String REMOTE_DIR_FORMAT = "%s/%s/%s";
-  protected static final Logger LOGGER = LogManager.getLogger(SFTPTemplateStorage.class);
+  protected static final Logger LOGGER = LogManager.logger(SFTPTemplateStorage.class);
 
   private final Config config;
   private final SFTPClientPool pool;

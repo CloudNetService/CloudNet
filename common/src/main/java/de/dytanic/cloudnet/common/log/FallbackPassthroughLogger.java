@@ -51,12 +51,12 @@ final class FallbackPassthroughLogger extends Logger {
   }
 
   @Override
-  public @Nullable LogRecordDispatcher getLogRecordDispatcher() {
+  public @Nullable LogRecordDispatcher logRecordDispatcher() {
     return this.logRecordDispatcher;
   }
 
   @Override
-  public void setLogRecordDispatcher(@Nullable LogRecordDispatcher dispatcher) {
+  public void logRecordDispatcher(@Nullable LogRecordDispatcher dispatcher) {
     this.logRecordDispatcher = dispatcher;
   }
 
@@ -90,7 +90,7 @@ final class FallbackPassthroughLogger extends Logger {
   @Override
   public Level getLevel() {
     var thisLevel = this.logger.getLevel();
-    return thisLevel == null ? LogManager.getRootLogger().getLevel() : thisLevel;
+    return thisLevel == null ? LogManager.rootLogger().getLevel() : thisLevel;
   }
 
   @Override

@@ -391,7 +391,7 @@ public abstract class BukkitPlatformSelectorEntity
   }
 
   protected @NotNull IPlayerManager getPlayerManager() {
-    return CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class);
+    return CloudNetDriver.getInstance().getServicesRegistry().firstService(IPlayerManager.class);
   }
 
   protected double getHeightAddition(int lineNumber) {

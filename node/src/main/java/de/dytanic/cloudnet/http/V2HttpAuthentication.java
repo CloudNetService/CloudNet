@@ -61,7 +61,7 @@ public class V2HttpAuthentication {
   protected static final LoginResult<PermissionUser> ERROR_HANDLING_BASIC_LOGIN = LoginResult.failure(
     "No matching user for provided basic login credentials");
 
-  protected static final Logger LOGGER = LogManager.getLogger(V2HttpAuthentication.class);
+  protected static final Logger LOGGER = LogManager.logger(V2HttpAuthentication.class);
 
   protected final WebSocketTicketManager webSocketTicketManager;
   protected final Map<String, HttpSession> sessions = new ConcurrentHashMap<>();

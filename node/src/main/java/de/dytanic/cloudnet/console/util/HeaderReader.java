@@ -29,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
 
 public final class HeaderReader {
 
-  private static final Logger LOGGER = LogManager.getLogger(HeaderReader.class);
+  private static final Logger LOGGER = LogManager.logger(HeaderReader.class);
 
   private HeaderReader() {
     throw new UnsupportedOperationException();

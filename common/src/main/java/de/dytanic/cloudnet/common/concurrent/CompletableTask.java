@@ -114,7 +114,7 @@ public class CompletableTask<V> extends CompletableFuture<V> implements ITask<V>
   }
 
   @Override
-  public @UnmodifiableView @NotNull Collection<ITaskListener<V>> getListeners() {
+  public @UnmodifiableView @NotNull Collection<ITaskListener<V>> listeners() {
     return this.listeners == null ? Collections.emptyList() : Collections.unmodifiableCollection(this.listeners);
   }
 

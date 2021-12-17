@@ -87,7 +87,7 @@ public class CompletedTask<V> implements ITask<V> {
   }
 
   @Override
-  public @UnmodifiableView @NotNull Collection<ITaskListener<V>> getListeners() {
+  public @UnmodifiableView @NotNull Collection<ITaskListener<V>> listeners() {
     return Collections.emptyList(); // no-op
   }
 

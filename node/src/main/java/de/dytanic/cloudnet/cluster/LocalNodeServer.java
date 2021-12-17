@@ -115,7 +115,7 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
       this.cloudNet.getModuleProvider().getModules().stream()
         .map(IModuleWrapper::getModuleConfiguration)
         .collect(Collectors.toSet()),
-      this.currentSnapshot == null ? JsonDocument.newDocument() : this.currentSnapshot.getProperties());
+      this.currentSnapshot == null ? JsonDocument.newDocument() : this.currentSnapshot.properties());
     // configure the snapshot
     snapshot = this.cloudNet.getEventManager().callEvent(new LocalNodeSnapshotConfigureEvent(snapshot)).getSnapshot();
     // set the snapshot

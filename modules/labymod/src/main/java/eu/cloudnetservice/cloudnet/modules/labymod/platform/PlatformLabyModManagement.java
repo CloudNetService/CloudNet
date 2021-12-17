@@ -48,8 +48,8 @@ public class PlatformLabyModManagement implements LabyModManagement {
     this.rpcSender = Wrapper.getInstance().getRPCProviderFactory().providerForClass(
       Wrapper.getInstance().getNetworkClient(),
       LabyModManagement.class);
-    this.playerManager = Wrapper.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class);
-    this.bridgeManagement = Wrapper.getInstance().getServicesRegistry().getFirstService(PlatformBridgeManagement.class);
+    this.playerManager = Wrapper.getInstance().getServicesRegistry().firstService(IPlayerManager.class);
+    this.bridgeManagement = Wrapper.getInstance().getServicesRegistry().firstService(PlatformBridgeManagement.class);
     this.setConfigurationSilently(this.rpcSender.invokeMethod("getConfiguration").fireSync());
   }
 

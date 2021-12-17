@@ -63,7 +63,7 @@ public final class FileUtils {
 
   public static final Path TEMP_DIR = Paths.get(System.getProperty("cloudnet.tempDir", "temp"));
 
-  private static final Logger LOGGER = LogManager.getLogger(FileUtils.class);
+  private static final Logger LOGGER = LogManager.logger(FileUtils.class);
   private static final DirectoryStream.Filter<Path> ACCEPTING_FILTER = $ -> true;
 
   private static final Map<String, String> ZIP_FILE_SYSTEM_PROPERTIES = ImmutableMap

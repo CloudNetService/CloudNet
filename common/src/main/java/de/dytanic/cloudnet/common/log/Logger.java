@@ -29,9 +29,9 @@ public abstract class Logger extends java.util.logging.Logger {
 
   public abstract void forceLog(@NotNull LogRecord logRecord);
 
-  public abstract @Nullable LogRecordDispatcher getLogRecordDispatcher();
+  public abstract @Nullable LogRecordDispatcher logRecordDispatcher();
 
-  public abstract void setLogRecordDispatcher(@Nullable LogRecordDispatcher dispatcher);
+  public abstract void logRecordDispatcher(@Nullable LogRecordDispatcher dispatcher);
 
   public void fine(@NotNull String message, @Nullable Throwable throwable, Object @NotNull ... params) {
     this.log(Level.FINE, this.doFormat(message, params), throwable);

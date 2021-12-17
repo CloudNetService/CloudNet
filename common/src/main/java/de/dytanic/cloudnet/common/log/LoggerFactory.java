@@ -22,5 +22,5 @@ public interface LoggerFactory {
 
   String ROOT_LOGGER_NAME = "";
 
-  @NotNull Logger getLogger(@NotNull String name);
+  @NotNull Logger logger(@NotNull String name);
 }

@@ -32,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
 
 public abstract class SQLDatabaseProvider extends AbstractDatabaseProvider {
 
-  protected static final Logger LOGGER = LogManager.getLogger(SQLDatabaseProvider.class);
+  protected static final Logger LOGGER = LogManager.logger(SQLDatabaseProvider.class);
 
   protected final ExecutorService executorService;
   protected final boolean autoShutdownExecutorService;

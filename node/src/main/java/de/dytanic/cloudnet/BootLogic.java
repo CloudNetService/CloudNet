@@ -40,14 +40,14 @@ public final class BootLogic {
   public static synchronized void main(String[] args) throws Throwable {
     // language management init
     I18n.loadFromLanguageRegistryFile(BootLogic.class.getClassLoader());
-    I18n.selectLanguage(System.getProperty("cloudnet.messages.language", "english"));
+    I18n.language(System.getProperty("cloudnet.messages.language", "english"));
 
     // init logger and console
     IConsole console = new JLine3Console();
-    initLoggerAndConsole(console, LogManager.getRootLogger());
+    initLoggerAndConsole(console, LogManager.rootLogger());
 
     // boot CloudNet
-    var nodeInstance = new CloudNet(args, console, LogManager.getRootLogger());
+    var nodeInstance = new CloudNet(args, console, LogManager.rootLogger());
     nodeInstance.start();
   }
 
@@ -57,8 +57,8 @@ public final class BootLogic {
 
     LoggingUtils.removeHandlers(logger);
 
-    logger.setLevel(LoggingUtils.getDefaultLogLevel());
-    logger.setLogRecordDispatcher(ThreadedLogRecordDispatcher.forLogger(logger));
+    logger.setLevel(LoggingUtils.defaultLogLevel());
+    logger.logRecordDispatcher(ThreadedLogRecordDispatcher.forLogger(logger));
 
     logger.addHandler(AcceptingLogHandler.newInstance(console::writeLine).withFormatter(consoleFormatter));
     logger.addHandler(

@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface DefaultNetworkComponent extends INetworkComponent {
 
-  Logger LOGGER = LogManager.getLogger(DefaultNetworkComponent.class);
+  Logger LOGGER = LogManager.logger(DefaultNetworkComponent.class);
 
   Collection<INetworkChannel> getModifiableChannels();
 

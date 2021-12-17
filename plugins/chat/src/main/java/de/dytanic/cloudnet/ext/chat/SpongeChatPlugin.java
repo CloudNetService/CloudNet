@@ -40,7 +40,7 @@ import org.spongepowered.plugin.builtin.jvm.Plugin;
 @Plugin("cloudnet_chat")
 public class SpongeChatPlugin {
 
-  private static final Logger LOGGER = LogManager.getLogger(SpongeChatPlugin.class);
+  private static final Logger LOGGER = LogManager.logger(SpongeChatPlugin.class);
 
   private final Path configFilePath;
   private volatile String chatFormat;

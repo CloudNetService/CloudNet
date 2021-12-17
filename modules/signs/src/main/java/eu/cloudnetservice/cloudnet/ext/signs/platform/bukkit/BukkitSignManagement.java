@@ -45,7 +45,7 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
 
   public static BukkitSignManagement getDefaultInstance() {
     return (BukkitSignManagement) CloudNetDriver.getInstance().getServicesRegistry()
-      .getFirstService(SignManagement.class);
+      .firstService(SignManagement.class);
   }
 
   @Override

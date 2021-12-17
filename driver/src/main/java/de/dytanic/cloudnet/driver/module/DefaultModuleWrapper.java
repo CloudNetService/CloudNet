@@ -43,7 +43,7 @@ import org.jetbrains.annotations.Unmodifiable;
  */
 public class DefaultModuleWrapper implements IModuleWrapper {
 
-  protected static final Logger LOGGER = LogManager.getLogger(DefaultModuleWrapper.class);
+  protected static final Logger LOGGER = LogManager.logger(DefaultModuleWrapper.class);
   // This looks strange in the first place but is the only way to go as java generics are a bit strange.
   // When using Comparator.comparingInt(...).reverse() the type is now a Comparator<Object> which leads to problems
   // extracting the key of the task entry... And yes, reversing is necessary as the module task with the highest order

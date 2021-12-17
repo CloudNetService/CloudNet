@@ -42,7 +42,7 @@ public class CloudFlareAPI implements AutoCloseable {
   protected static final String ZONE_RECORDS_ENDPOINT = CLOUDFLARE_ENDPOINT + "zones/%s/dns_records";
   protected static final String ZONE_RECORDS_MANAGEMENT_ENDPOINT = ZONE_RECORDS_ENDPOINT + "/%s";
 
-  protected static final Logger LOGGER = LogManager.getLogger(CloudFlareAPI.class);
+  protected static final Logger LOGGER = LogManager.logger(CloudFlareAPI.class);
 
   protected final Multimap<UUID, DnsRecordDetail> createdRecords = Multimaps
     .newSetMultimap(new ConcurrentHashMap<>(), CopyOnWriteArraySet::new);

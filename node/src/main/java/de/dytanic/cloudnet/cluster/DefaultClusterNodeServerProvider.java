@@ -48,7 +48,7 @@ import org.jetbrains.annotations.UnmodifiableView;
 public final class DefaultClusterNodeServerProvider extends DefaultNodeServerProvider<IClusterNodeServer>
   implements IClusterNodeServerProvider {
 
-  private static final Logger LOGGER = LogManager.getLogger(DefaultClusterNodeServerProvider.class);
+  private static final Logger LOGGER = LogManager.logger(DefaultClusterNodeServerProvider.class);
 
   private static final Format TIME_FORMAT = new DecimalFormat("##.###");
   private static final long MAX_NO_UPDATE_MILLIS = Long.getLong("cloudnet.max.node.idle.millis", 30_000);

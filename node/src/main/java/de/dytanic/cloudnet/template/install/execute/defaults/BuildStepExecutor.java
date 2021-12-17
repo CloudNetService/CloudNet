@@ -43,7 +43,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class BuildStepExecutor implements InstallStepExecutor {
 
-  private static final Logger LOGGER = LogManager.getLogger(BuildStepExecutor.class);
+  private static final Logger LOGGER = LogManager.logger(BuildStepExecutor.class);
   private static final ExecutorService OUTPUT_READER_EXECUTOR = Executors.newCachedThreadPool();
   private static final Type STRING_LIST_TYPE = TypeToken.getParameterized(List.class, String.class).getType();
 

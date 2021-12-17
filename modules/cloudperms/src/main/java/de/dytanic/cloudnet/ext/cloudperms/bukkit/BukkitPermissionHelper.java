@@ -32,7 +32,7 @@ public final class BukkitPermissionHelper {
 
   private static final Pattern PACKAGE_VERSION_PATTERN = Pattern
     .compile("^org\\.bukkit\\.craftbukkit\\.(\\w+)\\.CraftServer$");
-  private static final Logger LOGGER = LogManager.getLogger(BukkitPermissionHelper.class);
+  private static final Logger LOGGER = LogManager.logger(BukkitPermissionHelper.class);
 
   private static final String SERVER_PACKAGE_VERSION;
   private static final MethodHandle PERMISSIBLE_SETTER;

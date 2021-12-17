@@ -28,9 +28,9 @@ public class NodeAllocationEmitter implements ReportDataEmitter<NetworkClusterNo
     var memoryMXBean = ManagementFactory.getMemoryMXBean();
 
     builder.append("CPU usage: (P/S) ")
-      .append(CPUUsageResolver.FORMAT.format(CPUUsageResolver.getProcessCPUUsage()))
+      .append(CPUUsageResolver.FORMAT.format(CPUUsageResolver.processCPUUsage()))
       .append("/")
-      .append(CPUUsageResolver.FORMAT.format(CPUUsageResolver.getSystemCPUUsage()))
+      .append(CPUUsageResolver.FORMAT.format(CPUUsageResolver.systemCPUUsage()))
       .append("/100%")
       .append("\n")
       .append("Node services memory allocation (U/R/M): ")

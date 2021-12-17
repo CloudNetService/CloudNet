@@ -44,7 +44,7 @@ public class ServiceRemoteInclusion extends JsonDocPropertyHolder implements Clo
     return builder()
       .url(inclusion.getUrl())
       .destination(inclusion.getDestination())
-      .properties(inclusion.getProperties().clone());
+      .properties(inclusion.properties().clone());
   }
 
   public @NotNull String getUrl() {

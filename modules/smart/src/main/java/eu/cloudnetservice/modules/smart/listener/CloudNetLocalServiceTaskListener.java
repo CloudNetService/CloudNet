@@ -25,8 +25,8 @@ public final class CloudNetLocalServiceTaskListener {
 
   @EventListener
   public void handle(@NotNull LocalServiceTaskAddEvent event) {
-    if (!event.getTask().getProperties().contains("smartConfig")) {
-      event.getTask().getProperties().append("smartConfig", SmartServiceTaskConfig.builder().build());
+    if (!event.getTask().properties().contains("smartConfig")) {
+      event.getTask().properties().append("smartConfig", SmartServiceTaskConfig.builder().build());
     }
   }
 }

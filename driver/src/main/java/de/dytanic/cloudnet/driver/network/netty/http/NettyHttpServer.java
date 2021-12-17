@@ -44,7 +44,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class NettyHttpServer extends NettySSLServer implements IHttpServer {
 
-  private static final Logger LOGGER = LogManager.getLogger(NettyHttpServer.class);
+  private static final Logger LOGGER = LogManager.logger(NettyHttpServer.class);
 
   protected final List<HttpHandlerEntry> registeredHandlers = new CopyOnWriteArrayList<>();
   protected final Map<Integer, Pair<HostAndPort, ChannelFuture>> channelFutures = new ConcurrentHashMap<>();

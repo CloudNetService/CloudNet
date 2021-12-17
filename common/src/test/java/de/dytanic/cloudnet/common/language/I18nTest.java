@@ -28,7 +28,7 @@ public class I18nTest {
     var properties = new Properties();
     properties.put("test_message", "Test_Message");
 
-    I18n.selectLanguage("en");
+    I18n.language("en");
     I18n.addLanguageFile("en", properties);
 
     Assertions.assertNotNull(I18n.trans("test_message"));

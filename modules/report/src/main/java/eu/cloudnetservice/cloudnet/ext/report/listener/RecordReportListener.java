@@ -28,7 +28,7 @@ import eu.cloudnetservice.cloudnet.ext.report.util.RecordMaker;
 
 public final class RecordReportListener {
 
-  private static final Logger LOGGER = LogManager.getLogger(RecordReportListener.class);
+  private static final Logger LOGGER = LogManager.logger(RecordReportListener.class);
   private final CloudNetReportModule reportModule;
 
   public RecordReportListener(CloudNetReportModule reportModule) {

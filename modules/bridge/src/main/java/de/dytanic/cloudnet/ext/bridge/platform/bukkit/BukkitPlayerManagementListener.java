@@ -54,7 +54,7 @@ final class BukkitPlayerManagementListener implements Listener {
         return;
       }
       // check if a custom permission is required to join
-      var permission = task.getProperties().getString("requiredPermission");
+      var permission = task.properties().getString("requiredPermission");
       if (permission != null && !event.getPlayer().hasPermission(permission)) {
         event.setResult(Result.KICK_WHITELIST);
         event.setKickMessage(this.management.getConfiguration().getMessage(

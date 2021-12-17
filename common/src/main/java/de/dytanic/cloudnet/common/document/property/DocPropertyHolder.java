@@ -23,13 +23,13 @@ import org.jetbrains.annotations.UnknownNullability;
 
 public interface DocPropertyHolder {
 
-  @NotNull <E> DocPropertyHolder setProperty(@NotNull DocProperty<E> docProperty, @Nullable E val);
+  @NotNull <E> DocPropertyHolder property(@NotNull DocProperty<E> docProperty, @Nullable E val);
 
-  @UnknownNullability <E> E getProperty(@NotNull DocProperty<E> docProperty);
+  @UnknownNullability <E> E property(@NotNull DocProperty<E> docProperty);
 
   @NotNull <E> DocPropertyHolder removeProperty(@NotNull DocProperty<E> docProperty);
 
   <E> boolean hasProperty(@NotNull DocProperty<E> docProperty);
 
-  @NotNull IDocument<?> getProperties();
+  @NotNull IDocument<?> properties();
 }

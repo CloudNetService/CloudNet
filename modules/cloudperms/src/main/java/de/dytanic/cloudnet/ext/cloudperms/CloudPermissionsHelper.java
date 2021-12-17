@@ -30,7 +30,7 @@ import org.jetbrains.annotations.NotNull;
 
 public final class CloudPermissionsHelper {
 
-  private static final Logger LOGGER = LogManager.getLogger(CloudPermissionsHelper.class);
+  private static final Logger LOGGER = LogManager.logger(CloudPermissionsHelper.class);
 
   private CloudPermissionsHelper() {
     throw new UnsupportedOperationException();

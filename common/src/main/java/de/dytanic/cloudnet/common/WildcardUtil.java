@@ -33,7 +33,7 @@ import org.jetbrains.annotations.VisibleForTesting;
  */
 public final class WildcardUtil {
 
-  private static final Logger LOGGER = LogManager.getLogger(WildcardUtil.class);
+  private static final Logger LOGGER = LogManager.logger(WildcardUtil.class);
 
   private WildcardUtil() {
     throw new UnsupportedOperationException();

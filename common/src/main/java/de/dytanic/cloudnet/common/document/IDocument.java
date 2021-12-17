@@ -150,13 +150,13 @@ public interface IDocument<R extends IDocument<R>>
 
   @Override
   @SuppressWarnings("unchecked")
-  default @NotNull <E> R setProperty(@NotNull DocProperty<E> docProperty, @Nullable E val) {
+  default @NotNull <E> R property(@NotNull DocProperty<E> docProperty, @Nullable E val) {
     docProperty.append(this, val);
     return (R) this;
   }
 
   @Override
-  default <E> @UnknownNullability E getProperty(@NotNull DocProperty<E> docProperty) {
+  default <E> @UnknownNullability E property(@NotNull DocProperty<E> docProperty) {
     return docProperty.get(this);
   }
 

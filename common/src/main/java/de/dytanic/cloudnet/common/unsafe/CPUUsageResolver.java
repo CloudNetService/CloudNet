@@ -46,7 +46,7 @@ public final class CPUUsageResolver {
    * @return the current system cpu usage as double value
    * @see com.sun.management.OperatingSystemMXBean
    */
-  public static double getSystemCPUUsage() {
+  public static double systemCPUUsage() {
     return toPercentage(OS_BEAN.getCpuLoad());
   }
 
@@ -56,7 +56,7 @@ public final class CPUUsageResolver {
    * @return the cpu usage of this JVM process as double value in range from 0 to 100 % in percent
    * @see com.sun.management.OperatingSystemMXBean
    */
-  public static double getProcessCPUUsage() {
+  public static double processCPUUsage() {
     return toPercentage(OS_BEAN.getProcessCpuLoad());
   }
 
@@ -66,7 +66,7 @@ public final class CPUUsageResolver {
    * @return the system configured memory in bytes
    * @see com.sun.management.OperatingSystemMXBean
    */
-  public static long getSystemMemory() {
+  public static long systemMemory() {
     return OS_BEAN.getTotalMemorySize();
   }
 

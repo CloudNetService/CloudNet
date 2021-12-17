@@ -63,7 +63,7 @@ import org.jetbrains.annotations.Nullable;
 @Description("Manages all services in the cluster")
 public final class CommandService {
 
-  private static final Logger LOGGER = LogManager.getLogger(CommandService.class);
+  private static final Logger LOGGER = LogManager.logger(CommandService.class);
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
   // there are different ways to display the services
@@ -386,7 +386,7 @@ public final class CommandService {
 
     if (showCustomProperties) {
       list.add("Properties:");
-      list.addAll(Arrays.asList(service.getProperties().toPrettyJson().split("\n")));
+      list.addAll(Arrays.asList(service.properties().toPrettyJson().split("\n")));
       list.add(" ");
     }
 

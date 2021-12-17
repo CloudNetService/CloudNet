@@ -53,7 +53,7 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
 
   public static SpongeSignManagement getDefaultInstance() {
     return (SpongeSignManagement) CloudNetDriver.getInstance().getServicesRegistry()
-      .getFirstService(SignManagement.class);
+      .firstService(SignManagement.class);
   }
 
   @Override

@@ -37,7 +37,7 @@ import java.util.UUID;
 
 public final class CloudNetCloudflareModule extends DriverModule {
 
-  private static final Logger LOGGER = LogManager.getLogger(CloudNetCloudflareModule.class);
+  private static final Logger LOGGER = LogManager.logger(CloudNetCloudflareModule.class);
   private static CloudNetCloudflareModule instance;
   private CloudFlareAPI cloudFlareAPI;
   private CloudflareConfiguration cloudflareConfiguration;

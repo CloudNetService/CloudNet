@@ -39,7 +39,7 @@ public final class DefaultModuleHelper {
   @ScheduledForRemoval
   public static final String DEFAULT_CONFIGURATION_DATABASE_NAME = "cloudNet_module_configuration";
 
-  private static final Logger LOGGER = LogManager.getLogger(DefaultModuleHelper.class);
+  private static final Logger LOGGER = LogManager.logger(DefaultModuleHelper.class);
 
   private DefaultModuleHelper() {
     throw new UnsupportedOperationException();

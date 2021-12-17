@@ -35,7 +35,7 @@ public final class CloudNetTick {
   public static final int TPS = 10;
   public static final int MILLIS_BETWEEN_TICKS = 1000 / TPS;
 
-  private static final Logger LOGGER = LogManager.getLogger(CloudNetTick.class);
+  private static final Logger LOGGER = LogManager.logger(CloudNetTick.class);
 
   private final CloudNet cloudNet;
   private final AtomicInteger tickPauseRequests = new AtomicInteger();

@@ -38,7 +38,7 @@ import org.jetbrains.annotations.NotNull;
 
 public final class NodeSignsConfigurationHelper {
 
-  private static final Logger LOGGER = LogManager.getLogger(NodeSignsConfigurationHelper.class);
+  private static final Logger LOGGER = LogManager.logger(NodeSignsConfigurationHelper.class);
 
   private NodeSignsConfigurationHelper() {
     throw new UnsupportedOperationException();

@@ -27,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
 
 public final class ReportConfigurationHelper {
 
-  private static final Logger LOGGER = LogManager.getLogger(ReportConfigurationHelper.class);
+  private static final Logger LOGGER = LogManager.logger(ReportConfigurationHelper.class);
 
   /**
    * Reads a {@link ReportConfiguration} from the file at the given location. If an old version of the config is

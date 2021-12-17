@@ -128,11 +128,11 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
   }
 
   public void appendServiceInformation(@NotNull ServiceInfoSnapshot snapshot) {
-    snapshot.getProperties().append("Online", Boolean.TRUE);
-    snapshot.getProperties().append("Motd", BridgeServiceHelper.MOTD.get());
-    snapshot.getProperties().append("Extra", BridgeServiceHelper.EXTRA.get());
-    snapshot.getProperties().append("State", BridgeServiceHelper.STATE.get());
-    snapshot.getProperties().append("Max-Players", BridgeServiceHelper.MAX_PLAYERS.get());
+    snapshot.properties().append("Online", Boolean.TRUE);
+    snapshot.properties().append("Motd", BridgeServiceHelper.MOTD.get());
+    snapshot.properties().append("Extra", BridgeServiceHelper.EXTRA.get());
+    snapshot.properties().append("State", BridgeServiceHelper.STATE.get());
+    snapshot.properties().append("Max-Players", BridgeServiceHelper.MAX_PLAYERS.get());
   }
 
   public @NotNull Collection<ServiceInfoSnapshot> getCachedServices() {

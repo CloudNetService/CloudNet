@@ -32,7 +32,7 @@ public class PlatformLabyModListener {
 
   public PlatformLabyModListener(@NotNull PlatformLabyModManagement labyModManagement) {
     this.labyModManagement = labyModManagement;
-    this.bridgeManagement = Wrapper.getInstance().getServicesRegistry().getFirstService(PlatformBridgeManagement.class);
+    this.bridgeManagement = Wrapper.getInstance().getServicesRegistry().firstService(PlatformBridgeManagement.class);
   }
 
   @EventListener

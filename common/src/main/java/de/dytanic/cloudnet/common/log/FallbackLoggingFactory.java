@@ -26,7 +26,7 @@ final class FallbackLoggingFactory implements LoggerFactory {
   private final Map<String, Logger> createdLoggers = new ConcurrentHashMap<>();
 
   @Override
-  public @NotNull Logger getLogger(@NotNull String name) {
+  public @NotNull Logger logger(@NotNull String name) {
     var registered = LogManager.getLogManager().getLogger(name);
     // check if this logger is already a wrapped logger
     if (registered instanceof Logger) {

@@ -32,7 +32,7 @@ import java.util.function.BiConsumer;
 
 public final class CloudflareStartAndStopListener {
 
-  private static final Logger LOGGER = LogManager.getLogger(CloudflareStartAndStopListener.class);
+  private static final Logger LOGGER = LogManager.logger(CloudflareStartAndStopListener.class);
 
   private final CloudFlareAPI cloudFlareAPI;
 

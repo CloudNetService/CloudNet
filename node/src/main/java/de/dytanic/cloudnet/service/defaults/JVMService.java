@@ -55,7 +55,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class JVMService extends AbstractService {
 
-  protected static final Logger LOGGER = LogManager.getLogger(JVMService.class);
+  protected static final Logger LOGGER = LogManager.logger(JVMService.class);
   protected static final Pattern FILE_NUMBER_PATTERN = Pattern.compile("(\\d+).*");
   protected static final Path WRAPPER_TEMP_FILE = FileUtils.TEMP_DIR.resolve("caches").resolve("wrapper.jar");
   protected static final Collection<String> DEFAULT_JVM_SYSTEM_PROPERTIES = Arrays.asList(
@@ -117,7 +117,7 @@ public class JVMService extends AbstractService {
     // override some default configuration options
     arguments.addAll(DEFAULT_JVM_SYSTEM_PROPERTIES);
     arguments.add("-javaagent:" + wrapperInformation.first().toAbsolutePath());
-    arguments.add("-Dcloudnet.wrapper.messages.language=" + I18n.getLanguage());
+    arguments.add("-Dcloudnet.wrapper.messages.language=" + I18n.language());
 
     // add the class path and the main class of the wrapper
     arguments.add("-cp");

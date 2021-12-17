@@ -23,7 +23,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class ConsoleCommandSource implements CommandSource {
 
-  private static final Logger LOGGER = LogManager.getLogger(ConsoleCommandSource.class);
+  private static final Logger LOGGER = LogManager.logger(ConsoleCommandSource.class);
   public static final ConsoleCommandSource INSTANCE = new ConsoleCommandSource();
 
   /**

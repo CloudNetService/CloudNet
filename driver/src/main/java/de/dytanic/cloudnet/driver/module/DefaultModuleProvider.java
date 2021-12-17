@@ -49,7 +49,7 @@ import org.jetbrains.annotations.Nullable;
 public class DefaultModuleProvider implements IModuleProvider {
 
   protected static final Path DEFAULT_MODULE_DIR = Paths.get("modules");
-  protected static final Logger LOGGER = LogManager.getLogger(DefaultModuleProvider.class);
+  protected static final Logger LOGGER = LogManager.logger(DefaultModuleProvider.class);
   protected static final IModuleDependencyLoader DEFAULT_DEPENDENCY_LOADER = new DefaultMemoryModuleDependencyLoader();
 
   protected final Collection<IModuleWrapper> modules = new CopyOnWriteArrayList<>();
@@ -161,7 +161,7 @@ public class DefaultModuleProvider implements IModuleProvider {
       // validate that the module configuration contains all necessary information
       moduleConfiguration.assertRequiredPropertiesSet();
       // check if the module can run on the current java version release.
-      if (!moduleConfiguration.canRunOn(JavaVersion.getRuntimeVersion())) {
+      if (!moduleConfiguration.canRunOn(JavaVersion.runtimeVersion())) {
         LOGGER.warning(String.format("Unable to load module %s:%s because it only supports Java %d+",
           moduleConfiguration.getGroup(), moduleConfiguration.getName(), moduleConfiguration.getMinJavaVersionId()));
         return null;

@@ -57,7 +57,7 @@ public class ServiceVersionProvider {
   public static final String DEFAULT_FILE_URL = System.getProperty(
     "cloudnet.versions.url",
     "https://cloudnetservice.eu/cloudnet/versions.json");
-  private static final Logger LOGGER = LogManager.getLogger(ServiceVersionProvider.class);
+  private static final Logger LOGGER = LogManager.logger(ServiceVersionProvider.class);
 
   private static final Path VERSION_CACHE_PATH = Paths.get(
     System.getProperty("cloudnet.versioncache.path", "local/versioncache"));
@@ -168,7 +168,7 @@ public class ServiceVersionProvider {
       throw new IllegalArgumentException(String.format(
         "Cannot run %s on %s",
         fullVersionIdentifier,
-        JavaVersion.getRuntimeVersion().name()));
+        JavaVersion.runtimeVersion().name()));
     }
 
     if (information.serviceVersion().isDeprecated()) {

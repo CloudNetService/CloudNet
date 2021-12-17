@@ -34,7 +34,7 @@ import org.jetbrains.annotations.NotNull;
 
 public final class ConsoleProgressWrappers {
 
-  private static final Logger LOGGER = LogManager.getLogger(ConsoleProgressWrappers.class);
+  private static final Logger LOGGER = LogManager.logger(ConsoleProgressWrappers.class);
 
   private ConsoleProgressWrappers() {
     throw new UnsupportedOperationException();

@@ -70,7 +70,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   protected static final Path PERSISTENT_SERVICE_DIR = Paths.get(
     System.getProperty("cloudnet.persistable.services.path", "local/services"));
 
-  private static final Logger LOGGER = LogManager.getLogger(ICloudServiceManager.class);
+  private static final Logger LOGGER = LogManager.logger(ICloudServiceManager.class);
 
   protected final RPCSender sender;
   protected final IClusterNodeServerProvider clusterNodeServerProvider;

@@ -75,7 +75,7 @@ import org.jetbrains.annotations.Nullable;
 
 public abstract class AbstractService implements ICloudService {
 
-  protected static final Logger LOGGER = LogManager.getLogger(AbstractService.class);
+  protected static final Logger LOGGER = LogManager.logger(AbstractService.class);
 
   protected static final Path INCLUSION_TEMP_DIR = FileUtils.TEMP_DIR.resolve("inclusions");
   protected static final Path WRAPPER_CONFIG_PATH = Paths.get(".wrapper", "wrapper.json");
@@ -127,7 +127,7 @@ public abstract class AbstractService implements ICloudService {
       configuration,
       -1,
       ServiceLifeCycle.PREPARED,
-      configuration.getProperties());
+      configuration.properties());
     this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.PREPARED);
 
     manager.registerLocalService(this);
@@ -275,8 +275,8 @@ public abstract class AbstractService implements ICloudService {
       // prepare the connection from which we load the inclusion
       var getRequest = Unirest.get(inclusion.getUrl());
       // put the given http headers
-      if (inclusion.getProperties().contains("httpHeaders")) {
-        var headers = inclusion.getProperties().getDocument("httpHeaders");
+      if (inclusion.properties().contains("httpHeaders")) {
+        var headers = inclusion.properties().getDocument("httpHeaders");
         for (var key : headers.keys()) {
           getRequest.header(key, headers.get(key).toString());
         }
@@ -504,7 +504,7 @@ public abstract class AbstractService implements ICloudService {
       this.lastServiceInfo.getConfiguration(),
       this.networkChannel == null ? -1 : this.lastServiceInfo.getConnectedTime(),
       Preconditions.checkNotNull(lifeCycle, "lifecycle"),
-      this.lastServiceInfo.getProperties());
+      this.lastServiceInfo.properties());
     // remove the service in the local manager if the service was deleted
     if (lifeCycle == ServiceLifeCycle.DELETED) {
       this.cloudServiceManager.unregisterLocalService(this);
@@ -536,7 +536,7 @@ public abstract class AbstractService implements ICloudService {
       return false;
     }
     // check for cpu usage
-    if (CPUUsageResolver.getSystemCPUUsage() >= this.getNodeConfiguration().getMaxCPUUsageToStartServices()) {
+    if (CPUUsageResolver.systemCPUUsage() >= this.getNodeConfiguration().getMaxCPUUsageToStartServices()) {
       // schedule a retry
       if (this.getNodeConfiguration().isRunBlockedServiceStartTryLaterAutomatic()) {
         CloudNet.getInstance().getMainThread().runTask(this::start);

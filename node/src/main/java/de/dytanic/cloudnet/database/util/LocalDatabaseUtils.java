@@ -22,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
 
 public final class LocalDatabaseUtils {
 
-  private static final Logger LOGGER = LogManager.getLogger(LocalDatabaseUtils.class);
+  private static final Logger LOGGER = LogManager.logger(LocalDatabaseUtils.class);
 
   private LocalDatabaseUtils() {
     throw new UnsupportedOperationException();

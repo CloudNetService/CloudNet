@@ -52,7 +52,7 @@ import org.jetbrains.annotations.Nullable;
 @Description("Upload cloud specific data to a paste service")
 public final class CommandReport {
 
-  private static final Logger LOGGER = LogManager.getLogger(CommandReport.class);
+  private static final Logger LOGGER = LogManager.logger(CommandReport.class);
 
   private final CloudNetReportModule reportModule;
 

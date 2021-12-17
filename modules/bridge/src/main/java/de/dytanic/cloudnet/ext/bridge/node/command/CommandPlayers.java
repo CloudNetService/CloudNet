@@ -176,7 +176,7 @@ public class CommandPlayers {
       }
     }
     // print the offline properties of the player per line
-    for (var line : offlinePlayer.getProperties().toPrettyJson().split("\n")) {
+    for (var line : offlinePlayer.properties().toPrettyJson().split("\n")) {
       source.sendMessage(line);
     }
   }
