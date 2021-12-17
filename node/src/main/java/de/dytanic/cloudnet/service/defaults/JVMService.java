@@ -162,7 +162,7 @@ public class JVMService extends AbstractService {
       } catch (IllegalThreadStateException | InterruptedException ignored) { // force shutdown the process
       }
       // force destroy the process now - not much we can do here more than that
-      this.process.destroyForcibly();
+      this.process.toHandle().destroyForcibly();
       this.process = null;
     }
   }
@@ -188,7 +188,7 @@ public class JVMService extends AbstractService {
 
   @Override
   public boolean isAlive() {
-    return this.process != null && this.process.isAlive();
+    return this.process != null && this.process.toHandle().isAlive();
   }
 
   protected void initLogHandler() {
