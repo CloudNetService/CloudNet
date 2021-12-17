@@ -31,11 +31,11 @@ public interface BridgeManagement {
   String BRIDGE_PLAYER_CHANNEL_NAME = "bridge_internal_player_channel";
   String BRIDGE_PLAYER_EXECUTOR_CHANNEL_NAME = "bridge_internal_player_executor_channel";
 
-  @NotNull BridgeConfiguration getConfiguration();
+  @NotNull BridgeConfiguration configuration();
 
-  void setConfiguration(@NotNull BridgeConfiguration configuration);
+  void configuration(@NotNull BridgeConfiguration configuration);
 
-  @NotNull IPlayerManager getPlayerManager();
+  @NotNull IPlayerManager playerManager();
 
   void registerServices(@NotNull IServicesRegistry registry);
 

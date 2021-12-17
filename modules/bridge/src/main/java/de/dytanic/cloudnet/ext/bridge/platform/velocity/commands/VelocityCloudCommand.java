@@ -43,7 +43,7 @@ public final class VelocityCloudCommand implements SimpleCommand {
     if (invocation.arguments().length == 0) {
       // <prefix> /cloudnet <command>
       invocation.source()
-        .sendMessage(serialize(this.management.getConfiguration().getPrefix() + "/cloudnet <command>"));
+        .sendMessage(serialize(this.management.configuration().prefix() + "/cloudnet <command>"));
       return;
     }
     // get the full command line
@@ -55,7 +55,7 @@ public final class VelocityCloudCommand implements SimpleCommand {
       // check if the sender has the required permission to execute the command
       if (command != null) {
         if (!invocation.source().hasPermission(command.permission())) {
-          invocation.source().sendMessage(serialize(this.management.getConfiguration().getMessage(
+          invocation.source().sendMessage(serialize(this.management.configuration().message(
             invocation.source() instanceof Player
               ? ((Player) invocation.source()).getEffectiveLocale()
               : Locale.ENGLISH,
@@ -68,7 +68,7 @@ public final class VelocityCloudCommand implements SimpleCommand {
     // execute the command
     CloudNetDriver.instance().nodeInfoProvider().sendCommandLineAsync(commandLine).onComplete(messages -> {
       for (var line : messages) {
-        invocation.source().sendMessage(serialize(this.management.getConfiguration().getPrefix() + line));
+        invocation.source().sendMessage(serialize(this.management.configuration().prefix() + line));
       }
     });
   }

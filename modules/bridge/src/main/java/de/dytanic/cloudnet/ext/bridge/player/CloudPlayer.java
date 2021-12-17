@@ -57,45 +57,45 @@ public class CloudPlayer extends CloudOfflinePlayer {
     this.properties = properties;
   }
 
-  public NetworkServiceInfo getLoginService() {
+  public NetworkServiceInfo loginService() {
     return this.loginService;
   }
 
-  public void setLoginService(NetworkServiceInfo loginService) {
+  public void loginService(NetworkServiceInfo loginService) {
     this.loginService = loginService;
   }
 
-  public NetworkServiceInfo getConnectedService() {
+  public NetworkServiceInfo connectedService() {
     return this.connectedService;
   }
 
-  public void setConnectedService(NetworkServiceInfo connectedService) {
+  public void connectedService(NetworkServiceInfo connectedService) {
     this.connectedService = connectedService;
   }
 
-  public NetworkPlayerProxyInfo getNetworkPlayerProxyInfo() {
+  public NetworkPlayerProxyInfo networkPlayerProxyInfo() {
     return this.networkPlayerProxyInfo;
   }
 
-  public void setNetworkPlayerProxyInfo(NetworkPlayerProxyInfo networkPlayerProxyInfo) {
+  public void networkPlayerProxyInfo(NetworkPlayerProxyInfo networkPlayerProxyInfo) {
     this.networkPlayerProxyInfo = networkPlayerProxyInfo;
   }
 
-  public NetworkPlayerServerInfo getNetworkPlayerServerInfo() {
+  public NetworkPlayerServerInfo networkPlayerServerInfo() {
     return this.networkPlayerServerInfo;
   }
 
-  public void setNetworkPlayerServerInfo(NetworkPlayerServerInfo networkPlayerServerInfo) {
+  public void networkPlayerServerInfo(NetworkPlayerServerInfo networkPlayerServerInfo) {
     this.networkPlayerServerInfo = networkPlayerServerInfo;
   }
 
-  public JsonDocument getOnlineProperties() {
+  public JsonDocument onlineProperties() {
     return this.onlineProperties;
   }
 
-  public PlayerExecutor getPlayerExecutor() {
+  public PlayerExecutor playerExecutor() {
     return CloudNetDriver.instance().servicesRegistry()
       .firstService(IPlayerManager.class)
-      .getPlayerExecutor(this.getUniqueId());
+      .playerExecutor(this.uniqueId());
   }
 }

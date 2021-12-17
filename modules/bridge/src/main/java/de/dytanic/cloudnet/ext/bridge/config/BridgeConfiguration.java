@@ -91,27 +91,27 @@ public final class BridgeConfiguration extends JsonDocPropertyHolder {
     this.properties = properties;
   }
 
-  public @NotNull String getPrefix() {
+  public @NotNull String prefix() {
     return this.prefix;
   }
 
-  public @NotNull Collection<ProxyFallbackConfiguration> getFallbackConfigurations() {
+  public @NotNull Collection<ProxyFallbackConfiguration> fallbackConfigurations() {
     return this.fallbackConfigurations;
   }
 
-  public @NotNull Collection<String> getHubCommandNames() {
+  public @NotNull Collection<String> hubCommandNames() {
     return this.hubCommandNames;
   }
 
-  public @NotNull Collection<String> getExcludedGroups() {
+  public @NotNull Collection<String> excludedGroups() {
     return this.excludedGroups;
   }
 
-  public @NotNull String getMessage(@Nullable Locale locale, @NotNull String key) {
-    return this.getMessage(locale, key, true);
+  public @NotNull String message(@Nullable Locale locale, @NotNull String key) {
+    return this.message(locale, key, true);
   }
 
-  public @NotNull String getMessage(@Nullable Locale locale, @NotNull String key, boolean withPrefix) {
+  public @NotNull String message(@Nullable Locale locale, @NotNull String key, boolean withPrefix) {
     // try to get the messages of in the specified locale
     var messages = this.localizedMessages.get(locale == null ? "default" : locale.getLanguage());
     if (messages == null) {

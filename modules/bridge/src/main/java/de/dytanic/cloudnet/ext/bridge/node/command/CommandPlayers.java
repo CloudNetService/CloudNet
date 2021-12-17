@@ -66,10 +66,10 @@ public class CommandPlayers {
     try {
       // first check if we can find a player using the uuid
       var uniqueId = UUID.fromString(identifier);
-      player = this.playerManager.getOnlinePlayer(uniqueId);
+      player = this.playerManager.onlinePlayer(uniqueId);
     } catch (IllegalArgumentException exception) {
       // check if a player has the given name
-      player = this.playerManager.getFirstOnlinePlayer(identifier);
+      player = this.playerManager.firstOnlinePlayer(identifier);
     }
 
     if (player == null) {
@@ -115,21 +115,21 @@ public class CommandPlayers {
       var uniqueId = UUID.fromString(identifier);
 
       // try to get an online player
-      player = this.playerManager.getOnlinePlayer(uniqueId);
+      player = this.playerManager.onlinePlayer(uniqueId);
       // check if we found an online player
       if (player == null) {
         // use an offline player as we could not find an online one
-        player = this.playerManager.getOfflinePlayer(uniqueId);
+        player = this.playerManager.offlinePlayer(uniqueId);
       }
 
     } catch (IllegalArgumentException exception) {
       // check if we can find a player using his name
       // try to get an online player
-      player = this.playerManager.getFirstOnlinePlayer(identifier);
+      player = this.playerManager.firstOnlinePlayer(identifier);
       // check if we found an online player
       if (player == null) {
         // use an offline player as we could not find an online one
-        player = this.playerManager.getFirstOfflinePlayer(identifier);
+        player = this.playerManager.firstOfflinePlayer(identifier);
       }
     }
 
@@ -144,16 +144,16 @@ public class CommandPlayers {
     for (var player : this.playerManager.getOnlinePlayers().values()) {
       source.sendMessage(
         "Name: " + player.name() +
-          " | UUID: " + player.getUniqueId() +
-          " | Proxy: " + player.getLoginService().serverName() +
-          " | Service: " + player.getConnectedService().serverName());
+          " | UUID: " + player.uniqueId() +
+          " | Proxy: " + player.loginService().serverName() +
+          " | Service: " + player.connectedService().serverName());
     }
-    source.sendMessage("=> Online players " + this.playerManager.getOnlineCount());
+    source.sendMessage("=> Online players " + this.playerManager.onlineCount());
   }
 
   @CommandMethod("players registered")
   public void displayRegisteredCount(@NotNull CommandSource source) {
-    source.sendMessage("=> Registered players " + this.playerManager.getRegisteredCount());
+    source.sendMessage("=> Registered players " + this.playerManager.registeredCount());
   }
 
   @CommandMethod("players player <player>")
@@ -161,16 +161,16 @@ public class CommandPlayers {
     @NotNull CommandSource source,
     @NotNull @Argument(value = "player", parserName = "offlinePlayer") CloudOfflinePlayer offlinePlayer
   ) {
-    source.sendMessage("CloudPlayer: " + offlinePlayer.name() + " | " + offlinePlayer.getUniqueId());
-    source.sendMessage("First login: " + DATE_FORMAT.format(offlinePlayer.getFirstLoginTimeMillis()));
-    source.sendMessage("Last login: " + DATE_FORMAT.format(offlinePlayer.getLastLoginTimeMillis()));
+    source.sendMessage("CloudPlayer: " + offlinePlayer.name() + " | " + offlinePlayer.uniqueId());
+    source.sendMessage("First login: " + DATE_FORMAT.format(offlinePlayer.firstLoginTimeMillis()));
+    source.sendMessage("Last login: " + DATE_FORMAT.format(offlinePlayer.lastLoginTimeMillis()));
     // check if we have more information about the player
     if (offlinePlayer instanceof CloudPlayer onlinePlayer) {
-      source.sendMessage("Proxy: " + onlinePlayer.getLoginService().serverName());
-      source.sendMessage("Service: " + onlinePlayer.getConnectedService().serverName());
+      source.sendMessage("Proxy: " + onlinePlayer.loginService().serverName());
+      source.sendMessage("Service: " + onlinePlayer.connectedService().serverName());
       source.sendMessage("Online Properties: ");
       // print the online properties of the player per line
-      for (var line : onlinePlayer.getOnlineProperties().toPrettyJson().split("\n")) {
+      for (var line : onlinePlayer.onlineProperties().toPrettyJson().split("\n")) {
         source.sendMessage(line);
       }
     }
@@ -188,7 +188,7 @@ public class CommandPlayers {
     this.playerManager.deleteCloudOfflinePlayer(player);
     source.sendMessage(I18n.trans("module-bridge-command-players-delete-player")
       .replace("%name%", player.name())
-      .replace("%uniqueId%", player.getUniqueId().toString()));
+      .replace("%uniqueId%", player.uniqueId().toString()));
   }
 
   @CommandMethod("players player <player> kick [reason]")
@@ -199,11 +199,11 @@ public class CommandPlayers {
     @Flag("force") boolean force
   ) {
     var reasonComponent = reason == null ? Component.empty() : AdventureSerializerUtil.serialize(reason);
-    player.getPlayerExecutor().kick(reasonComponent);
+    player.playerExecutor().kick(reasonComponent);
 
     source.sendMessage(I18n.trans("module-bridge-command-players-kick-player")
       .replace("%name%", player.name())
-      .replace("%uniqueId%", player.getUniqueId().toString())
+      .replace("%uniqueId%", player.uniqueId().toString())
       .replace("%reason%", reason == null ? "No reason given" : reason));
 
     if (force) {
@@ -219,10 +219,10 @@ public class CommandPlayers {
     @NotNull @Argument("player") CloudPlayer player,
     @NotNull @Greedy @Argument("message") String message
   ) {
-    player.getPlayerExecutor().sendMessage(AdventureSerializerUtil.serialize(message));
+    player.playerExecutor().sendMessage(AdventureSerializerUtil.serialize(message));
     source.sendMessage(I18n.trans("module-bridge-command-players-send-player-message")
       .replace("%name%", player.name())
-      .replace("%uniqueId%", player.getUniqueId().toString()));
+      .replace("%uniqueId%", player.uniqueId().toString()));
   }
 
   @CommandMethod("players player <player> connect <server>")
@@ -232,15 +232,15 @@ public class CommandPlayers {
     @NotNull @Argument("server") ServiceInfoSnapshot server
   ) {
     if (BridgeServiceProperties.IS_ONLINE.read(server).orElse(false)) {
-      player.getPlayerExecutor().connect(server.name());
+      player.playerExecutor().connect(server.name());
 
       source.sendMessage(I18n.trans("module-bridge-command-players-send-player-server")
         .replace("%name%", player.name())
-        .replace("%uniqueId%", player.getUniqueId().toString()));
+        .replace("%uniqueId%", player.uniqueId().toString()));
     } else {
       source.sendMessage(I18n.trans("module-bridge-command-players-send-player-server-not-found")
         .replace("%name%", player.name())
-        .replace("%uniqueId%", player.getUniqueId().toString()));
+        .replace("%uniqueId%", player.uniqueId().toString()));
     }
   }
 }

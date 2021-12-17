@@ -43,7 +43,7 @@ public final class WaterDogPECloudCommand extends Command {
     // check if any arguments are provided
     if (args.length == 0) {
       // <prefix> /cloudnet <command>
-      sender.sendMessage(new TextContainer(this.management.getConfiguration().getPrefix() + "/cloudnet <command>"));
+      sender.sendMessage(new TextContainer(this.management.configuration().prefix() + "/cloudnet <command>"));
       return true;
     }
     // get the full command line
@@ -55,7 +55,7 @@ public final class WaterDogPECloudCommand extends Command {
       // check if the sender has the required permission to execute the command
       if (command != null) {
         if (!sender.hasPermission(command.permission())) {
-          sender.sendMessage(new TextContainer(this.management.getConfiguration().getMessage(
+          sender.sendMessage(new TextContainer(this.management.configuration().message(
             Locale.ENGLISH,
             "command-cloud-sub-command-no-permission"
           ).replace("%command%", command.name())));
@@ -66,7 +66,7 @@ public final class WaterDogPECloudCommand extends Command {
     // execute the command
     CloudNetDriver.instance().nodeInfoProvider().sendCommandLineAsync(commandLine).onComplete(messages -> {
       for (var line : messages) {
-        sender.sendMessage(new TextContainer(this.management.getConfiguration().getPrefix() + line));
+        sender.sendMessage(new TextContainer(this.management.configuration().prefix() + line));
       }
     });
     return true;

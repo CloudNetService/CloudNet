@@ -48,13 +48,13 @@ public class CloudOfflinePlayer extends JsonDocPropertyHolder implements Cloneab
 
   public static @NotNull CloudOfflinePlayer offlineCopy(@NotNull CloudPlayer onlineVariant) {
     return new CloudOfflinePlayer(
-      onlineVariant.getFirstLoginTimeMillis(),
-      onlineVariant.getLastLoginTimeMillis(),
+      onlineVariant.firstLoginTimeMillis(),
+      onlineVariant.lastLoginTimeMillis(),
       onlineVariant.name(),
-      onlineVariant.getNetworkPlayerProxyInfo().clone());
+      onlineVariant.networkPlayerProxyInfo().clone());
   }
 
-  public @NotNull UUID getUniqueId() {
+  public @NotNull UUID uniqueId() {
     return this.lastNetworkPlayerProxyInfo.uniqueId();
   }
 
@@ -63,27 +63,27 @@ public class CloudOfflinePlayer extends JsonDocPropertyHolder implements Cloneab
     return this.name;
   }
 
-  public @UnknownNullability String getXBoxId() {
+  public @UnknownNullability String xBoxId() {
     return this.lastNetworkPlayerProxyInfo.xBoxId();
   }
 
-  public long getFirstLoginTimeMillis() {
+  public long firstLoginTimeMillis() {
     return this.firstLoginTimeMillis;
   }
 
-  public long getLastLoginTimeMillis() {
+  public long lastLoginTimeMillis() {
     return this.lastLoginTimeMillis;
   }
 
-  public void setLastLoginTimeMillis(long lastLoginTimeMillis) {
+  public void lastLoginTimeMillis(long lastLoginTimeMillis) {
     this.lastLoginTimeMillis = lastLoginTimeMillis;
   }
 
-  public @NotNull NetworkPlayerProxyInfo getLastNetworkPlayerProxyInfo() {
+  public @NotNull NetworkPlayerProxyInfo lastNetworkPlayerProxyInfo() {
     return this.lastNetworkPlayerProxyInfo;
   }
 
-  public void setLastNetworkPlayerProxyInfo(@NotNull NetworkPlayerProxyInfo lastNetworkPlayerProxyInfo) {
+  public void lastNetworkPlayerProxyInfo(@NotNull NetworkPlayerProxyInfo lastNetworkPlayerProxyInfo) {
     this.lastNetworkPlayerProxyInfo = lastNetworkPlayerProxyInfo;
   }
 

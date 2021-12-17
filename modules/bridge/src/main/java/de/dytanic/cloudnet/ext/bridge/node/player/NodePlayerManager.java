@@ -113,28 +113,28 @@ public class NodePlayerManager implements IPlayerManager {
       .convertObject(CloudPlayer.class)
       .nameExtractor(CloudPlayer::name)
       .dataCollector(this.onlinePlayers::values)
-      .currentGetter(player -> this.onlinePlayers.get(player.getUniqueId()))
-      .writer(player -> this.onlinePlayers.put(player.getUniqueId(), player))
+      .currentGetter(player -> this.onlinePlayers.get(player.uniqueId()))
+      .writer(player -> this.onlinePlayers.put(player.uniqueId(), player))
       .build());
   }
 
   @Override
-  public int getOnlineCount() {
+  public int onlineCount() {
     return this.onlinePlayers.size();
   }
 
   @Override
-  public long getRegisteredCount() {
+  public long registeredCount() {
     return this.getDatabase().documentCount();
   }
 
   @Override
-  public @Nullable CloudPlayer getOnlinePlayer(@NotNull UUID uniqueId) {
+  public @Nullable CloudPlayer onlinePlayer(@NotNull UUID uniqueId) {
     return this.onlinePlayers.get(uniqueId);
   }
 
   @Override
-  public @Nullable CloudPlayer getFirstOnlinePlayer(@NotNull String name) {
+  public @Nullable CloudPlayer firstOnlinePlayer(@NotNull String name) {
     for (var player : this.onlinePlayers.values()) {
       if (player.name().equalsIgnoreCase(name)) {
         return player;
@@ -144,20 +144,20 @@ public class NodePlayerManager implements IPlayerManager {
   }
 
   @Override
-  public @NotNull List<? extends CloudPlayer> getOnlinePlayers(@NotNull String name) {
+  public @NotNull List<? extends CloudPlayer> onlinePlayers(@NotNull String name) {
     return this.onlinePlayers.values().stream()
       .filter(cloudPlayer -> cloudPlayer.name().equalsIgnoreCase(name))
       .collect(Collectors.toList());
   }
 
   @Override
-  public @NotNull List<? extends CloudPlayer> getEnvironmentOnlinePlayers(@NotNull ServiceEnvironmentType environment) {
+  public @NotNull List<? extends CloudPlayer> environmentOnlinePlayers(@NotNull ServiceEnvironmentType environment) {
     return this.onlinePlayers.values()
       .stream()
       .filter(cloudPlayer ->
-        (cloudPlayer.getLoginService() != null && cloudPlayer.getLoginService().environment() == environment)
-          || (cloudPlayer.getConnectedService() != null
-          && cloudPlayer.getConnectedService().environment() == environment))
+        (cloudPlayer.loginService() != null && cloudPlayer.loginService().environment() == environment)
+          || (cloudPlayer.connectedService() != null
+          && cloudPlayer.connectedService().environment() == environment))
       .collect(Collectors.toList());
   }
 
@@ -170,42 +170,42 @@ public class NodePlayerManager implements IPlayerManager {
   public @NotNull PlayerProvider taskOnlinePlayers(@NotNull String task) {
     return new NodePlayerProvider(() -> this.onlinePlayers.values()
       .stream()
-      .filter(cloudPlayer -> cloudPlayer.getConnectedService().taskName().equalsIgnoreCase(task)
-        || cloudPlayer.getLoginService().taskName().equalsIgnoreCase(task)));
+      .filter(cloudPlayer -> cloudPlayer.connectedService().taskName().equalsIgnoreCase(task)
+        || cloudPlayer.loginService().taskName().equalsIgnoreCase(task)));
   }
 
   @Override
   public @NotNull PlayerProvider groupOnlinePlayers(@NotNull String group) {
     return new NodePlayerProvider(() -> this.onlinePlayers.values()
       .stream()
-      .filter(cloudPlayer -> cloudPlayer.getConnectedService().groups().contains(group)
-        || cloudPlayer.getLoginService().groups().contains(group)));
+      .filter(cloudPlayer -> cloudPlayer.connectedService().groups().contains(group)
+        || cloudPlayer.loginService().groups().contains(group)));
   }
 
   @Override
-  public CloudOfflinePlayer getOfflinePlayer(@NotNull UUID uniqueId) {
+  public CloudOfflinePlayer offlinePlayer(@NotNull UUID uniqueId) {
     return this.offlinePlayerCache.getUnchecked(uniqueId).orElse(null);
   }
 
   @Override
-  public @Nullable CloudOfflinePlayer getFirstOfflinePlayer(@NotNull String name) {
+  public @Nullable CloudOfflinePlayer firstOfflinePlayer(@NotNull String name) {
     return this.offlinePlayerCache.asMap().values().stream()
       .filter(Optional::isPresent)
       .map(Optional::get)
       .filter(player -> player.name().equalsIgnoreCase(name))
       .findFirst()
-      .orElseGet(() -> IPlayerManager.super.getFirstOfflinePlayer(name));
+      .orElseGet(() -> IPlayerManager.super.firstOfflinePlayer(name));
   }
 
   @Override
-  public @NotNull List<? extends CloudOfflinePlayer> getOfflinePlayers(@NotNull String name) {
+  public @NotNull List<? extends CloudOfflinePlayer> offlinePlayers(@NotNull String name) {
     return this.getDatabase().get(JsonDocument.newDocument("name", name)).stream()
       .map(document -> document.toInstanceOf(CloudOfflinePlayer.class))
       .collect(Collectors.toList());
   }
 
   @Override
-  public @NotNull List<? extends CloudOfflinePlayer> getRegisteredPlayers() {
+  public @NotNull List<? extends CloudOfflinePlayer> registeredPlayers() {
     return this.getDatabase().entries().values().stream()
       .map(doc -> doc.toInstanceOf(CloudOfflinePlayer.class))
       .filter(Objects::nonNull)
@@ -215,9 +215,9 @@ public class NodePlayerManager implements IPlayerManager {
   @Override
   public void updateOfflinePlayer(@NotNull CloudOfflinePlayer player) {
     // push the change to the cache
-    this.pushOfflinePlayerCache(player.getUniqueId(), player);
+    this.pushOfflinePlayerCache(player.uniqueId(), player);
     // update the database
-    this.getDatabase().update(player.getUniqueId().toString(), JsonDocument.newDocument(player));
+    this.getDatabase().update(player.uniqueId().toString(), JsonDocument.newDocument(player));
     // notify the cluster
     ChannelMessage.builder()
       .targetAll()
@@ -249,9 +249,9 @@ public class NodePlayerManager implements IPlayerManager {
   @Override
   public void deleteCloudOfflinePlayer(@NotNull CloudOfflinePlayer cloudOfflinePlayer) {
     // push the change to the cache
-    this.pushOfflinePlayerCache(cloudOfflinePlayer.getUniqueId(), null);
+    this.pushOfflinePlayerCache(cloudOfflinePlayer.uniqueId(), null);
     // delete from the database
-    this.getDatabase().delete(cloudOfflinePlayer.getUniqueId().toString());
+    this.getDatabase().delete(cloudOfflinePlayer.uniqueId().toString());
     // notify the cluster
     ChannelMessage.builder()
       .targetAll()
@@ -265,12 +265,12 @@ public class NodePlayerManager implements IPlayerManager {
   }
 
   @Override
-  public @NotNull PlayerExecutor getGlobalPlayerExecutor() {
+  public @NotNull PlayerExecutor globalPlayerExecutor() {
     return NodePlayerExecutor.GLOBAL;
   }
 
   @Override
-  public @NotNull PlayerExecutor getPlayerExecutor(@NotNull UUID uniqueId) {
+  public @NotNull PlayerExecutor playerExecutor(@NotNull UUID uniqueId) {
     return new NodePlayerExecutor(uniqueId, this);
   }
 
@@ -279,8 +279,8 @@ public class NodePlayerManager implements IPlayerManager {
   }
 
   public void pushOnlinePlayerCache(@NotNull CloudPlayer cloudPlayer) {
-    this.onlinePlayers.replace(cloudPlayer.getUniqueId(), cloudPlayer);
-    this.pushOfflinePlayerCache(cloudPlayer.getUniqueId(), CloudOfflinePlayer.offlineCopy(cloudPlayer));
+    this.onlinePlayers.replace(cloudPlayer.uniqueId(), cloudPlayer);
+    this.pushOfflinePlayerCache(cloudPlayer.uniqueId(), CloudOfflinePlayer.offlineCopy(cloudPlayer));
   }
 
   protected @NotNull LocalDatabase getDatabase() {
@@ -314,15 +314,15 @@ public class NodePlayerManager implements IPlayerManager {
     // check if the login service is a proxy and set the proxy as the login service if so
     if (ServiceEnvironmentType.isMinecraftProxy(networkService.serviceId().environment())) {
       // a proxy should be able to change the login service
-      cloudPlayer.setLoginService(networkService);
+      cloudPlayer.loginService(networkService);
     }
     // Set more information according to the server information which the proxy can't provide
     if (networkPlayerServerInfo != null) {
-      cloudPlayer.setNetworkPlayerServerInfo(networkPlayerServerInfo);
-      cloudPlayer.setConnectedService(networkPlayerServerInfo.networkService());
+      cloudPlayer.networkPlayerServerInfo(networkPlayerServerInfo);
+      cloudPlayer.connectedService(networkPlayerServerInfo.networkService());
 
-      if (cloudPlayer.getLoginService() == null) {
-        cloudPlayer.setLoginService(networkPlayerServerInfo.networkService());
+      if (cloudPlayer.loginService() == null) {
+        cloudPlayer.loginService(networkPlayerServerInfo.networkService());
       }
     }
     // update the player into the database and notify the other nodes
@@ -336,13 +336,13 @@ public class NodePlayerManager implements IPlayerManager {
     @Nullable NetworkPlayerServerInfo serverInfo
   ) {
     // check if the player is already loaded
-    var cloudPlayer = this.getOnlinePlayer(connectionInfo.uniqueId());
+    var cloudPlayer = this.onlinePlayer(connectionInfo.uniqueId());
     if (cloudPlayer == null) {
       // try to load the player using the name and the login service
       for (var player : this.getOnlinePlayers().values()) {
         if (player.name().equals(connectionInfo.name())
-          && player.getLoginService() != null
-          && player.getLoginService().uniqueId().equals(connectionInfo.networkService().uniqueId())) {
+          && player.loginService() != null
+          && player.loginService().uniqueId().equals(connectionInfo.networkService().uniqueId())) {
           cloudPlayer = player;
           break;
         }
@@ -358,13 +358,13 @@ public class NodePlayerManager implements IPlayerManager {
           connectionInfo,
           serverInfo,
           JsonDocument.newDocument(),
-          cloudOfflinePlayer.getFirstLoginTimeMillis(),
+          cloudOfflinePlayer.firstLoginTimeMillis(),
           System.currentTimeMillis(),
           connectionInfo.name(),
-          cloudOfflinePlayer.getLastNetworkPlayerProxyInfo(),
+          cloudOfflinePlayer.lastNetworkPlayerProxyInfo(),
           cloudOfflinePlayer.properties());
         // cache the online player for later use
-        this.onlinePlayers.put(cloudPlayer.getUniqueId(), cloudPlayer);
+        this.onlinePlayers.put(cloudPlayer.uniqueId(), cloudPlayer);
       }
     }
     // cannot never be null at this point
@@ -376,7 +376,7 @@ public class NodePlayerManager implements IPlayerManager {
     this.pushOnlinePlayerCache(cloudPlayer);
     // update the database
     this.getDatabase().insert(
-      cloudPlayer.getUniqueId().toString(),
+      cloudPlayer.uniqueId().toString(),
       JsonDocument.newDocument(CloudOfflinePlayer.offlineCopy(cloudPlayer)));
     // notify the other nodes that we received the login
     ChannelMessage.builder()
@@ -391,41 +391,41 @@ public class NodePlayerManager implements IPlayerManager {
   }
 
   public void processLoginMessage(@NotNull CloudPlayer cloudPlayer) {
-    var loginLock = this.playerReadWriteLocks.get(cloudPlayer.getUniqueId());
+    var loginLock = this.playerReadWriteLocks.get(cloudPlayer.uniqueId());
     try {
       // ensure we only handle one login at a time
       loginLock.lock();
       // check if the player is already loaded
-      var registeredPlayer = this.onlinePlayers.get(cloudPlayer.getUniqueId());
+      var registeredPlayer = this.onlinePlayers.get(cloudPlayer.uniqueId());
       if (registeredPlayer == null) {
-        this.onlinePlayers.put(cloudPlayer.getUniqueId(), cloudPlayer);
-        this.offlinePlayerCache.put(cloudPlayer.getUniqueId(), Optional.of(cloudPlayer));
+        this.onlinePlayers.put(cloudPlayer.uniqueId(), cloudPlayer);
+        this.offlinePlayerCache.put(cloudPlayer.uniqueId(), Optional.of(cloudPlayer));
       } else {
         var needsUpdate = false;
         // check if the player has a known login service
-        if (cloudPlayer.getLoginService() != null) {
-          var newLoginService = cloudPlayer.getLoginService();
-          var loginService = registeredPlayer.getLoginService();
+        if (cloudPlayer.loginService() != null) {
+          var newLoginService = cloudPlayer.loginService();
+          var loginService = registeredPlayer.loginService();
           // check if we already know the same service
           if (!Objects.equals(newLoginService, loginService)
             && ServiceEnvironmentType.isMinecraftProxy(newLoginService.environment())
             && (loginService == null || !ServiceEnvironmentType.isMinecraftProxy(loginService.environment()))) {
-            cloudPlayer.setLoginService(newLoginService);
+            cloudPlayer.loginService(newLoginService);
             needsUpdate = true;
           }
         }
         // check if the player has a known connected service which is not a proxy
-        if (cloudPlayer.getConnectedService() != null
-          && ServiceEnvironmentType.isMinecraftProxy(cloudPlayer.getConnectedService().environment())) {
-          var connectedService = registeredPlayer.getConnectedService();
+        if (cloudPlayer.connectedService() != null
+          && ServiceEnvironmentType.isMinecraftProxy(cloudPlayer.connectedService().environment())) {
+          var connectedService = registeredPlayer.connectedService();
           if (connectedService != null && ServiceEnvironmentType.isMinecraftServer(connectedService.environment())) {
-            cloudPlayer.setConnectedService(connectedService);
+            cloudPlayer.connectedService(connectedService);
             needsUpdate = true;
           }
         }
         // check if we need to update the player
         if (needsUpdate) {
-          this.onlinePlayers.replace(cloudPlayer.getUniqueId(), cloudPlayer);
+          this.onlinePlayers.replace(cloudPlayer.uniqueId(), cloudPlayer);
         }
       }
     } finally {
@@ -434,7 +434,7 @@ public class NodePlayerManager implements IPlayerManager {
   }
 
   public @NotNull CloudOfflinePlayer getOrRegisterOfflinePlayer(@NotNull NetworkPlayerProxyInfo proxyInfo) {
-    var cloudOfflinePlayer = this.getOfflinePlayer(proxyInfo.uniqueId());
+    var cloudOfflinePlayer = this.offlinePlayer(proxyInfo.uniqueId());
     // check if the player is already present
     if (cloudOfflinePlayer == null) {
       // create a new player and cache it, the insert into the database will be done later during the login
@@ -450,7 +450,7 @@ public class NodePlayerManager implements IPlayerManager {
   }
 
   public void logoutPlayer(@NotNull CloudPlayer cloudPlayer) {
-    var managementLock = this.playerReadWriteLocks.get(cloudPlayer.getUniqueId());
+    var managementLock = this.playerReadWriteLocks.get(cloudPlayer.uniqueId());
     try {
       // ensure only one update operation at a time
       managementLock.lock();
@@ -463,14 +463,14 @@ public class NodePlayerManager implements IPlayerManager {
 
   private void logoutPlayer0(@NotNull CloudPlayer cloudPlayer) {
     // remove the player from the cache
-    this.onlinePlayers.remove(cloudPlayer.getUniqueId());
-    cloudPlayer.setLastNetworkPlayerProxyInfo(cloudPlayer.getNetworkPlayerProxyInfo());
+    this.onlinePlayers.remove(cloudPlayer.uniqueId());
+    cloudPlayer.lastNetworkPlayerProxyInfo(cloudPlayer.networkPlayerProxyInfo());
     // copy to an offline version
     var offlinePlayer = CloudOfflinePlayer.offlineCopy(cloudPlayer);
     // update the offline version of the player into the cache
-    this.pushOfflinePlayerCache(cloudPlayer.getUniqueId(), offlinePlayer);
+    this.pushOfflinePlayerCache(cloudPlayer.uniqueId(), offlinePlayer);
     // push the change to the database
-    this.getDatabase().insert(offlinePlayer.getUniqueId().toString(), JsonDocument.newDocument(offlinePlayer));
+    this.getDatabase().insert(offlinePlayer.uniqueId().toString(), JsonDocument.newDocument(offlinePlayer));
     // notify the cluster
     ChannelMessage.builder()
       .targetAll()
@@ -496,13 +496,13 @@ public class NodePlayerManager implements IPlayerManager {
         // lock the management lock to prevent duplicate handling at the same time
         managementLock.lock();
         // try the associated player
-        cloudPlayer = this.getOnlinePlayer(uniqueId);
+        cloudPlayer = this.onlinePlayer(uniqueId);
       } finally {
         // unlock the lock to allow the logout if the player is present
         managementLock.unlock();
       }
     } else {
-      cloudPlayer = this.getFirstOnlinePlayer(name);
+      cloudPlayer = this.firstOnlinePlayer(name);
     }
     // check if we should log out the player
     if (cloudPlayer != null && (tester == null || tester.test(cloudPlayer))) {

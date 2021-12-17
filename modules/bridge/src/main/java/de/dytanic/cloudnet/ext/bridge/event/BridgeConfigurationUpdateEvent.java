@@ -28,7 +28,7 @@ public final class BridgeConfigurationUpdateEvent extends DriverEvent {
     this.bridgeConfiguration = bridgeConfiguration;
   }
 
-  public @NotNull BridgeConfiguration getBridgeConfiguration() {
+  public @NotNull BridgeConfiguration bridgeConfiguration() {
     return this.bridgeConfiguration;
   }
 }

@@ -37,9 +37,9 @@ public class PlatformLabyModListener {
 
   @EventListener
   public void handlePlayerServerSwitch(@NotNull BridgeProxyPlayerServerSwitchEvent event) {
-    this.bridgeManagement.getCachedService(event.getTarget().uniqueId()).ifPresent(service -> {
+    this.bridgeManagement.cachedService(event.target().uniqueId()).ifPresent(service -> {
       // let the management handle the new server
-      this.labyModManagement.handleServerUpdate(event.getCloudPlayer(), service);
+      this.labyModManagement.handleServerUpdate(event.cloudPlayer(), service);
     });
   }
 

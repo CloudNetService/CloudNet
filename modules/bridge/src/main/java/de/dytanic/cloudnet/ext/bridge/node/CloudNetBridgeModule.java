@@ -172,9 +172,9 @@ public final class CloudNetBridgeModule extends DriverModule {
       .key("bridge-config")
       .nameExtractor($ -> "Bridge Config")
       .convertObject(BridgeConfiguration.class)
-      .writer(management::setConfiguration)
-      .singletonCollector(management::getConfiguration)
-      .currentGetter($ -> management.getConfiguration())
+      .writer(management::configuration)
+      .singletonCollector(management::configuration)
+      .currentGetter($ -> management.configuration())
       .build());
     // register the bridge command
     CloudNet.getInstance().getCommandProvider().register(new CommandBridge(management));

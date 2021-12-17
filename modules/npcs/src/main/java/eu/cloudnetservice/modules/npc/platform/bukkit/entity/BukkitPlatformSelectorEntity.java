@@ -255,7 +255,7 @@ public abstract class BukkitPlatformSelectorEntity
         // close the inventory
         player.closeInventory();
         // connect the player
-        this.getPlayerManager().getPlayerExecutor(player.getUniqueId()).connect(wrapper.getService().name());
+        this.getPlayerManager().playerExecutor(player.getUniqueId()).connect(wrapper.getService().name());
         break;
       }
     }
@@ -299,7 +299,7 @@ public abstract class BukkitPlatformSelectorEntity
         // connect the player to the first element if present
         if (!wrappers.isEmpty()) {
           var wrapper = wrappers.get(ThreadLocalRandom.current().nextInt(0, wrappers.size()));
-          this.getPlayerManager().getPlayerExecutor(player.getUniqueId()).connect(wrapper.getService().name());
+          this.getPlayerManager().playerExecutor(player.getUniqueId()).connect(wrapper.getService().name());
         }
       }
       break;
@@ -307,14 +307,14 @@ public abstract class BukkitPlatformSelectorEntity
         this.serviceItems.values().stream()
           .map(ServiceItemWrapper::getService)
           .min(Comparator.comparingInt(service -> BridgeServiceProperties.ONLINE_COUNT.read(service).orElse(0)))
-          .ifPresent(ser -> this.getPlayerManager().getPlayerExecutor(player.getUniqueId()).connect(ser.name()));
+          .ifPresent(ser -> this.getPlayerManager().playerExecutor(player.getUniqueId()).connect(ser.name()));
       }
       break;
       case DIRECT_CONNECT_HIGHEST_PLAYERS: {
         this.serviceItems.values().stream()
           .map(ServiceItemWrapper::getService)
           .max(Comparator.comparingInt(service -> BridgeServiceProperties.ONLINE_COUNT.read(service).orElse(0)))
-          .ifPresent(ser -> this.getPlayerManager().getPlayerExecutor(player.getUniqueId()).connect(ser.name()));
+          .ifPresent(ser -> this.getPlayerManager().playerExecutor(player.getUniqueId()).connect(ser.name()));
       }
       break;
       default:

@@ -34,15 +34,15 @@ public final class BridgeProxyPlayerServerSwitchEvent extends DriverEvent {
     this.previous = previous;
   }
 
-  public @NotNull CloudPlayer getCloudPlayer() {
+  public @NotNull CloudPlayer cloudPlayer() {
     return this.cloudPlayer;
   }
 
-  public @NotNull NetworkServiceInfo getTarget() {
-    return this.cloudPlayer.getConnectedService();
+  public @NotNull NetworkServiceInfo target() {
+    return this.cloudPlayer.connectedService();
   }
 
-  public @NotNull NetworkServiceInfo getPrevious() {
+  public @NotNull NetworkServiceInfo previous() {
     return this.previous;
   }
 }

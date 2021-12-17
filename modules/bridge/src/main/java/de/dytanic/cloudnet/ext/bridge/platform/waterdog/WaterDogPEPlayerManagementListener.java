@@ -45,13 +45,13 @@ final class WaterDogPEPlayerManagementListener {
   }
 
   private void handleLogin(@NotNull PlayerLoginEvent event) {
-    var task = this.management.getSelfTask();
+    var task = this.management.selfTask();
     // check if the current task is present
     if (task != null) {
       // check if maintenance is activated
       if (task.maintenance() && !event.getPlayer().hasPermission("cloudnet.bridge.maintenance")) {
         event.setCancelled(true);
-        event.setCancelReason(this.management.getConfiguration().getMessage(
+        event.setCancelReason(this.management.configuration().message(
           Locale.ENGLISH,
           "proxy-join-cancel-because-maintenance"));
         return;
@@ -60,7 +60,7 @@ final class WaterDogPEPlayerManagementListener {
       var permission = task.properties().getString("requiredPermission");
       if (permission != null && !event.getPlayer().hasPermission(permission)) {
         event.setCancelled(true);
-        event.setCancelReason(this.management.getConfiguration().getMessage(
+        event.setCancelReason(this.management.configuration().message(
           Locale.ENGLISH,
           "proxy-join-cancel-because-permission"));
         return;
@@ -71,7 +71,7 @@ final class WaterDogPEPlayerManagementListener {
       this.management.createPlayerInformation(event.getPlayer()));
     if (!loginResult.isAllowed()) {
       event.setCancelled(true);
-      event.setCancelReason(LegacyComponentSerializer.legacySection().serialize(loginResult.getResult()));
+      event.setCancelReason(LegacyComponentSerializer.legacySection().serialize(loginResult.result()));
     }
   }
 
@@ -84,7 +84,7 @@ final class WaterDogPEPlayerManagementListener {
     } else {
       // the player switched the service
       this.management
-        .getCachedService(service -> service.name().equals(event.getNewClient().getServerInfo().getServerName()))
+        .cachedService(service -> service.name().equals(event.getNewClient().getServerInfo().getServerName()))
         .map(BridgeServiceHelper::createServiceInfo)
         .ifPresent(info -> ProxyPlatformHelper.sendChannelMessageServiceSwitch(event.getPlayer().getUniqueId(), info));
     }

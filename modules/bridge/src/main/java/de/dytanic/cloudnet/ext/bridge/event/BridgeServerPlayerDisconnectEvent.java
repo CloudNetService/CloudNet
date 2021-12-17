@@ -31,11 +31,11 @@ public final class BridgeServerPlayerDisconnectEvent extends DriverEvent {
     this.serviceInfo = serviceInfo;
   }
 
-  public @NotNull CloudPlayer getCloudPlayer() {
+  public @NotNull CloudPlayer cloudPlayer() {
     return this.cloudPlayer;
   }
 
-  public @NotNull NetworkServiceInfo getService() {
+  public @NotNull NetworkServiceInfo service() {
     return this.serviceInfo;
   }
 }

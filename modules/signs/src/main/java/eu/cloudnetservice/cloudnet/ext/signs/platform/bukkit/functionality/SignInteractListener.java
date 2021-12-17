@@ -51,7 +51,7 @@ public class SignInteractListener implements Listener {
         if (!interactEvent.isCancelled() && interactEvent.getTarget().isPresent()) {
           this.signManagement.getSignsConfiguration().sendMessage("server-connecting-message",
             event.getPlayer()::sendMessage, m -> m.replace("%server%", interactEvent.getTarget().get().name()));
-          this.getPlayerManager().getPlayerExecutor(event.getPlayer().getUniqueId())
+          this.getPlayerManager().playerExecutor(event.getPlayer().getUniqueId())
             .connect(interactEvent.getTarget().get().name());
         }
       }

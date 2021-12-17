@@ -40,7 +40,7 @@ final class NodePlayerProvider implements PlayerProvider {
 
   @Override
   public @NotNull Collection<UUID> uniqueIds() {
-    return this.playerSupplier.get().map(CloudPlayer::getUniqueId).collect(Collectors.toSet());
+    return this.playerSupplier.get().map(CloudPlayer::uniqueId).collect(Collectors.toSet());
   }
 
   @Override

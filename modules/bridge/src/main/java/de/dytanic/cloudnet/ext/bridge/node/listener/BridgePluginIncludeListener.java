@@ -36,7 +36,7 @@ public final class BridgePluginIncludeListener {
   public void handle(@NotNull CloudServicePreLifecycleEvent event) {
     // check if we should copy the module
     if (event.getTargetLifecycle() == ServiceLifeCycle.RUNNING
-      && this.management.getConfiguration().getExcludedGroups().stream()
+      && this.management.configuration().excludedGroups().stream()
       .noneMatch(group -> event.getService().getServiceConfiguration().groups().contains(group))) {
       // get the target of the copy
       var plugins = event.getService().getDirectory().resolve("plugins");

@@ -20,12 +20,11 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperties;
 import java.util.Comparator;
 import java.util.concurrent.ThreadLocalRandom;
+import org.jetbrains.annotations.NotNull;
 
 public enum ServerSelectorType {
 
-  HIGHEST_PLAYERS((o1, o2) -> Integer.compare(
-    o1.property(BridgeServiceProperties.ONLINE_COUNT).orElse(0),
-    o2.property(BridgeServiceProperties.ONLINE_COUNT).orElse(0))),
+  HIGHEST_PLAYERS(Comparator.comparingInt(o -> o.property(BridgeServiceProperties.ONLINE_COUNT).orElse(0))),
   LOWEST_PLAYERS((o1, o2) -> Integer.compare(
     o2.property(BridgeServiceProperties.ONLINE_COUNT).orElse(0),
     o1.property(BridgeServiceProperties.ONLINE_COUNT).orElse(0))),
@@ -33,11 +32,11 @@ public enum ServerSelectorType {
 
   private final Comparator<ServiceInfoSnapshot> comparator;
 
-  ServerSelectorType(Comparator<ServiceInfoSnapshot> comparator) {
+  ServerSelectorType(@NotNull Comparator<ServiceInfoSnapshot> comparator) {
     this.comparator = comparator;
   }
 
-  public Comparator<ServiceInfoSnapshot> getComparator() {
+  public @NotNull Comparator<ServiceInfoSnapshot> comparator() {
     return this.comparator;
   }
 }

@@ -42,12 +42,12 @@ public final class VelocityHubCommand implements SimpleCommand {
     if (invocation.source() instanceof Player player) {
       // check if the player is on a fallback already
       if (this.management.isOnAnyFallbackInstance(player)) {
-        player.sendMessage(AdventureSerializerUtil.serialize(this.management.getConfiguration().getMessage(
+        player.sendMessage(AdventureSerializerUtil.serialize(this.management.configuration().message(
           player.getEffectiveLocale(),
           "command-hub-already-in-hub")));
       } else {
         // try to get a fallback for the player
-        var hub = this.management.getFallback(player)
+        var hub = this.management.fallback(player)
           .flatMap(service -> this.proxyServer.getServer(service.name()))
           .orElse(null);
         // check if a fallback was found
@@ -55,13 +55,13 @@ public final class VelocityHubCommand implements SimpleCommand {
           player.createConnectionRequest(hub).connectWithIndication().whenComplete((result, ex) -> {
             // check if the connection was successful
             if (result && ex == null) {
-              player.sendMessage(AdventureSerializerUtil.serialize(this.management.getConfiguration().getMessage(
+              player.sendMessage(AdventureSerializerUtil.serialize(this.management.configuration().message(
                 player.getEffectiveLocale(),
                 "command-hub-success-connect"
               ).replace("%server%", hub.getServerInfo().getName())));
             } else {
               // the connection was not successful
-              player.sendMessage(AdventureSerializerUtil.serialize(this.management.getConfiguration().getMessage(
+              player.sendMessage(AdventureSerializerUtil.serialize(this.management.configuration().message(
                 player.getEffectiveLocale(),
                 "command-hub-no-server-found")));
             }
@@ -73,6 +73,6 @@ public final class VelocityHubCommand implements SimpleCommand {
 
   @Override
   public @NotNull CompletableFuture<List<String>> suggestAsync(@NotNull Invocation invocation) {
-    return CompletableFuture.completedFuture(copyOf(this.management.getConfiguration().getHubCommandNames()));
+    return CompletableFuture.completedFuture(copyOf(this.management.configuration().hubCommandNames()));
   }
 }

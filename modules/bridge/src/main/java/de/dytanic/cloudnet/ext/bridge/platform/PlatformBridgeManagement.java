@@ -97,33 +97,33 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     // create the network service info of this service
     this.ownNetworkServiceInfo = BridgeServiceHelper.createServiceInfo(wrapper.currentServiceInfo());
     // load the configuration using rpc - all updates will be received from the channel message
-    this.setConfigurationLocally(this.sender.invokeMethod("getConfiguration").fireSync());
+    this.configurationSilently(this.sender.invokeMethod("getConfiguration").fireSync());
     // register the common listeners
     wrapper.eventManager().registerListener(new PlatformInformationListener(this));
     wrapper.eventManager().registerListener(new PlatformChannelMessageListener(this.eventManager, this));
   }
 
   @Override
-  public @NotNull BridgeConfiguration getConfiguration() {
+  public @NotNull BridgeConfiguration configuration() {
     return this.configuration;
   }
 
   @Override
-  public void setConfiguration(@NotNull BridgeConfiguration configuration) {
+  public void configuration(@NotNull BridgeConfiguration configuration) {
     this.sender.invokeMethod("setConfiguration", configuration).fireSync();
   }
 
-  public void setConfigurationLocally(@NotNull BridgeConfiguration configuration) {
+  public void configurationSilently(@NotNull BridgeConfiguration configuration) {
     this.configuration = configuration;
     this.eventManager.callEvent(new BridgeConfigurationUpdateEvent(configuration));
-    this.currentFallbackConfiguration = configuration.getFallbackConfigurations().stream()
+    this.currentFallbackConfiguration = configuration.fallbackConfigurations().stream()
       .filter(config -> Wrapper.getInstance().serviceConfiguration().groups().contains(config.targetGroup()))
       .findFirst()
       .orElse(null);
   }
 
   @Override
-  public @NotNull IPlayerManager getPlayerManager() {
+  public @NotNull IPlayerManager playerManager() {
     return this.playerManager;
   }
 
@@ -135,11 +135,11 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     snapshot.properties().append("Max-Players", BridgeServiceHelper.MAX_PLAYERS.get());
   }
 
-  public @NotNull Collection<ServiceInfoSnapshot> getCachedServices() {
+  public @NotNull Collection<ServiceInfoSnapshot> cachedServices() {
     return this.cachedServices.values();
   }
 
-  public @Nullable ServiceTask getSelfTask() {
+  public @Nullable ServiceTask selfTask() {
     return this.selfTask;
   }
 
@@ -149,11 +149,11 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     }
   }
 
-  public @NotNull Optional<ServiceInfoSnapshot> getCachedService(@NotNull Predicate<ServiceInfoSnapshot> filter) {
+  public @NotNull Optional<ServiceInfoSnapshot> cachedService(@NotNull Predicate<ServiceInfoSnapshot> filter) {
     return this.cachedServices.values().stream().filter(filter).findFirst();
   }
 
-  public @NotNull Optional<ServiceInfoSnapshot> getCachedService(@NotNull UUID uniqueId) {
+  public @NotNull Optional<ServiceInfoSnapshot> cachedService(@NotNull UUID uniqueId) {
     return Optional.ofNullable(this.cachedServices.get(uniqueId));
   }
 
@@ -176,7 +176,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     }
   }
 
-  public @NotNull Optional<ServiceInfoSnapshot> getFallback(
+  public @NotNull Optional<ServiceInfoSnapshot> fallback(
     @NotNull UUID playerId,
     @Nullable String currentServerName,
     @Nullable String virtualHost,
@@ -187,9 +187,9 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     // get the fallback profile for the player
     var profile = this.fallbackProfiles.computeIfAbsent(playerId, $ -> new FallbackProfile());
     // search for the best fallback
-    return this.getPossibleFallbacks(currentServerName, virtualHost, permissionTester)
+    return this.possibleFallbacks(currentServerName, virtualHost, permissionTester)
       // get all services we have cached of the task
-      .map(fallback -> new Pair<>(fallback, this.getAnyTaskService(fallback.getTask(), profile, currentServerName)))
+      .map(fallback -> new Pair<>(fallback, this.anyTaskService(fallback.task(), profile, currentServerName)))
       // filter out all fallbacks that have no services
       .filter(possibility -> possibility.second().isEmpty())
       // get the first possibility with the highest priority
@@ -207,7 +207,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
           return Optional.empty();
         }
         // get any service associated with the task
-        return this.getAnyTaskService(config.defaultFallbackTask(), profile, currentServerName)
+        return this.anyTaskService(config.defaultFallbackTask(), profile, currentServerName)
           .map(service -> {
             // select as the service we are connecting to
             profile.selectService(service.name());
@@ -216,7 +216,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
       });
   }
 
-  public @NotNull Stream<ProxyFallback> getPossibleFallbacks(
+  public @NotNull Stream<ProxyFallback> possibleFallbacks(
     @Nullable String currentServerName,
     @Nullable String virtualHost,
     @NotNull Function<String, Boolean> permissionTester
@@ -224,18 +224,18 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     // get the currently applying fallback config
     var config = Preconditions.checkNotNull(this.currentFallbackConfiguration);
     // get all groups of the service the player is currently on
-    var currentGroups = this.getCachedService(service -> service.name().equals(currentServerName))
+    var currentGroups = this.cachedService(service -> service.name().equals(currentServerName))
       .map(service -> service.configuration().groups())
       .orElse(Collections.emptySet());
     // find all matching fallback configurations
     return config.fallbacks().stream()
       // check if a forced host is required
-      .filter(fallback -> fallback.getForcedHost() == null || fallback.getForcedHost().equals(virtualHost))
+      .filter(fallback -> fallback.forcedHost() == null || fallback.forcedHost().equals(virtualHost))
       // check if the player has the permission to connect to the fallback
-      .filter(fallback -> fallback.getPermission() == null || permissionTester.apply(fallback.getPermission()))
+      .filter(fallback -> fallback.permission() == null || permissionTester.apply(fallback.permission()))
       // check if the fallback is available from the current group the player is on
-      .filter(fallback -> fallback.getAvailableOnGroups().isEmpty()
-        || fallback.getAvailableOnGroups().stream().anyMatch(currentGroups::contains));
+      .filter(fallback -> fallback.availableOnGroups().isEmpty()
+        || fallback.availableOnGroups().stream().anyMatch(currentGroups::contains));
   }
 
   public boolean isOnAnyFallbackInstance(
@@ -244,13 +244,13 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     @NotNull Function<String, Boolean> permissionTester
   ) {
     // check if the current server of the player is given
-    return this.getCachedService(service -> service.name().equals(currentServerName))
-      .map(service -> this.getPossibleFallbacks(currentServerName, virtualHost, permissionTester)
-        .anyMatch(fallback -> service.serviceId().taskName().equals(fallback.getTask())))
+    return this.cachedService(service -> service.name().equals(currentServerName))
+      .map(service -> this.possibleFallbacks(currentServerName, virtualHost, permissionTester)
+        .anyMatch(fallback -> service.serviceId().taskName().equals(fallback.task())))
       .orElse(false);
   }
 
-  protected @NotNull Optional<ServiceInfoSnapshot> getAnyTaskService(
+  protected @NotNull Optional<ServiceInfoSnapshot> anyTaskService(
     @NotNull String task,
     @NotNull FallbackProfile profile,
     @Nullable String currentServerName
@@ -300,7 +300,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
       .serviceTask(Wrapper.getInstance().serviceId().taskName());
   }
 
-  public @NotNull NetworkServiceInfo getOwnNetworkServiceInfo() {
+  public @NotNull NetworkServiceInfo ownNetworkServiceInfo() {
     return this.ownNetworkServiceInfo;
   }
 
@@ -308,17 +308,17 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
 
   public abstract @NotNull I createPlayerInformation(@NotNull P player);
 
-  public abstract @NotNull BiFunction<P, String, Boolean> getPermissionFunction();
+  public abstract @NotNull BiFunction<P, String, Boolean> permissionFunction();
 
   public abstract boolean isOnAnyFallbackInstance(@NotNull P player);
 
-  public abstract @NotNull Optional<ServiceInfoSnapshot> getFallback(@NotNull P player);
+  public abstract @NotNull Optional<ServiceInfoSnapshot> fallback(@NotNull P player);
 
-  public abstract @NotNull Optional<ServiceInfoSnapshot> getFallback(@NotNull P player, @Nullable String currServer);
+  public abstract @NotNull Optional<ServiceInfoSnapshot> fallback(@NotNull P player, @Nullable String currServer);
 
   public abstract void handleFallbackConnectionSuccess(@NotNull P player);
 
   public abstract void removeFallbackProfile(@NotNull P player);
 
-  public abstract @NotNull PlayerExecutor getDirectPlayerExecutor(@NotNull UUID uniqueId);
+  public abstract @NotNull PlayerExecutor directPlayerExecutor(@NotNull UUID uniqueId);
 }

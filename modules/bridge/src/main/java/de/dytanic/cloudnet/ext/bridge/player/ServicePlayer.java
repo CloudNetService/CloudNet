@@ -16,12 +16,13 @@
 
 package de.dytanic.cloudnet.ext.bridge.player;
 
+import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.document.property.JsonDocPropertyHolder;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 
-public class ServicePlayer extends JsonDocPropertyHolder implements Comparable<ServicePlayer> {
+public class ServicePlayer extends JsonDocPropertyHolder implements Comparable<ServicePlayer>, INameable {
 
   public ServicePlayer(@NotNull UUID uniqueId, @NotNull String name) {
     this.properties = JsonDocument.newDocument().append("uniqueId", uniqueId).append("name", name);
@@ -31,16 +32,17 @@ public class ServicePlayer extends JsonDocPropertyHolder implements Comparable<S
     this.properties = properties;
   }
 
-  public @NotNull UUID getUniqueId() {
+  public @NotNull UUID uniqueId() {
     return this.properties.get("uniqueId", UUID.class);
   }
 
-  public @NotNull String getName() {
+  @Override
+  public @NotNull String name() {
     return this.properties.getString("name");
   }
 
   @Override
   public int compareTo(@NotNull ServicePlayer o) {
-    return this.getName().compareTo(o.getName());
+    return this.name().compareTo(o.name());
   }
 }

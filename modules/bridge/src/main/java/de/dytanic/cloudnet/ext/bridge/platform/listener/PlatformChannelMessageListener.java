@@ -59,7 +59,7 @@ public final class PlatformChannelMessageListener {
       // read the config
       var configuration = event.content().readObject(BridgeConfiguration.class);
       // set the configuration
-      this.management.setConfigurationLocally(configuration);
+      this.management.configurationSilently(configuration);
     }
   }
 
@@ -144,7 +144,7 @@ public final class PlatformChannelMessageListener {
   public void handlePlayerExecutorChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
     if (event.channel().equals(BridgeManagement.BRIDGE_PLAYER_EXECUTOR_CHANNEL_NAME)) {
       // the target unique id is always the first argument
-      var executor = this.management.getDirectPlayerExecutor(event.content().readUniqueId());
+      var executor = this.management.directPlayerExecutor(event.content().readUniqueId());
       // a message regarding a player executor request
       switch (event.message()) {
         // connect to a service

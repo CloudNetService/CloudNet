@@ -59,14 +59,14 @@ public class NodeBridgeManagement implements BridgeManagement {
   }
 
   @Override
-  public @NotNull BridgeConfiguration getConfiguration() {
+  public @NotNull BridgeConfiguration configuration() {
     return this.configuration;
   }
 
   @Override
-  public void setConfiguration(@NotNull BridgeConfiguration configuration) {
+  public void configuration(@NotNull BridgeConfiguration configuration) {
     // update the configuration locally
-    this.setConfigurationSilently(configuration);
+    this.configurationSilently(configuration);
     // sync the config to the cluster
     ChannelMessage.builder()
       .targetAll()
@@ -80,7 +80,7 @@ public class NodeBridgeManagement implements BridgeManagement {
   }
 
   @Override
-  public @NotNull IPlayerManager getPlayerManager() {
+  public @NotNull IPlayerManager playerManager() {
     return this.playerManager;
   }
 
@@ -100,7 +100,7 @@ public class NodeBridgeManagement implements BridgeManagement {
     }
   }
 
-  public void setConfigurationSilently(@NotNull BridgeConfiguration configuration) {
+  public void configurationSilently(@NotNull BridgeConfiguration configuration) {
     // set and write the config
     this.configuration = configuration;
     this.bridgeModule.writeConfig(JsonDocument.newDocument(configuration));

@@ -45,7 +45,7 @@ public final class NodeBridgeChannelMessageListener {
       // read the config
       var configuration = event.content().readObject(BridgeConfiguration.class);
       // set the configuration
-      this.management.setConfigurationSilently(configuration);
+      this.management.configurationSilently(configuration);
       // call the update event
       this.eventManager.callEvent(new BridgeConfigurationUpdateEvent(configuration));
     }

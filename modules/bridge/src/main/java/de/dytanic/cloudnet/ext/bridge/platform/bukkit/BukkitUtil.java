@@ -57,7 +57,7 @@ final class BukkitUtil {
     throw new UnsupportedOperationException();
   }
 
-  public static @NotNull String getPlayerLocale(@NotNull Player player) {
+  public static @NotNull String playerLocale(@NotNull Player player) {
     return LOCALE_GETTER.apply(player);
   }
 }

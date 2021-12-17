@@ -44,18 +44,18 @@ public final class WaterDogPEHubCommand extends Command {
     if (sender instanceof ProxiedPlayer player) {
       // check if the player is on a fallback already
       if (this.management.isOnAnyFallbackInstance(player)) {
-        player.sendMessage(new TextContainer(this.management.getConfiguration().getMessage(
+        player.sendMessage(new TextContainer(this.management.configuration().message(
           Locale.ENGLISH,
           "command-hub-already-in-hub")));
       } else {
         // try to get a fallback for the player
-        var hub = this.management.getFallback(player)
+        var hub = this.management.fallback(player)
           .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
           .orElse(null);
         // check if a fallback was found
         if (hub != null) {
           player.connect(hub);
-          player.sendMessage(new TextContainer(this.management.getConfiguration().getMessage(
+          player.sendMessage(new TextContainer(this.management.configuration().message(
             Locale.ENGLISH,
             "command-hub-success-connect"
           ).replace("%server%", hub.getServerName())));

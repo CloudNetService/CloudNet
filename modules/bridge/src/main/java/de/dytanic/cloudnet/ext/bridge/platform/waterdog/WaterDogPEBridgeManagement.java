@@ -95,7 +95,7 @@ final class WaterDogPEBridgeManagement extends PlatformBridgeManagement<ProxiedP
   }
 
   @Override
-  public @NotNull BiFunction<ProxiedPlayer, String, Boolean> getPermissionFunction() {
+  public @NotNull BiFunction<ProxiedPlayer, String, Boolean> permissionFunction() {
     return PERM_FUNCTION;
   }
 
@@ -108,16 +108,16 @@ final class WaterDogPEBridgeManagement extends PlatformBridgeManagement<ProxiedP
   }
 
   @Override
-  public @NotNull Optional<ServiceInfoSnapshot> getFallback(@NotNull ProxiedPlayer player) {
-    return this.getFallback(player, player.getServerInfo() == null ? null : player.getServerInfo().getServerName());
+  public @NotNull Optional<ServiceInfoSnapshot> fallback(@NotNull ProxiedPlayer player) {
+    return this.fallback(player, player.getServerInfo() == null ? null : player.getServerInfo().getServerName());
   }
 
   @Override
-  public @NotNull Optional<ServiceInfoSnapshot> getFallback(
+  public @NotNull Optional<ServiceInfoSnapshot> fallback(
     @NotNull ProxiedPlayer player,
     @Nullable String currServer
   ) {
-    return this.getFallback(
+    return this.fallback(
       player.getUniqueId(),
       currServer,
       player.getLoginData().getJoinHostname(),
@@ -135,7 +135,7 @@ final class WaterDogPEBridgeManagement extends PlatformBridgeManagement<ProxiedP
   }
 
   @Override
-  public @NotNull PlayerExecutor getDirectPlayerExecutor(@NotNull UUID uniqueId) {
+  public @NotNull PlayerExecutor directPlayerExecutor(@NotNull UUID uniqueId) {
     return uniqueId.equals(PlayerExecutor.GLOBAL_UNIQUE_ID)
       ? this.globalDirectPlayerExecutor
       : new WaterDogPEDirectPlayerExecutor(

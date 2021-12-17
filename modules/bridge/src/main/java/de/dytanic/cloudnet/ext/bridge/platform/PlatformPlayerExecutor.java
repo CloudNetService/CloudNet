@@ -39,7 +39,7 @@ final class PlatformPlayerExecutor implements PlayerExecutor {
   }
 
   @Override
-  public @NotNull UUID getPlayerUniqueId() {
+  public @NotNull UUID uniqueId() {
     return this.targetUniqueId;
   }
 

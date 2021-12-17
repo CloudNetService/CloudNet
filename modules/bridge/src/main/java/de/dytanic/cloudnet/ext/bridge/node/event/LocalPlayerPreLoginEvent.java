@@ -32,15 +32,15 @@ public final class LocalPlayerPreLoginEvent extends DriverEvent {
     this.playerInfo = playerInfo;
   }
 
-  public @NotNull NetworkPlayerProxyInfo getPlayerInfo() {
+  public @NotNull NetworkPlayerProxyInfo playerInfo() {
     return this.playerInfo;
   }
 
-  public @NotNull Result getResult() {
+  public @NotNull Result result() {
     return this.result;
   }
 
-  public void setResult(@NotNull Result result) {
+  public void result(@NotNull Result result) {
     this.result = result;
   }
 
@@ -68,7 +68,7 @@ public final class LocalPlayerPreLoginEvent extends DriverEvent {
       return this.allowed;
     }
 
-    public @UnknownNullability TextComponent getResult() {
+    public @UnknownNullability TextComponent result() {
       return this.result;
     }
   }

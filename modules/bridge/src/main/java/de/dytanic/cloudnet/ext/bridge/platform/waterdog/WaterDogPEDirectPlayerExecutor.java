@@ -50,7 +50,7 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
   }
 
   @Override
-  public @NotNull UUID getPlayerUniqueId() {
+  public @NotNull UUID uniqueId() {
     return this.uniqueId;
   }
 
@@ -64,8 +64,8 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
 
   @Override
   public void connectSelecting(@NotNull ServerSelectorType selectorType) {
-    this.management.getCachedServices().stream()
-      .sorted(selectorType.getComparator())
+    this.management.cachedServices().stream()
+      .sorted(selectorType.comparator())
       .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
       .filter(Objects::nonNull)
       .findFirst()
@@ -75,7 +75,7 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
   @Override
   public void connectToFallback() {
     this.playerSupplier.get().stream()
-      .map(player -> new Pair<>(player, this.management.getFallback(player)))
+      .map(player -> new Pair<>(player, this.management.fallback(player)))
       .filter(pair -> pair.second().isPresent())
       .map(p -> new Pair<>(p.first(), ProxyServer.getInstance().getServerInfo(p.second().get().name())))
       .filter(pair -> pair.second() != null)
@@ -84,9 +84,9 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
 
   @Override
   public void connectToGroup(@NotNull String group, @NotNull ServerSelectorType selectorType) {
-    this.management.getCachedServices().stream()
+    this.management.cachedServices().stream()
       .filter(service -> service.configuration().groups().contains(group))
-      .sorted(selectorType.getComparator())
+      .sorted(selectorType.comparator())
       .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
       .filter(Objects::nonNull)
       .forEach(server -> this.playerSupplier.get().forEach(player -> player.connect(server)));
@@ -94,9 +94,9 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
 
   @Override
   public void connectToTask(@NotNull String task, @NotNull ServerSelectorType selectorType) {
-    this.management.getCachedServices().stream()
+    this.management.cachedServices().stream()
       .filter(service -> service.serviceId().taskName().equals(task))
-      .sorted(selectorType.getComparator())
+      .sorted(selectorType.comparator())
       .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
       .filter(Objects::nonNull)
       .forEach(server -> this.playerSupplier.get().forEach(player -> player.connect(server)));

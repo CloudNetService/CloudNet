@@ -56,7 +56,7 @@ public class CommandBridge {
     if (group == null) {
       throw new ArgumentNotAvailableException(I18n.trans("module-bridge-command-create-entry-group-not-found"));
     }
-    var fallbacks = this.bridgeManagement.getConfiguration().getFallbackConfigurations()
+    var fallbacks = this.bridgeManagement.configuration().fallbackConfigurations()
       .stream();
     // don't allow duplicated entries
     if (fallbacks.anyMatch(fallback -> fallback.targetGroup().equals(group.name()))) {
@@ -69,7 +69,7 @@ public class CommandBridge {
   public List<String> suggestBridgeGroups(@NotNull CommandContext<?> $, String input) {
     return this.groupConfigurationProvider.groupConfigurations().stream()
       .map(INameable::name)
-      .filter(group -> this.bridgeManagement.getConfiguration().getFallbackConfigurations().stream()
+      .filter(group -> this.bridgeManagement.configuration().fallbackConfigurations().stream()
         .noneMatch(fallback -> fallback.targetGroup().equals(group)))
       .toList();
   }
@@ -84,11 +84,11 @@ public class CommandBridge {
       group.name(),
       "Lobby",
       Collections.emptyList());
-    var configuration = this.bridgeManagement.getConfiguration();
+    var configuration = this.bridgeManagement.configuration();
     // add the new fallback entry to the configuration
-    configuration.getFallbackConfigurations().add(fallbackConfiguration);
+    configuration.fallbackConfigurations().add(fallbackConfiguration);
     // save and update the configuration
-    this.bridgeManagement.setConfiguration(configuration);
+    this.bridgeManagement.configuration(configuration);
     source.sendMessage(I18n.trans("module-bridge-command-create-entry-success"));
   }
 }

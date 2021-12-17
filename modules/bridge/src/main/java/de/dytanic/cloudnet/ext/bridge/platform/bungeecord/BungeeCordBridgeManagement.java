@@ -90,7 +90,7 @@ final class BungeeCordBridgeManagement extends PlatformBridgeManagement<ProxiedP
   }
 
   @Override
-  public @NotNull BiFunction<ProxiedPlayer, String, Boolean> getPermissionFunction() {
+  public @NotNull BiFunction<ProxiedPlayer, String, Boolean> permissionFunction() {
     return PERM_FUNCTION;
   }
 
@@ -103,16 +103,16 @@ final class BungeeCordBridgeManagement extends PlatformBridgeManagement<ProxiedP
   }
 
   @Override
-  public @NotNull Optional<ServiceInfoSnapshot> getFallback(@NotNull ProxiedPlayer player) {
-    return this.getFallback(player, player.getServer() == null ? null : player.getServer().getInfo().getName());
+  public @NotNull Optional<ServiceInfoSnapshot> fallback(@NotNull ProxiedPlayer player) {
+    return this.fallback(player, player.getServer() == null ? null : player.getServer().getInfo().getName());
   }
 
   @Override
-  public @NotNull Optional<ServiceInfoSnapshot> getFallback(
+  public @NotNull Optional<ServiceInfoSnapshot> fallback(
     @NotNull ProxiedPlayer player,
     @Nullable String currServer
   ) {
-    return this.getFallback(
+    return this.fallback(
       player.getUniqueId(),
       currServer,
       this.getVirtualHostString(player.getPendingConnection()),
@@ -130,7 +130,7 @@ final class BungeeCordBridgeManagement extends PlatformBridgeManagement<ProxiedP
   }
 
   @Override
-  public @NotNull PlayerExecutor getDirectPlayerExecutor(@NotNull UUID uniqueId) {
+  public @NotNull PlayerExecutor directPlayerExecutor(@NotNull UUID uniqueId) {
     return uniqueId.equals(PlayerExecutor.GLOBAL_UNIQUE_ID)
       ? this.globalDirectPlayerExecutor
       : new BungeeCordDirectPlayerExecutor(

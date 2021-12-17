@@ -61,12 +61,12 @@ final class VelocityPlayerManagementListener {
 
   @Subscribe
   public void handleLogin(@NotNull LoginEvent event) {
-    var task = this.management.getSelfTask();
+    var task = this.management.selfTask();
     // check if the current task is present
     if (task != null) {
       // check if maintenance is activated
       if (task.maintenance() && !event.getPlayer().hasPermission("cloudnet.bridge.maintenance")) {
-        event.setResult(ComponentResult.denied(serialize(this.management.getConfiguration().getMessage(
+        event.setResult(ComponentResult.denied(serialize(this.management.configuration().message(
           Locale.ENGLISH,
           "proxy-join-cancel-because-maintenance"))));
         return;
@@ -74,7 +74,7 @@ final class VelocityPlayerManagementListener {
       // check if a custom permission is required to join
       var permission = task.properties().getString("requiredPermission");
       if (permission != null && !event.getPlayer().hasPermission(permission)) {
-        event.setResult(ComponentResult.denied(serialize(this.management.getConfiguration().getMessage(
+        event.setResult(ComponentResult.denied(serialize(this.management.configuration().message(
           Locale.ENGLISH,
           "proxy-join-cancel-because-permission"))));
         return;
@@ -84,14 +84,14 @@ final class VelocityPlayerManagementListener {
     var loginResult = ProxyPlatformHelper.sendChannelMessagePreLogin(
       this.management.createPlayerInformation(event.getPlayer()));
     if (!loginResult.isAllowed()) {
-      event.setResult(ComponentResult.denied(loginResult.getResult()));
+      event.setResult(ComponentResult.denied(loginResult.result()));
     }
   }
 
   @Subscribe
   public void handleInitialServerChoose(@NotNull PlayerChooseInitialServerEvent event) {
     // filter the next fallback
-    event.setInitialServer(this.management.getFallback(event.getPlayer())
+    event.setInitialServer(this.management.fallback(event.getPlayer())
       .flatMap(service -> this.proxyServer.getServer(service.name()))
       .orElse(null));
   }
@@ -100,7 +100,7 @@ final class VelocityPlayerManagementListener {
   public void handleServerKick(@NotNull KickedFromServerEvent event) {
     // check if the player is still active
     if (event.getPlayer().isActive()) {
-      event.setResult(this.management.getFallback(event.getPlayer(), event.getServer().getServerInfo().getName())
+      event.setResult(this.management.fallback(event.getPlayer(), event.getServer().getServerInfo().getName())
         .flatMap(service -> this.proxyServer.getServer(service.name()))
         .map(server -> {
           // only notify the player if the fallback is the server the player is connected to
@@ -115,7 +115,7 @@ final class VelocityPlayerManagementListener {
             return RedirectPlayer.create(server);
           }
         })
-        .orElse(DisconnectPlayer.create(serialize(this.management.getConfiguration().getMessage(
+        .orElse(DisconnectPlayer.create(serialize(this.management.configuration().message(
           event.getPlayer().getEffectiveLocale(),
           "proxy-join-disconnect-because-no-hub")))));
     }
@@ -132,7 +132,7 @@ final class VelocityPlayerManagementListener {
       // the player switched the service
       event.getPlayer().getCurrentServer()
         .flatMap(server -> this.management
-          .getCachedService(service -> server.getServerInfo().getName().equals(service.name()))
+          .cachedService(service -> server.getServerInfo().getName().equals(service.name()))
           .map(BridgeServiceHelper::createServiceInfo))
         .ifPresent(info -> ProxyPlatformHelper.sendChannelMessageServiceSwitch(event.getPlayer().getUniqueId(), info));
     }
@@ -170,7 +170,7 @@ final class VelocityPlayerManagementListener {
       // if the message is still not a TextComponent use the default message instead
       if (message instanceof TextComponent) {
         // wrap the message
-        var baseMessage = this.management.getConfiguration().getMessage(playerLocale, "error-connecting-to-server")
+        var baseMessage = this.management.configuration().message(playerLocale, "error-connecting-to-server")
           .replace("%server%", event.getServer().getServerInfo().getName())
           .replace("%reason%", LegacyComponentSerializer.legacySection().serialize(message));
         // format the message
@@ -178,7 +178,7 @@ final class VelocityPlayerManagementListener {
       }
     }
     // render the base message without a reason
-    var baseMessage = this.management.getConfiguration().getMessage(playerLocale, "error-connecting-to-server")
+    var baseMessage = this.management.configuration().message(playerLocale, "error-connecting-to-server")
       .replace("%server%", event.getServer().getServerInfo().getName())
       .replace("%reason%", "§cUnknown");
     // format the message

@@ -52,7 +52,7 @@ final class VelocityDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
   }
 
   @Override
-  public @NotNull UUID getPlayerUniqueId() {
+  public @NotNull UUID uniqueId() {
     return this.uniqueId;
   }
 
@@ -64,8 +64,8 @@ final class VelocityDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
 
   @Override
   public void connectSelecting(@NotNull ServerSelectorType selectorType) {
-    this.management.getCachedServices().stream()
-      .sorted(selectorType.getComparator())
+    this.management.cachedServices().stream()
+      .sorted(selectorType.comparator())
       .map(server -> this.proxyServer.getServer(server.name()))
       .filter(Optional::isPresent)
       .map(Optional::get)
@@ -77,7 +77,7 @@ final class VelocityDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
   @Override
   public void connectToFallback() {
     this.playerSupplier.get().stream()
-      .map(player -> new Pair<>(player, this.management.getFallback(player)))
+      .map(player -> new Pair<>(player, this.management.fallback(player)))
       .filter(pair -> pair.second().isPresent())
       .map(pair -> new Pair<>(pair.first(), this.proxyServer.getServer(pair.second().get().name())))
       .filter(pair -> pair.second().isPresent())
@@ -86,9 +86,9 @@ final class VelocityDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
 
   @Override
   public void connectToGroup(@NotNull String group, @NotNull ServerSelectorType selectorType) {
-    this.management.getCachedServices().stream()
+    this.management.cachedServices().stream()
       .filter(service -> service.configuration().groups().contains(group))
-      .sorted(selectorType.getComparator())
+      .sorted(selectorType.comparator())
       .map(service -> this.proxyServer.getServer(service.name()))
       .filter(Optional::isPresent)
       .map(Optional::get)
@@ -98,9 +98,9 @@ final class VelocityDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
 
   @Override
   public void connectToTask(@NotNull String task, @NotNull ServerSelectorType selectorType) {
-    this.management.getCachedServices().stream()
+    this.management.cachedServices().stream()
       .filter(service -> service.serviceId().taskName().equals(task))
-      .sorted(selectorType.getComparator())
+      .sorted(selectorType.comparator())
       .map(service -> this.proxyServer.getServer(service.name()))
       .filter(Optional::isPresent)
       .map(Optional::get)

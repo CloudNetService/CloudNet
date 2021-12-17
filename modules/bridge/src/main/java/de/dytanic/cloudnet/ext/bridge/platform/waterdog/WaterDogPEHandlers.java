@@ -36,7 +36,7 @@ final class WaterDogPEHandlers implements IForcedHostHandler, IReconnectHandler 
 
   @Override
   public ServerInfo resolveForcedHost(@Nullable String domain, @NotNull ProxiedPlayer player) {
-    return this.management.getFallback(player.getUniqueId(), null, domain, player::hasPermission)
+    return this.management.fallback(player.getUniqueId(), null, domain, player::hasPermission)
       .map(server -> ProxyServer.getInstance().getServerInfo(server.name()))
       .orElse(null);
   }
@@ -48,11 +48,11 @@ final class WaterDogPEHandlers implements IForcedHostHandler, IReconnectHandler 
     @NotNull String kickMessage
   ) {
     // send the player the reason for the disconnect
-    player.sendMessage(this.management.getConfiguration().getMessage(Locale.ENGLISH, "error-connecting-to-server")
+    player.sendMessage(this.management.configuration().message(Locale.ENGLISH, "error-connecting-to-server")
       .replace("%server%", oldServer.getServerName())
       .replace("%reason%", kickMessage));
     // filter the next fallback for the player
-    return this.management.getFallback(player, oldServer.getServerName())
+    return this.management.fallback(player, oldServer.getServerName())
       .map(server -> ProxyServer.getInstance().getServerInfo(server.name()))
       .orElse(null);
   }

@@ -70,22 +70,22 @@ public final class BridgeServiceProperties {
    * Property to check whether a service is in game or not.
    */
   public static final ServiceProperty<Boolean> IS_IN_GAME = DefaultFunctionalServiceProperty.<Boolean>create()
-    .reader(BridgeServiceProperties::isInGameService);
+    .reader(BridgeServiceProperties::inGameService);
   /**
    * Property to check whether a service is starting or not.
    */
   public static final ServiceProperty<Boolean> IS_STARTING = DefaultFunctionalServiceProperty.<Boolean>create()
-    .reader(BridgeServiceProperties::isStartingService);
+    .reader(BridgeServiceProperties::startingService);
   /**
    * Property to check whether a service is empty (no players) or not.
    */
   public static final ServiceProperty<Boolean> IS_EMPTY = DefaultFunctionalServiceProperty.<Boolean>create()
-    .reader(BridgeServiceProperties::isEmptyService);
+    .reader(BridgeServiceProperties::emptyService);
   /**
    * Property to check whether a service is full (online count &gt;= max players) or not.
    */
   public static final ServiceProperty<Boolean> IS_FULL = DefaultFunctionalServiceProperty.<Boolean>create()
-    .reader(BridgeServiceProperties::isFullService);
+    .reader(BridgeServiceProperties::fullService);
   /**
    * Property to get all online players on a service.
    */
@@ -99,14 +99,14 @@ public final class BridgeServiceProperties {
     throw new UnsupportedOperationException();
   }
 
-  private static boolean isEmptyService(@NotNull ServiceInfoSnapshot service) {
+  private static boolean emptyService(@NotNull ServiceInfoSnapshot service) {
     return service.connected()
       && service.property(IS_ONLINE).orElse(false)
       && service.property(ONLINE_COUNT).isPresent()
       && service.property(ONLINE_COUNT).orElse(0) == 0;
   }
 
-  private static boolean isFullService(@NotNull ServiceInfoSnapshot service) {
+  private static boolean fullService(@NotNull ServiceInfoSnapshot service) {
     return service.connected()
       && service.property(IS_ONLINE).orElse(false)
       && service.property(ONLINE_COUNT).isPresent()
@@ -114,11 +114,11 @@ public final class BridgeServiceProperties {
       && service.property(ONLINE_COUNT).orElse(0) >= service.property(MAX_PLAYERS).orElse(0);
   }
 
-  private static boolean isStartingService(@NotNull ServiceInfoSnapshot service) {
+  private static boolean startingService(@NotNull ServiceInfoSnapshot service) {
     return service.lifeCycle() == ServiceLifeCycle.RUNNING && !service.property(IS_ONLINE).orElse(false);
   }
 
-  private static boolean isInGameService(@NotNull ServiceInfoSnapshot service) {
+  private static boolean inGameService(@NotNull ServiceInfoSnapshot service) {
     return service.lifeCycle() == ServiceLifeCycle.RUNNING && service.connected()
       && service.property(IS_ONLINE).orElse(false)
       && (service.property(MOTD).map(BridgeServiceProperties::matchesInGameString).orElse(false) ||

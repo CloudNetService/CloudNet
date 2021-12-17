@@ -45,12 +45,12 @@ public final class BungeeCordHubCommand extends Command {
     if (sender instanceof ProxiedPlayer player) {
       // check if the player is on a fallback already
       if (this.management.isOnAnyFallbackInstance(player)) {
-        player.sendMessage(fromLegacyText(this.management.getConfiguration().getMessage(
+        player.sendMessage(fromLegacyText(this.management.configuration().message(
           player.getLocale(),
           "command-hub-already-in-hub")));
       } else {
         // try to get a fallback for the player
-        ServerInfo hub = this.management.getFallback(player)
+        ServerInfo hub = this.management.fallback(player)
           .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
           .orElse(null);
         // check if a fallback was found
@@ -58,13 +58,13 @@ public final class BungeeCordHubCommand extends Command {
           player.connect(hub, (result, ex) -> {
             // check if the connection was successful
             if (result && ex == null) {
-              player.sendMessage(fromLegacyText(this.management.getConfiguration().getMessage(
+              player.sendMessage(fromLegacyText(this.management.configuration().message(
                 player.getLocale(),
                 "command-hub-success-connect"
               ).replace("%server%", hub.getName())));
             } else {
               // the connection was not successful
-              player.sendMessage(fromLegacyText(this.management.getConfiguration().getMessage(
+              player.sendMessage(fromLegacyText(this.management.configuration().message(
                 player.getLocale(),
                 "command-hub-no-server-found")));
             }

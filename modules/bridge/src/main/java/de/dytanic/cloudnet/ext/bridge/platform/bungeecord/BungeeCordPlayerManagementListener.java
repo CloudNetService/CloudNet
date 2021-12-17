@@ -58,7 +58,7 @@ final class BungeeCordPlayerManagementListener implements Listener {
 
   @EventHandler
   public void handle(@NotNull LoginEvent event) {
-    var task = this.management.getSelfTask();
+    var task = this.management.selfTask();
     // check if the current task is present
     if (task != null) {
       // we need to wrap the proxied player to allow permission checks
@@ -66,7 +66,7 @@ final class BungeeCordPlayerManagementListener implements Listener {
       // check if maintenance is activated
       if (task.maintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
         event.setCancelled(true);
-        event.setCancelReason(TextComponent.fromLegacyText(this.management.getConfiguration().getMessage(
+        event.setCancelReason(TextComponent.fromLegacyText(this.management.configuration().message(
           Locale.ENGLISH,
           "proxy-join-cancel-because-maintenance")));
         return;
@@ -75,7 +75,7 @@ final class BungeeCordPlayerManagementListener implements Listener {
       var permission = task.properties().getString("requiredPermission");
       if (permission != null && !player.hasPermission(permission)) {
         event.setCancelled(true);
-        event.setCancelReason(TextComponent.fromLegacyText(this.management.getConfiguration().getMessage(
+        event.setCancelReason(TextComponent.fromLegacyText(this.management.configuration().message(
           Locale.ENGLISH,
           "proxy-join-cancel-because-permission")));
         return;
@@ -90,10 +90,10 @@ final class BungeeCordPlayerManagementListener implements Listener {
       new HostAndPort((InetSocketAddress) event.getConnection().getSocketAddress()),
       new HostAndPort((InetSocketAddress) event.getConnection().getListener().getSocketAddress()),
       event.getConnection().isOnlineMode(),
-      this.management.getOwnNetworkServiceInfo()));
+      this.management.ownNetworkServiceInfo()));
     if (!loginResult.isAllowed()) {
       event.setCancelled(true);
-      event.setCancelReason(TextComponent.fromLegacyText(legacySection().serialize(loginResult.getResult())));
+      event.setCancelReason(TextComponent.fromLegacyText(legacySection().serialize(loginResult.result())));
     }
   }
 
@@ -101,7 +101,7 @@ final class BungeeCordPlayerManagementListener implements Listener {
   public void handle(@NotNull ServerConnectEvent event) {
     // initial connect reasons, LOBBY_FALLBACK will be used if the initial fallback is not present
     if (event.getReason() == Reason.JOIN_PROXY || event.getReason() == Reason.LOBBY_FALLBACK) {
-      ServerInfo target = this.management.getFallback(event.getPlayer())
+      ServerInfo target = this.management.fallback(event.getPlayer())
         .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
         .orElse(null);
       // check if the server is present
@@ -117,7 +117,7 @@ final class BungeeCordPlayerManagementListener implements Listener {
   @EventHandler
   public void handle(@NotNull ServerKickEvent event) {
     if (event.getPlayer().isConnected()) {
-      ServerInfo target = this.management.getFallback(event.getPlayer(), event.getKickedFrom().getName())
+      ServerInfo target = this.management.fallback(event.getPlayer(), event.getKickedFrom().getName())
         .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
         .orElse(null);
       // check if the server is present
@@ -126,7 +126,7 @@ final class BungeeCordPlayerManagementListener implements Listener {
         event.setCancelServer(target);
         // extract the reason for the disconnect and wrap it
         Locale playerLocale = event.getPlayer().getLocale();
-        var baseMessage = this.management.getConfiguration().getMessage(playerLocale, "error-connecting-to-server")
+        var baseMessage = this.management.configuration().message(playerLocale, "error-connecting-to-server")
           .replace("%server%", event.getKickedFrom().getName())
           .replace("%reason%", ComponentSerializer.toString(event.getKickReasonComponent()));
         // send the player the reason for the disconnect
@@ -135,7 +135,7 @@ final class BungeeCordPlayerManagementListener implements Listener {
         // no lobby server - the player will disconnect
         event.setCancelled(false);
         event.setCancelServer(null);
-        event.setKickReasonComponent(TextComponent.fromLegacyText(this.management.getConfiguration().getMessage(
+        event.setKickReasonComponent(TextComponent.fromLegacyText(this.management.configuration().message(
           event.getPlayer().getLocale(),
           "proxy-join-disconnect-because-no-hub")));
       }
@@ -153,7 +153,7 @@ final class BungeeCordPlayerManagementListener implements Listener {
       // server switch
       // the player switched the service
       this.management
-        .getCachedService(service -> service.name().equals(event.getServer().getInfo().getName()))
+        .cachedService(service -> service.name().equals(event.getServer().getInfo().getName()))
         .map(BridgeServiceHelper::createServiceInfo)
         .ifPresent(info -> ProxyPlatformHelper.sendChannelMessageServiceSwitch(event.getPlayer().getUniqueId(), info));
     }

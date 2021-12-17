@@ -99,7 +99,7 @@ final class VelocityBridgeManagement extends PlatformBridgeManagement<Player, Ne
   }
 
   @Override
-  public @NotNull BiFunction<Player, String, Boolean> getPermissionFunction() {
+  public @NotNull BiFunction<Player, String, Boolean> permissionFunction() {
     return PERM_FUNCTION;
   }
 
@@ -112,15 +112,15 @@ final class VelocityBridgeManagement extends PlatformBridgeManagement<Player, Ne
   }
 
   @Override
-  public @NotNull Optional<ServiceInfoSnapshot> getFallback(@NotNull Player player) {
-    return this.getFallback(
+  public @NotNull Optional<ServiceInfoSnapshot> fallback(@NotNull Player player) {
+    return this.fallback(
       player,
       player.getCurrentServer().map(connection -> connection.getServerInfo().getName()).orElse(null));
   }
 
   @Override
-  public @NotNull Optional<ServiceInfoSnapshot> getFallback(@NotNull Player player, @Nullable String currServer) {
-    return this.getFallback(
+  public @NotNull Optional<ServiceInfoSnapshot> fallback(@NotNull Player player, @Nullable String currServer) {
+    return this.fallback(
       player.getUniqueId(),
       currServer,
       player.getVirtualHost().map(InetSocketAddress::getHostString).orElse(null),
@@ -138,7 +138,7 @@ final class VelocityBridgeManagement extends PlatformBridgeManagement<Player, Ne
   }
 
   @Override
-  public @NotNull PlayerExecutor getDirectPlayerExecutor(@NotNull UUID uniqueId) {
+  public @NotNull PlayerExecutor directPlayerExecutor(@NotNull UUID uniqueId) {
     return uniqueId.equals(PlayerExecutor.GLOBAL_UNIQUE_ID)
       ? this.globalDirectPlayerExecutor
       : new VelocityDirectPlayerExecutor(

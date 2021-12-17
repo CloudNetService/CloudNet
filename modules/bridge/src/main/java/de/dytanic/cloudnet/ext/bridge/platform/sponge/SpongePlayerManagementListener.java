@@ -47,13 +47,13 @@ public final class SpongePlayerManagementListener {
 
   @Listener
   public void handle(@NotNull ServerSideConnectionEvent.Login event, @First @NotNull User user) {
-    var task = this.management.getSelfTask();
+    var task = this.management.selfTask();
     // check if the current task is present
     if (task != null) {
       // check if maintenance is activated
       if (task.maintenance() && !user.hasPermission("cloudnet.bridge.maintenance")) {
         event.setCancelled(true);
-        event.setMessage(Component.text(this.management.getConfiguration().getMessage(
+        event.setMessage(Component.text(this.management.configuration().message(
           Locale.ENGLISH,
           "server-join-cancel-because-maintenance")));
         return;
@@ -62,7 +62,7 @@ public final class SpongePlayerManagementListener {
       var permission = task.properties().getString("requiredPermission");
       if (permission != null && !user.hasPermission(permission)) {
         event.setCancelled(true);
-        event.setMessage(Component.text(this.management.getConfiguration().getMessage(
+        event.setMessage(Component.text(this.management.configuration().message(
           Locale.ENGLISH,
           "server-join-cancel-because-permission")));
       }
@@ -73,7 +73,7 @@ public final class SpongePlayerManagementListener {
   public void handle(@NotNull ServerSideConnectionEvent.Join event, @First @NotNull ServerPlayer player) {
     ServerPlatformHelper.sendChannelMessageLoginSuccess(
       player.uniqueId(),
-      this.management.getOwnNetworkServiceInfo());
+      this.management.ownNetworkServiceInfo());
     // update service info
     this.executorService.schedule(() -> Wrapper.getInstance().publishServiceInfoUpdate(), 50, TimeUnit.MILLISECONDS);
   }
@@ -82,7 +82,7 @@ public final class SpongePlayerManagementListener {
   public void handle(@NotNull ServerSideConnectionEvent.Disconnect event, @First @NotNull ServerPlayer player) {
     ServerPlatformHelper.sendChannelMessageDisconnected(
       player.uniqueId(),
-      this.management.getOwnNetworkServiceInfo());
+      this.management.ownNetworkServiceInfo());
     // update service info
     this.executorService.schedule(() -> Wrapper.getInstance().publishServiceInfoUpdate(), 50, TimeUnit.MILLISECONDS);
   }

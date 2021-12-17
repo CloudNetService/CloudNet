@@ -42,14 +42,14 @@ final class BukkitPlayerManagementListener implements Listener {
 
   @EventHandler
   public void handle(@NotNull PlayerLoginEvent event) {
-    var task = this.management.getSelfTask();
+    var task = this.management.selfTask();
     // check if the current task is present
     if (task != null) {
       // check if maintenance is activated
       if (task.maintenance() && !event.getPlayer().hasPermission("cloudnet.bridge.maintenance")) {
         event.setResult(Result.KICK_WHITELIST);
-        event.setKickMessage(this.management.getConfiguration().getMessage(
-          Locale.forLanguageTag(BukkitUtil.getPlayerLocale(event.getPlayer())),
+        event.setKickMessage(this.management.configuration().message(
+          Locale.forLanguageTag(BukkitUtil.playerLocale(event.getPlayer())),
           "server-join-cancel-because-maintenance"));
         return;
       }
@@ -57,8 +57,8 @@ final class BukkitPlayerManagementListener implements Listener {
       var permission = task.properties().getString("requiredPermission");
       if (permission != null && !event.getPlayer().hasPermission(permission)) {
         event.setResult(Result.KICK_WHITELIST);
-        event.setKickMessage(this.management.getConfiguration().getMessage(
-          Locale.forLanguageTag(BukkitUtil.getPlayerLocale(event.getPlayer())),
+        event.setKickMessage(this.management.configuration().message(
+          Locale.forLanguageTag(BukkitUtil.playerLocale(event.getPlayer())),
           "server-join-cancel-because-permission"));
       }
     }
@@ -68,7 +68,7 @@ final class BukkitPlayerManagementListener implements Listener {
   public void handle(@NotNull PlayerJoinEvent event) {
     ServerPlatformHelper.sendChannelMessageLoginSuccess(
       event.getPlayer().getUniqueId(),
-      this.management.getOwnNetworkServiceInfo());
+      this.management.ownNetworkServiceInfo());
     // update the service info in the next tick
     Bukkit.getScheduler().runTask(this.plugin, () -> Wrapper.getInstance().publishServiceInfoUpdate());
   }
@@ -77,7 +77,7 @@ final class BukkitPlayerManagementListener implements Listener {
   public void handle(@NotNull PlayerQuitEvent event) {
     ServerPlatformHelper.sendChannelMessageDisconnected(
       event.getPlayer().getUniqueId(),
-      this.management.getOwnNetworkServiceInfo());
+      this.management.ownNetworkServiceInfo());
     // update the service info in the next tick
     Bukkit.getScheduler().runTask(this.plugin, () -> Wrapper.getInstance().publishServiceInfoUpdate());
   }

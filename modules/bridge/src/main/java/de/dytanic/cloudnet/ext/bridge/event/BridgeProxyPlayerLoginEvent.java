@@ -28,7 +28,7 @@ public final class BridgeProxyPlayerLoginEvent extends DriverEvent {
     this.cloudPlayer = cloudPlayer;
   }
 
-  public @NotNull CloudPlayer getCloudPlayer() {
+  public @NotNull CloudPlayer cloudPlayer() {
     return this.cloudPlayer;
   }
 }

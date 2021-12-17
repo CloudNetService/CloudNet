@@ -28,7 +28,7 @@ public final class BridgeDeleteCloudOfflinePlayerEvent extends DriverEvent {
     this.cloudPlayer = cloudPlayer;
   }
 
-  public @NotNull CloudOfflinePlayer getCloudOfflinePlayer() {
+  public @NotNull CloudOfflinePlayer cloudOfflinePlayer() {
     return this.cloudPlayer;
   }
 }

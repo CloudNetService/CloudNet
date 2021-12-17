@@ -41,7 +41,7 @@ final class SpongeDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
   }
 
   @Override
-  public @NotNull UUID getPlayerUniqueId() {
+  public @NotNull UUID uniqueId() {
     return this.targetUniqueId;
   }
 

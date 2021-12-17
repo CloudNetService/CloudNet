@@ -34,7 +34,7 @@ public interface PlayerExecutor {
    * @return the UUID of the player
    */
   @NotNull
-  UUID getPlayerUniqueId();
+  UUID uniqueId();
 
   /**
    * Connects an online player to a specific service.

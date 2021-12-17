@@ -53,23 +53,23 @@ public final class ProxyFallback implements Comparable<ProxyFallback> {
     this.availableOnGroups = availableOnGroups;
   }
 
-  public @NotNull String getTask() {
+  public @NotNull String task() {
     return this.task;
   }
 
-  public @Nullable String getPermission() {
+  public @Nullable String permission() {
     return this.permission;
   }
 
-  public @NotNull Collection<String> getAvailableOnGroups() {
+  public @NotNull Collection<String> availableOnGroups() {
     return this.availableOnGroups;
   }
 
-  public @Nullable String getForcedHost() {
+  public @Nullable String forcedHost() {
     return this.forcedHost;
   }
 
-  public int getPriority() {
+  public int priority() {
     return this.priority;
   }
 

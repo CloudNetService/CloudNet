@@ -76,7 +76,7 @@ final class SpongeBridgeManagement extends PlatformBridgeManagement<ServerPlayer
   }
 
   @Override
-  public @NotNull BiFunction<ServerPlayer, String, Boolean> getPermissionFunction() {
+  public @NotNull BiFunction<ServerPlayer, String, Boolean> permissionFunction() {
     return PERM_FUNCTION;
   }
 
@@ -86,13 +86,13 @@ final class SpongeBridgeManagement extends PlatformBridgeManagement<ServerPlayer
   }
 
   @Override
-  public @NotNull Optional<ServiceInfoSnapshot> getFallback(@NotNull ServerPlayer player) {
-    return this.getFallback(player, this.ownNetworkServiceInfo.serverName());
+  public @NotNull Optional<ServiceInfoSnapshot> fallback(@NotNull ServerPlayer player) {
+    return this.fallback(player, this.ownNetworkServiceInfo.serverName());
   }
 
   @Override
-  public @NotNull Optional<ServiceInfoSnapshot> getFallback(@NotNull ServerPlayer player, @Nullable String currServer) {
-    return this.getFallback(player.uniqueId(), currServer, null, player::hasPermission);
+  public @NotNull Optional<ServiceInfoSnapshot> fallback(@NotNull ServerPlayer player, @Nullable String currServer) {
+    return this.fallback(player.uniqueId(), currServer, null, player::hasPermission);
   }
 
   @Override
@@ -106,7 +106,7 @@ final class SpongeBridgeManagement extends PlatformBridgeManagement<ServerPlayer
   }
 
   @Override
-  public @NotNull PlayerExecutor getDirectPlayerExecutor(@NotNull UUID uniqueId) {
+  public @NotNull PlayerExecutor directPlayerExecutor(@NotNull UUID uniqueId) {
     return uniqueId.equals(PlayerExecutor.GLOBAL_UNIQUE_ID)
       ? this.directGlobalExecutor
       : new SpongeDirectPlayerExecutor(

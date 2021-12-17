@@ -43,9 +43,9 @@ public final class WaterDogPEBridgePlugin extends Plugin {
     // register the commands
     ProxyServer.getInstance().getCommandMap().registerCommand(new WaterDogPECloudCommand(management));
     // register the hub command if requested
-    if (!management.getConfiguration().getHubCommandNames().isEmpty()) {
+    if (!management.configuration().hubCommandNames().isEmpty()) {
       // convert to an array for easier access
-      var names = management.getConfiguration().getHubCommandNames().toArray(new String[0]);
+      var names = management.configuration().hubCommandNames().toArray(new String[0]);
       // register the command
       ProxyServer.getInstance().getCommandMap().registerCommand(new WaterDogPEHubCommand(
         management,

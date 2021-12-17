@@ -75,7 +75,7 @@ final class NukkitBridgeManagement extends PlatformBridgeManagement<Player, Netw
   }
 
   @Override
-  public @NotNull BiFunction<Player, String, Boolean> getPermissionFunction() {
+  public @NotNull BiFunction<Player, String, Boolean> permissionFunction() {
     return PERM_FUNCTION;
   }
 
@@ -85,13 +85,13 @@ final class NukkitBridgeManagement extends PlatformBridgeManagement<Player, Netw
   }
 
   @Override
-  public @NotNull Optional<ServiceInfoSnapshot> getFallback(@NotNull Player player) {
-    return this.getFallback(player, this.ownNetworkServiceInfo.serverName());
+  public @NotNull Optional<ServiceInfoSnapshot> fallback(@NotNull Player player) {
+    return this.fallback(player, this.ownNetworkServiceInfo.serverName());
   }
 
   @Override
-  public @NotNull Optional<ServiceInfoSnapshot> getFallback(@NotNull Player player, @Nullable String currServer) {
-    return this.getFallback(player.getUniqueId(), currServer, null, player::hasPermission);
+  public @NotNull Optional<ServiceInfoSnapshot> fallback(@NotNull Player player, @Nullable String currServer) {
+    return this.fallback(player.getUniqueId(), currServer, null, player::hasPermission);
   }
 
   @Override
@@ -105,7 +105,7 @@ final class NukkitBridgeManagement extends PlatformBridgeManagement<Player, Netw
   }
 
   @Override
-  public @NotNull PlayerExecutor getDirectPlayerExecutor(@NotNull UUID uniqueId) {
+  public @NotNull PlayerExecutor directPlayerExecutor(@NotNull UUID uniqueId) {
     return uniqueId.equals(PlayerExecutor.GLOBAL_UNIQUE_ID)
       ? this.globalPlayerExecutor
       : new NukkitDirectPlayerExecutor(

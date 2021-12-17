@@ -50,7 +50,7 @@ public class NodePlayerExecutor implements PlayerExecutor {
   }
 
   @Override
-  public @NotNull UUID getPlayerUniqueId() {
+  public @NotNull UUID uniqueId() {
     return this.targetUniqueId;
   }
 
@@ -164,11 +164,11 @@ public class NodePlayerExecutor implements PlayerExecutor {
     } else {
       // get the player associated with this provider
       //noinspection ConstantConditions - This can never be null here (only for the global unique id which is handeled already)
-      var player = this.playerManager.getOnlinePlayer(this.targetUniqueId);
+      var player = this.playerManager.onlinePlayer(this.targetUniqueId);
       // the player must be connected to proceed
       Preconditions.checkNotNull(player, "Target player %s is not connected (anymore)", this.targetUniqueId);
       // target the login service of the player
-      message = ChannelMessage.builder().targetService(player.getLoginService().serverName());
+      message = ChannelMessage.builder().targetService(player.loginService().serverName());
     }
     // set the internal bridge channel
     return message.channel(BridgeManagement.BRIDGE_PLAYER_EXECUTOR_CHANNEL_NAME);

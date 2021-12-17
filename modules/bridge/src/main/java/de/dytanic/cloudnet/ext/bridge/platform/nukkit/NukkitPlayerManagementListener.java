@@ -40,13 +40,13 @@ final class NukkitPlayerManagementListener implements Listener {
 
   @EventHandler
   public void handle(@NotNull PlayerLoginEvent event) {
-    var task = this.management.getSelfTask();
+    var task = this.management.selfTask();
     // check if the current task is present
     if (task != null) {
       // check if maintenance is activated
       if (task.maintenance() && !event.getPlayer().hasPermission("cloudnet.bridge.maintenance")) {
         event.setCancelled(true);
-        event.setKickMessage(this.management.getConfiguration().getMessage(
+        event.setKickMessage(this.management.configuration().message(
           event.getPlayer().getLocale(),
           "server-join-cancel-because-maintenance"));
         return;
@@ -55,7 +55,7 @@ final class NukkitPlayerManagementListener implements Listener {
       var permission = task.properties().getString("requiredPermission");
       if (permission != null && !event.getPlayer().hasPermission(permission)) {
         event.setCancelled(true);
-        event.setKickMessage(this.management.getConfiguration().getMessage(
+        event.setKickMessage(this.management.configuration().message(
           event.getPlayer().getLocale(),
           "server-join-cancel-because-permission"));
       }
@@ -66,7 +66,7 @@ final class NukkitPlayerManagementListener implements Listener {
   public void handle(@NotNull PlayerJoinEvent event) {
     ServerPlatformHelper.sendChannelMessageLoginSuccess(
       event.getPlayer().getUniqueId(),
-      this.management.getOwnNetworkServiceInfo());
+      this.management.ownNetworkServiceInfo());
     // update the service info in the next tick
     Server.getInstance().getScheduler().scheduleTask(this.plugin, Wrapper.getInstance()::publishServiceInfoUpdate);
   }
@@ -75,7 +75,7 @@ final class NukkitPlayerManagementListener implements Listener {
   public void handle(@NotNull PlayerQuitEvent event) {
     ServerPlatformHelper.sendChannelMessageDisconnected(
       event.getPlayer().getUniqueId(),
-      this.management.getOwnNetworkServiceInfo());
+      this.management.ownNetworkServiceInfo());
     // update the service info in the next tick
     Server.getInstance().getScheduler().scheduleTask(this.plugin, Wrapper.getInstance()::publishServiceInfoUpdate);
   }
