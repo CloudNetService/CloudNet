@@ -8,7 +8,7 @@ guava = "31.0.1-jre"
 
 # testing
 junit = "5.8.2"
-mockito = "4.1.0"
+mockito = "4.2.0"
 tyrusClient = "2.0.1"
 minaSshdServer = "2.8.0"
 
