@@ -34,7 +34,7 @@ public class CommandPostProcessEvent extends Event {
    * @return the command source that executed the given commandline.
    */
   @NotNull
-  public CommandSource getCommandSource() {
+  public CommandSource commandSource() {
     return this.commandSource;
   }
 
@@ -42,7 +42,7 @@ public class CommandPostProcessEvent extends Event {
    * @return the command line that was executed.
    */
   @NotNull
-  public String getCommandLine() {
+  public String commandLine() {
     return this.commandLine;
   }
 }

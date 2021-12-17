@@ -44,7 +44,7 @@ public abstract class AbstractConsoleAnimation implements Runnable {
   }
 
   public void addToCursor(int cursor) {
-    if (!this.isStaticCursor()) {
+    if (!this.staticCursor()) {
       this.cursorUp += cursor;
     }
   }
@@ -95,19 +95,19 @@ public abstract class AbstractConsoleAnimation implements Runnable {
     }
   }
 
-  public boolean isStaticCursor() {
+  public boolean staticCursor() {
     return this.staticCursor;
   }
 
-  public int getUpdateInterval() {
+  public int updateInterval() {
     return this.updateInterval;
   }
 
-  public @NotNull IConsole getConsole() {
+  public @NotNull IConsole console() {
     return this.console;
   }
 
-  public void setConsole(@NotNull IConsole console) {
+  public void console(@NotNull IConsole console) {
     Verify.verify(this.console == null, "Cannot set console of animation twice");
     this.console = console;
   }

@@ -30,7 +30,7 @@ public final class NetworkServiceAuthSuccessEvent extends NetworkEvent {
     this.cloudService = cloudService;
   }
 
-  public @NotNull ICloudService getCloudService() {
+  public @NotNull ICloudService cloudService() {
     return this.cloudService;
   }
 }

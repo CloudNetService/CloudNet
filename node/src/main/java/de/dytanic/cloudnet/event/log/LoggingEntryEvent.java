@@ -28,7 +28,7 @@ public final class LoggingEntryEvent extends DriverEvent {
     this.record = record;
   }
 
-  public @NotNull LogRecord getLogEntry() {
+  public @NotNull LogRecord logEntry() {
     return this.record;
   }
 }

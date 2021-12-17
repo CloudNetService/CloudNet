@@ -103,8 +103,8 @@ public class DefaultTaskSetup implements DefaultSetup {
                   .translatedQuestion("cloudnet-init-setup-tasks-proxy-version")
                   .answerType(QuestionAnswerType.<Pair<ServiceVersionType, ServiceVersion>>builder()
                     .possibleResults(() -> this.completableServiceVersions(
-                      animation.getResult("proxyEnvironment"),
-                      animation.getResult("proxyJavaCommand")))
+                      animation.result("proxyEnvironment"),
+                      animation.result("proxyJavaCommand")))
                     .parser(serviceVersion()))
                   .build());
             }
@@ -150,8 +150,8 @@ public class DefaultTaskSetup implements DefaultSetup {
                   .translatedQuestion("cloudnet-init-setup-tasks-server-version")
                   .answerType(QuestionAnswerType.<Pair<ServiceVersionType, ServiceVersion>>builder()
                     .possibleResults(() -> this.completableServiceVersions(
-                      animation.getResult("serverEnvironment"),
-                      animation.getResult("serverJavaCommand")))
+                      animation.result("serverEnvironment"),
+                      animation.result("serverJavaCommand")))
                     .parser(serviceVersion()))
                   .build());
             }
@@ -162,11 +162,11 @@ public class DefaultTaskSetup implements DefaultSetup {
   @Override
   public void handleResults(@NotNull ConsoleSetupAnimation animation) {
     // proxy installation
-    if (animation.getResult("installProxy")) {
+    if (animation.result("installProxy")) {
       this.executeSetup(animation, "proxy", PROXY_TASK_NAME, GLOBAL_PROXY_GROUP_NAME, 256);
     }
     // server installation
-    if (animation.getResult("installServer")) {
+    if (animation.result("installServer")) {
       this.executeSetup(animation, "server", LOBBY_TASK_NAME, GLOBAL_SERVER_GROUP_NAME, 512);
     }
   }
@@ -179,12 +179,12 @@ public class DefaultTaskSetup implements DefaultSetup {
     int maxHeapMemory
   ) {
     // read the responses
-    ServiceEnvironmentType environment = animation.getResult(resultPrefix + "Environment");
-    Pair<String, ?> javaCommand = animation.getResult(resultPrefix + "JavaCommand");
-    Pair<ServiceVersionType, ServiceVersion> version = animation.getResult(resultPrefix + "Version");
+    ServiceEnvironmentType environment = animation.result(resultPrefix + "Environment");
+    Pair<String, ?> javaCommand = animation.result(resultPrefix + "JavaCommand");
+    Pair<ServiceVersionType, ServiceVersion> version = animation.result(resultPrefix + "Version");
     // create the task
     var template = ServiceTemplate.builder().prefix(taskName).name("default").build();
-    CloudNet.getInstance().serviceTaskProvider().addPermanentServiceTask(ServiceTask.builder()
+    CloudNet.instance().serviceTaskProvider().addPermanentServiceTask(ServiceTask.builder()
       .name(taskName)
       .minServiceCount(1)
       .autoDeleteOnStop(true)
@@ -200,21 +200,21 @@ public class DefaultTaskSetup implements DefaultSetup {
     var groupTemplate = ServiceTemplate.builder().prefix(GLOBAL_TEMPLATE_PREFIX).name(groupName).build();
     this.initializeTemplate(groupTemplate, environment, false);
     // register the group
-    CloudNet.getInstance().groupConfigurationProvider().addGroupConfiguration(GroupConfiguration.builder()
+    CloudNet.instance().groupConfigurationProvider().addGroupConfiguration(GroupConfiguration.builder()
       .name(groupName)
       .addTargetEnvironment(environment.name())
       .addTemplate(groupTemplate)
       .build());
 
     // create a group specifically for the task
-    CloudNet.getInstance().groupConfigurationProvider().addGroupConfiguration(GroupConfiguration.builder()
+    CloudNet.instance().groupConfigurationProvider().addGroupConfiguration(GroupConfiguration.builder()
       .name(taskName)
       .addTemplate(template)
       .build());
 
     // install the service template
     this.initializeTemplate(template, environment, true);
-    CloudNet.getInstance().serviceVersionProvider().installServiceVersion(InstallInformation.builder()
+    CloudNet.instance().serviceVersionProvider().installServiceVersion(InstallInformation.builder()
       .serviceVersion(version.second())
       .serviceVersionType(version.first())
       .toTemplate(template)
@@ -255,6 +255,6 @@ public class DefaultTaskSetup implements DefaultSetup {
   }
 
   protected @NotNull ServiceVersionProvider getVersionProvider() {
-    return CloudNet.getInstance().serviceVersionProvider();
+    return CloudNet.instance().serviceVersionProvider();
   }
 }

@@ -62,25 +62,26 @@ public class CommandExceptionHandler {
       return;
     }
     // determine the cause type and apply the specific handler
-    if (cause instanceof InvalidSyntaxException) {
-      this.handleInvalidSyntaxException(source, (InvalidSyntaxException) cause);
-    } else if (cause instanceof NoPermissionException) {
-      this.handleNoPermissionException(source, (NoPermissionException) cause);
-    } else if (cause instanceof NoSuchCommandException) {
-      this.handleNoSuchCommandException(source, (NoSuchCommandException) cause);
-    } else if (cause instanceof InvalidCommandSenderException) {
-      this.handleInvalidCommandSourceException(source, (InvalidCommandSenderException) cause);
-    } else if (cause instanceof ArgumentParseException) {
-      var deepCause = cause.getCause();
-      if (deepCause instanceof ArgumentNotAvailableException) {
-        this.handleArgumentNotAvailableException(source, (ArgumentNotAvailableException) deepCause);
-      } else if (deepCause instanceof FlagArgument.FlagParseException) {
-        this.handleFlagParseException(source, (FlagParseException) deepCause);
-      } else {
-        this.handleArgumentParseException(source, (ArgumentParseException) cause);
+    switch (cause) {
+      case InvalidSyntaxException invalidSyntaxException -> this.handleInvalidSyntaxException(source,
+        invalidSyntaxException);
+      case NoPermissionException noPermissionException -> this.handleNoPermissionException(source,
+        noPermissionException);
+      case NoSuchCommandException noSuchCommandException -> this.handleNoSuchCommandException(source,
+        noSuchCommandException);
+      case InvalidCommandSenderException invalidCommandSenderException -> this.handleInvalidCommandSourceException(
+        source, invalidCommandSenderException);
+      case ArgumentParseException argumentParseException -> {
+        var deepCause = cause.getCause();
+        if (deepCause instanceof ArgumentNotAvailableException) {
+          this.handleArgumentNotAvailableException(source, (ArgumentNotAvailableException) deepCause);
+        } else if (deepCause instanceof FlagArgument.FlagParseException) {
+          this.handleFlagParseException(source, (FlagParseException) deepCause);
+        } else {
+          this.handleArgumentParseException(source, (ArgumentParseException) cause);
+        }
       }
-    } else {
-      LOGGER.severe("Exception during command execution", cause);
+      default -> LOGGER.severe("Exception during command execution", cause);
     }
   }
 
@@ -101,7 +102,7 @@ public class CommandExceptionHandler {
       return;
     }
 
-    var invalidSyntaxEvent = CloudNet.getInstance().eventManager().callEvent(
+    var invalidSyntaxEvent = CloudNet.instance().eventManager().callEvent(
       new CommandInvalidSyntaxEvent(
         source,
         exception.getCorrectSyntax(),
@@ -109,18 +110,18 @@ public class CommandExceptionHandler {
           .replace("%syntax%", exception.getCorrectSyntax())
       )
     );
-    source.sendMessage(invalidSyntaxEvent.getResponse());
+    source.sendMessage(invalidSyntaxEvent.response());
   }
 
   protected void handleNoSuchCommandException(CommandSource source, NoSuchCommandException exception) {
-    var notFoundEvent = CloudNet.getInstance().eventManager().callEvent(
+    var notFoundEvent = CloudNet.instance().eventManager().callEvent(
       new CommandNotFoundEvent(
         source,
         exception.getSuppliedCommand(),
         I18n.trans("command-not-found")
       )
     );
-    source.sendMessage(notFoundEvent.getResponse());
+    source.sendMessage(notFoundEvent.response());
   }
 
   protected void handleNoPermissionException(CommandSource source, NoPermissionException exception) {
@@ -151,7 +152,7 @@ public class CommandExceptionHandler {
       return false;
     }
     var root = currentChain.get(0).getName();
-    var commandInfo = this.commandProvider.getCommand(root);
+    var commandInfo = this.commandProvider.command(root);
     if (commandInfo == null) {
       // we can't find a matching command, let the user handle the response
       return false;

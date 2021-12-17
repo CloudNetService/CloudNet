@@ -32,11 +32,11 @@ public class DatabaseInsertEntryEvent extends DatabaseEvent {
     this.document = document;
   }
 
-  public @NotNull String getKey() {
+  public @NotNull String key() {
     return this.key;
   }
 
-  public @NotNull JsonDocument getDocument() {
+  public @NotNull JsonDocument document() {
     return this.document;
   }
 }

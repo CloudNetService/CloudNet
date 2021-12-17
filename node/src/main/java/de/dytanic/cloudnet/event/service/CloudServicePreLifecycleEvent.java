@@ -31,7 +31,7 @@ public final class CloudServicePreLifecycleEvent extends CloudServiceEvent imple
     this.targetLifecycle = targetLifecycle;
   }
 
-  public @NotNull ServiceLifeCycle getTargetLifecycle() {
+  public @NotNull ServiceLifeCycle targetLifecycle() {
     return this.targetLifecycle;
   }
 

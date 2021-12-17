@@ -96,7 +96,7 @@ public final class CloudNetBridgeModule extends DriverModule {
 
   @ModuleTask(event = ModuleLifeCycle.STARTED)
   public void convertOldDatabaseEntries() {
-    var playerDb = CloudNet.getInstance().databaseProvider().database(BRIDGE_PLAYER_DB_NAME);
+    var playerDb = CloudNet.instance().databaseProvider().database(BRIDGE_PLAYER_DB_NAME);
     // read the first player from the database - if the first player is valid we don't need to take a look at the other
     // players in the database as they were already converted
     var first = playerDb.readChunk(101, 1);
@@ -124,7 +124,7 @@ public final class CloudNetBridgeModule extends DriverModule {
             var environment = serviceId.getString("environment", "");
             serviceId.append("environmentName", environment);
             // try to set the new environment
-            var env = CloudNet.getInstance().serviceVersionProvider()
+            var env = CloudNet.instance().serviceVersionProvider()
               .getEnvironmentType(environment)
               .orElse(null);
             serviceId.append("environment", env);
@@ -163,12 +163,12 @@ public final class CloudNetBridgeModule extends DriverModule {
       this,
       configuration,
       this.eventManager(),
-      CloudNet.getInstance().dataSyncRegistry(),
+      CloudNet.instance().dataSyncRegistry(),
       this.rpcFactory());
     management.registerServices(this.serviceRegistry());
     management.postInit();
     // register the cluster sync handler
-    CloudNet.getInstance().dataSyncRegistry().registerHandler(DataSyncHandler.<BridgeConfiguration>builder()
+    CloudNet.instance().dataSyncRegistry().registerHandler(DataSyncHandler.<BridgeConfiguration>builder()
       .key("bridge-config")
       .nameExtractor($ -> "Bridge Config")
       .convertObject(BridgeConfiguration.class)
@@ -177,6 +177,6 @@ public final class CloudNetBridgeModule extends DriverModule {
       .currentGetter($ -> management.configuration())
       .build());
     // register the bridge command
-    CloudNet.getInstance().commandProvider().register(new CommandBridge(management));
+    CloudNet.instance().commandProvider().register(new CommandBridge(management));
   }
 }

@@ -55,14 +55,14 @@ public class XodusDatabase extends AbstractDatabase {
 
   @Override
   public boolean insert(@NotNull String key, @NotNull JsonDocument document) {
-    this.databaseProvider.getDatabaseHandler().handleInsert(this, key, document);
+    this.databaseProvider.databaseHandler().handleInsert(this, key, document);
 
     return this.insert0(key, document);
   }
 
   @Override
   public boolean update(@NotNull String key, @NotNull JsonDocument document) {
-    this.databaseProvider.getDatabaseHandler().handleUpdate(this, key, document);
+    this.databaseProvider.databaseHandler().handleUpdate(this, key, document);
 
     return this.insert0(key, document);
   }
@@ -83,7 +83,7 @@ public class XodusDatabase extends AbstractDatabase {
 
   @Override
   public boolean delete(@NotNull String key) {
-    this.databaseProvider.getDatabaseHandler().handleDelete(this, key);
+    this.databaseProvider.databaseHandler().handleDelete(this, key);
 
     return this.delete0(key);
   }
@@ -166,7 +166,7 @@ public class XodusDatabase extends AbstractDatabase {
 
   @Override
   public void clear() {
-    this.databaseProvider.getDatabaseHandler().handleClear(this);
+    this.databaseProvider.databaseHandler().handleClear(this);
     this.environment.executeInExclusiveTransaction(txn -> {
       this.environment.truncateStore(this.name, txn);
       this.store.set(this.environment.openStore(this.name, this.getStore().getConfig(), txn));
@@ -179,7 +179,7 @@ public class XodusDatabase extends AbstractDatabase {
   }
 
   @Override
-  public boolean isSynced() {
+  public boolean synced() {
     return false;
   }
 

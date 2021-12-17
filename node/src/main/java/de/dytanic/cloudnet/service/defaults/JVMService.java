@@ -85,7 +85,7 @@ public class JVMService extends AbstractService {
   @Override
   protected void startProcess() {
     this.eventManager.callEvent(new CloudServicePreProcessStartEvent(this));
-    var environmentType = this.getServiceConfiguration().serviceId().environment();
+    var environmentType = this.serviceConfiguration().serviceId().environment();
     // load the wrapper information if possible
     var wrapperInformation = this.prepareWrapperFile();
     if (wrapperInformation == null) {
@@ -110,12 +110,12 @@ public class JVMService extends AbstractService {
     List<String> arguments = new ArrayList<>();
 
     // add the java command to start the service
-    var overriddenJavaCommand = this.getServiceConfiguration().javaCommand();
-    arguments.add(overriddenJavaCommand == null ? this.getNodeConfiguration().getJVMCommand() : overriddenJavaCommand);
+    var overriddenJavaCommand = this.serviceConfiguration().javaCommand();
+    arguments.add(overriddenJavaCommand == null ? this.getNodeConfiguration().javaCommand() : overriddenJavaCommand);
 
     // add all jvm flags
-    arguments.addAll(this.getNodeConfiguration().getDefaultJVMFlags().getJvmFlags());
-    arguments.addAll(this.getServiceConfiguration().processConfig().jvmOptions());
+    arguments.addAll(this.getNodeConfiguration().defaultJVMFlags().getJvmFlags());
+    arguments.addAll(this.serviceConfiguration().processConfig().jvmOptions());
 
     // override some default configuration options
     arguments.addAll(DEFAULT_JVM_SYSTEM_PROPERTIES);
@@ -135,7 +135,7 @@ public class JVMService extends AbstractService {
 
     // add all process parameters
     arguments.addAll(environmentType.defaultProcessArguments());
-    arguments.addAll(this.getServiceConfiguration().processConfig().processParameters());
+    arguments.addAll(this.serviceConfiguration().processConfig().processParameters());
 
     // try to start the process like that
     try {
@@ -158,7 +158,7 @@ public class JVMService extends AbstractService {
 
       try {
         // wait until the process termination seconds exceeded
-        if (this.process.waitFor(this.getNodeConfiguration().getProcessTerminationTimeoutSeconds(), TimeUnit.SECONDS)) {
+        if (this.process.waitFor(this.getNodeConfiguration().processTerminationTimeoutSeconds(), TimeUnit.SECONDS)) {
           this.process.exitValue(); // validation that the process terminated
           this.process = null; // reset as there is no fall-through
           return;
@@ -180,18 +180,18 @@ public class JVMService extends AbstractService {
         out.write((command + "\n").getBytes(StandardCharsets.UTF_8));
         out.flush();
       } catch (IOException exception) {
-        LOGGER.finer("Unable to dispatch command %s on service %s", exception, command, this.getServiceId());
+        LOGGER.finer("Unable to dispatch command %s on service %s", exception, command, this.serviceId());
       }
     }
   }
 
   @Override
-  public @NotNull String getRuntime() {
+  public @NotNull String runtime() {
     return "jvm";
   }
 
   @Override
-  public boolean isAlive() {
+  public boolean alive() {
     return this.process != null && this.process.toHandle().isAlive();
   }
 

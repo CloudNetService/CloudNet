@@ -210,11 +210,11 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
 
         var handler = (ServiceConsoleLineHandler) (console, line) -> webSocketChannel
           .sendWebSocketFrame(WebSocketFrameType.TEXT, line);
-        cloudService.getServiceConsoleLogCache().addHandler(handler);
+        cloudService.serviceConsoleLogCache().addHandler(handler);
 
         webSocketChannel
           .addListener(
-            new ConsoleHandlerWebSocketListener(cloudService, cloudService.getServiceConsoleLogCache(), handler));
+            new ConsoleHandlerWebSocketListener(cloudService, cloudService.serviceConsoleLogCache(), handler));
       } else {
         this.badRequest(context)
           .body(this.failure().append("reason", "Service is unknown or not running on this node").toString())

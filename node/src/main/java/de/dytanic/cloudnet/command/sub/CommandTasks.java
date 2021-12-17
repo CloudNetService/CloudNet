@@ -96,7 +96,7 @@ public final class CommandTasks {
   @Parser(suggestions = "serviceTask")
   public ServiceTask defaultTaskParser(CommandContext<CommandSource> $, Queue<String> input) {
     var name = input.remove();
-    var task = CloudNet.getInstance().serviceTaskProvider().serviceTask(name);
+    var task = CloudNet.instance().serviceTaskProvider().serviceTask(name);
     if (task == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-tasks-task-not-found"));
     }
@@ -137,7 +137,7 @@ public final class CommandTasks {
   @Parser(name = "nodeId", suggestions = "clusterNode")
   public String defaultClusterNodeParser(CommandContext<CommandSource> $, Queue<String> input) {
     var nodeId = input.remove();
-    for (var node : CloudNet.getInstance().getConfig().getClusterConfig().nodes()) {
+    for (var node : CloudNet.instance().getConfig().clusterConfig().nodes()) {
       if (node.uniqueId().equals(nodeId)) {
         return nodeId;
       }
@@ -148,7 +148,7 @@ public final class CommandTasks {
 
   @Suggestions("clusterNode")
   public List<String> suggestNode(CommandContext<CommandSource> $, String input) {
-    return CloudNet.getInstance().getConfig().getClusterConfig().nodes()
+    return CloudNet.instance().getConfig().clusterConfig().nodes()
       .stream()
       .map(NetworkClusterNode::uniqueId)
       .toList();
@@ -188,7 +188,7 @@ public final class CommandTasks {
     @Argument("name") String taskName,
     @Argument("environment") ServiceEnvironmentType environmentType
   ) {
-    if (this.taskProvider().isServiceTaskPresent(taskName)) {
+    if (this.taskProvider().serviceTaskPresent(taskName)) {
       source.sendMessage(I18n.trans("command-tasks-task-already-existing"));
       return;
     }
@@ -702,7 +702,7 @@ public final class CommandTasks {
   }
 
   private ServiceTaskProvider taskProvider() {
-    return CloudNet.getInstance().serviceTaskProvider();
+    return CloudNet.instance().serviceTaskProvider();
   }
 
 }

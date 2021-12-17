@@ -31,7 +31,7 @@ public final class CommandExit {
   @Confirmation
   @CommandMethod("exit|shutdown|stop")
   public void exit() {
-    CloudNet.getInstance().stop();
+    CloudNet.instance().stop();
   }
 
 }

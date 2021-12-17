@@ -31,26 +31,26 @@ public interface IConsole extends AutoCloseable {
 
   @NotNull
   @UnmodifiableView
-  Collection<AbstractConsoleAnimation> getRunningAnimations();
+  Collection<AbstractConsoleAnimation> runningAnimations();
 
   void startAnimation(@NotNull AbstractConsoleAnimation animation);
 
-  boolean isAnimationRunning();
+  boolean animationRunning();
 
   void togglePrinting(boolean enabled);
 
-  boolean isPrintingEnabled();
+  boolean printingEnabled();
 
   default boolean hasAnimationSupport() {
     return this.hasColorSupport();
   }
 
   @Unmodifiable
-  @NotNull Collection<String> getCommandHistory();
+  @NotNull Collection<String> commandHistory();
 
-  void setCommandHistory(@Nullable Collection<String> history);
+  void commandHistory(@Nullable Collection<String> history);
 
-  void setCommandInputValue(@NotNull String commandInputValue);
+  void commandInputValue(@NotNull String commandInputValue);
 
   @NotNull
   ITask<String> readLine();
@@ -87,13 +87,13 @@ public interface IConsole extends AutoCloseable {
 
   boolean hasColorSupport();
 
-  boolean isUsingMatchingHistoryComplete();
+  boolean usingMatchingHistoryComplete();
 
-  void setUsingMatchingHistoryComplete(boolean matchingHistoryComplete);
+  void usingMatchingHistoryComplete(boolean matchingHistoryComplete);
 
-  @NotNull String getPrompt();
+  @NotNull String prompt();
 
-  void setPrompt(@NotNull String prompt);
+  void prompt(@NotNull String prompt);
 
   void resetPrompt();
 
@@ -103,11 +103,11 @@ public interface IConsole extends AutoCloseable {
 
   void clearScreen();
 
-  @NotNull String getScreenName();
+  @NotNull String screenName();
 
-  void setScreenName(@NotNull String name);
+  void screenName(@NotNull String name);
 
-  int getWidth();
+  int width();
 
-  int getDisplayLength(@NotNull String string);
+  int displayLength(@NotNull String string);
 }

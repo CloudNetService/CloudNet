@@ -56,13 +56,13 @@ public final class NodePluginIncludeListener {
   @EventListener
   public void includePluginIfNecessary(@NotNull CloudServicePreProcessStartEvent event) {
     if (this.didDownloadProtocolLib.get()) {
-      var type = event.getService().getServiceConfiguration().serviceId().environment();
+      var type = event.service().serviceConfiguration().serviceId().environment();
       if (ServiceEnvironmentType.isMinecraftServer(type)) {
         // check if we have an entry for the current group
         var hasEntry = this.management.npcConfiguration().entries().stream()
-          .anyMatch(entry -> event.getConfiguration().groups().contains(entry.targetGroup()));
+          .anyMatch(entry -> event.serviceConfiguration().groups().contains(entry.targetGroup()));
         if (hasEntry) {
-          var pluginsDirectory = event.getService().getDirectory().resolve("plugins");
+          var pluginsDirectory = event.service().directory().resolve("plugins");
           // copy protocol lib
           var protocolLibPath = pluginsDirectory.resolve("ProtocolLib.jar");
           FileUtils.copy(PROTOCOLLIB_CACHE_PATH, protocolLibPath);

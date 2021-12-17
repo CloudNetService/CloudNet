@@ -56,8 +56,8 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
   }
 
   @Override
-  public boolean isServiceTaskPresent(@NotNull String name) {
-    return this.rpcSender.invokeMethod("isServiceTaskPresent", name).fireSync();
+  public boolean serviceTaskPresent(@NotNull String name) {
+    return this.rpcSender.invokeMethod("serviceTaskPresent", name).fireSync();
   }
 
   @Override

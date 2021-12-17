@@ -47,7 +47,7 @@ public final class CommandMigrate {
 
   @Parser(suggestions = "databaseProvider")
   public AbstractDatabaseProvider defaultDatabaseProviderParser(CommandContext<CommandSource> $, Queue<String> input) {
-    var abstractDatabaseProvider = CloudNet.getInstance().servicesRegistry()
+    var abstractDatabaseProvider = CloudNet.instance().servicesRegistry()
       .service(AbstractDatabaseProvider.class, input.remove());
 
     if (abstractDatabaseProvider == null) {
@@ -58,7 +58,7 @@ public final class CommandMigrate {
 
   @Suggestions("databaseProvider")
   public List<String> suggestDatabaseProvider(CommandContext<CommandSource> $, String input) {
-    return CloudNet.getInstance().servicesRegistry().services(AbstractDatabaseProvider.class)
+    return CloudNet.instance().servicesRegistry().services(AbstractDatabaseProvider.class)
       .stream()
       .map(INameable::name)
       .toList();
@@ -111,7 +111,7 @@ public final class CommandMigrate {
 
   private boolean executeIfNotCurrentProvider(@NotNull AbstractDatabaseProvider sourceProvider,
     @NotNull ThrowableConsumer<AbstractDatabaseProvider, ?> handler) {
-    if (!CloudNet.getInstance().databaseProvider().equals(sourceProvider)) {
+    if (!CloudNet.instance().databaseProvider().equals(sourceProvider)) {
       try {
         handler.accept(sourceProvider);
       } catch (Throwable throwable) {

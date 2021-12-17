@@ -32,32 +32,32 @@ import org.jetbrains.annotations.UnmodifiableView;
 @RPCValidation
 public interface NodeServer extends AutoCloseable {
 
-  @NotNull NodeServerProvider<? extends NodeServer> getProvider();
+  @NotNull NodeServerProvider<? extends NodeServer> provider();
 
-  boolean isHeadNode();
+  boolean headNode();
 
-  boolean isAvailable();
+  boolean available();
 
-  boolean isDrain();
+  boolean drain();
 
-  void setDrain(boolean drain);
+  void drain(boolean drain);
 
-  @NotNull NetworkClusterNode getNodeInfo();
-
-  @Internal
-  void setNodeInfo(@NotNull NetworkClusterNode nodeInfo);
-
-  @UnknownNullability NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot();
+  @NotNull NetworkClusterNode nodeInfo();
 
   @Internal
-  void setNodeInfoSnapshot(@NotNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot);
+  void nodeInfo(@NotNull NetworkClusterNode nodeInfo);
 
-  @UnknownNullability NetworkClusterNodeInfoSnapshot getLastNodeInfoSnapshot();
+  @UnknownNullability NetworkClusterNodeInfoSnapshot nodeInfoSnapshot();
+
+  @Internal
+  void nodeInfoSnapshot(@NotNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot);
+
+  @UnknownNullability NetworkClusterNodeInfoSnapshot lastNodeInfoSnapshot();
 
   @NotNull
   @UnmodifiableView Collection<String> sendCommandLine(@NotNull String commandLine);
 
-  @NotNull CloudServiceFactory getCloudServiceFactory();
+  @NotNull CloudServiceFactory cloudServiceFactory();
 
-  @Nullable SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot serviceInfoSnapshot);
+  @Nullable SpecificCloudServiceProvider cloudServiceProvider(@NotNull ServiceInfoSnapshot serviceInfoSnapshot);
 }

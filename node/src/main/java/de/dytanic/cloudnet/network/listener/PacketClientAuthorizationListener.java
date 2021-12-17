@@ -45,21 +45,21 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
           var clusterId = content.readUniqueId();
           var node = content.readObject(NetworkClusterNode.class);
           // check if the cluster id matches
-          if (!CloudNet.getInstance().getConfig().getClusterConfig().clusterId().equals(clusterId)) {
+          if (!CloudNet.instance().getConfig().clusterConfig().clusterId().equals(clusterId)) {
             break;
           }
           // search for the node server which represents the connected node and initialize it
-          for (var nodeServer : CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers()) {
-            if (nodeServer.isAcceptableConnection(channel, node.uniqueId())) {
+          for (var nodeServer : CloudNet.instance().getClusterNodeServerProvider().nodeServers()) {
+            if (nodeServer.acceptableConnection(channel, node.uniqueId())) {
               // set up the node
-              nodeServer.setChannel(channel);
+              nodeServer.channel(channel);
               // add the required packet listeners
               channel.packetRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
-              NodeNetworkUtils.addDefaultPacketListeners(channel.packetRegistry(), CloudNet.getInstance());
+              NodeNetworkUtils.addDefaultPacketListeners(channel.packetRegistry(), CloudNet.instance());
               // successful auth
               channel.sendPacketSync(new PacketServerAuthorizationResponse(true));
               // call the auth success event
-              CloudNet.getInstance().eventManager().callEvent(
+              CloudNet.instance().eventManager().callEvent(
                   new NetworkClusterNodeAuthSuccessEvent(nodeServer, channel));
               // do not search for more nodes
               return;
@@ -73,21 +73,21 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
           var connectionKey = content.readString();
           var id = content.readObject(ServiceId.class);
           // get the cloud service associated with the service id
-          var service = CloudNet.getInstance().cloudServiceProvider()
+          var service = CloudNet.instance().cloudServiceProvider()
               .localCloudService(id.uniqueId());
           // we can only accept the connection if the service is present, and the connection key is correct
-          if (service != null && service.getConnectionKey().equals(connectionKey)) {
+          if (service != null && service.connectionKey().equals(connectionKey)) {
             // update the cloud service
-            service.setNetworkChannel(channel);
+            service.networkChannel(channel);
             // send the update to the network
             service.publishServiceInfoSnapshot();
             // add the required packet listeners
             channel.packetRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
-            NodeNetworkUtils.addDefaultPacketListeners(channel.packetRegistry(), CloudNet.getInstance());
+            NodeNetworkUtils.addDefaultPacketListeners(channel.packetRegistry(), CloudNet.instance());
             // successful auth
             channel.sendPacket(new PacketServerAuthorizationResponse(true));
             // call the auth success event
-            CloudNet.getInstance().eventManager().callEvent(new NetworkServiceAuthSuccessEvent(service, channel));
+            CloudNet.instance().eventManager().callEvent(new NetworkServiceAuthSuccessEvent(service, channel));
             // do not search for other services
             return;
           }

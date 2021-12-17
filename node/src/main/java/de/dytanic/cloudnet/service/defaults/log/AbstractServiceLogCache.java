@@ -46,8 +46,8 @@ public abstract class AbstractServiceLogCache implements IServiceConsoleLogCache
 
   public AbstractServiceLogCache(@NotNull CloudNet cloudNet, @NotNull ICloudService service) {
     this.service = service;
-    this.logCacheSize = cloudNet.getConfig().getMaxServiceConsoleLogCacheSize();
-    this.alwaysPrintErrorStreamToConsole = cloudNet.getConfig().isPrintErrorStreamLinesFromServices();
+    this.logCacheSize = cloudNet.getConfig().maxServiceConsoleLogCacheSize();
+    this.alwaysPrintErrorStreamToConsole = cloudNet.getConfig().printErrorStreamLinesFromServices();
   }
 
   @Override
@@ -103,7 +103,7 @@ public abstract class AbstractServiceLogCache implements IServiceConsoleLogCache
     }
     // print the line to the console if enabled
     if (this.alwaysPrintErrorStreamToConsole && comesFromErrorStream) {
-      LOGGER.warning(String.format("[%s/SERR]: %s", this.service.getServiceId().name(), entry));
+      LOGGER.warning(String.format("[%s/SERR]: %s", this.service.serviceId().name(), entry));
     }
     // add the line
     this.cachedLogMessages.add(entry);

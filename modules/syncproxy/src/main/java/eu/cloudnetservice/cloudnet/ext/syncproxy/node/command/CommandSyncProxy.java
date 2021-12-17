@@ -66,7 +66,7 @@ public final class CommandSyncProxy {
   @Parser(name = "newConfiguration", suggestions = "newConfiguration")
   public String newConfigurationParser(CommandContext<CommandSource> $, Queue<String> input) {
     var name = input.remove();
-    var configuration = CloudNet.getInstance().groupConfigurationProvider()
+    var configuration = CloudNet.instance().groupConfigurationProvider()
       .groupConfiguration(name);
     if (configuration == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-service-base-group-not-found"));
@@ -88,7 +88,7 @@ public final class CommandSyncProxy {
 
   @Suggestions("newConfiguration")
   public List<String> suggestNewLoginConfigurations(CommandContext<CommandSource> $, String input) {
-    return CloudNet.getInstance().groupConfigurationProvider().groupConfigurations()
+    return CloudNet.instance().groupConfigurationProvider().groupConfigurations()
       .stream()
       .map(INameable::name)
       .toList();

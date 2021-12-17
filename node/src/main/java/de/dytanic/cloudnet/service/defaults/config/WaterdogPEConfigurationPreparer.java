@@ -27,15 +27,15 @@ public class WaterdogPEConfigurationPreparer extends AbstractServiceConfiguratio
     // check if we should run now
     if (this.shouldRewriteIp(nodeInstance, cloudService)) {
       // copy the default file
-      var configFile = cloudService.getDirectory().resolve("config.yml");
+      var configFile = cloudService.directory().resolve("config.yml");
       this.copyCompiledFile("files/waterdogpe/config.yml", configFile);
       // rewrite the configuration file
       this.rewriteFile(configFile, line -> {
         if (line.trim().startsWith("host:")) {
           line = String.format(
             "  host: %s:%d",
-            nodeInstance.getConfig().getHostAddress(),
-            cloudService.getServiceConfiguration().port());
+            nodeInstance.getConfig().hostAddress(),
+            cloudService.serviceConfiguration().port());
         }
         return line;
       });

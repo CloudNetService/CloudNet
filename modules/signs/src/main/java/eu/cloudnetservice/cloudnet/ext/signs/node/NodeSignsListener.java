@@ -47,25 +47,25 @@ public class NodeSignsListener {
 
   @EventListener
   public void handleSetupInitialize(@NotNull SetupInitiateEvent event) {
-    event.getSetup().getEntries().stream()
-      .filter(entry -> entry.getKey().equals("taskEnvironment"))
+    event.setup().entries().stream()
+      .filter(entry -> entry.key().equals("taskEnvironment"))
       .findFirst()
-      .ifPresent(entry -> entry.getAnswerType().thenAccept(($, environment) -> addSetupQuestionIfNecessary(
-        event.getSetup(),
+      .ifPresent(entry -> entry.answerType().thenAccept(($, environment) -> addSetupQuestionIfNecessary(
+        event.setup(),
         (ServiceEnvironmentType) environment)));
   }
 
   @EventListener
   public void handleSetupComplete(@NotNull SetupCompleteEvent event) {
     SignEntryTaskSetup.handleSetupComplete(
-      event.getSetup(),
+      event.setup(),
       this.signManagement.signsConfiguration(),
       this.signManagement);
   }
 
   @EventListener
   public void includePluginIfNecessary(@NotNull CloudServicePreProcessStartEvent event) {
-    SignPluginInclusion.includePluginTo(event.getService(), this.signManagement.signsConfiguration());
+    SignPluginInclusion.includePluginTo(event.service(), this.signManagement.signsConfiguration());
   }
 
   @EventListener

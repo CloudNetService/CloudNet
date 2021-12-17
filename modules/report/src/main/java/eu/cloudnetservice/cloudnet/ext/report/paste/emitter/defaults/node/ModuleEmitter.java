@@ -31,7 +31,7 @@ public class ModuleEmitter implements ReportDataEmitter<NetworkClusterNodeInfoSn
       .append(context.modules().size())
       .append(" - \n\n");
 
-    for (var module : CloudNet.getInstance().moduleProvider().modules()) {
+    for (var module : CloudNet.instance().moduleProvider().modules()) {
       builder
         .append(" - Module ")
         .append(module.module().name())

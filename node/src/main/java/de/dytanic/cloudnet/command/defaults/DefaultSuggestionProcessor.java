@@ -42,7 +42,7 @@ final class DefaultSuggestionProcessor implements CommandSuggestionProcessor<Com
   ) {
     // check if the user tries to complete all command roots
     if (!context.getCommandContext().getRawInputJoined().contains(" ")) {
-      return this.provider.getCommands().stream().map(INameable::name).collect(Collectors.toList());
+      return this.provider.commands().stream().map(INameable::name).collect(Collectors.toList());
     }
     // is the queue is empty just use a blank string.
     String input;
@@ -60,12 +60,12 @@ final class DefaultSuggestionProcessor implements CommandSuggestionProcessor<Com
         var rawInput = context.getCommandContext().getRawInput();
         if (rawInput.size() > 1) {
           // there are already arguments - validate that the command root is registered before suggesting further arguments
-          if (this.provider.getCommand(rawInput.get(0)) != null) {
+          if (this.provider.command(rawInput.get(0)) != null) {
             suggestions.add(suggestion);
           }
         } else {
           // if there are no arguments yet, just validate that the suggestion is registered as a command
-          if (this.provider.getCommand(suggestion) != null) {
+          if (this.provider.command(suggestion) != null) {
             suggestions.add(suggestion);
           }
         }

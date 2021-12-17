@@ -51,7 +51,7 @@ public final class CloudNetRestModule extends DriverModule {
 
   @ModuleTask(order = 120, event = ModuleLifeCycle.STARTED)
   public void initHttpHandlers() {
-    CloudNet.getInstance().httpServer()
+    CloudNet.instance().httpServer()
       // v2 openapi specification
       .registerHandler("/api/v2/documentation", IHttpHandler.PRIORITY_NORMAL, new StaticContentHttpHandler(
         ContentStreamProvider.classLoader(this.classLoader(), "documentation")

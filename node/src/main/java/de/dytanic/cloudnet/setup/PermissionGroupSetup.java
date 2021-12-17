@@ -42,7 +42,7 @@ public class PermissionGroupSetup implements DefaultSetup {
 
   @Override
   public void handleResults(@NotNull ConsoleSetupAnimation animation) {
-    if (animation.getResult("addDefaultGroups")) {
+    if (animation.result("addDefaultGroups")) {
       var adminPermissionGroup = new PermissionGroup("Admin", 100);
       adminPermissionGroup.addPermission("*");
       adminPermissionGroup.addPermission("Proxy", "*");
@@ -61,8 +61,8 @@ public class PermissionGroupSetup implements DefaultSetup {
       defaultPermissionGroup.display("&7");
       defaultPermissionGroup.sortId(10);
 
-      CloudNet.getInstance().permissionManagement().addPermissionGroup(adminPermissionGroup);
-      CloudNet.getInstance().permissionManagement().addPermissionGroup(defaultPermissionGroup);
+      CloudNet.instance().permissionManagement().addPermissionGroup(adminPermissionGroup);
+      CloudNet.instance().permissionManagement().addPermissionGroup(defaultPermissionGroup);
     }
   }
 }

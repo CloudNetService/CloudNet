@@ -68,25 +68,25 @@ public final class CommandGroups {
 
   @CommandMethod("groups delete <name>")
   public void deleteGroup(CommandSource source, @Argument("name") GroupConfiguration configuration) {
-    CloudNet.getInstance().groupConfigurationProvider().removeGroupConfiguration(configuration);
+    CloudNet.instance().groupConfigurationProvider().removeGroupConfiguration(configuration);
     source.sendMessage(I18n.trans("command-groups-delete-group"));
   }
 
   @CommandMethod("groups create <name>")
   public void createGroup(CommandSource source, @Argument("name") String groupName) {
-    if (!this.groupProvider().isGroupConfigurationPresent(groupName)) {
+    if (!this.groupProvider().groupConfigurationPresent(groupName)) {
       this.groupProvider().addGroupConfiguration(GroupConfiguration.builder().name(groupName).build());
     }
   }
 
   @CommandMethod("groups reload")
   public void reloadGroups(CommandSource source) {
-    CloudNet.getInstance().groupConfigurationProvider().reload();
+    CloudNet.instance().groupConfigurationProvider().reload();
   }
 
   @CommandMethod("groups list")
   public void listGroups(CommandSource source) {
-    var groups = CloudNet.getInstance().groupConfigurationProvider()
+    var groups = CloudNet.instance().groupConfigurationProvider()
       .groupConfigurations();
     if (groups.isEmpty()) {
       return;
@@ -271,7 +271,7 @@ public final class CommandGroups {
   }
 
   private GroupConfigurationProvider groupProvider() {
-    return CloudNet.getInstance().groupConfigurationProvider();
+    return CloudNet.instance().groupConfigurationProvider();
   }
 
   private Collection<String> parseExcludes(@Nullable String excludes) {

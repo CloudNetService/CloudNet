@@ -43,13 +43,13 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
 
   @Override
   public @NotNull Collection<CommandInfo> consoleCommands() {
-    return CloudNet.getInstance().commandProvider().getCommands();
+    return CloudNet.instance().commandProvider().commands();
   }
 
   @Override
   public NetworkClusterNode[] nodes() {
-    return this.clusterNodeServerProvider.getNodeServers().stream()
-      .map(IClusterNodeServer::getNodeInfo)
+    return this.clusterNodeServerProvider.nodeServers().stream()
+      .map(IClusterNodeServer::nodeInfo)
       .toArray(NetworkClusterNode[]::new);
   }
 
@@ -58,12 +58,12 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
   public NetworkClusterNode node(@NotNull String uniqueId) {
     Preconditions.checkNotNull(uniqueId);
     // check if the current node is requested
-    if (uniqueId.equals(this.clusterNodeServerProvider.getSelfNode().getNodeInfo().uniqueId())) {
-      return this.clusterNodeServerProvider.getSelfNode().getNodeInfo();
+    if (uniqueId.equals(this.clusterNodeServerProvider.selfNode().nodeInfo().uniqueId())) {
+      return this.clusterNodeServerProvider.selfNode().nodeInfo();
     }
     // find the node info
-    return this.clusterNodeServerProvider.getNodeServers().stream()
-      .map(IClusterNodeServer::getNodeInfo)
+    return this.clusterNodeServerProvider.nodeServers().stream()
+      .map(IClusterNodeServer::nodeInfo)
       .filter(nodeInfo -> nodeInfo.uniqueId().equals(uniqueId))
       .findFirst()
       .orElse(null);
@@ -71,8 +71,8 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
 
   @Override
   public NetworkClusterNodeInfoSnapshot[] nodeInfoSnapshots() {
-    return this.clusterNodeServerProvider.getNodeServers().stream()
-      .map(IClusterNodeServer::getNodeInfoSnapshot)
+    return this.clusterNodeServerProvider.nodeServers().stream()
+      .map(IClusterNodeServer::nodeInfoSnapshot)
       .filter(Objects::nonNull)
       .toArray(NetworkClusterNodeInfoSnapshot[]::new);
   }
@@ -81,13 +81,13 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
   @Override
   public NetworkClusterNodeInfoSnapshot nodeInfoSnapshot(@NotNull String uniqueId) {
     // check if the current node is requested
-    if (uniqueId.equals(this.clusterNodeServerProvider.getSelfNode().getNodeInfo().uniqueId())) {
-      return this.clusterNodeServerProvider.getSelfNode().getNodeInfoSnapshot();
+    if (uniqueId.equals(this.clusterNodeServerProvider.selfNode().nodeInfo().uniqueId())) {
+      return this.clusterNodeServerProvider.selfNode().nodeInfoSnapshot();
     }
     // find the node we are looking for
-    return this.clusterNodeServerProvider.getNodeServers().stream()
-      .filter(nodeServer -> nodeServer.getNodeInfo().uniqueId().equals(uniqueId))
-      .map(IClusterNodeServer::getNodeInfoSnapshot)
+    return this.clusterNodeServerProvider.nodeServers().stream()
+      .filter(nodeServer -> nodeServer.nodeInfo().uniqueId().equals(uniqueId))
+      .map(IClusterNodeServer::nodeInfoSnapshot)
       .filter(Objects::nonNull)
       .findFirst()
       .orElse(null);
@@ -98,20 +98,20 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
     Preconditions.checkNotNull(commandLine);
 
     var driverCommandSource = new DriverCommandSource();
-    CloudNet.getInstance().commandProvider().execute(driverCommandSource, commandLine);
-    return driverCommandSource.getMessages();
+    CloudNet.instance().commandProvider().execute(driverCommandSource, commandLine);
+    return driverCommandSource.messages();
   }
 
   @Override
   public @NotNull Collection<String> sendCommandLineToNode(@NotNull String nodeUniqueId, @NotNull String commandLine) {
     Preconditions.checkNotNull(nodeUniqueId);
     // check if we should execute the command on the current node
-    if (nodeUniqueId.equals(this.clusterNodeServerProvider.getSelfNode().getNodeInfo().uniqueId())) {
+    if (nodeUniqueId.equals(this.clusterNodeServerProvider.selfNode().nodeInfo().uniqueId())) {
       return this.sendCommandLine(commandLine);
     }
     // find the node server and execute the command on there
-    var clusterNodeServer = this.clusterNodeServerProvider.getNodeServer(nodeUniqueId);
-    if (clusterNodeServer != null && clusterNodeServer.isConnected()) {
+    var clusterNodeServer = this.clusterNodeServerProvider.nodeServer(nodeUniqueId);
+    if (clusterNodeServer != null && clusterNodeServer.connected()) {
       return clusterNodeServer.sendCommandLine(commandLine);
     }
     // unable to execute the command
@@ -121,11 +121,11 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
   @Nullable
   @Override
   public CommandInfo consoleCommand(@NotNull String commandLine) {
-    return CloudNet.getInstance().commandProvider().getCommand(commandLine);
+    return CloudNet.instance().commandProvider().command(commandLine);
   }
 
   @Override
   public @NotNull Collection<String> consoleTabCompleteResults(@NotNull String commandLine) {
-    return CloudNet.getInstance().commandProvider().suggest(CommandSource.console(), commandLine);
+    return CloudNet.instance().commandProvider().suggest(CommandSource.console(), commandLine);
   }
 }

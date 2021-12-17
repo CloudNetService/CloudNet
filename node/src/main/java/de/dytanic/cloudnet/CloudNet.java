@@ -147,7 +147,7 @@ public class CloudNet extends CloudNetDriver {
 
     // permission management init
     this.permissionManagement(new DefaultDatabasePermissionManagement(this));
-    this.permissionManagement().setPermissionManagementHandler(
+    this.permissionManagement().permissionManagementHandler(
       new DefaultPermissionManagementHandler(this.eventManager));
 
     this.moduleProvider.moduleDependencyLoader(
@@ -156,11 +156,11 @@ public class CloudNet extends CloudNetDriver {
 
     this.networkClient = new NettyNetworkClient(
       DefaultNetworkClientChannelHandler::new,
-      this.configuration.getClientSslConfig());
+      this.configuration.clientSSLConfig());
     this.networkServer = new NettyNetworkServer(
       DefaultNetworkServerChannelHandler::new,
-      this.configuration.getServerSslConfig());
-    this.httpServer = new NettyHttpServer(this.configuration.getWebSslConfig());
+      this.configuration.serverSSLConfig());
+    this.httpServer = new NettyHttpServer(this.configuration.webSSLConfig());
 
     // register all rpc handlers associated with methods of this class
     this.rpcProviderFactory.newHandler(Database.class, null).registerToDefaultRegistry();
@@ -170,7 +170,7 @@ public class CloudNet extends CloudNetDriver {
     this.driverEnvironment = DriverEnvironment.CLOUDNET;
   }
 
-  public static @NotNull CloudNet getInstance() {
+  public static @NotNull CloudNet instance() {
     return (CloudNet) CloudNetDriver.instance();
   }
 
@@ -191,18 +191,18 @@ public class CloudNet extends CloudNetDriver {
       "h2",
       new H2DatabaseProvider(
         System.getProperty("cloudnet.database.h2.path", "local/database/h2"),
-        !this.configuration.getClusterConfig().nodes().isEmpty()));
+        !this.configuration.clusterConfig().nodes().isEmpty()));
     this.servicesRegistry.registerService(
       AbstractDatabaseProvider.class,
       "xodus",
       new XodusDatabaseProvider(
         new File(System.getProperty("cloudnet.database.xodus.path", "local/database/xodus")),
-        !this.configuration.getClusterConfig().nodes().isEmpty()));
+        !this.configuration.clusterConfig().nodes().isEmpty()));
 
     // initialize the default database provider
     this.databaseProvider(this.servicesRegistry.service(
       AbstractDatabaseProvider.class,
-      this.configuration.getProperties().getString("database_provider", "xodus")));
+      this.configuration.properties().getString("database_provider", "xodus")));
 
     // load the modules before proceeding for example to allow the database provider init
     this.moduleProvider.loadAll();
@@ -223,22 +223,22 @@ public class CloudNet extends CloudNetDriver {
     this.installation.executeFirstStartSetup(this.console);
 
     // init the local node server
-    this.nodeServerProvider.setClusterServers(this.configuration.getClusterConfig());
-    this.nodeServerProvider.getSelfNode().setNodeInfo(this.configuration.getIdentity());
-    this.nodeServerProvider.getSelfNode().publishNodeInfoSnapshotUpdate();
+    this.nodeServerProvider.clusterServers(this.configuration.clusterConfig());
+    this.nodeServerProvider.selfNode().nodeInfo(this.configuration.identity());
+    this.nodeServerProvider.selfNode().publishNodeInfoSnapshotUpdate();
 
     // network server init
-    for (var listener : this.configuration.getIdentity().listeners()) {
+    for (var listener : this.configuration.identity().listeners()) {
       this.networkServer.addListener(listener);
     }
     // http server init
-    for (var httpListener : this.configuration.getHttpListeners()) {
+    for (var httpListener : this.configuration.httpListeners()) {
       this.httpServer.addListener(httpListener);
     }
     // network client init
     Set<CompletableFuture<Void>> futures = new HashSet<>(); // all futures of connections
-    for (var node : this.nodeServerProvider.getNodeServers()) {
-      var listeners = node.getNodeInfo().listeners();
+    for (var node : this.nodeServerProvider.nodeServers()) {
+      var listeners = node.nodeInfo().listeners();
       // check if there are any listeners
       if (listeners.length > 0) {
         // get a random listener of the node
@@ -246,7 +246,7 @@ public class CloudNet extends CloudNetDriver {
         if (this.networkClient.connect(listener)) {
           // register a future that waits for the node to become available
           futures.add(CompletableFuture.runAsync(() -> {
-            while (!node.isAvailable()) {
+            while (!node.available()) {
               try {
                 //noinspection BusyWait
                 Thread.sleep(10);
@@ -269,11 +269,11 @@ public class CloudNet extends CloudNetDriver {
     }
 
     // we are now connected to all nodes - request the full cluster data set if the head node is not the current one
-    if (!this.nodeServerProvider.getHeadNode().equals(this.nodeServerProvider.getSelfNode())) {
+    if (!this.nodeServerProvider.headnode().equals(this.nodeServerProvider.selfNode())) {
       ChannelMessage.builder()
         .message("request_initial_cluster_data")
         .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-        .targetNode(this.nodeServerProvider.getHeadNode().getNodeInfo().uniqueId())
+        .targetNode(this.nodeServerProvider.headnode().nodeInfo().uniqueId())
         .build()
         .send();
     }
@@ -335,12 +335,12 @@ public class CloudNet extends CloudNetDriver {
 
   @Override
   public @NotNull String componentName() {
-    return this.configuration.getIdentity().uniqueId();
+    return this.configuration.identity().uniqueId();
   }
 
   @Override
   public @NotNull String nodeUniqueId() {
-    return this.configuration.getIdentity().uniqueId();
+    return this.configuration.identity().uniqueId();
   }
 
   @Override
@@ -400,7 +400,7 @@ public class CloudNet extends CloudNetDriver {
       var source = new PermissionUserCommandSource(user, this.permissionManagement);
       this.commandProvider.execute(source, commandLine).join();
 
-      return source.getMessages();
+      return source.messages();
     }
   }
 

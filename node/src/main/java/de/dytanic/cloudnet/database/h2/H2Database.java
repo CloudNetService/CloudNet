@@ -37,7 +37,7 @@ public final class H2Database extends SQLDatabase {
   }
 
   @Override
-  public boolean isSynced() {
+  public boolean synced() {
     return false;
   }
 

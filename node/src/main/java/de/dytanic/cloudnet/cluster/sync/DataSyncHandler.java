@@ -43,7 +43,7 @@ public record DataSyncHandler<T>(
   }
 
   @SuppressWarnings("unchecked")
-  public @NotNull String getName(@NotNull Object obj) {
+  public @NotNull String name(@NotNull Object obj) {
     return this.nameExtractor.apply((T) obj);
   }
 
@@ -58,11 +58,11 @@ public record DataSyncHandler<T>(
   }
 
   @SuppressWarnings("unchecked")
-  public @Nullable T getCurrent(@NotNull Object toGet) {
+  public @Nullable T current(@NotNull Object toGet) {
     return this.currentGetter.apply((T) toGet);
   }
 
-  public @NotNull Collection<T> getData() {
+  public @NotNull Collection<T> data() {
     return this.dataCollector.get();
   }
 

@@ -51,7 +51,7 @@ public final class TaskChannelMessageListener {
         // set tasks
         case "set_service_tasks" -> {
           Collection<ServiceTask> tasks = event.content().readObject(COL_TASKS);
-          this.taskProvider.setPermanentServiceTasksSilently(tasks);
+          this.taskProvider.permanentServiceTasksSilently(tasks);
         }
 
         // add task

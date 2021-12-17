@@ -48,7 +48,7 @@ public class DefaultHttpSession implements HttpSession {
   }
 
   @Override
-  public long getExpireTime() {
+  public long expireTime() {
     return this.expireTime.get();
   }
 
@@ -58,28 +58,28 @@ public class DefaultHttpSession implements HttpSession {
   }
 
   @Override
-  public @NotNull String getUniqueId() {
+  public @NotNull String uniqueId() {
     return this.uniqueId;
   }
 
   @Override
-  public @NotNull UUID getUserId() {
+  public @NotNull UUID userId() {
     return this.userId;
   }
 
   @Override
-  public PermissionUser getUser() {
+  public PermissionUser user() {
     return CloudNetDriver.instance().permissionManagement().user(this.userId);
   }
 
   @Override
-  public <T> T getProperty(@NotNull String key) {
-    return this.getProperty(key, null);
+  public <T> T property(@NotNull String key) {
+    return this.property(key, null);
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T getProperty(@NotNull String key, @Nullable T def) {
+  public <T> T property(@NotNull String key, @Nullable T def) {
     return (T) this.properties.getOrDefault(key, def);
   }
 
@@ -101,7 +101,7 @@ public class DefaultHttpSession implements HttpSession {
   }
 
   @Override
-  public @NotNull Map<String, Object> getProperties() {
+  public @NotNull Map<String, Object> properties() {
     return this.properties;
   }
 }

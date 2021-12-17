@@ -81,7 +81,7 @@ public final class CommandReport {
   @Parser(suggestions = "cloudService")
   public ICloudService singleServiceParser(CommandContext<CommandSource> $, Queue<String> input) {
     var name = input.remove();
-    var cloudService = CloudNet.getInstance().cloudServiceProvider().localCloudService(name);
+    var cloudService = CloudNet.instance().cloudServiceProvider().localCloudService(name);
     if (cloudService == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-service-service-not-found"));
     }
@@ -90,9 +90,9 @@ public final class CommandReport {
 
   @Suggestions("cloudService")
   public List<String> suggestService(CommandContext<CommandSource> $, String input) {
-    return CloudNet.getInstance().cloudServiceProvider().localCloudService()
+    return CloudNet.instance().cloudServiceProvider().localCloudServices()
       .stream()
-      .map(service -> service.getServiceId().name())
+      .map(service -> service.serviceId().name())
       .toList();
   }
 
@@ -100,8 +100,8 @@ public final class CommandReport {
   public void pasteNode(CommandSource source, @Argument("pasteService") PasteService pasteService) {
     var pasteCreator = new PasteCreator(this.fallbackPasteService(pasteService),
       this.reportModule.emitterRegistry());
-    var selfNode = CloudNet.getInstance().getClusterNodeServerProvider().getSelfNode()
-      .getNodeInfoSnapshot();
+    var selfNode = CloudNet.instance().getClusterNodeServerProvider().selfNode()
+      .nodeInfoSnapshot();
 
     var response = pasteCreator.createNodePaste(selfNode);
     if (response == null) {

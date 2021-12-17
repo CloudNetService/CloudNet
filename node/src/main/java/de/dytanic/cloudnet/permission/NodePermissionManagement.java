@@ -33,7 +33,7 @@ public interface NodePermissionManagement extends IPermissionManagement {
 
   void setGroupsSilently(@Nullable Collection<? extends PermissionGroup> groups);
 
-  @NotNull IPermissionManagementHandler getPermissionManagementHandler();
+  @NotNull IPermissionManagementHandler permissionManagementHandler();
 
-  void setPermissionManagementHandler(@NotNull IPermissionManagementHandler permissionManagementHandler);
+  void permissionManagementHandler(@NotNull IPermissionManagementHandler permissionManagementHandler);
 }

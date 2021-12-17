@@ -30,15 +30,15 @@ public abstract class CloudServiceEvent extends DriverEvent {
     this.service = service;
   }
 
-  public @NotNull ICloudService getService() {
+  public @NotNull ICloudService service() {
     return this.service;
   }
 
-  public @NotNull ServiceConfiguration getConfiguration() {
-    return this.service.getServiceConfiguration();
+  public @NotNull ServiceConfiguration serviceConfiguration() {
+    return this.service.serviceConfiguration();
   }
 
-  public @NotNull ServiceInfoSnapshot getServiceInfo() {
+  public @NotNull ServiceInfoSnapshot serviceInfo() {
     return this.service.serviceInfo();
   }
 }

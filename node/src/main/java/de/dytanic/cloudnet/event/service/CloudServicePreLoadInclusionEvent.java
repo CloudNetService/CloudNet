@@ -40,11 +40,11 @@ public final class CloudServicePreLoadInclusionEvent extends CloudServiceEvent i
     this.request = request;
   }
 
-  public @NotNull ServiceRemoteInclusion getInclusion() {
+  public @NotNull ServiceRemoteInclusion inclusion() {
     return this.serviceRemoteInclusion;
   }
 
-  public @NotNull GetRequest getRequest() {
+  public @NotNull GetRequest request() {
     return this.request;
   }
 

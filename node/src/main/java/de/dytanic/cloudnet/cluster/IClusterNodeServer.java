@@ -24,26 +24,26 @@ import org.jetbrains.annotations.UnknownNullability;
 public interface IClusterNodeServer extends NodeServer, AutoCloseable {
 
   @Override
-  @NotNull IClusterNodeServerProvider getProvider();
+  @NotNull IClusterNodeServerProvider provider();
 
-  @UnknownNullability INetworkChannel getChannel();
+  @UnknownNullability INetworkChannel channel();
 
-  void setChannel(@NotNull INetworkChannel channel);
+  void channel(@NotNull INetworkChannel channel);
 
-  boolean isConnected();
+  boolean connected();
 
   void saveSendPacket(@NotNull IPacket packet);
 
   void saveSendPacketSync(@NotNull IPacket packet);
 
-  boolean isAcceptableConnection(@NotNull INetworkChannel channel, @NotNull String nodeId);
+  boolean acceptableConnection(@NotNull INetworkChannel channel, @NotNull String nodeId);
 
   void syncClusterData(boolean force);
 
   void shutdown();
 
   @Override
-  default boolean isAvailable() {
-    return this.getChannel() != null && this.getNodeInfoSnapshot() != null;
+  default boolean available() {
+    return this.channel() != null && this.nodeInfoSnapshot() != null;
   }
 }

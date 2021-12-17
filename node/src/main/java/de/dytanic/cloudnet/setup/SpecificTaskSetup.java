@@ -91,7 +91,7 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
         .translatedQuestion("command-tasks-setup-question-environment")
         .answerType(QuestionAnswerType.<ServiceEnvironmentType>builder()
           .parser(serviceEnvironmentType())
-          .possibleResults(CloudNet.getInstance().serviceVersionProvider().knownEnvironments().keySet()))
+          .possibleResults(CloudNet.instance().serviceVersionProvider().knownEnvironments().keySet()))
         .build(),
       QuestionListEntry.<Integer>builder()
         .key("taskStartPort")
@@ -114,8 +114,8 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
         .translatedQuestion("command-tasks-setup-question-application")
         .answerType(QuestionAnswerType.<Pair<ServiceVersionType, ServiceVersion>>builder()
           .possibleResults(() -> this.completableServiceVersions(
-            animation.getResult("taskEnvironment"),
-            animation.getResult("taskJavaCommand")))
+            animation.result("taskEnvironment"),
+            animation.result("taskJavaCommand")))
           .parser(serviceVersion()))
         .build(),
       QuestionListEntry.<String>builder()
@@ -130,34 +130,34 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
 
   @Override
   public void handleResults(@NotNull ConsoleSetupAnimation animation) {
-    String name = animation.getResult("taskName");
-    ServiceEnvironmentType environment = animation.getResult("taskEnvironment");
-    Pair<ServiceVersionType, ServiceVersion> version = animation.getResult("taskServiceVersion");
-    Pair<String, ?> javaVersion = animation.getResult("taskJavaCommand");
+    String name = animation.result("taskName");
+    ServiceEnvironmentType environment = animation.result("taskEnvironment");
+    Pair<ServiceVersionType, ServiceVersion> version = animation.result("taskServiceVersion");
+    Pair<String, ?> javaVersion = animation.result("taskJavaCommand");
     var defaultTemplate = ServiceTemplate.builder().prefix(name).name("default").build();
 
     var task = ServiceTask.builder()
       .name(name)
-      .maxHeapMemory(animation.getResult("taskMemory"))
-      .maintenance(animation.getResult("taskMaintenance"))
-      .autoDeleteOnStop(animation.getResult("taskAutoDelete"))
-      .staticServices(animation.getResult("taskStaticServices"))
-      .minServiceCount(animation.getResult("taskMinServices"))
+      .maxHeapMemory(animation.result("taskMemory"))
+      .maintenance(animation.result("taskMaintenance"))
+      .autoDeleteOnStop(animation.result("taskAutoDelete"))
+      .staticServices(animation.result("taskStaticServices"))
+      .minServiceCount(animation.result("taskMinServices"))
       .serviceEnvironmentType(environment)
-      .startPort(animation.getResult("taskStartPort"))
+      .startPort(animation.result("taskStartPort"))
       .javaCommand(javaVersion.first())
       .addTemplate(defaultTemplate)
-      .nameSplitter(animation.getResult("taskNameSplitter"))
+      .nameSplitter(animation.result("taskNameSplitter"))
       .build();
-    CloudNet.getInstance().serviceTaskProvider().addPermanentServiceTask(task);
+    CloudNet.instance().serviceTaskProvider().addPermanentServiceTask(task);
     // create a group with the same name
     var groupConfiguration = GroupConfiguration.builder().name(name).build();
-    CloudNet.getInstance().groupConfigurationProvider().addGroupConfiguration(groupConfiguration);
+    CloudNet.instance().groupConfigurationProvider().addGroupConfiguration(groupConfiguration);
 
     // create the default template for the task
     this.initializeTemplate(defaultTemplate, environment, true);
     // install the chosen version
-    CloudNet.getInstance().serviceVersionProvider().installServiceVersion(InstallInformation.builder()
+    CloudNet.instance().serviceVersionProvider().installServiceVersion(InstallInformation.builder()
       .serviceVersionType(version.first())
       .serviceVersion(version.second())
       .toTemplate(defaultTemplate)

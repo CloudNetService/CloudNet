@@ -57,7 +57,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
 
   protected void handleGroupExistsRequest(IHttpContext context) {
     this.handleWithGroupContext(context, name -> this.ok(context)
-      .body(this.success().append("result", this.groupProvider().isGroupConfigurationPresent(name)).toString())
+      .body(this.success().append("result", this.groupProvider().groupConfigurationPresent(name)).toString())
       .context()
       .closeAfter(true)
       .cancelNext()
@@ -104,7 +104,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
 
   protected void handleDeleteGroupRequest(IHttpContext context) {
     this.handleWithGroupContext(context, name -> {
-      if (this.groupProvider().isGroupConfigurationPresent(name)) {
+      if (this.groupProvider().groupConfigurationPresent(name)) {
         this.groupProvider().removeGroupConfigurationByName(name);
         this.ok(context)
           .body(this.success().toString())

@@ -106,29 +106,29 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
 
   @Override
   public void handleResults(@NotNull ConsoleSetupAnimation animation) {
-    var config = CloudNet.getInstance().getConfig();
+    var config = CloudNet.instance().getConfig();
     // init the local node identity
-    HostAndPort host = animation.getResult("internalHost");
-    config.setIdentity(new NetworkClusterNode(
-      animation.hasResult("nodeId") ? animation.getResult("nodeId") : "Node-1",
+    HostAndPort host = animation.result("internalHost");
+    config.identity(new NetworkClusterNode(
+      animation.hasResult("nodeId") ? animation.result("nodeId") : "Node-1",
       new HostAndPort[]{host}));
     // whitelist the host address
-    config.getIpWhitelist().add(host.host());
+    config.ipWhitelist().add(host.host());
 
     // init the host address
-    HostAndPort hostAddress = animation.getResult("hostAddress");
-    config.setHostAddress(hostAddress.host());
-    config.setConnectHostAddress(hostAddress.host());
+    HostAndPort hostAddress = animation.result("hostAddress");
+    config.hostAddress(hostAddress.host());
+    config.connectHostAddress(hostAddress.host());
 
     // init the web host address
-    config.getHttpListeners().clear();
-    config.getHttpListeners().add(animation.getResult("webHost"));
+    config.httpListeners().clear();
+    config.httpListeners().add(animation.result("webHost"));
 
     // set the maximum memory
-    config.setMaxMemory(animation.getResult("memory"));
+    config.maxMemory(animation.result("memory"));
 
     // whitelist all default addresses and finish by saving the config
-    config.getIpWhitelist().addAll(DEFAULT_WHITELIST);
+    config.ipWhitelist().addAll(DEFAULT_WHITELIST);
     config.save();
 
     // apply animation results of the cluster setup

@@ -38,7 +38,7 @@ public final class ColouredLogFormatter extends Formatter {
       .append(this.dateFormat.format(record.getMillis()))
       .append(ConsoleColor.DARK_GRAY)
       .append("] ")
-      .append(this.getColor(record.getLevel()))
+      .append(this.color(record.getLevel()))
       .append(ConsoleColor.DARK_GRAY)
       .append(": ")
       .append(ConsoleColor.DEFAULT)
@@ -48,7 +48,7 @@ public final class ColouredLogFormatter extends Formatter {
     return builder.toString();
   }
 
-  private @NotNull String getColor(@NotNull Level level) {
+  private @NotNull String color(@NotNull Level level) {
     var color = ConsoleColor.DARK_GRAY;
     if (level == Level.INFO) {
       color = ConsoleColor.GREEN;

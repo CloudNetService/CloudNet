@@ -52,7 +52,7 @@ public class ProcessServiceLogCache extends AbstractServiceLogCache {
       } catch (IOException exception) {
         LOGGER.severe("Exception updating content of console for service %s",
           exception,
-          this.service.getServiceId().name());
+          this.service.serviceId().name());
         // reset the string buffer
         this.stringBuffer.setLength(0);
       }

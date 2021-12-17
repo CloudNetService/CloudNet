@@ -36,30 +36,30 @@ import org.jetbrains.annotations.UnmodifiableView;
 public interface ICloudServiceManager extends GeneralCloudServiceProvider {
 
   @NotNull
-  Collection<ICloudServiceFactory> getCloudServiceFactories();
+  Collection<ICloudServiceFactory> cloudServiceFactories();
 
   @NotNull
-  Optional<ICloudServiceFactory> getCloudServiceFactory(@NotNull String runtime);
+  Optional<ICloudServiceFactory> cloudServiceFactory(@NotNull String runtime);
 
   void addCloudServiceFactory(@NotNull String runtime, @NotNull ICloudServiceFactory factory);
 
   void removeCloudServiceFactory(@NotNull String runtime);
 
   @NotNull
-  Collection<ServiceConfigurationPreparer> getServicePreparers();
+  Collection<ServiceConfigurationPreparer> servicePreparers();
 
   @NotNull
-  Optional<ServiceConfigurationPreparer> getServicePreparer(@NotNull ServiceEnvironmentType environmentType);
+  Optional<ServiceConfigurationPreparer> servicePreparer(@NotNull ServiceEnvironmentType environmentType);
 
   void addServicePreparer(@NotNull ServiceEnvironmentType type, @NotNull ServiceConfigurationPreparer preparer);
 
   void removeServicePreparer(@NotNull ServiceEnvironmentType type);
 
   @NotNull
-  Path getTempDirectoryPath();
+  Path tempDirectory();
 
   @NotNull
-  Path getPersistentServicesDirectoryPath();
+  Path persistentServicesDirectory();
 
   void startAllCloudServices();
 
@@ -67,12 +67,12 @@ public interface ICloudServiceManager extends GeneralCloudServiceProvider {
 
   void deleteAllCloudServices();
 
-  int getCurrentUsedHeapMemory();
+  int currentUsedHeapMemory();
 
-  int getCurrentReservedMemory();
+  int currentReservedMemory();
 
   @NotNull
-  @UnmodifiableView Collection<ICloudService> localCloudService();
+  @UnmodifiableView Collection<ICloudService> localCloudServices();
 
   @Nullable
   ICloudService localCloudService(@NotNull String name);

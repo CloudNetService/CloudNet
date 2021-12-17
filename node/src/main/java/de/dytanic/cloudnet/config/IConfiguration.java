@@ -35,86 +35,86 @@ public interface IConfiguration {
 
   @NotNull IConfiguration save();
 
-  @NotNull String getHostAddress();
+  @NotNull String hostAddress();
 
-  void setHostAddress(@NotNull String hostAddress);
+  void hostAddress(@NotNull String hostAddress);
 
-  @NotNull String getConnectHostAddress();
+  @NotNull String connectHostAddress();
 
-  void setConnectHostAddress(@NotNull String connectHostAddress);
+  void connectHostAddress(@NotNull String connectHostAddress);
 
-  @NotNull NetworkClusterNode getIdentity();
+  @NotNull NetworkClusterNode identity();
 
-  void setIdentity(@NotNull NetworkClusterNode identity);
+  void identity(@NotNull NetworkClusterNode identity);
 
-  @NotNull NetworkCluster getClusterConfig();
+  @NotNull NetworkCluster clusterConfig();
 
-  void setClusterConfig(@NotNull NetworkCluster clusterConfig);
-
-  @NotNull
-  Collection<String> getIpWhitelist();
-
-  void setIpWhitelist(@NotNull Collection<String> whitelist);
+  void clusterConfig(@NotNull NetworkCluster clusterConfig);
 
   @NotNull
-  Collection<HostAndPort> getHttpListeners();
+  Collection<String> ipWhitelist();
 
-  void setHttpListeners(@NotNull Collection<HostAndPort> httpListeners);
-
-  @NotNull
-  SSLConfiguration getClientSslConfig();
-
-  void setClientSslConfig(@NotNull SSLConfiguration clientSslConfig);
+  void ipWhitelist(@NotNull Collection<String> whitelist);
 
   @NotNull
-  SSLConfiguration getServerSslConfig();
+  Collection<HostAndPort> httpListeners();
 
-  void setServerSslConfig(@NotNull SSLConfiguration serverSslConfig);
+  void httpListeners(@NotNull Collection<HostAndPort> httpListeners);
 
   @NotNull
-  SSLConfiguration getWebSslConfig();
+  SSLConfiguration clientSSLConfig();
 
-  void setWebSslConfig(@NotNull SSLConfiguration webSslConfig);
+  void clientSSLConfig(@NotNull SSLConfiguration clientSslConfig);
 
-  double getMaxCPUUsageToStartServices();
+  @NotNull
+  SSLConfiguration serverSSLConfig();
 
-  void setMaxCPUUsageToStartServices(double value);
+  void serverSSLConfig(@NotNull SSLConfiguration serverSslConfig);
 
-  int getMaxMemory();
+  @NotNull
+  SSLConfiguration webSSLConfig();
 
-  void setMaxMemory(int memory);
+  void webSSLConfig(@NotNull SSLConfiguration webSslConfig);
 
-  int getMaxServiceConsoleLogCacheSize();
+  double maxCPUUsageToStartServices();
 
-  void setMaxServiceConsoleLogCacheSize(int maxServiceConsoleLogCacheSize);
+  void maxCPUUsageToStartServices(double value);
 
-  boolean isPrintErrorStreamLinesFromServices();
+  int maxMemory();
 
-  void setPrintErrorStreamLinesFromServices(boolean printErrorStreamLinesFromServices);
+  void maxMemory(int memory);
 
-  boolean isRunBlockedServiceStartTryLaterAutomatic();
+  int maxServiceConsoleLogCacheSize();
 
-  void setRunBlockedServiceStartTryLaterAutomatic(boolean runBlockedServiceStartTryLaterAutomatic);
+  void maxServiceConsoleLogCacheSize(int maxServiceConsoleLogCacheSize);
 
-  @NotNull DefaultJVMFlags getDefaultJVMFlags();
+  boolean printErrorStreamLinesFromServices();
 
-  void setDefaultJVMFlags(@NotNull DefaultJVMFlags defaultJVMFlags);
+  void printErrorStreamLinesFromServices(boolean printErrorStreamLinesFromServices);
 
-  @NotNull String getJVMCommand();
+  boolean runBlockedServiceStartTryLaterAutomatic();
 
-  void setJVMCommand(@NotNull String jvmCommand);
+  void runBlockedServiceStartTryLaterAutomatic(boolean runBlockedServiceStartTryLaterAutomatic);
 
-  int getProcessTerminationTimeoutSeconds();
+  @NotNull DefaultJVMFlags defaultJVMFlags();
 
-  void setProcessTerminationTimeoutSeconds(int processTerminationTimeoutSeconds);
+  void defaultJVMFlags(@NotNull DefaultJVMFlags defaultJVMFlags);
 
-  boolean getForceInitialClusterDataSync();
+  @NotNull String javaCommand();
 
-  void setForceInitialClusterDataSync(boolean forceInitialClusterDataSync);
+  void javaCommand(@NotNull String javaCommand);
 
-  @NotNull JsonDocument getProperties();
+  int processTerminationTimeoutSeconds();
 
-  void setProperties(@NotNull JsonDocument properties);
+  void processTerminationTimeoutSeconds(int processTerminationTimeoutSeconds);
+
+  boolean forceInitialClusterDataSync();
+
+  void forceInitialClusterDataSync(boolean forceInitialClusterDataSync);
+
+  @NotNull JsonDocument properties();
+
+  void properties(@NotNull JsonDocument properties);
 
   enum DefaultJVMFlags {
     NONE(Collections.emptyList()),

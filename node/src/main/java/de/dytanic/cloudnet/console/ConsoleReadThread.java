@@ -42,12 +42,12 @@ public class ConsoleReadThread extends Thread {
       }
 
       for (var value : this.console.getConsoleInputHandler().values()) {
-        if (value.isEnabled()) {
+        if (value.enabled()) {
           value.handleInput(line);
         }
       }
 
-      for (var animation : this.console.getRunningAnimations()) {
+      for (var animation : this.console.runningAnimations()) {
         animation.addToCursor(1);
       }
     }
@@ -55,7 +55,7 @@ public class ConsoleReadThread extends Thread {
 
   private @Nullable String readLine() {
     try {
-      return this.console.getLineReader().readLine(this.console.getPrompt());
+      return this.console.getLineReader().readLine(this.console.prompt());
     } catch (EndOfFileException ignored) {
     } catch (UserInterruptException exception) {
       System.exit(-1);
@@ -64,7 +64,7 @@ public class ConsoleReadThread extends Thread {
     return null;
   }
 
-  protected @NotNull ITask<String> getCurrentTask() {
+  protected @NotNull ITask<String> currentTask() {
     if (this.currentTask == null) {
       this.currentTask = new CompletableTask<>();
     }

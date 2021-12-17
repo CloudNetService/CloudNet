@@ -40,11 +40,11 @@ public final class CloudServiceDeploymentEvent extends CloudServiceEvent impleme
     this.serviceDeployment = serviceDeployment;
   }
 
-  public @NotNull TemplateStorage getTemplateStorage() {
+  public @NotNull TemplateStorage storage() {
     return this.templateStorage;
   }
 
-  public @NotNull ServiceDeployment getServiceDeployment() {
+  public @NotNull ServiceDeployment deployment() {
     return this.serviceDeployment;
   }
 

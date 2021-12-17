@@ -89,7 +89,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
   @Override
   public void permanentServiceTasks(@NotNull Collection<ServiceTask> serviceTasks) {
-    this.setPermanentServiceTasksSilently(serviceTasks);
+    this.permanentServiceTasksSilently(serviceTasks);
     // notify the cluster
     ChannelMessage.builder()
       .targetNodes()
@@ -106,7 +106,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   }
 
   @Override
-  public boolean isServiceTaskPresent(@NotNull String name) {
+  public boolean serviceTaskPresent(@NotNull String name) {
     return this.serviceTasks.containsKey(name);
   }
 
@@ -160,10 +160,10 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     // remove from cache
     this.serviceTasks.remove(serviceTask.name());
     // remove the local file if it exists
-    FileUtils.delete(this.getTaskFile(serviceTask));
+    FileUtils.delete(this.taskFile(serviceTask));
   }
 
-  public void setPermanentServiceTasksSilently(@NotNull Collection<ServiceTask> serviceTasks) {
+  public void permanentServiceTasksSilently(@NotNull Collection<ServiceTask> serviceTasks) {
     // update the cache
     this.serviceTasks.clear();
     serviceTasks.forEach(task -> this.serviceTasks.put(task.name(), task));
@@ -171,12 +171,12 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     this.writeAllServiceTasks();
   }
 
-  protected @NotNull Path getTaskFile(@NotNull ServiceTask task) {
+  protected @NotNull Path taskFile(@NotNull ServiceTask task) {
     return TASKS_DIRECTORY.resolve(task.name() + ".json");
   }
 
   protected void writeServiceTask(@NotNull ServiceTask serviceTask) {
-    JsonDocument.newDocument(serviceTask).write(this.getTaskFile(serviceTask));
+    JsonDocument.newDocument(serviceTask).write(this.taskFile(serviceTask));
   }
 
   protected void writeAllServiceTasks() {
@@ -202,7 +202,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
       var taskName = file.getFileName().toString().replace(".json", "");
       if (!taskName.equals(task.name())) {
         // rename the file
-        FileUtils.move(file, this.getTaskFile(task), StandardCopyOption.REPLACE_EXISTING);
+        FileUtils.move(file, this.taskFile(task), StandardCopyOption.REPLACE_EXISTING);
       }
       // cache the task
       this.addPermanentServiceTask(task);

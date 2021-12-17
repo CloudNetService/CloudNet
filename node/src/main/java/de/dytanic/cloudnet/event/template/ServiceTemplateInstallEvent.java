@@ -38,15 +38,15 @@ public class ServiceTemplateInstallEvent extends Event {
     this.environmentType = environmentType;
   }
 
-  public @NotNull ServiceTemplate getTemplate() {
+  public @NotNull ServiceTemplate template() {
     return this.template;
   }
 
-  public @NotNull SpecificTemplateStorage getStorage() {
+  public @NotNull SpecificTemplateStorage storage() {
     return this.storage;
   }
 
-  public @NotNull ServiceEnvironmentType getEnvironmentType() {
+  public @NotNull ServiceEnvironmentType environmentType() {
     return this.environmentType;
   }
 }

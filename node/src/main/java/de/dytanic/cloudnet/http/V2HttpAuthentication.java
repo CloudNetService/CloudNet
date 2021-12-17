@@ -46,7 +46,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class V2HttpAuthentication {
 
-  protected static final String ISSUER = "CloudNet " + CloudNet.getInstance().componentName();
+  protected static final String ISSUER = "CloudNet " + CloudNet.instance().componentName();
 
   protected static final Key SIGN_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
   protected static final JwtParser PARSER = Jwts.parserBuilder().setSigningKey(SIGN_KEY).requireIssuer(ISSUER).build();
@@ -75,7 +75,7 @@ public class V2HttpAuthentication {
   }
 
   public @NotNull String createJwt(@NotNull PermissionUser subject, long sessionTimeMillis) {
-    var session = this.getSessions().computeIfAbsent(subject.uniqueId().toString(),
+    var session = this.sessions().computeIfAbsent(subject.uniqueId().toString(),
       userUniqueId -> new DefaultHttpSession(System.currentTimeMillis() + sessionTimeMillis, subject.uniqueId()));
     return this.generateJwt(subject, session);
   }
@@ -114,12 +114,12 @@ public class V2HttpAuthentication {
     if (matcher.matches()) {
       try {
         var jws = PARSER.parseClaimsJws(matcher.group(1));
-        var session = this.getSessionById(jws.getBody().getId());
+        var session = this.sessionById(jws.getBody().getId());
         if (session != null) {
-          var user = session.getUser();
+          var user = session.user();
           if (user == null) {
             // the user associated with the session no longer exists
-            this.sessions.remove(session.getUserId().toString());
+            this.sessions.remove(session.userId().toString());
             return ERROR_HANDLING_BEARER_LOGIN_USER_GONE;
           }
           // ensure that the user is the owner of the session
@@ -143,21 +143,21 @@ public class V2HttpAuthentication {
 
   public boolean expireSession(@NotNull IHttpRequest request) {
     var session = this.handleBearerLoginRequest(request);
-    if (session.isSuccess()) {
-      return this.expireSession(session.getResult());
+    if (session.succeeded()) {
+      return this.expireSession(session.result());
     } else {
       return false;
     }
   }
 
   public boolean expireSession(@NotNull HttpSession session) {
-    return this.sessions.remove(session.getUser().uniqueId().toString()) != null;
+    return this.sessions.remove(session.user().uniqueId().toString()) != null;
   }
 
   public @NotNull LoginResult<Pair<HttpSession, String>> refreshJwt(@NotNull IHttpRequest request, long lifetime) {
     var session = this.handleBearerLoginRequest(request);
-    if (session.isSuccess()) {
-      var httpSession = session.getResult();
+    if (session.succeeded()) {
+      var httpSession = session.result();
       return LoginResult.success(new Pair<>(httpSession, this.refreshJwt(httpSession, lifetime)));
     } else {
       return LoginResult.undefinedFailure();
@@ -166,12 +166,12 @@ public class V2HttpAuthentication {
 
   public @NotNull String refreshJwt(@NotNull HttpSession session, long lifetime) {
     session.refreshFor(lifetime);
-    return this.generateJwt(session.getUser(), session);
+    return this.generateJwt(session.user(), session);
   }
 
-  protected @Nullable HttpSession getSessionById(@NotNull String id) {
-    for (var session : this.getSessions().values()) {
-      if (session.getUniqueId().equals(id)) {
+  protected @Nullable HttpSession sessionById(@NotNull String id) {
+    for (var session : this.sessions().values()) {
+      if (session.uniqueId().equals(id)) {
         return session;
       }
     }
@@ -183,41 +183,33 @@ public class V2HttpAuthentication {
       .setIssuer(ISSUER)
       .signWith(SIGN_KEY)
       .setSubject(subject.name())
-      .setId(session.getUniqueId())
+      .setId(session.uniqueId())
       .setIssuedAt(Calendar.getInstance().getTime())
       .claim("uniqueId", subject.uniqueId())
-      .setExpiration(new Date(session.getExpireTime()))
+      .setExpiration(new Date(session.expireTime()))
       .compact();
   }
 
   protected void cleanup() {
     for (var entry : this.sessions.entrySet()) {
-      if (entry.getValue().getExpireTime() <= System.currentTimeMillis()) {
+      if (entry.getValue().expireTime() <= System.currentTimeMillis()) {
         this.sessions.remove(entry.getKey());
       }
     }
   }
 
-  public @NotNull Map<String, HttpSession> getSessions() {
+  public @NotNull Map<String, HttpSession> sessions() {
     this.cleanup();
     return this.sessions;
   }
 
-  public @NotNull WebSocketTicketManager getWebSocketTicketManager() {
+  public @NotNull WebSocketTicketManager webSocketTicketManager() {
     return this.webSocketTicketManager;
   }
 
-  public static class LoginResult<T> {
+  public record LoginResult<T>(T result, String errorMessage) {
 
     private static final LoginResult<?> UNDEFINED_RESULT = LoginResult.failure(null);
-
-    private final T result;
-    private final String errorMessage;
-
-    protected LoginResult(T result, String errorMessage) {
-      this.result = result;
-      this.errorMessage = errorMessage;
-    }
 
     @SuppressWarnings("unchecked")
     public static <T> LoginResult<T> undefinedFailure() {
@@ -232,24 +224,16 @@ public class V2HttpAuthentication {
       return new LoginResult<>(null, errorMessage);
     }
 
-    public boolean isSuccess() {
+    public boolean succeeded() {
       return this.result != null;
     }
 
-    public boolean isFailure() {
+    public boolean failed() {
       return this.result == null;
     }
 
     public boolean hasErrorMessage() {
       return this.errorMessage != null;
-    }
-
-    public @Nullable String getErrorMessage() {
-      return this.errorMessage;
-    }
-
-    public @Nullable T getResult() {
-      return this.result;
     }
   }
 }

@@ -99,24 +99,24 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
     }
   }
 
-  public @NotNull Deque<QuestionListEntry<?>> getEntries() {
+  public @NotNull Deque<QuestionListEntry<?>> entries() {
     return this.entries;
   }
 
-  public boolean isCancelled() {
+  public boolean cancelled() {
     return this.cancelled;
   }
 
-  public boolean isCancellable() {
+  public boolean cancellable() {
     return this.cancellable;
   }
 
-  public void setCancellable(boolean cancellable) {
+  public void cancellable(boolean cancellable) {
     this.cancellable = cancellable;
   }
 
   @SuppressWarnings("unchecked")
-  public <T> T getResult(@NotNull String key) {
+  public <T> T result(@NotNull String key) {
     return (T) this.results.get(key);
   }
 
@@ -125,24 +125,24 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
   }
 
   @Override
-  public void setConsole(@NotNull IConsole console) {
-    super.setConsole(console);
+  public void console(@NotNull IConsole console) {
+    super.console(console);
 
     // store the current console setting for resetting later
-    this.previousPrompt = console.getPrompt();
-    this.previousHistory = console.getCommandHistory();
-    this.previousPrintingEnabled = console.isPrintingEnabled();
-    this.previousUseMatchingHistorySearch = console.isUsingMatchingHistoryComplete();
-    this.previousConsoleLines = CloudNet.getInstance().logHandler().getFormattedCachedLogLines();
+    this.previousPrompt = console.prompt();
+    this.previousHistory = console.commandHistory();
+    this.previousPrintingEnabled = console.printingEnabled();
+    this.previousUseMatchingHistorySearch = console.usingMatchingHistoryComplete();
+    this.previousConsoleLines = CloudNet.instance().logHandler().formattedCachedLogLines();
 
     // apply the console settings of the animation
     console.clearScreen();
-    console.setCommandHistory(null);
+    console.commandHistory(null);
     console.togglePrinting(false);
-    console.setUsingMatchingHistoryComplete(false);
+    console.usingMatchingHistoryComplete(false);
 
     if (this.overwritePrompt != null) {
-      console.setPrompt(this.overwritePrompt);
+      console.prompt(this.overwritePrompt);
     }
 
     // print the header if supplied
@@ -152,13 +152,13 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
 
     // print a general explanation of the setup process
     console.forceWriteLine("&e" + I18n.trans("ca-question-list-explain"));
-    if (this.isCancellable()) {
+    if (this.cancellable()) {
       console.forceWriteLine("&e" + I18n.trans("ca-question-list-cancel"));
     }
 
     // disable all commands of the console
     console.disableAllHandlers();
-    CloudNet.getInstance().eventManager().callEvent(new SetupInitiateEvent(this));
+    CloudNet.instance().eventManager().callEvent(new SetupInitiateEvent(this));
   }
 
   @Override
@@ -170,10 +170,10 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
       return true;
     }
 
-    var answerType = entry.getAnswerType();
+    var answerType = entry.answerType();
     // write the recommendation if given
     if (answerType.recommendation() != null) {
-      this.console.setCommandInputValue(answerType.recommendation());
+      this.console.commandInputValue(answerType.recommendation());
     }
     // check for possible answers
     if (!answerType.getPossibleAnswers().isEmpty()) {
@@ -182,21 +182,21 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
         this.handlerId,
         new ConsoleAnswerTabCompleteHandler(answerType.getPossibleAnswers()));
       // set the answers in the console history
-      this.console.setCommandHistory(answerType.getPossibleAnswers());
+      this.console.commandHistory(answerType.getPossibleAnswers());
 
       // collect the possible answers to one string
       var answers = I18n.trans("ca-question-list-possible-answers-list")
         .replace("%values%", String.join(", ", answerType.getPossibleAnswers()));
       // write the answers to the console
-      for (var line : this.updateCursor("&r" + entry.getQuestion() + " &r> &e" + answers)) {
-        super.getConsole().forceWriteLine(line);
+      for (var line : this.updateCursor("&r" + entry.question() + " &r> &e" + answers)) {
+        super.console().forceWriteLine(line);
       }
     } else {
       // clear the history
-      this.console.setCommandHistory(null);
+      this.console.commandHistory(null);
       // just write the question into the console
-      for (var line : this.updateCursor("&r" + entry.getQuestion())) {
-        super.getConsole().forceWriteLine(line);
+      for (var line : this.updateCursor("&r" + entry.question())) {
+        super.console().forceWriteLine(line);
       }
     }
 
@@ -257,13 +257,13 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
       var result = answerType.tryParse(input.trim());
       // store the result and post it to the handlers
       answerType.postResult(result);
-      this.results.put(entry.getKey(), result);
+      this.results.put(entry.key(), result);
       // call the event
-      CloudNet.getInstance().eventManager().callEvent(new SetupResponseEvent(this, entry, result));
+      CloudNet.instance().eventManager().callEvent(new SetupResponseEvent(this, entry, result));
       // re-draw the question line, add the given response to it
       this.console.writeRaw(this.eraseLines(Ansi.ansi().reset(), this.currentCursor + 1)
         .a("&r") // reset of the colors
-        .a(entry.getQuestion()) // the question
+        .a(entry.question()) // the question
         .a(" &r=> &a") // separator between the question and the answer
         .a(input) // the given result
         .a(System.lineSeparator()) // jump to next line
@@ -281,9 +281,9 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
       // wait a short period of time for the user to read
       Thread.sleep(1500);
       // erase the invalid lines again
-      this.getConsole().writeRaw(this.eraseLines(Ansi.ansi().reset(), messageLines.length).toString());
+      this.console().writeRaw(this.eraseLines(Ansi.ansi().reset(), messageLines.length).toString());
       // reset the console history
-      this.getConsole().setCommandHistory(answerType.getPossibleAnswers());
+      this.console().commandHistory(answerType.getPossibleAnswers());
       // continue with the current question
       return false;
     }
@@ -292,17 +292,17 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
   @Override
   public void resetConsole() {
     if (this.cancelled) {
-      super.getConsole().forceWriteLine("&c" + I18n.trans("ca-question-list-cancelled"));
-      CloudNet.getInstance().eventManager().callEvent(new SetupCancelledEvent(this));
+      super.console().forceWriteLine("&c" + I18n.trans("ca-question-list-cancelled"));
+      CloudNet.instance().eventManager().callEvent(new SetupCancelledEvent(this));
       // reset the cancelled state
       this.cancelled = false;
     } else {
       // print the footer if supplied
       if (this.footer != null) {
-        super.getConsole().forceWriteLine("&r" + this.footer);
+        super.console().forceWriteLine("&r" + this.footer);
       }
 
-      CloudNet.getInstance().eventManager().callEvent(new SetupCompleteEvent(this));
+      CloudNet.instance().eventManager().callEvent(new SetupCompleteEvent(this));
     }
 
     try {
@@ -312,24 +312,24 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
     }
 
     // remove the setup from the screen
-    this.getConsole().clearScreen();
+    this.console().clearScreen();
 
     // write the old lines back if there are some
     if (this.previousConsoleLines.isEmpty()) {
       // send an empty line to prevent bugs
-      this.getConsole().forceWriteLine("");
+      this.console().forceWriteLine("");
     } else {
       for (var line : this.previousConsoleLines) {
-        this.getConsole().forceWriteLine(line);
+        this.console().forceWriteLine(line);
       }
     }
 
     // reset the console settings
-    this.getConsole().enableAllHandlers();
-    this.getConsole().setPrompt(this.previousPrompt);
-    this.getConsole().setCommandHistory(this.previousHistory);
-    this.getConsole().togglePrinting(this.previousPrintingEnabled);
-    this.getConsole().setUsingMatchingHistoryComplete(this.previousUseMatchingHistorySearch);
+    this.console().enableAllHandlers();
+    this.console().prompt(this.previousPrompt);
+    this.console().commandHistory(this.previousHistory);
+    this.console().togglePrinting(this.previousPrintingEnabled);
+    this.console().usingMatchingHistoryComplete(this.previousUseMatchingHistorySearch);
 
     super.resetConsole();
   }

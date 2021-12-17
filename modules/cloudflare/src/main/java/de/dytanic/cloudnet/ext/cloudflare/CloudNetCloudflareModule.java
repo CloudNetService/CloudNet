@@ -82,7 +82,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
 
   @ModuleTask(order = 125, event = ModuleLifeCycle.STARTED)
   public void addedDefaultCloudflareDNSServices() {
-    var cloudConfig = CloudNet.getInstance().getConfig();
+    var cloudConfig = CloudNet.instance().getConfig();
 
     for (var entry : this.cloudFlareConfiguration().entries()) {
       if (entry.enabled()) {
@@ -99,7 +99,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
           entry,
           new DefaultDNSRecord(
             ipv6Address ? DNSType.AAAA : DNSType.A,
-            cloudConfig.getIdentity().uniqueId() + "." + entry.domainName(),
+            cloudConfig.identity().uniqueId() + "." + entry.domainName(),
             entry.hostAddress(),
             JsonDocument.empty()
           )
@@ -107,7 +107,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
         if (recordDetail != null) {
           LOGGER
             .info(I18n.trans("module-cloudflare-create-dns-record-for-service")
-              .replace("%service%", cloudConfig.getIdentity().uniqueId())
+              .replace("%service%", cloudConfig.identity().uniqueId())
               .replace("%domain%", entry.domainName())
               .replace("%recordId%", recordDetail.id())
             );

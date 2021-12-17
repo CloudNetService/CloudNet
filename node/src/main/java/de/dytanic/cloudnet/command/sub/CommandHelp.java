@@ -53,7 +53,7 @@ public final class CommandHelp {
   @Parser
   public CommandInfo defaultCommandInfoParser(CommandContext<CommandSource> $, Queue<String> input) {
     var command = input.remove();
-    var commandInfo = this.commandProvider.getCommand(command);
+    var commandInfo = this.commandProvider.command(command);
     if (commandInfo == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-not-found"));
     }
@@ -63,7 +63,7 @@ public final class CommandHelp {
 
   @CommandMethod("help|ask|?")
   public void displayHelp(CommandSource source) {
-    source.sendMessage(HELP_LIST_FORMATTER.format(this.commandProvider.getCommands()));
+    source.sendMessage(HELP_LIST_FORMATTER.format(this.commandProvider.commands()));
   }
 
   @CommandMethod("help|ask|? <command>")

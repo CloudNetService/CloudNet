@@ -185,7 +185,7 @@ public class MongoDBDatabase extends AbstractDatabase {
   }
 
   @Override
-  public boolean isSynced() {
+  public boolean synced() {
     return true;
   }
 

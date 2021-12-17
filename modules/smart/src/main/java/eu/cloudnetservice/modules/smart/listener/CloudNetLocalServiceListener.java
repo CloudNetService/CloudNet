@@ -39,9 +39,9 @@ public final class CloudNetLocalServiceListener {
 
   @EventListener
   public void handle(@NotNull CloudServicePostLifecycleEvent event) {
-    if (event.getNewLifeCycle() == ServiceLifeCycle.PREPARED) {
-      var task = CloudNet.getInstance().serviceTaskProvider()
-        .serviceTask(event.getService().getServiceId().taskName());
+    if (event.newLifeCycle() == ServiceLifeCycle.PREPARED) {
+      var task = CloudNet.instance().serviceTaskProvider()
+        .serviceTask(event.service().serviceId().taskName());
       // check if the service is associated with a task
       if (task == null) {
         return;
@@ -49,7 +49,7 @@ public final class CloudNetLocalServiceListener {
       // get the smart entry for the service
       var config = this.module.smartConfig(task);
       if (config != null && config.enabled()) {
-        Set<ServiceTemplate> templates = new HashSet<>(event.getService().getWaitingTemplates());
+        Set<ServiceTemplate> templates = new HashSet<>(event.service().waitingTemplates());
         templates.removeAll(task.templates());
         // apply the template installer
         switch (config.templateInstaller()) {
@@ -78,7 +78,7 @@ public final class CloudNetLocalServiceListener {
 
           // installs the templates balanced
           case INSTALL_BALANCED -> {
-            var services = CloudNet.getInstance()
+            var services = CloudNet.instance()
               .cloudServiceProvider()
               .servicesByTask(task.name());
             // find the least used template add register it as a service template
@@ -93,12 +93,12 @@ public final class CloudNetLocalServiceListener {
           }
         }
         // refresh the waiting templates
-        event.getService().getWaitingTemplates().clear();
-        event.getService().getWaitingTemplates().addAll(templates);
+        event.service().waitingTemplates().clear();
+        event.service().waitingTemplates().addAll(templates);
         // include templates and inclusions now if configured so
         if (config.directTemplatesAndInclusionsSetup()) {
-          event.getService().includeWaitingServiceTemplates();
-          event.getService().includeWaitingServiceInclusions();
+          event.service().includeWaitingServiceTemplates();
+          event.service().includeWaitingServiceInclusions();
         }
       }
     }

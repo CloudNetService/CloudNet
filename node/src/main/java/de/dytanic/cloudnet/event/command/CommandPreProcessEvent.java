@@ -40,7 +40,7 @@ public class CommandPreProcessEvent extends Event implements ICancelable {
    * @return the command line that will be executed
    */
   @NotNull
-  public String getCommandLine() {
+  public String commandLine() {
     return this.commandLine;
   }
 
@@ -48,7 +48,7 @@ public class CommandPreProcessEvent extends Event implements ICancelable {
    * @return the source that executes the command
    */
   @NotNull
-  public CommandSource getCommandSource() {
+  public CommandSource commandSource() {
     return this.commandSource;
   }
 

@@ -40,14 +40,14 @@ public abstract class DefaultNodeServerProvider<T extends NodeServer> implements
   }
 
   @Override
-  public @NotNull Collection<T> getNodeServers() {
+  public @NotNull Collection<T> nodeServers() {
     return Collections.unmodifiableCollection(this.nodeServers);
   }
 
   @Override
-  public @Nullable T getNodeServer(@NotNull String uniqueId) {
+  public @Nullable T nodeServer(@NotNull String uniqueId) {
     for (var nodeServer : this.nodeServers) {
-      if (nodeServer.getNodeInfo().uniqueId().equals(uniqueId)) {
+      if (nodeServer.nodeInfo().uniqueId().equals(uniqueId)) {
         return nodeServer;
       }
     }
@@ -55,12 +55,12 @@ public abstract class DefaultNodeServerProvider<T extends NodeServer> implements
   }
 
   @Override
-  public @NotNull NodeServer getHeadNode() {
+  public @NotNull NodeServer headnode() {
     return this.headNode;
   }
 
   @Override
-  public @NotNull LocalNodeServer getSelfNode() {
+  public @NotNull LocalNodeServer selfNode() {
     return this.localNode;
   }
 
@@ -68,10 +68,10 @@ public abstract class DefaultNodeServerProvider<T extends NodeServer> implements
   public void refreshHeadNode() {
     NodeServer choice = this.localNode;
     for (var nodeServer : this.nodeServers) {
-      if (nodeServer.isAvailable()) {
+      if (nodeServer.available()) {
         // the head node is always the node which runs the longest
-        var snapshot = nodeServer.getNodeInfoSnapshot();
-        if (snapshot != null && snapshot.startupMillis() < choice.getNodeInfoSnapshot().startupMillis()) {
+        var snapshot = nodeServer.nodeInfoSnapshot();
+        if (snapshot != null && snapshot.startupMillis() < choice.nodeInfoSnapshot().startupMillis()) {
           choice = nodeServer;
         }
       }

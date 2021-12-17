@@ -28,27 +28,27 @@ public abstract class DefaultNodeServer implements NodeServer {
   protected volatile NetworkClusterNodeInfoSnapshot currentSnapshot;
 
   @Override
-  public boolean isHeadNode() {
-    return this.getProvider().getHeadNode() == this;
+  public boolean headNode() {
+    return this.provider().headnode() == this;
   }
 
   @Override
-  public @NotNull NetworkClusterNode getNodeInfo() {
+  public @NotNull NetworkClusterNode nodeInfo() {
     return this.nodeInfo;
   }
 
   @Override
-  public void setNodeInfo(@NotNull NetworkClusterNode nodeInfo) {
+  public void nodeInfo(@NotNull NetworkClusterNode nodeInfo) {
     this.nodeInfo = Preconditions.checkNotNull(nodeInfo, "nodeInfo");
   }
 
   @Override
-  public NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot() {
+  public NetworkClusterNodeInfoSnapshot nodeInfoSnapshot() {
     return this.currentSnapshot;
   }
 
   @Override
-  public void setNodeInfoSnapshot(@NotNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot) {
+  public void nodeInfoSnapshot(@NotNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot) {
     Preconditions.checkNotNull(nodeInfoSnapshot, "nodeInfoSnapshot");
 
     this.lastSnapshot = this.currentSnapshot == null ? nodeInfoSnapshot : this.currentSnapshot;
@@ -56,12 +56,12 @@ public abstract class DefaultNodeServer implements NodeServer {
   }
 
   @Override
-  public NetworkClusterNodeInfoSnapshot getLastNodeInfoSnapshot() {
+  public NetworkClusterNodeInfoSnapshot lastNodeInfoSnapshot() {
     return this.lastSnapshot;
   }
 
   @Override
   public void close() throws Exception {
-    this.getProvider().refreshHeadNode();
+    this.provider().refreshHeadNode();
   }
 }

@@ -38,18 +38,18 @@ public final class PacketServerAuthorizationResponseListener implements IPacketL
     // check if the auth was successful
     if (packet.content().readBoolean()) {
       // search for the node to which the auth succeeded
-      var server = CloudNet.getInstance().getConfig().getClusterConfig().nodes().stream()
+      var server = CloudNet.instance().getConfig().clusterConfig().nodes().stream()
         .filter(node -> Arrays.stream(node.listeners()).anyMatch(host -> channel.serverAddress().equals(host)))
-        .map(node -> CloudNet.getInstance().getClusterNodeServerProvider().getNodeServer(node.uniqueId()))
+        .map(node -> CloudNet.instance().getClusterNodeServerProvider().nodeServer(node.uniqueId()))
         .filter(Objects::nonNull)
-        .filter(node -> node.isAcceptableConnection(channel, node.getNodeInfo().uniqueId()))
+        .filter(node -> node.acceptableConnection(channel, node.nodeInfo().uniqueId()))
         .findFirst()
         .orElse(null);
       if (server != null) {
-        server.setChannel(channel);
+        server.channel(channel);
         // add the packet listeners
         channel.packetRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
-        NodeNetworkUtils.addDefaultPacketListeners(channel.packetRegistry(), CloudNet.getInstance());
+        NodeNetworkUtils.addDefaultPacketListeners(channel.packetRegistry(), CloudNet.instance());
         // we are good to go :)
         return;
       }

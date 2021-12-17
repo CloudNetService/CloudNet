@@ -28,7 +28,7 @@ public final class LocalNodeSnapshotConfigureEvent extends DriverEvent {
     this.networkClusterNodeInfoSnapshot = networkClusterNodeInfoSnapshot;
   }
 
-  public @NotNull NetworkClusterNodeInfoSnapshot getSnapshot() {
+  public @NotNull NetworkClusterNodeInfoSnapshot snapshot() {
     return this.networkClusterNodeInfoSnapshot;
   }
 }

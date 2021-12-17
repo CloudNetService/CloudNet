@@ -120,8 +120,8 @@ public abstract class AbstractService implements ICloudService {
 
     this.currentServiceInfo = new ServiceInfoSnapshot(
       System.currentTimeMillis(),
-      new HostAndPort(this.getNodeConfiguration().getHostAddress(), configuration.port()),
-      new HostAndPort(this.getNodeConfiguration().getConnectHostAddress(), configuration.port()),
+      new HostAndPort(this.getNodeConfiguration().hostAddress(), configuration.port()),
+      new HostAndPort(this.getNodeConfiguration().connectHostAddress(), configuration.port()),
       ProcessSnapshot.empty(),
       configuration,
       -1,
@@ -145,8 +145,8 @@ public abstract class AbstractService implements ICloudService {
     }
     // resolve the path of the service in the logical directory
     return staticService
-      ? manager.getPersistentServicesDirectoryPath().resolve(serviceId.name())
-      : manager.getTempDirectoryPath().resolve(String.format("%s_%s", serviceId.name(), serviceId.uniqueId()));
+      ? manager.persistentServicesDirectory().resolve(serviceId.name())
+      : manager.tempDirectory().resolve(String.format("%s_%s", serviceId.name(), serviceId.uniqueId()));
   }
 
   @Override
@@ -164,7 +164,7 @@ public abstract class AbstractService implements ICloudService {
     // check if the service is able to serve the request
     if (this.networkChannel != null) {
       var response = ChannelMessage.builder()
-        .targetService(this.getServiceId().name())
+        .targetService(this.serviceId().name())
         .message("request_update_service_information")
         .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
         .build()
@@ -191,7 +191,7 @@ public abstract class AbstractService implements ICloudService {
   }
 
   @Override
-  public @NotNull IServiceConsoleLogCache getServiceConsoleLogCache() {
+  public @NotNull IServiceConsoleLogCache serviceConsoleLogCache() {
     return this.logCache;
   }
 
@@ -201,7 +201,7 @@ public abstract class AbstractService implements ICloudService {
       // prevent multiple service updates at the same time
       this.lifecycleLock.lock();
       // prevent changing the lifecycle to an incompatible lifecycle
-      if (!this.getLifeCycle().canChangeTo(lifeCycle)) {
+      if (!this.lifeCycle().canChangeTo(lifeCycle)) {
         return;
       }
       // select the appropriate method for the lifecycle
@@ -218,7 +218,7 @@ public abstract class AbstractService implements ICloudService {
         case RUNNING: {
           if (this.preLifecycleChange(ServiceLifeCycle.RUNNING)) {
             // check if we can start the process now
-            if (this.getLifeCycle() == ServiceLifeCycle.PREPARED && this.canStartNow()) {
+            if (this.lifeCycle() == ServiceLifeCycle.PREPARED && this.canStartNow()) {
               this.prepareService();
               this.startProcess();
               // update the current service info
@@ -231,11 +231,11 @@ public abstract class AbstractService implements ICloudService {
         case STOPPED: {
           if (this.preLifecycleChange(ServiceLifeCycle.STOPPED)) {
             // check if we should delete the service when stopping
-            if (this.getServiceConfiguration().autoDeleteOnStop()) {
+            if (this.serviceConfiguration().autoDeleteOnStop()) {
               this.doDelete();
               // update the current service info
               this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.DELETED);
-            } else if (this.getLifeCycle() == ServiceLifeCycle.RUNNING) {
+            } else if (this.lifeCycle() == ServiceLifeCycle.RUNNING) {
               this.stopProcess();
               this.doRemoveFilesAfterStop();
               // reset the service lifecycle to prepared
@@ -325,70 +325,70 @@ public abstract class AbstractService implements ICloudService {
   @Override
   public void doDelete() {
     // stop the process if it's running
-    if (this.currentServiceInfo.lifeCycle() == ServiceLifeCycle.RUNNING || this.isAlive()) {
+    if (this.currentServiceInfo.lifeCycle() == ServiceLifeCycle.RUNNING || this.alive()) {
       this.stopProcess();
     }
     // execute all deployments which are still waiting - delete all requested files before that
     this.doRemoveFilesAfterStop();
     this.removeAndExecuteDeployments();
     // remove the current directory if the service is not static
-    if (!this.getServiceConfiguration().staticService()) {
+    if (!this.serviceConfiguration().staticService()) {
       FileUtils.delete(this.serviceDirectory);
     }
   }
 
   @Override
-  public @NotNull Queue<ServiceRemoteInclusion> getWaitingIncludes() {
+  public @NotNull Queue<ServiceRemoteInclusion> waitingIncludes() {
     return this.waitingRemoteInclusions;
   }
 
   @Override
-  public @NotNull Queue<ServiceTemplate> getWaitingTemplates() {
+  public @NotNull Queue<ServiceTemplate> waitingTemplates() {
     return this.waitingTemplates;
   }
 
   @Override
-  public @NotNull Queue<ServiceDeployment> getWaitingDeployments() {
+  public @NotNull Queue<ServiceDeployment> waitingDeployments() {
     return this.waitingDeployments;
   }
 
   @Override
-  public @NotNull ServiceLifeCycle getLifeCycle() {
+  public @NotNull ServiceLifeCycle lifeCycle() {
     return this.currentServiceInfo.lifeCycle();
   }
 
   @Override
-  public @NotNull ICloudServiceManager getCloudServiceManager() {
+  public @NotNull ICloudServiceManager cloudServiceManager() {
     return this.cloudServiceManager;
   }
 
   @Override
-  public @NotNull ServiceConfiguration getServiceConfiguration() {
+  public @NotNull ServiceConfiguration serviceConfiguration() {
     return this.currentServiceInfo.configuration();
   }
 
   @Override
-  public @NotNull ServiceId getServiceId() {
+  public @NotNull ServiceId serviceId() {
     return this.currentServiceInfo.serviceId();
   }
 
   @Override
-  public @NotNull String getConnectionKey() {
+  public @NotNull String connectionKey() {
     return this.connectionKey;
   }
 
   @Override
-  public @NotNull Path getDirectory() {
+  public @NotNull Path directory() {
     return this.serviceDirectory;
   }
 
   @Override
-  public @Nullable INetworkChannel getNetworkChannel() {
+  public @Nullable INetworkChannel networkChannel() {
     return this.networkChannel;
   }
 
   @Override
-  public void setNetworkChannel(@Nullable INetworkChannel channel) {
+  public void networkChannel(@Nullable INetworkChannel channel) {
     Preconditions.checkArgument(this.networkChannel == null || channel == null);
     // close the channel if the new channel is null
     if (this.networkChannel != null) {
@@ -402,7 +402,7 @@ public abstract class AbstractService implements ICloudService {
   }
 
   @Override
-  public @NotNull ServiceInfoSnapshot getLastServiceInfoSnapshot() {
+  public @NotNull ServiceInfoSnapshot lastServiceInfoSnapshot() {
     return this.lastServiceInfo;
   }
 
@@ -425,7 +425,7 @@ public abstract class AbstractService implements ICloudService {
 
   @Override
   public Queue<String> cachedLogMessages() {
-    return this.getServiceConsoleLogCache().cachedLogMessages();
+    return this.serviceConsoleLogCache().cachedLogMessages();
   }
 
   @Override
@@ -445,7 +445,7 @@ public abstract class AbstractService implements ICloudService {
     this.waitingTemplates.stream()
       .filter(template -> {
         // always allow manual requests & non-static service copies
-        if (force || !this.getServiceConfiguration().staticService()) {
+        if (force || !this.serviceConfiguration().staticService()) {
           return true;
         }
         // only allow this template to be copied if explicitly defined
@@ -499,7 +499,7 @@ public abstract class AbstractService implements ICloudService {
       this.lastServiceInfo.creationTime(),
       this.lastServiceInfo.address(),
       this.lastServiceInfo.connectAddress(),
-      this.isAlive() ? this.lastServiceInfo.processSnapshot() : ProcessSnapshot.empty(),
+      this.alive() ? this.lastServiceInfo.processSnapshot() : ProcessSnapshot.empty(),
       this.lastServiceInfo.configuration(),
       this.networkChannel == null ? -1 : this.lastServiceInfo.connectedTime(),
       Preconditions.checkNotNull(lifeCycle, "lifecycle"),
@@ -522,12 +522,12 @@ public abstract class AbstractService implements ICloudService {
 
   protected boolean canStartNow() {
     // check jvm heap size
-    if (this.cloudServiceManager.getCurrentUsedHeapMemory()
-      + this.getServiceConfiguration().processConfig().maxHeapMemorySize()
-      >= this.getNodeConfiguration().getMaxMemory()) {
+    if (this.cloudServiceManager.currentUsedHeapMemory()
+      + this.serviceConfiguration().processConfig().maxHeapMemorySize()
+      >= this.getNodeConfiguration().maxMemory()) {
       // schedule a retry
-      if (this.getNodeConfiguration().isRunBlockedServiceStartTryLaterAutomatic()) {
-        CloudNet.getInstance().mainThread().runTask(this::start);
+      if (this.getNodeConfiguration().runBlockedServiceStartTryLaterAutomatic()) {
+        CloudNet.instance().mainThread().runTask(this::start);
       } else {
         LOGGER.info(I18n.trans("cloud-service-manager-max-memory-error"));
       }
@@ -535,10 +535,10 @@ public abstract class AbstractService implements ICloudService {
       return false;
     }
     // check for cpu usage
-    if (CPUUsageResolver.systemCPUUsage() >= this.getNodeConfiguration().getMaxCPUUsageToStartServices()) {
+    if (CPUUsageResolver.systemCPUUsage() >= this.getNodeConfiguration().maxCPUUsageToStartServices()) {
       // schedule a retry
-      if (this.getNodeConfiguration().isRunBlockedServiceStartTryLaterAutomatic()) {
-        CloudNet.getInstance().mainThread().runTask(this::start);
+      if (this.getNodeConfiguration().runBlockedServiceStartTryLaterAutomatic()) {
+        CloudNet.instance().mainThread().runTask(this::start);
       } else {
         LOGGER.info(I18n.trans("cloud-service-manager-cpu-usage-to-high-error"));
       }
@@ -554,16 +554,16 @@ public abstract class AbstractService implements ICloudService {
     var firstStartup = Files.notExists(this.serviceDirectory);
     FileUtils.createDirectory(this.serviceDirectory);
     // write the configuration file for the service
-    var listeners = this.getNodeConfiguration().getIdentity().listeners();
+    var listeners = this.getNodeConfiguration().identity().listeners();
     JsonDocument.newDocument()
-      .append("connectionKey", this.getConnectionKey())
+      .append("connectionKey", this.connectionKey())
       .append("serviceInfoSnapshot", this.currentServiceInfo)
-      .append("serviceConfiguration", this.getServiceConfiguration())
-      .append("sslConfiguration", this.getNodeConfiguration().getServerSslConfig())
+      .append("serviceConfiguration", this.serviceConfiguration())
+      .append("sslConfiguration", this.getNodeConfiguration().serverSSLConfig())
       .append("targetListener", listeners[ThreadLocalRandom.current().nextInt(listeners.length)])
       .write(this.serviceDirectory.resolve(WRAPPER_CONFIG_PATH));
     // load the ssl configuration if enabled
-    var sslConfiguration = this.getNodeConfiguration().getServerSslConfig();
+    var sslConfiguration = this.getNodeConfiguration().serverSSLConfig();
     if (sslConfiguration.enabled()) {
       this.copySslConfiguration(sslConfiguration);
     }

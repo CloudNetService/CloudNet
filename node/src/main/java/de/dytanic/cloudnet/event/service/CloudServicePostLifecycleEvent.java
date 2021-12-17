@@ -32,7 +32,7 @@ public final class CloudServicePostLifecycleEvent extends CloudServiceEvent {
     this.newLifeCycle = newLifeCycle;
   }
 
-  public @NotNull ServiceLifeCycle getNewLifeCycle() {
+  public @NotNull ServiceLifeCycle newLifeCycle() {
     return this.newLifeCycle;
   }
 }

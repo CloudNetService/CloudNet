@@ -72,7 +72,7 @@ public class CloudNetSmartModule extends DriverModule {
       if (!task.properties().contains("smartConfig")) {
         task.properties().append("smartConfig", SmartServiceTaskConfig.builder().build());
         // update the task
-        CloudNet.getInstance().serviceTaskProvider().addPermanentServiceTask(task);
+        CloudNet.instance().serviceTaskProvider().addPermanentServiceTask(task);
       }
     }
   }

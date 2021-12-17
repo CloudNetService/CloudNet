@@ -28,7 +28,7 @@ public interface WebSocketTicketManager {
     return MemoryWebSocketTicketManager.INSTANCE;
   }
 
-  @NotNull Collection<WebSocketTicket> getTickets();
+  @NotNull Collection<WebSocketTicket> tickets();
 
   @Nullable WebSocketTicket expireTicket(@NotNull String ticketId);
 

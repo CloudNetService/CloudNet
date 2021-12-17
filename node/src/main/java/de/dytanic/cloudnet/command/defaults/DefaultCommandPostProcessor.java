@@ -30,7 +30,7 @@ final class DefaultCommandPostProcessor implements CommandPostprocessor<CommandS
     var commandContext = context.getCommandContext();
     var source = commandContext.getSender();
 
-    CloudNet.getInstance().eventManager()
+    CloudNet.instance().eventManager()
       .callEvent(new CommandPostProcessEvent(commandContext.getRawInputJoined(), source));
   }
 }

@@ -50,7 +50,7 @@ public class RemoteNodeCloudServiceProvider extends RemoteSpecificCloudServicePr
     return CompletedTask.done(this.snapshot);
   }
 
-  public void setSnapshot(@NotNull ServiceInfoSnapshot snapshot) {
+  public void snapshot(@NotNull ServiceInfoSnapshot snapshot) {
     this.snapshot = snapshot;
   }
 }

@@ -49,7 +49,7 @@ public record RecordMaker(@NotNull Path directory, @NotNull ICloudService servic
    */
   public static @Nullable RecordMaker forService(@NotNull Path baseDirectory, @NotNull ICloudService service) {
     var directory = baseDirectory.resolve(
-      service.getServiceId().name() + "-" + service.getServiceId().uniqueId()).normalize().toAbsolutePath();
+      service.serviceId().name() + "-" + service.serviceId().uniqueId()).normalize().toAbsolutePath();
 
     if (Files.exists(directory)) {
       return null;
@@ -79,12 +79,12 @@ public record RecordMaker(@NotNull Path directory, @NotNull ICloudService servic
       var targetDirectory = this.directory.resolve("logs");
       FileUtils.createDirectory(targetDirectory);
 
-      if (this.service.getServiceId().environment().equals(ServiceEnvironmentType.BUNGEECORD)) {
-        FileUtils.walkFileTree(this.service.getDirectory(),
+      if (this.service.serviceId().environment().equals(ServiceEnvironmentType.BUNGEECORD)) {
+        FileUtils.walkFileTree(this.service.directory(),
           (root, current) -> FileUtils.copy(current, targetDirectory.resolve(root.relativize(current))), false,
           "proxy.log*");
       } else {
-        FileUtils.copyDirectory(this.service.getDirectory().resolve("logs"), targetDirectory);
+        FileUtils.copyDirectory(this.service.directory().resolve("logs"), targetDirectory);
       }
     } catch (Exception exception) {
       LOGGER.severe("Exception while creating directory", exception);
@@ -108,7 +108,7 @@ public record RecordMaker(@NotNull Path directory, @NotNull ICloudService servic
    */
   public void writeServiceInfoSnapshot() {
     JsonDocument.newDocument("serviceInfoSnapshot", this.service.serviceInfo())
-      .append("lastServiceInfoSnapshot", this.service.getLastServiceInfoSnapshot())
+      .append("lastServiceInfoSnapshot", this.service.lastServiceInfoSnapshot())
       .write(this.directory.resolve("ServiceInfoSnapshots.json"));
   }
 
@@ -117,7 +117,7 @@ public record RecordMaker(@NotNull Path directory, @NotNull ICloudService servic
    */
   public void notifySuccess() {
     LOGGER.info(I18n.trans("module-report-create-record-success")
-      .replace("%service%", this.service.getServiceId().name())
+      .replace("%service%", this.service.serviceId().name())
       .replace("%file%", this.directory.toString()));
   }
 }

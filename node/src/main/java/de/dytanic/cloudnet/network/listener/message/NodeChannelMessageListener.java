@@ -51,9 +51,9 @@ public final class NodeChannelMessageListener {
         case "update_node_info_snapshot" -> {
           var snapshot = event.content().readObject(NetworkClusterNodeInfoSnapshot.class);
           // get the associated node server
-          var server = this.nodeServerProvider.getNodeServer(snapshot.node().uniqueId());
+          var server = this.nodeServerProvider.nodeServer(snapshot.node().uniqueId());
           if (server != null) {
-            server.setNodeInfoSnapshot(snapshot);
+            server.nodeInfoSnapshot(snapshot);
             this.eventManager.callEvent(new NetworkClusterNodeInfoUpdateEvent(event.networkChannel(), snapshot));
           }
         }
@@ -68,14 +68,14 @@ public final class NodeChannelMessageListener {
         }
 
         // handles the shutdown of a cluster node
-        case "cluster_node_shutdown" -> CloudNet.getInstance().stop();
+        case "cluster_node_shutdown" -> CloudNet.instance().stop();
 
         // request of the full cluster data set
         case "request_initial_cluster_data" -> {
-          var server = this.nodeServerProvider.getNodeServer(event.networkChannel());
+          var server = this.nodeServerProvider.nodeServer(event.networkChannel());
           if (server != null) {
             // do not force the sync - the user can decide which changes should be used
-            server.syncClusterData(CloudNet.getInstance().getConfig().getForceInitialClusterDataSync());
+            server.syncClusterData(CloudNet.instance().getConfig().forceInitialClusterDataSync());
           }
         }
 

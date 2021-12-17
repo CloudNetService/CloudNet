@@ -27,15 +27,15 @@ public class VelocityConfigurationPreparer extends AbstractServiceConfigurationP
     // check if we should run now
     if (this.shouldRewriteIp(nodeInstance, cloudService)) {
       // copy the default file
-      var configFile = cloudService.getDirectory().resolve("velocity.toml");
+      var configFile = cloudService.directory().resolve("velocity.toml");
       this.copyCompiledFile("files/velocity/velocity.toml", configFile);
       // rewrite the configuration file
       this.rewriteFile(configFile, line -> {
         if (line.startsWith("bind =")) {
           line = String.format(
             "bind = \"%s:%d\"",
-            nodeInstance.getConfig().getHostAddress(),
-            cloudService.getServiceConfiguration().port());
+            nodeInstance.getConfig().hostAddress(),
+            cloudService.serviceConfiguration().port());
         }
         return line;
       });

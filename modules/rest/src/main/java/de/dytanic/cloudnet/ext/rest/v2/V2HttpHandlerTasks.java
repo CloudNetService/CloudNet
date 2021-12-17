@@ -57,7 +57,7 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
 
   protected void handleTaskExistsRequest(IHttpContext context) {
     this.handleWithTaskContext(context, task -> this.ok(context)
-      .body(this.success().append("result", this.taskProvider().isServiceTaskPresent(task)).toString())
+      .body(this.success().append("result", this.taskProvider().serviceTaskPresent(task)).toString())
       .context()
       .closeAfter(true)
       .cancelNext()

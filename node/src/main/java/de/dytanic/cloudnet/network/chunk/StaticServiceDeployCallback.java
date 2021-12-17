@@ -45,10 +45,10 @@ final class StaticServiceDeployCallback implements Callback {
     var service = information.transferInformation().readString();
     var overwriteService = information.transferInformation().readBoolean();
 
-    var serviceManager = CloudNet.getInstance().cloudServiceProvider();
+    var serviceManager = CloudNet.instance().cloudServiceProvider();
     // only copy the static service running with the same name
     if (serviceManager.localCloudService(service) == null) {
-      var servicePath = serviceManager.getPersistentServicesDirectoryPath().resolve(service);
+      var servicePath = serviceManager.persistentServicesDirectory().resolve(service);
       // check if the service path exists, and we can overwrite it
       if (Files.exists(servicePath) && !overwriteService) {
         LOGGER.severe(I18n.trans("command-cluster-push-static-services-existing"));

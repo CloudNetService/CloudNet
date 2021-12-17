@@ -26,11 +26,11 @@ public abstract class AbstractDatabaseProvider implements DatabaseProvider, INam
 
   public abstract boolean init() throws Exception;
 
-  public @NotNull IDatabaseHandler getDatabaseHandler() {
+  public @NotNull IDatabaseHandler databaseHandler() {
     return this.databaseHandler;
   }
 
-  public void setDatabaseHandler(@NotNull IDatabaseHandler databaseHandler) {
+  public void databaseHandler(@NotNull IDatabaseHandler databaseHandler) {
     this.databaseHandler = databaseHandler;
   }
 

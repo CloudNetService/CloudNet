@@ -101,7 +101,7 @@ public class NodePlayerManager implements IPlayerManager {
     eventManager.registerListener(new BridgeLocalProxyPlayerDisconnectListener(this));
     eventManager.registerListener(new NodePlayerChannelMessageListener(eventManager, this, bridgeManagement));
     // register the players command
-    CloudNet.getInstance().commandProvider().register(new CommandPlayers(this));
+    CloudNet.instance().commandProvider().register(new CommandPlayers(this));
     // register the rpc listeners
     providerFactory.newHandler(IPlayerManager.class, this).registerToDefaultRegistry();
     providerFactory.newHandler(PlayerExecutor.class, null).registerToDefaultRegistry();
@@ -284,7 +284,7 @@ public class NodePlayerManager implements IPlayerManager {
   }
 
   protected @NotNull LocalDatabase database() {
-    return CloudNet.getInstance().databaseProvider().database(this.databaseName);
+    return CloudNet.instance().databaseProvider().database(this.databaseName);
   }
 
   public @NotNull Map<UUID, CloudPlayer> players() {

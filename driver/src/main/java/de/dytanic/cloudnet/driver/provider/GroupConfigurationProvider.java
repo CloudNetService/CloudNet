@@ -65,7 +65,7 @@ public interface GroupConfigurationProvider {
    * @param name the name of the group
    * @return {@code true} if the group exists or {@code false} otherwise
    */
-  boolean isGroupConfigurationPresent(@NotNull String name);
+  boolean groupConfigurationPresent(@NotNull String name);
 
   /**
    * Adds a new group to the cloud
@@ -135,8 +135,8 @@ public interface GroupConfigurationProvider {
    * @return {@code true} if the group exists or {@code false} otherwise
    */
   @NotNull
-  default ITask<Boolean> isGroupConfigurationPresentAsync(@NotNull String name) {
-    return CompletableTask.supply(() -> this.isGroupConfigurationPresent(name));
+  default ITask<Boolean> groupConfigurationPresentAsync(@NotNull String name) {
+    return CompletableTask.supply(() -> this.groupConfigurationPresent(name));
   }
 
   /**

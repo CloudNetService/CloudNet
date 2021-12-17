@@ -30,7 +30,7 @@ public class LocalGroupConfigurationRemoveEvent extends Event implements ICancel
     this.group = group;
   }
 
-  public @NotNull GroupConfiguration getTask() {
+  public @NotNull GroupConfiguration group() {
     return this.group;
   }
 

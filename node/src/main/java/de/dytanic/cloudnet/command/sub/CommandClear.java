@@ -27,6 +27,6 @@ public final class CommandClear {
 
   @CommandMethod("clear")
   public void clearConsole() {
-    CloudNet.getInstance().console().clearScreen();
+    CloudNet.instance().console().clearScreen();
   }
 }

@@ -51,7 +51,7 @@ final class ConfigurationUtils {
 
   public static @NotNull String get(@NotNull String propertyName, @NotNull String def) {
     // try to read the value from the system properties
-    var val = getProperty(propertyName);
+    var val = property(propertyName);
     return val == null ? def : val;
   }
 
@@ -61,7 +61,7 @@ final class ConfigurationUtils {
     @NotNull Function<String, T> mapper
   ) {
     // try to read the value from the system properties
-    var val = getProperty(propertyName);
+    var val = property(propertyName);
     if (val == null) {
       return def;
     }
@@ -74,7 +74,7 @@ final class ConfigurationUtils {
     }
   }
 
-  private static @Nullable String getProperty(@NotNull String propertyName) {
+  private static @Nullable String property(@NotNull String propertyName) {
     var val = System.getProperty(propertyName);
     return val == null ? System.getenv(propertyName.replace('.', '_').toUpperCase()) : val;
   }

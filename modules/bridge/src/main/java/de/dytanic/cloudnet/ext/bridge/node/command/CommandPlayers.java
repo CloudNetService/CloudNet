@@ -88,7 +88,7 @@ public class CommandPlayers {
   @Parser(suggestions = "playerService")
   public ServiceInfoSnapshot playerServiceParser(CommandContext<CommandSource> $, Queue<String> input) {
     var name = input.remove();
-    var serviceInfoSnapshot = CloudNet.getInstance().cloudServiceProvider()
+    var serviceInfoSnapshot = CloudNet.instance().cloudServiceProvider()
       .serviceByName(name);
     if (serviceInfoSnapshot == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-service-service-not-found"));
@@ -98,7 +98,7 @@ public class CommandPlayers {
 
   @Suggestions("playerService")
   public List<String> suggestPlayerService(CommandContext<CommandSource> $, String input) {
-    return CloudNet.getInstance().cloudServiceProvider().services()
+    return CloudNet.instance().cloudServiceProvider().services()
       .stream()
       .filter(snapshot -> ServiceEnvironmentType.isMinecraftServer(snapshot.serviceId().environment()))
       .map(INameable::name)

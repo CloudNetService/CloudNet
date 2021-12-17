@@ -20,11 +20,11 @@ public abstract class Toggleable {
 
   private boolean enabled = true;
 
-  public boolean isEnabled() {
+  public boolean enabled() {
     return this.enabled;
   }
 
-  public void setEnabled(boolean enabled) {
+  public void enabled(boolean enabled) {
     this.enabled = enabled;
   }
 

@@ -43,19 +43,19 @@ public final class AccessControlConfiguration {
     AccessControlConfiguration.defaultConfiguration = configuration;
   }
 
-  public String getCorsPolicy() {
+  public String corsPolicy() {
     return this.corsPolicy;
   }
 
-  public void setCorsPolicy(String corsPolicy) {
+  public void corsPolicy(String corsPolicy) {
     this.corsPolicy = corsPolicy;
   }
 
-  public int getAccessControlMaxAge() {
+  public int accessControlMaxAge() {
     return this.accessControlMaxAge;
   }
 
-  public void setAccessControlMaxAge(int accessControlMaxAge) {
+  public void accessControlMaxAge(int accessControlMaxAge) {
     this.accessControlMaxAge = accessControlMaxAge;
   }
 }

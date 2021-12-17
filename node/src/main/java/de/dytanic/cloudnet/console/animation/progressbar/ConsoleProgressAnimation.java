@@ -120,7 +120,7 @@ public class ConsoleProgressAnimation extends AbstractConsoleAnimation {
     var suffix = this.replacePlaceholders(this.suffix, elapsed);
 
     var length =
-      this.console.getWidth() - 5 - this.console.getDisplayLength(prefix) - this.console.getDisplayLength(suffix);
+      this.console.width() - 5 - this.console.displayLength(prefix) - this.console.displayLength(suffix);
 
     var builder = new StringBuilder(prefix).append(this.leftBracket);
     // append the full blocks
@@ -194,11 +194,11 @@ public class ConsoleProgressAnimation extends AbstractConsoleAnimation {
       .replace("%elapsed%", this.formatElapsedTime(elapsed));
   }
 
-  public long getCurrent() {
+  public long current() {
     return this.current;
   }
 
-  public long getMaximum() {
+  public long maximum() {
     return this.maximum;
   }
 }

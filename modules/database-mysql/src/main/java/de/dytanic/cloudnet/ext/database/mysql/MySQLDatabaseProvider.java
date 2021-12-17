@@ -132,7 +132,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public @NotNull Connection getConnection() {
+  public @NotNull Connection connection() {
     try {
       return this.hikariDataSource.getConnection();
     } catch (SQLException exception) {
@@ -159,7 +159,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
     Preconditions.checkNotNull(query);
     Preconditions.checkNotNull(objects);
 
-    try (var connection = this.getConnection();
+    try (var connection = this.connection();
       var preparedStatement = connection.prepareStatement(query)) {
       var i = 1;
       for (var object : objects) {
@@ -182,7 +182,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
     Preconditions.checkNotNull(callback);
     Preconditions.checkNotNull(objects);
 
-    try (var connection = this.getConnection();
+    try (var connection = this.connection();
       var preparedStatement = connection.prepareStatement(query)) {
       var i = 1;
       for (var object : objects) {

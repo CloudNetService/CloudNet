@@ -28,7 +28,7 @@ public class VanillaServiceConfigurationPreparer extends AbstractServiceConfigur
   @Override
   public void configure(@NotNull CloudNet nodeInstance, @NotNull ICloudService cloudService) {
     // copy the default file
-    var configFile = cloudService.getDirectory().resolve("server.properties");
+    var configFile = cloudService.directory().resolve("server.properties");
     this.copyCompiledFile("files/nms/server.properties", configFile);
     // load the configuration
     var properties = new Properties();
@@ -39,8 +39,8 @@ public class VanillaServiceConfigurationPreparer extends AbstractServiceConfigur
           properties.load(stream);
           // update the configuration
           if (this.shouldRewriteIp(nodeInstance, cloudService)) {
-            properties.setProperty("server-ip", nodeInstance.getConfig().getHostAddress());
-            properties.setProperty("server-port", String.valueOf(cloudService.getServiceConfiguration().port()));
+            properties.setProperty("server-ip", nodeInstance.getConfig().hostAddress());
+            properties.setProperty("server-port", String.valueOf(cloudService.serviceConfiguration().port()));
           }
           // store the properties
           try (var out = Files.newOutputStream(configFile)) {
@@ -52,11 +52,11 @@ public class VanillaServiceConfigurationPreparer extends AbstractServiceConfigur
       properties.clear();
       properties.setProperty("eula", "true");
       // store the eula.txt
-      try (var outputStream = Files.newOutputStream(cloudService.getDirectory().resolve("eula.txt"))) {
+      try (var outputStream = Files.newOutputStream(cloudService.directory().resolve("eula.txt"))) {
         properties.store(outputStream, "CloudNet auto eula (https://account.mojang.com/documents/minecraft_eula)");
       }
     } catch (IOException exception) {
-      LOGGER.severe("Unable to edit server.properties or eula.txt in %s", exception, cloudService.getDirectory());
+      LOGGER.severe("Unable to edit server.properties or eula.txt in %s", exception, cloudService.directory());
     }
   }
 }

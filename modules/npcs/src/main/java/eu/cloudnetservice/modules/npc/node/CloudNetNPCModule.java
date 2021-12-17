@@ -88,7 +88,7 @@ public class CloudNetNPCModule extends DriverModule {
     }
 
     // convert the old database
-    Database db = CloudNet.getInstance().databaseProvider().database("cloudNet_module_configuration");
+    Database db = CloudNet.instance().databaseProvider().database("cloudNet_module_configuration");
     var npcStore = db.get("npc_store");
     if (npcStore != null) {
       Collection<CloudNPC> theOldOnes = npcStore.get("npcs", NPCConstants.NPC_COLLECTION_TYPE);
@@ -96,7 +96,7 @@ public class CloudNetNPCModule extends DriverModule {
       db.delete("npc_store");
       if (theOldOnes != null) {
         // get the new database
-        Database target = CloudNet.getInstance().databaseProvider().database(DATABASE_NAME);
+        Database target = CloudNet.instance().databaseProvider().database(DATABASE_NAME);
         // convert the old entries
         theOldOnes.stream()
           .map(npc -> NPC.builder()
@@ -123,13 +123,13 @@ public class CloudNetNPCModule extends DriverModule {
   @ModuleTask
   public void initModule() {
     var config = this.loadConfig();
-    Database database = CloudNet.getInstance().databaseProvider().database(DATABASE_NAME);
+    Database database = CloudNet.instance().databaseProvider().database(DATABASE_NAME);
     // management init
     var management = new NodeNPCManagement(
       config,
       database,
       this.configPath(),
-      CloudNet.getInstance().eventManager());
+      CloudNet.instance().eventManager());
     management.registerToServiceRegistry();
   }
 

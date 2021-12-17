@@ -34,19 +34,19 @@ public final class IncludePluginListener {
 
   @EventListener
   public void handleLifecycleUpdate(@NotNull CloudServicePreProcessStartEvent event) {
-    var service = event.getService();
-    if (!ServiceEnvironmentType.isMinecraftProxy(service.getServiceId().environment())) {
+    var service = event.service();
+    if (!ServiceEnvironmentType.isMinecraftProxy(service.serviceId().environment())) {
       return;
     }
 
     var syncProxyConfiguration = this.management.configuration();
     var groupEntryExists = syncProxyConfiguration.loginConfigurations().stream()
-      .anyMatch(config -> service.getServiceConfiguration().groups().contains(config.targetGroup()))
+      .anyMatch(config -> service.serviceConfiguration().groups().contains(config.targetGroup()))
       || syncProxyConfiguration.tabListConfigurations().stream()
-      .anyMatch(config -> service.getServiceConfiguration().groups().contains(config.targetGroup()));
+      .anyMatch(config -> service.serviceConfiguration().groups().contains(config.targetGroup()));
 
     if (groupEntryExists) {
-      var pluginsFolder = event.getService().getDirectory().resolve("plugins");
+      var pluginsFolder = event.service().directory().resolve("plugins");
       FileUtils.createDirectory(pluginsFolder);
 
       var targetFile = pluginsFolder.resolve("cloudnet-syncproxy.jar");
@@ -55,7 +55,7 @@ public final class IncludePluginListener {
       if (DefaultModuleHelper.copyCurrentModuleInstanceFromClass(IncludePluginListener.class, targetFile)) {
         DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(
           IncludePluginListener.class,
-          event.getService().getServiceId().environment(),
+          event.service().serviceId().environment(),
           targetFile
         );
       }

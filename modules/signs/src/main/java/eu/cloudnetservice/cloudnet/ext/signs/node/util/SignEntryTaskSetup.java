@@ -61,9 +61,9 @@ public final class SignEntryTaskSetup {
     @NotNull SignManagement signManagement
   ) {
     if (animation.hasResult("generateDefaultSignConfigurationEntry")) {
-      String taskName = animation.getResult("taskName");
-      ServiceEnvironmentType environment = animation.getResult("taskEnvironment");
-      Boolean generateSignsConfig = animation.getResult("generateDefaultSignConfigurationEntry");
+      String taskName = animation.result("taskName");
+      ServiceEnvironmentType environment = animation.result("taskEnvironment");
+      Boolean generateSignsConfig = animation.result("generateDefaultSignConfigurationEntry");
 
       if (taskName != null
         && environment != null

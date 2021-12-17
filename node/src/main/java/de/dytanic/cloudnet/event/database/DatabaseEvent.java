@@ -28,7 +28,7 @@ abstract class DatabaseEvent extends DriverEvent {
     this.database = database;
   }
 
-  public @NotNull Database getDatabase() {
+  public @NotNull Database database() {
     return this.database;
   }
 }

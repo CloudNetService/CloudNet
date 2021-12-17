@@ -38,18 +38,18 @@ final class ClusterNodeServerUtils {
   }
 
   public static void handleNodeServerClose(@NotNull INetworkChannel channel, @NotNull IClusterNodeServer server) {
-    for (var snapshot : CloudNet.getInstance().cloudServiceProvider().services()) {
-      if (snapshot.serviceId().nodeUniqueId().equalsIgnoreCase(server.getNodeInfo().uniqueId())) {
+    for (var snapshot : CloudNet.instance().cloudServiceProvider().services()) {
+      if (snapshot.serviceId().nodeUniqueId().equalsIgnoreCase(server.nodeInfo().uniqueId())) {
         // store the last lifecycle for the update event
         var lifeCycle = snapshot.lifeCycle();
         // mark the service as deleted
         snapshot.lifeCycle(ServiceLifeCycle.DELETED);
         // publish the update to the local service manager
-        CloudNet.getInstance().cloudServiceProvider().handleServiceUpdate(snapshot, null);
+        CloudNet.instance().cloudServiceProvider().handleServiceUpdate(snapshot, null);
         // call the local change event
-        CloudNet.getInstance().eventManager().callEvent(new CloudServiceLifecycleChangeEvent(lifeCycle, snapshot));
+        CloudNet.instance().eventManager().callEvent(new CloudServiceLifecycleChangeEvent(lifeCycle, snapshot));
         // send the change to all service - all other nodes will handle the close as well (if there are any)
-        if (!CloudNet.getInstance().cloudServiceProvider().localCloudService().isEmpty()) {
+        if (!CloudNet.instance().cloudServiceProvider().localCloudServices().isEmpty()) {
           targetLocalServices()
             .message("update_service_lifecycle")
             .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
@@ -61,7 +61,7 @@ final class ClusterNodeServerUtils {
     }
 
     LOGGER.info(I18n.trans("cluster-server-networking-disconnected")
-      .replace("%id%", server.getNodeInfo().uniqueId())
+      .replace("%id%", server.nodeInfo().uniqueId())
       .replace("%serverAddress%", channel.serverAddress().toString())
       .replace("%clientAddress%", channel.clientAddress().toString()));
   }
@@ -69,9 +69,9 @@ final class ClusterNodeServerUtils {
   private static @NotNull ChannelMessage.Builder targetLocalServices() {
     var builder = ChannelMessage.builder();
     // iterate over all local services - if the service is connected append it as target
-    for (var service : CloudNet.getInstance().cloudServiceProvider().localCloudService()) {
-      if (service.getNetworkChannel() != null) {
-        builder.target(Type.SERVICE, service.getServiceId().name());
+    for (var service : CloudNet.instance().cloudServiceProvider().localCloudServices()) {
+      if (service.networkChannel() != null) {
+        builder.target(Type.SERVICE, service.serviceId().name());
       }
     }
     // for chaining

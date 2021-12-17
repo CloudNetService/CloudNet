@@ -33,7 +33,7 @@ public final class NetworkClusterNodeInfoUpdateEvent extends NetworkEvent {
     this.networkClusterNodeInfoSnapshot = snapshot;
   }
 
-  public @NotNull NetworkClusterNodeInfoSnapshot getSnapshot() {
+  public @NotNull NetworkClusterNodeInfoSnapshot snapshot() {
     return this.networkClusterNodeInfoSnapshot;
   }
 }

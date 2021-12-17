@@ -90,13 +90,13 @@ public final class JLine3Console implements IConsole {
   }
 
   @Override
-  public @NotNull Collection<AbstractConsoleAnimation> getRunningAnimations() {
+  public @NotNull Collection<AbstractConsoleAnimation> runningAnimations() {
     return this.runningAnimations.values();
   }
 
   @Override
   public void startAnimation(@NotNull AbstractConsoleAnimation animation) {
-    animation.setConsole(this);
+    animation.console(this);
 
     var uniqueId = UUID.randomUUID();
     this.runningAnimations.put(uniqueId, animation);
@@ -112,7 +112,7 @@ public final class JLine3Console implements IConsole {
   }
 
   @Override
-  public boolean isAnimationRunning() {
+  public boolean animationRunning() {
     return !this.runningAnimations.isEmpty();
   }
 
@@ -122,12 +122,12 @@ public final class JLine3Console implements IConsole {
   }
 
   @Override
-  public boolean isPrintingEnabled() {
+  public boolean printingEnabled() {
     return this.printingEnabled;
   }
 
   @Override
-  public @NotNull Collection<String> getCommandHistory() {
+  public @NotNull Collection<String> commandHistory() {
     List<String> result = new ArrayList<>();
     for (var entry : this.lineReader.getHistory()) {
       result.add(entry.line());
@@ -137,7 +137,7 @@ public final class JLine3Console implements IConsole {
   }
 
   @Override
-  public void setCommandHistory(@Nullable Collection<String> history) {
+  public void commandHistory(@Nullable Collection<String> history) {
     try {
       this.lineReader.getHistory().purge();
     } catch (IOException exception) {
@@ -152,14 +152,14 @@ public final class JLine3Console implements IConsole {
   }
 
   @Override
-  public void setCommandInputValue(@NotNull String commandInputValue) {
+  public void commandInputValue(@NotNull String commandInputValue) {
     this.lineReader.getBuffer().write(commandInputValue);
   }
 
   @Override
   @NotNull
   public ITask<String> readLine() {
-    return this.consoleReadThread.getCurrentTask();
+    return this.consoleReadThread.currentTask();
   }
 
   @Override
@@ -266,12 +266,12 @@ public final class JLine3Console implements IConsole {
   }
 
   @Override
-  public boolean isUsingMatchingHistoryComplete() {
+  public boolean usingMatchingHistoryComplete() {
     return this.matchingHistorySearch;
   }
 
   @Override
-  public void setUsingMatchingHistoryComplete(boolean matchingHistoryComplete) {
+  public void usingMatchingHistoryComplete(boolean matchingHistoryComplete) {
     this.matchingHistorySearch = matchingHistoryComplete;
   }
 
@@ -311,33 +311,33 @@ public final class JLine3Console implements IConsole {
   }
 
   @Override
-  public @NotNull String getPrompt() {
+  public @NotNull String prompt() {
     return this.prompt;
   }
 
   @Override
-  public void setPrompt(@NotNull String prompt) {
+  public void prompt(@NotNull String prompt) {
     this.prompt = prompt;
     this.updatePrompt();
   }
 
   @Override
-  public @NotNull String getScreenName() {
+  public @NotNull String screenName() {
     return this.screenName;
   }
 
   @Override
-  public void setScreenName(@NotNull String screenName) {
+  public void screenName(@NotNull String screenName) {
     this.screenName = screenName;
   }
 
   @Override
-  public int getWidth() {
+  public int width() {
     return this.terminal.getWidth();
   }
 
   @Override
-  public int getDisplayLength(@NotNull String string) {
+  public int displayLength(@NotNull String string) {
     var result = 0;
     // count for the length of each char in the string
     for (var i = 0; i < string.length(); i++) {
@@ -374,7 +374,7 @@ public final class JLine3Console implements IConsole {
 
   private void toggleHandlers(boolean enabled, @NotNull Collection<?> handlers) {
     for (Object handler : handlers) {
-      ((Toggleable) handler).setEnabled(enabled);
+      ((Toggleable) handler).enabled(enabled);
     }
   }
 
@@ -404,7 +404,7 @@ public final class JLine3Console implements IConsole {
 
     @Override
     protected boolean historySearchBackward() {
-      if (JLine3Console.this.isUsingMatchingHistoryComplete()) {
+      if (JLine3Console.this.usingMatchingHistoryComplete()) {
         return super.historySearchBackward();
       }
 
@@ -418,7 +418,7 @@ public final class JLine3Console implements IConsole {
 
     @Override
     protected boolean historySearchForward() {
-      if (JLine3Console.this.isUsingMatchingHistoryComplete()) {
+      if (JLine3Console.this.usingMatchingHistoryComplete()) {
         return super.historySearchForward();
       }
 

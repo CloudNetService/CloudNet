@@ -79,29 +79,29 @@ public abstract class V2HttpHandler implements IHttpHandler {
         // try the more often used bearer auth first
         var session = this.authentication
           .handleBearerLoginRequest(context.request());
-        if (session.isSuccess()) {
-          if (this.testPermission(session.getResult().getUser(), context.request())) {
-            this.handleBearerAuthorized(path, context, session.getResult());
+        if (session.succeeded()) {
+          if (this.testPermission(session.result().user(), context.request())) {
+            this.handleBearerAuthorized(path, context, session.result());
           } else {
             this.send403(context, String.format("Required permission %s not set", this.requiredPermission));
           }
           return;
         } else if (session.hasErrorMessage()) {
-          this.send403(context, session.getErrorMessage());
+          this.send403(context, session.errorMessage());
           return;
         }
         // try the basic auth method
         var user = this.authentication
           .handleBasicLoginRequest(context.request());
-        if (user.isSuccess()) {
-          if (this.testPermission(user.getResult(), context.request())) {
-            this.handleBasicAuthorized(path, context, user.getResult());
+        if (user.succeeded()) {
+          if (this.testPermission(user.result(), context.request())) {
+            this.handleBasicAuthorized(path, context, user.result());
           } else {
             this.send403(context, String.format("Required permission %s not set", this.requiredPermission));
           }
           return;
         } else if (user.hasErrorMessage()) {
-          this.send403(context, user.getErrorMessage());
+          this.send403(context, user.errorMessage());
           return;
         }
         // send an unauthorized response
@@ -146,8 +146,8 @@ public abstract class V2HttpHandler implements IHttpHandler {
       .cancelNext(true)
       .response()
       .statusCode(HttpResponseCode.HTTP_NO_CONTENT)
-      .header("Access-Control-Max-Age", Integer.toString(this.accessControlConfiguration.getAccessControlMaxAge()))
-      .header("Access-Control-Allow-Origin", this.accessControlConfiguration.getCorsPolicy())
+      .header("Access-Control-Max-Age", Integer.toString(this.accessControlConfiguration.accessControlMaxAge()))
+      .header("Access-Control-Allow-Origin", this.accessControlConfiguration.corsPolicy())
       .header("Access-Control-Allow-Headers", "*")
       .header("Access-Control-Expose-Headers", "Accept, Origin, if-none-match, Access-Control-Allow-Headers, " +
         "Access-Control-Allow-Origin, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
@@ -171,7 +171,7 @@ public abstract class V2HttpHandler implements IHttpHandler {
     return context.response()
       .statusCode(statusCode)
       .header("Content-Type", "application/json")
-      .header("Access-Control-Allow-Origin", this.accessControlConfiguration.getCorsPolicy());
+      .header("Access-Control-Allow-Origin", this.accessControlConfiguration.corsPolicy());
   }
 
   protected JsonDocument body(@NotNull IHttpRequest request) {
@@ -187,7 +187,7 @@ public abstract class V2HttpHandler implements IHttpHandler {
   }
 
   protected CloudNet node() {
-    return CloudNet.getInstance();
+    return CloudNet.instance();
   }
 
   protected IConfiguration configuration() {

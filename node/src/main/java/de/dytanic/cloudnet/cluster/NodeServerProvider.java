@@ -28,7 +28,7 @@ public interface NodeServerProvider<T extends NodeServer> {
    * to
    */
   @UnmodifiableView
-  @NotNull Collection<T> getNodeServers();
+  @NotNull Collection<T> nodeServers();
 
   /**
    * Returns the node with the specific uniqueId that is configured
@@ -36,21 +36,21 @@ public interface NodeServerProvider<T extends NodeServer> {
    * @param uniqueId the uniqueId from the node, that should retrieve
    * @return the IClusterNodeServer instance or null if the node doesn't registered
    */
-  @Nullable T getNodeServer(@NotNull String uniqueId);
+  @Nullable T nodeServer(@NotNull String uniqueId);
 
   /**
    * Gets the current head node of the cluster, may be the local node.
    *
    * @return the current head node of the cluster.
    */
-  @NotNull NodeServer getHeadNode();
+  @NotNull NodeServer headnode();
 
   /**
    * Get the jvm static local node server implementation.
    *
    * @return the jvm static local node server implementation.
    */
-  @NotNull NodeServer getSelfNode();
+  @NotNull NodeServer selfNode();
 
   /**
    * Re-calculates the head node of the current cluster.

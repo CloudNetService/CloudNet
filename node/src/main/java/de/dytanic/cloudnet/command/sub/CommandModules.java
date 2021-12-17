@@ -59,7 +59,7 @@ public final class CommandModules {
     .column(wrapper -> wrapper.moduleConfiguration().description())
     .build();
 
-  private final IModuleProvider provider = CloudNet.getInstance().moduleProvider();
+  private final IModuleProvider provider = CloudNet.instance().moduleProvider();
 
   @Parser(name = "modulePath", suggestions = "modulePath")
   public Path modulePathParser(CommandContext<?> $, Queue<String> input) {

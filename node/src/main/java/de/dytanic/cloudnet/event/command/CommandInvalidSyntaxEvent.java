@@ -40,7 +40,7 @@ public class CommandInvalidSyntaxEvent extends Event {
    * @return the command source that executed the commandline.
    */
   @NotNull
-  public CommandSource getCommandSource() {
+  public CommandSource commandSource() {
     return this.source;
   }
 
@@ -48,7 +48,7 @@ public class CommandInvalidSyntaxEvent extends Event {
    * @return the correct syntax for the executed command
    */
   @NotNull
-  public String getCorrectSyntax() {
+  public String correctSyntax() {
     return this.correctSyntax;
   }
 
@@ -56,7 +56,7 @@ public class CommandInvalidSyntaxEvent extends Event {
    * @return the translated invalid syntax message that is the user will receive
    */
   @NotNull
-  public String getResponse() {
+  public String response() {
     return this.response;
   }
 
@@ -65,7 +65,7 @@ public class CommandInvalidSyntaxEvent extends Event {
    *
    * @param response the message that the user will receive
    */
-  public void setResponse(@NotNull String response) {
+  public void response(@NotNull String response) {
     this.response = response;
   }
 }

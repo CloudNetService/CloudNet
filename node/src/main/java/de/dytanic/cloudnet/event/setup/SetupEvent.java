@@ -27,7 +27,7 @@ public class SetupEvent extends Event {
     this.setup = setup;
   }
 
-  public ConsoleSetupAnimation getSetup() {
+  public ConsoleSetupAnimation setup() {
     return this.setup;
   }
 }

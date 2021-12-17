@@ -35,9 +35,9 @@ public final class BridgePluginIncludeListener {
   public void handle(@NotNull CloudServicePreProcessStartEvent event) {
     // check if we should copy the module
     if (this.management.configuration().excludedGroups().stream()
-      .noneMatch(group -> event.getService().getServiceConfiguration().groups().contains(group))) {
+      .noneMatch(group -> event.service().serviceConfiguration().groups().contains(group))) {
       // get the target of the copy
-      var plugins = event.getService().getDirectory().resolve("plugins");
+      var plugins = event.service().directory().resolve("plugins");
       FileUtils.createDirectory(plugins);
       // remove the old bridge plugin
       var bridgePluginFile = plugins.resolve("cloudnet-bridge.jar");
@@ -47,7 +47,7 @@ public final class BridgePluginIncludeListener {
         // copy the plugin.yml file for the environment
         DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(
           BridgePluginIncludeListener.class,
-          event.getService().getServiceId().environment(),
+          event.service().serviceId().environment(),
           bridgePluginFile);
       }
     }

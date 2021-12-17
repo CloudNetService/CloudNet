@@ -46,7 +46,7 @@ public class CommandBridge {
 
   public CommandBridge(@NotNull BridgeManagement bridgeManagement) {
     this.bridgeManagement = bridgeManagement;
-    this.groupConfigurationProvider = CloudNet.getInstance().groupConfigurationProvider();
+    this.groupConfigurationProvider = CloudNet.instance().groupConfigurationProvider();
   }
 
   @Parser(name = "bridgeGroups", suggestions = "bridgeGroups")

@@ -119,7 +119,7 @@ public interface Database extends INameable, AutoCloseable {
   /**
    * @return whether the database is synchronized (like MongoDB, MySQL) or not (like H2)
    */
-  boolean isSynced();
+  boolean synced();
 
   /**
    * Insert the given document for the given key

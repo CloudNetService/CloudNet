@@ -70,7 +70,7 @@ public enum ConsoleColor {
       if (content.charAt(i) == triggerChar) {
         var format = LOOKUP.indexOf(content.charAt(i + 1));
         if (format != -1) {
-          var ansiCode = VALUES[format].getAnsiCode();
+          var ansiCode = VALUES[format].ansiCode();
 
           content.delete(i, i + 2).insert(i, ansiCode);
           breakIndex += ansiCode.length() - 2;
@@ -123,7 +123,7 @@ public enum ConsoleColor {
     return stringBuffer;
   }
 
-  public static @Nullable ConsoleColor getByChar(char index) {
+  public static @Nullable ConsoleColor byChar(char index) {
     for (var color : VALUES) {
       if (color.index == index) {
         return color;
@@ -133,10 +133,10 @@ public enum ConsoleColor {
     return null;
   }
 
-  public static @Nullable ConsoleColor getLastColour(char triggerChar, @NotNull String text) {
+  public static @Nullable ConsoleColor lastColor(char triggerChar, @NotNull String text) {
     text = text.trim();
     if (text.length() > 2 && text.charAt(text.length() - 2) == triggerChar) {
-      return getByChar(text.charAt(text.length() - 1));
+      return byChar(text.charAt(text.length() - 1));
     }
 
     return null;
@@ -147,15 +147,15 @@ public enum ConsoleColor {
     return this.ansiCode;
   }
 
-  public @NotNull String getName() {
+  public @NotNull String displayName() {
     return this.name;
   }
 
-  public @NotNull String getAnsiCode() {
+  public @NotNull String ansiCode() {
     return this.ansiCode;
   }
 
-  public char getIndex() {
+  public char index() {
     return this.index;
   }
 }

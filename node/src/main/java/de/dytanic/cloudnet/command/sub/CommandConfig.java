@@ -52,22 +52,22 @@ public final class CommandConfig {
 
   @CommandMethod("config reload")
   public void reloadConfigs(CommandSource source) {
-    this.updateNodeConfig(JsonConfiguration.loadFromFile(CloudNet.getInstance()));
-    CloudNet.getInstance().serviceTaskProvider().reload();
-    CloudNet.getInstance().groupConfigurationProvider().reload();
-    CloudNet.getInstance().permissionManagement().reload();
+    this.updateNodeConfig(JsonConfiguration.loadFromFile(CloudNet.instance()));
+    CloudNet.instance().serviceTaskProvider().reload();
+    CloudNet.instance().groupConfigurationProvider().reload();
+    CloudNet.instance().permissionManagement().reload();
     source.sendMessage(I18n.trans("command-reload-reload-config-success"));
   }
 
   @CommandMethod("config node reload")
   public void reloadNodeConfig(CommandSource source) {
-    this.updateNodeConfig(JsonConfiguration.loadFromFile(CloudNet.getInstance()));
+    this.updateNodeConfig(JsonConfiguration.loadFromFile(CloudNet.instance()));
     source.sendMessage(I18n.trans("command-reload-node-config"));
   }
 
   @CommandMethod("config node add ip <ip>")
   public void addIpWhitelist(CommandSource source, @Argument(value = "ip", parserName = "ip") String ip) {
-    var ipWhitelist = this.nodeConfig().getIpWhitelist();
+    var ipWhitelist = this.nodeConfig().ipWhitelist();
     // check if the collection changes after we add the ip
     if (ipWhitelist.add(ip)) {
       // update the config as we have a change
@@ -80,7 +80,7 @@ public final class CommandConfig {
 
   @CommandMethod("config node remove ip <ip>")
   public void removeIpWhitelist(CommandSource source, @Argument(value = "ip") String ip) {
-    var ipWhitelist = this.nodeConfig().getIpWhitelist();
+    var ipWhitelist = this.nodeConfig().ipWhitelist();
     // check if the collection changes after we remove the given ip
     if (ipWhitelist.remove(ip)) {
       // update the config as we have a change
@@ -93,7 +93,7 @@ public final class CommandConfig {
 
   @CommandMethod("config node set maxMemory <maxMemory>")
   public void setMaxMemory(CommandSource source, @Argument("maxMemory") @Range(min = "0") int maxMemory) {
-    this.nodeConfig().setMaxMemory(maxMemory);
+    this.nodeConfig().maxMemory(maxMemory);
     this.updateNodeConfig();
     source.sendMessage(I18n.trans("command-node-max-memory-set")
       .replace("%memory%", Integer.toString(maxMemory)));
@@ -104,7 +104,7 @@ public final class CommandConfig {
     CommandSource source,
     @Argument(value = "executable", parserName = "javaCommand") Pair<String, JavaVersion> executable
   ) {
-    this.nodeConfig().setJVMCommand(executable.first());
+    this.nodeConfig().javaCommand(executable.first());
     this.updateNodeConfig();
     source.sendMessage(I18n.trans("command-node-set-java-command")
       .replace("%executable%", executable.first())
@@ -113,21 +113,21 @@ public final class CommandConfig {
 
   @CommandMethod("config node set defaultJVMFlags <flag>")
   public void setDefaultJVMFlags(CommandSource source, @Argument("flag") DefaultJVMFlags flags) {
-    this.nodeConfig().setDefaultJVMFlags(flags);
+    this.nodeConfig().defaultJVMFlags(flags);
     this.updateNodeConfig();
     source.sendMessage(I18n.trans("command-node-set-default-flags").replace("%flags%", flags.name()));
   }
 
   private IConfiguration nodeConfig() {
-    return CloudNet.getInstance().getConfig();
+    return CloudNet.instance().getConfig();
   }
 
   private void updateNodeConfig() {
-    this.updateNodeConfig(CloudNet.getInstance().getConfig());
+    this.updateNodeConfig(CloudNet.instance().getConfig());
   }
 
   private void updateNodeConfig(IConfiguration configuration) {
-    CloudNet.getInstance().setConfig(configuration);
+    CloudNet.instance().setConfig(configuration);
     configuration.save();
   }
 }

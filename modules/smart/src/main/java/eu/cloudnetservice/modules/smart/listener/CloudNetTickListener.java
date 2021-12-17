@@ -58,14 +58,14 @@ public final class CloudNetTickListener {
 
   @EventListener
   public void handleTick(@NotNull CloudNetTickEvent event) {
-    if (CloudNet.getInstance().getClusterNodeServerProvider().getSelfNode().isHeadNode()
-      && event.getTicker().currentTick() % CloudNetTick.TPS == 0) {
+    if (CloudNet.instance().getClusterNodeServerProvider().selfNode().headNode()
+      && event.ticker().currentTick() % CloudNetTick.TPS == 0) {
       this.handleSmartEntries();
     }
   }
 
   private void handleSmartEntries() {
-    CloudNet.getInstance().serviceTaskProvider().permanentServiceTasks().forEach(task -> {
+    CloudNet.instance().serviceTaskProvider().permanentServiceTasks().forEach(task -> {
       var config = this.module.smartConfig(task);
       if (config != null && config.enabled()) {
         // get all services of the task
@@ -199,19 +199,19 @@ public final class CloudNetTickListener {
     }
     // create a new service based on the task
     return this.serviceFactory().createCloudService(ServiceConfiguration.builder(task)
-      .node(server == null ? null : server.getNodeInfo().uniqueId())
+      .node(server == null ? null : server.nodeInfo().uniqueId())
       .build());
   }
 
   private @Nullable NodeServer selectNodeServer(@NotNull Collection<ServiceInfoSnapshot> services) {
     // get all node servers
-    Collection<? extends NodeServer> nodeServers = this.nodeServerProvider().getNodeServers().stream()
-      .filter(nodeServer -> nodeServer.isAvailable() && !nodeServer.isDrain())
+    Collection<? extends NodeServer> nodeServers = this.nodeServerProvider().nodeServers().stream()
+      .filter(nodeServer -> nodeServer.available() && !nodeServer.drain())
       .map(nodeServer -> (NodeServer) nodeServer) // looks stupid but transforms the stream type (we love generics)
       .collect(Collectors.collectingAndThen(Collectors.toSet(), set -> {
         // add the local node to the list if the node is not draining
-        var local = this.nodeServerProvider().getSelfNode();
-        if (!local.isDrain()) {
+        var local = this.nodeServerProvider().selfNode();
+        if (!local.drain()) {
           set.add(local);
         }
         // return the completed set
@@ -220,7 +220,7 @@ public final class CloudNetTickListener {
     // find the node server with the least services on it
     return nodeServers.stream()
       .map(node -> new Pair<>(node, services.stream()
-        .filter(service -> service.serviceId().nodeUniqueId().equals(node.getNodeInfo().uniqueId()))
+        .filter(service -> service.serviceId().nodeUniqueId().equals(node.nodeInfo().uniqueId()))
         .count()))
       .min(Comparator.comparingLong(Pair::second))
       .map(Pair::first)
@@ -228,14 +228,14 @@ public final class CloudNetTickListener {
   }
 
   private @NotNull ICloudServiceManager serviceManager() {
-    return CloudNet.getInstance().cloudServiceProvider();
+    return CloudNet.instance().cloudServiceProvider();
   }
 
   private @NotNull IClusterNodeServerProvider nodeServerProvider() {
-    return CloudNet.getInstance().getClusterNodeServerProvider();
+    return CloudNet.instance().getClusterNodeServerProvider();
   }
 
   private @NotNull CloudServiceFactory serviceFactory() {
-    return CloudNet.getInstance().cloudServiceFactory();
+    return CloudNet.instance().cloudServiceFactory();
   }
 }

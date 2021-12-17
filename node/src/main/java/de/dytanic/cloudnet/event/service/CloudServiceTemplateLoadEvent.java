@@ -40,11 +40,11 @@ public final class CloudServiceTemplateLoadEvent extends CloudServiceEvent imple
     this.template = template;
   }
 
-  public @NotNull TemplateStorage getStorage() {
+  public @NotNull TemplateStorage storage() {
     return this.storage;
   }
 
-  public @NotNull ServiceTemplate getTemplate() {
+  public @NotNull ServiceTemplate template() {
     return this.template;
   }
 

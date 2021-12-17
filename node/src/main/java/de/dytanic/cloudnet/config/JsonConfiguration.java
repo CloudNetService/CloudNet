@@ -288,196 +288,196 @@ public final class JsonConfiguration implements IConfiguration {
   }
 
   @Override
-  public @NotNull NetworkClusterNode getIdentity() {
+  public @NotNull NetworkClusterNode identity() {
     return this.identity;
   }
 
   @Override
-  public void setIdentity(@NotNull NetworkClusterNode identity) {
+  public void identity(@NotNull NetworkClusterNode identity) {
     this.identity = identity;
   }
 
   @Override
-  public @NotNull NetworkCluster getClusterConfig() {
+  public @NotNull NetworkCluster clusterConfig() {
     return this.clusterConfig;
   }
 
   @Override
-  public void setClusterConfig(@NotNull NetworkCluster clusterConfig) {
+  public void clusterConfig(@NotNull NetworkCluster clusterConfig) {
     Preconditions.checkNotNull(clusterConfig);
 
     this.clusterConfig = clusterConfig;
   }
 
   @Override
-  public @NotNull Collection<String> getIpWhitelist() {
+  public @NotNull Collection<String> ipWhitelist() {
     return this.ipWhitelist != null ? this.ipWhitelist : (this.ipWhitelist = new HashSet<>());
   }
 
   @Override
-  public void setIpWhitelist(@NotNull Collection<String> whitelist) {
+  public void ipWhitelist(@NotNull Collection<String> whitelist) {
     this.ipWhitelist = new HashSet<>(whitelist);
   }
 
   @Override
-  public double getMaxCPUUsageToStartServices() {
+  public double maxCPUUsageToStartServices() {
     return this.maxCPUUsageToStartServices;
   }
 
   @Override
-  public void setMaxCPUUsageToStartServices(double value) {
+  public void maxCPUUsageToStartServices(double value) {
     this.maxCPUUsageToStartServices = value;
   }
 
   @Override
-  public boolean isRunBlockedServiceStartTryLaterAutomatic() {
+  public boolean runBlockedServiceStartTryLaterAutomatic() {
     return this.runBlockedServiceStartTryLaterAutomatic;
   }
 
   @Override
-  public void setRunBlockedServiceStartTryLaterAutomatic(boolean runBlockedServiceStartTryLaterAutomatic) {
+  public void runBlockedServiceStartTryLaterAutomatic(boolean runBlockedServiceStartTryLaterAutomatic) {
     this.runBlockedServiceStartTryLaterAutomatic = runBlockedServiceStartTryLaterAutomatic;
   }
 
   @Override
-  public int getMaxMemory() {
+  public int maxMemory() {
     return this.maxMemory;
   }
 
   @Override
-  public void setMaxMemory(int memory) {
+  public void maxMemory(int memory) {
     this.maxMemory = memory;
   }
 
   @Override
-  public int getMaxServiceConsoleLogCacheSize() {
+  public int maxServiceConsoleLogCacheSize() {
     return this.maxServiceConsoleLogCacheSize;
   }
 
   @Override
-  public void setMaxServiceConsoleLogCacheSize(int maxServiceConsoleLogCacheSize) {
+  public void maxServiceConsoleLogCacheSize(int maxServiceConsoleLogCacheSize) {
     this.maxServiceConsoleLogCacheSize = maxServiceConsoleLogCacheSize;
   }
 
   @Override
-  public boolean isPrintErrorStreamLinesFromServices() {
+  public boolean printErrorStreamLinesFromServices() {
     return this.printErrorStreamLinesFromServices;
   }
 
   @Override
-  public void setPrintErrorStreamLinesFromServices(boolean printErrorStreamLinesFromServices) {
+  public void printErrorStreamLinesFromServices(boolean printErrorStreamLinesFromServices) {
     this.printErrorStreamLinesFromServices = printErrorStreamLinesFromServices;
   }
 
   @Override
-  public @NotNull DefaultJVMFlags getDefaultJVMFlags() {
+  public @NotNull DefaultJVMFlags defaultJVMFlags() {
     return this.defaultJVMFlags;
   }
 
   @Override
-  public void setDefaultJVMFlags(@NotNull DefaultJVMFlags defaultJVMFlags) {
+  public void defaultJVMFlags(@NotNull DefaultJVMFlags defaultJVMFlags) {
     this.defaultJVMFlags = defaultJVMFlags;
   }
 
   @Override
-  public @NotNull String getHostAddress() {
+  public @NotNull String hostAddress() {
     return this.hostAddress;
   }
 
   @Override
-  public void setHostAddress(@NotNull String hostAddress) {
+  public void hostAddress(@NotNull String hostAddress) {
     this.hostAddress = hostAddress;
   }
 
   @Override
-  public @NotNull Collection<HostAndPort> getHttpListeners() {
+  public @NotNull Collection<HostAndPort> httpListeners() {
     return this.httpListeners != null ? this.httpListeners : (this.httpListeners = new ArrayList<>());
   }
 
   @Override
-  public void setHttpListeners(@NotNull Collection<HostAndPort> httpListeners) {
+  public void httpListeners(@NotNull Collection<HostAndPort> httpListeners) {
     Preconditions.checkNotNull(httpListeners);
 
     this.httpListeners = httpListeners;
   }
 
   @Override
-  public @NotNull String getConnectHostAddress() {
+  public @NotNull String connectHostAddress() {
     return this.connectHostAddress;
   }
 
   @Override
-  public void setConnectHostAddress(@NotNull String connectHostAddress) {
+  public void connectHostAddress(@NotNull String connectHostAddress) {
     this.connectHostAddress = connectHostAddress;
   }
 
   @Override
-  public @NotNull SSLConfiguration getClientSslConfig() {
+  public @NotNull SSLConfiguration clientSSLConfig() {
     return this.clientSslConfig;
   }
 
   @Override
-  public void setClientSslConfig(@NotNull SSLConfiguration clientSslConfig) {
+  public void clientSSLConfig(@NotNull SSLConfiguration clientSslConfig) {
     this.clientSslConfig = clientSslConfig;
   }
 
   @Override
-  public @NotNull SSLConfiguration getServerSslConfig() {
+  public @NotNull SSLConfiguration serverSSLConfig() {
     return this.serverSslConfig;
   }
 
   @Override
-  public void setServerSslConfig(@NotNull SSLConfiguration serverSslConfig) {
+  public void serverSSLConfig(@NotNull SSLConfiguration serverSslConfig) {
     this.serverSslConfig = serverSslConfig;
   }
 
   @Override
-  public @NotNull SSLConfiguration getWebSslConfig() {
+  public @NotNull SSLConfiguration webSSLConfig() {
     return this.webSslConfig;
   }
 
   @Override
-  public void setWebSslConfig(@NotNull SSLConfiguration webSslConfig) {
+  public void webSSLConfig(@NotNull SSLConfiguration webSslConfig) {
     this.webSslConfig = webSslConfig;
   }
 
   @Override
-  public @NotNull String getJVMCommand() {
+  public @NotNull String javaCommand() {
     return this.jvmCommand;
   }
 
   @Override
-  public void setJVMCommand(@NotNull String jvmCommand) {
+  public void javaCommand(@NotNull String jvmCommand) {
     this.jvmCommand = jvmCommand;
   }
 
   @Override
-  public int getProcessTerminationTimeoutSeconds() {
+  public int processTerminationTimeoutSeconds() {
     return Math.max(1, this.processTerminationTimeoutSeconds);
   }
 
   @Override
-  public void setProcessTerminationTimeoutSeconds(int processTerminationTimeoutSeconds) {
+  public void processTerminationTimeoutSeconds(int processTerminationTimeoutSeconds) {
     this.processTerminationTimeoutSeconds = processTerminationTimeoutSeconds;
   }
 
   @Override
-  public boolean getForceInitialClusterDataSync() {
+  public boolean forceInitialClusterDataSync() {
     return this.forceInitialClusterDataSync;
   }
 
   @Override
-  public void setForceInitialClusterDataSync(boolean forceInitialClusterDataSync) {
+  public void forceInitialClusterDataSync(boolean forceInitialClusterDataSync) {
     this.forceInitialClusterDataSync = forceInitialClusterDataSync;
   }
 
   @Override
-  public @NotNull JsonDocument getProperties() {
+  public @NotNull JsonDocument properties() {
     return this.properties;
   }
 
   @Override
-  public void setProperties(@NotNull JsonDocument properties) {
+  public void properties(@NotNull JsonDocument properties) {
     this.properties = properties;
   }
 }

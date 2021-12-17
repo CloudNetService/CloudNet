@@ -28,12 +28,12 @@ public final class CloudNetTickEvent extends DriverEvent {
     this.ticker = ticker;
   }
 
-  public @NotNull CloudNetTick getTicker() {
+  public @NotNull CloudNetTick ticker() {
     return this.ticker;
   }
 
   @Override
-  public boolean showDebug() {
+  public boolean debug() {
     return false;
   }
 }

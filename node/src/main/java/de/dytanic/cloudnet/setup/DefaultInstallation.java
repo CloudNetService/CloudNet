@@ -46,7 +46,7 @@ public class DefaultInstallation {
       // apply all questions of all setups to the animation
       this.setups.forEach(setup -> setup.applyQuestions(this.animation));
       // start the animation
-      this.animation.setCancellable(false);
+      this.animation.cancellable(false);
       console.startAnimation(this.animation);
 
       this.animation.addFinishHandler(() -> {

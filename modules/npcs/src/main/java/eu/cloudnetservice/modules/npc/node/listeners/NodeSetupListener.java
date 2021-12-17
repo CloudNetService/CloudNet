@@ -48,22 +48,22 @@ public final class NodeSetupListener {
 
   @EventListener
   public void handle(@NotNull SetupInitiateEvent event) {
-    event.getSetup().getEntries().stream()
-      .filter(entry -> entry.getKey().equals("taskEnvironment"))
+    event.setup().entries().stream()
+      .filter(entry -> entry.key().equals("taskEnvironment"))
       .findFirst()
-      .ifPresent(entry -> entry.getAnswerType().thenAccept(($, environment) -> {
-        if (!event.getSetup().hasResult("generateDefaultNPCConfigurationEntry")
+      .ifPresent(entry -> entry.answerType().thenAccept(($, environment) -> {
+        if (!event.setup().hasResult("generateDefaultNPCConfigurationEntry")
           && ServiceEnvironmentType.isMinecraftServer((ServiceEnvironmentType) environment)) {
-          event.getSetup().addEntries(CREATE_ENTRY_QUESTION_LIST);
+          event.setup().addEntries(CREATE_ENTRY_QUESTION_LIST);
         }
       }));
   }
 
   @EventListener
   public void handle(@NotNull SetupCompleteEvent event) {
-    if (event.getSetup().hasResult("generateDefaultNPCConfigurationEntry")) {
-      String taskName = event.getSetup().getResult("taskName");
-      Boolean generateNPCConfig = event.getSetup().getResult("generateDefaultNPCConfigurationEntry");
+    if (event.setup().hasResult("generateDefaultNPCConfigurationEntry")) {
+      String taskName = event.setup().result("taskName");
+      Boolean generateNPCConfig = event.setup().result("generateDefaultNPCConfigurationEntry");
 
       if (taskName != null && generateNPCConfig) {
         var entries = this.management.npcConfiguration().entries();

@@ -30,11 +30,11 @@ public abstract class AbstractServiceFactory implements ICloudServiceFactory {
     @NotNull ServiceConfiguration configuration
   ) {
     // set the node unique id
-    configuration.serviceId().nodeUniqueId(CloudNet.getInstance().nodeUniqueId());
+    configuration.serviceId().nodeUniqueId(CloudNet.instance().nodeUniqueId());
 
     // set the environment type
     if (configuration.serviceId().environment() == null) {
-      var env = CloudNet.getInstance().serviceVersionProvider()
+      var env = CloudNet.instance().serviceVersionProvider()
         .getEnvironmentType(configuration.serviceId().environmentName())
         .orElseThrow(() -> new IllegalArgumentException(
           "Unknown environment type " + configuration.serviceId().environmentName()));
@@ -53,8 +53,8 @@ public abstract class AbstractServiceFactory implements ICloudServiceFactory {
 
   protected boolean isPortInUse(@NotNull ICloudServiceManager manager, int port) {
     // check if any local service has the port
-    for (var cloudService : manager.localCloudService()) {
-      if (cloudService.getServiceConfiguration().port() == port) {
+    for (var cloudService : manager.localCloudServices()) {
+      if (cloudService.serviceConfiguration().port() == port) {
         return true;
       }
     }

@@ -42,7 +42,7 @@ public class V2HttpHandlerSession extends V2HttpHandler {
   protected void handleRefresh(IHttpContext context, HttpSession session) {
     var jwt = this.authentication.refreshJwt(session, TimeUnit.HOURS.toMillis(1));
     this.ok(context)
-      .body(this.success().append("token", jwt).append("uniqueId", session.getUser().uniqueId()).toString())
+      .body(this.success().append("token", jwt).append("uniqueId", session.user().uniqueId()).toString())
       .context()
       .closeAfter(true)
       .cancelNext();

@@ -70,7 +70,7 @@ public class DriverCommandSource implements CommandSource {
    * @return all captured messages for the driver
    */
   @NotNull
-  public Collection<String> getMessages() {
+  public Collection<String> messages() {
     return this.messages;
   }
 }

@@ -37,47 +37,47 @@ public interface ICloudService extends SpecificCloudServiceProvider {
   @NotNull ServiceInfoSnapshot serviceInfo();
 
   @NotNull
-  String getRuntime();
+  String runtime();
 
-  @NotNull Queue<ServiceRemoteInclusion> getWaitingIncludes();
+  @NotNull Queue<ServiceRemoteInclusion> waitingIncludes();
 
-  @NotNull Queue<ServiceTemplate> getWaitingTemplates();
+  @NotNull Queue<ServiceTemplate> waitingTemplates();
 
-  @NotNull Queue<ServiceDeployment> getWaitingDeployments();
-
-  @NotNull
-  ServiceLifeCycle getLifeCycle();
+  @NotNull Queue<ServiceDeployment> waitingDeployments();
 
   @NotNull
-  ICloudServiceManager getCloudServiceManager();
+  ServiceLifeCycle lifeCycle();
 
   @NotNull
-  ServiceConfiguration getServiceConfiguration();
+  ICloudServiceManager cloudServiceManager();
 
   @NotNull
-  ServiceId getServiceId();
+  ServiceConfiguration serviceConfiguration();
 
   @NotNull
-  String getConnectionKey();
+  ServiceId serviceId();
 
   @NotNull
-  Path getDirectory();
+  String connectionKey();
+
+  @NotNull
+  Path directory();
 
   @Nullable
-  INetworkChannel getNetworkChannel();
+  INetworkChannel networkChannel();
 
   @Internal
-  void setNetworkChannel(@Nullable INetworkChannel channel);
+  void networkChannel(@Nullable INetworkChannel channel);
 
   @NotNull
-  ServiceInfoSnapshot getLastServiceInfoSnapshot();
+  ServiceInfoSnapshot lastServiceInfoSnapshot();
 
   @NotNull
-  IServiceConsoleLogCache getServiceConsoleLogCache();
+  IServiceConsoleLogCache serviceConsoleLogCache();
 
   void doDelete();
 
-  boolean isAlive();
+  boolean alive();
 
   void publishServiceInfoSnapshot();
 

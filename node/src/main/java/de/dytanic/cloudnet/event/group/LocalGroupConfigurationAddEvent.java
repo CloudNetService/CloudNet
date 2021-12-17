@@ -30,7 +30,7 @@ public class LocalGroupConfigurationAddEvent extends Event implements ICancelabl
     this.group = group;
   }
 
-  public @NotNull GroupConfiguration getTask() {
+  public @NotNull GroupConfiguration group() {
     return this.group;
   }
 

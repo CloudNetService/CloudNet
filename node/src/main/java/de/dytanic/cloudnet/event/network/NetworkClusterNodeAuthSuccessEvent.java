@@ -30,7 +30,7 @@ public final class NetworkClusterNodeAuthSuccessEvent extends NetworkEvent {
     this.node = node;
   }
 
-  public @NotNull IClusterNodeServer getNode() {
+  public @NotNull IClusterNodeServer node() {
     return this.node;
   }
 }

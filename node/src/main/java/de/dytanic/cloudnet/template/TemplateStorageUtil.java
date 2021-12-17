@@ -35,7 +35,7 @@ public final class TemplateStorageUtil {
   }
 
   public static @NotNull LocalTemplateStorage localTemplateStorage() {
-    return (LocalTemplateStorage) CloudNet.getInstance().localTemplateStorage();
+    return (LocalTemplateStorage) CloudNet.instance().localTemplateStorage();
   }
 
   public static @NotNull Path localPathInTemplate(@NotNull ServiceTemplate serviceTemplate, @NotNull String path) {
@@ -62,7 +62,7 @@ public final class TemplateStorageUtil {
 
       // call the installation event if the default installation process should be executed
       if (installDefaultFiles) {
-        CloudNet.getInstance().eventManager().callEvent(new ServiceTemplateInstallEvent(template, storage, env));
+        CloudNet.instance().eventManager().callEvent(new ServiceTemplateInstallEvent(template, storage, env));
       }
 
       return true;

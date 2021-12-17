@@ -79,7 +79,7 @@ public final class CommandPermissions {
   public PermissionGroup defaultPermissionGroupParser(CommandContext<CommandSource> $, Queue<String> input) {
     var name = input.remove();
 
-    var group = CloudNet.getInstance().permissionManagement().group(name);
+    var group = CloudNet.instance().permissionManagement().group(name);
     if (group == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-permissions-group-not-found"));
     }
@@ -461,7 +461,7 @@ public final class CommandPermissions {
   }
 
   private IPermissionManagement permissionManagement() {
-    return CloudNet.getInstance().permissionManagement();
+    return CloudNet.instance().permissionManagement();
   }
 
 }

@@ -96,7 +96,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
 
   @Override
   public void groupConfigurations(@NotNull Collection<GroupConfiguration> groupConfigurations) {
-    this.setGroupConfigurationsSilently(groupConfigurations);
+    this.groupConfigurationSilently(groupConfigurations);
     // publish the change to the cluster
     ChannelMessage.builder()
       .targetNodes()
@@ -113,7 +113,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
   }
 
   @Override
-  public boolean isGroupConfigurationPresent(@NotNull String name) {
+  public boolean groupConfigurationPresent(@NotNull String name) {
     return this.groupConfigurations.containsKey(name);
   }
 
@@ -166,10 +166,10 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
     // remove the group from the cache
     this.groupConfigurations.remove(groupConfiguration.name());
     // remove the local file
-    FileUtils.delete(this.getGroupFile(groupConfiguration));
+    FileUtils.delete(this.groupFile(groupConfiguration));
   }
 
-  public void setGroupConfigurationsSilently(@NotNull Collection<GroupConfiguration> groupConfigurations) {
+  public void groupConfigurationSilently(@NotNull Collection<GroupConfiguration> groupConfigurations) {
     // update the local cache
     this.groupConfigurations.clear();
     groupConfigurations.forEach(config -> this.groupConfigurations.put(config.name(), config));
@@ -190,12 +190,12 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
     }
   }
 
-  protected @NotNull Path getGroupFile(@NotNull GroupConfiguration configuration) {
+  protected @NotNull Path groupFile(@NotNull GroupConfiguration configuration) {
     return GROUP_DIRECTORY_PATH.resolve(configuration.name() + ".json");
   }
 
   protected void writeGroupConfiguration(@NotNull GroupConfiguration configuration) {
-    JsonDocument.newDocument(configuration).write(this.getGroupFile(configuration));
+    JsonDocument.newDocument(configuration).write(this.groupFile(configuration));
   }
 
   protected void writeAllGroupConfigurations() {
@@ -221,7 +221,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
       var groupName = file.getFileName().toString().replace(".json", "");
       if (!groupName.equals(group.name())) {
         // rename the file
-        FileUtils.move(file, this.getGroupFile(group), StandardCopyOption.REPLACE_EXISTING);
+        FileUtils.move(file, this.groupFile(group), StandardCopyOption.REPLACE_EXISTING);
       }
       // cache the task
       this.addGroupConfiguration(group);

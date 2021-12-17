@@ -45,7 +45,7 @@ public final class ConsoleProgressWrappers {
     @NotNull String task,
     @NotNull String unitName
   ) {
-    return wrapIterator(collection, CloudNet.getInstance().console(), task, unitName);
+    return wrapIterator(collection, CloudNet.instance().console(), task, unitName);
   }
 
   public static @NotNull <T> Iterator<T> wrapIterator(
@@ -54,7 +54,7 @@ public final class ConsoleProgressWrappers {
     @NotNull String task,
     @NotNull String unitName
   ) {
-    return console.isAnimationRunning() ? collection.iterator() : new WrappedIterator<>(
+    return console.animationRunning() ? collection.iterator() : new WrappedIterator<>(
       collection.iterator(),
       console,
       new ConsoleProgressAnimation(
@@ -73,7 +73,7 @@ public final class ConsoleProgressWrappers {
 
   public static void wrapDownload(@NotNull String url,
     @NotNull ThrowableConsumer<InputStream, IOException> streamHandler) {
-    wrapDownload(url, CloudNet.getInstance().console(), streamHandler);
+    wrapDownload(url, CloudNet.instance().console(), streamHandler);
   }
 
   public static void wrapDownload(
@@ -90,7 +90,7 @@ public final class ConsoleProgressWrappers {
           var contentLength = Longs.tryParse(rawResponse.getHeaders().getFirst("Content-Length"));
 
           try {
-            streamHandler.accept(console.isAnimationRunning() ? stream
+            streamHandler.accept(console.animationRunning() ? stream
               : new WrappedInputStream(stream, console, new ConsoleProgressAnimation(
                 '█',
                 ' ',

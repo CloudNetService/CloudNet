@@ -78,11 +78,11 @@ public interface CommandProvider {
    * @param name the command root name or an alias of the root
    * @return the command with the given name - null if no command was found with the given name / alias
    */
-  @Nullable CommandInfo getCommand(@NotNull String name);
+  @Nullable CommandInfo command(@NotNull String name);
 
   /**
    * @return all commands that are registered on this node
    */
   @UnmodifiableView
-  @NotNull Collection<CommandInfo> getCommands();
+  @NotNull Collection<CommandInfo> commands();
 }

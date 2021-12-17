@@ -104,8 +104,8 @@ public class WrapperDatabase implements Database {
   }
 
   @Override
-  public boolean isSynced() {
-    return this.baseRPC.join(this.sender.invokeMethod("isSynced")).fireSync();
+  public boolean synced() {
+    return this.baseRPC.join(this.sender.invokeMethod("synced")).fireSync();
   }
 
   @Override

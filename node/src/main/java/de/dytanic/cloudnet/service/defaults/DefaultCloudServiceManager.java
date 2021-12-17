@@ -106,26 +106,26 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
         .convertObject(ServiceInfoSnapshot.class)
         .writer(ser -> {
           // ugly hack to get the channel of the service's associated node
-          var node = this.clusterNodeServerProvider.getNodeServer(ser.serviceId().nodeUniqueId());
-          if (node != null && node.isAvailable()) {
-            this.handleServiceUpdate(ser, node.getChannel());
+          var node = this.clusterNodeServerProvider.nodeServer(ser.serviceId().nodeUniqueId());
+          if (node != null && node.available()) {
+            this.handleServiceUpdate(ser, node.channel());
           }
         })
         .currentGetter(group -> this.specificProviderByName(group.name()).serviceInfo())
         .build());
     // schedule the updating of the local service log cache
     nodeInstance.mainThread().scheduleTask(() -> {
-      for (var service : this.localCloudService()) {
+      for (var service : this.localCloudServices()) {
         // we only need to look at running services
-        if (service.getLifeCycle() == ServiceLifeCycle.RUNNING) {
+        if (service.lifeCycle() == ServiceLifeCycle.RUNNING) {
           // detect dead services and stop them
-          if (service.isAlive()) {
-            service.getServiceConsoleLogCache().update();
-            LOGGER.fine("Updated service log cache of %s", null, service.getServiceId().name());
+          if (service.alive()) {
+            service.serviceConsoleLogCache().update();
+            LOGGER.fine("Updated service log cache of %s", null, service.serviceId().name());
           } else {
             nodeInstance.eventManager().callEvent(new CloudServicePreForceStopEvent(service));
             service.stop();
-            LOGGER.fine("Stopped dead service %s", null, service.getServiceId().name());
+            LOGGER.fine("Stopped dead service %s", null, service.serviceId().name());
           }
         }
       }
@@ -227,12 +227,12 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   }
 
   @Override
-  public @NotNull Collection<ICloudServiceFactory> getCloudServiceFactories() {
+  public @NotNull Collection<ICloudServiceFactory> cloudServiceFactories() {
     return Collections.unmodifiableCollection(this.cloudServiceFactories.values());
   }
 
   @Override
-  public @NotNull Optional<ICloudServiceFactory> getCloudServiceFactory(@NotNull String runtime) {
+  public @NotNull Optional<ICloudServiceFactory> cloudServiceFactory(@NotNull String runtime) {
     return Optional.ofNullable(this.cloudServiceFactories.get(runtime));
   }
 
@@ -247,12 +247,12 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   }
 
   @Override
-  public @NotNull Collection<ServiceConfigurationPreparer> getServicePreparers() {
+  public @NotNull Collection<ServiceConfigurationPreparer> servicePreparers() {
     return Collections.unmodifiableCollection(this.preparers.values());
   }
 
   @Override
-  public @NotNull Optional<ServiceConfigurationPreparer> getServicePreparer(@NotNull ServiceEnvironmentType type) {
+  public @NotNull Optional<ServiceConfigurationPreparer> servicePreparer(@NotNull ServiceEnvironmentType type) {
     return Optional.ofNullable(this.preparers.get(type));
   }
 
@@ -270,32 +270,32 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   }
 
   @Override
-  public @NotNull Path getTempDirectoryPath() {
+  public @NotNull Path tempDirectory() {
     return TEMP_SERVICE_DIR;
   }
 
   @Override
-  public @NotNull Path getPersistentServicesDirectoryPath() {
+  public @NotNull Path persistentServicesDirectory() {
     return PERSISTENT_SERVICE_DIR;
   }
 
   @Override
   public void startAllCloudServices() {
-    this.localCloudService().forEach(SpecificCloudServiceProvider::start);
+    this.localCloudServices().forEach(SpecificCloudServiceProvider::start);
   }
 
   @Override
   public void stopAllCloudServices() {
-    this.localCloudService().forEach(SpecificCloudServiceProvider::stop);
+    this.localCloudServices().forEach(SpecificCloudServiceProvider::stop);
   }
 
   @Override
   public void deleteAllCloudServices() {
-    this.localCloudService().forEach(SpecificCloudServiceProvider::delete);
+    this.localCloudServices().forEach(SpecificCloudServiceProvider::delete);
   }
 
   @Override
-  public @NotNull @UnmodifiableView Collection<ICloudService> localCloudService() {
+  public @NotNull @UnmodifiableView Collection<ICloudService> localCloudServices() {
     return this.knownServices.values().stream()
       .filter(provider -> provider instanceof ICloudService) // -> ICloudService => local service
       .map(provider -> (ICloudService) provider)
@@ -320,8 +320,8 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   }
 
   @Override
-  public int getCurrentUsedHeapMemory() {
-    return this.localCloudService().stream()
+  public int currentUsedHeapMemory() {
+    return this.localCloudServices().stream()
       .map(SpecificCloudServiceProvider::serviceInfo)
       .filter(Objects::nonNull)
       .filter(snapshot -> snapshot.lifeCycle() == ServiceLifeCycle.RUNNING)
@@ -330,8 +330,8 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   }
 
   @Override
-  public int getCurrentReservedMemory() {
-    return this.localCloudService().stream()
+  public int currentReservedMemory() {
+    return this.localCloudServices().stream()
       .map(SpecificCloudServiceProvider::serviceInfo)
       .filter(Objects::nonNull)
       .mapToInt(snapshot -> snapshot.configuration().processConfig().maxHeapMemorySize())
@@ -340,12 +340,12 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
 
   @Override
   public void registerLocalService(@NotNull ICloudService service) {
-    this.knownServices.putIfAbsent(service.getServiceId().uniqueId(), service);
+    this.knownServices.putIfAbsent(service.serviceId().uniqueId(), service);
   }
 
   @Override
   public void unregisterLocalService(@NotNull ICloudService service) {
-    this.knownServices.remove(service.getServiceId().uniqueId());
+    this.knownServices.remove(service.serviceId().uniqueId());
   }
 
   @Override
@@ -365,7 +365,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
       } else if (provider instanceof RemoteNodeCloudServiceProvider) {
         // update the provider if possible - we need only to handle remote node providers as local providers will update
         // the snapshot directly "in" them
-        ((RemoteNodeCloudServiceProvider) provider).setSnapshot(snapshot);
+        ((RemoteNodeCloudServiceProvider) provider).snapshot(snapshot);
         LOGGER.fine("Updated service snapshot of %s to %s", null, snapshot.serviceId(), snapshot);
       } else if (provider instanceof ICloudService) {
         // just set the service information locally - no further processing
@@ -393,16 +393,16 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
       .filter(taskService -> taskService.lifeCycle() == ServiceLifeCycle.PREPARED)
       .map(service -> {
         // get the node server associated with the node
-        var nodeServer = this.clusterNodeServerProvider.getNodeServer(
+        var nodeServer = this.clusterNodeServerProvider.nodeServer(
           service.serviceId().nodeUniqueId());
         // the server should never be null - just to be sure
         return nodeServer == null ? null : new Pair<>(service, nodeServer);
       })
       .filter(Objects::nonNull)
-      .filter(pair -> pair.second().isAvailable())
+      .filter(pair -> pair.second().available())
       .filter(pair -> {
         // filter out all nodes which are not able to start the service
-        var nodeInfoSnapshot = pair.second().getNodeInfoSnapshot();
+        var nodeInfoSnapshot = pair.second().nodeInfoSnapshot();
         var maxHeapMemory = pair.first().configuration().processConfig().maxHeapMemorySize();
         // used + heap_of_service <= max
         return nodeInfoSnapshot.usedMemory() + maxHeapMemory <= nodeInfoSnapshot.maxMemory();
@@ -410,17 +410,17 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
       .min((left, right) -> {
         // begin by comparing the heap memory usage
         var chain = ComparisonChain.start().compare(
-          left.second().getNodeInfoSnapshot().usedMemory()
+          left.second().nodeInfoSnapshot().usedMemory()
             + left.first().configuration().processConfig().maxHeapMemorySize(),
-          right.second().getNodeInfoSnapshot().usedMemory()
+          right.second().nodeInfoSnapshot().usedMemory()
             + right.first().configuration().processConfig().maxHeapMemorySize());
         // only include the cpu usage if both nodes can provide a value
-        if (left.second().getNodeInfoSnapshot().processSnapshot().systemCpuUsage() >= 0
-          && right.second().getNodeInfoSnapshot().processSnapshot().systemCpuUsage() >= 0) {
+        if (left.second().nodeInfoSnapshot().processSnapshot().systemCpuUsage() >= 0
+          && right.second().nodeInfoSnapshot().processSnapshot().systemCpuUsage() >= 0) {
           // add the system usage to the chain
           chain = chain.compare(
-            left.second().getNodeInfoSnapshot().processSnapshot().systemCpuUsage(),
-            right.second().getNodeInfoSnapshot().processSnapshot().systemCpuUsage());
+            left.second().nodeInfoSnapshot().processSnapshot().systemCpuUsage(),
+            right.second().nodeInfoSnapshot().processSnapshot().systemCpuUsage());
         }
         // use the result of the comparison
         return chain.result();
@@ -430,7 +430,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
       return prepared.first().provider();
     } else {
       // create a new service
-      var service = CloudNet.getInstance()
+      var service = CloudNet.instance()
         .cloudServiceFactory()
         .createCloudService(ServiceConfiguration.builder(task).build());
       return service == null ? EmptySpecificCloudServiceProvider.INSTANCE : service.provider();

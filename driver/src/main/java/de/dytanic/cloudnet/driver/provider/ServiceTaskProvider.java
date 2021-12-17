@@ -66,7 +66,7 @@ public interface ServiceTaskProvider {
    * @param name the name of the task
    * @return {@code true} if the task exists or {@code false} otherwise
    */
-  boolean isServiceTaskPresent(@NotNull String name);
+  boolean serviceTaskPresent(@NotNull String name);
 
   /**
    * Adds a new task to the cloud
@@ -137,7 +137,7 @@ public interface ServiceTaskProvider {
    */
   @NotNull
   default ITask<Boolean> isServiceTaskPresentAsync(@NotNull String name) {
-    return CompletableTask.supply(() -> this.isServiceTaskPresent(name));
+    return CompletableTask.supply(() -> this.serviceTaskPresent(name));
   }
 
   /**

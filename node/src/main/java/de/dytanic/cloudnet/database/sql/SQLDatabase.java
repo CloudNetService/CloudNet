@@ -72,7 +72,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
     Preconditions.checkNotNull(key);
     Preconditions.checkNotNull(document);
 
-    this.databaseProvider.getDatabaseHandler().handleInsert(this, key, document);
+    this.databaseProvider.databaseHandler().handleInsert(this, key, document);
     return this.insertOrUpdate(key, document);
   }
 
@@ -91,7 +91,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
     Preconditions.checkNotNull(key);
     Preconditions.checkNotNull(document);
 
-    this.databaseProvider.getDatabaseHandler().handleUpdate(this, key, document);
+    this.databaseProvider.databaseHandler().handleUpdate(this, key, document);
     return this.insertOrUpdate(key, document);
   }
 
@@ -124,7 +124,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
   public boolean delete(@NotNull String key) {
     Preconditions.checkNotNull(key);
 
-    this.databaseProvider.getDatabaseHandler().handleDelete(this, key);
+    this.databaseProvider.databaseHandler().handleDelete(this, key);
     return this.delete0(key);
   }
 
@@ -291,7 +291,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
 
   @Override
   public void clear() {
-    this.databaseProvider.getDatabaseHandler().handleClear(this);
+    this.databaseProvider.databaseHandler().handleClear(this);
     this.databaseProvider.executeUpdate(String.format("TRUNCATE TABLE `%s`", this.name));
   }
 

@@ -92,7 +92,7 @@ public class CloudFlareAPI implements AutoCloseable {
   @NotNull
   public Collection<DnsRecordDetail> deleteAllRecords(@NotNull ICloudService service) {
     Preconditions.checkNotNull(service, "service");
-    return this.deleteAllRecords(service.getServiceId().uniqueId());
+    return this.deleteAllRecords(service.serviceId().uniqueId());
   }
 
   @NotNull

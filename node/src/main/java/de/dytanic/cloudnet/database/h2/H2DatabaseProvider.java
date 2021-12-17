@@ -113,12 +113,12 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public @NotNull Connection getConnection() {
+  public @NotNull Connection connection() {
     return this.connection;
   }
 
   public int executeUpdate(@NotNull String query, @NotNull Object... objects) {
-    try (var preparedStatement = this.getConnection().prepareStatement(query)) {
+    try (var preparedStatement = this.connection().prepareStatement(query)) {
       for (var i = 0; i < objects.length; i++) {
         preparedStatement.setString(i + 1, objects[i].toString());
       }
@@ -135,7 +135,7 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
     @NotNull ThrowableFunction<ResultSet, T, SQLException> callback,
     @NotNull Object... objects
   ) {
-    try (var preparedStatement = this.getConnection().prepareStatement(query)) {
+    try (var preparedStatement = this.connection().prepareStatement(query)) {
       for (var i = 0; i < objects.length; i++) {
         preparedStatement.setString(i + 1, objects[i].toString());
       }

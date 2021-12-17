@@ -46,12 +46,12 @@ public final class RecordReportListener {
       return;
     }
 
-    var connectedTime = System.currentTimeMillis() - event.getServiceInfo().connectedTime();
+    var connectedTime = System.currentTimeMillis() - event.serviceInfo().connectedTime();
     // check if we should print the log lines based on the online time.
     if (connectedTime <= serviceLifetimeSetting) {
-      var consoleLogCache = event.getService().getServiceConsoleLogCache().update();
+      var consoleLogCache = event.service().serviceConsoleLogCache().update();
       for (var logMessage : consoleLogCache.cachedLogMessages()) {
-        LOGGER.severe(String.format("[%s] %s", event.getServiceInfo().name(), logMessage));
+        LOGGER.severe(String.format("[%s] %s", event.serviceInfo().name(), logMessage));
       }
     }
   }
@@ -63,14 +63,14 @@ public final class RecordReportListener {
       return;
     }
     // we have to create the record
-    this.createRecord(event.getService());
+    this.createRecord(event.service());
   }
 
   @EventListener
   public void handleServicePreDelete(CloudServicePreLifecycleEvent event) {
     // we just handle the deleted lifecycle
-    if (event.getTargetLifecycle() != ServiceLifeCycle.DELETED
-      && event.getTargetLifecycle() != ServiceLifeCycle.STOPPED) {
+    if (event.targetLifecycle() != ServiceLifeCycle.DELETED
+      && event.targetLifecycle() != ServiceLifeCycle.STOPPED) {
       return;
     }
     // check if the user disabled records
@@ -82,7 +82,7 @@ public final class RecordReportListener {
       return;
     }
     // create the record
-    this.createRecord(event.getService());
+    this.createRecord(event.service());
   }
 
   private void createRecord(ICloudService cloudService) {

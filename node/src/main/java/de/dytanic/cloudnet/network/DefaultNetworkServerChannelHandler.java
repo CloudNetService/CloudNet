@@ -74,11 +74,11 @@ public final class DefaultNetworkServerChannelHandler implements INetworkChannel
       .replace("%serverAddress%", channel.serverAddress().host() + ":" + channel.serverAddress().port())
       .replace("%clientAddress%", channel.clientAddress().host() + ":" + channel.clientAddress().port()));
 
-    var cloudService = CloudNet.getInstance()
+    var cloudService = CloudNet.instance()
       .cloudServiceProvider()
-      .localCloudService()
+      .localCloudServices()
       .stream()
-      .filter(service -> service.getNetworkChannel() != null && service.getNetworkChannel().equals(channel))
+      .filter(service -> service.networkChannel() != null && service.networkChannel().equals(channel))
       .findFirst()
       .orElse(null);
     if (cloudService != null) {
@@ -86,7 +86,7 @@ public final class DefaultNetworkServerChannelHandler implements INetworkChannel
       return;
     }
 
-    var clusterNodeServer = CloudNet.getInstance().getClusterNodeServerProvider().getNodeServer(channel);
+    var clusterNodeServer = CloudNet.instance().getClusterNodeServerProvider().nodeServer(channel);
     if (clusterNodeServer != null) {
       NodeNetworkUtils.closeNodeServer(clusterNodeServer);
     }
@@ -94,19 +94,19 @@ public final class DefaultNetworkServerChannelHandler implements INetworkChannel
 
   private void closeAsCloudService(@NotNull ICloudService cloudService, @NotNull INetworkChannel channel) {
     // reset the service channel and connection time
-    cloudService.setNetworkChannel(null);
+    cloudService.networkChannel(null);
     cloudService.updateLifecycle(ServiceLifeCycle.STOPPED);
 
     LOGGER.info(I18n.trans("cloud-service-networking-disconnected")
-      .replace("%id%", cloudService.getServiceId().uniqueId().toString())
-      .replace("%task%", cloudService.getServiceId().taskName())
-      .replace("%serviceId%", String.valueOf(cloudService.getServiceId().taskServiceId()))
+      .replace("%id%", cloudService.serviceId().uniqueId().toString())
+      .replace("%task%", cloudService.serviceId().taskName())
+      .replace("%serviceId%", String.valueOf(cloudService.serviceId().taskServiceId()))
       .replace("%serverAddress%", channel.serverAddress().host() + ":" + channel.serverAddress().port())
       .replace("%clientAddress%", channel.clientAddress().host() + ":" + channel.clientAddress().port()));
   }
 
   private boolean shouldDenyConnection(@NotNull INetworkChannel channel) {
-    return CloudNet.getInstance().getConfig().getIpWhitelist()
+    return CloudNet.instance().getConfig().ipWhitelist()
       .stream()
       .noneMatch(channel.clientAddress().host()::equals);
   }

@@ -33,10 +33,10 @@ public final class SignPluginInclusion {
   }
 
   public static void includePluginTo(@NotNull ICloudService cloudService, @NotNull SignsConfiguration configuration) {
-    var type = cloudService.getServiceConfiguration().serviceId().environment();
+    var type = cloudService.serviceConfiguration().serviceId().environment();
     if (ServiceEnvironmentType.isMinecraftServer(type)
-      && hasConfigurationEntry(cloudService.getServiceConfiguration().groups(), configuration)) {
-      var pluginDirectory = cloudService.getDirectory().resolve("plugins");
+      && hasConfigurationEntry(cloudService.serviceConfiguration().groups(), configuration)) {
+      var pluginDirectory = cloudService.directory().resolve("plugins");
       FileUtils.createDirectory(pluginDirectory);
 
       var pluginFile = pluginDirectory.resolve("cloudnet-signs.jar");

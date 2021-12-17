@@ -24,19 +24,19 @@ import org.jetbrains.annotations.Nullable;
 
 public interface HttpSession {
 
-  long getExpireTime();
+  long expireTime();
 
   long refreshFor(long liveMillis);
 
-  @NotNull String getUniqueId();
+  @NotNull String uniqueId();
 
-  @NotNull UUID getUserId();
+  @NotNull UUID userId();
 
-  @Nullable PermissionUser getUser();
+  @Nullable PermissionUser user();
 
-  <T> T getProperty(@NotNull String key);
+  <T> T property(@NotNull String key);
 
-  <T> T getProperty(@NotNull String key, @Nullable T def);
+  <T> T property(@NotNull String key, @Nullable T def);
 
   @NotNull HttpSession setProperty(@NotNull String key, @NotNull Object value);
 
@@ -44,5 +44,5 @@ public interface HttpSession {
 
   boolean hasProperty(@NotNull String key);
 
-  @NotNull Map<String, Object> getProperties();
+  @NotNull Map<String, Object> properties();
 }

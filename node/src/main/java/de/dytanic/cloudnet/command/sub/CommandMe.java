@@ -36,20 +36,20 @@ public final class CommandMe {
 
   @CommandMethod("me|info")
   public void me(CommandSource commandSource) {
-    var cloudNet = CloudNet.getInstance();
+    var cloudNet = CloudNet.instance();
     var memoryMXBean = ManagementFactory.getMemoryMXBean();
 
-    var nodeInfoSnapshot = cloudNet.getClusterNodeServerProvider().getSelfNode()
-      .getNodeInfoSnapshot();
+    var nodeInfoSnapshot = cloudNet.getClusterNodeServerProvider().selfNode()
+      .nodeInfoSnapshot();
 
     var messages = Arrays.asList(
       " ",
-      CloudNet.getInstance().version() + " by Dytanic & the CloudNet Community",
+      CloudNet.instance().version() + " by Dytanic & the CloudNet Community",
       "Discord: https://discord.cloudnetservice.eu/",
       " ",
-      "ClusterId: " + cloudNet.getConfig().getClusterConfig().clusterId(),
-      "NodeId: " + cloudNet.getConfig().getIdentity().uniqueId(),
-      "Head-NodeId: " + cloudNet.getClusterNodeServerProvider().getHeadNode().getNodeInfo().uniqueId(),
+      "ClusterId: " + cloudNet.getConfig().clusterConfig().clusterId(),
+      "NodeId: " + cloudNet.getConfig().identity().uniqueId(),
+      "Head-NodeId: " + cloudNet.getClusterNodeServerProvider().headnode().nodeInfo().uniqueId(),
       "CPU usage: (P/S) " + CPUUsageResolver.FORMAT.format(CPUUsageResolver.processCPUUsage()) + "/"
         +
         CPUUsageResolver.FORMAT.format(CPUUsageResolver.systemCPUUsage()) + "/100%",

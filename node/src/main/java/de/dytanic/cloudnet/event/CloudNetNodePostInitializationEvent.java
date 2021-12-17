@@ -28,7 +28,7 @@ public final class CloudNetNodePostInitializationEvent extends DriverEvent {
     this.nodeInstance = nodeInstance;
   }
 
-  public @NotNull CloudNet getNodeInstance() {
+  public @NotNull CloudNet node() {
     return this.nodeInstance;
   }
 }

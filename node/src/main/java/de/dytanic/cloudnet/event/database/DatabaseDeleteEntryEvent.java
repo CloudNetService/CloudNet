@@ -29,7 +29,7 @@ public class DatabaseDeleteEntryEvent extends DatabaseEvent {
     this.key = key;
   }
 
-  public @NotNull String getKey() {
+  public @NotNull String key() {
     return this.key;
   }
 }

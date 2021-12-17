@@ -51,7 +51,7 @@ public final class GroupChannelMessageListener {
         // set groups
         case "set_group_configurations" -> {
           Collection<GroupConfiguration> groups = event.content().readObject(GROUPS);
-          this.groupProvider.setGroupConfigurationsSilently(groups);
+          this.groupProvider.groupConfigurationSilently(groups);
         }
 
         // add group

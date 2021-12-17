@@ -339,12 +339,12 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   }
 
   @Override
-  public @NotNull IPermissionManagementHandler getPermissionManagementHandler() {
+  public @NotNull IPermissionManagementHandler permissionManagementHandler() {
     return this.handler;
   }
 
   @Override
-  public void setPermissionManagementHandler(@NotNull IPermissionManagementHandler handler) {
+  public void permissionManagementHandler(@NotNull IPermissionManagementHandler handler) {
     this.handler = handler;
   }
 

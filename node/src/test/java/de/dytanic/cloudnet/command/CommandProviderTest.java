@@ -53,12 +53,12 @@ public final class CommandProviderTest {
 
   @Test
   public void testCommandRegistration() {
-    var testCommand = commandProvider.getCommand("tests");
+    var testCommand = commandProvider.command("tests");
     Assertions.assertNotNull(testCommand);
     Assertions.assertEquals(1, testCommand.usage().size());
     Assertions.assertEquals("tests test <user>", Iterables.firstOf(testCommand.usage()));
 
-    var testCommandByAlias = commandProvider.getCommand("test1");
+    var testCommandByAlias = commandProvider.command("test1");
     Assertions.assertNotNull(testCommandByAlias);
     Assertions.assertNotEquals("test1", testCommand.name());
     Assertions.assertEquals(testCommandByAlias, testCommandByAlias);
@@ -100,9 +100,9 @@ public final class CommandProviderTest {
 
   @Test
   public void testCommandUnregister() {
-    Assertions.assertEquals(2, commandProvider.getCommands().size());
+    Assertions.assertEquals(2, commandProvider.commands().size());
     commandProvider.unregister(this.getClass().getClassLoader());
-    Assertions.assertEquals(0, commandProvider.getCommands().size());
+    Assertions.assertEquals(0, commandProvider.commands().size());
   }
 
   public static final class CommandHelpTest {

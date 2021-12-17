@@ -36,7 +36,7 @@ public class MemoryWebSocketTicketManager implements WebSocketTicketManager {
   private final Map<String, WebSocketTicket> tickets = new ConcurrentHashMap<>();
 
   @Override
-  public @NotNull Collection<WebSocketTicket> getTickets() {
+  public @NotNull Collection<WebSocketTicket> tickets() {
     this.removeOutdatedEntries();
     return Collections.unmodifiableCollection(this.tickets.values());
   }
@@ -76,7 +76,7 @@ public class MemoryWebSocketTicketManager implements WebSocketTicketManager {
       System.currentTimeMillis() + timeout,
       session
     );
-    this.tickets.put(this.convertTicketId(ticket.getFullId()), ticket);
+    this.tickets.put(this.convertTicketId(ticket.fullId()), ticket);
     return ticket;
   }
 
@@ -86,7 +86,7 @@ public class MemoryWebSocketTicketManager implements WebSocketTicketManager {
 
   private void removeOutdatedEntries() {
     for (var entry : this.tickets.entrySet()) {
-      if (entry.getValue().isExpired()) {
+      if (entry.getValue().expired()) {
         this.tickets.remove(entry.getKey());
       }
     }

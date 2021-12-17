@@ -88,7 +88,7 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
         continue;
       }
       // extract the whole content from the handler
-      var data = (Collection<Object>) handler.getData();
+      var data = (Collection<Object>) handler.data();
       // check if there is data
       if (!data.isEmpty()) {
         // check if there is only one argument to write
@@ -120,7 +120,7 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
         if (handler != null) {
           // read the synced data
           var data = handler.converter().parse(syncData);
-          var current = handler.getCurrent(data);
+          var current = handler.current(data);
           // check if we need to ask for user input to continue the sync
           if (force || handler.alwaysForceApply() || current == null || current.equals(data)) {
             // write the data and continue
@@ -136,13 +136,13 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
               continue;
             }
             // pretty format the changes
-            for (var line : JaversPrettyPrint.prettyPrint(handler.getName(current), diff)) {
+            for (var line : JaversPrettyPrint.prettyPrint(handler.name(current), diff)) {
               LOGGER.warning(line);
             }
             // print out the possibilities the user has now
             LOGGER.info(I18n.trans("cluster-sync-change-decision-question"));
             // wait for the decision and apply
-            switch (this.waitForCorrectMergeInput(CloudNet.getInstance().console())) {
+            switch (this.waitForCorrectMergeInput(CloudNet.instance().console())) {
               case 1 -> {
                 // accept theirs - write the change
                 handler.write(data);

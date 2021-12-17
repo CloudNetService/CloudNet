@@ -27,14 +27,14 @@ public class GlowstoneConfigurationPreparer extends AbstractServiceConfiguration
     // check if we should run now
     if (this.shouldRewriteIp(nodeInstance, cloudService)) {
       // copy the default file
-      var configFile = cloudService.getDirectory().resolve("config/glowstone.yml");
+      var configFile = cloudService.directory().resolve("config/glowstone.yml");
       this.copyCompiledFile("files/glowstone/glowstone.yml", configFile);
       // rewrite the configuration file
       this.rewriteFile(configFile, line -> {
         if (line.trim().startsWith("ip:")) {
-          line = String.format("  ip: '%s'", nodeInstance.getConfig().getHostAddress());
+          line = String.format("  ip: '%s'", nodeInstance.getConfig().hostAddress());
         } else if (line.trim().startsWith("port:")) {
-          line = String.format("  port: %d", cloudService.getServiceConfiguration().port());
+          line = String.format("  port: %d", cloudService.serviceConfiguration().port());
         }
         return line;
       });

@@ -84,13 +84,13 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
   }
 
   protected void sendNodeInformation(IHttpContext context) {
-    var nodeServer = this.node().getClusterNodeServerProvider().getSelfNode();
+    var nodeServer = this.node().getClusterNodeServerProvider().selfNode();
 
     var information = this.success()
       .append("title", CloudNet.class.getPackage().getImplementationTitle())
       .append("version", CloudNet.class.getPackage().getImplementationVersion())
-      .append("nodeInfoSnapshot", nodeServer.getNodeInfoSnapshot())
-      .append("lastNodeInfoSnapshot", nodeServer.getLastNodeInfoSnapshot())
+      .append("nodeInfoSnapshot", nodeServer.nodeInfoSnapshot())
+      .append("lastNodeInfoSnapshot", nodeServer.lastNodeInfoSnapshot())
       .append("serviceCount", this.node().cloudServiceProvider().serviceCount())
       .append("clientConnections", super.node().networkClient().channels().stream()
         .map(INetworkChannel::serverAddress)
@@ -175,7 +175,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
 
     @Override
     public void handle(@NotNull IWebSocketChannel channel, @NotNull WebSocketFrameType type, byte[] bytes) throws Exception {
-      var user = this.httpSession.getUser();
+      var user = this.httpSession.user();
       if (type == WebSocketFrameType.TEXT && user != null) {
         var commandLine = new String(bytes, StandardCharsets.UTF_8);
 
@@ -183,7 +183,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
           V2HttpHandlerNode.this.node().permissionManagement());
         V2HttpHandlerNode.this.node().commandProvider().execute(commandSource, commandLine).join();
 
-        for (var message : commandSource.getMessages()) {
+        for (var message : commandSource.messages()) {
           this.channel.sendWebSocketFrame(WebSocketFrameType.TEXT, message);
         }
       }

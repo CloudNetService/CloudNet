@@ -50,12 +50,12 @@ public class NodeLabyModListener {
 
   @EventListener
   public void handle(@NotNull CloudServicePreProcessStartEvent event) {
-    var service = event.getService();
-    if (!ServiceEnvironmentType.isMinecraftProxy(service.getServiceId().environment())) {
+    var service = event.service();
+    if (!ServiceEnvironmentType.isMinecraftProxy(service.serviceId().environment())) {
       return;
     }
 
-    var pluginsFolder = event.getService().getDirectory().resolve("plugins");
+    var pluginsFolder = event.service().directory().resolve("plugins");
     FileUtils.createDirectory(pluginsFolder);
 
     var targetFile = pluginsFolder.resolve("cloudnet-labymod.jar");
@@ -64,7 +64,7 @@ public class NodeLabyModListener {
     if (DefaultModuleHelper.copyCurrentModuleInstanceFromClass(NodeLabyModListener.class, targetFile)) {
       DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(
         NodeLabyModListener.class,
-        event.getService().getServiceId().environment(),
+        event.service().serviceId().environment(),
         targetFile
       );
     }

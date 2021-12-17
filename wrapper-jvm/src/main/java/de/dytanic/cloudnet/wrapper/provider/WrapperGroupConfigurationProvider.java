@@ -57,7 +57,7 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
   }
 
   @Override
-  public boolean isGroupConfigurationPresent(@NotNull String name) {
+  public boolean groupConfigurationPresent(@NotNull String name) {
     return this.rpcSender.invokeMethod("isGroupConfigurationPresent", name).fireSync();
   }
 

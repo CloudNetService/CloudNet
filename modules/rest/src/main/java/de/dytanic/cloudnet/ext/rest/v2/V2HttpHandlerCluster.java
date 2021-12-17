@@ -79,11 +79,11 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
   }
 
   protected void handleNodeListRequest(IHttpContext context) {
-    Collection<JsonDocument> nodes = this.nodeProvider().getNodeServers().stream()
+    Collection<JsonDocument> nodes = this.nodeProvider().nodeServers().stream()
       .map(this::createNodeInfoDocument)
       .collect(Collectors.toList());
     // add the local node info
-    nodes.add(this.createNodeInfoDocument(this.nodeProvider().getSelfNode()));
+    nodes.add(this.createNodeInfoDocument(this.nodeProvider().selfNode()));
 
     this.ok(context)
       .body(this.success().append("nodes", nodes).toString())
@@ -134,10 +134,10 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
     }
 
     var configuration = this.configuration();
-    configuration.getClusterConfig().nodes().add(server);
+    configuration.clusterConfig().nodes().add(server);
     configuration.save();
 
-    this.nodeProvider().setClusterServers(configuration.getClusterConfig());
+    this.nodeProvider().clusterServers(configuration.clusterConfig());
 
     this.response(context, HttpResponseCode.HTTP_CREATED)
       .body(this.success().toString())
@@ -157,11 +157,11 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
       return;
     }
 
-    var removed = this.configuration().getClusterConfig().nodes().removeIf(
+    var removed = this.configuration().clusterConfig().nodes().removeIf(
       node -> node.uniqueId().equals(uniqueId));
     if (removed) {
       this.configuration().save();
-      this.nodeProvider().setClusterServers(this.configuration().getClusterConfig());
+      this.nodeProvider().clusterServers(this.configuration().clusterConfig());
 
       this.response(context, HttpResponseCode.HTTP_OK)
         .body(this.success().toString())
@@ -188,7 +188,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
       return;
     }
 
-    var registered = this.configuration().getClusterConfig().nodes()
+    var registered = this.configuration().clusterConfig().nodes()
       .stream()
       .filter(node -> node.uniqueId().equals(server.uniqueId()))
       .findFirst()
@@ -203,7 +203,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
       //TODO: registered.setListeners(server.getListeners());
       registered.properties().append(server.properties());
       this.configuration().save();
-      this.nodeProvider().setClusterServers(this.configuration().getClusterConfig());
+      this.nodeProvider().clusterServers(this.configuration().clusterConfig());
 
       this.ok(context)
         .body(this.success().toString())
@@ -214,10 +214,10 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
   }
 
   protected JsonDocument createNodeInfoDocument(NodeServer node) {
-    return JsonDocument.newDocument("node", node.getNodeInfo())
-      .append("available", node.isAvailable())
-      .append("head", node.isHeadNode())
-      .append("nodeInfoSnapshot", node.getNodeInfoSnapshot());
+    return JsonDocument.newDocument("node", node.nodeInfo())
+      .append("available", node.available())
+      .append("head", node.headNode())
+      .append("nodeInfoSnapshot", node.nodeInfoSnapshot());
   }
 
   protected NodeServer getNodeServer(IHttpContext context, boolean includeLocal) {
@@ -226,9 +226,9 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
   }
 
   protected NodeServer getNodeServer(String nodeName, boolean includeLocal) {
-    NodeServer server = this.nodeProvider().getNodeServer(nodeName);
-    if (server == null && includeLocal && nodeName.equals(CloudNet.getInstance().componentName())) {
-      server = this.nodeProvider().getSelfNode();
+    NodeServer server = this.nodeProvider().nodeServer(nodeName);
+    if (server == null && includeLocal && nodeName.equals(CloudNet.instance().componentName())) {
+      server = this.nodeProvider().selfNode();
     }
     return server;
   }

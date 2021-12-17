@@ -59,15 +59,15 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
       cloudNet.networkClient(),
       NodeServer.class);
     this.cloudServiceFactory = new RemoteCloudServiceFactory(
-      this::getChannel,
+      this::channel,
       cloudNet.networkClient(),
       cloudNet.rpcProviderFactory());
 
-    this.setNodeInfo(nodeInfo);
+    this.nodeInfo(nodeInfo);
   }
 
   @Override
-  public boolean isConnected() {
+  public boolean connected() {
     return this.channel != null;
   }
 
@@ -86,7 +86,7 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
   }
 
   @Override
-  public boolean isAcceptableConnection(@NotNull INetworkChannel channel, @NotNull String nodeId) {
+  public boolean acceptableConnection(@NotNull INetworkChannel channel, @NotNull String nodeId) {
     return this.channel == null && this.nodeInfo.uniqueId().equals(nodeId);
   }
 
@@ -131,12 +131,12 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
   }
 
   @Override
-  public @NotNull CloudServiceFactory getCloudServiceFactory() {
+  public @NotNull CloudServiceFactory cloudServiceFactory() {
     return this.cloudServiceFactory;
   }
 
   @Override
-  public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot snapshot) {
+  public @NotNull SpecificCloudServiceProvider cloudServiceProvider(@NotNull ServiceInfoSnapshot snapshot) {
     return this.cloudNet.cloudServiceProvider().specificProvider(snapshot.serviceId().uniqueId());
   }
 
@@ -154,39 +154,39 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
   }
 
   @Override
-  public @NotNull DefaultClusterNodeServerProvider getProvider() {
+  public @NotNull DefaultClusterNodeServerProvider provider() {
     return this.provider;
   }
 
   @Override
-  public boolean isDrain() {
+  public boolean drain() {
     return this.currentSnapshot.draining();
   }
 
   @Override
-  public void setDrain(boolean drain) {
+  public void drain(boolean drain) {
     if (this.channel != null) {
-      this.nodeServerRPCSender.invokeMethod("setDrain", drain).fireSync(this.channel);
+      this.nodeServerRPCSender.invokeMethod("drain", drain).fireSync(this.channel);
     }
   }
 
   @Override
-  public @UnknownNullability INetworkChannel getChannel() {
+  public @UnknownNullability INetworkChannel channel() {
     return this.channel;
   }
 
   @Override
-  public void setChannel(@NotNull INetworkChannel channel) {
+  public void channel(@NotNull INetworkChannel channel) {
     this.channel = channel;
   }
 
   @Override
-  public void setNodeInfoSnapshot(@NotNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot) {
+  public void nodeInfoSnapshot(@NotNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot) {
     if (this.currentSnapshot == null) {
-      super.setNodeInfoSnapshot(nodeInfoSnapshot);
-      this.getProvider().refreshHeadNode();
+      super.nodeInfoSnapshot(nodeInfoSnapshot);
+      this.provider().refreshHeadNode();
     } else {
-      super.setNodeInfoSnapshot(nodeInfoSnapshot);
+      super.nodeInfoSnapshot(nodeInfoSnapshot);
     }
   }
 }

@@ -46,11 +46,11 @@ public final class QueuedConsoleLogHandler extends AbstractHandler {
     CloudNetDriver.instance().eventManager().callEvent(new LoggingEntryEvent(record));
   }
 
-  public @NotNull Queue<LogRecord> getCachedLogEntries() {
+  public @NotNull Queue<LogRecord> cachedLogEntries() {
     return this.cachedQueuedLogEntries;
   }
 
-  public @NotNull Queue<String> getFormattedCachedLogLines() {
+  public @NotNull Queue<String> formattedCachedLogLines() {
     return this.cachedQueuedLogEntries.stream()
       .map(this.getFormatter()::format)
       .collect(Collectors.toCollection(LinkedList::new));

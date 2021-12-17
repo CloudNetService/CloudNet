@@ -81,12 +81,12 @@ public final class CommandService {
     .build();
 
   public CommandService() {
-    CloudNet.getInstance().eventManager().registerListener(this);
+    CloudNet.instance().eventManager().registerListener(this);
   }
 
   @Suggestions("service")
   public List<String> suggestService(CommandContext<CommandSource> $, String input) {
-    return CloudNet.getInstance().cloudServiceProvider().services()
+    return CloudNet.instance().cloudServiceProvider().services()
       .stream()
       .map(INameable::name)
       .toList();
@@ -95,7 +95,7 @@ public final class CommandService {
   @Parser(suggestions = "service")
   public Collection<ServiceInfoSnapshot> wildcardServiceParser(CommandContext<CommandSource> $, Queue<String> input) {
     var name = input.remove();
-    var knownServices = CloudNet.getInstance().cloudServiceProvider().services();
+    var knownServices = CloudNet.instance().cloudServiceProvider().services();
     var matchedServices = WildcardUtil.filterWildcard(knownServices, name);
     if (matchedServices.isEmpty()) {
       throw new ArgumentNotAvailableException(I18n.trans("command-service-service-not-found"));
@@ -112,7 +112,7 @@ public final class CommandService {
     @Flag("group") String groupName,
     @Flag("names") boolean useNamesOnly
   ) {
-    Collection<ServiceInfoSnapshot> services = CloudNet.getInstance().cloudServiceProvider().services()
+    Collection<ServiceInfoSnapshot> services = CloudNet.instance().cloudServiceProvider().services()
       .stream()
       .filter(service -> id == null || service.serviceId().taskServiceId() == id)
       .filter(service -> taskName == null || service.serviceId().taskName().equalsIgnoreCase(taskName))

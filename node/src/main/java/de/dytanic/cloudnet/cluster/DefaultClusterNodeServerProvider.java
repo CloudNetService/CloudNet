@@ -62,7 +62,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
       this));
     // schedule the task for updating of the local node information
     cloudNet.taskExecutor().scheduleAtFixedRate(() -> {
-      if (this.localNode.isAvailable()) {
+      if (this.localNode.available()) {
         try {
           this.checkForDeadNodes();
           this.localNode.publishNodeInfoSnapshotUpdate();
@@ -74,12 +74,12 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
   }
 
   @Override
-  public @Nullable IClusterNodeServer getNodeServer(@NotNull INetworkChannel channel) {
+  public @Nullable IClusterNodeServer nodeServer(@NotNull INetworkChannel channel) {
     Preconditions.checkNotNull(channel);
 
-    for (var clusterNodeServer : this.getNodeServers()) {
-      if (clusterNodeServer.getChannel() != null
-        && clusterNodeServer.getChannel().channelId() == channel.channelId()) {
+    for (var clusterNodeServer : this.nodeServers()) {
+      if (clusterNodeServer.channel() != null
+        && clusterNodeServer.channel().channelId() == channel.channelId()) {
         return clusterNodeServer;
       }
     }
@@ -88,11 +88,11 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
   }
 
   @Override
-  public void setClusterServers(@NotNull NetworkCluster networkCluster) {
+  public void clusterServers(@NotNull NetworkCluster networkCluster) {
     for (var clusterNode : networkCluster.nodes()) {
-      NodeServer nodeServer = this.getNodeServer(clusterNode.uniqueId());
+      NodeServer nodeServer = this.nodeServer(clusterNode.uniqueId());
       if (nodeServer != null) {
-        nodeServer.setNodeInfo(clusterNode);
+        nodeServer.nodeInfo(clusterNode);
       } else {
         this.nodeServers.add(new DefaultClusterNodeServer(this.cloudNet, this, clusterNode));
       }
@@ -101,12 +101,12 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
     for (var clusterNodeServer : this.nodeServers) {
       var node = networkCluster.nodes()
         .stream()
-        .filter(cluNode -> cluNode.uniqueId().equalsIgnoreCase(clusterNodeServer.getNodeInfo().uniqueId()))
+        .filter(cluNode -> cluNode.uniqueId().equalsIgnoreCase(clusterNodeServer.nodeInfo().uniqueId()))
         .findFirst()
         .orElse(null);
       if (node == null) {
         this.nodeServers.removeIf(
-          nodeServer -> nodeServer.getNodeInfo().uniqueId().equals(clusterNodeServer.getNodeInfo().uniqueId()));
+          nodeServer -> nodeServer.nodeInfo().uniqueId().equals(clusterNodeServer.nodeInfo().uniqueId()));
       }
     }
   }
@@ -176,28 +176,28 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
 
   @Override
   @UnmodifiableView
-  public @NotNull Collection<INetworkChannel> getConnectedChannels() {
-    return this.getNodeServers().stream()
-      .map(IClusterNodeServer::getChannel)
+  public @NotNull Collection<INetworkChannel> connectedChannels() {
+    return this.nodeServers().stream()
+      .map(IClusterNodeServer::channel)
       .filter(Objects::nonNull)
       .toList();
   }
 
   @Override
   public boolean hasAnyConnection() {
-    var servers = this.getNodeServers();
-    return !servers.isEmpty() && servers.stream().anyMatch(IClusterNodeServer::isConnected);
+    var servers = this.nodeServers();
+    return !servers.isEmpty() && servers.stream().anyMatch(IClusterNodeServer::connected);
   }
 
   @Override
   public void checkForDeadNodes() {
     for (var nodeServer : this.nodeServers) {
-      if (nodeServer.isAvailable()) {
-        var snapshot = nodeServer.getNodeInfoSnapshot();
+      if (nodeServer.available()) {
+        var snapshot = nodeServer.nodeInfoSnapshot();
         if (snapshot != null && snapshot.creationTime() + MAX_NO_UPDATE_MILLIS < System.currentTimeMillis()) {
           try {
             LOGGER.info(I18n.trans("cluster-server-idling-too-long")
-              .replace("%id%", nodeServer.getNodeInfo().uniqueId())
+              .replace("%id%", nodeServer.nodeInfo().uniqueId())
               .replace("%time%", TIME_FORMAT.format((System.currentTimeMillis() - snapshot.creationTime()) / 1000)));
             nodeServer.close();
           } catch (Exception exception) {
@@ -234,8 +234,8 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
       // collect the network channels of the connected nodes
       return this.nodeServers
         .stream()
-        .filter(IClusterNodeServer::isAvailable)
-        .map(IClusterNodeServer::getChannel)
+        .filter(IClusterNodeServer::available)
+        .map(IClusterNodeServer::channel)
         .filter(Objects::nonNull)
         .toList();
     } else {

@@ -30,7 +30,7 @@ public class LocalServiceTaskRemoveEvent extends Event implements ICancelable {
     this.task = task;
   }
 
-  public @NotNull ServiceTask getTask() {
+  public @NotNull ServiceTask task() {
     return this.task;
   }
 
