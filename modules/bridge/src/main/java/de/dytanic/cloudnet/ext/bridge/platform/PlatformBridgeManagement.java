@@ -61,9 +61,9 @@ import org.jetbrains.annotations.Nullable;
 
 public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement {
 
-  protected static final Predicate<ServiceInfoSnapshot> CONNECTED_SERVICE_TESTER = service -> service.isConnected()
-    && service.getLifeCycle() == ServiceLifeCycle.RUNNING
-    && BridgeServiceProperties.IS_ONLINE.get(service).orElse(false);
+  protected static final Predicate<ServiceInfoSnapshot> CONNECTED_SERVICE_TESTER = service -> service.connected()
+    && service.lifeCycle() == ServiceLifeCycle.RUNNING
+    && BridgeServiceProperties.IS_ONLINE.read(service).orElse(false);
 
   protected final RPCSender sender;
   protected final IEventManager eventManager;
@@ -81,7 +81,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
   protected volatile Consumer<ServiceInfoSnapshot> cacheUnregisterListener;
 
   public PlatformBridgeManagement(@NotNull Wrapper wrapper) {
-    this.eventManager = wrapper.getEventManager();
+    this.eventManager = wrapper.eventManager();
     this.cachedServices = new ConcurrentHashMap<>();
     this.fallbackProfiles = new ConcurrentHashMap<>();
     // fill the cache access with no-op stuff
@@ -93,14 +93,14 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     DefaultObjectMapper.DEFAULT_MAPPER.registerBinding(Component.class, new ComponentObjectSerializer(), false);
     // init the player manager once
     this.playerManager = new PlatformPlayerManager(wrapper);
-    this.sender = wrapper.getRPCProviderFactory().providerForClass(wrapper.getNetworkClient(), BridgeManagement.class);
+    this.sender = wrapper.rpcProviderFactory().providerForClass(wrapper.networkClient(), BridgeManagement.class);
     // create the network service info of this service
-    this.ownNetworkServiceInfo = BridgeServiceHelper.createServiceInfo(wrapper.getCurrentServiceInfoSnapshot());
+    this.ownNetworkServiceInfo = BridgeServiceHelper.createServiceInfo(wrapper.currentServiceInfo());
     // load the configuration using rpc - all updates will be received from the channel message
     this.setConfigurationLocally(this.sender.invokeMethod("getConfiguration").fireSync());
     // register the common listeners
-    wrapper.getEventManager().registerListener(new PlatformInformationListener(this));
-    wrapper.getEventManager().registerListener(new PlatformChannelMessageListener(this.eventManager, this));
+    wrapper.eventManager().registerListener(new PlatformInformationListener(this));
+    wrapper.eventManager().registerListener(new PlatformChannelMessageListener(this.eventManager, this));
   }
 
   @Override
@@ -117,7 +117,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     this.configuration = configuration;
     this.eventManager.callEvent(new BridgeConfigurationUpdateEvent(configuration));
     this.currentFallbackConfiguration = configuration.getFallbackConfigurations().stream()
-      .filter(config -> Wrapper.getInstance().getServiceConfiguration().getGroups().contains(config.targetGroup()))
+      .filter(config -> Wrapper.getInstance().serviceConfiguration().groups().contains(config.targetGroup()))
       .findFirst()
       .orElse(null);
   }
@@ -128,11 +128,11 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
   }
 
   public void appendServiceInformation(@NotNull ServiceInfoSnapshot snapshot) {
-    snapshot.getProperties().append("Online", Boolean.TRUE);
-    snapshot.getProperties().append("Motd", BridgeServiceHelper.MOTD.get());
-    snapshot.getProperties().append("Extra", BridgeServiceHelper.EXTRA.get());
-    snapshot.getProperties().append("State", BridgeServiceHelper.STATE.get());
-    snapshot.getProperties().append("Max-Players", BridgeServiceHelper.MAX_PLAYERS.get());
+    snapshot.properties().append("Online", Boolean.TRUE);
+    snapshot.properties().append("Motd", BridgeServiceHelper.MOTD.get());
+    snapshot.properties().append("Extra", BridgeServiceHelper.EXTRA.get());
+    snapshot.properties().append("State", BridgeServiceHelper.STATE.get());
+    snapshot.properties().append("Max-Players", BridgeServiceHelper.MAX_PLAYERS.get());
   }
 
   public @NotNull Collection<ServiceInfoSnapshot> getCachedServices() {
@@ -144,7 +144,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
   }
 
   public void handleTaskUpdate(@NotNull String name, @Nullable ServiceTask task) {
-    if (Wrapper.getInstance().getServiceId().getTaskName().equals(name)) {
+    if (Wrapper.getInstance().serviceId().taskName().equals(name)) {
       this.selfTask = task;
     }
   }
@@ -159,19 +159,19 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
 
   public void handleServiceUpdate(@NotNull ServiceInfoSnapshot snapshot) {
     // if the service is not yet cached check if we need to cache it
-    if (!this.cachedServices.containsKey(snapshot.getServiceId().getUniqueId())) {
+    if (!this.cachedServices.containsKey(snapshot.serviceId().uniqueId())) {
       // check if we should cache it
       if (this.cacheTester.test(snapshot)) {
         this.cacheRegisterListener.accept(snapshot);
-        this.cachedServices.put(snapshot.getServiceId().getUniqueId(), snapshot);
+        this.cachedServices.put(snapshot.serviceId().uniqueId(), snapshot);
       }
     } else {
       // if the service is already cached we need to check if we should still cache it
       if (this.cacheTester.test(snapshot)) {
-        this.cachedServices.replace(snapshot.getServiceId().getUniqueId(), snapshot);
+        this.cachedServices.replace(snapshot.serviceId().uniqueId(), snapshot);
       } else {
         this.cacheUnregisterListener.accept(snapshot);
-        this.cachedServices.remove(snapshot.getServiceId().getUniqueId());
+        this.cachedServices.remove(snapshot.serviceId().uniqueId());
       }
     }
   }
@@ -225,7 +225,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     var config = Preconditions.checkNotNull(this.currentFallbackConfiguration);
     // get all groups of the service the player is currently on
     var currentGroups = this.getCachedService(service -> service.name().equals(currentServerName))
-      .map(service -> service.getConfiguration().getGroups())
+      .map(service -> service.configuration().groups())
       .orElse(Collections.emptySet());
     // find all matching fallback configurations
     return config.fallbacks().stream()
@@ -246,7 +246,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     // check if the current server of the player is given
     return this.getCachedService(service -> service.name().equals(currentServerName))
       .map(service -> this.getPossibleFallbacks(currentServerName, virtualHost, permissionTester)
-        .anyMatch(fallback -> service.getServiceId().getTaskName().equals(fallback.getTask())))
+        .anyMatch(fallback -> service.serviceId().taskName().equals(fallback.getTask())))
       .orElse(false);
   }
 
@@ -257,17 +257,17 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
   ) {
     return this.cachedServices.values().stream()
       // check if the service is associated with the task of the fallback
-      .filter(service -> service.getServiceId().getTaskName().equals(task))
+      .filter(service -> service.serviceId().taskName().equals(task))
       // check if the player failed to connect to that fallback during the current iteration
       .filter(service -> !profile.hasTried(service.name()))
       // check if the service is marked as joinable
-      .filter(service -> service.isConnected() && BridgeServiceProperties.IS_ONLINE.get(service).orElse(false))
+      .filter(service -> service.connected() && BridgeServiceProperties.IS_ONLINE.read(service).orElse(false))
       // check if the player is not currently connected to that service
       .filter(service -> currentServerName == null || !service.name().equals(currentServerName))
       // find the service with the lowest player count known to use
       .min((optionA, optionB) -> {
-        int playersOnOptionA = BridgeServiceProperties.ONLINE_COUNT.get(optionA).orElse(0);
-        int playersOnOptionB = BridgeServiceProperties.ONLINE_COUNT.get(optionB).orElse(0);
+        int playersOnOptionA = BridgeServiceProperties.ONLINE_COUNT.read(optionA).orElse(0);
+        int playersOnOptionB = BridgeServiceProperties.ONLINE_COUNT.read(optionB).orElse(0);
         // compare the player count
         return Integer.compare(playersOnOptionA, playersOnOptionB);
       });
@@ -290,14 +290,14 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     // publish a service update to append all property information
     Wrapper.getInstance().publishServiceInfoUpdate();
     // load all services and cache the ones which are matching the cache policy
-    CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServicesAsync().onComplete(services -> {
+    CloudNetDriver.instance().cloudServiceProvider().servicesAsync().onComplete(services -> {
       for (var service : services) {
         this.handleServiceUpdate(service);
       }
     });
     // get the service task associated with this service if present
-    this.selfTask = CloudNetDriver.getInstance().getServiceTaskProvider()
-      .getServiceTask(Wrapper.getInstance().getServiceId().getTaskName());
+    this.selfTask = CloudNetDriver.instance().serviceTaskProvider()
+      .serviceTask(Wrapper.getInstance().serviceId().taskName());
   }
 
   public @NotNull NetworkServiceInfo getOwnNetworkServiceInfo() {

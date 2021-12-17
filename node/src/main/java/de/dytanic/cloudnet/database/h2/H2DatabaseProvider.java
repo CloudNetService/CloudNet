@@ -68,7 +68,7 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public @NotNull H2Database getDatabase(@NotNull String name) {
+  public @NotNull H2Database database(@NotNull String name) {
     this.removedOutdatedEntries();
     return (H2Database) this.cachedDatabaseInstances.computeIfAbsent(name,
       $ -> new H2Database(this, name, NEW_CREATION_DELAY, super.executorService));
@@ -85,7 +85,7 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public @NotNull Collection<String> getDatabaseNames() {
+  public @NotNull Collection<String> databaseNames() {
     var tableNames = this.executeQuery(
       "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA='PUBLIC'",
       resultSet -> {

@@ -37,13 +37,13 @@ public class NodeLabyModListener {
 
   @EventListener
   public void handleConfigUpdate(ChannelMessageReceiveEvent event) {
-    if (!event.getChannel().equals(LabyModManagement.LABYMOD_MODULE_CHANNEL)) {
+    if (!event.channel().equals(LabyModManagement.LABYMOD_MODULE_CHANNEL)) {
       return;
     }
 
-    if (LabyModManagement.LABYMOD_UPDATE_CONFIG.equals(event.getMessage())) {
+    if (LabyModManagement.LABYMOD_UPDATE_CONFIG.equals(event.message())) {
       // read the configuration from the databuf
-      var configuration = event.getContent().readObject(LabyModConfiguration.class);
+      var configuration = event.content().readObject(LabyModConfiguration.class);
       // write the configuration silently to the file
       this.labyModManagement.setConfigurationSilently(configuration);
     }
@@ -56,7 +56,7 @@ public class NodeLabyModListener {
     }
 
     var service = event.getService();
-    if (!ServiceEnvironmentType.isMinecraftProxy(service.getServiceId().getEnvironment())) {
+    if (!ServiceEnvironmentType.isMinecraftProxy(service.getServiceId().environment())) {
       return;
     }
 
@@ -69,7 +69,7 @@ public class NodeLabyModListener {
     if (DefaultModuleHelper.copyCurrentModuleInstanceFromClass(NodeLabyModListener.class, targetFile)) {
       DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(
         NodeLabyModListener.class,
-        event.getService().getServiceId().getEnvironment(),
+        event.getService().getServiceId().environment(),
         targetFile
       );
     }

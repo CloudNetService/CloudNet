@@ -47,13 +47,13 @@ public final class DefaultNetworkServerChannelHandler implements INetworkChannel
 
     if (NodeNetworkUtils.shouldInitializeChannel(channel, ChannelType.SERVER_CHANNEL)) {
       // add the auth listener
-      channel.getPacketRegistry().addListener(
+      channel.packetRegistry().addListener(
         NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL,
         new PacketClientAuthorizationListener());
 
       LOGGER.fine(I18n.trans("server-network-channel-init")
-        .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
-        .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort()));
+        .replace("%serverAddress%", channel.serverAddress().host() + ":" + channel.serverAddress().port())
+        .replace("%clientAddress%", channel.clientAddress().host() + ":" + channel.clientAddress().port()));
     } else {
       channel.close();
     }
@@ -61,21 +61,21 @@ public final class DefaultNetworkServerChannelHandler implements INetworkChannel
 
   @Override
   public boolean handlePacketReceive(@NotNull INetworkChannel channel, @NotNull Packet packet) {
-    return !CloudNetDriver.getInstance().getEventManager().callEvent(
-      new NetworkChannelPacketReceiveEvent(channel, packet)).isCancelled();
+    return !CloudNetDriver.instance().eventManager().callEvent(
+      new NetworkChannelPacketReceiveEvent(channel, packet)).cancelled();
   }
 
   @Override
   public void handleChannelClose(@NotNull INetworkChannel channel) {
-    CloudNetDriver.getInstance().getEventManager().callEvent(
+    CloudNetDriver.instance().eventManager().callEvent(
       new NetworkChannelCloseEvent(channel, ChannelType.SERVER_CHANNEL));
 
     LOGGER.fine(I18n.trans("server-network-channel-close")
-      .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
-      .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort()));
+      .replace("%serverAddress%", channel.serverAddress().host() + ":" + channel.serverAddress().port())
+      .replace("%clientAddress%", channel.clientAddress().host() + ":" + channel.clientAddress().port()));
 
     var cloudService = CloudNet.getInstance()
-      .getCloudServiceProvider()
+      .cloudServiceProvider()
       .getLocalCloudServices()
       .stream()
       .filter(service -> service.getNetworkChannel() != null && service.getNetworkChannel().equals(channel))
@@ -95,19 +95,19 @@ public final class DefaultNetworkServerChannelHandler implements INetworkChannel
   private void closeAsCloudService(@NotNull ICloudService cloudService, @NotNull INetworkChannel channel) {
     // reset the service channel and connection time
     cloudService.setNetworkChannel(null);
-    cloudService.setCloudServiceLifeCycle(ServiceLifeCycle.STOPPED);
+    cloudService.updateLifecycle(ServiceLifeCycle.STOPPED);
 
     LOGGER.info(I18n.trans("cloud-service-networking-disconnected")
-      .replace("%id%", cloudService.getServiceId().getUniqueId().toString())
-      .replace("%task%", cloudService.getServiceId().getTaskName())
-      .replace("%serviceId%", String.valueOf(cloudService.getServiceId().getTaskServiceId()))
-      .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
-      .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort()));
+      .replace("%id%", cloudService.getServiceId().uniqueId().toString())
+      .replace("%task%", cloudService.getServiceId().taskName())
+      .replace("%serviceId%", String.valueOf(cloudService.getServiceId().taskServiceId()))
+      .replace("%serverAddress%", channel.serverAddress().host() + ":" + channel.serverAddress().port())
+      .replace("%clientAddress%", channel.clientAddress().host() + ":" + channel.clientAddress().port()));
   }
 
   private boolean shouldDenyConnection(@NotNull INetworkChannel channel) {
     return CloudNet.getInstance().getConfig().getIpWhitelist()
       .stream()
-      .noneMatch(channel.getClientAddress().getHost()::equals);
+      .noneMatch(channel.clientAddress().host()::equals);
   }
 }

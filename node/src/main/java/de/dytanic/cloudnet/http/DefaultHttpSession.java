@@ -69,7 +69,7 @@ public class DefaultHttpSession implements HttpSession {
 
   @Override
   public PermissionUser getUser() {
-    return CloudNetDriver.getInstance().getPermissionManagement().getUser(this.userId);
+    return CloudNetDriver.instance().permissionManagement().user(this.userId);
   }
 
   @Override

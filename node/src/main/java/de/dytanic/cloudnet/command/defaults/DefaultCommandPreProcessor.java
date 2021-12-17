@@ -44,9 +44,9 @@ final class DefaultCommandPreProcessor implements CommandPreprocessor<CommandSou
       return;
     }
 
-    var preProcessEvent = CloudNet.getInstance().getEventManager()
+    var preProcessEvent = CloudNet.getInstance().eventManager()
       .callEvent(new CommandPreProcessEvent(commandContext.getRawInputJoined(), source));
-    if (preProcessEvent.isCancelled()) {
+    if (preProcessEvent.cancelled()) {
       ConsumerService.interrupt();
     }
   }

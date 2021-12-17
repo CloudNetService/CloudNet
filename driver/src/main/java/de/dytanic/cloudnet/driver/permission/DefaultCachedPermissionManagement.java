@@ -51,28 +51,28 @@ public abstract class DefaultCachedPermissionManagement extends DefaultPermissio
     .build();
 
   @Override
-  public @NotNull Map<UUID, PermissionUser> getCachedPermissionUsers() {
+  public @NotNull Map<UUID, PermissionUser> cachedPermissionUsers() {
     return this.permissionUserCache.asMap();
   }
 
   @Override
-  public @NotNull Map<String, PermissionGroup> getCachedPermissionGroups() {
+  public @NotNull Map<String, PermissionGroup> cachedPermissionGroups() {
     return this.permissionGroupCache.asMap();
   }
 
   @Override
-  public @Nullable PermissionUser getCachedUser(@NotNull UUID uniqueId) {
+  public @Nullable PermissionUser cachedUser(@NotNull UUID uniqueId) {
     return this.permissionUserCache.getIfPresent(uniqueId);
   }
 
   @Override
-  public @Nullable PermissionGroup getCachedGroup(@NotNull String name) {
+  public @Nullable PermissionGroup cachedGroup(@NotNull String name) {
     return this.permissionGroupCache.getIfPresent(name);
   }
 
   @Override
   public void acquireLock(@NotNull PermissionUser user) {
-    this.permissionUserLocks.computeIfAbsent(user.getUniqueId(), uuid -> new AtomicInteger()).incrementAndGet();
+    this.permissionUserLocks.computeIfAbsent(user.uniqueId(), uuid -> new AtomicInteger()).incrementAndGet();
   }
 
   @Override
@@ -81,20 +81,20 @@ public abstract class DefaultCachedPermissionManagement extends DefaultPermissio
   }
 
   @Override
-  public boolean isLocked(@NotNull PermissionUser user) {
-    var lockCount = this.permissionUserLocks.get(user.getUniqueId());
+  public boolean locked(@NotNull PermissionUser user) {
+    var lockCount = this.permissionUserLocks.get(user.uniqueId());
     return lockCount != null && lockCount.get() > 0;
   }
 
   @Override
-  public boolean isLocked(@NotNull PermissionGroup group) {
+  public boolean locked(@NotNull PermissionGroup group) {
     var lockCount = this.permissionGroupLocks.get(group.name());
     return lockCount != null && lockCount.get() > 0;
   }
 
   @Override
   public void unlock(@NotNull PermissionUser user) {
-    var lockCount = this.permissionUserLocks.get(user.getUniqueId());
+    var lockCount = this.permissionUserLocks.get(user.uniqueId());
     if (lockCount != null) {
       lockCount.decrementAndGet();
     }
@@ -110,7 +110,7 @@ public abstract class DefaultCachedPermissionManagement extends DefaultPermissio
 
   @Override
   public void unlockFully(@NotNull PermissionUser user) {
-    this.permissionUserLocks.remove(user.getUniqueId());
+    this.permissionUserLocks.remove(user.uniqueId());
   }
 
   @Override
@@ -119,13 +119,13 @@ public abstract class DefaultCachedPermissionManagement extends DefaultPermissio
   }
 
   protected void handleUserRemove(@NotNull UUID key, @NotNull PermissionUser user, @NotNull RemovalCause cause) {
-    if (cause != RemovalCause.REPLACED && this.isLocked(user)) {
+    if (cause != RemovalCause.REPLACED && this.locked(user)) {
       this.permissionUserCache.put(key, user);
     }
   }
 
   protected void handleGroupRemove(@NotNull String key, @NotNull PermissionGroup group, @NotNull RemovalCause cause) {
-    if (cause != RemovalCause.REPLACED && this.isLocked(group)) {
+    if (cause != RemovalCause.REPLACED && this.locked(group)) {
       this.permissionGroupCache.put(key, group);
     }
   }

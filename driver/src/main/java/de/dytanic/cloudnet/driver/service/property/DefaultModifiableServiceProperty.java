@@ -49,14 +49,14 @@ public class DefaultModifiableServiceProperty<I, T> implements ServiceProperty<T
 
   @NotNull
   @Override
-  public Optional<T> get(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
+  public Optional<T> read(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
     Preconditions.checkNotNull(this.getModifier, "This property doesn't support getting a value");
-    return this.wrapped.get(serviceInfoSnapshot).map(i -> this.getModifier.apply(serviceInfoSnapshot, i));
+    return this.wrapped.read(serviceInfoSnapshot).map(i -> this.getModifier.apply(serviceInfoSnapshot, i));
   }
 
   @Override
-  public void set(@NotNull ServiceInfoSnapshot serviceInfoSnapshot, @Nullable T value) {
+  public void write(@NotNull ServiceInfoSnapshot serviceInfoSnapshot, @Nullable T value) {
     Preconditions.checkNotNull(this.setModifier, "This property doesn't support modifying a value");
-    this.wrapped.set(serviceInfoSnapshot, this.setModifier.apply(serviceInfoSnapshot, value));
+    this.wrapped.write(serviceInfoSnapshot, this.setModifier.apply(serviceInfoSnapshot, value));
   }
 }

@@ -73,45 +73,45 @@ public class NodeSignsListener {
 
   @EventListener
   public void handleChannelMessage(ChannelMessageReceiveEvent event) {
-    if (event.getChannel().equals(AbstractSignManagement.SIGN_CHANNEL_NAME)) {
-      switch (event.getMessage()) {
+    if (event.channel().equals(AbstractSignManagement.SIGN_CHANNEL_NAME)) {
+      switch (event.message()) {
         // config request
-        case AbstractPlatformSignManagement.REQUEST_CONFIG -> event.setBinaryResponse(
+        case AbstractPlatformSignManagement.REQUEST_CONFIG -> event.binaryResponse(
             DataBuf.empty().writeObject(this.signManagement.getSignsConfiguration()));
 
         // delete all signs
         case AbstractPlatformSignManagement.SIGN_ALL_DELETE -> {
-          Collection<WorldPosition> positions = event.getContent().readObject(WorldPosition.COL_TYPE);
+          Collection<WorldPosition> positions = event.content().readObject(WorldPosition.COL_TYPE);
           for (var position : positions) {
             this.signManagement.deleteSign(position);
           }
         }
         // create a new sign
         case AbstractPlatformSignManagement.SIGN_CREATE -> this.signManagement.createSign(
-            event.getContent().readObject(Sign.class));
+            event.content().readObject(Sign.class));
 
         // delete an existing sign
         case AbstractPlatformSignManagement.SIGN_DELETE -> this.signManagement.deleteSign(
-            event.getContent().readObject(WorldPosition.class));
+            event.content().readObject(WorldPosition.class));
 
         // delete all signs
         case AbstractPlatformSignManagement.SIGN_BULK_DELETE -> {
           var deleted = this.signManagement
-              .deleteAllSigns(event.getContent().readString(), event.getContent().readNullable(DataBuf::readString));
-          event.setBinaryResponse(DataBuf.empty().writeInt(deleted));
+              .deleteAllSigns(event.content().readString(), event.content().readNullable(DataBuf::readString));
+          event.binaryResponse(DataBuf.empty().writeInt(deleted));
         }
         // set the sign config
         case AbstractPlatformSignManagement.SET_SIGN_CONFIG -> this.signManagement.setSignsConfiguration(
-            event.getContent().readObject(SignsConfiguration.class));
+            event.content().readObject(SignsConfiguration.class));
 
         // get all signs of a group
         case PlatformSignManagement.SIGN_GET_SIGNS_BY_GROUPS -> {
-          var signs = this.signManagement.getSigns(event.getContent().readObject(String[].class));
-          event.setBinaryResponse(DataBuf.empty().writeObject(signs));
+          var signs = this.signManagement.getSigns(event.content().readObject(String[].class));
+          event.binaryResponse(DataBuf.empty().writeObject(signs));
         }
         // set the sign configuration without a re-publish to the cluster
         case NodeSignManagement.NODE_TO_NODE_SET_SIGN_CONFIGURATION -> this.signManagement.handleInternalSignConfigUpdate(
-            event.getContent().readObject(SignsConfiguration.class));
+            event.content().readObject(SignsConfiguration.class));
         default -> {
         }
       }

@@ -58,12 +58,12 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   public DefaultDatabasePermissionManagement(@NotNull CloudNet nodeInstance) {
     this.nodeInstance = nodeInstance;
     this.groups = new ConcurrentHashMap<>();
-    this.networkListener = new PermissionChannelMessageListener(nodeInstance.getEventManager(), this);
+    this.networkListener = new PermissionChannelMessageListener(nodeInstance.eventManager(), this);
   }
 
   @Override
-  public PermissionUser getFirstUser(String name) {
-    return Iterables.getFirst(this.getUsersByName(name), null);
+  public PermissionUser firstUser(String name) {
+    return Iterables.getFirst(this.usersByName(name), null);
   }
 
   @Override
@@ -75,13 +75,13 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
       this.loadGroups();
     }
 
-    this.nodeInstance.getEventManager().registerListener(this.networkListener);
-    this.nodeInstance.getRPCProviderFactory().newHandler(IPermissionManagement.class, this).registerToDefaultRegistry();
+    this.nodeInstance.eventManager().registerListener(this.networkListener);
+    this.nodeInstance.rpcProviderFactory().newHandler(IPermissionManagement.class, this).registerToDefaultRegistry();
   }
 
   @Override
   public void close() {
-    this.nodeInstance.getEventManager().unregisterListener(this.networkListener);
+    this.nodeInstance.eventManager().unregisterListener(this.networkListener);
   }
 
   @Override
@@ -96,8 +96,8 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   }
 
   @Override
-  public PermissionGroup getDefaultPermissionGroup() {
-    return this.groups.values().stream().filter(PermissionGroup::isDefaultGroup).findFirst().orElse(null);
+  public PermissionGroup defaultPermissionGroup() {
+    return this.groups.values().stream().filter(PermissionGroup::defaultGroup).findFirst().orElse(null);
   }
 
   @Override
@@ -113,7 +113,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   @Override
   public @NotNull PermissionUser addPermissionUser(@NotNull PermissionUser user) {
     // insert the user into the database
-    this.getUserDatabaseTable().insert(user.getUniqueId().toString(), JsonDocument.newDocument(user));
+    this.getUserDatabaseTable().insert(user.uniqueId().toString(), JsonDocument.newDocument(user));
     // notify the listener
     this.handler.handleAddUser(this, user);
     return user;
@@ -122,7 +122,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   @Override
   public void updateUser(@NotNull PermissionUser user) {
     // update in the database
-    this.getUserDatabaseTable().update(user.getUniqueId().toString(), JsonDocument.newDocument(user));
+    this.getUserDatabaseTable().update(user.uniqueId().toString(), JsonDocument.newDocument(user));
     // notify the listener
     this.handler.handleUpdateUser(this, user);
   }
@@ -130,7 +130,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   @Override
   public boolean deleteUser(@NotNull String name) {
     // get all users with the name
-    Collection<PermissionUser> users = this.getUsersByName(name);
+    Collection<PermissionUser> users = this.usersByName(name);
     // delete all the users if there are any
     if (!users.isEmpty()) {
       var success = false;
@@ -146,7 +146,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
 
   @Override
   public boolean deletePermissionUser(@NotNull PermissionUser permissionUser) {
-    if (this.getUserDatabaseTable().delete(permissionUser.getUniqueId().toString())) {
+    if (this.getUserDatabaseTable().delete(permissionUser.uniqueId().toString())) {
       // notify the listener
       this.handler.handleDeleteUser(this, permissionUser);
       return true;
@@ -161,11 +161,11 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
 
   @Override
   public boolean containsOneUser(@NotNull String name) {
-    return this.getFirstUser(name) != null;
+    return this.firstUser(name) != null;
   }
 
   @Override
-  public @Nullable PermissionUser getUser(@NotNull UUID uniqueId) {
+  public @Nullable PermissionUser user(@NotNull UUID uniqueId) {
     // try to find the user in the database
     var user = this.getUserDatabaseTable().get(uniqueId.toString());
     // check if the user is in the database
@@ -186,7 +186,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   @Override
   public @NotNull PermissionUser getOrCreateUser(@NotNull UUID uniqueId, @NotNull String name) {
     // try to get the permission user
-    var user = this.getUser(uniqueId);
+    var user = this.user(uniqueId);
     // create a new user if the current one is not present
     if (user == null) {
       user = new PermissionUser(uniqueId, name, null, 0);
@@ -197,7 +197,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   }
 
   @Override
-  public @NotNull List<PermissionUser> getUsersByName(@NotNull String name) {
+  public @NotNull List<PermissionUser> usersByName(@NotNull String name) {
     return this.getUserDatabaseTable().get("name", name).stream()
       .map(userData -> {
         // deserialize the permission user
@@ -212,7 +212,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   }
 
   @Override
-  public @NotNull Collection<PermissionUser> getUsers() {
+  public @NotNull Collection<PermissionUser> users() {
     Collection<PermissionUser> users = new ArrayList<>();
     // select all users from the database
     this.getUserDatabaseTable().iterate(($, data) -> {
@@ -230,7 +230,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   }
 
   @Override
-  public @NotNull Collection<PermissionUser> getUsersByGroup(@NotNull String group) {
+  public @NotNull Collection<PermissionUser> usersByGroup(@NotNull String group) {
     Collection<PermissionUser> users = new ArrayList<>();
     // select all users from the database
     this.getUserDatabaseTable().iterate(($, data) -> {
@@ -286,17 +286,17 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   }
 
   @Override
-  public @Nullable PermissionGroup getGroup(@NotNull String name) {
+  public @Nullable PermissionGroup group(@NotNull String name) {
     return this.groups.get(name);
   }
 
   @Override
-  public @NotNull Collection<PermissionGroup> getGroups() {
+  public @NotNull Collection<PermissionGroup> groups() {
     return Collections.unmodifiableCollection(this.groups.values());
   }
 
   @Override
-  public void setGroups(@Nullable Collection<? extends PermissionGroup> groups) {
+  public void groups(@Nullable Collection<? extends PermissionGroup> groups) {
     // handle the setGroups
     this.setGroupsSilently(groups);
     // publish to the listeners
@@ -350,7 +350,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   }
 
   protected @NotNull LocalDatabase getUserDatabaseTable() {
-    return this.nodeInstance.getDatabaseProvider().getDatabase(USER_DB_NAME);
+    return this.nodeInstance.databaseProvider().database(USER_DB_NAME);
   }
 
   protected void saveGroups() {

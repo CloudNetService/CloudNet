@@ -28,6 +28,12 @@ public class DefaultRPCInvocationContextBuilder implements RPCInvocationContext.
   protected final DefaultRPCInvocationContext context = new DefaultRPCInvocationContext();
 
   @Override
+  public @NotNull RPCInvocationContext.Builder argumentCount(int argumentCount) {
+    context.argumentCount = argumentCount;
+    return this;
+  }
+
+  @Override
   public @NotNull RPCInvocationContext.Builder expectsMethodResult(boolean expectsResult) {
     this.context.expectsMethodResult = expectsResult;
     return this;

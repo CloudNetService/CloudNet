@@ -20,26 +20,26 @@ import de.dytanic.cloudnet.driver.event.events.DriverEvent;
 import de.dytanic.cloudnet.driver.module.IModuleProvider;
 import de.dytanic.cloudnet.driver.module.IModuleProviderHandler;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * The {@link ModuleEvent}s are being called for every action in the {@link IModuleProviderHandler}.
  */
 public abstract class ModuleEvent extends DriverEvent {
 
+  private final IModuleWrapper module;
   private final IModuleProvider moduleProvider;
 
-  private final IModuleWrapper module;
-
-  public ModuleEvent(IModuleProvider moduleProvider, IModuleWrapper module) {
+  public ModuleEvent(@NotNull IModuleProvider moduleProvider, @NotNull IModuleWrapper module) {
     this.moduleProvider = moduleProvider;
     this.module = module;
   }
 
-  public IModuleProvider getModuleProvider() {
+  public @NotNull IModuleProvider moduleProvider() {
     return this.moduleProvider;
   }
 
-  public IModuleWrapper getModule() {
+  public @NotNull IModuleWrapper module() {
     return this.module;
   }
 }

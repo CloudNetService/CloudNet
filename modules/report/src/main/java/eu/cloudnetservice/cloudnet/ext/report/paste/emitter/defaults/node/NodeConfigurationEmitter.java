@@ -27,7 +27,7 @@ public class NodeConfigurationEmitter implements ReportDataEmitter<NetworkCluste
   public void emitData(StringBuilder builder, NetworkClusterNodeInfoSnapshot context) {
     builder
       .append(" - Node Configuration ")
-      .append(context.getNode().getUniqueId())
+      .append(context.node().uniqueId())
       .append(" - \n");
     var configuration = CloudNet.getInstance().getConfig();
 

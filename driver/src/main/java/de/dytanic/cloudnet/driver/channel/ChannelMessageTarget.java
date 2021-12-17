@@ -79,15 +79,15 @@ public class ChannelMessageTarget {
     return new ChannelMessageTarget(type, name);
   }
 
-  public @NotNull Type getType() {
+  public @NotNull Type type() {
     return this.type;
   }
 
-  public @UnknownNullability String getName() {
+  public @UnknownNullability String name() {
     return this.name;
   }
 
-  public @UnknownNullability ServiceEnvironmentType getEnvironment() {
+  public @UnknownNullability ServiceEnvironmentType environment() {
     return this.environment;
   }
 

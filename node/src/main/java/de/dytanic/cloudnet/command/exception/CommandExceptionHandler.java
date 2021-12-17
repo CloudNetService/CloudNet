@@ -101,7 +101,7 @@ public class CommandExceptionHandler {
       return;
     }
 
-    var invalidSyntaxEvent = CloudNet.getInstance().getEventManager().callEvent(
+    var invalidSyntaxEvent = CloudNet.getInstance().eventManager().callEvent(
       new CommandInvalidSyntaxEvent(
         source,
         exception.getCorrectSyntax(),
@@ -113,7 +113,7 @@ public class CommandExceptionHandler {
   }
 
   protected void handleNoSuchCommandException(CommandSource source, NoSuchCommandException exception) {
-    var notFoundEvent = CloudNet.getInstance().getEventManager().callEvent(
+    var notFoundEvent = CloudNet.getInstance().eventManager().callEvent(
       new CommandNotFoundEvent(
         source,
         exception.getSuppliedCommand(),
@@ -164,7 +164,7 @@ public class CommandExceptionHandler {
       // rebuild the input of the user
       var commandChain = currentChain.stream().map(CommandArgument::getName).collect(Collectors.joining(" "));
       // check if we can find any chain specific usages
-      for (var usage : commandInfo.getUsage()) {
+      for (var usage : commandInfo.usage()) {
         if (usage.startsWith(commandChain)) {
           results.add("- " + usage);
         }
@@ -189,7 +189,7 @@ public class CommandExceptionHandler {
    * @param commandInfo the command to print the usage for
    */
   protected void printDefaultUsage(@NotNull CommandSource source, @NotNull CommandInfo commandInfo) {
-    for (var usage : commandInfo.getUsage()) {
+    for (var usage : commandInfo.usage()) {
       source.sendMessage("- " + usage);
     }
   }

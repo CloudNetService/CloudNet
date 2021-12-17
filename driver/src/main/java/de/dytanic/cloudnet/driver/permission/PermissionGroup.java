@@ -72,64 +72,64 @@ public class PermissionGroup extends AbstractPermissible {
     this.groups = groups;
   }
 
-  public @NotNull Collection<String> getGroups() {
+  public @NotNull Collection<String> groups() {
     return this.groups;
   }
 
-  public void setGroups(@NotNull Collection<String> groups) {
+  public void groups(@NotNull Collection<String> groups) {
     this.groups = groups;
   }
 
-  public @NotNull String getPrefix() {
+  public @NotNull String prefix() {
     return this.prefix;
   }
 
-  public void setPrefix(@NotNull String prefix) {
+  public void prefix(@NotNull String prefix) {
     this.prefix = prefix;
   }
 
-  public @NotNull String getColor() {
+  public @NotNull String color() {
     return this.color;
   }
 
-  public void setColor(@NotNull String color) {
+  public void color(@NotNull String color) {
     this.color = color;
   }
 
-  public @NotNull String getSuffix() {
+  public @NotNull String suffix() {
     return this.suffix;
   }
 
-  public void setSuffix(@NotNull String suffix) {
+  public void suffix(@NotNull String suffix) {
     this.suffix = suffix;
   }
 
-  public @NotNull String getDisplay() {
+  public @NotNull String display() {
     return this.display;
   }
 
-  public void setDisplay(@NotNull String display) {
+  public void display(@NotNull String display) {
     this.display = display;
   }
 
-  public int getSortId() {
+  public int sortId() {
     return this.sortId;
   }
 
-  public void setSortId(int sortId) {
+  public void sortId(int sortId) {
     this.sortId = sortId;
   }
 
-  public boolean isDefaultGroup() {
+  public boolean defaultGroup() {
     return this.defaultGroup;
   }
 
-  public void setDefaultGroup(boolean defaultGroup) {
+  public void defaultGroup(boolean defaultGroup) {
     this.defaultGroup = defaultGroup;
   }
 
   @Override
-  public @NotNull Collection<String> getGroupNames() {
-    return this.getGroups();
+  public @NotNull Collection<String> groupNames() {
+    return this.groups();
   }
 }

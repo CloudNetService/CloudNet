@@ -211,7 +211,7 @@ public class DefaultCommandProvider implements CommandProvider {
     var lowerCaseInput = name.toLowerCase();
     return this.registeredCommands.values().stream()
       .filter(commandInfo ->
-        commandInfo.getAliases().contains(lowerCaseInput) || commandInfo.name().equals(lowerCaseInput))
+        commandInfo.aliases().contains(lowerCaseInput) || commandInfo.name().equals(lowerCaseInput))
       .findFirst()
       .orElse(null);
   }

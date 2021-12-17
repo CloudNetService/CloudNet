@@ -114,12 +114,12 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
       animation.hasResult("nodeId") ? animation.getResult("nodeId") : "Node-1",
       new HostAndPort[]{host}));
     // whitelist the host address
-    config.getIpWhitelist().add(host.getHost());
+    config.getIpWhitelist().add(host.host());
 
     // init the host address
     HostAndPort hostAddress = animation.getResult("hostAddress");
-    config.setHostAddress(hostAddress.getHost());
-    config.setConnectHostAddress(hostAddress.getHost());
+    config.setHostAddress(hostAddress.host());
+    config.setConnectHostAddress(hostAddress.host());
 
     // init the web host address
     config.getHttpListeners().clear();

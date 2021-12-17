@@ -40,14 +40,14 @@ final class PermissionGroupSubject extends AbstractSubject<PermissionGroup> {
 
   @Override
   protected boolean isChild(@NotNull String parent) {
-    var other = this.permissionManagement.getGroup(parent);
-    return other != null && other.getGroupNames().stream().anyMatch(parent::equals);
+    var other = this.permissionManagement.group(parent);
+    return other != null && other.groupNames().stream().anyMatch(parent::equals);
   }
 
   @Override
   protected @NotNull List<? extends SubjectReference> getParents() {
-    return this.data.getGroups().stream()
-      .map(this.permissionManagement::getGroup)
+    return this.data.groups().stream()
+      .map(this.permissionManagement::group)
       .filter(Objects::nonNull)
       .map(group -> this.source.newSubjectReference(group.name()))
       .collect(Collectors.toList());

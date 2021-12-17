@@ -53,20 +53,20 @@ public final class CommandModules {
     .defaultFormatter(ColumnFormatter.builder()
       .columnTitles("Name", "Version", "Author", "Lifecycle", "Description")
       .build())
-    .column(wrapper -> wrapper.getModule().getName())
-    .column(wrapper -> wrapper.getModule().getVersion())
-    .column(wrapper -> wrapper.getModuleConfiguration().getAuthor())
-    .column(IModuleWrapper::getModuleLifeCycle)
-    .column(wrapper -> wrapper.getModuleConfiguration().getDescription())
+    .column(wrapper -> wrapper.module().name())
+    .column(wrapper -> wrapper.module().version())
+    .column(wrapper -> wrapper.moduleConfiguration().author())
+    .column(IModuleWrapper::moduleLifeCycle)
+    .column(wrapper -> wrapper.moduleConfiguration().description())
     .build();
 
-  private final IModuleProvider provider = CloudNet.getInstance().getModuleProvider();
+  private final IModuleProvider provider = CloudNet.getInstance().moduleProvider();
 
   @Parser(name = "modulePath", suggestions = "modulePath")
   public Path modulePathParser(CommandContext<?> $, Queue<String> input) {
     var fileName = input.remove();
     // resolve the path to the module
-    var path = this.provider.getModuleDirectoryPath().resolve(fileName);
+    var path = this.provider.moduleDirectoryPath().resolve(fileName);
     // check if the file exists
     if (Files.notExists(path)) {
       throw new ArgumentNotAvailableException(
@@ -77,7 +77,7 @@ public final class CommandModules {
 
   @Suggestions("modulePath")
   public List<String> suggestModulePath(CommandContext<?> $, String input) {
-    var moduleDirectory = this.provider.getModuleDirectoryPath();
+    var moduleDirectory = this.provider.moduleDirectoryPath();
     try {
       return Files.walk(moduleDirectory, 1)
         .filter(path -> !moduleDirectory.equals(path))
@@ -93,7 +93,7 @@ public final class CommandModules {
   @Parser(name = "existingModule", suggestions = "existingModule")
   public IModuleWrapper existingModuleParser(CommandContext<?> $, Queue<String> input) {
     var moduleName = input.remove();
-    var wrapper = this.provider.getModule(moduleName);
+    var wrapper = this.provider.module(moduleName);
     if (wrapper == null) {
       throw new ArgumentNotAvailableException(
         I18n.trans("command-modules-module-not-loaded").replace("%name%", moduleName));
@@ -103,17 +103,17 @@ public final class CommandModules {
 
   @Suggestions("existingModule")
   public List<String> suggestExistingModule(CommandContext<?> $, String input) {
-    return this.provider.getModules()
+    return this.provider.modules()
       .stream()
-      .map(module -> module.getModule().getName())
+      .map(module -> module.module().name())
       .collect(Collectors.toList());
   }
 
   @Parser(name = "toStartModule", suggestions = "toStartModule")
   public IModuleWrapper loadedModuleParser(CommandContext<?> $, Queue<String> input) {
     var moduleName = input.remove();
-    var wrapper = this.provider.getModule(moduleName);
-    if (wrapper == null || !wrapper.getModuleLifeCycle().canChangeTo(ModuleLifeCycle.STARTED)) {
+    var wrapper = this.provider.module(moduleName);
+    if (wrapper == null || !wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.STARTED)) {
       throw new ArgumentNotAvailableException(
         I18n.trans("command-modules-module-not-loaded").replace("%name%", moduleName));
     }
@@ -122,17 +122,17 @@ public final class CommandModules {
 
   @Suggestions("toStartModule")
   public List<String> suggestStartModule(CommandContext<?> $, String input) {
-    return this.provider.getModules().stream()
-      .filter(wrapper -> wrapper.getModuleLifeCycle().canChangeTo(ModuleLifeCycle.STARTED))
-      .map(wrapper -> wrapper.getModule().getName())
+    return this.provider.modules().stream()
+      .filter(wrapper -> wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.STARTED))
+      .map(wrapper -> wrapper.module().name())
       .collect(Collectors.toList());
   }
 
   @Parser(name = "toReloadModule", suggestions = "toReloadModule")
   public IModuleWrapper reloadedModuleParser(CommandContext<?> $, Queue<String> input) {
     var moduleName = input.remove();
-    var wrapper = this.provider.getModule(moduleName);
-    if (wrapper == null || !wrapper.getModuleLifeCycle().canChangeTo(ModuleLifeCycle.RELOADING)) {
+    var wrapper = this.provider.module(moduleName);
+    if (wrapper == null || !wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.RELOADING)) {
       throw new ArgumentNotAvailableException(
         I18n.trans("command-modules-module-not-started").replace("%name%", moduleName));
     }
@@ -141,17 +141,17 @@ public final class CommandModules {
 
   @Suggestions("toReloadModule")
   public List<String> suggestReloadModule(CommandContext<?> $, String input) {
-    return this.provider.getModules().stream()
-      .filter(wrapper -> wrapper.getModuleLifeCycle().canChangeTo(ModuleLifeCycle.RELOADING))
-      .map(wrapper -> wrapper.getModule().getName())
+    return this.provider.modules().stream()
+      .filter(wrapper -> wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.RELOADING))
+      .map(wrapper -> wrapper.module().name())
       .collect(Collectors.toList());
   }
 
   @Parser(name = "toStopModule", suggestions = "toStopModule")
   public IModuleWrapper stoppedModuleParser(CommandContext<?> $, Queue<String> input) {
     var moduleName = input.remove();
-    var wrapper = this.provider.getModule(moduleName);
-    if (wrapper == null || !wrapper.getModuleLifeCycle().canChangeTo(ModuleLifeCycle.STOPPED)) {
+    var wrapper = this.provider.module(moduleName);
+    if (wrapper == null || !wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.STOPPED)) {
       throw new ArgumentNotAvailableException(
         I18n.trans("command-modules-module-not-started").replace("%name%", moduleName));
     }
@@ -160,17 +160,17 @@ public final class CommandModules {
 
   @Suggestions("toStopModule")
   public List<String> suggestStopModule(CommandContext<?> $, String input) {
-    return this.provider.getModules().stream()
-      .filter(wrapper -> wrapper.getModuleLifeCycle().canChangeTo(ModuleLifeCycle.STOPPED))
-      .map(wrapper -> wrapper.getModule().getName())
+    return this.provider.modules().stream()
+      .filter(wrapper -> wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.STOPPED))
+      .map(wrapper -> wrapper.module().name())
       .collect(Collectors.toList());
   }
 
   @Parser(name = "toUnloadModule", suggestions = "toUnloadModule")
   public IModuleWrapper unloadedModuleParser(CommandContext<?> $, Queue<String> input) {
     var moduleName = input.remove();
-    var wrapper = this.provider.getModule(moduleName);
-    if (wrapper == null || !wrapper.getModuleLifeCycle().canChangeTo(ModuleLifeCycle.UNLOADED)) {
+    var wrapper = this.provider.module(moduleName);
+    if (wrapper == null || !wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.UNLOADED)) {
       throw new ArgumentNotAvailableException(
         I18n.trans("command-modules-module-not-stopped").replace("%name%", moduleName));
     }
@@ -179,9 +179,9 @@ public final class CommandModules {
 
   @Suggestions("toUnloadModule")
   public List<String> suggestUnloadModule(CommandContext<?> $, String input) {
-    return this.provider.getModules().stream()
-      .filter(wrapper -> wrapper.getModuleLifeCycle().canChangeTo(ModuleLifeCycle.UNLOADED))
-      .map(wrapper -> wrapper.getModule().getName())
+    return this.provider.modules().stream()
+      .filter(wrapper -> wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.UNLOADED))
+      .map(wrapper -> wrapper.module().name())
       .collect(Collectors.toList());
   }
 
@@ -192,15 +192,15 @@ public final class CommandModules {
   ) {
     this.printBasicModuleInfos(source, module);
     source.sendMessage(" - Dependencies: ");
-    for (var dependingModule : module.getDependingModules()) {
-      source.sendMessage("  - Name: " + dependingModule.getName());
-      source.sendMessage("  - Version: " + dependingModule.getVersion());
+    for (var dependingModule : module.dependingModules()) {
+      source.sendMessage("  - Name: " + dependingModule.name());
+      source.sendMessage("  - Version: " + dependingModule.version());
     }
   }
 
   @CommandMethod("modules|module list")
   public void listModules(CommandSource source) {
-    source.sendMessage(MODULES_FORMATTER.format(this.provider.getModules()));
+    source.sendMessage(MODULES_FORMATTER.format(this.provider.modules()));
   }
 
   @CommandMethod("modules|module load <module>")
@@ -253,9 +253,9 @@ public final class CommandModules {
   }
 
   private boolean canLoadModule(@NotNull Path path) {
-    return this.provider.getModules().stream().noneMatch(module -> {
+    return this.provider.modules().stream().noneMatch(module -> {
       try {
-        return module.getUrl().equals(path.toUri().toURL());
+        return module.url().equals(path.toUri().toURL());
       } catch (MalformedURLException e) {
         return false;
       }
@@ -263,10 +263,10 @@ public final class CommandModules {
   }
 
   private void printBasicModuleInfos(@NotNull CommandSource source, @NotNull IModuleWrapper module) {
-    source.sendMessage("Module: " + module.getModule().getName());
-    source.sendMessage(" - Lifecycle: " + module.getModuleLifeCycle());
-    source.sendMessage(" - Version: " + module.getModule().getVersion());
-    source.sendMessage(" - Author: " + module.getModuleConfiguration().getAuthor());
-    source.sendMessage(" - Description: " + module.getModuleConfiguration().getDescription());
+    source.sendMessage("Module: " + module.module().name());
+    source.sendMessage(" - Lifecycle: " + module.moduleLifeCycle());
+    source.sendMessage(" - Version: " + module.module().version());
+    source.sendMessage(" - Author: " + module.moduleConfiguration().author());
+    source.sendMessage(" - Description: " + module.moduleConfiguration().description());
   }
 }

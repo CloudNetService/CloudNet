@@ -38,18 +38,18 @@ final class ClusterNodeServerUtils {
   }
 
   public static void handleNodeServerClose(@NotNull INetworkChannel channel, @NotNull IClusterNodeServer server) {
-    for (var snapshot : CloudNet.getInstance().getCloudServiceProvider().getCloudServices()) {
-      if (snapshot.getServiceId().getNodeUniqueId().equalsIgnoreCase(server.getNodeInfo().getUniqueId())) {
+    for (var snapshot : CloudNet.getInstance().cloudServiceProvider().services()) {
+      if (snapshot.serviceId().nodeUniqueId().equalsIgnoreCase(server.getNodeInfo().uniqueId())) {
         // store the last lifecycle for the update event
-        var lifeCycle = snapshot.getLifeCycle();
+        var lifeCycle = snapshot.lifeCycle();
         // mark the service as deleted
-        snapshot.setLifeCycle(ServiceLifeCycle.DELETED);
+        snapshot.lifeCycle(ServiceLifeCycle.DELETED);
         // publish the update to the local service manager
-        CloudNet.getInstance().getCloudServiceProvider().handleServiceUpdate(snapshot, null);
+        CloudNet.getInstance().cloudServiceProvider().handleServiceUpdate(snapshot, null);
         // call the local change event
-        CloudNet.getInstance().getEventManager().callEvent(new CloudServiceLifecycleChangeEvent(lifeCycle, snapshot));
+        CloudNet.getInstance().eventManager().callEvent(new CloudServiceLifecycleChangeEvent(lifeCycle, snapshot));
         // send the change to all service - all other nodes will handle the close as well (if there are any)
-        if (!CloudNet.getInstance().getCloudServiceProvider().getLocalCloudServices().isEmpty()) {
+        if (!CloudNet.getInstance().cloudServiceProvider().getLocalCloudServices().isEmpty()) {
           targetLocalServices()
             .message("update_service_lifecycle")
             .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
@@ -61,15 +61,15 @@ final class ClusterNodeServerUtils {
     }
 
     LOGGER.info(I18n.trans("cluster-server-networking-disconnected")
-      .replace("%id%", server.getNodeInfo().getUniqueId())
-      .replace("%serverAddress%", channel.getServerAddress().toString())
-      .replace("%clientAddress%", channel.getClientAddress().toString()));
+      .replace("%id%", server.getNodeInfo().uniqueId())
+      .replace("%serverAddress%", channel.serverAddress().toString())
+      .replace("%clientAddress%", channel.clientAddress().toString()));
   }
 
   private static @NotNull ChannelMessage.Builder targetLocalServices() {
     var builder = ChannelMessage.builder();
     // iterate over all local services - if the service is connected append it as target
-    for (var service : CloudNet.getInstance().getCloudServiceProvider().getLocalCloudServices()) {
+    for (var service : CloudNet.getInstance().cloudServiceProvider().getLocalCloudServices()) {
       if (service.getNetworkChannel() != null) {
         builder.target(Type.SERVICE, service.getServiceId().name());
       }

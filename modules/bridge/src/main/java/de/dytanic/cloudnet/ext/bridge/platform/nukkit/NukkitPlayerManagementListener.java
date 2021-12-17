@@ -44,7 +44,7 @@ final class NukkitPlayerManagementListener implements Listener {
     // check if the current task is present
     if (task != null) {
       // check if maintenance is activated
-      if (task.isMaintenance() && !event.getPlayer().hasPermission("cloudnet.bridge.maintenance")) {
+      if (task.maintenance() && !event.getPlayer().hasPermission("cloudnet.bridge.maintenance")) {
         event.setCancelled(true);
         event.setKickMessage(this.management.getConfiguration().getMessage(
           event.getPlayer().getLocale(),
@@ -52,7 +52,7 @@ final class NukkitPlayerManagementListener implements Listener {
         return;
       }
       // check if a custom permission is required to join
-      var permission = task.getProperties().getString("requiredPermission");
+      var permission = task.properties().getString("requiredPermission");
       if (permission != null && !event.getPlayer().hasPermission(permission)) {
         event.setCancelled(true);
         event.setKickMessage(this.management.getConfiguration().getMessage(

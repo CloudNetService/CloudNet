@@ -59,19 +59,19 @@ public class NettyHttpServerTest extends NetworkTestCase {
     }, ($, $1) -> {
     });
 
-    Assertions.assertEquals(4, server.getHttpHandlers().size());
+    Assertions.assertEquals(4, server.httpHandlers().size());
 
     server.removeHandler(this.getClass().getClassLoader());
-    Assertions.assertEquals(0, server.getHttpHandlers().size());
+    Assertions.assertEquals(0, server.httpHandlers().size());
   }
 
   @Test
   @Order(10)
   void testDuplicateServerBind() throws Exception {
-    var port = this.getRandomFreePort();
+    var port = this.randomFreePort();
     IHttpServer server = new NettyHttpServer();
 
-    Assertions.assertFalse(server.isSslEnabled());
+    Assertions.assertFalse(server.sslEnabled());
     Assertions.assertTrue(server.addListener(port));
     Assertions.assertFalse(server.addListener(port));
 
@@ -81,7 +81,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
   @Test
   @Order(20)
   void testHttpRequestMethods() throws Exception {
-    var port = this.getRandomFreePort();
+    var port = this.randomFreePort();
     IHttpServer server = new NettyHttpServer();
 
     var handledTypes = new AtomicInteger();
@@ -92,7 +92,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
         context.response().statusCode(200).context().cancelNext(true).closeAfter();
       });
 
-    Assertions.assertEquals(1, server.getHttpHandlers().size());
+    Assertions.assertEquals(1, server.httpHandlers().size());
     Assertions.assertTrue(server.addListener(port));
 
     for (var supportedMethod : SUPPORTED_METHODS) {
@@ -108,7 +108,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
   @Test
   @Order(30)
   void testRequestPathParameters() throws Exception {
-    var port = this.getRandomFreePort();
+    var port = this.randomFreePort();
     IHttpServer server = new NettyHttpServer();
 
     server.registerHandler(
@@ -118,7 +118,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
         context.response().statusCode(200).context().cancelNext(true).closeAfter();
       });
 
-    Assertions.assertEquals(1, server.getHttpHandlers().size());
+    Assertions.assertEquals(1, server.httpHandlers().size());
     Assertions.assertTrue(server.addListener(port));
 
     Assertions.assertEquals(200, this.connectTo(port, "test/1234").getResponseCode());
@@ -128,7 +128,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
   @Test
   @Order(40)
   void testRequestQueryParameters() throws Exception {
-    var port = this.getRandomFreePort();
+    var port = this.randomFreePort();
     IHttpServer server = new NettyHttpServer();
 
     server.registerHandler(
@@ -139,7 +139,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
         context.response().statusCode(200).context().cancelNext(true).closeAfter();
       });
 
-    Assertions.assertEquals(1, server.getHttpHandlers().size());
+    Assertions.assertEquals(1, server.httpHandlers().size());
     Assertions.assertTrue(server.addListener(port));
 
     Assertions.assertEquals(200, this.connectTo(port, "test?id=1234&array=1&array=2").getResponseCode());
@@ -149,7 +149,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
   @Test
   @Order(50)
   void testHandlerPriority() throws Exception {
-    var port = this.getRandomFreePort();
+    var port = this.randomFreePort();
     IHttpServer server = new NettyHttpServer();
 
     server.registerHandler(
@@ -167,7 +167,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
       ($, context) -> context.response().statusCode(201).context().closeAfter()
     );
 
-    Assertions.assertEquals(2, server.getHttpHandlers().size());
+    Assertions.assertEquals(2, server.httpHandlers().size());
     Assertions.assertTrue(server.addListener(port));
 
     Assertions.assertEquals(200, this.connectTo(port, "test1?cancelNext=true").getResponseCode());
@@ -177,7 +177,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
   @Test
   @Order(60)
   void testRequestResponseHeadersBody() throws Exception {
-    var port = this.getRandomFreePort();
+    var port = this.randomFreePort();
     IHttpServer server = new NettyHttpServer();
 
     server.registerHandler(
@@ -198,7 +198,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
       }
     );
 
-    Assertions.assertEquals(1, server.getHttpHandlers().size());
+    Assertions.assertEquals(1, server.httpHandlers().size());
     Assertions.assertTrue(server.addListener(port));
 
     var connection = this.connectTo(port, "test", urlConnection -> {
@@ -221,7 +221,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
   @Test
   @Order(70)
   void testRequestResponseCookies() throws Exception {
-    var port = this.getRandomFreePort();
+    var port = this.randomFreePort();
     IHttpServer server = new NettyHttpServer();
 
     server.registerHandler(
@@ -230,8 +230,8 @@ public class NettyHttpServerTest extends NetworkTestCase {
         var cookie = context.cookie("request_cookie");
         Assertions.assertNotNull(cookie);
 
-        Assertions.assertEquals("request_cookie", cookie.getName());
-        Assertions.assertEquals("request_value", cookie.getValue());
+        Assertions.assertEquals("request_cookie", cookie.name());
+        Assertions.assertEquals("request_value", cookie.value());
 
         context
           .response()
@@ -252,7 +252,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
       }
     );
 
-    Assertions.assertEquals(1, server.getHttpHandlers().size());
+    Assertions.assertEquals(1, server.httpHandlers().size());
     Assertions.assertTrue(server.addListener(port));
 
     var connection = this.connectTo(port, "test", urlConnection -> {
@@ -278,8 +278,8 @@ public class NettyHttpServerTest extends NetworkTestCase {
   @Test
   @Order(80)
   void testHandlersForDifferentPorts() throws Exception {
-    var port = this.getRandomFreePort();
-    var secondPort = this.getRandomFreePort(port);
+    var port = this.randomFreePort();
+    var secondPort = this.randomFreePort(port);
     IHttpServer server = new NettyHttpServer();
 
     // global handler
@@ -301,7 +301,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
       ($, context) -> context.response().statusCode(200).context().cancelNext(true).closeAfter()
     );
 
-    Assertions.assertEquals(3, server.getHttpHandlers().size());
+    Assertions.assertEquals(3, server.httpHandlers().size());
     Assertions.assertTrue(server.addListener(port));
     Assertions.assertTrue(server.addListener(secondPort));
 
@@ -319,7 +319,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
   @Order(90)
   @Timeout(20)
   void testWebSocketHandling() throws Exception {
-    var port = this.getRandomFreePort();
+    var port = this.randomFreePort();
     IHttpServer server = new NettyHttpServer();
 
     server.registerHandler(
@@ -360,7 +360,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
     String path,
     ThrowableConsumer<HttpURLConnection, Exception> modifier
   ) throws Exception {
-    var connection = (HttpURLConnection) this.getHttpUrl(port, path).openConnection();
+    var connection = (HttpURLConnection) this.httpUrl(port, path).openConnection();
     connection.setReadTimeout(5000);
     connection.setConnectTimeout(5000);
 
@@ -368,7 +368,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
     return connection;
   }
 
-  private URL getHttpUrl(int port, String path) throws Exception {
+  private URL httpUrl(int port, String path) throws Exception {
     return new URL(String.format("http://127.0.0.1:%d/%s", port, path == null ? "" : path));
   }
 }

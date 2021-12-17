@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 import java.util.stream.Collectors;
+import org.jetbrains.annotations.NotNull;
 
 public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
 
@@ -90,9 +91,9 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
       .append("version", CloudNet.class.getPackage().getImplementationVersion())
       .append("nodeInfoSnapshot", nodeServer.getNodeInfoSnapshot())
       .append("lastNodeInfoSnapshot", nodeServer.getLastNodeInfoSnapshot())
-      .append("serviceCount", this.getCloudNet().getCloudServiceProvider().getServicesCount())
-      .append("clientConnections", super.getCloudNet().getNetworkClient().getChannels().stream()
-        .map(INetworkChannel::getServerAddress)
+      .append("serviceCount", this.getCloudNet().cloudServiceProvider().serviceCount())
+      .append("clientConnections", super.getCloudNet().networkClient().channels().stream()
+        .map(INetworkChannel::serverAddress)
         .collect(Collectors.toList()));
     this.ok(context).body(information.toString()).context().closeAfter(true).cancelNext();
   }
@@ -135,9 +136,9 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
         break;
       case "config":
         this.getCloudNet().getConfig().load();
-        this.getCloudNet().getServiceTaskProvider().reload();
-        this.getCloudNet().getGroupConfigurationProvider().reload();
-        this.getCloudNet().getPermissionManagement().reload();
+        this.getCloudNet().serviceTaskProvider().reload();
+        this.getCloudNet().groupConfigurationProvider().reload();
+        this.getCloudNet().permissionManagement().reload();
         break;
       default:
         this.badRequest(context)
@@ -173,13 +174,13 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
     }
 
     @Override
-    public void handle(IWebSocketChannel channel, WebSocketFrameType type, byte[] bytes) throws Exception {
+    public void handle(@NotNull IWebSocketChannel channel, @NotNull WebSocketFrameType type, byte[] bytes) throws Exception {
       var user = this.httpSession.getUser();
       if (type == WebSocketFrameType.TEXT && user != null) {
         var commandLine = new String(bytes, StandardCharsets.UTF_8);
 
         var commandSource = new PermissionUserCommandSource(user,
-          V2HttpHandlerNode.this.getCloudNet().getPermissionManagement());
+          V2HttpHandlerNode.this.getCloudNet().permissionManagement());
         V2HttpHandlerNode.this.getCloudNet().getCommandProvider().execute(commandSource, commandLine).join();
 
         for (var message : commandSource.getMessages()) {
@@ -189,7 +190,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
     }
 
     @Override
-    public void handleClose(IWebSocketChannel channel, AtomicInteger statusCode, AtomicReference<String> reasonText) {
+    public void handleClose(@NotNull IWebSocketChannel channel, @NotNull AtomicInteger statusCode, @NotNull AtomicReference<String> reasonText) {
       LogManager.getRootLogger().removeHandler(this);
     }
 

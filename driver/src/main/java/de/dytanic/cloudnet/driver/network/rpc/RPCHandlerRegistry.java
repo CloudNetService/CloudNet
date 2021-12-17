@@ -24,15 +24,15 @@ import org.jetbrains.annotations.UnmodifiableView;
 public interface RPCHandlerRegistry {
 
   @NotNull
-  @UnmodifiableView Map<String, RPCHandler> getRegisteredHandlers();
+  @UnmodifiableView Map<String, RPCHandler> registeredHandlers();
 
   boolean hasHandler(@NotNull Class<?> targetClass);
 
   boolean hasHandler(@NotNull String targetClassName);
 
-  @Nullable RPCHandler getHandler(@NotNull Class<?> targetClass);
+  @Nullable RPCHandler handler(@NotNull Class<?> targetClass);
 
-  @Nullable RPCHandler getHandler(@NotNull String targetClassName);
+  @Nullable RPCHandler handler(@NotNull String targetClassName);
 
   boolean registerHandler(@NotNull RPCHandler rpcHandler);
 

@@ -53,9 +53,9 @@ public final class VelocitySyncProxyPlugin {
   public void handleProxyInit(@NotNull ProxyInitializeEvent event) {
     this.management = new VelocitySyncProxyManagement(this.proxyServer, this);
     // register the SyncProxyManagement in our service registry
-    this.management.registerService(Wrapper.getInstance().getServicesRegistry());
+    this.management.registerService(Wrapper.getInstance().servicesRegistry());
     // register the event listener to handle service updates
-    Wrapper.getInstance().getEventManager().registerListener(new SyncProxyCloudListener<>(this.management));
+    Wrapper.getInstance().eventManager().registerListener(new SyncProxyCloudListener<>(this.management));
     // register the velocity ping & join listener
     this.proxyServer.getEventManager().register(this, new VelocitySyncProxyListener(this.management));
   }
@@ -63,10 +63,10 @@ public final class VelocitySyncProxyPlugin {
   @Subscribe
   public void handleProxyShutdown(@NotNull ProxyShutdownEvent event) {
     // unregister all listeners for cloudnet events
-    Wrapper.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
+    Wrapper.getInstance().eventManager().unregisterListeners(this.getClass().getClassLoader());
     Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
     // remove the service from the registry
-    this.management.unregisterService(Wrapper.getInstance().getServicesRegistry());
+    this.management.unregisterService(Wrapper.getInstance().servicesRegistry());
   }
 
 }

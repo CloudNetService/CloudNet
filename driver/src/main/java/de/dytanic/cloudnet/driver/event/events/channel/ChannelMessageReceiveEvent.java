@@ -30,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * This event is being called whenever a channel message is received. You can send channel messages with the methods in
- * {@link CloudNetDriver#getMessenger()}.
+ * {@link CloudNetDriver#messenger()}.
  */
 public final class ChannelMessageReceiveEvent extends NetworkEvent {
 
@@ -50,50 +50,43 @@ public final class ChannelMessageReceiveEvent extends NetworkEvent {
     this.query = query;
   }
 
-  @NotNull
-  public ChannelMessageSender getSender() {
+  public @NotNull ChannelMessageSender sender() {
     return this.channelMessage.sender();
   }
 
-  @NotNull
-  public Collection<ChannelMessageTarget> getTargets() {
+  public @NotNull Collection<ChannelMessageTarget> targets() {
     return this.channelMessage.targets();
   }
 
-  @NotNull
-  public String getChannel() {
+  public @NotNull String channel() {
     return this.channelMessage.channel();
   }
 
-  @NotNull
-  public String getMessage() {
+  public @NotNull String message() {
     return this.channelMessage.message();
   }
 
-  @NotNull
-  public ChannelMessage getChannelMessage() {
+  public @NotNull ChannelMessage channelMessage() {
     return this.channelMessage;
   }
 
-  @NotNull
-  public DataBuf getContent() {
+  public @NotNull DataBuf content() {
     return this.channelMessage.content();
   }
 
-  public boolean isQuery() {
+  public boolean query() {
     return this.query;
   }
 
-  public void setBinaryResponse(@NotNull DataBuf dataBuf) {
-    this.setQueryResponse(ChannelMessage.buildResponseFor(this.channelMessage).buffer(dataBuf).build());
+  public void binaryResponse(@NotNull DataBuf dataBuf) {
+    this.queryResponse(ChannelMessage.buildResponseFor(this.channelMessage).buffer(dataBuf).build());
   }
 
-  @Nullable
-  public ChannelMessage getQueryResponse() {
+  public @Nullable ChannelMessage queryResponse() {
     return this.queryResponse;
   }
 
-  public void setQueryResponse(@Nullable ChannelMessage queryResponse) {
+  public void queryResponse(@Nullable ChannelMessage queryResponse) {
     Preconditions.checkArgument(this.query, "Cannot set query response of no query");
     this.queryResponse = queryResponse;
   }

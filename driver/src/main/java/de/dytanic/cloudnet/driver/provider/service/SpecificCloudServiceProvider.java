@@ -42,18 +42,18 @@ public interface SpecificCloudServiceProvider {
    * @throws IllegalArgumentException if no uniqueId/name/serviceInfo was given when creating this provider
    */
   @Nullable
-  ServiceInfoSnapshot getServiceInfoSnapshot();
+  ServiceInfoSnapshot serviceInfo();
 
   /**
    * Checks whether the service info on this provider is available or not.
    *
    * @return {@code true} if it is or {@code false} if not
    */
-  boolean isValid();
+  boolean valid();
 
   /**
-   * Forces this service to update its {@link ServiceInfoSnapshot}, instead of {@link #getServiceInfoSnapshot()}, this
-   * method always returns the current snapshot with the current e.g. CPU and memory usage.
+   * Forces this service to update its {@link ServiceInfoSnapshot}, instead of {@link #serviceInfo()}, this method
+   * always returns the current snapshot with the current e.g. CPU and memory usage.
    *
    * @return the current info or {@code null} if the service is not connected
    * @throws IllegalArgumentException if no uniqueId/name/serviceInfo was given on creating this provider
@@ -91,7 +91,7 @@ public interface SpecificCloudServiceProvider {
    *
    * @return a queue with the cached messages of this services console
    */
-  Queue<String> getCachedLogMessages();
+  Queue<String> cachedLogMessages();
 
   boolean toggleScreenEvents(@NotNull ChannelMessageSender channelMessageSender, @NotNull String channel);
 
@@ -99,21 +99,21 @@ public interface SpecificCloudServiceProvider {
    * Stops this service by executing the "stop" and "end" commands in its console if it is running.
    */
   default void stop() {
-    this.setCloudServiceLifeCycle(ServiceLifeCycle.STOPPED);
+    this.updateLifecycle(ServiceLifeCycle.STOPPED);
   }
 
   /**
    * Starts this service if it is prepared or stopped.
    */
   default void start() {
-    this.setCloudServiceLifeCycle(ServiceLifeCycle.RUNNING);
+    this.updateLifecycle(ServiceLifeCycle.RUNNING);
   }
 
   /**
    * Deletes this service if it is not deleted yet.
    */
   default void delete() {
-    this.setCloudServiceLifeCycle(ServiceLifeCycle.DELETED);
+    this.updateLifecycle(ServiceLifeCycle.DELETED);
   }
 
   /**
@@ -121,7 +121,7 @@ public interface SpecificCloudServiceProvider {
    *
    * @param lifeCycle the lifeCycle to be set
    */
-  void setCloudServiceLifeCycle(@NotNull ServiceLifeCycle lifeCycle);
+  void updateLifecycle(@NotNull ServiceLifeCycle lifeCycle);
 
   /**
    * Stops this service like {@link #stop()} and starts it after it like {@link #start()}.
@@ -176,8 +176,8 @@ public interface SpecificCloudServiceProvider {
    * @return the info or {@code null}, if the service doesn't exist
    * @throws IllegalArgumentException if no uniqueId/name/serviceInfo was given on creating this provider
    */
-  default @NotNull ITask<ServiceInfoSnapshot> getServiceInfoSnapshotAsync() {
-    return CompletableTask.supply(this::getServiceInfoSnapshot);
+  default @NotNull ITask<ServiceInfoSnapshot> serviceInfoAsync() {
+    return CompletableTask.supply(this::serviceInfo);
   }
 
   /**
@@ -185,13 +185,13 @@ public interface SpecificCloudServiceProvider {
    *
    * @return {@code true} if it is or {@code false} if not
    */
-  default @NotNull ITask<Boolean> isValidAsync() {
-    return CompletableTask.supply(this::isValid);
+  default @NotNull ITask<Boolean> validAsync() {
+    return CompletableTask.supply(this::valid);
   }
 
   /**
-   * Forces this service to update its {@link ServiceInfoSnapshot}, instead of {@link #getServiceInfoSnapshot()}, this
-   * method always returns the current snapshot with the current e.g. CPU and memory usage.
+   * Forces this service to update its {@link ServiceInfoSnapshot}, instead of {@link #serviceInfo()}, this method
+   * always returns the current snapshot with the current e.g. CPU and memory usage.
    *
    * @return the current info or {@code null} if the service is not connected
    * @throws IllegalArgumentException if no uniqueId/name/serviceInfo was given on creating this provider
@@ -236,8 +236,8 @@ public interface SpecificCloudServiceProvider {
    *
    * @return a queue with the cached messages of this services console
    */
-  default @NotNull ITask<Queue<String>> getCachedLogMessagesAsync() {
-    return CompletableTask.supply(this::getCachedLogMessages);
+  default @NotNull ITask<Queue<String>> cachedLogMessagesAsync() {
+    return CompletableTask.supply(this::cachedLogMessages);
   }
 
   /**
@@ -245,7 +245,7 @@ public interface SpecificCloudServiceProvider {
    */
   @NotNull
   default ITask<Void> stopAsync() {
-    return this.setCloudServiceLifeCycleAsync(ServiceLifeCycle.STOPPED);
+    return this.updateLifecycleAsync(ServiceLifeCycle.STOPPED);
   }
 
   /**
@@ -253,7 +253,7 @@ public interface SpecificCloudServiceProvider {
    */
   @NotNull
   default ITask<Void> startAsync() {
-    return this.setCloudServiceLifeCycleAsync(ServiceLifeCycle.RUNNING);
+    return this.updateLifecycleAsync(ServiceLifeCycle.RUNNING);
   }
 
   /**
@@ -261,7 +261,7 @@ public interface SpecificCloudServiceProvider {
    */
   @NotNull
   default ITask<Void> deleteAsync() {
-    return this.setCloudServiceLifeCycleAsync(ServiceLifeCycle.DELETED);
+    return this.updateLifecycleAsync(ServiceLifeCycle.DELETED);
   }
 
   /**
@@ -269,8 +269,8 @@ public interface SpecificCloudServiceProvider {
    *
    * @param lifeCycle the lifeCycle to be set
    */
-  default @NotNull ITask<Void> setCloudServiceLifeCycleAsync(@NotNull ServiceLifeCycle lifeCycle) {
-    return CompletableTask.supply(() -> this.setCloudServiceLifeCycle(lifeCycle));
+  default @NotNull ITask<Void> updateLifecycleAsync(@NotNull ServiceLifeCycle lifeCycle) {
+    return CompletableTask.supply(() -> this.updateLifecycle(lifeCycle));
   }
 
   /**

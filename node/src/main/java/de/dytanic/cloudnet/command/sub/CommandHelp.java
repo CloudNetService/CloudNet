@@ -40,8 +40,8 @@ public final class CommandHelp {
   private static final RowBasedFormatter<CommandInfo> HELP_LIST_FORMATTER = RowBasedFormatter.<CommandInfo>builder()
     .defaultFormatter(ColumnFormatter.builder().columnTitles("Name(s)", "Description", "Permission").build())
     .column(info -> info.joinNameToAliases(", "))
-    .column(CommandInfo::getDescription)
-    .column(CommandInfo::getPermission)
+    .column(CommandInfo::description)
+    .column(CommandInfo::permission)
     .build();
 
   private final CommandProvider commandProvider;
@@ -71,9 +71,9 @@ public final class CommandHelp {
     source.sendMessage(" ");
 
     source.sendMessage("Names: " + command.joinNameToAliases(", "));
-    source.sendMessage("Description: " + command.getDescription());
+    source.sendMessage("Description: " + command.description());
     source.sendMessage("Usage: ");
-    for (var usage : command.getUsage()) {
+    for (var usage : command.usage()) {
       source.sendMessage(" - " + usage);
     }
   }

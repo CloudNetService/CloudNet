@@ -47,11 +47,11 @@ public class DefaultPacketListenerRegistryTest {
     Assertions.assertTrue(registry.hasListeners(123));
     Assertions.assertTrue(registry.hasListeners(456));
 
-    Assertions.assertEquals(2, registry.getPacketListeners().get(123).size());
-    Assertions.assertEquals(1, registry.getPacketListeners().get(456).size());
+    Assertions.assertEquals(2, registry.packetListeners().get(123).size());
+    Assertions.assertEquals(1, registry.packetListeners().get(456).size());
 
-    Assertions.assertEquals(3, registry.getListeners().size());
-    Assertions.assertEquals(2, registry.getChannels().size());
+    Assertions.assertEquals(3, registry.listeners().size());
+    Assertions.assertEquals(2, registry.channels().size());
   }
 
   @Test
@@ -63,13 +63,13 @@ public class DefaultPacketListenerRegistryTest {
     var secondListener = Mockito.mock(IPacketListener.class);
 
     registry.addListener(123, firstListener, secondListener);
-    Assertions.assertEquals(2, registry.getPacketListeners().get(123).size());
+    Assertions.assertEquals(2, registry.packetListeners().get(123).size());
 
     registry.removeListener(123, firstListener);
-    Assertions.assertEquals(1, registry.getPacketListeners().get(123).size());
+    Assertions.assertEquals(1, registry.packetListeners().get(123).size());
 
     registry.removeListener(123, secondListener);
-    Assertions.assertNull(registry.getPacketListeners().get(123));
+    Assertions.assertNull(registry.packetListeners().get(123));
 
     Assertions.assertFalse(registry.hasListeners(123));
   }
@@ -83,10 +83,10 @@ public class DefaultPacketListenerRegistryTest {
     var secondListener = Mockito.mock(IPacketListener.class);
 
     registry.addListener(123, firstListener, secondListener);
-    Assertions.assertEquals(2, registry.getPacketListeners().get(123).size());
+    Assertions.assertEquals(2, registry.packetListeners().get(123).size());
 
     registry.removeListeners(123);
-    Assertions.assertNull(registry.getPacketListeners().get(123));
+    Assertions.assertNull(registry.packetListeners().get(123));
   }
 
   @Test
@@ -98,10 +98,10 @@ public class DefaultPacketListenerRegistryTest {
     var secondListener = Mockito.mock(IPacketListener.class);
 
     registry.addListener(123, firstListener, secondListener);
-    Assertions.assertEquals(2, registry.getPacketListeners().get(123).size());
+    Assertions.assertEquals(2, registry.packetListeners().get(123).size());
 
     registry.removeListeners(firstListener.getClass().getClassLoader());
-    Assertions.assertNull(registry.getPacketListeners().get(123));
+    Assertions.assertNull(registry.packetListeners().get(123));
   }
 
   @Test
@@ -113,10 +113,10 @@ public class DefaultPacketListenerRegistryTest {
     var secondListener = Mockito.mock(IPacketListener.class);
 
     registry.addListener(123, firstListener, secondListener);
-    Assertions.assertEquals(2, registry.getPacketListeners().get(123).size());
+    Assertions.assertEquals(2, registry.packetListeners().get(123).size());
 
     registry.removeListeners();
-    Assertions.assertNull(registry.getPacketListeners().get(123));
+    Assertions.assertNull(registry.packetListeners().get(123));
   }
 
   @Test
@@ -162,7 +162,7 @@ public class DefaultPacketListenerRegistryTest {
 
   private IPacket mockPacketForChannel(int channel) {
     var packet = Mockito.mock(IPacket.class);
-    Mockito.when(packet.getChannel()).thenReturn(channel);
+    Mockito.when(packet.channel()).thenReturn(channel);
 
     return packet;
   }

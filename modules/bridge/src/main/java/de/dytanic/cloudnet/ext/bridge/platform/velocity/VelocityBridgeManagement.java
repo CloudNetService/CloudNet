@@ -64,11 +64,11 @@ final class VelocityBridgeManagement extends PlatformBridgeManagement<Player, Ne
     BridgeServiceHelper.MAX_PLAYERS.set(proxyServer.getConfiguration().getShowMaxPlayers());
     // init the default cache listeners
     this.cacheTester = CONNECTED_SERVICE_TESTER
-      .and(service -> ServiceEnvironmentType.JAVA_SERVER.get(service.getServiceId().getEnvironment().getProperties()));
+      .and(service -> ServiceEnvironmentType.JAVA_SERVER.get(service.serviceId().environment().properties()));
     // register each service matching the service cache tester
     this.cacheRegisterListener = service -> proxyServer.registerServer(new ServerInfo(
       service.name(),
-      new InetSocketAddress(service.getConnectAddress().getHost(), service.getConnectAddress().getPort())));
+      new InetSocketAddress(service.connectAddress().host(), service.connectAddress().port())));
     // unregister each service matching the service cache tester
     this.cacheUnregisterListener = service -> proxyServer.getServer(service.name())
       .map(RegisteredServer::getServerInfo)
@@ -153,10 +153,10 @@ final class VelocityBridgeManagement extends PlatformBridgeManagement<Player, Ne
   public void appendServiceInformation(@NotNull ServiceInfoSnapshot snapshot) {
     super.appendServiceInformation(snapshot);
     // append the velocity specific information
-    snapshot.getProperties().append("Online-Count", this.proxyServer.getPlayerCount());
-    snapshot.getProperties().append("Version", this.proxyServer.getVersion().getVersion());
+    snapshot.properties().append("Online-Count", this.proxyServer.getPlayerCount());
+    snapshot.properties().append("Version", this.proxyServer.getVersion().getVersion());
     // players
-    snapshot.getProperties().append("Players", this.proxyServer.getAllPlayers().stream()
+    snapshot.properties().append("Players", this.proxyServer.getAllPlayers().stream()
       .map(this::createPlayerInformation)
       .collect(Collectors.toList()));
   }

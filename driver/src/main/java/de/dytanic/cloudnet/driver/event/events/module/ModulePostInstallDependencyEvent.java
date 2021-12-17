@@ -47,7 +47,7 @@ public final class ModulePostInstallDependencyEvent extends UnloadedModuleEvent 
    *
    * @return the dependency which got loaded for the module.
    */
-  public @NotNull ModuleDependency getModuleDependency() {
+  public @NotNull ModuleDependency moduleDependency() {
     return this.moduleDependency;
   }
 }

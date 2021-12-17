@@ -46,8 +46,8 @@ public class CloudNetNPCModule extends DriverModule {
 
   @ModuleTask(order = Byte.MAX_VALUE)
   public void convertConfiguration() {
-    if (Files.exists(this.getConfigPath())) {
-      var old = JsonDocument.newDocument(this.getConfigPath()).get("config", NPCConfiguration.class);
+    if (Files.exists(this.configPath())) {
+      var old = JsonDocument.newDocument(this.configPath()).get("config", NPCConfiguration.class);
       if (old != null) {
         var newEntries = old.getConfigurations().stream()
           .map(entry -> eu.cloudnetservice.modules.npc.configuration.NPCConfigurationEntry.builder()
@@ -83,12 +83,12 @@ public class CloudNetNPCModule extends DriverModule {
           .newDocument(eu.cloudnetservice.modules.npc.configuration.NPCConfiguration.builder()
             .entries(newEntries)
             .build())
-          .write(this.getConfigPath());
+          .write(this.configPath());
       }
     }
 
     // convert the old database
-    Database db = CloudNet.getInstance().getDatabaseProvider().getDatabase("cloudNet_module_configuration");
+    Database db = CloudNet.getInstance().databaseProvider().database("cloudNet_module_configuration");
     var npcStore = db.get("npc_store");
     if (npcStore != null) {
       Collection<CloudNPC> theOldOnes = npcStore.get("npcs", NPCConstants.NPC_COLLECTION_TYPE);
@@ -96,7 +96,7 @@ public class CloudNetNPCModule extends DriverModule {
       db.delete("npc_store");
       if (theOldOnes != null) {
         // get the new database
-        Database target = CloudNet.getInstance().getDatabaseProvider().getDatabase(DATABASE_NAME);
+        Database target = CloudNet.getInstance().databaseProvider().database(DATABASE_NAME);
         // convert the old entries
         theOldOnes.stream()
           .map(npc -> NPC.builder()
@@ -123,24 +123,24 @@ public class CloudNetNPCModule extends DriverModule {
   @ModuleTask
   public void initModule() {
     var config = this.loadConfig();
-    Database database = CloudNet.getInstance().getDatabaseProvider().getDatabase(DATABASE_NAME);
+    Database database = CloudNet.getInstance().databaseProvider().database(DATABASE_NAME);
     // management init
     var management = new NodeNPCManagement(
       config,
       database,
-      this.getConfigPath(),
-      CloudNet.getInstance().getEventManager());
+      this.configPath(),
+      CloudNet.getInstance().eventManager());
     management.registerToServiceRegistry();
   }
 
   private @NotNull eu.cloudnetservice.modules.npc.configuration.NPCConfiguration loadConfig() {
-    if (Files.notExists(this.getConfigPath())) {
+    if (Files.notExists(this.configPath())) {
       JsonDocument
         .newDocument(eu.cloudnetservice.modules.npc.configuration.NPCConfiguration.builder().build())
-        .write(this.getConfigPath());
+        .write(this.configPath());
     }
     // load the config
-    return JsonDocument.newDocument(this.getConfigPath())
+    return JsonDocument.newDocument(this.configPath())
       .toInstanceOf(eu.cloudnetservice.modules.npc.configuration.NPCConfiguration.class);
   }
 

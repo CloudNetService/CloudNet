@@ -180,10 +180,10 @@ public abstract class BukkitPlatformSelectorEntity
   @Override
   public void trackService(@NotNull ServiceInfoSnapshot service) {
     // get the current item
-    var wrapper = this.serviceItems.get(service.getServiceId().getUniqueId());
+    var wrapper = this.serviceItems.get(service.serviceId().uniqueId());
     // build the item for the service
     var configuration = this.npcManagement.getInventoryConfiguration();
-    var layouts = configuration.getHolder(service.getConfiguration().getGroups().toArray(new String[0]));
+    var layouts = configuration.getHolder(service.configuration().groups().toArray(new String[0]));
     // get the service state
     var state = BridgeServiceHelper.guessStateFromServiceInfoSnapshot(service);
     ItemLayout layout;
@@ -209,7 +209,7 @@ public abstract class BukkitPlatformSelectorEntity
     if (item != null) {
       if (wrapper == null) {
         // store a new wrapper
-        this.serviceItems.put(service.getServiceId().getUniqueId(), new ServiceItemWrapper(item, service));
+        this.serviceItems.put(service.serviceId().uniqueId(), new ServiceItemWrapper(item, service));
       } else {
         // update the item wrapper
         wrapper.setItemStack(item);
@@ -220,7 +220,7 @@ public abstract class BukkitPlatformSelectorEntity
       this.rebuildInventory(configuration);
     } else if (wrapper != null) {
       // unable to build a new item - remove the current one
-      this.serviceItems.remove(service.getServiceId().getUniqueId());
+      this.serviceItems.remove(service.serviceId().uniqueId());
     }
   }
 
@@ -228,7 +228,7 @@ public abstract class BukkitPlatformSelectorEntity
   public void stopTrackingService(@NotNull ServiceInfoSnapshot service) {
     Bukkit.getScheduler().runTask(this.plugin, () -> {
       // get the old item wrapper
-      var wrapper = this.serviceItems.remove(service.getServiceId().getUniqueId());
+      var wrapper = this.serviceItems.remove(service.serviceId().uniqueId());
       if (wrapper != null) {
         // the service got tracked before - rebuild the inventory and info lines
         this.rebuildInfoLines();
@@ -306,14 +306,14 @@ public abstract class BukkitPlatformSelectorEntity
       case DIRECT_CONNECT_LOWEST_PLAYERS: {
         this.serviceItems.values().stream()
           .map(ServiceItemWrapper::getService)
-          .min(Comparator.comparingInt(service -> BridgeServiceProperties.ONLINE_COUNT.get(service).orElse(0)))
+          .min(Comparator.comparingInt(service -> BridgeServiceProperties.ONLINE_COUNT.read(service).orElse(0)))
           .ifPresent(ser -> this.getPlayerManager().getPlayerExecutor(player.getUniqueId()).connect(ser.name()));
       }
       break;
       case DIRECT_CONNECT_HIGHEST_PLAYERS: {
         this.serviceItems.values().stream()
           .map(ServiceItemWrapper::getService)
-          .max(Comparator.comparingInt(service -> BridgeServiceProperties.ONLINE_COUNT.get(service).orElse(0)))
+          .max(Comparator.comparingInt(service -> BridgeServiceProperties.ONLINE_COUNT.read(service).orElse(0)))
           .ifPresent(ser -> this.getPlayerManager().getPlayerExecutor(player.getUniqueId()).connect(ser.name()));
       }
       break;
@@ -391,7 +391,7 @@ public abstract class BukkitPlatformSelectorEntity
   }
 
   protected @NotNull IPlayerManager getPlayerManager() {
-    return CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class);
+    return CloudNetDriver.instance().servicesRegistry().getFirstService(IPlayerManager.class);
   }
 
   protected double getHeightAddition(int lineNumber) {
@@ -449,11 +449,11 @@ public abstract class BukkitPlatformSelectorEntity
       // general info
       var onlinePlayers = Integer.toString(tracked.stream()
         .map(ServiceItemWrapper::getService)
-        .mapToInt(snapshot -> BridgeServiceProperties.ONLINE_COUNT.get(snapshot).orElse(0))
+        .mapToInt(snapshot -> BridgeServiceProperties.ONLINE_COUNT.read(snapshot).orElse(0))
         .sum());
       var maxPlayers = Integer.toString(tracked.stream()
         .map(ServiceItemWrapper::getService)
-        .mapToInt(snapshot -> BridgeServiceProperties.MAX_PLAYERS.get(snapshot).orElse(0))
+        .mapToInt(snapshot -> BridgeServiceProperties.MAX_PLAYERS.read(snapshot).orElse(0))
         .sum());
       var onlineServers = Integer.toString(tracked.size());
       // rebuild the info line

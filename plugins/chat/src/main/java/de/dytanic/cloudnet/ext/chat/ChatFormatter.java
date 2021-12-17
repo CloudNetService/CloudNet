@@ -38,7 +38,7 @@ public final class ChatFormatter {
     @NotNull Function<String, Boolean> permissionTester,
     @NotNull BiFunction<Character, String, String> colorReplacer
   ) {
-    var permissionUser = CloudNetDriver.getInstance().getPermissionManagement().getUser(playerId);
+    var permissionUser = CloudNetDriver.instance().permissionManagement().user(playerId);
     // check if the cloud knows a permission player
     if (permissionUser == null) {
       return null;
@@ -53,17 +53,17 @@ public final class ChatFormatter {
       return null;
     }
 
-    var group = CloudNetDriver.getInstance().getPermissionManagement()
-      .getHighestPermissionGroup(permissionUser);
+    var group = CloudNetDriver.instance().permissionManagement()
+      .highestPermissionGroup(permissionUser);
     format = format
       .replace("%name%", playerName)
       .replace("%display_name%", displayName)
       .replace("%uniqueId%", playerId.toString())
       .replace("%group%", group == null ? "" : group.name())
-      .replace("%display%", group == null ? "" : group.getDisplay())
-      .replace("%prefix%", group == null ? "" : group.getPrefix())
-      .replace("%suffix%", group == null ? "" : group.getSuffix())
-      .replace("%color%", group == null ? "" : group.getColor());
+      .replace("%display%", group == null ? "" : group.display())
+      .replace("%prefix%", group == null ? "" : group.prefix())
+      .replace("%suffix%", group == null ? "" : group.suffix())
+      .replace("%color%", group == null ? "" : group.color());
     return colorReplacer.apply('&', format).replace("%message%", coloredMessage);
   }
 }

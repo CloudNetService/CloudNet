@@ -67,7 +67,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
 
   protected void handlePermissionGroupList(IHttpContext context) {
     this.ok(context)
-      .body(this.success().append("groups", this.getPermissionManagement().getGroups()).toString())
+      .body(this.success().append("groups", this.getPermissionManagement().groups()).toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -182,7 +182,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
       return;
     }
     // try to get the group
-    var group = this.getPermissionManagement().getGroup(groupName);
+    var group = this.getPermissionManagement().group(groupName);
     if (group == null && !mayBeNull) {
       this.ok(context)
         .body(this.failure().append("reason", "Unknown permission group").toString())
@@ -214,9 +214,9 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
     try {
       // try to parse a player unique id from the string
       var uniqueId = UUID.fromString(identifier);
-      user = this.getPermissionManagement().getUser(uniqueId);
+      user = this.getPermissionManagement().user(uniqueId);
     } catch (Exception exception) {
-      user = this.getPermissionManagement().getFirstUser(identifier);
+      user = this.getPermissionManagement().firstUser(identifier);
     }
     // check if the user is present before applying to the handler
     if (user == null && !mayBeNull) {
@@ -232,7 +232,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
   }
 
   protected IPermissionManagement getPermissionManagement() {
-    return this.getCloudNet().getPermissionManagement();
+    return this.getCloudNet().permissionManagement();
   }
 
 }

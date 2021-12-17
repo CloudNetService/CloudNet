@@ -19,19 +19,21 @@ package de.dytanic.cloudnet.driver.event.events.permission;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 import java.util.Collection;
+import org.jetbrains.annotations.NotNull;
 
 public final class PermissionSetGroupsEvent extends PermissionEvent {
 
   private final Collection<? extends PermissionGroup> groups;
 
-  public PermissionSetGroupsEvent(IPermissionManagement permissionManagement,
-    Collection<? extends PermissionGroup> groups) {
+  public PermissionSetGroupsEvent(
+    @NotNull IPermissionManagement permissionManagement,
+    @NotNull Collection<? extends PermissionGroup> groups
+  ) {
     super(permissionManagement);
-
     this.groups = groups;
   }
 
-  public Collection<? extends PermissionGroup> getGroups() {
+  public @NotNull Collection<? extends PermissionGroup> groups() {
     return this.groups;
   }
 }

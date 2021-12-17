@@ -48,9 +48,9 @@ public final class CloudflareStartAndStopListener {
 
     this.handle0(event.getService(), (entry, configuration) -> {
       var recordDetail = this.cloudFlareAPI.createRecord(
-        event.getService().getServiceId().getUniqueId(),
+        event.getService().getServiceId().uniqueId(),
         entry,
-        SRVRecord.forConfiguration(entry, configuration, event.getService().getServiceConfiguration().getPort())
+        SRVRecord.forConfiguration(entry, configuration, event.getService().getServiceConfiguration().port())
       );
 
       if (recordDetail != null) {
@@ -87,7 +87,7 @@ public final class CloudflareStartAndStopListener {
       if (entry != null && entry.isEnabled() && entry.getGroups() != null && !entry.getGroups().isEmpty()) {
         for (var groupConfiguration : entry.getGroups()) {
           if (groupConfiguration != null
-            && cloudService.getServiceConfiguration().getGroups().contains(groupConfiguration.getName())) {
+            && cloudService.getServiceConfiguration().groups().contains(groupConfiguration.getName())) {
             handler.accept(entry, groupConfiguration);
           }
         }

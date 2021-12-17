@@ -22,9 +22,9 @@ import org.jetbrains.annotations.NotNull;
 
 public interface RPCProvider {
 
-  @NotNull Class<?> getTargetClass();
+  @NotNull Class<?> targetClass();
 
-  @NotNull ObjectMapper getObjectMapper();
+  @NotNull ObjectMapper objectMapper();
 
-  @NotNull DataBufFactory getDataBufFactory();
+  @NotNull DataBufFactory dataBufFactory();
 }

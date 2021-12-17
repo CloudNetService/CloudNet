@@ -70,21 +70,21 @@ public class SignConfigurationEntry implements Cloneable {
             "&8[&7LOBBY&8]",
             "%online_players% / %max_players%",
             "%motd%"
-          }, onlineBlockType, -1)
+          }, onlineBlockType, -1, null)
         ))), new SignLayoutsHolder(1, new ArrayList<>(Collections.singleton(new SignLayout(
         new String[]{
           "&eLobby &0- &e%task_id%",
           "&8[&eLOBBY&8]",
           "%online_players% / %max_players%",
           "%motd%"
-        }, onlineBlockType, -1)
+        }, onlineBlockType, -1, "LIME")
       ))), new SignLayoutsHolder(1, new ArrayList<>(Collections.singleton(new SignLayout(
         new String[]{
           "&6Lobby &0- &6%task_id%",
           "&8[&6PRIME&8]",
           "%online_players% / %max_players%",
           "%motd%"
-        }, fullBlockType, -1)
+        }, fullBlockType, -1, "ORANGE")
       )))))), new SignLayoutsHolder(
       2,
       new ArrayList<>(Arrays.asList(
@@ -142,8 +142,7 @@ public class SignConfigurationEntry implements Cloneable {
         firstLine,
         Strings.repeat(".", amount),
         ""
-      }, block, -1
-    );
+      }, block, -1, null);
   }
 
   public String getTargetGroup() {

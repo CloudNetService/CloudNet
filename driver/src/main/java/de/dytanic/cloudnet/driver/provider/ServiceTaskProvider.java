@@ -42,14 +42,14 @@ public interface ServiceTaskProvider {
    * @return a list containing the task configurations of all tasks
    */
   @UnmodifiableView
-  @NotNull Collection<ServiceTask> getPermanentServiceTasks();
+  @NotNull Collection<ServiceTask> permanentServiceTasks();
 
   /**
    * Clears all existing service tasks and sets the given collection as the new service tasks
    *
    * @param serviceTasks the new service tasks
    */
-  void setPermanentServiceTasks(@NotNull Collection<ServiceTask> serviceTasks);
+  void permanentServiceTasks(@NotNull Collection<ServiceTask> serviceTasks);
 
   /**
    * Gets a specific task by its name
@@ -58,7 +58,7 @@ public interface ServiceTaskProvider {
    * @return the task or {@code null} if no task with that name exists
    */
   @Nullable
-  ServiceTask getServiceTask(@NotNull String name);
+  ServiceTask serviceTask(@NotNull String name);
 
   /**
    * Checks whether the task with a specific name exists
@@ -104,8 +104,8 @@ public interface ServiceTaskProvider {
    * @return a list containing the task configurations of all tasks
    */
   @NotNull
-  default ITask<Collection<ServiceTask>> getPermanentServiceTasksAsync() {
-    return CompletableTask.supply(this::getPermanentServiceTasks);
+  default ITask<Collection<ServiceTask>> permanentServiceTasksAsync() {
+    return CompletableTask.supply(() -> this.permanentServiceTasks());
   }
 
   /**
@@ -114,8 +114,8 @@ public interface ServiceTaskProvider {
    * @param serviceTasks the new service tasks
    */
   @NotNull
-  default ITask<Void> setPermanentServiceTasksAsync(@NotNull Collection<ServiceTask> serviceTasks) {
-    return CompletableTask.supply(() -> this.setPermanentServiceTasks(serviceTasks));
+  default ITask<Void> permanentServiceTasksAsync(@NotNull Collection<ServiceTask> serviceTasks) {
+    return CompletableTask.supply(() -> this.permanentServiceTasks(serviceTasks));
   }
 
   /**
@@ -125,8 +125,8 @@ public interface ServiceTaskProvider {
    * @return the task or {@code null} if no task with that name exists
    */
   @NotNull
-  default ITask<ServiceTask> getServiceTaskAsync(@NotNull String name) {
-    return CompletableTask.supply(() -> this.getServiceTask(name));
+  default ITask<ServiceTask> serviceTaskAsync(@NotNull String name) {
+    return CompletableTask.supply(() -> this.serviceTask(name));
   }
 
   /**

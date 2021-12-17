@@ -37,7 +37,7 @@ final class PlatformPlayerManager implements IPlayerManager {
   private final PlayerExecutor globalPlayerExecutor;
 
   public PlatformPlayerManager(@NotNull Wrapper wrapper) {
-    this.sender = wrapper.getRPCProviderFactory().providerForClass(wrapper.getNetworkClient(), IPlayerManager.class);
+    this.sender = wrapper.rpcProviderFactory().providerForClass(wrapper.networkClient(), IPlayerManager.class);
     // init the static player utils
     this.globalPlayerExecutor = this.getPlayerExecutor(PlayerExecutor.GLOBAL_UNIQUE_ID);
     this.allPlayers = new PlatformPlayerProvider(this.sender.invokeMethod("onlinePlayers"));

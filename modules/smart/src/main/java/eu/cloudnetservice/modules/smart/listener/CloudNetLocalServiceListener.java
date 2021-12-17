@@ -40,8 +40,8 @@ public final class CloudNetLocalServiceListener {
   @EventListener
   public void handle(@NotNull CloudServicePostLifecycleEvent event) {
     if (event.getNewLifeCycle() == ServiceLifeCycle.PREPARED) {
-      var task = CloudNet.getInstance().getServiceTaskProvider()
-        .getServiceTask(event.getService().getServiceId().getTaskName());
+      var task = CloudNet.getInstance().serviceTaskProvider()
+        .serviceTask(event.getService().getServiceId().taskName());
       // check if the service is associated with a task
       if (task == null) {
         return;
@@ -50,41 +50,41 @@ public final class CloudNetLocalServiceListener {
       var config = this.module.getSmartConfig(task);
       if (config != null && config.enabled()) {
         Set<ServiceTemplate> templates = new HashSet<>(event.getService().getWaitingTemplates());
-        templates.removeAll(task.getTemplates());
+        templates.removeAll(task.templates());
         // apply the template installer
         switch (config.templateInstaller()) {
           // installs all templates of the service
-          case INSTALL_ALL -> templates.addAll(task.getTemplates());
+          case INSTALL_ALL -> templates.addAll(task.templates());
 
           // installs a random amount of templates
           case INSTALL_RANDOM -> {
-            if (!task.getTemplates().isEmpty()) {
+            if (!task.templates().isEmpty()) {
               // get the amount of templates to install
-              var amount = ThreadLocalRandom.current().nextInt(1, task.getTemplates().size());
+              var amount = ThreadLocalRandom.current().nextInt(1, task.templates().size());
               // install randomly picked templates
-              ThreadLocalRandom.current().ints(amount, 0, task.getTemplates().size())
-                .forEach(i -> templates.add(Iterables.get(task.getTemplates(), i)));
+              ThreadLocalRandom.current().ints(amount, 0, task.templates().size())
+                .forEach(i -> templates.add(Iterables.get(task.templates(), i)));
             }
           }
 
           // installs one random template
           case INSTALL_RANDOM_ONCE -> {
-            if (!task.getTemplates().isEmpty()) {
+            if (!task.templates().isEmpty()) {
               // get the template to install
-              var index = ThreadLocalRandom.current().nextInt(0, task.getTemplates().size());
-              templates.add(Iterables.get(task.getTemplates(), index));
+              var index = ThreadLocalRandom.current().nextInt(0, task.templates().size());
+              templates.add(Iterables.get(task.templates(), index));
             }
           }
 
           // installs the templates balanced
           case INSTALL_BALANCED -> {
             var services = CloudNet.getInstance()
-              .getCloudServiceProvider()
-              .getCloudServicesByTask(task.name());
+              .cloudServiceProvider()
+              .servicesByTask(task.name());
             // find the least used template add register it as a service template
-            task.getTemplates().stream()
+            task.templates().stream()
               .min(Comparator.comparingLong(template -> services.stream()
-                .flatMap(service -> service.getConfiguration().getTemplates().stream())
+                .flatMap(service -> service.configuration().templates().stream())
                 .filter(template::equals)
                 .count()))
               .ifPresent(templates::add);

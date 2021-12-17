@@ -35,13 +35,13 @@ public interface NodeInfoProvider {
   /**
    * @return the {@link CommandInfo} for each registered command
    */
-  @NotNull Collection<CommandInfo> getConsoleCommands();
+  @NotNull Collection<CommandInfo> consoleCommands();
 
   /**
    * @param commandLine the whole console input containing the command
    * @return the {@link CommandInfo} if there is a registered command - null otherwise
    */
-  @Nullable CommandInfo getConsoleCommand(@NotNull String commandLine);
+  @Nullable CommandInfo consoleCommand(@NotNull String commandLine);
 
   /**
    * Gets all tab complete results for the specific command line. If the line contains at least one space, it will get
@@ -51,7 +51,7 @@ public interface NodeInfoProvider {
    * @param commandLine the command with arguments to get the results from
    * @return a collection containing all unsorted results
    */
-  @NotNull Collection<String> getConsoleTabCompleteResults(@NotNull String commandLine);
+  @NotNull Collection<String> consoleTabCompleteResults(@NotNull String commandLine);
 
   /**
    * Sends the given commandLine to the node, executes the commandLine and returns the response
@@ -72,39 +72,39 @@ public interface NodeInfoProvider {
   /**
    * @return all nodes from the config of the node where the method is called on
    */
-  @NotNull NetworkClusterNode[] getNodes();
+  @NotNull NetworkClusterNode[] nodes();
 
   /**
    * @param uniqueId the uniqueId of the target node
    * @return {@link NetworkClusterNode} from the config of the node where the method is called on, null if there is no
    * entry in the config
    */
-  @Nullable NetworkClusterNode getNode(@NotNull String uniqueId);
+  @Nullable NetworkClusterNode node(@NotNull String uniqueId);
 
   /**
    * @return all {@link NetworkClusterNodeInfoSnapshot} of nodes that are still connected
    */
-  @NotNull NetworkClusterNodeInfoSnapshot[] getNodeInfoSnapshots();
+  @NotNull NetworkClusterNodeInfoSnapshot[] nodeInfoSnapshots();
 
   /**
    * @param uniqueId the uniqueId of the target node
    * @return the {@link NetworkClusterNodeInfoSnapshot} for the given uniqueId, null if there is no snapshot
    */
-  @Nullable NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot(@NotNull String uniqueId);
+  @Nullable NetworkClusterNodeInfoSnapshot nodeInfoSnapshot(@NotNull String uniqueId);
 
   /**
    * @return the {@link CommandInfo} for each registered command
    */
-  default @NotNull ITask<Collection<CommandInfo>> getConsoleCommandsAsync() {
-    return CompletableTask.supply(this::getConsoleCommands);
+  default @NotNull ITask<Collection<CommandInfo>> consoleCommandsAsync() {
+    return CompletableTask.supply(this::consoleCommands);
   }
 
   /**
    * @param commandLine the whole console input containing the command
    * @return the {@link CommandInfo} if there is a registered command - null otherwise
    */
-  default @NotNull ITask<CommandInfo> getConsoleCommandAsync(@NotNull String commandLine) {
-    return CompletableTask.supply(() -> this.getConsoleCommand(commandLine));
+  default @NotNull ITask<CommandInfo> consoleCommandAsync(@NotNull String commandLine) {
+    return CompletableTask.supply(() -> this.consoleCommand(commandLine));
   }
 
   /**
@@ -115,8 +115,8 @@ public interface NodeInfoProvider {
    * @param commandLine the command with arguments to get the results from
    * @return a collection containing all unsorted results
    */
-  default @NotNull ITask<Collection<String>> getConsoleTabCompleteResultsAsync(@NotNull String commandLine) {
-    return CompletableTask.supply(() -> this.getConsoleTabCompleteResults(commandLine));
+  default @NotNull ITask<Collection<String>> consoleTabCompleteResultsAsync(@NotNull String commandLine) {
+    return CompletableTask.supply(() -> this.consoleTabCompleteResults(commandLine));
   }
 
   /**
@@ -144,8 +144,8 @@ public interface NodeInfoProvider {
   /**
    * @return all nodes from the config of the node where the method is called on
    */
-  default @NotNull ITask<NetworkClusterNode[]> getNodesAsync() {
-    return CompletableTask.supply(this::getNodes);
+  default @NotNull ITask<NetworkClusterNode[]> nodesAsync() {
+    return CompletableTask.supply(this::nodes);
   }
 
   /**
@@ -153,22 +153,22 @@ public interface NodeInfoProvider {
    * @return {@link NetworkClusterNode} from the config of the node where the method is called on, null if there is no
    * entry in the config
    */
-  default @NotNull ITask<NetworkClusterNode> getNodeAsync(@NotNull String uniqueId) {
-    return CompletableTask.supply(() -> this.getNode(uniqueId));
+  default @NotNull ITask<NetworkClusterNode> nodeAsync(@NotNull String uniqueId) {
+    return CompletableTask.supply(() -> this.node(uniqueId));
   }
 
   /**
    * @return all {@link NetworkClusterNodeInfoSnapshot} of nodes that are still connected
    */
-  default @NotNull ITask<NetworkClusterNodeInfoSnapshot[]> getNodeInfoSnapshotsAsync() {
-    return CompletableTask.supply(this::getNodeInfoSnapshots);
+  default @NotNull ITask<NetworkClusterNodeInfoSnapshot[]> nodeInfoSnapshotsAsync() {
+    return CompletableTask.supply(this::nodeInfoSnapshots);
   }
 
   /**
    * @param uniqueId the uniqueId of the target node
    * @return the {@link NetworkClusterNodeInfoSnapshot} for the given uniqueId, null if there is no snapshot
    */
-  default @NotNull ITask<NetworkClusterNodeInfoSnapshot> getNodeInfoSnapshotAsync(@NotNull String uniqueId) {
-    return CompletableTask.supply(() -> this.getNodeInfoSnapshot(uniqueId));
+  default @NotNull ITask<NetworkClusterNodeInfoSnapshot> nodeInfoSnapshotAsync(@NotNull String uniqueId) {
+    return CompletableTask.supply(() -> this.nodeInfoSnapshot(uniqueId));
   }
 }

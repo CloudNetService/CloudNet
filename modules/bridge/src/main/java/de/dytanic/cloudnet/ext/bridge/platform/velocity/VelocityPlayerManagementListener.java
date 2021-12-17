@@ -65,14 +65,14 @@ final class VelocityPlayerManagementListener {
     // check if the current task is present
     if (task != null) {
       // check if maintenance is activated
-      if (task.isMaintenance() && !event.getPlayer().hasPermission("cloudnet.bridge.maintenance")) {
+      if (task.maintenance() && !event.getPlayer().hasPermission("cloudnet.bridge.maintenance")) {
         event.setResult(ComponentResult.denied(serialize(this.management.getConfiguration().getMessage(
           Locale.ENGLISH,
           "proxy-join-cancel-because-maintenance"))));
         return;
       }
       // check if a custom permission is required to join
-      var permission = task.getProperties().getString("requiredPermission");
+      var permission = task.properties().getString("requiredPermission");
       if (permission != null && !event.getPlayer().hasPermission(permission)) {
         event.setResult(ComponentResult.denied(serialize(this.management.getConfiguration().getMessage(
           Locale.ENGLISH,

@@ -47,7 +47,7 @@ public enum ServiceLifeCycle {
   STOPPED(0, 3),
   /**
    * This is the state after {@code STOPPED}. When this state is set, the service is no more registered in the cloud and
-   * methods like {@link GeneralCloudServiceProvider#getCloudService(UUID)} won't return this service anymore.
+   * methods like {@link GeneralCloudServiceProvider#service(UUID)} won't return this service anymore.
    */
   DELETED;
 

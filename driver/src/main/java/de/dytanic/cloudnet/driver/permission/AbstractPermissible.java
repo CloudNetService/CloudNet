@@ -66,7 +66,7 @@ public abstract class AbstractPermissible extends JsonDocPropertyHolder implemen
       return false;
     }
 
-    permissions.removeIf(existingPermission -> existingPermission.getName().equalsIgnoreCase(permission.getName()));
+    permissions.removeIf(existingPermission -> existingPermission.name().equalsIgnoreCase(permission.name()));
     permissions.add(permission);
 
     return true;
@@ -84,7 +84,7 @@ public abstract class AbstractPermissible extends JsonDocPropertyHolder implemen
 
   @Override
   public boolean removePermission(@NotNull String permission) {
-    var exist = this.getPermission(permission);
+    var exist = this.permission(permission);
 
     if (exist != null) {
       return this.permissions.remove(exist);
@@ -96,7 +96,7 @@ public abstract class AbstractPermissible extends JsonDocPropertyHolder implemen
   @Override
   public boolean removePermission(@NotNull String group, @NotNull String permission) {
     if (this.groupPermissions.containsKey(group)) {
-      var removed = this.groupPermissions.get(group).removeIf(perm -> perm.getName().equalsIgnoreCase(permission));
+      var removed = this.groupPermissions.get(group).removeIf(perm -> perm.name().equalsIgnoreCase(permission));
       if (removed && this.groupPermissions.get(group).isEmpty()) {
         this.groupPermissions.remove(group);
       }
@@ -107,7 +107,7 @@ public abstract class AbstractPermissible extends JsonDocPropertyHolder implemen
     return false;
   }
 
-  public long getCreatedTime() {
+  public long createdTime() {
     return this.createdTime;
   }
 
@@ -117,31 +117,31 @@ public abstract class AbstractPermissible extends JsonDocPropertyHolder implemen
   }
 
   @Override
-  public void setName(@NotNull String name) {
+  public void name(@NotNull String name) {
     this.name = name;
   }
 
   @Override
-  public int getPotency() {
+  public int potency() {
     return this.potency;
   }
 
   @Override
-  public void setPotency(int potency) {
+  public void potency(int potency) {
     this.potency = potency;
   }
 
   @Override
-  public @NotNull List<Permission> getPermissions() {
+  public @NotNull List<Permission> permissions() {
     return this.permissions;
   }
 
-  public void setPermissions(List<Permission> permissions) {
+  public void permissions(List<Permission> permissions) {
     this.permissions = permissions;
   }
 
   @Override
-  public @NotNull Map<String, Collection<Permission>> getGroupPermissions() {
+  public @NotNull Map<String, Collection<Permission>> groupPermissions() {
     return this.groupPermissions;
   }
 }

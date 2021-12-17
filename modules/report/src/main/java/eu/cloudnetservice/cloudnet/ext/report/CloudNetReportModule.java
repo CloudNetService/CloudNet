@@ -91,7 +91,7 @@ public final class CloudNetReportModule extends DriverModule {
 
   public @NotNull Path getCurrentRecordDirectory() {
     var date = this.reportConfiguration.dateFormat().format(System.currentTimeMillis());
-    var recordBaseDestination = this.moduleWrapper.getDataDirectory()
+    var recordBaseDestination = this.moduleWrapper.dataDirectory()
       .resolve(this.reportConfiguration.recordDestination());
     var timeBasedDestination = recordBaseDestination.resolve(date);
     if (timeBasedDestination.equals(this.currentRecordDirectory)) {
@@ -104,6 +104,6 @@ public final class CloudNetReportModule extends DriverModule {
 
   private void reloadConfiguration() {
     this.reportConfiguration = ReportConfigurationHelper.read(
-      this.moduleWrapper.getDataDirectory().resolve("config.json"));
+      this.moduleWrapper.dataDirectory().resolve("config.json"));
   }
 }

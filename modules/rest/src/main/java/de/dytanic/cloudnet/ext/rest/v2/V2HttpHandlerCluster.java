@@ -115,7 +115,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
 
   protected void handleNodeCreateRequest(IHttpContext context) {
     var server = this.body(context.request()).toInstanceOf(NetworkClusterNode.class);
-    if (server == null || server.getListeners() == null) {
+    if (server == null || server.listeners() == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing node server information").toString())
         .context()
@@ -124,7 +124,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
       return;
     }
 
-    if (this.getNodeServer(server.getUniqueId(), true) != null) {
+    if (this.getNodeServer(server.uniqueId(), true) != null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "The node server is already registered").toString())
         .context()
@@ -158,7 +158,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
     }
 
     var removed = this.getConfiguration().getClusterConfig().nodes().removeIf(
-      node -> node.getUniqueId().equals(uniqueId));
+      node -> node.uniqueId().equals(uniqueId));
     if (removed) {
       this.getConfiguration().save();
       this.getNodeProvider().setClusterServers(this.getConfiguration().getClusterConfig());
@@ -190,7 +190,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
 
     var registered = this.getConfiguration().getClusterConfig().nodes()
       .stream()
-      .filter(node -> node.getUniqueId().equals(server.getUniqueId()))
+      .filter(node -> node.uniqueId().equals(server.uniqueId()))
       .findFirst()
       .orElse(null);
     if (registered == null) {
@@ -201,7 +201,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
         .cancelNext();
     } else {
       //TODO: registered.setListeners(server.getListeners());
-      registered.getProperties().append(server.getProperties());
+      registered.properties().append(server.properties());
       this.getConfiguration().save();
       this.getNodeProvider().setClusterServers(this.getConfiguration().getClusterConfig());
 
@@ -227,7 +227,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
 
   protected NodeServer getNodeServer(String nodeName, boolean includeLocal) {
     NodeServer server = this.getNodeProvider().getNodeServer(nodeName);
-    if (server == null && includeLocal && nodeName.equals(CloudNet.getInstance().getComponentName())) {
+    if (server == null && includeLocal && nodeName.equals(CloudNet.getInstance().componentName())) {
       server = this.getNodeProvider().getSelfNode();
     }
     return server;

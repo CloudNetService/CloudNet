@@ -108,7 +108,7 @@ public class Wrapper extends CloudNetDriver {
   protected Wrapper(@NotNull String[] args) {
     super(new ArrayList<>(Arrays.asList(args)));
 
-    setInstance(this);
+    instance(this);
 
     this.cloudNetVersion = CloudNetVersion.fromClassInformation(Wrapper.class.getPackage());
 
@@ -124,19 +124,19 @@ public class Wrapper extends CloudNetDriver {
     super.generalCloudServiceProvider = new WrapperGeneralCloudServiceProvider(this);
 
     super.cloudServiceFactory = new RemoteCloudServiceFactory(
-      this.networkClient::getFirstChannel,
+      this.networkClient::firstChannel,
       this.networkClient,
       this.rpcProviderFactory);
 
-    super.moduleProvider.setModuleProviderHandler(new DefaultModuleProviderHandler());
-    super.moduleProvider.setModuleDirectoryPath(Paths.get(".wrapper", "modules"));
+    super.moduleProvider.moduleProviderHandler(new DefaultModuleProviderHandler());
+    super.moduleProvider.moduleDirectoryPath(Paths.get(".wrapper", "modules"));
 
-    super.setPermissionManagement(new WrapperPermissionManagement(this));
+    super.permissionManagement(new WrapperPermissionManagement(this));
     super.driverEnvironment = DriverEnvironment.WRAPPER;
   }
 
   public static @NotNull Wrapper getInstance() {
-    return (Wrapper) CloudNetDriver.getInstance();
+    return (Wrapper) CloudNetDriver.instance();
   }
 
   @Override
@@ -176,34 +176,34 @@ public class Wrapper extends CloudNetDriver {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull String getComponentName() {
-    return this.getServiceId().name();
+  public @NotNull String componentName() {
+    return this.serviceId().name();
   }
 
   @Override
-  public @NotNull TemplateStorage getLocalTemplateStorage() {
-    return this.getTemplateStorage(ServiceTemplate.LOCAL_STORAGE);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @NotNull String getNodeUniqueId() {
-    return this.getServiceId().getNodeUniqueId();
-  }
-
-  @Override
-  public @NotNull TemplateStorage getTemplateStorage(@NotNull String storage) {
-    return new RemoteTemplateStorage(storage, this.rpcSender.invokeMethod("getTemplateStorage", storage));
+  public @NotNull TemplateStorage localTemplateStorage() {
+    return this.templateStorage(ServiceTemplate.LOCAL_STORAGE);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public @NotNull Collection<TemplateStorage> getAvailableTemplateStorages() {
-    return this.rpcSender.invokeMethod("getAvailableTemplateStorages").fireSync();
+  public @NotNull String nodeUniqueId() {
+    return this.serviceId().nodeUniqueId();
+  }
+
+  @Override
+  public @NotNull TemplateStorage templateStorage(@NotNull String storage) {
+    return new RemoteTemplateStorage(storage, this.rpcSender.invokeMethod("templateStorage", storage));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NotNull Collection<TemplateStorage> availableTemplateStorages() {
+    return this.rpcSender.invokeMethod("availableTemplateStorages").fireSync();
   }
 
   /**
@@ -221,8 +221,8 @@ public class Wrapper extends CloudNetDriver {
    *
    * @return the ServiceId instance which was set in the config by the node
    */
-  public @NotNull ServiceId getServiceId() {
-    return this.getServiceConfiguration().getServiceId();
+  public @NotNull ServiceId serviceId() {
+    return this.serviceConfiguration().serviceId();
   }
 
   /**
@@ -230,7 +230,7 @@ public class Wrapper extends CloudNetDriver {
    *
    * @return the first instance which was set in the config by the node
    */
-  public @NotNull ServiceConfiguration getServiceConfiguration() {
+  public @NotNull ServiceConfiguration serviceConfiguration() {
     return this.config.getServiceConfiguration();
   }
 
@@ -244,13 +244,13 @@ public class Wrapper extends CloudNetDriver {
   public ServiceInfoSnapshot createServiceInfoSnapshot() {
     return new ServiceInfoSnapshot(
       System.currentTimeMillis(),
-      this.currentServiceInfoSnapshot.getAddress(),
-      this.currentServiceInfoSnapshot.getConnectAddress(),
+      this.currentServiceInfoSnapshot.address(),
+      this.currentServiceInfoSnapshot.connectAddress(),
       ProcessSnapshot.self(),
-      this.getServiceConfiguration(),
-      this.currentServiceInfoSnapshot.getConnectedTime(),
+      this.serviceConfiguration(),
+      this.currentServiceInfoSnapshot.connectedTime(),
       ServiceLifeCycle.RUNNING,
-      this.currentServiceInfoSnapshot.getProperties());
+      this.currentServiceInfoSnapshot.properties());
   }
 
   @Internal
@@ -279,7 +279,7 @@ public class Wrapper extends CloudNetDriver {
 
   public void publishServiceInfoUpdate(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
     // add configuration stuff when updating the current service snapshot
-    if (this.currentServiceInfoSnapshot.getServiceId().equals(serviceInfoSnapshot.getServiceId())) {
+    if (this.currentServiceInfoSnapshot.serviceId().equals(serviceInfoSnapshot.serviceId())) {
       this.configureServiceInfoSnapshot(serviceInfoSnapshot);
     }
 
@@ -300,10 +300,10 @@ public class Wrapper extends CloudNetDriver {
    * @param classLoader the ClassLoader from which the IPacketListener implementations derive.
    */
   public void unregisterPacketListenersByClassLoader(@NotNull ClassLoader classLoader) {
-    this.networkClient.getPacketRegistry().removeListeners(classLoader);
+    this.networkClient.packetRegistry().removeListeners(classLoader);
 
-    for (var channel : this.networkClient.getChannels()) {
-      channel.getPacketRegistry().removeListeners(classLoader);
+    for (var channel : this.networkClient.channels()) {
+      channel.packetRegistry().removeListeners(classLoader);
     }
   }
 
@@ -317,7 +317,7 @@ public class Wrapper extends CloudNetDriver {
       var condition = lock.newCondition();
       var listener = new PacketAuthorizationResponseListener(lock, condition);
       // register the listener to the packet registry and connect to the target listener
-      this.networkClient.getPacketRegistry().addListener(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL, listener);
+      this.networkClient.packetRegistry().addListener(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL, listener);
       this.networkClient.connect(this.config.getTargetListener());
 
       // wait for the authentication response
@@ -328,16 +328,16 @@ public class Wrapper extends CloudNetDriver {
       }
 
       // set connected time
-      this.currentServiceInfoSnapshot.setConnectedTime(System.currentTimeMillis());
+      this.currentServiceInfoSnapshot.connectedTime(System.currentTimeMillis());
 
       // remove the auth listener
-      this.networkClient.getPacketRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
+      this.networkClient.packetRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
 
       // add the runtime packet listeners
-      this.networkClient.getPacketRegistry().addListener(
+      this.networkClient.packetRegistry().addListener(
         NetworkConstants.CHUNKED_PACKET_COM_CHANNEL,
         new ChunkedPacketListener(EventChunkHandlerFactory.withDefaultEventManager()));
-      this.networkClient.getPacketRegistry().addListener(
+      this.networkClient.packetRegistry().addListener(
         NetworkConstants.CHANNEL_MESSAGING_CHANNEL,
         new PacketServerChannelMessageListener());
     } finally {
@@ -395,28 +395,28 @@ public class Wrapper extends CloudNetDriver {
     return true;
   }
 
-  public @NotNull IWrapperConfiguration getConfig() {
+  public @NotNull IWrapperConfiguration config() {
     return this.config;
   }
 
-  public @NotNull Path getWorkingDirectoryPath() {
+  public @NotNull Path workingDirectory() {
     return WORKING_DIRECTORY;
   }
 
   @UnmodifiableView
-  public @NotNull List<String> getCommandLineArguments() {
+  public @NotNull List<String> commandLineArguments() {
     return Collections.unmodifiableList(this.commandLineArguments);
   }
 
-  public @NotNull Thread getMainThread() {
+  public @NotNull Thread mainThread() {
     return this.mainThread;
   }
 
-  public @NotNull ServiceInfoSnapshot getLastServiceInfoSnapShot() {
+  public @NotNull ServiceInfoSnapshot lastServiceInfo() {
     return this.lastServiceInfoSnapShot;
   }
 
-  public @NotNull ServiceInfoSnapshot getCurrentServiceInfoSnapshot() {
+  public @NotNull ServiceInfoSnapshot currentServiceInfo() {
     return this.currentServiceInfoSnapshot;
   }
 }

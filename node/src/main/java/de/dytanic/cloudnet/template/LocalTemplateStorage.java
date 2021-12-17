@@ -207,7 +207,7 @@ public class LocalTemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public @Nullable FileInfo getFileInfo(
+  public @Nullable FileInfo fileInfo(
     @NotNull ServiceTemplate template,
     @NotNull String path
   ) throws IOException {
@@ -235,7 +235,7 @@ public class LocalTemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public @NotNull Collection<ServiceTemplate> getTemplates() {
+  public @NotNull Collection<ServiceTemplate> templates() {
     try {
       return Files.list(this.storageDirectory)
         .filter(Files::isDirectory)
@@ -267,6 +267,6 @@ public class LocalTemplateStorage implements TemplateStorage {
   }
 
   protected @NotNull Path getTemplatePath(@NotNull ServiceTemplate template) {
-    return this.storageDirectory.resolve(template.getPrefix()).resolve(template.name());
+    return this.storageDirectory.resolve(template.prefix()).resolve(template.name());
   }
 }

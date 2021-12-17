@@ -33,9 +33,9 @@ public interface ChunkedPacketSender extends ChunkedPacketProvider {
     return new FileChunkedPacketSenderBuilder();
   }
 
-  @NotNull InputStream getSource();
+  @NotNull InputStream source();
 
-  @NotNull Consumer<IPacket> getChunkPacketSplitter();
+  @NotNull Consumer<IPacket> packetSplitter();
 
   @NotNull ITask<TransferStatus> transferChunkedData();
 

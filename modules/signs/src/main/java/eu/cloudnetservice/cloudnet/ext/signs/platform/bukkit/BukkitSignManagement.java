@@ -44,7 +44,7 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
   }
 
   public static BukkitSignManagement getDefaultInstance() {
-    return (BukkitSignManagement) CloudNetDriver.getInstance().getServicesRegistry()
+    return (BukkitSignManagement) CloudNetDriver.instance().servicesRegistry()
       .getFirstService(SignManagement.class);
   }
 
@@ -101,13 +101,13 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
   @SuppressWarnings("deprecation") // legacy 1.8 support...
   protected void changeBlock(@NotNull Block block, @NotNull SignLayout layout) {
     var material =
-      layout.getBlockMaterial() == null ? null : Material.getMaterial(layout.getBlockMaterial().toUpperCase());
+      layout.blockMaterial() == null ? null : Material.getMaterial(layout.blockMaterial().toUpperCase());
     if (material != null && material.isBlock()) {
       var face = BukkitCompatibility.getFacing(block.getState());
       if (face != null) {
         var behind = block.getRelative(face.getOppositeFace()).getState();
-        if (layout.getBlockSubId() >= 0) {
-          behind.setData(new MaterialData(material, (byte) layout.getBlockSubId()));
+        if (layout.blockSubId() >= 0) {
+          behind.setData(new MaterialData(material, (byte) layout.blockSubId()));
         } else {
           behind.setType(material);
         }

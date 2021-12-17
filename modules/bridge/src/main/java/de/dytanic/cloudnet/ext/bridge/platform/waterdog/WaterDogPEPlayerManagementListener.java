@@ -49,7 +49,7 @@ final class WaterDogPEPlayerManagementListener {
     // check if the current task is present
     if (task != null) {
       // check if maintenance is activated
-      if (task.isMaintenance() && !event.getPlayer().hasPermission("cloudnet.bridge.maintenance")) {
+      if (task.maintenance() && !event.getPlayer().hasPermission("cloudnet.bridge.maintenance")) {
         event.setCancelled(true);
         event.setCancelReason(this.management.getConfiguration().getMessage(
           Locale.ENGLISH,
@@ -57,7 +57,7 @@ final class WaterDogPEPlayerManagementListener {
         return;
       }
       // check if a custom permission is required to join
-      var permission = task.getProperties().getString("requiredPermission");
+      var permission = task.properties().getString("requiredPermission");
       if (permission != null && !event.getPlayer().hasPermission(permission)) {
         event.setCancelled(true);
         event.setCancelReason(this.management.getConfiguration().getMessage(

@@ -24,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface ChunkedPacketHandler extends ChunkedPacketProvider {
 
-  @NotNull Callback getCallback();
+  @NotNull Callback callback();
 
   boolean handleChunkPart(int chunkPosition, @NotNull DataBuf dataBuf);
 

@@ -119,10 +119,10 @@ final class SpongeBridgeManagement extends PlatformBridgeManagement<ServerPlayer
   public void appendServiceInformation(@NotNull ServiceInfoSnapshot snapshot) {
     super.appendServiceInformation(snapshot);
     // append the bukkit specific information
-    snapshot.getProperties().append("Online-Count", Sponge.server().onlinePlayers().size());
-    snapshot.getProperties().append("Version", Sponge.platform().minecraftVersion().name());
+    snapshot.properties().append("Online-Count", Sponge.server().onlinePlayers().size());
+    snapshot.properties().append("Version", Sponge.platform().minecraftVersion().name());
     // players
-    snapshot.getProperties().append("Players", Sponge.server().onlinePlayers().stream()
+    snapshot.properties().append("Players", Sponge.server().onlinePlayers().stream()
       .map(this::createPlayerInformation)
       .collect(Collectors.toList()));
   }

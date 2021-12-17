@@ -40,7 +40,7 @@ public class VanillaServiceConfigurationPreparer extends AbstractServiceConfigur
           // update the configuration
           if (this.shouldRewriteIp(nodeInstance, cloudService)) {
             properties.setProperty("server-ip", nodeInstance.getConfig().getHostAddress());
-            properties.setProperty("server-port", String.valueOf(cloudService.getServiceConfiguration().getPort()));
+            properties.setProperty("server-port", String.valueOf(cloudService.getServiceConfiguration().port()));
           }
           // store the properties
           try (var out = Files.newOutputStream(configFile)) {

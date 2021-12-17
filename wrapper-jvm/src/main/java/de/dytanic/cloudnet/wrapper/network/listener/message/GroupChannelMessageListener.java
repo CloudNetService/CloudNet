@@ -35,17 +35,17 @@ public final class GroupChannelMessageListener {
 
   @EventListener
   public void handle(@NotNull ChannelMessageReceiveEvent event) {
-    if (event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
-      switch (event.getMessage()) {
+    if (event.channel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
+      switch (event.message()) {
         // add group
         case "add_group_configuration" -> {
-          var configuration = event.getContent().readObject(GroupConfiguration.class);
+          var configuration = event.content().readObject(GroupConfiguration.class);
           this.eventManager.callEvent(new GroupConfigurationAddEvent(configuration));
         }
 
         // remove group
         case "remove_group_configuration" -> {
-          var configuration = event.getContent().readObject(GroupConfiguration.class);
+          var configuration = event.content().readObject(GroupConfiguration.class);
           this.eventManager.callEvent(new GroupConfigurationRemoveEvent(configuration));
         }
 

@@ -28,12 +28,12 @@ public final class FileMimeTypeHelper {
     throw new UnsupportedOperationException();
   }
 
-  public static @NotNull String getFileType(@NotNull String filePath) {
+  public static @NotNull String fileType(@NotNull String filePath) {
     var mimeType = URLConnection.guessContentTypeFromName(filePath);
     return mimeType == null ? "application/octet-stream" : mimeType;
   }
 
-  public static @NotNull String getFileType(@NotNull Path path) {
+  public static @NotNull String fileType(@NotNull Path path) {
     try {
       var mimeType = Files.probeContentType(path);
       return mimeType == null ? "application/octet-stream" : mimeType;

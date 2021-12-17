@@ -54,7 +54,7 @@ public class SRVRecord extends DNSRecord {
         configuration.getPriority(),
         configuration.getWeight(),
         port,
-        CloudNet.getInstance().getConfig().getIdentity().getUniqueId(),
+        CloudNet.getInstance().getConfig().getIdentity().uniqueId(),
         entry.getDomainName()
       ),
       "_minecraft",
@@ -63,7 +63,7 @@ public class SRVRecord extends DNSRecord {
       configuration.getPriority(),
       configuration.getWeight(),
       port,
-      CloudNet.getInstance().getConfig().getIdentity().getUniqueId() + "." + entry.getDomainName()
+      CloudNet.getInstance().getConfig().getIdentity().uniqueId() + "." + entry.getDomainName()
     );
   }
 }

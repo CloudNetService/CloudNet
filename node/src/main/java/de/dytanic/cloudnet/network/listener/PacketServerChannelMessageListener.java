@@ -41,12 +41,12 @@ public final class PacketServerChannelMessageListener implements IPacketListener
 
   @Override
   public void handle(@NotNull INetworkChannel channel, @NotNull IPacket packet) {
-    var message = packet.getContent().readObject(ChannelMessage.class);
+    var message = packet.content().readObject(ChannelMessage.class);
     // mark the index of the data buf
     message.content().disableReleasing().startTransaction();
     // call the receive event
     var response = this.eventManager.callEvent(
-      new ChannelMessageReceiveEvent(message, channel, packet.getUniqueId() != null)).getQueryResponse();
+      new ChannelMessageReceiveEvent(message, channel, packet.uniqueId() != null)).queryResponse();
     // reset the index
     message.content().redoTransaction();
     // if the response is already present do not redirect the message to the messenger
@@ -54,7 +54,7 @@ public final class PacketServerChannelMessageListener implements IPacketListener
       channel.sendPacketSync(packet.constructResponse(DataBuf.empty().writeObject(Collections.singleton(response))));
     } else {
       // do not redirect the channel message to the cluster to prevent infinite loops
-      if (packet.getUniqueId() != null) {
+      if (packet.uniqueId() != null) {
         var responses = this.messenger
           .sendChannelMessageQueryAsync(message, message.sender().type() == DriverEnvironment.WRAPPER)
           .get(20, TimeUnit.SECONDS, Collections.emptyList());

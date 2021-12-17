@@ -37,12 +37,12 @@ public final class BukkitCloudPermissionsPlugin extends JavaPlugin {
 
     this.getServer().getPluginManager().registerEvents(new BukkitCloudPermissionsPlayerListener(
       this,
-      CloudNetDriver.getInstance().getPermissionManagement()
+      CloudNetDriver.instance().permissionManagement()
     ), this);
 
     // register the update listener if the server can update the command tree to the player
     if (BukkitPermissionHelper.canUpdateCommandTree()) {
-      CloudNetDriver.getInstance().getEventManager().registerListener(new PermissionsUpdateListener<>(
+      CloudNetDriver.instance().eventManager().registerListener(new PermissionsUpdateListener<>(
         runnable -> Bukkit.getScheduler().runTask(this, runnable),
         BukkitPermissionHelper::resendCommandTree,
         Player::getUniqueId,
@@ -53,7 +53,7 @@ public final class BukkitCloudPermissionsPlugin extends JavaPlugin {
 
   @Override
   public void onDisable() {
-    CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
+    CloudNetDriver.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
     Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
   }
 
@@ -68,7 +68,7 @@ public final class BukkitCloudPermissionsPlugin extends JavaPlugin {
 
   private void checkForVault() {
     if (super.getServer().getPluginManager().isPluginEnabled("Vault")) {
-      VaultSupport.hook(this, CloudNetDriver.getInstance().getPermissionManagement());
+      VaultSupport.hook(this, CloudNetDriver.instance().permissionManagement());
     }
   }
 }

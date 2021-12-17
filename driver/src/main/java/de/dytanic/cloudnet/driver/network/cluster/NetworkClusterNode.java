@@ -30,22 +30,26 @@ public class NetworkClusterNode extends JsonDocPropertyHolder {
   private final String uniqueId;
   private final HostAndPort[] listeners;
 
-  public NetworkClusterNode(String uniqueId, HostAndPort[] listeners) {
+  public NetworkClusterNode(@NotNull String uniqueId, @NotNull HostAndPort[] listeners) {
     this.uniqueId = uniqueId;
     this.listeners = listeners;
   }
 
-  public NetworkClusterNode(String uniqueId, HostAndPort[] listeners, JsonDocument properties) {
+  public NetworkClusterNode(
+    @NotNull String uniqueId,
+    @NotNull HostAndPort[] listeners,
+    @NotNull JsonDocument properties
+  ) {
     this.uniqueId = uniqueId;
     this.listeners = listeners;
     this.properties = properties;
   }
 
-  public @NotNull String getUniqueId() {
+  public @NotNull String uniqueId() {
     return this.uniqueId;
   }
 
-  public @NotNull HostAndPort[] getListeners() {
+  public @NotNull HostAndPort[] listeners() {
     return this.listeners;
   }
 }

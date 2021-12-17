@@ -70,8 +70,8 @@ final class BukkitSimpleNameTagsManager extends SimpleNameTagsManager<Player> {
       team = scoreboardHolder.getScoreboard().registerNewTeam(name);
     }
     // set the default team attributes
-    team.setPrefix(ChatColor.translateAlternateColorCodes('&', group.getPrefix()));
-    team.setSuffix(ChatColor.translateAlternateColorCodes('&', group.getSuffix()));
+    team.setPrefix(ChatColor.translateAlternateColorCodes('&', group.prefix()));
+    team.setSuffix(ChatColor.translateAlternateColorCodes('&', group.suffix()));
     // set the team color if possible
     var teamColor = ChatColor.getByChar(this.getColorChar(group));
     if (teamColor != null) {

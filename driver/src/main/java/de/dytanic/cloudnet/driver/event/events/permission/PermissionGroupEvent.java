@@ -18,18 +18,21 @@ package de.dytanic.cloudnet.driver.event.events.permission;
 
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
+import org.jetbrains.annotations.NotNull;
 
 abstract class PermissionGroupEvent extends PermissionEvent {
 
   private final PermissionGroup permissionGroup;
 
-  public PermissionGroupEvent(IPermissionManagement permissionManagement, PermissionGroup permissionGroup) {
+  public PermissionGroupEvent(
+    @NotNull IPermissionManagement permissionManagement,
+    @NotNull PermissionGroup permissionGroup
+  ) {
     super(permissionManagement);
-
     this.permissionGroup = permissionGroup;
   }
 
-  public PermissionGroup getPermissionGroup() {
+  public @NotNull PermissionGroup permissionGroup() {
     return this.permissionGroup;
   }
 }

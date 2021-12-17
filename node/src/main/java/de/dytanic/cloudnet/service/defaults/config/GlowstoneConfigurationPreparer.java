@@ -34,7 +34,7 @@ public class GlowstoneConfigurationPreparer extends AbstractServiceConfiguration
         if (line.trim().startsWith("ip:")) {
           line = String.format("  ip: '%s'", nodeInstance.getConfig().getHostAddress());
         } else if (line.trim().startsWith("port:")) {
-          line = String.format("  port: %d", cloudService.getServiceConfiguration().getPort());
+          line = String.format("  port: %d", cloudService.getServiceConfiguration().port());
         }
         return line;
       });

@@ -116,9 +116,9 @@ public final class BukkitCompatibility {
   }
 
   public static void setSignGlowing(@NotNull org.bukkit.block.Sign sign, @NotNull SignLayout layout) {
-    if (SET_GLOWING != null && SET_DYE_COLOR != null && layout.getGlowingColor() != null) {
+    if (SET_GLOWING != null && SET_DYE_COLOR != null && layout.glowingColor() != null) {
       // try to find the defined dye color
-      var color = Enums.getIfPresent(DyeColor.class, layout.getGlowingColor().toUpperCase()).orNull();
+      var color = Enums.getIfPresent(DyeColor.class, layout.glowingColor().toUpperCase()).orNull();
       if (color != null) {
         try {
           // enable the glowing of the sign

@@ -51,7 +51,7 @@ public final class SpongePlayerManagementListener {
     // check if the current task is present
     if (task != null) {
       // check if maintenance is activated
-      if (task.isMaintenance() && !user.hasPermission("cloudnet.bridge.maintenance")) {
+      if (task.maintenance() && !user.hasPermission("cloudnet.bridge.maintenance")) {
         event.setCancelled(true);
         event.setMessage(Component.text(this.management.getConfiguration().getMessage(
           Locale.ENGLISH,
@@ -59,7 +59,7 @@ public final class SpongePlayerManagementListener {
         return;
       }
       // check if a custom permission is required to join
-      var permission = task.getProperties().getString("requiredPermission");
+      var permission = task.properties().getString("requiredPermission");
       if (permission != null && !user.hasPermission(permission)) {
         event.setCancelled(true);
         event.setMessage(Component.text(this.management.getConfiguration().getMessage(

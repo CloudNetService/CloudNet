@@ -44,10 +44,11 @@ public class CloudPlayer extends CloudOfflinePlayer {
     @NotNull JsonDocument onlineProperties,
     long firstLoginTimeMillis,
     long lastLoginTimeMillis,
+    @NotNull String name,
     @NotNull NetworkPlayerProxyInfo lastNetworkPlayerProxyInfo,
     @NotNull JsonDocument properties
   ) {
-    super(firstLoginTimeMillis, lastLoginTimeMillis, networkPlayerProxyInfo.name(), lastNetworkPlayerProxyInfo);
+    super(firstLoginTimeMillis, lastLoginTimeMillis, name, lastNetworkPlayerProxyInfo);
     this.loginService = loginService;
     this.connectedService = connectedService;
     this.networkPlayerProxyInfo = networkPlayerProxyInfo;
@@ -93,7 +94,7 @@ public class CloudPlayer extends CloudOfflinePlayer {
   }
 
   public PlayerExecutor getPlayerExecutor() {
-    return CloudNetDriver.getInstance().getServicesRegistry()
+    return CloudNetDriver.instance().servicesRegistry()
       .getFirstService(IPlayerManager.class)
       .getPlayerExecutor(this.getUniqueId());
   }

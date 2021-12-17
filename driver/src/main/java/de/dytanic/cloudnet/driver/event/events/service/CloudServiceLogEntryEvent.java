@@ -25,11 +25,10 @@ public final class CloudServiceLogEntryEvent extends CloudServiceEvent {
 
   public CloudServiceLogEntryEvent(@NotNull ServiceInfoSnapshot service, @NotNull String line) {
     super(service);
-
     this.line = line;
   }
 
-  public @NotNull String getLine() {
+  public @NotNull String line() {
     return this.line;
   }
 }

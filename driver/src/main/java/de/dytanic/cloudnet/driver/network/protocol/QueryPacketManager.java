@@ -26,18 +26,18 @@ import org.jetbrains.annotations.UnmodifiableView;
 
 public interface QueryPacketManager {
 
-  long getQueryTimeoutMillis();
+  long queryTimeoutMillis();
 
-  @NotNull INetworkChannel getNetworkChannel();
+  @NotNull INetworkChannel networkChannel();
 
   @NotNull
-  @UnmodifiableView Map<UUID, CompletableTask<IPacket>> getWaitingHandlers();
+  @UnmodifiableView Map<UUID, CompletableTask<IPacket>> waitingHandlers();
 
   boolean hasWaitingHandler(@NotNull UUID queryUniqueId);
 
   boolean unregisterWaitingHandler(@NotNull UUID queryUniqueId);
 
-  @Nullable CompletableTask<IPacket> getWaitingHandler(@NotNull UUID queryUniqueId);
+  @Nullable CompletableTask<IPacket> waitingHandler(@NotNull UUID queryUniqueId);
 
   @NotNull CompletableTask<IPacket> sendQueryPacket(@NotNull IPacket packet);
 

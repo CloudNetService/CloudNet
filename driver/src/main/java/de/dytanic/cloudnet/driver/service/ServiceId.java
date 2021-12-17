@@ -70,55 +70,55 @@ public class ServiceId implements INameable {
     return this.taskName + this.nameSplitter + this.taskServiceId;
   }
 
-  public @NotNull UUID getUniqueId() {
+  public @NotNull UUID uniqueId() {
     return this.uniqueId;
   }
 
   @Internal
-  public void setUniqueId(@NotNull UUID uniqueId) {
+  public void uniqueId(@NotNull UUID uniqueId) {
     this.uniqueId = uniqueId;
   }
 
-  public @UnknownNullability String getNodeUniqueId() {
+  public @UnknownNullability String nodeUniqueId() {
     return this.nodeUniqueId;
   }
 
   @Internal
-  public void setNodeUniqueId(@NotNull String nodeUniqueId) {
+  public void nodeUniqueId(@NotNull String nodeUniqueId) {
     this.nodeUniqueId = nodeUniqueId;
   }
 
-  public @NotNull Collection<String> getAllowedNodes() {
+  public @NotNull Collection<String> allowedNodes() {
     return this.allowedNodes;
   }
 
-  public @NotNull String getTaskName() {
+  public @NotNull String taskName() {
     return this.taskName;
   }
 
-  public @NotNull String getNameSplitter() {
+  public @NotNull String nameSplitter() {
     return this.nameSplitter;
   }
 
-  public @NotNull String getEnvironmentName() {
+  public @NotNull String environmentName() {
     return this.environmentName;
   }
 
-  public int getTaskServiceId() {
+  public int taskServiceId() {
     return this.taskServiceId;
   }
 
   @Internal
-  public void setTaskServiceId(int taskServiceId) {
+  public void taskServiceId(int taskServiceId) {
     this.taskServiceId = taskServiceId;
   }
 
-  public @UnknownNullability ServiceEnvironmentType getEnvironment() {
+  public @UnknownNullability ServiceEnvironmentType environment() {
     return this.environment;
   }
 
   @Internal
-  public void setEnvironment(@NotNull ServiceEnvironmentType environment) {
+  public void environment(@NotNull ServiceEnvironmentType environment) {
     this.environment = environment;
   }
 

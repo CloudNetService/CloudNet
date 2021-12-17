@@ -81,10 +81,10 @@ public class DefaultPersistableModuleDependencyLoader extends DefaultMemoryModul
    * @throws Exception if any exception occurs during the load of the dependency.
    */
   protected @NotNull URL loadDependency(@NotNull ModuleDependency dependency, @NotNull URL url) throws Exception {
-    var destFile = FileUtils.resolve(this.baseDirectory, dependency.getGroup().split("\\."))
-      .resolve(dependency.getName())
-      .resolve(dependency.getVersion())
-      .resolve(String.format(FILE_NAME_FORMAT, dependency.getName(), dependency.getVersion()));
+    var destFile = FileUtils.resolve(this.baseDirectory, dependency.group().split("\\."))
+      .resolve(dependency.name())
+      .resolve(dependency.version())
+      .resolve(String.format(FILE_NAME_FORMAT, dependency.name(), dependency.version()));
     FileUtils.ensureChild(this.baseDirectory, destFile);
 
     if (Files.notExists(destFile)) {
@@ -101,7 +101,7 @@ public class DefaultPersistableModuleDependencyLoader extends DefaultMemoryModul
    *
    * @return the base directory in which the dependencies should be stored.
    */
-  public @NotNull Path getBaseDirectory() {
+  public @NotNull Path baseDirectory() {
     return this.baseDirectory;
   }
 }

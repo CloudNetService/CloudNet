@@ -22,8 +22,8 @@ import org.jetbrains.annotations.UnmodifiableView;
 
 public interface RPCChain extends RPCProvider, RPCExecutable, ChainableRPC {
 
-  @NotNull RPC getRootRPC();
+  @NotNull RPC head();
 
   @NotNull
-  @UnmodifiableView Collection<RPC> getJoins();
+  @UnmodifiableView Collection<RPC> joins();
 }

@@ -33,55 +33,55 @@ public interface IModuleProvider {
    * not specifically set a data directory.
    *
    * @return the base directory of this module provider.
-   * @see #setModuleDirectoryPath(Path)
+   * @see #moduleDirectoryPath(Path)
    */
-  @NotNull Path getModuleDirectoryPath();
+  @NotNull Path moduleDirectoryPath();
 
   /**
    * Sets the base directory of this module provider. It will be used to provide the data directory for modules which
    * did not specifically set a data directory.
    *
    * @param moduleDirectory the module directory to use.
-   * @see #getModuleDirectoryPath()
+   * @see #moduleDirectoryPath()
    */
-  void setModuleDirectoryPath(@NotNull Path moduleDirectory);
+  void moduleDirectoryPath(@NotNull Path moduleDirectory);
 
   /**
    * Get the module provider handler of this provider or {@code null} when no handler is specified.
    *
    * @return the module provider handler of this provider or {@code null}.
-   * @see #setModuleProviderHandler(IModuleProviderHandler)
+   * @see #moduleProviderHandler(IModuleProviderHandler)
    */
-  @Nullable IModuleProviderHandler getModuleProviderHandler();
+  @Nullable IModuleProviderHandler moduleProviderHandler();
 
   /**
    * Sets the module provider handler of this provider.
    *
    * @param moduleProviderHandler the new module provider to use or {@code null} when no handler should be used.
-   * @see #getModuleProviderHandler()
+   * @see #moduleProviderHandler()
    */
-  void setModuleProviderHandler(@Nullable IModuleProviderHandler moduleProviderHandler);
+  void moduleProviderHandler(@Nullable IModuleProviderHandler moduleProviderHandler);
 
   /**
    * Get the module dependency loader. It's used to load all dependencies of all modules.
    * <p>This handler is by default {@link DefaultMemoryModuleDependencyLoader}.</p>
    *
    * @return the module provider handler used for this provider.
-   * @see #setModuleDependencyLoader(IModuleDependencyLoader)
+   * @see #moduleDependencyLoader(IModuleDependencyLoader)
    * @see DefaultMemoryModuleDependencyLoader
    * @see DefaultPersistableModuleDependencyLoader
    */
-  @NotNull IModuleDependencyLoader getModuleDependencyLoader();
+  @NotNull IModuleDependencyLoader moduleDependencyLoader();
 
   /**
    * Sets the module dependency loader which should be used by this provider.
    *
    * @param moduleDependencyLoader the module dependency loader to use.
-   * @see #getModuleDependencyLoader()
+   * @see #moduleDependencyLoader()
    * @see DefaultMemoryModuleDependencyLoader
    * @see DefaultPersistableModuleDependencyLoader
    */
-  void setModuleDependencyLoader(@NotNull IModuleDependencyLoader moduleDependencyLoader);
+  void moduleDependencyLoader(@NotNull IModuleDependencyLoader moduleDependencyLoader);
 
   /**
    * Get all loaded, started, stopped modules provided by this provider.
@@ -90,7 +90,7 @@ public interface IModuleProvider {
    * @see ModuleLifeCycle
    */
   @NotNull
-  @Unmodifiable Collection<IModuleWrapper> getModules();
+  @Unmodifiable Collection<IModuleWrapper> modules();
 
   /**
    * Get all loaded, started, stopped modules provided by this provider which have the specific given group.
@@ -101,7 +101,7 @@ public interface IModuleProvider {
    * @see ModuleLifeCycle
    */
   @NotNull
-  @Unmodifiable Collection<IModuleWrapper> getModules(@NotNull String group);
+  @Unmodifiable Collection<IModuleWrapper> modules(@NotNull String group);
 
   /**
    * Get a module by the given name.
@@ -109,7 +109,7 @@ public interface IModuleProvider {
    * @param name the name of the module to get.
    * @return the module associated with the name or {@code null} if no such module is loaded.
    */
-  @Nullable IModuleWrapper getModule(@NotNull String name);
+  @Nullable IModuleWrapper module(@NotNull String name);
 
   /**
    * Loads a module from the given {@code url}.
@@ -147,7 +147,7 @@ public interface IModuleProvider {
    * Starts all modules which are loaded by this provided and can change to the started state.
    *
    * @return the same instance of the class, for chaining.
-   * @see IModuleWrapper#getModuleLifeCycle()
+   * @see IModuleWrapper#moduleLifeCycle()
    * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
    */
   @NotNull IModuleProvider startAll();
@@ -156,7 +156,7 @@ public interface IModuleProvider {
    * Reloads all modules which are loaded by this provided and can change to the started state.
    *
    * @return the same instance of the class, for chaining.
-   * @see IModuleWrapper#getModuleLifeCycle()
+   * @see IModuleWrapper#moduleLifeCycle()
    * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
    */
   @NotNull IModuleProvider reloadAll();
@@ -165,7 +165,7 @@ public interface IModuleProvider {
    * Stops all modules which are loaded by this provided and can change to the stopped state.
    *
    * @return the same instance of the class, for chaining.
-   * @see IModuleWrapper#getModuleLifeCycle()
+   * @see IModuleWrapper#moduleLifeCycle()
    * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
    */
   @NotNull IModuleProvider stopAll();
@@ -174,7 +174,7 @@ public interface IModuleProvider {
    * Unloads all modules which are loaded by this provided and can change to the unloaded state.
    *
    * @return the same instance of the class, for chaining.
-   * @see IModuleWrapper#getModuleLifeCycle()
+   * @see IModuleWrapper#moduleLifeCycle()
    * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
    */
   @NotNull IModuleProvider unloadAll();

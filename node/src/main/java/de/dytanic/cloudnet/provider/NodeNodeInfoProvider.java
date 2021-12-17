@@ -38,16 +38,16 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
 
   public NodeNodeInfoProvider(@NotNull CloudNet nodeInstance) {
     this.clusterNodeServerProvider = nodeInstance.getClusterNodeServerProvider();
-    nodeInstance.getRPCProviderFactory().newHandler(NodeInfoProvider.class, this).registerToDefaultRegistry();
+    nodeInstance.rpcProviderFactory().newHandler(NodeInfoProvider.class, this).registerToDefaultRegistry();
   }
 
   @Override
-  public @NotNull Collection<CommandInfo> getConsoleCommands() {
+  public @NotNull Collection<CommandInfo> consoleCommands() {
     return CloudNet.getInstance().getCommandProvider().getCommands();
   }
 
   @Override
-  public NetworkClusterNode[] getNodes() {
+  public NetworkClusterNode[] nodes() {
     return this.clusterNodeServerProvider.getNodeServers().stream()
       .map(IClusterNodeServer::getNodeInfo)
       .toArray(NetworkClusterNode[]::new);
@@ -55,22 +55,22 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
 
   @Nullable
   @Override
-  public NetworkClusterNode getNode(@NotNull String uniqueId) {
+  public NetworkClusterNode node(@NotNull String uniqueId) {
     Preconditions.checkNotNull(uniqueId);
     // check if the current node is requested
-    if (uniqueId.equals(this.clusterNodeServerProvider.getSelfNode().getNodeInfo().getUniqueId())) {
+    if (uniqueId.equals(this.clusterNodeServerProvider.getSelfNode().getNodeInfo().uniqueId())) {
       return this.clusterNodeServerProvider.getSelfNode().getNodeInfo();
     }
     // find the node info
     return this.clusterNodeServerProvider.getNodeServers().stream()
       .map(IClusterNodeServer::getNodeInfo)
-      .filter(nodeInfo -> nodeInfo.getUniqueId().equals(uniqueId))
+      .filter(nodeInfo -> nodeInfo.uniqueId().equals(uniqueId))
       .findFirst()
       .orElse(null);
   }
 
   @Override
-  public NetworkClusterNodeInfoSnapshot[] getNodeInfoSnapshots() {
+  public NetworkClusterNodeInfoSnapshot[] nodeInfoSnapshots() {
     return this.clusterNodeServerProvider.getNodeServers().stream()
       .map(IClusterNodeServer::getNodeInfoSnapshot)
       .filter(Objects::nonNull)
@@ -79,14 +79,14 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
 
   @Nullable
   @Override
-  public NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot(@NotNull String uniqueId) {
+  public NetworkClusterNodeInfoSnapshot nodeInfoSnapshot(@NotNull String uniqueId) {
     // check if the current node is requested
-    if (uniqueId.equals(this.clusterNodeServerProvider.getSelfNode().getNodeInfo().getUniqueId())) {
+    if (uniqueId.equals(this.clusterNodeServerProvider.getSelfNode().getNodeInfo().uniqueId())) {
       return this.clusterNodeServerProvider.getSelfNode().getNodeInfoSnapshot();
     }
     // find the node we are looking for
     return this.clusterNodeServerProvider.getNodeServers().stream()
-      .filter(nodeServer -> nodeServer.getNodeInfo().getUniqueId().equals(uniqueId))
+      .filter(nodeServer -> nodeServer.getNodeInfo().uniqueId().equals(uniqueId))
       .map(IClusterNodeServer::getNodeInfoSnapshot)
       .filter(Objects::nonNull)
       .findFirst()
@@ -106,7 +106,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
   public @NotNull Collection<String> sendCommandLineToNode(@NotNull String nodeUniqueId, @NotNull String commandLine) {
     Preconditions.checkNotNull(nodeUniqueId);
     // check if we should execute the command on the current node
-    if (nodeUniqueId.equals(this.clusterNodeServerProvider.getSelfNode().getNodeInfo().getUniqueId())) {
+    if (nodeUniqueId.equals(this.clusterNodeServerProvider.getSelfNode().getNodeInfo().uniqueId())) {
       return this.sendCommandLine(commandLine);
     }
     // find the node server and execute the command on there
@@ -120,12 +120,12 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
 
   @Nullable
   @Override
-  public CommandInfo getConsoleCommand(@NotNull String commandLine) {
+  public CommandInfo consoleCommand(@NotNull String commandLine) {
     return CloudNet.getInstance().getCommandProvider().getCommand(commandLine);
   }
 
   @Override
-  public @NotNull Collection<String> getConsoleTabCompleteResults(@NotNull String commandLine) {
+  public @NotNull Collection<String> consoleTabCompleteResults(@NotNull String commandLine) {
     return CloudNet.getInstance().getCommandProvider().suggest(CommandSource.console(), commandLine);
   }
 }

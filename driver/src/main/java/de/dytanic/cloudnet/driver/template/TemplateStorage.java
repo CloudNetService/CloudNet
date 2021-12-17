@@ -209,7 +209,7 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    * @throws IOException if an I/O error occurred
    */
   @Nullable
-  FileInfo getFileInfo(@NotNull ServiceTemplate template, @NotNull String path) throws IOException;
+  FileInfo fileInfo(@NotNull ServiceTemplate template, @NotNull String path) throws IOException;
 
   /**
    * Lists all files in the given directory.
@@ -230,7 +230,7 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    * @return a list of all templates
    */
   @NotNull
-  Collection<ServiceTemplate> getTemplates();
+  Collection<ServiceTemplate> templates();
 
   /**
    * Closes this storage, after it has been closed, no more interaction to this storage should be done and might lead to
@@ -448,8 +448,8 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    * @return the {@link FileInfo} or {@code null} if the file/directory doesn't exist
    */
   @NotNull
-  default ITask<FileInfo> getFileInfoAsync(@NotNull ServiceTemplate template, @NotNull String path) {
-    return CompletableTask.supply(() -> this.getFileInfo(template, path));
+  default ITask<FileInfo> fileInfoAsync(@NotNull ServiceTemplate template, @NotNull String path) {
+    return CompletableTask.supply(() -> this.fileInfo(template, path));
   }
 
   /**
@@ -472,8 +472,8 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    * @return a list of all templates
    */
   @NotNull
-  default ITask<Collection<ServiceTemplate>> getTemplatesAsync() {
-    return CompletableTask.supply(this::getTemplates);
+  default ITask<Collection<ServiceTemplate>> templatesAsync() {
+    return CompletableTask.supply(this::templates);
   }
 
   /**

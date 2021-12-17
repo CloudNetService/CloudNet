@@ -55,9 +55,9 @@ public final class CloudNetBridgeModule extends DriverModule {
 
   @ModuleTask(order = 40, event = ModuleLifeCycle.LOADED)
   public void convertOldConfiguration() {
-    var oldConfigurationPath = this.getModuleWrapper()
-      .getModuleProvider()
-      .getModuleDirectoryPath()
+    var oldConfigurationPath = this.moduleWrapper()
+      .moduleProvider()
+      .moduleDirectoryPath()
       .resolve("CloudNet-Bridge")
       .resolve("config.json");
     // check if the old file exists
@@ -88,7 +88,7 @@ public final class CloudNetBridgeModule extends DriverModule {
         hubCommands,
         fallbacks,
         config.getDocument("properties")
-      )).write(this.getConfigPath());
+      )).write(this.configPath());
       // delete the old config
       FileUtils.delete(oldConfigurationPath.getParent());
     }
@@ -96,7 +96,7 @@ public final class CloudNetBridgeModule extends DriverModule {
 
   @ModuleTask(event = ModuleLifeCycle.STARTED)
   public void convertOldDatabaseEntries() {
-    var playerDb = CloudNet.getInstance().getDatabaseProvider().getDatabase(BRIDGE_PLAYER_DB_NAME);
+    var playerDb = CloudNet.getInstance().databaseProvider().database(BRIDGE_PLAYER_DB_NAME);
     // read the first player from the database - if the first player is valid we don't need to take a look at the other
     // players in the database as they were already converted
     var first = playerDb.readChunk(101, 1);
@@ -153,7 +153,7 @@ public final class CloudNetBridgeModule extends DriverModule {
   public void initModule() {
     // load the configuration file
     var configuration = this.readConfig().toInstanceOf(BridgeConfiguration.class);
-    if (Files.notExists(this.getConfigPath())) {
+    if (Files.notExists(this.configPath())) {
       // create a new configuration
       configuration = new BridgeConfiguration();
       this.writeConfig(JsonDocument.newDocument(configuration));
@@ -162,10 +162,10 @@ public final class CloudNetBridgeModule extends DriverModule {
     BridgeManagement management = new NodeBridgeManagement(
       this,
       configuration,
-      this.getEventManager(),
+      this.eventManager(),
       CloudNet.getInstance().getDataSyncRegistry(),
-      this.getRPCFactory());
-    management.registerServices(this.getServiceRegistry());
+      this.rpcFactory());
+    management.registerServices(this.serviceRegistry());
     management.postInit();
     // register the cluster sync handler
     CloudNet.getInstance().getDataSyncRegistry().registerHandler(DataSyncHandler.<BridgeConfiguration>builder()

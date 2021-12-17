@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface ChunkedPacketProvider {
 
-  @NotNull TransferStatus getTransferStatus();
+  @NotNull TransferStatus transferStatus();
 
-  @NotNull ChunkSessionInformation getSessionInformation();
+  @NotNull ChunkSessionInformation sessionInformation();
 }

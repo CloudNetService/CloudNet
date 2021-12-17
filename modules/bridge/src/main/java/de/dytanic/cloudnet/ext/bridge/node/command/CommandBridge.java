@@ -47,13 +47,13 @@ public class CommandBridge {
 
   public CommandBridge(@NotNull BridgeManagement bridgeManagement) {
     this.bridgeManagement = bridgeManagement;
-    this.groupConfigurationProvider = CloudNet.getInstance().getGroupConfigurationProvider();
+    this.groupConfigurationProvider = CloudNet.getInstance().groupConfigurationProvider();
   }
 
   @Parser(name = "bridgeGroups", suggestions = "bridgeGroups")
   public GroupConfiguration bridgeGroupParser(@NotNull CommandContext<?> $, @NotNull Queue<String> input) {
     var name = input.remove();
-    var group = this.groupConfigurationProvider.getGroupConfiguration(name);
+    var group = this.groupConfigurationProvider.groupConfiguration(name);
     if (group == null) {
       throw new ArgumentNotAvailableException(I18n.trans("module-bridge-command-create-entry-group-not-found"));
     }
@@ -68,7 +68,7 @@ public class CommandBridge {
 
   @Suggestions("bridgeGroups")
   public List<String> suggestBridgeGroups(@NotNull CommandContext<?> $, String input) {
-    return this.groupConfigurationProvider.getGroupConfigurations().stream()
+    return this.groupConfigurationProvider.groupConfigurations().stream()
       .map(INameable::name)
       .filter(group -> this.bridgeManagement.getConfiguration().getFallbackConfigurations().stream()
         .noneMatch(fallback -> fallback.targetGroup().equals(group)))

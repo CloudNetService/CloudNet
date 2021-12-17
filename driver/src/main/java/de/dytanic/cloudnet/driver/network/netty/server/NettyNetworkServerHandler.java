@@ -41,25 +41,25 @@ public class NettyNetworkServerHandler extends NettyNetworkHandler {
   public void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
     this.networkServer.channels.add(this.channel = new NettyNetworkChannel(
       ctx.channel(),
-      this.networkServer.getPacketRegistry(),
+      this.networkServer.packetRegistry(),
       this.networkServer.networkChannelHandlerFactory.call(),
       this.serverLocalAddress,
       HostAndPort.fromSocketAddress(ctx.channel().remoteAddress()),
       false
     ));
 
-    if (this.channel.getHandler() != null) {
-      this.channel.getHandler().handleChannelInitialize(this.channel);
+    if (this.channel.handler() != null) {
+      this.channel.handler().handleChannelInitialize(this.channel);
     }
   }
 
   @Override
-  protected @NotNull Collection<INetworkChannel> getChannels() {
+  protected @NotNull Collection<INetworkChannel> channels() {
     return this.networkServer.channels;
   }
 
   @Override
-  protected @NotNull Executor getPacketDispatcher() {
-    return this.networkServer.getPacketDispatcher();
+  protected @NotNull Executor packetDispatcher() {
+    return this.networkServer.packetDispatcher();
   }
 }

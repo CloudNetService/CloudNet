@@ -37,33 +37,33 @@ public final class SyncProxyCloudListener<P> {
 
   @EventListener
   public void handleServiceLifecycleChange(@NotNull CloudServiceLifecycleChangeEvent event) {
-    if (event.getNewLifeCycle() == ServiceLifeCycle.RUNNING) {
+    if (event.newLifeCycle() == ServiceLifeCycle.RUNNING) {
       // notify the players about a new service start
-      this.notifyPlayers("start-service", event.getServiceInfo());
-    } else if (event.getNewLifeCycle() == ServiceLifeCycle.STOPPED) {
+      this.notifyPlayers("start-service", event.serviceInfo());
+    } else if (event.newLifeCycle() == ServiceLifeCycle.STOPPED) {
       // notify the players about the service stop
-      this.notifyPlayers("stop-service", event.getServiceInfo());
+      this.notifyPlayers("stop-service", event.serviceInfo());
       // remove the ServiceInfoSnapshot from the cache as the service is stopping
-      this.management.removeCachedServiceInfoSnapshot(event.getServiceInfo());
+      this.management.removeCachedServiceInfoSnapshot(event.serviceInfo());
     }
   }
 
   @EventListener
   public void handleServiceUpdate(@NotNull CloudServiceUpdateEvent event) {
     // check if the service is not stopping, as this would lead to issues with the CloudServiceLifecycleChangeEvent
-    if (event.getServiceInfo().getLifeCycle() != ServiceLifeCycle.STOPPED) {
+    if (event.serviceInfo().lifeCycle() != ServiceLifeCycle.STOPPED) {
       // cache the ServiceInfoSnapshot
-      this.management.cacheServiceInfoSnapshot(event.getServiceInfo());
+      this.management.cacheServiceInfoSnapshot(event.serviceInfo());
     }
   }
 
   @EventListener
   public void handleConfigUpdate(@NotNull ChannelMessageReceiveEvent event) {
     // handle incoming channel messages on the syncproxy channel
-    if (event.getChannel().equals(SyncProxyConstants.SYNC_PROXY_CHANNEL)
-      && SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIG.equals(event.getMessage())) {
+    if (event.channel().equals(SyncProxyConstants.SYNC_PROXY_CHANNEL)
+      && SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIG.equals(event.message())) {
       // update the configuration locally
-      this.management.setConfigurationSilently(event.getContent().readObject(SyncProxyConfiguration.class));
+      this.management.setConfigurationSilently(event.content().readObject(SyncProxyConfiguration.class));
     }
   }
 

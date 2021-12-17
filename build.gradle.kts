@@ -63,6 +63,7 @@ subprojects {
 
   tasks.withType<Test> {
     useJUnitPlatform()
+    jvmArgs("--enable-preview")
     testLogging {
       events("started", "passed", "skipped", "failed")
     }
@@ -74,6 +75,7 @@ subprojects {
     // options
     options.encoding = "UTF-8"
     options.isIncremental = true
+    options.compilerArgs.add("--enable-preview")
   }
 /*
   tasks.withType<Javadoc>() {

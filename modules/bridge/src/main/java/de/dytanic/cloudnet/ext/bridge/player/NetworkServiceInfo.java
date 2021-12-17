@@ -30,11 +30,11 @@ public record NetworkServiceInfo(@NotNull Set<String> groups, @NotNull ServiceId
   }
 
   public @NotNull ServiceEnvironmentType environment() {
-    return this.serviceId.getEnvironment();
+    return this.serviceId.environment();
   }
 
   public @NotNull UUID uniqueId() {
-    return this.serviceId.getUniqueId();
+    return this.serviceId.uniqueId();
   }
 
   public @NotNull String serverName() {
@@ -42,6 +42,6 @@ public record NetworkServiceInfo(@NotNull Set<String> groups, @NotNull ServiceId
   }
 
   public @NotNull String taskName() {
-    return this.serviceId.getTaskName();
+    return this.serviceId.taskName();
   }
 }

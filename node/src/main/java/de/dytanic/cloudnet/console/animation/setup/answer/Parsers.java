@@ -101,7 +101,7 @@ public final class Parsers {
 
   public static @NotNull Parser<String> nonExistingTask() {
     return input -> {
-      var task = CloudNet.getInstance().getServiceTaskProvider().getServiceTask(input);
+      var task = CloudNet.getInstance().serviceTaskProvider().serviceTask(input);
       if (task != null) {
         throw ParserException.INSTANCE;
       }

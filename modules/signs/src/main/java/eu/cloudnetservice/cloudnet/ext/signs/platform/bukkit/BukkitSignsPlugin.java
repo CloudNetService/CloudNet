@@ -43,13 +43,13 @@ public class BukkitSignsPlugin extends JavaPlugin {
     // bukkit listeners
     Bukkit.getPluginManager().registerEvents(new SignInteractListener(signManagement), this);
     // cloudnet listeners
-    CloudNetDriver.getInstance().getEventManager().registerListeners(
+    CloudNetDriver.instance().eventManager().registerListeners(
       new GlobalChannelMessageListener(signManagement), new SignsPlatformListener(signManagement));
   }
 
   @Override
   public void onDisable() {
     BukkitSignManagement.getDefaultInstance().unregisterFromServiceRegistry();
-    CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
+    CloudNetDriver.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
   }
 }

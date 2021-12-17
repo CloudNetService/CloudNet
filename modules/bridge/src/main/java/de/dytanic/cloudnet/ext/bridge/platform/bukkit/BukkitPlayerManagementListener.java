@@ -46,7 +46,7 @@ final class BukkitPlayerManagementListener implements Listener {
     // check if the current task is present
     if (task != null) {
       // check if maintenance is activated
-      if (task.isMaintenance() && !event.getPlayer().hasPermission("cloudnet.bridge.maintenance")) {
+      if (task.maintenance() && !event.getPlayer().hasPermission("cloudnet.bridge.maintenance")) {
         event.setResult(Result.KICK_WHITELIST);
         event.setKickMessage(this.management.getConfiguration().getMessage(
           Locale.forLanguageTag(BukkitUtil.getPlayerLocale(event.getPlayer())),
@@ -54,7 +54,7 @@ final class BukkitPlayerManagementListener implements Listener {
         return;
       }
       // check if a custom permission is required to join
-      var permission = task.getProperties().getString("requiredPermission");
+      var permission = task.properties().getString("requiredPermission");
       if (permission != null && !event.getPlayer().hasPermission(permission)) {
         event.setResult(Result.KICK_WHITELIST);
         event.setKickMessage(this.management.getConfiguration().getMessage(

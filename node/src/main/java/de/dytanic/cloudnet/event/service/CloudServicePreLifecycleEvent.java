@@ -36,12 +36,12 @@ public final class CloudServicePreLifecycleEvent extends CloudServiceEvent imple
   }
 
   @Override
-  public boolean isCancelled() {
+  public boolean cancelled() {
     return this.cancelled;
   }
 
   @Override
-  public void setCancelled(boolean value) {
+  public void cancelled(boolean value) {
     this.cancelled = value;
   }
 }

@@ -47,7 +47,7 @@ public final class NettyPacketDecoder extends ByteToMessageDecoder {
       DataBuf body = new NettyImmutableDataBuf(byteBuf.readBytes(NettyUtils.readVarInt(byteBuf)));
 
       var packet = new Packet(channel, body);
-      packet.setUniqueId(queryUniqueId);
+      packet.uniqueId(queryUniqueId);
 
       out.add(packet);
     } catch (Exception exception) {

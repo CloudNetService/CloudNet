@@ -35,7 +35,10 @@ public abstract class UnloadedModuleEvent extends DriverEvent {
    * @param moduleProvider      the module provider by which the module got loaded.
    * @param moduleConfiguration the configuration of the module which got loaded as there is no instance yet created.
    */
-  public UnloadedModuleEvent(IModuleProvider moduleProvider, ModuleConfiguration moduleConfiguration) {
+  public UnloadedModuleEvent(
+    @NotNull IModuleProvider moduleProvider,
+    @NotNull ModuleConfiguration moduleConfiguration
+  ) {
     this.moduleProvider = moduleProvider;
     this.moduleConfiguration = moduleConfiguration;
   }
@@ -45,7 +48,7 @@ public abstract class UnloadedModuleEvent extends DriverEvent {
    *
    * @return the module provider which loaded the module.
    */
-  public @NotNull IModuleProvider getModuleProvider() {
+  public @NotNull IModuleProvider moduleProvider() {
     return this.moduleProvider;
   }
 
@@ -54,7 +57,7 @@ public abstract class UnloadedModuleEvent extends DriverEvent {
    *
    * @return the module configuration of the module.
    */
-  public @NotNull ModuleConfiguration getModuleConfiguration() {
+  public @NotNull ModuleConfiguration moduleConfiguration() {
     return this.moduleConfiguration;
   }
 }

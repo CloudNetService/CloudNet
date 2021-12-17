@@ -38,18 +38,18 @@ public final class BridgeLocalProxyPlayerDisconnectListener {
 
   @EventListener
   public void handleServiceUpdate(@NotNull CloudServiceUpdateEvent event) {
-    var info = event.getServiceInfo();
-    if (info.getServiceId().getNodeUniqueId().equals(CloudNetDriver.getInstance().getComponentName())
-      && ServiceEnvironmentType.isMinecraftProxy(info.getServiceId().getEnvironment())) {
+    var info = event.serviceInfo();
+    if (info.serviceId().nodeUniqueId().equals(CloudNetDriver.instance().componentName())
+      && ServiceEnvironmentType.isMinecraftProxy(info.serviceId().environment())) {
       // get all the players which are connected to the proxy
-      var players = info.getProperty(BridgeServiceProperties.PLAYERS).orElse(null);
+      var players = info.property(BridgeServiceProperties.PLAYERS).orElse(null);
       if (players == null) {
         // no player property there yet, skip the check
         return;
       }
       // test if any player has the login service but is not connected to it
       for (var value : this.playerManager.getOnlinePlayers().values()) {
-        if (value.getLoginService().serviceId().getUniqueId().equals(info.getServiceId().getUniqueId())) {
+        if (value.getLoginService().serviceId().uniqueId().equals(info.serviceId().uniqueId())) {
           // the player is on the service
           var match = Iterables.tryFind(
             players,
@@ -73,10 +73,10 @@ public final class BridgeLocalProxyPlayerDisconnectListener {
   }
 
   private void handleCloudServiceRemove(@NotNull ServiceInfoSnapshot snapshot) {
-    if (ServiceEnvironmentType.isMinecraftProxy(snapshot.getServiceId().getEnvironment())) {
+    if (ServiceEnvironmentType.isMinecraftProxy(snapshot.serviceId().environment())) {
       // test if any player has the stopped service as the login service
       for (var value : this.playerManager.getOnlinePlayers().values()) {
-        if (value.getLoginService().serviceId().getUniqueId().equals(snapshot.getServiceId().getUniqueId())) {
+        if (value.getLoginService().serviceId().uniqueId().equals(snapshot.serviceId().uniqueId())) {
           // the player was connected to that proxy, log him out now
           this.playerManager.logoutPlayer(value);
         }

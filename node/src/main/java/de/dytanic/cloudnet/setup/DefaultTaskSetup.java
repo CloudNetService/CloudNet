@@ -82,7 +82,7 @@ public class DefaultTaskSetup implements DefaultSetup {
                     .parser(serviceEnvironmentType())
                     .possibleResults(this.getVersionProvider().getKnownEnvironments().values().stream()
                       .filter(type -> {
-                        IDocument<?> properties = type.getProperties();
+                        IDocument<?> properties = type.properties();
                         return JAVA_PROXY.get(properties) || PE_PROXY.get(properties);
                       })
                       .map(ServiceEnvironmentType::name)
@@ -129,7 +129,7 @@ public class DefaultTaskSetup implements DefaultSetup {
                     .parser(serviceEnvironmentType())
                     .possibleResults(this.getVersionProvider().getKnownEnvironments().values().stream()
                       .filter(type -> {
-                        IDocument<?> properties = type.getProperties();
+                        IDocument<?> properties = type.properties();
                         return JAVA_SERVER.get(properties) || PE_SERVER.get(properties);
                       })
                       .map(ServiceEnvironmentType::name)
@@ -184,7 +184,7 @@ public class DefaultTaskSetup implements DefaultSetup {
     Pair<ServiceVersionType, ServiceVersion> version = animation.getResult(resultPrefix + "Version");
     // create the task
     var template = ServiceTemplate.builder().prefix(taskName).name("default").build();
-    CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask(ServiceTask.builder()
+    CloudNet.getInstance().serviceTaskProvider().addPermanentServiceTask(ServiceTask.builder()
       .name(taskName)
       .minServiceCount(1)
       .autoDeleteOnStop(true)
@@ -192,7 +192,7 @@ public class DefaultTaskSetup implements DefaultSetup {
       .javaCommand(javaCommand.first())
       .serviceEnvironmentType(environment)
       .groups(Collections.singletonList(groupName))
-      .startPort(environment.getDefaultServiceStartPort())
+      .startPort(environment.defaultStartPort())
       .templates(Collections.singletonList(template))
       .build());
 
@@ -200,14 +200,14 @@ public class DefaultTaskSetup implements DefaultSetup {
     var groupTemplate = ServiceTemplate.builder().prefix(GLOBAL_TEMPLATE_PREFIX).name(groupName).build();
     this.initializeTemplate(groupTemplate, environment, false);
     // register the group
-    CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration(GroupConfiguration.builder()
+    CloudNet.getInstance().groupConfigurationProvider().addGroupConfiguration(GroupConfiguration.builder()
       .name(groupName)
       .addTargetEnvironment(environment.name())
       .addTemplate(groupTemplate)
       .build());
 
     // create a group specifically for the task
-    CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration(GroupConfiguration.builder()
+    CloudNet.getInstance().groupConfigurationProvider().addGroupConfiguration(GroupConfiguration.builder()
       .name(taskName)
       .addTemplate(template)
       .build());
@@ -243,7 +243,7 @@ public class DefaultTaskSetup implements DefaultSetup {
     @NotNull Pair<String, JavaVersion> javaVersion
   ) {
     return this.getVersionProvider().getServiceVersionTypes().values().stream()
-      .filter(versionType -> versionType.getEnvironmentType().equals(type.name()))
+      .filter(versionType -> versionType.environmentType().equals(type.name()))
       .flatMap(serviceVersionType -> serviceVersionType.getVersions()
         .stream()
         .filter(version -> version.canRun(javaVersion.second()))

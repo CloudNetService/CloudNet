@@ -21,15 +21,15 @@ import org.jetbrains.annotations.NotNull;
 
 public interface RPC extends RPCProvider, RPCExecutable, ChainableRPC {
 
-  @NotNull RPCSender getSender();
+  @NotNull RPCSender sender();
 
-  @NotNull String getClassName();
+  @NotNull String className();
 
-  @NotNull String getMethodName();
+  @NotNull String methodName();
 
-  @NotNull Object[] getArguments();
+  @NotNull Object[] arguments();
 
-  @NotNull Type getExpectedResultType();
+  @NotNull Type expectedResultType();
 
   @NotNull RPC disableResultExpectation();
 

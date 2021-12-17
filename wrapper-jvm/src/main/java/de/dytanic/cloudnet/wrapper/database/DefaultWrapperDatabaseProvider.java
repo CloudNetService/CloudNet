@@ -30,14 +30,14 @@ public class DefaultWrapperDatabaseProvider implements DatabaseProvider {
 
   public DefaultWrapperDatabaseProvider(@NotNull Wrapper wrapper) {
     this.wrapper = wrapper;
-    this.rpcSender = wrapper.getRPCProviderFactory().providerForClass(
-      wrapper.getNetworkClient(),
+    this.rpcSender = wrapper.rpcProviderFactory().providerForClass(
+      wrapper.networkClient(),
       DatabaseProvider.class);
   }
 
   @Override
-  public @NotNull Database getDatabase(@NotNull String name) {
-    return new WrapperDatabase(name, this.wrapper, this.rpcSender.invokeMethod("getDatabase", name));
+  public @NotNull Database database(@NotNull String name) {
+    return new WrapperDatabase(name, this.wrapper, this.rpcSender.invokeMethod("database", name));
   }
 
   @Override
@@ -51,7 +51,7 @@ public class DefaultWrapperDatabaseProvider implements DatabaseProvider {
   }
 
   @Override
-  public @NotNull Collection<String> getDatabaseNames() {
-    return this.rpcSender.invokeMethod("getDatabaseNames").fireSync();
+  public @NotNull Collection<String> databaseNames() {
+    return this.rpcSender.invokeMethod("databaseNames").fireSync();
   }
 }

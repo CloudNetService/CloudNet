@@ -64,7 +64,7 @@ public abstract class V2HttpHandler implements IHttpHandler {
   }
 
   @Override
-  public void handle(String path, IHttpContext context) throws Exception {
+  public void handle(@NotNull String path, @NotNull IHttpContext context) throws Exception {
     if (context.request().method().equalsIgnoreCase("OPTIONS")) {
       this.sendOptions(context);
     } else {
@@ -127,7 +127,7 @@ public abstract class V2HttpHandler implements IHttpHandler {
     if (this.requiredPermission == null || this.requiredPermission.isEmpty()) {
       return true;
     } else {
-      return CloudNetDriver.getInstance().getPermissionManagement().hasPermission(
+      return CloudNetDriver.instance().permissionManagement().hasPermission(
         user,
         new Permission(this.requiredPermission + '.' + request.method().toLowerCase()));
     }

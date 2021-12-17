@@ -43,7 +43,7 @@ public final class DefaultNetworkClientChannelHandler implements INetworkChannel
   public void handleChannelInitialize(@NotNull INetworkChannel channel) {
     if (NodeNetworkUtils.shouldInitializeChannel(channel, ChannelType.CLIENT_CHANNEL)) {
       // add the result handler for the auth
-      channel.getPacketRegistry().addListener(
+      channel.packetRegistry().addListener(
         NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL,
         new PacketServerAuthorizationResponseListener());
       // send the authentication request
@@ -54,8 +54,8 @@ public final class DefaultNetworkClientChannelHandler implements INetworkChannel
           .writeObject(CloudNet.getInstance().getConfig().getIdentity())));
 
       LOGGER.fine(I18n.trans("client-network-channel-init")
-        .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
-        .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort()));
+        .replace("%serverAddress%", channel.serverAddress().host() + ":" + channel.serverAddress().port())
+        .replace("%clientAddress%", channel.clientAddress().host() + ":" + channel.clientAddress().port()));
     } else {
       channel.close();
     }
@@ -63,19 +63,19 @@ public final class DefaultNetworkClientChannelHandler implements INetworkChannel
 
   @Override
   public boolean handlePacketReceive(@NotNull INetworkChannel channel, @NotNull Packet packet) {
-    return !CloudNetDriver.getInstance().getEventManager().callEvent(
-      new NetworkChannelPacketReceiveEvent(channel, packet)).isCancelled();
+    return !CloudNetDriver.instance().eventManager().callEvent(
+      new NetworkChannelPacketReceiveEvent(channel, packet)).cancelled();
   }
 
   @Override
   public void handleChannelClose(@NotNull INetworkChannel channel) {
-    CloudNetDriver.getInstance().getEventManager().callEvent(
+    CloudNetDriver.instance().eventManager().callEvent(
       new NetworkChannelCloseEvent(channel, ChannelType.CLIENT_CHANNEL));
     CONNECTION_COUNTER.decrementAndGet();
 
     LOGGER.fine(I18n.trans("client-network-channel-close")
-      .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
-      .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort()));
+      .replace("%serverAddress%", channel.serverAddress().host() + ":" + channel.serverAddress().port())
+      .replace("%clientAddress%", channel.clientAddress().host() + ":" + channel.clientAddress().port()));
 
     var clusterNodeServer = CloudNet.getInstance().getClusterNodeServerProvider().getNodeServer(channel);
     if (clusterNodeServer != null) {

@@ -107,17 +107,17 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements INa
   public static @NotNull Builder builder(@NotNull ServiceEnvironmentType type) {
     return builder()
       .name(type.name())
-      .properties(type.getProperties().clone())
-      .defaultServiceStartPort(type.getDefaultServiceStartPort())
-      .defaultProcessArguments(type.getDefaultProcessArguments());
+      .properties(type.properties().clone())
+      .defaultServiceStartPort(type.defaultStartPort())
+      .defaultProcessArguments(type.defaultProcessArguments());
   }
 
   public static boolean isMinecraftProxy(@NotNull ServiceEnvironmentType type) {
-    return JAVA_PROXY.get(type.getProperties()) || PE_PROXY.get(type.getProperties());
+    return JAVA_PROXY.get(type.properties()) || PE_PROXY.get(type.properties());
   }
 
   public static boolean isMinecraftServer(@NotNull ServiceEnvironmentType type) {
-    return JAVA_SERVER.get(type.getProperties()) || PE_SERVER.get(type.getProperties());
+    return JAVA_SERVER.get(type.properties()) || PE_SERVER.get(type.properties());
   }
 
   @Override
@@ -125,11 +125,11 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements INa
     return this.name;
   }
 
-  public int getDefaultServiceStartPort() {
+  public int defaultStartPort() {
     return this.defaultServiceStartPort;
   }
 
-  public @NotNull Collection<String> getDefaultProcessArguments() {
+  public @NotNull Collection<String> defaultProcessArguments() {
     return this.defaultProcessArguments;
   }
 

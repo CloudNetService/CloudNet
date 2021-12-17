@@ -38,13 +38,13 @@ public class ChunkedPacketListener implements IPacketListener {
   @Override
   public void handle(@NotNull INetworkChannel channel, @NotNull IPacket packet) throws Exception {
     // read the chunk information from the buffer
-    var information = packet.getContent().readObject(ChunkSessionInformation.class);
+    var information = packet.content().readObject(ChunkSessionInformation.class);
     // read the chunk index
-    var chunkIndex = packet.getContent().readInt();
+    var chunkIndex = packet.content().readInt();
     // get or create the session associated with the packet
     var handler = this.runningSessions.computeIfAbsent(information, this.handlerFactory);
     // post the packet and check if the session is done
-    if (handler.handleChunkPart(chunkIndex, packet.getContent())) {
+    if (handler.handleChunkPart(chunkIndex, packet.content())) {
       // done, remove the session
       this.runningSessions.remove(information);
     }

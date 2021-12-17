@@ -77,19 +77,19 @@ public class NettyNetworkClient implements DefaultNetworkComponent, INetworkClie
   }
 
   @Override
-  public boolean isSslEnabled() {
+  public boolean sslEnabled() {
     return this.sslContext != null;
   }
 
   @Override
   public boolean connect(@NotNull HostAndPort hostAndPort) {
     Preconditions.checkNotNull(hostAndPort);
-    Preconditions.checkNotNull(hostAndPort.getHost());
+    Preconditions.checkNotNull(hostAndPort.host());
 
     try {
       var bootstrap = new Bootstrap()
         .group(this.eventLoopGroup)
-        .channelFactory(NettyUtils.getClientChannelFactory())
+        .channelFactory(NettyUtils.clientChannelFactory())
         .handler(new NettyNetworkClientInitializer(hostAndPort, this))
 
         .option(ChannelOption.IP_TOS, 0x18)
@@ -103,7 +103,7 @@ public class NettyNetworkClient implements DefaultNetworkComponent, INetworkClie
         bootstrap.option(ChannelOption.TCP_FASTOPEN_CONNECT, true);
       }
       // connect to the server
-      bootstrap.connect(hostAndPort.getHost(), hostAndPort.getPort())
+      bootstrap.connect(hostAndPort.host(), hostAndPort.port())
         .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
         .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
         .syncUninterruptibly();
@@ -123,22 +123,22 @@ public class NettyNetworkClient implements DefaultNetworkComponent, INetworkClie
   }
 
   @Override
-  public @NotNull Collection<INetworkChannel> getChannels() {
+  public @NotNull Collection<INetworkChannel> channels() {
     return Collections.unmodifiableCollection(this.channels);
   }
 
   @Override
-  public @NotNull Executor getPacketDispatcher() {
+  public @NotNull Executor packetDispatcher() {
     return this.packetDispatcher;
   }
 
   @Override
-  public Collection<INetworkChannel> getModifiableChannels() {
+  public Collection<INetworkChannel> modifiableChannels() {
     return this.channels;
   }
 
   @Override
-  public @NotNull IPacketListenerRegistry getPacketRegistry() {
+  public @NotNull IPacketListenerRegistry packetRegistry() {
     return this.packetRegistry;
   }
 

@@ -58,7 +58,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
 
     hikariConfig.setJdbcUrl(String.format(
       CONNECT_URL_FORMAT,
-      endpoint.address().getHost(), endpoint.address().getPort(),
+      endpoint.address().host(), endpoint.address().port(),
       endpoint.database(), endpoint.useSsl(), endpoint.useSsl()
     ));
     hikariConfig.setDriverClassName("com.mysql.cj.jdbc.Driver");
@@ -88,7 +88,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public @NotNull LocalDatabase getDatabase(@NotNull String name) {
+  public @NotNull LocalDatabase database(@NotNull String name) {
     Preconditions.checkNotNull(name);
 
     this.removedOutdatedEntries();
@@ -105,7 +105,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public @NotNull Collection<String> getDatabaseNames() {
+  public @NotNull Collection<String> databaseNames() {
     return this.executeQuery(
       "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='PUBLIC'",
       resultSet -> {

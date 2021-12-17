@@ -23,7 +23,7 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * This event is called before the actual processing of the given command is done. To cancel the execution of the
- * backing command use {@link #setCancelled(boolean)} and set it to {@code true}
+ * backing command use {@link #cancelled(boolean)} and set it to {@code true}
  */
 public class CommandPreProcessEvent extends Event implements ICancelable {
 
@@ -55,14 +55,14 @@ public class CommandPreProcessEvent extends Event implements ICancelable {
   /**
    * @return if the command execution if cancelled
    */
-  public boolean isCancelled() {
+  public boolean cancelled() {
     return this.cancelled;
   }
 
   /**
    * @param cancelled whether this command execution should be cancelled or not.
    */
-  public void setCancelled(boolean cancelled) {
+  public void cancelled(boolean cancelled) {
     this.cancelled = cancelled;
   }
 }

@@ -58,7 +58,7 @@ public abstract class DefaultNetworkChannel implements INetworkChannel {
   }
 
   @Override
-  public ITask<IPacket> sendQueryAsync(@NotNull IPacket packet) {
+  public @NotNull ITask<IPacket> sendQueryAsync(@NotNull IPacket packet) {
     return this.queryPacketManager.sendQueryPacket(packet);
   }
 
@@ -68,42 +68,42 @@ public abstract class DefaultNetworkChannel implements INetworkChannel {
   }
 
   @Override
-  public long getChannelId() {
+  public long channelId() {
     return this.channelId;
   }
 
   @Override
-  public IPacketListenerRegistry getPacketRegistry() {
+  public @NotNull IPacketListenerRegistry packetRegistry() {
     return this.packetRegistry;
   }
 
   @Override
-  public @NotNull QueryPacketManager getQueryPacketManager() {
+  public @NotNull QueryPacketManager queryPacketManager() {
     return this.queryPacketManager;
   }
 
   @Override
-  public HostAndPort getServerAddress() {
+  public @NotNull HostAndPort serverAddress() {
     return this.serverAddress;
   }
 
   @Override
-  public HostAndPort getClientAddress() {
+  public @NotNull HostAndPort clientAddress() {
     return this.clientAddress;
   }
 
   @Override
-  public boolean isClientProvidedChannel() {
+  public boolean clientProvidedChannel() {
     return this.clientProvidedChannel;
   }
 
   @Override
-  public INetworkChannelHandler getHandler() {
+  public @NotNull INetworkChannelHandler handler() {
     return this.handler;
   }
 
   @Override
-  public void setHandler(INetworkChannelHandler handler) {
+  public void handler(@NotNull INetworkChannelHandler handler) {
     this.handler = handler;
   }
 

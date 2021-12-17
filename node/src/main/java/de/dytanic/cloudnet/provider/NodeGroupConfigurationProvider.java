@@ -57,11 +57,11 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
   private final Map<String, GroupConfiguration> groupConfigurations = new ConcurrentHashMap<>();
 
   public NodeGroupConfigurationProvider(@NotNull CloudNet nodeInstance) {
-    this.eventManager = nodeInstance.getEventManager();
+    this.eventManager = nodeInstance.eventManager();
     this.eventManager.registerListener(new GroupChannelMessageListener(this.eventManager, this));
 
     // rpc
-    nodeInstance.getRPCProviderFactory().newHandler(GroupConfigurationProvider.class, this).registerToDefaultRegistry();
+    nodeInstance.rpcProviderFactory().newHandler(GroupConfigurationProvider.class, this).registerToDefaultRegistry();
     // cluster data sync
     nodeInstance.getDataSyncRegistry().registerHandler(
       DataSyncHandler.<GroupConfiguration>builder()
@@ -69,8 +69,8 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
         .nameExtractor(INameable::name)
         .convertObject(GroupConfiguration.class)
         .writer(this::addGroupConfigurationSilently)
-        .dataCollector(this::getGroupConfigurations)
-        .currentGetter(group -> this.getGroupConfiguration(group.name()))
+        .dataCollector(this::groupConfigurations)
+        .currentGetter(group -> this.groupConfiguration(group.name()))
         .build());
 
     if (Files.exists(GROUP_DIRECTORY_PATH)) {
@@ -91,12 +91,12 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
   }
 
   @Override
-  public @NotNull @UnmodifiableView Collection<GroupConfiguration> getGroupConfigurations() {
+  public @NotNull @UnmodifiableView Collection<GroupConfiguration> groupConfigurations() {
     return Collections.unmodifiableCollection(this.groupConfigurations.values());
   }
 
   @Override
-  public void setGroupConfigurations(@NotNull Collection<GroupConfiguration> groupConfigurations) {
+  public void groupConfigurations(@NotNull Collection<GroupConfiguration> groupConfigurations) {
     this.setGroupConfigurationsSilently(groupConfigurations);
     // publish the change to the cluster
     ChannelMessage.builder()
@@ -109,7 +109,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
   }
 
   @Override
-  public @Nullable GroupConfiguration getGroupConfiguration(@NotNull String name) {
+  public @Nullable GroupConfiguration groupConfiguration(@NotNull String name) {
     return this.groupConfigurations.get(name);
   }
 
@@ -120,7 +120,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
 
   @Override
   public void addGroupConfiguration(@NotNull GroupConfiguration groupConfiguration) {
-    if (!this.eventManager.callEvent(new LocalGroupConfigurationAddEvent(groupConfiguration)).isCancelled()) {
+    if (!this.eventManager.callEvent(new LocalGroupConfigurationAddEvent(groupConfiguration)).cancelled()) {
       this.addGroupConfigurationSilently(groupConfiguration);
       // publish the change to the cluster
       ChannelMessage.builder()
@@ -135,7 +135,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
 
   @Override
   public void removeGroupConfigurationByName(@NotNull String name) {
-    var configuration = this.getGroupConfiguration(name);
+    var configuration = this.groupConfiguration(name);
     if (configuration != null) {
       this.removeGroupConfiguration(configuration);
     }
@@ -143,7 +143,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
 
   @Override
   public void removeGroupConfiguration(@NotNull GroupConfiguration groupConfiguration) {
-    if (!this.eventManager.callEvent(new LocalGroupConfigurationRemoveEvent(groupConfiguration)).isCancelled()) {
+    if (!this.eventManager.callEvent(new LocalGroupConfigurationRemoveEvent(groupConfiguration)).cancelled()) {
       this.removeGroupConfigurationSilently(groupConfiguration);
       // publish the change to the cluster
       ChannelMessage.builder()

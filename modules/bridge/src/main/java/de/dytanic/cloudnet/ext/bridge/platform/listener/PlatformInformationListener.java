@@ -35,26 +35,26 @@ public final class PlatformInformationListener {
 
   @EventListener
   public void handle(@NotNull ServiceInfoSnapshotConfigureEvent event) {
-    this.management.appendServiceInformation(event.getServiceInfo());
+    this.management.appendServiceInformation(event.serviceInfo());
   }
 
   @EventListener
   public void handleLifecycleChange(@NotNull CloudServiceLifecycleChangeEvent event) {
-    this.management.handleServiceUpdate(event.getServiceInfo());
+    this.management.handleServiceUpdate(event.serviceInfo());
   }
 
   @EventListener
   public void handleLifecycleChange(@NotNull CloudServiceUpdateEvent event) {
-    this.management.handleServiceUpdate(event.getServiceInfo());
+    this.management.handleServiceUpdate(event.serviceInfo());
   }
 
   @EventListener
   public void handleServiceTaskAdd(@NotNull ServiceTaskAddEvent event) {
-    this.management.handleTaskUpdate(event.getTask().name(), event.getTask());
+    this.management.handleTaskUpdate(event.task().name(), event.task());
   }
 
   @EventListener
   public void handleServiceTaskRemove(@NotNull ServiceTaskRemoveEvent event) {
-    this.management.handleTaskUpdate(event.getTask().name(), null);
+    this.management.handleTaskUpdate(event.task().name(), null);
   }
 }

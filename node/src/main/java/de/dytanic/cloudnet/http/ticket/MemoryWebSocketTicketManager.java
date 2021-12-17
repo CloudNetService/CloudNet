@@ -72,7 +72,7 @@ public class MemoryWebSocketTicketManager implements WebSocketTicketManager {
   ) {
     var ticket = new WebSocketTicket(
       StringUtil.generateRandomString(32),
-      request.context().channel().clientAddress().getHost(),
+      request.context().channel().clientAddress().host(),
       System.currentTimeMillis() + timeout,
       session
     );

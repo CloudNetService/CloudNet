@@ -52,16 +52,16 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
     this.cloudNet = cloudNet;
     this.provider = provider;
 
-    this.rpcSender = cloudNet.getRPCProviderFactory().providerForClass(
-      cloudNet.getNetworkClient(),
+    this.rpcSender = cloudNet.rpcProviderFactory().providerForClass(
+      cloudNet.networkClient(),
       NodeInfoProvider.class);
-    this.nodeServerRPCSender = cloudNet.getRPCProviderFactory().providerForClass(
-      cloudNet.getNetworkClient(),
+    this.nodeServerRPCSender = cloudNet.rpcProviderFactory().providerForClass(
+      cloudNet.networkClient(),
       NodeServer.class);
     this.cloudServiceFactory = new RemoteCloudServiceFactory(
       this::getChannel,
-      cloudNet.getNetworkClient(),
-      cloudNet.getRPCProviderFactory());
+      cloudNet.networkClient(),
+      cloudNet.rpcProviderFactory());
 
     this.setNodeInfo(nodeInfo);
   }
@@ -87,14 +87,14 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
 
   @Override
   public boolean isAcceptableConnection(@NotNull INetworkChannel channel, @NotNull String nodeId) {
-    return this.channel == null && this.nodeInfo.getUniqueId().equals(nodeId);
+    return this.channel == null && this.nodeInfo.uniqueId().equals(nodeId);
   }
 
   @Override
   public void syncClusterData(boolean force) {
     var channelMessage = ChannelMessage.builder()
       .message("sync_cluster_data")
-      .targetNode(this.nodeInfo.getUniqueId())
+      .targetNode(this.nodeInfo.uniqueId())
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
       .buffer(this.cloudNet.getDataSyncRegistry().prepareClusterData(force))
       .build();
@@ -115,7 +115,7 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
   public void shutdown() {
     ChannelMessage.builder()
       .message("cluster_node_shutdown")
-      .targetNode(this.nodeInfo.getUniqueId())
+      .targetNode(this.nodeInfo.uniqueId())
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
       .build()
       .send();
@@ -137,7 +137,7 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
 
   @Override
   public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot snapshot) {
-    return this.cloudNet.getCloudServiceProvider().getSpecificProvider(snapshot.getServiceId().getUniqueId());
+    return this.cloudNet.cloudServiceProvider().specificProvider(snapshot.serviceId().uniqueId());
   }
 
   @Override
@@ -160,7 +160,7 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
 
   @Override
   public boolean isDrain() {
-    return this.currentSnapshot.isDrain();
+    return this.currentSnapshot.draining();
   }
 
   @Override

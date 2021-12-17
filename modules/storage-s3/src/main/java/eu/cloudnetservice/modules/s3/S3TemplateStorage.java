@@ -337,7 +337,7 @@ public class S3TemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public @Nullable FileInfo getFileInfo(@NotNull ServiceTemplate template, @NotNull String path) {
+  public @Nullable FileInfo fileInfo(@NotNull ServiceTemplate template, @NotNull String path) {
     try {
       var bucketPath = this.getBucketPath(template, path);
       // get the object info
@@ -386,7 +386,7 @@ public class S3TemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public @NotNull Collection<ServiceTemplate> getTemplates() {
+  public @NotNull Collection<ServiceTemplate> templates() {
     Set<ServiceTemplate> result = new HashSet<>();
     // list all files - filter out the possible template prefixes
     this.listAllObjects("", null, object -> {
@@ -448,7 +448,7 @@ public class S3TemplateStorage implements TemplateStorage {
   }
 
   protected @NotNull String getBucketPath(@NotNull ServiceTemplate template) {
-    return String.format("%s/%s", template.getPrefix(), template.name());
+    return String.format("%s/%s", template.prefix(), template.name());
   }
 
   protected @NotNull String getBucketPath(@NotNull ServiceTemplate template, @NotNull String subPath) {

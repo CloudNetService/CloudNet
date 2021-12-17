@@ -40,16 +40,16 @@ public final class IncludePluginListener {
     }
 
     var service = event.getService();
-    if (!ServiceEnvironmentType.isMinecraftProxy(service.getServiceId().getEnvironment())) {
+    if (!ServiceEnvironmentType.isMinecraftProxy(service.getServiceId().environment())) {
       return;
     }
 
     var syncProxyConfiguration = this.management.getConfiguration();
     var groupEntryExists = syncProxyConfiguration.loginConfigurations().stream()
-      .anyMatch(loginConfiguration -> service.getServiceConfiguration().getGroups()
+      .anyMatch(loginConfiguration -> service.getServiceConfiguration().groups()
         .contains(loginConfiguration.targetGroup()))
       || syncProxyConfiguration.tabListConfigurations().stream()
-      .anyMatch(tabListConfiguration -> service.getServiceConfiguration().getGroups()
+      .anyMatch(tabListConfiguration -> service.getServiceConfiguration().groups()
         .contains(tabListConfiguration.getTargetGroup()));
 
     if (groupEntryExists) {
@@ -62,7 +62,7 @@ public final class IncludePluginListener {
       if (DefaultModuleHelper.copyCurrentModuleInstanceFromClass(IncludePluginListener.class, targetFile)) {
         DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(
           IncludePluginListener.class,
-          event.getService().getServiceId().getEnvironment(),
+          event.getService().getServiceId().environment(),
           targetFile
         );
       }

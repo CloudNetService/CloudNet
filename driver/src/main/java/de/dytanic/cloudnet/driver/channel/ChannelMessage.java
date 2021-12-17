@@ -44,7 +44,7 @@ public record ChannelMessage(
 
   @Contract("_ -> new")
   public static @NotNull Builder buildResponseFor(@NotNull ChannelMessage input) {
-    return builder().channel("").target(input.sender.type(), input.sender.name());
+    return builder().channel("").message("").target(input.sender.type(), input.sender.name());
   }
 
   public void send() {
@@ -68,7 +68,7 @@ public record ChannelMessage(
   }
 
   private @NotNull CloudMessenger messenger() {
-    return CloudNetDriver.getInstance().getMessenger();
+    return CloudNetDriver.instance().messenger();
   }
 
   public static final class Builder {

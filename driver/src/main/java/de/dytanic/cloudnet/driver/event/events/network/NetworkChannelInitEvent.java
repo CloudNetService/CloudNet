@@ -18,27 +18,29 @@ package de.dytanic.cloudnet.driver.event.events.network;
 
 import de.dytanic.cloudnet.driver.event.ICancelable;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import org.jetbrains.annotations.NotNull;
 
 public class NetworkChannelInitEvent extends NetworkEvent implements ICancelable {
 
   private final ChannelType channelType;
-
   private boolean cancelled;
 
-  public NetworkChannelInitEvent(INetworkChannel channel, ChannelType channelType) {
+  public NetworkChannelInitEvent(@NotNull INetworkChannel channel, @NotNull ChannelType channelType) {
     super(channel);
     this.channelType = channelType;
   }
 
-  public ChannelType getChannelType() {
+  public @NotNull ChannelType channelType() {
     return this.channelType;
   }
 
-  public boolean isCancelled() {
+  @Override
+  public boolean cancelled() {
     return this.cancelled;
   }
 
-  public void setCancelled(boolean cancelled) {
+  @Override
+  public void cancelled(boolean cancelled) {
     this.cancelled = cancelled;
   }
 }

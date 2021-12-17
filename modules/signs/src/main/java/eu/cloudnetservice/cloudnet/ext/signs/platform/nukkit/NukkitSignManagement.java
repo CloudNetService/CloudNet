@@ -47,7 +47,7 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
   }
 
   public static NukkitSignManagement getDefaultInstance() {
-    return (NukkitSignManagement) CloudNetDriver.getInstance().getServicesRegistry()
+    return (NukkitSignManagement) CloudNetDriver.instance().servicesRegistry()
       .getFirstService(SignManagement.class);
   }
 
@@ -95,14 +95,14 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
   }
 
   protected void changeBlock(@NotNull Block block, @NotNull SignLayout layout) {
-    var itemId = layout.getBlockMaterial() == null ? null : Ints.tryParse(layout.getBlockMaterial());
+    var itemId = layout.blockMaterial() == null ? null : Ints.tryParse(layout.blockMaterial());
     if (itemId != null && block instanceof Faceable) {
       var face =
         block instanceof BlockWallSign ? ((Faceable) block).getBlockFace().getOpposite() : BlockFace.DOWN;
 
       var backLocation = block.getSide(face).getLocation();
       backLocation.getLevel()
-        .setBlock(backLocation, Block.get((int) itemId, Math.max(0, layout.getBlockSubId())), true, true);
+        .setBlock(backLocation, Block.get((int) itemId, Math.max(0, layout.blockSubId())), true, true);
     }
   }
 

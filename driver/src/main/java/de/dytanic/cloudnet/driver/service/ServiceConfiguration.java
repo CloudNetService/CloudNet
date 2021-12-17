@@ -94,65 +94,65 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     return builder().task(task);
   }
 
-  public @NotNull ServiceId getServiceId() {
+  public @NotNull ServiceId serviceId() {
     return this.serviceId;
   }
 
-  public boolean isAutoDeleteOnStop() {
+  public boolean autoDeleteOnStop() {
     return this.autoDeleteOnStop;
   }
 
-  public boolean isStaticService() {
+  public boolean staticService() {
     return this.staticService;
   }
 
-  public @Nullable String getJavaCommand() {
+  public @Nullable String javaCommand() {
     return this.javaCommand;
   }
 
-  public @NotNull String getRuntime() {
+  public @NotNull String runtime() {
     return this.runtime;
   }
 
-  public @NotNull Set<String> getGroups() {
+  public @NotNull Set<String> groups() {
     return this.groups;
   }
 
-  public @NotNull Set<String> getDeletedFilesAfterStop() {
+  public @NotNull Set<String> deletedFilesAfterStop() {
     return this.deletedFilesAfterStop;
   }
 
-  public @NotNull Set<ServiceTemplate> getTemplates() {
+  public @NotNull Set<ServiceTemplate> templates() {
     return this.templates;
   }
 
-  public @NotNull Set<ServiceDeployment> getDeployments() {
+  public @NotNull Set<ServiceDeployment> deployments() {
     return this.deployments;
   }
 
-  public @NotNull Set<ServiceRemoteInclusion> getIncludes() {
+  public @NotNull Set<ServiceRemoteInclusion> includes() {
     return this.includes;
   }
 
-  public @NotNull ProcessConfiguration getProcessConfig() {
+  public @NotNull ProcessConfiguration processConfig() {
     return this.processConfig;
   }
 
-  public @Range(from = 0, to = 65535) int getPort() {
+  public @Range(from = 0, to = 65535) int port() {
     return this.port;
   }
 
   @Internal
-  public void setPort(@Range(from = 0, to = 65535) int port) {
+  public void port(@Range(from = 0, to = 65535) int port) {
     this.port = port;
   }
 
   public @Nullable ServiceInfoSnapshot createNewService() {
-    return CloudNetDriver.getInstance().getCloudServiceFactory().createCloudService(this);
+    return CloudNetDriver.instance().cloudServiceFactory().createCloudService(this);
   }
 
   public @NotNull ITask<ServiceInfoSnapshot> createNewServiceAsync() {
-    return CloudNetDriver.getInstance().getCloudServiceFactory().createCloudServiceAsync(this);
+    return CloudNetDriver.instance().cloudServiceFactory().createCloudServiceAsync(this);
   }
 
   @Override
@@ -214,26 +214,26 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
       return this
         .task(task.name())
 
-        .runtime(task.getRuntime())
-        .javaCommand(task.getJavaCommand())
-        .nameSplitter(task.getNameSplitter())
+        .runtime(task.runtime())
+        .javaCommand(task.javaCommand())
+        .nameSplitter(task.nameSplitter())
 
-        .autoDeleteOnStop(task.isAutoDeleteOnStop())
-        .staticService(task.isStaticServices())
+        .autoDeleteOnStop(task.autoDeleteOnStop())
+        .staticService(task.staticServices())
 
-        .allowedNodes(task.getAssociatedNodes())
-        .groups(task.getGroups())
-        .deleteFilesAfterStop(task.getDeletedFilesAfterStop())
+        .allowedNodes(task.associatedNodes())
+        .groups(task.groups())
+        .deleteFilesAfterStop(task.deletedFilesAfterStop())
 
-        .templates(task.getTemplates())
-        .deployments(task.getDeployments())
-        .inclusions(task.getIncludes())
+        .templates(task.templates())
+        .deployments(task.deployments())
+        .inclusions(task.includes())
 
-        .environment(task.getProcessConfiguration().environment())
-        .maxHeapMemory(task.getProcessConfiguration().maxHeapMemorySize())
-        .jvmOptions(task.getProcessConfiguration().jvmOptions())
-        .processParameters(task.getProcessConfiguration().processParameters())
-        .startPort(task.getStartPort());
+        .environment(task.processConfiguration().environment())
+        .maxHeapMemory(task.processConfiguration().maxHeapMemorySize())
+        .jvmOptions(task.processConfiguration().jvmOptions())
+        .processParameters(task.processConfiguration().processParameters())
+        .startPort(task.startPort());
     }
 
     /**

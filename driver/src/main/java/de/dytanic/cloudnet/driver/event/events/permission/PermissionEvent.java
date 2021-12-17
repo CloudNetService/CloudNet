@@ -28,8 +28,7 @@ public abstract class PermissionEvent extends Event {
     this.permissionManagement = permissionManagement;
   }
 
-  @NotNull
-  public IPermissionManagement getPermissionManagement() {
+  public @NotNull IPermissionManagement permissionManagement() {
     return this.permissionManagement;
   }
 }

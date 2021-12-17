@@ -49,7 +49,7 @@ public class DefaultPacketListenerRegistry implements IPacketListenerRegistry {
   }
 
   @Override
-  public @Nullable IPacketListenerRegistry getParent() {
+  public @Nullable IPacketListenerRegistry parent() {
     return this.parent;
   }
 
@@ -103,19 +103,19 @@ public class DefaultPacketListenerRegistry implements IPacketListenerRegistry {
   }
 
   @Override
-  public @NotNull @UnmodifiableView Collection<Integer> getChannels() {
+  public @NotNull @UnmodifiableView Collection<Integer> channels() {
     return Collections.unmodifiableCollection(this.listeners.keySet());
   }
 
   @Override
-  public @NotNull @UnmodifiableView Collection<IPacketListener> getListeners() {
+  public @NotNull @UnmodifiableView Collection<IPacketListener> listeners() {
     return this.listeners.values().stream()
       .flatMap(Collection::stream)
       .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableCollection));
   }
 
   @Override
-  public @NotNull @UnmodifiableView Map<Integer, Collection<IPacketListener>> getPacketListeners() {
+  public @NotNull @UnmodifiableView Map<Integer, Collection<IPacketListener>> packetListeners() {
     return Collections.unmodifiableMap(this.listeners);
   }
 
@@ -125,7 +125,7 @@ public class DefaultPacketListenerRegistry implements IPacketListenerRegistry {
       this.parent.handlePacket(channel, packet);
     }
 
-    var registeredListeners = this.listeners.get(packet.getChannel());
+    var registeredListeners = this.listeners.get(packet.channel());
     if (registeredListeners != null) {
       for (var listener : registeredListeners) {
         try {
@@ -133,7 +133,7 @@ public class DefaultPacketListenerRegistry implements IPacketListenerRegistry {
         } catch (Exception exception) {
           throw new IllegalStateException(String.format(
             "Exception posting packet from channel %d to handler %s",
-            packet.getChannel(), listener.getClass().getCanonicalName()
+            packet.channel(), listener.getClass().getCanonicalName()
           ), exception);
         }
       }

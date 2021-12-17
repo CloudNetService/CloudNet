@@ -59,10 +59,10 @@ public class NettyPacketCodecTest {
     decoder.decode(ctx, output, results);
 
     Assertions.assertEquals(1, results.size());
-    Assertions.assertEquals(packetChannel, ((Packet) results.get(0)).getChannel());
-    Assertions.assertTrue(((Packet) results.get(0)).getContent().readBoolean());
-    Assertions.assertEquals(1234, ((Packet) results.get(0)).getContent().readInt());
-    Assertions.assertEquals(5D, ((Packet) results.get(0)).getContent().readDouble());
+    Assertions.assertEquals(packetChannel, ((Packet) results.get(0)).channel());
+    Assertions.assertTrue(((Packet) results.get(0)).content().readBoolean());
+    Assertions.assertEquals(1234, ((Packet) results.get(0)).content().readInt());
+    Assertions.assertEquals(5D, ((Packet) results.get(0)).content().readDouble());
 
     output.release();
   }

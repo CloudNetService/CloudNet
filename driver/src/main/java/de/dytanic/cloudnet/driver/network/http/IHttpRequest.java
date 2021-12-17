@@ -18,17 +18,17 @@ package de.dytanic.cloudnet.driver.network.http;
 
 import java.util.List;
 import java.util.Map;
+import org.jetbrains.annotations.NotNull;
 
 public interface IHttpRequest extends IHttpMessage<IHttpRequest> {
 
-  Map<String, String> pathParameters();
+  @NotNull Map<String, String> pathParameters();
 
-  String path();
+  @NotNull String path();
 
-  String uri();
+  @NotNull String uri();
 
-  String method();
+  @NotNull String method();
 
-  Map<String, List<String>> queryParameters();
-
+  @NotNull Map<String, List<String>> queryParameters();
 }

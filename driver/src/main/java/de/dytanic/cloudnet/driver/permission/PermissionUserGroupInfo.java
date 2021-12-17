@@ -40,19 +40,19 @@ public class PermissionUserGroupInfo extends JsonDocPropertyHolder {
     this.properties = properties;
   }
 
-  public @NotNull String getGroup() {
+  public @NotNull String group() {
     return this.group;
   }
 
-  public void setGroup(@NotNull String group) {
+  public void group(@NotNull String group) {
     this.group = group;
   }
 
-  public long getTimeOutMillis() {
+  public long timeOutMillis() {
     return this.timeOutMillis;
   }
 
-  public void setTimeOutMillis(long timeOutMillis) {
+  public void timeOutMillis(long timeOutMillis) {
     this.timeOutMillis = timeOutMillis;
   }
 }

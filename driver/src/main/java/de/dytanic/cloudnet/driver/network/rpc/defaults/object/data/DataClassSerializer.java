@@ -57,7 +57,7 @@ public class DataClassSerializer implements ObjectSerializer<Object> {
         type,
         $ -> DataClassInformation.createClassInformation((Class<?>) type, this.generator));
       // let the instance creator do the stuff
-      return information.getInstanceCreator().makeInstance(source, caller);
+      return information.instanceCreator().makeInstance(source, caller);
     } finally {
       this.readLock.unlock();
     }
@@ -83,7 +83,7 @@ public class DataClassSerializer implements ObjectSerializer<Object> {
       type,
       $ -> DataClassInformation.createClassInformation((Class<?>) type, this.generator));
     // let the information writer do the stuff
-    information.getInformationWriter().writeInformation(dataBuf, object, caller);
+    information.informationWriter().writeInformation(dataBuf, object, caller);
   }
 
   protected @Nullable Object readArray(@NotNull DataBuf source, @NotNull Class<?> clazz, @NotNull ObjectMapper caller) {

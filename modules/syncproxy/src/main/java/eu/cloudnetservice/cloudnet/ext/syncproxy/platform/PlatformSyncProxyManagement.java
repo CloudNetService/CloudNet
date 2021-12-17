@@ -54,11 +54,11 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
   protected PlatformSyncProxyManagement() {
     var wrapper = Wrapper.getInstance();
 
-    this.rpcSender = wrapper.getRPCProviderFactory()
-      .providerForClass(wrapper.getNetworkClient(), SyncProxyManagement.class);
-    this.eventManager = wrapper.getEventManager();
+    this.rpcSender = wrapper.rpcProviderFactory()
+      .providerForClass(wrapper.networkClient(), SyncProxyManagement.class);
+    this.eventManager = wrapper.eventManager();
     // cache all services that are already started
-    wrapper.getCloudServiceProvider().getCloudServicesAsync().onComplete(services -> {
+    wrapper.cloudServiceProvider().servicesAsync().onComplete(services -> {
       for (var service : services) {
         this.cacheServiceInfoSnapshot(service);
       }
@@ -75,14 +75,14 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
 
     this.currentLoginConfiguration = configuration.loginConfigurations()
       .stream()
-      .filter(loginConfiguration -> Wrapper.getInstance().getServiceConfiguration().getGroups()
+      .filter(loginConfiguration -> Wrapper.getInstance().serviceConfiguration().groups()
         .contains(loginConfiguration.targetGroup()))
       .findFirst()
       .orElse(null);
 
     this.currentTabListConfiguration = configuration.tabListConfigurations()
       .stream()
-      .filter(tabListConfiguration -> Wrapper.getInstance().getServiceConfiguration().getGroups()
+      .filter(tabListConfiguration -> Wrapper.getInstance().serviceConfiguration().groups()
         .contains(tabListConfiguration.getTargetGroup()))
       .findFirst()
       .orElse(null);
@@ -157,16 +157,16 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
   }
 
   public void cacheServiceInfoSnapshot(@NotNull ServiceInfoSnapshot snapshot) {
-    if (ServiceEnvironmentType.isMinecraftProxy(snapshot.getServiceId().getEnvironment())
+    if (ServiceEnvironmentType.isMinecraftProxy(snapshot.serviceId().environment())
       && this.checkServiceGroup(snapshot)) {
-      this.proxyOnlineCountCache.put(snapshot.getServiceId().getUniqueId(),
-        BridgeServiceProperties.MAX_PLAYERS.get(snapshot).orElse(0));
+      this.proxyOnlineCountCache.put(snapshot.serviceId().uniqueId(),
+        BridgeServiceProperties.MAX_PLAYERS.read(snapshot).orElse(0));
       this.updateTabList();
     }
   }
 
   public void removeCachedServiceInfoSnapshot(@NotNull ServiceInfoSnapshot snapshot) {
-    if (this.proxyOnlineCountCache.remove(snapshot.getServiceId().getUniqueId()) != null) {
+    if (this.proxyOnlineCountCache.remove(snapshot.serviceId().uniqueId()) != null) {
       this.updateTabList();
     }
   }
@@ -177,7 +177,7 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
   ) {
     return this.configuration.message(key, message -> message
       .replace("%service%", serviceInfoSnapshot.name())
-      .replace("%node%", serviceInfoSnapshot.getServiceId().getNodeUniqueId()));
+      .replace("%node%", serviceInfoSnapshot.serviceId().nodeUniqueId()));
   }
 
   protected void scheduleTabListUpdate() {
@@ -227,7 +227,7 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
       return false;
     }
 
-    return snapshot.getConfiguration().getGroups().contains(this.currentLoginConfiguration.targetGroup());
+    return snapshot.configuration().groups().contains(this.currentLoginConfiguration.targetGroup());
   }
 
   public boolean checkPlayerMaintenance(@NotNull P player) {

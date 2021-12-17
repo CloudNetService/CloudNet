@@ -55,12 +55,12 @@ public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
   }
 
   @Override
-  public @NotNull RPCProviderFactory getFactory() {
+  public @NotNull RPCProviderFactory factory() {
     return this.factory;
   }
 
   @Override
-  public @NotNull INetworkComponent getAssociatedComponent() {
+  public @NotNull INetworkComponent associatedComponent() {
     // possible to create without an associated component - throw an exception if so
     if (this.networkComponent == null) {
       throw new UnsupportedOperationException("Sender has no associated component");
@@ -78,7 +78,7 @@ public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
     // find the method information of the method we want to invoke
     var information = this.cachedMethodInformation.computeIfAbsent(
       methodName,
-      $ -> MethodInformation.find(null, this.targetClass, methodName, null));
+      $ -> MethodInformation.find(null, this.targetClass, methodName, null, args.length));
     // generate the rpc from this information
     return new DefaultRPC(
       this,
@@ -86,7 +86,7 @@ public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
       methodName,
       args,
       this.objectMapper,
-      information.getReturnType(),
+      information.returnType(),
       this.dataBufFactory);
   }
 }

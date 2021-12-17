@@ -31,5 +31,5 @@ public interface DocPropertyHolder {
 
   <E> boolean hasProperty(@NotNull DocProperty<E> docProperty);
 
-  @NotNull IDocument<?> getProperties();
+  @NotNull IDocument<?> properties();
 }

@@ -39,7 +39,7 @@ public class CloudNetLabyModModule extends DriverModule {
 
   @ModuleTask(order = 127, event = ModuleLifeCycle.LOADED)
   public void convertConfig() {
-    if (Files.exists(this.getConfigPath())) {
+    if (Files.exists(this.configPath())) {
       var config = this.readConfig().getDocument("config");
       // there is a config, run the conversion
       if (!config.isEmpty()) {
@@ -70,13 +70,13 @@ public class CloudNetLabyModModule extends DriverModule {
 
   @ModuleTask(order = 126, event = ModuleLifeCycle.LOADED)
   public void initManagement() {
-    if (Files.notExists(this.getConfigPath())) {
+    if (Files.notExists(this.configPath())) {
       // create default config and write to the file
       this.writeConfig(JsonDocument.newDocument(LabyModConfiguration.builder().build()));
     }
     // read the config from the file
     var configuration = this.readConfig().toInstanceOf(LabyModConfiguration.class);
-    this.labyModManagement = new NodeLabyModManagement(this, configuration, this.getRPCFactory());
+    this.labyModManagement = new NodeLabyModManagement(this, configuration, this.rpcFactory());
     // sync the config of the module into the cluster
     CloudNet.getInstance().getDataSyncRegistry().registerHandler(
       DataSyncHandler.<LabyModConfiguration>builder()

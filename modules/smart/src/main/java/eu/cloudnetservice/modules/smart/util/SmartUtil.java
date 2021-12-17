@@ -34,14 +34,14 @@ public final class SmartUtil {
     int runningServices
   ) {
     // get the min service count
-    var minServiceCount = Math.max(task.getMinServiceCount(), config.smartMinServiceCount());
+    var minServiceCount = Math.max(task.minServiceCount(), config.smartMinServiceCount());
     // check if stopping the service would instantly cause a new service to start - beware
     return (runningServices - 1) > minServiceCount;
   }
 
   public static double getPlayerPercentage(@NotNull ServiceInfoSnapshot snapshot) {
-    int onlinePlayers = BridgeServiceProperties.ONLINE_COUNT.get(snapshot).orElse(0);
-    int maxPlayers = BridgeServiceProperties.MAX_PLAYERS.get(snapshot).orElse(1);
+    int onlinePlayers = BridgeServiceProperties.ONLINE_COUNT.read(snapshot).orElse(0);
+    int maxPlayers = BridgeServiceProperties.MAX_PLAYERS.read(snapshot).orElse(1);
     // get the player percentage
     return getPercentage(onlinePlayers, maxPlayers);
   }

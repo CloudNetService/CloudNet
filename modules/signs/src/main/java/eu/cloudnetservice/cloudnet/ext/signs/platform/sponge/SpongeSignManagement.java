@@ -52,7 +52,7 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
   }
 
   public static SpongeSignManagement getDefaultInstance() {
-    return (SpongeSignManagement) CloudNetDriver.getInstance().getServicesRegistry()
+    return (SpongeSignManagement) CloudNetDriver.instance().servicesRegistry()
       .getFirstService(SignManagement.class);
   }
 
@@ -100,9 +100,9 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
   }
 
   protected void changeBlock(@NotNull BlockEntity entity, @NotNull SignLayout layout) {
-    var type = layout.getBlockMaterial() == null ? null : Sponge.game()
+    var type = layout.blockMaterial() == null ? null : Sponge.game()
       .registry(RegistryTypes.BLOCK_TYPE)
-      .findValue(ResourceKey.resolve(layout.getBlockMaterial()))
+      .findValue(ResourceKey.resolve(layout.blockMaterial()))
       .orElse(null);
     var direction = entity.get(Keys.DIRECTION).orElse(null);
     if (type != null && direction != null) {

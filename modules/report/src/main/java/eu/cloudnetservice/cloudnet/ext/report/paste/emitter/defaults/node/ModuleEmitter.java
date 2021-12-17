@@ -28,19 +28,19 @@ public class ModuleEmitter implements ReportDataEmitter<NetworkClusterNodeInfoSn
   public void emitData(StringBuilder builder, NetworkClusterNodeInfoSnapshot context) {
     builder
       .append(" - Loaded Modules ")
-      .append(context.getModules().size())
+      .append(context.modules().size())
       .append(" - \n\n");
 
-    for (var module : CloudNet.getInstance().getModuleProvider().getModules()) {
+    for (var module : CloudNet.getInstance().moduleProvider().modules()) {
       builder
         .append(" - Module ")
-        .append(module.getModule().getName())
+        .append(module.module().name())
         .append(" loaded.\n\n")
-        .append(JsonDocument.newDocument(module.getModuleConfiguration()).toPrettyJson())
+        .append(JsonDocument.newDocument(module.moduleConfiguration()).toPrettyJson())
         .append("\n");
-      if (!module.getModuleConfiguration().storesSensitiveData()) {
+      if (!module.moduleConfiguration().storesSensitiveData()) {
         builder.append("Configuration: \n")
-          .append(((DriverModule) module.getModule()).readConfig().toPrettyJson())
+          .append(((DriverModule) module.module()).readConfig().toPrettyJson())
           .append("\n\n");
       }
     }

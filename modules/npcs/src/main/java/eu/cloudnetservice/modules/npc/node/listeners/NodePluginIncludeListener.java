@@ -58,11 +58,11 @@ public final class NodePluginIncludeListener {
   @EventListener
   public void includePluginIfNecessary(@NotNull CloudServicePreLifecycleEvent event) {
     if (event.getTargetLifecycle() == ServiceLifeCycle.RUNNING && this.didDownloadProtocolLib.get()) {
-      var type = event.getService().getServiceConfiguration().getServiceId().getEnvironment();
+      var type = event.getService().getServiceConfiguration().serviceId().environment();
       if (ServiceEnvironmentType.isMinecraftServer(type)) {
         // check if we have an entry for the current group
         var hasEntry = this.management.getNPCConfiguration().entries().stream()
-          .anyMatch(entry -> event.getConfiguration().getGroups().contains(entry.targetGroup()));
+          .anyMatch(entry -> event.getConfiguration().groups().contains(entry.targetGroup()));
         if (hasEntry) {
           var pluginsDirectory = event.getService().getDirectory().resolve("plugins");
           // copy protocol lib

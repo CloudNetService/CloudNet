@@ -72,7 +72,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
     var response = ChannelMessage.builder()
       .channel(SIGN_CHANNEL_NAME)
       .message(REQUEST_CONFIG)
-      .targetNode(Wrapper.getInstance().getNodeUniqueId())
+      .targetNode(Wrapper.getInstance().nodeUniqueId())
       .build()
       .sendSingleQuery();
     return response == null ? null : response.content().readObject(SignsConfiguration.class);
@@ -174,7 +174,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
   @Override
   public void initialize(@NotNull Map<SignLayoutsHolder, Set<Sign>> signsNeedingTicking) {
     if (this.signsConfiguration != null) {
-      CloudNetDriver.getInstance().getTaskExecutor().scheduleAtFixedRate(() -> {
+      CloudNetDriver.instance().taskExecutor().scheduleAtFixedRate(() -> {
         try {
           this.tick(signsNeedingTicking);
         } catch (Throwable throwable) {
@@ -183,7 +183,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
       }, 0, 1000 / TPS, TimeUnit.MILLISECONDS);
       this.startKnockbackTask();
 
-      CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServicesAsync().onComplete(services -> {
+      CloudNetDriver.instance().cloudServiceProvider().servicesAsync().onComplete(services -> {
         for (var service : services) {
           this.handleServiceAdd(service);
         }
@@ -193,7 +193,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
 
   @Override
   public void handleInternalSignRemove(@NotNull WorldPosition position) {
-    if (Wrapper.getInstance().getServiceConfiguration().getGroups().contains(position.group())) {
+    if (Wrapper.getInstance().serviceConfiguration().groups().contains(position.group())) {
       var sign = this.getSignAt(position);
       if (sign != null && sign.getCurrentTarget() != null) {
         this.waitingAssignments.add(sign.getCurrentTarget());
@@ -204,7 +204,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
   }
 
   protected @NotNull String[] replaceLines(@NotNull Sign sign, @NotNull SignLayout layout) {
-    var lines = layout.getLines();
+    var lines = layout.lines();
     if (lines != null && lines.length == 4) {
       var replacedLines = new String[4];
       for (var i = 0; i < 4; i++) {
@@ -219,11 +219,11 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
   }
 
   protected boolean shouldAssign(@NotNull ServiceInfoSnapshot snapshot) {
-    var currentEnv = Wrapper.getInstance().getServiceId().getEnvironment();
-    var serviceEnv = snapshot.getServiceId().getEnvironment();
+    var currentEnv = Wrapper.getInstance().serviceId().environment();
+    var serviceEnv = snapshot.serviceId().environment();
 
-    return (JAVA_SERVER.get(currentEnv.getProperties()) && JAVA_SERVER.get(serviceEnv.getProperties()))
-      || PE_SERVER.get(currentEnv.getProperties()) && PE_SERVER.get(serviceEnv.getProperties());
+    return (JAVA_SERVER.get(currentEnv.properties()) && JAVA_SERVER.get(serviceEnv.properties()))
+      || PE_SERVER.get(currentEnv.properties()) && PE_SERVER.get(serviceEnv.properties());
   }
 
   protected void tryAssign(@NotNull ServiceInfoSnapshot snapshot) {
@@ -244,7 +244,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
   }
 
   protected boolean checkTemplatePath(@NotNull ServiceInfoSnapshot snapshot, @NotNull Sign sign) {
-    for (var template : snapshot.getConfiguration().getTemplates()) {
+    for (var template : snapshot.configuration().templates()) {
       if (template.toString().equals(sign.getTemplatePath())) {
         return true;
       }
@@ -303,7 +303,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
     synchronized (this) {
       Sign bestChoice = null;
       for (var sign : this.signs.values()) {
-        if (snapshot.getConfiguration().getGroups().contains(sign.getTargetGroup())
+        if (snapshot.configuration().groups().contains(sign.getTargetGroup())
           && (sign.getTemplatePath() == null || this.checkTemplatePath(snapshot, sign))) {
           // the service could be assigned to the sign
           if (sign.getCurrentTarget() == null) {

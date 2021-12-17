@@ -17,25 +17,25 @@
 package de.dytanic.cloudnet.driver.network.http;
 
 import java.util.Collection;
+import org.jetbrains.annotations.NotNull;
 
 public interface IHttpComponent<T extends IHttpComponent<?>> extends AutoCloseable {
 
-  boolean isSslEnabled();
+  boolean sslEnabled();
 
-  T registerHandler(String path, IHttpHandler... handlers);
+  @NotNull T registerHandler(@NotNull String path, @NotNull IHttpHandler... handlers);
 
-  T registerHandler(String path, int priority, IHttpHandler... handlers);
+  @NotNull T registerHandler(@NotNull String path, int priority, @NotNull IHttpHandler... handlers);
 
-  T registerHandler(String path, Integer port, int priority, IHttpHandler... handlers);
+  @NotNull T registerHandler(@NotNull String path, Integer port, int priority, @NotNull IHttpHandler... handlers);
 
-  T removeHandler(IHttpHandler handler);
+  @NotNull T removeHandler(@NotNull IHttpHandler handler);
 
-  T removeHandler(Class<? extends IHttpHandler> handler);
+  @NotNull T removeHandler(@NotNull Class<? extends IHttpHandler> handler);
 
-  T removeHandler(ClassLoader classLoader);
+  @NotNull T removeHandler(@NotNull ClassLoader classLoader);
 
-  Collection<IHttpHandler> getHttpHandlers();
+  @NotNull Collection<IHttpHandler> httpHandlers();
 
-  T clearHandlers();
-
+  @NotNull T clearHandlers();
 }

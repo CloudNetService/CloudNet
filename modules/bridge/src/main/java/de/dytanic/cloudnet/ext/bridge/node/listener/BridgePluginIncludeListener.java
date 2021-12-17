@@ -37,7 +37,7 @@ public final class BridgePluginIncludeListener {
     // check if we should copy the module
     if (event.getTargetLifecycle() == ServiceLifeCycle.RUNNING
       && this.management.getConfiguration().getExcludedGroups().stream()
-      .noneMatch(group -> event.getService().getServiceConfiguration().getGroups().contains(group))) {
+      .noneMatch(group -> event.getService().getServiceConfiguration().groups().contains(group))) {
       // get the target of the copy
       var plugins = event.getService().getDirectory().resolve("plugins");
       FileUtils.createDirectory(plugins);
@@ -49,7 +49,7 @@ public final class BridgePluginIncludeListener {
         // copy the plugin.yml file for the environment
         DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(
           BridgePluginIncludeListener.class,
-          event.getService().getServiceId().getEnvironment(),
+          event.getService().getServiceId().environment(),
           bridgePluginFile);
       }
     }

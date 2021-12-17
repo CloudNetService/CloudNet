@@ -53,9 +53,9 @@ public final class CommandConfig {
   @CommandMethod("config reload")
   public void reloadConfigs(CommandSource source) {
     this.updateNodeConfig(JsonConfiguration.loadFromFile(CloudNet.getInstance()));
-    CloudNet.getInstance().getServiceTaskProvider().reload();
-    CloudNet.getInstance().getGroupConfigurationProvider().reload();
-    CloudNet.getInstance().getPermissionManagement().reload();
+    CloudNet.getInstance().serviceTaskProvider().reload();
+    CloudNet.getInstance().groupConfigurationProvider().reload();
+    CloudNet.getInstance().permissionManagement().reload();
     source.sendMessage(I18n.trans("command-reload-reload-config-success"));
   }
 

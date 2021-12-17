@@ -104,7 +104,7 @@ public class NettyImmutableDataBuf implements DataBuf {
 
   @Override
   public byte[] toByteArray() {
-    var bytes = new byte[this.getReadableBytes()];
+    var bytes = new byte[this.readableBytes()];
     return this.hotRead(buf -> {
       buf.readBytes(bytes);
       return bytes;
@@ -135,7 +135,7 @@ public class NettyImmutableDataBuf implements DataBuf {
   }
 
   @Override
-  public int getReadableBytes() {
+  public int readableBytes() {
     return this.byteBuf.readableBytes();
   }
 
@@ -185,7 +185,7 @@ public class NettyImmutableDataBuf implements DataBuf {
   }
 
   @Internal
-  public @NotNull ByteBuf getByteBuf() {
+  public @NotNull ByteBuf byteBuf() {
     return this.byteBuf;
   }
 

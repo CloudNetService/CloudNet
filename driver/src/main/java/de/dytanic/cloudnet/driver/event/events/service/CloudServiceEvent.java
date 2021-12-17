@@ -28,7 +28,7 @@ public abstract class CloudServiceEvent extends DriverEvent {
     this.serviceInfo = serviceInfo;
   }
 
-  public @NotNull ServiceInfoSnapshot getServiceInfo() {
+  public @NotNull ServiceInfoSnapshot serviceInfo() {
     return this.serviceInfo;
   }
 }

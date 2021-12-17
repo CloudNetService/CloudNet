@@ -52,7 +52,7 @@ public class JsonDocPropertyHolder implements DocPropertyHolder {
   }
 
   @Override
-  public @NotNull JsonDocument getProperties() {
+  public @NotNull JsonDocument properties() {
     return this.properties;
   }
 }

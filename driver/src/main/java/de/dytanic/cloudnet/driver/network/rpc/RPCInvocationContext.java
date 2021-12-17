@@ -29,21 +29,25 @@ public interface RPCInvocationContext {
     return new DefaultRPCInvocationContextBuilder();
   }
 
+  int argumentCount();
+
   boolean expectsMethodResult();
 
   boolean normalizePrimitives();
 
   boolean strictInstanceUsage();
 
-  @NotNull String getMethodName();
+  @NotNull String methodName();
 
-  @NotNull INetworkChannel getChannel();
+  @NotNull INetworkChannel channel();
 
-  @NotNull DataBuf getArgumentInformation();
+  @NotNull DataBuf argumentInformation();
 
-  @NotNull Optional<Object> getWorkingInstance();
+  @NotNull Optional<Object> workingInstance();
 
   interface Builder {
+
+    @NotNull Builder argumentCount(int argumentCount);
 
     @NotNull Builder expectsMethodResult(boolean expectsResult);
 

@@ -33,7 +33,7 @@ record DefaultRegisteredEventListener(
 
   @Override
   public void fireEvent(@NotNull Event event) {
-    if (event.isShowDebug()) {
+    if (event.showDebug()) {
       LOGGER.fine(String.format(
         "Calling event %s on listener %s",
         event.getClass().getName(), this.instance().getClass().getName()));

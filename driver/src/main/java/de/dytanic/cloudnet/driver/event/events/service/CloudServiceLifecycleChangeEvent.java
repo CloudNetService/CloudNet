@@ -29,11 +29,11 @@ public final class CloudServiceLifecycleChangeEvent extends CloudServiceEvent {
     this.lastLifeCycle = lastLifeCycle;
   }
 
-  public @NotNull ServiceLifeCycle getLastLifeCycle() {
+  public @NotNull ServiceLifeCycle lastLifeCycle() {
     return this.lastLifeCycle;
   }
 
-  public @NotNull ServiceLifeCycle getNewLifeCycle() {
-    return this.serviceInfo.getLifeCycle();
+  public @NotNull ServiceLifeCycle newLifeCycle() {
+    return this.serviceInfo.lifeCycle();
   }
 }

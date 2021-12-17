@@ -38,12 +38,12 @@ public class DefaultRPCProviderFactory implements RPCProviderFactory {
   }
 
   @Override
-  public @NotNull ObjectMapper getDefaultObjectMapper() {
+  public @NotNull ObjectMapper defaultObjectMapper() {
     return this.defaultObjectMapper;
   }
 
   @Override
-  public @NotNull DataBufFactory getDefaultDataBufFactory() {
+  public @NotNull DataBufFactory defaultDataBufFactory() {
     return this.defaultDataBufFactory;
   }
 

@@ -176,11 +176,11 @@ public final class SFTPTemplateStorageTest {
   @Test
   @Order(70)
   void testFileGetFileInfo() {
-    var info = storage.getFileInfo(TEMPLATE, "hello.txt");
+    var info = storage.fileInfo(TEMPLATE, "hello.txt");
     Assertions.assertNotNull(info);
-    Assertions.assertEquals(0, info.getSize());
-    Assertions.assertEquals("hello.txt", info.getPath());
-    Assertions.assertEquals("hello.txt", info.getName());
+    Assertions.assertEquals(0, info.size());
+    Assertions.assertEquals("hello.txt", info.path());
+    Assertions.assertEquals("hello.txt", info.name());
   }
 
   @Test
@@ -213,9 +213,9 @@ public final class SFTPTemplateStorageTest {
     var files = storage.listFiles(TEMPLATE, "hello", false);
     Assertions.assertNotNull(files);
     Assertions.assertEquals(1, files.length);
-    Assertions.assertEquals(0, files[0].getSize());
-    Assertions.assertEquals("test.txt", files[0].getName());
-    Assertions.assertEquals("/home/CloudNet/global/proxy/hello/test.txt", files[0].getPath());
+    Assertions.assertEquals(0, files[0].size());
+    Assertions.assertEquals("test.txt", files[0].name());
+    Assertions.assertEquals("/home/CloudNet/global/proxy/hello/test.txt", files[0].path());
   }
 
   @Test
@@ -226,15 +226,15 @@ public final class SFTPTemplateStorageTest {
     Assertions.assertEquals(3, files.length);
 
     // there must be one directory
-    var dir = Arrays.stream(files).filter(FileInfo::isDirectory).findFirst().orElse(null);
+    var dir = Arrays.stream(files).filter(FileInfo::directory).findFirst().orElse(null);
     Assertions.assertNotNull(dir);
-    Assertions.assertEquals("hello", dir.getName());
+    Assertions.assertEquals("hello", dir.name());
   }
 
   @Test
   @Order(130)
   void testTemplateListing() {
-    var templates = storage.getTemplates();
+    var templates = storage.templates();
     Assertions.assertEquals(1, templates.size());
     Assertions.assertEquals(TEMPLATE, templates.iterator().next());
   }

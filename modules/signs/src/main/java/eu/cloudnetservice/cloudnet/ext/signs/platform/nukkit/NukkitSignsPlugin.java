@@ -42,13 +42,13 @@ public class NukkitSignsPlugin extends PluginBase {
     // nukkit listeners
     Server.getInstance().getPluginManager().registerEvents(new SignInteractListener(signManagement), this);
     // cloudnet listener
-    CloudNetDriver.getInstance().getEventManager().registerListeners(
+    CloudNetDriver.instance().eventManager().registerListeners(
       new GlobalChannelMessageListener(signManagement), new SignsPlatformListener(signManagement));
   }
 
   @Override
   public void onDisable() {
     NukkitSignManagement.getDefaultInstance().unregisterFromServiceRegistry();
-    CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
+    CloudNetDriver.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
   }
 }

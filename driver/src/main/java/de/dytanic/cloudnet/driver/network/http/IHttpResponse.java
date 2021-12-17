@@ -16,10 +16,11 @@
 
 package de.dytanic.cloudnet.driver.network.http;
 
+import org.jetbrains.annotations.NotNull;
+
 public interface IHttpResponse extends IHttpMessage<IHttpResponse> {
 
   int statusCode();
 
-  IHttpResponse statusCode(int code);
-
+  @NotNull IHttpResponse statusCode(int code);
 }

@@ -68,7 +68,7 @@ public record SyncProxyConfiguration(
     var response = ChannelMessage.builder()
       .channel(SyncProxyConstants.SYNC_PROXY_CHANNEL)
       .message(SyncProxyConstants.SYNC_PROXY_CONFIG_REQUEST)
-      .targetNode(Wrapper.getInstance().getServiceId().getNodeUniqueId())
+      .targetNode(Wrapper.getInstance().serviceId().nodeUniqueId())
       .build()
       .sendSingleQuery();
 

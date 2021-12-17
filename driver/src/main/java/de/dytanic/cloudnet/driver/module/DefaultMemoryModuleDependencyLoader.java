@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.driver.module;
 
+import com.google.common.base.Verify;
 import java.net.URL;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,7 +38,8 @@ public class DefaultMemoryModuleDependencyLoader implements IModuleDependencyLoa
     @NotNull ModuleConfiguration configuration,
     @NotNull ModuleDependency dependency
   ) throws Exception {
-    return new URL(dependency.getUrl());
+    Verify.verifyNotNull(dependency.url(), "Dependency url must be given");
+    return new URL(dependency.url());
   }
 
   /**
@@ -52,11 +54,10 @@ public class DefaultMemoryModuleDependencyLoader implements IModuleDependencyLoa
     return new URL(String.format(
       REMOTE_DEPENDENCY_URL_FORMAT,
       repositoryUrl,
-      dependency.getGroup().replace('.', '/'),
-      dependency.getName(),
-      dependency.getVersion(),
-      dependency.getName(),
-      dependency.getVersion()
-    ));
+      dependency.group().replace('.', '/'),
+      dependency.name(),
+      dependency.version(),
+      dependency.name(),
+      dependency.version()));
   }
 }

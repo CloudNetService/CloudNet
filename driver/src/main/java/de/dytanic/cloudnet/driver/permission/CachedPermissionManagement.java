@@ -23,21 +23,21 @@ import org.jetbrains.annotations.Nullable;
 
 public interface CachedPermissionManagement extends IPermissionManagement {
 
-  @NotNull Map<UUID, PermissionUser> getCachedPermissionUsers();
+  @NotNull Map<UUID, PermissionUser> cachedPermissionUsers();
 
-  @NotNull Map<String, PermissionGroup> getCachedPermissionGroups();
+  @NotNull Map<String, PermissionGroup> cachedPermissionGroups();
 
-  @Nullable PermissionUser getCachedUser(@NotNull UUID uniqueId);
+  @Nullable PermissionUser cachedUser(@NotNull UUID uniqueId);
 
-  @Nullable PermissionGroup getCachedGroup(@NotNull String name);
+  @Nullable PermissionGroup cachedGroup(@NotNull String name);
 
   void acquireLock(@NotNull PermissionUser user);
 
   void acquireLock(@NotNull PermissionGroup group);
 
-  boolean isLocked(@NotNull PermissionUser user);
+  boolean locked(@NotNull PermissionUser user);
 
-  boolean isLocked(@NotNull PermissionGroup group);
+  boolean locked(@NotNull PermissionGroup group);
 
   void unlock(@NotNull PermissionUser user);
 

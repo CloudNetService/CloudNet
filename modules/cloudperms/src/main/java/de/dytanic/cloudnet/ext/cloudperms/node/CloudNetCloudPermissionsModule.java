@@ -38,13 +38,13 @@ public final class CloudNetCloudPermissionsModule extends DriverModule {
       .currentGetter($ -> this.permissionsConfig)
       .singletonCollector(() -> this.permissionsConfig)
       .nameExtractor(cloudPermissionsConfig -> "Permission Config")
-      .writer(config -> CloudPermissionConfigHelper.write(config, this.getConfigPath()))
+      .writer(config -> CloudPermissionConfigHelper.write(config, this.configPath()))
       .build());
   }
 
   @ModuleTask(order = 126, event = ModuleLifeCycle.STARTED)
   public void initConfig() {
-    this.permissionsConfig = CloudPermissionConfigHelper.read(this.getConfigPath());
+    this.permissionsConfig = CloudPermissionConfigHelper.read(this.configPath());
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)

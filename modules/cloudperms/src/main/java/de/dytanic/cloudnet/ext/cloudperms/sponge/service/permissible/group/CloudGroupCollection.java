@@ -41,7 +41,7 @@ public final class CloudGroupCollection extends AbstractSubjectCollection {
   @Override
   public CompletableFuture<? extends Subject> loadSubject(String identifier) {
     return CompletableFuture.supplyAsync(() -> {
-      var group = this.management.getGroup(identifier);
+      var group = this.management.group(identifier);
       Verify.verifyNotNull(group, "No group identified by " + identifier);
       return new PermissionGroupSubject(identifier, this, group, this.management);
     });
@@ -49,7 +49,7 @@ public final class CloudGroupCollection extends AbstractSubjectCollection {
 
   @Override
   public Optional<? extends Subject> subject(String identifier) {
-    var group = this.management.getGroup(identifier);
+    var group = this.management.group(identifier);
     return group == null
       ? Optional.empty()
       : Optional.of(new PermissionGroupSubject(identifier, this, group, this.management));
@@ -57,19 +57,19 @@ public final class CloudGroupCollection extends AbstractSubjectCollection {
 
   @Override
   public CompletableFuture<Boolean> hasSubject(String identifier) {
-    return CompletableFuture.completedFuture(this.management.getGroup(identifier) != null);
+    return CompletableFuture.completedFuture(this.management.group(identifier) != null);
   }
 
   @Override
   public Collection<? extends Subject> loadedSubjects() {
-    return this.management.getGroups().stream()
+    return this.management.groups().stream()
       .map(group -> new PermissionGroupSubject(group.name(), this, group, this.management))
       .collect(Collectors.toList());
   }
 
   @Override
   public CompletableFuture<? extends Set<String>> allIdentifiers() {
-    return CompletableFuture.completedFuture(this.management.getGroups().stream()
+    return CompletableFuture.completedFuture(this.management.groups().stream()
       .map(PermissionGroup::name)
       .collect(Collectors.toSet()));
   }
@@ -79,14 +79,14 @@ public final class CloudGroupCollection extends AbstractSubjectCollection {
     String permission,
     Cause cause
   ) {
-    return CompletableFuture.completedFuture(this.management.getGroups().stream().collect(Collectors.toMap(
+    return CompletableFuture.completedFuture(this.management.groups().stream().collect(Collectors.toMap(
       group -> this.newSubjectReference(group.name()),
       group -> this.management.hasPermission(group, Permission.of(permission)))));
   }
 
   @Override
   public Map<? extends Subject, Boolean> loadedWithPermission(String permission, Cause cause) {
-    return this.management.getGroups().stream().collect(Collectors.toMap(
+    return this.management.groups().stream().collect(Collectors.toMap(
       group -> new PermissionGroupSubject(group.name(), this, group, this.management),
       group -> this.management.hasPermission(group, Permission.of(permission))));
   }

@@ -38,42 +38,42 @@ public final class PermissionCacheListener {
 
   @EventListener
   public void handle(@NotNull PermissionUpdateUserEvent event) {
-    var user = event.getPermissionUser();
-    if (this.permissionManagement.getCachedPermissionUsers().containsKey(user.getUniqueId())) {
-      this.permissionManagement.getCachedPermissionUsers().put(user.getUniqueId(), user);
+    var user = event.permissionUser();
+    if (this.permissionManagement.cachedPermissionUsers().containsKey(user.uniqueId())) {
+      this.permissionManagement.cachedPermissionUsers().put(user.uniqueId(), user);
     }
   }
 
   @EventListener
   public void handle(@NotNull PermissionDeleteUserEvent event) {
-    this.permissionManagement.getCachedPermissionUsers().remove(event.getPermissionUser().getUniqueId());
+    this.permissionManagement.cachedPermissionUsers().remove(event.permissionUser().uniqueId());
   }
 
   @EventListener
   public void handle(@NotNull PermissionAddGroupEvent event) {
-    this.permissionManagement.getCachedPermissionGroups().put(
-      event.getPermissionGroup().name(),
-      event.getPermissionGroup());
+    this.permissionManagement.cachedPermissionGroups().put(
+      event.permissionGroup().name(),
+      event.permissionGroup());
   }
 
   @EventListener
   public void handle(@NotNull PermissionUpdateGroupEvent event) {
-    this.permissionManagement.getCachedPermissionGroups().put(
-      event.getPermissionGroup().name(),
-      event.getPermissionGroup());
+    this.permissionManagement.cachedPermissionGroups().put(
+      event.permissionGroup().name(),
+      event.permissionGroup());
   }
 
   @EventListener
   public void handle(@NotNull PermissionDeleteGroupEvent event) {
-    this.permissionManagement.getCachedPermissionGroups().remove(event.getPermissionGroup().name());
+    this.permissionManagement.cachedPermissionGroups().remove(event.permissionGroup().name());
   }
 
   @EventListener
   public void handle(@NotNull PermissionSetGroupsEvent event) {
-    this.permissionManagement.getCachedPermissionGroups().clear();
+    this.permissionManagement.cachedPermissionGroups().clear();
 
-    for (PermissionGroup permissionGroup : event.getGroups()) {
-      this.permissionManagement.getCachedPermissionGroups().put(permissionGroup.name(), permissionGroup);
+    for (PermissionGroup permissionGroup : event.groups()) {
+      this.permissionManagement.cachedPermissionGroups().put(permissionGroup.name(), permissionGroup);
     }
   }
 }

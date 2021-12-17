@@ -42,7 +42,7 @@ public class V2HttpHandlerAuthorization extends V2HttpHandler {
   protected void handleBasicAuthorized(String path, IHttpContext context, PermissionUser user) {
     var jwt = this.authentication.createJwt(user, TimeUnit.HOURS.toMillis(1)); // todo: configurable
     this.ok(context)
-      .body(this.success().append("token", jwt).append("id", user.getUniqueId()).toString())
+      .body(this.success().append("token", jwt).append("id", user.uniqueId()).toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -51,7 +51,7 @@ public class V2HttpHandlerAuthorization extends V2HttpHandler {
   @Override
   protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) {
     this.ok(context)
-      .body(this.success().append("id", session.getUser().getUniqueId()).toString())
+      .body(this.success().append("id", session.getUser().uniqueId()).toString())
       .context()
       .closeAfter(true)
       .cancelNext();

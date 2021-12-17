@@ -174,7 +174,7 @@ public class XodusDatabase extends AbstractDatabase {
   }
 
   @Override
-  public long getDocumentsCount() {
+  public long documentCount() {
     return this.environment.computeInReadonlyTransaction(txn -> this.getStore().count(txn));
   }
 

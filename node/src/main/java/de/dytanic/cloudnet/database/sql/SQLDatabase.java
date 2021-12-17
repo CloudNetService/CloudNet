@@ -296,7 +296,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
   }
 
   @Override
-  public long getDocumentsCount() {
+  public long documentCount() {
     return this.databaseProvider.executeQuery("SELECT COUNT(*) FROM `" + this.name + "`;", resultSet -> {
       if (resultSet.next()) {
         return resultSet.getLong(1);

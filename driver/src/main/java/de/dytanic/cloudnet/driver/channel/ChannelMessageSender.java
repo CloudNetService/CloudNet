@@ -26,8 +26,8 @@ import org.jetbrains.annotations.NotNull;
 public record ChannelMessageSender(@NotNull String name, @NotNull DriverEnvironment type) {
 
   private static final ChannelMessageSender SELF = of(
-    CloudNetDriver.getInstance().getComponentName(),
-    CloudNetDriver.getInstance().getDriverEnvironment());
+    CloudNetDriver.instance().componentName(),
+    CloudNetDriver.instance().environment());
 
   public static @NotNull ChannelMessageSender of(@NotNull String name, @NotNull DriverEnvironment environment) {
     return new ChannelMessageSender(name, environment);
@@ -42,7 +42,7 @@ public record ChannelMessageSender(@NotNull String name, @NotNull DriverEnvironm
   }
 
   public boolean is(@NotNull NetworkClusterNode node) {
-    return this.type == DriverEnvironment.CLOUDNET && this.name.equals(node.getUniqueId());
+    return this.type == DriverEnvironment.CLOUDNET && this.name.equals(node.uniqueId());
   }
 
   public @NotNull ChannelMessageTarget toTarget() {

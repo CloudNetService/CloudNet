@@ -46,7 +46,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class V2HttpAuthentication {
 
-  protected static final String ISSUER = "CloudNet " + CloudNet.getInstance().getComponentName();
+  protected static final String ISSUER = "CloudNet " + CloudNet.getInstance().componentName();
 
   protected static final Key SIGN_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
   protected static final JwtParser PARSER = Jwts.parserBuilder().setSigningKey(SIGN_KEY).requireIssuer(ISSUER).build();
@@ -75,8 +75,8 @@ public class V2HttpAuthentication {
   }
 
   public @NotNull String createJwt(@NotNull PermissionUser subject, long sessionTimeMillis) {
-    var session = this.getSessions().computeIfAbsent(subject.getUniqueId().toString(),
-      userUniqueId -> new DefaultHttpSession(System.currentTimeMillis() + sessionTimeMillis, subject.getUniqueId()));
+    var session = this.getSessions().computeIfAbsent(subject.uniqueId().toString(),
+      userUniqueId -> new DefaultHttpSession(System.currentTimeMillis() + sessionTimeMillis, subject.uniqueId()));
     return this.generateJwt(subject, session);
   }
 
@@ -91,7 +91,7 @@ public class V2HttpAuthentication {
       var credentials = new String(Base64.getDecoder().decode(matcher.group(1)), StandardCharsets.UTF_8)
         .split(":");
       if (credentials.length == 2) {
-        var users = CloudNetDriver.getInstance().getPermissionManagement().getUsersByName(credentials[0]);
+        var users = CloudNetDriver.instance().permissionManagement().usersByName(credentials[0]);
         for (var user : users) {
           if (user.checkPassword(credentials[1])) {
             return LoginResult.success(user);
@@ -124,7 +124,7 @@ public class V2HttpAuthentication {
           }
           // ensure that the user is the owner of the session
           var userUniqueId = UUID.fromString(jws.getBody().get("uniqueId", String.class));
-          if (user.getUniqueId().equals(userUniqueId)) {
+          if (user.uniqueId().equals(userUniqueId)) {
             return LoginResult.success(session);
           }
         }
@@ -151,7 +151,7 @@ public class V2HttpAuthentication {
   }
 
   public boolean expireSession(@NotNull HttpSession session) {
-    return this.sessions.remove(session.getUser().getUniqueId().toString()) != null;
+    return this.sessions.remove(session.getUser().uniqueId().toString()) != null;
   }
 
   public @NotNull LoginResult<Pair<HttpSession, String>> refreshJwt(@NotNull IHttpRequest request, long lifetime) {
@@ -185,7 +185,7 @@ public class V2HttpAuthentication {
       .setSubject(subject.name())
       .setId(session.getUniqueId())
       .setIssuedAt(Calendar.getInstance().getTime())
-      .claim("uniqueId", subject.getUniqueId())
+      .claim("uniqueId", subject.uniqueId())
       .setExpiration(new Date(session.getExpireTime()))
       .compact();
   }

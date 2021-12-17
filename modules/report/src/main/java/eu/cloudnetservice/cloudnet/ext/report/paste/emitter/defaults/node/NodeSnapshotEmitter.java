@@ -26,7 +26,7 @@ public class NodeSnapshotEmitter implements ReportDataEmitter<NetworkClusterNode
   public void emitData(StringBuilder builder, NetworkClusterNodeInfoSnapshot context) {
     builder
       .append(" - NodeSnapshot ")
-      .append(context.getNode().getUniqueId())
+      .append(context.node().uniqueId())
       .append(" - \n")
       .append(JsonDocument.newDocument(context).toPrettyJson())
       .append("\n")

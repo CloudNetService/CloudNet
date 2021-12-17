@@ -53,16 +53,16 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
 
   public static @NotNull Builder builder(@NotNull ServiceDeployment deployment) {
     return builder()
-      .template(deployment.getTemplate())
-      .excludes(deployment.getExcludes())
-      .properties(deployment.getProperties().clone());
+      .template(deployment.template())
+      .excludes(deployment.excludes())
+      .properties(deployment.properties().clone());
   }
 
-  public @NotNull ServiceTemplate getTemplate() {
+  public @NotNull ServiceTemplate template() {
     return this.template;
   }
 
-  public @NotNull Collection<String> getExcludes() {
+  public @NotNull Collection<String> excludes() {
     return this.excludes;
   }
 

@@ -35,7 +35,7 @@ public interface ServiceProperty<T> {
    * @return an optional with the value, might be empty
    */
   @NotNull
-  Optional<T> get(@NotNull ServiceInfoSnapshot serviceInfoSnapshot);
+  Optional<T> read(@NotNull ServiceInfoSnapshot serviceInfoSnapshot);
 
   /**
    * Sets a property into the properties of the given {@link ServiceInfoSnapshot}. Some properties might not support
@@ -44,6 +44,5 @@ public interface ServiceProperty<T> {
    * @param serviceInfoSnapshot the serviceInfoSnapshot to modify the property in
    * @param value               the value to set or null to remove the property
    */
-  void set(@NotNull ServiceInfoSnapshot serviceInfoSnapshot, @Nullable T value);
-
+  void write(@NotNull ServiceInfoSnapshot serviceInfoSnapshot, @Nullable T value);
 }

@@ -90,7 +90,7 @@ public class ModuleDependency {
    *
    * @return the repository this dependency is located in or {@code null} if not located in a repository.
    */
-  public @Nullable String getRepo() {
+  public @Nullable String repo() {
     return this.repo;
   }
 
@@ -99,7 +99,7 @@ public class ModuleDependency {
    *
    * @return the direct download url of this dependency or {@code null} if there is no direct download url.
    */
-  public @Nullable String getUrl() {
+  public @Nullable String url() {
     return this.url;
   }
 
@@ -108,7 +108,7 @@ public class ModuleDependency {
    *
    * @return the group of this dependency.
    */
-  public @NotNull String getGroup() {
+  public @NotNull String group() {
     return this.group;
   }
 
@@ -117,7 +117,7 @@ public class ModuleDependency {
    *
    * @return the name of this dependency.
    */
-  public @NotNull String getName() {
+  public @NotNull String name() {
     return this.name;
   }
 
@@ -126,7 +126,7 @@ public class ModuleDependency {
    *
    * @return the version of this dependency.
    */
-  public @NotNull String getVersion() {
+  public @NotNull String version() {
     return this.version;
   }
 

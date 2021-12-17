@@ -39,7 +39,7 @@ public final class SFTPTemplateStorageModule extends DriverModule {
   @ModuleTask(order = Byte.MAX_VALUE, event = ModuleLifeCycle.LOADED)
   public void convertConfig() {
     // the old config was located in a directory called '-ftp' rather than '-sftp'
-    var oldConfigPath = this.getModuleWrapper().getModuleProvider().getModuleDirectoryPath()
+    var oldConfigPath = this.moduleWrapper().moduleProvider().moduleDirectoryPath()
       .resolve("CloudNet-Storage-FTP")
       .resolve("config.json");
     if (Files.exists(oldConfigPath)) {
@@ -62,12 +62,12 @@ public final class SFTPTemplateStorageModule extends DriverModule {
 
   @ModuleTask(event = ModuleLifeCycle.LOADED)
   public void handleInit() {
-    if (Files.exists(this.getConfigPath())) {
+    if (Files.exists(this.configPath())) {
       // load the config
-      this.config = JsonDocument.newDocument(this.getConfigPath()).toInstanceOf(SFTPTemplateStorageConfig.class);
+      this.config = JsonDocument.newDocument(this.configPath()).toInstanceOf(SFTPTemplateStorageConfig.class);
       // init the storage
       this.storage = new SFTPTemplateStorage(this.config);
-      this.getServiceRegistry().registerService(TemplateStorage.class, this.storage.name(), this.storage);
+      this.serviceRegistry().registerService(TemplateStorage.class, this.storage.name(), this.storage);
       // register the cluster sync handler
       CloudNet.getInstance().getDataSyncRegistry().registerHandler(DataSyncHandler.<SFTPTemplateStorageConfig>builder()
         .key("sftp-storage-config")
@@ -78,18 +78,18 @@ public final class SFTPTemplateStorageModule extends DriverModule {
         .currentGetter($ -> this.config)
         .build());
     } else {
-      JsonDocument.newDocument(new SFTPTemplateStorageConfig()).write(this.getConfigPath());
+      JsonDocument.newDocument(new SFTPTemplateStorageConfig()).write(this.configPath());
     }
   }
 
   @ModuleTask(event = ModuleLifeCycle.STOPPED)
   public void handleStop() throws IOException {
     this.storage.close();
-    this.getServiceRegistry().unregisterService(TemplateStorage.class, this.storage.name());
+    this.serviceRegistry().unregisterService(TemplateStorage.class, this.storage.name());
   }
 
   public void writeConfig(@NotNull SFTPTemplateStorageConfig config) {
     this.config = config;
-    JsonDocument.newDocument(config).write(this.getConfigPath());
+    JsonDocument.newDocument(config).write(this.configPath());
   }
 }

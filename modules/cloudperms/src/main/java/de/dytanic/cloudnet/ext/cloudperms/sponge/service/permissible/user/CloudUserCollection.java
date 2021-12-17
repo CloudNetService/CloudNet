@@ -49,7 +49,7 @@ public final class CloudUserCollection extends AbstractSubjectCollection {
   @Override
   public CompletableFuture<? extends Subject> loadSubject(String identifier) {
     return CompletableFuture.supplyAsync(() -> {
-      var user = this.management.getUser(parseFromString(identifier));
+      var user = this.management.user(parseFromString(identifier));
       Verify.verifyNotNull(user, "No user with identifier " + identifier);
       return new PermissionUserSubject(identifier, this, user, this.management);
     });
@@ -60,7 +60,7 @@ public final class CloudUserCollection extends AbstractSubjectCollection {
     var management = CloudPermissionsHelper.asCachedPermissionManagement(this.management);
     // if the permission management support caches try to load the user from the cache
     if (management != null) {
-      var user = management.getCachedUser(parseFromString(identifier));
+      var user = management.cachedUser(parseFromString(identifier));
       if (user != null) {
         return Optional.of(new PermissionUserSubject(identifier, this, user, this.management));
       }
@@ -71,7 +71,7 @@ public final class CloudUserCollection extends AbstractSubjectCollection {
 
   @Override
   public CompletableFuture<Boolean> hasSubject(String id) {
-    return CompletableFuture.supplyAsync(() -> this.management.getUser(parseFromString(id)) != null);
+    return CompletableFuture.supplyAsync(() -> this.management.user(parseFromString(id)) != null);
   }
 
   @Override
@@ -81,7 +81,7 @@ public final class CloudUserCollection extends AbstractSubjectCollection {
 
   @Override
   public CompletableFuture<? extends Set<String>> allIdentifiers() {
-    return CompletableFuture.supplyAsync(() -> this.management.getUsers().stream()
+    return CompletableFuture.supplyAsync(() -> this.management.users().stream()
       .map(PermissionUser::name)
       .collect(Collectors.toSet()));
   }

@@ -68,7 +68,7 @@ public final class CloudPermissionsHelper {
     }
 
     if (shouldUpdateName && !name.equals(permissionUser.name())) {
-      permissionUser.setName(name);
+      permissionUser.name(name);
       permissionsManagement.updateUserAsync(permissionUser);
     }
   }
@@ -76,7 +76,7 @@ public final class CloudPermissionsHelper {
   public static void handlePlayerQuit(IPermissionManagement permissionsManagement, UUID uniqueId) {
     var management = asCachedPermissionManagement(permissionsManagement);
     if (management != null) {
-      var cachedUser = management.getCachedUser(uniqueId);
+      var cachedUser = management.cachedUser(uniqueId);
       if (cachedUser != null) {
         management.unlock(cachedUser);
       }

@@ -35,5 +35,5 @@ public abstract class AbstractDatabaseProvider implements DatabaseProvider, INam
   }
 
   @Override
-  public abstract @NotNull LocalDatabase getDatabase(@NotNull String name);
+  public abstract @NotNull LocalDatabase database(@NotNull String name);
 }

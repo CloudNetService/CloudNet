@@ -326,7 +326,7 @@ public class JsonDocument implements IDocument<JsonDocument> {
   }
 
   @Override
-  public @NotNull JsonDocument getProperties() {
+  public @NotNull JsonDocument properties() {
     return this;
   }
 

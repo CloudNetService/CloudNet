@@ -36,17 +36,17 @@ public class RemoteNodeCloudServiceProvider extends RemoteSpecificCloudServicePr
     @NotNull Supplier<INetworkChannel> channelSupplier,
     @NotNull ServiceInfoSnapshot snapshot
   ) {
-    super(provider, providerSender, channelSupplier, snapshot.getServiceId().getUniqueId());
+    super(provider, providerSender, channelSupplier, snapshot.serviceId().uniqueId());
     this.snapshot = snapshot;
   }
 
   @Override
-  public @NotNull ServiceInfoSnapshot getServiceInfoSnapshot() {
+  public @NotNull ServiceInfoSnapshot serviceInfo() {
     return this.snapshot;
   }
 
   @Override
-  public @NotNull ITask<ServiceInfoSnapshot> getServiceInfoSnapshotAsync() {
+  public @NotNull ITask<ServiceInfoSnapshot> serviceInfoAsync() {
     return CompletedTask.done(this.snapshot);
   }
 

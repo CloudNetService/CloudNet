@@ -68,76 +68,76 @@ public class ServiceInfoSnapshot extends JsonDocPropertyHolder
     this.properties = properties;
   }
 
-  public long getCreationTime() {
+  public long creationTime() {
     return this.creationTime;
   }
 
-  public @NotNull ServiceId getServiceId() {
-    return this.configuration.getServiceId();
+  public @NotNull ServiceId serviceId() {
+    return this.configuration.serviceId();
   }
 
-  public @NotNull HostAndPort getAddress() {
+  public @NotNull HostAndPort address() {
     return this.address;
   }
 
-  public @NotNull HostAndPort getConnectAddress() {
+  public @NotNull HostAndPort connectAddress() {
     return this.connectAddress;
   }
 
-  public boolean isConnected() {
+  public boolean connected() {
     return this.connectedTime != -1;
   }
 
-  public long getConnectedTime() {
+  public long connectedTime() {
     return this.connectedTime;
   }
 
   @Internal
-  public void setConnectedTime(long connectedTime) {
+  public void connectedTime(long connectedTime) {
     this.connectedTime = connectedTime;
   }
 
-  public ServiceLifeCycle getLifeCycle() {
+  public ServiceLifeCycle lifeCycle() {
     return this.lifeCycle;
   }
 
   @Internal
-  public void setLifeCycle(ServiceLifeCycle lifeCycle) {
+  public void lifeCycle(ServiceLifeCycle lifeCycle) {
     this.lifeCycle = lifeCycle;
   }
 
-  public @NotNull ProcessSnapshot getProcessSnapshot() {
+  public @NotNull ProcessSnapshot processSnapshot() {
     return this.processSnapshot;
   }
 
-  public @NotNull ServiceConfiguration getConfiguration() {
+  public @NotNull ServiceConfiguration configuration() {
     return this.configuration;
   }
 
   public @NotNull SpecificCloudServiceProvider provider() {
-    return CloudNetDriver.getInstance()
-      .getCloudServiceProvider()
-      .getSpecificProvider(this.getServiceId().getUniqueId());
+    return CloudNetDriver.instance()
+      .cloudServiceProvider()
+      .specificProvider(this.serviceId().uniqueId());
   }
 
-  public <T> @NotNull Optional<T> getProperty(@NotNull ServiceProperty<T> property) {
-    return property.get(this);
+  public <T> @NotNull Optional<T> property(@NotNull ServiceProperty<T> property) {
+    return property.read(this);
   }
 
-  public <T> void setProperty(@NotNull ServiceProperty<T> property, @Nullable T value) {
-    property.set(this, value);
+  public <T> void property(@NotNull ServiceProperty<T> property, @Nullable T value) {
+    property.write(this, value);
   }
 
   @Override
   public @NotNull String name() {
-    return this.getServiceId().name();
+    return this.serviceId().name();
   }
 
   @Override
   public int compareTo(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
     return ComparisonChain.start()
-      .compare(this.getServiceId().getTaskName(), serviceInfoSnapshot.getServiceId().getTaskName())
-      .compare(this.getServiceId().getTaskServiceId(), serviceInfoSnapshot.getServiceId().getTaskServiceId())
+      .compare(this.serviceId().taskName(), serviceInfoSnapshot.serviceId().taskName())
+      .compare(this.serviceId().taskServiceId(), serviceInfoSnapshot.serviceId().taskServiceId())
       .result();
   }
 

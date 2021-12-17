@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 
 public interface IPermissible extends INameable, DocPropertyHolder, Comparable<IPermissible> {
 
-  @NotNull Collection<String> getGroupNames();
+  @NotNull Collection<String> groupNames();
 
   /**
    * Sets the name of this permissible.
@@ -38,17 +38,17 @@ public interface IPermissible extends INameable, DocPropertyHolder, Comparable<I
    *
    * @param name the new name
    */
-  void setName(@NotNull String name);
+  void name(@NotNull String name);
 
   /**
    * Gets the potency of this permissible. If this permissible is an {@link PermissionGroup}, {@link
-   * IPermissionManagement#getHighestPermissionGroup(PermissionUser)} is sorted by the potency. If this permissible is
+   * IPermissionManagement#highestPermissionGroup(PermissionUser)} is sorted by the potency. If this permissible is
    * an {@link PermissionUser}, in CloudNet it has no specific meaning, but of course you can use it for whatever you
    * want.
    *
    * @return the potency of this permissible
    */
-  int getPotency();
+  int potency();
 
   /**
    * Sets the potency of this permissible.
@@ -58,7 +58,7 @@ public interface IPermissible extends INameable, DocPropertyHolder, Comparable<I
    *
    * @param potency the new potency
    */
-  void setPotency(int potency);
+  void potency(int potency);
 
   /**
    * Adds a new permission to this permissible and updates it if a permission with that name already exists.
@@ -116,14 +116,14 @@ public interface IPermissible extends INameable, DocPropertyHolder, Comparable<I
    *
    * @return a mutable list of all permissions
    */
-  @NotNull Collection<Permission> getPermissions();
+  @NotNull Collection<Permission> permissions();
 
   /**
    * Gets all effective permissions on a specific group. Global permissions are not included.
    *
    * @return a mutable map containing mutable lists of permissions
    */
-  @NotNull Map<String, Collection<Permission>> getGroupPermissions();
+  @NotNull Map<String, Collection<Permission>> groupPermissions();
 
   /**
    * Gets a permission of this permissible by its name.
@@ -132,9 +132,9 @@ public interface IPermissible extends INameable, DocPropertyHolder, Comparable<I
    * @return the {@link Permission} if the permission exists or {@code null} if the permission doesn't exist in this
    * permissible or the name is null
    */
-  default @Nullable Permission getPermission(@Nullable String name) {
-    return name == null ? null : this.getPermissions().stream()
-      .filter(permission -> permission.getName().equalsIgnoreCase(name))
+  default @Nullable Permission permission(@Nullable String name) {
+    return name == null ? null : this.permissions().stream()
+      .filter(permission -> permission.name().equalsIgnoreCase(name))
       .findFirst()
       .orElse(null);
   }
@@ -147,7 +147,7 @@ public interface IPermissible extends INameable, DocPropertyHolder, Comparable<I
    * or this name is null
    */
   default boolean isPermissionSet(@NotNull String name) {
-    return this.getPermissions().stream().anyMatch(permission -> permission.getName().equalsIgnoreCase(name));
+    return this.permissions().stream().anyMatch(permission -> permission.name().equalsIgnoreCase(name));
   }
 
   /**
@@ -270,8 +270,8 @@ public interface IPermissible extends INameable, DocPropertyHolder, Comparable<I
    *
    * @return a mutable list of all names of the permissions
    */
-  default Collection<String> getPermissionNames() {
-    return this.getPermissions().stream().map(Permission::getName).collect(Collectors.toList());
+  default Collection<String> permissionNames() {
+    return this.permissions().stream().map(Permission::name).collect(Collectors.toList());
   }
 
   /**
@@ -300,7 +300,7 @@ public interface IPermissible extends INameable, DocPropertyHolder, Comparable<I
     @NotNull Collection<Permission> permissions,
     @NotNull Permission permission
   ) {
-    return CloudNetDriver.getInstance().getPermissionManagement().findHighestPermission(permissions, permission);
+    return CloudNetDriver.instance().permissionManagement().findHighestPermission(permissions, permission);
   }
 
   /**
@@ -312,8 +312,8 @@ public interface IPermissible extends INameable, DocPropertyHolder, Comparable<I
    * @return the result of this check
    */
   default PermissionCheckResult hasPermission(@NotNull String group, @NotNull Permission permission) {
-    return this.getGroupPermissions().containsKey(group)
-      ? this.hasPermission(this.getGroupPermissions().get(group), permission)
+    return this.groupPermissions().containsKey(group)
+      ? this.hasPermission(this.groupPermissions().get(group), permission)
       : PermissionCheckResult.DENIED;
   }
 
@@ -324,7 +324,7 @@ public interface IPermissible extends INameable, DocPropertyHolder, Comparable<I
    * @return the result of this check
    */
   default PermissionCheckResult hasPermission(@NotNull Permission permission) {
-    return this.hasPermission(this.getPermissions(), permission);
+    return this.hasPermission(this.permissions(), permission);
   }
 
   /**
@@ -341,6 +341,6 @@ public interface IPermissible extends INameable, DocPropertyHolder, Comparable<I
 
   @Override
   default int compareTo(@NotNull IPermissible o) {
-    return this.getPotency() + o.getPotency();
+    return this.potency() + o.potency();
   }
 }

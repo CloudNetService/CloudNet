@@ -45,7 +45,7 @@ record FileContentStreamProvider(@NotNull Path workingDirectory) implements Cont
 
     public FileStreamableContent(Path path) {
       this.path = path;
-      this.contentType = FileMimeTypeHelper.getFileType(path) + "; charset=UTF-8";
+      this.contentType = FileMimeTypeHelper.fileType(path) + "; charset=UTF-8";
     }
 
     @Override

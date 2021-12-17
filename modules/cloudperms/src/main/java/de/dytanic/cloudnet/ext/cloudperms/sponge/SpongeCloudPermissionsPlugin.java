@@ -41,19 +41,19 @@ public final class SpongeCloudPermissionsPlugin {
   @Inject
   public SpongeCloudPermissionsPlugin(@NotNull PluginContainer pluginContainer) {
     this.plugin = pluginContainer;
-    this.service = new CloudPermsPermissionService(CloudNetDriver.getInstance().getPermissionManagement());
+    this.service = new CloudPermsPermissionService(CloudNetDriver.instance().permissionManagement());
   }
 
   @Listener
   public void handle(@NotNull ConstructPluginEvent event) {
     Sponge.eventManager().registerListeners(
       this.plugin,
-      new SpongeCloudPermissionsListener(CloudNetDriver.getInstance().getPermissionManagement()));
+      new SpongeCloudPermissionsListener(CloudNetDriver.instance().permissionManagement()));
   }
 
   @Listener
   public void handle(@NotNull StartingEngineEvent<Server> event) {
-    CloudNetDriver.getInstance().getEventManager().registerListener(new PermissionsUpdateListener<>(
+    CloudNetDriver.instance().eventManager().registerListener(new PermissionsUpdateListener<>(
       event.engine().scheduler().executor(this.plugin),
       player -> Sponge.server().commandManager().updateCommandTreeForPlayer(player),
       ServerPlayer::uniqueId,

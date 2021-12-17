@@ -120,7 +120,7 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
   }
 
   @Override
-  public @NotNull Callback getCallback() {
+  public @NotNull Callback callback() {
     return this.writeCompleteHandler;
   }
 

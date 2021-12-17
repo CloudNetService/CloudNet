@@ -45,11 +45,11 @@ public class ModuleDependencyUtilsTest {
     moduleWrappers.add(this.mockModule(provider, "sub", "1.5.0"));
     moduleWrappers.add(this.mockModule(provider, "sub2", "1.7.4"));
 
-    Assertions.assertEquals(3, provider.getModules().size());
+    Assertions.assertEquals(3, provider.modules().size());
 
     Collection<IModuleWrapper> dependencies = ModuleDependencyUtils.collectDependencies(rootModule, provider);
     Assertions.assertEquals(1, dependencies.size());
-    Assertions.assertEquals("sub", Iterables.get(dependencies, 0).getModule().getName());
+    Assertions.assertEquals("sub", Iterables.get(dependencies, 0).module().name());
   }
 
   @Test
@@ -78,9 +78,9 @@ public class ModuleDependencyUtilsTest {
 
   private IModuleProvider mockModuleProvider(Collection<IModuleWrapper> wrappers) {
     var provider = Mockito.mock(IModuleProvider.class);
-    Mockito.when(provider.getModules()).thenReturn(wrappers);
-    Mockito.when(provider.getModule(Mockito.anyString())).then(invocation -> wrappers.stream()
-      .filter(wrapper -> wrapper.getModule().getName().equals(invocation.getArgument(0)))
+    Mockito.when(provider.modules()).thenReturn(wrappers);
+    Mockito.when(provider.module(Mockito.anyString())).then(invocation -> wrappers.stream()
+      .filter(wrapper -> wrapper.module().name().equals(invocation.getArgument(0)))
       .findFirst()
       .orElse(null));
 
@@ -93,7 +93,7 @@ public class ModuleDependencyUtilsTest {
       "root",
       "1.0",
       wrapper -> Mockito
-        .when(wrapper.getDependingModules())
+        .when(wrapper.dependingModules())
         .thenReturn(Collections.singleton(new ModuleDependency("eu.cloudnet", "sub", "1.5.0"))));
   }
 
@@ -104,12 +104,12 @@ public class ModuleDependencyUtilsTest {
 
   private IModuleWrapper mockModule(IModuleProvider pro, String name, String version, Consumer<IModuleWrapper> mod) {
     var mockedModule = Mockito.mock(IModule.class);
-    Mockito.when(mockedModule.getName()).thenReturn(name);
-    Mockito.when(mockedModule.getVersion()).thenReturn(version);
+    Mockito.when(mockedModule.name()).thenReturn(name);
+    Mockito.when(mockedModule.version()).thenReturn(version);
 
     var moduleWrapper = Mockito.mock(IModuleWrapper.class);
-    Mockito.when(moduleWrapper.getModuleProvider()).thenReturn(pro);
-    Mockito.when(moduleWrapper.getModule()).thenReturn(mockedModule);
+    Mockito.when(moduleWrapper.moduleProvider()).thenReturn(pro);
+    Mockito.when(moduleWrapper.module()).thenReturn(mockedModule);
 
     mod.accept(moduleWrapper);
 

@@ -39,32 +39,32 @@ public final class ServiceChannelMessageListener {
 
   @EventListener
   public void handleChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
-    if (event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
-      switch (event.getMessage()) {
+    if (event.channel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
+      switch (event.message()) {
         // update of a service in the network
         case "update_service_info" -> {
-          var snapshot = event.getContent().readObject(ServiceInfoSnapshot.class);
+          var snapshot = event.content().readObject(ServiceInfoSnapshot.class);
           // update locally and call the event
           this.eventManager.callEvent(new CloudServiceUpdateEvent(snapshot));
         }
 
         // update of a service lifecycle in the network
         case "update_service_lifecycle" -> {
-          var lifeCycle = event.getContent().readObject(ServiceLifeCycle.class);
-          var snapshot = event.getContent().readObject(ServiceInfoSnapshot.class);
+          var lifeCycle = event.content().readObject(ServiceLifeCycle.class);
+          var snapshot = event.content().readObject(ServiceInfoSnapshot.class);
           // update locally and call the event
           this.eventManager.callEvent(new CloudServiceLifecycleChangeEvent(lifeCycle, snapshot));
         }
 
         // force update request of the service info
-        case "request_update_service_information" -> event.setBinaryResponse(DataBuf.empty()
+        case "request_update_service_information" -> event.binaryResponse(DataBuf.empty()
           .writeObject(Wrapper.getInstance().configureServiceInfoSnapshot()));
 
         // call the event for a new line in the log of the service
         case "screen_new_line" -> {
-          var snapshot = event.getContent().readObject(ServiceInfoSnapshot.class);
-          var eventChannel = event.getContent().readString();
-          var line = event.getContent().readString();
+          var snapshot = event.content().readObject(ServiceInfoSnapshot.class);
+          var eventChannel = event.content().readString();
+          var line = event.content().readString();
 
           this.eventManager.callEvent(eventChannel, new CloudServiceLogEntryEvent(snapshot, line));
         }

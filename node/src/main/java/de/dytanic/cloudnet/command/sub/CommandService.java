@@ -70,23 +70,23 @@ public final class CommandService {
   private static final RowBasedFormatter<ServiceInfoSnapshot> NAMES_ONLY = RowBasedFormatter.<ServiceInfoSnapshot>builder()
     .defaultFormatter(ColumnFormatter.builder().columnTitles("Name", "UID").build())
     .column(ServiceInfoSnapshot::name)
-    .column(service -> service.getServiceId().getUniqueId())
+    .column(service -> service.serviceId().uniqueId())
     .build();
   private static final RowBasedFormatter<ServiceInfoSnapshot> SERVICES = RowBasedFormatter.<ServiceInfoSnapshot>builder()
     .defaultFormatter(ColumnFormatter.builder().columnTitles("Name", "Lifecycle", "Node", "State").build())
     .column(ServiceInfoSnapshot::name)
-    .column(ServiceInfoSnapshot::getLifeCycle)
-    .column(service -> service.getServiceId().getNodeUniqueId())
-    .column(service -> service.isConnected() ? "Connected" : "Not connected")
+    .column(ServiceInfoSnapshot::lifeCycle)
+    .column(service -> service.serviceId().nodeUniqueId())
+    .column(service -> service.connected() ? "Connected" : "Not connected")
     .build();
 
   public CommandService() {
-    CloudNet.getInstance().getEventManager().registerListener(this);
+    CloudNet.getInstance().eventManager().registerListener(this);
   }
 
   @Suggestions("service")
   public List<String> suggestService(CommandContext<CommandSource> $, String input) {
-    return CloudNet.getInstance().getCloudServiceProvider().getCloudServices()
+    return CloudNet.getInstance().cloudServiceProvider().services()
       .stream()
       .map(INameable::name)
       .collect(Collectors.toList());
@@ -95,7 +95,7 @@ public final class CommandService {
   @Parser(suggestions = "service")
   public Collection<ServiceInfoSnapshot> wildcardServiceParser(CommandContext<CommandSource> $, Queue<String> input) {
     var name = input.remove();
-    var knownServices = CloudNet.getInstance().getCloudServiceProvider().getCloudServices();
+    var knownServices = CloudNet.getInstance().cloudServiceProvider().services();
     var matchedServices = WildcardUtil.filterWildcard(knownServices, name);
     if (matchedServices.isEmpty()) {
       throw new ArgumentNotAvailableException(I18n.trans("command-service-service-not-found"));
@@ -112,11 +112,11 @@ public final class CommandService {
     @Flag("group") String groupName,
     @Flag("names") boolean useNamesOnly
   ) {
-    Collection<ServiceInfoSnapshot> services = CloudNet.getInstance().getCloudServiceProvider().getCloudServices()
+    Collection<ServiceInfoSnapshot> services = CloudNet.getInstance().cloudServiceProvider().services()
       .stream()
-      .filter(service -> id == null || service.getServiceId().getTaskServiceId() == id)
-      .filter(service -> taskName == null || service.getServiceId().getTaskName().equalsIgnoreCase(taskName))
-      .filter(service -> groupName == null || service.getConfiguration().getGroups().contains(groupName))
+      .filter(service -> id == null || service.serviceId().taskServiceId() == id)
+      .filter(service -> taskName == null || service.serviceId().taskName().equalsIgnoreCase(taskName))
+      .filter(service -> groupName == null || service.configuration().groups().contains(groupName))
       .sorted()
       .collect(Collectors.toList());
 
@@ -181,8 +181,8 @@ public final class CommandService {
           return new Pair<>(service.provider(), template);
         } else {
           // find a matching template
-          return service.getConfiguration().getTemplates().stream()
-            .filter(st -> st.getPrefix().equalsIgnoreCase(service.getServiceId().getTaskName()))
+          return service.configuration().templates().stream()
+            .filter(st -> st.prefix().equalsIgnoreCase(service.serviceId().taskName()))
             .filter(st -> st.name().equalsIgnoreCase("default"))
             .map(st -> new Pair<>(service.provider(), st))
             .findFirst()
@@ -205,7 +205,7 @@ public final class CommandService {
       // send a message for each service we did copy the template of
       //noinspection ConstantConditions
       source.sendMessage(I18n.trans("command-copy-success")
-        .replace("%name%", target.first().getServiceInfoSnapshot().name())
+        .replace("%name%", target.first().serviceInfo().name())
         .replace("%template%", target.second().toString()));
     }
   }
@@ -221,7 +221,7 @@ public final class CommandService {
   public void toggleScreens(CommandSource source, @Argument("name") Collection<ServiceInfoSnapshot> matchedServices) {
     for (var matchedService : matchedServices) {
       if (matchedService.provider().toggleScreenEvents(ChannelMessageSender.self(), "service:screen")) {
-        for (var cachedLogMessage : matchedService.provider().getCachedLogMessages()) {
+        for (var cachedLogMessage : matchedService.provider().cachedLogMessages()) {
           LOGGER.info(String.format("&b[%s] %s", matchedService.name(), cachedLogMessage));
         }
         source.sendMessage(
@@ -309,7 +309,7 @@ public final class CommandService {
 
   @EventListener(channel = "service:screen")
   public void handleLogEntry(CloudServiceLogEntryEvent event) {
-    LOGGER.info(String.format("&b[%s] %s", event.getServiceInfo().name(), event.getLine()));
+    LOGGER.info(String.format("&b[%s] %s", event.serviceInfo().name(), event.line()));
   }
 
   private void displayServiceInfo(CommandSource source, @Nullable ServiceInfoSnapshot service,
@@ -320,73 +320,73 @@ public final class CommandService {
 
     Collection<String> list = new ArrayList<>(Arrays.asList(
       " ",
-      "* CloudService: " + service.getServiceId().getUniqueId().toString(),
-      "* Name: " + service.getServiceId().name(),
-      "* Node: " + service.getServiceId().getNodeUniqueId(),
-      "* Address: " + service.getAddress().getHost() + ":" + service.getAddress().getPort()
+      "* CloudService: " + service.serviceId().uniqueId().toString(),
+      "* Name: " + service.serviceId().name(),
+      "* Node: " + service.serviceId().nodeUniqueId(),
+      "* Address: " + service.address().host() + ":" + service.address().port()
     ));
 
-    if (!service.getAddress().getHost().equals(service.getConnectAddress().getHost())) {
-      list.add("* Address for connections: " + service.getConnectAddress().getHost() + ":" + service
-        .getConnectAddress().getPort());
+    if (!service.address().host().equals(service.connectAddress().host())) {
+      list.add("* Address for connections: " + service.connectAddress().host() + ":" + service
+        .connectAddress().port());
     }
 
-    if (service.isConnected()) {
-      list.add("* Connected: " + DATE_FORMAT.format(service.getConnectedTime()));
+    if (service.connected()) {
+      list.add("* Connected: " + DATE_FORMAT.format(service.connectedTime()));
     } else {
       list.add("* Connected: false");
     }
 
-    list.add("* Lifecycle: " + service.getLifeCycle());
-    list.add("* Groups: " + String.join(", ", service.getConfiguration().getGroups()));
+    list.add("* Lifecycle: " + service.lifeCycle());
+    list.add("* Groups: " + String.join(", ", service.configuration().groups()));
 
-    if (!service.getConfiguration().getIncludes().isEmpty()) {
+    if (!service.configuration().includes().isEmpty()) {
       list.add(" ");
       list.add("* Includes:");
 
-      for (var inclusion : service.getConfiguration().getIncludes()) {
-        list.add("- " + inclusion.getUrl() + " => " + inclusion.getDestination());
+      for (var inclusion : service.configuration().includes()) {
+        list.add("- " + inclusion.url() + " => " + inclusion.destination());
       }
     }
 
-    if (!service.getConfiguration().getTemplates().isEmpty()) {
+    if (!service.configuration().templates().isEmpty()) {
       list.add(" ");
       list.add("* Templates:");
 
-      for (var template : service.getConfiguration().getTemplates()) {
+      for (var template : service.configuration().templates()) {
         list.add("- " + template);
       }
     }
 
-    if (!service.getConfiguration().getDeployments().isEmpty()) {
+    if (!service.configuration().deployments().isEmpty()) {
       list.add(" ");
       list.add("* Deployments:");
 
-      for (var deployment : service.getConfiguration().getDeployments()) {
+      for (var deployment : service.configuration().deployments()) {
         list.add("- ");
         list
           .add(
-            "Template:  " + deployment.getTemplate());
-        list.add("Excludes: " + deployment.getExcludes());
+            "Template:  " + deployment.template());
+        list.add("Excludes: " + deployment.excludes());
       }
     }
 
     list.add(" ");
-    list.add("* ServiceInfoSnapshot | " + DATE_FORMAT.format(service.getCreationTime()));
+    list.add("* ServiceInfoSnapshot | " + DATE_FORMAT.format(service.creationTime()));
 
     list.addAll(Arrays.asList(
-      "PID: " + service.getProcessSnapshot().pid(),
+      "PID: " + service.processSnapshot().pid(),
       "CPU usage: " + CPUUsageResolver.FORMAT
-        .format(service.getProcessSnapshot().cpuUsage()) + "%",
-      "Threads: " + service.getProcessSnapshot().threads().size(),
-      "Heap usage: " + (service.getProcessSnapshot().heapUsageMemory() / 1048576) + "/" +
-        (service.getProcessSnapshot().maxHeapMemory() / 1048576) + "MB",
+        .format(service.processSnapshot().cpuUsage()) + "%",
+      "Threads: " + service.processSnapshot().threads().size(),
+      "Heap usage: " + (service.processSnapshot().heapUsageMemory() / 1048576) + "/" +
+        (service.processSnapshot().maxHeapMemory() / 1048576) + "MB",
       " "
     ));
 
     if (showCustomProperties) {
       list.add("Properties:");
-      list.addAll(Arrays.asList(service.getProperties().toPrettyJson().split("\n")));
+      list.addAll(Arrays.asList(service.properties().toPrettyJson().split("\n")));
       list.add(" ");
     }
 

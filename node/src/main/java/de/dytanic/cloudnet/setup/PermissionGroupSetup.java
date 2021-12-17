@@ -46,23 +46,23 @@ public class PermissionGroupSetup implements DefaultSetup {
       var adminPermissionGroup = new PermissionGroup("Admin", 100);
       adminPermissionGroup.addPermission("*");
       adminPermissionGroup.addPermission("Proxy", "*");
-      adminPermissionGroup.setPrefix("&4Admin &8| &7");
-      adminPermissionGroup.setColor("&7");
-      adminPermissionGroup.setSuffix("&f");
-      adminPermissionGroup.setDisplay("&4");
-      adminPermissionGroup.setSortId(10);
+      adminPermissionGroup.prefix("&4Admin &8| &7");
+      adminPermissionGroup.color("&7");
+      adminPermissionGroup.suffix("&f");
+      adminPermissionGroup.display("&4");
+      adminPermissionGroup.sortId(10);
 
       var defaultPermissionGroup = new PermissionGroup("default", 100);
       defaultPermissionGroup.addPermission("bukkit.broadcast.user", true);
-      defaultPermissionGroup.setDefaultGroup(true);
-      defaultPermissionGroup.setPrefix("&7");
-      defaultPermissionGroup.setColor("&7");
-      defaultPermissionGroup.setSuffix("&f");
-      defaultPermissionGroup.setDisplay("&7");
-      defaultPermissionGroup.setSortId(10);
+      defaultPermissionGroup.defaultGroup(true);
+      defaultPermissionGroup.prefix("&7");
+      defaultPermissionGroup.color("&7");
+      defaultPermissionGroup.suffix("&f");
+      defaultPermissionGroup.display("&7");
+      defaultPermissionGroup.sortId(10);
 
-      CloudNet.getInstance().getPermissionManagement().addPermissionGroup(adminPermissionGroup);
-      CloudNet.getInstance().getPermissionManagement().addPermissionGroup(defaultPermissionGroup);
+      CloudNet.getInstance().permissionManagement().addPermissionGroup(adminPermissionGroup);
+      CloudNet.getInstance().permissionManagement().addPermissionGroup(defaultPermissionGroup);
     }
   }
 }

@@ -25,16 +25,11 @@ import java.util.function.Function;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-public final class EventChunkHandlerFactory implements Function<ChunkSessionInformation, ChunkedPacketHandler> {
-
-  private final IEventManager eventManager;
-
-  private EventChunkHandlerFactory(@NotNull IEventManager eventManager) {
-    this.eventManager = eventManager;
-  }
+public record EventChunkHandlerFactory(@NotNull IEventManager eventManager)
+  implements Function<ChunkSessionInformation, ChunkedPacketHandler> {
 
   public static @NotNull EventChunkHandlerFactory withDefaultEventManager() {
-    return withEventManager(CloudNetDriver.getInstance().getEventManager());
+    return withEventManager(CloudNetDriver.instance().eventManager());
   }
 
   public static @NotNull EventChunkHandlerFactory withEventManager(@NotNull IEventManager manager) {
@@ -45,7 +40,7 @@ public final class EventChunkHandlerFactory implements Function<ChunkSessionInfo
   @Contract(pure = true)
   public @NotNull ChunkedPacketHandler apply(@NotNull ChunkSessionInformation info) {
     // get the chunked packet handler for the session
-    var handler = this.eventManager.callEvent(new ChunkedPacketSessionOpenEvent(info)).getHandler();
+    var handler = this.eventManager.callEvent(new ChunkedPacketSessionOpenEvent(info)).handler();
     // check if there was a handler supplied
     if (handler == null) {
       throw new IllegalStateException("No chunked handler for " + info);
