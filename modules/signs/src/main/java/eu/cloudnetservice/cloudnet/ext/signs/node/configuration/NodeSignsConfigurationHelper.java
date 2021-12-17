@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.cloudnet.ext.signs.node.configuration;
 
-import com.google.gson.JsonParseException;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
@@ -49,12 +48,7 @@ public final class NodeSignsConfigurationHelper {
   }
 
   public static SignsConfiguration read(@NonNull Path path) {
-    JsonDocument configurationDocument;
-    try {
-      configurationDocument = JsonDocument.newDocument(path);
-    } catch (Exception exception) {
-      throw new JsonParseException("Exception while parsing signs configuration. Your configuration is invalid.");
-    }
+    JsonDocument configurationDocument = JsonDocument.newDocument(path);
     if (configurationDocument.contains("config")) {
       // old document - run conversation now
       LOGGER
