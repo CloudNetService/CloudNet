@@ -80,25 +80,25 @@ public abstract class BukkitPlatformSelectorEntity
     this.npc = npc;
     this.plugin = plugin;
     this.npcManagement = npcManagement;
-    this.npcLocation = npcManagement.toPlatformLocation(npc.getLocation());
+    this.npcLocation = npcManagement.toPlatformLocation(npc.location());
   }
 
   @Override
   public void spawn() {
     Bukkit.getScheduler().runTask(this.plugin, () -> {
       // create the inventory view
-      this.rebuildInventory(this.npcManagement.getInventoryConfiguration());
+      this.rebuildInventory(this.npcManagement.inventoryConfiguration());
       // spawn the selector entity
       this.spawn0();
       // check if the entity should have a glowing color
-      if (SET_COLOR != null && this.npc.isGlowing()) {
-        var scoreboard = this.npcManagement.getScoreboard();
+      if (SET_COLOR != null && this.npc.glowing()) {
+        var scoreboard = this.npcManagement.scoreboard();
         // check if a team for the glowing color is already registered
-        var team = scoreboard.getTeam("nc" + this.npc.getGlowingColor());
+        var team = scoreboard.getTeam("nc" + this.npc.glowingColor());
         if (team == null) {
-          team = scoreboard.registerNewTeam("nc" + this.npc.getGlowingColor());
+          team = scoreboard.registerNewTeam("nc" + this.npc.glowingColor());
           // try to set the team color
-          var color = ChatColor.getByChar(this.npc.getGlowingColor());
+          var color = ChatColor.getByChar(this.npc.glowingColor());
           if (color != null) {
             try {
               SET_COLOR.invoke(team, color);
@@ -108,14 +108,14 @@ public abstract class BukkitPlatformSelectorEntity
           }
         }
         // register the spawned entity to the team
-        team.addEntry(this.getScoreboardRepresentation());
+        team.addEntry(this.scoreboardRepresentation());
         // let the entity glow!
         this.addGlowingEffect();
       }
       // spawn the info lines
-      for (var i = npc.getInfoLines().size() - 1; i >= 0; i--) {
+      for (var i = npc.infoLines().size() - 1; i >= 0; i--) {
         var armorStand = (ArmorStand) this.npcLocation.getWorld().spawnEntity(
-          this.npcLocation.clone().add(0, this.getHeightAddition(i), 0),
+          this.npcLocation.clone().add(0, this.heightAddition(i), 0),
           EntityType.ARMOR_STAND);
         armorStand.setSmall(true);
         armorStand.setVisible(false);
@@ -124,8 +124,8 @@ public abstract class BukkitPlatformSelectorEntity
         armorStand.setCanPickupItems(false);
         armorStand.setCustomNameVisible(true);
         // if it is the top info line try to spawn the item above it
-        if (i == npc.getInfoLines().size() - 1) {
-          var materialName = this.npc.getFloatingItem();
+        if (i == npc.infoLines().size() - 1) {
+          var materialName = this.npc.floatingItem();
           if (materialName != null) {
             var material = Material.matchMaterial(materialName);
             if (material != null) {
@@ -138,7 +138,7 @@ public abstract class BukkitPlatformSelectorEntity
           }
         }
         // register the info line
-        var wrapper = new InfoLineWrapper(this.npc.getInfoLines().get(i), armorStand);
+        var wrapper = new InfoLineWrapper(this.npc.infoLines().get(i), armorStand);
         wrapper.rebuildInfoLine();
         // register the line
         this.infoLines.add(wrapper);
@@ -169,10 +169,10 @@ public abstract class BukkitPlatformSelectorEntity
   @Override
   public void update() {
     // rebuild all items - we can do that async
-    this.serviceItems.values().forEach(wrapper -> this.trackService(wrapper.getService()));
+    this.serviceItems.values().forEach(wrapper -> this.trackService(wrapper.service()));
     // rebuild everything else sync
     Bukkit.getScheduler().runTask(this.plugin, () -> {
-      this.rebuildInventory(this.npcManagement.getInventoryConfiguration());
+      this.rebuildInventory(this.npcManagement.inventoryConfiguration());
       this.rebuildInfoLines();
     });
   }
@@ -182,7 +182,7 @@ public abstract class BukkitPlatformSelectorEntity
     // get the current item
     var wrapper = this.serviceItems.get(service.serviceId().uniqueId());
     // build the item for the service
-    var configuration = this.npcManagement.getInventoryConfiguration();
+    var configuration = this.npcManagement.inventoryConfiguration();
     var layouts = configuration.getHolder(service.configuration().groups().toArray(new String[0]));
     // get the service state
     var state = BridgeServiceHelper.guessStateFromServiceInfoSnapshot(service);
@@ -212,8 +212,8 @@ public abstract class BukkitPlatformSelectorEntity
         this.serviceItems.put(service.serviceId().uniqueId(), new ServiceItemWrapper(item, service));
       } else {
         // update the item wrapper
-        wrapper.setItemStack(item);
-        wrapper.setService(service);
+        wrapper.itemStack(item);
+        wrapper.service(service);
       }
       // push the service update
       this.rebuildInfoLines();
@@ -232,52 +232,52 @@ public abstract class BukkitPlatformSelectorEntity
       if (wrapper != null) {
         // the service got tracked before - rebuild the inventory and info lines
         this.rebuildInfoLines();
-        this.rebuildInventory(this.npcManagement.getInventoryConfiguration());
+        this.rebuildInventory(this.npcManagement.inventoryConfiguration());
       }
     });
   }
 
   @Override
   public void handleLeftClickAction(@NotNull Player player) {
-    this.handleClickAction(player, this.npc.getLeftClickAction());
+    this.handleClickAction(player, this.npc.leftClickAction());
   }
 
   @Override
   public void handleRightClickAction(@NotNull Player player) {
-    this.handleClickAction(player, this.npc.getRightClickAction());
+    this.handleClickAction(player, this.npc.rightClickAction());
   }
 
   @Override
   public void handleInventoryInteract(@NotNull Inventory inv, @NotNull Player player, @NotNull ItemStack clickedItem) {
     // find the server associated with the clicked item
     for (var wrapper : this.serviceItems.values()) {
-      if (wrapper.getItemStack().equals(clickedItem)) {
+      if (wrapper.itemStack().equals(clickedItem)) {
         // close the inventory
         player.closeInventory();
         // connect the player
-        this.getPlayerManager().playerExecutor(player.getUniqueId()).connect(wrapper.getService().name());
+        this.playerManager().playerExecutor(player.getUniqueId()).connect(wrapper.service().name());
         break;
       }
     }
   }
 
   @Override
-  public @NotNull Inventory getSelectorInventory() {
+  public @NotNull Inventory selectorInventory() {
     return this.inventory;
   }
 
   @Override
-  public @NotNull Set<Integer> getInfoLineEntityIds() {
+  public @NotNull Set<Integer> infoLineEntityIds() {
     return this.infoLineEntityIds;
   }
 
   @Override
-  public @NotNull NPC getNPC() {
+  public @NotNull NPC npc() {
     return this.npc;
   }
 
   @Override
-  public @NotNull Location getLocation() {
+  public @NotNull Location location() {
     return this.npcLocation;
   }
 
@@ -299,22 +299,22 @@ public abstract class BukkitPlatformSelectorEntity
         // connect the player to the first element if present
         if (!wrappers.isEmpty()) {
           var wrapper = wrappers.get(ThreadLocalRandom.current().nextInt(0, wrappers.size()));
-          this.getPlayerManager().playerExecutor(player.getUniqueId()).connect(wrapper.getService().name());
+          this.playerManager().playerExecutor(player.getUniqueId()).connect(wrapper.service().name());
         }
       }
       break;
       case DIRECT_CONNECT_LOWEST_PLAYERS: {
         this.serviceItems.values().stream()
-          .map(ServiceItemWrapper::getService)
+          .map(ServiceItemWrapper::service)
           .min(Comparator.comparingInt(service -> BridgeServiceProperties.ONLINE_COUNT.read(service).orElse(0)))
-          .ifPresent(ser -> this.getPlayerManager().playerExecutor(player.getUniqueId()).connect(ser.name()));
+          .ifPresent(ser -> this.playerManager().playerExecutor(player.getUniqueId()).connect(ser.name()));
       }
       break;
       case DIRECT_CONNECT_HIGHEST_PLAYERS: {
         this.serviceItems.values().stream()
-          .map(ServiceItemWrapper::getService)
+          .map(ServiceItemWrapper::service)
           .max(Comparator.comparingInt(service -> BridgeServiceProperties.ONLINE_COUNT.read(service).orElse(0)))
-          .ifPresent(ser -> this.getPlayerManager().playerExecutor(player.getUniqueId()).connect(ser.name()));
+          .ifPresent(ser -> this.playerManager().playerExecutor(player.getUniqueId()).connect(ser.name()));
       }
       break;
       default:
@@ -334,10 +334,10 @@ public abstract class BukkitPlatformSelectorEntity
       if (meta != null) {
         meta.setDisplayName(BridgeServiceHelper.fillCommonPlaceholders(
           layout.displayName(),
-          this.npc.getTargetGroup(),
+          this.npc.targetGroup(),
           service));
         meta.setLore(layout.lore().stream()
-          .map(line -> BridgeServiceHelper.fillCommonPlaceholders(line, this.npc.getTargetGroup(), service))
+          .map(line -> BridgeServiceHelper.fillCommonPlaceholders(line, this.npc.targetGroup(), service))
           .collect(Collectors.toList()));
         // set the meta again
         item.setItemMeta(meta);
@@ -366,7 +366,7 @@ public abstract class BukkitPlatformSelectorEntity
     // create the inventory
     var inventory = this.inventory;
     if (inventory == null || inventory.getSize() != inventorySize) {
-      this.inventory = inventory = Bukkit.createInventory(null, inventorySize, this.npc.getDisplayName());
+      this.inventory = inventory = Bukkit.createInventory(null, inventorySize, this.npc.displayName());
     }
     // remove all current contents
     inventory.clear();
@@ -383,19 +383,19 @@ public abstract class BukkitPlatformSelectorEntity
     }
     // add the service items
     for (var wrapper : this.serviceItems.values()) {
-      if (!inventory.addItem(wrapper.getItemStack()).isEmpty()) {
+      if (!inventory.addItem(wrapper.itemStack()).isEmpty()) {
         // the inventory is full
         break;
       }
     }
   }
 
-  protected @NotNull IPlayerManager getPlayerManager() {
+  protected @NotNull IPlayerManager playerManager() {
     return CloudNetDriver.instance().servicesRegistry().firstService(IPlayerManager.class);
   }
 
-  protected double getHeightAddition(int lineNumber) {
-    var entry = this.npcManagement.getApplicableNPCConfigurationEntry();
+  protected double heightAddition(int lineNumber) {
+    var entry = this.npcManagement.applicableNPCConfigurationEntry();
     return entry == null ? lineNumber : entry.infoLineDistance() * lineNumber;
   }
 
@@ -415,19 +415,19 @@ public abstract class BukkitPlatformSelectorEntity
       this.serviceInfoSnapshot = serviceInfoSnapshot;
     }
 
-    public @NotNull ItemStack getItemStack() {
+    public @NotNull ItemStack itemStack() {
       return this.itemStack;
     }
 
-    public void setItemStack(@NotNull ItemStack itemStack) {
+    public void itemStack(@NotNull ItemStack itemStack) {
       this.itemStack = itemStack;
     }
 
-    public @NotNull ServiceInfoSnapshot getService() {
+    public @NotNull ServiceInfoSnapshot service() {
       return this.serviceInfoSnapshot;
     }
 
-    public void setService(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
+    public void service(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
       this.serviceInfoSnapshot = serviceInfoSnapshot;
     }
   }
@@ -448,17 +448,17 @@ public abstract class BukkitPlatformSelectorEntity
       var tracked = BukkitPlatformSelectorEntity.this.serviceItems.values();
       // general info
       var onlinePlayers = Integer.toString(tracked.stream()
-        .map(ServiceItemWrapper::getService)
+        .map(ServiceItemWrapper::service)
         .mapToInt(snapshot -> BridgeServiceProperties.ONLINE_COUNT.read(snapshot).orElse(0))
         .sum());
       var maxPlayers = Integer.toString(tracked.stream()
-        .map(ServiceItemWrapper::getService)
+        .map(ServiceItemWrapper::service)
         .mapToInt(snapshot -> BridgeServiceProperties.MAX_PLAYERS.read(snapshot).orElse(0))
         .sum());
       var onlineServers = Integer.toString(tracked.size());
       // rebuild the info line
       var newInfoLine = this.basedInfoLine
-        .replace("%group%", npc.getTargetGroup()).replace("%g%", npc.getTargetGroup())
+        .replace("%group%", npc.targetGroup()).replace("%g%", npc.targetGroup())
         .replace("%online_players%", onlinePlayers).replace("%o_p%", onlinePlayers)
         .replace("%max_players%", maxPlayers).replace("%m_p%", maxPlayers)
         .replace("%online_servers%", onlineServers).replace("%o_s%", onlineServers);

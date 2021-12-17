@@ -34,11 +34,11 @@ public final class BukkitEntityProtectionListener implements Listener {
 
   @EventHandler
   public void handle(@NotNull EntityDamageEvent event) {
-    this.management.getTrackedEntities().values().stream()
-      .filter(PlatformSelectorEntity::isSpawned)
+    this.management.trackedEntities().values().stream()
+      .filter(PlatformSelectorEntity::spawned)
       .filter(npc -> {
         var eid = event.getEntity().getEntityId();
-        return npc.getEntityId() == eid || npc.getInfoLineEntityIds().contains(eid);
+        return npc.entityId() == eid || npc.infoLineEntityIds().contains(eid);
       })
       .findFirst()
       .ifPresent($ -> {
@@ -49,9 +49,9 @@ public final class BukkitEntityProtectionListener implements Listener {
 
   @EventHandler
   public void handle(@NotNull PlayerArmorStandManipulateEvent event) {
-    this.management.getTrackedEntities().values().stream()
-      .filter(PlatformSelectorEntity::isSpawned)
-      .filter(npc -> npc.getInfoLineEntityIds().contains(event.getRightClicked().getEntityId()))
+    this.management.trackedEntities().values().stream()
+      .filter(PlatformSelectorEntity::spawned)
+      .filter(npc -> npc.infoLineEntityIds().contains(event.getRightClicked().getEntityId()))
       .findFirst()
       .ifPresent($ -> event.setCancelled(true));
   }

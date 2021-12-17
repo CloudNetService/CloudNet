@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 
 public interface NPCManagement {
 
-  @Nullable NPC getNPCAt(@NotNull WorldPosition position);
+  @Nullable NPC npcAt(@NotNull WorldPosition position);
 
   void createNPC(@NotNull NPC npc);
 
@@ -37,13 +37,13 @@ public interface NPCManagement {
 
   int deleteAllNPCs();
 
-  @NotNull Collection<NPC> getNPCs();
+  @NotNull Collection<NPC> npcs();
 
-  @NotNull Collection<NPC> getNPCs(@NotNull String[] groups);
+  @NotNull Collection<NPC> npcs(@NotNull String[] groups);
 
-  @NotNull NPCConfiguration getNPCConfiguration();
+  @NotNull NPCConfiguration npcConfiguration();
 
-  void setNPCConfiguration(@NotNull NPCConfiguration configuration);
+  void npcConfiguration(@NotNull NPCConfiguration configuration);
 
   // Internal methods
 

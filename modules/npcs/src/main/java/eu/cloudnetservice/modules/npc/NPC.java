@@ -104,96 +104,96 @@ public class NPC extends JsonDocPropertyHolder {
 
   public static @NotNull Builder builder(@NotNull NPC npc) {
     var builder = builder()
-      .targetGroup(npc.getTargetGroup())
-      .displayName(npc.getDisplayName())
-      .infoLines(npc.getInfoLines())
-      .location(npc.getLocation())
-      .lookAtPlayer(npc.isLookAtPlayer())
-      .imitatePlayer(npc.isImitatePlayer())
-      .usePlayerSkin(npc.isUsePlayerSkin())
-      .glowing(npc.isGlowing())
-      .glowingColor(npc.getGlowingColor())
-      .flyingWithElytra(npc.isFlyingWithElytra())
-      .floatingItem(npc.getFloatingItem())
-      .leftClickAction(npc.getLeftClickAction())
-      .rightClickAction(npc.getRightClickAction())
-      .items(npc.getItems());
+      .targetGroup(npc.targetGroup())
+      .displayName(npc.displayName())
+      .infoLines(npc.infoLines())
+      .location(npc.location())
+      .lookAtPlayer(npc.lookAtPlayer())
+      .imitatePlayer(npc.imitatePlayer())
+      .usePlayerSkin(npc.usePlayerSkin())
+      .glowing(npc.glowing())
+      .glowingColor(npc.glowingColor())
+      .flyingWithElytra(npc.flyingWithElytra())
+      .floatingItem(npc.floatingItem())
+      .leftClickAction(npc.leftClickAction())
+      .rightClickAction(npc.rightClickAction())
+      .items(npc.items());
     // copy the entity type
-    if (npc.getNpcType() == NPCType.ENTITY) {
-      builder.entityType(npc.getEntityType());
+    if (npc.npcType() == NPCType.ENTITY) {
+      builder.entityType(npc.entityType());
     } else {
-      builder.profileProperties(npc.getProfileProperties());
+      builder.profileProperties(npc.profileProperties());
     }
     return builder;
   }
 
-  public @NotNull String getEntityType() {
+  public @NotNull String entityType() {
     Verify.verify(this.npcType == NPCType.ENTITY, "type must be entity to get the entity type");
     return this.properties.getString("entityType");
   }
 
-  public @NotNull Set<ProfileProperty> getProfileProperties() {
+  public @NotNull Set<ProfileProperty> profileProperties() {
     Verify.verify(this.npcType == NPCType.PLAYER, "type must be player to the profile properties");
     return this.properties.get("profileProperties", PROPERTIES);
   }
 
-  public @NotNull NPCType getNpcType() {
+  public @NotNull NPCType npcType() {
     return this.npcType;
   }
 
-  public @NotNull String getTargetGroup() {
+  public @NotNull String targetGroup() {
     return this.targetGroup;
   }
 
-  public @NotNull String getDisplayName() {
+  public @NotNull String displayName() {
     return this.displayName;
   }
 
-  public @NotNull List<String> getInfoLines() {
+  public @NotNull List<String> infoLines() {
     return this.infoLines;
   }
 
-  public @NotNull WorldPosition getLocation() {
+  public @NotNull WorldPosition location() {
     return this.location;
   }
 
-  public boolean isLookAtPlayer() {
+  public boolean lookAtPlayer() {
     return this.lookAtPlayer;
   }
 
-  public boolean isImitatePlayer() {
+  public boolean imitatePlayer() {
     return this.imitatePlayer;
   }
 
-  public boolean isUsePlayerSkin() {
+  public boolean usePlayerSkin() {
     return this.usePlayerSkin;
   }
 
-  public boolean isGlowing() {
+  public boolean glowing() {
     return this.glowing;
   }
 
-  public @NotNull String getGlowingColor() {
+  public @NotNull String glowingColor() {
     return this.glowingColor;
   }
 
-  public boolean isFlyingWithElytra() {
+  public boolean flyingWithElytra() {
     return this.flyingWithElytra;
   }
 
-  public @Nullable String getFloatingItem() {
+  public @Nullable String floatingItem() {
     return this.floatingItem;
   }
 
-  public @NotNull ClickAction getLeftClickAction() {
+  public @NotNull ClickAction leftClickAction() {
     return this.leftClickAction;
   }
 
-  public @NotNull ClickAction getRightClickAction() {
+  public @NotNull ClickAction rightClickAction() {
     return this.rightClickAction;
   }
 
-  public @NotNull Map<Integer, String> getItems() {
+  public @NotNull Map<Integer, String> items() {
     return this.items;
   }
 

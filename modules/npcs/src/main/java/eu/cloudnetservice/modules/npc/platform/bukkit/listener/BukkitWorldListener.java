@@ -41,12 +41,12 @@ public final class BukkitWorldListener implements Listener {
 
   @EventHandler
   public void handle(@NotNull ChunkLoadEvent event) {
-    this.management.getTrackedEntities().values()
+    this.management.trackedEntities().values()
       .stream()
-      .filter(npc -> !npc.isSpawned())
+      .filter(npc -> !npc.spawned())
       .filter(npc -> {
-        var chunkX = NumberConversions.floor(npc.getLocation().getX()) >> 4;
-        var chunkZ = NumberConversions.floor(npc.getLocation().getZ()) >> 4;
+        var chunkX = NumberConversions.floor(npc.location().getX()) >> 4;
+        var chunkZ = NumberConversions.floor(npc.location().getZ()) >> 4;
         // validate that the entity is in the chunk being loaded - Location#getChunk causes a load of the chunk
         return event.getChunk().getX() == chunkX && event.getChunk().getZ() == chunkZ;
       })
@@ -55,12 +55,12 @@ public final class BukkitWorldListener implements Listener {
 
   @EventHandler
   public void handle(@NotNull ChunkUnloadEvent event) {
-    this.management.getTrackedEntities().values()
+    this.management.trackedEntities().values()
       .stream()
-      .filter(PlatformSelectorEntity::isSpawned)
+      .filter(PlatformSelectorEntity::spawned)
       .filter(npc -> {
-        var chunkX = NumberConversions.floor(npc.getLocation().getX()) >> 4;
-        var chunkZ = NumberConversions.floor(npc.getLocation().getZ()) >> 4;
+        var chunkX = NumberConversions.floor(npc.location().getX()) >> 4;
+        var chunkZ = NumberConversions.floor(npc.location().getZ()) >> 4;
         // validate that the entity is in the chunk being unloaded - Location#getChunk causes a load of the chunk
         return event.getChunk().getX() == chunkX && event.getChunk().getZ() == chunkZ;
       })
@@ -69,10 +69,10 @@ public final class BukkitWorldListener implements Listener {
 
   @EventHandler(priority = EventPriority.LOWEST)
   public void handleWorldSave(@NotNull WorldSaveEvent event) {
-    var entities = this.management.getTrackedEntities().values().stream()
-      .filter(PlatformSelectorEntity::isSpawned)
+    var entities = this.management.trackedEntities().values().stream()
+      .filter(PlatformSelectorEntity::spawned)
       .filter(PlatformSelectorEntity::removeWhenWorldSaving)
-      .filter(npc -> npc.getLocation().getWorld().getUID().equals(event.getWorld().getUID()))
+      .filter(npc -> npc.location().getWorld().getUID().equals(event.getWorld().getUID()))
       .toList();
     // remove all mobs
     entities.forEach(PlatformSelectorEntity::remove);

@@ -37,23 +37,23 @@ public interface PlatformSelectorEntity<L, P, M, I> {
 
   void handleLeftClickAction(@NotNull P player);
 
-  @NotNull I getSelectorInventory();
+  @NotNull I selectorInventory();
 
   void handleInventoryInteract(@NotNull I inv, @NotNull P player, @NotNull M clickedItem);
 
-  @NotNull NPC getNPC();
+  @NotNull NPC npc();
 
-  @NotNull L getLocation();
+  @NotNull L location();
 
-  int getEntityId();
+  int entityId();
 
-  @NotNull Set<Integer> getInfoLineEntityIds();
+  @NotNull Set<Integer> infoLineEntityIds();
 
-  @NotNull String getScoreboardRepresentation();
+  @NotNull String scoreboardRepresentation();
 
   boolean removeWhenWorldSaving();
 
-  boolean isSpawned();
+  boolean spawned();
 
   boolean canSpawn();
 }

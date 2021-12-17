@@ -49,32 +49,32 @@ public class CloudNetNPCModule extends DriverModule {
     if (Files.exists(this.configPath())) {
       var old = JsonDocument.newDocument(this.configPath()).get("config", NPCConfiguration.class);
       if (old != null) {
-        var newEntries = old.getConfigurations().stream()
+        var newEntries = old.configurations().stream()
           .map(entry -> eu.cloudnetservice.modules.npc.configuration.NPCConfigurationEntry.builder()
-            .targetGroup(entry.getTargetGroup())
-            .infoLineDistance(entry.getInfoLineDistance())
-            .knockbackDistance(entry.getKnockbackDistance())
-            .knockbackStrength(entry.getKnockbackStrength())
+            .targetGroup(entry.targetGroup())
+            .infoLineDistance(entry.infoLineDistance())
+            .knockbackDistance(entry.knockbackDistance())
+            .knockbackStrength(entry.knockbackStrength())
             .emoteConfiguration(LabyModEmoteConfiguration.builder()
-              .emoteIds(entry.getLabyModEmotes().getEmoteIds())
-              .onJoinEmoteIds(entry.getLabyModEmotes().getOnJoinEmoteIds())
-              .onKnockbackEmoteIds(entry.getLabyModEmotes().getOnKnockbackEmoteIds())
-              .minEmoteDelayTicks(entry.getLabyModEmotes().getMinEmoteDelayTicks())
-              .maxEmoteDelayTicks(entry.getLabyModEmotes().getMaxEmoteDelayTicks())
+              .emoteIds(entry.labyModEmotes().emoteIds())
+              .onJoinEmoteIds(entry.labyModEmotes().onJoinEmoteIds())
+              .onKnockbackEmoteIds(entry.labyModEmotes().onKnockbackEmoteIds())
+              .minEmoteDelayTicks(entry.labyModEmotes().minEmoteDelayTicks())
+              .maxEmoteDelayTicks(entry.labyModEmotes().maxEmoteDelayTicks())
               .build())
             .inventoryConfiguration(InventoryConfiguration.builder()
               .defaultItems(new ItemLayoutHolder(
-                this.convertItemLayout(entry.getEmptyItem()),
-                this.convertItemLayout(entry.getOnlineItem()),
-                this.convertItemLayout(entry.getFullItem())))
-              .fixedItems(entry.getInventoryLayout().entrySet().stream()
+                this.convertItemLayout(entry.emptyItem()),
+                this.convertItemLayout(entry.onlineItem()),
+                this.convertItemLayout(entry.fullItem())))
+              .fixedItems(entry.inventoryLayout().entrySet().stream()
                 .map(mapEntry -> new Pair<>(mapEntry.getKey(), this.convertItemLayout(mapEntry.getValue())))
                 .collect(Collectors.toMap(Pair::first, Pair::second)))
-              .showFullServices(entry.isShowFullServices())
-              .inventorySize(entry.getInventorySize())
+              .showFullServices(entry.showFullServices())
+              .inventorySize(entry.inventorySize())
               .build())
             .npcPoolOptions(NPCPoolOptions.builder()
-              .tabListRemoveTicks(entry.getNPCTabListRemoveTicks())
+              .tabListRemoveTicks(entry.npcTabListRemoveTicks())
               .build())
             .build())
           .collect(Collectors.toSet());
@@ -100,21 +100,21 @@ public class CloudNetNPCModule extends DriverModule {
         // convert the old entries
         theOldOnes.stream()
           .map(npc -> NPC.builder()
-            .profileProperties(npc.getProfileProperties().stream()
-              .map(property -> new ProfileProperty(property.getName(), property.getValue(), property.getSignature()))
+            .profileProperties(npc.profileProperties().stream()
+              .map(property -> new ProfileProperty(property.name(), property.value(), property.signature()))
               .collect(Collectors.toSet()))
-            .location(npc.getPosition())
-            .displayName(npc.getDisplayName())
-            .infoLines(Collections.singletonList(npc.getInfoLine()))
-            .targetGroup(npc.getTargetGroup())
-            .items(ImmutableMap.of(0, npc.getItemInHand()))
-            .lookAtPlayer(npc.isLookAtPlayer())
-            .imitatePlayer(npc.isImitatePlayer())
-            .rightClickAction(ClickAction.valueOf(npc.getRightClickAction().name()))
-            .leftClickAction(ClickAction.valueOf(npc.getLeftClickAction().name()))
+            .location(npc.position())
+            .displayName(npc.displayName())
+            .infoLines(Collections.singletonList(npc.infoLine()))
+            .targetGroup(npc.targetGroup())
+            .items(ImmutableMap.of(0, npc.itemInHand()))
+            .lookAtPlayer(npc.lookAtPlayer())
+            .imitatePlayer(npc.imitatePlayer())
+            .rightClickAction(ClickAction.valueOf(npc.rightClickAction().name()))
+            .leftClickAction(ClickAction.valueOf(npc.leftClickAction().name()))
             .build())
           .forEach(npc -> target.insert(
-            NodeNPCManagement.getDocumentKey(npc.getLocation()),
+            NodeNPCManagement.documentKey(npc.location()),
             JsonDocument.newDocument(npc)));
       }
     }
@@ -148,10 +148,10 @@ public class CloudNetNPCModule extends DriverModule {
     @NotNull eu.cloudnetservice.cloudnet.ext.npcs.configuration.NPCConfigurationEntry.ItemLayout oldLayout
   ) {
     return ItemLayout.builder()
-      .material(oldLayout.getMaterial())
-      .subId(oldLayout.getSubId())
-      .lore(oldLayout.getLore())
-      .displayName(oldLayout.getDisplayName())
+      .material(oldLayout.material())
+      .subId(oldLayout.subId())
+      .lore(oldLayout.lore())
+      .displayName(oldLayout.displayName())
       .build();
   }
 }

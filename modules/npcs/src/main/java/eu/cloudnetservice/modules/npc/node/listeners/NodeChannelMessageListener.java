@@ -56,15 +56,15 @@ public final class NodeChannelMessageListener {
 
         // get all npcs of a specific group
         case PlatformNPCManagement.NPC_GET_NPCS_BY_GROUP -> {
-          var npcs = this.management.getNPCs(event.content().readObject(String[].class));
+          var npcs = this.management.npcs(event.content().readObject(String[].class));
           event.binaryResponse(DataBuf.empty().writeObject(npcs));
         }
         // request of a service for the npc config
         case PlatformNPCManagement.NPC_REQUEST_CONFIG -> event.binaryResponse(
-            DataBuf.empty().writeObject(this.management.getNPCConfiguration()));
+            DataBuf.empty().writeObject(this.management.npcConfiguration()));
 
         // set the npc config
-        case PlatformNPCManagement.NPC_SET_CONFIG -> this.management.setNPCConfiguration(
+        case PlatformNPCManagement.NPC_SET_CONFIG -> this.management.npcConfiguration(
             event.content().readObject(NPCConfiguration.class));
 
         // not our business

@@ -80,8 +80,8 @@ public final class BukkitFunctionalityListener implements Listener {
     var clicker = event.getWhoClicked();
     // check if we can handle the event
     if (item != null && item.hasItemMeta() && inv != null && inv.getHolder() == null && clicker instanceof Player) {
-      this.management.getTrackedEntities().values().stream()
-        .filter(npc -> npc.getSelectorInventory().equals(inv))
+      this.management.trackedEntities().values().stream()
+        .filter(npc -> npc.selectorInventory().equals(inv))
         .findFirst()
         .ifPresent(npc -> {
           event.setCancelled(true);
@@ -92,19 +92,19 @@ public final class BukkitFunctionalityListener implements Listener {
 
   @EventHandler(priority = EventPriority.LOWEST)
   public void handle(@NotNull PlayerJoinEvent event) {
-    event.getPlayer().setScoreboard(this.management.getScoreboard());
+    event.getPlayer().setScoreboard(this.management.scoreboard());
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void playOnJoinEmoteIds(@NotNull PlayerJoinEvent event) {
-    var entry = this.management.getApplicableNPCConfigurationEntry();
+    var entry = this.management.applicableNPCConfigurationEntry();
     if (entry != null) {
       var onJoinEmoteIds = entry.emoteConfiguration().onJoinEmoteIds();
-      var selectedNpcId = this.management.getRandomEmoteId(entry.emoteConfiguration(), onJoinEmoteIds);
+      var selectedNpcId = this.management.randomEmoteId(entry.emoteConfiguration(), onJoinEmoteIds);
       // check if an emote id could be selected
       if (selectedNpcId >= -1) {
         // play the emote to all npcs
-        for (var npc : this.management.getNpcPool().getNPCs()) {
+        for (var npc : this.management.npcPool().getNPCs()) {
           // verify that the player *could* see the emote
           if (npc.getLocation().getWorld().getUID().equals(event.getPlayer().getWorld().getUID())) {
             // check if the emote id is fixed
@@ -121,8 +121,8 @@ public final class BukkitFunctionalityListener implements Listener {
   }
 
   private void handleClick(@NotNull Player player, @Nullable Cancellable cancellable, int entityId, boolean left) {
-    management.getTrackedEntities().values().stream()
-      .filter(npc -> npc.getEntityId() == entityId)
+    management.trackedEntities().values().stream()
+      .filter(npc -> npc.entityId() == entityId)
       .findFirst()
       .ifPresent(entity -> {
         // cancel the event if needed

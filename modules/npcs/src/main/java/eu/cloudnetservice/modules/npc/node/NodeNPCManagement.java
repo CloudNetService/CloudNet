@@ -55,7 +55,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
     this.database.documentsAsync().onComplete(jsonDocuments -> {
       for (var document : jsonDocuments) {
         var npc = document.toInstanceOf(NPC.class);
-        this.npcs.put(npc.getLocation(), npc);
+        this.npcs.put(npc.location(), npc);
       }
     });
 
@@ -64,7 +64,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
     eventManager.registerListener(new NodeChannelMessageListener(this));
   }
 
-  static @NotNull String getDocumentKey(@NotNull WorldPosition position) {
+  static @NotNull String documentKey(@NotNull WorldPosition position) {
     return position.world()
       + '.' + position.group()
       + '.' + position.x()
@@ -76,8 +76,8 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
 
   @Override
   public void createNPC(@NotNull NPC npc) {
-    this.database.insert(getDocumentKey(npc.getLocation()), JsonDocument.newDocument(npc));
-    this.npcs.put(npc.getLocation(), npc);
+    this.database.insert(documentKey(npc.location()), JsonDocument.newDocument(npc));
+    this.npcs.put(npc.location(), npc);
 
     this.channelMessage(NPC_CREATED)
       .targetAll()
@@ -88,7 +88,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
   @Override
   public void deleteNPC(@NotNull WorldPosition position) {
     this.npcs.remove(position);
-    this.database.delete(getDocumentKey(position));
+    this.database.delete(documentKey(position));
 
     this.channelMessage(NPC_DELETED)
       .targetAll()
@@ -99,12 +99,12 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
   @Override
   public int deleteAllNPCs(@NotNull String group) {
     Collection<WorldPosition> positions = this.npcs.entrySet().stream()
-      .filter(entry -> entry.getValue().getTargetGroup().equals(group))
+      .filter(entry -> entry.getValue().targetGroup().equals(group))
       .map(Entry::getKey)
       .toList();
     positions.forEach(position -> {
       this.npcs.remove(position);
-      this.database.delete(getDocumentKey(position));
+      this.database.delete(documentKey(position));
     });
 
     this.channelMessage(NPC_BULK_DELETE)
@@ -119,7 +119,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
     Set<WorldPosition> positions = new HashSet<>(this.npcs.keySet());
     for (var position : positions) {
       this.npcs.remove(position);
-      this.database.delete(getDocumentKey(position));
+      this.database.delete(documentKey(position));
     }
 
     this.channelMessage(NPC_BULK_DELETE)
@@ -130,16 +130,16 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
   }
 
   @Override
-  public @NotNull Collection<NPC> getNPCs(@NotNull String[] groups) {
+  public @NotNull Collection<NPC> npcs(@NotNull String[] groups) {
     Arrays.sort(groups);
     // filter all npcs
     return this.npcs.values().stream()
-      .filter(npc -> Arrays.binarySearch(groups, npc.getLocation().group()) >= 0)
+      .filter(npc -> Arrays.binarySearch(groups, npc.location().group()) >= 0)
       .collect(Collectors.toList());
   }
 
   @Override
-  public void setNPCConfiguration(@NotNull NPCConfiguration configuration) {
+  public void npcConfiguration(@NotNull NPCConfiguration configuration) {
     this.handleInternalNPCConfigUpdate(configuration);
     this.channelMessage(NPC_CONFIGURATION_UPDATE)
       .targetAll()

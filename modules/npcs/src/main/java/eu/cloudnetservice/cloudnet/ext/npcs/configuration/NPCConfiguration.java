@@ -54,11 +54,11 @@ public class NPCConfiguration {
     this.messages = messages;
   }
 
-  public Collection<NPCConfigurationEntry> getConfigurations() {
+  public Collection<NPCConfigurationEntry> configurations() {
     return this.configurations;
   }
 
-  public Map<String, String> getMessages() {
+  public Map<String, String> messages() {
     return this.messages;
   }
 

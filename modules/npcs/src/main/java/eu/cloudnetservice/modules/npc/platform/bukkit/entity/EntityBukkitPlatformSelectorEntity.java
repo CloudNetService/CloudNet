@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.npc.platform.bukkit.entity;
 
 import static eu.cloudnetservice.modules.npc.platform.bukkit.util.ReflectionUtil.findMethod;
-import static eu.cloudnetservice.modules.npc.platform.bukkit.util.ReflectionUtil.getStaticFieldValue;
+import static eu.cloudnetservice.modules.npc.platform.bukkit.util.ReflectionUtil.staticFieldValue;
 
 import com.google.errorprone.annotations.concurrent.LazyInit;
 import eu.cloudnetservice.modules.npc.NPC;
@@ -36,7 +36,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEntity {
 
-  protected static final PotionEffectType GLOWING = getStaticFieldValue(PotionEffectType.class, "GLOWING");
+  protected static final PotionEffectType GLOWING = staticFieldValue(PotionEffectType.class, "GLOWING");
 
   protected static final Class<?> ENTITY = ReflectionUtil.findNmsClass("world.entity.Entity", "Entity");
   protected static final Class<?> NBT = ReflectionUtil.findNmsClass("nbt.NBTTagCompound", "NBTTagCompound");
@@ -63,12 +63,12 @@ public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEn
   }
 
   @Override
-  public int getEntityId() {
+  public int entityId() {
     return this.entity == null ? -1 : this.entity.getEntityId();
   }
 
   @Override
-  public @NotNull String getScoreboardRepresentation() {
+  public @NotNull String scoreboardRepresentation() {
     return this.entity.getUniqueId().toString();
   }
 
@@ -78,13 +78,13 @@ public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEn
   }
 
   @Override
-  public boolean isSpawned() {
+  public boolean spawned() {
     return this.entity != null;
   }
 
   @Override
   protected void spawn0() {
-    var type = EntityType.valueOf(this.npc.getEntityType());
+    var type = EntityType.valueOf(this.npc.entityType());
     if (!type.isAlive()) {
       return;
     }
@@ -92,7 +92,7 @@ public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEn
     this.entity = (LivingEntity) this.npcLocation.getWorld().spawnEntity(this.npcLocation, type);
     this.entity.setFireTicks(0);
     this.entity.setCustomNameVisible(true);
-    this.entity.setCustomName(this.npc.getDisplayName());
+    this.entity.setCustomName(this.npc.displayName());
     // set the profession of the villager to prevent inconsistency
     if (this.entity instanceof Villager) {
       ((Villager) this.entity).setProfession(Profession.FARMER);
@@ -134,8 +134,8 @@ public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEn
   }
 
   @Override
-  protected double getHeightAddition(int lineNumber) {
-    var initialAddition = super.getHeightAddition(lineNumber);
+  protected double heightAddition(int lineNumber) {
+    var initialAddition = super.heightAddition(lineNumber);
     return (this.entity.getEyeHeight() - (this.entity instanceof Wither ? 0.4 : 0.55)) + initialAddition;
   }
 }

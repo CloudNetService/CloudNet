@@ -90,7 +90,7 @@ public final class NPCCommand extends BaseTabExecutor {
     }
 
     // get the npc configuration entry for the current group
-    var entry = this.management.getApplicableNPCConfigurationEntry();
+    var entry = this.management.applicableNPCConfigurationEntry();
     if (entry == null) {
       sender.sendMessage("§cThere is no applicable npc configuration entry for this service (yet)!");
       return true;
@@ -174,14 +174,14 @@ public final class NPCCommand extends BaseTabExecutor {
 
         // removes all npcs in unloaded worlds
         case "cu", "cleanup" -> {
-          this.management.getTrackedEntities().values().stream()
-            .map(PlatformSelectorEntity::getNPC)
-            .filter(npc -> Bukkit.getWorld(npc.getLocation().world()) == null)
+          this.management.trackedEntities().values().stream()
+            .map(PlatformSelectorEntity::npc)
+            .filter(npc -> Bukkit.getWorld(npc.location().world()) == null)
             .forEach(npc -> {
               this.management.deleteNPC(npc);
               sender.sendMessage(String.format(
                 "§cAn entity in the world §6%s §cwas removed! This may take a few seconds to show effect!",
-                npc.getLocation().world()));
+                npc.location().world()));
             });
           return true;
         }
@@ -251,17 +251,17 @@ public final class NPCCommand extends BaseTabExecutor {
 
         // lists all npcs
         case "list" -> {
-          sender.sendMessage(String.format("§7There are §6%s §7selector mobs:", this.management.getNPCs().size()));
-          for (var npc : this.management.getNPCs()) {
+          sender.sendMessage(String.format("§7There are §6%s §7selector mobs:", this.management.npcs().size()));
+          for (var npc : this.management.npcs()) {
             sender.sendMessage(String.format(
               "§8> §6\"%s\" §8@ §7%s§8/§7%s §8- §7%d, %d, %d in \"%s\"",
-              npc.getDisplayName(),
-              npc.getNpcType(),
-              npc.getNpcType() == NPCType.ENTITY ? npc.getEntityType() : "props: " + npc.getProfileProperties().size(),
-              (int) npc.getLocation().x(),
-              (int) npc.getLocation().y(),
-              (int) npc.getLocation().z(),
-              npc.getLocation().world()));
+              npc.displayName(),
+              npc.npcType(),
+              npc.npcType() == NPCType.ENTITY ? npc.entityType() : "props: " + npc.profileProperties().size(),
+              (int) npc.location().x(),
+              (int) npc.location().y(),
+              (int) npc.location().z(),
+              npc.location().world()));
           }
           return true;
         }
@@ -424,7 +424,7 @@ public final class NPCCommand extends BaseTabExecutor {
             return true;
           }
           // a little hack here :)
-          npc.getItems().put(slot, item.name());
+          npc.items().put(slot, item.name());
           updatedNpc = npc;
         }
 
@@ -444,8 +444,8 @@ public final class NPCCommand extends BaseTabExecutor {
           var content = String.join(" ", Arrays.copyOfRange(args, 3, args.length)).trim();
           if (content.equals("null")) {
             // remove the info line if there
-            if (npc.getInfoLines().size() > index) {
-              npc.getInfoLines().remove((int) index);
+            if (npc.infoLines().size() > index) {
+              npc.infoLines().remove((int) index);
               updatedNpc = npc;
             } else {
               sender.sendMessage(String.format("§cNo info line at index §6%d§c.", index));
@@ -454,10 +454,10 @@ public final class NPCCommand extends BaseTabExecutor {
           } else {
             content = ChatColor.translateAlternateColorCodes('&', content);
             // set the info line add the location or add it
-            if (npc.getInfoLines().size() > index) {
-              npc.getInfoLines().set(index, content);
+            if (npc.infoLines().size() > index) {
+              npc.infoLines().set(index, content);
             } else {
-              npc.getInfoLines().add(content);
+              npc.infoLines().add(content);
             }
             updatedNpc = npc;
           }
@@ -618,12 +618,12 @@ public final class NPCCommand extends BaseTabExecutor {
   }
 
   private @Nullable NPC getNearestNPC(@NotNull Location location) {
-    return this.management.getTrackedEntities().values().stream()
-      .filter(PlatformSelectorEntity::isSpawned)
-      .filter(entity -> entity.getLocation().getWorld().getUID().equals(location.getWorld().getUID()))
-      .filter(entity -> entity.getLocation().distanceSquared(location) <= 10)
-      .min(Comparator.comparingDouble(entity -> entity.getLocation().distanceSquared(location)))
-      .map(PlatformSelectorEntity::getNPC)
+    return this.management.trackedEntities().values().stream()
+      .filter(PlatformSelectorEntity::spawned)
+      .filter(entity -> entity.location().getWorld().getUID().equals(location.getWorld().getUID()))
+      .filter(entity -> entity.location().distanceSquared(location) <= 10)
+      .min(Comparator.comparingDouble(entity -> entity.location().distanceSquared(location)))
+      .map(PlatformSelectorEntity::npc)
       .orElse(null);
   }
 
@@ -632,8 +632,8 @@ public final class NPCCommand extends BaseTabExecutor {
   }
 
   private boolean canChangeSetting(@NotNull CommandSender sender, @NotNull NPC npc) {
-    if (npc.getNpcType() != NPCType.PLAYER) {
-      sender.sendMessage(String.format("§cThis option is not available for the npc type §6%s§c!", npc.getEntityType()));
+    if (npc.npcType() != NPCType.PLAYER) {
+      sender.sendMessage(String.format("§cThis option is not available for the npc type §6%s§c!", npc.entityType()));
       return false;
     }
     return true;

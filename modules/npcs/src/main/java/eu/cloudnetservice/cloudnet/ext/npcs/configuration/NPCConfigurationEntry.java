@@ -68,17 +68,52 @@ public class NPCConfigurationEntry {
     this.targetGroup = targetGroup;
   }
 
-  public NPCConfigurationEntry(String targetGroup, double infoLineDistance, int inventorySize, int startSlot,
-    int endSlot, boolean showFullServices, ItemLayout onlineItem, ItemLayout emptyItem, ItemLayout fullItem,
-    Map<Integer, ItemLayout> inventoryLayout, LabyModEmotes labyModEmotes, long npcTabListRemoveTicks) {
-    this(targetGroup, infoLineDistance, 0.7D, 0.8D, inventorySize, startSlot, endSlot, showFullServices, onlineItem,
-      emptyItem, fullItem, inventoryLayout, labyModEmotes, npcTabListRemoveTicks);
+  public NPCConfigurationEntry(String targetGroup,
+    double infoLineDistance,
+    int inventorySize,
+    int startSlot,
+    int endSlot,
+    boolean showFullServices,
+    ItemLayout onlineItem,
+    ItemLayout emptyItem,
+    ItemLayout fullItem,
+    Map<Integer, ItemLayout> inventoryLayout,
+    LabyModEmotes labyModEmotes,
+    long npcTabListRemoveTicks
+  ) {
+    this(
+      targetGroup,
+      infoLineDistance,
+      0.7D,
+      0.8D,
+      inventorySize,
+      startSlot,
+      endSlot,
+      showFullServices,
+      onlineItem,
+      emptyItem,
+      fullItem,
+      inventoryLayout,
+      labyModEmotes,
+      npcTabListRemoveTicks);
   }
 
-  public NPCConfigurationEntry(String targetGroup, double infoLineDistance, double knockbackDistance,
-    double knockbackStrength, int inventorySize, int startSlot, int endSlot, boolean showFullServices,
-    ItemLayout onlineItem, ItemLayout emptyItem, ItemLayout fullItem, Map<Integer, ItemLayout> inventoryLayout,
-    LabyModEmotes labyModEmotes, long npcTabListRemoveTicks) {
+  public NPCConfigurationEntry(
+    String targetGroup,
+    double infoLineDistance,
+    double knockbackDistance,
+    double knockbackStrength,
+    int inventorySize,
+    int startSlot,
+    int endSlot,
+    boolean showFullServices,
+    ItemLayout onlineItem,
+    ItemLayout emptyItem,
+    ItemLayout fullItem,
+    Map<Integer, ItemLayout> inventoryLayout,
+    LabyModEmotes labyModEmotes,
+    long npcTabListRemoveTicks
+  ) {
     this.targetGroup = targetGroup;
     this.infoLineDistance = infoLineDistance;
     this.knockbackDistance = knockbackDistance;
@@ -95,11 +130,11 @@ public class NPCConfigurationEntry {
     this.npcTabListRemoveTicks = npcTabListRemoveTicks;
   }
 
-  public String getTargetGroup() {
+  public String targetGroup() {
     return this.targetGroup;
   }
 
-  public double getInfoLineDistance() {
+  public double infoLineDistance() {
     return this.infoLineDistance;
   }
 
@@ -107,15 +142,15 @@ public class NPCConfigurationEntry {
     this.infoLineDistance = infoLineDistance;
   }
 
-  public double getKnockbackDistance() {
+  public double knockbackDistance() {
     return this.knockbackDistance;
   }
 
-  public void setKnockbackDistance(double knockbackDistance) {
+  public void knockbackDistance(double knockbackDistance) {
     this.knockbackDistance = knockbackDistance;
   }
 
-  public double getKnockbackStrength() {
+  public double knockbackStrength() {
     return this.knockbackStrength;
   }
 
@@ -123,7 +158,7 @@ public class NPCConfigurationEntry {
     this.knockbackStrength = knockbackStrength;
   }
 
-  public int getInventorySize() {
+  public int inventorySize() {
     return this.inventorySize;
   }
 
@@ -131,7 +166,7 @@ public class NPCConfigurationEntry {
     this.inventorySize = inventorySize;
   }
 
-  public int getStartSlot() {
+  public int startSlot() {
     return this.startSlot;
   }
 
@@ -139,7 +174,7 @@ public class NPCConfigurationEntry {
     this.startSlot = startSlot;
   }
 
-  public int getEndSlot() {
+  public int endSlot() {
     return this.endSlot;
   }
 
@@ -147,7 +182,7 @@ public class NPCConfigurationEntry {
     this.endSlot = endSlot;
   }
 
-  public boolean isShowFullServices() {
+  public boolean showFullServices() {
     return this.showFullServices;
   }
 
@@ -155,7 +190,7 @@ public class NPCConfigurationEntry {
     this.showFullServices = showFullServices;
   }
 
-  public ItemLayout getOnlineItem() {
+  public ItemLayout onlineItem() {
     return this.onlineItem;
   }
 
@@ -163,7 +198,7 @@ public class NPCConfigurationEntry {
     this.onlineItem = onlineItem;
   }
 
-  public ItemLayout getEmptyItem() {
+  public ItemLayout emptyItem() {
     return this.emptyItem;
   }
 
@@ -171,7 +206,7 @@ public class NPCConfigurationEntry {
     this.emptyItem = emptyItem;
   }
 
-  public ItemLayout getFullItem() {
+  public ItemLayout fullItem() {
     return this.fullItem;
   }
 
@@ -179,7 +214,7 @@ public class NPCConfigurationEntry {
     this.fullItem = fullItem;
   }
 
-  public Map<Integer, ItemLayout> getInventoryLayout() {
+  public Map<Integer, ItemLayout> inventoryLayout() {
     return this.inventoryLayout;
   }
 
@@ -187,7 +222,7 @@ public class NPCConfigurationEntry {
     this.inventoryLayout = inventoryLayout;
   }
 
-  public LabyModEmotes getLabyModEmotes() {
+  public LabyModEmotes labyModEmotes() {
     return this.labyModEmotes;
   }
 
@@ -195,7 +230,7 @@ public class NPCConfigurationEntry {
     this.labyModEmotes = labyModEmotes;
   }
 
-  public long getNPCTabListRemoveTicks() {
+  public long npcTabListRemoveTicks() {
     return this.npcTabListRemoveTicks;
   }
 
@@ -216,7 +251,7 @@ public class NPCConfigurationEntry {
     public LabyModEmotes() {
     }
 
-    public int[] getEmoteIds() {
+    public int[] emoteIds() {
       return this.emoteIds;
     }
 
@@ -224,7 +259,7 @@ public class NPCConfigurationEntry {
       this.emoteIds = emoteIds;
     }
 
-    public int[] getOnJoinEmoteIds() {
+    public int[] onJoinEmoteIds() {
       return this.onJoinEmoteIds;
     }
 
@@ -232,7 +267,7 @@ public class NPCConfigurationEntry {
       this.onJoinEmoteIds = onJoinEmoteIds;
     }
 
-    public int[] getOnKnockbackEmoteIds() {
+    public int[] onKnockbackEmoteIds() {
       return this.onKnockbackEmoteIds;
     }
 
@@ -240,7 +275,7 @@ public class NPCConfigurationEntry {
       this.onKnockbackEmoteIds = onKnockbackEmoteIds;
     }
 
-    public long getMinEmoteDelayTicks() {
+    public long minEmoteDelayTicks() {
       return this.minEmoteDelayTicks;
     }
 
@@ -248,7 +283,7 @@ public class NPCConfigurationEntry {
       this.minEmoteDelayTicks = minEmoteDelayTicks;
     }
 
-    public long getMaxEmoteDelayTicks() {
+    public long maxEmoteDelayTicks() {
       return this.maxEmoteDelayTicks;
     }
 
@@ -256,7 +291,7 @@ public class NPCConfigurationEntry {
       this.maxEmoteDelayTicks = maxEmoteDelayTicks;
     }
 
-    public boolean isPlayEmotesSynchronous() {
+    public boolean playEmotesSynchronous() {
       return this.playEmotesSynchronous;
     }
 
@@ -282,7 +317,7 @@ public class NPCConfigurationEntry {
       this.lore = lore;
     }
 
-    public String getMaterial() {
+    public String material() {
       return this.material;
     }
 
@@ -290,7 +325,7 @@ public class NPCConfigurationEntry {
       this.material = material;
     }
 
-    public int getSubId() {
+    public int subId() {
       return this.subId;
     }
 
@@ -298,7 +333,7 @@ public class NPCConfigurationEntry {
       this.subId = subId;
     }
 
-    public String getDisplayName() {
+    public String displayName() {
       return this.displayName;
     }
 
@@ -306,7 +341,7 @@ public class NPCConfigurationEntry {
       this.displayName = displayName;
     }
 
-    public List<String> getLore() {
+    public List<String> lore() {
       return this.lore;
     }
 

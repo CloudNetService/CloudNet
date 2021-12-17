@@ -120,7 +120,7 @@ public final class ReflectionUtil {
   }
 
   @SuppressWarnings("unchecked")
-  public static @Nullable <T> T getStaticFieldValue(@NotNull Class<?> origin, @NotNull String name) {
+  public static @Nullable <T> T staticFieldValue(@NotNull Class<?> origin, @NotNull String name) {
     try {
       var field = origin.getDeclaredField(name);
       return (T) field.get(null);

@@ -44,27 +44,27 @@ public abstract class AbstractNPCManagement implements NPCManagement {
   }
 
   @Override
-  public @Nullable NPC getNPCAt(@NotNull WorldPosition position) {
+  public @Nullable NPC npcAt(@NotNull WorldPosition position) {
     return this.npcs.get(position);
   }
 
   @Override
   public void deleteNPC(@NotNull NPC npc) {
-    this.deleteNPC(npc.getLocation());
+    this.deleteNPC(npc.location());
   }
 
   @Override
-  public @NotNull Collection<NPC> getNPCs() {
+  public @NotNull Collection<NPC> npcs() {
     return this.npcs.values();
   }
 
   @Override
-  public @NotNull NPCConfiguration getNPCConfiguration() {
+  public @NotNull NPCConfiguration npcConfiguration() {
     return this.npcConfiguration;
   }
 
   @Override
-  public void setNPCConfiguration(@NotNull NPCConfiguration configuration) {
+  public void npcConfiguration(@NotNull NPCConfiguration configuration) {
     this.npcConfiguration = configuration;
   }
 
@@ -80,7 +80,7 @@ public abstract class AbstractNPCManagement implements NPCManagement {
 
   @Override
   public void handleInternalNPCCreate(@NotNull NPC npc) {
-    this.npcs.put(npc.getLocation(), npc);
+    this.npcs.put(npc.location(), npc);
   }
 
   @Override
