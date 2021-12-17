@@ -30,7 +30,7 @@ import java.nio.file.Path;
  */
 public final class DefaultModuleHelper {
 
-  private static final Logger LOGGER = LogManager.getLogger(DefaultModuleHelper.class);
+  private static final Logger LOGGER = LogManager.logger(DefaultModuleHelper.class);
 
   private DefaultModuleHelper() {
     throw new UnsupportedOperationException();

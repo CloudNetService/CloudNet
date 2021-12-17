@@ -152,7 +152,7 @@ public final class CommandTemplate {
     Collection<ServiceTemplate> templates;
     // get all templates if no specific template is given
     if (templateStorage == null) {
-      templates = CloudNet.getInstance().servicesRegistry().getServices(TemplateStorage.class).stream()
+      templates = CloudNet.getInstance().servicesRegistry().services(TemplateStorage.class).stream()
         .flatMap(storage -> storage.templates().stream())
         .collect(Collectors.toList());
     } else {

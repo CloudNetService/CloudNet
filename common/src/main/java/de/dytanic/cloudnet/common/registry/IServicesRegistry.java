@@ -113,7 +113,7 @@ public interface IServicesRegistry {
   /**
    * Returns all provider classes that are actual contain in on this registry
    */
-  @NotNull Collection<Class<?>> getProvidedServices();
+  @NotNull Collection<Class<?>> providedServices();
 
   /**
    * Returns the service implementation or null from this registry

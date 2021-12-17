@@ -168,7 +168,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull Collection<Class<?>> getProvidedServices() {
+  public @NotNull Collection<Class<?>> providedServices() {
     return Collections.unmodifiableCollection(this.providedServices.keySet());
   }
 

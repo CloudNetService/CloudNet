@@ -41,7 +41,7 @@ public final class ServicesRegistryTest {
 
     registry.unregisterAll();
 
-    Assertions.assertEquals(0, registry.getProvidedServices().size());
+    Assertions.assertEquals(0, registry.providedServices().size());
 
     var b = new B();
     registry.registerService(A.class, "b", b);

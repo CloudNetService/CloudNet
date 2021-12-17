@@ -37,7 +37,7 @@ public class CloudNetSignsModule extends DriverModule {
 
   protected static final String DATABASE_NAME = "cloudnet_signs";
 
-  private static final Logger LOGGER = LogManager.getLogger(CloudNetSignsModule.class);
+  private static final Logger LOGGER = LogManager.logger(CloudNetSignsModule.class);
 
   protected Database database;
   protected Path configurationPath;
@@ -89,7 +89,7 @@ public class CloudNetSignsModule extends DriverModule {
       Collection<de.dytanic.cloudnet.ext.signs.Sign> oldSigns = document.get("signs", SignConstants.COLLECTION_SIGNS);
       if (oldSigns != null) {
         // convert the old sign entries
-        var management = CloudNet.getInstance().servicesRegistry().getFirstService(SignManagement.class);
+        var management = CloudNet.getInstance().servicesRegistry().firstService(SignManagement.class);
         for (var oldSign : oldSigns) {
           management.createSign(new Sign(
             oldSign.getTargetGroup(),
