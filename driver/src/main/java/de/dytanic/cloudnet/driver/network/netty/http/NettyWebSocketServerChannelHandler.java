@@ -63,13 +63,24 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
 
   @Override
   protected void channelRead0(@NotNull ChannelHandlerContext ctx, @NotNull WebSocketFrame webSocketFrame) {
-    switch (webSocketFrame) {
-      case PingWebSocketFrame frame -> this.invoke0(WebSocketFrameType.PING, frame);
-      case PongWebSocketFrame frame -> this.invoke0(WebSocketFrameType.PONG, frame);
-      case TextWebSocketFrame frame -> this.invoke0(WebSocketFrameType.TEXT, frame);
-      case CloseWebSocketFrame frame -> this.invoke0(WebSocketFrameType.CLOSE, frame);
-      case BinaryWebSocketFrame frame -> this.invoke0(WebSocketFrameType.BINARY, frame);
-      default -> throw new IllegalStateException("Unexpected web socket frame: " + webSocketFrame);
+    if (webSocketFrame instanceof PingWebSocketFrame) {
+      this.invoke0(WebSocketFrameType.PING, webSocketFrame);
+    }
+
+    if (webSocketFrame instanceof PongWebSocketFrame) {
+      this.invoke0(WebSocketFrameType.PONG, webSocketFrame);
+    }
+
+    if (webSocketFrame instanceof TextWebSocketFrame) {
+      this.invoke0(WebSocketFrameType.TEXT, webSocketFrame);
+    }
+
+    if (webSocketFrame instanceof BinaryWebSocketFrame) {
+      this.invoke0(WebSocketFrameType.BINARY, webSocketFrame);
+    }
+
+    if (webSocketFrame instanceof CloseWebSocketFrame) {
+      this.webSocketServerChannel.close(1000, "client connection closed");
     }
   }
 

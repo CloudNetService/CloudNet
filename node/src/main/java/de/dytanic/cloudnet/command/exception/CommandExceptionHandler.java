@@ -62,26 +62,25 @@ public class CommandExceptionHandler {
       return;
     }
     // determine the cause type and apply the specific handler
-    switch (cause) {
-      case InvalidSyntaxException invalidSyntaxException -> this.handleInvalidSyntaxException(source,
-        invalidSyntaxException);
-      case NoPermissionException noPermissionException -> this.handleNoPermissionException(source,
-        noPermissionException);
-      case NoSuchCommandException noSuchCommandException -> this.handleNoSuchCommandException(source,
-        noSuchCommandException);
-      case InvalidCommandSenderException invalidCommandSenderException -> this.handleInvalidCommandSourceException(
-        source, invalidCommandSenderException);
-      case ArgumentParseException argumentParseException -> {
-        var deepCause = cause.getCause();
-        if (deepCause instanceof ArgumentNotAvailableException) {
-          this.handleArgumentNotAvailableException(source, (ArgumentNotAvailableException) deepCause);
-        } else if (deepCause instanceof FlagArgument.FlagParseException) {
-          this.handleFlagParseException(source, (FlagParseException) deepCause);
-        } else {
-          this.handleArgumentParseException(source, (ArgumentParseException) cause);
-        }
+    if (cause instanceof InvalidSyntaxException) {
+      this.handleInvalidSyntaxException(source, (InvalidSyntaxException) cause);
+    } else if (cause instanceof NoPermissionException) {
+      this.handleNoPermissionException(source, (NoPermissionException) cause);
+    } else if (cause instanceof NoSuchCommandException) {
+      this.handleNoSuchCommandException(source, (NoSuchCommandException) cause);
+    } else if (cause instanceof InvalidCommandSenderException) {
+      this.handleInvalidCommandSourceException(source, (InvalidCommandSenderException) cause);
+    } else if (cause instanceof ArgumentParseException) {
+      var deepCause = cause.getCause();
+      if (deepCause instanceof ArgumentNotAvailableException) {
+        this.handleArgumentNotAvailableException(source, (ArgumentNotAvailableException) deepCause);
+      } else if (deepCause instanceof FlagArgument.FlagParseException) {
+        this.handleFlagParseException(source, (FlagParseException) deepCause);
+      } else {
+        this.handleArgumentParseException(source, (ArgumentParseException) cause);
       }
-      default -> LOGGER.severe("Exception during command execution", cause);
+    } else {
+      LOGGER.severe("Exception during command execution", cause);
     }
   }
 
