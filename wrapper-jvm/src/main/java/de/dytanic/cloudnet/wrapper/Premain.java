@@ -16,6 +16,8 @@
 
 package de.dytanic.cloudnet.wrapper;
 
+import de.dytanic.cloudnet.wrapper.transform.BukkitCommodoreTransformer;
+import de.dytanic.cloudnet.wrapper.transform.BukkitJavaVersionCheckTransformer;
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Method;
@@ -32,6 +34,8 @@ final class Premain {
 
   public static void premain(@Nullable String agentArgs, @NonNull Instrumentation inst) {
     Premain.instrumentation = inst;
+    inst.addTransformer(new BukkitCommodoreTransformer());
+    inst.addTransformer(new BukkitJavaVersionCheckTransformer());
   }
 
   public static void preloadClasses(@NonNull Path file, @NonNull ClassLoader loader) {

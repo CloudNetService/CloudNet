@@ -44,7 +44,7 @@ extensions.configure<JavaPluginExtension> {
 dependencies {
   "api"(projects.cloudnetCommon)
 
-  "implementation"(libs.asm)
+  "api"(libs.asm)
   "implementation"(libs.bundles.netty)
   "implementation"(variantOf(libs.nettyNativeEpoll) { classifier("linux-x86_64") })
 
