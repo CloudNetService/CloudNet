@@ -58,6 +58,7 @@ import de.dytanic.cloudnet.wrapper.transform.TransformerRegistry;
 import de.dytanic.cloudnet.wrapper.transform.bukkit.BukkitCommodoreTransformer;
 import de.dytanic.cloudnet.wrapper.transform.bukkit.BukkitJavaVersionCheckTransformer;
 import de.dytanic.cloudnet.wrapper.transform.bukkit.PaperConfigTransformer;
+import de.dytanic.cloudnet.wrapper.transform.netty.OldEpollDisableTransformer;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
@@ -154,6 +155,10 @@ public class Wrapper extends CloudNetDriver {
       .registerTransformer("org/bukkit/craftbukkit", "Main", new BukkitJavaVersionCheckTransformer());
     this.transformerRegistry()
       .registerTransformer("org/github/paperspigot", "PaperSpigotConfig", new PaperConfigTransformer());
+    // This prevents shadow from renaming io/netty to eu/cloudnetservice/io/netty
+    this.transformerRegistry().registerTransformer(
+      name -> name.endsWith("Epoll") && name.startsWith("io") && name.contains("netty/channel/epoll/"),
+      new OldEpollDisableTransformer());
 
     // connect to the node
     this.connectToNode();

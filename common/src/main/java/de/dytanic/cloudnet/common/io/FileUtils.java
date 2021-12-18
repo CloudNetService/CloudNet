@@ -17,7 +17,6 @@
 package de.dytanic.cloudnet.common.io;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.io.ByteStreams;
 import de.dytanic.cloudnet.common.function.ThrowableConsumer;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
@@ -91,7 +90,7 @@ public final class FileUtils {
   public static void copy(@Nullable InputStream inputStream, @Nullable OutputStream outputStream) {
     if (inputStream != null && outputStream != null) {
       try {
-        ByteStreams.copy(inputStream, outputStream);
+        inputStream.transferTo(outputStream);
       } catch (IOException exception) {
         LOGGER.severe("Exception copying InputStream to OutputStream", exception);
       }
