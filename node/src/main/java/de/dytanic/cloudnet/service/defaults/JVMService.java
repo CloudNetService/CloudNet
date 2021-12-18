@@ -139,7 +139,7 @@ public class JVMService extends AbstractService {
 
     // try to start the process like that
     try {
-      this.process = new ProcessBuilder(arguments).directory(this.serviceDirectory.toFile()).inheritIO().start();
+      this.process = new ProcessBuilder(arguments).directory(this.serviceDirectory.toFile()).start();
       this.eventManager.callEvent(new CloudServicePostProcessStartEvent(this, this.process.toHandle()));
     } catch (IOException exception) {
       LOGGER.severe("Unable to start process in %s with command line %s",

@@ -54,6 +54,10 @@ import de.dytanic.cloudnet.wrapper.provider.WrapperGroupConfigurationProvider;
 import de.dytanic.cloudnet.wrapper.provider.WrapperMessenger;
 import de.dytanic.cloudnet.wrapper.provider.WrapperNodeInfoProvider;
 import de.dytanic.cloudnet.wrapper.provider.WrapperServiceTaskProvider;
+import de.dytanic.cloudnet.wrapper.transform.TransformerRegistry;
+import de.dytanic.cloudnet.wrapper.transform.bukkit.BukkitCommodoreTransformer;
+import de.dytanic.cloudnet.wrapper.transform.bukkit.BukkitJavaVersionCheckTransformer;
+import de.dytanic.cloudnet.wrapper.transform.bukkit.PaperConfigTransformer;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
@@ -142,6 +146,14 @@ public class Wrapper extends CloudNetDriver {
   public synchronized void start() throws Exception {
     // load & enable the modules
     this.moduleProvider.loadAll().startAll();
+
+    // register our default class transformers
+    this.transformerRegistry()
+      .registerTransformer("org/bukkit/craftbukkit", "Commodore", new BukkitCommodoreTransformer());
+    this.transformerRegistry()
+      .registerTransformer("org/bukkit/craftbukkit", "Main", new BukkitJavaVersionCheckTransformer());
+    this.transformerRegistry()
+      .registerTransformer("org/github/paperspigot", "PaperSpigotConfig", new PaperConfigTransformer());
 
     // connect to the node
     this.connectToNode();
@@ -417,5 +429,9 @@ public class Wrapper extends CloudNetDriver {
 
   public @NonNull ServiceInfoSnapshot currentServiceInfo() {
     return this.currentServiceInfoSnapshot;
+  }
+
+  public @NonNull TransformerRegistry transformerRegistry() {
+    return Premain.transformerRegistry;
   }
 }
