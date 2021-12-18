@@ -44,10 +44,9 @@ public final class JavaVersionResolver {
    * @param input the path to the java executable to check the version for
    * @return the java version of the executable, null if the input is no valid path to an executable
    */
-  @Nullable
-  public static JavaVersion resolveFromJavaExecutable(String input) {
+  public static @Nullable JavaVersion resolveFromJavaExecutable(@Nullable String input) {
     // the default java command input can always evaluate in the current runtime version
-    if (input.equals("java")) {
+    if (input == null || input.equals("java")) {
       return JavaVersion.runtimeVersion();
     }
 

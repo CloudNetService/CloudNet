@@ -19,6 +19,7 @@ package de.dytanic.cloudnet.provider;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.sync.DataSyncHandler;
 import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
@@ -31,6 +32,7 @@ import de.dytanic.cloudnet.event.task.LocalServiceTaskAddEvent;
 import de.dytanic.cloudnet.event.task.LocalServiceTaskRemoveEvent;
 import de.dytanic.cloudnet.network.listener.message.TaskChannelMessageListener;
 import de.dytanic.cloudnet.setup.DefaultTaskSetup;
+import de.dytanic.cloudnet.util.JavaVersionResolver;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -204,6 +206,13 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
         // rename the file
         FileUtils.move(file, this.taskFile(task), StandardCopyOption.REPLACE_EXISTING);
       }
+
+      // remove all custom java paths that do not support Java 17
+      var javaVersion = JavaVersionResolver.resolveFromJavaExecutable(task.javaCommand());
+      if (javaVersion != null && !javaVersion.isSupportedByMin(JavaVersion.JAVA_17)) {
+        task = ServiceTask.builder(task).javaCommand(null).build();
+      }
+
       // cache the task
       this.addPermanentServiceTask(task);
     }, false, "*.json");
