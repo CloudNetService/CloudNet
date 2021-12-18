@@ -68,7 +68,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public class DefaultCommandProvider implements CommandProvider {
 
-  private static final Key<Collection<String>> ALIAS_KEY = Key.of(new TypeToken<Collection<String>>() {
+  private static final Key<Collection<String>> ALIAS_KEY = Key.of(new TypeToken<>() {
   }, "alias");
   private static final Key<String> DESCRIPTION_KEY = Key.of(String.class, "cloudnet:description");
 

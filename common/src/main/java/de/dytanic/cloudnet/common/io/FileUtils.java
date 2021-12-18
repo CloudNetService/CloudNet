@@ -184,7 +184,7 @@ public final class FileUtils {
   ) throws IOException {
     Files.walkFileTree(
       dir,
-      new SimpleFileVisitor<Path>() {
+      new SimpleFileVisitor<>() {
         @Override
         public FileVisitResult visitFile(@NonNull Path file, @NonNull BasicFileAttributes attrs) throws IOException {
           if (filter == null || filter.test(file)) {

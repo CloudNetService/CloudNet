@@ -43,7 +43,7 @@ public interface ITask<V> extends Future<V> {
 
   @NonNull
   default ITask<V> onComplete(@NonNull Consumer<V> consumer) {
-    return this.addListener(new ITaskListener<V>() {
+    return this.addListener(new ITaskListener<>() {
       @Override
       public void onComplete(@NonNull ITask<V> task, @Nullable V v) {
         consumer.accept(v);
@@ -52,7 +52,7 @@ public interface ITask<V> extends Future<V> {
   }
 
   default @NonNull ITask<V> onFailure(@NonNull Consumer<Throwable> consumer) {
-    return this.addListener(new ITaskListener<V>() {
+    return this.addListener(new ITaskListener<>() {
       @Override
       public void onFailure(@NonNull ITask<V> task, @NonNull Throwable th) {
         consumer.accept(th);
@@ -61,7 +61,7 @@ public interface ITask<V> extends Future<V> {
   }
 
   default @NonNull ITask<V> onCancelled(@NonNull Consumer<ITask<V>> consumer) {
-    return this.addListener(new ITaskListener<V>() {
+    return this.addListener(new ITaskListener<>() {
       @Override
       public void onCancelled(@NonNull ITask<V> task) {
         consumer.accept(task);

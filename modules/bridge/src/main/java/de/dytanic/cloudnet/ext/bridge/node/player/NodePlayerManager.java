@@ -75,7 +75,7 @@ public class NodePlayerManager implements IPlayerManager {
   protected final LoadingCache<UUID, Optional<CloudOfflinePlayer>> offlinePlayerCache = CacheBuilder.newBuilder()
     .concurrencyLevel(4)
     .expireAfterAccess(5, TimeUnit.MINUTES)
-    .build(new CacheLoader<UUID, Optional<CloudOfflinePlayer>>() {
+    .build(new CacheLoader<>() {
       @Override
       public Optional<CloudOfflinePlayer> load(@NonNull UUID uniqueId) {
         var document = NodePlayerManager.this.database().get(uniqueId.toString());

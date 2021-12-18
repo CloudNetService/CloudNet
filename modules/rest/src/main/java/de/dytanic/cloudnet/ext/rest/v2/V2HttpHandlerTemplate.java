@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.ext.rest.v2;
 
-import com.google.common.io.ByteStreams;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.network.http.IHttpResponse;
@@ -296,7 +295,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
           .cancelNext();
       } else {
         try {
-          ByteStreams.copy(content, stream);
+          content.transferTo(stream);
           this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
         } catch (IOException exception) {
           this.notifyException(context, exception);

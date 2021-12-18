@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.s3;
 
-import com.google.common.io.ByteStreams;
 import de.dytanic.cloudnet.common.function.ThrowableConsumer;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.log.LogManager;
@@ -238,7 +237,7 @@ public class S3TemplateStorage implements TemplateStorage {
         .build();
       try (InputStream inputStream = this.client.getObject(request)) {
         original = new ByteArrayOutputStream(inputStream.available());
-        ByteStreams.copy(inputStream, original);
+        inputStream.transferTo(original);
       }
     } catch (NoSuchKeyException exception) {
       original = new ByteArrayOutputStream();

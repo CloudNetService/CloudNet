@@ -56,7 +56,7 @@ public final class CloudNetTick {
   }
 
   public @NonNull <T> ITask<T> runTask(@NonNull Callable<T> callable) {
-    var task = new ScheduledTask<T>(callable, 0, 1, this.currentTick.get() + 1);
+    var task = new ScheduledTask<>(callable, 0, 1, this.currentTick.get() + 1);
     this.processQueue.offer(task);
     return task;
   }
@@ -69,7 +69,7 @@ public final class CloudNetTick {
   }
 
   public @NonNull <T> ITask<T> runDelayedTask(@NonNull Callable<T> callable, long delay, @NonNull TimeUnit timeUnit) {
-    var task = new ScheduledTask<T>(
+    var task = new ScheduledTask<>(
       callable,
       0,
       1,
@@ -83,7 +83,7 @@ public final class CloudNetTick {
   }
 
   public @NonNull <T> ITask<T> scheduleTask(@NonNull Callable<T> callable, long delay, long maxExecutions) {
-    var task = new ScheduledTask<T>(
+    var task = new ScheduledTask<>(
       callable,
       delay,
       maxExecutions,

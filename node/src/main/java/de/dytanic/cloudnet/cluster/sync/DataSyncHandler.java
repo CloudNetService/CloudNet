@@ -100,7 +100,7 @@ public record DataSyncHandler<T>(
     }
 
     public @NonNull Builder<T> convertObject(@NonNull Type type) {
-      return this.converter(new DataConverter<T>() {
+      return this.converter(new DataConverter<>() {
         @Override
         public void write(@NonNull DataBuf.Mutable target, @NonNull T data) {
           target.writeObject(data);

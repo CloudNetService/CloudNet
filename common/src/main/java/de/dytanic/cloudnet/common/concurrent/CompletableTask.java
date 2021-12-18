@@ -145,7 +145,7 @@ public class CompletableTask<V> extends CompletableFuture<V> implements ITask<V>
     // create a new task mapping the current task
     var task = new CompletableTask<T>();
     // handle the result of this task and post the result to the downstream task
-    this.addListener(new ITaskListener<V>() {
+    this.addListener(new ITaskListener<>() {
       @Override
       public void onComplete(@NonNull ITask<V> t, @Nullable V v) {
         try {
