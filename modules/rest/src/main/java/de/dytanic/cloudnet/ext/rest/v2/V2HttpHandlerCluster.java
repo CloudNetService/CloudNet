@@ -234,6 +234,6 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
   }
 
   protected IClusterNodeServerProvider nodeProvider() {
-    return this.node().getClusterNodeServerProvider();
+    return this.node().nodeServerProvider();
   }
 }

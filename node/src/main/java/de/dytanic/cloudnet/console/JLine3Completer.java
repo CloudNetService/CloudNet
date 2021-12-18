@@ -35,7 +35,7 @@ final class JLine3Completer implements Completer {
 
   @Override
   public void complete(LineReader reader, @NonNull ParsedLine line, @NonNull List<Candidate> candidates) {
-    this.console.getTabCompleteHandlers().values().stream()
+    this.console.tabCompleteHandlers().values().stream()
       .filter(Toggleable::enabled)
       .flatMap(handler -> handler.completeInput(line.line()).stream())
       .filter(Objects::nonNull)

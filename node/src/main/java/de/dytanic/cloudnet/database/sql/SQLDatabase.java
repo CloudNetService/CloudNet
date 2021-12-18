@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.database.sql;
 
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.AbstractDatabase;
 import java.sql.ResultSet;
@@ -69,17 +68,11 @@ public abstract class SQLDatabase extends AbstractDatabase {
 
   @Override
   public boolean insert(@NonNull String key, @NonNull JsonDocument document) {
-    Preconditions.checkNotNull(key);
-    Preconditions.checkNotNull(document);
-
     this.databaseProvider.databaseHandler().handleInsert(this, key, document);
     return this.insertOrUpdate(key, document);
   }
 
-  public boolean insert0(String key, JsonDocument document) {
-    Preconditions.checkNotNull(key);
-    Preconditions.checkNotNull(document);
-
+  private boolean insert0(@NonNull String key, @NonNull JsonDocument document) {
     return this.databaseProvider.executeUpdate(
       "INSERT INTO `" + this.name + "` (" + TABLE_COLUMN_KEY + "," + TABLE_COLUMN_VALUE + ") VALUES (?, ?);",
       key, document.toString()
@@ -88,9 +81,6 @@ public abstract class SQLDatabase extends AbstractDatabase {
 
   @Override
   public boolean update(@NonNull String key, @NonNull JsonDocument document) {
-    Preconditions.checkNotNull(key);
-    Preconditions.checkNotNull(document);
-
     this.databaseProvider.databaseHandler().handleUpdate(this, key, document);
     return this.insertOrUpdate(key, document);
   }
@@ -103,16 +93,11 @@ public abstract class SQLDatabase extends AbstractDatabase {
   }
 
   public boolean insertOrUpdate(String key, JsonDocument document) {
-    Preconditions.checkNotNull(key);
-    Preconditions.checkNotNull(document);
-
     return this.contains(key) ? this.update0(key, document) : this.insert0(key, document);
   }
 
   @Override
   public boolean contains(@NonNull String key) {
-    Preconditions.checkNotNull(key);
-
     return this.databaseProvider.executeQuery(
       String.format("SELECT %s FROM `%s` WHERE %s = ?", TABLE_COLUMN_KEY, this.name, TABLE_COLUMN_KEY),
       ResultSet::next,
@@ -122,8 +107,6 @@ public abstract class SQLDatabase extends AbstractDatabase {
 
   @Override
   public boolean delete(@NonNull String key) {
-    Preconditions.checkNotNull(key);
-
     this.databaseProvider.databaseHandler().handleDelete(this, key);
     return this.delete0(key);
   }
@@ -137,8 +120,6 @@ public abstract class SQLDatabase extends AbstractDatabase {
 
   @Override
   public JsonDocument get(String key) {
-    Preconditions.checkNotNull(key);
-
     return this.databaseProvider.executeQuery(
       String.format("SELECT %s FROM `%s` WHERE %s = ?", TABLE_COLUMN_VALUE, this.name, TABLE_COLUMN_KEY),
       resultSet -> resultSet.next() ? JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VALUE)) : null,
@@ -164,8 +145,6 @@ public abstract class SQLDatabase extends AbstractDatabase {
 
   @Override
   public @NonNull List<JsonDocument> get(@NonNull JsonDocument filters) {
-    Preconditions.checkNotNull(filters);
-
     var stringBuilder = new StringBuilder("SELECT ").append(TABLE_COLUMN_VALUE).append(" FROM `")
       .append(this.name).append('`');
 
@@ -251,8 +230,6 @@ public abstract class SQLDatabase extends AbstractDatabase {
 
   @Override
   public @NonNull Map<String, JsonDocument> filter(@NonNull BiPredicate<String, JsonDocument> predicate) {
-    Preconditions.checkNotNull(predicate);
-
     return this.databaseProvider.executeQuery(
       String.format("SELECT * FROM `%s`;", this.name),
       resultSet -> {
@@ -273,8 +250,6 @@ public abstract class SQLDatabase extends AbstractDatabase {
 
   @Override
   public void iterate(@NonNull BiConsumer<String, JsonDocument> consumer) {
-    Preconditions.checkNotNull(consumer);
-
     this.databaseProvider.executeQuery(
       String.format("SELECT * FROM `%s`;", this.name),
       resultSet -> {

@@ -80,7 +80,7 @@ public class DefaultTaskSetup implements DefaultSetup {
                   .translatedQuestion("cloudnet-init-setup-tasks-proxy-environment")
                   .answerType(QuestionAnswerType.<ServiceEnvironmentType>builder()
                     .parser(serviceEnvironmentType())
-                    .possibleResults(this.getVersionProvider().knownEnvironments().values().stream()
+                    .possibleResults(this.versionProvider().knownEnvironments().values().stream()
                       .filter(type -> {
                         IDocument<?> properties = type.properties();
                         return JAVA_PROXY.get(properties) || PE_PROXY.get(properties);
@@ -127,7 +127,7 @@ public class DefaultTaskSetup implements DefaultSetup {
                   .translatedQuestion("cloudnet-init-setup-tasks-server-environment")
                   .answerType(QuestionAnswerType.<ServiceEnvironmentType>builder()
                     .parser(serviceEnvironmentType())
-                    .possibleResults(this.getVersionProvider().knownEnvironments().values().stream()
+                    .possibleResults(this.versionProvider().knownEnvironments().values().stream()
                       .filter(type -> {
                         IDocument<?> properties = type.properties();
                         return JAVA_SERVER.get(properties) || PE_SERVER.get(properties);
@@ -242,7 +242,7 @@ public class DefaultTaskSetup implements DefaultSetup {
     @NonNull ServiceEnvironmentType type,
     @NonNull Pair<String, JavaVersion> javaVersion
   ) {
-    return this.getVersionProvider().serviceVersionTypes().values().stream()
+    return this.versionProvider().serviceVersionTypes().values().stream()
       .filter(versionType -> versionType.environmentType().equals(type.name()))
       .flatMap(serviceVersionType -> serviceVersionType.versions()
         .stream()
@@ -254,7 +254,7 @@ public class DefaultTaskSetup implements DefaultSetup {
       }));
   }
 
-  protected @NonNull ServiceVersionProvider getVersionProvider() {
+  protected @NonNull ServiceVersionProvider versionProvider() {
     return CloudNet.instance().serviceVersionProvider();
   }
 }

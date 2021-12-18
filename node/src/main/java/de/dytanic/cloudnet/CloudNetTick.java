@@ -137,7 +137,7 @@ public final class CloudNetTick {
           }
 
           // check if the node is marked for draining
-          if (this.cloudNet.getClusterNodeServerProvider().selfNode().drain()) {
+          if (this.cloudNet.nodeServerProvider().selfNode().drain()) {
             // check if there are no services on the node
             if (this.cloudNet.cloudServiceProvider().localCloudServices().isEmpty()) {
               // stop the node as it's marked for draining
@@ -146,7 +146,7 @@ public final class CloudNetTick {
           }
 
           // check if we should start a service now
-          if (this.cloudNet.getClusterNodeServerProvider().selfNode().headNode() && tick % TPS == 0) {
+          if (this.cloudNet.nodeServerProvider().selfNode().headNode() && tick % TPS == 0) {
             this.startService();
           }
 

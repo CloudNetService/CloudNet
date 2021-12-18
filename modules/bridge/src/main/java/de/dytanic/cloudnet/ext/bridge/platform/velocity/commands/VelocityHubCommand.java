@@ -16,8 +16,6 @@
 
 package de.dytanic.cloudnet.ext.bridge.platform.velocity.commands;
 
-import static com.google.common.collect.ImmutableList.copyOf;
-
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
@@ -73,6 +71,6 @@ public final class VelocityHubCommand implements SimpleCommand {
 
   @Override
   public @NonNull CompletableFuture<List<String>> suggestAsync(@NonNull Invocation invocation) {
-    return CompletableFuture.completedFuture(copyOf(this.management.configuration().hubCommandNames()));
+    return CompletableFuture.completedFuture(List.copyOf(this.management.configuration().hubCommandNames()));
   }
 }

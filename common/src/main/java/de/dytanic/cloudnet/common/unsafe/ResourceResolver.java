@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.common.unsafe;
 
-import com.google.common.base.Preconditions;
 import java.net.URI;
 import java.net.URISyntaxException;
 import lombok.NonNull;
@@ -40,8 +39,6 @@ public final class ResourceResolver {
    * @throws NullPointerException if {@code clazz} is null.
    */
   public static @NonNull URI resolveURIFromResourceByClass(@NonNull Class<?> clazz) {
-    Preconditions.checkNotNull(clazz, "clazz");
-
     try {
       return clazz.getProtectionDomain().getCodeSource().getLocation().toURI();
     } catch (URISyntaxException exception) {

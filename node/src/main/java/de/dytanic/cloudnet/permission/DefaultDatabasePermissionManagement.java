@@ -112,7 +112,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   @Override
   public @NonNull PermissionUser addPermissionUser(@NonNull PermissionUser user) {
     // insert the user into the database
-    this.getUserDatabaseTable().insert(user.uniqueId().toString(), JsonDocument.newDocument(user));
+    this.userDatabaseTable().insert(user.uniqueId().toString(), JsonDocument.newDocument(user));
     // notify the listener
     this.handler.handleAddUser(this, user);
     return user;
@@ -121,7 +121,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   @Override
   public void updateUser(@NonNull PermissionUser user) {
     // update in the database
-    this.getUserDatabaseTable().update(user.uniqueId().toString(), JsonDocument.newDocument(user));
+    this.userDatabaseTable().update(user.uniqueId().toString(), JsonDocument.newDocument(user));
     // notify the listener
     this.handler.handleUpdateUser(this, user);
   }
@@ -145,7 +145,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
 
   @Override
   public boolean deletePermissionUser(@NonNull PermissionUser permissionUser) {
-    if (this.getUserDatabaseTable().delete(permissionUser.uniqueId().toString())) {
+    if (this.userDatabaseTable().delete(permissionUser.uniqueId().toString())) {
       // notify the listener
       this.handler.handleDeleteUser(this, permissionUser);
       return true;
@@ -155,7 +155,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
 
   @Override
   public boolean containsUser(@NonNull UUID uniqueId) {
-    return this.getUserDatabaseTable().contains(uniqueId.toString());
+    return this.userDatabaseTable().contains(uniqueId.toString());
   }
 
   @Override
@@ -166,7 +166,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   @Override
   public @Nullable PermissionUser user(@NonNull UUID uniqueId) {
     // try to find the user in the database
-    var user = this.getUserDatabaseTable().get(uniqueId.toString());
+    var user = this.userDatabaseTable().get(uniqueId.toString());
     // check if the user is in the database
     if (user == null) {
       return null;
@@ -197,7 +197,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
 
   @Override
   public @NonNull List<PermissionUser> usersByName(@NonNull String name) {
-    return this.getUserDatabaseTable().get("name", name).stream()
+    return this.userDatabaseTable().get("name", name).stream()
       .map(userData -> {
         // deserialize the permission user
         var user = userData.toInstanceOf(PermissionUser.class);
@@ -214,7 +214,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   public @NonNull Collection<PermissionUser> users() {
     Collection<PermissionUser> users = new ArrayList<>();
     // select all users from the database
-    this.getUserDatabaseTable().iterate(($, data) -> {
+    this.userDatabaseTable().iterate(($, data) -> {
       // deserialize the permission user
       var user = data.toInstanceOf(PermissionUser.class);
       // check if we need to update the user
@@ -232,7 +232,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   public @NonNull Collection<PermissionUser> usersByGroup(@NonNull String group) {
     Collection<PermissionUser> users = new ArrayList<>();
     // select all users from the database
-    this.getUserDatabaseTable().iterate(($, data) -> {
+    this.userDatabaseTable().iterate(($, data) -> {
       // deserialize the permission user
       var user = data.toInstanceOf(PermissionUser.class);
       // check if we need to update the user
@@ -348,7 +348,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
     this.handler = handler;
   }
 
-  protected @NonNull LocalDatabase getUserDatabaseTable() {
+  protected @NonNull LocalDatabase userDatabaseTable() {
     return this.nodeInstance.databaseProvider().database(USER_DB_NAME);
   }
 

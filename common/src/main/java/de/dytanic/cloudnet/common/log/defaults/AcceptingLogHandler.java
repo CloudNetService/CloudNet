@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.common.log.defaults;
 
-import com.google.common.base.Preconditions;
 import java.util.function.Consumer;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
@@ -35,7 +34,7 @@ public final class AcceptingLogHandler extends Handler {
   }
 
   public static @NonNull AcceptingLogHandler newInstance(@NonNull Consumer<String> accepter) {
-    return new AcceptingLogHandler(Preconditions.checkNotNull(accepter, "accepter"));
+    return new AcceptingLogHandler(accepter);
   }
 
   @Override

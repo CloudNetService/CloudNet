@@ -50,8 +50,8 @@ public final class DefaultNetworkClientChannelHandler implements INetworkChannel
       channel.sendPacket(new PacketClientAuthorization(
         PacketClientAuthorization.PacketAuthorizationType.NODE_TO_NODE,
         DataBuf.empty()
-          .writeUniqueId(CloudNet.instance().getConfig().clusterConfig().clusterId())
-          .writeObject(CloudNet.instance().getConfig().identity())));
+          .writeUniqueId(CloudNet.instance().config().clusterConfig().clusterId())
+          .writeObject(CloudNet.instance().config().identity())));
 
       LOGGER.fine(I18n.trans("client-network-channel-init")
         .replace("%serverAddress%", channel.serverAddress().host() + ":" + channel.serverAddress().port())
@@ -77,7 +77,7 @@ public final class DefaultNetworkClientChannelHandler implements INetworkChannel
       .replace("%serverAddress%", channel.serverAddress().host() + ":" + channel.serverAddress().port())
       .replace("%clientAddress%", channel.clientAddress().host() + ":" + channel.clientAddress().port()));
 
-    var clusterNodeServer = CloudNet.instance().getClusterNodeServerProvider().nodeServer(channel);
+    var clusterNodeServer = CloudNet.instance().nodeServerProvider().nodeServer(channel);
     if (clusterNodeServer != null) {
       NodeNetworkUtils.closeNodeServer(clusterNodeServer);
     }

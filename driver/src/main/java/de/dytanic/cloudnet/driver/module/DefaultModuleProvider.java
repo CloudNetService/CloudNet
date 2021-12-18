@@ -78,7 +78,7 @@ public class DefaultModuleProvider implements IModuleProvider {
    */
   @Override
   public void moduleDirectoryPath(@NonNull Path moduleDirectory) {
-    this.moduleDirectory = Preconditions.checkNotNull(moduleDirectory, "moduleDirectory");
+    this.moduleDirectory = moduleDirectory;
   }
 
   /**
@@ -110,7 +110,7 @@ public class DefaultModuleProvider implements IModuleProvider {
    */
   @Override
   public void moduleDependencyLoader(@NonNull IModuleDependencyLoader moduleDependencyLoader) {
-    this.moduleDependencyLoader = Preconditions.checkNotNull(moduleDependencyLoader, "moduleDependencyLoader");
+    this.moduleDependencyLoader = moduleDependencyLoader;
   }
 
   /**
@@ -201,7 +201,7 @@ public class DefaultModuleProvider implements IModuleProvider {
   @Override
   public IModuleWrapper loadModule(@NonNull Path path) {
     try {
-      return this.loadModule(Preconditions.checkNotNull(path, "path").toUri().toURL());
+      return this.loadModule(path.toUri().toURL());
     } catch (MalformedURLException exception) {
       LOGGER.severe("Unable to resolve url of module path", exception);
       return null;

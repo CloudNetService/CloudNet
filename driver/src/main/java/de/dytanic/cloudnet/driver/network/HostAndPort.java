@@ -22,6 +22,7 @@ import java.net.SocketAddress;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
 /**
@@ -39,7 +40,7 @@ public class HostAndPort {
    */
   protected int port;
 
-  public HostAndPort(InetSocketAddress socketAddress) {
+  public HostAndPort(@Nullable InetSocketAddress socketAddress) {
     if (socketAddress == null) {
       return;
     }
@@ -48,8 +49,7 @@ public class HostAndPort {
     this.port = socketAddress.getPort();
   }
 
-  public HostAndPort(String host, int port) {
-    Preconditions.checkNotNull(host, "host");
+  public HostAndPort(@NonNull String host, int port) {
     Preconditions.checkArgument(port >= -1 && port <= 65535, "Illegal port: " + port);
 
     this.host = host.trim();

@@ -88,7 +88,7 @@ public final class NukkitCloudPermissionsPermissible extends PermissibleBase {
       de.dytanic.cloudnet.driver.permission.Permission.of(inName));
   }
 
-  public Player getPlayer() {
+  public Player player() {
     return this.player;
   }
 }

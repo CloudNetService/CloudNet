@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.ext.sftp;
 
-import com.google.common.io.ByteStreams;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
@@ -153,7 +152,7 @@ public final class SFTPTemplateStorageTest {
   void testNewInputStream() throws IOException {
     try (var stream = storage.newInputStream(TEMPLATE, "test.txt")) {
       Assertions.assertNotNull(stream);
-      Assertions.assertArrayEquals(ByteStreams.toByteArray(stream), "HelloWorld".getBytes(StandardCharsets.UTF_8));
+      Assertions.assertArrayEquals(stream.readAllBytes(), "HelloWorld".getBytes(StandardCharsets.UTF_8));
     }
   }
 

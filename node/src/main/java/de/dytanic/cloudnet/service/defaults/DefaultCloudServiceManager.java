@@ -78,7 +78,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   protected final Map<ServiceEnvironmentType, ServiceConfigurationPreparer> preparers = new ConcurrentHashMap<>();
 
   public DefaultCloudServiceManager(@NonNull CloudNet nodeInstance) {
-    this.clusterNodeServerProvider = nodeInstance.getClusterNodeServerProvider();
+    this.clusterNodeServerProvider = nodeInstance.nodeServerProvider();
     // rpc init
     this.sender = nodeInstance.rpcProviderFactory().providerForClass(null, GeneralCloudServiceProvider.class);
     nodeInstance.rpcProviderFactory()

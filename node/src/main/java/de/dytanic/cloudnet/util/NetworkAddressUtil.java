@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.util;
 
-import com.google.common.collect.ImmutableSet;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -49,7 +48,7 @@ public final class NetworkAddressUtil {
       // return the located addresses
       return addresses;
     } catch (SocketException exception) {
-      return ImmutableSet.of("127.0.0.1", "127.0.1.1");
+      return Set.of("127.0.0.1", "127.0.1.1");
     }
   }
 

@@ -48,9 +48,7 @@ public final class ThreadedLogRecordDispatcher extends Thread implements LogReco
   }
 
   public static @NonNull ThreadedLogRecordDispatcher newInstance(@NonNull Logger logger, @NonNull String threadName) {
-    Preconditions.checkNotNull(logger, "logger");
     Preconditions.checkArgument(!Strings.isNullOrEmpty(threadName), "Thread name must not be null or empty");
-
     return new ThreadedLogRecordDispatcher(logger, threadName);
   }
 

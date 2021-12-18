@@ -84,7 +84,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
   }
 
   protected void sendNodeInformation(IHttpContext context) {
-    var nodeServer = this.node().getClusterNodeServerProvider().selfNode();
+    var nodeServer = this.node().nodeServerProvider().selfNode();
 
     var information = this.success()
       .append("title", CloudNet.class.getPackage().getImplementationTitle())
@@ -135,7 +135,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
         //TODO what to reload
         break;
       case "config":
-        this.node().getConfig().load();
+        this.node().config().load();
         this.node().serviceTaskProvider().reload();
         this.node().groupConfigurationProvider().reload();
         this.node().permissionManagement().reload();

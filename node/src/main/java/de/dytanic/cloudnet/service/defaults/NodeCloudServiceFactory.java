@@ -43,7 +43,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
 
   public NodeCloudServiceFactory(@NonNull CloudNet nodeInstance) {
     this.serviceManager = nodeInstance.cloudServiceProvider();
-    this.nodeServerProvider = nodeInstance.getClusterNodeServerProvider();
+    this.nodeServerProvider = nodeInstance.nodeServerProvider();
 
     nodeInstance.eventManager().registerListener(new ServiceChannelMessageListener(
       nodeInstance.eventManager(),

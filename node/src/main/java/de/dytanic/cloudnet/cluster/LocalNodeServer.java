@@ -103,7 +103,7 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
     var snapshot = new NetworkClusterNodeInfoSnapshot(
       System.currentTimeMillis(),
       this.startupMillis,
-      this.cloudNet.getConfig().maxMemory(),
+      this.cloudNet.config().maxMemory(),
       this.cloudNet.cloudServiceProvider().currentUsedHeapMemory(),
       this.cloudNet.cloudServiceProvider().currentReservedMemory(),
       this.cloudNet.cloudServiceProvider().localCloudServices().size(),
@@ -111,7 +111,7 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
       this.nodeInfo,
       this.cloudNet.version(),
       ProcessSnapshot.self(),
-      this.cloudNet.getConfig().maxCPUUsageToStartServices(),
+      this.cloudNet.config().maxCPUUsageToStartServices(),
       this.cloudNet.moduleProvider().modules().stream()
         .map(IModuleWrapper::moduleConfiguration)
         .collect(Collectors.toSet()),

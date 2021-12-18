@@ -191,6 +191,6 @@ public abstract class V2HttpHandler implements IHttpHandler {
   }
 
   protected IConfiguration configuration() {
-    return this.node().getConfig();
+    return this.node().config();
   }
 }

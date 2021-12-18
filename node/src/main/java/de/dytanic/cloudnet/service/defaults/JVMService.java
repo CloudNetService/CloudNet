@@ -111,10 +111,10 @@ public class JVMService extends AbstractService {
 
     // add the java command to start the service
     var overriddenJavaCommand = this.serviceConfiguration().javaCommand();
-    arguments.add(overriddenJavaCommand == null ? this.getNodeConfiguration().javaCommand() : overriddenJavaCommand);
+    arguments.add(overriddenJavaCommand == null ? this.nodeConfiguration().javaCommand() : overriddenJavaCommand);
 
     // add all jvm flags
-    arguments.addAll(this.getNodeConfiguration().defaultJVMFlags().jvmFlags());
+    arguments.addAll(this.nodeConfiguration().defaultJVMFlags().jvmFlags());
     arguments.addAll(this.serviceConfiguration().processConfig().jvmOptions());
 
     // override some default configuration options
@@ -158,7 +158,7 @@ public class JVMService extends AbstractService {
 
       try {
         // wait until the process termination seconds exceeded
-        if (this.process.waitFor(this.getNodeConfiguration().processTerminationTimeoutSeconds(), TimeUnit.SECONDS)) {
+        if (this.process.waitFor(this.nodeConfiguration().processTerminationTimeoutSeconds(), TimeUnit.SECONDS)) {
           this.process.exitValue(); // validation that the process terminated
           this.process = null; // reset as there is no fall-through
           return;

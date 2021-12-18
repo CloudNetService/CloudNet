@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.common.document.gson;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonNull;
@@ -35,6 +34,7 @@ import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Set;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
@@ -133,7 +133,7 @@ public class JsonDocument implements IDocument<JsonDocument> {
 
   @Override
   public @NonNull JsonDocument clear() {
-    for (var key : ImmutableSet.copyOf(this.object.keySet())) {
+    for (var key : Set.copyOf(this.object.keySet())) {
       this.object.remove(key);
     }
 

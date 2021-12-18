@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.common;
 
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import java.util.ArrayList;
@@ -49,11 +48,10 @@ public final class WildcardUtil {
    * @see #filterWildcard(Collection, String, boolean)
    */
   @NonNull
-  public static <T extends INameable> Collection<T> filterWildcard(@NonNull Collection<T> inputValues,
-    @NonNull String regex) {
-    Preconditions.checkNotNull(inputValues, "inputValues");
-    Preconditions.checkNotNull(regex, "regex");
-
+  public static <T extends INameable> Collection<T> filterWildcard(
+    @NonNull Collection<T> inputValues,
+    @NonNull String regex
+  ) {
     return filterWildcard(inputValues, regex, true);
   }
 
@@ -66,9 +64,6 @@ public final class WildcardUtil {
    * @see #anyMatch(Collection, String, boolean)
    */
   public static boolean anyMatch(@NonNull Collection<? extends INameable> values, @NonNull String regex) {
-    Preconditions.checkNotNull(values, "values");
-    Preconditions.checkNotNull(regex, "regex");
-
     return anyMatch(values, regex, true);
   }
 
@@ -82,11 +77,11 @@ public final class WildcardUtil {
    * @return all input values matching the given pattern.
    */
   @NonNull
-  public static <T extends INameable> Collection<T> filterWildcard(@NonNull Collection<T> inputValues,
-    @NonNull String regex, boolean caseSensitive) {
-    Preconditions.checkNotNull(inputValues, "inputValues");
-    Preconditions.checkNotNull(regex, "regex");
-
+  public static <T extends INameable> Collection<T> filterWildcard(
+    @NonNull Collection<T> inputValues,
+    @NonNull String regex,
+    boolean caseSensitive
+  ) {
     if (inputValues.isEmpty()) {
       return inputValues;
     } else {
@@ -105,11 +100,11 @@ public final class WildcardUtil {
    * @param caseSensitive if the search should be case sensitive.
    * @return {@code true} if any of the values matches the given regex.
    */
-  public static boolean anyMatch(@NonNull Collection<? extends INameable> values, @NonNull String regex,
-    boolean caseSensitive) {
-    Preconditions.checkNotNull(values, "values");
-    Preconditions.checkNotNull(regex, "regex");
-
+  public static boolean anyMatch(
+    @NonNull Collection<? extends INameable> values,
+    @NonNull String regex,
+    boolean caseSensitive
+  ) {
     if (values.isEmpty()) {
       return false;
     } else {

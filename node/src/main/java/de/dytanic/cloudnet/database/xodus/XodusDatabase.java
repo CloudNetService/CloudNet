@@ -69,7 +69,7 @@ public class XodusDatabase extends AbstractDatabase {
 
   protected boolean insert0(String key, JsonDocument document) {
     return this.environment.computeInExclusiveTransaction(
-      txn -> this.getStore().put(
+      txn -> this.store().put(
         txn,
         StringBinding.stringToEntry(key),
         new ArrayByteIterable(document.toString().getBytes(StandardCharsets.UTF_8))));
@@ -78,7 +78,7 @@ public class XodusDatabase extends AbstractDatabase {
   @Override
   public boolean contains(@NonNull String key) {
     return this.environment.computeInReadonlyTransaction(
-      txn -> this.getStore().get(txn, StringBinding.stringToEntry(key)) != null);
+      txn -> this.store().get(txn, StringBinding.stringToEntry(key)) != null);
   }
 
   @Override
@@ -89,13 +89,13 @@ public class XodusDatabase extends AbstractDatabase {
   }
 
   protected boolean delete0(String key) {
-    return this.environment.computeInTransaction(txn -> this.getStore().delete(txn, StringBinding.stringToEntry(key)));
+    return this.environment.computeInTransaction(txn -> this.store().delete(txn, StringBinding.stringToEntry(key)));
   }
 
   @Override
   public JsonDocument get(String key) {
     return this.environment.computeInReadonlyTransaction(txn -> {
-      var entry = this.getStore().get(txn, StringBinding.stringToEntry(key));
+      var entry = this.store().get(txn, StringBinding.stringToEntry(key));
       return entry == null ? null : JsonDocument.fromJsonBytes(entry.getBytesUnsafe());
     });
   }
@@ -169,13 +169,13 @@ public class XodusDatabase extends AbstractDatabase {
     this.databaseProvider.databaseHandler().handleClear(this);
     this.environment.executeInExclusiveTransaction(txn -> {
       this.environment.truncateStore(this.name, txn);
-      this.store.set(this.environment.openStore(this.name, this.getStore().getConfig(), txn));
+      this.store.set(this.environment.openStore(this.name, this.store().getConfig(), txn));
     });
   }
 
   @Override
   public long documentCount() {
-    return this.environment.computeInReadonlyTransaction(txn -> this.getStore().count(txn));
+    return this.environment.computeInReadonlyTransaction(txn -> this.store().count(txn));
   }
 
   @Override
@@ -200,7 +200,7 @@ public class XodusDatabase extends AbstractDatabase {
 
   protected void acceptWithCursor(@NonNull BiConsumer<String, JsonDocument> handler) {
     this.environment.executeInReadonlyTransaction(txn -> {
-      try (var cursor = this.getStore().openCursor(txn)) {
+      try (var cursor = this.store().openCursor(txn)) {
         while (cursor.getNext()) {
           handler.accept(
             StringBinding.entryToString(cursor.getKey()),
@@ -213,7 +213,7 @@ public class XodusDatabase extends AbstractDatabase {
   @Override
   public @Nullable Map<String, JsonDocument> readChunk(long beginIndex, int chunkSize) {
     return this.environment.computeInReadonlyTransaction(txn -> {
-      try (var cursor = this.getStore().openCursor(txn)) {
+      try (var cursor = this.store().openCursor(txn)) {
         // skip to the begin index
         for (long i = 1; i < beginIndex; i++) {
           if (!cursor.getNext()) {
@@ -236,7 +236,7 @@ public class XodusDatabase extends AbstractDatabase {
     });
   }
 
-  protected @NonNull Store getStore() {
+  protected @NonNull Store store() {
     return this.store.get();
   }
 }

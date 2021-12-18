@@ -176,17 +176,17 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
       this.console.commandInputValue(answerType.recommendation());
     }
     // check for possible answers
-    if (!answerType.getPossibleAnswers().isEmpty()) {
+    if (!answerType.possibleAnswers().isEmpty()) {
       // register the tab complete
       this.console.addTabCompleteHandler(
         this.handlerId,
-        new ConsoleAnswerTabCompleteHandler(answerType.getPossibleAnswers()));
+        new ConsoleAnswerTabCompleteHandler(answerType.possibleAnswers()));
       // set the answers in the console history
-      this.console.commandHistory(answerType.getPossibleAnswers());
+      this.console.commandHistory(answerType.possibleAnswers());
 
       // collect the possible answers to one string
       var answers = I18n.trans("ca-question-list-possible-answers-list")
-        .replace("%values%", String.join(", ", answerType.getPossibleAnswers()));
+        .replace("%values%", String.join(", ", answerType.possibleAnswers()));
       // write the answers to the console
       for (var line : this.updateCursor("&r" + entry.question() + " &r> &e" + answers)) {
         super.console().forceWriteLine(line);
@@ -274,7 +274,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
       // invalid input
       this.eraseLastLine(); // remove prompt
       // print the invalid input message to the console
-      var messageLines = answerType.getInvalidInputMessage(input).split(System.lineSeparator());
+      var messageLines = answerType.invalidInputMessage(input).split(System.lineSeparator());
       for (var line : messageLines) {
         this.console.forceWriteLine(line);
       }
@@ -283,7 +283,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
       // erase the invalid lines again
       this.console().writeRaw(this.eraseLines(Ansi.ansi().reset(), messageLines.length).toString());
       // reset the console history
-      this.console().commandHistory(answerType.getPossibleAnswers());
+      this.console().commandHistory(answerType.possibleAnswers());
       // continue with the current question
       return false;
     }

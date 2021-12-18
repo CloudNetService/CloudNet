@@ -82,7 +82,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
 
   @ModuleTask(order = 125, event = ModuleLifeCycle.STARTED)
   public void addedDefaultCloudflareDNSServices() {
-    var cloudConfig = CloudNet.instance().getConfig();
+    var cloudConfig = CloudNet.instance().config();
 
     for (var entry : this.cloudFlareConfiguration().entries()) {
       if (entry.enabled()) {

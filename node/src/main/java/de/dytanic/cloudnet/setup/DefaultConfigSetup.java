@@ -106,7 +106,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
 
   @Override
   public void handleResults(@NonNull ConsoleSetupAnimation animation) {
-    var config = CloudNet.instance().getConfig();
+    var config = CloudNet.instance().config();
     // init the local node identity
     HostAndPort host = animation.result("internalHost");
     config.identity(new NetworkClusterNode(

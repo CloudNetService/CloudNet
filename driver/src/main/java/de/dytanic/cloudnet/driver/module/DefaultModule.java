@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.driver.module;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Verify;
 import lombok.NonNull;
 
@@ -39,9 +38,9 @@ public class DefaultModule implements IModule {
     Verify.verify(this.classLoader == null || this.moduleWrapper == null || this.moduleConfig == null,
       "Cannot call init twice on a module wrapper");
 
-    this.classLoader = Preconditions.checkNotNull(loader, "loader");
-    this.moduleWrapper = Preconditions.checkNotNull(wrapper, "wrapper");
-    this.moduleConfig = Preconditions.checkNotNull(config, "config");
+    this.classLoader = loader;
+    this.moduleWrapper = wrapper;
+    this.moduleConfig = config;
   }
 
   /**

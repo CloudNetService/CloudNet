@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.provider;
 
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
@@ -37,7 +36,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
   private final IClusterNodeServerProvider clusterNodeServerProvider;
 
   public NodeNodeInfoProvider(@NonNull CloudNet nodeInstance) {
-    this.clusterNodeServerProvider = nodeInstance.getClusterNodeServerProvider();
+    this.clusterNodeServerProvider = nodeInstance.nodeServerProvider();
     nodeInstance.rpcProviderFactory().newHandler(NodeInfoProvider.class, this).registerToDefaultRegistry();
   }
 
@@ -56,7 +55,6 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
   @Nullable
   @Override
   public NetworkClusterNode node(@NonNull String uniqueId) {
-    Preconditions.checkNotNull(uniqueId);
     // check if the current node is requested
     if (uniqueId.equals(this.clusterNodeServerProvider.selfNode().nodeInfo().uniqueId())) {
       return this.clusterNodeServerProvider.selfNode().nodeInfo();
@@ -95,16 +93,13 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
 
   @Override
   public @NonNull Collection<String> sendCommandLine(@NonNull String commandLine) {
-    Preconditions.checkNotNull(commandLine);
-
     var driverCommandSource = new DriverCommandSource();
-    CloudNet.instance().commandProvider().execute(driverCommandSource, commandLine);
+    CloudNet.instance().commandProvider().execute(driverCommandSource, commandLine).join();
     return driverCommandSource.messages();
   }
 
   @Override
   public @NonNull Collection<String> sendCommandLineToNode(@NonNull String nodeUniqueId, @NonNull String commandLine) {
-    Preconditions.checkNotNull(nodeUniqueId);
     // check if we should execute the command on the current node
     if (nodeUniqueId.equals(this.clusterNodeServerProvider.selfNode().nodeInfo().uniqueId())) {
       return this.sendCommandLine(commandLine);

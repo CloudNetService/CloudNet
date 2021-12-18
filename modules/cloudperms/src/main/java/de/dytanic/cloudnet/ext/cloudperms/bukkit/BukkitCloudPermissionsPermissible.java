@@ -44,7 +44,7 @@ public final class BukkitCloudPermissionsPermissible extends PermissibleBase {
     this.permissionsManagement = permissionsManagement;
   }
 
-  private @NonNull Set<Permission> getDefaultPermissions() {
+  private @NonNull Set<Permission> defaultPermissions() {
     return this.player.getServer().getPluginManager().getDefaultPermissions(false);
   }
 
@@ -70,7 +70,7 @@ public final class BukkitCloudPermissionsPermissible extends PermissibleBase {
           });
       }
 
-      for (var defaultPermission : this.getDefaultPermissions()) {
+      for (var defaultPermission : this.defaultPermissions()) {
         this.forEachChildren(
           defaultPermission,
           (name, value) -> infos.add(new PermissionAttachmentInfo(this, name, null, value)));
@@ -103,7 +103,7 @@ public final class BukkitCloudPermissionsPermissible extends PermissibleBase {
         return false;
       }
 
-      for (var permission : this.getDefaultPermissions()) {
+      for (var permission : this.defaultPermissions()) {
         if (permission.getName().equalsIgnoreCase(inName)) {
           // default permissions are always active if not explicitly forbidden
           var result = this.permissionsManagement.permissionResult(
@@ -173,7 +173,7 @@ public final class BukkitCloudPermissionsPermissible extends PermissibleBase {
     }
   }
 
-  public Player getPlayer() {
+  public Player player() {
     return this.player;
   }
 }

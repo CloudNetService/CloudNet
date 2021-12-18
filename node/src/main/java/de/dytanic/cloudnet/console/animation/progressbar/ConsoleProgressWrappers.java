@@ -71,9 +71,8 @@ public final class ConsoleProgressWrappers {
         collection.size()));
   }
 
-  public static void wrapDownload(@NonNull String url,
-    @NonNull ThrowableConsumer<InputStream, IOException> streamHandler) {
-    wrapDownload(url, CloudNet.instance().console(), streamHandler);
+  public static void wrapDownload(@NonNull String url, @NonNull ThrowableConsumer<InputStream, IOException> handler) {
+    wrapDownload(url, CloudNet.instance().console(), handler);
   }
 
   public static void wrapDownload(

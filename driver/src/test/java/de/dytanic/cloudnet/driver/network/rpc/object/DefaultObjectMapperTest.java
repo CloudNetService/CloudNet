@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.driver.network.rpc.object;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.StringUtil;
@@ -89,13 +88,13 @@ public class DefaultObjectMapperTest {
 
   static Stream<Arguments> mapDataProvider() {
     return Stream.of(
-      Arguments.of(ImmutableMap.of("test", "test1", "test2", "test3"), String.class, String.class),
-      Arguments.of(ImmutableMap.of("test", 123, "test2", 456), String.class, Integer.class),
+      Arguments.of(Map.of("test", "test1", "test2", "test3"), String.class, String.class),
+      Arguments.of(Map.of("test", 123, "test2", 456), String.class, Integer.class),
       Arguments.of(
-        ImmutableMap.of("test", Arrays.asList(123, 456), "test2", Arrays.asList(678, 456)),
+        Map.of("test", Arrays.asList(123, 456), "test2", Arrays.asList(678, 456)),
         String.class, parameterized(List.class, Integer.class)),
       Arguments.of(
-        ImmutableMap.of("test", ImmutableMap.of("test2", Arrays.asList(1234, 3456))),
+        Map.of("test", Map.of("test2", Arrays.asList(1234, 3456))),
         String.class, parameterized(Map.class, String.class, parameterized(List.class, Integer.class))));
   }
 
@@ -105,7 +104,7 @@ public class DefaultObjectMapperTest {
       Arguments.of(Optional.of(1234), Integer.class),
       Arguments.of(Optional.of(Arrays.asList("test", "test1")), parameterized(List.class, String.class)),
       Arguments.of(
-        Optional.of(ImmutableMap.of("test", "test1", "test2", "test3")),
+        Optional.of(Map.of("test", "test1", "test2", "test3")),
         parameterized(Map.class, String.class, String.class)));
   }
 

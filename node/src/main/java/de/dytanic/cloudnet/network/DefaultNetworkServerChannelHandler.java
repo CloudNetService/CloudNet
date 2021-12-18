@@ -86,7 +86,7 @@ public final class DefaultNetworkServerChannelHandler implements INetworkChannel
       return;
     }
 
-    var clusterNodeServer = CloudNet.instance().getClusterNodeServerProvider().nodeServer(channel);
+    var clusterNodeServer = CloudNet.instance().nodeServerProvider().nodeServer(channel);
     if (clusterNodeServer != null) {
       NodeNetworkUtils.closeNodeServer(clusterNodeServer);
     }
@@ -106,7 +106,7 @@ public final class DefaultNetworkServerChannelHandler implements INetworkChannel
   }
 
   private boolean shouldDenyConnection(@NonNull INetworkChannel channel) {
-    return CloudNet.instance().getConfig().ipWhitelist()
+    return CloudNet.instance().config().ipWhitelist()
       .stream()
       .noneMatch(channel.clientAddress().host()::equals);
   }

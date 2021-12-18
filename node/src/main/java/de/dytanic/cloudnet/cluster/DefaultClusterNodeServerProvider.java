@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.cluster;
 
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
@@ -75,8 +74,6 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
 
   @Override
   public @Nullable IClusterNodeServer nodeServer(@NonNull INetworkChannel channel) {
-    Preconditions.checkNotNull(channel);
-
     for (var clusterNodeServer : this.nodeServers()) {
       if (clusterNodeServer.channel() != null
         && clusterNodeServer.channel().channelId() == channel.channelId()) {
@@ -113,8 +110,6 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
 
   @Override
   public void sendPacket(@NonNull IPacket packet) {
-    Preconditions.checkNotNull(packet);
-
     for (var nodeServer : this.nodeServers) {
       nodeServer.saveSendPacket(packet);
     }
@@ -122,8 +117,6 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
 
   @Override
   public void sendPacketSync(@NonNull IPacket packet) {
-    Preconditions.checkNotNull(packet);
-
     for (var nodeServer : this.nodeServers) {
       nodeServer.saveSendPacketSync(packet);
     }
@@ -142,7 +135,8 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
       // send the template chunked to the cluster
       return ChunkedPacketSender.forFileTransfer()
         .transferChannel("deploy_service_template")
-        .withExtraData(DataBuf.empty().writeString(template.storageName()).writeObject(template).writeBoolean(overwrite))
+        .withExtraData(
+          DataBuf.empty().writeString(template.storageName()).writeObject(template).writeBoolean(overwrite))
         .toChannels(channels)
         .source(stream)
         .build()

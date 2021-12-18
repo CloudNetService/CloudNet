@@ -51,7 +51,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
 
   public NodeMessenger(@NonNull CloudNet nodeInstance) {
     this.cloudServiceManager = nodeInstance.cloudServiceProvider();
-    this.nodeServerProvider = nodeInstance.getClusterNodeServerProvider();
+    this.nodeServerProvider = nodeInstance.nodeServerProvider();
   }
 
   @Override

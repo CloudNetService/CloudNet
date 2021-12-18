@@ -17,8 +17,6 @@
 package de.dytanic.cloudnet.config;
 
 import com.google.common.base.Enums;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.StringUtil;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
@@ -157,7 +155,7 @@ public final class JsonConfiguration implements IConfiguration {
       this.ipWhitelist = ConfigurationUtils.get(
         "cloudnet.config.ipWhitelist",
         NetworkAddressUtil.availableIPAddresses(),
-        value -> ImmutableSet.copyOf(value.split(",")));
+        value -> Set.of(value.split(",")));
     }
 
     if (this.maxCPUUsageToStartServices <= 0) {
@@ -304,8 +302,6 @@ public final class JsonConfiguration implements IConfiguration {
 
   @Override
   public void clusterConfig(@NonNull NetworkCluster clusterConfig) {
-    Preconditions.checkNotNull(clusterConfig);
-
     this.clusterConfig = clusterConfig;
   }
 
@@ -396,8 +392,6 @@ public final class JsonConfiguration implements IConfiguration {
 
   @Override
   public void httpListeners(@NonNull Collection<HostAndPort> httpListeners) {
-    Preconditions.checkNotNull(httpListeners);
-
     this.httpListeners = httpListeners;
   }
 

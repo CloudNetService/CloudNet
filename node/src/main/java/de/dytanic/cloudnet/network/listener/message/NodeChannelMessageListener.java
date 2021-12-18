@@ -75,7 +75,7 @@ public final class NodeChannelMessageListener {
           var server = this.nodeServerProvider.nodeServer(event.networkChannel());
           if (server != null) {
             // do not force the sync - the user can decide which changes should be used
-            server.syncClusterData(CloudNet.instance().getConfig().forceInitialClusterDataSync());
+            server.syncClusterData(CloudNet.instance().config().forceInitialClusterDataSync());
           }
         }
 

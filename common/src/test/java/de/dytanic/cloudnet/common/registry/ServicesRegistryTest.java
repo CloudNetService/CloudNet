@@ -30,8 +30,8 @@ public final class ServicesRegistryTest {
       .registerService(A.class, "c", new C());
 
     Assertions.assertEquals(2, registry.services(A.class).size());
-    Assertions.assertEquals(10, registry.service(A.class, "b").getValue());
-    Assertions.assertEquals(21, registry.service(A.class, "c").getValue());
+    Assertions.assertEquals(10, registry.service(A.class, "b").value());
+    Assertions.assertEquals(21, registry.service(A.class, "c").value());
 
     registry.unregisterService(A.class, "b");
 
@@ -55,13 +55,13 @@ public final class ServicesRegistryTest {
 
   private interface A {
 
-    int getValue();
+    int value();
   }
 
   private static class B implements A {
 
     @Override
-    public int getValue() {
+    public int value() {
       return 10;
     }
   }
@@ -69,7 +69,7 @@ public final class ServicesRegistryTest {
   private static class C implements A {
 
     @Override
-    public int getValue() {
+    public int value() {
       return 21;
     }
   }

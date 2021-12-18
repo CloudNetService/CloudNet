@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.driver.module;
 
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
@@ -186,10 +185,6 @@ public class DefaultModuleProviderHandler implements IModuleProviderHandler {
   }
 
   protected String replaceAll(String text, IModuleProvider moduleProvider, ModuleConfiguration configuration) {
-    Preconditions.checkNotNull(text);
-    Preconditions.checkNotNull(moduleProvider);
-    Preconditions.checkNotNull(configuration);
-
     return text.replace("%module_group%", configuration.group())
       .replace("%module_name%", configuration.name())
       .replace("%module_version%", configuration.version())

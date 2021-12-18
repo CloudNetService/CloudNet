@@ -46,8 +46,8 @@ public abstract class AbstractServiceLogCache implements IServiceConsoleLogCache
 
   public AbstractServiceLogCache(@NonNull CloudNet cloudNet, @NonNull ICloudService service) {
     this.service = service;
-    this.logCacheSize = cloudNet.getConfig().maxServiceConsoleLogCacheSize();
-    this.alwaysPrintErrorStreamToConsole = cloudNet.getConfig().printErrorStreamLinesFromServices();
+    this.logCacheSize = cloudNet.config().maxServiceConsoleLogCacheSize();
+    this.alwaysPrintErrorStreamToConsole = cloudNet.config().printErrorStreamLinesFromServices();
   }
 
   @Override
@@ -83,12 +83,12 @@ public abstract class AbstractServiceLogCache implements IServiceConsoleLogCache
 
   @Override
   public void addHandler(@NonNull ServiceConsoleLineHandler handler) {
-    this.handlers.add(Preconditions.checkNotNull(handler, "handler"));
+    this.handlers.add(handler);
   }
 
   @Override
   public void removeHandler(@NonNull ServiceConsoleLineHandler handler) {
-    this.handlers.remove(Preconditions.checkNotNull(handler, "handler"));
+    this.handlers.remove(handler);
   }
 
   @Override

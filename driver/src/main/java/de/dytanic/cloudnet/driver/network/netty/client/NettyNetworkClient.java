@@ -83,7 +83,6 @@ public class NettyNetworkClient implements DefaultNetworkComponent, INetworkClie
 
   @Override
   public boolean connect(@NonNull HostAndPort hostAndPort) {
-    Preconditions.checkNotNull(hostAndPort);
     Preconditions.checkNotNull(hostAndPort.host());
 
     try {

@@ -34,8 +34,8 @@ public final class IncludePluginListener {
   @EventListener
   public void handle(@NonNull CloudServicePreProcessStartEvent event) {
     // check if we should copy the module
-    if (this.permissionsModule.getPermissionsConfig().enabled()
-      && this.permissionsModule.getPermissionsConfig().excludedGroups().stream()
+    if (this.permissionsModule.permissionsConfig().enabled()
+      && this.permissionsModule.permissionsConfig().excludedGroups().stream()
       .noneMatch(group -> event.service().serviceConfiguration().groups().contains(group))) {
       // get the target of the copy
       var plugins = event.service().directory().resolve("plugins");

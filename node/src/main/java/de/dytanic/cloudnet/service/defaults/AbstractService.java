@@ -120,8 +120,8 @@ public abstract class AbstractService implements ICloudService {
 
     this.currentServiceInfo = new ServiceInfoSnapshot(
       System.currentTimeMillis(),
-      new HostAndPort(this.getNodeConfiguration().hostAddress(), configuration.port()),
-      new HostAndPort(this.getNodeConfiguration().connectHostAddress(), configuration.port()),
+      new HostAndPort(this.nodeConfiguration().hostAddress(), configuration.port()),
+      new HostAndPort(this.nodeConfiguration().connectHostAddress(), configuration.port()),
       ProcessSnapshot.empty(),
       configuration,
       -1,
@@ -177,17 +177,17 @@ public abstract class AbstractService implements ICloudService {
 
   @Override
   public void addServiceTemplate(@NonNull ServiceTemplate serviceTemplate) {
-    this.waitingTemplates.add(Preconditions.checkNotNull(serviceTemplate, "template"));
+    this.waitingTemplates.add(serviceTemplate);
   }
 
   @Override
   public void addServiceRemoteInclusion(@NonNull ServiceRemoteInclusion serviceRemoteInclusion) {
-    this.waitingRemoteInclusions.add(Preconditions.checkNotNull(serviceRemoteInclusion, "remoteInclusion"));
+    this.waitingRemoteInclusions.add(serviceRemoteInclusion);
   }
 
   @Override
   public void addServiceDeployment(@NonNull ServiceDeployment serviceDeployment) {
-    this.waitingDeployments.add(Preconditions.checkNotNull(serviceDeployment, "deployment"));
+    this.waitingDeployments.add(serviceDeployment);
   }
 
   @Override
@@ -420,7 +420,7 @@ public abstract class AbstractService implements ICloudService {
   @Override
   public void updateServiceInfoSnapshot(@NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
     this.lastServiceInfo = this.currentServiceInfo;
-    this.currentServiceInfo = Preconditions.checkNotNull(serviceInfoSnapshot, "serviceInfoSnapshot");
+    this.currentServiceInfo = serviceInfoSnapshot;
   }
 
   @Override
@@ -437,8 +437,8 @@ public abstract class AbstractService implements ICloudService {
     return this.logTargets.put(target, channel) == null;
   }
 
-  protected @NonNull IConfiguration getNodeConfiguration() {
-    return this.nodeInstance.getConfig();
+  protected @NonNull IConfiguration nodeConfiguration() {
+    return this.nodeInstance.config();
   }
 
   protected void includeWaitingServiceTemplates(boolean force) {
@@ -502,7 +502,7 @@ public abstract class AbstractService implements ICloudService {
       this.alive() ? this.lastServiceInfo.processSnapshot() : ProcessSnapshot.empty(),
       this.lastServiceInfo.configuration(),
       this.networkChannel == null ? -1 : this.lastServiceInfo.connectedTime(),
-      Preconditions.checkNotNull(lifeCycle, "lifecycle"),
+      lifeCycle,
       this.lastServiceInfo.properties());
     // remove the service in the local manager if the service was deleted
     if (lifeCycle == ServiceLifeCycle.DELETED) {
@@ -524,9 +524,9 @@ public abstract class AbstractService implements ICloudService {
     // check jvm heap size
     if (this.cloudServiceManager.currentUsedHeapMemory()
       + this.serviceConfiguration().processConfig().maxHeapMemorySize()
-      >= this.getNodeConfiguration().maxMemory()) {
+      >= this.nodeConfiguration().maxMemory()) {
       // schedule a retry
-      if (this.getNodeConfiguration().runBlockedServiceStartTryLaterAutomatic()) {
+      if (this.nodeConfiguration().runBlockedServiceStartTryLaterAutomatic()) {
         CloudNet.instance().mainThread().runTask(this::start);
       } else {
         LOGGER.info(I18n.trans("cloud-service-manager-max-memory-error"));
@@ -535,9 +535,9 @@ public abstract class AbstractService implements ICloudService {
       return false;
     }
     // check for cpu usage
-    if (CPUUsageResolver.systemCPUUsage() >= this.getNodeConfiguration().maxCPUUsageToStartServices()) {
+    if (CPUUsageResolver.systemCPUUsage() >= this.nodeConfiguration().maxCPUUsageToStartServices()) {
       // schedule a retry
-      if (this.getNodeConfiguration().runBlockedServiceStartTryLaterAutomatic()) {
+      if (this.nodeConfiguration().runBlockedServiceStartTryLaterAutomatic()) {
         CloudNet.instance().mainThread().runTask(this::start);
       } else {
         LOGGER.info(I18n.trans("cloud-service-manager-cpu-usage-to-high-error"));
@@ -554,16 +554,16 @@ public abstract class AbstractService implements ICloudService {
     var firstStartup = Files.notExists(this.serviceDirectory);
     FileUtils.createDirectory(this.serviceDirectory);
     // write the configuration file for the service
-    var listeners = this.getNodeConfiguration().identity().listeners();
+    var listeners = this.nodeConfiguration().identity().listeners();
     JsonDocument.newDocument()
       .append("connectionKey", this.connectionKey())
       .append("serviceInfoSnapshot", this.currentServiceInfo)
       .append("serviceConfiguration", this.serviceConfiguration())
-      .append("sslConfiguration", this.getNodeConfiguration().serverSSLConfig())
+      .append("sslConfiguration", this.nodeConfiguration().serverSSLConfig())
       .append("targetListener", listeners[ThreadLocalRandom.current().nextInt(listeners.length)])
       .write(this.serviceDirectory.resolve(WRAPPER_CONFIG_PATH));
     // load the ssl configuration if enabled
-    var sslConfiguration = this.getNodeConfiguration().serverSSLConfig();
+    var sslConfiguration = this.nodeConfiguration().serverSSLConfig();
     if (sslConfiguration.enabled()) {
       this.copySslConfiguration(sslConfiguration);
     }

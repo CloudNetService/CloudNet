@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.cloudnet.ext.signs.configuration;
 
-import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -140,7 +139,7 @@ public class SignConfigurationEntry implements Cloneable {
       new String[]{
         "",
         firstLine,
-        Strings.repeat(".", amount),
+        ".".repeat(amount),
         ""
       }, block, -1, null);
   }

@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.ext.cloudperms.sponge.service.permissible;
 
-import com.google.common.collect.ImmutableMap;
 import de.dytanic.cloudnet.driver.permission.IPermissible;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.Permission;
@@ -38,7 +37,7 @@ import org.spongepowered.api.util.Tristate;
 
 public abstract class PermissibleSubjectData<T extends IPermissible> implements SubjectData {
 
-  private static final Map<Set<Context>, Tristate> UNDEFINED = ImmutableMap.of(
+  private static final Map<Set<Context>, Tristate> UNDEFINED = Map.of(
     Collections.emptySet(),
     Tristate.UNDEFINED);
 
@@ -75,7 +74,7 @@ public abstract class PermissibleSubjectData<T extends IPermissible> implements 
     return this.management.allPermissions(this.permissible).stream().collect(
       Collectors.collectingAndThen(
         Collectors.toMap(Permission::name, perm -> perm.potency() >= 0),
-        result -> ImmutableMap.of(Collections.emptySet(), result)));
+        result -> Map.of(Collections.emptySet(), result)));
   }
 
   @Override
@@ -161,7 +160,7 @@ public abstract class PermissibleSubjectData<T extends IPermissible> implements 
 
   @Override
   public Map<Set<Context>, Map<String, String>> allOptions() {
-    return ImmutableMap.of(Collections.emptySet(), this.permissible.properties().stream()
+    return Map.of(Collections.emptySet(), this.permissible.properties().stream()
       .filter(key -> this.permissible.properties().getString(key) != null)
       .collect(Collectors.toMap(Function.identity(), this.permissible.properties()::getString)));
   }

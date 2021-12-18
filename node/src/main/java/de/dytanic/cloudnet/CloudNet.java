@@ -429,16 +429,15 @@ public class CloudNet extends CloudNetDriver {
     this.rpcProviderFactory.newHandler(IPermissionManagement.class, management).registerToDefaultRegistry();
   }
 
-  public @NonNull IConfiguration getConfig() {
+  public @NonNull IConfiguration config() {
     return this.configuration;
   }
 
-  public void setConfig(@NonNull IConfiguration configuration) {
-    Preconditions.checkNotNull(configuration);
+  public void config(@NonNull IConfiguration configuration) {
     this.configuration = configuration;
   }
 
-  public @NonNull IClusterNodeServerProvider getClusterNodeServerProvider() {
+  public @NonNull IClusterNodeServerProvider nodeServerProvider() {
     return this.nodeServerProvider;
   }
 

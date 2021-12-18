@@ -39,7 +39,7 @@ public final class CommandMe {
     var cloudNet = CloudNet.instance();
     var memoryMXBean = ManagementFactory.getMemoryMXBean();
 
-    var nodeInfoSnapshot = cloudNet.getClusterNodeServerProvider().selfNode()
+    var nodeInfoSnapshot = cloudNet.nodeServerProvider().selfNode()
       .nodeInfoSnapshot();
 
     var messages = Arrays.asList(
@@ -47,9 +47,9 @@ public final class CommandMe {
       CloudNet.instance().version() + " by Dytanic & the CloudNet Community",
       "Discord: https://discord.cloudnetservice.eu/",
       " ",
-      "ClusterId: " + cloudNet.getConfig().clusterConfig().clusterId(),
-      "NodeId: " + cloudNet.getConfig().identity().uniqueId(),
-      "Head-NodeId: " + cloudNet.getClusterNodeServerProvider().headnode().nodeInfo().uniqueId(),
+      "ClusterId: " + cloudNet.config().clusterConfig().clusterId(),
+      "NodeId: " + cloudNet.config().identity().uniqueId(),
+      "Head-NodeId: " + cloudNet.nodeServerProvider().headnode().nodeInfo().uniqueId(),
       "CPU usage: (P/S) " + CPUUsageResolver.FORMAT.format(CPUUsageResolver.processCPUUsage()) + "/"
         +
         CPUUsageResolver.FORMAT.format(CPUUsageResolver.systemCPUUsage()) + "/100%",

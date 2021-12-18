@@ -58,7 +58,7 @@ public final class CloudNetTickListener {
 
   @EventListener
   public void handleTick(@NonNull CloudNetTickEvent event) {
-    if (CloudNet.instance().getClusterNodeServerProvider().selfNode().headNode()
+    if (CloudNet.instance().nodeServerProvider().selfNode().headNode()
       && event.ticker().currentTick() % CloudNetTick.TPS == 0) {
       this.handleSmartEntries();
     }
@@ -232,7 +232,7 @@ public final class CloudNetTickListener {
   }
 
   private @NonNull IClusterNodeServerProvider nodeServerProvider() {
-    return CloudNet.instance().getClusterNodeServerProvider();
+    return CloudNet.instance().nodeServerProvider();
   }
 
   private @NonNull CloudServiceFactory serviceFactory() {

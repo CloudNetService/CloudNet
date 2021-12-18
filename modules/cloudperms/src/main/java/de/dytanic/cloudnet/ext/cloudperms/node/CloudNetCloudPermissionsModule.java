@@ -57,7 +57,7 @@ public final class CloudNetCloudPermissionsModule extends DriverModule {
     this.registerListener(new IncludePluginListener(this));
   }
 
-  public @NonNull CloudPermissionConfig getPermissionsConfig() {
+  public @NonNull CloudPermissionConfig permissionsConfig() {
     return this.permissionsConfig;
   }
 }

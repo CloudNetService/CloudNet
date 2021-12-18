@@ -26,12 +26,12 @@ public class JsonDocumentTest {
 
   @Test
   void testDocumentSize() {
-    Assertions.assertEquals(3, this.getDummyDocument().size());
+    Assertions.assertEquals(3, this.dummyDocument().size());
   }
 
   @Test
   void testDocumentRead() {
-    var document = this.getDummyDocument();
+    var document = this.dummyDocument();
 
     Assertions.assertEquals("bar", document.getString("foo"));
     Assertions.assertEquals(4, document.getInt("number"));
@@ -39,7 +39,7 @@ public class JsonDocumentTest {
 
   @Test
   void testRecordReading() {
-    var document = this.getDummyDocument();
+    var document = this.dummyDocument();
     var record = document.get("test", TestRecord.class);
 
     Assertions.assertEquals("myData", record.data);
@@ -53,7 +53,7 @@ public class JsonDocumentTest {
 
   @Test
   void testDocumentRemove() {
-    var document = this.getDummyDocument();
+    var document = this.dummyDocument();
 
     Assertions.assertNull(document.remove("foo").getString("foo"));
     Assertions.assertNull(document.remove("test").get("test", TestRecord.class));
@@ -62,34 +62,34 @@ public class JsonDocumentTest {
 
   @Test
   void testClear() {
-    Assertions.assertTrue(this.getDummyDocument().clear().empty());
+    Assertions.assertTrue(this.dummyDocument().clear().empty());
   }
 
   @Test
   void testJsonDocPropertyAppend() {
-    Assertions.assertEquals(4, this.getDummyDocument().property(this.getJsonDocProperty(), "test124").size());
+    Assertions.assertEquals(4, this.dummyDocument().property(this.jsonDocProperty(), "test124").size());
   }
 
   @Test
   void testJsonDocPropertyRead() {
-    var document = this.getDummyDocument().property(this.getJsonDocProperty(), "test124");
-    Assertions.assertEquals("test124", document.property(this.getJsonDocProperty()));
+    var document = this.dummyDocument().property(this.jsonDocProperty(), "test124");
+    Assertions.assertEquals("test124", document.property(this.jsonDocProperty()));
   }
 
   @Test
   void testJsonDocPropertyRemove() {
-    var document = this.getDummyDocument().property(this.getJsonDocProperty(), "test124");
-    Assertions.assertNull(document.removeProperty(this.getJsonDocProperty()).property(this.getJsonDocProperty()));
+    var document = this.dummyDocument().property(this.jsonDocProperty(), "test124");
+    Assertions.assertNull(document.removeProperty(this.jsonDocProperty()).property(this.jsonDocProperty()));
   }
 
-  private JsonDocument getDummyDocument() {
+  private JsonDocument dummyDocument() {
     return JsonDocument.newDocument()
       .append("foo", "bar")
       .append("number", 4)
       .append("test", new TestRecord("myData", Map.of("1", List.of(1, 2, 3, 4), "2", List.of(5, 6, 7, 8, 9))));
   }
 
-  private FunctionalDocProperty<String> getJsonDocProperty() {
+  private FunctionalDocProperty<String> jsonDocProperty() {
     return new FunctionalDocProperty<>(
       document -> document.getString("content"),
       (val, doc) -> doc.append("content", val),

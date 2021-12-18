@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.driver.network.netty.http;
 
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.network.http.HttpVersion;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.network.http.IHttpResponse;
@@ -65,34 +64,27 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements IHttpRes
 
   @Override
   public String header(@NonNull String name) {
-    Preconditions.checkNotNull(name);
     return this.httpResponse.headers().getAsString(name);
   }
 
   @Override
   public int headerAsInt(@NonNull String name) {
-    Preconditions.checkNotNull(name);
     return this.httpResponse.headers().getInt(name);
   }
 
   @Override
   public boolean headerAsBoolean(@NonNull String name) {
-    Preconditions.checkNotNull(name);
     return Boolean.parseBoolean(this.httpResponse.headers().get(name));
   }
 
   @Override
   public @NonNull IHttpResponse header(@NonNull String name, @NonNull String value) {
-    Preconditions.checkNotNull(name);
-    Preconditions.checkNotNull(value);
-
     this.httpResponse.headers().set(name, value);
     return this;
   }
 
   @Override
   public @NonNull IHttpResponse removeHeader(@NonNull String name) {
-    Preconditions.checkNotNull(name);
     this.httpResponse.headers().remove(name);
     return this;
   }
@@ -105,7 +97,6 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements IHttpRes
 
   @Override
   public boolean hasHeader(@NonNull String name) {
-    Preconditions.checkNotNull(name);
     return this.httpResponse.headers().contains(name);
   }
 
@@ -127,8 +118,6 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements IHttpRes
 
   @Override
   public @NonNull IHttpResponse version(@NonNull HttpVersion version) {
-    Preconditions.checkNotNull(version);
-
     this.httpResponse.setProtocolVersion(super.versionToNetty(version));
     return this;
   }
@@ -145,8 +134,6 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements IHttpRes
 
   @Override
   public @NonNull IHttpResponse body(byte[] byteArray) {
-    Preconditions.checkNotNull(byteArray);
-
     this.httpResponse.content().clear();
     this.httpResponse.content().writeBytes(byteArray);
     return this;
@@ -154,8 +141,6 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements IHttpRes
 
   @Override
   public @NonNull IHttpResponse body(@NonNull String text) {
-    Preconditions.checkNotNull(text);
-
     this.httpResponse.content().clear();
     this.httpResponse.content().writeBytes(text.getBytes(StandardCharsets.UTF_8));
     return this;

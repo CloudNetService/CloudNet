@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.common.io;
 
-import com.google.common.collect.ImmutableMap;
 import de.dytanic.cloudnet.common.function.ThrowableConsumer;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
@@ -64,8 +63,8 @@ public final class FileUtils {
   private static final Logger LOGGER = LogManager.logger(FileUtils.class);
   private static final DirectoryStream.Filter<Path> ACCEPTING_FILTER = $ -> true;
 
-  private static final Map<String, String> ZIP_FILE_SYSTEM_PROPERTIES = ImmutableMap
-    .of("create", "false", "encoding", "UTF-8");
+  private static final Map<String, String> ZIP_FILE_SYSTEM_PROPERTIES = Map.of(
+    "create", "false", "encoding", "UTF-8");
 
   private FileUtils() {
     throw new UnsupportedOperationException();

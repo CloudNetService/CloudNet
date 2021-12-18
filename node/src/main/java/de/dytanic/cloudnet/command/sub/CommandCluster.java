@@ -90,7 +90,7 @@ public final class CommandCluster {
   @Parser(suggestions = "clusterNodeServer")
   public IClusterNodeServer defaultClusterNodeServerParser(CommandContext<CommandSource> $, Queue<String> input) {
     var nodeId = input.remove();
-    var nodeServer = CloudNet.instance().getClusterNodeServerProvider().nodeServer(nodeId);
+    var nodeServer = CloudNet.instance().nodeServerProvider().nodeServer(nodeId);
     if (nodeServer == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-cluster-node-not-found"));
     }
@@ -100,7 +100,7 @@ public final class CommandCluster {
 
   @Suggestions("clusterNodeServer")
   public List<String> suggestClusterNodeServer(CommandContext<CommandSource> $, String input) {
-    return CloudNet.instance().getClusterNodeServerProvider().nodeServers()
+    return CloudNet.instance().nodeServerProvider().nodeServers()
       .stream()
       .map(clusterNodeServer -> clusterNodeServer.nodeInfo().uniqueId())
       .toList();
@@ -109,7 +109,7 @@ public final class CommandCluster {
   @Parser(suggestions = "selfNodeServer")
   public NodeServer selfNodeServerParser(CommandContext<CommandSource> $, Queue<String> input) {
     var nodeId = input.remove();
-    var provider = CloudNet.instance().getClusterNodeServerProvider();
+    var provider = CloudNet.instance().nodeServerProvider();
     var selfNode = provider.selfNode();
     // check if the user requested the one node
     if (selfNode.nodeInfo().uniqueId().equals(nodeId)) {
@@ -125,7 +125,7 @@ public final class CommandCluster {
 
   @Suggestions("selfNodeServer")
   public List<String> suggestNodeServer(CommandContext<CommandSource> $, String input) {
-    var provider = CloudNet.instance().getClusterNodeServerProvider();
+    var provider = CloudNet.instance().nodeServerProvider();
     var nodes = provider.nodeServers()
       .stream()
       .map(clusterNodeServer -> clusterNodeServer.nodeInfo().uniqueId())
@@ -148,7 +148,7 @@ public final class CommandCluster {
 
   @Suggestions("networkClusterNode")
   public List<String> suggestNetworkClusterNode(CommandContext<CommandSource> $, String input) {
-    return CloudNet.instance().getConfig().clusterConfig().nodes()
+    return CloudNet.instance().config().clusterConfig().nodes()
       .stream()
       .map(NetworkClusterNode::uniqueId)
       .toList();
@@ -177,7 +177,7 @@ public final class CommandCluster {
   @Parser(name = "noNodeId", suggestions = "clusterNode")
   public String noClusterNodeParser(CommandContext<CommandSource> $, Queue<String> input) {
     var nodeId = input.remove();
-    for (var node : CloudNet.instance().getConfig().clusterConfig().nodes()) {
+    for (var node : CloudNet.instance().config().clusterConfig().nodes()) {
       if (node.uniqueId().equals(nodeId)) {
         throw new ArgumentNotAvailableException(I18n.trans("command-tasks-node-not-found"));
       }
@@ -206,7 +206,7 @@ public final class CommandCluster {
 
   @CommandMethod("cluster|clu shutdown")
   public void shutdownCluster(CommandSource source) {
-    for (var nodeServer : CloudNet.instance().getClusterNodeServerProvider().nodeServers()) {
+    for (var nodeServer : CloudNet.instance().nodeServerProvider().nodeServers()) {
       nodeServer.shutdown();
     }
     CloudNet.instance().stop();
@@ -218,7 +218,7 @@ public final class CommandCluster {
     @Argument(value = "nodeId", parserName = "noNodeId") String nodeId,
     @Argument("host") HostAndPort hostAndPort
   ) {
-    var nodeConfig = CloudNet.instance().getConfig();
+    var nodeConfig = CloudNet.instance().config();
     var networkCluster = nodeConfig.clusterConfig();
     // add the new node to the cluster config
     networkCluster.nodes().add(new NetworkClusterNode(nodeId, new HostAndPort[]{hostAndPort}));
@@ -230,7 +230,7 @@ public final class CommandCluster {
 
   @CommandMethod("cluster|clu remove <nodeId>")
   public void removeNodeFromCluster(CommandSource source, @Argument("nodeId") NetworkClusterNode node) {
-    var nodeConfig = CloudNet.instance().getConfig();
+    var nodeConfig = CloudNet.instance().config();
     var cluster = nodeConfig.clusterConfig();
     // try to remove the node from the cluster config
     if (cluster.nodes().remove(node)) {
@@ -245,7 +245,7 @@ public final class CommandCluster {
 
   @CommandMethod("cluster|clu nodes")
   public void listNodes(CommandSource source) {
-    source.sendMessage(FORMATTER.format(CloudNet.instance().getClusterNodeServerProvider().nodeServers()));
+    source.sendMessage(FORMATTER.format(CloudNet.instance().nodeServerProvider().nodeServers()));
   }
 
   @CommandMethod("cluster|clu node <nodeId>")
@@ -268,7 +268,7 @@ public final class CommandCluster {
   public void sync(CommandSource source) {
     source.sendMessage(I18n.trans("command-cluster-start-sync"));
     // perform a cluster sync that takes care of tasks, groups and more
-    CloudNet.instance().getClusterNodeServerProvider().syncClusterData();
+    CloudNet.instance().nodeServerProvider().syncClusterData();
   }
 
   @CommandMethod("cluster|clu push templates [template]")
@@ -315,7 +315,7 @@ public final class CommandCluster {
     // notify the source about the deployment
     source.sendMessage(I18n.trans("command-cluster-push-static-service-starting"));
     // deploy the static service into the cluster
-    CloudNet.instance().getClusterNodeServerProvider().deployStaticServiceToCluster(serviceName, stream, true)
+    CloudNet.instance().nodeServerProvider().deployStaticServiceToCluster(serviceName, stream, true)
       .onComplete(transferStatus -> {
         if (transferStatus == TransferStatus.FAILURE) {
           // the transfer failed
@@ -337,7 +337,7 @@ public final class CommandCluster {
       // check if the template really exists in the given storage
       if (inputStream != null) {
         // deploy the template into the cluster
-        CloudNet.instance().getClusterNodeServerProvider().deployTemplateToCluster(template, inputStream, true)
+        CloudNet.instance().nodeServerProvider().deployTemplateToCluster(template, inputStream, true)
           .onComplete(transferStatus -> {
             if (transferStatus == TransferStatus.FAILURE) {
               // the transfer failed

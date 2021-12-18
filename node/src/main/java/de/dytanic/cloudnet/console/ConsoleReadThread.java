@@ -41,7 +41,7 @@ public class ConsoleReadThread extends Thread {
         this.currentTask = null;
       }
 
-      for (var value : this.console.getConsoleInputHandler().values()) {
+      for (var value : this.console.consoleInputHandler().values()) {
         if (value.enabled()) {
           value.handleInput(line);
         }
@@ -55,7 +55,7 @@ public class ConsoleReadThread extends Thread {
 
   private @Nullable String readLine() {
     try {
-      return this.console.getLineReader().readLine(this.console.prompt());
+      return this.console.lineReader().readLine(this.console.prompt());
     } catch (EndOfFileException ignored) {
     } catch (UserInterruptException exception) {
       System.exit(-1);

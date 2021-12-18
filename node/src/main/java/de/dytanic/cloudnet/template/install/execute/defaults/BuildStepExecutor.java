@@ -63,7 +63,7 @@ public class BuildStepExecutor implements InstallStepExecutor {
     for (var path : paths) {
       List<String> arguments = new ArrayList<>();
 
-      arguments.add(information.installerExecCommand().orElse(CloudNet.instance().getConfig().javaCommand()));
+      arguments.add(information.installerExecCommand().orElse(CloudNet.instance().config().javaCommand()));
       if (jvmOptions != null) {
         arguments.addAll(jvmOptions);
       }

@@ -119,15 +119,15 @@ public final class CommandConfig {
   }
 
   private IConfiguration nodeConfig() {
-    return CloudNet.instance().getConfig();
+    return CloudNet.instance().config();
   }
 
   private void updateNodeConfig() {
-    this.updateNodeConfig(CloudNet.instance().getConfig());
+    this.updateNodeConfig(CloudNet.instance().config());
   }
 
   private void updateNodeConfig(IConfiguration configuration) {
-    CloudNet.instance().setConfig(configuration);
+    CloudNet.instance().config(configuration);
     configuration.save();
   }
 }

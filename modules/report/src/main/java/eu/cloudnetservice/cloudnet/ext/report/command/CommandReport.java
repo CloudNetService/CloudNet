@@ -100,7 +100,7 @@ public final class CommandReport {
   public void pasteNode(CommandSource source, @Argument("pasteService") PasteService pasteService) {
     var pasteCreator = new PasteCreator(this.fallbackPasteService(pasteService),
       this.reportModule.emitterRegistry());
-    var selfNode = CloudNet.instance().getClusterNodeServerProvider().selfNode()
+    var selfNode = CloudNet.instance().nodeServerProvider().selfNode()
       .nodeInfoSnapshot();
 
     var response = pasteCreator.createNodePaste(selfNode);

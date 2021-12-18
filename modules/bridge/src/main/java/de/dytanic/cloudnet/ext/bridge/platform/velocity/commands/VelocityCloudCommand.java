@@ -18,7 +18,6 @@ package de.dytanic.cloudnet.ext.bridge.platform.velocity.commands;
 
 import static eu.cloudnetservice.ext.adventure.AdventureSerializerUtil.serialize;
 
-import com.google.common.collect.ImmutableList;
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.ConsoleCommandSource;
 import com.velocitypowered.api.proxy.Player;
@@ -75,7 +74,7 @@ public final class VelocityCloudCommand implements SimpleCommand {
 
   @Override
   public @NonNull CompletableFuture<List<String>> suggestAsync(@NonNull Invocation invocation) {
-    return CompletableFuture.supplyAsync(() -> ImmutableList.copyOf(CloudNetDriver.instance()
+    return CompletableFuture.supplyAsync(() -> List.copyOf(CloudNetDriver.instance()
       .nodeInfoProvider()
       .consoleTabCompleteResults(String.join(" ", invocation.arguments()))));
   }

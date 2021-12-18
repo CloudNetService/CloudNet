@@ -380,19 +380,19 @@ public final class JLine3Console implements IConsole {
 
   @NonNull
   @Internal
-  LineReader getLineReader() {
+  LineReader lineReader() {
     return this.lineReader;
   }
 
   @NonNull
   @Internal
-  Map<UUID, ConsoleInputHandler> getConsoleInputHandler() {
+  Map<UUID, ConsoleInputHandler> consoleInputHandler() {
     return this.consoleInputHandler;
   }
 
   @NonNull
   @Internal
-  Map<UUID, ConsoleTabCompleteHandler> getTabCompleteHandlers() {
+  Map<UUID, ConsoleTabCompleteHandler> tabCompleteHandlers() {
     return this.tabCompleteHandler;
   }
 

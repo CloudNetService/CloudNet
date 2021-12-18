@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.driver.module;
 
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
@@ -63,10 +62,10 @@ public class ModuleConfiguration {
     @NonNull String version,
     @NonNull String main
   ) {
-    this.group = Preconditions.checkNotNull(group, "group cannot be null");
-    this.name = Preconditions.checkNotNull(name, "name cannot be null");
-    this.version = Preconditions.checkNotNull(version, "version cannot be null");
-    this.main = Preconditions.checkNotNull(main, "main cannot be null");
+    this.group = group;
+    this.name = name;
+    this.version = version;
+    this.main = main;
   }
 
   @Internal

@@ -94,7 +94,7 @@ public class DefaultClusterSetup implements DefaultSetup {
   @Override
   public void handleResults(@NonNull ConsoleSetupAnimation animation) {
     if (animation.result("installCluster")) {
-      var config = CloudNet.instance().getConfig();
+      var config = CloudNet.instance().config();
 
       // apply the cluster settings
       Collection<String> nodeNames = animation.result("nodesList");
