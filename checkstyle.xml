@@ -20,7 +20,7 @@
   "https://checkstyle.org/dtds/configuration_1_3.dtd">
 <module name="Checker">
   <module name="BeforeExecutionExclusionFileFilter">
-    <property name="fileNamePattern" value="[module\-info\.java$|NettyWebSocketServerChannelHandler\.java$]"/>
+    <property name="fileNamePattern" value="module\-info\.java$"/>
   </module>
   <module name="SuppressionFilter">
     <property default="checkstyle-suppressions.xml" name="file"
@@ -65,7 +65,15 @@
       <property name="allowByTailComment" value="true"/>
       <property name="allowNonPrintableEscapes" value="true"/>
     </module>
+    <module name="CustomImportOrder">
+      <property name="sortImportsInGroupAlphabetically" value="true"/>
+      <property name="separateLineBetweenGroups" value="true"/>
+      <property name="customImportOrderRules" value="STATIC###THIRD_PARTY_PACKAGE"/>
+      <property name="tokens" value="IMPORT, STATIC_IMPORT, PACKAGE_DEF"/>
+    </module>
     <module name="AvoidStarImport"/>
+    <module name="RedundantImport"/>
+    <module name="UnusedImports"/>
     <module name="OneTopLevelClass"/>
     <module name="NoLineWrap">
       <property name="tokens" value="PACKAGE_DEF, IMPORT, STATIC_IMPORT"/>
@@ -251,12 +259,6 @@
       <message key="ws.notPreceded"
         value="GenericWhitespace ''{0}'' is not preceded with whitespace."/>
     </module>
-    <module name="CustomImportOrder">
-      <property name="sortImportsInGroupAlphabetically" value="true"/>
-      <property name="separateLineBetweenGroups" value="true"/>
-      <property name="customImportOrderRules" value="STATIC###THIRD_PARTY_PACKAGE"/>
-      <property name="tokens" value="IMPORT, STATIC_IMPORT, PACKAGE_DEF"/>
-    </module>
     <module name="MethodParamPad">
       <property name="tokens"
         value="CTOR_DEF, LITERAL_NEW, METHOD_CALL, METHOD_DEF,
@@ -305,7 +307,7 @@
     <module name="MethodName">
       <message key="name.invalidPattern"
         value="Method name ''{0}'' must match pattern ''{1}''."/>
-      <property name="format" value="^[a-z][a-z0-9][a-zA-Z0-9_]*$"/>
+      <property name="format" value="^[a-z][a-zA-Z0-9_]*$"/>
     </module>
     <module name="SingleLineJavadoc"/>
     <module name="EmptyCatchBlock">

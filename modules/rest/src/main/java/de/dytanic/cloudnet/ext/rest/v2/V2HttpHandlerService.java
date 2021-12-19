@@ -428,7 +428,11 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     }
 
     @Override
-    public void handle(@NonNull IWebSocketChannel channel, @NonNull WebSocketFrameType type, byte[] bytes) throws Exception {
+    public void handle(
+      @NonNull IWebSocketChannel channel,
+      @NonNull WebSocketFrameType type,
+      byte[] bytes
+    ) throws Exception {
       if (type == WebSocketFrameType.TEXT) {
         var commandLine = new String(bytes, StandardCharsets.UTF_8);
         this.service.runCommand(commandLine);
@@ -436,7 +440,11 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     }
 
     @Override
-    public void handleClose(@NonNull IWebSocketChannel channel, @NonNull AtomicInteger statusCode, @NonNull AtomicReference<String> reasonText) {
+    public void handleClose(
+      @NonNull IWebSocketChannel channel,
+      @NonNull AtomicInteger statusCode,
+      @NonNull AtomicReference<String> reasonText
+    ) {
       this.logCache.removeHandler(this.watchingHandler);
     }
   }

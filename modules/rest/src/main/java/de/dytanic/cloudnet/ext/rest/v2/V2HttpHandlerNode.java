@@ -174,7 +174,8 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
     }
 
     @Override
-    public void handle(@NonNull IWebSocketChannel channel, @NonNull WebSocketFrameType type, byte[] bytes) throws Exception {
+    public void handle(@NonNull IWebSocketChannel channel, @NonNull WebSocketFrameType type, byte[] bytes)
+      throws Exception {
       var user = this.httpSession.user();
       if (type == WebSocketFrameType.TEXT && user != null) {
         var commandLine = new String(bytes, StandardCharsets.UTF_8);
@@ -190,7 +191,11 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
     }
 
     @Override
-    public void handleClose(@NonNull IWebSocketChannel channel, @NonNull AtomicInteger statusCode, @NonNull AtomicReference<String> reasonText) {
+    public void handleClose(
+      @NonNull IWebSocketChannel channel,
+      @NonNull AtomicInteger statusCode,
+      @NonNull AtomicReference<String> statusText
+    ) {
       LogManager.rootLogger().removeHandler(this);
     }
 

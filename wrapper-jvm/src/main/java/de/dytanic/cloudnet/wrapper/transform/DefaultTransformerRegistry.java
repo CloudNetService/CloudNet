@@ -67,7 +67,7 @@ public final class DefaultTransformerRegistry implements TransformerRegistry {
   ) implements ClassFileTransformer {
 
     @Override
-    public byte[] transform(ClassLoader __, String className, Class<?> clazz, ProtectionDomain ___, byte[] file) {
+    public byte[] transform(ClassLoader $, String className, Class<?> clazz, ProtectionDomain $1, byte[] file) {
       // do not handle re-transformations
       if (clazz == null && this.predicate.test(className)) {
         // read the class
