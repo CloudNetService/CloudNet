@@ -18,7 +18,7 @@ lombok = "1.18.22"
 # console
 jansi = "2.4.0"
 jline = "3.21.0"
-cloud = "1.6.0"
+cloud = "1.6.1"
 
 # databases
 h2 = "1.4.197" # do not update, leads to database incompatibility
