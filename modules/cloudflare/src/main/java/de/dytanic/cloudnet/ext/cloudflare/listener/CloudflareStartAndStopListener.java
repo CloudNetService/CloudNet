@@ -29,6 +29,7 @@ import de.dytanic.cloudnet.ext.cloudflare.cloudflare.CloudFlareAPI;
 import de.dytanic.cloudnet.ext.cloudflare.dns.SRVRecord;
 import de.dytanic.cloudnet.service.ICloudService;
 import java.util.function.BiConsumer;
+import lombok.NonNull;
 
 public final class CloudflareStartAndStopListener {
 
@@ -41,54 +42,49 @@ public final class CloudflareStartAndStopListener {
   }
 
   @EventListener
-  public void handlePostStart(CloudServicePostLifecycleEvent event) {
-    if (event.newLifeCycle() != ServiceLifeCycle.RUNNING) {
-      return;
-    }
-
-    this.handle0(event.service(), (entry, configuration) -> {
-      var recordDetail = this.cloudFlareAPI.createRecord(
-        event.service().serviceId().uniqueId(),
-        entry,
-        SRVRecord.forConfiguration(entry, configuration, event.service().serviceConfiguration().port())
-      );
-
-      if (recordDetail != null) {
-        LOGGER
-          .info(I18n.trans("module-cloudflare-create-dns-record-for-service")
+  public void handlePostStart(@NonNull CloudServicePostLifecycleEvent event) {
+    if (event.newLifeCycle() == ServiceLifeCycle.RUNNING) {
+      this.handleWithConfiguration(event.service(), (entry, configuration) -> {
+        // create the new record
+        var recordDetail = this.cloudFlareAPI.createRecord(
+          event.service().serviceId().uniqueId(),
+          entry,
+          SRVRecord.forConfiguration(entry, configuration, event.service().serviceConfiguration().port()));
+        // publish a message to the node log if the record was created successfully
+        if (recordDetail != null) {
+          LOGGER.info(I18n.trans("module-cloudflare-create-dns-record-for-service")
             .replace("%service%", event.service().serviceId().name())
             .replace("%domain%", entry.domainName())
-            .replace("%recordId%", recordDetail.id())
-          );
-      }
-    });
-  }
-
-  @EventListener
-  public void handlePostStop(CloudServicePostLifecycleEvent event) {
-    if (event.newLifeCycle() != ServiceLifeCycle.STOPPED) {
-      this.handle0(event.service(), (entry, configuration) -> {
-        for (var detail : this.cloudFlareAPI.deleteAllRecords(event.service())) {
-          LOGGER
-            .info(I18n.trans("module-cloudflare-delete-dns-record-for-service")
-              .replace("%service%", event.service().serviceId().name())
-              .replace("%domain%", entry.domainName())
-              .replace("%recordId%", detail.id())
-            );
+            .replace("%recordId%", recordDetail.id()));
         }
       });
     }
   }
 
-  private void handle0(ICloudService cloudService,
-    BiConsumer<CloudflareConfigurationEntry, CloudflareGroupConfiguration> handler) {
-    for (var entry : CloudNetCloudflareModule.instance().cloudFlareConfiguration()
-      .entries()) {
+  @EventListener
+  public void handlePostStop(@NonNull CloudServicePostLifecycleEvent event) {
+    if (event.newLifeCycle() == ServiceLifeCycle.STOPPED || event.newLifeCycle() == ServiceLifeCycle.DELETED) {
+      this.handleWithConfiguration(event.service(), (entry, configuration) -> {
+        // delete all records of the the service
+        for (var detail : this.cloudFlareAPI.deleteAllRecords(event.service())) {
+          LOGGER.info(I18n.trans("module-cloudflare-delete-dns-record-for-service")
+            .replace("%service%", event.service().serviceId().name())
+            .replace("%domain%", entry.domainName())
+            .replace("%recordId%", detail.id()));
+        }
+      });
+    }
+  }
+
+  private void handleWithConfiguration(
+    @NonNull ICloudService targetService,
+    @NonNull BiConsumer<CloudflareConfigurationEntry, CloudflareGroupConfiguration> handler
+  ) {
+    for (var entry : CloudNetCloudflareModule.instance().cloudFlareConfiguration().entries()) {
       if (entry != null && entry.enabled() && !entry.groups().isEmpty()) {
-        for (var groupConfiguration : entry.groups()) {
-          if (groupConfiguration != null
-            && cloudService.serviceConfiguration().groups().contains(groupConfiguration.name())) {
-            handler.accept(entry, groupConfiguration);
+        for (var config : entry.groups()) {
+          if (config != null && targetService.serviceConfiguration().groups().contains(config.name())) {
+            handler.accept(entry, config);
           }
         }
       }

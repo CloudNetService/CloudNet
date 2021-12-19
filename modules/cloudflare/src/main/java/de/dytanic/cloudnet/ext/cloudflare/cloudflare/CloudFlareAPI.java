@@ -152,11 +152,7 @@ public class CloudFlareAPI implements AutoCloseable {
     @NonNull HttpRequestWithBody bodyRequest,
     @Nullable String data
   ) {
-    if (data != null) {
-      bodyRequest.body(data);
-    }
-
-    var response = bodyRequest.asString();
+    var response = data == null ? bodyRequest.asString() : bodyRequest.body(data).asString();
     return JsonDocument.fromJsonString(response.getBody());
   }
 
