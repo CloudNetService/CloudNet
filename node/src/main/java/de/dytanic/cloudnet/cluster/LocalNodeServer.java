@@ -77,7 +77,7 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
   @Override
   public @NonNull Collection<String> sendCommandLine(@NonNull String commandLine) {
     var commandSource = new DriverCommandSource();
-    this.cloudNet.commandProvider().execute(new DriverCommandSource(), commandLine);
+    this.cloudNet.commandProvider().execute(new DriverCommandSource(), commandLine).join();
 
     return commandSource.messages();
   }
