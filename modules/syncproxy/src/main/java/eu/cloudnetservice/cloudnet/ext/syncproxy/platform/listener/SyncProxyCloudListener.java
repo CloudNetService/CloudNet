@@ -37,14 +37,17 @@ public final class SyncProxyCloudListener<P> {
 
   @EventListener
   public void handleServiceLifecycleChange(@NonNull CloudServiceLifecycleChangeEvent event) {
-    if (event.newLifeCycle() == ServiceLifeCycle.RUNNING) {
+    switch (event.newLifeCycle()) {
       // notify the players about a new service start
-      this.notifyPlayers("service-start", event.serviceInfo());
-    } else if (event.newLifeCycle() == ServiceLifeCycle.STOPPED) {
-      // notify the players about the service stop
-      this.notifyPlayers("service-stop", event.serviceInfo());
-      // remove the ServiceInfoSnapshot from the cache as the service is stopping
-      this.management.removeCachedServiceInfoSnapshot(event.serviceInfo());
+      case RUNNING -> this.notifyPlayers("service-start", event.serviceInfo());
+      case STOPPED, DELETED -> {
+        // notify the players about the service stop
+        this.notifyPlayers("service-stop", event.serviceInfo());
+        // remove the ServiceInfoSnapshot from the cache as the service is stopping
+        this.management.removeCachedServiceInfoSnapshot(event.serviceInfo());
+      }
+      default -> {
+      }
     }
   }
 
