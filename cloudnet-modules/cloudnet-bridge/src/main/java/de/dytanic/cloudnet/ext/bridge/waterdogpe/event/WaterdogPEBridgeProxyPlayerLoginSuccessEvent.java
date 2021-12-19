@@ -14,15 +14,19 @@
  * limitations under the License.
  */
 
-jar {
-  archiveFileName.set(cloudnetModuleSyncProxyFileName)
-}
+package de.dytanic.cloudnet.ext.bridge.waterdogpe.event;
 
-dependencies {
-  compileOnly project(':cloudnet')
-  compileOnly project(':cloudnet-wrapper-jvm')
-  compileOnly project(':cloudnet-modules:cloudnet-bridge')
-  compileOnly group: 'net.md-5', name: 'bungeecord-api', version: dependencyBungeeCordVersion
-  compileOnly group: 'com.velocitypowered', name: 'velocity-api', version: dependencyVelocityVersion
-  compileOnly group: 'dev.waterdog.waterdogpe', name: 'waterdog', version: dependencyWaterdogPEVersion
+import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
+
+public final class WaterdogPEBridgeProxyPlayerLoginSuccessEvent extends WaterdogPEBridgeEvent {
+
+  private final NetworkConnectionInfo networkConnectionInfo;
+
+  public WaterdogPEBridgeProxyPlayerLoginSuccessEvent(NetworkConnectionInfo networkConnectionInfo) {
+    this.networkConnectionInfo = networkConnectionInfo;
+  }
+
+  public NetworkConnectionInfo getNetworkConnectionInfo() {
+    return this.networkConnectionInfo;
+  }
 }

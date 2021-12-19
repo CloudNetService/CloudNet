@@ -41,8 +41,8 @@ allprojects {
     }
 
     maven {
-      name 'bungeecord-repo'
-      url 'https://oss.sonatype.org/content/repositories/snapshots'
+      name 'waterdog'
+      url 'https://repo.waterdog.dev/artifactory/main/'
     }
 
     maven {
@@ -85,6 +85,7 @@ allprojects {
     dependencyVelocityVersion = '1.1.8'
     dependencyNukkitXVersion = '1.0-SNAPSHOT'
     dependencyGoMintVersion = '1.0.0-SNAPSHOT'
+    dependencyWaterdogPEVersion = '1.1.6-SNAPSHOT'
     dependencyMysqlConnectorJavaVersion = '8.0.27'
     dependencyHikariCpVersion = '4.0.3'
     dependencyVaultVersion = '1.7.1'
@@ -126,7 +127,6 @@ allprojects {
     cloudnetModuleStorageFTPFileName = 'cloudnet-storage-ftp.jar'
     cloudnetModuleDatabaseMySQLFileName = 'cloudnet-database-mysql.jar'
   }
-
 
   ext.createCnlFile = { Project pro, String fileName ->
 

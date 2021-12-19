@@ -37,6 +37,7 @@ public enum ServiceEnvironment {
   @Deprecated BUNGEECORD_TRAVERTINE("travertine"),
   BUNGEECORD_HEXACORD("hexacord"),
   //Waterdog
+  WATERDOG_PE("waterdog-pe"),
   @Deprecated WATERDOG_DEFAULT("waterdog"),
   //Nukkit
   NUKKIT_DEFAULT("nukkit"),

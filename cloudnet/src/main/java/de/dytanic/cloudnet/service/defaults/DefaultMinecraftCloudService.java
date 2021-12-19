@@ -98,6 +98,14 @@ public abstract class DefaultMinecraftCloudService extends DefaultTemplateCloudS
         }
         break;
       }
+      case WATERDOG_PE: {
+        if (rewriteIp) {
+          Path configLocation = this.getDirectoryPath().resolve("config.yml");
+          this.copyDefaultFile("files/waterdogpe/config.yml", configLocation);
+          this.rewriteBungeeConfig(configLocation);
+        }
+        break;
+      }
       case VELOCITY: {
         if (rewriteIp) {
           Path configLocation = this.getDirectoryPath().resolve("velocity.toml");
@@ -126,7 +134,6 @@ public abstract class DefaultMinecraftCloudService extends DefaultTemplateCloudS
         }
 
         properties.clear();
-
         // eula auto agree
         properties.setProperty("eula", "true");
         try (OutputStream outputStream = Files.newOutputStream(this.getDirectoryPath().resolve("eula.txt"))) {
@@ -212,7 +219,7 @@ public abstract class DefaultMinecraftCloudService extends DefaultTemplateCloudS
   private void rewriteServiceConfigurationFile(Path file, UnaryOperator<String> unaryOperator) throws IOException {
     List<String> lines = Files.readAllLines(file)
       .stream()
-      .map(unaryOperator::apply)
+      .map(unaryOperator)
       .collect(Collectors.toList());
     try (OutputStream outputStream = Files.newOutputStream(file)) {
       for (String replacedLine : lines) {

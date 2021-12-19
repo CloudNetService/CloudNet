@@ -91,6 +91,13 @@ public final class DefaultModuleHelper {
             }
           }
           break;
+        case WATERDOG_PE:
+          try (InputStream inputStream = targetClass.getClassLoader().getResourceAsStream("plugin.waterdogpe.yml")) {
+            if (inputStream != null) {
+              Files.copy(inputStream, pluginPath);
+            }
+          }
+          break;
         case NUKKIT:
           try (InputStream inputStream = targetClass.getClassLoader().getResourceAsStream("plugin.nukkit.yml")) {
             if (inputStream != null) {
