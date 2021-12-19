@@ -39,10 +39,10 @@ public final class SyncProxyCloudListener<P> {
   public void handleServiceLifecycleChange(@NonNull CloudServiceLifecycleChangeEvent event) {
     if (event.newLifeCycle() == ServiceLifeCycle.RUNNING) {
       // notify the players about a new service start
-      this.notifyPlayers("start-service", event.serviceInfo());
+      this.notifyPlayers("service-start", event.serviceInfo());
     } else if (event.newLifeCycle() == ServiceLifeCycle.STOPPED) {
       // notify the players about the service stop
-      this.notifyPlayers("stop-service", event.serviceInfo());
+      this.notifyPlayers("service-stop", event.serviceInfo());
       // remove the ServiceInfoSnapshot from the cache as the service is stopping
       this.management.removeCachedServiceInfoSnapshot(event.serviceInfo());
     }
@@ -69,12 +69,11 @@ public final class SyncProxyCloudListener<P> {
 
   private void notifyPlayers(@NonNull String key, @NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
     // only message the players if we are supposed to
-    if (!this.management.configuration().ingameServiceStartStopMessages()) {
-      return;
-    }
-    for (var onlinePlayer : this.management.onlinePlayers()) {
-      if (this.management.checkPlayerPermission(onlinePlayer, "cloudnet.syncproxy.notify")) {
-        this.management.messagePlayer(onlinePlayer, this.management.serviceUpdateMessage(key, serviceInfoSnapshot));
+    if (this.management.configuration().ingameServiceStartStopMessages()) {
+      for (var onlinePlayer : this.management.onlinePlayers()) {
+        if (this.management.checkPlayerPermission(onlinePlayer, "cloudnet.syncproxy.notify")) {
+          this.management.messagePlayer(onlinePlayer, this.management.serviceUpdateMessage(key, serviceInfoSnapshot));
+        }
       }
     }
   }
