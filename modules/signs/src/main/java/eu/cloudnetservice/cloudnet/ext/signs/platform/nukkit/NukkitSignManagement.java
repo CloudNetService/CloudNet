@@ -95,7 +95,7 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
   }
 
   protected void changeBlock(@NonNull Block block, @NonNull SignLayout layout) {
-    var itemId = layout.blockMaterial() == null ? null : Ints.tryParse(layout.blockMaterial());
+    var itemId = Ints.tryParse(layout.blockMaterial());
     if (itemId != null && block instanceof Faceable) {
       var face =
         block instanceof BlockWallSign ? ((Faceable) block).getBlockFace().getOpposite() : BlockFace.DOWN;
@@ -107,8 +107,8 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
   }
 
   @Override
-  public @Nullable Sign signAt(@NonNull BlockEntitySign blockEntitySign) {
-    return this.signAt(this.locationToWorldPosition(blockEntitySign.getLocation()));
+  public @Nullable Sign signAt(@NonNull BlockEntitySign blockEntitySign, @NonNull String group) {
+    return this.signAt(this.locationToWorldPosition(blockEntitySign.getLocation(), group));
   }
 
   @Override
@@ -135,8 +135,8 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
   }
 
   @Override
-  public void deleteSign(@NonNull BlockEntitySign blockEntitySign) {
-    this.deleteSign(this.locationToWorldPosition(blockEntitySign.getLocation()));
+  public void deleteSign(@NonNull BlockEntitySign blockEntitySign, @NonNull String group) {
+    this.deleteSign(this.locationToWorldPosition(blockEntitySign.getLocation(), group));
   }
 
   @Override
@@ -184,17 +184,6 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
         }
       }
     }, 0, 5);
-  }
-
-  protected @NonNull WorldPosition locationToWorldPosition(@NonNull Location location) {
-    return new WorldPosition(
-      location.getX(),
-      location.getY(),
-      location.getZ(),
-      0,
-      0,
-      location.getLevel().getName(),
-      null);
   }
 
   protected @NonNull WorldPosition locationToWorldPosition(@NonNull Location location, @NonNull String group) {

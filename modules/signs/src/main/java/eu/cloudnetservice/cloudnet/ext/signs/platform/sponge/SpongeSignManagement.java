@@ -100,7 +100,7 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
   }
 
   protected void changeBlock(@NonNull BlockEntity entity, @NonNull SignLayout layout) {
-    var type = layout.blockMaterial() == null ? null : Sponge.game()
+    var type = Sponge.game()
       .registry(RegistryTypes.BLOCK_TYPE)
       .findValue(ResourceKey.resolve(layout.blockMaterial()))
       .orElse(null);
@@ -111,8 +111,8 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
   }
 
   @Override
-  public @Nullable Sign signAt(@NonNull org.spongepowered.api.block.entity.Sign sign) {
-    return this.signAt(this.locationToWorldPosition(sign.serverLocation()));
+  public @Nullable Sign signAt(@NonNull org.spongepowered.api.block.entity.Sign sign, @NonNull String group) {
+    return this.signAt(this.locationToWorldPosition(sign.serverLocation(), group));
   }
 
   @Override
@@ -139,8 +139,8 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
   }
 
   @Override
-  public void deleteSign(@NonNull org.spongepowered.api.block.entity.Sign sign) {
-    this.deleteSign(this.locationToWorldPosition(sign.serverLocation()));
+  public void deleteSign(@NonNull org.spongepowered.api.block.entity.Sign sign, @NonNull String group) {
+    this.deleteSign(this.locationToWorldPosition(sign.serverLocation(), group));
   }
 
   @Override
@@ -187,10 +187,6 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
         }
       }
     }, 0, 5 * 50, TimeUnit.MILLISECONDS);
-  }
-
-  protected @NonNull WorldPosition locationToWorldPosition(@NonNull Location<ServerWorld, ?> location) {
-    return new WorldPosition(location.x(), location.y(), location.z(), 0, 0, location.world().key().formatted(), null);
   }
 
   protected @NonNull WorldPosition locationToWorldPosition(

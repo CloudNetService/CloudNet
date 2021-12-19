@@ -37,22 +37,23 @@ public class SignInteractListener implements Listener {
   @EventHandler
   public void handle(PlayerInteractEvent event) {
     var entry = this.signManagement.applicableSignConfigurationEntry();
-    if (entry != null && event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock() != null
-      && event.getClickedBlock().getState() instanceof org.bukkit.block.Sign) {
-
-      var sign = this.signManagement.signAt((org.bukkit.block.Sign) event.getClickedBlock().getState());
+    if (entry != null
+      && event.getAction() == Action.RIGHT_CLICK_BLOCK
+      && event.getClickedBlock() != null
+      && event.getClickedBlock().getState() instanceof org.bukkit.block.Sign state) {
+      var sign = this.signManagement.signAt(state, entry.targetGroup());
       if (sign != null) {
         var canConnect = this.signManagement.canConnect(sign, event.getPlayer()::hasPermission);
 
-        var interactEvent = new BukkitCloudSignInteractEvent(event.getPlayer(), sign,
-          !canConnect);
+        var interactEvent = new BukkitCloudSignInteractEvent(event.getPlayer(), sign, !canConnect);
         Bukkit.getPluginManager().callEvent(interactEvent);
 
-        if (!interactEvent.isCancelled() && interactEvent.target().isPresent()) {
-          this.signManagement.signsConfiguration().sendMessage("server-connecting-message",
-            event.getPlayer()::sendMessage, m -> m.replace("%server%", interactEvent.target().get().name()));
-          this.playerManager().playerExecutor(event.getPlayer().getUniqueId())
-            .connect(interactEvent.target().get().name());
+        if (!interactEvent.isCancelled()) {
+          interactEvent.target().ifPresent(service -> {
+            this.signManagement.signsConfiguration().sendMessage("server-connecting-message",
+              event.getPlayer()::sendMessage, m -> m.replace("%server%", service.name()));
+            this.playerManager().playerExecutor(event.getPlayer().getUniqueId()).connect(service.name());
+          });
         }
       }
     }

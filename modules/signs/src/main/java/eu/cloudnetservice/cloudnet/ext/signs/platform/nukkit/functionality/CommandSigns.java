@@ -47,8 +47,8 @@ public class CommandSigns implements CommandExecutor {
     if ((args.length == 2 || args.length == 3) && args[0].equalsIgnoreCase("create")) {
       var targetBlock = player.getTargetBlock(15);
       var blockEntity = targetBlock.getLevel().getBlockEntity(targetBlock.getLocation());
-      if (blockEntity instanceof BlockEntitySign) {
-        var sign = this.signManagement.signAt((BlockEntitySign) blockEntity);
+      if (blockEntity instanceof BlockEntitySign entitySign) {
+        var sign = this.signManagement.signAt(entitySign, entry.targetGroup());
         if (sign != null) {
           this.signManagement.signsConfiguration().sendMessage("command-cloudsign-sign-already-exist",
             player::sendMessage, m -> m.replace("%group%", sign.targetGroup()));
@@ -83,8 +83,8 @@ public class CommandSigns implements CommandExecutor {
     } else if (args.length == 1 && args[0].equalsIgnoreCase("remove")) {
       var targetBlock = player.getTargetBlock(15);
       var blockEntity = targetBlock.getLevel().getBlockEntity(targetBlock.getLocation());
-      if (blockEntity instanceof BlockEntitySign) {
-        var sign = this.signManagement.signAt((BlockEntitySign) blockEntity);
+      if (blockEntity instanceof BlockEntitySign entitySign) {
+        var sign = this.signManagement.signAt(entitySign, entry.targetGroup());
         if (sign == null) {
           this.signManagement.signsConfiguration()
             .sendMessage("command-cloudsign-remove-not-existing", player::sendMessage);

@@ -54,9 +54,9 @@ public class CommandSigns extends BaseTabExecutor {
     if ((args.length == 2 || args.length == 3) && args[0].equalsIgnoreCase("create")) {
       var targetBlock = player.getTargetBlock((Set<Material>) null, 15);
       // check if the block the player is facing is a sign
-      if (targetBlock.getState() instanceof org.bukkit.block.Sign) {
+      if (targetBlock.getState() instanceof org.bukkit.block.Sign state) {
         // validate that the sign isn't existing already
-        var sign = this.signManagement.signAt((org.bukkit.block.Sign) targetBlock.getState());
+        var sign = this.signManagement.signAt(state, entry.targetGroup());
         if (sign != null) {
           this.signManagement.signsConfiguration().sendMessage(
             "command-cloudsign-sign-already-exist",
@@ -100,9 +100,9 @@ public class CommandSigns extends BaseTabExecutor {
     } else if (args.length == 1 && args[0].equalsIgnoreCase("remove")) {
       // check if the player is facing a sign
       var targetBlock = player.getTargetBlock((Set<Material>) null, 15);
-      if (targetBlock.getState() instanceof org.bukkit.block.Sign) {
+      if (targetBlock.getState() instanceof org.bukkit.block.Sign state) {
         // check if the sign exists
-        var sign = this.signManagement.signAt((org.bukkit.block.Sign) targetBlock.getState());
+        var sign = this.signManagement.signAt(state, entry.targetGroup());
         if (sign == null) {
           this.signManagement.signsConfiguration().sendMessage(
             "command-cloudsign-remove-not-existing",

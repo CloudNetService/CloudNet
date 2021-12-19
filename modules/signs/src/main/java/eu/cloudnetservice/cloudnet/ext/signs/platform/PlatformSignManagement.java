@@ -86,7 +86,7 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
    * @return The sign at the given location or null if there is no sign at the given location.
    * @see #signAt(WorldPosition)
    */
-  public abstract @Nullable Sign signAt(@NonNull T t);
+  public abstract @Nullable Sign signAt(@NonNull T t, @NonNull String group);
 
   /**
    * Creates a sign at the given platform sign extend location.
@@ -114,7 +114,7 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
    * @param t the sign type extend
    * @see #deleteSign(WorldPosition)
    */
-  public abstract void deleteSign(@NonNull T t);
+  public abstract void deleteSign(@NonNull T t, @NonNull String group);
 
   /**
    * Removes all signs where there is no sign block at this position

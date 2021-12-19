@@ -37,23 +37,24 @@ public class SignInteractListener implements Listener {
   @EventHandler
   public void handle(PlayerInteractEvent event) {
     var entry = this.signManagement.applicableSignConfigurationEntry();
-    if (entry != null && event.getAction() == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK
+    if (entry != null
+      && event.getAction() == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK
       && event.getBlock() != null) {
       var blockEntity = event.getBlock().getLevel().getBlockEntity(event.getBlock().getLocation());
-      if (blockEntity instanceof BlockEntitySign) {
-        var sign = this.signManagement.signAt((BlockEntitySign) blockEntity);
+      if (blockEntity instanceof BlockEntitySign entitySign) {
+        var sign = this.signManagement.signAt(entitySign, entry.targetGroup());
         if (sign != null) {
           var canConnect = this.signManagement.canConnect(sign, event.getPlayer()::hasPermission);
 
-          var interactEvent = new NukkitCloudSignInteractEvent(event.getPlayer(), sign,
-            !canConnect);
+          var interactEvent = new NukkitCloudSignInteractEvent(event.getPlayer(), sign, !canConnect);
           Server.getInstance().getPluginManager().callEvent(interactEvent);
 
-          if (!interactEvent.isCancelled() && interactEvent.target().isPresent()) {
-            this.signManagement.signsConfiguration().sendMessage("server-connecting-message",
-              event.getPlayer()::sendMessage, m -> m.replace("%server%", interactEvent.target().get().name()));
-            this.playerManager().playerExecutor(event.getPlayer().getUniqueId())
-              .connect(interactEvent.target().get().name());
+          if (!interactEvent.isCancelled()) {
+            interactEvent.target().ifPresent(service -> {
+              this.signManagement.signsConfiguration().sendMessage("server-connecting-message",
+                event.getPlayer()::sendMessage, m -> m.replace("%server%", service.name()));
+              this.playerManager().playerExecutor(event.getPlayer().getUniqueId()).connect(service.name());
+            });
           }
         }
       }

@@ -51,6 +51,14 @@ public class CommandSigns implements CommandExecutor {
       return CommandResult.success();
     }
 
+    var entry = this.signManagement.applicableSignConfigurationEntry();
+    if (entry == null) {
+      this.signManagement.signsConfiguration().sendMessage(
+        "command-cloudsign-no-entry",
+        message -> player.sendMessage(Component.text(message)));
+      return CommandResult.success();
+    }
+
     var type = context.one(ACTION).orElse(null);
     var targetGroup = context.one(TARGET_GROUP).orElse(null);
     var targetTemplatePath = context.one(TARGET_TEMPLATE).orElse(null);
@@ -62,7 +70,9 @@ public class CommandSigns implements CommandExecutor {
           return CommandResult.success();
         }
 
-        var sign = this.signManagement.signAt((org.spongepowered.api.block.entity.Sign) hit.get().selectedObject());
+        var sign = this.signManagement.signAt(
+          (org.spongepowered.api.block.entity.Sign) hit.get().selectedObject(),
+          entry.targetGroup());
         if (sign != null) {
           this.signManagement.signsConfiguration().sendMessage(
             "command-cloudsign-sign-already-exist",
@@ -101,7 +111,9 @@ public class CommandSigns implements CommandExecutor {
           return CommandResult.success();
         }
 
-        var sign = this.signManagement.signAt((org.spongepowered.api.block.entity.Sign) hit.get().selectedObject());
+        var sign = this.signManagement.signAt(
+          (org.spongepowered.api.block.entity.Sign) hit.get().selectedObject(),
+          entry.targetGroup());
         if (sign != null) {
           this.signManagement.deleteSign(sign);
           this.signManagement.signsConfiguration().sendMessage(

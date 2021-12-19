@@ -100,8 +100,7 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
 
   @SuppressWarnings("deprecation") // legacy 1.8 support...
   protected void changeBlock(@NonNull Block block, @NonNull SignLayout layout) {
-    var material =
-      layout.blockMaterial() == null ? null : Material.getMaterial(layout.blockMaterial().toUpperCase());
+    var material = Material.getMaterial(layout.blockMaterial().toUpperCase());
     if (material != null && material.isBlock()) {
       var face = BukkitCompatibility.facing(block.getState());
       if (face != null) {
@@ -118,8 +117,8 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
   }
 
   @Override
-  public @Nullable Sign signAt(@NonNull org.bukkit.block.Sign sign) {
-    return this.signAt(this.locationToWorldPosition(sign.getLocation()));
+  public @Nullable Sign signAt(@NonNull org.bukkit.block.Sign sign, @NonNull String group) {
+    return this.signAt(this.locationToWorldPosition(sign.getLocation(), group));
   }
 
   @Override
@@ -146,8 +145,8 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
   }
 
   @Override
-  public void deleteSign(@NonNull org.bukkit.block.Sign sign) {
-    this.deleteSign(this.locationToWorldPosition(sign.getLocation()));
+  public void deleteSign(@NonNull org.bukkit.block.Sign sign, @NonNull String group) {
+    this.deleteSign(this.locationToWorldPosition(sign.getLocation(), group));
   }
 
   @Override
@@ -196,17 +195,6 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
         }
       }
     }, 0, 5);
-  }
-
-  protected @NonNull WorldPosition locationToWorldPosition(@NonNull Location location) {
-    return new WorldPosition(
-      location.getX(),
-      location.getY(),
-      location.getZ(),
-      0,
-      0,
-      location.getWorld().getName(),
-      null);
   }
 
   protected @NonNull WorldPosition locationToWorldPosition(@NonNull Location location, @NonNull String group) {

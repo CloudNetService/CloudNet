@@ -48,14 +48,16 @@ public class SignInteractListener {
   @Listener
   public void handle(@NonNull InteractBlockEvent.Secondary event, @First ServerPlayer player) {
     // easy hack to allow all sign types like acacia_sign, birch_wall_sign etc.
+    var entry = this.signManagement.applicableSignConfigurationEntry();
     var key = event.block().state().type().findKey(RegistryTypes.BLOCK_TYPE).orElse(null);
-    if (key != null && key.formatted().endsWith("_sign")) {
+    if (entry != null && key != null && key.formatted().endsWith("_sign")) {
       if (event.block().location().isPresent()
         && event.block().location().get().blockEntity().isPresent()
         && event.block().location().get().blockEntity().get() instanceof org.spongepowered.api.block.entity.Sign) {
         // get the cloud sign at the position
         var sign = this.signManagement.signAt(
-          (org.spongepowered.api.block.entity.Sign) event.block().location().get().blockEntity().get());
+          (org.spongepowered.api.block.entity.Sign) event.block().location().get().blockEntity().get(),
+          entry.targetGroup());
         if (sign != null) {
           var canConnect = this.signManagement.canConnect(sign, player::hasPermission);
 
@@ -64,13 +66,14 @@ public class SignInteractListener {
             player, sign, !canConnect);
           Sponge.eventManager().post(interactEvent);
 
-          if (!interactEvent.isCancelled() && interactEvent.target().isPresent()) {
-            this.signManagement.signsConfiguration().sendMessage(
-              "server-connecting-message",
-              m -> player.sendMessage(AdventureSerializerUtil.serialize(m)),
-              m -> m.replace("%server%", interactEvent.target().get().name()));
-            this.playerManager().playerExecutor(player.uniqueId())
-              .connect(interactEvent.target().get().name());
+          if (!interactEvent.isCancelled()) {
+            interactEvent.target().ifPresent(service -> {
+              this.signManagement.signsConfiguration().sendMessage(
+                "server-connecting-message",
+                m -> player.sendMessage(AdventureSerializerUtil.serialize(m)),
+                m -> m.replace("%server%", service.name()));
+              this.playerManager().playerExecutor(player.uniqueId()).connect(service.name());
+            });
           }
         }
       }
