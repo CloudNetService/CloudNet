@@ -16,20 +16,14 @@
 
 package de.dytanic.cloudnet.driver.network.http.content;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-final class MultipleContentStreamProvider implements ContentStreamProvider {
-
-  private final ContentStreamProvider[] streamProviders;
-
-  public MultipleContentStreamProvider(ContentStreamProvider... streamProviders) {
-    this.streamProviders = streamProviders;
-  }
+record MultipleContentStreamProvider(@NonNull ContentStreamProvider... providers) implements ContentStreamProvider {
 
   @Override
-  public @Nullable StreamableContent provideContent(@NotNull String path) {
-    for (var provider : this.streamProviders) {
+  public @Nullable StreamableContent provideContent(@NonNull String path) {
+    for (var provider : this.providers) {
       var content = provider.provideContent(path);
       if (content != null) {
         return content;

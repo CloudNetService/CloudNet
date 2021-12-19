@@ -23,7 +23,7 @@ import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import java.io.IOException;
 import java.io.InputStream;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 final class TemplateFileDeployCallback implements Callback {
 
@@ -34,16 +34,16 @@ final class TemplateFileDeployCallback implements Callback {
 
   @Override
   public void handleSessionComplete(
-    @NotNull ChunkSessionInformation information,
-    @NotNull InputStream dataInput
+    @NonNull ChunkSessionInformation information,
+    @NonNull InputStream dataInput
   ) throws IOException {
     // read the information
-    var storageName = information.getTransferInformation().readString();
-    var template = information.getTransferInformation().readObject(ServiceTemplate.class);
-    var path = information.getTransferInformation().readString();
-    var append = information.getTransferInformation().readBoolean();
+    var storageName = information.transferInformation().readString();
+    var template = information.transferInformation().readObject(ServiceTemplate.class);
+    var path = information.transferInformation().readString();
+    var append = information.transferInformation().readBoolean();
     // get the storage for the template
-    var storage = CloudNet.getInstance().getTemplateStorage(storageName);
+    var storage = CloudNet.instance().templateStorage(storageName);
     if (storage != null) {
       // open the stream and write the data to it
       try (var out = append

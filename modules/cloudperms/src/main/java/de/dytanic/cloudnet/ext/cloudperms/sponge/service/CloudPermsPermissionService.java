@@ -29,7 +29,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.spongepowered.api.service.permission.PermissionDescription;
 import org.spongepowered.api.service.permission.PermissionDescription.Builder;
 import org.spongepowered.api.service.permission.PermissionService;
@@ -45,7 +45,7 @@ public final class CloudPermsPermissionService implements PermissionService {
 
   private final Subject defaultSubject;
 
-  public CloudPermsPermissionService(@NotNull IPermissionManagement management) {
+  public CloudPermsPermissionService(@NonNull IPermissionManagement management) {
     this.collections.put(SUBJECTS_USER, new CloudUserCollection(SUBJECTS_USER, this, management));
     this.collections.put(SUBJECTS_GROUP, new CloudGroupCollection(SUBJECTS_GROUP, this, management));
 

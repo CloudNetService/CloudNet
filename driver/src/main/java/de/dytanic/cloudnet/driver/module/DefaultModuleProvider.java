@@ -30,7 +30,6 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,14 +41,13 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
-import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DefaultModuleProvider implements IModuleProvider {
 
-  protected static final Path DEFAULT_MODULE_DIR = Paths.get("modules");
-  protected static final Logger LOGGER = LogManager.getLogger(DefaultModuleProvider.class);
+  protected static final Path DEFAULT_MODULE_DIR = Path.of("modules");
+  protected static final Logger LOGGER = LogManager.logger(DefaultModuleProvider.class);
   protected static final IModuleDependencyLoader DEFAULT_DEPENDENCY_LOADER = new DefaultMemoryModuleDependencyLoader();
 
   protected final Collection<IModuleWrapper> modules = new CopyOnWriteArrayList<>();
@@ -71,7 +69,7 @@ public class DefaultModuleProvider implements IModuleProvider {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull Path getModuleDirectoryPath() {
+  public @NonNull Path moduleDirectoryPath() {
     return this.moduleDirectory;
   }
 
@@ -79,15 +77,15 @@ public class DefaultModuleProvider implements IModuleProvider {
    * {@inheritDoc}
    */
   @Override
-  public void setModuleDirectoryPath(@NotNull Path moduleDirectory) {
-    this.moduleDirectory = Preconditions.checkNotNull(moduleDirectory, "moduleDirectory");
+  public void moduleDirectoryPath(@NonNull Path moduleDirectory) {
+    this.moduleDirectory = moduleDirectory;
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public @Nullable IModuleProviderHandler getModuleProviderHandler() {
+  public @Nullable IModuleProviderHandler moduleProviderHandler() {
     return this.moduleProviderHandler;
   }
 
@@ -95,7 +93,7 @@ public class DefaultModuleProvider implements IModuleProvider {
    * {@inheritDoc}
    */
   @Override
-  public void setModuleProviderHandler(@Nullable IModuleProviderHandler moduleProviderHandler) {
+  public void moduleProviderHandler(@Nullable IModuleProviderHandler moduleProviderHandler) {
     this.moduleProviderHandler = moduleProviderHandler;
   }
 
@@ -103,7 +101,7 @@ public class DefaultModuleProvider implements IModuleProvider {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull IModuleDependencyLoader getModuleDependencyLoader() {
+  public @NonNull IModuleDependencyLoader moduleDependencyLoader() {
     return this.moduleDependencyLoader;
   }
 
@@ -111,15 +109,15 @@ public class DefaultModuleProvider implements IModuleProvider {
    * {@inheritDoc}
    */
   @Override
-  public void setModuleDependencyLoader(@NotNull IModuleDependencyLoader moduleDependencyLoader) {
-    this.moduleDependencyLoader = Preconditions.checkNotNull(moduleDependencyLoader, "moduleDependencyLoader");
+  public void moduleDependencyLoader(@NonNull IModuleDependencyLoader moduleDependencyLoader) {
+    this.moduleDependencyLoader = moduleDependencyLoader;
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public @NotNull Collection<IModuleWrapper> getModules() {
+  public @NonNull Collection<IModuleWrapper> modules() {
     return Collections.unmodifiableCollection(this.modules);
   }
 
@@ -127,19 +125,19 @@ public class DefaultModuleProvider implements IModuleProvider {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull Collection<IModuleWrapper> getModules(@NotNull String group) {
+  public @NonNull Collection<IModuleWrapper> modules(@NonNull String group) {
     return this.modules.stream()
-      .filter(module -> module.getModuleConfiguration().getGroup().equals(group))
-      .collect(Collectors.toList());
+      .filter(module -> module.moduleConfiguration().group().equals(group))
+      .toList();
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public IModuleWrapper getModule(@NotNull String name) {
+  public IModuleWrapper module(@NonNull String name) {
     return this.modules.stream()
-      .filter(module -> module.getModuleConfiguration().getName().equals(name))
+      .filter(module -> module.moduleConfiguration().name().equals(name))
       .findFirst().orElse(null);
   }
 
@@ -147,7 +145,7 @@ public class DefaultModuleProvider implements IModuleProvider {
    * {@inheritDoc}
    */
   @Override
-  public IModuleWrapper loadModule(@NotNull URL url) {
+  public IModuleWrapper loadModule(@NonNull URL url) {
     try {
       // check if there is any other module loaded from the same url
       if (this.findModuleBySource(url).isPresent()) {
@@ -161,37 +159,37 @@ public class DefaultModuleProvider implements IModuleProvider {
       // validate that the module configuration contains all necessary information
       moduleConfiguration.assertRequiredPropertiesSet();
       // check if the module can run on the current java version release.
-      if (!moduleConfiguration.canRunOn(JavaVersion.getRuntimeVersion())) {
+      if (!moduleConfiguration.canRunOn(JavaVersion.runtimeVersion())) {
         LOGGER.warning(String.format("Unable to load module %s:%s because it only supports Java %d+",
-          moduleConfiguration.getGroup(), moduleConfiguration.getName(), moduleConfiguration.getMinJavaVersionId()));
+          moduleConfiguration.group(), moduleConfiguration.name(), moduleConfiguration.minJavaVersionId()));
         return null;
       }
       // initialize all dependencies of the module
       var repositories = this.collectModuleProvidedRepositories(moduleConfiguration);
       var dependencies = this.loadDependencies(repositories, moduleConfiguration);
       // create the class loader for the module
-      var loader = new FinalizeURLClassLoader(url, dependencies.getFirst());
+      var loader = new FinalizeURLClassLoader(url, dependencies.first());
       loader.registerGlobally();
       // try to load and create the main class instance
-      var mainModuleClass = loader.loadClass(moduleConfiguration.getMainClass());
+      var mainModuleClass = loader.loadClass(moduleConfiguration.mainClass());
       // check if the main class is an instance of the IModule class
       if (!IModule.class.isAssignableFrom(mainModuleClass)) {
         throw new AssertionError(String.format("Module main class %s is not assignable from %s",
           mainModuleClass.getCanonicalName(), IModule.class.getCanonicalName()));
       }
       // get the data directory of the module
-      var dataDirectory = moduleConfiguration.getDataFolder(this.moduleDirectory);
+      var dataDirectory = moduleConfiguration.dataFolder(this.moduleDirectory);
       // create an instance of the class and the main module wrapper
       var moduleInstance = (IModule) mainModuleClass.getConstructor().newInstance();
       IModuleWrapper moduleWrapper = new DefaultModuleWrapper(url, moduleInstance, dataDirectory,
-        this, loader, dependencies.getSecond(), moduleConfiguration);
+        this, loader, dependencies.second(), moduleConfiguration);
       // initialize the module instance now
       moduleInstance.init(loader, moduleWrapper, moduleConfiguration);
       // register the module, load it and return the created wrapper
       this.modules.add(moduleWrapper);
       return moduleWrapper.loadModule();
     } catch (IOException | URISyntaxException exception) {
-      throw new AssertionError("Exception reading module information", exception);
+      throw new AssertionError("Exception reading module information of " + url, exception);
     } catch (ReflectiveOperationException exception) {
       throw new AssertionError("Exception creating module instance", exception);
     }
@@ -201,9 +199,9 @@ public class DefaultModuleProvider implements IModuleProvider {
    * {@inheritDoc}
    */
   @Override
-  public IModuleWrapper loadModule(@NotNull Path path) {
+  public IModuleWrapper loadModule(@NonNull Path path) {
     try {
-      return this.loadModule(Preconditions.checkNotNull(path, "path").toUri().toURL());
+      return this.loadModule(path.toUri().toURL());
     } catch (MalformedURLException exception) {
       LOGGER.severe("Unable to resolve url of module path", exception);
       return null;
@@ -211,7 +209,7 @@ public class DefaultModuleProvider implements IModuleProvider {
   }
 
   @Override
-  public @NotNull IModuleProvider loadAll() {
+  public @NonNull IModuleProvider loadAll() {
     FileUtils.walkFileTree(
       this.moduleDirectory,
       ($, current) -> this.loadModule(current),
@@ -224,7 +222,7 @@ public class DefaultModuleProvider implements IModuleProvider {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull IModuleProvider startAll() {
+  public @NonNull IModuleProvider startAll() {
     for (var module : this.modules) {
       module.startModule();
     }
@@ -235,7 +233,7 @@ public class DefaultModuleProvider implements IModuleProvider {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull IModuleProvider reloadAll() {
+  public @NonNull IModuleProvider reloadAll() {
     for (var module : this.modules) {
       module.reloadModule();
     }
@@ -246,7 +244,7 @@ public class DefaultModuleProvider implements IModuleProvider {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull IModuleProvider stopAll() {
+  public @NonNull IModuleProvider stopAll() {
     for (var module : this.modules) {
       module.stopModule();
     }
@@ -257,7 +255,7 @@ public class DefaultModuleProvider implements IModuleProvider {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull IModuleProvider unloadAll() {
+  public @NonNull IModuleProvider unloadAll() {
     for (var module : this.modules) {
       module.unloadModule();
     }
@@ -268,7 +266,7 @@ public class DefaultModuleProvider implements IModuleProvider {
    * {@inheritDoc}
    */
   @Override
-  public boolean notifyPreModuleLifecycleChange(@NotNull IModuleWrapper wrapper, @NotNull ModuleLifeCycle lifeCycle) {
+  public boolean notifyPreModuleLifecycleChange(@NonNull IModuleWrapper wrapper, @NonNull ModuleLifeCycle lifeCycle) {
     // remove the module from the loaded ones
     if (lifeCycle == ModuleLifeCycle.UNLOADED) {
       this.modules.remove(wrapper);
@@ -300,7 +298,7 @@ public class DefaultModuleProvider implements IModuleProvider {
    * {@inheritDoc}
    */
   @Override
-  public void notifyPostModuleLifecycleChange(@NotNull IModuleWrapper wrapper, @NotNull ModuleLifeCycle lifeCycle) {
+  public void notifyPostModuleLifecycleChange(@NonNull IModuleWrapper wrapper, @NonNull ModuleLifeCycle lifeCycle) {
     // post the change to the handler (if one is set)
     var handler = this.moduleProviderHandler;
     if (handler != null) {
@@ -323,7 +321,7 @@ public class DefaultModuleProvider implements IModuleProvider {
    * @return the deserialized module configuration file located in the provided {@code moduleFile}.
    * @throws IOException if an I/O or deserialize exception occurs.
    */
-  protected @NotNull Optional<ModuleConfiguration> findModuleConfiguration(@NotNull URL moduleFile) throws IOException {
+  protected @NonNull Optional<ModuleConfiguration> findModuleConfiguration(@NonNull URL moduleFile) throws IOException {
     try (
       InputStream buffered = new BufferedInputStream(moduleFile.openStream());
       var inputStream = new JarInputStream(buffered)
@@ -346,7 +344,7 @@ public class DefaultModuleProvider implements IModuleProvider {
    * @return the associated module to the given url.
    * @throws URISyntaxException if the given URL is not formatted strictly according to RFC2396.
    */
-  protected @NotNull Optional<IModuleWrapper> findModuleBySource(@NotNull URL fileSource) throws URISyntaxException {
+  protected @NonNull Optional<IModuleWrapper> findModuleBySource(@NonNull URL fileSource) throws URISyntaxException {
     // This implementation validates that the uri's of the path do equal. From the talk "Java Puzzlers Serves Up Brain" by Benders Galore:
     // "The important thing the audience learned here is that the URL object's equals() method is, in effect, broken."
     // and further:
@@ -357,7 +355,7 @@ public class DefaultModuleProvider implements IModuleProvider {
     // So file URLs MUST not equal but their URI will, so use this here.
     var fileSourceUri = fileSource.toURI();
     for (var module : this.modules) {
-      if (module.getUri().equals(fileSourceUri)) {
+      if (module.uri().equals(fileSourceUri)) {
         return Optional.of(module);
       }
     }
@@ -370,17 +368,17 @@ public class DefaultModuleProvider implements IModuleProvider {
    * @param configuration the module configuration to read the repositories from.
    * @return all configured repositories in a standardized way.
    */
-  protected @NotNull Map<String, String> collectModuleProvidedRepositories(@NotNull ModuleConfiguration configuration) {
+  protected @NonNull Map<String, String> collectModuleProvidedRepositories(@NonNull ModuleConfiguration configuration) {
     Map<String, String> repositories = new HashMap<>();
-    if (configuration.getRepositories() != null) {
+    if (configuration.repositories() != null) {
       // iterate over all repositories and ensure that the repository url is in a readable format.
-      for (var repo : configuration.getRepositories()) {
+      for (var repo : configuration.repositories()) {
         if (repo == null) {
           continue;
         }
         // ensure that all properties of the repo are present
         repo.assertComplete();
-        repositories.putIfAbsent(repo.getName(), repo.getUrl().endsWith("/") ? repo.getUrl() : repo.getUrl() + "/");
+        repositories.putIfAbsent(repo.name(), repo.url().endsWith("/") ? repo.url() : repo.url() + "/");
       }
     }
     return repositories;
@@ -394,34 +392,34 @@ public class DefaultModuleProvider implements IModuleProvider {
    * @return a pair, first are all the loaded dependencies; second are all the pending ones (module dependencies)
    * @throws AssertionError If one dependency can't be loaded.
    */
-  protected @NotNull Pair<Set<URL>, Set<ModuleDependency>> loadDependencies(
-    @NotNull Map<String, String> repos,
-    @NotNull ModuleConfiguration configuration
+  protected @NonNull Pair<Set<URL>, Set<ModuleDependency>> loadDependencies(
+    @NonNull Map<String, String> repos,
+    @NonNull ModuleConfiguration configuration
   ) {
     Set<URL> loadedDependencies = new HashSet<>();
     Set<ModuleDependency> pendingModuleDependencies = new HashSet<>();
-    if (configuration.getDependencies() != null) {
+    if (configuration.dependencies() != null) {
       // yep for later posting of events to this thing
       var handler = this.moduleProviderHandler;
       // iterate over all dependencies - these may be a module or a remote dependency (visible by the given properties)
-      for (var dependency : configuration.getDependencies()) {
+      for (var dependency : configuration.dependencies()) {
         if (dependency == null) {
           continue;
         }
         // ensure that the required properties are set
         dependency.assertDefaultPropertiesSet();
         // decide which way to go (by url or repository). In this case we start with the more common repository way
-        if (dependency.getRepo() != null) {
+        if (dependency.repo() != null) {
           var repoUrl = Preconditions.checkNotNull(
-            repos.get(dependency.getRepo()),
+            repos.get(dependency.repo()),
             "Dependency %s declared unknown repository %s as it's source",
-            dependency.toString(), dependency.getRepo());
+            dependency.toString(), dependency.repo());
           loadedDependencies.add(this.doLoadDependency(dependency, configuration, handler,
             () -> this.moduleDependencyLoader.loadModuleDependencyByRepository(configuration, dependency, repoUrl)));
           continue;
         }
         // check if the repository defined a fixed download url for us to use
-        if (dependency.getUrl() != null) {
+        if (dependency.url() != null) {
           loadedDependencies.add(this.doLoadDependency(dependency, configuration, handler,
             () -> this.moduleDependencyLoader.loadModuleDependencyByUrl(configuration, dependency)));
           continue;
@@ -444,11 +442,11 @@ public class DefaultModuleProvider implements IModuleProvider {
    * @return the location of the loaded dependency in url form.
    * @throws AssertionError if loader fails to load the dependency.
    */
-  protected @NotNull URL doLoadDependency(
-    @NotNull ModuleDependency dependency,
-    @NotNull ModuleConfiguration configuration,
+  protected @NonNull URL doLoadDependency(
+    @NonNull ModuleDependency dependency,
+    @NonNull ModuleConfiguration configuration,
     @Nullable IModuleProviderHandler handler,
-    @NotNull Callable<URL> loader
+    @NonNull Callable<URL> loader
   ) {
     // post the pre-load to the handler if necessary
     if (handler != null) {

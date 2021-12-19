@@ -19,8 +19,8 @@ package de.dytanic.cloudnet.driver.network.protocol;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -55,34 +55,34 @@ public class Packet implements IPacket {
   }
 
   @Override
-  public IPacket constructResponse(DataBuf content) {
+  public @NonNull IPacket constructResponse(@NonNull DataBuf content) {
     var packet = new Packet(-1, content);
-    packet.setUniqueId(this.getUniqueId());
+    packet.uniqueId(this.uniqueId());
     return packet;
   }
 
   @Override
-  public @Nullable UUID getUniqueId() {
+  public @Nullable UUID uniqueId() {
     return this.uniqueId;
   }
 
   @Override
-  public void setUniqueId(@Nullable UUID uniqueId) {
+  public void uniqueId(@Nullable UUID uniqueId) {
     this.uniqueId = uniqueId;
   }
 
   @Override
-  public int getChannel() {
+  public int channel() {
     return this.channel;
   }
 
   @Override
-  public @NotNull DataBuf getContent() {
+  public @NonNull DataBuf content() {
     return this.dataBuf;
   }
 
   @Override
-  public long getCreationMillis() {
+  public long creationMillis() {
     return this.creationMillis;
   }
 }

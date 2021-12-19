@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.driver.module;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * Thrown when a module depends on another module which is not loaded.
@@ -29,7 +29,7 @@ public class ModuleDependencyNotFoundException extends RuntimeException {
    * @param dependency      the name of the dependency which is missing.
    * @param requiringModule the module which required the dependency to be present.
    */
-  public ModuleDependencyNotFoundException(@NotNull String dependency, @NotNull String requiringModule) {
+  public ModuleDependencyNotFoundException(@NonNull String dependency, @NonNull String requiringModule) {
     super(String.format("Missing module dependency %s required by %s", dependency, requiringModule));
   }
 }

@@ -8,7 +8,7 @@ guava = "31.0.1-jre"
 
 # testing
 junit = "5.8.2"
-mockito = "4.1.0"
+mockito = "4.2.0"
 tyrusClient = "2.0.1"
 minaSshdServer = "2.8.0"
 
@@ -82,6 +82,7 @@ junitParams = { group = "org.junit.jupiter", name = "junit-jupiter-params", vers
 junitEngine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junit" }
 
 # general testing
+mockitoInline = { group = "org.mockito", name = "mockito-inline", version.ref = "mockito" }
 mockito = { group = "org.mockito", name = "mockito-junit-jupiter", version.ref = "mockito" }
 minaSshdServer = { group = "org.apache.sshd", name = "sshd-sftp", version.ref = "minaSshdServer" }
 tyrus = { group = "org.glassfish.tyrus.bundles", name = "tyrus-standalone-client", version.ref = "tyrusClient" }
@@ -96,7 +97,7 @@ nettyCodecHttp = { group = "io.netty", name = "netty-codec-http", version.ref = 
 nettyNativeEpoll = { group = "io.netty", name = "netty-transport-native-epoll", version.ref = "netty" }
 
 # general
-asm = { group = "org.ow2.asm", name = "asm", version.ref = "asm" }
+asm = { group = "org.ow2.asm", name = "asm-tree", version.ref = "asm" }
 sshj = { group = "com.hierynomus", name = "sshj", version.ref = "sshj" }
 slf4jNop = { group = "org.slf4j", name = "slf4j-nop", version.ref = "slf4j" }
 javers = { group = "org.javers", name = "javers-core", version.ref = "javers" }
@@ -132,6 +133,7 @@ protocolLib = { group = "com.github.dmulloy2", name = "ProtocolLib", version.ref
 [bundles]
 
 unirest = ["unirest", "unirestGson"]
+mockito = ["mockito", "mockitoInline"]
 mysql = ["mysqlConnector", "hikariCp"]
 cloud = ["cloudCore", "cloudAnnotations"]
 netty = ["nettyHandler", "nettyCodecHttp"]

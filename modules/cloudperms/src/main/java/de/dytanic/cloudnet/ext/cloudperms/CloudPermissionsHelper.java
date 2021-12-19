@@ -26,30 +26,30 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class CloudPermissionsHelper {
 
-  private static final Logger LOGGER = LogManager.getLogger(CloudPermissionsHelper.class);
+  private static final Logger LOGGER = LogManager.logger(CloudPermissionsHelper.class);
 
   private CloudPermissionsHelper() {
     throw new UnsupportedOperationException();
   }
 
   public static void initPermissionUser(
-    @NotNull IPermissionManagement permissionsManagement,
-    @NotNull UUID uniqueId,
-    @NotNull String name,
-    @NotNull Consumer<String> disconnectHandler
+    @NonNull IPermissionManagement permissionsManagement,
+    @NonNull UUID uniqueId,
+    @NonNull String name,
+    @NonNull Consumer<String> disconnectHandler
   ) {
     initPermissionUser(permissionsManagement, uniqueId, name, disconnectHandler, true);
   }
 
   public static void initPermissionUser(
-    @NotNull IPermissionManagement permissionsManagement,
-    @NotNull UUID uniqueId,
-    @NotNull String name,
-    @NotNull Consumer<String> disconnectHandler,
+    @NonNull IPermissionManagement permissionsManagement,
+    @NonNull UUID uniqueId,
+    @NonNull String name,
+    @NonNull Consumer<String> disconnectHandler,
     boolean shouldUpdateName
   ) {
     PermissionUser permissionUser;
@@ -67,8 +67,8 @@ public final class CloudPermissionsHelper {
       management.acquireLock(permissionUser);
     }
 
-    if (shouldUpdateName && !name.equals(permissionUser.getName())) {
-      permissionUser.setName(name);
+    if (shouldUpdateName && !name.equals(permissionUser.name())) {
+      permissionUser.name(name);
       permissionsManagement.updateUserAsync(permissionUser);
     }
   }
@@ -76,7 +76,7 @@ public final class CloudPermissionsHelper {
   public static void handlePlayerQuit(IPermissionManagement permissionsManagement, UUID uniqueId) {
     var management = asCachedPermissionManagement(permissionsManagement);
     if (management != null) {
-      var cachedUser = management.getCachedUser(uniqueId);
+      var cachedUser = management.cachedUser(uniqueId);
       if (cachedUser != null) {
         management.unlock(cachedUser);
       }

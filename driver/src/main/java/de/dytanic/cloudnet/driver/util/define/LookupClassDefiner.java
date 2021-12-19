@@ -28,7 +28,7 @@ import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * A class definer for modern jvm implementation (Java 15+) which makes use of the newly added {@code defineHiddenClass}
@@ -58,7 +58,7 @@ final class LookupClassDefiner implements ClassDefiner {
     Object hiddenClassOptions = null;
     Method defineHiddenMethod = null;
 
-    if (UnsafeAccess.isAvailable()) {
+    if (UnsafeAccess.available()) {
       try {
         // get the trusted lookup field
         var implLookup = Lookup.class.getDeclaredField("IMPL_LOOKUP");
@@ -99,7 +99,7 @@ final class LookupClassDefiner implements ClassDefiner {
    * @throws Exception if any exception occurs during the array lookup.
    */
   @SuppressWarnings({"rawtypes", "unchecked"})
-  private static @NotNull Object classOptionArray() throws Exception {
+  private static @NonNull Object classOptionArray() throws Exception {
     // the ClassOption enum is a subclass of the Lookup class
     Class optionClass = Class.forName(Lookup.class.getName() + "$ClassOption");
     // create an array of these options (for now always one option)
@@ -115,7 +115,7 @@ final class LookupClassDefiner implements ClassDefiner {
    *
    * @return if the lookup class definer requirements are met to use the definer in the current jvm.
    */
-  public static boolean isAvailable() {
+  public static boolean available() {
     return TRUSTED_LOOKUP != null && HIDDEN_CLASS_OPTIONS != null && DEFINE_HIDDEN_METHOD != null;
   }
 
@@ -123,7 +123,7 @@ final class LookupClassDefiner implements ClassDefiner {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull Class<?> defineClass(@NotNull String name, @NotNull Class<?> parent, byte[] bytecode) {
+  public @NonNull Class<?> defineClass(@NonNull String name, @NonNull Class<?> parent, byte[] bytecode) {
     try {
       // define the method using the method handle
       var lookup = (Lookup) DEFINE_HIDDEN_METHOD.invoke(

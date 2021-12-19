@@ -23,8 +23,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
@@ -42,11 +42,11 @@ public class ServiceId implements INameable {
   protected volatile ServiceEnvironmentType environment;
 
   protected ServiceId(
-    @NotNull String taskName,
-    @NotNull String nameSplitter,
-    @NotNull String environmentName,
-    @NotNull Set<String> allowedNodes,
-    @NotNull UUID uniqueId,
+    @NonNull String taskName,
+    @NonNull String nameSplitter,
+    @NonNull String environmentName,
+    @NonNull Set<String> allowedNodes,
+    @NonNull UUID uniqueId,
     int taskServiceId,
     @Nullable String nodeUniqueId,
     @Nullable ServiceEnvironmentType environment
@@ -61,70 +61,70 @@ public class ServiceId implements INameable {
     this.environment = environment;
   }
 
-  public static @NotNull Builder builder() {
+  public static @NonNull Builder builder() {
     return new Builder();
   }
 
   @Override
-  public @NotNull String getName() {
+  public @NonNull String name() {
     return this.taskName + this.nameSplitter + this.taskServiceId;
   }
 
-  public @NotNull UUID getUniqueId() {
+  public @NonNull UUID uniqueId() {
     return this.uniqueId;
   }
 
   @Internal
-  public void setUniqueId(@NotNull UUID uniqueId) {
+  public void uniqueId(@NonNull UUID uniqueId) {
     this.uniqueId = uniqueId;
   }
 
-  public @UnknownNullability String getNodeUniqueId() {
+  public @UnknownNullability String nodeUniqueId() {
     return this.nodeUniqueId;
   }
 
   @Internal
-  public void setNodeUniqueId(@NotNull String nodeUniqueId) {
+  public void nodeUniqueId(@NonNull String nodeUniqueId) {
     this.nodeUniqueId = nodeUniqueId;
   }
 
-  public @NotNull Collection<String> getAllowedNodes() {
+  public @NonNull Collection<String> allowedNodes() {
     return this.allowedNodes;
   }
 
-  public @NotNull String getTaskName() {
+  public @NonNull String taskName() {
     return this.taskName;
   }
 
-  public @NotNull String getNameSplitter() {
+  public @NonNull String nameSplitter() {
     return this.nameSplitter;
   }
 
-  public @NotNull String getEnvironmentName() {
+  public @NonNull String environmentName() {
     return this.environmentName;
   }
 
-  public int getTaskServiceId() {
+  public int taskServiceId() {
     return this.taskServiceId;
   }
 
   @Internal
-  public void setTaskServiceId(int taskServiceId) {
+  public void taskServiceId(int taskServiceId) {
     this.taskServiceId = taskServiceId;
   }
 
-  public @UnknownNullability ServiceEnvironmentType getEnvironment() {
+  public @UnknownNullability ServiceEnvironmentType environment() {
     return this.environment;
   }
 
   @Internal
-  public void setEnvironment(@NotNull ServiceEnvironmentType environment) {
+  public void environment(@NonNull ServiceEnvironmentType environment) {
     this.environment = environment;
   }
 
   @Override
   public String toString() {
-    return this.getName() + ':' + this.uniqueId;
+    return this.name() + ':' + this.uniqueId;
   }
 
   public static class Builder {
@@ -140,53 +140,53 @@ public class ServiceId implements INameable {
     protected ServiceEnvironmentType environment;
     protected Set<String> allowedNodes = new HashSet<>();
 
-    public @NotNull Builder uniqueId(@NotNull UUID uniqueId) {
+    public @NonNull Builder uniqueId(@NonNull UUID uniqueId) {
       this.uniqueId = uniqueId;
       return this;
     }
 
-    public @NotNull Builder taskName(@NotNull String taskName) {
+    public @NonNull Builder taskName(@NonNull String taskName) {
       this.taskName = taskName;
       return this;
     }
 
-    public @NotNull Builder taskServiceId(int taskServiceId) {
+    public @NonNull Builder taskServiceId(int taskServiceId) {
       this.taskServiceId = taskServiceId;
       return this;
     }
 
-    public @NotNull Builder nodeUniqueId(@Nullable String nodeUniqueId) {
+    public @NonNull Builder nodeUniqueId(@Nullable String nodeUniqueId) {
       this.nodeUniqueId = nodeUniqueId;
       return this;
     }
 
-    public @NotNull Builder nameSplitter(@NotNull String nameSplitter) {
+    public @NonNull Builder nameSplitter(@NonNull String nameSplitter) {
       this.nameSplitter = nameSplitter;
       return this;
     }
 
-    public @NotNull Builder environment(@NotNull String environmentName) {
+    public @NonNull Builder environment(@NonNull String environmentName) {
       this.environmentName = environmentName;
       return this;
     }
 
-    public @NotNull Builder environment(@NotNull ServiceEnvironmentType environment) {
+    public @NonNull Builder environment(@NonNull ServiceEnvironmentType environment) {
       this.environment = environment;
-      this.environmentName = environment.getName();
+      this.environmentName = environment.name();
       return this;
     }
 
-    public @NotNull Builder allowedNodes(@NotNull Collection<String> allowedNodes) {
+    public @NonNull Builder allowedNodes(@NonNull Collection<String> allowedNodes) {
       this.allowedNodes = new HashSet<>(allowedNodes);
       return this;
     }
 
-    public @NotNull Builder addAllowedNode(@NotNull String nodeUniqueId) {
+    public @NonNull Builder addAllowedNode(@NonNull String nodeUniqueId) {
       this.allowedNodes.add(nodeUniqueId);
       return this;
     }
 
-    public @NotNull ServiceId build() {
+    public @NonNull ServiceId build() {
       Preconditions.checkNotNull(this.taskName, "no task name given");
       Preconditions.checkNotNull(this.environmentName, "no environment given");
       Preconditions.checkArgument(this.taskServiceId == -1 || this.taskServiceId > 0, "taskServiceId <= 0");

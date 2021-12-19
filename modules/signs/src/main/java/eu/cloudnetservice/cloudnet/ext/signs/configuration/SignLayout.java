@@ -16,56 +16,14 @@
 
 package eu.cloudnetservice.cloudnet.ext.signs.configuration;
 
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
-@ToString
-@EqualsAndHashCode
-public class SignLayout {
+public record SignLayout(
+  @NonNull String[] lines,
+  @NonNull String blockMaterial,
+  int blockSubId,
+  @Nullable String glowingColor
+) {
 
-  protected String[] lines;
-  protected String blockMaterial;
-  protected int blockSubId;
-  protected String glowingColor;
-
-  public SignLayout() {
-  }
-
-  public SignLayout(String[] lines, String blockMaterial, int blockSubId) {
-    this.lines = lines;
-    this.blockMaterial = blockMaterial;
-    this.blockSubId = blockSubId;
-  }
-
-  public String[] getLines() {
-    return this.lines;
-  }
-
-  public void setLines(String[] lines) {
-    this.lines = lines;
-  }
-
-  public String getBlockMaterial() {
-    return this.blockMaterial;
-  }
-
-  public void setBlockMaterial(String blockMaterial) {
-    this.blockMaterial = blockMaterial;
-  }
-
-  public int getBlockSubId() {
-    return this.blockSubId;
-  }
-
-  public void setBlockSubId(int blockSubId) {
-    this.blockSubId = blockSubId;
-  }
-
-  public String getGlowingColor() {
-    return this.glowingColor;
-  }
-
-  public void setGlowingColor(String glowingColor) {
-    this.glowingColor = glowingColor;
-  }
 }

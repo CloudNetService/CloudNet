@@ -17,11 +17,11 @@
 package de.dytanic.cloudnet.driver.network.netty.http;
 
 import de.dytanic.cloudnet.driver.network.http.HttpVersion;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class NettyHttpMessage {
 
-  protected @NotNull HttpVersion getCloudNetHttpVersion(@NotNull io.netty.handler.codec.http.HttpVersion httpVersion) {
+  protected @NonNull HttpVersion versionFromNetty(@NonNull io.netty.handler.codec.http.HttpVersion httpVersion) {
     if (httpVersion == io.netty.handler.codec.http.HttpVersion.HTTP_1_1) {
       return HttpVersion.HTTP_1_1;
     } else {
@@ -29,7 +29,7 @@ public class NettyHttpMessage {
     }
   }
 
-  protected @NotNull io.netty.handler.codec.http.HttpVersion getNettyHttpVersion(@NotNull HttpVersion httpVersion) {
+  protected @NonNull io.netty.handler.codec.http.HttpVersion versionToNetty(@NonNull HttpVersion httpVersion) {
     if (httpVersion == HttpVersion.HTTP_1_1) {
       return io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
     } else {

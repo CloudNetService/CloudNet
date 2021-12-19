@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.driver.module;
 
 import com.google.common.base.Verify;
 import lombok.EqualsAndHashCode;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -40,7 +40,7 @@ public class ModuleDependency {
    * @param name    the name of the dependency.
    * @param version the version of the dependency.
    */
-  public ModuleDependency(@NotNull String group, @NotNull String name, @NotNull String version) {
+  public ModuleDependency(@NonNull String group, @NonNull String name, @NonNull String version) {
     this(null, group, name, version);
   }
 
@@ -54,7 +54,7 @@ public class ModuleDependency {
    * @param name    the name of the dependency.
    * @param version the version of the dependency.
    */
-  public ModuleDependency(@Nullable String repo, @NotNull String group, @NotNull String name, @NotNull String version) {
+  public ModuleDependency(@Nullable String repo, @NonNull String group, @NonNull String name, @NonNull String version) {
     this(repo, null, group, name, version);
   }
 
@@ -74,9 +74,9 @@ public class ModuleDependency {
   public ModuleDependency(
     @Nullable String repo,
     @Nullable String url,
-    @NotNull String group,
-    @NotNull String name,
-    @NotNull String version
+    @NonNull String group,
+    @NonNull String name,
+    @NonNull String version
   ) {
     this.repo = repo;
     this.url = url;
@@ -90,7 +90,7 @@ public class ModuleDependency {
    *
    * @return the repository this dependency is located in or {@code null} if not located in a repository.
    */
-  public @Nullable String getRepo() {
+  public @Nullable String repo() {
     return this.repo;
   }
 
@@ -99,7 +99,7 @@ public class ModuleDependency {
    *
    * @return the direct download url of this dependency or {@code null} if there is no direct download url.
    */
-  public @Nullable String getUrl() {
+  public @Nullable String url() {
     return this.url;
   }
 
@@ -108,7 +108,7 @@ public class ModuleDependency {
    *
    * @return the group of this dependency.
    */
-  public @NotNull String getGroup() {
+  public @NonNull String group() {
     return this.group;
   }
 
@@ -117,7 +117,7 @@ public class ModuleDependency {
    *
    * @return the name of this dependency.
    */
-  public @NotNull String getName() {
+  public @NonNull String name() {
     return this.name;
   }
 
@@ -126,7 +126,7 @@ public class ModuleDependency {
    *
    * @return the version of this dependency.
    */
-  public @NotNull String getVersion() {
+  public @NonNull String version() {
     return this.version;
   }
 

@@ -18,21 +18,21 @@ package de.dytanic.cloudnet.event.service;
 
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.service.ICloudService;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class CloudServicePostLifecycleEvent extends CloudServiceEvent {
 
   private final ServiceLifeCycle newLifeCycle;
 
   public CloudServicePostLifecycleEvent(
-    @NotNull ICloudService service,
-    @NotNull ServiceLifeCycle newLifeCycle
+    @NonNull ICloudService service,
+    @NonNull ServiceLifeCycle newLifeCycle
   ) {
     super(service);
     this.newLifeCycle = newLifeCycle;
   }
 
-  public @NotNull ServiceLifeCycle getNewLifeCycle() {
+  public @NonNull ServiceLifeCycle newLifeCycle() {
     return this.newLifeCycle;
   }
 }

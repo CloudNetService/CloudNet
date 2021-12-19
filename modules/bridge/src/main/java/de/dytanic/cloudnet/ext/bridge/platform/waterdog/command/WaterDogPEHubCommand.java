@@ -24,16 +24,16 @@ import dev.waterdog.waterdogpe.command.CommandSettings;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
 import dev.waterdog.waterdogpe.utils.types.TextContainer;
 import java.util.Locale;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class WaterDogPEHubCommand extends Command {
 
   private final PlatformBridgeManagement<ProxiedPlayer, ?> management;
 
   public WaterDogPEHubCommand(
-    @NotNull PlatformBridgeManagement<ProxiedPlayer, ?> management,
-    @NotNull String name,
-    String @NotNull [] aliases
+    @NonNull PlatformBridgeManagement<ProxiedPlayer, ?> management,
+    @NonNull String name,
+    String @NonNull [] aliases
   ) {
     super(name, CommandSettings.builder().setAliases(aliases).build());
     this.management = management;
@@ -44,18 +44,18 @@ public final class WaterDogPEHubCommand extends Command {
     if (sender instanceof ProxiedPlayer player) {
       // check if the player is on a fallback already
       if (this.management.isOnAnyFallbackInstance(player)) {
-        player.sendMessage(new TextContainer(this.management.getConfiguration().getMessage(
+        player.sendMessage(new TextContainer(this.management.configuration().message(
           Locale.ENGLISH,
           "command-hub-already-in-hub")));
       } else {
         // try to get a fallback for the player
-        var hub = this.management.getFallback(player)
-          .map(service -> ProxyServer.getInstance().getServerInfo(service.getName()))
+        var hub = this.management.fallback(player)
+          .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
           .orElse(null);
         // check if a fallback was found
         if (hub != null) {
           player.connect(hub);
-          player.sendMessage(new TextContainer(this.management.getConfiguration().getMessage(
+          player.sendMessage(new TextContainer(this.management.configuration().message(
             Locale.ENGLISH,
             "command-hub-success-connect"
           ).replace("%server%", hub.getServerName())));

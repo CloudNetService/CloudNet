@@ -25,8 +25,8 @@ public class ServiceInfoSnapshotEmitter implements ReportDataEmitter<ICloudServi
   @Override
   public void emitData(StringBuilder builder, ICloudService service) {
     builder
-      .append(" - ServiceInfoSnapshot ").append(service.getServiceId().getName()).append(" - \n")
-      .append(JsonDocument.newDocument(service.getServiceInfoSnapshot()).toPrettyJson()).append("\n")
+      .append(" - ServiceInfoSnapshot ").append(service.serviceId().name()).append(" - \n")
+      .append(JsonDocument.newDocument(service.serviceInfo()).toPrettyJson()).append("\n")
       .append(" - ServiceInfoSnapshot END - \n\n");
   }
 }

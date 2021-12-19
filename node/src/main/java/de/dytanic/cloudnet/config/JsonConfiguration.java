@@ -17,8 +17,6 @@
 package de.dytanic.cloudnet.config;
 
 import com.google.common.base.Enums;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.StringUtil;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
@@ -32,7 +30,6 @@ import de.dytanic.cloudnet.setup.DefaultConfigSetup;
 import de.dytanic.cloudnet.util.NetworkAddressUtil;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -41,11 +38,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class JsonConfiguration implements IConfiguration {
 
-  public static final Path CONFIG_FILE_PATH = Paths.get(
+  public static final Path CONFIG_FILE_PATH = Path.of(
     System.getProperty("cloudnet.config.json.path", "config.json"));
 
   private static final Function<String, SSLConfiguration> SSL_CONFIG_PARSER = value -> {
@@ -54,9 +51,9 @@ public final class JsonConfiguration implements IConfiguration {
       return new SSLConfiguration(
         Boolean.parseBoolean(values[0]),
         Boolean.parseBoolean(values[1]),
-        values.length == 5 ? Paths.get(values[2]) : null,
-        Paths.get(values[values.length - 2]),
-        Paths.get(values[values.length - 1]));
+        values.length == 5 ? Path.of(values[2]) : null,
+        Path.of(values[values.length - 2]),
+        Path.of(values[values.length - 1]));
     }
     // unable to parse
     return null;
@@ -93,10 +90,10 @@ public final class JsonConfiguration implements IConfiguration {
 
   public JsonConfiguration() {
     // TODO: remove in 4.1
-    var oldRegistry = Paths.get("local", "registry");
+    var oldRegistry = Path.of("local", "registry");
     if (Files.exists(oldRegistry)) {
       var entries = JsonDocument.newDocument(oldRegistry).getDocument("entries");
-      if (!entries.isEmpty()) {
+      if (!entries.empty()) {
         this.properties = JsonDocument.newDocument();
         this.properties.append(entries);
       }
@@ -105,10 +102,10 @@ public final class JsonConfiguration implements IConfiguration {
     }
   }
 
-  public static @NotNull IConfiguration loadFromFile(@NotNull CloudNet nodeInstance) {
+  public static @NonNull IConfiguration loadFromFile(@NonNull CloudNet nodeInstance) {
     if (Files.notExists(CONFIG_FILE_PATH)) {
       // register the setup if the file does not exists
-      nodeInstance.getInstallation().registerSetup(new DefaultConfigSetup());
+      nodeInstance.installation().registerSetup(new DefaultConfigSetup());
       return new JsonConfiguration().load();
     } else {
       return JsonDocument.newDocument(CONFIG_FILE_PATH).toInstanceOf(JsonConfiguration.class).load();
@@ -116,12 +113,12 @@ public final class JsonConfiguration implements IConfiguration {
   }
 
   @Override
-  public boolean isFileExists() {
+  public boolean fileExists() {
     return Files.exists(CONFIG_FILE_PATH);
   }
 
   @Override
-  public @NotNull IConfiguration load() {
+  public @NonNull IConfiguration load() {
     if (this.identity == null) {
       this.identity = new NetworkClusterNode(
         ConfigurationUtils.get(
@@ -129,7 +126,7 @@ public final class JsonConfiguration implements IConfiguration {
           "Node-" + StringUtil.generateRandomString(4)),
         ConfigurationUtils.get(
           "cloudnet.config.listeners",
-          new HostAndPort[]{new HostAndPort(NetworkAddressUtil.getLocalAddress(), 1410)},
+          new HostAndPort[]{new HostAndPort(NetworkAddressUtil.localAddress(), 1410)},
           ConfigurationUtils.HOST_AND_PORT_PARSER));
     }
 
@@ -157,8 +154,8 @@ public final class JsonConfiguration implements IConfiguration {
     if (this.ipWhitelist == null) {
       this.ipWhitelist = ConfigurationUtils.get(
         "cloudnet.config.ipWhitelist",
-        NetworkAddressUtil.getAvailableIpAddresses(),
-        value -> ImmutableSet.copyOf(value.split(",")));
+        NetworkAddressUtil.availableIPAddresses(),
+        value -> Set.of(value.split(",")));
     }
 
     if (this.maxCPUUsageToStartServices <= 0) {
@@ -222,7 +219,7 @@ public final class JsonConfiguration implements IConfiguration {
     }
 
     if (this.hostAddress == null) {
-      this.hostAddress = ConfigurationUtils.get("cloudnet.config.hostAddress", NetworkAddressUtil.getLocalAddress());
+      this.hostAddress = ConfigurationUtils.get("cloudnet.config.hostAddress", NetworkAddressUtil.localAddress());
     }
 
     if (this.connectHostAddress == null) {
@@ -243,8 +240,8 @@ public final class JsonConfiguration implements IConfiguration {
           false,
           false,
           null,
-          Paths.get("cert.pem"),
-          Paths.get("private.pem")),
+          Path.of("cert.pem"),
+          Path.of("private.pem")),
         SSL_CONFIG_PARSER);
     }
 
@@ -255,8 +252,8 @@ public final class JsonConfiguration implements IConfiguration {
           false,
           false,
           null,
-          Paths.get("cert.pem"),
-          Paths.get("private.pem")),
+          Path.of("cert.pem"),
+          Path.of("private.pem")),
         SSL_CONFIG_PARSER);
     }
 
@@ -267,8 +264,8 @@ public final class JsonConfiguration implements IConfiguration {
           false,
           false,
           null,
-          Paths.get("cert.pem"),
-          Paths.get("private.pem")),
+          Path.of("cert.pem"),
+          Path.of("private.pem")),
         SSL_CONFIG_PARSER);
     }
 
@@ -283,202 +280,198 @@ public final class JsonConfiguration implements IConfiguration {
   }
 
   @Override
-  public @NotNull IConfiguration save() {
+  public @NonNull IConfiguration save() {
     JsonDocument.newDocument(this).write(CONFIG_FILE_PATH);
     return this;
   }
 
   @Override
-  public @NotNull NetworkClusterNode getIdentity() {
+  public @NonNull NetworkClusterNode identity() {
     return this.identity;
   }
 
   @Override
-  public void setIdentity(@NotNull NetworkClusterNode identity) {
+  public void identity(@NonNull NetworkClusterNode identity) {
     this.identity = identity;
   }
 
   @Override
-  public @NotNull NetworkCluster getClusterConfig() {
+  public @NonNull NetworkCluster clusterConfig() {
     return this.clusterConfig;
   }
 
   @Override
-  public void setClusterConfig(@NotNull NetworkCluster clusterConfig) {
-    Preconditions.checkNotNull(clusterConfig);
-
+  public void clusterConfig(@NonNull NetworkCluster clusterConfig) {
     this.clusterConfig = clusterConfig;
   }
 
   @Override
-  public @NotNull Collection<String> getIpWhitelist() {
+  public @NonNull Collection<String> ipWhitelist() {
     return this.ipWhitelist != null ? this.ipWhitelist : (this.ipWhitelist = new HashSet<>());
   }
 
   @Override
-  public void setIpWhitelist(@NotNull Collection<String> whitelist) {
+  public void ipWhitelist(@NonNull Collection<String> whitelist) {
     this.ipWhitelist = new HashSet<>(whitelist);
   }
 
   @Override
-  public double getMaxCPUUsageToStartServices() {
+  public double maxCPUUsageToStartServices() {
     return this.maxCPUUsageToStartServices;
   }
 
   @Override
-  public void setMaxCPUUsageToStartServices(double value) {
+  public void maxCPUUsageToStartServices(double value) {
     this.maxCPUUsageToStartServices = value;
   }
 
   @Override
-  public boolean isRunBlockedServiceStartTryLaterAutomatic() {
+  public boolean runBlockedServiceStartTryLaterAutomatic() {
     return this.runBlockedServiceStartTryLaterAutomatic;
   }
 
   @Override
-  public void setRunBlockedServiceStartTryLaterAutomatic(boolean runBlockedServiceStartTryLaterAutomatic) {
+  public void runBlockedServiceStartTryLaterAutomatic(boolean runBlockedServiceStartTryLaterAutomatic) {
     this.runBlockedServiceStartTryLaterAutomatic = runBlockedServiceStartTryLaterAutomatic;
   }
 
   @Override
-  public int getMaxMemory() {
+  public int maxMemory() {
     return this.maxMemory;
   }
 
   @Override
-  public void setMaxMemory(int memory) {
+  public void maxMemory(int memory) {
     this.maxMemory = memory;
   }
 
   @Override
-  public int getMaxServiceConsoleLogCacheSize() {
+  public int maxServiceConsoleLogCacheSize() {
     return this.maxServiceConsoleLogCacheSize;
   }
 
   @Override
-  public void setMaxServiceConsoleLogCacheSize(int maxServiceConsoleLogCacheSize) {
+  public void maxServiceConsoleLogCacheSize(int maxServiceConsoleLogCacheSize) {
     this.maxServiceConsoleLogCacheSize = maxServiceConsoleLogCacheSize;
   }
 
   @Override
-  public boolean isPrintErrorStreamLinesFromServices() {
+  public boolean printErrorStreamLinesFromServices() {
     return this.printErrorStreamLinesFromServices;
   }
 
   @Override
-  public void setPrintErrorStreamLinesFromServices(boolean printErrorStreamLinesFromServices) {
+  public void printErrorStreamLinesFromServices(boolean printErrorStreamLinesFromServices) {
     this.printErrorStreamLinesFromServices = printErrorStreamLinesFromServices;
   }
 
   @Override
-  public @NotNull DefaultJVMFlags getDefaultJVMFlags() {
+  public @NonNull DefaultJVMFlags defaultJVMFlags() {
     return this.defaultJVMFlags;
   }
 
   @Override
-  public void setDefaultJVMFlags(@NotNull DefaultJVMFlags defaultJVMFlags) {
+  public void defaultJVMFlags(@NonNull DefaultJVMFlags defaultJVMFlags) {
     this.defaultJVMFlags = defaultJVMFlags;
   }
 
   @Override
-  public @NotNull String getHostAddress() {
+  public @NonNull String hostAddress() {
     return this.hostAddress;
   }
 
   @Override
-  public void setHostAddress(@NotNull String hostAddress) {
+  public void hostAddress(@NonNull String hostAddress) {
     this.hostAddress = hostAddress;
   }
 
   @Override
-  public @NotNull Collection<HostAndPort> getHttpListeners() {
+  public @NonNull Collection<HostAndPort> httpListeners() {
     return this.httpListeners != null ? this.httpListeners : (this.httpListeners = new ArrayList<>());
   }
 
   @Override
-  public void setHttpListeners(@NotNull Collection<HostAndPort> httpListeners) {
-    Preconditions.checkNotNull(httpListeners);
-
+  public void httpListeners(@NonNull Collection<HostAndPort> httpListeners) {
     this.httpListeners = httpListeners;
   }
 
   @Override
-  public @NotNull String getConnectHostAddress() {
+  public @NonNull String connectHostAddress() {
     return this.connectHostAddress;
   }
 
   @Override
-  public void setConnectHostAddress(@NotNull String connectHostAddress) {
+  public void connectHostAddress(@NonNull String connectHostAddress) {
     this.connectHostAddress = connectHostAddress;
   }
 
   @Override
-  public @NotNull SSLConfiguration getClientSslConfig() {
+  public @NonNull SSLConfiguration clientSSLConfig() {
     return this.clientSslConfig;
   }
 
   @Override
-  public void setClientSslConfig(@NotNull SSLConfiguration clientSslConfig) {
+  public void clientSSLConfig(@NonNull SSLConfiguration clientSslConfig) {
     this.clientSslConfig = clientSslConfig;
   }
 
   @Override
-  public @NotNull SSLConfiguration getServerSslConfig() {
+  public @NonNull SSLConfiguration serverSSLConfig() {
     return this.serverSslConfig;
   }
 
   @Override
-  public void setServerSslConfig(@NotNull SSLConfiguration serverSslConfig) {
+  public void serverSSLConfig(@NonNull SSLConfiguration serverSslConfig) {
     this.serverSslConfig = serverSslConfig;
   }
 
   @Override
-  public @NotNull SSLConfiguration getWebSslConfig() {
+  public @NonNull SSLConfiguration webSSLConfig() {
     return this.webSslConfig;
   }
 
   @Override
-  public void setWebSslConfig(@NotNull SSLConfiguration webSslConfig) {
+  public void webSSLConfig(@NonNull SSLConfiguration webSslConfig) {
     this.webSslConfig = webSslConfig;
   }
 
   @Override
-  public @NotNull String getJVMCommand() {
+  public @NonNull String javaCommand() {
     return this.jvmCommand;
   }
 
   @Override
-  public void setJVMCommand(@NotNull String jvmCommand) {
+  public void javaCommand(@NonNull String jvmCommand) {
     this.jvmCommand = jvmCommand;
   }
 
   @Override
-  public int getProcessTerminationTimeoutSeconds() {
+  public int processTerminationTimeoutSeconds() {
     return Math.max(1, this.processTerminationTimeoutSeconds);
   }
 
   @Override
-  public void setProcessTerminationTimeoutSeconds(int processTerminationTimeoutSeconds) {
+  public void processTerminationTimeoutSeconds(int processTerminationTimeoutSeconds) {
     this.processTerminationTimeoutSeconds = processTerminationTimeoutSeconds;
   }
 
   @Override
-  public boolean getForceInitialClusterDataSync() {
+  public boolean forceInitialClusterDataSync() {
     return this.forceInitialClusterDataSync;
   }
 
   @Override
-  public void setForceInitialClusterDataSync(boolean forceInitialClusterDataSync) {
+  public void forceInitialClusterDataSync(boolean forceInitialClusterDataSync) {
     this.forceInitialClusterDataSync = forceInitialClusterDataSync;
   }
 
   @Override
-  public @NotNull JsonDocument getProperties() {
+  public @NonNull JsonDocument properties() {
     return this.properties;
   }
 
   @Override
-  public void setProperties(@NotNull JsonDocument properties) {
+  public void properties(@NonNull JsonDocument properties) {
     this.properties = properties;
   }
 }

@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.driver.network.chunk.defaults;
 import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketProvider;
 import de.dytanic.cloudnet.driver.network.chunk.TransferStatus;
 import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public abstract class DefaultChunkedPacketProvider implements ChunkedPacketProvider {
 
@@ -32,12 +32,12 @@ public abstract class DefaultChunkedPacketProvider implements ChunkedPacketProvi
   }
 
   @Override
-  public @NotNull TransferStatus getTransferStatus() {
+  public @NonNull TransferStatus transferStatus() {
     return this.transferStatus;
   }
 
   @Override
-  public @NotNull ChunkSessionInformation getSessionInformation() {
+  public @NonNull ChunkSessionInformation sessionInformation() {
     return this.chunkSessionInformation;
   }
 }

@@ -38,7 +38,7 @@ import java.nio.file.Files;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class CloudNetNPCModule extends DriverModule {
 
@@ -46,35 +46,35 @@ public class CloudNetNPCModule extends DriverModule {
 
   @ModuleTask(order = Byte.MAX_VALUE)
   public void convertConfiguration() {
-    if (Files.exists(this.getConfigPath())) {
-      var old = JsonDocument.newDocument(this.getConfigPath()).get("config", NPCConfiguration.class);
+    if (Files.exists(this.configPath())) {
+      var old = JsonDocument.newDocument(this.configPath()).get("config", NPCConfiguration.class);
       if (old != null) {
-        var newEntries = old.getConfigurations().stream()
+        var newEntries = old.configurations().stream()
           .map(entry -> eu.cloudnetservice.modules.npc.configuration.NPCConfigurationEntry.builder()
-            .targetGroup(entry.getTargetGroup())
-            .infoLineDistance(entry.getInfoLineDistance())
-            .knockbackDistance(entry.getKnockbackDistance())
-            .knockbackStrength(entry.getKnockbackStrength())
+            .targetGroup(entry.targetGroup())
+            .infoLineDistance(entry.infoLineDistance())
+            .knockbackDistance(entry.knockbackDistance())
+            .knockbackStrength(entry.knockbackStrength())
             .emoteConfiguration(LabyModEmoteConfiguration.builder()
-              .emoteIds(entry.getLabyModEmotes().getEmoteIds())
-              .onJoinEmoteIds(entry.getLabyModEmotes().getOnJoinEmoteIds())
-              .onKnockbackEmoteIds(entry.getLabyModEmotes().getOnKnockbackEmoteIds())
-              .minEmoteDelayTicks(entry.getLabyModEmotes().getMinEmoteDelayTicks())
-              .maxEmoteDelayTicks(entry.getLabyModEmotes().getMaxEmoteDelayTicks())
+              .emoteIds(entry.labyModEmotes().emoteIds())
+              .onJoinEmoteIds(entry.labyModEmotes().onJoinEmoteIds())
+              .onKnockbackEmoteIds(entry.labyModEmotes().onKnockbackEmoteIds())
+              .minEmoteDelayTicks(entry.labyModEmotes().minEmoteDelayTicks())
+              .maxEmoteDelayTicks(entry.labyModEmotes().maxEmoteDelayTicks())
               .build())
             .inventoryConfiguration(InventoryConfiguration.builder()
               .defaultItems(new ItemLayoutHolder(
-                this.convertItemLayout(entry.getEmptyItem()),
-                this.convertItemLayout(entry.getOnlineItem()),
-                this.convertItemLayout(entry.getFullItem())))
-              .fixedItems(entry.getInventoryLayout().entrySet().stream()
+                this.convertItemLayout(entry.emptyItem()),
+                this.convertItemLayout(entry.onlineItem()),
+                this.convertItemLayout(entry.fullItem())))
+              .fixedItems(entry.inventoryLayout().entrySet().stream()
                 .map(mapEntry -> new Pair<>(mapEntry.getKey(), this.convertItemLayout(mapEntry.getValue())))
-                .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond)))
-              .showFullServices(entry.isShowFullServices())
-              .inventorySize(entry.getInventorySize())
+                .collect(Collectors.toMap(Pair::first, Pair::second)))
+              .showFullServices(entry.showFullServices())
+              .inventorySize(entry.inventorySize())
               .build())
             .npcPoolOptions(NPCPoolOptions.builder()
-              .tabListRemoveTicks(entry.getNPCTabListRemoveTicks())
+              .tabListRemoveTicks(entry.npcTabListRemoveTicks())
               .build())
             .build())
           .collect(Collectors.toSet());
@@ -83,12 +83,12 @@ public class CloudNetNPCModule extends DriverModule {
           .newDocument(eu.cloudnetservice.modules.npc.configuration.NPCConfiguration.builder()
             .entries(newEntries)
             .build())
-          .write(this.getConfigPath());
+          .write(this.configPath());
       }
     }
 
     // convert the old database
-    Database db = CloudNet.getInstance().getDatabaseProvider().getDatabase("cloudNet_module_configuration");
+    Database db = CloudNet.instance().databaseProvider().database("cloudNet_module_configuration");
     var npcStore = db.get("npc_store");
     if (npcStore != null) {
       Collection<CloudNPC> theOldOnes = npcStore.get("npcs", NPCConstants.NPC_COLLECTION_TYPE);
@@ -96,25 +96,25 @@ public class CloudNetNPCModule extends DriverModule {
       db.delete("npc_store");
       if (theOldOnes != null) {
         // get the new database
-        Database target = CloudNet.getInstance().getDatabaseProvider().getDatabase(DATABASE_NAME);
+        Database target = CloudNet.instance().databaseProvider().database(DATABASE_NAME);
         // convert the old entries
         theOldOnes.stream()
           .map(npc -> NPC.builder()
-            .profileProperties(npc.getProfileProperties().stream()
-              .map(property -> new ProfileProperty(property.getName(), property.getValue(), property.getSignature()))
+            .profileProperties(npc.profileProperties().stream()
+              .map(property -> new ProfileProperty(property.name(), property.value(), property.signature()))
               .collect(Collectors.toSet()))
-            .location(npc.getPosition())
-            .displayName(npc.getDisplayName())
-            .infoLines(Collections.singletonList(npc.getInfoLine()))
-            .targetGroup(npc.getTargetGroup())
-            .items(ImmutableMap.of(0, npc.getItemInHand()))
-            .lookAtPlayer(npc.isLookAtPlayer())
-            .imitatePlayer(npc.isImitatePlayer())
-            .rightClickAction(ClickAction.valueOf(npc.getRightClickAction().name()))
-            .leftClickAction(ClickAction.valueOf(npc.getLeftClickAction().name()))
+            .location(npc.position())
+            .displayName(npc.displayName())
+            .infoLines(Collections.singletonList(npc.infoLine()))
+            .targetGroup(npc.targetGroup())
+            .items(ImmutableMap.of(0, npc.itemInHand()))
+            .lookAtPlayer(npc.lookAtPlayer())
+            .imitatePlayer(npc.imitatePlayer())
+            .rightClickAction(ClickAction.valueOf(npc.rightClickAction().name()))
+            .leftClickAction(ClickAction.valueOf(npc.leftClickAction().name()))
             .build())
           .forEach(npc -> target.insert(
-            NodeNPCManagement.getDocumentKey(npc.getLocation()),
+            NodeNPCManagement.documentKey(npc.location()),
             JsonDocument.newDocument(npc)));
       }
     }
@@ -123,35 +123,35 @@ public class CloudNetNPCModule extends DriverModule {
   @ModuleTask
   public void initModule() {
     var config = this.loadConfig();
-    Database database = CloudNet.getInstance().getDatabaseProvider().getDatabase(DATABASE_NAME);
+    Database database = CloudNet.instance().databaseProvider().database(DATABASE_NAME);
     // management init
     var management = new NodeNPCManagement(
       config,
       database,
-      this.getConfigPath(),
-      CloudNet.getInstance().getEventManager());
+      this.configPath(),
+      CloudNet.instance().eventManager());
     management.registerToServiceRegistry();
   }
 
-  private @NotNull eu.cloudnetservice.modules.npc.configuration.NPCConfiguration loadConfig() {
-    if (Files.notExists(this.getConfigPath())) {
+  private @NonNull eu.cloudnetservice.modules.npc.configuration.NPCConfiguration loadConfig() {
+    if (Files.notExists(this.configPath())) {
       JsonDocument
         .newDocument(eu.cloudnetservice.modules.npc.configuration.NPCConfiguration.builder().build())
-        .write(this.getConfigPath());
+        .write(this.configPath());
     }
     // load the config
-    return JsonDocument.newDocument(this.getConfigPath())
+    return JsonDocument.newDocument(this.configPath())
       .toInstanceOf(eu.cloudnetservice.modules.npc.configuration.NPCConfiguration.class);
   }
 
-  private @NotNull ItemLayout convertItemLayout(
-    @NotNull eu.cloudnetservice.cloudnet.ext.npcs.configuration.NPCConfigurationEntry.ItemLayout oldLayout
+  private @NonNull ItemLayout convertItemLayout(
+    @NonNull eu.cloudnetservice.cloudnet.ext.npcs.configuration.NPCConfigurationEntry.ItemLayout oldLayout
   ) {
     return ItemLayout.builder()
-      .material(oldLayout.getMaterial())
-      .subId(oldLayout.getSubId())
-      .lore(oldLayout.getLore())
-      .displayName(oldLayout.getDisplayName())
+      .material(oldLayout.material())
+      .subId(oldLayout.subId())
+      .lore(oldLayout.lore())
+      .displayName(oldLayout.displayName())
       .build();
   }
 }

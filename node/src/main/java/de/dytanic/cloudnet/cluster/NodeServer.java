@@ -23,8 +23,8 @@ import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import java.util.Collection;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -32,32 +32,32 @@ import org.jetbrains.annotations.UnmodifiableView;
 @RPCValidation
 public interface NodeServer extends AutoCloseable {
 
-  @NotNull NodeServerProvider<? extends NodeServer> getProvider();
+  @NonNull NodeServerProvider<? extends NodeServer> provider();
 
-  boolean isHeadNode();
+  boolean headNode();
 
-  boolean isAvailable();
+  boolean available();
 
-  boolean isDrain();
+  boolean drain();
 
-  void setDrain(boolean drain);
+  void drain(boolean drain);
 
-  @NotNull NetworkClusterNode getNodeInfo();
-
-  @Internal
-  void setNodeInfo(@NotNull NetworkClusterNode nodeInfo);
-
-  @UnknownNullability NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot();
+  @NonNull NetworkClusterNode nodeInfo();
 
   @Internal
-  void setNodeInfoSnapshot(@NotNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot);
+  void nodeInfo(@NonNull NetworkClusterNode nodeInfo);
 
-  @UnknownNullability NetworkClusterNodeInfoSnapshot getLastNodeInfoSnapshot();
+  @UnknownNullability NetworkClusterNodeInfoSnapshot nodeInfoSnapshot();
 
-  @NotNull
-  @UnmodifiableView Collection<String> sendCommandLine(@NotNull String commandLine);
+  @Internal
+  void nodeInfoSnapshot(@NonNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot);
 
-  @NotNull CloudServiceFactory getCloudServiceFactory();
+  @UnknownNullability NetworkClusterNodeInfoSnapshot lastNodeInfoSnapshot();
 
-  @Nullable SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot serviceInfoSnapshot);
+  @NonNull
+  @UnmodifiableView Collection<String> sendCommandLine(@NonNull String commandLine);
+
+  @NonNull CloudServiceFactory cloudServiceFactory();
+
+  @Nullable SpecificCloudServiceProvider cloudServiceProvider(@NonNull ServiceInfoSnapshot serviceInfoSnapshot);
 }

@@ -20,7 +20,7 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class ChatFormatter {
@@ -30,15 +30,15 @@ public final class ChatFormatter {
   }
 
   public static @Nullable String buildFormat(
-    @NotNull UUID playerId,
-    @NotNull String playerName,
-    @NotNull String displayName,
-    @NotNull String format,
-    @NotNull String message,
-    @NotNull Function<String, Boolean> permissionTester,
-    @NotNull BiFunction<Character, String, String> colorReplacer
+    @NonNull UUID playerId,
+    @NonNull String playerName,
+    @NonNull String displayName,
+    @NonNull String format,
+    @NonNull String message,
+    @NonNull Function<String, Boolean> permissionTester,
+    @NonNull BiFunction<Character, String, String> colorReplacer
   ) {
-    var permissionUser = CloudNetDriver.getInstance().getPermissionManagement().getUser(playerId);
+    var permissionUser = CloudNetDriver.instance().permissionManagement().user(playerId);
     // check if the cloud knows a permission player
     if (permissionUser == null) {
       return null;
@@ -53,17 +53,17 @@ public final class ChatFormatter {
       return null;
     }
 
-    var group = CloudNetDriver.getInstance().getPermissionManagement()
-      .getHighestPermissionGroup(permissionUser);
+    var group = CloudNetDriver.instance().permissionManagement()
+      .highestPermissionGroup(permissionUser);
     format = format
       .replace("%name%", playerName)
       .replace("%display_name%", displayName)
       .replace("%uniqueId%", playerId.toString())
-      .replace("%group%", group == null ? "" : group.getName())
-      .replace("%display%", group == null ? "" : group.getDisplay())
-      .replace("%prefix%", group == null ? "" : group.getPrefix())
-      .replace("%suffix%", group == null ? "" : group.getSuffix())
-      .replace("%color%", group == null ? "" : group.getColor());
+      .replace("%group%", group == null ? "" : group.name())
+      .replace("%display%", group == null ? "" : group.display())
+      .replace("%prefix%", group == null ? "" : group.prefix())
+      .replace("%suffix%", group == null ? "" : group.suffix())
+      .replace("%color%", group == null ? "" : group.color());
     return colorReplacer.apply('&', format).replace("%message%", coloredMessage);
   }
 }

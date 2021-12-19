@@ -37,7 +37,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -54,8 +53,8 @@ public final class CloudNetLauncher {
 
   private static final Consumer<String> PRINT = System.out::println;
 
-  private static final Path CONFIG_PATH = Paths.get(System.getProperty("cloudnet.launcher.config", "launcher.cnl"));
-  private static final Path LAUNCHER_DIR_PATH = Paths.get(System.getProperty("cloudnet.launcher.dir", "launcher"));
+  private static final Path CONFIG_PATH = Path.of(System.getProperty("cloudnet.launcher.config", "launcher.cnl"));
+  private static final Path LAUNCHER_DIR_PATH = Path.of(System.getProperty("cloudnet.launcher.dir", "launcher"));
 
   private static final Path LAUNCHER_VERSIONS = LAUNCHER_DIR_PATH.resolve("versions");
   private static final Path LAUNCHER_LIBS = LAUNCHER_DIR_PATH.resolve("libs");

@@ -32,7 +32,7 @@ import de.dytanic.cloudnet.event.cluster.LocalNodeSnapshotConfigureEvent;
 import de.dytanic.cloudnet.service.defaults.provider.EmptySpecificCloudServiceProvider;
 import java.util.Collection;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
@@ -44,52 +44,52 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
   private boolean drain;
 
   protected LocalNodeServer(
-    @NotNull CloudNet cloudNet,
-    @NotNull NodeServerProvider<? extends NodeServer> provider
+    @NonNull CloudNet cloudNet,
+    @NonNull NodeServerProvider<? extends NodeServer> provider
   ) {
     this.cloudNet = cloudNet;
     this.provider = provider;
     this.startupMillis = System.currentTimeMillis();
-    this.cloudNet.getRPCProviderFactory().newHandler(NodeServer.class, this).registerToDefaultRegistry();
+    this.cloudNet.rpcProviderFactory().newHandler(NodeServer.class, this).registerToDefaultRegistry();
     this.drain = false;
   }
 
   @Override
-  public @NotNull NodeServerProvider<? extends NodeServer> getProvider() {
+  public @NonNull NodeServerProvider<? extends NodeServer> provider() {
     return this.provider;
   }
 
   @Override
-  public boolean isAvailable() {
-    return this.cloudNet.isRunning() && this.nodeInfo != null;
+  public boolean available() {
+    return this.cloudNet.running() && this.nodeInfo != null;
   }
 
   @Override
-  public boolean isDrain() {
+  public boolean drain() {
     return this.drain;
   }
 
   @Override
-  public void setDrain(boolean drain) {
+  public void drain(boolean drain) {
     this.drain = drain;
   }
 
   @Override
-  public @NotNull Collection<String> sendCommandLine(@NotNull String commandLine) {
+  public @NonNull Collection<String> sendCommandLine(@NonNull String commandLine) {
     var commandSource = new DriverCommandSource();
-    this.cloudNet.getCommandProvider().execute(new DriverCommandSource(), commandLine);
+    this.cloudNet.commandProvider().execute(new DriverCommandSource(), commandLine);
 
-    return commandSource.getMessages();
+    return commandSource.messages();
   }
 
   @Override
-  public @NotNull CloudServiceFactory getCloudServiceFactory() {
-    return this.cloudNet.getCloudServiceFactory();
+  public @NonNull CloudServiceFactory cloudServiceFactory() {
+    return this.cloudNet.cloudServiceFactory();
   }
 
   @Override
-  public @Nullable SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot snapshot) {
-    var service = this.cloudNet.getCloudServiceProvider().getLocalCloudService(snapshot);
+  public @Nullable SpecificCloudServiceProvider cloudServiceProvider(@NonNull ServiceInfoSnapshot snapshot) {
+    var service = this.cloudNet.cloudServiceProvider().localCloudService(snapshot);
     return service == null ? EmptySpecificCloudServiceProvider.INSTANCE : service;
   }
 
@@ -103,23 +103,23 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
     var snapshot = new NetworkClusterNodeInfoSnapshot(
       System.currentTimeMillis(),
       this.startupMillis,
-      this.cloudNet.getConfig().getMaxMemory(),
-      this.cloudNet.getCloudServiceProvider().getCurrentUsedHeapMemory(),
-      this.cloudNet.getCloudServiceProvider().getCurrentReservedMemory(),
-      this.cloudNet.getCloudServiceProvider().getLocalCloudServices().size(),
+      this.cloudNet.config().maxMemory(),
+      this.cloudNet.cloudServiceProvider().currentUsedHeapMemory(),
+      this.cloudNet.cloudServiceProvider().currentReservedMemory(),
+      this.cloudNet.cloudServiceProvider().localCloudServices().size(),
       this.drain,
       this.nodeInfo,
-      this.cloudNet.getVersion(),
+      this.cloudNet.version(),
       ProcessSnapshot.self(),
-      this.cloudNet.getConfig().getMaxCPUUsageToStartServices(),
-      this.cloudNet.getModuleProvider().getModules().stream()
-        .map(IModuleWrapper::getModuleConfiguration)
+      this.cloudNet.config().maxCPUUsageToStartServices(),
+      this.cloudNet.moduleProvider().modules().stream()
+        .map(IModuleWrapper::moduleConfiguration)
         .collect(Collectors.toSet()),
-      this.currentSnapshot == null ? JsonDocument.newDocument() : this.currentSnapshot.getProperties());
+      this.currentSnapshot == null ? JsonDocument.newDocument() : this.currentSnapshot.properties());
     // configure the snapshot
-    snapshot = this.cloudNet.getEventManager().callEvent(new LocalNodeSnapshotConfigureEvent(snapshot)).getSnapshot();
+    snapshot = this.cloudNet.eventManager().callEvent(new LocalNodeSnapshotConfigureEvent(snapshot)).snapshot();
     // set the snapshot
-    this.setNodeInfoSnapshot(snapshot);
+    this.nodeInfoSnapshot(snapshot);
     // send the new node info to all nodes
     ChannelMessage.builder()
       .targetNodes()

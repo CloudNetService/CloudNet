@@ -37,18 +37,18 @@ public class BukkitCloudSignInteractEvent extends PlayerEvent implements Cancell
     super(who);
     this.clickedSign = clickedSign;
     this.cancelled = cancelled;
-    this.target = clickedSign.getCurrentTarget();
+    this.target = clickedSign.currentTarget();
   }
 
-  public Sign getClickedSign() {
+  public Sign clickedSign() {
     return this.clickedSign;
   }
 
-  public Optional<ServiceInfoSnapshot> getTarget() {
+  public Optional<ServiceInfoSnapshot> target() {
     return Optional.ofNullable(this.target);
   }
 
-  public void setTarget(ServiceInfoSnapshot target) {
+  public void target(ServiceInfoSnapshot target) {
     this.target = target;
   }
 

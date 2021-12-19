@@ -3,6 +3,10 @@
     <option name="myName" value="CloudNet" />
     <inspection_tool class="AsciiDocLinkResolve" enabled="false" level="ERROR" enabled_by_default="false" />
     <inspection_tool class="CatchMayIgnoreException" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="ClassCanBeRecord" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <option name="myConversionStrategy" value="SILENTLY" />
+      <option name="suggestAccessorsRenaming" value="true" />
+    </inspection_tool>
     <inspection_tool class="Convert2streamapi" enabled="true" level="INFORMATION" enabled_by_default="false" />
     <inspection_tool class="EqualsBetweenInconvertibleTypes" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="FieldNamingConvention" enabled="true" level="ERROR" enabled_by_default="true">
@@ -11,6 +15,9 @@
         <option name="m_minLength" value="1" />
         <option name="m_maxLength" value="70" />
       </extension>
+    </inspection_tool>
+    <inspection_tool class="Finalize" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoreTrivialFinalizers" value="true" />
     </inspection_tool>
     <inspection_tool class="FoldExpressionIntoStream" enabled="false" level="INFORMATION" enabled_by_default="false" />
     <inspection_tool class="NewMethodNamingConvention" enabled="true" level="ERROR" enabled_by_default="true">

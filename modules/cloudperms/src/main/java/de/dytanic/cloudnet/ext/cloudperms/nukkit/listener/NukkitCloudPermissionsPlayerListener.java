@@ -26,18 +26,18 @@ import cn.nukkit.event.player.PlayerQuitEvent;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
 import de.dytanic.cloudnet.ext.cloudperms.nukkit.NukkitPermissionInjectionHelper;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class NukkitCloudPermissionsPlayerListener implements Listener {
 
   private final IPermissionManagement permissionsManagement;
 
-  public NukkitCloudPermissionsPlayerListener(@NotNull IPermissionManagement permissionsManagement) {
+  public NukkitCloudPermissionsPlayerListener(@NonNull IPermissionManagement permissionsManagement) {
     this.permissionsManagement = permissionsManagement;
   }
 
   @EventHandler(priority = EventPriority.LOW)
-  public void handle(@NotNull PlayerAsyncPreLoginEvent event) {
+  public void handle(@NonNull PlayerAsyncPreLoginEvent event) {
     if (event.getLoginResult() == PlayerAsyncPreLoginEvent.LoginResult.SUCCESS) {
       CloudPermissionsHelper.initPermissionUser(
         this.permissionsManagement,
@@ -49,14 +49,14 @@ public final class NukkitCloudPermissionsPlayerListener implements Listener {
   }
 
   @EventHandler(priority = EventPriority.LOWEST)
-  public void handle(@NotNull PlayerLoginEvent event) {
+  public void handle(@NonNull PlayerLoginEvent event) {
     if (!event.isCancelled()) {
       NukkitPermissionInjectionHelper.injectPermissible(event.getPlayer(), this.permissionsManagement);
     }
   }
 
   @EventHandler
-  public void handle(@NotNull PlayerQuitEvent event) {
+  public void handle(@NonNull PlayerQuitEvent event) {
     CloudPermissionsHelper.handlePlayerQuit(this.permissionsManagement, event.getPlayer().getUniqueId());
   }
 }

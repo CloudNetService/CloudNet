@@ -18,17 +18,17 @@ package de.dytanic.cloudnet.driver.event.events.group;
 
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class GroupConfigurationRemoveEvent extends Event {
 
   private final GroupConfiguration configuration;
 
-  public GroupConfigurationRemoveEvent(@NotNull GroupConfiguration configuration) {
+  public GroupConfigurationRemoveEvent(@NonNull GroupConfiguration configuration) {
     this.configuration = configuration;
   }
 
-  public @NotNull GroupConfiguration getConfiguration() {
+  public @NonNull GroupConfiguration configuration() {
     return this.configuration;
   }
 }

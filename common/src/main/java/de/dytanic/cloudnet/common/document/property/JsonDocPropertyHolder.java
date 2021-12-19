@@ -18,8 +18,8 @@ package de.dytanic.cloudnet.common.document.property;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
@@ -30,29 +30,29 @@ public class JsonDocPropertyHolder implements DocPropertyHolder {
   protected JsonDocument properties = JsonDocument.newDocument();
 
   @Override
-  public @NotNull <E> DocPropertyHolder setProperty(@NotNull DocProperty<E> docProperty, @Nullable E val) {
+  public @NonNull <E> DocPropertyHolder property(@NonNull DocProperty<E> docProperty, @Nullable E val) {
     docProperty.append(this.properties, val);
     return this;
   }
 
   @Override
-  public <E> @UnknownNullability E getProperty(@NotNull DocProperty<E> docProperty) {
+  public <E> @UnknownNullability E property(@NonNull DocProperty<E> docProperty) {
     return docProperty.get(this.properties);
   }
 
   @Override
-  public @NotNull <E> DocPropertyHolder removeProperty(@NotNull DocProperty<E> docProperty) {
+  public @NonNull <E> DocPropertyHolder removeProperty(@NonNull DocProperty<E> docProperty) {
     docProperty.remove(this.properties);
     return this;
   }
 
   @Override
-  public <E> boolean hasProperty(@NotNull DocProperty<E> docProperty) {
+  public <E> boolean hasProperty(@NonNull DocProperty<E> docProperty) {
     return docProperty.isAppendedTo(this.properties);
   }
 
   @Override
-  public @NotNull JsonDocument getProperties() {
+  public @NonNull JsonDocument properties() {
     return this.properties;
   }
 }

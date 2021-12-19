@@ -28,7 +28,7 @@ import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.function.Supplier;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class RemoteSpecificCloudServiceProvider implements SpecificCloudServiceProvider {
@@ -44,16 +44,16 @@ public class RemoteSpecificCloudServiceProvider implements SpecificCloudServiceP
   private final GeneralCloudServiceProvider provider;
 
   public RemoteSpecificCloudServiceProvider(
-    @NotNull GeneralCloudServiceProvider provider,
-    @NotNull RPCSender providerSender,
-    @NotNull Supplier<INetworkChannel> channelSupplier,
-    @NotNull UUID id
+    @NonNull GeneralCloudServiceProvider provider,
+    @NonNull RPCSender providerSender,
+    @NonNull Supplier<INetworkChannel> channelSupplier,
+    @NonNull UUID id
   ) {
     this.provider = provider;
     // rpc
     this.providerSender = providerSender;
     this.thisProviderSender = providerSender
-      .getFactory()
+      .factory()
       .providerForClass(null, SpecificCloudServiceProvider.class);
     this.channelSupplier = channelSupplier;
     // identity
@@ -62,17 +62,17 @@ public class RemoteSpecificCloudServiceProvider implements SpecificCloudServiceP
   }
 
   public RemoteSpecificCloudServiceProvider(
-    @NotNull GeneralCloudServiceProvider provider,
-    @NotNull RPCSender providerSender,
-    @NotNull Supplier<INetworkChannel> channelSupplier,
-    @NotNull String id
+    @NonNull GeneralCloudServiceProvider provider,
+    @NonNull RPCSender providerSender,
+    @NonNull Supplier<INetworkChannel> channelSupplier,
+    @NonNull String id
   ) {
     this.provider = provider;
     // rpc
     this.providerSender = providerSender;
     this.thisProviderSender = providerSender
-      .getFactory()
-      .providerForClass(providerSender.getAssociatedComponent(), SpecificCloudServiceProvider.class);
+      .factory()
+      .providerForClass(providerSender.associatedComponent(), SpecificCloudServiceProvider.class);
     this.channelSupplier = channelSupplier;
     // identity
     this.name = id;
@@ -80,106 +80,106 @@ public class RemoteSpecificCloudServiceProvider implements SpecificCloudServiceP
   }
 
   @Override
-  public @Nullable ServiceInfoSnapshot getServiceInfoSnapshot() {
+  public @Nullable ServiceInfoSnapshot serviceInfo() {
     return this.name == null
-      ? this.provider.getCloudService(this.uniqueId)
-      : this.provider.getCloudServiceByName(this.name);
+      ? this.provider.service(this.uniqueId)
+      : this.provider.serviceByName(this.name);
   }
 
   @Override
-  public boolean isValid() {
-    return this.getBaseRPC()
-      .join(this.thisProviderSender.invokeMethod("isValid"))
+  public boolean valid() {
+    return this.baseRPC()
+      .join(this.thisProviderSender.invokeMethod("valid"))
       .fireSync(this.channelSupplier.get());
   }
 
   @Override
   public @Nullable ServiceInfoSnapshot forceUpdateServiceInfo() {
-    return this.getBaseRPC()
+    return this.baseRPC()
       .join(this.thisProviderSender.invokeMethod("forceUpdateServiceInfo"))
       .fireSync(this.channelSupplier.get());
   }
 
   @Override
-  public void addServiceTemplate(@NotNull ServiceTemplate template) {
-    this.getBaseRPC()
+  public void addServiceTemplate(@NonNull ServiceTemplate template) {
+    this.baseRPC()
       .join(this.thisProviderSender.invokeMethod("addServiceTemplate", template))
       .fireSync(this.channelSupplier.get());
   }
 
   @Override
-  public void addServiceRemoteInclusion(@NotNull ServiceRemoteInclusion inclusion) {
-    this.getBaseRPC()
+  public void addServiceRemoteInclusion(@NonNull ServiceRemoteInclusion inclusion) {
+    this.baseRPC()
       .join(this.thisProviderSender.invokeMethod("addServiceRemoteInclusion", inclusion))
       .fireSync(this.channelSupplier.get());
   }
 
   @Override
-  public void addServiceDeployment(@NotNull ServiceDeployment deployment) {
-    this.getBaseRPC()
+  public void addServiceDeployment(@NonNull ServiceDeployment deployment) {
+    this.baseRPC()
       .join(this.thisProviderSender.invokeMethod("addServiceDeployment", deployment))
       .fireSync(this.channelSupplier.get());
   }
 
   @Override
-  public Queue<String> getCachedLogMessages() {
-    return this.getBaseRPC()
-      .join(this.thisProviderSender.invokeMethod("getCachedLogMessages"))
+  public Queue<String> cachedLogMessages() {
+    return this.baseRPC()
+      .join(this.thisProviderSender.invokeMethod("cachedLogMessages"))
       .fireSync(this.channelSupplier.get());
   }
 
   @Override
-  public boolean toggleScreenEvents(@NotNull ChannelMessageSender channelMessageSender, @NotNull String channel) {
-    return this.getBaseRPC()
+  public boolean toggleScreenEvents(@NonNull ChannelMessageSender channelMessageSender, @NonNull String channel) {
+    return this.baseRPC()
       .join(this.thisProviderSender.invokeMethod("toggleScreenEvents", channelMessageSender, channel))
       .fireSync(this.channelSupplier.get());
   }
 
   @Override
-  public void setCloudServiceLifeCycle(@NotNull ServiceLifeCycle lifeCycle) {
-    this.getBaseRPC()
-      .join(this.thisProviderSender.invokeMethod("setCloudServiceLifeCycle", lifeCycle))
+  public void updateLifecycle(@NonNull ServiceLifeCycle lifeCycle) {
+    this.baseRPC()
+      .join(this.thisProviderSender.invokeMethod("updateLifecycle", lifeCycle))
       .fireSync(this.channelSupplier.get());
   }
 
   @Override
   public void restart() {
-    this.getBaseRPC()
+    this.baseRPC()
       .join(this.thisProviderSender.invokeMethod("restart"))
       .fireSync(this.channelSupplier.get());
   }
 
   @Override
-  public void runCommand(@NotNull String command) {
-    this.getBaseRPC()
+  public void runCommand(@NonNull String command) {
+    this.baseRPC()
       .join(this.thisProviderSender.invokeMethod("runCommand", command))
       .fireSync(this.channelSupplier.get());
   }
 
   @Override
   public void includeWaitingServiceTemplates() {
-    this.getBaseRPC()
+    this.baseRPC()
       .join(this.thisProviderSender.invokeMethod("includeWaitingServiceTemplates"))
       .fireSync(this.channelSupplier.get());
   }
 
   @Override
   public void includeWaitingServiceInclusions() {
-    this.getBaseRPC()
+    this.baseRPC()
       .join(this.thisProviderSender.invokeMethod("includeWaitingServiceInclusions"))
       .fireSync(this.channelSupplier.get());
   }
 
   @Override
   public void deployResources(boolean removeDeployments) {
-    this.getBaseRPC()
+    this.baseRPC()
       .join(this.thisProviderSender.invokeMethod("deployResources", removeDeployments))
       .fireSync(this.channelSupplier.get());
   }
 
-  protected @NotNull RPC getBaseRPC() {
+  protected @NonNull RPC baseRPC() {
     return this.name == null
-      ? this.providerSender.invokeMethod("getSpecificProvider", this.uniqueId)
-      : this.providerSender.invokeMethod("getSpecificProviderByName", this.name);
+      ? this.providerSender.invokeMethod("specificProvider", this.uniqueId)
+      : this.providerSender.invokeMethod("specificProviderByName", this.name);
   }
 }

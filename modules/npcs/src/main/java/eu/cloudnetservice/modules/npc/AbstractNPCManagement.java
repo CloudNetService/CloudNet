@@ -23,7 +23,7 @@ import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class AbstractNPCManagement implements NPCManagement {
@@ -40,60 +40,60 @@ public abstract class AbstractNPCManagement implements NPCManagement {
 
   public AbstractNPCManagement(@Nullable NPCConfiguration npcConfiguration) {
     this.npcConfiguration = npcConfiguration;
-    CloudNetDriver.getInstance().getEventManager().registerListener(new SharedChannelMessageListener(this));
+    CloudNetDriver.instance().eventManager().registerListener(new SharedChannelMessageListener(this));
   }
 
   @Override
-  public @Nullable NPC getNPCAt(@NotNull WorldPosition position) {
+  public @Nullable NPC npcAt(@NonNull WorldPosition position) {
     return this.npcs.get(position);
   }
 
   @Override
-  public void deleteNPC(@NotNull NPC npc) {
-    this.deleteNPC(npc.getLocation());
+  public void deleteNPC(@NonNull NPC npc) {
+    this.deleteNPC(npc.location());
   }
 
   @Override
-  public @NotNull Collection<NPC> getNPCs() {
+  public @NonNull Collection<NPC> npcs() {
     return this.npcs.values();
   }
 
   @Override
-  public @NotNull NPCConfiguration getNPCConfiguration() {
+  public @NonNull NPCConfiguration npcConfiguration() {
     return this.npcConfiguration;
   }
 
   @Override
-  public void setNPCConfiguration(@NotNull NPCConfiguration configuration) {
+  public void npcConfiguration(@NonNull NPCConfiguration configuration) {
     this.npcConfiguration = configuration;
   }
 
   @Override
   public void registerToServiceRegistry() {
-    CloudNetDriver.getInstance().getServicesRegistry().registerService(NPCManagement.class, "NPCManagement", this);
+    CloudNetDriver.instance().servicesRegistry().registerService(NPCManagement.class, "NPCManagement", this);
   }
 
   @Override
   public void unregisterFromServiceRegistry() {
-    CloudNetDriver.getInstance().getServicesRegistry().unregisterService(NPCManagement.class, "NPCManagement");
+    CloudNetDriver.instance().servicesRegistry().unregisterService(NPCManagement.class, "NPCManagement");
   }
 
   @Override
-  public void handleInternalNPCCreate(@NotNull NPC npc) {
-    this.npcs.put(npc.getLocation(), npc);
+  public void handleInternalNPCCreate(@NonNull NPC npc) {
+    this.npcs.put(npc.location(), npc);
   }
 
   @Override
-  public void handleInternalNPCRemove(@NotNull WorldPosition position) {
+  public void handleInternalNPCRemove(@NonNull WorldPosition position) {
     this.npcs.remove(position);
   }
 
   @Override
-  public void handleInternalNPCConfigUpdate(@NotNull NPCConfiguration configuration) {
+  public void handleInternalNPCConfigUpdate(@NonNull NPCConfiguration configuration) {
     this.npcConfiguration = configuration;
   }
 
-  protected ChannelMessage.Builder channelMessage(@NotNull String message) {
+  protected ChannelMessage.Builder channelMessage(@NonNull String message) {
     return ChannelMessage.builder()
       .channel(NPC_CHANNEL_NAME)
       .message(message);

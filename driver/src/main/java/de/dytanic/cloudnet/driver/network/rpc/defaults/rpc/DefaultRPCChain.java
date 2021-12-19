@@ -34,7 +34,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
 
@@ -43,18 +43,18 @@ public class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
   protected final List<RPC> rpcChain;
 
   protected DefaultRPCChain(
-    @NotNull RPC rootRPC,
-    @NotNull RPC headRPC
+    @NonNull RPC rootRPC,
+    @NonNull RPC headRPC
   ) {
     this(rootRPC, headRPC, Lists.newArrayList(headRPC));
   }
 
   protected DefaultRPCChain(
-    @NotNull RPC rootRPC,
-    @NotNull RPC headRPC,
-    @NotNull List<RPC> rpcChain
+    @NonNull RPC rootRPC,
+    @NonNull RPC headRPC,
+    @NonNull List<RPC> rpcChain
   ) {
-    super(headRPC.getTargetClass(), headRPC.getObjectMapper(), headRPC.getDataBufFactory());
+    super(headRPC.targetClass(), headRPC.objectMapper(), headRPC.dataBufFactory());
 
     this.rootRPC = rootRPC;
     this.headRPC = headRPC;
@@ -62,7 +62,7 @@ public class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
   }
 
   @Override
-  public @NotNull RPCChain join(@NotNull RPC rpc) {
+  public @NonNull RPCChain join(@NonNull RPC rpc) {
     // add the rpc call to chain
     this.rpcChain.add(rpc);
     // create the new chain instance
@@ -70,38 +70,38 @@ public class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
   }
 
   @Override
-  public @NotNull RPC getRootRPC() {
+  public @NonNull RPC head() {
     return this.rootRPC;
   }
 
   @Override
-  public @NotNull Collection<RPC> getJoins() {
+  public @NonNull Collection<RPC> joins() {
     return Collections.unmodifiableCollection(this.rpcChain);
   }
 
   @Override
   public void fireAndForget() {
-    this.fireAndForget(Objects.requireNonNull(this.rootRPC.getSender().getAssociatedComponent().getFirstChannel()));
+    this.fireAndForget(Objects.requireNonNull(this.rootRPC.sender().associatedComponent().firstChannel()));
   }
 
   @Override
-  public <T> @NotNull T fireSync() {
-    return this.fireSync(Objects.requireNonNull(this.rootRPC.getSender().getAssociatedComponent().getFirstChannel()));
+  public <T> @NonNull T fireSync() {
+    return this.fireSync(Objects.requireNonNull(this.rootRPC.sender().associatedComponent().firstChannel()));
   }
 
   @Override
-  public @NotNull <T> ITask<T> fire() {
-    return this.fire(Objects.requireNonNull(this.rootRPC.getSender().getAssociatedComponent().getFirstChannel()));
+  public @NonNull <T> ITask<T> fire() {
+    return this.fire(Objects.requireNonNull(this.rootRPC.sender().associatedComponent().firstChannel()));
   }
 
   @Override
-  public void fireAndForget(@NotNull INetworkChannel component) {
+  public void fireAndForget(@NonNull INetworkChannel component) {
     this.headRPC.disableResultExpectation();
     this.fireSync(component);
   }
 
   @Override
-  public <T> @NotNull T fireSync(@NotNull INetworkChannel component) {
+  public <T> @NonNull T fireSync(@NonNull INetworkChannel component) {
     try {
       ITask<T> queryTask = this.fire(component);
       return queryTask.get();
@@ -117,7 +117,7 @@ public class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
   }
 
   @Override
-  public @NotNull <T> ITask<T> fire(@NotNull INetworkChannel component) {
+  public @NonNull <T> ITask<T> fire(@NonNull INetworkChannel component) {
     // information about the root invocation
     var dataBuf = this.dataBufFactory.createEmpty()
       .writeBoolean(true) // method chain
@@ -132,11 +132,11 @@ public class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
     if (this.headRPC.expectsResult()) {
       // now send the query and read the response
       return component.sendQueryAsync(new RPCQueryPacket(dataBuf))
-        .map(IPacket::getContent)
+        .map(IPacket::content)
         .map(content -> {
           if (content.readBoolean()) {
             // the execution did not throw an exception
-            return this.objectMapper.readObject(content, this.headRPC.getExpectedResultType());
+            return this.objectMapper.readObject(content, this.headRPC.expectedResultType());
           } else {
             // rethrow the execution exception
             ExceptionalResultUtils.rethrowException(content);
@@ -150,14 +150,15 @@ public class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
     }
   }
 
-  protected void writeRPCInformation(@NotNull DataBuf.Mutable dataBuf, @NotNull RPC rpc, boolean last) {
+  protected void writeRPCInformation(@NonNull DataBuf.Mutable dataBuf, @NonNull RPC rpc, boolean last) {
     // general information about the rpc invocation
     dataBuf
-      .writeString(rpc.getClassName())
-      .writeString(rpc.getMethodName())
-      .writeBoolean(!last || rpc.expectsResult());
+      .writeString(rpc.className())
+      .writeString(rpc.methodName())
+      .writeBoolean(!last || rpc.expectsResult())
+      .writeInt(rpc.arguments().length);
     // write the arguments provided
-    for (var argument : rpc.getArguments()) {
+    for (var argument : rpc.arguments()) {
       this.objectMapper.writeObject(dataBuf, argument);
     }
   }

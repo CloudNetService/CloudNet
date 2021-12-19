@@ -40,8 +40,8 @@ public final class CommandHelp {
   private static final RowBasedFormatter<CommandInfo> HELP_LIST_FORMATTER = RowBasedFormatter.<CommandInfo>builder()
     .defaultFormatter(ColumnFormatter.builder().columnTitles("Name(s)", "Description", "Permission").build())
     .column(info -> info.joinNameToAliases(", "))
-    .column(CommandInfo::getDescription)
-    .column(CommandInfo::getPermission)
+    .column(CommandInfo::description)
+    .column(CommandInfo::permission)
     .build();
 
   private final CommandProvider commandProvider;
@@ -53,7 +53,7 @@ public final class CommandHelp {
   @Parser
   public CommandInfo defaultCommandInfoParser(CommandContext<CommandSource> $, Queue<String> input) {
     var command = input.remove();
-    var commandInfo = this.commandProvider.getCommand(command);
+    var commandInfo = this.commandProvider.command(command);
     if (commandInfo == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-not-found"));
     }
@@ -63,7 +63,7 @@ public final class CommandHelp {
 
   @CommandMethod("help|ask|?")
   public void displayHelp(CommandSource source) {
-    source.sendMessage(HELP_LIST_FORMATTER.format(this.commandProvider.getCommands()));
+    source.sendMessage(HELP_LIST_FORMATTER.format(this.commandProvider.commands()));
   }
 
   @CommandMethod("help|ask|? <command>")
@@ -71,9 +71,9 @@ public final class CommandHelp {
     source.sendMessage(" ");
 
     source.sendMessage("Names: " + command.joinNameToAliases(", "));
-    source.sendMessage("Description: " + command.getDescription());
+    source.sendMessage("Description: " + command.description());
     source.sendMessage("Usage: ");
-    for (var usage : command.getUsage()) {
+    for (var usage : command.usage()) {
       source.sendMessage(" - " + usage);
     }
   }

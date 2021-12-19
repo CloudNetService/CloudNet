@@ -25,7 +25,7 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class NukkitCloudPermissionsPermissible extends PermissibleBase {
@@ -43,17 +43,17 @@ public final class NukkitCloudPermissionsPermissible extends PermissibleBase {
   @Override
   public Map<String, PermissionAttachmentInfo> getEffectivePermissions() {
     Map<String, PermissionAttachmentInfo> infos = new HashMap<>();
-    var permissionUser = this.permissionsManagement.getUser(this.player.getUniqueId());
+    var permissionUser = this.permissionsManagement.user(this.player.getUniqueId());
     if (permissionUser == null) {
       return infos;
     }
 
-    for (var group : Wrapper.getInstance().getServiceConfiguration().getGroups()) {
+    for (var group : Wrapper.instance().serviceConfiguration().groups()) {
       infos.putAll(
-        this.permissionsManagement.getAllGroupPermissions(permissionUser, group)
+        this.permissionsManagement.allGroupPermissions(permissionUser, group)
           .stream()
           .map(
-            permission -> new PermissionAttachmentInfo(this, permission.getName(), null, permission.getPotency() >= 0))
+            permission -> new PermissionAttachmentInfo(this, permission.name(), null, permission.potency() >= 0))
           .collect(Collectors.toMap(PermissionAttachmentInfo::getPermission, o -> o))
       );
     }
@@ -67,12 +67,12 @@ public final class NukkitCloudPermissionsPermissible extends PermissibleBase {
   }
 
   @Override
-  public boolean isPermissionSet(@NotNull Permission perm) {
+  public boolean isPermissionSet(@NonNull Permission perm) {
     return this.isPermissionSet(perm.getName());
   }
 
   @Override
-  public boolean hasPermission(@NotNull Permission perm) {
+  public boolean hasPermission(@NonNull Permission perm) {
     return this.hasPermission(perm.getName());
   }
 
@@ -82,13 +82,13 @@ public final class NukkitCloudPermissionsPermissible extends PermissibleBase {
       return false;
     }
 
-    var permissionUser = this.permissionsManagement.getUser(this.player.getUniqueId());
+    var permissionUser = this.permissionsManagement.user(this.player.getUniqueId());
     return permissionUser != null && this.permissionsManagement.hasPermission(
       permissionUser,
       de.dytanic.cloudnet.driver.permission.Permission.of(inName));
   }
 
-  public Player getPlayer() {
+  public Player player() {
     return this.player;
   }
 }

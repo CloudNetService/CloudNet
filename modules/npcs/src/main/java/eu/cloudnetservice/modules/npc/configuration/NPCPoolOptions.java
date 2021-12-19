@@ -16,41 +16,19 @@
 
 package eu.cloudnetservice.modules.npc.configuration;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
-public class NPCPoolOptions {
+public record NPCPoolOptions(int spawnDistance, int actionDistance, long tabListRemoveTicks) {
 
-  private final int spawnDistance;
-  private final int actionDistance;
-  private final long tabListRemoveTicks;
-
-  protected NPCPoolOptions(int spawnDistance, int actionDistance, long tabListRemoveTicks) {
-    this.spawnDistance = spawnDistance;
-    this.actionDistance = actionDistance;
-    this.tabListRemoveTicks = tabListRemoveTicks;
-  }
-
-  public static @NotNull Builder builder() {
+  public static @NonNull Builder builder() {
     return new Builder();
   }
 
-  public static @NotNull Builder builder(@NotNull NPCPoolOptions options) {
+  public static @NonNull Builder builder(@NonNull NPCPoolOptions options) {
     return builder()
-      .spawnDistance(options.getSpawnDistance())
-      .actionDistance(options.getActionDistance())
-      .tabListRemoveTicks(options.getTabListRemoveTicks());
-  }
-
-  public int getSpawnDistance() {
-    return this.spawnDistance;
-  }
-
-  public int getActionDistance() {
-    return this.actionDistance;
-  }
-
-  public long getTabListRemoveTicks() {
-    return this.tabListRemoveTicks;
+      .spawnDistance(options.spawnDistance())
+      .actionDistance(options.actionDistance())
+      .tabListRemoveTicks(options.tabListRemoveTicks());
   }
 
   public static final class Builder {
@@ -59,22 +37,22 @@ public class NPCPoolOptions {
     private int actionDistance = 20;
     private long tabListRemoveTicks = 30;
 
-    public @NotNull Builder spawnDistance(int spawnDistance) {
+    public @NonNull Builder spawnDistance(int spawnDistance) {
       this.spawnDistance = spawnDistance;
       return this;
     }
 
-    public @NotNull Builder actionDistance(int actionDistance) {
+    public @NonNull Builder actionDistance(int actionDistance) {
       this.actionDistance = actionDistance;
       return this;
     }
 
-    public @NotNull Builder tabListRemoveTicks(long tabListRemoveTicks) {
+    public @NonNull Builder tabListRemoveTicks(long tabListRemoveTicks) {
       this.tabListRemoveTicks = tabListRemoveTicks;
       return this;
     }
 
-    public @NotNull NPCPoolOptions build() {
+    public @NonNull NPCPoolOptions build() {
       return new NPCPoolOptions(this.spawnDistance, this.actionDistance, this.tabListRemoveTicks);
     }
   }

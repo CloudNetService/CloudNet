@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.driver.network.netty.http;
 
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.http.HttpCookie;
@@ -44,40 +43,45 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.Nullable;
 
 @Internal
 final class NettyHttpServerContext implements IHttpContext {
 
-  private static final Logger LOGGER = LogManager.getLogger(NettyHttpServerContext.class);
+  private static final Logger LOGGER = LogManager.logger(NettyHttpServerContext.class);
 
-  private final Collection<HttpCookie> cookies = new ArrayList<>();
+  final NettyHttpServerResponse httpServerResponse;
 
   private final Channel nettyChannel;
+  private final HttpRequest httpRequest;
 
   private final NettyHttpChannel channel;
   private final NettyHttpServer nettyHttpServer;
-
-  private final HttpRequest httpRequest;
-
   private final NettyHttpServerRequest httpServerRequest;
-  final NettyHttpServerResponse httpServerResponse;
+
+  private final Collection<HttpCookie> cookies = new ArrayList<>();
 
   volatile boolean closeAfter = true;
   volatile boolean cancelNext = false;
   volatile boolean cancelSendResponse = false;
 
+  private volatile String pathPrefix;
+  private volatile IHttpHandler lastHandler;
   private volatile NettyWebSocketServerChannel webSocketServerChannel;
 
-  private IHttpHandler lastHandler;
-  private String pathPrefix;
-
-  public NettyHttpServerContext(NettyHttpServer nettyHttpServer, NettyHttpChannel channel, URI uri,
-    Map<String, String> pathParameters, HttpRequest httpRequest) {
+  public NettyHttpServerContext(
+    @NonNull NettyHttpServer nettyHttpServer,
+    @NonNull NettyHttpChannel channel,
+    @NonNull URI uri,
+    @NonNull Map<String, String> pathParameters,
+    @NonNull HttpRequest httpRequest
+  ) {
     this.nettyHttpServer = nettyHttpServer;
     this.channel = channel;
     this.httpRequest = httpRequest;
-    this.nettyChannel = channel.getChannel();
+    this.nettyChannel = channel.channel();
 
     this.httpServerRequest = new NettyHttpServerRequest(this, httpRequest, pathParameters, uri);
     this.httpServerResponse = new NettyHttpServerResponse(this, httpRequest);
@@ -93,14 +97,14 @@ final class NettyHttpServerContext implements IHttpContext {
           cookie.isSecure(),
           cookie.wrap(),
           cookie.maxAge()
-        )).collect(Collectors.toList()));
+        )).toList());
     }
 
     this.updateHeaderResponse();
   }
 
   @Override
-  public IWebSocketChannel upgrade() {
+  public @Nullable IWebSocketChannel upgrade() {
     if (this.webSocketServerChannel == null) {
       var handshaker = new WebSocketServerHandshakerFactory(
         this.httpRequest.uri(),
@@ -127,7 +131,7 @@ final class NettyHttpServerContext implements IHttpContext {
         }
       }
 
-      this.webSocketServerChannel = new NettyWebSocketServerChannel(this.channel, this.nettyChannel, handshaker);
+      this.webSocketServerChannel = new NettyWebSocketServerChannel(this.channel, this.nettyChannel);
       this.nettyChannel.pipeline().addLast("websocket-server-channel-handler",
         new NettyWebSocketServerChannelHandler(this.webSocketServerChannel));
 
@@ -140,22 +144,22 @@ final class NettyHttpServerContext implements IHttpContext {
   }
 
   @Override
-  public IWebSocketChannel webSocketChanel() {
+  public @Nullable IWebSocketChannel webSocketChanel() {
     return this.webSocketServerChannel;
   }
 
   @Override
-  public IHttpChannel channel() {
+  public @NonNull IHttpChannel channel() {
     return this.channel;
   }
 
   @Override
-  public IHttpRequest request() {
+  public @NonNull IHttpRequest request() {
     return this.httpServerRequest;
   }
 
   @Override
-  public IHttpResponse response() {
+  public @NonNull IHttpResponse response() {
     return this.httpServerResponse;
   }
 
@@ -165,23 +169,23 @@ final class NettyHttpServerContext implements IHttpContext {
   }
 
   @Override
-  public IHttpContext cancelNext(boolean cancelNext) {
+  public @NonNull IHttpContext cancelNext(boolean cancelNext) {
     this.cancelNext = cancelNext;
     return this;
   }
 
   @Override
-  public IHttpHandler peekLast() {
+  public @Nullable IHttpHandler peekLast() {
     return this.lastHandler;
   }
 
   @Override
-  public IHttpComponent<IHttpServer> component() {
+  public @NonNull IHttpComponent<IHttpServer> component() {
     return this.nettyHttpServer;
   }
 
   @Override
-  public IHttpContext closeAfter(boolean value) {
+  public @NonNull IHttpContext closeAfter(boolean value) {
     this.closeAfter = value;
     return this;
   }
@@ -192,45 +196,39 @@ final class NettyHttpServerContext implements IHttpContext {
   }
 
   @Override
-  public HttpCookie cookie(String name) {
-    Preconditions.checkNotNull(name);
-
-    return this.cookies.stream().filter(httpCookie -> httpCookie.getName().equalsIgnoreCase(name)).findFirst()
+  public HttpCookie cookie(@NonNull String name) {
+    return this.cookies.stream()
+      .filter(httpCookie -> httpCookie.name().equalsIgnoreCase(name))
+      .findFirst()
       .orElse(null);
   }
 
   @Override
-  public Collection<HttpCookie> cookies() {
+  public @NonNull Collection<HttpCookie> cookies() {
     return this.cookies;
   }
 
   @Override
-  public boolean hasCookie(String name) {
-    Preconditions.checkNotNull(name);
-
-    return this.cookies.stream().anyMatch(httpCookie -> httpCookie.getName().equalsIgnoreCase(name));
+  public boolean hasCookie(@NonNull String name) {
+    return this.cookies.stream().anyMatch(httpCookie -> httpCookie.name().equalsIgnoreCase(name));
   }
 
   @Override
-  public IHttpContext setCookies(Collection<HttpCookie> cookies) {
-    Preconditions.checkNotNull(cookies);
-
+  public @NonNull IHttpContext cookies(@NonNull Collection<HttpCookie> cookies) {
     this.cookies.clear();
     this.cookies.addAll(cookies);
-    this.updateHeaderResponse();
 
+    this.updateHeaderResponse();
     return this;
   }
 
   @Override
-  public IHttpContext addCookie(HttpCookie httpCookie) {
-    Preconditions.checkNotNull(httpCookie);
-
-    var cookie = this.cookie(httpCookie.getName());
-
+  public @NonNull IHttpContext addCookie(@NonNull HttpCookie httpCookie) {
+    var cookie = this.cookie(httpCookie.name());
     if (cookie != null) {
-      this.removeCookie(cookie.getName());
+      this.removeCookie(cookie.name());
     }
+
     this.cookies.add(httpCookie);
     this.updateHeaderResponse();
 
@@ -238,31 +236,25 @@ final class NettyHttpServerContext implements IHttpContext {
   }
 
   @Override
-  public IHttpContext removeCookie(String name) {
-    Preconditions.checkNotNull(name);
-
-    var cookie = this.cookie(name);
-    if (cookie != null) {
-      cookie.setMaxAge(-1);
-    }
-
+  public @NonNull IHttpContext removeCookie(@NonNull String name) {
+    this.cookies.removeIf(cookie -> cookie.name().equals(name));
     this.updateHeaderResponse();
     return this;
   }
 
   @Override
-  public IHttpContext clearCookies() {
+  public @NonNull IHttpContext clearCookies() {
     this.cookies.clear();
     this.updateHeaderResponse();
     return this;
   }
 
   @Override
-  public String pathPrefix() {
+  public @NonNull String pathPrefix() {
     return this.pathPrefix;
   }
 
-  public void setPathPrefix(String pathPrefix) {
+  public void pathPrefix(@NonNull String pathPrefix) {
     this.pathPrefix = pathPrefix;
   }
 
@@ -272,20 +264,20 @@ final class NettyHttpServerContext implements IHttpContext {
     } else {
       this.httpServerResponse.httpResponse.headers().set("Set-Cookie",
         ServerCookieEncoder.LAX.encode(this.cookies.stream().map(httpCookie -> {
-          Cookie cookie = new DefaultCookie(httpCookie.getName(), httpCookie.getValue());
-          cookie.setDomain(httpCookie.getDomain());
-          cookie.setMaxAge(httpCookie.getMaxAge());
-          cookie.setPath(httpCookie.getPath());
-          cookie.setSecure(httpCookie.isSecure());
-          cookie.setHttpOnly(httpCookie.isHttpOnly());
-          cookie.setWrap(httpCookie.isWrap());
+          Cookie cookie = new DefaultCookie(httpCookie.name(), httpCookie.value());
+          cookie.setDomain(httpCookie.domain());
+          cookie.setMaxAge(httpCookie.maxAge());
+          cookie.setPath(httpCookie.path());
+          cookie.setSecure(httpCookie.secure());
+          cookie.setHttpOnly(httpCookie.httpOnly());
+          cookie.setWrap(httpCookie.wrap());
 
           return cookie;
         }).collect(Collectors.toList())));
     }
   }
 
-  public void setLastHandler(IHttpHandler lastHandler) {
+  public void setLastHandler(@NonNull IHttpHandler lastHandler) {
     this.lastHandler = lastHandler;
   }
 }

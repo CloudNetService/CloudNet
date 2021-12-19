@@ -20,7 +20,7 @@ import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ChunkedPacket extends Packet {
@@ -29,16 +29,16 @@ public class ChunkedPacket extends Packet {
     super(NetworkConstants.CHUNKED_PACKET_COM_CHANNEL, dataBuf);
   }
 
-  public static @NotNull ChunkedPacket createChunk(
-    @NotNull ChunkSessionInformation information,
+  public static @NonNull ChunkedPacket createChunk(
+    @NonNull ChunkSessionInformation information,
     int chunkIndex,
     byte[] data
   ) {
     return createChunk(information, null, chunkIndex, data.length, data);
   }
 
-  public static @NotNull ChunkedPacket createChunk(
-    @NotNull ChunkSessionInformation information,
+  public static @NonNull ChunkedPacket createChunk(
+    @NonNull ChunkSessionInformation information,
     @Nullable Integer chunkAmount,
     int chunkIndex,
     int dataLength,

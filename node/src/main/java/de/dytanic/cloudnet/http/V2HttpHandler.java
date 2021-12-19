@@ -31,13 +31,13 @@ import de.dytanic.cloudnet.driver.permission.Permission;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public abstract class V2HttpHandler implements IHttpHandler {
 
   protected static final V2HttpAuthentication DEFAULT_AUTH = new V2HttpAuthentication();
 
-  protected static final Logger LOGGER = LogManager.getLogger(V2HttpHandler.class);
+  protected static final Logger LOGGER = LogManager.logger(V2HttpHandler.class);
 
   protected final String requiredPermission;
   protected final String[] supportedRequestMethods;
@@ -64,7 +64,7 @@ public abstract class V2HttpHandler implements IHttpHandler {
   }
 
   @Override
-  public void handle(String path, IHttpContext context) throws Exception {
+  public void handle(@NonNull String path, @NonNull IHttpContext context) throws Exception {
     if (context.request().method().equalsIgnoreCase("OPTIONS")) {
       this.sendOptions(context);
     } else {
@@ -79,29 +79,29 @@ public abstract class V2HttpHandler implements IHttpHandler {
         // try the more often used bearer auth first
         var session = this.authentication
           .handleBearerLoginRequest(context.request());
-        if (session.isSuccess()) {
-          if (this.testPermission(session.getResult().getUser(), context.request())) {
-            this.handleBearerAuthorized(path, context, session.getResult());
+        if (session.succeeded()) {
+          if (this.testPermission(session.result().user(), context.request())) {
+            this.handleBearerAuthorized(path, context, session.result());
           } else {
             this.send403(context, String.format("Required permission %s not set", this.requiredPermission));
           }
           return;
         } else if (session.hasErrorMessage()) {
-          this.send403(context, session.getErrorMessage());
+          this.send403(context, session.errorMessage());
           return;
         }
         // try the basic auth method
         var user = this.authentication
           .handleBasicLoginRequest(context.request());
-        if (user.isSuccess()) {
-          if (this.testPermission(user.getResult(), context.request())) {
-            this.handleBasicAuthorized(path, context, user.getResult());
+        if (user.succeeded()) {
+          if (this.testPermission(user.result(), context.request())) {
+            this.handleBasicAuthorized(path, context, user.result());
           } else {
             this.send403(context, String.format("Required permission %s not set", this.requiredPermission));
           }
           return;
         } else if (user.hasErrorMessage()) {
-          this.send403(context, user.getErrorMessage());
+          this.send403(context, user.errorMessage());
           return;
         }
         // send an unauthorized response
@@ -123,11 +123,11 @@ public abstract class V2HttpHandler implements IHttpHandler {
   protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) {
   }
 
-  protected boolean testPermission(@NotNull PermissionUser user, @NotNull IHttpRequest request) {
+  protected boolean testPermission(@NonNull PermissionUser user, @NonNull IHttpRequest request) {
     if (this.requiredPermission == null || this.requiredPermission.isEmpty()) {
       return true;
     } else {
-      return CloudNetDriver.getInstance().getPermissionManagement().hasPermission(
+      return CloudNetDriver.instance().permissionManagement().hasPermission(
         user,
         new Permission(this.requiredPermission + '.' + request.method().toLowerCase()));
     }
@@ -146,8 +146,8 @@ public abstract class V2HttpHandler implements IHttpHandler {
       .cancelNext(true)
       .response()
       .statusCode(HttpResponseCode.HTTP_NO_CONTENT)
-      .header("Access-Control-Max-Age", Integer.toString(this.accessControlConfiguration.getAccessControlMaxAge()))
-      .header("Access-Control-Allow-Origin", this.accessControlConfiguration.getCorsPolicy())
+      .header("Access-Control-Max-Age", Integer.toString(this.accessControlConfiguration.accessControlMaxAge()))
+      .header("Access-Control-Allow-Origin", this.accessControlConfiguration.corsPolicy())
       .header("Access-Control-Allow-Headers", "*")
       .header("Access-Control-Expose-Headers", "Accept, Origin, if-none-match, Access-Control-Allow-Headers, " +
         "Access-Control-Allow-Origin, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
@@ -171,10 +171,10 @@ public abstract class V2HttpHandler implements IHttpHandler {
     return context.response()
       .statusCode(statusCode)
       .header("Content-Type", "application/json")
-      .header("Access-Control-Allow-Origin", this.accessControlConfiguration.getCorsPolicy());
+      .header("Access-Control-Allow-Origin", this.accessControlConfiguration.corsPolicy());
   }
 
-  protected JsonDocument body(@NotNull IHttpRequest request) {
+  protected JsonDocument body(@NonNull IHttpRequest request) {
     return JsonDocument.fromJsonBytes(request.body());
   }
 
@@ -186,11 +186,11 @@ public abstract class V2HttpHandler implements IHttpHandler {
     return JsonDocument.newDocument("success", false);
   }
 
-  protected CloudNet getCloudNet() {
-    return CloudNet.getInstance();
+  protected CloudNet node() {
+    return CloudNet.instance();
   }
 
-  protected IConfiguration getConfiguration() {
-    return this.getCloudNet().getConfig();
+  protected IConfiguration configuration() {
+    return this.node().config();
   }
 }

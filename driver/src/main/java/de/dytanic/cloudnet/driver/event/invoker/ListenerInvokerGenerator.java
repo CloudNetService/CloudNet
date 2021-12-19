@@ -30,7 +30,7 @@ import de.dytanic.cloudnet.driver.event.EventListenerException;
 import de.dytanic.cloudnet.driver.util.define.ClassDefiners;
 import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
@@ -59,8 +59,8 @@ public final class ListenerInvokerGenerator {
    * @param event    The class of the event the listener method is handling
    * @return The new generated {@link ListenerInvoker}, being able the invoke the event listener method.
    */
-  @NotNull
-  public static ListenerInvoker generate(@NotNull Object listener, @NotNull Method method, @NotNull Class<?> event) {
+  @NonNull
+  public static ListenerInvoker generate(@NonNull Object listener, @NonNull Method method, @NonNull Class<?> event) {
     try {
       // make a class name which is definitely unique for the method
       var className = String.format(

@@ -24,12 +24,12 @@ public class WaterdogPECloudPermissionsPlugin extends Plugin {
 
   @Override
   public void onEnable() {
-    new WaterdogPECloudPermissionsPlayerListener(CloudNetDriver.getInstance().getPermissionManagement());
+    new WaterdogPECloudPermissionsPlayerListener(CloudNetDriver.instance().permissionManagement());
   }
 
   @Override
   public void onDisable() {
-    CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
-    Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
+    CloudNetDriver.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
+    Wrapper.instance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
   }
 }

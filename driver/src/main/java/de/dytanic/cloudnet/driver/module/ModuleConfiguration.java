@@ -16,16 +16,14 @@
 
 package de.dytanic.cloudnet.driver.module;
 
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -59,33 +57,33 @@ public class ModuleConfiguration {
   }
 
   public ModuleConfiguration(
-    @NotNull String group,
-    @NotNull String name,
-    @NotNull String version,
-    @NotNull String main
+    @NonNull String group,
+    @NonNull String name,
+    @NonNull String version,
+    @NonNull String main
   ) {
-    this.group = Preconditions.checkNotNull(group, "group cannot be null");
-    this.name = Preconditions.checkNotNull(name, "name cannot be null");
-    this.version = Preconditions.checkNotNull(version, "version cannot be null");
-    this.main = Preconditions.checkNotNull(main, "main cannot be null");
+    this.group = group;
+    this.name = name;
+    this.version = version;
+    this.main = main;
   }
 
   @Internal
   public ModuleConfiguration(
     boolean runtimeModule,
     boolean storesSensitiveData,
-    @NotNull String group,
-    @NotNull String name,
-    @NotNull String version,
-    @NotNull String main,
-    @NotNull String description,
-    @NotNull String author,
-    @NotNull String website,
-    @NotNull String dataFolder,
-    @NotNull ModuleRepository[] repositories,
-    @NotNull ModuleDependency[] dependencies,
+    @NonNull String group,
+    @NonNull String name,
+    @NonNull String version,
+    @NonNull String main,
+    @NonNull String description,
+    @NonNull String author,
+    @NonNull String website,
+    @NonNull String dataFolder,
+    @NonNull ModuleRepository[] repositories,
+    @NonNull ModuleDependency[] dependencies,
     int minJavaVersionId,
-    @NotNull JsonDocument properties
+    @NonNull JsonDocument properties
   ) {
     this.runtimeModule = runtimeModule;
     this.storesSensitiveData = storesSensitiveData;
@@ -109,7 +107,7 @@ public class ModuleConfiguration {
    *
    * @return if this module is a runtime module
    */
-  public boolean isRuntimeModule() {
+  public boolean runtimeModule() {
     return this.runtimeModule;
   }
 
@@ -128,7 +126,7 @@ public class ModuleConfiguration {
    *
    * @return the group id of this module.
    */
-  public @NotNull String getGroup() {
+  public @NonNull String group() {
     return this.group;
   }
 
@@ -137,7 +135,7 @@ public class ModuleConfiguration {
    *
    * @return the name of this module.
    */
-  public @NotNull String getName() {
+  public @NonNull String name() {
     return this.name;
   }
 
@@ -146,7 +144,7 @@ public class ModuleConfiguration {
    *
    * @return the version of this module.
    */
-  public @NotNull String getVersion() {
+  public @NonNull String version() {
     return this.version;
   }
 
@@ -155,7 +153,7 @@ public class ModuleConfiguration {
    *
    * @return the main class of this module.
    */
-  public @NotNull String getMainClass() {
+  public @NonNull String mainClass() {
     return this.main;
   }
 
@@ -164,7 +162,7 @@ public class ModuleConfiguration {
    *
    * @return the description of this module.
    */
-  public @Nullable String getDescription() {
+  public @Nullable String description() {
     return this.description;
   }
 
@@ -173,7 +171,7 @@ public class ModuleConfiguration {
    *
    * @return the author of this module.
    */
-  public @Nullable String getAuthor() {
+  public @Nullable String author() {
     return this.author;
   }
 
@@ -182,7 +180,7 @@ public class ModuleConfiguration {
    *
    * @return the website of this module.
    */
-  public @Nullable String getWebsite() {
+  public @Nullable String website() {
     return this.website;
   }
 
@@ -191,7 +189,7 @@ public class ModuleConfiguration {
    *
    * @return the data folder of this module.
    */
-  public @Nullable String getDataFolder() {
+  public @Nullable String dataFolder() {
     return this.dataFolder;
   }
 
@@ -202,13 +200,13 @@ public class ModuleConfiguration {
    *                                    data folder is specified explicitly.
    * @return the data folder in path form of this module.
    */
-  public @NotNull Path getDataFolder(@NotNull Path moduleProviderBaseDirectory) {
+  public @NonNull Path dataFolder(@NonNull Path moduleProviderBaseDirectory) {
     if (this.dataFolder == null) {
       // default data folder name based on the module name
       return moduleProviderBaseDirectory.resolve(this.name);
     } else {
       // get the data folder of this module from the root directory of the cloud
-      return FileUtils.resolve(Paths.get(""), this.dataFolder.split("/"));
+      return FileUtils.resolve(Path.of(""), this.dataFolder.split("/"));
     }
   }
 
@@ -217,7 +215,7 @@ public class ModuleConfiguration {
    *
    * @return all defined repositories of this module.
    */
-  public @Nullable ModuleRepository[] getRepositories() {
+  public @Nullable ModuleRepository[] repositories() {
     return this.repositories;
   }
 
@@ -226,7 +224,7 @@ public class ModuleConfiguration {
    *
    * @return all defined dependencies of this module.
    */
-  public @Nullable ModuleDependency[] getDependencies() {
+  public @Nullable ModuleDependency[] dependencies() {
     return this.dependencies;
   }
 
@@ -235,7 +233,7 @@ public class ModuleConfiguration {
    *
    * @return all defined properties of this module.
    */
-  public @Nullable JsonDocument getProperties() {
+  public @Nullable JsonDocument properties() {
     return this.properties;
   }
 
@@ -245,7 +243,7 @@ public class ModuleConfiguration {
    *
    * @return the min java version number this module can run on.
    */
-  public int getMinJavaVersionId() {
+  public int minJavaVersionId() {
     return this.minJavaVersionId;
   }
 
@@ -254,7 +252,7 @@ public class ModuleConfiguration {
    *
    * @return the minimum java runtime version this module can run on.
    */
-  public @Nullable JavaVersion getMinJavaVersion() {
+  public @Nullable JavaVersion minJavaVersion() {
     return JavaVersion.fromVersion(this.minJavaVersionId).orElse(null);
   }
 
@@ -264,8 +262,8 @@ public class ModuleConfiguration {
    * @param javaVersion the runtime version to check.
    * @return if this module can run on the specified java version.
    */
-  public boolean canRunOn(@NotNull JavaVersion javaVersion) {
-    var minJavaVersion = this.getMinJavaVersion();
+  public boolean canRunOn(@NonNull JavaVersion javaVersion) {
+    var minJavaVersion = this.minJavaVersion();
     return minJavaVersion == null || minJavaVersion.isSupportedByMax(javaVersion);
   }
 
@@ -288,7 +286,7 @@ public class ModuleConfiguration {
    * @param fieldName the name of the field which gets checked.
    * @throws ModuleConfigurationPropertyNotFoundException if the given field value is null or empty.
    */
-  protected void validatePropertyNotNull(@Nullable String field, @NotNull String fieldName) {
+  protected void validatePropertyNotNull(@Nullable String field, @NonNull String fieldName) {
     if (field == null || field.trim().isEmpty()) {
       throw new ModuleConfigurationPropertyNotFoundException(fieldName);
     }

@@ -67,17 +67,7 @@ public class WildcardUtilTest {
       WildcardUtil.fixUnclosedGroups("Lobby-(56(.*(.)(\\d+(\\D)"));
   }
 
-  private static class NameableThing implements INameable {
+  private record NameableThing(String name) implements INameable {
 
-    private final String name;
-
-    public NameableThing(String name) {
-      this.name = name;
-    }
-
-    @Override
-    public String getName() {
-      return this.name;
-    }
   }
 }

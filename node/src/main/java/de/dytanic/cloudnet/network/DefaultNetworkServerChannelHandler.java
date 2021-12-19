@@ -31,14 +31,14 @@ import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.network.listener.PacketClientAuthorizationListener;
 import de.dytanic.cloudnet.service.ICloudService;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class DefaultNetworkServerChannelHandler implements INetworkChannelHandler {
 
-  private static final Logger LOGGER = LogManager.getLogger(DefaultNetworkServerChannelHandler.class);
+  private static final Logger LOGGER = LogManager.logger(DefaultNetworkServerChannelHandler.class);
 
   @Override
-  public void handleChannelInitialize(@NotNull INetworkChannel channel) {
+  public void handleChannelInitialize(@NonNull INetworkChannel channel) {
     // check if the ip of the connecting client is allowed
     if (this.shouldDenyConnection(channel)) {
       channel.close();
@@ -47,38 +47,38 @@ public final class DefaultNetworkServerChannelHandler implements INetworkChannel
 
     if (NodeNetworkUtils.shouldInitializeChannel(channel, ChannelType.SERVER_CHANNEL)) {
       // add the auth listener
-      channel.getPacketRegistry().addListener(
+      channel.packetRegistry().addListener(
         NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL,
         new PacketClientAuthorizationListener());
 
       LOGGER.fine(I18n.trans("server-network-channel-init")
-        .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
-        .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort()));
+        .replace("%serverAddress%", channel.serverAddress().host() + ":" + channel.serverAddress().port())
+        .replace("%clientAddress%", channel.clientAddress().host() + ":" + channel.clientAddress().port()));
     } else {
       channel.close();
     }
   }
 
   @Override
-  public boolean handlePacketReceive(@NotNull INetworkChannel channel, @NotNull Packet packet) {
-    return !CloudNetDriver.getInstance().getEventManager().callEvent(
-      new NetworkChannelPacketReceiveEvent(channel, packet)).isCancelled();
+  public boolean handlePacketReceive(@NonNull INetworkChannel channel, @NonNull Packet packet) {
+    return !CloudNetDriver.instance().eventManager().callEvent(
+      new NetworkChannelPacketReceiveEvent(channel, packet)).cancelled();
   }
 
   @Override
-  public void handleChannelClose(@NotNull INetworkChannel channel) {
-    CloudNetDriver.getInstance().getEventManager().callEvent(
+  public void handleChannelClose(@NonNull INetworkChannel channel) {
+    CloudNetDriver.instance().eventManager().callEvent(
       new NetworkChannelCloseEvent(channel, ChannelType.SERVER_CHANNEL));
 
     LOGGER.fine(I18n.trans("server-network-channel-close")
-      .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
-      .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort()));
+      .replace("%serverAddress%", channel.serverAddress().host() + ":" + channel.serverAddress().port())
+      .replace("%clientAddress%", channel.clientAddress().host() + ":" + channel.clientAddress().port()));
 
-    var cloudService = CloudNet.getInstance()
-      .getCloudServiceProvider()
-      .getLocalCloudServices()
+    var cloudService = CloudNet.instance()
+      .cloudServiceProvider()
+      .localCloudServices()
       .stream()
-      .filter(service -> service.getNetworkChannel() != null && service.getNetworkChannel().equals(channel))
+      .filter(service -> service.networkChannel() != null && service.networkChannel().equals(channel))
       .findFirst()
       .orElse(null);
     if (cloudService != null) {
@@ -86,28 +86,28 @@ public final class DefaultNetworkServerChannelHandler implements INetworkChannel
       return;
     }
 
-    var clusterNodeServer = CloudNet.getInstance().getClusterNodeServerProvider().getNodeServer(channel);
+    var clusterNodeServer = CloudNet.instance().nodeServerProvider().nodeServer(channel);
     if (clusterNodeServer != null) {
       NodeNetworkUtils.closeNodeServer(clusterNodeServer);
     }
   }
 
-  private void closeAsCloudService(@NotNull ICloudService cloudService, @NotNull INetworkChannel channel) {
+  private void closeAsCloudService(@NonNull ICloudService cloudService, @NonNull INetworkChannel channel) {
     // reset the service channel and connection time
-    cloudService.setNetworkChannel(null);
-    cloudService.setCloudServiceLifeCycle(ServiceLifeCycle.STOPPED);
+    cloudService.networkChannel(null);
+    cloudService.updateLifecycle(ServiceLifeCycle.STOPPED);
 
     LOGGER.info(I18n.trans("cloud-service-networking-disconnected")
-      .replace("%id%", cloudService.getServiceId().getUniqueId().toString())
-      .replace("%task%", cloudService.getServiceId().getTaskName())
-      .replace("%serviceId%", String.valueOf(cloudService.getServiceId().getTaskServiceId()))
-      .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
-      .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort()));
+      .replace("%id%", cloudService.serviceId().uniqueId().toString())
+      .replace("%task%", cloudService.serviceId().taskName())
+      .replace("%serviceId%", String.valueOf(cloudService.serviceId().taskServiceId()))
+      .replace("%serverAddress%", channel.serverAddress().host() + ":" + channel.serverAddress().port())
+      .replace("%clientAddress%", channel.clientAddress().host() + ":" + channel.clientAddress().port()));
   }
 
-  private boolean shouldDenyConnection(@NotNull INetworkChannel channel) {
-    return CloudNet.getInstance().getConfig().getIpWhitelist()
+  private boolean shouldDenyConnection(@NonNull INetworkChannel channel) {
+    return CloudNet.instance().config().ipWhitelist()
       .stream()
-      .noneMatch(channel.getClientAddress().getHost()::equals);
+      .noneMatch(channel.clientAddress().host()::equals);
   }
 }

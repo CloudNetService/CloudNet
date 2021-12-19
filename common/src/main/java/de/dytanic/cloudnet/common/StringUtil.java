@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.common;
 
 import com.google.common.base.Preconditions;
 import java.util.concurrent.ThreadLocalRandom;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * Utility class all around strings to shortcut longer methods within the project.
@@ -40,7 +40,7 @@ public final class StringUtil {
    * @param length the length the generated string should have.
    * @return the randomly generated string.
    */
-  public static @NotNull String generateRandomString(int length) {
+  public static @NonNull String generateRandomString(int length) {
     Preconditions.checkArgument(length > 0, "Can only generate string which is longer to 0 chars");
     // init the backing api
     var buffer = new StringBuilder(length);
@@ -60,7 +60,7 @@ public final class StringUtil {
    * @param suffix the suffix to validate the string ends with.
    * @return {@code true} if the given string ends with the given suffix.
    */
-  public static boolean endsWithIgnoreCase(@NotNull String s, @NotNull String suffix) {
+  public static boolean endsWithIgnoreCase(@NonNull String s, @NonNull String suffix) {
     var suffixLength = suffix.length();
     return s.regionMatches(true, s.length() - suffixLength, suffix, 0, suffixLength);
   }
@@ -72,11 +72,11 @@ public final class StringUtil {
    * @param prefix the prefix to validate the string starts with.
    * @return {@code true} if the given string starts with the given prefix.
    */
-  public static boolean startsWithIgnoreCase(@NotNull String s, @NotNull String prefix) {
+  public static boolean startsWithIgnoreCase(@NonNull String s, @NonNull String prefix) {
     return s.regionMatches(true, 0, prefix, 0, prefix.length());
   }
 
-  public static @NotNull String repeat(char c, int times) {
+  public static @NonNull String repeat(char c, int times) {
     var s = new char[times];
     for (var i = 0; i < times; i++) {
       s[i] = c;

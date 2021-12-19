@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.driver.network.rpc.defaults;
 import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
 import de.dytanic.cloudnet.driver.network.rpc.RPCProvider;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public abstract class DefaultRPCProvider implements RPCProvider {
 
@@ -28,9 +28,9 @@ public abstract class DefaultRPCProvider implements RPCProvider {
   protected final DataBufFactory dataBufFactory;
 
   protected DefaultRPCProvider(
-    @NotNull Class<?> targetClass,
-    @NotNull ObjectMapper objectMapper,
-    @NotNull DataBufFactory dataBufFactory
+    @NonNull Class<?> targetClass,
+    @NonNull ObjectMapper objectMapper,
+    @NonNull DataBufFactory dataBufFactory
   ) {
     this.targetClass = targetClass;
     this.objectMapper = objectMapper;
@@ -38,17 +38,17 @@ public abstract class DefaultRPCProvider implements RPCProvider {
   }
 
   @Override
-  public @NotNull Class<?> getTargetClass() {
+  public @NonNull Class<?> targetClass() {
     return this.targetClass;
   }
 
   @Override
-  public @NotNull ObjectMapper getObjectMapper() {
+  public @NonNull ObjectMapper objectMapper() {
     return this.objectMapper;
   }
 
   @Override
-  public @NotNull DataBufFactory getDataBufFactory() {
+  public @NonNull DataBufFactory dataBufFactory() {
     return this.dataBufFactory;
   }
 }

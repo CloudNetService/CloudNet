@@ -18,23 +18,23 @@ package de.dytanic.cloudnet.service.defaults.config;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.service.ICloudService;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class GlowstoneConfigurationPreparer extends AbstractServiceConfigurationPreparer {
 
   @Override
-  public void configure(@NotNull CloudNet nodeInstance, @NotNull ICloudService cloudService) {
+  public void configure(@NonNull CloudNet nodeInstance, @NonNull ICloudService cloudService) {
     // check if we should run now
     if (this.shouldRewriteIp(nodeInstance, cloudService)) {
       // copy the default file
-      var configFile = cloudService.getDirectory().resolve("config/glowstone.yml");
+      var configFile = cloudService.directory().resolve("config/glowstone.yml");
       this.copyCompiledFile("files/glowstone/glowstone.yml", configFile);
       // rewrite the configuration file
       this.rewriteFile(configFile, line -> {
         if (line.trim().startsWith("ip:")) {
-          line = String.format("  ip: '%s'", nodeInstance.getConfig().getHostAddress());
+          line = String.format("  ip: '%s'", nodeInstance.config().hostAddress());
         } else if (line.trim().startsWith("port:")) {
-          line = String.format("  port: %d", cloudService.getServiceConfiguration().getPort());
+          line = String.format("  port: %d", cloudService.serviceConfiguration().port());
         }
         return line;
       });

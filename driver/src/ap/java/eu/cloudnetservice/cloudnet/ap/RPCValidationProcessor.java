@@ -16,11 +16,13 @@
 
 package eu.cloudnetservice.cloudnet.ap;
 
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.processing.AbstractProcessor;
@@ -31,6 +33,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
@@ -39,7 +42,7 @@ import javax.lang.model.util.Elements;
 public class RPCValidationProcessor extends AbstractProcessor {
 
   private volatile Elements eu;
-  private volatile Map<Element, List<String>> elements;
+  private volatile Map<Element, List<Entry<String, Integer>>> elements;
 
   @Override
   public synchronized void init(ProcessingEnvironment processingEnv) {
@@ -70,7 +73,8 @@ public class RPCValidationProcessor extends AbstractProcessor {
         // read all elements from the class
         for (Element enclosedElement : element.getEnclosedElements()) {
           // skip all elements which are not a method
-          if (enclosedElement.getKind() != ElementKind.METHOD) {
+          if (enclosedElement.getKind() != ElementKind.METHOD
+            || !(enclosedElement instanceof ExecutableElement method)) {
             continue;
           }
           // skip static method if requested
@@ -85,8 +89,9 @@ public class RPCValidationProcessor extends AbstractProcessor {
           if (this.elements == null) {
             this.elements = new HashMap<>();
           }
+
           this.elements.computeIfAbsent(element, $ -> new ArrayList<>())
-            .add(enclosedElement.getSimpleName().toString());
+            .add(new SimpleImmutableEntry<>(method.getSimpleName().toString(), method.getParameters().size()));
         }
       }
     }
@@ -104,7 +109,7 @@ public class RPCValidationProcessor extends AbstractProcessor {
           throw new IllegalStateException(String.format(
             "Duplicate method names in %s: %s",
             entry.getKey().getSimpleName().toString(),
-            String.join(", ", duplicates)));
+            duplicates.stream().map(Entry::getKey).collect(Collectors.joining(", "))));
         }
       }
       // reset the values

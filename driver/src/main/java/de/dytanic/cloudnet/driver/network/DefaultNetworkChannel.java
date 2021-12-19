@@ -24,7 +24,7 @@ import de.dytanic.cloudnet.driver.network.protocol.defaults.DefaultPacketListene
 import de.dytanic.cloudnet.driver.network.protocol.defaults.DefaultQueryPacketManager;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public abstract class DefaultNetworkChannel implements INetworkChannel {
 
@@ -58,52 +58,52 @@ public abstract class DefaultNetworkChannel implements INetworkChannel {
   }
 
   @Override
-  public ITask<IPacket> sendQueryAsync(@NotNull IPacket packet) {
+  public @NonNull ITask<IPacket> sendQueryAsync(@NonNull IPacket packet) {
     return this.queryPacketManager.sendQueryPacket(packet);
   }
 
   @Override
-  public IPacket sendQuery(@NotNull IPacket packet) {
+  public IPacket sendQuery(@NonNull IPacket packet) {
     return this.sendQueryAsync(packet).get(5, TimeUnit.SECONDS, null);
   }
 
   @Override
-  public long getChannelId() {
+  public long channelId() {
     return this.channelId;
   }
 
   @Override
-  public IPacketListenerRegistry getPacketRegistry() {
+  public @NonNull IPacketListenerRegistry packetRegistry() {
     return this.packetRegistry;
   }
 
   @Override
-  public @NotNull QueryPacketManager getQueryPacketManager() {
+  public @NonNull QueryPacketManager queryPacketManager() {
     return this.queryPacketManager;
   }
 
   @Override
-  public HostAndPort getServerAddress() {
+  public @NonNull HostAndPort serverAddress() {
     return this.serverAddress;
   }
 
   @Override
-  public HostAndPort getClientAddress() {
+  public @NonNull HostAndPort clientAddress() {
     return this.clientAddress;
   }
 
   @Override
-  public boolean isClientProvidedChannel() {
+  public boolean clientProvidedChannel() {
     return this.clientProvidedChannel;
   }
 
   @Override
-  public INetworkChannelHandler getHandler() {
+  public @NonNull INetworkChannelHandler handler() {
     return this.handler;
   }
 
   @Override
-  public void setHandler(INetworkChannelHandler handler) {
+  public void handler(@NonNull INetworkChannelHandler handler) {
     this.handler = handler;
   }
 

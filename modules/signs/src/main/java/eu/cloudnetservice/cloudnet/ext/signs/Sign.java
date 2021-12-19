@@ -25,8 +25,8 @@ import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -53,7 +53,7 @@ public class Sign implements Comparable<Sign> {
    * @param targetGroup   the group the sign is targeting
    * @param worldPosition the position of the sign in the world
    */
-  public Sign(@NotNull String targetGroup, @NotNull WorldPosition worldPosition) {
+  public Sign(@NonNull String targetGroup, @NonNull WorldPosition worldPosition) {
     this(targetGroup, null, worldPosition);
   }
 
@@ -64,29 +64,29 @@ public class Sign implements Comparable<Sign> {
    * @param templatePath  the template of this
    * @param worldPosition the position of the sign in the world
    */
-  public Sign(@NotNull String targetGroup, @Nullable String templatePath, @NotNull WorldPosition worldPosition) {
+  public Sign(@NonNull String targetGroup, @Nullable String templatePath, @NonNull WorldPosition worldPosition) {
     this.targetGroup = targetGroup;
     this.templatePath = templatePath;
     this.worldPosition = worldPosition;
   }
 
-  public @NotNull String getTargetGroup() {
+  public @NonNull String targetGroup() {
     return this.targetGroup;
   }
 
-  public @Nullable String getTemplatePath() {
+  public @Nullable String templatePath() {
     return this.templatePath;
   }
 
-  public @NotNull WorldPosition getLocation() {
+  public @NonNull WorldPosition location() {
     return this.worldPosition;
   }
 
-  public @Nullable ServiceInfoSnapshot getCurrentTarget() {
+  public @Nullable ServiceInfoSnapshot currentTarget() {
     return this.currentTarget == null ? null : this.currentTarget.get();
   }
 
-  public void setCurrentTarget(@Nullable ServiceInfoSnapshot currentTarget) {
+  public void currentTarget(@Nullable ServiceInfoSnapshot currentTarget) {
     if (this.currentTarget == null) {
       this.currentTarget = new AtomicReference<>(currentTarget);
     } else {
@@ -99,8 +99,8 @@ public class Sign implements Comparable<Sign> {
    *
    * @return the priority of the sign to be on the sign wall
    */
-  public int getPriority() {
-    return this.getPriority(false);
+  public int priority() {
+    return this.priority(false);
   }
 
   /**
@@ -109,8 +109,8 @@ public class Sign implements Comparable<Sign> {
    * @param entry the signs configuration entry to get additional configuration from
    * @return the priority of the sign to be on the sign wall
    */
-  public int getPriority(@Nullable SignConfigurationEntry entry) {
-    return this.getPriority(entry != null && entry.isSwitchToSearchingWhenServiceIsFull());
+  public int priority(@Nullable SignConfigurationEntry entry) {
+    return this.priority(entry != null && entry.switchToSearchingWhenServiceIsFull());
   }
 
   /**
@@ -119,15 +119,15 @@ public class Sign implements Comparable<Sign> {
    * @param lowerFullToSearching If true the priority of a full service will be synced to the of a searching sign
    * @return the priority of the sign to be on the sign wall
    */
-  public int getPriority(boolean lowerFullToSearching) {
+  public int priority(boolean lowerFullToSearching) {
     // check if the service has a snapshot
-    var target = this.getCurrentTarget();
+    var target = this.currentTarget();
     // no target has the lowest priority
-    return target == null ? 0 : PriorityUtil.getPriority(target, lowerFullToSearching);
+    return target == null ? 0 : PriorityUtil.priority(target, lowerFullToSearching);
   }
 
   @Override
-  public int compareTo(@NotNull Sign sign) {
-    return Integer.compare(this.getPriority(), sign.getPriority());
+  public int compareTo(@NonNull Sign sign) {
+    return Integer.compare(this.priority(), sign.priority());
   }
 }

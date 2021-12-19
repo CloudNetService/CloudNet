@@ -25,30 +25,30 @@ import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketHandler.Callback;
 import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
 import java.io.InputStream;
 import java.nio.file.Files;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 final class StaticServiceDeployCallback implements Callback {
 
   public static final StaticServiceDeployCallback INSTANCE = new StaticServiceDeployCallback();
 
-  private static final Logger LOGGER = LogManager.getLogger(StaticServiceDeployCallback.class);
+  private static final Logger LOGGER = LogManager.logger(StaticServiceDeployCallback.class);
 
   private StaticServiceDeployCallback() {
   }
 
   @Override
   public void handleSessionComplete(
-    @NotNull ChunkSessionInformation information,
-    @NotNull InputStream dataInput
+    @NonNull ChunkSessionInformation information,
+    @NonNull InputStream dataInput
   ) {
     // read the information for the deployment of the static service
-    var service = information.getTransferInformation().readString();
-    var overwriteService = information.getTransferInformation().readBoolean();
+    var service = information.transferInformation().readString();
+    var overwriteService = information.transferInformation().readBoolean();
 
-    var serviceManager = CloudNet.getInstance().getCloudServiceProvider();
+    var serviceManager = CloudNet.instance().cloudServiceProvider();
     // only copy the static service running with the same name
-    if (serviceManager.getLocalCloudService(service) == null) {
-      var servicePath = serviceManager.getPersistentServicesDirectoryPath().resolve(service);
+    if (serviceManager.localCloudService(service) == null) {
+      var servicePath = serviceManager.persistentServicesDirectory().resolve(service);
       // check if the service path exists, and we can overwrite it
       if (Files.exists(servicePath) && !overwriteService) {
         LOGGER.severe(I18n.trans("command-cluster-push-static-services-existing"));

@@ -20,25 +20,25 @@ import de.dytanic.cloudnet.driver.event.events.DriverEvent;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.service.ICloudService;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public abstract class CloudServiceEvent extends DriverEvent {
 
   private final ICloudService service;
 
-  public CloudServiceEvent(@NotNull ICloudService service) {
+  public CloudServiceEvent(@NonNull ICloudService service) {
     this.service = service;
   }
 
-  public @NotNull ICloudService getService() {
+  public @NonNull ICloudService service() {
     return this.service;
   }
 
-  public @NotNull ServiceConfiguration getConfiguration() {
-    return this.service.getServiceConfiguration();
+  public @NonNull ServiceConfiguration serviceConfiguration() {
+    return this.service.serviceConfiguration();
   }
 
-  public @NotNull ServiceInfoSnapshot getServiceInfo() {
-    return this.service.getServiceInfoSnapshot();
+  public @NonNull ServiceInfoSnapshot serviceInfo() {
+    return this.service.serviceInfo();
   }
 }

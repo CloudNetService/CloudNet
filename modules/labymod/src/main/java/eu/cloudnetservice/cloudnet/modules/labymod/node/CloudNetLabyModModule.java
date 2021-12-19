@@ -31,7 +31,7 @@ import eu.cloudnetservice.cloudnet.modules.labymod.config.LabyModServiceDisplay;
 import java.nio.file.Files;
 import java.util.Collection;
 import java.util.Map;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class CloudNetLabyModModule extends DriverModule {
 
@@ -39,10 +39,10 @@ public class CloudNetLabyModModule extends DriverModule {
 
   @ModuleTask(order = 127, event = ModuleLifeCycle.LOADED)
   public void convertConfig() {
-    if (Files.exists(this.getConfigPath())) {
+    if (Files.exists(this.configPath())) {
       var config = this.readConfig().getDocument("config");
       // there is a config, run the conversion
-      if (!config.isEmpty()) {
+      if (!config.empty()) {
         // rewrite the config with all settings from the old config, but in the new format
         this.writeConfig(JsonDocument.newDocument(
           LabyModConfiguration.builder()
@@ -70,22 +70,22 @@ public class CloudNetLabyModModule extends DriverModule {
 
   @ModuleTask(order = 126, event = ModuleLifeCycle.LOADED)
   public void initManagement() {
-    if (Files.notExists(this.getConfigPath())) {
+    if (Files.notExists(this.configPath())) {
       // create default config and write to the file
       this.writeConfig(JsonDocument.newDocument(LabyModConfiguration.builder().build()));
     }
     // read the config from the file
     var configuration = this.readConfig().toInstanceOf(LabyModConfiguration.class);
-    this.labyModManagement = new NodeLabyModManagement(this, configuration, this.getRPCFactory());
+    this.labyModManagement = new NodeLabyModManagement(this, configuration, this.rpcFactory());
     // sync the config of the module into the cluster
-    CloudNet.getInstance().getDataSyncRegistry().registerHandler(
+    CloudNet.instance().dataSyncRegistry().registerHandler(
       DataSyncHandler.<LabyModConfiguration>builder()
         .key("labymod-config")
         .nameExtractor($ -> "LabyMod Config")
         .convertObject(LabyModConfiguration.class)
-        .writer(this.labyModManagement::setConfiguration)
-        .singletonCollector(this.labyModManagement::getConfiguration)
-        .currentGetter($ -> this.labyModManagement.getConfiguration())
+        .writer(this.labyModManagement::configuration)
+        .singletonCollector(this.labyModManagement::configuration)
+        .currentGetter($ -> this.labyModManagement.configuration())
         .build());
   }
 
@@ -95,7 +95,7 @@ public class CloudNetLabyModModule extends DriverModule {
     this.registerListener(new NodeLabyModListener(this.labyModManagement));
   }
 
-  private @NotNull LabyModServiceDisplay convertDisplayEntry(@NotNull JsonDocument entry) {
+  private @NonNull LabyModServiceDisplay convertDisplayEntry(@NonNull JsonDocument entry) {
     var enabled = entry.getBoolean("enabled");
     var format = entry.getString("format");
     var displayType = entry.getString("displayType");

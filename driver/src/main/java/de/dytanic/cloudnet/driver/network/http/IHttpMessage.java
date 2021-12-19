@@ -18,44 +18,45 @@ package de.dytanic.cloudnet.driver.network.http;
 
 import java.io.InputStream;
 import java.util.Map;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
 public interface IHttpMessage<T extends IHttpMessage<?>> {
 
-  IHttpContext context();
+  @NonNull IHttpContext context();
 
-  String header(String name);
+  @Nullable String header(@NonNull String name);
 
-  int headerAsInt(String name);
+  int headerAsInt(@NonNull String name);
 
-  boolean headerAsBoolean(String name);
+  boolean headerAsBoolean(@NonNull String name);
 
-  T header(String name, String value);
+  @NonNull T header(@NonNull String name, @NonNull String value);
 
-  T removeHeader(String name);
+  @NonNull T removeHeader(@NonNull String name);
 
-  T clearHeaders();
+  @NonNull T clearHeaders();
 
-  boolean hasHeader(String name);
+  boolean hasHeader(@NonNull String name);
 
-  Map<String, String> headers();
+  @NonNull Map<String, String> headers();
 
-  HttpVersion version();
+  @NonNull HttpVersion version();
 
-  T version(HttpVersion version);
+  @NonNull T version(@NonNull HttpVersion version);
 
   byte[] body();
 
-  String bodyAsString();
+  @NonNull String bodyAsString();
 
-  T body(byte[] byteArray);
+  @NonNull T body(byte[] byteArray);
 
-  T body(String text);
+  @NonNull T body(@NonNull String text);
 
   @UnknownNullability InputStream bodyStream();
 
-  T body(@Nullable InputStream body);
+  @NonNull T body(@Nullable InputStream body);
 
   boolean hasBody();
 }

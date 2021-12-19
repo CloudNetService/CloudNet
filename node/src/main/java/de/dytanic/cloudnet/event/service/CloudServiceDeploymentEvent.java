@@ -20,7 +20,7 @@ import de.dytanic.cloudnet.driver.event.ICancelable;
 import de.dytanic.cloudnet.driver.service.ServiceDeployment;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.service.ICloudService;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class CloudServiceDeploymentEvent extends CloudServiceEvent implements ICancelable {
 
@@ -30,9 +30,9 @@ public final class CloudServiceDeploymentEvent extends CloudServiceEvent impleme
   private volatile boolean cancelled;
 
   public CloudServiceDeploymentEvent(
-    @NotNull ICloudService cloudService,
-    @NotNull TemplateStorage templateStorage,
-    @NotNull ServiceDeployment serviceDeployment
+    @NonNull ICloudService cloudService,
+    @NonNull TemplateStorage templateStorage,
+    @NonNull ServiceDeployment serviceDeployment
   ) {
     super(cloudService);
 
@@ -40,19 +40,19 @@ public final class CloudServiceDeploymentEvent extends CloudServiceEvent impleme
     this.serviceDeployment = serviceDeployment;
   }
 
-  public @NotNull TemplateStorage getTemplateStorage() {
+  public @NonNull TemplateStorage storage() {
     return this.templateStorage;
   }
 
-  public @NotNull ServiceDeployment getServiceDeployment() {
+  public @NonNull ServiceDeployment deployment() {
     return this.serviceDeployment;
   }
 
-  public boolean isCancelled() {
+  public boolean cancelled() {
     return this.cancelled;
   }
 
-  public void setCancelled(boolean cancelled) {
+  public void cancelled(boolean cancelled) {
     this.cancelled = cancelled;
   }
 }

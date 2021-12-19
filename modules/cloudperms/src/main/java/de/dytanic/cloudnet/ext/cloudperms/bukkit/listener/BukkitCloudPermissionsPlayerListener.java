@@ -20,6 +20,7 @@ import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
 import de.dytanic.cloudnet.ext.cloudperms.bukkit.BukkitPermissionHelper;
 import java.util.logging.Level;
+import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
@@ -29,7 +30,6 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.NotNull;
 
 public final class BukkitCloudPermissionsPlayerListener implements Listener {
 
@@ -42,7 +42,7 @@ public final class BukkitCloudPermissionsPlayerListener implements Listener {
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
-  public void handlePreLogin(@NotNull AsyncPlayerPreLoginEvent event) {
+  public void handlePreLogin(@NonNull AsyncPlayerPreLoginEvent event) {
     if (event.getLoginResult() == AsyncPlayerPreLoginEvent.Result.ALLOWED) {
       CloudPermissionsHelper.initPermissionUser(
         this.permissionsManagement,
@@ -57,7 +57,7 @@ public final class BukkitCloudPermissionsPlayerListener implements Listener {
   }
 
   @EventHandler(priority = EventPriority.LOWEST)
-  public void handle(@NotNull PlayerLoginEvent event) {
+  public void handle(@NonNull PlayerLoginEvent event) {
     if (event.getResult() != PlayerLoginEvent.Result.ALLOWED) {
       return;
     }
@@ -71,7 +71,7 @@ public final class BukkitCloudPermissionsPlayerListener implements Listener {
   }
 
   @EventHandler
-  public void handleQuit(@NotNull PlayerQuitEvent event) {
+  public void handleQuit(@NonNull PlayerQuitEvent event) {
     CloudPermissionsHelper.handlePlayerQuit(this.permissionsManagement, event.getPlayer().getUniqueId());
   }
 }

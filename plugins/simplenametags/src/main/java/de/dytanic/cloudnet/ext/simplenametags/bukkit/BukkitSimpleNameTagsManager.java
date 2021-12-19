@@ -21,35 +21,35 @@ import de.dytanic.cloudnet.ext.simplenametags.SimpleNameTagsManager;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.Executor;
+import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 final class BukkitSimpleNameTagsManager extends SimpleNameTagsManager<Player> {
 
-  public BukkitSimpleNameTagsManager(@NotNull Executor syncTaskExecutor) {
+  public BukkitSimpleNameTagsManager(@NonNull Executor syncTaskExecutor) {
     super(syncTaskExecutor);
   }
 
   @Override
-  public void updateNameTagsFor(@NotNull Player player) {
+  public void updateNameTagsFor(@NonNull Player player) {
     this.updateNameTagsFor(player, player.getUniqueId(), player.getName());
   }
 
   @Override
-  public @NotNull UUID getPlayerUniqueId(@NotNull Player player) {
+  public @NonNull UUID playerUniqueId(@NonNull Player player) {
     return player.getUniqueId();
   }
 
   @Override
-  public void setDisplayName(@NotNull Player player, @NotNull String displayName) {
+  public void displayName(@NonNull Player player, @NonNull String displayName) {
     player.setDisplayName(ChatColor.translateAlternateColorCodes('&', displayName));
   }
 
   @Override
-  public void resetScoreboard(@NotNull Player player) {
+  public void resetScoreboard(@NonNull Player player) {
     // just to make IntelliJ happy - the manager should not be null when a player connected successfully
     var manager = player.getServer().getScoreboardManager();
     if (manager != null && player.getScoreboard().equals(manager.getMainScoreboard())) {
@@ -59,10 +59,10 @@ final class BukkitSimpleNameTagsManager extends SimpleNameTagsManager<Player> {
 
   @Override
   public void registerPlayerToTeam(
-    @NotNull Player player,
-    @NotNull Player scoreboardHolder,
-    @NotNull String name,
-    @NotNull PermissionGroup group
+    @NonNull Player player,
+    @NonNull Player scoreboardHolder,
+    @NonNull String name,
+    @NonNull PermissionGroup group
   ) {
     // check if the team is already registered
     var team = scoreboardHolder.getScoreboard().getTeam(name);
@@ -70,24 +70,24 @@ final class BukkitSimpleNameTagsManager extends SimpleNameTagsManager<Player> {
       team = scoreboardHolder.getScoreboard().registerNewTeam(name);
     }
     // set the default team attributes
-    team.setPrefix(ChatColor.translateAlternateColorCodes('&', group.getPrefix()));
-    team.setSuffix(ChatColor.translateAlternateColorCodes('&', group.getSuffix()));
+    team.setPrefix(ChatColor.translateAlternateColorCodes('&', group.prefix()));
+    team.setSuffix(ChatColor.translateAlternateColorCodes('&', group.suffix()));
     // set the team color if possible
     var teamColor = ChatColor.getByChar(this.getColorChar(group));
     if (teamColor != null) {
-      BukkitCompatibility.setTeamColor(team, teamColor);
+      BukkitCompatibility.teamColor(team, teamColor);
     }
     // register the player to the team
     team.addEntry(player.getName());
   }
 
   @Override
-  public @NotNull Collection<? extends Player> getOnlinePlayers() {
+  public @NonNull Collection<? extends Player> onlinePlayers() {
     return Bukkit.getOnlinePlayers();
   }
 
   @Override
-  public @Nullable Player getOnlinePlayer(@NotNull UUID uniqueId) {
+  public @Nullable Player onlinePlayer(@NonNull UUID uniqueId) {
     return Bukkit.getPlayer(uniqueId);
   }
 }

@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Supplier;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class ProcessServiceLogCache extends AbstractServiceLogCache {
 
@@ -33,16 +33,16 @@ public class ProcessServiceLogCache extends AbstractServiceLogCache {
   protected final StringBuffer stringBuffer = new StringBuffer();
 
   public ProcessServiceLogCache(
-    @NotNull Supplier<Process> processSupplier,
-    @NotNull CloudNet cloudNet,
-    @NotNull ICloudService service
+    @NonNull Supplier<Process> processSupplier,
+    @NonNull CloudNet cloudNet,
+    @NonNull ICloudService service
   ) {
     super(cloudNet, service);
     this.processSupplier = processSupplier;
   }
 
   @Override
-  public @NotNull IServiceConsoleLogCache update() {
+  public @NonNull IServiceConsoleLogCache update() {
     // check if we can currently update
     var process = this.processSupplier.get();
     if (process != null) {
@@ -52,7 +52,7 @@ public class ProcessServiceLogCache extends AbstractServiceLogCache {
       } catch (IOException exception) {
         LOGGER.severe("Exception updating content of console for service %s",
           exception,
-          this.service.getServiceId().getName());
+          this.service.serviceId().name());
         // reset the string buffer
         this.stringBuffer.setLength(0);
       }
@@ -61,7 +61,7 @@ public class ProcessServiceLogCache extends AbstractServiceLogCache {
     return this;
   }
 
-  protected void readStream(@NotNull InputStream stream, boolean isErrorStream) throws IOException {
+  protected void readStream(@NonNull InputStream stream, boolean isErrorStream) throws IOException {
     int len;
     while (stream.available() > 0 && (len = stream.read(this.buffer, 0, this.buffer.length)) != -1) {
       this.stringBuffer.append(new String(this.buffer, 0, len, StandardCharsets.UTF_8));

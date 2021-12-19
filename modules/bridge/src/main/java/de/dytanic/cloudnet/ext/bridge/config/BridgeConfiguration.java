@@ -28,8 +28,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @ToString
@@ -40,8 +40,8 @@ public final class BridgeConfiguration extends JsonDocPropertyHolder {
     "default",
     new HashMap<>(ImmutableMap.<String, String>builder()
       .put("command-hub-success-connect", "§7You did successfully connect to %server%.")
-      .put("command-hub-already-in-hub", "§cYou are already connected.")
-      .put("command-hub-no-server-found", "§7Hub server cannot be found.")
+      .put("command-hub-already-in-hub", "§cYou are already connected to a hub service.")
+      .put("command-hub-no-server-found", "§7The is currently §cno §7hub server available.")
       .put("server-join-cancel-because-maintenance", "§7This server is currently in maintenance mode.")
       .put("server-join-cancel-because-permission", "§7You do not have the required permissions to join this server.")
       .put("proxy-join-cancel-because-permission", "§7You do not have the required permissions to join this proxy.")
@@ -74,13 +74,13 @@ public final class BridgeConfiguration extends JsonDocPropertyHolder {
   }
 
   public BridgeConfiguration(
-    @NotNull String prefix,
-    @NotNull Map<String, Map<String, String>> localizedMessages,
+    @NonNull String prefix,
+    @NonNull Map<String, Map<String, String>> localizedMessages,
     boolean logPlayerConnections,
-    @NotNull Collection<String> excludedGroups,
-    @NotNull Collection<String> hubCommandNames,
-    @NotNull Collection<ProxyFallbackConfiguration> fallbackConfigurations,
-    @NotNull JsonDocument properties
+    @NonNull Collection<String> excludedGroups,
+    @NonNull Collection<String> hubCommandNames,
+    @NonNull Collection<ProxyFallbackConfiguration> fallbackConfigurations,
+    @NonNull JsonDocument properties
   ) {
     this.prefix = prefix;
     this.localizedMessages = localizedMessages;
@@ -91,27 +91,27 @@ public final class BridgeConfiguration extends JsonDocPropertyHolder {
     this.properties = properties;
   }
 
-  public @NotNull String getPrefix() {
+  public @NonNull String prefix() {
     return this.prefix;
   }
 
-  public @NotNull Collection<ProxyFallbackConfiguration> getFallbackConfigurations() {
+  public @NonNull Collection<ProxyFallbackConfiguration> fallbackConfigurations() {
     return this.fallbackConfigurations;
   }
 
-  public @NotNull Collection<String> getHubCommandNames() {
+  public @NonNull Collection<String> hubCommandNames() {
     return this.hubCommandNames;
   }
 
-  public @NotNull Collection<String> getExcludedGroups() {
+  public @NonNull Collection<String> excludedGroups() {
     return this.excludedGroups;
   }
 
-  public @NotNull String getMessage(@Nullable Locale locale, @NotNull String key) {
-    return this.getMessage(locale, key, true);
+  public @NonNull String message(@Nullable Locale locale, @NonNull String key) {
+    return this.message(locale, key, true);
   }
 
-  public @NotNull String getMessage(@Nullable Locale locale, @NotNull String key, boolean withPrefix) {
+  public @NonNull String message(@Nullable Locale locale, @NonNull String key, boolean withPrefix) {
     // try to get the messages of in the specified locale
     var messages = this.localizedMessages.get(locale == null ? "default" : locale.getLanguage());
     if (messages == null) {

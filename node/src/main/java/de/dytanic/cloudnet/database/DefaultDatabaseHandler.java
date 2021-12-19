@@ -22,35 +22,35 @@ import de.dytanic.cloudnet.event.database.DatabaseClearEntriesEvent;
 import de.dytanic.cloudnet.event.database.DatabaseDeleteEntryEvent;
 import de.dytanic.cloudnet.event.database.DatabaseInsertEntryEvent;
 import de.dytanic.cloudnet.event.database.DatabaseUpdateEntryEvent;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class DefaultDatabaseHandler implements IDatabaseHandler {
 
   @Override
   public void handleInsert(
-    @NotNull LocalDatabase database,
-    @NotNull String key,
-    @NotNull JsonDocument document
+    @NonNull LocalDatabase database,
+    @NonNull String key,
+    @NonNull JsonDocument document
   ) {
-    CloudNetDriver.getInstance().getEventManager().callEvent(new DatabaseInsertEntryEvent(database, key, document));
+    CloudNetDriver.instance().eventManager().callEvent(new DatabaseInsertEntryEvent(database, key, document));
   }
 
   @Override
   public void handleUpdate(
-    @NotNull LocalDatabase database,
-    @NotNull String key,
-    @NotNull JsonDocument document
+    @NonNull LocalDatabase database,
+    @NonNull String key,
+    @NonNull JsonDocument document
   ) {
-    CloudNetDriver.getInstance().getEventManager().callEvent(new DatabaseUpdateEntryEvent(database, key, document));
+    CloudNetDriver.instance().eventManager().callEvent(new DatabaseUpdateEntryEvent(database, key, document));
   }
 
   @Override
-  public void handleDelete(@NotNull LocalDatabase database, @NotNull String key) {
-    CloudNetDriver.getInstance().getEventManager().callEvent(new DatabaseDeleteEntryEvent(database, key));
+  public void handleDelete(@NonNull LocalDatabase database, @NonNull String key) {
+    CloudNetDriver.instance().eventManager().callEvent(new DatabaseDeleteEntryEvent(database, key));
   }
 
   @Override
-  public void handleClear(@NotNull LocalDatabase database) {
-    CloudNetDriver.getInstance().getEventManager().callEvent(new DatabaseClearEntriesEvent(database));
+  public void handleClear(@NonNull LocalDatabase database) {
+    CloudNetDriver.instance().eventManager().callEvent(new DatabaseClearEntriesEvent(database));
   }
 }

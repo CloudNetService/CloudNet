@@ -39,7 +39,7 @@ import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class RemoteTemplateStorage implements TemplateStorage {
@@ -48,23 +48,23 @@ public class RemoteTemplateStorage implements TemplateStorage {
   private final RPC baseRPC;
   private final RPCSender sender;
 
-  public RemoteTemplateStorage(@NotNull String name, @NotNull RPC baseRPC) {
+  public RemoteTemplateStorage(@NonNull String name, @NonNull RPC baseRPC) {
     this.name = name;
     this.baseRPC = baseRPC;
-    this.sender = baseRPC.getSender().getFactory().providerForClass(
-      baseRPC.getSender().getAssociatedComponent(),
+    this.sender = baseRPC.sender().factory().providerForClass(
+      baseRPC.sender().associatedComponent(),
       TemplateStorage.class);
   }
 
   @Override
-  public @NotNull String getName() {
+  public @NonNull String name() {
     return this.name;
   }
 
   @Override
   public boolean deployDirectory(
-    @NotNull Path directory,
-    @NotNull ServiceTemplate target,
+    @NonNull Path directory,
+    @NonNull ServiceTemplate target,
     @Nullable Predicate<Path> fileFilter
   ) {
     try (var inputStream = FileUtils.zipToStream(directory, fileFilter)) {
@@ -75,35 +75,35 @@ public class RemoteTemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public boolean deploy(@NotNull InputStream inputStream, @NotNull ServiceTemplate target) {
+  public boolean deploy(@NonNull InputStream inputStream, @NonNull ServiceTemplate target) {
     return ChunkedPacketSender.forFileTransfer()
       .source(inputStream)
       .transferChannel("deploy_service_template")
       .withExtraData(DataBuf.empty().writeString(this.name).writeObject(target).writeBoolean(true))
-      .toChannels(CloudNetDriver.getInstance().getNetworkClient().getFirstChannel())
+      .toChannels(CloudNetDriver.instance().networkClient().firstChannel())
       .build()
       .transferChunkedData()
       .get(5, TimeUnit.MINUTES, TransferStatus.FAILURE) == TransferStatus.SUCCESS;
   }
 
   @Override
-  public boolean copy(@NotNull ServiceTemplate template, @NotNull Path directory) {
+  public boolean copy(@NonNull ServiceTemplate template, @NonNull Path directory) {
     return this.baseRPC.join(this.sender.invokeMethod("copy", template, directory)).fireSync();
   }
 
   @Override
-  public @Nullable InputStream zipTemplate(@NotNull ServiceTemplate template) throws IOException {
+  public @Nullable InputStream zipTemplate(@NonNull ServiceTemplate template) throws IOException {
     // send a request for the template to the node
     var responseId = UUID.randomUUID();
     var response = ChannelMessage.builder()
       .message("remote_templates_zip_template")
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .targetNode(CloudNetDriver.getInstance().getNodeUniqueId())
+      .targetNode(CloudNetDriver.instance().nodeUniqueId())
       .buffer(DataBuf.empty().writeString(this.name).writeObject(template).writeUniqueId(responseId))
       .build()
       .sendSingleQuery();
     // check if we got a response
-    if (response == null || !response.getContent().readBoolean()) {
+    if (response == null || !response.content().readBoolean()) {
       return null;
     }
     // the file is transferred and should be readable
@@ -111,40 +111,40 @@ public class RemoteTemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public boolean delete(@NotNull ServiceTemplate template) {
+  public boolean delete(@NonNull ServiceTemplate template) {
     return this.baseRPC.join(this.sender.invokeMethod("delete", template)).fireSync();
   }
 
   @Override
-  public boolean create(@NotNull ServiceTemplate template) {
+  public boolean create(@NonNull ServiceTemplate template) {
     return this.baseRPC.join(this.sender.invokeMethod("create", template)).fireSync();
   }
 
   @Override
-  public boolean has(@NotNull ServiceTemplate template) {
+  public boolean has(@NonNull ServiceTemplate template) {
     return this.baseRPC.join(this.sender.invokeMethod("has", template)).fireSync();
   }
 
   @Override
   public @Nullable OutputStream appendOutputStream(
-    @NotNull ServiceTemplate template,
-    @NotNull String path
+    @NonNull ServiceTemplate template,
+    @NonNull String path
   ) throws IOException {
     return this.openLocalOutputStream(template, path, FileUtils.createTempFile(), true);
   }
 
   @Override
   public @Nullable OutputStream newOutputStream(
-    @NotNull ServiceTemplate template,
-    @NotNull String path
+    @NonNull ServiceTemplate template,
+    @NonNull String path
   ) throws IOException {
     return this.openLocalOutputStream(template, path, FileUtils.createTempFile(), false);
   }
 
-  protected @NotNull OutputStream openLocalOutputStream(
-    @NotNull ServiceTemplate template,
-    @NotNull String path,
-    @NotNull Path localPath,
+  protected @NonNull OutputStream openLocalOutputStream(
+    @NonNull ServiceTemplate template,
+    @NonNull String path,
+    @NonNull Path localPath,
     boolean append
   ) throws IOException {
     return new ListeningOutputStream<>(
@@ -152,7 +152,7 @@ public class RemoteTemplateStorage implements TemplateStorage {
       $ -> ChunkedPacketSender.forFileTransfer()
         .forFile(localPath)
         .transferChannel("deploy_single_file")
-        .toChannels(CloudNetDriver.getInstance().getNetworkClient().getFirstChannel())
+        .toChannels(CloudNetDriver.instance().networkClient().firstChannel())
         .withExtraData(
           DataBuf.empty().writeString(this.name).writeObject(template).writeString(path).writeBoolean(append))
         .build()
@@ -161,41 +161,41 @@ public class RemoteTemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public boolean createFile(@NotNull ServiceTemplate template, @NotNull String path) {
+  public boolean createFile(@NonNull ServiceTemplate template, @NonNull String path) {
     return this.baseRPC.join(this.sender.invokeMethod("createFile", template, path)).fireSync();
   }
 
   @Override
-  public boolean createDirectory(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
+  public boolean createDirectory(@NonNull ServiceTemplate template, @NonNull String path) throws IOException {
     return this.baseRPC.join(this.sender.invokeMethod("createDirectory", template, path)).fireSync();
   }
 
   @Override
-  public boolean hasFile(@NotNull ServiceTemplate template, @NotNull String path) {
+  public boolean hasFile(@NonNull ServiceTemplate template, @NonNull String path) {
     return this.baseRPC.join(this.sender.invokeMethod("hasFile", template, path)).fireSync();
   }
 
   @Override
-  public boolean deleteFile(@NotNull ServiceTemplate template, @NotNull String path) {
+  public boolean deleteFile(@NonNull ServiceTemplate template, @NonNull String path) {
     return this.baseRPC.join(this.sender.invokeMethod("deleteFile", template, path)).fireSync();
   }
 
   @Override
   public @Nullable InputStream newInputStream(
-    @NotNull ServiceTemplate template,
-    @NotNull String path
+    @NonNull ServiceTemplate template,
+    @NonNull String path
   ) throws IOException {
     // send a request for the file to the node
     var responseId = UUID.randomUUID();
     var response = ChannelMessage.builder()
       .message("remote_templates_template_file")
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .targetNode(CloudNetDriver.getInstance().getNodeUniqueId())
+      .targetNode(CloudNetDriver.instance().nodeUniqueId())
       .buffer(DataBuf.empty().writeString(path).writeString(this.name).writeObject(template).writeUniqueId(responseId))
       .build()
       .sendSingleQuery();
     // check if we got a response
-    if (response == null || !response.getContent().readBoolean()) {
+    if (response == null || !response.content().readBoolean()) {
       return null;
     }
     // the file is transferred and should be readable
@@ -203,18 +203,18 @@ public class RemoteTemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public @Nullable FileInfo getFileInfo(@NotNull ServiceTemplate template, @NotNull String path) {
-    return this.baseRPC.join(this.sender.invokeMethod("getFileInfo", template, path)).fireSync();
+  public @Nullable FileInfo fileInfo(@NonNull ServiceTemplate template, @NonNull String path) {
+    return this.baseRPC.join(this.sender.invokeMethod("fileInfo", template, path)).fireSync();
   }
 
   @Override
-  public @Nullable FileInfo[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir, boolean deep) {
+  public @Nullable FileInfo[] listFiles(@NonNull ServiceTemplate template, @NonNull String dir, boolean deep) {
     return this.baseRPC.join(this.sender.invokeMethod("listFiles", template, dir, deep)).fireSync();
   }
 
   @Override
-  public @NotNull Collection<ServiceTemplate> getTemplates() {
-    return this.baseRPC.join(this.sender.invokeMethod("getTemplates")).fireSync();
+  public @NonNull Collection<ServiceTemplate> templates() {
+    return this.baseRPC.join(this.sender.invokeMethod("templates")).fireSync();
   }
 
   @Override

@@ -21,10 +21,10 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.net.InetSocketAddress;
 import java.util.function.Consumer;
+import lombok.NonNull;
 import net.md_5.bungee.api.ProxyConfig;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
-import org.jetbrains.annotations.NotNull;
 
 final class BungeeCordServerHelper {
 
@@ -54,7 +54,7 @@ final class BungeeCordServerHelper {
     } catch (NoSuchMethodException | IllegalAccessException ex) {
       // using the default BungeeCord way
       serverRegisterHandler = service -> ProxyServer.getInstance().getServers().put(
-        service.getName(),
+        service.name(),
         constructServerInfo(service));
     }
     // find the best method to remove a server from the proxy
@@ -65,14 +65,14 @@ final class BungeeCordServerHelper {
       // the waterfall method is available
       serverUnregisterHandler = service -> {
         try {
-          removeServerNamed.invoke(ProxyServer.getInstance().getConfig(), service.getName());
+          removeServerNamed.invoke(ProxyServer.getInstance().getConfig(), service.name());
         } catch (Throwable throwable) {
           throw new RuntimeException("Unable to unregister service using Waterfall 'removeServerNamed':", throwable);
         }
       };
     } catch (NoSuchMethodException | IllegalAccessException ex) {
       // using the default BungeeCord way
-      serverUnregisterHandler = service -> ProxyServer.getInstance().getServers().remove(service.getName());
+      serverUnregisterHandler = service -> ProxyServer.getInstance().getServers().remove(service.name());
     }
     // assign the static fields to the best available method
     SERVER_REGISTER_HANDLER = serverRegisterHandler;
@@ -83,10 +83,10 @@ final class BungeeCordServerHelper {
     throw new UnsupportedOperationException();
   }
 
-  private static @NotNull ServerInfo constructServerInfo(@NotNull ServiceInfoSnapshot snapshot) {
+  private static @NonNull ServerInfo constructServerInfo(@NonNull ServiceInfoSnapshot snapshot) {
     return ProxyServer.getInstance().constructServerInfo(
-      snapshot.getName(),
-      new InetSocketAddress(snapshot.getConnectAddress().getHost(), snapshot.getConnectAddress().getPort()),
+      snapshot.name(),
+      new InetSocketAddress(snapshot.connectAddress().host(), snapshot.connectAddress().port()),
       "Just another CloudNet provided service info",
       false);
   }

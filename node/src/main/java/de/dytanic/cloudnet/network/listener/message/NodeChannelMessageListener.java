@@ -25,7 +25,7 @@ import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEven
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.event.cluster.NetworkClusterNodeInfoUpdateEvent;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class NodeChannelMessageListener {
 
@@ -34,9 +34,9 @@ public final class NodeChannelMessageListener {
   private final IClusterNodeServerProvider nodeServerProvider;
 
   public NodeChannelMessageListener(
-    @NotNull IEventManager eventManager,
-    @NotNull DataSyncRegistry dataSyncRegistry,
-    @NotNull IClusterNodeServerProvider nodeServerProvider
+    @NonNull IEventManager eventManager,
+    @NonNull DataSyncRegistry dataSyncRegistry,
+    @NonNull IClusterNodeServerProvider nodeServerProvider
   ) {
     this.eventManager = eventManager;
     this.dataSyncRegistry = dataSyncRegistry;
@@ -44,38 +44,38 @@ public final class NodeChannelMessageListener {
   }
 
   @EventListener
-  public void handleChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
-    if (event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL) && event.getMessage() != null) {
-      switch (event.getMessage()) {
+  public void handleChannelMessage(@NonNull ChannelMessageReceiveEvent event) {
+    if (event.channel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
+      switch (event.message()) {
         // update a single node info snapshot
         case "update_node_info_snapshot" -> {
-          var snapshot = event.getContent().readObject(NetworkClusterNodeInfoSnapshot.class);
+          var snapshot = event.content().readObject(NetworkClusterNodeInfoSnapshot.class);
           // get the associated node server
-          var server = this.nodeServerProvider.getNodeServer(snapshot.getNode().getUniqueId());
+          var server = this.nodeServerProvider.nodeServer(snapshot.node().uniqueId());
           if (server != null) {
-            server.setNodeInfoSnapshot(snapshot);
-            this.eventManager.callEvent(new NetworkClusterNodeInfoUpdateEvent(event.getNetworkChannel(), snapshot));
+            server.nodeInfoSnapshot(snapshot);
+            this.eventManager.callEvent(new NetworkClusterNodeInfoUpdateEvent(event.networkChannel(), snapshot));
           }
         }
 
         // handles the sync requests of cluster data
         case "sync_cluster_data" -> {
           // handle the sync and send back the data to override on the caller
-          var result = this.dataSyncRegistry.handle(event.getContent(), event.getContent().readBoolean());
-          if (result != null && event.isQuery()) {
-            event.setBinaryResponse(result);
+          var result = this.dataSyncRegistry.handle(event.content(), event.content().readBoolean());
+          if (result != null && event.query()) {
+            event.binaryResponse(result);
           }
         }
 
         // handles the shutdown of a cluster node
-        case "cluster_node_shutdown" -> CloudNet.getInstance().stop();
+        case "cluster_node_shutdown" -> CloudNet.instance().stop();
 
         // request of the full cluster data set
         case "request_initial_cluster_data" -> {
-          var server = this.nodeServerProvider.getNodeServer(event.getNetworkChannel());
+          var server = this.nodeServerProvider.nodeServer(event.networkChannel());
           if (server != null) {
             // do not force the sync - the user can decide which changes should be used
-            server.syncClusterData(CloudNet.getInstance().getConfig().getForceInitialClusterDataSync());
+            server.syncClusterData(CloudNet.instance().config().forceInitialClusterDataSync());
           }
         }
 

@@ -18,7 +18,7 @@ package eu.cloudnetservice.cloudnet.modules.labymod;
 
 import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import eu.cloudnetservice.cloudnet.modules.labymod.config.LabyModConfiguration;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 @RPCValidation
 public interface LabyModManagement {
@@ -27,7 +27,7 @@ public interface LabyModManagement {
   String LABYMOD_MODULE_CHANNEL = "labymod_internal";
   String LABYMOD_UPDATE_CONFIG = "update_labymod_config";
 
-  @NotNull LabyModConfiguration getConfiguration();
+  @NonNull LabyModConfiguration configuration();
 
-  void setConfiguration(@NotNull LabyModConfiguration configuration);
+  void configuration(@NonNull LabyModConfiguration configuration);
 }

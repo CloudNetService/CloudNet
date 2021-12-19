@@ -18,13 +18,13 @@ package de.dytanic.cloudnet.driver.network.rpc;
 
 import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public interface RPCProvider {
 
-  @NotNull Class<?> getTargetClass();
+  @NonNull Class<?> targetClass();
 
-  @NotNull ObjectMapper getObjectMapper();
+  @NonNull ObjectMapper objectMapper();
 
-  @NotNull DataBufFactory getDataBufFactory();
+  @NonNull DataBufFactory dataBufFactory();
 }

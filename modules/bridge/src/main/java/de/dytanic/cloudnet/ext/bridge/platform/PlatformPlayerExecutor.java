@@ -21,9 +21,9 @@ import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
 import de.dytanic.cloudnet.ext.bridge.player.executor.ServerSelectorType;
 import java.util.UUID;
+import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 final class PlatformPlayerExecutor implements PlayerExecutor {
@@ -32,24 +32,24 @@ final class PlatformPlayerExecutor implements PlayerExecutor {
   private final RPCSender sender;
   private final UUID targetUniqueId;
 
-  public PlatformPlayerExecutor(@NotNull RPC baseRPC, @NotNull UUID targetUniqueId) {
+  public PlatformPlayerExecutor(@NonNull RPC baseRPC, @NonNull UUID targetUniqueId) {
     this.baseRPC = baseRPC;
     this.targetUniqueId = targetUniqueId;
-    this.sender = baseRPC.getSender().getFactory().providerForClass(null, PlayerExecutor.class);
+    this.sender = baseRPC.sender().factory().providerForClass(null, PlayerExecutor.class);
   }
 
   @Override
-  public @NotNull UUID getPlayerUniqueId() {
+  public @NonNull UUID uniqueId() {
     return this.targetUniqueId;
   }
 
   @Override
-  public void connect(@NotNull String serviceName) {
+  public void connect(@NonNull String serviceName) {
     this.baseRPC.join(this.sender.invokeMethod("connect", serviceName)).fireSync();
   }
 
   @Override
-  public void connectSelecting(@NotNull ServerSelectorType selectorType) {
+  public void connectSelecting(@NonNull ServerSelectorType selectorType) {
     this.baseRPC.join(this.sender.invokeMethod("connect", selectorType)).fireSync();
   }
 
@@ -59,42 +59,42 @@ final class PlatformPlayerExecutor implements PlayerExecutor {
   }
 
   @Override
-  public void connectToGroup(@NotNull String group, @NotNull ServerSelectorType selectorType) {
+  public void connectToGroup(@NonNull String group, @NonNull ServerSelectorType selectorType) {
     this.baseRPC.join(this.sender.invokeMethod("connectToGroup", group, selectorType)).fireSync();
   }
 
   @Override
-  public void connectToTask(@NotNull String task, @NotNull ServerSelectorType selectorType) {
+  public void connectToTask(@NonNull String task, @NonNull ServerSelectorType selectorType) {
     this.baseRPC.join(this.sender.invokeMethod("connectToTask", task, selectorType)).fireSync();
   }
 
   @Override
-  public void kick(@NotNull Component message) {
+  public void kick(@NonNull Component message) {
     this.baseRPC.join(this.sender.invokeMethod("kick", message)).fireSync();
   }
 
   @Override
-  public void sendTitle(@NotNull Title title) {
+  public void sendTitle(@NonNull Title title) {
     this.baseRPC.join(this.sender.invokeMethod("sendTitle", title)).fireSync();
   }
 
   @Override
-  public void sendMessage(@NotNull Component message) {
+  public void sendMessage(@NonNull Component message) {
     this.baseRPC.join(this.sender.invokeMethod("sendChatMessage", message)).fireSync();
   }
 
   @Override
-  public void sendChatMessage(@NotNull Component message, @Nullable String permission) {
+  public void sendChatMessage(@NonNull Component message, @Nullable String permission) {
     this.baseRPC.join(this.sender.invokeMethod("sendChatMessage", message, permission)).fireSync();
   }
 
   @Override
-  public void sendPluginMessage(@NotNull String tag, byte[] data) {
+  public void sendPluginMessage(@NonNull String tag, byte[] data) {
     this.baseRPC.join(this.sender.invokeMethod("sendPluginMessage", tag, data)).fireSync();
   }
 
   @Override
-  public void dispatchProxyCommand(@NotNull String command) {
+  public void dispatchProxyCommand(@NonNull String command) {
     this.baseRPC.join(this.sender.invokeMethod("dispatchProxyCommand", command)).fireSync();
   }
 }

@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.ext.adventure;
 
+import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.jetbrains.annotations.NotNull;
 
 public final class AdventureSerializerUtil {
 
@@ -37,7 +37,7 @@ public final class AdventureSerializerUtil {
     throw new UnsupportedOperationException();
   }
 
-  public static @NotNull String serializeToString(@NotNull String textToSerialize) {
+  public static @NonNull String serializeToString(@NonNull String textToSerialize) {
     var result = new StringBuilder();
     // find all legacy chars
     var chars = textToSerialize.toCharArray();
@@ -83,7 +83,7 @@ public final class AdventureSerializerUtil {
     return result.toString();
   }
 
-  public static @NotNull Component serialize(@NotNull String input) {
+  public static @NonNull Component serialize(@NonNull String input) {
     // serialize the text now
     return SERIALIZER.deserialize(serializeToString(input));
   }

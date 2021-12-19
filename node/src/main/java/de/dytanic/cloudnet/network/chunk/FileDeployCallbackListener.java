@@ -31,32 +31,32 @@ import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class FileDeployCallbackListener {
 
   @EventListener
-  public void handle(@NotNull ChunkedPacketSessionOpenEvent event) {
-    switch (event.getSession().getTransferChannel()) {
-      case "deploy_service_template" -> event.setHandler(
-          new DefaultFileChunkedPacketHandler(event.getSession(), TemplateDeployCallback.INSTANCE));
-      case "deploy_single_file" -> event.setHandler(
-          new DefaultFileChunkedPacketHandler(event.getSession(), TemplateFileDeployCallback.INSTANCE));
-      case "deploy_static_service" -> event.setHandler(
-          new DefaultFileChunkedPacketHandler(event.getSession(), StaticServiceDeployCallback.INSTANCE));
+  public void handle(@NonNull ChunkedPacketSessionOpenEvent event) {
+    switch (event.session().transferChannel()) {
+      case "deploy_service_template" -> event.handler(
+          new DefaultFileChunkedPacketHandler(event.session(), TemplateDeployCallback.INSTANCE));
+      case "deploy_single_file" -> event.handler(
+          new DefaultFileChunkedPacketHandler(event.session(), TemplateFileDeployCallback.INSTANCE));
+      case "deploy_static_service" -> event.handler(
+          new DefaultFileChunkedPacketHandler(event.session(), StaticServiceDeployCallback.INSTANCE));
       default -> {
       }
     }
   }
 
   @EventListener
-  public void handle(@NotNull ChannelMessageReceiveEvent event) {
-    if (event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL) && event.getMessage() != null) {
-      switch (event.getMessage()) {
+  public void handle(@NonNull ChannelMessageReceiveEvent event) {
+    if (event.channel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
+      switch (event.message()) {
         case "remote_templates_zip_template" -> this.handleInputRequest(event, TemplateStorage::zipTemplate);
         case "remote_templates_template_file" -> {
           // read the path info first
-          var path = event.getContent().readString();
+          var path = event.content().readString();
           this.handleInputRequest(event, (storage, template) -> storage.newInputStream(template, path));
         }
         default -> {
@@ -66,39 +66,39 @@ public final class FileDeployCallbackListener {
   }
 
   private void handleInputRequest(
-    @NotNull ChannelMessageReceiveEvent event,
-    @NotNull ThrowableBiFunction<TemplateStorage, ServiceTemplate, InputStream, IOException> streamOpener
+    @NonNull ChannelMessageReceiveEvent event,
+    @NonNull ThrowableBiFunction<TemplateStorage, ServiceTemplate, InputStream, IOException> streamOpener
   ) {
     // read the information
-    var storageName = event.getContent().readString();
-    var template = event.getContent().readObject(ServiceTemplate.class);
-    var responseId = event.getContent().readUniqueId();
+    var storageName = event.content().readString();
+    var template = event.content().readObject(ServiceTemplate.class);
+    var responseId = event.content().readUniqueId();
     // get the storage
-    var storage = CloudNet.getInstance().getTemplateStorage(storageName);
+    var storage = CloudNet.instance().templateStorage(storageName);
     if (storage == null) {
       // missing storage - no result
-      event.setBinaryResponse(DataBuf.empty().writeBoolean(false));
+      event.binaryResponse(DataBuf.empty().writeBoolean(false));
       return;
     }
     // zip the template and return to the sender
     try (var zip = streamOpener.apply(storage, template)) {
       // check if the template exists
       if (zip == null) {
-        event.setBinaryResponse(DataBuf.empty().writeBoolean(false));
+        event.binaryResponse(DataBuf.empty().writeBoolean(false));
         return;
       }
       // send the zip to the requesting component
       var status = ChunkedPacketSender.forFileTransfer()
         .source(zip)
         .sessionUniqueId(responseId)
-        .toChannels(event.getNetworkChannel())
+        .toChannels(event.networkChannel())
         .transferChannel("request_template_file_result")
         .build()
         .transferChunkedData()
         .get(5, TimeUnit.MINUTES, TransferStatus.FAILURE);
-      event.setBinaryResponse(DataBuf.empty().writeBoolean(status == TransferStatus.SUCCESS));
+      event.binaryResponse(DataBuf.empty().writeBoolean(status == TransferStatus.SUCCESS));
     } catch (IOException exception) {
-      event.setBinaryResponse(DataBuf.empty().writeBoolean(false));
+      event.binaryResponse(DataBuf.empty().writeBoolean(false));
     }
   }
 }

@@ -22,7 +22,7 @@ import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.service.defaults.JVMService;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class JVMServiceFactory extends AbstractServiceFactory {
 
@@ -35,16 +35,16 @@ public class JVMServiceFactory extends AbstractServiceFactory {
   }
 
   @Override
-  public @NotNull ICloudService createCloudService(
-    @NotNull ICloudServiceManager manager,
-    @NotNull ServiceConfiguration configuration
+  public @NonNull ICloudService createCloudService(
+    @NonNull ICloudServiceManager manager,
+    @NonNull ServiceConfiguration configuration
   ) {
     // validates the settings of the configuration
     this.validateConfiguration(manager, configuration);
     // select the configuration preparer for the environment
     var preparer = manager
-      .getServicePreparer(configuration.getServiceId().getEnvironment())
-      .orElseThrow(() -> new IllegalArgumentException("Unable to prepare config for " + configuration.getServiceId()));
+      .servicePreparer(configuration.serviceId().environment())
+      .orElseThrow(() -> new IllegalArgumentException("Unable to prepare config for " + configuration.serviceId()));
     // create the service
     return new JVMService(configuration, manager, this.eventManager, this.nodeInstance, preparer);
   }

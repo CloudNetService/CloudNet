@@ -26,7 +26,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -34,11 +34,11 @@ import org.jetbrains.annotations.Nullable;
  */
 public interface IPersistable {
 
-  Logger LOGGER = LogManager.getLogger(IPersistable.class);
+  Logger LOGGER = LogManager.logger(IPersistable.class);
 
-  @NotNull IPersistable write(@NotNull Writer writer);
+  @NonNull IPersistable write(@NonNull Writer writer);
 
-  default @NotNull IPersistable write(@NotNull OutputStream outputStream) {
+  default @NonNull IPersistable write(@NonNull OutputStream outputStream) {
     try (var writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
       return this.write(writer);
     } catch (IOException exception) {
@@ -47,7 +47,7 @@ public interface IPersistable {
     }
   }
 
-  default @NotNull IPersistable write(@Nullable Path path) {
+  default @NonNull IPersistable write(@Nullable Path path) {
     if (path != null) {
       // ensure that the parent directory exists
       FileUtils.createDirectory(path.getParent());

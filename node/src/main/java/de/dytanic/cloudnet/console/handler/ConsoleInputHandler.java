@@ -16,9 +16,9 @@
 
 package de.dytanic.cloudnet.console.handler;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public abstract class ConsoleInputHandler extends Toggleable {
 
-  public abstract void handleInput(@NotNull String line);
+  public abstract void handleInput(@NonNull String line);
 }

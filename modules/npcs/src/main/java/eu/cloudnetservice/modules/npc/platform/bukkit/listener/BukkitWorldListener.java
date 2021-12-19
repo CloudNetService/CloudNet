@@ -18,8 +18,7 @@ package eu.cloudnetservice.modules.npc.platform.bukkit.listener;
 
 import eu.cloudnetservice.modules.npc.platform.PlatformSelectorEntity;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
-import java.util.Collection;
-import java.util.stream.Collectors;
+import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -29,26 +28,25 @@ import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.NumberConversions;
-import org.jetbrains.annotations.NotNull;
 
 public final class BukkitWorldListener implements Listener {
 
   private final Plugin plugin;
   private final BukkitPlatformNPCManagement management;
 
-  public BukkitWorldListener(@NotNull Plugin plugin, @NotNull BukkitPlatformNPCManagement management) {
+  public BukkitWorldListener(@NonNull Plugin plugin, @NonNull BukkitPlatformNPCManagement management) {
     this.plugin = plugin;
     this.management = management;
   }
 
   @EventHandler
-  public void handle(@NotNull ChunkLoadEvent event) {
-    this.management.getTrackedEntities().values()
+  public void handle(@NonNull ChunkLoadEvent event) {
+    this.management.trackedEntities().values()
       .stream()
-      .filter(npc -> !npc.isSpawned())
+      .filter(npc -> !npc.spawned())
       .filter(npc -> {
-        var chunkX = NumberConversions.floor(npc.getLocation().getX()) >> 4;
-        var chunkZ = NumberConversions.floor(npc.getLocation().getZ()) >> 4;
+        var chunkX = NumberConversions.floor(npc.location().getX()) >> 4;
+        var chunkZ = NumberConversions.floor(npc.location().getZ()) >> 4;
         // validate that the entity is in the chunk being loaded - Location#getChunk causes a load of the chunk
         return event.getChunk().getX() == chunkX && event.getChunk().getZ() == chunkZ;
       })
@@ -56,13 +54,13 @@ public final class BukkitWorldListener implements Listener {
   }
 
   @EventHandler
-  public void handle(@NotNull ChunkUnloadEvent event) {
-    this.management.getTrackedEntities().values()
+  public void handle(@NonNull ChunkUnloadEvent event) {
+    this.management.trackedEntities().values()
       .stream()
-      .filter(PlatformSelectorEntity::isSpawned)
+      .filter(PlatformSelectorEntity::spawned)
       .filter(npc -> {
-        var chunkX = NumberConversions.floor(npc.getLocation().getX()) >> 4;
-        var chunkZ = NumberConversions.floor(npc.getLocation().getZ()) >> 4;
+        var chunkX = NumberConversions.floor(npc.location().getX()) >> 4;
+        var chunkZ = NumberConversions.floor(npc.location().getZ()) >> 4;
         // validate that the entity is in the chunk being unloaded - Location#getChunk causes a load of the chunk
         return event.getChunk().getX() == chunkX && event.getChunk().getZ() == chunkZ;
       })
@@ -70,12 +68,12 @@ public final class BukkitWorldListener implements Listener {
   }
 
   @EventHandler(priority = EventPriority.LOWEST)
-  public void handleWorldSave(@NotNull WorldSaveEvent event) {
-    Collection<PlatformSelectorEntity<?, ?, ?, ?>> entities = this.management.getTrackedEntities().values().stream()
-      .filter(PlatformSelectorEntity::isSpawned)
+  public void handleWorldSave(@NonNull WorldSaveEvent event) {
+    var entities = this.management.trackedEntities().values().stream()
+      .filter(PlatformSelectorEntity::spawned)
       .filter(PlatformSelectorEntity::removeWhenWorldSaving)
-      .filter(npc -> npc.getLocation().getWorld().getUID().equals(event.getWorld().getUID()))
-      .collect(Collectors.toList());
+      .filter(npc -> npc.location().getWorld().getUID().equals(event.getWorld().getUID()))
+      .toList();
     // remove all mobs
     entities.forEach(PlatformSelectorEntity::remove);
     // re-spawn all entities after 2 seconds - just hope the world save is done

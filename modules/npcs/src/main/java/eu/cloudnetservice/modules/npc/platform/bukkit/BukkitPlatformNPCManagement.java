@@ -31,6 +31,7 @@ import eu.cloudnetservice.modules.npc.platform.PlatformSelectorEntity;
 import eu.cloudnetservice.modules.npc.platform.bukkit.entity.EntityBukkitPlatformSelectorEntity;
 import eu.cloudnetservice.modules.npc.platform.bukkit.entity.NPCBukkitPlatformSelector;
 import java.util.concurrent.ThreadLocalRandom;
+import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -40,7 +41,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.NumberConversions;
-import org.jetbrains.annotations.NotNull;
 
 public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location, Player, ItemStack, Inventory> {
 
@@ -51,17 +51,17 @@ public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location,
 
   protected volatile BukkitTask npcEmoteTask;
 
-  public BukkitPlatformNPCManagement(@NotNull Plugin plugin) {
+  public BukkitPlatformNPCManagement(@NonNull Plugin plugin) {
     this.plugin = plugin;
     this.scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
 
     // npc pool init
-    var entry = this.getApplicableNPCConfigurationEntry();
+    var entry = this.applicableNPCConfigurationEntry();
     if (entry != null) {
       this.npcPool = NPCPool.builder(plugin)
-        .actionDistance(entry.getNpcPoolOptions().getActionDistance())
-        .spawnDistance(entry.getNpcPoolOptions().getSpawnDistance())
-        .tabListRemoveTicks(entry.getNpcPoolOptions().getTabListRemoveTicks())
+        .actionDistance(entry.npcPoolOptions().actionDistance())
+        .spawnDistance(entry.npcPoolOptions().spawnDistance())
+        .tabListRemoveTicks(entry.npcPoolOptions().tabListRemoveTicks())
         .build();
     } else {
       this.npcPool = NPCPool.builder(plugin).build();
@@ -71,21 +71,21 @@ public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location,
     this.startEmoteTask(false);
     // start the knock back task
     this.knockBackTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-      var configEntry = this.getApplicableNPCConfigurationEntry();
+      var configEntry = this.applicableNPCConfigurationEntry();
       if (configEntry != null) {
         // check if knock back is enabled
-        var distance = configEntry.getKnockbackDistance();
-        var strength = configEntry.getKnockbackStrength();
+        var distance = configEntry.knockbackDistance();
+        var strength = configEntry.knockbackStrength();
         if (distance > 0 && strength > 0) {
           // select the knockback emote id now (sometimes we need to play them sync for all npcs)
-          var labyModEmotes = configEntry.getEmoteConfiguration().getOnKnockbackEmoteIds();
-          var emoteId = this.getRandomEmoteId(configEntry.getEmoteConfiguration(), labyModEmotes);
+          var labyModEmotes = configEntry.emoteConfiguration().onKnockbackEmoteIds();
+          var emoteId = this.randomEmoteId(configEntry.emoteConfiguration(), labyModEmotes);
           //
           for (var value : this.trackedEntities.values()) {
-            if (value.isSpawned()) {
+            if (value.spawned()) {
               // select all nearby entities of each spawned mob
-              var nearbyEntities = value.getLocation().getWorld().getNearbyEntities(
-                value.getLocation(),
+              var nearbyEntities = value.location().getWorld().getNearbyEntities(
+                value.location(),
                 distance,
                 distance,
                 distance);
@@ -95,7 +95,7 @@ public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location,
                   // check if the entity is a player
                   if (entity instanceof Player player && !entity.hasPermission("cloudnet.npcs.knockback.bypass")) {
                     // apply the strength to the curren vector
-                    var vector = player.getLocation().toVector().subtract(value.getLocation().toVector())
+                    var vector = player.getLocation().toVector().subtract(value.location().toVector())
                       .normalize()
                       .multiply(strength)
                       .setY(0.2);
@@ -106,13 +106,13 @@ public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location,
                       if (value instanceof NPCBukkitPlatformSelector) {
                         if (emoteId == -1) {
                           var emote = labyModEmotes[ThreadLocalRandom.current().nextInt(0, labyModEmotes.length)];
-                          ((NPCBukkitPlatformSelector) value).getHandleNpc()
+                          ((NPCBukkitPlatformSelector) value).handleNPC()
                             .labymod()
                             .queue(LabyModAction.EMOTE, emote)
                             .send(player);
                         } else {
                           // use the selected emote
-                          ((NPCBukkitPlatformSelector) value).getHandleNpc()
+                          ((NPCBukkitPlatformSelector) value).handleNPC()
                             .labymod()
                             .queue(LabyModAction.EMOTE, emoteId)
                             .send(player);
@@ -129,16 +129,16 @@ public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location,
     }, 20, 5);
   }
 
-  @NotNull
+  @NonNull
   @Override
-  protected PlatformSelectorEntity<Location, Player, ItemStack, Inventory> createSelectorEntity(@NotNull NPC base) {
-    return base.getNpcType() == NPCType.ENTITY
+  protected PlatformSelectorEntity<Location, Player, ItemStack, Inventory> createSelectorEntity(@NonNull NPC base) {
+    return base.npcType() == NPCType.ENTITY
       ? new EntityBukkitPlatformSelectorEntity(this, this.plugin, base)
       : new NPCBukkitPlatformSelector(this, this.plugin, base, this.npcPool);
   }
 
   @Override
-  public @NotNull WorldPosition toWorldPosition(@NotNull Location location, @NotNull String group) {
+  public @NonNull WorldPosition toWorldPosition(@NonNull Location location, @NonNull String group) {
     Verify.verifyNotNull(location.getWorld(), "world unloaded");
     return new WorldPosition(
       location.getX(),
@@ -151,7 +151,7 @@ public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location,
   }
 
   @Override
-  public @NotNull Location toPlatformLocation(@NotNull WorldPosition position) {
+  public @NonNull Location toPlatformLocation(@NonNull WorldPosition position) {
     var world = Bukkit.getWorld(position.world());
     return new Location(
       world,
@@ -163,45 +163,45 @@ public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location,
   }
 
   @Override
-  protected boolean shouldTrack(@NotNull ServiceInfoSnapshot service) {
-    return service.getLifeCycle() == ServiceLifeCycle.RUNNING
-      && ServiceEnvironmentType.JAVA_SERVER.get(service.getServiceId().getEnvironment().getProperties());
+  protected boolean shouldTrack(@NonNull ServiceInfoSnapshot service) {
+    return service.lifeCycle() == ServiceLifeCycle.RUNNING
+      && ServiceEnvironmentType.JAVA_SERVER.get(service.serviceId().environment().properties());
   }
 
   @Override
-  public void handleInternalNPCConfigUpdate(@NotNull NPCConfiguration configuration) {
+  public void handleInternalNPCConfigUpdate(@NonNull NPCConfiguration configuration) {
     super.handleInternalNPCConfigUpdate(configuration);
     // re-schedule the emote task if it's not yet running
     this.startEmoteTask(false);
   }
 
-  public @NotNull Scoreboard getScoreboard() {
+  public @NonNull Scoreboard scoreboard() {
     return this.scoreboard;
   }
 
-  public @NotNull NPCPool getNpcPool() {
+  public @NonNull NPCPool npcPool() {
     return this.npcPool;
   }
 
   protected void startEmoteTask(boolean force) {
     // only start the task if not yet running
     if (this.npcEmoteTask == null || force) {
-      var ent = this.getApplicableNPCConfigurationEntry();
-      if (ent != null && ent.getEmoteConfiguration().getMinEmoteDelayTicks() > 0) {
+      var ent = this.applicableNPCConfigurationEntry();
+      if (ent != null && ent.emoteConfiguration().minEmoteDelayTicks() > 0) {
         // get the delay for the next npc emote play
         long delay;
-        if (ent.getEmoteConfiguration().getMaxEmoteDelayTicks() > ent.getEmoteConfiguration().getMinEmoteDelayTicks()) {
+        if (ent.emoteConfiguration().maxEmoteDelayTicks() > ent.emoteConfiguration().minEmoteDelayTicks()) {
           delay = ThreadLocalRandom.current().nextLong(
-            ent.getEmoteConfiguration().getMinEmoteDelayTicks(),
-            ent.getEmoteConfiguration().getMaxEmoteDelayTicks());
+            ent.emoteConfiguration().minEmoteDelayTicks(),
+            ent.emoteConfiguration().maxEmoteDelayTicks());
         } else {
-          delay = ent.getEmoteConfiguration().getMinEmoteDelayTicks();
+          delay = ent.emoteConfiguration().minEmoteDelayTicks();
         }
         // run the task
         this.npcEmoteTask = Bukkit.getScheduler().runTaskLaterAsynchronously(this.plugin, () -> {
           // select an emote to play
-          var emotes = ent.getEmoteConfiguration().getEmoteIds();
-          var emoteId = this.getRandomEmoteId(ent.getEmoteConfiguration(), emotes);
+          var emotes = ent.emoteConfiguration().emoteIds();
+          var emoteId = this.randomEmoteId(ent.emoteConfiguration(), emotes);
           // check if we can select an emote
           if (emoteId >= -1) {
             // play the emote on each npc

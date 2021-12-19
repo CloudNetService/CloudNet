@@ -19,22 +19,22 @@ package de.dytanic.cloudnet.ext.bridge.platform.bungeecord.command;
 import static net.md_5.bungee.api.chat.TextComponent.fromLegacyText;
 
 import de.dytanic.cloudnet.ext.bridge.platform.PlatformBridgeManagement;
+import lombok.NonNull;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ServerConnectEvent.Reason;
 import net.md_5.bungee.api.plugin.Command;
-import org.jetbrains.annotations.NotNull;
 
 public final class BungeeCordHubCommand extends Command {
 
   private final PlatformBridgeManagement<ProxiedPlayer, ?> management;
 
   public BungeeCordHubCommand(
-    @NotNull PlatformBridgeManagement<ProxiedPlayer, ?> management,
-    @NotNull String name,
-    String @NotNull ... aliases
+    @NonNull PlatformBridgeManagement<ProxiedPlayer, ?> management,
+    @NonNull String name,
+    String @NonNull ... aliases
   ) {
     super(name, null, aliases);
     this.management = management;
@@ -45,26 +45,26 @@ public final class BungeeCordHubCommand extends Command {
     if (sender instanceof ProxiedPlayer player) {
       // check if the player is on a fallback already
       if (this.management.isOnAnyFallbackInstance(player)) {
-        player.sendMessage(fromLegacyText(this.management.getConfiguration().getMessage(
+        player.sendMessage(fromLegacyText(this.management.configuration().message(
           player.getLocale(),
           "command-hub-already-in-hub")));
       } else {
         // try to get a fallback for the player
-        ServerInfo hub = this.management.getFallback(player)
-          .map(service -> ProxyServer.getInstance().getServerInfo(service.getName()))
+        ServerInfo hub = this.management.fallback(player)
+          .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
           .orElse(null);
         // check if a fallback was found
         if (hub != null) {
           player.connect(hub, (result, ex) -> {
             // check if the connection was successful
             if (result && ex == null) {
-              player.sendMessage(fromLegacyText(this.management.getConfiguration().getMessage(
+              player.sendMessage(fromLegacyText(this.management.configuration().message(
                 player.getLocale(),
                 "command-hub-success-connect"
               ).replace("%server%", hub.getName())));
             } else {
               // the connection was not successful
-              player.sendMessage(fromLegacyText(this.management.getConfiguration().getMessage(
+              player.sendMessage(fromLegacyText(this.management.configuration().message(
                 player.getLocale(),
                 "command-hub-no-server-found")));
             }

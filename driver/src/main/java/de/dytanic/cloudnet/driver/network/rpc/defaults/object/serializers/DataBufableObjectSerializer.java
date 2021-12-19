@@ -28,7 +28,7 @@ import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DataBufableObjectSerializer implements ObjectSerializer<DataBufable> {
@@ -40,9 +40,9 @@ public class DataBufableObjectSerializer implements ObjectSerializer<DataBufable
 
   @Override
   public @Nullable DataBufable read(
-    @NotNull DataBuf source,
-    @NotNull Type type,
-    @NotNull ObjectMapper caller
+    @NonNull DataBuf source,
+    @NonNull Type type,
+    @NonNull ObjectMapper caller
   ) {
     // ensure that the type is a class
     Verify.verify(type instanceof Class<?>, "Call to data buf reader as non-class");
@@ -70,10 +70,10 @@ public class DataBufableObjectSerializer implements ObjectSerializer<DataBufable
 
   @Override
   public void write(
-    @NotNull DataBuf.Mutable dataBuf,
-    @NotNull DataBufable object,
-    @NotNull Type type,
-    @NotNull ObjectMapper caller
+    @NonNull DataBuf.Mutable dataBuf,
+    @NonNull DataBufable object,
+    @NonNull Type type,
+    @NonNull ObjectMapper caller
   ) {
     object.writeData(dataBuf);
   }

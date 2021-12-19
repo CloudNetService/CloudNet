@@ -25,7 +25,7 @@ import eu.cloudnetservice.cloudnet.ext.signs.platform.AbstractPlatformSignManage
 import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.Sponge;
@@ -46,18 +46,18 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
   protected final PluginContainer plugin;
   protected final TaskExecutorService syncExecutor;
 
-  public SpongeSignManagement(@NotNull PluginContainer plugin) {
+  public SpongeSignManagement(@NonNull PluginContainer plugin) {
     this.plugin = plugin;
     this.syncExecutor = Sponge.server().scheduler().executor(plugin);
   }
 
-  public static SpongeSignManagement getDefaultInstance() {
-    return (SpongeSignManagement) CloudNetDriver.getInstance().getServicesRegistry()
-      .getFirstService(SignManagement.class);
+  public static SpongeSignManagement defaultInstance() {
+    return (SpongeSignManagement) CloudNetDriver.instance().servicesRegistry()
+      .firstService(SignManagement.class);
   }
 
   @Override
-  protected void pushUpdates(@NotNull Set<Sign> signs, @NotNull SignLayout layout) {
+  protected void pushUpdates(@NonNull Set<Sign> signs, @NonNull SignLayout layout) {
     if (Sponge.server().onMainThread()) {
       this.pushUpdates0(signs, layout);
     } else {
@@ -65,14 +65,14 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
     }
   }
 
-  protected void pushUpdates0(@NotNull Set<Sign> signs, @NotNull SignLayout layout) {
+  protected void pushUpdates0(@NonNull Set<Sign> signs, @NonNull SignLayout layout) {
     for (var sign : signs) {
       this.pushUpdate(sign, layout);
     }
   }
 
   @Override
-  protected void pushUpdate(@NotNull Sign sign, @NotNull SignLayout layout) {
+  protected void pushUpdate(@NonNull Sign sign, @NonNull SignLayout layout) {
     if (Sponge.server().onMainThread()) {
       this.pushUpdate0(sign, layout);
     } else {
@@ -80,8 +80,8 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
     }
   }
 
-  protected void pushUpdate0(@NotNull Sign sign, @NotNull SignLayout layout) {
-    var location = this.locationFromWorldPosition(sign.getLocation());
+  protected void pushUpdate0(@NonNull Sign sign, @NonNull SignLayout layout) {
+    var location = this.locationFromWorldPosition(sign.location());
     if (location != null) {
       // no need if the chunk is loaded - the tile entity is not available if the chunk is unloaded
       var entity = location.blockEntity().orElse(null);
@@ -99,10 +99,10 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
     }
   }
 
-  protected void changeBlock(@NotNull BlockEntity entity, @NotNull SignLayout layout) {
-    var type = layout.getBlockMaterial() == null ? null : Sponge.game()
+  protected void changeBlock(@NonNull BlockEntity entity, @NonNull SignLayout layout) {
+    var type = layout.blockMaterial() == null ? null : Sponge.game()
       .registry(RegistryTypes.BLOCK_TYPE)
-      .findValue(ResourceKey.resolve(layout.getBlockMaterial()))
+      .findValue(ResourceKey.resolve(layout.blockMaterial()))
       .orElse(null);
     var direction = entity.get(Keys.DIRECTION).orElse(null);
     if (type != null && direction != null) {
@@ -111,27 +111,27 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
   }
 
   @Override
-  public @Nullable Sign getSignAt(@NotNull org.spongepowered.api.block.entity.Sign sign) {
-    return this.getSignAt(this.locationToWorldPosition(sign.serverLocation()));
+  public @Nullable Sign signAt(@NonNull org.spongepowered.api.block.entity.Sign sign) {
+    return this.signAt(this.locationToWorldPosition(sign.serverLocation()));
   }
 
   @Override
-  public @Nullable Sign createSign(@NotNull org.spongepowered.api.block.entity.Sign sign, @NotNull String group) {
+  public @Nullable Sign createSign(@NonNull org.spongepowered.api.block.entity.Sign sign, @NonNull String group) {
     return this.createSign(sign, group, null);
   }
 
   @Override
   public @Nullable Sign createSign(
-    @NotNull org.spongepowered.api.block.entity.Sign sign,
-    @NotNull String group,
+    @NonNull org.spongepowered.api.block.entity.Sign sign,
+    @NonNull String group,
     @Nullable String templatePath
   ) {
-    var entry = this.getApplicableSignConfigurationEntry();
+    var entry = this.applicableSignConfigurationEntry();
     if (entry != null) {
       var created = new Sign(
         group,
         templatePath,
-        this.locationToWorldPosition(sign.serverLocation(), entry.getTargetGroup()));
+        this.locationToWorldPosition(sign.serverLocation(), entry.targetGroup()));
       this.createSign(created);
       return created;
     }
@@ -139,7 +139,7 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
   }
 
   @Override
-  public void deleteSign(@NotNull org.spongepowered.api.block.entity.Sign sign) {
+  public void deleteSign(@NonNull org.spongepowered.api.block.entity.Sign sign) {
     this.deleteSign(this.locationToWorldPosition(sign.serverLocation()));
   }
 
@@ -162,23 +162,23 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
   @Override
   protected void startKnockbackTask() {
     this.syncExecutor.scheduleAtFixedRate(() -> {
-      var entry = this.getApplicableSignConfigurationEntry();
+      var entry = this.applicableSignConfigurationEntry();
       if (entry != null) {
-        var configuration = entry.getKnockbackConfiguration();
-        if (configuration.isValidAndEnabled()) {
-          var distance = configuration.getDistance();
+        var configuration = entry.knockbackConfiguration();
+        if (configuration.validAndEnabled()) {
+          var distance = configuration.distance();
 
           for (var position : this.signs.keySet()) {
             var location = this.locationFromWorldPosition(position);
             if (location != null) {
               for (Entity entity : location.world().nearbyEntities(location.position(), distance)) {
-                if (entity instanceof ServerPlayer && (configuration.getBypassPermission() == null
-                  || !((ServerPlayer) entity).hasPermission(configuration.getBypassPermission()))) {
+                if (entity instanceof ServerPlayer && (configuration.bypassPermission() == null
+                  || !((ServerPlayer) entity).hasPermission(configuration.bypassPermission()))) {
                   var vector = entity.location()
                     .position()
                     .sub(location.position())
                     .normalize()
-                    .mul(configuration.getStrength());
+                    .mul(configuration.strength());
                   entity.velocity().set(new Vector3d(vector.x(), 0.2D, vector.z()));
                 }
               }
@@ -189,18 +189,18 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
     }, 0, 5 * 50, TimeUnit.MILLISECONDS);
   }
 
-  protected @NotNull WorldPosition locationToWorldPosition(@NotNull Location<ServerWorld, ?> location) {
+  protected @NonNull WorldPosition locationToWorldPosition(@NonNull Location<ServerWorld, ?> location) {
     return new WorldPosition(location.x(), location.y(), location.z(), 0, 0, location.world().key().formatted(), null);
   }
 
-  protected @NotNull WorldPosition locationToWorldPosition(
-    @NotNull Location<ServerWorld, ?> location,
-    @NotNull String group
+  protected @NonNull WorldPosition locationToWorldPosition(
+    @NonNull Location<ServerWorld, ?> location,
+    @NonNull String group
   ) {
     return new WorldPosition(location.x(), location.y(), location.z(), 0, 0, location.world().key().formatted(), group);
   }
 
-  protected @Nullable Location<ServerWorld, ?> locationFromWorldPosition(@NotNull WorldPosition position) {
+  protected @Nullable Location<ServerWorld, ?> locationFromWorldPosition(@NonNull WorldPosition position) {
     return Sponge.server().worldManager().world(ResourceKey.resolve(position.world()))
       .map(world -> ServerLocation.of(world, position.x(), position.y(), position.z()))
       .orElse(null);

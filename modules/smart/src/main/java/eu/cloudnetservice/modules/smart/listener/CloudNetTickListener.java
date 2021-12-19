@@ -42,7 +42,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class CloudNetTickListener {
@@ -52,35 +52,35 @@ public final class CloudNetTickListener {
   private final Map<String, Long> autoStartBlocks = new HashMap<>();
   private final Map<UUID, AtomicLong> autoStopTicks = new HashMap<>();
 
-  public CloudNetTickListener(@NotNull CloudNetSmartModule module) {
+  public CloudNetTickListener(@NonNull CloudNetSmartModule module) {
     this.module = module;
   }
 
   @EventListener
-  public void handleTick(@NotNull CloudNetTickEvent event) {
-    if (CloudNet.getInstance().getClusterNodeServerProvider().getSelfNode().isHeadNode()
-      && event.getTicker().getCurrentTick() % CloudNetTick.TPS == 0) {
+  public void handleTick(@NonNull CloudNetTickEvent event) {
+    if (CloudNet.instance().nodeServerProvider().selfNode().headNode()
+      && event.ticker().currentTick() % CloudNetTick.TPS == 0) {
       this.handleSmartEntries();
     }
   }
 
   private void handleSmartEntries() {
-    CloudNet.getInstance().getServiceTaskProvider().getPermanentServiceTasks().forEach(task -> {
-      var config = this.module.getSmartConfig(task);
-      if (config != null && config.isEnabled()) {
+    CloudNet.instance().serviceTaskProvider().permanentServiceTasks().forEach(task -> {
+      var config = this.module.smartConfig(task);
+      if (config != null && config.enabled()) {
         // get all services of the task
-        var services = this.getServiceManager().getCloudServicesByTask(task.getName());
+        var services = this.serviceManager().servicesByTask(task.name());
         // get all prepared services
         Collection<ServiceInfoSnapshot> preparedServices = services.stream()
-          .filter(service -> service.getLifeCycle() == ServiceLifeCycle.PREPARED)
+          .filter(service -> service.lifeCycle() == ServiceLifeCycle.PREPARED)
           .collect(Collectors.toSet());
         // get all running services
         Collection<ServiceInfoSnapshot> runningServices = services.stream()
-          .filter(service -> service.getLifeCycle() == ServiceLifeCycle.RUNNING)
+          .filter(service -> service.lifeCycle() == ServiceLifeCycle.RUNNING)
           .collect(Collectors.toSet());
         // get all services which are marked as online by the bridge
         var onlineServices = runningServices.stream()
-          .filter(service -> BridgeServiceProperties.IS_ONLINE.get(service).orElse(false))
+          .filter(service -> BridgeServiceProperties.IS_ONLINE.read(service).orElse(false))
           .collect(Collectors.toSet());
         // handle all smart entries
         this.handleAutoStop(task, config, runningServices, onlineServices);
@@ -90,10 +90,10 @@ public final class CloudNetTickListener {
   }
 
   private void handleAutoStop(
-    @NotNull ServiceTask task,
-    @NotNull SmartServiceTaskConfig config,
-    @NotNull Collection<ServiceInfoSnapshot> runningServices,
-    @NotNull Collection<ServiceInfoSnapshot> onlineServices
+    @NonNull ServiceTask task,
+    @NonNull SmartServiceTaskConfig config,
+    @NonNull Collection<ServiceInfoSnapshot> runningServices,
+    @NonNull Collection<ServiceInfoSnapshot> onlineServices
   ) {
     // check if we should stop a service now or if that operation would cause an instant restart of a service
     if (!SmartUtil.canStopNow(task, config, runningServices.size())) {
@@ -102,11 +102,11 @@ public final class CloudNetTickListener {
     // go over all online services
     for (var service : onlineServices) {
       // check if the service should be stopped
-      var playerLoad = SmartUtil.getPlayerPercentage(service);
-      if (playerLoad <= config.getPercentOfPlayersToCheckShouldStopTheService()) {
+      var playerLoad = SmartUtil.playerPercentage(service);
+      if (playerLoad <= config.percentOfPlayersToCheckShouldStopTheService()) {
         // get the auto stop ticker for the service
         var stopTicker = this.autoStopTicks.computeIfAbsent(
-          service.getServiceId().getUniqueId(), $ -> new AtomicLong(config.getAutoStopTimeByUnusedServiceInSeconds()));
+          service.serviceId().uniqueId(), $ -> new AtomicLong(config.autoStopTimeByUnusedServiceInSeconds()));
         if (stopTicker.decrementAndGet() <= 0) {
           // stop the service now
           service.provider().stop();
@@ -116,18 +116,18 @@ public final class CloudNetTickListener {
   }
 
   private void handleAutoStart(
-    @NotNull ServiceTask task,
-    @NotNull SmartServiceTaskConfig config,
-    @NotNull Collection<ServiceInfoSnapshot> preparedServices,
-    @NotNull Collection<ServiceInfoSnapshot> runningServices,
-    @NotNull Collection<ServiceInfoSnapshot> onlineServices
+    @NonNull ServiceTask task,
+    @NonNull SmartServiceTaskConfig config,
+    @NonNull Collection<ServiceInfoSnapshot> preparedServices,
+    @NonNull Collection<ServiceInfoSnapshot> runningServices,
+    @NonNull Collection<ServiceInfoSnapshot> onlineServices
   ) {
     // combine all prepared and running for logic splitting over nodes
     Collection<ServiceInfoSnapshot> allServices = new HashSet<>();
     allServices.addAll(preparedServices);
     allServices.addAll(runningServices);
     // check the prepared service count now as they don't count to the maximum services
-    if (config.getPreparedServices() > preparedServices.size()) {
+    if (config.preparedServices() > preparedServices.size()) {
       var service = this.createService(task, config, allServices);
       // create only one service per heartbeat
       if (service != null) {
@@ -135,12 +135,12 @@ public final class CloudNetTickListener {
       }
     }
     // check if the maximum service count is reached
-    if (config.getMaxServices() > 0 && runningServices.size() >= config.getMaxServices()) {
+    if (config.maxServices() > 0 && runningServices.size() >= config.maxServices()) {
       return;
     }
     // only start services by the smart module if the smart min service count overrides the task min service count
-    if (config.getSmartMinServiceCount() > task.getMinServiceCount()
-      && config.getSmartMinServiceCount() > runningServices.size()) {
+    if (config.smartMinServiceCount() > task.minServiceCount()
+      && config.smartMinServiceCount() > runningServices.size()) {
       var service = this.createService(task, config, runningServices);
       // check if the service was created successfully and start it
       if (service != null) {
@@ -150,20 +150,20 @@ public final class CloudNetTickListener {
       }
     }
     // check if the auto-start based on the player count is enabled
-    if (config.getPercentOfPlayersToCheckShouldStopTheService() < 0) {
+    if (config.percentOfPlayersToCheckShouldStopTheService() < 0) {
       return;
     }
     // validate that we can start a service now
-    var nextAutoStartTime = this.autoStartBlocks.get(task.getName());
+    var nextAutoStartTime = this.autoStartBlocks.get(task.name());
     if (nextAutoStartTime != null && nextAutoStartTime >= System.currentTimeMillis()) {
       return;
     }
     // get the overall player counts
     var onlinePlayers = onlineServices.stream()
-      .mapToDouble(service -> BridgeServiceProperties.ONLINE_COUNT.get(service).orElse(0))
+      .mapToDouble(service -> BridgeServiceProperties.ONLINE_COUNT.read(service).orElse(0))
       .sum();
     var maximumPlayers = onlineServices.stream()
-      .mapToDouble(service -> BridgeServiceProperties.MAX_PLAYERS.get(service).orElse(0))
+      .mapToDouble(service -> BridgeServiceProperties.MAX_PLAYERS.read(service).orElse(0))
       .sum();
     // check if we can create a percentage count
     if (onlinePlayers == 0 || maximumPlayers == 0) {
@@ -173,45 +173,45 @@ public final class CloudNetTickListener {
     var absoluteOnline = onlinePlayers / runningServices.size();
     var absoluteMaximum = maximumPlayers / runningServices.size();
     // create the percentage
-    var percentage = SmartUtil.getPercentage(absoluteOnline, absoluteMaximum);
-    if (percentage >= config.getPercentOfPlayersForANewServiceByInstance()) {
+    var percentage = SmartUtil.percentage(absoluteOnline, absoluteMaximum);
+    if (percentage >= config.percentOfPlayersForANewServiceByInstance()) {
       var service = this.createService(task, config, runningServices);
       // check if the service was created successfully and start it
       if (service != null) {
         service.provider().start();
         // block player based service starting now
         this.autoStartBlocks.put(
-          task.getName(),
-          System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(config.getForAnewInstanceDelayTimeInSeconds()));
+          task.name(),
+          System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(config.forAnewInstanceDelayTimeInSeconds()));
       }
     }
   }
 
   private @Nullable ServiceInfoSnapshot createService(
-    @NotNull ServiceTask task,
-    @NotNull SmartServiceTaskConfig config,
-    @NotNull Collection<ServiceInfoSnapshot> services
+    @NonNull ServiceTask task,
+    @NonNull SmartServiceTaskConfig config,
+    @NonNull Collection<ServiceInfoSnapshot> services
   ) {
     // check if we should decide directly which node server we use
     NodeServer server = null;
-    if (config.isSplitLogicallyOverNodes()) {
+    if (config.splitLogicallyOverNodes()) {
       server = this.selectNodeServer(services);
     }
     // create a new service based on the task
-    return this.getServiceFactory().createCloudService(ServiceConfiguration.builder(task)
-      .node(server == null ? null : server.getNodeInfo().getUniqueId())
+    return this.serviceFactory().createCloudService(ServiceConfiguration.builder(task)
+      .node(server == null ? null : server.nodeInfo().uniqueId())
       .build());
   }
 
-  private @Nullable NodeServer selectNodeServer(@NotNull Collection<ServiceInfoSnapshot> services) {
+  private @Nullable NodeServer selectNodeServer(@NonNull Collection<ServiceInfoSnapshot> services) {
     // get all node servers
-    Collection<? extends NodeServer> nodeServers = this.getNodeServerProvider().getNodeServers().stream()
-      .filter(nodeServer -> nodeServer.isAvailable() && !nodeServer.isDrain())
+    Collection<? extends NodeServer> nodeServers = this.nodeServerProvider().nodeServers().stream()
+      .filter(nodeServer -> nodeServer.available() && !nodeServer.drain())
       .map(nodeServer -> (NodeServer) nodeServer) // looks stupid but transforms the stream type (we love generics)
       .collect(Collectors.collectingAndThen(Collectors.toSet(), set -> {
         // add the local node to the list if the node is not draining
-        var local = this.getNodeServerProvider().getSelfNode();
-        if (!local.isDrain()) {
+        var local = this.nodeServerProvider().selfNode();
+        if (!local.drain()) {
           set.add(local);
         }
         // return the completed set
@@ -220,22 +220,22 @@ public final class CloudNetTickListener {
     // find the node server with the least services on it
     return nodeServers.stream()
       .map(node -> new Pair<>(node, services.stream()
-        .filter(service -> service.getServiceId().getNodeUniqueId().equals(node.getNodeInfo().getUniqueId()))
+        .filter(service -> service.serviceId().nodeUniqueId().equals(node.nodeInfo().uniqueId()))
         .count()))
-      .min(Comparator.comparingLong(Pair::getSecond))
-      .map(Pair::getFirst)
+      .min(Comparator.comparingLong(Pair::second))
+      .map(Pair::first)
       .orElse(null);
   }
 
-  private @NotNull ICloudServiceManager getServiceManager() {
-    return CloudNet.getInstance().getCloudServiceProvider();
+  private @NonNull ICloudServiceManager serviceManager() {
+    return CloudNet.instance().cloudServiceProvider();
   }
 
-  private @NotNull IClusterNodeServerProvider getNodeServerProvider() {
-    return CloudNet.getInstance().getClusterNodeServerProvider();
+  private @NonNull IClusterNodeServerProvider nodeServerProvider() {
+    return CloudNet.instance().nodeServerProvider();
   }
 
-  private @NotNull CloudServiceFactory getServiceFactory() {
-    return CloudNet.getInstance().getCloudServiceFactory();
+  private @NonNull CloudServiceFactory serviceFactory() {
+    return CloudNet.instance().cloudServiceFactory();
   }
 }

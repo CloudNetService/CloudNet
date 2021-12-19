@@ -21,7 +21,6 @@ import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.zip.ZipFile;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -30,7 +29,7 @@ import org.junit.jupiter.api.Test;
 
 public final class FileUtilsTest {
 
-  private static final Path TEST_DIR = Paths.get("build", "testDirectory");
+  private static final Path TEST_DIR = Path.of("build", "testDirectory");
 
   @BeforeAll
   static void setupTestDirectories() {

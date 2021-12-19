@@ -22,7 +22,7 @@ import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.rpc.RPCProviderFactory;
 import eu.cloudnetservice.cloudnet.modules.labymod.LabyModManagement;
 import eu.cloudnetservice.cloudnet.modules.labymod.config.LabyModConfiguration;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class NodeLabyModManagement implements LabyModManagement {
 
@@ -30,9 +30,9 @@ public class NodeLabyModManagement implements LabyModManagement {
   private LabyModConfiguration configuration;
 
   public NodeLabyModManagement(
-    @NotNull CloudNetLabyModModule labyModModule,
-    @NotNull LabyModConfiguration configuration,
-    @NotNull RPCProviderFactory rpcProviderFactory
+    @NonNull CloudNetLabyModModule labyModModule,
+    @NonNull LabyModConfiguration configuration,
+    @NonNull RPCProviderFactory rpcProviderFactory
   ) {
     this.labyModModule = labyModModule;
     this.configuration = configuration;
@@ -40,13 +40,13 @@ public class NodeLabyModManagement implements LabyModManagement {
   }
 
   @Override
-  public @NotNull LabyModConfiguration getConfiguration() {
+  public @NonNull LabyModConfiguration configuration() {
     return this.configuration;
   }
 
   @Override
-  public void setConfiguration(@NotNull LabyModConfiguration configuration) {
-    this.setConfigurationSilently(configuration);
+  public void configuration(@NonNull LabyModConfiguration configuration) {
+    this.configurationSilently(configuration);
 
     ChannelMessage.builder()
       .channel(LabyModManagement.LABYMOD_MODULE_CHANNEL)
@@ -56,7 +56,7 @@ public class NodeLabyModManagement implements LabyModManagement {
       .send();
   }
 
-  public void setConfigurationSilently(@NotNull LabyModConfiguration configuration) {
+  public void configurationSilently(@NonNull LabyModConfiguration configuration) {
     this.configuration = configuration;
     this.labyModModule.writeConfig(JsonDocument.newDocument(configuration));
   }

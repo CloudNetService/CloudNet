@@ -20,30 +20,30 @@ import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceLifecycleChangeEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceUpdateEvent;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 final class CloudNetServiceListener {
 
   private final PlatformNPCManagement<?, ?, ?, ?> management;
 
-  public CloudNetServiceListener(@NotNull PlatformNPCManagement<?, ?, ?, ?> management) {
+  public CloudNetServiceListener(@NonNull PlatformNPCManagement<?, ?, ?, ?> management) {
     this.management = management;
   }
 
   @EventListener
-  public void handle(@NotNull CloudServiceLifecycleChangeEvent event) {
-    switch (event.getNewLifeCycle()) {
-      case RUNNING -> this.management.handleServiceUpdate(event.getServiceInfo());
-      case STOPPED, DELETED -> this.management.handleServiceRemove(event.getServiceInfo());
+  public void handle(@NonNull CloudServiceLifecycleChangeEvent event) {
+    switch (event.newLifeCycle()) {
+      case RUNNING -> this.management.handleServiceUpdate(event.serviceInfo());
+      case STOPPED, DELETED -> this.management.handleServiceRemove(event.serviceInfo());
       default -> {
       }
     }
   }
 
   @EventListener
-  public void handle(@NotNull CloudServiceUpdateEvent event) {
-    if (event.getServiceInfo().getLifeCycle() == ServiceLifeCycle.RUNNING) {
-      this.management.handleServiceUpdate(event.getServiceInfo());
+  public void handle(@NonNull CloudServiceUpdateEvent event) {
+    if (event.serviceInfo().lifeCycle() == ServiceLifeCycle.RUNNING) {
+      this.management.handleServiceUpdate(event.serviceInfo());
     }
   }
 }

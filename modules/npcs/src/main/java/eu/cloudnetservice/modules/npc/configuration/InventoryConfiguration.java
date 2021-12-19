@@ -19,70 +19,32 @@ package eu.cloudnetservice.modules.npc.configuration;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
-public class InventoryConfiguration {
+public record InventoryConfiguration(
+  int inventorySize,
+  boolean dynamicSize,
+  boolean showFullServices,
+  @NonNull ItemLayoutHolder defaultItems,
+  @NonNull Map<String, ItemLayoutHolder> perGroupLayouts,
+  @NonNull Map<Integer, ItemLayout> fixedItems
+) {
 
-  private final int inventorySize;
-  private final boolean dynamicSize;
-  private final boolean showFullServices;
-
-  private final ItemLayoutHolder defaultItems;
-  private final Map<String, ItemLayoutHolder> perGroupLayouts;
-
-  private final Map<Integer, ItemLayout> fixedItems;
-
-  protected InventoryConfiguration(
-    int inventorySize,
-    boolean dynamicSize,
-    boolean showFullServices,
-    @NotNull ItemLayoutHolder defaultItems,
-    @NotNull Map<String, ItemLayoutHolder> perGroupLayouts,
-    @NotNull Map<Integer, ItemLayout> fixedItems
-  ) {
-    this.inventorySize = inventorySize;
-    this.dynamicSize = dynamicSize;
-    this.showFullServices = showFullServices;
-    this.defaultItems = defaultItems;
-    this.perGroupLayouts = perGroupLayouts;
-    this.fixedItems = fixedItems;
-  }
-
-  public static @NotNull Builder builder() {
+  public static @NonNull Builder builder() {
     return new Builder();
   }
 
-  public static @NotNull Builder builder(@NotNull InventoryConfiguration configuration) {
+  public static @NonNull Builder builder(@NonNull InventoryConfiguration configuration) {
     return builder()
-      .inventorySize(configuration.getInventorySize())
-      .dynamicSize(configuration.isDynamicSize())
-      .showFullServices(configuration.isShowFullServices())
-      .defaultItems(configuration.getDefaultItems())
-      .perGroupLayouts(configuration.getPerGroupLayouts())
-      .fixedItems(configuration.getFixedItems());
+      .inventorySize(configuration.inventorySize())
+      .dynamicSize(configuration.dynamicSize())
+      .showFullServices(configuration.showFullServices())
+      .defaultItems(configuration.defaultItems())
+      .perGroupLayouts(configuration.perGroupLayouts())
+      .fixedItems(configuration.fixedItems());
   }
 
-  public int getInventorySize() {
-    return this.inventorySize;
-  }
-
-  public boolean isDynamicSize() {
-    return this.dynamicSize;
-  }
-
-  public boolean isShowFullServices() {
-    return this.showFullServices;
-  }
-
-  public @NotNull ItemLayoutHolder getDefaultItems() {
-    return this.defaultItems;
-  }
-
-  public @NotNull Map<String, ItemLayoutHolder> getPerGroupLayouts() {
-    return this.perGroupLayouts;
-  }
-
-  public @NotNull ItemLayoutHolder getHolder(String @NotNull ... groups) {
+  public @NonNull ItemLayoutHolder getHolder(String @NonNull ... groups) {
     if (groups.length == 0) {
       return this.defaultItems;
     } else if (groups.length == 1) {
@@ -99,37 +61,12 @@ public class InventoryConfiguration {
     }
   }
 
-  public @NotNull Map<Integer, ItemLayout> getFixedItems() {
-    return this.fixedItems;
-  }
+  public record ItemLayoutHolder(
+    @NonNull ItemLayout emptyLayout,
+    @NonNull ItemLayout onlineLayout,
+    @NonNull ItemLayout fullLayout
+  ) {
 
-  public static class ItemLayoutHolder {
-
-    private final ItemLayout emptyLayout;
-    private final ItemLayout onlineLayout;
-    private final ItemLayout fullLayout;
-
-    public ItemLayoutHolder(
-      @NotNull ItemLayout emptyLayout,
-      @NotNull ItemLayout onlineLayout,
-      @NotNull ItemLayout fullLayout
-    ) {
-      this.emptyLayout = emptyLayout;
-      this.onlineLayout = onlineLayout;
-      this.fullLayout = fullLayout;
-    }
-
-    public @NotNull ItemLayout getEmptyLayout() {
-      return this.emptyLayout;
-    }
-
-    public @NotNull ItemLayout getOnlineLayout() {
-      return this.onlineLayout;
-    }
-
-    public @NotNull ItemLayout getFullLayout() {
-      return this.fullLayout;
-    }
   }
 
   public static class Builder {
@@ -170,37 +107,37 @@ public class InventoryConfiguration {
     private Map<Integer, ItemLayout> fixedItems = new HashMap<>();
     private Map<String, ItemLayoutHolder> perGroupLayouts = new HashMap<>();
 
-    public @NotNull Builder inventorySize(int inventorySize) {
+    public @NonNull Builder inventorySize(int inventorySize) {
       this.inventorySize = inventorySize;
       return this;
     }
 
-    public @NotNull Builder dynamicSize(boolean dynamicSize) {
+    public @NonNull Builder dynamicSize(boolean dynamicSize) {
       this.dynamicSize = dynamicSize;
       return this;
     }
 
-    public @NotNull Builder showFullServices(boolean showFullServices) {
+    public @NonNull Builder showFullServices(boolean showFullServices) {
       this.showFullServices = showFullServices;
       return this;
     }
 
-    public @NotNull Builder defaultItems(@NotNull ItemLayoutHolder defaultItems) {
+    public @NonNull Builder defaultItems(@NonNull ItemLayoutHolder defaultItems) {
       this.defaultItems = defaultItems;
       return this;
     }
 
-    public @NotNull Builder perGroupLayouts(@NotNull Map<String, ItemLayoutHolder> perGroupLayouts) {
+    public @NonNull Builder perGroupLayouts(@NonNull Map<String, ItemLayoutHolder> perGroupLayouts) {
       this.perGroupLayouts = new HashMap<>(perGroupLayouts);
       return this;
     }
 
-    public @NotNull Builder fixedItems(@NotNull Map<Integer, ItemLayout> fixedItems) {
+    public @NonNull Builder fixedItems(@NonNull Map<Integer, ItemLayout> fixedItems) {
       this.fixedItems = new HashMap<>(fixedItems);
       return this;
     }
 
-    public @NotNull InventoryConfiguration build() {
+    public @NonNull InventoryConfiguration build() {
       return new InventoryConfiguration(
         this.inventorySize,
         this.dynamicSize,

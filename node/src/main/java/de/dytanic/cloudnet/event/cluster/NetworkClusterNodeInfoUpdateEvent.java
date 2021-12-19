@@ -19,21 +19,21 @@ package de.dytanic.cloudnet.event.cluster;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class NetworkClusterNodeInfoUpdateEvent extends NetworkEvent {
 
   private final NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot;
 
   public NetworkClusterNodeInfoUpdateEvent(
-    @NotNull INetworkChannel channel,
-    @NotNull NetworkClusterNodeInfoSnapshot snapshot
+    @NonNull INetworkChannel channel,
+    @NonNull NetworkClusterNodeInfoSnapshot snapshot
   ) {
     super(channel);
     this.networkClusterNodeInfoSnapshot = snapshot;
   }
 
-  public @NotNull NetworkClusterNodeInfoSnapshot getSnapshot() {
+  public @NonNull NetworkClusterNodeInfoSnapshot snapshot() {
     return this.networkClusterNodeInfoSnapshot;
   }
 }

@@ -20,7 +20,7 @@ import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class PermissionManagementHandlerAdapter implements IPermissionManagementHandler {
 
@@ -28,54 +28,54 @@ public class PermissionManagementHandlerAdapter implements IPermissionManagement
 
   @Override
   public void handleAddUser(
-    @NotNull IPermissionManagement management,
-    @NotNull PermissionUser user
+    @NonNull IPermissionManagement management,
+    @NonNull PermissionUser user
   ) {
   }
 
   @Override
   public void handleUpdateUser(
-    @NotNull IPermissionManagement management,
-    @NotNull PermissionUser user
+    @NonNull IPermissionManagement management,
+    @NonNull PermissionUser user
   ) {
   }
 
   @Override
   public void handleDeleteUser(
-    @NotNull IPermissionManagement management,
-    @NotNull PermissionUser user
+    @NonNull IPermissionManagement management,
+    @NonNull PermissionUser user
   ) {
   }
 
   @Override
   public void handleAddGroup(
-    @NotNull IPermissionManagement management,
-    @NotNull PermissionGroup group
+    @NonNull IPermissionManagement management,
+    @NonNull PermissionGroup group
   ) {
   }
 
   @Override
   public void handleUpdateGroup(
-    @NotNull IPermissionManagement management,
-    @NotNull PermissionGroup group
+    @NonNull IPermissionManagement management,
+    @NonNull PermissionGroup group
   ) {
   }
 
   @Override
   public void handleDeleteGroup(
-    @NotNull IPermissionManagement management,
-    @NotNull PermissionGroup group
+    @NonNull IPermissionManagement management,
+    @NonNull PermissionGroup group
   ) {
   }
 
   @Override
   public void handleSetGroups(
-    @NotNull IPermissionManagement management,
-    @NotNull Collection<? extends PermissionGroup> groups
+    @NonNull IPermissionManagement management,
+    @NonNull Collection<? extends PermissionGroup> groups
   ) {
   }
 
   @Override
-  public void handleReloaded(@NotNull IPermissionManagement management) {
+  public void handleReloaded(@NonNull IPermissionManagement management) {
   }
 }

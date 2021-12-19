@@ -33,8 +33,8 @@ final class VelocityCloudPermissionProvider implements PermissionProvider {
 
   @Override
   public @MaybePresent PermissionFunction createFunction(@MaybePresent PermissionSubject subject) {
-    return subject instanceof Player
-      ? new VelocityCloudPermissionFunction(((Player) subject).getUniqueId(), this.permissionsManagement)
+    return subject instanceof Player player
+      ? new VelocityCloudPermissionFunction(player.getUniqueId(), this.permissionsManagement)
       : null;
   }
 }

@@ -33,11 +33,11 @@ public class VaultPermissionImplementation extends Permission {
   }
 
   private Optional<PermissionUser> permissionUserByName(String name) {
-    return this.permissionManagement.getUsersByName(name).stream().findFirst();
+    return this.permissionManagement.usersByName(name).stream().findFirst();
   }
 
   private Optional<PermissionGroup> permissionGroupByName(String name) {
-    return Optional.ofNullable(this.permissionManagement.getGroup(name));
+    return Optional.ofNullable(this.permissionManagement.group(name));
   }
 
   @Override
@@ -161,7 +161,7 @@ public class VaultPermissionImplementation extends Permission {
     var optionalPermissionUser = this.permissionUserByName(player);
 
     return optionalPermissionUser.map(permissionUser ->
-      permissionUser.getGroups().stream().map(PermissionUserGroupInfo::getGroup).toArray(String[]::new))
+      permissionUser.groups().stream().map(PermissionUserGroupInfo::group).toArray(String[]::new))
       .orElse(new String[0]);
   }
 
@@ -170,12 +170,12 @@ public class VaultPermissionImplementation extends Permission {
     var optionalPermissionUser = this.permissionUserByName(player);
 
     return optionalPermissionUser.map(permissionUser ->
-      this.permissionManagement.getHighestPermissionGroup(permissionUser).getName()).orElse(null);
+      this.permissionManagement.highestPermissionGroup(permissionUser).name()).orElse(null);
   }
 
   @Override
   public String[] getGroups() {
-    return this.permissionManagement.getGroups().stream().map(INameable::getName).toArray(String[]::new);
+    return this.permissionManagement.groups().stream().map(INameable::name).toArray(String[]::new);
   }
 
   @Override

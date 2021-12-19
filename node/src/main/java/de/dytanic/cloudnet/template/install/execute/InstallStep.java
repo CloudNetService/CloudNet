@@ -28,7 +28,7 @@ import de.dytanic.cloudnet.template.install.execute.defaults.ZipFileFilterStepEx
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Set;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public enum InstallStep {
 
@@ -47,10 +47,10 @@ public enum InstallStep {
     this.executor = executor;
   }
 
-  public @NotNull Set<Path> execute(
-    @NotNull InstallInformation installInformation,
-    @NotNull Path workingDirectory,
-    @NotNull Set<Path> inputPaths
+  public @NonNull Set<Path> execute(
+    @NonNull InstallInformation installInformation,
+    @NonNull Path workingDirectory,
+    @NonNull Set<Path> inputPaths
   ) throws IOException {
     return this.executor.execute(installInformation, workingDirectory, inputPaths);
   }

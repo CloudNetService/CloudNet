@@ -16,41 +16,43 @@
 
 package de.dytanic.cloudnet.driver.network.http;
 
+import lombok.NonNull;
+
 public class MethodHttpHandlerAdapter implements IMethodHttpHandler {
 
   @Override
-  public void handlePost(String path, IHttpContext context) throws Exception {
+  public void handlePost(@NonNull String path, @NonNull IHttpContext context) throws Exception {
   }
 
   @Override
-  public void handleGet(String path, IHttpContext context) throws Exception {
+  public void handleGet(@NonNull String path, @NonNull IHttpContext context) throws Exception {
   }
 
   @Override
-  public void handlePut(String path, IHttpContext context) throws Exception {
+  public void handlePut(@NonNull String path, @NonNull IHttpContext context) throws Exception {
   }
 
   @Override
-  public void handleHead(String path, IHttpContext context) throws Exception {
+  public void handleHead(@NonNull String path, @NonNull IHttpContext context) throws Exception {
   }
 
   @Override
-  public void handleDelete(String path, IHttpContext context) throws Exception {
+  public void handleDelete(@NonNull String path, @NonNull IHttpContext context) throws Exception {
   }
 
   @Override
-  public void handlePatch(String path, IHttpContext context) throws Exception {
+  public void handlePatch(@NonNull String path, @NonNull IHttpContext context) throws Exception {
   }
 
   @Override
-  public void handleTrace(String path, IHttpContext context) throws Exception {
+  public void handleTrace(@NonNull String path, @NonNull IHttpContext context) throws Exception {
   }
 
   @Override
-  public void handleOptions(String path, IHttpContext context) throws Exception {
+  public void handleOptions(@NonNull String path, @NonNull IHttpContext context) throws Exception {
   }
 
   @Override
-  public void handleConnect(String path, IHttpContext context) throws Exception {
+  public void handleConnect(@NonNull String path, @NonNull IHttpContext context) throws Exception {
   }
 }

@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.driver.network.netty.http;
 
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.network.http.HttpVersion;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.network.http.IHttpRequest;
@@ -30,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,8 +46,12 @@ final class NettyHttpServerRequest extends NettyHttpMessage implements IHttpRequ
 
   private byte[] body;
 
-  public NettyHttpServerRequest(NettyHttpServerContext context, HttpRequest httpRequest,
-    Map<String, String> pathParameters, URI uri) {
+  public NettyHttpServerRequest(
+    @NonNull NettyHttpServerContext context,
+    @NonNull HttpRequest httpRequest,
+    @NonNull Map<String, String> pathParameters,
+    @NonNull URI uri
+  ) {
     this.context = context;
     this.httpRequest = httpRequest;
     this.uri = uri;
@@ -56,83 +60,75 @@ final class NettyHttpServerRequest extends NettyHttpMessage implements IHttpRequ
   }
 
   @Override
-  public Map<String, String> pathParameters() {
+  public @NonNull Map<String, String> pathParameters() {
     return this.pathParameters;
   }
 
   @Override
-  public String path() {
+  public @NonNull String path() {
     return this.uri.getPath();
   }
 
   @Override
-  public String uri() {
+  public @NonNull String uri() {
     return this.httpRequest.uri();
   }
 
   @Override
-  public String method() {
+  public @NonNull String method() {
     return this.httpRequest.method().name();
   }
 
   @Override
-  public Map<String, List<String>> queryParameters() {
+  public @NonNull Map<String, List<String>> queryParameters() {
     return this.queryParameters;
   }
 
   @Override
-  public IHttpContext context() {
+  public @NonNull IHttpContext context() {
     return this.context;
   }
 
   @Override
-  public String header(String name) {
-    Preconditions.checkNotNull(name);
+  public String header(@NonNull String name) {
     return this.httpRequest.headers().getAsString(name);
   }
 
   @Override
-  public int headerAsInt(String name) {
-    Preconditions.checkNotNull(name);
+  public int headerAsInt(@NonNull String name) {
     return this.httpRequest.headers().getInt(name);
   }
 
   @Override
-  public boolean headerAsBoolean(String name) {
-    Preconditions.checkNotNull(name);
+  public boolean headerAsBoolean(@NonNull String name) {
     return Boolean.parseBoolean(this.httpRequest.headers().get(name));
   }
 
   @Override
-  public IHttpRequest header(String name, String value) {
-    Preconditions.checkNotNull(name);
-    Preconditions.checkNotNull(value);
-
+  public @NonNull IHttpRequest header(@NonNull String name, @NonNull String value) {
     this.httpRequest.headers().set(name, value);
     return this;
   }
 
   @Override
-  public IHttpRequest removeHeader(String name) {
-    Preconditions.checkNotNull(name);
+  public @NonNull IHttpRequest removeHeader(@NonNull String name) {
     this.httpRequest.headers().remove(name);
     return this;
   }
 
   @Override
-  public IHttpRequest clearHeaders() {
+  public @NonNull IHttpRequest clearHeaders() {
     this.httpRequest.headers().clear();
     return this;
   }
 
   @Override
-  public boolean hasHeader(String name) {
-    Preconditions.checkNotNull(name);
+  public boolean hasHeader(@NonNull String name) {
     return this.httpRequest.headers().contains(name);
   }
 
   @Override
-  public Map<String, String> headers() {
+  public @NonNull Map<String, String> headers() {
     Map<String, String> maps = new HashMap<>(this.httpRequest.headers().size());
 
     for (var key : this.httpRequest.headers().names()) {
@@ -143,15 +139,13 @@ final class NettyHttpServerRequest extends NettyHttpMessage implements IHttpRequ
   }
 
   @Override
-  public HttpVersion version() {
-    return super.getCloudNetHttpVersion(this.httpRequest.protocolVersion());
+  public @NonNull HttpVersion version() {
+    return super.versionFromNetty(this.httpRequest.protocolVersion());
   }
 
   @Override
-  public IHttpRequest version(HttpVersion version) {
-    Preconditions.checkNotNull(version);
-
-    this.httpRequest.setProtocolVersion(super.getNettyHttpVersion(version));
+  public @NonNull IHttpRequest version(@NonNull HttpVersion version) {
+    this.httpRequest.setProtocolVersion(super.versionToNetty(version));
     return this;
   }
 
@@ -160,7 +154,6 @@ final class NettyHttpServerRequest extends NettyHttpMessage implements IHttpRequ
     if (this.httpRequest instanceof FullHttpRequest) {
       if (this.body == null) {
         var httpRequest = (FullHttpRequest) this.httpRequest;
-
         var length = httpRequest.content().readableBytes();
 
         if (httpRequest.content().hasArray()) {
@@ -178,19 +171,17 @@ final class NettyHttpServerRequest extends NettyHttpMessage implements IHttpRequ
   }
 
   @Override
-  public String bodyAsString() {
+  public @NonNull String bodyAsString() {
     return new String(this.body(), StandardCharsets.UTF_8);
   }
 
   @Override
-  public IHttpRequest body(byte[] byteArray) {
+  public @NonNull IHttpRequest body(byte[] byteArray) {
     throw new UnsupportedOperationException("Unable to set body in request");
   }
 
   @Override
-  public IHttpRequest body(String text) {
-    Preconditions.checkNotNull(text);
-
+  public @NonNull IHttpRequest body(@NonNull String text) {
     return this.body(text.getBytes(StandardCharsets.UTF_8));
   }
 
@@ -204,7 +195,7 @@ final class NettyHttpServerRequest extends NettyHttpMessage implements IHttpRequ
   }
 
   @Override
-  public IHttpRequest body(@Nullable InputStream body) {
+  public @NonNull IHttpRequest body(@Nullable InputStream body) {
     throw new UnsupportedOperationException("Unable to set body in request");
   }
 

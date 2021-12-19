@@ -16,11 +16,11 @@
 
 package de.dytanic.cloudnet.driver.network.buffer;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public interface DataBufable {
 
-  void writeData(@NotNull DataBuf dataBuf);
+  void writeData(@NonNull DataBuf dataBuf);
 
-  void readData(@NotNull DataBuf dataBuf);
+  void readData(@NonNull DataBuf dataBuf);
 }

@@ -23,29 +23,29 @@ import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 final class NodePlayerProvider implements PlayerProvider {
 
   private final Supplier<Stream<? extends CloudPlayer>> playerSupplier;
 
-  public NodePlayerProvider(@NotNull Supplier<Stream<? extends CloudPlayer>> playerSupplier) {
+  public NodePlayerProvider(@NonNull Supplier<Stream<? extends CloudPlayer>> playerSupplier) {
     this.playerSupplier = playerSupplier;
   }
 
   @Override
-  public @NotNull Collection<? extends CloudPlayer> players() {
+  public @NonNull Collection<? extends CloudPlayer> players() {
     return this.playerSupplier.get().collect(Collectors.toList());
   }
 
   @Override
-  public @NotNull Collection<UUID> uniqueIds() {
-    return this.playerSupplier.get().map(CloudPlayer::getUniqueId).collect(Collectors.toSet());
+  public @NonNull Collection<UUID> uniqueIds() {
+    return this.playerSupplier.get().map(CloudPlayer::uniqueId).collect(Collectors.toSet());
   }
 
   @Override
-  public @NotNull Collection<String> names() {
-    return this.playerSupplier.get().map(CloudPlayer::getName).collect(Collectors.toSet());
+  public @NonNull Collection<String> names() {
+    return this.playerSupplier.get().map(CloudPlayer::name).collect(Collectors.toSet());
   }
 
   @Override

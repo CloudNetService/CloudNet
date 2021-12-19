@@ -23,7 +23,7 @@ package de.dytanic.cloudnet.driver;
  * that CloudNet manages a service process like a Paper server software instance.
  *
  * @author Pasqual K. (derklaro@cloudnetservice.eu)
- * @see CloudNetDriver#getDriverEnvironment()
+ * @see CloudNetDriver#environment()
  */
 public enum DriverEnvironment {
 

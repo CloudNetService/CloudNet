@@ -22,25 +22,25 @@ import de.dytanic.cloudnet.ext.simplenametags.event.PrePlayerPrefixSetEvent;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.Executor;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class SimpleNameTagsManager<P> {
 
   protected static final String TEAM_NAME_FORMAT = "%s%s";
 
-  public SimpleNameTagsManager(@NotNull Executor syncTaskExecutor) {
-    CloudNetDriver.getInstance().getEventManager().registerListener(
+  public SimpleNameTagsManager(@NonNull Executor syncTaskExecutor) {
+    CloudNetDriver.instance().eventManager().registerListener(
       new CloudSimpleNameTagsListener<>(syncTaskExecutor, this));
   }
 
-  public void updateNameTagsFor(@NotNull P player, @NotNull UUID playerUniqueId, @NotNull String playerName) {
+  public void updateNameTagsFor(@NonNull P player, @NonNull UUID playerUniqueId, @NonNull String playerName) {
     // get the permission group of the player
     var group = this.getPermissionGroup(playerUniqueId, player);
     if (group != null) {
       // find the highest sort id length of any known group on this instance
-      var maxSortIdLength = CloudNetDriver.getInstance().getPermissionManagement().getGroups().stream()
-        .map(PermissionGroup::getSortId)
+      var maxSortIdLength = CloudNetDriver.instance().permissionManagement().groups().stream()
+        .map(PermissionGroup::sortId)
         .mapToInt(i -> (int) Math.log10(i) + 1)
         .max()
         .orElse(0);
@@ -48,14 +48,14 @@ public abstract class SimpleNameTagsManager<P> {
       // reset the scoreboard of the current player
       this.resetScoreboard(player);
       // set the team entries for each player connected to the server
-      for (P onlinePlayer : this.getOnlinePlayers()) {
+      for (P onlinePlayer : this.onlinePlayers()) {
         // reset the scoreboard for the player
         this.resetScoreboard(onlinePlayer);
         // add the player to the score board for this player
         this.registerPlayerToTeam(player, onlinePlayer, groupTeamName, group);
 
         // get the permission group for the player
-        var onlinePlayerGroup = this.getPermissionGroup(this.getPlayerUniqueId(onlinePlayer), onlinePlayer);
+        var onlinePlayerGroup = this.getPermissionGroup(this.playerUniqueId(onlinePlayer), onlinePlayer);
         if (onlinePlayerGroup != null) {
           // get the team name of the group
           var onlinePlayerGroupTeamName = this.selectTeamName(onlinePlayerGroup, maxSortIdLength);
@@ -64,83 +64,83 @@ public abstract class SimpleNameTagsManager<P> {
         }
       }
       // set the players display name
-      this.setDisplayName(player, group.getDisplay() + playerName);
+      this.displayName(player, group.display() + playerName);
     }
   }
 
-  public abstract void updateNameTagsFor(@NotNull P player);
+  public abstract void updateNameTagsFor(@NonNull P player);
 
-  public abstract @NotNull UUID getPlayerUniqueId(@NotNull P player);
+  public abstract @NonNull UUID playerUniqueId(@NonNull P player);
 
-  public abstract void setDisplayName(@NotNull P player, @NotNull String displayName);
+  public abstract void displayName(@NonNull P player, @NonNull String displayName);
 
-  public abstract void resetScoreboard(@NotNull P player);
+  public abstract void resetScoreboard(@NonNull P player);
 
   public abstract void registerPlayerToTeam(
-    @NotNull P player,
-    @NotNull P scoreboardHolder,
-    @NotNull String name,
-    @NotNull PermissionGroup group);
+    @NonNull P player,
+    @NonNull P scoreboardHolder,
+    @NonNull String name,
+    @NonNull PermissionGroup group);
 
-  public abstract @NotNull Collection<? extends P> getOnlinePlayers();
+  public abstract @NonNull Collection<? extends P> onlinePlayers();
 
-  public abstract @Nullable P getOnlinePlayer(@NotNull UUID uniqueId);
+  public abstract @Nullable P onlinePlayer(@NonNull UUID uniqueId);
 
-  protected char getColorChar(@NotNull PermissionGroup group) {
+  protected char getColorChar(@NonNull PermissionGroup group) {
     // check if the color of the group is given and valid
-    if (group.getColor().length() == 2) {
+    if (group.color().length() == 2) {
       // check if the first char is a color indicator
-      var indicatorChar = group.getColor().charAt(0);
+      var indicatorChar = group.color().charAt(0);
       if (indicatorChar == '&' || indicatorChar == '§') {
         // the next char should be the color char then
-        return group.getColor().charAt(1);
+        return group.color().charAt(1);
       }
     }
     // search for the last color char in the prefix of the group
-    var length = group.getPrefix().length();
+    var length = group.prefix().length();
     for (var index = length - 2; index >= 0; index--) {
       // check if the current char is a color indicator char
-      var atPosition = group.getPrefix().charAt(index);
+      var atPosition = group.prefix().charAt(index);
       if (atPosition == '&' || atPosition == '§') {
-        return group.getPrefix().charAt(index + 1);
+        return group.prefix().charAt(index + 1);
       }
     }
     // no color char found
     return ' ';
   }
 
-  protected @Nullable PermissionGroup getPermissionGroup(@NotNull UUID playerUniqueId, @NotNull P platformPlayer) {
+  protected @Nullable PermissionGroup getPermissionGroup(@NonNull UUID playerUniqueId, @NonNull P platformPlayer) {
     // select the best permission group for the player
-    var user = CloudNetDriver.getInstance().getPermissionManagement().getUser(playerUniqueId);
+    var user = CloudNetDriver.instance().permissionManagement().user(playerUniqueId);
     // no user -> no group
     if (user == null) {
       return null;
     }
     // get the highest group of the player
-    var group = CloudNetDriver.getInstance().getPermissionManagement().getHighestPermissionGroup(user);
+    var group = CloudNetDriver.instance().permissionManagement().highestPermissionGroup(user);
     // no group -> try the default group
     if (group == null) {
-      group = CloudNetDriver.getInstance().getPermissionManagement().getDefaultPermissionGroup();
+      group = CloudNetDriver.instance().permissionManagement().defaultPermissionGroup();
       // no default group -> skip
       if (group == null) {
         return null;
       }
     }
     // post the choose event to let the user modify the permission group of the player (for example to nick a player)
-    return CloudNetDriver.getInstance().getEventManager()
+    return CloudNetDriver.instance().eventManager()
       .callEvent(new PrePlayerPrefixSetEvent<>(platformPlayer, group))
-      .getGroup();
+      .group();
   }
 
-  protected @NotNull String selectTeamName(@NotNull PermissionGroup group, int highestSortIdLength) {
+  protected @NonNull String selectTeamName(@NonNull PermissionGroup group, int highestSortIdLength) {
     // get the length of the group's sort id
-    var sortIdLength = (int) Math.log10(group.getSortId()) + 1;
+    var sortIdLength = (int) Math.log10(group.sortId()) + 1;
     var teamName = String.format(
       TEAM_NAME_FORMAT,
       highestSortIdLength == sortIdLength
         ? sortIdLength
-        : String.format("%0" + highestSortIdLength + "d", group.getSortId()),
-      group.getName());
+        : String.format("%0" + highestSortIdLength + "d", group.sortId()),
+      group.name());
     // shorten the name if needed
     return teamName.length() > 16 ? teamName.substring(0, 16) : teamName;
   }

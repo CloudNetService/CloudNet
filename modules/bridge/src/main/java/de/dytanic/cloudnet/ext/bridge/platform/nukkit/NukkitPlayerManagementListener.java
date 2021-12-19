@@ -26,36 +26,36 @@ import cn.nukkit.plugin.Plugin;
 import de.dytanic.cloudnet.ext.bridge.platform.PlatformBridgeManagement;
 import de.dytanic.cloudnet.ext.bridge.platform.helper.ServerPlatformHelper;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 final class NukkitPlayerManagementListener implements Listener {
 
   private final Plugin plugin;
   private final PlatformBridgeManagement<?, ?> management;
 
-  public NukkitPlayerManagementListener(@NotNull Plugin plugin, @NotNull PlatformBridgeManagement<?, ?> management) {
+  public NukkitPlayerManagementListener(@NonNull Plugin plugin, @NonNull PlatformBridgeManagement<?, ?> management) {
     this.plugin = plugin;
     this.management = management;
   }
 
   @EventHandler
-  public void handle(@NotNull PlayerLoginEvent event) {
-    var task = this.management.getSelfTask();
+  public void handle(@NonNull PlayerLoginEvent event) {
+    var task = this.management.selfTask();
     // check if the current task is present
     if (task != null) {
       // check if maintenance is activated
-      if (task.isMaintenance() && !event.getPlayer().hasPermission("cloudnet.bridge.maintenance")) {
+      if (task.maintenance() && !event.getPlayer().hasPermission("cloudnet.bridge.maintenance")) {
         event.setCancelled(true);
-        event.setKickMessage(this.management.getConfiguration().getMessage(
+        event.setKickMessage(this.management.configuration().message(
           event.getPlayer().getLocale(),
           "server-join-cancel-because-maintenance"));
         return;
       }
       // check if a custom permission is required to join
-      var permission = task.getProperties().getString("requiredPermission");
+      var permission = task.properties().getString("requiredPermission");
       if (permission != null && !event.getPlayer().hasPermission(permission)) {
         event.setCancelled(true);
-        event.setKickMessage(this.management.getConfiguration().getMessage(
+        event.setKickMessage(this.management.configuration().message(
           event.getPlayer().getLocale(),
           "server-join-cancel-because-permission"));
       }
@@ -63,20 +63,20 @@ final class NukkitPlayerManagementListener implements Listener {
   }
 
   @EventHandler
-  public void handle(@NotNull PlayerJoinEvent event) {
+  public void handle(@NonNull PlayerJoinEvent event) {
     ServerPlatformHelper.sendChannelMessageLoginSuccess(
       event.getPlayer().getUniqueId(),
-      this.management.getOwnNetworkServiceInfo());
+      this.management.ownNetworkServiceInfo());
     // update the service info in the next tick
-    Server.getInstance().getScheduler().scheduleTask(this.plugin, Wrapper.getInstance()::publishServiceInfoUpdate);
+    Server.getInstance().getScheduler().scheduleTask(this.plugin, Wrapper.instance()::publishServiceInfoUpdate);
   }
 
   @EventHandler
-  public void handle(@NotNull PlayerQuitEvent event) {
+  public void handle(@NonNull PlayerQuitEvent event) {
     ServerPlatformHelper.sendChannelMessageDisconnected(
       event.getPlayer().getUniqueId(),
-      this.management.getOwnNetworkServiceInfo());
+      this.management.ownNetworkServiceInfo());
     // update the service info in the next tick
-    Server.getInstance().getScheduler().scheduleTask(this.plugin, Wrapper.getInstance()::publishServiceInfoUpdate);
+    Server.getInstance().getScheduler().scheduleTask(this.plugin, Wrapper.instance()::publishServiceInfoUpdate);
   }
 }

@@ -19,17 +19,17 @@ package eu.cloudnetservice.cloudnet.ext.syncproxy;
 import de.dytanic.cloudnet.common.registry.IServicesRegistry;
 import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.config.SyncProxyConfiguration;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 @RPCValidation
 public interface SyncProxyManagement {
 
-  @NotNull SyncProxyConfiguration getConfiguration();
+  @NonNull SyncProxyConfiguration configuration();
 
-  void setConfiguration(@NotNull SyncProxyConfiguration configuration);
+  void configuration(@NonNull SyncProxyConfiguration configuration);
 
-  void registerService(@NotNull IServicesRegistry registry);
+  void registerService(@NonNull IServicesRegistry registry);
 
-  void unregisterService(@NotNull IServicesRegistry registry);
+  void unregisterService(@NonNull IServicesRegistry registry);
 
 }

@@ -16,6 +16,8 @@
 
 package de.dytanic.cloudnet.wrapper;
 
+import de.dytanic.cloudnet.wrapper.transform.DefaultTransformerRegistry;
+import de.dytanic.cloudnet.wrapper.transform.TransformerRegistry;
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Method;
@@ -23,18 +25,20 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 final class Premain {
 
   static Instrumentation instrumentation;
+  static TransformerRegistry transformerRegistry;
 
-  public static void premain(@NotNull String agentArgs, @NotNull Instrumentation inst) {
+  public static void premain(@Nullable String agentArgs, @NonNull Instrumentation inst) {
     Premain.instrumentation = inst;
+    Premain.transformerRegistry = new DefaultTransformerRegistry(inst);
   }
 
-  public static void preloadClasses(@NotNull Path file, @NotNull ClassLoader loader) {
+  public static void preloadClasses(@NonNull Path file, @NonNull ClassLoader loader) {
     try (var stream = new JarInputStream(Files.newInputStream(file))) {
       JarEntry entry;
       while ((entry = stream.getNextJarEntry()) != null) {
@@ -55,7 +59,7 @@ final class Premain {
     }
   }
 
-  public static void invokePremain(@NotNull String premainClass, @NotNull ClassLoader loader) throws Exception {
+  public static void invokePremain(@NonNull String premainClass, @NonNull ClassLoader loader) throws Exception {
     if (!premainClass.equals("null")) {
       try {
         var agentClass = Class.forName(premainClass, true, loader);
@@ -93,12 +97,12 @@ final class Premain {
     }
   }
 
-  private static void invokeAgentMainMethod(@NotNull Method method, Object... args) throws Exception {
+  private static void invokeAgentMainMethod(@NonNull Method method, Object... args) throws Exception {
     method.setAccessible(true);
     method.invoke(null, args);
   }
 
-  private static @Nullable Method methodOrNull(@NotNull Class<?> source, @NotNull String name, Class<?>... args) {
+  private static @Nullable Method methodOrNull(@NonNull Class<?> source, @NonNull String name, Class<?>... args) {
     try {
       return source.getDeclaredMethod(name, args);
     } catch (NoSuchMethodException exception) {

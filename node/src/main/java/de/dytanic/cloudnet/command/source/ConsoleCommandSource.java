@@ -19,18 +19,18 @@ package de.dytanic.cloudnet.command.source;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class ConsoleCommandSource implements CommandSource {
 
-  private static final Logger LOGGER = LogManager.getLogger(ConsoleCommandSource.class);
+  private static final Logger LOGGER = LogManager.logger(ConsoleCommandSource.class);
   public static final ConsoleCommandSource INSTANCE = new ConsoleCommandSource();
 
   /**
    * @return "Console" for the console command source.
    */
   @Override
-  public @NotNull String getName() {
+  public @NonNull String name() {
     return "Console";
   }
 
@@ -38,7 +38,7 @@ public class ConsoleCommandSource implements CommandSource {
    * {@inheritDoc}
    */
   @Override
-  public void sendMessage(@NotNull String message) {
+  public void sendMessage(@NonNull String message) {
     LOGGER.info(message);
   }
 
@@ -46,7 +46,7 @@ public class ConsoleCommandSource implements CommandSource {
    * {@inheritDoc}
    */
   @Override
-  public void sendMessage(@NotNull String... messages) {
+  public void sendMessage(@NonNull String... messages) {
     for (var message : messages) {
       LOGGER.info(message);
     }
@@ -56,7 +56,7 @@ public class ConsoleCommandSource implements CommandSource {
    * {@inheritDoc}
    */
   @Override
-  public void sendMessage(@NotNull Collection<String> messages) {
+  public void sendMessage(@NonNull Collection<String> messages) {
     for (var message : messages) {
       LOGGER.info(message);
     }
@@ -67,7 +67,7 @@ public class ConsoleCommandSource implements CommandSource {
    * @return always {@code true} as the console is allowed to execute every command
    */
   @Override
-  public boolean checkPermission(@NotNull String permission) {
+  public boolean checkPermission(@NonNull String permission) {
     return true;
   }
 }

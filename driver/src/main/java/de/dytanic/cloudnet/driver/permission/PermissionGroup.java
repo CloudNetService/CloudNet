@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * This interfaces provides access to the properties of a permission group
@@ -42,25 +42,25 @@ public class PermissionGroup extends AbstractPermissible {
 
   protected Collection<String> groups = new ArrayList<>();
 
-  public PermissionGroup(@NotNull String name, int potency) {
+  public PermissionGroup(@NonNull String name, int potency) {
     this.name = name;
     this.potency = potency;
   }
 
   public PermissionGroup(
-    @NotNull String color,
-    @NotNull String prefix,
-    @NotNull String suffix,
-    @NotNull String display,
+    @NonNull String color,
+    @NonNull String prefix,
+    @NonNull String suffix,
+    @NonNull String display,
     int sortId,
     boolean defaultGroup,
-    @NotNull Collection<String> groups,
-    @NotNull String name,
+    @NonNull Collection<String> groups,
+    @NonNull String name,
     int potency,
     long createdTime,
-    @NotNull List<Permission> permissions,
-    @NotNull Map<String, Collection<Permission>> groupPermissions,
-    @NotNull JsonDocument properties
+    @NonNull List<Permission> permissions,
+    @NonNull Map<String, Collection<Permission>> groupPermissions,
+    @NonNull JsonDocument properties
   ) {
     super(name, potency, createdTime, permissions, groupPermissions, properties);
     this.color = color;
@@ -72,64 +72,64 @@ public class PermissionGroup extends AbstractPermissible {
     this.groups = groups;
   }
 
-  public @NotNull Collection<String> getGroups() {
+  public @NonNull Collection<String> groups() {
     return this.groups;
   }
 
-  public void setGroups(@NotNull Collection<String> groups) {
+  public void groups(@NonNull Collection<String> groups) {
     this.groups = groups;
   }
 
-  public @NotNull String getPrefix() {
+  public @NonNull String prefix() {
     return this.prefix;
   }
 
-  public void setPrefix(@NotNull String prefix) {
+  public void prefix(@NonNull String prefix) {
     this.prefix = prefix;
   }
 
-  public @NotNull String getColor() {
+  public @NonNull String color() {
     return this.color;
   }
 
-  public void setColor(@NotNull String color) {
+  public void color(@NonNull String color) {
     this.color = color;
   }
 
-  public @NotNull String getSuffix() {
+  public @NonNull String suffix() {
     return this.suffix;
   }
 
-  public void setSuffix(@NotNull String suffix) {
+  public void suffix(@NonNull String suffix) {
     this.suffix = suffix;
   }
 
-  public @NotNull String getDisplay() {
+  public @NonNull String display() {
     return this.display;
   }
 
-  public void setDisplay(@NotNull String display) {
+  public void display(@NonNull String display) {
     this.display = display;
   }
 
-  public int getSortId() {
+  public int sortId() {
     return this.sortId;
   }
 
-  public void setSortId(int sortId) {
+  public void sortId(int sortId) {
     this.sortId = sortId;
   }
 
-  public boolean isDefaultGroup() {
+  public boolean defaultGroup() {
     return this.defaultGroup;
   }
 
-  public void setDefaultGroup(boolean defaultGroup) {
+  public void defaultGroup(boolean defaultGroup) {
     this.defaultGroup = defaultGroup;
   }
 
   @Override
-  public @NotNull Collection<String> getGroupNames() {
-    return this.getGroups();
+  public @NonNull Collection<String> groupNames() {
+    return this.groups();
   }
 }

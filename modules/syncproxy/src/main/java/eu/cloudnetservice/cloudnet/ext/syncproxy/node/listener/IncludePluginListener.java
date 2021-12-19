@@ -19,41 +19,34 @@ package eu.cloudnetservice.cloudnet.ext.syncproxy.node.listener;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
-import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.util.DefaultModuleHelper;
-import de.dytanic.cloudnet.event.service.CloudServicePreLifecycleEvent;
+import de.dytanic.cloudnet.event.service.CloudServicePreProcessStartEvent;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.node.NodeSyncProxyManagement;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class IncludePluginListener {
 
   private final NodeSyncProxyManagement management;
 
-  public IncludePluginListener(@NotNull NodeSyncProxyManagement management) {
+  public IncludePluginListener(@NonNull NodeSyncProxyManagement management) {
     this.management = management;
   }
 
   @EventListener
-  public void handleLifecycleUpdate(@NotNull CloudServicePreLifecycleEvent event) {
-    if (event.getTargetLifecycle() != ServiceLifeCycle.RUNNING) {
+  public void handleLifecycleUpdate(@NonNull CloudServicePreProcessStartEvent event) {
+    var service = event.service();
+    if (!ServiceEnvironmentType.isMinecraftProxy(service.serviceId().environment())) {
       return;
     }
 
-    var service = event.getService();
-    if (!ServiceEnvironmentType.isMinecraftProxy(service.getServiceId().getEnvironment())) {
-      return;
-    }
-
-    var syncProxyConfiguration = this.management.getConfiguration();
-    var groupEntryExists = syncProxyConfiguration.getLoginConfigurations().stream()
-      .anyMatch(loginConfiguration -> service.getServiceConfiguration().getGroups()
-        .contains(loginConfiguration.getTargetGroup()))
-      || syncProxyConfiguration.getTabListConfigurations().stream()
-      .anyMatch(tabListConfiguration -> service.getServiceConfiguration().getGroups()
-        .contains(tabListConfiguration.getTargetGroup()));
+    var syncProxyConfiguration = this.management.configuration();
+    var groupEntryExists = syncProxyConfiguration.loginConfigurations().stream()
+      .anyMatch(config -> service.serviceConfiguration().groups().contains(config.targetGroup()))
+      || syncProxyConfiguration.tabListConfigurations().stream()
+      .anyMatch(config -> service.serviceConfiguration().groups().contains(config.targetGroup()));
 
     if (groupEntryExists) {
-      var pluginsFolder = event.getService().getDirectory().resolve("plugins");
+      var pluginsFolder = event.service().directory().resolve("plugins");
       FileUtils.createDirectory(pluginsFolder);
 
       var targetFile = pluginsFolder.resolve("cloudnet-syncproxy.jar");
@@ -62,7 +55,7 @@ public final class IncludePluginListener {
       if (DefaultModuleHelper.copyCurrentModuleInstanceFromClass(IncludePluginListener.class, targetFile)) {
         DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(
           IncludePluginListener.class,
-          event.getService().getServiceId().getEnvironment(),
+          event.service().serviceId().environment(),
           targetFile
         );
       }

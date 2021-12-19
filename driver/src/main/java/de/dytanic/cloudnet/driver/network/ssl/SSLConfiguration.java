@@ -19,46 +19,12 @@ package de.dytanic.cloudnet.driver.network.ssl;
 import java.nio.file.Path;
 import org.jetbrains.annotations.Nullable;
 
-public class SSLConfiguration {
+public record SSLConfiguration(
+  boolean enabled,
+  boolean clientAuth,
+  @Nullable Path trustCertificatePath,
+  @Nullable Path certificatePath,
+  @Nullable Path privateKeyPath
+) {
 
-  protected final boolean enabled;
-  protected final boolean clientAuth;
-
-  protected final Path trustCertificatePath;
-  protected final Path certificatePath;
-  protected final Path privateKeyPath;
-
-  public SSLConfiguration(
-    boolean enabled,
-    boolean clientAuth,
-    @Nullable Path trustCertificatePath,
-    @Nullable Path certificatePath,
-    @Nullable Path privateKeyPath
-  ) {
-    this.enabled = enabled;
-    this.clientAuth = clientAuth;
-    this.trustCertificatePath = trustCertificatePath;
-    this.certificatePath = certificatePath;
-    this.privateKeyPath = privateKeyPath;
-  }
-
-  public boolean isEnabled() {
-    return this.enabled;
-  }
-
-  public boolean isClientAuth() {
-    return this.clientAuth;
-  }
-
-  public @Nullable Path getTrustCertificatePath() {
-    return this.trustCertificatePath;
-  }
-
-  public @Nullable Path getCertificatePath() {
-    return this.certificatePath;
-  }
-
-  public @Nullable Path getPrivateKeyPath() {
-    return this.privateKeyPath;
-  }
 }

@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.driver.network.rpc.RPCHandlerRegistry;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
@@ -30,52 +30,52 @@ public class DefaultRPCHandlerRegistry implements RPCHandlerRegistry {
   protected final Map<String, RPCHandler> handlers = new ConcurrentHashMap<>();
 
   @Override
-  public @NotNull @UnmodifiableView Map<String, RPCHandler> getRegisteredHandlers() {
+  public @NonNull @UnmodifiableView Map<String, RPCHandler> registeredHandlers() {
     return Collections.unmodifiableMap(this.handlers);
   }
 
   @Override
-  public boolean hasHandler(@NotNull Class<?> targetClass) {
+  public boolean hasHandler(@NonNull Class<?> targetClass) {
     return this.hasHandler(targetClass.getCanonicalName());
   }
 
   @Override
-  public boolean hasHandler(@NotNull String targetClassName) {
+  public boolean hasHandler(@NonNull String targetClassName) {
     return this.handlers.containsKey(targetClassName);
   }
 
   @Override
-  public @Nullable RPCHandler getHandler(@NotNull Class<?> targetClass) {
-    return this.getHandler(targetClass.getCanonicalName());
+  public @Nullable RPCHandler handler(@NonNull Class<?> targetClass) {
+    return this.handler(targetClass.getCanonicalName());
   }
 
   @Override
-  public @Nullable RPCHandler getHandler(@NotNull String targetClassName) {
+  public @Nullable RPCHandler handler(@NonNull String targetClassName) {
     return this.handlers.get(targetClassName);
   }
 
   @Override
-  public boolean registerHandler(@NotNull RPCHandler rpcHandler) {
-    return this.handlers.put(rpcHandler.getTargetClass().getCanonicalName(), rpcHandler) == null;
+  public boolean registerHandler(@NonNull RPCHandler rpcHandler) {
+    return this.handlers.put(rpcHandler.targetClass().getCanonicalName(), rpcHandler) == null;
   }
 
   @Override
-  public boolean unregisterHandler(@NotNull RPCHandler rpcHandler) {
-    return this.unregisterHandler(rpcHandler.getTargetClass());
+  public boolean unregisterHandler(@NonNull RPCHandler rpcHandler) {
+    return this.unregisterHandler(rpcHandler.targetClass());
   }
 
   @Override
-  public boolean unregisterHandler(@NotNull Class<?> rpcHandlerTargetClass) {
+  public boolean unregisterHandler(@NonNull Class<?> rpcHandlerTargetClass) {
     return this.unregisterHandler(rpcHandlerTargetClass.getCanonicalName());
   }
 
   @Override
-  public boolean unregisterHandler(@NotNull String rpcHandlerTargetClassName) {
+  public boolean unregisterHandler(@NonNull String rpcHandlerTargetClassName) {
     return this.handlers.remove(rpcHandlerTargetClassName) != null;
   }
 
   @Override
-  public void unregisterHandlers(@NotNull ClassLoader classLoader) {
+  public void unregisterHandlers(@NonNull ClassLoader classLoader) {
     for (var entry : this.handlers.entrySet()) {
       if (entry.getValue().getClass().getClassLoader().equals(classLoader)) {
         this.handlers.remove(entry.getKey(), entry.getValue());

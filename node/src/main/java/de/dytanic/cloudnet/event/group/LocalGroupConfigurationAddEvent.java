@@ -19,26 +19,26 @@ package de.dytanic.cloudnet.event.group;
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.event.ICancelable;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class LocalGroupConfigurationAddEvent extends Event implements ICancelable {
 
   private final GroupConfiguration group;
   private volatile boolean cancelled;
 
-  public LocalGroupConfigurationAddEvent(@NotNull GroupConfiguration group) {
+  public LocalGroupConfigurationAddEvent(@NonNull GroupConfiguration group) {
     this.group = group;
   }
 
-  public @NotNull GroupConfiguration getTask() {
+  public @NonNull GroupConfiguration group() {
     return this.group;
   }
 
-  public boolean isCancelled() {
+  public boolean cancelled() {
     return this.cancelled;
   }
 
-  public void setCancelled(boolean cancelled) {
+  public void cancelled(boolean cancelled) {
     this.cancelled = cancelled;
   }
 }

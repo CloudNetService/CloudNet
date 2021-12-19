@@ -18,10 +18,14 @@ package de.dytanic.cloudnet.driver.event.events.permission;
 
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
+import lombok.NonNull;
 
 public final class PermissionAddGroupEvent extends PermissionGroupEvent {
 
-  public PermissionAddGroupEvent(IPermissionManagement permissionManagement, PermissionGroup permissionGroup) {
+  public PermissionAddGroupEvent(
+    @NonNull IPermissionManagement permissionManagement,
+    @NonNull PermissionGroup permissionGroup
+  ) {
     super(permissionManagement, permissionGroup);
   }
 }

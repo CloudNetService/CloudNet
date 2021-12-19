@@ -30,11 +30,11 @@ public class SetupResponseEvent extends SetupEvent {
     this.response = response;
   }
 
-  public QuestionListEntry<?> getResponseEntry() {
+  public QuestionListEntry<?> responseEntry() {
     return this.responseEntry;
   }
 
-  public Object getResponse() {
+  public Object response() {
     return this.response;
   }
 }

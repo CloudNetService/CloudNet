@@ -39,19 +39,19 @@ public class SignLayoutsHolder {
     this.signLayouts = signLayouts;
   }
 
-  public int getAnimationsPerSecond() {
+  public int animationsPerSecond() {
     return this.animationsPerSecond;
   }
 
-  public void setAnimationsPerSecond(int animationsPerSecond) {
+  public void animationsPerSecond(int animationsPerSecond) {
     this.animationsPerSecond = animationsPerSecond;
   }
 
-  public List<SignLayout> getSignLayouts() {
+  public List<SignLayout> signLayouts() {
     return this.signLayouts;
   }
 
-  public void setSignLayouts(List<SignLayout> signLayouts) {
+  public void signLayouts(List<SignLayout> signLayouts) {
     this.signLayouts = signLayouts;
   }
 
@@ -59,7 +59,7 @@ public class SignLayoutsHolder {
     return !this.signLayouts.isEmpty();
   }
 
-  public boolean isTickedBlocked() {
+  public boolean tickBlocked() {
     return this.tickBlocked != null && this.tickBlocked.get();
   }
 
@@ -77,13 +77,13 @@ public class SignLayoutsHolder {
     return this;
   }
 
-  public SignLayout getCurrentLayout() {
-    return this.getSignLayouts().get(this.getCurrentAnimation());
+  public SignLayout currentLayout() {
+    return this.signLayouts().get(this.currentAnimation());
   }
 
   public SignLayoutsHolder tick() {
-    if (!this.isTickedBlocked()) {
-      var currentIndex = this.getCurrentAnimationIndexOrInit();
+    if (!this.tickBlocked()) {
+      var currentIndex = this.currentAnimationIndexOrInit();
       if (currentIndex.incrementAndGet() >= this.signLayouts.size()) {
         currentIndex.set(0);
       }
@@ -91,11 +91,11 @@ public class SignLayoutsHolder {
     return this;
   }
 
-  public int getCurrentAnimation() {
+  public int currentAnimation() {
     return this.currentAnimation == null ? 0 : this.currentAnimation.get();
   }
 
-  protected AtomicInteger getCurrentAnimationIndexOrInit() {
+  protected AtomicInteger currentAnimationIndexOrInit() {
     return Objects.requireNonNullElseGet(this.currentAnimation, () -> this.currentAnimation = new AtomicInteger(-1));
   }
 }

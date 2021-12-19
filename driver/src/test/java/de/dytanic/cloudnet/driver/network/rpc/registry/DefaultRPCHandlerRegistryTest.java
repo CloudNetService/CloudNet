@@ -41,14 +41,14 @@ public class DefaultRPCHandlerRegistryTest {
 
     registry.registerHandler(factory.newHandler(TestApiClass.class, new TestApiClass(new AtomicLong())));
 
-    Assertions.assertEquals(1, registry.getRegisteredHandlers().size());
-    Assertions.assertNotNull(registry.getRegisteredHandlers().get(TestApiClass.class.getCanonicalName()));
+    Assertions.assertEquals(1, registry.registeredHandlers().size());
+    Assertions.assertNotNull(registry.registeredHandlers().get(TestApiClass.class.getCanonicalName()));
 
     Assertions.assertTrue(registry.hasHandler(TestApiClass.class));
     Assertions.assertTrue(registry.hasHandler(TestApiClass.class.getCanonicalName()));
 
-    Assertions.assertNotNull(registry.getHandler(TestApiClass.class));
-    Assertions.assertNotNull(registry.getHandler(TestApiClass.class.getCanonicalName()));
+    Assertions.assertNotNull(registry.handler(TestApiClass.class));
+    Assertions.assertNotNull(registry.handler(TestApiClass.class.getCanonicalName()));
   }
 
   @Test
@@ -59,13 +59,13 @@ public class DefaultRPCHandlerRegistryTest {
 
     registry.registerHandler(factory.newHandler(TestApiClass.class, new TestApiClass(new AtomicLong())));
 
-    Assertions.assertEquals(1, registry.getRegisteredHandlers().size());
-    Assertions.assertNotNull(registry.getRegisteredHandlers().get(TestApiClass.class.getCanonicalName()));
+    Assertions.assertEquals(1, registry.registeredHandlers().size());
+    Assertions.assertNotNull(registry.registeredHandlers().get(TestApiClass.class.getCanonicalName()));
 
     registry.unregisterHandler(TestApiClass.class);
 
-    Assertions.assertEquals(0, registry.getRegisteredHandlers().size());
-    Assertions.assertNull(registry.getRegisteredHandlers().get(TestApiClass.class.getCanonicalName()));
+    Assertions.assertEquals(0, registry.registeredHandlers().size());
+    Assertions.assertNull(registry.registeredHandlers().get(TestApiClass.class.getCanonicalName()));
   }
 
   private RPCProviderFactory provideFactory() {

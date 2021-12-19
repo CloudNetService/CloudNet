@@ -25,7 +25,7 @@ import de.dytanic.cloudnet.driver.module.driver.DriverModule;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import eu.cloudnetservice.modules.s3.config.S3TemplateStorageConfig;
 import java.nio.file.Files;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class S3TemplateStorageModule extends DriverModule {
 
@@ -34,13 +34,13 @@ public final class S3TemplateStorageModule extends DriverModule {
 
   @ModuleTask(event = ModuleLifeCycle.LOADED)
   public void handleInit() {
-    if (Files.exists(this.getConfigPath())) {
-      this.config = JsonDocument.newDocument(this.getConfigPath()).toInstanceOf(S3TemplateStorageConfig.class);
+    if (Files.exists(this.configPath())) {
+      this.config = JsonDocument.newDocument(this.configPath()).toInstanceOf(S3TemplateStorageConfig.class);
       // init the storage
       this.storage = new S3TemplateStorage(this);
-      this.getServiceRegistry().registerService(TemplateStorage.class, config.getName(), this.storage);
+      this.serviceRegistry().registerService(TemplateStorage.class, config.name(), this.storage);
       // register the cluster sync handler
-      CloudNet.getInstance().getDataSyncRegistry().registerHandler(DataSyncHandler.<S3TemplateStorageConfig>builder()
+      CloudNet.instance().dataSyncRegistry().registerHandler(DataSyncHandler.<S3TemplateStorageConfig>builder()
         .key("s3-storage-config")
         .nameExtractor($ -> "S3 Template Storage Config")
         .convertObject(S3TemplateStorageConfig.class)
@@ -49,22 +49,22 @@ public final class S3TemplateStorageModule extends DriverModule {
         .currentGetter($ -> this.config)
         .build());
     } else {
-      JsonDocument.newDocument(new S3TemplateStorageConfig()).write(this.getConfigPath());
+      JsonDocument.newDocument(new S3TemplateStorageConfig()).write(this.configPath());
     }
   }
 
   @ModuleTask(event = ModuleLifeCycle.STOPPED)
   public void handleStop() {
     this.storage.close();
-    this.getServiceRegistry().unregisterService(TemplateStorage.class, this.storage.getName());
+    this.serviceRegistry().unregisterService(TemplateStorage.class, this.storage.name());
   }
 
-  public void writeConfig(@NotNull S3TemplateStorageConfig config) {
+  public void writeConfig(@NonNull S3TemplateStorageConfig config) {
     this.config = config;
-    JsonDocument.newDocument(config).write(this.getConfigPath());
+    JsonDocument.newDocument(config).write(this.configPath());
   }
 
-  public @NotNull S3TemplateStorageConfig getConfig() {
+  public @NonNull S3TemplateStorageConfig config() {
     return this.config;
   }
 }

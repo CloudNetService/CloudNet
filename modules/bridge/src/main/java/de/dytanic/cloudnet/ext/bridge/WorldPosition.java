@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.ext.bridge;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public record WorldPosition(
@@ -28,7 +28,7 @@ public record WorldPosition(
   double z,
   double yaw,
   double pitch,
-  @NotNull String world,
+  @NonNull String world,
   @Nullable String group
 ) {
 

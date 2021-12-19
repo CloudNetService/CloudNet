@@ -24,8 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @ToString
@@ -46,12 +46,12 @@ public abstract class AbstractPermissible extends JsonDocPropertyHolder implemen
   }
 
   public AbstractPermissible(
-    @NotNull String name,
+    @NonNull String name,
     int potency,
     long createdTime,
-    @NotNull List<Permission> permissions,
-    @NotNull Map<String, Collection<Permission>> groupPermissions,
-    @NotNull JsonDocument properties
+    @NonNull List<Permission> permissions,
+    @NonNull Map<String, Collection<Permission>> groupPermissions,
+    @NonNull JsonDocument properties
   ) {
     this.name = name;
     this.potency = potency;
@@ -61,30 +61,30 @@ public abstract class AbstractPermissible extends JsonDocPropertyHolder implemen
     this.properties = properties;
   }
 
-  private boolean addPermission(@NotNull Collection<Permission> permissions, @Nullable Permission permission) {
+  private boolean addPermission(@NonNull Collection<Permission> permissions, @Nullable Permission permission) {
     if (permission == null) {
       return false;
     }
 
-    permissions.removeIf(existingPermission -> existingPermission.getName().equalsIgnoreCase(permission.getName()));
+    permissions.removeIf(existingPermission -> existingPermission.name().equalsIgnoreCase(permission.name()));
     permissions.add(permission);
 
     return true;
   }
 
   @Override
-  public boolean addPermission(@NotNull Permission permission) {
+  public boolean addPermission(@NonNull Permission permission) {
     return this.addPermission(this.permissions, permission);
   }
 
   @Override
-  public boolean addPermission(@NotNull String group, @NotNull Permission permission) {
+  public boolean addPermission(@NonNull String group, @NonNull Permission permission) {
     return this.addPermission(this.groupPermissions.computeIfAbsent(group, s -> new ArrayList<>()), permission);
   }
 
   @Override
-  public boolean removePermission(@NotNull String permission) {
-    var exist = this.getPermission(permission);
+  public boolean removePermission(@NonNull String permission) {
+    var exist = this.permission(permission);
 
     if (exist != null) {
       return this.permissions.remove(exist);
@@ -94,9 +94,9 @@ public abstract class AbstractPermissible extends JsonDocPropertyHolder implemen
   }
 
   @Override
-  public boolean removePermission(@NotNull String group, @NotNull String permission) {
+  public boolean removePermission(@NonNull String group, @NonNull String permission) {
     if (this.groupPermissions.containsKey(group)) {
-      var removed = this.groupPermissions.get(group).removeIf(perm -> perm.getName().equalsIgnoreCase(permission));
+      var removed = this.groupPermissions.get(group).removeIf(perm -> perm.name().equalsIgnoreCase(permission));
       if (removed && this.groupPermissions.get(group).isEmpty()) {
         this.groupPermissions.remove(group);
       }
@@ -107,41 +107,41 @@ public abstract class AbstractPermissible extends JsonDocPropertyHolder implemen
     return false;
   }
 
-  public long getCreatedTime() {
+  public long createdTime() {
     return this.createdTime;
   }
 
   @Override
-  public @NotNull String getName() {
+  public @NonNull String name() {
     return this.name;
   }
 
   @Override
-  public void setName(@NotNull String name) {
+  public void name(@NonNull String name) {
     this.name = name;
   }
 
   @Override
-  public int getPotency() {
+  public int potency() {
     return this.potency;
   }
 
   @Override
-  public void setPotency(int potency) {
+  public void potency(int potency) {
     this.potency = potency;
   }
 
   @Override
-  public @NotNull List<Permission> getPermissions() {
+  public @NonNull List<Permission> permissions() {
     return this.permissions;
   }
 
-  public void setPermissions(List<Permission> permissions) {
+  public void permissions(List<Permission> permissions) {
     this.permissions = permissions;
   }
 
   @Override
-  public @NotNull Map<String, Collection<Permission>> getGroupPermissions() {
+  public @NonNull Map<String, Collection<Permission>> groupPermissions() {
     return this.groupPermissions;
   }
 }

@@ -16,13 +16,12 @@
 
 package de.dytanic.cloudnet.common.log.defaults;
 
-import com.google.common.base.Preconditions;
 import java.util.function.Consumer;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class AcceptingLogHandler extends Handler {
 
@@ -34,8 +33,8 @@ public final class AcceptingLogHandler extends Handler {
     this.setLevel(Level.ALL);
   }
 
-  public static @NotNull AcceptingLogHandler newInstance(@NotNull Consumer<String> accepter) {
-    return new AcceptingLogHandler(Preconditions.checkNotNull(accepter, "accepter"));
+  public static @NonNull AcceptingLogHandler newInstance(@NonNull Consumer<String> accepter) {
+    return new AcceptingLogHandler(accepter);
   }
 
   @Override
@@ -53,7 +52,7 @@ public final class AcceptingLogHandler extends Handler {
   public void close() throws SecurityException {
   }
 
-  public @NotNull AcceptingLogHandler withFormatter(@NotNull Formatter formatter) {
+  public @NonNull AcceptingLogHandler withFormatter(@NonNull Formatter formatter) {
     super.setFormatter(formatter);
     return this;
   }

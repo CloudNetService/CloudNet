@@ -16,22 +16,21 @@
 
 package de.dytanic.cloudnet.driver.network;
 
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public interface DefaultNetworkComponent extends INetworkComponent {
 
-  Logger LOGGER = LogManager.getLogger(DefaultNetworkComponent.class);
+  Logger LOGGER = LogManager.logger(DefaultNetworkComponent.class);
 
-  Collection<INetworkChannel> getModifiableChannels();
+  Collection<INetworkChannel> modifiableChannels();
 
   @Override
   default void closeChannels() {
-    for (var channel : this.getModifiableChannels()) {
+    for (var channel : this.modifiableChannels()) {
       try {
         channel.close();
       } catch (Exception exception) {
@@ -39,34 +38,27 @@ public interface DefaultNetworkComponent extends INetworkComponent {
       }
     }
 
-    this.getModifiableChannels().clear();
+    this.modifiableChannels().clear();
   }
 
   @Override
-  default void sendPacket(@NotNull IPacket packet) {
-    Preconditions.checkNotNull(packet);
-
-    for (var channel : this.getModifiableChannels()) {
+  default void sendPacket(@NonNull IPacket packet) {
+    for (var channel : this.modifiableChannels()) {
       channel.sendPacket(packet);
     }
   }
 
   @Override
-  default void sendPacketSync(@NotNull IPacket packet) {
-    Preconditions.checkNotNull(packet);
-
-    for (var channel : this.getModifiableChannels()) {
+  default void sendPacketSync(@NonNull IPacket packet) {
+    for (var channel : this.modifiableChannels()) {
       channel.sendPacketSync(packet);
     }
   }
 
   @Override
-  default void sendPacket(@NotNull IPacket... packets) {
-    Preconditions.checkNotNull(packets);
-
-    for (var channel : this.getModifiableChannels()) {
+  default void sendPacket(@NonNull IPacket... packets) {
+    for (var channel : this.modifiableChannels()) {
       channel.sendPacket(packets);
     }
   }
-
 }

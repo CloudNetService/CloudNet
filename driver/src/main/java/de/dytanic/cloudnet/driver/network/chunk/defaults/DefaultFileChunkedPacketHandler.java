@@ -30,7 +30,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvider implements ChunkedPacketHandler {
@@ -44,16 +44,16 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
   protected Integer expectedFileParts;
 
   public DefaultFileChunkedPacketHandler(
-    @NotNull ChunkSessionInformation sessionInformation,
+    @NonNull ChunkSessionInformation sessionInformation,
     @Nullable Callback completeHandler
   ) {
     this(sessionInformation, completeHandler, FileUtils.createTempFile());
   }
 
   public DefaultFileChunkedPacketHandler(
-    @NotNull ChunkSessionInformation sessionInformation,
+    @NonNull ChunkSessionInformation sessionInformation,
     @Nullable Callback completeHandler,
-    @NotNull Path tempFilePath
+    @NonNull Path tempFilePath
   ) {
     super(sessionInformation);
 
@@ -74,7 +74,7 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
   }
 
   @Override
-  public boolean handleChunkPart(int chunkPosition, @NotNull DataBuf dataBuf) {
+  public boolean handleChunkPart(int chunkPosition, @NonNull DataBuf dataBuf) {
     // if the handling failed before we skip the handling of the packet
     if (this.transferStatus == TransferStatus.FAILURE) {
       return false;
@@ -120,13 +120,13 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
   }
 
   @Override
-  public @NotNull Callback getCallback() {
+  public @NonNull Callback callback() {
     return this.writeCompleteHandler;
   }
 
-  protected void writePacketContent(int chunkPosition, @NotNull DataBuf dataBuf) throws IOException {
+  protected void writePacketContent(int chunkPosition, @NonNull DataBuf dataBuf) throws IOException {
     // calculate the index of to which we need to sink in order to write
-    var targetIndex = chunkPosition * this.chunkSessionInformation.getChunkSize();
+    var targetIndex = chunkPosition * this.chunkSessionInformation.chunkSize();
     // sink to the index of the chunk position we need to write to
     this.targetFile.seek(targetIndex);
     // write the content into the file at the current offset we sunk to

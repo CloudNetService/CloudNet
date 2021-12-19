@@ -25,12 +25,12 @@ import de.dytanic.cloudnet.driver.event.events.network.NetworkEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * This event is being called whenever a channel message is received. You can send channel messages with the methods in
- * {@link CloudNetDriver#getMessenger()}.
+ * {@link CloudNetDriver#messenger()}.
  */
 public final class ChannelMessageReceiveEvent extends NetworkEvent {
 
@@ -40,8 +40,8 @@ public final class ChannelMessageReceiveEvent extends NetworkEvent {
   private ChannelMessage queryResponse;
 
   public ChannelMessageReceiveEvent(
-    @NotNull ChannelMessage message,
-    @NotNull INetworkChannel networkChannel,
+    @NonNull ChannelMessage message,
+    @NonNull INetworkChannel networkChannel,
     boolean query
   ) {
     super(networkChannel);
@@ -50,50 +50,43 @@ public final class ChannelMessageReceiveEvent extends NetworkEvent {
     this.query = query;
   }
 
-  @NotNull
-  public ChannelMessageSender getSender() {
-    return this.channelMessage.getSender();
+  public @NonNull ChannelMessageSender sender() {
+    return this.channelMessage.sender();
   }
 
-  @NotNull
-  public Collection<ChannelMessageTarget> getTargets() {
-    return this.channelMessage.getTargets();
+  public @NonNull Collection<ChannelMessageTarget> targets() {
+    return this.channelMessage.targets();
   }
 
-  @NotNull
-  public String getChannel() {
-    return this.channelMessage.getChannel();
+  public @NonNull String channel() {
+    return this.channelMessage.channel();
   }
 
-  @Nullable
-  public String getMessage() {
-    return this.channelMessage.getMessage();
+  public @NonNull String message() {
+    return this.channelMessage.message();
   }
 
-  @NotNull
-  public ChannelMessage getChannelMessage() {
+  public @NonNull ChannelMessage channelMessage() {
     return this.channelMessage;
   }
 
-  @NotNull
-  public DataBuf getContent() {
-    return this.channelMessage.getContent();
+  public @NonNull DataBuf content() {
+    return this.channelMessage.content();
   }
 
-  public boolean isQuery() {
+  public boolean query() {
     return this.query;
   }
 
-  public void setBinaryResponse(@NotNull DataBuf dataBuf) {
-    this.setQueryResponse(ChannelMessage.buildResponseFor(this.channelMessage).buffer(dataBuf).build());
+  public void binaryResponse(@NonNull DataBuf dataBuf) {
+    this.queryResponse(ChannelMessage.buildResponseFor(this.channelMessage).buffer(dataBuf).build());
   }
 
-  @Nullable
-  public ChannelMessage getQueryResponse() {
+  public @Nullable ChannelMessage queryResponse() {
     return this.queryResponse;
   }
 
-  public void setQueryResponse(@Nullable ChannelMessage queryResponse) {
+  public void queryResponse(@Nullable ChannelMessage queryResponse) {
     Preconditions.checkArgument(this.query, "Cannot set query response of no query");
     this.queryResponse = queryResponse;
   }

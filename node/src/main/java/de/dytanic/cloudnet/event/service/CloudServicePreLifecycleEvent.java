@@ -19,29 +19,29 @@ package de.dytanic.cloudnet.event.service;
 import de.dytanic.cloudnet.driver.event.ICancelable;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.service.ICloudService;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class CloudServicePreLifecycleEvent extends CloudServiceEvent implements ICancelable {
 
   private final ServiceLifeCycle targetLifecycle;
   private volatile boolean cancelled;
 
-  public CloudServicePreLifecycleEvent(@NotNull ICloudService service, @NotNull ServiceLifeCycle targetLifecycle) {
+  public CloudServicePreLifecycleEvent(@NonNull ICloudService service, @NonNull ServiceLifeCycle targetLifecycle) {
     super(service);
     this.targetLifecycle = targetLifecycle;
   }
 
-  public @NotNull ServiceLifeCycle getTargetLifecycle() {
+  public @NonNull ServiceLifeCycle targetLifecycle() {
     return this.targetLifecycle;
   }
 
   @Override
-  public boolean isCancelled() {
+  public boolean cancelled() {
     return this.cancelled;
   }
 
   @Override
-  public void setCancelled(boolean value) {
+  public void cancelled(boolean value) {
     this.cancelled = value;
   }
 }

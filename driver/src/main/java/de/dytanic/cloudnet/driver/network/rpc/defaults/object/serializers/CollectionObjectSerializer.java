@@ -24,7 +24,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.function.Supplier;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class CollectionObjectSerializer implements ObjectSerializer<Collection<?>> {
@@ -35,15 +35,15 @@ public class CollectionObjectSerializer implements ObjectSerializer<Collection<?
     this.collectionFactory = collectionFactory;
   }
 
-  public static @NotNull CollectionObjectSerializer of(@NotNull Supplier<Collection<?>> collectionFactory) {
+  public static @NonNull CollectionObjectSerializer of(@NonNull Supplier<Collection<?>> collectionFactory) {
     return new CollectionObjectSerializer(collectionFactory);
   }
 
   @Override
   public @Nullable Collection<?> read(
-    @NotNull DataBuf source,
-    @NotNull Type type,
-    @NotNull ObjectMapper caller
+    @NonNull DataBuf source,
+    @NonNull Type type,
+    @NonNull ObjectMapper caller
   ) {
     // create a new instance of the collection
     var collection = this.collectionFactory.get();
@@ -67,10 +67,10 @@ public class CollectionObjectSerializer implements ObjectSerializer<Collection<?
 
   @Override
   public void write(
-    @NotNull DataBuf.Mutable dataBuf,
+    @NonNull DataBuf.Mutable dataBuf,
     @Nullable Collection<?> object,
-    @NotNull Type type,
-    @NotNull ObjectMapper caller
+    @NonNull Type type,
+    @NonNull ObjectMapper caller
   ) {
     dataBuf.writeInt(object == null ? 0 : object.size());
     if (object != null) {

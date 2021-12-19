@@ -33,7 +33,7 @@ public final class CloudNetMySQLDatabaseModule extends DriverModule {
 
   private static CloudNetMySQLDatabaseModule instance;
 
-  public static CloudNetMySQLDatabaseModule getInstance() {
+  public static CloudNetMySQLDatabaseModule instance() {
     return CloudNetMySQLDatabaseModule.instance;
   }
 
@@ -72,12 +72,12 @@ public final class CloudNetMySQLDatabaseModule extends DriverModule {
 
   @ModuleTask(order = 125, event = ModuleLifeCycle.LOADED)
   public void registerDatabaseProvider() {
-    this.getServiceRegistry().registerService(AbstractDatabaseProvider.class, this.readConfig().getString("database"),
+    this.serviceRegistry().registerService(AbstractDatabaseProvider.class, this.readConfig().getString("database"),
       new MySQLDatabaseProvider(this.readConfig(), null));
   }
 
   @ModuleTask(order = 127, event = ModuleLifeCycle.STOPPED)
   public void unregisterDatabaseProvider() {
-    this.getServiceRegistry().unregisterService(AbstractDatabaseProvider.class, this.readConfig().getString("database"));
+    this.serviceRegistry().unregisterService(AbstractDatabaseProvider.class, this.readConfig().getString("database"));
   }
 }

@@ -23,29 +23,29 @@ import de.dytanic.cloudnet.driver.event.events.group.GroupConfigurationAddEvent;
 import de.dytanic.cloudnet.driver.event.events.group.GroupConfigurationRemoveEvent;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class GroupChannelMessageListener {
 
   private final IEventManager eventManager;
 
-  public GroupChannelMessageListener(@NotNull IEventManager eventManager) {
+  public GroupChannelMessageListener(@NonNull IEventManager eventManager) {
     this.eventManager = eventManager;
   }
 
   @EventListener
-  public void handle(@NotNull ChannelMessageReceiveEvent event) {
-    if (event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL) && event.getMessage() != null) {
-      switch (event.getMessage()) {
+  public void handle(@NonNull ChannelMessageReceiveEvent event) {
+    if (event.channel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
+      switch (event.message()) {
         // add group
         case "add_group_configuration" -> {
-          var configuration = event.getContent().readObject(GroupConfiguration.class);
+          var configuration = event.content().readObject(GroupConfiguration.class);
           this.eventManager.callEvent(new GroupConfigurationAddEvent(configuration));
         }
 
         // remove group
         case "remove_group_configuration" -> {
-          var configuration = event.getContent().readObject(GroupConfiguration.class);
+          var configuration = event.content().readObject(GroupConfiguration.class);
           this.eventManager.callEvent(new GroupConfigurationRemoveEvent(configuration));
         }
 

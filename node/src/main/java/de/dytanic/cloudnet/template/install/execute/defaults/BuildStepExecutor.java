@@ -39,46 +39,43 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class BuildStepExecutor implements InstallStepExecutor {
 
-  private static final Logger LOGGER = LogManager.getLogger(BuildStepExecutor.class);
+  private static final Logger LOGGER = LogManager.logger(BuildStepExecutor.class);
   private static final ExecutorService OUTPUT_READER_EXECUTOR = Executors.newCachedThreadPool();
   private static final Type STRING_LIST_TYPE = TypeToken.getParameterized(List.class, String.class).getType();
 
   private final Collection<Process> runningBuildProcesses = new CopyOnWriteArrayList<>();
 
   @Override
-  public @NotNull Set<Path> execute(
-    @NotNull InstallInformation information,
-    @NotNull Path workDir,
-    @NotNull Set<Path> paths
+  public @NonNull Set<Path> execute(
+    @NonNull InstallInformation information,
+    @NonNull Path workDir,
+    @NonNull Set<Path> paths
   ) throws IOException {
-    var version = information.getServiceVersion();
+    var version = information.serviceVersion();
 
-    Collection<String> jvmOptions = version.getProperties().get("jvmOptions", STRING_LIST_TYPE);
-    List<String> parameters = version.getProperties().get("parameters", STRING_LIST_TYPE, new ArrayList<>());
+    Collection<String> jvmOptions = version.properties().get("jvmOptions", STRING_LIST_TYPE);
+    List<String> parameters = version.properties().get("parameters", STRING_LIST_TYPE, new ArrayList<>());
 
     for (var path : paths) {
       List<String> arguments = new ArrayList<>();
 
-      arguments.add(information.getInstallerExecutable().orElse(CloudNet.getInstance().getConfig().getJVMCommand()));
+      arguments.add(information.installerExecCommand().orElse(CloudNet.instance().config().javaCommand()));
       if (jvmOptions != null) {
         arguments.addAll(jvmOptions);
       }
 
       arguments.add("-jar");
       arguments.add(path.getFileName().toString());
-      arguments.addAll(
-        parameters.stream()
-          .map(parameter -> parameter.replace("%version%", version.getName()))
-          .collect(Collectors.toList()));
+      arguments.addAll(parameters.stream().map(parameter -> parameter.replace("%version%", version.name())).toList());
 
-      var expectedExitCode = version.getProperties().getInt("exitCode", 0);
+      var expectedExitCode = version.properties().getInt("exitCode", 0);
       var exitCode = this.buildProcessAndWait(arguments, workDir);
 
-      if (!version.getProperties().getBoolean("disableExitCodeChecking") && exitCode != expectedExitCode) {
+      if (!version.properties().getBoolean("disableExitCodeChecking") && exitCode != expectedExitCode) {
         throw new IllegalStateException(String.format(
           "Process returned unexpected exit code! Got %d, expected %d",
           exitCode,
@@ -96,7 +93,7 @@ public class BuildStepExecutor implements InstallStepExecutor {
     }
   }
 
-  protected int buildProcessAndWait(@NotNull List<String> arguments, @NotNull Path workingDir) {
+  protected int buildProcessAndWait(@NonNull List<String> arguments, @NonNull Path workingDir) {
     return this.buildProcessAndWait(
       arguments,
       workingDir,
@@ -105,10 +102,10 @@ public class BuildStepExecutor implements InstallStepExecutor {
   }
 
   protected int buildProcessAndWait(
-    @NotNull List<String> arguments,
-    @NotNull Path workingDir,
-    @NotNull BiConsumer<String, Process> systemOutRedirector,
-    @NotNull BiConsumer<String, Process> systemErrRedirector
+    @NonNull List<String> arguments,
+    @NonNull Path workingDir,
+    @NonNull BiConsumer<String, Process> systemOutRedirector,
+    @NonNull BiConsumer<String, Process> systemErrRedirector
   ) {
     try {
       var process = new ProcessBuilder()
@@ -131,17 +128,11 @@ public class BuildStepExecutor implements InstallStepExecutor {
     return -1;
   }
 
-  private static class BuildOutputRedirector implements Runnable {
-
-    private final Process process;
-    private final InputStream source;
-    private final BiConsumer<String, Process> handler;
-
-    public BuildOutputRedirector(Process process, InputStream source, BiConsumer<String, Process> handler) {
-      this.process = process;
-      this.source = source;
-      this.handler = handler;
-    }
+  private record BuildOutputRedirector(
+    @NonNull Process process,
+    @NonNull InputStream source,
+    @NonNull BiConsumer<String, Process> handler
+  ) implements Runnable {
 
     @Override
     public void run() {

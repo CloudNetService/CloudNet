@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class SignsConfiguration {
@@ -55,35 +55,35 @@ public class SignsConfiguration {
     this.configurationEntries = configurationEntries;
   }
 
-  public static SignsConfiguration createDefaultJava(@NotNull String group) {
+  public static SignsConfiguration createDefaultJava(@NonNull String group) {
     return new SignsConfiguration(
       new HashMap<>(DEFAULT_MESSAGES),
       new ArrayList<>(Collections.singleton(SignConfigurationType.JAVA.createEntry(group)))
     );
   }
 
-  public static SignsConfiguration createDefaultBedrock(@NotNull String group) {
+  public static SignsConfiguration createDefaultBedrock(@NonNull String group) {
     return new SignsConfiguration(
       new HashMap<>(DEFAULT_MESSAGES),
       new ArrayList<>(Collections.singleton(SignConfigurationType.BEDROCK.createEntry(group)))
     );
   }
 
-  public Map<String, String> getMessages() {
+  public Map<String, String> messages() {
     return this.messages;
   }
 
-  public void setMessages(Map<String, String> messages) {
+  public void messages(Map<String, String> messages) {
     this.messages = messages;
   }
 
-  public void sendMessage(@NotNull String key, @NotNull Consumer<String> messageSender) {
+  public void sendMessage(@NonNull String key, @NonNull Consumer<String> messageSender) {
     this.sendMessage(key, messageSender, null);
   }
 
-  public void sendMessage(@NotNull String key, @NotNull Consumer<String> messageSender,
+  public void sendMessage(@NonNull String key, @NonNull Consumer<String> messageSender,
     @Nullable Function<String, String> modifier) {
-    var message = this.getMessages().getOrDefault(key, DEFAULT_MESSAGES.get(key));
+    var message = this.messages().getOrDefault(key, DEFAULT_MESSAGES.get(key));
     if (message != null) {
       if (modifier != null) {
         message = modifier.apply(message);
@@ -92,11 +92,11 @@ public class SignsConfiguration {
     }
   }
 
-  public Collection<SignConfigurationEntry> getConfigurationEntries() {
+  public Collection<SignConfigurationEntry> configurationEntries() {
     return this.configurationEntries;
   }
 
-  public void setConfigurationEntries(Collection<SignConfigurationEntry> configurationEntries) {
+  public void configurationEntries(Collection<SignConfigurationEntry> configurationEntries) {
     this.configurationEntries = configurationEntries;
   }
 }

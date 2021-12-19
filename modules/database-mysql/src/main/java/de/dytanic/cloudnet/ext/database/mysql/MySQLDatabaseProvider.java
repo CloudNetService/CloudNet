@@ -32,7 +32,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
 
@@ -58,8 +58,8 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
 
     hikariConfig.setJdbcUrl(String.format(
       CONNECT_URL_FORMAT,
-      endpoint.getAddress().getHost(), endpoint.getAddress().getPort(),
-      endpoint.getDatabase(), endpoint.isUseSsl(), endpoint.isUseSsl()
+      endpoint.address().host(), endpoint.address().port(),
+      endpoint.database(), endpoint.useSsl(), endpoint.useSsl()
     ));
     hikariConfig.setDriverClassName("com.mysql.cj.jdbc.Driver");
     hikariConfig.setUsername(this.config.getString("username"));
@@ -88,7 +88,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public @NotNull LocalDatabase getDatabase(@NotNull String name) {
+  public @NonNull LocalDatabase database(@NonNull String name) {
     Preconditions.checkNotNull(name);
 
     this.removedOutdatedEntries();
@@ -97,7 +97,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public boolean deleteDatabase(@NotNull String name) {
+  public boolean deleteDatabase(@NonNull String name) {
     Preconditions.checkNotNull(name);
 
     this.cachedDatabaseInstances.remove(name);
@@ -105,7 +105,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public @NotNull Collection<String> getDatabaseNames() {
+  public @NonNull Collection<String> databaseNames() {
     return this.executeQuery(
       "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='PUBLIC'",
       resultSet -> {
@@ -120,7 +120,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public @NotNull String getName() {
+  public @NonNull String name() {
     return this.config.getString("database");
   }
 
@@ -132,7 +132,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public @NotNull Connection getConnection() {
+  public @NonNull Connection connection() {
     try {
       return this.hikariDataSource.getConnection();
     } catch (SQLException exception) {
@@ -142,24 +142,24 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
     return null;
   }
 
-  public HikariDataSource getHikariDataSource() {
+  public HikariDataSource hikariDataSource() {
     return this.hikariDataSource;
   }
 
-  public JsonDocument getConfig() {
+  public JsonDocument config() {
     return this.config;
   }
 
-  public List<MySQLConnectionEndpoint> getAddresses() {
+  public List<MySQLConnectionEndpoint> addresses() {
     return this.addresses;
   }
 
   @Override
-  public int executeUpdate(@NotNull String query, Object... objects) {
+  public int executeUpdate(@NonNull String query, Object... objects) {
     Preconditions.checkNotNull(query);
     Preconditions.checkNotNull(objects);
 
-    try (var connection = this.getConnection();
+    try (var connection = this.connection();
       var preparedStatement = connection.prepareStatement(query)) {
       var i = 1;
       for (var object : objects) {
@@ -176,13 +176,13 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public <T> T executeQuery(@NotNull String query, @NotNull ThrowableFunction<ResultSet, T, SQLException> callback,
+  public <T> T executeQuery(@NonNull String query, @NonNull ThrowableFunction<ResultSet, T, SQLException> callback,
     Object... objects) {
     Preconditions.checkNotNull(query);
     Preconditions.checkNotNull(callback);
     Preconditions.checkNotNull(objects);
 
-    try (var connection = this.getConnection();
+    try (var connection = this.connection();
       var preparedStatement = connection.prepareStatement(query)) {
       var i = 1;
       for (var object : objects) {

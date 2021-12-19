@@ -68,7 +68,7 @@ final class UnsafeAccess {
    *
    * @return if the {@code Unsafe} class and instance were successfully loaded.
    */
-  static boolean isAvailable() {
+  static boolean available() {
     return UNSAFE_CLASS != null && THE_UNSAFE_INSTANCE != null;
   }
 }

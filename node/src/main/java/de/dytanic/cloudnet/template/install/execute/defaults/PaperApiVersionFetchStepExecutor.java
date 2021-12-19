@@ -26,7 +26,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Set;
 import kong.unirest.Unirest;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
 
@@ -35,17 +35,17 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
   private static final Type INT_SET_TYPE = TypeToken.getParameterized(Set.class, Integer.class).getType();
 
   @Override
-  public @NotNull Set<Path> execute(
-    @NotNull InstallInformation installInformation,
-    @NotNull Path workingDirectory,
-    @NotNull Set<Path> inputPaths
+  public @NonNull Set<Path> execute(
+    @NonNull InstallInformation installInformation,
+    @NonNull Path workingDirectory,
+    @NonNull Set<Path> inputPaths
   ) {
     // check if we need to fetch using the paper api
-    var enabled = installInformation.getServiceVersion().getProperties().getBoolean("fetchOverPaperApi");
-    var versionGroup = installInformation.getServiceVersion().getProperties().getString("versionGroup");
+    var enabled = installInformation.serviceVersion().properties().getBoolean("fetchOverPaperApi");
+    var versionGroup = installInformation.serviceVersion().properties().getString("versionGroup");
     if (enabled && versionGroup != null) {
       // resolve the project name we should use for the api request
-      var project = this.decideApiProjectName(installInformation.getServiceVersionType());
+      var project = this.decideApiProjectName(installInformation.serviceVersionType());
       var versionInformation = this.makeRequest(String.format(VERSION_LIST_URL, project, versionGroup));
       // check if there are any builds for the version
       if (versionInformation.contains("builds")) {
@@ -57,8 +57,8 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
         if (newestBuild.isPresent()) {
           // set the download url of the service version required in the download step
           int build = newestBuild.get();
-          installInformation.getServiceVersion()
-            .setUrl(String.format(DOWNLOAD_URL, project, versionGroup, build, project, versionGroup, build));
+          installInformation.serviceVersion()
+            .url(String.format(DOWNLOAD_URL, project, versionGroup, build, project, versionGroup, build));
         } else {
           throw new IllegalStateException(
             "Unable to retrieve latest build for papermc project " + project + " version-group " + versionGroup);
@@ -72,7 +72,7 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
     return Collections.emptySet();
   }
 
-  private JsonDocument makeRequest(@NotNull String apiUrl) {
+  private JsonDocument makeRequest(@NonNull String apiUrl) {
     var response = Unirest.get(apiUrl)
       .accept("application/json")
       .asString();
@@ -80,11 +80,11 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
     if (response.isSuccess()) {
       return JsonDocument.fromJsonString(response.getBody());
     }
-    return JsonDocument.empty();
+    return JsonDocument.emptyDocument();
   }
 
-  @NotNull
-  private String decideApiProjectName(@NotNull ServiceVersionType type) {
-    return type.getName().toLowerCase();
+  @NonNull
+  private String decideApiProjectName(@NonNull ServiceVersionType type) {
+    return type.name().toLowerCase();
   }
 }

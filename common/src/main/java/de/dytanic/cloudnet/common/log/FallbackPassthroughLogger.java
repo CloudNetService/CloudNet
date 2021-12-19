@@ -21,7 +21,7 @@ import java.util.logging.Filter;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 final class FallbackPassthroughLogger extends Logger {
@@ -46,17 +46,17 @@ final class FallbackPassthroughLogger extends Logger {
   }
 
   @Override
-  public void forceLog(@NotNull LogRecord logRecord) {
+  public void forceLog(@NonNull LogRecord logRecord) {
     this.logger.log(logRecord);
   }
 
   @Override
-  public @Nullable LogRecordDispatcher getLogRecordDispatcher() {
+  public @Nullable LogRecordDispatcher logRecordDispatcher() {
     return this.logRecordDispatcher;
   }
 
   @Override
-  public void setLogRecordDispatcher(@Nullable LogRecordDispatcher dispatcher) {
+  public void logRecordDispatcher(@Nullable LogRecordDispatcher dispatcher) {
     this.logRecordDispatcher = dispatcher;
   }
 
@@ -90,7 +90,7 @@ final class FallbackPassthroughLogger extends Logger {
   @Override
   public Level getLevel() {
     var thisLevel = this.logger.getLevel();
-    return thisLevel == null ? LogManager.getRootLogger().getLevel() : thisLevel;
+    return thisLevel == null ? LogManager.rootLogger().getLevel() : thisLevel;
   }
 
   @Override

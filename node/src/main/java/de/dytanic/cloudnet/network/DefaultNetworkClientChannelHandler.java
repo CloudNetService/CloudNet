@@ -32,52 +32,52 @@ import de.dytanic.cloudnet.driver.network.def.PacketClientAuthorization;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.network.listener.PacketServerAuthorizationResponseListener;
 import java.util.concurrent.atomic.AtomicLong;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class DefaultNetworkClientChannelHandler implements INetworkChannelHandler {
 
   private static final AtomicLong CONNECTION_COUNTER = new AtomicLong();
-  private static final Logger LOGGER = LogManager.getLogger(DefaultNetworkClientChannelHandler.class);
+  private static final Logger LOGGER = LogManager.logger(DefaultNetworkClientChannelHandler.class);
 
   @Override
-  public void handleChannelInitialize(@NotNull INetworkChannel channel) {
+  public void handleChannelInitialize(@NonNull INetworkChannel channel) {
     if (NodeNetworkUtils.shouldInitializeChannel(channel, ChannelType.CLIENT_CHANNEL)) {
       // add the result handler for the auth
-      channel.getPacketRegistry().addListener(
+      channel.packetRegistry().addListener(
         NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL,
         new PacketServerAuthorizationResponseListener());
       // send the authentication request
       channel.sendPacket(new PacketClientAuthorization(
         PacketClientAuthorization.PacketAuthorizationType.NODE_TO_NODE,
         DataBuf.empty()
-          .writeUniqueId(CloudNet.getInstance().getConfig().getClusterConfig().getClusterId())
-          .writeObject(CloudNet.getInstance().getConfig().getIdentity())));
+          .writeUniqueId(CloudNet.instance().config().clusterConfig().clusterId())
+          .writeObject(CloudNet.instance().config().identity())));
 
       LOGGER.fine(I18n.trans("client-network-channel-init")
-        .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
-        .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort()));
+        .replace("%serverAddress%", channel.serverAddress().host() + ":" + channel.serverAddress().port())
+        .replace("%clientAddress%", channel.clientAddress().host() + ":" + channel.clientAddress().port()));
     } else {
       channel.close();
     }
   }
 
   @Override
-  public boolean handlePacketReceive(@NotNull INetworkChannel channel, @NotNull Packet packet) {
-    return !CloudNetDriver.getInstance().getEventManager().callEvent(
-      new NetworkChannelPacketReceiveEvent(channel, packet)).isCancelled();
+  public boolean handlePacketReceive(@NonNull INetworkChannel channel, @NonNull Packet packet) {
+    return !CloudNetDriver.instance().eventManager().callEvent(
+      new NetworkChannelPacketReceiveEvent(channel, packet)).cancelled();
   }
 
   @Override
-  public void handleChannelClose(@NotNull INetworkChannel channel) {
-    CloudNetDriver.getInstance().getEventManager().callEvent(
+  public void handleChannelClose(@NonNull INetworkChannel channel) {
+    CloudNetDriver.instance().eventManager().callEvent(
       new NetworkChannelCloseEvent(channel, ChannelType.CLIENT_CHANNEL));
     CONNECTION_COUNTER.decrementAndGet();
 
     LOGGER.fine(I18n.trans("client-network-channel-close")
-      .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
-      .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort()));
+      .replace("%serverAddress%", channel.serverAddress().host() + ":" + channel.serverAddress().port())
+      .replace("%clientAddress%", channel.clientAddress().host() + ":" + channel.clientAddress().port()));
 
-    var clusterNodeServer = CloudNet.getInstance().getClusterNodeServerProvider().getNodeServer(channel);
+    var clusterNodeServer = CloudNet.instance().nodeServerProvider().nodeServer(channel);
     if (clusterNodeServer != null) {
       NodeNetworkUtils.closeNodeServer(clusterNodeServer);
     }

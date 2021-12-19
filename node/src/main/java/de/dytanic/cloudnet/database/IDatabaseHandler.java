@@ -17,15 +17,15 @@
 package de.dytanic.cloudnet.database;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public interface IDatabaseHandler {
 
-  void handleInsert(@NotNull LocalDatabase database, @NotNull String key, @NotNull JsonDocument document);
+  void handleInsert(@NonNull LocalDatabase database, @NonNull String key, @NonNull JsonDocument document);
 
-  void handleUpdate(@NotNull LocalDatabase database, @NotNull String key, @NotNull JsonDocument document);
+  void handleUpdate(@NonNull LocalDatabase database, @NonNull String key, @NonNull JsonDocument document);
 
-  void handleDelete(@NotNull LocalDatabase database, @NotNull String key);
+  void handleDelete(@NonNull LocalDatabase database, @NonNull String key);
 
-  void handleClear(@NotNull LocalDatabase database);
+  void handleClear(@NonNull LocalDatabase database);
 }

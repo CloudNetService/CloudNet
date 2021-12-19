@@ -18,17 +18,17 @@ package de.dytanic.cloudnet.event.cluster;
 
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class LocalNodeSnapshotConfigureEvent extends DriverEvent {
 
   private final NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot;
 
-  public LocalNodeSnapshotConfigureEvent(@NotNull NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot) {
+  public LocalNodeSnapshotConfigureEvent(@NonNull NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot) {
     this.networkClusterNodeInfoSnapshot = networkClusterNodeInfoSnapshot;
   }
 
-  public @NotNull NetworkClusterNodeInfoSnapshot getSnapshot() {
+  public @NonNull NetworkClusterNodeInfoSnapshot snapshot() {
     return this.networkClusterNodeInfoSnapshot;
   }
 }

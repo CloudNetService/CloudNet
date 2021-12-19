@@ -54,10 +54,14 @@ import de.dytanic.cloudnet.wrapper.provider.WrapperGroupConfigurationProvider;
 import de.dytanic.cloudnet.wrapper.provider.WrapperMessenger;
 import de.dytanic.cloudnet.wrapper.provider.WrapperNodeInfoProvider;
 import de.dytanic.cloudnet.wrapper.provider.WrapperServiceTaskProvider;
+import de.dytanic.cloudnet.wrapper.transform.TransformerRegistry;
+import de.dytanic.cloudnet.wrapper.transform.bukkit.BukkitCommodoreTransformer;
+import de.dytanic.cloudnet.wrapper.transform.bukkit.BukkitJavaVersionCheckTransformer;
+import de.dytanic.cloudnet.wrapper.transform.bukkit.PaperConfigTransformer;
+import de.dytanic.cloudnet.wrapper.transform.netty.OldEpollDisableTransformer;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -68,8 +72,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.jar.JarFile;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnmodifiableView;
 
 /**
@@ -80,8 +84,8 @@ import org.jetbrains.annotations.UnmodifiableView;
  */
 public class Wrapper extends CloudNetDriver {
 
-  private static final Path WORKING_DIRECTORY = Paths.get("");
-  private static final Logger LOGGER = LogManager.getLogger(Wrapper.class);
+  private static final Path WORKING_DIRECTORY = Path.of("");
+  private static final Logger LOGGER = LogManager.logger(Wrapper.class);
 
   /**
    * The configuration of the wrapper, which was created from the CloudNet node. The properties are mirrored from the
@@ -102,17 +106,17 @@ public class Wrapper extends CloudNetDriver {
    * The ServiceInfoSnapshot instances. The current ServiceInfoSnapshot instance is the last send object snapshot from
    * this process. The lastServiceInfoSnapshot is the element which was send before.
    */
-  private ServiceInfoSnapshot lastServiceInfoSnapShot = this.config.getServiceInfoSnapshot();
-  private ServiceInfoSnapshot currentServiceInfoSnapshot = this.config.getServiceInfoSnapshot();
+  private ServiceInfoSnapshot lastServiceInfoSnapShot = this.config.serviceInfoSnapshot();
+  private ServiceInfoSnapshot currentServiceInfoSnapshot = this.config.serviceInfoSnapshot();
 
-  protected Wrapper(@NotNull String[] args) {
+  protected Wrapper(@NonNull String[] args) {
     super(new ArrayList<>(Arrays.asList(args)));
 
-    setInstance(this);
+    instance(this);
 
     this.cloudNetVersion = CloudNetVersion.fromClassInformation(Wrapper.class.getPackage());
 
-    super.networkClient = new NettyNetworkClient(NetworkClientChannelHandler::new, this.config.getSSLConfig());
+    super.networkClient = new NettyNetworkClient(NetworkClientChannelHandler::new, this.config.sslConfiguration());
     this.rpcSender = this.rpcProviderFactory.providerForClass(this.networkClient, CloudNetDriver.class);
 
     super.databaseProvider = new DefaultWrapperDatabaseProvider(this);
@@ -124,25 +128,37 @@ public class Wrapper extends CloudNetDriver {
     super.generalCloudServiceProvider = new WrapperGeneralCloudServiceProvider(this);
 
     super.cloudServiceFactory = new RemoteCloudServiceFactory(
-      this.networkClient::getFirstChannel,
+      this.networkClient::firstChannel,
       this.networkClient,
       this.rpcProviderFactory);
 
-    super.moduleProvider.setModuleProviderHandler(new DefaultModuleProviderHandler());
-    super.moduleProvider.setModuleDirectoryPath(Paths.get(".wrapper", "modules"));
+    super.moduleProvider.moduleProviderHandler(new DefaultModuleProviderHandler());
+    super.moduleProvider.moduleDirectoryPath(Path.of(".wrapper", "modules"));
 
-    super.setPermissionManagement(new WrapperPermissionManagement(this));
+    super.permissionManagement(new WrapperPermissionManagement(this));
     super.driverEnvironment = DriverEnvironment.WRAPPER;
   }
 
-  public static @NotNull Wrapper getInstance() {
-    return (Wrapper) CloudNetDriver.getInstance();
+  public static @NonNull Wrapper instance() {
+    return (Wrapper) CloudNetDriver.instance();
   }
 
   @Override
   public synchronized void start() throws Exception {
     // load & enable the modules
     this.moduleProvider.loadAll().startAll();
+
+    // register our default class transformers
+    this.transformerRegistry()
+      .registerTransformer("org/bukkit/craftbukkit", "Commodore", new BukkitCommodoreTransformer());
+    this.transformerRegistry()
+      .registerTransformer("org/bukkit/craftbukkit", "Main", new BukkitJavaVersionCheckTransformer());
+    this.transformerRegistry()
+      .registerTransformer("org/github/paperspigot", "PaperSpigotConfig", new PaperConfigTransformer());
+    // This prevents shadow from renaming io/netty to eu/cloudnetservice/io/netty
+    this.transformerRegistry().registerTransformer(
+      name -> name.endsWith("Epoll") && name.startsWith("io") && name.contains("netty/channel/epoll/"),
+      new OldEpollDisableTransformer());
 
     // connect to the node
     this.connectToNode();
@@ -176,34 +192,34 @@ public class Wrapper extends CloudNetDriver {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull String getComponentName() {
-    return this.getServiceId().getName();
+  public @NonNull String componentName() {
+    return this.serviceId().name();
   }
 
   @Override
-  public @NotNull TemplateStorage getLocalTemplateStorage() {
-    return this.getTemplateStorage(ServiceTemplate.LOCAL_STORAGE);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @NotNull String getNodeUniqueId() {
-    return this.getServiceId().getNodeUniqueId();
-  }
-
-  @Override
-  public @NotNull TemplateStorage getTemplateStorage(@NotNull String storage) {
-    return new RemoteTemplateStorage(storage, this.rpcSender.invokeMethod("getTemplateStorage", storage));
+  public @NonNull TemplateStorage localTemplateStorage() {
+    return this.templateStorage(ServiceTemplate.LOCAL_STORAGE);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public @NotNull Collection<TemplateStorage> getAvailableTemplateStorages() {
-    return this.rpcSender.invokeMethod("getAvailableTemplateStorages").fireSync();
+  public @NonNull String nodeUniqueId() {
+    return this.serviceId().nodeUniqueId();
+  }
+
+  @Override
+  public @NonNull TemplateStorage templateStorage(@NonNull String storage) {
+    return new RemoteTemplateStorage(storage, this.rpcSender.invokeMethod("templateStorage", storage));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull Collection<TemplateStorage> availableTemplateStorages() {
+    return this.rpcSender.invokeMethod("availableTemplateStorages").fireSync();
   }
 
   /**
@@ -212,7 +228,7 @@ public class Wrapper extends CloudNetDriver {
    * @see CloudNetDriver#sendCommandLineAsPermissionUser(UUID, String)
    */
   @Override
-  public @NotNull Collection<String> sendCommandLineAsPermissionUser(@NotNull UUID uniqueId, @NotNull String command) {
+  public @NonNull Collection<String> sendCommandLineAsPermissionUser(@NonNull UUID uniqueId, @NonNull String command) {
     return this.rpcSender.invokeMethod("sendCommandLineAsPermissionUser", uniqueId, command).fireSync();
   }
 
@@ -221,8 +237,8 @@ public class Wrapper extends CloudNetDriver {
    *
    * @return the ServiceId instance which was set in the config by the node
    */
-  public @NotNull ServiceId getServiceId() {
-    return this.getServiceConfiguration().getServiceId();
+  public @NonNull ServiceId serviceId() {
+    return this.serviceConfiguration().serviceId();
   }
 
   /**
@@ -230,8 +246,8 @@ public class Wrapper extends CloudNetDriver {
    *
    * @return the first instance which was set in the config by the node
    */
-  public @NotNull ServiceConfiguration getServiceConfiguration() {
-    return this.config.getServiceConfiguration();
+  public @NonNull ServiceConfiguration serviceConfiguration() {
+    return this.config.serviceConfiguration();
   }
 
   /**
@@ -240,17 +256,17 @@ public class Wrapper extends CloudNetDriver {
    *
    * @return the new ServiceInfoSnapshot instance
    */
-  @NotNull
+  @NonNull
   public ServiceInfoSnapshot createServiceInfoSnapshot() {
     return new ServiceInfoSnapshot(
       System.currentTimeMillis(),
-      this.currentServiceInfoSnapshot.getAddress(),
-      this.currentServiceInfoSnapshot.getConnectAddress(),
+      this.currentServiceInfoSnapshot.address(),
+      this.currentServiceInfoSnapshot.connectAddress(),
       ProcessSnapshot.self(),
-      this.getServiceConfiguration(),
-      this.currentServiceInfoSnapshot.getConnectedTime(),
+      this.serviceConfiguration(),
+      this.currentServiceInfoSnapshot.connectedTime(),
       ServiceLifeCycle.RUNNING,
-      this.currentServiceInfoSnapshot.getProperties());
+      this.currentServiceInfoSnapshot.properties());
   }
 
   @Internal
@@ -277,9 +293,9 @@ public class Wrapper extends CloudNetDriver {
     this.publishServiceInfoUpdate(this.createServiceInfoSnapshot());
   }
 
-  public void publishServiceInfoUpdate(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
+  public void publishServiceInfoUpdate(@NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
     // add configuration stuff when updating the current service snapshot
-    if (this.currentServiceInfoSnapshot.getServiceId().equals(serviceInfoSnapshot.getServiceId())) {
+    if (this.currentServiceInfoSnapshot.serviceId().equals(serviceInfoSnapshot.serviceId())) {
       this.configureServiceInfoSnapshot(serviceInfoSnapshot);
     }
 
@@ -299,11 +315,11 @@ public class Wrapper extends CloudNetDriver {
    *
    * @param classLoader the ClassLoader from which the IPacketListener implementations derive.
    */
-  public void unregisterPacketListenersByClassLoader(@NotNull ClassLoader classLoader) {
-    this.networkClient.getPacketRegistry().removeListeners(classLoader);
+  public void unregisterPacketListenersByClassLoader(@NonNull ClassLoader classLoader) {
+    this.networkClient.packetRegistry().removeListeners(classLoader);
 
-    for (var channel : this.networkClient.getChannels()) {
-      channel.getPacketRegistry().removeListeners(classLoader);
+    for (var channel : this.networkClient.channels()) {
+      channel.packetRegistry().removeListeners(classLoader);
     }
   }
 
@@ -317,8 +333,8 @@ public class Wrapper extends CloudNetDriver {
       var condition = lock.newCondition();
       var listener = new PacketAuthorizationResponseListener(lock, condition);
       // register the listener to the packet registry and connect to the target listener
-      this.networkClient.getPacketRegistry().addListener(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL, listener);
-      this.networkClient.connect(this.config.getTargetListener());
+      this.networkClient.packetRegistry().addListener(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL, listener);
+      this.networkClient.connect(this.config.targetListener());
 
       // wait for the authentication response
       var wasDone = condition.await(30, TimeUnit.SECONDS);
@@ -328,16 +344,16 @@ public class Wrapper extends CloudNetDriver {
       }
 
       // set connected time
-      this.currentServiceInfoSnapshot.setConnectedTime(System.currentTimeMillis());
+      this.currentServiceInfoSnapshot.connectedTime(System.currentTimeMillis());
 
       // remove the auth listener
-      this.networkClient.getPacketRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
+      this.networkClient.packetRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
 
       // add the runtime packet listeners
-      this.networkClient.getPacketRegistry().addListener(
+      this.networkClient.packetRegistry().addListener(
         NetworkConstants.CHUNKED_PACKET_COM_CHANNEL,
         new ChunkedPacketListener(EventChunkHandlerFactory.withDefaultEventManager()));
-      this.networkClient.getPacketRegistry().addListener(
+      this.networkClient.packetRegistry().addListener(
         NetworkConstants.CHANNEL_MESSAGING_CHANNEL,
         new PacketServerChannelMessageListener());
     } finally {
@@ -349,7 +365,7 @@ public class Wrapper extends CloudNetDriver {
     // get all the information provided through the command line
     var mainClass = this.commandLineArguments.remove(0);
     var premainClass = this.commandLineArguments.remove(0);
-    var appFile = Paths.get(this.commandLineArguments.remove(0));
+    var appFile = Path.of(this.commandLineArguments.remove(0));
     var preLoadAppJar = Boolean.parseBoolean(this.commandLineArguments.remove(0));
 
     var loader = ClassLoader.getSystemClassLoader();
@@ -395,28 +411,32 @@ public class Wrapper extends CloudNetDriver {
     return true;
   }
 
-  public @NotNull IWrapperConfiguration getConfig() {
+  public @NonNull IWrapperConfiguration config() {
     return this.config;
   }
 
-  public @NotNull Path getWorkingDirectoryPath() {
+  public @NonNull Path workingDirectory() {
     return WORKING_DIRECTORY;
   }
 
   @UnmodifiableView
-  public @NotNull List<String> getCommandLineArguments() {
+  public @NonNull List<String> commandLineArguments() {
     return Collections.unmodifiableList(this.commandLineArguments);
   }
 
-  public @NotNull Thread getMainThread() {
+  public @NonNull Thread mainThread() {
     return this.mainThread;
   }
 
-  public @NotNull ServiceInfoSnapshot getLastServiceInfoSnapShot() {
+  public @NonNull ServiceInfoSnapshot lastServiceInfo() {
     return this.lastServiceInfoSnapShot;
   }
 
-  public @NotNull ServiceInfoSnapshot getCurrentServiceInfoSnapshot() {
+  public @NonNull ServiceInfoSnapshot currentServiceInfo() {
     return this.currentServiceInfoSnapshot;
+  }
+
+  public @NonNull TransformerRegistry transformerRegistry() {
+    return Premain.transformerRegistry;
   }
 }

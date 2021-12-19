@@ -23,7 +23,7 @@ import de.dytanic.cloudnet.driver.network.rpc.object.ObjectSerializer;
 import java.lang.reflect.Type;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class FunctionalObjectSerializer<T> implements ObjectSerializer<T> {
@@ -36,28 +36,28 @@ public class FunctionalObjectSerializer<T> implements ObjectSerializer<T> {
     this.writer = writer;
   }
 
-  public static @NotNull <T> FunctionalObjectSerializer<T> of(
-    @NotNull Function<DataBuf, T> reader,
-    @NotNull BiConsumer<Mutable, T> writer
+  public static @NonNull <T> FunctionalObjectSerializer<T> of(
+    @NonNull Function<DataBuf, T> reader,
+    @NonNull BiConsumer<Mutable, T> writer
   ) {
     return new FunctionalObjectSerializer<>(reader, writer);
   }
 
   @Override
   public @Nullable T read(
-    @NotNull DataBuf source,
-    @NotNull Type type,
-    @NotNull ObjectMapper caller
+    @NonNull DataBuf source,
+    @NonNull Type type,
+    @NonNull ObjectMapper caller
   ) {
     return this.reader.apply(source);
   }
 
   @Override
   public void write(
-    @NotNull DataBuf.Mutable dataBuf,
+    @NonNull DataBuf.Mutable dataBuf,
     @Nullable T object,
-    @NotNull Type type,
-    @NotNull ObjectMapper caller
+    @NonNull Type type,
+    @NonNull ObjectMapper caller
   ) {
     this.writer.accept(dataBuf, object);
   }

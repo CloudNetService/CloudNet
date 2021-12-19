@@ -30,9 +30,8 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
+import lombok.NonNull;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
@@ -45,7 +44,7 @@ final class SpongeBridgeManagement extends PlatformBridgeManagement<ServerPlayer
   private final PlayerExecutor directGlobalExecutor;
 
   public SpongeBridgeManagement() {
-    super(Wrapper.getInstance());
+    super(Wrapper.instance());
     // init fields
     this.directGlobalExecutor = new SpongeDirectPlayerExecutor(
       PlayerExecutor.GLOBAL_UNIQUE_ID,
@@ -56,18 +55,18 @@ final class SpongeBridgeManagement extends PlatformBridgeManagement<ServerPlayer
   }
 
   @Override
-  public void registerServices(@NotNull IServicesRegistry registry) {
+  public void registerServices(@NonNull IServicesRegistry registry) {
     registry.registerService(IPlayerManager.class, "PlayerManager", this.playerManager);
     registry.registerService(PlatformBridgeManagement.class, "SpongeBridgeManagement", this);
   }
 
   @Override
-  public @NotNull ServicePlayer wrapPlayer(@NotNull ServerPlayer player) {
+  public @NonNull ServicePlayer wrapPlayer(@NonNull ServerPlayer player) {
     return new ServicePlayer(player.uniqueId(), player.name());
   }
 
   @Override
-  public @NotNull NetworkPlayerServerInfo createPlayerInformation(@NotNull ServerPlayer player) {
+  public @NonNull NetworkPlayerServerInfo createPlayerInformation(@NonNull ServerPlayer player) {
     return new NetworkPlayerServerInfo(
       player.uniqueId(),
       player.name(),
@@ -77,37 +76,37 @@ final class SpongeBridgeManagement extends PlatformBridgeManagement<ServerPlayer
   }
 
   @Override
-  public @NotNull BiFunction<ServerPlayer, String, Boolean> getPermissionFunction() {
+  public @NonNull BiFunction<ServerPlayer, String, Boolean> permissionFunction() {
     return PERM_FUNCTION;
   }
 
   @Override
-  public boolean isOnAnyFallbackInstance(@NotNull ServerPlayer player) {
-    return this.isOnAnyFallbackInstance(this.ownNetworkServiceInfo.getServerName(), null, player::hasPermission);
+  public boolean isOnAnyFallbackInstance(@NonNull ServerPlayer player) {
+    return this.isOnAnyFallbackInstance(this.ownNetworkServiceInfo.serverName(), null, player::hasPermission);
   }
 
   @Override
-  public @NotNull Optional<ServiceInfoSnapshot> getFallback(@NotNull ServerPlayer player) {
-    return this.getFallback(player, this.ownNetworkServiceInfo.getServerName());
+  public @NonNull Optional<ServiceInfoSnapshot> fallback(@NonNull ServerPlayer player) {
+    return this.fallback(player, this.ownNetworkServiceInfo.serverName());
   }
 
   @Override
-  public @NotNull Optional<ServiceInfoSnapshot> getFallback(@NotNull ServerPlayer player, @Nullable String currServer) {
-    return this.getFallback(player.uniqueId(), currServer, null, player::hasPermission);
+  public @NonNull Optional<ServiceInfoSnapshot> fallback(@NonNull ServerPlayer player, @Nullable String currServer) {
+    return this.fallback(player.uniqueId(), currServer, null, player::hasPermission);
   }
 
   @Override
-  public void handleFallbackConnectionSuccess(@NotNull ServerPlayer player) {
+  public void handleFallbackConnectionSuccess(@NonNull ServerPlayer player) {
     this.handleFallbackConnectionSuccess(player.uniqueId());
   }
 
   @Override
-  public void removeFallbackProfile(@NotNull ServerPlayer player) {
+  public void removeFallbackProfile(@NonNull ServerPlayer player) {
     this.removeFallbackProfile(player.uniqueId());
   }
 
   @Override
-  public @NotNull PlayerExecutor getDirectPlayerExecutor(@NotNull UUID uniqueId) {
+  public @NonNull PlayerExecutor directPlayerExecutor(@NonNull UUID uniqueId) {
     return uniqueId.equals(PlayerExecutor.GLOBAL_UNIQUE_ID)
       ? this.directGlobalExecutor
       : new SpongeDirectPlayerExecutor(
@@ -116,14 +115,14 @@ final class SpongeBridgeManagement extends PlatformBridgeManagement<ServerPlayer
   }
 
   @Override
-  public void appendServiceInformation(@NotNull ServiceInfoSnapshot snapshot) {
+  public void appendServiceInformation(@NonNull ServiceInfoSnapshot snapshot) {
     super.appendServiceInformation(snapshot);
     // append the bukkit specific information
-    snapshot.getProperties().append("Online-Count", Sponge.server().onlinePlayers().size());
-    snapshot.getProperties().append("Version", Sponge.platform().minecraftVersion().name());
+    snapshot.properties().append("Online-Count", Sponge.server().onlinePlayers().size());
+    snapshot.properties().append("Version", Sponge.platform().minecraftVersion().name());
     // players
-    snapshot.getProperties().append("Players", Sponge.server().onlinePlayers().stream()
+    snapshot.properties().append("Players", Sponge.server().onlinePlayers().stream()
       .map(this::createPlayerInformation)
-      .collect(Collectors.toList()));
+      .toList());
   }
 }

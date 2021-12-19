@@ -23,8 +23,8 @@ import de.dytanic.cloudnet.driver.module.ModuleConfiguration;
 import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
 import java.util.Collection;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
@@ -56,12 +56,12 @@ public class NetworkClusterNodeInfoSnapshot extends JsonDocPropertyHolder {
     int reservedMemory,
     int currentServicesCount,
     boolean drain,
-    @NotNull NetworkClusterNode node,
-    @NotNull CloudNetVersion version,
-    @NotNull ProcessSnapshot processSnapshot,
+    @NonNull NetworkClusterNode node,
+    @NonNull CloudNetVersion version,
+    @NonNull ProcessSnapshot processSnapshot,
     double maxCPUUsageToStartServices,
-    @NotNull Collection<ModuleConfiguration> modules,
-    @NotNull JsonDocument properties
+    @NonNull Collection<ModuleConfiguration> modules,
+    @NonNull JsonDocument properties
   ) {
     this.creationTime = creationTime;
     this.startupMillis = startupMillis;
@@ -78,51 +78,51 @@ public class NetworkClusterNodeInfoSnapshot extends JsonDocPropertyHolder {
     this.properties = properties;
   }
 
-  public long getCreationTime() {
+  public long creationTime() {
     return this.creationTime;
   }
 
-  public long getStartupMillis() {
+  public long startupMillis() {
     return this.startupMillis;
   }
 
-  public int getMaxMemory() {
+  public int maxMemory() {
     return this.maxMemory;
   }
 
-  public int getUsedMemory() {
+  public int usedMemory() {
     return this.usedMemory;
   }
 
-  public int getReservedMemory() {
+  public int reservedMemory() {
     return this.reservedMemory;
   }
 
-  public int getCurrentServicesCount() {
+  public int currentServicesCount() {
     return this.currentServicesCount;
   }
 
-  public boolean isDrain() {
+  public boolean draining() {
     return this.drain;
   }
 
-  public @NotNull NetworkClusterNode getNode() {
+  public @NonNull NetworkClusterNode node() {
     return this.node;
   }
 
-  public @NotNull CloudNetVersion getVersion() {
+  public @NonNull CloudNetVersion version() {
     return this.version;
   }
 
-  public @NotNull ProcessSnapshot getProcessSnapshot() {
+  public @NonNull ProcessSnapshot processSnapshot() {
     return this.processSnapshot;
   }
 
-  public double getMaxCPUUsageToStartServices() {
+  public double maxProcessorUsageToStartServices() {
     return this.maxCPUUsageToStartServices;
   }
 
-  public @NotNull Collection<ModuleConfiguration> getModules() {
+  public @NonNull Collection<ModuleConfiguration> modules() {
     return this.modules;
   }
 }

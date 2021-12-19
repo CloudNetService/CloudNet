@@ -36,7 +36,6 @@ import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,7 +48,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import kong.unirest.Unirest;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.UnmodifiableView;
 
 public class ServiceVersionProvider {
@@ -57,9 +56,9 @@ public class ServiceVersionProvider {
   public static final String DEFAULT_FILE_URL = System.getProperty(
     "cloudnet.versions.url",
     "https://cloudnetservice.eu/cloudnet/versions.json");
-  private static final Logger LOGGER = LogManager.getLogger(ServiceVersionProvider.class);
+  private static final Logger LOGGER = LogManager.logger(ServiceVersionProvider.class);
 
-  private static final Path VERSION_CACHE_PATH = Paths.get(
+  private static final Path VERSION_CACHE_PATH = Path.of(
     System.getProperty("cloudnet.versioncache.path", "local/versioncache"));
 
   private static final int VERSIONS_FILE_VERSION = 3;
@@ -70,11 +69,11 @@ public class ServiceVersionProvider {
   private final Map<String, ServiceVersionType> serviceVersionTypes = new ConcurrentHashMap<>();
   private final Map<String, ServiceEnvironmentType> serviceEnvironmentTypes = new ConcurrentHashMap<>();
 
-  public ServiceVersionProvider(@NotNull IEventManager eventManager) {
+  public ServiceVersionProvider(@NonNull IEventManager eventManager) {
     eventManager.registerListener(new TemplatePrepareListener());
   }
 
-  public void loadServiceVersionTypesOrDefaults(@NotNull String url) {
+  public void loadServiceVersionTypesOrDefaults(@NonNull String url) {
     try {
       if (!this.loadServiceVersionTypes(url)) {
         this.loadDefaultVersionTypes();
@@ -84,7 +83,7 @@ public class ServiceVersionProvider {
     }
   }
 
-  public boolean loadServiceVersionTypes(@NotNull String url) throws IOException {
+  public boolean loadServiceVersionTypes(@NonNull String url) throws IOException {
     this.serviceVersionTypes.clear();
 
     return Unirest
@@ -133,55 +132,55 @@ public class ServiceVersionProvider {
     }
   }
 
-  public void registerServiceVersionType(@NotNull ServiceVersionType versionType) {
+  public void registerServiceVersionType(@NonNull ServiceVersionType versionType) {
     // ensure that we know the target environment for the service version
     Verify.verify(
-      this.getEnvironmentType(versionType.getEnvironmentType()).isPresent(),
+      this.getEnvironmentType(versionType.environmentType()).isPresent(),
       "Missing environment %s for service version %s",
-      versionType.getEnvironmentType(),
-      versionType.getName());
+      versionType.environmentType(),
+      versionType.name());
     // register the service version
-    this.serviceVersionTypes.put(versionType.getName().toLowerCase(), versionType);
+    this.serviceVersionTypes.put(versionType.name().toLowerCase(), versionType);
   }
 
-  public @NotNull Optional<ServiceVersionType> getServiceVersionType(@NotNull String name) {
+  public @NonNull Optional<ServiceVersionType> getServiceVersionType(@NonNull String name) {
     return Optional.ofNullable(this.serviceVersionTypes.get(name.toLowerCase()));
   }
 
-  public void registerServiceEnvironmentType(@NotNull ServiceEnvironmentType environmentType) {
-    this.serviceEnvironmentTypes.put(environmentType.getName().toUpperCase(), environmentType);
+  public void registerServiceEnvironmentType(@NonNull ServiceEnvironmentType environmentType) {
+    this.serviceEnvironmentTypes.put(environmentType.name().toUpperCase(), environmentType);
   }
 
-  public @NotNull Optional<ServiceEnvironmentType> getEnvironmentType(@NotNull String name) {
+  public @NonNull Optional<ServiceEnvironmentType> getEnvironmentType(@NonNull String name) {
     return Optional.ofNullable(this.serviceEnvironmentTypes.get(name.toUpperCase()));
   }
 
-  public boolean installServiceVersion(@NotNull InstallInformation information, boolean force) {
+  public boolean installServiceVersion(@NonNull InstallInformation information, boolean force) {
     var fullVersionIdentifier = String.format("%s-%s",
-      information.getServiceVersionType().getName(),
-      information.getServiceVersion().getName());
+      information.serviceVersionType().name(),
+      information.serviceVersion().name());
 
     if (!force
-      && information.getInstallerExecutable().isEmpty()
-      && !information.getServiceVersionType().canInstall(information.getServiceVersion())
+      && information.installerExecCommand().isEmpty()
+      && !information.serviceVersionType().canInstall(information.serviceVersion())
     ) {
       throw new IllegalArgumentException(String.format(
         "Cannot run %s on %s",
         fullVersionIdentifier,
-        JavaVersion.getRuntimeVersion().getName()));
+        JavaVersion.runtimeVersion().name()));
     }
 
-    if (information.getServiceVersion().isDeprecated()) {
+    if (information.serviceVersion().deprecated()) {
       LOGGER.warning(I18n.trans("versions-installer-deprecated-version"));
     }
 
     try {
       // delete all old application files to prevent that they are used to start the service
-      for (var file : information.getTemplateStorage().listFiles("", false)) {
+      for (var file : information.templateStorage().listFiles("", false)) {
         if (file != null) {
           for (ServiceEnvironment environment : this.serviceVersionTypes.values()) {
-            if (file.getName().toLowerCase().contains(environment.getName()) && file.getName().endsWith(".jar")) {
-              information.getTemplateStorage().deleteFile(file.getPath());
+            if (file.name().toLowerCase().contains(environment.name()) && file.name().endsWith(".jar")) {
+              information.templateStorage().deleteFile(file.path());
             }
           }
         }
@@ -194,12 +193,12 @@ public class ServiceVersionProvider {
     var cachedFilePath = VERSION_CACHE_PATH.resolve(fullVersionIdentifier);
 
     try {
-      if (information.isCacheFiles() && Files.exists(cachedFilePath)) {
+      if (information.cacheFiles() && Files.exists(cachedFilePath)) {
         InstallStep.DEPLOY.execute(information, cachedFilePath, Files.walk(cachedFilePath).collect(Collectors.toSet()));
       } else {
         Files.createDirectories(workingDirectory);
 
-        List<InstallStep> installSteps = new ArrayList<>(information.getServiceVersionType().getInstallSteps());
+        List<InstallStep> installSteps = new ArrayList<>(information.serviceVersionType().installSteps());
         installSteps.add(InstallStep.DEPLOY);
 
         Set<Path> lastStepResult = new HashSet<>();
@@ -207,7 +206,7 @@ public class ServiceVersionProvider {
           lastStepResult = installStep.execute(information, workingDirectory, lastStepResult);
         }
 
-        if (information.getServiceVersion().isCacheFiles()) {
+        if (information.serviceVersion().cacheFiles()) {
           for (var path : lastStepResult) {
             var targetPath = cachedFilePath.resolve(workingDirectory.relativize(path));
             Files.createDirectories(targetPath.getParent());
@@ -217,9 +216,9 @@ public class ServiceVersionProvider {
         }
       }
 
-      for (var entry : information.getServiceVersion().getAdditionalDownloads().entrySet()) {
+      for (var entry : information.serviceVersion().additionalDownloads().entrySet()) {
         ConsoleProgressWrappers.wrapDownload(entry.getKey(), stream -> {
-          try (var out = information.getTemplateStorage().newOutputStream(entry.getKey())) {
+          try (var out = information.templateStorage().newOutputStream(entry.getKey())) {
             FileUtils.copy(stream, out);
           }
         });
@@ -236,12 +235,12 @@ public class ServiceVersionProvider {
   }
 
   @UnmodifiableView
-  public @NotNull Map<String, ServiceVersionType> getServiceVersionTypes() {
+  public @NonNull Map<String, ServiceVersionType> serviceVersionTypes() {
     return Collections.unmodifiableMap(this.serviceVersionTypes);
   }
 
   @UnmodifiableView
-  public @NotNull Map<String, ServiceEnvironmentType> getKnownEnvironments() {
+  public @NonNull Map<String, ServiceEnvironmentType> knownEnvironments() {
     return Collections.unmodifiableMap(this.serviceEnvironmentTypes);
   }
 }

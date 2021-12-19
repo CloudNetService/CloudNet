@@ -24,7 +24,7 @@ import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignConfigurationEntr
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignGroupConfiguration;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignLayout;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignLayoutsHolder;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -36,43 +36,43 @@ public final class LayoutUtil {
     throw new UnsupportedOperationException();
   }
 
-  public static SignLayout getLayout(@NotNull SignConfigurationEntry entry, @NotNull Sign sign,
+  public static SignLayout layout(@NonNull SignConfigurationEntry entry, @NonNull Sign sign,
     @Nullable ServiceInfoSnapshot snapshot) {
-    return getLayoutHolder(entry, sign, snapshot).getCurrentLayout();
+    return layoutHolder(entry, sign, snapshot).currentLayout();
   }
 
-  public static SignLayout getLayoutAndTick(
-    @NotNull SignConfigurationEntry entry,
-    @NotNull Sign sign,
+  public static SignLayout layoutAndTick(
+    @NonNull SignConfigurationEntry entry,
+    @NonNull Sign sign,
     @Nullable ServiceInfoSnapshot snapshot
   ) {
-    return getLayoutHolder(entry, sign, snapshot).tick().getCurrentLayout();
+    return layoutHolder(entry, sign, snapshot).tick().currentLayout();
   }
 
-  public static SignLayoutsHolder getLayoutHolder(
-    @NotNull SignConfigurationEntry entry,
-    @NotNull Sign sign,
+  public static SignLayoutsHolder layoutHolder(
+    @NonNull SignConfigurationEntry entry,
+    @NonNull Sign sign,
     @Nullable ServiceInfoSnapshot snapshot
   ) {
     // check if no snapshot is used for the check process - return the searchig layout in that case
     if (snapshot == null) {
-      return entry.getSearchingLayout();
+      return entry.searchingLayout();
     }
     // return the correct layout based on the state
     var state = BridgeServiceHelper.guessStateFromServiceInfoSnapshot(snapshot);
     if (state == ServiceInfoState.STOPPED) {
-      return entry.getSearchingLayout();
+      return entry.searchingLayout();
     } else if (state == ServiceInfoState.STARTING) {
-      return entry.getStartingLayout();
+      return entry.startingLayout();
     } else {
       // check for an overriding group configuration
       SignGroupConfiguration groupConfiguration = null;
-      for (var configuration : entry.getGroupConfigurations()) {
-        if (configuration.getTargetGroup() != null
-          && configuration.getTargetGroup().equals(sign.getTargetGroup())
-          && configuration.getEmptyLayout() != null
-          && configuration.getOnlineLayout() != null
-          && configuration.getFullLayout() != null
+      for (var configuration : entry.groupConfigurations()) {
+        if (configuration.targetGroup() != null
+          && configuration.targetGroup().equals(sign.targetGroup())
+          && configuration.emptyLayout() != null
+          && configuration.onlineLayout() != null
+          && configuration.fullLayout() != null
         ) {
           groupConfiguration = configuration;
           break;
@@ -80,11 +80,11 @@ public final class LayoutUtil {
       }
       // get the correct layout based on the entry, group layout and state
       return switch (state) {
-        case EMPTY_ONLINE -> groupConfiguration == null ? entry.getEmptyLayout() : groupConfiguration.getEmptyLayout();
-        case ONLINE -> groupConfiguration == null ? entry.getOnlineLayout() : groupConfiguration.getOnlineLayout();
-        case FULL_ONLINE -> entry.isSwitchToSearchingWhenServiceIsFull()
-          ? entry.getSearchingLayout()
-          : groupConfiguration == null ? entry.getFullLayout() : groupConfiguration.getFullLayout();
+        case EMPTY_ONLINE -> groupConfiguration == null ? entry.emptyLayout() : groupConfiguration.emptyLayout();
+        case ONLINE -> groupConfiguration == null ? entry.onlineLayout() : groupConfiguration.onlineLayout();
+        case FULL_ONLINE -> entry.switchToSearchingWhenServiceIsFull()
+          ? entry.searchingLayout()
+          : groupConfiguration == null ? entry.fullLayout() : groupConfiguration.fullLayout();
         default -> throw new IllegalStateException("Unexpected service state: " + state);
       };
     }

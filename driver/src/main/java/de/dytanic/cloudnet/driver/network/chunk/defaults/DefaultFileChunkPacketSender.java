@@ -25,7 +25,7 @@ import de.dytanic.cloudnet.driver.network.chunk.network.ChunkedPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import java.io.InputStream;
 import java.util.function.Consumer;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider implements ChunkedPacketSender {
 
@@ -35,9 +35,9 @@ public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider i
   protected final Consumer<IPacket> packetSplitter;
 
   public DefaultFileChunkPacketSender(
-    @NotNull ChunkSessionInformation sessionInformation,
-    @NotNull InputStream source,
-    @NotNull Consumer<IPacket> packetSplitter
+    @NonNull ChunkSessionInformation sessionInformation,
+    @NonNull InputStream source,
+    @NonNull Consumer<IPacket> packetSplitter
   ) {
     super(sessionInformation);
 
@@ -46,20 +46,20 @@ public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider i
   }
 
   @Override
-  public @NotNull InputStream getSource() {
+  public @NonNull InputStream source() {
     return this.source;
   }
 
   @Override
-  public @NotNull Consumer<IPacket> getChunkPacketSplitter() {
+  public @NonNull Consumer<IPacket> packetSplitter() {
     return this.packetSplitter;
   }
 
   @Override
-  public @NotNull ITask<TransferStatus> transferChunkedData() {
+  public @NonNull ITask<TransferStatus> transferChunkedData() {
     return CompletableTask.supply(() -> {
       var readCalls = 0;
-      var backingArray = new byte[this.chunkSessionInformation.getChunkSize()];
+      var backingArray = new byte[this.chunkSessionInformation.chunkSize()];
 
       while (true) {
         var bytesRead = this.source.read(backingArray);
@@ -76,7 +76,7 @@ public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider i
           // close the stream after reading the final chunk
           this.source.close();
           // release the extra content now
-          this.chunkSessionInformation.getTransferInformation().enableReleasing().release();
+          this.chunkSessionInformation.transferInformation().enableReleasing().release();
           // successful transfer
           return TransferStatus.SUCCESS;
         }

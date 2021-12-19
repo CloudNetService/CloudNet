@@ -20,26 +20,26 @@ import static net.md_5.bungee.api.chat.TextComponent.fromLegacyText;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.bridge.platform.PlatformBridgeManagement;
+import lombok.NonNull;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
-import org.jetbrains.annotations.NotNull;
 
 public final class BungeeCordCloudCommand extends Command {
 
   private final PlatformBridgeManagement<?, ?> management;
 
-  public BungeeCordCloudCommand(@NotNull PlatformBridgeManagement<?, ?> management) {
+  public BungeeCordCloudCommand(@NonNull PlatformBridgeManagement<?, ?> management) {
     super("cloudnet", "cloudnet.command.cloudnet", "cloud");
     this.management = management;
   }
 
   @Override
-  public void execute(@NotNull CommandSender sender, String @NotNull [] args) {
+  public void execute(@NonNull CommandSender sender, String @NonNull [] args) {
     // check if any arguments are provided
     if (args.length == 0) {
       // <prefix> /cloudnet <command>
-      sender.sendMessage(fromLegacyText(this.management.getConfiguration().getPrefix() + "/cloudnet <command>"));
+      sender.sendMessage(fromLegacyText(this.management.configuration().prefix() + "/cloudnet <command>"));
       return;
     }
     // get the full command line
@@ -47,22 +47,22 @@ public final class BungeeCordCloudCommand extends Command {
     // skip the permission check if the source is the console
     if (sender instanceof ProxiedPlayer) {
       // get the command info
-      var command = CloudNetDriver.getInstance().getNodeInfoProvider().getConsoleCommand(commandLine);
+      var command = CloudNetDriver.instance().nodeInfoProvider().consoleCommand(commandLine);
       // check if the sender has the required permission to execute the command
-      if (command != null && command.getPermission() != null) {
-        if (!sender.hasPermission(command.getPermission())) {
-          sender.sendMessage(fromLegacyText(this.management.getConfiguration().getMessage(
+      if (command != null) {
+        if (!sender.hasPermission(command.permission())) {
+          sender.sendMessage(fromLegacyText(this.management.configuration().message(
             ((ProxiedPlayer) sender).getLocale(),
             "command-cloud-sub-command-no-permission"
-          ).replace("%command%", command.getName())));
+          ).replace("%command%", command.name())));
           return;
         }
       }
     }
     // execute the command
-    CloudNetDriver.getInstance().getNodeInfoProvider().sendCommandLineAsync(commandLine).onComplete(messages -> {
+    CloudNetDriver.instance().nodeInfoProvider().sendCommandLineAsync(commandLine).onComplete(messages -> {
       for (var line : messages) {
-        sender.sendMessage(fromLegacyText(this.management.getConfiguration().getPrefix() + line));
+        sender.sendMessage(fromLegacyText(this.management.configuration().prefix() + line));
       }
     });
   }

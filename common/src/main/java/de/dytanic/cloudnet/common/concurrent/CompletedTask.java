@@ -24,7 +24,7 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -47,19 +47,19 @@ public class CompletedTask<V> implements ITask<V> {
     this.uniResult = uniResult;
   }
 
-  public static <T> @NotNull CompletedTask<T> cancelled() {
+  public static <T> @NonNull CompletedTask<T> cancelled() {
     return (CompletedTask<T>) CANCELLED;
   }
 
-  public static <T> @NotNull CompletedTask<T> done(@Nullable T result) {
+  public static <T> @NonNull CompletedTask<T> done(@Nullable T result) {
     return result == null ? (CompletedTask<T>) NULL_SUCCESS : new CompletedTask<>(UNI_DONE, result);
   }
 
-  public static <T> @NotNull CompletedTask<T> exceptionally(@NotNull Throwable throwable) {
+  public static <T> @NonNull CompletedTask<T> exceptionally(@NonNull Throwable throwable) {
     return new CompletedTask<>(UNI_EXCEPTIONALLY, throwable);
   }
 
-  public static <T> @NotNull CompletedTask<T> create(@NotNull ThrowableSupplier<T, Throwable> supplier) {
+  public static <T> @NonNull CompletedTask<T> create(@NonNull ThrowableSupplier<T, Throwable> supplier) {
     // 2 possibilities: ok or exception
     try {
       return CompletedTask.done(supplier.get());
@@ -69,7 +69,7 @@ public class CompletedTask<V> implements ITask<V> {
   }
 
   @Override
-  public @NotNull ITask<V> addListener(@NotNull ITaskListener<V> listener) {
+  public @NonNull ITask<V> addListener(@NonNull ITaskListener<V> listener) {
     // invoke the listener directly based on the result uni stage
     switch (this.uniStage) {
       case UNI_DONE -> listener.onComplete(this, (V) this.uniResult);
@@ -82,12 +82,12 @@ public class CompletedTask<V> implements ITask<V> {
   }
 
   @Override
-  public @NotNull ITask<V> clearListeners() {
+  public @NonNull ITask<V> clearListeners() {
     return this; // no-op
   }
 
   @Override
-  public @UnmodifiableView @NotNull Collection<ITaskListener<V>> getListeners() {
+  public @UnmodifiableView @NonNull Collection<ITaskListener<V>> listeners() {
     return Collections.emptyList(); // no-op
   }
 
@@ -97,12 +97,12 @@ public class CompletedTask<V> implements ITask<V> {
   }
 
   @Override
-  public @UnknownNullability V get(long time, @NotNull TimeUnit timeUnit, @Nullable V def) {
+  public @UnknownNullability V get(long time, @NonNull TimeUnit timeUnit, @Nullable V def) {
     return this.getDef(null); // redirect to that method - nothing we can wait for
   }
 
   @Override
-  public @NotNull <T> ITask<T> map(@NotNull ThrowableFunction<V, T, Throwable> mapper) {
+  public @NonNull <T> ITask<T> map(@NonNull ThrowableFunction<V, T, Throwable> mapper) {
     // if the current is not successful we can return a future holding the same information as this one
     if (this.uniStage != UNI_DONE) {
       return this.uniStage == UNI_CANCEL ? cancelled() : CompletedTask.exceptionally((Throwable) this.uniResult);
@@ -149,7 +149,7 @@ public class CompletedTask<V> implements ITask<V> {
   }
 
   @Override
-  public V get(long timeout, @NotNull TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+  public V get(long timeout, @NonNull TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
     return this.get(); // no-op
   }
 }

@@ -16,10 +16,10 @@
 
 package de.dytanic.cloudnet.service;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 @FunctionalInterface
 public interface ServiceConsoleLineHandler {
 
-  void handleLine(@NotNull IServiceConsoleLogCache source, @NotNull String line);
+  void handleLine(@NonNull IServiceConsoleLogCache source, @NonNull String line);
 }

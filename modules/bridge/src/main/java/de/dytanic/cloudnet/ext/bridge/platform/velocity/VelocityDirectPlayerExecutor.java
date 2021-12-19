@@ -27,9 +27,9 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
+import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 final class VelocityDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
@@ -40,10 +40,10 @@ final class VelocityDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
   private final Supplier<Collection<? extends Player>> playerSupplier;
 
   public VelocityDirectPlayerExecutor(
-    @NotNull UUID uniqueId,
-    @NotNull ProxyServer proxyServer,
-    @NotNull PlatformBridgeManagement<Player, ?> management,
-    @NotNull Supplier<Collection<? extends Player>> playerSupplier
+    @NonNull UUID uniqueId,
+    @NonNull ProxyServer proxyServer,
+    @NonNull PlatformBridgeManagement<Player, ?> management,
+    @NonNull Supplier<Collection<? extends Player>> playerSupplier
   ) {
     this.uniqueId = uniqueId;
     this.proxyServer = proxyServer;
@@ -52,21 +52,21 @@ final class VelocityDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
   }
 
   @Override
-  public @NotNull UUID getPlayerUniqueId() {
+  public @NonNull UUID uniqueId() {
     return this.uniqueId;
   }
 
   @Override
-  public void connect(@NotNull String serviceName) {
+  public void connect(@NonNull String serviceName) {
     this.proxyServer.getServer(serviceName).ifPresent(
       server -> this.playerSupplier.get().forEach(player -> player.createConnectionRequest(server).fireAndForget()));
   }
 
   @Override
-  public void connectSelecting(@NotNull ServerSelectorType selectorType) {
-    this.management.getCachedServices().stream()
-      .sorted(selectorType.getComparator())
-      .map(server -> this.proxyServer.getServer(server.getName()))
+  public void connectSelecting(@NonNull ServerSelectorType selectorType) {
+    this.management.cachedServices().stream()
+      .sorted(selectorType.comparator())
+      .map(server -> this.proxyServer.getServer(server.name()))
       .filter(Optional::isPresent)
       .map(Optional::get)
       .findFirst()
@@ -77,19 +77,19 @@ final class VelocityDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
   @Override
   public void connectToFallback() {
     this.playerSupplier.get().stream()
-      .map(player -> new Pair<>(player, this.management.getFallback(player)))
-      .filter(pair -> pair.getSecond().isPresent())
-      .map(pair -> new Pair<>(pair.getFirst(), this.proxyServer.getServer(pair.getSecond().get().getName())))
-      .filter(pair -> pair.getSecond().isPresent())
-      .forEach(pair -> pair.getFirst().createConnectionRequest(pair.getSecond().get()).fireAndForget());
+      .map(player -> new Pair<>(player, this.management.fallback(player)))
+      .filter(pair -> pair.second().isPresent())
+      .map(pair -> new Pair<>(pair.first(), this.proxyServer.getServer(pair.second().get().name())))
+      .filter(pair -> pair.second().isPresent())
+      .forEach(pair -> pair.first().createConnectionRequest(pair.second().get()).fireAndForget());
   }
 
   @Override
-  public void connectToGroup(@NotNull String group, @NotNull ServerSelectorType selectorType) {
-    this.management.getCachedServices().stream()
-      .filter(service -> service.getConfiguration().getGroups().contains(group))
-      .sorted(selectorType.getComparator())
-      .map(service -> this.proxyServer.getServer(service.getName()))
+  public void connectToGroup(@NonNull String group, @NonNull ServerSelectorType selectorType) {
+    this.management.cachedServices().stream()
+      .filter(service -> service.configuration().groups().contains(group))
+      .sorted(selectorType.comparator())
+      .map(service -> this.proxyServer.getServer(service.name()))
       .filter(Optional::isPresent)
       .map(Optional::get)
       .forEach(
@@ -97,11 +97,11 @@ final class VelocityDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
   }
 
   @Override
-  public void connectToTask(@NotNull String task, @NotNull ServerSelectorType selectorType) {
-    this.management.getCachedServices().stream()
-      .filter(service -> service.getServiceId().getTaskName().equals(task))
-      .sorted(selectorType.getComparator())
-      .map(service -> this.proxyServer.getServer(service.getName()))
+  public void connectToTask(@NonNull String task, @NonNull ServerSelectorType selectorType) {
+    this.management.cachedServices().stream()
+      .filter(service -> service.serviceId().taskName().equals(task))
+      .sorted(selectorType.comparator())
+      .map(service -> this.proxyServer.getServer(service.name()))
       .filter(Optional::isPresent)
       .map(Optional::get)
       .forEach(
@@ -109,22 +109,22 @@ final class VelocityDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
   }
 
   @Override
-  public void kick(@NotNull Component message) {
+  public void kick(@NonNull Component message) {
     this.playerSupplier.get().forEach(player -> player.disconnect(message));
   }
 
   @Override
-  public void sendTitle(@NotNull Title title) {
+  public void sendTitle(@NonNull Title title) {
     this.playerSupplier.get().forEach(player -> player.showTitle(title));
   }
 
   @Override
-  public void sendMessage(@NotNull Component message) {
+  public void sendMessage(@NonNull Component message) {
     this.playerSupplier.get().forEach(player -> player.sendMessage(message));
   }
 
   @Override
-  public void sendChatMessage(@NotNull Component message, @Nullable String permission) {
+  public void sendChatMessage(@NonNull Component message, @Nullable String permission) {
     this.playerSupplier.get().forEach(player -> {
       if (permission == null || player.hasPermission(permission)) {
         player.sendMessage(message);
@@ -133,12 +133,12 @@ final class VelocityDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
   }
 
   @Override
-  public void sendPluginMessage(@NotNull String tag, byte[] data) {
+  public void sendPluginMessage(@NonNull String tag, byte[] data) {
     this.playerSupplier.get().forEach(player -> player.sendPluginMessage(MinecraftChannelIdentifier.from(tag), data));
   }
 
   @Override
-  public void dispatchProxyCommand(@NotNull String command) {
+  public void dispatchProxyCommand(@NonNull String command) {
     this.playerSupplier.get().forEach(player -> player.spoofChatInput(command));
   }
 }

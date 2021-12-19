@@ -23,8 +23,8 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.stream.ChunkedWriteHandler;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 
 @Internal
 final class NettyHttpServerInitializer extends ChannelInitializer<Channel> {
@@ -38,7 +38,7 @@ final class NettyHttpServerInitializer extends ChannelInitializer<Channel> {
   }
 
   @Override
-  protected void initChannel(@NotNull Channel ch) {
+  protected void initChannel(@NonNull Channel ch) {
     if (this.nettyHttpServer.sslContext != null) {
       ch.pipeline()
         .addLast(this.nettyHttpServer.sslContext.newHandler(ch.alloc()));

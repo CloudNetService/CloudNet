@@ -20,7 +20,7 @@ import java.lang.reflect.Type;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public interface DataBuf extends AutoCloseable {
@@ -28,7 +28,7 @@ public interface DataBuf extends AutoCloseable {
   /**
    * @see DataBufFactory#createEmpty()
    */
-  @NotNull
+  @NonNull
   static DataBuf.Mutable empty() {
     return DataBufFactory.defaultFactory().createEmpty();
   }
@@ -51,37 +51,37 @@ public interface DataBuf extends AutoCloseable {
 
   byte[] readByteArray();
 
-  @NotNull UUID readUniqueId();
+  @NonNull UUID readUniqueId();
 
-  @NotNull String readString();
+  @NonNull String readString();
 
-  @NotNull DataBuf readDataBuf();
+  @NonNull DataBuf readDataBuf();
 
   byte[] toByteArray();
 
-  <T> T readObject(@NotNull Class<T> type);
+  <T> T readObject(@NonNull Class<T> type);
 
-  <T> T readObject(@NotNull Type type);
+  <T> T readObject(@NonNull Type type);
 
-  @Nullable <T> T readNullable(@NotNull Function<DataBuf, T> readerWhenNonNull);
+  @Nullable <T> T readNullable(@NonNull Function<DataBuf, T> readerWhenNonNull);
 
-  <T> T readNullable(@NotNull Function<DataBuf, T> readerWhenNonNull, T valueWhenNull);
+  <T> T readNullable(@NonNull Function<DataBuf, T> readerWhenNonNull, T valueWhenNull);
 
   // utility for reading
 
-  int getReadableBytes();
+  int readableBytes();
 
-  @NotNull DataBuf startTransaction();
+  @NonNull DataBuf startTransaction();
 
-  @NotNull DataBuf redoTransaction();
+  @NonNull DataBuf redoTransaction();
 
-  @NotNull DataBuf.Mutable asMutable();
+  @NonNull DataBuf.Mutable asMutable();
 
   // direct memory access
 
-  @NotNull DataBuf disableReleasing();
+  @NonNull DataBuf disableReleasing();
 
-  @NotNull DataBuf enableReleasing();
+  @NonNull DataBuf enableReleasing();
 
   void release();
 
@@ -90,39 +90,39 @@ public interface DataBuf extends AutoCloseable {
 
   interface Mutable extends DataBuf {
 
-    @NotNull DataBuf.Mutable writeBoolean(boolean b);
+    @NonNull DataBuf.Mutable writeBoolean(boolean b);
 
-    @NotNull DataBuf.Mutable writeInt(int integer);
+    @NonNull DataBuf.Mutable writeInt(int integer);
 
-    @NotNull DataBuf.Mutable writeByte(byte b);
+    @NonNull DataBuf.Mutable writeByte(byte b);
 
-    @NotNull DataBuf.Mutable writeShort(short s);
+    @NonNull DataBuf.Mutable writeShort(short s);
 
-    @NotNull DataBuf.Mutable writeLong(long l);
+    @NonNull DataBuf.Mutable writeLong(long l);
 
-    @NotNull DataBuf.Mutable writeFloat(float f);
+    @NonNull DataBuf.Mutable writeFloat(float f);
 
-    @NotNull DataBuf.Mutable writeDouble(double d);
+    @NonNull DataBuf.Mutable writeDouble(double d);
 
-    @NotNull DataBuf.Mutable writeChar(char c);
+    @NonNull DataBuf.Mutable writeChar(char c);
 
-    @NotNull DataBuf.Mutable writeByteArray(byte[] b);
+    @NonNull DataBuf.Mutable writeByteArray(byte[] b);
 
-    @NotNull DataBuf.Mutable writeByteArray(byte[] b, int amount);
+    @NonNull DataBuf.Mutable writeByteArray(byte[] b, int amount);
 
-    @NotNull DataBuf.Mutable writeUniqueId(@NotNull UUID uuid);
+    @NonNull DataBuf.Mutable writeUniqueId(@NonNull UUID uuid);
 
-    @NotNull DataBuf.Mutable writeString(@NotNull String string);
+    @NonNull DataBuf.Mutable writeString(@NonNull String string);
 
-    @NotNull DataBuf.Mutable writeDataBuf(@NotNull DataBuf buf);
+    @NonNull DataBuf.Mutable writeDataBuf(@NonNull DataBuf buf);
 
-    @NotNull DataBuf.Mutable writeObject(@Nullable Object obj);
+    @NonNull DataBuf.Mutable writeObject(@Nullable Object obj);
 
-    @NotNull <T> DataBuf.Mutable writeNullable(@Nullable T object,
-      @NotNull BiConsumer<DataBuf.Mutable, T> handlerWhenNonNull);
+    @NonNull <T> DataBuf.Mutable writeNullable(@Nullable T object,
+      @NonNull BiConsumer<DataBuf.Mutable, T> handlerWhenNonNull);
 
     // utility for reading
 
-    @NotNull DataBuf asImmutable();
+    @NonNull DataBuf asImmutable();
   }
 }

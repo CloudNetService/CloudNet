@@ -21,7 +21,6 @@ import de.dytanic.cloudnet.launcher.version.VersionInfo;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public interface Updater extends VersionInfo {
 
@@ -46,7 +45,7 @@ public interface Updater extends VersionInfo {
         }
 
         if (moduleDestinationBaseDirectory != null) {
-          var moduleDirectoryPath = Paths.get(moduleDestinationBaseDirectory);
+          var moduleDirectoryPath = Path.of(moduleDestinationBaseDirectory);
 
           var modulesExist = Files.exists(moduleDirectoryPath);
 

@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.cluster;
 
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
@@ -40,30 +39,29 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
 public final class DefaultClusterNodeServerProvider extends DefaultNodeServerProvider<IClusterNodeServer>
   implements IClusterNodeServerProvider {
 
-  private static final Logger LOGGER = LogManager.getLogger(DefaultClusterNodeServerProvider.class);
+  private static final Logger LOGGER = LogManager.logger(DefaultClusterNodeServerProvider.class);
 
   private static final Format TIME_FORMAT = new DecimalFormat("##.###");
   private static final long MAX_NO_UPDATE_MILLIS = Long.getLong("cloudnet.max.node.idle.millis", 30_000);
 
-  public DefaultClusterNodeServerProvider(@NotNull CloudNet cloudNet) {
+  public DefaultClusterNodeServerProvider(@NonNull CloudNet cloudNet) {
     super(cloudNet);
 
     // register the event for channel message handling
-    cloudNet.getEventManager().registerListener(new NodeChannelMessageListener(
-      cloudNet.getEventManager(),
-      cloudNet.getDataSyncRegistry(),
+    cloudNet.eventManager().registerListener(new NodeChannelMessageListener(
+      cloudNet.eventManager(),
+      cloudNet.dataSyncRegistry(),
       this));
     // schedule the task for updating of the local node information
-    cloudNet.getTaskExecutor().scheduleAtFixedRate(() -> {
-      if (this.localNode.isAvailable()) {
+    cloudNet.taskExecutor().scheduleAtFixedRate(() -> {
+      if (this.localNode.available()) {
         try {
           this.checkForDeadNodes();
           this.localNode.publishNodeInfoSnapshotUpdate();
@@ -75,12 +73,10 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
   }
 
   @Override
-  public @Nullable IClusterNodeServer getNodeServer(@NotNull INetworkChannel channel) {
-    Preconditions.checkNotNull(channel);
-
-    for (var clusterNodeServer : this.getNodeServers()) {
-      if (clusterNodeServer.getChannel() != null
-        && clusterNodeServer.getChannel().getChannelId() == channel.getChannelId()) {
+  public @Nullable IClusterNodeServer nodeServer(@NonNull INetworkChannel channel) {
+    for (var clusterNodeServer : this.nodeServers()) {
+      if (clusterNodeServer.channel() != null
+        && clusterNodeServer.channel().channelId() == channel.channelId()) {
         return clusterNodeServer;
       }
     }
@@ -89,51 +85,47 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
   }
 
   @Override
-  public void setClusterServers(@NotNull NetworkCluster networkCluster) {
-    for (var clusterNode : networkCluster.getNodes()) {
-      NodeServer nodeServer = this.getNodeServer(clusterNode.getUniqueId());
+  public void clusterServers(@NonNull NetworkCluster networkCluster) {
+    for (var clusterNode : networkCluster.nodes()) {
+      NodeServer nodeServer = this.nodeServer(clusterNode.uniqueId());
       if (nodeServer != null) {
-        nodeServer.setNodeInfo(clusterNode);
+        nodeServer.nodeInfo(clusterNode);
       } else {
         this.nodeServers.add(new DefaultClusterNodeServer(this.cloudNet, this, clusterNode));
       }
     }
 
     for (var clusterNodeServer : this.nodeServers) {
-      var node = networkCluster.getNodes()
+      var node = networkCluster.nodes()
         .stream()
-        .filter(cluNode -> cluNode.getUniqueId().equalsIgnoreCase(clusterNodeServer.getNodeInfo().getUniqueId()))
+        .filter(cluNode -> cluNode.uniqueId().equalsIgnoreCase(clusterNodeServer.nodeInfo().uniqueId()))
         .findFirst()
         .orElse(null);
       if (node == null) {
         this.nodeServers.removeIf(
-          nodeServer -> nodeServer.getNodeInfo().getUniqueId().equals(clusterNodeServer.getNodeInfo().getUniqueId()));
+          nodeServer -> nodeServer.nodeInfo().uniqueId().equals(clusterNodeServer.nodeInfo().uniqueId()));
       }
     }
   }
 
   @Override
-  public void sendPacket(@NotNull IPacket packet) {
-    Preconditions.checkNotNull(packet);
-
+  public void sendPacket(@NonNull IPacket packet) {
     for (var nodeServer : this.nodeServers) {
       nodeServer.saveSendPacket(packet);
     }
   }
 
   @Override
-  public void sendPacketSync(@NotNull IPacket packet) {
-    Preconditions.checkNotNull(packet);
-
+  public void sendPacketSync(@NonNull IPacket packet) {
     for (var nodeServer : this.nodeServers) {
       nodeServer.saveSendPacketSync(packet);
     }
   }
 
   @Override
-  public @NotNull ITask<TransferStatus> deployTemplateToCluster(
-    @NotNull ServiceTemplate template,
-    @NotNull InputStream stream,
+  public @NonNull ITask<TransferStatus> deployTemplateToCluster(
+    @NonNull ServiceTemplate template,
+    @NonNull InputStream stream,
     boolean overwrite
   ) {
     // collect all known & available channels in the cluster
@@ -143,7 +135,8 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
       // send the template chunked to the cluster
       return ChunkedPacketSender.forFileTransfer()
         .transferChannel("deploy_service_template")
-        .withExtraData(DataBuf.empty().writeString(template.getStorage()).writeObject(template).writeBoolean(overwrite))
+        .withExtraData(
+          DataBuf.empty().writeString(template.storageName()).writeObject(template).writeBoolean(overwrite))
         .toChannels(channels)
         .source(stream)
         .build()
@@ -154,9 +147,9 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
   }
 
   @Override
-  public @NotNull ITask<TransferStatus> deployStaticServiceToCluster(
-    @NotNull String name,
-    @NotNull InputStream stream,
+  public @NonNull ITask<TransferStatus> deployStaticServiceToCluster(
+    @NonNull String name,
+    @NonNull InputStream stream,
     boolean overwrite
   ) {
     // collect all known & available channels in the cluster
@@ -177,29 +170,29 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
 
   @Override
   @UnmodifiableView
-  public @NotNull Collection<INetworkChannel> getConnectedChannels() {
-    return this.getNodeServers().stream()
-      .map(IClusterNodeServer::getChannel)
+  public @NonNull Collection<INetworkChannel> connectedChannels() {
+    return this.nodeServers().stream()
+      .map(IClusterNodeServer::channel)
       .filter(Objects::nonNull)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Override
   public boolean hasAnyConnection() {
-    var servers = this.getNodeServers();
-    return !servers.isEmpty() && servers.stream().anyMatch(IClusterNodeServer::isConnected);
+    var servers = this.nodeServers();
+    return !servers.isEmpty() && servers.stream().anyMatch(IClusterNodeServer::connected);
   }
 
   @Override
   public void checkForDeadNodes() {
     for (var nodeServer : this.nodeServers) {
-      if (nodeServer.isAvailable()) {
-        var snapshot = nodeServer.getNodeInfoSnapshot();
-        if (snapshot != null && snapshot.getCreationTime() + MAX_NO_UPDATE_MILLIS < System.currentTimeMillis()) {
+      if (nodeServer.available()) {
+        var snapshot = nodeServer.nodeInfoSnapshot();
+        if (snapshot != null && snapshot.creationTime() + MAX_NO_UPDATE_MILLIS < System.currentTimeMillis()) {
           try {
             LOGGER.info(I18n.trans("cluster-server-idling-too-long")
-              .replace("%id%", nodeServer.getNodeInfo().getUniqueId())
-              .replace("%time%", TIME_FORMAT.format((System.currentTimeMillis() - snapshot.getCreationTime()) / 1000)));
+              .replace("%id%", nodeServer.nodeInfo().uniqueId())
+              .replace("%time%", TIME_FORMAT.format((System.currentTimeMillis() - snapshot.creationTime()) / 1000)));
             nodeServer.close();
           } catch (Exception exception) {
             LOGGER.severe("Exception while closing server", exception);
@@ -215,7 +208,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
       .targetNodes()
       .message("sync_cluster_data")
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .buffer(this.cloudNet.getDataSyncRegistry().prepareClusterData(true))
+      .buffer(this.cloudNet.dataSyncRegistry().prepareClusterData(true))
       .build()
       .send();
   }
@@ -230,15 +223,15 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
     this.refreshHeadNode();
   }
 
-  private @NotNull Collection<INetworkChannel> collectClusterChannel() {
+  private @NonNull Collection<INetworkChannel> collectClusterChannel() {
     if (!this.nodeServers.isEmpty()) {
       // collect the network channels of the connected nodes
       return this.nodeServers
         .stream()
-        .filter(IClusterNodeServer::isAvailable)
-        .map(IClusterNodeServer::getChannel)
+        .filter(IClusterNodeServer::available)
+        .map(IClusterNodeServer::channel)
         .filter(Objects::nonNull)
-        .collect(Collectors.toList());
+        .toList();
     } else {
       return Collections.emptyList();
     }

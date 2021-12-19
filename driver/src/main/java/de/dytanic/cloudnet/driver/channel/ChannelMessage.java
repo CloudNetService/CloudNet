@@ -25,90 +25,50 @@ import de.dytanic.cloudnet.driver.provider.CloudMessenger;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import java.util.ArrayList;
 import java.util.Collection;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@ToString
-@EqualsAndHashCode
-public class ChannelMessage {
-
-  private final String channel;
-  private final String message;
-
-  private final DataBuf content;
-  private final ChannelMessageSender sender;
-
-  private final Collection<ChannelMessageTarget> targets;
-
-  protected ChannelMessage(
-    @NotNull String channel,
-    @Nullable String message,
-    @NotNull DataBuf content,
-    @NotNull ChannelMessageSender sender,
-    @NotNull Collection<ChannelMessageTarget> targets
-  ) {
-    this.channel = channel;
-    this.message = message;
-    this.content = content;
-    this.sender = sender;
-    this.targets = targets;
-  }
+public record ChannelMessage(
+  @NonNull String channel,
+  @NonNull String message,
+  @NonNull DataBuf content,
+  @NonNull ChannelMessageSender sender,
+  @NonNull Collection<ChannelMessageTarget> targets
+) {
 
   @Contract(" -> new")
-  public static @NotNull Builder builder() {
+  public static @NonNull Builder builder() {
     return new Builder();
   }
 
   @Contract("_ -> new")
-  public static @NotNull Builder buildResponseFor(@NotNull ChannelMessage input) {
-    return builder().channel("").target(input.sender.getType(), input.sender.getName());
-  }
-
-  public @NotNull ChannelMessageSender getSender() {
-    return this.sender;
-  }
-
-  public @NotNull String getChannel() {
-    return this.channel;
-  }
-
-  public @Nullable String getMessage() {
-    return this.message;
-  }
-
-  public @NotNull DataBuf getContent() {
-    return this.content;
-  }
-
-  public @NotNull Collection<ChannelMessageTarget> getTargets() {
-    return this.targets;
+  public static @NonNull Builder buildResponseFor(@NonNull ChannelMessage input) {
+    return builder().channel("").message("").target(input.sender.type(), input.sender.name());
   }
 
   public void send() {
-    this.getMessenger().sendChannelMessage(this);
+    this.messenger().sendChannelMessage(this);
   }
 
-  public @NotNull ITask<Collection<ChannelMessage>> sendQueryAsync() {
-    return this.getMessenger().sendChannelMessageQueryAsync(this);
+  public @NonNull ITask<Collection<ChannelMessage>> sendQueryAsync() {
+    return this.messenger().sendChannelMessageQueryAsync(this);
   }
 
-  public @NotNull ITask<ChannelMessage> sendSingleQueryAsync() {
-    return this.getMessenger().sendSingleChannelMessageQueryAsync(this);
+  public @NonNull ITask<ChannelMessage> sendSingleQueryAsync() {
+    return this.messenger().sendSingleChannelMessageQueryAsync(this);
   }
 
-  public @NotNull Collection<ChannelMessage> sendQuery() {
-    return this.getMessenger().sendChannelMessageQuery(this);
+  public @NonNull Collection<ChannelMessage> sendQuery() {
+    return this.messenger().sendChannelMessageQuery(this);
   }
 
   public @Nullable ChannelMessage sendSingleQuery() {
-    return this.getMessenger().sendSingleChannelMessageQuery(this);
+    return this.messenger().sendSingleChannelMessageQuery(this);
   }
 
-  private @NotNull CloudMessenger getMessenger() {
-    return CloudNetDriver.getInstance().getMessenger();
+  private @NonNull CloudMessenger messenger() {
+    return CloudNetDriver.instance().messenger();
   }
 
   public static final class Builder {
@@ -121,76 +81,77 @@ public class ChannelMessage {
     private DataBuf content;
     private ChannelMessageSender sender;
 
-    public @NotNull Builder sender(@NotNull ChannelMessageSender sender) {
+    public @NonNull Builder sender(@NonNull ChannelMessageSender sender) {
       this.sender = sender;
       return this;
     }
 
-    public @NotNull Builder channel(@NotNull String channel) {
+    public @NonNull Builder channel(@NonNull String channel) {
       this.channel = channel;
       return this;
     }
 
-    public @NotNull Builder message(@Nullable String message) {
+    public @NonNull Builder message(@NonNull String message) {
       this.message = message;
       return this;
     }
 
-    public @NotNull Builder buffer(@Nullable DataBuf dataBuf) {
+    public @NonNull Builder buffer(@Nullable DataBuf dataBuf) {
       this.content = dataBuf;
       return this;
     }
 
-    public @NotNull Builder target(@NotNull ChannelMessageTarget target) {
+    public @NonNull Builder target(@NonNull ChannelMessageTarget target) {
       this.targets.add(target);
       return this;
     }
 
-    public @NotNull Builder target(@NotNull ChannelMessageTarget.Type type, @Nullable String name) {
+    public @NonNull Builder target(@NonNull ChannelMessageTarget.Type type, @Nullable String name) {
       return this.target(ChannelMessageTarget.of(type, name));
     }
 
-    public @NotNull Builder target(@NotNull DriverEnvironment environment, @Nullable String name) {
+    public @NonNull Builder target(@NonNull DriverEnvironment environment, @Nullable String name) {
       return this.target(environment == DriverEnvironment.CLOUDNET
         ? ChannelMessageTarget.Type.NODE
         : ChannelMessageTarget.Type.SERVICE, name);
     }
 
-    public @NotNull Builder targetAll(@NotNull ChannelMessageTarget.Type type) {
+    public @NonNull Builder targetAll(@NonNull ChannelMessageTarget.Type type) {
       return this.target(type, null);
     }
 
-    public @NotNull Builder targetAll() {
+    public @NonNull Builder targetAll() {
       return this.target(ChannelMessageTarget.Type.ALL, null);
     }
 
-    public @NotNull Builder targetServices() {
+    public @NonNull Builder targetServices() {
       return this.targetAll(ChannelMessageTarget.Type.SERVICE);
     }
 
-    public @NotNull Builder targetService(@Nullable String name) {
+    public @NonNull Builder targetService(@Nullable String name) {
       return this.target(ChannelMessageTarget.Type.SERVICE, name);
     }
 
-    public @NotNull Builder targetTask(@Nullable String name) {
+    public @NonNull Builder targetTask(@Nullable String name) {
       return this.target(ChannelMessageTarget.Type.TASK, name);
     }
 
-    public @NotNull Builder targetNode(@Nullable String name) {
+    public @NonNull Builder targetNode(@Nullable String name) {
       return this.target(ChannelMessageTarget.Type.NODE, name);
     }
 
-    public @NotNull Builder targetNodes() {
+    public @NonNull Builder targetNodes() {
       return this.targetAll(ChannelMessageTarget.Type.NODE);
     }
 
-    public @NotNull Builder targetEnvironment(@NotNull ServiceEnvironmentType environment) {
+    public @NonNull Builder targetEnvironment(@NonNull ServiceEnvironmentType environment) {
       return this.target(ChannelMessageTarget.environment(environment));
     }
 
     @Contract(" -> new")
-    public @NotNull ChannelMessage build() {
+    public @NonNull ChannelMessage build() {
       Verify.verifyNotNull(this.channel, "No channel provided");
+      Verify.verifyNotNull(this.message, "No message provided");
       Verify.verify(!this.targets.isEmpty(), "No targets provided");
 
       return new ChannelMessage(

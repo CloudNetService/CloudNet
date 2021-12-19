@@ -25,10 +25,10 @@ import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
 import de.dytanic.cloudnet.ext.bridge.player.executor.ServerSelectorType;
 import java.util.UUID;
+import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class NodePlayerExecutor implements PlayerExecutor {
@@ -39,23 +39,23 @@ public class NodePlayerExecutor implements PlayerExecutor {
   protected final IPlayerManager playerManager;
 
   @Internal
-  protected NodePlayerExecutor(@NotNull UUID targetUniqueId) {
+  protected NodePlayerExecutor(@NonNull UUID targetUniqueId) {
     this.targetUniqueId = targetUniqueId;
     this.playerManager = null;
   }
 
-  public NodePlayerExecutor(@NotNull UUID targetUniqueId, @NotNull IPlayerManager playerManager) {
+  public NodePlayerExecutor(@NonNull UUID targetUniqueId, @NonNull IPlayerManager playerManager) {
     this.targetUniqueId = targetUniqueId;
     this.playerManager = playerManager;
   }
 
   @Override
-  public @NotNull UUID getPlayerUniqueId() {
+  public @NonNull UUID uniqueId() {
     return this.targetUniqueId;
   }
 
   @Override
-  public void connect(@NotNull String serviceName) {
+  public void connect(@NonNull String serviceName) {
     this.toProxy()
       .message("connect_to_service")
       .buffer(DataBuf.empty().writeUniqueId(this.targetUniqueId).writeString(serviceName))
@@ -64,7 +64,7 @@ public class NodePlayerExecutor implements PlayerExecutor {
   }
 
   @Override
-  public void connectSelecting(@NotNull ServerSelectorType selectorType) {
+  public void connectSelecting(@NonNull ServerSelectorType selectorType) {
     this.toProxy()
       .message("connect_to_selector")
       .buffer(DataBuf.empty().writeUniqueId(this.targetUniqueId).writeObject(selectorType))
@@ -82,7 +82,7 @@ public class NodePlayerExecutor implements PlayerExecutor {
   }
 
   @Override
-  public void connectToGroup(@NotNull String group, @NotNull ServerSelectorType selectorType) {
+  public void connectToGroup(@NonNull String group, @NonNull ServerSelectorType selectorType) {
     this.toProxy()
       .message("connect_to_group")
       .buffer(DataBuf.empty().writeUniqueId(this.targetUniqueId).writeString(group).writeObject(selectorType))
@@ -91,7 +91,7 @@ public class NodePlayerExecutor implements PlayerExecutor {
   }
 
   @Override
-  public void connectToTask(@NotNull String task, @NotNull ServerSelectorType selectorType) {
+  public void connectToTask(@NonNull String task, @NonNull ServerSelectorType selectorType) {
     this.toProxy()
       .message("connect_to_task")
       .buffer(DataBuf.empty().writeUniqueId(this.targetUniqueId).writeString(task).writeObject(selectorType))
@@ -100,7 +100,7 @@ public class NodePlayerExecutor implements PlayerExecutor {
   }
 
   @Override
-  public void kick(@NotNull Component message) {
+  public void kick(@NonNull Component message) {
     this.toProxy()
       .message("kick_player")
       .buffer(DataBuf.empty().writeUniqueId(this.targetUniqueId).writeObject(message))
@@ -109,7 +109,7 @@ public class NodePlayerExecutor implements PlayerExecutor {
   }
 
   @Override
-  public void sendTitle(@NotNull Title title) {
+  public void sendTitle(@NonNull Title title) {
     this.toProxy()
       .message("send_title")
       .buffer(DataBuf.empty().writeUniqueId(this.targetUniqueId).writeObject(title))
@@ -118,12 +118,12 @@ public class NodePlayerExecutor implements PlayerExecutor {
   }
 
   @Override
-  public void sendMessage(@NotNull Component message) {
+  public void sendMessage(@NonNull Component message) {
     this.sendChatMessage(message, null);
   }
 
   @Override
-  public void sendChatMessage(@NotNull Component message, @Nullable String permission) {
+  public void sendChatMessage(@NonNull Component message, @Nullable String permission) {
     this.toProxy()
       .message("send_chat_message")
       .buffer(DataBuf.empty()
@@ -135,7 +135,7 @@ public class NodePlayerExecutor implements PlayerExecutor {
   }
 
   @Override
-  public void sendPluginMessage(@NotNull String tag, byte[] data) {
+  public void sendPluginMessage(@NonNull String tag, byte[] data) {
     this.toProxy()
       .message("send_plugin_message")
       .buffer(DataBuf.empty().writeUniqueId(this.targetUniqueId).writeString(tag).writeByteArray(data))
@@ -144,7 +144,7 @@ public class NodePlayerExecutor implements PlayerExecutor {
   }
 
   @Override
-  public void dispatchProxyCommand(@NotNull String command) {
+  public void dispatchProxyCommand(@NonNull String command) {
     this.toProxy()
       .message("dispatch_proxy_command")
       .buffer(DataBuf.empty().writeUniqueId(this.targetUniqueId).writeString(command))
@@ -152,7 +152,7 @@ public class NodePlayerExecutor implements PlayerExecutor {
       .send();
   }
 
-  protected @NotNull ChannelMessage.Builder toProxy() {
+  protected @NonNull ChannelMessage.Builder toProxy() {
     // select the correct builder
     ChannelMessage.Builder message;
     if (this.targetUniqueId.equals(GLOBAL_UNIQUE_ID)) {
@@ -164,11 +164,11 @@ public class NodePlayerExecutor implements PlayerExecutor {
     } else {
       // get the player associated with this provider
       //noinspection ConstantConditions - This can never be null here (only for the global unique id which is handeled already)
-      var player = this.playerManager.getOnlinePlayer(this.targetUniqueId);
+      var player = this.playerManager.onlinePlayer(this.targetUniqueId);
       // the player must be connected to proceed
       Preconditions.checkNotNull(player, "Target player %s is not connected (anymore)", this.targetUniqueId);
       // target the login service of the player
-      message = ChannelMessage.builder().targetService(player.getLoginService().getServerName());
+      message = ChannelMessage.builder().targetService(player.loginService().serverName());
     }
     // set the internal bridge channel
     return message.channel(BridgeManagement.BRIDGE_PLAYER_EXECUTOR_CHANNEL_NAME);

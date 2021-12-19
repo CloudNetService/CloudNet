@@ -43,7 +43,7 @@ import java.util.Collections;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class NettyNetworkClient implements DefaultNetworkComponent, INetworkClient {
 
@@ -77,19 +77,18 @@ public class NettyNetworkClient implements DefaultNetworkComponent, INetworkClie
   }
 
   @Override
-  public boolean isSslEnabled() {
+  public boolean sslEnabled() {
     return this.sslContext != null;
   }
 
   @Override
-  public boolean connect(@NotNull HostAndPort hostAndPort) {
-    Preconditions.checkNotNull(hostAndPort);
-    Preconditions.checkNotNull(hostAndPort.getHost());
+  public boolean connect(@NonNull HostAndPort hostAndPort) {
+    Preconditions.checkNotNull(hostAndPort.host());
 
     try {
       var bootstrap = new Bootstrap()
         .group(this.eventLoopGroup)
-        .channelFactory(NettyUtils.getClientChannelFactory())
+        .channelFactory(NettyUtils.clientChannelFactory())
         .handler(new NettyNetworkClientInitializer(hostAndPort, this))
 
         .option(ChannelOption.IP_TOS, 0x18)
@@ -103,7 +102,7 @@ public class NettyNetworkClient implements DefaultNetworkComponent, INetworkClie
         bootstrap.option(ChannelOption.TCP_FASTOPEN_CONNECT, true);
       }
       // connect to the server
-      bootstrap.connect(hostAndPort.getHost(), hostAndPort.getPort())
+      bootstrap.connect(hostAndPort.host(), hostAndPort.port())
         .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
         .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
         .syncUninterruptibly();
@@ -123,43 +122,43 @@ public class NettyNetworkClient implements DefaultNetworkComponent, INetworkClie
   }
 
   @Override
-  public @NotNull Collection<INetworkChannel> getChannels() {
+  public @NonNull Collection<INetworkChannel> channels() {
     return Collections.unmodifiableCollection(this.channels);
   }
 
   @Override
-  public @NotNull Executor getPacketDispatcher() {
+  public @NonNull Executor packetDispatcher() {
     return this.packetDispatcher;
   }
 
   @Override
-  public Collection<INetworkChannel> getModifiableChannels() {
+  public Collection<INetworkChannel> modifiableChannels() {
     return this.channels;
   }
 
   @Override
-  public @NotNull IPacketListenerRegistry getPacketRegistry() {
+  public @NonNull IPacketListenerRegistry packetRegistry() {
     return this.packetRegistry;
   }
 
   private void init() throws Exception {
-    if (this.sslConfiguration != null && this.sslConfiguration.isEnabled()) {
-      if (this.sslConfiguration.getCertificatePath() != null && this.sslConfiguration.getPrivateKeyPath() != null) {
+    if (this.sslConfiguration != null && this.sslConfiguration.enabled()) {
+      if (this.sslConfiguration.certificatePath() != null && this.sslConfiguration.privateKeyPath() != null) {
         var builder = SslContextBuilder.forClient();
 
-        if (this.sslConfiguration.getTrustCertificatePath() != null) {
-          try (var stream = Files.newInputStream(this.sslConfiguration.getTrustCertificatePath())) {
+        if (this.sslConfiguration.trustCertificatePath() != null) {
+          try (var stream = Files.newInputStream(this.sslConfiguration.trustCertificatePath())) {
             builder.trustManager(stream);
           }
         } else {
           builder.trustManager(InsecureTrustManagerFactory.INSTANCE);
         }
 
-        try (var cert = Files.newInputStream(this.sslConfiguration.getCertificatePath());
-          var privateKey = Files.newInputStream(this.sslConfiguration.getPrivateKeyPath())) {
+        try (var cert = Files.newInputStream(this.sslConfiguration.certificatePath());
+          var privateKey = Files.newInputStream(this.sslConfiguration.privateKeyPath())) {
           this.sslContext = builder
             .keyManager(cert, privateKey)
-            .clientAuth(this.sslConfiguration.isClientAuth() ? ClientAuth.REQUIRE : ClientAuth.OPTIONAL)
+            .clientAuth(this.sslConfiguration.clientAuth() ? ClientAuth.REQUIRE : ClientAuth.OPTIONAL)
             .build();
         }
       } else {

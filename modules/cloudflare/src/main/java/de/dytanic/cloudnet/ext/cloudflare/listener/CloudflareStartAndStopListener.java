@@ -32,7 +32,7 @@ import java.util.function.BiConsumer;
 
 public final class CloudflareStartAndStopListener {
 
-  private static final Logger LOGGER = LogManager.getLogger(CloudflareStartAndStopListener.class);
+  private static final Logger LOGGER = LogManager.logger(CloudflareStartAndStopListener.class);
 
   private final CloudFlareAPI cloudFlareAPI;
 
@@ -42,23 +42,23 @@ public final class CloudflareStartAndStopListener {
 
   @EventListener
   public void handlePostStart(CloudServicePostLifecycleEvent event) {
-    if (event.getNewLifeCycle() != ServiceLifeCycle.RUNNING) {
+    if (event.newLifeCycle() != ServiceLifeCycle.RUNNING) {
       return;
     }
 
-    this.handle0(event.getService(), (entry, configuration) -> {
+    this.handle0(event.service(), (entry, configuration) -> {
       var recordDetail = this.cloudFlareAPI.createRecord(
-        event.getService().getServiceId().getUniqueId(),
+        event.service().serviceId().uniqueId(),
         entry,
-        SRVRecord.forConfiguration(entry, configuration, event.getService().getServiceConfiguration().getPort())
+        SRVRecord.forConfiguration(entry, configuration, event.service().serviceConfiguration().port())
       );
 
       if (recordDetail != null) {
         LOGGER
           .info(I18n.trans("module-cloudflare-create-dns-record-for-service")
-            .replace("%service%", event.getService().getServiceId().getName())
-            .replace("%domain%", entry.getDomainName())
-            .replace("%recordId%", recordDetail.getId())
+            .replace("%service%", event.service().serviceId().name())
+            .replace("%domain%", entry.domainName())
+            .replace("%recordId%", recordDetail.id())
           );
       }
     });
@@ -66,14 +66,14 @@ public final class CloudflareStartAndStopListener {
 
   @EventListener
   public void handlePostStop(CloudServicePostLifecycleEvent event) {
-    if (event.getNewLifeCycle() != ServiceLifeCycle.STOPPED) {
-      this.handle0(event.getService(), (entry, configuration) -> {
-        for (var detail : this.cloudFlareAPI.deleteAllRecords(event.getService())) {
+    if (event.newLifeCycle() != ServiceLifeCycle.STOPPED) {
+      this.handle0(event.service(), (entry, configuration) -> {
+        for (var detail : this.cloudFlareAPI.deleteAllRecords(event.service())) {
           LOGGER
             .info(I18n.trans("module-cloudflare-delete-dns-record-for-service")
-              .replace("%service%", event.getService().getServiceId().getName())
-              .replace("%domain%", entry.getDomainName())
-              .replace("%recordId%", detail.getId())
+              .replace("%service%", event.service().serviceId().name())
+              .replace("%domain%", entry.domainName())
+              .replace("%recordId%", detail.id())
             );
         }
       });
@@ -82,12 +82,12 @@ public final class CloudflareStartAndStopListener {
 
   private void handle0(ICloudService cloudService,
     BiConsumer<CloudflareConfigurationEntry, CloudflareGroupConfiguration> handler) {
-    for (var entry : CloudNetCloudflareModule.getInstance().getCloudflareConfiguration()
-      .getEntries()) {
-      if (entry != null && entry.isEnabled() && entry.getGroups() != null && !entry.getGroups().isEmpty()) {
-        for (var groupConfiguration : entry.getGroups()) {
+    for (var entry : CloudNetCloudflareModule.instance().cloudFlareConfiguration()
+      .entries()) {
+      if (entry != null && entry.enabled() && entry.groups() != null && !entry.groups().isEmpty()) {
+        for (var groupConfiguration : entry.groups()) {
           if (groupConfiguration != null
-            && cloudService.getServiceConfiguration().getGroups().contains(groupConfiguration.getName())) {
+            && cloudService.serviceConfiguration().groups().contains(groupConfiguration.name())) {
             handler.accept(entry, groupConfiguration);
           }
         }

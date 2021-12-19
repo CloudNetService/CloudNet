@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.driver.module;
 
 import java.util.Arrays;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public enum ModuleLifeCycle {
   /**
@@ -70,7 +70,7 @@ public enum ModuleLifeCycle {
    * @param target the target state the module want's to change to.
    * @return If the module can change from the current into the {@code target} state.
    */
-  public boolean canChangeTo(@NotNull ModuleLifeCycle target) {
+  public boolean canChangeTo(@NonNull ModuleLifeCycle target) {
     return Arrays.binarySearch(this.possibleChangeTargetOrdinals, target.ordinal()) >= 0;
   }
 }

@@ -26,8 +26,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * The ServiceEnvironmentType groups the single {@link ServiceEnvironment} and provides methods to retrieve the main
@@ -57,31 +57,31 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements INa
   public static final ServiceEnvironmentType NUKKIT = ServiceEnvironmentType.builder()
     .name("NUKKIT")
     .addDefaultProcessArgument("disable-ansi")
-    .properties(JsonDocument.newDocument().setProperty(PE_SERVER, true))
+    .properties(JsonDocument.newDocument().property(PE_SERVER, true))
     .build();
   public static final ServiceEnvironmentType MINECRAFT_SERVER = ServiceEnvironmentType.builder()
     .name("MINECRAFT_SERVER")
     .addDefaultProcessArgument("nogui")
-    .properties(JsonDocument.newDocument().setProperty(JAVA_SERVER, true))
+    .properties(JsonDocument.newDocument().property(JAVA_SERVER, true))
     .build();
   public static final ServiceEnvironmentType GLOWSTONE = ServiceEnvironmentType.builder()
     .name("GLOWSTONE")
-    .properties(JsonDocument.newDocument().setProperty(JAVA_SERVER, true))
+    .properties(JsonDocument.newDocument().property(JAVA_SERVER, true))
     .build();
   public static final ServiceEnvironmentType BUNGEECORD = ServiceEnvironmentType.builder()
     .name("BUNGEECORD")
     .defaultServiceStartPort(25565)
-    .properties(JsonDocument.newDocument().setProperty(JAVA_PROXY, true))
+    .properties(JsonDocument.newDocument().property(JAVA_PROXY, true))
     .build();
   public static final ServiceEnvironmentType VELOCITY = ServiceEnvironmentType.builder()
     .name("VELOCITY")
     .defaultServiceStartPort(25565)
-    .properties(JsonDocument.newDocument().setProperty(JAVA_PROXY, true))
+    .properties(JsonDocument.newDocument().property(JAVA_PROXY, true))
     .build();
   public static final ServiceEnvironmentType WATERDOG_PE = ServiceEnvironmentType.builder()
     .name("WATERDOG_PE")
     .defaultServiceStartPort(19132)
-    .properties(JsonDocument.newDocument().setProperty(PE_PROXY, true))
+    .properties(JsonDocument.newDocument().property(PE_PROXY, true))
     .build();
 
   private final String name;
@@ -89,10 +89,10 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements INa
   private final Set<String> defaultProcessArguments;
 
   protected ServiceEnvironmentType(
-    @NotNull String name,
+    @NonNull String name,
     int defaultServiceStartPort,
-    @NotNull Set<String> defaultProcessArguments,
-    @NotNull JsonDocument properties
+    @NonNull Set<String> defaultProcessArguments,
+    @NonNull JsonDocument properties
   ) {
     this.name = name;
     this.defaultServiceStartPort = defaultServiceStartPort;
@@ -100,36 +100,36 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements INa
     this.properties = properties;
   }
 
-  public static @NotNull Builder builder() {
+  public static @NonNull Builder builder() {
     return new Builder();
   }
 
-  public static @NotNull Builder builder(@NotNull ServiceEnvironmentType type) {
+  public static @NonNull Builder builder(@NonNull ServiceEnvironmentType type) {
     return builder()
-      .name(type.getName())
-      .properties(type.getProperties().clone())
-      .defaultServiceStartPort(type.getDefaultServiceStartPort())
-      .defaultProcessArguments(type.getDefaultProcessArguments());
+      .name(type.name())
+      .properties(type.properties().clone())
+      .defaultServiceStartPort(type.defaultStartPort())
+      .defaultProcessArguments(type.defaultProcessArguments());
   }
 
-  public static boolean isMinecraftProxy(@NotNull ServiceEnvironmentType type) {
-    return JAVA_PROXY.get(type.getProperties()) || PE_PROXY.get(type.getProperties());
+  public static boolean isMinecraftProxy(@NonNull ServiceEnvironmentType type) {
+    return JAVA_PROXY.get(type.properties()) || PE_PROXY.get(type.properties());
   }
 
-  public static boolean isMinecraftServer(@NotNull ServiceEnvironmentType type) {
-    return JAVA_SERVER.get(type.getProperties()) || PE_SERVER.get(type.getProperties());
+  public static boolean isMinecraftServer(@NonNull ServiceEnvironmentType type) {
+    return JAVA_SERVER.get(type.properties()) || PE_SERVER.get(type.properties());
   }
 
   @Override
-  public @NotNull String getName() {
+  public @NonNull String name() {
     return this.name;
   }
 
-  public int getDefaultServiceStartPort() {
+  public int defaultStartPort() {
     return this.defaultServiceStartPort;
   }
 
-  public @NotNull Collection<String> getDefaultProcessArguments() {
+  public @NonNull Collection<String> defaultProcessArguments() {
     return this.defaultProcessArguments;
   }
 
@@ -149,32 +149,32 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements INa
     private JsonDocument properties = JsonDocument.newDocument();
     private Set<String> defaultProcessArguments = new HashSet<>();
 
-    public @NotNull Builder name(@NotNull String name) {
+    public @NonNull Builder name(@NonNull String name) {
       this.name = name;
       return this;
     }
 
-    public @NotNull Builder defaultServiceStartPort(int defaultServiceStartPort) {
+    public @NonNull Builder defaultServiceStartPort(int defaultServiceStartPort) {
       this.defaultServiceStartPort = defaultServiceStartPort;
       return this;
     }
 
-    public @NotNull Builder properties(@NotNull JsonDocument properties) {
+    public @NonNull Builder properties(@NonNull JsonDocument properties) {
       this.properties = properties;
       return this;
     }
 
-    public @NotNull Builder defaultProcessArguments(@NotNull Collection<String> defaultProcessArguments) {
+    public @NonNull Builder defaultProcessArguments(@NonNull Collection<String> defaultProcessArguments) {
       this.defaultProcessArguments = new HashSet<>(defaultProcessArguments);
       return this;
     }
 
-    public @NotNull Builder addDefaultProcessArgument(@NotNull String defaultProcessArgument) {
+    public @NonNull Builder addDefaultProcessArgument(@NonNull String defaultProcessArgument) {
       this.defaultProcessArguments.add(defaultProcessArgument);
       return this;
     }
 
-    public @NotNull ServiceEnvironmentType build() {
+    public @NonNull ServiceEnvironmentType build() {
       Verify.verifyNotNull(this.name, "no name given");
       Verify.verify(this.defaultServiceStartPort > 0 && this.defaultServiceStartPort <= 65535, "invalid default port");
 

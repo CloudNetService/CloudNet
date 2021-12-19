@@ -37,16 +37,16 @@ final class DefaultCommandPreProcessor implements CommandPreprocessor<CommandSou
 
     var firstArgument = commandContext.getRawInput().getFirst();
 
-    var commandInfo = CloudNet.getInstance().getCommandProvider()
-      .getCommand(firstArgument);
+    var commandInfo = CloudNet.instance().commandProvider()
+      .command(firstArgument);
     // if there is no command, the command was unregistered, ignore confirm as the command is not registered.
     if (commandInfo == null && !firstArgument.equalsIgnoreCase("confirm")) {
       return;
     }
 
-    var preProcessEvent = CloudNet.getInstance().getEventManager()
+    var preProcessEvent = CloudNet.instance().eventManager()
       .callEvent(new CommandPreProcessEvent(commandContext.getRawInputJoined(), source));
-    if (preProcessEvent.isCancelled()) {
+    if (preProcessEvent.cancelled()) {
       ConsumerService.interrupt();
     }
   }

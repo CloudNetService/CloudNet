@@ -22,8 +22,8 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import java.util.Collection;
 import java.util.HashSet;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
@@ -36,14 +36,14 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
   protected Collection<String> targetEnvironments;
 
   protected GroupConfiguration(
-    @NotNull String name,
-    @NotNull Collection<String> jvmOptions,
-    @NotNull Collection<String> processParameters,
-    @NotNull Collection<String> targetEnvironments,
-    @NotNull Collection<ServiceTemplate> templates,
-    @NotNull Collection<ServiceDeployment> deployments,
-    @NotNull Collection<ServiceRemoteInclusion> includes,
-    @NotNull JsonDocument properties
+    @NonNull String name,
+    @NonNull Collection<String> jvmOptions,
+    @NonNull Collection<String> processParameters,
+    @NonNull Collection<String> targetEnvironments,
+    @NonNull Collection<ServiceTemplate> templates,
+    @NonNull Collection<ServiceDeployment> deployments,
+    @NonNull Collection<ServiceRemoteInclusion> includes,
+    @NonNull JsonDocument properties
   ) {
     super(templates, deployments, includes, properties);
 
@@ -53,31 +53,31 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
     this.targetEnvironments = targetEnvironments;
   }
 
-  public static @NotNull Builder builder() {
+  public static @NonNull Builder builder() {
     return new Builder();
   }
 
   @Override
-  public @NotNull Collection<String> getJvmOptions() {
+  public @NonNull Collection<String> jvmOptions() {
     return this.jvmOptions;
   }
 
   @Override
-  public @NotNull Collection<String> getProcessParameters() {
+  public @NonNull Collection<String> processParameters() {
     return this.processParameters;
   }
 
-  public @NotNull Collection<String> getTargetEnvironments() {
+  public @NonNull Collection<String> targetEnvironments() {
     return this.targetEnvironments;
   }
 
   @Override
-  public @NotNull String getName() {
+  public @NonNull String name() {
     return this.name;
   }
 
   @Override
-  public @NotNull GroupConfiguration clone() {
+  public @NonNull GroupConfiguration clone() {
     try {
       return (GroupConfiguration) super.clone();
     } catch (CloneNotSupportedException exception) {
@@ -90,28 +90,28 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
     protected String name;
     protected Collection<String> targetEnvironments = new HashSet<>();
 
-    public @NotNull Builder name(@NotNull String name) {
+    public @NonNull Builder name(@NonNull String name) {
       this.name = name;
       return this;
     }
 
-    public @NotNull Builder targetEnvironments(@NotNull Collection<String> targetEnvironments) {
+    public @NonNull Builder targetEnvironments(@NonNull Collection<String> targetEnvironments) {
       this.targetEnvironments = new HashSet<>(targetEnvironments);
       return this;
     }
 
-    public @NotNull Builder addTargetEnvironment(@NotNull String environmentType) {
+    public @NonNull Builder addTargetEnvironment(@NonNull String environmentType) {
       this.targetEnvironments.add(environmentType);
       return this;
     }
 
     @Override
-    protected @NotNull Builder self() {
+    protected @NonNull Builder self() {
       return this;
     }
 
     @Override
-    public @NotNull GroupConfiguration build() {
+    public @NonNull GroupConfiguration build() {
       Verify.verifyNotNull(this.name, "no name given");
       return new GroupConfiguration(
         this.name,

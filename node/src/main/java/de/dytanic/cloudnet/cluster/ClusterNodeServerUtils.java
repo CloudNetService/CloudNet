@@ -27,29 +27,29 @@ import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 final class ClusterNodeServerUtils {
 
-  private static final Logger LOGGER = LogManager.getLogger(ClusterNodeServerUtils.class);
+  private static final Logger LOGGER = LogManager.logger(ClusterNodeServerUtils.class);
 
   private ClusterNodeServerUtils() {
     throw new UnsupportedOperationException();
   }
 
-  public static void handleNodeServerClose(@NotNull INetworkChannel channel, @NotNull IClusterNodeServer server) {
-    for (var snapshot : CloudNet.getInstance().getCloudServiceProvider().getCloudServices()) {
-      if (snapshot.getServiceId().getNodeUniqueId().equalsIgnoreCase(server.getNodeInfo().getUniqueId())) {
+  public static void handleNodeServerClose(@NonNull INetworkChannel channel, @NonNull IClusterNodeServer server) {
+    for (var snapshot : CloudNet.instance().cloudServiceProvider().services()) {
+      if (snapshot.serviceId().nodeUniqueId().equalsIgnoreCase(server.nodeInfo().uniqueId())) {
         // store the last lifecycle for the update event
-        var lifeCycle = snapshot.getLifeCycle();
+        var lifeCycle = snapshot.lifeCycle();
         // mark the service as deleted
-        snapshot.setLifeCycle(ServiceLifeCycle.DELETED);
+        snapshot.lifeCycle(ServiceLifeCycle.DELETED);
         // publish the update to the local service manager
-        CloudNet.getInstance().getCloudServiceProvider().handleServiceUpdate(snapshot, null);
+        CloudNet.instance().cloudServiceProvider().handleServiceUpdate(snapshot, null);
         // call the local change event
-        CloudNet.getInstance().getEventManager().callEvent(new CloudServiceLifecycleChangeEvent(lifeCycle, snapshot));
+        CloudNet.instance().eventManager().callEvent(new CloudServiceLifecycleChangeEvent(lifeCycle, snapshot));
         // send the change to all service - all other nodes will handle the close as well (if there are any)
-        if (!CloudNet.getInstance().getCloudServiceProvider().getLocalCloudServices().isEmpty()) {
+        if (!CloudNet.instance().cloudServiceProvider().localCloudServices().isEmpty()) {
           targetLocalServices()
             .message("update_service_lifecycle")
             .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
@@ -61,17 +61,17 @@ final class ClusterNodeServerUtils {
     }
 
     LOGGER.info(I18n.trans("cluster-server-networking-disconnected")
-      .replace("%id%", server.getNodeInfo().getUniqueId())
-      .replace("%serverAddress%", channel.getServerAddress().toString())
-      .replace("%clientAddress%", channel.getClientAddress().toString()));
+      .replace("%id%", server.nodeInfo().uniqueId())
+      .replace("%serverAddress%", channel.serverAddress().toString())
+      .replace("%clientAddress%", channel.clientAddress().toString()));
   }
 
-  private static @NotNull ChannelMessage.Builder targetLocalServices() {
+  private static @NonNull ChannelMessage.Builder targetLocalServices() {
     var builder = ChannelMessage.builder();
     // iterate over all local services - if the service is connected append it as target
-    for (var service : CloudNet.getInstance().getCloudServiceProvider().getLocalCloudServices()) {
-      if (service.getNetworkChannel() != null) {
-        builder.target(Type.SERVICE, service.getServiceId().getName());
+    for (var service : CloudNet.instance().cloudServiceProvider().localCloudServices()) {
+      if (service.networkChannel() != null) {
+        builder.target(Type.SERVICE, service.serviceId().name());
       }
     }
     // for chaining

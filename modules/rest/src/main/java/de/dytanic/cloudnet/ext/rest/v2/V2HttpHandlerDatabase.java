@@ -23,7 +23,6 @@ import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.ext.rest.RestUtils;
 import de.dytanic.cloudnet.http.HttpSession;
 import de.dytanic.cloudnet.http.V2HttpHandler;
-import java.util.Collections;
 import java.util.function.BiConsumer;
 
 public class V2HttpHandlerDatabase extends V2HttpHandler {
@@ -70,14 +69,14 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
 
   protected void handleNamesRequest(IHttpContext context) {
     this.ok(context)
-      .body(this.success().append("names", this.getDatabaseProvider().getDatabaseNames()).toString())
+      .body(this.success().append("names", this.databaseProvider().databaseNames()).toString())
       .context()
       .closeAfter(true)
       .cancelNext();
   }
 
   protected void handleClearRequest(IHttpContext context) {
-    var database = this.getDatabase(context);
+    var database = this.database(context);
     if (database == null) {
       this.sendInvalidDatabaseName(context);
       return;
@@ -91,13 +90,13 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   protected void handleContainsRequest(IHttpContext context) {
-    var database = this.getDatabase(context);
+    var database = this.database(context);
     if (database == null) {
       this.sendInvalidDatabaseName(context);
       return;
     }
 
-    var key = RestUtils.getFirst(context.request().queryParameters().get("key"));
+    var key = RestUtils.first(context.request().queryParameters().get("key"));
     if (key == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing key in request").toString())
@@ -114,7 +113,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   protected void handleGetRequest(IHttpContext context) {
-    var database = this.getDatabase(context);
+    var database = this.database(context);
     if (database == null) {
       this.sendInvalidDatabaseName(context);
       return;
@@ -124,16 +123,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
     var key = body.getString("key");
     var filter = body.getDocument("filter");
 
-    if (key == null && filter == null) {
-      this.badRequest(context)
-        .body(this.failure().append("reason", "Key or filter is required").toString())
-        .context()
-        .closeAfter(true)
-        .cancelNext();
-      return;
-    }
-
-    var result = filter == null ? Collections.singleton(database.get(key)) : database.get(filter);
+    var result = database.get(filter);
     this.ok(context)
       .body(this.success().append("result", result).toString())
       .context()
@@ -142,7 +132,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   protected void handleKeysRequest(IHttpContext context) {
-    var database = this.getDatabase(context);
+    var database = this.database(context);
     if (database == null) {
       this.sendInvalidDatabaseName(context);
       return;
@@ -157,21 +147,21 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   protected void handleCountRequest(IHttpContext context) {
-    var database = this.getDatabase(context);
+    var database = this.database(context);
     if (database == null) {
       this.sendInvalidDatabaseName(context);
       return;
     }
 
     this.ok(context)
-      .body(this.success().append("count", database.getDocumentsCount()).toString())
+      .body(this.success().append("count", database.documentCount()).toString())
       .context()
       .closeAfter(true)
       .cancelNext();
   }
 
   protected void handleInsertRequest(IHttpContext context) {
-    var database = this.getDatabase(context);
+    var database = this.database(context);
     if (database == null) {
       this.sendInvalidDatabaseName(context);
       return;
@@ -187,7 +177,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   protected void handleUpdateRequest(IHttpContext context) {
-    var database = this.getDatabase(context);
+    var database = this.database(context);
     if (database == null) {
       this.sendInvalidDatabaseName(context);
       return;
@@ -203,13 +193,13 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   protected void handleDeleteRequest(IHttpContext context) {
-    var database = this.getDatabase(context);
+    var database = this.database(context);
     if (database == null) {
       this.sendInvalidDatabaseName(context);
       return;
     }
 
-    var key = RestUtils.getFirst(context.request().queryParameters().get("key"));
+    var key = RestUtils.first(context.request().queryParameters().get("key"));
     if (database.delete(key)) {
       this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
     } else {
@@ -222,9 +212,9 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
     var key = body.getString("key");
     var data = body.getDocument("document");
 
-    if (key == null || data == null) {
+    if (key == null) {
       this.badRequest(context)
-        .body(this.failure().append("reason", key == null ? "Missing key" : "Missing value").toString())
+        .body(this.failure().append("reason", "Missing key").toString())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -242,16 +232,16 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected DatabaseProvider getDatabaseProvider() {
-    return this.getCloudNet().getDatabaseProvider();
+  protected DatabaseProvider databaseProvider() {
+    return this.node().databaseProvider();
   }
 
-  protected Database getDatabase(IHttpContext context) {
+  protected Database database(IHttpContext context) {
     var name = context.request().pathParameters().get("name");
-    return name == null ? null : this.getDatabase(name);
+    return name == null ? null : this.database(name);
   }
 
-  protected Database getDatabase(String name) {
-    return this.getDatabaseProvider().getDatabase(name);
+  protected Database database(String name) {
+    return this.databaseProvider().database(name);
   }
 }

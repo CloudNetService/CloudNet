@@ -52,8 +52,8 @@ subprojects {
     // annotations
     "compileOnly"(rootProject.libs.annotations)
     // testing
-    "testImplementation"(rootProject.libs.mockito)
     "testImplementation"(rootProject.libs.bundles.junit)
+    "testImplementation"(rootProject.libs.bundles.mockito)
   }
 
   tasks.withType<Jar> {
@@ -63,6 +63,9 @@ subprojects {
 
   tasks.withType<Test> {
     useJUnitPlatform()
+    testLogging {
+      events("started", "passed", "skipped", "failed")
+    }
   }
 
   tasks.withType<JavaCompile> {

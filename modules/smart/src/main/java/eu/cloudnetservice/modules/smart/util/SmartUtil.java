@@ -20,7 +20,7 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperties;
 import eu.cloudnetservice.modules.smart.SmartServiceTaskConfig;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class SmartUtil {
 
@@ -29,24 +29,24 @@ public final class SmartUtil {
   }
 
   public static boolean canStopNow(
-    @NotNull ServiceTask task,
-    @NotNull SmartServiceTaskConfig config,
+    @NonNull ServiceTask task,
+    @NonNull SmartServiceTaskConfig config,
     int runningServices
   ) {
     // get the min service count
-    var minServiceCount = Math.max(task.getMinServiceCount(), config.getSmartMinServiceCount());
+    var minServiceCount = Math.max(task.minServiceCount(), config.smartMinServiceCount());
     // check if stopping the service would instantly cause a new service to start - beware
     return (runningServices - 1) > minServiceCount;
   }
 
-  public static double getPlayerPercentage(@NotNull ServiceInfoSnapshot snapshot) {
-    int onlinePlayers = BridgeServiceProperties.ONLINE_COUNT.get(snapshot).orElse(0);
-    int maxPlayers = BridgeServiceProperties.MAX_PLAYERS.get(snapshot).orElse(1);
+  public static double playerPercentage(@NonNull ServiceInfoSnapshot snapshot) {
+    int onlinePlayers = BridgeServiceProperties.ONLINE_COUNT.read(snapshot).orElse(0);
+    int maxPlayers = BridgeServiceProperties.MAX_PLAYERS.read(snapshot).orElse(1);
     // get the player percentage
-    return getPercentage(onlinePlayers, maxPlayers);
+    return percentage(onlinePlayers, maxPlayers);
   }
 
-  public static double getPercentage(double value, double max) {
+  public static double percentage(double value, double max) {
     return ((value * 100) / max);
   }
 }

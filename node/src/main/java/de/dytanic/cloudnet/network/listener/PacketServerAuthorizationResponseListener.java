@@ -27,29 +27,29 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.network.NodeNetworkUtils;
 import java.util.Arrays;
 import java.util.Objects;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class PacketServerAuthorizationResponseListener implements IPacketListener {
 
-  private static final Logger LOGGER = LogManager.getLogger(PacketServerAuthorizationResponseListener.class);
+  private static final Logger LOGGER = LogManager.logger(PacketServerAuthorizationResponseListener.class);
 
   @Override
-  public void handle(@NotNull INetworkChannel channel, @NotNull IPacket packet) {
+  public void handle(@NonNull INetworkChannel channel, @NonNull IPacket packet) {
     // check if the auth was successful
-    if (packet.getContent().readBoolean()) {
+    if (packet.content().readBoolean()) {
       // search for the node to which the auth succeeded
-      var server = CloudNet.getInstance().getConfig().getClusterConfig().getNodes().stream()
-        .filter(node -> Arrays.stream(node.getListeners()).anyMatch(host -> channel.getServerAddress().equals(host)))
-        .map(node -> CloudNet.getInstance().getClusterNodeServerProvider().getNodeServer(node.getUniqueId()))
+      var server = CloudNet.instance().config().clusterConfig().nodes().stream()
+        .filter(node -> Arrays.stream(node.listeners()).anyMatch(host -> channel.serverAddress().equals(host)))
+        .map(node -> CloudNet.instance().nodeServerProvider().nodeServer(node.uniqueId()))
         .filter(Objects::nonNull)
-        .filter(node -> node.isAcceptableConnection(channel, node.getNodeInfo().getUniqueId()))
+        .filter(node -> node.acceptableConnection(channel, node.nodeInfo().uniqueId()))
         .findFirst()
         .orElse(null);
       if (server != null) {
-        server.setChannel(channel);
+        server.channel(channel);
         // add the packet listeners
-        channel.getPacketRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
-        NodeNetworkUtils.addDefaultPacketListeners(channel.getPacketRegistry(), CloudNet.getInstance());
+        channel.packetRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
+        NodeNetworkUtils.addDefaultPacketListeners(channel.packetRegistry(), CloudNet.instance());
         // we are good to go :)
         return;
       }

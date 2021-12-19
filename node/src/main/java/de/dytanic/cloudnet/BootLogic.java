@@ -28,8 +28,8 @@ import de.dytanic.cloudnet.common.log.io.LogOutputStream;
 import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.console.JLine3Console;
 import de.dytanic.cloudnet.console.log.ColouredLogFormatter;
-import java.nio.file.Paths;
-import org.jetbrains.annotations.NotNull;
+import java.nio.file.Path;
+import lombok.NonNull;
 
 public final class BootLogic {
 
@@ -40,25 +40,25 @@ public final class BootLogic {
   public static synchronized void main(String[] args) throws Throwable {
     // language management init
     I18n.loadFromLanguageRegistryFile(BootLogic.class.getClassLoader());
-    I18n.selectLanguage(System.getProperty("cloudnet.messages.language", "english"));
+    I18n.language(System.getProperty("cloudnet.messages.language", "english"));
 
     // init logger and console
     IConsole console = new JLine3Console();
-    initLoggerAndConsole(console, LogManager.getRootLogger());
+    initLoggerAndConsole(console, LogManager.rootLogger());
 
     // boot CloudNet
-    var nodeInstance = new CloudNet(args, console, LogManager.getRootLogger());
+    var nodeInstance = new CloudNet(args, console, LogManager.rootLogger());
     nodeInstance.start();
   }
 
-  private static void initLoggerAndConsole(@NotNull IConsole console, @NotNull Logger logger) {
-    var logFilePattern = Paths.get("local", "logs", "cloudnet.%g.log");
+  private static void initLoggerAndConsole(@NonNull IConsole console, @NonNull Logger logger) {
+    var logFilePattern = Path.of("local", "logs", "cloudnet.%g.log");
     var consoleFormatter = console.hasColorSupport() ? new ColouredLogFormatter() : DefaultLogFormatter.END_CLEAN;
 
     LoggingUtils.removeHandlers(logger);
 
-    logger.setLevel(LoggingUtils.getDefaultLogLevel());
-    logger.setLogRecordDispatcher(ThreadedLogRecordDispatcher.forLogger(logger));
+    logger.setLevel(LoggingUtils.defaultLogLevel());
+    logger.logRecordDispatcher(ThreadedLogRecordDispatcher.forLogger(logger));
 
     logger.addHandler(AcceptingLogHandler.newInstance(console::writeLine).withFormatter(consoleFormatter));
     logger.addHandler(

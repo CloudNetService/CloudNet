@@ -18,7 +18,7 @@ package eu.cloudnetservice.ext.sftp.config;
 
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import java.nio.file.Path;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
@@ -43,14 +43,14 @@ public class SFTPTemplateStorageConfig {
   }
 
   public SFTPTemplateStorageConfig(
-    @NotNull HostAndPort address,
-    @NotNull String storage,
-    @NotNull String username,
+    @NonNull HostAndPort address,
+    @NonNull String storage,
+    @NonNull String username,
     @Nullable String password,
     @Nullable Path sshKeyPath,
     @Nullable String sshKeyPassword,
     @Nullable Path knownHostFile,
-    @NotNull String baseDirectory,
+    @NonNull String baseDirectory,
     int clientPoolSize
   ) {
     this.address = address;
@@ -64,39 +64,39 @@ public class SFTPTemplateStorageConfig {
     this.clientPoolSize = clientPoolSize;
   }
 
-  public @NotNull HostAndPort getAddress() {
+  public @NonNull HostAndPort address() {
     return this.address;
   }
 
-  public @NotNull String getStorage() {
+  public @NonNull String storage() {
     return this.storage;
   }
 
-  public @NotNull String getUsername() {
+  public @NonNull String username() {
     return this.username;
   }
 
-  public @UnknownNullability String getPassword() {
+  public @UnknownNullability String password() {
     return this.password;
   }
 
-  public @UnknownNullability Path getSshKeyPath() {
+  public @UnknownNullability Path sshKeyPath() {
     return this.sshKeyPath;
   }
 
-  public @UnknownNullability String getSshKeyPassword() {
+  public @UnknownNullability String sshKeyPassword() {
     return this.sshKeyPassword;
   }
 
-  public @Nullable Path getKnownHostFile() {
+  public @Nullable Path knownHostFile() {
     return this.knownHostFile;
   }
 
-  public @NotNull String getBaseDirectory() {
+  public @NonNull String baseDirectory() {
     return this.baseDirectory;
   }
 
-  public int getClientPoolSize() {
+  public int clientPoolSize() {
     return this.clientPoolSize;
   }
 }

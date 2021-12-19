@@ -20,7 +20,7 @@ import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import java.util.Arrays;
 import java.util.UUID;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * The current state of a service.
@@ -47,7 +47,7 @@ public enum ServiceLifeCycle {
   STOPPED(0, 3),
   /**
    * This is the state after {@code STOPPED}. When this state is set, the service is no more registered in the cloud and
-   * methods like {@link GeneralCloudServiceProvider#getCloudService(UUID)} won't return this service anymore.
+   * methods like {@link GeneralCloudServiceProvider#service(UUID)} won't return this service anymore.
    */
   DELETED;
 
@@ -69,7 +69,7 @@ public enum ServiceLifeCycle {
    * @param target the target state the service want's to change to.
    * @return If the service can change from the current into the {@code target} state.
    */
-  public boolean canChangeTo(@NotNull ServiceLifeCycle target) {
+  public boolean canChangeTo(@NonNull ServiceLifeCycle target) {
     return Arrays.binarySearch(this.possibleChangeTargetOrdinals, target.ordinal()) >= 0;
   }
 }

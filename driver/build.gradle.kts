@@ -17,7 +17,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
-  id("com.github.johnrengelman.shadow") version "7.1.0"
+  id("com.github.johnrengelman.shadow") version Versions.shadow
 }
 
 tasks.withType<ShadowJar> {
@@ -44,7 +44,7 @@ extensions.configure<JavaPluginExtension> {
 dependencies {
   "api"(projects.cloudnetCommon)
 
-  "implementation"(libs.asm)
+  "api"(libs.asm)
   "implementation"(libs.bundles.netty)
   "implementation"(variantOf(libs.nettyNativeEpoll) { classifier("linux-x86_64") })
 

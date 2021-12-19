@@ -19,38 +19,28 @@ package eu.cloudnetservice.modules.npc.configuration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
-public class NPCConfiguration {
+public record NPCConfiguration(@NonNull List<NPCConfigurationEntry> entries) {
 
-  private final List<NPCConfigurationEntry> entries;
-
-  public NPCConfiguration(List<NPCConfigurationEntry> entries) {
-    this.entries = entries;
-  }
-
-  public static @NotNull Builder builder() {
+  public static @NonNull Builder builder() {
     return new Builder();
   }
 
-  public static @NotNull Builder builder(@NotNull NPCConfiguration configuration) {
-    return builder().entries(configuration.getEntries());
-  }
-
-  public @NotNull List<NPCConfigurationEntry> getEntries() {
-    return this.entries;
+  public static @NonNull Builder builder(@NonNull NPCConfiguration configuration) {
+    return builder().entries(configuration.entries());
   }
 
   public static class Builder {
 
     private List<NPCConfigurationEntry> entries = new ArrayList<>();
 
-    public @NotNull Builder entries(@NotNull Collection<NPCConfigurationEntry> entries) {
+    public @NonNull Builder entries(@NonNull Collection<NPCConfigurationEntry> entries) {
       this.entries = new ArrayList<>(entries);
       return this;
     }
 
-    public @NotNull NPCConfiguration build() {
+    public @NonNull NPCConfiguration build() {
       return new NPCConfiguration(this.entries);
     }
   }

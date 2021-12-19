@@ -36,25 +36,25 @@ public final class CommandMe {
 
   @CommandMethod("me|info")
   public void me(CommandSource commandSource) {
-    var cloudNet = CloudNet.getInstance();
+    var cloudNet = CloudNet.instance();
     var memoryMXBean = ManagementFactory.getMemoryMXBean();
 
-    var nodeInfoSnapshot = cloudNet.getClusterNodeServerProvider().getSelfNode()
-      .getNodeInfoSnapshot();
+    var nodeInfoSnapshot = cloudNet.nodeServerProvider().selfNode()
+      .nodeInfoSnapshot();
 
     var messages = Arrays.asList(
       " ",
-      CloudNet.getInstance().getVersion() + " by Dytanic & the CloudNet Community",
+      CloudNet.instance().version() + " by Dytanic & the CloudNet Community",
       "Discord: https://discord.cloudnetservice.eu/",
       " ",
-      "ClusterId: " + cloudNet.getConfig().getClusterConfig().getClusterId(),
-      "NodeId: " + cloudNet.getConfig().getIdentity().getUniqueId(),
-      "Head-NodeId: " + cloudNet.getClusterNodeServerProvider().getHeadNode().getNodeInfo().getUniqueId(),
-      "CPU usage: (P/S) " + CPUUsageResolver.FORMAT.format(CPUUsageResolver.getProcessCPUUsage()) + "/"
+      "ClusterId: " + cloudNet.config().clusterConfig().clusterId(),
+      "NodeId: " + cloudNet.config().identity().uniqueId(),
+      "Head-NodeId: " + cloudNet.nodeServerProvider().headnode().nodeInfo().uniqueId(),
+      "CPU usage: (P/S) " + CPUUsageResolver.FORMAT.format(CPUUsageResolver.processCPUUsage()) + "/"
         +
-        CPUUsageResolver.FORMAT.format(CPUUsageResolver.getSystemCPUUsage()) + "/100%",
-      "Node services memory allocation (U/R/M): " + nodeInfoSnapshot.getUsedMemory() + "/" +
-        nodeInfoSnapshot.getReservedMemory() + "/" + nodeInfoSnapshot.getMaxMemory() + " MB",
+        CPUUsageResolver.FORMAT.format(CPUUsageResolver.systemCPUUsage()) + "/100%",
+      "Node services memory allocation (U/R/M): " + nodeInfoSnapshot.usedMemory() + "/" +
+        nodeInfoSnapshot.reservedMemory() + "/" + nodeInfoSnapshot.maxMemory() + " MB",
       "Threads: " + Thread.getAllStackTraces().keySet().size(),
       "Heap usage: " + (memoryMXBean.getHeapMemoryUsage().getUsed() / (1024 * 1024)) + "/" + (
         memoryMXBean.getHeapMemoryUsage().getMax() / (1024 * 1024)) + "MB",

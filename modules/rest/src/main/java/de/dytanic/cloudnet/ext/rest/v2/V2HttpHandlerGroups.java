@@ -49,7 +49,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
 
   protected void handleGroupListRequest(IHttpContext context) {
     this.ok(context)
-      .body(this.success().append("groups", this.getGroupProvider().getGroupConfigurations()).toString())
+      .body(this.success().append("groups", this.groupProvider().groupConfigurations()).toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -57,7 +57,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
 
   protected void handleGroupExistsRequest(IHttpContext context) {
     this.handleWithGroupContext(context, name -> this.ok(context)
-      .body(this.success().append("result", this.getGroupProvider().isGroupConfigurationPresent(name)).toString())
+      .body(this.success().append("result", this.groupProvider().groupConfigurationPresent(name)).toString())
       .context()
       .closeAfter(true)
       .cancelNext()
@@ -66,7 +66,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
 
   protected void handleGroupRequest(IHttpContext context) {
     this.handleWithGroupContext(context, name -> {
-      var configuration = this.getGroupProvider().getGroupConfiguration(name);
+      var configuration = this.groupProvider().groupConfiguration(name);
       if (configuration == null) {
         this.ok(context)
           .body(this.failure().append("reason", "Unknown configuration").toString())
@@ -94,7 +94,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
       return;
     }
 
-    this.getGroupProvider().addGroupConfiguration(configuration);
+    this.groupProvider().addGroupConfiguration(configuration);
     this.response(context, HttpResponseCode.HTTP_CREATED)
       .body(this.success().toString())
       .context()
@@ -104,8 +104,8 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
 
   protected void handleDeleteGroupRequest(IHttpContext context) {
     this.handleWithGroupContext(context, name -> {
-      if (this.getGroupProvider().isGroupConfigurationPresent(name)) {
-        this.getGroupProvider().removeGroupConfigurationByName(name);
+      if (this.groupProvider().groupConfigurationPresent(name)) {
+        this.groupProvider().removeGroupConfigurationByName(name);
         this.ok(context)
           .body(this.success().toString())
           .context()
@@ -134,7 +134,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
     }
   }
 
-  protected GroupConfigurationProvider getGroupProvider() {
-    return this.getCloudNet().getGroupConfigurationProvider();
+  protected GroupConfigurationProvider groupProvider() {
+    return this.node().groupConfigurationProvider();
   }
 }

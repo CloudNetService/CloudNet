@@ -28,8 +28,8 @@ import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import eu.cloudnetservice.ext.sftp.config.SFTPTemplateStorageConfig;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
-import org.jetbrains.annotations.NotNull;
+import java.nio.file.Path;
+import lombok.NonNull;
 
 public final class SFTPTemplateStorageModule extends DriverModule {
 
@@ -39,7 +39,7 @@ public final class SFTPTemplateStorageModule extends DriverModule {
   @ModuleTask(order = Byte.MAX_VALUE, event = ModuleLifeCycle.LOADED)
   public void convertConfig() {
     // the old config was located in a directory called '-ftp' rather than '-sftp'
-    var oldConfigPath = this.getModuleWrapper().getModuleProvider().getModuleDirectoryPath()
+    var oldConfigPath = this.moduleWrapper().moduleProvider().moduleDirectoryPath()
       .resolve("CloudNet-Storage-FTP")
       .resolve("config.json");
     if (Files.exists(oldConfigPath)) {
@@ -50,7 +50,7 @@ public final class SFTPTemplateStorageModule extends DriverModule {
         config.getString("storage"),
         config.getString("username"),
         config.getString("password"),
-        config.getString("sshKeyPath") == null ? null : Paths.get(config.getString("sshKeyPath")),
+        config.getString("sshKeyPath") == null ? null : Path.of(config.getString("sshKeyPath")),
         config.getString("sshKeyPassword") == null ? null : config.getString("sshKeyPassword"),
         null,
         config.getString("baseDirectory"),
@@ -62,14 +62,14 @@ public final class SFTPTemplateStorageModule extends DriverModule {
 
   @ModuleTask(event = ModuleLifeCycle.LOADED)
   public void handleInit() {
-    if (Files.exists(this.getConfigPath())) {
+    if (Files.exists(this.configPath())) {
       // load the config
-      this.config = JsonDocument.newDocument(this.getConfigPath()).toInstanceOf(SFTPTemplateStorageConfig.class);
+      this.config = JsonDocument.newDocument(this.configPath()).toInstanceOf(SFTPTemplateStorageConfig.class);
       // init the storage
       this.storage = new SFTPTemplateStorage(this.config);
-      this.getServiceRegistry().registerService(TemplateStorage.class, this.storage.getName(), this.storage);
+      this.serviceRegistry().registerService(TemplateStorage.class, this.storage.name(), this.storage);
       // register the cluster sync handler
-      CloudNet.getInstance().getDataSyncRegistry().registerHandler(DataSyncHandler.<SFTPTemplateStorageConfig>builder()
+      CloudNet.instance().dataSyncRegistry().registerHandler(DataSyncHandler.<SFTPTemplateStorageConfig>builder()
         .key("sftp-storage-config")
         .nameExtractor($ -> "SFTP Template Storage Config")
         .convertObject(SFTPTemplateStorageConfig.class)
@@ -78,18 +78,18 @@ public final class SFTPTemplateStorageModule extends DriverModule {
         .currentGetter($ -> this.config)
         .build());
     } else {
-      JsonDocument.newDocument(new SFTPTemplateStorageConfig()).write(this.getConfigPath());
+      JsonDocument.newDocument(new SFTPTemplateStorageConfig()).write(this.configPath());
     }
   }
 
   @ModuleTask(event = ModuleLifeCycle.STOPPED)
   public void handleStop() throws IOException {
     this.storage.close();
-    this.getServiceRegistry().unregisterService(TemplateStorage.class, this.storage.getName());
+    this.serviceRegistry().unregisterService(TemplateStorage.class, this.storage.name());
   }
 
-  public void writeConfig(@NotNull SFTPTemplateStorageConfig config) {
+  public void writeConfig(@NonNull SFTPTemplateStorageConfig config) {
     this.config = config;
-    JsonDocument.newDocument(config).write(this.getConfigPath());
+    JsonDocument.newDocument(config).write(this.configPath());
   }
 }

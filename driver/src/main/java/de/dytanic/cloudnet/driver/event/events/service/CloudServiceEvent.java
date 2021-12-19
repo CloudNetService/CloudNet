@@ -18,17 +18,17 @@ package de.dytanic.cloudnet.driver.event.events.service;
 
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public abstract class CloudServiceEvent extends DriverEvent {
 
   protected final ServiceInfoSnapshot serviceInfo;
 
-  public CloudServiceEvent(@NotNull ServiceInfoSnapshot serviceInfo) {
+  public CloudServiceEvent(@NonNull ServiceInfoSnapshot serviceInfo) {
     this.serviceInfo = serviceInfo;
   }
 
-  public @NotNull ServiceInfoSnapshot getServiceInfo() {
+  public @NonNull ServiceInfoSnapshot serviceInfo() {
     return this.serviceInfo;
   }
 }

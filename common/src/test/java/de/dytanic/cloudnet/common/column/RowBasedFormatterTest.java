@@ -22,7 +22,6 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -58,7 +57,7 @@ public class RowBasedFormatterTest {
       StandardCharsets.UTF_8
     ))) {
       var output = rowBasedFormatter.format(entries);
-      Collection<String> expected = reader.lines().collect(Collectors.toList());
+      Collection<String> expected = reader.lines().toList();
 
       Assertions.assertLinesMatch(expected.stream(), output.stream());
     } catch (IOException exception) {
@@ -66,18 +65,7 @@ public class RowBasedFormatterTest {
     }
   }
 
-  private static final class Player {
+  private record Player(String name, String rank, String world, int hp) {
 
-    private final String name;
-    private final String rank;
-    private final String world;
-    private final int hp;
-
-    public Player(String name, String rank, String world, int hp) {
-      this.name = name;
-      this.rank = rank;
-      this.world = world;
-      this.hp = hp;
-    }
   }
 }

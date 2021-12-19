@@ -28,7 +28,7 @@ import de.dytanic.cloudnet.ext.bridge.platform.velocity.commands.VelocityCloudCo
 import de.dytanic.cloudnet.ext.bridge.platform.velocity.commands.VelocityHubCommand;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerProxyInfo;
 import java.util.Arrays;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 @Plugin(
   id = "cloudnet_bridge",
@@ -43,24 +43,24 @@ public final class VelocityBridgePlugin {
   private final ProxyServer proxy;
 
   @Inject
-  public VelocityBridgePlugin(@NotNull ProxyServer proxyServer) {
+  public VelocityBridgePlugin(@NonNull ProxyServer proxyServer) {
     this.proxy = proxyServer;
   }
 
   @Subscribe
-  public void handleProxyInit(@NotNull ProxyInitializeEvent event) {
+  public void handleProxyInit(@NonNull ProxyInitializeEvent event) {
     // init the bridge management
     PlatformBridgeManagement<Player, NetworkPlayerProxyInfo> management = new VelocityBridgeManagement(this.proxy);
-    management.registerServices(CloudNetDriver.getInstance().getServicesRegistry());
+    management.registerServices(CloudNetDriver.instance().servicesRegistry());
     management.postInit();
     // register the player listeners
     this.proxy.getEventManager().register(this, new VelocityPlayerManagementListener(this.proxy, management));
     // register the cloud command
     this.proxy.getCommandManager().register("cloudnet", new VelocityCloudCommand(management), "cloud");
     // register the hub command if requested
-    if (!management.getConfiguration().getHubCommandNames().isEmpty()) {
+    if (!management.configuration().hubCommandNames().isEmpty()) {
       // convert to an array for easier access
-      var names = management.getConfiguration().getHubCommandNames().toArray(new String[0]);
+      var names = management.configuration().hubCommandNames().toArray(new String[0]);
       // register the command
       this.proxy.getCommandManager().register(
         names[0],

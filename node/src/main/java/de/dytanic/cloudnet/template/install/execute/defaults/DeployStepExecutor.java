@@ -23,15 +23,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Set;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class DeployStepExecutor implements InstallStepExecutor {
 
   @Override
-  public @NotNull Set<Path> execute(
-    @NotNull InstallInformation info,
-    @NotNull Path workingDirectory,
-    @NotNull Set<Path> inputPaths
+  public @NonNull Set<Path> execute(
+    @NonNull InstallInformation info,
+    @NonNull Path workingDirectory,
+    @NonNull Set<Path> inputPaths
   ) throws IOException {
     for (var path : inputPaths) {
       if (Files.isDirectory(path)) {
@@ -39,7 +39,7 @@ public class DeployStepExecutor implements InstallStepExecutor {
       }
 
       var relativePath = workingDirectory.relativize(path).toString().replace("\\", "/");
-      try (var outputStream = info.getTemplateStorage().newOutputStream(relativePath)) {
+      try (var outputStream = info.templateStorage().newOutputStream(relativePath)) {
         Files.copy(path, Objects.requireNonNull(outputStream));
       }
     }

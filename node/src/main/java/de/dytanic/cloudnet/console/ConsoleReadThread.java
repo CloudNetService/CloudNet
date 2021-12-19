@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.console;
 
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.UserInterruptException;
@@ -41,13 +41,13 @@ public class ConsoleReadThread extends Thread {
         this.currentTask = null;
       }
 
-      for (var value : this.console.getConsoleInputHandler().values()) {
-        if (value.isEnabled()) {
+      for (var value : this.console.consoleInputHandler().values()) {
+        if (value.enabled()) {
           value.handleInput(line);
         }
       }
 
-      for (var animation : this.console.getRunningAnimations()) {
+      for (var animation : this.console.runningAnimations()) {
         animation.addToCursor(1);
       }
     }
@@ -55,7 +55,7 @@ public class ConsoleReadThread extends Thread {
 
   private @Nullable String readLine() {
     try {
-      return this.console.getLineReader().readLine(this.console.getPrompt());
+      return this.console.lineReader().readLine(this.console.prompt());
     } catch (EndOfFileException ignored) {
     } catch (UserInterruptException exception) {
       System.exit(-1);
@@ -64,7 +64,7 @@ public class ConsoleReadThread extends Thread {
     return null;
   }
 
-  protected @NotNull ITask<String> getCurrentTask() {
+  protected @NonNull ITask<String> currentTask() {
     if (this.currentTask == null) {
       this.currentTask = new CompletableTask<>();
     }

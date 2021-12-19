@@ -23,7 +23,7 @@ import de.dytanic.cloudnet.ext.bridge.BridgeManagement;
 import de.dytanic.cloudnet.ext.bridge.config.BridgeConfiguration;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeConfigurationUpdateEvent;
 import de.dytanic.cloudnet.ext.bridge.node.NodeBridgeManagement;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class NodeBridgeChannelMessageListener {
 
@@ -31,22 +31,21 @@ public final class NodeBridgeChannelMessageListener {
   private final NodeBridgeManagement management;
 
   public NodeBridgeChannelMessageListener(
-    @NotNull NodeBridgeManagement management,
-    @NotNull IEventManager eventManager
+    @NonNull NodeBridgeManagement management,
+    @NonNull IEventManager eventManager
   ) {
     this.management = management;
     this.eventManager = eventManager;
   }
 
   @EventListener
-  public void handle(@NotNull ChannelMessageReceiveEvent event) {
-    if (event.getChannel().equals(BridgeManagement.BRIDGE_CHANNEL_NAME)
-      && event.getMessage() != null
-      && event.getMessage().equals("update_bridge_configuration")) {
+  public void handle(@NonNull ChannelMessageReceiveEvent event) {
+    if (event.channel().equals(BridgeManagement.BRIDGE_CHANNEL_NAME)
+      && event.message().equals("update_bridge_configuration")) {
       // read the config
-      var configuration = event.getContent().readObject(BridgeConfiguration.class);
+      var configuration = event.content().readObject(BridgeConfiguration.class);
       // set the configuration
-      this.management.setConfigurationSilently(configuration);
+      this.management.configurationSilently(configuration);
       // call the update event
       this.eventManager.callEvent(new BridgeConfigurationUpdateEvent(configuration));
     }

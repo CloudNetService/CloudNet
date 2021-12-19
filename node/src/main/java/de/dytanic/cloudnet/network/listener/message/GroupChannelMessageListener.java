@@ -27,7 +27,7 @@ import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.provider.NodeGroupConfigurationProvider;
 import java.lang.reflect.Type;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class GroupChannelMessageListener {
 
@@ -37,26 +37,26 @@ public final class GroupChannelMessageListener {
   private final NodeGroupConfigurationProvider groupProvider;
 
   public GroupChannelMessageListener(
-    @NotNull IEventManager eventManager,
-    @NotNull NodeGroupConfigurationProvider groupProvider
+    @NonNull IEventManager eventManager,
+    @NonNull NodeGroupConfigurationProvider groupProvider
   ) {
     this.eventManager = eventManager;
     this.groupProvider = groupProvider;
   }
 
   @EventListener
-  public void handleChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
-    if (event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL) && event.getMessage() != null) {
-      switch (event.getMessage()) {
+  public void handleChannelMessage(@NonNull ChannelMessageReceiveEvent event) {
+    if (event.channel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
+      switch (event.message()) {
         // set groups
         case "set_group_configurations" -> {
-          Collection<GroupConfiguration> groups = event.getContent().readObject(GROUPS);
-          this.groupProvider.setGroupConfigurationsSilently(groups);
+          Collection<GroupConfiguration> groups = event.content().readObject(GROUPS);
+          this.groupProvider.groupConfigurationSilently(groups);
         }
 
         // add group
         case "add_group_configuration" -> {
-          var configuration = event.getContent().readObject(GroupConfiguration.class);
+          var configuration = event.content().readObject(GroupConfiguration.class);
 
           this.groupProvider.addGroupConfigurationSilently(configuration);
           this.eventManager.callEvent(new GroupConfigurationAddEvent(configuration));
@@ -64,7 +64,7 @@ public final class GroupChannelMessageListener {
 
         // remove group
         case "remove_group_configuration" -> {
-          var configuration = event.getContent().readObject(GroupConfiguration.class);
+          var configuration = event.content().readObject(GroupConfiguration.class);
 
           this.groupProvider.removeGroupConfigurationSilently(configuration);
           this.eventManager.callEvent(new GroupConfigurationRemoveEvent(configuration));

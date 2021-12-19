@@ -25,56 +25,56 @@ import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.SyncProxyConstants;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.config.SyncProxyConfiguration;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.platform.PlatformSyncProxyManagement;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class SyncProxyCloudListener<P> {
 
   private final PlatformSyncProxyManagement<P> management;
 
-  public SyncProxyCloudListener(@NotNull PlatformSyncProxyManagement<P> management) {
+  public SyncProxyCloudListener(@NonNull PlatformSyncProxyManagement<P> management) {
     this.management = management;
   }
 
   @EventListener
-  public void handleServiceLifecycleChange(@NotNull CloudServiceLifecycleChangeEvent event) {
-    if (event.getNewLifeCycle() == ServiceLifeCycle.RUNNING) {
+  public void handleServiceLifecycleChange(@NonNull CloudServiceLifecycleChangeEvent event) {
+    if (event.newLifeCycle() == ServiceLifeCycle.RUNNING) {
       // notify the players about a new service start
-      this.notifyPlayers("start-service", event.getServiceInfo());
-    } else if (event.getNewLifeCycle() == ServiceLifeCycle.STOPPED) {
+      this.notifyPlayers("start-service", event.serviceInfo());
+    } else if (event.newLifeCycle() == ServiceLifeCycle.STOPPED) {
       // notify the players about the service stop
-      this.notifyPlayers("stop-service", event.getServiceInfo());
+      this.notifyPlayers("stop-service", event.serviceInfo());
       // remove the ServiceInfoSnapshot from the cache as the service is stopping
-      this.management.removeCachedServiceInfoSnapshot(event.getServiceInfo());
+      this.management.removeCachedServiceInfoSnapshot(event.serviceInfo());
     }
   }
 
   @EventListener
-  public void handleServiceUpdate(@NotNull CloudServiceUpdateEvent event) {
+  public void handleServiceUpdate(@NonNull CloudServiceUpdateEvent event) {
     // check if the service is not stopping, as this would lead to issues with the CloudServiceLifecycleChangeEvent
-    if (event.getServiceInfo().getLifeCycle() != ServiceLifeCycle.STOPPED) {
+    if (event.serviceInfo().lifeCycle() != ServiceLifeCycle.STOPPED) {
       // cache the ServiceInfoSnapshot
-      this.management.cacheServiceInfoSnapshot(event.getServiceInfo());
+      this.management.cacheServiceInfoSnapshot(event.serviceInfo());
     }
   }
 
   @EventListener
-  public void handleConfigUpdate(@NotNull ChannelMessageReceiveEvent event) {
+  public void handleConfigUpdate(@NonNull ChannelMessageReceiveEvent event) {
     // handle incoming channel messages on the syncproxy channel
-    if (event.getChannel().equals(SyncProxyConstants.SYNC_PROXY_CHANNEL)
-      && SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIG.equals(event.getMessage())) {
+    if (event.channel().equals(SyncProxyConstants.SYNC_PROXY_CHANNEL)
+      && SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIG.equals(event.message())) {
       // update the configuration locally
-      this.management.setConfigurationSilently(event.getContent().readObject(SyncProxyConfiguration.class));
+      this.management.setConfigurationSilently(event.content().readObject(SyncProxyConfiguration.class));
     }
   }
 
-  private void notifyPlayers(@NotNull String key, @NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
+  private void notifyPlayers(@NonNull String key, @NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
     // only message the players if we are supposed to
-    if (!this.management.getConfiguration().showIngameServicesStartStopMessages()) {
+    if (!this.management.configuration().ingameServiceStartStopMessages()) {
       return;
     }
-    for (var onlinePlayer : this.management.getOnlinePlayers()) {
+    for (var onlinePlayer : this.management.onlinePlayers()) {
       if (this.management.checkPlayerPermission(onlinePlayer, "cloudnet.syncproxy.notify")) {
-        this.management.messagePlayer(onlinePlayer, this.management.getServiceUpdateMessage(key, serviceInfoSnapshot));
+        this.management.messagePlayer(onlinePlayer, this.management.serviceUpdateMessage(key, serviceInfoSnapshot));
       }
     }
   }

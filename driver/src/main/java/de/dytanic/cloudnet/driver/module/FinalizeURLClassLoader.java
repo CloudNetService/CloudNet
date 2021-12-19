@@ -22,7 +22,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class FinalizeURLClassLoader extends URLClassLoader {
 
@@ -41,7 +41,7 @@ public class FinalizeURLClassLoader extends URLClassLoader {
    * @param moduleFileUrl        the module file to which this loader is associated.
    * @param moduleDependencyUrls all dependencies which were loaded for the module.
    */
-  public FinalizeURLClassLoader(@NotNull URL moduleFileUrl, @NotNull Set<URL> moduleDependencyUrls) {
+  public FinalizeURLClassLoader(@NonNull URL moduleFileUrl, @NonNull Set<URL> moduleDependencyUrls) {
     super(
       ObjectArrays.concat(moduleFileUrl, moduleDependencyUrls.toArray(new URL[0])),
       FinalizeURLClassLoader.class.getClassLoader());
@@ -68,7 +68,7 @@ public class FinalizeURLClassLoader extends URLClassLoader {
    * {@inheritDoc}
    */
   @Override
-  protected @NotNull Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+  protected @NonNull Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
     return this.loadClass(name, resolve, true);
   }
 
@@ -81,7 +81,7 @@ public class FinalizeURLClassLoader extends URLClassLoader {
    * @return The resulting {@code Class} object
    * @throws ClassNotFoundException If the class could not be found
    */
-  protected @NotNull Class<?> loadClass(String name, boolean resolve, boolean global) throws ClassNotFoundException {
+  protected @NonNull Class<?> loadClass(String name, boolean resolve, boolean global) throws ClassNotFoundException {
     try {
       return super.loadClass(name, resolve);
     } catch (ClassNotFoundException ignored) {

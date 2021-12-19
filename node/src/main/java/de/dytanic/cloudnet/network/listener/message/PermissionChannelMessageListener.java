@@ -31,7 +31,7 @@ import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.permission.NodePermissionManagement;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class PermissionChannelMessageListener {
 
@@ -39,39 +39,38 @@ public final class PermissionChannelMessageListener {
   private final NodePermissionManagement permissionManagement;
 
   public PermissionChannelMessageListener(
-    @NotNull IEventManager eventManager,
-    @NotNull NodePermissionManagement management
+    @NonNull IEventManager eventManager,
+    @NonNull NodePermissionManagement management
   ) {
     this.eventManager = eventManager;
     this.permissionManagement = management;
   }
 
   @EventListener
-  public void handleChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
-    if (event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      && event.getMessage() != null
-      && event.getMessage().startsWith("permissions_")) {
+  public void handleChannelMessage(@NonNull ChannelMessageReceiveEvent event) {
+    if (event.channel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL) && event.message()
+        .startsWith("permissions_")) {
       // permission message - handler
-      switch (event.getMessage().replaceFirst("permissions_", "")) {
+      switch (event.message().replaceFirst("permissions_", "")) {
         // user add
         case "add_user" -> this.eventManager.callEvent(new PermissionAddUserEvent(
             this.permissionManagement,
-            event.getContent().readObject(PermissionUser.class)));
+            event.content().readObject(PermissionUser.class)));
 
         // user update
         case "update_user" -> this.eventManager.callEvent(new PermissionUpdateUserEvent(
             this.permissionManagement,
-            event.getContent().readObject(PermissionUser.class)));
+            event.content().readObject(PermissionUser.class)));
 
         // user remove
         case "delete_user" -> this.eventManager.callEvent(new PermissionDeleteUserEvent(
             this.permissionManagement,
-            event.getContent().readObject(PermissionUser.class)));
+            event.content().readObject(PermissionUser.class)));
 
         // group add
         case "add_group" -> {
           // read the group
-          var group = event.getContent().readObject(PermissionGroup.class);
+          var group = event.content().readObject(PermissionGroup.class);
           // handle
           this.permissionManagement.addGroupSilently(group);
           this.eventManager.callEvent(new PermissionAddGroupEvent(this.permissionManagement, group));
@@ -80,7 +79,7 @@ public final class PermissionChannelMessageListener {
         // group update
         case "update_group" -> {
           // read the group
-          var group = event.getContent().readObject(PermissionGroup.class);
+          var group = event.content().readObject(PermissionGroup.class);
           // handle
           this.permissionManagement.updateGroupSilently(group);
           this.eventManager.callEvent(new PermissionUpdateGroupEvent(this.permissionManagement, group));
@@ -89,7 +88,7 @@ public final class PermissionChannelMessageListener {
         // group delete
         case "delete_group" -> {
           // read the group
-          var group = event.getContent().readObject(PermissionGroup.class);
+          var group = event.content().readObject(PermissionGroup.class);
           // handle
           this.permissionManagement.deleteGroupSilently(group);
           this.eventManager.callEvent(new PermissionDeleteGroupEvent(this.permissionManagement, group));
@@ -98,12 +97,12 @@ public final class PermissionChannelMessageListener {
         // group set
         case "set_groups" -> {
           // read the group
-          Collection<PermissionGroup> groups = event.getContent().readObject(PermissionGroup.COL_GROUPS);
+          Collection<PermissionGroup> groups = event.content().readObject(PermissionGroup.COL_GROUPS);
           // handle
           this.permissionManagement.setGroupsSilently(groups);
           this.eventManager.callEvent(new PermissionSetGroupsEvent(this.permissionManagement, groups));
         }
-        default -> throw new IllegalArgumentException("Unhandled permission message " + event.getMessage());
+        default -> throw new IllegalArgumentException("Unhandled permission message " + event.message());
       }
     }
   }

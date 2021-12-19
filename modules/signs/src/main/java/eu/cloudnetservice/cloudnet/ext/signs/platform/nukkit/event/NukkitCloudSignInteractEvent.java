@@ -23,7 +23,7 @@ import cn.nukkit.event.player.PlayerEvent;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.ext.signs.Sign;
 import java.util.Optional;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class NukkitCloudSignInteractEvent extends PlayerEvent implements Cancellable {
 
@@ -32,10 +32,10 @@ public class NukkitCloudSignInteractEvent extends PlayerEvent implements Cancell
   protected final Sign sign;
   protected ServiceInfoSnapshot target;
 
-  public NukkitCloudSignInteractEvent(@NotNull Player who, @NotNull Sign sign, boolean cancelled) {
+  public NukkitCloudSignInteractEvent(@NonNull Player who, @NonNull Sign sign, boolean cancelled) {
     this.player = who;
     this.sign = sign;
-    this.target = sign.getCurrentTarget();
+    this.target = sign.currentTarget();
     this.setCancelled(cancelled);
   }
 
@@ -43,11 +43,11 @@ public class NukkitCloudSignInteractEvent extends PlayerEvent implements Cancell
     return HANDLER_LIST;
   }
 
-  public Sign getSign() {
+  public Sign sign() {
     return this.sign;
   }
 
-  public Optional<ServiceInfoSnapshot> getTarget() {
+  public Optional<ServiceInfoSnapshot> target() {
     return Optional.ofNullable(this.target);
   }
 }

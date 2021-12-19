@@ -24,7 +24,7 @@ import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.handler.DefaultRPCHandler;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.sender.DefaultRPCSender;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DefaultRPCProviderFactory implements RPCProviderFactory {
@@ -38,41 +38,41 @@ public class DefaultRPCProviderFactory implements RPCProviderFactory {
   }
 
   @Override
-  public @NotNull ObjectMapper getDefaultObjectMapper() {
+  public @NonNull ObjectMapper defaultObjectMapper() {
     return this.defaultObjectMapper;
   }
 
   @Override
-  public @NotNull DataBufFactory getDefaultDataBufFactory() {
+  public @NonNull DataBufFactory defaultDataBufFactory() {
     return this.defaultDataBufFactory;
   }
 
   @Override
-  public @NotNull RPCSender providerForClass(@Nullable INetworkComponent component, @NotNull Class<?> clazz) {
+  public @NonNull RPCSender providerForClass(@Nullable INetworkComponent component, @NonNull Class<?> clazz) {
     return this.providerForClass(component, clazz, this.defaultObjectMapper, this.defaultDataBufFactory);
   }
 
   @Override
-  public @NotNull RPCSender providerForClass(
+  public @NonNull RPCSender providerForClass(
     @Nullable INetworkComponent component,
-    @NotNull Class<?> clazz,
-    @NotNull ObjectMapper objectMapper,
-    @NotNull DataBufFactory dataBufFactory
+    @NonNull Class<?> clazz,
+    @NonNull ObjectMapper objectMapper,
+    @NonNull DataBufFactory dataBufFactory
   ) {
     return new DefaultRPCSender(this, component, clazz, objectMapper, dataBufFactory);
   }
 
   @Override
-  public @NotNull RPCHandler newHandler(@NotNull Class<?> clazz, @Nullable Object binding) {
+  public @NonNull RPCHandler newHandler(@NonNull Class<?> clazz, @Nullable Object binding) {
     return this.newHandler(clazz, binding, this.defaultObjectMapper, this.defaultDataBufFactory);
   }
 
   @Override
-  public @NotNull RPCHandler newHandler(
-    @NotNull Class<?> clazz,
+  public @NonNull RPCHandler newHandler(
+    @NonNull Class<?> clazz,
     @Nullable Object binding,
-    @NotNull ObjectMapper objectMapper,
-    @NotNull DataBufFactory dataBufFactory
+    @NonNull ObjectMapper objectMapper,
+    @NonNull DataBufFactory dataBufFactory
   ) {
     return new DefaultRPCHandler(clazz, binding, objectMapper, dataBufFactory);
   }

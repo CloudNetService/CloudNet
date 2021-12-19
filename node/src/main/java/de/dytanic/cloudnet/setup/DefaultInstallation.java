@@ -20,7 +20,7 @@ import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.console.animation.setup.ConsoleSetupAnimation;
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArraySet;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class DefaultInstallation {
 
@@ -28,7 +28,7 @@ public class DefaultInstallation {
   private final ConsoleSetupAnimation animation = createAnimation();
   private final Collection<DefaultSetup> setups = new CopyOnWriteArraySet<>();
 
-  private static @NotNull ConsoleSetupAnimation createAnimation() {
+  private static @NonNull ConsoleSetupAnimation createAnimation() {
     return new ConsoleSetupAnimation(
       """
         &f   ___  _                    _ &b     __    __  _____  &3  _____              _           _  _\s
@@ -41,12 +41,12 @@ public class DefaultInstallation {
       "&r> &e");
   }
 
-  public void executeFirstStartSetup(@NotNull IConsole console) {
+  public void executeFirstStartSetup(@NonNull IConsole console) {
     if (!Boolean.getBoolean("cloudnet.installation.skip") && !this.setups.isEmpty()) {
       // apply all questions of all setups to the animation
       this.setups.forEach(setup -> setup.applyQuestions(this.animation));
       // start the animation
-      this.animation.setCancellable(false);
+      this.animation.cancellable(false);
       console.startAnimation(this.animation);
 
       this.animation.addFinishHandler(() -> {
@@ -69,7 +69,7 @@ public class DefaultInstallation {
     }
   }
 
-  public void registerSetup(@NotNull DefaultSetup setup) {
+  public void registerSetup(@NonNull DefaultSetup setup) {
     this.setups.add(setup);
   }
 }

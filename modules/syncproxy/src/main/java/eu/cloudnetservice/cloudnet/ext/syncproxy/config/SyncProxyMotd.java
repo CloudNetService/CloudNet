@@ -18,77 +18,31 @@ package eu.cloudnetservice.cloudnet.ext.syncproxy.config;
 
 import com.google.common.base.Verify;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@ToString
-@EqualsAndHashCode
-public class SyncProxyMotd {
+public record SyncProxyMotd(
+  @NonNull String firstLine,
+  @NonNull String secondLine,
+  boolean autoSlot,
+  int autoSlotMaxPlayersDistance,
+  @NonNull String[] playerInfo,
+  @Nullable String protocolText
+) {
 
-  protected final String firstLine;
-  protected final String secondLine;
-
-  protected final boolean autoSlot;
-  protected final int autoSlotMaxPlayersDistance;
-
-  protected final String[] playerInfo;
-  protected final String protocolText;
-
-  protected SyncProxyMotd(
-    @NotNull String firstLine,
-    @NotNull String secondLine,
-    boolean autoSlot,
-    int autoSlotMaxPlayersDistance,
-    @NotNull String[] playerInfo,
-    @Nullable String protocolText
-  ) {
-    this.firstLine = firstLine;
-    this.secondLine = secondLine;
-    this.autoSlot = autoSlot;
-    this.autoSlotMaxPlayersDistance = autoSlotMaxPlayersDistance;
-    this.playerInfo = playerInfo;
-    this.protocolText = protocolText;
-  }
-
-  public static @NotNull Builder builder() {
+  public static @NonNull Builder builder() {
     return new Builder();
   }
 
-  public static @NotNull Builder builder(@NotNull SyncProxyMotd motd) {
+  public static @NonNull Builder builder(@NonNull SyncProxyMotd motd) {
     return builder()
-      .firstLine(motd.getFirstLine())
-      .secondLine(motd.getSecondLine())
-      .autoSlot(motd.isAutoSlot())
-      .autoSlotDistance(motd.getAutoSlotMaxPlayersDistance())
-      .playerInfo(motd.getPlayerInfo())
-      .protocolText(motd.getProtocolText());
-  }
-
-  public @NotNull String getFirstLine() {
-    return this.firstLine;
-  }
-
-  public @NotNull String getSecondLine() {
-    return this.secondLine;
-  }
-
-  public boolean isAutoSlot() {
-    return this.autoSlot;
-  }
-
-  public int getAutoSlotMaxPlayersDistance() {
-    return this.autoSlotMaxPlayersDistance;
-  }
-
-  public @NotNull String[] getPlayerInfo() {
-    return this.playerInfo;
-  }
-
-  public @Nullable String getProtocolText() {
-    return this.protocolText;
+      .firstLine(motd.firstLine())
+      .secondLine(motd.secondLine())
+      .autoSlot(motd.autoSlot())
+      .autoSlotDistance(motd.autoSlotMaxPlayersDistance())
+      .playerInfo(motd.playerInfo())
+      .protocolText(motd.protocolText());
   }
 
   @Contract("null, _, _ -> null; !null, _, _ -> !null")
@@ -98,10 +52,10 @@ public class SyncProxyMotd {
     }
 
     return input
-      .replace("%proxy%", Wrapper.getInstance().getServiceId().getName())
-      .replace("%proxy_uniqueId%", String.valueOf(Wrapper.getInstance().getServiceId().getUniqueId()))
-      .replace("%task%", Wrapper.getInstance().getServiceId().getTaskName())
-      .replace("%node%", Wrapper.getInstance().getServiceId().getNodeUniqueId())
+      .replace("%proxy%", Wrapper.instance().serviceId().name())
+      .replace("%proxy_uniqueId%", String.valueOf(Wrapper.instance().serviceId().uniqueId()))
+      .replace("%task%", Wrapper.instance().serviceId().taskName())
+      .replace("%node%", Wrapper.instance().serviceId().nodeUniqueId())
       .replace("%online_players%", String.valueOf(onlinePlayers))
       .replace("%max_players%", String.valueOf(maxPlayers))
       .replace("&", "§");
@@ -118,37 +72,37 @@ public class SyncProxyMotd {
     private String[] playerInfo = new String[0];
     private String protocolText;
 
-    public @NotNull Builder firstLine(@NotNull String firstLine) {
+    public @NonNull Builder firstLine(@NonNull String firstLine) {
       this.firstLine = firstLine;
       return this;
     }
 
-    public @NotNull Builder secondLine(@NotNull String secondLine) {
+    public @NonNull Builder secondLine(@NonNull String secondLine) {
       this.secondLine = secondLine;
       return this;
     }
 
-    public @NotNull Builder autoSlot(boolean autoSlot) {
+    public @NonNull Builder autoSlot(boolean autoSlot) {
       this.autoSlot = autoSlot;
       return this;
     }
 
-    public @NotNull Builder autoSlotDistance(int autoSlotDistance) {
+    public @NonNull Builder autoSlotDistance(int autoSlotDistance) {
       this.autoSlotMaxPlayersDistance = autoSlotDistance;
       return this;
     }
 
-    public @NotNull Builder playerInfo(String @NotNull [] playerInfo) {
+    public @NonNull Builder playerInfo(String @NonNull [] playerInfo) {
       this.playerInfo = playerInfo;
       return this;
     }
 
-    public @NotNull Builder protocolText(@Nullable String protocolText) {
+    public @NonNull Builder protocolText(@Nullable String protocolText) {
       this.protocolText = protocolText;
       return this;
     }
 
-    public @NotNull SyncProxyMotd build() {
+    public @NonNull SyncProxyMotd build() {
       Verify.verifyNotNull(this.firstLine, "Missing first line");
       Verify.verifyNotNull(this.secondLine, "Missing second line");
 

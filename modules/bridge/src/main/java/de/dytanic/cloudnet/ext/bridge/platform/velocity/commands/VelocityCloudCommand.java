@@ -18,7 +18,6 @@ package de.dytanic.cloudnet.ext.bridge.platform.velocity.commands;
 
 import static eu.cloudnetservice.ext.adventure.AdventureSerializerUtil.serialize;
 
-import com.google.common.collect.ImmutableList;
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.ConsoleCommandSource;
 import com.velocitypowered.api.proxy.Player;
@@ -27,7 +26,7 @@ import de.dytanic.cloudnet.ext.bridge.platform.PlatformBridgeManagement;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class VelocityCloudCommand implements SimpleCommand {
 
@@ -38,12 +37,12 @@ public final class VelocityCloudCommand implements SimpleCommand {
   }
 
   @Override
-  public void execute(@NotNull Invocation invocation) {
+  public void execute(@NonNull Invocation invocation) {
     // check if any arguments are provided
     if (invocation.arguments().length == 0) {
       // <prefix> /cloudnet <command>
       invocation.source()
-        .sendMessage(serialize(this.management.getConfiguration().getPrefix() + "/cloudnet <command>"));
+        .sendMessage(serialize(this.management.configuration().prefix() + "/cloudnet <command>"));
       return;
     }
     // get the full command line
@@ -51,37 +50,37 @@ public final class VelocityCloudCommand implements SimpleCommand {
     // skip the permission check if the source is the console
     if (!(invocation.source() instanceof ConsoleCommandSource)) {
       // get the command info
-      var command = CloudNetDriver.getInstance().getNodeInfoProvider().getConsoleCommand(commandLine);
+      var command = CloudNetDriver.instance().nodeInfoProvider().consoleCommand(commandLine);
       // check if the sender has the required permission to execute the command
-      if (command != null && command.getPermission() != null) {
-        if (!invocation.source().hasPermission(command.getPermission())) {
-          invocation.source().sendMessage(serialize(this.management.getConfiguration().getMessage(
+      if (command != null) {
+        if (!invocation.source().hasPermission(command.permission())) {
+          invocation.source().sendMessage(serialize(this.management.configuration().message(
             invocation.source() instanceof Player
               ? ((Player) invocation.source()).getEffectiveLocale()
               : Locale.ENGLISH,
             "command-cloud-sub-command-no-permission"
-          ).replace("%command%", command.getName())));
+          ).replace("%command%", command.name())));
           return;
         }
       }
     }
     // execute the command
-    CloudNetDriver.getInstance().getNodeInfoProvider().sendCommandLineAsync(commandLine).onComplete(messages -> {
+    CloudNetDriver.instance().nodeInfoProvider().sendCommandLineAsync(commandLine).onComplete(messages -> {
       for (var line : messages) {
-        invocation.source().sendMessage(serialize(this.management.getConfiguration().getPrefix() + line));
+        invocation.source().sendMessage(serialize(this.management.configuration().prefix() + line));
       }
     });
   }
 
   @Override
-  public @NotNull CompletableFuture<List<String>> suggestAsync(@NotNull Invocation invocation) {
-    return CompletableFuture.supplyAsync(() -> ImmutableList.copyOf(CloudNetDriver.getInstance()
-      .getNodeInfoProvider()
-      .getConsoleTabCompleteResults(String.join(" ", invocation.arguments()))));
+  public @NonNull CompletableFuture<List<String>> suggestAsync(@NonNull Invocation invocation) {
+    return CompletableFuture.supplyAsync(() -> List.copyOf(CloudNetDriver.instance()
+      .nodeInfoProvider()
+      .consoleTabCompleteResults(String.join(" ", invocation.arguments()))));
   }
 
   @Override
-  public boolean hasPermission(@NotNull Invocation invocation) {
+  public boolean hasPermission(@NonNull Invocation invocation) {
     return invocation.source().hasPermission("cloudnet.command.cloudnet");
   }
 }

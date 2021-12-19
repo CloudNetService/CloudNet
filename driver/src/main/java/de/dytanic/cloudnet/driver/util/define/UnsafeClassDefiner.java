@@ -25,7 +25,7 @@
 package de.dytanic.cloudnet.driver.util.define;
 
 import java.lang.reflect.Method;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * A class defining method for legacy jvm implementations (Java 7 - 14) which is deprecated since Java 15 in honor of
@@ -45,7 +45,7 @@ final class UnsafeClassDefiner implements ClassDefiner {
   static {
     Method defineAnonymousClass = null;
 
-    if (UnsafeAccess.isAvailable()) {
+    if (UnsafeAccess.available()) {
       try {
         // find the define method
         var defineAnonymousClassMethod = UnsafeAccess.UNSAFE_CLASS.getDeclaredMethod("defineAnonymousClass",
@@ -67,7 +67,7 @@ final class UnsafeClassDefiner implements ClassDefiner {
    *
    * @return if the {@code defineAnonymousClass} is available and this defining method can be used.
    */
-  public static boolean isAvailable() {
+  public static boolean available() {
     return DEFINE_ANONYMOUS_CLASS != null;
   }
 
@@ -75,7 +75,7 @@ final class UnsafeClassDefiner implements ClassDefiner {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull Class<?> defineClass(@NotNull String name, @NotNull Class<?> parent, byte[] bytecode) {
+  public @NonNull Class<?> defineClass(@NonNull String name, @NonNull Class<?> parent, byte[] bytecode) {
     try {
       // Use unsafe to define the class
       return (Class<?>) DEFINE_ANONYMOUS_CLASS.invoke(UnsafeAccess.THE_UNSAFE_INSTANCE, parent, bytecode, null);

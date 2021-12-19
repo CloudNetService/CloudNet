@@ -24,7 +24,7 @@ package de.dytanic.cloudnet.driver.event;
  */
 public abstract class Event {
 
-  public boolean isShowDebug() {
+  public boolean debug() {
     return true;
   }
 

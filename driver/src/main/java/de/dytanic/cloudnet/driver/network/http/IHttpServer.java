@@ -18,13 +18,13 @@ package de.dytanic.cloudnet.driver.network.http;
 
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import java.net.SocketAddress;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public interface IHttpServer extends IHttpComponent<IHttpServer> {
 
   boolean addListener(int port);
 
-  boolean addListener(@NotNull SocketAddress socketAddress);
+  boolean addListener(@NonNull SocketAddress socketAddress);
 
-  boolean addListener(@NotNull HostAndPort hostAndPort);
+  boolean addListener(@NonNull HostAndPort hostAndPort);
 }

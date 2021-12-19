@@ -24,8 +24,8 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.function.Function;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class NettyImmutableDataBuf implements DataBuf {
@@ -88,23 +88,23 @@ public class NettyImmutableDataBuf implements DataBuf {
   }
 
   @Override
-  public @NotNull UUID readUniqueId() {
+  public @NonNull UUID readUniqueId() {
     return new UUID(this.readLong(), this.readLong());
   }
 
   @Override
-  public @NotNull String readString() {
+  public @NonNull String readString() {
     return new String(this.readByteArray(), StandardCharsets.UTF_8);
   }
 
   @Override
-  public @NotNull DataBuf readDataBuf() {
+  public @NonNull DataBuf readDataBuf() {
     return this.hotRead(buf -> new NettyImmutableDataBuf(buf.readBytes(buf.readInt())));
   }
 
   @Override
   public byte[] toByteArray() {
-    var bytes = new byte[this.getReadableBytes()];
+    var bytes = new byte[this.readableBytes()];
     return this.hotRead(buf -> {
       buf.readBytes(bytes);
       return bytes;
@@ -112,22 +112,22 @@ public class NettyImmutableDataBuf implements DataBuf {
   }
 
   @Override
-  public <T> @Nullable T readObject(@NotNull Class<T> type) {
+  public <T> @Nullable T readObject(@NonNull Class<T> type) {
     return DefaultObjectMapper.DEFAULT_MAPPER.readObject(this, type);
   }
 
   @Override
-  public <T> T readObject(@NotNull Type type) {
+  public <T> T readObject(@NonNull Type type) {
     return DefaultObjectMapper.DEFAULT_MAPPER.readObject(this, type);
   }
 
   @Override
-  public <T> @Nullable T readNullable(@NotNull Function<DataBuf, T> readerWhenNonNull) {
+  public <T> @Nullable T readNullable(@NonNull Function<DataBuf, T> readerWhenNonNull) {
     return this.readNullable(readerWhenNonNull, null);
   }
 
   @Override
-  public <T> T readNullable(@NotNull Function<DataBuf, T> readerWhenNonNull, T valueWhenNull) {
+  public <T> T readNullable(@NonNull Function<DataBuf, T> readerWhenNonNull, T valueWhenNull) {
     return this.hotRead(buf -> {
       var isNonNull = buf.readBoolean();
       return isNonNull ? readerWhenNonNull.apply(this) : valueWhenNull;
@@ -135,12 +135,12 @@ public class NettyImmutableDataBuf implements DataBuf {
   }
 
   @Override
-  public int getReadableBytes() {
+  public int readableBytes() {
     return this.byteBuf.readableBytes();
   }
 
   @Override
-  public @NotNull DataBuf startTransaction() {
+  public @NonNull DataBuf startTransaction() {
     this.byteBuf.markReaderIndex();
     this.byteBuf.markWriterIndex();
 
@@ -148,7 +148,7 @@ public class NettyImmutableDataBuf implements DataBuf {
   }
 
   @Override
-  public @NotNull DataBuf redoTransaction() {
+  public @NonNull DataBuf redoTransaction() {
     this.byteBuf.resetReaderIndex();
     this.byteBuf.resetWriterIndex();
 
@@ -156,18 +156,18 @@ public class NettyImmutableDataBuf implements DataBuf {
   }
 
   @Override
-  public @NotNull DataBuf.Mutable asMutable() {
+  public @NonNull DataBuf.Mutable asMutable() {
     return new NettyMutableDataBuf(this.byteBuf);
   }
 
   @Override
-  public @NotNull DataBuf disableReleasing() {
+  public @NonNull DataBuf disableReleasing() {
     this.releasable = false;
     return this;
   }
 
   @Override
-  public @NotNull DataBuf enableReleasing() {
+  public @NonNull DataBuf enableReleasing() {
     this.releasable = true;
     return this;
   }
@@ -185,11 +185,11 @@ public class NettyImmutableDataBuf implements DataBuf {
   }
 
   @Internal
-  public @NotNull ByteBuf getByteBuf() {
+  public @NonNull ByteBuf byteBuf() {
     return this.byteBuf;
   }
 
-  protected @NotNull <T> T hotRead(@NotNull Function<ByteBuf, T> reader) {
+  protected @NonNull <T> T hotRead(@NonNull Function<ByteBuf, T> reader) {
     // get the result
     var result = reader.apply(this.byteBuf);
     // check if the reader index reached the end and try to release the message then

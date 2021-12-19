@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.driver.module;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * Thrown when a module requires another specific module version but the version of that module is outdated.
@@ -33,18 +33,18 @@ public class ModuleDependencyOutdatedException extends RuntimeException {
    * @param actual          the actual running version of the semver index.
    */
   public ModuleDependencyOutdatedException(
-    @NotNull IModuleWrapper requiringModule,
-    @NotNull ModuleDependency dependency,
-    @NotNull String semverIndex,
+    @NonNull IModuleWrapper requiringModule,
+    @NonNull ModuleDependency dependency,
+    @NonNull String semverIndex,
     int required,
     int actual
   ) {
     super(String.format(
       "Module %s:%s requires minimum %s version %d of %s:%s but is currently %d",
-      requiringModule.getModule().getGroup(), requiringModule.getModule().getName(),
+      requiringModule.module().group(), requiringModule.module().name(),
       semverIndex,
       required,
-      dependency.getGroup(), dependency.getName(),
+      dependency.group(), dependency.name(),
       actual
     ));
   }

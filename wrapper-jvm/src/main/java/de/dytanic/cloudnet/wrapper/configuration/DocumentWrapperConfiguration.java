@@ -22,8 +22,7 @@ import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * The default json based wrapper configuration for the service. It loads only the configuration with the constructor
@@ -31,57 +30,17 @@ import org.jetbrains.annotations.NotNull;
  *
  * @see IWrapperConfiguration
  */
-public final class DocumentWrapperConfiguration implements IWrapperConfiguration {
+public record DocumentWrapperConfiguration(
+  @NonNull String connectionKey,
+  @NonNull HostAndPort targetListener,
+  @NonNull SSLConfiguration sslConfiguration,
+  @NonNull ServiceInfoSnapshot serviceInfoSnapshot,
+  @NonNull ServiceConfiguration serviceConfiguration) implements IWrapperConfiguration {
 
-  private static final Path WRAPPER_CONFIG_PATH = Paths.get(
+  private static final Path WRAPPER_CONFIG_PATH = Path.of(
     System.getProperty("cloudnet.wrapper.config.path", ".wrapper/wrapper.json"));
 
-  private final String connectionKey;
-  private final HostAndPort targetListener;
-  private final SSLConfiguration sslConfiguration;
-  private final ServiceInfoSnapshot serviceInfoSnapshot;
-  private final ServiceConfiguration serviceConfiguration;
-
-  public DocumentWrapperConfiguration(
-    @NotNull String connectionKey,
-    @NotNull HostAndPort targetListener,
-    @NotNull SSLConfiguration sslConfiguration,
-    @NotNull ServiceInfoSnapshot serviceInfoSnapshot,
-    @NotNull ServiceConfiguration serviceConfiguration
-  ) {
-    this.connectionKey = connectionKey;
-    this.targetListener = targetListener;
-    this.sslConfiguration = sslConfiguration;
-    this.serviceInfoSnapshot = serviceInfoSnapshot;
-    this.serviceConfiguration = serviceConfiguration;
-  }
-
-  public static @NotNull IWrapperConfiguration load() {
+  public static @NonNull IWrapperConfiguration load() {
     return JsonDocument.newDocument(WRAPPER_CONFIG_PATH).toInstanceOf(DocumentWrapperConfiguration.class);
-  }
-
-  @Override
-  public @NotNull String getConnectionKey() {
-    return this.connectionKey;
-  }
-
-  @Override
-  public @NotNull HostAndPort getTargetListener() {
-    return this.targetListener;
-  }
-
-  @Override
-  public @NotNull ServiceInfoSnapshot getServiceInfoSnapshot() {
-    return this.serviceInfoSnapshot;
-  }
-
-  @Override
-  public @NotNull ServiceConfiguration getServiceConfiguration() {
-    return this.serviceConfiguration;
-  }
-
-  @Override
-  public @NotNull SSLConfiguration getSSLConfig() {
-    return this.sslConfiguration;
   }
 }

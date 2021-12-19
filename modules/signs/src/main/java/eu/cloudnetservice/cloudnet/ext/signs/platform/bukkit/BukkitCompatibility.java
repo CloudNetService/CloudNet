@@ -23,19 +23,19 @@ import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignLayout;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import lombok.NonNull;
 import org.bukkit.DyeColor;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.material.Colorable;
 import org.bukkit.material.Sign;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Internal
 public final class BukkitCompatibility {
 
-  private static final Logger LOGGER = LogManager.getLogger(BukkitCompatibility.class);
+  private static final Logger LOGGER = LogManager.logger(BukkitCompatibility.class);
 
   private static final Class<?> WALL_SIGN_CLASS;
 
@@ -93,7 +93,7 @@ public final class BukkitCompatibility {
     throw new UnsupportedOperationException();
   }
 
-  public static @Nullable BlockFace getFacing(@NotNull BlockState blockState) {
+  public static @Nullable BlockFace facing(@NonNull BlockState blockState) {
     if (WALL_SIGN_CLASS != null && GET_BLOCK_DATA != null && WALL_SIGN_GET_FACING != null) {
       // modern bukkit lookup is possible
       try {
@@ -115,10 +115,10 @@ public final class BukkitCompatibility {
     return null;
   }
 
-  public static void setSignGlowing(@NotNull org.bukkit.block.Sign sign, @NotNull SignLayout layout) {
-    if (SET_GLOWING != null && SET_DYE_COLOR != null && layout.getGlowingColor() != null) {
+  public static void signGlowing(@NonNull org.bukkit.block.Sign sign, @NonNull SignLayout layout) {
+    if (SET_GLOWING != null && SET_DYE_COLOR != null && layout.glowingColor() != null) {
       // try to find the defined dye color
-      var color = Enums.getIfPresent(DyeColor.class, layout.getGlowingColor().toUpperCase()).orNull();
+      var color = Enums.getIfPresent(DyeColor.class, layout.glowingColor().toUpperCase()).orNull();
       if (color != null) {
         try {
           // enable the glowing of the sign

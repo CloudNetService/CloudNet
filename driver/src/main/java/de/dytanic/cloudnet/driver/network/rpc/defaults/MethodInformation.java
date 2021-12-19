@@ -23,7 +23,7 @@ import de.dytanic.cloudnet.driver.network.rpc.defaults.handler.invoker.MethodInv
 import de.dytanic.cloudnet.driver.network.rpc.exception.CannotDecideException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class MethodInformation {
@@ -38,11 +38,11 @@ public class MethodInformation {
   private final MethodInvoker methodInvoker;
 
   public MethodInformation(
-    @NotNull String name,
-    @NotNull Type rType,
-    @NotNull Type[] arguments,
+    @NonNull String name,
+    @NonNull Type rType,
+    @NonNull Type[] arguments,
     @Nullable Object sourceInstance,
-    @NotNull Class<?> definingClass,
+    @NonNull Class<?> definingClass,
     @Nullable MethodInvokerGenerator generator
   ) {
     this.name = name;
@@ -55,17 +55,20 @@ public class MethodInformation {
     this.methodInvoker = generator == null ? null : generator.makeMethodInvoker(this);
   }
 
-  public static @NotNull MethodInformation find(
+  public static @NonNull MethodInformation find(
     @Nullable Object instance,
-    @NotNull Class<?> sourceClass,
-    @NotNull String name,
-    @Nullable MethodInvokerGenerator generator
+    @NonNull Class<?> sourceClass,
+    @NonNull String name,
+    @Nullable MethodInvokerGenerator generator,
+    int argumentCount
   ) {
     // filter all technically possible methods
     Method method = null;
     for (var declaredMethod : sourceClass.getDeclaredMethods()) {
       // check if the method might be a candidate
-      if (declaredMethod.getName().equals(name) && !declaredMethod.isAnnotationPresent(RPCIgnore.class)) {
+      if (declaredMethod.getName().equals(name)
+        && !declaredMethod.isAnnotationPresent(RPCIgnore.class)
+        && declaredMethod.getParameterCount() == argumentCount) {
         if (method != null) {
           // we found more than one method we could call, fail here
           throw new CannotDecideException(name);
@@ -88,35 +91,35 @@ public class MethodInformation {
       generator);
   }
 
-  public @NotNull String getName() {
+  public @NonNull String name() {
     return this.name;
   }
 
-  public @NotNull Type getReturnType() {
+  public @NonNull Type returnType() {
     return this.returnType;
   }
 
-  public @NotNull Class<?> getRawReturnType() {
+  public @NonNull Class<?> rawReturnType() {
     return this.rawReturnType;
   }
 
-  public Type @NotNull [] getArguments() {
+  public Type @NonNull [] arguments() {
     return this.arguments;
   }
 
-  public boolean isVoidMethod() {
+  public boolean voidMethod() {
     return this.voidMethod;
   }
 
-  public Object getSourceInstance() {
+  public Object sourceInstance() {
     return this.sourceInstance;
   }
 
-  public @NotNull Class<?> getDefiningClass() {
+  public @NonNull Class<?> definingClass() {
     return this.definingClass;
   }
 
-  public MethodInvoker getMethodInvoker() {
+  public MethodInvoker methodInvoker() {
     return this.methodInvoker;
   }
 }

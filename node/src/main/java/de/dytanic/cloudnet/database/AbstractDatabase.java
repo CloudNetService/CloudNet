@@ -20,7 +20,7 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.database.Database;
 import java.util.concurrent.ExecutorService;
 import java.util.function.BiConsumer;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public abstract class AbstractDatabase implements LocalDatabase, Database {
 
@@ -29,9 +29,9 @@ public abstract class AbstractDatabase implements LocalDatabase, Database {
   protected final AbstractDatabaseProvider databaseProvider;
 
   protected AbstractDatabase(
-    @NotNull String name,
-    @NotNull ExecutorService executorService,
-    @NotNull AbstractDatabaseProvider databaseProvider
+    @NonNull String name,
+    @NonNull ExecutorService executorService,
+    @NonNull AbstractDatabaseProvider databaseProvider
   ) {
     this.name = name;
     this.executorService = executorService;
@@ -39,13 +39,13 @@ public abstract class AbstractDatabase implements LocalDatabase, Database {
   }
 
   @Override
-  public @NotNull String getName() {
+  public @NonNull String name() {
     return this.name;
   }
 
   @Override
-  public void iterate(@NotNull BiConsumer<String, JsonDocument> consumer, int chunkSize) {
-    var documentCount = this.getDocumentsCount();
+  public void iterate(@NonNull BiConsumer<String, JsonDocument> consumer, int chunkSize) {
+    var documentCount = this.documentCount();
     if (documentCount != 0) {
       long currentIndex = 0;
       while (currentIndex < documentCount) {

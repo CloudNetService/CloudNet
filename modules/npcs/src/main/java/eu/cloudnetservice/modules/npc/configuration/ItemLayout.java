@@ -19,49 +19,25 @@ package eu.cloudnetservice.modules.npc.configuration;
 import com.google.common.base.Verify;
 import java.util.ArrayList;
 import java.util.List;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
-public class ItemLayout {
+public record ItemLayout(
+  @NonNull String material,
+  int subId,
+  @NonNull String displayName,
+  @NonNull List<String> lore
+) {
 
-  private final String material;
-  private final int subId;
-
-  private final String displayName;
-  private final List<String> lore;
-
-  protected ItemLayout(String material, int subId, String displayName, List<String> lore) {
-    this.material = material;
-    this.subId = subId;
-    this.displayName = displayName;
-    this.lore = lore;
-  }
-
-  public static @NotNull Builder builder() {
+  public static @NonNull Builder builder() {
     return new Builder();
   }
 
-  public static @NotNull Builder builder(@NotNull ItemLayout layout) {
+  public static @NonNull Builder builder(@NonNull ItemLayout layout) {
     return builder()
-      .material(layout.getMaterial())
-      .subId(layout.getSubId())
-      .displayName(layout.getDisplayName())
-      .lore(layout.getLore());
-  }
-
-  public @NotNull String getMaterial() {
-    return this.material;
-  }
-
-  public int getSubId() {
-    return this.subId;
-  }
-
-  public @NotNull String getDisplayName() {
-    return this.displayName;
-  }
-
-  public @NotNull List<String> getLore() {
-    return this.lore;
+      .material(layout.material())
+      .subId(layout.subId())
+      .displayName(layout.displayName())
+      .lore(layout.lore());
   }
 
   public static class Builder {
@@ -71,7 +47,7 @@ public class ItemLayout {
     private String displayName;
     private List<String> lore = new ArrayList<>();
 
-    public Builder material(@NotNull String material) {
+    public Builder material(@NonNull String material) {
       this.material = material;
       return this;
     }
@@ -81,12 +57,12 @@ public class ItemLayout {
       return this;
     }
 
-    public Builder displayName(@NotNull String displayName) {
+    public Builder displayName(@NonNull String displayName) {
       this.displayName = displayName;
       return this;
     }
 
-    public Builder lore(@NotNull List<String> lore) {
+    public Builder lore(@NonNull List<String> lore) {
       this.lore = new ArrayList<>(lore);
       return this;
     }

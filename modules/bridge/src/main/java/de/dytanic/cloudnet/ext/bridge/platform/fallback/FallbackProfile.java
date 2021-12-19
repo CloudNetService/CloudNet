@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.ext.bridge.platform.fallback;
 
 import java.util.HashSet;
 import java.util.Set;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class FallbackProfile {
 
@@ -28,11 +28,11 @@ public final class FallbackProfile {
     this.triedServices.clear();
   }
 
-  public void selectService(@NotNull String service) {
+  public void selectService(@NonNull String service) {
     this.triedServices.add(service);
   }
 
-  public boolean hasTried(@NotNull String service) {
+  public boolean hasTried(@NonNull String service) {
     return this.triedServices.contains(service);
   }
 }

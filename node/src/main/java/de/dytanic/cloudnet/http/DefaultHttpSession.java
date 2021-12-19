@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DefaultHttpSession implements HttpSession {
@@ -48,7 +48,7 @@ public class DefaultHttpSession implements HttpSession {
   }
 
   @Override
-  public long getExpireTime() {
+  public long expireTime() {
     return this.expireTime.get();
   }
 
@@ -58,50 +58,50 @@ public class DefaultHttpSession implements HttpSession {
   }
 
   @Override
-  public @NotNull String getUniqueId() {
+  public @NonNull String uniqueId() {
     return this.uniqueId;
   }
 
   @Override
-  public @NotNull UUID getUserId() {
+  public @NonNull UUID userId() {
     return this.userId;
   }
 
   @Override
-  public PermissionUser getUser() {
-    return CloudNetDriver.getInstance().getPermissionManagement().getUser(this.userId);
+  public PermissionUser user() {
+    return CloudNetDriver.instance().permissionManagement().user(this.userId);
   }
 
   @Override
-  public <T> T getProperty(@NotNull String key) {
-    return this.getProperty(key, null);
+  public <T> T property(@NonNull String key) {
+    return this.property(key, null);
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T getProperty(@NotNull String key, @Nullable T def) {
+  public <T> T property(@NonNull String key, @Nullable T def) {
     return (T) this.properties.getOrDefault(key, def);
   }
 
   @Override
-  public @NotNull HttpSession setProperty(@NotNull String key, @NotNull Object value) {
+  public @NonNull HttpSession setProperty(@NonNull String key, @NonNull Object value) {
     this.properties.put(key, value);
     return this;
   }
 
   @Override
-  public @NotNull HttpSession removeProperty(@NotNull String key) {
+  public @NonNull HttpSession removeProperty(@NonNull String key) {
     this.properties.remove(key);
     return this;
   }
 
   @Override
-  public boolean hasProperty(@NotNull String key) {
+  public boolean hasProperty(@NonNull String key) {
     return this.properties.containsKey(key);
   }
 
   @Override
-  public @NotNull Map<String, Object> getProperties() {
+  public @NonNull Map<String, Object> properties() {
     return this.properties;
   }
 }

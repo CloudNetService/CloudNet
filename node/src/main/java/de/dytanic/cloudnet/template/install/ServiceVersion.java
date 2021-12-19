@@ -22,7 +22,7 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class ServiceVersion implements INameable {
 
@@ -35,18 +35,18 @@ public class ServiceVersion implements INameable {
   private boolean deprecated;
   private boolean cacheFiles = true;
 
-  private JsonDocument properties = JsonDocument.empty();
+  private JsonDocument properties = JsonDocument.emptyDocument();
   private Map<String, String> additionalDownloads = Collections.emptyMap();
 
   public ServiceVersion(
-    @NotNull String name,
-    @NotNull String url,
+    @NonNull String name,
+    @NonNull String url,
     int minJavaVersion,
     int maxJavaVersion,
     boolean deprecated,
     boolean cacheFiles,
-    @NotNull JsonDocument properties,
-    @NotNull Map<String, String> additionalDownloads
+    @NonNull JsonDocument properties,
+    @NonNull Map<String, String> additionalDownloads
   ) {
     this.name = name;
     this.url = url;
@@ -61,19 +61,19 @@ public class ServiceVersion implements INameable {
   public ServiceVersion() {
   }
 
-  public boolean isCacheFiles() {
+  public boolean cacheFiles() {
     return this.cacheFiles;
   }
 
-  public boolean isDeprecated() {
+  public boolean deprecated() {
     return this.deprecated;
   }
 
   public boolean canRun() {
-    return this.canRun(JavaVersion.getRuntimeVersion());
+    return this.canRun(JavaVersion.runtimeVersion());
   }
 
-  public boolean canRun(@NotNull JavaVersion javaVersion) {
+  public boolean canRun(@NonNull JavaVersion javaVersion) {
     var minJavaVersion = JavaVersion.fromVersion(this.minJavaVersion);
     var maxJavaVersion = JavaVersion.fromVersion(this.maxJavaVersion);
 
@@ -85,31 +85,31 @@ public class ServiceVersion implements INameable {
       .orElseGet(() -> maxJavaVersion.map(javaVersion::isSupportedByMax).orElse(true));
   }
 
-  public @NotNull String getName() {
+  public @NonNull String name() {
     return this.name;
   }
 
-  public String getUrl() {
+  public String url() {
     return this.url;
   }
 
-  public void setUrl(@NotNull String url) {
+  public void url(@NonNull String url) {
     this.url = url;
   }
 
-  public @NotNull Optional<JavaVersion> getMinJavaVersion() {
+  public @NonNull Optional<JavaVersion> minJavaVersion() {
     return JavaVersion.fromVersion(this.minJavaVersion);
   }
 
-  public @NotNull Optional<JavaVersion> getMaxJavaVersion() {
+  public @NonNull Optional<JavaVersion> maxJavaVersion() {
     return JavaVersion.fromVersion(this.maxJavaVersion);
   }
 
-  public @NotNull JsonDocument getProperties() {
+  public @NonNull JsonDocument properties() {
     return this.properties;
   }
 
-  public @NotNull Map<String, String> getAdditionalDownloads() {
+  public @NonNull Map<String, String> additionalDownloads() {
     return this.additionalDownloads;
   }
 }

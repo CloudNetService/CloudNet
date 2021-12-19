@@ -26,7 +26,7 @@ import de.dytanic.cloudnet.event.setup.SetupInitiateEvent;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfigurationEntry;
 import eu.cloudnetservice.modules.npc.node.NodeNPCManagement;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class NodeSetupListener {
 
@@ -42,36 +42,36 @@ public final class NodeSetupListener {
 
   private final NodeNPCManagement management;
 
-  public NodeSetupListener(@NotNull NodeNPCManagement management) {
+  public NodeSetupListener(@NonNull NodeNPCManagement management) {
     this.management = management;
   }
 
   @EventListener
-  public void handle(@NotNull SetupInitiateEvent event) {
-    event.getSetup().getEntries().stream()
-      .filter(entry -> entry.getKey().equals("taskEnvironment"))
+  public void handle(@NonNull SetupInitiateEvent event) {
+    event.setup().entries().stream()
+      .filter(entry -> entry.key().equals("taskEnvironment"))
       .findFirst()
-      .ifPresent(entry -> entry.getAnswerType().thenAccept(($, environment) -> {
-        if (!event.getSetup().hasResult("generateDefaultNPCConfigurationEntry")
+      .ifPresent(entry -> entry.answerType().thenAccept(($, environment) -> {
+        if (!event.setup().hasResult("generateDefaultNPCConfigurationEntry")
           && ServiceEnvironmentType.isMinecraftServer((ServiceEnvironmentType) environment)) {
-          event.getSetup().addEntries(CREATE_ENTRY_QUESTION_LIST);
+          event.setup().addEntries(CREATE_ENTRY_QUESTION_LIST);
         }
       }));
   }
 
   @EventListener
-  public void handle(@NotNull SetupCompleteEvent event) {
-    if (event.getSetup().hasResult("generateDefaultNPCConfigurationEntry")) {
-      String taskName = event.getSetup().getResult("taskName");
-      Boolean generateNPCConfig = event.getSetup().getResult("generateDefaultNPCConfigurationEntry");
+  public void handle(@NonNull SetupCompleteEvent event) {
+    if (event.setup().hasResult("generateDefaultNPCConfigurationEntry")) {
+      String taskName = event.setup().result("taskName");
+      Boolean generateNPCConfig = event.setup().result("generateDefaultNPCConfigurationEntry");
 
       if (taskName != null && generateNPCConfig) {
-        var entries = this.management.getNPCConfiguration().getEntries();
-        if (entries.stream().noneMatch(entry -> entry.getTargetGroup().equals(taskName))) {
+        var entries = this.management.npcConfiguration().entries();
+        if (entries.stream().noneMatch(entry -> entry.targetGroup().equals(taskName))) {
           // add the new entry
           entries.add(NPCConfigurationEntry.builder().targetGroup(taskName).build());
           // update the config
-          this.management.setNPCConfiguration(NPCConfiguration.builder()
+          this.management.npcConfiguration(NPCConfiguration.builder()
             .entries(entries)
             .build());
         }

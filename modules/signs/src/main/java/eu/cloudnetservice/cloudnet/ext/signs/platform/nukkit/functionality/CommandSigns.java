@@ -38,9 +38,9 @@ public class CommandSigns implements CommandExecutor {
       return true;
     }
 
-    var entry = this.signManagement.getApplicableSignConfigurationEntry();
+    var entry = this.signManagement.applicableSignConfigurationEntry();
     if (entry == null) {
-      this.signManagement.getSignsConfiguration().sendMessage("command-cloudsign-no-entry", sender::sendMessage);
+      this.signManagement.signsConfiguration().sendMessage("command-cloudsign-no-entry", sender::sendMessage);
       return true;
     }
 
@@ -48,10 +48,10 @@ public class CommandSigns implements CommandExecutor {
       var targetBlock = player.getTargetBlock(15);
       var blockEntity = targetBlock.getLevel().getBlockEntity(targetBlock.getLocation());
       if (blockEntity instanceof BlockEntitySign) {
-        var sign = this.signManagement.getSignAt((BlockEntitySign) blockEntity);
+        var sign = this.signManagement.signAt((BlockEntitySign) blockEntity);
         if (sign != null) {
-          this.signManagement.getSignsConfiguration().sendMessage("command-cloudsign-sign-already-exist",
-            player::sendMessage, m -> m.replace("%group%", sign.getTargetGroup()));
+          this.signManagement.signsConfiguration().sendMessage("command-cloudsign-sign-already-exist",
+            player::sendMessage, m -> m.replace("%group%", sign.targetGroup()));
           return true;
         }
 
@@ -60,23 +60,23 @@ public class CommandSigns implements CommandExecutor {
           args[1], args.length == 3 ? args[2] : null
         );
         if (createdSign != null) {
-          this.signManagement.getSignsConfiguration().sendMessage("command-cloudsign-create-success",
-            player::sendMessage, m -> m.replace("%group%", createdSign.getTargetGroup()));
+          this.signManagement.signsConfiguration().sendMessage("command-cloudsign-create-success",
+            player::sendMessage, m -> m.replace("%group%", createdSign.targetGroup()));
         }
       } else {
-        this.signManagement.getSignsConfiguration()
+        this.signManagement.signsConfiguration()
           .sendMessage("command-cloudsign-not-looking-at-sign", player::sendMessage);
       }
 
       return true;
     } else if (args.length == 1 && args[0].equalsIgnoreCase("cleanup")) {
       var removed = this.signManagement.removeMissingSigns();
-      this.signManagement.getSignsConfiguration().sendMessage("command-cloudsign-cleanup-success", player::sendMessage,
+      this.signManagement.signsConfiguration().sendMessage("command-cloudsign-cleanup-success", player::sendMessage,
         m -> m.replace("%amount%", Integer.toString(removed)));
       return true;
     } else if (args.length == 1 && args[0].equalsIgnoreCase("removeall")) {
       var removed = this.signManagement.deleteAllSigns();
-      this.signManagement.getSignsConfiguration()
+      this.signManagement.signsConfiguration()
         .sendMessage("command-cloudsign-bulk-remove-success", player::sendMessage,
           m -> m.replace("%amount%", Integer.toString(removed)));
       return true;
@@ -84,17 +84,17 @@ public class CommandSigns implements CommandExecutor {
       var targetBlock = player.getTargetBlock(15);
       var blockEntity = targetBlock.getLevel().getBlockEntity(targetBlock.getLocation());
       if (blockEntity instanceof BlockEntitySign) {
-        var sign = this.signManagement.getSignAt((BlockEntitySign) blockEntity);
+        var sign = this.signManagement.signAt((BlockEntitySign) blockEntity);
         if (sign == null) {
-          this.signManagement.getSignsConfiguration()
+          this.signManagement.signsConfiguration()
             .sendMessage("command-cloudsign-remove-not-existing", player::sendMessage);
         } else {
           this.signManagement.deleteSign(sign);
-          this.signManagement.getSignsConfiguration()
+          this.signManagement.signsConfiguration()
             .sendMessage("command-cloudsign-remove-success", player::sendMessage);
         }
       } else {
-        this.signManagement.getSignsConfiguration()
+        this.signManagement.signsConfiguration()
           .sendMessage("command-cloudsign-not-looking-at-sign", player::sendMessage);
       }
 

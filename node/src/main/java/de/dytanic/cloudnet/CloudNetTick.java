@@ -28,14 +28,14 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class CloudNetTick {
 
   public static final int TPS = 10;
   public static final int MILLIS_BETWEEN_TICKS = 1000 / TPS;
 
-  private static final Logger LOGGER = LogManager.getLogger(CloudNetTick.class);
+  private static final Logger LOGGER = LogManager.logger(CloudNetTick.class);
 
   private final CloudNet cloudNet;
   private final AtomicInteger tickPauseRequests = new AtomicInteger();
@@ -48,28 +48,28 @@ public final class CloudNetTick {
     this.cloudNet = cloudNet;
   }
 
-  public @NotNull ITask<Void> runTask(@NotNull Runnable runnable) {
+  public @NonNull ITask<Void> runTask(@NonNull Runnable runnable) {
     return this.runTask(() -> {
       runnable.run();
       return null;
     });
   }
 
-  public @NotNull <T> ITask<T> runTask(@NotNull Callable<T> callable) {
-    var task = new ScheduledTask<T>(callable, 0, 1, this.currentTick.get() + 1);
+  public @NonNull <T> ITask<T> runTask(@NonNull Callable<T> callable) {
+    var task = new ScheduledTask<>(callable, 0, 1, this.currentTick.get() + 1);
     this.processQueue.offer(task);
     return task;
   }
 
-  public @NotNull ITask<Void> runDelayedTask(@NotNull Runnable runnable, long delay, @NotNull TimeUnit timeUnit) {
+  public @NonNull ITask<Void> runDelayedTask(@NonNull Runnable runnable, long delay, @NonNull TimeUnit timeUnit) {
     return this.runDelayedTask(() -> {
       runnable.run();
       return null;
     }, delay, timeUnit);
   }
 
-  public @NotNull <T> ITask<T> runDelayedTask(@NotNull Callable<T> callable, long delay, @NotNull TimeUnit timeUnit) {
-    var task = new ScheduledTask<T>(
+  public @NonNull <T> ITask<T> runDelayedTask(@NonNull Callable<T> callable, long delay, @NonNull TimeUnit timeUnit) {
+    var task = new ScheduledTask<>(
       callable,
       0,
       1,
@@ -78,12 +78,12 @@ public final class CloudNetTick {
     return task;
   }
 
-  public @NotNull <T> ITask<T> scheduleTask(@NotNull Callable<T> callable, long delay) {
+  public @NonNull <T> ITask<T> scheduleTask(@NonNull Callable<T> callable, long delay) {
     return this.scheduleTask(callable, delay, -1);
   }
 
-  public @NotNull <T> ITask<T> scheduleTask(@NotNull Callable<T> callable, long delay, long maxExecutions) {
-    var task = new ScheduledTask<T>(
+  public @NonNull <T> ITask<T> scheduleTask(@NonNull Callable<T> callable, long delay, long maxExecutions) {
+    var task = new ScheduledTask<>(
       callable,
       delay,
       maxExecutions,
@@ -100,7 +100,7 @@ public final class CloudNetTick {
     this.tickPauseRequests.decrementAndGet();
   }
 
-  public long getCurrentTick() {
+  public long currentTick() {
     return this.currentTick.get();
   }
 
@@ -109,7 +109,7 @@ public final class CloudNetTick {
     long lastTickLength;
     var lastTick = System.currentTimeMillis();
 
-    while (this.cloudNet.isRunning()) {
+    while (this.cloudNet.running()) {
       try {
         // update the current tick we are in
         tick = this.currentTick.getAndIncrement();
@@ -137,20 +137,20 @@ public final class CloudNetTick {
           }
 
           // check if the node is marked for draining
-          if (this.cloudNet.getClusterNodeServerProvider().getSelfNode().isDrain()) {
+          if (this.cloudNet.nodeServerProvider().selfNode().drain()) {
             // check if there are no services on the node
-            if (this.cloudNet.getCloudServiceProvider().getLocalCloudServices().isEmpty()) {
+            if (this.cloudNet.cloudServiceProvider().localCloudServices().isEmpty()) {
               // stop the node as it's marked for draining
               this.cloudNet.stop();
             }
           }
 
           // check if we should start a service now
-          if (this.cloudNet.getClusterNodeServerProvider().getSelfNode().isHeadNode() && tick % TPS == 0) {
+          if (this.cloudNet.nodeServerProvider().selfNode().headNode() && tick % TPS == 0) {
             this.startService();
           }
 
-          this.cloudNet.getEventManager().callEvent(this.tickEvent);
+          this.cloudNet.eventManager().callEvent(this.tickEvent);
         }
       } catch (Exception exception) {
         LOGGER.severe("Exception while ticking", exception);
@@ -159,16 +159,16 @@ public final class CloudNetTick {
   }
 
   private void startService() {
-    for (var task : this.cloudNet.getServiceTaskProvider().getPermanentServiceTasks()) {
-      if (!task.isMaintenance()) {
+    for (var task : this.cloudNet.serviceTaskProvider().permanentServiceTasks()) {
+      if (!task.maintenance()) {
         // get the count of running services
-        var runningServiceCount = this.cloudNet.getCloudServiceProvider().getCloudServicesByTask(task.getName())
+        var runningServiceCount = this.cloudNet.cloudServiceProvider().servicesByTask(task.name())
           .stream()
-          .filter(taskService -> taskService.getLifeCycle() == ServiceLifeCycle.RUNNING)
+          .filter(taskService -> taskService.lifeCycle() == ServiceLifeCycle.RUNNING)
           .count();
         // check if we need to start a service
-        if (task.getMinServiceCount() > runningServiceCount) {
-          this.cloudNet.getCloudServiceProvider().selectOrCreateService(task).start();
+        if (task.minServiceCount() > runningServiceCount) {
+          this.cloudNet.cloudServiceProvider().selectOrCreateService(task).start();
         }
       }
     }
@@ -194,7 +194,7 @@ public final class CloudNetTick {
      */
     private long nextScheduledTick;
 
-    public ScheduledTask(@NotNull Callable<T> callable, long tickPeriod, long executionTimes, long nextScheduledTick) {
+    public ScheduledTask(@NonNull Callable<T> callable, long tickPeriod, long executionTimes, long nextScheduledTick) {
       super(callable);
 
       this.tickPeriod = tickPeriod;

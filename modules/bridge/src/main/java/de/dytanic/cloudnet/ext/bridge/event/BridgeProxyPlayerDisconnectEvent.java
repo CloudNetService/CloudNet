@@ -18,17 +18,17 @@ package de.dytanic.cloudnet.ext.bridge.event;
 
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
 import de.dytanic.cloudnet.ext.bridge.player.CloudPlayer;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class BridgeProxyPlayerDisconnectEvent extends DriverEvent {
 
   private final CloudPlayer cloudPlayer;
 
-  public BridgeProxyPlayerDisconnectEvent(@NotNull CloudPlayer cloudPlayer) {
+  public BridgeProxyPlayerDisconnectEvent(@NonNull CloudPlayer cloudPlayer) {
     this.cloudPlayer = cloudPlayer;
   }
 
-  public @NotNull CloudPlayer getCloudPlayer() {
+  public @NonNull CloudPlayer cloudPlayer() {
     return this.cloudPlayer;
   }
 }

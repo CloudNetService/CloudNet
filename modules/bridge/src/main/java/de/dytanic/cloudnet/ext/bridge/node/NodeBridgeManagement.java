@@ -30,7 +30,7 @@ import de.dytanic.cloudnet.ext.bridge.event.BridgeConfigurationUpdateEvent;
 import de.dytanic.cloudnet.ext.bridge.node.network.NodeBridgeChannelMessageListener;
 import de.dytanic.cloudnet.ext.bridge.node.player.NodePlayerManager;
 import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class NodeBridgeManagement implements BridgeManagement {
 
@@ -41,11 +41,11 @@ public class NodeBridgeManagement implements BridgeManagement {
   private BridgeConfiguration configuration;
 
   public NodeBridgeManagement(
-    @NotNull CloudNetBridgeModule bridgeModule,
-    @NotNull BridgeConfiguration configuration,
-    @NotNull IEventManager eventManager,
-    @NotNull DataSyncRegistry registry,
-    @NotNull RPCProviderFactory providerFactory
+    @NonNull CloudNetBridgeModule bridgeModule,
+    @NonNull BridgeConfiguration configuration,
+    @NonNull IEventManager eventManager,
+    @NonNull DataSyncRegistry registry,
+    @NonNull RPCProviderFactory providerFactory
   ) {
     this.eventManager = eventManager;
     this.bridgeModule = bridgeModule;
@@ -59,14 +59,14 @@ public class NodeBridgeManagement implements BridgeManagement {
   }
 
   @Override
-  public @NotNull BridgeConfiguration getConfiguration() {
+  public @NonNull BridgeConfiguration configuration() {
     return this.configuration;
   }
 
   @Override
-  public void setConfiguration(@NotNull BridgeConfiguration configuration) {
+  public void configuration(@NonNull BridgeConfiguration configuration) {
     // update the configuration locally
-    this.setConfigurationSilently(configuration);
+    this.configurationSilently(configuration);
     // sync the config to the cluster
     ChannelMessage.builder()
       .targetAll()
@@ -80,27 +80,27 @@ public class NodeBridgeManagement implements BridgeManagement {
   }
 
   @Override
-  public @NotNull IPlayerManager getPlayerManager() {
+  public @NonNull IPlayerManager playerManager() {
     return this.playerManager;
   }
 
   @Override
-  public void registerServices(@NotNull IServicesRegistry registry) {
+  public void registerServices(@NonNull IServicesRegistry registry) {
     registry.registerService(IPlayerManager.class, "NodePlayerManager", this.playerManager);
   }
 
   @Override
   public void postInit() {
-    for (var task : CloudNet.getInstance().getServiceTaskProvider().getPermanentServiceTasks()) {
+    for (var task : CloudNet.instance().serviceTaskProvider().permanentServiceTasks()) {
       // check if the required permission is set
-      if (!task.getProperties().contains("requiredPermission")) {
-        task.getProperties().appendNull("requiredPermission");
-        CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask(task);
+      if (!task.properties().contains("requiredPermission")) {
+        task.properties().appendNull("requiredPermission");
+        CloudNet.instance().serviceTaskProvider().addPermanentServiceTask(task);
       }
     }
   }
 
-  public void setConfigurationSilently(@NotNull BridgeConfiguration configuration) {
+  public void configurationSilently(@NonNull BridgeConfiguration configuration) {
     // set and write the config
     this.configuration = configuration;
     this.bridgeModule.writeConfig(JsonDocument.newDocument(configuration));

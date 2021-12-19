@@ -19,9 +19,9 @@ package de.dytanic.cloudnet.ext.simplenametags.bukkit;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import lombok.NonNull;
 import org.bukkit.ChatColor;
 import org.bukkit.scoreboard.Team;
-import org.jetbrains.annotations.NotNull;
 
 final class BukkitCompatibility {
 
@@ -47,7 +47,7 @@ final class BukkitCompatibility {
     throw new UnsupportedOperationException();
   }
 
-  public static void setTeamColor(@NotNull Team team, @NotNull ChatColor color) {
+  public static void teamColor(@NonNull Team team, @NonNull ChatColor color) {
     // check if the method is available
     if (SET_COLOR != null) {
       // set the team color

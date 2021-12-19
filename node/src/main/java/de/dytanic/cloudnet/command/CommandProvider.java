@@ -22,7 +22,7 @@ import de.dytanic.cloudnet.driver.command.CommandInfo;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
@@ -35,7 +35,7 @@ public interface CommandProvider {
    * @param input  the input to get the suggestions for
    * @return the suggestions for the current input
    */
-  @NotNull List<String> suggest(@NotNull CommandSource source, @NotNull String input);
+  @NonNull List<String> suggest(@NonNull CommandSource source, @NonNull String input);
 
   /**
    * Executes a command with the given command source and responds to the input. The command is executed
@@ -44,21 +44,21 @@ public interface CommandProvider {
    * @param source the command source that is used to execute the command
    * @param input  the commandline that is executed
    */
-  @NotNull CompletableFuture<?> execute(@NotNull CommandSource source, @NotNull String input);
+  @NonNull CompletableFuture<?> execute(@NonNull CommandSource source, @NonNull String input);
 
   /**
    * Register a command for the node
    *
    * @param command the command to register
    */
-  void register(@NotNull Object command);
+  void register(@NonNull Object command);
 
   /**
    * Unregister all commands that were registered by the given classloader.
    *
    * @param classLoader the class loader that
    */
-  void unregister(@NotNull ClassLoader classLoader);
+  void unregister(@NonNull ClassLoader classLoader);
 
   /**
    * Registers the console input and tab complete handler at the given console.
@@ -78,11 +78,11 @@ public interface CommandProvider {
    * @param name the command root name or an alias of the root
    * @return the command with the given name - null if no command was found with the given name / alias
    */
-  @Nullable CommandInfo getCommand(@NotNull String name);
+  @Nullable CommandInfo command(@NonNull String name);
 
   /**
    * @return all commands that are registered on this node
    */
   @UnmodifiableView
-  @NotNull Collection<CommandInfo> getCommands();
+  @NonNull Collection<CommandInfo> commands();
 }

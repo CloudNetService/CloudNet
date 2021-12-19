@@ -16,20 +16,15 @@
 
 package de.dytanic.cloudnet.common.column;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Range;
 
-public final class ColumnEntry {
+public record ColumnEntry(
+  @Range(from = 0, to = Integer.MAX_VALUE) int columnMinLength,
+  @NonNull String[] formattedEntries
+) {
 
-  private final int columnMinLength;
-  private final String[] formattedEntries;
-
-  private ColumnEntry(int columnMinLength, String[] formattedEntries) {
-    this.columnMinLength = columnMinLength;
-    this.formattedEntries = formattedEntries;
-  }
-
-  public static @NotNull ColumnEntry wrap(@NotNull String @NotNull ... entries) {
+  public static @NonNull ColumnEntry wrap(@NonNull String @NonNull ... entries) {
     // get the longest entry and fill all other entries with spaces
     var longestLength = 0;
     for (var entry : entries) {
@@ -46,13 +41,5 @@ public final class ColumnEntry {
     }
     // parsing successful!
     return new ColumnEntry(longestLength, entries);
-  }
-
-  public @Range(from = 0, to = Integer.MAX_VALUE) int getColumnMinLength() {
-    return this.columnMinLength;
-  }
-
-  public @NotNull String @NotNull [] getFormattedEntries() {
-    return this.formattedEntries;
   }
 }

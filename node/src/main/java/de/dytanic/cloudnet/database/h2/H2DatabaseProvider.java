@@ -21,7 +21,6 @@ import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.database.sql.SQLDatabaseProvider;
 import de.dytanic.cloudnet.database.util.LocalDatabaseUtils;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -30,8 +29,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.ExecutorService;
+import lombok.NonNull;
 import org.h2.Driver;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class H2DatabaseProvider extends SQLDatabaseProvider {
@@ -46,13 +45,13 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
   private final boolean runsInCluster;
   private Connection connection;
 
-  public H2DatabaseProvider(@NotNull String h2File, boolean runsInCluster) {
+  public H2DatabaseProvider(@NonNull String h2File, boolean runsInCluster) {
     this(h2File, runsInCluster, null);
   }
 
-  public H2DatabaseProvider(@NotNull String h2File, boolean runsInCluster, @Nullable ExecutorService executorService) {
+  public H2DatabaseProvider(@NonNull String h2File, boolean runsInCluster, @Nullable ExecutorService executorService) {
     super(executorService);
-    this.h2dbFile = Paths.get(h2File);
+    this.h2dbFile = Path.of(h2File);
     this.runsInCluster = runsInCluster;
   }
 
@@ -68,14 +67,14 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public @NotNull H2Database getDatabase(@NotNull String name) {
+  public @NonNull H2Database database(@NonNull String name) {
     this.removedOutdatedEntries();
     return (H2Database) this.cachedDatabaseInstances.computeIfAbsent(name,
       $ -> new H2Database(this, name, NEW_CREATION_DELAY, super.executorService));
   }
 
   @Override
-  public boolean deleteDatabase(@NotNull String name) {
+  public boolean deleteDatabase(@NonNull String name) {
     if (!this.containsDatabase(name)) {
       return false;
     }
@@ -85,7 +84,7 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public @NotNull Collection<String> getDatabaseNames() {
+  public @NonNull Collection<String> databaseNames() {
     var tableNames = this.executeQuery(
       "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA='PUBLIC'",
       resultSet -> {
@@ -100,7 +99,7 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public @NotNull String getName() {
+  public @NonNull String name() {
     return "h2";
   }
 
@@ -114,12 +113,12 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public @NotNull Connection getConnection() {
+  public @NonNull Connection connection() {
     return this.connection;
   }
 
-  public int executeUpdate(@NotNull String query, @NotNull Object... objects) {
-    try (var preparedStatement = this.getConnection().prepareStatement(query)) {
+  public int executeUpdate(@NonNull String query, @NonNull Object... objects) {
+    try (var preparedStatement = this.connection().prepareStatement(query)) {
       for (var i = 0; i < objects.length; i++) {
         preparedStatement.setString(i + 1, objects[i].toString());
       }
@@ -132,11 +131,11 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
   }
 
   public @Nullable <T> T executeQuery(
-    @NotNull String query,
-    @NotNull ThrowableFunction<ResultSet, T, SQLException> callback,
-    @NotNull Object... objects
+    @NonNull String query,
+    @NonNull ThrowableFunction<ResultSet, T, SQLException> callback,
+    @NonNull Object... objects
   ) {
-    try (var preparedStatement = this.getConnection().prepareStatement(query)) {
+    try (var preparedStatement = this.connection().prepareStatement(query)) {
       for (var i = 0; i < objects.length; i++) {
         preparedStatement.setString(i + 1, objects[i].toString());
       }

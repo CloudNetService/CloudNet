@@ -22,22 +22,22 @@ import de.dytanic.cloudnet.database.sql.SQLDatabaseProvider;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class H2Database extends SQLDatabase {
 
   public H2Database(
-    @NotNull SQLDatabaseProvider databaseProvider,
-    @NotNull String name,
+    @NonNull SQLDatabaseProvider databaseProvider,
+    @NonNull String name,
     long cacheRemovalDelay,
-    @NotNull ExecutorService executorService
+    @NonNull ExecutorService executorService
   ) {
     super(databaseProvider, name, cacheRemovalDelay, executorService);
   }
 
   @Override
-  public boolean isSynced() {
+  public boolean synced() {
     return false;
   }
 

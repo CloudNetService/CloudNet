@@ -34,8 +34,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingDeque;
+import lombok.NonNull;
 import org.fusesource.jansi.Ansi;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
@@ -83,7 +83,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
     this.staticCursor = true;
   }
 
-  public void addEntries(QuestionListEntry<?> @NotNull ... entries) {
+  public void addEntries(QuestionListEntry<?> @NonNull ... entries) {
     if (entries.length != 0) {
       for (var entry : entries) {
         this.entries.offerLast(entry);
@@ -91,7 +91,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
     }
   }
 
-  public void addEntriesFirst(QuestionListEntry<?> @NotNull ... entries) {
+  public void addEntriesFirst(QuestionListEntry<?> @NonNull ... entries) {
     if (entries.length != 0) {
       for (var i = entries.length - 1; i >= 0; i--) {
         this.entries.offerFirst(entries[i]);
@@ -99,50 +99,50 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
     }
   }
 
-  public @NotNull Deque<QuestionListEntry<?>> getEntries() {
+  public @NonNull Deque<QuestionListEntry<?>> entries() {
     return this.entries;
   }
 
-  public boolean isCancelled() {
+  public boolean cancelled() {
     return this.cancelled;
   }
 
-  public boolean isCancellable() {
+  public boolean cancellable() {
     return this.cancellable;
   }
 
-  public void setCancellable(boolean cancellable) {
+  public void cancellable(boolean cancellable) {
     this.cancellable = cancellable;
   }
 
   @SuppressWarnings("unchecked")
-  public <T> T getResult(@NotNull String key) {
+  public <T> T result(@NonNull String key) {
     return (T) this.results.get(key);
   }
 
-  public boolean hasResult(@NotNull String key) {
+  public boolean hasResult(@NonNull String key) {
     return this.results.containsKey(key);
   }
 
   @Override
-  public void setConsole(@NotNull IConsole console) {
-    super.setConsole(console);
+  public void console(@NonNull IConsole console) {
+    super.console(console);
 
     // store the current console setting for resetting later
-    this.previousPrompt = console.getPrompt();
-    this.previousHistory = console.getCommandHistory();
-    this.previousPrintingEnabled = console.isPrintingEnabled();
-    this.previousUseMatchingHistorySearch = console.isUsingMatchingHistoryComplete();
-    this.previousConsoleLines = CloudNet.getInstance().getLogHandler().getFormattedCachedLogLines();
+    this.previousPrompt = console.prompt();
+    this.previousHistory = console.commandHistory();
+    this.previousPrintingEnabled = console.printingEnabled();
+    this.previousUseMatchingHistorySearch = console.usingMatchingHistoryComplete();
+    this.previousConsoleLines = CloudNet.instance().logHandler().formattedCachedLogLines();
 
     // apply the console settings of the animation
     console.clearScreen();
-    console.setCommandHistory(null);
+    console.commandHistory(null);
     console.togglePrinting(false);
-    console.setUsingMatchingHistoryComplete(false);
+    console.usingMatchingHistoryComplete(false);
 
     if (this.overwritePrompt != null) {
-      console.setPrompt(this.overwritePrompt);
+      console.prompt(this.overwritePrompt);
     }
 
     // print the header if supplied
@@ -152,13 +152,13 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
 
     // print a general explanation of the setup process
     console.forceWriteLine("&e" + I18n.trans("ca-question-list-explain"));
-    if (this.isCancellable()) {
+    if (this.cancellable()) {
       console.forceWriteLine("&e" + I18n.trans("ca-question-list-cancel"));
     }
 
     // disable all commands of the console
     console.disableAllHandlers();
-    CloudNet.getInstance().getEventManager().callEvent(new SetupInitiateEvent(this));
+    CloudNet.instance().eventManager().callEvent(new SetupInitiateEvent(this));
   }
 
   @Override
@@ -170,40 +170,40 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
       return true;
     }
 
-    var answerType = entry.getAnswerType();
+    var answerType = entry.answerType();
     // write the recommendation if given
-    if (answerType.getRecommendation() != null) {
-      this.console.setCommandInputValue(answerType.getRecommendation());
+    if (answerType.recommendation() != null) {
+      this.console.commandInputValue(answerType.recommendation());
     }
     // check for possible answers
-    if (!answerType.getPossibleAnswers().isEmpty()) {
+    if (!answerType.possibleAnswers().isEmpty()) {
       // register the tab complete
       this.console.addTabCompleteHandler(
         this.handlerId,
-        new ConsoleAnswerTabCompleteHandler(answerType.getPossibleAnswers()));
+        new ConsoleAnswerTabCompleteHandler(answerType.possibleAnswers()));
       // set the answers in the console history
-      this.console.setCommandHistory(answerType.getPossibleAnswers());
+      this.console.commandHistory(answerType.possibleAnswers());
 
       // collect the possible answers to one string
       var answers = I18n.trans("ca-question-list-possible-answers-list")
-        .replace("%values%", String.join(", ", answerType.getPossibleAnswers()));
+        .replace("%values%", String.join(", ", answerType.possibleAnswers()));
       // write the answers to the console
-      for (var line : this.updateCursor("&r" + entry.getQuestion() + " &r> &e" + answers)) {
-        super.getConsole().forceWriteLine(line);
+      for (var line : this.updateCursor("&r" + entry.question() + " &r> &e" + answers)) {
+        super.console().forceWriteLine(line);
       }
     } else {
       // clear the history
-      this.console.setCommandHistory(null);
+      this.console.commandHistory(null);
       // just write the question into the console
-      for (var line : this.updateCursor("&r" + entry.getQuestion())) {
-        super.getConsole().forceWriteLine(line);
+      for (var line : this.updateCursor("&r" + entry.question())) {
+        super.console().forceWriteLine(line);
       }
     }
 
     // add the command handler which handles the input
     this.console.addCommandHandler(this.handlerId, new ConsoleInputHandler() {
       @Override
-      public void handleInput(@NotNull String line) {
+      public void handleInput(@NonNull String line) {
         try {
           // check if the input was handled - wait for the response if not
           if (ConsoleSetupAnimation.this.handleInput(answerType, entry, line)) {
@@ -241,9 +241,9 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
   }
 
   protected boolean handleInput(
-    @NotNull QuestionAnswerType<?> answerType,
-    @NotNull QuestionListEntry<?> entry,
-    @NotNull String input
+    @NonNull QuestionAnswerType<?> answerType,
+    @NonNull QuestionListEntry<?> entry,
+    @NonNull String input
   ) throws InterruptedException {
     // check if the setup was cancelled using the input
     if (input.equalsIgnoreCase("cancel") && ConsoleSetupAnimation.this.cancellable) {
@@ -257,13 +257,13 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
       var result = answerType.tryParse(input.trim());
       // store the result and post it to the handlers
       answerType.postResult(result);
-      this.results.put(entry.getKey(), result);
+      this.results.put(entry.key(), result);
       // call the event
-      CloudNet.getInstance().getEventManager().callEvent(new SetupResponseEvent(this, entry, result));
+      CloudNet.instance().eventManager().callEvent(new SetupResponseEvent(this, entry, result));
       // re-draw the question line, add the given response to it
       this.console.writeRaw(this.eraseLines(Ansi.ansi().reset(), this.currentCursor + 1)
         .a("&r") // reset of the colors
-        .a(entry.getQuestion()) // the question
+        .a(entry.question()) // the question
         .a(" &r=> &a") // separator between the question and the answer
         .a(input) // the given result
         .a(System.lineSeparator()) // jump to next line
@@ -274,16 +274,16 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
       // invalid input
       this.eraseLastLine(); // remove prompt
       // print the invalid input message to the console
-      var messageLines = answerType.getInvalidInputMessage(input).split(System.lineSeparator());
+      var messageLines = answerType.invalidInputMessage(input).split(System.lineSeparator());
       for (var line : messageLines) {
         this.console.forceWriteLine(line);
       }
       // wait a short period of time for the user to read
       Thread.sleep(1500);
       // erase the invalid lines again
-      this.getConsole().writeRaw(this.eraseLines(Ansi.ansi().reset(), messageLines.length).toString());
+      this.console().writeRaw(this.eraseLines(Ansi.ansi().reset(), messageLines.length).toString());
       // reset the console history
-      this.getConsole().setCommandHistory(answerType.getPossibleAnswers());
+      this.console().commandHistory(answerType.possibleAnswers());
       // continue with the current question
       return false;
     }
@@ -292,17 +292,17 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
   @Override
   public void resetConsole() {
     if (this.cancelled) {
-      super.getConsole().forceWriteLine("&c" + I18n.trans("ca-question-list-cancelled"));
-      CloudNet.getInstance().getEventManager().callEvent(new SetupCancelledEvent(this));
+      super.console().forceWriteLine("&c" + I18n.trans("ca-question-list-cancelled"));
+      CloudNet.instance().eventManager().callEvent(new SetupCancelledEvent(this));
       // reset the cancelled state
       this.cancelled = false;
     } else {
       // print the footer if supplied
       if (this.footer != null) {
-        super.getConsole().forceWriteLine("&r" + this.footer);
+        super.console().forceWriteLine("&r" + this.footer);
       }
 
-      CloudNet.getInstance().getEventManager().callEvent(new SetupCompleteEvent(this));
+      CloudNet.instance().eventManager().callEvent(new SetupCompleteEvent(this));
     }
 
     try {
@@ -312,29 +312,29 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
     }
 
     // remove the setup from the screen
-    this.getConsole().clearScreen();
+    this.console().clearScreen();
 
     // write the old lines back if there are some
     if (this.previousConsoleLines.isEmpty()) {
       // send an empty line to prevent bugs
-      this.getConsole().forceWriteLine("");
+      this.console().forceWriteLine("");
     } else {
       for (var line : this.previousConsoleLines) {
-        this.getConsole().forceWriteLine(line);
+        this.console().forceWriteLine(line);
       }
     }
 
     // reset the console settings
-    this.getConsole().enableAllHandlers();
-    this.getConsole().setPrompt(this.previousPrompt);
-    this.getConsole().setCommandHistory(this.previousHistory);
-    this.getConsole().togglePrinting(this.previousPrintingEnabled);
-    this.getConsole().setUsingMatchingHistoryComplete(this.previousUseMatchingHistorySearch);
+    this.console().enableAllHandlers();
+    this.console().prompt(this.previousPrompt);
+    this.console().commandHistory(this.previousHistory);
+    this.console().togglePrinting(this.previousPrintingEnabled);
+    this.console().usingMatchingHistoryComplete(this.previousUseMatchingHistorySearch);
 
     super.resetConsole();
   }
 
-  private String @NotNull [] updateCursor(String @NotNull ... texts) {
+  private String @NonNull [] updateCursor(String @NonNull ... texts) {
     Collection<String> result = new ArrayList<>(texts.length);
     var length = 0;
     for (var text : texts) {
@@ -348,7 +348,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
     return result.toArray(new String[0]);
   }
 
-  private @NotNull Ansi eraseLines(@NotNull Ansi ansi, int count) {
+  private @NonNull Ansi eraseLines(@NonNull Ansi ansi, int count) {
     for (var i = 0; i < count; i++) {
       ansi.cursorUp(1).eraseLine();
     }

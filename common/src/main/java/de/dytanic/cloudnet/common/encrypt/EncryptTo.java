@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.common.encrypt;
 
 import com.google.common.hash.Hashing;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * Shortcut class to guava hashing methods.
@@ -34,7 +34,7 @@ public final class EncryptTo {
    * @param text the text to hash.
    * @return the same input text hashed with the sha256 algorithm.
    */
-  public static byte @NotNull [] encryptToSHA256(@NotNull String text) {
+  public static byte @NonNull [] encryptToSHA256(@NonNull String text) {
     return Hashing.sha256().hashUnencodedChars(text).asBytes();
   }
 
@@ -44,7 +44,7 @@ public final class EncryptTo {
    * @param bytes the following bytes which should encrypt
    * @return the output SHA-256 hash
    */
-  public static byte @NotNull [] encryptToSHA256(byte @NotNull [] bytes) {
+  public static byte @NonNull [] encryptToSHA256(byte @NonNull [] bytes) {
     return Hashing.sha256().hashBytes(bytes).asBytes();
   }
 }

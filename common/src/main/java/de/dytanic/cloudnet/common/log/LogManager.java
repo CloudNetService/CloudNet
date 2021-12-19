@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.common.log;
 
 import java.util.ServiceLoader;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class LogManager {
 
@@ -27,23 +27,23 @@ public final class LogManager {
     throw new UnsupportedOperationException();
   }
 
-  public static @NotNull Logger getRootLogger() {
-    return LogManager.getLogger(LoggerFactory.ROOT_LOGGER_NAME);
+  public static @NonNull Logger rootLogger() {
+    return LogManager.logger(LoggerFactory.ROOT_LOGGER_NAME);
   }
 
-  public static @NotNull Logger getLogger(@NotNull Class<?> caller) {
-    return LogManager.getLogger(caller.getName());
+  public static @NonNull Logger logger(@NonNull Class<?> caller) {
+    return LogManager.logger(caller.getName());
   }
 
-  public static @NotNull Logger getLogger(@NotNull String name) {
-    return LogManager.getLoggerFactory().getLogger(name);
+  public static @NonNull Logger logger(@NonNull String name) {
+    return LogManager.loggerFactory().logger(name);
   }
 
-  public static @NotNull LoggerFactory getLoggerFactory() {
+  public static @NonNull LoggerFactory loggerFactory() {
     return LOGGER_FACTORY;
   }
 
-  private static @NotNull LoggerFactory loadLoggerFactory() {
+  private static @NonNull LoggerFactory loadLoggerFactory() {
     var factories = ServiceLoader.load(LoggerFactory.class).iterator();
     // check if a logger service is registered
     if (factories.hasNext()) {

@@ -40,7 +40,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
 
@@ -49,38 +49,38 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
   protected final ICloudServiceManager cloudServiceManager;
   protected final IClusterNodeServerProvider nodeServerProvider;
 
-  public NodeMessenger(@NotNull CloudNet nodeInstance) {
-    this.cloudServiceManager = nodeInstance.getCloudServiceProvider();
-    this.nodeServerProvider = nodeInstance.getClusterNodeServerProvider();
+  public NodeMessenger(@NonNull CloudNet nodeInstance) {
+    this.cloudServiceManager = nodeInstance.cloudServiceProvider();
+    this.nodeServerProvider = nodeInstance.nodeServerProvider();
   }
 
   @Override
-  public void sendChannelMessage(@NotNull ChannelMessage message) {
+  public void sendChannelMessage(@NonNull ChannelMessage message) {
     this.sendChannelMessage(message, true);
   }
 
   @Override
-  public @NotNull ITask<Collection<ChannelMessage>> sendChannelMessageQueryAsync(@NotNull ChannelMessage message) {
+  public @NonNull ITask<Collection<ChannelMessage>> sendChannelMessageQueryAsync(@NonNull ChannelMessage message) {
     return this.sendChannelMessageQueryAsync(message, true);
   }
 
   @Override
-  public @NotNull Collection<ChannelMessage> sendChannelMessageQuery(@NotNull ChannelMessage channelMessage) {
+  public @NonNull Collection<ChannelMessage> sendChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
     return this.sendChannelMessageQueryAsync(channelMessage).get(20, TimeUnit.SECONDS, Collections.emptyList());
   }
 
-  public void sendChannelMessage(@NotNull ChannelMessage message, boolean allowClusterRedirect) {
-    for (var channel : this.findChannels(message.getTargets(), allowClusterRedirect)) {
+  public void sendChannelMessage(@NonNull ChannelMessage message, boolean allowClusterRedirect) {
+    for (var channel : this.findChannels(message.targets(), allowClusterRedirect)) {
       channel.sendPacket(new PacketServerChannelMessage(message));
     }
   }
 
-  public @NotNull ITask<Collection<ChannelMessage>> sendChannelMessageQueryAsync(
-    @NotNull ChannelMessage message,
+  public @NonNull ITask<Collection<ChannelMessage>> sendChannelMessageQueryAsync(
+    @NonNull ChannelMessage message,
     boolean allowClusterRedirect
   ) {
     // filter the channels we need to send the message to
-    var channels = this.findChannels(message.getTargets(), allowClusterRedirect);
+    var channels = this.findChannels(message.targets(), allowClusterRedirect);
     // the result we generate
     Set<ChannelMessage> result = new HashSet<>();
     var task = new CountingTask<Collection<ChannelMessage>>(result, channels.size());
@@ -88,9 +88,9 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     for (var channel : channels) {
       channel.sendQueryAsync(new PacketServerChannelMessage(message)).onComplete(resultPacket -> {
         // check if we got an actual result from the request
-        if (resultPacket != Packet.EMPTY && resultPacket.getContent().getReadableBytes() > 0) {
+        if (resultPacket != Packet.EMPTY && resultPacket.content().readableBytes() > 0) {
           // add all resulting messages we got
-          result.addAll(resultPacket.getContent().readObject(COL_MSG));
+          result.addAll(resultPacket.content().readObject(COL_MSG));
         }
         // count down - one channel responded
         task.countDown();
@@ -100,8 +100,8 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     return task;
   }
 
-  protected @NotNull Collection<INetworkChannel> findChannels(
-    @NotNull Collection<ChannelMessageTarget> targets,
+  protected @NonNull Collection<INetworkChannel> findChannels(
+    @NonNull Collection<ChannelMessageTarget> targets,
     boolean allowClusterRedirect
   ) {
     // check if there is only one channel
@@ -116,22 +116,22 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     }
   }
 
-  protected @NotNull Collection<INetworkChannel> findTargetChannels(
-    @NotNull ChannelMessageTarget target,
+  protected @NonNull Collection<INetworkChannel> findTargetChannels(
+    @NonNull ChannelMessageTarget target,
     boolean allowClusterRedirect
   ) {
-    switch (target.getType()) {
+    switch (target.type()) {
       // just include all known channels
       case ALL -> {
         Set<INetworkChannel> result = new HashSet<>();
         // all local services
-        this.cloudServiceManager.getLocalCloudServices().stream()
-            .map(ICloudService::getNetworkChannel)
+        this.cloudServiceManager.localCloudServices().stream()
+            .map(ICloudService::networkChannel)
             .filter(Objects::nonNull)
             .forEach(result::add);
         // all connected nodes
         if (allowClusterRedirect) {
-          result.addAll(this.nodeServerProvider.getConnectedChannels());
+          result.addAll(this.nodeServerProvider.connectedChannels());
         }
         return result;
       }
@@ -139,14 +139,14 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
         // search for the matching node server
         if (allowClusterRedirect) {
           // check if a specific node server was selected or all node servers are targeted
-          if (target.getName() == null) {
-            return this.nodeServerProvider.getConnectedChannels();
+          if (target.name() == null) {
+            return this.nodeServerProvider.connectedChannels();
           }
           // check if we know the target node server
-          var server = this.nodeServerProvider.getNodeServer(target.getName());
-          return server == null || !server.isConnected()
+          var server = this.nodeServerProvider.nodeServer(target.name());
+          return server == null || !server.connected()
               ? Collections.emptySet()
-              : Collections.singleton(server.getChannel());
+              : Collections.singleton(server.channel());
         } else {
           // not allowed to redirect the message
           return Collections.emptySet();
@@ -154,41 +154,41 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
       }
       case SERVICE -> {
         // check if a specific service was requested
-        if (target.getName() == null) {
+        if (target.name() == null) {
           // if no specific name is given just get all local channels
-          Collection<INetworkChannel> channels = this.cloudServiceManager.getLocalCloudServices().stream()
-              .map(ICloudService::getNetworkChannel)
+          Collection<INetworkChannel> channels = this.cloudServiceManager.localCloudServices().stream()
+              .map(ICloudService::networkChannel)
               .filter(Objects::nonNull)
               .collect(Collectors.toSet());
           // check if cluster redirect is allowed - add all connected node channels then
           if (allowClusterRedirect) {
-            channels.addAll(this.nodeServerProvider.getConnectedChannels());
+            channels.addAll(this.nodeServerProvider.connectedChannels());
           }
           // return here
           return channels;
         } else {
           // check if the service is running locally - use the known channel then
-          var localService = this.cloudServiceManager.getLocalCloudService(target.getName());
+          var localService = this.cloudServiceManager.localCloudService(target.name());
           if (localService != null) {
-            return localService.getNetworkChannel() == null
+            return localService.networkChannel() == null
                 ? Collections.emptySet()
-                : Collections.singleton(localService.getNetworkChannel());
+                : Collections.singleton(localService.networkChannel());
           }
         }
         // check if we are allowed to redirect the message to the node running the service
         if (allowClusterRedirect) {
           // if no specific service is given just send it to all nodes
-          if (target.getName() == null) {
-            return this.nodeServerProvider.getConnectedChannels();
+          if (target.name() == null) {
+            return this.nodeServerProvider.connectedChannels();
           }
           // check if we know the service from the cluster
-          var service = this.cloudServiceManager.getCloudServiceByName(target.getName());
+          var service = this.cloudServiceManager.serviceByName(target.name());
           if (service != null) {
             // check if we know the target node server to send the channel message to instead
-            var server = this.nodeServerProvider.getNodeServer(service.getServiceId().getNodeUniqueId());
-            return server == null || !server.isConnected()
+            var server = this.nodeServerProvider.nodeServer(service.serviceId().nodeUniqueId());
+            return server == null || !server.connected()
                 ? Collections.emptySet()
-                : Collections.singleton(server.getChannel());
+                : Collections.singleton(server.channel());
           }
         }
         // unable to retrieve information about the target - just an empty set then
@@ -197,42 +197,42 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
       case TASK -> {
         // lookup all services of the given task
         return this.filterChannels(
-            this.cloudServiceManager.getCloudServicesByTask(target.getName()),
+            this.cloudServiceManager.servicesByTask(target.name()),
             allowClusterRedirect);
       }
       case ENVIRONMENT -> {
         // lookup all services of the given environment
         return this.filterChannels(
-            this.cloudServiceManager.getCloudServicesByEnvironment(target.getEnvironment()),
+            this.cloudServiceManager.servicesByEnvironment(target.environment()),
             allowClusterRedirect);
       }
       case GROUP -> {
         // lookup all services of the given group
         return this.filterChannels(
-            this.cloudServiceManager.getCloudServicesByGroup(target.getName()),
+            this.cloudServiceManager.servicesByGroup(target.name()),
             allowClusterRedirect);
       }
-      default -> throw new IllegalArgumentException("Unhandled ChannelMessageTarget.Type: " + target.getType());
+      default -> throw new IllegalArgumentException("Unhandled ChannelMessageTarget.Type: " + target.type());
     }
   }
 
-  protected @NotNull Collection<INetworkChannel> filterChannels(
-    @NotNull Collection<ServiceInfoSnapshot> snapshots,
+  protected @NonNull Collection<INetworkChannel> filterChannels(
+    @NonNull Collection<ServiceInfoSnapshot> snapshots,
     boolean allowClusterRedirect
   ) {
     return snapshots.stream()
       .map(service -> {
         // check if the service is running locally
-        var localService = this.cloudServiceManager.getLocalCloudService(service.getServiceId().getName());
+        var localService = this.cloudServiceManager.localCloudService(service.serviceId().name());
         if (localService != null) {
-          return localService.getNetworkChannel();
+          return localService.networkChannel();
         }
         // check if we are allowed to redirect the message to the node running the service
         if (allowClusterRedirect) {
           // check if we know the node on which the service is running
-          var nodeServer = this.nodeServerProvider.getNodeServer(
-            service.getServiceId().getNodeUniqueId());
-          return nodeServer == null ? null : nodeServer.getChannel();
+          var nodeServer = this.nodeServerProvider.nodeServer(
+            service.serviceId().nodeUniqueId());
+          return nodeServer == null ? null : nodeServer.channel();
         }
         // no target found
         return null;

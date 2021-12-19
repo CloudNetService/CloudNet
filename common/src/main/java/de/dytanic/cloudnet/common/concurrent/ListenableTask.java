@@ -27,7 +27,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -36,7 +36,7 @@ public class ListenableTask<V> extends FutureTask<V> implements ITask<V> {
 
   private volatile Collection<ITaskListener<V>> listeners;
 
-  public ListenableTask(@NotNull Callable<V> callable) {
+  public ListenableTask(@NonNull Callable<V> callable) {
     super(callable);
   }
 
@@ -70,13 +70,13 @@ public class ListenableTask<V> extends FutureTask<V> implements ITask<V> {
   }
 
   @Override
-  public @NotNull ITask<V> addListener(@NotNull ITaskListener<V> listener) {
+  public @NonNull ITask<V> addListener(@NonNull ITaskListener<V> listener) {
     this.initListeners().add(listener);
     return this;
   }
 
   @Override
-  public @NotNull ITask<V> clearListeners() {
+  public @NonNull ITask<V> clearListeners() {
     // we don't need to initialize the listeners field here
     if (this.listeners != null) {
       this.listeners.clear();
@@ -86,7 +86,7 @@ public class ListenableTask<V> extends FutureTask<V> implements ITask<V> {
   }
 
   @Override
-  public @UnmodifiableView @NotNull Collection<ITaskListener<V>> getListeners() {
+  public @UnmodifiableView @NonNull Collection<ITaskListener<V>> listeners() {
     return this.listeners == null ? Collections.emptyList() : Collections.unmodifiableCollection(this.listeners);
   }
 
@@ -100,7 +100,7 @@ public class ListenableTask<V> extends FutureTask<V> implements ITask<V> {
   }
 
   @Override
-  public @UnknownNullability V get(long time, @NotNull TimeUnit timeUnit, @Nullable V def) {
+  public @UnknownNullability V get(long time, @NonNull TimeUnit timeUnit, @Nullable V def) {
     try {
       return this.get(time, TimeUnit.SECONDS);
     } catch (InterruptedException | ExecutionException | TimeoutException | CancellationException exception) {
@@ -109,7 +109,7 @@ public class ListenableTask<V> extends FutureTask<V> implements ITask<V> {
   }
 
   @Override
-  public @NotNull <T> ITask<T> map(@NotNull ThrowableFunction<V, T, Throwable> mapper) {
+  public @NonNull <T> ITask<T> map(@NonNull ThrowableFunction<V, T, Throwable> mapper) {
     return CompletableTask.supply(() -> mapper.apply(this.get()));
   }
 
@@ -118,7 +118,7 @@ public class ListenableTask<V> extends FutureTask<V> implements ITask<V> {
     return super.runAndReset();
   }
 
-  protected @NotNull Collection<ITaskListener<V>> initListeners() {
+  protected @NonNull Collection<ITaskListener<V>> initListeners() {
     // ConcurrentLinkedQueue gives us O(1) insertion using CAS - results under moderate
     // load in the fastest insert and read times
     return Objects.requireNonNullElseGet(this.listeners, () -> this.listeners = new ConcurrentLinkedQueue<>());

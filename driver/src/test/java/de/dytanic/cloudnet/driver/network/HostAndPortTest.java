@@ -27,8 +27,8 @@ public class HostAndPortTest {
     var socketAddress = new InetSocketAddress("127.0.0.1", 41000);
     var hostAndPort = HostAndPort.fromSocketAddress(socketAddress);
 
-    Assertions.assertEquals("127.0.0.1", hostAndPort.getHost());
-    Assertions.assertEquals(41000, hostAndPort.getPort());
+    Assertions.assertEquals("127.0.0.1", hostAndPort.host());
+    Assertions.assertEquals(41000, hostAndPort.port());
   }
 
   @Test
@@ -36,7 +36,7 @@ public class HostAndPortTest {
     var socketAddress = new InetSocketAddress("::1", 41000);
     var hostAndPort = HostAndPort.fromSocketAddress(socketAddress);
 
-    Assertions.assertEquals("0:0:0:0:0:0:0:1", hostAndPort.getHost());
-    Assertions.assertEquals(41000, hostAndPort.getPort());
+    Assertions.assertEquals("0:0:0:0:0:0:0:1", hostAndPort.host());
+    Assertions.assertEquals(41000, hostAndPort.port());
   }
 }

@@ -16,35 +16,29 @@
 
 package de.dytanic.cloudnet.driver.network.chunk.defaults.splitter;
 
-import com.google.common.collect.ImmutableList;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import java.util.Collection;
 import java.util.function.Consumer;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
-public class NetworkChannelsPacketSplitter implements Consumer<IPacket> {
-
-  private final Collection<INetworkChannel> channels;
-
-  public NetworkChannelsPacketSplitter(@NotNull Collection<INetworkChannel> channels) {
-    this.channels = ImmutableList.copyOf(channels);
-  }
+public record NetworkChannelsPacketSplitter(@NonNull Collection<INetworkChannel> channels)
+  implements Consumer<IPacket> {
 
   @Override
-  public void accept(@NotNull IPacket packet) {
+  public void accept(@NonNull IPacket packet) {
     // disable releasing of the content as we need to content multiple times
-    packet.getContent().disableReleasing();
+    packet.content().disableReleasing();
     // write to all channels
     for (var channel : this.channels) {
       // mark the current indexes of the packet
-      packet.getContent().startTransaction();
+      packet.content().startTransaction();
       // write the packet to the channel
       channel.sendPacketSync(packet);
       // redo the transaction to allow further writes
-      packet.getContent().redoTransaction();
+      packet.content().redoTransaction();
     }
     // enable the releasing and free the memory
-    packet.getContent().enableReleasing().release();
+    packet.content().enableReleasing().release();
   }
 }

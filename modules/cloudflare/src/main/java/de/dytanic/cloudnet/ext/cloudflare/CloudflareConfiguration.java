@@ -30,11 +30,11 @@ public class CloudflareConfiguration {
     this.entries = entries;
   }
 
-  public Collection<CloudflareConfigurationEntry> getEntries() {
+  public Collection<CloudflareConfigurationEntry> entries() {
     return this.entries;
   }
 
-  public void setEntries(Collection<CloudflareConfigurationEntry> entries) {
+  public void entries(Collection<CloudflareConfigurationEntry> entries) {
     this.entries = entries;
   }
 

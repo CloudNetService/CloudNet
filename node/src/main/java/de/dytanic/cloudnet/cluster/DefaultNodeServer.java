@@ -16,10 +16,9 @@
 
 package de.dytanic.cloudnet.cluster;
 
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public abstract class DefaultNodeServer implements NodeServer {
 
@@ -28,40 +27,38 @@ public abstract class DefaultNodeServer implements NodeServer {
   protected volatile NetworkClusterNodeInfoSnapshot currentSnapshot;
 
   @Override
-  public boolean isHeadNode() {
-    return this.getProvider().getHeadNode() == this;
+  public boolean headNode() {
+    return this.provider().headnode() == this;
   }
 
   @Override
-  public @NotNull NetworkClusterNode getNodeInfo() {
+  public @NonNull NetworkClusterNode nodeInfo() {
     return this.nodeInfo;
   }
 
   @Override
-  public void setNodeInfo(@NotNull NetworkClusterNode nodeInfo) {
-    this.nodeInfo = Preconditions.checkNotNull(nodeInfo, "nodeInfo");
+  public void nodeInfo(@NonNull NetworkClusterNode nodeInfo) {
+    this.nodeInfo = nodeInfo;
   }
 
   @Override
-  public NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot() {
+  public NetworkClusterNodeInfoSnapshot nodeInfoSnapshot() {
     return this.currentSnapshot;
   }
 
   @Override
-  public void setNodeInfoSnapshot(@NotNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot) {
-    Preconditions.checkNotNull(nodeInfoSnapshot, "nodeInfoSnapshot");
-
+  public void nodeInfoSnapshot(@NonNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot) {
     this.lastSnapshot = this.currentSnapshot == null ? nodeInfoSnapshot : this.currentSnapshot;
     this.currentSnapshot = nodeInfoSnapshot;
   }
 
   @Override
-  public NetworkClusterNodeInfoSnapshot getLastNodeInfoSnapshot() {
+  public NetworkClusterNodeInfoSnapshot lastNodeInfoSnapshot() {
     return this.lastSnapshot;
   }
 
   @Override
   public void close() throws Exception {
-    this.getProvider().refreshHeadNode();
+    this.provider().refreshHeadNode();
   }
 }

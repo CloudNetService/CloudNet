@@ -20,24 +20,23 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperties;
 import java.util.Comparator;
 import java.util.concurrent.ThreadLocalRandom;
+import lombok.NonNull;
 
 public enum ServerSelectorType {
 
-  HIGHEST_PLAYERS((o1, o2) -> Integer.compare(
-    o1.getProperty(BridgeServiceProperties.ONLINE_COUNT).orElse(0),
-    o2.getProperty(BridgeServiceProperties.ONLINE_COUNT).orElse(0))),
+  HIGHEST_PLAYERS(Comparator.comparingInt(o -> o.property(BridgeServiceProperties.ONLINE_COUNT).orElse(0))),
   LOWEST_PLAYERS((o1, o2) -> Integer.compare(
-    o2.getProperty(BridgeServiceProperties.ONLINE_COUNT).orElse(0),
-    o1.getProperty(BridgeServiceProperties.ONLINE_COUNT).orElse(0))),
+    o2.property(BridgeServiceProperties.ONLINE_COUNT).orElse(0),
+    o1.property(BridgeServiceProperties.ONLINE_COUNT).orElse(0))),
   RANDOM(Comparator.comparingInt(value -> ThreadLocalRandom.current().nextInt(2) - 1));
 
   private final Comparator<ServiceInfoSnapshot> comparator;
 
-  ServerSelectorType(Comparator<ServiceInfoSnapshot> comparator) {
+  ServerSelectorType(@NonNull Comparator<ServiceInfoSnapshot> comparator) {
     this.comparator = comparator;
   }
 
-  public Comparator<ServiceInfoSnapshot> getComparator() {
+  public @NonNull Comparator<ServiceInfoSnapshot> comparator() {
     return this.comparator;
   }
 }

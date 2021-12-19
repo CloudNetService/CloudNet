@@ -16,23 +16,23 @@
 
 package de.dytanic.cloudnet.driver.event;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public interface IEventManager {
 
-  @NotNull IEventManager unregisterListeners(@NotNull ClassLoader classLoader);
+  @NonNull IEventManager unregisterListeners(@NonNull ClassLoader classLoader);
 
-  @NotNull IEventManager unregisterListener(Object @NotNull ... listeners);
+  @NonNull IEventManager unregisterListener(Object @NonNull ... listeners);
 
-  default @NotNull <T extends Event> T callEvent(@NotNull T event) {
+  default @NonNull <T extends Event> T callEvent(@NonNull T event) {
     return this.callEvent("*", event);
   }
 
-  @NotNull <T extends Event> T callEvent(@NotNull String channel, @NotNull T event);
+  @NonNull <T extends Event> T callEvent(@NonNull String channel, @NonNull T event);
 
-  @NotNull IEventManager registerListener(@NotNull Object listener);
+  @NonNull IEventManager registerListener(@NonNull Object listener);
 
-  default @NotNull IEventManager registerListeners(Object @NotNull ... listeners) {
+  default @NonNull IEventManager registerListeners(Object @NonNull ... listeners) {
     for (var listener : listeners) {
       this.registerListener(listener);
     }

@@ -33,9 +33,9 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
+import lombok.NonNull;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class MongoDBDatabase extends AbstractDatabase {
@@ -57,12 +57,12 @@ public class MongoDBDatabase extends AbstractDatabase {
   }
 
   @Override
-  public boolean insert(@NotNull String key, @NotNull JsonDocument document) {
+  public boolean insert(@NonNull String key, @NonNull JsonDocument document) {
     return this.insertOrUpdate(key, document);
   }
 
   @Override
-  public boolean update(@NotNull String key, @NotNull JsonDocument document) {
+  public boolean update(@NonNull String key, @NonNull JsonDocument document) {
     return this.insertOrUpdate(key, document);
   }
 
@@ -78,12 +78,12 @@ public class MongoDBDatabase extends AbstractDatabase {
   }
 
   @Override
-  public boolean contains(@NotNull String key) {
+  public boolean contains(@NonNull String key) {
     return this.collection.find(Filters.eq(KEY_NAME, key)).first() != null;
   }
 
   @Override
-  public boolean delete(@NotNull String key) {
+  public boolean delete(@NonNull String key) {
     return this.delete0(key);
   }
 
@@ -98,7 +98,7 @@ public class MongoDBDatabase extends AbstractDatabase {
   }
 
   @Override
-  public @NotNull List<JsonDocument> get(@NotNull String fieldName, Object fieldValue) {
+  public @NonNull List<JsonDocument> get(@NonNull String fieldName, Object fieldValue) {
     List<JsonDocument> documents = new ArrayList<>();
     try (var cursor = this.collection.find(this.valueEq(fieldName, fieldValue)).iterator()) {
       while (cursor.hasNext()) {
@@ -109,7 +109,7 @@ public class MongoDBDatabase extends AbstractDatabase {
   }
 
   @Override
-  public @NotNull List<JsonDocument> get(@NotNull JsonDocument filters) {
+  public @NonNull List<JsonDocument> get(@NonNull JsonDocument filters) {
     Collection<Bson> bsonFilters = new ArrayList<>();
     for (var filter : filters) {
       var value = filters.get(filter);
@@ -126,7 +126,7 @@ public class MongoDBDatabase extends AbstractDatabase {
   }
 
   @Override
-  public @NotNull Collection<String> keys() {
+  public @NonNull Collection<String> keys() {
     Collection<String> keys = new ArrayList<>();
     try (var cursor = this.collection.find().iterator()) {
       while (cursor.hasNext()) {
@@ -137,7 +137,7 @@ public class MongoDBDatabase extends AbstractDatabase {
   }
 
   @Override
-  public @NotNull Collection<JsonDocument> documents() {
+  public @NonNull Collection<JsonDocument> documents() {
     Collection<JsonDocument> documents = new ArrayList<>();
     try (var cursor = this.collection.find().iterator()) {
       while (cursor.hasNext()) {
@@ -148,12 +148,12 @@ public class MongoDBDatabase extends AbstractDatabase {
   }
 
   @Override
-  public @NotNull Map<String, JsonDocument> entries() {
+  public @NonNull Map<String, JsonDocument> entries() {
     return this.filter((key, value) -> true);
   }
 
   @Override
-  public @NotNull Map<String, JsonDocument> filter(@NotNull BiPredicate<String, JsonDocument> predicate) {
+  public @NonNull Map<String, JsonDocument> filter(@NonNull BiPredicate<String, JsonDocument> predicate) {
     Map<String, JsonDocument> entries = new HashMap<>();
     try (var cursor = this.collection.find().iterator()) {
       while (cursor.hasNext()) {
@@ -170,7 +170,7 @@ public class MongoDBDatabase extends AbstractDatabase {
   }
 
   @Override
-  public void iterate(@NotNull BiConsumer<String, JsonDocument> consumer) {
+  public void iterate(@NonNull BiConsumer<String, JsonDocument> consumer) {
     this.entries().forEach(consumer);
   }
 
@@ -180,12 +180,12 @@ public class MongoDBDatabase extends AbstractDatabase {
   }
 
   @Override
-  public long getDocumentsCount() {
+  public long documentCount() {
     return this.collection.estimatedDocumentCount();
   }
 
   @Override
-  public boolean isSynced() {
+  public boolean synced() {
     return true;
   }
 
@@ -209,7 +209,7 @@ public class MongoDBDatabase extends AbstractDatabase {
   public void close() {
   }
 
-  protected @NotNull <T> Bson valueEq(@NotNull String fieldName, @Nullable final T value) {
+  protected @NonNull <T> Bson valueEq(@NonNull String fieldName, @Nullable final T value) {
     return Filters.eq(VALUE_NAME + '.' + fieldName, value);
   }
 }

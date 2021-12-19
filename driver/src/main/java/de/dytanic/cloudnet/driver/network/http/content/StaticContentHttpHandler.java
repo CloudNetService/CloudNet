@@ -19,17 +19,12 @@ package de.dytanic.cloudnet.driver.network.http.content;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.network.http.IHttpHandler;
+import lombok.NonNull;
 
-public class StaticContentHttpHandler implements IHttpHandler {
-
-  private final ContentStreamProvider provider;
-
-  public StaticContentHttpHandler(ContentStreamProvider provider) {
-    this.provider = provider;
-  }
+public record StaticContentHttpHandler(@NonNull ContentStreamProvider provider) implements IHttpHandler {
 
   @Override
-  public void handle(String path, IHttpContext context) throws Exception {
+  public void handle(@NonNull String path, @NonNull IHttpContext context) throws Exception {
     path = path.replaceFirst(context.pathPrefix(), "");
     if (path.endsWith("/") || path.isEmpty()) {
       var pathPrefix = context.pathPrefix().endsWith("/")

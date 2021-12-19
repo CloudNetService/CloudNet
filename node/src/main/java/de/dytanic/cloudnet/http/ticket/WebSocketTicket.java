@@ -32,23 +32,23 @@ public class WebSocketTicket {
     this.associatedSession = session;
   }
 
-  public String getFullId() {
+  public String fullId() {
     return this.fullId;
   }
 
-  public String getRequestingIp() {
+  public String requestingIp() {
     return this.requestingIp;
   }
 
-  public long getExpirationTimestamp() {
+  public long expirationTimestamp() {
     return this.expirationTimestamp;
   }
 
-  public HttpSession getAssociatedSession() {
+  public HttpSession associatedSession() {
     return this.associatedSession;
   }
 
-  public boolean isExpired() {
+  public boolean expired() {
     return System.currentTimeMillis() >= this.expirationTimestamp;
   }
 }

@@ -36,7 +36,7 @@ public final class MySQLDatabase extends SQLDatabase {
   }
 
   @Override
-  public boolean isSynced() {
+  public boolean synced() {
     return true;
   }
 

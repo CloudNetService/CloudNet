@@ -21,7 +21,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import kong.unirest.Unirest;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * A dependency loader which will download and save the provided module dependencies persistently on the local file
@@ -50,9 +50,9 @@ public class DefaultPersistableModuleDependencyLoader extends DefaultMemoryModul
    * {@inheritDoc}
    */
   @Override
-  public @NotNull URL loadModuleDependencyByUrl(
-    @NotNull ModuleConfiguration configuration,
-    @NotNull ModuleDependency dependency
+  public @NonNull URL loadModuleDependencyByUrl(
+    @NonNull ModuleConfiguration configuration,
+    @NonNull ModuleDependency dependency
   ) throws Exception {
     var memoryBasedUrl = super.loadModuleDependencyByUrl(configuration, dependency);
     return this.loadDependency(dependency, memoryBasedUrl);
@@ -62,10 +62,10 @@ public class DefaultPersistableModuleDependencyLoader extends DefaultMemoryModul
    * {@inheritDoc}
    */
   @Override
-  public @NotNull URL loadModuleDependencyByRepository(
-    @NotNull ModuleConfiguration configuration,
-    @NotNull ModuleDependency dependency,
-    @NotNull String repositoryUrl
+  public @NonNull URL loadModuleDependencyByRepository(
+    @NonNull ModuleConfiguration configuration,
+    @NonNull ModuleDependency dependency,
+    @NonNull String repositoryUrl
   ) throws Exception {
     var memoryBasedUrl = super.loadModuleDependencyByRepository(configuration, dependency, repositoryUrl);
     return this.loadDependency(dependency, memoryBasedUrl);
@@ -80,11 +80,11 @@ public class DefaultPersistableModuleDependencyLoader extends DefaultMemoryModul
    * @return the url to the file on the local file system after the load.
    * @throws Exception if any exception occurs during the load of the dependency.
    */
-  protected @NotNull URL loadDependency(@NotNull ModuleDependency dependency, @NotNull URL url) throws Exception {
-    var destFile = FileUtils.resolve(this.baseDirectory, dependency.getGroup().split("\\."))
-      .resolve(dependency.getName())
-      .resolve(dependency.getVersion())
-      .resolve(String.format(FILE_NAME_FORMAT, dependency.getName(), dependency.getVersion()));
+  protected @NonNull URL loadDependency(@NonNull ModuleDependency dependency, @NonNull URL url) throws Exception {
+    var destFile = FileUtils.resolve(this.baseDirectory, dependency.group().split("\\."))
+      .resolve(dependency.name())
+      .resolve(dependency.version())
+      .resolve(String.format(FILE_NAME_FORMAT, dependency.name(), dependency.version()));
     FileUtils.ensureChild(this.baseDirectory, destFile);
 
     if (Files.notExists(destFile)) {
@@ -101,7 +101,7 @@ public class DefaultPersistableModuleDependencyLoader extends DefaultMemoryModul
    *
    * @return the base directory in which the dependencies should be stored.
    */
-  public @NotNull Path getBaseDirectory() {
+  public @NonNull Path baseDirectory() {
     return this.baseDirectory;
   }
 }

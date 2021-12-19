@@ -47,11 +47,11 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class DefaultTaskSetup implements DefaultSetup {
 
-  protected static final Logger LOGGER = LogManager.getLogger(DefaultTaskSetup.class);
+  protected static final Logger LOGGER = LogManager.logger(DefaultTaskSetup.class);
 
   protected static final String PROXY_TASK_NAME = "Proxy";
   protected static final String LOBBY_TASK_NAME = "Lobby";
@@ -61,7 +61,7 @@ public class DefaultTaskSetup implements DefaultSetup {
   protected static final String GLOBAL_SERVER_GROUP_NAME = "Global-Server";
 
   @Override
-  public void applyQuestions(@NotNull ConsoleSetupAnimation animation) {
+  public void applyQuestions(@NonNull ConsoleSetupAnimation animation) {
     animation.addEntries(
       // proxy installation request
       QuestionListEntry.<Boolean>builder()
@@ -80,13 +80,13 @@ public class DefaultTaskSetup implements DefaultSetup {
                   .translatedQuestion("cloudnet-init-setup-tasks-proxy-environment")
                   .answerType(QuestionAnswerType.<ServiceEnvironmentType>builder()
                     .parser(serviceEnvironmentType())
-                    .possibleResults(this.getVersionProvider().getKnownEnvironments().values().stream()
+                    .possibleResults(this.versionProvider().knownEnvironments().values().stream()
                       .filter(type -> {
-                        IDocument<?> properties = type.getProperties();
+                        IDocument<?> properties = type.properties();
                         return JAVA_PROXY.get(properties) || PE_PROXY.get(properties);
                       })
-                      .map(ServiceEnvironmentType::getName)
-                      .collect(Collectors.toList())))
+                      .map(ServiceEnvironmentType::name)
+                      .toList()))
                   .build(),
                 // Java command
                 QuestionListEntry.<Pair<String, JavaVersion>>builder()
@@ -103,8 +103,8 @@ public class DefaultTaskSetup implements DefaultSetup {
                   .translatedQuestion("cloudnet-init-setup-tasks-proxy-version")
                   .answerType(QuestionAnswerType.<Pair<ServiceVersionType, ServiceVersion>>builder()
                     .possibleResults(() -> this.completableServiceVersions(
-                      animation.getResult("proxyEnvironment"),
-                      animation.getResult("proxyJavaCommand")))
+                      animation.result("proxyEnvironment"),
+                      animation.result("proxyJavaCommand")))
                     .parser(serviceVersion()))
                   .build());
             }
@@ -127,13 +127,13 @@ public class DefaultTaskSetup implements DefaultSetup {
                   .translatedQuestion("cloudnet-init-setup-tasks-server-environment")
                   .answerType(QuestionAnswerType.<ServiceEnvironmentType>builder()
                     .parser(serviceEnvironmentType())
-                    .possibleResults(this.getVersionProvider().getKnownEnvironments().values().stream()
+                    .possibleResults(this.versionProvider().knownEnvironments().values().stream()
                       .filter(type -> {
-                        IDocument<?> properties = type.getProperties();
+                        IDocument<?> properties = type.properties();
                         return JAVA_SERVER.get(properties) || PE_SERVER.get(properties);
                       })
-                      .map(ServiceEnvironmentType::getName)
-                      .collect(Collectors.toList())))
+                      .map(ServiceEnvironmentType::name)
+                      .toList()))
                   .build(),
                 // Java command
                 QuestionListEntry.<Pair<String, JavaVersion>>builder()
@@ -150,8 +150,8 @@ public class DefaultTaskSetup implements DefaultSetup {
                   .translatedQuestion("cloudnet-init-setup-tasks-server-version")
                   .answerType(QuestionAnswerType.<Pair<ServiceVersionType, ServiceVersion>>builder()
                     .possibleResults(() -> this.completableServiceVersions(
-                      animation.getResult("serverEnvironment"),
-                      animation.getResult("serverJavaCommand")))
+                      animation.result("serverEnvironment"),
+                      animation.result("serverJavaCommand")))
                     .parser(serviceVersion()))
                   .build());
             }
@@ -160,39 +160,39 @@ public class DefaultTaskSetup implements DefaultSetup {
   }
 
   @Override
-  public void handleResults(@NotNull ConsoleSetupAnimation animation) {
+  public void handleResults(@NonNull ConsoleSetupAnimation animation) {
     // proxy installation
-    if (animation.getResult("installProxy")) {
+    if (animation.result("installProxy")) {
       this.executeSetup(animation, "proxy", PROXY_TASK_NAME, GLOBAL_PROXY_GROUP_NAME, 256);
     }
     // server installation
-    if (animation.getResult("installServer")) {
+    if (animation.result("installServer")) {
       this.executeSetup(animation, "server", LOBBY_TASK_NAME, GLOBAL_SERVER_GROUP_NAME, 512);
     }
   }
 
   protected void executeSetup(
-    @NotNull ConsoleSetupAnimation animation,
-    @NotNull String resultPrefix,
-    @NotNull String taskName,
-    @NotNull String groupName,
+    @NonNull ConsoleSetupAnimation animation,
+    @NonNull String resultPrefix,
+    @NonNull String taskName,
+    @NonNull String groupName,
     int maxHeapMemory
   ) {
     // read the responses
-    ServiceEnvironmentType environment = animation.getResult(resultPrefix + "Environment");
-    Pair<String, ?> javaCommand = animation.getResult(resultPrefix + "JavaCommand");
-    Pair<ServiceVersionType, ServiceVersion> version = animation.getResult(resultPrefix + "Version");
+    ServiceEnvironmentType environment = animation.result(resultPrefix + "Environment");
+    Pair<String, ?> javaCommand = animation.result(resultPrefix + "JavaCommand");
+    Pair<ServiceVersionType, ServiceVersion> version = animation.result(resultPrefix + "Version");
     // create the task
     var template = ServiceTemplate.builder().prefix(taskName).name("default").build();
-    CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask(ServiceTask.builder()
+    CloudNet.instance().serviceTaskProvider().addPermanentServiceTask(ServiceTask.builder()
       .name(taskName)
       .minServiceCount(1)
       .autoDeleteOnStop(true)
       .maxHeapMemory(maxHeapMemory)
-      .javaCommand(javaCommand.getFirst())
+      .javaCommand(javaCommand.first())
       .serviceEnvironmentType(environment)
       .groups(Collections.singletonList(groupName))
-      .startPort(environment.getDefaultServiceStartPort())
+      .startPort(environment.defaultStartPort())
       .templates(Collections.singletonList(template))
       .build());
 
@@ -200,31 +200,31 @@ public class DefaultTaskSetup implements DefaultSetup {
     var groupTemplate = ServiceTemplate.builder().prefix(GLOBAL_TEMPLATE_PREFIX).name(groupName).build();
     this.initializeTemplate(groupTemplate, environment, false);
     // register the group
-    CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration(GroupConfiguration.builder()
+    CloudNet.instance().groupConfigurationProvider().addGroupConfiguration(GroupConfiguration.builder()
       .name(groupName)
-      .addTargetEnvironment(environment.getName())
+      .addTargetEnvironment(environment.name())
       .addTemplate(groupTemplate)
       .build());
 
     // create a group specifically for the task
-    CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration(GroupConfiguration.builder()
+    CloudNet.instance().groupConfigurationProvider().addGroupConfiguration(GroupConfiguration.builder()
       .name(taskName)
       .addTemplate(template)
       .build());
 
     // install the service template
     this.initializeTemplate(template, environment, true);
-    CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(InstallInformation.builder()
-      .serviceVersion(version.getSecond())
-      .serviceVersionType(version.getFirst())
+    CloudNet.instance().serviceVersionProvider().installServiceVersion(InstallInformation.builder()
+      .serviceVersion(version.second())
+      .serviceVersionType(version.first())
       .toTemplate(template)
-      .executable(javaCommand.getFirst())
+      .executable(javaCommand.first())
       .build(), false);
   }
 
   protected void initializeTemplate(
-    @NotNull ServiceTemplate template,
-    @NotNull ServiceEnvironmentType environment,
+    @NonNull ServiceTemplate template,
+    @NonNull ServiceEnvironmentType environment,
     boolean installDefaultFiles
   ) {
     // install the template
@@ -238,23 +238,23 @@ public class DefaultTaskSetup implements DefaultSetup {
     }
   }
 
-  protected @NotNull Collection<String> completableServiceVersions(
-    @NotNull ServiceEnvironmentType type,
-    @NotNull Pair<String, JavaVersion> javaVersion
+  protected @NonNull Collection<String> completableServiceVersions(
+    @NonNull ServiceEnvironmentType type,
+    @NonNull Pair<String, JavaVersion> javaVersion
   ) {
-    return this.getVersionProvider().getServiceVersionTypes().values().stream()
-      .filter(versionType -> versionType.getEnvironmentType().equals(type.getName()))
-      .flatMap(serviceVersionType -> serviceVersionType.getVersions()
+    return this.versionProvider().serviceVersionTypes().values().stream()
+      .filter(versionType -> versionType.environmentType().equals(type.name()))
+      .flatMap(serviceVersionType -> serviceVersionType.versions()
         .stream()
-        .filter(version -> version.canRun(javaVersion.getSecond()))
-        .map(version -> String.format("%s-%s", serviceVersionType.getName(), version.getName())))
+        .filter(version -> version.canRun(javaVersion.second()))
+        .map(version -> String.format("%s-%s", serviceVersionType.name(), version.name())))
       .collect(Collectors.collectingAndThen(Collectors.toList(), result -> {
         result.add("none");
         return result;
       }));
   }
 
-  protected @NotNull ServiceVersionProvider getVersionProvider() {
-    return CloudNet.getInstance().getServiceVersionProvider();
+  protected @NonNull ServiceVersionProvider versionProvider() {
+    return CloudNet.instance().serviceVersionProvider();
   }
 }

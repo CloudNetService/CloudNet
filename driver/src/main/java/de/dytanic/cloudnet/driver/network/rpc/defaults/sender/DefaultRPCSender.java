@@ -27,7 +27,7 @@ import de.dytanic.cloudnet.driver.network.rpc.defaults.rpc.DefaultRPC;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
@@ -40,11 +40,11 @@ public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
   protected final Map<String, MethodInformation> cachedMethodInformation;
 
   public DefaultRPCSender(
-    @NotNull RPCProviderFactory factory,
+    @NonNull RPCProviderFactory factory,
     @Nullable INetworkComponent component,
-    @NotNull Class<?> targetClass,
-    @NotNull ObjectMapper objectMapper,
-    @NotNull DataBufFactory dataBufFactory
+    @NonNull Class<?> targetClass,
+    @NonNull ObjectMapper objectMapper,
+    @NonNull DataBufFactory dataBufFactory
   ) {
     super(targetClass, objectMapper, dataBufFactory);
 
@@ -55,12 +55,12 @@ public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
   }
 
   @Override
-  public @NotNull RPCProviderFactory getFactory() {
+  public @NonNull RPCProviderFactory factory() {
     return this.factory;
   }
 
   @Override
-  public @NotNull INetworkComponent getAssociatedComponent() {
+  public @NonNull INetworkComponent associatedComponent() {
     // possible to create without an associated component - throw an exception if so
     if (this.networkComponent == null) {
       throw new UnsupportedOperationException("Sender has no associated component");
@@ -69,16 +69,16 @@ public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
   }
 
   @Override
-  public @NotNull RPC invokeMethod(@NotNull String methodName) {
+  public @NonNull RPC invokeMethod(@NonNull String methodName) {
     return this.invokeMethod(methodName, EMPTY_OBJECT_ARRAY);
   }
 
   @Override
-  public @NotNull RPC invokeMethod(@NotNull String methodName, Object... args) {
+  public @NonNull RPC invokeMethod(@NonNull String methodName, Object... args) {
     // find the method information of the method we want to invoke
     var information = this.cachedMethodInformation.computeIfAbsent(
       methodName,
-      $ -> MethodInformation.find(null, this.targetClass, methodName, null));
+      $ -> MethodInformation.find(null, this.targetClass, methodName, null, args.length));
     // generate the rpc from this information
     return new DefaultRPC(
       this,
@@ -86,7 +86,7 @@ public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
       methodName,
       args,
       this.objectMapper,
-      information.getReturnType(),
+      information.returnType(),
       this.dataBufFactory);
   }
 }

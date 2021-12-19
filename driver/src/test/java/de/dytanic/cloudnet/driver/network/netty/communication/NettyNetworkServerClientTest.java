@@ -37,13 +37,13 @@ public class NettyNetworkServerClientTest extends NetworkTestCase {
   @BeforeAll
   static void setupDriver() {
     Mockito
-      .when(DriverTestUtility.mockAndSetDriverInstance().getDriverEnvironment())
+      .when(DriverTestUtility.mockAndSetDriverInstance().environment())
       .thenReturn(DriverEnvironment.WRAPPER);
   }
 
   @Test
   void testNetworkServerClientCommunication() throws Exception {
-    var networkPort = this.getRandomFreePort();
+    var networkPort = this.randomFreePort();
 
     INetworkServer server = new NettyNetworkServer(this::newDummyHandler);
     INetworkClient client = new NettyNetworkClient(this::newDummyHandler);

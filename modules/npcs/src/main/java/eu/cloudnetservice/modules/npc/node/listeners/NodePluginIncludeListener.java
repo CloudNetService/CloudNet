@@ -20,26 +20,24 @@ import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.console.animation.progressbar.ConsoleProgressWrappers;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
-import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.util.DefaultModuleHelper;
-import de.dytanic.cloudnet.event.service.CloudServicePreLifecycleEvent;
+import de.dytanic.cloudnet.event.service.CloudServicePreProcessStartEvent;
 import eu.cloudnetservice.modules.npc.AbstractNPCManagement;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class NodePluginIncludeListener {
 
-  private static final Path PROTOCOLLIB_CACHE_PATH = Paths.get(
+  private static final Path PROTOCOLLIB_CACHE_PATH = Path.of(
     System.getProperty("cloudnet.tempDir", "temp"),
     "caches", "ProtocolLib.jar");
 
   private final AbstractNPCManagement management;
   private final AtomicBoolean didDownloadProtocolLib = new AtomicBoolean();
 
-  public NodePluginIncludeListener(@NotNull AbstractNPCManagement management) {
+  public NodePluginIncludeListener(@NonNull AbstractNPCManagement management) {
     this.management = management;
     // try to download protocol lib
     ConsoleProgressWrappers.wrapDownload(
@@ -56,15 +54,15 @@ public final class NodePluginIncludeListener {
   }
 
   @EventListener
-  public void includePluginIfNecessary(@NotNull CloudServicePreLifecycleEvent event) {
-    if (event.getTargetLifecycle() == ServiceLifeCycle.RUNNING && this.didDownloadProtocolLib.get()) {
-      var type = event.getService().getServiceConfiguration().getServiceId().getEnvironment();
+  public void includePluginIfNecessary(@NonNull CloudServicePreProcessStartEvent event) {
+    if (this.didDownloadProtocolLib.get()) {
+      var type = event.service().serviceConfiguration().serviceId().environment();
       if (ServiceEnvironmentType.isMinecraftServer(type)) {
         // check if we have an entry for the current group
-        var hasEntry = this.management.getNPCConfiguration().getEntries().stream()
-          .anyMatch(entry -> event.getConfiguration().getGroups().contains(entry.getTargetGroup()));
+        var hasEntry = this.management.npcConfiguration().entries().stream()
+          .anyMatch(entry -> event.serviceConfiguration().groups().contains(entry.targetGroup()));
         if (hasEntry) {
-          var pluginsDirectory = event.getService().getDirectory().resolve("plugins");
+          var pluginsDirectory = event.service().directory().resolve("plugins");
           // copy protocol lib
           var protocolLibPath = pluginsDirectory.resolve("ProtocolLib.jar");
           FileUtils.copy(PROTOCOLLIB_CACHE_PATH, protocolLibPath);

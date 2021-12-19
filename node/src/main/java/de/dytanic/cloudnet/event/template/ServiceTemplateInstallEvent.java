@@ -20,7 +20,7 @@ import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.SpecificTemplateStorage;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class ServiceTemplateInstallEvent extends Event {
 
@@ -29,24 +29,24 @@ public class ServiceTemplateInstallEvent extends Event {
   private final ServiceEnvironmentType environmentType;
 
   public ServiceTemplateInstallEvent(
-    @NotNull ServiceTemplate template,
-    @NotNull SpecificTemplateStorage storage,
-    @NotNull ServiceEnvironmentType environmentType
+    @NonNull ServiceTemplate template,
+    @NonNull SpecificTemplateStorage storage,
+    @NonNull ServiceEnvironmentType environmentType
   ) {
     this.template = template;
     this.storage = storage;
     this.environmentType = environmentType;
   }
 
-  public @NotNull ServiceTemplate getTemplate() {
+  public @NonNull ServiceTemplate template() {
     return this.template;
   }
 
-  public @NotNull SpecificTemplateStorage getStorage() {
+  public @NonNull SpecificTemplateStorage storage() {
     return this.storage;
   }
 
-  public @NotNull ServiceEnvironmentType getEnvironmentType() {
+  public @NonNull ServiceEnvironmentType environmentType() {
     return this.environmentType;
   }
 }

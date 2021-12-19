@@ -20,27 +20,28 @@ import de.dytanic.cloudnet.driver.event.ICancelable;
 import de.dytanic.cloudnet.driver.module.IModuleProvider;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
+import lombok.NonNull;
 
 /**
  * This event is being called before a module has been stopped and the tasks with the lifecycle {@link
- * ModuleLifeCycle#STOPPED} of this module have been fired. {@link IModuleWrapper#getModuleLifeCycle()} is still {@link
+ * ModuleLifeCycle#STOPPED} of this module have been fired. {@link IModuleWrapper#moduleLifeCycle()} is still {@link
  * ModuleLifeCycle#STARTED} or {@link ModuleLifeCycle#LOADED}.
  */
 public final class ModulePreStopEvent extends ModuleEvent implements ICancelable {
 
   private boolean cancelled = false;
 
-  public ModulePreStopEvent(IModuleProvider moduleProvider, IModuleWrapper module) {
+  public ModulePreStopEvent(@NonNull IModuleProvider moduleProvider, @NonNull IModuleWrapper module) {
     super(moduleProvider, module);
   }
 
   @Override
-  public boolean isCancelled() {
+  public boolean cancelled() {
     return this.cancelled;
   }
 
   @Override
-  public void setCancelled(boolean value) {
+  public void cancelled(boolean value) {
     this.cancelled = value;
   }
 }

@@ -20,6 +20,7 @@ import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.Permission;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
 import java.util.UUID;
+import lombok.NonNull;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
@@ -31,7 +32,6 @@ import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
-import org.jetbrains.annotations.NotNull;
 
 public final class BungeeCloudPermissionsPlayerListener implements Listener {
 
@@ -42,7 +42,7 @@ public final class BungeeCloudPermissionsPlayerListener implements Listener {
   }
 
   @EventHandler(priority = EventPriority.LOW)
-  public void handle(@NotNull LoginEvent event) {
+  public void handle(@NonNull LoginEvent event) {
     if (!event.isCancelled()) {
       CloudPermissionsHelper.initPermissionUser(
         this.permissionsManagement,
@@ -57,12 +57,12 @@ public final class BungeeCloudPermissionsPlayerListener implements Listener {
   }
 
   @EventHandler
-  public void handle(@NotNull PermissionCheckEvent event) {
+  public void handle(@NonNull PermissionCheckEvent event) {
     CommandSender sender = event.getSender();
     if (sender instanceof ProxiedPlayer) {
       UUID uniqueId = ((ProxiedPlayer) sender).getUniqueId(); // must not be set ¯\_(ツ)_/¯
       if (uniqueId != null) {
-        var permissionUser = this.permissionsManagement.getUser(uniqueId);
+        var permissionUser = this.permissionsManagement.user(uniqueId);
         if (permissionUser != null) {
           event.setHasPermission(
             this.permissionsManagement.hasPermission(permissionUser, Permission.of(event.getPermission())));
@@ -72,7 +72,7 @@ public final class BungeeCloudPermissionsPlayerListener implements Listener {
   }
 
   @EventHandler
-  public void handle(@NotNull PlayerDisconnectEvent event) {
+  public void handle(@NonNull PlayerDisconnectEvent event) {
     CloudPermissionsHelper.handlePlayerQuit(this.permissionsManagement, event.getPlayer().getUniqueId());
   }
 }

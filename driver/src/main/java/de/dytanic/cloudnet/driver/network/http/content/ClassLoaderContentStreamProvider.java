@@ -21,48 +21,37 @@ import de.dytanic.cloudnet.driver.util.FileMimeTypeHelper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-final class ClassLoaderContentStreamProvider implements ContentStreamProvider {
-
-  private final String pathPrefix;
-  private final ClassLoader contentSource;
-
-  public ClassLoaderContentStreamProvider(String pathPrefix, ClassLoader contentSource) {
-    this.pathPrefix = pathPrefix;
-    this.contentSource = contentSource;
-  }
+record ClassLoaderContentStreamProvider(
+  @NonNull String pathPrefix,
+  @NonNull ClassLoader contentSource
+) implements ContentStreamProvider {
 
   @Override
-  public @Nullable StreamableContent provideContent(@NotNull String path) {
+  public @Nullable StreamableContent provideContent(@NonNull String path) {
     var resourceLocation = this.pathPrefix + path;
     Preconditions.checkArgument(!resourceLocation.contains(".."), "File traversal for path " + path);
 
     var contentLocationUrl = this.contentSource.getResource(resourceLocation);
     return contentLocationUrl == null
       ? null
-      : new URLStreamableContent(FileMimeTypeHelper.getFileType(resourceLocation), contentLocationUrl);
+      : URLStreamableContent.of(FileMimeTypeHelper.fileType(resourceLocation), contentLocationUrl);
   }
 
-  private static final class URLStreamableContent implements StreamableContent {
+  private record URLStreamableContent(
+    @NonNull String contentType,
+    @NonNull URL contentLocationUrl
+  ) implements StreamableContent {
 
-    private final String contentType;
-    private final URL contentLocationUrl;
-
-    public URLStreamableContent(String contentType, URL contentLocationUrl) {
-      this.contentType = contentType + "; charset=UTF-8";
-      this.contentLocationUrl = contentLocationUrl;
+    public static @NonNull URLStreamableContent of(@NonNull String contentType, @NonNull URL contentLocationUrl) {
+      return new URLStreamableContent(contentType + "; charset=UTF-8", contentLocationUrl);
     }
 
     @Override
-    public @NotNull InputStream openStream() throws IOException {
+    public @NonNull InputStream openStream() throws IOException {
       return this.contentLocationUrl.openStream();
-    }
-
-    @Override
-    public @NotNull String contentType() {
-      return this.contentType;
     }
   }
 }

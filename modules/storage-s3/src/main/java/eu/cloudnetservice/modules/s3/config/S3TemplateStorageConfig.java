@@ -19,12 +19,12 @@ package eu.cloudnetservice.modules.s3.config;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import java.net.URI;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class S3TemplateStorageConfig {
 
-  private static final Logger LOGGER = LogManager.getLogger(S3TemplateStorageConfig.class);
+  private static final Logger LOGGER = LogManager.logger(S3TemplateStorageConfig.class);
 
   private final String name;
   private final String bucket;
@@ -42,12 +42,12 @@ public final class S3TemplateStorageConfig {
   }
 
   public S3TemplateStorageConfig(
-    @NotNull String name,
-    @NotNull String bucket,
-    @NotNull String region,
+    @NonNull String name,
+    @NonNull String bucket,
+    @NonNull String region,
     boolean dualstackEndpointEnabled,
-    @NotNull String accessKey,
-    @NotNull String secretKey,
+    @NonNull String accessKey,
+    @NonNull String secretKey,
     @Nullable String endpointOverride
   ) {
     this.name = name;
@@ -59,31 +59,31 @@ public final class S3TemplateStorageConfig {
     this.endpointOverride = endpointOverride;
   }
 
-  public @NotNull String getName() {
+  public @NonNull String name() {
     return this.name;
   }
 
-  public @NotNull String getBucket() {
+  public @NonNull String bucket() {
     return this.bucket;
   }
 
-  public @NotNull String getRegion() {
+  public @NonNull String region() {
     return this.region;
   }
 
-  public boolean isDualstackEndpointEnabled() {
+  public boolean dualstackEndpointEnabled() {
     return this.dualstackEndpointEnabled;
   }
 
-  public @NotNull String getAccessKey() {
+  public @NonNull String accessKey() {
     return this.accessKey;
   }
 
-  public @NotNull String getSecretKey() {
+  public @NonNull String secretKey() {
     return this.secretKey;
   }
 
-  public @Nullable URI getEndpointOverride() {
+  public @Nullable URI endpointOverride() {
     if (this.endpointOverride != null) {
       try {
         var uri = URI.create(this.endpointOverride);

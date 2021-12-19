@@ -23,41 +23,41 @@ import de.dytanic.cloudnet.driver.event.IEventManager;
 import de.dytanic.cloudnet.driver.module.DefaultModule;
 import de.dytanic.cloudnet.driver.network.rpc.RPCProviderFactory;
 import java.nio.file.Path;
+import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 public class DriverModule extends DefaultModule {
 
-  public @NotNull JsonDocument readConfig() {
-    return JsonDocument.newDocument(this.getConfigPath());
+  public @NonNull JsonDocument readConfig() {
+    return JsonDocument.newDocument(this.configPath());
   }
 
-  public void writeConfig(@NotNull JsonDocument config) {
-    config.write(this.getConfigPath());
+  public void writeConfig(@NonNull JsonDocument config) {
+    config.write(this.configPath());
   }
 
-  protected @NotNull Path getConfigPath() {
-    return this.getModuleWrapper().getDataDirectory().resolve("config.json");
+  protected @NonNull Path configPath() {
+    return this.moduleWrapper().dataDirectory().resolve("config.json");
   }
 
-  public final @NotNull IEventManager registerListener(Object @NotNull ... listener) {
-    return this.getEventManager().registerListeners(listener);
+  public final @NonNull IEventManager registerListener(Object @NonNull ... listener) {
+    return this.eventManager().registerListeners(listener);
   }
 
-  public final @NotNull IServicesRegistry getServiceRegistry() {
-    return this.getDriver().getServicesRegistry();
+  public final @NonNull IServicesRegistry serviceRegistry() {
+    return this.driver().servicesRegistry();
   }
 
-  public final @NotNull IEventManager getEventManager() {
-    return this.getDriver().getEventManager();
+  public final @NonNull IEventManager eventManager() {
+    return this.driver().eventManager();
   }
 
-  public final @NotNull RPCProviderFactory getRPCFactory() {
-    return this.getDriver().getRPCProviderFactory();
+  public final @NonNull RPCProviderFactory rpcFactory() {
+    return this.driver().rpcProviderFactory();
   }
 
   @Contract(pure = true)
-  public final @NotNull CloudNetDriver getDriver() {
-    return CloudNetDriver.getInstance();
+  public final @NonNull CloudNetDriver driver() {
+    return CloudNetDriver.instance();
   }
 }

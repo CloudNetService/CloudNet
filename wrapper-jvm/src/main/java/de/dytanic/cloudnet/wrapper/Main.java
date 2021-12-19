@@ -24,8 +24,8 @@ import de.dytanic.cloudnet.common.log.defaults.DefaultFileHandler;
 import de.dytanic.cloudnet.common.log.defaults.DefaultLogFormatter;
 import de.dytanic.cloudnet.common.log.defaults.ThreadedLogRecordDispatcher;
 import de.dytanic.cloudnet.wrapper.log.InternalPrintStreamLogHandler;
-import java.nio.file.Paths;
-import org.jetbrains.annotations.NotNull;
+import java.nio.file.Path;
+import lombok.NonNull;
 
 public final class Main {
 
@@ -36,20 +36,20 @@ public final class Main {
   public static synchronized void main(String... args) throws Throwable {
     // language init
     I18n.loadFromLanguageRegistryFile(Main.class.getClassLoader());
-    I18n.selectLanguage(System.getProperty("cloudnet.wrapper.messages.language", "english"));
+    I18n.language(System.getProperty("cloudnet.wrapper.messages.language", "english"));
     // logger init
-    initLogger(LogManager.getRootLogger());
+    initLogger(LogManager.rootLogger());
     // boot the wrapper
     var wrapper = new Wrapper(args);
     wrapper.start();
   }
 
-  private static void initLogger(@NotNull Logger logger) {
+  private static void initLogger(@NonNull Logger logger) {
     LoggingUtils.removeHandlers(logger);
-    var logFilePattern = Paths.get(".wrapper", "logs", "wrapper.%g.log");
+    var logFilePattern = Path.of(".wrapper", "logs", "wrapper.%g.log");
 
-    logger.setLevel(LoggingUtils.getDefaultLogLevel());
-    logger.setLogRecordDispatcher(ThreadedLogRecordDispatcher.forLogger(logger));
+    logger.setLevel(LoggingUtils.defaultLogLevel());
+    logger.logRecordDispatcher(ThreadedLogRecordDispatcher.forLogger(logger));
 
     logger.addHandler(InternalPrintStreamLogHandler.forSystemStreams().withFormatter(DefaultLogFormatter.END_CLEAN));
     logger.addHandler(

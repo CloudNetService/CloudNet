@@ -20,15 +20,17 @@ import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
-import de.dytanic.cloudnet.event.service.CloudServiceCrashEvent;
+import de.dytanic.cloudnet.event.service.CloudServicePreForceStopEvent;
 import de.dytanic.cloudnet.event.service.CloudServicePreLifecycleEvent;
+import de.dytanic.cloudnet.event.service.CloudServicePreProcessStartEvent;
 import de.dytanic.cloudnet.service.ICloudService;
 import eu.cloudnetservice.cloudnet.ext.report.CloudNetReportModule;
-import eu.cloudnetservice.cloudnet.ext.report.util.Record;
+import eu.cloudnetservice.cloudnet.ext.report.util.RecordMaker;
+import lombok.NonNull;
 
 public final class RecordReportListener {
 
-  private static final Logger LOGGER = LogManager.getLogger(RecordReportListener.class);
+  private static final Logger LOGGER = LogManager.logger(RecordReportListener.class);
   private final CloudNetReportModule reportModule;
 
   public RecordReportListener(CloudNetReportModule reportModule) {
@@ -36,61 +38,56 @@ public final class RecordReportListener {
   }
 
   @EventListener
-  public void handleServicePreStop(CloudServicePreLifecycleEvent event) {
-    // we just want to handle the stop lifecycle
-    if (event.getTargetLifecycle() != ServiceLifeCycle.STOPPED) {
-      return;
-    }
-
-    var configuration = this.reportModule.getReportConfiguration();
-    var serviceLifetimeSetting = configuration.getServiceLifetime();
+  public void handleServicePreStop(@NonNull CloudServicePreProcessStartEvent event) {
+    var configuration = this.reportModule.reportConfiguration();
+    var serviceLifetimeSetting = configuration.serviceLifetime();
     // -1 is used to disable the log printing.
     if (serviceLifetimeSetting == -1L) {
       return;
     }
 
-    var connectedTime = System.currentTimeMillis() - event.getServiceInfo().getConnectedTime();
+    var connectedTime = System.currentTimeMillis() - event.serviceInfo().connectedTime();
     // check if we should print the log lines based on the online time.
     if (connectedTime <= serviceLifetimeSetting) {
-      var consoleLogCache = event.getService().getServiceConsoleLogCache().update();
-      for (var logMessage : consoleLogCache.getCachedLogMessages()) {
-        LOGGER.severe(String.format("[%s] %s", event.getServiceInfo().getName(), logMessage));
+      var consoleLogCache = event.service().serviceConsoleLogCache().update();
+      for (var logMessage : consoleLogCache.cachedLogMessages()) {
+        LOGGER.severe(String.format("[%s] %s", event.serviceInfo().name(), logMessage));
       }
     }
   }
 
   @EventListener
-  public void handleServiceCrash(CloudServiceCrashEvent event) {
+  public void handleServiceCrash(CloudServicePreForceStopEvent event) {
     // check if the user disabled records
-    if (!this.reportModule.getReportConfiguration().isSaveRecords()) {
+    if (!this.reportModule.reportConfiguration().saveRecords()) {
       return;
     }
     // we have to create the record
-    this.createRecord(event.getService());
+    this.createRecord(event.service());
   }
 
   @EventListener
   public void handleServicePreDelete(CloudServicePreLifecycleEvent event) {
     // we just handle the deleted lifecycle
-    if (event.getTargetLifecycle() != ServiceLifeCycle.DELETED
-      && event.getTargetLifecycle() != ServiceLifeCycle.STOPPED) {
+    if (event.targetLifecycle() != ServiceLifeCycle.DELETED
+      && event.targetLifecycle() != ServiceLifeCycle.STOPPED) {
       return;
     }
     // check if the user disabled records
-    if (!this.reportModule.getReportConfiguration().isSaveRecords()) {
+    if (!this.reportModule.reportConfiguration().saveRecords()) {
       return;
     }
     // check if the user only wants to save reports for crashed services
-    if (this.reportModule.getReportConfiguration().isSaveOnCrashOnly()) {
+    if (this.reportModule.reportConfiguration().saveOnCrashOnly()) {
       return;
     }
     // create the record
-    this.createRecord(event.getService());
+    this.createRecord(event.service());
   }
 
   private void createRecord(ICloudService cloudService) {
     // we need to check and create the record directory as it's time based.
-    var recordCreator = Record.forService(this.reportModule.getCurrentRecordDirectory(), cloudService);
+    var recordCreator = RecordMaker.forService(this.reportModule.currentRecordDirectory(), cloudService);
     // unable to create records as the directory already exists
     if (recordCreator == null) {
       return;

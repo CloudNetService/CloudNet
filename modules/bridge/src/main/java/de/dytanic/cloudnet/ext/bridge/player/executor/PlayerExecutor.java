@@ -18,9 +18,9 @@ package de.dytanic.cloudnet.ext.bridge.player.executor;
 
 import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import java.util.UUID;
+import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @RPCValidation
@@ -33,22 +33,22 @@ public interface PlayerExecutor {
    *
    * @return the UUID of the player
    */
-  @NotNull
-  UUID getPlayerUniqueId();
+  @NonNull
+  UUID uniqueId();
 
   /**
    * Connects an online player to a specific service.
    *
    * @param serviceName the name of the service the player should be sent to
    */
-  void connect(@NotNull String serviceName);
+  void connect(@NonNull String serviceName);
 
   /**
    * Connects an online player to one service selected by the selector out of the global list of services.
    *
    * @param selectorType the type for sorting
    */
-  void connectSelecting(@NotNull ServerSelectorType selectorType);
+  void connectSelecting(@NonNull ServerSelectorType selectorType);
 
   /**
    * Connects an online player to a fallback exactly like it is done in the hub command or on login.
@@ -61,7 +61,7 @@ public interface PlayerExecutor {
    *
    * @param selectorType the type for sorting
    */
-  void connectToGroup(@NotNull String group, @NotNull ServerSelectorType selectorType);
+  void connectToGroup(@NonNull String group, @NonNull ServerSelectorType selectorType);
 
   /**
    * Connects an online player to one service selected by the selector out of the global list of services with the given
@@ -69,23 +69,23 @@ public interface PlayerExecutor {
    *
    * @param selectorType the type for sorting
    */
-  void connectToTask(@NotNull String task, @NotNull ServerSelectorType selectorType);
+  void connectToTask(@NonNull String task, @NonNull ServerSelectorType selectorType);
 
   /**
    * Kicks an online player from the network with a specific reason.
    *
    * @param message the reason for the kick which will be displayed in the players client
    */
-  void kick(@NotNull Component message);
+  void kick(@NonNull Component message);
 
-  void sendTitle(@NotNull Title title);
+  void sendTitle(@NonNull Title title);
 
   /**
    * Sends a plugin message to a specific online player.
    *
    * @param message the message to be sent to the player
    */
-  void sendMessage(@NotNull Component message);
+  void sendMessage(@NonNull Component message);
 
   /**
    * Sends a plugin message to a specific online player only if the player has the given permission. If the permission
@@ -94,7 +94,7 @@ public interface PlayerExecutor {
    * @param message    the message to be sent to the player
    * @param permission the permission which will be checked before the message is sent to the player
    */
-  void sendChatMessage(@NotNull Component message, @Nullable String permission);
+  void sendChatMessage(@NonNull Component message, @Nullable String permission);
 
   /**
    * Sends a message to a specific online player. The tag has to be registered in the proxy.
@@ -102,13 +102,13 @@ public interface PlayerExecutor {
    * @param tag  the tag of the plugin message
    * @param data the data of the plugin message
    */
-  void sendPluginMessage(@NotNull String tag, byte[] data);
+  void sendPluginMessage(@NonNull String tag, byte[] data);
 
   /**
    * Dispatches a command on the proxy the player is connected with as the player.
    *
    * @param command the command to dispatch
    */
-  void dispatchProxyCommand(@NotNull String command);
+  void dispatchProxyCommand(@NonNull String command);
 
 }

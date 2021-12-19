@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.common.concurrent;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -27,12 +27,12 @@ import org.jetbrains.annotations.Nullable;
  */
 public interface ITaskListener<T> {
 
-  default void onComplete(@NotNull ITask<T> task, @Nullable T t) {
+  default void onComplete(@NonNull ITask<T> task, @Nullable T t) {
   }
 
-  default void onCancelled(@NotNull ITask<T> task) {
+  default void onCancelled(@NonNull ITask<T> task) {
   }
 
-  default void onFailure(@NotNull ITask<T> task, @NotNull Throwable th) {
+  default void onFailure(@NonNull ITask<T> task, @NonNull Throwable th) {
   }
 }

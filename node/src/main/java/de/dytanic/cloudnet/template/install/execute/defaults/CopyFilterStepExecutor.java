@@ -17,6 +17,7 @@
 package de.dytanic.cloudnet.template.install.execute.defaults;
 
 import com.google.gson.reflect.TypeToken;
+import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.template.install.InstallInformation;
 import de.dytanic.cloudnet.template.install.execute.InstallStepExecutor;
 import java.io.IOException;
@@ -24,36 +25,33 @@ import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.AbstractMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class CopyFilterStepExecutor implements InstallStepExecutor {
 
   private static final Type STRING_MAP = TypeToken.getParameterized(Map.class, String.class, String.class).getType();
 
   @Override
-  public @NotNull Set<Path> execute(
-    @NotNull InstallInformation installInformation,
-    @NotNull Path workingDirectory,
-    @NotNull Set<Path> inputPaths
+  public @NonNull Set<Path> execute(
+    @NonNull InstallInformation installInformation,
+    @NonNull Path workingDirectory,
+    @NonNull Set<Path> inputPaths
   ) throws IOException {
-    Map<String, String> copy = installInformation.getServiceVersion().getProperties().get("copy", STRING_MAP);
+    Map<String, String> copy = installInformation.serviceVersion().properties().get("copy", STRING_MAP);
 
     if (copy == null) {
       throw new IllegalStateException(String.format(
         "Missing copy property on service version %s!",
-        installInformation.getServiceVersion().getName()));
+        installInformation.serviceVersion().name()));
     }
 
-    List<Map.Entry<Pattern, String>> patterns = copy.entrySet().stream()
-      .map(entry -> new AbstractMap.SimpleEntry<>(Pattern.compile(entry.getKey()), entry.getValue()))
-      .collect(Collectors.toList());
+    var patterns = copy.entrySet().stream()
+      .map(entry -> new Pair<>(Pattern.compile(entry.getKey()), entry.getValue()))
+      .toList();
 
     Set<Path> resultPaths = new HashSet<>();
     for (var path : inputPaths) {
@@ -63,8 +61,8 @@ public class CopyFilterStepExecutor implements InstallStepExecutor {
 
       var relativePath = workingDirectory.relativize(path).toString().replace("\\", "/").toLowerCase();
       for (var patternEntry : patterns) {
-        var pattern = patternEntry.getKey();
-        var target = patternEntry.getValue();
+        var pattern = patternEntry.first();
+        var target = patternEntry.second();
 
         if (pattern.matcher(relativePath).matches()) {
           var targetPath = workingDirectory.resolve(target

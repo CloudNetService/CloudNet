@@ -23,60 +23,60 @@ import eu.cloudnetservice.cloudnet.ext.syncproxy.platform.PlatformSyncProxyManag
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class WaterDogPESyncProxyManagement extends PlatformSyncProxyManagement<ProxiedPlayer> {
 
   private final ProxyServer proxyServer;
 
-  public WaterDogPESyncProxyManagement(@NotNull ProxyServer proxyServer) {
+  public WaterDogPESyncProxyManagement(@NonNull ProxyServer proxyServer) {
     this.proxyServer = proxyServer;
     this.init();
   }
 
   @Override
-  public void registerService(@NotNull IServicesRegistry registry) {
+  public void registerService(@NonNull IServicesRegistry registry) {
     registry.registerService(PlatformSyncProxyManagement.class, "WaterDogPESyncProxyManagement", this);
   }
 
   @Override
-  public void unregisterService(@NotNull IServicesRegistry registry) {
+  public void unregisterService(@NonNull IServicesRegistry registry) {
     registry.unregisterService(PlatformSyncProxyManagement.class, "WaterDogPESyncProxyManagement");
   }
 
   @Override
-  public void schedule(@NotNull Runnable runnable, long time, @NotNull TimeUnit unit) {
+  public void schedule(@NonNull Runnable runnable, long time, @NonNull TimeUnit unit) {
     this.proxyServer.getScheduler().scheduleDelayed(runnable, (int) (unit.toSeconds(time) / 20));
   }
 
   @Override
-  public @NotNull Collection<ProxiedPlayer> getOnlinePlayers() {
+  public @NonNull Collection<ProxiedPlayer> onlinePlayers() {
     return this.proxyServer.getPlayers().values();
   }
 
   @Override
-  public @NotNull String getPlayerName(@NotNull ProxiedPlayer player) {
+  public @NonNull String playerName(@NonNull ProxiedPlayer player) {
     return player.getName();
   }
 
   @Override
-  public @NotNull UUID getPlayerUniqueId(@NotNull ProxiedPlayer player) {
+  public @NonNull UUID playerUniqueId(@NonNull ProxiedPlayer player) {
     return player.getUniqueId();
   }
 
   @Override
-  public void setPlayerTabList(@NotNull ProxiedPlayer player, @Nullable String header, @Nullable String footer) {
+  public void playerTabList(@NonNull ProxiedPlayer player, @Nullable String header, @Nullable String footer) {
     // there is no support for header and footer
   }
 
   @Override
-  public void disconnectPlayer(@NotNull ProxiedPlayer player, @NotNull String message) {
+  public void disconnectPlayer(@NonNull ProxiedPlayer player, @NonNull String message) {
     player.sendMessage(message);
   }
 
   @Override
-  public void messagePlayer(@NotNull ProxiedPlayer player, @Nullable String message) {
+  public void messagePlayer(@NonNull ProxiedPlayer player, @Nullable String message) {
     if (message == null) {
       return;
     }
@@ -84,7 +84,7 @@ public final class WaterDogPESyncProxyManagement extends PlatformSyncProxyManage
   }
 
   @Override
-  public boolean checkPlayerPermission(@NotNull ProxiedPlayer player, @NotNull String permission) {
+  public boolean checkPlayerPermission(@NonNull ProxiedPlayer player, @NonNull String permission) {
     return player.hasPermission(permission);
   }
 }

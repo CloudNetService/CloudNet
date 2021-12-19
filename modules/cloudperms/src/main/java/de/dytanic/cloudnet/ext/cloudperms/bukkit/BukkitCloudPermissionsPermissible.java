@@ -26,11 +26,11 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.logging.Level;
+import lombok.NonNull;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissibleBase;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionAttachmentInfo;
-import org.jetbrains.annotations.NotNull;
 
 public final class BukkitCloudPermissionsPermissible extends PermissibleBase {
 
@@ -44,33 +44,33 @@ public final class BukkitCloudPermissionsPermissible extends PermissibleBase {
     this.permissionsManagement = permissionsManagement;
   }
 
-  private @NotNull Set<Permission> getDefaultPermissions() {
+  private @NonNull Set<Permission> defaultPermissions() {
     return this.player.getServer().getPluginManager().getDefaultPermissions(false);
   }
 
   @Override
-  public @NotNull Set<PermissionAttachmentInfo> getEffectivePermissions() {
+  public @NonNull Set<PermissionAttachmentInfo> getEffectivePermissions() {
     Set<PermissionAttachmentInfo> infos = new HashSet<>();
 
-    var user = CloudNetDriver.getInstance().getPermissionManagement().getUser(this.player.getUniqueId());
+    var user = CloudNetDriver.instance().permissionManagement().user(this.player.getUniqueId());
     if (user != null) {
-      for (var group : Wrapper.getInstance().getServiceConfiguration().getGroups()) {
-        CloudNetDriver.getInstance()
-          .getPermissionManagement()
-          .getAllGroupPermissions(user, group)
+      for (var group : Wrapper.instance().serviceConfiguration().groups()) {
+        CloudNetDriver.instance()
+          .permissionManagement()
+          .allGroupPermissions(user, group)
           .forEach(permission -> {
-            var bukkit = this.player.getServer().getPluginManager().getPermission(permission.getName());
+            var bukkit = this.player.getServer().getPluginManager().getPermission(permission.name());
             if (bukkit != null) {
               this.forEachChildren(
                 bukkit,
                 (name, value) -> infos.add(new PermissionAttachmentInfo(this, name, null, value)));
             } else {
-              infos.add(new PermissionAttachmentInfo(this, permission.getName(), null, permission.getPotency() >= 0));
+              infos.add(new PermissionAttachmentInfo(this, permission.name(), null, permission.potency() >= 0));
             }
           });
       }
 
-      for (var defaultPermission : this.getDefaultPermissions()) {
+      for (var defaultPermission : this.defaultPermissions()) {
         this.forEachChildren(
           defaultPermission,
           (name, value) -> infos.add(new PermissionAttachmentInfo(this, name, null, value)));
@@ -81,7 +81,7 @@ public final class BukkitCloudPermissionsPermissible extends PermissibleBase {
   }
 
   @Override
-  public boolean isPermissionSet(@NotNull String name) {
+  public boolean isPermissionSet(@NonNull String name) {
     return this.hasPermission(name);
   }
 
@@ -96,24 +96,24 @@ public final class BukkitCloudPermissionsPermissible extends PermissibleBase {
   }
 
   @Override
-  public boolean hasPermission(@NotNull String inName) {
+  public boolean hasPermission(@NonNull String inName) {
     try {
-      var user = CloudNetDriver.getInstance().getPermissionManagement().getUser(this.player.getUniqueId());
+      var user = CloudNetDriver.instance().permissionManagement().user(this.player.getUniqueId());
       if (user == null) {
         return false;
       }
 
-      for (var permission : this.getDefaultPermissions()) {
+      for (var permission : this.defaultPermissions()) {
         if (permission.getName().equalsIgnoreCase(inName)) {
           // default permissions are always active if not explicitly forbidden
-          var result = this.permissionsManagement.getPermissionResult(
+          var result = this.permissionsManagement.permissionResult(
             user,
             de.dytanic.cloudnet.driver.permission.Permission.of(inName));
           return result == PermissionCheckResult.DENIED || result.asBoolean();
         }
       }
 
-      var result = this.permissionsManagement.getPermissionResult(
+      var result = this.permissionsManagement.permissionResult(
         user,
         de.dytanic.cloudnet.driver.permission.Permission.of(inName));
       if (result != PermissionCheckResult.DENIED) {
@@ -122,7 +122,7 @@ public final class BukkitCloudPermissionsPermissible extends PermissibleBase {
 
       return this.testParents(
         inName,
-        perm -> this.permissionsManagement.getPermissionResult(
+        perm -> this.permissionsManagement.permissionResult(
           user,
           de.dytanic.cloudnet.driver.permission.Permission.of(perm.getName())));
     } catch (Exception ex) {
@@ -173,7 +173,7 @@ public final class BukkitCloudPermissionsPermissible extends PermissibleBase {
     }
   }
 
-  public Player getPlayer() {
+  public Player player() {
     return this.player;
   }
 }

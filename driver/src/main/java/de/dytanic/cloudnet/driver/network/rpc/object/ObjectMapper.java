@@ -18,20 +18,20 @@ package de.dytanic.cloudnet.driver.network.rpc.object;
 
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import java.lang.reflect.Type;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
 public interface ObjectMapper {
 
-  @NotNull ObjectMapper unregisterBinding(@NotNull Type type, boolean superTypes);
+  @NonNull ObjectMapper unregisterBinding(@NonNull Type type, boolean superTypes);
 
-  @NotNull ObjectMapper unregisterBindings(@NotNull ClassLoader classLoader);
+  @NonNull ObjectMapper unregisterBindings(@NonNull ClassLoader classLoader);
 
-  @NotNull <T> ObjectMapper registerBinding(@NotNull Type type, @NotNull ObjectSerializer<T> serializer,
+  @NonNull <T> ObjectMapper registerBinding(@NonNull Type type, @NonNull ObjectSerializer<T> serializer,
     boolean superTypes);
 
-  @NotNull DataBuf.Mutable writeObject(@NotNull DataBuf.Mutable dataBuf, @Nullable Object object);
+  @NonNull DataBuf.Mutable writeObject(@NonNull DataBuf.Mutable dataBuf, @Nullable Object object);
 
-  @UnknownNullability <T> T readObject(@NotNull DataBuf dataBuf, @NotNull Type type);
+  @UnknownNullability <T> T readObject(@NonNull DataBuf dataBuf, @NonNull Type type);
 }

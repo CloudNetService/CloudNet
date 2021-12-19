@@ -25,96 +25,96 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public interface IConfiguration {
 
-  boolean isFileExists();
+  boolean fileExists();
 
-  @NotNull IConfiguration load();
+  @NonNull IConfiguration load();
 
-  @NotNull IConfiguration save();
+  @NonNull IConfiguration save();
 
-  @NotNull String getHostAddress();
+  @NonNull String hostAddress();
 
-  void setHostAddress(@NotNull String hostAddress);
+  void hostAddress(@NonNull String hostAddress);
 
-  @NotNull String getConnectHostAddress();
+  @NonNull String connectHostAddress();
 
-  void setConnectHostAddress(@NotNull String connectHostAddress);
+  void connectHostAddress(@NonNull String connectHostAddress);
 
-  @NotNull NetworkClusterNode getIdentity();
+  @NonNull NetworkClusterNode identity();
 
-  void setIdentity(@NotNull NetworkClusterNode identity);
+  void identity(@NonNull NetworkClusterNode identity);
 
-  @NotNull NetworkCluster getClusterConfig();
+  @NonNull NetworkCluster clusterConfig();
 
-  void setClusterConfig(@NotNull NetworkCluster clusterConfig);
+  void clusterConfig(@NonNull NetworkCluster clusterConfig);
 
-  @NotNull
-  Collection<String> getIpWhitelist();
+  @NonNull
+  Collection<String> ipWhitelist();
 
-  void setIpWhitelist(@NotNull Collection<String> whitelist);
+  void ipWhitelist(@NonNull Collection<String> whitelist);
 
-  @NotNull
-  Collection<HostAndPort> getHttpListeners();
+  @NonNull
+  Collection<HostAndPort> httpListeners();
 
-  void setHttpListeners(@NotNull Collection<HostAndPort> httpListeners);
+  void httpListeners(@NonNull Collection<HostAndPort> httpListeners);
 
-  @NotNull
-  SSLConfiguration getClientSslConfig();
+  @NonNull
+  SSLConfiguration clientSSLConfig();
 
-  void setClientSslConfig(@NotNull SSLConfiguration clientSslConfig);
+  void clientSSLConfig(@NonNull SSLConfiguration clientSslConfig);
 
-  @NotNull
-  SSLConfiguration getServerSslConfig();
+  @NonNull
+  SSLConfiguration serverSSLConfig();
 
-  void setServerSslConfig(@NotNull SSLConfiguration serverSslConfig);
+  void serverSSLConfig(@NonNull SSLConfiguration serverSslConfig);
 
-  @NotNull
-  SSLConfiguration getWebSslConfig();
+  @NonNull
+  SSLConfiguration webSSLConfig();
 
-  void setWebSslConfig(@NotNull SSLConfiguration webSslConfig);
+  void webSSLConfig(@NonNull SSLConfiguration webSslConfig);
 
-  double getMaxCPUUsageToStartServices();
+  double maxCPUUsageToStartServices();
 
-  void setMaxCPUUsageToStartServices(double value);
+  void maxCPUUsageToStartServices(double value);
 
-  int getMaxMemory();
+  int maxMemory();
 
-  void setMaxMemory(int memory);
+  void maxMemory(int memory);
 
-  int getMaxServiceConsoleLogCacheSize();
+  int maxServiceConsoleLogCacheSize();
 
-  void setMaxServiceConsoleLogCacheSize(int maxServiceConsoleLogCacheSize);
+  void maxServiceConsoleLogCacheSize(int maxServiceConsoleLogCacheSize);
 
-  boolean isPrintErrorStreamLinesFromServices();
+  boolean printErrorStreamLinesFromServices();
 
-  void setPrintErrorStreamLinesFromServices(boolean printErrorStreamLinesFromServices);
+  void printErrorStreamLinesFromServices(boolean printErrorStreamLinesFromServices);
 
-  boolean isRunBlockedServiceStartTryLaterAutomatic();
+  boolean runBlockedServiceStartTryLaterAutomatic();
 
-  void setRunBlockedServiceStartTryLaterAutomatic(boolean runBlockedServiceStartTryLaterAutomatic);
+  void runBlockedServiceStartTryLaterAutomatic(boolean runBlockedServiceStartTryLaterAutomatic);
 
-  @NotNull DefaultJVMFlags getDefaultJVMFlags();
+  @NonNull DefaultJVMFlags defaultJVMFlags();
 
-  void setDefaultJVMFlags(@NotNull DefaultJVMFlags defaultJVMFlags);
+  void defaultJVMFlags(@NonNull DefaultJVMFlags defaultJVMFlags);
 
-  @NotNull String getJVMCommand();
+  @NonNull String javaCommand();
 
-  void setJVMCommand(@NotNull String jvmCommand);
+  void javaCommand(@NonNull String javaCommand);
 
-  int getProcessTerminationTimeoutSeconds();
+  int processTerminationTimeoutSeconds();
 
-  void setProcessTerminationTimeoutSeconds(int processTerminationTimeoutSeconds);
+  void processTerminationTimeoutSeconds(int processTerminationTimeoutSeconds);
 
-  boolean getForceInitialClusterDataSync();
+  boolean forceInitialClusterDataSync();
 
-  void setForceInitialClusterDataSync(boolean forceInitialClusterDataSync);
+  void forceInitialClusterDataSync(boolean forceInitialClusterDataSync);
 
-  @NotNull JsonDocument getProperties();
+  @NonNull JsonDocument properties();
 
-  void setProperties(@NotNull JsonDocument properties);
+  void properties(@NonNull JsonDocument properties);
 
   enum DefaultJVMFlags {
     NONE(Collections.emptyList()),
@@ -156,7 +156,7 @@ public interface IConfiguration {
       this.jvmFlags = jvmFlags;
     }
 
-    public List<String> getJvmFlags() {
+    public List<String> jvmFlags() {
       return this.jvmFlags;
     }
 

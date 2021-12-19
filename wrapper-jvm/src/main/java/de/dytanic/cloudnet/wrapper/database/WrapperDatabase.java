@@ -24,7 +24,7 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class WrapperDatabase implements Database {
 
@@ -32,34 +32,34 @@ public class WrapperDatabase implements Database {
   private final RPC baseRPC;
   private final RPCSender sender;
 
-  public WrapperDatabase(@NotNull String name, @NotNull Wrapper wrapper, @NotNull RPC baseRPC) {
+  public WrapperDatabase(@NonNull String name, @NonNull Wrapper wrapper, @NonNull RPC baseRPC) {
     this.name = name;
     this.baseRPC = baseRPC;
-    this.sender = wrapper.getRPCProviderFactory().providerForClass(wrapper.getNetworkClient(), Database.class);
+    this.sender = wrapper.rpcProviderFactory().providerForClass(wrapper.networkClient(), Database.class);
   }
 
   @Override
-  public @NotNull String getName() {
+  public @NonNull String name() {
     return this.name;
   }
 
   @Override
-  public boolean insert(@NotNull String key, @NotNull JsonDocument document) {
+  public boolean insert(@NonNull String key, @NonNull JsonDocument document) {
     return this.baseRPC.join(this.sender.invokeMethod("insert", key, document)).fireSync();
   }
 
   @Override
-  public boolean update(@NotNull String key, @NotNull JsonDocument document) {
+  public boolean update(@NonNull String key, @NonNull JsonDocument document) {
     return this.baseRPC.join(this.sender.invokeMethod("update", key, document)).fireSync();
   }
 
   @Override
-  public boolean contains(@NotNull String key) {
+  public boolean contains(@NonNull String key) {
     return this.baseRPC.join(this.sender.invokeMethod("contains", key)).fireSync();
   }
 
   @Override
-  public boolean delete(@NotNull String key) {
+  public boolean delete(@NonNull String key) {
     return this.baseRPC.join(this.sender.invokeMethod("delete", key)).fireSync();
   }
 
@@ -69,27 +69,27 @@ public class WrapperDatabase implements Database {
   }
 
   @Override
-  public @NotNull List<JsonDocument> get(@NotNull String fieldName, Object fieldValue) {
+  public @NonNull List<JsonDocument> get(@NonNull String fieldName, Object fieldValue) {
     return this.baseRPC.join(this.sender.invokeMethod("get", fieldName, fieldValue)).fireSync();
   }
 
   @Override
-  public @NotNull List<JsonDocument> get(@NotNull JsonDocument filters) {
+  public @NonNull List<JsonDocument> get(@NonNull JsonDocument filters) {
     return this.baseRPC.join(this.sender.invokeMethod("get", filters)).fireSync();
   }
 
   @Override
-  public @NotNull Collection<String> keys() {
+  public @NonNull Collection<String> keys() {
     return this.baseRPC.join(this.sender.invokeMethod("keys")).fireSync();
   }
 
   @Override
-  public @NotNull Collection<JsonDocument> documents() {
+  public @NonNull Collection<JsonDocument> documents() {
     return this.baseRPC.join(this.sender.invokeMethod("documents")).fireSync();
   }
 
   @Override
-  public @NotNull Map<String, JsonDocument> entries() {
+  public @NonNull Map<String, JsonDocument> entries() {
     return this.baseRPC.join(this.sender.invokeMethod("entries")).fireSync();
   }
 
@@ -99,13 +99,13 @@ public class WrapperDatabase implements Database {
   }
 
   @Override
-  public long getDocumentsCount() {
-    return this.baseRPC.join(this.sender.invokeMethod("getDocumentsCount")).fireSync();
+  public long documentCount() {
+    return this.baseRPC.join(this.sender.invokeMethod("documentCount")).fireSync();
   }
 
   @Override
-  public boolean isSynced() {
-    return this.baseRPC.join(this.sender.invokeMethod("isSynced")).fireSync();
+  public boolean synced() {
+    return this.baseRPC.join(this.sender.invokeMethod("synced")).fireSync();
   }
 
   @Override

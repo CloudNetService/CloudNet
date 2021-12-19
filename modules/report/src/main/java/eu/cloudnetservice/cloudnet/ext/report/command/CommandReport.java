@@ -44,7 +44,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Queue;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.Nullable;
 
 @CommandAlias("paste")
@@ -52,7 +51,7 @@ import org.jetbrains.annotations.Nullable;
 @Description("Upload cloud specific data to a paste service")
 public final class CommandReport {
 
-  private static final Logger LOGGER = LogManager.getLogger(CommandReport.class);
+  private static final Logger LOGGER = LogManager.logger(CommandReport.class);
 
   private final CloudNetReportModule reportModule;
 
@@ -63,9 +62,9 @@ public final class CommandReport {
   @Parser(suggestions = "pasteService")
   public PasteService defaultPasteServiceParser(CommandContext<CommandSource> $, Queue<String> input) {
     var name = input.remove();
-    return this.reportModule.getReportConfiguration().getPasteServers()
+    return this.reportModule.reportConfiguration().pasteServers()
       .stream()
-      .filter(service -> service.getName().equalsIgnoreCase(name))
+      .filter(service -> service.name().equalsIgnoreCase(name))
       .findFirst()
       .orElseThrow(
         () -> new ArgumentNotAvailableException(I18n.trans("command-paste-paste-service-not-found")));
@@ -73,16 +72,16 @@ public final class CommandReport {
 
   @Suggestions("pasteService")
   public List<String> suggestPasteService(CommandContext<CommandSource> $, String input) {
-    return this.reportModule.getReportConfiguration().getPasteServers()
+    return this.reportModule.reportConfiguration().pasteServers()
       .stream()
-      .map(INameable::getName)
-      .collect(Collectors.toList());
+      .map(INameable::name)
+      .toList();
   }
 
   @Parser(suggestions = "cloudService")
   public ICloudService singleServiceParser(CommandContext<CommandSource> $, Queue<String> input) {
     var name = input.remove();
-    var cloudService = CloudNet.getInstance().getCloudServiceProvider().getLocalCloudService(name);
+    var cloudService = CloudNet.instance().cloudServiceProvider().localCloudService(name);
     if (cloudService == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-service-service-not-found"));
     }
@@ -91,23 +90,23 @@ public final class CommandReport {
 
   @Suggestions("cloudService")
   public List<String> suggestService(CommandContext<CommandSource> $, String input) {
-    return CloudNet.getInstance().getCloudServiceProvider().getLocalCloudServices()
+    return CloudNet.instance().cloudServiceProvider().localCloudServices()
       .stream()
-      .map(service -> service.getServiceId().getName())
-      .collect(Collectors.toList());
+      .map(service -> service.serviceId().name())
+      .toList();
   }
 
   @CommandMethod("report|paste node [pasteService]")
   public void pasteNode(CommandSource source, @Argument("pasteService") PasteService pasteService) {
     var pasteCreator = new PasteCreator(this.fallbackPasteService(pasteService),
-      this.reportModule.getEmitterRegistry());
-    var selfNode = CloudNet.getInstance().getClusterNodeServerProvider().getSelfNode()
-      .getNodeInfoSnapshot();
+      this.reportModule.emitterRegistry());
+    var selfNode = CloudNet.instance().nodeServerProvider().selfNode()
+      .nodeInfoSnapshot();
 
     var response = pasteCreator.createNodePaste(selfNode);
     if (response == null) {
       source.sendMessage(I18n.trans("module-report-command-paste-failed")
-        .replace("%url%", pasteService.getServiceUrl()));
+        .replace("%url%", pasteService.serviceUrl()));
     } else {
       source.sendMessage(I18n.trans("module-report-command-paste-success")
         .replace("%url%", response));
@@ -121,12 +120,12 @@ public final class CommandReport {
     @Argument("service") ICloudService service
   ) {
     var pasteCreator = new PasteCreator(this.fallbackPasteService(pasteService),
-      this.reportModule.getEmitterRegistry());
+      this.reportModule.emitterRegistry());
 
     var response = pasteCreator.createServicePaste(service);
     if (response == null) {
       source.sendMessage(I18n.trans("module-report-command-paste-failed")
-        .replace("%url%", pasteService.getServiceUrl()));
+        .replace("%url%", pasteService.serviceUrl()));
     } else {
       source.sendMessage(I18n.trans("module-report-command-paste-success")
         .replace("%url%", response));
@@ -135,7 +134,7 @@ public final class CommandReport {
 
   @CommandMethod("report|paste thread-dump")
   public void reportThreadDump(CommandSource source) {
-    var file = this.reportModule.getCurrentRecordDirectory().resolve(System.currentTimeMillis() + "-threaddump.txt");
+    var file = this.reportModule.currentRecordDirectory().resolve(System.currentTimeMillis() + "-threaddump.txt");
 
     if (this.createThreadDump(file)) {
       source.sendMessage(
@@ -147,7 +146,7 @@ public final class CommandReport {
 
   @CommandMethod("report|paste heap-dump")
   public void reportHeapDump(CommandSource source, @Flag("live") boolean live) {
-    var file = this.reportModule.getCurrentRecordDirectory().resolve(System.currentTimeMillis() + "-heapdump.hprof");
+    var file = this.reportModule.currentRecordDirectory().resolve(System.currentTimeMillis() + "-heapdump.hprof");
 
     if (this.createHeapDump(file, live)) {
       source.sendMessage(
@@ -193,13 +192,13 @@ public final class CommandReport {
       return service;
     }
 
-    var pasteServices = this.reportModule.getReportConfiguration().getPasteServers();
+    var pasteServices = this.reportModule.reportConfiguration().pasteServers();
     // there are no paste services, use fallback
     if (pasteServices.isEmpty()) {
       return PasteService.FALLBACK;
     }
     // use the first in the configuration
-    return this.reportModule.getReportConfiguration().getPasteServers().get(0);
+    return this.reportModule.reportConfiguration().pasteServers().get(0);
   }
 
 }

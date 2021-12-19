@@ -45,7 +45,7 @@ import net.kyori.adventure.title.Title;
 
 public final class CloudNetBridgeModule extends DriverModule {
 
-  private static final Logger LOGGER = LogManager.getLogger(CloudNetBridgeModule.class);
+  private static final Logger LOGGER = LogManager.logger(CloudNetBridgeModule.class);
 
   @ModuleTask(order = 50, event = ModuleLifeCycle.LOADED)
   public void initNetworkHelpers() {
@@ -55,9 +55,9 @@ public final class CloudNetBridgeModule extends DriverModule {
 
   @ModuleTask(order = 40, event = ModuleLifeCycle.LOADED)
   public void convertOldConfiguration() {
-    var oldConfigurationPath = this.getModuleWrapper()
-      .getModuleProvider()
-      .getModuleDirectoryPath()
+    var oldConfigurationPath = this.moduleWrapper()
+      .moduleProvider()
+      .moduleDirectoryPath()
       .resolve("CloudNet-Bridge")
       .resolve("config.json");
     // check if the old file exists
@@ -88,7 +88,7 @@ public final class CloudNetBridgeModule extends DriverModule {
         hubCommands,
         fallbacks,
         config.getDocument("properties")
-      )).write(this.getConfigPath());
+      )).write(this.configPath());
       // delete the old config
       FileUtils.delete(oldConfigurationPath.getParent());
     }
@@ -96,7 +96,7 @@ public final class CloudNetBridgeModule extends DriverModule {
 
   @ModuleTask(event = ModuleLifeCycle.STARTED)
   public void convertOldDatabaseEntries() {
-    var playerDb = CloudNet.getInstance().getDatabaseProvider().getDatabase(BRIDGE_PLAYER_DB_NAME);
+    var playerDb = CloudNet.instance().databaseProvider().database(BRIDGE_PLAYER_DB_NAME);
     // read the first player from the database - if the first player is valid we don't need to take a look at the other
     // players in the database as they were already converted
     var first = playerDb.readChunk(101, 1);
@@ -124,7 +124,7 @@ public final class CloudNetBridgeModule extends DriverModule {
             var environment = serviceId.getString("environment", "");
             serviceId.append("environmentName", environment);
             // try to set the new environment
-            var env = CloudNet.getInstance().getServiceVersionProvider()
+            var env = CloudNet.instance().serviceVersionProvider()
               .getEnvironmentType(environment)
               .orElse(null);
             serviceId.append("environment", env);
@@ -153,7 +153,7 @@ public final class CloudNetBridgeModule extends DriverModule {
   public void initModule() {
     // load the configuration file
     var configuration = this.readConfig().toInstanceOf(BridgeConfiguration.class);
-    if (Files.notExists(this.getConfigPath())) {
+    if (Files.notExists(this.configPath())) {
       // create a new configuration
       configuration = new BridgeConfiguration();
       this.writeConfig(JsonDocument.newDocument(configuration));
@@ -162,21 +162,21 @@ public final class CloudNetBridgeModule extends DriverModule {
     BridgeManagement management = new NodeBridgeManagement(
       this,
       configuration,
-      this.getEventManager(),
-      CloudNet.getInstance().getDataSyncRegistry(),
-      this.getRPCFactory());
-    management.registerServices(this.getServiceRegistry());
+      this.eventManager(),
+      CloudNet.instance().dataSyncRegistry(),
+      this.rpcFactory());
+    management.registerServices(this.serviceRegistry());
     management.postInit();
     // register the cluster sync handler
-    CloudNet.getInstance().getDataSyncRegistry().registerHandler(DataSyncHandler.<BridgeConfiguration>builder()
+    CloudNet.instance().dataSyncRegistry().registerHandler(DataSyncHandler.<BridgeConfiguration>builder()
       .key("bridge-config")
       .nameExtractor($ -> "Bridge Config")
       .convertObject(BridgeConfiguration.class)
-      .writer(management::setConfiguration)
-      .singletonCollector(management::getConfiguration)
-      .currentGetter($ -> management.getConfiguration())
+      .writer(management::configuration)
+      .singletonCollector(management::configuration)
+      .currentGetter($ -> management.configuration())
       .build());
     // register the bridge command
-    CloudNet.getInstance().getCommandProvider().register(new CommandBridge(management));
+    CloudNet.instance().commandProvider().register(new CommandBridge(management));
   }
 }

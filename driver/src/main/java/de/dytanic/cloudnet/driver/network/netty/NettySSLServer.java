@@ -37,14 +37,14 @@ public abstract class NettySSLServer {
   }
 
   protected void init() throws Exception {
-    if (this.sslConfiguration != null && this.sslConfiguration.isEnabled()) {
-      if (this.sslConfiguration.getCertificatePath() != null && this.sslConfiguration.getPrivateKeyPath() != null) {
-        try (var cert = Files.newInputStream(this.sslConfiguration.getCertificatePath());
-          var privateKey = Files.newInputStream(this.sslConfiguration.getPrivateKeyPath())) {
+    if (this.sslConfiguration != null && this.sslConfiguration.enabled()) {
+      if (this.sslConfiguration.certificatePath() != null && this.sslConfiguration.privateKeyPath() != null) {
+        try (var cert = Files.newInputStream(this.sslConfiguration.certificatePath());
+          var privateKey = Files.newInputStream(this.sslConfiguration.privateKeyPath())) {
           var builder = SslContextBuilder.forServer(cert, privateKey);
 
-          if (this.sslConfiguration.getTrustCertificatePath() != null) {
-            try (var stream = Files.newInputStream(this.sslConfiguration.getTrustCertificatePath())) {
+          if (this.sslConfiguration.trustCertificatePath() != null) {
+            try (var stream = Files.newInputStream(this.sslConfiguration.trustCertificatePath())) {
               builder.trustManager(stream);
             }
           } else {
@@ -52,7 +52,7 @@ public abstract class NettySSLServer {
           }
 
           this.sslContext = builder
-            .clientAuth(this.sslConfiguration.isClientAuth() ? ClientAuth.REQUIRE : ClientAuth.OPTIONAL)
+            .clientAuth(this.sslConfiguration.clientAuth() ? ClientAuth.REQUIRE : ClientAuth.OPTIONAL)
             .build();
         }
       } else {

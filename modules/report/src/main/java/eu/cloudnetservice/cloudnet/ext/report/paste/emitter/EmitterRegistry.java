@@ -21,8 +21,7 @@ import com.google.common.collect.Multimap;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.UnmodifiableView;
 
 /**
@@ -38,7 +37,7 @@ public class EmitterRegistry {
    * @return an unmodifiable collection of all registered emitters.
    */
   @UnmodifiableView
-  public @NotNull Collection<ReportDataEmitter<?>> getEmitters() {
+  public @NonNull Collection<ReportDataEmitter<?>> emitters() {
     return Collections.unmodifiableCollection(this.emitters.values());
   }
 
@@ -50,11 +49,11 @@ public class EmitterRegistry {
    */
   @UnmodifiableView
   @SuppressWarnings("unchecked")
-  public <T> @NotNull Collection<ReportDataEmitter<T>> getEmitters(@NotNull Class<T> clazz) {
+  public <T> @NonNull Collection<ReportDataEmitter<T>> emitters(@NonNull Class<T> clazz) {
     return this.emitters.get(clazz)
       .stream()
       .map(emitter -> (ReportDataEmitter<T>) emitter)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   /**
@@ -65,7 +64,7 @@ public class EmitterRegistry {
    * @param <T>     the type of the report, currently {@link de.dytanic.cloudnet.service.ICloudService} & {@link
    *                de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot} are supported
    */
-  public <T> void registerDataEmitter(@NotNull Class<T> clazz, @NotNull ReportDataEmitter<T>... emitter) {
+  public <T> void registerDataEmitter(@NonNull Class<T> clazz, @NonNull ReportDataEmitter<T>... emitter) {
     this.emitters.putAll(clazz, Arrays.asList(emitter));
   }
 
@@ -75,7 +74,7 @@ public class EmitterRegistry {
    * @param clazz the class that was used to register the emitters
    * @param <T>   the type of the registered emitters
    */
-  public <T> void unregisterByClass(@NotNull Class<T> clazz) {
+  public <T> void unregisterByClass(@NonNull Class<T> clazz) {
     this.emitters.removeAll(clazz);
   }
 

@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.driver.module;
 
 import java.lang.invoke.MethodHandle;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * A task which will be dynamically created in the runtime for every method in a module's main class which is annotated
@@ -31,28 +31,28 @@ public interface IModuleTaskEntry {
    * @return the associated module wrapper to this task.
    * @see DefaultModuleWrapper#resolveModuleTasks(IModule)
    */
-  @NotNull IModuleWrapper getModuleWrapper();
+  @NonNull IModuleWrapper moduleWrapper();
 
   /**
    * The module (or module main class) this task was detected in.
    *
    * @return the associated module to this task.
    */
-  @NotNull IModule getModule();
+  @NonNull IModule module();
 
   /**
    * The annotation holding the information about this task.
    *
    * @return the task information.
    */
-  @NotNull ModuleTask getTaskInfo();
+  @NonNull ModuleTask taskInfo();
 
   /**
    * The method handle this task will invoke when calling {@link #fire()}.
    *
    * @return the annotated detected method.
    */
-  @NotNull MethodHandle getMethod();
+  @NonNull MethodHandle method();
 
   /**
    * Get the full method signature of the detected method. This must not be in the standard java signature declaration
@@ -60,7 +60,7 @@ public interface IModuleTaskEntry {
    *
    * @return a unique descriptor of the method in the main module class.
    */
-  @NotNull String getFullMethodSignature();
+  @NonNull String fullMethodSignature();
 
   /**
    * Fires this module task.

@@ -16,11 +16,10 @@
 
 package de.dytanic.cloudnet.common.unsafe;
 
-import com.google.common.base.Preconditions;
 import java.net.URI;
 import java.net.URISyntaxException;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * A resolver for elements in the class path.
@@ -39,9 +38,7 @@ public final class ResourceResolver {
    * @return the uri of the clazz location in the class path.
    * @throws NullPointerException if {@code clazz} is null.
    */
-  public static @NotNull URI resolveURIFromResourceByClass(@NotNull Class<?> clazz) {
-    Preconditions.checkNotNull(clazz, "clazz");
-
+  public static @NonNull URI resolveURIFromResourceByClass(@NonNull Class<?> clazz) {
     try {
       return clazz.getProtectionDomain().getCodeSource().getLocation().toURI();
     } catch (URISyntaxException exception) {

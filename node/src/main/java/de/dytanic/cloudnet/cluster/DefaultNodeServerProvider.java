@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class DefaultNodeServerProvider<T extends NodeServer> implements NodeServerProvider<T> {
@@ -32,7 +32,7 @@ public abstract class DefaultNodeServerProvider<T extends NodeServer> implements
 
   protected volatile NodeServer headNode;
 
-  public DefaultNodeServerProvider(@NotNull CloudNet cloudNet) {
+  public DefaultNodeServerProvider(@NonNull CloudNet cloudNet) {
     this.cloudNet = cloudNet;
     this.localNode = new LocalNodeServer(cloudNet, this);
 
@@ -40,14 +40,14 @@ public abstract class DefaultNodeServerProvider<T extends NodeServer> implements
   }
 
   @Override
-  public Collection<T> getNodeServers() {
+  public @NonNull Collection<T> nodeServers() {
     return Collections.unmodifiableCollection(this.nodeServers);
   }
 
   @Override
-  public @Nullable T getNodeServer(@NotNull String uniqueId) {
+  public @Nullable T nodeServer(@NonNull String uniqueId) {
     for (var nodeServer : this.nodeServers) {
-      if (nodeServer.getNodeInfo().getUniqueId().equals(uniqueId)) {
+      if (nodeServer.nodeInfo().uniqueId().equals(uniqueId)) {
         return nodeServer;
       }
     }
@@ -55,12 +55,12 @@ public abstract class DefaultNodeServerProvider<T extends NodeServer> implements
   }
 
   @Override
-  public NodeServer getHeadNode() {
+  public @NonNull NodeServer headnode() {
     return this.headNode;
   }
 
   @Override
-  public LocalNodeServer getSelfNode() {
+  public @NonNull LocalNodeServer selfNode() {
     return this.localNode;
   }
 
@@ -68,10 +68,10 @@ public abstract class DefaultNodeServerProvider<T extends NodeServer> implements
   public void refreshHeadNode() {
     NodeServer choice = this.localNode;
     for (var nodeServer : this.nodeServers) {
-      if (nodeServer.isAvailable()) {
+      if (nodeServer.available()) {
         // the head node is always the node which runs the longest
-        var snapshot = nodeServer.getNodeInfoSnapshot();
-        if (snapshot != null && snapshot.getStartupMillis() < choice.getNodeInfoSnapshot().getStartupMillis()) {
+        var snapshot = nodeServer.nodeInfoSnapshot();
+        if (snapshot != null && snapshot.startupMillis() < choice.nodeInfoSnapshot().startupMillis()) {
           choice = nodeServer;
         }
       }

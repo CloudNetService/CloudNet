@@ -18,11 +18,10 @@ package de.dytanic.cloudnet.ext.cloudperms.node.listener;
 
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.event.EventListener;
-import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.util.DefaultModuleHelper;
-import de.dytanic.cloudnet.event.service.CloudServicePreLifecycleEvent;
+import de.dytanic.cloudnet.event.service.CloudServicePreProcessStartEvent;
 import de.dytanic.cloudnet.ext.cloudperms.node.CloudNetCloudPermissionsModule;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class IncludePluginListener {
 
@@ -33,14 +32,13 @@ public final class IncludePluginListener {
   }
 
   @EventListener
-  public void handle(@NotNull CloudServicePreLifecycleEvent event) {
+  public void handle(@NonNull CloudServicePreProcessStartEvent event) {
     // check if we should copy the module
-    if (event.getTargetLifecycle() == ServiceLifeCycle.RUNNING
-      && this.permissionsModule.getPermissionsConfig().isEnabled()
-      && this.permissionsModule.getPermissionsConfig().getExcludedGroups().stream()
-      .noneMatch(group -> event.getService().getServiceConfiguration().getGroups().contains(group))) {
+    if (this.permissionsModule.permissionsConfig().enabled()
+      && this.permissionsModule.permissionsConfig().excludedGroups().stream()
+      .noneMatch(group -> event.service().serviceConfiguration().groups().contains(group))) {
       // get the target of the copy
-      var plugins = event.getService().getDirectory().resolve("plugins");
+      var plugins = event.service().directory().resolve("plugins");
       FileUtils.createDirectory(plugins);
       // remove the old perms plugin
       var permsPluginFile = plugins.resolve("cloudnet-cloudperms.jar");
@@ -50,7 +48,7 @@ public final class IncludePluginListener {
         // copy the plugin.yml file for the environment
         DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(
           IncludePluginListener.class,
-          event.getService().getServiceId().getEnvironment(),
+          event.service().serviceId().environment(),
           permsPluginFile);
       }
     }

@@ -23,8 +23,8 @@ import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
+import lombok.NonNull;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
@@ -40,18 +40,18 @@ import org.spongepowered.plugin.builtin.jvm.Plugin;
 @Plugin("cloudnet_chat")
 public class SpongeChatPlugin {
 
-  private static final Logger LOGGER = LogManager.getLogger(SpongeChatPlugin.class);
+  private static final Logger LOGGER = LogManager.logger(SpongeChatPlugin.class);
 
   private final Path configFilePath;
   private volatile String chatFormat;
 
   @Inject
-  public SpongeChatPlugin(@ConfigDir(sharedRoot = false) @NotNull Path configDirectory) {
+  public SpongeChatPlugin(@ConfigDir(sharedRoot = false) @NonNull Path configDirectory) {
     this.configFilePath = configDirectory.resolve("config.conf");
   }
 
   @Listener
-  public void handle(@NotNull ConstructPluginEvent event) {
+  public void handle(@NonNull ConstructPluginEvent event) {
     ConfigurationLoader<CommentedConfigurationNode> loader = HoconConfigurationLoader.builder()
       .path(this.configFilePath)
       .build();
@@ -73,7 +73,7 @@ public class SpongeChatPlugin {
   }
 
   @Listener
-  public void handle(@NotNull PlayerChatEvent event, @First @NotNull ServerPlayer player) {
+  public void handle(@NonNull PlayerChatEvent event, @First @NonNull ServerPlayer player) {
     var format = ChatFormatter.buildFormat(
       player.uniqueId(),
       player.name(),

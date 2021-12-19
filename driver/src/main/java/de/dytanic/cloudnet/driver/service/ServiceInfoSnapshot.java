@@ -26,9 +26,9 @@ import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.property.ServiceProperty;
 import java.util.Optional;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @ToString
@@ -50,13 +50,13 @@ public class ServiceInfoSnapshot extends JsonDocPropertyHolder
   @Internal
   public ServiceInfoSnapshot(
     long creationTime,
-    @NotNull HostAndPort address,
-    @NotNull HostAndPort connectAddress,
-    @NotNull ProcessSnapshot processSnapshot,
-    @NotNull ServiceConfiguration configuration,
+    @NonNull HostAndPort address,
+    @NonNull HostAndPort connectAddress,
+    @NonNull ProcessSnapshot processSnapshot,
+    @NonNull ServiceConfiguration configuration,
     long connectedTime,
-    @NotNull ServiceLifeCycle lifeCycle,
-    @NotNull JsonDocument properties
+    @NonNull ServiceLifeCycle lifeCycle,
+    @NonNull JsonDocument properties
   ) {
     this.creationTime = creationTime;
     this.connectedTime = connectedTime;
@@ -68,81 +68,81 @@ public class ServiceInfoSnapshot extends JsonDocPropertyHolder
     this.properties = properties;
   }
 
-  public long getCreationTime() {
+  public long creationTime() {
     return this.creationTime;
   }
 
-  public @NotNull ServiceId getServiceId() {
-    return this.configuration.getServiceId();
+  public @NonNull ServiceId serviceId() {
+    return this.configuration.serviceId();
   }
 
-  public @NotNull HostAndPort getAddress() {
+  public @NonNull HostAndPort address() {
     return this.address;
   }
 
-  public @NotNull HostAndPort getConnectAddress() {
+  public @NonNull HostAndPort connectAddress() {
     return this.connectAddress;
   }
 
-  public boolean isConnected() {
+  public boolean connected() {
     return this.connectedTime != -1;
   }
 
-  public long getConnectedTime() {
+  public long connectedTime() {
     return this.connectedTime;
   }
 
   @Internal
-  public void setConnectedTime(long connectedTime) {
+  public void connectedTime(long connectedTime) {
     this.connectedTime = connectedTime;
   }
 
-  public ServiceLifeCycle getLifeCycle() {
+  public ServiceLifeCycle lifeCycle() {
     return this.lifeCycle;
   }
 
   @Internal
-  public void setLifeCycle(ServiceLifeCycle lifeCycle) {
+  public void lifeCycle(ServiceLifeCycle lifeCycle) {
     this.lifeCycle = lifeCycle;
   }
 
-  public @NotNull ProcessSnapshot getProcessSnapshot() {
+  public @NonNull ProcessSnapshot processSnapshot() {
     return this.processSnapshot;
   }
 
-  public @NotNull ServiceConfiguration getConfiguration() {
+  public @NonNull ServiceConfiguration configuration() {
     return this.configuration;
   }
 
-  public @NotNull SpecificCloudServiceProvider provider() {
-    return CloudNetDriver.getInstance()
-      .getCloudServiceProvider()
-      .getSpecificProvider(this.getServiceId().getUniqueId());
+  public @NonNull SpecificCloudServiceProvider provider() {
+    return CloudNetDriver.instance()
+      .cloudServiceProvider()
+      .specificProvider(this.serviceId().uniqueId());
   }
 
-  public <T> @NotNull Optional<T> getProperty(@NotNull ServiceProperty<T> property) {
-    return property.get(this);
+  public <T> @NonNull Optional<T> property(@NonNull ServiceProperty<T> property) {
+    return property.read(this);
   }
 
-  public <T> void setProperty(@NotNull ServiceProperty<T> property, @Nullable T value) {
-    property.set(this, value);
-  }
-
-  @Override
-  public @NotNull String getName() {
-    return this.getServiceId().getName();
+  public <T> void property(@NonNull ServiceProperty<T> property, @Nullable T value) {
+    property.write(this, value);
   }
 
   @Override
-  public int compareTo(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
+  public @NonNull String name() {
+    return this.serviceId().name();
+  }
+
+  @Override
+  public int compareTo(@NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
     return ComparisonChain.start()
-      .compare(this.getServiceId().getTaskName(), serviceInfoSnapshot.getServiceId().getTaskName())
-      .compare(this.getServiceId().getTaskServiceId(), serviceInfoSnapshot.getServiceId().getTaskServiceId())
+      .compare(this.serviceId().taskName(), serviceInfoSnapshot.serviceId().taskName())
+      .compare(this.serviceId().taskServiceId(), serviceInfoSnapshot.serviceId().taskServiceId())
       .result();
   }
 
   @Override
-  public @NotNull ServiceInfoSnapshot clone() {
+  public @NonNull ServiceInfoSnapshot clone() {
     try {
       return (ServiceInfoSnapshot) super.clone();
     } catch (CloneNotSupportedException exception) {

@@ -38,7 +38,7 @@ import eu.cloudnetservice.cloudnet.ext.report.paste.emitter.defaults.service.Ser
 import eu.cloudnetservice.cloudnet.ext.report.paste.emitter.defaults.service.ServiceOverviewEmitter;
 import eu.cloudnetservice.cloudnet.ext.report.paste.emitter.defaults.service.ServiceTaskEmitter;
 import java.nio.file.Path;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class CloudNetReportModule extends DriverModule {
 
@@ -47,7 +47,7 @@ public final class CloudNetReportModule extends DriverModule {
   private EmitterRegistry registry;
   private Path currentRecordDirectory;
 
-  public static CloudNetReportModule getInstance() {
+  public static CloudNetReportModule instance() {
     return CloudNetReportModule.instance;
   }
 
@@ -73,7 +73,7 @@ public final class CloudNetReportModule extends DriverModule {
     // register our listener to handle stopping and deleted services
     this.registerListener(new RecordReportListener(this));
     // register the command of the module at the node
-    CloudNet.getInstance().getCommandProvider().register(new CommandReport(this));
+    CloudNet.instance().commandProvider().register(new CommandReport(this));
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)
@@ -81,18 +81,18 @@ public final class CloudNetReportModule extends DriverModule {
     this.reloadConfiguration();
   }
 
-  public @NotNull EmitterRegistry getEmitterRegistry() {
+  public @NonNull EmitterRegistry emitterRegistry() {
     return this.registry;
   }
 
-  public @NotNull ReportConfiguration getReportConfiguration() {
+  public @NonNull ReportConfiguration reportConfiguration() {
     return this.reportConfiguration;
   }
 
-  public @NotNull Path getCurrentRecordDirectory() {
-    var date = this.reportConfiguration.getDateFormat().format(System.currentTimeMillis());
-    var recordBaseDestination = this.moduleWrapper.getDataDirectory()
-      .resolve(this.reportConfiguration.getRecordDestination());
+  public @NonNull Path currentRecordDirectory() {
+    var date = this.reportConfiguration.dateFormat().format(System.currentTimeMillis());
+    var recordBaseDestination = this.moduleWrapper.dataDirectory()
+      .resolve(this.reportConfiguration.recordDestination());
     var timeBasedDestination = recordBaseDestination.resolve(date);
     if (timeBasedDestination.equals(this.currentRecordDirectory)) {
       return this.currentRecordDirectory;
@@ -104,6 +104,6 @@ public final class CloudNetReportModule extends DriverModule {
 
   private void reloadConfiguration() {
     this.reportConfiguration = ReportConfigurationHelper.read(
-      this.moduleWrapper.getDataDirectory().resolve("config.json"));
+      this.moduleWrapper.dataDirectory().resolve("config.json"));
   }
 }

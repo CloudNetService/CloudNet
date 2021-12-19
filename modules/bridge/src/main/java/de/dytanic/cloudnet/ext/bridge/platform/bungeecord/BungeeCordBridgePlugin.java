@@ -32,7 +32,7 @@ public final class BungeeCordBridgePlugin extends Plugin {
   public void onEnable() {
     // init the management
     PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> management = new BungeeCordBridgeManagement();
-    management.registerServices(Wrapper.getInstance().getServicesRegistry());
+    management.registerServices(Wrapper.instance().servicesRegistry());
     management.postInit();
     // register the listeners
     ProxyServer.getInstance().getPluginManager().registerListener(
@@ -41,9 +41,9 @@ public final class BungeeCordBridgePlugin extends Plugin {
     // register the cloud command
     ProxyServer.getInstance().getPluginManager().registerCommand(this, new BungeeCordCloudCommand(management));
     // register the hub command if requested
-    if (!management.getConfiguration().getHubCommandNames().isEmpty()) {
+    if (!management.configuration().hubCommandNames().isEmpty()) {
       // convert to an array for easier access
-      var names = management.getConfiguration().getHubCommandNames().toArray(new String[0]);
+      var names = management.configuration().hubCommandNames().toArray(new String[0]);
       // register the command
       ProxyServer.getInstance().getPluginManager().registerCommand(this, new BungeeCordHubCommand(
         management,

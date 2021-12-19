@@ -18,27 +18,27 @@ package eu.cloudnetservice.modules.npc.platform.bukkit.listener;
 
 import eu.cloudnetservice.modules.npc.platform.PlatformSelectorEntity;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
+import lombok.NonNull;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
-import org.jetbrains.annotations.NotNull;
 
 public final class BukkitEntityProtectionListener implements Listener {
 
   private final BukkitPlatformNPCManagement management;
 
-  public BukkitEntityProtectionListener(@NotNull BukkitPlatformNPCManagement management) {
+  public BukkitEntityProtectionListener(@NonNull BukkitPlatformNPCManagement management) {
     this.management = management;
   }
 
   @EventHandler
-  public void handle(@NotNull EntityDamageEvent event) {
-    this.management.getTrackedEntities().values().stream()
-      .filter(PlatformSelectorEntity::isSpawned)
+  public void handle(@NonNull EntityDamageEvent event) {
+    this.management.trackedEntities().values().stream()
+      .filter(PlatformSelectorEntity::spawned)
       .filter(npc -> {
         var eid = event.getEntity().getEntityId();
-        return npc.getEntityId() == eid || npc.getInfoLineEntityIds().contains(eid);
+        return npc.entityId() == eid || npc.infoLineEntityIds().contains(eid);
       })
       .findFirst()
       .ifPresent($ -> {
@@ -48,10 +48,10 @@ public final class BukkitEntityProtectionListener implements Listener {
   }
 
   @EventHandler
-  public void handle(@NotNull PlayerArmorStandManipulateEvent event) {
-    this.management.getTrackedEntities().values().stream()
-      .filter(PlatformSelectorEntity::isSpawned)
-      .filter(npc -> npc.getInfoLineEntityIds().contains(event.getRightClicked().getEntityId()))
+  public void handle(@NonNull PlayerArmorStandManipulateEvent event) {
+    this.management.trackedEntities().values().stream()
+      .filter(PlatformSelectorEntity::spawned)
+      .filter(npc -> npc.infoLineEntityIds().contains(event.getRightClicked().getEntityId()))
       .findFirst()
       .ifPresent($ -> event.setCancelled(true));
   }

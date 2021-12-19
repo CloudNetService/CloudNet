@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import eu.cloudnetservice.cloudnet.ext.signs.platform.PlatformSignManagement;
 import eu.cloudnetservice.cloudnet.ext.signs.platform.sponge.event.SpongeCloudSignInteractEvent;
 import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Cause;
@@ -38,15 +38,15 @@ public class SignInteractListener {
   protected final PlatformSignManagement<org.spongepowered.api.block.entity.Sign> signManagement;
 
   public SignInteractListener(
-    @NotNull PluginContainer plugin,
-    @NotNull PlatformSignManagement<org.spongepowered.api.block.entity.Sign> signManagement
+    @NonNull PluginContainer plugin,
+    @NonNull PlatformSignManagement<org.spongepowered.api.block.entity.Sign> signManagement
   ) {
     this.plugin = plugin;
     this.signManagement = signManagement;
   }
 
   @Listener
-  public void handle(@NotNull InteractBlockEvent.Secondary event, @First ServerPlayer player) {
+  public void handle(@NonNull InteractBlockEvent.Secondary event, @First ServerPlayer player) {
     // easy hack to allow all sign types like acacia_sign, birch_wall_sign etc.
     var key = event.block().state().type().findKey(RegistryTypes.BLOCK_TYPE).orElse(null);
     if (key != null && key.formatted().endsWith("_sign")) {
@@ -54,7 +54,7 @@ public class SignInteractListener {
         && event.block().location().get().blockEntity().isPresent()
         && event.block().location().get().blockEntity().get() instanceof org.spongepowered.api.block.entity.Sign) {
         // get the cloud sign at the position
-        var sign = this.signManagement.getSignAt(
+        var sign = this.signManagement.signAt(
           (org.spongepowered.api.block.entity.Sign) event.block().location().get().blockEntity().get());
         if (sign != null) {
           var canConnect = this.signManagement.canConnect(sign, player::hasPermission);
@@ -64,20 +64,20 @@ public class SignInteractListener {
             player, sign, !canConnect);
           Sponge.eventManager().post(interactEvent);
 
-          if (!interactEvent.isCancelled() && interactEvent.getTarget().isPresent()) {
-            this.signManagement.getSignsConfiguration().sendMessage(
+          if (!interactEvent.isCancelled() && interactEvent.target().isPresent()) {
+            this.signManagement.signsConfiguration().sendMessage(
               "server-connecting-message",
               m -> player.sendMessage(AdventureSerializerUtil.serialize(m)),
-              m -> m.replace("%server%", interactEvent.getTarget().get().getName()));
-            this.getPlayerManager().getPlayerExecutor(player.uniqueId())
-              .connect(interactEvent.getTarget().get().getName());
+              m -> m.replace("%server%", interactEvent.target().get().name()));
+            this.playerManager().playerExecutor(player.uniqueId())
+              .connect(interactEvent.target().get().name());
           }
         }
       }
     }
   }
 
-  protected @NotNull IPlayerManager getPlayerManager() {
-    return CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class);
+  protected @NonNull IPlayerManager playerManager() {
+    return CloudNetDriver.instance().servicesRegistry().firstService(IPlayerManager.class);
   }
 }

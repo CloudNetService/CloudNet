@@ -16,81 +16,31 @@
 
 package eu.cloudnetservice.modules.npc.configuration;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
-public class NPCConfigurationEntry {
+public record NPCConfigurationEntry(
+  @NonNull String targetGroup,
+  double infoLineDistance,
+  double knockbackDistance,
+  double knockbackStrength,
+  @NonNull NPCPoolOptions npcPoolOptions,
+  @NonNull LabyModEmoteConfiguration emoteConfiguration,
+  @NonNull InventoryConfiguration inventoryConfiguration
+) {
 
-  private final String targetGroup;
-
-  private final double infoLineDistance;
-
-  private final double knockbackDistance;
-  private final double knockbackStrength;
-
-  private final NPCPoolOptions npcPoolOptions;
-  private final LabyModEmoteConfiguration emoteConfiguration;
-
-  private final InventoryConfiguration inventoryConfiguration;
-
-  protected NPCConfigurationEntry(
-    @NotNull String targetGroup,
-    double infoLineDistance,
-    double knockbackDistance,
-    double knockbackStrength,
-    @NotNull NPCPoolOptions npcPoolOptions,
-    @NotNull LabyModEmoteConfiguration emoteConfiguration,
-    @NotNull InventoryConfiguration inventoryConfiguration
-  ) {
-    this.targetGroup = targetGroup;
-    this.infoLineDistance = infoLineDistance;
-    this.knockbackDistance = knockbackDistance;
-    this.knockbackStrength = knockbackStrength;
-    this.npcPoolOptions = npcPoolOptions;
-    this.emoteConfiguration = emoteConfiguration;
-    this.inventoryConfiguration = inventoryConfiguration;
-  }
-
-  public static @NotNull Builder builder() {
+  public static @NonNull Builder builder() {
     return new Builder();
   }
 
-  public static @NotNull Builder builder(@NotNull NPCConfigurationEntry entry) {
+  public static @NonNull Builder builder(@NonNull NPCConfigurationEntry entry) {
     return builder()
-      .targetGroup(entry.getTargetGroup())
-      .infoLineDistance(entry.getInfoLineDistance())
-      .knockbackDistance(entry.getKnockbackDistance())
-      .knockbackStrength(entry.getKnockbackStrength())
-      .npcPoolOptions(entry.getNpcPoolOptions())
-      .emoteConfiguration(entry.getEmoteConfiguration())
-      .inventoryConfiguration(entry.getInventoryConfiguration());
-  }
-
-  public @NotNull String getTargetGroup() {
-    return this.targetGroup;
-  }
-
-  public double getInfoLineDistance() {
-    return this.infoLineDistance;
-  }
-
-  public double getKnockbackDistance() {
-    return this.knockbackDistance;
-  }
-
-  public double getKnockbackStrength() {
-    return this.knockbackStrength;
-  }
-
-  public @NotNull NPCPoolOptions getNpcPoolOptions() {
-    return this.npcPoolOptions;
-  }
-
-  public @NotNull LabyModEmoteConfiguration getEmoteConfiguration() {
-    return this.emoteConfiguration;
-  }
-
-  public @NotNull InventoryConfiguration getInventoryConfiguration() {
-    return this.inventoryConfiguration;
+      .targetGroup(entry.targetGroup())
+      .infoLineDistance(entry.infoLineDistance())
+      .knockbackDistance(entry.knockbackDistance())
+      .knockbackStrength(entry.knockbackStrength())
+      .npcPoolOptions(entry.npcPoolOptions())
+      .emoteConfiguration(entry.emoteConfiguration())
+      .inventoryConfiguration(entry.inventoryConfiguration());
   }
 
   public static class Builder {
@@ -107,42 +57,42 @@ public class NPCConfigurationEntry {
 
     private InventoryConfiguration inventoryConfiguration = InventoryConfiguration.builder().build();
 
-    public @NotNull Builder targetGroup(@NotNull String targetGroup) {
+    public @NonNull Builder targetGroup(@NonNull String targetGroup) {
       this.targetGroup = targetGroup;
       return this;
     }
 
-    public @NotNull Builder infoLineDistance(double infoLineDistance) {
+    public @NonNull Builder infoLineDistance(double infoLineDistance) {
       this.infoLineDistance = infoLineDistance;
       return this;
     }
 
-    public @NotNull Builder knockbackDistance(double knockbackDistance) {
+    public @NonNull Builder knockbackDistance(double knockbackDistance) {
       this.knockbackDistance = knockbackDistance;
       return this;
     }
 
-    public @NotNull Builder knockbackStrength(double knockbackStrength) {
+    public @NonNull Builder knockbackStrength(double knockbackStrength) {
       this.knockbackStrength = knockbackStrength;
       return this;
     }
 
-    public @NotNull Builder npcPoolOptions(@NotNull NPCPoolOptions npcPoolOptions) {
+    public @NonNull Builder npcPoolOptions(@NonNull NPCPoolOptions npcPoolOptions) {
       this.npcPoolOptions = npcPoolOptions;
       return this;
     }
 
-    public @NotNull Builder emoteConfiguration(@NotNull LabyModEmoteConfiguration emoteConfiguration) {
+    public @NonNull Builder emoteConfiguration(@NonNull LabyModEmoteConfiguration emoteConfiguration) {
       this.emoteConfiguration = emoteConfiguration;
       return this;
     }
 
-    public @NotNull Builder inventoryConfiguration(@NotNull InventoryConfiguration inventoryConfiguration) {
+    public @NonNull Builder inventoryConfiguration(@NonNull InventoryConfiguration inventoryConfiguration) {
       this.inventoryConfiguration = inventoryConfiguration;
       return this;
     }
 
-    public @NotNull NPCConfigurationEntry build() {
+    public @NonNull NPCConfigurationEntry build() {
       return new NPCConfigurationEntry(
         this.targetGroup,
         this.infoLineDistance,

@@ -29,9 +29,9 @@ public final class CommandDebug {
 
   @CommandMethod("debug")
   public void debug() {
-    var rootLogger = LogManager.getRootLogger();
+    var rootLogger = LogManager.rootLogger();
     if (rootLogger.isLoggable(Level.FINEST)) {
-      rootLogger.setLevel(LoggingUtils.getDefaultLogLevel());
+      rootLogger.setLevel(LoggingUtils.defaultLogLevel());
     } else {
       rootLogger.setLevel(Level.FINEST);
     }

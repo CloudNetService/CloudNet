@@ -27,23 +27,23 @@ import de.dytanic.cloudnet.driver.network.rpc.RPCHandlerRegistry;
 import de.dytanic.cloudnet.driver.network.rpc.RPCInvocationContext;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.handler.util.ExceptionalResultUtils;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class RPCPacketListener implements IPacketListener {
 
   private final RPCHandlerRegistry rpcHandlerRegistry;
 
-  public RPCPacketListener(@NotNull RPCHandlerRegistry rpcHandlerRegistry) {
+  public RPCPacketListener(@NonNull RPCHandlerRegistry rpcHandlerRegistry) {
     this.rpcHandlerRegistry = rpcHandlerRegistry;
   }
 
   @Override
-  public void handle(@NotNull INetworkChannel channel, @NotNull IPacket packet) throws Exception {
+  public void handle(@NonNull INetworkChannel channel, @NonNull IPacket packet) throws Exception {
     // the result of the invocation, encoded
     DataBuf result = null;
     // the input information we get
-    var buf = packet.getContent();
+    var buf = packet.content();
     // check if the invocation is chained
     if (buf.readBoolean()) {
       // get the chain size
@@ -59,14 +59,14 @@ public class RPCPacketListener implements IPacketListener {
             // only invoke upcoming methods if there was a previous result
             lastResult = this.handleRaw(
               buf.readString(),
-              this.buildContext(channel, buf, lastResult.getInvocationResult(), true));
+              this.buildContext(channel, buf, lastResult.invocationResult(), true));
           } else {
             // an exception was thrown previously, break
             buf.readString(); // remove the handler information which is not necessary
             result = this.serializeResult(
               lastResult,
-              lastResult.getHandler().getDataBufFactory(),
-              lastResult.getHandler().getObjectMapper(),
+              lastResult.invocationHandler().dataBufFactory(),
+              lastResult.invocationHandler().objectMapper(),
               this.buildContext(channel, buf, null, true));
             break;
           }
@@ -80,51 +80,51 @@ public class RPCPacketListener implements IPacketListener {
         // the last handler decides over the method invocation result
         result = this.handle(
           buf.readString(),
-          this.buildContext(channel, buf, lastResult.getInvocationResult(), true));
+          this.buildContext(channel, buf, lastResult.invocationResult(), true));
       }
     } else {
       // just invoke the method
       result = this.handle(buf.readString(), this.buildContext(channel, buf, null, false));
     }
     // check if we need to send a result
-    if (result != null && packet.getUniqueId() != null) {
-      channel.getQueryPacketManager().sendQueryPacket(new Packet(-1, result), packet.getUniqueId());
+    if (result != null && packet.uniqueId() != null) {
+      channel.queryPacketManager().sendQueryPacket(new Packet(-1, result), packet.uniqueId());
     }
   }
 
-  protected @Nullable DataBuf handle(@NotNull String clazz, @NotNull RPCInvocationContext context) {
+  protected @Nullable DataBuf handle(@NonNull String clazz, @NonNull RPCInvocationContext context) {
     // get the handler associated with the class of the rpc
-    var handler = this.rpcHandlerRegistry.getHandler(clazz);
+    var handler = this.rpcHandlerRegistry.handler(clazz);
     // check if the method gets called on a specific instance
     if (handler != null) {
       // invoke the method
       var handlingResult = handler.handle(context);
       // serialize the result
-      return this.serializeResult(handlingResult, handler.getDataBufFactory(), handler.getObjectMapper(), context);
+      return this.serializeResult(handlingResult, handler.dataBufFactory(), handler.objectMapper(), context);
     }
     // no handler for the class - no result
     return null;
   }
 
   protected @Nullable DataBuf serializeResult(
-    @NotNull HandlingResult result,
-    @NotNull DataBufFactory dataBufFactory,
-    @NotNull ObjectMapper objectMapper,
-    @NotNull RPCInvocationContext context
+    @NonNull HandlingResult result,
+    @NonNull DataBufFactory dataBufFactory,
+    @NonNull ObjectMapper objectMapper,
+    @NonNull RPCInvocationContext context
   ) {
     // check if the sender expect the result of the method
     if (context.expectsMethodResult()) {
       // check if the method return void
-      if (result.wasSuccessful() && result.getTargetMethodInformation().isVoidMethod()) {
+      if (result.wasSuccessful() && result.targetMethodInformation().voidMethod()) {
         return dataBufFactory.createWithExpectedSize(2)
           .writeBoolean(true) // was successful
           .writeBoolean(false);
       } else if (result.wasSuccessful()) {
         // successful - write the result of the invocation
-        return objectMapper.writeObject(dataBufFactory.createEmpty().writeBoolean(true), result.getInvocationResult());
+        return objectMapper.writeObject(dataBufFactory.createEmpty().writeBoolean(true), result.invocationResult());
       } else {
         // not successful - send some basic information about the result
-        var throwable = (Throwable) result.getInvocationResult();
+        var throwable = (Throwable) result.invocationResult();
         return ExceptionalResultUtils.serializeThrowable(dataBufFactory.createEmpty().writeBoolean(false), throwable);
       }
     }
@@ -132,16 +132,16 @@ public class RPCPacketListener implements IPacketListener {
     return null;
   }
 
-  protected @Nullable HandlingResult handleRaw(@NotNull String clazz, @NotNull RPCInvocationContext context) {
+  protected @Nullable HandlingResult handleRaw(@NonNull String clazz, @NonNull RPCInvocationContext context) {
     // get the handler associated with the class of the rpc
-    var handler = this.rpcHandlerRegistry.getHandler(clazz);
+    var handler = this.rpcHandlerRegistry.handler(clazz);
     // invoke the handler with the information
     return handler == null ? null : handler.handle(context);
   }
 
-  protected @NotNull RPCInvocationContext buildContext(
-    @NotNull INetworkChannel channel,
-    @NotNull DataBuf content,
+  protected @NonNull RPCInvocationContext buildContext(
+    @NonNull INetworkChannel channel,
+    @NonNull DataBuf content,
     @Nullable Object on,
     boolean strictInstanceUsage
   ) {
@@ -150,6 +150,7 @@ public class RPCPacketListener implements IPacketListener {
       .channel(channel)
       .methodName(content.readString())
       .expectsMethodResult(content.readBoolean())
+      .argumentCount(content.readInt())
       .argumentInformation(content)
       .normalizePrimitives(Boolean.TRUE)
       .strictInstanceUsage(strictInstanceUsage)

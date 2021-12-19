@@ -26,7 +26,7 @@ import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.List;
 import java.util.UUID;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
@@ -36,100 +36,100 @@ final class PlatformPlayerManager implements IPlayerManager {
   private final PlayerProvider allPlayers;
   private final PlayerExecutor globalPlayerExecutor;
 
-  public PlatformPlayerManager(@NotNull Wrapper wrapper) {
-    this.sender = wrapper.getRPCProviderFactory().providerForClass(wrapper.getNetworkClient(), IPlayerManager.class);
+  public PlatformPlayerManager(@NonNull Wrapper wrapper) {
+    this.sender = wrapper.rpcProviderFactory().providerForClass(wrapper.networkClient(), IPlayerManager.class);
     // init the static player utils
-    this.globalPlayerExecutor = this.getPlayerExecutor(PlayerExecutor.GLOBAL_UNIQUE_ID);
+    this.globalPlayerExecutor = this.playerExecutor(PlayerExecutor.GLOBAL_UNIQUE_ID);
     this.allPlayers = new PlatformPlayerProvider(this.sender.invokeMethod("onlinePlayers"));
   }
 
   @Override
-  public @Range(from = 0, to = Integer.MAX_VALUE) int getOnlineCount() {
-    return this.sender.invokeMethod("getOnlineCount").fireSync();
+  public @Range(from = 0, to = Integer.MAX_VALUE) int onlineCount() {
+    return this.sender.invokeMethod("onlineCount").fireSync();
   }
 
   @Override
-  public @Range(from = 0, to = Long.MAX_VALUE) long getRegisteredCount() {
-    return this.sender.invokeMethod("getRegisteredCount").fireSync();
+  public @Range(from = 0, to = Long.MAX_VALUE) long registeredCount() {
+    return this.sender.invokeMethod("registeredCount").fireSync();
   }
 
   @Override
-  public @Nullable CloudPlayer getOnlinePlayer(@NotNull UUID uniqueId) {
-    return this.sender.invokeMethod("getOnlinePlayer", uniqueId).fireSync();
+  public @Nullable CloudPlayer onlinePlayer(@NonNull UUID uniqueId) {
+    return this.sender.invokeMethod("onlinePlayer", uniqueId).fireSync();
   }
 
   @Override
-  public @Nullable CloudPlayer getFirstOnlinePlayer(@NotNull String name) {
-    return this.sender.invokeMethod("getFirstOnlinePlayer", name).fireSync();
+  public @Nullable CloudPlayer firstOnlinePlayer(@NonNull String name) {
+    return this.sender.invokeMethod("firstOnlinePlayer", name).fireSync();
   }
 
   @Override
-  public @NotNull List<? extends CloudPlayer> getOnlinePlayers(@NotNull String name) {
-    return this.sender.invokeMethod("getOnlinePlayers", name).fireSync();
+  public @NonNull List<? extends CloudPlayer> onlinePlayers(@NonNull String name) {
+    return this.sender.invokeMethod("onlinePlayers", name).fireSync();
   }
 
   @Override
-  public @NotNull List<? extends CloudPlayer> getEnvironmentOnlinePlayers(@NotNull ServiceEnvironmentType environment) {
-    return this.sender.invokeMethod("getEnvironmentOnlinePlayers", environment).fireSync();
+  public @NonNull List<? extends CloudPlayer> environmentOnlinePlayers(@NonNull ServiceEnvironmentType environment) {
+    return this.sender.invokeMethod("environmentOnlinePlayers", environment).fireSync();
   }
 
   @Override
-  public @NotNull PlayerProvider onlinePlayers() {
+  public @NonNull PlayerProvider onlinePlayers() {
     return this.allPlayers;
   }
 
   @Override
-  public @NotNull PlayerProvider taskOnlinePlayers(@NotNull String task) {
+  public @NonNull PlayerProvider taskOnlinePlayers(@NonNull String task) {
     return new PlatformPlayerProvider(this.sender.invokeMethod("taskOnlinePlayers", task));
   }
 
   @Override
-  public @NotNull PlayerProvider groupOnlinePlayers(@NotNull String group) {
+  public @NonNull PlayerProvider groupOnlinePlayers(@NonNull String group) {
     return new PlatformPlayerProvider(this.sender.invokeMethod("groupOnlinePlayers", group));
   }
 
   @Override
-  public @Nullable CloudOfflinePlayer getOfflinePlayer(@NotNull UUID uniqueId) {
-    return this.sender.invokeMethod("getOfflinePlayer", uniqueId).fireSync();
+  public @Nullable CloudOfflinePlayer offlinePlayer(@NonNull UUID uniqueId) {
+    return this.sender.invokeMethod("offlinePlayer", uniqueId).fireSync();
   }
 
   @Override
-  public @Nullable CloudOfflinePlayer getFirstOfflinePlayer(@NotNull String name) {
-    return this.sender.invokeMethod("getFirstOfflinePlayer", name).fireSync();
+  public @Nullable CloudOfflinePlayer firstOfflinePlayer(@NonNull String name) {
+    return this.sender.invokeMethod("firstOfflinePlayer", name).fireSync();
   }
 
   @Override
-  public @NotNull List<? extends CloudOfflinePlayer> getOfflinePlayers(@NotNull String name) {
-    return this.sender.invokeMethod("getOfflinePlayers", name).fireSync();
+  public @NonNull List<? extends CloudOfflinePlayer> offlinePlayers(@NonNull String name) {
+    return this.sender.invokeMethod("offlinePlayers", name).fireSync();
   }
 
   @Override
-  public @NotNull List<? extends CloudOfflinePlayer> getRegisteredPlayers() {
-    return this.sender.invokeMethod("getRegisteredPlayers").fireSync();
+  public @NonNull List<? extends CloudOfflinePlayer> registeredPlayers() {
+    return this.sender.invokeMethod("registeredPlayers").fireSync();
   }
 
   @Override
-  public void updateOfflinePlayer(@NotNull CloudOfflinePlayer cloudOfflinePlayer) {
+  public void updateOfflinePlayer(@NonNull CloudOfflinePlayer cloudOfflinePlayer) {
     this.sender.invokeMethod("updateOfflinePlayer", cloudOfflinePlayer).fireSync();
   }
 
   @Override
-  public void updateOnlinePlayer(@NotNull CloudPlayer cloudPlayer) {
+  public void updateOnlinePlayer(@NonNull CloudPlayer cloudPlayer) {
     this.sender.invokeMethod("updateOnlinePlayer", cloudPlayer).fireSync();
   }
 
   @Override
-  public void deleteCloudOfflinePlayer(@NotNull CloudOfflinePlayer cloudOfflinePlayer) {
+  public void deleteCloudOfflinePlayer(@NonNull CloudOfflinePlayer cloudOfflinePlayer) {
     this.sender.invokeMethod("deleteCloudOfflinePlayer", cloudOfflinePlayer).fireSync();
   }
 
   @Override
-  public @NotNull PlayerExecutor getGlobalPlayerExecutor() {
+  public @NonNull PlayerExecutor globalPlayerExecutor() {
     return this.globalPlayerExecutor;
   }
 
   @Override
-  public @NotNull PlayerExecutor getPlayerExecutor(@NotNull UUID uniqueId) {
-    return new PlatformPlayerExecutor(this.sender.invokeMethod("getPlayerExecutor", uniqueId), uniqueId);
+  public @NonNull PlayerExecutor playerExecutor(@NonNull UUID uniqueId) {
+    return new PlatformPlayerExecutor(this.sender.invokeMethod("playerExecutor", uniqueId), uniqueId);
   }
 }

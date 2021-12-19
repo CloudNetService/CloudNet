@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -35,7 +35,7 @@ public interface CloudMessenger {
    *
    * @param channelMessage the channel message to be sent
    */
-  void sendChannelMessage(@NotNull ChannelMessage channelMessage);
+  void sendChannelMessage(@NonNull ChannelMessage channelMessage);
 
   /**
    * Sends a channel message into the cluster and waits for the result from the receivers.
@@ -43,8 +43,8 @@ public interface CloudMessenger {
    * @param channelMessage the channel message to be sent
    * @return a collection containing the responses from all receivers
    */
-  @NotNull
-  default ITask<Collection<ChannelMessage>> sendChannelMessageQueryAsync(@NotNull ChannelMessage channelMessage) {
+  @NonNull
+  default ITask<Collection<ChannelMessage>> sendChannelMessageQueryAsync(@NonNull ChannelMessage channelMessage) {
     return CompletableTask.supply(() -> this.sendChannelMessageQuery(channelMessage));
   }
 
@@ -54,8 +54,8 @@ public interface CloudMessenger {
    * @param channelMessage the channel message to be sent
    * @return a collection containing the responses from all receivers
    */
-  @NotNull
-  Collection<ChannelMessage> sendChannelMessageQuery(@NotNull ChannelMessage channelMessage);
+  @NonNull
+  Collection<ChannelMessage> sendChannelMessageQuery(@NonNull ChannelMessage channelMessage);
 
   /**
    * Sends a channel message into the cluster and waits for the result from the receivers. This method only returns the
@@ -64,8 +64,8 @@ public interface CloudMessenger {
    * @param channelMessage the channel message to be sent
    * @return the response of the first receiver
    */
-  @NotNull
-  default ITask<ChannelMessage> sendSingleChannelMessageQueryAsync(@NotNull ChannelMessage channelMessage) {
+  @NonNull
+  default ITask<ChannelMessage> sendSingleChannelMessageQueryAsync(@NonNull ChannelMessage channelMessage) {
     return CompletableTask.supply(() -> this.sendSingleChannelMessageQuery(channelMessage));
   }
 
@@ -77,5 +77,5 @@ public interface CloudMessenger {
    * @return the response of the first receiver
    */
   @Nullable
-  ChannelMessage sendSingleChannelMessageQuery(@NotNull ChannelMessage channelMessage);
+  ChannelMessage sendSingleChannelMessageQuery(@NonNull ChannelMessage channelMessage);
 }

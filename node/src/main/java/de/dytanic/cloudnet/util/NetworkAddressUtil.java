@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.util;
 
-import com.google.common.collect.ImmutableSet;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -24,7 +23,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Set;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class NetworkAddressUtil {
 
@@ -34,7 +33,7 @@ public final class NetworkAddressUtil {
     throw new UnsupportedOperationException();
   }
 
-  public static @NotNull Set<String> getAvailableIpAddresses() {
+  public static @NonNull Set<String> availableIPAddresses() {
     try {
       Set<String> addresses = new HashSet<>();
       // try to resolve all ip addresses available on the system
@@ -43,29 +42,29 @@ public final class NetworkAddressUtil {
         // get all addresses of the interface
         var inetAddresses = networkInterfaces.nextElement().getInetAddresses();
         while (inetAddresses.hasMoreElements()) {
-          addresses.add(getHostAddress(inetAddresses.nextElement()));
+          addresses.add(hostAddress(inetAddresses.nextElement()));
         }
       }
       // return the located addresses
       return addresses;
     } catch (SocketException exception) {
-      return ImmutableSet.of("127.0.0.1", "127.0.1.1");
+      return Set.of("127.0.0.1", "127.0.1.1");
     }
   }
 
-  public static String getLocalAddress() {
+  public static String localAddress() {
     return LOCAL_ADDRESS;
   }
 
-  private static @NotNull String findLocalAddress() {
+  private static @NonNull String findLocalAddress() {
     try {
-      return getHostAddress(InetAddress.getLocalHost());
+      return hostAddress(InetAddress.getLocalHost());
     } catch (UnknownHostException exception) {
       return "127.0.0.1";
     }
   }
 
-  private static @NotNull String getHostAddress(@NotNull InetAddress address) {
+  private static @NonNull String hostAddress(@NonNull InetAddress address) {
     if (address instanceof Inet6Address) {
       // get the host address of the inet address
       var hostAddress = address.getHostAddress();

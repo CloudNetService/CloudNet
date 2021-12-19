@@ -20,6 +20,7 @@ import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.module.util.ModuleDependencyUtils;
 import java.io.IOException;
+import java.lang.reflect.InaccessibleObjectException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -35,7 +36,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Unmodifiable;
 
 /**
@@ -43,13 +44,13 @@ import org.jetbrains.annotations.Unmodifiable;
  */
 public class DefaultModuleWrapper implements IModuleWrapper {
 
-  protected static final Logger LOGGER = LogManager.getLogger(DefaultModuleWrapper.class);
+  protected static final Logger LOGGER = LogManager.logger(DefaultModuleWrapper.class);
   // This looks strange in the first place but is the only way to go as java generics are a bit strange.
   // When using Comparator.comparingInt(...).reverse() the type is now a Comparator<Object> which leads to problems
   // extracting the key of the task entry... And yes, reversing is necessary as the module task with the highest order
   // should be called first but the natural ordering of java sorts the lowest number first.
   protected static final Comparator<IModuleTaskEntry> TASK_COMPARATOR = Comparator.comparing(
-    entry -> entry.getTaskInfo().order(), Comparator.reverseOrder());
+    entry -> entry.taskInfo().order(), Comparator.reverseOrder());
 
   private final URL source;
   private final URI sourceUri;
@@ -102,7 +103,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull Map<ModuleLifeCycle, List<IModuleTaskEntry>> getModuleTasks() {
+  public @NonNull Map<ModuleLifeCycle, List<IModuleTaskEntry>> moduleTasks() {
     return Collections.unmodifiableMap(this.tasks);
   }
 
@@ -110,7 +111,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull @Unmodifiable Set<ModuleDependency> getDependingModules() {
+  public @NonNull @Unmodifiable Set<ModuleDependency> dependingModules() {
     return Collections.unmodifiableSet(this.dependingModules);
   }
 
@@ -118,7 +119,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull IModule getModule() {
+  public @NonNull IModule module() {
     return this.module;
   }
 
@@ -126,7 +127,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull ModuleLifeCycle getModuleLifeCycle() {
+  public @NonNull ModuleLifeCycle moduleLifeCycle() {
     return this.lifeCycle.get();
   }
 
@@ -134,7 +135,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull IModuleProvider getModuleProvider() {
+  public @NonNull IModuleProvider moduleProvider() {
     return this.provider;
   }
 
@@ -142,7 +143,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull ModuleConfiguration getModuleConfiguration() {
+  public @NonNull ModuleConfiguration moduleConfiguration() {
     return this.moduleConfiguration;
   }
 
@@ -150,7 +151,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull ClassLoader getClassLoader() {
+  public @NonNull ClassLoader classLoader() {
     return this.classLoader;
   }
 
@@ -158,7 +159,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull IModuleWrapper loadModule() {
+  public @NonNull IModuleWrapper loadModule() {
     this.pushLifecycleChange(ModuleLifeCycle.LOADED, true);
     return this;
   }
@@ -167,8 +168,8 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull IModuleWrapper startModule() {
-    if (this.getModuleLifeCycle().canChangeTo(ModuleLifeCycle.STARTED)
+  public @NonNull IModuleWrapper startModule() {
+    if (this.moduleLifeCycle().canChangeTo(ModuleLifeCycle.STARTED)
       && this.provider.notifyPreModuleLifecycleChange(this, ModuleLifeCycle.STARTED)) {
       // Resolve all dependencies of this module to start them before this module
       for (var wrapper : ModuleDependencyUtils.collectDependencies(this, this.provider)) {
@@ -186,8 +187,8 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull IModuleWrapper reloadModule() {
-    if (this.getModuleLifeCycle().canChangeTo(ModuleLifeCycle.RELOADING)
+  public @NonNull IModuleWrapper reloadModule() {
+    if (this.moduleLifeCycle().canChangeTo(ModuleLifeCycle.RELOADING)
       && this.provider.notifyPreModuleLifecycleChange(this, ModuleLifeCycle.RELOADING)) {
       // Resolve all dependencies of this module to reload them before this module
       for (var wrapper : ModuleDependencyUtils.collectDependencies(this, this.provider)) {
@@ -207,7 +208,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull IModuleWrapper stopModule() {
+  public @NonNull IModuleWrapper stopModule() {
     this.pushLifecycleChange(ModuleLifeCycle.STOPPED, true);
     return this;
   }
@@ -216,8 +217,8 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull IModuleWrapper unloadModule() {
-    if (this.getModuleLifeCycle().canChangeTo(ModuleLifeCycle.UNLOADED)) {
+  public @NonNull IModuleWrapper unloadModule() {
+    if (this.moduleLifeCycle().canChangeTo(ModuleLifeCycle.UNLOADED)) {
       this.pushLifecycleChange(ModuleLifeCycle.UNLOADED, true);
       // remove all known module tasks & dependencies
       this.tasks.clear();
@@ -227,7 +228,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
         this.classLoader.close();
       } catch (IOException exception) {
         LOGGER.severe(
-          String.format("Exception closing class loader of module %s", this.moduleConfiguration.getName()),
+          String.format("Exception closing class loader of module %s", this.moduleConfiguration.name()),
           exception
         );
       }
@@ -241,7 +242,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull Path getDataDirectory() {
+  public @NonNull Path dataDirectory() {
     return this.dataDirectory;
   }
 
@@ -249,7 +250,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull URL getUrl() {
+  public @NonNull URL url() {
     return this.source;
   }
 
@@ -257,7 +258,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull URI getUri() {
+  public @NonNull URI uri() {
     return this.sourceUri;
   }
 
@@ -270,7 +271,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * @param module the module instance (better known as the module main class) to resolve the tasks of.
    * @return all sorted resolved tasks mapped to the lifecycle they will be called in.
    */
-  protected @NotNull Map<ModuleLifeCycle, List<IModuleTaskEntry>> resolveModuleTasks(@NotNull IModule module) {
+  protected @NonNull Map<ModuleLifeCycle, List<IModuleTaskEntry>> resolveModuleTasks(@NonNull IModule module) {
     Map<ModuleLifeCycle, List<IModuleTaskEntry>> result = new EnumMap<>(ModuleLifeCycle.class);
     // check all declared methods to get all methods of this and super classes
     for (var method : module.getClass().getDeclaredMethods()) {
@@ -281,8 +282,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
           // ensure that we can access the method before we register it, this will never fail on public methods as
           // long as there is no module denying the access
           method.setAccessible(true);
-        } catch (RuntimeException exception) {
-          // we want to catch the InaccessibleObjectException (which is a RuntimeException) but not available on Java 8
+        } catch (InaccessibleObjectException exception) {
           // If this happens we only print a warning and continue our search (this might cause further module issues
           // as one task will not get fired at all but this is not our mistake, so we can safely ignore it)
           LOGGER.warning(String.format("Unable to module task declared by method %s@%s() accessible, ignoring.",
@@ -310,14 +310,14 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * @param lifeCycle      the lifecycle to fire the tasks of.
    * @param notifyProvider if the module provider should be notified about the change or not.
    */
-  protected void pushLifecycleChange(@NotNull ModuleLifeCycle lifeCycle, boolean notifyProvider) {
+  protected void pushLifecycleChange(@NonNull ModuleLifeCycle lifeCycle, boolean notifyProvider) {
     var tasks = this.tasks.get(lifeCycle);
-    if (this.getModuleLifeCycle().canChangeTo(lifeCycle)) {
+    if (this.moduleLifeCycle().canChangeTo(lifeCycle)) {
       this.moduleLifecycleUpdateLock.lock();
       try {
         // notify the provider for changes which are required based on the lifecycle and other stuff (like to invoke
         // of the associated methods in the module provider handler)
-        if (!notifyProvider || this.getModuleProvider().notifyPreModuleLifecycleChange(this, lifeCycle)) {
+        if (!notifyProvider || this.moduleProvider().notifyPreModuleLifecycleChange(this, lifeCycle)) {
           // The tasks are always in the logical order in the backing map, so there is no need to sort here
           if (tasks != null && !tasks.isEmpty()) {
             for (var task : tasks) {
@@ -325,7 +325,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
                 // we couldn't complete firing all tasks as one failed, so we break here and warn the user about that.
                 LOGGER.warning(String.format(
                   "Stopping lifecycle update to %s for %s because the task %s failed. See console log for more details.",
-                  lifeCycle, this.moduleConfiguration.getName(), task.getFullMethodSignature()
+                  lifeCycle, this.moduleConfiguration.name(), task.fullMethodSignature()
                 ));
                 break;
               }
@@ -335,7 +335,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
           this.lifeCycle.set(lifeCycle);
           // notify after the change again if we have to
           if (notifyProvider) {
-            this.getModuleProvider().notifyPostModuleLifecycleChange(this, lifeCycle);
+            this.moduleProvider().notifyPostModuleLifecycleChange(this, lifeCycle);
           }
         }
       } finally {
@@ -350,7 +350,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * @param entry the entry to fire.
    * @return {@code true} if the entry couldn't be fired successfully, {@code false} otherwise.
    */
-  protected boolean fireModuleTaskEntry(@NotNull IModuleTaskEntry entry) {
+  protected boolean fireModuleTaskEntry(@NonNull IModuleTaskEntry entry) {
     try {
       entry.fire();
       return false;

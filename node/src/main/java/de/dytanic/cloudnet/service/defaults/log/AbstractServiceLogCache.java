@@ -29,12 +29,12 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.UnmodifiableView;
 
 public abstract class AbstractServiceLogCache implements IServiceConsoleLogCache {
 
-  protected static final Logger LOGGER = LogManager.getLogger(AbstractServiceLogCache.class);
+  protected static final Logger LOGGER = LogManager.logger(AbstractServiceLogCache.class);
 
   protected final ICloudService service;
 
@@ -44,29 +44,29 @@ public abstract class AbstractServiceLogCache implements IServiceConsoleLogCache
   protected volatile int logCacheSize;
   protected volatile boolean alwaysPrintErrorStreamToConsole;
 
-  public AbstractServiceLogCache(@NotNull CloudNet cloudNet, @NotNull ICloudService service) {
+  public AbstractServiceLogCache(@NonNull CloudNet cloudNet, @NonNull ICloudService service) {
     this.service = service;
-    this.logCacheSize = cloudNet.getConfig().getMaxServiceConsoleLogCacheSize();
-    this.alwaysPrintErrorStreamToConsole = cloudNet.getConfig().isPrintErrorStreamLinesFromServices();
+    this.logCacheSize = cloudNet.config().maxServiceConsoleLogCacheSize();
+    this.alwaysPrintErrorStreamToConsole = cloudNet.config().printErrorStreamLinesFromServices();
   }
 
   @Override
-  public @NotNull ICloudService getService() {
+  public @NonNull ICloudService service() {
     return this.service;
   }
 
   @Override
-  public @NotNull Queue<String> getCachedLogMessages() {
+  public @NonNull Queue<String> cachedLogMessages() {
     return this.cachedLogMessages;
   }
 
   @Override
-  public int getLogCacheSize() {
+  public int logCacheSize() {
     return this.logCacheSize;
   }
 
   @Override
-  public void setLogCacheSize(int cacheSize) {
+  public void logCacheSize(int cacheSize) {
     Preconditions.checkArgument(cacheSize >= 0, "Cache size must be higher or equal to 0");
     this.logCacheSize = cacheSize;
   }
@@ -77,33 +77,33 @@ public abstract class AbstractServiceLogCache implements IServiceConsoleLogCache
   }
 
   @Override
-  public void setAlwaysPrintErrorStreamToConsole(boolean value) {
+  public void alwaysPrintErrorStreamToConsole(boolean value) {
     this.alwaysPrintErrorStreamToConsole = value;
   }
 
   @Override
-  public void addHandler(@NotNull ServiceConsoleLineHandler handler) {
-    this.handlers.add(Preconditions.checkNotNull(handler, "handler"));
+  public void addHandler(@NonNull ServiceConsoleLineHandler handler) {
+    this.handlers.add(handler);
   }
 
   @Override
-  public void removeHandler(@NotNull ServiceConsoleLineHandler handler) {
-    this.handlers.remove(Preconditions.checkNotNull(handler, "handler"));
+  public void removeHandler(@NonNull ServiceConsoleLineHandler handler) {
+    this.handlers.remove(handler);
   }
 
   @Override
-  public @NotNull @UnmodifiableView Collection<ServiceConsoleLineHandler> getHandlers() {
+  public @NonNull @UnmodifiableView Collection<ServiceConsoleLineHandler> handlers() {
     return Collections.unmodifiableCollection(this.handlers);
   }
 
-  protected void handleItem(@NotNull String entry, boolean comesFromErrorStream) {
+  protected void handleItem(@NonNull String entry, boolean comesFromErrorStream) {
     // drain the cache
     while (this.cachedLogMessages.size() > this.logCacheSize) {
       this.cachedLogMessages.poll();
     }
     // print the line to the console if enabled
     if (this.alwaysPrintErrorStreamToConsole && comesFromErrorStream) {
-      LOGGER.warning(String.format("[%s/SERR]: %s", this.service.getServiceId().getName(), entry));
+      LOGGER.warning(String.format("[%s/SERR]: %s", this.service.serviceId().name(), entry));
     }
     // add the line
     this.cachedLogMessages.add(entry);

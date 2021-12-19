@@ -24,7 +24,7 @@ import de.dytanic.cloudnet.driver.module.driver.DriverModule;
 import de.dytanic.cloudnet.ext.cloudperms.node.config.CloudPermissionConfig;
 import de.dytanic.cloudnet.ext.cloudperms.node.config.CloudPermissionConfigHelper;
 import de.dytanic.cloudnet.ext.cloudperms.node.listener.IncludePluginListener;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class CloudNetCloudPermissionsModule extends DriverModule {
 
@@ -32,19 +32,19 @@ public final class CloudNetCloudPermissionsModule extends DriverModule {
 
   @ModuleTask(order = 127, event = ModuleLifeCycle.LOADED)
   public void init() {
-    CloudNet.getInstance().getDataSyncRegistry().registerHandler(DataSyncHandler.<CloudPermissionConfig>builder()
+    CloudNet.instance().dataSyncRegistry().registerHandler(DataSyncHandler.<CloudPermissionConfig>builder()
       .key("cloudperms-config")
       .convertObject(CloudPermissionConfig.class)
       .currentGetter($ -> this.permissionsConfig)
       .singletonCollector(() -> this.permissionsConfig)
       .nameExtractor(cloudPermissionsConfig -> "Permission Config")
-      .writer(config -> CloudPermissionConfigHelper.write(config, this.getConfigPath()))
+      .writer(config -> CloudPermissionConfigHelper.write(config, this.configPath()))
       .build());
   }
 
   @ModuleTask(order = 126, event = ModuleLifeCycle.STARTED)
   public void initConfig() {
-    this.permissionsConfig = CloudPermissionConfigHelper.read(this.getConfigPath());
+    this.permissionsConfig = CloudPermissionConfigHelper.read(this.configPath());
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)
@@ -57,7 +57,7 @@ public final class CloudNetCloudPermissionsModule extends DriverModule {
     this.registerListener(new IncludePluginListener(this));
   }
 
-  public @NotNull CloudPermissionConfig getPermissionsConfig() {
+  public @NonNull CloudPermissionConfig permissionsConfig() {
     return this.permissionsConfig;
   }
 }

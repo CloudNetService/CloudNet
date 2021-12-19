@@ -30,31 +30,31 @@ import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.Iterator;
 import kong.unirest.Unirest;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class ConsoleProgressWrappers {
 
-  private static final Logger LOGGER = LogManager.getLogger(ConsoleProgressWrappers.class);
+  private static final Logger LOGGER = LogManager.logger(ConsoleProgressWrappers.class);
 
   private ConsoleProgressWrappers() {
     throw new UnsupportedOperationException();
   }
 
-  public static @NotNull <T> Iterator<T> wrapIterator(
-    @NotNull Collection<T> collection,
-    @NotNull String task,
-    @NotNull String unitName
+  public static @NonNull <T> Iterator<T> wrapIterator(
+    @NonNull Collection<T> collection,
+    @NonNull String task,
+    @NonNull String unitName
   ) {
-    return wrapIterator(collection, CloudNet.getInstance().getConsole(), task, unitName);
+    return wrapIterator(collection, CloudNet.instance().console(), task, unitName);
   }
 
-  public static @NotNull <T> Iterator<T> wrapIterator(
-    @NotNull Collection<T> collection,
-    @NotNull IConsole console,
-    @NotNull String task,
-    @NotNull String unitName
+  public static @NonNull <T> Iterator<T> wrapIterator(
+    @NonNull Collection<T> collection,
+    @NonNull IConsole console,
+    @NonNull String task,
+    @NonNull String unitName
   ) {
-    return console.isAnimationRunning() ? collection.iterator() : new WrappedIterator<>(
+    return console.animationRunning() ? collection.iterator() : new WrappedIterator<>(
       collection.iterator(),
       console,
       new ConsoleProgressAnimation(
@@ -71,15 +71,14 @@ public final class ConsoleProgressWrappers {
         collection.size()));
   }
 
-  public static void wrapDownload(@NotNull String url,
-    @NotNull ThrowableConsumer<InputStream, IOException> streamHandler) {
-    wrapDownload(url, CloudNet.getInstance().getConsole(), streamHandler);
+  public static void wrapDownload(@NonNull String url, @NonNull ThrowableConsumer<InputStream, IOException> handler) {
+    wrapDownload(url, CloudNet.instance().console(), handler);
   }
 
   public static void wrapDownload(
-    @NotNull String url,
-    @NotNull IConsole console,
-    @NotNull ThrowableConsumer<InputStream, IOException> streamHandler
+    @NonNull String url,
+    @NonNull IConsole console,
+    @NonNull ThrowableConsumer<InputStream, IOException> streamHandler
   ) {
     Unirest
       .get(url)
@@ -90,7 +89,7 @@ public final class ConsoleProgressWrappers {
           var contentLength = Longs.tryParse(rawResponse.getHeaders().getFirst("Content-Length"));
 
           try {
-            streamHandler.accept(console.isAnimationRunning() ? stream
+            streamHandler.accept(console.animationRunning() ? stream
               : new WrappedInputStream(stream, console, new ConsoleProgressAnimation(
                 '█',
                 ' ',

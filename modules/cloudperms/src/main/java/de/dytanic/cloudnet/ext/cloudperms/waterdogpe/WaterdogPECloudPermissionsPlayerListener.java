@@ -45,7 +45,7 @@ final class WaterdogPECloudPermissionsPlayerListener {
     }, EventPriority.LOW);
 
     eventManager.subscribe(PlayerPermissionCheckEvent.class, event -> {
-      var permissionUser = permissionManagement.getUser(event.getPlayer().getUniqueId());
+      var permissionUser = permissionManagement.user(event.getPlayer().getUniqueId());
       if (permissionUser != null) {
         event.setHasPermission(
           permissionManagement.hasPermission(permissionUser, Permission.of(event.getPermission())));

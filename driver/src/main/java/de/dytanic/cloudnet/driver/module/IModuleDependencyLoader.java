@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.driver.module;
 
 import java.net.URL;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * A loader for dependencies which can be provided by a module.
@@ -31,10 +31,10 @@ public interface IModuleDependencyLoader {
    * @param dependency    the dependency will should be converted to a download url.
    * @return an url targeting the source of the dependency from which it can be loaded.
    * @throws Exception if any exception occurs during the load of the dependency.
-   * @see ModuleDependency#getUrl()
+   * @see ModuleDependency#url()
    */
-  @NotNull URL loadModuleDependencyByUrl(
-    @NotNull ModuleConfiguration configuration, @NotNull ModuleDependency dependency) throws Exception;
+  @NonNull URL loadModuleDependencyByUrl(
+    @NonNull ModuleConfiguration configuration, @NonNull ModuleDependency dependency) throws Exception;
 
   /**
    * Provides an url from which the provided dependency can be loaded.
@@ -45,6 +45,6 @@ public interface IModuleDependencyLoader {
    * @return an url targeting the source of the dependency from which it can be loaded.
    * @throws Exception if any exception occurs during the load of the dependency.
    */
-  @NotNull URL loadModuleDependencyByRepository(@NotNull ModuleConfiguration configuration,
-    @NotNull ModuleDependency dependency, @NotNull String repositoryUrl) throws Exception;
+  @NonNull URL loadModuleDependencyByRepository(@NonNull ModuleConfiguration configuration,
+    @NonNull ModuleDependency dependency, @NonNull String repositoryUrl) throws Exception;
 }

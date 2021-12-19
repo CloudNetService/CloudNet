@@ -28,7 +28,7 @@ import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.function.Predicate;
 import java.util.zip.ZipInputStream;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DefaultSpecificTemplateStorage implements SpecificTemplateStorage {
@@ -36,56 +36,56 @@ public class DefaultSpecificTemplateStorage implements SpecificTemplateStorage {
   private final ServiceTemplate template;
   private final TemplateStorage storage;
 
-  private DefaultSpecificTemplateStorage(@NotNull ServiceTemplate template, @NotNull TemplateStorage storage) {
+  private DefaultSpecificTemplateStorage(@NonNull ServiceTemplate template, @NonNull TemplateStorage storage) {
     this.template = template;
     this.storage = storage;
   }
 
-  public static DefaultSpecificTemplateStorage of(@NotNull ServiceTemplate template, @NotNull TemplateStorage storage) {
-    if (!storage.getName().equals(template.getStorage())) {
+  public static DefaultSpecificTemplateStorage of(@NonNull ServiceTemplate template, @NonNull TemplateStorage storage) {
+    if (!storage.name().equals(template.storageName())) {
       throw new IllegalArgumentException(String.format(
         "Storage '%s' doesn't match the storage of the template ('%s')",
-        storage.getName(),
-        template.getStorage()));
+        storage.name(),
+        template.storageName()));
     }
     return new DefaultSpecificTemplateStorage(template, storage);
   }
 
-  public static DefaultSpecificTemplateStorage of(@NotNull ServiceTemplate template) {
-    var storage = CloudNetDriver.getInstance().getTemplateStorage(template.getStorage());
+  public static DefaultSpecificTemplateStorage of(@NonNull ServiceTemplate template) {
+    var storage = CloudNetDriver.instance().templateStorage(template.storageName());
     if (storage == null) {
-      throw new IllegalArgumentException(String.format("Storage '%s' not found", template.getStorage()));
+      throw new IllegalArgumentException(String.format("Storage '%s' not found", template.storageName()));
     }
     return new DefaultSpecificTemplateStorage(template, storage);
   }
 
   @Override
-  public @NotNull String getName() {
-    return this.storage.getName();
+  public @NonNull String name() {
+    return this.storage.name();
   }
 
   @Override
-  public @NotNull ServiceTemplate getTargetTemplate() {
+  public @NonNull ServiceTemplate targetTemplate() {
     return this.template;
   }
 
   @Override
-  public @NotNull TemplateStorage getWrappedStorage() {
+  public @NonNull TemplateStorage wrappedStorage() {
     return this.storage;
   }
 
   @Override
-  public boolean deploy(@NotNull Path directory, @Nullable Predicate<Path> fileFilter) {
+  public boolean deploy(@NonNull Path directory, @Nullable Predicate<Path> fileFilter) {
     return this.storage.deployDirectory(directory, this.template, fileFilter);
   }
 
   @Override
-  public boolean deploy(@NotNull InputStream inputStream) {
+  public boolean deploy(@NonNull InputStream inputStream) {
     return this.storage.deploy(inputStream, this.template);
   }
 
   @Override
-  public boolean copy(@NotNull Path directory) {
+  public boolean copy(@NonNull Path directory) {
     return this.storage.copy(this.template, directory);
   }
 
@@ -115,47 +115,47 @@ public class DefaultSpecificTemplateStorage implements SpecificTemplateStorage {
   }
 
   @Override
-  public @Nullable OutputStream appendOutputStream(@NotNull String path) throws IOException {
+  public @Nullable OutputStream appendOutputStream(@NonNull String path) throws IOException {
     return this.storage.appendOutputStream(this.template, path);
   }
 
   @Override
-  public @Nullable OutputStream newOutputStream(@NotNull String path) throws IOException {
+  public @Nullable OutputStream newOutputStream(@NonNull String path) throws IOException {
     return this.storage.newOutputStream(this.template, path);
   }
 
   @Override
-  public boolean createFile(@NotNull String path) throws IOException {
+  public boolean createFile(@NonNull String path) throws IOException {
     return this.storage.createFile(this.template, path);
   }
 
   @Override
-  public boolean createDirectory(@NotNull String path) throws IOException {
+  public boolean createDirectory(@NonNull String path) throws IOException {
     return this.storage.createDirectory(this.template, path);
   }
 
   @Override
-  public boolean hasFile(@NotNull String path) throws IOException {
+  public boolean hasFile(@NonNull String path) throws IOException {
     return this.storage.hasFile(this.template, path);
   }
 
   @Override
-  public boolean deleteFile(@NotNull String path) throws IOException {
+  public boolean deleteFile(@NonNull String path) throws IOException {
     return this.storage.deleteFile(this.template, path);
   }
 
   @Override
-  public @Nullable InputStream newInputStream(@NotNull String path) throws IOException {
+  public @Nullable InputStream newInputStream(@NonNull String path) throws IOException {
     return this.storage.newInputStream(this.template, path);
   }
 
   @Override
-  public @Nullable FileInfo getFileInfo(@NotNull String path) throws IOException {
-    return this.storage.getFileInfo(this.template, path);
+  public @Nullable FileInfo fileInfo(@NonNull String path) throws IOException {
+    return this.storage.fileInfo(this.template, path);
   }
 
   @Override
-  public FileInfo[] listFiles(@NotNull String dir, boolean deep) throws IOException {
+  public FileInfo[] listFiles(@NonNull String dir, boolean deep) throws IOException {
     return this.storage.listFiles(this.template, dir, deep);
   }
 
@@ -165,92 +165,92 @@ public class DefaultSpecificTemplateStorage implements SpecificTemplateStorage {
   }
 
   @Override
-  public @NotNull ITask<Boolean> deployAsync(@NotNull Path directory, @Nullable Predicate<Path> fileFilter) {
+  public @NonNull ITask<Boolean> deployAsync(@NonNull Path directory, @Nullable Predicate<Path> fileFilter) {
     return this.storage.deployDirectoryAsync(directory, this.template, fileFilter);
   }
 
   @Override
-  public @NotNull ITask<Boolean> deployAsync(@NotNull InputStream inputStream) {
+  public @NonNull ITask<Boolean> deployAsync(@NonNull InputStream inputStream) {
     return this.storage.deployAsync(inputStream, this.template);
   }
 
   @Override
-  public @NotNull ITask<Boolean> copyAsync(@NotNull Path directory) {
+  public @NonNull ITask<Boolean> copyAsync(@NonNull Path directory) {
     return this.storage.deployDirectoryAsync(directory, this.template);
   }
 
   @Override
-  public @NotNull ITask<ZipInputStream> asZipInputStreamAsync() {
+  public @NonNull ITask<ZipInputStream> asZipInputStreamAsync() {
     return this.storage.asZipInputStreamAsync(this.template);
   }
 
   @Override
-  public @NotNull ITask<InputStream> zipTemplateAsync() {
+  public @NonNull ITask<InputStream> zipTemplateAsync() {
     return this.storage.zipTemplateAsync(this.template);
   }
 
   @Override
-  public @NotNull ITask<Boolean> deleteAsync() {
+  public @NonNull ITask<Boolean> deleteAsync() {
     return this.storage.deleteAsync(this.template);
   }
 
   @Override
-  public @NotNull ITask<Boolean> createAsync() {
+  public @NonNull ITask<Boolean> createAsync() {
     return this.storage.createAsync(this.template);
   }
 
   @Override
-  public @NotNull ITask<Boolean> existsAsync() {
+  public @NonNull ITask<Boolean> existsAsync() {
     return this.storage.hasAsync(this.template);
   }
 
   @Override
-  public @NotNull ITask<OutputStream> appendOutputStreamAsync(@NotNull String path) {
+  public @NonNull ITask<OutputStream> appendOutputStreamAsync(@NonNull String path) {
     return this.storage.appendOutputStreamAsync(this.template, path);
   }
 
   @Override
-  public @NotNull ITask<OutputStream> newOutputStreamAsync(@NotNull String path) {
+  public @NonNull ITask<OutputStream> newOutputStreamAsync(@NonNull String path) {
     return this.storage.newOutputStreamAsync(this.template, path);
   }
 
   @Override
-  public @NotNull ITask<Boolean> createFileAsync(@NotNull String path) {
+  public @NonNull ITask<Boolean> createFileAsync(@NonNull String path) {
     return this.storage.createFileAsync(this.template, path);
   }
 
   @Override
-  public @NotNull ITask<Boolean> createDirectoryAsync(@NotNull String path) {
+  public @NonNull ITask<Boolean> createDirectoryAsync(@NonNull String path) {
     return this.storage.createDirectoryAsync(this.template, path);
   }
 
   @Override
-  public @NotNull ITask<Boolean> hasFileAsync(@NotNull String path) {
+  public @NonNull ITask<Boolean> hasFileAsync(@NonNull String path) {
     return this.storage.hasFileAsync(this.template, path);
   }
 
   @Override
-  public @NotNull ITask<Boolean> deleteFileAsync(@NotNull String path) {
+  public @NonNull ITask<Boolean> deleteFileAsync(@NonNull String path) {
     return this.storage.deleteFileAsync(this.template, path);
   }
 
   @Override
-  public @NotNull ITask<InputStream> newInputStreamAsync(@NotNull String path) {
+  public @NonNull ITask<InputStream> newInputStreamAsync(@NonNull String path) {
     return this.storage.newInputStreamAsync(this.template, path);
   }
 
   @Override
-  public @NotNull ITask<FileInfo> getFileInfoAsync(@NotNull String path) {
-    return this.storage.getFileInfoAsync(this.template, path);
+  public @NonNull ITask<FileInfo> fileInfoAsync(@NonNull String path) {
+    return this.storage.fileInfoAsync(this.template, path);
   }
 
   @Override
-  public @NotNull ITask<FileInfo[]> listFilesAsync(@NotNull String dir, boolean deep) {
+  public @NonNull ITask<FileInfo[]> listFilesAsync(@NonNull String dir, boolean deep) {
     return this.storage.listFilesAsync(this.template, dir, deep);
   }
 
   @Override
-  public @NotNull ITask<FileInfo[]> listFilesAsync(boolean deep) {
+  public @NonNull ITask<FileInfo[]> listFilesAsync(boolean deep) {
     return this.storage.listFilesAsync(this.template, "", deep);
   }
 }

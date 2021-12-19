@@ -21,18 +21,10 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot
 import de.dytanic.cloudnet.service.ICloudService;
 import eu.cloudnetservice.cloudnet.ext.report.config.PasteService;
 import eu.cloudnetservice.cloudnet.ext.report.paste.emitter.EmitterRegistry;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class PasteCreator {
-
-  private final PasteService pasteService;
-  private final EmitterRegistry registry;
-
-  public PasteCreator(@NotNull PasteService pasteService, @NotNull EmitterRegistry registry) {
-    this.pasteService = pasteService;
-    this.registry = registry;
-  }
+public record PasteCreator(@NonNull PasteService pasteService, @NonNull EmitterRegistry registry) {
 
   /**
    * Creates a new paste by emitting all ICloudService emitters and collecting their data.
@@ -40,7 +32,7 @@ public final class PasteCreator {
    * @param service the service to collect the data for
    * @return the resulting url after uploading collected the content
    */
-  public @Nullable String createServicePaste(@NotNull ICloudService service) {
+  public @Nullable String createServicePaste(@NonNull ICloudService service) {
     return this.pasteContent(this.collectData(ICloudService.class, service));
   }
 
@@ -50,7 +42,7 @@ public final class PasteCreator {
    * @param nodeInfoSnapshot the nodeInfoSnapshot to collect the data for
    * @return the resulting url after uploading the collected content
    */
-  public @Nullable String createNodePaste(@NotNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot) {
+  public @Nullable String createNodePaste(@NonNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot) {
     return this.pasteContent(this.collectData(NetworkClusterNodeInfoSnapshot.class, nodeInfoSnapshot));
   }
 
@@ -62,9 +54,9 @@ public final class PasteCreator {
    * @param <T>     the type to collect the data for
    * @return the emitted data
    */
-  public <T> @NotNull String collectData(Class<T> clazz, T context) {
+  public <T> @NonNull String collectData(Class<T> clazz, T context) {
     var content = new StringBuilder();
-    for (var emitter : this.registry.getEmitters(clazz)) {
+    for (var emitter : this.registry.emitters(clazz)) {
       emitter.emitData(content, context);
     }
 
@@ -77,7 +69,7 @@ public final class PasteCreator {
    * @param content the content to upload to the paste service
    * @return the resulting url
    */
-  private @Nullable String pasteContent(@NotNull String content) {
+  private @Nullable String pasteContent(@NonNull String content) {
     return this.parsePasteServiceResponse(this.pasteService.pasteToService(content));
   }
 
@@ -93,6 +85,6 @@ public final class PasteCreator {
     }
 
     var document = JsonDocument.fromJsonString(response);
-    return String.format("%s/%s", this.pasteService.getServiceUrl(), document.getString("key"));
+    return String.format("%s/%s", this.pasteService.serviceUrl(), document.getString("key"));
   }
 }

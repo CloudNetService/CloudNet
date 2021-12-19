@@ -18,24 +18,24 @@ package de.dytanic.cloudnet.service.defaults.config;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.service.ICloudService;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class BungeeConfigurationPreparer extends AbstractServiceConfigurationPreparer {
 
   @Override
-  public void configure(@NotNull CloudNet nodeInstance, @NotNull ICloudService cloudService) {
+  public void configure(@NonNull CloudNet nodeInstance, @NonNull ICloudService cloudService) {
     // check if we should run now
     if (this.shouldRewriteIp(nodeInstance, cloudService)) {
       // copy the default file
-      var configFile = cloudService.getDirectory().resolve("config.yml");
+      var configFile = cloudService.directory().resolve("config.yml");
       this.copyCompiledFile("files/bungee/config.yml", configFile);
       // rewrite the configuration file
       this.rewriteFile(configFile, line -> {
         if (line.trim().startsWith("host:")) {
           line = String.format(
             "    host: %s:%d",
-            nodeInstance.getConfig().getHostAddress(),
-            cloudService.getServiceConfiguration().getPort());
+            nodeInstance.config().hostAddress(),
+            cloudService.serviceConfiguration().port());
         }
         return line;
       });

@@ -31,7 +31,7 @@ import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import java.util.Collection;
 import java.util.Collections;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.UnknownNullability;
 
 public class DefaultClusterNodeServer extends DefaultNodeServer implements IClusterNodeServer {
@@ -45,58 +45,58 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
   private INetworkChannel channel;
 
   protected DefaultClusterNodeServer(
-    @NotNull CloudNet cloudNet,
-    @NotNull DefaultClusterNodeServerProvider provider,
-    @NotNull NetworkClusterNode nodeInfo
+    @NonNull CloudNet cloudNet,
+    @NonNull DefaultClusterNodeServerProvider provider,
+    @NonNull NetworkClusterNode nodeInfo
   ) {
     this.cloudNet = cloudNet;
     this.provider = provider;
 
-    this.rpcSender = cloudNet.getRPCProviderFactory().providerForClass(
-      cloudNet.getNetworkClient(),
+    this.rpcSender = cloudNet.rpcProviderFactory().providerForClass(
+      cloudNet.networkClient(),
       NodeInfoProvider.class);
-    this.nodeServerRPCSender = cloudNet.getRPCProviderFactory().providerForClass(
-      cloudNet.getNetworkClient(),
+    this.nodeServerRPCSender = cloudNet.rpcProviderFactory().providerForClass(
+      cloudNet.networkClient(),
       NodeServer.class);
     this.cloudServiceFactory = new RemoteCloudServiceFactory(
-      this::getChannel,
-      cloudNet.getNetworkClient(),
-      cloudNet.getRPCProviderFactory());
+      this::channel,
+      cloudNet.networkClient(),
+      cloudNet.rpcProviderFactory());
 
-    this.setNodeInfo(nodeInfo);
+    this.nodeInfo(nodeInfo);
   }
 
   @Override
-  public boolean isConnected() {
+  public boolean connected() {
     return this.channel != null;
   }
 
   @Override
-  public void saveSendPacket(@NotNull IPacket packet) {
+  public void saveSendPacket(@NonNull IPacket packet) {
     if (this.channel != null) {
       this.channel.sendPacket(packet);
     }
   }
 
   @Override
-  public void saveSendPacketSync(@NotNull IPacket packet) {
+  public void saveSendPacketSync(@NonNull IPacket packet) {
     if (this.channel != null) {
       this.channel.sendPacketSync(packet);
     }
   }
 
   @Override
-  public boolean isAcceptableConnection(@NotNull INetworkChannel channel, @NotNull String nodeId) {
-    return this.channel == null && this.nodeInfo.getUniqueId().equals(nodeId);
+  public boolean acceptableConnection(@NonNull INetworkChannel channel, @NonNull String nodeId) {
+    return this.channel == null && this.nodeInfo.uniqueId().equals(nodeId);
   }
 
   @Override
   public void syncClusterData(boolean force) {
     var channelMessage = ChannelMessage.builder()
       .message("sync_cluster_data")
-      .targetNode(this.nodeInfo.getUniqueId())
+      .targetNode(this.nodeInfo.uniqueId())
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .buffer(this.cloudNet.getDataSyncRegistry().prepareClusterData(force))
+      .buffer(this.cloudNet.dataSyncRegistry().prepareClusterData(force))
       .build();
     // if the data sync is forced there is no need to wait for a response
     if (force) {
@@ -104,9 +104,9 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
     } else {
       // send and await a response
       var response = channelMessage.sendSingleQuery();
-      if (response != null && response.getContent().readBoolean()) {
+      if (response != null && response.content().readBoolean()) {
         // there was overridden data we need to handle
-        this.cloudNet.getDataSyncRegistry().handle(response.getContent(), true);
+        this.cloudNet.dataSyncRegistry().handle(response.content(), true);
       }
     }
   }
@@ -115,14 +115,14 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
   public void shutdown() {
     ChannelMessage.builder()
       .message("cluster_node_shutdown")
-      .targetNode(this.nodeInfo.getUniqueId())
+      .targetNode(this.nodeInfo.uniqueId())
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
       .build()
       .send();
   }
 
   @Override
-  public @NotNull Collection<String> sendCommandLine(@NotNull String commandLine) {
+  public @NonNull Collection<String> sendCommandLine(@NonNull String commandLine) {
     if (this.channel != null) {
       return this.rpcSender.invokeMethod("sendCommandLine", commandLine).fireSync(this.channel);
     }
@@ -131,13 +131,13 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
   }
 
   @Override
-  public @NotNull CloudServiceFactory getCloudServiceFactory() {
+  public @NonNull CloudServiceFactory cloudServiceFactory() {
     return this.cloudServiceFactory;
   }
 
   @Override
-  public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot snapshot) {
-    return this.cloudNet.getCloudServiceProvider().getSpecificProvider(snapshot.getServiceId().getUniqueId());
+  public @NonNull SpecificCloudServiceProvider cloudServiceProvider(@NonNull ServiceInfoSnapshot snapshot) {
+    return this.cloudNet.cloudServiceProvider().specificProvider(snapshot.serviceId().uniqueId());
   }
 
   @Override
@@ -154,39 +154,39 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
   }
 
   @Override
-  public @NotNull DefaultClusterNodeServerProvider getProvider() {
+  public @NonNull DefaultClusterNodeServerProvider provider() {
     return this.provider;
   }
 
   @Override
-  public boolean isDrain() {
-    return this.currentSnapshot.isDrain();
+  public boolean drain() {
+    return this.currentSnapshot.draining();
   }
 
   @Override
-  public void setDrain(boolean drain) {
+  public void drain(boolean drain) {
     if (this.channel != null) {
-      this.nodeServerRPCSender.invokeMethod("setDrain", drain).fireSync(this.channel);
+      this.nodeServerRPCSender.invokeMethod("drain", drain).fireSync(this.channel);
     }
   }
 
   @Override
-  public @UnknownNullability INetworkChannel getChannel() {
+  public @UnknownNullability INetworkChannel channel() {
     return this.channel;
   }
 
   @Override
-  public void setChannel(@NotNull INetworkChannel channel) {
+  public void channel(@NonNull INetworkChannel channel) {
     this.channel = channel;
   }
 
   @Override
-  public void setNodeInfoSnapshot(@NotNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot) {
+  public void nodeInfoSnapshot(@NonNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot) {
     if (this.currentSnapshot == null) {
-      super.setNodeInfoSnapshot(nodeInfoSnapshot);
-      this.getProvider().refreshHeadNode();
+      super.nodeInfoSnapshot(nodeInfoSnapshot);
+      this.provider().refreshHeadNode();
     } else {
-      super.setNodeInfoSnapshot(nodeInfoSnapshot);
+      super.nodeInfoSnapshot(nodeInfoSnapshot);
     }
   }
 }

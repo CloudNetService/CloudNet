@@ -35,7 +35,7 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagement {
@@ -52,13 +52,13 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
   protected SyncProxyTabListConfiguration currentTabListConfiguration;
 
   protected PlatformSyncProxyManagement() {
-    var wrapper = Wrapper.getInstance();
+    var wrapper = Wrapper.instance();
 
-    this.rpcSender = wrapper.getRPCProviderFactory()
-      .providerForClass(wrapper.getNetworkClient(), SyncProxyManagement.class);
-    this.eventManager = wrapper.getEventManager();
+    this.rpcSender = wrapper.rpcProviderFactory()
+      .providerForClass(wrapper.networkClient(), SyncProxyManagement.class);
+    this.eventManager = wrapper.eventManager();
     // cache all services that are already started
-    wrapper.getCloudServiceProvider().getCloudServicesAsync().onComplete(services -> {
+    wrapper.cloudServiceProvider().servicesAsync().onComplete(services -> {
       for (var service : services) {
         this.cacheServiceInfoSnapshot(service);
       }
@@ -66,24 +66,24 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
   }
 
   protected void init() {
-    this.setConfigurationSilently(this.rpcSender.invokeMethod("getConfiguration").fireSync());
+    this.setConfigurationSilently(this.rpcSender.invokeMethod("configuration").fireSync());
   }
 
-  public void setConfigurationSilently(@NotNull SyncProxyConfiguration configuration) {
+  public void setConfigurationSilently(@NonNull SyncProxyConfiguration configuration) {
     this.configuration = configuration;
     this.eventManager.callEvent(new SyncProxyConfigurationUpdateEvent(configuration));
 
-    this.currentLoginConfiguration = configuration.getLoginConfigurations()
+    this.currentLoginConfiguration = configuration.loginConfigurations()
       .stream()
-      .filter(loginConfiguration -> Wrapper.getInstance().getServiceConfiguration().getGroups()
-        .contains(loginConfiguration.getTargetGroup()))
+      .filter(loginConfiguration -> Wrapper.instance().serviceConfiguration().groups()
+        .contains(loginConfiguration.targetGroup()))
       .findFirst()
       .orElse(null);
 
-    this.currentTabListConfiguration = configuration.getTabListConfigurations()
+    this.currentTabListConfiguration = configuration.tabListConfigurations()
       .stream()
-      .filter(tabListConfiguration -> Wrapper.getInstance().getServiceConfiguration().getGroups()
-        .contains(tabListConfiguration.getTargetGroup()))
+      .filter(tabListConfiguration -> Wrapper.instance().serviceConfiguration().groups()
+        .contains(tabListConfiguration.targetGroup()))
       .findFirst()
       .orElse(null);
 
@@ -92,24 +92,24 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
   }
 
   @Override
-  public @NotNull SyncProxyConfiguration getConfiguration() {
+  public @NonNull SyncProxyConfiguration configuration() {
     return this.configuration;
   }
 
   @Override
-  public void setConfiguration(@NotNull SyncProxyConfiguration configuration) {
-    this.rpcSender.invokeMethod("setConfiguration", configuration).fireSync();
+  public void configuration(@NonNull SyncProxyConfiguration configuration) {
+    this.rpcSender.invokeMethod("configuration", configuration).fireSync();
   }
 
-  public @Nullable SyncProxyMotd getRandomMotd() {
+  public @Nullable SyncProxyMotd randomMotd() {
     if (this.currentLoginConfiguration == null) {
       return null;
     }
 
     var motds =
-      this.currentLoginConfiguration.isMaintenance()
-        ? this.currentLoginConfiguration.getMaintenanceMotds()
-        : this.currentLoginConfiguration.getMotds();
+      this.currentLoginConfiguration.maintenance()
+        ? this.currentLoginConfiguration.maintenanceMotds()
+        : this.currentLoginConfiguration.motds();
 
     if (motds.isEmpty()) {
       return null;
@@ -124,68 +124,69 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
       return;
     }
     // check if the maintenance is enabled, if not we dont need to apply anything
-    if (!this.currentLoginConfiguration.isMaintenance()) {
+    if (!this.currentLoginConfiguration.maintenance()) {
       return;
     }
 
-    for (var onlinePlayer : this.getOnlinePlayers()) {
+    for (var onlinePlayer : this.onlinePlayers()) {
       // check if the player is allowed to join
       if (!this.checkPlayerMaintenance(onlinePlayer)) {
-        this.disconnectPlayer(onlinePlayer, this.configuration.getMessage("player-login-not-whitelisted", null));
+        this.disconnectPlayer(onlinePlayer, this.configuration.message("player-login-not-whitelisted", null));
       }
     }
   }
 
-  public @Nullable SyncProxyLoginConfiguration getCurrentLoginConfiguration() {
+  public @Nullable SyncProxyLoginConfiguration currentLoginConfiguration() {
     return this.currentLoginConfiguration;
   }
 
-  public @Nullable SyncProxyTabListConfiguration getCurrentTabListConfiguration() {
+  public @Nullable SyncProxyTabListConfiguration currentTabListConfiguration() {
     return this.currentTabListConfiguration;
   }
 
-  public int getOnlinePlayerCount() {
+  public int onlinePlayerCount() {
     return this.proxyOnlineCountCache.values().stream().mapToInt(value -> value).sum();
   }
 
-  protected int getMaxPlayerCount() {
+  protected int maxPlayerCount() {
     if (this.currentLoginConfiguration == null) {
       return 0;
     }
 
-    return this.currentLoginConfiguration.getMaxPlayers();
+    return this.currentLoginConfiguration.maxPlayers();
   }
 
-  public void cacheServiceInfoSnapshot(@NotNull ServiceInfoSnapshot snapshot) {
-    if (ServiceEnvironmentType.isMinecraftProxy(snapshot.getServiceId().getEnvironment())
+  public void cacheServiceInfoSnapshot(@NonNull ServiceInfoSnapshot snapshot) {
+    if (ServiceEnvironmentType.isMinecraftProxy(snapshot.serviceId().environment())
       && this.checkServiceGroup(snapshot)) {
-      this.proxyOnlineCountCache.put(snapshot.getServiceId().getUniqueId(),
-        BridgeServiceProperties.MAX_PLAYERS.get(snapshot).orElse(0));
+      this.proxyOnlineCountCache.put(
+        snapshot.serviceId().uniqueId(),
+        BridgeServiceProperties.ONLINE_COUNT.read(snapshot).orElse(0));
       this.updateTabList();
     }
   }
 
-  public void removeCachedServiceInfoSnapshot(@NotNull ServiceInfoSnapshot snapshot) {
-    if (this.proxyOnlineCountCache.remove(snapshot.getServiceId().getUniqueId()) != null) {
+  public void removeCachedServiceInfoSnapshot(@NonNull ServiceInfoSnapshot snapshot) {
+    if (this.proxyOnlineCountCache.remove(snapshot.serviceId().uniqueId()) != null) {
       this.updateTabList();
     }
   }
 
-  public @Nullable String getServiceUpdateMessage(
-    @NotNull String key,
-    @NotNull ServiceInfoSnapshot serviceInfoSnapshot
+  public @Nullable String serviceUpdateMessage(
+    @NonNull String key,
+    @NonNull ServiceInfoSnapshot serviceInfoSnapshot
   ) {
-    return this.configuration.getMessage(key, message -> message
-      .replace("%service%", serviceInfoSnapshot.getName())
-      .replace("%node%", serviceInfoSnapshot.getServiceId().getNodeUniqueId()));
+    return this.configuration.message(key, message -> message
+      .replace("%service%", serviceInfoSnapshot.name())
+      .replace("%node%", serviceInfoSnapshot.serviceId().nodeUniqueId()));
   }
 
   protected void scheduleTabListUpdate() {
-    if (this.currentTabListConfiguration != null && !this.currentTabListConfiguration.getEntries().isEmpty()) {
+    if (this.currentTabListConfiguration != null && !this.currentTabListConfiguration.entries().isEmpty()) {
       var tabList = this.currentTabListConfiguration.tick();
 
       this.schedule(this::scheduleTabListUpdate,
-        (long) (1000D / this.currentTabListConfiguration.getAnimationsPerSecond()),
+        (long) (1000D / this.currentTabListConfiguration.animationsPerSecond()),
         TimeUnit.MILLISECONDS);
 
       this.updateTabList(tabList);
@@ -193,70 +194,70 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
   }
 
   public void updateTabList() {
-    if (this.currentTabListConfiguration == null || this.currentTabListConfiguration.getEntries().isEmpty()) {
+    if (this.currentTabListConfiguration == null || this.currentTabListConfiguration.entries().isEmpty()) {
       return;
     }
 
-    this.updateTabList(this.currentTabListConfiguration.getCurrentEntry());
+    this.updateTabList(this.currentTabListConfiguration.currentEntry());
   }
 
-  protected void updateTabList(@NotNull SyncProxyTabList tabList) {
-    var onlinePlayers = this.getOnlinePlayerCount();
-    var maxPlayers = this.getMaxPlayerCount();
-    for (var onlinePlayer : this.getOnlinePlayers()) {
+  protected void updateTabList(@NonNull SyncProxyTabList tabList) {
+    var onlinePlayers = this.onlinePlayerCount();
+    var maxPlayers = this.maxPlayerCount();
+    for (var onlinePlayer : this.onlinePlayers()) {
       this.updateTabList(onlinePlayer, tabList, onlinePlayers, maxPlayers);
     }
   }
 
   protected void updateTabList(
-    @NotNull P player,
-    @NotNull SyncProxyTabList tabList,
+    @NonNull P player,
+    @NonNull SyncProxyTabList tabList,
     int onlinePlayers,
     int maxPlayers
   ) {
-    var header = SyncProxyTabList.replaceTabListItem(tabList.getHeader(), this.getPlayerUniqueId(player),
+    var header = SyncProxyTabList.replaceTabListItem(tabList.header(), this.playerUniqueId(player),
       onlinePlayers, maxPlayers);
-    var footer = SyncProxyTabList.replaceTabListItem(tabList.getFooter(), this.getPlayerUniqueId(player),
+    var footer = SyncProxyTabList.replaceTabListItem(tabList.footer(), this.playerUniqueId(player),
       onlinePlayers, maxPlayers);
 
-    this.setPlayerTabList(player, header, footer);
+    this.playerTabList(player, header, footer);
   }
 
-  protected boolean checkServiceGroup(@NotNull ServiceInfoSnapshot snapshot) {
+  protected boolean checkServiceGroup(@NonNull ServiceInfoSnapshot snapshot) {
     if (this.currentLoginConfiguration == null) {
       return false;
     }
 
-    return snapshot.getConfiguration().getGroups().contains(this.currentLoginConfiguration.getTargetGroup());
+    return snapshot.configuration().groups().contains(this.currentLoginConfiguration.targetGroup());
   }
 
-  public boolean checkPlayerMaintenance(@NotNull P player) {
+  public boolean checkPlayerMaintenance(@NonNull P player) {
     if (this.currentLoginConfiguration == null) {
       return false;
     }
-    var whitelist = this.currentLoginConfiguration.getWhitelist();
-    if (whitelist.contains(this.getPlayerName(player))
-      || whitelist.contains(this.getPlayerUniqueId(player).toString())) {
+    var whitelist = this.currentLoginConfiguration.whitelist();
+    if (whitelist.contains(this.playerName(player))
+      || whitelist.contains(this.playerUniqueId(player).toString())) {
       return true;
     }
 
     return this.checkPlayerPermission(player, "cloudnet.syncproxy.maintenance");
   }
 
-  public abstract void schedule(@NotNull Runnable runnable, long time, @NotNull TimeUnit unit);
+  public abstract void schedule(@NonNull Runnable runnable, long time, @NonNull TimeUnit unit);
 
-  public abstract @NotNull Collection<P> getOnlinePlayers();
+  public abstract @NonNull Collection<P> onlinePlayers();
 
-  public abstract @NotNull String getPlayerName(@NotNull P player);
+  public abstract @NonNull String playerName(@NonNull P player);
 
-  public abstract @NotNull UUID getPlayerUniqueId(@NotNull P player);
+  public abstract @NonNull UUID playerUniqueId(@NonNull P player);
 
-  public abstract void setPlayerTabList(@NotNull P player, @Nullable String header, @Nullable String footer);
+  public abstract void playerTabList(@NonNull P player, @Nullable String header, @Nullable String footer);
 
-  public abstract void disconnectPlayer(@NotNull P player, @NotNull String message);
+  public abstract void disconnectPlayer(@NonNull P player, @NonNull String message);
 
-  public abstract void messagePlayer(@NotNull P player, @Nullable String message);
+  public abstract void messagePlayer(@NonNull P player, @Nullable String message);
 
-  public abstract boolean checkPlayerPermission(@NotNull P player, @NotNull String permission);
+  public abstract boolean checkPlayerPermission(@NonNull P player, @NonNull String permission);
 
 }

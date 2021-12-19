@@ -37,11 +37,11 @@ import de.dytanic.cloudnet.event.command.CommandNotFoundEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class CommandExceptionHandler {
 
-  protected static final Logger LOGGER = LogManager.getLogger(CommandExceptionHandler.class);
+  protected static final Logger LOGGER = LogManager.logger(CommandExceptionHandler.class);
 
   private final DefaultCommandProvider commandProvider;
 
@@ -101,7 +101,7 @@ public class CommandExceptionHandler {
       return;
     }
 
-    var invalidSyntaxEvent = CloudNet.getInstance().getEventManager().callEvent(
+    var invalidSyntaxEvent = CloudNet.instance().eventManager().callEvent(
       new CommandInvalidSyntaxEvent(
         source,
         exception.getCorrectSyntax(),
@@ -109,18 +109,18 @@ public class CommandExceptionHandler {
           .replace("%syntax%", exception.getCorrectSyntax())
       )
     );
-    source.sendMessage(invalidSyntaxEvent.getResponse());
+    source.sendMessage(invalidSyntaxEvent.response());
   }
 
   protected void handleNoSuchCommandException(CommandSource source, NoSuchCommandException exception) {
-    var notFoundEvent = CloudNet.getInstance().getEventManager().callEvent(
+    var notFoundEvent = CloudNet.instance().eventManager().callEvent(
       new CommandNotFoundEvent(
         source,
         exception.getSuppliedCommand(),
         I18n.trans("command-not-found")
       )
     );
-    source.sendMessage(notFoundEvent.getResponse());
+    source.sendMessage(notFoundEvent.response());
   }
 
   protected void handleNoPermissionException(CommandSource source, NoPermissionException exception) {
@@ -143,15 +143,15 @@ public class CommandExceptionHandler {
    * @return whether the cloud can handle the input or not
    */
   protected boolean replyWithCommandHelp(
-    @NotNull CommandSource source,
-    @NotNull List<CommandArgument<?, ?>> currentChain
+    @NonNull CommandSource source,
+    @NonNull List<CommandArgument<?, ?>> currentChain
   ) {
     if (currentChain.isEmpty()) {
       // the command chain is empty, let the user handle the response
       return false;
     }
     var root = currentChain.get(0).getName();
-    var commandInfo = this.commandProvider.getCommand(root);
+    var commandInfo = this.commandProvider.command(root);
     if (commandInfo == null) {
       // we can't find a matching command, let the user handle the response
       return false;
@@ -164,7 +164,7 @@ public class CommandExceptionHandler {
       // rebuild the input of the user
       var commandChain = currentChain.stream().map(CommandArgument::getName).collect(Collectors.joining(" "));
       // check if we can find any chain specific usages
-      for (var usage : commandInfo.getUsage()) {
+      for (var usage : commandInfo.usage()) {
         if (usage.startsWith(commandChain)) {
           results.add("- " + usage);
         }
@@ -188,8 +188,8 @@ public class CommandExceptionHandler {
    * @param source      the source to send the usages to
    * @param commandInfo the command to print the usage for
    */
-  protected void printDefaultUsage(@NotNull CommandSource source, @NotNull CommandInfo commandInfo) {
-    for (var usage : commandInfo.getUsage()) {
+  protected void printDefaultUsage(@NonNull CommandSource source, @NonNull CommandInfo commandInfo) {
+    for (var usage : commandInfo.usage()) {
       source.sendMessage("- " + usage);
     }
   }

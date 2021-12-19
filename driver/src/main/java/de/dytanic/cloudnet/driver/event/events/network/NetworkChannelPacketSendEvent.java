@@ -19,27 +19,29 @@ package de.dytanic.cloudnet.driver.event.events.network;
 import de.dytanic.cloudnet.driver.event.ICancelable;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
+import lombok.NonNull;
 
 public class NetworkChannelPacketSendEvent extends NetworkEvent implements ICancelable {
 
   private final IPacket packet;
   private boolean cancelled;
 
-  public NetworkChannelPacketSendEvent(INetworkChannel channel, IPacket packet) {
+  public NetworkChannelPacketSendEvent(@NonNull INetworkChannel channel, @NonNull IPacket packet) {
     super(channel);
     this.packet = packet;
   }
 
-  public IPacket getPacket() {
+  public @NonNull IPacket packet() {
     return this.packet;
   }
 
-  public boolean isCancelled() {
+  @Override
+  public boolean cancelled() {
     return this.cancelled;
   }
 
-  public void setCancelled(boolean cancelled) {
+  @Override
+  public void cancelled(boolean cancelled) {
     this.cancelled = cancelled;
   }
-
 }

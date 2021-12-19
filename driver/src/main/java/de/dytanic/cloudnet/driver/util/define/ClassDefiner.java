@@ -24,7 +24,7 @@
 
 package de.dytanic.cloudnet.driver.util.define;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * Internal utility class to define classes in the runtime.
@@ -44,5 +44,5 @@ public interface ClassDefiner {
    * @return the constructed class object from the given {@code bytecode}.
    * @throws IllegalStateException if the class defining failed.
    */
-  @NotNull Class<?> defineClass(@NotNull String name, @NotNull Class<?> parent, byte[] bytecode);
+  @NonNull Class<?> defineClass(@NonNull String name, @NonNull Class<?> parent, byte[] bytecode);
 }

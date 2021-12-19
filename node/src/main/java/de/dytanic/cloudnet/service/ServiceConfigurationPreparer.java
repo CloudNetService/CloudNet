@@ -17,10 +17,10 @@
 package de.dytanic.cloudnet.service;
 
 import de.dytanic.cloudnet.CloudNet;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 @FunctionalInterface
 public interface ServiceConfigurationPreparer {
 
-  void configure(@NotNull CloudNet nodeInstance, @NotNull ICloudService cloudService);
+  void configure(@NonNull CloudNet nodeInstance, @NonNull ICloudService cloudService);
 }

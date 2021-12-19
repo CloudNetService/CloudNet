@@ -17,6 +17,8 @@
 package de.dytanic.cloudnet.common.document.gson;
 
 import de.dytanic.cloudnet.common.document.property.FunctionalDocProperty;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -24,57 +26,70 @@ public class JsonDocumentTest {
 
   @Test
   void testDocumentSize() {
-    Assertions.assertEquals(3, this.getDummyDocument().size());
+    Assertions.assertEquals(3, this.dummyDocument().size());
   }
 
   @Test
   void testDocumentRead() {
-    var document = this.getDummyDocument();
+    var document = this.dummyDocument();
 
     Assertions.assertEquals("bar", document.getString("foo"));
     Assertions.assertEquals(4, document.getInt("number"));
-    Assertions.assertEquals("myData", document.get("test", TestClass.class).data);
+  }
+
+  @Test
+  void testRecordReading() {
+    var document = this.dummyDocument();
+    var record = document.get("test", TestRecord.class);
+
+    Assertions.assertEquals("myData", record.data);
+
+    Assertions.assertEquals(4, record.worldItems().get("1").size());
+    Assertions.assertEquals(5, record.worldItems().get("2").size());
+
+    Assertions.assertArrayEquals(new Integer[]{1, 2, 3, 4}, record.worldItems().get("1").toArray(new Integer[0]));
+    Assertions.assertArrayEquals(new Integer[]{5, 6, 7, 8, 9}, record.worldItems().get("2").toArray(new Integer[0]));
   }
 
   @Test
   void testDocumentRemove() {
-    var document = this.getDummyDocument();
+    var document = this.dummyDocument();
 
     Assertions.assertNull(document.remove("foo").getString("foo"));
-    Assertions.assertNull(document.remove("test").get("test", TestClass.class));
+    Assertions.assertNull(document.remove("test").get("test", TestRecord.class));
     Assertions.assertEquals(0, document.remove("number").getInt("number"));
   }
 
   @Test
   void testClear() {
-    Assertions.assertTrue(this.getDummyDocument().clear().isEmpty());
+    Assertions.assertTrue(this.dummyDocument().clear().empty());
   }
 
   @Test
   void testJsonDocPropertyAppend() {
-    Assertions.assertEquals(4, this.getDummyDocument().setProperty(this.getJsonDocProperty(), "test124").size());
+    Assertions.assertEquals(4, this.dummyDocument().property(this.jsonDocProperty(), "test124").size());
   }
 
   @Test
   void testJsonDocPropertyRead() {
-    var document = this.getDummyDocument().setProperty(this.getJsonDocProperty(), "test124");
-    Assertions.assertEquals("test124", document.getProperty(this.getJsonDocProperty()));
+    var document = this.dummyDocument().property(this.jsonDocProperty(), "test124");
+    Assertions.assertEquals("test124", document.property(this.jsonDocProperty()));
   }
 
   @Test
   void testJsonDocPropertyRemove() {
-    var document = this.getDummyDocument().setProperty(this.getJsonDocProperty(), "test124");
-    Assertions.assertNull(document.removeProperty(this.getJsonDocProperty()).getProperty(this.getJsonDocProperty()));
+    var document = this.dummyDocument().property(this.jsonDocProperty(), "test124");
+    Assertions.assertNull(document.removeProperty(this.jsonDocProperty()).property(this.jsonDocProperty()));
   }
 
-  private JsonDocument getDummyDocument() {
+  private JsonDocument dummyDocument() {
     return JsonDocument.newDocument()
       .append("foo", "bar")
       .append("number", 4)
-      .append("test", new TestClass("myData"));
+      .append("test", new TestRecord("myData", Map.of("1", List.of(1, 2, 3, 4), "2", List.of(5, 6, 7, 8, 9))));
   }
 
-  private FunctionalDocProperty<String> getJsonDocProperty() {
+  private FunctionalDocProperty<String> jsonDocProperty() {
     return new FunctionalDocProperty<>(
       document -> document.getString("content"),
       (val, doc) -> doc.append("content", val),
@@ -83,12 +98,7 @@ public class JsonDocumentTest {
     );
   }
 
-  private static class TestClass {
+  private record TestRecord(String data, Map<String, List<Integer>> worldItems) {
 
-    private final String data;
-
-    public TestClass(String data) {
-      this.data = data;
-    }
   }
 }

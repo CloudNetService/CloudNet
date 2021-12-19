@@ -17,11 +17,11 @@
 package de.dytanic.cloudnet.driver.network.rpc.exception;
 
 import java.lang.reflect.Type;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class MissingObjectSerializerException extends IllegalStateException {
 
-  public MissingObjectSerializerException(@NotNull Type type) {
+  public MissingObjectSerializerException(@NonNull Type type) {
     super(String.format("Missing object type serializer for %s", type.getTypeName()));
   }
 }

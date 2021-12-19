@@ -18,25 +18,25 @@ package de.dytanic.cloudnet.event.database;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.database.Database;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class DatabaseUpdateEntryEvent extends DatabaseEvent {
 
   private final String key;
   private final JsonDocument document;
 
-  public DatabaseUpdateEntryEvent(@NotNull Database database, @NotNull String key, @NotNull JsonDocument document) {
+  public DatabaseUpdateEntryEvent(@NonNull Database database, @NonNull String key, @NonNull JsonDocument document) {
     super(database);
 
     this.key = key;
     this.document = document;
   }
 
-  public @NotNull String getKey() {
+  public @NonNull String key() {
     return this.key;
   }
 
-  public @NotNull JsonDocument getDocument() {
+  public @NonNull JsonDocument document() {
     return this.document;
   }
 }

@@ -19,35 +19,35 @@ package de.dytanic.cloudnet.driver.network.http.content;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import lombok.NonNull;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @FunctionalInterface
 public interface ContentStreamProvider {
 
-  static @NotNull ContentStreamProvider allOf(@NonNls ContentStreamProvider... providers) {
+  static @NonNull ContentStreamProvider allOf(@NonNls ContentStreamProvider... providers) {
     return new MultipleContentStreamProvider(providers);
   }
 
-  static @NotNull ContentStreamProvider fileTree(@NotNull Path path) {
+  static @NonNull ContentStreamProvider fileTree(@NonNull Path path) {
     return new FileContentStreamProvider(path);
   }
 
-  static @NotNull ContentStreamProvider classLoader(@NotNull ClassLoader classLoader) {
+  static @NonNull ContentStreamProvider classLoader(@NonNull ClassLoader classLoader) {
     return new ClassLoaderContentStreamProvider("", classLoader);
   }
 
-  static @NotNull ContentStreamProvider classLoader(@NotNull ClassLoader classLoader, @NotNull String pathPrefix) {
+  static @NonNull ContentStreamProvider classLoader(@NonNull ClassLoader classLoader, @NonNull String pathPrefix) {
     return new ClassLoaderContentStreamProvider(pathPrefix.endsWith("/") ? pathPrefix : pathPrefix + "/", classLoader);
   }
 
-  @Nullable StreamableContent provideContent(@NotNull String path);
+  @Nullable StreamableContent provideContent(@NonNull String path);
 
   interface StreamableContent {
 
-    @NotNull InputStream openStream() throws IOException;
+    @NonNull InputStream openStream() throws IOException;
 
-    @NotNull String contentType();
+    @NonNull String contentType();
   }
 }

@@ -18,8 +18,8 @@ package de.dytanic.cloudnet.ext.bridge.node.event;
 
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerProxyInfo;
+import lombok.NonNull;
 import net.kyori.adventure.text.TextComponent;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
@@ -28,19 +28,19 @@ public final class LocalPlayerPreLoginEvent extends DriverEvent {
   private final NetworkPlayerProxyInfo playerInfo;
   private Result result = Result.allowed();
 
-  public LocalPlayerPreLoginEvent(@NotNull NetworkPlayerProxyInfo playerInfo) {
+  public LocalPlayerPreLoginEvent(@NonNull NetworkPlayerProxyInfo playerInfo) {
     this.playerInfo = playerInfo;
   }
 
-  public @NotNull NetworkPlayerProxyInfo getPlayerInfo() {
+  public @NonNull NetworkPlayerProxyInfo playerInfo() {
     return this.playerInfo;
   }
 
-  public @NotNull Result getResult() {
+  public @NonNull Result result() {
     return this.result;
   }
 
-  public void setResult(@NotNull Result result) {
+  public void result(@NonNull Result result) {
     this.result = result;
   }
 
@@ -56,19 +56,19 @@ public final class LocalPlayerPreLoginEvent extends DriverEvent {
       this.result = result;
     }
 
-    public static @NotNull Result allowed() {
+    public static @NonNull Result allowed() {
       return ALLOWED;
     }
 
-    public static @NotNull Result denied(@Nullable TextComponent reason) {
+    public static @NonNull Result denied(@Nullable TextComponent reason) {
       return new Result(false, reason);
     }
 
-    public boolean isAllowed() {
+    public boolean permitLogin() {
       return this.allowed;
     }
 
-    public @UnknownNullability TextComponent getResult() {
+    public @UnknownNullability TextComponent result() {
       return this.result;
     }
   }

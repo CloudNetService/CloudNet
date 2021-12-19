@@ -16,34 +16,22 @@
 
 package de.dytanic.cloudnet.driver.service;
 
+import de.dytanic.cloudnet.common.INameable;
 import java.lang.Thread.State;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * The information of a thread running on any process in the Cloud.
  */
-@ToString
-@EqualsAndHashCode
-public class ThreadSnapshot implements Cloneable {
+public record ThreadSnapshot(
+  long id,
+  int priority,
+  boolean daemon,
+  @NonNull String name,
+  @NonNull State threadState
+) implements INameable, Cloneable {
 
-  private final long id;
-  private final int priority;
-  private final boolean daemon;
-
-  private final String name;
-  private final State threadState;
-
-  protected ThreadSnapshot(long id, int priority, boolean daemon, @NotNull String name, @NotNull State threadState) {
-    this.id = id;
-    this.priority = priority;
-    this.daemon = daemon;
-    this.name = name;
-    this.threadState = threadState;
-  }
-
-  public static @NotNull ThreadSnapshot from(@NotNull Thread thread) {
+  public static @NonNull ThreadSnapshot from(@NonNull Thread thread) {
     return new ThreadSnapshot(
       thread.getId(),
       thread.getPriority(),
@@ -52,28 +40,8 @@ public class ThreadSnapshot implements Cloneable {
       thread.getState());
   }
 
-  public long getId() {
-    return this.id;
-  }
-
-  public @NotNull String getName() {
-    return this.name;
-  }
-
-  public @NotNull Thread.State getThreadState() {
-    return this.threadState;
-  }
-
-  public boolean isDaemon() {
-    return this.daemon;
-  }
-
-  public int getPriority() {
-    return this.priority;
-  }
-
   @Override
-  public @NotNull ThreadSnapshot clone() {
+  public @NonNull ThreadSnapshot clone() {
     try {
       return (ThreadSnapshot) super.clone();
     } catch (CloneNotSupportedException exception) {

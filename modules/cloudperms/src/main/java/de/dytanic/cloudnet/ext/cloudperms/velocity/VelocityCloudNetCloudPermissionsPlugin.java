@@ -53,14 +53,14 @@ public final class VelocityCloudNetCloudPermissionsPlugin {
     this.initPlayersPermissionFunction();
     this.proxyServer.getEventManager().register(this, new VelocityCloudPermissionsPlayerListener(
       this.proxyServer,
-      new VelocityCloudPermissionProvider(CloudNetDriver.getInstance().getPermissionManagement()),
-      CloudNetDriver.getInstance().getPermissionManagement()));
+      new VelocityCloudPermissionProvider(CloudNetDriver.instance().permissionManagement()),
+      CloudNetDriver.instance().permissionManagement()));
   }
 
   @Subscribe
   public void handleShutdown(ProxyShutdownEvent event) {
-    CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
-    Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
+    CloudNetDriver.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
+    Wrapper.instance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
   }
 
   private void initPlayersPermissionFunction() {
@@ -75,7 +75,7 @@ public final class VelocityCloudNetCloudPermissionsPlugin {
         player,
         new VelocityCloudPermissionFunction(
           player.getUniqueId(),
-          CloudNetDriver.getInstance().getPermissionManagement()));
+          CloudNetDriver.instance().permissionManagement()));
     } catch (Exception exception) {
       this.logger.log(Level.SEVERE, "Exception while injecting permissions", exception);
     }

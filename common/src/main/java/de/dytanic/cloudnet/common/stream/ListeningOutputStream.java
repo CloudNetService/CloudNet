@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.common.stream;
 import de.dytanic.cloudnet.common.function.ThrowableConsumer;
 import java.io.IOException;
 import java.io.OutputStream;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class ListeningOutputStream<O extends OutputStream> extends OutputStream {
 
@@ -37,12 +37,12 @@ public final class ListeningOutputStream<O extends OutputStream> extends OutputS
   }
 
   @Override
-  public void write(byte @NotNull [] b) throws IOException {
+  public void write(byte @NonNull [] b) throws IOException {
     this.wrapped.write(b);
   }
 
   @Override
-  public void write(byte @NotNull [] b, int off, int len) throws IOException {
+  public void write(byte @NonNull [] b, int off, int len) throws IOException {
     this.wrapped.write(b, off, len);
   }
 

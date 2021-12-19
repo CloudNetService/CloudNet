@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class FileMimeTypeHelper {
 
@@ -28,12 +28,12 @@ public final class FileMimeTypeHelper {
     throw new UnsupportedOperationException();
   }
 
-  public static @NotNull String getFileType(@NotNull String filePath) {
+  public static @NonNull String fileType(@NonNull String filePath) {
     var mimeType = URLConnection.guessContentTypeFromName(filePath);
     return mimeType == null ? "application/octet-stream" : mimeType;
   }
 
-  public static @NotNull String getFileType(@NotNull Path path) {
+  public static @NonNull String fileType(@NonNull Path path) {
     try {
       var mimeType = Files.probeContentType(path);
       return mimeType == null ? "application/octet-stream" : mimeType;

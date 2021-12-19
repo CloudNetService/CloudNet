@@ -17,17 +17,18 @@
 package de.dytanic.cloudnet.driver.module;
 
 import com.google.common.base.Verify;
+import de.dytanic.cloudnet.common.INameable;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a repository in which a {@link ModuleDependency} can be located.
  */
 @ToString
 @EqualsAndHashCode
-public class ModuleRepository {
+public class ModuleRepository implements INameable {
 
   private String name;
   private String url;
@@ -38,7 +39,7 @@ public class ModuleRepository {
    * @param name the name of the repository, must be unique. Duplicate names will override each other.
    * @param url  the url of the repository.
    */
-  public ModuleRepository(@NotNull String name, @NotNull String url) {
+  public ModuleRepository(@NonNull String name, @NonNull String url) {
     this.name = name;
     this.url = url;
   }
@@ -56,7 +57,8 @@ public class ModuleRepository {
    *
    * @return the name of this repository.
    */
-  public @NotNull String getName() {
+  @Override
+  public @NonNull String name() {
     return this.name;
   }
 
@@ -65,7 +67,7 @@ public class ModuleRepository {
    *
    * @return the url of this repository.
    */
-  public @NotNull String getUrl() {
+  public @NonNull String url() {
     return this.url;
   }
 

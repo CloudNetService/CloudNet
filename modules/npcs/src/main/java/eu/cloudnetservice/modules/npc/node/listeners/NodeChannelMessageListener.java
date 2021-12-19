@@ -24,48 +24,48 @@ import eu.cloudnetservice.modules.npc.AbstractNPCManagement;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import eu.cloudnetservice.modules.npc.platform.PlatformNPCManagement;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class NodeChannelMessageListener {
 
   private final AbstractNPCManagement management;
 
-  public NodeChannelMessageListener(@NotNull AbstractNPCManagement management) {
+  public NodeChannelMessageListener(@NonNull AbstractNPCManagement management) {
     this.management = management;
   }
 
   @EventListener
-  public void handle(@NotNull ChannelMessageReceiveEvent event) {
-    if (event.getChannel().equals(AbstractNPCManagement.NPC_CHANNEL_NAME) && event.getMessage() != null) {
-      switch (event.getMessage()) {
+  public void handle(@NonNull ChannelMessageReceiveEvent event) {
+    if (event.channel().equals(AbstractNPCManagement.NPC_CHANNEL_NAME)) {
+      switch (event.message()) {
         // deletes an existing npc
         case PlatformNPCManagement.NPC_DELETE -> this.management.deleteNPC(
-            event.getContent().readObject(WorldPosition.class));
+            event.content().readObject(WorldPosition.class));
 
         // creates a new npc
-        case PlatformNPCManagement.NPC_CREATE -> this.management.createNPC(event.getContent().readObject(NPC.class));
+        case PlatformNPCManagement.NPC_CREATE -> this.management.createNPC(event.content().readObject(NPC.class));
 
         // bulk deletes all npcs of a given group
         case PlatformNPCManagement.NPC_BULK_DELETE -> {
-          var deleted = this.management.deleteAllNPCs(event.getContent().readString());
-          event.setBinaryResponse(DataBuf.empty().writeInt(deleted));
+          var deleted = this.management.deleteAllNPCs(event.content().readString());
+          event.binaryResponse(DataBuf.empty().writeInt(deleted));
         }
         // deletes all npcs
-        case PlatformNPCManagement.NPC_ALL_DELETE -> event.setBinaryResponse(
+        case PlatformNPCManagement.NPC_ALL_DELETE -> event.binaryResponse(
             DataBuf.empty().writeInt(this.management.deleteAllNPCs()));
 
         // get all npcs of a specific group
         case PlatformNPCManagement.NPC_GET_NPCS_BY_GROUP -> {
-          var npcs = this.management.getNPCs(event.getContent().readObject(String[].class));
-          event.setBinaryResponse(DataBuf.empty().writeObject(npcs));
+          var npcs = this.management.npcs(event.content().readObject(String[].class));
+          event.binaryResponse(DataBuf.empty().writeObject(npcs));
         }
         // request of a service for the npc config
-        case PlatformNPCManagement.NPC_REQUEST_CONFIG -> event.setBinaryResponse(
-            DataBuf.empty().writeObject(this.management.getNPCConfiguration()));
+        case PlatformNPCManagement.NPC_REQUEST_CONFIG -> event.binaryResponse(
+            DataBuf.empty().writeObject(this.management.npcConfiguration()));
 
         // set the npc config
-        case PlatformNPCManagement.NPC_SET_CONFIG -> this.management.setNPCConfiguration(
-            event.getContent().readObject(NPCConfiguration.class));
+        case PlatformNPCManagement.NPC_SET_CONFIG -> this.management.npcConfiguration(
+            event.content().readObject(NPCConfiguration.class));
 
         // not our business
         default -> {

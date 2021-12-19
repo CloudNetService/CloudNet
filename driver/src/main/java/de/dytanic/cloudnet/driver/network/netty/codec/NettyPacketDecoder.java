@@ -32,7 +32,7 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 @Internal
 public final class NettyPacketDecoder extends ByteToMessageDecoder {
 
-  private static final Logger LOGGER = LogManager.getLogger(NettyPacketDecoder.class);
+  private static final Logger LOGGER = LogManager.logger(NettyPacketDecoder.class);
 
   @Override
   protected void decode(ChannelHandlerContext ctx, ByteBuf byteBuf, List<Object> out) {
@@ -47,7 +47,7 @@ public final class NettyPacketDecoder extends ByteToMessageDecoder {
       DataBuf body = new NettyImmutableDataBuf(byteBuf.readBytes(NettyUtils.readVarInt(byteBuf)));
 
       var packet = new Packet(channel, body);
-      packet.setUniqueId(queryUniqueId);
+      packet.uniqueId(queryUniqueId);
 
       out.add(packet);
     } catch (Exception exception) {

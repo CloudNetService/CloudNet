@@ -49,7 +49,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.jetbrains.annotations.VisibleForTesting;
@@ -85,20 +85,20 @@ public abstract class CloudNetDriver {
 
   protected DriverEnvironment driverEnvironment = DriverEnvironment.EMBEDDED;
 
-  protected CloudNetDriver(@NotNull List<String> args) {
+  protected CloudNetDriver(@NonNull List<String> args) {
     this.commandLineArguments = args;
   }
 
   /**
    * @return a singleton instance of the CloudNetDriver
    */
-  @NotNull
-  public static CloudNetDriver getInstance() {
+  @NonNull
+  public static CloudNetDriver instance() {
     return CloudNetDriver.instance;
   }
 
   @VisibleForTesting
-  protected static void setInstance(@NotNull CloudNetDriver instance) {
+  protected static void instance(@NonNull CloudNetDriver instance) {
     CloudNetDriver.instance = instance;
   }
 
@@ -109,8 +109,8 @@ public abstract class CloudNetDriver {
   /**
    * Returns the name of this component. (e.g. Node-1, Lobby-1)
    */
-  @NotNull
-  public abstract String getComponentName();
+  @NonNull
+  public abstract String componentName();
 
   /**
    * Gets the component name if it is called on a node and the name of the node that the service is started on if called
@@ -118,46 +118,46 @@ public abstract class CloudNetDriver {
    *
    * @return the uniqueId of the current node
    */
-  @NotNull
-  public abstract String getNodeUniqueId();
+  @NonNull
+  public abstract String nodeUniqueId();
 
   /**
    * @return the set {@link CloudServiceFactory} for creating new services in the cloud
    */
-  @NotNull
-  public CloudServiceFactory getCloudServiceFactory() {
+  @NonNull
+  public CloudServiceFactory cloudServiceFactory() {
     return this.cloudServiceFactory;
   }
 
   /**
    * @return the set {@link ServiceTaskProvider} for the management of service tasks
    */
-  @NotNull
-  public ServiceTaskProvider getServiceTaskProvider() {
+  @NonNull
+  public ServiceTaskProvider serviceTaskProvider() {
     return this.serviceTaskProvider;
   }
 
   /**
    * @return the set {@link NodeInfoProvider} which provides access to the local node or nodes in the cluster.
    */
-  @NotNull
-  public NodeInfoProvider getNodeInfoProvider() {
+  @NonNull
+  public NodeInfoProvider nodeInfoProvider() {
     return this.nodeInfoProvider;
   }
 
   /**
    * @return the set {@link GroupConfigurationProvider} which manages the services groups
    */
-  @NotNull
-  public GroupConfigurationProvider getGroupConfigurationProvider() {
+  @NonNull
+  public GroupConfigurationProvider groupConfigurationProvider() {
     return this.groupConfigurationProvider;
   }
 
   /**
    * @return the set {@link CloudMessenger} to communicate between services and nodes
    */
-  @NotNull
-  public CloudMessenger getMessenger() {
+  @NonNull
+  public CloudMessenger messenger() {
     return this.messenger;
   }
 
@@ -165,8 +165,8 @@ public abstract class CloudNetDriver {
    * @return the current {@link IPermissionManagement}
    * @throws NullPointerException if there is no PermissionManagement available
    */
-  @NotNull
-  public IPermissionManagement getPermissionManagement() {
+  @NonNull
+  public IPermissionManagement permissionManagement() {
     Preconditions.checkNotNull(this.permissionManagement, "no permission management available");
     return this.permissionManagement;
   }
@@ -178,8 +178,7 @@ public abstract class CloudNetDriver {
    * @throws IllegalStateException if the current {@link IPermissionManagement} does not allow overwriting it and the
    *                               class names are not the same
    */
-  public void setPermissionManagement(@NotNull IPermissionManagement management) {
-    Preconditions.checkNotNull(management, "new permission management is null");
+  public void permissionManagement(@NonNull IPermissionManagement management) {
     // if there is no old permission management or the old permission management can be overridden
     // we can just set the new one
     if (this.permissionManagement == null || this.permissionManagement.canBeOverwritten()) {
@@ -214,43 +213,43 @@ public abstract class CloudNetDriver {
    * @return the local {@link TemplateStorage}
    * @throws IllegalStateException if the TemplateStorage is not present
    */
-  @NotNull
-  public abstract TemplateStorage getLocalTemplateStorage();
+  @NonNull
+  public abstract TemplateStorage localTemplateStorage();
 
   /**
    * @param storage the name of the storage
    * @return the registered {@link TemplateStorage}, null if the storage does not exist
    */
   @Nullable
-  public abstract TemplateStorage getTemplateStorage(@NotNull String storage);
+  public abstract TemplateStorage templateStorage(@NonNull String storage);
 
-  @NotNull
-  public abstract Collection<TemplateStorage> getAvailableTemplateStorages();
+  @NonNull
+  public abstract Collection<TemplateStorage> availableTemplateStorages();
 
-  @NotNull
-  public ITask<Collection<TemplateStorage>> getAvailableTemplateStoragesAsync() {
-    return CompletableTask.supply(this::getAvailableTemplateStorages);
+  @NonNull
+  public ITask<Collection<TemplateStorage>> availableTemplateStoragesAsync() {
+    return CompletableTask.supply(this::availableTemplateStorages);
   }
 
-  public @NotNull DatabaseProvider getDatabaseProvider() {
+  public @NonNull DatabaseProvider databaseProvider() {
     return this.databaseProvider;
   }
 
-  @NotNull
-  public GeneralCloudServiceProvider getCloudServiceProvider() {
+  @NonNull
+  public GeneralCloudServiceProvider cloudServiceProvider() {
     return this.generalCloudServiceProvider;
   }
 
-  public @NotNull INetworkClient getNetworkClient() {
+  public @NonNull INetworkClient networkClient() {
     return this.networkClient;
   }
 
-  public abstract @NotNull Collection<String> sendCommandLineAsPermissionUser(@NotNull UUID uniqueId,
-    @NotNull String commandLine);
+  public abstract @NonNull Collection<String> sendCommandLineAsPermissionUser(@NonNull UUID uniqueId,
+    @NonNull String commandLine);
 
-  @NotNull
-  public ITask<Collection<String>> sendCommandLineAsPermissionUserAsync(@NotNull UUID uniqueId,
-    @NotNull String commandLine
+  @NonNull
+  public ITask<Collection<String>> sendCommandLineAsPermissionUserAsync(@NonNull UUID uniqueId,
+    @NonNull String commandLine
   ) {
     return CompletableTask.supply(() -> this.sendCommandLineAsPermissionUser(uniqueId, commandLine));
   }
@@ -260,51 +259,51 @@ public abstract class CloudNetDriver {
    *
    * @return the PID as an int or -1, if it couldn't be fetched
    */
-  public int getOwnPID() {
-    return ProcessSnapshot.getOwnPID();
+  public long ownPID() {
+    return ProcessSnapshot.ownPID();
   }
 
-  @NotNull
-  public IServicesRegistry getServicesRegistry() {
+  @NonNull
+  public IServicesRegistry servicesRegistry() {
     return this.servicesRegistry;
   }
 
-  @NotNull
-  public IEventManager getEventManager() {
+  @NonNull
+  public IEventManager eventManager() {
     return this.eventManager;
   }
 
-  @NotNull
-  public IModuleProvider getModuleProvider() {
+  @NonNull
+  public IModuleProvider moduleProvider() {
     return this.moduleProvider;
   }
 
-  @NotNull
-  public ScheduledExecutorService getTaskExecutor() {
+  @NonNull
+  public ScheduledExecutorService taskExecutor() {
     return this.scheduler;
   }
 
-  @NotNull
-  public RPCProviderFactory getRPCProviderFactory() {
+  @NonNull
+  public RPCProviderFactory rpcProviderFactory() {
     return this.rpcProviderFactory;
   }
 
-  public @NotNull RPCHandlerRegistry getRPCHandlerRegistry() {
+  public @NonNull RPCHandlerRegistry rpcHandlerRegistry() {
     return this.rpcHandlerRegistry;
   }
 
-  @NotNull
-  public DriverEnvironment getDriverEnvironment() {
+  @NonNull
+  public DriverEnvironment environment() {
     return this.driverEnvironment;
   }
 
-  @NotNull
-  public CloudNetVersion getVersion() {
+  @NonNull
+  public CloudNetVersion version() {
     return this.cloudNetVersion;
   }
 
   @UnmodifiableView
-  public @NotNull List<String> getCommandLineArguments() {
+  public @NonNull List<String> commandLineArguments() {
     return Collections.unmodifiableList(this.commandLineArguments);
   }
 }

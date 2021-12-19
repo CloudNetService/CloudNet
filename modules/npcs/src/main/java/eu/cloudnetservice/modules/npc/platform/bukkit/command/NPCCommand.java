@@ -37,6 +37,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -47,19 +48,20 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class NPCCommand extends BaseTabExecutor {
+  
+  private static final Material[] MATERIALS = Material.values();
 
   private static final List<String> TRUE_FALSE = Arrays.asList("true", "yes", "y", "false", "no", "n");
 
   private static final List<String> NPC_TYPES = Arrays.stream(NPCType.values())
     .map(Enum::name)
-    .collect(Collectors.toList());
+    .toList();
   private static final List<String> CLICK_ACTIONS = Arrays.stream(ClickAction.values())
     .map(Enum::name)
-    .collect(Collectors.toList());
+    .toList();
   private static final Map<String, Integer> VALID_ITEM_SLOTS = ImmutableMap.<String, Integer>builder()
     .put("MAIN_HAND", 0)
     .put("OFF_HAND", 1)
@@ -74,7 +76,7 @@ public final class NPCCommand extends BaseTabExecutor {
   private final Plugin plugin;
   private final BukkitPlatformNPCManagement management;
 
-  public NPCCommand(@NotNull Plugin plugin, @NotNull BukkitPlatformNPCManagement management) {
+  public NPCCommand(@NonNull Plugin plugin, @NonNull BukkitPlatformNPCManagement management) {
     this.plugin = plugin;
     this.management = management;
   }
@@ -88,7 +90,7 @@ public final class NPCCommand extends BaseTabExecutor {
     }
 
     // get the npc configuration entry for the current group
-    var entry = this.management.getApplicableNPCConfigurationEntry();
+    var entry = this.management.applicableNPCConfigurationEntry();
     if (entry == null) {
       sender.sendMessage("§cThere is no applicable npc configuration entry for this service (yet)!");
       return true;
@@ -125,7 +127,7 @@ public final class NPCCommand extends BaseTabExecutor {
             .collect(Collectors.toSet()))
           .displayName(displayName)
           .targetGroup(targetGroup)
-          .location(this.management.toWorldPosition(player.getLocation(), entry.getTargetGroup()))
+          .location(this.management.toWorldPosition(player.getLocation(), entry.targetGroup()))
           .build();
         this.management.createNPC(npc);
       } else {
@@ -144,7 +146,7 @@ public final class NPCCommand extends BaseTabExecutor {
           .entityType(entityType.name())
           .displayName(displayName)
           .targetGroup(targetGroup)
-          .location(this.management.toWorldPosition(player.getLocation(), entry.getTargetGroup()))
+          .location(this.management.toWorldPosition(player.getLocation(), entry.targetGroup()))
           .build();
         this.management.createNPC(npc);
       }
@@ -172,14 +174,14 @@ public final class NPCCommand extends BaseTabExecutor {
 
         // removes all npcs in unloaded worlds
         case "cu", "cleanup" -> {
-          this.management.getTrackedEntities().values().stream()
-            .map(PlatformSelectorEntity::getNPC)
-            .filter(npc -> Bukkit.getWorld(npc.getLocation().world()) == null)
+          this.management.trackedEntities().values().stream()
+            .map(PlatformSelectorEntity::npc)
+            .filter(npc -> Bukkit.getWorld(npc.location().world()) == null)
             .forEach(npc -> {
               this.management.deleteNPC(npc);
               sender.sendMessage(String.format(
                 "§cAn entity in the world §6%s §cwas removed! This may take a few seconds to show effect!",
-                npc.getLocation().world()));
+                npc.location().world()));
             });
           return true;
         }
@@ -238,7 +240,7 @@ public final class NPCCommand extends BaseTabExecutor {
           }
           // paste the npc
           var npc = ((NPC.Builder) values.get(0).value())
-            .location(this.management.toWorldPosition(player.getLocation(), entry.getTargetGroup()))
+            .location(this.management.toWorldPosition(player.getLocation(), entry.targetGroup()))
             .build();
           this.management.createNPC(npc);
           sender.sendMessage("§7The service selector mob was pasted §asuccessfully§7!");
@@ -249,17 +251,17 @@ public final class NPCCommand extends BaseTabExecutor {
 
         // lists all npcs
         case "list" -> {
-          sender.sendMessage(String.format("§7There are §6%s §7selector mobs:", this.management.getNPCs().size()));
-          for (var npc : this.management.getNPCs()) {
+          sender.sendMessage(String.format("§7There are §6%s §7selector mobs:", this.management.npcs().size()));
+          for (var npc : this.management.npcs()) {
             sender.sendMessage(String.format(
               "§8> §6\"%s\" §8@ §7%s§8/§7%s §8- §7%d, %d, %d in \"%s\"",
-              npc.getDisplayName(),
-              npc.getNpcType(),
-              npc.getNpcType() == NPCType.ENTITY ? npc.getEntityType() : "props: " + npc.getProfileProperties().size(),
-              (int) npc.getLocation().x(),
-              (int) npc.getLocation().y(),
-              (int) npc.getLocation().z(),
-              npc.getLocation().world()));
+              npc.displayName(),
+              npc.npcType(),
+              npc.npcType() == NPCType.ENTITY ? npc.entityType() : "props: " + npc.profileProperties().size(),
+              (int) npc.location().x(),
+              (int) npc.location().y(),
+              (int) npc.location().z(),
+              npc.location().world()));
           }
           return true;
         }
@@ -422,7 +424,7 @@ public final class NPCCommand extends BaseTabExecutor {
             return true;
           }
           // a little hack here :)
-          npc.getItems().put(slot, item.name());
+          npc.items().put(slot, item.name());
           updatedNpc = npc;
         }
 
@@ -442,8 +444,8 @@ public final class NPCCommand extends BaseTabExecutor {
           var content = String.join(" ", Arrays.copyOfRange(args, 3, args.length)).trim();
           if (content.equals("null")) {
             // remove the info line if there
-            if (npc.getInfoLines().size() > index) {
-              npc.getInfoLines().remove((int) index);
+            if (npc.infoLines().size() > index) {
+              npc.infoLines().remove((int) index);
               updatedNpc = npc;
             } else {
               sender.sendMessage(String.format("§cNo info line at index §6%d§c.", index));
@@ -452,10 +454,10 @@ public final class NPCCommand extends BaseTabExecutor {
           } else {
             content = ChatColor.translateAlternateColorCodes('&', content);
             // set the info line add the location or add it
-            if (npc.getInfoLines().size() > index) {
-              npc.getInfoLines().set(index, content);
+            if (npc.infoLines().size() > index) {
+              npc.infoLines().set(index, content);
             } else {
-              npc.getInfoLines().add(content);
+              npc.infoLines().add(content);
             }
             updatedNpc = npc;
           }
@@ -513,7 +515,7 @@ public final class NPCCommand extends BaseTabExecutor {
   }
 
   @Override
-  public @NotNull Collection<String> tabComplete(@NotNull CommandSender sender, String @NotNull [] args) {
+  public @NonNull Collection<String> tabComplete(@NonNull CommandSender sender, String @NonNull [] args) {
     // top level commands
     if (args.length == 1) {
       return Arrays.asList("create", "edit", "remove", "cleanup", "list", "copy", "cut", "paste", "clearclipboard");
@@ -522,9 +524,9 @@ public final class NPCCommand extends BaseTabExecutor {
     if (args[0].equalsIgnoreCase("create")) {
       switch (args.length) {
         case 2:
-          return CloudNetDriver.getInstance().getGroupConfigurationProvider().getGroupConfigurations().stream()
-            .map(GroupConfiguration::getName)
-            .collect(Collectors.toList());
+          return CloudNetDriver.instance().groupConfigurationProvider().groupConfigurations().stream()
+            .map(GroupConfiguration::name)
+            .toList();
         case 3:
           return NPC_TYPES;
         case 4: {
@@ -537,7 +539,7 @@ public final class NPCCommand extends BaseTabExecutor {
                 .filter(EntityType::isSpawnable)
                 .filter(entityType -> entityType != EntityType.PLAYER)
                 .map(Enum::name)
-                .collect(Collectors.toList());
+                .toList();
             } else {
               return Arrays.asList("derklaro", "juliarn", "0utplayyyy");
             }
@@ -579,58 +581,59 @@ public final class NPCCommand extends BaseTabExecutor {
           case "gc", "glowingcolor" -> Arrays.stream(ChatColor.values())
             .filter(ChatColor::isColor)
             .map(color -> String.valueOf(color.getChar()))
-            .collect(Collectors.toList());
+            .toList();
           // entity type
           case "et", "entitytype" -> Arrays.stream(EntityType.values())
             .filter(EntityType::isAlive)
             .filter(EntityType::isSpawnable)
             .filter(type -> type != EntityType.PLAYER)
             .map(Enum::name)
-            .collect(Collectors.toList());
+            .toList();
           // npc skin profile
           case "profile" -> Arrays.asList("derklaro", "juliarn", "0utplayyyy");
           // target group
-          case "tg", "targetgroup" -> CloudNetDriver.getInstance().getGroupConfigurationProvider()
-            .getGroupConfigurations().stream()
-            .map(GroupConfiguration::getName)
-            .collect(Collectors.toList());
+          case "tg", "targetgroup" -> CloudNetDriver.instance().groupConfigurationProvider()
+            .groupConfigurations().stream()
+            .map(GroupConfiguration::name)
+            .toList();
           // item slots
           case "items" -> new ArrayList<>(VALID_ITEM_SLOTS.keySet());
           // info lines top level
           case "il", "infolines" -> Arrays.asList("0", "1", "2", "3", "4", "5", "6", "7", "8", "9");
           // floating item
-          case "fi", "floatingitem" -> Arrays.stream(Material.values()).map(Material::name)
-            .collect(Collectors.toList());
+          case "fi", "floatingitem" -> Arrays.stream(MATERIALS)
+            .map(Material::name)
+            .toList();
           // unknown or non-completable option
           default -> Collections.emptyList();
         };
       }
       // more...
       if (args.length == 4 && args[1].equalsIgnoreCase("items")) {
-        return Arrays.stream(Material.values()).map(Material::name).collect(Collectors.toList());
+        return Arrays.stream(MATERIALS).map(Material::name).toList();
       }
     }
     // unable to tab-complete
     return Collections.emptyList();
   }
 
-  private @Nullable NPC getNearestNPC(@NotNull Location location) {
-    return this.management.getTrackedEntities().values().stream()
-      .filter(PlatformSelectorEntity::isSpawned)
-      .filter(entity -> entity.getLocation().getWorld().getUID().equals(location.getWorld().getUID()))
-      .filter(entity -> entity.getLocation().distanceSquared(location) <= 10)
-      .min(Comparator.comparingDouble(entity -> entity.getLocation().distanceSquared(location)))
-      .map(PlatformSelectorEntity::getNPC)
+  private @Nullable NPC getNearestNPC(@NonNull Location location) {
+    return this.management.trackedEntities().values().stream()
+      .filter(PlatformSelectorEntity::spawned)
+      .filter(entity -> entity.location().getWorld().getUID().equals(location.getWorld().getUID()))
+      .filter(entity -> entity.location().distanceSquared(location) <= 10)
+      .min(Comparator.comparingDouble(entity -> entity.location().distanceSquared(location)))
+      .map(PlatformSelectorEntity::npc)
       .orElse(null);
   }
 
-  private boolean parseBoolean(@NotNull String input) {
+  private boolean parseBoolean(@NonNull String input) {
     return input.contains("true") || input.contains("yes") || input.startsWith("y");
   }
 
-  private boolean canChangeSetting(@NotNull CommandSender sender, @NotNull NPC npc) {
-    if (npc.getNpcType() != NPCType.PLAYER) {
-      sender.sendMessage(String.format("§cThis option is not available for the npc type §6%s§c!", npc.getEntityType()));
+  private boolean canChangeSetting(@NonNull CommandSender sender, @NonNull NPC npc) {
+    if (npc.npcType() != NPCType.PLAYER) {
+      sender.sendMessage(String.format("§cThis option is not available for the npc type §6%s§c!", npc.entityType()));
       return false;
     }
     return true;

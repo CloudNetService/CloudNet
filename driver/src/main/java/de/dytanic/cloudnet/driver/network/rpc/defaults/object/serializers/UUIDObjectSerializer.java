@@ -21,26 +21,26 @@ import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectSerializer;
 import java.lang.reflect.Type;
 import java.util.UUID;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class UUIDObjectSerializer implements ObjectSerializer<UUID> {
 
   @Override
   public @Nullable Object read(
-    @NotNull DataBuf source,
-    @NotNull Type type,
-    @NotNull ObjectMapper caller
+    @NonNull DataBuf source,
+    @NonNull Type type,
+    @NonNull ObjectMapper caller
   ) {
     return new UUID(source.readLong(), source.readLong());
   }
 
   @Override
   public void write(
-    @NotNull DataBuf.Mutable dataBuf,
-    @NotNull UUID object,
-    @NotNull Type type,
-    @NotNull ObjectMapper caller
+    @NonNull DataBuf.Mutable dataBuf,
+    @NonNull UUID object,
+    @NonNull Type type,
+    @NonNull ObjectMapper caller
   ) {
     dataBuf.writeLong(object.getMostSignificantBits());
     dataBuf.writeLong(object.getLeastSignificantBits());

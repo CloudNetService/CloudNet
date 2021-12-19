@@ -24,7 +24,7 @@
 
 package de.dytanic.cloudnet.driver.util.define;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * A holder class for the best class definer of the current jvm.
@@ -42,9 +42,9 @@ public final class ClassDefiners {
   static {
     // check the lookup definer first - the unsafe defining method is available for newer jvm implementation but should
     // not be used.
-    if (LookupClassDefiner.isAvailable()) {
+    if (LookupClassDefiner.available()) {
       DEFINER = new LookupClassDefiner();
-    } else if (UnsafeClassDefiner.isAvailable()) {
+    } else if (UnsafeClassDefiner.available()) {
       DEFINER = new UnsafeClassDefiner();
     } else {
       DEFINER = new FallbackClassDefiner();
@@ -60,7 +60,7 @@ public final class ClassDefiners {
    *
    * @return the jvm static instance of the best definer for the current jvm implementation.
    */
-  public static @NotNull ClassDefiner current() {
+  public static @NonNull ClassDefiner current() {
     return DEFINER;
   }
 }

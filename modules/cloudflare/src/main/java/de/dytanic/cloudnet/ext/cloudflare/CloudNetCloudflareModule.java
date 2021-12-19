@@ -37,7 +37,7 @@ import java.util.UUID;
 
 public final class CloudNetCloudflareModule extends DriverModule {
 
-  private static final Logger LOGGER = LogManager.getLogger(CloudNetCloudflareModule.class);
+  private static final Logger LOGGER = LogManager.logger(CloudNetCloudflareModule.class);
   private static CloudNetCloudflareModule instance;
   private CloudFlareAPI cloudFlareAPI;
   private CloudflareConfiguration cloudflareConfiguration;
@@ -46,7 +46,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
     instance = this;
   }
 
-  public static CloudNetCloudflareModule getInstance() {
+  public static CloudNetCloudflareModule instance() {
     return CloudNetCloudflareModule.instance;
   }
 
@@ -60,7 +60,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
         new ArrayList<>(Collections.singletonList(
           new CloudflareConfigurationEntry(
             false,
-            this.getInitialHostAddress(),
+            this.initialHostAddress(),
             "user@example.com",
             "api_token_string",
             "zoneId",
@@ -82,13 +82,13 @@ public final class CloudNetCloudflareModule extends DriverModule {
 
   @ModuleTask(order = 125, event = ModuleLifeCycle.STARTED)
   public void addedDefaultCloudflareDNSServices() {
-    var cloudConfig = CloudNet.getInstance().getConfig();
+    var cloudConfig = CloudNet.instance().config();
 
-    for (var entry : this.getCloudflareConfiguration().getEntries()) {
-      if (entry.isEnabled()) {
+    for (var entry : this.cloudFlareConfiguration().entries()) {
+      if (entry.enabled()) {
         boolean ipv6Address;
         try {
-          ipv6Address = InetAddress.getByName(entry.getHostAddress()) instanceof Inet6Address;
+          ipv6Address = InetAddress.getByName(entry.hostAddress()) instanceof Inet6Address;
         } catch (UnknownHostException exception) {
           LOGGER.severe("Host address of entry " + entry + " is invalid!", exception);
           continue;
@@ -99,17 +99,17 @@ public final class CloudNetCloudflareModule extends DriverModule {
           entry,
           new DefaultDNSRecord(
             ipv6Address ? DNSType.AAAA : DNSType.A,
-            cloudConfig.getIdentity().getUniqueId() + "." + entry.getDomainName(),
-            entry.getHostAddress(),
-            JsonDocument.empty()
+            cloudConfig.identity().uniqueId() + "." + entry.domainName(),
+            entry.hostAddress(),
+            JsonDocument.emptyDocument()
           )
         );
         if (recordDetail != null) {
           LOGGER
             .info(I18n.trans("module-cloudflare-create-dns-record-for-service")
-              .replace("%service%", cloudConfig.getIdentity().getUniqueId())
-              .replace("%domain%", entry.getDomainName())
-              .replace("%recordId%", recordDetail.getId())
+              .replace("%service%", cloudConfig.identity().uniqueId())
+              .replace("%domain%", entry.domainName())
+              .replace("%recordId%", recordDetail.id())
             );
         }
       }
@@ -132,7 +132,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
     this.cloudFlareAPI.close();
   }
 
-  private String getInitialHostAddress() {
+  private String initialHostAddress() {
     try {
       return InetAddress.getLocalHost().getHostAddress();
     } catch (Exception ex) {
@@ -140,15 +140,15 @@ public final class CloudNetCloudflareModule extends DriverModule {
     }
   }
 
-  public CloudflareConfiguration getCloudflareConfiguration() {
+  public CloudflareConfiguration cloudFlareConfiguration() {
     return this.cloudflareConfiguration;
   }
 
-  public void setCloudflareConfiguration(CloudflareConfiguration cloudflareConfiguration) {
+  public void cloudflareConfiguration(CloudflareConfiguration cloudflareConfiguration) {
     this.cloudflareConfiguration = cloudflareConfiguration;
   }
 
-  public CloudFlareAPI getCloudFlareAPI() {
+  public CloudFlareAPI cloudFlareAPI() {
     return this.cloudFlareAPI;
   }
 }

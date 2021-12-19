@@ -26,7 +26,7 @@ import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class PermissionsUpdateListener<P> {
 
@@ -37,11 +37,11 @@ public final class PermissionsUpdateListener<P> {
   private final Supplier<Collection<? extends P>> onlinePlayerSupplier;
 
   public PermissionsUpdateListener(
-    @NotNull Executor syncTaskExecutor,
-    @NotNull Consumer<P> commandTreeUpdater,
-    @NotNull Function<P, UUID> uniqueIdLookup,
-    @NotNull Function<UUID, P> onlinePlayerLookup,
-    @NotNull Supplier<Collection<? extends P>> onlinePlayerSupplier
+    @NonNull Executor syncTaskExecutor,
+    @NonNull Consumer<P> commandTreeUpdater,
+    @NonNull Function<P, UUID> uniqueIdLookup,
+    @NonNull Function<UUID, P> onlinePlayerLookup,
+    @NonNull Supplier<Collection<? extends P>> onlinePlayerSupplier
   ) {
     this.syncTaskExecutor = syncTaskExecutor;
     this.commandTreeUpdater = commandTreeUpdater;
@@ -54,7 +54,7 @@ public final class PermissionsUpdateListener<P> {
   public void handle(PermissionUpdateUserEvent event) {
     this.syncTaskExecutor.execute(() -> {
       // get the player if online
-      var player = this.onlinePlayerLookup.apply(event.getPermissionUser().getUniqueId());
+      var player = this.onlinePlayerLookup.apply(event.permissionUser().uniqueId());
       if (player != null) {
         // update the command tree of the player
         this.commandTreeUpdater.accept(player);
@@ -69,8 +69,8 @@ public final class PermissionsUpdateListener<P> {
       for (P player : this.onlinePlayerSupplier.get()) {
         var playerUniqueId = this.uniqueIdLookup.apply(player);
         // get the associated user
-        var user = CloudNetDriver.getInstance().getPermissionManagement().getUser(playerUniqueId);
-        if (user != null && user.inGroup(event.getPermissionGroup().getName())) {
+        var user = CloudNetDriver.instance().permissionManagement().user(playerUniqueId);
+        if (user != null && user.inGroup(event.permissionGroup().name())) {
           // update the command tree of the player
           this.commandTreeUpdater.accept(player);
         }

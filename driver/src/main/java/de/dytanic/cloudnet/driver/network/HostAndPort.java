@@ -20,6 +20,10 @@ import com.google.common.base.Preconditions;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 /**
  * This class holds an easy IP/Hostname and port configuration for a server or a client bind address
@@ -36,7 +40,7 @@ public class HostAndPort {
    */
   protected int port;
 
-  public HostAndPort(InetSocketAddress socketAddress) {
+  public HostAndPort(@Nullable InetSocketAddress socketAddress) {
     if (socketAddress == null) {
       return;
     }
@@ -45,8 +49,7 @@ public class HostAndPort {
     this.port = socketAddress.getPort();
   }
 
-  public HostAndPort(String host, int port) {
-    Preconditions.checkNotNull(host, "host");
+  public HostAndPort(@NonNull String host, int port) {
     Preconditions.checkArgument(port >= -1 && port <= 65535, "Illegal port: " + port);
 
     this.host = host.trim();
@@ -60,24 +63,25 @@ public class HostAndPort {
    * @return a new HostAndPort instance
    * @throws IllegalArgumentException if the provided socketAddress isn't instanceof InetSocketAddress
    */
-  public static HostAndPort fromSocketAddress(SocketAddress socketAddress) {
-    if (socketAddress instanceof InetSocketAddress) {
-      return new HostAndPort((InetSocketAddress) socketAddress);
+  @Contract("_ -> new")
+  public static @NonNull HostAndPort fromSocketAddress(@NonNull SocketAddress socketAddress) {
+    if (socketAddress instanceof InetSocketAddress inetSocketAddress) {
+      return new HostAndPort(inetSocketAddress);
     }
 
     throw new IllegalArgumentException("socketAddress must be instance of InetSocketAddress!");
   }
 
-  @Override
-  public String toString() {
-    return this.host + ":" + this.port;
-  }
-
-  public String getHost() {
+  public @UnknownNullability String host() {
     return this.host.trim();
   }
 
-  public int getPort() {
+  public int port() {
     return this.port;
+  }
+
+  @Override
+  public String toString() {
+    return this.host + ":" + this.port;
   }
 }

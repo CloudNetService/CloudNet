@@ -22,11 +22,11 @@ import de.dytanic.cloudnet.ext.cloudperms.bukkit.listener.BukkitCloudPermissions
 import de.dytanic.cloudnet.ext.cloudperms.bukkit.vault.VaultSupport;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.logging.Level;
+import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 
 public final class BukkitCloudPermissionsPlugin extends JavaPlugin {
 
@@ -37,12 +37,12 @@ public final class BukkitCloudPermissionsPlugin extends JavaPlugin {
 
     this.getServer().getPluginManager().registerEvents(new BukkitCloudPermissionsPlayerListener(
       this,
-      CloudNetDriver.getInstance().getPermissionManagement()
+      CloudNetDriver.instance().permissionManagement()
     ), this);
 
     // register the update listener if the server can update the command tree to the player
     if (BukkitPermissionHelper.canUpdateCommandTree()) {
-      CloudNetDriver.getInstance().getEventManager().registerListener(new PermissionsUpdateListener<>(
+      CloudNetDriver.instance().eventManager().registerListener(new PermissionsUpdateListener<>(
         runnable -> Bukkit.getScheduler().runTask(this, runnable),
         BukkitPermissionHelper::resendCommandTree,
         Player::getUniqueId,
@@ -53,12 +53,12 @@ public final class BukkitCloudPermissionsPlugin extends JavaPlugin {
 
   @Override
   public void onDisable() {
-    CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
-    Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
+    CloudNetDriver.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
+    Wrapper.instance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
   }
 
   @Internal
-  public void injectCloudPermissible(@NotNull Player player) {
+  public void injectCloudPermissible(@NonNull Player player) {
     try {
       BukkitPermissionHelper.injectPlayer(player);
     } catch (Throwable exception) {
@@ -68,7 +68,7 @@ public final class BukkitCloudPermissionsPlugin extends JavaPlugin {
 
   private void checkForVault() {
     if (super.getServer().getPluginManager().isPluginEnabled("Vault")) {
-      VaultSupport.hook(this, CloudNetDriver.getInstance().getPermissionManagement());
+      VaultSupport.hook(this, CloudNetDriver.instance().permissionManagement());
     }
   }
 }

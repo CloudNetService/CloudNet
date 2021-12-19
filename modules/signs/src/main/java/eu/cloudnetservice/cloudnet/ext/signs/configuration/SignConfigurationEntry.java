@@ -16,12 +16,11 @@
 
 package eu.cloudnetservice.cloudnet.ext.signs.configuration;
 
-import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class SignConfigurationEntry implements Cloneable {
 
@@ -56,7 +55,7 @@ public class SignConfigurationEntry implements Cloneable {
     this.fullLayout = fullLayout;
   }
 
-  public static @NotNull SignConfigurationEntry createDefault(String targetGroup, String onlineBlockType,
+  public static @NonNull SignConfigurationEntry createDefault(String targetGroup, String onlineBlockType,
     String fullBlockType, String startingBlock, String searchingBlock) {
     return new SignConfigurationEntry(
       targetGroup,
@@ -70,21 +69,21 @@ public class SignConfigurationEntry implements Cloneable {
             "&8[&7LOBBY&8]",
             "%online_players% / %max_players%",
             "%motd%"
-          }, onlineBlockType, -1)
+          }, onlineBlockType, -1, null)
         ))), new SignLayoutsHolder(1, new ArrayList<>(Collections.singleton(new SignLayout(
         new String[]{
           "&eLobby &0- &e%task_id%",
           "&8[&eLOBBY&8]",
           "%online_players% / %max_players%",
           "%motd%"
-        }, onlineBlockType, -1)
+        }, onlineBlockType, -1, "LIME")
       ))), new SignLayoutsHolder(1, new ArrayList<>(Collections.singleton(new SignLayout(
         new String[]{
           "&6Lobby &0- &6%task_id%",
           "&8[&6PRIME&8]",
           "%online_players% / %max_players%",
           "%motd%"
-        }, fullBlockType, -1)
+        }, fullBlockType, -1, "ORANGE")
       )))))), new SignLayoutsHolder(
       2,
       new ArrayList<>(Arrays.asList(
@@ -135,86 +134,85 @@ public class SignConfigurationEntry implements Cloneable {
     );
   }
 
-  protected static @NotNull SignLayout createLayout(String firstLine, String block, int amount) {
+  protected static @NonNull SignLayout createLayout(String firstLine, String block, int amount) {
     return new SignLayout(
       new String[]{
         "",
         firstLine,
-        Strings.repeat(".", amount),
+        ".".repeat(amount),
         ""
-      }, block, -1
-    );
+      }, block, -1, null);
   }
 
-  public String getTargetGroup() {
+  public String targetGroup() {
     return this.targetGroup;
   }
 
-  public void setTargetGroup(String targetGroup) {
+  public void targetGroup(String targetGroup) {
     this.targetGroup = targetGroup;
   }
 
-  public boolean isSwitchToSearchingWhenServiceIsFull() {
+  public boolean switchToSearchingWhenServiceIsFull() {
     return this.switchToSearchingWhenServiceIsFull;
   }
 
-  public void setSwitchToSearchingWhenServiceIsFull(boolean switchToSearchingWhenServiceIsFull) {
+  public void switchToSearchingWhenServiceIsFull(boolean switchToSearchingWhenServiceIsFull) {
     this.switchToSearchingWhenServiceIsFull = switchToSearchingWhenServiceIsFull;
   }
 
-  public KnockbackConfiguration getKnockbackConfiguration() {
+  public KnockbackConfiguration knockbackConfiguration() {
     return this.knockbackConfiguration;
   }
 
-  public void setKnockbackConfiguration(KnockbackConfiguration knockbackConfiguration) {
+  public void knockbackConfiguration(KnockbackConfiguration knockbackConfiguration) {
     this.knockbackConfiguration = knockbackConfiguration;
   }
 
-  public List<SignGroupConfiguration> getGroupConfigurations() {
+  public List<SignGroupConfiguration> groupConfigurations() {
     return this.groupConfigurations;
   }
 
-  public void setGroupConfigurations(List<SignGroupConfiguration> groupConfigurations) {
+  public void groupConfigurations(List<SignGroupConfiguration> groupConfigurations) {
     this.groupConfigurations = groupConfigurations;
   }
 
-  public SignLayoutsHolder getSearchingLayout() {
+  public SignLayoutsHolder searchingLayout() {
     return this.searchingLayout;
   }
 
-  public void setSearchingLayout(SignLayoutsHolder searchingLayout) {
+  public void searchingLayout(SignLayoutsHolder searchingLayout) {
     this.searchingLayout = searchingLayout;
   }
 
-  public SignLayoutsHolder getStartingLayout() {
+  public SignLayoutsHolder startingLayout() {
     return this.startingLayout;
   }
 
-  public void setStartingLayout(SignLayoutsHolder startingLayout) {
+  public void startingLayout(SignLayoutsHolder startingLayout) {
     this.startingLayout = startingLayout;
   }
 
-  public SignLayoutsHolder getEmptyLayout() {
+  public SignLayoutsHolder emptyLayout() {
     return this.emptyLayout;
   }
 
-  public void setEmptyLayout(SignLayoutsHolder emptyLayout) {
+  public void emptyLayout(SignLayoutsHolder emptyLayout) {
     this.emptyLayout = emptyLayout;
   }
 
-  public SignLayoutsHolder getOnlineLayout() {
+  public SignLayoutsHolder onlineLayout() {
     return this.onlineLayout;
   }
 
-  public void setOnlineLayout(SignLayoutsHolder onlineLayout) {
+  public void onlineLayout(SignLayoutsHolder onlineLayout) {
     this.onlineLayout = onlineLayout;
   }
 
-  public SignLayoutsHolder getFullLayout() {
+  public SignLayoutsHolder fullLayout() {
     return this.fullLayout;
   }
 
-  public void setFullLayout(SignLayoutsHolder fullLayout) {
+  public void fullLayout(SignLayoutsHolder fullLayout) {
     this.fullLayout = fullLayout;
   }
 
@@ -267,39 +265,39 @@ public class SignConfigurationEntry implements Cloneable {
       this.bypassPermission = bypassPermission;
     }
 
-    public boolean isEnabled() {
+    public boolean enabled() {
       return this.enabled;
     }
 
-    public void setEnabled(boolean enabled) {
+    public void enabled(boolean enabled) {
       this.enabled = enabled;
     }
 
-    public double getDistance() {
+    public double distance() {
       return this.distance;
     }
 
-    public void setDistance(double distance) {
+    public void distance(double distance) {
       this.distance = distance;
     }
 
-    public double getStrength() {
+    public double strength() {
       return this.strength;
     }
 
-    public void setStrength(double strength) {
+    public void strength(double strength) {
       this.strength = strength;
     }
 
-    public String getBypassPermission() {
+    public String bypassPermission() {
       return this.bypassPermission;
     }
 
-    public void setBypassPermission(String bypassPermission) {
+    public void bypassPermission(String bypassPermission) {
       this.bypassPermission = bypassPermission;
     }
 
-    public boolean isValidAndEnabled() {
+    public boolean validAndEnabled() {
       return this.enabled && this.strength > 0 && this.distance > 0;
     }
 

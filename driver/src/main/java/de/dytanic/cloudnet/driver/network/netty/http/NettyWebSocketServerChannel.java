@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.driver.network.netty.http;
 
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.network.http.IHttpChannel;
 import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketChannel;
 import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketListener;
@@ -30,7 +29,6 @@ import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
-import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,6 +36,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
 @Internal
@@ -45,82 +44,59 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
 
   private final List<IWebSocketListener> webSocketListeners = new CopyOnWriteArrayList<>();
 
+  private final Channel channel;
   private final IHttpChannel httpChannel;
 
-  private final Channel channel;
-
-  private final WebSocketServerHandshaker webSocketServerHandshaker;
-
-  public NettyWebSocketServerChannel(IHttpChannel httpChannel, Channel channel,
-    WebSocketServerHandshaker webSocketServerHandshaker) {
+  public NettyWebSocketServerChannel(
+    @NonNull IHttpChannel httpChannel,
+    @NonNull Channel channel
+  ) {
     this.httpChannel = httpChannel;
     this.channel = channel;
-    this.webSocketServerHandshaker = webSocketServerHandshaker;
   }
 
   @Override
-  public IWebSocketChannel addListener(IWebSocketListener... listeners) {
-    Preconditions.checkNotNull(listeners);
-
-    for (var listener : listeners) {
-      if (listener != null) {
-        this.webSocketListeners.add(listener);
-      }
-    }
-
+  public @NonNull IWebSocketChannel addListener(@NonNull IWebSocketListener... listeners) {
+    this.webSocketListeners.addAll(Arrays.asList(listeners));
     return this;
   }
 
   @Override
-  public IWebSocketChannel removeListener(IWebSocketListener... listeners) {
-    Preconditions.checkNotNull(listeners);
-
-    this.webSocketListeners.removeIf(listener -> Arrays.stream(listeners)
-      .anyMatch(webSocketListener -> webSocketListener != null && webSocketListener.equals(listener)));
-
+  public @NonNull IWebSocketChannel removeListener(@NonNull IWebSocketListener... listeners) {
+    this.webSocketListeners.removeIf(listener -> Arrays.asList(listeners).contains(listener));
     return this;
   }
 
   @Override
-  public IWebSocketChannel removeListener(Collection<Class<? extends IWebSocketListener>> classes) {
-    Preconditions.checkNotNull(classes);
-
+  public @NonNull IWebSocketChannel removeListener(@NonNull Collection<Class<? extends IWebSocketListener>> classes) {
     this.webSocketListeners.removeIf(listener -> classes.contains(listener.getClass()));
-
     return this;
   }
 
   @Override
-  public IWebSocketChannel removeListener(ClassLoader classLoader) {
+  public @NonNull IWebSocketChannel removeListener(@NonNull ClassLoader classLoader) {
     this.webSocketListeners.removeIf(listener -> listener.getClass().getClassLoader().equals(classLoader));
-
     return this;
   }
 
   @Override
-  public IWebSocketChannel clearListeners() {
+  public @NonNull IWebSocketChannel clearListeners() {
     this.webSocketListeners.clear();
     return this;
   }
 
   @Override
-  public Collection<IWebSocketListener> getListeners() {
+  public @NonNull Collection<IWebSocketListener> listeners() {
     return this.webSocketListeners;
   }
 
   @Override
-  public IWebSocketChannel sendWebSocketFrame(WebSocketFrameType webSocketFrameType, String text) {
-    Preconditions.checkNotNull(webSocketFrameType);
-    Preconditions.checkNotNull(text);
-
-    return this.sendWebSocketFrame(webSocketFrameType, text.getBytes(StandardCharsets.UTF_8));
+  public @NonNull IWebSocketChannel sendWebSocketFrame(@NonNull WebSocketFrameType type, @NonNull String text) {
+    return this.sendWebSocketFrame(type, text.getBytes(StandardCharsets.UTF_8));
   }
 
   @Override
-  public IWebSocketChannel sendWebSocketFrame(WebSocketFrameType webSocketFrameType, byte[] bytes) {
-    Preconditions.checkNotNull(webSocketFrameType);
-    Preconditions.checkNotNull(bytes);
-
+  public @NonNull IWebSocketChannel sendWebSocketFrame(@NonNull WebSocketFrameType webSocketFrameType, byte[] bytes) {
     WebSocketFrame webSocketFrame = switch (webSocketFrameType) {
       case PING -> new PingWebSocketFrame(Unpooled.buffer(bytes.length).writeBytes(bytes));
       case PONG -> new PongWebSocketFrame(Unpooled.buffer(bytes.length).writeBytes(bytes));
@@ -133,14 +109,14 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
   }
 
   @Override
-  public IHttpChannel channel() {
+  public @NonNull IHttpChannel channel() {
     return this.httpChannel;
   }
 
   @Override
-  public void close(int statusCode, String reasonText) {
+  public void close(int statusCode, @NonNull String reasonText) {
     var statusCodeReference = new AtomicInteger(statusCode);
-    var reasonTextReference = new AtomicReference<String>(reasonText);
+    var reasonTextReference = new AtomicReference<>(reasonText);
 
     for (var listener : this.webSocketListeners) {
       listener.handleClose(this, statusCodeReference, reasonTextReference);
@@ -153,21 +129,5 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
   @Override
   public void close() {
     this.close(200, "default closing");
-  }
-
-  public List<IWebSocketListener> getWebSocketListeners() {
-    return this.webSocketListeners;
-  }
-
-  public IHttpChannel getHttpChannel() {
-    return this.httpChannel;
-  }
-
-  public Channel getChannel() {
-    return this.channel;
-  }
-
-  public WebSocketServerHandshaker getWebSocketServerHandshaker() {
-    return this.webSocketServerHandshaker;
   }
 }

@@ -19,6 +19,7 @@ package de.dytanic.cloudnet.provider;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.sync.DataSyncHandler;
 import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
@@ -31,47 +32,47 @@ import de.dytanic.cloudnet.event.task.LocalServiceTaskAddEvent;
 import de.dytanic.cloudnet.event.task.LocalServiceTaskRemoveEvent;
 import de.dytanic.cloudnet.network.listener.message.TaskChannelMessageListener;
 import de.dytanic.cloudnet.setup.DefaultTaskSetup;
+import de.dytanic.cloudnet.util.JavaVersionResolver;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
-  private static final Path TASKS_DIRECTORY = Paths.get(
+  private static final Path TASKS_DIRECTORY = Path.of(
     System.getProperty("cloudnet.config.tasks.directory.path", "local/tasks"));
 
   private final IEventManager eventManager;
   private final Map<String, ServiceTask> serviceTasks = new ConcurrentHashMap<>();
 
-  public NodeServiceTaskProvider(@NotNull CloudNet nodeInstance) {
-    this.eventManager = nodeInstance.getEventManager();
+  public NodeServiceTaskProvider(@NonNull CloudNet nodeInstance) {
+    this.eventManager = nodeInstance.eventManager();
     this.eventManager.registerListener(new TaskChannelMessageListener(this.eventManager, this));
 
     // rpc
-    nodeInstance.getRPCProviderFactory().newHandler(ServiceTaskProvider.class, this).registerToDefaultRegistry();
+    nodeInstance.rpcProviderFactory().newHandler(ServiceTaskProvider.class, this).registerToDefaultRegistry();
     // cluster data sync
-    nodeInstance.getDataSyncRegistry().registerHandler(
+    nodeInstance.dataSyncRegistry().registerHandler(
       DataSyncHandler.<ServiceTask>builder()
         .key("task")
-        .nameExtractor(INameable::getName)
+        .nameExtractor(INameable::name)
         .convertObject(ServiceTask.class)
         .writer(this::addPermanentServiceTaskSilently)
-        .dataCollector(this::getPermanentServiceTasks)
-        .currentGetter(task -> this.getServiceTask(task.getName()))
+        .dataCollector(this::permanentServiceTasks)
+        .currentGetter(task -> this.serviceTask(task.name()))
         .build());
 
     if (Files.exists(TASKS_DIRECTORY)) {
       this.loadServiceTasks();
     } else {
       FileUtils.createDirectory(TASKS_DIRECTORY);
-      nodeInstance.getInstallation().registerSetup(new DefaultTaskSetup());
+      nodeInstance.installation().registerSetup(new DefaultTaskSetup());
     }
   }
 
@@ -84,13 +85,13 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   }
 
   @Override
-  public @NotNull Collection<ServiceTask> getPermanentServiceTasks() {
+  public @NonNull Collection<ServiceTask> permanentServiceTasks() {
     return Collections.unmodifiableCollection(this.serviceTasks.values());
   }
 
   @Override
-  public void setPermanentServiceTasks(@NotNull Collection<ServiceTask> serviceTasks) {
-    this.setPermanentServiceTasksSilently(serviceTasks);
+  public void permanentServiceTasks(@NonNull Collection<ServiceTask> serviceTasks) {
+    this.permanentServiceTasksSilently(serviceTasks);
     // notify the cluster
     ChannelMessage.builder()
       .targetNodes()
@@ -102,18 +103,18 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   }
 
   @Override
-  public @Nullable ServiceTask getServiceTask(@NotNull String name) {
+  public @Nullable ServiceTask serviceTask(@NonNull String name) {
     return this.serviceTasks.get(name);
   }
 
   @Override
-  public boolean isServiceTaskPresent(@NotNull String name) {
+  public boolean serviceTaskPresent(@NonNull String name) {
     return this.serviceTasks.containsKey(name);
   }
 
   @Override
-  public boolean addPermanentServiceTask(@NotNull ServiceTask serviceTask) {
-    if (!this.eventManager.callEvent(new LocalServiceTaskAddEvent(serviceTask)).isCancelled()) {
+  public boolean addPermanentServiceTask(@NonNull ServiceTask serviceTask) {
+    if (!this.eventManager.callEvent(new LocalServiceTaskAddEvent(serviceTask)).cancelled()) {
       this.addPermanentServiceTaskSilently(serviceTask);
       // notify the cluster
       ChannelMessage.builder()
@@ -129,16 +130,16 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   }
 
   @Override
-  public void removePermanentServiceTaskByName(@NotNull String name) {
-    var task = this.getServiceTask(name);
+  public void removePermanentServiceTaskByName(@NonNull String name) {
+    var task = this.serviceTask(name);
     if (task != null) {
       this.removePermanentServiceTask(task);
     }
   }
 
   @Override
-  public void removePermanentServiceTask(@NotNull ServiceTask serviceTask) {
-    if (!this.eventManager.callEvent(new LocalServiceTaskRemoveEvent(serviceTask)).isCancelled()) {
+  public void removePermanentServiceTask(@NonNull ServiceTask serviceTask) {
+    if (!this.eventManager.callEvent(new LocalServiceTaskRemoveEvent(serviceTask)).cancelled()) {
       this.removePermanentServiceTaskSilently(serviceTask);
       // notify the whole network
       ChannelMessage.builder()
@@ -151,33 +152,33 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     }
   }
 
-  public void addPermanentServiceTaskSilently(@NotNull ServiceTask serviceTask) {
+  public void addPermanentServiceTaskSilently(@NonNull ServiceTask serviceTask) {
     // cache locally
-    this.serviceTasks.put(serviceTask.getName(), serviceTask);
+    this.serviceTasks.put(serviceTask.name(), serviceTask);
     this.writeServiceTask(serviceTask);
   }
 
-  public void removePermanentServiceTaskSilently(@NotNull ServiceTask serviceTask) {
+  public void removePermanentServiceTaskSilently(@NonNull ServiceTask serviceTask) {
     // remove from cache
-    this.serviceTasks.remove(serviceTask.getName());
+    this.serviceTasks.remove(serviceTask.name());
     // remove the local file if it exists
-    FileUtils.delete(this.getTaskFile(serviceTask));
+    FileUtils.delete(this.taskFile(serviceTask));
   }
 
-  public void setPermanentServiceTasksSilently(@NotNull Collection<ServiceTask> serviceTasks) {
+  public void permanentServiceTasksSilently(@NonNull Collection<ServiceTask> serviceTasks) {
     // update the cache
     this.serviceTasks.clear();
-    serviceTasks.forEach(task -> this.serviceTasks.put(task.getName(), task));
+    serviceTasks.forEach(task -> this.serviceTasks.put(task.name(), task));
     // store all tasks
     this.writeAllServiceTasks();
   }
 
-  protected @NotNull Path getTaskFile(@NotNull ServiceTask task) {
-    return TASKS_DIRECTORY.resolve(task.getName() + ".json");
+  protected @NonNull Path taskFile(@NonNull ServiceTask task) {
+    return TASKS_DIRECTORY.resolve(task.name() + ".json");
   }
 
-  protected void writeServiceTask(@NotNull ServiceTask serviceTask) {
-    JsonDocument.newDocument(serviceTask).write(this.getTaskFile(serviceTask));
+  protected void writeServiceTask(@NonNull ServiceTask serviceTask) {
+    JsonDocument.newDocument(serviceTask).write(this.taskFile(serviceTask));
   }
 
   protected void writeAllServiceTasks() {
@@ -201,10 +202,17 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
       var task = JsonDocument.newDocument(file).toInstanceOf(ServiceTask.class);
       // check if the file name is still up-to-date
       var taskName = file.getFileName().toString().replace(".json", "");
-      if (!taskName.equals(task.getName())) {
+      if (!taskName.equals(task.name())) {
         // rename the file
-        FileUtils.move(file, this.getTaskFile(task), StandardCopyOption.REPLACE_EXISTING);
+        FileUtils.move(file, this.taskFile(task), StandardCopyOption.REPLACE_EXISTING);
       }
+
+      // remove all custom java paths that do not support Java 17
+      var javaVersion = JavaVersionResolver.resolveFromJavaExecutable(task.javaCommand());
+      if (javaVersion != null && !javaVersion.isSupportedByMin(JavaVersion.JAVA_17)) {
+        task = ServiceTask.builder(task).javaCommand(null).build();
+      }
+
       // cache the task
       this.addPermanentServiceTask(task);
     }, false, "*.json");

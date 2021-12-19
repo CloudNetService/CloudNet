@@ -63,7 +63,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
   }
 
   protected void handleReloadRequest(IHttpContext context) {
-    this.getCloudNet().getModuleProvider().reloadAll();
+    this.node().moduleProvider().reloadAll();
 
     this.ok(context)
       .body(this.success().toString())
@@ -73,9 +73,9 @@ public class V2HttpHandlerModule extends V2HttpHandler {
   }
 
   protected void handleModuleListRequest(IHttpContext context) {
-    this.ok(context).body(this.success().append("modules", this.getModuleProvider().getModules().stream()
-        .map(module -> JsonDocument.newDocument("lifecycle", module.getModuleLifeCycle())
-          .append("configuration", module.getModuleConfiguration()))
+    this.ok(context).body(this.success().append("modules", this.moduleProvider().modules().stream()
+        .map(module -> JsonDocument.newDocument("lifecycle", module.moduleLifeCycle())
+          .append("configuration", module.moduleConfiguration()))
         .collect(Collectors.toList()))
       .toString()
     ).context().closeAfter(true).cancelNext();
@@ -121,8 +121,8 @@ public class V2HttpHandlerModule extends V2HttpHandler {
       return;
     }
 
-    var moduleTarget = this.getModuleProvider().getModuleDirectoryPath().resolve(name);
-    FileUtils.ensureChild(this.getModuleProvider().getModuleDirectoryPath(), moduleTarget);
+    var moduleTarget = this.moduleProvider().moduleDirectoryPath().resolve(name);
+    FileUtils.ensureChild(this.moduleProvider().moduleDirectoryPath(), moduleTarget);
 
     try (var outputStream = Files.newOutputStream(moduleTarget)) {
       FileUtils.copy(moduleStream, outputStream);
@@ -136,13 +136,13 @@ public class V2HttpHandlerModule extends V2HttpHandler {
       return;
     }
 
-    this.showModule(context, this.getModuleProvider().loadModule(moduleTarget));
+    this.showModule(context, this.moduleProvider().loadModule(moduleTarget));
   }
 
   protected void handleModuleConfigRequest(IHttpContext context) {
     this.handleWithModuleContext(context, module -> {
-      if (module.getModule() instanceof DriverModule) {
-        var config = ((DriverModule) module.getModule()).readConfig();
+      if (module.module() instanceof DriverModule) {
+        var config = ((DriverModule) module.module()).readConfig();
         this.ok(context)
           .body(this.success().append("config", config).toString())
           .context()
@@ -160,7 +160,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
 
   protected void handleConfigUpdateRequest(IHttpContext context) {
     this.handleWithModuleContext(context, module -> {
-      if (module.getModule() instanceof DriverModule) {
+      if (module.module() instanceof DriverModule) {
         var stream = context.request().bodyStream();
         if (stream == null) {
           this.badRequest(context)
@@ -169,7 +169,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
             .closeAfter(true)
             .cancelNext();
         } else {
-          var driverModule = (DriverModule) module.getModule();
+          var driverModule = (DriverModule) module.module();
           driverModule.writeConfig(JsonDocument.newDocument(stream));
 
           this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
@@ -189,8 +189,8 @@ public class V2HttpHandlerModule extends V2HttpHandler {
       this.ok(context).body(this.failure().toString()).context().closeAfter(true).cancelNext();
     } else {
       this.ok(context).body(this.success()
-        .append("lifecycle", wrapper.getModuleLifeCycle())
-        .append("configuration", wrapper.getModuleConfiguration())
+        .append("lifecycle", wrapper.moduleLifeCycle())
+        .append("configuration", wrapper.moduleConfiguration())
         .toString()
       ).context().closeAfter(true).cancelNext();
     }
@@ -207,7 +207,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
       return;
     }
 
-    var wrapper = this.getModuleProvider().getModule(name);
+    var wrapper = this.moduleProvider().module(name);
     if (wrapper == null) {
       this.notFound(context)
         .body(this.failure().append("reason", "No such module").toString())
@@ -220,7 +220,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
     handler.accept(wrapper);
   }
 
-  protected IModuleProvider getModuleProvider() {
-    return this.getCloudNet().getModuleProvider();
+  protected IModuleProvider moduleProvider() {
+    return this.node().moduleProvider();
   }
 }

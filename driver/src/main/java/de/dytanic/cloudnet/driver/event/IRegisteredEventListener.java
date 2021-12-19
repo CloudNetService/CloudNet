@@ -16,25 +16,25 @@
 
 package de.dytanic.cloudnet.driver.event;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public interface IRegisteredEventListener extends Comparable<IRegisteredEventListener> {
 
-  void fireEvent(@NotNull Event event);
+  void fireEvent(@NonNull Event event);
 
-  @NotNull EventListener getEventListener();
+  @NonNull EventListener eventListener();
 
-  @NotNull EventPriority getPriority();
+  @NonNull EventPriority priority();
 
-  @NotNull String getChannel();
+  @NonNull String channel();
 
-  @NotNull Object getInstance();
+  @NonNull Object instance();
 
-  @NotNull Class<?> getEventClass();
+  @NonNull Class<?> eventClass();
 
   @Override
-  default int compareTo(@NotNull IRegisteredEventListener other) {
-    var compareResult = this.getPriority().compareTo(other.getPriority());
+  default int compareTo(@NonNull IRegisteredEventListener other) {
+    var compareResult = this.priority().compareTo(other.priority());
     return compareResult == 0 ? 1 : compareResult;
   }
 }

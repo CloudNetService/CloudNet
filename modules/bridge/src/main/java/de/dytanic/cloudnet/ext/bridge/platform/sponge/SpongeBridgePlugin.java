@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.ext.bridge.platform.sponge;
 import com.google.inject.Inject;
 import de.dytanic.cloudnet.ext.bridge.platform.PlatformBridgeManagement;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Listener;
@@ -33,14 +33,14 @@ public final class SpongeBridgePlugin {
   private final PluginContainer plugin;
 
   @Inject
-  public SpongeBridgePlugin(@NotNull PluginContainer plugin) {
+  public SpongeBridgePlugin(@NonNull PluginContainer plugin) {
     this.plugin = plugin;
   }
 
   @Listener
-  public void handle(@NotNull StartedEngineEvent<Server> event) {
+  public void handle(@NonNull StartedEngineEvent<Server> event) {
     PlatformBridgeManagement<?, ?> management = new SpongeBridgeManagement();
-    management.registerServices(Wrapper.getInstance().getServicesRegistry());
+    management.registerServices(Wrapper.instance().servicesRegistry());
     management.postInit();
     // register the listener
     Sponge.eventManager().registerListeners(this.plugin, new SpongePlayerManagementListener(this.plugin, management));

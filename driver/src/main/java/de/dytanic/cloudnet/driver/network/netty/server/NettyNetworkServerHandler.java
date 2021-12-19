@@ -23,8 +23,8 @@ import de.dytanic.cloudnet.driver.network.netty.NettyNetworkHandler;
 import io.netty.channel.ChannelHandlerContext;
 import java.util.Collection;
 import java.util.concurrent.Executor;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 
 @Internal
 public class NettyNetworkServerHandler extends NettyNetworkHandler {
@@ -38,28 +38,28 @@ public class NettyNetworkServerHandler extends NettyNetworkHandler {
   }
 
   @Override
-  public void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
+  public void channelActive(@NonNull ChannelHandlerContext ctx) throws Exception {
     this.networkServer.channels.add(this.channel = new NettyNetworkChannel(
       ctx.channel(),
-      this.networkServer.getPacketRegistry(),
+      this.networkServer.packetRegistry(),
       this.networkServer.networkChannelHandlerFactory.call(),
       this.serverLocalAddress,
       HostAndPort.fromSocketAddress(ctx.channel().remoteAddress()),
       false
     ));
 
-    if (this.channel.getHandler() != null) {
-      this.channel.getHandler().handleChannelInitialize(this.channel);
+    if (this.channel.handler() != null) {
+      this.channel.handler().handleChannelInitialize(this.channel);
     }
   }
 
   @Override
-  protected @NotNull Collection<INetworkChannel> getChannels() {
+  protected @NonNull Collection<INetworkChannel> channels() {
     return this.networkServer.channels;
   }
 
   @Override
-  protected @NotNull Executor getPacketDispatcher() {
-    return this.networkServer.getPacketDispatcher();
+  protected @NonNull Executor packetDispatcher() {
+    return this.networkServer.packetDispatcher();
   }
 }

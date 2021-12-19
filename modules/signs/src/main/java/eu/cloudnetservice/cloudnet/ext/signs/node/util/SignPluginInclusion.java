@@ -22,8 +22,8 @@ import de.dytanic.cloudnet.driver.util.DefaultModuleHelper;
 import de.dytanic.cloudnet.service.ICloudService;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignsConfiguration;
 import java.util.Collection;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 
 @Internal
 public final class SignPluginInclusion {
@@ -32,11 +32,11 @@ public final class SignPluginInclusion {
     throw new UnsupportedOperationException();
   }
 
-  public static void includePluginTo(@NotNull ICloudService cloudService, @NotNull SignsConfiguration configuration) {
-    var type = cloudService.getServiceConfiguration().getServiceId().getEnvironment();
+  public static void includePluginTo(@NonNull ICloudService cloudService, @NonNull SignsConfiguration configuration) {
+    var type = cloudService.serviceConfiguration().serviceId().environment();
     if (ServiceEnvironmentType.isMinecraftServer(type)
-      && hasConfigurationEntry(cloudService.getServiceConfiguration().getGroups(), configuration)) {
-      var pluginDirectory = cloudService.getDirectory().resolve("plugins");
+      && hasConfigurationEntry(cloudService.serviceConfiguration().groups(), configuration)) {
+      var pluginDirectory = cloudService.directory().resolve("plugins");
       FileUtils.createDirectory(pluginDirectory);
 
       var pluginFile = pluginDirectory.resolve("cloudnet-signs.jar");
@@ -48,9 +48,9 @@ public final class SignPluginInclusion {
     }
   }
 
-  public static boolean hasConfigurationEntry(@NotNull Collection<String> groups, @NotNull SignsConfiguration config) {
-    for (var entry : config.getConfigurationEntries()) {
-      if (groups.contains(entry.getTargetGroup())) {
+  public static boolean hasConfigurationEntry(@NonNull Collection<String> groups, @NonNull SignsConfiguration config) {
+    for (var entry : config.configurationEntries()) {
+      if (groups.contains(entry.targetGroup())) {
         return true;
       }
     }

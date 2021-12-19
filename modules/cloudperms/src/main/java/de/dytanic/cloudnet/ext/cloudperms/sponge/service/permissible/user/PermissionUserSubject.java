@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.ext.cloudperms.sponge.service.permissible.AbstractSubject;
 import java.util.Collections;
 import java.util.List;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.spongepowered.api.service.permission.SubjectCollection;
 import org.spongepowered.api.service.permission.SubjectData;
 import org.spongepowered.api.service.permission.SubjectReference;
@@ -38,12 +38,12 @@ final class PermissionUserSubject extends AbstractSubject<PermissionUser> {
   }
 
   @Override
-  protected boolean isChild(@NotNull String parent) {
+  protected boolean isChild(@NonNull String parent) {
     return false;
   }
 
   @Override
-  protected @NotNull List<? extends SubjectReference> getParents() {
+  protected @NonNull List<? extends SubjectReference> getParents() {
     return Collections.emptyList();
   }
 

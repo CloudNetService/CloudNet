@@ -18,28 +18,26 @@ package de.dytanic.cloudnet.ext.bridge.node.listener;
 
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.event.EventListener;
-import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.util.DefaultModuleHelper;
-import de.dytanic.cloudnet.event.service.CloudServicePreLifecycleEvent;
+import de.dytanic.cloudnet.event.service.CloudServicePreProcessStartEvent;
 import de.dytanic.cloudnet.ext.bridge.BridgeManagement;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class BridgePluginIncludeListener {
 
   private final BridgeManagement management;
 
-  public BridgePluginIncludeListener(@NotNull BridgeManagement management) {
+  public BridgePluginIncludeListener(@NonNull BridgeManagement management) {
     this.management = management;
   }
 
   @EventListener
-  public void handle(@NotNull CloudServicePreLifecycleEvent event) {
+  public void handle(@NonNull CloudServicePreProcessStartEvent event) {
     // check if we should copy the module
-    if (event.getTargetLifecycle() == ServiceLifeCycle.RUNNING
-      && this.management.getConfiguration().getExcludedGroups().stream()
-      .noneMatch(group -> event.getService().getServiceConfiguration().getGroups().contains(group))) {
+    if (this.management.configuration().excludedGroups().stream()
+      .noneMatch(group -> event.service().serviceConfiguration().groups().contains(group))) {
       // get the target of the copy
-      var plugins = event.getService().getDirectory().resolve("plugins");
+      var plugins = event.service().directory().resolve("plugins");
       FileUtils.createDirectory(plugins);
       // remove the old bridge plugin
       var bridgePluginFile = plugins.resolve("cloudnet-bridge.jar");
@@ -49,7 +47,7 @@ public final class BridgePluginIncludeListener {
         // copy the plugin.yml file for the environment
         DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(
           BridgePluginIncludeListener.class,
-          event.getService().getServiceId().getEnvironment(),
+          event.service().serviceId().environment(),
           bridgePluginFile);
       }
     }

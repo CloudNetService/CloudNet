@@ -30,21 +30,20 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
 import de.dytanic.cloudnet.util.NetworkAddressUtil;
 import java.util.Collection;
-import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class DefaultConfigSetup extends DefaultClusterSetup {
 
   private static final Collection<String> DEFAULT_WHITELIST = ImmutableSet.<String>builder()
     .add("127.0.0.1")
     .add("127.0.1.1")
-    .addAll(NetworkAddressUtil.getAvailableIpAddresses())
+    .addAll(NetworkAddressUtil.availableIPAddresses())
     .build();
 
   @Override
-  public void applyQuestions(@NotNull ConsoleSetupAnimation animation) {
+  public void applyQuestions(@NonNull ConsoleSetupAnimation animation) {
     // pre-save all available ip addresses
-    Collection<String> addresses = NetworkAddressUtil.getAvailableIpAddresses();
+    Collection<String> addresses = NetworkAddressUtil.availableIPAddresses();
     // apply the questions
     animation.addEntries(
       // eula agreement
@@ -69,8 +68,8 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
         .key("internalHost")
         .translatedQuestion("cloudnet-init-setup-internal-host")
         .answerType(QuestionAnswerType.<HostAndPort>builder()
-          .recommendation(NetworkAddressUtil.getLocalAddress() + ":1410")
-          .possibleResults(addresses.stream().map(addr -> addr + ":1410").collect(Collectors.toList()))
+          .recommendation(NetworkAddressUtil.localAddress() + ":1410")
+          .possibleResults(addresses.stream().map(addr -> addr + ":1410").toList())
           .parser(validatedHostAndPort(true)))
         .build(),
       // web server host
@@ -78,8 +77,8 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
         .key("webHost")
         .translatedQuestion("cloudnet-init-setup-web-host")
         .answerType(QuestionAnswerType.<HostAndPort>builder()
-          .recommendation(NetworkAddressUtil.getLocalAddress() + ":2812")
-          .possibleResults(addresses.stream().map(addr -> addr + ":2812").collect(Collectors.toList()))
+          .recommendation(NetworkAddressUtil.localAddress() + ":2812")
+          .possibleResults(addresses.stream().map(addr -> addr + ":2812").toList())
           .parser(validatedHostAndPort(true)))
         .build(),
       // service bind host address
@@ -88,7 +87,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
         .translatedQuestion("cloudnet-init-setup-host-address")
         .answerType(QuestionAnswerType.<HostAndPort>builder()
           .possibleResults(addresses)
-          .recommendation(NetworkAddressUtil.getLocalAddress())
+          .recommendation(NetworkAddressUtil.localAddress())
           .parser(validatedHostAndPort(false)))
         .build(),
       // maximum memory usage
@@ -106,30 +105,30 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
   }
 
   @Override
-  public void handleResults(@NotNull ConsoleSetupAnimation animation) {
-    var config = CloudNet.getInstance().getConfig();
+  public void handleResults(@NonNull ConsoleSetupAnimation animation) {
+    var config = CloudNet.instance().config();
     // init the local node identity
-    HostAndPort host = animation.getResult("internalHost");
-    config.setIdentity(new NetworkClusterNode(
-      animation.hasResult("nodeId") ? animation.getResult("nodeId") : "Node-1",
+    HostAndPort host = animation.result("internalHost");
+    config.identity(new NetworkClusterNode(
+      animation.hasResult("nodeId") ? animation.result("nodeId") : "Node-1",
       new HostAndPort[]{host}));
     // whitelist the host address
-    config.getIpWhitelist().add(host.getHost());
+    config.ipWhitelist().add(host.host());
 
     // init the host address
-    HostAndPort hostAddress = animation.getResult("hostAddress");
-    config.setHostAddress(hostAddress.getHost());
-    config.setConnectHostAddress(hostAddress.getHost());
+    HostAndPort hostAddress = animation.result("hostAddress");
+    config.hostAddress(hostAddress.host());
+    config.connectHostAddress(hostAddress.host());
 
     // init the web host address
-    config.getHttpListeners().clear();
-    config.getHttpListeners().add(animation.getResult("webHost"));
+    config.httpListeners().clear();
+    config.httpListeners().add(animation.result("webHost"));
 
     // set the maximum memory
-    config.setMaxMemory(animation.getResult("memory"));
+    config.maxMemory(animation.result("memory"));
 
     // whitelist all default addresses and finish by saving the config
-    config.getIpWhitelist().addAll(DEFAULT_WHITELIST);
+    config.ipWhitelist().addAll(DEFAULT_WHITELIST);
     config.save();
 
     // apply animation results of the cluster setup

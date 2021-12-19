@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.event.command;
 
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.driver.event.Event;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class CommandNotFoundEvent extends Event {
 
@@ -27,9 +27,9 @@ public class CommandNotFoundEvent extends Event {
   private String response;
 
   public CommandNotFoundEvent(
-    @NotNull CommandSource commandSource,
-    @NotNull String commandLine,
-    @NotNull String response
+    @NonNull CommandSource commandSource,
+    @NonNull String commandLine,
+    @NonNull String response
   ) {
     this.commandSource = commandSource;
     this.commandLine = commandLine;
@@ -39,24 +39,24 @@ public class CommandNotFoundEvent extends Event {
   /**
    * @return the command source that executed the command.
    */
-  @NotNull
-  public CommandSource getCommandSource() {
+  @NonNull
+  public CommandSource commandSource() {
     return this.commandSource;
   }
 
   /**
    * @return the executed commandline.
    */
-  @NotNull
-  public String getCommandLine() {
+  @NonNull
+  public String commandLine() {
     return this.commandLine;
   }
 
   /**
    * @return the translated invalid syntax message that is the user will receive
    */
-  @NotNull
-  public String getResponse() {
+  @NonNull
+  public String response() {
     return this.response;
   }
 
@@ -65,7 +65,7 @@ public class CommandNotFoundEvent extends Event {
    *
    * @param response the message that the user will receive
    */
-  public void setResponse(@NotNull String response) {
+  public void response(@NonNull String response) {
     this.response = response;
   }
 }

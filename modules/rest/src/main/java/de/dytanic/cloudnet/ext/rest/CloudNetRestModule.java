@@ -51,13 +51,13 @@ public final class CloudNetRestModule extends DriverModule {
 
   @ModuleTask(order = 120, event = ModuleLifeCycle.STARTED)
   public void initHttpHandlers() {
-    CloudNet.getInstance().getHttpServer()
+    CloudNet.instance().httpServer()
       // v2 openapi specification
       .registerHandler("/api/v2/documentation", IHttpHandler.PRIORITY_NORMAL, new StaticContentHttpHandler(
-        ContentStreamProvider.classLoader(this.getClassLoader(), "documentation")
+        ContentStreamProvider.classLoader(this.classLoader(), "documentation")
       ))
       .registerHandler("/api/v2/documentation/*", IHttpHandler.PRIORITY_LOW, new StaticContentHttpHandler(
-        ContentStreamProvider.classLoader(this.getClassLoader(), "documentation")
+        ContentStreamProvider.classLoader(this.classLoader(), "documentation")
       ))
       // v2 rest auth
       .registerHandler("/api/v2/auth", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerAuthorization())

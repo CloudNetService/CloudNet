@@ -17,10 +17,10 @@
 package de.dytanic.cloudnet.console;
 
 import java.util.regex.Pattern;
+import lombok.NonNull;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Attribute;
 import org.fusesource.jansi.Ansi.Color;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public enum ConsoleColor {
@@ -62,7 +62,7 @@ public enum ConsoleColor {
     this.ansiCode = ansiCode;
   }
 
-  public static @NotNull String toColouredString(char triggerChar, @NotNull String text) {
+  public static @NonNull String toColouredString(char triggerChar, @NonNull String text) {
     var content = convertRGBColors(triggerChar, text);
 
     var breakIndex = content.length() - 1;
@@ -70,7 +70,7 @@ public enum ConsoleColor {
       if (content.charAt(i) == triggerChar) {
         var format = LOOKUP.indexOf(content.charAt(i + 1));
         if (format != -1) {
-          var ansiCode = VALUES[format].getAnsiCode();
+          var ansiCode = VALUES[format].ansiCode();
 
           content.delete(i, i + 2).insert(i, ansiCode);
           breakIndex += ansiCode.length() - 2;
@@ -81,7 +81,7 @@ public enum ConsoleColor {
     return content.toString();
   }
 
-  private static @NotNull StringBuffer convertRGBColors(char triggerChar, @NotNull String input) {
+  private static @NonNull StringBuffer convertRGBColors(char triggerChar, @NonNull String input) {
     var matcher = Pattern.compile(triggerChar + "#([0-9a-fA-F]){6}").matcher(input);
     var stringBuffer = new StringBuffer();
 
@@ -97,7 +97,7 @@ public enum ConsoleColor {
     return stringBuffer;
   }
 
-  public static @NotNull String stripColor(char triggerChar, @NotNull String input) {
+  public static @NonNull String stripColor(char triggerChar, @NonNull String input) {
     var content = stripRGBColors(triggerChar, input);
 
     var breakIndex = content.length() - 1;
@@ -111,7 +111,7 @@ public enum ConsoleColor {
     return content.toString();
   }
 
-  private static @NotNull StringBuffer stripRGBColors(char triggerChar, @NotNull String input) {
+  private static @NonNull StringBuffer stripRGBColors(char triggerChar, @NonNull String input) {
     var matcher = Pattern.compile(triggerChar + "#([0-9a-fA-F]){6}").matcher(input);
     var stringBuffer = new StringBuffer();
 
@@ -123,7 +123,7 @@ public enum ConsoleColor {
     return stringBuffer;
   }
 
-  public static @Nullable ConsoleColor getByChar(char index) {
+  public static @Nullable ConsoleColor byChar(char index) {
     for (var color : VALUES) {
       if (color.index == index) {
         return color;
@@ -133,29 +133,29 @@ public enum ConsoleColor {
     return null;
   }
 
-  public static @Nullable ConsoleColor getLastColour(char triggerChar, @NotNull String text) {
+  public static @Nullable ConsoleColor lastColor(char triggerChar, @NonNull String text) {
     text = text.trim();
     if (text.length() > 2 && text.charAt(text.length() - 2) == triggerChar) {
-      return getByChar(text.charAt(text.length() - 1));
+      return byChar(text.charAt(text.length() - 1));
     }
 
     return null;
   }
 
   @Override
-  public @NotNull String toString() {
+  public @NonNull String toString() {
     return this.ansiCode;
   }
 
-  public @NotNull String getName() {
+  public @NonNull String displayName() {
     return this.name;
   }
 
-  public @NotNull String getAnsiCode() {
+  public @NonNull String ansiCode() {
     return this.ansiCode;
   }
 
-  public char getIndex() {
+  public char index() {
     return this.index;
   }
 }

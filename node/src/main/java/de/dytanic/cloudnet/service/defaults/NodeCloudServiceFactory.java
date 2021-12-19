@@ -33,7 +33,7 @@ import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class NodeCloudServiceFactory implements CloudServiceFactory {
@@ -41,21 +41,21 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
   private final ICloudServiceManager serviceManager;
   private final IClusterNodeServerProvider nodeServerProvider;
 
-  public NodeCloudServiceFactory(@NotNull CloudNet nodeInstance) {
-    this.serviceManager = nodeInstance.getCloudServiceProvider();
-    this.nodeServerProvider = nodeInstance.getClusterNodeServerProvider();
+  public NodeCloudServiceFactory(@NonNull CloudNet nodeInstance) {
+    this.serviceManager = nodeInstance.cloudServiceProvider();
+    this.nodeServerProvider = nodeInstance.nodeServerProvider();
 
-    nodeInstance.getEventManager().registerListener(new ServiceChannelMessageListener(
-      nodeInstance.getEventManager(),
+    nodeInstance.eventManager().registerListener(new ServiceChannelMessageListener(
+      nodeInstance.eventManager(),
       this.serviceManager,
       this));
-    nodeInstance.getRPCProviderFactory().newHandler(CloudServiceFactory.class, this).registerToDefaultRegistry();
+    nodeInstance.rpcProviderFactory().newHandler(CloudServiceFactory.class, this).registerToDefaultRegistry();
   }
 
   @Override
   public @Nullable ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration) {
     // check if this node can start services
-    if (this.nodeServerProvider.getHeadNode().equals(this.nodeServerProvider.getSelfNode())) {
+    if (this.nodeServerProvider.headnode().equals(this.nodeServerProvider.selfNode())) {
       // prepare the service configuration
       this.replaceServiceId(serviceConfiguration);
       this.replaceServiceUniqueId(serviceConfiguration);
@@ -66,24 +66,24 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
       if (nodeServer != null) {
         return this.sendNodeServerStartRequest(
           "head_node_to_node_start_service",
-          nodeServer.getNodeInfo().getUniqueId(),
+          nodeServer.nodeInfo().uniqueId(),
           serviceConfiguration);
       }
       // start the service on the local node
-      return this.serviceManager.createLocalCloudService(serviceConfiguration).getServiceInfoSnapshot();
+      return this.serviceManager.createLocalCloudService(serviceConfiguration).serviceInfo();
     } else {
       // send a request to the head node to start a service on the best node server
       return this.sendNodeServerStartRequest(
         "node_to_head_start_service",
-        this.nodeServerProvider.getHeadNode().getNodeInfo().getUniqueId(),
+        this.nodeServerProvider.headnode().nodeInfo().uniqueId(),
         serviceConfiguration);
     }
   }
 
   protected @Nullable ServiceInfoSnapshot sendNodeServerStartRequest(
-    @NotNull String message,
-    @NotNull String targetNode,
-    @NotNull ServiceConfiguration configuration
+    @NonNull String message,
+    @NonNull String targetNode,
+    @NonNull ServiceConfiguration configuration
   ) {
     // send a request to the node to start a service
     var result = ChannelMessage.builder()
@@ -95,90 +95,90 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
       .sendSingleQueryAsync()
       .get(5, TimeUnit.SECONDS, null);
     // read the result service info from the buffer
-    return result == null ? null : result.getContent().readObject(ServiceInfoSnapshot.class);
+    return result == null ? null : result.content().readObject(ServiceInfoSnapshot.class);
   }
 
-  protected @Nullable IClusterNodeServer peekLogicNodeServer(@NotNull ServiceConfiguration configuration) {
+  protected @Nullable IClusterNodeServer peekLogicNodeServer(@NonNull ServiceConfiguration configuration) {
     // check if the node is already specified
-    if (configuration.getServiceId().getNodeUniqueId() != null) {
-      var server = this.nodeServerProvider.getNodeServer(configuration.getServiceId().getNodeUniqueId());
-      return server == null || !server.isAvailable() ? null : server;
+    if (configuration.serviceId().nodeUniqueId() != null) {
+      var server = this.nodeServerProvider.nodeServer(configuration.serviceId().nodeUniqueId());
+      return server == null || !server.available() ? null : server;
     }
     // extract the max heap memory from the snapshot which will be used for later memory usage comparison
-    var mh = configuration.getProcessConfig().getMaxHeapMemorySize();
+    var mh = configuration.processConfig().maxHeapMemorySize();
     // find the best node server
-    return this.nodeServerProvider.getNodeServers().stream()
-      .filter(IClusterNodeServer::isAvailable)
+    return this.nodeServerProvider.nodeServers().stream()
+      .filter(IClusterNodeServer::available)
       // only allow service start on nodes that are not marked for draining
-      .filter(nodeServer -> !nodeServer.getNodeInfoSnapshot().isDrain())
+      .filter(nodeServer -> !nodeServer.nodeInfoSnapshot().draining())
       .filter(server -> {
-        var allowedNodes = configuration.getServiceId().getAllowedNodes();
-        return allowedNodes.isEmpty() || allowedNodes.contains(server.getNodeInfo().getUniqueId());
+        var allowedNodes = configuration.serviceId().allowedNodes();
+        return allowedNodes.isEmpty() || allowedNodes.contains(server.nodeInfo().uniqueId());
       })
       .min((left, right) -> {
         // begin by comparing the heap memory usage
         var chain = ComparisonChain.start()
-          .compare(left.getNodeInfoSnapshot().getUsedMemory() + mh, right.getNodeInfoSnapshot().getUsedMemory() + mh);
+          .compare(left.nodeInfoSnapshot().usedMemory() + mh, right.nodeInfoSnapshot().usedMemory() + mh);
         // only include the cpu usage if both nodes can provide a value
-        if (left.getNodeInfoSnapshot().getProcessSnapshot().getSystemCpuUsage() >= 0
-          && right.getNodeInfoSnapshot().getProcessSnapshot().getSystemCpuUsage() >= 0) {
+        if (left.nodeInfoSnapshot().processSnapshot().systemCpuUsage() >= 0
+          && right.nodeInfoSnapshot().processSnapshot().systemCpuUsage() >= 0) {
           // add the system usage to the chain
           chain = chain.compare(
-            left.getNodeInfoSnapshot().getProcessSnapshot().getSystemCpuUsage(),
-            right.getNodeInfoSnapshot().getProcessSnapshot().getSystemCpuUsage());
+            left.nodeInfoSnapshot().processSnapshot().systemCpuUsage(),
+            right.nodeInfoSnapshot().processSnapshot().systemCpuUsage());
         }
         // use the result of the comparison
         return chain.result();
       }).orElse(null);
   }
 
-  protected void includeGroupComponents(@NotNull ServiceConfiguration configuration) {
+  protected void includeGroupComponents(@NonNull ServiceConfiguration configuration) {
     // include all groups which are matching the service configuration
-    CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfigurations().stream()
-      .filter(group -> group.getTargetEnvironments().contains(configuration.getServiceId().getEnvironmentName()))
-      .forEach(group -> configuration.getGroups().add(group.getName()));
+    CloudNet.instance().groupConfigurationProvider().groupConfigurations().stream()
+      .filter(group -> group.targetEnvironments().contains(configuration.serviceId().environmentName()))
+      .forEach(group -> configuration.groups().add(group.name()));
     // include each group component in the service configuration
-    for (var group : configuration.getGroups()) {
+    for (var group : configuration.groups()) {
       // get the group
-      var config = CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfiguration(group);
+      var config = CloudNet.instance().groupConfigurationProvider().groupConfiguration(group);
       // check if the config is available - add all components if so
       if (config != null) {
-        configuration.getIncludes().addAll(config.getIncludes());
-        configuration.getTemplates().addAll(config.getTemplates());
-        configuration.getDeployments().addAll(config.getDeployments());
+        configuration.includes().addAll(config.includes());
+        configuration.templates().addAll(config.templates());
+        configuration.deployments().addAll(config.deployments());
 
-        configuration.getProcessConfig().getJvmOptions().addAll(config.getJvmOptions());
-        configuration.getProcessConfig().getProcessParameters().addAll(config.getProcessParameters());
+        configuration.processConfig().jvmOptions().addAll(config.jvmOptions());
+        configuration.processConfig().processParameters().addAll(config.processParameters());
       }
     }
   }
 
-  protected void replaceServiceId(@NotNull ServiceConfiguration config) {
+  protected void replaceServiceId(@NonNull ServiceConfiguration config) {
     // check if the service id
-    var serviceId = config.getServiceId().getTaskServiceId();
+    var serviceId = config.serviceId().taskServiceId();
     // check if the service id is invalid
     if (serviceId <= 0) {
       serviceId = 1;
     }
     // check if it is already taken
-    Collection<Integer> takenIds = this.serviceManager.getCloudServicesByTask(config.getServiceId().getTaskName())
+    Collection<Integer> takenIds = this.serviceManager.servicesByTask(config.serviceId().taskName())
       .stream()
-      .map(service -> service.getServiceId().getTaskServiceId())
+      .map(service -> service.serviceId().taskServiceId())
       .collect(Collectors.toSet());
     while (takenIds.contains(serviceId)) {
       serviceId++;
     }
     // update the service id
-    config.getServiceId().setTaskServiceId(serviceId);
+    config.serviceId().taskServiceId(serviceId);
   }
 
-  protected void replaceServiceUniqueId(@NotNull ServiceConfiguration config) {
-    var uniqueId = config.getServiceId().getUniqueId();
+  protected void replaceServiceUniqueId(@NonNull ServiceConfiguration config) {
+    var uniqueId = config.serviceId().uniqueId();
     // check if the unique id is already taken
-    while (this.serviceManager.getCloudService(uniqueId) != null) {
+    while (this.serviceManager.service(uniqueId) != null) {
       uniqueId = UUID.randomUUID();
     }
     // set the new unique id
-    config.getServiceId().setUniqueId(uniqueId);
+    config.serviceId().uniqueId(uniqueId);
   }
 }

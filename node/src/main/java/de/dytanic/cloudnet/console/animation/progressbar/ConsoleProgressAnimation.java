@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.console.animation.AbstractConsoleAnimation;
 import java.text.DecimalFormat;
 import java.time.Duration;
 import java.time.Instant;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Range;
 
 /**
@@ -53,14 +53,14 @@ public class ConsoleProgressAnimation extends AbstractConsoleAnimation {
   public ConsoleProgressAnimation(
     char blockChar,
     char spaceChar,
-    @NotNull String fractions,
+    @NonNull String fractions,
     char leftBracket,
     char rightBracket,
-    @NotNull String prefix,
-    @NotNull String suffix,
+    @NonNull String prefix,
+    @NonNull String suffix,
     long unitSize,
-    @NotNull String unitName,
-    @NotNull DecimalFormat unitFormat,
+    @NonNull String unitName,
+    @NonNull DecimalFormat unitFormat,
     long maximum
   ) {
     super(10);
@@ -113,14 +113,14 @@ public class ConsoleProgressAnimation extends AbstractConsoleAnimation {
     return this.maximum > 0 ? this.current > this.maximum ? 1 : ((double) this.current / this.maximum) : 1;
   }
 
-  protected @NotNull String render() {
+  protected @NonNull String render() {
     var elapsed = Duration.between(this.startInstant, Instant.now());
 
     var prefix = this.replacePlaceholders(this.prefix, elapsed);
     var suffix = this.replacePlaceholders(this.suffix, elapsed);
 
     var length =
-      this.console.getWidth() - 5 - this.console.getDisplayLength(prefix) - this.console.getDisplayLength(suffix);
+      this.console.width() - 5 - this.console.displayLength(prefix) - this.console.displayLength(suffix);
 
     var builder = new StringBuilder(prefix).append(this.leftBracket);
     // append the full blocks
@@ -136,7 +136,7 @@ public class ConsoleProgressAnimation extends AbstractConsoleAnimation {
     return builder.append(this.rightBracket).append(suffix).toString();
   }
 
-  protected @NotNull String formatPercentage() {
+  protected @NonNull String formatPercentage() {
     String percent;
     if (this.maximum > 0) {
       percent = (int) Math.floor(100D * this.current / this.maximum) + "%";
@@ -147,7 +147,7 @@ public class ConsoleProgressAnimation extends AbstractConsoleAnimation {
     return " ".repeat(4 - percent.length()) + percent;
   }
 
-  protected @NotNull String formatSpeed(@NotNull Duration elapsed) {
+  protected @NonNull String formatSpeed(@NonNull Duration elapsed) {
     // check if no time yet elapsed
     if (elapsed.getSeconds() == 0) {
       return "?" + this.unitName + "/s";
@@ -157,7 +157,7 @@ public class ConsoleProgressAnimation extends AbstractConsoleAnimation {
     return this.unitFormat.format(speed) + this.unitName + "/s";
   }
 
-  protected @NotNull String formatRatio() {
+  protected @NonNull String formatRatio() {
     // convert current and max to united values
     var unitedCurrent = String.valueOf(this.current / this.unitSize);
     var unitedMaximum = String.valueOf(this.maximum / this.unitSize);
@@ -169,12 +169,12 @@ public class ConsoleProgressAnimation extends AbstractConsoleAnimation {
       this.unitName);
   }
 
-  protected @NotNull String formatElapsedTime(@NotNull Duration duration) {
+  protected @NonNull String formatElapsedTime(@NonNull Duration duration) {
     var seconds = duration.getSeconds();
     return String.format("%d:%02d:%02d", seconds / 3600, (seconds % 3600) / 60, seconds % 60);
   }
 
-  protected @NotNull String formatEta(@NotNull Duration elapsed) {
+  protected @NonNull String formatEta(@NonNull Duration elapsed) {
     return this.maximum <= 0 || this.current <= 0
       ? this.formatElapsedTime(elapsed)
       : this.formatElapsedTime(elapsed.dividedBy(this.current).multipliedBy(this.maximum - this.current));
@@ -185,7 +185,7 @@ public class ConsoleProgressAnimation extends AbstractConsoleAnimation {
     return (int) Math.floor((full - Math.floor(full)) * this.fractions.length());
   }
 
-  protected @NotNull String replacePlaceholders(@NotNull String input, @NotNull Duration elapsed) {
+  protected @NonNull String replacePlaceholders(@NonNull String input, @NonNull Duration elapsed) {
     return input
       .replace("%ratio%", this.formatRatio())
       .replace("%eta%", this.formatEta(elapsed))
@@ -194,11 +194,11 @@ public class ConsoleProgressAnimation extends AbstractConsoleAnimation {
       .replace("%elapsed%", this.formatElapsedTime(elapsed));
   }
 
-  public long getCurrent() {
+  public long current() {
     return this.current;
   }
 
-  public long getMaximum() {
+  public long maximum() {
     return this.maximum;
   }
 }

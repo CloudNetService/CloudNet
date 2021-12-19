@@ -27,39 +27,39 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.UnmodifiableView;
 
 public interface ICloudServiceManager extends GeneralCloudServiceProvider {
 
-  @NotNull
-  Collection<ICloudServiceFactory> getCloudServiceFactories();
+  @NonNull
+  Collection<ICloudServiceFactory> cloudServiceFactories();
 
-  @NotNull
-  Optional<ICloudServiceFactory> getCloudServiceFactory(@NotNull String runtime);
+  @NonNull
+  Optional<ICloudServiceFactory> cloudServiceFactory(@NonNull String runtime);
 
-  void addCloudServiceFactory(@NotNull String runtime, @NotNull ICloudServiceFactory factory);
+  void addCloudServiceFactory(@NonNull String runtime, @NonNull ICloudServiceFactory factory);
 
-  void removeCloudServiceFactory(@NotNull String runtime);
+  void removeCloudServiceFactory(@NonNull String runtime);
 
-  @NotNull
-  Collection<ServiceConfigurationPreparer> getServicePreparers();
+  @NonNull
+  Collection<ServiceConfigurationPreparer> servicePreparers();
 
-  @NotNull
-  Optional<ServiceConfigurationPreparer> getServicePreparer(@NotNull ServiceEnvironmentType environmentType);
+  @NonNull
+  Optional<ServiceConfigurationPreparer> servicePreparer(@NonNull ServiceEnvironmentType environmentType);
 
-  void addServicePreparer(@NotNull ServiceEnvironmentType type, @NotNull ServiceConfigurationPreparer preparer);
+  void addServicePreparer(@NonNull ServiceEnvironmentType type, @NonNull ServiceConfigurationPreparer preparer);
 
-  void removeServicePreparer(@NotNull ServiceEnvironmentType type);
+  void removeServicePreparer(@NonNull ServiceEnvironmentType type);
 
-  @NotNull
-  Path getTempDirectoryPath();
+  @NonNull
+  Path tempDirectory();
 
-  @NotNull
-  Path getPersistentServicesDirectoryPath();
+  @NonNull
+  Path persistentServicesDirectory();
 
   void startAllCloudServices();
 
@@ -67,34 +67,34 @@ public interface ICloudServiceManager extends GeneralCloudServiceProvider {
 
   void deleteAllCloudServices();
 
-  int getCurrentUsedHeapMemory();
+  int currentUsedHeapMemory();
 
-  int getCurrentReservedMemory();
+  int currentReservedMemory();
 
-  @NotNull
-  @UnmodifiableView Collection<ICloudService> getLocalCloudServices();
-
-  @Nullable
-  ICloudService getLocalCloudService(@NotNull String name);
+  @NonNull
+  @UnmodifiableView Collection<ICloudService> localCloudServices();
 
   @Nullable
-  ICloudService getLocalCloudService(@NotNull UUID uniqueId);
+  ICloudService localCloudService(@NonNull String name);
 
   @Nullable
-  ICloudService getLocalCloudService(@NotNull ServiceInfoSnapshot snapshot);
+  ICloudService localCloudService(@NonNull UUID uniqueId);
+
+  @Nullable
+  ICloudService localCloudService(@NonNull ServiceInfoSnapshot snapshot);
 
   @Internal
-  void registerLocalService(@NotNull ICloudService service);
+  void registerLocalService(@NonNull ICloudService service);
 
   @Internal
-  void unregisterLocalService(@NotNull ICloudService service);
+  void unregisterLocalService(@NonNull ICloudService service);
 
   @Internal
-  void handleServiceUpdate(@NotNull ServiceInfoSnapshot snapshot, @UnknownNullability INetworkChannel source);
+  void handleServiceUpdate(@NonNull ServiceInfoSnapshot snapshot, @UnknownNullability INetworkChannel source);
 
   @Internal
-  @NotNull ICloudService createLocalCloudService(@NotNull ServiceConfiguration serviceConfiguration);
+  @NonNull ICloudService createLocalCloudService(@NonNull ServiceConfiguration serviceConfiguration);
 
   @Internal
-  @NotNull SpecificCloudServiceProvider selectOrCreateService(@NotNull ServiceTask task);
+  @NonNull SpecificCloudServiceProvider selectOrCreateService(@NonNull ServiceTask task);
 }

@@ -20,8 +20,8 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.document.property.JsonDocPropertyHolder;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
@@ -30,22 +30,26 @@ public class NetworkClusterNode extends JsonDocPropertyHolder {
   private final String uniqueId;
   private final HostAndPort[] listeners;
 
-  public NetworkClusterNode(String uniqueId, HostAndPort[] listeners) {
+  public NetworkClusterNode(@NonNull String uniqueId, @NonNull HostAndPort[] listeners) {
     this.uniqueId = uniqueId;
     this.listeners = listeners;
   }
 
-  public NetworkClusterNode(String uniqueId, HostAndPort[] listeners, JsonDocument properties) {
+  public NetworkClusterNode(
+    @NonNull String uniqueId,
+    @NonNull HostAndPort[] listeners,
+    @NonNull JsonDocument properties
+  ) {
     this.uniqueId = uniqueId;
     this.listeners = listeners;
     this.properties = properties;
   }
 
-  public @NotNull String getUniqueId() {
+  public @NonNull String uniqueId() {
     return this.uniqueId;
   }
 
-  public @NotNull HostAndPort[] getListeners() {
+  public @NonNull HostAndPort[] listeners() {
     return this.listeners;
   }
 }

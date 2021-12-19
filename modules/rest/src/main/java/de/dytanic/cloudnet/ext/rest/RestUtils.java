@@ -24,11 +24,11 @@ public final class RestUtils {
     throw new UnsupportedOperationException();
   }
 
-  public static <T> T getFirst(Iterable<T> iterable) {
-    return getFirst(iterable, null);
+  public static <T> T first(Iterable<T> iterable) {
+    return first(iterable, null);
   }
 
-  public static <T> T getFirst(Iterable<T> iterable, T def) {
+  public static <T> T first(Iterable<T> iterable, T def) {
     if (iterable == null) {
       return def;
     } else {

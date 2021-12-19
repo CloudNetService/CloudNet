@@ -25,8 +25,8 @@ public final class NukkitBridgePlugin extends PluginBase {
 
   @Override
   public void onEnable() {
-    PlatformBridgeManagement<?, ?> management = new NukkitBridgeManagement(Wrapper.getInstance());
-    management.registerServices(Wrapper.getInstance().getServicesRegistry());
+    PlatformBridgeManagement<?, ?> management = new NukkitBridgeManagement(Wrapper.instance());
+    management.registerServices(Wrapper.instance().servicesRegistry());
     management.postInit();
     // register the listener
     Server.getInstance().getPluginManager().registerEvents(new NukkitPlayerManagementListener(this, management), this);

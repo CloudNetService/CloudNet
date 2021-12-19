@@ -26,20 +26,18 @@ import de.dytanic.cloudnet.service.ICloudService;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class Record {
+/**
+ * Constructs a new record with the already resolved directory for the record.
+ *
+ * @param directory the directory to store the record files in
+ * @param service   the service that this record is used for
+ */
+public record RecordMaker(@NonNull Path directory, @NonNull ICloudService service) {
 
-  private static final Logger LOGGER = LogManager.getLogger(Record.class);
-
-  private final Path directory;
-  private final ICloudService service;
-
-  private Record(Path directory, ICloudService service) {
-    this.directory = directory;
-    this.service = service;
-  }
+  private static final Logger LOGGER = LogManager.logger(RecordMaker.class);
 
   /**
    * Constructs a new Record with the given baseDirectory, the resulting directory is resolved with the name and the
@@ -49,9 +47,9 @@ public final class Record {
    * @param service       the service that this record is used for
    * @return the new Record for the service, null if the directory for the services already exists
    */
-  public static @Nullable Record forService(@NotNull Path baseDirectory, @NotNull ICloudService service) {
+  public static @Nullable RecordMaker forService(@NonNull Path baseDirectory, @NonNull ICloudService service) {
     var directory = baseDirectory.resolve(
-      service.getServiceId().getName() + "-" + service.getServiceId().getUniqueId()).normalize().toAbsolutePath();
+      service.serviceId().name() + "-" + service.serviceId().uniqueId()).normalize().toAbsolutePath();
 
     if (Files.exists(directory)) {
       return null;
@@ -68,8 +66,8 @@ public final class Record {
    * @param service   the service that this record is used for
    * @return the new Record for the service
    */
-  public static Record of(@NotNull Path directory, @NotNull ICloudService service) {
-    return new Record(directory, service);
+  public static RecordMaker of(@NonNull Path directory, @NonNull ICloudService service) {
+    return new RecordMaker(directory, service);
   }
 
   /**
@@ -81,12 +79,12 @@ public final class Record {
       var targetDirectory = this.directory.resolve("logs");
       FileUtils.createDirectory(targetDirectory);
 
-      if (this.service.getServiceId().getEnvironment().equals(ServiceEnvironmentType.BUNGEECORD)) {
-        FileUtils.walkFileTree(this.service.getDirectory(),
+      if (this.service.serviceId().environment().equals(ServiceEnvironmentType.BUNGEECORD)) {
+        FileUtils.walkFileTree(this.service.directory(),
           (root, current) -> FileUtils.copy(current, targetDirectory.resolve(root.relativize(current))), false,
           "proxy.log*");
       } else {
-        FileUtils.copyDirectory(this.service.getDirectory().resolve("logs"), targetDirectory);
+        FileUtils.copyDirectory(this.service.directory().resolve("logs"), targetDirectory);
       }
     } catch (Exception exception) {
       LOGGER.severe("Exception while creating directory", exception);
@@ -98,7 +96,7 @@ public final class Record {
    */
   public void writeCachedConsoleLog() {
     try {
-      Files.write(this.directory.resolve("cachedConsoleLog.txt"), this.service.getCachedLogMessages());
+      Files.write(this.directory.resolve("cachedConsoleLog.txt"), this.service.cachedLogMessages());
     } catch (IOException exception) {
       LOGGER.severe("Unable to write cached console logs", exception);
     }
@@ -109,8 +107,8 @@ public final class Record {
    * de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot} ServiceInfoSnapshot of the service.
    */
   public void writeServiceInfoSnapshot() {
-    JsonDocument.newDocument("serviceInfoSnapshot", this.service.getServiceInfoSnapshot())
-      .append("lastServiceInfoSnapshot", this.service.getLastServiceInfoSnapshot())
+    JsonDocument.newDocument("serviceInfoSnapshot", this.service.serviceInfo())
+      .append("lastServiceInfoSnapshot", this.service.lastServiceInfoSnapshot())
       .write(this.directory.resolve("ServiceInfoSnapshots.json"));
   }
 
@@ -119,8 +117,7 @@ public final class Record {
    */
   public void notifySuccess() {
     LOGGER.info(I18n.trans("module-report-create-record-success")
-      .replace("%service%", this.service.getServiceId().getName())
+      .replace("%service%", this.service.serviceId().name())
       .replace("%file%", this.directory.toString()));
   }
-
 }

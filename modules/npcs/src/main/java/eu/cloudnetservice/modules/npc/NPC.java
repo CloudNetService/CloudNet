@@ -28,7 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class NPC extends JsonDocPropertyHolder {
@@ -63,22 +63,22 @@ public class NPC extends JsonDocPropertyHolder {
   private final Map<Integer, String> items;
 
   protected NPC(
-    @NotNull NPCType npcType,
-    @NotNull String targetGroup,
-    @NotNull String displayName,
-    @NotNull List<String> infoLines,
-    @NotNull WorldPosition location,
+    @NonNull NPCType npcType,
+    @NonNull String targetGroup,
+    @NonNull String displayName,
+    @NonNull List<String> infoLines,
+    @NonNull WorldPosition location,
     boolean lookAtPlayer,
     boolean imitatePlayer,
     boolean usePlayerSkin,
     boolean glowing,
-    @NotNull String glowingColor,
+    @NonNull String glowingColor,
     boolean flyingWithElytra,
     @Nullable String floatingItem,
-    @NotNull ClickAction leftClickAction,
-    @NotNull ClickAction rightClickAction,
-    @NotNull Map<Integer, String> items,
-    @NotNull JsonDocument properties
+    @NonNull ClickAction leftClickAction,
+    @NonNull ClickAction rightClickAction,
+    @NonNull Map<Integer, String> items,
+    @NonNull JsonDocument properties
   ) {
     this.npcType = npcType;
     this.targetGroup = targetGroup;
@@ -98,102 +98,102 @@ public class NPC extends JsonDocPropertyHolder {
     this.properties = properties;
   }
 
-  public static @NotNull Builder builder() {
+  public static @NonNull Builder builder() {
     return new Builder();
   }
 
-  public static @NotNull Builder builder(@NotNull NPC npc) {
+  public static @NonNull Builder builder(@NonNull NPC npc) {
     var builder = builder()
-      .targetGroup(npc.getTargetGroup())
-      .displayName(npc.getDisplayName())
-      .infoLines(npc.getInfoLines())
-      .location(npc.getLocation())
-      .lookAtPlayer(npc.isLookAtPlayer())
-      .imitatePlayer(npc.isImitatePlayer())
-      .usePlayerSkin(npc.isUsePlayerSkin())
-      .glowing(npc.isGlowing())
-      .glowingColor(npc.getGlowingColor())
-      .flyingWithElytra(npc.isFlyingWithElytra())
-      .floatingItem(npc.getFloatingItem())
-      .leftClickAction(npc.getLeftClickAction())
-      .rightClickAction(npc.getRightClickAction())
-      .items(npc.getItems());
+      .targetGroup(npc.targetGroup())
+      .displayName(npc.displayName())
+      .infoLines(npc.infoLines())
+      .location(npc.location())
+      .lookAtPlayer(npc.lookAtPlayer())
+      .imitatePlayer(npc.imitatePlayer())
+      .usePlayerSkin(npc.usePlayerSkin())
+      .glowing(npc.glowing())
+      .glowingColor(npc.glowingColor())
+      .flyingWithElytra(npc.flyingWithElytra())
+      .floatingItem(npc.floatingItem())
+      .leftClickAction(npc.leftClickAction())
+      .rightClickAction(npc.rightClickAction())
+      .items(npc.items());
     // copy the entity type
-    if (npc.getNpcType() == NPCType.ENTITY) {
-      builder.entityType(npc.getEntityType());
+    if (npc.npcType() == NPCType.ENTITY) {
+      builder.entityType(npc.entityType());
     } else {
-      builder.profileProperties(npc.getProfileProperties());
+      builder.profileProperties(npc.profileProperties());
     }
     return builder;
   }
 
-  public @NotNull String getEntityType() {
+  public @NonNull String entityType() {
     Verify.verify(this.npcType == NPCType.ENTITY, "type must be entity to get the entity type");
     return this.properties.getString("entityType");
   }
 
-  public @NotNull Set<ProfileProperty> getProfileProperties() {
+  public @NonNull Set<ProfileProperty> profileProperties() {
     Verify.verify(this.npcType == NPCType.PLAYER, "type must be player to the profile properties");
     return this.properties.get("profileProperties", PROPERTIES);
   }
 
-  public @NotNull NPCType getNpcType() {
+  public @NonNull NPCType npcType() {
     return this.npcType;
   }
 
-  public @NotNull String getTargetGroup() {
+  public @NonNull String targetGroup() {
     return this.targetGroup;
   }
 
-  public @NotNull String getDisplayName() {
+  public @NonNull String displayName() {
     return this.displayName;
   }
 
-  public @NotNull List<String> getInfoLines() {
+  public @NonNull List<String> infoLines() {
     return this.infoLines;
   }
 
-  public @NotNull WorldPosition getLocation() {
+  public @NonNull WorldPosition location() {
     return this.location;
   }
 
-  public boolean isLookAtPlayer() {
+  public boolean lookAtPlayer() {
     return this.lookAtPlayer;
   }
 
-  public boolean isImitatePlayer() {
+  public boolean imitatePlayer() {
     return this.imitatePlayer;
   }
 
-  public boolean isUsePlayerSkin() {
+  public boolean usePlayerSkin() {
     return this.usePlayerSkin;
   }
 
-  public boolean isGlowing() {
+  public boolean glowing() {
     return this.glowing;
   }
 
-  public @NotNull String getGlowingColor() {
+  public @NonNull String glowingColor() {
     return this.glowingColor;
   }
 
-  public boolean isFlyingWithElytra() {
+  public boolean flyingWithElytra() {
     return this.flyingWithElytra;
   }
 
-  public @Nullable String getFloatingItem() {
+  public @Nullable String floatingItem() {
     return this.floatingItem;
   }
 
-  public @NotNull ClickAction getLeftClickAction() {
+  public @NonNull ClickAction leftClickAction() {
     return this.leftClickAction;
   }
 
-  public @NotNull ClickAction getRightClickAction() {
+  public @NonNull ClickAction rightClickAction() {
     return this.rightClickAction;
   }
 
-  public @NotNull Map<Integer, String> getItems() {
+  public @NonNull Map<Integer, String> items() {
     return this.items;
   }
 
@@ -213,6 +213,8 @@ public class NPC extends JsonDocPropertyHolder {
   }
 
   public static final class Builder {
+
+    private final JsonDocument properties = JsonDocument.newDocument();
 
     private NPCType npcType;
     private String targetGroup;
@@ -237,92 +239,91 @@ public class NPC extends JsonDocPropertyHolder {
     private ClickAction rightClickAction = ClickAction.OPEN_INVENTORY;
 
     private Map<Integer, String> items = new HashMap<>();
-    private JsonDocument properties = JsonDocument.newDocument();
 
-    public @NotNull Builder entityType(@NotNull String entityType) {
+    public @NonNull Builder entityType(@NonNull String entityType) {
       this.npcType = NPCType.ENTITY;
       this.properties.append("entityType", entityType);
       return this;
     }
 
-    public @NotNull Builder profileProperties(@NotNull Set<ProfileProperty> profileProperties) {
+    public @NonNull Builder profileProperties(@NonNull Set<ProfileProperty> profileProperties) {
       this.npcType = NPCType.PLAYER;
       this.properties.append("profileProperties", profileProperties);
       return this;
     }
 
-    public @NotNull Builder usePlayerSkin(boolean usePlayerSkin) {
+    public @NonNull Builder usePlayerSkin(boolean usePlayerSkin) {
       this.usePlayerSkin = usePlayerSkin;
       this.npcType = usePlayerSkin ? NPCType.PLAYER : this.npcType;
       return this;
     }
 
-    public @NotNull Builder targetGroup(@NotNull String targetGroup) {
+    public @NonNull Builder targetGroup(@NonNull String targetGroup) {
       this.targetGroup = targetGroup;
       return this;
     }
 
-    public @NotNull Builder displayName(@NotNull String displayName) {
+    public @NonNull Builder displayName(@NonNull String displayName) {
       this.displayName = displayName;
       return this;
     }
 
-    public @NotNull Builder infoLines(@NotNull List<String> infoLines) {
+    public @NonNull Builder infoLines(@NonNull List<String> infoLines) {
       this.infoLines = new ArrayList<>(infoLines);
       return this;
     }
 
-    public @NotNull Builder location(@NotNull WorldPosition location) {
+    public @NonNull Builder location(@NonNull WorldPosition location) {
       this.location = location;
       return this;
     }
 
-    public @NotNull Builder lookAtPlayer(boolean lookAtPlayer) {
+    public @NonNull Builder lookAtPlayer(boolean lookAtPlayer) {
       this.lookAtPlayer = lookAtPlayer;
       return this;
     }
 
-    public @NotNull Builder imitatePlayer(boolean imitatePlayer) {
+    public @NonNull Builder imitatePlayer(boolean imitatePlayer) {
       this.imitatePlayer = imitatePlayer;
       return this;
     }
 
-    public @NotNull Builder glowing(boolean glowing) {
+    public @NonNull Builder glowing(boolean glowing) {
       this.glowing = glowing;
       return this;
     }
 
-    public @NotNull Builder glowingColor(@NotNull String glowingColor) {
+    public @NonNull Builder glowingColor(@NonNull String glowingColor) {
       this.glowingColor = glowingColor;
       return this;
     }
 
-    public @NotNull Builder flyingWithElytra(boolean flyingWithElytra) {
+    public @NonNull Builder flyingWithElytra(boolean flyingWithElytra) {
       this.flyingWithElytra = flyingWithElytra;
       return this;
     }
 
-    public @NotNull Builder floatingItem(@Nullable String floatingItem) {
+    public @NonNull Builder floatingItem(@Nullable String floatingItem) {
       this.floatingItem = floatingItem;
       return this;
     }
 
-    public @NotNull Builder leftClickAction(@NotNull ClickAction leftClickAction) {
+    public @NonNull Builder leftClickAction(@NonNull ClickAction leftClickAction) {
       this.leftClickAction = leftClickAction;
       return this;
     }
 
-    public @NotNull Builder rightClickAction(@NotNull ClickAction rightClickAction) {
+    public @NonNull Builder rightClickAction(@NonNull ClickAction rightClickAction) {
       this.rightClickAction = rightClickAction;
       return this;
     }
 
-    public @NotNull Builder items(@NotNull Map<Integer, String> items) {
+    public @NonNull Builder items(@NonNull Map<Integer, String> items) {
       this.items = new HashMap<>(items);
       return this;
     }
 
-    public @NotNull NPC build() {
+    public @NonNull NPC build() {
       Verify.verifyNotNull(this.npcType, "unable to determine npc type");
       Verify.verifyNotNull(this.targetGroup, "no target group given");
       Verify.verifyNotNull(this.displayName, "no display name given");
@@ -348,28 +349,7 @@ public class NPC extends JsonDocPropertyHolder {
     }
   }
 
-  public static class ProfileProperty {
+  public record ProfileProperty(@NonNull String name, @NonNull String value, @Nullable String signature) {
 
-    private final String name;
-    private final String value;
-    private final String signature;
-
-    public ProfileProperty(String name, String value, String signature) {
-      this.name = name;
-      this.value = value;
-      this.signature = signature;
-    }
-
-    public @NotNull String getName() {
-      return this.name;
-    }
-
-    public @NotNull String getValue() {
-      return this.value;
-    }
-
-    public @Nullable String getSignature() {
-      return this.signature;
-    }
   }
 }

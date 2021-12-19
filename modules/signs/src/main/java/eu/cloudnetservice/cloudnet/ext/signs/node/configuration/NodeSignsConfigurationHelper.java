@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.cloudnet.ext.signs.node.configuration;
 
-import com.google.gson.JsonParseException;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
@@ -33,28 +32,23 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 public final class NodeSignsConfigurationHelper {
 
-  private static final Logger LOGGER = LogManager.getLogger(NodeSignsConfigurationHelper.class);
+  private static final Logger LOGGER = LogManager.logger(NodeSignsConfigurationHelper.class);
 
   private NodeSignsConfigurationHelper() {
     throw new UnsupportedOperationException();
   }
 
-  public static void write(@NotNull SignsConfiguration configuration, @NotNull Path path) {
+  public static void write(@NonNull SignsConfiguration configuration, @NonNull Path path) {
     JsonDocument.newDocument(configuration).write(path);
   }
 
-  public static SignsConfiguration read(@NotNull Path path) {
-    JsonDocument configurationDocument;
-    try {
-      configurationDocument = JsonDocument.newDocument(path);
-    } catch (Exception exception) {
-      throw new JsonParseException("Exception while parsing signs configuration. Your configuration is invalid.");
-    }
+  public static SignsConfiguration read(@NonNull Path path) {
+    JsonDocument configurationDocument = JsonDocument.newDocument(path);
     if (configurationDocument.contains("config")) {
       // old document - run conversation now
       LOGGER
@@ -70,7 +64,7 @@ public final class NodeSignsConfigurationHelper {
       return configuration;
     }
     // check if the configuration file already exists
-    if (configurationDocument.isEmpty()) {
+    if (configurationDocument.empty()) {
       // create a new configuration entry
       var configuration = SignsConfiguration.createDefaultJava("Lobby");
       write(configuration, path);
@@ -81,7 +75,7 @@ public final class NodeSignsConfigurationHelper {
   }
 
   // convert of old configuration file
-  private static SignsConfiguration convertOldConfiguration(@NotNull JsonDocument document, @NotNull Path path) {
+  private static SignsConfiguration convertOldConfiguration(@NonNull JsonDocument document, @NonNull Path path) {
     // read as old configuration file
     var oldConfiguration = SignConfigurationReaderAndWriter.read(document, path);
     // create new configuration from it
@@ -111,25 +105,25 @@ public final class NodeSignsConfigurationHelper {
   }
 
   @Contract("_ -> new")
-  private static @NotNull SignLayout convertSignLayout(@NotNull de.dytanic.cloudnet.ext.signs.SignLayout oldLayout) {
-    return new SignLayout(oldLayout.getLines(), oldLayout.getBlockType(), oldLayout.getSubId());
+  private static @NonNull SignLayout convertSignLayout(@NonNull de.dytanic.cloudnet.ext.signs.SignLayout oldLayout) {
+    return new SignLayout(oldLayout.getLines(), oldLayout.getBlockType(), oldLayout.getSubId(), null);
   }
 
   @Contract("_ -> new")
-  private static @NotNull SignLayoutsHolder convertOldAnimation(@NotNull SignLayoutConfiguration configuration) {
+  private static @NonNull SignLayoutsHolder convertOldAnimation(@NonNull SignLayoutConfiguration configuration) {
     return new SignLayoutsHolder(configuration.getAnimationsPerSecond(), configuration.getSignLayouts().stream()
       .map(NodeSignsConfigurationHelper::convertSignLayout)
       .collect(Collectors.toList()));
   }
 
   @Contract("_ -> new")
-  private static @NotNull SignLayoutsHolder convertSingleToMany(
-    @NotNull de.dytanic.cloudnet.ext.signs.SignLayout oldLayout
+  private static @NonNull SignLayoutsHolder convertSingleToMany(
+    @NonNull de.dytanic.cloudnet.ext.signs.SignLayout oldLayout
   ) {
     return new SignLayoutsHolder(1, new ArrayList<>(Collections.singleton(convertSignLayout(oldLayout))));
   }
 
-  private static @NotNull Map<String, String> convertMessages(@NotNull Map<String, String> oldMessages) {
+  private static @NonNull Map<String, String> convertMessages(@NonNull Map<String, String> oldMessages) {
     Map<String, String> messages = new HashMap<>(SignsConfiguration.DEFAULT_MESSAGES);
     for (var entry : oldMessages.entrySet()) {
       messages.put(entry.getKey(), entry.getValue().replace('&', '§'));

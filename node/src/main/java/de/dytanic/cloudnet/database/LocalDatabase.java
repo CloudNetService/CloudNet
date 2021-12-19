@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.driver.database.Database;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public interface LocalDatabase extends Database {
@@ -32,7 +32,7 @@ public interface LocalDatabase extends Database {
    * @param predicate the filter for the entries
    * @return all entries that match the filter
    */
-  @NotNull Map<String, JsonDocument> filter(@NotNull BiPredicate<String, JsonDocument> predicate);
+  @NonNull Map<String, JsonDocument> filter(@NonNull BiPredicate<String, JsonDocument> predicate);
 
   /**
    * Iterates over all entries in the database This option should not be used with big databases Use {@link
@@ -40,7 +40,7 @@ public interface LocalDatabase extends Database {
    *
    * @param consumer the consumer to pass the entries into
    */
-  void iterate(@NotNull BiConsumer<String, JsonDocument> consumer);
+  void iterate(@NonNull BiConsumer<String, JsonDocument> consumer);
 
   /**
    * Iterates over all entries in the database, but in chunks in the given size
@@ -48,7 +48,7 @@ public interface LocalDatabase extends Database {
    * @param consumer  the consumer to pass the entries into
    * @param chunkSize the chunkSize of the entries
    */
-  void iterate(@NotNull BiConsumer<String, JsonDocument> consumer, int chunkSize);
+  void iterate(@NonNull BiConsumer<String, JsonDocument> consumer, int chunkSize);
 
   @Nullable Map<String, JsonDocument> readChunk(long beginIndex, int chunkSize);
 }

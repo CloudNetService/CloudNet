@@ -20,7 +20,7 @@ import de.dytanic.cloudnet.template.install.InstallInformation;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Set;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * Interface for install steps when downloading and patching server software
@@ -28,10 +28,10 @@ import org.jetbrains.annotations.NotNull;
 @FunctionalInterface
 public interface InstallStepExecutor {
 
-  @NotNull Set<Path> execute(
-    @NotNull InstallInformation info,
-    @NotNull Path workingDirectory,
-    @NotNull Set<Path> files) throws IOException;
+  @NonNull Set<Path> execute(
+    @NonNull InstallInformation info,
+    @NonNull Path workingDirectory,
+    @NonNull Set<Path> files) throws IOException;
 
   default void interrupt() {
   }

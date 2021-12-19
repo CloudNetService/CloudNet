@@ -27,7 +27,7 @@ import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.provider.NodeServiceTaskProvider;
 import java.lang.reflect.Type;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class TaskChannelMessageListener {
 
@@ -37,26 +37,26 @@ public final class TaskChannelMessageListener {
   private final NodeServiceTaskProvider taskProvider;
 
   public TaskChannelMessageListener(
-    @NotNull IEventManager eventManager,
-    @NotNull NodeServiceTaskProvider taskProvider
+    @NonNull IEventManager eventManager,
+    @NonNull NodeServiceTaskProvider taskProvider
   ) {
     this.eventManager = eventManager;
     this.taskProvider = taskProvider;
   }
 
   @EventListener
-  public void handleChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
-    if (event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL) && event.getMessage() != null) {
-      switch (event.getMessage()) {
+  public void handleChannelMessage(@NonNull ChannelMessageReceiveEvent event) {
+    if (event.channel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
+      switch (event.message()) {
         // set tasks
         case "set_service_tasks" -> {
-          Collection<ServiceTask> tasks = event.getContent().readObject(COL_TASKS);
-          this.taskProvider.setPermanentServiceTasksSilently(tasks);
+          Collection<ServiceTask> tasks = event.content().readObject(COL_TASKS);
+          this.taskProvider.permanentServiceTasksSilently(tasks);
         }
 
         // add task
         case "add_service_task" -> {
-          var task = event.getContent().readObject(ServiceTask.class);
+          var task = event.content().readObject(ServiceTask.class);
 
           this.taskProvider.addPermanentServiceTaskSilently(task);
           this.eventManager.callEvent(new ServiceTaskAddEvent(task));
@@ -64,7 +64,7 @@ public final class TaskChannelMessageListener {
 
         // remove task
         case "remove_service_task" -> {
-          var task = event.getContent().readObject(ServiceTask.class);
+          var task = event.content().readObject(ServiceTask.class);
 
           this.taskProvider.removePermanentServiceTaskSilently(task);
           this.eventManager.callEvent(new ServiceTaskRemoveEvent(task));

@@ -27,60 +27,60 @@ import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import java.nio.file.Path;
 import java.util.Queue;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public interface ICloudService extends SpecificCloudServiceProvider {
 
   @Override
-  @NotNull ServiceInfoSnapshot getServiceInfoSnapshot();
+  @NonNull ServiceInfoSnapshot serviceInfo();
 
-  @NotNull
-  String getRuntime();
+  @NonNull
+  String runtime();
 
-  @NotNull Queue<ServiceRemoteInclusion> getWaitingIncludes();
+  @NonNull Queue<ServiceRemoteInclusion> waitingIncludes();
 
-  @NotNull Queue<ServiceTemplate> getWaitingTemplates();
+  @NonNull Queue<ServiceTemplate> waitingTemplates();
 
-  @NotNull Queue<ServiceDeployment> getWaitingDeployments();
+  @NonNull Queue<ServiceDeployment> waitingDeployments();
 
-  @NotNull
-  ServiceLifeCycle getLifeCycle();
+  @NonNull
+  ServiceLifeCycle lifeCycle();
 
-  @NotNull
-  ICloudServiceManager getCloudServiceManager();
+  @NonNull
+  ICloudServiceManager cloudServiceManager();
 
-  @NotNull
-  ServiceConfiguration getServiceConfiguration();
+  @NonNull
+  ServiceConfiguration serviceConfiguration();
 
-  @NotNull
-  ServiceId getServiceId();
+  @NonNull
+  ServiceId serviceId();
 
-  @NotNull
-  String getConnectionKey();
+  @NonNull
+  String connectionKey();
 
-  @NotNull
-  Path getDirectory();
+  @NonNull
+  Path directory();
 
   @Nullable
-  INetworkChannel getNetworkChannel();
+  INetworkChannel networkChannel();
 
   @Internal
-  void setNetworkChannel(@Nullable INetworkChannel channel);
+  void networkChannel(@Nullable INetworkChannel channel);
 
-  @NotNull
-  ServiceInfoSnapshot getLastServiceInfoSnapshot();
+  @NonNull
+  ServiceInfoSnapshot lastServiceInfoSnapshot();
 
-  @NotNull
-  IServiceConsoleLogCache getServiceConsoleLogCache();
+  @NonNull
+  IServiceConsoleLogCache serviceConsoleLogCache();
 
   void doDelete();
 
-  boolean isAlive();
+  boolean alive();
 
   void publishServiceInfoSnapshot();
 
   @Internal
-  void updateServiceInfoSnapshot(@NotNull ServiceInfoSnapshot serviceInfoSnapshot);
+  void updateServiceInfoSnapshot(@NonNull ServiceInfoSnapshot serviceInfoSnapshot);
 }

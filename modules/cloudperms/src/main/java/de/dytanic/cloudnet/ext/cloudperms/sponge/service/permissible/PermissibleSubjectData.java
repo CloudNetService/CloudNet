@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.ext.cloudperms.sponge.service.permissible;
 
-import com.google.common.collect.ImmutableMap;
 import de.dytanic.cloudnet.driver.permission.IPermissible;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.Permission;
@@ -27,7 +26,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.permission.Subject;
@@ -38,7 +37,7 @@ import org.spongepowered.api.util.Tristate;
 
 public abstract class PermissibleSubjectData<T extends IPermissible> implements SubjectData {
 
-  private static final Map<Set<Context>, Tristate> UNDEFINED = ImmutableMap.of(
+  private static final Map<Set<Context>, Tristate> UNDEFINED = Map.of(
     Collections.emptySet(),
     Tristate.UNDEFINED);
 
@@ -72,17 +71,17 @@ public abstract class PermissibleSubjectData<T extends IPermissible> implements 
 
   @Override
   public Map<Set<Context>, Map<String, Boolean>> allPermissions() {
-    return this.management.getAllPermissions(this.permissible).stream().collect(
+    return this.management.allPermissions(this.permissible).stream().collect(
       Collectors.collectingAndThen(
-        Collectors.toMap(Permission::getName, perm -> perm.getPotency() >= 0),
-        result -> ImmutableMap.of(Collections.emptySet(), result)));
+        Collectors.toMap(Permission::name, perm -> perm.potency() >= 0),
+        result -> Map.of(Collections.emptySet(), result)));
   }
 
   @Override
   public Map<String, Boolean> permissions(Set<Context> contexts) {
-    return this.management.getAllPermissions(this.permissible).stream().collect(Collectors.toMap(
-      Permission::getName,
-      perm -> perm.getPotency() >= 0));
+    return this.management.allPermissions(this.permissible).stream().collect(Collectors.toMap(
+      Permission::name,
+      perm -> perm.potency() >= 0));
   }
 
   @Override
@@ -133,7 +132,7 @@ public abstract class PermissibleSubjectData<T extends IPermissible> implements 
   @Override
   public CompletableFuture<Boolean> clearPermissions() {
     return CompletableFuture.supplyAsync(() -> {
-      this.permissible.getPermissions().forEach(perm -> this.permissible.removePermission(perm.getName()));
+      this.permissible.permissions().forEach(perm -> this.permissible.removePermission(perm.name()));
       this.updateIfEnabled(this.permissible);
       return true;
     });
@@ -161,9 +160,9 @@ public abstract class PermissibleSubjectData<T extends IPermissible> implements 
 
   @Override
   public Map<Set<Context>, Map<String, String>> allOptions() {
-    return ImmutableMap.of(Collections.emptySet(), this.permissible.getProperties().stream()
-      .filter(key -> this.permissible.getProperties().getString(key) != null)
-      .collect(Collectors.toMap(Function.identity(), this.permissible.getProperties()::getString)));
+    return Map.of(Collections.emptySet(), this.permissible.properties().stream()
+      .filter(key -> this.permissible.properties().getString(key) != null)
+      .collect(Collectors.toMap(Function.identity(), this.permissible.properties()::getString)));
   }
 
   @Override
@@ -174,7 +173,7 @@ public abstract class PermissibleSubjectData<T extends IPermissible> implements 
   @Override
   public CompletableFuture<Boolean> setOption(Set<Context> contexts, String key, @Nullable String value) {
     return CompletableFuture.supplyAsync(() -> {
-      this.permissible.getProperties().append(key, value);
+      this.permissible.properties().append(key, value);
       this.updateIfEnabled(this.permissible);
       return true;
     });
@@ -183,7 +182,7 @@ public abstract class PermissibleSubjectData<T extends IPermissible> implements 
   @Override
   public CompletableFuture<Boolean> setOptions(Set<Context> $, Map<String, String> options, TransferMethod $1) {
     return CompletableFuture.supplyAsync(() -> {
-      options.forEach(this.permissible.getProperties()::append);
+      options.forEach(this.permissible.properties()::append);
       this.updateIfEnabled(this.permissible);
       return true;
     });
@@ -192,7 +191,7 @@ public abstract class PermissibleSubjectData<T extends IPermissible> implements 
   @Override
   public CompletableFuture<Boolean> clearOptions() {
     return CompletableFuture.supplyAsync(() -> {
-      this.permissible.getProperties().clear();
+      this.permissible.properties().clear();
       this.updateIfEnabled(this.permissible);
       return true;
     });
@@ -213,11 +212,11 @@ public abstract class PermissibleSubjectData<T extends IPermissible> implements 
     return CompletableFuture.completedFuture(true); // not supported
   }
 
-  protected void updateIfEnabled(@NotNull T data) {
+  protected void updateIfEnabled(@NonNull T data) {
     if (this.allowModify) {
       this.update(data);
     }
   }
 
-  protected abstract void update(@NotNull T data);
+  protected abstract void update(@NonNull T data);
 }

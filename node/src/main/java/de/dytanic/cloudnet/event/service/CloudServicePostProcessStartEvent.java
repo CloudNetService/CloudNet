@@ -14,9 +14,21 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.console.util;
+package de.dytanic.cloudnet.event.service;
 
-public class ConsoleFormatter {
+import de.dytanic.cloudnet.service.ICloudService;
+import lombok.NonNull;
 
+public final class CloudServicePostProcessStartEvent extends CloudServiceEvent {
 
+  private final ProcessHandle processHandle;
+
+  public CloudServicePostProcessStartEvent(@NonNull ICloudService service, @NonNull ProcessHandle processHandle) {
+    super(service);
+    this.processHandle = processHandle;
+  }
+
+  public @NonNull ProcessHandle processHandle() {
+    return processHandle;
+  }
 }

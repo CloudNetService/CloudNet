@@ -60,7 +60,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -108,7 +108,7 @@ public class DefaultCommandProvider implements CommandProvider {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull List<String> suggest(@NotNull CommandSource source, @NotNull String input) {
+  public @NonNull List<String> suggest(@NonNull CommandSource source, @NonNull String input) {
     return this.commandManager.suggest(source, input);
   }
 
@@ -116,7 +116,7 @@ public class DefaultCommandProvider implements CommandProvider {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull CompletableFuture<?> execute(@NotNull CommandSource source, @NotNull String input) {
+  public @NonNull CompletableFuture<?> execute(@NonNull CommandSource source, @NonNull String input) {
     return this.commandManager.executeCommand(source, input)
       .whenComplete((result, throwable) -> this.exceptionHandler.handleCommandExceptions(source, throwable));
   }
@@ -125,7 +125,7 @@ public class DefaultCommandProvider implements CommandProvider {
    * {@inheritDoc}
    */
   @Override
-  public void register(@NotNull Object command) {
+  public void register(@NonNull Object command) {
     var cloudCommand = Iterables.getFirst(this.annotationParser.parse(command), null);
     // just get the first command of the object as we don't want to register each method
     if (cloudCommand != null) {
@@ -143,7 +143,7 @@ public class DefaultCommandProvider implements CommandProvider {
       var name = cloudCommand.getArguments().get(0).getName();
       // there is no other command registered with the given name, parse usage and register the command now
       this.registeredCommands.put(cloudCommand.getClass().getClassLoader(),
-        new CommandInfo(name, aliases, permission, description, this.getCommandUsageByRoot(name)));
+        new CommandInfo(name, aliases, permission, description, this.commandUsageOfRoot(name)));
     }
   }
 
@@ -151,7 +151,7 @@ public class DefaultCommandProvider implements CommandProvider {
    * {@inheritDoc}
    */
   @Override
-  public void unregister(@NotNull ClassLoader classLoader) {
+  public void unregister(@NonNull ClassLoader classLoader) {
     this.registeredCommands.removeAll(classLoader);
   }
 
@@ -159,11 +159,11 @@ public class DefaultCommandProvider implements CommandProvider {
    * {@inheritDoc}
    */
   @Override
-  public void registerConsoleHandler(@NotNull IConsole console) {
+  public void registerConsoleHandler(@NonNull IConsole console) {
     // command handling
     console.addCommandHandler(UUID.randomUUID(), new ConsoleInputHandler() {
       @Override
-      public void handleInput(@NotNull String line) {
+      public void handleInput(@NonNull String line) {
         // check if the input line is empty
         var trimmedInput = line.trim();
         if (!trimmedInput.isEmpty()) {
@@ -175,7 +175,7 @@ public class DefaultCommandProvider implements CommandProvider {
     // tab complete handling
     console.addTabCompleteHandler(UUID.randomUUID(), new ConsoleTabCompleteHandler() {
       @Override
-      public @NotNull Collection<String> completeInput(@NotNull String line) {
+      public @NonNull Collection<String> completeInput(@NonNull String line) {
         return DefaultCommandProvider.this.commandManager.suggest(CommandSource.console(), line);
       }
     });
@@ -207,11 +207,11 @@ public class DefaultCommandProvider implements CommandProvider {
    * {@inheritDoc}
    */
   @Override
-  public @Nullable CommandInfo getCommand(@NotNull String name) {
+  public @Nullable CommandInfo command(@NonNull String name) {
     var lowerCaseInput = name.toLowerCase();
     return this.registeredCommands.values().stream()
       .filter(commandInfo ->
-        commandInfo.getAliases().contains(lowerCaseInput) || commandInfo.getName().equals(lowerCaseInput))
+        commandInfo.aliases().contains(lowerCaseInput) || commandInfo.name().equals(lowerCaseInput))
       .findFirst()
       .orElse(null);
   }
@@ -220,7 +220,7 @@ public class DefaultCommandProvider implements CommandProvider {
    * {@inheritDoc}
    */
   @Override
-  public @NotNull Collection<CommandInfo> getCommands() {
+  public @NonNull Collection<CommandInfo> commands() {
     return Collections.unmodifiableCollection(this.registeredCommands.values());
   }
 
@@ -249,7 +249,7 @@ public class DefaultCommandProvider implements CommandProvider {
    * @param root the command to parse the usage for.
    * @return the formatted and sorted usages for the command root.
    */
-  protected @NotNull List<String> getCommandUsageByRoot(@NotNull String root) {
+  protected @NonNull List<String> commandUsageOfRoot(@NonNull String root) {
     List<String> commandUsage = new ArrayList<>();
     for (var command : this.commandManager.getCommands()) {
       var arguments = command.getArguments();

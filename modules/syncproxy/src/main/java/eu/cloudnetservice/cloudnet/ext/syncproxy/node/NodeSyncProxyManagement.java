@@ -22,7 +22,7 @@ import de.dytanic.cloudnet.driver.network.rpc.RPCProviderFactory;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.SyncProxyConfigurationUpdateEvent;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.SyncProxyManagement;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.config.SyncProxyConfiguration;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class NodeSyncProxyManagement implements SyncProxyManagement {
 
@@ -30,9 +30,9 @@ public class NodeSyncProxyManagement implements SyncProxyManagement {
   private SyncProxyConfiguration configuration;
 
   public NodeSyncProxyManagement(
-    @NotNull CloudNetSyncProxyModule syncProxyModule,
-    @NotNull SyncProxyConfiguration configuration,
-    @NotNull RPCProviderFactory rpcProviderFactory
+    @NonNull CloudNetSyncProxyModule syncProxyModule,
+    @NonNull SyncProxyConfiguration configuration,
+    @NonNull RPCProviderFactory rpcProviderFactory
   ) {
     this.syncProxyModule = syncProxyModule;
     this.configuration = configuration;
@@ -40,31 +40,31 @@ public class NodeSyncProxyManagement implements SyncProxyManagement {
   }
 
   @Override
-  public @NotNull SyncProxyConfiguration getConfiguration() {
+  public @NonNull SyncProxyConfiguration configuration() {
     return this.configuration;
   }
 
   @Override
-  public void setConfiguration(@NotNull SyncProxyConfiguration configuration) {
+  public void configuration(@NonNull SyncProxyConfiguration configuration) {
     // write the configuration to the file
-    this.setConfigurationSilently(configuration);
+    this.configurationSilently(configuration);
     // call the local event for the update of the config
-    this.syncProxyModule.getEventManager().callEvent(new SyncProxyConfigurationUpdateEvent(configuration));
+    this.syncProxyModule.eventManager().callEvent(new SyncProxyConfigurationUpdateEvent(configuration));
     // send an update with the configuration to other components
     configuration.sendUpdate();
   }
 
   @Override
-  public void registerService(@NotNull IServicesRegistry registry) {
+  public void registerService(@NonNull IServicesRegistry registry) {
     registry.registerService(SyncProxyManagement.class, "NodeSyncProxyManagement", this);
   }
 
   @Override
-  public void unregisterService(@NotNull IServicesRegistry registry) {
+  public void unregisterService(@NonNull IServicesRegistry registry) {
     registry.unregisterService(SyncProxyManagement.class, "NodeSyncProxyManagement");
   }
 
-  public void setConfigurationSilently(@NotNull SyncProxyConfiguration configuration) {
+  public void configurationSilently(@NonNull SyncProxyConfiguration configuration) {
     this.configuration = configuration;
     this.syncProxyModule.writeConfig(JsonDocument.newDocument(configuration));
   }

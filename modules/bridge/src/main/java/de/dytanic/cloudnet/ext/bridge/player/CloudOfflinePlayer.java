@@ -20,8 +20,8 @@ import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.document.property.JsonDocPropertyHolder;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnknownNullability;
 
 @ToString
@@ -38,52 +38,52 @@ public class CloudOfflinePlayer extends JsonDocPropertyHolder implements Cloneab
   public CloudOfflinePlayer(
     long firstLoginTimeMillis,
     long lastLoginTimeMillis,
-    @NotNull String name,
-    @NotNull NetworkPlayerProxyInfo proxyInfo) {
+    @NonNull String name,
+    @NonNull NetworkPlayerProxyInfo proxyInfo) {
     this.firstLoginTimeMillis = firstLoginTimeMillis;
     this.lastLoginTimeMillis = lastLoginTimeMillis;
     this.name = name;
     this.lastNetworkPlayerProxyInfo = proxyInfo;
   }
 
-  public static @NotNull CloudOfflinePlayer offlineCopy(@NotNull CloudPlayer onlineVariant) {
+  public static @NonNull CloudOfflinePlayer offlineCopy(@NonNull CloudPlayer onlineVariant) {
     return new CloudOfflinePlayer(
-      onlineVariant.getFirstLoginTimeMillis(),
-      onlineVariant.getLastLoginTimeMillis(),
-      onlineVariant.getName(),
-      onlineVariant.getNetworkPlayerProxyInfo().clone());
+      onlineVariant.firstLoginTimeMillis(),
+      onlineVariant.lastLoginTimeMillis(),
+      onlineVariant.name(),
+      onlineVariant.networkPlayerProxyInfo().clone());
   }
 
-  public @NotNull UUID getUniqueId() {
+  public @NonNull UUID uniqueId() {
     return this.lastNetworkPlayerProxyInfo.uniqueId();
   }
 
   @Override
-  public @NotNull String getName() {
+  public @NonNull String name() {
     return this.name;
   }
 
-  public @UnknownNullability String getXBoxId() {
+  public @UnknownNullability String xBoxId() {
     return this.lastNetworkPlayerProxyInfo.xBoxId();
   }
 
-  public long getFirstLoginTimeMillis() {
+  public long firstLoginTimeMillis() {
     return this.firstLoginTimeMillis;
   }
 
-  public long getLastLoginTimeMillis() {
+  public long lastLoginTimeMillis() {
     return this.lastLoginTimeMillis;
   }
 
-  public void setLastLoginTimeMillis(long lastLoginTimeMillis) {
+  public void lastLoginTimeMillis(long lastLoginTimeMillis) {
     this.lastLoginTimeMillis = lastLoginTimeMillis;
   }
 
-  public @NotNull NetworkPlayerProxyInfo getLastNetworkPlayerProxyInfo() {
+  public @NonNull NetworkPlayerProxyInfo lastNetworkPlayerProxyInfo() {
     return this.lastNetworkPlayerProxyInfo;
   }
 
-  public void setLastNetworkPlayerProxyInfo(@NotNull NetworkPlayerProxyInfo lastNetworkPlayerProxyInfo) {
+  public void lastNetworkPlayerProxyInfo(@NonNull NetworkPlayerProxyInfo lastNetworkPlayerProxyInfo) {
     this.lastNetworkPlayerProxyInfo = lastNetworkPlayerProxyInfo;
   }
 
@@ -91,7 +91,7 @@ public class CloudOfflinePlayer extends JsonDocPropertyHolder implements Cloneab
    * {@inheritDoc}
    */
   @Override
-  public @NotNull CloudOfflinePlayer clone() {
+  public @NonNull CloudOfflinePlayer clone() {
     try {
       return (CloudOfflinePlayer) super.clone();
     } catch (CloneNotSupportedException exception) {

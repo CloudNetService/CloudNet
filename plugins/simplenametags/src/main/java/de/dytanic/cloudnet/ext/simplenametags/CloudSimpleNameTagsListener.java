@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.permission.PermissionUpdateGroupEvent;
 import de.dytanic.cloudnet.driver.event.events.permission.PermissionUpdateUserEvent;
 import java.util.concurrent.Executor;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class CloudSimpleNameTagsListener<P> {
 
@@ -29,8 +29,8 @@ public final class CloudSimpleNameTagsListener<P> {
   private final SimpleNameTagsManager<P> nameTagsManager;
 
   public CloudSimpleNameTagsListener(
-    @NotNull Executor syncTaskExecutor,
-    @NotNull SimpleNameTagsManager<P> nameTagsManager
+    @NonNull Executor syncTaskExecutor,
+    @NonNull SimpleNameTagsManager<P> nameTagsManager
   ) {
     this.syncTaskExecutor = syncTaskExecutor;
     this.nameTagsManager = nameTagsManager;
@@ -40,7 +40,7 @@ public final class CloudSimpleNameTagsListener<P> {
   public void handle(PermissionUpdateUserEvent event) {
     this.syncTaskExecutor.execute(() -> {
       // get the player if online
-      var player = this.nameTagsManager.getOnlinePlayer(event.getPermissionUser().getUniqueId());
+      var player = this.nameTagsManager.onlinePlayer(event.permissionUser().uniqueId());
       if (player != null) {
         // update the name tag of the player
         this.nameTagsManager.updateNameTagsFor(player);
@@ -52,11 +52,11 @@ public final class CloudSimpleNameTagsListener<P> {
   public void handle(PermissionUpdateGroupEvent event) {
     this.syncTaskExecutor.execute(() -> {
       // find all matching players
-      for (P player : this.nameTagsManager.getOnlinePlayers()) {
-        var playerUniqueId = this.nameTagsManager.getPlayerUniqueId(player);
+      for (P player : this.nameTagsManager.onlinePlayers()) {
+        var playerUniqueId = this.nameTagsManager.playerUniqueId(player);
         // get the associated user
-        var user = CloudNetDriver.getInstance().getPermissionManagement().getUser(playerUniqueId);
-        if (user != null && user.inGroup(event.getPermissionGroup().getName())) {
+        var user = CloudNetDriver.instance().permissionManagement().user(playerUniqueId);
+        if (user != null && user.inGroup(event.permissionGroup().name())) {
           this.nameTagsManager.updateNameTagsFor(player);
         }
       }

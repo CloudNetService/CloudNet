@@ -28,15 +28,15 @@ import de.dytanic.cloudnet.event.network.NetworkClusterNodeAuthSuccessEvent;
 import de.dytanic.cloudnet.event.network.NetworkServiceAuthSuccessEvent;
 import de.dytanic.cloudnet.network.NodeNetworkUtils;
 import de.dytanic.cloudnet.network.packet.PacketServerAuthorizationResponse;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class PacketClientAuthorizationListener implements IPacketListener {
 
   @Override
-  public void handle(@NotNull INetworkChannel channel, @NotNull IPacket packet) {
+  public void handle(@NonNull INetworkChannel channel, @NonNull IPacket packet) {
     // read the core data
-    var type = packet.getContent().readObject(PacketAuthorizationType.class);
-    try (var content = packet.getContent().readDataBuf()) {
+    var type = packet.content().readObject(PacketAuthorizationType.class);
+    try (var content = packet.content().readDataBuf()) {
       // handle the authorization
       switch (type) {
         // NODE -> NODE
@@ -45,21 +45,21 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
           var clusterId = content.readUniqueId();
           var node = content.readObject(NetworkClusterNode.class);
           // check if the cluster id matches
-          if (!CloudNet.getInstance().getConfig().getClusterConfig().getClusterId().equals(clusterId)) {
+          if (!CloudNet.instance().config().clusterConfig().clusterId().equals(clusterId)) {
             break;
           }
           // search for the node server which represents the connected node and initialize it
-          for (var nodeServer : CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers()) {
-            if (nodeServer.isAcceptableConnection(channel, node.getUniqueId())) {
+          for (var nodeServer : CloudNet.instance().nodeServerProvider().nodeServers()) {
+            if (nodeServer.acceptableConnection(channel, node.uniqueId())) {
               // set up the node
-              nodeServer.setChannel(channel);
+              nodeServer.channel(channel);
               // add the required packet listeners
-              channel.getPacketRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
-              NodeNetworkUtils.addDefaultPacketListeners(channel.getPacketRegistry(), CloudNet.getInstance());
+              channel.packetRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
+              NodeNetworkUtils.addDefaultPacketListeners(channel.packetRegistry(), CloudNet.instance());
               // successful auth
               channel.sendPacketSync(new PacketServerAuthorizationResponse(true));
               // call the auth success event
-              CloudNet.getInstance().getEventManager().callEvent(
+              CloudNet.instance().eventManager().callEvent(
                   new NetworkClusterNodeAuthSuccessEvent(nodeServer, channel));
               // do not search for more nodes
               return;
@@ -73,21 +73,21 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
           var connectionKey = content.readString();
           var id = content.readObject(ServiceId.class);
           // get the cloud service associated with the service id
-          var service = CloudNet.getInstance().getCloudServiceProvider()
-              .getLocalCloudService(id.getUniqueId());
+          var service = CloudNet.instance().cloudServiceProvider()
+              .localCloudService(id.uniqueId());
           // we can only accept the connection if the service is present, and the connection key is correct
-          if (service != null && service.getConnectionKey().equals(connectionKey)) {
+          if (service != null && service.connectionKey().equals(connectionKey)) {
             // update the cloud service
-            service.setNetworkChannel(channel);
+            service.networkChannel(channel);
             // send the update to the network
             service.publishServiceInfoSnapshot();
             // add the required packet listeners
-            channel.getPacketRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
-            NodeNetworkUtils.addDefaultPacketListeners(channel.getPacketRegistry(), CloudNet.getInstance());
+            channel.packetRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
+            NodeNetworkUtils.addDefaultPacketListeners(channel.packetRegistry(), CloudNet.instance());
             // successful auth
             channel.sendPacket(new PacketServerAuthorizationResponse(true));
             // call the auth success event
-            CloudNet.getInstance().getEventManager().callEvent(new NetworkServiceAuthSuccessEvent(service, channel));
+            CloudNet.instance().eventManager().callEvent(new NetworkServiceAuthSuccessEvent(service, channel));
             // do not search for other services
             return;
           }

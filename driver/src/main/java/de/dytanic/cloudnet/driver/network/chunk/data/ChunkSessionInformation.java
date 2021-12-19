@@ -18,42 +18,14 @@ package de.dytanic.cloudnet.driver.network.chunk.data;
 
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import java.util.UUID;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
-public class ChunkSessionInformation {
-
-  private final int chunkSize;
-  private final UUID sessionUniqueId;
-  private final String transferChannel;
-  private final DataBuf transferInformation;
-
-  public ChunkSessionInformation(
-    int chunkSize,
-    @NotNull UUID sessionUniqueId,
-    @NotNull String transferChannel,
-    @NotNull DataBuf transferInformation
-  ) {
-    this.chunkSize = chunkSize;
-    this.transferChannel = transferChannel;
-    this.sessionUniqueId = sessionUniqueId;
-    this.transferInformation = transferInformation;
-  }
-
-  public int getChunkSize() {
-    return this.chunkSize;
-  }
-
-  public @NotNull String getTransferChannel() {
-    return this.transferChannel;
-  }
-
-  public @NotNull UUID getSessionUniqueId() {
-    return this.sessionUniqueId;
-  }
-
-  public @NotNull DataBuf getTransferInformation() {
-    return this.transferInformation;
-  }
+public record ChunkSessionInformation(
+  int chunkSize,
+  @NonNull UUID sessionUniqueId,
+  @NonNull String transferChannel,
+  @NonNull DataBuf transferInformation
+) {
 
   @Override
   public boolean equals(Object o) {
@@ -62,12 +34,12 @@ public class ChunkSessionInformation {
     } else if (!(o instanceof ChunkSessionInformation that)) {
       return false;
     } else {
-      return this.getSessionUniqueId().equals(that.getSessionUniqueId());
+      return this.sessionUniqueId().equals(that.sessionUniqueId());
     }
   }
 
   @Override
   public int hashCode() {
-    return this.getSessionUniqueId().hashCode();
+    return this.sessionUniqueId().hashCode();
   }
 }

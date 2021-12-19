@@ -19,7 +19,7 @@ package eu.cloudnetservice.cloudnet.ext.signs.platform;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceLifecycleChangeEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceUpdateEvent;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class SignsPlatformListener {
 
@@ -30,16 +30,16 @@ public class SignsPlatformListener {
   }
 
   @EventListener
-  public void handle(@NotNull CloudServiceUpdateEvent event) {
-    this.signManagement.handleServiceUpdate(event.getServiceInfo());
+  public void handle(@NonNull CloudServiceUpdateEvent event) {
+    this.signManagement.handleServiceUpdate(event.serviceInfo());
   }
 
   @EventListener
-  public void handle(@NotNull CloudServiceLifecycleChangeEvent event) {
-    switch (event.getNewLifeCycle()) {
-      case STOPPED, DELETED -> this.signManagement.handleServiceRemove(event.getServiceInfo());
-      case RUNNING -> this.signManagement.handleServiceAdd(event.getServiceInfo());
-      default -> this.signManagement.handleServiceUpdate(event.getServiceInfo());
+  public void handle(@NonNull CloudServiceLifecycleChangeEvent event) {
+    switch (event.newLifeCycle()) {
+      case STOPPED, DELETED -> this.signManagement.handleServiceRemove(event.serviceInfo());
+      case RUNNING -> this.signManagement.handleServiceAdd(event.serviceInfo());
+      default -> this.signManagement.handleServiceUpdate(event.serviceInfo());
     }
   }
 }

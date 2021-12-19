@@ -20,14 +20,14 @@ import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import java.nio.file.Path;
 import java.util.List;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class MagmaInstallerExecutor extends BuildStepExecutor {
 
-  private static final Logger LOGGER = LogManager.getLogger(MagmaInstallerExecutor.class);
+  private static final Logger LOGGER = LogManager.logger(MagmaInstallerExecutor.class);
 
   @Override
-  protected int buildProcessAndWait(@NotNull List<String> arguments, @NotNull Path workingDir) {
+  protected int buildProcessAndWait(@NonNull List<String> arguments, @NonNull Path workingDir) {
     return super.buildProcessAndWait(
       arguments,
       workingDir,

@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.driver.event.events.chunk;
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketHandler;
 import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class ChunkedPacketSessionOpenEvent extends Event {
@@ -27,19 +27,19 @@ public final class ChunkedPacketSessionOpenEvent extends Event {
   private final ChunkSessionInformation sessionInformation;
   private volatile ChunkedPacketHandler chunkedPacketHandler;
 
-  public ChunkedPacketSessionOpenEvent(@NotNull ChunkSessionInformation sessionInformation) {
+  public ChunkedPacketSessionOpenEvent(@NonNull ChunkSessionInformation sessionInformation) {
     this.sessionInformation = sessionInformation;
   }
 
-  public @NotNull ChunkSessionInformation getSession() {
+  public @NonNull ChunkSessionInformation session() {
     return this.sessionInformation;
   }
 
-  public @Nullable ChunkedPacketHandler getHandler() {
+  public @Nullable ChunkedPacketHandler handler() {
     return this.chunkedPacketHandler;
   }
 
-  public void setHandler(@Nullable ChunkedPacketHandler chunkedPacketHandler) {
+  public void handler(@Nullable ChunkedPacketHandler chunkedPacketHandler) {
     this.chunkedPacketHandler = chunkedPacketHandler;
   }
 }

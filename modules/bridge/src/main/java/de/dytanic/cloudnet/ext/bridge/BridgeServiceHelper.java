@@ -25,7 +25,7 @@ import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class BridgeServiceHelper {
@@ -47,43 +47,43 @@ public final class BridgeServiceHelper {
   public static void changeToIngame(boolean autoStartService) {
     if (!STATE.getAndSet("INGAME").equalsIgnoreCase("ingame") && autoStartService) {
       // start a new service based on the task name
-      var taskName = Wrapper.getInstance().getServiceId().getTaskName();
-      CloudNetDriver.getInstance().getServiceTaskProvider()
-        .getServiceTaskAsync(taskName)
+      var taskName = Wrapper.instance().serviceId().taskName();
+      CloudNetDriver.instance().serviceTaskProvider()
+        .serviceTaskAsync(taskName)
         .map(task -> ServiceConfiguration.builder(task).build())
-        .map(config -> CloudNetDriver.getInstance().getCloudServiceFactory().createCloudService(config))
+        .map(config -> CloudNetDriver.instance().cloudServiceFactory().createCloudService(config))
         .onComplete(service -> service.provider().start());
     }
   }
 
-  public static @NotNull ServiceInfoState guessStateFromServiceInfoSnapshot(@NotNull ServiceInfoSnapshot service) {
+  public static @NonNull ServiceInfoState guessStateFromServiceInfoSnapshot(@NonNull ServiceInfoSnapshot service) {
     // convert not running or ingame services to STOPPED
-    if (service.getLifeCycle() != ServiceLifeCycle.RUNNING
-      || service.getProperty(BridgeServiceProperties.IS_IN_GAME).orElse(false)) {
+    if (service.lifeCycle() != ServiceLifeCycle.RUNNING
+      || service.property(BridgeServiceProperties.IS_IN_GAME).orElse(false)) {
       return ServiceInfoState.STOPPED;
     }
     // check if the service is empty
-    if (service.getProperty(BridgeServiceProperties.IS_EMPTY).orElse(false)) {
+    if (service.property(BridgeServiceProperties.IS_EMPTY).orElse(false)) {
       return ServiceInfoState.EMPTY_ONLINE;
     }
     // check if the service is full
-    if (service.getProperty(BridgeServiceProperties.IS_FULL).orElse(false)) {
+    if (service.property(BridgeServiceProperties.IS_FULL).orElse(false)) {
       return ServiceInfoState.FULL_ONLINE;
     }
     // check if the service is starting
-    if (service.getProperty(BridgeServiceProperties.IS_STARTING).orElse(false)) {
+    if (service.property(BridgeServiceProperties.IS_STARTING).orElse(false)) {
       return ServiceInfoState.STARTING;
     }
     // check if the service is connected
-    if (service.isConnected()) {
+    if (service.connected()) {
       return ServiceInfoState.ONLINE;
     } else {
       return ServiceInfoState.STOPPED;
     }
   }
 
-  public static @NotNull String fillCommonPlaceholders(
-    @NotNull String value,
+  public static @NonNull String fillCommonPlaceholders(
+    @NonNull String value,
     @Nullable String group,
     @Nullable ServiceInfoSnapshot service
   ) {
@@ -93,40 +93,40 @@ public final class BridgeServiceHelper {
       return value;
     }
     // replace all service id placeholders
-    value = value.replace("%name%", service.getServiceId().getName());
-    value = value.replace("%task%", service.getServiceId().getTaskName());
-    value = value.replace("%node%", service.getServiceId().getNodeUniqueId());
-    value = value.replace("%unique_id%", service.getServiceId().getUniqueId().toString());
-    value = value.replace("%environment%", service.getServiceId().getEnvironment().getName());
-    value = value.replace("%task_id%", Integer.toString(service.getServiceId().getTaskServiceId()));
-    value = value.replace("%uid%", service.getServiceId().getUniqueId().toString().split("-")[0]);
+    value = value.replace("%name%", service.serviceId().name());
+    value = value.replace("%task%", service.serviceId().taskName());
+    value = value.replace("%node%", service.serviceId().nodeUniqueId());
+    value = value.replace("%unique_id%", service.serviceId().uniqueId().toString());
+    value = value.replace("%environment%", service.serviceId().environment().name());
+    value = value.replace("%task_id%", Integer.toString(service.serviceId().taskServiceId()));
+    value = value.replace("%uid%", service.serviceId().uniqueId().toString().split("-")[0]);
     // general service information
-    value = value.replace("%life_cycle%", service.getLifeCycle().name());
-    value = value.replace("%runtime%", service.getConfiguration().getRuntime());
-    value = value.replace("%port%", Integer.toString(service.getConfiguration().getPort()));
+    value = value.replace("%life_cycle%", service.lifeCycle().name());
+    value = value.replace("%runtime%", service.configuration().runtime());
+    value = value.replace("%port%", Integer.toString(service.configuration().port()));
     // process information
-    value = value.replace("%pid%", Integer.toString(service.getProcessSnapshot().getPid()));
-    value = value.replace("%threads%", Integer.toString(service.getProcessSnapshot().getThreads().size()));
-    value = value.replace("%heap_usage%", Long.toString(service.getProcessSnapshot().getHeapUsageMemory()));
-    value = value.replace("%max_heap_usage%", Long.toString(service.getProcessSnapshot().getMaxHeapMemory()));
-    value = value.replace("%cpu_usage%", CPUUsageResolver.FORMAT.format(service.getProcessSnapshot().getCpuUsage()));
+    value = value.replace("%pid%", Long.toString(service.processSnapshot().pid()));
+    value = value.replace("%threads%", Integer.toString(service.processSnapshot().threads().size()));
+    value = value.replace("%heap_usage%", Long.toString(service.processSnapshot().heapUsageMemory()));
+    value = value.replace("%max_heap_usage%", Long.toString(service.processSnapshot().maxHeapMemory()));
+    value = value.replace("%cpu_usage%", CPUUsageResolver.FORMAT.format(service.processSnapshot().cpuUsage()));
     // bridge information
     value = value.replace("%online%",
-      BridgeServiceProperties.IS_ONLINE.get(service).orElse(false) ? "Online" : "Offline");
+      BridgeServiceProperties.IS_ONLINE.read(service).orElse(false) ? "Online" : "Offline");
     value = value.replace("%online_players%",
-      Integer.toString(BridgeServiceProperties.ONLINE_COUNT.get(service).orElse(0)));
+      Integer.toString(BridgeServiceProperties.ONLINE_COUNT.read(service).orElse(0)));
     value = value.replace("%max_players%",
-      Integer.toString(BridgeServiceProperties.MAX_PLAYERS.get(service).orElse(0)));
-    value = value.replace("%motd%", BridgeServiceProperties.MOTD.get(service).orElse(""));
-    value = value.replace("%extra%", BridgeServiceProperties.EXTRA.get(service).orElse(""));
-    value = value.replace("%state%", BridgeServiceProperties.STATE.get(service).orElse(""));
-    value = value.replace("%version%", BridgeServiceProperties.VERSION.get(service).orElse(""));
+      Integer.toString(BridgeServiceProperties.MAX_PLAYERS.read(service).orElse(0)));
+    value = value.replace("%motd%", BridgeServiceProperties.MOTD.read(service).orElse(""));
+    value = value.replace("%extra%", BridgeServiceProperties.EXTRA.read(service).orElse(""));
+    value = value.replace("%state%", BridgeServiceProperties.STATE.read(service).orElse(""));
+    value = value.replace("%version%", BridgeServiceProperties.VERSION.read(service).orElse(""));
     // done
     return value;
   }
 
-  public static @NotNull NetworkServiceInfo createServiceInfo(@NotNull ServiceInfoSnapshot snapshot) {
-    return new NetworkServiceInfo(snapshot.getConfiguration().getGroups(), snapshot.getServiceId());
+  public static @NonNull NetworkServiceInfo createServiceInfo(@NonNull ServiceInfoSnapshot snapshot) {
+    return new NetworkServiceInfo(snapshot.configuration().groups(), snapshot.serviceId());
   }
 
   public enum ServiceInfoState {

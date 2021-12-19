@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.s3;
 
-import com.google.common.io.ByteStreams;
 import de.dytanic.cloudnet.common.function.ThrowableConsumer;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.log.LogManager;
@@ -39,7 +38,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -64,29 +63,29 @@ import software.amazon.awssdk.services.s3.model.S3Object;
 
 public class S3TemplateStorage implements TemplateStorage {
 
-  private static final Logger LOGGER = LogManager.getLogger(S3TemplateStorage.class);
+  private static final Logger LOGGER = LogManager.logger(S3TemplateStorage.class);
 
   private final S3Client client;
   private final S3TemplateStorageModule module;
 
-  public S3TemplateStorage(@NotNull S3TemplateStorageModule module) {
+  public S3TemplateStorage(@NonNull S3TemplateStorageModule module) {
     this.module = module;
     this.client = S3Client.builder()
-      .region(Region.of(this.getConfig().getRegion()))
-      .endpointOverride(this.getConfig().getEndpointOverride())
-      .dualstackEnabled(this.getConfig().isDualstackEndpointEnabled())
+      .region(Region.of(this.config().region()))
+      .endpointOverride(this.config().endpointOverride())
+      .dualstackEnabled(this.config().dualstackEndpointEnabled())
       .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(
-        this.getConfig().getAccessKey(),
-        this.getConfig().getSecretKey())))
+        this.config().accessKey(),
+        this.config().secretKey())))
       .build();
 
     // init the bucket
     try {
-      this.client.headBucket(HeadBucketRequest.builder().bucket(this.getConfig().getBucket()).build());
+      this.client.headBucket(HeadBucketRequest.builder().bucket(this.config().bucket()).build());
     } catch (NoSuchBucketException exception) {
       // try to create the bucket
       try {
-        this.client.createBucket(CreateBucketRequest.builder().bucket(this.getConfig().getBucket()).build());
+        this.client.createBucket(CreateBucketRequest.builder().bucket(this.config().bucket()).build());
       } catch (BucketAlreadyExistsException | BucketAlreadyOwnedByYouException ignored) {
         // unlikely to happen - not an error
       }
@@ -94,14 +93,14 @@ public class S3TemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public @NotNull String getName() {
-    return this.getConfig().getName();
+  public @NonNull String name() {
+    return this.config().name();
   }
 
   @Override
   public boolean deployDirectory(
-    @NotNull Path directory,
-    @NotNull ServiceTemplate target,
+    @NonNull Path directory,
+    @NonNull ServiceTemplate target,
     @Nullable Predicate<Path> fileFilter
   ) {
     var result = new AtomicBoolean(true);
@@ -110,7 +109,7 @@ public class S3TemplateStorage implements TemplateStorage {
       if (!Files.isDirectory(file)) {
         try {
           var request = PutObjectRequest.builder()
-            .bucket(this.getConfig().getBucket())
+            .bucket(this.config().bucket())
             .key(this.getBucketPath(target, directory, file))
             .contentType(this.getContentType(file))
             .contentLength(Files.size(file))
@@ -120,7 +119,7 @@ public class S3TemplateStorage implements TemplateStorage {
           LOGGER.severe("Exception putting file %s into s3 bucket %s",
             exception,
             file.toAbsolutePath(),
-            this.getConfig().getBucket());
+            this.config().bucket());
           result.set(false);
         }
       }
@@ -130,8 +129,8 @@ public class S3TemplateStorage implements TemplateStorage {
 
   @Override
   public boolean deploy(
-    @NotNull InputStream inputStream,
-    @NotNull ServiceTemplate target
+    @NonNull InputStream inputStream,
+    @NonNull ServiceTemplate target
   ) {
     var temp = FileUtils.extract(inputStream, FileUtils.createTempFile());
     if (temp != null) {
@@ -145,7 +144,7 @@ public class S3TemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public boolean copy(@NotNull ServiceTemplate template, @NotNull Path directory) {
+  public boolean copy(@NonNull ServiceTemplate template, @NonNull Path directory) {
     try {
       // get the repo path
       var templatePath = this.getBucketPath(template);
@@ -157,7 +156,7 @@ public class S3TemplateStorage implements TemplateStorage {
         // get the file
         var req = GetObjectRequest.builder()
           .key(content.key())
-          .bucket(this.getConfig().getBucket())
+          .bucket(this.config().bucket())
           .build();
         try (InputStream stream = this.client.getObject(req); var out = Files.newOutputStream(target)) {
           FileUtils.copy(stream, out);
@@ -170,7 +169,7 @@ public class S3TemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public @Nullable InputStream zipTemplate(@NotNull ServiceTemplate template) {
+  public @Nullable InputStream zipTemplate(@NonNull ServiceTemplate template) {
     var localTarget = FileUtils.createTempFile();
     if (this.copy(template, localTarget)) {
       return FileUtils.zipToStream(localTarget);
@@ -180,7 +179,7 @@ public class S3TemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public boolean delete(@NotNull ServiceTemplate template) {
+  public boolean delete(@NonNull ServiceTemplate template) {
     // get the contents we want to delete
     Set<ObjectIdentifier> toDelete = new HashSet<>();
     this.listAllObjects(
@@ -191,7 +190,7 @@ public class S3TemplateStorage implements TemplateStorage {
     try {
       // build the delete request
       var deleteRequest = DeleteObjectsRequest.builder()
-        .bucket(this.getConfig().getBucket())
+        .bucket(this.config().bucket())
         .delete(Delete.builder().quiet(true).objects(toDelete).build())
         .build();
       this.client.deleteObjects(deleteRequest);
@@ -204,18 +203,18 @@ public class S3TemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public boolean create(@NotNull ServiceTemplate template) {
+  public boolean create(@NonNull ServiceTemplate template) {
     return true; // there are no directories
   }
 
   @Override
-  public boolean has(@NotNull ServiceTemplate template) {
+  public boolean has(@NonNull ServiceTemplate template) {
     try {
       // check if we can get at least one object
       var request = ListObjectsV2Request.builder()
         .maxKeys(1)
         .fetchOwner(false)
-        .bucket(this.getConfig().getBucket())
+        .bucket(this.config().bucket())
         .prefix(this.getBucketPath(template))
         .build();
       return !this.client.listObjectsV2(request).contents().isEmpty();
@@ -226,19 +225,19 @@ public class S3TemplateStorage implements TemplateStorage {
 
   @Override
   public @Nullable OutputStream appendOutputStream(
-    @NotNull ServiceTemplate template,
-    @NotNull String path
+    @NonNull ServiceTemplate template,
+    @NonNull String path
   ) throws IOException {
     ByteArrayOutputStream original;
     // try to get the old data
     try {
       var request = GetObjectRequest.builder()
-        .bucket(this.getConfig().getBucket())
+        .bucket(this.config().bucket())
         .key(this.getBucketPath(template, path))
         .build();
       try (InputStream inputStream = this.client.getObject(request)) {
         original = new ByteArrayOutputStream(inputStream.available());
-        ByteStreams.copy(inputStream, original);
+        inputStream.transferTo(original);
       }
     } catch (NoSuchKeyException exception) {
       original = new ByteArrayOutputStream();
@@ -248,20 +247,20 @@ public class S3TemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public @Nullable OutputStream newOutputStream(@NotNull ServiceTemplate template, @NotNull String path) {
+  public @Nullable OutputStream newOutputStream(@NonNull ServiceTemplate template, @NonNull String path) {
     return this.wrapStream(template, path, new ByteArrayOutputStream());
   }
 
-  protected @NotNull OutputStream wrapStream(
-    @NotNull ServiceTemplate template,
-    @NotNull String filePath,
-    @NotNull ByteArrayOutputStream original
+  protected @NonNull OutputStream wrapStream(
+    @NonNull ServiceTemplate template,
+    @NonNull String filePath,
+    @NonNull ByteArrayOutputStream original
   ) {
     return new ListeningOutputStream<>(original, stream -> {
       var content = stream.toByteArray();
       try (InputStream inputStream = new ByteArrayInputStream(content)) {
         var request = PutObjectRequest.builder()
-          .bucket(this.getConfig().getBucket())
+          .bucket(this.config().bucket())
           .key(this.getBucketPath(template, filePath))
           .contentLength((long) content.length)
           .contentType("application/octet-stream")
@@ -272,7 +271,7 @@ public class S3TemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public boolean createFile(@NotNull ServiceTemplate template, @NotNull String path) {
+  public boolean createFile(@NonNull ServiceTemplate template, @NonNull String path) {
     try {
       var request = PutObjectRequest.builder()
         .bucket(this.getBucketPath(template, path))
@@ -289,15 +288,15 @@ public class S3TemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public boolean createDirectory(@NotNull ServiceTemplate template, @NotNull String path) {
+  public boolean createDirectory(@NonNull ServiceTemplate template, @NonNull String path) {
     return true; // there are no folders
   }
 
   @Override
-  public boolean hasFile(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
+  public boolean hasFile(@NonNull ServiceTemplate template, @NonNull String path) throws IOException {
     try {
       var request = GetObjectRequest.builder()
-        .bucket(this.getConfig().getBucket())
+        .bucket(this.config().bucket())
         .key(this.getBucketPath(template, path))
         .build();
       this.client.getObject(request).close();
@@ -309,10 +308,10 @@ public class S3TemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public boolean deleteFile(@NotNull ServiceTemplate template, @NotNull String path) {
+  public boolean deleteFile(@NonNull ServiceTemplate template, @NonNull String path) {
     try {
       var request = DeleteObjectRequest.builder()
-        .bucket(this.getConfig().getBucket())
+        .bucket(this.config().bucket())
         .key(this.getBucketPath(template, path))
         .build();
       this.client.deleteObject(request);
@@ -324,10 +323,10 @@ public class S3TemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public @Nullable InputStream newInputStream(@NotNull ServiceTemplate template, @NotNull String path) {
+  public @Nullable InputStream newInputStream(@NonNull ServiceTemplate template, @NonNull String path) {
     try {
       var request = GetObjectRequest.builder()
-        .bucket(this.getConfig().getBucket())
+        .bucket(this.config().bucket())
         .key(this.getBucketPath(template, path))
         .build();
       return this.client.getObject(request);
@@ -337,12 +336,12 @@ public class S3TemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public @Nullable FileInfo getFileInfo(@NotNull ServiceTemplate template, @NotNull String path) {
+  public @Nullable FileInfo fileInfo(@NonNull ServiceTemplate template, @NonNull String path) {
     try {
       var bucketPath = this.getBucketPath(template, path);
       // get the object info
       var request = HeadObjectRequest.builder()
-        .bucket(this.getConfig().getBucket())
+        .bucket(this.config().bucket())
         .key(bucketPath)
         .build();
       var response = this.client.headObject(request);
@@ -364,7 +363,7 @@ public class S3TemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public @Nullable FileInfo[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir, boolean deep) {
+  public @Nullable FileInfo[] listFiles(@NonNull ServiceTemplate template, @NonNull String dir, boolean deep) {
     // get the initial data we need to strip off
     var initialStrip = this.getBucketPath(template).length();
     // collect all files
@@ -386,14 +385,14 @@ public class S3TemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public @NotNull Collection<ServiceTemplate> getTemplates() {
+  public @NonNull Collection<ServiceTemplate> templates() {
     Set<ServiceTemplate> result = new HashSet<>();
     // list all files - filter out the possible template prefixes
     this.listAllObjects("", null, object -> {
       var parts = object.key().split("/");
       if (parts.length >= 2) {
         result.add(ServiceTemplate.builder()
-          .storage(this.getConfig().getName())
+          .storage(this.config().name())
           .prefix(parts[0])
           .name(parts[1])
           .build());
@@ -408,16 +407,16 @@ public class S3TemplateStorage implements TemplateStorage {
   }
 
   protected boolean listAllObjects(
-    @NotNull String prefix,
+    @NonNull String prefix,
     @Nullable String marker,
-    @NotNull ThrowableConsumer<S3Object, Exception> handler
+    @NonNull ThrowableConsumer<S3Object, Exception> handler
   ) {
     try {
       var response = this.client.listObjectsV2(ListObjectsV2Request.builder()
         .prefix(prefix)
         .fetchOwner(false)
         .continuationToken(marker)
-        .bucket(this.getConfig().getBucket())
+        .bucket(this.config().bucket())
         .build());
       // handle all results
       for (var content : response.contents()) {
@@ -433,13 +432,13 @@ public class S3TemplateStorage implements TemplateStorage {
     } catch (Exception exception) {
       LOGGER.severe("Exception listing content of bucket %s with prefix %s",
         exception,
-        this.getConfig().getBucket(),
+        this.config().bucket(),
         prefix);
       return false;
     }
   }
 
-  protected @NotNull String getContentType(@NotNull Path file) {
+  protected @NonNull String getContentType(@NonNull Path file) {
     try {
       return Files.probeContentType(file);
     } catch (IOException exception) {
@@ -447,19 +446,19 @@ public class S3TemplateStorage implements TemplateStorage {
     }
   }
 
-  protected @NotNull String getBucketPath(@NotNull ServiceTemplate template) {
-    return String.format("%s/%s", template.getPrefix(), template.getName());
+  protected @NonNull String getBucketPath(@NonNull ServiceTemplate template) {
+    return String.format("%s/%s", template.prefix(), template.name());
   }
 
-  protected @NotNull String getBucketPath(@NotNull ServiceTemplate template, @NotNull String subPath) {
+  protected @NonNull String getBucketPath(@NonNull ServiceTemplate template, @NonNull String subPath) {
     return String.format("%s/%s", this.getBucketPath(template), subPath.replace('\\', '/'));
   }
 
-  protected @NotNull String getBucketPath(@NotNull ServiceTemplate template, @NotNull Path root, @NotNull Path file) {
+  protected @NonNull String getBucketPath(@NonNull ServiceTemplate template, @NonNull Path root, @NonNull Path file) {
     return this.getBucketPath(template, root.relativize(file).toString());
   }
 
-  protected @NotNull S3TemplateStorageConfig getConfig() {
-    return this.module.getConfig();
+  protected @NonNull S3TemplateStorageConfig config() {
+    return this.module.config();
   }
 }

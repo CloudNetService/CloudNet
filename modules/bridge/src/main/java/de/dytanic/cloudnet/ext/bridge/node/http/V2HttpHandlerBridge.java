@@ -74,7 +74,7 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
       return;
     }
 
-    this.getPlayerManager().updateOfflinePlayer(cloudOfflinePlayer);
+    this.playerManager().updateOfflinePlayer(cloudOfflinePlayer);
     this.response(context, HttpResponseCode.HTTP_CREATED)
       .body(this.success().toString())
       .context()
@@ -84,7 +84,7 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
 
   protected void handleDeleteCloudPlayerRequest(IHttpContext context) {
     this.handleWithCloudPlayerContext(context, false, player -> {
-      this.getPlayerManager().deleteCloudOfflinePlayer(player);
+      this.playerManager().deleteCloudOfflinePlayer(player);
       this.ok(context)
         .body(this.success().toString())
         .context()
@@ -112,9 +112,9 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
     try {
       // try to parse a player unique id from the string
       var uniqueId = UUID.fromString(identifier);
-      player = this.getPlayerManager().getOfflinePlayer(uniqueId);
+      player = this.playerManager().offlinePlayer(uniqueId);
     } catch (Exception exception) {
-      player = this.getPlayerManager().getFirstOfflinePlayer(identifier);
+      player = this.playerManager().firstOfflinePlayer(identifier);
     }
     // check if a player is present before applying to the handler
     if (player == null && !mayBeNull) {
@@ -129,8 +129,8 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
     handler.accept(player);
   }
 
-  protected IPlayerManager getPlayerManager() {
-    return this.getCloudNet().getServicesRegistry().getFirstService(IPlayerManager.class);
+  protected IPlayerManager playerManager() {
+    return this.node().servicesRegistry().firstService(IPlayerManager.class);
   }
 
 }

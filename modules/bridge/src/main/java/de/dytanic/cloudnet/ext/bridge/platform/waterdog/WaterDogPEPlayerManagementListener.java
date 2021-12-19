@@ -27,15 +27,15 @@ import dev.waterdog.waterdogpe.event.defaults.PlayerLoginEvent;
 import dev.waterdog.waterdogpe.event.defaults.TransferCompleteEvent;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
 import java.util.Locale;
+import lombok.NonNull;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.jetbrains.annotations.NotNull;
 
 final class WaterDogPEPlayerManagementListener {
 
   private final PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> management;
 
   public WaterDogPEPlayerManagementListener(
-    @NotNull PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> management
+    @NonNull PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> management
   ) {
     this.management = management;
     // subscribe to all events
@@ -44,23 +44,23 @@ final class WaterDogPEPlayerManagementListener {
     ProxyServer.getInstance().getEventManager().subscribe(PlayerDisconnectEvent.class, this::handleDisconnected);
   }
 
-  private void handleLogin(@NotNull PlayerLoginEvent event) {
-    var task = this.management.getSelfTask();
+  private void handleLogin(@NonNull PlayerLoginEvent event) {
+    var task = this.management.selfTask();
     // check if the current task is present
     if (task != null) {
       // check if maintenance is activated
-      if (task.isMaintenance() && !event.getPlayer().hasPermission("cloudnet.bridge.maintenance")) {
+      if (task.maintenance() && !event.getPlayer().hasPermission("cloudnet.bridge.maintenance")) {
         event.setCancelled(true);
-        event.setCancelReason(this.management.getConfiguration().getMessage(
+        event.setCancelReason(this.management.configuration().message(
           Locale.ENGLISH,
           "proxy-join-cancel-because-maintenance"));
         return;
       }
       // check if a custom permission is required to join
-      var permission = task.getProperties().getString("requiredPermission");
+      var permission = task.properties().getString("requiredPermission");
       if (permission != null && !event.getPlayer().hasPermission(permission)) {
         event.setCancelled(true);
-        event.setCancelReason(this.management.getConfiguration().getMessage(
+        event.setCancelReason(this.management.configuration().message(
           Locale.ENGLISH,
           "proxy-join-cancel-because-permission"));
         return;
@@ -69,22 +69,22 @@ final class WaterDogPEPlayerManagementListener {
     // check if the player is allowed to log in
     var loginResult = ProxyPlatformHelper.sendChannelMessagePreLogin(
       this.management.createPlayerInformation(event.getPlayer()));
-    if (!loginResult.isAllowed()) {
+    if (!loginResult.permitLogin()) {
       event.setCancelled(true);
-      event.setCancelReason(LegacyComponentSerializer.legacySection().serialize(loginResult.getResult()));
+      event.setCancelReason(LegacyComponentSerializer.legacySection().serialize(loginResult.result()));
     }
   }
 
-  private void handleTransfer(@NotNull TransferCompleteEvent event) {
+  private void handleTransfer(@NonNull TransferCompleteEvent event) {
     if (event.getOldClient() == null) {
       // the player logged in successfully if he is now connected to a service for the first time
       ProxyPlatformHelper.sendChannelMessageLoginSuccess(this.management.createPlayerInformation(event.getPlayer()));
       // update the service info
-      Wrapper.getInstance().publishServiceInfoUpdate();
+      Wrapper.instance().publishServiceInfoUpdate();
     } else {
       // the player switched the service
       this.management
-        .getCachedService(service -> service.getName().equals(event.getNewClient().getServerInfo().getServerName()))
+        .cachedService(service -> service.name().equals(event.getNewClient().getServerInfo().getServerName()))
         .map(BridgeServiceHelper::createServiceInfo)
         .ifPresent(info -> ProxyPlatformHelper.sendChannelMessageServiceSwitch(event.getPlayer().getUniqueId(), info));
     }
@@ -92,12 +92,12 @@ final class WaterDogPEPlayerManagementListener {
     this.management.handleFallbackConnectionSuccess(event.getPlayer());
   }
 
-  private void handleDisconnected(@NotNull PlayerDisconnectEvent event) {
+  private void handleDisconnected(@NonNull PlayerDisconnectEvent event) {
     // check if the player successfully connected to a server before
     if (event.getPlayer().getServerInfo() != null) {
       ProxyPlatformHelper.sendChannelMessageDisconnected(event.getPlayer().getUniqueId());
       // update the service info
-      ProxyServer.getInstance().getScheduler().scheduleDelayed(Wrapper.getInstance()::publishServiceInfoUpdate, 1);
+      ProxyServer.getInstance().getScheduler().scheduleDelayed(Wrapper.instance()::publishServiceInfoUpdate, 1);
     }
     // always remove the player fallback profile
     this.management.removeFallbackProfile(event.getPlayer());

@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.console.animation.progressbar.ConsoleProgressAnimatio
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class WrappedInputStream extends FilterInputStream {
 
@@ -29,9 +29,9 @@ public final class WrappedInputStream extends FilterInputStream {
   private long mark = 0;
 
   public WrappedInputStream(
-    @NotNull InputStream in,
-    @NotNull IConsole console,
-    @NotNull ConsoleProgressAnimation animation
+    @NonNull InputStream in,
+    @NonNull IConsole console,
+    @NonNull ConsoleProgressAnimation animation
   ) {
     super(in);
 
@@ -49,7 +49,7 @@ public final class WrappedInputStream extends FilterInputStream {
   }
 
   @Override
-  public int read(byte[] b) throws IOException {
+  public int read(byte @NonNull [] b) throws IOException {
     var read = this.in.read(b);
     if (read != -1) {
       this.animation.stepBy(read);
@@ -58,7 +58,7 @@ public final class WrappedInputStream extends FilterInputStream {
   }
 
   @Override
-  public int read(byte[] b, int off, int len) throws IOException {
+  public int read(byte @NonNull [] b, int off, int len) throws IOException {
     var read = this.in.read(b, off, len);
     if (read != -1) {
       this.animation.stepBy(read);
@@ -76,7 +76,7 @@ public final class WrappedInputStream extends FilterInputStream {
   @Override
   public synchronized void mark(int mark) {
     this.in.mark(mark);
-    this.mark = this.animation.getCurrent();
+    this.mark = this.animation.current();
   }
 
   @Override

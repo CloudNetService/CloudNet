@@ -35,8 +35,7 @@ import de.dytanic.cloudnet.ext.bridge.config.ProxyFallbackConfiguration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
-import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 @CommandPermission("cloudnet.command.bridge")
 @Description("Management for the config of the bridge module")
@@ -45,51 +44,51 @@ public class CommandBridge {
   private final BridgeManagement bridgeManagement;
   private final GroupConfigurationProvider groupConfigurationProvider;
 
-  public CommandBridge(@NotNull BridgeManagement bridgeManagement) {
+  public CommandBridge(@NonNull BridgeManagement bridgeManagement) {
     this.bridgeManagement = bridgeManagement;
-    this.groupConfigurationProvider = CloudNet.getInstance().getGroupConfigurationProvider();
+    this.groupConfigurationProvider = CloudNet.instance().groupConfigurationProvider();
   }
 
   @Parser(name = "bridgeGroups", suggestions = "bridgeGroups")
-  public GroupConfiguration bridgeGroupParser(@NotNull CommandContext<?> $, @NotNull Queue<String> input) {
+  public GroupConfiguration bridgeGroupParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var name = input.remove();
-    var group = this.groupConfigurationProvider.getGroupConfiguration(name);
+    var group = this.groupConfigurationProvider.groupConfiguration(name);
     if (group == null) {
       throw new ArgumentNotAvailableException(I18n.trans("module-bridge-command-create-entry-group-not-found"));
     }
-    var fallbacks = this.bridgeManagement.getConfiguration().getFallbackConfigurations()
+    var fallbacks = this.bridgeManagement.configuration().fallbackConfigurations()
       .stream();
     // don't allow duplicated entries
-    if (fallbacks.anyMatch(fallback -> fallback.getTargetGroup().equals(group.getName()))) {
+    if (fallbacks.anyMatch(fallback -> fallback.targetGroup().equals(group.name()))) {
       throw new ArgumentNotAvailableException(I18n.trans("module-bridge-command-entry-already-exists"));
     }
     return group;
   }
 
   @Suggestions("bridgeGroups")
-  public List<String> suggestBridgeGroups(@NotNull CommandContext<?> $, String input) {
-    return this.groupConfigurationProvider.getGroupConfigurations().stream()
-      .map(INameable::getName)
-      .filter(group -> this.bridgeManagement.getConfiguration().getFallbackConfigurations().stream()
-        .noneMatch(fallback -> fallback.getTargetGroup().equals(group)))
-      .collect(Collectors.toList());
+  public List<String> suggestBridgeGroups(@NonNull CommandContext<?> $, String input) {
+    return this.groupConfigurationProvider.groupConfigurations().stream()
+      .map(INameable::name)
+      .filter(group -> this.bridgeManagement.configuration().fallbackConfigurations().stream()
+        .noneMatch(fallback -> fallback.targetGroup().equals(group)))
+      .toList();
   }
 
   @CommandMethod("bridge create entry <targetGroup>")
   public void createBridgeEntry(
-    @NotNull CommandSource source,
-    @NotNull @Argument(value = "targetGroup", parserName = "bridgeGroups") GroupConfiguration group
+    @NonNull CommandSource source,
+    @NonNull @Argument(value = "targetGroup", parserName = "bridgeGroups") GroupConfiguration group
   ) {
     // create a new configuration for the given target group
     var fallbackConfiguration = new ProxyFallbackConfiguration(
-      group.getName(),
+      group.name(),
       "Lobby",
       Collections.emptyList());
-    var configuration = this.bridgeManagement.getConfiguration();
+    var configuration = this.bridgeManagement.configuration();
     // add the new fallback entry to the configuration
-    configuration.getFallbackConfigurations().add(fallbackConfiguration);
+    configuration.fallbackConfigurations().add(fallbackConfiguration);
     // save and update the configuration
-    this.bridgeManagement.setConfiguration(configuration);
+    this.bridgeManagement.configuration(configuration);
     source.sendMessage(I18n.trans("module-bridge-command-create-entry-success"));
   }
 }

@@ -20,14 +20,16 @@ import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.handler.context.DefaultRPCInvocationContextBuilder;
 import java.util.Optional;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public interface RPCInvocationContext {
 
-  static @NotNull Builder builder() {
+  static @NonNull Builder builder() {
     return new DefaultRPCInvocationContextBuilder();
   }
+
+  int argumentCount();
 
   boolean expectsMethodResult();
 
@@ -35,30 +37,32 @@ public interface RPCInvocationContext {
 
   boolean strictInstanceUsage();
 
-  @NotNull String getMethodName();
+  @NonNull String methodName();
 
-  @NotNull INetworkChannel getChannel();
+  @NonNull INetworkChannel channel();
 
-  @NotNull DataBuf getArgumentInformation();
+  @NonNull DataBuf argumentInformation();
 
-  @NotNull Optional<Object> getWorkingInstance();
+  @NonNull Optional<Object> workingInstance();
 
   interface Builder {
 
-    @NotNull Builder expectsMethodResult(boolean expectsResult);
+    @NonNull Builder argumentCount(int argumentCount);
 
-    @NotNull Builder normalizePrimitives(boolean normalizePrimitives);
+    @NonNull Builder expectsMethodResult(boolean expectsResult);
 
-    @NotNull Builder strictInstanceUsage(boolean strictInstanceUsage);
+    @NonNull Builder normalizePrimitives(boolean normalizePrimitives);
 
-    @NotNull Builder methodName(@NotNull String methodName);
+    @NonNull Builder strictInstanceUsage(boolean strictInstanceUsage);
 
-    @NotNull Builder channel(@NotNull INetworkChannel channel);
+    @NonNull Builder methodName(@NonNull String methodName);
 
-    @NotNull Builder argumentInformation(@NotNull DataBuf information);
+    @NonNull Builder channel(@NonNull INetworkChannel channel);
 
-    @NotNull Builder workingInstance(@Nullable Object instance);
+    @NonNull Builder argumentInformation(@NonNull DataBuf information);
 
-    @NotNull RPCInvocationContext build();
+    @NonNull Builder workingInstance(@Nullable Object instance);
+
+    @NonNull RPCInvocationContext build();
   }
 }

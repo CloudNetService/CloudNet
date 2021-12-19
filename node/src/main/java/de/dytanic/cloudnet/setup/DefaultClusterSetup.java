@@ -35,12 +35,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class DefaultClusterSetup implements DefaultSetup {
 
   @Override
-  public void applyQuestions(@NotNull ConsoleSetupAnimation animation) {
+  public void applyQuestions(@NonNull ConsoleSetupAnimation animation) {
     animation.addEntries(
       QuestionListEntry.<Boolean>builder()
         .key("installCluster")
@@ -92,19 +92,19 @@ public class DefaultClusterSetup implements DefaultSetup {
   }
 
   @Override
-  public void handleResults(@NotNull ConsoleSetupAnimation animation) {
-    if (animation.getResult("installCluster")) {
-      var config = CloudNet.getInstance().getConfig();
+  public void handleResults(@NonNull ConsoleSetupAnimation animation) {
+    if (animation.result("installCluster")) {
+      var config = CloudNet.instance().config();
 
       // apply the cluster settings
-      Collection<String> nodeNames = animation.getResult("nodesList");
-      config.setClusterConfig(new NetworkCluster(
-        animation.getResult("clusterId"),
+      Collection<String> nodeNames = animation.result("nodesList");
+      config.clusterConfig(new NetworkCluster(
+        animation.result("clusterId"),
         nodeNames.stream()
           .map(node -> {
-            HostAndPort address = animation.getResult("nodeHost-" + node);
+            HostAndPort address = animation.result("nodeHost-" + node);
             // whitelist the address
-            config.getIpWhitelist().add(address.getHost());
+            config.ipWhitelist().add(address.host());
             // map to a node
             return new NetworkClusterNode(node, new HostAndPort[]{address});
           })

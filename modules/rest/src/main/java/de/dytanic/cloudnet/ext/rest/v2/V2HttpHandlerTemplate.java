@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.ext.rest.v2;
 
-import com.google.common.io.ByteStreams;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.network.http.IHttpResponse;
@@ -29,7 +28,7 @@ import de.dytanic.cloudnet.template.install.InstallInformation;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
 import java.io.IOException;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class V2HttpHandlerTemplate extends V2HttpHandler {
@@ -128,7 +127,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
   protected void handleFileInfoRequest(IHttpContext context) {
     this.handleWithFileTemplateContext(context, (template, storage, path) -> {
-      var info = storage.getFileInfoAsync(path).get();
+      var info = storage.fileInfoAsync(path).get();
       if (info == null) {
         this.notFound(context)
           .body(this.failure().append("reason", "Unknown file or directory").toString())
@@ -158,8 +157,8 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
   protected void handleFileListRequest(IHttpContext context) {
     this.handleWithTemplateContext(context, (template, storage) -> {
-      var dir = RestUtils.getFirst(context.request().queryParameters().get("directory"), "");
-      var deep = Boolean.parseBoolean(RestUtils.getFirst(context.request().queryParameters().get("deep"), "false"));
+      var dir = RestUtils.first(context.request().queryParameters().get("directory"), "");
+      var deep = Boolean.parseBoolean(RestUtils.first(context.request().queryParameters().get("deep"), "false"));
 
       var files = storage.listFilesAsync(dir, deep).get();
       this.ok(context)
@@ -230,7 +229,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
       var versionType = body.get("type", ServiceVersionType.class);
       if (versionType == null) {
-        versionType = this.getCloudNet().getServiceVersionProvider()
+        versionType = this.node().serviceVersionProvider()
           .getServiceVersionType(body.getString("typeName", "")).orElse(null);
         if (versionType == null) {
           this.badRequest(context)
@@ -244,7 +243,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
       var version = body.get("version", ServiceVersion.class);
       if (version == null) {
-        version = versionType.getVersion(body.getString("versionName", "")).orElse(null);
+        version = versionType.version(body.getString("versionName", "")).orElse(null);
         if (version == null) {
           this.badRequest(context)
             .body(this.failure().append("reason", "Missing version or version name").toString())
@@ -256,7 +255,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
       }
 
       var forceInstall = body.getBoolean("force", false);
-      var cacheFiles = body.getBoolean("caches", version.isCacheFiles());
+      var cacheFiles = body.getBoolean("caches", version.cacheFiles());
 
       var installInformation = InstallInformation.builder()
         .serviceVersion(version)
@@ -265,7 +264,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
         .toTemplate(template)
         .build();
 
-      if (this.getCloudNet().getServiceVersionProvider()
+      if (this.node().serviceVersionProvider()
         .installServiceVersion(installInformation, forceInstall)) {
         this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
       } else {
@@ -296,7 +295,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
           .cancelNext();
       } else {
         try {
-          ByteStreams.copy(content, stream);
+          content.transferTo(stream);
           this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
         } catch (IOException exception) {
           this.notifyException(context, exception);
@@ -353,7 +352,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
   protected void handleWithFileTemplateContext(IHttpContext context,
     ThrowableTriConsumer<ServiceTemplate, SpecificTemplateStorage, String, Exception> handler) {
     this.handleWithTemplateContext(context, (template, storage) -> {
-      var fileName = RestUtils.getFirst(context.request().queryParameters().get("path"), null);
+      var fileName = RestUtils.first(context.request().queryParameters().get("path"), null);
       if (fileName == null) {
         this.badRequest(context)
           .body(this.failure().append("reason", "Missing file name in path").toString())
@@ -376,11 +375,11 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected IHttpResponse ok(@NotNull IHttpContext context, @NotNull String contentType) {
+  protected IHttpResponse ok(@NonNull IHttpContext context, @NonNull String contentType) {
     return context.response()
       .statusCode(HttpResponseCode.HTTP_OK)
       .header("Content-Type", contentType)
-      .header("Access-Control-Allow-Origin", this.accessControlConfiguration.getCorsPolicy());
+      .header("Access-Control-Allow-Origin", this.accessControlConfiguration.corsPolicy());
   }
 
   protected @Nullable String guessFileName(String path) {

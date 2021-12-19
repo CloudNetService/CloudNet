@@ -20,7 +20,7 @@ import de.dytanic.cloudnet.command.source.DriverCommandSource;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.Permission;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class PermissionUserCommandSource extends DriverCommandSource {
 
@@ -28,8 +28,8 @@ public final class PermissionUserCommandSource extends DriverCommandSource {
   private final IPermissionManagement permissionManagement;
 
   public PermissionUserCommandSource(
-    @NotNull PermissionUser permissionUser,
-    @NotNull IPermissionManagement permissionManagement
+    @NonNull PermissionUser permissionUser,
+    @NonNull IPermissionManagement permissionManagement
   ) {
     this.permissionUser = permissionUser;
     this.permissionManagement = permissionManagement;
@@ -39,8 +39,8 @@ public final class PermissionUserCommandSource extends DriverCommandSource {
    * @return the name of the backing permission user
    */
   @Override
-  public @NotNull String getName() {
-    return this.permissionUser.getName();
+  public @NonNull String name() {
+    return this.permissionUser.name();
   }
 
   /**
@@ -48,7 +48,7 @@ public final class PermissionUserCommandSource extends DriverCommandSource {
    * @return whether the backing permission user has the permission
    */
   @Override
-  public boolean checkPermission(@NotNull String permission) {
+  public boolean checkPermission(@NonNull String permission) {
     return this.permissionManagement.hasPermission(this.permissionUser, new Permission(permission));
   }
 }

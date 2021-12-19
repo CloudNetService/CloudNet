@@ -27,36 +27,36 @@ import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.def.PacketClientAuthorization;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class NetworkClientChannelHandler implements INetworkChannelHandler {
 
   @Override
-  public void handleChannelInitialize(@NotNull INetworkChannel channel) {
+  public void handleChannelInitialize(@NonNull INetworkChannel channel) {
     var networkChannelInitEvent = new NetworkChannelInitEvent(channel, ChannelType.SERVER_CHANNEL);
-    CloudNetDriver.getInstance().getEventManager().callEvent(networkChannelInitEvent);
+    CloudNetDriver.instance().eventManager().callEvent(networkChannelInitEvent);
 
-    if (networkChannelInitEvent.isCancelled()) {
+    if (networkChannelInitEvent.cancelled()) {
       channel.close();
       return;
     }
 
-    networkChannelInitEvent.getNetworkChannel().sendPacket(new PacketClientAuthorization(
+    networkChannelInitEvent.networkChannel().sendPacket(new PacketClientAuthorization(
       PacketClientAuthorization.PacketAuthorizationType.WRAPPER_TO_NODE,
       DataBuf.empty()
-        .writeString(Wrapper.getInstance().getConfig().getConnectionKey())
-        .writeObject(Wrapper.getInstance().getConfig().getServiceConfiguration().getServiceId())));
+        .writeString(Wrapper.instance().config().connectionKey())
+        .writeObject(Wrapper.instance().config().serviceConfiguration().serviceId())));
   }
 
   @Override
-  public boolean handlePacketReceive(@NotNull INetworkChannel channel, @NotNull Packet packet) {
-    return !CloudNetDriver.getInstance().getEventManager().callEvent(
-      new NetworkChannelPacketReceiveEvent(channel, packet)).isCancelled();
+  public boolean handlePacketReceive(@NonNull INetworkChannel channel, @NonNull Packet packet) {
+    return !CloudNetDriver.instance().eventManager().callEvent(
+      new NetworkChannelPacketReceiveEvent(channel, packet)).cancelled();
   }
 
   @Override
-  public void handleChannelClose(@NotNull INetworkChannel channel) {
-    CloudNetDriver.getInstance().getEventManager().callEvent(
+  public void handleChannelClose(@NonNull INetworkChannel channel) {
+    CloudNetDriver.instance().eventManager().callEvent(
       new NetworkChannelCloseEvent(channel, ChannelType.CLIENT_CHANNEL));
   }
 }

@@ -23,12 +23,12 @@ import de.dytanic.cloudnet.console.IConsole;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
+import lombok.NonNull;
 import org.fusesource.jansi.Ansi;
-import org.jetbrains.annotations.NotNull;
 
 public abstract class AbstractConsoleAnimation implements Runnable {
 
-  protected static final Logger LOGGER = LogManager.getLogger(AbstractConsoleAnimation.class);
+  protected static final Logger LOGGER = LogManager.logger(AbstractConsoleAnimation.class);
 
   protected final int updateInterval;
   protected final Collection<Runnable> finishHandler = new ArrayList<>();
@@ -44,16 +44,16 @@ public abstract class AbstractConsoleAnimation implements Runnable {
   }
 
   public void addToCursor(int cursor) {
-    if (!this.isStaticCursor()) {
+    if (!this.staticCursor()) {
       this.cursorUp += cursor;
     }
   }
 
-  public void addFinishHandler(@NotNull Runnable finishHandler) {
+  public void addFinishHandler(@NonNull Runnable finishHandler) {
     this.finishHandler.add(finishHandler);
   }
 
-  protected void print(String @NotNull ... input) {
+  protected void print(String @NonNull ... input) {
     if (input.length != 0) {
       var ansi = Ansi.ansi().saveCursorPosition().cursorUp(this.cursorUp).eraseLine(Ansi.Erase.ALL);
       for (var a : input) {
@@ -95,19 +95,19 @@ public abstract class AbstractConsoleAnimation implements Runnable {
     }
   }
 
-  public boolean isStaticCursor() {
+  public boolean staticCursor() {
     return this.staticCursor;
   }
 
-  public int getUpdateInterval() {
+  public int updateInterval() {
     return this.updateInterval;
   }
 
-  public @NotNull IConsole getConsole() {
+  public @NonNull IConsole console() {
     return this.console;
   }
 
-  public void setConsole(@NotNull IConsole console) {
+  public void console(@NonNull IConsole console) {
     Verify.verify(this.console == null, "Cannot set console of animation twice");
     this.console = console;
   }

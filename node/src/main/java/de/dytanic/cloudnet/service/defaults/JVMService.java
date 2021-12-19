@@ -33,6 +33,8 @@ import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
+import de.dytanic.cloudnet.event.service.CloudServicePostProcessStartEvent;
+import de.dytanic.cloudnet.event.service.CloudServicePreProcessStartEvent;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.service.ServiceConfigurationPreparer;
 import de.dytanic.cloudnet.service.defaults.log.ProcessServiceLogCache;
@@ -50,12 +52,12 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class JVMService extends AbstractService {
 
-  protected static final Logger LOGGER = LogManager.getLogger(JVMService.class);
+  protected static final Logger LOGGER = LogManager.logger(JVMService.class);
   protected static final Pattern FILE_NUMBER_PATTERN = Pattern.compile("(\\d+).*");
   protected static final Path WRAPPER_TEMP_FILE = FileUtils.TEMP_DIR.resolve("caches").resolve("wrapper.jar");
   protected static final Collection<String> DEFAULT_JVM_SYSTEM_PROPERTIES = Arrays.asList(
@@ -68,11 +70,11 @@ public class JVMService extends AbstractService {
   protected volatile Process process;
 
   public JVMService(
-    @NotNull ServiceConfiguration configuration,
-    @NotNull ICloudServiceManager manager,
-    @NotNull IEventManager eventManager,
-    @NotNull CloudNet nodeInstance,
-    @NotNull ServiceConfigurationPreparer serviceConfigurationPreparer
+    @NonNull ServiceConfiguration configuration,
+    @NonNull ICloudServiceManager manager,
+    @NonNull IEventManager eventManager,
+    @NonNull CloudNet nodeInstance,
+    @NonNull ServiceConfigurationPreparer serviceConfigurationPreparer
   ) {
     super(configuration, manager, eventManager, nodeInstance, serviceConfigurationPreparer);
     super.logCache = new ProcessServiceLogCache(() -> this.process, nodeInstance, this);
@@ -82,7 +84,8 @@ public class JVMService extends AbstractService {
 
   @Override
   protected void startProcess() {
-    var environmentType = this.getServiceConfiguration().getServiceId().getEnvironment();
+    this.eventManager.callEvent(new CloudServicePreProcessStartEvent(this));
+    var environmentType = this.serviceConfiguration().serviceId().environment();
     // load the wrapper information if possible
     var wrapperInformation = this.prepareWrapperFile();
     if (wrapperInformation == null) {
@@ -97,46 +100,47 @@ public class JVMService extends AbstractService {
     }
 
     // get the agent class of the application (if any)
-    var agentClass = applicationInformation.getSecond().getMainAttributes().getValue("Premain-Class");
+    var agentClass = applicationInformation.second().mainAttributes().getValue("Premain-Class");
     if (agentClass == null) {
       // some old versions named the agent class 'Launcher-Agent-Class' - try that
-      agentClass = applicationInformation.getSecond().getMainAttributes().getValue("Launcher-Agent-Class");
+      agentClass = applicationInformation.second().mainAttributes().getValue("Launcher-Agent-Class");
     }
 
     // prepare the service startup
     List<String> arguments = new ArrayList<>();
 
     // add the java command to start the service
-    var overriddenJavaCommand = this.getServiceConfiguration().getJavaCommand();
-    arguments.add(overriddenJavaCommand == null ? this.getNodeConfiguration().getJVMCommand() : overriddenJavaCommand);
+    var overriddenJavaCommand = this.serviceConfiguration().javaCommand();
+    arguments.add(overriddenJavaCommand == null ? this.nodeConfiguration().javaCommand() : overriddenJavaCommand);
 
     // add all jvm flags
-    arguments.addAll(this.getNodeConfiguration().getDefaultJVMFlags().getJvmFlags());
-    arguments.addAll(this.getServiceConfiguration().getProcessConfig().getJvmOptions());
+    arguments.addAll(this.nodeConfiguration().defaultJVMFlags().jvmFlags());
+    arguments.addAll(this.serviceConfiguration().processConfig().jvmOptions());
 
     // override some default configuration options
     arguments.addAll(DEFAULT_JVM_SYSTEM_PROPERTIES);
-    arguments.add("-javaagent:" + wrapperInformation.getFirst().toAbsolutePath());
-    arguments.add("-Dcloudnet.wrapper.messages.language=" + I18n.getLanguage());
+    arguments.add("-javaagent:" + wrapperInformation.first().toAbsolutePath());
+    arguments.add("-Dcloudnet.wrapper.messages.language=" + I18n.language());
 
     // add the class path and the main class of the wrapper
     arguments.add("-cp");
-    arguments.add(wrapperInformation.getFirst().toAbsolutePath().toString());
-    arguments.add(wrapperInformation.getSecond().getValue("Main-Class")); // the main class we want to invoke first
+    arguments.add(wrapperInformation.first().toAbsolutePath().toString());
+    arguments.add(wrapperInformation.second().getValue("Main-Class")); // the main class we want to invoke first
 
     // add all internal process parameters (they will be removed by the wrapper before starting the application)
-    arguments.add(applicationInformation.getSecond().getMainAttributes().getValue("Main-Class"));
+    arguments.add(applicationInformation.second().mainAttributes().getValue("Main-Class"));
     arguments.add(String.valueOf(agentClass)); // the agent class might be null
-    arguments.add(applicationInformation.getFirst().toAbsolutePath().toString());
-    arguments.add(Boolean.toString(applicationInformation.getSecond().isPreloadJarContent()));
+    arguments.add(applicationInformation.first().toAbsolutePath().toString());
+    arguments.add(Boolean.toString(applicationInformation.second().preloadJarContent()));
 
     // add all process parameters
-    arguments.addAll(environmentType.getDefaultProcessArguments());
-    arguments.addAll(this.getServiceConfiguration().getProcessConfig().getProcessParameters());
+    arguments.addAll(environmentType.defaultProcessArguments());
+    arguments.addAll(this.serviceConfiguration().processConfig().processParameters());
 
     // try to start the process like that
     try {
       this.process = new ProcessBuilder(arguments).directory(this.serviceDirectory.toFile()).start();
+      this.eventManager.callEvent(new CloudServicePostProcessStartEvent(this, this.process.toHandle()));
     } catch (IOException exception) {
       LOGGER.severe("Unable to start process in %s with command line %s",
         exception,
@@ -154,7 +158,7 @@ public class JVMService extends AbstractService {
 
       try {
         // wait until the process termination seconds exceeded
-        if (this.process.waitFor(this.getNodeConfiguration().getProcessTerminationTimeoutSeconds(), TimeUnit.SECONDS)) {
+        if (this.process.waitFor(this.nodeConfiguration().processTerminationTimeoutSeconds(), TimeUnit.SECONDS)) {
           this.process.exitValue(); // validation that the process terminated
           this.process = null; // reset as there is no fall-through
           return;
@@ -162,13 +166,13 @@ public class JVMService extends AbstractService {
       } catch (IllegalThreadStateException | InterruptedException ignored) { // force shutdown the process
       }
       // force destroy the process now - not much we can do here more than that
-      this.process.destroyForcibly();
+      this.process.toHandle().destroyForcibly();
       this.process = null;
     }
   }
 
   @Override
-  public void runCommand(@NotNull String command) {
+  public void runCommand(@NonNull String command) {
     if (this.process != null) {
       try {
         var out = this.process.getOutputStream();
@@ -176,27 +180,26 @@ public class JVMService extends AbstractService {
         out.write((command + "\n").getBytes(StandardCharsets.UTF_8));
         out.flush();
       } catch (IOException exception) {
-        LOGGER.finer("Unable to dispatch command %s on service %s", exception, command, this.getServiceId());
+        LOGGER.finer("Unable to dispatch command %s on service %s", exception, command, this.serviceId());
       }
     }
   }
 
   @Override
-  public @NotNull String getRuntime() {
+  public @NonNull String runtime() {
     return "jvm";
   }
 
   @Override
-  public boolean isAlive() {
-    return this.process != null && this.process.isAlive();
+  public boolean alive() {
+    return this.process != null && this.process.toHandle().isAlive();
   }
 
   protected void initLogHandler() {
-    super.logCache.addHandler((source, line) -> {
+    super.logCache.addHandler(($, line) -> {
       for (var logTarget : super.logTargets.entrySet()) {
         if (logTarget.getKey().equals(ChannelMessageSender.self().toTarget())) {
-          this.nodeInstance.getEventManager()
-            .callEvent(logTarget.getValue(), new CloudServiceLogEntryEvent(this.lastServiceInfo, line));
+          this.eventManager.callEvent(logTarget.getValue(), new CloudServiceLogEntryEvent(this.lastServiceInfo, line));
         } else {
           ChannelMessage.builder()
             .target(logTarget.getKey())
@@ -235,12 +238,12 @@ public class JVMService extends AbstractService {
   }
 
   protected @Nullable Pair<Path, ApplicationStartupInformation> prepareApplicationFile(
-    @NotNull ServiceEnvironmentType environmentType
+    @NonNull ServiceEnvironmentType environmentType
   ) {
     // collect all names of environment names
-    var environments = this.nodeInstance.getServiceVersionProvider().getServiceVersionTypes().values().stream()
-      .filter(environment -> environment.getEnvironmentType().equals(environmentType.getName()))
-      .map(ServiceEnvironment::getName)
+    var environments = this.nodeInstance.serviceVersionProvider().serviceVersionTypes().values().stream()
+      .filter(environment -> environment.environmentType().equals(environmentType.name()))
+      .map(ServiceEnvironment::name)
       .collect(Collectors.collectingAndThen(Collectors.toSet(), result -> {
         // add a default fallback value which applied to all environments
         result.add("application");
@@ -301,8 +304,8 @@ public class JVMService extends AbstractService {
   }
 
   protected @Nullable <T> Pair<Path, T> completeJarAttributeInformation(
-    @NotNull Path jarFilePath,
-    @NotNull ThrowableFunction<JarFile, T, IOException> mapper
+    @NonNull Path jarFilePath,
+    @NonNull ThrowableFunction<JarFile, T, IOException> mapper
   ) {
     // open the file and lookup the main class
     try (var jarFile = new JarFile(jarFilePath.toFile())) {
@@ -313,22 +316,7 @@ public class JVMService extends AbstractService {
     }
   }
 
-  protected static class ApplicationStartupInformation {
+  protected record ApplicationStartupInformation(boolean preloadJarContent, @NonNull Attributes mainAttributes) {
 
-    private final boolean preloadJarContent;
-    private final Attributes mainAttributes;
-
-    public ApplicationStartupInformation(boolean preloadJarContent, @NotNull Attributes mainAttributes) {
-      this.preloadJarContent = preloadJarContent;
-      this.mainAttributes = mainAttributes;
-    }
-
-    public boolean isPreloadJarContent() {
-      return this.preloadJarContent;
-    }
-
-    public @NotNull Attributes getMainAttributes() {
-      return this.mainAttributes;
-    }
   }
 }

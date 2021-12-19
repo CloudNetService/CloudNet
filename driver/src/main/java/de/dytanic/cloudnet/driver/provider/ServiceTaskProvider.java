@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
@@ -42,14 +42,14 @@ public interface ServiceTaskProvider {
    * @return a list containing the task configurations of all tasks
    */
   @UnmodifiableView
-  @NotNull Collection<ServiceTask> getPermanentServiceTasks();
+  @NonNull Collection<ServiceTask> permanentServiceTasks();
 
   /**
    * Clears all existing service tasks and sets the given collection as the new service tasks
    *
    * @param serviceTasks the new service tasks
    */
-  void setPermanentServiceTasks(@NotNull Collection<ServiceTask> serviceTasks);
+  void permanentServiceTasks(@NonNull Collection<ServiceTask> serviceTasks);
 
   /**
    * Gets a specific task by its name
@@ -58,7 +58,7 @@ public interface ServiceTaskProvider {
    * @return the task or {@code null} if no task with that name exists
    */
   @Nullable
-  ServiceTask getServiceTask(@NotNull String name);
+  ServiceTask serviceTask(@NonNull String name);
 
   /**
    * Checks whether the task with a specific name exists
@@ -66,21 +66,21 @@ public interface ServiceTaskProvider {
    * @param name the name of the task
    * @return {@code true} if the task exists or {@code false} otherwise
    */
-  boolean isServiceTaskPresent(@NotNull String name);
+  boolean serviceTaskPresent(@NonNull String name);
 
   /**
    * Adds a new task to the cloud
    *
    * @param serviceTask the task to be added
    */
-  boolean addPermanentServiceTask(@NotNull ServiceTask serviceTask);
+  boolean addPermanentServiceTask(@NonNull ServiceTask serviceTask);
 
   /**
    * Removes a task from the cloud
    *
    * @param name the name of the task to be removed
    */
-  void removePermanentServiceTaskByName(@NotNull String name);
+  void removePermanentServiceTaskByName(@NonNull String name);
 
   /**
    * Removes a task from the cloud
@@ -88,12 +88,12 @@ public interface ServiceTaskProvider {
    * @param serviceTask the task to be removed (the only thing that matters in this object is the name, the rest is
    *                    ignored)
    */
-  void removePermanentServiceTask(@NotNull ServiceTask serviceTask);
+  void removePermanentServiceTask(@NonNull ServiceTask serviceTask);
 
   /**
    * Reloads all tasks
    */
-  @NotNull
+  @NonNull
   default ITask<Void> reloadAsync() {
     return CompletableTask.supply(this::reload);
   }
@@ -103,9 +103,9 @@ public interface ServiceTaskProvider {
    *
    * @return a list containing the task configurations of all tasks
    */
-  @NotNull
-  default ITask<Collection<ServiceTask>> getPermanentServiceTasksAsync() {
-    return CompletableTask.supply(this::getPermanentServiceTasks);
+  @NonNull
+  default ITask<Collection<ServiceTask>> permanentServiceTasksAsync() {
+    return CompletableTask.supply(() -> this.permanentServiceTasks());
   }
 
   /**
@@ -113,9 +113,9 @@ public interface ServiceTaskProvider {
    *
    * @param serviceTasks the new service tasks
    */
-  @NotNull
-  default ITask<Void> setPermanentServiceTasksAsync(@NotNull Collection<ServiceTask> serviceTasks) {
-    return CompletableTask.supply(() -> this.setPermanentServiceTasks(serviceTasks));
+  @NonNull
+  default ITask<Void> permanentServiceTasksAsync(@NonNull Collection<ServiceTask> serviceTasks) {
+    return CompletableTask.supply(() -> this.permanentServiceTasks(serviceTasks));
   }
 
   /**
@@ -124,9 +124,9 @@ public interface ServiceTaskProvider {
    * @param name the name of the task
    * @return the task or {@code null} if no task with that name exists
    */
-  @NotNull
-  default ITask<ServiceTask> getServiceTaskAsync(@NotNull String name) {
-    return CompletableTask.supply(() -> this.getServiceTask(name));
+  @NonNull
+  default ITask<ServiceTask> serviceTaskAsync(@NonNull String name) {
+    return CompletableTask.supply(() -> this.serviceTask(name));
   }
 
   /**
@@ -135,9 +135,9 @@ public interface ServiceTaskProvider {
    * @param name the name of the task
    * @return {@code true} if the task exists or {@code false} otherwise
    */
-  @NotNull
-  default ITask<Boolean> isServiceTaskPresentAsync(@NotNull String name) {
-    return CompletableTask.supply(() -> this.isServiceTaskPresent(name));
+  @NonNull
+  default ITask<Boolean> isServiceTaskPresentAsync(@NonNull String name) {
+    return CompletableTask.supply(() -> this.serviceTaskPresent(name));
   }
 
   /**
@@ -145,8 +145,8 @@ public interface ServiceTaskProvider {
    *
    * @param serviceTask the task to be added
    */
-  @NotNull
-  default ITask<Boolean> addPermanentServiceTaskAsync(@NotNull ServiceTask serviceTask) {
+  @NonNull
+  default ITask<Boolean> addPermanentServiceTaskAsync(@NonNull ServiceTask serviceTask) {
     return CompletableTask.supply(() -> this.addPermanentServiceTask(serviceTask));
   }
 
@@ -155,8 +155,8 @@ public interface ServiceTaskProvider {
    *
    * @param name the name of the task to be removed
    */
-  @NotNull
-  default ITask<Void> removePermanentServiceTaskByNameAsync(@NotNull String name) {
+  @NonNull
+  default ITask<Void> removePermanentServiceTaskByNameAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.removePermanentServiceTaskByName(name));
   }
 
@@ -166,9 +166,9 @@ public interface ServiceTaskProvider {
    * @param serviceTask the task to be removed (the only thing that matters in this object is the name, the rest is
    *                    ignored)
    */
-  @NotNull
-  default ITask<Void> removePermanentServiceTaskAsync(@NotNull ServiceTask serviceTask) {
-    return this.removePermanentServiceTaskByNameAsync(serviceTask.getName());
+  @NonNull
+  default ITask<Void> removePermanentServiceTaskAsync(@NonNull ServiceTask serviceTask) {
+    return this.removePermanentServiceTaskByNameAsync(serviceTask.name());
   }
 
 }

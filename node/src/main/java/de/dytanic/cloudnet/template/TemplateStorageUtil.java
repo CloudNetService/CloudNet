@@ -23,7 +23,7 @@ import de.dytanic.cloudnet.driver.template.SpecificTemplateStorage;
 import de.dytanic.cloudnet.event.template.ServiceTemplateInstallEvent;
 import java.io.IOException;
 import java.nio.file.Path;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * An util class to prepare created templates with needed files
@@ -34,26 +34,26 @@ public final class TemplateStorageUtil {
     throw new UnsupportedOperationException();
   }
 
-  public static @NotNull LocalTemplateStorage getLocalTemplateStorage() {
-    return (LocalTemplateStorage) CloudNet.getInstance().getLocalTemplateStorage();
+  public static @NonNull LocalTemplateStorage localTemplateStorage() {
+    return (LocalTemplateStorage) CloudNet.instance().localTemplateStorage();
   }
 
-  public static @NotNull Path localPathInTemplate(@NotNull ServiceTemplate serviceTemplate, @NotNull String path) {
-    return getLocalTemplateStorage().getTemplatePath(serviceTemplate).resolve(path).normalize();
+  public static @NonNull Path localPathInTemplate(@NonNull ServiceTemplate serviceTemplate, @NonNull String path) {
+    return localTemplateStorage().getTemplatePath(serviceTemplate).resolve(path).normalize();
   }
 
   public static boolean createAndPrepareTemplate(
-    @NotNull ServiceTemplate template,
-    @NotNull SpecificTemplateStorage storage,
-    @NotNull ServiceEnvironmentType env
+    @NonNull ServiceTemplate template,
+    @NonNull SpecificTemplateStorage storage,
+    @NonNull ServiceEnvironmentType env
   ) throws IOException {
     return createAndPrepareTemplate(template, storage, env, true);
   }
 
   public static boolean createAndPrepareTemplate(
-    @NotNull ServiceTemplate template,
-    @NotNull SpecificTemplateStorage storage,
-    @NotNull ServiceEnvironmentType env,
+    @NonNull ServiceTemplate template,
+    @NonNull SpecificTemplateStorage storage,
+    @NonNull ServiceEnvironmentType env,
     boolean installDefaultFiles
   ) throws IOException {
     if (!storage.exists()) {
@@ -62,7 +62,7 @@ public final class TemplateStorageUtil {
 
       // call the installation event if the default installation process should be executed
       if (installDefaultFiles) {
-        CloudNet.getInstance().getEventManager().callEvent(new ServiceTemplateInstallEvent(template, storage, env));
+        CloudNet.instance().eventManager().callEvent(new ServiceTemplateInstallEvent(template, storage, env));
       }
 
       return true;

@@ -29,7 +29,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * Utility to find dependencies of a module, ensure that they are loaded and that there is no circular dependency.
@@ -55,22 +55,22 @@ public final class ModuleDependencyUtils {
    * @throws ModuleDependencyNotFoundException if a module dependency is missing.
    * @throws ModuleDependencyOutdatedException if the running module can not provide the minimum required version.
    */
-  public static @NotNull Set<IModuleWrapper> collectDependencies(
-    @NotNull IModuleWrapper caller,
-    @NotNull IModuleProvider moduleProvider
+  public static @NonNull Set<IModuleWrapper> collectDependencies(
+    @NonNull IModuleWrapper caller,
+    @NonNull IModuleProvider moduleProvider
   ) {
     // we create a queue of all wrappers we already visited and use the calling module as the head of it
     Deque<IModuleWrapper> visitedNodes = new ArrayDeque<>();
     Set<IModuleWrapper> rootDependencyNodes = new HashSet<>();
     visitedNodes.add(caller);
     // we iterate over the root layer here to collect the first layer of dependencies of the module
-    for (var dependingModule : caller.getDependingModules()) {
-      var wrapper = getAssociatedModuleWrapper(dependingModule, moduleProvider, caller);
+    for (var dependingModule : caller.dependingModules()) {
+      var wrapper = associatedModuleWrapper(dependingModule, moduleProvider, caller);
       // register the module as a root dependency of the calling module
       rootDependencyNodes.add(wrapper);
       // now we visit every dependency of the module giving in a new tree to build
       visitedNodes.add(wrapper);
-      visitDependencies(visitedNodes, wrapper.getDependingModules(), caller, wrapper, moduleProvider);
+      visitDependencies(visitedNodes, wrapper.dependingModules(), caller, wrapper, moduleProvider);
     }
     // now we have all dependencies collected and can return - no module depends on the caller module
     return rootDependencyNodes;
@@ -88,23 +88,23 @@ public final class ModuleDependencyUtils {
    * @throws ModuleDependencyOutdatedException if the running module can not provide the minimum required version.
    */
   private static void visitDependencies(
-    @NotNull Deque<IModuleWrapper> visitedNodes,
-    @NotNull Collection<ModuleDependency> dependencies,
-    @NotNull IModuleWrapper originalSource,
-    @NotNull IModuleWrapper dependencyHolder,
-    @NotNull IModuleProvider moduleProvider
+    @NonNull Deque<IModuleWrapper> visitedNodes,
+    @NonNull Collection<ModuleDependency> dependencies,
+    @NonNull IModuleWrapper originalSource,
+    @NonNull IModuleWrapper dependencyHolder,
+    @NonNull IModuleProvider moduleProvider
   ) {
     for (var dependency : dependencies) {
-      var wrapper = getAssociatedModuleWrapper(dependency, moduleProvider, dependencyHolder);
+      var wrapper = associatedModuleWrapper(dependency, moduleProvider, dependencyHolder);
       // now verify that there is no circular dependency to the original caller
       Preconditions.checkArgument(
-        !wrapper.getModule().getName().equals(originalSource.getModule().getName()),
+        !wrapper.module().name().equals(originalSource.module().name()),
         "Circular dependency detected: %s depends on caller module %s defined by %s",
-        wrapper.getModule().getName(), originalSource.getModule().getName(), dependencyHolder.getModule().getName());
+        wrapper.module().name(), originalSource.module().name(), dependencyHolder.module().name());
       // push the wrapper to the visited modules stack and visit all dependencies of that module if we haven't seen it yet
       // if this module contains a circular dependency, we will find that out when the module gets loaded
       if (visitedNodes.add(wrapper)) {
-        visitDependencies(visitedNodes, wrapper.getDependingModules(), originalSource, wrapper, moduleProvider);
+        visitDependencies(visitedNodes, wrapper.dependingModules(), originalSource, wrapper, moduleProvider);
       }
     }
   }
@@ -119,19 +119,19 @@ public final class ModuleDependencyUtils {
    * @throws ModuleDependencyNotFoundException if a module dependency is missing.
    * @throws ModuleDependencyOutdatedException if the running module can not provide the minimum required version.
    */
-  private static @NotNull IModuleWrapper getAssociatedModuleWrapper(
-    @NotNull ModuleDependency dependency,
-    @NotNull IModuleProvider provider,
-    @NotNull IModuleWrapper dependencyHolder
+  private static @NonNull IModuleWrapper associatedModuleWrapper(
+    @NonNull ModuleDependency dependency,
+    @NonNull IModuleProvider provider,
+    @NonNull IModuleWrapper dependencyHolder
   ) {
-    var wrapper = provider.getModule(dependency.getName());
+    var wrapper = provider.module(dependency.name());
     // ensure that the wrapper is present
     if (wrapper == null) {
-      throw new ModuleDependencyNotFoundException(dependency.getName(), dependencyHolder.getModule().getName());
+      throw new ModuleDependencyNotFoundException(dependency.name(), dependencyHolder.module().name());
     }
     // try to make a semver check
-    var dependencyVersion = SEMVER_PATTERN.matcher(dependency.getVersion());
-    var moduleVersion = SEMVER_PATTERN.matcher(wrapper.getModule().getVersion());
+    var dependencyVersion = SEMVER_PATTERN.matcher(dependency.version());
+    var moduleVersion = SEMVER_PATTERN.matcher(wrapper.module().version());
     // check if both of the matchers had at least one match
     if (dependencyVersion.matches() && moduleVersion.matches()) {
       // assert that the versions are compatible
@@ -152,10 +152,10 @@ public final class ModuleDependencyUtils {
    * @throws ModuleDependencyOutdatedException if the running module can not provide the minimum required version.
    */
   private static void checkDependencyVersion(
-    @NotNull IModuleWrapper requiringModule,
-    @NotNull ModuleDependency dependency,
-    @NotNull Matcher dependencyVersion,
-    @NotNull Matcher moduleVersion
+    @NonNull IModuleWrapper requiringModule,
+    @NonNull ModuleDependency dependency,
+    @NonNull Matcher dependencyVersion,
+    @NonNull Matcher moduleVersion
   ) {
     // extract both major versions
     var moduleMajor = Integer.parseInt(moduleVersion.group(1));

@@ -24,8 +24,8 @@ import de.dytanic.cloudnet.ext.bridge.player.executor.ServerSelectorType;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.function.Supplier;
+import lombok.NonNull;
 import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 final class NukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
@@ -34,25 +34,25 @@ final class NukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
   private final Supplier<Collection<? extends Player>> playerSupplier;
 
   public NukkitDirectPlayerExecutor(
-    @NotNull UUID targetUniqueId,
-    @NotNull Supplier<Collection<? extends Player>> playerSupplier
+    @NonNull UUID targetUniqueId,
+    @NonNull Supplier<Collection<? extends Player>> playerSupplier
   ) {
     this.targetUniqueId = targetUniqueId;
     this.playerSupplier = playerSupplier;
   }
 
   @Override
-  public @NotNull UUID getPlayerUniqueId() {
+  public @NonNull UUID uniqueId() {
     return this.targetUniqueId;
   }
 
   @Override
-  public void connect(@NotNull String serviceName) {
+  public void connect(@NonNull String serviceName) {
     // no-op
   }
 
   @Override
-  public void connectSelecting(@NotNull ServerSelectorType selectorType) {
+  public void connectSelecting(@NonNull ServerSelectorType selectorType) {
     // no-op
   }
 
@@ -62,22 +62,22 @@ final class NukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
   }
 
   @Override
-  public void connectToGroup(@NotNull String group, @NotNull ServerSelectorType selectorType) {
+  public void connectToGroup(@NonNull String group, @NonNull ServerSelectorType selectorType) {
     // no-op
   }
 
   @Override
-  public void connectToTask(@NotNull String task, @NotNull ServerSelectorType selectorType) {
+  public void connectToTask(@NonNull String task, @NonNull ServerSelectorType selectorType) {
     // no-op
   }
 
   @Override
-  public void kick(@NotNull Component message) {
+  public void kick(@NonNull Component message) {
     this.playerSupplier.get().forEach(player -> player.kick(legacySection().serialize(message)));
   }
 
   @Override
-  protected void sendTitle(@NotNull Component title, @NotNull Component subtitle, int fadeIn, int stay, int fadeOut) {
+  protected void sendTitle(@NonNull Component title, @NonNull Component subtitle, int fadeIn, int stay, int fadeOut) {
     this.playerSupplier.get().forEach(player -> player.sendTitle(
       legacySection().serialize(title),
       legacySection().serialize(subtitle),
@@ -87,12 +87,12 @@ final class NukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
   }
 
   @Override
-  public void sendMessage(@NotNull Component message) {
+  public void sendMessage(@NonNull Component message) {
     this.playerSupplier.get().forEach(player -> player.sendMessage(legacySection().serialize(message)));
   }
 
   @Override
-  public void sendChatMessage(@NotNull Component message, @Nullable String permission) {
+  public void sendChatMessage(@NonNull Component message, @Nullable String permission) {
     this.playerSupplier.get().forEach(player -> {
       if (permission == null || player.hasPermission(permission)) {
         player.sendMessage(legacySection().serialize(message));
@@ -101,12 +101,12 @@ final class NukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
   }
 
   @Override
-  public void sendPluginMessage(@NotNull String tag, byte[] data) {
+  public void sendPluginMessage(@NonNull String tag, byte[] data) {
     // no-op
   }
 
   @Override
-  public void dispatchProxyCommand(@NotNull String command) {
+  public void dispatchProxyCommand(@NonNull String command) {
     this.playerSupplier.get().forEach(player -> player.chat(command));
   }
 }

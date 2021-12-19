@@ -20,9 +20,11 @@ import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.rpc.RPCInvocationContext;
 import java.util.Optional;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class DefaultRPCInvocationContext implements RPCInvocationContext {
+
+  protected int argumentCount;
 
   protected boolean expectsMethodResult;
   protected boolean normalizePrimitives;
@@ -54,6 +56,11 @@ public class DefaultRPCInvocationContext implements RPCInvocationContext {
   }
 
   @Override
+  public int argumentCount() {
+    return this.argumentCount;
+  }
+
+  @Override
   public boolean expectsMethodResult() {
     return this.expectsMethodResult;
   }
@@ -69,22 +76,22 @@ public class DefaultRPCInvocationContext implements RPCInvocationContext {
   }
 
   @Override
-  public @NotNull String getMethodName() {
+  public @NonNull String methodName() {
     return this.methodName;
   }
 
   @Override
-  public @NotNull INetworkChannel getChannel() {
+  public @NonNull INetworkChannel channel() {
     return this.channel;
   }
 
   @Override
-  public @NotNull DataBuf getArgumentInformation() {
+  public @NonNull DataBuf argumentInformation() {
     return this.arguments;
   }
 
   @Override
-  public @NotNull Optional<Object> getWorkingInstance() {
+  public @NonNull Optional<Object> workingInstance() {
     return Optional.ofNullable(this.workingInstance);
   }
 }

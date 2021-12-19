@@ -27,15 +27,15 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.NonNull;
 import org.javers.core.Javers;
 import org.javers.core.JaversBuilder;
 import org.javers.core.diff.ListCompareAlgorithm;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DefaultDataSyncRegistry implements DataSyncRegistry {
 
-  private static final Logger LOGGER = LogManager.getLogger(DefaultDataSyncRegistry.class);
+  private static final Logger LOGGER = LogManager.logger(DefaultDataSyncRegistry.class);
   private static final Javers JAVERS = JaversBuilder.javers()
     .withInitialChanges(false)
     .withTerminalChanges(false)
@@ -45,22 +45,22 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
   private final Map<String, DataSyncHandler<?>> handlers = new ConcurrentHashMap<>();
 
   @Override
-  public void registerHandler(@NotNull DataSyncHandler<?> handler) {
-    this.handlers.putIfAbsent(handler.getKey(), handler);
+  public void registerHandler(@NonNull DataSyncHandler<?> handler) {
+    this.handlers.putIfAbsent(handler.key(), handler);
   }
 
   @Override
-  public void unregisterHandler(@NotNull DataSyncHandler<?> handler) {
-    this.handlers.remove(handler.getKey());
+  public void unregisterHandler(@NonNull DataSyncHandler<?> handler) {
+    this.handlers.remove(handler.key());
   }
 
   @Override
-  public void unregisterHandler(@NotNull String handlerKey) {
+  public void unregisterHandler(@NonNull String handlerKey) {
     this.handlers.remove(handlerKey);
   }
 
   @Override
-  public void unregisterHandler(@NotNull ClassLoader loader) {
+  public void unregisterHandler(@NonNull ClassLoader loader) {
     for (var entry : this.handlers.entrySet()) {
       if (entry.getValue().getClass().getClassLoader().equals(loader)) {
         this.handlers.remove(entry.getKey());
@@ -70,13 +70,13 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
   }
 
   @Override
-  public boolean hasHandler(@NotNull String handlerKey) {
+  public boolean hasHandler(@NonNull String handlerKey) {
     return this.handlers.containsKey(handlerKey);
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  public @NotNull DataBuf.Mutable prepareClusterData(boolean force, String @NotNull ... selectedHandlers) {
+  public @NonNull DataBuf.Mutable prepareClusterData(boolean force, String @NonNull ... selectedHandlers) {
     // sort the handlers for later binary searches
     Arrays.sort(selectedHandlers);
     // the result data
@@ -84,11 +84,11 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
     // append all handler content to the buf
     for (var handler : this.handlers.values()) {
       // check if we should include the handler
-      if (selectedHandlers.length > 0 && Arrays.binarySearch(selectedHandlers, handler.getKey()) < 0) {
+      if (selectedHandlers.length > 0 && Arrays.binarySearch(selectedHandlers, handler.key()) < 0) {
         continue;
       }
       // extract the whole content from the handler
-      var data = (Collection<Object>) handler.getData();
+      var data = (Collection<Object>) handler.data();
       // check if there is data
       if (!data.isEmpty()) {
         // check if there is only one argument to write
@@ -107,11 +107,11 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
   }
 
   @Override
-  public @Nullable DataBuf handle(@NotNull DataBuf input, boolean force) {
+  public @Nullable DataBuf handle(@NonNull DataBuf input, boolean force) {
     // holds the result of the handle - null by default indicates no result
     DataBuf.Mutable result = null;
     // handle the incoming data as long as there is data
-    while (input.getReadableBytes() > 0) {
+    while (input.readableBytes() > 0) {
       // The data information
       var key = input.readString();
       try (var syncData = input.readDataBuf()) {
@@ -119,10 +119,10 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
         var handler = this.handlers.get(key);
         if (handler != null) {
           // read the synced data
-          var data = handler.getConverter().parse(syncData);
-          var current = handler.getCurrent(data);
+          var data = handler.converter().parse(syncData);
+          var current = handler.current(data);
           // check if we need to ask for user input to continue the sync
-          if (force || handler.isAlwaysForceApply() || current == null || current.equals(data)) {
+          if (force || handler.alwaysForceApply() || current == null || current.equals(data)) {
             // write the data and continue
             handler.write(data);
             continue;
@@ -136,13 +136,13 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
               continue;
             }
             // pretty format the changes
-            for (var line : JaversPrettyPrint.prettyPrint(handler.getName(current), diff)) {
+            for (var line : JaversPrettyPrint.prettyPrint(handler.name(current), diff)) {
               LOGGER.warning(line);
             }
             // print out the possibilities the user has now
             LOGGER.info(I18n.trans("cluster-sync-change-decision-question"));
             // wait for the decision and apply
-            switch (this.waitForCorrectMergeInput(CloudNet.getInstance().getConsole())) {
+            switch (this.waitForCorrectMergeInput(CloudNet.instance().console())) {
               case 1 -> {
                 // accept theirs - write the change
                 handler.write(data);
@@ -183,12 +183,12 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
   }
 
   protected void serializeData(
-    @NotNull Object data,
-    @NotNull DataSyncHandler<?> handler,
-    @NotNull DataBuf.Mutable target
+    @NonNull Object data,
+    @NonNull DataSyncHandler<?> handler,
+    @NonNull DataBuf.Mutable target
   ) {
     // append the information
-    target.writeString(handler.getKey());
+    target.writeString(handler.key());
     // write the data
     var buf = DataBuf.empty();
     handler.serialize(buf, data);
@@ -196,7 +196,7 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
     target.writeDataBuf(buf);
   }
 
-  protected int waitForCorrectMergeInput(@NotNull IConsole console) {
+  protected int waitForCorrectMergeInput(@NonNull IConsole console) {
     try {
       // disable all handlers of the console to prevent skips
       console.disableAllHandlers();
@@ -208,7 +208,7 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
     }
   }
 
-  protected int readMergeInput(@NotNull IConsole console) {
+  protected int readMergeInput(@NonNull IConsole console) {
     while (true) {
       // wait for an input
       var input = console.readLine().getDef(null);

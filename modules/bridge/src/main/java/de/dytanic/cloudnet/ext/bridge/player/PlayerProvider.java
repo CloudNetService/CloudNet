@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import java.util.Collection;
 import java.util.UUID;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * This interface extends the player access of the {@link IPlayerManager} This {@link PlayerProvider} can be global, but
@@ -33,17 +33,17 @@ public interface PlayerProvider {
   /**
    * @return all players as {@link ICloudPlayer}
    */
-  @NotNull Collection<? extends CloudPlayer> players();
+  @NonNull Collection<? extends CloudPlayer> players();
 
   /**
    * @return the uniqueIds of all players
    */
-  @NotNull Collection<UUID> uniqueIds();
+  @NonNull Collection<UUID> uniqueIds();
 
   /**
    * @return the names of all players
    */
-  @NotNull Collection<String> names();
+  @NonNull Collection<String> names();
 
   /**
    * @return the player count
@@ -53,28 +53,28 @@ public interface PlayerProvider {
   /**
    * @return all players as {@link ICloudPlayer}
    */
-  default @NotNull ITask<Collection<? extends CloudPlayer>> playersAsync() {
+  default @NonNull ITask<Collection<? extends CloudPlayer>> playersAsync() {
     return CompletableTask.supply(this::players);
   }
 
   /**
    * @return the uniqueIds of all players
    */
-  default @NotNull ITask<Collection<UUID>> uniqueIdsAsync() {
+  default @NonNull ITask<Collection<UUID>> uniqueIdsAsync() {
     return CompletableTask.supply(this::uniqueIds);
   }
 
   /**
    * @return the names of all players
    */
-  default @NotNull ITask<Collection<String>> namesAsync() {
+  default @NonNull ITask<Collection<String>> namesAsync() {
     return CompletableTask.supply(this::names);
   }
 
   /**
    * @return the player count
    */
-  default @NotNull ITask<Integer> countAsync() {
+  default @NonNull ITask<Integer> countAsync() {
     return CompletableTask.supply(this::count);
   }
 }

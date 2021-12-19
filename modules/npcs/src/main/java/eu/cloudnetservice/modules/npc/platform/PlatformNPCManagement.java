@@ -36,7 +36,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManagement {
@@ -55,44 +55,44 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
   public PlatformNPCManagement() {
     super(loadNPCConfiguration());
     // get the npcs for the current group
-    var groups = Wrapper.getInstance().getServiceConfiguration().getGroups().toArray(new String[0]);
-    for (var npc : this.getNPCs(groups)) {
-      this.npcs.put(npc.getLocation(), npc);
+    var groups = Wrapper.instance().serviceConfiguration().groups().toArray(new String[0]);
+    for (var npc : this.npcs(groups)) {
+      this.npcs.put(npc.location(), npc);
     }
     // register the listeners
-    CloudNetDriver.getInstance().getEventManager().registerListener(new CloudNetServiceListener(this));
+    CloudNetDriver.instance().eventManager().registerListener(new CloudNetServiceListener(this));
   }
 
   protected static @Nullable NPCConfiguration loadNPCConfiguration() {
     var response = ChannelMessage.builder()
       .channel(NPC_CHANNEL_NAME)
       .message(NPC_REQUEST_CONFIG)
-      .targetNode(Wrapper.getInstance().getNodeUniqueId())
+      .targetNode(Wrapper.instance().nodeUniqueId())
       .build()
       .sendSingleQuery();
-    return response == null ? null : response.getContent().readObject(NPCConfiguration.class);
+    return response == null ? null : response.content().readObject(NPCConfiguration.class);
   }
 
   @Override
-  public void createNPC(@NotNull NPC npc) {
+  public void createNPC(@NonNull NPC npc) {
     this.channelMessage(NPC_CREATE)
       .buffer(DataBuf.empty().writeObject(npc))
       .build().send();
   }
 
   @Override
-  public void deleteNPC(@NotNull WorldPosition position) {
+  public void deleteNPC(@NonNull WorldPosition position) {
     this.channelMessage(NPC_DELETE)
       .buffer(DataBuf.empty().writeObject(position))
       .build().send();
   }
 
   @Override
-  public int deleteAllNPCs(@NotNull String group) {
+  public int deleteAllNPCs(@NonNull String group) {
     var response = this.channelMessage(NPC_BULK_DELETE)
       .buffer(DataBuf.empty().writeString(group))
       .build().sendSingleQuery();
-    return response == null ? 0 : response.getContent().readInt();
+    return response == null ? 0 : response.content().readInt();
   }
 
   @Override
@@ -100,32 +100,32 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
     var response = this.channelMessage(NPC_ALL_DELETE)
       .buffer(DataBuf.empty().writeObject(this.npcs.keySet()))
       .build().sendSingleQuery();
-    return response == null ? 0 : response.getContent().readInt();
+    return response == null ? 0 : response.content().readInt();
   }
 
   @Override
-  public @NotNull Collection<NPC> getNPCs(@NotNull String[] groups) {
+  public @NonNull Collection<NPC> npcs(@NonNull String[] groups) {
     var response = this.channelMessage(NPC_GET_NPCS_BY_GROUP)
       .buffer(DataBuf.empty().writeObject(groups))
       .build().sendSingleQuery();
-    return response == null ? Collections.emptySet() : response.getContent().readObject(NPC.COLLECTION_NPC);
+    return response == null ? Collections.emptySet() : response.content().readObject(NPC.COLLECTION_NPC);
   }
 
   @Override
-  public void setNPCConfiguration(@NotNull NPCConfiguration configuration) {
+  public void npcConfiguration(@NonNull NPCConfiguration configuration) {
     this.channelMessage(NPC_SET_CONFIG)
       .buffer(DataBuf.empty().writeObject(configuration))
       .build().send();
   }
 
   @Override
-  public void handleInternalNPCCreate(@NotNull NPC npc) {
+  public void handleInternalNPCCreate(@NonNull NPC npc) {
     // check if the npc is on this group
-    if (Wrapper.getInstance().getServiceConfiguration().getGroups().contains(npc.getLocation().group())) {
+    if (Wrapper.instance().serviceConfiguration().groups().contains(npc.location().group())) {
       super.handleInternalNPCCreate(npc);
       // remove the old selector npc
-      var entity = this.trackedEntities.remove(npc.getLocation());
-      if (entity != null && entity.isSpawned()) {
+      var entity = this.trackedEntities.remove(npc.location());
+      if (entity != null && entity.spawned()) {
         entity.remove();
       }
       // create and spawn a new selector npc
@@ -135,10 +135,10 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
         entity.spawn();
       }
       // start tracking the npc
-      this.trackedEntities.put(npc.getLocation(), entity);
+      this.trackedEntities.put(npc.location(), entity);
       // apply the tracked services
       for (var service : this.trackedServices.values()) {
-        if (service.getConfiguration().getGroups().contains(entity.getNPC().getTargetGroup())) {
+        if (service.configuration().groups().contains(entity.npc().targetGroup())) {
           entity.trackService(service);
         }
       }
@@ -146,37 +146,37 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
   }
 
   @Override
-  public void handleInternalNPCRemove(@NotNull WorldPosition position) {
+  public void handleInternalNPCRemove(@NonNull WorldPosition position) {
     super.handleInternalNPCRemove(position);
     // remove the platform npc if spawned
     var entity = this.trackedEntities.remove(position);
-    if (entity != null && entity.isSpawned()) {
+    if (entity != null && entity.spawned()) {
       entity.remove();
     }
   }
 
   @Override
-  public void handleInternalNPCConfigUpdate(@NotNull NPCConfiguration configuration) {
+  public void handleInternalNPCConfigUpdate(@NonNull NPCConfiguration configuration) {
     super.handleInternalNPCConfigUpdate(configuration);
     // update all selector entities
     this.trackedEntities.values().forEach(PlatformSelectorEntity::update);
   }
 
   @Override
-  protected Builder channelMessage(@NotNull String message) {
+  protected Builder channelMessage(@NonNull String message) {
     return ChannelMessage.builder()
       .channel(NPC_CHANNEL_NAME)
       .message(message)
-      .target(Type.NODE, Wrapper.getInstance().getNodeUniqueId());
+      .target(Type.NODE, Wrapper.instance().nodeUniqueId());
   }
 
   public void initialize() {
     // start tracking all entities
     for (var value : this.npcs.values()) {
-      this.trackedEntities.put(value.getLocation(), this.createSelectorEntity(value));
+      this.trackedEntities.put(value.location(), this.createSelectorEntity(value));
     }
     // initialize the services now
-    CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServicesAsync().onComplete(services -> {
+    CloudNetDriver.instance().cloudServiceProvider().servicesAsync().onComplete(services -> {
       for (var service : services) {
         if (this.shouldTrack(service)) {
           this.handleServiceUpdate(service);
@@ -185,50 +185,50 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
     });
   }
 
-  public @Nullable NPCConfigurationEntry getApplicableNPCConfigurationEntry() {
-    for (var entry : this.npcConfiguration.getEntries()) {
-      if (Wrapper.getInstance().getServiceConfiguration().getGroups().contains(entry.getTargetGroup())) {
+  public @Nullable NPCConfigurationEntry applicableNPCConfigurationEntry() {
+    for (var entry : this.npcConfiguration.entries()) {
+      if (Wrapper.instance().serviceConfiguration().groups().contains(entry.targetGroup())) {
         return entry;
       }
     }
     return null;
   }
 
-  public @NotNull InventoryConfiguration getInventoryConfiguration() {
+  public @NonNull InventoryConfiguration inventoryConfiguration() {
     // get the npc configuration entry
-    var entry = this.getApplicableNPCConfigurationEntry();
+    var entry = this.applicableNPCConfigurationEntry();
     if (entry == null) {
       throw new IllegalStateException("no npc config entry for the current service groups found");
     }
     // find an inventory configuration which explicitly targets a group of the snapshot
-    return entry.getInventoryConfiguration();
+    return entry.inventoryConfiguration();
   }
 
-  public void handleServiceUpdate(@NotNull ServiceInfoSnapshot service) {
+  public void handleServiceUpdate(@NonNull ServiceInfoSnapshot service) {
     for (var entity : this.trackedEntities.values()) {
-      if (service.getConfiguration().getGroups().contains(entity.getNPC().getTargetGroup())) {
+      if (service.configuration().groups().contains(entity.npc().targetGroup())) {
         entity.trackService(service);
       }
     }
     // mark the service as tracked
-    this.trackedServices.put(service.getServiceId().getUniqueId(), service);
+    this.trackedServices.put(service.serviceId().uniqueId(), service);
   }
 
-  public void handleServiceRemove(@NotNull ServiceInfoSnapshot service) {
+  public void handleServiceRemove(@NonNull ServiceInfoSnapshot service) {
     for (var entity : this.trackedEntities.values()) {
-      if (service.getConfiguration().getGroups().contains(entity.getNPC().getTargetGroup())) {
+      if (service.configuration().groups().contains(entity.npc().targetGroup())) {
         entity.stopTrackingService(service);
       }
     }
     // stop tracking the service
-    this.trackedServices.remove(service.getServiceId().getUniqueId());
+    this.trackedServices.remove(service.serviceId().uniqueId());
   }
 
-  public int getRandomEmoteId(@NotNull LabyModEmoteConfiguration configuration, int[] emoteIds) {
+  public int randomEmoteId(@NonNull LabyModEmoteConfiguration configuration, int[] emoteIds) {
     if (emoteIds.length == 0) {
       // no ids - skip
       return -2;
-    } else if (configuration.isSyncEmotesBetweenNPCs()) {
+    } else if (configuration.syncEmotesBetweenNPCs()) {
       // return a random id from the emote list
       return emoteIds[ThreadLocalRandom.current().nextInt(0, emoteIds.length)];
     } else {
@@ -237,15 +237,15 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
     }
   }
 
-  public @NotNull Map<WorldPosition, PlatformSelectorEntity<L, P, M, I>> getTrackedEntities() {
+  public @NonNull Map<WorldPosition, PlatformSelectorEntity<L, P, M, I>> trackedEntities() {
     return this.trackedEntities;
   }
 
-  protected abstract @NotNull PlatformSelectorEntity<L, P, M, I> createSelectorEntity(@NotNull NPC base);
+  protected abstract @NonNull PlatformSelectorEntity<L, P, M, I> createSelectorEntity(@NonNull NPC base);
 
-  protected abstract @NotNull WorldPosition toWorldPosition(@NotNull L location, @NotNull String group);
+  protected abstract @NonNull WorldPosition toWorldPosition(@NonNull L location, @NonNull String group);
 
-  protected abstract @NotNull L toPlatformLocation(@NotNull WorldPosition position);
+  protected abstract @NonNull L toPlatformLocation(@NonNull WorldPosition position);
 
-  protected abstract boolean shouldTrack(@NotNull ServiceInfoSnapshot serviceInfoSnapshot);
+  protected abstract boolean shouldTrack(@NonNull ServiceInfoSnapshot serviceInfoSnapshot);
 }

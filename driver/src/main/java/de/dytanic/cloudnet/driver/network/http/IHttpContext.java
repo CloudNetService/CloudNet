@@ -18,44 +18,46 @@ package de.dytanic.cloudnet.driver.network.http;
 
 import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketChannel;
 import java.util.Collection;
+import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface IHttpContext {
 
-  IWebSocketChannel upgrade();
+  @Nullable IWebSocketChannel upgrade();
 
-  IWebSocketChannel webSocketChanel();
+  @Nullable IWebSocketChannel webSocketChanel();
 
-  IHttpChannel channel();
+  @NonNull IHttpChannel channel();
 
-  IHttpRequest request();
+  @NonNull IHttpRequest request();
 
-  IHttpResponse response();
+  @NonNull IHttpResponse response();
 
-  IHttpHandler peekLast();
+  @Nullable IHttpHandler peekLast();
 
   boolean cancelNext();
 
-  IHttpContext cancelNext(boolean cancelNext);
+  @NonNull IHttpContext cancelNext(boolean cancelNext);
 
-  IHttpComponent<?> component();
+  @NonNull IHttpComponent<?> component();
 
-  IHttpContext closeAfter(boolean value);
+  @NonNull IHttpContext closeAfter(boolean value);
 
   boolean closeAfter();
 
-  HttpCookie cookie(String name);
+  @Nullable HttpCookie cookie(@NonNull String name);
 
-  Collection<HttpCookie> cookies();
+  @NonNull Collection<HttpCookie> cookies();
 
-  boolean hasCookie(String name);
+  boolean hasCookie(@NonNull String name);
 
-  IHttpContext setCookies(Collection<HttpCookie> cookies);
+  @NonNull IHttpContext cookies(@NonNull Collection<HttpCookie> cookies);
 
-  IHttpContext addCookie(HttpCookie httpCookie);
+  @NonNull IHttpContext addCookie(@NonNull HttpCookie httpCookie);
 
-  IHttpContext removeCookie(String name);
+  @NonNull IHttpContext removeCookie(@NonNull String name);
 
-  IHttpContext clearCookies();
+  @NonNull IHttpContext clearCookies();
 
-  String pathPrefix();
+  @NonNull String pathPrefix();
 }

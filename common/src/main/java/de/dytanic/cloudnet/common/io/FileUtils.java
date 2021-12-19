@@ -16,8 +16,6 @@
 
 package de.dytanic.cloudnet.common.io;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.io.ByteStreams;
 import de.dytanic.cloudnet.common.function.ThrowableConsumer;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
@@ -34,7 +32,6 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
@@ -46,8 +43,8 @@ import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -61,19 +58,19 @@ import org.jetbrains.annotations.Nullable;
 @Internal
 public final class FileUtils {
 
-  public static final Path TEMP_DIR = Paths.get(System.getProperty("cloudnet.tempDir", "temp"));
+  public static final Path TEMP_DIR = Path.of(System.getProperty("cloudnet.tempDir", "temp"));
 
-  private static final Logger LOGGER = LogManager.getLogger(FileUtils.class);
+  private static final Logger LOGGER = LogManager.logger(FileUtils.class);
   private static final DirectoryStream.Filter<Path> ACCEPTING_FILTER = $ -> true;
 
-  private static final Map<String, String> ZIP_FILE_SYSTEM_PROPERTIES = ImmutableMap
-    .of("create", "false", "encoding", "UTF-8");
+  private static final Map<String, String> ZIP_FILE_SYSTEM_PROPERTIES = Map.of(
+    "create", "false", "encoding", "UTF-8");
 
   private FileUtils() {
     throw new UnsupportedOperationException();
   }
 
-  public static void openZipFileSystem(@NotNull Path zip, @NotNull ThrowableConsumer<FileSystem, Exception> consumer) {
+  public static void openZipFileSystem(@NonNull Path zip, @NonNull ThrowableConsumer<FileSystem, Exception> consumer) {
     try (var fs = FileSystems.newFileSystem(URI.create("jar:" + zip.toUri()), ZIP_FILE_SYSTEM_PROPERTIES)) {
       consumer.accept(fs);
     } catch (Exception throwable) {
@@ -81,7 +78,7 @@ public final class FileUtils {
     }
   }
 
-  public static void move(@NotNull Path from, @NotNull Path to, CopyOption @NotNull ... options) {
+  public static void move(@NonNull Path from, @NonNull Path to, CopyOption @NonNull ... options) {
     try {
       Files.move(from, to, options);
     } catch (IOException exception) {
@@ -92,14 +89,14 @@ public final class FileUtils {
   public static void copy(@Nullable InputStream inputStream, @Nullable OutputStream outputStream) {
     if (inputStream != null && outputStream != null) {
       try {
-        ByteStreams.copy(inputStream, outputStream);
+        inputStream.transferTo(outputStream);
       } catch (IOException exception) {
         LOGGER.severe("Exception copying InputStream to OutputStream", exception);
       }
     }
   }
 
-  public static void copy(@NotNull Path from, @NotNull Path to) {
+  public static void copy(@NonNull Path from, @NonNull Path to) {
     try {
       // create the parent directory first
       createDirectory(to.getParent());
@@ -109,7 +106,7 @@ public final class FileUtils {
     }
   }
 
-  public static void copyDirectory(@NotNull Path from, @NotNull Path to) {
+  public static void copyDirectory(@NonNull Path from, @NonNull Path to) {
     copyDirectory(from, to, null);
   }
 
@@ -136,7 +133,7 @@ public final class FileUtils {
     }
   }
 
-  public static @NotNull Path createTempFile() {
+  public static @NonNull Path createTempFile() {
     if (Files.notExists(TEMP_DIR)) {
       createDirectory(TEMP_DIR);
     }
@@ -144,11 +141,11 @@ public final class FileUtils {
     return TEMP_DIR.resolve(UUID.randomUUID().toString());
   }
 
-  public static @NotNull InputStream zipToStream(@NotNull Path directory) {
+  public static @NonNull InputStream zipToStream(@NonNull Path directory) {
     return zipToStream(directory, null);
   }
 
-  public static @NotNull InputStream zipToStream(@NotNull Path directory, @Nullable Predicate<Path> fileFilter) {
+  public static @NonNull InputStream zipToStream(@NonNull Path directory, @Nullable Predicate<Path> fileFilter) {
     var target = createTempFile();
     zipToFile(
       directory,
@@ -162,11 +159,11 @@ public final class FileUtils {
     }
   }
 
-  public static @Nullable Path zipToFile(@NotNull Path directory, @NotNull Path target) {
+  public static @Nullable Path zipToFile(@NonNull Path directory, @NonNull Path target) {
     return zipToFile(directory, target, null);
   }
 
-  public static @Nullable Path zipToFile(@NotNull Path dir, @NotNull Path target, @Nullable Predicate<Path> filter) {
+  public static @Nullable Path zipToFile(@NonNull Path dir, @NonNull Path target, @Nullable Predicate<Path> filter) {
     if (Files.exists(dir)) {
       try (var out = new ZipOutputStream(Files.newOutputStream(target), StandardCharsets.UTF_8)) {
         zipDir(out, dir, filter);
@@ -180,15 +177,15 @@ public final class FileUtils {
   }
 
   private static void zipDir(
-    @NotNull ZipOutputStream out,
-    @NotNull Path dir,
+    @NonNull ZipOutputStream out,
+    @NonNull Path dir,
     @Nullable Predicate<Path> filter
   ) throws IOException {
     Files.walkFileTree(
       dir,
-      new SimpleFileVisitor<Path>() {
+      new SimpleFileVisitor<>() {
         @Override
-        public FileVisitResult visitFile(@NotNull Path file, @NotNull BasicFileAttributes attrs) throws IOException {
+        public FileVisitResult visitFile(@NonNull Path file, @NonNull BasicFileAttributes attrs) throws IOException {
           if (filter == null || filter.test(file)) {
             try {
               out.putNextEntry(new ZipEntry(dir.relativize(file).toString().replace("\\", "/")));
@@ -204,7 +201,7 @@ public final class FileUtils {
     );
   }
 
-  public static @Nullable Path extract(@NotNull Path zipPath, @NotNull Path targetDirectory) {
+  public static @Nullable Path extract(@NonNull Path zipPath, @NonNull Path targetDirectory) {
     if (Files.exists(zipPath)) {
       try (var inputStream = Files.newInputStream(zipPath)) {
         return extract(inputStream, targetDirectory);
@@ -215,13 +212,13 @@ public final class FileUtils {
     return null;
   }
 
-  public static @Nullable Path extract(@NotNull InputStream in, @NotNull Path targetDirectory) {
+  public static @Nullable Path extract(@NonNull InputStream in, @NonNull Path targetDirectory) {
     return extractZipStream(
       in instanceof ZipInputStream ? (ZipInputStream) in : new ZipInputStream(in, StandardCharsets.UTF_8),
       targetDirectory);
   }
 
-  public static @Nullable Path extractZipStream(@NotNull ZipInputStream zipInputStream, @NotNull Path targetDirectory) {
+  public static @Nullable Path extractZipStream(@NonNull ZipInputStream zipInputStream, @NonNull Path targetDirectory) {
     try {
       ZipEntry zipEntry;
       while ((zipEntry = zipInputStream.getNextEntry()) != null) {
@@ -237,9 +234,9 @@ public final class FileUtils {
   }
 
   private static void extractEntry(
-    @NotNull ZipInputStream in,
-    @NotNull ZipEntry zipEntry,
-    @NotNull Path targetDirectory
+    @NonNull ZipInputStream in,
+    @NonNull ZipEntry zipEntry,
+    @NonNull Path targetDirectory
   ) throws IOException {
     // get the target path and ensure that there is no path traversal
     var file = targetDirectory.resolve(zipEntry.getName());
@@ -255,19 +252,19 @@ public final class FileUtils {
     }
   }
 
-  public static void walkFileTree(@NotNull Path root, @NotNull BiConsumer<Path, Path> consumer) {
+  public static void walkFileTree(@NonNull Path root, @NonNull BiConsumer<Path, Path> consumer) {
     walkFileTree(root, consumer, true);
   }
 
-  public static void walkFileTree(@NotNull Path root, @NotNull BiConsumer<Path, Path> consumer, boolean visitDirs) {
+  public static void walkFileTree(@NonNull Path root, @NonNull BiConsumer<Path, Path> consumer, boolean visitDirs) {
     walkFileTree(root, consumer, visitDirs, "*");
   }
 
   public static void walkFileTree(
-    @NotNull Path root,
-    @NotNull BiConsumer<Path, Path> consumer,
+    @NonNull Path root,
+    @NonNull BiConsumer<Path, Path> consumer,
     boolean visitDirectories,
-    @NotNull String glob
+    @NonNull String glob
   ) {
     if (Files.exists(root)) {
       // create a glob path matcher and redirect the request
@@ -277,10 +274,10 @@ public final class FileUtils {
   }
 
   public static void walkFileTree(
-    @NotNull Path root,
-    @NotNull BiConsumer<Path, Path> consumer,
+    @NonNull Path root,
+    @NonNull BiConsumer<Path, Path> consumer,
     boolean visitDirectories,
-    @NotNull DirectoryStream.Filter<Path> filter
+    @NonNull DirectoryStream.Filter<Path> filter
   ) {
     if (Files.exists(root)) {
       try (var stream = Files.newDirectoryStream(root, filter)) {
@@ -313,7 +310,7 @@ public final class FileUtils {
     }
   }
 
-  public static void ensureChild(@NotNull Path root, @NotNull Path child) {
+  public static void ensureChild(@NonNull Path root, @NonNull Path child) {
     var rootNormal = root.normalize().toAbsolutePath();
     var childNormal = child.normalize().toAbsolutePath();
 
@@ -322,7 +319,7 @@ public final class FileUtils {
     }
   }
 
-  public static @NotNull Path resolve(@NotNull Path base, String @NotNull ... more) {
+  public static @NonNull Path resolve(@NonNull Path base, String @NonNull ... more) {
     for (var child : more) {
       base = base.resolve(child);
     }

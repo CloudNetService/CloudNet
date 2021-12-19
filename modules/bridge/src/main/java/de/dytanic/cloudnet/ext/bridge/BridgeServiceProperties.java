@@ -28,8 +28,7 @@ import de.dytanic.cloudnet.driver.service.property.DefaultModifiableServicePrope
 import de.dytanic.cloudnet.driver.service.property.ServiceProperty;
 import de.dytanic.cloudnet.ext.bridge.player.ServicePlayer;
 import java.util.Collection;
-import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * Properties in ServiceInfos by the bridge module.
@@ -71,22 +70,22 @@ public final class BridgeServiceProperties {
    * Property to check whether a service is in game or not.
    */
   public static final ServiceProperty<Boolean> IS_IN_GAME = DefaultFunctionalServiceProperty.<Boolean>create()
-    .get(BridgeServiceProperties::isInGameService);
+    .reader(BridgeServiceProperties::inGameService);
   /**
    * Property to check whether a service is starting or not.
    */
   public static final ServiceProperty<Boolean> IS_STARTING = DefaultFunctionalServiceProperty.<Boolean>create()
-    .get(BridgeServiceProperties::isStartingService);
+    .reader(BridgeServiceProperties::startingService);
   /**
    * Property to check whether a service is empty (no players) or not.
    */
   public static final ServiceProperty<Boolean> IS_EMPTY = DefaultFunctionalServiceProperty.<Boolean>create()
-    .get(BridgeServiceProperties::isEmptyService);
+    .reader(BridgeServiceProperties::emptyService);
   /**
    * Property to check whether a service is full (online count &gt;= max players) or not.
    */
   public static final ServiceProperty<Boolean> IS_FULL = DefaultFunctionalServiceProperty.<Boolean>create()
-    .get(BridgeServiceProperties::isFullService);
+    .reader(BridgeServiceProperties::fullService);
   /**
    * Property to get all online players on a service.
    */
@@ -94,40 +93,40 @@ public final class BridgeServiceProperties {
     .<Collection<JsonDocument>, Collection<ServicePlayer>>wrap(
       createFromType("Players", new TypeToken<Collection<JsonDocument>>() {
       }.getType()))
-    .modifyGet(($, documents) -> documents.stream().map(ServicePlayer::new).collect(Collectors.toList()));
+    .modifyGet(($, documents) -> documents.stream().map(ServicePlayer::new).toList());
 
   private BridgeServiceProperties() {
     throw new UnsupportedOperationException();
   }
 
-  private static boolean isEmptyService(@NotNull ServiceInfoSnapshot service) {
-    return service.isConnected()
-      && service.getProperty(IS_ONLINE).orElse(false)
-      && service.getProperty(ONLINE_COUNT).isPresent()
-      && service.getProperty(ONLINE_COUNT).orElse(0) == 0;
+  private static boolean emptyService(@NonNull ServiceInfoSnapshot service) {
+    return service.connected()
+      && service.property(IS_ONLINE).orElse(false)
+      && service.property(ONLINE_COUNT).isPresent()
+      && service.property(ONLINE_COUNT).orElse(0) == 0;
   }
 
-  private static boolean isFullService(@NotNull ServiceInfoSnapshot service) {
-    return service.isConnected()
-      && service.getProperty(IS_ONLINE).orElse(false)
-      && service.getProperty(ONLINE_COUNT).isPresent()
-      && service.getProperty(MAX_PLAYERS).isPresent()
-      && service.getProperty(ONLINE_COUNT).orElse(0) >= service.getProperty(MAX_PLAYERS).orElse(0);
+  private static boolean fullService(@NonNull ServiceInfoSnapshot service) {
+    return service.connected()
+      && service.property(IS_ONLINE).orElse(false)
+      && service.property(ONLINE_COUNT).isPresent()
+      && service.property(MAX_PLAYERS).isPresent()
+      && service.property(ONLINE_COUNT).orElse(0) >= service.property(MAX_PLAYERS).orElse(0);
   }
 
-  private static boolean isStartingService(@NotNull ServiceInfoSnapshot service) {
-    return service.getLifeCycle() == ServiceLifeCycle.RUNNING && !service.getProperty(IS_ONLINE).orElse(false);
+  private static boolean startingService(@NonNull ServiceInfoSnapshot service) {
+    return service.lifeCycle() == ServiceLifeCycle.RUNNING && !service.property(IS_ONLINE).orElse(false);
   }
 
-  private static boolean isInGameService(@NotNull ServiceInfoSnapshot service) {
-    return service.getLifeCycle() == ServiceLifeCycle.RUNNING && service.isConnected()
-      && service.getProperty(IS_ONLINE).orElse(false)
-      && (service.getProperty(MOTD).map(BridgeServiceProperties::matchesInGameString).orElse(false) ||
-      service.getProperty(EXTRA).map(BridgeServiceProperties::matchesInGameString).orElse(false) ||
-      service.getProperty(STATE).map(BridgeServiceProperties::matchesInGameString).orElse(false));
+  private static boolean inGameService(@NonNull ServiceInfoSnapshot service) {
+    return service.lifeCycle() == ServiceLifeCycle.RUNNING && service.connected()
+      && service.property(IS_ONLINE).orElse(false)
+      && (service.property(MOTD).map(BridgeServiceProperties::matchesInGameString).orElse(false) ||
+      service.property(EXTRA).map(BridgeServiceProperties::matchesInGameString).orElse(false) ||
+      service.property(STATE).map(BridgeServiceProperties::matchesInGameString).orElse(false));
   }
 
-  private static boolean matchesInGameString(@NotNull String value) {
+  private static boolean matchesInGameString(@NonNull String value) {
     value = value.toLowerCase();
     return value.contains("ingame") || value.contains("running") || value.contains("playing");
   }

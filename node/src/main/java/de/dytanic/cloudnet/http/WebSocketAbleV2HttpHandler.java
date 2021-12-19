@@ -53,13 +53,13 @@ public abstract class WebSocketAbleV2HttpHandler extends V2HttpHandler {
       return;
     }
 
-    var ticket = this.authentication.getWebSocketTicketManager().findAndRemoveTicket(ticketId);
-    if (ticket == null || !ticket.getRequestingIp().equals(context.channel().clientAddress().getHost())) {
+    var ticket = this.authentication.webSocketTicketManager().findAndRemoveTicket(ticketId);
+    if (ticket == null || !ticket.requestingIp().equals(context.channel().clientAddress().host())) {
       this.send403(context, "Invalid ticket id or ticket not issued for client");
       return;
     }
 
-    this.handleTicketAuthorizedRequest(path, context, ticket.getAssociatedSession());
+    this.handleTicketAuthorizedRequest(path, context, ticket.associatedSession());
   }
 
   protected void handleUnauthorizedRequest(String path, IHttpContext context) {

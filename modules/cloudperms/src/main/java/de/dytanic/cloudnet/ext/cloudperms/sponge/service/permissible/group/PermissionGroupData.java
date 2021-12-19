@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.SubjectReference;
@@ -41,7 +41,7 @@ final class PermissionGroupData extends PermissibleSubjectData<PermissionGroup> 
   }
 
   @Override
-  protected void update(@NotNull PermissionGroup data) {
+  protected void update(@NonNull PermissionGroup data) {
     this.management.updateGroup(data);
   }
 
@@ -52,7 +52,7 @@ final class PermissionGroupData extends PermissibleSubjectData<PermissionGroup> 
     TransferMethod method
   ) {
     return CompletableFuture.supplyAsync(() -> {
-      this.permissible.setGroups(groups.stream().map(SubjectReference::subjectIdentifier).collect(Collectors.toList()));
+      this.permissible.groups(groups.stream().map(SubjectReference::subjectIdentifier).collect(Collectors.toList()));
       this.updateIfEnabled(this.permissible);
       return true;
     });
@@ -61,7 +61,7 @@ final class PermissionGroupData extends PermissibleSubjectData<PermissionGroup> 
   @Override
   public CompletableFuture<Boolean> addParent(Set<Context> contexts, SubjectReference parent) {
     return CompletableFuture.supplyAsync(() -> {
-      this.permissible.getGroupNames().add(parent.subjectIdentifier());
+      this.permissible.groupNames().add(parent.subjectIdentifier());
       this.updateIfEnabled(this.permissible);
       return true;
     });
@@ -70,7 +70,7 @@ final class PermissionGroupData extends PermissibleSubjectData<PermissionGroup> 
   @Override
   public CompletableFuture<Boolean> removeParent(Set<Context> contexts, SubjectReference parent) {
     return CompletableFuture.supplyAsync(() -> {
-      this.permissible.getGroupNames().remove(parent.subjectIdentifier());
+      this.permissible.groupNames().remove(parent.subjectIdentifier());
       this.updateIfEnabled(this.permissible);
       return true;
     });
@@ -79,7 +79,7 @@ final class PermissionGroupData extends PermissibleSubjectData<PermissionGroup> 
   @Override
   public CompletableFuture<Boolean> clearParents() {
     return CompletableFuture.supplyAsync(() -> {
-      this.permissible.getGroupNames().clear();
+      this.permissible.groupNames().clear();
       this.updateIfEnabled(this.permissible);
       return true;
     });

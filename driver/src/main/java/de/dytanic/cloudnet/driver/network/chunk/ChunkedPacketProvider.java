@@ -17,11 +17,11 @@
 package de.dytanic.cloudnet.driver.network.chunk;
 
 import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public interface ChunkedPacketProvider {
 
-  @NotNull TransferStatus getTransferStatus();
+  @NonNull TransferStatus transferStatus();
 
-  @NotNull ChunkSessionInformation getSessionInformation();
+  @NonNull ChunkSessionInformation sessionInformation();
 }

@@ -20,8 +20,8 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @ToString
@@ -37,17 +37,18 @@ public class CloudPlayer extends CloudOfflinePlayer {
   protected JsonDocument onlineProperties;
 
   public CloudPlayer(
-    @NotNull NetworkServiceInfo loginService,
-    @NotNull NetworkServiceInfo connectedService,
-    @NotNull NetworkPlayerProxyInfo networkPlayerProxyInfo,
+    @NonNull NetworkServiceInfo loginService,
+    @NonNull NetworkServiceInfo connectedService,
+    @NonNull NetworkPlayerProxyInfo networkPlayerProxyInfo,
     @Nullable NetworkPlayerServerInfo networkPlayerServerInfo,
-    @NotNull JsonDocument onlineProperties,
+    @NonNull JsonDocument onlineProperties,
     long firstLoginTimeMillis,
     long lastLoginTimeMillis,
-    @NotNull NetworkPlayerProxyInfo lastNetworkPlayerProxyInfo,
-    @NotNull JsonDocument properties
+    @NonNull String name,
+    @NonNull NetworkPlayerProxyInfo lastNetworkPlayerProxyInfo,
+    @NonNull JsonDocument properties
   ) {
-    super(firstLoginTimeMillis, lastLoginTimeMillis, networkPlayerProxyInfo.name(), lastNetworkPlayerProxyInfo);
+    super(firstLoginTimeMillis, lastLoginTimeMillis, name, lastNetworkPlayerProxyInfo);
     this.loginService = loginService;
     this.connectedService = connectedService;
     this.networkPlayerProxyInfo = networkPlayerProxyInfo;
@@ -56,45 +57,45 @@ public class CloudPlayer extends CloudOfflinePlayer {
     this.properties = properties;
   }
 
-  public NetworkServiceInfo getLoginService() {
+  public NetworkServiceInfo loginService() {
     return this.loginService;
   }
 
-  public void setLoginService(NetworkServiceInfo loginService) {
+  public void loginService(NetworkServiceInfo loginService) {
     this.loginService = loginService;
   }
 
-  public NetworkServiceInfo getConnectedService() {
+  public NetworkServiceInfo connectedService() {
     return this.connectedService;
   }
 
-  public void setConnectedService(NetworkServiceInfo connectedService) {
+  public void connectedService(NetworkServiceInfo connectedService) {
     this.connectedService = connectedService;
   }
 
-  public NetworkPlayerProxyInfo getNetworkPlayerProxyInfo() {
+  public NetworkPlayerProxyInfo networkPlayerProxyInfo() {
     return this.networkPlayerProxyInfo;
   }
 
-  public void setNetworkPlayerProxyInfo(NetworkPlayerProxyInfo networkPlayerProxyInfo) {
+  public void networkPlayerProxyInfo(NetworkPlayerProxyInfo networkPlayerProxyInfo) {
     this.networkPlayerProxyInfo = networkPlayerProxyInfo;
   }
 
-  public NetworkPlayerServerInfo getNetworkPlayerServerInfo() {
+  public NetworkPlayerServerInfo networkPlayerServerInfo() {
     return this.networkPlayerServerInfo;
   }
 
-  public void setNetworkPlayerServerInfo(NetworkPlayerServerInfo networkPlayerServerInfo) {
+  public void networkPlayerServerInfo(NetworkPlayerServerInfo networkPlayerServerInfo) {
     this.networkPlayerServerInfo = networkPlayerServerInfo;
   }
 
-  public JsonDocument getOnlineProperties() {
+  public JsonDocument onlineProperties() {
     return this.onlineProperties;
   }
 
-  public PlayerExecutor getPlayerExecutor() {
-    return CloudNetDriver.getInstance().getServicesRegistry()
-      .getFirstService(IPlayerManager.class)
-      .getPlayerExecutor(this.getUniqueId());
+  public PlayerExecutor playerExecutor() {
+    return CloudNetDriver.instance().servicesRegistry()
+      .firstService(IPlayerManager.class)
+      .playerExecutor(this.uniqueId());
   }
 }

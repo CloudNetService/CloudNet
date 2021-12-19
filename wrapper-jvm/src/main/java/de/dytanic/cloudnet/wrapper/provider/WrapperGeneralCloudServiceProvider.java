@@ -28,7 +28,7 @@ import de.dytanic.cloudnet.wrapper.network.listener.message.ServiceChannelMessag
 import java.util.Collection;
 import java.util.UUID;
 import java.util.function.Supplier;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class WrapperGeneralCloudServiceProvider implements GeneralCloudServiceProvider {
@@ -36,79 +36,79 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
   private final RPCSender rpcSender;
   private final Supplier<INetworkChannel> channelSupplier;
 
-  public WrapperGeneralCloudServiceProvider(@NotNull Wrapper wrapper) {
-    this.rpcSender = wrapper.getRPCProviderFactory().providerForClass(
-      wrapper.getNetworkClient(),
+  public WrapperGeneralCloudServiceProvider(@NonNull Wrapper wrapper) {
+    this.rpcSender = wrapper.rpcProviderFactory().providerForClass(
+      wrapper.networkClient(),
       GeneralCloudServiceProvider.class);
-    this.channelSupplier = wrapper.getNetworkClient()::getFirstChannel;
+    this.channelSupplier = wrapper.networkClient()::firstChannel;
 
-    wrapper.getEventManager().registerListener(new ServiceChannelMessageListener(wrapper.getEventManager()));
+    wrapper.eventManager().registerListener(new ServiceChannelMessageListener(wrapper.eventManager()));
   }
 
   @Override
-  public @NotNull SpecificCloudServiceProvider getSpecificProvider(@NotNull UUID serviceUniqueId) {
+  public @NonNull SpecificCloudServiceProvider specificProvider(@NonNull UUID serviceUniqueId) {
     return new RemoteSpecificCloudServiceProvider(this, this.rpcSender, this.channelSupplier, serviceUniqueId);
   }
 
   @Override
-  public @NotNull SpecificCloudServiceProvider getSpecificProviderByName(@NotNull String serviceName) {
+  public @NonNull SpecificCloudServiceProvider specificProviderByName(@NonNull String serviceName) {
     return new RemoteSpecificCloudServiceProvider(this, this.rpcSender, this.channelSupplier, serviceName);
   }
 
   @Override
-  public @NotNull Collection<UUID> getServicesAsUniqueId() {
-    return this.rpcSender.invokeMethod("getServicesAsUniqueId").fireSync();
+  public @NonNull Collection<UUID> servicesAsUniqueId() {
+    return this.rpcSender.invokeMethod("servicesAsUniqueId").fireSync();
   }
 
   @Override
-  public @Nullable ServiceInfoSnapshot getCloudServiceByName(@NotNull String name) {
-    return this.rpcSender.invokeMethod("getCloudServiceByName", name).fireSync();
+  public @Nullable ServiceInfoSnapshot serviceByName(@NonNull String name) {
+    return this.rpcSender.invokeMethod("serviceByName", name).fireSync();
   }
 
   @Override
-  public @NotNull Collection<ServiceInfoSnapshot> getCloudServices() {
-    return this.rpcSender.invokeMethod("getCloudServices").fireSync();
+  public @NonNull Collection<ServiceInfoSnapshot> services() {
+    return this.rpcSender.invokeMethod("services").fireSync();
   }
 
   @Override
-  public @NotNull Collection<ServiceInfoSnapshot> getStartedCloudServices() {
-    return this.rpcSender.invokeMethod("getStartedCloudServices").fireSync();
+  public @NonNull Collection<ServiceInfoSnapshot> runningServices() {
+    return this.rpcSender.invokeMethod("runningServices").fireSync();
   }
 
   @Override
-  public @NotNull Collection<ServiceInfoSnapshot> getCloudServicesByTask(@NotNull String taskName) {
-    return this.rpcSender.invokeMethod("getCloudServicesByTask", taskName).fireSync();
+  public @NonNull Collection<ServiceInfoSnapshot> servicesByTask(@NonNull String taskName) {
+    return this.rpcSender.invokeMethod("servicesByTask", taskName).fireSync();
   }
 
   @Override
-  public @NotNull Collection<ServiceInfoSnapshot> getCloudServicesByEnvironment(
-    @NotNull ServiceEnvironmentType environment
+  public @NonNull Collection<ServiceInfoSnapshot> servicesByEnvironment(
+    @NonNull ServiceEnvironmentType environment
   ) {
-    return this.rpcSender.invokeMethod("getCloudServicesByEnvironment", environment).fireSync();
+    return this.rpcSender.invokeMethod("servicesByEnvironment", environment).fireSync();
   }
 
   @Override
-  public @NotNull Collection<ServiceInfoSnapshot> getCloudServicesByGroup(@NotNull String group) {
-    return this.rpcSender.invokeMethod("getCloudServicesByGroup", group).fireSync();
+  public @NonNull Collection<ServiceInfoSnapshot> servicesByGroup(@NonNull String group) {
+    return this.rpcSender.invokeMethod("servicesByGroup", group).fireSync();
   }
 
   @Override
-  public @Nullable ServiceInfoSnapshot getCloudService(@NotNull UUID uniqueId) {
-    return this.rpcSender.invokeMethod("getCloudService", uniqueId).fireSync();
+  public @Nullable ServiceInfoSnapshot service(@NonNull UUID uniqueId) {
+    return this.rpcSender.invokeMethod("service", uniqueId).fireSync();
   }
 
   @Override
-  public int getServicesCount() {
-    return this.rpcSender.invokeMethod("getServicesCount").fireSync();
+  public int serviceCount() {
+    return this.rpcSender.invokeMethod("serviceCount").fireSync();
   }
 
   @Override
-  public int getServicesCountByGroup(@NotNull String group) {
-    return this.rpcSender.invokeMethod("getServicesCountByGroup", group).fireSync();
+  public int serviceCountByGroup(@NonNull String group) {
+    return this.rpcSender.invokeMethod("serviceCountByGroup", group).fireSync();
   }
 
   @Override
-  public int getServicesCountByTask(@NotNull String taskName) {
-    return this.rpcSender.invokeMethod("getServicesCountByTask", taskName).fireSync();
+  public int serviceCountByTask(@NonNull String taskName) {
+    return this.rpcSender.invokeMethod("serviceCountByTask", taskName).fireSync();
   }
 }

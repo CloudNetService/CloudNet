@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.driver.util;
 
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
@@ -25,21 +24,13 @@ import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 /**
  * This class is for utility methods for the base modules in this multi module project
  */
 public final class DefaultModuleHelper {
 
-  /**
-   * @deprecated use an appropriate database name or another database instead.
-   */
-  @Deprecated
-  @ScheduledForRemoval
-  public static final String DEFAULT_CONFIGURATION_DATABASE_NAME = "cloudNet_module_configuration";
-
-  private static final Logger LOGGER = LogManager.getLogger(DefaultModuleHelper.class);
+  private static final Logger LOGGER = LogManager.logger(DefaultModuleHelper.class);
 
   private DefaultModuleHelper() {
     throw new UnsupportedOperationException();
@@ -54,9 +45,6 @@ public final class DefaultModuleHelper {
    * @throws NullPointerException if {@code clazz} or {@code target} is null.
    */
   public static boolean copyCurrentModuleInstanceFromClass(Class<?> clazz, Path target) {
-    Preconditions.checkNotNull(clazz);
-    Preconditions.checkNotNull(target);
-
     try {
       // get the location of the class path entry associated with the given class
       var uri = ResourceResolver.resolveURIFromResourceByClass(clazz);
@@ -88,10 +76,6 @@ public final class DefaultModuleHelper {
    * @throws NullPointerException if clazz, type or file is null.
    */
   public static void copyPluginConfigurationFileForEnvironment(Class<?> clazz, ServiceEnvironmentType type, Path file) {
-    Preconditions.checkNotNull(clazz, "clazz");
-    Preconditions.checkNotNull(type, "type");
-    Preconditions.checkNotNull(file, "file");
-
     FileUtils.openZipFileSystem(file, fileSystem -> {
       // check if there is a plugin.yml file already - delete if it exists
       var pluginPath = fileSystem.getPath("plugin.yml");
@@ -101,7 +85,7 @@ public final class DefaultModuleHelper {
       // select the input stream to copy the file from
       var in = clazz.getClassLoader().getResourceAsStream(String.format(
         "plugin.%s.yml",
-        type.getName().toLowerCase()));
+        type.name().toLowerCase()));
       // copy the file if the file exists
       if (in != null) {
         Files.copy(in, pluginPath);

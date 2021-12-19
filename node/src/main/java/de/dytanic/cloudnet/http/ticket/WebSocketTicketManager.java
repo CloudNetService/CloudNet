@@ -19,24 +19,24 @@ package de.dytanic.cloudnet.http.ticket;
 import de.dytanic.cloudnet.driver.network.http.IHttpRequest;
 import de.dytanic.cloudnet.http.HttpSession;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public interface WebSocketTicketManager {
 
-  static @NotNull WebSocketTicketManager memoryCached() {
+  static @NonNull WebSocketTicketManager memoryCached() {
     return MemoryWebSocketTicketManager.INSTANCE;
   }
 
-  @NotNull Collection<WebSocketTicket> getTickets();
+  @NonNull Collection<WebSocketTicket> tickets();
 
-  @Nullable WebSocketTicket expireTicket(@NotNull String ticketId);
+  @Nullable WebSocketTicket expireTicket(@NonNull String ticketId);
 
-  @Nullable WebSocketTicket findTicket(@NotNull String ticketId);
+  @Nullable WebSocketTicket findTicket(@NonNull String ticketId);
 
-  @Nullable WebSocketTicket findAndRemoveTicket(@NotNull String ticketId);
+  @Nullable WebSocketTicket findAndRemoveTicket(@NonNull String ticketId);
 
-  @NotNull WebSocketTicket issueTicket(@NotNull IHttpRequest request, @NotNull HttpSession session);
+  @NonNull WebSocketTicket issueTicket(@NonNull IHttpRequest request, @NonNull HttpSession session);
 
-  @NotNull WebSocketTicket issueTicket(@NotNull IHttpRequest request, @NotNull HttpSession session, long timeout);
+  @NonNull WebSocketTicket issueTicket(@NonNull IHttpRequest request, @NonNull HttpSession session, long timeout);
 }

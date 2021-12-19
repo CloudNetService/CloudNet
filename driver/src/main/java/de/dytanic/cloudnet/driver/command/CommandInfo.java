@@ -20,99 +20,31 @@ import de.dytanic.cloudnet.common.INameable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
+import org.jetbrains.annotations.Contract;
 
 /**
  * The commandInfo class allows to easily serialize the command information
  */
-@ToString
-public class CommandInfo implements INameable {
+public record CommandInfo(
+  @NonNull String name,
+  @NonNull Collection<String> aliases,
+  @NonNull String permission,
+  @NonNull String description,
+  @NonNull List<String> usage
+) implements INameable {
 
-  protected final String name;
-
-  /**
-   * The configured names by the command
-   */
-  protected final Collection<String> aliases;
-
-  /**
-   * The permission, that is configured by this command, that the command sender should has
-   */
-  protected final String permission;
-
-  /**
-   * The command description with a basic description
-   */
-  protected final String description;
-
-  /**
-   * The easiest and important usage for the command
-   */
-  protected final List<String> usage;
-
-  public CommandInfo(
-    @NotNull String name,
-    @NotNull Collection<String> aliases,
-    @NotNull String permission,
-    @NotNull String description,
-    @NotNull List<String> usage
-  ) {
-    this.name = name.toLowerCase();
-    this.aliases = aliases;
-    this.permission = permission;
-    this.description = description;
-    this.usage = usage;
-  }
-
-  public static CommandInfo empty(@NotNull String name) {
+  @Contract("_ -> new")
+  public static @NonNull CommandInfo empty(@NonNull String name) {
     return new CommandInfo(name, Collections.emptyList(), "", "", Collections.emptyList());
   }
 
-  @Override
-  public @NotNull String getName() {
-    return this.name;
-  }
-
-  public @NotNull Collection<String> getAliases() {
-    return this.aliases;
-  }
-
-  public @NotNull String getPermission() {
-    return this.permission;
-  }
-
-  public @NotNull String getDescription() {
-    return this.description;
-  }
-
-  public @NotNull List<String> getUsage() {
-    return this.usage;
-  }
-
-  public @NotNull String joinNameToAliases(@NotNull String separator) {
+  public @NonNull String joinNameToAliases(@NonNull String separator) {
     var result = this.name;
     if (!this.aliases.isEmpty()) {
       result += separator + String.join(separator, this.aliases);
     }
 
     return result;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof CommandInfo that)) {
-      return false;
-    }
-    return this.name.equals(that.name);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(this.name);
   }
 }

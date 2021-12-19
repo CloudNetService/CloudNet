@@ -25,7 +25,7 @@ import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingDeque;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class EmptySpecificCloudServiceProvider implements SpecificCloudServiceProvider {
@@ -36,12 +36,12 @@ public final class EmptySpecificCloudServiceProvider implements SpecificCloudSer
   }
 
   @Override
-  public @Nullable ServiceInfoSnapshot getServiceInfoSnapshot() {
+  public @Nullable ServiceInfoSnapshot serviceInfo() {
     return null;
   }
 
   @Override
-  public boolean isValid() {
+  public boolean valid() {
     return false;
   }
 
@@ -51,29 +51,29 @@ public final class EmptySpecificCloudServiceProvider implements SpecificCloudSer
   }
 
   @Override
-  public void addServiceTemplate(@NotNull ServiceTemplate serviceTemplate) {
+  public void addServiceTemplate(@NonNull ServiceTemplate serviceTemplate) {
   }
 
   @Override
-  public void addServiceRemoteInclusion(@NotNull ServiceRemoteInclusion serviceRemoteInclusion) {
+  public void addServiceRemoteInclusion(@NonNull ServiceRemoteInclusion serviceRemoteInclusion) {
   }
 
   @Override
-  public void addServiceDeployment(@NotNull ServiceDeployment serviceDeployment) {
+  public void addServiceDeployment(@NonNull ServiceDeployment serviceDeployment) {
   }
 
   @Override
-  public Queue<String> getCachedLogMessages() {
+  public Queue<String> cachedLogMessages() {
     return new LinkedBlockingDeque<>();
   }
 
   @Override
-  public boolean toggleScreenEvents(@NotNull ChannelMessageSender channelMessageSender, @NotNull String channel) {
+  public boolean toggleScreenEvents(@NonNull ChannelMessageSender channelMessageSender, @NonNull String channel) {
     return false;
   }
 
   @Override
-  public void setCloudServiceLifeCycle(@NotNull ServiceLifeCycle lifeCycle) {
+  public void updateLifecycle(@NonNull ServiceLifeCycle lifeCycle) {
   }
 
   @Override
@@ -81,7 +81,7 @@ public final class EmptySpecificCloudServiceProvider implements SpecificCloudSer
   }
 
   @Override
-  public void runCommand(@NotNull String command) {
+  public void runCommand(@NonNull String command) {
   }
 
   @Override

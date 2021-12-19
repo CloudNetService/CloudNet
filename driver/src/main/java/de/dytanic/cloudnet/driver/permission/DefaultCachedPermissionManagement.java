@@ -24,7 +24,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class DefaultCachedPermissionManagement extends DefaultPermissionManagement
@@ -51,81 +51,81 @@ public abstract class DefaultCachedPermissionManagement extends DefaultPermissio
     .build();
 
   @Override
-  public @NotNull Map<UUID, PermissionUser> getCachedPermissionUsers() {
+  public @NonNull Map<UUID, PermissionUser> cachedPermissionUsers() {
     return this.permissionUserCache.asMap();
   }
 
   @Override
-  public @NotNull Map<String, PermissionGroup> getCachedPermissionGroups() {
+  public @NonNull Map<String, PermissionGroup> cachedPermissionGroups() {
     return this.permissionGroupCache.asMap();
   }
 
   @Override
-  public @Nullable PermissionUser getCachedUser(@NotNull UUID uniqueId) {
+  public @Nullable PermissionUser cachedUser(@NonNull UUID uniqueId) {
     return this.permissionUserCache.getIfPresent(uniqueId);
   }
 
   @Override
-  public @Nullable PermissionGroup getCachedGroup(@NotNull String name) {
+  public @Nullable PermissionGroup cachedGroup(@NonNull String name) {
     return this.permissionGroupCache.getIfPresent(name);
   }
 
   @Override
-  public void acquireLock(@NotNull PermissionUser user) {
-    this.permissionUserLocks.computeIfAbsent(user.getUniqueId(), uuid -> new AtomicInteger()).incrementAndGet();
+  public void acquireLock(@NonNull PermissionUser user) {
+    this.permissionUserLocks.computeIfAbsent(user.uniqueId(), uuid -> new AtomicInteger()).incrementAndGet();
   }
 
   @Override
-  public void acquireLock(@NotNull PermissionGroup group) {
-    this.permissionGroupLocks.computeIfAbsent(group.getName(), name -> new AtomicInteger()).incrementAndGet();
+  public void acquireLock(@NonNull PermissionGroup group) {
+    this.permissionGroupLocks.computeIfAbsent(group.name(), name -> new AtomicInteger()).incrementAndGet();
   }
 
   @Override
-  public boolean isLocked(@NotNull PermissionUser user) {
-    var lockCount = this.permissionUserLocks.get(user.getUniqueId());
+  public boolean locked(@NonNull PermissionUser user) {
+    var lockCount = this.permissionUserLocks.get(user.uniqueId());
     return lockCount != null && lockCount.get() > 0;
   }
 
   @Override
-  public boolean isLocked(@NotNull PermissionGroup group) {
-    var lockCount = this.permissionGroupLocks.get(group.getName());
+  public boolean locked(@NonNull PermissionGroup group) {
+    var lockCount = this.permissionGroupLocks.get(group.name());
     return lockCount != null && lockCount.get() > 0;
   }
 
   @Override
-  public void unlock(@NotNull PermissionUser user) {
-    var lockCount = this.permissionUserLocks.get(user.getUniqueId());
+  public void unlock(@NonNull PermissionUser user) {
+    var lockCount = this.permissionUserLocks.get(user.uniqueId());
     if (lockCount != null) {
       lockCount.decrementAndGet();
     }
   }
 
   @Override
-  public void unlock(@NotNull PermissionGroup group) {
-    var lockCount = this.permissionGroupLocks.get(group.getName());
+  public void unlock(@NonNull PermissionGroup group) {
+    var lockCount = this.permissionGroupLocks.get(group.name());
     if (lockCount != null) {
       lockCount.decrementAndGet();
     }
   }
 
   @Override
-  public void unlockFully(@NotNull PermissionUser user) {
-    this.permissionUserLocks.remove(user.getUniqueId());
+  public void unlockFully(@NonNull PermissionUser user) {
+    this.permissionUserLocks.remove(user.uniqueId());
   }
 
   @Override
-  public void unlockFully(@NotNull PermissionGroup group) {
-    this.permissionGroupLocks.remove(group.getName());
+  public void unlockFully(@NonNull PermissionGroup group) {
+    this.permissionGroupLocks.remove(group.name());
   }
 
-  protected void handleUserRemove(@NotNull UUID key, @NotNull PermissionUser user, @NotNull RemovalCause cause) {
-    if (cause != RemovalCause.REPLACED && this.isLocked(user)) {
+  protected void handleUserRemove(@NonNull UUID key, @NonNull PermissionUser user, @NonNull RemovalCause cause) {
+    if (cause != RemovalCause.REPLACED && this.locked(user)) {
       this.permissionUserCache.put(key, user);
     }
   }
 
-  protected void handleGroupRemove(@NotNull String key, @NotNull PermissionGroup group, @NotNull RemovalCause cause) {
-    if (cause != RemovalCause.REPLACED && this.isLocked(group)) {
+  protected void handleGroupRemove(@NonNull String key, @NonNull PermissionGroup group, @NonNull RemovalCause cause) {
+    if (cause != RemovalCause.REPLACED && this.locked(group)) {
       this.permissionGroupCache.put(key, group);
     }
   }

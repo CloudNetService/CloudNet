@@ -33,8 +33,7 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 final class NukkitBridgeManagement extends PlatformBridgeManagement<Player, NetworkPlayerServerInfo> {
@@ -43,7 +42,7 @@ final class NukkitBridgeManagement extends PlatformBridgeManagement<Player, Netw
 
   private final PlayerExecutor globalPlayerExecutor;
 
-  public NukkitBridgeManagement(@NotNull Wrapper wrapper) {
+  public NukkitBridgeManagement(@NonNull Wrapper wrapper) {
     super(wrapper);
     // init fields
     this.globalPlayerExecutor = new NukkitDirectPlayerExecutor(
@@ -55,18 +54,18 @@ final class NukkitBridgeManagement extends PlatformBridgeManagement<Player, Netw
   }
 
   @Override
-  public void registerServices(@NotNull IServicesRegistry registry) {
+  public void registerServices(@NonNull IServicesRegistry registry) {
     registry.registerService(IPlayerManager.class, "PlayerManager", this.playerManager);
     registry.registerService(PlatformBridgeManagement.class, "NukkitBridgeManagement", this);
   }
 
   @Override
-  public @NotNull ServicePlayer wrapPlayer(@NotNull Player player) {
+  public @NonNull ServicePlayer wrapPlayer(@NonNull Player player) {
     return new ServicePlayer(player.getUniqueId(), player.getName());
   }
 
   @Override
-  public @NotNull NetworkPlayerServerInfo createPlayerInformation(@NotNull Player player) {
+  public @NonNull NetworkPlayerServerInfo createPlayerInformation(@NonNull Player player) {
     return new NetworkPlayerServerInfo(
       player.getUniqueId(),
       player.getName(),
@@ -76,37 +75,37 @@ final class NukkitBridgeManagement extends PlatformBridgeManagement<Player, Netw
   }
 
   @Override
-  public @NotNull BiFunction<Player, String, Boolean> getPermissionFunction() {
+  public @NonNull BiFunction<Player, String, Boolean> permissionFunction() {
     return PERM_FUNCTION;
   }
 
   @Override
-  public boolean isOnAnyFallbackInstance(@NotNull Player player) {
-    return this.isOnAnyFallbackInstance(this.ownNetworkServiceInfo.getServerName(), null, player::hasPermission);
+  public boolean isOnAnyFallbackInstance(@NonNull Player player) {
+    return this.isOnAnyFallbackInstance(this.ownNetworkServiceInfo.serverName(), null, player::hasPermission);
   }
 
   @Override
-  public @NotNull Optional<ServiceInfoSnapshot> getFallback(@NotNull Player player) {
-    return this.getFallback(player, this.ownNetworkServiceInfo.getServerName());
+  public @NonNull Optional<ServiceInfoSnapshot> fallback(@NonNull Player player) {
+    return this.fallback(player, this.ownNetworkServiceInfo.serverName());
   }
 
   @Override
-  public @NotNull Optional<ServiceInfoSnapshot> getFallback(@NotNull Player player, @Nullable String currServer) {
-    return this.getFallback(player.getUniqueId(), currServer, null, player::hasPermission);
+  public @NonNull Optional<ServiceInfoSnapshot> fallback(@NonNull Player player, @Nullable String currServer) {
+    return this.fallback(player.getUniqueId(), currServer, null, player::hasPermission);
   }
 
   @Override
-  public void handleFallbackConnectionSuccess(@NotNull Player player) {
+  public void handleFallbackConnectionSuccess(@NonNull Player player) {
     this.handleFallbackConnectionSuccess(player.getUniqueId());
   }
 
   @Override
-  public void removeFallbackProfile(@NotNull Player player) {
+  public void removeFallbackProfile(@NonNull Player player) {
     this.removeFallbackProfile(player.getUniqueId());
   }
 
   @Override
-  public @NotNull PlayerExecutor getDirectPlayerExecutor(@NotNull UUID uniqueId) {
+  public @NonNull PlayerExecutor directPlayerExecutor(@NonNull UUID uniqueId) {
     return uniqueId.equals(PlayerExecutor.GLOBAL_UNIQUE_ID)
       ? this.globalPlayerExecutor
       : new NukkitDirectPlayerExecutor(
@@ -115,14 +114,14 @@ final class NukkitBridgeManagement extends PlatformBridgeManagement<Player, Netw
   }
 
   @Override
-  public void appendServiceInformation(@NotNull ServiceInfoSnapshot snapshot) {
+  public void appendServiceInformation(@NonNull ServiceInfoSnapshot snapshot) {
     super.appendServiceInformation(snapshot);
     // append the bukkit specific information
-    snapshot.getProperties().append("Online-Count", Server.getInstance().getOnlinePlayers().size());
-    snapshot.getProperties().append("Version", Server.getInstance().getVersion());
+    snapshot.properties().append("Online-Count", Server.getInstance().getOnlinePlayers().size());
+    snapshot.properties().append("Version", Server.getInstance().getVersion());
     // players
-    snapshot.getProperties().append("Players", Server.getInstance().getOnlinePlayers().values().stream()
+    snapshot.properties().append("Players", Server.getInstance().getOnlinePlayers().values().stream()
       .map(this::createPlayerInformation)
-      .collect(Collectors.toList()));
+      .toList());
   }
 }

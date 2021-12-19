@@ -36,20 +36,19 @@ import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import java.util.List;
 import java.util.Queue;
-import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 @CommandPermission("cloudnet.command.migrate")
 @Description("Migrate the database and other things that cloudnet uses")
 public final class CommandMigrate {
 
   private static final int DEFAULT_CHUNK_SIZE = 100;
-  private static final Logger LOGGER = LogManager.getLogger(CommandMigrate.class);
+  private static final Logger LOGGER = LogManager.logger(CommandMigrate.class);
 
   @Parser(suggestions = "databaseProvider")
   public AbstractDatabaseProvider defaultDatabaseProviderParser(CommandContext<CommandSource> $, Queue<String> input) {
-    var abstractDatabaseProvider = CloudNet.getInstance().getServicesRegistry()
-      .getService(AbstractDatabaseProvider.class, input.remove());
+    var abstractDatabaseProvider = CloudNet.instance().servicesRegistry()
+      .service(AbstractDatabaseProvider.class, input.remove());
 
     if (abstractDatabaseProvider == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-migrate-unknown-database-provider"));
@@ -59,10 +58,10 @@ public final class CommandMigrate {
 
   @Suggestions("databaseProvider")
   public List<String> suggestDatabaseProvider(CommandContext<CommandSource> $, String input) {
-    return CloudNet.getInstance().getServicesRegistry().getServices(AbstractDatabaseProvider.class)
+    return CloudNet.instance().servicesRegistry().services(AbstractDatabaseProvider.class)
       .stream()
-      .map(INameable::getName)
-      .collect(Collectors.toList());
+      .map(INameable::name)
+      .toList();
   }
 
   @CommandMethod(value = "migrate database|db <database-from> <database-to>", requiredSender = ConsoleCommandSource.class)
@@ -87,12 +86,12 @@ public final class CommandMigrate {
     }
 
     try {
-      for (var databaseName : sourceDatabaseProvider.getDatabaseNames()) {
+      for (var databaseName : sourceDatabaseProvider.databaseNames()) {
         source.sendMessage(
           I18n.trans("command-migrate-current-database").replace("%db%", databaseName));
 
-        var sourceDatabase = sourceDatabaseProvider.getDatabase(databaseName);
-        var targetDatabase = targetDatabaseProvider.getDatabase(databaseName);
+        var sourceDatabase = sourceDatabaseProvider.database(databaseName);
+        var targetDatabase = targetDatabaseProvider.database(databaseName);
 
         sourceDatabase.iterate(targetDatabase::insert, chunkSize);
       }
@@ -106,13 +105,13 @@ public final class CommandMigrate {
     this.executeIfNotCurrentProvider(targetDatabaseProvider, AbstractDatabaseProvider::close);
 
     source.sendMessage(I18n.trans("command-migrate-success")
-      .replace("%source%", sourceDatabaseProvider.getName())
-      .replace("%target%", targetDatabaseProvider.getName()));
+      .replace("%source%", sourceDatabaseProvider.name())
+      .replace("%target%", targetDatabaseProvider.name()));
   }
 
-  private boolean executeIfNotCurrentProvider(@NotNull AbstractDatabaseProvider sourceProvider,
-    @NotNull ThrowableConsumer<AbstractDatabaseProvider, ?> handler) {
-    if (!CloudNet.getInstance().getDatabaseProvider().equals(sourceProvider)) {
+  private boolean executeIfNotCurrentProvider(@NonNull AbstractDatabaseProvider sourceProvider,
+    @NonNull ThrowableConsumer<AbstractDatabaseProvider, ?> handler) {
+    if (!CloudNet.instance().databaseProvider().equals(sourceProvider)) {
       try {
         handler.accept(sourceProvider);
       } catch (Throwable throwable) {

@@ -21,30 +21,30 @@ import de.dytanic.cloudnet.service.ICloudService;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Properties;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class NukkitConfigurationPreparer extends AbstractServiceConfigurationPreparer {
 
   @Override
-  public void configure(@NotNull CloudNet nodeInstance, @NotNull ICloudService cloudService) {
+  public void configure(@NonNull CloudNet nodeInstance, @NonNull ICloudService cloudService) {
     // check if we should run now
     if (this.shouldRewriteIp(nodeInstance, cloudService)) {
       // copy the default file
-      var configFile = cloudService.getDirectory().resolve("server.properties");
+      var configFile = cloudService.directory().resolve("server.properties");
       this.copyCompiledFile("files/nukkit/server.properties", configFile);
       // load the configuration
       var properties = new Properties();
       try (var stream = Files.newInputStream(configFile)) {
         properties.load(stream);
         // update the configuration
-        properties.setProperty("server-ip", nodeInstance.getConfig().getHostAddress());
-        properties.setProperty("server-port", String.valueOf(cloudService.getServiceConfiguration().getPort()));
+        properties.setProperty("server-ip", nodeInstance.config().hostAddress());
+        properties.setProperty("server-port", String.valueOf(cloudService.serviceConfiguration().port()));
         // store the properties
         try (var out = Files.newOutputStream(configFile)) {
           properties.store(out, "Properties Config file - edited by CloudNet");
         }
       } catch (IOException exception) {
-        LOGGER.severe("Unable to edit server.properties in %s", exception, cloudService.getDirectory());
+        LOGGER.severe("Unable to edit server.properties in %s", exception, cloudService.directory());
       }
     }
   }

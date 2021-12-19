@@ -53,7 +53,7 @@ public final class CommandCreate {
     }
 
     if (javaCommand != null) {
-      configurationBuilder.javaCommand(javaCommand.getFirst());
+      configurationBuilder.javaCommand(javaCommand.first());
     }
 
     if (nodeId != null) {

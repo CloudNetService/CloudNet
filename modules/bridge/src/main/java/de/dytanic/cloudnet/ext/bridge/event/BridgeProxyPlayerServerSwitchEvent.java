@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.ext.bridge.event;
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
 import de.dytanic.cloudnet.ext.bridge.player.CloudPlayer;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class BridgeProxyPlayerServerSwitchEvent extends DriverEvent {
 
@@ -27,22 +27,22 @@ public final class BridgeProxyPlayerServerSwitchEvent extends DriverEvent {
   private final NetworkServiceInfo previous;
 
   public BridgeProxyPlayerServerSwitchEvent(
-    @NotNull CloudPlayer player,
-    @NotNull NetworkServiceInfo previous
+    @NonNull CloudPlayer player,
+    @NonNull NetworkServiceInfo previous
   ) {
     this.cloudPlayer = player;
     this.previous = previous;
   }
 
-  public @NotNull CloudPlayer getCloudPlayer() {
+  public @NonNull CloudPlayer cloudPlayer() {
     return this.cloudPlayer;
   }
 
-  public @NotNull NetworkServiceInfo getTarget() {
-    return this.cloudPlayer.getConnectedService();
+  public @NonNull NetworkServiceInfo target() {
+    return this.cloudPlayer.connectedService();
   }
 
-  public @NotNull NetworkServiceInfo getPrevious() {
+  public @NonNull NetworkServiceInfo previous() {
     return this.previous;
   }
 }

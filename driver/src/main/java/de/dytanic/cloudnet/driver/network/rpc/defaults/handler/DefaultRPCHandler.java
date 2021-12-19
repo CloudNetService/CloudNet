@@ -28,7 +28,7 @@ import de.dytanic.cloudnet.driver.network.rpc.defaults.handler.invoker.MethodInv
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler {
@@ -40,10 +40,10 @@ public class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler 
   protected final Map<String, MethodInformation> methodCache = new ConcurrentHashMap<>();
 
   public DefaultRPCHandler(
-    @NotNull Class<?> clazz,
+    @NonNull Class<?> clazz,
     @Nullable Object binding,
-    @NotNull ObjectMapper objectMapper,
-    @NotNull DataBufFactory dataBufFactory
+    @NonNull ObjectMapper objectMapper,
+    @NonNull DataBufFactory dataBufFactory
   ) {
     super(clazz, objectMapper, dataBufFactory);
 
@@ -54,43 +54,44 @@ public class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler 
 
   @Override
   public void registerToDefaultRegistry() {
-    this.registerTo(CloudNetDriver.getInstance().getRPCHandlerRegistry());
+    this.registerTo(CloudNetDriver.instance().rpcHandlerRegistry());
   }
 
   @Override
-  public void registerTo(@NotNull RPCHandlerRegistry registry) {
+  public void registerTo(@NonNull RPCHandlerRegistry registry) {
     registry.registerHandler(this);
   }
 
   @Override
-  public @NotNull HandlingResult handle(@NotNull RPCInvocationContext context) {
+  public @NonNull HandlingResult handle(@NonNull RPCInvocationContext context) {
     // get the working instance
     var instance = context
-      .getWorkingInstance()
+      .workingInstance()
       .orElse(context.strictInstanceUsage() ? null : this.bindingInstance);
     // now we try to find the associated method information to the given method name or try to read it
     var information = this.methodCache.computeIfAbsent(
-      String.format("%d@%s", instance == null ? -1 : instance.hashCode(), context.getMethodName()),
+      String.format("%d@%s", instance == null ? -1 : instance.hashCode(), context.methodName()),
       $ -> MethodInformation.find(
         instance,
         this.bindingClass,
-        context.getMethodName(),
-        instance == null ? null : this.generator));
+        context.methodName(),
+        instance == null ? null : this.generator,
+        context.argumentCount()));
     // now as we have the method info, try to read all arguments needed
-    var arguments = new Object[information.getArguments().length];
+    var arguments = new Object[information.arguments().length];
     for (var i = 0; i < arguments.length; i++) {
-      arguments[i] = this.objectMapper.readObject(context.getArgumentInformation(), information.getArguments()[i]);
+      arguments[i] = this.objectMapper.readObject(context.argumentInformation(), information.arguments()[i]);
     }
     // get the method invocation result
     HandlingResult result;
     if (instance == null) {
       // no instance provided, no invocation we can make - just check if the result is primitive and return the default
       // primitive value associated
-      if (information.getRawReturnType().isPrimitive() && context.normalizePrimitives()) {
+      if (information.rawReturnType().isPrimitive() && context.normalizePrimitives()) {
         result = DefaultHandlingResult.success(
           information,
           this,
-          Defaults.defaultValue(information.getRawReturnType()));
+          Defaults.defaultValue(information.rawReturnType()));
       } else {
         // no instance and not primitive means null
         result = DefaultHandlingResult.success(information, this, null);
@@ -99,7 +100,7 @@ public class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler 
       // there is an instance we can work on, do it!
       try {
         // spare the result allocation if the method invocation fails
-        var methodResult = information.getMethodInvoker().callMethod(arguments);
+        var methodResult = information.methodInvoker().callMethod(arguments);
         // now we can create the result as the method invocation succeeded
         result = DefaultHandlingResult.success(information, this, methodResult);
       } catch (Throwable throwable) {

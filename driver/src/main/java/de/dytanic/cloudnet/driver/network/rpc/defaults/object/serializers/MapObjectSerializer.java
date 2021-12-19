@@ -24,7 +24,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.function.Supplier;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class MapObjectSerializer implements ObjectSerializer<Map<?, ?>> {
@@ -35,15 +35,15 @@ public class MapObjectSerializer implements ObjectSerializer<Map<?, ?>> {
     this.mapFactory = mapFactory;
   }
 
-  public static @NotNull MapObjectSerializer of(@NotNull Supplier<Map<?, ?>> mapFactory) {
+  public static @NonNull MapObjectSerializer of(@NonNull Supplier<Map<?, ?>> mapFactory) {
     return new MapObjectSerializer(mapFactory);
   }
 
   @Override
   public @Nullable Map<?, ?> read(
-    @NotNull DataBuf source,
-    @NotNull Type type,
-    @NotNull ObjectMapper caller
+    @NonNull DataBuf source,
+    @NonNull Type type,
+    @NonNull ObjectMapper caller
   ) {
     // create a new instance of the map
     var map = this.mapFactory.get();
@@ -68,10 +68,10 @@ public class MapObjectSerializer implements ObjectSerializer<Map<?, ?>> {
 
   @Override
   public void write(
-    @NotNull DataBuf.Mutable dataBuf,
+    @NonNull DataBuf.Mutable dataBuf,
     @Nullable Map<?, ?> object,
-    @NotNull Type type,
-    @NotNull ObjectMapper caller
+    @NonNull Type type,
+    @NonNull ObjectMapper caller
   ) {
     dataBuf.writeInt(object == null ? 0 : object.size());
     if (object != null) {

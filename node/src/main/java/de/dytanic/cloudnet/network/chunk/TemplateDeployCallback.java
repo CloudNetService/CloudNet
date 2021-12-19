@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketHandler.Callback;
 import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import java.io.InputStream;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 final class TemplateDeployCallback implements Callback {
 
@@ -32,18 +32,18 @@ final class TemplateDeployCallback implements Callback {
 
   @Override
   public void handleSessionComplete(
-    @NotNull ChunkSessionInformation information,
-    @NotNull InputStream dataInput
+    @NonNull ChunkSessionInformation information,
+    @NonNull InputStream dataInput
   ) {
     // get the information for the deployment
-    var storageName = information.getTransferInformation().readString();
-    var template = information.getTransferInformation().readObject(ServiceTemplate.class);
-    var overrideTemplate = information.getTransferInformation().readBoolean();
+    var storageName = information.transferInformation().readString();
+    var template = information.transferInformation().readObject(ServiceTemplate.class);
+    var overrideTemplate = information.transferInformation().readBoolean();
     // get the storage of the template if present
-    var storage = CloudNet.getInstance().getTemplateStorage(storageName);
+    var storage = CloudNet.instance().templateStorage(storageName);
     if (storage != null) {
       // pause the ticking of CloudNet before writing the file into the template
-      CloudNet.getInstance().getMainThread().pause();
+      CloudNet.instance().mainThread().pause();
       try {
         // delete the template if requested
         if (overrideTemplate) {
@@ -53,7 +53,7 @@ final class TemplateDeployCallback implements Callback {
         storage.deploy(dataInput, template);
       } finally {
         // resume the main thread execution
-        CloudNet.getInstance().getMainThread().resume();
+        CloudNet.instance().mainThread().resume();
       }
     }
   }

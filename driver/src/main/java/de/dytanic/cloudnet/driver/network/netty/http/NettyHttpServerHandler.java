@@ -19,6 +19,7 @@ package de.dytanic.cloudnet.driver.network.netty.http;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
+import de.dytanic.cloudnet.driver.network.netty.http.NettyHttpServer.HttpHandlerEntry;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -38,12 +39,13 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
 @Internal
 final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> {
 
-  private static final Logger LOGGER = LogManager.getLogger(NettyHttpServerHandler.class);
+  private static final Logger LOGGER = LogManager.logger(NettyHttpServerHandler.class);
 
   private final NettyHttpServer nettyHttpServer;
   private final HostAndPort connectedAddress;
@@ -56,32 +58,32 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
   }
 
   @Override
-  public void channelActive(ChannelHandlerContext ctx) {
+  public void channelActive(@NonNull ChannelHandlerContext ctx) {
     this.channel = new NettyHttpChannel(ctx.channel(), this.connectedAddress,
       HostAndPort.fromSocketAddress(ctx.channel().remoteAddress()));
   }
 
   @Override
-  public void channelInactive(ChannelHandlerContext ctx) {
+  public void channelInactive(@NonNull ChannelHandlerContext ctx) {
     if (!ctx.channel().isActive() || !ctx.channel().isOpen() || !ctx.channel().isWritable()) {
       ctx.channel().close();
     }
   }
 
   @Override
-  public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+  public void exceptionCaught(@NonNull ChannelHandlerContext ctx, @NonNull Throwable cause) {
     if (!(cause instanceof IOException)) {
       LOGGER.severe("Exception was caught", cause);
     }
   }
 
   @Override
-  public void channelReadComplete(ChannelHandlerContext ctx) {
+  public void channelReadComplete(@NonNull ChannelHandlerContext ctx) {
     ctx.flush();
   }
 
   @Override
-  protected void channelRead0(ChannelHandlerContext ctx, HttpRequest msg) {
+  protected void channelRead0(@NonNull ChannelHandlerContext ctx, @NonNull HttpRequest msg) {
     if (msg.decoderResult().isFailure()) {
       ctx.channel().close();
       return;
@@ -90,7 +92,7 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
     this.handleMessage(ctx.channel(), msg);
   }
 
-  private void handleMessage(Channel channel, HttpRequest httpRequest) {
+  private void handleMessage(@NonNull Channel channel, @NonNull HttpRequest httpRequest) {
     var uri = URI.create(httpRequest.uri());
     var fullPath = uri.getPath();
 
@@ -101,18 +103,18 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
     }
 
     List<NettyHttpServer.HttpHandlerEntry> entries = new ArrayList<>(this.nettyHttpServer.registeredHandlers);
-    entries.sort(Comparator.comparingInt(entry -> entry.priority));
+    entries.sort(Comparator.comparingInt(HttpHandlerEntry::priority));
 
     var pathEntries = fullPath.split("/");
     var context = new NettyHttpServerContext(this.nettyHttpServer, this.channel,
       uri, new HashMap<>(), httpRequest);
 
     for (var httpHandlerEntry : entries) {
-      var handlerPathEntries = httpHandlerEntry.path.split("/");
-      context.setPathPrefix(httpHandlerEntry.path);
+      var handlerPathEntries = httpHandlerEntry.path().split("/");
+      context.pathPrefix(httpHandlerEntry.path());
 
       if (this.handleMessage0(httpHandlerEntry, context, fullPath, pathEntries, handlerPathEntries)) {
-        context.setLastHandler(httpHandlerEntry.httpHandler);
+        context.setLastHandler(httpHandlerEntry.httpHandler());
         if (context.cancelNext) {
           break;
         }
@@ -150,13 +152,18 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
     }
   }
 
-  private boolean handleMessage0(NettyHttpServer.HttpHandlerEntry httpHandlerEntry, NettyHttpServerContext context,
-    String fullPath, String[] pathEntries, String[] handlerPathEntries) {
-    if (httpHandlerEntry.port != null && httpHandlerEntry.port != this.connectedAddress.getPort()) {
+  private boolean handleMessage0(
+    @NonNull NettyHttpServer.HttpHandlerEntry httpHandlerEntry,
+    @NonNull NettyHttpServerContext context,
+    @NonNull String fullPath,
+    @NonNull String[] pathEntries,
+    @NonNull String[] handlerPathEntries
+  ) {
+    if (httpHandlerEntry.port() != null && httpHandlerEntry.port() != this.connectedAddress.port()) {
       return false;
     }
 
-    if (!httpHandlerEntry.path.endsWith("*") && pathEntries.length != handlerPathEntries.length) {
+    if (!httpHandlerEntry.path().endsWith("*") && pathEntries.length != handlerPathEntries.length) {
       return false;
     }
 
@@ -194,11 +201,11 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
     }
 
     try {
-      httpHandlerEntry.httpHandler.handle(fullPath.toLowerCase(), context);
+      httpHandlerEntry.httpHandler().handle(fullPath.toLowerCase(), context);
       return true;
     } catch (Exception exception) {
       LOGGER.severe(String.format("Exception posting http request to handler %s",
-        httpHandlerEntry.httpHandler.getClass().getName()), exception);
+        httpHandlerEntry.httpHandler().getClass().getName()), exception);
       return false;
     }
   }

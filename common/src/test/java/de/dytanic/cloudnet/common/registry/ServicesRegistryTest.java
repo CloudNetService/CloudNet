@@ -29,39 +29,39 @@ public final class ServicesRegistryTest {
       .registerService(A.class, "b", new B())
       .registerService(A.class, "c", new C());
 
-    Assertions.assertEquals(2, registry.getServices(A.class).size());
-    Assertions.assertEquals(10, registry.getService(A.class, "b").getValue());
-    Assertions.assertEquals(21, registry.getService(A.class, "c").getValue());
+    Assertions.assertEquals(2, registry.services(A.class).size());
+    Assertions.assertEquals(10, registry.service(A.class, "b").value());
+    Assertions.assertEquals(21, registry.service(A.class, "c").value());
 
     registry.unregisterService(A.class, "b");
 
-    Assertions.assertEquals(1, registry.getServices(A.class).size());
+    Assertions.assertEquals(1, registry.services(A.class).size());
     Assertions.assertTrue(registry.containsService(A.class, "c"));
     Assertions.assertFalse(registry.containsService(A.class, "b"));
 
     registry.unregisterAll();
 
-    Assertions.assertEquals(0, registry.getProvidedServices().size());
+    Assertions.assertEquals(0, registry.providedServices().size());
 
     var b = new B();
     registry.registerService(A.class, "b", b);
 
-    Assertions.assertEquals(1, registry.getServices(A.class).size());
+    Assertions.assertEquals(1, registry.services(A.class).size());
     registry.unregisterAll(ServicesRegistryTest.class.getClassLoader());
 
-    Assertions.assertEquals(0, registry.getServices(A.class).size());
+    Assertions.assertEquals(0, registry.services(A.class).size());
     registry.unregisterAll();
   }
 
   private interface A {
 
-    int getValue();
+    int value();
   }
 
   private static class B implements A {
 
     @Override
-    public int getValue() {
+    public int value() {
       return 10;
     }
   }
@@ -69,7 +69,7 @@ public final class ServicesRegistryTest {
   private static class C implements A {
 
     @Override
-    public int getValue() {
+    public int value() {
       return 21;
     }
   }

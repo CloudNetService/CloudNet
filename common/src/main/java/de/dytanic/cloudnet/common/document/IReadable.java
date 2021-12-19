@@ -25,7 +25,7 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -33,11 +33,11 @@ import org.jetbrains.annotations.Nullable;
  */
 public interface IReadable {
 
-  Logger LOGGER = LogManager.getLogger(IReadable.class);
+  Logger LOGGER = LogManager.logger(IReadable.class);
 
-  @NotNull IReadable read(@NotNull Reader reader);
+  @NonNull IReadable read(@NonNull Reader reader);
 
-  default @NotNull IReadable read(@NotNull InputStream inputStream) {
+  default @NonNull IReadable read(@NonNull InputStream inputStream) {
     try (Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
       return this.read(reader);
     } catch (IOException exception) {
@@ -46,7 +46,7 @@ public interface IReadable {
     }
   }
 
-  default @NotNull IReadable read(@Nullable Path path) {
+  default @NonNull IReadable read(@Nullable Path path) {
     if (path != null && Files.exists(path)) {
       try (var inputStream = Files.newInputStream(path)) {
         return this.read(inputStream);

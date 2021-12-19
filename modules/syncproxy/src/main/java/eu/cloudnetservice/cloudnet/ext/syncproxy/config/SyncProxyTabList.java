@@ -23,62 +23,50 @@ import eu.cloudnetservice.cloudnet.ext.syncproxy.SyncProxyConstants;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.UUID;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
-@ToString
-@EqualsAndHashCode
-public class SyncProxyTabList {
+public record SyncProxyTabList(String header, String footer) {
 
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");
 
-  protected final String header;
-  protected final String footer;
-
-  protected SyncProxyTabList(@NotNull String header, @NotNull String footer) {
-    this.header = header;
-    this.footer = footer;
-  }
-
-  public static @NotNull Builder builder() {
+  public static @NonNull Builder builder() {
     return new Builder();
   }
 
-  public static @NotNull Builder builder(@NotNull SyncProxyTabList tabList) {
+  public static @NonNull Builder builder(@NonNull SyncProxyTabList tabList) {
     return builder()
-      .header(tabList.getHeader())
-      .footer(tabList.getFooter());
+      .header(tabList.header())
+      .footer(tabList.footer());
   }
 
-  public static @NotNull String replaceTabListItem(
-    @NotNull String input,
-    @NotNull UUID playerUniqueId,
+  public static @NonNull String replaceTabListItem(
+    @NonNull String input,
+    @NonNull UUID playerUniqueId,
     int onlinePlayers,
     int maxPlayers
   ) {
     input = input
-      .replace("%proxy%", Wrapper.getInstance().getServiceId().getName())
-      .replace("%proxy_uniqueId%", Wrapper.getInstance().getServiceId().getUniqueId().toString())
-      .replace("%proxy_task_name%", Wrapper.getInstance().getServiceId().getTaskName())
+      .replace("%proxy%", Wrapper.instance().serviceId().name())
+      .replace("%proxy_uniqueId%", Wrapper.instance().serviceId().uniqueId().toString())
+      .replace("%proxy_task_name%", Wrapper.instance().serviceId().taskName())
       .replace("%time%", DATE_FORMAT.format(System.currentTimeMillis()))
       .replace("%online_players%", String.valueOf(onlinePlayers))
       .replace("%max_players%", String.valueOf(maxPlayers));
 
     if (SyncProxyConstants.CLOUD_PERMS_ENABLED) {
-      var permissionManagement = CloudNetDriver.getInstance().getPermissionManagement();
+      var permissionManagement = CloudNetDriver.instance().permissionManagement();
 
-      var permissionUser = permissionManagement.getUser(playerUniqueId);
+      var permissionUser = permissionManagement.user(playerUniqueId);
 
       if (permissionUser != null) {
-        var group = permissionManagement.getHighestPermissionGroup(permissionUser);
+        var group = permissionManagement.highestPermissionGroup(permissionUser);
 
         if (group != null) {
-          input = input.replace("%prefix%", group.getPrefix())
-            .replace("%suffix%", group.getSuffix())
-            .replace("%display%", group.getDisplay())
-            .replace("%color%", group.getColor())
-            .replace("%group%", group.getName());
+          input = input.replace("%prefix%", group.prefix())
+            .replace("%suffix%", group.suffix())
+            .replace("%display%", group.display())
+            .replace("%color%", group.color())
+            .replace("%group%", group.name());
         }
       }
     }
@@ -86,30 +74,22 @@ public class SyncProxyTabList {
     return input.replace("&", "§");
   }
 
-  public @NotNull String getHeader() {
-    return this.header;
-  }
-
-  public @NotNull String getFooter() {
-    return this.footer;
-  }
-
   public static class Builder {
 
     private String header;
     private String footer;
 
-    public @NotNull Builder header(@NotNull String header) {
+    public @NonNull Builder header(@NonNull String header) {
       this.header = header;
       return this;
     }
 
-    public @NotNull Builder footer(@NotNull String footer) {
+    public @NonNull Builder footer(@NonNull String footer) {
       this.footer = footer;
       return this;
     }
 
-    public @NotNull SyncProxyTabList build() {
+    public @NonNull SyncProxyTabList build() {
       Verify.verifyNotNull(this.header, "Missing header");
       Verify.verifyNotNull(this.footer, "Missing footer");
 

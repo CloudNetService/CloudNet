@@ -19,43 +19,24 @@ package de.dytanic.cloudnet.driver.event;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.event.invoker.ListenerInvoker;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
-@ToString
-@EqualsAndHashCode
-final class DefaultRegisteredEventListener implements IRegisteredEventListener {
+record DefaultRegisteredEventListener(
+  @NonNull Object instance,
+  @NonNull String methodName,
+  @NonNull Class<?> eventClass,
+  @NonNull EventListener eventListener,
+  @NonNull ListenerInvoker listenerInvoker
+) implements IRegisteredEventListener {
 
-  private static final Logger LOGGER = LogManager.getLogger(DefaultRegisteredEventListener.class);
-
-  private final Object instance;
-  private final String methodName;
-  private final Class<?> eventClass;
-  private final EventListener eventListener;
-  private final ListenerInvoker listenerInvoker;
-
-  public DefaultRegisteredEventListener(
-    @NotNull Object instance,
-    @NotNull String methodName,
-    @NotNull Class<?> eventClass,
-    @NotNull EventListener eventListener,
-    @NotNull ListenerInvoker listenerInvoker
-  ) {
-    this.instance = instance;
-    this.methodName = methodName;
-    this.eventClass = eventClass;
-    this.eventListener = eventListener;
-    this.listenerInvoker = listenerInvoker;
-  }
+  private static final Logger LOGGER = LogManager.logger(DefaultRegisteredEventListener.class);
 
   @Override
-  public void fireEvent(@NotNull Event event) {
-    if (event.isShowDebug()) {
+  public void fireEvent(@NonNull Event event) {
+    if (event.debug()) {
       LOGGER.fine(String.format(
         "Calling event %s on listener %s",
-        event.getClass().getName(),
-        this.getInstance().getClass().getName()));
+        event.getClass().getName(), this.instance().getClass().getName()));
     }
 
     try {
@@ -69,27 +50,12 @@ final class DefaultRegisteredEventListener implements IRegisteredEventListener {
   }
 
   @Override
-  public @NotNull EventListener getEventListener() {
-    return this.eventListener;
-  }
-
-  @Override
-  public @NotNull EventPriority getPriority() {
-    return this.eventListener.priority();
-  }
-
-  @Override
-  public @NotNull String getChannel() {
+  public @NonNull String channel() {
     return this.eventListener.channel();
   }
 
   @Override
-  public @NotNull Object getInstance() {
-    return this.instance;
-  }
-
-  @Override
-  public @NotNull Class<?> getEventClass() {
-    return this.eventClass;
+  public @NonNull EventPriority priority() {
+    return this.eventListener.priority();
   }
 }

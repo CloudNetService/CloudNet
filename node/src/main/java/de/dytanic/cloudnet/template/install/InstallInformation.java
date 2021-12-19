@@ -20,60 +20,23 @@ import com.google.common.base.Verify;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.SpecificTemplateStorage;
 import java.util.Optional;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public class InstallInformation {
+public record InstallInformation(
+  @NonNull ServiceVersion serviceVersion,
+  @NonNull ServiceVersionType serviceVersionType,
+  boolean cacheFiles,
+  @Nullable String installerExecutable,
+  @NonNull ServiceTemplate serviceTemplate,
+  @NonNull SpecificTemplateStorage templateStorage
+) {
 
-  private final ServiceVersion serviceVersion;
-  private final ServiceVersionType serviceVersionType;
-
-  private final boolean cacheFiles;
-  private final String installerExecutable;
-  private final ServiceTemplate serviceTemplate;
-  private final SpecificTemplateStorage templateStorage;
-
-  protected InstallInformation(
-    @NotNull ServiceVersion serviceVersion,
-    @NotNull ServiceVersionType serviceVersionType,
-    boolean cacheFiles,
-    @Nullable String installerExecutable,
-    @NotNull ServiceTemplate serviceTemplate,
-    @NotNull SpecificTemplateStorage templateStorage
-  ) {
-    this.serviceVersion = serviceVersion;
-    this.serviceVersionType = serviceVersionType;
-    this.cacheFiles = cacheFiles;
-    this.installerExecutable = installerExecutable;
-    this.serviceTemplate = serviceTemplate;
-    this.templateStorage = templateStorage;
-  }
-
-  public static @NotNull Builder builder() {
+  public static @NonNull Builder builder() {
     return new Builder();
   }
 
-  public @NotNull ServiceVersionType getServiceVersionType() {
-    return this.serviceVersionType;
-  }
-
-  public @NotNull ServiceVersion getServiceVersion() {
-    return this.serviceVersion;
-  }
-
-  public @NotNull SpecificTemplateStorage getTemplateStorage() {
-    return this.templateStorage;
-  }
-
-  public boolean isCacheFiles() {
-    return this.cacheFiles;
-  }
-
-  public @NotNull ServiceTemplate getServiceTemplate() {
-    return this.serviceTemplate;
-  }
-
-  public @NotNull Optional<String> getInstallerExecutable() {
+  public @NonNull Optional<String> installerExecCommand() {
     return Optional.ofNullable(this.installerExecutable);
   }
 
@@ -87,40 +50,40 @@ public class InstallInformation {
     private ServiceTemplate serviceTemplate;
     private SpecificTemplateStorage templateStorage;
 
-    public @NotNull Builder serviceVersion(@NotNull ServiceVersion serviceVersion) {
+    public @NonNull Builder serviceVersion(@NonNull ServiceVersion serviceVersion) {
       this.serviceVersion = serviceVersion;
-      this.cacheFiles = serviceVersion.isCacheFiles();
+      this.cacheFiles = serviceVersion.cacheFiles();
       return this;
     }
 
-    public @NotNull Builder serviceVersionType(@NotNull ServiceVersionType serviceVersionType) {
+    public @NonNull Builder serviceVersionType(@NonNull ServiceVersionType serviceVersionType) {
       this.serviceVersionType = serviceVersionType;
       return this;
     }
 
-    public @NotNull Builder cacheFiles(boolean cacheFiles) {
+    public @NonNull Builder cacheFiles(boolean cacheFiles) {
       this.cacheFiles = cacheFiles;
       return this;
     }
 
-    public @NotNull Builder executable(@Nullable String installerExecutable) {
+    public @NonNull Builder executable(@Nullable String installerExecutable) {
       this.installerExecutable = installerExecutable;
       return this;
     }
 
-    public @NotNull Builder toTemplate(@NotNull ServiceTemplate template) {
+    public @NonNull Builder toTemplate(@NonNull ServiceTemplate template) {
       this.serviceTemplate = template;
       this.templateStorage = template.storage();
 
       return this;
     }
 
-    public @NotNull Builder storage(@NotNull SpecificTemplateStorage storage) {
+    public @NonNull Builder storage(@NonNull SpecificTemplateStorage storage) {
       this.templateStorage = storage;
       return this;
     }
 
-    public @NotNull InstallInformation build() {
+    public @NonNull InstallInformation build() {
       Verify.verifyNotNull(this.serviceVersion, "No service version specified");
       Verify.verifyNotNull(this.serviceVersionType, "No version type specified");
       Verify.verifyNotNull(this.serviceTemplate, "No target template specified");

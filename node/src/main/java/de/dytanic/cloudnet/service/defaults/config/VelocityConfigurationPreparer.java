@@ -18,24 +18,24 @@ package de.dytanic.cloudnet.service.defaults.config;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.service.ICloudService;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public class VelocityConfigurationPreparer extends AbstractServiceConfigurationPreparer {
 
   @Override
-  public void configure(@NotNull CloudNet nodeInstance, @NotNull ICloudService cloudService) {
+  public void configure(@NonNull CloudNet nodeInstance, @NonNull ICloudService cloudService) {
     // check if we should run now
     if (this.shouldRewriteIp(nodeInstance, cloudService)) {
       // copy the default file
-      var configFile = cloudService.getDirectory().resolve("velocity.toml");
+      var configFile = cloudService.directory().resolve("velocity.toml");
       this.copyCompiledFile("files/velocity/velocity.toml", configFile);
       // rewrite the configuration file
       this.rewriteFile(configFile, line -> {
         if (line.startsWith("bind =")) {
           line = String.format(
             "bind = \"%s:%d\"",
-            nodeInstance.getConfig().getHostAddress(),
-            cloudService.getServiceConfiguration().getPort());
+            nodeInstance.config().hostAddress(),
+            cloudService.serviceConfiguration().port());
         }
         return line;
       });

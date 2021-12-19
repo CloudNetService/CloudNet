@@ -23,6 +23,7 @@ import eu.cloudnetservice.cloudnet.ext.signs.SignManagement;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignLayout;
 import eu.cloudnetservice.cloudnet.ext.signs.platform.AbstractPlatformSignManagement;
 import java.util.Set;
+import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -32,7 +33,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.NumberConversions;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class BukkitSignManagement extends AbstractPlatformSignManagement<org.bukkit.block.Sign> {
@@ -43,13 +43,13 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
     this.plugin = plugin;
   }
 
-  public static BukkitSignManagement getDefaultInstance() {
-    return (BukkitSignManagement) CloudNetDriver.getInstance().getServicesRegistry()
-      .getFirstService(SignManagement.class);
+  public static BukkitSignManagement defaultInstance() {
+    return (BukkitSignManagement) CloudNetDriver.instance().servicesRegistry()
+      .firstService(SignManagement.class);
   }
 
   @Override
-  protected void pushUpdates(@NotNull Set<Sign> signs, @NotNull SignLayout layout) {
+  protected void pushUpdates(@NonNull Set<Sign> signs, @NonNull SignLayout layout) {
     if (Bukkit.isPrimaryThread()) {
       this.pushUpdates0(signs, layout);
     } else if (this.plugin.isEnabled()) {
@@ -57,14 +57,14 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
     }
   }
 
-  protected void pushUpdates0(@NotNull Set<Sign> signs, @NotNull SignLayout layout) {
+  protected void pushUpdates0(@NonNull Set<Sign> signs, @NonNull SignLayout layout) {
     for (var sign : signs) {
       this.pushUpdate(sign, layout);
     }
   }
 
   @Override
-  protected void pushUpdate(@NotNull Sign sign, @NotNull SignLayout layout) {
+  protected void pushUpdate(@NonNull Sign sign, @NonNull SignLayout layout) {
     if (Bukkit.isPrimaryThread()) {
       this.pushUpdate0(sign, layout);
     } else if (this.plugin.isEnabled()) {
@@ -72,8 +72,8 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
     }
   }
 
-  protected void pushUpdate0(@NotNull Sign sign, @NotNull SignLayout layout) {
-    var location = this.worldPositionToLocation(sign.getLocation());
+  protected void pushUpdate0(@NonNull Sign sign, @NonNull SignLayout layout) {
+    var location = this.worldPositionToLocation(sign.location());
     if (location != null) {
       var chunkX = NumberConversions.floor(location.getX()) >> 4;
       var chunkZ = NumberConversions.floor(location.getZ()) >> 4;
@@ -81,7 +81,7 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
       if (location.getWorld().isChunkLoaded(chunkX, chunkZ)) {
         var block = location.getBlock();
         if (block.getState() instanceof org.bukkit.block.Sign bukkitSign) {
-          BukkitCompatibility.setSignGlowing(bukkitSign, layout);
+          BukkitCompatibility.signGlowing(bukkitSign, layout);
 
           var replaced = this.replaceLines(sign, layout);
           if (replaced != null) {
@@ -99,15 +99,15 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
   }
 
   @SuppressWarnings("deprecation") // legacy 1.8 support...
-  protected void changeBlock(@NotNull Block block, @NotNull SignLayout layout) {
+  protected void changeBlock(@NonNull Block block, @NonNull SignLayout layout) {
     var material =
-      layout.getBlockMaterial() == null ? null : Material.getMaterial(layout.getBlockMaterial().toUpperCase());
+      layout.blockMaterial() == null ? null : Material.getMaterial(layout.blockMaterial().toUpperCase());
     if (material != null && material.isBlock()) {
-      var face = BukkitCompatibility.getFacing(block.getState());
+      var face = BukkitCompatibility.facing(block.getState());
       if (face != null) {
         var behind = block.getRelative(face.getOppositeFace()).getState();
-        if (layout.getBlockSubId() >= 0) {
-          behind.setData(new MaterialData(material, (byte) layout.getBlockSubId()));
+        if (layout.blockSubId() >= 0) {
+          behind.setData(new MaterialData(material, (byte) layout.blockSubId()));
         } else {
           behind.setType(material);
         }
@@ -118,27 +118,27 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
   }
 
   @Override
-  public @Nullable Sign getSignAt(@NotNull org.bukkit.block.Sign sign) {
-    return this.getSignAt(this.locationToWorldPosition(sign.getLocation()));
+  public @Nullable Sign signAt(@NonNull org.bukkit.block.Sign sign) {
+    return this.signAt(this.locationToWorldPosition(sign.getLocation()));
   }
 
   @Override
-  public @Nullable Sign createSign(@NotNull org.bukkit.block.Sign sign, @NotNull String group) {
+  public @Nullable Sign createSign(@NonNull org.bukkit.block.Sign sign, @NonNull String group) {
     return this.createSign(sign, group, null);
   }
 
   @Override
   public @Nullable Sign createSign(
-    @NotNull org.bukkit.block.Sign sign,
-    @NotNull String group,
+    @NonNull org.bukkit.block.Sign sign,
+    @NonNull String group,
     @Nullable String templatePath
   ) {
-    var entry = this.getApplicableSignConfigurationEntry();
+    var entry = this.applicableSignConfigurationEntry();
     if (entry != null) {
       var created = new Sign(
         group,
         templatePath,
-        this.locationToWorldPosition(sign.getLocation(), entry.getTargetGroup()));
+        this.locationToWorldPosition(sign.getLocation(), entry.targetGroup()));
       this.createSign(created);
       return created;
     }
@@ -146,7 +146,7 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
   }
 
   @Override
-  public void deleteSign(@NotNull org.bukkit.block.Sign sign) {
+  public void deleteSign(@NonNull org.bukkit.block.Sign sign) {
     this.deleteSign(this.locationToWorldPosition(sign.getLocation()));
   }
 
@@ -167,14 +167,14 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
   @Override
   protected void startKnockbackTask() {
     Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
-      var entry = this.getApplicableSignConfigurationEntry();
+      var entry = this.applicableSignConfigurationEntry();
       if (entry != null) {
-        var configuration = entry.getKnockbackConfiguration();
-        if (configuration.isValidAndEnabled()) {
-          var distance = configuration.getDistance();
+        var configuration = entry.knockbackConfiguration();
+        if (configuration.validAndEnabled()) {
+          var distance = configuration.distance();
 
           for (var value : this.signs.values()) {
-            var location = this.worldPositionToLocation(value.getLocation());
+            var location = this.worldPositionToLocation(value.location());
             if (location != null) {
               var chunkX = (int) Math.floor(location.getX()) >> 4;
               var chunkZ = (int) Math.floor(location.getZ()) >> 4;
@@ -184,12 +184,12 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
                 location.getWorld()
                   .getNearbyEntities(location, distance, distance, distance)
                   .stream()
-                  .filter(entity -> entity instanceof Player && (configuration.getBypassPermission() == null
-                    || !entity.hasPermission(configuration.getBypassPermission())))
+                  .filter(entity -> entity instanceof Player && (configuration.bypassPermission() == null
+                    || !entity.hasPermission(configuration.bypassPermission())))
                   .forEach(entity -> entity.setVelocity(entity.getLocation().toVector()
                     .subtract(location.toVector())
                     .normalize()
-                    .multiply(configuration.getStrength())));
+                    .multiply(configuration.strength())));
               }
             }
           }
@@ -198,7 +198,7 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
     }, 0, 5);
   }
 
-  protected @NotNull WorldPosition locationToWorldPosition(@NotNull Location location) {
+  protected @NonNull WorldPosition locationToWorldPosition(@NonNull Location location) {
     return new WorldPosition(
       location.getX(),
       location.getY(),
@@ -209,7 +209,7 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
       null);
   }
 
-  protected @NotNull WorldPosition locationToWorldPosition(@NotNull Location location, @NotNull String group) {
+  protected @NonNull WorldPosition locationToWorldPosition(@NonNull Location location, @NonNull String group) {
     return new WorldPosition(
       location.getX(),
       location.getY(),
@@ -220,7 +220,7 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
       group);
   }
 
-  protected @Nullable Location worldPositionToLocation(@NotNull WorldPosition position) {
+  protected @Nullable Location worldPositionToLocation(@NonNull WorldPosition position) {
     var world = Bukkit.getWorld(position.world());
     return world == null ? null : new Location(world, position.x(), position.y(), position.z());
   }

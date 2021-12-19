@@ -25,17 +25,17 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class HeaderReader {
 
-  private static final Logger LOGGER = LogManager.getLogger(HeaderReader.class);
+  private static final Logger LOGGER = LogManager.logger(HeaderReader.class);
 
   private HeaderReader() {
     throw new UnsupportedOperationException();
   }
 
-  public static void readAndPrintHeader(@NotNull IConsole console) {
+  public static void readAndPrintHeader(@NonNull IConsole console) {
     var version = HeaderReader.class.getPackage().getImplementationVersion();
     var codename = HeaderReader.class.getPackage().getImplementationTitle();
 

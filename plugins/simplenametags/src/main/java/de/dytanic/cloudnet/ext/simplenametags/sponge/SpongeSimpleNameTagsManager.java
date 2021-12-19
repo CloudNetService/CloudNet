@@ -22,8 +22,8 @@ import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.Executor;
+import lombok.NonNull;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
@@ -34,27 +34,27 @@ final class SpongeSimpleNameTagsManager extends SimpleNameTagsManager<ServerPlay
 
   private static final Scoreboard.Builder BUILDER = Scoreboard.builder();
 
-  public SpongeSimpleNameTagsManager(@NotNull Executor syncTaskExecutor) {
+  public SpongeSimpleNameTagsManager(@NonNull Executor syncTaskExecutor) {
     super(syncTaskExecutor);
   }
 
   @Override
-  public void updateNameTagsFor(@NotNull ServerPlayer player) {
+  public void updateNameTagsFor(@NonNull ServerPlayer player) {
     this.updateNameTagsFor(player, player.uniqueId(), player.name());
   }
 
   @Override
-  public @NotNull UUID getPlayerUniqueId(@NotNull ServerPlayer player) {
+  public @NonNull UUID playerUniqueId(@NonNull ServerPlayer player) {
     return player.uniqueId();
   }
 
   @Override
-  public void setDisplayName(@NotNull ServerPlayer player, @NotNull String displayName) {
+  public void displayName(@NonNull ServerPlayer player, @NonNull String displayName) {
     player.displayName().set(AdventureSerializerUtil.serialize(displayName));
   }
 
   @Override
-  public void resetScoreboard(@NotNull ServerPlayer player) {
+  public void resetScoreboard(@NonNull ServerPlayer player) {
     if (Sponge.server().serverScoreboard().map(player.scoreboard()::equals).orElse(false)) {
       player.setScoreboard(BUILDER.build());
     }
@@ -62,10 +62,10 @@ final class SpongeSimpleNameTagsManager extends SimpleNameTagsManager<ServerPlay
 
   @Override
   public void registerPlayerToTeam(
-    @NotNull ServerPlayer player,
-    @NotNull ServerPlayer scoreboardHolder,
-    @NotNull String name,
-    @NotNull PermissionGroup group
+    @NonNull ServerPlayer player,
+    @NonNull ServerPlayer scoreboardHolder,
+    @NonNull String name,
+    @NonNull PermissionGroup group
   ) {
     var team = scoreboardHolder.scoreboard().team(name).orElseGet(() -> {
       // create and register a new team
@@ -74,8 +74,8 @@ final class SpongeSimpleNameTagsManager extends SimpleNameTagsManager<ServerPlay
       return newTeam;
     });
     // set the default team attributes
-    team.setPrefix(AdventureSerializerUtil.serialize(group.getPrefix()));
-    team.setSuffix(AdventureSerializerUtil.serialize(group.getSuffix()));
+    team.setPrefix(AdventureSerializerUtil.serialize(group.prefix()));
+    team.setSuffix(AdventureSerializerUtil.serialize(group.suffix()));
     // set the team color if possible
     var teamColor = NamedTextColor.ofExact(this.getColorChar(group));
     if (teamColor != null) {
@@ -86,12 +86,12 @@ final class SpongeSimpleNameTagsManager extends SimpleNameTagsManager<ServerPlay
   }
 
   @Override
-  public @NotNull Collection<? extends ServerPlayer> getOnlinePlayers() {
+  public @NonNull Collection<? extends ServerPlayer> onlinePlayers() {
     return Sponge.server().onlinePlayers();
   }
 
   @Override
-  public @Nullable ServerPlayer getOnlinePlayer(@NotNull UUID uniqueId) {
+  public @Nullable ServerPlayer onlinePlayer(@NonNull UUID uniqueId) {
     return Sponge.server().player(uniqueId).orElse(null);
   }
 }

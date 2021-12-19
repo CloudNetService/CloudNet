@@ -30,7 +30,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -77,14 +77,14 @@ public class CompletableTask<V> extends CompletableFuture<V> implements ITask<V>
     });
   }
 
-  public static <V> @NotNull CompletableTask<V> supply(@NotNull Runnable runnable) {
+  public static <V> @NonNull CompletableTask<V> supply(@NonNull Runnable runnable) {
     return supply(() -> {
       runnable.run();
       return null;
     });
   }
 
-  public static <V> @NotNull CompletableTask<V> supply(@NotNull ThrowableSupplier<V, Throwable> supplier) {
+  public static <V> @NonNull CompletableTask<V> supply(@NonNull ThrowableSupplier<V, Throwable> supplier) {
     var task = new CompletableTask<V>();
     SERVICE.execute(() -> {
       try {
@@ -98,13 +98,13 @@ public class CompletableTask<V> extends CompletableFuture<V> implements ITask<V>
 
 
   @Override
-  public @NotNull ITask<V> addListener(@NotNull ITaskListener<V> listener) {
+  public @NonNull ITask<V> addListener(@NonNull ITaskListener<V> listener) {
     this.initListeners().add(listener);
     return this;
   }
 
   @Override
-  public @NotNull ITask<V> clearListeners() {
+  public @NonNull ITask<V> clearListeners() {
     // we don't need to initialize the listeners field here
     if (this.listeners != null) {
       this.listeners.clear();
@@ -114,7 +114,7 @@ public class CompletableTask<V> extends CompletableFuture<V> implements ITask<V>
   }
 
   @Override
-  public @UnmodifiableView @NotNull Collection<ITaskListener<V>> getListeners() {
+  public @UnmodifiableView @NonNull Collection<ITaskListener<V>> listeners() {
     return this.listeners == null ? Collections.emptyList() : Collections.unmodifiableCollection(this.listeners);
   }
 
@@ -128,7 +128,7 @@ public class CompletableTask<V> extends CompletableFuture<V> implements ITask<V>
   }
 
   @Override
-  public @UnknownNullability V get(long time, @NotNull TimeUnit timeUnit, @Nullable V def) {
+  public @UnknownNullability V get(long time, @NonNull TimeUnit timeUnit, @Nullable V def) {
     try {
       return this.get(time, timeUnit);
     } catch (CancellationException | ExecutionException | InterruptedException | TimeoutException exception) {
@@ -137,7 +137,7 @@ public class CompletableTask<V> extends CompletableFuture<V> implements ITask<V>
   }
 
   @Override
-  public @NotNull <T> ITask<T> map(@NotNull ThrowableFunction<V, T, Throwable> mapper) {
+  public @NonNull <T> ITask<T> map(@NonNull ThrowableFunction<V, T, Throwable> mapper) {
     // if this task is already done we can just compute the value
     if (this.isDone()) {
       return CompletedTask.create(() -> mapper.apply(this.getNow(null)));
@@ -145,9 +145,9 @@ public class CompletableTask<V> extends CompletableFuture<V> implements ITask<V>
     // create a new task mapping the current task
     var task = new CompletableTask<T>();
     // handle the result of this task and post the result to the downstream task
-    this.addListener(new ITaskListener<V>() {
+    this.addListener(new ITaskListener<>() {
       @Override
-      public void onComplete(@NotNull ITask<V> t, @Nullable V v) {
+      public void onComplete(@NonNull ITask<V> t, @Nullable V v) {
         try {
           task.complete(mapper.apply(v));
         } catch (Throwable throwable) {
@@ -156,12 +156,12 @@ public class CompletableTask<V> extends CompletableFuture<V> implements ITask<V>
       }
 
       @Override
-      public void onCancelled(@NotNull ITask<V> t) {
+      public void onCancelled(@NonNull ITask<V> t) {
         task.cancel(true);
       }
 
       @Override
-      public void onFailure(@NotNull ITask<V> t, @NotNull Throwable th) {
+      public void onFailure(@NonNull ITask<V> t, @NonNull Throwable th) {
         task.completeExceptionally(th);
       }
     });
@@ -169,7 +169,7 @@ public class CompletableTask<V> extends CompletableFuture<V> implements ITask<V>
     return task;
   }
 
-  protected @NotNull Collection<ITaskListener<V>> initListeners() {
+  protected @NonNull Collection<ITaskListener<V>> initListeners() {
     // ConcurrentLinkedQueue gives us O(1) insertion using CAS - results under moderate
     // load in the fastest insert and read times
     return Objects.requireNonNullElseGet(this.listeners, () -> this.listeners = new ConcurrentLinkedQueue<>());

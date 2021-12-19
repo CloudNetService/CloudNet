@@ -18,32 +18,32 @@ package de.dytanic.cloudnet.driver.permission;
 
 import java.util.Map;
 import java.util.UUID;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public interface CachedPermissionManagement extends IPermissionManagement {
 
-  @NotNull Map<UUID, PermissionUser> getCachedPermissionUsers();
+  @NonNull Map<UUID, PermissionUser> cachedPermissionUsers();
 
-  @NotNull Map<String, PermissionGroup> getCachedPermissionGroups();
+  @NonNull Map<String, PermissionGroup> cachedPermissionGroups();
 
-  @Nullable PermissionUser getCachedUser(@NotNull UUID uniqueId);
+  @Nullable PermissionUser cachedUser(@NonNull UUID uniqueId);
 
-  @Nullable PermissionGroup getCachedGroup(@NotNull String name);
+  @Nullable PermissionGroup cachedGroup(@NonNull String name);
 
-  void acquireLock(@NotNull PermissionUser user);
+  void acquireLock(@NonNull PermissionUser user);
 
-  void acquireLock(@NotNull PermissionGroup group);
+  void acquireLock(@NonNull PermissionGroup group);
 
-  boolean isLocked(@NotNull PermissionUser user);
+  boolean locked(@NonNull PermissionUser user);
 
-  boolean isLocked(@NotNull PermissionGroup group);
+  boolean locked(@NonNull PermissionGroup group);
 
-  void unlock(@NotNull PermissionUser user);
+  void unlock(@NonNull PermissionUser user);
 
-  void unlock(@NotNull PermissionGroup group);
+  void unlock(@NonNull PermissionGroup group);
 
-  void unlockFully(@NotNull PermissionUser user);
+  void unlockFully(@NonNull PermissionUser user);
 
-  void unlockFully(@NotNull PermissionGroup group);
+  void unlockFully(@NonNull PermissionGroup group);
 }

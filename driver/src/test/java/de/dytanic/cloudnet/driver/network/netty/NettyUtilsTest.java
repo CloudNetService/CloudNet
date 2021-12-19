@@ -30,19 +30,19 @@ public class NettyUtilsTest {
   @Test
   void testWrapperThreadAmount() {
     Mockito
-      .when(DriverTestUtility.mockAndSetDriverInstance().getDriverEnvironment())
+      .when(DriverTestUtility.mockAndSetDriverInstance().environment())
       .thenReturn(DriverEnvironment.WRAPPER);
 
-    Assertions.assertEquals(4, NettyUtils.getThreadAmount());
+    Assertions.assertEquals(4, NettyUtils.threadAmount());
   }
 
   @Test
   void testNodeThreadAmount() {
     Mockito
-      .when(DriverTestUtility.mockAndSetDriverInstance().getDriverEnvironment())
+      .when(DriverTestUtility.mockAndSetDriverInstance().environment())
       .thenReturn(DriverEnvironment.CLOUDNET);
 
-    Assertions.assertEquals(Runtime.getRuntime().availableProcessors() * 2, NettyUtils.getThreadAmount());
+    Assertions.assertEquals(Runtime.getRuntime().availableProcessors() * 2, NettyUtils.threadAmount());
   }
 
   @RepeatedTest(30)

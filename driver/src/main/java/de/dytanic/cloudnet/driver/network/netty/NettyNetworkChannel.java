@@ -16,9 +16,6 @@
 
 package de.dytanic.cloudnet.driver.network.netty;
 
-import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.log.LogManager;
-import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketSendEvent;
 import de.dytanic.cloudnet.driver.network.DefaultNetworkChannel;
@@ -29,25 +26,29 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Internal
 public final class NettyNetworkChannel extends DefaultNetworkChannel implements INetworkChannel {
 
-  private static final Logger LOGGER = LogManager.getLogger(NettyNetworkChannel.class);
-
   private final Channel channel;
 
-  public NettyNetworkChannel(Channel channel, IPacketListenerRegistry packetRegistry, INetworkChannelHandler handler,
-    HostAndPort serverAddress, HostAndPort clientAddress, boolean clientProvidedChannel) {
+  public NettyNetworkChannel(
+    @NonNull Channel channel,
+    @NonNull IPacketListenerRegistry packetRegistry,
+    @NonNull INetworkChannelHandler handler,
+    @NonNull HostAndPort serverAddress,
+    @NonNull HostAndPort clientAddress,
+    boolean clientProvidedChannel
+  ) {
     super(packetRegistry, serverAddress, clientAddress, clientProvidedChannel, handler);
     this.channel = channel;
   }
 
   @Override
-  public void sendPacket(@NotNull IPacket... packets) {
+  public void sendPacket(@NonNull IPacket... packets) {
     for (var packet : packets) {
       this.writePacket(packet, false);
     }
@@ -55,7 +56,7 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
   }
 
   @Override
-  public void sendPacketSync(@NotNull IPacket... packets) {
+  public void sendPacketSync(@NonNull IPacket... packets) {
     for (var packet : packets) {
       var future = this.writePacket(packet, false);
       if (future != null) {
@@ -66,9 +67,7 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
   }
 
   @Override
-  public void sendPacket(@NotNull IPacket packet) {
-    Preconditions.checkNotNull(packet);
-
+  public void sendPacket(@NonNull IPacket packet) {
     if (this.channel.eventLoop().inEventLoop()) {
       this.writePacket(packet, true);
     } else {
@@ -77,9 +76,7 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
   }
 
   @Override
-  public void sendPacketSync(@NotNull IPacket packet) {
-    Preconditions.checkNotNull(packet);
-
+  public void sendPacketSync(@NonNull IPacket packet) {
     var future = this.writePacket(packet, true);
     if (future != null) {
       future.syncUninterruptibly();
@@ -87,19 +84,18 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
   }
 
   @Override
-  public boolean isWriteable() {
+  public boolean writeable() {
     return this.channel.isWritable();
   }
 
   @Override
-  public boolean isActive() {
+  public boolean active() {
     return this.channel.isActive();
   }
 
-  private @Nullable ChannelFuture writePacket(IPacket packet, boolean flushAfter) {
-    if (!CloudNetDriver.getInstance().getEventManager().callEvent(
-      new NetworkChannelPacketSendEvent(this, packet)
-    ).isCancelled()) {
+  private @Nullable ChannelFuture writePacket(@NonNull IPacket packet, boolean flushAfter) {
+    var event = CloudNetDriver.instance().eventManager().callEvent(new NetworkChannelPacketSendEvent(this, packet));
+    if (!event.cancelled()) {
       return flushAfter ? this.channel.writeAndFlush(packet) : this.channel.write(packet);
     } else {
       return null;
@@ -111,8 +107,7 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
     this.channel.close();
   }
 
-  public Channel getChannel() {
+  public @NonNull Channel channel() {
     return this.channel;
   }
-
 }

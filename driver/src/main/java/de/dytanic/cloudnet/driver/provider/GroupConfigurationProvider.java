@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
@@ -41,15 +41,15 @@ public interface GroupConfigurationProvider {
    *
    * @return a list containing the group configurations of all groups
    */
-  @NotNull
-  @UnmodifiableView Collection<GroupConfiguration> getGroupConfigurations();
+  @NonNull
+  @UnmodifiableView Collection<GroupConfiguration> groupConfigurations();
 
   /**
    * Clears all existing groups and sets the given collection as the new groups
    *
    * @param groupConfigurations the new groups
    */
-  void setGroupConfigurations(@NotNull Collection<GroupConfiguration> groupConfigurations);
+  void groupConfigurations(@NonNull Collection<GroupConfiguration> groupConfigurations);
 
   /**
    * Gets a specific group by its name
@@ -57,8 +57,7 @@ public interface GroupConfigurationProvider {
    * @param name the name of the group
    * @return the group or {@code null} if no group with that name exists
    */
-  @Nullable
-  GroupConfiguration getGroupConfiguration(@NotNull String name);
+  @Nullable GroupConfiguration groupConfiguration(@NonNull String name);
 
   /**
    * Checks whether the group with a specific name exists
@@ -66,21 +65,21 @@ public interface GroupConfigurationProvider {
    * @param name the name of the group
    * @return {@code true} if the group exists or {@code false} otherwise
    */
-  boolean isGroupConfigurationPresent(@NotNull String name);
+  boolean groupConfigurationPresent(@NonNull String name);
 
   /**
    * Adds a new group to the cloud
    *
    * @param groupConfiguration the group to be added
    */
-  void addGroupConfiguration(@NotNull GroupConfiguration groupConfiguration);
+  void addGroupConfiguration(@NonNull GroupConfiguration groupConfiguration);
 
   /**
    * Removes a group from the cloud
    *
    * @param name the name of the group to be removed
    */
-  void removeGroupConfigurationByName(@NotNull String name);
+  void removeGroupConfigurationByName(@NonNull String name);
 
   /**
    * Removes a group from the cloud
@@ -88,12 +87,12 @@ public interface GroupConfigurationProvider {
    * @param groupConfiguration the group to be removed (the only thing that matters in this object is the name, the rest
    *                           is ignored)
    */
-  void removeGroupConfiguration(@NotNull GroupConfiguration groupConfiguration);
+  void removeGroupConfiguration(@NonNull GroupConfiguration groupConfiguration);
 
   /**
    * Reloads the groups.json file
    */
-  @NotNull
+  @NonNull
   default ITask<Void> reloadAsync() {
     return CompletableTask.supply(this::reload);
   }
@@ -103,9 +102,9 @@ public interface GroupConfigurationProvider {
    *
    * @return a list containing the group configurations of all groups
    */
-  @NotNull
-  default ITask<Collection<GroupConfiguration>> getGroupConfigurationsAsync() {
-    return CompletableTask.supply(this::getGroupConfigurations);
+  @NonNull
+  default ITask<Collection<GroupConfiguration>> groupConfigurationsAsync() {
+    return CompletableTask.supply(() -> this.groupConfigurations());
   }
 
   /**
@@ -113,9 +112,9 @@ public interface GroupConfigurationProvider {
    *
    * @param groupConfigurations the new groups
    */
-  @NotNull
-  default ITask<Void> setGroupConfigurationsAsync(@NotNull Collection<GroupConfiguration> groupConfigurations) {
-    return CompletableTask.supply(() -> this.setGroupConfigurations(groupConfigurations));
+  @NonNull
+  default ITask<Void> groupConfigurationsAsync(@NonNull Collection<GroupConfiguration> groupConfigurations) {
+    return CompletableTask.supply(() -> this.groupConfigurations(groupConfigurations));
   }
 
   /**
@@ -124,9 +123,9 @@ public interface GroupConfigurationProvider {
    * @param name the name of the group
    * @return the group or {@code null} if no group with that name exists
    */
-  @NotNull
-  default ITask<GroupConfiguration> getGroupConfigurationAsync(@NotNull String name) {
-    return CompletableTask.supply(() -> this.getGroupConfiguration(name));
+  @NonNull
+  default ITask<GroupConfiguration> groupConfigurationAsync(@NonNull String name) {
+    return CompletableTask.supply(() -> this.groupConfiguration(name));
   }
 
   /**
@@ -135,9 +134,9 @@ public interface GroupConfigurationProvider {
    * @param name the name of the group
    * @return {@code true} if the group exists or {@code false} otherwise
    */
-  @NotNull
-  default ITask<Boolean> isGroupConfigurationPresentAsync(@NotNull String name) {
-    return CompletableTask.supply(() -> this.isGroupConfigurationPresent(name));
+  @NonNull
+  default ITask<Boolean> groupConfigurationPresentAsync(@NonNull String name) {
+    return CompletableTask.supply(() -> this.groupConfigurationPresent(name));
   }
 
   /**
@@ -145,8 +144,8 @@ public interface GroupConfigurationProvider {
    *
    * @param groupConfiguration the group to be added
    */
-  @NotNull
-  default ITask<Void> addGroupConfigurationAsync(@NotNull GroupConfiguration groupConfiguration) {
+  @NonNull
+  default ITask<Void> addGroupConfigurationAsync(@NonNull GroupConfiguration groupConfiguration) {
     return CompletableTask.supply(() -> this.addGroupConfiguration(groupConfiguration));
   }
 
@@ -155,8 +154,8 @@ public interface GroupConfigurationProvider {
    *
    * @param name the name of the group to be removed
    */
-  @NotNull
-  default ITask<Void> removeGroupConfigurationByNameAsync(@NotNull String name) {
+  @NonNull
+  default ITask<Void> removeGroupConfigurationByNameAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.removeGroupConfigurationByName(name));
   }
 
@@ -166,9 +165,8 @@ public interface GroupConfigurationProvider {
    * @param groupConfiguration the group to be removed (the only thing that matters in this object is the name, the rest
    *                           is ignored)
    */
-  @NotNull
-  default ITask<Void> removeGroupConfigurationAsync(@NotNull GroupConfiguration groupConfiguration) {
+  @NonNull
+  default ITask<Void> removeGroupConfigurationAsync(@NonNull GroupConfiguration groupConfiguration) {
     return CompletableTask.supply(() -> this.removeGroupConfiguration(groupConfiguration));
   }
-
 }

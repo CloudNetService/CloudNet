@@ -38,13 +38,13 @@ public final class CloudNetSyncProxyModule extends DriverModule {
     instance = this;
   }
 
-  public static CloudNetSyncProxyModule getInstance() {
+  public static CloudNetSyncProxyModule instance() {
     return CloudNetSyncProxyModule.instance;
   }
 
   @ModuleTask(order = 127, event = ModuleLifeCycle.LOADED)
   public void convertConfig() {
-    if (Files.exists(this.getConfigPath())) {
+    if (Files.exists(this.configPath())) {
       // the old config is located in a document with the key "config", extract the actual config
       var document = this.readConfig().getDocument("config", null);
       // check if there is an old config
@@ -58,24 +58,24 @@ public final class CloudNetSyncProxyModule extends DriverModule {
   @ModuleTask(order = 126, event = ModuleLifeCycle.LOADED)
   public void initManagement() {
     // check if we need to create a default config
-    if (Files.notExists(this.getConfigPath())) {
+    if (Files.notExists(this.configPath())) {
       // create default config and write to the file
       this.writeConfig(JsonDocument.newDocument(SyncProxyConfiguration.createDefault("Proxy")));
     }
     // read the config from the file
     var configuration = this.readConfig().toInstanceOf(SyncProxyConfiguration.class);
-    this.nodeSyncProxyManagement = new NodeSyncProxyManagement(this, configuration, this.getRPCFactory());
+    this.nodeSyncProxyManagement = new NodeSyncProxyManagement(this, configuration, this.rpcFactory());
     // register the SyncProxyManagement to the ServiceRegistry
-    this.nodeSyncProxyManagement.registerService(this.getServiceRegistry());
+    this.nodeSyncProxyManagement.registerService(this.serviceRegistry());
     // sync the config of the module into the cluster
-    CloudNet.getInstance().getDataSyncRegistry().registerHandler(
+    CloudNet.instance().dataSyncRegistry().registerHandler(
       DataSyncHandler.<SyncProxyConfiguration>builder()
         .key("syncproxy-config")
         .nameExtractor($ -> "SyncProxy Config")
         .convertObject(SyncProxyConfiguration.class)
-        .writer(this.nodeSyncProxyManagement::setConfiguration)
-        .singletonCollector(this.nodeSyncProxyManagement::getConfiguration)
-        .currentGetter($ -> this.nodeSyncProxyManagement.getConfiguration())
+        .writer(this.nodeSyncProxyManagement::configuration)
+        .singletonCollector(this.nodeSyncProxyManagement::configuration)
+        .currentGetter($ -> this.nodeSyncProxyManagement.configuration())
         .build());
   }
 
@@ -83,12 +83,12 @@ public final class CloudNetSyncProxyModule extends DriverModule {
   public void initListeners() {
     // register the listeners
     this.registerListener(new IncludePluginListener(this.nodeSyncProxyManagement),
-      new NodeSyncProxyChannelMessageListener(this.nodeSyncProxyManagement, this.getEventManager()));
+      new NodeSyncProxyChannelMessageListener(this.nodeSyncProxyManagement, this.eventManager()));
   }
 
   @ModuleTask(order = 60, event = ModuleLifeCycle.LOADED)
   public void registerCommands() {
     // register the syncproxy command to provide config management
-    CloudNet.getInstance().getCommandProvider().register(new CommandSyncProxy(this.nodeSyncProxyManagement));
+    CloudNet.instance().commandProvider().register(new CommandSyncProxy(this.nodeSyncProxyManagement));
   }
 }

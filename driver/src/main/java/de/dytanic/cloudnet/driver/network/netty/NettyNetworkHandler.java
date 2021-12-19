@@ -25,47 +25,47 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.concurrent.Executor;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 
 @Internal
 public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Packet> {
 
-  private static final Logger LOGGER = LogManager.getLogger(NettyNetworkHandler.class);
+  private static final Logger LOGGER = LogManager.logger(NettyNetworkHandler.class);
 
   protected volatile NettyNetworkChannel channel;
 
   @Override
-  public void channelInactive(@NotNull ChannelHandlerContext ctx) throws Exception {
+  public void channelInactive(@NonNull ChannelHandlerContext ctx) throws Exception {
     if (!ctx.channel().isActive() || !ctx.channel().isOpen() || !ctx.channel().isWritable()) {
-      if (this.channel.getHandler() != null) {
-        this.channel.getHandler().handleChannelClose(this.channel);
+      if (this.channel.handler() != null) {
+        this.channel.handler().handleChannelClose(this.channel);
       }
 
       ctx.channel().close();
-      this.getChannels().remove(this.channel);
+      this.channels().remove(this.channel);
     }
   }
 
   @Override
-  public void exceptionCaught(@NotNull ChannelHandlerContext ctx, @NotNull Throwable cause) {
+  public void exceptionCaught(@NonNull ChannelHandlerContext ctx, @NonNull Throwable cause) {
     if (!(cause instanceof IOException)) {
       LOGGER.severe("Exception in network handler", cause);
     }
   }
 
   @Override
-  public void channelReadComplete(@NotNull ChannelHandlerContext ctx) {
+  public void channelReadComplete(@NonNull ChannelHandlerContext ctx) {
     ctx.flush();
   }
 
   @Override
-  protected void channelRead0(@NotNull ChannelHandlerContext ctx, @NotNull Packet msg) {
-    this.getPacketDispatcher().execute(() -> {
+  protected void channelRead0(@NonNull ChannelHandlerContext ctx, @NonNull Packet msg) {
+    this.packetDispatcher().execute(() -> {
       try {
-        var uuid = msg.getUniqueId();
+        var uuid = msg.uniqueId();
         if (uuid != null) {
-          var task = this.channel.getQueryPacketManager().getWaitingHandler(uuid);
+          var task = this.channel.queryPacketManager().waitingHandler(uuid);
           if (task != null) {
             task.complete(msg);
             // don't post a query response packet to another handler at all
@@ -73,8 +73,8 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Pa
           }
         }
 
-        if (this.channel.getHandler() == null || this.channel.getHandler().handlePacketReceive(this.channel, msg)) {
-          this.channel.getPacketRegistry().handlePacket(this.channel, msg);
+        if (this.channel.handler() == null || this.channel.handler().handlePacketReceive(this.channel, msg)) {
+          this.channel.packetRegistry().handlePacket(this.channel, msg);
         }
       } catch (Exception exception) {
         LOGGER.severe("Exception whilst handling packet " + msg, exception);
@@ -82,7 +82,7 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Pa
     });
   }
 
-  protected abstract @NotNull Collection<INetworkChannel> getChannels();
+  protected abstract @NonNull Collection<INetworkChannel> channels();
 
-  protected abstract @NotNull Executor getPacketDispatcher();
+  protected abstract @NonNull Executor packetDispatcher();
 }

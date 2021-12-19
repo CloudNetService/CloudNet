@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.command.source;
 
 import de.dytanic.cloudnet.common.INameable;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public interface CommandSource extends INameable {
 
@@ -32,17 +32,17 @@ public interface CommandSource extends INameable {
   /**
    * @param message the message that is sent to the source
    */
-  void sendMessage(@NotNull String message);
+  void sendMessage(@NonNull String message);
 
   /**
    * @param messages the messages that are sent to the source
    */
-  void sendMessage(@NotNull String... messages);
+  void sendMessage(@NonNull String... messages);
 
   /**
    * @param messages the messages that are sent to the source
    */
-  void sendMessage(@NotNull Collection<String> messages);
+  void sendMessage(@NonNull Collection<String> messages);
 
   /**
    * Used to check if the command source has the given permission
@@ -50,6 +50,6 @@ public interface CommandSource extends INameable {
    * @param permission the permission to check for
    * @return whether the source has the permission
    */
-  boolean checkPermission(@NotNull String permission);
+  boolean checkPermission(@NonNull String permission);
 
 }

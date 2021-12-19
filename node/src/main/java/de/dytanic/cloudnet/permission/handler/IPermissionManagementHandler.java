@@ -20,25 +20,25 @@ import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public interface IPermissionManagementHandler {
 
-  void handleAddUser(@NotNull IPermissionManagement management, @NotNull PermissionUser user);
+  void handleAddUser(@NonNull IPermissionManagement management, @NonNull PermissionUser user);
 
-  void handleUpdateUser(@NotNull IPermissionManagement management, @NotNull PermissionUser user);
+  void handleUpdateUser(@NonNull IPermissionManagement management, @NonNull PermissionUser user);
 
-  void handleDeleteUser(@NotNull IPermissionManagement management, @NotNull PermissionUser user);
+  void handleDeleteUser(@NonNull IPermissionManagement management, @NonNull PermissionUser user);
 
-  void handleAddGroup(@NotNull IPermissionManagement management, @NotNull PermissionGroup group);
+  void handleAddGroup(@NonNull IPermissionManagement management, @NonNull PermissionGroup group);
 
-  void handleUpdateGroup(@NotNull IPermissionManagement management, @NotNull PermissionGroup group);
+  void handleUpdateGroup(@NonNull IPermissionManagement management, @NonNull PermissionGroup group);
 
-  void handleDeleteGroup(@NotNull IPermissionManagement management, @NotNull PermissionGroup group);
+  void handleDeleteGroup(@NonNull IPermissionManagement management, @NonNull PermissionGroup group);
 
   void handleSetGroups(
-    @NotNull IPermissionManagement management,
-    @NotNull Collection<? extends PermissionGroup> groups);
+    @NonNull IPermissionManagement management,
+    @NonNull Collection<? extends PermissionGroup> groups);
 
-  void handleReloaded(@NotNull IPermissionManagement management);
+  void handleReloaded(@NonNull IPermissionManagement management);
 }

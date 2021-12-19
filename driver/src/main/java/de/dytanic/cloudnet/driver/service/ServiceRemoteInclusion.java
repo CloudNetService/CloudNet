@@ -20,8 +20,8 @@ import com.google.common.base.Verify;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.document.property.JsonDocPropertyHolder;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
@@ -36,27 +36,27 @@ public class ServiceRemoteInclusion extends JsonDocPropertyHolder implements Clo
     this.properties = properties;
   }
 
-  public static @NotNull Builder builder() {
+  public static @NonNull Builder builder() {
     return new Builder();
   }
 
-  public static @NotNull Builder builder(@NotNull ServiceRemoteInclusion inclusion) {
+  public static @NonNull Builder builder(@NonNull ServiceRemoteInclusion inclusion) {
     return builder()
-      .url(inclusion.getUrl())
-      .destination(inclusion.getDestination())
-      .properties(inclusion.getProperties().clone());
+      .url(inclusion.url())
+      .destination(inclusion.destination())
+      .properties(inclusion.properties().clone());
   }
 
-  public @NotNull String getUrl() {
+  public @NonNull String url() {
     return this.url;
   }
 
-  public @NotNull String getDestination() {
+  public @NonNull String destination() {
     return this.destination;
   }
 
   @Override
-  public @NotNull ServiceRemoteInclusion clone() {
+  public @NonNull ServiceRemoteInclusion clone() {
     try {
       return (ServiceRemoteInclusion) super.clone();
     } catch (CloneNotSupportedException exception) {
@@ -70,22 +70,22 @@ public class ServiceRemoteInclusion extends JsonDocPropertyHolder implements Clo
     protected String destination;
     protected JsonDocument properties = JsonDocument.newDocument();
 
-    public @NotNull Builder url(@NotNull String url) {
+    public @NonNull Builder url(@NonNull String url) {
       this.url = url;
       return this;
     }
 
-    public @NotNull Builder destination(@NotNull String destination) {
+    public @NonNull Builder destination(@NonNull String destination) {
       this.destination = destination;
       return this;
     }
 
-    public @NotNull Builder properties(@NotNull JsonDocument properties) {
+    public @NonNull Builder properties(@NonNull JsonDocument properties) {
       this.properties = properties;
       return this;
     }
 
-    public @NotNull ServiceRemoteInclusion build() {
+    public @NonNull ServiceRemoteInclusion build() {
       Verify.verifyNotNull(this.url, "no url given");
       Verify.verifyNotNull(this.destination, "no destination given");
 

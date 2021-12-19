@@ -16,8 +16,6 @@
 
 package de.dytanic.cloudnet.ext.bridge.platform.velocity.commands;
 
-import static com.google.common.collect.ImmutableList.copyOf;
-
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
@@ -25,43 +23,43 @@ import de.dytanic.cloudnet.ext.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class VelocityHubCommand implements SimpleCommand {
 
   private final ProxyServer proxyServer;
   private final PlatformBridgeManagement<Player, ?> management;
 
-  public VelocityHubCommand(@NotNull ProxyServer server, @NotNull PlatformBridgeManagement<Player, ?> management) {
+  public VelocityHubCommand(@NonNull ProxyServer server, @NonNull PlatformBridgeManagement<Player, ?> management) {
     this.proxyServer = server;
     this.management = management;
   }
 
   @Override
-  public void execute(@NotNull Invocation invocation) {
+  public void execute(@NonNull Invocation invocation) {
     if (invocation.source() instanceof Player player) {
       // check if the player is on a fallback already
       if (this.management.isOnAnyFallbackInstance(player)) {
-        player.sendMessage(AdventureSerializerUtil.serialize(this.management.getConfiguration().getMessage(
+        player.sendMessage(AdventureSerializerUtil.serialize(this.management.configuration().message(
           player.getEffectiveLocale(),
           "command-hub-already-in-hub")));
       } else {
         // try to get a fallback for the player
-        var hub = this.management.getFallback(player)
-          .flatMap(service -> this.proxyServer.getServer(service.getName()))
+        var hub = this.management.fallback(player)
+          .flatMap(service -> this.proxyServer.getServer(service.name()))
           .orElse(null);
         // check if a fallback was found
         if (hub != null) {
           player.createConnectionRequest(hub).connectWithIndication().whenComplete((result, ex) -> {
             // check if the connection was successful
             if (result && ex == null) {
-              player.sendMessage(AdventureSerializerUtil.serialize(this.management.getConfiguration().getMessage(
+              player.sendMessage(AdventureSerializerUtil.serialize(this.management.configuration().message(
                 player.getEffectiveLocale(),
                 "command-hub-success-connect"
               ).replace("%server%", hub.getServerInfo().getName())));
             } else {
               // the connection was not successful
-              player.sendMessage(AdventureSerializerUtil.serialize(this.management.getConfiguration().getMessage(
+              player.sendMessage(AdventureSerializerUtil.serialize(this.management.configuration().message(
                 player.getEffectiveLocale(),
                 "command-hub-no-server-found")));
             }
@@ -72,7 +70,7 @@ public final class VelocityHubCommand implements SimpleCommand {
   }
 
   @Override
-  public @NotNull CompletableFuture<List<String>> suggestAsync(@NotNull Invocation invocation) {
-    return CompletableFuture.completedFuture(copyOf(this.management.getConfiguration().getHubCommandNames()));
+  public @NonNull CompletableFuture<List<String>> suggestAsync(@NonNull Invocation invocation) {
+    return CompletableFuture.completedFuture(List.copyOf(this.management.configuration().hubCommandNames()));
   }
 }

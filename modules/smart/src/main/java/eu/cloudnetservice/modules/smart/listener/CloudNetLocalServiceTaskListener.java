@@ -19,14 +19,14 @@ package eu.cloudnetservice.modules.smart.listener;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.event.task.LocalServiceTaskAddEvent;
 import eu.cloudnetservice.modules.smart.SmartServiceTaskConfig;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class CloudNetLocalServiceTaskListener {
 
   @EventListener
-  public void handle(@NotNull LocalServiceTaskAddEvent event) {
-    if (!event.getTask().getProperties().contains("smartConfig")) {
-      event.getTask().getProperties().append("smartConfig", SmartServiceTaskConfig.builder().build());
+  public void handle(@NonNull LocalServiceTaskAddEvent event) {
+    if (!event.task().properties().contains("smartConfig")) {
+      event.task().properties().append("smartConfig", SmartServiceTaskConfig.builder().build());
     }
   }
 }

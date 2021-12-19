@@ -23,7 +23,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
 
@@ -56,11 +56,11 @@ public final class CloudNetLaunchPluginService implements ILaunchPluginService {
   @Override
   public void initializeLaunch(ITransformerLoader transformerLoader, Path[] specialPaths) {
     // at this point the transforming class loader should be available - get it
-    this.getTransformingLoader().addTargetPackageFilter(
+    this.transformingLoader().addTargetPackageFilter(
       pkg -> EXCLUDED_PACKAGE_STARTS.stream().noneMatch(pkg::startsWith));
   }
 
-  private @NotNull TransformingClassLoader getTransformingLoader() {
+  private @NonNull TransformingClassLoader transformingLoader() {
     try {
       var field = Launcher.class.getDeclaredField("classLoader");
       field.setAccessible(true);

@@ -17,13 +17,13 @@
 package de.dytanic.cloudnet.driver.network.rpc;
 
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.UnmodifiableView;
 
 public interface RPCChain extends RPCProvider, RPCExecutable, ChainableRPC {
 
-  @NotNull RPC getRootRPC();
+  @NonNull RPC head();
 
-  @NotNull
-  @UnmodifiableView Collection<RPC> getJoins();
+  @NonNull
+  @UnmodifiableView Collection<RPC> joins();
 }

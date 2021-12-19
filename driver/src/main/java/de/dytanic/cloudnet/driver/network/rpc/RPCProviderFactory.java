@@ -19,22 +19,22 @@ package de.dytanic.cloudnet.driver.network.rpc;
 import de.dytanic.cloudnet.driver.network.INetworkComponent;
 import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public interface RPCProviderFactory {
 
-  @NotNull ObjectMapper getDefaultObjectMapper();
+  @NonNull ObjectMapper defaultObjectMapper();
 
-  @NotNull DataBufFactory getDefaultDataBufFactory();
+  @NonNull DataBufFactory defaultDataBufFactory();
 
-  @NotNull RPCSender providerForClass(@Nullable INetworkComponent component, @NotNull Class<?> clazz);
+  @NonNull RPCSender providerForClass(@Nullable INetworkComponent component, @NonNull Class<?> clazz);
 
-  @NotNull RPCSender providerForClass(@Nullable INetworkComponent component, @NotNull Class<?> clazz,
-    @NotNull ObjectMapper objectMapper, @NotNull DataBufFactory dataBufFactory);
+  @NonNull RPCSender providerForClass(@Nullable INetworkComponent component, @NonNull Class<?> clazz,
+    @NonNull ObjectMapper objectMapper, @NonNull DataBufFactory dataBufFactory);
 
-  @NotNull RPCHandler newHandler(@NotNull Class<?> clazz, @Nullable Object binding);
+  @NonNull RPCHandler newHandler(@NonNull Class<?> clazz, @Nullable Object binding);
 
-  @NotNull RPCHandler newHandler(@NotNull Class<?> clazz, @Nullable Object binding,
-    @NotNull ObjectMapper objectMapper, @NotNull DataBufFactory dataBufFactory);
+  @NonNull RPCHandler newHandler(@NonNull Class<?> clazz, @Nullable Object binding,
+    @NonNull ObjectMapper objectMapper, @NonNull DataBufFactory dataBufFactory);
 }

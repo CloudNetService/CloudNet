@@ -20,7 +20,7 @@ import com.google.common.base.Verify;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.rpc.RPCInvocationContext;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DefaultRPCInvocationContextBuilder implements RPCInvocationContext.Builder {
@@ -28,49 +28,55 @@ public class DefaultRPCInvocationContextBuilder implements RPCInvocationContext.
   protected final DefaultRPCInvocationContext context = new DefaultRPCInvocationContext();
 
   @Override
-  public @NotNull RPCInvocationContext.Builder expectsMethodResult(boolean expectsResult) {
+  public @NonNull RPCInvocationContext.Builder argumentCount(int argumentCount) {
+    context.argumentCount = argumentCount;
+    return this;
+  }
+
+  @Override
+  public @NonNull RPCInvocationContext.Builder expectsMethodResult(boolean expectsResult) {
     this.context.expectsMethodResult = expectsResult;
     return this;
   }
 
   @Override
-  public @NotNull RPCInvocationContext.Builder normalizePrimitives(boolean normalizePrimitives) {
+  public @NonNull RPCInvocationContext.Builder normalizePrimitives(boolean normalizePrimitives) {
     this.context.normalizePrimitives = normalizePrimitives;
     return this;
   }
 
   @Override
-  public @NotNull RPCInvocationContext.Builder strictInstanceUsage(boolean strictInstanceUsage) {
+  public @NonNull RPCInvocationContext.Builder strictInstanceUsage(boolean strictInstanceUsage) {
     this.context.strictInstanceUsage = strictInstanceUsage;
     return this;
   }
 
   @Override
-  public @NotNull RPCInvocationContext.Builder methodName(@NotNull String methodName) {
+  public @NonNull RPCInvocationContext.Builder methodName(@NonNull String methodName) {
     this.context.methodName = methodName;
     return this;
   }
 
   @Override
-  public @NotNull RPCInvocationContext.Builder channel(@NotNull INetworkChannel channel) {
+  public @NonNull RPCInvocationContext.Builder channel(@NonNull INetworkChannel channel) {
     this.context.channel = channel;
     return this;
   }
 
   @Override
-  public @NotNull RPCInvocationContext.Builder argumentInformation(@NotNull DataBuf information) {
+  public @NonNull RPCInvocationContext.Builder argumentInformation(@NonNull DataBuf information) {
     this.context.arguments = information;
     return this;
   }
 
   @Override
-  public @NotNull RPCInvocationContext.Builder workingInstance(@Nullable Object instance) {
+  public @NonNull RPCInvocationContext.Builder workingInstance(@Nullable Object instance) {
     this.context.workingInstance = instance;
     return this;
   }
 
   @Override
-  public @NotNull RPCInvocationContext build() {
+  public @NonNull RPCInvocationContext build() {
     // validate the context
     Verify.verifyNotNull(this.context.arguments, "No arguments supplied");
     Verify.verifyNotNull(this.context.channel, "No source channel supplied");

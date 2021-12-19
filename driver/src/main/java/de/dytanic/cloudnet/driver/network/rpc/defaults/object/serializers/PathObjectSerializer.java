@@ -21,27 +21,26 @@ import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectSerializer;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class PathObjectSerializer implements ObjectSerializer<Path> {
 
   @Override
   public @Nullable Object read(
-    @NotNull DataBuf source,
-    @NotNull Type type,
-    @NotNull ObjectMapper caller
+    @NonNull DataBuf source,
+    @NonNull Type type,
+    @NonNull ObjectMapper caller
   ) {
-    return Paths.get(source.readString());
+    return Path.of(source.readString());
   }
 
   @Override
   public void write(
-    @NotNull DataBuf.Mutable dataBuf,
-    @NotNull Path object,
-    @NotNull Type type,
-    @NotNull ObjectMapper caller
+    @NonNull DataBuf.Mutable dataBuf,
+    @NonNull Path object,
+    @NonNull Type type,
+    @NonNull ObjectMapper caller
   ) {
     dataBuf.writeString(object.toString());
   }

@@ -21,51 +21,31 @@ import de.dytanic.cloudnet.driver.DriverEnvironment;
 import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget.Type;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
-@ToString
-@EqualsAndHashCode
-public class ChannelMessageSender {
+public record ChannelMessageSender(@NonNull String name, @NonNull DriverEnvironment type) {
 
   private static final ChannelMessageSender SELF = of(
-    CloudNetDriver.getInstance().getComponentName(),
-    CloudNetDriver.getInstance().getDriverEnvironment());
+    CloudNetDriver.instance().componentName(),
+    CloudNetDriver.instance().environment());
 
-  private final String name;
-  private final DriverEnvironment type;
-
-  protected ChannelMessageSender(@NotNull String name, @NotNull DriverEnvironment type) {
-    this.name = name;
-    this.type = type;
-  }
-
-  public static @NotNull ChannelMessageSender of(@NotNull String name, @NotNull DriverEnvironment environment) {
+  public static @NonNull ChannelMessageSender of(@NonNull String name, @NonNull DriverEnvironment environment) {
     return new ChannelMessageSender(name, environment);
   }
 
-  public static @NotNull ChannelMessageSender self() {
+  public static @NonNull ChannelMessageSender self() {
     return SELF;
   }
 
-  public @NotNull String getName() {
-    return this.name;
+  public boolean is(@NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
+    return this.type == DriverEnvironment.WRAPPER && this.name.equals(serviceInfoSnapshot.name());
   }
 
-  public @NotNull DriverEnvironment getType() {
-    return this.type;
+  public boolean is(@NonNull NetworkClusterNode node) {
+    return this.type == DriverEnvironment.CLOUDNET && this.name.equals(node.uniqueId());
   }
 
-  public boolean is(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
-    return this.type == DriverEnvironment.WRAPPER && this.name.equals(serviceInfoSnapshot.getName());
-  }
-
-  public boolean is(@NotNull NetworkClusterNode node) {
-    return this.type == DriverEnvironment.CLOUDNET && this.name.equals(node.getUniqueId());
-  }
-
-  public @NotNull ChannelMessageTarget toTarget() {
+  public @NonNull ChannelMessageTarget toTarget() {
     var type = this.type == DriverEnvironment.CLOUDNET ? Type.NODE : Type.SERVICE;
     return new ChannelMessageTarget(type, this.name);
   }

@@ -18,17 +18,17 @@ package de.dytanic.cloudnet.event;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class CloudNetNodePostInitializationEvent extends DriverEvent {
 
   private final CloudNet nodeInstance;
 
-  public CloudNetNodePostInitializationEvent(@NotNull CloudNet nodeInstance) {
+  public CloudNetNodePostInitializationEvent(@NonNull CloudNet nodeInstance) {
     this.nodeInstance = nodeInstance;
   }
 
-  public @NotNull CloudNet getNodeInstance() {
+  public @NonNull CloudNet node() {
     return this.nodeInstance;
   }
 }

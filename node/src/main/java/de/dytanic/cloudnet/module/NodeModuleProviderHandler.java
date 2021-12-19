@@ -23,41 +23,41 @@ import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class NodeModuleProviderHandler extends DefaultModuleProviderHandler implements IModuleProviderHandler {
 
   private final CloudNet nodeInstance;
 
-  public NodeModuleProviderHandler(@NotNull CloudNet nodeInstance) {
+  public NodeModuleProviderHandler(@NonNull CloudNet nodeInstance) {
     this.nodeInstance = nodeInstance;
   }
 
   @Override
-  public void handlePostModuleStop(@NotNull IModuleWrapper moduleWrapper) {
+  public void handlePostModuleStop(@NonNull IModuleWrapper moduleWrapper) {
     super.handlePostModuleStop(moduleWrapper);
 
     // unregister all listeners from the http server
-    this.nodeInstance.getHttpServer().removeHandler(moduleWrapper.getClassLoader());
+    this.nodeInstance.httpServer().removeHandler(moduleWrapper.classLoader());
     // unregister all listeners added to the network handlers
-    this.nodeInstance.getNetworkClient().getPacketRegistry().removeListeners(moduleWrapper.getClassLoader());
-    this.nodeInstance.getNetworkServer().getPacketRegistry().removeListeners(moduleWrapper.getClassLoader());
+    this.nodeInstance.networkClient().packetRegistry().removeListeners(moduleWrapper.classLoader());
+    this.nodeInstance.networkServer().packetRegistry().removeListeners(moduleWrapper.classLoader());
     // unregister all listeners added to the network channels
-    this.removeListeners(this.nodeInstance.getNetworkClient().getChannels(), moduleWrapper.getClassLoader());
-    this.removeListeners(this.nodeInstance.getNetworkServer().getChannels(), moduleWrapper.getClassLoader());
+    this.removeListeners(this.nodeInstance.networkClient().channels(), moduleWrapper.classLoader());
+    this.removeListeners(this.nodeInstance.networkServer().channels(), moduleWrapper.classLoader());
     // unregister all listeners
-    this.nodeInstance.getEventManager().unregisterListeners(moduleWrapper.getClassLoader());
+    this.nodeInstance.eventManager().unregisterListeners(moduleWrapper.classLoader());
     // unregister all commands
-    this.nodeInstance.getCommandProvider().unregister(moduleWrapper.getClassLoader());
+    this.nodeInstance.commandProvider().unregister(moduleWrapper.classLoader());
     // unregister everything the module syncs to the cluster
-    this.nodeInstance.getDataSyncRegistry().unregisterHandler(moduleWrapper.getClassLoader());
+    this.nodeInstance.dataSyncRegistry().unregisterHandler(moduleWrapper.classLoader());
     // unregister all object mappers which are registered
-    DefaultObjectMapper.DEFAULT_MAPPER.unregisterBindings(moduleWrapper.getClassLoader());
+    DefaultObjectMapper.DEFAULT_MAPPER.unregisterBindings(moduleWrapper.classLoader());
   }
 
-  private void removeListeners(@NotNull Collection<INetworkChannel> channels, @NotNull ClassLoader loader) {
+  private void removeListeners(@NonNull Collection<INetworkChannel> channels, @NonNull ClassLoader loader) {
     for (var channel : channels) {
-      channel.getPacketRegistry().removeListeners(loader);
+      channel.packetRegistry().removeListeners(loader);
     }
   }
 }

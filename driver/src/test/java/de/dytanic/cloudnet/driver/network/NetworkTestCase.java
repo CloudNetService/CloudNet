@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Assertions;
 
 public abstract class NetworkTestCase {
 
-  protected int getRandomFreePort(int... disabledPorts) {
+  protected int randomFreePort(int... disabledPorts) {
     Arrays.sort(disabledPorts); // needed to make the binary search later
 
     var port = 1024; // first non restricted (to root user) port

@@ -42,8 +42,8 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
 /**
@@ -83,15 +83,15 @@ public final class NettyUtils {
    * instead.
    *
    * @return a new packet dispatcher instance.
-   * @see #getThreadAmount()
+   * @see #threadAmount()
    */
-  public static @NotNull Executor newPacketDispatcher() {
+  public static @NonNull Executor newPacketDispatcher() {
     // a cached pool with a thread idle-lifetime of 30 seconds
     // rejected tasks will be executed on the calling thread (See ThreadPoolExecutor.CallerRunsPolicy)
     // at least one thread is always idling in this executor
     return new ThreadPoolExecutor(
       1,
-      getThreadAmount(),
+      threadAmount(),
       30L,
       TimeUnit.SECONDS,
       new SynchronousQueue<>(true),
@@ -103,7 +103,7 @@ public final class NettyUtils {
    *
    * @return a new nio or epoll event loop group based on their availability.
    */
-  public static @NotNull EventLoopGroup newEventLoopGroup() {
+  public static @NonNull EventLoopGroup newEventLoopGroup() {
     return Epoll.isAvailable()
       ? new EpollEventLoopGroup(4, THREAD_FACTORY)
       : new NioEventLoopGroup(4, THREAD_FACTORY);
@@ -114,7 +114,7 @@ public final class NettyUtils {
    *
    * @return a new channel factory for network clients based on the epoll availability.
    */
-  public static @NotNull ChannelFactory<? extends Channel> getClientChannelFactory() {
+  public static @NonNull ChannelFactory<? extends Channel> clientChannelFactory() {
     return Epoll.isAvailable() ? EpollSocketChannel::new : NioSocketChannel::new;
   }
 
@@ -123,7 +123,7 @@ public final class NettyUtils {
    *
    * @return a new channel factory for network servers based on the epoll availability.
    */
-  public static @NotNull ChannelFactory<? extends ServerChannel> getServerChannelFactory() {
+  public static @NonNull ChannelFactory<? extends ServerChannel> serverChannelFactory() {
     return Epoll.isAvailable() ? EpollServerSocketChannel::new : NioServerSocketChannel::new;
   }
 
@@ -134,7 +134,7 @@ public final class NettyUtils {
    * @param value   the value to write into the buffer.
    * @return the buffer used to call the method, for chaining.
    */
-  public static @NotNull ByteBuf writeVarInt(@NotNull ByteBuf byteBuf, int value) {
+  public static @NonNull ByteBuf writeVarInt(@NonNull ByteBuf byteBuf, int value) {
     if ((value & -128) == 0) {
       byteBuf.writeByte(value);
     } else if ((value & -16384) == 0) {
@@ -162,7 +162,7 @@ public final class NettyUtils {
    * @return the var int read from the buffer.
    * @throws SilentDecoderException if the buf current position has no var int.
    */
-  public static int readVarInt(@NotNull ByteBuf byteBuf) {
+  public static int readVarInt(@NonNull ByteBuf byteBuf) {
     var i = 0;
     var maxRead = Math.min(5, byteBuf.readableBytes());
     for (var j = 0; j < maxRead; j++) {
@@ -181,7 +181,7 @@ public final class NettyUtils {
    *
    * @param counted the object to safe release.
    */
-  public static void safeRelease(@NotNull ReferenceCounted counted) {
+  public static void safeRelease(@NonNull ReferenceCounted counted) {
     if (counted.refCnt() > 0) {
       counted.release(counted.refCnt());
     }
@@ -194,8 +194,8 @@ public final class NettyUtils {
    *
    * @return the thread amount used by the packet dispatcher to dispatch incoming packets.
    */
-  public static @Range(from = 2, to = Integer.MAX_VALUE) int getThreadAmount() {
-    var environment = CloudNetDriver.getInstance().getDriverEnvironment();
+  public static @Range(from = 2, to = Integer.MAX_VALUE) int threadAmount() {
+    var environment = CloudNetDriver.instance().environment();
     return environment == DriverEnvironment.CLOUDNET ? Runtime.getRuntime().availableProcessors() * 2 : 4;
   }
 }

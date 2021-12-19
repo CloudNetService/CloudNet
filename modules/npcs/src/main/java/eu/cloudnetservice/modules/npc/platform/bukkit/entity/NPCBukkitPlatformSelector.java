@@ -27,10 +27,10 @@ import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagemen
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
+import lombok.NonNull;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.NotNull;
 
 public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
 
@@ -43,22 +43,22 @@ public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
   protected volatile com.github.juliarn.npc.NPC handleNpc;
 
   public NPCBukkitPlatformSelector(
-    @NotNull BukkitPlatformNPCManagement npcManagement,
-    @NotNull Plugin plugin,
-    @NotNull NPC npc,
-    @NotNull NPCPool pool
+    @NonNull BukkitPlatformNPCManagement npcManagement,
+    @NonNull Plugin plugin,
+    @NonNull NPC npc,
+    @NonNull NPCPool pool
   ) {
     super(npcManagement, plugin, npc);
     this.npcPool = pool;
   }
 
   @Override
-  public int getEntityId() {
+  public int entityId() {
     return this.handleNpc == null ? -1 : this.handleNpc.getEntityId();
   }
 
   @Override
-  public @NotNull String getScoreboardRepresentation() {
+  public @NonNull String scoreboardRepresentation() {
     return this.handleNpc.getProfile().getName();
   }
 
@@ -68,21 +68,21 @@ public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
   }
 
   @Override
-  public boolean isSpawned() {
+  public boolean spawned() {
     return this.handleNpc != null;
   }
 
   @Override
   protected void spawn0() {
     this.handleNpc = com.github.juliarn.npc.NPC.builder()
-      .imitatePlayer(this.npc.isImitatePlayer())
-      .lookAtPlayer(this.npc.isLookAtPlayer())
-      .usePlayerProfiles(this.npc.isUsePlayerSkin())
+      .imitatePlayer(this.npc.imitatePlayer())
+      .lookAtPlayer(this.npc.lookAtPlayer())
+      .usePlayerProfiles(this.npc.usePlayerSkin())
       .profile(new Profile(
         new UUID(ThreadLocalRandom.current().nextLong(), 0),
-        this.npc.getDisplayName(),
-        this.npc.getProfileProperties().stream()
-          .map(prop -> new Property(prop.getName(), prop.getValue(), prop.getSignature()))
+        this.npc.displayName(),
+        this.npc.profileProperties().stream()
+          .map(prop -> new Property(prop.name(), prop.value(), prop.signature()))
           .collect(Collectors.toSet())
       ))
       .location(this.npcLocation)
@@ -95,18 +95,18 @@ public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
           .queue(EntityMetadata.SNEAKING, false);
         // apply glowing effect if possible
         if (NPCModifier.MINECRAFT_VERSION >= 9) {
-          if (this.npc.isGlowing() && this.npc.isFlyingWithElytra()) {
+          if (this.npc.glowing() && this.npc.flyingWithElytra()) {
             metadataModifier.queue(0, FLYING_AND_GLOWING, Byte.class);
-          } else if (this.npc.isGlowing()) {
+          } else if (this.npc.glowing()) {
             metadataModifier.queue(0, GLOWING_FLAGS, Byte.class);
-          } else if (this.npc.isFlyingWithElytra()) {
+          } else if (this.npc.flyingWithElytra()) {
             metadataModifier.queue(0, ELYTRA_FLYING_FLAGS, Byte.class);
           }
         }
         metadataModifier.send(player);
         // set the items
         var modifier = spawnedNpc.equipment();
-        for (var entry : this.npc.getItems().entrySet()) {
+        for (var entry : this.npc.items().entrySet()) {
           if (entry.getKey() >= 0 && entry.getKey() <= 5) {
             var material = Material.matchMaterial(entry.getValue());
             if (material != null) {
@@ -130,11 +130,11 @@ public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
   }
 
   @Override
-  protected double getHeightAddition(int lineNumber) {
-    return 1.09 + super.getHeightAddition(lineNumber);
+  protected double heightAddition(int lineNumber) {
+    return 1.09 + super.heightAddition(lineNumber);
   }
 
-  public @NotNull com.github.juliarn.npc.NPC getHandleNpc() {
+  public @NonNull com.github.juliarn.npc.NPC handleNPC() {
     return this.handleNpc;
   }
 }

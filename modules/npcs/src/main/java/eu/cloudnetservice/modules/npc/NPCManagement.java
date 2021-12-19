@@ -19,46 +19,46 @@ package eu.cloudnetservice.modules.npc;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import java.util.Collection;
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
 public interface NPCManagement {
 
-  @Nullable NPC getNPCAt(@NotNull WorldPosition position);
+  @Nullable NPC npcAt(@NonNull WorldPosition position);
 
-  void createNPC(@NotNull NPC npc);
+  void createNPC(@NonNull NPC npc);
 
-  void deleteNPC(@NotNull NPC npc);
+  void deleteNPC(@NonNull NPC npc);
 
-  void deleteNPC(@NotNull WorldPosition position);
+  void deleteNPC(@NonNull WorldPosition position);
 
-  int deleteAllNPCs(@NotNull String group);
+  int deleteAllNPCs(@NonNull String group);
 
   int deleteAllNPCs();
 
-  @NotNull Collection<NPC> getNPCs();
+  @NonNull Collection<NPC> npcs();
 
-  @NotNull Collection<NPC> getNPCs(@NotNull String[] groups);
+  @NonNull Collection<NPC> npcs(@NonNull String[] groups);
 
-  @NotNull NPCConfiguration getNPCConfiguration();
+  @NonNull NPCConfiguration npcConfiguration();
 
-  void setNPCConfiguration(@NotNull NPCConfiguration configuration);
+  void npcConfiguration(@NonNull NPCConfiguration configuration);
 
   // Internal methods
 
-  @ApiStatus.Internal
+  @Internal
   void registerToServiceRegistry();
 
-  @ApiStatus.Internal
+  @Internal
   void unregisterFromServiceRegistry();
 
-  @ApiStatus.Internal
-  void handleInternalNPCCreate(@NotNull NPC npc);
+  @Internal
+  void handleInternalNPCCreate(@NonNull NPC npc);
 
-  @ApiStatus.Internal
-  void handleInternalNPCRemove(@NotNull WorldPosition position);
+  @Internal
+  void handleInternalNPCRemove(@NonNull WorldPosition position);
 
-  @ApiStatus.Internal
-  void handleInternalNPCConfigUpdate(@NotNull NPCConfiguration configuration);
+  @Internal
+  void handleInternalNPCConfigUpdate(@NonNull NPCConfiguration configuration);
 }

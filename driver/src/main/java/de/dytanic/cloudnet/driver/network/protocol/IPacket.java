@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.driver.network.protocol;
 
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import java.util.UUID;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -36,7 +36,7 @@ public interface IPacket {
    * @param content the content of the new packet
    * @return the new constructed packet
    */
-  IPacket constructResponse(DataBuf content);
+  @NonNull IPacket constructResponse(@NonNull DataBuf content);
 
   /**
    * Get the unique id of this packet. This field must not be defined if the packet has no unique id set. If the unique
@@ -45,8 +45,7 @@ public interface IPacket {
    *
    * @return the query unique id of the packet or {@code null} if this packet is not a query packet.
    */
-  @Nullable
-  UUID getUniqueId();
+  @Nullable UUID uniqueId();
 
   /**
    * Sets the unique id of this packet. If the unique id is set and the packet is sent the packet will be handled as a
@@ -54,7 +53,7 @@ public interface IPacket {
    *
    * @param uniqueId the unique id of the packet or {@code null} if the packet should not be a query packet.
    */
-  void setUniqueId(@Nullable UUID uniqueId);
+  void uniqueId(@Nullable UUID uniqueId);
 
   /**
    * Get the channel id to which this packet was sent. Listeners can be registered to that channel and will be notified
@@ -62,7 +61,7 @@ public interface IPacket {
    *
    * @return the channel id to which this packet was sent.
    */
-  int getChannel();
+  int channel();
 
   /**
    * Get the content of this packet. Data written to the buffer must not be accepted but will never throw an exception.
@@ -70,7 +69,7 @@ public interface IPacket {
    *
    * @return the content of this packet.
    */
-  @NotNull DataBuf getContent();
+  @NonNull DataBuf content();
 
   /**
    * Get a unix timestamp of the creation milliseconds of this packet. When the packet is created by a decoder, the time
@@ -78,7 +77,7 @@ public interface IPacket {
    *
    * @return the creation milliseconds of this packet.
    */
-  long getCreationMillis();
+  long creationMillis();
 
   /**
    * Defines if there should be a debug message when the packet get encoded, sent, received etc. This setting will be
@@ -86,7 +85,7 @@ public interface IPacket {
    *
    * @return if there should be debug messages for this type of packet
    */
-  default boolean isShowDebug() {
+  default boolean showDebug() {
     return true;
   }
 }

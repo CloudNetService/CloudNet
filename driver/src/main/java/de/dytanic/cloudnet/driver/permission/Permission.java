@@ -16,67 +16,71 @@
 
 package de.dytanic.cloudnet.driver.permission;
 
+import de.dytanic.cloudnet.common.INameable;
 import java.util.concurrent.TimeUnit;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Contract;
 
 @ToString
 @EqualsAndHashCode
-public final class Permission implements Comparable<Permission> {
+public final class Permission implements INameable, Comparable<Permission> {
 
   private final String name;
 
   private int potency;
   private long timeOutMillis;
 
-  public Permission(@NotNull String name, int potency) {
+  public Permission(@NonNull String name, int potency) {
     this.name = name;
     this.potency = potency;
   }
 
-  public Permission(@NotNull String name, int potency, long time, @NotNull TimeUnit timeUnit) {
+  public Permission(@NonNull String name, int potency, long time, @NonNull TimeUnit timeUnit) {
     this.name = name;
     this.potency = potency;
     this.timeOutMillis = System.currentTimeMillis() + timeUnit.toMillis(time);
   }
 
-  public Permission(@NotNull String name) {
+  public Permission(@NonNull String name) {
     this.name = name;
   }
 
-  public Permission(@NotNull String name, int potency, long timeOutMillis) {
+  public Permission(@NonNull String name, int potency, long timeOutMillis) {
     this.name = name;
     this.potency = potency;
     this.timeOutMillis = timeOutMillis;
   }
 
-  public static Permission of(@NotNull String name) {
+  @Contract(value = "_ -> new", pure = true)
+  public static @NonNull Permission of(@NonNull String name) {
     return new Permission(name);
   }
 
-  public @NotNull String getName() {
+  @Override
+  public @NonNull String name() {
     return this.name;
   }
 
-  public int getPotency() {
+  public int potency() {
     return this.potency;
   }
 
-  public void setPotency(int potency) {
+  public void potency(int potency) {
     this.potency = potency;
   }
 
-  public long getTimeOutMillis() {
+  public long timeOutMillis() {
     return this.timeOutMillis;
   }
 
-  public void setTimeOutMillis(long timeOutMillis) {
+  public void timeOutMillis(long timeOutMillis) {
     this.timeOutMillis = timeOutMillis;
   }
 
   @Override
-  public int compareTo(@NotNull Permission o) {
-    return Integer.compare(Math.abs(this.getPotency()), Math.abs(o.getPotency()));
+  public int compareTo(@NonNull Permission o) {
+    return Integer.compare(Math.abs(this.potency()), Math.abs(o.potency()));
   }
 }

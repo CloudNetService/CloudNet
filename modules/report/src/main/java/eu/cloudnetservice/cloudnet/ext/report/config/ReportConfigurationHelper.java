@@ -20,24 +20,23 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class ReportConfigurationHelper {
 
-  private static final Logger LOGGER = LogManager.getLogger(ReportConfigurationHelper.class);
+  private static final Logger LOGGER = LogManager.logger(ReportConfigurationHelper.class);
 
   /**
    * Reads a {@link ReportConfiguration} from the file at the given location. If an old version of the config is
    * detected a conversion is done and the file is rewritten. In the case, that the file is empty, the default {@link
-   * ReportConfiguration#DEFAULT} configuration is written to the file.
+   * ReportConfiguration#builder()} configuration is written to the file.
    *
    * @param location the location of the file to read from.
    * @return the read {@link ReportConfiguration} configuration.
    */
-  public static @NotNull ReportConfiguration read(@NotNull Path location) {
+  public static @NonNull ReportConfiguration read(@NonNull Path location) {
     var document = JsonDocument.newDocument(location);
 
     if (document.contains("savingRecords")) {
@@ -47,14 +46,12 @@ public final class ReportConfigurationHelper {
       document.write(location.getParent().resolve("config.json.old"));
       // convert config and rewrite the file
       var configuration = convertConfiguration(document);
-      write(configuration, location);
 
-      return configuration;
+      return write(configuration, location);
     }
     // check if we need to create a new configuration
-    if (document.isEmpty()) {
-      write(ReportConfiguration.DEFAULT, location);
-      return ReportConfiguration.DEFAULT;
+    if (document.empty()) {
+      return write(ReportConfiguration.builder().build(), location);
     }
     // the document has a configuration
     return document.toInstanceOf(ReportConfiguration.class);
@@ -67,8 +64,9 @@ public final class ReportConfigurationHelper {
    * @param configuration the configuration to write.
    * @param location      the location to save the configuration to.
    */
-  public static void write(@NotNull ReportConfiguration configuration, @NotNull Path location) {
+  public static @NonNull ReportConfiguration write(@NonNull ReportConfiguration configuration, @NonNull Path location) {
     JsonDocument.newDocument(configuration).write(location);
+    return configuration;
   }
 
   /**
@@ -77,9 +75,9 @@ public final class ReportConfigurationHelper {
    * @param document the document containing the old configuration.
    * @return the new converted configuration.
    */
-  private static ReportConfiguration convertConfiguration(@NotNull JsonDocument document) {
+  private static ReportConfiguration convertConfiguration(@NonNull JsonDocument document) {
     var saveRecords = document.getBoolean("savingRecords", true);
-    var recordDestination = document.get("recordDestinationDirectory", Path.class, Paths.get("records"));
+    var recordDestination = document.get("recordDestinationDirectory", Path.class, Path.of("records"));
     var pasteServices = Collections.singletonList(
       new PasteService("default", document.getString("pasteServerUrl", "https://just-paste.it")));
     var serviceLifetime = document.getLong("serviceLifetimeLogPrint", 5000L);

@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.wrapper.event;
 
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * This event is only interesting for wrapper modules. It will called if the app is successful started and will called
@@ -51,10 +51,10 @@ public final class ApplicationPostStartEvent extends DriverEvent {
   private final ClassLoader classLoader;
 
   public ApplicationPostStartEvent(
-    @NotNull Wrapper cloudNetWrapper,
-    @NotNull Class<?> applicationMainClass,
-    @NotNull Thread applicationThread,
-    @NotNull ClassLoader classLoader
+    @NonNull Wrapper cloudNetWrapper,
+    @NonNull Class<?> applicationMainClass,
+    @NonNull Thread applicationThread,
+    @NonNull ClassLoader classLoader
   ) {
     this.cloudNetWrapper = cloudNetWrapper;
     this.applicationMainClass = applicationMainClass;
@@ -62,19 +62,19 @@ public final class ApplicationPostStartEvent extends DriverEvent {
     this.classLoader = classLoader;
   }
 
-  public @NotNull Wrapper getCloudNetWrapper() {
+  public @NonNull Wrapper wrapper() {
     return this.cloudNetWrapper;
   }
 
-  public @NotNull Class<?> getApplicationMainClass() {
+  public @NonNull Class<?> applicationMainClass() {
     return this.applicationMainClass;
   }
 
-  public @NotNull Thread getApplicationThread() {
+  public @NonNull Thread applicationThread() {
     return this.applicationThread;
   }
 
-  public @NotNull ClassLoader getClassLoader() {
+  public @NonNull ClassLoader classLoader() {
     return this.classLoader;
   }
 }

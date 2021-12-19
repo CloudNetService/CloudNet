@@ -17,19 +17,18 @@
 package de.dytanic.cloudnet.driver.event.events.service;
 
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 public final class CloudServiceLogEntryEvent extends CloudServiceEvent {
 
   private final String line;
 
-  public CloudServiceLogEntryEvent(@NotNull ServiceInfoSnapshot service, @NotNull String line) {
+  public CloudServiceLogEntryEvent(@NonNull ServiceInfoSnapshot service, @NonNull String line) {
     super(service);
-
     this.line = line;
   }
 
-  public @NotNull String getLine() {
+  public @NonNull String line() {
     return this.line;
   }
 }
