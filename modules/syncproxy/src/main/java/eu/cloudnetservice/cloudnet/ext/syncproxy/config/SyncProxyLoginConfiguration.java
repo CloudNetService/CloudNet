@@ -51,17 +51,17 @@ public record SyncProxyLoginConfiguration(
       .targetGroup(targetGroup)
       .maxPlayers(100)
       .addMotd(SyncProxyMotd.builder()
-        .firstLine("         &b&o■ &8┃ &3&lCloudNet &8● &cBlizzard &8&l» &7&ov3.5 &8┃ &b&o■")
+        .firstLine("         &b&o■ &8┃ &3&lCloudNet &8● &cBlizzard &8&l» &7&ov4.0 &8┃ &b&o■")
         .secondLine("              &7&onext &3&l&ogeneration &7&onetwork")
         .autoSlotDistance(1)
         .build())
       .addMaintenanceMotd(SyncProxyMotd.builder()
-        .firstLine("         &b&o■ &8┃ &3&lCloudNet &8● &cBlizzard &8&l» &7&ov3.5 &8┃ &b&o■")
+        .firstLine("         &b&o■ &8┃ &3&lCloudNet &8● &cBlizzard &8&l» &7&ov4.0 &8┃ &b&o■")
         .secondLine("     &3&lMaintenance &8&l» &7We are still in &3&lmaintenance")
         .autoSlotDistance(1)
         .playerInfo(new String[]{
           " ",
-          "&b&o■ &8┃ &3&lCloudNet &8● &cBlizzard &8&l» &7&ov3.5 &8┃ &b&o■",
+          "&b&o■ &8┃ &3&lCloudNet &8● &cBlizzard &8&l» &7&ov4.0 &8┃ &b&o■",
           "&7Discord &8&l» &bdiscord.cloudnetservice.eu",
           " "
         })
