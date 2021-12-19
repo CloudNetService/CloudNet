@@ -64,56 +64,47 @@ public record LabyModConfiguration(
 
     private LabyModPermissions permissions = LabyModPermissions.builder().build();
 
-    public @NonNull
-    Builder enabled(boolean enabled) {
+    public @NonNull Builder enabled(boolean enabled) {
       this.enabled = enabled;
       return this;
     }
 
-    public @NonNull
-    Builder discordRPC(@NonNull LabyModServiceDisplay serviceDisplay) {
+    public @NonNull Builder discordRPC(@NonNull LabyModServiceDisplay serviceDisplay) {
       this.discordRPC = serviceDisplay;
       return this;
     }
 
-    public @NonNull
-    Builder gameModeSwitch(@NonNull LabyModServiceDisplay serviceDisplay) {
+    public @NonNull Builder gameModeSwitch(@NonNull LabyModServiceDisplay serviceDisplay) {
       this.gameModeSwitch = serviceDisplay;
       return this;
     }
 
-    public @NonNull
-    Builder joinMatch(@NonNull LabyModDiscordRPC joinMatch) {
+    public @NonNull Builder joinMatch(@NonNull LabyModDiscordRPC joinMatch) {
       this.discordJoinMatch = joinMatch;
       return this;
     }
 
-    public @NonNull
-    Builder spectateMatch(@NonNull LabyModDiscordRPC spectateMatch) {
+    public @NonNull Builder spectateMatch(@NonNull LabyModDiscordRPC spectateMatch) {
       this.discordSpectateMatch = spectateMatch;
       return this;
     }
 
-    public @NonNull
-    Builder loginDomain(@NonNull String domain) {
+    public @NonNull Builder loginDomain(@NonNull String domain) {
       this.loginDomain = domain;
       return this;
     }
 
-    public @NonNull
-    Builder banner(@NonNull LabyModBanner banner) {
+    public @NonNull Builder banner(@NonNull LabyModBanner banner) {
       this.banner = banner;
       return this;
     }
 
-    public @NonNull
-    Builder permissions(@NonNull LabyModPermissions permissions) {
+    public @NonNull Builder permissions(@NonNull LabyModPermissions permissions) {
       this.permissions = permissions;
       return this;
     }
 
-    public @NonNull
-    LabyModConfiguration build() {
+    public @NonNull LabyModConfiguration build() {
       Verify.verifyNotNull(this.discordRPC, "Missing discord rpc");
       Verify.verifyNotNull(this.gameModeSwitch, "Missing gamemode switch");
       Verify.verifyNotNull(this.discordJoinMatch, "Missing discord join match");
@@ -122,7 +113,8 @@ public record LabyModConfiguration(
       Verify.verifyNotNull(this.banner, "Missing banner");
       Verify.verifyNotNull(this.permissions, "Missing permissions");
 
-      return new LabyModConfiguration(this.enabled,
+      return new LabyModConfiguration(
+        this.enabled,
         this.discordRPC,
         this.gameModeSwitch,
         this.discordJoinMatch,

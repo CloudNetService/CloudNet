@@ -41,15 +41,15 @@ public class LabyModPermissions {
     .put("SLOWDOWN", false)
     .build();
 
-  protected final boolean enabled;
-  protected final Map<String, Boolean> permissions;
+  private final boolean enabled;
+  private final Map<String, Boolean> permissions;
 
   protected LabyModPermissions(boolean enabled, @NonNull Map<String, Boolean> labyModPermissions) {
     this.enabled = enabled;
     this.permissions = labyModPermissions;
   }
 
-  public static Builder builder() {
+  public static @NonNull Builder builder() {
     return new Builder();
   }
 
