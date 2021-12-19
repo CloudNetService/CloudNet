@@ -46,8 +46,7 @@ public class CloudFlareAPI implements AutoCloseable {
   protected final Multimap<UUID, DnsRecordDetail> createdRecords = Multimaps
     .newSetMultimap(new ConcurrentHashMap<>(), CopyOnWriteArraySet::new);
 
-  @Nullable
-  public DnsRecordDetail createRecord(
+  public @Nullable DnsRecordDetail createRecord(
     @NonNull UUID serviceUniqueId,
     @NonNull CloudflareConfigurationEntry configuration,
     @NonNull DNSRecord record
@@ -86,13 +85,11 @@ public class CloudFlareAPI implements AutoCloseable {
     return this.deleteRecord(recordDetail.configurationEntry(), recordDetail.id());
   }
 
-  @NonNull
-  public Collection<DnsRecordDetail> deleteAllRecords(@NonNull ICloudService service) {
+  public @NonNull Collection<DnsRecordDetail> deleteAllRecords(@NonNull ICloudService service) {
     return this.deleteAllRecords(service.serviceId().uniqueId());
   }
 
-  @NonNull
-  public Collection<DnsRecordDetail> deleteAllRecords(@NonNull UUID serviceUniqueId) {
+  public @NonNull Collection<DnsRecordDetail> deleteAllRecords(@NonNull UUID serviceUniqueId) {
     return this.createdRecords.removeAll(serviceUniqueId).stream()
       .filter(this::deleteRecord)
       .collect(Collectors.toSet());
@@ -119,8 +116,7 @@ public class CloudFlareAPI implements AutoCloseable {
     return false;
   }
 
-  @NonNull
-  protected HttpRequestWithBody prepareRequest(
+  protected @NonNull HttpRequestWithBody prepareRequest(
     @NonNull String endpoint,
     @NonNull String method,
     @NonNull CloudflareConfigurationEntry entry
@@ -140,21 +136,22 @@ public class CloudFlareAPI implements AutoCloseable {
     return bodyRequest;
   }
 
-  @NonNull
-  protected JsonDocument sendRequestAndReadResponse(@NonNull HttpRequestWithBody bodyRequest) throws IOException {
+  protected @NonNull JsonDocument sendRequestAndReadResponse(@NonNull HttpRequestWithBody bodyRequest)
+    throws IOException {
     return this.sendRequestAndReadResponse(bodyRequest, (String) null);
   }
 
-  @NonNull
-  protected JsonDocument sendRequestAndReadResponse(
+  protected @NonNull JsonDocument sendRequestAndReadResponse(
     @NonNull HttpRequestWithBody bodyRequest,
     @NonNull DNSRecord record
   ) throws IOException {
     return this.sendRequestAndReadResponse(bodyRequest, JsonDocument.newDocument(record).toString());
   }
 
-  @NonNull
-  protected JsonDocument sendRequestAndReadResponse(@NonNull HttpRequestWithBody bodyRequest, @Nullable String data) {
+  protected @NonNull JsonDocument sendRequestAndReadResponse(
+    @NonNull HttpRequestWithBody bodyRequest,
+    @Nullable String data
+  ) {
     if (data != null) {
       bodyRequest.body(data);
     }
@@ -170,18 +167,15 @@ public class CloudFlareAPI implements AutoCloseable {
     }
   }
 
-  @NonNull
-  public Collection<DnsRecordDetail> createdRecords(@NonNull UUID serviceUniqueId) {
+  public @NonNull Collection<DnsRecordDetail> createdRecords(@NonNull UUID serviceUniqueId) {
     return this.createdRecords.get(serviceUniqueId);
   }
 
-  @NonNull
-  public Collection<DnsRecordDetail> createdRecords() {
+  public @NonNull Collection<DnsRecordDetail> createdRecords() {
     return this.createdRecords.values();
   }
 
-  @NonNull
-  public Collection<UUID> serviceUniqueIds() {
+  public @NonNull Collection<UUID> serviceUniqueIds() {
     return this.createdRecords.keys();
   }
 }

@@ -20,14 +20,24 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.ext.cloudflare.CloudflareConfigurationEntry;
 import de.dytanic.cloudnet.ext.cloudflare.CloudflareGroupConfiguration;
+import lombok.NonNull;
 
 /**
  * A representation of an SRV DNS record
  */
 public class SRVRecord extends DNSRecord {
 
-  public SRVRecord(String name, String content, String service, String proto, String secondName,
-    int priority, int weight, int port, String target) {
+  public SRVRecord(
+    String name,
+    String content,
+    String service,
+    String proto,
+    String secondName,
+    int priority,
+    int weight,
+    int port,
+    String target
+  ) {
     super(
       DNSType.SRV.name(),
       name,
@@ -45,8 +55,11 @@ public class SRVRecord extends DNSRecord {
     );
   }
 
-  public static SRVRecord forConfiguration(CloudflareConfigurationEntry entry,
-    CloudflareGroupConfiguration configuration, int port) {
+  public static SRVRecord forConfiguration(
+    @NonNull CloudflareConfigurationEntry entry,
+    @NonNull CloudflareGroupConfiguration configuration,
+    int port
+  ) {
     return new SRVRecord(
       String.format("_minecraft._tcp.%s", entry.domainName()),
       String.format(

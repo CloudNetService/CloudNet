@@ -84,7 +84,7 @@ public final class CloudflareStartAndStopListener {
     BiConsumer<CloudflareConfigurationEntry, CloudflareGroupConfiguration> handler) {
     for (var entry : CloudNetCloudflareModule.instance().cloudFlareConfiguration()
       .entries()) {
-      if (entry != null && entry.enabled() && entry.groups() != null && !entry.groups().isEmpty()) {
+      if (entry != null && entry.enabled() && !entry.groups().isEmpty()) {
         for (var groupConfiguration : entry.groups()) {
           if (groupConfiguration != null
             && cloudService.serviceConfiguration().groups().contains(groupConfiguration.name())) {

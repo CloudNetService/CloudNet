@@ -24,6 +24,7 @@ import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.driver.module.driver.DriverModule;
+import de.dytanic.cloudnet.ext.cloudflare.CloudflareConfigurationEntry.AuthenticationMethod;
 import de.dytanic.cloudnet.ext.cloudflare.cloudflare.CloudFlareAPI;
 import de.dytanic.cloudnet.ext.cloudflare.dns.DNSType;
 import de.dytanic.cloudnet.ext.cloudflare.dns.DefaultDNSRecord;
@@ -60,6 +61,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
         new ArrayList<>(Collections.singletonList(
           new CloudflareConfigurationEntry(
             false,
+            AuthenticationMethod.GLOBAL_KEY,
             this.initialHostAddress(),
             "user@example.com",
             "api_token_string",

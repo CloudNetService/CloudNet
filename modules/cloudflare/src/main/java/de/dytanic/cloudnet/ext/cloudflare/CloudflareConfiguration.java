@@ -17,25 +17,8 @@
 package de.dytanic.cloudnet.ext.cloudflare;
 
 import java.util.Collection;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.NonNull;
 
-@ToString
-@EqualsAndHashCode
-public class CloudflareConfiguration {
-
-  protected Collection<CloudflareConfigurationEntry> entries;
-
-  public CloudflareConfiguration(Collection<CloudflareConfigurationEntry> entries) {
-    this.entries = entries;
-  }
-
-  public Collection<CloudflareConfigurationEntry> entries() {
-    return this.entries;
-  }
-
-  public void entries(Collection<CloudflareConfigurationEntry> entries) {
-    this.entries = entries;
-  }
+public record CloudflareConfiguration(@NonNull Collection<CloudflareConfigurationEntry> entries) {
 
 }

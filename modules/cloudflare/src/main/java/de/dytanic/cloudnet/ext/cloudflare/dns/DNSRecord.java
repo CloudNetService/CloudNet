@@ -17,21 +17,17 @@
 package de.dytanic.cloudnet.ext.cloudflare.dns;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
-@ToString
-@EqualsAndHashCode
 public class DNSRecord {
 
-  protected String type;
-  protected String name;
-  protected String content;
+  private final String type;
+  private final String name;
+  private final String content;
 
-  protected int ttl;
-  protected boolean proxied;
+  private final int ttl;
+  private final boolean proxied;
 
-  protected JsonDocument data;
+  private final JsonDocument data;
 
   public DNSRecord(String type, String name, String content, int ttl, boolean proxied, JsonDocument data) {
     this.type = type;
@@ -42,54 +38,27 @@ public class DNSRecord {
     this.data = data;
   }
 
-  public DNSRecord() {
-  }
-
   public String type() {
     return this.type;
-  }
-
-  public void type(String type) {
-    this.type = type;
   }
 
   public String name() {
     return this.name;
   }
 
-  public void name(String name) {
-    this.name = name;
-  }
-
   public String content() {
     return this.content;
-  }
-
-  public void content(String content) {
-    this.content = content;
   }
 
   public int ttl() {
     return this.ttl;
   }
 
-  public void ttl(int ttl) {
-    this.ttl = ttl;
-  }
-
   public boolean proxied() {
     return this.proxied;
   }
 
-  public void proxied(boolean proxied) {
-    this.proxied = proxied;
-  }
-
   public JsonDocument data() {
     return this.data;
-  }
-
-  public void data(JsonDocument data) {
-    this.data = data;
   }
 }

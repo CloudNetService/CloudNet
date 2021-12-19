@@ -16,56 +16,8 @@
 
 package de.dytanic.cloudnet.ext.cloudflare;
 
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.NonNull;
 
-@ToString
-@EqualsAndHashCode
-public class CloudflareGroupConfiguration {
-
-  protected String name;
-  protected String sub;
-
-  protected int priority;
-  protected int weight;
-
-  public CloudflareGroupConfiguration(String name, String sub, int priority, int weight) {
-    this.name = name;
-    this.sub = sub;
-    this.priority = priority;
-    this.weight = weight;
-  }
-
-  public String name() {
-    return this.name;
-  }
-
-  public void name(String name) {
-    this.name = name;
-  }
-
-  public String sub() {
-    return this.sub;
-  }
-
-  public void sub(String sub) {
-    this.sub = sub;
-  }
-
-  public int priority() {
-    return this.priority;
-  }
-
-  public void priority(int priority) {
-    this.priority = priority;
-  }
-
-  public int weight() {
-    return this.weight;
-  }
-
-  public void weight(int weight) {
-    this.weight = weight;
-  }
+public record CloudflareGroupConfiguration(@NonNull String name, @NonNull String sub, int priority, int weight) {
 
 }
