@@ -184,7 +184,7 @@ public final class CloudNetBridgeModule extends DriverModule {
 
   private @NonNull BridgeConfiguration loadConfiguration() {
     var configuration = this.readConfig().toInstanceOf(BridgeConfiguration.class);
-    if (Files.notExists(this.configPath())) {
+    if (configuration == null || Files.notExists(this.configPath())) {
       // create a new configuration
       configuration = new BridgeConfiguration();
       this.writeConfig(JsonDocument.newDocument(configuration));

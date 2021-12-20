@@ -70,13 +70,7 @@ public class CloudNetLabyModModule extends DriverModule {
 
   @ModuleTask(order = 126, event = ModuleLifeCycle.LOADED)
   public void initManagement() {
-    if (Files.notExists(this.configPath())) {
-      // create default config and write to the file
-      this.writeConfig(JsonDocument.newDocument(LabyModConfiguration.builder().build()));
-    }
-    // read the config from the file
-    var configuration = this.readConfig().toInstanceOf(LabyModConfiguration.class);
-    this.labyModManagement = new NodeLabyModManagement(this, configuration, this.rpcFactory());
+    this.labyModManagement = new NodeLabyModManagement(this, this.loadConfiguration(), this.rpcFactory());
     // sync the config of the module into the cluster
     CloudNet.instance().dataSyncRegistry().registerHandler(
       DataSyncHandler.<LabyModConfiguration>builder()
@@ -87,6 +81,11 @@ public class CloudNetLabyModModule extends DriverModule {
         .singletonCollector(this.labyModManagement::configuration)
         .currentGetter($ -> this.labyModManagement.configuration())
         .build());
+  }
+
+  @ModuleTask(event = ModuleLifeCycle.RELOADING)
+  public void handleReload() {
+    this.labyModManagement.configuration(this.loadConfiguration());
   }
 
   @ModuleTask(order = 64, event = ModuleLifeCycle.LOADED)
@@ -105,5 +104,15 @@ public class CloudNetLabyModModule extends DriverModule {
     } else {
       return new LabyModServiceDisplay(enabled, format.replace("%display%", "%name%"));
     }
+  }
+
+  private @NonNull LabyModConfiguration loadConfiguration() {
+    // read the config from the file
+    var configuration = this.readConfig().toInstanceOf(LabyModConfiguration.class);
+    if (configuration == null || Files.notExists(this.configPath())) {
+      // create default config and write to the file
+      this.writeConfig(JsonDocument.newDocument(configuration = LabyModConfiguration.builder().build()));
+    }
+    return configuration;
   }
 }
