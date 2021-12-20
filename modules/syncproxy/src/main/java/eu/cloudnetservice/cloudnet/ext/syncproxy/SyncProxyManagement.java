@@ -31,5 +31,4 @@ public interface SyncProxyManagement {
   void registerService(@NonNull IServicesRegistry registry);
 
   void unregisterService(@NonNull IServicesRegistry registry);
-
 }

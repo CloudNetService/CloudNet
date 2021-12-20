@@ -22,11 +22,13 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.driver.module.driver.DriverModule;
+import eu.cloudnetservice.cloudnet.ext.syncproxy.SyncProxyManagement;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.config.SyncProxyConfiguration;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.node.command.CommandSyncProxy;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.node.listener.IncludePluginListener;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.node.listener.NodeSyncProxyChannelMessageListener;
 import java.nio.file.Files;
+import lombok.NonNull;
 
 public final class CloudNetSyncProxyModule extends DriverModule {
 
@@ -57,14 +59,7 @@ public final class CloudNetSyncProxyModule extends DriverModule {
 
   @ModuleTask(order = 126, event = ModuleLifeCycle.LOADED)
   public void initManagement() {
-    // check if we need to create a default config
-    if (Files.notExists(this.configPath())) {
-      // create default config and write to the file
-      this.writeConfig(JsonDocument.newDocument(SyncProxyConfiguration.createDefault("Proxy")));
-    }
-    // read the config from the file
-    var configuration = this.readConfig().toInstanceOf(SyncProxyConfiguration.class);
-    this.nodeSyncProxyManagement = new NodeSyncProxyManagement(this, configuration, this.rpcFactory());
+    this.nodeSyncProxyManagement = new NodeSyncProxyManagement(this, this.loadConfiguration(), this.rpcFactory());
     // register the SyncProxyManagement to the ServiceRegistry
     this.nodeSyncProxyManagement.registerService(this.serviceRegistry());
     // sync the config of the module into the cluster
@@ -90,5 +85,24 @@ public final class CloudNetSyncProxyModule extends DriverModule {
   public void registerCommands() {
     // register the syncproxy command to provide config management
     CloudNet.instance().commandProvider().register(new CommandSyncProxy(this.nodeSyncProxyManagement));
+  }
+
+  @ModuleTask(event = ModuleLifeCycle.RELOADING)
+  public void handleReload() {
+    var management = this.serviceRegistry().firstService(SyncProxyManagement.class);
+    if (management != null) {
+      management.configuration(this.loadConfiguration());
+    }
+  }
+
+  private @NonNull SyncProxyConfiguration loadConfiguration() {
+    // read the config from the file
+    var configuration = this.readConfig().toInstanceOf(SyncProxyConfiguration.class);
+    // check if we need to create a default config
+    if (configuration == null || Files.notExists(this.configPath())) {
+      // create default config and write to the file
+      this.writeConfig(JsonDocument.newDocument(configuration = SyncProxyConfiguration.createDefault("Proxy")));
+    }
+    return configuration;
   }
 }
