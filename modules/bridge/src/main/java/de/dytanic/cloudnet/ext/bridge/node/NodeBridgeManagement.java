@@ -86,6 +86,7 @@ public class NodeBridgeManagement implements BridgeManagement {
 
   @Override
   public void registerServices(@NonNull IServicesRegistry registry) {
+    registry.registerService(BridgeManagement.class, "NodeBridgeManagement", this);
     registry.registerService(IPlayerManager.class, "NodePlayerManager", this.playerManager);
   }
 

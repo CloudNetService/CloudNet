@@ -40,6 +40,7 @@ import java.nio.file.Files;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 
@@ -151,17 +152,10 @@ public final class CloudNetBridgeModule extends DriverModule {
 
   @ModuleTask(event = ModuleLifeCycle.LOADED)
   public void initModule() {
-    // load the configuration file
-    var configuration = this.readConfig().toInstanceOf(BridgeConfiguration.class);
-    if (Files.notExists(this.configPath())) {
-      // create a new configuration
-      configuration = new BridgeConfiguration();
-      this.writeConfig(JsonDocument.newDocument(configuration));
-    }
     // init the bridge management
     BridgeManagement management = new NodeBridgeManagement(
       this,
-      configuration,
+      this.loadConfiguration(),
       this.eventManager(),
       CloudNet.instance().dataSyncRegistry(),
       this.rpcFactory());
@@ -178,5 +172,23 @@ public final class CloudNetBridgeModule extends DriverModule {
       .build());
     // register the bridge command
     CloudNet.instance().commandProvider().register(new CommandBridge(management));
+  }
+
+  @ModuleTask(event = ModuleLifeCycle.RELOADING)
+  public void handleReload() {
+    var management = this.serviceRegistry().firstService(BridgeManagement.class);
+    if (management != null) {
+      management.configuration(this.loadConfiguration());
+    }
+  }
+
+  private @NonNull BridgeConfiguration loadConfiguration() {
+    var configuration = this.readConfig().toInstanceOf(BridgeConfiguration.class);
+    if (Files.notExists(this.configPath())) {
+      // create a new configuration
+      configuration = new BridgeConfiguration();
+      this.writeConfig(JsonDocument.newDocument(configuration));
+    }
+    return configuration;
   }
 }
