@@ -42,14 +42,9 @@ import lombok.NonNull;
 
 public final class CloudNetReportModule extends DriverModule {
 
-  private static CloudNetReportModule instance;
-  private ReportConfiguration reportConfiguration;
+  private Path recordDirectory;
   private EmitterRegistry registry;
-  private Path currentRecordDirectory;
-
-  public static CloudNetReportModule instance() {
-    return CloudNetReportModule.instance;
-  }
+  private ReportConfiguration reportConfiguration;
 
   @ModuleTask
   public void init() {
@@ -94,16 +89,15 @@ public final class CloudNetReportModule extends DriverModule {
     var recordBaseDestination = this.moduleWrapper.dataDirectory()
       .resolve(this.reportConfiguration.recordDestination());
     var timeBasedDestination = recordBaseDestination.resolve(date);
-    if (timeBasedDestination.equals(this.currentRecordDirectory)) {
-      return this.currentRecordDirectory;
+    if (timeBasedDestination.equals(this.recordDirectory)) {
+      return this.recordDirectory;
     }
 
     FileUtils.createDirectory(timeBasedDestination);
-    return this.currentRecordDirectory = timeBasedDestination;
+    return this.recordDirectory = timeBasedDestination;
   }
 
   private void reloadConfiguration() {
-    this.reportConfiguration = ReportConfigurationHelper.read(
-      this.moduleWrapper.dataDirectory().resolve("config.json"));
+    this.reportConfiguration = ReportConfigurationHelper.read(this.configPath());
   }
 }
