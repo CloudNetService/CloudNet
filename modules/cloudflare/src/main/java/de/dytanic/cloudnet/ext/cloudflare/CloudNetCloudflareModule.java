@@ -35,6 +35,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.UUID;
+import lombok.NonNull;
 
 public final class CloudNetCloudflareModule extends DriverModule {
 
@@ -53,11 +54,11 @@ public final class CloudNetCloudflareModule extends DriverModule {
 
   @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
   public void loadConfiguration() {
-
     var configuration = this.readConfig();
-
-    this.cloudflareConfiguration = configuration
-      .get("config", CloudflareConfiguration.class, new CloudflareConfiguration(
+    this.cloudflareConfiguration = configuration.get(
+      "config",
+      CloudflareConfiguration.class,
+      new CloudflareConfiguration(
         new ArrayList<>(Collections.singletonList(
           new CloudflareConfigurationEntry(
             false,
@@ -103,30 +104,25 @@ public final class CloudNetCloudflareModule extends DriverModule {
             ipv6Address ? DNSType.AAAA : DNSType.A,
             cloudConfig.identity().uniqueId() + "." + entry.domainName(),
             entry.hostAddress(),
-            JsonDocument.emptyDocument()
-          )
-        );
+            JsonDocument.emptyDocument()));
         if (recordDetail != null) {
-          LOGGER
-            .info(I18n.trans("module-cloudflare-create-dns-record-for-service")
-              .replace("%service%", cloudConfig.identity().uniqueId())
-              .replace("%domain%", entry.domainName())
-              .replace("%recordId%", recordDetail.id())
-            );
+          LOGGER.info(I18n.trans("module-cloudflare-create-dns-record-for-service")
+            .replace("%service%", cloudConfig.identity().uniqueId())
+            .replace("%domain%", entry.domainName())
+            .replace("%recordId%", recordDetail.id()));
         }
       }
     }
   }
 
+  @ModuleTask(event = ModuleLifeCycle.RELOADING)
+  public void handleReload() {
+    this.loadConfiguration();
+  }
+
   @ModuleTask(order = 124, event = ModuleLifeCycle.STARTED)
   public void registerListeners() {
     this.registerListener(new CloudflareStartAndStopListener(this.cloudFlareAPI));
-  }
-
-  public void updateConfiguration(CloudflareConfiguration cloudflareConfiguration) {
-    this.cloudflareConfiguration = cloudflareConfiguration;
-
-    this.writeConfig(JsonDocument.newDocument("config", cloudflareConfiguration));
   }
 
   @ModuleTask(order = 64, event = ModuleLifeCycle.STOPPED)
@@ -146,8 +142,9 @@ public final class CloudNetCloudflareModule extends DriverModule {
     return this.cloudflareConfiguration;
   }
 
-  public void cloudflareConfiguration(CloudflareConfiguration cloudflareConfiguration) {
+  public void updateConfiguration(@NonNull CloudflareConfiguration cloudflareConfiguration) {
     this.cloudflareConfiguration = cloudflareConfiguration;
+    this.writeConfig(JsonDocument.newDocument("config", cloudflareConfiguration));
   }
 
   public CloudFlareAPI cloudFlareAPI() {
