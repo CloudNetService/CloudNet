@@ -8,8 +8,7 @@
         "PAPER_API",
         "DOWNLOAD",
         "BUILD",
-        "COPY_FILTER",
-        "ZIP_FILE_FILTER"
+        "COPY_FILTER"
       ],
       "website": "https://papermc.io",
       "versions": [
@@ -62,20 +61,17 @@
         },
         {
           "name": "1.16.5",
-          "url": "https://papermc.io/api/v2/projects/paper/versions/1.16.5/builds/792/downloads/paper-1.16.5-778.jar",
+          "url": "https://papermc.io/api/v2/projects/paper/versions/1.16.5/builds/794/downloads/paper-1.16.5-794.jar",
           "deprecated": true,
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
-            },
-            "jvmOptions": [
-              "-Dpaperclip.patchonly=true"
-            ]
+            }
           }
         },
         {
           "name": "1.15.2",
-          "url": "https://papermc.io/api/v2/projects/paper/versions/1.15.2/builds/391/downloads/paper-1.15.2-391.jar",
+          "url": "https://papermc.io/api/v2/projects/paper/versions/1.15.2/builds/393/downloads/paper-1.15.2-393.jar",
           "deprecated": true,
           "properties": {
             "copy": {
@@ -83,15 +79,12 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ],
-            "filteredFiles": [
-              "org/apache/logging/log4j/core/lookup/JndiLookup.class"
             ]
           }
         },
         {
           "name": "1.14.4",
-          "url": "https://papermc.io/api/v2/projects/paper/versions/1.14.4/builds/243/downloads/paper-1.14.4-243.jar",
+          "url": "https://papermc.io/api/v2/projects/paper/versions/1.14.4/builds/245/downloads/paper-1.14.4-245.jar",
           "deprecated": true,
           "properties": {
             "copy": {
@@ -99,15 +92,12 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ],
-            "filteredFiles": [
-              "org/apache/logging/log4j/core/lookup/JndiLookup.class"
             ]
           }
         },
         {
           "name": "1.13.2",
-          "url": "https://papermc.io/api/v2/projects/paper/versions/1.13.2/builds/655/downloads/paper-1.13.2-655.jar",
+          "url": "https://papermc.io/api/v2/projects/paper/versions/1.13.2/builds/657/downloads/paper-1.13.2-657.jar",
           "deprecated": true,
           "properties": {
             "copy": {
@@ -115,15 +105,12 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ],
-            "filteredFiles": [
-              "org/apache/logging/log4j/core/lookup/JndiLookup.class"
             ]
           }
         },
         {
           "name": "1.12.2",
-          "url": "https://papermc.io/api/v2/projects/paper/versions/1.12.2/builds/1618/downloads/paper-1.12.2-1618.jar",
+          "url": "https://papermc.io/api/v2/projects/paper/versions/1.12.2/builds/1620/downloads/paper-1.12.2-1620.jar",
           "deprecated": true,
           "properties": {
             "copy": {
@@ -131,15 +118,12 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ],
-            "filteredFiles": [
-              "org/apache/logging/log4j/core/lookup/JndiLookup.class"
             ]
           }
         },
         {
           "name": "1.11.2",
-          "url": "https://papermc.io/api/v2/projects/paper/versions/1.11.2/builds/1104/downloads/paper-1.11.2-1104.jar",
+          "url": "https://papermc.io/api/v2/projects/paper/versions/1.11.2/builds/1106/downloads/paper-1.11.2-1106.jar",
           "deprecated": true,
           "maxJavaVersion": 8,
           "properties": {
@@ -148,15 +132,12 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ],
-            "filteredFiles": [
-              "org/apache/logging/log4j/core/lookup/JndiLookup.class"
             ]
           }
         },
         {
           "name": "1.10.2",
-          "url": "https://papermc.io/api/v2/projects/paper/versions/1.10.2/builds/916/downloads/paper-1.10.2-916.jar",
+          "url": "https://papermc.io/api/v2/projects/paper/versions/1.10.2/builds/918/downloads/paper-1.10.2-918.jar",
           "deprecated": true,
           "maxJavaVersion": 8,
           "properties": {
@@ -170,30 +151,24 @@
         },
         {
           "name": "1.9.4",
-          "url": "https://papermc.io/api/v2/projects/paper/versions/1.9.4/builds/773/downloads/paper-1.9.4-773.jar",
+          "url": "https://papermc.io/api/v2/projects/paper/versions/1.9.4/builds/775/downloads/paper-1.9.4-775.jar",
           "deprecated": true,
           "maxJavaVersion": 8,
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
-            },
-            "filteredFiles": [
-              "org/apache/logging/log4j/core/lookup/JndiLookup.class"
-            ]
+            }
           }
         },
         {
           "name": "1.8.8",
-          "url": "https://papermc.io/api/v2/projects/paper/versions/1.8.8/builds/443/downloads/paper-1.8.8-443.jar",
+          "url": "https://papermc.io/api/v2/projects/paper/versions/1.8.8/builds/445/downloads/paper-1.8.8-445.jar",
           "deprecated": true,
           "maxJavaVersion": 8,
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
-            },
-            "filteredFiles": [
-              "org/apache/logging/log4j/core/lookup/JndiLookup.class"
-            ]
+            }
           }
         }
       ]

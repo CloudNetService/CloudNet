@@ -24,7 +24,6 @@ import de.dytanic.cloudnet.template.install.run.step.executor.DownloadStepExecut
 import de.dytanic.cloudnet.template.install.run.step.executor.InstallStepExecutor;
 import de.dytanic.cloudnet.template.install.run.step.executor.PaperApiVersionFetchStepExecutor;
 import de.dytanic.cloudnet.template.install.run.step.executor.UnzipStepExecutor;
-import de.dytanic.cloudnet.template.install.run.step.executor.ZipFileFilterStepExecutor;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Set;
@@ -36,8 +35,7 @@ public enum InstallStep {
   UNZIP(new UnzipStepExecutor()),
   COPY_FILTER(new CopyFilterStepExecutor()),
   DEPLOY(new DeployStepExecutor()),
-  PAPER_API(new PaperApiVersionFetchStepExecutor()),
-  ZIP_FILE_FILTER(new ZipFileFilterStepExecutor());
+  PAPER_API(new PaperApiVersionFetchStepExecutor());
 
   private final InstallStepExecutor executor;
 
