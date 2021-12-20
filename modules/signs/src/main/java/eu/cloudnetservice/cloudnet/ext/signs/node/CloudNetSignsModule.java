@@ -30,7 +30,6 @@ import eu.cloudnetservice.cloudnet.ext.signs.Sign;
 import eu.cloudnetservice.cloudnet.ext.signs.SignManagement;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.cloudnet.ext.signs.node.configuration.NodeSignsConfigurationHelper;
-import java.nio.file.Path;
 import java.util.Collection;
 
 public class CloudNetSignsModule extends DriverModule {
@@ -40,23 +39,21 @@ public class CloudNetSignsModule extends DriverModule {
   private static final Logger LOGGER = LogManager.logger(CloudNetSignsModule.class);
 
   protected Database database;
-  protected Path configurationPath;
   protected SignsConfiguration configuration;
 
   @ModuleTask(order = 50)
   public void initialize() {
     this.database = CloudNet.instance().databaseProvider().database(DATABASE_NAME);
-    this.configurationPath = this.moduleWrapper().dataDirectory().resolve("config.json");
   }
 
   @ModuleTask(order = 40)
   public void loadConfiguration() {
-    this.configuration = NodeSignsConfigurationHelper.read(this.configurationPath);
+    this.configuration = NodeSignsConfigurationHelper.read(this.configPath());
   }
 
   @ModuleTask(order = 30)
   public void handleInitialization() {
-    SignManagement management = new NodeSignManagement(this.configuration, this.configurationPath, this.database);
+    SignManagement management = new NodeSignManagement(this.configuration, this.configPath(), this.database);
     management.registerToServiceRegistry();
 
     this.registerListener(new GlobalChannelMessageListener(management), new NodeSignsListener(management));
@@ -72,6 +69,14 @@ public class CloudNetSignsModule extends DriverModule {
   public void handleStopping() throws Exception {
     this.database.close();
     CloudNet.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
+  }
+
+  @ModuleTask(event = ModuleLifeCycle.RELOADING)
+  public void handleReload() {
+    var management = this.serviceRegistry().firstService(SignManagement.class);
+    if (management != null) {
+      management.signsConfiguration(NodeSignsConfigurationHelper.read(this.configPath()));
+    }
   }
 
   @Deprecated
