@@ -21,6 +21,7 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.database.Database;
+import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.driver.module.driver.DriverModule;
 import eu.cloudnetservice.cloudnet.ext.npcs.CloudNPC;
@@ -29,6 +30,7 @@ import eu.cloudnetservice.cloudnet.ext.npcs.configuration.NPCConfiguration;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.NPC.ClickAction;
 import eu.cloudnetservice.modules.npc.NPC.ProfileProperty;
+import eu.cloudnetservice.modules.npc.NPCManagement;
 import eu.cloudnetservice.modules.npc.configuration.InventoryConfiguration;
 import eu.cloudnetservice.modules.npc.configuration.InventoryConfiguration.ItemLayoutHolder;
 import eu.cloudnetservice.modules.npc.configuration.ItemLayout;
@@ -131,6 +133,14 @@ public class CloudNetNPCModule extends DriverModule {
       this.configPath(),
       CloudNet.instance().eventManager());
     management.registerToServiceRegistry();
+  }
+
+  @ModuleTask(event = ModuleLifeCycle.RELOADING)
+  public void handleReload() {
+    var management = this.serviceRegistry().firstService(NPCManagement.class);
+    if (management != null) {
+      management.npcConfiguration(this.loadConfig());
+    }
   }
 
   private @NonNull eu.cloudnetservice.modules.npc.configuration.NPCConfiguration loadConfig() {
