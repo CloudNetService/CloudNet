@@ -145,7 +145,7 @@ public abstract class V2HttpHandler implements IHttpHandler {
     context
       .cancelNext(true)
       .response()
-      .statusCode(HttpResponseCode.HTTP_NO_CONTENT)
+      .statusCode(HttpResponseCode.HTTP_OK)
       .header("Access-Control-Max-Age", Integer.toString(this.accessControlConfiguration.accessControlMaxAge()))
       .header("Access-Control-Allow-Origin", this.accessControlConfiguration.corsPolicy())
       .header("Access-Control-Allow-Headers", "*")
