@@ -125,4 +125,9 @@ public final class CloudNetRestModule extends DriverModule {
       .registerHandler("/api/v2/module/{name}", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerModule("http.v2.module"))
       .registerHandler("/api/v2/module/{name}/*", IHttpHandler.PRIORITY_LOW, new V2HttpHandlerModule("http.v2.module"));
   }
+
+  @ModuleTask(event = ModuleLifeCycle.RELOADING)
+  public void handleReload() {
+    this.loadConfiguration();
+  }
 }
