@@ -1,4 +1,4 @@
-FROM gradle:7.3.1-jdk17 AS build
+FROM gradle:7.3.2-jdk17 AS build
 USER root
 
 COPY . /usr/src/cloudnet-sources
@@ -6,7 +6,7 @@ WORKDIR /usr/src/cloudnet-sources
 
 RUN gradle
 
-FROM openjdk:17.0.1-slim
+FROM azul/zulu-openjdk-alpine:17-jre
 USER root
 
 RUN mkdir -p /home/cloudnet
