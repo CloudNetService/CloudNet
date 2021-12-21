@@ -83,6 +83,7 @@ public class ListenerInvokerGenerator {
       // listener classes might be loaded by another class loader (for example module listeners),
       // add them to the class path of the class pool
       this.classPool.appendClassPath(new LoaderClassPath(invokerClassLoader));
+      this.classPool.appendClassPath(new LoaderClassPath(Thread.currentThread().getContextClassLoader()));
 
       CtClass listenerInvokerClass = this.classPool.makeClass(className);
       listenerInvokerClass.addInterface(this.classPool.get(ListenerInvoker.class.getName()));
