@@ -239,12 +239,29 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://api.pl3x.net/v2/purpur/1.17.1/latest/download",
-          "maxJavaVersion": 17,
+          "url": "https://api.pl3x.net/v2/purpur/1.18.1/latest/download",
+          "minJavaVersion": 17,
+          "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "purpur\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ]
+          }
+        },
+        {
+          "name": "1.18.1",
+          "url": "https://api.pl3x.net/v2/purpur/1.18.1/latest/download",
           "minJavaVersion": 17,
           "properties": {
             "copy": {
-              "cache/patched.*\\.jar": "purpur.jar"
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "purpur\\.jar": "paper.jar"
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
@@ -254,22 +271,7 @@
         {
           "name": "1.17.1",
           "url": "https://api.pl3x.net/v2/purpur/1.17.1/latest/download",
-          "maxJavaVersion": 17,
           "minJavaVersion": 17,
-          "properties": {
-            "copy": {
-              "cache/patched.*\\.jar": "purpur.jar"
-            },
-            "jvmOptions": [
-              "-Dpaperclip.patchonly=true"
-            ]
-          }
-        },
-        {
-          "name": "1.16.5",
-          "url": "https://api.pl3x.net/v2/purpur/1.16.5/latest/download",
-          "maxJavaVersion": 16,
-          "deprecated": true,
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "purpur.jar"
