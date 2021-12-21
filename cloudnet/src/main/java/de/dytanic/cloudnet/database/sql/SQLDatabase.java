@@ -178,7 +178,7 @@ public abstract class SQLDatabase implements IDatabase {
 
         return jsonDocuments;
       },
-      "%\"" + fieldName + "\":" + JsonDocument.GSON.toJson(fieldValue) + "%"
+      "%\"" + fieldName + "\":" + JsonDocument.GSON.toJson(fieldValue).replaceAll("([_%\\[])", "[$1]") + "%"
     );
   }
 
@@ -201,7 +201,7 @@ public abstract class SQLDatabase implements IDatabase {
         item = iterator.next();
 
         stringBuilder.append(TABLE_COLUMN_VALUE).append(" LIKE ?");
-        collection.add("%\"" + item + "\":" + filters.get(item).toString() + "%");
+        collection.add("%\"" + item + "\":" + filters.get(item).toString().replaceAll("([_%\\[])", "[$1]") + "%");
 
         if (iterator.hasNext()) {
           stringBuilder.append(" and ");
