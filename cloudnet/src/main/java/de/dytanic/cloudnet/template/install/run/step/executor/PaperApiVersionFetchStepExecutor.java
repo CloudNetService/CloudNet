@@ -92,6 +92,8 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
         return "waterfall";
       case "travertine":
         return "travertine";
+      case "velocity":
+        return "velocity";
       default:
         throw new IllegalStateException("Unsupported paper api project type " + type.getName());
     }

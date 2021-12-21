@@ -639,18 +639,27 @@
       "targetEnvironment": "VELOCITY_DEFAULT",
       "website": "https://velocitypowered.com",
       "installSteps": [
+        "PAPER_API",
         "DOWNLOAD"
       ],
       "versions": [
         {
           "name": "latest",
-          "url": "https://versions.velocitypowered.com/download/latest.jar",
-          "cacheFiles": false
+          "cacheFiles": false,
+          "minJavaVersion": 11,
+          "properties": {
+            "fetchOverPaperApi": true,
+            "versionGroup": "3.1.1"
+          }
         },
         {
           "name": "development",
-          "url": "https://versions.velocitypowered.com/download/1.1.x-SNAPSHOT.jar",
-          "cacheFiles": false
+          "cacheFiles": false,
+          "minJavaVersion": 11,
+          "properties": {
+            "fetchOverPaperApi": true,
+            "versionGroup": "3.1.2-SNAPSHOT"
+          }
         }
       ]
     },
