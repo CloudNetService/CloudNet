@@ -15,6 +15,7 @@
  */
 
 plugins {
+  id 'org.ajoberstar.grgit' version '4.1.1'
   id 'org.cadixdev.licenser' version '0.6.1' apply false
 }
 
@@ -154,25 +155,8 @@ allprojects {
     file("$pro.buildDir/libs/" + fileName).text = stringBuilder.toString()
   }
 
-  String hashValue = null
   ext.getCurrentCommitHash = {
-    if (hashValue == null) {
-      try {
-        def hashStdOut = new ByteArrayOutputStream()
-
-        exec {
-          commandLine "git", "rev-parse", "--short", "HEAD"
-          standardOutput = hashStdOut
-        }
-
-        hashValue = new String(hashStdOut.toByteArray()).substring(0, 7)
-
-      } catch (Exception ignored) {
-        throw new IllegalStateException(ignored)
-      }
-    }
-
-    return hashValue
+    grgit.head().id.substring(0, 7)
   }
 }
 
