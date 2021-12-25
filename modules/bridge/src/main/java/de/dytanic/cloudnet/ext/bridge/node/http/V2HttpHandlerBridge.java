@@ -36,6 +36,10 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.endsWith("/exists")) {
         this.handleCloudPlayerExistsRequest(context);
+      } else if (path.endsWith("/onlineCount")) {
+        this.handleOnlinePlayerCountRequest(context);
+      } else if (path.endsWith("/registeredCount")) {
+        this.handleRegisteredPlayerCountRequest(context);
       } else {
         this.handleCloudPlayerRequest(context);
       }
@@ -44,6 +48,22 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
     } else if (context.request().method().equalsIgnoreCase("DELETE")) {
       this.handleDeleteCloudPlayerRequest(context);
     }
+  }
+
+  protected void handleOnlinePlayerCountRequest(IHttpContext context) {
+    this.ok(context)
+      .body(this.success().append("onlineCount", this.playerManager().onlineCount()).toString())
+      .context()
+      .closeAfter(true)
+      .cancelNext();
+  }
+
+  protected void handleRegisteredPlayerCountRequest(IHttpContext context) {
+    this.ok(context)
+      .body(this.success().append("registeredCount", this.playerManager().registeredCount()).toString())
+      .context()
+      .closeAfter(true)
+      .cancelNext();
   }
 
   protected void handleCloudPlayerExistsRequest(IHttpContext context) {
