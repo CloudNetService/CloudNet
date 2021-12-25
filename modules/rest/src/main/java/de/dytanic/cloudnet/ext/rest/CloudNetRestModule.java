@@ -108,17 +108,17 @@ public final class CloudNetRestModule extends DriverModule {
       .registerHandler("/api/v2/service/{identifier}/*", IHttpHandler.PRIORITY_LOW,
         new V2HttpHandlerService("http.v2.services"))
       // v2 template storage management
-      .registerHandler("/api/v2/templateStorage", IHttpHandler.PRIORITY_NORMAL,
+      .registerHandler("/api/v2/templatestorage", IHttpHandler.PRIORITY_NORMAL,
         new V2HttpHandlerTemplateStorages("http.v2.template.storage"))
-      .registerHandler("/api/v2/templateStorage/{storage}/*", IHttpHandler.PRIORITY_LOW,
+      .registerHandler("/api/v2/templatestorage/{storage}/*", IHttpHandler.PRIORITY_LOW,
         new V2HttpHandlerTemplateStorages("http.v2.template.storage"))
       // v2 template management
       .registerHandler("/api/v2/template/{storage}/{prefix}/{name}/*", IHttpHandler.PRIORITY_NORMAL,
         new V2HttpHandlerTemplate("http.v2.template"))
       // v2 server version management
-      .registerHandler("/api/v2/serviceVersion", IHttpHandler.PRIORITY_NORMAL,
+      .registerHandler("/api/v2/serviceversion", IHttpHandler.PRIORITY_NORMAL,
         new V2HttpHandlerServiceVersionProvider("http.v2.service.provider"))
-      .registerHandler("/api/v2/serviceVersion/{version}", IHttpHandler.PRIORITY_LOW,
+      .registerHandler("/api/v2/serviceversion/{version}", IHttpHandler.PRIORITY_LOW,
         new V2HttpHandlerServiceVersionProvider("http.v2.service.provider"))
       // v2 module management
       .registerHandler("/api/v2/module", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerModule("http.v2.module"))
