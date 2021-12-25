@@ -20,11 +20,9 @@ import de.dytanic.cloudnet.common.function.ThrowableFunction;
 import de.dytanic.cloudnet.common.function.ThrowableSupplier;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Objects;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -38,44 +36,6 @@ import org.jetbrains.annotations.UnmodifiableView;
 public class CompletableTask<V> extends CompletableFuture<V> implements ITask<V> {
 
   private static final ExecutorService SERVICE = Executors.newCachedThreadPool();
-
-  private volatile Collection<ITaskListener<V>> listeners;
-
-  public CompletableTask() {
-    // handles the uni completion stage 'done' (or success)
-    this.thenAccept(result -> {
-      // check if there are registered listeners
-      if (this.listeners != null) {
-        for (var listener : this.listeners) {
-          listener.onComplete(this, result);
-        }
-        // depopulate the listeners - no more completions are possible
-        this.depopulateListeners();
-      }
-    });
-    // handles the uni completion stages 'cancel' and 'exceptionally'
-    this.exceptionally(throwable -> {
-      // check if there are registered listeners
-      if (this.listeners != null) {
-        // check if the future was cancelled
-        if (throwable instanceof CancellationException) {
-          // post the cancel result
-          for (var listener : this.listeners) {
-            listener.onCancelled(this);
-          }
-        } else {
-          // exception completion - post that
-          for (var listener : this.listeners) {
-            listener.onFailure(this, throwable);
-          }
-        }
-        // depopulate the listeners - no more completions are possible
-        this.depopulateListeners();
-      }
-      // must be a function...
-      return null;
-    });
-  }
 
   public static <V> @NonNull CompletableTask<V> supply(@NonNull Runnable runnable) {
     return supply(() -> {
@@ -96,26 +56,32 @@ public class CompletableTask<V> extends CompletableFuture<V> implements ITask<V>
     return task;
   }
 
-
   @Override
   public @NonNull ITask<V> addListener(@NonNull ITaskListener<V> listener) {
-    this.initListeners().add(listener);
+    this.whenComplete((result, exception) -> {
+      // cancelled and exceptionally are both here
+      if (exception != null) {
+        if (exception instanceof CancellationException) {
+          listener.onCancelled(this);
+        } else {
+          listener.onFailure(this, exception.getCause());
+        }
+      } else {
+        // normal completion
+        listener.onComplete(this, result);
+      }
+    });
     return this;
   }
 
   @Override
   public @NonNull ITask<V> clearListeners() {
-    // we don't need to initialize the listeners field here
-    if (this.listeners != null) {
-      this.listeners.clear();
-    }
-
-    return this;
+    return this; // no-op
   }
 
   @Override
   public @UnmodifiableView @NonNull Collection<ITaskListener<V>> listeners() {
-    return this.listeners == null ? Collections.emptyList() : Collections.unmodifiableCollection(this.listeners);
+    return Collections.emptyList(); // no-op
   }
 
   @Override
@@ -168,16 +134,5 @@ public class CompletableTask<V> extends CompletableFuture<V> implements ITask<V>
     // the new task listens now to this task
     return task;
   }
-
-  protected @NonNull Collection<ITaskListener<V>> initListeners() {
-    // ConcurrentLinkedQueue gives us O(1) insertion using CAS - results under moderate
-    // load in the fastest insert and read times
-    return Objects.requireNonNullElseGet(this.listeners, () -> this.listeners = new ConcurrentLinkedQueue<>());
-  }
-
-  protected void depopulateListeners() {
-    // ensures a better gc
-    this.listeners.clear();
-    this.listeners = null;
-  }
 }
+
