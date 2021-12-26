@@ -16,13 +16,13 @@
 
 package de.dytanic.cloudnet.common.registry;
 
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import lombok.NonNull;
 
 /**
@@ -30,7 +30,9 @@ import lombok.NonNull;
  */
 public class DefaultServicesRegistry implements ServicesRegistry {
 
-  protected final Map<Class<?>, List<RegistryEntry<?>>> providedServices = new ConcurrentHashMap<>();
+  protected final Multimap<Class<?>, RegistryEntry<?>> providedServices = Multimaps.newMultimap(
+    new ConcurrentHashMap<>(),
+    ConcurrentLinkedQueue::new);
 
   /**
    * {@inheritDoc}
@@ -41,8 +43,7 @@ public class DefaultServicesRegistry implements ServicesRegistry {
     @NonNull String name,
     @NonNull E service
   ) {
-    this.providedServices.computeIfAbsent(clazz, c -> new CopyOnWriteArrayList<>())
-      .add(new RegistryEntry<>(name, service));
+    this.providedServices.put(clazz, new RegistryEntry<>(name, service));
     return this;
   }
 
@@ -54,16 +55,10 @@ public class DefaultServicesRegistry implements ServicesRegistry {
     @NonNull Class<T> clazz,
     @NonNull Class<E> serviceClazz
   ) {
-    if (this.providedServices.containsKey(clazz)) {
-      for (var registryEntry : this.providedServices.get(clazz)) {
-        if (registryEntry.service.getClass().equals(serviceClazz)) {
-          this.providedServices.get(clazz).remove(registryEntry);
-
-          if (this.providedServices.get(clazz).isEmpty()) {
-            this.providedServices.remove(clazz);
-          }
-        }
-      }
+    // get all registered services
+    var services = this.providedServices.get(clazz);
+    if (!services.isEmpty()) {
+      services.removeIf(entry -> entry.service.getClass().equals(serviceClazz));
     }
 
     return this;
@@ -74,18 +69,9 @@ public class DefaultServicesRegistry implements ServicesRegistry {
    */
   @Override
   public <T, E extends T> @NonNull ServicesRegistry unregisterService(@NonNull Class<T> clazz, @NonNull E service) {
-    if (this.providedServices.containsKey(clazz)) {
-      for (var registryEntry : this.providedServices.get(clazz)) {
-        if (registryEntry.service.equals(service)) {
-          this.providedServices.get(clazz).remove(registryEntry);
-
-          if (this.providedServices.get(clazz).isEmpty()) {
-            this.providedServices.remove(clazz);
-          }
-
-          break;
-        }
-      }
+    var services = this.providedServices.get(clazz);
+    if (!services.isEmpty()) {
+      services.removeIf(entry -> entry.service.equals(service));
     }
 
     return this;
@@ -96,9 +82,10 @@ public class DefaultServicesRegistry implements ServicesRegistry {
    */
   @Override
   public <T> boolean containsService(@NonNull Class<T> clazz, @NonNull String name) {
-    if (this.providedServices.containsKey(clazz)) {
-      for (var registryEntry : this.providedServices.get(clazz)) {
-        if (registryEntry.name.equals(name)) {
+    var services = this.providedServices.get(clazz);
+    if (!services.isEmpty()) {
+      for (var service : services) {
+        if (service.name.equals(name)) {
           return true;
         }
       }
@@ -112,19 +99,9 @@ public class DefaultServicesRegistry implements ServicesRegistry {
    */
   @Override
   public <T> @NonNull ServicesRegistry unregisterService(@NonNull Class<T> clazz, @NonNull String name) {
-
-    if (this.providedServices.containsKey(clazz)) {
-      for (var registryEntry : this.providedServices.get(clazz)) {
-        if (registryEntry.name.equals(name)) {
-          this.providedServices.get(clazz).remove(registryEntry);
-
-          if (this.providedServices.get(clazz).isEmpty()) {
-            this.providedServices.remove(clazz);
-          }
-
-          break;
-        }
-      }
+    var services = this.providedServices.get(clazz);
+    if (!services.isEmpty()) {
+      services.removeIf(entry -> entry.name.equals(name));
     }
 
     return this;
@@ -135,11 +112,7 @@ public class DefaultServicesRegistry implements ServicesRegistry {
    */
   @Override
   public <T> @NonNull ServicesRegistry unregisterServices(@NonNull Class<T> clazz) {
-    if (this.providedServices.containsKey(clazz)) {
-      this.providedServices.get(clazz).clear();
-      this.providedServices.remove(clazz);
-    }
-
+    this.providedServices.removeAll(clazz);
     return this;
   }
 
@@ -157,8 +130,10 @@ public class DefaultServicesRegistry implements ServicesRegistry {
    */
   @Override
   public @NonNull ServicesRegistry unregisterAll(@NonNull ClassLoader classLoader) {
-    for (var item : this.providedServices.values()) {
-      item.removeIf(entry -> entry.service.getClass().getClassLoader().equals(classLoader));
+    for (var entry : this.providedServices.entries()) {
+      if (entry.getValue().service().getClass().getClassLoader().equals(classLoader)) {
+        this.providedServices.remove(entry.getKey(), entry.getValue());
+      }
     }
 
     return this;
