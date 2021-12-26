@@ -33,7 +33,7 @@ public class V2HttpHandlerTemplateStorages extends V2HttpHandler {
   @Override
   protected void handleBearerAuthorized(String path, HttpContext context, HttpSession session) {
     if (context.request().method().equalsIgnoreCase("GET")) {
-      if (path.endsWith("/templateStorage")) {
+      if (path.endsWith("/templatestorage")) {
         this.handleStorageListRequest(context);
       } else if (path.endsWith("/templates")) {
         this.handleTemplateListRequest(context);

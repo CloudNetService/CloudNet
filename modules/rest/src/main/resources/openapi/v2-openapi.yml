@@ -1575,7 +1575,7 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '403':
           $ref: '#/components/responses/Unauthorized'
-  /templateStorage:
+  /templatestorage:
     get:
       tags:
         - Template Storage
@@ -1598,7 +1598,7 @@ paths:
                           - ftp
         '403':
           $ref: '#/components/responses/Unauthorized'
-  '/templateStorage/{storage}/templates':
+  '/templatestorage/{storage}/templates':
     get:
       parameters:
         - name: storage
