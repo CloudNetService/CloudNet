@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.ext.report.config;
 
-import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.Nameable;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import kong.unirest.Unirest;
@@ -24,7 +24,7 @@ import kong.unirest.UnirestException;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public record PasteService(@NonNull String name, @NonNull String serviceUrl) implements INameable {
+public record PasteService(@NonNull String name, @NonNull String serviceUrl) implements Nameable {
 
   public static final PasteService FALLBACK = new PasteService("fallback", "https://just-paste.it");
   private static final Logger LOGGER = LogManager.logger(PasteService.class);

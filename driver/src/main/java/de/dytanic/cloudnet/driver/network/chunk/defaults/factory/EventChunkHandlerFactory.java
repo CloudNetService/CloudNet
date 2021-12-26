@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.driver.network.chunk.defaults.factory;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.event.IEventManager;
+import de.dytanic.cloudnet.driver.event.EventManager;
 import de.dytanic.cloudnet.driver.event.events.chunk.ChunkedPacketSessionOpenEvent;
 import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketHandler;
 import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
@@ -25,14 +25,14 @@ import java.util.function.Function;
 import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
 
-public record EventChunkHandlerFactory(@NonNull IEventManager eventManager)
+public record EventChunkHandlerFactory(@NonNull EventManager eventManager)
   implements Function<ChunkSessionInformation, ChunkedPacketHandler> {
 
   public static @NonNull EventChunkHandlerFactory withDefaultEventManager() {
     return withEventManager(CloudNetDriver.instance().eventManager());
   }
 
-  public static @NonNull EventChunkHandlerFactory withEventManager(@NonNull IEventManager manager) {
+  public static @NonNull EventChunkHandlerFactory withEventManager(@NonNull EventManager manager) {
     return new EventChunkHandlerFactory(manager);
   }
 

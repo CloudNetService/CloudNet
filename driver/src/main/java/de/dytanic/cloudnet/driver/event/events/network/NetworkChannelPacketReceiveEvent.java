@@ -16,22 +16,22 @@
 
 package de.dytanic.cloudnet.driver.event.events.network;
 
-import de.dytanic.cloudnet.driver.event.ICancelable;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
+import de.dytanic.cloudnet.driver.event.Cancelable;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import lombok.NonNull;
 
-public class NetworkChannelPacketReceiveEvent extends NetworkEvent implements ICancelable {
+public class NetworkChannelPacketReceiveEvent extends NetworkEvent implements Cancelable {
 
-  private final IPacket packet;
+  private final Packet packet;
   private boolean cancelled;
 
-  public NetworkChannelPacketReceiveEvent(@NonNull INetworkChannel channel, @NonNull IPacket packet) {
+  public NetworkChannelPacketReceiveEvent(@NonNull NetworkChannel channel, @NonNull Packet packet) {
     super(channel);
     this.packet = packet;
   }
 
-  public @NonNull IPacket packet() {
+  public @NonNull Packet packet() {
     return this.packet;
   }
 

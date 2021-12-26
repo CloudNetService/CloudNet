@@ -16,10 +16,10 @@
 
 package de.dytanic.cloudnet.ext.bridge.node.http;
 
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.ext.bridge.player.CloudOfflinePlayer;
-import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
+import de.dytanic.cloudnet.ext.bridge.player.PlayerManager;
 import de.dytanic.cloudnet.http.HttpSession;
 import de.dytanic.cloudnet.http.V2HttpHandler;
 import java.util.UUID;
@@ -32,10 +32,14 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) {
+  protected void handleBearerAuthorized(String path, HttpContext context, HttpSession session) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.endsWith("/exists")) {
         this.handleCloudPlayerExistsRequest(context);
+      } else if (path.endsWith("/onlineCount")) {
+        this.handleOnlinePlayerCountRequest(context);
+      } else if (path.endsWith("/registeredCount")) {
+        this.handleRegisteredPlayerCountRequest(context);
       } else {
         this.handleCloudPlayerRequest(context);
       }
@@ -46,7 +50,23 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
     }
   }
 
-  protected void handleCloudPlayerExistsRequest(IHttpContext context) {
+  protected void handleOnlinePlayerCountRequest(HttpContext context) {
+    this.ok(context)
+      .body(this.success().append("onlineCount", this.playerManager().onlineCount()).toString())
+      .context()
+      .closeAfter(true)
+      .cancelNext();
+  }
+
+  protected void handleRegisteredPlayerCountRequest(HttpContext context) {
+    this.ok(context)
+      .body(this.success().append("registeredCount", this.playerManager().registeredCount()).toString())
+      .context()
+      .closeAfter(true)
+      .cancelNext();
+  }
+
+  protected void handleCloudPlayerExistsRequest(HttpContext context) {
     this.handleWithCloudPlayerContext(context, true, player -> this.ok(context)
       .body(this.success().append("result", player != null).toString())
       .context()
@@ -55,7 +75,7 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
     );
   }
 
-  protected void handleCloudPlayerRequest(IHttpContext context) {
+  protected void handleCloudPlayerRequest(HttpContext context) {
     this.handleWithCloudPlayerContext(context, false, player -> this.ok(context)
       .body(this.success().append("player", player).toString())
       .context()
@@ -63,7 +83,7 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
       .cancelNext());
   }
 
-  protected void handleCreateCloudPlayerRequest(IHttpContext context) {
+  protected void handleCreateCloudPlayerRequest(HttpContext context) {
     var cloudOfflinePlayer = this.body(context.request()).toInstanceOf(CloudOfflinePlayer.class);
     if (cloudOfflinePlayer == null) {
       this.badRequest(context)
@@ -82,7 +102,7 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleDeleteCloudPlayerRequest(IHttpContext context) {
+  protected void handleDeleteCloudPlayerRequest(HttpContext context) {
     this.handleWithCloudPlayerContext(context, false, player -> {
       this.playerManager().deleteCloudOfflinePlayer(player);
       this.ok(context)
@@ -94,7 +114,7 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
   }
 
   protected void handleWithCloudPlayerContext(
-    IHttpContext context,
+    HttpContext context,
     boolean mayBeNull,
     Consumer<CloudOfflinePlayer> handler
   ) {
@@ -129,8 +149,8 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
     handler.accept(player);
   }
 
-  protected IPlayerManager playerManager() {
-    return this.node().servicesRegistry().firstService(IPlayerManager.class);
+  protected PlayerManager playerManager() {
+    return this.node().servicesRegistry().firstService(PlayerManager.class);
   }
 
 }

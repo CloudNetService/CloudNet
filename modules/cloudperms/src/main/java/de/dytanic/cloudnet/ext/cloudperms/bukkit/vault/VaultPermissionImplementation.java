@@ -16,9 +16,9 @@
 
 package de.dytanic.cloudnet.ext.cloudperms.bukkit.vault;
 
-import de.dytanic.cloudnet.common.INameable;
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
+import de.dytanic.cloudnet.common.Nameable;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
+import de.dytanic.cloudnet.driver.permission.PermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.driver.permission.PermissionUserGroupInfo;
 import java.util.Optional;
@@ -26,9 +26,9 @@ import net.milkbowl.vault.permission.Permission;
 
 public class VaultPermissionImplementation extends Permission {
 
-  private final IPermissionManagement permissionManagement;
+  private final PermissionManagement permissionManagement;
 
-  public VaultPermissionImplementation(IPermissionManagement permissionManagement) {
+  public VaultPermissionImplementation(PermissionManagement permissionManagement) {
     this.permissionManagement = permissionManagement;
   }
 
@@ -175,7 +175,7 @@ public class VaultPermissionImplementation extends Permission {
 
   @Override
   public String[] getGroups() {
-    return this.permissionManagement.groups().stream().map(INameable::name).toArray(String[]::new);
+    return this.permissionManagement.groups().stream().map(Nameable::name).toArray(String[]::new);
   }
 
   @Override

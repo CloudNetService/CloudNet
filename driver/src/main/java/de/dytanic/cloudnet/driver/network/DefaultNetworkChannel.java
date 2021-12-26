@@ -16,9 +16,9 @@
 
 package de.dytanic.cloudnet.driver.network;
 
-import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
+import de.dytanic.cloudnet.common.concurrent.Task;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.PacketListenerRegistry;
 import de.dytanic.cloudnet.driver.network.protocol.QueryPacketManager;
 import de.dytanic.cloudnet.driver.network.protocol.defaults.DefaultPacketListenerRegistry;
 import de.dytanic.cloudnet.driver.network.protocol.defaults.DefaultQueryPacketManager;
@@ -26,28 +26,28 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.NonNull;
 
-public abstract class DefaultNetworkChannel implements INetworkChannel {
+public abstract class DefaultNetworkChannel implements NetworkChannel {
 
   private static final AtomicLong CHANNEL_ID_COUNTER = new AtomicLong();
 
   private final long channelId = CHANNEL_ID_COUNTER.addAndGet(1);
 
   private final QueryPacketManager queryPacketManager;
-  private final IPacketListenerRegistry packetRegistry;
+  private final PacketListenerRegistry packetRegistry;
 
   private final HostAndPort serverAddress;
   private final HostAndPort clientAddress;
 
   private final boolean clientProvidedChannel;
 
-  private INetworkChannelHandler handler;
+  private NetworkChannelHandler handler;
 
   public DefaultNetworkChannel(
-    IPacketListenerRegistry packetRegistry,
+    PacketListenerRegistry packetRegistry,
     HostAndPort serverAddress,
     HostAndPort clientAddress,
     boolean clientProvidedChannel,
-    INetworkChannelHandler handler
+    NetworkChannelHandler handler
   ) {
     this.queryPacketManager = new DefaultQueryPacketManager(this);
     this.packetRegistry = new DefaultPacketListenerRegistry(packetRegistry);
@@ -58,12 +58,12 @@ public abstract class DefaultNetworkChannel implements INetworkChannel {
   }
 
   @Override
-  public @NonNull ITask<IPacket> sendQueryAsync(@NonNull IPacket packet) {
+  public @NonNull Task<Packet> sendQueryAsync(@NonNull Packet packet) {
     return this.queryPacketManager.sendQueryPacket(packet);
   }
 
   @Override
-  public IPacket sendQuery(@NonNull IPacket packet) {
+  public Packet sendQuery(@NonNull Packet packet) {
     return this.sendQueryAsync(packet).get(5, TimeUnit.SECONDS, null);
   }
 
@@ -73,7 +73,7 @@ public abstract class DefaultNetworkChannel implements INetworkChannel {
   }
 
   @Override
-  public @NonNull IPacketListenerRegistry packetRegistry() {
+  public @NonNull PacketListenerRegistry packetRegistry() {
     return this.packetRegistry;
   }
 
@@ -98,12 +98,12 @@ public abstract class DefaultNetworkChannel implements INetworkChannel {
   }
 
   @Override
-  public @NonNull INetworkChannelHandler handler() {
+  public @NonNull NetworkChannelHandler handler() {
     return this.handler;
   }
 
   @Override
-  public void handler(@NonNull INetworkChannelHandler handler) {
+  public void handler(@NonNull NetworkChannelHandler handler) {
     this.handler = handler;
   }
 

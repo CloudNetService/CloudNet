@@ -19,17 +19,17 @@ package de.dytanic.cloudnet.wrapper.network.listener;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.PacketListener;
 import java.util.Collections;
 import lombok.NonNull;
 
-public final class PacketServerChannelMessageListener implements IPacketListener {
+public final class PacketServerChannelMessageListener implements PacketListener {
 
   @Override
-  public void handle(@NonNull INetworkChannel channel, @NonNull IPacket packet) {
+  public void handle(@NonNull NetworkChannel channel, @NonNull Packet packet) {
     // read the channel message from the buffer
     var message = packet.content().readObject(ChannelMessage.class);
     // get the query response if available

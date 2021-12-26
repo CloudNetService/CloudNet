@@ -27,7 +27,7 @@ import de.dytanic.cloudnet.cluster.sync.DataSyncRegistry;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.LocalDatabase;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
-import de.dytanic.cloudnet.driver.event.IEventManager;
+import de.dytanic.cloudnet.driver.event.EventManager;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.rpc.RPCProviderFactory;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
@@ -43,9 +43,9 @@ import de.dytanic.cloudnet.ext.bridge.node.listener.BridgePluginIncludeListener;
 import de.dytanic.cloudnet.ext.bridge.node.network.NodePlayerChannelMessageListener;
 import de.dytanic.cloudnet.ext.bridge.player.CloudOfflinePlayer;
 import de.dytanic.cloudnet.ext.bridge.player.CloudPlayer;
-import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerProxyInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
+import de.dytanic.cloudnet.ext.bridge.player.PlayerManager;
 import de.dytanic.cloudnet.ext.bridge.player.PlayerProvider;
 import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
 import java.util.List;
@@ -62,10 +62,10 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
-public class NodePlayerManager implements IPlayerManager {
+public class NodePlayerManager implements PlayerManager {
 
   protected final String databaseName;
-  protected final IEventManager eventManager;
+  protected final EventManager eventManager;
 
   protected final Map<UUID, CloudPlayer> onlinePlayers = new ConcurrentHashMap<>();
   protected final PlayerProvider allPlayersProvider = new NodePlayerProvider(
@@ -89,7 +89,7 @@ public class NodePlayerManager implements IPlayerManager {
 
   public NodePlayerManager(
     @NonNull String databaseName,
-    @NonNull IEventManager eventManager,
+    @NonNull EventManager eventManager,
     @NonNull DataSyncRegistry dataSyncRegistry,
     @NonNull RPCProviderFactory providerFactory,
     @NonNull BridgeManagement bridgeManagement
@@ -103,7 +103,7 @@ public class NodePlayerManager implements IPlayerManager {
     // register the players command
     CloudNet.instance().commandProvider().register(new CommandPlayers(this));
     // register the rpc listeners
-    providerFactory.newHandler(IPlayerManager.class, this).registerToDefaultRegistry();
+    providerFactory.newHandler(PlayerManager.class, this).registerToDefaultRegistry();
     providerFactory.newHandler(PlayerExecutor.class, null).registerToDefaultRegistry();
     providerFactory.newHandler(PlayerProvider.class, null).registerToDefaultRegistry();
     // register the data sync handler
@@ -194,7 +194,7 @@ public class NodePlayerManager implements IPlayerManager {
       .map(Optional::get)
       .filter(player -> player.name().equalsIgnoreCase(name))
       .findFirst()
-      .orElseGet(() -> IPlayerManager.super.firstOfflinePlayer(name));
+      .orElseGet(() -> PlayerManager.super.firstOfflinePlayer(name));
   }
 
   @Override

@@ -16,19 +16,19 @@
 
 package de.dytanic.cloudnet.driver.event.events.module;
 
-import de.dytanic.cloudnet.driver.module.IModuleProvider;
-import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
+import de.dytanic.cloudnet.driver.module.ModuleProvider;
+import de.dytanic.cloudnet.driver.module.ModuleWrapper;
 import lombok.NonNull;
 
 /**
  * This event is being called after a module has been reloaded and the tasks with the lifecycle {@link
- * ModuleLifeCycle#RELOADING} of this module have been fired. {@link IModuleWrapper#moduleLifeCycle()} is still {@link
+ * ModuleLifeCycle#RELOADING} of this module have been fired. {@link ModuleWrapper#moduleLifeCycle()} is still {@link
  * ModuleLifeCycle#STARTED}.
  */
 public final class ModulePostReloadEvent extends ModuleEvent {
 
-  public ModulePostReloadEvent(@NonNull IModuleProvider moduleProvider, @NonNull IModuleWrapper module) {
+  public ModulePostReloadEvent(@NonNull ModuleProvider moduleProvider, @NonNull ModuleWrapper module) {
     super(moduleProvider, module);
   }
 }

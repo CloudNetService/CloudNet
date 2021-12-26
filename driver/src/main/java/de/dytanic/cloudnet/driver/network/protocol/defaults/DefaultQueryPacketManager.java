@@ -20,8 +20,8 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalListener;
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
+import de.dytanic.cloudnet.driver.network.protocol.BasePacket;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.network.protocol.QueryPacketManager;
 import java.util.Collections;
@@ -35,14 +35,14 @@ import org.jetbrains.annotations.UnmodifiableView;
 public class DefaultQueryPacketManager implements QueryPacketManager {
 
   private final long queryTimeoutMillis;
-  private final INetworkChannel networkChannel;
-  private final Cache<UUID, CompletableTask<IPacket>> waitingHandlers;
+  private final NetworkChannel networkChannel;
+  private final Cache<UUID, CompletableTask<Packet>> waitingHandlers;
 
-  public DefaultQueryPacketManager(INetworkChannel networkChannel) {
+  public DefaultQueryPacketManager(NetworkChannel networkChannel) {
     this(networkChannel, TimeUnit.SECONDS.toMillis(30));
   }
 
-  public DefaultQueryPacketManager(INetworkChannel networkChannel, long queryTimeoutMillis) {
+  public DefaultQueryPacketManager(NetworkChannel networkChannel, long queryTimeoutMillis) {
     this.networkChannel = networkChannel;
     this.queryTimeoutMillis = queryTimeoutMillis;
     this.waitingHandlers = CacheBuilder.newBuilder()
@@ -57,12 +57,12 @@ public class DefaultQueryPacketManager implements QueryPacketManager {
   }
 
   @Override
-  public @NonNull INetworkChannel networkChannel() {
+  public @NonNull NetworkChannel networkChannel() {
     return this.networkChannel;
   }
 
   @Override
-  public @NonNull @UnmodifiableView Map<UUID, CompletableTask<IPacket>> waitingHandlers() {
+  public @NonNull @UnmodifiableView Map<UUID, CompletableTask<Packet>> waitingHandlers() {
     return Collections.unmodifiableMap(this.waitingHandlers.asMap());
   }
 
@@ -78,7 +78,7 @@ public class DefaultQueryPacketManager implements QueryPacketManager {
   }
 
   @Override
-  public @Nullable CompletableTask<IPacket> waitingHandler(@NonNull UUID queryUniqueId) {
+  public @Nullable CompletableTask<Packet> waitingHandler(@NonNull UUID queryUniqueId) {
     var task = this.waitingHandlers.getIfPresent(queryUniqueId);
     if (task != null) {
       this.waitingHandlers.invalidate(queryUniqueId);
@@ -87,14 +87,14 @@ public class DefaultQueryPacketManager implements QueryPacketManager {
   }
 
   @Override
-  public @NonNull CompletableTask<IPacket> sendQueryPacket(@NonNull IPacket packet) {
+  public @NonNull CompletableTask<Packet> sendQueryPacket(@NonNull Packet packet) {
     return this.sendQueryPacket(packet, UUID.randomUUID());
   }
 
   @Override
-  public @NonNull CompletableTask<IPacket> sendQueryPacket(@NonNull IPacket packet, @NonNull UUID queryUniqueId) {
+  public @NonNull CompletableTask<Packet> sendQueryPacket(@NonNull Packet packet, @NonNull UUID queryUniqueId) {
     // create & register the result handler
-    var task = new CompletableTask<IPacket>();
+    var task = new CompletableTask<Packet>();
     this.waitingHandlers.put(queryUniqueId, task);
     // set the unique id of the packet and send
     packet.uniqueId(queryUniqueId);
@@ -103,10 +103,10 @@ public class DefaultQueryPacketManager implements QueryPacketManager {
     return task;
   }
 
-  protected @NonNull RemovalListener<UUID, CompletableTask<IPacket>> newRemovalListener() {
+  protected @NonNull RemovalListener<UUID, CompletableTask<Packet>> newRemovalListener() {
     return notification -> {
       if (notification.wasEvicted() && notification.getValue() != null) {
-        notification.getValue().complete(Packet.EMPTY);
+        notification.getValue().complete(BasePacket.EMPTY);
       }
     };
   }

@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.ext.bridge.node.network;
 
 import de.dytanic.cloudnet.driver.event.EventListener;
-import de.dytanic.cloudnet.driver.event.IEventManager;
+import de.dytanic.cloudnet.driver.event.EventManager;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.ext.bridge.BridgeManagement;
 import de.dytanic.cloudnet.ext.bridge.config.BridgeConfiguration;
@@ -27,12 +27,12 @@ import lombok.NonNull;
 
 public final class NodeBridgeChannelMessageListener {
 
-  private final IEventManager eventManager;
+  private final EventManager eventManager;
   private final NodeBridgeManagement management;
 
   public NodeBridgeChannelMessageListener(
     @NonNull NodeBridgeManagement management,
-    @NonNull IEventManager eventManager
+    @NonNull EventManager eventManager
   ) {
     this.management = management;
     this.eventManager = eventManager;

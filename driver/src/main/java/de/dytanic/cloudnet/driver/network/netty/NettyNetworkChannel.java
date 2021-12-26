@@ -20,10 +20,10 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketSendEvent;
 import de.dytanic.cloudnet.driver.network.DefaultNetworkChannel;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.INetworkChannelHandler;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkChannelHandler;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.PacketListenerRegistry;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import lombok.NonNull;
@@ -31,14 +31,14 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
 @Internal
-public final class NettyNetworkChannel extends DefaultNetworkChannel implements INetworkChannel {
+public final class NettyNetworkChannel extends DefaultNetworkChannel implements NetworkChannel {
 
   private final Channel channel;
 
   public NettyNetworkChannel(
     @NonNull Channel channel,
-    @NonNull IPacketListenerRegistry packetRegistry,
-    @NonNull INetworkChannelHandler handler,
+    @NonNull PacketListenerRegistry packetRegistry,
+    @NonNull NetworkChannelHandler handler,
     @NonNull HostAndPort serverAddress,
     @NonNull HostAndPort clientAddress,
     boolean clientProvidedChannel
@@ -48,7 +48,7 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
   }
 
   @Override
-  public void sendPacket(@NonNull IPacket... packets) {
+  public void sendPacket(@NonNull Packet... packets) {
     for (var packet : packets) {
       this.writePacket(packet, false);
     }
@@ -56,7 +56,7 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
   }
 
   @Override
-  public void sendPacketSync(@NonNull IPacket... packets) {
+  public void sendPacketSync(@NonNull Packet... packets) {
     for (var packet : packets) {
       var future = this.writePacket(packet, false);
       if (future != null) {
@@ -67,7 +67,7 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
   }
 
   @Override
-  public void sendPacket(@NonNull IPacket packet) {
+  public void sendPacket(@NonNull Packet packet) {
     if (this.channel.eventLoop().inEventLoop()) {
       this.writePacket(packet, true);
     } else {
@@ -76,7 +76,7 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
   }
 
   @Override
-  public void sendPacketSync(@NonNull IPacket packet) {
+  public void sendPacketSync(@NonNull Packet packet) {
     var future = this.writePacket(packet, true);
     if (future != null) {
       future.syncUninterruptibly();
@@ -93,7 +93,7 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
     return this.channel.isActive();
   }
 
-  private @Nullable ChannelFuture writePacket(@NonNull IPacket packet, boolean flushAfter) {
+  private @Nullable ChannelFuture writePacket(@NonNull Packet packet, boolean flushAfter) {
     var event = CloudNetDriver.instance().eventManager().callEvent(new NetworkChannelPacketSendEvent(this, packet));
     if (!event.cancelled()) {
       return flushAfter ? this.channel.writeAndFlush(packet) : this.channel.write(packet);

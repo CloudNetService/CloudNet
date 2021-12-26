@@ -17,29 +17,29 @@
 package de.dytanic.cloudnet.driver.event.events.module;
 
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
-import de.dytanic.cloudnet.driver.module.IModuleProvider;
-import de.dytanic.cloudnet.driver.module.IModuleProviderHandler;
-import de.dytanic.cloudnet.driver.module.IModuleWrapper;
+import de.dytanic.cloudnet.driver.module.ModuleProvider;
+import de.dytanic.cloudnet.driver.module.ModuleProviderHandler;
+import de.dytanic.cloudnet.driver.module.ModuleWrapper;
 import lombok.NonNull;
 
 /**
- * The {@link ModuleEvent}s are being called for every action in the {@link IModuleProviderHandler}.
+ * The {@link ModuleEvent}s are being called for every action in the {@link ModuleProviderHandler}.
  */
 public abstract class ModuleEvent extends DriverEvent {
 
-  private final IModuleWrapper module;
-  private final IModuleProvider moduleProvider;
+  private final ModuleWrapper module;
+  private final ModuleProvider moduleProvider;
 
-  public ModuleEvent(@NonNull IModuleProvider moduleProvider, @NonNull IModuleWrapper module) {
+  public ModuleEvent(@NonNull ModuleProvider moduleProvider, @NonNull ModuleWrapper module) {
     this.moduleProvider = moduleProvider;
     this.module = module;
   }
 
-  public @NonNull IModuleProvider moduleProvider() {
+  public @NonNull ModuleProvider moduleProvider() {
     return this.moduleProvider;
   }
 
-  public @NonNull IModuleWrapper module() {
+  public @NonNull ModuleWrapper module() {
     return this.module;
   }
 }

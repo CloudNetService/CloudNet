@@ -18,16 +18,16 @@ package de.dytanic.cloudnet.ext.cloudperms.velocity;
 
 import com.velocitypowered.api.permission.PermissionFunction;
 import com.velocitypowered.api.permission.Tristate;
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.Permission;
+import de.dytanic.cloudnet.driver.permission.PermissionManagement;
 import java.util.UUID;
 
 final class VelocityCloudPermissionFunction implements PermissionFunction {
 
   private final UUID uniqueId;
-  private final IPermissionManagement permissionsManagement;
+  private final PermissionManagement permissionsManagement;
 
-  public VelocityCloudPermissionFunction(UUID uniqueId, IPermissionManagement permissionsManagement) {
+  public VelocityCloudPermissionFunction(UUID uniqueId, PermissionManagement permissionsManagement) {
     this.uniqueId = uniqueId;
     this.permissionsManagement = permissionsManagement;
   }

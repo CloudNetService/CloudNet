@@ -17,8 +17,8 @@
 package de.dytanic.cloudnet.service.defaults.log;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.service.ICloudService;
-import de.dytanic.cloudnet.service.IServiceConsoleLogCache;
+import de.dytanic.cloudnet.service.CloudService;
+import de.dytanic.cloudnet.service.ServiceConsoleLogCache;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -35,14 +35,14 @@ public class ProcessServiceLogCache extends AbstractServiceLogCache {
   public ProcessServiceLogCache(
     @NonNull Supplier<Process> processSupplier,
     @NonNull CloudNet cloudNet,
-    @NonNull ICloudService service
+    @NonNull CloudService service
   ) {
     super(cloudNet, service);
     this.processSupplier = processSupplier;
   }
 
   @Override
-  public @NonNull IServiceConsoleLogCache update() {
+  public @NonNull ServiceConsoleLogCache update() {
     // check if we can currently update
     var process = this.processSupplier.get();
     if (process != null) {

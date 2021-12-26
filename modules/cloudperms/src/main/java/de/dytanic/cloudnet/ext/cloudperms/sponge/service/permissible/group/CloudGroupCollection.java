@@ -17,9 +17,9 @@
 package de.dytanic.cloudnet.ext.cloudperms.sponge.service.permissible.group;
 
 import com.google.common.base.Verify;
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.Permission;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
+import de.dytanic.cloudnet.driver.permission.PermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.sponge.service.permissible.AbstractSubjectCollection;
 import java.util.Collection;
 import java.util.Map;
@@ -34,7 +34,7 @@ import org.spongepowered.api.service.permission.SubjectReference;
 
 public final class CloudGroupCollection extends AbstractSubjectCollection {
 
-  public CloudGroupCollection(String identifier, PermissionService service, IPermissionManagement management) {
+  public CloudGroupCollection(String identifier, PermissionService service, PermissionManagement management) {
     super(identifier, service, management);
   }
 

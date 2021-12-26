@@ -19,9 +19,9 @@ package de.dytanic.cloudnet.driver.network.netty.communication;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
 import de.dytanic.cloudnet.driver.DriverTestUtility;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
-import de.dytanic.cloudnet.driver.network.INetworkChannelHandler;
-import de.dytanic.cloudnet.driver.network.INetworkClient;
-import de.dytanic.cloudnet.driver.network.INetworkServer;
+import de.dytanic.cloudnet.driver.network.NetworkChannelHandler;
+import de.dytanic.cloudnet.driver.network.NetworkClient;
+import de.dytanic.cloudnet.driver.network.NetworkServer;
 import de.dytanic.cloudnet.driver.network.NetworkTestCase;
 import de.dytanic.cloudnet.driver.network.netty.client.NettyNetworkClient;
 import de.dytanic.cloudnet.driver.network.netty.server.NettyNetworkServer;
@@ -45,8 +45,8 @@ public class NettyNetworkServerClientTest extends NetworkTestCase {
   void testNetworkServerClientCommunication() throws Exception {
     var networkPort = this.randomFreePort();
 
-    INetworkServer server = new NettyNetworkServer(this::newDummyHandler);
-    INetworkClient client = new NettyNetworkClient(this::newDummyHandler);
+    NetworkServer server = new NettyNetworkServer(this::newDummyHandler);
+    NetworkClient client = new NettyNetworkClient(this::newDummyHandler);
 
     Assertions.assertTrue(server.addListener(networkPort));
     Assertions.assertTrue(client.connect(HostAndPort.fromSocketAddress(
@@ -56,7 +56,7 @@ public class NettyNetworkServerClientTest extends NetworkTestCase {
     server.close();
   }
 
-  private INetworkChannelHandler newDummyHandler() {
-    return Mockito.mock(INetworkChannelHandler.class);
+  private NetworkChannelHandler newDummyHandler() {
+    return Mockito.mock(NetworkChannelHandler.class);
   }
 }

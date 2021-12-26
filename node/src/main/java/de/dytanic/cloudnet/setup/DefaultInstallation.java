@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.setup;
 
-import de.dytanic.cloudnet.console.IConsole;
+import de.dytanic.cloudnet.console.Console;
 import de.dytanic.cloudnet.console.animation.setup.ConsoleSetupAnimation;
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -41,7 +41,7 @@ public class DefaultInstallation {
       "&r> &e");
   }
 
-  public void executeFirstStartSetup(@NonNull IConsole console) {
+  public void executeFirstStartSetup(@NonNull Console console) {
     if (!Boolean.getBoolean("cloudnet.installation.skip") && !this.setups.isEmpty()) {
       // apply all questions of all setups to the animation
       this.setups.forEach(setup -> setup.applyQuestions(this.animation));

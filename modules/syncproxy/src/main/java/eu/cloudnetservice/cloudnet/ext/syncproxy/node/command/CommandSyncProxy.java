@@ -24,7 +24,7 @@ import cloud.commandframework.context.CommandContext;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
-import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.Nameable;
 import de.dytanic.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.config.SyncProxyConfiguration;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.config.SyncProxyLoginConfiguration;
@@ -90,7 +90,7 @@ public final class CommandSyncProxy {
   public List<String> suggestNewLoginConfigurations(CommandContext<CommandSource> $, String input) {
     return CloudNet.instance().groupConfigurationProvider().groupConfigurations()
       .stream()
-      .map(INameable::name)
+      .map(Nameable::name)
       .toList();
   }
 

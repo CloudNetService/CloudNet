@@ -16,9 +16,9 @@
 
 package de.dytanic.cloudnet.driver.network.netty.http;
 
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
+import de.dytanic.cloudnet.driver.network.http.HttpResponse;
 import de.dytanic.cloudnet.driver.network.http.HttpVersion;
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
-import de.dytanic.cloudnet.driver.network.http.IHttpResponse;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.HttpRequest;
@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.NonNull;
 
-final class NettyHttpServerResponse extends NettyHttpMessage implements IHttpResponse {
+final class NettyHttpServerResponse extends NettyHttpMessage implements HttpResponse {
 
   final DefaultFullHttpResponse httpResponse;
   private final NettyHttpServerContext context;
@@ -52,13 +52,13 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements IHttpRes
   }
 
   @Override
-  public @NonNull IHttpResponse statusCode(int code) {
+  public @NonNull HttpResponse statusCode(int code) {
     this.httpResponse.setStatus(HttpResponseStatus.valueOf(code));
     return this;
   }
 
   @Override
-  public @NonNull IHttpContext context() {
+  public @NonNull HttpContext context() {
     return this.context;
   }
 
@@ -78,19 +78,19 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements IHttpRes
   }
 
   @Override
-  public @NonNull IHttpResponse header(@NonNull String name, @NonNull String value) {
+  public @NonNull HttpResponse header(@NonNull String name, @NonNull String value) {
     this.httpResponse.headers().set(name, value);
     return this;
   }
 
   @Override
-  public @NonNull IHttpResponse removeHeader(@NonNull String name) {
+  public @NonNull HttpResponse removeHeader(@NonNull String name) {
     this.httpResponse.headers().remove(name);
     return this;
   }
 
   @Override
-  public @NonNull IHttpResponse clearHeaders() {
+  public @NonNull HttpResponse clearHeaders() {
     this.httpResponse.headers().clear();
     return this;
   }
@@ -117,7 +117,7 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements IHttpRes
   }
 
   @Override
-  public @NonNull IHttpResponse version(@NonNull HttpVersion version) {
+  public @NonNull HttpResponse version(@NonNull HttpVersion version) {
     this.httpResponse.setProtocolVersion(super.versionToNetty(version));
     return this;
   }
@@ -133,14 +133,14 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements IHttpRes
   }
 
   @Override
-  public @NonNull IHttpResponse body(byte[] byteArray) {
+  public @NonNull HttpResponse body(byte[] byteArray) {
     this.httpResponse.content().clear();
     this.httpResponse.content().writeBytes(byteArray);
     return this;
   }
 
   @Override
-  public @NonNull IHttpResponse body(@NonNull String text) {
+  public @NonNull HttpResponse body(@NonNull String text) {
     this.httpResponse.content().clear();
     this.httpResponse.content().writeBytes(text.getBytes(StandardCharsets.UTF_8));
     return this;
@@ -152,7 +152,7 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements IHttpRes
   }
 
   @Override
-  public @NonNull IHttpResponse body(InputStream body) {
+  public @NonNull HttpResponse body(InputStream body) {
     if (this.responseInputStream != null) {
       try {
         this.responseInputStream.close();

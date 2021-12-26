@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.driver.network.netty.codec;
 
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
-import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.BasePacket;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -43,7 +43,7 @@ public class NettyPacketCodecTest {
     var output = Unpooled.buffer();
 
     var encoder = new NettyPacketEncoder();
-    encoder.encode(Mockito.mock(ChannelHandlerContext.class), new Packet(packetChannel, dataBuf), output);
+    encoder.encode(Mockito.mock(ChannelHandlerContext.class), new BasePacket(packetChannel, dataBuf), output);
 
     Assertions.assertTrue(output.readableBytes() > 0);
 
@@ -59,10 +59,10 @@ public class NettyPacketCodecTest {
     decoder.decode(ctx, output, results);
 
     Assertions.assertEquals(1, results.size());
-    Assertions.assertEquals(packetChannel, ((Packet) results.get(0)).channel());
-    Assertions.assertTrue(((Packet) results.get(0)).content().readBoolean());
-    Assertions.assertEquals(1234, ((Packet) results.get(0)).content().readInt());
-    Assertions.assertEquals(5D, ((Packet) results.get(0)).content().readDouble());
+    Assertions.assertEquals(packetChannel, ((BasePacket) results.get(0)).channel());
+    Assertions.assertTrue(((BasePacket) results.get(0)).content().readBoolean());
+    Assertions.assertEquals(1234, ((BasePacket) results.get(0)).content().readInt());
+    Assertions.assertEquals(5D, ((BasePacket) results.get(0)).content().readDouble());
 
     output.release();
   }

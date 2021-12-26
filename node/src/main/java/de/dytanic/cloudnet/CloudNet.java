@@ -17,8 +17,8 @@
 package de.dytanic.cloudnet;
 
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.cluster.ClusterNodeServerProvider;
 import de.dytanic.cloudnet.cluster.DefaultClusterNodeServerProvider;
-import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
 import de.dytanic.cloudnet.cluster.sync.DataSyncRegistry;
 import de.dytanic.cloudnet.cluster.sync.DefaultDataSyncRegistry;
 import de.dytanic.cloudnet.command.CommandProvider;
@@ -27,9 +27,9 @@ import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.common.log.defaults.DefaultLogFormatter;
-import de.dytanic.cloudnet.config.IConfiguration;
+import de.dytanic.cloudnet.config.Configuration;
 import de.dytanic.cloudnet.config.JsonConfiguration;
-import de.dytanic.cloudnet.console.IConsole;
+import de.dytanic.cloudnet.console.Console;
 import de.dytanic.cloudnet.console.log.ColouredLogFormatter;
 import de.dytanic.cloudnet.console.util.HeaderReader;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
@@ -42,14 +42,14 @@ import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.driver.database.DatabaseProvider;
 import de.dytanic.cloudnet.driver.module.DefaultPersistableModuleDependencyLoader;
-import de.dytanic.cloudnet.driver.network.INetworkClient;
-import de.dytanic.cloudnet.driver.network.INetworkServer;
+import de.dytanic.cloudnet.driver.network.NetworkClient;
+import de.dytanic.cloudnet.driver.network.NetworkServer;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
-import de.dytanic.cloudnet.driver.network.http.IHttpServer;
+import de.dytanic.cloudnet.driver.network.http.HttpServer;
 import de.dytanic.cloudnet.driver.network.netty.client.NettyNetworkClient;
 import de.dytanic.cloudnet.driver.network.netty.http.NettyHttpServer;
 import de.dytanic.cloudnet.driver.network.netty.server.NettyNetworkServer;
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.PermissionManagement;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.event.CloudNetNodePostInitializationEvent;
@@ -66,7 +66,7 @@ import de.dytanic.cloudnet.provider.NodeGroupConfigurationProvider;
 import de.dytanic.cloudnet.provider.NodeMessenger;
 import de.dytanic.cloudnet.provider.NodeNodeInfoProvider;
 import de.dytanic.cloudnet.provider.NodeServiceTaskProvider;
-import de.dytanic.cloudnet.service.ICloudServiceManager;
+import de.dytanic.cloudnet.service.CloudServiceManager;
 import de.dytanic.cloudnet.service.defaults.DefaultCloudServiceManager;
 import de.dytanic.cloudnet.service.defaults.NodeCloudServiceFactory;
 import de.dytanic.cloudnet.setup.DefaultInstallation;
@@ -96,12 +96,12 @@ public class CloudNet extends CloudNetDriver {
   private static final Logger LOGGER = LogManager.logger(CloudNet.class);
   private static final Path LAUNCHER_DIR = Path.of(System.getProperty("cloudnet.launcher.dir", "launcher"));
 
-  private final IConsole console;
+  private final Console console;
   private final CommandProvider commandProvider;
 
-  private final IHttpServer httpServer;
-  private final INetworkClient networkClient;
-  private final INetworkServer networkServer;
+  private final HttpServer httpServer;
+  private final NetworkClient networkClient;
+  private final NetworkServer networkServer;
 
   private final ServiceVersionProvider serviceVersionProvider;
   private final DefaultClusterNodeServerProvider nodeServerProvider;
@@ -112,10 +112,10 @@ public class CloudNet extends CloudNetDriver {
   private final DataSyncRegistry dataSyncRegistry = new DefaultDataSyncRegistry();
   private final QueuedConsoleLogHandler logHandler = new QueuedConsoleLogHandler();
 
-  private volatile IConfiguration configuration;
+  private volatile Configuration configuration;
   private volatile AbstractDatabaseProvider databaseProvider;
 
-  protected CloudNet(@NonNull String[] args, @NonNull IConsole console, @NonNull Logger rootLogger) {
+  protected CloudNet(@NonNull String[] args, @NonNull Console console, @NonNull Logger rootLogger) {
     super(Arrays.asList(args));
 
     instance(this);
@@ -385,7 +385,7 @@ public class CloudNet extends CloudNetDriver {
   }
 
   @Override
-  public @NonNull INetworkClient networkClient() {
+  public @NonNull NetworkClient networkClient() {
     return this.networkClient;
   }
 
@@ -410,8 +410,8 @@ public class CloudNet extends CloudNetDriver {
   }
 
   @Override
-  public @NonNull ICloudServiceManager cloudServiceProvider() {
-    return (ICloudServiceManager) super.cloudServiceProvider();
+  public @NonNull CloudServiceManager cloudServiceProvider() {
+    return (CloudServiceManager) super.cloudServiceProvider();
   }
 
   @Override
@@ -420,24 +420,24 @@ public class CloudNet extends CloudNetDriver {
   }
 
   @Override
-  public void permissionManagement(@NonNull IPermissionManagement management) {
+  public void permissionManagement(@NonNull PermissionManagement management) {
     // nodes can only use node permission managements
     Preconditions.checkArgument(management instanceof NodePermissionManagement);
     super.permissionManagement(management);
     // re-register the handler for the permission management - the call to super.setPermissionManagement will not exit
     // if the permission management is invalid
-    this.rpcProviderFactory.newHandler(IPermissionManagement.class, management).registerToDefaultRegistry();
+    this.rpcProviderFactory.newHandler(PermissionManagement.class, management).registerToDefaultRegistry();
   }
 
-  public @NonNull IConfiguration config() {
+  public @NonNull Configuration config() {
     return this.configuration;
   }
 
-  public void config(@NonNull IConfiguration configuration) {
+  public void config(@NonNull Configuration configuration) {
     this.configuration = configuration;
   }
 
-  public @NonNull IClusterNodeServerProvider nodeServerProvider() {
+  public @NonNull ClusterNodeServerProvider nodeServerProvider() {
     return this.nodeServerProvider;
   }
 
@@ -449,7 +449,7 @@ public class CloudNet extends CloudNetDriver {
     return this.commandProvider;
   }
 
-  public @NonNull IConsole console() {
+  public @NonNull Console console() {
     return this.console;
   }
 
@@ -457,11 +457,11 @@ public class CloudNet extends CloudNetDriver {
     return this.serviceVersionProvider;
   }
 
-  public @NonNull INetworkServer networkServer() {
+  public @NonNull NetworkServer networkServer() {
     return this.networkServer;
   }
 
-  public @NonNull IHttpServer httpServer() {
+  public @NonNull HttpServer httpServer() {
     return this.httpServer;
   }
 

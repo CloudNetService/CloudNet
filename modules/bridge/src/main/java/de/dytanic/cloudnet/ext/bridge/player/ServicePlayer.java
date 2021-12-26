@@ -16,13 +16,13 @@
 
 package de.dytanic.cloudnet.ext.bridge.player;
 
-import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.Nameable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.document.property.JsonDocPropertyHolder;
 import java.util.UUID;
 import lombok.NonNull;
 
-public class ServicePlayer extends JsonDocPropertyHolder implements Comparable<ServicePlayer>, INameable {
+public class ServicePlayer extends JsonDocPropertyHolder implements Comparable<ServicePlayer>, Nameable {
 
   public ServicePlayer(@NonNull UUID uniqueId, @NonNull String name) {
     this.properties = JsonDocument.newDocument().append("uniqueId", uniqueId).append("name", name);

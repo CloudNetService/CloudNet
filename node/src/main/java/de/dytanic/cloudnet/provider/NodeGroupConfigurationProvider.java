@@ -19,11 +19,11 @@ package de.dytanic.cloudnet.provider;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.sync.DataSyncHandler;
-import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.Nameable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
-import de.dytanic.cloudnet.driver.event.IEventManager;
+import de.dytanic.cloudnet.driver.event.EventManager;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.provider.GroupConfigurationProvider;
@@ -52,7 +52,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
 
   private static final Type TYPE = TypeToken.getParameterized(Collection.class, GroupConfiguration.class).getType();
 
-  private final IEventManager eventManager;
+  private final EventManager eventManager;
   private final Map<String, GroupConfiguration> groupConfigurations = new ConcurrentHashMap<>();
 
   public NodeGroupConfigurationProvider(@NonNull CloudNet nodeInstance) {
@@ -65,7 +65,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
     nodeInstance.dataSyncRegistry().registerHandler(
       DataSyncHandler.<GroupConfiguration>builder()
         .key("group_configuration")
-        .nameExtractor(INameable::name)
+        .nameExtractor(Nameable::name)
         .convertObject(GroupConfiguration.class)
         .writer(this::addGroupConfigurationSilently)
         .dataCollector(this::groupConfigurations)

@@ -17,19 +17,19 @@
 package de.dytanic.cloudnet.permission.command;
 
 import de.dytanic.cloudnet.command.source.DriverCommandSource;
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.Permission;
+import de.dytanic.cloudnet.driver.permission.PermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import lombok.NonNull;
 
 public final class PermissionUserCommandSource extends DriverCommandSource {
 
   private final PermissionUser permissionUser;
-  private final IPermissionManagement permissionManagement;
+  private final PermissionManagement permissionManagement;
 
   public PermissionUserCommandSource(
     @NonNull PermissionUser permissionUser,
-    @NonNull IPermissionManagement permissionManagement
+    @NonNull PermissionManagement permissionManagement
   ) {
     this.permissionUser = permissionUser;
     this.permissionManagement = permissionManagement;

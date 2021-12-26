@@ -16,14 +16,14 @@
 
 package de.dytanic.cloudnet.event.service;
 
-import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.service.CloudService;
 import lombok.NonNull;
 
 public final class CloudServicePostProcessStartEvent extends CloudServiceEvent {
 
   private final ProcessHandle processHandle;
 
-  public CloudServicePostProcessStartEvent(@NonNull ICloudService service, @NonNull ProcessHandle processHandle) {
+  public CloudServicePostProcessStartEvent(@NonNull CloudService service, @NonNull ProcessHandle processHandle) {
     super(service);
     this.processHandle = processHandle;
   }

@@ -18,7 +18,7 @@ package eu.cloudnetservice.modules.smart.listener;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.CloudNetTick;
-import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
+import de.dytanic.cloudnet.cluster.ClusterNodeServerProvider;
 import de.dytanic.cloudnet.cluster.NodeServer;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.driver.event.EventListener;
@@ -29,7 +29,7 @@ import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.event.instance.CloudNetTickEvent;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperties;
-import de.dytanic.cloudnet.service.ICloudServiceManager;
+import de.dytanic.cloudnet.service.CloudServiceManager;
 import eu.cloudnetservice.modules.smart.CloudNetSmartModule;
 import eu.cloudnetservice.modules.smart.SmartServiceTaskConfig;
 import eu.cloudnetservice.modules.smart.util.SmartUtil;
@@ -227,11 +227,11 @@ public final class CloudNetTickListener {
       .orElse(null);
   }
 
-  private @NonNull ICloudServiceManager serviceManager() {
+  private @NonNull CloudServiceManager serviceManager() {
     return CloudNet.instance().cloudServiceProvider();
   }
 
-  private @NonNull IClusterNodeServerProvider nodeServerProvider() {
+  private @NonNull ClusterNodeServerProvider nodeServerProvider() {
     return CloudNet.instance().nodeServerProvider();
   }
 

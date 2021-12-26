@@ -26,7 +26,7 @@ import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.console.animation.progressbar.ConsoleProgressWrappers;
-import de.dytanic.cloudnet.driver.event.IEventManager;
+import de.dytanic.cloudnet.driver.event.EventManager;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.template.install.execute.InstallStep;
@@ -69,7 +69,7 @@ public class ServiceVersionProvider {
   private final Map<String, ServiceVersionType> serviceVersionTypes = new ConcurrentHashMap<>();
   private final Map<String, ServiceEnvironmentType> serviceEnvironmentTypes = new ConcurrentHashMap<>();
 
-  public ServiceVersionProvider(@NonNull IEventManager eventManager) {
+  public ServiceVersionProvider(@NonNull EventManager eventManager) {
     eventManager.registerListener(new TemplatePrepareListener());
   }
 

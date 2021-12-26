@@ -20,20 +20,20 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
-import de.dytanic.cloudnet.config.IConfiguration;
+import de.dytanic.cloudnet.config.Configuration;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
+import de.dytanic.cloudnet.driver.network.http.HttpHandler;
+import de.dytanic.cloudnet.driver.network.http.HttpRequest;
+import de.dytanic.cloudnet.driver.network.http.HttpResponse;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
-import de.dytanic.cloudnet.driver.network.http.IHttpHandler;
-import de.dytanic.cloudnet.driver.network.http.IHttpRequest;
-import de.dytanic.cloudnet.driver.network.http.IHttpResponse;
 import de.dytanic.cloudnet.driver.permission.Permission;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import lombok.NonNull;
 
-public abstract class V2HttpHandler implements IHttpHandler {
+public abstract class V2HttpHandler implements HttpHandler {
 
   protected static final V2HttpAuthentication DEFAULT_AUTH = new V2HttpAuthentication();
 
@@ -64,7 +64,7 @@ public abstract class V2HttpHandler implements IHttpHandler {
   }
 
   @Override
-  public void handle(@NonNull String path, @NonNull IHttpContext context) throws Exception {
+  public void handle(@NonNull String path, @NonNull HttpContext context) throws Exception {
     if (context.request().method().equalsIgnoreCase("OPTIONS")) {
       this.sendOptions(context);
     } else {
@@ -113,17 +113,17 @@ public abstract class V2HttpHandler implements IHttpHandler {
     }
   }
 
-  protected void handleUnauthorized(String path, IHttpContext context) throws Exception {
+  protected void handleUnauthorized(String path, HttpContext context) throws Exception {
     this.send403(context, "Authentication required");
   }
 
-  protected void handleBasicAuthorized(String path, IHttpContext context, PermissionUser user) {
+  protected void handleBasicAuthorized(String path, HttpContext context, PermissionUser user) {
   }
 
-  protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) {
+  protected void handleBearerAuthorized(String path, HttpContext context, HttpSession session) {
   }
 
-  protected boolean testPermission(@NonNull PermissionUser user, @NonNull IHttpRequest request) {
+  protected boolean testPermission(@NonNull PermissionUser user, @NonNull HttpRequest request) {
     if (this.requiredPermission == null || this.requiredPermission.isEmpty()) {
       return true;
     } else {
@@ -133,7 +133,7 @@ public abstract class V2HttpHandler implements IHttpHandler {
     }
   }
 
-  protected void send403(IHttpContext context, String reason) {
+  protected void send403(HttpContext context, String reason) {
     this.response(context, HttpResponseCode.HTTP_FORBIDDEN)
       .body(this.failure().append("reason", reason).toString().getBytes(StandardCharsets.UTF_8))
       .context()
@@ -141,7 +141,7 @@ public abstract class V2HttpHandler implements IHttpHandler {
       .cancelNext();
   }
 
-  protected void sendOptions(IHttpContext context) {
+  protected void sendOptions(HttpContext context) {
     context
       .cancelNext(true)
       .response()
@@ -155,26 +155,26 @@ public abstract class V2HttpHandler implements IHttpHandler {
       .header("Access-Control-Allow-Methods", this.supportedRequestMethodsString);
   }
 
-  protected IHttpResponse ok(IHttpContext context) {
+  protected HttpResponse ok(HttpContext context) {
     return this.response(context, HttpResponseCode.HTTP_OK);
   }
 
-  protected IHttpResponse badRequest(IHttpContext context) {
+  protected HttpResponse badRequest(HttpContext context) {
     return this.response(context, HttpResponseCode.HTTP_BAD_REQUEST);
   }
 
-  protected IHttpResponse notFound(IHttpContext context) {
+  protected HttpResponse notFound(HttpContext context) {
     return this.response(context, HttpResponseCode.HTTP_NOT_FOUND);
   }
 
-  protected IHttpResponse response(IHttpContext context, int statusCode) {
+  protected HttpResponse response(HttpContext context, int statusCode) {
     return context.response()
       .statusCode(statusCode)
       .header("Content-Type", "application/json")
       .header("Access-Control-Allow-Origin", this.accessControlConfiguration.corsPolicy());
   }
 
-  protected JsonDocument body(@NonNull IHttpRequest request) {
+  protected JsonDocument body(@NonNull HttpRequest request) {
     return JsonDocument.fromJsonBytes(request.body());
   }
 
@@ -190,7 +190,7 @@ public abstract class V2HttpHandler implements IHttpHandler {
     return CloudNet.instance();
   }
 
-  protected IConfiguration configuration() {
+  protected Configuration configuration() {
     return this.node().config();
   }
 }

@@ -20,7 +20,7 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.driver.module.driver.DriverModule;
-import de.dytanic.cloudnet.driver.network.http.IHttpHandler;
+import de.dytanic.cloudnet.driver.network.http.HttpHandler;
 import de.dytanic.cloudnet.driver.network.http.content.ContentStreamProvider;
 import de.dytanic.cloudnet.driver.network.http.content.StaticContentHttpHandler;
 import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerAuthorization;
@@ -53,59 +53,59 @@ public final class CloudNetRestModule extends DriverModule {
   public void initHttpHandlers() {
     CloudNet.instance().httpServer()
       // v2 openapi specification
-      .registerHandler("/api/v2/documentation", IHttpHandler.PRIORITY_NORMAL, new StaticContentHttpHandler(
+      .registerHandler("/api/v2/documentation", HttpHandler.PRIORITY_NORMAL, new StaticContentHttpHandler(
         ContentStreamProvider.classLoader(this.classLoader(), "documentation")
       ))
-      .registerHandler("/api/v2/documentation/*", IHttpHandler.PRIORITY_LOW, new StaticContentHttpHandler(
+      .registerHandler("/api/v2/documentation/*", HttpHandler.PRIORITY_LOW, new StaticContentHttpHandler(
         ContentStreamProvider.classLoader(this.classLoader(), "documentation")
       ))
       // v2 rest auth
-      .registerHandler("/api/v2/auth", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerAuthorization())
-      .registerHandler("/api/v2/wsTicket", IHttpHandler.PRIORITY_NORMAL,
+      .registerHandler("/api/v2/auth", HttpHandler.PRIORITY_NORMAL, new V2HttpHandlerAuthorization())
+      .registerHandler("/api/v2/wsTicket", HttpHandler.PRIORITY_NORMAL,
         new V2HttpHandlerWebSocketTicket("http.v2.ws_ticket"))
       // v2 session management
-      .registerHandler("/api/v2/session/*", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerSession())
+      .registerHandler("/api/v2/session/*", HttpHandler.PRIORITY_NORMAL, new V2HttpHandlerSession())
       // v2 node handling
-      .registerHandler("/api/v2/node", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerNode("http.v2.node"))
-      .registerHandler("/api/v2/node/*", IHttpHandler.PRIORITY_LOW, new V2HttpHandlerNode("http.v2.node"))
+      .registerHandler("/api/v2/node", HttpHandler.PRIORITY_NORMAL, new V2HttpHandlerNode("http.v2.node"))
+      .registerHandler("/api/v2/node/*", HttpHandler.PRIORITY_LOW, new V2HttpHandlerNode("http.v2.node"))
       // v2 cluster
-      .registerHandler("/api/v2/cluster", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerCluster("http.v2.cluster"))
-      .registerHandler("/api/v2/cluster/{node}", IHttpHandler.PRIORITY_NORMAL,
+      .registerHandler("/api/v2/cluster", HttpHandler.PRIORITY_NORMAL, new V2HttpHandlerCluster("http.v2.cluster"))
+      .registerHandler("/api/v2/cluster/{node}", HttpHandler.PRIORITY_NORMAL,
         new V2HttpHandlerCluster("http.v2.cluster"))
-      .registerHandler("/api/v2/cluster/{node}/command", IHttpHandler.PRIORITY_NORMAL,
+      .registerHandler("/api/v2/cluster/{node}/command", HttpHandler.PRIORITY_NORMAL,
         new V2HttpHandlerCluster("http.v2.cluster"))
       // v2 database
-      .registerHandler("/api/v2/database", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerDatabase("http.v2.database"))
-      .registerHandler("/api/v2/database/{name}", IHttpHandler.PRIORITY_NORMAL,
+      .registerHandler("/api/v2/database", HttpHandler.PRIORITY_NORMAL, new V2HttpHandlerDatabase("http.v2.database"))
+      .registerHandler("/api/v2/database/{name}", HttpHandler.PRIORITY_NORMAL,
         new V2HttpHandlerDatabase("http.v2.database"))
-      .registerHandler("/api/v2/database/{name}/*", IHttpHandler.PRIORITY_LOW,
+      .registerHandler("/api/v2/database/{name}/*", HttpHandler.PRIORITY_LOW,
         new V2HttpHandlerDatabase("http.v2.database"))
       // v2 groups
-      .registerHandler("/api/v2/group", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerGroups("http.v2.groups"))
-      .registerHandler("/api/v2/group/{group}", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerGroups("http.v2.groups"))
-      .registerHandler("/api/v2/group/{group}/*", IHttpHandler.PRIORITY_LOW, new V2HttpHandlerGroups("http.v2.groups"))
+      .registerHandler("/api/v2/group", HttpHandler.PRIORITY_NORMAL, new V2HttpHandlerGroups("http.v2.groups"))
+      .registerHandler("/api/v2/group/{group}", HttpHandler.PRIORITY_NORMAL, new V2HttpHandlerGroups("http.v2.groups"))
+      .registerHandler("/api/v2/group/{group}/*", HttpHandler.PRIORITY_LOW, new V2HttpHandlerGroups("http.v2.groups"))
       // v2 permissions
-      .registerHandler("/api/v2/permission/group/", IHttpHandler.PRIORITY_NORMAL,
+      .registerHandler("/api/v2/permission/group/", HttpHandler.PRIORITY_NORMAL,
         new V2HttpHandlerPermission("http.v2.permission"))
-      .registerHandler("/api/v2/permission/user/", IHttpHandler.PRIORITY_NORMAL,
+      .registerHandler("/api/v2/permission/user/", HttpHandler.PRIORITY_NORMAL,
         new V2HttpHandlerPermission("http.v2.permission"))
-      .registerHandler("/api/v2/permission/group/{group}", IHttpHandler.PRIORITY_NORMAL,
+      .registerHandler("/api/v2/permission/group/{group}", HttpHandler.PRIORITY_NORMAL,
         new V2HttpHandlerPermission("http.v2.permission"))
-      .registerHandler("/api/v2/permission/user/{user}", IHttpHandler.PRIORITY_NORMAL,
+      .registerHandler("/api/v2/permission/user/{user}", HttpHandler.PRIORITY_NORMAL,
         new V2HttpHandlerPermission("http.v2.permission"))
-      .registerHandler("/api/v2/permission/group/{group}/*", IHttpHandler.PRIORITY_LOW,
+      .registerHandler("/api/v2/permission/group/{group}/*", HttpHandler.PRIORITY_LOW,
         new V2HttpHandlerPermission("http.v2.permission"))
-      .registerHandler("/api/v2/permission/user/{user}/*", IHttpHandler.PRIORITY_LOW,
+      .registerHandler("/api/v2/permission/user/{user}/*", HttpHandler.PRIORITY_LOW,
         new V2HttpHandlerPermission("http.v2.permission"))
       // v2 tasks
-      .registerHandler("/api/v2/task", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerTasks("http.v2.tasks"))
-      .registerHandler("/api/v2/task/{task}", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerTasks("http.v2.tasks"))
-      .registerHandler("/api/v2/task/{task}/*", IHttpHandler.PRIORITY_LOW, new V2HttpHandlerTasks("http.v2.tasks"))
+      .registerHandler("/api/v2/task", HttpHandler.PRIORITY_NORMAL, new V2HttpHandlerTasks("http.v2.tasks"))
+      .registerHandler("/api/v2/task/{task}", HttpHandler.PRIORITY_NORMAL, new V2HttpHandlerTasks("http.v2.tasks"))
+      .registerHandler("/api/v2/task/{task}/*", HttpHandler.PRIORITY_LOW, new V2HttpHandlerTasks("http.v2.tasks"))
       // v2 services
-      .registerHandler("/api/v2/service", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerService("http.v2.services"))
-      .registerHandler("/api/v2/service/{identifier}", IHttpHandler.PRIORITY_NORMAL,
+      .registerHandler("/api/v2/service", HttpHandler.PRIORITY_NORMAL, new V2HttpHandlerService("http.v2.services"))
+      .registerHandler("/api/v2/service/{identifier}", HttpHandler.PRIORITY_NORMAL,
         new V2HttpHandlerService("http.v2.services"))
-      .registerHandler("/api/v2/service/{identifier}/*", IHttpHandler.PRIORITY_LOW,
+      .registerHandler("/api/v2/service/{identifier}/*", HttpHandler.PRIORITY_LOW,
         new V2HttpHandlerService("http.v2.services"))
       // v2 template storage management
       .registerHandler("/api/v2/templatestorage", IHttpHandler.PRIORITY_NORMAL,
@@ -113,7 +113,7 @@ public final class CloudNetRestModule extends DriverModule {
       .registerHandler("/api/v2/templatestorage/{storage}/*", IHttpHandler.PRIORITY_LOW,
         new V2HttpHandlerTemplateStorages("http.v2.template.storage"))
       // v2 template management
-      .registerHandler("/api/v2/template/{storage}/{prefix}/{name}/*", IHttpHandler.PRIORITY_NORMAL,
+      .registerHandler("/api/v2/template/{storage}/{prefix}/{name}/*", HttpHandler.PRIORITY_NORMAL,
         new V2HttpHandlerTemplate("http.v2.template"))
       // v2 server version management
       .registerHandler("/api/v2/serviceversion", IHttpHandler.PRIORITY_NORMAL,
@@ -121,9 +121,9 @@ public final class CloudNetRestModule extends DriverModule {
       .registerHandler("/api/v2/serviceversion/{version}", IHttpHandler.PRIORITY_LOW,
         new V2HttpHandlerServiceVersionProvider("http.v2.service.provider"))
       // v2 module management
-      .registerHandler("/api/v2/module", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerModule("http.v2.module"))
-      .registerHandler("/api/v2/module/{name}", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerModule("http.v2.module"))
-      .registerHandler("/api/v2/module/{name}/*", IHttpHandler.PRIORITY_LOW, new V2HttpHandlerModule("http.v2.module"));
+      .registerHandler("/api/v2/module", HttpHandler.PRIORITY_NORMAL, new V2HttpHandlerModule("http.v2.module"))
+      .registerHandler("/api/v2/module/{name}", HttpHandler.PRIORITY_NORMAL, new V2HttpHandlerModule("http.v2.module"))
+      .registerHandler("/api/v2/module/{name}/*", HttpHandler.PRIORITY_LOW, new V2HttpHandlerModule("http.v2.module"));
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)

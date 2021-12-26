@@ -18,15 +18,15 @@ package de.dytanic.cloudnet.driver.network;
 
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import java.util.Collection;
 import lombok.NonNull;
 
-public interface DefaultNetworkComponent extends INetworkComponent {
+public interface DefaultNetworkComponent extends NetworkComponent {
 
   Logger LOGGER = LogManager.logger(DefaultNetworkComponent.class);
 
-  Collection<INetworkChannel> modifiableChannels();
+  Collection<NetworkChannel> modifiableChannels();
 
   @Override
   default void closeChannels() {
@@ -42,21 +42,21 @@ public interface DefaultNetworkComponent extends INetworkComponent {
   }
 
   @Override
-  default void sendPacket(@NonNull IPacket packet) {
+  default void sendPacket(@NonNull Packet packet) {
     for (var channel : this.modifiableChannels()) {
       channel.sendPacket(packet);
     }
   }
 
   @Override
-  default void sendPacketSync(@NonNull IPacket packet) {
+  default void sendPacketSync(@NonNull Packet packet) {
     for (var channel : this.modifiableChannels()) {
       channel.sendPacketSync(packet);
     }
   }
 
   @Override
-  default void sendPacket(@NonNull IPacket... packets) {
+  default void sendPacket(@NonNull Packet... packets) {
     for (var channel : this.modifiableChannels()) {
       channel.sendPacket(packets);
     }

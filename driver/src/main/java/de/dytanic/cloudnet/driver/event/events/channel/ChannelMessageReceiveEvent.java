@@ -22,7 +22,7 @@ import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.channel.ChannelMessageSender;
 import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkEvent;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import java.util.Collection;
 import lombok.NonNull;
@@ -41,7 +41,7 @@ public final class ChannelMessageReceiveEvent extends NetworkEvent {
 
   public ChannelMessageReceiveEvent(
     @NonNull ChannelMessage message,
-    @NonNull INetworkChannel networkChannel,
+    @NonNull NetworkChannel networkChannel,
     boolean query
   ) {
     super(networkChannel);

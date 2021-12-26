@@ -16,8 +16,8 @@
 
 package de.dytanic.cloudnet.ext.rest.v2;
 
-import de.dytanic.cloudnet.common.INameable;
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
+import de.dytanic.cloudnet.common.Nameable;
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.http.HttpSession;
 import de.dytanic.cloudnet.http.V2HttpHandler;
@@ -31,9 +31,9 @@ public class V2HttpHandlerTemplateStorages extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) {
+  protected void handleBearerAuthorized(String path, HttpContext context, HttpSession session) {
     if (context.request().method().equalsIgnoreCase("GET")) {
-      if (path.endsWith("/templatestorage")) {
+      if (path.endsWith("/templateStorage")) {
         this.handleStorageListRequest(context);
       } else if (path.endsWith("/templates")) {
         this.handleTemplateListRequest(context);
@@ -41,16 +41,16 @@ public class V2HttpHandlerTemplateStorages extends V2HttpHandler {
     }
   }
 
-  protected void handleStorageListRequest(IHttpContext context) {
+  protected void handleStorageListRequest(HttpContext context) {
     this.ok(context)
       .body(this.success().append("storages", this.node().availableTemplateStorages().stream()
-        .map(INameable::name).collect(Collectors.toList())).toString())
+        .map(Nameable::name).collect(Collectors.toList())).toString())
       .context()
       .closeAfter(true)
       .cancelNext();
   }
 
-  protected void handleTemplateListRequest(IHttpContext context) {
+  protected void handleTemplateListRequest(HttpContext context) {
     this.handleWithStorageContext(context, templateStorage -> this.ok(context)
       .body(this.success().append("templates", templateStorage.templates()).toString())
       .context()
@@ -58,7 +58,7 @@ public class V2HttpHandlerTemplateStorages extends V2HttpHandler {
       .cancelNext());
   }
 
-  protected void handleWithStorageContext(IHttpContext context, Consumer<TemplateStorage> handler) {
+  protected void handleWithStorageContext(HttpContext context, Consumer<TemplateStorage> handler) {
     var storage = context.request().pathParameters().get("storage");
     if (storage == null) {
       this.badRequest(context)

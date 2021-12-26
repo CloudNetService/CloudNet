@@ -16,12 +16,12 @@
 
 package de.dytanic.cloudnet.event.group;
 
+import de.dytanic.cloudnet.driver.event.Cancelable;
 import de.dytanic.cloudnet.driver.event.Event;
-import de.dytanic.cloudnet.driver.event.ICancelable;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import lombok.NonNull;
 
-public class LocalGroupConfigurationRemoveEvent extends Event implements ICancelable {
+public class LocalGroupConfigurationRemoveEvent extends Event implements Cancelable {
 
   private final GroupConfiguration group;
   private volatile boolean cancelled;

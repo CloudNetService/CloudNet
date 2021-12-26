@@ -16,8 +16,8 @@
 
 package de.dytanic.cloudnet.ext.cloudperms.sponge.service.permissible.group;
 
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
+import de.dytanic.cloudnet.driver.permission.PermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.sponge.service.permissible.AbstractSubject;
 import java.util.List;
 import java.util.Objects;
@@ -33,7 +33,7 @@ final class PermissionGroupSubject extends AbstractSubject<PermissionGroup> {
     String identifier,
     SubjectCollection source,
     PermissionGroup data,
-    IPermissionManagement management
+    PermissionManagement management
   ) {
     super(identifier, source, data, management);
   }

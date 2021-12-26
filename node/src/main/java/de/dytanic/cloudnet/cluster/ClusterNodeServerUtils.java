@@ -23,7 +23,7 @@ import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget.Type;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceLifecycleChangeEvent;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
@@ -37,7 +37,7 @@ final class ClusterNodeServerUtils {
     throw new UnsupportedOperationException();
   }
 
-  public static void handleNodeServerClose(@NonNull INetworkChannel channel, @NonNull IClusterNodeServer server) {
+  public static void handleNodeServerClose(@NonNull NetworkChannel channel, @NonNull ClusterNodeServer server) {
     for (var snapshot : CloudNet.instance().cloudServiceProvider().services()) {
       if (snapshot.serviceId().nodeUniqueId().equalsIgnoreCase(server.nodeInfo().uniqueId())) {
         // store the last lifecycle for the update event

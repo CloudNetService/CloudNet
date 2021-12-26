@@ -30,12 +30,12 @@ import de.dytanic.cloudnet.command.annotation.CommandAlias;
 import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
-import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.Nameable;
 import de.dytanic.cloudnet.common.language.I18n;
-import de.dytanic.cloudnet.driver.permission.IPermissible;
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.Permissible;
 import de.dytanic.cloudnet.driver.permission.Permission;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
+import de.dytanic.cloudnet.driver.permission.PermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import java.text.DateFormat;
@@ -89,7 +89,7 @@ public final class CommandPermissions {
 
   @Suggestions("permissionGroup")
   public List<String> suggestPermissionGroup(CommandContext<CommandSource> $, String input) {
-    return this.permissionManagement().groups().stream().map(INameable::name).toList();
+    return this.permissionManagement().groups().stream().map(Nameable::name).toList();
   }
 
   @Parser(name = "timeUnit")
@@ -378,7 +378,7 @@ public final class CommandPermissions {
     this.displayPermission(source, permissionGroup);
   }
 
-  private void displayPermission(CommandSource source, IPermissible permissible) {
+  private void displayPermission(CommandSource source, Permissible permissible) {
     source.sendMessage("- Permissions:");
     for (var permission : permissible.permissions()) {
       source.sendMessage(this.formatPermission(permission));
@@ -402,7 +402,7 @@ public final class CommandPermissions {
     return "- " + permission.name() + " | Potency: " + permission.potency() + " | Timeout: " + timeout;
   }
 
-  private void addPermission(IPermissible permissible,
+  private void addPermission(Permissible permissible,
     @NonNull String rawPermission,
     @Nullable Integer potency,
     @Nullable Long timeOut,
@@ -426,7 +426,7 @@ public final class CommandPermissions {
     this.updatePermissible(permissible);
   }
 
-  private void removePermission(IPermissible permissible, String permission, GroupConfiguration targetGroup) {
+  private void removePermission(Permissible permissible, String permission, GroupConfiguration targetGroup) {
     if (targetGroup != null) {
       permissible.removePermission(permission, targetGroup.name());
     } else {
@@ -436,7 +436,7 @@ public final class CommandPermissions {
     this.updatePermissible(permissible);
   }
 
-  private void updatePermissible(IPermissible permissible) {
+  private void updatePermissible(Permissible permissible) {
     if (permissible instanceof PermissionUser) {
       this.permissionManagement().updateUser((PermissionUser) permissible);
     } else if (permissible instanceof PermissionGroup) {
@@ -460,7 +460,7 @@ public final class CommandPermissions {
       I18n.trans("command-permissions-user-update").replace("%name%", permissionUser.name()));
   }
 
-  private IPermissionManagement permissionManagement() {
+  private PermissionManagement permissionManagement() {
     return CloudNet.instance().permissionManagement();
   }
 

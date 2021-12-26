@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.console.animation.setup;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.language.I18n;
-import de.dytanic.cloudnet.console.IConsole;
+import de.dytanic.cloudnet.console.Console;
 import de.dytanic.cloudnet.console.animation.AbstractConsoleAnimation;
 import de.dytanic.cloudnet.console.animation.setup.answer.QuestionAnswerType;
 import de.dytanic.cloudnet.console.animation.setup.answer.QuestionListEntry;
@@ -125,7 +125,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
   }
 
   @Override
-  public void console(@NonNull IConsole console) {
+  public void console(@NonNull Console console) {
     super.console(console);
 
     // store the current console setting for resetting later

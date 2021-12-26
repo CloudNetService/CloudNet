@@ -16,8 +16,8 @@
 
 package de.dytanic.cloudnet.driver.provider.service;
 
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.INetworkComponent;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkComponent;
 import de.dytanic.cloudnet.driver.network.rpc.RPCProviderFactory;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
@@ -29,11 +29,11 @@ import org.jetbrains.annotations.Nullable;
 public class RemoteCloudServiceFactory implements CloudServiceFactory {
 
   private final RPCSender rpcSender;
-  private final Supplier<INetworkChannel> channelSupplier;
+  private final Supplier<NetworkChannel> channelSupplier;
 
   public RemoteCloudServiceFactory(
-    @NonNull Supplier<INetworkChannel> channelSupplier,
-    @NonNull INetworkComponent defaultComponent,
+    @NonNull Supplier<NetworkChannel> channelSupplier,
+    @NonNull NetworkComponent defaultComponent,
     @NonNull RPCProviderFactory factory
   ) {
     this.channelSupplier = channelSupplier;

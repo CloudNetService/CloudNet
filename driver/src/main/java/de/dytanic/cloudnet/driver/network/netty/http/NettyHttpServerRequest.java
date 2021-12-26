@@ -16,12 +16,11 @@
 
 package de.dytanic.cloudnet.driver.network.netty.http;
 
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
+import de.dytanic.cloudnet.driver.network.http.HttpRequest;
 import de.dytanic.cloudnet.driver.network.http.HttpVersion;
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
-import de.dytanic.cloudnet.driver.network.http.IHttpRequest;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import java.io.InputStream;
 import java.net.URI;
@@ -34,12 +33,12 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
 @Internal
-final class NettyHttpServerRequest extends NettyHttpMessage implements IHttpRequest {
+final class NettyHttpServerRequest extends NettyHttpMessage implements HttpRequest {
 
   private final NettyHttpServerContext context;
 
   private final URI uri;
-  private final HttpRequest httpRequest;
+  private final io.netty.handler.codec.http.HttpRequest httpRequest;
 
   private final Map<String, String> pathParameters;
   private final Map<String, List<String>> queryParameters;
@@ -48,7 +47,7 @@ final class NettyHttpServerRequest extends NettyHttpMessage implements IHttpRequ
 
   public NettyHttpServerRequest(
     @NonNull NettyHttpServerContext context,
-    @NonNull HttpRequest httpRequest,
+    @NonNull io.netty.handler.codec.http.HttpRequest httpRequest,
     @NonNull Map<String, String> pathParameters,
     @NonNull URI uri
   ) {
@@ -85,7 +84,7 @@ final class NettyHttpServerRequest extends NettyHttpMessage implements IHttpRequ
   }
 
   @Override
-  public @NonNull IHttpContext context() {
+  public @NonNull HttpContext context() {
     return this.context;
   }
 
@@ -105,19 +104,19 @@ final class NettyHttpServerRequest extends NettyHttpMessage implements IHttpRequ
   }
 
   @Override
-  public @NonNull IHttpRequest header(@NonNull String name, @NonNull String value) {
+  public @NonNull HttpRequest header(@NonNull String name, @NonNull String value) {
     this.httpRequest.headers().set(name, value);
     return this;
   }
 
   @Override
-  public @NonNull IHttpRequest removeHeader(@NonNull String name) {
+  public @NonNull HttpRequest removeHeader(@NonNull String name) {
     this.httpRequest.headers().remove(name);
     return this;
   }
 
   @Override
-  public @NonNull IHttpRequest clearHeaders() {
+  public @NonNull HttpRequest clearHeaders() {
     this.httpRequest.headers().clear();
     return this;
   }
@@ -144,7 +143,7 @@ final class NettyHttpServerRequest extends NettyHttpMessage implements IHttpRequ
   }
 
   @Override
-  public @NonNull IHttpRequest version(@NonNull HttpVersion version) {
+  public @NonNull HttpRequest version(@NonNull HttpVersion version) {
     this.httpRequest.setProtocolVersion(super.versionToNetty(version));
     return this;
   }
@@ -176,12 +175,12 @@ final class NettyHttpServerRequest extends NettyHttpMessage implements IHttpRequ
   }
 
   @Override
-  public @NonNull IHttpRequest body(byte[] byteArray) {
+  public @NonNull HttpRequest body(byte[] byteArray) {
     throw new UnsupportedOperationException("Unable to set body in request");
   }
 
   @Override
-  public @NonNull IHttpRequest body(@NonNull String text) {
+  public @NonNull HttpRequest body(@NonNull String text) {
     return this.body(text.getBytes(StandardCharsets.UTF_8));
   }
 
@@ -195,7 +194,7 @@ final class NettyHttpServerRequest extends NettyHttpMessage implements IHttpRequ
   }
 
   @Override
-  public @NonNull IHttpRequest body(@Nullable InputStream body) {
+  public @NonNull HttpRequest body(@Nullable InputStream body) {
     throw new UnsupportedOperationException("Unable to set body in request");
   }
 

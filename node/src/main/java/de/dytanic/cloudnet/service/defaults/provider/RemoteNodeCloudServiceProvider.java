@@ -17,8 +17,8 @@
 package de.dytanic.cloudnet.service.defaults.provider;
 
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
-import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.common.concurrent.Task;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import de.dytanic.cloudnet.driver.provider.service.RemoteSpecificCloudServiceProvider;
@@ -33,7 +33,7 @@ public class RemoteNodeCloudServiceProvider extends RemoteSpecificCloudServicePr
   public RemoteNodeCloudServiceProvider(
     @NonNull GeneralCloudServiceProvider provider,
     @NonNull RPCSender providerSender,
-    @NonNull Supplier<INetworkChannel> channelSupplier,
+    @NonNull Supplier<NetworkChannel> channelSupplier,
     @NonNull ServiceInfoSnapshot snapshot
   ) {
     super(provider, providerSender, channelSupplier, snapshot.serviceId().uniqueId());
@@ -46,7 +46,7 @@ public class RemoteNodeCloudServiceProvider extends RemoteSpecificCloudServicePr
   }
 
   @Override
-  public @NonNull ITask<ServiceInfoSnapshot> serviceInfoAsync() {
+  public @NonNull Task<ServiceInfoSnapshot> serviceInfoAsync() {
     return CompletedTask.done(this.snapshot);
   }
 

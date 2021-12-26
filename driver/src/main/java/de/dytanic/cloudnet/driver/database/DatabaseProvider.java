@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.driver.database;
 
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
-import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.concurrent.Task;
 import java.util.Collection;
 import lombok.NonNull;
 
@@ -55,7 +55,7 @@ public interface DatabaseProvider {
    * @param name the name of the database
    * @return whether a database with the given name exists
    */
-  default @NonNull ITask<Boolean> containsDatabaseAsync(@NonNull String name) {
+  default @NonNull Task<Boolean> containsDatabaseAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.containsDatabase(name));
   }
 
@@ -63,14 +63,14 @@ public interface DatabaseProvider {
    * @param name the name of the database
    * @return true if the database was deleted successfully, false if not
    */
-  default @NonNull ITask<Boolean> deleteDatabaseAsync(@NonNull String name) {
+  default @NonNull Task<Boolean> deleteDatabaseAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.deleteDatabase(name));
   }
 
   /**
    * @return all present database names
    */
-  default @NonNull ITask<Collection<String>> databaseNamesAsync() {
+  default @NonNull Task<Collection<String>> databaseNamesAsync() {
     return CompletableTask.supply(this::databaseNames);
   }
 }

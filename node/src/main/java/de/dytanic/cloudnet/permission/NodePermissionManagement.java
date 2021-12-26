@@ -16,14 +16,14 @@
 
 package de.dytanic.cloudnet.permission;
 
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
-import de.dytanic.cloudnet.permission.handler.IPermissionManagementHandler;
+import de.dytanic.cloudnet.driver.permission.PermissionManagement;
+import de.dytanic.cloudnet.permission.handler.PermissionManagementHandler;
 import java.util.Collection;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface NodePermissionManagement extends IPermissionManagement {
+public interface NodePermissionManagement extends PermissionManagement {
 
   void addGroupSilently(@NonNull PermissionGroup permissionGroup);
 
@@ -33,7 +33,7 @@ public interface NodePermissionManagement extends IPermissionManagement {
 
   void setGroupsSilently(@Nullable Collection<? extends PermissionGroup> groups);
 
-  @NonNull IPermissionManagementHandler permissionManagementHandler();
+  @NonNull PermissionManagementHandler permissionManagementHandler();
 
-  void permissionManagementHandler(@NonNull IPermissionManagementHandler permissionManagementHandler);
+  void permissionManagementHandler(@NonNull PermissionManagementHandler permissionManagementHandler);
 }

@@ -17,12 +17,12 @@
 package de.dytanic.cloudnet.ext.rest.v2;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
+import de.dytanic.cloudnet.cluster.ClusterNodeServerProvider;
 import de.dytanic.cloudnet.cluster.NodeServer;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.http.HttpSession;
 import de.dytanic.cloudnet.http.V2HttpHandler;
 import java.util.Collection;
@@ -35,7 +35,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) {
+  protected void handleBearerAuthorized(String path, HttpContext context, HttpSession session) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (context.request().pathParameters().containsKey("node")) {
         // specific node was requested
@@ -61,7 +61,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
     }
   }
 
-  protected void handleNodeRequest(IHttpContext context) {
+  protected void handleNodeRequest(HttpContext context) {
     var server = this.getNodeServer(context, true);
     if (server != null) {
       this.ok(context)
@@ -78,7 +78,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
     }
   }
 
-  protected void handleNodeListRequest(IHttpContext context) {
+  protected void handleNodeListRequest(HttpContext context) {
     Collection<JsonDocument> nodes = this.nodeProvider().nodeServers().stream()
       .map(this::createNodeInfoDocument)
       .collect(Collectors.toList());
@@ -92,7 +92,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleNodeCommandRequest(IHttpContext context) {
+  protected void handleNodeCommandRequest(HttpContext context) {
     var nodeServer = this.getNodeServer(context, true);
     var commandLine = this.body(context.request()).getString("command");
     if (commandLine == null || nodeServer == null) {
@@ -113,7 +113,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleNodeCreateRequest(IHttpContext context) {
+  protected void handleNodeCreateRequest(HttpContext context) {
     var server = this.body(context.request()).toInstanceOf(NetworkClusterNode.class);
     if (server == null || server.listeners() == null) {
       this.badRequest(context)
@@ -146,7 +146,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleNodeDeleteRequest(IHttpContext context) {
+  protected void handleNodeDeleteRequest(HttpContext context) {
     var uniqueId = context.request().pathParameters().get("node");
     if (uniqueId == null) {
       this.badRequest(context)
@@ -177,7 +177,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
     }
   }
 
-  protected void handleNodeUpdateRequest(IHttpContext context) {
+  protected void handleNodeUpdateRequest(HttpContext context) {
     var server = this.body(context.request()).toInstanceOf(NetworkClusterNode.class);
     if (server == null) {
       this.badRequest(context)
@@ -220,7 +220,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
       .append("nodeInfoSnapshot", node.nodeInfoSnapshot());
   }
 
-  protected NodeServer getNodeServer(IHttpContext context, boolean includeLocal) {
+  protected NodeServer getNodeServer(HttpContext context, boolean includeLocal) {
     var nodeName = context.request().pathParameters().get("node");
     return nodeName == null ? null : this.getNodeServer(nodeName, includeLocal);
   }
@@ -233,7 +233,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
     return server;
   }
 
-  protected IClusterNodeServerProvider nodeProvider() {
+  protected ClusterNodeServerProvider nodeProvider() {
     return this.node().nodeServerProvider();
   }
 }

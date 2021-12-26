@@ -16,19 +16,19 @@
 
 package de.dytanic.cloudnet.driver.event.events.module;
 
-import de.dytanic.cloudnet.driver.module.IModuleProvider;
-import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
+import de.dytanic.cloudnet.driver.module.ModuleProvider;
+import de.dytanic.cloudnet.driver.module.ModuleWrapper;
 import lombok.NonNull;
 
 /**
  * This event is being called after a module has been unloaded and the tasks with the lifecycle {@link
- * ModuleLifeCycle#UNLOADED} of this module have been fired. {@link IModuleWrapper#moduleLifeCycle()} is either
+ * ModuleLifeCycle#UNLOADED} of this module have been fired. {@link ModuleWrapper#moduleLifeCycle()} is either
  * {@link ModuleLifeCycle#UNLOADED} or {@link ModuleLifeCycle#STOPPED}
  */
 public final class ModulePreUnloadEvent extends ModuleEvent {
 
-  public ModulePreUnloadEvent(@NonNull IModuleProvider moduleProvider, @NonNull IModuleWrapper module) {
+  public ModulePreUnloadEvent(@NonNull ModuleProvider moduleProvider, @NonNull ModuleWrapper module) {
     super(moduleProvider, module);
   }
 }

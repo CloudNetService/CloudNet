@@ -16,22 +16,22 @@
 
 package de.dytanic.cloudnet.driver.event.events.module;
 
-import de.dytanic.cloudnet.driver.event.ICancelable;
-import de.dytanic.cloudnet.driver.module.IModuleProvider;
-import de.dytanic.cloudnet.driver.module.IModuleWrapper;
+import de.dytanic.cloudnet.driver.event.Cancelable;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
+import de.dytanic.cloudnet.driver.module.ModuleProvider;
+import de.dytanic.cloudnet.driver.module.ModuleWrapper;
 import lombok.NonNull;
 
 /**
  * This event is being called before a module has been started and the tasks with the lifecycle {@link
- * ModuleLifeCycle#STARTED} of this module have been fired. {@link IModuleWrapper#moduleLifeCycle()} is still {@link
+ * ModuleLifeCycle#STARTED} of this module have been fired. {@link ModuleWrapper#moduleLifeCycle()} is still {@link
  * ModuleLifeCycle#LOADED} or {@link ModuleLifeCycle#STOPPED}.
  */
-public final class ModulePreStartEvent extends ModuleEvent implements ICancelable {
+public final class ModulePreStartEvent extends ModuleEvent implements Cancelable {
 
   private boolean cancelled = false;
 
-  public ModulePreStartEvent(@NonNull IModuleProvider moduleProvider, @NonNull IModuleWrapper module) {
+  public ModulePreStartEvent(@NonNull ModuleProvider moduleProvider, @NonNull ModuleWrapper module) {
     super(moduleProvider, module);
   }
 

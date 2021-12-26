@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.console;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.concurrent.Task;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.console.animation.AbstractConsoleAnimation;
@@ -48,7 +48,7 @@ import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.InfoCmp;
 import org.jline.utils.WCWidth;
 
-public final class JLine3Console implements IConsole {
+public final class JLine3Console implements Console {
 
   private static final String USER = System.getProperty("user.name");
   private static final String VERSION = CloudNet.class.getPackage().getImplementationVersion();
@@ -158,7 +158,7 @@ public final class JLine3Console implements IConsole {
 
   @Override
   @NonNull
-  public ITask<String> readLine() {
+  public Task<String> readLine() {
     return this.consoleReadThread.currentTask();
   }
 
@@ -215,7 +215,7 @@ public final class JLine3Console implements IConsole {
   }
 
   @Override
-  public @NonNull IConsole write(@NonNull String text) {
+  public @NonNull Console write(@NonNull String text) {
     if (this.printingEnabled) {
       this.forceWrite(text);
     }
@@ -224,7 +224,7 @@ public final class JLine3Console implements IConsole {
   }
 
   @Override
-  public @NonNull IConsole writeLine(@NonNull String text) {
+  public @NonNull Console writeLine(@NonNull String text) {
     if (this.printingEnabled) {
       this.forceWriteLine(text);
     }
@@ -233,18 +233,18 @@ public final class JLine3Console implements IConsole {
   }
 
   @Override
-  public @NonNull IConsole forceWrite(@NonNull String text) {
+  public @NonNull Console forceWrite(@NonNull String text) {
     return this.writeRaw(Ansi.ansi().eraseLine(Ansi.Erase.ALL).toString() + '\r' + text + ConsoleColor.DEFAULT);
   }
 
   @Override
-  public @NonNull IConsole writeRaw(@NonNull String rawText) {
+  public @NonNull Console writeRaw(@NonNull String rawText) {
     this.print(ConsoleColor.toColouredString('&', rawText));
     return this;
   }
 
   @Override
-  public @NonNull IConsole forceWriteLine(@NonNull String text) {
+  public @NonNull Console forceWriteLine(@NonNull String text) {
     text = ConsoleColor.toColouredString('&', text);
     if (!text.endsWith(System.lineSeparator())) {
       text += System.lineSeparator();

@@ -16,8 +16,8 @@
 
 package de.dytanic.cloudnet.ext.cloudperms.waterdogpe;
 
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.Permission;
+import de.dytanic.cloudnet.driver.permission.PermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
 import dev.waterdog.waterdogpe.ProxyServer;
 import dev.waterdog.waterdogpe.event.EventPriority;
@@ -27,7 +27,7 @@ import dev.waterdog.waterdogpe.event.defaults.PlayerPermissionCheckEvent;
 
 final class WaterdogPECloudPermissionsPlayerListener {
 
-  public WaterdogPECloudPermissionsPlayerListener(IPermissionManagement permissionManagement) {
+  public WaterdogPECloudPermissionsPlayerListener(PermissionManagement permissionManagement) {
     var eventManager = ProxyServer.getInstance().getEventManager();
 
     eventManager.subscribe(PlayerLoginEvent.class, event -> {

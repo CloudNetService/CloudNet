@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 public class WildcardUtilTest {
 
   private static final String VALID_PATTERN = "Lobby-56*";
-  private static final Collection<? extends INameable> VALID_NAMEABLES = Arrays.asList(
+  private static final Collection<? extends Nameable> VALID_NAMEABLES = Arrays.asList(
     new NameableThing("Lobby-1"),
     new NameableThing("Lobby-56"),
     new NameableThing("Lobby-567"),
@@ -33,7 +33,7 @@ public class WildcardUtilTest {
   );
 
   private static final String INVALID_PATTERN = "Lobby-)56*(";
-  private static final Collection<? extends INameable> INVALID_NAMEABLES = Arrays.asList(
+  private static final Collection<? extends Nameable> INVALID_NAMEABLES = Arrays.asList(
     new NameableThing("Lobby-1"),
     new NameableThing("Lobby-)56("),
     new NameableThing("Lobby-(567"),
@@ -67,7 +67,7 @@ public class WildcardUtilTest {
       WildcardUtil.fixUnclosedGroups("Lobby-(56(.*(.)(\\d+(\\D)"));
   }
 
-  private record NameableThing(String name) implements INameable {
+  private record NameableThing(String name) implements Nameable {
 
   }
 }

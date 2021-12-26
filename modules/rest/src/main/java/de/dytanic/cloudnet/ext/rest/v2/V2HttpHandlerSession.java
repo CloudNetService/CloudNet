@@ -16,8 +16,8 @@
 
 package de.dytanic.cloudnet.ext.rest.v2;
 
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.http.HttpSession;
 import de.dytanic.cloudnet.http.V2HttpHandler;
 import java.util.concurrent.TimeUnit;
@@ -29,7 +29,7 @@ public class V2HttpHandlerSession extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) {
+  protected void handleBearerAuthorized(String path, HttpContext context, HttpSession session) {
     if (path.startsWith("/api/v2/session/logout")) {
       this.handleLogout(context, session);
     } else if (path.startsWith("/api/v2/session/refresh")) {
@@ -39,7 +39,7 @@ public class V2HttpHandlerSession extends V2HttpHandler {
     }
   }
 
-  protected void handleRefresh(IHttpContext context, HttpSession session) {
+  protected void handleRefresh(HttpContext context, HttpSession session) {
     var jwt = this.authentication.refreshJwt(session, TimeUnit.HOURS.toMillis(1));
     this.ok(context)
       .body(this.success().append("token", jwt).append("uniqueId", session.user().uniqueId()).toString())
@@ -48,7 +48,7 @@ public class V2HttpHandlerSession extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleLogout(IHttpContext context, HttpSession session) {
+  protected void handleLogout(HttpContext context, HttpSession session) {
     if (this.authentication.expireSession(session)) {
       this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
     } else {

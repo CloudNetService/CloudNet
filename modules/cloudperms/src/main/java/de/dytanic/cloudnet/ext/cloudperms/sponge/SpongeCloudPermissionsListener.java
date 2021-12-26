@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.ext.cloudperms.sponge;
 
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.PermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
@@ -32,9 +32,9 @@ import org.spongepowered.api.util.Tristate;
 
 public final class SpongeCloudPermissionsListener {
 
-  private final IPermissionManagement permissionManagement;
+  private final PermissionManagement permissionManagement;
 
-  public SpongeCloudPermissionsListener(@NonNull IPermissionManagement permissionManagement) {
+  public SpongeCloudPermissionsListener(@NonNull PermissionManagement permissionManagement) {
     this.permissionManagement = permissionManagement;
   }
 

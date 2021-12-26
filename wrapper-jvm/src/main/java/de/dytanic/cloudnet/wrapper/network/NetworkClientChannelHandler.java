@@ -21,18 +21,18 @@ import de.dytanic.cloudnet.driver.event.events.network.ChannelType;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelCloseEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelInitEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.INetworkChannelHandler;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkChannelHandler;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.def.PacketClientAuthorization;
-import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.BasePacket;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import lombok.NonNull;
 
-public class NetworkClientChannelHandler implements INetworkChannelHandler {
+public class NetworkClientChannelHandler implements NetworkChannelHandler {
 
   @Override
-  public void handleChannelInitialize(@NonNull INetworkChannel channel) {
+  public void handleChannelInitialize(@NonNull NetworkChannel channel) {
     var networkChannelInitEvent = new NetworkChannelInitEvent(channel, ChannelType.SERVER_CHANNEL);
     CloudNetDriver.instance().eventManager().callEvent(networkChannelInitEvent);
 
@@ -49,13 +49,13 @@ public class NetworkClientChannelHandler implements INetworkChannelHandler {
   }
 
   @Override
-  public boolean handlePacketReceive(@NonNull INetworkChannel channel, @NonNull Packet packet) {
+  public boolean handlePacketReceive(@NonNull NetworkChannel channel, @NonNull BasePacket packet) {
     return !CloudNetDriver.instance().eventManager().callEvent(
       new NetworkChannelPacketReceiveEvent(channel, packet)).cancelled();
   }
 
   @Override
-  public void handleChannelClose(@NonNull INetworkChannel channel) {
+  public void handleChannelClose(@NonNull NetworkChannel channel) {
     CloudNetDriver.instance().eventManager().callEvent(
       new NetworkChannelCloseEvent(channel, ChannelType.CLIENT_CHANNEL));
   }

@@ -31,9 +31,9 @@ import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.column.ColumnFormatter;
 import de.dytanic.cloudnet.common.column.RowBasedFormatter;
 import de.dytanic.cloudnet.common.language.I18n;
-import de.dytanic.cloudnet.driver.module.IModuleProvider;
-import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
+import de.dytanic.cloudnet.driver.module.ModuleProvider;
+import de.dytanic.cloudnet.driver.module.ModuleWrapper;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -48,18 +48,18 @@ import lombok.NonNull;
 @Description("Manages all available modules and loading new modules after the start")
 public final class CommandModules {
 
-  private static final RowBasedFormatter<IModuleWrapper> MODULES_FORMATTER = RowBasedFormatter.<IModuleWrapper>builder()
+  private static final RowBasedFormatter<ModuleWrapper> MODULES_FORMATTER = RowBasedFormatter.<ModuleWrapper>builder()
     .defaultFormatter(ColumnFormatter.builder()
       .columnTitles("Name", "Version", "Author", "Lifecycle", "Description")
       .build())
     .column(wrapper -> wrapper.module().name())
     .column(wrapper -> wrapper.module().version())
     .column(wrapper -> wrapper.moduleConfiguration().author())
-    .column(IModuleWrapper::moduleLifeCycle)
+    .column(ModuleWrapper::moduleLifeCycle)
     .column(wrapper -> wrapper.moduleConfiguration().description())
     .build();
 
-  private final IModuleProvider provider = CloudNet.instance().moduleProvider();
+  private final ModuleProvider provider = CloudNet.instance().moduleProvider();
 
   @Parser(name = "modulePath", suggestions = "modulePath")
   public Path modulePathParser(CommandContext<?> $, Queue<String> input) {
@@ -90,7 +90,7 @@ public final class CommandModules {
   }
 
   @Parser(name = "existingModule", suggestions = "existingModule")
-  public IModuleWrapper existingModuleParser(CommandContext<?> $, Queue<String> input) {
+  public ModuleWrapper existingModuleParser(CommandContext<?> $, Queue<String> input) {
     var moduleName = input.remove();
     var wrapper = this.provider.module(moduleName);
     if (wrapper == null) {
@@ -109,7 +109,7 @@ public final class CommandModules {
   }
 
   @Parser(name = "toStartModule", suggestions = "toStartModule")
-  public IModuleWrapper loadedModuleParser(CommandContext<?> $, Queue<String> input) {
+  public ModuleWrapper loadedModuleParser(CommandContext<?> $, Queue<String> input) {
     var moduleName = input.remove();
     var wrapper = this.provider.module(moduleName);
     if (wrapper == null || !wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.STARTED)) {
@@ -128,7 +128,7 @@ public final class CommandModules {
   }
 
   @Parser(name = "toReloadModule", suggestions = "toReloadModule")
-  public IModuleWrapper reloadedModuleParser(CommandContext<?> $, Queue<String> input) {
+  public ModuleWrapper reloadedModuleParser(CommandContext<?> $, Queue<String> input) {
     var moduleName = input.remove();
     var wrapper = this.provider.module(moduleName);
     if (wrapper == null || !wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.RELOADING)) {
@@ -147,7 +147,7 @@ public final class CommandModules {
   }
 
   @Parser(name = "toStopModule", suggestions = "toStopModule")
-  public IModuleWrapper stoppedModuleParser(CommandContext<?> $, Queue<String> input) {
+  public ModuleWrapper stoppedModuleParser(CommandContext<?> $, Queue<String> input) {
     var moduleName = input.remove();
     var wrapper = this.provider.module(moduleName);
     if (wrapper == null || !wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.STOPPED)) {
@@ -166,7 +166,7 @@ public final class CommandModules {
   }
 
   @Parser(name = "toUnloadModule", suggestions = "toUnloadModule")
-  public IModuleWrapper unloadedModuleParser(CommandContext<?> $, Queue<String> input) {
+  public ModuleWrapper unloadedModuleParser(CommandContext<?> $, Queue<String> input) {
     var moduleName = input.remove();
     var wrapper = this.provider.module(moduleName);
     if (wrapper == null || !wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.UNLOADED)) {
@@ -187,7 +187,7 @@ public final class CommandModules {
   @CommandMethod("modules|module info <module>")
   public void moduleInfo(
     CommandSource source,
-    @Argument(value = "module", parserName = "existingModule") IModuleWrapper module
+    @Argument(value = "module", parserName = "existingModule") ModuleWrapper module
   ) {
     this.printBasicModuleInfos(source, module);
     source.sendMessage(" - Dependencies: ");
@@ -218,7 +218,7 @@ public final class CommandModules {
   @CommandMethod("modules|module start <module>")
   public void startModule(
     CommandSource source,
-    @Argument(value = "module", parserName = "toStartModule") IModuleWrapper wrapper
+    @Argument(value = "module", parserName = "toStartModule") ModuleWrapper wrapper
   ) {
     wrapper.startModule();
   }
@@ -226,7 +226,7 @@ public final class CommandModules {
   @CommandMethod("modules|module reload [module]")
   public void reloadModule(
     CommandSource source,
-    @Argument(value = "module", parserName = "toReloadModule") IModuleWrapper wrapper
+    @Argument(value = "module", parserName = "toReloadModule") ModuleWrapper wrapper
   ) {
     if (wrapper != null) {
       wrapper.reloadModule();
@@ -238,7 +238,7 @@ public final class CommandModules {
   @CommandMethod("modules|module stop <module>")
   public void stopModule(
     CommandSource source,
-    @Argument(value = "module", parserName = "toStopModule") IModuleWrapper wrapper
+    @Argument(value = "module", parserName = "toStopModule") ModuleWrapper wrapper
   ) {
     wrapper.stopModule();
   }
@@ -246,7 +246,7 @@ public final class CommandModules {
   @CommandMethod("modules|module unload <module>")
   public void unloadModule(
     CommandSource source,
-    @Argument(value = "module", parserName = "toUnloadModule") IModuleWrapper wrapper
+    @Argument(value = "module", parserName = "toUnloadModule") ModuleWrapper wrapper
   ) {
     wrapper.unloadModule();
   }
@@ -261,7 +261,7 @@ public final class CommandModules {
     });
   }
 
-  private void printBasicModuleInfos(@NonNull CommandSource source, @NonNull IModuleWrapper module) {
+  private void printBasicModuleInfos(@NonNull CommandSource source, @NonNull ModuleWrapper module) {
     source.sendMessage("Module: " + module.module().name());
     source.sendMessage(" - Lifecycle: " + module.moduleLifeCycle());
     source.sendMessage(" - Version: " + module.module().version());

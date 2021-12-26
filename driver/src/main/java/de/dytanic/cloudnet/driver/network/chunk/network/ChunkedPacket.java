@@ -19,11 +19,11 @@ package de.dytanic.cloudnet.driver.network.chunk.network;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
-import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.BasePacket;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public class ChunkedPacket extends Packet {
+public class ChunkedPacket extends BasePacket {
 
   public ChunkedPacket(DataBuf dataBuf) {
     super(NetworkConstants.CHUNKED_PACKET_COM_CHANNEL, dataBuf);

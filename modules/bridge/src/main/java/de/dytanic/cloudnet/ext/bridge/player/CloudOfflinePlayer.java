@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.ext.bridge.player;
 
-import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.Nameable;
 import de.dytanic.cloudnet.common.document.property.JsonDocPropertyHolder;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;
@@ -26,7 +26,7 @@ import org.jetbrains.annotations.UnknownNullability;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class CloudOfflinePlayer extends JsonDocPropertyHolder implements Cloneable, INameable {
+public class CloudOfflinePlayer extends JsonDocPropertyHolder implements Cloneable, Nameable {
 
   protected long firstLoginTimeMillis;
   protected long lastLoginTimeMillis;

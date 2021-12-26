@@ -35,7 +35,7 @@ public class ModuleDependencyUtilsTest {
   @Test
   @Order(0)
   void testDependencyResolving() {
-    Collection<IModuleWrapper> moduleWrappers = new ArrayList<>();
+    Collection<ModuleWrapper> moduleWrappers = new ArrayList<>();
 
     var provider = this.mockModuleProvider(moduleWrappers);
 
@@ -47,7 +47,7 @@ public class ModuleDependencyUtilsTest {
 
     Assertions.assertEquals(3, provider.modules().size());
 
-    Collection<IModuleWrapper> dependencies = ModuleDependencyUtils.collectDependencies(rootModule, provider);
+    Collection<ModuleWrapper> dependencies = ModuleDependencyUtils.collectDependencies(rootModule, provider);
     Assertions.assertEquals(1, dependencies.size());
     Assertions.assertEquals("sub", Iterables.get(dependencies, 0).module().name());
   }
@@ -55,7 +55,7 @@ public class ModuleDependencyUtilsTest {
   @Test
   @Order(10)
   void testMissingDependency() {
-    Collection<IModuleWrapper> moduleWrappers = new ArrayList<>();
+    Collection<ModuleWrapper> moduleWrappers = new ArrayList<>();
     var provider = this.mockModuleProvider(moduleWrappers);
 
     Assertions.assertThrows(
@@ -66,7 +66,7 @@ public class ModuleDependencyUtilsTest {
   @Test
   @Order(20)
   void testDependencyOutdatedDependency() {
-    Collection<IModuleWrapper> moduleWrappers = new ArrayList<>();
+    Collection<ModuleWrapper> moduleWrappers = new ArrayList<>();
     var provider = this.mockModuleProvider(moduleWrappers);
 
     moduleWrappers.add(this.mockModule(provider, "sub", "1.4.7"));
@@ -76,8 +76,8 @@ public class ModuleDependencyUtilsTest {
       () -> ModuleDependencyUtils.collectDependencies(this.mockRootModule(provider), provider));
   }
 
-  private IModuleProvider mockModuleProvider(Collection<IModuleWrapper> wrappers) {
-    var provider = Mockito.mock(IModuleProvider.class);
+  private ModuleProvider mockModuleProvider(Collection<ModuleWrapper> wrappers) {
+    var provider = Mockito.mock(ModuleProvider.class);
     Mockito.when(provider.modules()).thenReturn(wrappers);
     Mockito.when(provider.module(Mockito.anyString())).then(invocation -> wrappers.stream()
       .filter(wrapper -> wrapper.module().name().equals(invocation.getArgument(0)))
@@ -87,7 +87,7 @@ public class ModuleDependencyUtilsTest {
     return provider;
   }
 
-  private IModuleWrapper mockRootModule(IModuleProvider provider) {
+  private ModuleWrapper mockRootModule(ModuleProvider provider) {
     return this.mockModule(
       provider,
       "root",
@@ -97,17 +97,17 @@ public class ModuleDependencyUtilsTest {
         .thenReturn(Collections.singleton(new ModuleDependency("eu.cloudnet", "sub", "1.5.0"))));
   }
 
-  private IModuleWrapper mockModule(IModuleProvider pro, String name, String version) {
+  private ModuleWrapper mockModule(ModuleProvider pro, String name, String version) {
     return this.mockModule(pro, name, version, $ -> {
     });
   }
 
-  private IModuleWrapper mockModule(IModuleProvider pro, String name, String version, Consumer<IModuleWrapper> mod) {
-    var mockedModule = Mockito.mock(IModule.class);
+  private ModuleWrapper mockModule(ModuleProvider pro, String name, String version, Consumer<ModuleWrapper> mod) {
+    var mockedModule = Mockito.mock(Module.class);
     Mockito.when(mockedModule.name()).thenReturn(name);
     Mockito.when(mockedModule.version()).thenReturn(version);
 
-    var moduleWrapper = Mockito.mock(IModuleWrapper.class);
+    var moduleWrapper = Mockito.mock(ModuleWrapper.class);
     Mockito.when(moduleWrapper.moduleProvider()).thenReturn(pro);
     Mockito.when(moduleWrapper.module()).thenReturn(mockedModule);
 

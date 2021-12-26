@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.ext.cloudperms.sponge.service;
 
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.PermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.sponge.service.CloudPermissionDescription.CloudPermissionDescriptionBuilder;
 import de.dytanic.cloudnet.ext.cloudperms.sponge.service.memory.InMemorySubjectCollection;
 import de.dytanic.cloudnet.ext.cloudperms.sponge.service.permissible.group.CloudGroupCollection;
@@ -45,7 +45,7 @@ public final class CloudPermsPermissionService implements PermissionService {
 
   private final Subject defaultSubject;
 
-  public CloudPermsPermissionService(@NonNull IPermissionManagement management) {
+  public CloudPermsPermissionService(@NonNull PermissionManagement management) {
     this.collections.put(SUBJECTS_USER, new CloudUserCollection(SUBJECTS_USER, this, management));
     this.collections.put(SUBJECTS_GROUP, new CloudGroupCollection(SUBJECTS_GROUP, this, management));
 

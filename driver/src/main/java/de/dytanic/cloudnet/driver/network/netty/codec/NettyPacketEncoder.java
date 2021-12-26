@@ -18,17 +18,17 @@ package de.dytanic.cloudnet.driver.network.netty.codec;
 
 import de.dytanic.cloudnet.driver.network.netty.NettyUtils;
 import de.dytanic.cloudnet.driver.network.netty.buffer.NettyImmutableDataBuf;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
 @Internal
-public final class NettyPacketEncoder extends MessageToByteEncoder<IPacket> {
+public final class NettyPacketEncoder extends MessageToByteEncoder<Packet> {
 
   @Override
-  protected void encode(ChannelHandlerContext ctx, IPacket packet, ByteBuf byteBuf) {
+  protected void encode(ChannelHandlerContext ctx, Packet packet, ByteBuf byteBuf) {
     // channel
     NettyUtils.writeVarInt(byteBuf, packet.channel());
     // query id (if present)

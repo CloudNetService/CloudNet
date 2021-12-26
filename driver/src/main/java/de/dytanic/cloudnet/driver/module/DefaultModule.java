@@ -20,19 +20,19 @@ import com.google.common.base.Verify;
 import lombok.NonNull;
 
 /**
- * A default implementation of an {@link IModule} which holds some general information about the module.
+ * A default implementation of an {@link Module} which holds some general information about the module.
  */
-public class DefaultModule implements IModule {
+public class DefaultModule implements Module {
 
   protected ClassLoader classLoader;
-  protected IModuleWrapper moduleWrapper;
+  protected ModuleWrapper moduleWrapper;
   protected ModuleConfiguration moduleConfig;
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public void init(@NonNull ClassLoader loader, @NonNull IModuleWrapper wrapper,
+  public void init(@NonNull ClassLoader loader, @NonNull ModuleWrapper wrapper,
     @NonNull ModuleConfiguration config) {
     // ensure that this is not initialized
     Verify.verify(this.classLoader == null || this.moduleWrapper == null || this.moduleConfig == null,
@@ -47,7 +47,7 @@ public class DefaultModule implements IModule {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull IModuleWrapper moduleWrapper() {
+  public @NonNull ModuleWrapper moduleWrapper() {
     return this.moduleWrapper;
   }
 

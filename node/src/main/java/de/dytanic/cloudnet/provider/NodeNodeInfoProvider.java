@@ -17,8 +17,8 @@
 package de.dytanic.cloudnet.provider;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.cluster.IClusterNodeServer;
-import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
+import de.dytanic.cloudnet.cluster.ClusterNodeServer;
+import de.dytanic.cloudnet.cluster.ClusterNodeServerProvider;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.command.source.DriverCommandSource;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
@@ -33,7 +33,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class NodeNodeInfoProvider implements NodeInfoProvider {
 
-  private final IClusterNodeServerProvider clusterNodeServerProvider;
+  private final ClusterNodeServerProvider clusterNodeServerProvider;
 
   public NodeNodeInfoProvider(@NonNull CloudNet nodeInstance) {
     this.clusterNodeServerProvider = nodeInstance.nodeServerProvider();
@@ -48,7 +48,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
   @Override
   public NetworkClusterNode[] nodes() {
     return this.clusterNodeServerProvider.nodeServers().stream()
-      .map(IClusterNodeServer::nodeInfo)
+      .map(ClusterNodeServer::nodeInfo)
       .toArray(NetworkClusterNode[]::new);
   }
 
@@ -61,7 +61,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
     }
     // find the node info
     return this.clusterNodeServerProvider.nodeServers().stream()
-      .map(IClusterNodeServer::nodeInfo)
+      .map(ClusterNodeServer::nodeInfo)
       .filter(nodeInfo -> nodeInfo.uniqueId().equals(uniqueId))
       .findFirst()
       .orElse(null);
@@ -70,7 +70,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
   @Override
   public NetworkClusterNodeInfoSnapshot[] nodeInfoSnapshots() {
     return this.clusterNodeServerProvider.nodeServers().stream()
-      .map(IClusterNodeServer::nodeInfoSnapshot)
+      .map(ClusterNodeServer::nodeInfoSnapshot)
       .filter(Objects::nonNull)
       .toArray(NetworkClusterNodeInfoSnapshot[]::new);
   }
@@ -85,7 +85,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
     // find the node we are looking for
     return this.clusterNodeServerProvider.nodeServers().stream()
       .filter(nodeServer -> nodeServer.nodeInfo().uniqueId().equals(uniqueId))
-      .map(IClusterNodeServer::nodeInfoSnapshot)
+      .map(ClusterNodeServer::nodeInfoSnapshot)
       .filter(Objects::nonNull)
       .findFirst()
       .orElse(null);

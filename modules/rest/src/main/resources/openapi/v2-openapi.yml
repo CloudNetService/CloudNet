@@ -927,6 +927,48 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '403':
           $ref: '#/components/responses/Unauthorized'
+  '/player/onlineCount':
+    get:
+      tags:
+        - Player
+      summary: Get the number of online players
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      onlineCount:
+                        type: integer
+                        example: 10
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/player/registeredCount':
+    get:
+      tags:
+        - Player
+      summary: Get the number of registered players
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      registeredCount:
+                        type: integer
+                        example: 10
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
   '/player/{identifier}':
     parameters:
       - name: identifier
@@ -1533,7 +1575,7 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '403':
           $ref: '#/components/responses/Unauthorized'
-  /templatestorage:
+  /templateStorage:
     get:
       tags:
         - Template Storage
@@ -1556,7 +1598,7 @@ paths:
                           - ftp
         '403':
           $ref: '#/components/responses/Unauthorized'
-  '/templatestorage/{storage}/templates':
+  '/templateStorage/{storage}/templates':
     get:
       parameters:
         - name: storage

@@ -16,12 +16,12 @@
 
 package de.dytanic.cloudnet.event.service;
 
-import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.service.CloudService;
 import lombok.NonNull;
 
 public final class CloudServicePreForceStopEvent extends CloudServiceEvent {
 
-  public CloudServicePreForceStopEvent(@NonNull ICloudService service) {
+  public CloudServicePreForceStopEvent(@NonNull CloudService service) {
     super(service);
   }
 }

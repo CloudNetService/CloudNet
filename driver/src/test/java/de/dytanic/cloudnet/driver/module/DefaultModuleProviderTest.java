@@ -23,7 +23,7 @@ public final class DefaultModuleProviderTest {
 
   @Test
   void testModuleLifecycles() {
-    IModuleProvider moduleProvider = new DefaultModuleProvider();
+    ModuleProvider moduleProvider = new DefaultModuleProvider();
     var testModuleResource = DefaultModuleProviderTest.class.getClassLoader().getResource("module.jar");
 
     Assertions.assertNotNull(testModuleResource);

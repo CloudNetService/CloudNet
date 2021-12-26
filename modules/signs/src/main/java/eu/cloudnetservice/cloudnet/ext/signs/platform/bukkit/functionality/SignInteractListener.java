@@ -17,7 +17,7 @@
 package eu.cloudnetservice.cloudnet.ext.signs.platform.bukkit.functionality;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
+import de.dytanic.cloudnet.ext.bridge.player.PlayerManager;
 import eu.cloudnetservice.cloudnet.ext.signs.platform.PlatformSignManagement;
 import eu.cloudnetservice.cloudnet.ext.signs.platform.bukkit.event.BukkitCloudSignInteractEvent;
 import org.bukkit.Bukkit;
@@ -59,7 +59,7 @@ public class SignInteractListener implements Listener {
     }
   }
 
-  protected IPlayerManager playerManager() {
-    return CloudNetDriver.instance().servicesRegistry().firstService(IPlayerManager.class);
+  protected PlayerManager playerManager() {
+    return CloudNetDriver.instance().servicesRegistry().firstService(PlayerManager.class);
   }
 }

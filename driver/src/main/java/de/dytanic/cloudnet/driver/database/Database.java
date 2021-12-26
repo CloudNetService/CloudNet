@@ -16,9 +16,9 @@
 
 package de.dytanic.cloudnet.driver.database;
 
-import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.Nameable;
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
-import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.concurrent.Task;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import java.util.Collection;
 import java.util.List;
@@ -30,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
  * The database is used to store cloudnet related data, these databases can be used by an api user too. To create or
  * retrieve a database see {@link de.dytanic.cloudnet.driver.database.DatabaseProvider}
  */
-public interface Database extends INameable, AutoCloseable {
+public interface Database extends Nameable, AutoCloseable {
 
   /**
    * Insert the given document for the given key
@@ -128,7 +128,7 @@ public interface Database extends INameable, AutoCloseable {
    * @param document the document to be stored
    * @return whether the operation was successful or not
    */
-  default @NonNull ITask<Boolean> insertAsync(@NonNull String key, @NonNull JsonDocument document) {
+  default @NonNull Task<Boolean> insertAsync(@NonNull String key, @NonNull JsonDocument document) {
     return CompletableTask.supply(() -> this.insert(key, document));
   }
 
@@ -139,7 +139,7 @@ public interface Database extends INameable, AutoCloseable {
    * @param document the document to be stored
    * @return whether the operation was successful or not
    */
-  default @NonNull ITask<Boolean> updateAsync(@NonNull String key, @NonNull JsonDocument document) {
+  default @NonNull Task<Boolean> updateAsync(@NonNull String key, @NonNull JsonDocument document) {
     return CompletableTask.supply(() -> this.update(key, document));
   }
 
@@ -147,7 +147,7 @@ public interface Database extends INameable, AutoCloseable {
    * @param key the key to look for
    * @return whether the database contains the given key
    */
-  default @NonNull ITask<Boolean> containsAsync(@NonNull String key) {
+  default @NonNull Task<Boolean> containsAsync(@NonNull String key) {
     return CompletableTask.supply(() -> this.contains(key));
   }
 
@@ -157,7 +157,7 @@ public interface Database extends INameable, AutoCloseable {
    * @param key the key to be deleted
    * @return whether the operation was successful or not
    */
-  default @NonNull ITask<Boolean> deleteAsync(@NonNull String key) {
+  default @NonNull Task<Boolean> deleteAsync(@NonNull String key) {
     return CompletableTask.supply(() -> this.delete(key));
   }
 
@@ -167,7 +167,7 @@ public interface Database extends INameable, AutoCloseable {
    * @param key the key to the document
    * @return the document associated with the key
    */
-  default @NonNull ITask<JsonDocument> getAsync(@NonNull String key) {
+  default @NonNull Task<JsonDocument> getAsync(@NonNull String key) {
     return CompletableTask.supply(() -> this.get(key));
   }
 
@@ -178,7 +178,7 @@ public interface Database extends INameable, AutoCloseable {
    * @param fieldValue the fieldValue associated with the fieldName
    * @return a List with the documents containing the field and fieldValue
    */
-  default @NonNull ITask<List<JsonDocument>> getAsync(@NonNull String fieldName, @Nullable Object fieldValue) {
+  default @NonNull Task<List<JsonDocument>> getAsync(@NonNull String fieldName, @Nullable Object fieldValue) {
     return CompletableTask.supply(() -> this.get(fieldName, fieldValue));
   }
 
@@ -188,21 +188,21 @@ public interface Database extends INameable, AutoCloseable {
    * @param filters the filter to filter with
    * @return all documents that passed the filter
    */
-  default @NonNull ITask<List<JsonDocument>> getAsync(@NonNull JsonDocument filters) {
+  default @NonNull Task<List<JsonDocument>> getAsync(@NonNull JsonDocument filters) {
     return CompletableTask.supply(() -> this.get(filters));
   }
 
   /**
    * @return all keys of the database
    */
-  default @NonNull ITask<Collection<String>> keysAsync() {
+  default @NonNull Task<Collection<String>> keysAsync() {
     return CompletableTask.supply(this::keys);
   }
 
   /**
    * @return all documents of the database
    */
-  default @NonNull ITask<Collection<JsonDocument>> documentsAsync() {
+  default @NonNull Task<Collection<JsonDocument>> documentsAsync() {
     return CompletableTask.supply(this::documents);
   }
 
@@ -211,21 +211,21 @@ public interface Database extends INameable, AutoCloseable {
    *
    * @return all entries of the database
    */
-  default @NonNull ITask<Map<String, JsonDocument>> entriesAsync() {
+  default @NonNull Task<Map<String, JsonDocument>> entriesAsync() {
     return CompletableTask.supply(this::entries);
   }
 
   /**
    * Clears the whole database
    */
-  default @NonNull ITask<Void> clearAsync() {
+  default @NonNull Task<Void> clearAsync() {
     return CompletableTask.supply(this::clear);
   }
 
   /**
    * @return the count of all persistent documents
    */
-  default @NonNull ITask<Long> documentCountAsync() {
+  default @NonNull Task<Long> documentCountAsync() {
     return CompletableTask.supply(this::documentCount);
   }
 }

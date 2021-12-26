@@ -18,9 +18,9 @@ package de.dytanic.cloudnet.network.packet;
 
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
-import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.BasePacket;
 
-public final class PacketServerAuthorizationResponse extends Packet {
+public final class PacketServerAuthorizationResponse extends BasePacket {
 
   public PacketServerAuthorizationResponse(boolean success) {
     super(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL, DataBuf.empty().writeBoolean(success));

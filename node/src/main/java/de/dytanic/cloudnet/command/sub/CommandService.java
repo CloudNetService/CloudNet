@@ -30,7 +30,7 @@ import de.dytanic.cloudnet.command.annotation.CommandAlias;
 import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
-import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.Nameable;
 import de.dytanic.cloudnet.common.WildcardUtil;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.column.ColumnFormatter;
@@ -88,7 +88,7 @@ public final class CommandService {
   public List<String> suggestService(CommandContext<CommandSource> $, String input) {
     return CloudNet.instance().cloudServiceProvider().services()
       .stream()
-      .map(INameable::name)
+      .map(Nameable::name)
       .toList();
   }
 

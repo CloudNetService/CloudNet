@@ -16,14 +16,14 @@
 
 package de.dytanic.cloudnet.driver.event.events.permission;
 
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
+import de.dytanic.cloudnet.driver.permission.PermissionManagement;
 import lombok.NonNull;
 
 public final class PermissionDeleteGroupEvent extends PermissionGroupEvent {
 
   public PermissionDeleteGroupEvent(
-    @NonNull IPermissionManagement permissionManagement,
+    @NonNull PermissionManagement permissionManagement,
     @NonNull PermissionGroup permissionGroup
   ) {
     super(permissionManagement, permissionGroup);

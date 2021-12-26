@@ -19,7 +19,7 @@ package eu.cloudnetservice.cloudnet.modules.labymod.platform;
 import static de.dytanic.cloudnet.ext.bridge.BridgeServiceProperties.IS_IN_GAME;
 
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
-import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.concurrent.Task;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
@@ -28,7 +28,7 @@ import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.platform.PlatformBridgeManagement;
 import de.dytanic.cloudnet.ext.bridge.player.CloudPlayer;
-import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
+import de.dytanic.cloudnet.ext.bridge.player.PlayerManager;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.cloudnet.modules.labymod.LabyModManagement;
 import eu.cloudnetservice.cloudnet.modules.labymod.config.LabyModConfiguration;
@@ -40,7 +40,7 @@ import org.jetbrains.annotations.Nullable;
 public class PlatformLabyModManagement implements LabyModManagement {
 
   private final RPCSender rpcSender;
-  private final IPlayerManager playerManager;
+  private final PlayerManager playerManager;
   private final PlatformBridgeManagement<?, ?> bridgeManagement;
   private LabyModConfiguration configuration;
 
@@ -48,7 +48,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
     this.rpcSender = Wrapper.instance().rpcProviderFactory().providerForClass(
       Wrapper.instance().networkClient(),
       LabyModManagement.class);
-    this.playerManager = Wrapper.instance().servicesRegistry().firstService(IPlayerManager.class);
+    this.playerManager = Wrapper.instance().servicesRegistry().firstService(PlayerManager.class);
     this.bridgeManagement = Wrapper.instance().servicesRegistry().firstService(PlatformBridgeManagement.class);
     this.setConfigurationSilently(this.rpcSender.invokeMethod("configuration").fireSync());
   }
@@ -270,7 +270,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
     return DataBuf.empty().writeString("discord_rpc").writeString(labyModProtocolResponse.toString());
   }
 
-  protected @NonNull ITask<@Nullable CloudPlayer> getPlayerByJoinSecret(@NonNull UUID joinSecret) {
+  protected @NonNull Task<@Nullable CloudPlayer> getPlayerByJoinSecret(@NonNull UUID joinSecret) {
     return CompletableTask.supply(() -> {
       for (CloudPlayer player : this.playerManager.onlinePlayers().players()) {
         var playerOptions = this.parsePlayerOptions(player);
@@ -283,7 +283,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
     });
   }
 
-  protected @NonNull ITask<CloudPlayer> getPlayerBySpectateSecret(@NonNull UUID spectateSecret) {
+  protected @NonNull Task<CloudPlayer> getPlayerBySpectateSecret(@NonNull UUID spectateSecret) {
     return CompletableTask.supply(() -> {
       for (CloudPlayer player : this.playerManager.onlinePlayers().players()) {
         var playerOptions = this.parsePlayerOptions(player);

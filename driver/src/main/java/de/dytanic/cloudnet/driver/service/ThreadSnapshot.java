@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.driver.service;
 
-import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.Nameable;
 import java.lang.Thread.State;
 import lombok.NonNull;
 
@@ -29,7 +29,7 @@ public record ThreadSnapshot(
   boolean daemon,
   @NonNull String name,
   @NonNull State threadState
-) implements INameable, Cloneable {
+) implements Nameable, Cloneable {
 
   public static @NonNull ThreadSnapshot from(@NonNull Thread thread) {
     return new ThreadSnapshot(

@@ -17,18 +17,18 @@
 package de.dytanic.cloudnet.driver.event.events.permission;
 
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.PermissionManagement;
 import lombok.NonNull;
 
 public final class PermissionServiceSetEvent extends DriverEvent {
 
-  private final IPermissionManagement permissionManagement;
+  private final PermissionManagement permissionManagement;
 
-  public PermissionServiceSetEvent(@NonNull IPermissionManagement permissionManagement) {
+  public PermissionServiceSetEvent(@NonNull PermissionManagement permissionManagement) {
     this.permissionManagement = permissionManagement;
   }
 
-  public @NonNull IPermissionManagement permissionManagement() {
+  public @NonNull PermissionManagement permissionManagement() {
     return this.permissionManagement;
   }
 }

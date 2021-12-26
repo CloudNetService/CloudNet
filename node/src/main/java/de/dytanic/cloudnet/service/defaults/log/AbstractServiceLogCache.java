@@ -20,9 +20,9 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
-import de.dytanic.cloudnet.service.ICloudService;
-import de.dytanic.cloudnet.service.IServiceConsoleLogCache;
+import de.dytanic.cloudnet.service.CloudService;
 import de.dytanic.cloudnet.service.ServiceConsoleLineHandler;
+import de.dytanic.cloudnet.service.ServiceConsoleLogCache;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Queue;
@@ -32,11 +32,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import lombok.NonNull;
 import org.jetbrains.annotations.UnmodifiableView;
 
-public abstract class AbstractServiceLogCache implements IServiceConsoleLogCache {
+public abstract class AbstractServiceLogCache implements ServiceConsoleLogCache {
 
   protected static final Logger LOGGER = LogManager.logger(AbstractServiceLogCache.class);
 
-  protected final ICloudService service;
+  protected final CloudService service;
 
   protected final Queue<String> cachedLogMessages = new ConcurrentLinkedQueue<>();
   protected final Set<ServiceConsoleLineHandler> handlers = ConcurrentHashMap.newKeySet();
@@ -44,14 +44,14 @@ public abstract class AbstractServiceLogCache implements IServiceConsoleLogCache
   protected volatile int logCacheSize;
   protected volatile boolean alwaysPrintErrorStreamToConsole;
 
-  public AbstractServiceLogCache(@NonNull CloudNet cloudNet, @NonNull ICloudService service) {
+  public AbstractServiceLogCache(@NonNull CloudNet cloudNet, @NonNull CloudService service) {
     this.service = service;
     this.logCacheSize = cloudNet.config().maxServiceConsoleLogCacheSize();
     this.alwaysPrintErrorStreamToConsole = cloudNet.config().printErrorStreamLinesFromServices();
   }
 
   @Override
-  public @NonNull ICloudService service() {
+  public @NonNull CloudService service() {
     return this.service;
   }
 

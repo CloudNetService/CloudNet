@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.driver.provider;
 
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
-import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.concurrent.Task;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import java.util.Collection;
@@ -44,7 +44,7 @@ public interface CloudMessenger {
    * @return a collection containing the responses from all receivers
    */
   @NonNull
-  default ITask<Collection<ChannelMessage>> sendChannelMessageQueryAsync(@NonNull ChannelMessage channelMessage) {
+  default Task<Collection<ChannelMessage>> sendChannelMessageQueryAsync(@NonNull ChannelMessage channelMessage) {
     return CompletableTask.supply(() -> this.sendChannelMessageQuery(channelMessage));
   }
 
@@ -65,7 +65,7 @@ public interface CloudMessenger {
    * @return the response of the first receiver
    */
   @NonNull
-  default ITask<ChannelMessage> sendSingleChannelMessageQueryAsync(@NonNull ChannelMessage channelMessage) {
+  default Task<ChannelMessage> sendSingleChannelMessageQueryAsync(@NonNull ChannelMessage channelMessage) {
     return CompletableTask.supply(() -> this.sendSingleChannelMessageQuery(channelMessage));
   }
 

@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.driver.provider;
 
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
-import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.concurrent.Task;
 import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import java.util.Collection;
@@ -93,7 +93,7 @@ public interface GroupConfigurationProvider {
    * Reloads the groups.json file
    */
   @NonNull
-  default ITask<Void> reloadAsync() {
+  default Task<Void> reloadAsync() {
     return CompletableTask.supply(this::reload);
   }
 
@@ -103,7 +103,7 @@ public interface GroupConfigurationProvider {
    * @return a list containing the group configurations of all groups
    */
   @NonNull
-  default ITask<Collection<GroupConfiguration>> groupConfigurationsAsync() {
+  default Task<Collection<GroupConfiguration>> groupConfigurationsAsync() {
     return CompletableTask.supply(() -> this.groupConfigurations());
   }
 
@@ -113,7 +113,7 @@ public interface GroupConfigurationProvider {
    * @param groupConfigurations the new groups
    */
   @NonNull
-  default ITask<Void> groupConfigurationsAsync(@NonNull Collection<GroupConfiguration> groupConfigurations) {
+  default Task<Void> groupConfigurationsAsync(@NonNull Collection<GroupConfiguration> groupConfigurations) {
     return CompletableTask.supply(() -> this.groupConfigurations(groupConfigurations));
   }
 
@@ -124,7 +124,7 @@ public interface GroupConfigurationProvider {
    * @return the group or {@code null} if no group with that name exists
    */
   @NonNull
-  default ITask<GroupConfiguration> groupConfigurationAsync(@NonNull String name) {
+  default Task<GroupConfiguration> groupConfigurationAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.groupConfiguration(name));
   }
 
@@ -135,7 +135,7 @@ public interface GroupConfigurationProvider {
    * @return {@code true} if the group exists or {@code false} otherwise
    */
   @NonNull
-  default ITask<Boolean> groupConfigurationPresentAsync(@NonNull String name) {
+  default Task<Boolean> groupConfigurationPresentAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.groupConfigurationPresent(name));
   }
 
@@ -145,7 +145,7 @@ public interface GroupConfigurationProvider {
    * @param groupConfiguration the group to be added
    */
   @NonNull
-  default ITask<Void> addGroupConfigurationAsync(@NonNull GroupConfiguration groupConfiguration) {
+  default Task<Void> addGroupConfigurationAsync(@NonNull GroupConfiguration groupConfiguration) {
     return CompletableTask.supply(() -> this.addGroupConfiguration(groupConfiguration));
   }
 
@@ -155,7 +155,7 @@ public interface GroupConfigurationProvider {
    * @param name the name of the group to be removed
    */
   @NonNull
-  default ITask<Void> removeGroupConfigurationByNameAsync(@NonNull String name) {
+  default Task<Void> removeGroupConfigurationByNameAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.removeGroupConfigurationByName(name));
   }
 
@@ -166,7 +166,7 @@ public interface GroupConfigurationProvider {
    *                           is ignored)
    */
   @NonNull
-  default ITask<Void> removeGroupConfigurationAsync(@NonNull GroupConfiguration groupConfiguration) {
+  default Task<Void> removeGroupConfigurationAsync(@NonNull GroupConfiguration groupConfiguration) {
     return CompletableTask.supply(() -> this.removeGroupConfiguration(groupConfiguration));
   }
 }

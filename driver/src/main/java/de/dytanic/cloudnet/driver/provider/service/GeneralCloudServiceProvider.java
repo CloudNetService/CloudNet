@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.driver.provider.service;
 
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
-import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.concurrent.Task;
 import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -152,11 +152,11 @@ public interface GeneralCloudServiceProvider {
   @Nullable
   ServiceInfoSnapshot service(@NonNull UUID uniqueId);
 
-  default @NonNull ITask<SpecificCloudServiceProvider> specificProviderAsync(@NonNull UUID serviceUniqueId) {
+  default @NonNull Task<SpecificCloudServiceProvider> specificProviderAsync(@NonNull UUID serviceUniqueId) {
     return CompletableTask.supply(() -> this.specificProvider(serviceUniqueId));
   }
 
-  default @NonNull ITask<SpecificCloudServiceProvider> specificProviderByNameAsync(@NonNull String serviceName) {
+  default @NonNull Task<SpecificCloudServiceProvider> specificProviderByNameAsync(@NonNull String serviceName) {
     return CompletableTask.supply(() -> this.specificProviderByName(serviceName));
   }
 
@@ -166,7 +166,7 @@ public interface GeneralCloudServiceProvider {
    * @return a list containing the uniqueIds of every service in the whole cloud
    */
   @NonNull
-  default ITask<Collection<UUID>> servicesAsUniqueIdAsync() {
+  default Task<Collection<UUID>> servicesAsUniqueIdAsync() {
     return CompletableTask.supply(this::servicesAsUniqueId);
   }
 
@@ -176,7 +176,7 @@ public interface GeneralCloudServiceProvider {
    * @return a list containing the infos of every service in the whole cloud
    */
   @NonNull
-  default ITask<Collection<ServiceInfoSnapshot>> servicesAsync() {
+  default Task<Collection<ServiceInfoSnapshot>> servicesAsync() {
     return CompletableTask.supply(this::services);
   }
 
@@ -186,7 +186,7 @@ public interface GeneralCloudServiceProvider {
    * @return a list containing the infos of every started service in the whole cloud
    */
   @NonNull
-  default ITask<Collection<ServiceInfoSnapshot>> runningServicesAsync() {
+  default Task<Collection<ServiceInfoSnapshot>> runningServicesAsync() {
     return CompletableTask.supply(this::runningServices);
   }
 
@@ -197,7 +197,7 @@ public interface GeneralCloudServiceProvider {
    * @return a list containing the infos of every service with the given task in the whole cloud
    */
   @NonNull
-  default ITask<Collection<ServiceInfoSnapshot>> servicesByTaskAsync(@NonNull String taskName) {
+  default Task<Collection<ServiceInfoSnapshot>> servicesByTaskAsync(@NonNull String taskName) {
     return CompletableTask.supply(() -> this.servicesByTask(taskName));
   }
 
@@ -208,7 +208,7 @@ public interface GeneralCloudServiceProvider {
    * @return a list containing the infos of every service with the given environment in the whole cloud
    */
   @NonNull
-  default ITask<Collection<ServiceInfoSnapshot>> servicesByEnvironmentAsync(@NonNull ServiceEnvironmentType e) {
+  default Task<Collection<ServiceInfoSnapshot>> servicesByEnvironmentAsync(@NonNull ServiceEnvironmentType e) {
     return CompletableTask.supply(() -> this.servicesByEnvironment(e));
   }
 
@@ -219,7 +219,7 @@ public interface GeneralCloudServiceProvider {
    * @return a list containing the infos of every service with the given group in the whole cloud
    */
   @NonNull
-  default ITask<Collection<ServiceInfoSnapshot>> servicesByGroupAsync(@NonNull String group) {
+  default Task<Collection<ServiceInfoSnapshot>> servicesByGroupAsync(@NonNull String group) {
     return CompletableTask.supply(() -> this.servicesByGroup(group));
   }
 
@@ -229,7 +229,7 @@ public interface GeneralCloudServiceProvider {
    * @return an integer for the amount of services in the whole cloud
    */
   @NonNull
-  default ITask<Integer> serviceCountAsync() {
+  default Task<Integer> serviceCountAsync() {
     return CompletableTask.supply(this::serviceCount);
   }
 
@@ -240,7 +240,7 @@ public interface GeneralCloudServiceProvider {
    * @return an integer for the amount of services in the whole cloud
    */
   @NonNull
-  default ITask<Integer> serviceCountByGroupAsync(@NonNull String group) {
+  default Task<Integer> serviceCountByGroupAsync(@NonNull String group) {
     return CompletableTask.supply(() -> this.serviceCountByGroup(group));
   }
 
@@ -251,7 +251,7 @@ public interface GeneralCloudServiceProvider {
    * @return an integer for the amount of services in the whole cloud
    */
   @NonNull
-  default ITask<Integer> serviceCountByTaskAsync(@NonNull String taskName) {
+  default Task<Integer> serviceCountByTaskAsync(@NonNull String taskName) {
     return CompletableTask.supply(() -> this.serviceCountByTask(taskName));
   }
 
@@ -262,7 +262,7 @@ public interface GeneralCloudServiceProvider {
    * @return the info of the service or {@code null} if the service doesn't exist
    */
   @NonNull
-  default ITask<ServiceInfoSnapshot> serviceByNameAsync(@NonNull String name) {
+  default Task<ServiceInfoSnapshot> serviceByNameAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.serviceByName(name));
   }
 
@@ -273,7 +273,7 @@ public interface GeneralCloudServiceProvider {
    * @return the info of the service or {@code null} if the service doesn't exist
    */
   @NonNull
-  default ITask<ServiceInfoSnapshot> serviceAsync(@NonNull UUID uniqueId) {
+  default Task<ServiceInfoSnapshot> serviceAsync(@NonNull UUID uniqueId) {
     return CompletableTask.supply(() -> this.service(uniqueId));
   }
 }

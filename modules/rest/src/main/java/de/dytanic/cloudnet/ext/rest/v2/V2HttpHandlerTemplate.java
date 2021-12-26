@@ -16,9 +16,9 @@
 
 package de.dytanic.cloudnet.ext.rest.v2;
 
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
+import de.dytanic.cloudnet.driver.network.http.HttpResponse;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
-import de.dytanic.cloudnet.driver.network.http.IHttpResponse;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.SpecificTemplateStorage;
 import de.dytanic.cloudnet.ext.rest.RestUtils;
@@ -38,7 +38,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) {
+  protected void handleBearerAuthorized(String path, HttpContext context, HttpSession session) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.contains("/file/")) {
         if (path.contains("/download")) {
@@ -82,7 +82,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     }
   }
 
-  protected void handleDownloadRequest(IHttpContext context) {
+  protected void handleDownloadRequest(HttpContext context) {
     this.handleWithTemplateContext(context, (template, storage) -> {
       var stream = storage.zipTemplateAsync().get();
       if (stream == null) {
@@ -103,7 +103,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     });
   }
 
-  protected void handleFileDownloadRequest(IHttpContext context) {
+  protected void handleFileDownloadRequest(HttpContext context) {
     this.handleWithFileTemplateContext(context, (template, storage, path) -> {
       var stream = storage.newInputStreamAsync(path).get();
       if (stream == null) {
@@ -125,7 +125,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     });
   }
 
-  protected void handleFileInfoRequest(IHttpContext context) {
+  protected void handleFileInfoRequest(HttpContext context) {
     this.handleWithFileTemplateContext(context, (template, storage, path) -> {
       var info = storage.fileInfoAsync(path).get();
       if (info == null) {
@@ -144,7 +144,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     });
   }
 
-  protected void handleFileExistsRequest(IHttpContext context) {
+  protected void handleFileExistsRequest(HttpContext context) {
     this.handleWithFileTemplateContext(context, (template, storage, path) -> {
       boolean status = storage.hasFileAsync(path).get();
       this.ok(context)
@@ -155,7 +155,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     });
   }
 
-  protected void handleFileListRequest(IHttpContext context) {
+  protected void handleFileListRequest(HttpContext context) {
     this.handleWithTemplateContext(context, (template, storage) -> {
       var dir = RestUtils.first(context.request().queryParameters().get("directory"), "");
       var deep = Boolean.parseBoolean(RestUtils.first(context.request().queryParameters().get("deep"), "false"));
@@ -169,7 +169,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     });
   }
 
-  protected void handleCreateRequest(IHttpContext context) {
+  protected void handleCreateRequest(HttpContext context) {
     this.handleWithTemplateContext(context, (template, storage) -> {
       boolean status = storage.createAsync().fireExceptionOnFailure().get();
       this.ok(context)
@@ -180,7 +180,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     });
   }
 
-  protected void handleDeployRequest(IHttpContext context) {
+  protected void handleDeployRequest(HttpContext context) {
     var stream = context.request().bodyStream();
     if (stream == null) {
       this.badRequest(context)
@@ -201,7 +201,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     });
   }
 
-  protected void handleFileDeleteRequest(IHttpContext context) {
+  protected void handleFileDeleteRequest(HttpContext context) {
     this.handleWithFileTemplateContext(context, (template, storage, path) -> {
       boolean status = storage.deleteFileAsync(path).get();
       this.ok(context)
@@ -212,7 +212,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     });
   }
 
-  protected void handleTemplateDeleteRequest(IHttpContext context) {
+  protected void handleTemplateDeleteRequest(HttpContext context) {
     this.handleWithTemplateContext(context, (template, storage) -> {
       boolean status = storage.deleteAsync().get();
       this.ok(context)
@@ -223,7 +223,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     });
   }
 
-  protected void handleInstallationRequest(IHttpContext context) {
+  protected void handleInstallationRequest(HttpContext context) {
     this.handleWithTemplateContext(context, (template, storage) -> {
       var body = this.body(context.request());
 
@@ -273,7 +273,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     });
   }
 
-  protected void handleFileWriteRequest(IHttpContext context, boolean append) {
+  protected void handleFileWriteRequest(HttpContext context, boolean append) {
     var content = context.request().bodyStream();
     if (content == null) {
       this.badRequest(context)
@@ -304,7 +304,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     });
   }
 
-  protected void handleDirectoryCreateRequest(IHttpContext context) {
+  protected void handleDirectoryCreateRequest(HttpContext context) {
     this.handleWithFileTemplateContext(context, (template, storage, path) -> {
       boolean status = storage.createDirectoryAsync(path).get();
       this.ok(context)
@@ -315,7 +315,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     });
   }
 
-  protected void handleWithTemplateContext(IHttpContext context,
+  protected void handleWithTemplateContext(HttpContext context,
     ThrowableBiConsumer<ServiceTemplate, SpecificTemplateStorage, Exception> handler) {
     var storage = context.request().pathParameters().get("storage");
     var prefix = context.request().pathParameters().get("prefix");
@@ -349,7 +349,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     }
   }
 
-  protected void handleWithFileTemplateContext(IHttpContext context,
+  protected void handleWithFileTemplateContext(HttpContext context,
     ThrowableTriConsumer<ServiceTemplate, SpecificTemplateStorage, String, Exception> handler) {
     this.handleWithTemplateContext(context, (template, storage) -> {
       var fileName = RestUtils.first(context.request().queryParameters().get("path"), null);
@@ -366,7 +366,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     });
   }
 
-  protected void notifyException(IHttpContext context, Exception exception) {
+  protected void notifyException(HttpContext context, Exception exception) {
     LOGGER.fine("Exception handling template request", exception);
     this.response(context, HttpResponseCode.HTTP_INTERNAL_ERROR)
       .body(this.failure().append("reason", "Exception processing request").toString())
@@ -375,7 +375,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected IHttpResponse ok(@NonNull IHttpContext context, @NonNull String contentType) {
+  protected HttpResponse ok(@NonNull HttpContext context, @NonNull String contentType) {
     return context.response()
       .statusCode(HttpResponseCode.HTTP_OK)
       .header("Content-Type", contentType)

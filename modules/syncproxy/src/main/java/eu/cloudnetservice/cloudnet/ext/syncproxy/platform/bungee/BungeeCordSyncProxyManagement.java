@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.ext.syncproxy.platform.bungee;
 
-import de.dytanic.cloudnet.common.registry.IServicesRegistry;
+import de.dytanic.cloudnet.common.registry.ServicesRegistry;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.platform.PlatformSyncProxyManagement;
 import java.util.Collection;
 import java.util.UUID;
@@ -39,12 +39,12 @@ public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManage
   }
 
   @Override
-  public void registerService(@NonNull IServicesRegistry registry) {
+  public void registerService(@NonNull ServicesRegistry registry) {
     registry.registerService(PlatformSyncProxyManagement.class, "BungeeCordSyncProxyManagement", this);
   }
 
   @Override
-  public void unregisterService(@NonNull IServicesRegistry registry) {
+  public void unregisterService(@NonNull ServicesRegistry registry) {
     registry.unregisterService(PlatformSyncProxyManagement.class, "BungeeCordSyncProxyManagement");
   }
 

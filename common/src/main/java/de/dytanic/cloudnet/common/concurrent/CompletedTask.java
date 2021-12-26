@@ -30,7 +30,7 @@ import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.UnmodifiableView;
 
 @SuppressWarnings("unchecked") // uni result is an object - unchecked casts are required
-public class CompletedTask<V> implements ITask<V> {
+public class CompletedTask<V> implements Task<V> {
 
   protected static final int UNI_DONE = 0;
   protected static final int UNI_CANCEL = 1;
@@ -69,7 +69,7 @@ public class CompletedTask<V> implements ITask<V> {
   }
 
   @Override
-  public @NonNull ITask<V> addListener(@NonNull ITaskListener<V> listener) {
+  public @NonNull Task<V> addListener(@NonNull TaskListener<V> listener) {
     // invoke the listener directly based on the result uni stage
     switch (this.uniStage) {
       case UNI_DONE -> listener.onComplete(this, (V) this.uniResult);
@@ -82,12 +82,12 @@ public class CompletedTask<V> implements ITask<V> {
   }
 
   @Override
-  public @NonNull ITask<V> clearListeners() {
+  public @NonNull Task<V> clearListeners() {
     return this; // no-op
   }
 
   @Override
-  public @UnmodifiableView @NonNull Collection<ITaskListener<V>> listeners() {
+  public @UnmodifiableView @NonNull Collection<TaskListener<V>> listeners() {
     return Collections.emptyList(); // no-op
   }
 
@@ -102,7 +102,7 @@ public class CompletedTask<V> implements ITask<V> {
   }
 
   @Override
-  public @NonNull <T> ITask<T> map(@NonNull ThrowableFunction<V, T, Throwable> mapper) {
+  public @NonNull <T> Task<T> map(@NonNull ThrowableFunction<V, T, Throwable> mapper) {
     // if the current is not successful we can return a future holding the same information as this one
     if (this.uniStage != UNI_DONE) {
       return this.uniStage == UNI_CANCEL ? cancelled() : CompletedTask.exceptionally((Throwable) this.uniResult);

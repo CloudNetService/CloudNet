@@ -25,7 +25,7 @@ import de.dytanic.cloudnet.common.log.defaults.DefaultFileHandler;
 import de.dytanic.cloudnet.common.log.defaults.DefaultLogFormatter;
 import de.dytanic.cloudnet.common.log.defaults.ThreadedLogRecordDispatcher;
 import de.dytanic.cloudnet.common.log.io.LogOutputStream;
-import de.dytanic.cloudnet.console.IConsole;
+import de.dytanic.cloudnet.console.Console;
 import de.dytanic.cloudnet.console.JLine3Console;
 import de.dytanic.cloudnet.console.log.ColouredLogFormatter;
 import java.nio.file.Path;
@@ -43,7 +43,7 @@ public final class BootLogic {
     I18n.language(System.getProperty("cloudnet.messages.language", "english"));
 
     // init logger and console
-    IConsole console = new JLine3Console();
+    Console console = new JLine3Console();
     initLoggerAndConsole(console, LogManager.rootLogger());
 
     // boot CloudNet
@@ -51,7 +51,7 @@ public final class BootLogic {
     nodeInstance.start();
   }
 
-  private static void initLoggerAndConsole(@NonNull IConsole console, @NonNull Logger logger) {
+  private static void initLoggerAndConsole(@NonNull Console console, @NonNull Logger logger) {
     var logFilePattern = Path.of("local", "logs", "cloudnet.%g.log");
     var consoleFormatter = console.hasColorSupport() ? new ColouredLogFormatter() : DefaultLogFormatter.END_CLEAN;
 

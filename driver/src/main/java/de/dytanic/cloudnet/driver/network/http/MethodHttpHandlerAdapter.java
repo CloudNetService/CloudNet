@@ -18,41 +18,41 @@ package de.dytanic.cloudnet.driver.network.http;
 
 import lombok.NonNull;
 
-public class MethodHttpHandlerAdapter implements IMethodHttpHandler {
+public class MethodHttpHandlerAdapter implements MethodHttpHandler {
 
   @Override
-  public void handlePost(@NonNull String path, @NonNull IHttpContext context) throws Exception {
+  public void handlePost(@NonNull String path, @NonNull HttpContext context) throws Exception {
   }
 
   @Override
-  public void handleGet(@NonNull String path, @NonNull IHttpContext context) throws Exception {
+  public void handleGet(@NonNull String path, @NonNull HttpContext context) throws Exception {
   }
 
   @Override
-  public void handlePut(@NonNull String path, @NonNull IHttpContext context) throws Exception {
+  public void handlePut(@NonNull String path, @NonNull HttpContext context) throws Exception {
   }
 
   @Override
-  public void handleHead(@NonNull String path, @NonNull IHttpContext context) throws Exception {
+  public void handleHead(@NonNull String path, @NonNull HttpContext context) throws Exception {
   }
 
   @Override
-  public void handleDelete(@NonNull String path, @NonNull IHttpContext context) throws Exception {
+  public void handleDelete(@NonNull String path, @NonNull HttpContext context) throws Exception {
   }
 
   @Override
-  public void handlePatch(@NonNull String path, @NonNull IHttpContext context) throws Exception {
+  public void handlePatch(@NonNull String path, @NonNull HttpContext context) throws Exception {
   }
 
   @Override
-  public void handleTrace(@NonNull String path, @NonNull IHttpContext context) throws Exception {
+  public void handleTrace(@NonNull String path, @NonNull HttpContext context) throws Exception {
   }
 
   @Override
-  public void handleOptions(@NonNull String path, @NonNull IHttpContext context) throws Exception {
+  public void handleOptions(@NonNull String path, @NonNull HttpContext context) throws Exception {
   }
 
   @Override
-  public void handleConnect(@NonNull String path, @NonNull IHttpContext context) throws Exception {
+  public void handleConnect(@NonNull String path, @NonNull HttpContext context) throws Exception {
   }
 }

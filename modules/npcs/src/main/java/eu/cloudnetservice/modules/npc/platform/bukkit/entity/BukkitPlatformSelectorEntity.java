@@ -20,7 +20,7 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceHelper;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperties;
-import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
+import de.dytanic.cloudnet.ext.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.NPC.ClickAction;
 import eu.cloudnetservice.modules.npc.configuration.InventoryConfiguration;
@@ -390,8 +390,8 @@ public abstract class BukkitPlatformSelectorEntity
     }
   }
 
-  protected @NonNull IPlayerManager playerManager() {
-    return CloudNetDriver.instance().servicesRegistry().firstService(IPlayerManager.class);
+  protected @NonNull PlayerManager playerManager() {
+    return CloudNetDriver.instance().servicesRegistry().firstService(PlayerManager.class);
   }
 
   protected double heightAddition(int lineNumber) {

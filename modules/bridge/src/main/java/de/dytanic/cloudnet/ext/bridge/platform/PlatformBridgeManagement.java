@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.ext.bridge.platform;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.event.IEventManager;
+import de.dytanic.cloudnet.driver.event.EventManager;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -35,8 +35,8 @@ import de.dytanic.cloudnet.ext.bridge.event.BridgeConfigurationUpdateEvent;
 import de.dytanic.cloudnet.ext.bridge.platform.fallback.FallbackProfile;
 import de.dytanic.cloudnet.ext.bridge.platform.listener.PlatformChannelMessageListener;
 import de.dytanic.cloudnet.ext.bridge.platform.listener.PlatformInformationListener;
-import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
+import de.dytanic.cloudnet.ext.bridge.player.PlayerManager;
 import de.dytanic.cloudnet.ext.bridge.player.ServicePlayer;
 import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
 import de.dytanic.cloudnet.ext.bridge.rpc.ComponentObjectSerializer;
@@ -66,8 +66,8 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     && BridgeServiceProperties.IS_ONLINE.read(service).orElse(false);
 
   protected final RPCSender sender;
-  protected final IEventManager eventManager;
-  protected final IPlayerManager playerManager;
+  protected final EventManager eventManager;
+  protected final PlayerManager playerManager;
   protected final NetworkServiceInfo ownNetworkServiceInfo;
   protected final Map<UUID, FallbackProfile> fallbackProfiles;
   protected final Map<UUID, ServiceInfoSnapshot> cachedServices;
@@ -123,7 +123,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
   }
 
   @Override
-  public @NonNull IPlayerManager playerManager() {
+  public @NonNull PlayerManager playerManager() {
     return this.playerManager;
   }
 

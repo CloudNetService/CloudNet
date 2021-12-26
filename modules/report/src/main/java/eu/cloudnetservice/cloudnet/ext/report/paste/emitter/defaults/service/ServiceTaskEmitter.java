@@ -18,13 +18,13 @@ package eu.cloudnetservice.cloudnet.ext.report.paste.emitter.defaults.service;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.service.CloudService;
 import eu.cloudnetservice.cloudnet.ext.report.paste.emitter.ReportDataEmitter;
 
-public class ServiceTaskEmitter implements ReportDataEmitter<ICloudService> {
+public class ServiceTaskEmitter implements ReportDataEmitter<CloudService> {
 
   @Override
-  public void emitData(StringBuilder builder, ICloudService service) {
+  public void emitData(StringBuilder builder, CloudService service) {
     var taskProvider = CloudNet.instance().serviceTaskProvider();
     var serviceTask = taskProvider.serviceTask(service.serviceId().taskName());
     if (serviceTask == null) {

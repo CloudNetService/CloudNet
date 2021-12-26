@@ -30,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public abstract class AbstractPermissible extends JsonDocPropertyHolder implements IPermissible {
+public abstract class AbstractPermissible extends JsonDocPropertyHolder implements Permissible {
 
   protected String name;
   protected int potency;

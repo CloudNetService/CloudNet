@@ -16,13 +16,13 @@
 
 package de.dytanic.cloudnet.event.service;
 
-import de.dytanic.cloudnet.driver.event.ICancelable;
+import de.dytanic.cloudnet.driver.event.Cancelable;
 import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
-import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.service.CloudService;
 import kong.unirest.GetRequest;
 import lombok.NonNull;
 
-public final class CloudServicePreLoadInclusionEvent extends CloudServiceEvent implements ICancelable {
+public final class CloudServicePreLoadInclusionEvent extends CloudServiceEvent implements Cancelable {
 
   private final GetRequest request;
   private final ServiceRemoteInclusion serviceRemoteInclusion;
@@ -30,7 +30,7 @@ public final class CloudServicePreLoadInclusionEvent extends CloudServiceEvent i
   private volatile boolean cancelled;
 
   public CloudServicePreLoadInclusionEvent(
-    @NonNull ICloudService cloudService,
+    @NonNull CloudService cloudService,
     @NonNull ServiceRemoteInclusion serviceRemoteInclusion,
     @NonNull GetRequest request
   ) {

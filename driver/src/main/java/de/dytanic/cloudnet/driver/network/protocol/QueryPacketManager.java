@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.driver.network.protocol;
 
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import java.util.Map;
 import java.util.UUID;
 import lombok.NonNull;
@@ -28,18 +28,18 @@ public interface QueryPacketManager {
 
   long queryTimeoutMillis();
 
-  @NonNull INetworkChannel networkChannel();
+  @NonNull NetworkChannel networkChannel();
 
   @NonNull
-  @UnmodifiableView Map<UUID, CompletableTask<IPacket>> waitingHandlers();
+  @UnmodifiableView Map<UUID, CompletableTask<Packet>> waitingHandlers();
 
   boolean hasWaitingHandler(@NonNull UUID queryUniqueId);
 
   boolean unregisterWaitingHandler(@NonNull UUID queryUniqueId);
 
-  @Nullable CompletableTask<IPacket> waitingHandler(@NonNull UUID queryUniqueId);
+  @Nullable CompletableTask<Packet> waitingHandler(@NonNull UUID queryUniqueId);
 
-  @NonNull CompletableTask<IPacket> sendQueryPacket(@NonNull IPacket packet);
+  @NonNull CompletableTask<Packet> sendQueryPacket(@NonNull Packet packet);
 
-  @NonNull CompletableTask<IPacket> sendQueryPacket(@NonNull IPacket packet, @NonNull UUID queryUniqueId);
+  @NonNull CompletableTask<Packet> sendQueryPacket(@NonNull Packet packet, @NonNull UUID queryUniqueId);
 }

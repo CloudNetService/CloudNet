@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.service.defaults.config;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.service.CloudService;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Properties;
@@ -26,7 +26,7 @@ import lombok.NonNull;
 public class NukkitConfigurationPreparer extends AbstractServiceConfigurationPreparer {
 
   @Override
-  public void configure(@NonNull CloudNet nodeInstance, @NonNull ICloudService cloudService) {
+  public void configure(@NonNull CloudNet nodeInstance, @NonNull CloudService cloudService) {
     // check if we should run now
     if (this.shouldRewriteIp(nodeInstance, cloudService)) {
       // copy the default file

@@ -28,7 +28,7 @@ import static de.dytanic.cloudnet.driver.service.ServiceEnvironmentType.PE_SERVE
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.collection.Pair;
-import de.dytanic.cloudnet.common.document.IDocument;
+import de.dytanic.cloudnet.common.document.Document;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.console.animation.setup.ConsoleSetupAnimation;
@@ -82,7 +82,7 @@ public class DefaultTaskSetup implements DefaultSetup {
                     .parser(serviceEnvironmentType())
                     .possibleResults(this.versionProvider().knownEnvironments().values().stream()
                       .filter(type -> {
-                        IDocument<?> properties = type.properties();
+                        Document<?> properties = type.properties();
                         return JAVA_PROXY.get(properties) || PE_PROXY.get(properties);
                       })
                       .map(ServiceEnvironmentType::name)
@@ -129,7 +129,7 @@ public class DefaultTaskSetup implements DefaultSetup {
                     .parser(serviceEnvironmentType())
                     .possibleResults(this.versionProvider().knownEnvironments().values().stream()
                       .filter(type -> {
-                        IDocument<?> properties = type.properties();
+                        Document<?> properties = type.properties();
                         return JAVA_SERVER.get(properties) || PE_SERVER.get(properties);
                       })
                       .map(ServiceEnvironmentType::name)

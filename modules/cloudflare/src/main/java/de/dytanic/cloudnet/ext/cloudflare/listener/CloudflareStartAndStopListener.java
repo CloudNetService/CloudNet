@@ -27,7 +27,7 @@ import de.dytanic.cloudnet.ext.cloudflare.CloudflareConfigurationEntry;
 import de.dytanic.cloudnet.ext.cloudflare.CloudflareGroupConfiguration;
 import de.dytanic.cloudnet.ext.cloudflare.cloudflare.CloudFlareAPI;
 import de.dytanic.cloudnet.ext.cloudflare.dns.SRVRecord;
-import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.service.CloudService;
 import java.util.function.BiConsumer;
 import lombok.NonNull;
 
@@ -77,7 +77,7 @@ public final class CloudflareStartAndStopListener {
   }
 
   private void handleWithConfiguration(
-    @NonNull ICloudService targetService,
+    @NonNull CloudService targetService,
     @NonNull BiConsumer<CloudflareConfigurationEntry, CloudflareGroupConfiguration> handler
   ) {
     for (var entry : CloudNetCloudflareModule.instance().cloudFlareConfiguration().entries()) {

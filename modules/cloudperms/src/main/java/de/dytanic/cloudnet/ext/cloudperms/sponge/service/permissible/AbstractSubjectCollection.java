@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.ext.cloudperms.sponge.service.permissible;
 
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.PermissionManagement;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -30,9 +30,9 @@ public abstract class AbstractSubjectCollection implements SubjectCollection {
 
   protected final String identifier;
   protected final PermissionService permsService;
-  protected final IPermissionManagement management;
+  protected final PermissionManagement management;
 
-  public AbstractSubjectCollection(String identifier, PermissionService service, IPermissionManagement management) {
+  public AbstractSubjectCollection(String identifier, PermissionService service, PermissionManagement management) {
     this.identifier = identifier;
     this.permsService = service;
     this.management = management;

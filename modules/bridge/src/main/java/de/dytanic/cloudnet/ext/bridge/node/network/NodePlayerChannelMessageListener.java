@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.ext.bridge.node.network;
 
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.EventListener;
-import de.dytanic.cloudnet.driver.event.IEventManager;
+import de.dytanic.cloudnet.driver.event.EventManager;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.ext.bridge.BridgeManagement;
@@ -43,12 +43,12 @@ import net.kyori.adventure.text.Component;
 
 public final class NodePlayerChannelMessageListener {
 
-  private final IEventManager eventManager;
+  private final EventManager eventManager;
   private final NodePlayerManager playerManager;
   private final BridgeManagement bridgeManagement;
 
   public NodePlayerChannelMessageListener(
-    @NonNull IEventManager eventManager,
+    @NonNull EventManager eventManager,
     @NonNull NodePlayerManager playerManager,
     @NonNull BridgeManagement bridgeManagement
   ) {

@@ -24,17 +24,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import lombok.NonNull;
 
-public class DefaultEventManager implements IEventManager {
+public class DefaultEventManager implements EventManager {
 
   /**
    * Holds all registered events mapped to all registered events listeners
    */
-  protected final ListMultimap<Class<?>, IRegisteredEventListener> listeners = Multimaps.newListMultimap(
+  protected final ListMultimap<Class<?>, RegisteredEventListener> listeners = Multimaps.newListMultimap(
     new ConcurrentHashMap<>(),
     CopyOnWriteArrayList::new);
 
   @Override
-  public @NonNull IEventManager unregisterListeners(@NonNull ClassLoader classLoader) {
+  public @NonNull EventManager unregisterListeners(@NonNull ClassLoader classLoader) {
     for (var entry : this.listeners.entries()) {
       if (entry.getValue().instance().getClass().getClassLoader().equals(classLoader)) {
         this.listeners.remove(entry.getKey(), entry.getValue());
@@ -45,7 +45,7 @@ public class DefaultEventManager implements IEventManager {
   }
 
   @Override
-  public @NonNull IEventManager unregisterListener(Object @NonNull ... listeners) {
+  public @NonNull EventManager unregisterListener(Object @NonNull ... listeners) {
     for (var entry : this.listeners.entries()) {
       if (Arrays.stream(listeners).anyMatch(instance -> instance.equals(entry.getValue().instance()))) {
         this.listeners.remove(entry.getKey(), entry.getValue());
@@ -69,7 +69,7 @@ public class DefaultEventManager implements IEventManager {
         }
       } else {
         // workaround to sort the list to keep concurrency (Collections.sort isn't working here)
-        var targets = listeners.toArray(new IRegisteredEventListener[0]);
+        var targets = listeners.toArray(new RegisteredEventListener[0]);
         Arrays.sort(targets);
         // post the event to the listeners
         for (var listener : targets) {
@@ -85,7 +85,7 @@ public class DefaultEventManager implements IEventManager {
   }
 
   @Override
-  public @NonNull IEventManager registerListener(@NonNull Object listener) {
+  public @NonNull EventManager registerListener(@NonNull Object listener) {
     // get all methods of the listener
     for (var method : listener.getClass().getDeclaredMethods()) {
       // check if the method can be used

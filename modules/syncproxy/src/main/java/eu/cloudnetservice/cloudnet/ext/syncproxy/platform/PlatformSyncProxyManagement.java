@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.ext.syncproxy.platform;
 
-import de.dytanic.cloudnet.driver.event.IEventManager;
+import de.dytanic.cloudnet.driver.event.EventManager;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -45,7 +45,7 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
   protected final Map<UUID, Integer> proxyOnlineCountCache = new ConcurrentHashMap<>();
 
   protected final RPCSender rpcSender;
-  protected final IEventManager eventManager;
+  protected final EventManager eventManager;
 
   protected SyncProxyConfiguration configuration;
   protected SyncProxyLoginConfiguration currentLoginConfiguration;

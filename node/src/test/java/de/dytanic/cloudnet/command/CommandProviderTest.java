@@ -26,7 +26,7 @@ import de.dytanic.cloudnet.command.annotation.CommandAlias;
 import de.dytanic.cloudnet.command.defaults.DefaultCommandProvider;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.command.source.DriverCommandSource;
-import de.dytanic.cloudnet.console.IConsole;
+import de.dytanic.cloudnet.console.Console;
 import de.dytanic.cloudnet.driver.NodeTestUtility;
 import de.dytanic.cloudnet.driver.event.DefaultEventManager;
 import java.util.Arrays;
@@ -40,7 +40,7 @@ import org.mockito.internal.util.collections.Iterables;
 
 public final class CommandProviderTest {
 
-  private static final CommandProvider commandProvider = new DefaultCommandProvider(Mockito.mock(IConsole.class));
+  private static final CommandProvider commandProvider = new DefaultCommandProvider(Mockito.mock(Console.class));
 
   @BeforeAll
   public static void initNode() {

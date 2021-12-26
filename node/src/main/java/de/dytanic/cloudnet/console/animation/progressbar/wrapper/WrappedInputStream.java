@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.console.animation.progressbar.wrapper;
 
-import de.dytanic.cloudnet.console.IConsole;
+import de.dytanic.cloudnet.console.Console;
 import de.dytanic.cloudnet.console.animation.progressbar.ConsoleProgressAnimation;
 import java.io.FilterInputStream;
 import java.io.IOException;
@@ -30,7 +30,7 @@ public final class WrappedInputStream extends FilterInputStream {
 
   public WrappedInputStream(
     @NonNull InputStream in,
-    @NonNull IConsole console,
+    @NonNull Console console,
     @NonNull ConsoleProgressAnimation animation
   ) {
     super(in);
