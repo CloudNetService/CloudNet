@@ -174,7 +174,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
             .joinRedeemTime(System.currentTimeMillis())
             .build());
 
-          cloudPlayer.playerExecutor().connect(player.connectedService().serverName());
+          this.connectPlayer(cloudPlayer, player);
         }
       });
     } else {
@@ -196,7 +196,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
             .spectateRedeemTime(System.currentTimeMillis())
             .build());
 
-          cloudPlayer.playerExecutor().connect(player.connectedService().serverName());
+          this.connectPlayer(cloudPlayer, player);
         }
       });
     }
