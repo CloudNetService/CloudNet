@@ -18,7 +18,7 @@ package eu.cloudnetservice.modules.npc.node;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.database.Database;
-import de.dytanic.cloudnet.driver.event.IEventManager;
+import de.dytanic.cloudnet.driver.event.EventManager;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import eu.cloudnetservice.modules.npc.AbstractNPCManagement;
@@ -45,7 +45,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
     @NonNull NPCConfiguration npcConfiguration,
     @NonNull Database database,
     @NonNull Path configPath,
-    @NonNull IEventManager eventManager
+    @NonNull EventManager eventManager
   ) {
     super(npcConfiguration);
     this.database = database;

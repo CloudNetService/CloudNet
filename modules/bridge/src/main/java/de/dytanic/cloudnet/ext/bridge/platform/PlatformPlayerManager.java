@@ -20,7 +20,7 @@ import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.ext.bridge.player.CloudOfflinePlayer;
 import de.dytanic.cloudnet.ext.bridge.player.CloudPlayer;
-import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
+import de.dytanic.cloudnet.ext.bridge.player.PlayerManager;
 import de.dytanic.cloudnet.ext.bridge.player.PlayerProvider;
 import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
 import de.dytanic.cloudnet.wrapper.Wrapper;
@@ -30,14 +30,14 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
-final class PlatformPlayerManager implements IPlayerManager {
+final class PlatformPlayerManager implements PlayerManager {
 
   private final RPCSender sender;
   private final PlayerProvider allPlayers;
   private final PlayerExecutor globalPlayerExecutor;
 
   public PlatformPlayerManager(@NonNull Wrapper wrapper) {
-    this.sender = wrapper.rpcProviderFactory().providerForClass(wrapper.networkClient(), IPlayerManager.class);
+    this.sender = wrapper.rpcProviderFactory().providerForClass(wrapper.networkClient(), PlayerManager.class);
     // init the static player utils
     this.globalPlayerExecutor = this.playerExecutor(PlayerExecutor.GLOBAL_UNIQUE_ID);
     this.allPlayers = new PlatformPlayerProvider(this.sender.invokeMethod("onlinePlayers"));

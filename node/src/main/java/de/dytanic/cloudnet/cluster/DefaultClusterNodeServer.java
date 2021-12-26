@@ -18,11 +18,11 @@ package de.dytanic.cloudnet.cluster;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.provider.NodeInfoProvider;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
@@ -34,7 +34,7 @@ import java.util.Collections;
 import lombok.NonNull;
 import org.jetbrains.annotations.UnknownNullability;
 
-public class DefaultClusterNodeServer extends DefaultNodeServer implements IClusterNodeServer {
+public class DefaultClusterNodeServer extends DefaultNodeServer implements ClusterNodeServer {
 
   private final CloudNet cloudNet;
   private final RPCSender rpcSender;
@@ -42,7 +42,7 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
   private final CloudServiceFactory cloudServiceFactory;
   private final DefaultClusterNodeServerProvider provider;
 
-  private INetworkChannel channel;
+  private NetworkChannel channel;
 
   protected DefaultClusterNodeServer(
     @NonNull CloudNet cloudNet,
@@ -72,21 +72,21 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
   }
 
   @Override
-  public void saveSendPacket(@NonNull IPacket packet) {
+  public void saveSendPacket(@NonNull Packet packet) {
     if (this.channel != null) {
       this.channel.sendPacket(packet);
     }
   }
 
   @Override
-  public void saveSendPacketSync(@NonNull IPacket packet) {
+  public void saveSendPacketSync(@NonNull Packet packet) {
     if (this.channel != null) {
       this.channel.sendPacketSync(packet);
     }
   }
 
   @Override
-  public boolean acceptableConnection(@NonNull INetworkChannel channel, @NonNull String nodeId) {
+  public boolean acceptableConnection(@NonNull NetworkChannel channel, @NonNull String nodeId) {
     return this.channel == null && this.nodeInfo.uniqueId().equals(nodeId);
   }
 
@@ -171,12 +171,12 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
   }
 
   @Override
-  public @UnknownNullability INetworkChannel channel() {
+  public @UnknownNullability NetworkChannel channel() {
     return this.channel;
   }
 
   @Override
-  public void channel(@NonNull INetworkChannel channel) {
+  public void channel(@NonNull NetworkChannel channel) {
     this.channel = channel;
   }
 

@@ -19,11 +19,11 @@ package de.dytanic.cloudnet.driver.network.netty.client;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.network.DefaultNetworkComponent;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.INetworkChannelHandler;
-import de.dytanic.cloudnet.driver.network.INetworkClient;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkChannelHandler;
+import de.dytanic.cloudnet.driver.network.NetworkClient;
 import de.dytanic.cloudnet.driver.network.netty.NettyUtils;
-import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
+import de.dytanic.cloudnet.driver.network.protocol.PacketListenerRegistry;
 import de.dytanic.cloudnet.driver.network.protocol.defaults.DefaultPacketListenerRegistry;
 import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
 import io.netty.bootstrap.Bootstrap;
@@ -45,7 +45,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import lombok.NonNull;
 
-public class NettyNetworkClient implements DefaultNetworkComponent, INetworkClient {
+public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClient {
 
   private static final int CONNECTION_TIMEOUT_MILLIS = 5_000;
   private static final WriteBufferWaterMark WATER_MARK = new WriteBufferWaterMark(1 << 20, 1 << 21);
@@ -53,19 +53,19 @@ public class NettyNetworkClient implements DefaultNetworkComponent, INetworkClie
   protected final Executor packetDispatcher = NettyUtils.newPacketDispatcher();
   protected final EventLoopGroup eventLoopGroup = NettyUtils.newEventLoopGroup();
 
-  protected final Collection<INetworkChannel> channels = new ConcurrentLinkedQueue<>();
-  protected final IPacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
+  protected final Collection<NetworkChannel> channels = new ConcurrentLinkedQueue<>();
+  protected final PacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
 
   protected final SSLConfiguration sslConfiguration;
-  protected final Callable<INetworkChannelHandler> networkChannelHandler;
+  protected final Callable<NetworkChannelHandler> networkChannelHandler;
 
   protected SslContext sslContext;
 
-  public NettyNetworkClient(Callable<INetworkChannelHandler> networkChannelHandler) {
+  public NettyNetworkClient(Callable<NetworkChannelHandler> networkChannelHandler) {
     this(networkChannelHandler, null);
   }
 
-  public NettyNetworkClient(Callable<INetworkChannelHandler> networkChannelHandler, SSLConfiguration sslConfiguration) {
+  public NettyNetworkClient(Callable<NetworkChannelHandler> networkChannelHandler, SSLConfiguration sslConfiguration) {
     this.networkChannelHandler = networkChannelHandler;
     this.sslConfiguration = sslConfiguration;
 
@@ -122,7 +122,7 @@ public class NettyNetworkClient implements DefaultNetworkComponent, INetworkClie
   }
 
   @Override
-  public @NonNull Collection<INetworkChannel> channels() {
+  public @NonNull Collection<NetworkChannel> channels() {
     return Collections.unmodifiableCollection(this.channels);
   }
 
@@ -132,12 +132,12 @@ public class NettyNetworkClient implements DefaultNetworkComponent, INetworkClie
   }
 
   @Override
-  public Collection<INetworkChannel> modifiableChannels() {
+  public Collection<NetworkChannel> modifiableChannels() {
     return this.channels;
   }
 
   @Override
-  public @NonNull IPacketListenerRegistry packetRegistry() {
+  public @NonNull PacketListenerRegistry packetRegistry() {
     return this.packetRegistry;
   }
 

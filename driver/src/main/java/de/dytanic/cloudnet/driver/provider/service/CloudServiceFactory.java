@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.driver.provider.service;
 
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
-import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.concurrent.Task;
 import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -44,7 +44,7 @@ public interface CloudServiceFactory {
    * @param configuration the configuration for the new service
    * @return the info of the created service or null if the service couldn't be created
    */
-  default @NonNull ITask<ServiceInfoSnapshot> createCloudServiceAsync(@NonNull ServiceConfiguration configuration) {
+  default @NonNull Task<ServiceInfoSnapshot> createCloudServiceAsync(@NonNull ServiceConfiguration configuration) {
     return CompletableTask.supply(() -> this.createCloudService(configuration));
   }
 }

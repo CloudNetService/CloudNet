@@ -25,7 +25,7 @@ import com.velocitypowered.api.event.permission.PermissionsSetupEvent;
 import com.velocitypowered.api.permission.PermissionProvider;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.PermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
@@ -35,12 +35,12 @@ public final class VelocityCloudPermissionsPlayerListener {
 
   private final ProxyServer proxyServer;
   private final PermissionProvider permissionProvider;
-  private final IPermissionManagement permissionsManagement;
+  private final PermissionManagement permissionsManagement;
 
   public VelocityCloudPermissionsPlayerListener(
     @NonNull ProxyServer proxyServer,
     @NonNull PermissionProvider permissionProvider,
-    @NonNull IPermissionManagement permissionsManagement
+    @NonNull PermissionManagement permissionsManagement
   ) {
     this.proxyServer = proxyServer;
     this.permissionProvider = permissionProvider;

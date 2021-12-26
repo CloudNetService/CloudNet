@@ -16,8 +16,8 @@
 
 package de.dytanic.cloudnet.driver.network.rpc;
 
-import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.common.concurrent.Task;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import lombok.NonNull;
 import org.jetbrains.annotations.Blocking;
 import org.jetbrains.annotations.NonBlocking;
@@ -30,13 +30,13 @@ public interface RPCExecutable {
   @Blocking
   <T> T fireSync();
 
-  @NonNull <T> ITask<T> fire();
+  @NonNull <T> Task<T> fire();
 
   @NonBlocking
-  void fireAndForget(@NonNull INetworkChannel component);
+  void fireAndForget(@NonNull NetworkChannel component);
 
   @Blocking
-  <T> T fireSync(@NonNull INetworkChannel component);
+  <T> T fireSync(@NonNull NetworkChannel component);
 
-  @NonNull <T> ITask<T> fire(@NonNull INetworkChannel component);
+  @NonNull <T> Task<T> fire(@NonNull NetworkChannel component);
 }

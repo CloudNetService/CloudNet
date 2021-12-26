@@ -18,6 +18,7 @@ package eu.cloudnetservice.cloudnet.ext.report.paste.emitter;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import de.dytanic.cloudnet.service.CloudService;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -43,7 +44,7 @@ public class EmitterRegistry {
 
   /**
    * @param clazz the class the emitters are registered for.
-   * @param <T>   the type of the report, currently {@link de.dytanic.cloudnet.service.ICloudService} & {@link
+   * @param <T>   the type of the report, currently {@link CloudService} & {@link
    *              de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot} are supported
    * @return an unmodifiable collection of all emitters for the given class
    */
@@ -61,7 +62,7 @@ public class EmitterRegistry {
    *
    * @param clazz   the class to register the emitter for
    * @param emitter the emitters for the given class appending data
-   * @param <T>     the type of the report, currently {@link de.dytanic.cloudnet.service.ICloudService} & {@link
+   * @param <T>     the type of the report, currently {@link CloudService} & {@link
    *                de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot} are supported
    */
   public <T> void registerDataEmitter(@NonNull Class<T> clazz, @NonNull ReportDataEmitter<T>... emitter) {

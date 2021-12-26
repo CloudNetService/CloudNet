@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.ext.syncproxy.platform.waterdog;
 
-import de.dytanic.cloudnet.common.registry.IServicesRegistry;
+import de.dytanic.cloudnet.common.registry.ServicesRegistry;
 import dev.waterdog.waterdogpe.ProxyServer;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.platform.PlatformSyncProxyManagement;
@@ -36,12 +36,12 @@ public final class WaterDogPESyncProxyManagement extends PlatformSyncProxyManage
   }
 
   @Override
-  public void registerService(@NonNull IServicesRegistry registry) {
+  public void registerService(@NonNull ServicesRegistry registry) {
     registry.registerService(PlatformSyncProxyManagement.class, "WaterDogPESyncProxyManagement", this);
   }
 
   @Override
-  public void unregisterService(@NonNull IServicesRegistry registry) {
+  public void unregisterService(@NonNull ServicesRegistry registry) {
     registry.unregisterService(PlatformSyncProxyManagement.class, "WaterDogPESyncProxyManagement");
   }
 

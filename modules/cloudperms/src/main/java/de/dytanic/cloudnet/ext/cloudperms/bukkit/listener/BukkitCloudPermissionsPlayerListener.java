@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.ext.cloudperms.bukkit.listener;
 
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.PermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
 import de.dytanic.cloudnet.ext.cloudperms.bukkit.BukkitPermissionHelper;
 import java.util.logging.Level;
@@ -34,9 +34,9 @@ import org.bukkit.plugin.Plugin;
 public final class BukkitCloudPermissionsPlayerListener implements Listener {
 
   private final Plugin plugin;
-  private final IPermissionManagement permissionsManagement;
+  private final PermissionManagement permissionsManagement;
 
-  public BukkitCloudPermissionsPlayerListener(Plugin plugin, IPermissionManagement permissionsManagement) {
+  public BukkitCloudPermissionsPlayerListener(Plugin plugin, PermissionManagement permissionsManagement) {
     this.plugin = plugin;
     this.permissionsManagement = permissionsManagement;
   }

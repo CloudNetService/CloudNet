@@ -18,9 +18,9 @@ package de.dytanic.cloudnet.driver.network.rpc.packet;
 
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
-import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.BasePacket;
 
-public class RPCQueryPacket extends Packet {
+public class RPCQueryPacket extends BasePacket {
 
   public RPCQueryPacket(DataBuf dataBuf) {
     super(NetworkConstants.INTERNAL_RPC_COM_CHANNEL, dataBuf);

@@ -16,14 +16,14 @@
 
 package de.dytanic.cloudnet.wrapper.network.listener;
 
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.PacketListener;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import lombok.NonNull;
 
-public final class PacketAuthorizationResponseListener implements IPacketListener {
+public final class PacketAuthorizationResponseListener implements PacketListener {
 
   private final Lock lock;
   private final Condition condition;
@@ -36,7 +36,7 @@ public final class PacketAuthorizationResponseListener implements IPacketListene
   }
 
   @Override
-  public void handle(@NonNull INetworkChannel channel, @NonNull IPacket packet) {
+  public void handle(@NonNull NetworkChannel channel, @NonNull Packet packet) {
     // read the auth result
     this.result = packet.content().readBoolean();
     // signal all listeners waiting for the auth

@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.console.animation;
 import com.google.common.base.Verify;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
-import de.dytanic.cloudnet.console.IConsole;
+import de.dytanic.cloudnet.console.Console;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,7 +36,7 @@ public abstract class AbstractConsoleAnimation implements Runnable {
   protected int cursorUp = 1;
   protected boolean staticCursor;
 
-  protected IConsole console;
+  protected Console console;
   protected Instant startInstant;
 
   public AbstractConsoleAnimation(int updateInterval) {
@@ -103,11 +103,11 @@ public abstract class AbstractConsoleAnimation implements Runnable {
     return this.updateInterval;
   }
 
-  public @NonNull IConsole console() {
+  public @NonNull Console console() {
     return this.console;
   }
 
-  public void console(@NonNull IConsole console) {
+  public void console(@NonNull Console console) {
     Verify.verify(this.console == null, "Cannot set console of animation twice");
     this.console = console;
   }

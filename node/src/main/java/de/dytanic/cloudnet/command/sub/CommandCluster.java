@@ -25,7 +25,7 @@ import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import com.google.common.net.InetAddresses;
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.cluster.IClusterNodeServer;
+import de.dytanic.cloudnet.cluster.ClusterNodeServer;
 import de.dytanic.cloudnet.cluster.NodeServer;
 import de.dytanic.cloudnet.command.annotation.CommandAlias;
 import de.dytanic.cloudnet.command.annotation.Description;
@@ -63,7 +63,7 @@ public final class CommandCluster {
 
   private static final Logger LOGGER = LogManager.logger(CommandCluster.class);
   private static final DateFormat DEFAULT_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-  private static final RowBasedFormatter<IClusterNodeServer> FORMATTER = RowBasedFormatter.<IClusterNodeServer>builder()
+  private static final RowBasedFormatter<ClusterNodeServer> FORMATTER = RowBasedFormatter.<ClusterNodeServer>builder()
     .defaultFormatter(ColumnFormatter.builder().columnTitles("Name", "State", "Listeners").build())
     .column(server -> server.nodeInfo().uniqueId())
     .column(server -> {
@@ -88,7 +88,7 @@ public final class CommandCluster {
     .build();
 
   @Parser(suggestions = "clusterNodeServer")
-  public IClusterNodeServer defaultClusterNodeServerParser(CommandContext<CommandSource> $, Queue<String> input) {
+  public ClusterNodeServer defaultClusterNodeServerParser(CommandContext<CommandSource> $, Queue<String> input) {
     var nodeId = input.remove();
     var nodeServer = CloudNet.instance().nodeServerProvider().nodeServer(nodeId);
     if (nodeServer == null) {
@@ -249,7 +249,7 @@ public final class CommandCluster {
   }
 
   @CommandMethod("cluster|clu node <nodeId>")
-  public void listNode(CommandSource source, @Argument("nodeId") IClusterNodeServer nodeServer) {
+  public void listNode(CommandSource source, @Argument("nodeId") ClusterNodeServer nodeServer) {
     this.displayNode(source, nodeServer);
   }
 
@@ -375,7 +375,7 @@ public final class CommandCluster {
     }
   }
 
-  private void displayNode(CommandSource source, IClusterNodeServer node) {
+  private void displayNode(CommandSource source, ClusterNodeServer node) {
     List<String> list = new ArrayList<>(Arrays.asList(
       " ",
       "Id: " + node.nodeInfo().uniqueId() + (node.headNode() ? " (Head)" : ""),

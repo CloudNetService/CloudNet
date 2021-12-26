@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.ext.cloudperms.bukkit.vault;
 
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.PermissionManagement;
 import java.util.logging.Level;
 import lombok.NonNull;
 import net.milkbowl.vault.chat.Chat;
@@ -30,7 +30,7 @@ public final class VaultSupport {
     throw new UnsupportedOperationException();
   }
 
-  public static void hook(@NonNull Plugin plugin, @NonNull IPermissionManagement management) {
+  public static void hook(@NonNull Plugin plugin, @NonNull PermissionManagement management) {
     try {
       var services = plugin.getServer().getServicesManager();
 

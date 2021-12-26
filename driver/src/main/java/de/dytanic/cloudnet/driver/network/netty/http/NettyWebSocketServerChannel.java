@@ -16,10 +16,10 @@
 
 package de.dytanic.cloudnet.driver.network.netty.http;
 
-import de.dytanic.cloudnet.driver.network.http.IHttpChannel;
-import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketChannel;
-import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketListener;
+import de.dytanic.cloudnet.driver.network.http.HttpChannel;
+import de.dytanic.cloudnet.driver.network.http.websocket.WebSocketChannel;
 import de.dytanic.cloudnet.driver.network.http.websocket.WebSocketFrameType;
+import de.dytanic.cloudnet.driver.network.http.websocket.WebSocketListener;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
@@ -32,23 +32,22 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
 @Internal
-final class NettyWebSocketServerChannel implements IWebSocketChannel {
+final class NettyWebSocketServerChannel implements WebSocketChannel {
 
-  private final List<IWebSocketListener> webSocketListeners = new CopyOnWriteArrayList<>();
+  private final Collection<WebSocketListener> webSocketListeners = new ConcurrentLinkedQueue<>();
 
   private final Channel channel;
-  private final IHttpChannel httpChannel;
+  private final HttpChannel httpChannel;
 
   public NettyWebSocketServerChannel(
-    @NonNull IHttpChannel httpChannel,
+    @NonNull HttpChannel httpChannel,
     @NonNull Channel channel
   ) {
     this.httpChannel = httpChannel;
@@ -56,47 +55,47 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
   }
 
   @Override
-  public @NonNull IWebSocketChannel addListener(@NonNull IWebSocketListener... listeners) {
+  public @NonNull WebSocketChannel addListener(@NonNull WebSocketListener... listeners) {
     this.webSocketListeners.addAll(Arrays.asList(listeners));
     return this;
   }
 
   @Override
-  public @NonNull IWebSocketChannel removeListener(@NonNull IWebSocketListener... listeners) {
+  public @NonNull WebSocketChannel removeListener(@NonNull WebSocketListener... listeners) {
     this.webSocketListeners.removeIf(listener -> Arrays.asList(listeners).contains(listener));
     return this;
   }
 
   @Override
-  public @NonNull IWebSocketChannel removeListener(@NonNull Collection<Class<? extends IWebSocketListener>> classes) {
+  public @NonNull WebSocketChannel removeListener(@NonNull Collection<Class<? extends WebSocketListener>> classes) {
     this.webSocketListeners.removeIf(listener -> classes.contains(listener.getClass()));
     return this;
   }
 
   @Override
-  public @NonNull IWebSocketChannel removeListener(@NonNull ClassLoader classLoader) {
+  public @NonNull WebSocketChannel removeListener(@NonNull ClassLoader classLoader) {
     this.webSocketListeners.removeIf(listener -> listener.getClass().getClassLoader().equals(classLoader));
     return this;
   }
 
   @Override
-  public @NonNull IWebSocketChannel clearListeners() {
+  public @NonNull WebSocketChannel clearListeners() {
     this.webSocketListeners.clear();
     return this;
   }
 
   @Override
-  public @NonNull Collection<IWebSocketListener> listeners() {
+  public @NonNull Collection<WebSocketListener> listeners() {
     return this.webSocketListeners;
   }
 
   @Override
-  public @NonNull IWebSocketChannel sendWebSocketFrame(@NonNull WebSocketFrameType type, @NonNull String text) {
+  public @NonNull WebSocketChannel sendWebSocketFrame(@NonNull WebSocketFrameType type, @NonNull String text) {
     return this.sendWebSocketFrame(type, text.getBytes(StandardCharsets.UTF_8));
   }
 
   @Override
-  public @NonNull IWebSocketChannel sendWebSocketFrame(@NonNull WebSocketFrameType webSocketFrameType, byte[] bytes) {
+  public @NonNull WebSocketChannel sendWebSocketFrame(@NonNull WebSocketFrameType webSocketFrameType, byte[] bytes) {
     WebSocketFrame webSocketFrame = switch (webSocketFrameType) {
       case PING -> new PingWebSocketFrame(Unpooled.buffer(bytes.length).writeBytes(bytes));
       case PONG -> new PongWebSocketFrame(Unpooled.buffer(bytes.length).writeBytes(bytes));
@@ -109,7 +108,7 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
   }
 
   @Override
-  public @NonNull IHttpChannel channel() {
+  public @NonNull HttpChannel channel() {
     return this.httpChannel;
   }
 

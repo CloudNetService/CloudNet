@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.ext.cloudperms;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.PermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -37,7 +37,7 @@ public final class CloudPermissionsHelper {
   }
 
   public static void initPermissionUser(
-    @NonNull IPermissionManagement permissionsManagement,
+    @NonNull PermissionManagement permissionsManagement,
     @NonNull UUID uniqueId,
     @NonNull String name,
     @NonNull Consumer<String> disconnectHandler
@@ -46,7 +46,7 @@ public final class CloudPermissionsHelper {
   }
 
   public static void initPermissionUser(
-    @NonNull IPermissionManagement permissionsManagement,
+    @NonNull PermissionManagement permissionsManagement,
     @NonNull UUID uniqueId,
     @NonNull String name,
     @NonNull Consumer<String> disconnectHandler,
@@ -73,7 +73,7 @@ public final class CloudPermissionsHelper {
     }
   }
 
-  public static void handlePlayerQuit(IPermissionManagement permissionsManagement, UUID uniqueId) {
+  public static void handlePlayerQuit(PermissionManagement permissionsManagement, UUID uniqueId) {
     var management = asCachedPermissionManagement(permissionsManagement);
     if (management != null) {
       var cachedUser = management.cachedUser(uniqueId);
@@ -83,7 +83,7 @@ public final class CloudPermissionsHelper {
     }
   }
 
-  public static CachedPermissionManagement asCachedPermissionManagement(IPermissionManagement management) {
+  public static CachedPermissionManagement asCachedPermissionManagement(PermissionManagement management) {
     return management instanceof CachedPermissionManagement ? (CachedPermissionManagement) management : null;
   }
 }

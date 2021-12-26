@@ -16,15 +16,15 @@
 
 package de.dytanic.cloudnet.driver.network.http.content;
 
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
+import de.dytanic.cloudnet.driver.network.http.HttpHandler;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
-import de.dytanic.cloudnet.driver.network.http.IHttpHandler;
 import lombok.NonNull;
 
-public record StaticContentHttpHandler(@NonNull ContentStreamProvider provider) implements IHttpHandler {
+public record StaticContentHttpHandler(@NonNull ContentStreamProvider provider) implements HttpHandler {
 
   @Override
-  public void handle(@NonNull String path, @NonNull IHttpContext context) throws Exception {
+  public void handle(@NonNull String path, @NonNull HttpContext context) throws Exception {
     path = path.replaceFirst(context.pathPrefix(), "");
     if (path.endsWith("/") || path.isEmpty()) {
       var pathPrefix = context.pathPrefix().endsWith("/")

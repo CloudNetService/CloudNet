@@ -16,11 +16,11 @@
 
 package de.dytanic.cloudnet.driver.network.chunk;
 
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
 import de.dytanic.cloudnet.driver.network.chunk.defaults.splitter.NetworkChannelsPacketSplitter;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.UUID;
@@ -101,7 +101,7 @@ public class ChunkedPacketSenderTest {
     return data;
   }
 
-  private void validatePacket(IPacket packet, UUID sessionId, AtomicInteger splits, byte[] data) {
+  private void validatePacket(Packet packet, UUID sessionId, AtomicInteger splits, byte[] data) {
     var info = packet.content().readObject(ChunkSessionInformation.class);
 
     Assertions.assertEquals(256, info.chunkSize());
@@ -133,15 +133,15 @@ public class ChunkedPacketSenderTest {
       packet.content().readByteArray());
   }
 
-  private INetworkChannel mockNetworkChannel(Consumer<IPacket> packetSyncSendHandler) {
-    var channel = Mockito.mock(INetworkChannel.class);
+  private NetworkChannel mockNetworkChannel(Consumer<Packet> packetSyncSendHandler) {
+    var channel = Mockito.mock(NetworkChannel.class);
     Mockito
       .doAnswer(invocation -> {
         packetSyncSendHandler.accept(invocation.getArgument(0));
         return null;
       })
       .when(channel)
-      .sendPacketSync(Mockito.any(IPacket.class));
+      .sendPacketSync(Mockito.any(Packet.class));
 
     return channel;
   }

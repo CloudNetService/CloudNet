@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.driver.network.protocol;
 
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import de.dytanic.cloudnet.driver.network.protocol.defaults.DefaultPacketListenerRegistry;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Assertions;
@@ -32,7 +32,7 @@ public class DefaultPacketListenerRegistryTest {
   @Test
   @Order(0)
   void testListenerRegister() {
-    IPacketListenerRegistry registry = new DefaultPacketListenerRegistry();
+    PacketListenerRegistry registry = new DefaultPacketListenerRegistry();
 
     registry.addListener(
       123,
@@ -57,10 +57,10 @@ public class DefaultPacketListenerRegistryTest {
   @Test
   @Order(10)
   void testListenerUnregister() {
-    IPacketListenerRegistry registry = new DefaultPacketListenerRegistry();
+    PacketListenerRegistry registry = new DefaultPacketListenerRegistry();
 
-    var firstListener = Mockito.mock(IPacketListener.class);
-    var secondListener = Mockito.mock(IPacketListener.class);
+    var firstListener = Mockito.mock(PacketListener.class);
+    var secondListener = Mockito.mock(PacketListener.class);
 
     registry.addListener(123, firstListener, secondListener);
     Assertions.assertEquals(2, registry.packetListeners().get(123).size());
@@ -77,10 +77,10 @@ public class DefaultPacketListenerRegistryTest {
   @Test
   @Order(20)
   void testListenerUnregisterByChannel() {
-    IPacketListenerRegistry registry = new DefaultPacketListenerRegistry();
+    PacketListenerRegistry registry = new DefaultPacketListenerRegistry();
 
-    var firstListener = Mockito.mock(IPacketListener.class);
-    var secondListener = Mockito.mock(IPacketListener.class);
+    var firstListener = Mockito.mock(PacketListener.class);
+    var secondListener = Mockito.mock(PacketListener.class);
 
     registry.addListener(123, firstListener, secondListener);
     Assertions.assertEquals(2, registry.packetListeners().get(123).size());
@@ -92,10 +92,10 @@ public class DefaultPacketListenerRegistryTest {
   @Test
   @Order(30)
   void testListenerUnregisterByClassLoader() {
-    IPacketListenerRegistry registry = new DefaultPacketListenerRegistry();
+    PacketListenerRegistry registry = new DefaultPacketListenerRegistry();
 
-    var firstListener = Mockito.mock(IPacketListener.class);
-    var secondListener = Mockito.mock(IPacketListener.class);
+    var firstListener = Mockito.mock(PacketListener.class);
+    var secondListener = Mockito.mock(PacketListener.class);
 
     registry.addListener(123, firstListener, secondListener);
     Assertions.assertEquals(2, registry.packetListeners().get(123).size());
@@ -107,10 +107,10 @@ public class DefaultPacketListenerRegistryTest {
   @Test
   @Order(40)
   void testListenerUnregisterAll() {
-    IPacketListenerRegistry registry = new DefaultPacketListenerRegistry();
+    PacketListenerRegistry registry = new DefaultPacketListenerRegistry();
 
-    var firstListener = Mockito.mock(IPacketListener.class);
-    var secondListener = Mockito.mock(IPacketListener.class);
+    var firstListener = Mockito.mock(PacketListener.class);
+    var secondListener = Mockito.mock(PacketListener.class);
 
     registry.addListener(123, firstListener, secondListener);
     Assertions.assertEquals(2, registry.packetListeners().get(123).size());
@@ -123,45 +123,45 @@ public class DefaultPacketListenerRegistryTest {
   @Order(50)
   void testListenerPost() {
     var eventCounter = new AtomicInteger();
-    IPacketListenerRegistry registry = new DefaultPacketListenerRegistry();
+    PacketListenerRegistry registry = new DefaultPacketListenerRegistry();
 
     registry.addListener(123, (channel, packet) -> eventCounter.incrementAndGet());
     registry.addListener(456, (channel, packet) -> eventCounter.addAndGet(5));
 
-    registry.handlePacket(Mockito.mock(INetworkChannel.class), this.mockPacketForChannel(123));
-    registry.handlePacket(Mockito.mock(INetworkChannel.class), this.mockPacketForChannel(123));
+    registry.handlePacket(Mockito.mock(NetworkChannel.class), this.mockPacketForChannel(123));
+    registry.handlePacket(Mockito.mock(NetworkChannel.class), this.mockPacketForChannel(123));
 
     Assertions.assertEquals(2, eventCounter.get());
 
-    registry.handlePacket(Mockito.mock(INetworkChannel.class), this.mockPacketForChannel(456));
-    registry.handlePacket(Mockito.mock(INetworkChannel.class), this.mockPacketForChannel(456));
+    registry.handlePacket(Mockito.mock(NetworkChannel.class), this.mockPacketForChannel(456));
+    registry.handlePacket(Mockito.mock(NetworkChannel.class), this.mockPacketForChannel(456));
 
     Assertions.assertEquals(12, eventCounter.getAndSet(0));
 
     // test with child registry
 
-    IPacketListenerRegistry child = new DefaultPacketListenerRegistry(registry);
+    PacketListenerRegistry child = new DefaultPacketListenerRegistry(registry);
     child.addListener(456, (channel, packet) -> eventCounter.addAndGet(10));
     child.addListener(789, (channel, packet) -> eventCounter.addAndGet(20));
 
-    child.handlePacket(Mockito.mock(INetworkChannel.class), this.mockPacketForChannel(123));
-    child.handlePacket(Mockito.mock(INetworkChannel.class), this.mockPacketForChannel(123));
+    child.handlePacket(Mockito.mock(NetworkChannel.class), this.mockPacketForChannel(123));
+    child.handlePacket(Mockito.mock(NetworkChannel.class), this.mockPacketForChannel(123));
 
     Assertions.assertEquals(2, eventCounter.get());
 
-    child.handlePacket(Mockito.mock(INetworkChannel.class), this.mockPacketForChannel(456));
-    child.handlePacket(Mockito.mock(INetworkChannel.class), this.mockPacketForChannel(456));
+    child.handlePacket(Mockito.mock(NetworkChannel.class), this.mockPacketForChannel(456));
+    child.handlePacket(Mockito.mock(NetworkChannel.class), this.mockPacketForChannel(456));
 
     Assertions.assertEquals(32, eventCounter.get());
 
-    child.handlePacket(Mockito.mock(INetworkChannel.class), this.mockPacketForChannel(789));
-    child.handlePacket(Mockito.mock(INetworkChannel.class), this.mockPacketForChannel(789));
+    child.handlePacket(Mockito.mock(NetworkChannel.class), this.mockPacketForChannel(789));
+    child.handlePacket(Mockito.mock(NetworkChannel.class), this.mockPacketForChannel(789));
 
     Assertions.assertEquals(72, eventCounter.get());
   }
 
-  private IPacket mockPacketForChannel(int channel) {
-    var packet = Mockito.mock(IPacket.class);
+  private Packet mockPacketForChannel(int channel) {
+    var packet = Mockito.mock(Packet.class);
     Mockito.when(packet.channel()).thenReturn(channel);
 
     return packet;

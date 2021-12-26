@@ -19,13 +19,13 @@ package de.dytanic.cloudnet.service.defaults;
 import com.google.common.collect.ComparisonChain;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.CloudNetTick;
-import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
+import de.dytanic.cloudnet.cluster.ClusterNodeServerProvider;
 import de.dytanic.cloudnet.cluster.sync.DataSyncHandler;
-import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.Nameable;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
@@ -35,9 +35,9 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.event.service.CloudServicePreForceStopEvent;
-import de.dytanic.cloudnet.service.ICloudService;
-import de.dytanic.cloudnet.service.ICloudServiceFactory;
-import de.dytanic.cloudnet.service.ICloudServiceManager;
+import de.dytanic.cloudnet.service.CloudService;
+import de.dytanic.cloudnet.service.CloudServiceFactory;
+import de.dytanic.cloudnet.service.CloudServiceManager;
 import de.dytanic.cloudnet.service.ServiceConfigurationPreparer;
 import de.dytanic.cloudnet.service.defaults.config.BungeeConfigurationPreparer;
 import de.dytanic.cloudnet.service.defaults.config.GlowstoneConfigurationPreparer;
@@ -61,20 +61,20 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.UnmodifiableView;
 
-public class DefaultCloudServiceManager implements ICloudServiceManager {
+public class DefaultCloudServiceManager implements CloudServiceManager {
 
   protected static final Path TEMP_SERVICE_DIR = Path.of(
     System.getProperty("cloudnet.tempDir.services", "temp/services"));
   protected static final Path PERSISTENT_SERVICE_DIR = Path.of(
     System.getProperty("cloudnet.persistable.services.path", "local/services"));
 
-  private static final Logger LOGGER = LogManager.logger(ICloudServiceManager.class);
+  private static final Logger LOGGER = LogManager.logger(CloudServiceManager.class);
 
   protected final RPCSender sender;
-  protected final IClusterNodeServerProvider clusterNodeServerProvider;
+  protected final ClusterNodeServerProvider clusterNodeServerProvider;
 
   protected final Map<UUID, SpecificCloudServiceProvider> knownServices = new ConcurrentHashMap<>();
-  protected final Map<String, ICloudServiceFactory> cloudServiceFactories = new ConcurrentHashMap<>();
+  protected final Map<String, CloudServiceFactory> cloudServiceFactories = new ConcurrentHashMap<>();
   protected final Map<ServiceEnvironmentType, ServiceConfigurationPreparer> preparers = new ConcurrentHashMap<>();
 
   public DefaultCloudServiceManager(@NonNull CloudNet nodeInstance) {
@@ -101,7 +101,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
       DataSyncHandler.<ServiceInfoSnapshot>builder()
         .key("services")
         .alwaysForce()
-        .nameExtractor(INameable::name)
+        .nameExtractor(Nameable::name)
         .dataCollector(this::services)
         .convertObject(ServiceInfoSnapshot.class)
         .writer(ser -> {
@@ -227,17 +227,17 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   }
 
   @Override
-  public @NonNull Collection<ICloudServiceFactory> cloudServiceFactories() {
+  public @NonNull Collection<CloudServiceFactory> cloudServiceFactories() {
     return Collections.unmodifiableCollection(this.cloudServiceFactories.values());
   }
 
   @Override
-  public @NonNull Optional<ICloudServiceFactory> cloudServiceFactory(@NonNull String runtime) {
+  public @NonNull Optional<CloudServiceFactory> cloudServiceFactory(@NonNull String runtime) {
     return Optional.ofNullable(this.cloudServiceFactories.get(runtime));
   }
 
   @Override
-  public void addCloudServiceFactory(@NonNull String runtime, @NonNull ICloudServiceFactory factory) {
+  public void addCloudServiceFactory(@NonNull String runtime, @NonNull CloudServiceFactory factory) {
     this.cloudServiceFactories.putIfAbsent(runtime, factory);
   }
 
@@ -295,27 +295,27 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   }
 
   @Override
-  public @NonNull @UnmodifiableView Collection<ICloudService> localCloudServices() {
+  public @NonNull @UnmodifiableView Collection<CloudService> localCloudServices() {
     return this.knownServices.values().stream()
-      .filter(provider -> provider instanceof ICloudService) // -> ICloudService => local service
-      .map(provider -> (ICloudService) provider)
+      .filter(provider -> provider instanceof CloudService) // -> ICloudService => local service
+      .map(provider -> (CloudService) provider)
       .toList();
   }
 
   @Override
-  public @Nullable ICloudService localCloudService(@NonNull String name) {
+  public @Nullable CloudService localCloudService(@NonNull String name) {
     var provider = this.specificProviderByName(name);
-    return provider instanceof ICloudService ? (ICloudService) provider : null;
+    return provider instanceof CloudService ? (CloudService) provider : null;
   }
 
   @Override
-  public @Nullable ICloudService localCloudService(@NonNull UUID uniqueId) {
+  public @Nullable CloudService localCloudService(@NonNull UUID uniqueId) {
     var provider = this.knownServices.get(uniqueId);
-    return provider instanceof ICloudService ? (ICloudService) provider : null;
+    return provider instanceof CloudService ? (CloudService) provider : null;
   }
 
   @Override
-  public @Nullable ICloudService localCloudService(@NonNull ServiceInfoSnapshot snapshot) {
+  public @Nullable CloudService localCloudService(@NonNull ServiceInfoSnapshot snapshot) {
     return this.localCloudService(snapshot.serviceId().uniqueId());
   }
 
@@ -339,17 +339,17 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   }
 
   @Override
-  public void registerLocalService(@NonNull ICloudService service) {
+  public void registerLocalService(@NonNull CloudService service) {
     this.knownServices.putIfAbsent(service.serviceId().uniqueId(), service);
   }
 
   @Override
-  public void unregisterLocalService(@NonNull ICloudService service) {
+  public void unregisterLocalService(@NonNull CloudService service) {
     this.knownServices.remove(service.serviceId().uniqueId());
   }
 
   @Override
-  public void handleServiceUpdate(@NonNull ServiceInfoSnapshot snapshot, @UnknownNullability INetworkChannel source) {
+  public void handleServiceUpdate(@NonNull ServiceInfoSnapshot snapshot, @UnknownNullability NetworkChannel source) {
     // deleted services were removed on the other node - remove it here too
     if (snapshot.lifeCycle() == ServiceLifeCycle.DELETED) {
       this.knownServices.remove(snapshot.serviceId().uniqueId());
@@ -367,15 +367,15 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
         // the snapshot directly "in" them
         ((RemoteNodeCloudServiceProvider) provider).snapshot(snapshot);
         LOGGER.fine("Updated service snapshot of %s to %s", null, snapshot.serviceId(), snapshot);
-      } else if (provider instanceof ICloudService) {
+      } else if (provider instanceof CloudService) {
         // just set the service information locally - no further processing
-        ((ICloudService) provider).updateServiceInfoSnapshot(snapshot);
+        ((CloudService) provider).updateServiceInfoSnapshot(snapshot);
       }
     }
   }
 
   @Override
-  public @NonNull ICloudService createLocalCloudService(@NonNull ServiceConfiguration configuration) {
+  public @NonNull CloudService createLocalCloudService(@NonNull ServiceConfiguration configuration) {
     // get the cloud service factory for the configuration
     var factory = this.cloudServiceFactories.get(configuration.runtime());
     if (factory == null) {

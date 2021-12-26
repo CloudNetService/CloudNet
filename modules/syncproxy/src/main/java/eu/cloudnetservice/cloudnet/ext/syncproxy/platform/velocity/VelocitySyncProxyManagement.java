@@ -18,7 +18,7 @@ package eu.cloudnetservice.cloudnet.ext.syncproxy.platform.velocity;
 
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
-import de.dytanic.cloudnet.common.registry.IServicesRegistry;
+import de.dytanic.cloudnet.common.registry.ServicesRegistry;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.platform.PlatformSyncProxyManagement;
 import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
 import java.util.Collection;
@@ -41,12 +41,12 @@ public final class VelocitySyncProxyManagement extends PlatformSyncProxyManageme
   }
 
   @Override
-  public void registerService(@NonNull IServicesRegistry registry) {
+  public void registerService(@NonNull ServicesRegistry registry) {
     registry.registerService(PlatformSyncProxyManagement.class, "VelocitySyncProxyManagement", this);
   }
 
   @Override
-  public void unregisterService(@NonNull IServicesRegistry registry) {
+  public void unregisterService(@NonNull ServicesRegistry registry) {
     registry.unregisterService(PlatformSyncProxyManagement.class, "VelocitySyncProxyManagement");
   }
 

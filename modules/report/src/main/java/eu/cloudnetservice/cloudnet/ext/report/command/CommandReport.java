@@ -29,11 +29,11 @@ import de.dytanic.cloudnet.command.annotation.CommandAlias;
 import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
-import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.Nameable;
 import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
-import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.service.CloudService;
 import eu.cloudnetservice.cloudnet.ext.report.CloudNetReportModule;
 import eu.cloudnetservice.cloudnet.ext.report.config.PasteService;
 import eu.cloudnetservice.cloudnet.ext.report.paste.PasteCreator;
@@ -74,12 +74,12 @@ public final class CommandReport {
   public List<String> suggestPasteService(CommandContext<CommandSource> $, String input) {
     return this.reportModule.reportConfiguration().pasteServers()
       .stream()
-      .map(INameable::name)
+      .map(Nameable::name)
       .toList();
   }
 
   @Parser(suggestions = "cloudService")
-  public ICloudService singleServiceParser(CommandContext<CommandSource> $, Queue<String> input) {
+  public CloudService singleServiceParser(CommandContext<CommandSource> $, Queue<String> input) {
     var name = input.remove();
     var cloudService = CloudNet.instance().cloudServiceProvider().localCloudService(name);
     if (cloudService == null) {
@@ -117,7 +117,7 @@ public final class CommandReport {
   public void pasteServices(
     CommandSource source,
     @Argument("pasteService") PasteService pasteService,
-    @Argument("service") ICloudService service
+    @Argument("service") CloudService service
   ) {
     var pasteCreator = new PasteCreator(this.fallbackPasteService(pasteService),
       this.reportModule.emitterRegistry());

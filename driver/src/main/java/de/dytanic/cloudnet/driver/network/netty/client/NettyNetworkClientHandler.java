@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.driver.network.netty.client;
 
 import de.dytanic.cloudnet.driver.network.HostAndPort;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import de.dytanic.cloudnet.driver.network.netty.NettyNetworkChannel;
 import de.dytanic.cloudnet.driver.network.netty.NettyNetworkHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -52,7 +52,7 @@ public class NettyNetworkClientHandler extends NettyNetworkHandler {
   }
 
   @Override
-  protected @NonNull Collection<INetworkChannel> channels() {
+  protected @NonNull Collection<NetworkChannel> channels() {
     return this.nettyNetworkClient.channels;
   }
 

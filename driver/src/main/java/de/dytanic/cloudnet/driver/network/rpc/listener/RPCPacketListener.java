@@ -16,12 +16,12 @@
 
 package de.dytanic.cloudnet.driver.network.rpc.listener;
 
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
+import de.dytanic.cloudnet.driver.network.protocol.BasePacket;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.PacketListener;
 import de.dytanic.cloudnet.driver.network.rpc.RPCHandler.HandlingResult;
 import de.dytanic.cloudnet.driver.network.rpc.RPCHandlerRegistry;
 import de.dytanic.cloudnet.driver.network.rpc.RPCInvocationContext;
@@ -30,7 +30,7 @@ import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public class RPCPacketListener implements IPacketListener {
+public class RPCPacketListener implements PacketListener {
 
   private final RPCHandlerRegistry rpcHandlerRegistry;
 
@@ -39,7 +39,7 @@ public class RPCPacketListener implements IPacketListener {
   }
 
   @Override
-  public void handle(@NonNull INetworkChannel channel, @NonNull IPacket packet) throws Exception {
+  public void handle(@NonNull NetworkChannel channel, @NonNull Packet packet) throws Exception {
     // the result of the invocation, encoded
     DataBuf result = null;
     // the input information we get
@@ -88,7 +88,7 @@ public class RPCPacketListener implements IPacketListener {
     }
     // check if we need to send a result
     if (result != null && packet.uniqueId() != null) {
-      channel.queryPacketManager().sendQueryPacket(new Packet(-1, result), packet.uniqueId());
+      channel.queryPacketManager().sendQueryPacket(new BasePacket(-1, result), packet.uniqueId());
     }
   }
 
@@ -140,7 +140,7 @@ public class RPCPacketListener implements IPacketListener {
   }
 
   protected @NonNull RPCInvocationContext buildContext(
-    @NonNull INetworkChannel channel,
+    @NonNull NetworkChannel channel,
     @NonNull DataBuf content,
     @Nullable Object on,
     boolean strictInstanceUsage

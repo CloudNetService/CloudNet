@@ -26,7 +26,7 @@ import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.channel.ChannelMessageSender;
-import de.dytanic.cloudnet.driver.event.IEventManager;
+import de.dytanic.cloudnet.driver.event.EventManager;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceLogEntryEvent;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
@@ -35,7 +35,7 @@ import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.event.service.CloudServicePostProcessStartEvent;
 import de.dytanic.cloudnet.event.service.CloudServicePreProcessStartEvent;
-import de.dytanic.cloudnet.service.ICloudServiceManager;
+import de.dytanic.cloudnet.service.CloudServiceManager;
 import de.dytanic.cloudnet.service.ServiceConfigurationPreparer;
 import de.dytanic.cloudnet.service.defaults.log.ProcessServiceLogCache;
 import java.io.IOException;
@@ -71,8 +71,8 @@ public class JVMService extends AbstractService {
 
   public JVMService(
     @NonNull ServiceConfiguration configuration,
-    @NonNull ICloudServiceManager manager,
-    @NonNull IEventManager eventManager,
+    @NonNull CloudServiceManager manager,
+    @NonNull EventManager eventManager,
     @NonNull CloudNet nodeInstance,
     @NonNull ServiceConfigurationPreparer serviceConfigurationPreparer
   ) {
@@ -116,6 +116,10 @@ public class JVMService extends AbstractService {
     // add all jvm flags
     arguments.addAll(this.nodeConfiguration().defaultJVMFlags().jvmFlags());
     arguments.addAll(this.serviceConfiguration().processConfig().jvmOptions());
+
+    // set the maximum heap memory setting. Xms matching Xmx because if not there is unused memory
+    arguments.add("-Xmx" + this.serviceConfiguration().processConfig().maxHeapMemorySize() + "M");
+    arguments.add("-Xms" + this.serviceConfiguration().processConfig().maxHeapMemorySize() + "M");
 
     // override some default configuration options
     arguments.addAll(DEFAULT_JVM_SYSTEM_PROPERTIES);

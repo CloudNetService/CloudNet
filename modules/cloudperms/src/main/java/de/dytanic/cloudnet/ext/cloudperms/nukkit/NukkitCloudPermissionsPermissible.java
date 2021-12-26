@@ -20,7 +20,7 @@ import cn.nukkit.Player;
 import cn.nukkit.permission.PermissibleBase;
 import cn.nukkit.permission.Permission;
 import cn.nukkit.permission.PermissionAttachmentInfo;
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.PermissionManagement;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,9 +31,9 @@ import org.jetbrains.annotations.Nullable;
 public final class NukkitCloudPermissionsPermissible extends PermissibleBase {
 
   private final Player player;
-  private final IPermissionManagement permissionsManagement;
+  private final PermissionManagement permissionsManagement;
 
-  public NukkitCloudPermissionsPermissible(Player player, IPermissionManagement permissionsManagement) {
+  public NukkitCloudPermissionsPermissible(Player player, PermissionManagement permissionsManagement) {
     super(player);
 
     this.player = player;

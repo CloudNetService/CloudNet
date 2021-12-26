@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.ext.bridge.BridgeManagement;
-import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
+import de.dytanic.cloudnet.ext.bridge.player.PlayerManager;
 import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
 import de.dytanic.cloudnet.ext.bridge.player.executor.ServerSelectorType;
 import java.util.UUID;
@@ -36,7 +36,7 @@ public class NodePlayerExecutor implements PlayerExecutor {
   protected static final PlayerExecutor GLOBAL = new NodePlayerExecutor(GLOBAL_UNIQUE_ID);
 
   protected final UUID targetUniqueId;
-  protected final IPlayerManager playerManager;
+  protected final PlayerManager playerManager;
 
   @Internal
   protected NodePlayerExecutor(@NonNull UUID targetUniqueId) {
@@ -44,7 +44,7 @@ public class NodePlayerExecutor implements PlayerExecutor {
     this.playerManager = null;
   }
 
-  public NodePlayerExecutor(@NonNull UUID targetUniqueId, @NonNull IPlayerManager playerManager) {
+  public NodePlayerExecutor(@NonNull UUID targetUniqueId, @NonNull PlayerManager playerManager) {
     this.targetUniqueId = targetUniqueId;
     this.playerManager = playerManager;
   }

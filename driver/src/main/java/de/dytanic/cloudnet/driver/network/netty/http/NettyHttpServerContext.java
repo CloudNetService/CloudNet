@@ -18,19 +18,18 @@ package de.dytanic.cloudnet.driver.network.netty.http;
 
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
+import de.dytanic.cloudnet.driver.network.http.HttpChannel;
+import de.dytanic.cloudnet.driver.network.http.HttpComponent;
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
 import de.dytanic.cloudnet.driver.network.http.HttpCookie;
-import de.dytanic.cloudnet.driver.network.http.IHttpChannel;
-import de.dytanic.cloudnet.driver.network.http.IHttpComponent;
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
-import de.dytanic.cloudnet.driver.network.http.IHttpHandler;
-import de.dytanic.cloudnet.driver.network.http.IHttpRequest;
-import de.dytanic.cloudnet.driver.network.http.IHttpResponse;
-import de.dytanic.cloudnet.driver.network.http.IHttpServer;
-import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketChannel;
+import de.dytanic.cloudnet.driver.network.http.HttpHandler;
+import de.dytanic.cloudnet.driver.network.http.HttpRequest;
+import de.dytanic.cloudnet.driver.network.http.HttpResponse;
+import de.dytanic.cloudnet.driver.network.http.HttpServer;
+import de.dytanic.cloudnet.driver.network.http.websocket.WebSocketChannel;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
@@ -48,14 +47,14 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
 @Internal
-final class NettyHttpServerContext implements IHttpContext {
+final class NettyHttpServerContext implements HttpContext {
 
   private static final Logger LOGGER = LogManager.logger(NettyHttpServerContext.class);
 
   final NettyHttpServerResponse httpServerResponse;
 
   private final Channel nettyChannel;
-  private final HttpRequest httpRequest;
+  private final io.netty.handler.codec.http.HttpRequest httpRequest;
 
   private final NettyHttpChannel channel;
   private final NettyHttpServer nettyHttpServer;
@@ -68,7 +67,7 @@ final class NettyHttpServerContext implements IHttpContext {
   volatile boolean cancelSendResponse = false;
 
   private volatile String pathPrefix;
-  private volatile IHttpHandler lastHandler;
+  private volatile HttpHandler lastHandler;
   private volatile NettyWebSocketServerChannel webSocketServerChannel;
 
   public NettyHttpServerContext(
@@ -76,7 +75,7 @@ final class NettyHttpServerContext implements IHttpContext {
     @NonNull NettyHttpChannel channel,
     @NonNull URI uri,
     @NonNull Map<String, String> pathParameters,
-    @NonNull HttpRequest httpRequest
+    @NonNull io.netty.handler.codec.http.HttpRequest httpRequest
   ) {
     this.nettyHttpServer = nettyHttpServer;
     this.channel = channel;
@@ -104,7 +103,7 @@ final class NettyHttpServerContext implements IHttpContext {
   }
 
   @Override
-  public @Nullable IWebSocketChannel upgrade() {
+  public @Nullable WebSocketChannel upgrade() {
     if (this.webSocketServerChannel == null) {
       var handshaker = new WebSocketServerHandshakerFactory(
         this.httpRequest.uri(),
@@ -144,22 +143,22 @@ final class NettyHttpServerContext implements IHttpContext {
   }
 
   @Override
-  public @Nullable IWebSocketChannel webSocketChanel() {
+  public @Nullable WebSocketChannel webSocketChanel() {
     return this.webSocketServerChannel;
   }
 
   @Override
-  public @NonNull IHttpChannel channel() {
+  public @NonNull HttpChannel channel() {
     return this.channel;
   }
 
   @Override
-  public @NonNull IHttpRequest request() {
+  public @NonNull HttpRequest request() {
     return this.httpServerRequest;
   }
 
   @Override
-  public @NonNull IHttpResponse response() {
+  public @NonNull HttpResponse response() {
     return this.httpServerResponse;
   }
 
@@ -169,23 +168,23 @@ final class NettyHttpServerContext implements IHttpContext {
   }
 
   @Override
-  public @NonNull IHttpContext cancelNext(boolean cancelNext) {
+  public @NonNull HttpContext cancelNext(boolean cancelNext) {
     this.cancelNext = cancelNext;
     return this;
   }
 
   @Override
-  public @Nullable IHttpHandler peekLast() {
+  public @Nullable HttpHandler peekLast() {
     return this.lastHandler;
   }
 
   @Override
-  public @NonNull IHttpComponent<IHttpServer> component() {
+  public @NonNull HttpComponent<HttpServer> component() {
     return this.nettyHttpServer;
   }
 
   @Override
-  public @NonNull IHttpContext closeAfter(boolean value) {
+  public @NonNull HttpContext closeAfter(boolean value) {
     this.closeAfter = value;
     return this;
   }
@@ -214,7 +213,7 @@ final class NettyHttpServerContext implements IHttpContext {
   }
 
   @Override
-  public @NonNull IHttpContext cookies(@NonNull Collection<HttpCookie> cookies) {
+  public @NonNull HttpContext cookies(@NonNull Collection<HttpCookie> cookies) {
     this.cookies.clear();
     this.cookies.addAll(cookies);
 
@@ -223,7 +222,7 @@ final class NettyHttpServerContext implements IHttpContext {
   }
 
   @Override
-  public @NonNull IHttpContext addCookie(@NonNull HttpCookie httpCookie) {
+  public @NonNull HttpContext addCookie(@NonNull HttpCookie httpCookie) {
     var cookie = this.cookie(httpCookie.name());
     if (cookie != null) {
       this.removeCookie(cookie.name());
@@ -236,14 +235,14 @@ final class NettyHttpServerContext implements IHttpContext {
   }
 
   @Override
-  public @NonNull IHttpContext removeCookie(@NonNull String name) {
+  public @NonNull HttpContext removeCookie(@NonNull String name) {
     this.cookies.removeIf(cookie -> cookie.name().equals(name));
     this.updateHeaderResponse();
     return this;
   }
 
   @Override
-  public @NonNull IHttpContext clearCookies() {
+  public @NonNull HttpContext clearCookies() {
     this.cookies.clear();
     this.updateHeaderResponse();
     return this;
@@ -277,7 +276,7 @@ final class NettyHttpServerContext implements IHttpContext {
     }
   }
 
-  public void setLastHandler(@NonNull IHttpHandler lastHandler) {
+  public void setLastHandler(@NonNull HttpHandler lastHandler) {
     this.lastHandler = lastHandler;
   }
 }

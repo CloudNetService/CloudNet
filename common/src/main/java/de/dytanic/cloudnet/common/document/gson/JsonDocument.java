@@ -22,9 +22,9 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-import de.dytanic.cloudnet.common.document.IDocument;
-import de.dytanic.cloudnet.common.document.IPersistable;
-import de.dytanic.cloudnet.common.document.IReadable;
+import de.dytanic.cloudnet.common.document.Document;
+import de.dytanic.cloudnet.common.document.Persistable;
+import de.dytanic.cloudnet.common.document.Readable;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.Writer;
@@ -44,7 +44,7 @@ import org.jetbrains.annotations.UnknownNullability;
  * The Gson implementation of IDocument class. It includes simple append and remove operations, file reading and writing
  * to create simple configuration files
  */
-public class JsonDocument implements IDocument<JsonDocument> {
+public class JsonDocument implements Document<JsonDocument> {
 
   @Internal
   public static final Gson GSON = new GsonBuilder()
@@ -302,13 +302,13 @@ public class JsonDocument implements IDocument<JsonDocument> {
   }
 
   @Override
-  public @NonNull IPersistable write(@NonNull Writer writer) {
+  public @NonNull Persistable write(@NonNull Writer writer) {
     GSON.toJson(this.object, writer);
     return this;
   }
 
   @Override
-  public @NonNull IReadable read(@NonNull Reader reader) {
+  public @NonNull Readable read(@NonNull Reader reader) {
     try {
       // parse the object
       var element = JsonParser.parseReader(reader);

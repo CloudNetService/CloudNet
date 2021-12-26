@@ -17,11 +17,11 @@
 package de.dytanic.cloudnet.driver.network.chunk.defaults.builder;
 
 import com.google.common.base.Verify;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketSender;
 import de.dytanic.cloudnet.driver.network.chunk.defaults.splitter.NetworkChannelsPacketSplitter;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
@@ -35,7 +35,7 @@ public abstract class DefaultChunkedPacketSenderBuilder implements ChunkedPacket
 
   protected InputStream source;
   protected String transferChannel;
-  protected Consumer<IPacket> packetSplitter;
+  protected Consumer<Packet> packetSplitter;
 
   protected int chunkSize = DEFAULT_CHUNK_SIZE;
   protected UUID sessionUniqueId = UUID.randomUUID();
@@ -66,17 +66,17 @@ public abstract class DefaultChunkedPacketSenderBuilder implements ChunkedPacket
   }
 
   @Override
-  public @NonNull ChunkedPacketSender.Builder toChannels(INetworkChannel @NonNull ... channels) {
+  public @NonNull ChunkedPacketSender.Builder toChannels(NetworkChannel @NonNull ... channels) {
     return this.toChannels(Arrays.asList(channels));
   }
 
   @Override
-  public @NonNull ChunkedPacketSender.Builder toChannels(@NonNull Collection<INetworkChannel> channels) {
+  public @NonNull ChunkedPacketSender.Builder toChannels(@NonNull Collection<NetworkChannel> channels) {
     return this.packetSplitter(new NetworkChannelsPacketSplitter(channels));
   }
 
   @Override
-  public @NonNull ChunkedPacketSender.Builder packetSplitter(@NonNull Consumer<IPacket> splitter) {
+  public @NonNull ChunkedPacketSender.Builder packetSplitter(@NonNull Consumer<Packet> splitter) {
     this.packetSplitter = splitter;
     return this;
   }

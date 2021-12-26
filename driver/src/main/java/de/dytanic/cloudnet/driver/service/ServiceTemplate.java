@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.driver.service;
 
 import com.google.common.base.Verify;
-import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.Nameable;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.template.SpecificTemplateStorage;
 import java.util.Arrays;
@@ -32,7 +32,7 @@ import org.jetbrains.annotations.Range;
  * using a {@link ServiceDeployment}. CloudNet's default storage is "local".
  */
 @EqualsAndHashCode
-public class ServiceTemplate implements INameable, Comparable<ServiceTemplate>, Cloneable {
+public class ServiceTemplate implements Nameable, Comparable<ServiceTemplate>, Cloneable {
 
   public static final String LOCAL_STORAGE = "local";
 

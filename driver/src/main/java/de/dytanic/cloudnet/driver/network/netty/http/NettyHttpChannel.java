@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.driver.network.netty.http;
 
 import de.dytanic.cloudnet.driver.network.HostAndPort;
-import de.dytanic.cloudnet.driver.network.http.IHttpChannel;
+import de.dytanic.cloudnet.driver.network.http.HttpChannel;
 import io.netty.channel.Channel;
 import lombok.NonNull;
 
@@ -25,7 +25,7 @@ public record NettyHttpChannel(
   @NonNull Channel channel,
   @NonNull HostAndPort serverAddress,
   @NonNull HostAndPort clientAddress
-) implements IHttpChannel {
+) implements HttpChannel {
 
   @Override
   public void close() {

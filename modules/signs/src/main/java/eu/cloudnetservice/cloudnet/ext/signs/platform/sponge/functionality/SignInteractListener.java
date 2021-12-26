@@ -17,7 +17,7 @@
 package eu.cloudnetservice.cloudnet.ext.signs.platform.sponge.functionality;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
+import de.dytanic.cloudnet.ext.bridge.player.PlayerManager;
 import eu.cloudnetservice.cloudnet.ext.signs.platform.PlatformSignManagement;
 import eu.cloudnetservice.cloudnet.ext.signs.platform.sponge.event.SpongeCloudSignInteractEvent;
 import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
@@ -80,7 +80,7 @@ public class SignInteractListener {
     }
   }
 
-  protected @NonNull IPlayerManager playerManager() {
-    return CloudNetDriver.instance().servicesRegistry().firstService(IPlayerManager.class);
+  protected @NonNull PlayerManager playerManager() {
+    return CloudNetDriver.instance().servicesRegistry().firstService(PlayerManager.class);
   }
 }

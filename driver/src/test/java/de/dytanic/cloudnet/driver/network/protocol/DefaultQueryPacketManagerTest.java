@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.driver.network.protocol;
 
 import de.dytanic.cloudnet.common.collection.Pair;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import de.dytanic.cloudnet.driver.network.protocol.defaults.DefaultQueryPacketManager;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -31,7 +31,7 @@ public class DefaultQueryPacketManagerTest {
   @Test
   void testSendQueryPacket() {
     var mockedPacket = this.mockUniqueIdAblePacket();
-    QueryPacketManager manager = new DefaultQueryPacketManager(Mockito.mock(INetworkChannel.class));
+    QueryPacketManager manager = new DefaultQueryPacketManager(Mockito.mock(NetworkChannel.class));
 
     manager.sendQueryPacket(mockedPacket.first());
 
@@ -46,7 +46,7 @@ public class DefaultQueryPacketManagerTest {
   void testSendQueryPacketWithFixedId() {
     var uniqueId = UUID.randomUUID();
     var mockedPacket = this.mockUniqueIdAblePacket();
-    QueryPacketManager manager = new DefaultQueryPacketManager(Mockito.mock(INetworkChannel.class));
+    QueryPacketManager manager = new DefaultQueryPacketManager(Mockito.mock(NetworkChannel.class));
 
     manager.sendQueryPacket(mockedPacket.first(), uniqueId);
 
@@ -61,7 +61,7 @@ public class DefaultQueryPacketManagerTest {
   @Test
   void testGetAndRemoveHandler() {
     var mockedPacket = this.mockUniqueIdAblePacket();
-    QueryPacketManager manager = new DefaultQueryPacketManager(Mockito.mock(INetworkChannel.class));
+    QueryPacketManager manager = new DefaultQueryPacketManager(Mockito.mock(NetworkChannel.class));
 
     var task = manager.sendQueryPacket(mockedPacket.first());
 
@@ -73,7 +73,7 @@ public class DefaultQueryPacketManagerTest {
   @Timeout(10)
   void testHandlerTimeout() throws InterruptedException {
     var mockedPacket = this.mockUniqueIdAblePacket();
-    QueryPacketManager manager = new DefaultQueryPacketManager(Mockito.mock(INetworkChannel.class), 2000);
+    QueryPacketManager manager = new DefaultQueryPacketManager(Mockito.mock(NetworkChannel.class), 2000);
 
     var task = manager.sendQueryPacket(mockedPacket.first());
     Assertions.assertTrue(manager.hasWaitingHandler(mockedPacket.second().get()));
@@ -86,10 +86,10 @@ public class DefaultQueryPacketManagerTest {
     Assertions.assertTrue(task.isDone());
   }
 
-  private Pair<IPacket, AtomicReference<UUID>> mockUniqueIdAblePacket() {
+  private Pair<Packet, AtomicReference<UUID>> mockUniqueIdAblePacket() {
     var reference = new AtomicReference<UUID>();
 
-    var packet = Mockito.mock(IPacket.class);
+    var packet = Mockito.mock(Packet.class);
     Mockito
       .doAnswer(invocation -> {
         reference.set(invocation.getArgument(0));

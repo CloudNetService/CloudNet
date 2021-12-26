@@ -20,8 +20,10 @@ import com.google.common.collect.ObjectArrays;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import lombok.NonNull;
 
 public class FinalizeURLClassLoader extends URLClassLoader {
@@ -29,7 +31,8 @@ public class FinalizeURLClassLoader extends URLClassLoader {
   /**
    * All loaders which were created and of which the associated module is still loaded.
    */
-  protected static final Set<FinalizeURLClassLoader> LOADERS = new CopyOnWriteArraySet<>();
+  protected static final Lock CLASS_LOADING_LOCK = new ReentrantLock();
+  protected static final Set<FinalizeURLClassLoader> LOADERS = new HashSet<>();
 
   static {
     ClassLoader.registerAsParallelCapable();
@@ -52,7 +55,12 @@ public class FinalizeURLClassLoader extends URLClassLoader {
    * loader too.
    */
   public void registerGlobally() {
-    LOADERS.add(this);
+    try {
+      CLASS_LOADING_LOCK.lock();
+      LOADERS.add(this);
+    } finally {
+      CLASS_LOADING_LOCK.unlock();
+    }
   }
 
   /**
@@ -60,8 +68,14 @@ public class FinalizeURLClassLoader extends URLClassLoader {
    */
   @Override
   public void close() throws IOException {
-    super.close();
-    LOADERS.remove(this);
+    try {
+      CLASS_LOADING_LOCK.lock();
+      // remove first to prevent other trying to load classes while closed
+      LOADERS.remove(this);
+      super.close();
+    } finally {
+      CLASS_LOADING_LOCK.unlock();
+    }
   }
 
   /**
@@ -89,14 +103,19 @@ public class FinalizeURLClassLoader extends URLClassLoader {
     }
 
     if (global) {
-      for (var loader : LOADERS) {
-        if (loader != this) {
-          try {
-            return loader.loadClass(name, resolve, false);
-          } catch (ClassNotFoundException exception) {
-            // there may be still other to come
+      CLASS_LOADING_LOCK.lock();
+      try {
+        for (var loader : LOADERS) {
+          if (loader != this) {
+            try {
+              return loader.loadClass(name, resolve, false);
+            } catch (ClassNotFoundException exception) {
+              // there may be still other to come
+            }
           }
         }
+      } finally {
+        CLASS_LOADING_LOCK.unlock();
       }
     }
 

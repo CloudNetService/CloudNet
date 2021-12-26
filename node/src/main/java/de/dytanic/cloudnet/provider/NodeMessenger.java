@@ -19,19 +19,19 @@ package de.dytanic.cloudnet.provider;
 import com.google.common.collect.Iterables;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
+import de.dytanic.cloudnet.cluster.ClusterNodeServerProvider;
 import de.dytanic.cloudnet.common.concurrent.CountingTask;
-import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.concurrent.Task;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import de.dytanic.cloudnet.driver.network.def.PacketServerChannelMessage;
-import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.BasePacket;
 import de.dytanic.cloudnet.driver.provider.CloudMessenger;
 import de.dytanic.cloudnet.driver.provider.DefaultMessenger;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.service.ICloudService;
-import de.dytanic.cloudnet.service.ICloudServiceManager;
+import de.dytanic.cloudnet.service.CloudService;
+import de.dytanic.cloudnet.service.CloudServiceManager;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Collections;
@@ -46,8 +46,8 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
 
   protected static final Type COL_MSG = TypeToken.getParameterized(Collection.class, ChannelMessage.class).getType();
 
-  protected final ICloudServiceManager cloudServiceManager;
-  protected final IClusterNodeServerProvider nodeServerProvider;
+  protected final CloudServiceManager cloudServiceManager;
+  protected final ClusterNodeServerProvider nodeServerProvider;
 
   public NodeMessenger(@NonNull CloudNet nodeInstance) {
     this.cloudServiceManager = nodeInstance.cloudServiceProvider();
@@ -60,7 +60,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
   }
 
   @Override
-  public @NonNull ITask<Collection<ChannelMessage>> sendChannelMessageQueryAsync(@NonNull ChannelMessage message) {
+  public @NonNull Task<Collection<ChannelMessage>> sendChannelMessageQueryAsync(@NonNull ChannelMessage message) {
     return this.sendChannelMessageQueryAsync(message, true);
   }
 
@@ -75,7 +75,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     }
   }
 
-  public @NonNull ITask<Collection<ChannelMessage>> sendChannelMessageQueryAsync(
+  public @NonNull Task<Collection<ChannelMessage>> sendChannelMessageQueryAsync(
     @NonNull ChannelMessage message,
     boolean allowClusterRedirect
   ) {
@@ -88,7 +88,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     for (var channel : channels) {
       channel.sendQueryAsync(new PacketServerChannelMessage(message)).onComplete(resultPacket -> {
         // check if we got an actual result from the request
-        if (resultPacket != Packet.EMPTY && resultPacket.content().readableBytes() > 0) {
+        if (resultPacket != BasePacket.EMPTY && resultPacket.content().readableBytes() > 0) {
           // add all resulting messages we got
           result.addAll(resultPacket.content().readObject(COL_MSG));
         }
@@ -100,7 +100,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     return task;
   }
 
-  protected @NonNull Collection<INetworkChannel> findChannels(
+  protected @NonNull Collection<NetworkChannel> findChannels(
     @NonNull Collection<ChannelMessageTarget> targets,
     boolean allowClusterRedirect
   ) {
@@ -116,17 +116,17 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     }
   }
 
-  protected @NonNull Collection<INetworkChannel> findTargetChannels(
+  protected @NonNull Collection<NetworkChannel> findTargetChannels(
     @NonNull ChannelMessageTarget target,
     boolean allowClusterRedirect
   ) {
     switch (target.type()) {
       // just include all known channels
       case ALL -> {
-        Set<INetworkChannel> result = new HashSet<>();
+        Set<NetworkChannel> result = new HashSet<>();
         // all local services
         this.cloudServiceManager.localCloudServices().stream()
-            .map(ICloudService::networkChannel)
+            .map(CloudService::networkChannel)
             .filter(Objects::nonNull)
             .forEach(result::add);
         // all connected nodes
@@ -156,8 +156,8 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
         // check if a specific service was requested
         if (target.name() == null) {
           // if no specific name is given just get all local channels
-          Collection<INetworkChannel> channels = this.cloudServiceManager.localCloudServices().stream()
-              .map(ICloudService::networkChannel)
+          Collection<NetworkChannel> channels = this.cloudServiceManager.localCloudServices().stream()
+              .map(CloudService::networkChannel)
               .filter(Objects::nonNull)
               .collect(Collectors.toSet());
           // check if cluster redirect is allowed - add all connected node channels then
@@ -216,7 +216,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     }
   }
 
-  protected @NonNull Collection<INetworkChannel> filterChannels(
+  protected @NonNull Collection<NetworkChannel> filterChannels(
     @NonNull Collection<ServiceInfoSnapshot> snapshots,
     boolean allowClusterRedirect
   ) {

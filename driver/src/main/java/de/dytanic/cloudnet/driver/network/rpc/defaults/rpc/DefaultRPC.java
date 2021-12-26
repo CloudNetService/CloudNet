@@ -17,10 +17,10 @@
 package de.dytanic.cloudnet.driver.network.rpc.defaults.rpc;
 
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
-import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.common.concurrent.Task;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.network.rpc.RPC;
 import de.dytanic.cloudnet.driver.network.rpc.RPCChain;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
@@ -116,19 +116,19 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
   }
 
   @Override
-  public @NonNull <T> ITask<T> fire() {
+  public @NonNull <T> Task<T> fire() {
     return this.fire(Objects.requireNonNull(this.sender.associatedComponent().firstChannel()));
   }
 
   @Override
-  public void fireAndForget(@NonNull INetworkChannel component) {
+  public void fireAndForget(@NonNull NetworkChannel component) {
     this.disableResultExpectation().fireSync(component);
   }
 
   @Override
-  public <T> @Nullable T fireSync(@NonNull INetworkChannel component) {
+  public <T> @Nullable T fireSync(@NonNull NetworkChannel component) {
     try {
-      ITask<T> queryTask = this.fire(component);
+      Task<T> queryTask = this.fire(component);
       return queryTask.get();
     } catch (InterruptedException | ExecutionException exception) {
       if (exception.getCause() instanceof RPCExecutionException) {
@@ -142,7 +142,7 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
   }
 
   @Override
-  public @NonNull <T> ITask<T> fire(@NonNull INetworkChannel component) {
+  public @NonNull <T> Task<T> fire(@NonNull NetworkChannel component) {
     // write the default needed information we need
     var dataBuf = this.dataBufFactory.createEmpty()
       .writeBoolean(false) // not a method chain
@@ -158,7 +158,7 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
     if (this.resultExpectation) {
       // now send the query and read the response
       return component.sendQueryAsync(new RPCQueryPacket(dataBuf))
-        .map(IPacket::content)
+        .map(Packet::content)
         .map(content -> {
           if (content.readBoolean()) {
             // the execution did not throw an exception

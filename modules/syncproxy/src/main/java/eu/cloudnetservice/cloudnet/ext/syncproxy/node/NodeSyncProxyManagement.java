@@ -17,7 +17,7 @@
 package eu.cloudnetservice.cloudnet.ext.syncproxy.node;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.common.registry.IServicesRegistry;
+import de.dytanic.cloudnet.common.registry.ServicesRegistry;
 import de.dytanic.cloudnet.driver.network.rpc.RPCProviderFactory;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.SyncProxyConfigurationUpdateEvent;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.SyncProxyManagement;
@@ -55,12 +55,12 @@ public class NodeSyncProxyManagement implements SyncProxyManagement {
   }
 
   @Override
-  public void registerService(@NonNull IServicesRegistry registry) {
+  public void registerService(@NonNull ServicesRegistry registry) {
     registry.registerService(SyncProxyManagement.class, "NodeSyncProxyManagement", this);
   }
 
   @Override
-  public void unregisterService(@NonNull IServicesRegistry registry) {
+  public void unregisterService(@NonNull ServicesRegistry registry) {
     registry.unregisterService(SyncProxyManagement.class, "NodeSyncProxyManagement");
   }
 

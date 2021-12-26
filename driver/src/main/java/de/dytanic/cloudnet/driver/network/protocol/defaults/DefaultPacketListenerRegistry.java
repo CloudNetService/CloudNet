@@ -16,17 +16,19 @@
 
 package de.dytanic.cloudnet.driver.network.protocol.defaults;
 
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
-import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.PacketListener;
+import de.dytanic.cloudnet.driver.network.protocol.PacketListenerRegistry;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.stream.Collectors;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -34,59 +36,54 @@ import org.jetbrains.annotations.UnmodifiableView;
 /**
  * Default IPacketListenerRegistry implementation
  */
-public class DefaultPacketListenerRegistry implements IPacketListenerRegistry {
+public class DefaultPacketListenerRegistry implements PacketListenerRegistry {
 
-  private final IPacketListenerRegistry parent;
-  private final Map<Integer, Collection<IPacketListener>> listeners;
+  private final PacketListenerRegistry parent;
+  private final Multimap<Integer, PacketListener> listeners;
 
   public DefaultPacketListenerRegistry() {
     this(null);
   }
 
-  public DefaultPacketListenerRegistry(IPacketListenerRegistry parent) {
+  public DefaultPacketListenerRegistry(PacketListenerRegistry parent) {
     this.parent = parent;
-    this.listeners = new ConcurrentHashMap<>();
+    this.listeners = Multimaps.newMultimap(new ConcurrentHashMap<>(), ConcurrentLinkedQueue::new);
   }
 
   @Override
-  public @Nullable IPacketListenerRegistry parent() {
+  public @Nullable PacketListenerRegistry parent() {
     return this.parent;
   }
 
   @Override
-  public void addListener(int channel, @NonNull IPacketListener... listeners) {
-    this.listeners.computeIfAbsent(channel, $ -> new CopyOnWriteArraySet<>()).addAll(Arrays.asList(listeners));
+  public void addListener(int channel, @NonNull PacketListener... listeners) {
+    this.listeners.putAll(channel, List.of(listeners));
   }
 
   @Override
-  public void removeListener(int channel, @NonNull IPacketListener... listeners) {
+  public void removeListener(int channel, @NonNull PacketListener... listeners) {
     var registeredListeners = this.listeners.get(channel);
-    if (registeredListeners != null) {
+    if (!registeredListeners.isEmpty()) {
       // remove all listeners if no specific listeners are provided
       if (listeners.length == 0) {
         registeredListeners.clear();
-        this.listeners.remove(channel);
+        this.listeners.removeAll(channel);
       } else {
         // remove the selected listeners
         registeredListeners.removeAll(Arrays.asList(listeners));
-        // check if there are listeners still registered
-        if (registeredListeners.isEmpty()) {
-          this.listeners.remove(channel, registeredListeners);
-        }
       }
     }
   }
 
   @Override
   public void removeListeners(int channel) {
-    this.listeners.remove(channel);
+    this.listeners.removeAll(channel);
   }
 
   @Override
   public void removeListeners(@NonNull ClassLoader classLoader) {
-    for (var entry : this.listeners.entrySet()) {
-      entry.getValue().removeIf(listener -> listener.getClass().getClassLoader().equals(classLoader));
-      if (entry.getValue().isEmpty()) {
+    for (var entry : this.listeners.entries()) {
+      if (entry.getValue().getClass().getClassLoader().equals(classLoader)) {
         this.listeners.remove(entry.getKey(), entry.getValue());
       }
     }
@@ -108,25 +105,23 @@ public class DefaultPacketListenerRegistry implements IPacketListenerRegistry {
   }
 
   @Override
-  public @NonNull @UnmodifiableView Collection<IPacketListener> listeners() {
-    return this.listeners.values().stream()
-      .flatMap(Collection::stream)
-      .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableCollection));
+  public @NonNull @UnmodifiableView Collection<PacketListener> listeners() {
+    return this.listeners.values();
   }
 
   @Override
-  public @NonNull @UnmodifiableView Map<Integer, Collection<IPacketListener>> packetListeners() {
-    return Collections.unmodifiableMap(this.listeners);
+  public @NonNull @UnmodifiableView Map<Integer, Collection<PacketListener>> packetListeners() {
+    return Collections.unmodifiableMap(this.listeners.asMap());
   }
 
   @Override
-  public void handlePacket(@NonNull INetworkChannel channel, @NonNull IPacket packet) {
+  public void handlePacket(@NonNull NetworkChannel channel, @NonNull Packet packet) {
     if (this.parent != null) {
       this.parent.handlePacket(channel, packet);
     }
 
     var registeredListeners = this.listeners.get(packet.channel());
-    if (registeredListeners != null) {
+    if (!registeredListeners.isEmpty()) {
       for (var listener : registeredListeners) {
         try {
           listener.handle(channel, packet);

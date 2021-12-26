@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.driver.provider.service;
 
 import de.dytanic.cloudnet.driver.channel.ChannelMessageSender;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import de.dytanic.cloudnet.driver.network.rpc.RPC;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.service.ServiceDeployment;
@@ -39,14 +39,14 @@ public class RemoteSpecificCloudServiceProvider implements SpecificCloudServiceP
   // rpc
   private final RPCSender providerSender;
   private final RPCSender thisProviderSender;
-  private final Supplier<INetworkChannel> channelSupplier;
+  private final Supplier<NetworkChannel> channelSupplier;
   // provider
   private final GeneralCloudServiceProvider provider;
 
   public RemoteSpecificCloudServiceProvider(
     @NonNull GeneralCloudServiceProvider provider,
     @NonNull RPCSender providerSender,
-    @NonNull Supplier<INetworkChannel> channelSupplier,
+    @NonNull Supplier<NetworkChannel> channelSupplier,
     @NonNull UUID id
   ) {
     this.provider = provider;
@@ -64,7 +64,7 @@ public class RemoteSpecificCloudServiceProvider implements SpecificCloudServiceP
   public RemoteSpecificCloudServiceProvider(
     @NonNull GeneralCloudServiceProvider provider,
     @NonNull RPCSender providerSender,
-    @NonNull Supplier<INetworkChannel> channelSupplier,
+    @NonNull Supplier<NetworkChannel> channelSupplier,
     @NonNull String id
   ) {
     this.provider = provider;

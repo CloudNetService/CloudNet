@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.driver.service;
 
 import com.google.common.base.Verify;
-import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.Nameable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,7 +31,7 @@ import org.jetbrains.annotations.Range;
 
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
-public class ServiceTask extends ServiceConfigurationBase implements Cloneable, INameable {
+public class ServiceTask extends ServiceConfigurationBase implements Cloneable, Nameable {
 
   public static final Pattern NAMING_PATTERN = Pattern.compile("^[a-zA-Z0-9._\\-*]*$");
 

@@ -18,11 +18,11 @@ package de.dytanic.cloudnet.ext.rest.v2;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
-import de.dytanic.cloudnet.driver.module.IModuleProvider;
-import de.dytanic.cloudnet.driver.module.IModuleWrapper;
+import de.dytanic.cloudnet.driver.module.ModuleProvider;
+import de.dytanic.cloudnet.driver.module.ModuleWrapper;
 import de.dytanic.cloudnet.driver.module.driver.DriverModule;
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.http.HttpSession;
 import de.dytanic.cloudnet.http.V2HttpHandler;
 import java.io.IOException;
@@ -38,7 +38,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) {
+  protected void handleBearerAuthorized(String path, HttpContext context, HttpSession session) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.endsWith("/module")) {
         this.handleModuleListRequest(context);
@@ -62,7 +62,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
     }
   }
 
-  protected void handleReloadRequest(IHttpContext context) {
+  protected void handleReloadRequest(HttpContext context) {
     this.node().moduleProvider().reloadAll();
 
     this.ok(context)
@@ -72,7 +72,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleModuleListRequest(IHttpContext context) {
+  protected void handleModuleListRequest(HttpContext context) {
     this.ok(context).body(this.success().append("modules", this.moduleProvider().modules().stream()
         .map(module -> JsonDocument.newDocument("lifecycle", module.moduleLifeCycle())
           .append("configuration", module.moduleConfiguration()))
@@ -81,11 +81,11 @@ public class V2HttpHandlerModule extends V2HttpHandler {
     ).context().closeAfter(true).cancelNext();
   }
 
-  protected void handleModuleRequest(IHttpContext context) {
+  protected void handleModuleRequest(HttpContext context) {
     this.handleWithModuleContext(context, module -> this.showModule(context, module));
   }
 
-  protected void handleModuleReloadRequest(IHttpContext context) {
+  protected void handleModuleReloadRequest(HttpContext context) {
     this.handleWithModuleContext(context, module -> {
       module.reloadModule();
 
@@ -93,14 +93,14 @@ public class V2HttpHandlerModule extends V2HttpHandler {
     });
   }
 
-  protected void handleModuleUnloadRequest(IHttpContext context) {
+  protected void handleModuleUnloadRequest(HttpContext context) {
     this.handleWithModuleContext(context, module -> {
       module.unloadModule();
       this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
     });
   }
 
-  protected void handleModuleLoadRequest(IHttpContext context) {
+  protected void handleModuleLoadRequest(HttpContext context) {
     var moduleStream = context.request().bodyStream();
     if (moduleStream == null) {
       this.badRequest(context)
@@ -139,7 +139,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
     this.showModule(context, this.moduleProvider().loadModule(moduleTarget));
   }
 
-  protected void handleModuleConfigRequest(IHttpContext context) {
+  protected void handleModuleConfigRequest(HttpContext context) {
     this.handleWithModuleContext(context, module -> {
       if (module.module() instanceof DriverModule) {
         var config = ((DriverModule) module.module()).readConfig();
@@ -158,7 +158,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
     });
   }
 
-  protected void handleConfigUpdateRequest(IHttpContext context) {
+  protected void handleConfigUpdateRequest(HttpContext context) {
     this.handleWithModuleContext(context, module -> {
       if (module.module() instanceof DriverModule) {
         var stream = context.request().bodyStream();
@@ -184,7 +184,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
     });
   }
 
-  protected void showModule(IHttpContext context, @Nullable IModuleWrapper wrapper) {
+  protected void showModule(HttpContext context, @Nullable ModuleWrapper wrapper) {
     if (wrapper == null) {
       this.ok(context).body(this.failure().toString()).context().closeAfter(true).cancelNext();
     } else {
@@ -196,7 +196,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
     }
   }
 
-  protected void handleWithModuleContext(IHttpContext context, Consumer<IModuleWrapper> handler) {
+  protected void handleWithModuleContext(HttpContext context, Consumer<ModuleWrapper> handler) {
     var name = context.request().pathParameters().get("name");
     if (name == null) {
       this.badRequest(context)
@@ -220,7 +220,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
     handler.accept(wrapper);
   }
 
-  protected IModuleProvider moduleProvider() {
+  protected ModuleProvider moduleProvider() {
     return this.node().moduleProvider();
   }
 }

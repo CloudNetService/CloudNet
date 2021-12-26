@@ -17,9 +17,9 @@
 package de.dytanic.cloudnet.driver.network.def;
 
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
-import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.BasePacket;
 
-public final class PacketClientAuthorization extends Packet {
+public final class PacketClientAuthorization extends BasePacket {
 
   public PacketClientAuthorization(PacketAuthorizationType type, DataBuf dataBuf) {
     super(

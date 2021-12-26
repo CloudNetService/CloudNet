@@ -16,15 +16,15 @@
 
 package de.dytanic.cloudnet.template.install;
 
-import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.JavaVersion;
+import de.dytanic.cloudnet.common.Nameable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import lombok.NonNull;
 
-public class ServiceVersion implements INameable {
+public class ServiceVersion implements Nameable {
 
   private String name;
   private String url;

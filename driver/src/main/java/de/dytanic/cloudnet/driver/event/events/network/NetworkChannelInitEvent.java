@@ -16,16 +16,16 @@
 
 package de.dytanic.cloudnet.driver.event.events.network;
 
-import de.dytanic.cloudnet.driver.event.ICancelable;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.event.Cancelable;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import lombok.NonNull;
 
-public class NetworkChannelInitEvent extends NetworkEvent implements ICancelable {
+public class NetworkChannelInitEvent extends NetworkEvent implements Cancelable {
 
   private final ChannelType channelType;
   private boolean cancelled;
 
-  public NetworkChannelInitEvent(@NonNull INetworkChannel channel, @NonNull ChannelType channelType) {
+  public NetworkChannelInitEvent(@NonNull NetworkChannel channel, @NonNull ChannelType channelType) {
     super(channel);
     this.channelType = channelType;
   }

@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.ext.cloudperms.nukkit;
 
 import cn.nukkit.Player;
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.PermissionManagement;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import lombok.NonNull;
@@ -38,7 +38,7 @@ public final class NukkitPermissionInjectionHelper {
     }
   }
 
-  public static void injectPermissible(@NonNull Player player, IPermissionManagement management) {
+  public static void injectPermissible(@NonNull Player player, PermissionManagement management) {
     try {
       SET_PERM_FIELD.invoke(player, new NukkitCloudPermissionsPermissible(player, management));
     } catch (Throwable throwable) {

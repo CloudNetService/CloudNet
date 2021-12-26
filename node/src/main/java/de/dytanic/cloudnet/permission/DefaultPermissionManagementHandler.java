@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.permission;
 
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
-import de.dytanic.cloudnet.driver.event.IEventManager;
+import de.dytanic.cloudnet.driver.event.EventManager;
 import de.dytanic.cloudnet.driver.event.events.permission.PermissionAddGroupEvent;
 import de.dytanic.cloudnet.driver.event.events.permission.PermissionAddUserEvent;
 import de.dytanic.cloudnet.driver.event.events.permission.PermissionDeleteGroupEvent;
@@ -27,24 +27,24 @@ import de.dytanic.cloudnet.driver.event.events.permission.PermissionUpdateGroupE
 import de.dytanic.cloudnet.driver.event.events.permission.PermissionUpdateUserEvent;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
+import de.dytanic.cloudnet.driver.permission.PermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
-import de.dytanic.cloudnet.permission.handler.IPermissionManagementHandler;
+import de.dytanic.cloudnet.permission.handler.PermissionManagementHandler;
 import java.util.Collection;
 import lombok.NonNull;
 
-public final class DefaultPermissionManagementHandler implements IPermissionManagementHandler {
+public final class DefaultPermissionManagementHandler implements PermissionManagementHandler {
 
-  private final IEventManager eventManager;
+  private final EventManager eventManager;
 
-  public DefaultPermissionManagementHandler(@NonNull IEventManager eventManager) {
+  public DefaultPermissionManagementHandler(@NonNull EventManager eventManager) {
     this.eventManager = eventManager;
   }
 
   @Override
   public void handleAddUser(
-    @NonNull IPermissionManagement management,
+    @NonNull PermissionManagement management,
     @NonNull PermissionUser user
   ) {
     this.eventManager.callEvent(new PermissionAddUserEvent(management, user));
@@ -53,7 +53,7 @@ public final class DefaultPermissionManagementHandler implements IPermissionMana
 
   @Override
   public void handleUpdateUser(
-    @NonNull IPermissionManagement management,
+    @NonNull PermissionManagement management,
     @NonNull PermissionUser user
   ) {
     this.eventManager.callEvent(new PermissionUpdateUserEvent(management, user));
@@ -62,7 +62,7 @@ public final class DefaultPermissionManagementHandler implements IPermissionMana
 
   @Override
   public void handleDeleteUser(
-    @NonNull IPermissionManagement management,
+    @NonNull PermissionManagement management,
     @NonNull PermissionUser user
   ) {
     this.eventManager.callEvent(new PermissionDeleteUserEvent(management, user));
@@ -71,7 +71,7 @@ public final class DefaultPermissionManagementHandler implements IPermissionMana
 
   @Override
   public void handleAddGroup(
-    @NonNull IPermissionManagement management,
+    @NonNull PermissionManagement management,
     @NonNull PermissionGroup group
   ) {
     this.eventManager.callEvent(new PermissionAddGroupEvent(management, group));
@@ -80,7 +80,7 @@ public final class DefaultPermissionManagementHandler implements IPermissionMana
 
   @Override
   public void handleUpdateGroup(
-    @NonNull IPermissionManagement management,
+    @NonNull PermissionManagement management,
     @NonNull PermissionGroup group
   ) {
     this.eventManager.callEvent(new PermissionUpdateGroupEvent(management, group));
@@ -89,7 +89,7 @@ public final class DefaultPermissionManagementHandler implements IPermissionMana
 
   @Override
   public void handleDeleteGroup(
-    @NonNull IPermissionManagement management,
+    @NonNull PermissionManagement management,
     @NonNull PermissionGroup group
   ) {
     this.eventManager.callEvent(new PermissionDeleteGroupEvent(management, group));
@@ -98,7 +98,7 @@ public final class DefaultPermissionManagementHandler implements IPermissionMana
 
   @Override
   public void handleSetGroups(
-    @NonNull IPermissionManagement management,
+    @NonNull PermissionManagement management,
     @NonNull Collection<? extends PermissionGroup> groups
   ) {
     this.eventManager.callEvent(new PermissionSetGroupsEvent(management, groups));
@@ -106,7 +106,7 @@ public final class DefaultPermissionManagementHandler implements IPermissionMana
   }
 
   @Override
-  public void handleReloaded(@NonNull IPermissionManagement management) {
+  public void handleReloaded(@NonNull PermissionManagement management) {
     this.handleSetGroups(management, management.groups());
   }
 

@@ -45,7 +45,7 @@ import de.dytanic.cloudnet.command.sub.CommandService;
 import de.dytanic.cloudnet.command.sub.CommandTasks;
 import de.dytanic.cloudnet.command.sub.CommandTemplate;
 import de.dytanic.cloudnet.common.language.I18n;
-import de.dytanic.cloudnet.console.IConsole;
+import de.dytanic.cloudnet.console.Console;
 import de.dytanic.cloudnet.console.handler.ConsoleInputHandler;
 import de.dytanic.cloudnet.console.handler.ConsoleTabCompleteHandler;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
@@ -76,9 +76,9 @@ public class DefaultCommandProvider implements CommandProvider {
   private final AnnotationParser<CommandSource> annotationParser;
   private final SetMultimap<ClassLoader, CommandInfo> registeredCommands;
   private final CommandExceptionHandler exceptionHandler;
-  private final IConsole console;
+  private final Console console;
 
-  public DefaultCommandProvider(IConsole console) {
+  public DefaultCommandProvider(Console console) {
     this.console = console;
     this.commandManager = new DefaultCommandManager();
     this.annotationParser = new AnnotationParser<>(this.commandManager, CommandSource.class,
@@ -159,7 +159,7 @@ public class DefaultCommandProvider implements CommandProvider {
    * {@inheritDoc}
    */
   @Override
-  public void registerConsoleHandler(@NonNull IConsole console) {
+  public void registerConsoleHandler(@NonNull Console console) {
     // command handling
     console.addCommandHandler(UUID.randomUUID(), new ConsoleInputHandler() {
       @Override

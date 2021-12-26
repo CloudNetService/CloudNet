@@ -27,10 +27,10 @@ import java.util.function.Predicate;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class DefaultPermissionManagement implements IPermissionManagement {
+public abstract class DefaultPermissionManagement implements PermissionManagement {
 
   @Override
-  public IPermissionManagement childPermissionManagement() {
+  public PermissionManagement childPermissionManagement() {
     return null;
   }
 
@@ -68,7 +68,7 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
   }
 
   @Override
-  public boolean testPermissible(@Nullable IPermissible permissible) {
+  public boolean testPermissible(@Nullable Permissible permissible) {
     if (permissible == null) {
       return false;
     }
@@ -86,7 +86,7 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
 
   @Override
   @NonNull
-  public Collection<PermissionGroup> groupsOf(@Nullable IPermissible permissible) {
+  public Collection<PermissionGroup> groupsOf(@Nullable Permissible permissible) {
     List<PermissionGroup> permissionGroups = new ArrayList<>();
 
     if (permissible == null) {
@@ -109,7 +109,7 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
 
   @Override
   public @NonNull PermissionCheckResult permissionResult(
-    @NonNull IPermissible permissible,
+    @NonNull Permissible permissible,
     @NonNull Permission permission
   ) {
     return PermissionCheckResult.fromPermission(
@@ -118,7 +118,7 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
 
   @Override
   public @NonNull PermissionCheckResult groupPermissionResult(
-    @NonNull IPermissible permissible,
+    @NonNull Permissible permissible,
     @NonNull String group,
     @NonNull Permission permission
   ) {
@@ -126,7 +126,7 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
   }
 
   @Override
-  public @NonNull PermissionCheckResult groupsPermissionResult(@NonNull IPermissible permissible,
+  public @NonNull PermissionCheckResult groupsPermissionResult(@NonNull Permissible permissible,
     @NonNull String[] groups,
     @NonNull Permission permission) {
     return PermissionCheckResult
@@ -161,12 +161,12 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
     return lastMatch;
   }
 
-  protected Collection<Permission> collectAllPermissions(@NonNull IPermissible permissible, @Nullable String[] groups) {
+  protected Collection<Permission> collectAllPermissions(@NonNull Permissible permissible, @Nullable String[] groups) {
     return this.collectAllPermissionsTo(new HashSet<>(), permissible, groups);
   }
 
   protected Collection<Permission> collectAllPermissionsTo(@NonNull Collection<Permission> target,
-    @NonNull IPermissible permissible,
+    @NonNull Permissible permissible,
     @Nullable String[] groups) {
     this.collectPermissionsInto(target, permissible, groups);
     this.collectAllGroupPermissionsInto(target, this.groupsOf(permissible), groups, new HashSet<>());
@@ -185,7 +185,7 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
     }
   }
 
-  protected void collectPermissionsInto(@NonNull Collection<Permission> permissions, @NonNull IPermissible permissible,
+  protected void collectPermissionsInto(@NonNull Collection<Permission> permissions, @NonNull Permissible permissible,
     @Nullable String[] groups) {
     permissions.addAll(permissible.permissions());
     if (groups != null) {
@@ -196,12 +196,12 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
   }
 
   @Override
-  public @NonNull Collection<Permission> allPermissions(@NonNull IPermissible permissible) {
+  public @NonNull Collection<Permission> allPermissions(@NonNull Permissible permissible) {
     return this.allGroupPermissions(permissible, null);
   }
 
   @Override
-  public @NonNull Collection<Permission> allGroupPermissions(@NonNull IPermissible permissible, String group) {
+  public @NonNull Collection<Permission> allGroupPermissions(@NonNull Permissible permissible, String group) {
     Collection<Permission> permissions = new ArrayList<>(permissible.permissions());
     if (group != null && permissible.groupPermissions().containsKey(group)) {
       permissions.addAll(permissible.groupPermissions().get(group));

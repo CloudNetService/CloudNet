@@ -18,11 +18,11 @@ package de.dytanic.cloudnet.wrapper.permission;
 
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.permission.DefaultCachedPermissionManagement;
-import de.dytanic.cloudnet.driver.permission.IPermissible;
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.Permissible;
 import de.dytanic.cloudnet.driver.permission.Permission;
 import de.dytanic.cloudnet.driver.permission.PermissionCheckResult;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
+import de.dytanic.cloudnet.driver.permission.PermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import de.dytanic.cloudnet.wrapper.network.listener.message.PermissionChannelMessageListener;
@@ -32,7 +32,7 @@ import java.util.UUID;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public class WrapperPermissionManagement extends DefaultCachedPermissionManagement implements IPermissionManagement {
+public class WrapperPermissionManagement extends DefaultCachedPermissionManagement implements PermissionManagement {
 
   private final Wrapper wrapper;
   private final RPCSender rpcSender;
@@ -44,7 +44,7 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
     this.wrapper = wrapper;
     this.rpcSender = wrapper.rpcProviderFactory().providerForClass(
       wrapper.networkClient(),
-      IPermissionManagement.class);
+      PermissionManagement.class);
 
     this.cacheListener = new PermissionCacheListener(this);
     this.channelMessageListener = new PermissionChannelMessageListener(wrapper.eventManager(), this);
@@ -115,7 +115,7 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
 
   @Override
   public @NonNull PermissionCheckResult permissionResult(
-    @NonNull IPermissible permissible,
+    @NonNull Permissible permissible,
     @NonNull Permission permission
   ) {
     return this.groupsPermissionResult(
@@ -237,7 +237,7 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
   }
 
   @Override
-  public IPermissionManagement childPermissionManagement() {
+  public PermissionManagement childPermissionManagement() {
     return null;
   }
 

@@ -16,10 +16,10 @@
 
 package de.dytanic.cloudnet.ext.rest.v2;
 
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
-import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketChannel;
-import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketListener;
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
+import de.dytanic.cloudnet.driver.network.http.websocket.WebSocketChannel;
 import de.dytanic.cloudnet.driver.network.http.websocket.WebSocketFrameType;
+import de.dytanic.cloudnet.driver.network.http.websocket.WebSocketListener;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
@@ -31,9 +31,9 @@ import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.ext.rest.RestUtils;
 import de.dytanic.cloudnet.http.HttpSession;
 import de.dytanic.cloudnet.http.WebSocketAbleV2HttpHandler;
-import de.dytanic.cloudnet.service.ICloudService;
-import de.dytanic.cloudnet.service.IServiceConsoleLogCache;
+import de.dytanic.cloudnet.service.CloudService;
 import de.dytanic.cloudnet.service.ServiceConsoleLineHandler;
+import de.dytanic.cloudnet.service.ServiceConsoleLogCache;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -52,7 +52,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) {
+  protected void handleBearerAuthorized(String path, HttpContext context, HttpSession session) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.endsWith("/service")) {
         this.handleListServicesRequest(context);
@@ -83,11 +83,11 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
   }
 
   @Override
-  protected void handleTicketAuthorizedRequest(String path, IHttpContext context, HttpSession session) {
+  protected void handleTicketAuthorizedRequest(String path, HttpContext context, HttpSession session) {
     this.handleLiveLogRequest(context);
   }
 
-  protected void handleListServicesRequest(IHttpContext context) {
+  protected void handleListServicesRequest(HttpContext context) {
     this.ok(context)
       .body(this.success().append("services", this.generalServiceProvider().services()).toString())
       .context()
@@ -95,7 +95,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleServiceRequest(IHttpContext context) {
+  protected void handleServiceRequest(HttpContext context) {
     this.handleWithServiceContext(context, service -> this.ok(context)
       .body(this.success().append("snapshot", service).toString())
       .context()
@@ -104,7 +104,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     );
   }
 
-  protected void handleServiceStateUpdateRequest(IHttpContext context) {
+  protected void handleServiceStateUpdateRequest(HttpContext context) {
     this.handleWithServiceContext(context, service -> {
       var targetState = RestUtils.first(context.request().queryParameters().get("target"));
       if (targetState == null) {
@@ -135,7 +135,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     });
   }
 
-  protected void handleServiceCommandRequest(IHttpContext context) {
+  protected void handleServiceCommandRequest(HttpContext context) {
     this.handleWithServiceContext(context, service -> {
       var commandLine = this.body(context.request()).getString("command");
       if (commandLine == null) {
@@ -151,7 +151,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     });
   }
 
-  protected void handleIncludeRequest(IHttpContext context) {
+  protected void handleIncludeRequest(HttpContext context) {
     this.handleWithServiceContext(context, service -> {
       var type = RestUtils.first(context.request().queryParameters().get("type"));
       if (type != null) {
@@ -179,7 +179,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     });
   }
 
-  protected void handleDeployResourcesRequest(IHttpContext context) {
+  protected void handleDeployResourcesRequest(HttpContext context) {
     this.handleWithServiceContext(context, service -> {
       var removeDeployments = Boolean
         .getBoolean(RestUtils.first(context.request().queryParameters().get("remove"), "true"));
@@ -189,7 +189,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     });
   }
 
-  protected void handleLogLinesRequest(IHttpContext context) {
+  protected void handleLogLinesRequest(HttpContext context) {
     this.handleWithServiceContext(context, service -> this.ok(context)
       .body(this.success().append("lines", service.provider().cachedLogMessages()).toString())
       .context()
@@ -198,7 +198,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     );
   }
 
-  protected void handleLiveLogRequest(IHttpContext context) {
+  protected void handleLiveLogRequest(HttpContext context) {
     this.handleWithServiceContext(context, service -> {
       var cloudService = this.node().cloudServiceProvider()
         .localCloudService(service.serviceId().uniqueId());
@@ -225,7 +225,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     });
   }
 
-  protected void handleCreateRequest(@NonNull IHttpContext context) {
+  protected void handleCreateRequest(@NonNull HttpContext context) {
     var body = this.body(context.request());
     // check for a provided service configuration
     var configuration = body.get("serviceConfiguration", ServiceConfiguration.class);
@@ -278,7 +278,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     }
   }
 
-  protected void handleAddRequest(IHttpContext context) {
+  protected void handleAddRequest(HttpContext context) {
     this.handleWithServiceContext(context, service -> {
       var type = RestUtils.first(context.request().queryParameters().get("type"), null);
       if (type == null) {
@@ -351,14 +351,14 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     });
   }
 
-  protected void handleServiceDeleteRequest(IHttpContext context) {
+  protected void handleServiceDeleteRequest(HttpContext context) {
     this.handleWithServiceContext(context, service -> {
       service.provider().delete();
       this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
     });
   }
 
-  protected void handleWithServiceContext(IHttpContext context, Consumer<ServiceInfoSnapshot> handler) {
+  protected void handleWithServiceContext(HttpContext context, Consumer<ServiceInfoSnapshot> handler) {
     var identifier = context.request().pathParameters().get("identifier");
     if (identifier == null) {
       this.badRequest(context)
@@ -390,7 +390,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     handler.accept(serviceInfoSnapshot);
   }
 
-  protected void sendInvalidServiceConfigurationResponse(IHttpContext context) {
+  protected void sendInvalidServiceConfigurationResponse(HttpContext context) {
     this.badRequest(context)
       .body(this.failure().append("reason", "Missing parameters for service creation").toString())
       .context()
@@ -414,14 +414,14 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     return this.generalServiceProvider().service(uniqueID);
   }
 
-  protected static class ConsoleHandlerWebSocketListener implements IWebSocketListener {
+  protected static class ConsoleHandlerWebSocketListener implements WebSocketListener {
 
-    protected final ICloudService service;
-    protected final IServiceConsoleLogCache logCache;
+    protected final CloudService service;
+    protected final ServiceConsoleLogCache logCache;
     protected final ServiceConsoleLineHandler watchingHandler;
 
-    public ConsoleHandlerWebSocketListener(ICloudService service,
-      IServiceConsoleLogCache logCache, ServiceConsoleLineHandler watchingHandler) {
+    public ConsoleHandlerWebSocketListener(CloudService service,
+      ServiceConsoleLogCache logCache, ServiceConsoleLineHandler watchingHandler) {
       this.service = service;
       this.logCache = logCache;
       this.watchingHandler = watchingHandler;
@@ -429,7 +429,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
 
     @Override
     public void handle(
-      @NonNull IWebSocketChannel channel,
+      @NonNull WebSocketChannel channel,
       @NonNull WebSocketFrameType type,
       byte[] bytes
     ) throws Exception {
@@ -441,7 +441,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
 
     @Override
     public void handleClose(
-      @NonNull IWebSocketChannel channel,
+      @NonNull WebSocketChannel channel,
       @NonNull AtomicInteger statusCode,
       @NonNull AtomicReference<String> reasonText
     ) {

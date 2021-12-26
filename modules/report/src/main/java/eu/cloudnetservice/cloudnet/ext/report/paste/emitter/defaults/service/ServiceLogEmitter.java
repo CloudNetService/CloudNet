@@ -16,13 +16,13 @@
 
 package eu.cloudnetservice.cloudnet.ext.report.paste.emitter.defaults.service;
 
-import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.service.CloudService;
 import eu.cloudnetservice.cloudnet.ext.report.paste.emitter.ReportDataEmitter;
 
-public class ServiceLogEmitter implements ReportDataEmitter<ICloudService> {
+public class ServiceLogEmitter implements ReportDataEmitter<CloudService> {
 
   @Override
-  public void emitData(StringBuilder builder, ICloudService context) {
+  public void emitData(StringBuilder builder, CloudService context) {
     for (var cachedLogMessage : context.cachedLogMessages()) {
       builder.append(cachedLogMessage).append("\n");
     }

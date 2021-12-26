@@ -16,9 +16,9 @@
 
 package de.dytanic.cloudnet.driver.event.events.module;
 
-import de.dytanic.cloudnet.driver.module.IModuleProvider;
 import de.dytanic.cloudnet.driver.module.ModuleConfiguration;
 import de.dytanic.cloudnet.driver.module.ModuleDependency;
+import de.dytanic.cloudnet.driver.module.ModuleProvider;
 import lombok.NonNull;
 
 /**
@@ -34,7 +34,7 @@ public final class ModulePreInstallDependencyEvent extends UnloadedModuleEvent {
    * @param dependency the dependency which got loaded.
    */
   public ModulePreInstallDependencyEvent(
-    IModuleProvider provider,
+    ModuleProvider provider,
     ModuleConfiguration configuration,
     ModuleDependency dependency
   ) {

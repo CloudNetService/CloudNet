@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.wrapper.provider;
 
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import de.dytanic.cloudnet.driver.provider.service.RemoteSpecificCloudServiceProvider;
@@ -34,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
 public class WrapperGeneralCloudServiceProvider implements GeneralCloudServiceProvider {
 
   private final RPCSender rpcSender;
-  private final Supplier<INetworkChannel> channelSupplier;
+  private final Supplier<NetworkChannel> channelSupplier;
 
   public WrapperGeneralCloudServiceProvider(@NonNull Wrapper wrapper) {
     this.rpcSender = wrapper.rpcProviderFactory().providerForClass(

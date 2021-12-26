@@ -16,17 +16,17 @@
 
 package de.dytanic.cloudnet.driver.network.chunk.defaults.splitter;
 
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import java.util.Collection;
 import java.util.function.Consumer;
 import lombok.NonNull;
 
-public record NetworkChannelsPacketSplitter(@NonNull Collection<INetworkChannel> channels)
-  implements Consumer<IPacket> {
+public record NetworkChannelsPacketSplitter(@NonNull Collection<NetworkChannel> channels)
+  implements Consumer<Packet> {
 
   @Override
-  public void accept(@NonNull IPacket packet) {
+  public void accept(@NonNull Packet packet) {
     // disable releasing of the content as we need to content multiple times
     packet.content().disableReleasing();
     // write to all channels

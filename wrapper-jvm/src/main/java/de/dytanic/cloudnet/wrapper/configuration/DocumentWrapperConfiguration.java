@@ -28,19 +28,19 @@ import lombok.NonNull;
  * The default json based wrapper configuration for the service. It loads only the configuration with the constructor
  * all properties once.
  *
- * @see IWrapperConfiguration
+ * @see WrapperConfiguration
  */
 public record DocumentWrapperConfiguration(
   @NonNull String connectionKey,
   @NonNull HostAndPort targetListener,
   @NonNull SSLConfiguration sslConfiguration,
   @NonNull ServiceInfoSnapshot serviceInfoSnapshot,
-  @NonNull ServiceConfiguration serviceConfiguration) implements IWrapperConfiguration {
+  @NonNull ServiceConfiguration serviceConfiguration) implements WrapperConfiguration {
 
   private static final Path WRAPPER_CONFIG_PATH = Path.of(
     System.getProperty("cloudnet.wrapper.config.path", ".wrapper/wrapper.json"));
 
-  public static @NonNull IWrapperConfiguration load() {
+  public static @NonNull WrapperConfiguration load() {
     return JsonDocument.newDocument(WRAPPER_CONFIG_PATH).toInstanceOf(DocumentWrapperConfiguration.class);
   }
 }

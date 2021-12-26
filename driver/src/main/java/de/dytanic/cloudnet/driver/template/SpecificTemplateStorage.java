@@ -16,8 +16,8 @@
 
 package de.dytanic.cloudnet.driver.template;
 
-import de.dytanic.cloudnet.common.INameable;
-import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.Nameable;
+import de.dytanic.cloudnet.common.concurrent.Task;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.defaults.DefaultSpecificTemplateStorage;
 import java.io.IOException;
@@ -29,7 +29,7 @@ import java.util.zip.ZipInputStream;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface SpecificTemplateStorage extends INameable {
+public interface SpecificTemplateStorage extends Nameable {
 
   /**
    * Creates a new {@link SpecificTemplateStorage} for the given template.
@@ -195,13 +195,13 @@ public interface SpecificTemplateStorage extends INameable {
    * @see TemplateStorage#deployDirectoryAsync(Path, ServiceTemplate, Predicate)
    */
   @NonNull
-  ITask<Boolean> deployAsync(@NonNull Path directory, @Nullable Predicate<Path> fileFilter);
+  Task<Boolean> deployAsync(@NonNull Path directory, @Nullable Predicate<Path> fileFilter);
 
   /**
    * @see TemplateStorage#deployDirectoryAsync(Path, ServiceTemplate)
    */
   @NonNull
-  default ITask<Boolean> deployAsync(@NonNull Path directory) {
+  default Task<Boolean> deployAsync(@NonNull Path directory) {
     return this.deployAsync(directory, null);
   }
 
@@ -209,103 +209,103 @@ public interface SpecificTemplateStorage extends INameable {
    * @see TemplateStorage#deployAsync(InputStream, ServiceTemplate)
    */
   @NonNull
-  ITask<Boolean> deployAsync(@NonNull InputStream inputStream);
+  Task<Boolean> deployAsync(@NonNull InputStream inputStream);
 
   /**
    * @see TemplateStorage#copyAsync(ServiceTemplate, Path)
    */
   @NonNull
-  ITask<Boolean> copyAsync(@NonNull Path directory);
+  Task<Boolean> copyAsync(@NonNull Path directory);
 
   /**
    * @see TemplateStorage#asZipInputStreamAsync(ServiceTemplate)
    */
   @NonNull
-  ITask<ZipInputStream> asZipInputStreamAsync();
+  Task<ZipInputStream> asZipInputStreamAsync();
 
   /**
    * @see TemplateStorage#zipTemplateAsync(ServiceTemplate)
    */
   @NonNull
-  ITask<InputStream> zipTemplateAsync();
+  Task<InputStream> zipTemplateAsync();
 
   /**
    * @see TemplateStorage#deleteAsync(ServiceTemplate)
    */
   @NonNull
-  ITask<Boolean> deleteAsync();
+  Task<Boolean> deleteAsync();
 
   /**
    * @see TemplateStorage#createAsync(ServiceTemplate)
    */
   @NonNull
-  ITask<Boolean> createAsync();
+  Task<Boolean> createAsync();
 
   /**
    * @see TemplateStorage#hasAsync(ServiceTemplate)
    */
   @NonNull
-  ITask<Boolean> existsAsync();
+  Task<Boolean> existsAsync();
 
   /**
    * @see TemplateStorage#appendOutputStreamAsync(ServiceTemplate, String)
    */
   @NonNull
-  ITask<OutputStream> appendOutputStreamAsync(@NonNull String path);
+  Task<OutputStream> appendOutputStreamAsync(@NonNull String path);
 
   /**
    * @see TemplateStorage#newOutputStreamAsync(ServiceTemplate, String)
    */
   @NonNull
-  ITask<OutputStream> newOutputStreamAsync(@NonNull String path);
+  Task<OutputStream> newOutputStreamAsync(@NonNull String path);
 
   /**
    * @see TemplateStorage#createFileAsync(ServiceTemplate, String)
    */
   @NonNull
-  ITask<Boolean> createFileAsync(@NonNull String path);
+  Task<Boolean> createFileAsync(@NonNull String path);
 
   /**
    * @see TemplateStorage#createDirectoryAsync(ServiceTemplate, String)
    */
   @NonNull
-  ITask<Boolean> createDirectoryAsync(@NonNull String path);
+  Task<Boolean> createDirectoryAsync(@NonNull String path);
 
   /**
    * @see TemplateStorage#hasFileAsync(ServiceTemplate, String)
    */
   @NonNull
-  ITask<Boolean> hasFileAsync(@NonNull String path);
+  Task<Boolean> hasFileAsync(@NonNull String path);
 
   /**
    * @see TemplateStorage#deleteFileAsync(ServiceTemplate, String)
    */
   @NonNull
-  ITask<Boolean> deleteFileAsync(@NonNull String path);
+  Task<Boolean> deleteFileAsync(@NonNull String path);
 
   /**
    * @see TemplateStorage#newInputStreamAsync(ServiceTemplate, String)
    */
   @NonNull
-  ITask<InputStream> newInputStreamAsync(@NonNull String path);
+  Task<InputStream> newInputStreamAsync(@NonNull String path);
 
   /**
    * @see TemplateStorage#fileInfoAsync(ServiceTemplate, String)
    */
   @NonNull
-  ITask<FileInfo> fileInfoAsync(@NonNull String path);
+  Task<FileInfo> fileInfoAsync(@NonNull String path);
 
   /**
    * @see TemplateStorage#listFilesAsync(ServiceTemplate, String, boolean)
    */
   @NonNull
-  ITask<FileInfo[]> listFilesAsync(@NonNull String dir, boolean deep);
+  Task<FileInfo[]> listFilesAsync(@NonNull String dir, boolean deep);
 
   /**
    * @see TemplateStorage#listFilesAsync(ServiceTemplate, boolean)
    */
   @NonNull
-  default ITask<FileInfo[]> listFilesAsync(boolean deep) {
+  default Task<FileInfo[]> listFilesAsync(boolean deep) {
     return this.listFilesAsync("", deep);
   }
 
@@ -313,7 +313,7 @@ public interface SpecificTemplateStorage extends INameable {
    * @see TemplateStorage#listFilesAsync(ServiceTemplate, String)
    */
   @NonNull
-  default ITask<FileInfo[]> listFilesAsync(@NonNull String dir) {
+  default Task<FileInfo[]> listFilesAsync(@NonNull String dir) {
     return this.listFilesAsync(dir, true);
   }
 
@@ -321,7 +321,7 @@ public interface SpecificTemplateStorage extends INameable {
    * @see TemplateStorage#listFilesAsync(ServiceTemplate)
    */
   @NonNull
-  default ITask<FileInfo[]> listFilesAsync() {
+  default Task<FileInfo[]> listFilesAsync() {
     return this.listFilesAsync(true);
   }
 

@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.driver.module;
 
 import com.google.common.base.Verify;
-import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.Nameable;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
@@ -28,7 +28,7 @@ import org.jetbrains.annotations.ApiStatus.Internal;
  */
 @ToString
 @EqualsAndHashCode
-public class ModuleRepository implements INameable {
+public class ModuleRepository implements Nameable {
 
   private String name;
   private String url;

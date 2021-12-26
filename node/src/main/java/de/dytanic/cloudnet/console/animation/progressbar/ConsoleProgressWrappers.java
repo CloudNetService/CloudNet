@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.function.ThrowableConsumer;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
-import de.dytanic.cloudnet.console.IConsole;
+import de.dytanic.cloudnet.console.Console;
 import de.dytanic.cloudnet.console.animation.progressbar.wrapper.WrappedInputStream;
 import de.dytanic.cloudnet.console.animation.progressbar.wrapper.WrappedIterator;
 import java.io.IOException;
@@ -50,7 +50,7 @@ public final class ConsoleProgressWrappers {
 
   public static @NonNull <T> Iterator<T> wrapIterator(
     @NonNull Collection<T> collection,
-    @NonNull IConsole console,
+    @NonNull Console console,
     @NonNull String task,
     @NonNull String unitName
   ) {
@@ -77,7 +77,7 @@ public final class ConsoleProgressWrappers {
 
   public static void wrapDownload(
     @NonNull String url,
-    @NonNull IConsole console,
+    @NonNull Console console,
     @NonNull ThrowableConsumer<InputStream, IOException> streamHandler
   ) {
     Unirest

@@ -23,12 +23,12 @@ import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.ext.cloudflare.CloudflareConfigurationEntry;
 import de.dytanic.cloudnet.ext.cloudflare.dns.DNSRecord;
-import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.service.CloudService;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 import kong.unirest.HttpRequestWithBody;
 import kong.unirest.Unirest;
@@ -43,8 +43,9 @@ public class CloudFlareAPI implements AutoCloseable {
 
   protected static final Logger LOGGER = LogManager.logger(CloudFlareAPI.class);
 
-  protected final Multimap<UUID, DnsRecordDetail> createdRecords = Multimaps
-    .newSetMultimap(new ConcurrentHashMap<>(), CopyOnWriteArraySet::new);
+  protected final Multimap<UUID, DnsRecordDetail> createdRecords = Multimaps.newMultimap(
+    new ConcurrentHashMap<>(),
+    ConcurrentLinkedQueue::new);
 
   public @Nullable DnsRecordDetail createRecord(
     @NonNull UUID serviceUniqueId,
@@ -85,7 +86,7 @@ public class CloudFlareAPI implements AutoCloseable {
     return this.deleteRecord(recordDetail.configurationEntry(), recordDetail.id());
   }
 
-  public @NonNull Collection<DnsRecordDetail> deleteAllRecords(@NonNull ICloudService service) {
+  public @NonNull Collection<DnsRecordDetail> deleteAllRecords(@NonNull CloudService service) {
     return this.deleteAllRecords(service.serviceId().uniqueId());
   }
 

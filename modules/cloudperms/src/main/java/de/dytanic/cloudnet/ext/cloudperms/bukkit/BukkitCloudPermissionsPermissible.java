@@ -17,8 +17,8 @@
 package de.dytanic.cloudnet.ext.cloudperms.bukkit;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionCheckResult;
+import de.dytanic.cloudnet.driver.permission.PermissionManagement;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.HashSet;
 import java.util.Objects;
@@ -35,9 +35,9 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 public final class BukkitCloudPermissionsPermissible extends PermissibleBase {
 
   private final Player player;
-  private final IPermissionManagement permissionsManagement;
+  private final PermissionManagement permissionsManagement;
 
-  public BukkitCloudPermissionsPermissible(Player player, IPermissionManagement permissionsManagement) {
+  public BukkitCloudPermissionsPermissible(Player player, PermissionManagement permissionsManagement) {
     super(player);
 
     this.player = player;

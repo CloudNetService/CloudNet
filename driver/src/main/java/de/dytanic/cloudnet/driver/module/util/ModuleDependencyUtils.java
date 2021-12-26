@@ -17,11 +17,11 @@
 package de.dytanic.cloudnet.driver.module.util;
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.driver.module.IModuleProvider;
-import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 import de.dytanic.cloudnet.driver.module.ModuleDependency;
 import de.dytanic.cloudnet.driver.module.ModuleDependencyNotFoundException;
 import de.dytanic.cloudnet.driver.module.ModuleDependencyOutdatedException;
+import de.dytanic.cloudnet.driver.module.ModuleProvider;
+import de.dytanic.cloudnet.driver.module.ModuleWrapper;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Deque;
@@ -55,13 +55,13 @@ public final class ModuleDependencyUtils {
    * @throws ModuleDependencyNotFoundException if a module dependency is missing.
    * @throws ModuleDependencyOutdatedException if the running module can not provide the minimum required version.
    */
-  public static @NonNull Set<IModuleWrapper> collectDependencies(
-    @NonNull IModuleWrapper caller,
-    @NonNull IModuleProvider moduleProvider
+  public static @NonNull Set<ModuleWrapper> collectDependencies(
+    @NonNull ModuleWrapper caller,
+    @NonNull ModuleProvider moduleProvider
   ) {
     // we create a queue of all wrappers we already visited and use the calling module as the head of it
-    Deque<IModuleWrapper> visitedNodes = new ArrayDeque<>();
-    Set<IModuleWrapper> rootDependencyNodes = new HashSet<>();
+    Deque<ModuleWrapper> visitedNodes = new ArrayDeque<>();
+    Set<ModuleWrapper> rootDependencyNodes = new HashSet<>();
     visitedNodes.add(caller);
     // we iterate over the root layer here to collect the first layer of dependencies of the module
     for (var dependingModule : caller.dependingModules()) {
@@ -88,11 +88,11 @@ public final class ModuleDependencyUtils {
    * @throws ModuleDependencyOutdatedException if the running module can not provide the minimum required version.
    */
   private static void visitDependencies(
-    @NonNull Deque<IModuleWrapper> visitedNodes,
+    @NonNull Deque<ModuleWrapper> visitedNodes,
     @NonNull Collection<ModuleDependency> dependencies,
-    @NonNull IModuleWrapper originalSource,
-    @NonNull IModuleWrapper dependencyHolder,
-    @NonNull IModuleProvider moduleProvider
+    @NonNull ModuleWrapper originalSource,
+    @NonNull ModuleWrapper dependencyHolder,
+    @NonNull ModuleProvider moduleProvider
   ) {
     for (var dependency : dependencies) {
       var wrapper = associatedModuleWrapper(dependency, moduleProvider, dependencyHolder);
@@ -119,10 +119,10 @@ public final class ModuleDependencyUtils {
    * @throws ModuleDependencyNotFoundException if a module dependency is missing.
    * @throws ModuleDependencyOutdatedException if the running module can not provide the minimum required version.
    */
-  private static @NonNull IModuleWrapper associatedModuleWrapper(
+  private static @NonNull ModuleWrapper associatedModuleWrapper(
     @NonNull ModuleDependency dependency,
-    @NonNull IModuleProvider provider,
-    @NonNull IModuleWrapper dependencyHolder
+    @NonNull ModuleProvider provider,
+    @NonNull ModuleWrapper dependencyHolder
   ) {
     var wrapper = provider.module(dependency.name());
     // ensure that the wrapper is present
@@ -152,7 +152,7 @@ public final class ModuleDependencyUtils {
    * @throws ModuleDependencyOutdatedException if the running module can not provide the minimum required version.
    */
   private static void checkDependencyVersion(
-    @NonNull IModuleWrapper requiringModule,
+    @NonNull ModuleWrapper requiringModule,
     @NonNull ModuleDependency dependency,
     @NonNull Matcher dependencyVersion,
     @NonNull Matcher moduleVersion

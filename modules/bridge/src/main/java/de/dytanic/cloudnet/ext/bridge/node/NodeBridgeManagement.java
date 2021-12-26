@@ -19,9 +19,9 @@ package de.dytanic.cloudnet.ext.bridge.node;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.sync.DataSyncRegistry;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.common.registry.IServicesRegistry;
+import de.dytanic.cloudnet.common.registry.ServicesRegistry;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
-import de.dytanic.cloudnet.driver.event.IEventManager;
+import de.dytanic.cloudnet.driver.event.EventManager;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.rpc.RPCProviderFactory;
 import de.dytanic.cloudnet.ext.bridge.BridgeManagement;
@@ -29,13 +29,13 @@ import de.dytanic.cloudnet.ext.bridge.config.BridgeConfiguration;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeConfigurationUpdateEvent;
 import de.dytanic.cloudnet.ext.bridge.node.network.NodeBridgeChannelMessageListener;
 import de.dytanic.cloudnet.ext.bridge.node.player.NodePlayerManager;
-import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
+import de.dytanic.cloudnet.ext.bridge.player.PlayerManager;
 import lombok.NonNull;
 
 public class NodeBridgeManagement implements BridgeManagement {
 
-  private final IEventManager eventManager;
-  private final IPlayerManager playerManager;
+  private final EventManager eventManager;
+  private final PlayerManager playerManager;
   private final CloudNetBridgeModule bridgeModule;
 
   private BridgeConfiguration configuration;
@@ -43,7 +43,7 @@ public class NodeBridgeManagement implements BridgeManagement {
   public NodeBridgeManagement(
     @NonNull CloudNetBridgeModule bridgeModule,
     @NonNull BridgeConfiguration configuration,
-    @NonNull IEventManager eventManager,
+    @NonNull EventManager eventManager,
     @NonNull DataSyncRegistry registry,
     @NonNull RPCProviderFactory providerFactory
   ) {
@@ -80,14 +80,14 @@ public class NodeBridgeManagement implements BridgeManagement {
   }
 
   @Override
-  public @NonNull IPlayerManager playerManager() {
+  public @NonNull PlayerManager playerManager() {
     return this.playerManager;
   }
 
   @Override
-  public void registerServices(@NonNull IServicesRegistry registry) {
+  public void registerServices(@NonNull ServicesRegistry registry) {
     registry.registerService(BridgeManagement.class, "NodeBridgeManagement", this);
-    registry.registerService(IPlayerManager.class, "NodePlayerManager", this.playerManager);
+    registry.registerService(PlayerManager.class, "NodePlayerManager", this.playerManager);
   }
 
   @Override

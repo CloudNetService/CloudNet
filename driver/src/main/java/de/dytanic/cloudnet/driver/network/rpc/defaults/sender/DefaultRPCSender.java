@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.driver.network.rpc.defaults.sender;
 
-import de.dytanic.cloudnet.driver.network.INetworkComponent;
+import de.dytanic.cloudnet.driver.network.NetworkComponent;
 import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
 import de.dytanic.cloudnet.driver.network.rpc.RPC;
 import de.dytanic.cloudnet.driver.network.rpc.RPCProviderFactory;
@@ -36,12 +36,12 @@ public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
 
   protected final Class<?> targetClass;
   protected final RPCProviderFactory factory;
-  protected final INetworkComponent networkComponent;
+  protected final NetworkComponent networkComponent;
   protected final Map<String, MethodInformation> cachedMethodInformation;
 
   public DefaultRPCSender(
     @NonNull RPCProviderFactory factory,
-    @Nullable INetworkComponent component,
+    @Nullable NetworkComponent component,
     @NonNull Class<?> targetClass,
     @NonNull ObjectMapper objectMapper,
     @NonNull DataBufFactory dataBufFactory
@@ -60,7 +60,7 @@ public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
   }
 
   @Override
-  public @NonNull INetworkComponent associatedComponent() {
+  public @NonNull NetworkComponent associatedComponent() {
     // possible to create without an associated component - throw an exception if so
     if (this.networkComponent == null) {
       throw new UnsupportedOperationException("Sender has no associated component");

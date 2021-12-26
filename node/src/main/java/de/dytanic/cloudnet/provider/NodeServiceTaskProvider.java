@@ -18,12 +18,12 @@ package de.dytanic.cloudnet.provider;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.sync.DataSyncHandler;
-import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.JavaVersion;
+import de.dytanic.cloudnet.common.Nameable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
-import de.dytanic.cloudnet.driver.event.IEventManager;
+import de.dytanic.cloudnet.driver.event.EventManager;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
@@ -48,7 +48,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   private static final Path TASKS_DIRECTORY = Path.of(
     System.getProperty("cloudnet.config.tasks.directory.path", "local/tasks"));
 
-  private final IEventManager eventManager;
+  private final EventManager eventManager;
   private final Map<String, ServiceTask> serviceTasks = new ConcurrentHashMap<>();
 
   public NodeServiceTaskProvider(@NonNull CloudNet nodeInstance) {
@@ -61,7 +61,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     nodeInstance.dataSyncRegistry().registerHandler(
       DataSyncHandler.<ServiceTask>builder()
         .key("task")
-        .nameExtractor(INameable::name)
+        .nameExtractor(Nameable::name)
         .convertObject(ServiceTask.class)
         .writer(this::addPermanentServiceTaskSilently)
         .dataCollector(this::permanentServiceTasks)

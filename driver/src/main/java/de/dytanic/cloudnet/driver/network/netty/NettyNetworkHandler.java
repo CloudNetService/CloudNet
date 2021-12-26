@@ -18,8 +18,8 @@ package de.dytanic.cloudnet.driver.network.netty;
 
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
+import de.dytanic.cloudnet.driver.network.protocol.BasePacket;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import java.io.IOException;
@@ -29,7 +29,7 @@ import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
 @Internal
-public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Packet> {
+public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<BasePacket> {
 
   private static final Logger LOGGER = LogManager.logger(NettyNetworkHandler.class);
 
@@ -60,7 +60,7 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Pa
   }
 
   @Override
-  protected void channelRead0(@NonNull ChannelHandlerContext ctx, @NonNull Packet msg) {
+  protected void channelRead0(@NonNull ChannelHandlerContext ctx, @NonNull BasePacket msg) {
     this.packetDispatcher().execute(() -> {
       try {
         var uuid = msg.uniqueId();
@@ -82,7 +82,7 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Pa
     });
   }
 
-  protected abstract @NonNull Collection<INetworkChannel> channels();
+  protected abstract @NonNull Collection<NetworkChannel> channels();
 
   protected abstract @NonNull Executor packetDispatcher();
 }

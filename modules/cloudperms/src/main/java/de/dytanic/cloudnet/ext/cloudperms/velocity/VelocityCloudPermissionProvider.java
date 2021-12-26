@@ -20,14 +20,14 @@ import com.velocitypowered.api.permission.PermissionFunction;
 import com.velocitypowered.api.permission.PermissionProvider;
 import com.velocitypowered.api.permission.PermissionSubject;
 import com.velocitypowered.api.proxy.Player;
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.PermissionManagement;
 import org.checkerframework.checker.optional.qual.MaybePresent;
 
 final class VelocityCloudPermissionProvider implements PermissionProvider {
 
-  private final IPermissionManagement permissionsManagement;
+  private final PermissionManagement permissionsManagement;
 
-  public VelocityCloudPermissionProvider(IPermissionManagement permissionsManagement) {
+  public VelocityCloudPermissionProvider(PermissionManagement permissionsManagement) {
     this.permissionsManagement = permissionsManagement;
   }
 

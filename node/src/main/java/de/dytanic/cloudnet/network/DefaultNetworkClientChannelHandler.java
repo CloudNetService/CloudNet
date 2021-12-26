@@ -24,23 +24,23 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.events.network.ChannelType;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelCloseEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.INetworkChannelHandler;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkChannelHandler;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.network.def.PacketClientAuthorization;
-import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.BasePacket;
 import de.dytanic.cloudnet.network.listener.PacketServerAuthorizationResponseListener;
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.NonNull;
 
-public final class DefaultNetworkClientChannelHandler implements INetworkChannelHandler {
+public final class DefaultNetworkClientChannelHandler implements NetworkChannelHandler {
 
   private static final AtomicLong CONNECTION_COUNTER = new AtomicLong();
   private static final Logger LOGGER = LogManager.logger(DefaultNetworkClientChannelHandler.class);
 
   @Override
-  public void handleChannelInitialize(@NonNull INetworkChannel channel) {
+  public void handleChannelInitialize(@NonNull NetworkChannel channel) {
     if (NodeNetworkUtils.shouldInitializeChannel(channel, ChannelType.CLIENT_CHANNEL)) {
       // add the result handler for the auth
       channel.packetRegistry().addListener(
@@ -62,13 +62,13 @@ public final class DefaultNetworkClientChannelHandler implements INetworkChannel
   }
 
   @Override
-  public boolean handlePacketReceive(@NonNull INetworkChannel channel, @NonNull Packet packet) {
+  public boolean handlePacketReceive(@NonNull NetworkChannel channel, @NonNull BasePacket packet) {
     return !CloudNetDriver.instance().eventManager().callEvent(
       new NetworkChannelPacketReceiveEvent(channel, packet)).cancelled();
   }
 
   @Override
-  public void handleChannelClose(@NonNull INetworkChannel channel) {
+  public void handleChannelClose(@NonNull NetworkChannel channel) {
     CloudNetDriver.instance().eventManager().callEvent(
       new NetworkChannelCloseEvent(channel, ChannelType.CLIENT_CHANNEL));
     CONNECTION_COUNTER.decrementAndGet();

@@ -17,14 +17,14 @@
 package de.dytanic.cloudnet.http;
 
 import com.google.common.collect.Iterables;
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
 import java.util.function.BiPredicate;
 
 public abstract class WebSocketAbleV2HttpHandler extends V2HttpHandler {
 
-  protected final BiPredicate<IHttpContext, String> handlingTester;
+  protected final BiPredicate<HttpContext, String> handlingTester;
 
-  public WebSocketAbleV2HttpHandler(String requiredPermission, BiPredicate<IHttpContext, String> handlingTester,
+  public WebSocketAbleV2HttpHandler(String requiredPermission, BiPredicate<HttpContext, String> handlingTester,
     String... supportedRequestMethods) {
     super(requiredPermission, supportedRequestMethods);
     this.handlingTester = handlingTester;
@@ -32,7 +32,7 @@ public abstract class WebSocketAbleV2HttpHandler extends V2HttpHandler {
 
   public WebSocketAbleV2HttpHandler(
     String requiredPermission, V2HttpAuthentication authentication,
-    AccessControlConfiguration accessControlConfiguration, BiPredicate<IHttpContext, String> handlingTester,
+    AccessControlConfiguration accessControlConfiguration, BiPredicate<HttpContext, String> handlingTester,
     String... supportedRequestMethods
   ) {
     super(requiredPermission, authentication, accessControlConfiguration, supportedRequestMethods);
@@ -40,7 +40,7 @@ public abstract class WebSocketAbleV2HttpHandler extends V2HttpHandler {
   }
 
   @Override
-  protected final void handleUnauthorized(String path, IHttpContext context) throws Exception {
+  protected final void handleUnauthorized(String path, HttpContext context) throws Exception {
     if (!this.handlingTester.test(context, path)) {
       this.handleUnauthorizedRequest(path, context);
       return;
@@ -62,9 +62,9 @@ public abstract class WebSocketAbleV2HttpHandler extends V2HttpHandler {
     this.handleTicketAuthorizedRequest(path, context, ticket.associatedSession());
   }
 
-  protected void handleUnauthorizedRequest(String path, IHttpContext context) {
+  protected void handleUnauthorizedRequest(String path, HttpContext context) {
     this.send403(context, "Authentication required");
   }
 
-  protected abstract void handleTicketAuthorizedRequest(String path, IHttpContext context, HttpSession session);
+  protected abstract void handleTicketAuthorizedRequest(String path, HttpContext context, HttpSession session);
 }

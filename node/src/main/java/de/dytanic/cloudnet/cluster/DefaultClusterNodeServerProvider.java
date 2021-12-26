@@ -18,18 +18,18 @@ package de.dytanic.cloudnet.cluster;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
-import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.concurrent.Task;
 import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketSender;
 import de.dytanic.cloudnet.driver.network.chunk.TransferStatus;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkCluster;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.network.listener.message.NodeChannelMessageListener;
 import java.io.InputStream;
@@ -43,8 +43,8 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
-public final class DefaultClusterNodeServerProvider extends DefaultNodeServerProvider<IClusterNodeServer>
-  implements IClusterNodeServerProvider {
+public final class DefaultClusterNodeServerProvider extends DefaultNodeServerProvider<ClusterNodeServer>
+  implements ClusterNodeServerProvider {
 
   private static final Logger LOGGER = LogManager.logger(DefaultClusterNodeServerProvider.class);
 
@@ -73,7 +73,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
   }
 
   @Override
-  public @Nullable IClusterNodeServer nodeServer(@NonNull INetworkChannel channel) {
+  public @Nullable ClusterNodeServer nodeServer(@NonNull NetworkChannel channel) {
     for (var clusterNodeServer : this.nodeServers()) {
       if (clusterNodeServer.channel() != null
         && clusterNodeServer.channel().channelId() == channel.channelId()) {
@@ -109,21 +109,21 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
   }
 
   @Override
-  public void sendPacket(@NonNull IPacket packet) {
+  public void sendPacket(@NonNull Packet packet) {
     for (var nodeServer : this.nodeServers) {
       nodeServer.saveSendPacket(packet);
     }
   }
 
   @Override
-  public void sendPacketSync(@NonNull IPacket packet) {
+  public void sendPacketSync(@NonNull Packet packet) {
     for (var nodeServer : this.nodeServers) {
       nodeServer.saveSendPacketSync(packet);
     }
   }
 
   @Override
-  public @NonNull ITask<TransferStatus> deployTemplateToCluster(
+  public @NonNull Task<TransferStatus> deployTemplateToCluster(
     @NonNull ServiceTemplate template,
     @NonNull InputStream stream,
     boolean overwrite
@@ -147,7 +147,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
   }
 
   @Override
-  public @NonNull ITask<TransferStatus> deployStaticServiceToCluster(
+  public @NonNull Task<TransferStatus> deployStaticServiceToCluster(
     @NonNull String name,
     @NonNull InputStream stream,
     boolean overwrite
@@ -170,9 +170,9 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
 
   @Override
   @UnmodifiableView
-  public @NonNull Collection<INetworkChannel> connectedChannels() {
+  public @NonNull Collection<NetworkChannel> connectedChannels() {
     return this.nodeServers().stream()
-      .map(IClusterNodeServer::channel)
+      .map(ClusterNodeServer::channel)
       .filter(Objects::nonNull)
       .toList();
   }
@@ -180,7 +180,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
   @Override
   public boolean hasAnyConnection() {
     var servers = this.nodeServers();
-    return !servers.isEmpty() && servers.stream().anyMatch(IClusterNodeServer::connected);
+    return !servers.isEmpty() && servers.stream().anyMatch(ClusterNodeServer::connected);
   }
 
   @Override
@@ -223,13 +223,13 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
     this.refreshHeadNode();
   }
 
-  private @NonNull Collection<INetworkChannel> collectClusterChannel() {
+  private @NonNull Collection<NetworkChannel> collectClusterChannel() {
     if (!this.nodeServers.isEmpty()) {
       // collect the network channels of the connected nodes
       return this.nodeServers
         .stream()
-        .filter(IClusterNodeServer::available)
-        .map(IClusterNodeServer::channel)
+        .filter(ClusterNodeServer::available)
+        .map(ClusterNodeServer::channel)
         .filter(Objects::nonNull)
         .toList();
     } else {

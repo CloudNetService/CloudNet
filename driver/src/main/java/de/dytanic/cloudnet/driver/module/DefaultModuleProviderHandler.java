@@ -35,12 +35,12 @@ import de.dytanic.cloudnet.driver.event.events.module.ModulePreStopEvent;
 import de.dytanic.cloudnet.driver.event.events.module.ModulePreUnloadEvent;
 import lombok.NonNull;
 
-public class DefaultModuleProviderHandler implements IModuleProviderHandler {
+public class DefaultModuleProviderHandler implements ModuleProviderHandler {
 
   private static final Logger LOGGER = LogManager.logger(DefaultModuleProviderHandler.class);
 
   @Override
-  public boolean handlePreModuleLoad(@NonNull IModuleWrapper moduleWrapper) {
+  public boolean handlePreModuleLoad(@NonNull ModuleWrapper moduleWrapper) {
     var cancelled = this.callEvent(new ModulePreLoadEvent(this.moduleProvider(), moduleWrapper)).cancelled();
     if (!cancelled) {
       LOGGER.info(this.replaceAll(
@@ -53,7 +53,7 @@ public class DefaultModuleProviderHandler implements IModuleProviderHandler {
   }
 
   @Override
-  public void handlePostModuleLoad(@NonNull IModuleWrapper moduleWrapper) {
+  public void handlePostModuleLoad(@NonNull ModuleWrapper moduleWrapper) {
     this.callEvent(new ModulePostLoadEvent(this.moduleProvider(), moduleWrapper));
     LOGGER.fine(this.replaceAll(
       I18n.trans("cloudnet-post-load-module"),
@@ -62,7 +62,7 @@ public class DefaultModuleProviderHandler implements IModuleProviderHandler {
   }
 
   @Override
-  public boolean handlePreModuleStart(@NonNull IModuleWrapper moduleWrapper) {
+  public boolean handlePreModuleStart(@NonNull ModuleWrapper moduleWrapper) {
     var cancelled = this.callEvent(new ModulePreStartEvent(this.moduleProvider(), moduleWrapper)).cancelled();
     if (!cancelled) {
       LOGGER.info(this.replaceAll(
@@ -76,7 +76,7 @@ public class DefaultModuleProviderHandler implements IModuleProviderHandler {
   }
 
   @Override
-  public void handlePostModuleStart(@NonNull IModuleWrapper moduleWrapper) {
+  public void handlePostModuleStart(@NonNull ModuleWrapper moduleWrapper) {
     this.callEvent(new ModulePostStartEvent(this.moduleProvider(), moduleWrapper));
     LOGGER.fine(this.replaceAll(
       I18n.trans("cloudnet-post-start-module"),
@@ -85,7 +85,7 @@ public class DefaultModuleProviderHandler implements IModuleProviderHandler {
   }
 
   @Override
-  public boolean handlePreModuleReload(@NonNull IModuleWrapper moduleWrapper) {
+  public boolean handlePreModuleReload(@NonNull ModuleWrapper moduleWrapper) {
     var cancelled = this.callEvent(new ModulePreReloadEvent(this.moduleProvider(), moduleWrapper)).cancelled();
     if (!cancelled) {
       LOGGER.info(this.replaceAll(
@@ -98,7 +98,7 @@ public class DefaultModuleProviderHandler implements IModuleProviderHandler {
   }
 
   @Override
-  public void handlePostModuleReload(@NonNull IModuleWrapper moduleWrapper) {
+  public void handlePostModuleReload(@NonNull ModuleWrapper moduleWrapper) {
     this.callEvent(new ModulePostReloadEvent(this.moduleProvider(), moduleWrapper));
     LOGGER.fine(this.replaceAll(
       I18n.trans("cloudnet-post-reload-module"),
@@ -108,7 +108,7 @@ public class DefaultModuleProviderHandler implements IModuleProviderHandler {
 
 
   @Override
-  public boolean handlePreModuleStop(@NonNull IModuleWrapper moduleWrapper) {
+  public boolean handlePreModuleStop(@NonNull ModuleWrapper moduleWrapper) {
     var cancelled = this.callEvent(new ModulePreStopEvent(this.moduleProvider(), moduleWrapper)).cancelled();
     if (!cancelled) {
       LOGGER.info(this.replaceAll(
@@ -121,7 +121,7 @@ public class DefaultModuleProviderHandler implements IModuleProviderHandler {
   }
 
   @Override
-  public void handlePostModuleStop(@NonNull IModuleWrapper moduleWrapper) {
+  public void handlePostModuleStop(@NonNull ModuleWrapper moduleWrapper) {
     CloudNetDriver.instance().servicesRegistry().unregisterAll(moduleWrapper.classLoader());
     CloudNetDriver.instance().eventManager().unregisterListeners(moduleWrapper.classLoader());
 
@@ -133,7 +133,7 @@ public class DefaultModuleProviderHandler implements IModuleProviderHandler {
   }
 
   @Override
-  public void handlePreModuleUnload(@NonNull IModuleWrapper moduleWrapper) {
+  public void handlePreModuleUnload(@NonNull ModuleWrapper moduleWrapper) {
     this.callEvent(new ModulePreUnloadEvent(this.moduleProvider(), moduleWrapper));
     LOGGER.info(this.replaceAll(
       I18n.trans("cloudnet-pre-unload-module"),
@@ -142,7 +142,7 @@ public class DefaultModuleProviderHandler implements IModuleProviderHandler {
   }
 
   @Override
-  public void handlePostModuleUnload(@NonNull IModuleWrapper moduleWrapper) {
+  public void handlePostModuleUnload(@NonNull ModuleWrapper moduleWrapper) {
     this.callEvent(new ModulePostUnloadEvent(this.moduleProvider(), moduleWrapper));
     LOGGER.fine(this.replaceAll(
       I18n.trans("cloudnet-post-unload-module"),
@@ -176,7 +176,7 @@ public class DefaultModuleProviderHandler implements IModuleProviderHandler {
       this.moduleProvider(), configuration));
   }
 
-  protected IModuleProvider moduleProvider() {
+  protected ModuleProvider moduleProvider() {
     return CloudNetDriver.instance().moduleProvider();
   }
 
@@ -184,7 +184,7 @@ public class DefaultModuleProviderHandler implements IModuleProviderHandler {
     return CloudNetDriver.instance().eventManager().callEvent(event);
   }
 
-  protected String replaceAll(String text, IModuleProvider moduleProvider, ModuleConfiguration configuration) {
+  protected String replaceAll(String text, ModuleProvider moduleProvider, ModuleConfiguration configuration) {
     return text.replace("%module_group%", configuration.group())
       .replace("%module_name%", configuration.name())
       .replace("%module_version%", configuration.version())

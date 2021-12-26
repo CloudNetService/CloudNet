@@ -33,7 +33,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.UnmodifiableView;
 
-public class CompletableTask<V> extends CompletableFuture<V> implements ITask<V> {
+public class CompletableTask<V> extends CompletableFuture<V> implements Task<V> {
 
   private static final ExecutorService SERVICE = Executors.newCachedThreadPool();
 
@@ -57,14 +57,14 @@ public class CompletableTask<V> extends CompletableFuture<V> implements ITask<V>
   }
 
   @Override
-  public @NonNull ITask<V> addListener(@NonNull ITaskListener<V> listener) {
+  public @NonNull Task<V> addListener(@NonNull TaskListener<V> listener) {
     this.whenComplete((result, exception) -> {
       // cancelled and exceptionally are both here
       if (exception != null) {
         if (exception instanceof CancellationException) {
           listener.onCancelled(this);
         } else {
-          listener.onFailure(this, exception.getCause());
+          listener.onFailure(this, exception);
         }
       } else {
         // normal completion
@@ -75,12 +75,12 @@ public class CompletableTask<V> extends CompletableFuture<V> implements ITask<V>
   }
 
   @Override
-  public @NonNull ITask<V> clearListeners() {
+  public @NonNull Task<V> clearListeners() {
     return this; // no-op
   }
 
   @Override
-  public @UnmodifiableView @NonNull Collection<ITaskListener<V>> listeners() {
+  public @UnmodifiableView @NonNull Collection<TaskListener<V>> listeners() {
     return Collections.emptyList(); // no-op
   }
 
@@ -103,7 +103,7 @@ public class CompletableTask<V> extends CompletableFuture<V> implements ITask<V>
   }
 
   @Override
-  public @NonNull <T> ITask<T> map(@NonNull ThrowableFunction<V, T, Throwable> mapper) {
+  public @NonNull <T> Task<T> map(@NonNull ThrowableFunction<V, T, Throwable> mapper) {
     // if this task is already done we can just compute the value
     if (this.isDone()) {
       return CompletedTask.create(() -> mapper.apply(this.getNow(null)));
@@ -111,9 +111,9 @@ public class CompletableTask<V> extends CompletableFuture<V> implements ITask<V>
     // create a new task mapping the current task
     var task = new CompletableTask<T>();
     // handle the result of this task and post the result to the downstream task
-    this.addListener(new ITaskListener<>() {
+    this.addListener(new TaskListener<>() {
       @Override
-      public void onComplete(@NonNull ITask<V> t, @Nullable V v) {
+      public void onComplete(@NonNull Task<V> t, @Nullable V v) {
         try {
           task.complete(mapper.apply(v));
         } catch (Throwable throwable) {
@@ -122,12 +122,12 @@ public class CompletableTask<V> extends CompletableFuture<V> implements ITask<V>
       }
 
       @Override
-      public void onCancelled(@NonNull ITask<V> t) {
+      public void onCancelled(@NonNull Task<V> t) {
         task.cancel(true);
       }
 
       @Override
-      public void onFailure(@NonNull ITask<V> t, @NonNull Throwable th) {
+      public void onFailure(@NonNull Task<V> t, @NonNull Throwable th) {
         task.completeExceptionally(th);
       }
     });

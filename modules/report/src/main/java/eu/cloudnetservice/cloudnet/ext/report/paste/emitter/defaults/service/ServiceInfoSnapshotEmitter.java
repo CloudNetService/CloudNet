@@ -17,13 +17,13 @@
 package eu.cloudnetservice.cloudnet.ext.report.paste.emitter.defaults.service;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.service.CloudService;
 import eu.cloudnetservice.cloudnet.ext.report.paste.emitter.ReportDataEmitter;
 
-public class ServiceInfoSnapshotEmitter implements ReportDataEmitter<ICloudService> {
+public class ServiceInfoSnapshotEmitter implements ReportDataEmitter<CloudService> {
 
   @Override
-  public void emitData(StringBuilder builder, ICloudService service) {
+  public void emitData(StringBuilder builder, CloudService service) {
     builder
       .append(" - ServiceInfoSnapshot ").append(service.serviceId().name()).append(" - \n")
       .append(JsonDocument.newDocument(service.serviceInfo()).toPrettyJson()).append("\n")

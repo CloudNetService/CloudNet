@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.wrapper.network.listener.message;
 
 import de.dytanic.cloudnet.driver.event.EventListener;
-import de.dytanic.cloudnet.driver.event.IEventManager;
+import de.dytanic.cloudnet.driver.event.EventManager;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.group.GroupConfigurationAddEvent;
 import de.dytanic.cloudnet.driver.event.events.group.GroupConfigurationRemoveEvent;
@@ -27,9 +27,9 @@ import lombok.NonNull;
 
 public final class GroupChannelMessageListener {
 
-  private final IEventManager eventManager;
+  private final EventManager eventManager;
 
-  public GroupChannelMessageListener(@NonNull IEventManager eventManager) {
+  public GroupChannelMessageListener(@NonNull EventManager eventManager) {
     this.eventManager = eventManager;
   }
 

@@ -19,11 +19,11 @@ package de.dytanic.cloudnet.driver.network.rpc.handler;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.INetworkComponent;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkComponent;
 import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.PacketListener;
 import de.dytanic.cloudnet.driver.network.protocol.QueryPacketManager;
 import de.dytanic.cloudnet.driver.network.rpc.RPCHandlerRegistry;
 import de.dytanic.cloudnet.driver.network.rpc.RPCProviderFactory;
@@ -53,7 +53,7 @@ public class DefaultRPCHandlerTest {
     // handler registry init
     RPCHandlerRegistry registry = new DefaultRPCHandlerRegistry();
     // handler init
-    IPacketListener listener = new RPCPacketListener(registry);
+    PacketListener listener = new RPCPacketListener(registry);
     // factory init
     RPCProviderFactory factory = new DefaultRPCProviderFactory(
       new DefaultObjectMapper(),
@@ -68,7 +68,7 @@ public class DefaultRPCHandlerTest {
     registry.registerHandler(handlerNested);
     registry.registerHandler(veryHandlerNested);
     // networking mocks
-    var resultListener = new AtomicReference<CompletableTask<IPacket>>(new CompletableTask<>());
+    var resultListener = new AtomicReference<CompletableTask<Packet>>(new CompletableTask<>());
     // receiver
     // we need a query manager for the listener
     var manager = Mockito.mock(QueryPacketManager.class);
@@ -77,23 +77,23 @@ public class DefaultRPCHandlerTest {
       return null;
     });
     // the channel to which the result should be sent
-    var resultChannel = Mockito.mock(INetworkChannel.class);
+    var resultChannel = Mockito.mock(NetworkChannel.class);
     Mockito.when(resultChannel.queryPacketManager()).thenReturn(manager);
     // sender
-    var channel = Mockito.mock(INetworkChannel.class);
+    var channel = Mockito.mock(NetworkChannel.class);
     Mockito
       .doAnswer(invocation -> {
         // the packet has no unique id yet, set one
-        IPacket packet = invocation.getArgument(0);
+        Packet packet = invocation.getArgument(0);
         packet.uniqueId(UUID.randomUUID());
         // post the packet to the listener
         listener.handle(resultChannel, packet);
         return resultListener.get();
       })
       .when(channel)
-      .sendQueryAsync(Mockito.any(IPacket.class));
+      .sendQueryAsync(Mockito.any(Packet.class));
     // network component
-    var component = Mockito.mock(INetworkComponent.class);
+    var component = Mockito.mock(NetworkComponent.class);
     Mockito.when(component.firstChannel()).thenReturn(channel);
     // RPC sender
     var sender = factory.providerForClass(component, TestApiClass.class);

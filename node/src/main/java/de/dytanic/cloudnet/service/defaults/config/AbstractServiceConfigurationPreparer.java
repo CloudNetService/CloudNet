@@ -20,7 +20,7 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
-import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.service.CloudService;
 import de.dytanic.cloudnet.service.ServiceConfigurationPreparer;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -35,7 +35,7 @@ public abstract class AbstractServiceConfigurationPreparer implements ServiceCon
 
   protected static final Logger LOGGER = LogManager.logger(ServiceConfigurationPreparer.class);
 
-  protected boolean shouldRewriteIp(@NonNull CloudNet nodeInstance, @NonNull ICloudService service) {
+  protected boolean shouldRewriteIp(@NonNull CloudNet nodeInstance, @NonNull CloudService service) {
     var task = nodeInstance.serviceTaskProvider().serviceTask(service.serviceId().taskName());
     return task == null || !task.disableIpRewrite();
   }

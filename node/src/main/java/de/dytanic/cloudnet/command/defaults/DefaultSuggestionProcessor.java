@@ -20,7 +20,7 @@ import cloud.commandframework.execution.CommandSuggestionProcessor;
 import cloud.commandframework.execution.preprocessor.CommandPreprocessingContext;
 import de.dytanic.cloudnet.command.CommandProvider;
 import de.dytanic.cloudnet.command.source.CommandSource;
-import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.Nameable;
 import de.dytanic.cloudnet.common.StringUtil;
 import java.util.LinkedList;
 import java.util.List;
@@ -42,7 +42,7 @@ final class DefaultSuggestionProcessor implements CommandSuggestionProcessor<Com
   ) {
     // check if the user tries to complete all command roots
     if (!context.getCommandContext().getRawInputJoined().contains(" ")) {
-      return this.provider.commands().stream().map(INameable::name).collect(Collectors.toList());
+      return this.provider.commands().stream().map(Nameable::name).collect(Collectors.toList());
     }
     // is the queue is empty just use a blank string.
     String input;

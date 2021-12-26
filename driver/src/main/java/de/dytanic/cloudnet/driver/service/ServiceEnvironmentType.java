@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.driver.service;
 
 import com.google.common.base.Verify;
-import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.Nameable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.document.property.DocProperty;
 import de.dytanic.cloudnet.common.document.property.FunctionalDocProperty;
@@ -35,7 +35,7 @@ import lombok.ToString;
  */
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class ServiceEnvironmentType extends JsonDocPropertyHolder implements INameable, Cloneable {
+public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nameable, Cloneable {
 
   public static final DocProperty<Boolean> JAVA_PROXY = FunctionalDocProperty.<Boolean>forNamedProperty("isJavaProxy")
     .reader(document -> document.getBoolean("isJavaProxy"))

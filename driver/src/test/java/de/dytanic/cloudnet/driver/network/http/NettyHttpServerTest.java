@@ -50,7 +50,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
   @Test
   @Order(0)
   void testHttpHandlerRegister() throws Exception {
-    IHttpServer server = new NettyHttpServer();
+    HttpServer server = new NettyHttpServer();
 
     server.registerHandler("/users/info", ($, $1) -> {
     }, ($, $1) -> {
@@ -69,7 +69,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
   @Order(10)
   void testDuplicateServerBind() throws Exception {
     var port = this.randomFreePort();
-    IHttpServer server = new NettyHttpServer();
+    HttpServer server = new NettyHttpServer();
 
     Assertions.assertFalse(server.sslEnabled());
     Assertions.assertTrue(server.addListener(port));
@@ -82,7 +82,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
   @Order(20)
   void testHttpRequestMethods() throws Exception {
     var port = this.randomFreePort();
-    IHttpServer server = new NettyHttpServer();
+    HttpServer server = new NettyHttpServer();
 
     var handledTypes = new AtomicInteger();
     server.registerHandler(
@@ -109,7 +109,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
   @Order(30)
   void testRequestPathParameters() throws Exception {
     var port = this.randomFreePort();
-    IHttpServer server = new NettyHttpServer();
+    HttpServer server = new NettyHttpServer();
 
     server.registerHandler(
       "/test/{id}",
@@ -129,7 +129,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
   @Order(40)
   void testRequestQueryParameters() throws Exception {
     var port = this.randomFreePort();
-    IHttpServer server = new NettyHttpServer();
+    HttpServer server = new NettyHttpServer();
 
     server.registerHandler(
       "/test",
@@ -150,11 +150,11 @@ public class NettyHttpServerTest extends NetworkTestCase {
   @Order(50)
   void testHandlerPriority() throws Exception {
     var port = this.randomFreePort();
-    IHttpServer server = new NettyHttpServer();
+    HttpServer server = new NettyHttpServer();
 
     server.registerHandler(
       "/test1",
-      IHttpHandler.PRIORITY_LOW,
+      HttpHandler.PRIORITY_LOW,
       ($, context) -> {
         var cancelNext = Boolean.parseBoolean(
           Iterables.getFirst(context.request().queryParameters().get("cancelNext"), null));
@@ -163,7 +163,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
     );
     server.registerHandler(
       "/test1",
-      IHttpHandler.PRIORITY_HIGH,
+      HttpHandler.PRIORITY_HIGH,
       ($, context) -> context.response().statusCode(201).context().closeAfter()
     );
 
@@ -178,7 +178,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
   @Order(60)
   void testRequestResponseHeadersBody() throws Exception {
     var port = this.randomFreePort();
-    IHttpServer server = new NettyHttpServer();
+    HttpServer server = new NettyHttpServer();
 
     server.registerHandler(
       "/test",
@@ -222,7 +222,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
   @Order(70)
   void testRequestResponseCookies() throws Exception {
     var port = this.randomFreePort();
-    IHttpServer server = new NettyHttpServer();
+    HttpServer server = new NettyHttpServer();
 
     server.registerHandler(
       "/test",
@@ -280,7 +280,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
   void testHandlersForDifferentPorts() throws Exception {
     var port = this.randomFreePort();
     var secondPort = this.randomFreePort(port);
-    IHttpServer server = new NettyHttpServer();
+    HttpServer server = new NettyHttpServer();
 
     // global handler
     server.registerHandler(
@@ -291,13 +291,13 @@ public class NettyHttpServerTest extends NetworkTestCase {
     server.registerHandler(
       "/test1",
       port,
-      IHttpHandler.PRIORITY_NORMAL,
+      HttpHandler.PRIORITY_NORMAL,
       ($, context) -> context.response().statusCode(200).context().cancelNext(true).closeAfter()
     );
     server.registerHandler(
       "/test2",
       secondPort,
-      IHttpHandler.PRIORITY_NORMAL,
+      HttpHandler.PRIORITY_NORMAL,
       ($, context) -> context.response().statusCode(200).context().cancelNext(true).closeAfter()
     );
 
@@ -320,7 +320,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
   @Timeout(20)
   void testWebSocketHandling() throws Exception {
     var port = this.randomFreePort();
-    IHttpServer server = new NettyHttpServer();
+    HttpServer server = new NettyHttpServer();
 
     server.registerHandler(
       "/test",

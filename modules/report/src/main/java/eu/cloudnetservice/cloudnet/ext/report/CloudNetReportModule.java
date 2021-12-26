@@ -22,7 +22,7 @@ import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.driver.module.driver.DriverModule;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
-import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.service.CloudService;
 import eu.cloudnetservice.cloudnet.ext.report.command.CommandReport;
 import eu.cloudnetservice.cloudnet.ext.report.config.ReportConfiguration;
 import eu.cloudnetservice.cloudnet.ext.report.config.ReportConfigurationHelper;
@@ -53,7 +53,7 @@ public final class CloudNetReportModule extends DriverModule {
     // create a new registry for our report data emitters
     this.registry = new EmitterRegistry();
     // register all emitters that are used for the ICloudService report
-    this.registry.registerDataEmitter(ICloudService.class,
+    this.registry.registerDataEmitter(CloudService.class,
       new ServiceLogEmitter(),
       new ServiceInfoSnapshotEmitter(),
       new ServiceOverviewEmitter(),

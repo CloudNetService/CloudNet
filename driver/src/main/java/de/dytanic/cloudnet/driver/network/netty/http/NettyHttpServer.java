@@ -20,8 +20,8 @@ import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
-import de.dytanic.cloudnet.driver.network.http.IHttpHandler;
-import de.dytanic.cloudnet.driver.network.http.IHttpServer;
+import de.dytanic.cloudnet.driver.network.http.HttpHandler;
+import de.dytanic.cloudnet.driver.network.http.HttpServer;
 import de.dytanic.cloudnet.driver.network.netty.NettySSLServer;
 import de.dytanic.cloudnet.driver.network.netty.NettyUtils;
 import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
@@ -33,18 +33,17 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import java.net.SocketAddress;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public class NettyHttpServer extends NettySSLServer implements IHttpServer {
+public class NettyHttpServer extends NettySSLServer implements HttpServer {
 
   private static final Logger LOGGER = LogManager.logger(NettyHttpServer.class);
 
-  protected final List<HttpHandlerEntry> registeredHandlers = new CopyOnWriteArrayList<>();
+  protected final Collection<HttpHandlerEntry> registeredHandlers = new ConcurrentLinkedQueue<>();
   protected final Map<Integer, Pair<HostAndPort, ChannelFuture>> channelFutures = new ConcurrentHashMap<>();
 
   protected final EventLoopGroup bossGroup = NettyUtils.newEventLoopGroup();
@@ -109,20 +108,20 @@ public class NettyHttpServer extends NettySSLServer implements IHttpServer {
   }
 
   @Override
-  public @NonNull IHttpServer registerHandler(@NonNull String path, IHttpHandler... handlers) {
-    return this.registerHandler(path, IHttpHandler.PRIORITY_NORMAL, handlers);
+  public @NonNull HttpServer registerHandler(@NonNull String path, HttpHandler... handlers) {
+    return this.registerHandler(path, HttpHandler.PRIORITY_NORMAL, handlers);
   }
 
   @Override
-  public @NonNull IHttpServer registerHandler(@NonNull String path, int priority, IHttpHandler... handlers) {
+  public @NonNull HttpServer registerHandler(@NonNull String path, int priority, HttpHandler... handlers) {
     return this.registerHandler(path, null, priority, handlers);
   }
 
   @Override
-  public @NonNull IHttpServer registerHandler(
+  public @NonNull HttpServer registerHandler(
     @NonNull String path, Integer port,
     int priority,
-    IHttpHandler... handlers
+    HttpHandler... handlers
   ) {
     if (!path.startsWith("/")) {
       path = "/" + path;
@@ -154,32 +153,32 @@ public class NettyHttpServer extends NettySSLServer implements IHttpServer {
   }
 
   @Override
-  public @NonNull IHttpServer removeHandler(@NonNull IHttpHandler handler) {
+  public @NonNull HttpServer removeHandler(@NonNull HttpHandler handler) {
     this.registeredHandlers.removeIf(registeredHandler -> registeredHandler.httpHandler.equals(handler));
     return this;
   }
 
   @Override
-  public @NonNull IHttpServer removeHandler(@NonNull Class<? extends IHttpHandler> handler) {
+  public @NonNull HttpServer removeHandler(@NonNull Class<? extends HttpHandler> handler) {
     this.registeredHandlers.removeIf(registeredHandler -> registeredHandler.httpHandler.getClass().equals(handler));
     return this;
   }
 
   @Override
-  public @NonNull IHttpServer removeHandler(@NonNull ClassLoader classLoader) {
+  public @NonNull HttpServer removeHandler(@NonNull ClassLoader classLoader) {
     this.registeredHandlers.removeIf(handler -> handler.httpHandler.getClass().getClassLoader().equals(classLoader));
     return this;
   }
 
   @Override
-  public @NonNull Collection<IHttpHandler> httpHandlers() {
+  public @NonNull Collection<HttpHandler> httpHandlers() {
     return this.registeredHandlers.stream()
       .map(httpHandlerEntry -> httpHandlerEntry.httpHandler)
       .toList();
   }
 
   @Override
-  public @NonNull IHttpServer clearHandlers() {
+  public @NonNull HttpServer clearHandlers() {
     this.registeredHandlers.clear();
     return this;
   }
@@ -197,7 +196,7 @@ public class NettyHttpServer extends NettySSLServer implements IHttpServer {
 
   public record HttpHandlerEntry(
     @NonNull String path,
-    @NonNull IHttpHandler httpHandler,
+    @NonNull HttpHandler httpHandler,
     @Nullable Integer port,
     int priority
   ) implements Comparable<HttpHandlerEntry> {

@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.network.listener.message;
 
 import de.dytanic.cloudnet.driver.event.EventListener;
-import de.dytanic.cloudnet.driver.event.IEventManager;
+import de.dytanic.cloudnet.driver.event.EventManager;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceLifecycleChangeEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceLogEntryEvent;
@@ -28,18 +28,18 @@ import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
-import de.dytanic.cloudnet.service.ICloudServiceManager;
+import de.dytanic.cloudnet.service.CloudServiceManager;
 import lombok.NonNull;
 
 public final class ServiceChannelMessageListener {
 
-  private final IEventManager eventManager;
-  private final ICloudServiceManager serviceManager;
+  private final EventManager eventManager;
+  private final CloudServiceManager serviceManager;
   private final CloudServiceFactory cloudServiceFactory;
 
   public ServiceChannelMessageListener(
-    @NonNull IEventManager eventManager,
-    @NonNull ICloudServiceManager serviceManager,
+    @NonNull EventManager eventManager,
+    @NonNull CloudServiceManager serviceManager,
     @NonNull CloudServiceFactory cloudServiceFactory
   ) {
     this.eventManager = eventManager;

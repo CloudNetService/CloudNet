@@ -16,13 +16,13 @@
 
 package de.dytanic.cloudnet.event.service;
 
-import de.dytanic.cloudnet.driver.event.ICancelable;
+import de.dytanic.cloudnet.driver.event.Cancelable;
 import de.dytanic.cloudnet.driver.service.ServiceDeployment;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
-import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.service.CloudService;
 import lombok.NonNull;
 
-public final class CloudServiceDeploymentEvent extends CloudServiceEvent implements ICancelable {
+public final class CloudServiceDeploymentEvent extends CloudServiceEvent implements Cancelable {
 
   private final TemplateStorage templateStorage;
   private final ServiceDeployment serviceDeployment;
@@ -30,7 +30,7 @@ public final class CloudServiceDeploymentEvent extends CloudServiceEvent impleme
   private volatile boolean cancelled;
 
   public CloudServiceDeploymentEvent(
-    @NonNull ICloudService cloudService,
+    @NonNull CloudService cloudService,
     @NonNull TemplateStorage templateStorage,
     @NonNull ServiceDeployment serviceDeployment
   ) {

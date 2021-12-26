@@ -16,10 +16,10 @@
 
 package de.dytanic.cloudnet.ext.rest.v2;
 
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
+import de.dytanic.cloudnet.driver.permission.PermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.http.HttpSession;
 import de.dytanic.cloudnet.http.V2HttpHandler;
@@ -33,7 +33,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) {
+  protected void handleBearerAuthorized(String path, HttpContext context, HttpSession session) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.endsWith("exists")) {
         if (path.contains("user")) {
@@ -65,7 +65,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
     }
   }
 
-  protected void handlePermissionGroupList(IHttpContext context) {
+  protected void handlePermissionGroupList(HttpContext context) {
     this.ok(context)
       .body(this.success().append("groups", this.permissionManagement().groups()).toString())
       .context()
@@ -73,7 +73,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handlePermissionGroupExistsRequest(IHttpContext context) {
+  protected void handlePermissionGroupExistsRequest(HttpContext context) {
     this.handleWithPermissionGroupContext(context, true, group -> this.ok(context)
       .body(this.success().append("result", group != null).toString())
       .context()
@@ -82,7 +82,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
     );
   }
 
-  protected void handlePermissionGroupRequest(IHttpContext context) {
+  protected void handlePermissionGroupRequest(HttpContext context) {
     this.handleWithPermissionGroupContext(context, false, group -> this.ok(context)
       .body(this.success().append("group", group).toString())
       .context()
@@ -90,7 +90,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
       .cancelNext());
   }
 
-  protected void handleCreatePermissionGroupRequest(IHttpContext context) {
+  protected void handleCreatePermissionGroupRequest(HttpContext context) {
     var permissionGroup = this.body(context.request()).toInstanceOf(PermissionGroup.class);
     if (permissionGroup == null) {
       this.badRequest(context)
@@ -109,7 +109,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleDeletePermissionGroupRequest(IHttpContext context) {
+  protected void handleDeletePermissionGroupRequest(HttpContext context) {
     this.handleWithPermissionGroupContext(context, false, group -> {
       this.permissionManagement().deletePermissionGroup(group);
       this.ok(context)
@@ -120,7 +120,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
     });
   }
 
-  protected void handlePermissionUserExistsRequest(IHttpContext context) {
+  protected void handlePermissionUserExistsRequest(HttpContext context) {
     this.handleWithPermissionUserContext(context, true, user -> this.ok(context)
       .body(this.success().append("result", user != null).toString())
       .context()
@@ -129,7 +129,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
     );
   }
 
-  protected void handlePermissionUserRequest(IHttpContext context) {
+  protected void handlePermissionUserRequest(HttpContext context) {
     this.handleWithPermissionUserContext(context, false, user -> this.ok(context)
       .body(this.success().append("user", user).toString())
       .context()
@@ -137,7 +137,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
       .cancelNext());
   }
 
-  protected void handleCreatePermissionUserRequest(IHttpContext context) {
+  protected void handleCreatePermissionUserRequest(HttpContext context) {
     var permissionUser = this.body(context.request()).toInstanceOf(PermissionUser.class);
     if (permissionUser == null) {
       this.badRequest(context)
@@ -156,7 +156,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleDeletePermissionUserRequest(IHttpContext context) {
+  protected void handleDeletePermissionUserRequest(HttpContext context) {
     this.handleWithPermissionUserContext(context, false, user -> {
       this.permissionManagement().deletePermissionUser(user);
       this.ok(context)
@@ -168,7 +168,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
   }
 
   protected void handleWithPermissionGroupContext(
-    IHttpContext context,
+    HttpContext context,
     boolean mayBeNull,
     Consumer<PermissionGroup> handler
   ) {
@@ -196,7 +196,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
   }
 
   protected void handleWithPermissionUserContext(
-    IHttpContext context,
+    HttpContext context,
     boolean mayBeNull,
     Consumer<PermissionUser> handler
   ) {
@@ -231,7 +231,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
     handler.accept(user);
   }
 
-  protected IPermissionManagement permissionManagement() {
+  protected PermissionManagement permissionManagement() {
     return this.node().permissionManagement();
   }
 

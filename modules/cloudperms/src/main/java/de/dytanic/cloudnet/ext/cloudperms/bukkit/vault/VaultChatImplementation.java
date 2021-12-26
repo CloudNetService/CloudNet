@@ -16,8 +16,8 @@
 
 package de.dytanic.cloudnet.ext.cloudperms.bukkit.vault;
 
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
+import de.dytanic.cloudnet.driver.permission.PermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import java.util.Optional;
 import net.milkbowl.vault.chat.Chat;
@@ -25,9 +25,9 @@ import net.milkbowl.vault.permission.Permission;
 
 public class VaultChatImplementation extends Chat {
 
-  private final IPermissionManagement permissionManagement;
+  private final PermissionManagement permissionManagement;
 
-  public VaultChatImplementation(Permission permission, IPermissionManagement permissionManagement) {
+  public VaultChatImplementation(Permission permission, PermissionManagement permissionManagement) {
     super(permission);
     this.permissionManagement = permissionManagement;
   }
