@@ -43,6 +43,8 @@ jobs:
           REPO: git@github.com:CloudNetService/launchermeta.git
           BRANCH: ${{ steps.branch-name.outputs.current_branch }}
           FOLDER: '.launchermeta'
+          SQUASH_HISTORY: true
+          SKIP_EMPTY_COMMITS: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           MESSAGE: 'Update launcher meta for {target-branch} (commit: {sha})'
