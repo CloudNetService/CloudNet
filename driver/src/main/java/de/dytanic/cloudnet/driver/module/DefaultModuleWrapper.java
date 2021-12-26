@@ -238,7 +238,7 @@ public class DefaultModuleWrapper implements ModuleWrapper {
         );
       }
       // set the state to unusable
-      this.lifeCycle.set(ModuleLifeCycle.UNUSEABLE);
+      this.lifeCycle.set(ModuleLifeCycle.UNUSABLE);
     }
     return this;
   }

@@ -26,7 +26,7 @@ import java.lang.annotation.Target;
  * Represents a task a module can define in its main class. This annotation replaces the wideline known (mostly from
  * bukkit or bungeecord) {@code onLoad}, {@code onEnable} and {@code onDisable} methods. Please note that module
  * dependencies are only loaded in the {@link ModuleLifeCycle#STARTED} state and module task targeting the {@link
- * ModuleLifeCycle#UNUSEABLE} will never fire. For more details see the javadoc comments on the enum constants in {@link
+ * ModuleLifeCycle#UNUSABLE} will never fire. For more details see the javadoc comments on the enum constants in {@link
  * ModuleLifeCycle}.
  */
 @Documented
@@ -46,7 +46,7 @@ public @interface ModuleTask {
 
   /**
    * Get the module lifecycle in which this task should be fired. Please note that tasks targeting the lifecycle {@link
-   * ModuleLifeCycle#UNUSEABLE} will be registered but never fired.
+   * ModuleLifeCycle#UNUSABLE} will be registered but never fired.
    * <p>This property defaults to {@link ModuleLifeCycle#STARTED}</p>
    *
    * @return the module lifecycle in which this task should be fired.
