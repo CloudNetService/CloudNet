@@ -149,7 +149,11 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
         return;
     }
 
-    this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
+    this.ok(context)
+      .body(this.success().toString())
+      .context()
+      .closeAfter(true)
+      .cancelNext();
   }
 
   protected void handleLiveConsoleRequest(HttpContext context, HttpSession session) {

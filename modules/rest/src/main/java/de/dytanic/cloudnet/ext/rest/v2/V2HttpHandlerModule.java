@@ -89,14 +89,22 @@ public class V2HttpHandlerModule extends V2HttpHandler {
     this.handleWithModuleContext(context, module -> {
       module.reloadModule();
 
-      this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
+      this.ok(context)
+        .body(this.success().toString())
+        .context()
+        .closeAfter(true)
+        .cancelNext();
     });
   }
 
   protected void handleModuleUnloadRequest(HttpContext context) {
     this.handleWithModuleContext(context, module -> {
       module.unloadModule();
-      this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
+      this.ok(context)
+        .body(this.success().toString())
+        .context()
+        .closeAfter(true)
+        .cancelNext();
     });
   }
 
@@ -172,7 +180,11 @@ public class V2HttpHandlerModule extends V2HttpHandler {
           var driverModule = (DriverModule) module.module();
           driverModule.writeConfig(JsonDocument.newDocument(stream));
 
-          this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
+          this.ok(context)
+            .body(this.success().toString())
+            .context()
+            .closeAfter(true)
+            .cancelNext();
         }
       } else {
         this.ok(context)
@@ -186,9 +198,14 @@ public class V2HttpHandlerModule extends V2HttpHandler {
 
   protected void showModule(HttpContext context, @Nullable ModuleWrapper wrapper) {
     if (wrapper == null) {
-      this.ok(context).body(this.failure().toString()).context().closeAfter(true).cancelNext();
+      this.ok(context)
+        .body(this.failure().toString())
+        .context()
+        .closeAfter(true)
+        .cancelNext();
     } else {
-      this.ok(context).body(this.success()
+      this.ok(context)
+        .body(this.success()
         .append("lifecycle", wrapper.moduleLifeCycle())
         .append("configuration", wrapper.moduleConfiguration())
         .toString()

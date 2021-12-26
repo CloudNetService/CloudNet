@@ -315,8 +315,10 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     });
   }
 
-  protected void handleWithTemplateContext(HttpContext context,
-    ThrowableBiConsumer<ServiceTemplate, SpecificTemplateStorage, Exception> handler) {
+  protected void handleWithTemplateContext(
+    HttpContext context,
+    ThrowableBiConsumer<ServiceTemplate, SpecificTemplateStorage, Exception> handler
+  ) {
     var storage = context.request().pathParameters().get("storage");
     var prefix = context.request().pathParameters().get("prefix");
     var name = context.request().pathParameters().get("name");
@@ -349,8 +351,10 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     }
   }
 
-  protected void handleWithFileTemplateContext(HttpContext context,
-    ThrowableTriConsumer<ServiceTemplate, SpecificTemplateStorage, String, Exception> handler) {
+  protected void handleWithFileTemplateContext(
+    HttpContext context,
+    ThrowableTriConsumer<ServiceTemplate, SpecificTemplateStorage, String, Exception> handler
+  ) {
     this.handleWithTemplateContext(context, (template, storage) -> {
       var fileName = RestUtils.first(context.request().queryParameters().get("path"), null);
       if (fileName == null) {
