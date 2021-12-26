@@ -52,7 +52,7 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
   protected PlatformSignManagement(SignsConfiguration signsConfiguration) {
     super(signsConfiguration);
     // get the signs for the current group
-    var groups = Wrapper.instance().serviceConfiguration().groups().toArray(new String[0]);
+    var groups = Wrapper.instance().serviceConfiguration().groups();
     for (var sign : this.signs(groups)) {
       this.signs.put(sign.location(), sign);
     }
@@ -155,7 +155,7 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
    * {@inheritDoc}
    */
   @Override
-  public @NonNull Collection<Sign> signs(@NonNull String[] groups) {
+  public @NonNull Collection<Sign> signs(@NonNull Collection<String> groups) {
     var response = this.channelMessage(SIGN_GET_SIGNS_BY_GROUPS)
       .buffer(DataBuf.empty().writeObject(groups))
       .build()

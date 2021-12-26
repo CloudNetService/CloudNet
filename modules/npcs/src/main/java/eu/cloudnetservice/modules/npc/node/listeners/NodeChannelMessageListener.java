@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.npc.node.listeners;
 
+import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
@@ -24,9 +25,13 @@ import eu.cloudnetservice.modules.npc.AbstractNPCManagement;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import eu.cloudnetservice.modules.npc.platform.PlatformNPCManagement;
+import java.lang.reflect.Type;
+import java.util.Collection;
 import lombok.NonNull;
 
 public final class NodeChannelMessageListener {
+
+  private static final Type STRING_COLLECTION = TypeToken.getParameterized(Collection.class, String.class).getType();
 
   private final AbstractNPCManagement management;
 
@@ -56,7 +61,7 @@ public final class NodeChannelMessageListener {
 
         // get all npcs of a specific group
         case PlatformNPCManagement.NPC_GET_NPCS_BY_GROUP -> {
-          var npcs = this.management.npcs(event.content().readObject(String[].class));
+          var npcs = this.management.npcs(event.content().readObject(STRING_COLLECTION));
           event.binaryResponse(DataBuf.empty().writeObject(npcs));
         }
         // request of a service for the npc config
