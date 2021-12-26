@@ -64,7 +64,7 @@ public class CompletableTask<V> extends CompletableFuture<V> implements ITask<V>
         if (exception instanceof CancellationException) {
           listener.onCancelled(this);
         } else {
-          listener.onFailure(this, exception.getCause());
+          listener.onFailure(this, exception);
         }
       } else {
         // normal completion
