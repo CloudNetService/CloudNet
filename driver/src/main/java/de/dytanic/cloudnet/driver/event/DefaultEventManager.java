@@ -51,25 +51,30 @@ public class DefaultEventManager implements EventManager {
 
   @Override
   public <T extends Event> @NonNull T callEvent(@NonNull String channel, @NonNull T event) {
-    // get all registered listeners of the event
-    var listeners = this.listeners.get(event.getClass());
-    if (!listeners.isEmpty()) {
-      // check if there is only one listener
-      if (listeners.size() == 1) {
-        var listener = listeners.get(0);
-        // check if the event gets called on the same channel as the listener is listening to
-        if (listener.channel().equals(channel)) {
-          listener.fireEvent(event);
-        }
-      } else {
-        // post the event to the listeners
-        for (var listener : listeners) {
+    this.lock.lock();
+    try {
+      // get all registered listeners of the event
+      var listeners = this.listeners.get(event.getClass());
+      if (!listeners.isEmpty()) {
+        // check if there is only one listener
+        if (listeners.size() == 1) {
+          var listener = listeners.get(0);
           // check if the event gets called on the same channel as the listener is listening to
           if (listener.channel().equals(channel)) {
             listener.fireEvent(event);
           }
+        } else {
+          // post the event to the listeners
+          for (var listener : listeners) {
+            // check if the event gets called on the same channel as the listener is listening to
+            if (listener.channel().equals(channel)) {
+              listener.fireEvent(event);
+            }
+          }
         }
       }
+    } finally {
+      this.lock.unlock();
     }
     // for chaining
     return event;
