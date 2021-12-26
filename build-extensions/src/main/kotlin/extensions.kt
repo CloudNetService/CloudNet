@@ -71,7 +71,7 @@ fun Project.exportLanguageFileInformation(): String {
   return file.absolutePath
 }
 
-fun Project.exportCnlFile(fileName: String) {
+fun Project.exportCnlFile(fileName: String): String {
   val stringBuilder = StringBuilder("# CloudNet ${Versions.cloudNetCodeName} ${Versions.cloudNet}\n\n")
     .append("# repositories\n")
   // add all repositories
@@ -100,7 +100,10 @@ fun Project.exportCnlFile(fileName: String) {
   }
 
   // write to the output file
-  project.buildDir.resolve("libs").resolve(fileName).writeText(stringBuilder.toString())
+  val target = project.buildDir.resolve(fileName)
+  target.writeText(stringBuilder.toString())
+
+  return target.absolutePath
 }
 
 private fun resolveRepository(

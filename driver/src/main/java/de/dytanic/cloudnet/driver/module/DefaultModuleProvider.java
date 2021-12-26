@@ -46,7 +46,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class DefaultModuleProvider implements IModuleProvider {
 
-  protected static final Path DEFAULT_MODULE_DIR = Path.of("modules");
+  public static final Path DEFAULT_MODULE_DIR = Path.of("modules");
   protected static final Logger LOGGER = LogManager.logger(DefaultModuleProvider.class);
   protected static final IModuleDependencyLoader DEFAULT_DEPENDENCY_LOADER = new DefaultMemoryModuleDependencyLoader();
 

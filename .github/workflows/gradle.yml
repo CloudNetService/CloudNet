@@ -13,6 +13,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Get branch name
+        id: branch-name
+        uses: tj-actions/branch-names@v5.1
+
       - name: Validate gradle wrapper
         uses: gradle/wrapper-validation-action@v1
 
@@ -30,4 +34,15 @@ jobs:
           concurrent: true
 
       - name: Run build lifecycle
-        run: ./gradlew build checkLicenses test jar --stacktrace
+        run: ./gradlew build checkLicenses test shadowJar genUpdaterInformation --no-daemon --stacktrace
+
+      - name: Publish updater metadata
+        uses: s0/git-publish-subdir-action@develop
+        if: ${{ github.event_name == 'push' }}
+        env:
+          REPO: git@github.com:CloudNetService/launchermeta.git
+          BRANCH: ${{ steps.branch-name.outputs.current_branch }}
+          FOLDER: '.launchermeta'
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          MESSAGE: 'Update launcher meta for {target-branch} (commit: {sha})'

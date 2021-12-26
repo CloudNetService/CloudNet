@@ -15,7 +15,7 @@
  */
 
 tasks.withType<Jar> {
-  archiveFileName.set(Files.database_mysql)
+  archiveFileName.set(Files.databaseMysql)
 }
 
 dependencies {

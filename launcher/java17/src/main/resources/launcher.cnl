@@ -1,0 +1,47 @@
+# CloudNet Launcher Configuration File
+#
+# This is the launcher configuration file. The 'var' command is the only command which is currently supported by default.
+# It will change a system property which gets used by the cloudnet runtime. In a normal scenario there is nothing you
+# need to change, but some options are just nice to play around with. Be sure to never change something in production in
+# here as it might break your cloudnet installation (or node behaviour).
+
+# disables all updates and uses the 'cloudnet.jar' file which must be located in the root directory of the launcher
+# as the runtime version. This property is useful for developing cloudnet, but should never be used normally. If you
+# are developing with or for cloudnet, not cloudnet then leave this option disabled.
+var cloudnet.dev false
+
+# These are the settings for the automatic updater of cloudnet. The updater uses GitHub to download all update files from.
+# You can change the repository and branch of the updater. Changing the branch is useful if you want to load a diffrent
+# snapshot version of cloudnet. If you want to distribute your own cloudnet updating repository make sure you use the
+# correct file structure (as explained in the launchermeta repo description). Changing the update repo to a non-existing
+# repository or branch will not cause the updater to stop updating - it will just cause failures when starting cloudnet.
+# Keep your system up-to-date! If you know what you are doing then enable the dev mode above to prevent cloudnet from
+# updating modules and itself.
+var cloudnet.updateRepo CloudNetService/launchermeta
+var cloudnet.updateBranch master
+
+# available default log levels: OFF, SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST, ALL
+# each level includes all messages for levels lower than itself (in the above list: left to right) too
+var cloudnet.logging.defaultlevel INFO
+
+#
+# CloudNet runtime properties
+#
+
+
+#var cloudnet.tempDir temp
+#var cloudnet.messages.language english
+#var cloudnet.launcherdir launcher
+#var cloudnet.config.json.path config.json
+#var cloudnet.console.prompt &c%user%&r@&7%screen% &f=> &r
+#var cloudnet.permissions.json.path local/permissions.json
+#var cloudnet.config.groups.directory.path local/groups
+#var cloudnet.config.tasks.directory.path local/tasks
+#var cloudnet.tempDir.services temp/services
+#var cloudnet.persistable.services.path local/services
+#var cloudnet.versions.url https://cloudnetservice.eu/cloudnet/versions.json
+#var cloudnet.versioncache.path local/versioncache
+#var cloudnet.max.node.idle.millis 30000
+#var cloudnet.database.xodus.path local/database/xodus
+#var cloudnet.storage.local local/templates
+
