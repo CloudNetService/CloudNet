@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 import kong.unirest.HttpRequestWithBody;
 import kong.unirest.Unirest;
@@ -43,8 +43,9 @@ public class CloudFlareAPI implements AutoCloseable {
 
   protected static final Logger LOGGER = LogManager.logger(CloudFlareAPI.class);
 
-  protected final Multimap<UUID, DnsRecordDetail> createdRecords = Multimaps
-    .newSetMultimap(new ConcurrentHashMap<>(), CopyOnWriteArraySet::new);
+  protected final Multimap<UUID, DnsRecordDetail> createdRecords = Multimaps.newMultimap(
+    new ConcurrentHashMap<>(),
+    ConcurrentLinkedQueue::new);
 
   public @Nullable DnsRecordDetail createRecord(
     @NonNull UUID serviceUniqueId,

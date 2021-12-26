@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
@@ -47,7 +47,7 @@ public class BuildStepExecutor implements InstallStepExecutor {
   private static final ExecutorService OUTPUT_READER_EXECUTOR = Executors.newCachedThreadPool();
   private static final Type STRING_LIST_TYPE = TypeToken.getParameterized(List.class, String.class).getType();
 
-  private final Collection<Process> runningBuildProcesses = new CopyOnWriteArrayList<>();
+  private final Collection<Process> runningBuildProcesses = new ConcurrentLinkedQueue<>();
 
   @Override
   public @NonNull Set<Path> execute(
@@ -88,7 +88,7 @@ public class BuildStepExecutor implements InstallStepExecutor {
 
   @Override
   public void interrupt() {
-    for (var runningBuildProcess : this.runningBuildProcesses) {
+    for (var runningBuildProcess : List.copyOf(this.runningBuildProcesses)) {
       runningBuildProcess.destroyForcibly();
     }
   }

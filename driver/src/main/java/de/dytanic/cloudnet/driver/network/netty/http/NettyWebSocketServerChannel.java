@@ -32,8 +32,7 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.NonNull;
@@ -42,7 +41,7 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 @Internal
 final class NettyWebSocketServerChannel implements WebSocketChannel {
 
-  private final List<WebSocketListener> webSocketListeners = new CopyOnWriteArrayList<>();
+  private final Collection<WebSocketListener> webSocketListeners = new ConcurrentLinkedQueue<>();
 
   private final Channel channel;
   private final HttpChannel httpChannel;

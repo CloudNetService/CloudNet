@@ -18,15 +18,15 @@ package de.dytanic.cloudnet.setup;
 
 import de.dytanic.cloudnet.console.Console;
 import de.dytanic.cloudnet.console.animation.setup.ConsoleSetupAnimation;
-import java.util.Collection;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.LinkedList;
+import java.util.Queue;
 import lombok.NonNull;
 
 public class DefaultInstallation {
 
   private final Object monitor = new Object();
+  private final Queue<DefaultSetup> setups = new LinkedList<>();
   private final ConsoleSetupAnimation animation = createAnimation();
-  private final Collection<DefaultSetup> setups = new CopyOnWriteArraySet<>();
 
   private static @NonNull ConsoleSetupAnimation createAnimation() {
     return new ConsoleSetupAnimation(
@@ -51,7 +51,10 @@ public class DefaultInstallation {
 
       this.animation.addFinishHandler(() -> {
         // post the finish handling to the installations
-        this.setups.forEach(setup -> setup.handleResults(animation));
+        DefaultSetup setup;
+        while ((setup = this.setups.poll()) != null) {
+          setup.handleResults(animation);
+        }
         // notify the monitor about the success
         synchronized (this.monitor) {
           this.monitor.notifyAll();

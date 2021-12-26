@@ -16,6 +16,8 @@
 
 package de.dytanic.cloudnet.driver.network.protocol.defaults;
 
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.network.protocol.PacketListener;
@@ -23,10 +25,10 @@ import de.dytanic.cloudnet.driver.network.protocol.PacketListenerRegistry;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.stream.Collectors;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -37,7 +39,7 @@ import org.jetbrains.annotations.UnmodifiableView;
 public class DefaultPacketListenerRegistry implements PacketListenerRegistry {
 
   private final PacketListenerRegistry parent;
-  private final Map<Integer, Collection<PacketListener>> listeners;
+  private final Multimap<Integer, PacketListener> listeners;
 
   public DefaultPacketListenerRegistry() {
     this(null);
@@ -45,7 +47,7 @@ public class DefaultPacketListenerRegistry implements PacketListenerRegistry {
 
   public DefaultPacketListenerRegistry(PacketListenerRegistry parent) {
     this.parent = parent;
-    this.listeners = new ConcurrentHashMap<>();
+    this.listeners = Multimaps.newMultimap(new ConcurrentHashMap<>(), ConcurrentLinkedQueue::new);
   }
 
   @Override
@@ -55,38 +57,33 @@ public class DefaultPacketListenerRegistry implements PacketListenerRegistry {
 
   @Override
   public void addListener(int channel, @NonNull PacketListener... listeners) {
-    this.listeners.computeIfAbsent(channel, $ -> new CopyOnWriteArraySet<>()).addAll(Arrays.asList(listeners));
+    this.listeners.putAll(channel, List.of(listeners));
   }
 
   @Override
   public void removeListener(int channel, @NonNull PacketListener... listeners) {
     var registeredListeners = this.listeners.get(channel);
-    if (registeredListeners != null) {
+    if (!registeredListeners.isEmpty()) {
       // remove all listeners if no specific listeners are provided
       if (listeners.length == 0) {
         registeredListeners.clear();
-        this.listeners.remove(channel);
+        this.listeners.removeAll(channel);
       } else {
         // remove the selected listeners
         registeredListeners.removeAll(Arrays.asList(listeners));
-        // check if there are listeners still registered
-        if (registeredListeners.isEmpty()) {
-          this.listeners.remove(channel, registeredListeners);
-        }
       }
     }
   }
 
   @Override
   public void removeListeners(int channel) {
-    this.listeners.remove(channel);
+    this.listeners.removeAll(channel);
   }
 
   @Override
   public void removeListeners(@NonNull ClassLoader classLoader) {
-    for (var entry : this.listeners.entrySet()) {
-      entry.getValue().removeIf(listener -> listener.getClass().getClassLoader().equals(classLoader));
-      if (entry.getValue().isEmpty()) {
+    for (var entry : this.listeners.entries()) {
+      if (entry.getValue().getClass().getClassLoader().equals(classLoader)) {
         this.listeners.remove(entry.getKey(), entry.getValue());
       }
     }
@@ -109,14 +106,12 @@ public class DefaultPacketListenerRegistry implements PacketListenerRegistry {
 
   @Override
   public @NonNull @UnmodifiableView Collection<PacketListener> listeners() {
-    return this.listeners.values().stream()
-      .flatMap(Collection::stream)
-      .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableCollection));
+    return this.listeners.values();
   }
 
   @Override
   public @NonNull @UnmodifiableView Map<Integer, Collection<PacketListener>> packetListeners() {
-    return Collections.unmodifiableMap(this.listeners);
+    return Collections.unmodifiableMap(this.listeners.asMap());
   }
 
   @Override
@@ -126,7 +121,7 @@ public class DefaultPacketListenerRegistry implements PacketListenerRegistry {
     }
 
     var registeredListeners = this.listeners.get(packet.channel());
-    if (registeredListeners != null) {
+    if (!registeredListeners.isEmpty()) {
       for (var listener : registeredListeners) {
         try {
           listener.handle(channel, packet);

@@ -16,12 +16,14 @@
 
 package de.dytanic.cloudnet.driver.event;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Multimaps;
 import de.dytanic.cloudnet.driver.event.invoker.ListenerInvokerGenerator;
 import java.util.Arrays;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Collections;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Predicate;
 import lombok.NonNull;
 
 public class DefaultEventManager implements EventManager {
@@ -29,28 +31,20 @@ public class DefaultEventManager implements EventManager {
   /**
    * Holds all registered events mapped to all registered events listeners
    */
-  protected final ListMultimap<Class<?>, RegisteredEventListener> listeners = Multimaps.newListMultimap(
-    new ConcurrentHashMap<>(),
-    CopyOnWriteArrayList::new);
+  protected final Lock lock = new ReentrantLock();
+  protected final ListMultimap<Class<?>, RegisteredEventListener> listeners = ArrayListMultimap.create();
 
   @Override
   public @NonNull EventManager unregisterListeners(@NonNull ClassLoader classLoader) {
-    for (var entry : this.listeners.entries()) {
-      if (entry.getValue().instance().getClass().getClassLoader().equals(classLoader)) {
-        this.listeners.remove(entry.getKey(), entry.getValue());
-      }
-    }
+    this.safeRemove(value -> value.instance().getClass().getClassLoader().equals(classLoader));
     // for chaining
     return this;
   }
 
   @Override
   public @NonNull EventManager unregisterListener(Object @NonNull ... listeners) {
-    for (var entry : this.listeners.entries()) {
-      if (Arrays.stream(listeners).anyMatch(instance -> instance.equals(entry.getValue().instance()))) {
-        this.listeners.remove(entry.getKey(), entry.getValue());
-      }
-    }
+    var listenerList = Arrays.asList(listeners);
+    this.safeRemove(value -> listenerList.contains(value.instance()));
     // for chaining
     return this;
   }
@@ -68,11 +62,8 @@ public class DefaultEventManager implements EventManager {
           listener.fireEvent(event);
         }
       } else {
-        // workaround to sort the list to keep concurrency (Collections.sort isn't working here)
-        var targets = listeners.toArray(new RegisteredEventListener[0]);
-        Arrays.sort(targets);
         // post the event to the listeners
-        for (var listener : targets) {
+        for (var listener : listeners) {
           // check if the event gets called on the same channel as the listener is listening to
           if (listener.channel().equals(channel)) {
             listener.fireEvent(event);
@@ -100,16 +91,36 @@ public class DefaultEventManager implements EventManager {
             method.getName(),
             listener.getClass().getName()));
         }
-        // register the listener
-        this.listeners.put(eventClass, new DefaultRegisteredEventListener(
+        // bring the information together
+        var eventListener = new DefaultRegisteredEventListener(
           listener,
           method.getName(),
           eventClass,
           annotation,
-          ListenerInvokerGenerator.generate(listener, method, eventClass)));
+          ListenerInvokerGenerator.generate(listener, method, eventClass));
+        // bake an event listener from the information
+        this.lock.lock();
+        try {
+          var listeners = this.listeners.get(eventClass);
+          listeners.add(eventListener);
+          // sort now - we don't need to sort lather then
+          Collections.sort(listeners);
+        } finally {
+          this.lock.unlock();
+        }
       }
     }
     // for chaining
     return this;
+  }
+
+  protected void safeRemove(@NonNull Predicate<RegisteredEventListener> predicate) {
+    this.lock.lock();
+    try {
+      // prevents concurrency issues
+      this.listeners.values().removeIf(predicate);
+    } finally {
+      this.lock.unlock();
+    }
   }
 }
