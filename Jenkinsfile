@@ -68,13 +68,15 @@ pipeline {
         sh 'cp LICENSE temp/license.txt'
 
         sh 'mkdir temp/dev'
-        sh 'mkdir temp/dev/examples'
-        sh 'cp -r examples/src/main/java/de/dytanic/cloudnet/examples/* temp/dev/examples'
+        // TODO: CI FIX
+        // sh 'mkdir temp/dev/examples'
+        // sh 'cp -r examples/src/main/java/de/dytanic/cloudnet/examples/* temp/dev/examples'
 
         sh 'mkdir temp/extras/plugins'
         sh 'cp plugins/**/build/libs/*.jar temp/extras/plugins/'
 
         sh 'mkdir temp/extras/modules'
+        // sh 'cp modules/**/build/libs/*.jar temp/extras/modules/'
         // sh 'cp modules/labymod/build/libs/*.jar temp/extras/modules/'
         // sh 'cp modules/npcs/build/libs/*.jar temp/extras/modules/'
 
