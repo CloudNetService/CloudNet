@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.driver.network.rpc.defaults.handler.context;
 
 import com.google.common.base.Verify;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.rpc.RPCInvocationContext;
 import lombok.NonNull;
@@ -58,7 +58,7 @@ public class DefaultRPCInvocationContextBuilder implements RPCInvocationContext.
   }
 
   @Override
-  public @NonNull RPCInvocationContext.Builder channel(@NonNull INetworkChannel channel) {
+  public @NonNull RPCInvocationContext.Builder channel(@NonNull NetworkChannel channel) {
     this.context.channel = channel;
     return this;
   }

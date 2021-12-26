@@ -18,8 +18,8 @@ package de.dytanic.cloudnet.service.defaults;
 
 import com.google.common.collect.ComparisonChain;
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.cluster.IClusterNodeServer;
-import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
+import de.dytanic.cloudnet.cluster.ClusterNodeServer;
+import de.dytanic.cloudnet.cluster.ClusterNodeServerProvider;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget.Type;
 import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
@@ -28,7 +28,7 @@ import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.network.listener.message.ServiceChannelMessageListener;
-import de.dytanic.cloudnet.service.ICloudServiceManager;
+import de.dytanic.cloudnet.service.CloudServiceManager;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -38,8 +38,8 @@ import org.jetbrains.annotations.Nullable;
 
 public class NodeCloudServiceFactory implements CloudServiceFactory {
 
-  private final ICloudServiceManager serviceManager;
-  private final IClusterNodeServerProvider nodeServerProvider;
+  private final CloudServiceManager serviceManager;
+  private final ClusterNodeServerProvider nodeServerProvider;
 
   public NodeCloudServiceFactory(@NonNull CloudNet nodeInstance) {
     this.serviceManager = nodeInstance.cloudServiceProvider();
@@ -98,7 +98,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     return result == null ? null : result.content().readObject(ServiceInfoSnapshot.class);
   }
 
-  protected @Nullable IClusterNodeServer peekLogicNodeServer(@NonNull ServiceConfiguration configuration) {
+  protected @Nullable ClusterNodeServer peekLogicNodeServer(@NonNull ServiceConfiguration configuration) {
     // check if the node is already specified
     if (configuration.serviceId().nodeUniqueId() != null) {
       var server = this.nodeServerProvider.nodeServer(configuration.serviceId().nodeUniqueId());
@@ -108,7 +108,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     var mh = configuration.processConfig().maxHeapMemorySize();
     // find the best node server
     return this.nodeServerProvider.nodeServers().stream()
-      .filter(IClusterNodeServer::available)
+      .filter(ClusterNodeServer::available)
       // only allow service start on nodes that are not marked for draining
       .filter(nodeServer -> !nodeServer.nodeInfoSnapshot().draining())
       .filter(server -> {

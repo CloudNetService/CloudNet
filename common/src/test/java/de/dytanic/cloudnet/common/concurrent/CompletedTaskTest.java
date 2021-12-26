@@ -26,7 +26,7 @@ public class CompletedTaskTest {
 
   @Test
   void testFutureCompletedNormally() {
-    ITask<Integer> task = CompletedTask.done(12345);
+    Task<Integer> task = CompletedTask.done(12345);
 
     Assertions.assertTrue(task.isDone());
     Assertions.assertEquals(12345, task.getDef(null));
@@ -37,7 +37,7 @@ public class CompletedTaskTest {
     Assertions.assertEquals("Hello World", then.getDef(null));
     Assertions.assertDoesNotThrow((ThrowingSupplier<String>) then::get);
 
-    ITask<Double> thenThen = then.map(s -> {
+    Task<Double> thenThen = then.map(s -> {
       throw new RuntimeException(s.equals("Hello World") ? "Google" : "Bing");
     });
     Assertions.assertTrue(thenThen.isDone());
@@ -48,7 +48,7 @@ public class CompletedTaskTest {
 
   @Test
   void testFutureCompletedCancelled() {
-    ITask<Integer> task = CompletedTask.cancelled();
+    Task<Integer> task = CompletedTask.cancelled();
 
     Assertions.assertTrue(task.isDone());
     Assertions.assertTrue(task.isCancelled());
@@ -64,16 +64,16 @@ public class CompletedTaskTest {
 
   @Test
   void testFutureCompletedExceptionally() {
-    ITask<Float> task = CompletedTask.exceptionally(new UnsupportedOperationException("Hello World"));
+    Task<Float> task = CompletedTask.exceptionally(new UnsupportedOperationException("Hello World"));
 
     Assertions.assertTrue(task.isDone());
     this.validateExceptionalResult(task, UnsupportedOperationException.class, "Hello World");
 
-    ITask<Void> then = task.map(r -> null);
+    Task<Void> then = task.map(r -> null);
     this.validateExceptionalResult(then, UnsupportedOperationException.class, "Hello World");
   }
 
-  private void validateExceptionalResult(ITask<?> task, Class<? extends Throwable> expected, String expectedMessage) {
+  private void validateExceptionalResult(Task<?> task, Class<? extends Throwable> expected, String expectedMessage) {
     try {
       task.get();
       Assertions.fail();

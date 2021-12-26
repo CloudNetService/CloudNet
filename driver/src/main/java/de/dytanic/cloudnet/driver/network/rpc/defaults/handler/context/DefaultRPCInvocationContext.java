@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.driver.network.rpc.defaults.handler.context;
 
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.rpc.RPCInvocationContext;
 import java.util.Optional;
@@ -31,7 +31,7 @@ public class DefaultRPCInvocationContext implements RPCInvocationContext {
   protected boolean strictInstanceUsage;
 
   protected String methodName;
-  protected INetworkChannel channel;
+  protected NetworkChannel channel;
 
   protected DataBuf arguments;
   protected Object workingInstance;
@@ -40,7 +40,7 @@ public class DefaultRPCInvocationContext implements RPCInvocationContext {
     boolean expectsMethodResult,
     boolean normalizePrimitives,
     String methodName,
-    INetworkChannel channel,
+    NetworkChannel channel,
     DataBuf arguments,
     Object workingInstance
   ) {
@@ -81,7 +81,7 @@ public class DefaultRPCInvocationContext implements RPCInvocationContext {
   }
 
   @Override
-  public @NonNull INetworkChannel channel() {
+  public @NonNull NetworkChannel channel() {
     return this.channel;
   }
 

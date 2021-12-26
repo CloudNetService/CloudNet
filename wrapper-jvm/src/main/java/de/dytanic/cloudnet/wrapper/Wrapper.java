@@ -39,7 +39,7 @@ import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.driver.template.defaults.RemoteTemplateStorage;
 import de.dytanic.cloudnet.wrapper.configuration.DocumentWrapperConfiguration;
-import de.dytanic.cloudnet.wrapper.configuration.IWrapperConfiguration;
+import de.dytanic.cloudnet.wrapper.configuration.WrapperConfiguration;
 import de.dytanic.cloudnet.wrapper.database.DefaultWrapperDatabaseProvider;
 import de.dytanic.cloudnet.wrapper.event.ApplicationPostStartEvent;
 import de.dytanic.cloudnet.wrapper.event.ApplicationPreStartEvent;
@@ -91,9 +91,9 @@ public class Wrapper extends CloudNetDriver {
    * The configuration of the wrapper, which was created from the CloudNet node. The properties are mirrored from the
    * configuration file.
    *
-   * @see IWrapperConfiguration
+   * @see WrapperConfiguration
    */
-  private final IWrapperConfiguration config = DocumentWrapperConfiguration.load();
+  private final WrapperConfiguration config = DocumentWrapperConfiguration.load();
 
   private final RPCSender rpcSender;
 
@@ -411,7 +411,7 @@ public class Wrapper extends CloudNetDriver {
     return true;
   }
 
-  public @NonNull IWrapperConfiguration config() {
+  public @NonNull WrapperConfiguration config() {
     return this.config;
   }
 

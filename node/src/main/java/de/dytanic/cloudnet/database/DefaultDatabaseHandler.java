@@ -24,7 +24,7 @@ import de.dytanic.cloudnet.event.database.DatabaseInsertEntryEvent;
 import de.dytanic.cloudnet.event.database.DatabaseUpdateEntryEvent;
 import lombok.NonNull;
 
-public final class DefaultDatabaseHandler implements IDatabaseHandler {
+public final class DefaultDatabaseHandler implements DatabaseHandler {
 
   @Override
   public void handleInsert(

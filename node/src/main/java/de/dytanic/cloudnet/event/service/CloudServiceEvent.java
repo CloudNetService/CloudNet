@@ -19,18 +19,18 @@ package de.dytanic.cloudnet.event.service;
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.service.CloudService;
 import lombok.NonNull;
 
 public abstract class CloudServiceEvent extends DriverEvent {
 
-  private final ICloudService service;
+  private final CloudService service;
 
-  public CloudServiceEvent(@NonNull ICloudService service) {
+  public CloudServiceEvent(@NonNull CloudService service) {
     this.service = service;
   }
 
-  public @NonNull ICloudService service() {
+  public @NonNull CloudService service() {
     return this.service;
   }
 

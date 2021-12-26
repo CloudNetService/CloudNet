@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.driver.template.defaults;
 
-import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.concurrent.Task;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.FileInfo;
@@ -165,92 +165,92 @@ public class DefaultSpecificTemplateStorage implements SpecificTemplateStorage {
   }
 
   @Override
-  public @NonNull ITask<Boolean> deployAsync(@NonNull Path directory, @Nullable Predicate<Path> fileFilter) {
+  public @NonNull Task<Boolean> deployAsync(@NonNull Path directory, @Nullable Predicate<Path> fileFilter) {
     return this.storage.deployDirectoryAsync(directory, this.template, fileFilter);
   }
 
   @Override
-  public @NonNull ITask<Boolean> deployAsync(@NonNull InputStream inputStream) {
+  public @NonNull Task<Boolean> deployAsync(@NonNull InputStream inputStream) {
     return this.storage.deployAsync(inputStream, this.template);
   }
 
   @Override
-  public @NonNull ITask<Boolean> copyAsync(@NonNull Path directory) {
+  public @NonNull Task<Boolean> copyAsync(@NonNull Path directory) {
     return this.storage.deployDirectoryAsync(directory, this.template);
   }
 
   @Override
-  public @NonNull ITask<ZipInputStream> asZipInputStreamAsync() {
+  public @NonNull Task<ZipInputStream> asZipInputStreamAsync() {
     return this.storage.asZipInputStreamAsync(this.template);
   }
 
   @Override
-  public @NonNull ITask<InputStream> zipTemplateAsync() {
+  public @NonNull Task<InputStream> zipTemplateAsync() {
     return this.storage.zipTemplateAsync(this.template);
   }
 
   @Override
-  public @NonNull ITask<Boolean> deleteAsync() {
+  public @NonNull Task<Boolean> deleteAsync() {
     return this.storage.deleteAsync(this.template);
   }
 
   @Override
-  public @NonNull ITask<Boolean> createAsync() {
+  public @NonNull Task<Boolean> createAsync() {
     return this.storage.createAsync(this.template);
   }
 
   @Override
-  public @NonNull ITask<Boolean> existsAsync() {
+  public @NonNull Task<Boolean> existsAsync() {
     return this.storage.hasAsync(this.template);
   }
 
   @Override
-  public @NonNull ITask<OutputStream> appendOutputStreamAsync(@NonNull String path) {
+  public @NonNull Task<OutputStream> appendOutputStreamAsync(@NonNull String path) {
     return this.storage.appendOutputStreamAsync(this.template, path);
   }
 
   @Override
-  public @NonNull ITask<OutputStream> newOutputStreamAsync(@NonNull String path) {
+  public @NonNull Task<OutputStream> newOutputStreamAsync(@NonNull String path) {
     return this.storage.newOutputStreamAsync(this.template, path);
   }
 
   @Override
-  public @NonNull ITask<Boolean> createFileAsync(@NonNull String path) {
+  public @NonNull Task<Boolean> createFileAsync(@NonNull String path) {
     return this.storage.createFileAsync(this.template, path);
   }
 
   @Override
-  public @NonNull ITask<Boolean> createDirectoryAsync(@NonNull String path) {
+  public @NonNull Task<Boolean> createDirectoryAsync(@NonNull String path) {
     return this.storage.createDirectoryAsync(this.template, path);
   }
 
   @Override
-  public @NonNull ITask<Boolean> hasFileAsync(@NonNull String path) {
+  public @NonNull Task<Boolean> hasFileAsync(@NonNull String path) {
     return this.storage.hasFileAsync(this.template, path);
   }
 
   @Override
-  public @NonNull ITask<Boolean> deleteFileAsync(@NonNull String path) {
+  public @NonNull Task<Boolean> deleteFileAsync(@NonNull String path) {
     return this.storage.deleteFileAsync(this.template, path);
   }
 
   @Override
-  public @NonNull ITask<InputStream> newInputStreamAsync(@NonNull String path) {
+  public @NonNull Task<InputStream> newInputStreamAsync(@NonNull String path) {
     return this.storage.newInputStreamAsync(this.template, path);
   }
 
   @Override
-  public @NonNull ITask<FileInfo> fileInfoAsync(@NonNull String path) {
+  public @NonNull Task<FileInfo> fileInfoAsync(@NonNull String path) {
     return this.storage.fileInfoAsync(this.template, path);
   }
 
   @Override
-  public @NonNull ITask<FileInfo[]> listFilesAsync(@NonNull String dir, boolean deep) {
+  public @NonNull Task<FileInfo[]> listFilesAsync(@NonNull String dir, boolean deep) {
     return this.storage.listFilesAsync(this.template, dir, deep);
   }
 
   @Override
-  public @NonNull ITask<FileInfo[]> listFilesAsync(boolean deep) {
+  public @NonNull Task<FileInfo[]> listFilesAsync(boolean deep) {
     return this.storage.listFilesAsync(this.template, "", deep);
   }
 }

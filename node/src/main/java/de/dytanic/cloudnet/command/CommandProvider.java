@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.command;
 
 import de.dytanic.cloudnet.command.source.CommandSource;
-import de.dytanic.cloudnet.console.IConsole;
+import de.dytanic.cloudnet.console.Console;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
 import java.util.Collection;
 import java.util.List;
@@ -65,7 +65,7 @@ public interface CommandProvider {
    *
    * @param console the console to register the handler
    */
-  void registerConsoleHandler(IConsole console);
+  void registerConsoleHandler(Console console);
 
   /**
    * Registers the default commands of the cloudnet node.

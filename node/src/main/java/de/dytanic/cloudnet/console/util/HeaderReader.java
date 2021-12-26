@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.console.util;
 import com.google.common.io.CharStreams;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
-import de.dytanic.cloudnet.console.IConsole;
+import de.dytanic.cloudnet.console.Console;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -35,7 +35,7 @@ public final class HeaderReader {
     throw new UnsupportedOperationException();
   }
 
-  public static void readAndPrintHeader(@NonNull IConsole console) {
+  public static void readAndPrintHeader(@NonNull Console console) {
     var version = HeaderReader.class.getPackage().getImplementationVersion();
     var codename = HeaderReader.class.getPackage().getImplementationTitle();
 

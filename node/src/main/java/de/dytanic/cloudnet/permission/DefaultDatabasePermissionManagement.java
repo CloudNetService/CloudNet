@@ -21,11 +21,11 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.LocalDatabase;
 import de.dytanic.cloudnet.driver.permission.DefaultPermissionManagement;
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
+import de.dytanic.cloudnet.driver.permission.PermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.network.listener.message.PermissionChannelMessageListener;
-import de.dytanic.cloudnet.permission.handler.IPermissionManagementHandler;
+import de.dytanic.cloudnet.permission.handler.PermissionManagementHandler;
 import de.dytanic.cloudnet.permission.handler.PermissionManagementHandlerAdapter;
 import de.dytanic.cloudnet.setup.PermissionGroupSetup;
 import java.nio.file.Files;
@@ -52,7 +52,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   protected final Map<String, PermissionGroup> groups;
   protected final PermissionChannelMessageListener networkListener;
 
-  protected volatile IPermissionManagementHandler handler = PermissionManagementHandlerAdapter.NO_OP;
+  protected volatile PermissionManagementHandler handler = PermissionManagementHandlerAdapter.NO_OP;
 
   public DefaultDatabasePermissionManagement(@NonNull CloudNet nodeInstance) {
     this.nodeInstance = nodeInstance;
@@ -75,7 +75,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
     }
 
     this.nodeInstance.eventManager().registerListener(this.networkListener);
-    this.nodeInstance.rpcProviderFactory().newHandler(IPermissionManagement.class, this).registerToDefaultRegistry();
+    this.nodeInstance.rpcProviderFactory().newHandler(PermissionManagement.class, this).registerToDefaultRegistry();
   }
 
   @Override
@@ -339,12 +339,12 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   }
 
   @Override
-  public @NonNull IPermissionManagementHandler permissionManagementHandler() {
+  public @NonNull PermissionManagementHandler permissionManagementHandler() {
     return this.handler;
   }
 
   @Override
-  public void permissionManagementHandler(@NonNull IPermissionManagementHandler handler) {
+  public void permissionManagementHandler(@NonNull PermissionManagementHandler handler) {
     this.handler = handler;
   }
 

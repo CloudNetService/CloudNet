@@ -17,10 +17,10 @@
 package de.dytanic.cloudnet.driver.service;
 
 import com.google.common.base.Verify;
-import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.Nameable;
 import lombok.NonNull;
 
-public class ServiceEnvironment implements INameable, Cloneable {
+public class ServiceEnvironment implements Nameable, Cloneable {
 
   private final String name;
   private final String environmentType;

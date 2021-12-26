@@ -16,14 +16,14 @@
 
 package de.dytanic.cloudnet.driver.network.rpc;
 
-import de.dytanic.cloudnet.driver.network.INetworkComponent;
+import de.dytanic.cloudnet.driver.network.NetworkComponent;
 import lombok.NonNull;
 
 public interface RPCSender extends RPCProvider {
 
   @NonNull RPCProviderFactory factory();
 
-  @NonNull INetworkComponent associatedComponent();
+  @NonNull NetworkComponent associatedComponent();
 
   @NonNull RPC invokeMethod(@NonNull String methodName);
 

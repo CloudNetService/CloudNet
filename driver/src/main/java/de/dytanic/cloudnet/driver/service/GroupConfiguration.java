@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.driver.service;
 
 import com.google.common.base.Verify;
-import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.Nameable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import java.util.Collection;
 import java.util.HashSet;
@@ -27,7 +27,7 @@ import lombok.ToString;
 
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
-public class GroupConfiguration extends ServiceConfigurationBase implements Cloneable, INameable {
+public class GroupConfiguration extends ServiceConfigurationBase implements Cloneable, Nameable {
 
   protected String name;
 

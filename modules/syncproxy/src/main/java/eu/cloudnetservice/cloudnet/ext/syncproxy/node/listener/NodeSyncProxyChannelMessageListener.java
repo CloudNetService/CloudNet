@@ -17,7 +17,7 @@
 package eu.cloudnetservice.cloudnet.ext.syncproxy.node.listener;
 
 import de.dytanic.cloudnet.driver.event.EventListener;
-import de.dytanic.cloudnet.driver.event.IEventManager;
+import de.dytanic.cloudnet.driver.event.EventManager;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.SyncProxyConfigurationUpdateEvent;
@@ -29,11 +29,11 @@ import lombok.NonNull;
 public final class NodeSyncProxyChannelMessageListener {
 
   private final NodeSyncProxyManagement management;
-  private final IEventManager eventManager;
+  private final EventManager eventManager;
 
   public NodeSyncProxyChannelMessageListener(
     @NonNull NodeSyncProxyManagement management,
-    @NonNull IEventManager eventManager
+    @NonNull EventManager eventManager
   ) {
     this.management = management;
     this.eventManager = eventManager;

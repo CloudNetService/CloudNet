@@ -17,26 +17,26 @@
 package de.dytanic.cloudnet.service.defaults.factory;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.driver.event.IEventManager;
+import de.dytanic.cloudnet.driver.event.EventManager;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
-import de.dytanic.cloudnet.service.ICloudService;
-import de.dytanic.cloudnet.service.ICloudServiceManager;
+import de.dytanic.cloudnet.service.CloudService;
+import de.dytanic.cloudnet.service.CloudServiceManager;
 import de.dytanic.cloudnet.service.defaults.JVMService;
 import lombok.NonNull;
 
 public class JVMServiceFactory extends AbstractServiceFactory {
 
   private final CloudNet nodeInstance;
-  private final IEventManager eventManager;
+  private final EventManager eventManager;
 
-  public JVMServiceFactory(CloudNet nodeInstance, IEventManager eventManager) {
+  public JVMServiceFactory(CloudNet nodeInstance, EventManager eventManager) {
     this.nodeInstance = nodeInstance;
     this.eventManager = eventManager;
   }
 
   @Override
-  public @NonNull ICloudService createCloudService(
-    @NonNull ICloudServiceManager manager,
+  public @NonNull CloudService createCloudService(
+    @NonNull CloudServiceManager manager,
     @NonNull ServiceConfiguration configuration
   ) {
     // validates the settings of the configuration

@@ -21,7 +21,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import lombok.NonNull;
 
-public class DefaultModuleTaskEntry implements IModuleTaskEntry {
+public class DefaultModuleTaskEntry implements ModuleTaskEntry {
 
   /**
    * A simple format which allows unique method identifiers. Format: {@code <declaring class>@<method name>()}
@@ -30,7 +30,7 @@ public class DefaultModuleTaskEntry implements IModuleTaskEntry {
 
   protected final MethodHandle method;
   protected final ModuleTask moduleTask;
-  protected final IModuleWrapper moduleWrapper;
+  protected final ModuleWrapper moduleWrapper;
   protected final String fullMethodSignatureCached;
 
   /**
@@ -41,7 +41,7 @@ public class DefaultModuleTaskEntry implements IModuleTaskEntry {
    * @param method  the method which was annotated with {@link ModuleTask}.
    * @throws IllegalAccessException if access checking for the provided method fails.
    */
-  public DefaultModuleTaskEntry(IModuleWrapper wrapper, ModuleTask task, Method method) throws IllegalAccessException {
+  public DefaultModuleTaskEntry(ModuleWrapper wrapper, ModuleTask task, Method method) throws IllegalAccessException {
     this.moduleTask = task;
     this.moduleWrapper = wrapper;
     this.method = MethodHandles.lookup().unreflect(method);
@@ -54,7 +54,7 @@ public class DefaultModuleTaskEntry implements IModuleTaskEntry {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull IModule module() {
+  public @NonNull Module module() {
     return this.moduleWrapper.module();
   }
 
@@ -62,7 +62,7 @@ public class DefaultModuleTaskEntry implements IModuleTaskEntry {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull IModuleWrapper moduleWrapper() {
+  public @NonNull ModuleWrapper moduleWrapper() {
     return this.moduleWrapper;
   }
 

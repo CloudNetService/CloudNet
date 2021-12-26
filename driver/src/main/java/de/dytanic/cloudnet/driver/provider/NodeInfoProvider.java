@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.driver.provider;
 
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
-import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.concurrent.Task;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
@@ -95,7 +95,7 @@ public interface NodeInfoProvider {
   /**
    * @return the {@link CommandInfo} for each registered command
    */
-  default @NonNull ITask<Collection<CommandInfo>> consoleCommandsAsync() {
+  default @NonNull Task<Collection<CommandInfo>> consoleCommandsAsync() {
     return CompletableTask.supply(this::consoleCommands);
   }
 
@@ -103,7 +103,7 @@ public interface NodeInfoProvider {
    * @param commandLine the whole console input containing the command
    * @return the {@link CommandInfo} if there is a registered command - null otherwise
    */
-  default @NonNull ITask<CommandInfo> consoleCommandAsync(@NonNull String commandLine) {
+  default @NonNull Task<CommandInfo> consoleCommandAsync(@NonNull String commandLine) {
     return CompletableTask.supply(() -> this.consoleCommand(commandLine));
   }
 
@@ -115,7 +115,7 @@ public interface NodeInfoProvider {
    * @param commandLine the command with arguments to get the results from
    * @return a collection containing all unsorted results
    */
-  default @NonNull ITask<Collection<String>> consoleTabCompleteResultsAsync(@NonNull String commandLine) {
+  default @NonNull Task<Collection<String>> consoleTabCompleteResultsAsync(@NonNull String commandLine) {
     return CompletableTask.supply(() -> this.consoleTabCompleteResults(commandLine));
   }
 
@@ -126,7 +126,7 @@ public interface NodeInfoProvider {
    * @return the reponse of the node
    */
   @NonNull
-  default ITask<Collection<String>> sendCommandLineAsync(@NonNull String commandLine) {
+  default Task<Collection<String>> sendCommandLineAsync(@NonNull String commandLine) {
     return CompletableTask.supply(() -> this.sendCommandLine(commandLine));
   }
 
@@ -137,14 +137,14 @@ public interface NodeInfoProvider {
    * @return the response of the node
    */
   @NonNull
-  default ITask<Collection<String>> sendCommandLineToNodeAsync(@NonNull String nodeUniqueId, @NonNull String line) {
+  default Task<Collection<String>> sendCommandLineToNodeAsync(@NonNull String nodeUniqueId, @NonNull String line) {
     return CompletableTask.supply(() -> this.sendCommandLineToNode(nodeUniqueId, line));
   }
 
   /**
    * @return all nodes from the config of the node where the method is called on
    */
-  default @NonNull ITask<NetworkClusterNode[]> nodesAsync() {
+  default @NonNull Task<NetworkClusterNode[]> nodesAsync() {
     return CompletableTask.supply(this::nodes);
   }
 
@@ -153,14 +153,14 @@ public interface NodeInfoProvider {
    * @return {@link NetworkClusterNode} from the config of the node where the method is called on, null if there is no
    * entry in the config
    */
-  default @NonNull ITask<NetworkClusterNode> nodeAsync(@NonNull String uniqueId) {
+  default @NonNull Task<NetworkClusterNode> nodeAsync(@NonNull String uniqueId) {
     return CompletableTask.supply(() -> this.node(uniqueId));
   }
 
   /**
    * @return all {@link NetworkClusterNodeInfoSnapshot} of nodes that are still connected
    */
-  default @NonNull ITask<NetworkClusterNodeInfoSnapshot[]> nodeInfoSnapshotsAsync() {
+  default @NonNull Task<NetworkClusterNodeInfoSnapshot[]> nodeInfoSnapshotsAsync() {
     return CompletableTask.supply(this::nodeInfoSnapshots);
   }
 
@@ -168,7 +168,7 @@ public interface NodeInfoProvider {
    * @param uniqueId the uniqueId of the target node
    * @return the {@link NetworkClusterNodeInfoSnapshot} for the given uniqueId, null if there is no snapshot
    */
-  default @NonNull ITask<NetworkClusterNodeInfoSnapshot> nodeInfoSnapshotAsync(@NonNull String uniqueId) {
+  default @NonNull Task<NetworkClusterNodeInfoSnapshot> nodeInfoSnapshotAsync(@NonNull String uniqueId) {
     return CompletableTask.supply(() -> this.nodeInfoSnapshot(uniqueId));
   }
 }

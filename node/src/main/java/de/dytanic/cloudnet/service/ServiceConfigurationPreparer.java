@@ -22,5 +22,5 @@ import lombok.NonNull;
 @FunctionalInterface
 public interface ServiceConfigurationPreparer {
 
-  void configure(@NonNull CloudNet nodeInstance, @NonNull ICloudService cloudService);
+  void configure(@NonNull CloudNet nodeInstance, @NonNull CloudService cloudService);
 }

@@ -16,17 +16,17 @@
 
 package de.dytanic.cloudnet.driver.network.chunk.network;
 
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketHandler;
 import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.PacketListener;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import lombok.NonNull;
 
-public class ChunkedPacketListener implements IPacketListener {
+public class ChunkedPacketListener implements PacketListener {
 
   private final Function<ChunkSessionInformation, ChunkedPacketHandler> handlerFactory;
   private final Map<ChunkSessionInformation, ChunkedPacketHandler> runningSessions = new ConcurrentHashMap<>();
@@ -36,7 +36,7 @@ public class ChunkedPacketListener implements IPacketListener {
   }
 
   @Override
-  public void handle(@NonNull INetworkChannel channel, @NonNull IPacket packet) throws Exception {
+  public void handle(@NonNull NetworkChannel channel, @NonNull Packet packet) throws Exception {
     // read the chunk information from the buffer
     var information = packet.content().readObject(ChunkSessionInformation.class);
     // read the chunk index

@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.ext.rest.v2;
 
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
 import de.dytanic.cloudnet.http.HttpSession;
 import de.dytanic.cloudnet.http.V2HttpHandler;
 
@@ -27,7 +27,7 @@ public class V2HttpHandlerWebSocketTicket extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) {
+  protected void handleBearerAuthorized(String path, HttpContext context, HttpSession session) {
     var ticket = this.authentication.webSocketTicketManager().issueTicket(context.request(), session);
     this.ok(context)
       .body(

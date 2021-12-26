@@ -16,12 +16,12 @@
 
 package de.dytanic.cloudnet.event.task;
 
+import de.dytanic.cloudnet.driver.event.Cancelable;
 import de.dytanic.cloudnet.driver.event.Event;
-import de.dytanic.cloudnet.driver.event.ICancelable;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import lombok.NonNull;
 
-public class LocalServiceTaskAddEvent extends Event implements ICancelable {
+public class LocalServiceTaskAddEvent extends Event implements Cancelable {
 
   private final ServiceTask task;
   private volatile boolean cancelled;

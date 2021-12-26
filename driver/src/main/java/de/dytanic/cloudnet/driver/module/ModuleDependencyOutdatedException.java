@@ -33,7 +33,7 @@ public class ModuleDependencyOutdatedException extends RuntimeException {
    * @param actual          the actual running version of the semver index.
    */
   public ModuleDependencyOutdatedException(
-    @NonNull IModuleWrapper requiringModule,
+    @NonNull ModuleWrapper requiringModule,
     @NonNull ModuleDependency dependency,
     @NonNull String semverIndex,
     int required,

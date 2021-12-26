@@ -23,7 +23,7 @@ import lombok.NonNull;
 /**
  * A dependency loader which only creates a new url instance but will not save the dependency anywhere persistently.
  */
-public class DefaultMemoryModuleDependencyLoader implements IModuleDependencyLoader {
+public class DefaultMemoryModuleDependencyLoader implements ModuleDependencyLoader {
 
   /**
    * Represents a maven dependency download url in the format: {@code <repo-url><group>/<name>/<version>/<name>-<version>.jar}.

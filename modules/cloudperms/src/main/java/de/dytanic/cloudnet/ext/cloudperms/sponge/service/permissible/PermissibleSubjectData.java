@@ -16,9 +16,9 @@
 
 package de.dytanic.cloudnet.ext.cloudperms.sponge.service.permissible;
 
-import de.dytanic.cloudnet.driver.permission.IPermissible;
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.Permissible;
 import de.dytanic.cloudnet.driver.permission.Permission;
+import de.dytanic.cloudnet.driver.permission.PermissionManagement;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +35,7 @@ import org.spongepowered.api.service.permission.SubjectReference;
 import org.spongepowered.api.service.permission.TransferMethod;
 import org.spongepowered.api.util.Tristate;
 
-public abstract class PermissibleSubjectData<T extends IPermissible> implements SubjectData {
+public abstract class PermissibleSubjectData<T extends Permissible> implements SubjectData {
 
   private static final Map<Set<Context>, Tristate> UNDEFINED = Map.of(
     Collections.emptySet(),
@@ -45,13 +45,13 @@ public abstract class PermissibleSubjectData<T extends IPermissible> implements 
 
   protected final T permissible;
   protected final Subject subject;
-  protected final IPermissionManagement management;
+  protected final PermissionManagement management;
 
   public PermissibleSubjectData(
     boolean allowModify,
     T permissible,
     Subject subject,
-    IPermissionManagement management
+    PermissionManagement management
   ) {
     this.allowModify = allowModify;
     this.permissible = permissible;

@@ -20,7 +20,7 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.source.DriverCommandSource;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
-import de.dytanic.cloudnet.driver.module.IModuleWrapper;
+import de.dytanic.cloudnet.driver.module.ModuleWrapper;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
@@ -113,7 +113,7 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
       ProcessSnapshot.self(),
       this.cloudNet.config().maxCPUUsageToStartServices(),
       this.cloudNet.moduleProvider().modules().stream()
-        .map(IModuleWrapper::moduleConfiguration)
+        .map(ModuleWrapper::moduleConfiguration)
         .collect(Collectors.toSet()),
       this.currentSnapshot == null ? JsonDocument.newDocument() : this.currentSnapshot.properties());
     // configure the snapshot

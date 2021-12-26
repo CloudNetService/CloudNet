@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.ext.bridge.platform.listener;
 
 import de.dytanic.cloudnet.driver.event.EventListener;
-import de.dytanic.cloudnet.driver.event.IEventManager;
+import de.dytanic.cloudnet.driver.event.EventManager;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.ext.bridge.BridgeManagement;
@@ -41,11 +41,11 @@ import net.kyori.adventure.title.Title;
 
 public final class PlatformChannelMessageListener {
 
-  private final IEventManager eventManager;
+  private final EventManager eventManager;
   private final PlatformBridgeManagement<?, ?> management;
 
   public PlatformChannelMessageListener(
-    @NonNull IEventManager eventManager,
+    @NonNull EventManager eventManager,
     @NonNull PlatformBridgeManagement<?, ?> management
   ) {
     this.eventManager = eventManager;

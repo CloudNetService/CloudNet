@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.driver.service;
 
 import com.google.common.base.Verify;
-import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.concurrent.Task;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.document.property.JsonDocPropertyHolder;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -151,7 +151,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     return CloudNetDriver.instance().cloudServiceFactory().createCloudService(this);
   }
 
-  public @NonNull ITask<ServiceInfoSnapshot> createNewServiceAsync() {
+  public @NonNull Task<ServiceInfoSnapshot> createNewServiceAsync() {
     return CloudNetDriver.instance().cloudServiceFactory().createCloudServiceAsync(this);
   }
 

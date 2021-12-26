@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.wrapper.provider;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
-import de.dytanic.cloudnet.driver.network.INetworkComponent;
+import de.dytanic.cloudnet.driver.network.NetworkComponent;
 import de.dytanic.cloudnet.driver.network.def.PacketServerChannelMessage;
 import de.dytanic.cloudnet.driver.provider.CloudMessenger;
 import de.dytanic.cloudnet.driver.provider.DefaultMessenger;
@@ -31,7 +31,7 @@ public class WrapperMessenger extends DefaultMessenger implements CloudMessenger
 
   private static final Type MESSAGES = TypeToken.getParameterized(Collection.class, ChannelMessage.class).getType();
 
-  private final INetworkComponent component;
+  private final NetworkComponent component;
 
   public WrapperMessenger(@NonNull Wrapper wrapper) {
     this.component = wrapper.networkClient();

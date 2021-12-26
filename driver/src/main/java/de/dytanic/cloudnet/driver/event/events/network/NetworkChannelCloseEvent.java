@@ -16,14 +16,14 @@
 
 package de.dytanic.cloudnet.driver.event.events.network;
 
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import lombok.NonNull;
 
 public final class NetworkChannelCloseEvent extends NetworkEvent {
 
   private final ChannelType channelType;
 
-  public NetworkChannelCloseEvent(@NonNull INetworkChannel channel, @NonNull ChannelType channelType) {
+  public NetworkChannelCloseEvent(@NonNull NetworkChannel channel, @NonNull ChannelType channelType) {
     super(channel);
     this.channelType = channelType;
   }

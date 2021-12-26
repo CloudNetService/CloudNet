@@ -16,21 +16,21 @@
 
 package de.dytanic.cloudnet.event.network;
 
-import de.dytanic.cloudnet.cluster.IClusterNodeServer;
+import de.dytanic.cloudnet.cluster.ClusterNodeServer;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkEvent;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import lombok.NonNull;
 
 public final class NetworkClusterNodeAuthSuccessEvent extends NetworkEvent {
 
-  private final IClusterNodeServer node;
+  private final ClusterNodeServer node;
 
-  public NetworkClusterNodeAuthSuccessEvent(@NonNull IClusterNodeServer node, @NonNull INetworkChannel channel) {
+  public NetworkClusterNodeAuthSuccessEvent(@NonNull ClusterNodeServer node, @NonNull NetworkChannel channel) {
     super(channel);
     this.node = node;
   }
 
-  public @NonNull IClusterNodeServer node() {
+  public @NonNull ClusterNodeServer node() {
     return this.node;
   }
 }

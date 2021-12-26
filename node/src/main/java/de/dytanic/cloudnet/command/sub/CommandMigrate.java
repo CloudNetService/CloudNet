@@ -28,7 +28,7 @@ import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.command.source.ConsoleCommandSource;
-import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.Nameable;
 import de.dytanic.cloudnet.common.function.ThrowableConsumer;
 import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
@@ -60,7 +60,7 @@ public final class CommandMigrate {
   public List<String> suggestDatabaseProvider(CommandContext<CommandSource> $, String input) {
     return CloudNet.instance().servicesRegistry().services(AbstractDatabaseProvider.class)
       .stream()
-      .map(INameable::name)
+      .map(Nameable::name)
       .toList();
   }
 

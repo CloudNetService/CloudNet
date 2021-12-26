@@ -31,14 +31,14 @@ import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.command.source.ConsoleCommandSource;
-import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.JavaVersion;
+import de.dytanic.cloudnet.common.Nameable;
 import de.dytanic.cloudnet.common.WildcardUtil;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.column.ColumnFormatter;
 import de.dytanic.cloudnet.common.column.RowBasedFormatter;
 import de.dytanic.cloudnet.common.language.I18n;
-import de.dytanic.cloudnet.console.IConsole;
+import de.dytanic.cloudnet.console.Console;
 import de.dytanic.cloudnet.console.animation.setup.ConsoleSetupAnimation;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
@@ -87,9 +87,9 @@ public final class CommandTasks {
     .column(ServiceTask::startPort)
     .build();
 
-  private final IConsole console;
+  private final Console console;
 
-  public CommandTasks(IConsole console) {
+  public CommandTasks(Console console) {
     this.console = console;
   }
 
@@ -106,7 +106,7 @@ public final class CommandTasks {
 
   @Suggestions("serviceTask")
   public List<String> suggestTask(CommandContext<CommandSource> $, String input) {
-    return this.taskProvider().permanentServiceTasks().stream().map(INameable::name).toList();
+    return this.taskProvider().permanentServiceTasks().stream().map(Nameable::name).toList();
   }
 
   @Parser(suggestions = "serviceTask")

@@ -23,7 +23,7 @@ import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.ext.cloudflare.CloudflareConfigurationEntry;
 import de.dytanic.cloudnet.ext.cloudflare.dns.DNSRecord;
-import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.service.CloudService;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.UUID;
@@ -85,7 +85,7 @@ public class CloudFlareAPI implements AutoCloseable {
     return this.deleteRecord(recordDetail.configurationEntry(), recordDetail.id());
   }
 
-  public @NonNull Collection<DnsRecordDetail> deleteAllRecords(@NonNull ICloudService service) {
+  public @NonNull Collection<DnsRecordDetail> deleteAllRecords(@NonNull CloudService service) {
     return this.deleteAllRecords(service.serviceId().uniqueId());
   }
 

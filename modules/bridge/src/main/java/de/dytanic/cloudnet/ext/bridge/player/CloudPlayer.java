@@ -95,7 +95,7 @@ public class CloudPlayer extends CloudOfflinePlayer {
 
   public PlayerExecutor playerExecutor() {
     return CloudNetDriver.instance().servicesRegistry()
-      .firstService(IPlayerManager.class)
+      .firstService(PlayerManager.class)
       .playerExecutor(this.uniqueId());
   }
 }

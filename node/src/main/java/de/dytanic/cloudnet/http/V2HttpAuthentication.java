@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.network.http.IHttpRequest;
+import de.dytanic.cloudnet.driver.network.http.HttpRequest;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.http.ticket.WebSocketTicketManager;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -80,7 +80,7 @@ public class V2HttpAuthentication {
     return this.generateJwt(subject, session);
   }
 
-  public @NonNull LoginResult<PermissionUser> handleBasicLoginRequest(@NonNull IHttpRequest request) {
+  public @NonNull LoginResult<PermissionUser> handleBasicLoginRequest(@NonNull HttpRequest request) {
     var authenticationHeader = request.header("Authorization");
     if (authenticationHeader == null) {
       return LoginResult.undefinedFailure();
@@ -104,7 +104,7 @@ public class V2HttpAuthentication {
     return LoginResult.undefinedFailure();
   }
 
-  public @NonNull LoginResult<HttpSession> handleBearerLoginRequest(@NonNull IHttpRequest request) {
+  public @NonNull LoginResult<HttpSession> handleBearerLoginRequest(@NonNull HttpRequest request) {
     var authenticationHeader = request.header("Authorization");
     if (authenticationHeader == null) {
       return LoginResult.undefinedFailure();
@@ -141,7 +141,7 @@ public class V2HttpAuthentication {
     return LoginResult.undefinedFailure();
   }
 
-  public boolean expireSession(@NonNull IHttpRequest request) {
+  public boolean expireSession(@NonNull HttpRequest request) {
     var session = this.handleBearerLoginRequest(request);
     if (session.succeeded()) {
       return this.expireSession(session.result());
@@ -154,7 +154,7 @@ public class V2HttpAuthentication {
     return this.sessions.remove(session.user().uniqueId().toString()) != null;
   }
 
-  public @NonNull LoginResult<Pair<HttpSession, String>> refreshJwt(@NonNull IHttpRequest request, long lifetime) {
+  public @NonNull LoginResult<Pair<HttpSession, String>> refreshJwt(@NonNull HttpRequest request, long lifetime) {
     var session = this.handleBearerLoginRequest(request);
     if (session.succeeded()) {
       var httpSession = session.result();

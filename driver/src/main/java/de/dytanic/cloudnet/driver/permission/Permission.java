@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.driver.permission;
 
-import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.Nameable;
 import java.util.concurrent.TimeUnit;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Contract;
 
 @ToString
 @EqualsAndHashCode
-public final class Permission implements INameable, Comparable<Permission> {
+public final class Permission implements Nameable, Comparable<Permission> {
 
   private final String name;
 

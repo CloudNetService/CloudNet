@@ -21,7 +21,7 @@ import java.util.UUID;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface CachedPermissionManagement extends IPermissionManagement {
+public interface CachedPermissionManagement extends PermissionManagement {
 
   @NonNull Map<UUID, PermissionUser> cachedPermissionUsers();
 

@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.network.listener.message;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.driver.event.EventListener;
-import de.dytanic.cloudnet.driver.event.IEventManager;
+import de.dytanic.cloudnet.driver.event.EventManager;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.group.GroupConfigurationAddEvent;
 import de.dytanic.cloudnet.driver.event.events.group.GroupConfigurationRemoveEvent;
@@ -33,11 +33,11 @@ public final class GroupChannelMessageListener {
 
   private static final Type GROUPS = TypeToken.getParameterized(Collection.class, GroupConfiguration.class).getType();
 
-  private final IEventManager eventManager;
+  private final EventManager eventManager;
   private final NodeGroupConfigurationProvider groupProvider;
 
   public GroupChannelMessageListener(
-    @NonNull IEventManager eventManager,
+    @NonNull EventManager eventManager,
     @NonNull NodeGroupConfigurationProvider groupProvider
   ) {
     this.eventManager = eventManager;

@@ -28,7 +28,7 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
-import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.Nameable;
 import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -81,7 +81,7 @@ public class CommandPlayers {
   @Suggestions("onlinePlayers")
   public List<String> suggestOnlinePlayers(CommandContext<?> $, String input) {
     return this.playerManager.players().values().stream()
-      .map(INameable::name)
+      .map(Nameable::name)
       .toList();
   }
 
@@ -101,7 +101,7 @@ public class CommandPlayers {
     return CloudNet.instance().cloudServiceProvider().services()
       .stream()
       .filter(snapshot -> ServiceEnvironmentType.isMinecraftServer(snapshot.serviceId().environment()))
-      .map(INameable::name)
+      .map(Nameable::name)
       .toList();
   }
 

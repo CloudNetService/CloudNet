@@ -17,9 +17,9 @@
 package de.dytanic.cloudnet.driver.module.driver;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.common.registry.IServicesRegistry;
+import de.dytanic.cloudnet.common.registry.ServicesRegistry;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.event.IEventManager;
+import de.dytanic.cloudnet.driver.event.EventManager;
 import de.dytanic.cloudnet.driver.module.DefaultModule;
 import de.dytanic.cloudnet.driver.network.rpc.RPCProviderFactory;
 import java.nio.file.Path;
@@ -40,15 +40,15 @@ public class DriverModule extends DefaultModule {
     return this.moduleWrapper().dataDirectory().resolve("config.json");
   }
 
-  public final @NonNull IEventManager registerListener(Object @NonNull ... listener) {
+  public final @NonNull EventManager registerListener(Object @NonNull ... listener) {
     return this.eventManager().registerListeners(listener);
   }
 
-  public final @NonNull IServicesRegistry serviceRegistry() {
+  public final @NonNull ServicesRegistry serviceRegistry() {
     return this.driver().servicesRegistry();
   }
 
-  public final @NonNull IEventManager eventManager() {
+  public final @NonNull EventManager eventManager() {
     return this.driver().eventManager();
   }
 

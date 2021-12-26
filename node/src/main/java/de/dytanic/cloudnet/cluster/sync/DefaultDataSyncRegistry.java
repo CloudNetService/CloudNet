@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
-import de.dytanic.cloudnet.console.IConsole;
+import de.dytanic.cloudnet.console.Console;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import java.util.Arrays;
 import java.util.Collection;
@@ -196,7 +196,7 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
     target.writeDataBuf(buf);
   }
 
-  protected int waitForCorrectMergeInput(@NonNull IConsole console) {
+  protected int waitForCorrectMergeInput(@NonNull Console console) {
     try {
       // disable all handlers of the console to prevent skips
       console.disableAllHandlers();
@@ -208,7 +208,7 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
     }
   }
 
-  protected int readMergeInput(@NonNull IConsole console) {
+  protected int readMergeInput(@NonNull Console console) {
     while (true) {
       // wait for an input
       var input = console.readLine().getDef(null);

@@ -17,13 +17,13 @@
 package eu.cloudnetservice.cloudnet.ext.report.paste.emitter.defaults.service;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.service.CloudService;
 import eu.cloudnetservice.cloudnet.ext.report.paste.emitter.ReportDataEmitter;
 
-public class ServiceOverviewEmitter implements ReportDataEmitter<ICloudService> {
+public class ServiceOverviewEmitter implements ReportDataEmitter<CloudService> {
 
   @Override
-  public void emitData(StringBuilder builder, ICloudService service) {
+  public void emitData(StringBuilder builder, CloudService service) {
     var services = CloudNet.instance().cloudServiceProvider().services();
     builder.append(" - Other Services - \n");
     builder.append("Total services: ").append(services.size()).append("\n");

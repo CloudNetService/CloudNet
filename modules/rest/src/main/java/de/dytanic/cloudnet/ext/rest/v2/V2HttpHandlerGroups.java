@@ -16,8 +16,8 @@
 
 package de.dytanic.cloudnet.ext.rest.v2;
 
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.provider.GroupConfigurationProvider;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.http.HttpSession;
@@ -31,7 +31,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) {
+  protected void handleBearerAuthorized(String path, HttpContext context, HttpSession session) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.endsWith("/group")) {
         this.handleGroupListRequest(context);
@@ -47,7 +47,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
     }
   }
 
-  protected void handleGroupListRequest(IHttpContext context) {
+  protected void handleGroupListRequest(HttpContext context) {
     this.ok(context)
       .body(this.success().append("groups", this.groupProvider().groupConfigurations()).toString())
       .context()
@@ -55,7 +55,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleGroupExistsRequest(IHttpContext context) {
+  protected void handleGroupExistsRequest(HttpContext context) {
     this.handleWithGroupContext(context, name -> this.ok(context)
       .body(this.success().append("result", this.groupProvider().groupConfigurationPresent(name)).toString())
       .context()
@@ -64,7 +64,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
     );
   }
 
-  protected void handleGroupRequest(IHttpContext context) {
+  protected void handleGroupRequest(HttpContext context) {
     this.handleWithGroupContext(context, name -> {
       var configuration = this.groupProvider().groupConfiguration(name);
       if (configuration == null) {
@@ -83,7 +83,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
     });
   }
 
-  protected void handleCreateGroupRequest(IHttpContext context) {
+  protected void handleCreateGroupRequest(HttpContext context) {
     var configuration = this.body(context.request()).toInstanceOf(GroupConfiguration.class);
     if (configuration == null) {
       this.badRequest(context)
@@ -102,7 +102,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleDeleteGroupRequest(IHttpContext context) {
+  protected void handleDeleteGroupRequest(HttpContext context) {
     this.handleWithGroupContext(context, name -> {
       if (this.groupProvider().groupConfigurationPresent(name)) {
         this.groupProvider().removeGroupConfigurationByName(name);
@@ -121,7 +121,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
     });
   }
 
-  protected void handleWithGroupContext(IHttpContext context, Consumer<String> handler) {
+  protected void handleWithGroupContext(HttpContext context, Consumer<String> handler) {
     var groupName = context.request().pathParameters().get("group");
     if (groupName == null) {
       this.badRequest(context)

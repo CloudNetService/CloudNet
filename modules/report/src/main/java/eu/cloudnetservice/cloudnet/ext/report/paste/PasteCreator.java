@@ -18,7 +18,7 @@ package eu.cloudnetservice.cloudnet.ext.report.paste;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
-import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.service.CloudService;
 import eu.cloudnetservice.cloudnet.ext.report.config.PasteService;
 import eu.cloudnetservice.cloudnet.ext.report.paste.emitter.EmitterRegistry;
 import lombok.NonNull;
@@ -32,8 +32,8 @@ public record PasteCreator(@NonNull PasteService pasteService, @NonNull EmitterR
    * @param service the service to collect the data for
    * @return the resulting url after uploading collected the content
    */
-  public @Nullable String createServicePaste(@NonNull ICloudService service) {
-    return this.pasteContent(this.collectData(ICloudService.class, service));
+  public @Nullable String createServicePaste(@NonNull CloudService service) {
+    return this.pasteContent(this.collectData(CloudService.class, service));
   }
 
   /**

@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.ext.rest.v2;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.driver.database.DatabaseProvider;
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
 import de.dytanic.cloudnet.ext.rest.RestUtils;
 import de.dytanic.cloudnet.http.HttpSession;
 import de.dytanic.cloudnet.http.V2HttpHandler;
@@ -32,7 +32,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) {
+  protected void handleBearerAuthorized(String path, HttpContext context, HttpSession session) {
     if (context.request().method().equals("GET")) {
       if (path.endsWith("/contains")) {
         // contains in a specific database
@@ -67,7 +67,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
     }
   }
 
-  protected void handleNamesRequest(IHttpContext context) {
+  protected void handleNamesRequest(HttpContext context) {
     this.ok(context)
       .body(this.success().append("names", this.databaseProvider().databaseNames()).toString())
       .context()
@@ -75,7 +75,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleClearRequest(IHttpContext context) {
+  protected void handleClearRequest(HttpContext context) {
     var database = this.database(context);
     if (database == null) {
       this.sendInvalidDatabaseName(context);
@@ -89,7 +89,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleContainsRequest(IHttpContext context) {
+  protected void handleContainsRequest(HttpContext context) {
     var database = this.database(context);
     if (database == null) {
       this.sendInvalidDatabaseName(context);
@@ -112,7 +112,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleGetRequest(IHttpContext context) {
+  protected void handleGetRequest(HttpContext context) {
     var database = this.database(context);
     if (database == null) {
       this.sendInvalidDatabaseName(context);
@@ -131,7 +131,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleKeysRequest(IHttpContext context) {
+  protected void handleKeysRequest(HttpContext context) {
     var database = this.database(context);
     if (database == null) {
       this.sendInvalidDatabaseName(context);
@@ -146,7 +146,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
 
   }
 
-  protected void handleCountRequest(IHttpContext context) {
+  protected void handleCountRequest(HttpContext context) {
     var database = this.database(context);
     if (database == null) {
       this.sendInvalidDatabaseName(context);
@@ -160,7 +160,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleInsertRequest(IHttpContext context) {
+  protected void handleInsertRequest(HttpContext context) {
     var database = this.database(context);
     if (database == null) {
       this.sendInvalidDatabaseName(context);
@@ -176,7 +176,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
     });
   }
 
-  protected void handleUpdateRequest(IHttpContext context) {
+  protected void handleUpdateRequest(HttpContext context) {
     var database = this.database(context);
     if (database == null) {
       this.sendInvalidDatabaseName(context);
@@ -192,7 +192,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
     });
   }
 
-  protected void handleDeleteRequest(IHttpContext context) {
+  protected void handleDeleteRequest(HttpContext context) {
     var database = this.database(context);
     if (database == null) {
       this.sendInvalidDatabaseName(context);
@@ -207,7 +207,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
     }
   }
 
-  protected void withContextData(IHttpContext context, BiConsumer<String, JsonDocument> handler) {
+  protected void withContextData(HttpContext context, BiConsumer<String, JsonDocument> handler) {
     var body = this.body(context.request());
     var key = body.getString("key");
     var data = body.getDocument("document");
@@ -224,7 +224,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
     handler.accept(key, data);
   }
 
-  protected void sendInvalidDatabaseName(IHttpContext context) {
+  protected void sendInvalidDatabaseName(HttpContext context) {
     this.badRequest(context)
       .body(this.failure().append("reason", "No such database").toString())
       .context()
@@ -236,7 +236,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
     return this.node().databaseProvider();
   }
 
-  protected Database database(IHttpContext context) {
+  protected Database database(HttpContext context) {
     var name = context.request().pathParameters().get("name");
     return name == null ? null : this.database(name);
   }

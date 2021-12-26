@@ -48,7 +48,7 @@ public final class WildcardUtil {
    * @see #filterWildcard(Collection, String, boolean)
    */
   @NonNull
-  public static <T extends INameable> Collection<T> filterWildcard(
+  public static <T extends Nameable> Collection<T> filterWildcard(
     @NonNull Collection<T> inputValues,
     @NonNull String regex
   ) {
@@ -63,7 +63,7 @@ public final class WildcardUtil {
    * @return {@code true} if any of the values matches the given regex.
    * @see #anyMatch(Collection, String, boolean)
    */
-  public static boolean anyMatch(@NonNull Collection<? extends INameable> values, @NonNull String regex) {
+  public static boolean anyMatch(@NonNull Collection<? extends Nameable> values, @NonNull String regex) {
     return anyMatch(values, regex, true);
   }
 
@@ -77,7 +77,7 @@ public final class WildcardUtil {
    * @return all input values matching the given pattern.
    */
   @NonNull
-  public static <T extends INameable> Collection<T> filterWildcard(
+  public static <T extends Nameable> Collection<T> filterWildcard(
     @NonNull Collection<T> inputValues,
     @NonNull String regex,
     boolean caseSensitive
@@ -101,7 +101,7 @@ public final class WildcardUtil {
    * @return {@code true} if any of the values matches the given regex.
    */
   public static boolean anyMatch(
-    @NonNull Collection<? extends INameable> values,
+    @NonNull Collection<? extends Nameable> values,
     @NonNull String regex,
     boolean caseSensitive
   ) {

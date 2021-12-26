@@ -16,11 +16,11 @@
 
 package de.dytanic.cloudnet.driver.network.chunk;
 
-import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.common.concurrent.Task;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.chunk.defaults.builder.FileChunkedPacketSenderBuilder;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.UUID;
@@ -35,9 +35,9 @@ public interface ChunkedPacketSender extends ChunkedPacketProvider {
 
   @NonNull InputStream source();
 
-  @NonNull Consumer<IPacket> packetSplitter();
+  @NonNull Consumer<Packet> packetSplitter();
 
-  @NonNull ITask<TransferStatus> transferChunkedData();
+  @NonNull Task<TransferStatus> transferChunkedData();
 
   interface Builder {
 
@@ -49,11 +49,11 @@ public interface ChunkedPacketSender extends ChunkedPacketProvider {
 
     @NonNull Builder source(@NonNull InputStream source);
 
-    @NonNull Builder toChannels(INetworkChannel @NonNull ... channels);
+    @NonNull Builder toChannels(NetworkChannel @NonNull ... channels);
 
-    @NonNull Builder toChannels(@NonNull Collection<INetworkChannel> channels);
+    @NonNull Builder toChannels(@NonNull Collection<NetworkChannel> channels);
 
-    @NonNull Builder packetSplitter(@NonNull Consumer<IPacket> splitter);
+    @NonNull Builder packetSplitter(@NonNull Consumer<Packet> splitter);
 
     @NonNull Builder withExtraData(@NonNull DataBuf extraData);
 

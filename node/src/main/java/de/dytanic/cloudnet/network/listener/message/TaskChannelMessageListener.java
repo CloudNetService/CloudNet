@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.network.listener.message;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.driver.event.EventListener;
-import de.dytanic.cloudnet.driver.event.IEventManager;
+import de.dytanic.cloudnet.driver.event.EventManager;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.task.ServiceTaskAddEvent;
 import de.dytanic.cloudnet.driver.event.events.task.ServiceTaskRemoveEvent;
@@ -33,11 +33,11 @@ public final class TaskChannelMessageListener {
 
   private static final Type COL_TASKS = TypeToken.getParameterized(Collection.class, ServiceTask.class).getType();
 
-  private final IEventManager eventManager;
+  private final EventManager eventManager;
   private final NodeServiceTaskProvider taskProvider;
 
   public TaskChannelMessageListener(
-    @NonNull IEventManager eventManager,
+    @NonNull EventManager eventManager,
     @NonNull NodeServiceTaskProvider taskProvider
   ) {
     this.eventManager = eventManager;

@@ -16,9 +16,9 @@
 
 package de.dytanic.cloudnet.ext.cloudperms.sponge.service.permissible;
 
-import de.dytanic.cloudnet.driver.permission.IPermissible;
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.Permissible;
 import de.dytanic.cloudnet.driver.permission.Permission;
+import de.dytanic.cloudnet.driver.permission.PermissionManagement;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -30,14 +30,14 @@ import org.spongepowered.api.service.permission.SubjectCollection;
 import org.spongepowered.api.service.permission.SubjectReference;
 import org.spongepowered.api.util.Tristate;
 
-public abstract class AbstractSubject<T extends IPermissible> implements Subject {
+public abstract class AbstractSubject<T extends Permissible> implements Subject {
 
   protected final T data;
   protected final String identifier;
   protected final SubjectCollection source;
-  protected final IPermissionManagement permissionManagement;
+  protected final PermissionManagement permissionManagement;
 
-  public AbstractSubject(String identifier, SubjectCollection source, T data, IPermissionManagement management) {
+  public AbstractSubject(String identifier, SubjectCollection source, T data, PermissionManagement management) {
     this.identifier = identifier;
     this.source = source;
     this.data = data;

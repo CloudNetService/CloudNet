@@ -32,9 +32,9 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.UnmodifiableView;
 
-public class ListenableTask<V> extends FutureTask<V> implements ITask<V> {
+public class ListenableTask<V> extends FutureTask<V> implements Task<V> {
 
-  private volatile Collection<ITaskListener<V>> listeners;
+  private volatile Collection<TaskListener<V>> listeners;
 
   public ListenableTask(@NonNull Callable<V> callable) {
     super(callable);
@@ -70,13 +70,13 @@ public class ListenableTask<V> extends FutureTask<V> implements ITask<V> {
   }
 
   @Override
-  public @NonNull ITask<V> addListener(@NonNull ITaskListener<V> listener) {
+  public @NonNull Task<V> addListener(@NonNull TaskListener<V> listener) {
     this.initListeners().add(listener);
     return this;
   }
 
   @Override
-  public @NonNull ITask<V> clearListeners() {
+  public @NonNull Task<V> clearListeners() {
     // we don't need to initialize the listeners field here
     if (this.listeners != null) {
       this.listeners.clear();
@@ -86,7 +86,7 @@ public class ListenableTask<V> extends FutureTask<V> implements ITask<V> {
   }
 
   @Override
-  public @UnmodifiableView @NonNull Collection<ITaskListener<V>> listeners() {
+  public @UnmodifiableView @NonNull Collection<TaskListener<V>> listeners() {
     return this.listeners == null ? Collections.emptyList() : Collections.unmodifiableCollection(this.listeners);
   }
 
@@ -109,7 +109,7 @@ public class ListenableTask<V> extends FutureTask<V> implements ITask<V> {
   }
 
   @Override
-  public @NonNull <T> ITask<T> map(@NonNull ThrowableFunction<V, T, Throwable> mapper) {
+  public @NonNull <T> Task<T> map(@NonNull ThrowableFunction<V, T, Throwable> mapper) {
     return CompletableTask.supply(() -> mapper.apply(this.get()));
   }
 
@@ -118,7 +118,7 @@ public class ListenableTask<V> extends FutureTask<V> implements ITask<V> {
     return super.runAndReset();
   }
 
-  protected @NonNull Collection<ITaskListener<V>> initListeners() {
+  protected @NonNull Collection<TaskListener<V>> initListeners() {
     // ConcurrentLinkedQueue gives us O(1) insertion using CAS - results under moderate
     // load in the fastest insert and read times
     return Objects.requireNonNullElseGet(this.listeners, () -> this.listeners = new ConcurrentLinkedQueue<>());

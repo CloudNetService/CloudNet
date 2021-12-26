@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.wrapper.network.listener.message;
 
 import de.dytanic.cloudnet.driver.event.EventListener;
-import de.dytanic.cloudnet.driver.event.IEventManager;
+import de.dytanic.cloudnet.driver.event.EventManager;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.permission.PermissionAddGroupEvent;
 import de.dytanic.cloudnet.driver.event.events.permission.PermissionAddUserEvent;
@@ -27,20 +27,20 @@ import de.dytanic.cloudnet.driver.event.events.permission.PermissionSetGroupsEve
 import de.dytanic.cloudnet.driver.event.events.permission.PermissionUpdateGroupEvent;
 import de.dytanic.cloudnet.driver.event.events.permission.PermissionUpdateUserEvent;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
+import de.dytanic.cloudnet.driver.permission.PermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import java.util.Collection;
 import lombok.NonNull;
 
 public final class PermissionChannelMessageListener {
 
-  private final IEventManager eventManager;
-  private final IPermissionManagement permissionManagement;
+  private final EventManager eventManager;
+  private final PermissionManagement permissionManagement;
 
   public PermissionChannelMessageListener(
-    @NonNull IEventManager eventManager,
-    @NonNull IPermissionManagement management
+    @NonNull EventManager eventManager,
+    @NonNull PermissionManagement management
   ) {
     this.eventManager = eventManager;
     this.permissionManagement = management;

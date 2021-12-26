@@ -16,11 +16,11 @@
 
 package de.dytanic.cloudnet.command.source;
 
-import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.Nameable;
 import java.util.Collection;
 import lombok.NonNull;
 
-public interface CommandSource extends INameable {
+public interface CommandSource extends Nameable {
 
   /**
    * @return the console command source instance

@@ -40,29 +40,29 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Unmodifiable;
 
 /**
- * A default implementation of an {@link IModuleWrapper}.
+ * A default implementation of an {@link ModuleWrapper}.
  */
-public class DefaultModuleWrapper implements IModuleWrapper {
+public class DefaultModuleWrapper implements ModuleWrapper {
 
   protected static final Logger LOGGER = LogManager.logger(DefaultModuleWrapper.class);
   // This looks strange in the first place but is the only way to go as java generics are a bit strange.
   // When using Comparator.comparingInt(...).reverse() the type is now a Comparator<Object> which leads to problems
   // extracting the key of the task entry... And yes, reversing is necessary as the module task with the highest order
   // should be called first but the natural ordering of java sorts the lowest number first.
-  protected static final Comparator<IModuleTaskEntry> TASK_COMPARATOR = Comparator.comparing(
+  protected static final Comparator<ModuleTaskEntry> TASK_COMPARATOR = Comparator.comparing(
     entry -> entry.taskInfo().order(), Comparator.reverseOrder());
 
   private final URL source;
   private final URI sourceUri;
-  private final IModule module;
+  private final Module module;
   private final Path dataDirectory;
-  private final IModuleProvider provider;
+  private final ModuleProvider provider;
   private final URLClassLoader classLoader;
   private final Set<ModuleDependency> dependingModules;
   private final ModuleConfiguration moduleConfiguration;
 
   private final Lock moduleLifecycleUpdateLock = new ReentrantLock();
-  private final Map<ModuleLifeCycle, List<IModuleTaskEntry>> tasks = new EnumMap<>(ModuleLifeCycle.class);
+  private final Map<ModuleLifeCycle, List<ModuleTaskEntry>> tasks = new EnumMap<>(ModuleLifeCycle.class);
   private final AtomicReference<ModuleLifeCycle> lifeCycle = new AtomicReference<>(ModuleLifeCycle.CREATED);
 
   /**
@@ -79,9 +79,9 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    */
   public DefaultModuleWrapper(
     URL source,
-    IModule module,
+    Module module,
     Path dataDirectory,
-    IModuleProvider provider,
+    ModuleProvider provider,
     URLClassLoader classLoader,
     Set<ModuleDependency> dependingModules,
     ModuleConfiguration moduleConfiguration
@@ -103,7 +103,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull Map<ModuleLifeCycle, List<IModuleTaskEntry>> moduleTasks() {
+  public @NonNull Map<ModuleLifeCycle, List<ModuleTaskEntry>> moduleTasks() {
     return Collections.unmodifiableMap(this.tasks);
   }
 
@@ -119,7 +119,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull IModule module() {
+  public @NonNull Module module() {
     return this.module;
   }
 
@@ -135,7 +135,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull IModuleProvider moduleProvider() {
+  public @NonNull ModuleProvider moduleProvider() {
     return this.provider;
   }
 
@@ -159,7 +159,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull IModuleWrapper loadModule() {
+  public @NonNull ModuleWrapper loadModule() {
     this.pushLifecycleChange(ModuleLifeCycle.LOADED, true);
     return this;
   }
@@ -168,7 +168,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull IModuleWrapper startModule() {
+  public @NonNull ModuleWrapper startModule() {
     if (this.moduleLifeCycle().canChangeTo(ModuleLifeCycle.STARTED)
       && this.provider.notifyPreModuleLifecycleChange(this, ModuleLifeCycle.STARTED)) {
       // Resolve all dependencies of this module to start them before this module
@@ -187,7 +187,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull IModuleWrapper reloadModule() {
+  public @NonNull ModuleWrapper reloadModule() {
     if (this.moduleLifeCycle().canChangeTo(ModuleLifeCycle.RELOADING)
       && this.provider.notifyPreModuleLifecycleChange(this, ModuleLifeCycle.RELOADING)) {
       // Resolve all dependencies of this module to reload them before this module
@@ -208,7 +208,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull IModuleWrapper stopModule() {
+  public @NonNull ModuleWrapper stopModule() {
     this.pushLifecycleChange(ModuleLifeCycle.STOPPED, true);
     return this;
   }
@@ -217,7 +217,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull IModuleWrapper unloadModule() {
+  public @NonNull ModuleWrapper unloadModule() {
     if (this.moduleLifeCycle().canChangeTo(ModuleLifeCycle.UNLOADED)) {
       this.pushLifecycleChange(ModuleLifeCycle.UNLOADED, true);
       // remove all known module tasks & dependencies
@@ -271,8 +271,8 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * @param module the module instance (better known as the module main class) to resolve the tasks of.
    * @return all sorted resolved tasks mapped to the lifecycle they will be called in.
    */
-  protected @NonNull Map<ModuleLifeCycle, List<IModuleTaskEntry>> resolveModuleTasks(@NonNull IModule module) {
-    Map<ModuleLifeCycle, List<IModuleTaskEntry>> result = new EnumMap<>(ModuleLifeCycle.class);
+  protected @NonNull Map<ModuleLifeCycle, List<ModuleTaskEntry>> resolveModuleTasks(@NonNull Module module) {
+    Map<ModuleLifeCycle, List<ModuleTaskEntry>> result = new EnumMap<>(ModuleLifeCycle.class);
     // check all declared methods to get all methods of this and super classes
     for (var method : module.getClass().getDeclaredMethods()) {
       // check if this method is a method we need to register
@@ -350,7 +350,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * @param entry the entry to fire.
    * @return {@code true} if the entry couldn't be fired successfully, {@code false} otherwise.
    */
-  protected boolean fireModuleTaskEntry(@NonNull IModuleTaskEntry entry) {
+  protected boolean fireModuleTaskEntry(@NonNull ModuleTaskEntry entry) {
     try {
       entry.fire();
       return false;

@@ -19,7 +19,7 @@ package eu.cloudnetservice.cloudnet.ext.signs.node.util;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.util.DefaultModuleHelper;
-import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.service.CloudService;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignsConfiguration;
 import java.util.Collection;
 import lombok.NonNull;
@@ -32,7 +32,7 @@ public final class SignPluginInclusion {
     throw new UnsupportedOperationException();
   }
 
-  public static void includePluginTo(@NonNull ICloudService cloudService, @NonNull SignsConfiguration configuration) {
+  public static void includePluginTo(@NonNull CloudService cloudService, @NonNull SignsConfiguration configuration) {
     var type = cloudService.serviceConfiguration().serviceId().environment();
     if (ServiceEnvironmentType.isMinecraftServer(type)
       && hasConfigurationEntry(cloudService.serviceConfiguration().groups(), configuration)) {

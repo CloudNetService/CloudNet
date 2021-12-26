@@ -16,8 +16,8 @@
 
 package de.dytanic.cloudnet.ext.cloudperms.bungee;
 
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.Permission;
+import de.dytanic.cloudnet.driver.permission.PermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
 import java.util.UUID;
 import lombok.NonNull;
@@ -35,9 +35,9 @@ import net.md_5.bungee.event.EventPriority;
 
 public final class BungeeCloudPermissionsPlayerListener implements Listener {
 
-  private final IPermissionManagement permissionsManagement;
+  private final PermissionManagement permissionsManagement;
 
-  public BungeeCloudPermissionsPlayerListener(IPermissionManagement permissionsManagement) {
+  public BungeeCloudPermissionsPlayerListener(PermissionManagement permissionsManagement) {
     this.permissionsManagement = permissionsManagement;
   }
 

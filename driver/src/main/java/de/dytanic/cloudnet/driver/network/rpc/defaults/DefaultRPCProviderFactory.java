@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.driver.network.rpc.defaults;
 
-import de.dytanic.cloudnet.driver.network.INetworkComponent;
+import de.dytanic.cloudnet.driver.network.NetworkComponent;
 import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
 import de.dytanic.cloudnet.driver.network.rpc.RPCHandler;
 import de.dytanic.cloudnet.driver.network.rpc.RPCProviderFactory;
@@ -48,13 +48,13 @@ public class DefaultRPCProviderFactory implements RPCProviderFactory {
   }
 
   @Override
-  public @NonNull RPCSender providerForClass(@Nullable INetworkComponent component, @NonNull Class<?> clazz) {
+  public @NonNull RPCSender providerForClass(@Nullable NetworkComponent component, @NonNull Class<?> clazz) {
     return this.providerForClass(component, clazz, this.defaultObjectMapper, this.defaultDataBufFactory);
   }
 
   @Override
   public @NonNull RPCSender providerForClass(
-    @Nullable INetworkComponent component,
+    @Nullable NetworkComponent component,
     @NonNull Class<?> clazz,
     @NonNull ObjectMapper objectMapper,
     @NonNull DataBufFactory dataBufFactory

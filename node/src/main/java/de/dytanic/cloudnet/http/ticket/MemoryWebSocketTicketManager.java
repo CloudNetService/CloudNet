@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.http.ticket;
 
 import de.dytanic.cloudnet.common.StringUtil;
 import de.dytanic.cloudnet.common.encrypt.EncryptTo;
-import de.dytanic.cloudnet.driver.network.http.IHttpRequest;
+import de.dytanic.cloudnet.driver.network.http.HttpRequest;
 import de.dytanic.cloudnet.http.HttpSession;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
@@ -60,13 +60,13 @@ public class MemoryWebSocketTicketManager implements WebSocketTicketManager {
   }
 
   @Override
-  public @NonNull WebSocketTicket issueTicket(@NonNull IHttpRequest request, @NonNull HttpSession httpSession) {
+  public @NonNull WebSocketTicket issueTicket(@NonNull HttpRequest request, @NonNull HttpSession httpSession) {
     return this.issueTicket(request, httpSession, DEFAULT_TICKET_TIMEOUT);
   }
 
   @Override
   public @NonNull WebSocketTicket issueTicket(
-    @NonNull IHttpRequest request,
+    @NonNull HttpRequest request,
     @NonNull HttpSession session,
     long timeout
   ) {

@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.driver.network.rpc;
 
-import de.dytanic.cloudnet.driver.network.INetworkComponent;
+import de.dytanic.cloudnet.driver.network.NetworkComponent;
 import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
 import lombok.NonNull;
@@ -28,9 +28,9 @@ public interface RPCProviderFactory {
 
   @NonNull DataBufFactory defaultDataBufFactory();
 
-  @NonNull RPCSender providerForClass(@Nullable INetworkComponent component, @NonNull Class<?> clazz);
+  @NonNull RPCSender providerForClass(@Nullable NetworkComponent component, @NonNull Class<?> clazz);
 
-  @NonNull RPCSender providerForClass(@Nullable INetworkComponent component, @NonNull Class<?> clazz,
+  @NonNull RPCSender providerForClass(@Nullable NetworkComponent component, @NonNull Class<?> clazz,
     @NonNull ObjectMapper objectMapper, @NonNull DataBufFactory dataBufFactory);
 
   @NonNull RPCHandler newHandler(@NonNull Class<?> clazz, @Nullable Object binding);

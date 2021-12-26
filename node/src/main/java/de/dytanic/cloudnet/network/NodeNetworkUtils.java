@@ -17,17 +17,17 @@
 package de.dytanic.cloudnet.network;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.cluster.IClusterNodeServer;
+import de.dytanic.cloudnet.cluster.ClusterNodeServer;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.events.network.ChannelType;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelInitEvent;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import de.dytanic.cloudnet.driver.network.chunk.defaults.factory.EventChunkHandlerFactory;
 import de.dytanic.cloudnet.driver.network.chunk.network.ChunkedPacketListener;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
-import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
+import de.dytanic.cloudnet.driver.network.protocol.PacketListenerRegistry;
 import de.dytanic.cloudnet.driver.network.rpc.listener.RPCPacketListener;
 import de.dytanic.cloudnet.network.listener.PacketServerChannelMessageListener;
 import lombok.NonNull;
@@ -40,12 +40,12 @@ public final class NodeNetworkUtils {
     throw new UnsupportedOperationException();
   }
 
-  static boolean shouldInitializeChannel(INetworkChannel channel, ChannelType type) {
+  static boolean shouldInitializeChannel(NetworkChannel channel, ChannelType type) {
     return !CloudNetDriver.instance().eventManager().callEvent(
       new NetworkChannelInitEvent(channel, type)).cancelled();
   }
 
-  public static void closeNodeServer(IClusterNodeServer clusterNodeServer) {
+  public static void closeNodeServer(ClusterNodeServer clusterNodeServer) {
     try {
       clusterNodeServer.close();
     } catch (Exception exception) {
@@ -53,7 +53,7 @@ public final class NodeNetworkUtils {
     }
   }
 
-  public static void addDefaultPacketListeners(@NonNull IPacketListenerRegistry registry, @NonNull CloudNet node) {
+  public static void addDefaultPacketListeners(@NonNull PacketListenerRegistry registry, @NonNull CloudNet node) {
     registry.addListener(
       NetworkConstants.CHANNEL_MESSAGING_CHANNEL,
       new PacketServerChannelMessageListener(node.messenger(), node.eventManager()));

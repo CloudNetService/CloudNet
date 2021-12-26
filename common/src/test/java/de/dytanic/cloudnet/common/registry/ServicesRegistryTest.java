@@ -23,7 +23,7 @@ public final class ServicesRegistryTest {
 
   @Test
   public void testDefaultRegistry() {
-    IServicesRegistry registry = new DefaultServicesRegistry();
+    ServicesRegistry registry = new DefaultServicesRegistry();
 
     registry
       .registerService(A.class, "b", new B())

@@ -16,8 +16,8 @@
 
 package de.dytanic.cloudnet.ext.rest.v2;
 
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.http.HttpSession;
 import de.dytanic.cloudnet.http.V2HttpHandler;
@@ -30,7 +30,7 @@ public class V2HttpHandlerAuthorization extends V2HttpHandler {
   }
 
   @Override
-  protected void handleUnauthorized(String path, IHttpContext context) {
+  protected void handleUnauthorized(String path, HttpContext context) {
     this.response(context, HttpResponseCode.HTTP_UNAUTHORIZED)
       .header("WWW-Authenticate", "Basic realm=\"CloudNet Rest\"")
       .context()
@@ -39,7 +39,7 @@ public class V2HttpHandlerAuthorization extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBasicAuthorized(String path, IHttpContext context, PermissionUser user) {
+  protected void handleBasicAuthorized(String path, HttpContext context, PermissionUser user) {
     var jwt = this.authentication.createJwt(user, TimeUnit.HOURS.toMillis(1)); // todo: configurable
     this.ok(context)
       .body(this.success().append("token", jwt).append("id", user.uniqueId()).toString())
@@ -49,7 +49,7 @@ public class V2HttpHandlerAuthorization extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) {
+  protected void handleBearerAuthorized(String path, HttpContext context, HttpSession session) {
     this.ok(context)
       .body(this.success().append("id", session.user().uniqueId()).toString())
       .context()

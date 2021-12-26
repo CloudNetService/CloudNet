@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.common.document.property;
 
 import com.google.common.base.Verify;
-import de.dytanic.cloudnet.common.document.IDocument;
+import de.dytanic.cloudnet.common.document.Document;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -27,10 +27,10 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
 public record FunctionalDocProperty<E>(
-  @NonNull Function<IDocument<?>, E> reader,
-  @NonNull BiConsumer<E, IDocument<?>> writer,
-  @NonNull Consumer<IDocument<?>> remover,
-  @NonNull Predicate<IDocument<?>> containsTester
+  @NonNull Function<Document<?>, E> reader,
+  @NonNull BiConsumer<E, Document<?>> writer,
+  @NonNull Consumer<Document<?>> remover,
+  @NonNull Predicate<Document<?>> containsTester
 ) implements DocProperty<E> {
 
   public static @NonNull <E> Builder<E> builder() {
@@ -44,49 +44,49 @@ public record FunctionalDocProperty<E>(
   }
 
   @Override
-  public void remove(@NonNull IDocument<?> from) {
+  public void remove(@NonNull Document<?> from) {
     this.remover.accept(from);
   }
 
   @Override
-  public void append(@NonNull IDocument<?> to, @Nullable E value) {
+  public void append(@NonNull Document<?> to, @Nullable E value) {
     this.writer.accept(value, to);
   }
 
   @Override
-  public @UnknownNullability E get(@NonNull IDocument<?> from) {
+  public @UnknownNullability E get(@NonNull Document<?> from) {
     return this.reader.apply(from);
   }
 
   @Override
-  public boolean isAppendedTo(@NonNull IDocument<?> document) {
+  public boolean isAppendedTo(@NonNull Document<?> document) {
     return this.containsTester.test(document);
   }
 
   public static class Builder<E> {
 
-    private Function<IDocument<?>, E> reader;
-    private BiConsumer<E, IDocument<?>> writer;
+    private Function<Document<?>, E> reader;
+    private BiConsumer<E, Document<?>> writer;
 
-    private Consumer<IDocument<?>> remover;
-    private Predicate<IDocument<?>> containsTester;
+    private Consumer<Document<?>> remover;
+    private Predicate<Document<?>> containsTester;
 
-    public @NonNull Builder<E> reader(@NonNull Function<IDocument<?>, E> reader) {
+    public @NonNull Builder<E> reader(@NonNull Function<Document<?>, E> reader) {
       this.reader = reader;
       return this;
     }
 
-    public @NonNull Builder<E> writer(@NonNull BiConsumer<E, IDocument<?>> writer) {
+    public @NonNull Builder<E> writer(@NonNull BiConsumer<E, Document<?>> writer) {
       this.writer = writer;
       return this;
     }
 
-    public @NonNull Builder<E> remover(@NonNull Consumer<IDocument<?>> remover) {
+    public @NonNull Builder<E> remover(@NonNull Consumer<Document<?>> remover) {
       this.remover = remover;
       return this;
     }
 
-    public @NonNull Builder<E> containsTester(@NonNull Predicate<IDocument<?>> containsTester) {
+    public @NonNull Builder<E> containsTester(@NonNull Predicate<Document<?>> containsTester) {
       this.containsTester = containsTester;
       return this;
     }

@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.driver.network.http;
 
-import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.Nameable;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 @ToString
 @EqualsAndHashCode
-public class HttpCookie implements INameable {
+public class HttpCookie implements Nameable {
 
   protected final String name;
   protected final String value;

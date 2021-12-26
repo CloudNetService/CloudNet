@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.common.document.property;
 
-import de.dytanic.cloudnet.common.document.IDocument;
+import de.dytanic.cloudnet.common.document.Document;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
@@ -31,5 +31,5 @@ public interface DocPropertyHolder {
 
   <E> boolean hasProperty(@NonNull DocProperty<E> docProperty);
 
-  @NonNull IDocument<?> properties();
+  @NonNull Document<?> properties();
 }

@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.common.concurrent;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.jetbrains.annotations.Nullable;
 
-public class CountingTask<V> extends CompletableTask<V> implements ITask<V> {
+public class CountingTask<V> extends CompletableTask<V> implements Task<V> {
 
   private final V resultValue;
   private final AtomicInteger count;

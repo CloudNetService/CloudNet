@@ -26,7 +26,7 @@ import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.channel.ChannelMessageSender;
-import de.dytanic.cloudnet.driver.event.IEventManager;
+import de.dytanic.cloudnet.driver.event.EventManager;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceLogEntryEvent;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
@@ -35,7 +35,7 @@ import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.event.service.CloudServicePostProcessStartEvent;
 import de.dytanic.cloudnet.event.service.CloudServicePreProcessStartEvent;
-import de.dytanic.cloudnet.service.ICloudServiceManager;
+import de.dytanic.cloudnet.service.CloudServiceManager;
 import de.dytanic.cloudnet.service.ServiceConfigurationPreparer;
 import de.dytanic.cloudnet.service.defaults.log.ProcessServiceLogCache;
 import java.io.IOException;
@@ -71,8 +71,8 @@ public class JVMService extends AbstractService {
 
   public JVMService(
     @NonNull ServiceConfiguration configuration,
-    @NonNull ICloudServiceManager manager,
-    @NonNull IEventManager eventManager,
+    @NonNull CloudServiceManager manager,
+    @NonNull EventManager eventManager,
     @NonNull CloudNet nodeInstance,
     @NonNull ServiceConfigurationPreparer serviceConfigurationPreparer
   ) {

@@ -22,7 +22,7 @@ import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.player.PlayerInteractEvent;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
+import de.dytanic.cloudnet.ext.bridge.player.PlayerManager;
 import eu.cloudnetservice.cloudnet.ext.signs.platform.PlatformSignManagement;
 import eu.cloudnetservice.cloudnet.ext.signs.platform.nukkit.event.NukkitCloudSignInteractEvent;
 
@@ -61,7 +61,7 @@ public class SignInteractListener implements Listener {
     }
   }
 
-  protected IPlayerManager playerManager() {
-    return CloudNetDriver.instance().servicesRegistry().firstService(IPlayerManager.class);
+  protected PlayerManager playerManager() {
+    return CloudNetDriver.instance().servicesRegistry().firstService(PlayerManager.class);
   }
 }

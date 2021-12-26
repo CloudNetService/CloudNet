@@ -20,21 +20,21 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.PacketListener;
 import de.dytanic.cloudnet.network.NodeNetworkUtils;
 import java.util.Arrays;
 import java.util.Objects;
 import lombok.NonNull;
 
-public final class PacketServerAuthorizationResponseListener implements IPacketListener {
+public final class PacketServerAuthorizationResponseListener implements PacketListener {
 
   private static final Logger LOGGER = LogManager.logger(PacketServerAuthorizationResponseListener.class);
 
   @Override
-  public void handle(@NonNull INetworkChannel channel, @NonNull IPacket packet) {
+  public void handle(@NonNull NetworkChannel channel, @NonNull Packet packet) {
     // check if the auth was successful
     if (packet.content().readBoolean()) {
       // search for the node to which the auth succeeded

@@ -18,23 +18,23 @@ package de.dytanic.cloudnet.driver;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
-import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.concurrent.Task;
 import de.dytanic.cloudnet.common.registry.DefaultServicesRegistry;
-import de.dytanic.cloudnet.common.registry.IServicesRegistry;
+import de.dytanic.cloudnet.common.registry.ServicesRegistry;
 import de.dytanic.cloudnet.driver.database.DatabaseProvider;
 import de.dytanic.cloudnet.driver.event.DefaultEventManager;
-import de.dytanic.cloudnet.driver.event.IEventManager;
+import de.dytanic.cloudnet.driver.event.EventManager;
 import de.dytanic.cloudnet.driver.event.events.permission.PermissionServiceSetEvent;
 import de.dytanic.cloudnet.driver.module.DefaultModuleProvider;
-import de.dytanic.cloudnet.driver.module.IModuleProvider;
-import de.dytanic.cloudnet.driver.network.INetworkClient;
+import de.dytanic.cloudnet.driver.module.ModuleProvider;
+import de.dytanic.cloudnet.driver.network.NetworkClient;
 import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
 import de.dytanic.cloudnet.driver.network.rpc.RPCHandlerRegistry;
 import de.dytanic.cloudnet.driver.network.rpc.RPCProviderFactory;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.DefaultRPCProviderFactory;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.handler.DefaultRPCHandlerRegistry;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.PermissionManagement;
 import de.dytanic.cloudnet.driver.provider.CloudMessenger;
 import de.dytanic.cloudnet.driver.provider.GroupConfigurationProvider;
 import de.dytanic.cloudnet.driver.provider.NodeInfoProvider;
@@ -60,9 +60,9 @@ public abstract class CloudNetDriver {
 
   protected final List<String> commandLineArguments;
 
-  protected final IEventManager eventManager = new DefaultEventManager();
-  protected final IModuleProvider moduleProvider = new DefaultModuleProvider();
-  protected final IServicesRegistry servicesRegistry = new DefaultServicesRegistry();
+  protected final EventManager eventManager = new DefaultEventManager();
+  protected final ModuleProvider moduleProvider = new DefaultModuleProvider();
+  protected final ServicesRegistry servicesRegistry = new DefaultServicesRegistry();
   protected final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
 
   protected final RPCHandlerRegistry rpcHandlerRegistry = new DefaultRPCHandlerRegistry();
@@ -71,9 +71,9 @@ public abstract class CloudNetDriver {
     DataBufFactory.defaultFactory());
 
   protected CloudNetVersion cloudNetVersion;
-  protected IPermissionManagement permissionManagement;
+  protected PermissionManagement permissionManagement;
 
-  protected INetworkClient networkClient;
+  protected NetworkClient networkClient;
   protected CloudServiceFactory cloudServiceFactory;
 
   protected CloudMessenger messenger;
@@ -162,23 +162,23 @@ public abstract class CloudNetDriver {
   }
 
   /**
-   * @return the current {@link IPermissionManagement}
+   * @return the current {@link PermissionManagement}
    * @throws NullPointerException if there is no PermissionManagement available
    */
   @NonNull
-  public IPermissionManagement permissionManagement() {
+  public PermissionManagement permissionManagement() {
     Preconditions.checkNotNull(this.permissionManagement, "no permission management available");
     return this.permissionManagement;
   }
 
   /**
-   * Sets an {@link IPermissionManagement} as current PermissionManagement.
+   * Sets an {@link PermissionManagement} as current PermissionManagement.
    *
-   * @param management the {@link IPermissionManagement} to be set
-   * @throws IllegalStateException if the current {@link IPermissionManagement} does not allow overwriting it and the
+   * @param management the {@link PermissionManagement} to be set
+   * @throws IllegalStateException if the current {@link PermissionManagement} does not allow overwriting it and the
    *                               class names are not the same
    */
-  public void permissionManagement(@NonNull IPermissionManagement management) {
+  public void permissionManagement(@NonNull PermissionManagement management) {
     // if there is no old permission management or the old permission management can be overridden
     // we can just set the new one
     if (this.permissionManagement == null || this.permissionManagement.canBeOverwritten()) {
@@ -227,7 +227,7 @@ public abstract class CloudNetDriver {
   public abstract Collection<TemplateStorage> availableTemplateStorages();
 
   @NonNull
-  public ITask<Collection<TemplateStorage>> availableTemplateStoragesAsync() {
+  public Task<Collection<TemplateStorage>> availableTemplateStoragesAsync() {
     return CompletableTask.supply(this::availableTemplateStorages);
   }
 
@@ -240,7 +240,7 @@ public abstract class CloudNetDriver {
     return this.generalCloudServiceProvider;
   }
 
-  public @NonNull INetworkClient networkClient() {
+  public @NonNull NetworkClient networkClient() {
     return this.networkClient;
   }
 
@@ -248,7 +248,7 @@ public abstract class CloudNetDriver {
     @NonNull String commandLine);
 
   @NonNull
-  public ITask<Collection<String>> sendCommandLineAsPermissionUserAsync(@NonNull UUID uniqueId,
+  public Task<Collection<String>> sendCommandLineAsPermissionUserAsync(@NonNull UUID uniqueId,
     @NonNull String commandLine
   ) {
     return CompletableTask.supply(() -> this.sendCommandLineAsPermissionUser(uniqueId, commandLine));
@@ -264,17 +264,17 @@ public abstract class CloudNetDriver {
   }
 
   @NonNull
-  public IServicesRegistry servicesRegistry() {
+  public ServicesRegistry servicesRegistry() {
     return this.servicesRegistry;
   }
 
   @NonNull
-  public IEventManager eventManager() {
+  public EventManager eventManager() {
     return this.eventManager;
   }
 
   @NonNull
-  public IModuleProvider moduleProvider() {
+  public ModuleProvider moduleProvider() {
     return this.moduleProvider;
   }
 

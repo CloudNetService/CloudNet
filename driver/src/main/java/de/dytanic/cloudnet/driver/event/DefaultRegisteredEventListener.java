@@ -27,7 +27,7 @@ record DefaultRegisteredEventListener(
   @NonNull Class<?> eventClass,
   @NonNull EventListener eventListener,
   @NonNull ListenerInvoker listenerInvoker
-) implements IRegisteredEventListener {
+) implements RegisteredEventListener {
 
   private static final Logger LOGGER = LogManager.logger(DefaultRegisteredEventListener.class);
 

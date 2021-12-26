@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.driver.DriverTestUtility;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceLifecycleChangeEvent;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -44,7 +44,7 @@ public class DefaultEventManagerTest {
 
   @Test
   void testNullListenerRegistration() {
-    IEventManager eventManager = new DefaultEventManager();
+    EventManager eventManager = new DefaultEventManager();
     Assertions.assertThrows(NullPointerException.class, () -> eventManager.registerListener(null));
   }
 
@@ -76,7 +76,7 @@ public class DefaultEventManagerTest {
   @Order(10)
   @Disabled("https://github.com/raphw/byte-buddy/issues/1175 & https://gitlab.ow2.org/asm/asm/-/issues/317959")
   void testEventCall() {
-    IEventManager eventManager = new DefaultEventManager();
+    EventManager eventManager = new DefaultEventManager();
     eventManager.registerListener(new TestListener());
 
     var channelMessage = Mockito.mock(ChannelMessage.class);
@@ -84,7 +84,7 @@ public class DefaultEventManagerTest {
 
     var event = new ChannelMessageReceiveEvent(
       channelMessage,
-      Mockito.mock(INetworkChannel.class),
+      Mockito.mock(NetworkChannel.class),
       true);
 
     Assertions.assertSame(event, eventManager.callEvent(event));

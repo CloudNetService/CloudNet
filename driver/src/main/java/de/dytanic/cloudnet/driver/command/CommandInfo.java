@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.driver.command;
 
-import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.Nameable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +32,7 @@ public record CommandInfo(
   @NonNull String permission,
   @NonNull String description,
   @NonNull List<String> usage
-) implements INameable {
+) implements Nameable {
 
   @Contract("_ -> new")
   public static @NonNull CommandInfo empty(@NonNull String name) {

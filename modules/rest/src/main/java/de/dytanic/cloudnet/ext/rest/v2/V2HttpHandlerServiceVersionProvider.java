@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.ext.rest.v2;
 
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
 import de.dytanic.cloudnet.ext.rest.RestUtils;
 import de.dytanic.cloudnet.http.HttpSession;
 import de.dytanic.cloudnet.http.V2HttpHandler;
@@ -31,7 +31,7 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) {
+  protected void handleBearerAuthorized(String path, HttpContext context, HttpSession session) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.endsWith("/serviceversion")) {
         this.handleVersionListRequest(context);
@@ -45,7 +45,7 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
     }
   }
 
-  protected void handleVersionListRequest(IHttpContext context) {
+  protected void handleVersionListRequest(HttpContext context) {
     this.ok(context)
       .body(this.success().append("versions", this.versionProvider().serviceVersionTypes()).toString())
       .context()
@@ -53,7 +53,7 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleVersionRequest(IHttpContext context) {
+  protected void handleVersionRequest(HttpContext context) {
     var version = context.request().pathParameters().get("version");
     if (version == null) {
       this.badRequest(context)
@@ -81,7 +81,7 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleVersionLoadRequest(IHttpContext context) {
+  protected void handleVersionLoadRequest(HttpContext context) {
     var url = RestUtils.first(context.request().queryParameters().get("url"), null);
     if (url == null) {
       this.versionProvider().loadDefaultVersionTypes();
@@ -104,7 +104,7 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
     this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
   }
 
-  protected void handleVersionAddRequest(IHttpContext context) {
+  protected void handleVersionAddRequest(HttpContext context) {
     var type = this.body(context.request()).toInstanceOf(ServiceVersionType.class);
     if (type == null) {
       this.badRequest(context)

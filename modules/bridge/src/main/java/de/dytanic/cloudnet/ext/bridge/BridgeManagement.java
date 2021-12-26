@@ -16,10 +16,10 @@
 
 package de.dytanic.cloudnet.ext.bridge;
 
-import de.dytanic.cloudnet.common.registry.IServicesRegistry;
+import de.dytanic.cloudnet.common.registry.ServicesRegistry;
 import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import de.dytanic.cloudnet.ext.bridge.config.BridgeConfiguration;
-import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
+import de.dytanic.cloudnet.ext.bridge.player.PlayerManager;
 import lombok.NonNull;
 
 @RPCValidation
@@ -35,9 +35,9 @@ public interface BridgeManagement {
 
   void configuration(@NonNull BridgeConfiguration configuration);
 
-  @NonNull IPlayerManager playerManager();
+  @NonNull PlayerManager playerManager();
 
-  void registerServices(@NonNull IServicesRegistry registry);
+  void registerServices(@NonNull ServicesRegistry registry);
 
   void postInit();
 }

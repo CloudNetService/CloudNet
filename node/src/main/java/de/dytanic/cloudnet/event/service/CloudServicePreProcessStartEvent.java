@@ -16,12 +16,12 @@
 
 package de.dytanic.cloudnet.event.service;
 
-import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.service.CloudService;
 import lombok.NonNull;
 
 public final class CloudServicePreProcessStartEvent extends CloudServiceEvent {
 
-  public CloudServicePreProcessStartEvent(@NonNull ICloudService service) {
+  public CloudServicePreProcessStartEvent(@NonNull CloudService service) {
     super(service);
   }
 }

@@ -16,17 +16,17 @@
 
 package de.dytanic.cloudnet.event.service;
 
-import de.dytanic.cloudnet.driver.event.ICancelable;
+import de.dytanic.cloudnet.driver.event.Cancelable;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
-import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.service.CloudService;
 import lombok.NonNull;
 
-public final class CloudServicePreLifecycleEvent extends CloudServiceEvent implements ICancelable {
+public final class CloudServicePreLifecycleEvent extends CloudServiceEvent implements Cancelable {
 
   private final ServiceLifeCycle targetLifecycle;
   private volatile boolean cancelled;
 
-  public CloudServicePreLifecycleEvent(@NonNull ICloudService service, @NonNull ServiceLifeCycle targetLifecycle) {
+  public CloudServicePreLifecycleEvent(@NonNull CloudService service, @NonNull ServiceLifeCycle targetLifecycle) {
     super(service);
     this.targetLifecycle = targetLifecycle;
   }

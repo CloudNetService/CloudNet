@@ -29,8 +29,8 @@ import de.dytanic.cloudnet.command.annotation.CommandAlias;
 import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
-import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.JavaVersion;
+import de.dytanic.cloudnet.common.Nameable;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.column.ColumnFormatter;
 import de.dytanic.cloudnet.common.column.RowBasedFormatter;
@@ -110,7 +110,7 @@ public final class CommandTemplate {
   public List<String> suggestTemplateStorage(CommandContext<CommandSource> $, String input) {
     return CloudNet.instance().availableTemplateStorages()
       .stream()
-      .map(INameable::name)
+      .map(Nameable::name)
       .toList();
   }
 
@@ -142,7 +142,7 @@ public final class CommandTemplate {
     return type.versions()
       .stream()
       .filter(ServiceVersion::canRun)
-      .map(INameable::name)
+      .map(Nameable::name)
       .toList();
   }
 

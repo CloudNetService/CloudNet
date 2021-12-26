@@ -17,10 +17,10 @@
 package de.dytanic.cloudnet.network.listener.message;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
+import de.dytanic.cloudnet.cluster.ClusterNodeServerProvider;
 import de.dytanic.cloudnet.cluster.sync.DataSyncRegistry;
 import de.dytanic.cloudnet.driver.event.EventListener;
-import de.dytanic.cloudnet.driver.event.IEventManager;
+import de.dytanic.cloudnet.driver.event.EventManager;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
@@ -29,14 +29,14 @@ import lombok.NonNull;
 
 public final class NodeChannelMessageListener {
 
-  private final IEventManager eventManager;
+  private final EventManager eventManager;
   private final DataSyncRegistry dataSyncRegistry;
-  private final IClusterNodeServerProvider nodeServerProvider;
+  private final ClusterNodeServerProvider nodeServerProvider;
 
   public NodeChannelMessageListener(
-    @NonNull IEventManager eventManager,
+    @NonNull EventManager eventManager,
     @NonNull DataSyncRegistry dataSyncRegistry,
-    @NonNull IClusterNodeServerProvider nodeServerProvider
+    @NonNull ClusterNodeServerProvider nodeServerProvider
   ) {
     this.eventManager = eventManager;
     this.dataSyncRegistry = dataSyncRegistry;

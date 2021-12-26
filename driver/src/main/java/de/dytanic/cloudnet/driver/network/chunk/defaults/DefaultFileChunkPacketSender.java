@@ -17,12 +17,12 @@
 package de.dytanic.cloudnet.driver.network.chunk.defaults;
 
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
-import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.concurrent.Task;
 import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketSender;
 import de.dytanic.cloudnet.driver.network.chunk.TransferStatus;
 import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
 import de.dytanic.cloudnet.driver.network.chunk.network.ChunkedPacket;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import java.io.InputStream;
 import java.util.function.Consumer;
 import lombok.NonNull;
@@ -32,12 +32,12 @@ public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider i
   protected static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
   protected final InputStream source;
-  protected final Consumer<IPacket> packetSplitter;
+  protected final Consumer<Packet> packetSplitter;
 
   public DefaultFileChunkPacketSender(
     @NonNull ChunkSessionInformation sessionInformation,
     @NonNull InputStream source,
-    @NonNull Consumer<IPacket> packetSplitter
+    @NonNull Consumer<Packet> packetSplitter
   ) {
     super(sessionInformation);
 
@@ -51,12 +51,12 @@ public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider i
   }
 
   @Override
-  public @NonNull Consumer<IPacket> packetSplitter() {
+  public @NonNull Consumer<Packet> packetSplitter() {
     return this.packetSplitter;
   }
 
   @Override
-  public @NonNull ITask<TransferStatus> transferChunkedData() {
+  public @NonNull Task<TransferStatus> transferChunkedData() {
     return CompletableTask.supply(() -> {
       var readCalls = 0;
       var backingArray = new byte[this.chunkSessionInformation.chunkSize()];

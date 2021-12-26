@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.driver.channel;
 
 import com.google.common.base.Verify;
-import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.concurrent.Task;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
@@ -51,11 +51,11 @@ public record ChannelMessage(
     this.messenger().sendChannelMessage(this);
   }
 
-  public @NonNull ITask<Collection<ChannelMessage>> sendQueryAsync() {
+  public @NonNull Task<Collection<ChannelMessage>> sendQueryAsync() {
     return this.messenger().sendChannelMessageQueryAsync(this);
   }
 
-  public @NonNull ITask<ChannelMessage> sendSingleQueryAsync() {
+  public @NonNull Task<ChannelMessage> sendSingleQueryAsync() {
     return this.messenger().sendSingleChannelMessageQueryAsync(this);
   }
 

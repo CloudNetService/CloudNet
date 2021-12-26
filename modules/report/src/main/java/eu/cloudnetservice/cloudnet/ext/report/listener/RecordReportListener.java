@@ -23,7 +23,7 @@ import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.event.service.CloudServicePreForceStopEvent;
 import de.dytanic.cloudnet.event.service.CloudServicePreLifecycleEvent;
 import de.dytanic.cloudnet.event.service.CloudServicePreProcessStartEvent;
-import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.service.CloudService;
 import eu.cloudnetservice.cloudnet.ext.report.CloudNetReportModule;
 import eu.cloudnetservice.cloudnet.ext.report.util.RecordMaker;
 import lombok.NonNull;
@@ -85,7 +85,7 @@ public final class RecordReportListener {
     this.createRecord(event.service());
   }
 
-  private void createRecord(ICloudService cloudService) {
+  private void createRecord(CloudService cloudService) {
     // we need to check and create the record directory as it's time based.
     var recordCreator = RecordMaker.forService(this.reportModule.currentRecordDirectory(), cloudService);
     // unable to create records as the directory already exists

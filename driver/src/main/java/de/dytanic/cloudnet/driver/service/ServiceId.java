@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.driver.service;
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.Nameable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
 @EqualsAndHashCode
-public class ServiceId implements INameable {
+public class ServiceId implements Nameable {
 
   protected final String taskName;
   protected final String nameSplitter;

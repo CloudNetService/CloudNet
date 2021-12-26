@@ -30,8 +30,8 @@ import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.language.I18n;
-import de.dytanic.cloudnet.config.IConfiguration;
-import de.dytanic.cloudnet.config.IConfiguration.DefaultJVMFlags;
+import de.dytanic.cloudnet.config.Configuration;
+import de.dytanic.cloudnet.config.Configuration.DefaultJVMFlags;
 import de.dytanic.cloudnet.config.JsonConfiguration;
 import java.util.Queue;
 
@@ -118,7 +118,7 @@ public final class CommandConfig {
     source.sendMessage(I18n.trans("command-node-set-default-flags").replace("%flags%", flags.name()));
   }
 
-  private IConfiguration nodeConfig() {
+  private Configuration nodeConfig() {
     return CloudNet.instance().config();
   }
 
@@ -126,7 +126,7 @@ public final class CommandConfig {
     this.updateNodeConfig(CloudNet.instance().config());
   }
 
-  private void updateNodeConfig(IConfiguration configuration) {
+  private void updateNodeConfig(Configuration configuration) {
     CloudNet.instance().config(configuration);
     configuration.save();
   }

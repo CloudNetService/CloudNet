@@ -40,7 +40,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import lombok.NonNull;
 
-public final class JsonConfiguration implements IConfiguration {
+public final class JsonConfiguration implements Configuration {
 
   public static final Path CONFIG_FILE_PATH = Path.of(
     System.getProperty("cloudnet.config.json.path", "config.json"));
@@ -102,7 +102,7 @@ public final class JsonConfiguration implements IConfiguration {
     }
   }
 
-  public static @NonNull IConfiguration loadFromFile(@NonNull CloudNet nodeInstance) {
+  public static @NonNull Configuration loadFromFile(@NonNull CloudNet nodeInstance) {
     if (Files.notExists(CONFIG_FILE_PATH)) {
       // register the setup if the file does not exists
       nodeInstance.installation().registerSetup(new DefaultConfigSetup());
@@ -118,7 +118,7 @@ public final class JsonConfiguration implements IConfiguration {
   }
 
   @Override
-  public @NonNull IConfiguration load() {
+  public @NonNull Configuration load() {
     if (this.identity == null) {
       this.identity = new NetworkClusterNode(
         ConfigurationUtils.get(
@@ -280,7 +280,7 @@ public final class JsonConfiguration implements IConfiguration {
   }
 
   @Override
-  public @NonNull IConfiguration save() {
+  public @NonNull Configuration save() {
     JsonDocument.newDocument(this).write(CONFIG_FILE_PATH);
     return this;
   }

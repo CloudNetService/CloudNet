@@ -21,12 +21,12 @@ import de.dytanic.cloudnet.common.log.AbstractHandler;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.defaults.DefaultLogFormatter;
 import de.dytanic.cloudnet.config.JsonConfiguration;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
+import de.dytanic.cloudnet.driver.network.http.HttpContext;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
-import de.dytanic.cloudnet.driver.network.http.IHttpContext;
-import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketChannel;
-import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketListener;
+import de.dytanic.cloudnet.driver.network.http.websocket.WebSocketChannel;
 import de.dytanic.cloudnet.driver.network.http.websocket.WebSocketFrameType;
+import de.dytanic.cloudnet.driver.network.http.websocket.WebSocketListener;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.ext.rest.RestUtils;
 import de.dytanic.cloudnet.http.HttpSession;
@@ -50,17 +50,17 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
   }
 
   @Override
-  protected void handleUnauthorizedRequest(String path, IHttpContext context) {
+  protected void handleUnauthorizedRequest(String path, HttpContext context) {
     this.response(context, HttpResponseCode.HTTP_NO_CONTENT).context().closeAfter(true).cancelNext();
   }
 
   @Override
-  protected void handleBasicAuthorized(String path, IHttpContext context, PermissionUser user) {
+  protected void handleBasicAuthorized(String path, HttpContext context, PermissionUser user) {
     this.sendNodeInformation(context);
   }
 
   @Override
-  protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) {
+  protected void handleBearerAuthorized(String path, HttpContext context, HttpSession session) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.endsWith("/liveconsole")) {
         this.handleLiveConsoleRequest(context, session);
@@ -79,11 +79,11 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
   }
 
   @Override
-  protected void handleTicketAuthorizedRequest(String path, IHttpContext context, HttpSession session) {
+  protected void handleTicketAuthorizedRequest(String path, HttpContext context, HttpSession session) {
     this.handleLiveConsoleRequest(context, session);
   }
 
-  protected void sendNodeInformation(IHttpContext context) {
+  protected void sendNodeInformation(HttpContext context) {
     var nodeServer = this.node().nodeServerProvider().selfNode();
 
     var information = this.success()
@@ -93,12 +93,12 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
       .append("lastNodeInfoSnapshot", nodeServer.lastNodeInfoSnapshot())
       .append("serviceCount", this.node().cloudServiceProvider().serviceCount())
       .append("clientConnections", super.node().networkClient().channels().stream()
-        .map(INetworkChannel::serverAddress)
+        .map(NetworkChannel::serverAddress)
         .collect(Collectors.toList()));
     this.ok(context).body(information.toString()).context().closeAfter(true).cancelNext();
   }
 
-  protected void handleNodeConfigRequest(IHttpContext context) {
+  protected void handleNodeConfigRequest(HttpContext context) {
     this.ok(context)
       .body(this.success().append("config", this.configuration()).toString())
       .context()
@@ -106,7 +106,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleNodeConfigUpdateRequest(IHttpContext context) {
+  protected void handleNodeConfigUpdateRequest(HttpContext context) {
     var configuration = this.body(context.request()).toInstanceOf(JsonConfiguration.class);
     if (configuration == null) {
       this.badRequest(context)
@@ -128,7 +128,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleReloadRequest(IHttpContext context) {
+  protected void handleReloadRequest(HttpContext context) {
     var type = RestUtils.first(context.request().queryParameters().get("type"), "all").toLowerCase();
     switch (type) {
       case "all":
@@ -152,7 +152,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
     this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
   }
 
-  protected void handleLiveConsoleRequest(IHttpContext context, HttpSession session) {
+  protected void handleLiveConsoleRequest(HttpContext context, HttpSession session) {
     var channel = context.upgrade();
     if (channel != null) {
       var handler = new WebSocketLogHandler(session, channel, DefaultLogFormatter.END_LINE_SEPARATOR);
@@ -162,19 +162,19 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
     }
   }
 
-  protected class WebSocketLogHandler extends AbstractHandler implements IWebSocketListener {
+  protected class WebSocketLogHandler extends AbstractHandler implements WebSocketListener {
 
     protected final HttpSession httpSession;
-    protected final IWebSocketChannel channel;
+    protected final WebSocketChannel channel;
 
-    public WebSocketLogHandler(HttpSession session, IWebSocketChannel channel, Formatter formatter) {
+    public WebSocketLogHandler(HttpSession session, WebSocketChannel channel, Formatter formatter) {
       super.setFormatter(formatter);
       this.httpSession = session;
       this.channel = channel;
     }
 
     @Override
-    public void handle(@NonNull IWebSocketChannel channel, @NonNull WebSocketFrameType type, byte[] bytes)
+    public void handle(@NonNull WebSocketChannel channel, @NonNull WebSocketFrameType type, byte[] bytes)
       throws Exception {
       var user = this.httpSession.user();
       if (type == WebSocketFrameType.TEXT && user != null) {
@@ -192,7 +192,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
 
     @Override
     public void handleClose(
-      @NonNull IWebSocketChannel channel,
+      @NonNull WebSocketChannel channel,
       @NonNull AtomicInteger statusCode,
       @NonNull AtomicReference<String> statusText
     ) {

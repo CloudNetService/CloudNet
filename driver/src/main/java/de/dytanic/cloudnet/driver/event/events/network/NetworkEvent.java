@@ -17,18 +17,18 @@
 package de.dytanic.cloudnet.driver.event.events.network;
 
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import lombok.NonNull;
 
 public abstract class NetworkEvent extends DriverEvent {
 
-  private final INetworkChannel channel;
+  private final NetworkChannel channel;
 
-  public NetworkEvent(@NonNull INetworkChannel channel) {
+  public NetworkEvent(@NonNull NetworkChannel channel) {
     this.channel = channel;
   }
 
-  public @NonNull INetworkChannel networkChannel() {
+  public @NonNull NetworkChannel networkChannel() {
     return this.channel;
   }
 }

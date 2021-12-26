@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.http.ticket;
 
-import de.dytanic.cloudnet.driver.network.http.IHttpRequest;
+import de.dytanic.cloudnet.driver.network.http.HttpRequest;
 import de.dytanic.cloudnet.http.HttpSession;
 import java.util.Collection;
 import lombok.NonNull;
@@ -36,7 +36,7 @@ public interface WebSocketTicketManager {
 
   @Nullable WebSocketTicket findAndRemoveTicket(@NonNull String ticketId);
 
-  @NonNull WebSocketTicket issueTicket(@NonNull IHttpRequest request, @NonNull HttpSession session);
+  @NonNull WebSocketTicket issueTicket(@NonNull HttpRequest request, @NonNull HttpSession session);
 
-  @NonNull WebSocketTicket issueTicket(@NonNull IHttpRequest request, @NonNull HttpSession session, long timeout);
+  @NonNull WebSocketTicket issueTicket(@NonNull HttpRequest request, @NonNull HttpSession session, long timeout);
 }

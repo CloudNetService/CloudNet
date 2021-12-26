@@ -18,29 +18,29 @@ package de.dytanic.cloudnet.network.listener;
 
 import de.dytanic.cloudnet.driver.DriverEnvironment;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
-import de.dytanic.cloudnet.driver.event.IEventManager;
+import de.dytanic.cloudnet.driver.event.EventManager;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.protocol.PacketListener;
 import de.dytanic.cloudnet.provider.NodeMessenger;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 
-public final class PacketServerChannelMessageListener implements IPacketListener {
+public final class PacketServerChannelMessageListener implements PacketListener {
 
   private final NodeMessenger messenger;
-  private final IEventManager eventManager;
+  private final EventManager eventManager;
 
-  public PacketServerChannelMessageListener(NodeMessenger messenger, IEventManager eventManager) {
+  public PacketServerChannelMessageListener(NodeMessenger messenger, EventManager eventManager) {
     this.messenger = messenger;
     this.eventManager = eventManager;
   }
 
   @Override
-  public void handle(@NonNull INetworkChannel channel, @NonNull IPacket packet) {
+  public void handle(@NonNull NetworkChannel channel, @NonNull Packet packet) {
     var message = packet.content().readObject(ChannelMessage.class);
     // mark the index of the data buf
     message.content().disableReleasing().startTransaction();

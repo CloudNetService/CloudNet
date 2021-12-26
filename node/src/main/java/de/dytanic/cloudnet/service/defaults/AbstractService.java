@@ -25,13 +25,13 @@ import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
-import de.dytanic.cloudnet.config.IConfiguration;
+import de.dytanic.cloudnet.config.Configuration;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.channel.ChannelMessageSender;
 import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget;
-import de.dytanic.cloudnet.driver.event.IEventManager;
+import de.dytanic.cloudnet.driver.event.EventManager;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
@@ -50,10 +50,10 @@ import de.dytanic.cloudnet.event.service.CloudServicePostLifecycleEvent;
 import de.dytanic.cloudnet.event.service.CloudServicePreLifecycleEvent;
 import de.dytanic.cloudnet.event.service.CloudServicePreLoadInclusionEvent;
 import de.dytanic.cloudnet.event.service.CloudServiceTemplateLoadEvent;
-import de.dytanic.cloudnet.service.ICloudService;
-import de.dytanic.cloudnet.service.ICloudServiceManager;
-import de.dytanic.cloudnet.service.IServiceConsoleLogCache;
+import de.dytanic.cloudnet.service.CloudService;
+import de.dytanic.cloudnet.service.CloudServiceManager;
 import de.dytanic.cloudnet.service.ServiceConfigurationPreparer;
+import de.dytanic.cloudnet.service.ServiceConsoleLogCache;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -72,7 +72,7 @@ import kong.unirest.UnirestException;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class AbstractService implements ICloudService {
+public abstract class AbstractService implements CloudService {
 
   protected static final Logger LOGGER = LogManager.logger(AbstractService.class);
 
@@ -80,12 +80,12 @@ public abstract class AbstractService implements ICloudService {
   protected static final Path WRAPPER_CONFIG_PATH = Path.of(".wrapper", "wrapper.json");
   protected static final Collection<String> DEFAULT_DEPLOYMENT_EXCLUSIONS = Arrays.asList("wrapper.jar", ".wrapper/");
 
-  protected final IEventManager eventManager;
+  protected final EventManager eventManager;
 
   protected final String connectionKey;
   protected final Path serviceDirectory;
   protected final CloudNet nodeInstance;
-  protected final ICloudServiceManager cloudServiceManager;
+  protected final CloudServiceManager cloudServiceManager;
   protected final ServiceConfiguration serviceConfiguration;
   protected final ServiceConfigurationPreparer serviceConfigurationPreparer;
 
@@ -95,17 +95,17 @@ public abstract class AbstractService implements ICloudService {
   protected final Queue<ServiceDeployment> waitingDeployments = new ConcurrentLinkedQueue<>();
   protected final Queue<ServiceRemoteInclusion> waitingRemoteInclusions = new ConcurrentLinkedQueue<>();
 
-  protected IServiceConsoleLogCache logCache;
+  protected ServiceConsoleLogCache logCache;
   protected Map<ChannelMessageTarget, String> logTargets = new ConcurrentHashMap<>();
-  protected volatile INetworkChannel networkChannel;
+  protected volatile NetworkChannel networkChannel;
 
   protected volatile ServiceInfoSnapshot lastServiceInfo;
   protected volatile ServiceInfoSnapshot currentServiceInfo;
 
   protected AbstractService(
     @NonNull ServiceConfiguration configuration,
-    @NonNull ICloudServiceManager manager,
-    @NonNull IEventManager eventManager,
+    @NonNull CloudServiceManager manager,
+    @NonNull EventManager eventManager,
     @NonNull CloudNet nodeInstance,
     @NonNull ServiceConfigurationPreparer serviceConfigurationPreparer
   ) {
@@ -135,7 +135,7 @@ public abstract class AbstractService implements ICloudService {
 
   protected static @NonNull Path resolveServicePath(
     @NonNull ServiceId serviceId,
-    @NonNull ICloudServiceManager manager,
+    @NonNull CloudServiceManager manager,
     boolean staticService
   ) {
     // validate the service name
@@ -191,7 +191,7 @@ public abstract class AbstractService implements ICloudService {
   }
 
   @Override
-  public @NonNull IServiceConsoleLogCache serviceConsoleLogCache() {
+  public @NonNull ServiceConsoleLogCache serviceConsoleLogCache() {
     return this.logCache;
   }
 
@@ -358,7 +358,7 @@ public abstract class AbstractService implements ICloudService {
   }
 
   @Override
-  public @NonNull ICloudServiceManager cloudServiceManager() {
+  public @NonNull CloudServiceManager cloudServiceManager() {
     return this.cloudServiceManager;
   }
 
@@ -383,12 +383,12 @@ public abstract class AbstractService implements ICloudService {
   }
 
   @Override
-  public @Nullable INetworkChannel networkChannel() {
+  public @Nullable NetworkChannel networkChannel() {
     return this.networkChannel;
   }
 
   @Override
-  public void networkChannel(@Nullable INetworkChannel channel) {
+  public void networkChannel(@Nullable NetworkChannel channel) {
     Preconditions.checkArgument(this.networkChannel == null || channel == null);
     // close the channel if the new channel is null
     if (this.networkChannel != null) {
@@ -437,7 +437,7 @@ public abstract class AbstractService implements ICloudService {
     return this.logTargets.put(target, channel) == null;
   }
 
-  protected @NonNull IConfiguration nodeConfiguration() {
+  protected @NonNull Configuration nodeConfiguration() {
     return this.nodeInstance.config();
   }
 

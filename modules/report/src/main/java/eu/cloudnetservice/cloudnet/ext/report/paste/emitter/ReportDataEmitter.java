@@ -16,6 +16,8 @@
 
 package eu.cloudnetservice.cloudnet.ext.report.paste.emitter;
 
+import de.dytanic.cloudnet.service.CloudService;
+
 /**
  * Represents an emitter for collecting data for reports of this module. An emitter can be registered using {@link
  * EmitterRegistry#registerDataEmitter(Class, ReportDataEmitter[])}
@@ -29,7 +31,7 @@ public interface ReportDataEmitter<T> {
    * Adds data while creating a paste for support and debugging purposes.
    *
    * @param builder the already collected data, just append it to this one
-   * @param context the context of the report, like {@link de.dytanic.cloudnet.service.ICloudService}
+   * @param context the context of the report, like {@link CloudService}
    */
   void emitData(StringBuilder builder, T context);
 
