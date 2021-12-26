@@ -117,6 +117,10 @@ public class JVMService extends AbstractService {
     arguments.addAll(this.nodeConfiguration().defaultJVMFlags().jvmFlags());
     arguments.addAll(this.serviceConfiguration().processConfig().jvmOptions());
 
+    // set the maximum heap memory setting. Xms matching Xmx because if not there is unused memory
+    arguments.add("-Xmx" + this.serviceConfiguration().processConfig().maxHeapMemorySize() + "M");
+    arguments.add("-Xms" + this.serviceConfiguration().processConfig().maxHeapMemorySize() + "M");
+
     // override some default configuration options
     arguments.addAll(DEFAULT_JVM_SYSTEM_PROPERTIES);
     arguments.add("-javaagent:" + wrapperInformation.first().toAbsolutePath());
