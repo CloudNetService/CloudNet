@@ -26,7 +26,6 @@ import eu.cloudnetservice.cloudnet.ext.signs.SignManagement;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.cloudnet.ext.signs.node.configuration.NodeSignsConfigurationHelper;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -114,10 +113,9 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
   }
 
   @Override
-  public @NonNull Collection<Sign> signs(@NonNull String[] groups) {
-    var allGroups = Arrays.asList(groups);
+  public @NonNull Collection<Sign> signs(@NonNull Collection<String> groups) {
     return this.signs.values().stream()
-      .filter(sign -> allGroups.contains(sign.location().group()))
+      .filter(sign -> groups.contains(sign.location().group()))
       .collect(Collectors.toList());
   }
 
