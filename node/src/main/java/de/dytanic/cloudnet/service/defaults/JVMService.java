@@ -142,15 +142,7 @@ public class JVMService extends AbstractService {
     arguments.addAll(this.serviceConfiguration().processConfig().processParameters());
 
     // try to start the process like that
-    try {
-      this.process = new ProcessBuilder(arguments).directory(this.serviceDirectory.toFile()).start();
-      this.eventManager.callEvent(new CloudServicePostProcessStartEvent(this, this.process.toHandle()));
-    } catch (IOException exception) {
-      LOGGER.severe("Unable to start process in %s with command line %s",
-        exception,
-        this.serviceDirectory,
-        String.join(" ", arguments));
-    }
+    this.doStartProcess(arguments);
   }
 
   @Override
@@ -197,6 +189,18 @@ public class JVMService extends AbstractService {
   @Override
   public boolean alive() {
     return this.process != null && this.process.toHandle().isAlive();
+  }
+
+  protected void doStartProcess(@NonNull List<String> arguments) {
+    try {
+      this.process = new ProcessBuilder(arguments).directory(this.serviceDirectory.toFile()).start();
+      this.eventManager.callEvent(new CloudServicePostProcessStartEvent(this, this.process.toHandle()));
+    } catch (IOException exception) {
+      LOGGER.severe("Unable to start process in %s with command line %s",
+        exception,
+        this.serviceDirectory,
+        String.join(" ", arguments));
+    }
   }
 
   protected void initLogHandler() {

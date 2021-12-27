@@ -45,7 +45,8 @@ initializeSubProjects("modules",
   "smart",
   "labymod",
   "npcs",
-  "storage-s3")
+  "storage-s3",
+  "dockerized-services")
 
 fun initializeProjects(vararg names: String) {
   names.forEach {
