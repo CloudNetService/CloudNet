@@ -14,8 +14,9 @@ if you need a bit of guidance while writing your tests.
 - [ ] Breaking change (fix or feature that would cause existing api/functionality to change)
 - [ ] I have read the [CONTRIBUTING](../CONTRIBUTING.md) document.
 - [ ] My code follows the code style of this project.
-- [ ] My change requires a change to the documentation.
+- [ ] My change requires a change to the documentation or javadocs.
 - [ ] I have updated the documentation accordingly.
+- [ ] I have updated the javadocs accordingly.
 - [ ] I have added tests to cover my changes.
 - [ ] All new and existing tests passed.
 

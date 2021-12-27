@@ -47,7 +47,7 @@ Here are some labels that we are using to organize issues:
 * We will avoid changing APIs and behaviour when possible.
 * If api breakage is required all methods which were replaced are annotated as:
   * `@Deperecated`
-  * `@ScheduledForRemoval` - the removal version will be documented here. (Normally the next but one version).
+  * `@ScheduledForRemoval` - the removal version will be documented here. (Normally the next but one minor version).
 * The documentation of changed methods will contain the new method you should use instead.
 
 ## License

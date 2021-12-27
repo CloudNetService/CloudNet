@@ -31,7 +31,7 @@ body:
       description: |
         Try to explain to us what you did before getting the issue. This makes it much easier for us to
         reproduce and resolve your issue. You can attach screenshots or videos if these are helping us
-        to understand what happended.
+        to understand what happened.
     validations:
       required: true
 
