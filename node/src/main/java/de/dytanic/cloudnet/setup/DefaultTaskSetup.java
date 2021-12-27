@@ -214,12 +214,15 @@ public class DefaultTaskSetup implements DefaultSetup {
 
     // install the service template
     this.initializeTemplate(template, environment, true);
-    CloudNet.instance().serviceVersionProvider().installServiceVersion(InstallInformation.builder()
-      .serviceVersion(version.second())
-      .serviceVersionType(version.first())
-      .toTemplate(template)
-      .executable(javaCommand.first())
-      .build(), false);
+    // check if the user chose to install a version
+    if (version != null) {
+      CloudNet.instance().serviceVersionProvider().installServiceVersion(InstallInformation.builder()
+        .serviceVersion(version.second())
+        .serviceVersionType(version.first())
+        .toTemplate(template)
+        .executable(javaCommand.first())
+        .build(), false);
+    }
   }
 
   protected void initializeTemplate(

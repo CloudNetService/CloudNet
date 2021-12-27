@@ -156,12 +156,15 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
 
     // create the default template for the task
     this.initializeTemplate(defaultTemplate, environment, true);
-    // install the chosen version
-    CloudNet.instance().serviceVersionProvider().installServiceVersion(InstallInformation.builder()
-      .serviceVersionType(version.first())
-      .serviceVersion(version.second())
-      .toTemplate(defaultTemplate)
-      .executable(javaVersion.first())
-      .build(), false);
+    // check if the user chose to install a version
+    if (version != null) {
+      // install the chosen version
+      CloudNet.instance().serviceVersionProvider().installServiceVersion(InstallInformation.builder()
+        .serviceVersionType(version.first())
+        .serviceVersion(version.second())
+        .toTemplate(defaultTemplate)
+        .executable(javaVersion.first())
+        .build(), false);
+    }
   }
 }
