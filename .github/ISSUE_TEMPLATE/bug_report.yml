@@ -1,0 +1,79 @@
+name: Bug report
+description: Report exceptions, crashes or any bug you encounter while using CloudNet.
+labels: [ "status: needs triage", "bug" ]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a bug of CloudNet. Please be as detailed as possible in order for us
+        to quickly review and resolve the issues you have. Please check if a similar report
+        was already opened by searching through the opened and closed issues. If there is an existing
+        issue please comment there if you have anything to add. If you are unsure if you actually
+        encountered a bug, join and ask on our discord server: https://discord.cloudnetservice.eu.
+
+  - type: textarea
+    attributes:
+      label: Stacktrace
+      description: |
+        Attach your stack trace here (if any). Ensure that the stack trace is related to CloudNet
+        and do not cut off any parts of it. We're prefering pastes over raw stack traces, for exaple
+        via https://gist.new. DO NOT use attachments for posting logs or exceptions.
+      value: |
+        ```
+        Paste your paste link or the raw stack trace here. DO NOT REMOVE THE BACKTICKS!
+        ```
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: Actions to reproduce
+      description: |
+        Try to explain to us what you did before getting the issue. This makes it much easier for us to
+        reproduce and resolve your issue. You can attach screenshots or videos if these are helping us
+        to understand what happended.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: CloudNet version
+      description: |
+        Run `me` in the node console and paste the full, unmodified output here. DO NOT use an attachments
+        here, just paste the output.
+        <details>
+        <summary>Example</summary>
+        ```
+        cloud@4.0.0-SNAPSHOT-2dc9cabb => me
+        [27.12 15:11:07.457] INFORMATION:
+        [27.12 15:11:07.457] INFORMATION: CloudNet Blizzard 4.0.0-SNAPSHOT 2dc9cabb by Dytanic & the CloudNet Community
+        [27.12 15:11:07.458] INFORMATION: Discord: https://discord.cloudnetservice.eu/
+        [27.12 15:11:07.458] INFORMATION:
+        [27.12 15:11:07.458] INFORMATION: ClusterId: 73e3311b-34d8-46d0-b124-9d5a91ebfe35
+        [27.12 15:11:07.458] INFORMATION: NodeId: Node-1
+        [27.12 15:11:07.459] INFORMATION: Head-NodeId: Node-1
+        [27.12 15:11:07.459] INFORMATION: CPU usage: (P/S) 0,26/3,42/100%
+        [27.12 15:11:07.459] INFORMATION: Node services memory allocation (U/R/M): 1280/1280/30000 MB
+        [27.12 15:11:07.460] INFORMATION: Threads: 29
+        [27.12 15:11:07.460] INFORMATION: Heap usage: 154/456MB
+        [27.12 15:11:07.460] INFORMATION: JVM: OpenJDK 64-Bit Server VM 17.0.1+12
+        [27.12 15:11:07.461] INFORMATION:
+        ```
+        </details>
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Other
+      description: Add more context, screenshots or anything else you want to tell us regarding your request
+    validations:
+      required: false
+
+  - type: checkboxes
+    attributes:
+      label: Issue uniqueness
+      description: Please check that there are no similar issues before submitting your request
+      options:
+        - label: Yes, this issue is unique. There are no similar issues.
+          required: true
