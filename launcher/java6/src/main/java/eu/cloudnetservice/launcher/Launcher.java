@@ -16,11 +16,9 @@
 
 package eu.cloudnetservice.launcher;
 
-import lombok.NonNull;
-
 public final class Launcher {
 
-  public static void main(@NonNull String[] args) throws Exception {
+  public static void main(String[] args) throws Exception {
     // check if we're at least on java 17
     if (detectJavaVersion() >= 17) {
       Class.forName("eu.cloudnetservice.launcher.CloudNetLauncher")
