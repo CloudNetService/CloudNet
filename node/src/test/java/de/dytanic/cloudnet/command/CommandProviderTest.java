@@ -70,8 +70,7 @@ public final class CommandProviderTest {
 
     var rootSuggestions = commandProvider.suggest(source, "tests");
     Assertions.assertEquals(2, rootSuggestions.size());
-    // FIXME: sometimes the suggestions move around in the list leading to test failures... Sort them?
-    Assertions.assertEquals(Arrays.asList("tests", "help"), rootSuggestions);
+    Assertions.assertEquals(Arrays.asList("help", "tests"), rootSuggestions);
 
     var subSuggestions = commandProvider.suggest(source, "tests ");
     Assertions.assertEquals(1, subSuggestions.size());

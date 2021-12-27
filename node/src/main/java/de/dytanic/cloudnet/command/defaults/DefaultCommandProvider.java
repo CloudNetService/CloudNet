@@ -56,6 +56,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -68,7 +69,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public class DefaultCommandProvider implements CommandProvider {
 
-  private static final Key<Collection<String>> ALIAS_KEY = Key.of(new TypeToken<Collection<String>>() {
+  private static final Key<Set<String>> ALIAS_KEY = Key.of(new TypeToken<Set<String>>() {
   }, "alias");
   private static final Key<String> DESCRIPTION_KEY = Key.of(String.class, "cloudnet:description");
 
@@ -140,7 +141,7 @@ public class DefaultCommandProvider implements CommandProvider {
       // retrieve the aliases processed by the @CommandAlias annotation
       var aliases = cloudCommand.getCommandMeta().getOrDefault(ALIAS_KEY, Collections.emptySet());
       // get the name by using the first argument of the command
-      var name = cloudCommand.getArguments().get(0).getName();
+      var name = cloudCommand.getArguments().get(0).getName().toLowerCase();
       // there is no other command registered with the given name, parse usage and register the command now
       this.registeredCommands.put(cloudCommand.getClass().getClassLoader(),
         new CommandInfo(name, aliases, permission, description, this.commandUsageOfRoot(name)));
