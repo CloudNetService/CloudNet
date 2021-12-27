@@ -17,9 +17,10 @@
 package de.dytanic.cloudnet.driver.command;
 
 import de.dytanic.cloudnet.common.Nameable;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
 
@@ -28,7 +29,7 @@ import org.jetbrains.annotations.Contract;
  */
 public record CommandInfo(
   @NonNull String name,
-  @NonNull Collection<String> aliases,
+  @NonNull Set<String> aliases,
   @NonNull String permission,
   @NonNull String description,
   @NonNull List<String> usage
@@ -36,7 +37,7 @@ public record CommandInfo(
 
   @Contract("_ -> new")
   public static @NonNull CommandInfo empty(@NonNull String name) {
-    return new CommandInfo(name, Collections.emptyList(), "", "", Collections.emptyList());
+    return new CommandInfo(name, Collections.emptySet(), "", "", Collections.emptyList());
   }
 
   public @NonNull String joinNameToAliases(@NonNull String separator) {
@@ -46,5 +47,21 @@ public record CommandInfo(
     }
 
     return result;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof CommandInfo that)) {
+      return false;
+    }
+    return this.name.equals(that.name);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(this.name);
   }
 }
