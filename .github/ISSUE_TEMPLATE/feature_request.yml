@@ -1,0 +1,47 @@
+name: Feature request
+description: Suggest an idea for CloudNet
+labels: [ "status: needs triage", "feature_request" ]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for creating a feature request for CloudNet. Please be as detailed as possible
+        in order for us to quickly review and add your feature. Please check if a similar request
+        was already opened by searching through the opened and closed issues. If there is an existing
+        issue please comment there if you have anything to add.
+
+  - type: textarea
+    attributes:
+      label: Describe the new feature
+      description: A detailed explaination of your request.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Why do you need this feature?
+      description: Explain in as much detail as possible why this feature is needed (especially for other users)
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Alternatives
+      description: Are there any alternatives you've considered or can think of?
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Other
+      description: Add more context, screenshots or anything else you want to tell us regarding your request
+    validations:
+      required: false
+
+  - type: checkboxes
+    attributes:
+      label: Issue uniqueness
+      description: Please check that there are no similar issues before submitting your request
+      options:
+        - label: Yes, this issue is unique. There are no similar issues.
+          required: true

@@ -1,0 +1,12 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Discord
+    url: https://discord.cloudnetservice.eu
+    about: |
+      If you need general support on CloudNet, you should use our Discord server. We and the community can help you
+      help you there faster and more targeted.
+  - name: Exploit Report
+    url: https://discord.cloudnetservice.eu
+    about: |
+      GitHub has currently no way for private issues. Please join our discord server and open a ticket there if you
+      found a securitly vulnerability.
