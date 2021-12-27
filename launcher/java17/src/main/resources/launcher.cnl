@@ -39,7 +39,6 @@ var cloudnet.logging.defaultlevel INFO
 #var cloudnet.config.tasks.directory.path local/tasks
 #var cloudnet.tempDir.services temp/services
 #var cloudnet.persistable.services.path local/services
-#var cloudnet.versions.url https://cloudnetservice.eu/cloudnet/versions.json
 #var cloudnet.versioncache.path local/versioncache
 #var cloudnet.max.node.idle.millis 30000
 #var cloudnet.database.xodus.path local/database/xodus

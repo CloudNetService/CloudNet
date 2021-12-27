@@ -192,7 +192,7 @@ public class CloudNet extends CloudNetDriver {
   public void start() throws Exception {
     HeaderReader.readAndPrintHeader(this.console);
     // load the service versions
-    this.serviceVersionProvider.loadServiceVersionTypesOrDefaults(ServiceVersionProvider.DEFAULT_FILE_URL);
+    this.serviceVersionProvider.loadDefaultVersionTypes();
 
     // init the default services
     this.servicesRegistry.registerService(
