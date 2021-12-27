@@ -26,5 +26,5 @@ object Versions {
   const val juppiter = "0.2.0"
 
   // external tools
-  const val checkstyleTools = "9.2"
+  const val checkstyleTools = "9.2.1"
 }

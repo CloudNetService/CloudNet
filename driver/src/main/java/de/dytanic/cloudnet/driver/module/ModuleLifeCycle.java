@@ -42,7 +42,7 @@ public enum ModuleLifeCycle {
    */
   STOPPED(2, 5),
   /**
-   * In this state the module is completely unloaded and will switch to the {@link ModuleLifeCycle#UNUSEABLE} state
+   * In this state the module is completely unloaded and will switch to the {@link ModuleLifeCycle#UNUSABLE} state
    * shortly.
    */
   UNLOADED(1, 6),
@@ -50,7 +50,7 @@ public enum ModuleLifeCycle {
    * In this state the module wrapper instance is empty, it is not associated with a module anymore. Defined module
    * tasks for this state will never fire.
    */
-  UNUSEABLE;
+  UNUSABLE;
 
   private final int[] possibleChangeTargetOrdinals;
 

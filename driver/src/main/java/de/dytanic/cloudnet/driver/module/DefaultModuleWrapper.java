@@ -188,6 +188,11 @@ public class DefaultModuleWrapper implements ModuleWrapper {
    */
   @Override
   public @NonNull ModuleWrapper reloadModule() {
+    // runtime modules are not reloadable
+    if (this.moduleConfiguration.runtimeModule) {
+      return this;
+    }
+
     if (this.moduleLifeCycle().canChangeTo(ModuleLifeCycle.RELOADING)
       && this.provider.notifyPreModuleLifecycleChange(this, ModuleLifeCycle.RELOADING)) {
       // Resolve all dependencies of this module to reload them before this module
@@ -233,7 +238,7 @@ public class DefaultModuleWrapper implements ModuleWrapper {
         );
       }
       // set the state to unusable
-      this.lifeCycle.set(ModuleLifeCycle.UNUSEABLE);
+      this.lifeCycle.set(ModuleLifeCycle.UNUSABLE);
     }
     return this;
   }

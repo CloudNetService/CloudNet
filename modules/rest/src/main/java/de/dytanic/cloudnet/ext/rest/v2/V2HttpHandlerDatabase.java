@@ -103,13 +103,13 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
         .context()
         .closeAfter(true)
         .cancelNext();
+    } else {
+      this.ok(context)
+        .body(this.success().append("result", database.contains(key)).toString())
+        .context()
+        .closeAfter(true)
+        .cancelNext();
     }
-
-    this.ok(context)
-      .body(this.success().append("result", database.contains(key)).toString())
-      .context()
-      .closeAfter(true)
-      .cancelNext();
   }
 
   protected void handleGetRequest(HttpContext context) {
@@ -120,7 +120,6 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
     }
 
     var body = this.body(context.request());
-    var key = body.getString("key");
     var filter = body.getDocument("filter");
 
     var result = database.get(filter);
@@ -169,9 +168,17 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
 
     this.withContextData(context, (key, data) -> {
       if (database.insert(key, data)) {
-        this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
+        this.ok(context)
+          .body(this.success().toString())
+          .context()
+          .closeAfter(true)
+          .cancelNext();
       } else {
-        this.ok(context).body(this.failure().toString()).context().closeAfter(true).cancelNext();
+        this.ok(context)
+          .body(this.failure().toString())
+          .context()
+          .closeAfter(true)
+          .cancelNext();
       }
     });
   }
@@ -185,9 +192,17 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
 
     this.withContextData(context, (key, data) -> {
       if (database.update(key, data)) {
-        this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
+        this.ok(context)
+          .body(this.success().toString())
+          .context()
+          .closeAfter(true)
+          .cancelNext();
       } else {
-        this.ok(context).body(this.failure().toString()).context().closeAfter(true).cancelNext();
+        this.ok(context)
+          .body(this.failure().toString())
+          .context()
+          .closeAfter(true)
+          .cancelNext();
       }
     });
   }
@@ -201,9 +216,17 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
 
     var key = RestUtils.first(context.request().queryParameters().get("key"));
     if (database.delete(key)) {
-      this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
+      this.ok(context)
+        .body(this.success().toString())
+        .context()
+        .closeAfter(true)
+        .cancelNext();
     } else {
-      this.ok(context).body(this.failure().toString()).context().closeAfter(true).cancelNext();
+      this.ok(context)
+        .body(this.failure().toString())
+        .context()
+        .closeAfter(true)
+        .cancelNext();
     }
   }
 

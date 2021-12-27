@@ -18,6 +18,7 @@ package eu.cloudnetservice.cloudnet.ext.signs.node;
 
 import static eu.cloudnetservice.cloudnet.ext.signs.node.util.SignEntryTaskSetup.addSetupQuestionIfNecessary;
 
+import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
@@ -34,10 +35,13 @@ import eu.cloudnetservice.cloudnet.ext.signs.node.util.SignEntryTaskSetup;
 import eu.cloudnetservice.cloudnet.ext.signs.node.util.SignPluginInclusion;
 import eu.cloudnetservice.cloudnet.ext.signs.platform.AbstractPlatformSignManagement;
 import eu.cloudnetservice.cloudnet.ext.signs.platform.PlatformSignManagement;
+import java.lang.reflect.Type;
 import java.util.Collection;
 import lombok.NonNull;
 
 public class NodeSignsListener {
+
+  private static final Type STRING_COLLECTION = TypeToken.getParameterized(Collection.class, String.class).getType();
 
   protected final SignManagement signManagement;
 
@@ -103,7 +107,7 @@ public class NodeSignsListener {
 
         // get all signs of a group
         case PlatformSignManagement.SIGN_GET_SIGNS_BY_GROUPS -> {
-          var signs = this.signManagement.signs(event.content().readObject(String[].class));
+          var signs = this.signManagement.signs(event.content().readObject(STRING_COLLECTION));
           event.binaryResponse(DataBuf.empty().writeObject(signs));
         }
         // set the sign configuration without a re-publish to the cluster

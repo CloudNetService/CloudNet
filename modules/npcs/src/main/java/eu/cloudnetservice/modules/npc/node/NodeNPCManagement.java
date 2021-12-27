@@ -28,7 +28,6 @@ import eu.cloudnetservice.modules.npc.node.listeners.NodeChannelMessageListener;
 import eu.cloudnetservice.modules.npc.node.listeners.NodePluginIncludeListener;
 import eu.cloudnetservice.modules.npc.node.listeners.NodeSetupListener;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map.Entry;
@@ -130,11 +129,10 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
   }
 
   @Override
-  public @NonNull Collection<NPC> npcs(@NonNull String[] groups) {
-    Arrays.sort(groups);
+  public @NonNull Collection<NPC> npcs(@NonNull Collection<String> groups) {
     // filter all npcs
     return this.npcs.values().stream()
-      .filter(npc -> Arrays.binarySearch(groups, npc.location().group()) >= 0)
+      .filter(npc -> groups.contains(npc.location().group()))
       .collect(Collectors.toList());
   }
 

@@ -127,7 +127,7 @@ public interface ModuleWrapper {
   /**
    * Changes the lifecycle of this module to {@link ModuleLifeCycle#UNLOADED} if possible and fires all associated
    * tasks. The module will be unregistered from the provider, the class loader will be closed and the state of this
-   * module changes to {@link ModuleLifeCycle#UNUSEABLE}.
+   * module changes to {@link ModuleLifeCycle#UNUSABLE}.
    *
    * @return the same instance of this class, for chaining.
    * @see #moduleTasks()

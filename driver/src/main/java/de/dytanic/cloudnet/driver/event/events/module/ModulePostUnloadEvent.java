@@ -24,7 +24,7 @@ import lombok.NonNull;
 /**
  * This event is being called after a module has been unloaded and the tasks with the lifecycle {@link
  * ModuleLifeCycle#UNLOADED} of this module have been fired. {@link ModuleWrapper#moduleLifeCycle()} is still {@link
- * ModuleLifeCycle#UNUSEABLE}
+ * ModuleLifeCycle#UNUSABLE}
  */
 public final class ModulePostUnloadEvent extends ModuleEvent {
 

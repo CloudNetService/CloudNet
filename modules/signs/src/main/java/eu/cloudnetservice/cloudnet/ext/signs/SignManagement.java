@@ -94,7 +94,7 @@ public interface SignManagement {
    * @param groups the groups the signs are created on
    * @return all signs that are created on the given groups
    */
-  @NonNull Collection<Sign> signs(@NonNull String[] groups);
+  @NonNull Collection<Sign> signs(@NonNull Collection<String> groups);
 
   /**
    * Get the current sign configuration.

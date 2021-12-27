@@ -405,65 +405,6 @@
       ]
     },
     {
-      "name": "magma",
-      "environmentType": "MINECRAFT_SERVER",
-      "installSteps": [
-        "DOWNLOAD",
-        "MAGMA_BUILD",
-        "COPY_FILTER"
-      ],
-      "website": "https://magmafoundation.org/",
-      "versions": [
-        {
-          "name": "latest",
-          "url": "https://api.magmafoundation.org/api/resources/magma/1.16.5/dev/latest/download",
-          "maxJavaVersion": 8,
-          "cacheFiles": false,
-          "properties": {
-            "copy": {
-              "libraries/.*": "/",
-              "forge-.*\\.jar": "magma.jar",
-              "minecraft_server.*\\.jar": "/"
-            },
-            "parameters": [
-              "--installServer"
-            ]
-          }
-        },
-        {
-          "name": "1.16.5",
-          "url": "https://api.magmafoundation.org/api/resources/magma/1.16.5/dev/latest/download",
-          "maxJavaVersion": 8,
-          "cacheFiles": false,
-          "properties": {
-            "copy": {
-              "libraries/.*": "/",
-              "forge-.*\\.jar": "magma.jar",
-              "minecraft_server.*\\.jar": "/"
-            },
-            "parameters": [
-              "--installServer"
-            ]
-          }
-        },
-        {
-          "name": "1.12.2",
-          "url": "https://api.magmafoundation.org/api/resources/server/1.12.2/stable/latest/download",
-          "maxJavaVersion": 8,
-          "cacheFiles": false,
-          "properties": {
-            "copy": {
-              "libraries/.*": "/",
-              "magma\\.jar": "/",
-              "minecraft_server.*\\.jar": "/",
-              "libraries\\.version": "/"
-            },
-            "disableExitCodeChecking": true
-          }
-        }
-      ]
-    },
-    {
       "name": "spongeforge",
       "environmentType": "MINECRAFT_SERVER",
       "installSteps": [

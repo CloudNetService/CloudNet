@@ -55,7 +55,7 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
   public PlatformNPCManagement() {
     super(loadNPCConfiguration());
     // get the npcs for the current group
-    var groups = Wrapper.instance().serviceConfiguration().groups().toArray(new String[0]);
+    var groups = Wrapper.instance().serviceConfiguration().groups();
     for (var npc : this.npcs(groups)) {
       this.npcs.put(npc.location(), npc);
     }
@@ -104,7 +104,7 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
   }
 
   @Override
-  public @NonNull Collection<NPC> npcs(@NonNull String[] groups) {
+  public @NonNull Collection<NPC> npcs(@NonNull Collection<String> groups) {
     var response = this.channelMessage(NPC_GET_NPCS_BY_GROUP)
       .buffer(DataBuf.empty().writeObject(groups))
       .build().sendSingleQuery();

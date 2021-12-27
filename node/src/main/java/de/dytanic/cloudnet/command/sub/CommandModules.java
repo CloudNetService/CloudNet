@@ -135,6 +135,11 @@ public final class CommandModules {
       throw new ArgumentNotAvailableException(
         I18n.trans("command-modules-module-not-started").replace("%name%", moduleName));
     }
+
+    if (wrapper.moduleConfiguration().runtimeModule()) {
+      throw new ArgumentNotAvailableException(
+        I18n.trans("command-modules-module-runtime-module").replace("%name%", moduleName));
+    }
     return wrapper;
   }
 
@@ -142,6 +147,7 @@ public final class CommandModules {
   public List<String> suggestReloadModule(CommandContext<?> $, String input) {
     return this.provider.modules().stream()
       .filter(wrapper -> wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.RELOADING))
+      .filter(wrapper -> !wrapper.moduleConfiguration().runtimeModule())
       .map(wrapper -> wrapper.module().name())
       .toList();
   }

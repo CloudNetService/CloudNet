@@ -39,7 +39,7 @@ public interface NPCManagement {
 
   @NonNull Collection<NPC> npcs();
 
-  @NonNull Collection<NPC> npcs(@NonNull String[] groups);
+  @NonNull Collection<NPC> npcs(@NonNull Collection<String> groups);
 
   @NonNull NPCConfiguration npcConfiguration();
 

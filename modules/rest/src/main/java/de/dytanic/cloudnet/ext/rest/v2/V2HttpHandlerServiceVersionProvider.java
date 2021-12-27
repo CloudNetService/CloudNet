@@ -88,7 +88,11 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
     } else {
       try {
         if (!this.versionProvider().loadServiceVersionTypes(url)) {
-          this.ok(context).body(this.failure().toString()).context().closeAfter(true).cancelNext();
+          this.ok(context)
+            .body(this.failure().toString())
+            .context()
+            .closeAfter(true)
+            .cancelNext();
           return;
         }
       } catch (IOException exception) {
@@ -116,7 +120,11 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
     }
 
     this.versionProvider().registerServiceVersionType(type);
-    this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
+    this.ok(context)
+      .body(this.success().toString())
+      .context()
+      .closeAfter(true)
+      .cancelNext();
   }
 
   protected ServiceVersionProvider versionProvider() {
