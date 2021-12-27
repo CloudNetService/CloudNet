@@ -72,7 +72,7 @@ public final class WildcardUtil {
    *
    * @param inputValues   the input values to search trough.
    * @param regex         the regex to use for searching.
-   * @param caseSensitive if the search should be case sensitive.
+   * @param caseSensitive if the search should be case-sensitive.
    * @param <T>           the type of the input values.
    * @return all input values matching the given pattern.
    */
@@ -97,7 +97,7 @@ public final class WildcardUtil {
    *
    * @param values        the values to search trough.
    * @param regex         the regex to use for searching.
-   * @param caseSensitive if the search should be case sensitive.
+   * @param caseSensitive if the search should be case-sensitive.
    * @return {@code true} if any of the values matches the given regex.
    */
   public static boolean anyMatch(
