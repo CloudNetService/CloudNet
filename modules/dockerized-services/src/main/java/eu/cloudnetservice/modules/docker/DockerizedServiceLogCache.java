@@ -37,9 +37,17 @@ public class DockerizedServiceLogCache extends AbstractServiceLogCache {
 
   public void handle(@NonNull Frame frame) {
     switch (frame.getStreamType()) {
-      case STDERR -> super.handleItem(new String(frame.getPayload(), StandardCharsets.UTF_8), true);
-      case RAW, STDIN, STDOUT -> super.handleItem(new String(frame.getPayload(), StandardCharsets.UTF_8), false);
-      default -> throw new IllegalArgumentException("Unhandled frame type " + frame.getStreamType());
+      case STDERR -> this.handleItem(new String(frame.getPayload(), StandardCharsets.UTF_8), true);
+      case STDOUT, STDIN -> this.handleItem(new String(frame.getPayload(), StandardCharsets.UTF_8), false);
+      default -> {
+      }
+    }
+  }
+
+  @Override
+  protected void handleItem(@NonNull String entry, boolean comesFromErrorStream) {
+    if (!entry.trim().isEmpty()) {
+      super.handleItem(entry, comesFromErrorStream);
     }
   }
 }

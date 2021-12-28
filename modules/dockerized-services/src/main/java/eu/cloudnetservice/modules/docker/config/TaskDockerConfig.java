@@ -21,8 +21,9 @@ import java.util.Set;
 import org.jetbrains.annotations.Nullable;
 
 public record TaskDockerConfig(
-  @Nullable String javaImage,
+  @Nullable DockerImage javaImage,
   @Nullable Set<String> volumes,
+  @Nullable Set<String> binds,
   @Nullable Set<ExposedPort> exposedPorts
 ) {
 

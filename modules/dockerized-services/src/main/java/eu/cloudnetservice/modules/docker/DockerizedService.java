@@ -19,8 +19,10 @@ package eu.cloudnetservice.modules.docker;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.async.ResultCallback.Adapter;
+import com.github.dockerjava.api.command.PullImageCmd;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.exception.NotModifiedException;
+import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.Frame;
 import com.github.dockerjava.api.model.HostConfig;
@@ -36,16 +38,18 @@ import de.dytanic.cloudnet.service.CloudServiceManager;
 import de.dytanic.cloudnet.service.ServiceConfigurationPreparer;
 import de.dytanic.cloudnet.service.defaults.JVMService;
 import eu.cloudnetservice.modules.docker.config.DockerConfiguration;
+import eu.cloudnetservice.modules.docker.config.DockerImage;
 import eu.cloudnetservice.modules.docker.config.TaskDockerConfig;
 import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.NonNull;
 
@@ -82,7 +86,7 @@ public class DockerizedService extends JVMService {
   public void runCommand(@NonNull String command) {
     if (this.stdOut != null) {
       try {
-        this.stdOut.write(command.getBytes(StandardCharsets.UTF_8));
+        this.stdOut.write((command + "\n").getBytes(StandardCharsets.UTF_8));
         this.stdOut.flush();
       } catch (IOException exception) {
         LOGGER.fine("Unable to send command to docker container", exception);
@@ -114,27 +118,45 @@ public class DockerizedService extends JVMService {
   }
 
   @Override
-  protected void doStartProcess(@NonNull List<String> arguments) {
+  protected void doStartProcess(
+    @NonNull List<String> arguments,
+    @NonNull Path wrapperPath,
+    @NonNull Path applicationFilePath
+  ) {
     if (this.containerId == null) {
       // get the task specific options
       var image = this.readFromTaskConfig(TaskDockerConfig::javaImage).orElse(this.configuration.javaImage());
       var taskExposedPorts = this.readFromTaskConfig(TaskDockerConfig::exposedPorts).orElse(Set.of());
 
       // combine the task options with the global options
-      var volumes = this.selectVolumes();
+      var volumes = this.collectVolumes();
+      var binds = this.collectBinds(wrapperPath);
       var exposedPorts = Lists.newArrayList(Iterables.concat(taskExposedPorts, this.configuration.exposedPorts()));
       // we need to expose the port of the service we're starting as well
       exposedPorts.add(new ExposedPort(this.serviceConfiguration.port(), InternetProtocol.TCP));
 
+      try {
+        // pull the requested image
+        this.buildPullCommand(image).start().awaitCompletion();
+      } catch (Exception exception) {
+        LOGGER.severe("Unable to pull image " + image.imageName() + " from docker registry", exception);
+        return;
+      }
+
       // create the container and store the container id
-      this.containerId = this.dockerClient.createContainerCmd(image)
+      this.containerId = this.dockerClient.createContainerCmd(image.imageName())
+        .withTty(false)
+        .withStdinOpen(true)
         .withVolumes(volumes)
-        .withExposedPorts(exposedPorts)
         .withEntrypoint(arguments)
         .withStopSignal("SIGTERM")
+        .withExposedPorts(exposedPorts)
+        .withName(this.serviceId().uniqueId().toString())
         .withWorkingDir(this.serviceDirectory.toAbsolutePath().toString())
-        .withName(this.serviceConfiguration.serviceId().toString())
-        .withHostConfig(HostConfig.newHostConfig().withRestartPolicy(RestartPolicy.noRestart()))
+        .withHostConfig(HostConfig.newHostConfig()
+          .withBinds(binds)
+          .withNetworkMode(this.configuration.network())
+          .withRestartPolicy(RestartPolicy.noRestart()))
         .exec()
         .getId();
     }
@@ -200,21 +222,56 @@ public class DockerizedService extends JVMService {
     super.doDelete();
   }
 
-  protected @NonNull List<Volume> selectVolumes() {
-    // allow a static service to write to every file in the directory
-    if (this.serviceConfiguration.staticService()) {
-      return List.of(new Volume(this.serviceDirectory.toAbsolutePath().toString()));
-    }
+  protected @NonNull Bind[] collectBinds(@NonNull Path wrapperFilePath) {
+    Set<Bind> binds = new HashSet<>();
+
+    // allow the container full access to the work directory and the wrapper file
+    binds.add(this.bindFromPath(wrapperFilePath.toAbsolutePath().toString()));
+    binds.add(this.bindFromPath(this.serviceDirectory.toAbsolutePath().toString()));
+
     // get the task specific volumes and concat them with the default volumes
+    var taskBinds = this.readFromTaskConfig(TaskDockerConfig::binds).orElse(Set.of());
+    binds.addAll(Stream.concat(taskBinds.stream(), this.configuration.binds().stream())
+      .map(path -> this.serviceDirectory.resolve(path).toAbsolutePath().toString())
+      .map(this::bindFromPath)
+      .toList());
+
+    // uses array instead of list to ensure that there are no duplicate binds
+    return binds.toArray(Bind[]::new);
+  }
+
+  protected @NonNull Volume[] collectVolumes() {
     var taskVolumes = this.readFromTaskConfig(TaskDockerConfig::volumes).orElse(Set.of());
-    return Stream.concat(taskVolumes.stream(), this.configuration.volumes().stream())
+    return Stream.concat(this.configuration.volumes().stream(), taskVolumes.stream())
       .map(Volume::new)
-      .collect(Collectors.toList());
+      .distinct()
+      .toArray(Volume[]::new);
   }
 
   protected @NonNull <T> Optional<T> readFromTaskConfig(@NonNull Function<TaskDockerConfig, T> reader) {
     var config = this.serviceConfiguration.properties().get("docker", TaskDockerConfig.class);
     return config == null ? Optional.empty() : Optional.ofNullable(reader.apply(config));
+  }
+
+  protected @NonNull PullImageCmd buildPullCommand(@NonNull DockerImage image) {
+    var cmd = this.dockerClient.pullImageCmd(image.repository());
+    // append the tag if given
+    if (image.tag() != null) {
+      cmd.withTag(image.tag());
+    }
+    // append the registry if given
+    if (image.registry() != null) {
+      cmd.withRegistry(image.registry());
+    }
+    // append the platform if given
+    if (image.platform() != null) {
+      cmd.withPlatform(image.platform());
+    }
+    return cmd;
+  }
+
+  protected @NonNull Bind bindFromPath(@NonNull String path) {
+    return new Bind(path, new Volume(path));
   }
 
   public final class ServiceLogCacheAdapter extends Adapter<Frame> {

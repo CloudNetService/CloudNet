@@ -23,8 +23,10 @@ import org.jetbrains.annotations.Nullable;
 
 public record DockerConfiguration(
   @NonNull String factoryName,
-  @NonNull String javaImage,
+  @NonNull String network,
+  @NonNull DockerImage javaImage,
   @NonNull Set<String> volumes,
+  @NonNull Set<String> binds,
   @NonNull Set<ExposedPort> exposedPorts,
   @NonNull String dockerHost,
   @Nullable String dockerCertPath,

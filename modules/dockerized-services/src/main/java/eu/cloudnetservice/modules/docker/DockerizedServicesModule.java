@@ -25,6 +25,7 @@ import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.driver.module.driver.DriverModule;
 import eu.cloudnetservice.modules.docker.config.DockerConfiguration;
+import eu.cloudnetservice.modules.docker.config.DockerImage;
 import java.nio.file.Files;
 import java.time.Duration;
 import java.util.Set;
@@ -38,8 +39,10 @@ public class DockerizedServicesModule extends DriverModule {
     if (Files.notExists(this.configPath())) {
       this.configuration = new DockerConfiguration(
         "docker-jvm",
-        "azul/zulu-openjdk-alpine:17-jre",
-        Set.of("plugins/", "world/", "world_nether/", "world_the_end/"),
+        "host",
+        DockerImage.builder().repository("azul/zulu-openjdk-alpine").tag("17-jre-headless").build(),
+        Set.of(),
+        Set.of(),
         Set.of(),
         "unix:///var/run/docker.sock",
         null,

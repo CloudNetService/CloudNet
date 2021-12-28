@@ -142,7 +142,7 @@ public class JVMService extends AbstractService {
     arguments.addAll(this.serviceConfiguration().processConfig().processParameters());
 
     // try to start the process like that
-    this.doStartProcess(arguments);
+    this.doStartProcess(arguments, wrapperInformation.first(), applicationInformation.first());
   }
 
   @Override
@@ -191,7 +191,11 @@ public class JVMService extends AbstractService {
     return this.process != null && this.process.toHandle().isAlive();
   }
 
-  protected void doStartProcess(@NonNull List<String> arguments) {
+  protected void doStartProcess(
+    @NonNull List<String> arguments,
+    @NonNull Path wrapperPath,
+    @NonNull Path applicationFilePath
+  ) {
     try {
       this.process = new ProcessBuilder(arguments).directory(this.serviceDirectory.toFile()).start();
       this.eventManager.callEvent(new CloudServicePostProcessStartEvent(this, this.process.toHandle()));
