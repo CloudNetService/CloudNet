@@ -92,8 +92,7 @@ public abstract class CloudNetDriver {
   /**
    * @return a singleton instance of the CloudNetDriver
    */
-  @NonNull
-  public static CloudNetDriver instance() {
+  public static @NonNull CloudNetDriver instance() {
     return CloudNetDriver.instance;
   }
 
@@ -109,8 +108,7 @@ public abstract class CloudNetDriver {
   /**
    * Returns the name of this component. (e.g. Node-1, Lobby-1)
    */
-  @NonNull
-  public abstract String componentName();
+  public abstract @NonNull String componentName();
 
   /**
    * Gets the component name if it is called on a node and the name of the node that the service is started on if called
@@ -118,46 +116,40 @@ public abstract class CloudNetDriver {
    *
    * @return the uniqueId of the current node
    */
-  @NonNull
-  public abstract String nodeUniqueId();
+  public abstract @NonNull String nodeUniqueId();
 
   /**
    * @return the set {@link CloudServiceFactory} for creating new services in the cloud
    */
-  @NonNull
-  public CloudServiceFactory cloudServiceFactory() {
+  public @NonNull CloudServiceFactory cloudServiceFactory() {
     return this.cloudServiceFactory;
   }
 
   /**
    * @return the set {@link ServiceTaskProvider} for the management of service tasks
    */
-  @NonNull
-  public ServiceTaskProvider serviceTaskProvider() {
+  public @NonNull ServiceTaskProvider serviceTaskProvider() {
     return this.serviceTaskProvider;
   }
 
   /**
    * @return the set {@link NodeInfoProvider} which provides access to the local node or nodes in the cluster.
    */
-  @NonNull
-  public NodeInfoProvider nodeInfoProvider() {
+  public @NonNull NodeInfoProvider nodeInfoProvider() {
     return this.nodeInfoProvider;
   }
 
   /**
    * @return the set {@link GroupConfigurationProvider} which manages the services groups
    */
-  @NonNull
-  public GroupConfigurationProvider groupConfigurationProvider() {
+  public @NonNull GroupConfigurationProvider groupConfigurationProvider() {
     return this.groupConfigurationProvider;
   }
 
   /**
    * @return the set {@link CloudMessenger} to communicate between services and nodes
    */
-  @NonNull
-  public CloudMessenger messenger() {
+  public @NonNull CloudMessenger messenger() {
     return this.messenger;
   }
 
@@ -165,8 +157,7 @@ public abstract class CloudNetDriver {
    * @return the current {@link PermissionManagement}
    * @throws NullPointerException if there is no PermissionManagement available
    */
-  @NonNull
-  public PermissionManagement permissionManagement() {
+  public @NonNull PermissionManagement permissionManagement() {
     Preconditions.checkNotNull(this.permissionManagement, "no permission management available");
     return this.permissionManagement;
   }
@@ -213,21 +204,18 @@ public abstract class CloudNetDriver {
    * @return the local {@link TemplateStorage}
    * @throws IllegalStateException if the TemplateStorage is not present
    */
-  @NonNull
-  public abstract TemplateStorage localTemplateStorage();
+
+  public abstract @NonNull TemplateStorage localTemplateStorage();
 
   /**
    * @param storage the name of the storage
    * @return the registered {@link TemplateStorage}, null if the storage does not exist
    */
-  @Nullable
-  public abstract TemplateStorage templateStorage(@NonNull String storage);
+  public abstract @Nullable TemplateStorage templateStorage(@NonNull String storage);
 
-  @NonNull
-  public abstract Collection<TemplateStorage> availableTemplateStorages();
+  public abstract @NonNull Collection<TemplateStorage> availableTemplateStorages();
 
-  @NonNull
-  public Task<Collection<TemplateStorage>> availableTemplateStoragesAsync() {
+  public @NonNull Task<Collection<TemplateStorage>> availableTemplateStoragesAsync() {
     return CompletableTask.supply(this::availableTemplateStorages);
   }
 
@@ -235,8 +223,7 @@ public abstract class CloudNetDriver {
     return this.databaseProvider;
   }
 
-  @NonNull
-  public GeneralCloudServiceProvider cloudServiceProvider() {
+  public @NonNull GeneralCloudServiceProvider cloudServiceProvider() {
     return this.generalCloudServiceProvider;
   }
 
@@ -247,8 +234,8 @@ public abstract class CloudNetDriver {
   public abstract @NonNull Collection<String> sendCommandLineAsPermissionUser(@NonNull UUID uniqueId,
     @NonNull String commandLine);
 
-  @NonNull
-  public Task<Collection<String>> sendCommandLineAsPermissionUserAsync(@NonNull UUID uniqueId,
+  public @NonNull Task<Collection<String>> sendCommandLineAsPermissionUserAsync(
+    @NonNull UUID uniqueId,
     @NonNull String commandLine
   ) {
     return CompletableTask.supply(() -> this.sendCommandLineAsPermissionUser(uniqueId, commandLine));
@@ -263,28 +250,23 @@ public abstract class CloudNetDriver {
     return ProcessSnapshot.ownPID();
   }
 
-  @NonNull
-  public ServicesRegistry servicesRegistry() {
+  public @NonNull ServicesRegistry servicesRegistry() {
     return this.servicesRegistry;
   }
 
-  @NonNull
-  public EventManager eventManager() {
+  public @NonNull EventManager eventManager() {
     return this.eventManager;
   }
 
-  @NonNull
-  public ModuleProvider moduleProvider() {
+  public @NonNull ModuleProvider moduleProvider() {
     return this.moduleProvider;
   }
 
-  @NonNull
-  public ScheduledExecutorService taskExecutor() {
+  public @NonNull ScheduledExecutorService taskExecutor() {
     return this.scheduler;
   }
 
-  @NonNull
-  public RPCProviderFactory rpcProviderFactory() {
+  public @NonNull RPCProviderFactory rpcProviderFactory() {
     return this.rpcProviderFactory;
   }
 
@@ -292,13 +274,11 @@ public abstract class CloudNetDriver {
     return this.rpcHandlerRegistry;
   }
 
-  @NonNull
-  public DriverEnvironment environment() {
+  public @NonNull DriverEnvironment environment() {
     return this.driverEnvironment;
   }
 
-  @NonNull
-  public CloudNetVersion version() {
+  public @NonNull CloudNetVersion version() {
     return this.cloudNetVersion;
   }
 

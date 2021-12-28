@@ -223,6 +223,11 @@ public class DefaultModuleWrapper implements ModuleWrapper {
    */
   @Override
   public @NonNull ModuleWrapper unloadModule() {
+    // runtime modules are not unloadable
+    if (this.moduleConfiguration.runtimeModule) {
+      return this;
+    }
+
     if (this.moduleLifeCycle().canChangeTo(ModuleLifeCycle.UNLOADED)) {
       this.pushLifecycleChange(ModuleLifeCycle.UNLOADED, true);
       // remove all known module tasks & dependencies
