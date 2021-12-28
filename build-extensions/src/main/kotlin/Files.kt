@@ -27,6 +27,7 @@ object Files {
   const val bridge = "cloudnet-bridge.jar"
   const val cloudflare = "cloudnet-cloudflare.jar"
   const val cloudperms = "cloudnet-cloudperms.jar"
+  const val dockerizedServices = "cloudnet-dockerized-services.jar"
   const val database_mongodb = "cloudnet-database-mongodb.jar"
   const val database_mysql = "cloudnet-database-mysql.jar"
   const val labymod = "cloudnet-labymod.jar"
