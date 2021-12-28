@@ -118,8 +118,10 @@ public class DefaultCommandProvider implements CommandProvider {
    */
   @Override
   public @NonNull CompletableFuture<?> execute(@NonNull CommandSource source, @NonNull String input) {
-    return this.commandManager.executeCommand(source, input)
-      .whenComplete((result, throwable) -> this.exceptionHandler.handleCommandExceptions(source, throwable));
+    return this.commandManager.executeCommand(source, input).handle((result, throwable) -> {
+      this.exceptionHandler.handleCommandExceptions(source, throwable);
+      return result;
+    });
   }
 
   /**

@@ -36,6 +36,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Formatter;
+import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.stream.Collectors;
 import lombok.NonNull;
@@ -189,7 +190,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
         V2HttpHandlerNode.this.node().commandProvider().execute(commandSource, commandLine).join();
 
         for (var message : commandSource.messages()) {
-          this.channel.sendWebSocketFrame(WebSocketFrameType.TEXT, message);
+          publish(new LogRecord(Level.INFO, message));
         }
       }
     }
