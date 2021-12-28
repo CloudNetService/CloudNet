@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.ext.rest.v2;
 
+import cloud.commandframework.exceptions.CommandParseException;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.log.AbstractHandler;
 import de.dytanic.cloudnet.common.log.LogManager;
@@ -33,9 +34,11 @@ import de.dytanic.cloudnet.http.HttpSession;
 import de.dytanic.cloudnet.http.WebSocketAbleV2HttpHandler;
 import de.dytanic.cloudnet.permission.command.PermissionUserCommandSource;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Formatter;
+import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.stream.Collectors;
 import lombok.NonNull;
@@ -186,10 +189,18 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
 
         var commandSource = new PermissionUserCommandSource(user,
           V2HttpHandlerNode.this.node().permissionManagement());
-        V2HttpHandlerNode.this.node().commandProvider().execute(commandSource, commandLine).join();
+
+        try {
+          V2HttpHandlerNode.this.node().commandProvider().execute(commandSource, commandLine).join();
+        } catch (CompletionException exception) {
+          Throwable cause = exception.getCause();
+          if (!(cause instanceof CommandParseException)) {
+            throw exception;
+          }
+        }
 
         for (var message : commandSource.messages()) {
-          this.channel.sendWebSocketFrame(WebSocketFrameType.TEXT, message);
+          publish(new LogRecord(Level.INFO, message));
         }
       }
     }
