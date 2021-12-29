@@ -16,71 +16,67 @@
 
 package de.dytanic.cloudnet.driver.permission;
 
+import com.google.common.base.Verify;
 import de.dytanic.cloudnet.common.Nameable;
 import java.util.concurrent.TimeUnit;
-import lombok.EqualsAndHashCode;
 import lombok.NonNull;
-import lombok.ToString;
-import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
-@ToString
-@EqualsAndHashCode
-public final class Permission implements Nameable, Comparable<Permission> {
+public record Permission(
+  @NonNull String name,
+  int potency,
+  long timeOutMillis
+) implements Nameable, Comparable<Permission> {
 
-  private final String name;
-
-  private int potency;
-  private long timeOutMillis;
-
-  public Permission(@NonNull String name, int potency) {
-    this.name = name;
-    this.potency = potency;
+  public static @NonNull Permission of(@NonNull String permission) {
+    return builder().name(permission).build();
   }
 
-  public Permission(@NonNull String name, int potency, long time, @NonNull TimeUnit timeUnit) {
-    this.name = name;
-    this.potency = potency;
-    this.timeOutMillis = System.currentTimeMillis() + timeUnit.toMillis(time);
+  public static @NonNull Builder builder() {
+    return new Builder();
   }
 
-  public Permission(@NonNull String name) {
-    this.name = name;
-  }
-
-  public Permission(@NonNull String name, int potency, long timeOutMillis) {
-    this.name = name;
-    this.potency = potency;
-    this.timeOutMillis = timeOutMillis;
-  }
-
-  @Contract(value = "_ -> new", pure = true)
-  public static @NonNull Permission of(@NonNull String name) {
-    return new Permission(name);
-  }
-
-  @Override
-  public @NonNull String name() {
-    return this.name;
-  }
-
-  public int potency() {
-    return this.potency;
-  }
-
-  public void potency(int potency) {
-    this.potency = potency;
-  }
-
-  public long timeOutMillis() {
-    return this.timeOutMillis;
-  }
-
-  public void timeOutMillis(long timeOutMillis) {
-    this.timeOutMillis = timeOutMillis;
+  public static @NonNull Builder builder(@NonNull Permission permission) {
+    return builder()
+      .name(permission.name())
+      .potency(permission.potency())
+      .timeOutMillis(permission.timeOutMillis());
   }
 
   @Override
   public int compareTo(@NonNull Permission o) {
     return Integer.compare(Math.abs(this.potency()), Math.abs(o.potency()));
+  }
+
+  public static class Builder {
+
+    private String name;
+    private int potency = 0;
+    private long timeOutMillis = 0;
+
+    public @NonNull Builder name(@NonNull String name) {
+      this.name = name;
+      return this;
+    }
+
+    public @NonNull Builder potency(int potency) {
+      this.potency = potency;
+      return this;
+    }
+
+    public @NonNull Builder timeOutMillis(long timeOutMillis) {
+      this.timeOutMillis = timeOutMillis;
+      return this;
+    }
+
+    public @NotNull Builder timeOutMillis(@NonNull TimeUnit unit, long timeOut) {
+      return this.timeOutMillis(System.currentTimeMillis() + unit.toMillis(timeOut));
+    }
+
+    public @NonNull Permission build() {
+      Verify.verifyNotNull(this.name, "Missing name");
+
+      return new Permission(this.name, this.potency, this.timeOutMillis);
+    }
   }
 }

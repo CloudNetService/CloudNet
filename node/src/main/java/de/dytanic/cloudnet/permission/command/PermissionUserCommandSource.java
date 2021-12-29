@@ -49,6 +49,6 @@ public final class PermissionUserCommandSource extends DriverCommandSource {
    */
   @Override
   public boolean checkPermission(@NonNull String permission) {
-    return this.permissionManagement.hasPermission(this.permissionUser, new Permission(permission));
+    return this.permissionManagement.hasPermission(this.permissionUser, Permission.of(permission));
   }
 }
