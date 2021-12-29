@@ -38,7 +38,7 @@ public class DockerizedServiceLogCache extends AbstractServiceLogCache {
   public void handle(@NonNull Frame frame) {
     switch (frame.getStreamType()) {
       case STDERR -> this.handleItem(new String(frame.getPayload(), StandardCharsets.UTF_8), true);
-      case STDOUT, STDIN -> this.handleItem(new String(frame.getPayload(), StandardCharsets.UTF_8), false);
+      case STDOUT -> this.handleItem(new String(frame.getPayload(), StandardCharsets.UTF_8), false);
       default -> {
       }
     }
