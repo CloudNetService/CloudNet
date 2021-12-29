@@ -45,9 +45,15 @@ public class DockerizedServiceLogCache extends AbstractServiceLogCache {
   }
 
   @Override
-  protected void handleItem(@NonNull String entry, boolean comesFromErrorStream) {
-    if (!entry.trim().isEmpty()) {
-      super.handleItem(entry, comesFromErrorStream);
+  protected void handleItem(@NonNull String content, boolean comesFromErrorStream) {
+    if (content.contains("\n") || content.contains("\r")) {
+      for (var input : content.split("\r")) {
+        for (var text : input.split("\n")) {
+          if (!text.trim().isEmpty()) {
+            super.handleItem(text, comesFromErrorStream);
+          }
+        }
+      }
     }
   }
 }
