@@ -80,6 +80,7 @@ public class DockerizedService extends JVMService {
     this.configuration = dockerConfiguration;
 
     super.logCache = this.logCache = new DockerizedServiceLogCache(nodeInstance, this);
+    this.initLogHandler();
   }
 
   @Override
