@@ -47,6 +47,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -159,6 +160,11 @@ public class DockerizedService extends JVMService {
           .withBinds(binds)
           .withNetworkMode(this.configuration.network())
           .withRestartPolicy(RestartPolicy.noRestart()))
+        .withLabels(Map.of(
+          "Service", "CloudNet",
+          "Name", this.serviceId().name(),
+          "Uid", this.serviceId().uniqueId().toString(),
+          "Id", Integer.toString(this.serviceId().taskServiceId())))
         .exec()
         .getId();
     }
