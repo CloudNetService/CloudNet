@@ -219,7 +219,7 @@ public class DockerizedService extends JVMService {
     if (this.containerId != null) {
       try {
         // try to remove the container, ignore if the container is already gone
-        this.dockerClient.removeContainerCmd(this.containerId).withRemoveVolumes(false).withForce(true).exec();
+        this.dockerClient.removeContainerCmd(this.containerId).withRemoveVolumes(true).withForce(true).exec();
         // remove the container id to prevent further unnecessary calls
         this.containerId = null;
       } catch (NotFoundException exception) {
