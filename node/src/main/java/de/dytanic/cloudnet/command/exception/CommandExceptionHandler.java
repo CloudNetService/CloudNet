@@ -36,8 +36,10 @@ import de.dytanic.cloudnet.event.command.CommandInvalidSyntaxEvent;
 import de.dytanic.cloudnet.event.command.CommandNotFoundEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 public class CommandExceptionHandler {
 
@@ -56,11 +58,16 @@ public class CommandExceptionHandler {
    * @param source the source of the command.
    * @param cause  the exception that occurred during the execution.
    */
-  public void handleCommandExceptions(CommandSource source, Throwable cause) {
+  public void handleCommandExceptions(@NonNull CommandSource source, @Nullable Throwable cause) {
     // there is no cause if no exception occurred
     if (cause == null) {
       return;
     }
+    // the exception might be wrapped in a CompletionException
+    if (cause instanceof CompletionException) {
+      cause = cause.getCause();
+    }
+
     // determine the cause type and apply the specific handler
     if (cause instanceof InvalidSyntaxException) {
       this.handleInvalidSyntaxException(source, (InvalidSyntaxException) cause);

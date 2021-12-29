@@ -398,7 +398,7 @@ public class CloudNet extends CloudNetDriver {
       return Collections.emptyList();
     } else {
       var source = new PermissionUserCommandSource(user, this.permissionManagement);
-      this.commandProvider.execute(source, commandLine).join();
+      this.commandProvider.execute(source, commandLine).getOrNull();
 
       return source.messages();
     }

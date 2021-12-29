@@ -44,6 +44,8 @@ import de.dytanic.cloudnet.command.sub.CommandPermissions;
 import de.dytanic.cloudnet.command.sub.CommandService;
 import de.dytanic.cloudnet.command.sub.CommandTasks;
 import de.dytanic.cloudnet.command.sub.CommandTemplate;
+import de.dytanic.cloudnet.common.concurrent.CompletableTask;
+import de.dytanic.cloudnet.common.concurrent.Task;
 import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.console.Console;
 import de.dytanic.cloudnet.console.handler.ConsoleInputHandler;
@@ -58,7 +60,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
@@ -117,9 +119,14 @@ public class DefaultCommandProvider implements CommandProvider {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull CompletableFuture<?> execute(@NonNull CommandSource source, @NonNull String input) {
-    return this.commandManager.executeCommand(source, input)
-      .whenComplete((result, throwable) -> this.exceptionHandler.handleCommandExceptions(source, throwable));
+  public @NonNull Task<?> execute(@NonNull CommandSource source, @NonNull String input) {
+    var future = this.commandManager.executeCommand(source, input).exceptionally(exception -> {
+      this.exceptionHandler.handleCommandExceptions(source, exception);
+      // ensure that the new future still holds the exception
+      throw exception instanceof CompletionException cex ? cex : new CompletionException(exception);
+    });
+
+    return CompletableTask.supply(future::join);
   }
 
   /**
@@ -210,11 +217,13 @@ public class DefaultCommandProvider implements CommandProvider {
   @Override
   public @Nullable CommandInfo command(@NonNull String name) {
     var lowerCaseInput = name.toLowerCase();
-    return this.registeredCommands.values().stream()
-      .filter(commandInfo ->
-        commandInfo.aliases().contains(lowerCaseInput) || commandInfo.name().equals(lowerCaseInput))
-      .findFirst()
-      .orElse(null);
+
+    for (CommandInfo command : this.registeredCommands.values()) {
+      if (command.name().equals(lowerCaseInput) || command.aliases().contains(lowerCaseInput)) {
+        return command;
+      }
+    }
+    return null;
   }
 
   /**

@@ -94,7 +94,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
   @Override
   public @NonNull Collection<String> sendCommandLine(@NonNull String commandLine) {
     var driverCommandSource = new DriverCommandSource();
-    CloudNet.instance().commandProvider().execute(driverCommandSource, commandLine).join();
+    CloudNet.instance().commandProvider().execute(driverCommandSource, commandLine).getOrNull();
     return driverCommandSource.messages();
   }
 

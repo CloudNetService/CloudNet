@@ -17,11 +17,11 @@
 package de.dytanic.cloudnet.command;
 
 import de.dytanic.cloudnet.command.source.CommandSource;
+import de.dytanic.cloudnet.common.concurrent.Task;
 import de.dytanic.cloudnet.console.Console;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -44,7 +44,7 @@ public interface CommandProvider {
    * @param source the command source that is used to execute the command
    * @param input  the commandline that is executed
    */
-  @NonNull CompletableFuture<?> execute(@NonNull CommandSource source, @NonNull String input);
+  @NonNull Task<?> execute(@NonNull CommandSource source, @NonNull String input);
 
   /**
    * Register a command for the node
