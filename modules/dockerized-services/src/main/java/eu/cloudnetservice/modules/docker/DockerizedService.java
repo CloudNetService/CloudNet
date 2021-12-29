@@ -148,6 +148,7 @@ public class DockerizedService extends JVMService {
       this.containerId = this.dockerClient.createContainerCmd(image.imageName())
         .withTty(false)
         .withStdinOpen(true)
+        .withStdInOnce(false)
         .withVolumes(volumes)
         .withEntrypoint(arguments)
         .withStopSignal("SIGTERM")
