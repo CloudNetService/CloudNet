@@ -169,7 +169,8 @@ public abstract class SQLDatabase implements IDatabase {
     Preconditions.checkNotNull(fieldValue);
 
     return this.databaseProvider.executeQuery(
-      String.format("SELECT %s FROM `%s` WHERE %s LIKE ?", TABLE_COLUMN_VALUE, this.name, TABLE_COLUMN_VALUE),
+      String.format("SELECT %s FROM `%s` WHERE %s LIKE ? ESCAPE '$'", TABLE_COLUMN_VALUE, this.name,
+        TABLE_COLUMN_VALUE),
       resultSet -> {
         List<JsonDocument> jsonDocuments = new ArrayList<>();
         while (resultSet.next()) {
@@ -178,7 +179,7 @@ public abstract class SQLDatabase implements IDatabase {
 
         return jsonDocuments;
       },
-      "%\"" + fieldName + "\":" + JsonDocument.GSON.toJson(fieldValue).replaceAll("([_%\\[])", "[$1]") + "%"
+      "%\"" + fieldName + "\":" + JsonDocument.GSON.toJson(fieldValue).replaceAll("([_%])", "\\$$1") + "%"
     );
   }
 
@@ -200,8 +201,8 @@ public abstract class SQLDatabase implements IDatabase {
       while (iterator.hasNext()) {
         item = iterator.next();
 
-        stringBuilder.append(TABLE_COLUMN_VALUE).append(" LIKE ?");
-        collection.add("%\"" + item + "\":" + filters.get(item).toString().replaceAll("([_%\\[])", "[$1]") + "%");
+        stringBuilder.append(TABLE_COLUMN_VALUE).append(" LIKE ? ESCAPE '$'");
+        collection.add("%\"" + item + "\":" + filters.get(item).toString().replaceAll("([_%])", "\\$$1") + "%");
 
         if (iterator.hasNext()) {
           stringBuilder.append(" and ");
