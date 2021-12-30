@@ -67,7 +67,7 @@ public final class BridgeLocalProxyPlayerDisconnectListener {
 
   @EventListener
   public void handle(@NonNull CloudServicePostLifecycleEvent event) {
-    if (event.newLifeCycle() == ServiceLifeCycle.STOPPED) {
+    if (event.newLifeCycle() == ServiceLifeCycle.STOPPED || event.newLifeCycle() == ServiceLifeCycle.DELETED) {
       this.handleCloudServiceRemove(event.serviceInfo());
     }
   }

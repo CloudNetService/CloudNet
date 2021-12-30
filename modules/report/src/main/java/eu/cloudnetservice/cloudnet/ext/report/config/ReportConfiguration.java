@@ -18,7 +18,6 @@ package eu.cloudnetservice.cloudnet.ext.report.config;
 
 import com.google.common.base.Verify;
 import java.nio.file.Path;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import lombok.NonNull;
@@ -28,7 +27,7 @@ public record ReportConfiguration(
   boolean saveOnCrashOnly,
   @NonNull Path recordDestination,
   long serviceLifetime,
-  @NonNull DateFormat dateFormat,
+  @NonNull SimpleDateFormat dateFormat,
   @NonNull List<PasteService> pasteServers
 ) {
 
@@ -51,7 +50,7 @@ public record ReportConfiguration(
     private boolean saveOnCrashOnly = true;
     private Path recordDestination = Path.of("records");
     private long serviceLifetime = 5000L;
-    private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     private List<PasteService> pasteServers = List.of(new PasteService("default", "https://just-paste.it"));
 
     public @NonNull Builder saveRecords(boolean saveRecords) {
@@ -74,7 +73,7 @@ public record ReportConfiguration(
       return this;
     }
 
-    public @NonNull Builder dateFormat(@NonNull DateFormat dateFormat) {
+    public @NonNull Builder dateFormat(@NonNull SimpleDateFormat dateFormat) {
       this.dateFormat = dateFormat;
       return this;
     }

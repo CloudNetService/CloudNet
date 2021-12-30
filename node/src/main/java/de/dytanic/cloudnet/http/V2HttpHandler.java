@@ -129,7 +129,7 @@ public abstract class V2HttpHandler implements HttpHandler {
     } else {
       return CloudNetDriver.instance().permissionManagement().hasPermission(
         user,
-        new Permission(this.requiredPermission + '.' + request.method().toLowerCase()));
+        Permission.of(this.requiredPermission + '.' + request.method().toLowerCase()));
     }
   }
 

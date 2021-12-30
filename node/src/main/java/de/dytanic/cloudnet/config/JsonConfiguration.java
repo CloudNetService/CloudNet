@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.config;
 
-import com.google.common.base.Enums;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.StringUtil;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
@@ -73,8 +72,6 @@ public final class JsonConfiguration implements Configuration {
   private Boolean forceInitialClusterDataSync;
   private Boolean printErrorStreamLinesFromServices;
   private Boolean runBlockedServiceStartTryLaterAutomatic;
-
-  private DefaultJVMFlags defaultJVMFlags;
 
   private String jvmCommand;
   private String hostAddress;
@@ -205,13 +202,6 @@ public final class JsonConfiguration implements Configuration {
         "cloudnet.config.runBlockedServiceStartTryLaterAutomatic",
         true,
         Boolean::parseBoolean);
-    }
-
-    if (this.defaultJVMFlags == null) {
-      this.defaultJVMFlags = ConfigurationUtils.get(
-        "cloudnet.config.defaultJVMFlags",
-        DefaultJVMFlags.DYTANIC,
-        value -> Enums.getIfPresent(DefaultJVMFlags.class, value.toUpperCase()).orNull());
     }
 
     if (this.jvmCommand == null) {
@@ -363,16 +353,6 @@ public final class JsonConfiguration implements Configuration {
   @Override
   public void printErrorStreamLinesFromServices(boolean printErrorStreamLinesFromServices) {
     this.printErrorStreamLinesFromServices = printErrorStreamLinesFromServices;
-  }
-
-  @Override
-  public @NonNull DefaultJVMFlags defaultJVMFlags() {
-    return this.defaultJVMFlags;
-  }
-
-  @Override
-  public void defaultJVMFlags(@NonNull DefaultJVMFlags defaultJVMFlags) {
-    this.defaultJVMFlags = defaultJVMFlags;
   }
 
   @Override

@@ -24,13 +24,17 @@ tasks.withType<Jar> {
   }
 
   doFirst {
-    exportCnlFile(Files.nodeCnl)
+    from(exportCnlFile(Files.nodeCnl))
     from(exportLanguageFileInformation())
   }
+
+  from(projects.cloudnetDriver.sourceSets()["main"].output)
+  from(projects.cloudnetCommon.sourceSets()["main"].output)
 }
 
 dependencies {
   "api"(projects.cloudnetDriver)
+  "api"(projects.cloudnetExt.updater)
   // console
   "api"(libs.jline)
   "api"(libs.jansi)

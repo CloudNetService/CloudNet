@@ -20,6 +20,7 @@ object Files {
   const val common = "common.jar"
   const val wrapper = "wrapper.jar"
   const val launcher = "launcher.jar"
+  const val launcherPatcher = "launcher-patcher.jar"
 
   const val chatPlugin = "cloudnet-chat.jar"
   const val simpleNameTagsPlugin = "cloudnet-simplenametags.jar"
@@ -28,8 +29,8 @@ object Files {
   const val cloudflare = "cloudnet-cloudflare.jar"
   const val cloudperms = "cloudnet-cloudperms.jar"
   const val dockerizedServices = "cloudnet-dockerized-services.jar"
-  const val database_mongodb = "cloudnet-database-mongodb.jar"
-  const val database_mysql = "cloudnet-database-mysql.jar"
+  const val databaseMongo = "cloudnet-database-mongodb.jar"
+  const val databaseMysql = "cloudnet-database-mysql.jar"
   const val labymod = "cloudnet-labymod.jar"
   const val npcs = "cloudnet-npcs.jar"
   const val rest = "cloudnet-rest.jar"

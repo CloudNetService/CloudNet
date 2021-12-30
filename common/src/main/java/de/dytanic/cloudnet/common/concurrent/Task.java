@@ -35,6 +35,10 @@ public interface Task<V> extends Future<V> {
   @UnmodifiableView
   @NonNull Collection<TaskListener<V>> listeners();
 
+  default @UnknownNullability V getOrNull() {
+    return this.getDef(null);
+  }
+
   @UnknownNullability V getDef(@Nullable V def);
 
   @UnknownNullability V get(long time, @NonNull TimeUnit timeUnit, @Nullable V def);

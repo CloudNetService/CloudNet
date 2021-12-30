@@ -44,12 +44,37 @@ import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.ServiceVersionProvider;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 
 public class DefaultTaskSetup implements DefaultSetup {
+
+  // see https://aikar.co/2018/07/02/tuning-the-jvm-g1gc-garbage-collector-flags-for-minecraft/
+  protected static final Collection<String> AIKAR_FLAGS = Arrays.asList(
+    "-XX:+UseG1GC",
+    "-XX:+ParallelRefProcEnabled",
+    "-XX:MaxGCPauseMillis=200",
+    "-XX:+UnlockExperimentalVMOptions",
+    "-XX:+DisableExplicitGC",
+    "-XX:+AlwaysPreTouch",
+    "-XX:G1NewSizePercent=30",
+    "-XX:G1MaxNewSizePercent=40",
+    "-XX:G1HeapRegionSize=8M",
+    "-XX:G1ReservePercent=20",
+    "-XX:G1HeapWastePercent=5",
+    "-XX:G1MixedGCCountTarget=4",
+    "-XX:InitiatingHeapOccupancyPercent=15",
+    "-XX:G1MixedGCLiveThresholdPercent=90",
+    "-XX:G1RSetUpdatingPauseTimePercent=5",
+    "-XX:SurvivorRatio=32",
+    "-XX:+PerfDisableSharedMem",
+    "-XX:MaxTenuringThreshold=1",
+    "-Dusing.aikars.flags=https://mcflags.emc.gs",
+    "-Daikars.new.flags=true"
+  );
 
   protected static final Logger LOGGER = LogManager.logger(DefaultTaskSetup.class);
 
@@ -199,13 +224,19 @@ public class DefaultTaskSetup implements DefaultSetup {
     // create the global group template
     var groupTemplate = ServiceTemplate.builder().prefix(GLOBAL_TEMPLATE_PREFIX).name(groupName).build();
     this.initializeTemplate(groupTemplate, environment, false);
-    // register the group
-    CloudNet.instance().groupConfigurationProvider().addGroupConfiguration(GroupConfiguration.builder()
+    // build the new global group
+    var groupConfiguration = GroupConfiguration.builder()
       .name(groupName)
       .addTargetEnvironment(environment.name())
-      .addTemplate(groupTemplate)
-      .build());
+      .addTemplate(groupTemplate);
 
+    // check if we are executing the step for the "Global-Server" group
+    if (GLOBAL_SERVER_GROUP_NAME.equals(groupName)) {
+      // add the aikar flags for the "Global-Server" group
+      groupConfiguration.jvmOptions(AIKAR_FLAGS);
+    }
+    // register the group
+    CloudNet.instance().groupConfigurationProvider().addGroupConfiguration(groupConfiguration.build());
     // create a group specifically for the task
     CloudNet.instance().groupConfigurationProvider().addGroupConfiguration(GroupConfiguration.builder()
       .name(taskName)

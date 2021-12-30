@@ -15,7 +15,7 @@
  */
 
 tasks.withType<Jar> {
-  archiveFileName.set(Files.database_mongodb)
+  archiveFileName.set(Files.databaseMongo)
 }
 
 dependencies {

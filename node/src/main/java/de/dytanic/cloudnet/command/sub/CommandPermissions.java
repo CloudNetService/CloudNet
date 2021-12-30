@@ -408,7 +408,7 @@ public final class CommandPermissions {
     @Nullable Long timeOut,
     @Nullable GroupConfiguration targetGroup
   ) {
-    var permission = new Permission(rawPermission);
+    var permission = Permission.builder().name(rawPermission);
     if (potency != null) {
       permission.potency(potency);
     }
@@ -418,9 +418,9 @@ public final class CommandPermissions {
     }
 
     if (targetGroup != null) {
-      permissible.addPermission(targetGroup.name(), permission);
+      permissible.addPermission(targetGroup.name(), permission.build());
     } else {
-      permissible.addPermission(permission);
+      permissible.addPermission(permission.build());
     }
 
     this.updatePermissible(permissible);

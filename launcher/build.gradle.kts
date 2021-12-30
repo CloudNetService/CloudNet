@@ -13,21 +13,3 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-tasks.withType<Jar> {
-  dependsOn(":cloudnet-node:jar")
-  dependsOn(":cloudnet-driver:shadowJar")
-
-  archiveFileName.set(Files.launcher)
-
-  from("../driver/build/libs") {
-    include(Files.driver)
-  }
-
-  from("../node/build/libs") {
-    include(Files.node)
-    include(Files.nodeCnl)
-  }
-}
-
-applyJarMetadata("de.dytanic.cloudnet.launcher.CloudNetLauncher", "eu.cloudnetservice.launcher")

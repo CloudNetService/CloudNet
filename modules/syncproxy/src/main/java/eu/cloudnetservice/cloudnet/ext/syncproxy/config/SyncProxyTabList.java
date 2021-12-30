@@ -25,7 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.UUID;
 import lombok.NonNull;
 
-public record SyncProxyTabList(String header, String footer) {
+public record SyncProxyTabList(@NonNull String header, @NonNull String footer) {
 
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");
 

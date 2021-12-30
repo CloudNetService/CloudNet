@@ -180,7 +180,7 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
    * was null
    */
   default boolean addPermission(@NonNull String permission, boolean value) {
-    return this.addPermission(new Permission(permission, value ? 1 : -1));
+    return this.addPermission(Permission.builder().name(permission).potency(value ? 1 : -1).build());
   }
 
   /**
@@ -197,7 +197,7 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
    * was null
    */
   default boolean addPermission(@NonNull String permission, int potency) {
-    return this.addPermission(new Permission(permission, potency));
+    return this.addPermission(Permission.builder().name(permission).potency(potency).build());
   }
 
   /**
@@ -232,7 +232,7 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
    * was null
    */
   default boolean addPermission(@NonNull String group, @NonNull String permission, int potency) {
-    return this.addPermission(group, new Permission(permission, potency));
+    return this.addPermission(group, Permission.builder().name(permission).potency(potency).build());
   }
 
   /**
@@ -266,7 +266,8 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
   }
 
   /**
-   * Gets a list of the names of all global permissions of this permissible. Modifications to this list are not possible.
+   * Gets a list of the names of all global permissions of this permissible. Modifications to this list are not
+   * possible.
    *
    * @return a mutable list of all names of the permissions
    */
@@ -338,7 +339,7 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
    * @return the result of this check
    */
   default PermissionCheckResult hasPermission(@NonNull String permission) {
-    return this.hasPermission(new Permission(permission, 0));
+    return this.hasPermission(Permission.of(permission));
   }
 
   @Override

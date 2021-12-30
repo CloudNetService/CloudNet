@@ -112,9 +112,7 @@ public class JVMService extends AbstractService {
     // add the java command to start the service
     var overriddenJavaCommand = this.serviceConfiguration().javaCommand();
     arguments.add(overriddenJavaCommand == null ? this.nodeConfiguration().javaCommand() : overriddenJavaCommand);
-
-    // add all jvm flags
-    arguments.addAll(this.nodeConfiguration().defaultJVMFlags().jvmFlags());
+    // add the jvm flags of the service configuration
     arguments.addAll(this.serviceConfiguration().processConfig().jvmOptions());
 
     // set the maximum heap memory setting. Xms matching Xmx because if not there is unused memory
