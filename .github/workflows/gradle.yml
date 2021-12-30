@@ -57,8 +57,6 @@ jobs:
 
           cp -r .template/* temp/;
           cp LICENSE temp/license.txt;
-
-          cp node/build/libs/cloudnet.jar temp/node.jar;
           cp launcher/java17/build/libs/launcher.jar temp/launcher.jar;
 
           find plugins/ -type f -regex '.*/build/libs/.*\.jar' ! -name '*-javadoc.jar' ! -name '*-sources.jar' -exec cp {} temp/plugins \;
@@ -67,5 +65,5 @@ jobs:
         uses: actions/upload-artifact@v2
         if: ${{ github.event_name == 'push' }}
         with:
-          name: CloudNet.zip
+          name: CloudNet
           path: temp/
