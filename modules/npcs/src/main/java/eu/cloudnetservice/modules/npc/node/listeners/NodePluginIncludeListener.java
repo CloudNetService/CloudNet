@@ -30,9 +30,7 @@ import lombok.NonNull;
 
 public final class NodePluginIncludeListener {
 
-  private static final Path PROTOCOLLIB_CACHE_PATH = Path.of(
-    System.getProperty("cloudnet.tempDir", "temp"),
-    "caches", "ProtocolLib.jar");
+  private static final Path PROTOCOLLIB_CACHE_PATH = FileUtils.TEMP_DIR.resolve("caches/ProtocolLib.jar");
 
   private final AbstractNPCManagement management;
   private final AtomicBoolean didDownloadProtocolLib = new AtomicBoolean();

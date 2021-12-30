@@ -19,7 +19,7 @@ tasks.withType<Jar> {
 }
 
 dependencies {
-  api(libs.gson)
-  api(libs.guava)
-  api(libs.bundles.unirest)
+  "api"(libs.gson)
+  "api"(libs.guava)
+  "api"(libs.bundles.unirest)
 }

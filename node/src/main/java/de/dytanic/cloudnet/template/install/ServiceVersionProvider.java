@@ -53,13 +53,10 @@ import org.jetbrains.annotations.UnmodifiableView;
 
 public class ServiceVersionProvider {
 
-  public static final String DEFAULT_FILE_URL = System.getProperty(
-    "cloudnet.versions.url",
-    "https://cloudnetservice.eu/cloudnet/versions.json");
   private static final Logger LOGGER = LogManager.logger(ServiceVersionProvider.class);
-
-  private static final Path VERSION_CACHE_PATH = Path.of(
-    System.getProperty("cloudnet.versioncache.path", "local/versioncache"));
+  private static final Path VERSION_CACHE_PATH = Path.of(System.getProperty(
+    "cloudnet.versioncache.path",
+    "local/versioncache"));
 
   private static final int VERSIONS_FILE_VERSION = 3;
 
@@ -73,28 +70,17 @@ public class ServiceVersionProvider {
     eventManager.registerListener(new TemplatePrepareListener());
   }
 
-  public void loadServiceVersionTypesOrDefaults(@NonNull String url) {
-    try {
-      if (!this.loadServiceVersionTypes(url)) {
-        this.loadDefaultVersionTypes();
-      }
-    } catch (IOException exception) {
-      this.loadDefaultVersionTypes();
-    }
-  }
-
   public boolean loadServiceVersionTypes(@NonNull String url) throws IOException {
     this.serviceVersionTypes.clear();
 
     return Unirest
       .get(url)
       .asObject(rawResponse -> {
+        // only accept a 200 response
         if (rawResponse.getStatus() == 200) {
           return this.loadVersionsFromInputStream(rawResponse.getContent());
-        } else {
-          this.loadDefaultVersionTypes();
-          return true;
         }
+        return false;
       })
       .getBody();
   }

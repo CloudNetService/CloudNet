@@ -36,7 +36,7 @@ allprojects {
 }
 
 subprojects {
-  if (name == "cloudnet-modules" || name == "cloudnet-plugins" || name == "cloudnet-ext") return@subprojects
+  if (name == "cloudnet-modules" || name == "cloudnet-plugins" || name == "cloudnet-ext" || name == "cloudnet-launcher") return@subprojects
 
   apply(plugin = "java")
   apply(plugin = "checkstyle")
@@ -75,11 +75,7 @@ subprojects {
     options.encoding = "UTF-8"
     options.isIncremental = true
   }
-/*
-  tasks.withType<Javadoc>() {
-    options.encoding = "UTF-8"
-  }
-*/
+
   tasks.withType<Checkstyle> {
     maxErrors = 0
     maxWarnings = 0
@@ -103,27 +99,34 @@ subprojects {
   }
 }
 
-/*
+tasks.register("globalJavaDoc", Javadoc::class) {
+  val options = options as? StandardJavadocDocletOptions ?: return@register
 
-task allJavadoc(type: Javadoc) {
-  dependsOn ":cloudnet-launcher:jar"
-
-  destinationDir = new File(buildDir, "javadoc")
-  title = "CloudNet documentation " + version
-
+  title = "CloudNet JavaDocs"
+  setDestinationDir(buildDir.resolve("javadocs"))
+  // options
   options.encoding = "UTF-8"
-  options.windowTitle = "CloudNet Javadocs"
+  options.windowTitle = "CloudNet JavaDocs"
   options.memberLevel = JavadocMemberLevel.PRIVATE
-  options.addBooleanOption "-no-module-directories", true
-
-  options.addStringOption("Xdoclint:none", "-quiet")
-
-  def exportedProjects = subprojects.findAll {
-    it.name != "cloudnet-modules" && it.name != "cloudnet-plugins"
-  }.collect { it.path }
-
-  source = exportedProjects.collect { project(it).sourceSets.main.allJava }
-  classpath = files(exportedProjects.collect { project(it).sourceSets.main.compileClasspath })
-  failOnError = false
+  options.addStringOption("-html5")
+  options.addBooleanOption("Xdoclint:none", true) // TODO: enable when we're done with javadocs
+  // set the sources
+  val sources = subprojects.filter { it.plugins.hasPlugin("java") }.map { it.path }
+  source(files(sources.flatMap { project(it).sourceSets()["main"].allJava }))
+  classpath = files(sources.flatMap { project(it).sourceSets()["main"].compileClasspath })
 }
-*/
+
+gradle.projectsEvaluated {
+  tasks.register("genUpdaterInformation") {
+    subprojects.forEach {
+      // check if we need to depend on the plugin
+      if (!it.plugins.hasPlugin("java")) return@forEach
+      // depend this task on the build output of each subproject
+      dependsOn("${it.path}:build")
+    }
+    // generate the updater information
+    doLast {
+      generateUpdaterInformation()
+    }
+  }
+}

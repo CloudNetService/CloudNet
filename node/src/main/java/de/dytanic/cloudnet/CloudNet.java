@@ -54,7 +54,12 @@ import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.event.CloudNetNodePostInitializationEvent;
 import de.dytanic.cloudnet.log.QueuedConsoleLogHandler;
+import de.dytanic.cloudnet.module.ModulesHolder;
 import de.dytanic.cloudnet.module.NodeModuleProviderHandler;
+import de.dytanic.cloudnet.module.updater.ModuleUpdater;
+import de.dytanic.cloudnet.module.updater.ModuleUpdaterContext;
+import de.dytanic.cloudnet.module.updater.ModuleUpdaterRegistry;
+import de.dytanic.cloudnet.module.utils.ModuleJsonReader;
 import de.dytanic.cloudnet.network.DefaultNetworkClientChannelHandler;
 import de.dytanic.cloudnet.network.DefaultNetworkServerChannelHandler;
 import de.dytanic.cloudnet.network.chunk.FileDeployCallbackListener;
@@ -72,6 +77,7 @@ import de.dytanic.cloudnet.service.defaults.NodeCloudServiceFactory;
 import de.dytanic.cloudnet.setup.DefaultInstallation;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 import de.dytanic.cloudnet.template.install.ServiceVersionProvider;
+import eu.cloudnetservice.updater.UpdaterRegistry;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -94,7 +100,8 @@ import org.jetbrains.annotations.Nullable;
 public class CloudNet extends CloudNetDriver {
 
   private static final Logger LOGGER = LogManager.logger(CloudNet.class);
-  private static final Path LAUNCHER_DIR = Path.of(System.getProperty("cloudnet.launcher.dir", "launcher"));
+  private static final boolean DEV_MODE = Boolean.getBoolean("cloudnet.dev");
+  private static final Path LAUNCHER_DIR = Path.of(System.getProperty("cloudnet.launcherdir", "launcher"));
 
   private final Console console;
   private final CommandProvider commandProvider;
@@ -105,6 +112,9 @@ public class CloudNet extends CloudNetDriver {
 
   private final ServiceVersionProvider serviceVersionProvider;
   private final DefaultClusterNodeServerProvider nodeServerProvider;
+
+  private final ModulesHolder modulesHolder;
+  private final UpdaterRegistry<ModuleUpdaterContext, ModulesHolder> moduleUpdaterRegistry;
 
   private final CloudNetTick mainThread = new CloudNetTick(this);
   private final AtomicBoolean running = new AtomicBoolean(true);
@@ -128,6 +138,10 @@ public class CloudNet extends CloudNetDriver {
 
     this.console = console;
     this.commandProvider = new DefaultCommandProvider(console);
+
+    this.modulesHolder = ModuleJsonReader.read(LAUNCHER_DIR);
+    this.moduleUpdaterRegistry = new ModuleUpdaterRegistry();
+    this.moduleUpdaterRegistry.registerUpdater(new ModuleUpdater());
 
     this.serviceVersionProvider = new ServiceVersionProvider(this.eventManager);
     this.cloudNetVersion = CloudNetVersion.fromClassInformation(CloudNet.class.getPackage());
@@ -178,7 +192,7 @@ public class CloudNet extends CloudNetDriver {
   public void start() throws Exception {
     HeaderReader.readAndPrintHeader(this.console);
     // load the service versions
-    this.serviceVersionProvider.loadServiceVersionTypesOrDefaults(ServiceVersionProvider.DEFAULT_FILE_URL);
+    this.serviceVersionProvider.loadDefaultVersionTypes();
 
     // init the default services
     this.servicesRegistry.registerService(
@@ -204,6 +218,10 @@ public class CloudNet extends CloudNetDriver {
       AbstractDatabaseProvider.class,
       this.configuration.properties().getString("database_provider", "xodus")));
 
+    // apply all module updates if we're not running in dev mode
+    if (!DEV_MODE) {
+      this.moduleUpdaterRegistry.runUpdater(this.modulesHolder);
+    }
     // load the modules before proceeding for example to allow the database provider init
     this.moduleProvider.loadAll();
 
@@ -475,6 +493,14 @@ public class CloudNet extends CloudNetDriver {
 
   public @NonNull DataSyncRegistry dataSyncRegistry() {
     return this.dataSyncRegistry;
+  }
+
+  public @NonNull ModulesHolder modulesHolder() {
+    return modulesHolder;
+  }
+
+  public boolean dev() {
+    return DEV_MODE;
   }
 
   public boolean running() {
