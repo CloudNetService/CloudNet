@@ -55,7 +55,7 @@ pipeline {
         sh 'cp LICENSE temp/license.txt';
         sh 'cp launcher/java17/build/libs/launcher.jar temp/launcher.jar;'
 
-        sh 'find plugins/ -type f -regex ".*/build/libs/.*\.jar" ! -name "*-javadoc.jar" ! -name "*-sources.jar" -exec cp {} temp/plugins \;'
+        sh 'find plugins/ -type f -regex ".*/build/libs/.*\\.jar" ! -name "*-javadoc.jar" ! -name "*-sources.jar" -exec cp {} temp/plugins \\;'
         zip archive: true, dir: 'temp', glob: '', zipFile: 'CloudNet.zip'
 
         sh 'rm -r temp/'
