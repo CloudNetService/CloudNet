@@ -192,7 +192,7 @@ public final class CommandTemplate {
     @Argument("versionType") ServiceVersionType versionType,
     @Argument("version") ServiceVersion serviceVersion,
     @Flag("force") boolean forceInstall,
-    @Flag("caches") Boolean caches,
+    @Flag("no-cache") boolean noCache,
     @Flag("executable") @Quoted String executable
   ) {
     var resolvedExecutable = executable == null ? "java" : executable;
@@ -219,7 +219,7 @@ public final class CommandTemplate {
       var installInformation = InstallInformation.builder()
         .serviceVersionType(versionType)
         .serviceVersion(serviceVersion)
-        .cacheFiles(caches == null || caches)
+        .cacheFiles(!noCache)
         .toTemplate(serviceTemplate)
         .executable(resolvedExecutable.equals("java") ? null : resolvedExecutable)
         .build();
@@ -227,13 +227,11 @@ public final class CommandTemplate {
       if (CloudNet.instance().serviceVersionProvider().installServiceVersion(installInformation, forceInstall)) {
         source.sendMessage(I18n.trans("command-template-install-success")
           .replace("%version%", versionType.name() + "-" + serviceVersion.name())
-          .replace("%template%", serviceTemplate.toString())
-        );
+          .replace("%template%", serviceTemplate.toString()));
       } else {
         source.sendMessage(I18n.trans("command-template-install-failed")
           .replace("%version%", versionType.name() + "-" + serviceVersion.name())
-          .replace("%template%", serviceTemplate.toString())
-        );
+          .replace("%template%", serviceTemplate.toString()));
       }
     });
 
