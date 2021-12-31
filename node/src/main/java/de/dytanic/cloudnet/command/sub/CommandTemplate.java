@@ -192,7 +192,7 @@ public final class CommandTemplate {
     @Argument("versionType") ServiceVersionType versionType,
     @Argument("version") ServiceVersion serviceVersion,
     @Flag("force") boolean forceInstall,
-    @Flag("caches") boolean caches,
+    @Flag("caches") Boolean caches,
     @Flag("executable") @Quoted String executable
   ) {
     var resolvedExecutable = executable == null ? "java" : executable;
@@ -219,7 +219,7 @@ public final class CommandTemplate {
       var installInformation = InstallInformation.builder()
         .serviceVersionType(versionType)
         .serviceVersion(serviceVersion)
-        .cacheFiles(caches)
+        .cacheFiles(caches == null || caches)
         .toTemplate(serviceTemplate)
         .executable(resolvedExecutable.equals("java") ? null : resolvedExecutable)
         .build();
