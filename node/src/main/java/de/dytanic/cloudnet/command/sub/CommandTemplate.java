@@ -267,14 +267,12 @@ public final class CommandTemplate {
       if (TemplateStorageUtil.createAndPrepareTemplate(template, template.storage(), environmentType)) {
         source.sendMessage(I18n.trans("command-template-create-success")
           .replace("%template%", template.fullName())
-          .replace("%storage%", template.storageName())
-        );
+          .replace("%storage%", template.storageName()));
       }
     } catch (IOException exception) {
       source.sendMessage(I18n.trans("command-template-create-failed")
         .replace("%template%", template.fullName())
-        .replace("%storage%", template.storageName())
-      );
+        .replace("%storage%", template.storageName()));
     }
   }
 
@@ -295,8 +293,7 @@ public final class CommandTemplate {
     CloudNet.instance().mainThread().runTask(() -> {
       source.sendMessage(I18n.trans("command-template-copy")
         .replace("%sourceTemplate%", sourceTemplate.toString())
-        .replace("%targetTemplate%", targetTemplate.toString())
-      );
+        .replace("%targetTemplate%", targetTemplate.toString()));
 
       targetStorage.delete();
       targetStorage.create();
@@ -309,8 +306,7 @@ public final class CommandTemplate {
         targetStorage.deploy(stream);
         source.sendMessage(I18n.trans("command-template-copy-success")
           .replace("%sourceTemplate%", sourceTemplate.toString())
-          .replace("%targetTemplate%", targetTemplate.toString())
-        );
+          .replace("%targetTemplate%", targetTemplate.toString()));
       } catch (IOException exception) {
         source.sendMessage(I18n.trans("command-template-copy-failed"));
       }

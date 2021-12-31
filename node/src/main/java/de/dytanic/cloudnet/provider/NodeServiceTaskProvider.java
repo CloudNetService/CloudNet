@@ -22,6 +22,9 @@ import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.Nameable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
+import de.dytanic.cloudnet.common.language.I18n;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.EventManager;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
@@ -47,6 +50,8 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
   private static final Path TASKS_DIRECTORY = Path.of(
     System.getProperty("cloudnet.config.tasks.directory.path", "local/tasks"));
+
+  private static final Logger LOGGER = LogManager.logger(NodeServiceTaskProvider.class);
 
   private final EventManager eventManager;
   private final Map<String, ServiceTask> serviceTasks = new ConcurrentHashMap<>();
@@ -209,7 +214,9 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
       // remove all custom java paths that do not support Java 17
       var javaVersion = JavaVersionResolver.resolveFromJavaExecutable(task.javaCommand());
-      if (javaVersion != null && !javaVersion.isSupportedByMin(JavaVersion.JAVA_17)) {
+      if (javaVersion == null) {
+        LOGGER.severe(I18n.trans("cloudnet-load-task-unknown-java-version").replace("%task%", taskName));
+      } else if (!javaVersion.isSupportedByMin(JavaVersion.JAVA_17)) {
         task = ServiceTask.builder(task).javaCommand(null).build();
       }
 
