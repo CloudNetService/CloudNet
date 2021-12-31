@@ -213,6 +213,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     public @NonNull Builder task(@NonNull ServiceTask task) {
       return this
         .task(task.name())
+        .properties(task.properties())
 
         .runtime(task.runtime())
         .javaCommand(task.javaCommand())

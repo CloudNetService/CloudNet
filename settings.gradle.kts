@@ -45,7 +45,8 @@ initializeSubProjects("modules",
   "smart",
   "labymod",
   "npcs",
-  "storage-s3")
+  "storage-s3",
+  "dockerized-services")
 // launcher
 initializeSubProjects("launcher", "java6", "java17", "patcher")
 
