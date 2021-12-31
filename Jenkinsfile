@@ -25,25 +25,11 @@ pipeline {
   }
 
   stages {
-    stage('Clean-Build') {
+    stage('Build lifecycle') {
       steps {
         configFileProvider([configFile(fileId: "e94f788c-1d9c-48d4-b9a9-8286ff68275e", targetLocation: 'gradle.properties')]) {
           sh './gradlew --full-stacktrace'
         }
-      }
-    }
-
-    stage('Build Javadocs') {
-      when {
-        anyOf {
-          branch 'master'
-          branch 'development'
-        }
-      }
-
-      steps {
-        sh './gradlew allJavadoc --full-stacktrace'
-        zip archive: true, dir: 'build/javadoc', glob: '', zipFile: 'Javadoc.zip'
       }
     }
 
@@ -60,65 +46,19 @@ pipeline {
       }
     }
 
-    stage('Release ZIP') {
+    stage('Artifacts zip') {
       steps {
-        sh 'mkdir -p temp'
-        sh 'cp -r .template/* temp/'
+        sh 'mkdir -p temp/';
+        sh 'mkdir -p temp/plugins';
 
-        sh 'cp LICENSE temp/license.txt'
+        sh 'cp -r .template/* temp/';
+        sh 'cp LICENSE temp/license.txt';
+        sh 'cp launcher/java17/build/libs/launcher.jar temp/launcher.jar;'
 
-        sh 'mkdir temp/dev'
-        sh 'mkdir temp/dev/examples'
-        sh 'cp -r examples/src/main/java/de/dytanic/cloudnet/examples/* temp/dev/examples'
-
-        sh 'mkdir temp/extras/plugins'
-        sh 'cp plugins/**/build/libs/*.jar temp/extras/plugins/'
-
-        sh 'mkdir temp/extras/modules'
-        // sh 'cp modules/labymod/build/libs/*.jar temp/extras/modules/'
-        // sh 'cp modules/npcs/build/libs/*.jar temp/extras/modules/'
-
-        sh 'cp launcher/build/libs/launcher.jar temp/launcher.jar'
+        sh 'find plugins/ -type f -regex ".*/build/libs/.*\.jar" ! -name "*-javadoc.jar" ! -name "*-sources.jar" -exec cp {} temp/plugins \;'
         zip archive: true, dir: 'temp', glob: '', zipFile: 'CloudNet.zip'
 
         sh 'rm -r temp/'
-      }
-    }
-
-    stage('AutoUpdater ZIP') {
-      steps {
-        echo 'Creating AutoUpdater.zip file...'
-        sh 'mkdir -p temp'
-
-        sh 'cp -r node/build/libs/*.jar temp/'
-        sh 'cp -r driver/build/libs/*.jar temp/'
-        sh 'cp -r modules/**/build/libs/*.jar temp/'
-        sh 'cp -r **/build/libs/*.cnl temp/'
-        zip archive: true, dir: 'temp', glob: '', zipFile: 'AutoUpdater.zip'
-
-        sh 'rm -r temp/'
-      }
-    }
-
-    stage('Archive') {
-      steps {
-        archiveArtifacts artifacts: '**/build/libs/*.jar'
-        archiveArtifacts artifacts: '**/build/libs/*.cnl'
-      }
-    }
-  }
-
-  post {
-    always {
-      withCredentials([string(credentialsId: 'cloudnet-discord-ci-webhook', variable: 'url')]) {
-        discordSend(
-          description: 'New build for CloudNet v3!',
-          footer: 'New build!',
-          link: env.BUILD_URL,
-          successful: currentBuild.resultIsBetterOrEqualTo('SUCCESS'),
-          title: JOB_NAME,
-          webhookURL: url
-        )
       }
     }
   }
