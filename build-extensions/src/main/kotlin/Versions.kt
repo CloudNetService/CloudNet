@@ -21,7 +21,7 @@ object Versions {
   const val cloudNetCodeName = "Blizzard"
 
   // plugin versions
-  const val shadow = "7.1.1"
+  const val shadow = "7.1.2"
   const val blossom = "1.3.0"
   const val juppiter = "0.2.0"
 
