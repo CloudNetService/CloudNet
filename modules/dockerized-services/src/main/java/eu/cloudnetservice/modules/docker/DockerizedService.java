@@ -145,6 +145,10 @@ public class DockerizedService extends JVMService {
         return;
       }
 
+      // we do override the java command set by either the task config or the node configuration as the container has
+      // an isolated, single java installation available which is always accessible via 'java'
+      arguments.set(0, "java");
+
       // create the container and store the container id
       this.containerId = this.dockerClient.createContainerCmd(image.imageName())
         .withTty(false)
