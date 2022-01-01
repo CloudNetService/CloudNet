@@ -20,6 +20,7 @@ import de.dytanic.cloudnet.common.io.FileUtils;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 import kong.unirest.Unirest;
 import lombok.NonNull;
 
@@ -27,12 +28,16 @@ import lombok.NonNull;
  * A dependency loader which will download and save the provided module dependencies persistently on the local file
  * system.
  */
-public class DefaultPersistableModuleDependencyLoader extends DefaultMemoryModuleDependencyLoader {
+public class DefaultModuleDependencyLoader implements ModuleDependencyLoader {
 
   /**
    * A format for the file name with which the module will be stored: {@code <name>-<version>.jar}
    */
   protected static final String FILE_NAME_FORMAT = "%s-%s.jar";
+  /**
+   * Represents a maven dependency download url in the format: {@code <repo-url><group>/<name>/<version>/<name>-<version>.jar}.
+   */
+  protected static final String REMOTE_DEPENDENCY_URL_FORMAT = "%s%s/%s/%s/%s-%s.jar";
 
   protected final Path baseDirectory;
 
@@ -41,7 +46,7 @@ public class DefaultPersistableModuleDependencyLoader extends DefaultMemoryModul
    *
    * @param baseDirectory the base directory in which the dependencies should be stored.
    */
-  public DefaultPersistableModuleDependencyLoader(Path baseDirectory) {
+  public DefaultModuleDependencyLoader(Path baseDirectory) {
     this.baseDirectory = baseDirectory;
     FileUtils.createDirectory(baseDirectory);
   }
@@ -54,8 +59,8 @@ public class DefaultPersistableModuleDependencyLoader extends DefaultMemoryModul
     @NonNull ModuleConfiguration configuration,
     @NonNull ModuleDependency dependency
   ) throws Exception {
-    var memoryBasedUrl = super.loadModuleDependencyByUrl(configuration, dependency);
-    return this.loadDependency(dependency, memoryBasedUrl);
+    var url = Objects.requireNonNull(dependency.url(), "Dependency url must be given");
+    return this.loadDependency(dependency, new URL(url));
   }
 
   /**
@@ -67,8 +72,16 @@ public class DefaultPersistableModuleDependencyLoader extends DefaultMemoryModul
     @NonNull ModuleDependency dependency,
     @NonNull String repositoryUrl
   ) throws Exception {
-    var memoryBasedUrl = super.loadModuleDependencyByRepository(configuration, dependency, repositoryUrl);
-    return this.loadDependency(dependency, memoryBasedUrl);
+    return this.loadDependency(
+      dependency,
+      new URL(String.format(
+        REMOTE_DEPENDENCY_URL_FORMAT,
+        repositoryUrl,
+        dependency.group().replace('.', '/'),
+        dependency.name(),
+        dependency.version(),
+        dependency.name(),
+        dependency.version())));
   }
 
   /**
@@ -89,7 +102,6 @@ public class DefaultPersistableModuleDependencyLoader extends DefaultMemoryModul
 
     if (Files.notExists(destFile)) {
       Files.createDirectories(destFile.getParent());
-
       Unirest.get(url.toExternalForm()).asFile(destFile.toString());
     }
 

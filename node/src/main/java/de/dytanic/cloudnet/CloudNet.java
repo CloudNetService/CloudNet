@@ -41,7 +41,7 @@ import de.dytanic.cloudnet.driver.DriverEnvironment;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.driver.database.DatabaseProvider;
-import de.dytanic.cloudnet.driver.module.DefaultPersistableModuleDependencyLoader;
+import de.dytanic.cloudnet.driver.module.DefaultModuleDependencyLoader;
 import de.dytanic.cloudnet.driver.network.NetworkClient;
 import de.dytanic.cloudnet.driver.network.NetworkServer;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
@@ -162,7 +162,7 @@ public class CloudNet extends CloudNetDriver {
       new DefaultPermissionManagementHandler(this.eventManager));
 
     this.moduleProvider.moduleDependencyLoader(
-      new DefaultPersistableModuleDependencyLoader(LAUNCHER_DIR.resolve("libs")));
+      new DefaultModuleDependencyLoader(LAUNCHER_DIR.resolve("libs")));
     this.moduleProvider.moduleProviderHandler(new NodeModuleProviderHandler(this));
 
     this.networkClient = new NettyNetworkClient(

@@ -46,9 +46,11 @@ import org.jetbrains.annotations.Nullable;
 
 public class DefaultModuleProvider implements ModuleProvider {
 
+  public static final Path DEFAULT_LIB_DIR = Path.of(".libs");
   public static final Path DEFAULT_MODULE_DIR = Path.of("modules");
+
   protected static final Logger LOGGER = LogManager.logger(DefaultModuleProvider.class);
-  protected static final ModuleDependencyLoader DEFAULT_DEPENDENCY_LOADER = new DefaultMemoryModuleDependencyLoader();
+  protected static final ModuleDependencyLoader DEFAULT_DEP_LOADER = new DefaultModuleDependencyLoader(DEFAULT_LIB_DIR);
 
   protected final Collection<ModuleWrapper> modules = new CopyOnWriteArrayList<>();
 
@@ -57,10 +59,10 @@ public class DefaultModuleProvider implements ModuleProvider {
   protected ModuleDependencyLoader moduleDependencyLoader;
 
   public DefaultModuleProvider() {
-    this(DEFAULT_MODULE_DIR, DEFAULT_DEPENDENCY_LOADER);
+    this(DEFAULT_MODULE_DIR, DEFAULT_DEP_LOADER);
   }
 
-  public DefaultModuleProvider(Path moduleDirectory, ModuleDependencyLoader moduleDependencyLoader) {
+  public DefaultModuleProvider(@NonNull Path moduleDirectory, @NonNull ModuleDependencyLoader moduleDependencyLoader) {
     this.moduleDirectory = moduleDirectory;
     this.moduleDependencyLoader = moduleDependencyLoader;
   }

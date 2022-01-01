@@ -64,12 +64,11 @@ public interface ModuleProvider {
 
   /**
    * Get the module dependency loader. It's used to load all dependencies of all modules.
-   * <p>This handler is by default {@link DefaultMemoryModuleDependencyLoader}.</p>
+   * <p>This handler is by default {@link DefaultModuleDependencyLoader}.</p>
    *
    * @return the module provider handler used for this provider.
    * @see #moduleDependencyLoader(ModuleDependencyLoader)
-   * @see DefaultMemoryModuleDependencyLoader
-   * @see DefaultPersistableModuleDependencyLoader
+   * @see DefaultModuleDependencyLoader
    */
   @NonNull ModuleDependencyLoader moduleDependencyLoader();
 
@@ -78,8 +77,7 @@ public interface ModuleProvider {
    *
    * @param moduleDependencyLoader the module dependency loader to use.
    * @see #moduleDependencyLoader()
-   * @see DefaultMemoryModuleDependencyLoader
-   * @see DefaultPersistableModuleDependencyLoader
+   * @see DefaultModuleDependencyLoader
    */
   void moduleDependencyLoader(@NonNull ModuleDependencyLoader moduleDependencyLoader);
 
