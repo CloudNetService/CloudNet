@@ -161,9 +161,8 @@ public class CloudNet extends CloudNetDriver {
     this.permissionManagement().permissionManagementHandler(
       new DefaultPermissionManagementHandler(this.eventManager));
 
-    this.moduleProvider.moduleDependencyLoader(
-      new DefaultModuleDependencyLoader(LAUNCHER_DIR.resolve("libs")));
     this.moduleProvider.moduleProviderHandler(new NodeModuleProviderHandler(this));
+    this.moduleProvider.moduleDependencyLoader(new DefaultModuleDependencyLoader(LAUNCHER_DIR.resolve("libs")));
 
     this.networkClient = new NettyNetworkClient(
       DefaultNetworkClientChannelHandler::new,

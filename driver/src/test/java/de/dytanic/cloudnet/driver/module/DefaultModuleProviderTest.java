@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.driver.module;
 
+import java.nio.file.Path;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -23,7 +24,9 @@ public final class DefaultModuleProviderTest {
 
   @Test
   void testModuleLifecycles() {
-    ModuleProvider moduleProvider = new DefaultModuleProvider();
+    var moduleProvider = new DefaultModuleProvider();
+    moduleProvider.moduleDependencyLoader(new DefaultModuleDependencyLoader(Path.of("build/tmp/.libs")));
+
     var testModuleResource = DefaultModuleProviderTest.class.getClassLoader().getResource("module.jar");
 
     Assertions.assertNotNull(testModuleResource);

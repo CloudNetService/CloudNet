@@ -48,7 +48,6 @@ public class DefaultModuleDependencyLoader implements ModuleDependencyLoader {
    */
   public DefaultModuleDependencyLoader(Path baseDirectory) {
     this.baseDirectory = baseDirectory;
-    FileUtils.createDirectory(baseDirectory);
   }
 
   /**
