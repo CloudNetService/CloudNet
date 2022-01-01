@@ -78,6 +78,7 @@ public final class JsonConfiguration implements Configuration {
   private String connectHostAddress;
 
   private Collection<HostAndPort> httpListeners;
+  private AccessControlConfiguration accessControlConfiguration;
 
   private SSLConfiguration clientSslConfig;
   private SSLConfiguration serverSslConfig;
@@ -221,6 +222,20 @@ public final class JsonConfiguration implements Configuration {
         "cloudnet.config.httpListeners",
         new ArrayList<>(Collections.singleton(new HostAndPort("0.0.0.0", 2812))),
         value -> new ArrayList<>(Arrays.asList(ConfigurationUtils.HOST_AND_PORT_PARSER.apply(value))));
+    }
+
+    if (this.accessControlConfiguration == null) {
+      this.accessControlConfiguration = ConfigurationUtils.get(
+        "cloudnet.config.accessControlConfiguration",
+        new AccessControlConfiguration("*", 3600),
+        value -> {
+          var parts = value.split(";");
+          if (parts.length == 2) {
+            return new AccessControlConfiguration(parts[0], Integer.parseInt(parts[1]));
+          }
+          // unable to parse
+          return null;
+        });
     }
 
     if (this.clientSslConfig == null) {
@@ -373,6 +388,16 @@ public final class JsonConfiguration implements Configuration {
   @Override
   public void httpListeners(@NonNull Collection<HostAndPort> httpListeners) {
     this.httpListeners = httpListeners;
+  }
+
+  @Override
+  public @NonNull AccessControlConfiguration accessControlConfig() {
+    return this.accessControlConfiguration;
+  }
+
+  @Override
+  public void accessControlConfig(@NonNull AccessControlConfiguration configuration) {
+    this.accessControlConfiguration = configuration;
   }
 
   @Override

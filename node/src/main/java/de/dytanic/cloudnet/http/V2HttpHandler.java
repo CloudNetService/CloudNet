@@ -20,6 +20,7 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
+import de.dytanic.cloudnet.config.AccessControlConfiguration;
 import de.dytanic.cloudnet.config.Configuration;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.http.HttpContext;
@@ -35,9 +36,8 @@ import lombok.NonNull;
 
 public abstract class V2HttpHandler implements HttpHandler {
 
-  protected static final V2HttpAuthentication DEFAULT_AUTH = new V2HttpAuthentication();
-
   protected static final Logger LOGGER = LogManager.logger(V2HttpHandler.class);
+  protected static final V2HttpAuthentication DEFAULT_AUTH = new V2HttpAuthentication();
 
   protected final String requiredPermission;
   protected final String[] supportedRequestMethods;
@@ -47,7 +47,7 @@ public abstract class V2HttpHandler implements HttpHandler {
   protected final AccessControlConfiguration accessControlConfiguration;
 
   public V2HttpHandler(String requiredPermission, String... supportedRequestMethods) {
-    this(requiredPermission, DEFAULT_AUTH, AccessControlConfiguration.defaults(), supportedRequestMethods);
+    this(requiredPermission, DEFAULT_AUTH, CloudNet.instance().config().accessControlConfig(), supportedRequestMethods);
   }
 
   public V2HttpHandler(String requiredPermission, V2HttpAuthentication authentication,

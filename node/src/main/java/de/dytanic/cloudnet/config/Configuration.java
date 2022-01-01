@@ -53,23 +53,23 @@ public interface Configuration {
 
   void ipWhitelist(@NonNull Collection<String> whitelist);
 
-  @NonNull
-  Collection<HostAndPort> httpListeners();
+  @NonNull Collection<HostAndPort> httpListeners();
 
   void httpListeners(@NonNull Collection<HostAndPort> httpListeners);
 
-  @NonNull
-  SSLConfiguration clientSSLConfig();
+  @NonNull AccessControlConfiguration accessControlConfig();
+
+  void accessControlConfig(@NonNull AccessControlConfiguration configuration);
+
+  @NonNull SSLConfiguration clientSSLConfig();
 
   void clientSSLConfig(@NonNull SSLConfiguration clientSslConfig);
 
-  @NonNull
-  SSLConfiguration serverSSLConfig();
+  @NonNull SSLConfiguration serverSSLConfig();
 
   void serverSSLConfig(@NonNull SSLConfiguration serverSslConfig);
 
-  @NonNull
-  SSLConfiguration webSSLConfig();
+  @NonNull SSLConfiguration webSSLConfig();
 
   void webSSLConfig(@NonNull SSLConfiguration webSslConfig);
 

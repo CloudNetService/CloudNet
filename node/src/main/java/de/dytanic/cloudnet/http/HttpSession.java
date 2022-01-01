@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.UUID;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 public interface HttpSession {
 
@@ -32,7 +33,7 @@ public interface HttpSession {
 
   @NonNull UUID userId();
 
-  @Nullable PermissionUser user();
+  @UnknownNullability PermissionUser user();
 
   <T> T property(@NonNull String key);
 
