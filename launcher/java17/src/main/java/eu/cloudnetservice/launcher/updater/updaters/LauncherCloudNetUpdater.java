@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.launcher.updater.updaters;
 
-import eu.cloudnetservice.launcher.dependency.DependencyHelper;
 import eu.cloudnetservice.launcher.updater.LauncherUpdaterContext;
 import eu.cloudnetservice.launcher.updater.util.FileDownloadUpdateHelper;
 import eu.cloudnetservice.updater.Updater;
@@ -32,7 +31,5 @@ public final class LauncherCloudNetUpdater implements Updater<LauncherUpdaterCon
     var downloadUri = GitHubUtil.buildUri(context.repo(), context.branch(), "node.jar");
     // download the new cloudnet file
     FileDownloadUpdateHelper.updateFile(downloadUri, cloudNetFilePath, cloudNetChecksum, "node");
-    // load the dependencies which are in the jar file
-    DependencyHelper.loadFromLibrariesFile(cloudNetFilePath);
   }
 }

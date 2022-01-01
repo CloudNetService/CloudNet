@@ -28,14 +28,12 @@ import eu.cloudnetservice.launcher.updater.updaters.LauncherPatcherUpdater;
 import eu.cloudnetservice.launcher.updater.updaters.LauncherUpdater;
 import eu.cloudnetservice.launcher.utils.CommandLineHelper;
 import eu.cloudnetservice.updater.UpdaterRegistry;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.Set;
 import java.util.jar.JarInputStream;
 import lombok.NonNull;
 
@@ -75,18 +73,18 @@ public final class CloudNetLauncher {
   }
 
   private void startApplication() throws Exception {
+    // store the path of the cloudnet jar here as it differs based on the execution mode
+    Path cloudNetJarPath;
     var devMode = CommandLineHelper.findProperty(this.commandLineArguments, "dev", "false", Boolean::parseBoolean);
     if (devMode) {
       // do not run the updater - load from the jar which must be located in the root directory
-      Path cloudNetPath = Path.of("cloudnet.jar");
-      if (Files.notExists(cloudNetPath)) {
-        throw new IllegalArgumentException("CloudNet is not at the required path");
+      cloudNetJarPath = Path.of("cloudnet.jar");
+      if (Files.notExists(cloudNetJarPath)) {
+        throw new IllegalArgumentException("CloudNet is not at the required path for running in dev-mode");
       }
-      // load the dependencies from the jar
-      DependencyHelper.loadFromLibrariesFile(cloudNetPath);
-      // start the application
-      this.startApplication(cloudNetPath);
     } else {
+      // this path must not exist yet, the updaters are required to create it
+      cloudNetJarPath = Path.of("launcher", "cloudnet.jar");
       // register the default updaters
       this.registry.registerUpdater(new LauncherUpdater());
       this.registry.registerUpdater(new LauncherPatcherUpdater());
@@ -95,16 +93,16 @@ public final class CloudNetLauncher {
       this.registry.registerUpdater(new LauncherChecksumsFileUpdater());
       // run the updater - use a new object as a placeholder as we need no special context here
       this.registry.runUpdater(new Object());
-      // start the application
-      this.startApplication(Path.of("launcher", "cloudnet.jar"));
     }
+    // start the application
+    this.startApplication(cloudNetJarPath, DependencyHelper.loadFromLibrariesFile(cloudNetJarPath));
   }
 
-  private void startApplication(@NonNull Path cloudNetJarPath) throws Exception {
+  private void startApplication(@NonNull Path cloudNetJarPath, @NonNull Set<URL> dependencies) throws Exception {
     // create the launcher loader and append the cloudnet jar path to it
-    var launcherLoader = this.buildLauncherClassLoader();
+    var launcherLoader = new LauncherClassLoader(dependencies.toArray(URL[]::new));
     launcherLoader.addURL(cloudNetJarPath.toUri().toURL());
-    // get the main class from
+    // get the main class from the application file
     String mainClass;
     try (var stream = new JarInputStream(Files.newInputStream(cloudNetJarPath))) {
       mainClass = stream.getManifest().getMainAttributes().getValue("Main-Class");
@@ -115,24 +113,6 @@ public final class CloudNetLauncher {
     main.setAccessible(true);
     // let's start it!
     main.invoke(null, (Object) this.originalArgs);
-  }
-
-  private @NonNull LauncherClassLoader buildLauncherClassLoader() throws IOException {
-    // add all jars in the libraries' folder to the loader. This allows users to load own dependencies if needed
-    try (var stream = Files.walk(DependencyHelper.LIB_PATH)) {
-      return new LauncherClassLoader(stream
-        .filter(path -> !Files.isDirectory(path))
-        .map(Path::toAbsolutePath)
-        .map(path -> {
-          try {
-            // we can do this unchecked - this should never fail (if it fails everything fails...)
-            return path.toUri().toURL();
-          } catch (MalformedURLException exception) {
-            throw new UncheckedIOException(exception);
-          }
-        })
-        .toArray(URL[]::new));
-    }
   }
 
   private void runCnlInterpreter() throws Exception {

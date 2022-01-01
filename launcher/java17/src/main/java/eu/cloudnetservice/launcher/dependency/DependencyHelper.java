@@ -17,7 +17,10 @@
 package eu.cloudnetservice.launcher.dependency;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -27,6 +30,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import lombok.NonNull;
 
 public final class DependencyHelper {
@@ -37,7 +41,7 @@ public final class DependencyHelper {
     throw new UnsupportedOperationException();
   }
 
-  public static void loadFromLibrariesFile(@NonNull Path jarPath) throws IOException {
+  public static @NonNull Set<URL> loadFromLibrariesFile(@NonNull Path jarPath) throws IOException {
     // load the cloudnet.cnl file from the jar
     Collection<Dependency> dependencies = new HashSet<>();
     Map<String, Repository> repositories = new HashMap<>();
@@ -78,10 +82,14 @@ public final class DependencyHelper {
       }
     }
     // load all dependencies
-    load(repositories, dependencies);
+    return load(repositories, dependencies);
   }
 
-  public static void load(@NonNull Map<String, Repository> repositories, @NonNull Collection<Dependency> dependencies) {
+  public static @NonNull Set<URL> load(
+    @NonNull Map<String, Repository> repositories,
+    @NonNull Collection<Dependency> dependencies
+  ) {
+    Set<URL> loadedDependencyPaths = new HashSet<>();
     for (var dependency : dependencies) {
       // get the associated repository
       var repo = repositories.get(dependency.repo());
@@ -101,6 +109,14 @@ public final class DependencyHelper {
           throw new IllegalStateException("Unable to load dependency " + dependency + " from " + repo, exception);
         }
       }
+      // the dependency is available for loading now
+      try {
+        loadedDependencyPaths.add(targetFile.toUri().toURL());
+      } catch (MalformedURLException exception) {
+        // this should (and can) never happen - just explode
+        throw new UncheckedIOException("Unreachable normally you freak", exception);
+      }
     }
+    return loadedDependencyPaths;
   }
 }
