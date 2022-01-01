@@ -23,7 +23,6 @@ import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.sync.DataSyncHandler;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
@@ -56,15 +55,10 @@ public final class CloudNetBridgeModule extends DriverModule {
 
   @ModuleTask(order = 40, event = ModuleLifeCycle.LOADED)
   public void convertOldConfiguration() {
-    var oldConfigurationPath = this.moduleWrapper()
-      .moduleProvider()
-      .moduleDirectoryPath()
-      .resolve("CloudNet-Bridge")
-      .resolve("config.json");
+    // read the file
+    var config = JsonDocument.newDocument(this.configPath()).getDocument("config");
     // check if the old file exists
-    if (Files.exists(oldConfigurationPath)) {
-      // read the file
-      var config = JsonDocument.newDocument(oldConfigurationPath).getDocument("config");
+    if (!config.empty()) {
       // extract the messages and re-map them
       Map<String, Map<String, String>> messages = new HashMap<>(BridgeConfiguration.DEFAULT_MESSAGES);
       messages.get("default").putAll(config.get("messages", new TypeToken<Map<String, String>>() {
@@ -90,8 +84,6 @@ public final class CloudNetBridgeModule extends DriverModule {
         fallbacks,
         config.getDocument("properties")
       )).write(this.configPath());
-      // delete the old config
-      FileUtils.delete(oldConfigurationPath.getParent());
     }
   }
 

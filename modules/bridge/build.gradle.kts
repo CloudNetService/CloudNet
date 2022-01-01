@@ -18,8 +18,6 @@ plugins {
   id("com.github.johnrengelman.shadow") version Versions.shadow
 }
 
-version = "2.0.0"
-
 tasks.withType<Jar> {
   archiveFileName.set(Files.bridge)
 }
@@ -35,8 +33,9 @@ dependencies {
 }
 
 moduleJson {
-  main = "de.dytanic.cloudnet.ext.bridge.node.CloudNetBridgeModule"
+  name = "CloudNet-Bridge"
   author = "CloudNetService"
+  main = "de.dytanic.cloudnet.ext.bridge.node.CloudNetBridgeModule"
   description = "Bridges service software support between all supported versions for easy CloudNet plugin development"
   runtimeModule = true
 }
