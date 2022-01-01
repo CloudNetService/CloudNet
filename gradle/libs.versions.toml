@@ -42,7 +42,7 @@ annotations = "23.0.0"
 # platform api versions
 velocity = "3.1.0"
 nukkitX = "1.0-SNAPSHOT"
-sponge = "8.0.0-SNAPSHOT"
+sponge = "9.0.0-SNAPSHOT"
 waterdogpe = "1.1.5"
 spigot = "1.8.8-R0.1-SNAPSHOT"
 bungeecord = "1.18-R0.1-SNAPSHOT"
