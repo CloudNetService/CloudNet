@@ -95,10 +95,6 @@ public final class DependencyHelper {
       // we don't need to load the dependency if we already loaded it
       if (Files.notExists(targetFile)) {
         try {
-          // the target directory must exist for the handler to write the file
-          if (Files.notExists(targetFile.getParent())) {
-            Files.createDirectories(targetFile.getParent());
-          }
           // load the dependency
           repo.loadDependency(targetFile, dependency);
         } catch (Exception exception) {

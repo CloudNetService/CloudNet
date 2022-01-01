@@ -16,6 +16,8 @@
 
 package eu.cloudnetservice.launcher.utils;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
@@ -24,6 +26,7 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandler;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.net.http.HttpResponse.BodySubscriber;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.Duration;
@@ -45,13 +48,24 @@ public final class HttpUtils {
     var request = HttpRequest.newBuilder()
       .GET()
       .uri(url)
-      .timeout(Duration.ofSeconds(5))
+      .timeout(Duration.ofSeconds(20))
       .header("user-agent", USER_AGENT)
       .build();
     return HTTP_CLIENT.send(request, body);
   }
 
   public static @NonNull BodyHandler<Path> handlerForFile(@NonNull Path filePath) {
+    // we need to create the directory ourselves if it doesn't exist yet
+    var parent = filePath.getParent();
+    if (parent != null && Files.notExists(parent)) {
+      try {
+        Files.createDirectories(parent);
+      } catch (IOException exception) {
+        // fail-fast here, no need to download as the file write will fail as well
+        throw new UncheckedIOException("Unable to create directory " + parent, exception);
+      }
+    }
+    // redirect to BodyHandlers.ofFile with a few options set by default
     return BodyHandlers.ofFile(
       filePath,
       StandardOpenOption.CREATE,
