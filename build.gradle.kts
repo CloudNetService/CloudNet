@@ -36,7 +36,15 @@ allprojects {
 }
 
 subprojects {
-  if (name == "cloudnet-modules" || name == "cloudnet-plugins" || name == "cloudnet-ext" || name == "cloudnet-launcher") return@subprojects
+  // these are top level projects which are configured separately
+  if (name == "cloudnet-modules"
+    || name == "cloudnet-plugins"
+    || name == "cloudnet-ext"
+    || name == "cloudnet-launcher"
+    || name == "cloudnet-bom"
+  ) {
+    return@subprojects
+  }
 
   apply(plugin = "java")
   apply(plugin = "checkstyle")
