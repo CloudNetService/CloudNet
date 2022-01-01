@@ -20,6 +20,7 @@ import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.parsers.Parser;
+import cloud.commandframework.annotations.specifier.Greedy;
 import cloud.commandframework.annotations.specifier.Quoted;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
@@ -30,10 +31,14 @@ import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.column.ColumnFormatter;
 import de.dytanic.cloudnet.common.column.RowBasedFormatter;
+import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.language.I18n;
+import de.dytanic.cloudnet.console.animation.progressbar.ConsoleProgressWrappers;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleProvider;
 import de.dytanic.cloudnet.driver.module.ModuleWrapper;
+import de.dytanic.cloudnet.module.ModuleEntry;
+import de.dytanic.cloudnet.module.ModulesHolder;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -41,6 +46,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 
 @CommandAlias("module")
@@ -58,8 +64,19 @@ public final class CommandModules {
     .column(ModuleWrapper::moduleLifeCycle)
     .column(wrapper -> wrapper.moduleConfiguration().description())
     .build();
+  private static final RowBasedFormatter<ModuleEntry> MODULE_ENTRY_FORMATTER = RowBasedFormatter.<ModuleEntry>builder()
+    .defaultFormatter(ColumnFormatter.builder()
+      .columnTitles("Name", "Version", "Author", "Description", "Official")
+      .build())
+    .column(ModuleEntry::name)
+    .column(ModuleEntry::version)
+    .column(entry -> String.join(", ", entry.maintainers()))
+    .column(ModuleEntry::description)
+    .column(entry -> entry.maintainers().contains("CloudNetService"))
+    .build();
 
   private final ModuleProvider provider = CloudNet.instance().moduleProvider();
+  private final ModulesHolder availableModules = CloudNet.instance().modulesHolder();
 
   @Parser(name = "modulePath", suggestions = "modulePath")
   public Path modulePathParser(CommandContext<?> $, Queue<String> input) {
@@ -196,6 +213,18 @@ public final class CommandModules {
       .toList();
   }
 
+  @Parser(name = "availableModule", suggestions = "availableModules")
+  public ModuleEntry availableModuleParser(CommandContext<?> $, Queue<String> input) {
+    return this.availableModules
+      .findByName(input.remove())
+      .orElseThrow(() -> new ArgumentNotAvailableException(I18n.trans("command-modules-no-such-installable-module")));
+  }
+
+  @Suggestions("availableModules")
+  public List<String> suggestAvailableModules(CommandContext<?> $, String input) {
+    return this.availableModules.entries().stream().map(ModuleEntry::name).toList();
+  }
+
   @CommandMethod("modules|module info <module>")
   public void moduleInfo(
     CommandSource source,
@@ -214,6 +243,11 @@ public final class CommandModules {
     source.sendMessage(MODULES_FORMATTER.format(this.provider.modules()));
   }
 
+  @CommandMethod("modules|module available")
+  public void listAvailableModules(CommandSource source) {
+    source.sendMessage(MODULE_ENTRY_FORMATTER.format(this.availableModules.entries()));
+  }
+
   @CommandMethod("modules|module load <module>")
   public void loadModule(
     CommandSource source,
@@ -225,6 +259,36 @@ public final class CommandModules {
     if (wrapper == null) {
       source.sendMessage(I18n.trans("command-modules-module-already-loaded"));
     }
+  }
+
+  @CommandMethod("modules|module install <module>")
+  public void installModule(
+    CommandSource source,
+    @Argument(value = "module", parserName = "availableModule") @Greedy ModuleEntry entry
+  ) {
+    // check if all modules the module is depending on are present
+    var missingModules = entry.dependingModules().stream()
+      .filter(depend -> this.provider.module(depend) == null)
+      .collect(Collectors.toSet());
+    if (!missingModules.isEmpty()) {
+      source.sendMessage(I18n.trans("command-modules-install-missing-depend"));
+      return;
+    }
+
+    // download the module
+    var target = this.provider.moduleDirectoryPath().resolve(entry.name() + ".jar");
+    ConsoleProgressWrappers.wrapDownload(entry.url(), stream -> FileUtils.copy(stream, target));
+
+    // load the module
+    var wrapper = this.provider.loadModule(target);
+    if (wrapper == null) {
+      source.sendMessage(I18n.trans("command-modules-module-already-loaded"));
+      return;
+    }
+
+    // start the module
+    wrapper.startModule();
+    source.sendMessage(I18n.trans("command-modules-module-installed"));
   }
 
   @CommandMethod("modules|module start <module>")

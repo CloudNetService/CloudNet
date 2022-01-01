@@ -96,6 +96,17 @@ public final class FileUtils {
     }
   }
 
+  public static void copy(@Nullable InputStream inputStream, @Nullable Path target) {
+    if (inputStream != null && target != null) {
+      FileUtils.createDirectory(target.getParent());
+      try (var out = Files.newOutputStream(target)) {
+        FileUtils.copy(inputStream, out);
+      } catch (IOException exception) {
+        LOGGER.severe("Exception copying InputStream to Path", exception);
+      }
+    }
+  }
+
   public static void copy(@NonNull Path from, @NonNull Path to) {
     try {
       // create the parent directory first
