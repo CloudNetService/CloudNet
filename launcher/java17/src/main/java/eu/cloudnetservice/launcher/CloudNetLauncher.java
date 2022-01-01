@@ -140,7 +140,8 @@ public final class CloudNetLauncher {
     if (Files.notExists(launcherCnlPath)) {
       // copy the launcher.cnl file now
       try (var launcherCnlStream = CloudNetLauncher.class.getClassLoader().getResourceAsStream("launcher.cnl")) {
-        if(launcherCnlStream != null) {
+        // the resource is present, just to make intellij happy
+        if (launcherCnlStream != null) {
           Files.copy(launcherCnlStream, launcherCnlPath);
         }
       }
