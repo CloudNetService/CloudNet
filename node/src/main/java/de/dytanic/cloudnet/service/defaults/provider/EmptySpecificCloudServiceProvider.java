@@ -73,6 +73,11 @@ public final class EmptySpecificCloudServiceProvider implements SpecificCloudSer
   }
 
   @Override
+  public void deleteFiles() {
+
+  }
+
+  @Override
   public void updateLifecycle(@NonNull ServiceLifeCycle lifeCycle) {
   }
 

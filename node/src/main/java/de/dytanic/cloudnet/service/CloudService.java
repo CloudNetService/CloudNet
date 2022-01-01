@@ -75,8 +75,6 @@ public interface CloudService extends SpecificCloudServiceProvider {
   @NonNull
   ServiceConsoleLogCache serviceConsoleLogCache();
 
-  void doDelete();
-
   boolean alive();
 
   void publishServiceInfoSnapshot();

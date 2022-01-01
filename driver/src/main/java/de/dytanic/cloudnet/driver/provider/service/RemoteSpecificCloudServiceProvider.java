@@ -136,6 +136,13 @@ public class RemoteSpecificCloudServiceProvider implements SpecificCloudServiceP
   }
 
   @Override
+  public void deleteFiles() {
+    this.baseRPC()
+      .join(this.thisProviderSender.invokeMethod("deleteFiles"))
+      .fireSync(this.channelSupplier.get());
+  }
+
+  @Override
   public void updateLifecycle(@NonNull ServiceLifeCycle lifeCycle) {
     this.baseRPC()
       .join(this.thisProviderSender.invokeMethod("updateLifecycle", lifeCycle))

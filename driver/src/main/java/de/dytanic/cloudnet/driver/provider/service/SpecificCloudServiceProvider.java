@@ -117,6 +117,12 @@ public interface SpecificCloudServiceProvider {
   }
 
   /**
+   * Deletes this service and deletes the files that belong to the service. This method differs from {@link #delete()}
+   * in the point that this method deletes files of static services too.
+   */
+  void deleteFiles();
+
+  /**
    * Sets the life cycle of this service and starts, prepares, stops or deletes this service.
    *
    * @param lifeCycle the lifeCycle to be set

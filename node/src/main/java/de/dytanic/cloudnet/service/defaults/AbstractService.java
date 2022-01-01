@@ -196,6 +196,16 @@ public abstract class AbstractService implements CloudService {
   }
 
   @Override
+  public void deleteFiles() {
+    // stop the process & delete the configured files
+    this.doDelete();
+    // delete the folder of the service, even if it's a static service
+    FileUtils.delete(this.serviceDirectory);
+    // push the new lifecycle
+    this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.DELETED);
+  }
+
+  @Override
   public void updateLifecycle(@NonNull ServiceLifeCycle lifeCycle) {
     try {
       // prevent multiple service updates at the same time
@@ -322,8 +332,7 @@ public abstract class AbstractService implements CloudService {
     }
   }
 
-  @Override
-  public void doDelete() {
+  protected void doDelete() {
     // stop the process if it's running
     if (this.currentServiceInfo.lifeCycle() == ServiceLifeCycle.RUNNING || this.alive()) {
       this.stopProcess();
