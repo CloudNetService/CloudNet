@@ -140,7 +140,9 @@ public final class CloudNetLauncher {
     if (Files.notExists(launcherCnlPath)) {
       // copy the launcher.cnl file now
       try (var launcherCnlStream = CloudNetLauncher.class.getClassLoader().getResourceAsStream("launcher.cnl")) {
-        Files.copy(launcherCnlPath, launcherCnlPath);
+        if(launcherCnlStream != null) {
+          Files.copy(launcherCnlStream, launcherCnlPath);
+        }
       }
     }
     // register the default cnl commands
