@@ -46,7 +46,6 @@ import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
@@ -229,16 +228,6 @@ public abstract class CloudNetDriver {
 
   public @NonNull NetworkClient networkClient() {
     return this.networkClient;
-  }
-
-  public abstract @NonNull Collection<String> sendCommandLineAsPermissionUser(@NonNull UUID uniqueId,
-    @NonNull String commandLine);
-
-  public @NonNull Task<Collection<String>> sendCommandLineAsPermissionUserAsync(
-    @NonNull UUID uniqueId,
-    @NonNull String commandLine
-  ) {
-    return CompletableTask.supply(() -> this.sendCommandLineAsPermissionUser(uniqueId, commandLine));
   }
 
   /**

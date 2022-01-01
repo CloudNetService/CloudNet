@@ -257,6 +257,11 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
     return this.rpcSender.invokeMethod("firstUser", name).fireSync();
   }
 
+  @Override
+  public @NonNull Collection<String> sendCommandLine(@NonNull PermissionUser user, @NonNull String commandLine) {
+    return this.rpcSender.invokeMethod("sendCommandLine", user, commandLine).fireSync();
+  }
+
   protected @NonNull Collection<PermissionGroup> loadGroups() {
     return this.rpcSender.invokeMethod("groups").fireSync();
   }

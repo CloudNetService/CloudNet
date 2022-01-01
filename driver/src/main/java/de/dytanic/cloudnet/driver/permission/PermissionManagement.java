@@ -419,6 +419,16 @@ public interface PermissionManagement {
   @NonNull List<PermissionUser> modifyUsers(@NonNull String name, @NonNull Consumer<PermissionUser> modifier);
 
   /**
+   * Sends a command line to the node the method is called on or the node the wrapper is connected to.
+   * The command line is executed and all resulting messages are collected in the collection of strings.
+   *
+   * @param user the user to execute the command line with
+   * @param commandLine the command line to execute on the node
+   * @return all messages regarding the command execution
+   */
+  @NonNull Collection<String> sendCommandLine(@NonNull PermissionUser user, @NonNull String commandLine);
+
+  /**
    * Retrieves every permission group object of the specified {@code permissionUser}.
    *
    * @param permissionUser the user to get the groups of
@@ -716,5 +726,20 @@ public interface PermissionManagement {
     @NonNull Consumer<PermissionUser> modifier
   ) {
     return CompletableTask.supply(() -> this.modifyUsers(name, modifier));
+  }
+
+  /**
+   * Sends a command line to the node the method is called on or the node the wrapper is connected to.
+   * The command line is executed and all resulting messages are collected in the collection of strings.
+   *
+   * @param user the user to execute the command line with
+   * @param commandLine the command line to execute on the node
+   * @return all messages regarding the command execution
+   */
+  default @NonNull Task<Collection<String>> sendCommandLineAsync(
+    @NonNull PermissionUser user,
+    @NonNull String commandLine
+  ) {
+    return CompletableTask.supply(() -> this.sendCommandLine(user, commandLine));
   }
 }

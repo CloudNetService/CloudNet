@@ -67,7 +67,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -220,16 +219,6 @@ public class Wrapper extends CloudNetDriver {
   @Override
   public @NonNull Collection<TemplateStorage> availableTemplateStorages() {
     return this.rpcSender.invokeMethod("availableTemplateStorages").fireSync();
-  }
-
-  /**
-   * Application wrapper implementation of this method. See the full documentation at the CloudNetDriver class.
-   *
-   * @see CloudNetDriver#sendCommandLineAsPermissionUser(UUID, String)
-   */
-  @Override
-  public @NonNull Collection<String> sendCommandLineAsPermissionUser(@NonNull UUID uniqueId, @NonNull String command) {
-    return this.rpcSender.invokeMethod("sendCommandLineAsPermissionUser", uniqueId, command).fireSync();
   }
 
   /**

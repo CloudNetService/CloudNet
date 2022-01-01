@@ -66,7 +66,6 @@ import de.dytanic.cloudnet.network.chunk.FileDeployCallbackListener;
 import de.dytanic.cloudnet.permission.DefaultDatabasePermissionManagement;
 import de.dytanic.cloudnet.permission.DefaultPermissionManagementHandler;
 import de.dytanic.cloudnet.permission.NodePermissionManagement;
-import de.dytanic.cloudnet.permission.command.PermissionUserCommandSource;
 import de.dytanic.cloudnet.provider.NodeGroupConfigurationProvider;
 import de.dytanic.cloudnet.provider.NodeMessenger;
 import de.dytanic.cloudnet.provider.NodeNodeInfoProvider;
@@ -82,10 +81,8 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
@@ -405,21 +402,6 @@ public class CloudNet extends CloudNetDriver {
   @Override
   public @NonNull NetworkClient networkClient() {
     return this.networkClient;
-  }
-
-  @Override
-  public @NonNull Collection<String> sendCommandLineAsPermissionUser(@NonNull UUID uniqueId,
-    @NonNull String commandLine) {
-    // get the permission user
-    var user = this.permissionManagement.user(uniqueId);
-    if (user == null) {
-      return Collections.emptyList();
-    } else {
-      var source = new PermissionUserCommandSource(user, this.permissionManagement);
-      this.commandProvider.execute(source, commandLine).getOrNull();
-
-      return source.messages();
-    }
   }
 
   @Override

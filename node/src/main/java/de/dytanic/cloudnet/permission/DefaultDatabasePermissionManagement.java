@@ -25,6 +25,7 @@ import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 import de.dytanic.cloudnet.driver.permission.PermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.network.listener.message.PermissionChannelMessageListener;
+import de.dytanic.cloudnet.permission.command.PermissionUserCommandSource;
 import de.dytanic.cloudnet.permission.handler.PermissionManagementHandler;
 import de.dytanic.cloudnet.permission.handler.PermissionManagementHandlerAdapter;
 import de.dytanic.cloudnet.setup.PermissionGroupSetup;
@@ -302,6 +303,13 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
     if (groups != null) {
       this.handler.handleSetGroups(this, groups);
     }
+  }
+
+  @Override
+  public @NonNull Collection<String> sendCommandLine(@NonNull PermissionUser user, @NonNull String commandLine) {
+    var source = new PermissionUserCommandSource(user, this);
+    CloudNet.instance().commandProvider().execute(source, commandLine).getOrNull();
+    return source.messages();
   }
 
   @Override
