@@ -120,13 +120,11 @@ public class DefaultCommandProvider implements CommandProvider {
    */
   @Override
   public @NonNull Task<?> execute(@NonNull CommandSource source, @NonNull String input) {
-    var future = this.commandManager.executeCommand(source, input).exceptionally(exception -> {
+    return CompletableTask.wrapFuture(this.commandManager.executeCommand(source, input).exceptionally(exception -> {
       this.exceptionHandler.handleCommandExceptions(source, exception);
       // ensure that the new future still holds the exception
       throw exception instanceof CompletionException cex ? cex : new CompletionException(exception);
-    });
-
-    return CompletableTask.supply(future::join);
+    }));
   }
 
   /**

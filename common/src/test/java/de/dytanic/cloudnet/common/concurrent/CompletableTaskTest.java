@@ -17,6 +17,7 @@
 package de.dytanic.cloudnet.common.concurrent;
 
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -102,5 +103,36 @@ public class CompletableTaskTest {
     Assertions.assertNotNull(listenerResult.get());
     Assertions.assertInstanceOf(UnsupportedOperationException.class, listenerResult.get());
     Assertions.assertEquals("Hello world", listenerResult.get().getMessage());
+  }
+
+  @Test
+  @Timeout(10)
+  void testCompletableFutureWrapping() {
+    var result = new AtomicInteger();
+
+    var futureA = CompletableTask.wrapFuture(CompletableFuture.supplyAsync(() -> 5));
+    futureA.onComplete(result::addAndGet);
+
+    var futureB = CompletableTask.wrapFuture(CompletableFuture.supplyAsync(() -> {
+      throw new RuntimeException();
+    }));
+    futureB.onFailure(ex -> result.addAndGet(1));
+
+    var completableFutureC = CompletableFuture.supplyAsync(() -> {
+      try {
+        Thread.sleep(Long.MAX_VALUE);
+      } catch (InterruptedException ignored) {
+      }
+      throw new RuntimeException();
+    });
+    var futureC = CompletableTask.wrapFuture(completableFutureC);
+    futureC.onCancelled($ -> result.addAndGet(1));
+    futureC.cancel(true);
+
+    futureA.getOrNull();
+    futureB.getOrNull();
+    futureC.getOrNull();
+
+    Assertions.assertEquals(7, result.get());
   }
 }

@@ -56,6 +56,19 @@ public class CompletableTask<V> extends CompletableFuture<V> implements Task<V> 
     return task;
   }
 
+  public static <V> @NonNull CompletableTask<V> wrapFuture(@NonNull CompletableFuture<V> future) {
+    var task = new CompletableTask<V>();
+    future.whenComplete((result, exception) -> {
+      // uni push either the exception or the result, the exception is unwrapped already
+      if (exception == null) {
+        task.complete(result);
+      } else {
+        task.completeExceptionally(exception);
+      }
+    });
+    return task;
+  }
+
   @Override
   public @NonNull Task<V> addListener(@NonNull TaskListener<V> listener) {
     this.whenComplete((result, exception) -> {
