@@ -20,7 +20,6 @@ import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.module.DefaultModuleProvider;
 import eu.cloudnetservice.updater.Updater;
 import eu.cloudnetservice.updater.util.ChecksumUtils;
-import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import kong.unirest.Unirest;
 import lombok.NonNull;
@@ -28,31 +27,29 @@ import lombok.NonNull;
 public final class ModuleUpdater implements Updater<ModuleUpdaterContext> {
 
   @Override
-  public void executeUpdates(@NonNull ModuleUpdaterContext context) throws Exception {
-    try (var stream = Files.newDirectoryStream(DefaultModuleProvider.DEFAULT_MODULE_DIR, "*.jar")) {
-      for (var path : stream) {
-        // check if we already know an associated module
-        var moduleName = context.moduleNames().get(path.toAbsolutePath());
-        if (moduleName != null) {
-          // check if the module is an official module which gets updates from remote
-          context.modules().findByName(moduleName).ifPresent(moduleEntry -> {
-            // validate using the current checksum if the file is up-to-date
-            var currentChecksum = ChecksumUtils.fileShaSum(path);
-            if (!moduleEntry.sha3256().equals(currentChecksum)) {
-              // there is an update available - download it!
-              Unirest
-                .get(moduleEntry.url(context.updaterRepo(), context.updaterBranch()))
-                .asFile(path.toString(), StandardCopyOption.REPLACE_EXISTING);
-              // validate the checksum now
-              var newModuleChecksum = ChecksumUtils.fileShaSum(path);
-              if (!moduleEntry.sha3256().equals(newModuleChecksum)) {
-                // TODO: do not explode - just print a friendly message
-                FileUtils.delete(path);
-              }
+  public void executeUpdates(@NonNull ModuleUpdaterContext context) {
+    FileUtils.walkFileTree(DefaultModuleProvider.DEFAULT_MODULE_DIR, ($, file) -> {
+      // check if we already know an associated module
+      var moduleName = context.moduleNames().get(file.toAbsolutePath());
+      if (moduleName != null) {
+        // check if the module is an official module which gets updates from remote
+        context.modules().findByName(moduleName).ifPresent(moduleEntry -> {
+          // validate using the current checksum if the file is up-to-date
+          var currentChecksum = ChecksumUtils.fileShaSum(file);
+          if (!moduleEntry.sha3256().equals(currentChecksum)) {
+            // there is an update available - download it!
+            Unirest
+              .get(moduleEntry.url(context.updaterRepo(), context.updaterBranch()))
+              .asFile(file.toString(), StandardCopyOption.REPLACE_EXISTING);
+            // validate the checksum now
+            var newModuleChecksum = ChecksumUtils.fileShaSum(file);
+            if (!moduleEntry.sha3256().equals(newModuleChecksum)) {
+              // TODO: do not explode - just print a friendly message
+              FileUtils.delete(file);
             }
-          });
-        }
+          }
+        });
       }
-    }
+    }, false, "*.{jar,war,zip}");
   }
 }
