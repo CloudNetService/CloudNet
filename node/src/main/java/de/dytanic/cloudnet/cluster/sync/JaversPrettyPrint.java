@@ -28,9 +28,6 @@ import org.javers.core.diff.changetype.map.EntryRemoved;
 import org.javers.core.diff.changetype.map.EntryValueChange;
 import org.javers.core.diff.changetype.map.MapChange;
 
-// LEFT OLD
-// RIGHT NEW
-
 final class JaversPrettyPrint {
 
   private JaversPrettyPrint() {
@@ -64,24 +61,24 @@ final class JaversPrettyPrint {
     // go over the possible change types
     switch (change.getChangeType()) {
       case PROPERTY_VALUE_CHANGED -> builder
-          .append(" &r- &6").append(change.getPropertyName()).append("&r: ") // name of changed property
-          .append("&c").append(change.getLeft()) // red: old value
-          .append(" &r=> &a").append(change.getRight()) // green: new value
-          .append(System.lineSeparator());
+        .append(" &r- &6").append(change.getPropertyName()).append("&r: ") // name of changed property
+        .append("&c").append(change.getLeft()) // red: old value
+        .append(" &r=> &a").append(change.getRight()) // green: new value
+        .append(System.lineSeparator());
       case PROPERTY_ADDED ->
-          // right present, left absent
-          builder
-              .append(" &r- &6").append(change.getPropertyName()).append("&r: ") // name of changed property
-              .append("&c<empty> &r=> &a") // absent before
-              .append(change.getRight()) // value of new property
-              .append(System.lineSeparator());
+        // right present, left absent
+        builder
+          .append(" &r- &6").append(change.getPropertyName()).append("&r: ") // name of changed property
+          .append("&c<empty> &r=> &a") // absent before
+          .append(change.getRight()) // value of new property
+          .append(System.lineSeparator());
       case PROPERTY_REMOVED ->
-          // left present, right absent
-          builder
-              .append(" &r- &6").append(change.getPropertyName()).append("&r: ") // name of changed property
-              .append("&c").append(change.getLeft()) // value of the old property
-              .append(" &r=> &a<empty>") // absent now
-              .append(System.lineSeparator());
+        // left present, right absent
+        builder
+          .append(" &r- &6").append(change.getPropertyName()).append("&r: ") // name of changed property
+          .append("&c").append(change.getLeft()) // value of the old property
+          .append(" &r=> &a<empty>") // absent now
+          .append(System.lineSeparator());
       default -> {
       }
     }
