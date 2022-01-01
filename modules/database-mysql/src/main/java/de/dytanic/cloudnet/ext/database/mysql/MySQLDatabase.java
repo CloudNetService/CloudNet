@@ -48,7 +48,7 @@ public final class MySQLDatabase extends SQLDatabase {
         Map<String, JsonDocument> result = new HashMap<>();
         while (resultSet.next()) {
           var key = resultSet.getString(TABLE_COLUMN_KEY);
-          var document = JsonDocument.newDocument(resultSet.getString(TABLE_COLUMN_VALUE));
+          var document = JsonDocument.newDocument(resultSet.getString(TABLE_COLUMN_VAL));
           result.put(key, document);
         }
 

@@ -33,7 +33,7 @@ import lombok.NonNull;
 public abstract class SQLDatabase extends AbstractDatabase {
 
   protected static final String TABLE_COLUMN_KEY = "Name";
-  protected static final String TABLE_COLUMN_VALUE = "Document";
+  protected static final String TABLE_COLUMN_VAL = "Document";
 
   protected final String name;
   protected final SQLDatabaseProvider databaseProvider;
@@ -57,7 +57,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
 
     databaseProvider.executeUpdate(String.format(
       "CREATE TABLE IF NOT EXISTS `%s` (%s VARCHAR(64) PRIMARY KEY, %s TEXT);",
-      name, TABLE_COLUMN_KEY, TABLE_COLUMN_VALUE
+      name, TABLE_COLUMN_KEY, TABLE_COLUMN_VAL
     ));
   }
 
@@ -74,7 +74,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
 
   private boolean insert0(@NonNull String key, @NonNull JsonDocument document) {
     return this.databaseProvider.executeUpdate(
-      "INSERT INTO `" + this.name + "` (" + TABLE_COLUMN_KEY + "," + TABLE_COLUMN_VALUE + ") VALUES (?, ?);",
+      "INSERT INTO `" + this.name + "` (" + TABLE_COLUMN_KEY + "," + TABLE_COLUMN_VAL + ") VALUES (?, ?);",
       key, document.toString()
     ) != -1;
   }
@@ -87,7 +87,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
 
   public boolean update0(String key, JsonDocument document) {
     return this.databaseProvider.executeUpdate(
-      "UPDATE `" + this.name + "` SET " + TABLE_COLUMN_VALUE + "=? WHERE " + TABLE_COLUMN_KEY + "=?",
+      "UPDATE `" + this.name + "` SET " + TABLE_COLUMN_VAL + "=? WHERE " + TABLE_COLUMN_KEY + "=?",
       document.toString(), key
     ) != -1;
   }
@@ -121,8 +121,8 @@ public abstract class SQLDatabase extends AbstractDatabase {
   @Override
   public JsonDocument get(String key) {
     return this.databaseProvider.executeQuery(
-      String.format("SELECT %s FROM `%s` WHERE %s = ?", TABLE_COLUMN_VALUE, this.name, TABLE_COLUMN_KEY),
-      resultSet -> resultSet.next() ? JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VALUE)) : null,
+      String.format("SELECT %s FROM `%s` WHERE %s = ?", TABLE_COLUMN_VAL, this.name, TABLE_COLUMN_KEY),
+      resultSet -> resultSet.next() ? JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VAL)) : null,
       key
     );
   }
@@ -130,22 +130,22 @@ public abstract class SQLDatabase extends AbstractDatabase {
   @Override
   public @NonNull List<JsonDocument> get(@NonNull String fieldName, Object fieldValue) {
     return this.databaseProvider.executeQuery(
-      String.format("SELECT %s FROM `%s` WHERE %s LIKE ?", TABLE_COLUMN_VALUE, this.name, TABLE_COLUMN_VALUE),
+      String.format("SELECT %s FROM `%s` WHERE %s LIKE ? ESCAPE '$'", TABLE_COLUMN_VAL, this.name, TABLE_COLUMN_VAL),
       resultSet -> {
         List<JsonDocument> jsonDocuments = new ArrayList<>();
         while (resultSet.next()) {
-          jsonDocuments.add(JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VALUE)));
+          jsonDocuments.add(JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VAL)));
         }
 
         return jsonDocuments;
       },
-      "%\"" + fieldName + "\":" + JsonDocument.GSON.toJson(fieldValue) + "%"
+      "%\"" + fieldName + "\":" + JsonDocument.GSON.toJson(fieldValue).replaceAll("([_%])", "\\$$1") + "%"
     );
   }
 
   @Override
   public @NonNull List<JsonDocument> get(@NonNull JsonDocument filters) {
-    var stringBuilder = new StringBuilder("SELECT ").append(TABLE_COLUMN_VALUE).append(" FROM `")
+    var stringBuilder = new StringBuilder("SELECT ").append(TABLE_COLUMN_VAL).append(" FROM `")
       .append(this.name).append('`');
 
     Collection<String> collection = new ArrayList<>();
@@ -159,8 +159,8 @@ public abstract class SQLDatabase extends AbstractDatabase {
       while (iterator.hasNext()) {
         item = iterator.next();
 
-        stringBuilder.append(TABLE_COLUMN_VALUE).append(" LIKE ?");
-        collection.add("%\"" + item + "\":" + filters.get(item) + "%");
+        stringBuilder.append(TABLE_COLUMN_VAL).append(" LIKE ? ESCAPE '$'");
+        collection.add("%\"" + item + "\":" + filters.get(item).toString().replaceAll("([_%])", "\\$$1") + "%");
 
         if (iterator.hasNext()) {
           stringBuilder.append(" and ");
@@ -173,7 +173,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
       resultSet -> {
         List<JsonDocument> jsonDocuments = new ArrayList<>();
         while (resultSet.next()) {
-          jsonDocuments.add(JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VALUE)));
+          jsonDocuments.add(JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VAL)));
         }
 
         return jsonDocuments;
@@ -200,11 +200,11 @@ public abstract class SQLDatabase extends AbstractDatabase {
   @Override
   public @NonNull Collection<JsonDocument> documents() {
     return this.databaseProvider.executeQuery(
-      String.format("SELECT %s FROM `%s`;", TABLE_COLUMN_VALUE, this.name),
+      String.format("SELECT %s FROM `%s`;", TABLE_COLUMN_VAL, this.name),
       resultSet -> {
         Collection<JsonDocument> documents = new ArrayList<>();
         while (resultSet.next()) {
-          documents.add(JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VALUE)));
+          documents.add(JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VAL)));
         }
 
         return documents;
@@ -220,7 +220,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
         Map<String, JsonDocument> map = new WeakHashMap<>();
         while (resultSet.next()) {
           map.put(resultSet.getString(TABLE_COLUMN_KEY),
-            JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VALUE)));
+            JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VAL)));
         }
 
         return map;
@@ -236,7 +236,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
         Map<String, JsonDocument> map = new HashMap<>();
         while (resultSet.next()) {
           var key = resultSet.getString(TABLE_COLUMN_KEY);
-          var document = JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VALUE));
+          var document = JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VAL));
 
           if (predicate.test(key, document)) {
             map.put(key, document);
@@ -255,7 +255,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
       resultSet -> {
         while (resultSet.next()) {
           var key = resultSet.getString(TABLE_COLUMN_KEY);
-          var document = JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VALUE));
+          var document = JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VAL));
           consumer.accept(key, document);
         }
 
