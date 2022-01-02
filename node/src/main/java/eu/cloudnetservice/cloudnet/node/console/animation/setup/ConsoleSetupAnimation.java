@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.locks.LockSupport;
 import lombok.NonNull;
 import org.fusesource.jansi.Ansi;
 import org.jetbrains.annotations.Nullable;
@@ -41,7 +42,6 @@ import org.jetbrains.annotations.Nullable;
 public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
 
   // session values
-  private final Object monitor;
   private final UUID handlerId;
 
   // style settings
@@ -70,7 +70,6 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
     super(25);
 
     // session values
-    this.monitor = new Object();
     this.handlerId = UUID.randomUUID();
 
     // style settings
@@ -170,6 +169,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
       return true;
     }
 
+    var runningThread = Thread.currentThread();
     var answerType = entry.answerType();
     // write the recommendation if given
     if (answerType.recommendation() != null) {
@@ -211,9 +211,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
             ConsoleSetupAnimation.this.console.removeCommandHandler(ConsoleSetupAnimation.this.handlerId);
             ConsoleSetupAnimation.this.console.removeTabCompleteHandler(ConsoleSetupAnimation.this.handlerId);
             // notify the monitor
-            synchronized (ConsoleSetupAnimation.this.monitor) {
-              ConsoleSetupAnimation.this.monitor.notifyAll();
-            }
+            LockSupport.unpark(runningThread);
           }
         } catch (InterruptedException exception) {
           throw new RuntimeException("Console thread got interrupted during handling of response input", exception);
@@ -221,15 +219,8 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
       }
     });
 
-    try {
-      synchronized (this.monitor) {
-        this.monitor.wait();
-      }
-    } catch (InterruptedException exception) {
-      // interrupt the thread execution
-      throw new RuntimeException("Exception during wait for monitor notify", exception);
-    }
-
+    // Wait for the handler to process
+    LockSupport.park();
     return false;
   }
 

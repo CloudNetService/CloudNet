@@ -20,11 +20,11 @@ import eu.cloudnetservice.cloudnet.node.console.Console;
 import eu.cloudnetservice.cloudnet.node.console.animation.setup.ConsoleSetupAnimation;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.locks.LockSupport;
 import lombok.NonNull;
 
 public class DefaultInstallation {
 
-  private final Object monitor = new Object();
   private final Queue<DefaultSetup> setups = new LinkedList<>();
   private final ConsoleSetupAnimation animation = createAnimation();
 
@@ -43,6 +43,7 @@ public class DefaultInstallation {
 
   public void executeFirstStartSetup(@NonNull Console console) {
     if (!Boolean.getBoolean("cloudnet.installation.skip") && !this.setups.isEmpty()) {
+      var runningThread = Thread.currentThread();
       // apply all questions of all setups to the animation
       this.setups.forEach(setup -> setup.applyQuestions(this.animation));
       // start the animation
@@ -56,19 +57,11 @@ public class DefaultInstallation {
           setup.handleResults(animation);
         }
         // notify the monitor about the success
-        synchronized (this.monitor) {
-          this.monitor.notifyAll();
-        }
+        LockSupport.unpark(runningThread);
       });
 
-      try {
-        // wait for the finish signal
-        synchronized (this.monitor) {
-          this.monitor.wait();
-        }
-      } catch (InterruptedException exception) {
-        throw new RuntimeException("Interrupted while waiting for the setup process to complete", exception);
-      }
+      // wait for the finish signal
+      LockSupport.park();
     }
   }
 
