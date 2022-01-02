@@ -17,6 +17,8 @@
 package eu.cloudnetservice.cloudnet.node.setup;
 
 import com.google.common.collect.ImmutableSet;
+import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.driver.module.DefaultModuleProvider;
 import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.cloudnet.driver.service.ProcessSnapshot;
@@ -26,8 +28,14 @@ import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.Parsers;
 import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.Parsers.ParserException;
 import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.QuestionAnswerType;
 import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.QuestionListEntry;
+import eu.cloudnetservice.cloudnet.node.module.ModuleEntry;
 import eu.cloudnetservice.cloudnet.node.util.NetworkAddressUtil;
+import java.nio.file.StandardCopyOption;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+import kong.unirest.Unirest;
 import lombok.NonNull;
 
 public class DefaultConfigSetup extends DefaultClusterSetup {
@@ -96,6 +104,43 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
           .parser(Parsers.ranged(128, Integer.MAX_VALUE))
           .possibleResults("128", "512", "1024", "2048", "4096", "8192", "16384", "32768", "65536")
           .recommendation((int) ((ProcessSnapshot.OS_BEAN.getTotalMemorySize() / (1024 * 1024)) - 512)))
+        .build(),
+      // default installed modules
+      QuestionListEntry.<Collection<ModuleEntry>>builder()
+        .key("initialModules")
+        .translatedQuestion("cloudnet-init-default-modules")
+        .answerType(QuestionAnswerType.<Collection<ModuleEntry>>builder()
+          .parser(string -> {
+            var entries = string.split(";");
+            if (entries.length == 0) {
+              return Set.of();
+            }
+            // try to find each provided module
+            Set<ModuleEntry> result = new HashSet<>();
+            for (var entry : entries) {
+              // get the associated entry
+              result.add(CloudNet.instance().modulesHolder()
+                .findByName(entry)
+                .orElseThrow(() -> ParserException.INSTANCE));
+            }
+            return result;
+          })
+          .possibleResults(CloudNet.instance().modulesHolder().entries().stream()
+            .map(ModuleEntry::name)
+            .collect(Collectors.joining(";")))
+          .recommendation("CloudNet-Bridge;CloudNet-Signs")
+          .addResultListener((__, result) -> {
+            // install all the modules
+            result.forEach(entry -> {
+              // ensure that the target path actually is there
+              var targetPath = DefaultModuleProvider.DEFAULT_MODULE_DIR.resolve(entry.name() + ".jar");
+              FileUtils.createDirectory(targetPath.getParent());
+              // download the module file
+              Unirest.get(entry.url()).asFile(targetPath.toString(), StandardCopyOption.REPLACE_EXISTING);
+              // load the module
+              CloudNet.instance().moduleProvider().loadModule(targetPath);
+            });
+          }))
         .build()
     );
     // apply the cluster setup questions
