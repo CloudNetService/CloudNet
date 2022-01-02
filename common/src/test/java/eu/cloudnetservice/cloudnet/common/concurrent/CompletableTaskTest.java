@@ -18,7 +18,9 @@ package eu.cloudnetservice.cloudnet.common.concurrent;
 
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -107,32 +109,36 @@ public class CompletableTaskTest {
 
   @Test
   @Timeout(10)
-  void testCompletableFutureWrapping() {
-    var result = new AtomicInteger();
+  void testCompletableFutureWrapping() throws InterruptedException {
+    var result = new CountDownLatch(3);
+    var executor = Executors.newCachedThreadPool();
 
-    var futureA = CompletableTask.wrapFuture(CompletableFuture.supplyAsync(() -> 5));
-    futureA.onComplete(result::addAndGet);
+    var futureA = CompletableTask.wrapFuture(CompletableFuture.supplyAsync(() -> 5, executor));
+    futureA.onComplete($ -> result.countDown());
 
     var futureB = CompletableTask.wrapFuture(CompletableFuture.supplyAsync(() -> {
       throw new RuntimeException();
-    }));
-    futureB.onFailure(ex -> result.addAndGet(1));
+    }, executor));
+    futureB.onFailure(ex -> result.countDown());
 
     var completableFutureC = CompletableFuture.supplyAsync(() -> {
       try {
-        Thread.sleep(Long.MAX_VALUE);
+        Thread.sleep(5000);
       } catch (InterruptedException ignored) {
       }
       throw new RuntimeException();
-    });
+    }, executor);
     var futureC = CompletableTask.wrapFuture(completableFutureC);
-    futureC.onCancelled($ -> result.addAndGet(1));
+    futureC.onCancelled($ -> result.countDown());
     futureC.cancel(true);
 
     futureA.getOrNull();
     futureB.getOrNull();
     futureC.getOrNull();
 
-    Assertions.assertEquals(7, result.get());
+    result.await();
+    executor.shutdown();
+
+    Assertions.assertEquals(0, result.getCount());
   }
 }
