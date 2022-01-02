@@ -215,9 +215,11 @@ public final class CommandModules {
 
   @Parser(name = "availableModule", suggestions = "availableModules")
   public ModuleEntry availableModuleParser(CommandContext<?> $, Queue<String> input) {
+    var name = input.remove();
     return this.availableModules
-      .findByName(input.remove())
-      .orElseThrow(() -> new ArgumentNotAvailableException(I18n.trans("command-modules-no-such-installable-module")));
+      .findByName(name)
+      .orElseThrow(
+        () -> new ArgumentNotAvailableException(I18n.trans("command-modules-no-such-installable-module", name)));
   }
 
   @Suggestions("availableModules")
@@ -257,7 +259,7 @@ public final class CommandModules {
     var wrapper = this.provider.loadModule(path);
     // if the wrapper is null, the module is already loaded
     if (wrapper == null) {
-      source.sendMessage(I18n.trans("command-modules-module-already-loaded"));
+      source.sendMessage(I18n.trans("command-modules-module-already-loaded", path));
     }
   }
 
@@ -271,7 +273,9 @@ public final class CommandModules {
       .filter(depend -> this.provider.module(depend) == null)
       .collect(Collectors.toSet());
     if (!missingModules.isEmpty()) {
-      source.sendMessage(I18n.trans("command-modules-install-missing-depend"));
+      source.sendMessage(I18n.trans("command-modules-install-missing-depend",
+        entry.name(),
+        String.join(", ", missingModules)));
       return;
     }
 
@@ -288,7 +292,7 @@ public final class CommandModules {
 
     // start the module
     wrapper.startModule();
-    source.sendMessage(I18n.trans("command-modules-module-installed"));
+    source.sendMessage(I18n.trans("command-modules-module-installed", wrapper.moduleConfiguration().name()));
   }
 
   @CommandMethod("modules|module start <module>")

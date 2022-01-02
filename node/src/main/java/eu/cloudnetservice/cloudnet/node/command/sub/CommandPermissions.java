@@ -456,8 +456,7 @@ public final class CommandPermissions {
   ) {
     permissionUserConsumer.accept(permissionUser);
     this.permissionManagement().updateUser(permissionUser);
-    source.sendMessage(
-      I18n.trans("command-permissions-user-update", permissionUser.name()));
+    source.sendMessage(I18n.trans("command-permissions-user-update", permissionUser.name()));
   }
 
   private PermissionManagement permissionManagement() {

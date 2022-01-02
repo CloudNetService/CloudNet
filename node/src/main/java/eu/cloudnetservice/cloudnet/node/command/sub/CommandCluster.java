@@ -340,12 +340,10 @@ public final class CommandCluster {
           .onComplete(transferStatus -> {
             if (transferStatus == TransferStatus.FAILURE) {
               // the transfer failed
-              source.sendMessage(
-                I18n.trans("command-cluster-push-template-failed", templateName));
+              source.sendMessage(I18n.trans("command-cluster-push-template-failed", templateName));
             } else {
               // the transfer was successful
-              source.sendMessage(
-                I18n.trans("command-cluster-push-template-success", templateName));
+              source.sendMessage(I18n.trans("command-cluster-push-template-success", templateName));
             }
           });
       } else {
