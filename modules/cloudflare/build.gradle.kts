@@ -19,10 +19,9 @@ tasks.withType<Jar> {
 }
 
 moduleJson {
-  main = "de.dytanic.cloudnet.ext.cloudflare.CloudNetCloudflareModule"
-  name = "CloudNet-CloudFlare"
   author = "CloudNetService"
-  description = "Node extension for the https://cloudflare.com REST-API"
+  name = "CloudNet-CloudFlare"
+  main = "eu.cloudnetservice.modules.cloudflare.CloudNetCloudflareModule"
+  description = "Node extension for automatic creation of SRV entries for proxy services"
   storesSensitiveData = true
 }
-

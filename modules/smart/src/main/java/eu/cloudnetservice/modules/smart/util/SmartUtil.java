@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.modules.smart.util;
 
-import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.driver.service.ServiceTask;
-import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperties;
+import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.cloudnet.driver.service.ServiceTask;
+import eu.cloudnetservice.modules.bridge.BridgeServiceProperties;
 import eu.cloudnetservice.modules.smart.SmartServiceTaskConfig;
 import lombok.NonNull;
 

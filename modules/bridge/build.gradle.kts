@@ -35,9 +35,8 @@ dependencies {
 moduleJson {
   name = "CloudNet-Bridge"
   author = "CloudNetService"
-  main = "de.dytanic.cloudnet.ext.bridge.node.CloudNetBridgeModule"
+  main = "eu.cloudnetservice.modules.bridge.node.CloudNetBridgeModule"
   description = "Bridges service software support between all supported versions for easy CloudNet plugin development"
-  runtimeModule = true
 }
 
 tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {

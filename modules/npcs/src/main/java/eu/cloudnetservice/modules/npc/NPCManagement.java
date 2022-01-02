@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.npc;
 
-import de.dytanic.cloudnet.ext.bridge.WorldPosition;
+import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import java.util.Collection;
 import lombok.NonNull;

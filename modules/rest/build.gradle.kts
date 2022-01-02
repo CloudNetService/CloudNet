@@ -19,7 +19,7 @@ tasks.withType<Jar> {
 }
 
 moduleJson {
-  main = "de.dytanic.cloudnet.ext.rest.CloudNetRestModule"
   author = "CloudNetService"
+  main = "eu.cloudnetservice.modules.rest.CloudNetRestModule"
   description = "Node extension for the CloudNet runtime, which includes the default HTTP REST API for CloudNet"
 }

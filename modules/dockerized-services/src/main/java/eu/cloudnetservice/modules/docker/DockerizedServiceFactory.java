@@ -17,12 +17,12 @@
 package eu.cloudnetservice.modules.docker;
 
 import com.github.dockerjava.api.DockerClient;
-import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.driver.event.EventManager;
-import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
-import de.dytanic.cloudnet.service.CloudService;
-import de.dytanic.cloudnet.service.CloudServiceManager;
-import de.dytanic.cloudnet.service.defaults.factory.AbstractServiceFactory;
+import eu.cloudnetservice.cloudnet.driver.event.EventManager;
+import eu.cloudnetservice.cloudnet.driver.service.ServiceConfiguration;
+import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.service.CloudService;
+import eu.cloudnetservice.cloudnet.node.service.CloudServiceManager;
+import eu.cloudnetservice.cloudnet.node.service.defaults.factory.AbstractServiceFactory;
 import eu.cloudnetservice.modules.docker.config.DockerConfiguration;
 import lombok.NonNull;
 

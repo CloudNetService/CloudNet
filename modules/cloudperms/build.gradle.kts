@@ -29,9 +29,9 @@ dependencies {
 }
 
 moduleJson {
-  main = "de.dytanic.cloudnet.ext.cloudperms.node.CloudNetCloudPermissionsModule"
-  name = "CloudNet-CloudPerms"
   author = "CloudNetService"
+  name = "CloudNet-CloudPerms"
+  main = "eu.cloudnetservice.modules.cloudperms.node.CloudNetCloudPermissionsModule"
   description = "Node extension for the CloudNet node runtime, which include a player permission system"
 }
 

@@ -3,7 +3,7 @@
 &c       / __\| |  ___   _   _   __| |&b  /\ \ \  /__\/__   \
 &c      / /   | | / _ \ | | | | / _` |&b /  \/ / /_\    / /\/ &7%version%
 &c     / /___ | || (_) || |_| || (_| |&b/ /\  / //__   / /
-&c     \____/ |_| \___/  \__,_| \__,_|&b\_\ \/  \__/   \/ &7created by Dytanic & the CloudNet Community
+&c     \____/ |_| \___/  \__,_| \__,_|&b\_\ \/  \__/   \/ &7created by Dytanic, maintained by the CloudNet Community
       The next generation of Minecraft cloud systems
 
      &8«&b*&8»&7 The Cloud Network Environment Technology 3

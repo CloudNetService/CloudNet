@@ -16,13 +16,13 @@
 
 package eu.cloudnetservice.modules.s3;
 
-import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.cluster.sync.DataSyncHandler;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
-import de.dytanic.cloudnet.driver.module.ModuleTask;
-import de.dytanic.cloudnet.driver.module.driver.DriverModule;
-import de.dytanic.cloudnet.driver.template.TemplateStorage;
+import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
+import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
+import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
+import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
+import eu.cloudnetservice.cloudnet.driver.template.TemplateStorage;
+import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.modules.s3.config.S3TemplateStorageConfig;
 import java.nio.file.Files;
 import lombok.NonNull;

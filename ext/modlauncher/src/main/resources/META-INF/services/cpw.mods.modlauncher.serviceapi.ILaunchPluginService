@@ -14,4 +14,4 @@
 # limitations under the License.
 #
 
-eu.cloudnetservice.cloudnet.modlauncher.CloudNetLaunchPluginService
+eu.cloudnetservice.ext.modlauncher.CloudNetLaunchPluginService

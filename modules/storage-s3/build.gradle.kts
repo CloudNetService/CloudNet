@@ -24,9 +24,9 @@ dependencies {
 
 moduleJson {
   author = "CloudNetService"
+  name = "CloudNet-Storage-S3"
   main = "eu.cloudnetservice.modules.s3.S3TemplateStorageModule"
   description = "CloudNet extension, which includes the s3 storage system"
-  name = "CloudNet-Storage-S3"
-  storesSensitiveData = true
   runtimeModule = true
+  storesSensitiveData = true
 }

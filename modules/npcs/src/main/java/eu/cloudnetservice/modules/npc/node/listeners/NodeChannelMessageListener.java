@@ -17,10 +17,10 @@
 package eu.cloudnetservice.modules.npc.node.listeners;
 
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.driver.event.EventListener;
-import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
-import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
-import de.dytanic.cloudnet.ext.bridge.WorldPosition;
+import eu.cloudnetservice.cloudnet.driver.event.EventListener;
+import eu.cloudnetservice.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
+import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.npc.AbstractNPCManagement;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;

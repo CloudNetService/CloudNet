@@ -16,11 +16,11 @@
 
 package eu.cloudnetservice.modules.smart;
 
-import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
-import de.dytanic.cloudnet.driver.module.ModuleTask;
-import de.dytanic.cloudnet.driver.module.driver.DriverModule;
-import de.dytanic.cloudnet.driver.service.ServiceTask;
+import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
+import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
+import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
+import eu.cloudnetservice.cloudnet.driver.service.ServiceTask;
+import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.modules.smart.SmartServiceTaskConfig.TemplateInstaller;
 import eu.cloudnetservice.modules.smart.listener.CloudNetLocalServiceListener;
 import eu.cloudnetservice.modules.smart.listener.CloudNetLocalServiceTaskListener;

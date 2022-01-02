@@ -33,7 +33,7 @@ dependencies {
 
 moduleJson {
   author = "CloudNetService"
-  main = "eu.cloudnetservice.cloudnet.ext.syncproxy.node.CloudNetSyncProxyModule"
-  description = "CloudNet extension which serves proxy utils with CloudNet support"
   name = "CloudNet-SyncProxy"
+  main = "eu.cloudnetservice.modules.syncproxy.node.CloudNetSyncProxyModule"
+  description = "CloudNet extension which serves proxy utils with CloudNet support"
 }

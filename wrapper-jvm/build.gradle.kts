@@ -51,6 +51,6 @@ dependencies {
 }
 
 applyJarMetadata(
-  "de.dytanic.cloudnet.wrapper.Main",
+  "eu.cloudnetservice.cloudnet.wrapper.Main",
   "eu.cloudnetservice.wrapper",
-  "de.dytanic.cloudnet.wrapper.Premain")
+  "eu.cloudnetservice.cloudnet.wrapper.Premain")

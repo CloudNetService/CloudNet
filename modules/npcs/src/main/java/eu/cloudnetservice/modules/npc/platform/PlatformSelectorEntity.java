@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.npc.platform;
 
-import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.npc.NPC;
 import java.util.Set;
 import lombok.NonNull;

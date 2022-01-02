@@ -4,4 +4,4 @@ api: [ "1.0.5" ]
 author: CloudNetService
 website: https://cloudnetservice.eu
 description: Bridges service software support between all supported versions for easy CloudNet plugin development
-main: de.dytanic.cloudnet.ext.bridge.platform.nukkit.NukkitBridgePlugin
+main: eu.cloudnetservice.modules.bridge.platform.nukkit.NukkitBridgePlugin

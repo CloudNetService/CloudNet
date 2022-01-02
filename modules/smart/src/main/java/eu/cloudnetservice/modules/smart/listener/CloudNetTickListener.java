@@ -16,20 +16,20 @@
 
 package eu.cloudnetservice.modules.smart.listener;
 
-import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.CloudNetTick;
-import de.dytanic.cloudnet.cluster.ClusterNodeServerProvider;
-import de.dytanic.cloudnet.cluster.NodeServer;
-import de.dytanic.cloudnet.common.collection.Pair;
-import de.dytanic.cloudnet.driver.event.EventListener;
-import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
-import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
-import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
-import de.dytanic.cloudnet.driver.service.ServiceTask;
-import de.dytanic.cloudnet.event.instance.CloudNetTickEvent;
-import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperties;
-import de.dytanic.cloudnet.service.CloudServiceManager;
+import eu.cloudnetservice.cloudnet.common.collection.Pair;
+import eu.cloudnetservice.cloudnet.driver.event.EventListener;
+import eu.cloudnetservice.cloudnet.driver.provider.service.CloudServiceFactory;
+import eu.cloudnetservice.cloudnet.driver.service.ServiceConfiguration;
+import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.cloudnet.driver.service.ServiceLifeCycle;
+import eu.cloudnetservice.cloudnet.driver.service.ServiceTask;
+import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.CloudNetTick;
+import eu.cloudnetservice.cloudnet.node.cluster.ClusterNodeServerProvider;
+import eu.cloudnetservice.cloudnet.node.cluster.NodeServer;
+import eu.cloudnetservice.cloudnet.node.event.instance.CloudNetTickEvent;
+import eu.cloudnetservice.cloudnet.node.service.CloudServiceManager;
+import eu.cloudnetservice.modules.bridge.BridgeServiceProperties;
 import eu.cloudnetservice.modules.smart.CloudNetSmartModule;
 import eu.cloudnetservice.modules.smart.SmartServiceTaskConfig;
 import eu.cloudnetservice.modules.smart.util.SmartUtil;

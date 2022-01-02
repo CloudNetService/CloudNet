@@ -38,7 +38,7 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 
-@SupportedAnnotationTypes("de.dytanic.cloudnet.driver.network.rpc.annotation.RPCValidation")
+@SupportedAnnotationTypes("eu.cloudnetservice.cloudnet.driver.network.rpc.annotation.RPCValidation")
 public class RPCValidationProcessor extends AbstractProcessor {
 
   private volatile Elements eu;

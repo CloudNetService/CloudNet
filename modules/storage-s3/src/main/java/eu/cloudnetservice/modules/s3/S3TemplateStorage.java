@@ -16,14 +16,14 @@
 
 package eu.cloudnetservice.modules.s3;
 
-import de.dytanic.cloudnet.common.function.ThrowableConsumer;
-import de.dytanic.cloudnet.common.io.FileUtils;
-import de.dytanic.cloudnet.common.log.LogManager;
-import de.dytanic.cloudnet.common.log.Logger;
-import de.dytanic.cloudnet.common.stream.ListeningOutputStream;
-import de.dytanic.cloudnet.driver.service.ServiceTemplate;
-import de.dytanic.cloudnet.driver.template.FileInfo;
-import de.dytanic.cloudnet.driver.template.TemplateStorage;
+import eu.cloudnetservice.cloudnet.common.function.ThrowableConsumer;
+import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.log.LogManager;
+import eu.cloudnetservice.cloudnet.common.log.Logger;
+import eu.cloudnetservice.cloudnet.common.stream.ListeningOutputStream;
+import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
+import eu.cloudnetservice.cloudnet.driver.template.FileInfo;
+import eu.cloudnetservice.cloudnet.driver.template.TemplateStorage;
 import eu.cloudnetservice.modules.s3.config.S3TemplateStorageConfig;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

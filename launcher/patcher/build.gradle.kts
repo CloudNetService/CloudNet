@@ -18,4 +18,4 @@ tasks.withType<Jar> {
   archiveFileName.set(Files.launcherPatcher)
 }
 
-applyJarMetadata("eu.cloudnetservice.launcher.CloudNetLauncherPatcher", "eu.cloudnetservice.launcher")
+applyJarMetadata("eu.cloudnetservice.launcher.patcher.CloudNetLauncherPatcher", "eu.cloudnetservice.launcher")

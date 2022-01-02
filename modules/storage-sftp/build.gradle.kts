@@ -26,10 +26,10 @@ dependencies {
 }
 
 moduleJson {
-  main = "eu.cloudnetservice.ext.sftp.SFTPTemplateStorageModule"
   author = "CloudNetService"
-  description = "CloudNet extension, which includes the sftp storage system"
   name = "CloudNet-Storage-SFTP"
+  main = "eu.cloudnetservice.modules.sftp.SFTPTemplateStorageModule"
+  description = "CloudNet extension, which includes the sftp storage system"
   storesSensitiveData = true
   runtimeModule = true
 }

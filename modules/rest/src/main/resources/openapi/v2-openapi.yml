@@ -2563,13 +2563,6 @@ components:
         printErrorStreamLinesFromServices:
           type: boolean
           example: true
-        defaultJVMFlags:
-          type: string
-          enum:
-            - NONE
-            - DYTANIC
-            - AIKAR
-          example: 'DYTANIC'
         jvmCommand:
           type: string
           example: 'java'
@@ -2985,7 +2978,7 @@ components:
           example: true
         group:
           type: string
-          example: de.dytanic.cloudnet.modules
+          example: eu.cloudnetservice.modules
         name:
           type: string
           example: CloudNet-CloudFlare
@@ -2994,7 +2987,7 @@ components:
           example: '1.1'
         main:
           type: string
-          example: de.dytanic.cloudnet.ext.cloudflare.CloudNetCloudflareModule
+          example: eu.cloudnetservice.modules.cloudflare.CloudNetCloudflareModule
         description:
           type: string
           example: 'Node extension for the https://cloudflare.com REST-API'
@@ -3028,7 +3021,7 @@ components:
                 example: 'https://repo.cloudnetservice.eu/'
               group:
                 type: string
-                example: de.dytanic.cloudnet.modules
+                example: eu.cloudnetservice.modules
               name:
                 type: string
                 example: CloudNet-Bridge

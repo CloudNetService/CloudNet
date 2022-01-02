@@ -3,4 +3,4 @@ version: "{project.build.version}"
 api-version: "1.13"
 author: CloudNetService
 description: Brings chat prefixes and colored message support to all server platforms
-main: de.dytanic.cloudnet.ext.chat.BukkitChatPlugin
+main: eu.cloudnetservice.plugins.chat.BukkitChatPlugin

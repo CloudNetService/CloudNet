@@ -17,20 +17,20 @@
 package eu.cloudnetservice.modules.npc.node;
 
 import com.google.common.collect.ImmutableMap;
-import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.collection.Pair;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.database.Database;
-import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
-import de.dytanic.cloudnet.driver.module.ModuleTask;
-import de.dytanic.cloudnet.driver.module.driver.DriverModule;
-import eu.cloudnetservice.cloudnet.ext.npcs.CloudNPC;
-import eu.cloudnetservice.cloudnet.ext.npcs.NPCConstants;
-import eu.cloudnetservice.cloudnet.ext.npcs.configuration.NPCConfiguration;
+import eu.cloudnetservice.cloudnet.common.collection.Pair;
+import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
+import eu.cloudnetservice.cloudnet.driver.database.Database;
+import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
+import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
+import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
+import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.NPC.ClickAction;
 import eu.cloudnetservice.modules.npc.NPC.ProfileProperty;
 import eu.cloudnetservice.modules.npc.NPCManagement;
+import eu.cloudnetservice.modules.npc._deprecated.CloudNPC;
+import eu.cloudnetservice.modules.npc._deprecated.NPCConstants;
+import eu.cloudnetservice.modules.npc._deprecated.configuration.NPCConfiguration;
 import eu.cloudnetservice.modules.npc.configuration.InventoryConfiguration;
 import eu.cloudnetservice.modules.npc.configuration.InventoryConfiguration.ItemLayoutHolder;
 import eu.cloudnetservice.modules.npc.configuration.ItemLayout;
@@ -155,7 +155,7 @@ public class CloudNetNPCModule extends DriverModule {
   }
 
   private @NonNull ItemLayout convertItemLayout(
-    @NonNull eu.cloudnetservice.cloudnet.ext.npcs.configuration.NPCConfigurationEntry.ItemLayout oldLayout
+    @NonNull eu.cloudnetservice.modules.npc._deprecated.configuration.NPCConfigurationEntry.ItemLayout oldLayout
   ) {
     return ItemLayout.builder()
       .material(oldLayout.material())

@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.modules.npc;
 
-import de.dytanic.cloudnet.driver.event.EventListener;
-import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
-import de.dytanic.cloudnet.ext.bridge.WorldPosition;
+import eu.cloudnetservice.cloudnet.driver.event.EventListener;
+import eu.cloudnetservice.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
+import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import java.util.Collection;
 import lombok.NonNull;

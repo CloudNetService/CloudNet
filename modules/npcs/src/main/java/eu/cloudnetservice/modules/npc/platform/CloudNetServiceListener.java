@@ -16,10 +16,10 @@
 
 package eu.cloudnetservice.modules.npc.platform;
 
-import de.dytanic.cloudnet.driver.event.EventListener;
-import de.dytanic.cloudnet.driver.event.events.service.CloudServiceLifecycleChangeEvent;
-import de.dytanic.cloudnet.driver.event.events.service.CloudServiceUpdateEvent;
-import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
+import eu.cloudnetservice.cloudnet.driver.event.EventListener;
+import eu.cloudnetservice.cloudnet.driver.event.events.service.CloudServiceLifecycleChangeEvent;
+import eu.cloudnetservice.cloudnet.driver.event.events.service.CloudServiceUpdateEvent;
+import eu.cloudnetservice.cloudnet.driver.service.ServiceLifeCycle;
 import lombok.NonNull;
 
 final class CloudNetServiceListener {

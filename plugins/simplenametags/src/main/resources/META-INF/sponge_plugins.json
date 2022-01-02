@@ -9,7 +9,7 @@
       "id": "simple_name_tags",
       "name": "CloudNet-SimpleNameTags",
       "version": "{project.build.version}",
-      "entrypoint": "de.dytanic.cloudnet.ext.simplenametags.sponge.SpongeSimpleNameTagsPlugin",
+      "entrypoint": "eu.cloudnetservice.plugins.simplenametags.sponge.SpongeSimpleNameTagsPlugin",
       "description": "Adds prefix, suffix and display name support to all server platforms",
       "links": {
         "homepage": "https://cloudnetservice.eu"

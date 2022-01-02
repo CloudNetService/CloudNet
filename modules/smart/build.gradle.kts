@@ -23,8 +23,8 @@ dependencies {
 }
 
 moduleJson {
-  main = "eu.cloudnetservice.modules.smart.CloudNetSmartModule"
   author = "CloudNetService"
+  main = "eu.cloudnetservice.modules.smart.CloudNetSmartModule"
   description = "CloudNet extension, which implement smart network handling and automatic services providing"
   runtimeModule = true
 }

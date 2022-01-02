@@ -1,0 +1,61 @@
+/*
+ * Copyright 2019-2022 CloudNetService team & contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package eu.cloudnetservice.launcher.java17.updater;
+
+import eu.cloudnetservice.ext.updater.defaults.DefaultUpdaterRegistry;
+import eu.cloudnetservice.ext.updater.util.GitHubUtil;
+import eu.cloudnetservice.launcher.java17.CloudNetLauncher;
+import eu.cloudnetservice.launcher.java17.utils.HttpUtils;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.net.http.HttpResponse.BodySubscribers;
+import java.util.Properties;
+import lombok.NonNull;
+
+public final class LauncherUpdaterRegistry extends DefaultUpdaterRegistry<LauncherUpdaterContext, Object> {
+
+  private final String repo;
+  private final String branch;
+  private final CloudNetLauncher launcher;
+
+  public LauncherUpdaterRegistry(@NonNull String repo, @NonNull String branch, @NonNull CloudNetLauncher launcher) {
+    this.repo = repo;
+    this.branch = branch;
+    this.launcher = launcher;
+  }
+
+  @Override
+  protected @NonNull LauncherUpdaterContext provideContext(@NonNull Object provisionContext) throws Exception {
+    System.out.printf("Loading checksums (Update repo: %s, Update branch: %s)... %n", this.repo, this.branch);
+    // load the properties file which contains the checksum information
+    return HttpUtils.get(
+      GitHubUtil.buildUri(this.repo, this.branch, "checksums.properties"),
+      HttpUtils.handlerFromSubscriber(BodySubscribers.mapping(BodySubscribers.ofInputStream(), stream -> {
+        try {
+          // parse the checksum properties from the stream
+          var checksums = new Properties();
+          checksums.load(stream);
+          // create an updater context from the information
+          return new LauncherUpdaterContext(this.launcher, this.repo, this.branch, checksums);
+        } catch (IOException exception) {
+          // let the handler do the honors
+          throw new UncheckedIOException(exception);
+        }
+      }))
+    ).body();
+  }
+}

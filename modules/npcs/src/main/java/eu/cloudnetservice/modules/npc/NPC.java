@@ -18,9 +18,9 @@ package eu.cloudnetservice.modules.npc;
 
 import com.google.common.base.Verify;
 import com.google.common.reflect.TypeToken;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.common.document.property.JsonDocPropertyHolder;
-import de.dytanic.cloudnet.ext.bridge.WorldPosition;
+import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
+import eu.cloudnetservice.cloudnet.common.document.property.JsonDocPropertyHolder;
+import eu.cloudnetservice.modules.bridge.WorldPosition;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;

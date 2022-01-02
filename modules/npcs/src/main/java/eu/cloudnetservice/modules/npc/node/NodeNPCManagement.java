@@ -16,11 +16,11 @@
 
 package eu.cloudnetservice.modules.npc.node;
 
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.database.Database;
-import de.dytanic.cloudnet.driver.event.EventManager;
-import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
-import de.dytanic.cloudnet.ext.bridge.WorldPosition;
+import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
+import eu.cloudnetservice.cloudnet.driver.database.Database;
+import eu.cloudnetservice.cloudnet.driver.event.EventManager;
+import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.npc.AbstractNPCManagement;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;

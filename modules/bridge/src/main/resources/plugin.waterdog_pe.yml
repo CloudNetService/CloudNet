@@ -1,4 +1,4 @@
 name: CloudNet-Bridge
 version: "{project.build.version}"
 author: CloudNetService
-main: de.dytanic.cloudnet.ext.bridge.platform.waterdog.WaterDogPEBridgePlugin
+main: eu.cloudnetservice.modules.bridge.platform.waterdog.WaterDogPEBridgePlugin

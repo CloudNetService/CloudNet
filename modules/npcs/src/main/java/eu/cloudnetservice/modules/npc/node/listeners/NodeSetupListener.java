@@ -16,13 +16,13 @@
 
 package eu.cloudnetservice.modules.npc.node.listeners;
 
-import de.dytanic.cloudnet.console.animation.setup.answer.Parsers;
-import de.dytanic.cloudnet.console.animation.setup.answer.QuestionAnswerType;
-import de.dytanic.cloudnet.console.animation.setup.answer.QuestionListEntry;
-import de.dytanic.cloudnet.driver.event.EventListener;
-import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
-import de.dytanic.cloudnet.event.setup.SetupCompleteEvent;
-import de.dytanic.cloudnet.event.setup.SetupInitiateEvent;
+import eu.cloudnetservice.cloudnet.driver.event.EventListener;
+import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
+import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.Parsers;
+import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.QuestionAnswerType;
+import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.QuestionListEntry;
+import eu.cloudnetservice.cloudnet.node.event.setup.SetupCompleteEvent;
+import eu.cloudnetservice.cloudnet.node.event.setup.SetupInitiateEvent;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfigurationEntry;
 import eu.cloudnetservice.modules.npc.node.NodeNPCManagement;

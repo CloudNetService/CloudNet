@@ -4,4 +4,4 @@ api: [ "1.0.5" ]
 author: CloudNetService
 description: Nukkit extension which implement the permission management system from CloudNet into Nukkit for players
 
-main: de.dytanic.cloudnet.ext.cloudperms.nukkit.NukkitCloudPermissionsPlugin
+main: eu.cloudnetservice.modules.cloudperms.nukkit.NukkitCloudPermissionsPlugin

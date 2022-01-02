@@ -17,11 +17,11 @@
 package eu.cloudnetservice.modules.smart.listener;
 
 import com.google.common.collect.Iterables;
-import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.driver.event.EventListener;
-import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
-import de.dytanic.cloudnet.driver.service.ServiceTemplate;
-import de.dytanic.cloudnet.event.service.CloudServicePostLifecycleEvent;
+import eu.cloudnetservice.cloudnet.driver.event.EventListener;
+import eu.cloudnetservice.cloudnet.driver.service.ServiceLifeCycle;
+import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
+import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.event.service.CloudServicePostLifecycleEvent;
 import eu.cloudnetservice.modules.smart.CloudNetSmartModule;
 import java.util.Comparator;
 import java.util.HashSet;

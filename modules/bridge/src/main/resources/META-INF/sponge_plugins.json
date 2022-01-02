@@ -9,7 +9,7 @@
       "id": "cloudnet_bridge",
       "name": "CloudNet-Bridge",
       "version": "{project.build.version}",
-      "entrypoint": "de.dytanic.cloudnet.ext.bridge.platform.sponge.SpongeBridgePlugin",
+      "entrypoint": "eu.cloudnetservice.modules.bridge.platform.sponge.SpongeBridgePlugin",
       "description": "Bridges service software support between all supported versions for easy CloudNet plugin development",
       "links": {
         "homepage": "https://cloudnetservice.eu"

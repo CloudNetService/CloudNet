@@ -9,7 +9,7 @@
       "id": "cloudnet_chat",
       "name": "CloudNet-Chat",
       "version": "{project.build.version}",
-      "entrypoint": "de.dytanic.cloudnet.ext.chat.SpongeChatPlugin",
+      "entrypoint": "eu.cloudnetservice.plugins.chat.SpongeChatPlugin",
       "description": "Brings chat prefixes and colored message support to all server platforms",
       "links": {
         "homepage": "https://cloudnetservice.eu"

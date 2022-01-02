@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-moduleJson {
-  main = "eu.cloudnetservice.cloudnet.ext.report.CloudNetReportModule"
-  name = "CloudNet-Report"
-  author = "CloudNetService"
-  description = "Node extension for develop modules and reporting bugs"
-}
-
 tasks.withType<Jar> {
   archiveFileName.set(Files.report)
 }
 
-
-
+moduleJson {
+  name = "CloudNet-Report"
+  author = "CloudNetService"
+  main = "eu.cloudnetservice.modules.report.CloudNetReportModule"
+  description = "Node extension for automatic reporting of node and service states/logs"
+}

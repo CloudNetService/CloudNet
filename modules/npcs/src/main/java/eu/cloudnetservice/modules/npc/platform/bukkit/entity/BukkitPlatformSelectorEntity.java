@@ -16,11 +16,11 @@
 
 package eu.cloudnetservice.modules.npc.platform.bukkit.entity;
 
-import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.ext.bridge.BridgeServiceHelper;
-import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperties;
-import de.dytanic.cloudnet.ext.bridge.player.PlayerManager;
+import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
+import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
+import eu.cloudnetservice.modules.bridge.BridgeServiceProperties;
+import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.NPC.ClickAction;
 import eu.cloudnetservice.modules.npc.configuration.InventoryConfiguration;

@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.modules.npc;
 
-import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.channel.ChannelMessage;
-import de.dytanic.cloudnet.ext.bridge.WorldPosition;
+import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
+import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
+import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import java.util.Collection;
 import java.util.Map;

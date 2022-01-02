@@ -16,14 +16,14 @@
 
 package eu.cloudnetservice.modules.npc.platform;
 
-import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.channel.ChannelMessage;
-import de.dytanic.cloudnet.driver.channel.ChannelMessage.Builder;
-import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget.Type;
-import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
-import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.ext.bridge.WorldPosition;
-import de.dytanic.cloudnet.wrapper.Wrapper;
+import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
+import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
+import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage.Builder;
+import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessageTarget.Type;
+import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
+import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.npc.AbstractNPCManagement;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.configuration.InventoryConfiguration;

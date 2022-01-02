@@ -51,4 +51,4 @@ dependencies {
   "api"(libs.bundles.cloud)
 }
 
-applyJarMetadata("de.dytanic.cloudnet.BootLogic", "eu.cloudnetservice.cloudnet")
+applyJarMetadata("eu.cloudnetservice.cloudnet.node.BootLogic", "eu.cloudnetservice.cloudnet")

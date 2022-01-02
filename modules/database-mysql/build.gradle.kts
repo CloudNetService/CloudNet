@@ -26,8 +26,8 @@ dependencies {
 }
 
 moduleJson {
-  main = "de.dytanic.cloudnet.ext.database.mysql.CloudNetMySQLDatabaseModule"
   author = "CloudNetService"
+  main = "eu.cloudnetservice.modules.mysql.CloudNetMySQLDatabaseModule"
   description = "CloudNet extension, which includes the database support for MySQL and MariaDB"
   minJavaVersionId = JavaVersion.VERSION_11
   runtimeModule = true
