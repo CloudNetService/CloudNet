@@ -104,8 +104,8 @@ public record RecordMaker(@NonNull Path directory, @NonNull CloudService service
   }
 
   /**
-   * Creates a new file ("ServiceInfoSnapshots.json") with the previous and current {@link
-   * ServiceInfoSnapshot} ServiceInfoSnapshot of the service.
+   * Creates a new file ("ServiceInfoSnapshots.json") with the previous and current {@link ServiceInfoSnapshot}
+   * ServiceInfoSnapshot of the service.
    */
   public void writeServiceInfoSnapshot() {
     JsonDocument.newDocument("serviceInfoSnapshot", this.service.serviceInfo())
@@ -117,8 +117,8 @@ public record RecordMaker(@NonNull Path directory, @NonNull CloudService service
    * Sends a message to the node, that the record was created successfully.
    */
   public void notifySuccess() {
-    LOGGER.info(I18n.trans("module-report-create-record-success")
-      .replace("%service%", this.service.serviceId().name())
-      .replace("%file%", this.directory.toString()));
+    LOGGER.info(I18n.trans("module-report-create-record-success",
+      this.service.serviceId().name(),
+      this.directory.toString()));
   }
 }

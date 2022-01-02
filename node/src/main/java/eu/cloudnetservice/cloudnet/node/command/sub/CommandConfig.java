@@ -55,13 +55,13 @@ public final class CommandConfig {
     CloudNet.instance().serviceTaskProvider().reload();
     CloudNet.instance().groupConfigurationProvider().reload();
     CloudNet.instance().permissionManagement().reload();
-    source.sendMessage(I18n.trans("command-reload-reload-config-success"));
+    source.sendMessage(I18n.trans("command-node-reload-config-success"));
   }
 
   @CommandMethod("config node reload")
   public void reloadNodeConfig(CommandSource source) {
     this.updateNodeConfig(JsonConfiguration.loadFromFile(CloudNet.instance()));
-    source.sendMessage(I18n.trans("command-reload-node-config"));
+    source.sendMessage(I18n.trans("command-node-reload-node-config"));
   }
 
   @CommandMethod("config node add ip <ip>")
@@ -71,7 +71,7 @@ public final class CommandConfig {
     if (ipWhitelist.add(ip)) {
       // update the config as we have a change
       this.updateNodeConfig();
-      source.sendMessage(I18n.trans("command-node-add-ip-whitelist").replace("%ip%", ip));
+      source.sendMessage(I18n.trans("command-node-add-ip-whitelist", ip));
     } else {
       source.sendMessage(I18n.trans("command-node-ip-already-whitelisted"));
     }
@@ -84,7 +84,7 @@ public final class CommandConfig {
     if (ipWhitelist.remove(ip)) {
       // update the config as we have a change
       this.updateNodeConfig();
-      source.sendMessage(I18n.trans("command-node-remove-ip-whitelist").replace("%ip%", ip));
+      source.sendMessage(I18n.trans("command-node-remove-ip-whitelist", ip));
     } else {
       source.sendMessage(I18n.trans("command-node-ip-not-whitelisted"));
     }
@@ -94,8 +94,7 @@ public final class CommandConfig {
   public void setMaxMemory(CommandSource source, @Argument("maxMemory") @Range(min = "0") int maxMemory) {
     this.nodeConfig().maxMemory(maxMemory);
     this.updateNodeConfig();
-    source.sendMessage(I18n.trans("command-node-max-memory-set")
-      .replace("%memory%", Integer.toString(maxMemory)));
+    source.sendMessage(I18n.trans("command-node-max-memory-set", maxMemory));
   }
 
   @CommandMethod("config node set javaCommand <executable>")
@@ -105,9 +104,9 @@ public final class CommandConfig {
   ) {
     this.nodeConfig().javaCommand(executable.first());
     this.updateNodeConfig();
-    source.sendMessage(I18n.trans("command-node-set-java-command")
-      .replace("%executable%", executable.first())
-      .replace("%ver%", executable.second().name()));
+    source.sendMessage(I18n.trans("command-config-node-set-java-command",
+      executable.first(),
+      executable.second().name()));
   }
 
   private Configuration nodeConfig() {

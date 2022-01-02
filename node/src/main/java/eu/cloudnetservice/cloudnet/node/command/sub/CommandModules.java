@@ -86,7 +86,7 @@ public final class CommandModules {
     // check if the file exists
     if (Files.notExists(path)) {
       throw new ArgumentNotAvailableException(
-        I18n.trans("command-modules-module-file-not-found").replace("%file%", fileName));
+        I18n.trans("command-modules-module-file-not-found", fileName));
     }
     return path;
   }
@@ -112,7 +112,7 @@ public final class CommandModules {
     var wrapper = this.provider.module(moduleName);
     if (wrapper == null) {
       throw new ArgumentNotAvailableException(
-        I18n.trans("command-modules-module-not-loaded").replace("%name%", moduleName));
+        I18n.trans("command-modules-module-not-loaded", moduleName));
     }
     return wrapper;
   }
@@ -131,7 +131,7 @@ public final class CommandModules {
     var wrapper = this.provider.module(moduleName);
     if (wrapper == null || !wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.STARTED)) {
       throw new ArgumentNotAvailableException(
-        I18n.trans("command-modules-module-not-loaded").replace("%name%", moduleName));
+        I18n.trans("command-modules-module-not-loaded", moduleName));
     }
     return wrapper;
   }
@@ -150,12 +150,12 @@ public final class CommandModules {
     var wrapper = this.provider.module(moduleName);
     if (wrapper == null || !wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.RELOADING)) {
       throw new ArgumentNotAvailableException(
-        I18n.trans("command-modules-module-not-started").replace("%name%", moduleName));
+        I18n.trans("command-modules-module-not-started", moduleName));
     }
 
     if (wrapper.moduleConfiguration().runtimeModule()) {
       throw new ArgumentNotAvailableException(
-        I18n.trans("command-modules-module-runtime-module").replace("%name%", moduleName));
+        I18n.trans("command-modules-module-runtime-module", moduleName));
     }
     return wrapper;
   }
@@ -175,7 +175,7 @@ public final class CommandModules {
     var wrapper = this.provider.module(moduleName);
     if (wrapper == null || !wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.STOPPED)) {
       throw new ArgumentNotAvailableException(
-        I18n.trans("command-modules-module-not-started").replace("%name%", moduleName));
+        I18n.trans("command-modules-module-not-started", moduleName));
     }
     return wrapper;
   }
@@ -194,12 +194,12 @@ public final class CommandModules {
     var wrapper = this.provider.module(moduleName);
     if (wrapper == null || !wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.UNLOADED)) {
       throw new ArgumentNotAvailableException(
-        I18n.trans("command-modules-module-not-stopped").replace("%name%", moduleName));
+        I18n.trans("command-modules-module-not-stopped", moduleName));
     }
     // runtime modules are unloaded on cloud stop only
     if (wrapper.moduleConfiguration().runtimeModule()) {
       throw new ArgumentNotAvailableException(
-        I18n.trans("command-modules-module-runtime-module").replace("%name%", moduleName));
+        I18n.trans("command-modules-module-runtime-module", moduleName));
     }
     return wrapper;
   }

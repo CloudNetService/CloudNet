@@ -42,8 +42,7 @@ public record QuestionAnswerType<T>(
     if (type.possibleAnswers().isEmpty()) {
       return I18n.trans("ca-question-list-invalid-default");
     } else {
-      return I18n.trans("ca-question-list-question-list")
-        .replace("%values%", String.join(", ", type.possibleAnswers()));
+      return I18n.trans("ca-question-list-question-list", String.join(", ", type.possibleAnswers()));
     }
   };
 

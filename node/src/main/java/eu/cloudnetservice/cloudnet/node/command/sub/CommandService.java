@@ -192,7 +192,7 @@ public final class CommandService {
       .collect(Collectors.toSet());
     // check if we found a result
     if (targets.isEmpty()) {
-      source.sendMessage(I18n.trans("command-copy-service-no-default-template"));
+      source.sendMessage(I18n.trans("command-service-copy-no-default-template"));
       return;
     }
 
@@ -204,9 +204,9 @@ public final class CommandService {
       target.first().removeAndExecuteDeployments();
       // send a message for each service we did copy the template of
       //noinspection ConstantConditions
-      source.sendMessage(I18n.trans("command-copy-success")
-        .replace("%name%", target.first().serviceInfo().name())
-        .replace("%template%", target.second().toString()));
+      source.sendMessage(I18n.trans("command-service-copy-success",
+        target.first().serviceInfo().name(),
+        target.second().toString()));
     }
   }
 
@@ -224,11 +224,9 @@ public final class CommandService {
         for (var cachedLogMessage : matchedService.provider().cachedLogMessages()) {
           LOGGER.info(String.format("&b[%s] %s", matchedService.name(), cachedLogMessage));
         }
-        source.sendMessage(
-          I18n.trans("command-service-toggle-enabled").replace("%name%", matchedService.name()));
+        source.sendMessage(I18n.trans("command-service-toggle-enabled", matchedService.name()));
       } else {
-        source.sendMessage(
-          I18n.trans("command-service-toggle-disabled").replace("%name%", matchedService.name()));
+        source.sendMessage(I18n.trans("command-service-toggle-disabled", matchedService.name()));
       }
     }
   }

@@ -190,9 +190,10 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
         var snapshot = nodeServer.nodeInfoSnapshot();
         if (snapshot != null && snapshot.creationTime() + MAX_NO_UPDATE_MILLIS < System.currentTimeMillis()) {
           try {
-            LOGGER.info(I18n.trans("cluster-server-idling-too-long")
-              .replace("%id%", nodeServer.nodeInfo().uniqueId())
-              .replace("%time%", TIME_FORMAT.format((System.currentTimeMillis() - snapshot.creationTime()) / 1000)));
+            LOGGER.info(I18n.trans("cluster-server-idling-too-long",
+              nodeServer.nodeInfo().uniqueId(),
+              TIME_FORMAT.format((System.currentTimeMillis() - snapshot.creationTime()) / 1000)));
+
             nodeServer.close();
           } catch (Exception exception) {
             LOGGER.severe("Exception while closing server", exception);

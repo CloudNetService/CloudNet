@@ -185,8 +185,8 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
       this.console.commandHistory(answerType.possibleAnswers());
 
       // collect the possible answers to one string
-      var answers = I18n.trans("ca-question-list-possible-answers-list")
-        .replace("%values%", String.join(", ", answerType.possibleAnswers()));
+      var answers = I18n.trans("ca-question-list-possible-answers-list",
+        String.join(", ", answerType.possibleAnswers()));
       // write the answers to the console
       for (var line : this.updateCursor("&r" + entry.question() + " &r> &e" + answers)) {
         super.console().forceWriteLine(line);

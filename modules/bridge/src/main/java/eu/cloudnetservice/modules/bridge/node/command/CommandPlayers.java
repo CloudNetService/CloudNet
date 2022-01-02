@@ -186,9 +186,7 @@ public class CommandPlayers {
     @NonNull @Argument(value = "player", parserName = "offlinePlayer") CloudOfflinePlayer player
   ) {
     this.playerManager.deleteCloudOfflinePlayer(player);
-    source.sendMessage(I18n.trans("module-bridge-command-players-delete-player")
-      .replace("%name%", player.name())
-      .replace("%uniqueId%", player.uniqueId().toString()));
+    source.sendMessage(I18n.trans("module-bridge-command-players-delete-player", player.name(), player.uniqueId()));
   }
 
   @CommandMethod("players player <player> kick [reason]")
@@ -201,10 +199,8 @@ public class CommandPlayers {
     var reasonComponent = reason == null ? Component.empty() : AdventureSerializerUtil.serialize(reason);
     player.playerExecutor().kick(reasonComponent);
 
-    source.sendMessage(I18n.trans("module-bridge-command-players-kick-player")
-      .replace("%name%", player.name())
-      .replace("%uniqueId%", player.uniqueId().toString())
-      .replace("%reason%", reason == null ? "No reason given" : reason));
+    source.sendMessage(I18n.trans("module-bridge-command-players-kick-player", player.name(), player.uniqueId(),
+      reason == null ? "No reason given" : reason));
 
     if (force) {
       // force the logout of the player and remove the player from the cache
@@ -220,9 +216,8 @@ public class CommandPlayers {
     @NonNull @Greedy @Argument("message") String message
   ) {
     player.playerExecutor().sendMessage(AdventureSerializerUtil.serialize(message));
-    source.sendMessage(I18n.trans("module-bridge-command-players-send-player-message")
-      .replace("%name%", player.name())
-      .replace("%uniqueId%", player.uniqueId().toString()));
+    source.sendMessage(
+      I18n.trans("module-bridge-command-players-send-player-message", player.name(), player.uniqueId()));
   }
 
   @CommandMethod("players player <player> connect <server>")
@@ -234,13 +229,11 @@ public class CommandPlayers {
     if (BridgeServiceProperties.IS_ONLINE.read(server).orElse(false)) {
       player.playerExecutor().connect(server.name());
 
-      source.sendMessage(I18n.trans("module-bridge-command-players-send-player-server")
-        .replace("%name%", player.name())
-        .replace("%uniqueId%", player.uniqueId().toString()));
+      source.sendMessage(
+        I18n.trans("module-bridge-command-players-send-player-server", player.name(), player.uniqueId()));
     } else {
-      source.sendMessage(I18n.trans("module-bridge-command-players-send-player-server-not-found")
-        .replace("%name%", player.name())
-        .replace("%uniqueId%", player.uniqueId().toString()));
+      source.sendMessage(
+        I18n.trans("module-bridge-command-players-send-player-server-not-found", player.name(), player.uniqueId()));
     }
   }
 }
