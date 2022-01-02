@@ -14,15 +14,9 @@
  * limitations under the License.
  */
 
-java {
-  toolchain {
-    languageVersion.set(JavaLanguageVersion.of(11))
-  }
-}
-
 tasks.withType<JavaCompile> {
-  options.release.set(6)
-  options.compilerArgs = listOf("-Xlint:-options")
+  sourceCompatibility = JavaVersion.VERSION_1_8.toString()
+  targetCompatibility = JavaVersion.VERSION_1_8.toString()
 }
 
 project.gradle.startParameter.excludedTaskNames.add("checkstyleMain")

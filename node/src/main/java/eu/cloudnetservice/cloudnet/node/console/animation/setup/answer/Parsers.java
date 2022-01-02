@@ -160,7 +160,10 @@ public final class Parsers {
     };
   }
 
-  public static @NonNull <I, O> QuestionAnswerType.Parser<O> andThen(@NonNull QuestionAnswerType.Parser<I> parser, @NonNull Function<I, O> combiner) {
+  public static @NonNull <I, O> QuestionAnswerType.Parser<O> andThen(
+    @NonNull QuestionAnswerType.Parser<I> parser,
+    @NonNull Function<I, O> combiner
+  ) {
     return input -> combiner.apply(parser.parse(input));
   }
 

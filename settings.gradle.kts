@@ -48,7 +48,7 @@ initializeSubProjects("modules",
   "storage-s3",
   "dockerized-services")
 // launcher
-initializeSubProjects("launcher", "java6", "java17", "patcher")
+initializeSubProjects("launcher", "java8", "java17", "patcher")
 
 fun initializeProjects(vararg names: String) {
   names.forEach {
