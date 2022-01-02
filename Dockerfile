@@ -1,16 +1,16 @@
-FROM gradle:7.3.2-jdk17 AS build
-USER root
+FROM azul/zulu-openjdk-alpine:17-jre AS build
 
-COPY . /usr/src/cloudnet-sources
-WORKDIR /usr/src/cloudnet-sources
+COPY . /home/cloudnet-build
+WORKDIR /home/cloudnet-build
+VOLUME /root/.gradle
 
-RUN gradle
+RUN chmod +x gradlew && ./gradlew -x test --no-daemon --stacktrace
 
 FROM azul/zulu-openjdk-alpine:17-jre
-USER root
 
-RUN mkdir -p /home/cloudnet
-WORKDIR /home/cloudnet
+RUN mkdir -p /cloudnet
+WORKDIR /cloudnet
+VOLUME /cloudnet
 
-COPY --from=build /usr/src/cloudnet-sources/cloudnet-launcher/build/libs/launcher.jar .
-CMD ["java", "-XX:+UseG1GC", "-XX:MaxGCPauseMillis=50", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseCompressedOops", "-XX:-UseAdaptiveSizePolicy", "-XX:CompileThreshold=100", "-Dfile.encoding=UTF-8", "-Xmx456M", "-Xms256m", "-jar", "launcher.jar"]
+COPY --from=build /home/cloudnet-build/launcher/java17/build/libs/launcher.jar .
+ENTRYPOINT exec java $JAVA_OPTS -jar launcher.jar $CLOUDNET_OPTS
