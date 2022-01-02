@@ -47,6 +47,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
@@ -60,8 +62,11 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
   public static final String SIGN_DELETE = "signs_sign_delete";
   public static final String SIGN_ALL_DELETE = "signs_sign_delete_all";
   public static final String SIGN_BULK_DELETE = "signs_sign_bulk_delete";
+
   protected static final int TPS = 20;
-  private static final Logger LOGGER = LogManager.logger(AbstractPlatformSignManagement.class);
+  protected static final Logger LOGGER = LogManager.logger(AbstractPlatformSignManagement.class);
+
+  protected final Lock updatingLock = new ReentrantLock();
   protected final AtomicInteger currentTick = new AtomicInteger();
   protected final Queue<ServiceInfoSnapshot> waitingAssignments = new ConcurrentLinkedQueue<>();
 
@@ -301,7 +306,9 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
     var entry = this.applicableSignConfigurationEntry();
     var servicePriority = PriorityUtil.priority(snapshot, entry);
 
-    synchronized (this) {
+    // ensure that we only assign the snapshot to a sign that has no target yet
+    this.updatingLock.lock();
+    try {
       Sign bestChoice = null;
       for (var sign : this.signs.values()) {
         if (snapshot.configuration().groups().contains(sign.targetGroup())
@@ -339,6 +346,8 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
       }
 
       return bestChoice;
+    } finally {
+      this.updatingLock.unlock();
     }
   }
 

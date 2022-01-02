@@ -23,6 +23,8 @@ import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import lombok.NonNull;
 
@@ -33,10 +35,12 @@ public final class LogOutputStream extends ByteArrayOutputStream {
 
   private final Level level;
   private final Logger logger;
+  private final Lock flushLock;
 
   private LogOutputStream(@NonNull Level level, @NonNull Logger logger) {
     this.level = level;
     this.logger = logger;
+    this.flushLock = new ReentrantLock();
   }
 
   public static @NonNull LogOutputStream forSevere(@NonNull Logger logger) {
@@ -65,7 +69,9 @@ public final class LogOutputStream extends ByteArrayOutputStream {
 
   @Override
   public void flush() throws IOException {
-    synchronized (this) {
+    // ensure that we only flush once at a time
+    this.flushLock.lock();
+    try {
       super.flush();
       var content = this.toString(StandardCharsets.UTF_8.name());
       super.reset();
@@ -73,6 +79,8 @@ public final class LogOutputStream extends ByteArrayOutputStream {
       if (!content.isEmpty() && !content.equals(System.lineSeparator())) {
         this.logger.log(this.level, content);
       }
+    } finally {
+      this.flushLock.unlock();
     }
   }
 }
