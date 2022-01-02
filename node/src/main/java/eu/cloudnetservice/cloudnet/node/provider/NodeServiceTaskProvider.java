@@ -212,12 +212,23 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
         FileUtils.move(file, this.taskFile(task), StandardCopyOption.REPLACE_EXISTING);
       }
 
-      // remove all custom java paths that do not support Java 17
-      var javaVersion = JavaVersionResolver.resolveFromJavaExecutable(task.javaCommand());
-      if (javaVersion == null) {
-        LOGGER.severe(I18n.trans("cloudnet-load-task-unknown-java-version").replace("%task%", taskName));
-      } else if (!javaVersion.isSupportedByMin(JavaVersion.JAVA_17)) {
-        task = ServiceTask.builder(task).javaCommand(null).build();
+      // Wrap the command to a path and unwrap it again to ensure that the command is os specific
+      // This allows for example Windows users to use '/' in the task file which is way easier as there
+      // is no need to escape. ('\' must be escaped)
+      if (task.javaCommand() != null) {
+        var command = Path.of(task.javaCommand()).toAbsolutePath().normalize().toString();
+        // validate if the task java command needs an update
+        if (!task.javaCommand().equals(command)) {
+          task = ServiceTask.builder(task).javaCommand(command).build();
+        }
+
+        // remove all custom java paths that do not support Java 17
+        var javaVersion = JavaVersionResolver.resolveFromJavaExecutable(task.javaCommand());
+        if (javaVersion == null) {
+          LOGGER.severe(I18n.trans("cloudnet-load-task-unknown-java-version").replace("%task%", taskName));
+        } else if (!javaVersion.isSupportedByMin(JavaVersion.JAVA_17)) {
+          task = ServiceTask.builder(task).javaCommand(null).build();
+        }
       }
 
       // cache the task
