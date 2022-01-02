@@ -18,13 +18,13 @@ plugins {
   id("com.github.johnrengelman.shadow") version Versions.shadow
 }
 
-dependencies {
-  "implementation"(projects.cloudnetExt.updater)
-  "implementation"(projects.cloudnetLauncher.java6)
-}
-
 tasks.withType<Jar> {
   archiveFileName.set(Files.launcher)
+}
+
+dependencies {
+  "implementation"(projects.cloudnetExt.updater)
+  "implementation"(projects.cloudnetLauncher.java8)
 }
 
 applyJarMetadata("eu.cloudnetservice.launcher.java6.Launcher", "eu.cloudnetservice.launcher")
