@@ -34,7 +34,7 @@ public final class CommandMe {
   private static final String VM_NAME = System.getProperty("java.vm.name");
   private static final String VM_VERSION = System.getProperty("java.vm.version");
 
-  private static final String UPDATE_BRANCH = System.getProperty("cloudnet.updateBranch", "master");
+  private static final String UPDATE_BRANCH = System.getProperty("cloudnet.updateBranch", "release");
   private static final String UPDATE_REPO = System.getProperty("cloudnet.updateRepo", "CloudNetService/launchermeta");
 
   @CommandMethod("me|info")

@@ -51,6 +51,6 @@ public final class ModuleUpdaterRegistry extends DefaultUpdaterRegistry<ModuleUp
       provisionContext,
       moduleNames,
       System.getProperty("cloudnet.updateRepo", "CloudNetService/launchermeta"),
-      System.getProperty("cloudnet.updateBranch", "master"));
+      System.getProperty("cloudnet.updateBranch", "release"));
   }
 }
