@@ -30,6 +30,7 @@ import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.QuestionA
 import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.QuestionListEntry;
 import eu.cloudnetservice.cloudnet.node.module.ModuleEntry;
 import eu.cloudnetservice.cloudnet.node.util.NetworkAddressUtil;
+import eu.cloudnetservice.ext.updater.util.ChecksumUtils;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.HashSet;
@@ -119,9 +120,21 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
             Set<ModuleEntry> result = new HashSet<>();
             for (var entry : entries) {
               // get the associated entry
-              result.add(CloudNet.instance().modulesHolder()
+              var moduleEntry = CloudNet.instance().modulesHolder()
                 .findByName(entry)
-                .orElseThrow(() -> ParserException.INSTANCE));
+                .orElseThrow(() -> ParserException.INSTANCE);
+              // check for depending on modules
+              if (!moduleEntry.dependingModules().isEmpty()) {
+                moduleEntry.dependingModules().forEach(module -> {
+                  // resolve and add the depending on module
+                  var dependEntry = CloudNet.instance().modulesHolder()
+                    .findByName(module)
+                    .orElseThrow(() -> ParserException.INSTANCE);
+                  result.add(dependEntry);
+                });
+              }
+              // register the module as installation target
+              result.add(moduleEntry);
             }
             return result;
           })
@@ -137,6 +150,13 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
               FileUtils.createDirectory(targetPath.getParent());
               // download the module file
               Unirest.get(entry.url()).asFile(targetPath.toString(), StandardCopyOption.REPLACE_EXISTING);
+              // validate the downloaded file
+              var checksum = ChecksumUtils.fileShaSum(targetPath);
+              if (!checksum.equals(entry.sha3256())) {
+                // remove the file and fail hard
+                FileUtils.delete(targetPath);
+                throw new IllegalStateException(""); // TODO: insert message here
+              }
               // load the module
               CloudNet.instance().moduleProvider().loadModule(targetPath);
             });
