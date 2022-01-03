@@ -19,6 +19,7 @@ tasks.withType<Jar> {
 }
 
 moduleJson {
+  name = "CloudNet-Rest"
   author = "CloudNetService"
   main = "eu.cloudnetservice.modules.rest.CloudNetRestModule"
   description = "Node extension for the CloudNet runtime, which includes the default HTTP REST API for CloudNet"

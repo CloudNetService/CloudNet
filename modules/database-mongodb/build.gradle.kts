@@ -25,6 +25,7 @@ dependencies {
 
 moduleJson {
   author = "CloudNetService"
+  name = "CloudNet-Database-MongoDB"
   main = "eu.cloudnetservice.modules.mongodb.CloudNetMongoDatabaseModule"
   description = "CloudNet extension, which includes the database support for MongoDB"
   runtimeModule = true
