@@ -138,7 +138,13 @@ public interface ModuleProvider {
    */
   @Nullable ModuleWrapper loadModule(@NonNull Path path);
 
-  // TODO: docs
+  /**
+   * Loads all modules which files are located at the module directory.
+   *
+   * @return the same instance of the class, for chaining.
+   * @see ModuleWrapper#moduleLifeCycle()
+   * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
+   */
   @NonNull ModuleProvider loadAll();
 
   /**

@@ -31,8 +31,8 @@ import eu.cloudnetservice.cloudnet.node.command.annotation.Description;
 import eu.cloudnetservice.cloudnet.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
 import eu.cloudnetservice.cloudnet.node.config.Configuration;
-import eu.cloudnetservice.cloudnet.node.config.JsonConfiguration;
 import java.util.Queue;
+import lombok.NonNull;
 
 @Description("")
 @CommandPermission("cloudnet.command.config")
@@ -51,7 +51,7 @@ public final class CommandConfig {
 
   @CommandMethod("config reload")
   public void reloadConfigs(CommandSource source) {
-    this.updateNodeConfig(JsonConfiguration.loadFromFile(CloudNet.instance()));
+    this.updateNodeConfig(CloudNet.instance().config().load());
     CloudNet.instance().serviceTaskProvider().reload();
     CloudNet.instance().groupConfigurationProvider().reload();
     CloudNet.instance().permissionManagement().reload();
@@ -60,7 +60,7 @@ public final class CommandConfig {
 
   @CommandMethod("config node reload")
   public void reloadNodeConfig(CommandSource source) {
-    this.updateNodeConfig(JsonConfiguration.loadFromFile(CloudNet.instance()));
+    this.updateNodeConfig(CloudNet.instance().config().load());
     source.sendMessage(I18n.trans("command-config-node-reload-config"));
   }
 
@@ -117,8 +117,7 @@ public final class CommandConfig {
     this.updateNodeConfig(CloudNet.instance().config());
   }
 
-  private void updateNodeConfig(Configuration configuration) {
-    CloudNet.instance().config(configuration);
-    configuration.save();
+  private void updateNodeConfig(@NonNull Configuration configuration) {
+    CloudNet.instance().config(configuration.save());
   }
 }
