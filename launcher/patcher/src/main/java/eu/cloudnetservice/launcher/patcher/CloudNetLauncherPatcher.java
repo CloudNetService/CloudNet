@@ -32,11 +32,15 @@ public final class CloudNetLauncherPatcher {
       var oldLauncherPath = Path.of(args[1]);
       var newLauncherPath = Path.of(args[2]);
       // just for debug reasons
+      // CHECKSTYLE.OFF: Launcher has no proper logger
       System.out.printf("Picked up options: %s -> %s (pid: %d)%n", oldLauncherPath, newLauncherPath, launcherPid);
+      // CHECKSTYLE.ON
       // wait for the process to terminate by joining it (to block the current thread)
       ProcessHandle.of(launcherPid).ifPresent(handle -> handle.onExit().join());
       // the process doesn't exist or terminated - run the updater now
+      // CHECKSTYLE.OFF: Launcher has no proper logger
       System.out.printf("Running patcher on file %s%n", oldLauncherPath);
+      // CHECKSTYLE.ON
       replaceOldLauncher(oldLauncherPath, newLauncherPath);
     }
   }
