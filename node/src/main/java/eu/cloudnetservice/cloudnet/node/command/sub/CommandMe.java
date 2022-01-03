@@ -46,7 +46,7 @@ public final class CommandMe {
     commandSource.sendMessage(List.of(
       " ",
       CloudNet.instance().version() + " created by Dytanic, maintained by the CloudNet Community",
-      "Discord: https://discord.cloudnetservice.eu/",
+      "Discord: <https://discord.cloudnetservice.eu/>",
       " ",
       "ClusterId: " + cloudNet.config().clusterConfig().clusterId(),
       "NodeId: " + cloudNet.config().identity().uniqueId(),
