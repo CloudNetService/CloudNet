@@ -49,7 +49,22 @@ public final class CommandLineHelper {
   }
 
   public static @NonNull String findProperty(@NonNull Properties properties, @NonNull String key, @NonNull String def) {
-    return properties.getProperty(key, System.getProperty("cloudnet." + key, def));
+    // get the property from the command line (if present)
+    var value = properties.getProperty(key);
+    if (value != null) {
+      // set the value as a system property to allow later reads of it
+      System.setProperty("cloudnet." + key, value);
+      return value;
+    }
+    // try to get the value from a system property
+    value = System.getProperty("cloudnet." + key);
+    if (value == null) {
+      // set the fallback value as the value of the property
+      System.setProperty("cloudnet." + key, def);
+      return def;
+    }
+    // value is present, use it
+    return value;
   }
 
   public static @NonNull <T> T findProperty(
