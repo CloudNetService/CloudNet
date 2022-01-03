@@ -51,6 +51,7 @@ bungeecord = "1.18-R0.1-SNAPSHOT"
 vault = "1.7.1"
 adventure = "4.9.3"
 modlauncher = "8.0.9"
+placeholderApi = "2.11.1"
 protocolLib = "master-SNAPSHOT"
 npcLib = "development-SNAPSHOT"
 
@@ -133,7 +134,9 @@ adventureSerializerLegacy = { group = "net.kyori", name = "adventure-text-serial
 vault = { group = "com.github.MilkBowl", name = "VaultAPI", version.ref = "vault" }
 npcLib = { group = "com.github.juliarn", name = "npc-lib", version.ref = "npcLib" }
 modLauncher = { group = "cpw.mods", name = "modlauncher", version.ref = "modlauncher" }
+placeholderApi = { group = "me.clip", name = "placeholderapi", version.ref = "placeholderApi" }
 protocolLib = { group = "com.github.dmulloy2", name = "ProtocolLib", version.ref = "protocolLib" }
+
 
 [bundles]
 

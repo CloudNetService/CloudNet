@@ -14,24 +14,17 @@
  * limitations under the License.
  */
 
-plugins {
-  id("net.kyori.blossom") version Versions.blossom apply false
+repositories {
+  maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
 }
 
-subprojects {
-  apply(plugin = "net.kyori.blossom")
+dependencies {
+  compileOnly(libs.spigot)
+  compileOnly(libs.placeholderApi)
+  compileOnly(projects.cloudnetWrapperJvm)
+  compileOnly(projects.cloudnetModules.bridge)
+}
 
-  repositories {
-    maven("https://repo.spongepowered.org/maven/")
-    maven("https://repo.opencollab.dev/maven-snapshots/")
-    maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
-  }
-
-  tasks.named<Copy>("processResources") {
-    filter {
-      it
-        .replace("{project.build.version}", project.version.toString())
-        .replace("{project.perms.build.version}", projects.cloudnetModules.cloudperms.version.toString())
-    }
-  }
+configure<net.kyori.blossom.BlossomExtension> {
+  replaceToken("{project.build.version}", project.version)
 }
