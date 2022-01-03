@@ -29,7 +29,7 @@ initializeProjects("bom", "ext", "common", "driver", "node", "wrapper-jvm", "lau
 // external lib helpers
 initializeSubProjects("ext", "modlauncher", "adventure-helper", "bukkit-command", "updater")
 // plugins
-initializeSubProjects("plugins", "chat", "simplenametags")
+initializeSubProjects("plugins", "chat", "simplenametags", "papi-expansion")
 // modules
 initializeSubProjects("modules",
   "bridge",
