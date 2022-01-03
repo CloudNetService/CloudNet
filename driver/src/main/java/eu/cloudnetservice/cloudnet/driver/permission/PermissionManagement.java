@@ -23,7 +23,7 @@ import eu.cloudnetservice.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -396,33 +396,39 @@ public interface PermissionManagement {
    * @param modifier the Consumer to modify the user
    * @return the modified group
    */
-  @Nullable PermissionGroup modifyGroup(@NonNull String name, @NonNull Consumer<PermissionGroup> modifier);
+  @Nullable PermissionGroup modifyGroup(
+    @NonNull String name,
+    @NonNull BiConsumer<PermissionGroup, PermissionGroup.Builder> modifier);
 
   /**
-   * Gets the permission user with the given uniqueId by using {@link #user(UUID)} and, if not null, puts them into
-   * the consumer, after that, the user will be updated by using {@link #updateUser(PermissionUser)}.
+   * Gets the permission user with the given uniqueId by using {@link #user(UUID)} and, if not null, puts them into the
+   * consumer, after that, the user will be updated by using {@link #updateUser(PermissionUser)}.
    *
    * @param uniqueId the uniqueId of the user
    * @param modifier the Consumer to modify the user
    * @return the modified user
    */
-  @Nullable PermissionUser modifyUser(@NonNull UUID uniqueId, @NonNull Consumer<PermissionUser> modifier);
+  @Nullable PermissionUser modifyUser(
+    @NonNull UUID uniqueId,
+    @NonNull BiConsumer<PermissionUser, PermissionUser.Builder> modifier);
 
   /**
-   * Gets every user matching the given name by using {@link #usersByName(String)} and puts them into the consumer, after
-   * that, every user will be updated by using {@link #updateUser(PermissionUser)}.
+   * Gets every user matching the given name by using {@link #usersByName(String)} and puts them into the consumer,
+   * after that, every user will be updated by using {@link #updateUser(PermissionUser)}.
    *
    * @param name     the name of the users
    * @param modifier the Consumer to modify the available users
    * @return a list of all modified users
    */
-  @NonNull List<PermissionUser> modifyUsers(@NonNull String name, @NonNull Consumer<PermissionUser> modifier);
+  @NonNull List<PermissionUser> modifyUsers(
+    @NonNull String name,
+    @NonNull BiConsumer<PermissionUser, PermissionUser.Builder> modifier);
 
   /**
-   * Sends a command line to the node the method is called on or the node the wrapper is connected to.
-   * The command line is executed and all resulting messages are collected in the collection of strings.
+   * Sends a command line to the node the method is called on or the node the wrapper is connected to. The command line
+   * is executed and all resulting messages are collected in the collection of strings.
    *
-   * @param user the user to execute the command line with
+   * @param user        the user to execute the command line with
    * @param commandLine the command line to execute on the node
    * @return all messages regarding the command execution
    */
@@ -684,8 +690,8 @@ public interface PermissionManagement {
   }
 
   /**
-   * Gets the permission group with the given name by using {@link #groupAsync(String)} and, if not null, puts it
-   * into the consumer, after that, the group will be updated by using {@link #updateGroup(PermissionGroup)}.
+   * Gets the permission group with the given name by using {@link #groupAsync(String)} and, if not null, puts it into
+   * the consumer, after that, the group will be updated by using {@link #updateGroup(PermissionGroup)}.
    *
    * @param name     the name of the group
    * @param modifier the Consumer to modify the user
@@ -693,14 +699,14 @@ public interface PermissionManagement {
    */
   default @NonNull Task<PermissionGroup> modifyGroupAsync(
     @NonNull String name,
-    @NonNull Consumer<PermissionGroup> modifier
+    @NonNull BiConsumer<PermissionGroup, PermissionGroup.Builder> modifier
   ) {
     return CompletableTask.supply(() -> this.modifyGroup(name, modifier));
   }
 
   /**
-   * Gets the permission user with the given uniqueId by using {@link #userAsync(UUID)} and, if not null, puts them
-   * into the consumer, after that, the user will be updated by using {@link #updateUser(PermissionUser)}.
+   * Gets the permission user with the given uniqueId by using {@link #userAsync(UUID)} and, if not null, puts them into
+   * the consumer, after that, the user will be updated by using {@link #updateUser(PermissionUser)}.
    *
    * @param uniqueId the uniqueId of the user
    * @param modifier the Consumer to modify the user
@@ -708,7 +714,7 @@ public interface PermissionManagement {
    */
   default @NonNull Task<PermissionUser> modifyUserAsync(
     @NonNull UUID uniqueId,
-    @NonNull Consumer<PermissionUser> modifier
+    @NonNull BiConsumer<PermissionUser, PermissionUser.Builder> modifier
   ) {
     return CompletableTask.supply(() -> this.modifyUser(uniqueId, modifier));
   }
@@ -723,16 +729,16 @@ public interface PermissionManagement {
    */
   default @NonNull Task<List<PermissionUser>> modifyUsersAsync(
     @NonNull String name,
-    @NonNull Consumer<PermissionUser> modifier
+    @NonNull BiConsumer<PermissionUser, PermissionUser.Builder> modifier
   ) {
     return CompletableTask.supply(() -> this.modifyUsers(name, modifier));
   }
 
   /**
-   * Sends a command line to the node the method is called on or the node the wrapper is connected to.
-   * The command line is executed and all resulting messages are collected in the collection of strings.
+   * Sends a command line to the node the method is called on or the node the wrapper is connected to. The command line
+   * is executed and all resulting messages are collected in the collection of strings.
    *
-   * @param user the user to execute the command line with
+   * @param user        the user to execute the command line with
    * @param commandLine the command line to execute on the node
    * @return all messages regarding the command execution
    */

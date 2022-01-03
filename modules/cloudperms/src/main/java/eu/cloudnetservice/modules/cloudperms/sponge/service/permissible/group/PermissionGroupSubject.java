@@ -46,7 +46,7 @@ final class PermissionGroupSubject extends AbstractSubject<PermissionGroup> {
 
   @Override
   protected @NonNull List<? extends SubjectReference> getParents() {
-    return this.data.groups().stream()
+    return this.data.groupNames().stream()
       .map(this.permissionManagement::group)
       .filter(Objects::nonNull)
       .map(group -> this.source.newSubjectReference(group.name()))

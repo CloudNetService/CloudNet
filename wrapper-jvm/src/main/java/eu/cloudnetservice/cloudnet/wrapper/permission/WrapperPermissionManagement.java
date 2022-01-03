@@ -105,12 +105,17 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
 
   @Override
   public @NonNull PermissionUser addUser(@NonNull String name, @NonNull String password, int potency) {
-    return this.addPermissionUser(new PermissionUser(UUID.randomUUID(), name, password, potency));
+    return this.addPermissionUser(PermissionUser.builder()
+      .name(name)
+      .uniqueId(UUID.randomUUID())
+      .password(password)
+      .potency(potency)
+      .build());
   }
 
   @Override
   public @NonNull PermissionGroup addGroup(@NonNull String role, int potency) {
-    return this.addPermissionGroup(new PermissionGroup(role, potency));
+    return this.addPermissionGroup(PermissionGroup.builder().name(role).potency(potency).build());
   }
 
   @Override

@@ -22,7 +22,6 @@ import eu.cloudnetservice.modules.cloudperms.sponge.service.permissible.Permissi
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.permission.Subject;
@@ -52,7 +51,7 @@ final class PermissionGroupData extends PermissibleSubjectData<PermissionGroup> 
     TransferMethod method
   ) {
     return CompletableFuture.supplyAsync(() -> {
-      this.permissible.groups(groups.stream().map(SubjectReference::subjectIdentifier).collect(Collectors.toList()));
+      this.permissible.groupNames().addAll(groups.stream().map(SubjectReference::subjectIdentifier).toList());
       this.updateIfEnabled(this.permissible);
       return true;
     });

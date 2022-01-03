@@ -16,13 +16,14 @@
 
 package eu.cloudnetservice.cloudnet.driver.permission;
 
+import eu.cloudnetservice.cloudnet.driver.permission.PermissionGroup.Builder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -213,36 +214,48 @@ public abstract class DefaultPermissionManagement implements PermissionManagemen
   }
 
   @Override
-  public PermissionGroup modifyGroup(@NonNull String name, @NonNull Consumer<PermissionGroup> modifier) {
+  public @Nullable PermissionGroup modifyGroup(
+    @NonNull String name,
+    @NonNull BiConsumer<PermissionGroup, Builder> modifier
+  ) {
     var group = this.group(name);
-
     if (group != null) {
-      modifier.accept(group);
-      this.updateGroup(group);
+      var builder = PermissionGroup.builder(group);
+      // accept the action
+      modifier.accept(group, builder);
+      this.updateGroup(builder.build());
     }
 
     return group;
   }
 
   @Override
-  public PermissionUser modifyUser(@NonNull UUID uniqueId, @NonNull Consumer<PermissionUser> modifier) {
+  public @Nullable PermissionUser modifyUser(
+    @NonNull UUID uniqueId,
+    @NonNull BiConsumer<PermissionUser, PermissionUser.Builder> modifier
+  ) {
     var user = this.user(uniqueId);
-
     if (user != null) {
-      modifier.accept(user);
-      this.updateUser(user);
+      var builder = PermissionUser.builder(user);
+      // accept the action
+      modifier.accept(user, builder);
+      this.updateUser(builder.build());
     }
 
     return user;
   }
 
   @Override
-  public @NonNull List<PermissionUser> modifyUsers(@NonNull String name, @NonNull Consumer<PermissionUser> modifier) {
+  public @NonNull List<PermissionUser> modifyUsers(
+    @NonNull String name,
+    @NonNull BiConsumer<PermissionUser, PermissionUser.Builder> modifier
+  ) {
     var users = this.usersByName(name);
-
     for (var user : users) {
-      modifier.accept(user);
-      this.updateUser(user);
+      var builder = PermissionUser.builder(user);
+      // accept the action
+      modifier.accept(user, builder);
+      this.updateUser(builder.build());
     }
 
     return users;

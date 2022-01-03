@@ -16,13 +16,15 @@
 
 package eu.cloudnetservice.cloudnet.driver.permission;
 
+import com.google.common.base.Verify;
 import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import lombok.NonNull;
 
 /**
@@ -32,34 +34,29 @@ public class PermissionGroup extends AbstractPermissible {
 
   public static final Type COL_GROUPS = TypeToken.getParameterized(Collection.class, PermissionGroup.class).getType();
 
-  protected String color = "&7";
-  protected String prefix = "&7";
-  protected String suffix = "&f";
-  protected String display = "&7";
+  private final String color;
+  private final String prefix;
+  private final String suffix;
+  private final String display;
 
-  protected int sortId = 0;
-  protected boolean defaultGroup = false;
+  private final int sortId;
+  private final boolean defaultGroup;
 
-  protected Collection<String> groups = new ArrayList<>();
+  private final Set<String> groups;
 
-  public PermissionGroup(@NonNull String name, int potency) {
-    this.name = name;
-    this.potency = potency;
-  }
-
-  public PermissionGroup(
+  protected PermissionGroup(
     @NonNull String color,
     @NonNull String prefix,
     @NonNull String suffix,
     @NonNull String display,
     int sortId,
     boolean defaultGroup,
-    @NonNull Collection<String> groups,
+    @NonNull Set<String> groups,
     @NonNull String name,
     int potency,
     long createdTime,
-    @NonNull List<Permission> permissions,
-    @NonNull Map<String, Collection<Permission>> groupPermissions,
+    @NonNull Set<Permission> permissions,
+    @NonNull Map<String, Set<Permission>> groupPermissions,
     @NonNull JsonDocument properties
   ) {
     super(name, potency, createdTime, permissions, groupPermissions, properties);
@@ -72,64 +69,164 @@ public class PermissionGroup extends AbstractPermissible {
     this.groups = groups;
   }
 
-  public @NonNull Collection<String> groups() {
-    return this.groups;
+  public static @NonNull Builder builder() {
+    return new Builder();
   }
 
-  public void groups(@NonNull Collection<String> groups) {
-    this.groups = groups;
+  public static @NonNull Builder builder(@NonNull PermissionGroup group) {
+    return builder()
+      .name(group.name())
+      .potency(group.potency())
+
+      .color(group.color())
+      .prefix(group.prefix())
+      .suffix(group.suffix())
+      .display(group.display())
+
+      .sortId(group.sortId())
+      .defaultGroup(group.defaultGroup())
+
+      .groups(group.groupNames())
+      .permissions(group.permissions())
+
+      .properties(group.properties())
+      .groupPermissions(group.groupPermissions());
   }
 
   public @NonNull String prefix() {
     return this.prefix;
   }
 
-  public void prefix(@NonNull String prefix) {
-    this.prefix = prefix;
-  }
-
   public @NonNull String color() {
     return this.color;
-  }
-
-  public void color(@NonNull String color) {
-    this.color = color;
   }
 
   public @NonNull String suffix() {
     return this.suffix;
   }
 
-  public void suffix(@NonNull String suffix) {
-    this.suffix = suffix;
-  }
-
   public @NonNull String display() {
     return this.display;
-  }
-
-  public void display(@NonNull String display) {
-    this.display = display;
   }
 
   public int sortId() {
     return this.sortId;
   }
 
-  public void sortId(int sortId) {
-    this.sortId = sortId;
-  }
-
   public boolean defaultGroup() {
     return this.defaultGroup;
   }
 
-  public void defaultGroup(boolean defaultGroup) {
-    this.defaultGroup = defaultGroup;
-  }
-
   @Override
   public @NonNull Collection<String> groupNames() {
-    return this.groups();
+    return this.groups;
+  }
+
+  public static final class Builder {
+
+    private String name;
+    private int potency;
+
+    private String color = "&7";
+    private String prefix = "&7";
+    private String suffix = "&f";
+    private String display = "&7";
+
+    private int sortId = 0;
+    private boolean defaultGroup = false;
+
+    private Set<String> groups = new HashSet<>();
+    private Set<Permission> permissions = new HashSet<>();
+
+    private JsonDocument properties = JsonDocument.newDocument();
+    private Map<String, Set<Permission>> groupPermissions = new HashMap<>();
+
+    public @NonNull Builder name(@NonNull String name) {
+      this.name = name;
+      return this;
+    }
+
+    public @NonNull Builder potency(int potency) {
+      this.potency = potency;
+      return this;
+    }
+
+    public @NonNull Builder color(@NonNull String color) {
+      this.color = color;
+      return this;
+    }
+
+    public @NonNull Builder prefix(@NonNull String prefix) {
+      this.prefix = prefix;
+      return this;
+    }
+
+    public @NonNull Builder suffix(@NonNull String suffix) {
+      this.suffix = suffix;
+      return this;
+    }
+
+    public @NonNull Builder display(@NonNull String display) {
+      this.display = display;
+      return this;
+    }
+
+    public @NonNull Builder sortId(int sortId) {
+      this.sortId = sortId;
+      return this;
+    }
+
+    public @NonNull Builder defaultGroup(boolean defaultGroup) {
+      this.defaultGroup = defaultGroup;
+      return this;
+    }
+
+    public @NonNull Builder groups(@NonNull Collection<String> groups) {
+      this.groups = new HashSet<>(groups);
+      return this;
+    }
+
+    public @NonNull Builder permissions(@NonNull Collection<Permission> permissions) {
+      this.permissions = new HashSet<>(permissions);
+      return this;
+    }
+
+    public @NonNull Builder addPermission(@NonNull Permission permission) {
+      this.permissions.add(permission);
+      return this;
+    }
+
+    public @NonNull Builder groupPermissions(@NonNull Map<String, Set<Permission>> groupPermissions) {
+      this.groupPermissions = new HashMap<>(groupPermissions);
+      return this;
+    }
+
+    public @NonNull Builder addGroup(@NonNull PermissionGroup group) {
+      this.groups.add(group.name());
+      return this;
+    }
+
+    public @NonNull Builder properties(@NonNull JsonDocument properties) {
+      this.properties = properties.clone();
+      return this;
+    }
+
+    public @NonNull PermissionGroup build() {
+      Verify.verifyNotNull(this.name, "No name given");
+      return new PermissionGroup(
+        this.color,
+        this.prefix,
+        this.suffix,
+        this.display,
+        this.sortId,
+        this.defaultGroup,
+        this.groups,
+        this.name,
+        this.potency,
+        System.currentTimeMillis(),
+        this.permissions,
+        this.groupPermissions,
+        this.properties);
+    }
   }
 }
