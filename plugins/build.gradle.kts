@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
+plugins {
+  id("net.kyori.blossom") version Versions.blossom apply false
+}
+
 subprojects {
+  apply(plugin = "net.kyori.blossom")
+
   repositories {
     maven("https://repo.spongepowered.org/maven/")
     maven("https://repo.opencollab.dev/maven-snapshots/")

@@ -18,7 +18,17 @@ var cloudnet.dev false
 # Keep your system up-to-date! If you know what you are doing then enable the dev mode above to prevent cloudnet from
 # updating modules and itself.
 var cloudnet.updateRepo CloudNetService/launchermeta
-var cloudnet.updateBranch master
+# Sets the updating branch. For specific features you can switch to the feature branch to pre-test it. Normal updating
+# branches are:
+#  - 'release':     Always contains the latest release version. This is the best version you can choose for a network
+#                   running in production.
+#  - 'pre-release': Contains the newest features of the system which are partly tested and out for community testing.
+#                   These features might still be broken but shouldn't break your network. Changes to these features are
+#                   still possible and your configuration you did might break when the feature gets out of testing.
+#  - 'beta':        All bleeding edge but newest features of the system. DO NOT USE IN PRODUCTION. Your network is not
+#                   safe and something might break. Good for testing purposes or developers which want to use the latest
+#                   features available. (Use this branch at your own risk!)
+var cloudnet.updateBranch release
 
 # available default log levels: OFF, SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST, ALL
 # each level includes all messages for levels lower than itself (in the above list: left to right) too
@@ -28,19 +38,31 @@ var cloudnet.logging.defaultlevel INFO
 # CloudNet runtime properties
 #
 
-
+# Sets the directory temporary data is saved to. This includes deployment data, temp service (by default) etc.
 #var cloudnet.tempDir temp
-#var cloudnet.messages.language english
-#var cloudnet.launcherdir launcher
-#var cloudnet.config.json.path config.json
-#var cloudnet.console.prompt &c%user%&r@&7%screen% &f=> &r
-#var cloudnet.permissions.json.path local/permissions.json
-#var cloudnet.config.groups.directory.path local/groups
-#var cloudnet.config.tasks.directory.path local/tasks
+# Sets the path of the directory in which all temporary services are saved.
 #var cloudnet.tempDir.services temp/services
+# Sets the language CloudNet uses to print messages. This defaults to english if the given language doesn't exist.
+#var cloudnet.messages.language english
+# Sets the directory where the launcher safes it's data to. This includes updater data and libraries.
+#var cloudnet.launcherdir launcher
+# Sets the config file location of the node configuration.
+#var cloudnet.config.json.path config.json
+# Sets the console prompt which is displayed on the left side of the command line
+#var cloudnet.console.prompt &c%user%&r@&7%screen% &f=> &r
+# Sets the path to the permissions.json file in which all permission groups are saved.
+#var cloudnet.permissions.json.path local/permissions.json
+# Sets the path to the directory in which all task groups are saved.
+#var cloudnet.config.groups.directory.path local/groups
+# Sets the path of the directory in which all tasks are saved.
+#var cloudnet.config.tasks.directory.path local/tasks
+# Sets the path of the directory in which all persisted (static) services are saved.
 #var cloudnet.persistable.services.path local/services
+# Sets the path to the version cache
 #var cloudnet.versioncache.path local/versioncache
+# Sets the timeout until a node gets force disconnected from the current node when no updates are sent by the other node
 #var cloudnet.max.node.idle.millis 30000
+# Sets the path to the directory in which the local xodus database file is located
 #var cloudnet.database.xodus.path local/database/xodus
+# Sets the path in which the local templates are stored
 #var cloudnet.storage.local local/templates
-

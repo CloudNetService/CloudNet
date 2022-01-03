@@ -40,12 +40,16 @@ public final class FileDownloadUpdateHelper {
       var currentChecksum = ChecksumUtils.fileShaSum(target);
       if (currentChecksum.equals(expectedChecksum)) {
         // already using the latest file
+        // CHECKSTYLE.OFF: Launcher has no proper logger
         System.out.printf("Skipping download of \"%s\" because the file is already up-to-date%n", displayName);
+        // CHECKSTYLE.ON
         return false;
       }
     }
     // load the new file
+    // CHECKSTYLE.OFF: Launcher has no proper logger
     System.out.printf("Downloading update of file \"%s\" from %s... %n", displayName, downloadUri);
+    // CHECKSTYLE.ON
     HttpUtils.get(downloadUri, HttpUtils.handlerForFile(target));
     // ensure that the file is now correct
     var newChecksum = ChecksumUtils.fileShaSum(target);

@@ -34,7 +34,7 @@ public record ModuleEntry(
   public @NonNull String url() {
     return this.url(
       System.getProperty("cloudnet.updateRepo", "CloudNetService/launchermeta"),
-      System.getProperty("cloudnet.updateBranch", "master"));
+      System.getProperty("cloudnet.updateBranch", "release"));
   }
 
   public @NonNull String url(@NonNull String updaterRepo, @NonNull String updaterBranch) {

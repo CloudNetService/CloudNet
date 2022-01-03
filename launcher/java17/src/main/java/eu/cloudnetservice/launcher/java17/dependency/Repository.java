@@ -25,7 +25,9 @@ public record Repository(@NonNull String name, @NonNull URI url) {
 
   public void loadDependency(@NonNull Path targetPath, @NonNull Dependency dependency) throws Exception {
     // for example: io.netty netty-all 4.1.70.Final netty-all-4.1.70.Final-linux_x64_86
+    // CHECKSTYLE.OFF: Launcher has no proper logger
     System.out.printf("Downloading dependency %s to %s... %n", dependency, targetPath);
+    // CHECKSTYLE.ON
     HttpUtils.get(
       URI.create(String.format(
         "%s/%s/%s/%s/%s-%s.jar",

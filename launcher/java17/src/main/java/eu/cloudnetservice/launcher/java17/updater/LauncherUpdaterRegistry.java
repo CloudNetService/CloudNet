@@ -40,7 +40,9 @@ public final class LauncherUpdaterRegistry extends DefaultUpdaterRegistry<Launch
 
   @Override
   protected @NonNull LauncherUpdaterContext provideContext(@NonNull Object provisionContext) throws Exception {
+    // CHECKSTYLE.OFF: Launcher has no proper logger
     System.out.printf("Loading checksums (Update repo: %s, Update branch: %s)... %n", this.repo, this.branch);
+    // CHECKSTYLE.ON
     // load the properties file which contains the checksum information
     return HttpUtils.get(
       GitHubUtil.buildUri(this.repo, this.branch, "checksums.properties"),

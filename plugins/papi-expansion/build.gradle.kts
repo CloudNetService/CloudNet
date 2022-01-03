@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 
-tasks.withType<Jar> {
-  archiveFileName.set(Files.databaseMongo)
+repositories {
+  maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
 }
 
 dependencies {
-  "moduleLibrary"(libs.mongodb)
-  "moduleLibrary"(libs.slf4jNop)
+  compileOnly(libs.spigot)
+  compileOnly(libs.placeholderApi)
+  compileOnly(projects.cloudnetWrapperJvm)
+  compileOnly(projects.cloudnetModules.bridge)
 }
 
-moduleJson {
-  author = "CloudNetService"
-  name = "CloudNet-Database-MongoDB"
-  main = "eu.cloudnetservice.modules.mongodb.CloudNetMongoDatabaseModule"
-  description = "CloudNet extension, which includes the database support for MongoDB"
-  runtimeModule = true
-  storesSensitiveData = true
+configure<net.kyori.blossom.BlossomExtension> {
+  replaceToken("{project.build.version}", project.version)
 }

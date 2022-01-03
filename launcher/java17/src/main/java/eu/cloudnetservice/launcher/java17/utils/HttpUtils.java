@@ -38,7 +38,8 @@ public final class HttpUtils {
     .followRedirects(Redirect.NORMAL)
     .connectTimeout(Duration.ofSeconds(20))
     .build();
-  private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.56 Safari/537.36";
+  private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+    + "(KHTML, like Gecko) Chrome/97.0.4692.56 Safari/537.36";
 
   private HttpUtils() {
     throw new UnsupportedOperationException();

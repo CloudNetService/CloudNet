@@ -39,6 +39,7 @@ import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
 import eu.cloudnetservice.cloudnet.node.console.animation.progressbar.ConsoleProgressWrappers;
 import eu.cloudnetservice.cloudnet.node.module.ModuleEntry;
 import eu.cloudnetservice.cloudnet.node.module.ModulesHolder;
+import eu.cloudnetservice.ext.updater.util.ChecksumUtils;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -282,6 +283,14 @@ public final class CommandModules {
     // download the module
     var target = this.provider.moduleDirectoryPath().resolve(entry.name() + ".jar");
     ConsoleProgressWrappers.wrapDownload(entry.url(), stream -> FileUtils.copy(stream, target));
+
+    // validate the downloaded file
+    var checksum = ChecksumUtils.fileShaSum(target);
+    if (!checksum.equals(entry.sha3256())) {
+      FileUtils.delete(target);
+      // TODO: *insert message here*
+      return;
+    }
 
     // load the module
     var wrapper = this.provider.loadModule(target);

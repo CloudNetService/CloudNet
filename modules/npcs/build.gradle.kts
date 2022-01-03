@@ -34,6 +34,7 @@ dependencies {
 }
 
 moduleJson {
+  name = "CloudNet-NPCs"
   author = "CloudNetService"
   main = "eu.cloudnetservice.modules.npc.node.CloudNetNPCModule"
   description = "CloudNet extension which adds NPCs for server selection"
