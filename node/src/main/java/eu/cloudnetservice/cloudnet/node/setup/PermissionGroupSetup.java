@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.node.setup;
 
+import eu.cloudnetservice.cloudnet.driver.permission.Permission;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionGroup;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.console.animation.setup.ConsoleSetupAnimation;
@@ -42,26 +43,26 @@ public class PermissionGroupSetup implements DefaultSetup {
   @Override
   public void handleResults(@NonNull ConsoleSetupAnimation animation) {
     if (animation.result("addDefaultGroups")) {
-      var adminPermissionGroup = new PermissionGroup("Admin", 100);
-      adminPermissionGroup.addPermission("*");
-      adminPermissionGroup.addPermission("Proxy", "*");
-      adminPermissionGroup.prefix("&4Admin &8| &7");
-      adminPermissionGroup.color("&7");
-      adminPermissionGroup.suffix("&f");
-      adminPermissionGroup.display("&4");
-      adminPermissionGroup.sortId(10);
+      var adminGroup = PermissionGroup.builder()
+        .addPermission(Permission.of("*"))
+        .prefix("&4Admin &8| &7")
+        .color("&4")
+        .suffix("&f")
+        .display("&4")
+        .sortId(10)
+        .build();
+      var defaultGroup = PermissionGroup.builder()
+        .addPermission(Permission.of("bukkit.broadcast.user"))
+        .defaultGroup(true)
+        .prefix("&7")
+        .color("&7")
+        .suffix("&f")
+        .display("&7")
+        .sortId(99)
+        .build();
 
-      var defaultPermissionGroup = new PermissionGroup("default", 100);
-      defaultPermissionGroup.addPermission("bukkit.broadcast.user", true);
-      defaultPermissionGroup.defaultGroup(true);
-      defaultPermissionGroup.prefix("&7");
-      defaultPermissionGroup.color("&7");
-      defaultPermissionGroup.suffix("&f");
-      defaultPermissionGroup.display("&7");
-      defaultPermissionGroup.sortId(10);
-
-      CloudNet.instance().permissionManagement().addPermissionGroup(adminPermissionGroup);
-      CloudNet.instance().permissionManagement().addPermissionGroup(defaultPermissionGroup);
+      CloudNet.instance().permissionManagement().addPermissionGroup(adminGroup);
+      CloudNet.instance().permissionManagement().addPermissionGroup(defaultGroup);
     }
   }
 }

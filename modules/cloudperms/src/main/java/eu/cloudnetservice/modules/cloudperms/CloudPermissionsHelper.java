@@ -68,8 +68,7 @@ public final class CloudPermissionsHelper {
     }
 
     if (shouldUpdateName && !name.equals(permissionUser.name())) {
-      permissionUser.name(name);
-      permissionsManagement.updateUserAsync(permissionUser);
+      permissionsManagement.modifyUser(uniqueId, ($, builder) -> builder.name(name));
     }
   }
 

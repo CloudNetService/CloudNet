@@ -18,11 +18,11 @@ package eu.cloudnetservice.cloudnet.driver.permission;
 
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.common.document.property.JsonDocPropertyHolder;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
@@ -36,12 +36,12 @@ public abstract class AbstractPermissible extends JsonDocPropertyHolder implemen
   protected int potency;
   protected long createdTime;
 
-  protected List<Permission> permissions;
-  protected Map<String, Collection<Permission>> groupPermissions;
+  protected Set<Permission> permissions;
+  protected Map<String, Set<Permission>> groupPermissions;
 
   public AbstractPermissible() {
     this.createdTime = System.currentTimeMillis();
-    this.permissions = new ArrayList<>();
+    this.permissions = new HashSet<>();
     this.groupPermissions = new HashMap<>();
   }
 
@@ -49,8 +49,8 @@ public abstract class AbstractPermissible extends JsonDocPropertyHolder implemen
     @NonNull String name,
     int potency,
     long createdTime,
-    @NonNull List<Permission> permissions,
-    @NonNull Map<String, Collection<Permission>> groupPermissions,
+    @NonNull Set<Permission> permissions,
+    @NonNull Map<String, Set<Permission>> groupPermissions,
     @NonNull JsonDocument properties
   ) {
     this.name = name;
@@ -79,7 +79,7 @@ public abstract class AbstractPermissible extends JsonDocPropertyHolder implemen
 
   @Override
   public boolean addPermission(@NonNull String group, @NonNull Permission permission) {
-    return this.addPermission(this.groupPermissions.computeIfAbsent(group, s -> new ArrayList<>()), permission);
+    return this.addPermission(this.groupPermissions.computeIfAbsent(group, s -> new HashSet<>()), permission);
   }
 
   @Override
@@ -117,31 +117,17 @@ public abstract class AbstractPermissible extends JsonDocPropertyHolder implemen
   }
 
   @Override
-  public void name(@NonNull String name) {
-    this.name = name;
-  }
-
-  @Override
   public int potency() {
     return this.potency;
   }
 
   @Override
-  public void potency(int potency) {
-    this.potency = potency;
-  }
-
-  @Override
-  public @NonNull List<Permission> permissions() {
+  public @NonNull Collection<Permission> permissions() {
     return this.permissions;
   }
 
-  public void permissions(List<Permission> permissions) {
-    this.permissions = permissions;
-  }
-
   @Override
-  public @NonNull Map<String, Collection<Permission>> groupPermissions() {
+  public @NonNull Map<String, Set<Permission>> groupPermissions() {
     return this.groupPermissions;
   }
 }

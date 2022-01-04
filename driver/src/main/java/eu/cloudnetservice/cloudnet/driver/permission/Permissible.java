@@ -21,6 +21,7 @@ import eu.cloudnetservice.cloudnet.common.document.property.DocPropertyHolder;
 import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -31,16 +32,6 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
   @NonNull Collection<String> groupNames();
 
   /**
-   * Sets the name of this permissible.
-   * <p>
-   * An update via {@link PermissionManagement#updateGroup(PermissionGroup)} or {@link
-   * PermissionManagement#updateGroup(PermissionGroup)} is required.
-   *
-   * @param name the new name
-   */
-  void name(@NonNull String name);
-
-  /**
    * Gets the potency of this permissible. If this permissible is an {@link PermissionGroup}, {@link
    * PermissionManagement#highestPermissionGroup(PermissionUser)} is sorted by the potency. If this permissible is an
    * {@link PermissionUser}, in CloudNet it has no specific meaning, but of course you can use it for whatever you
@@ -49,16 +40,6 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
    * @return the potency of this permissible
    */
   int potency();
-
-  /**
-   * Sets the potency of this permissible.
-   * <p>
-   * An update via {@link PermissionManagement#updateGroup(PermissionGroup)} or {@link
-   * PermissionManagement#updateGroup(PermissionGroup)} is required.
-   *
-   * @param potency the new potency
-   */
-  void potency(int potency);
 
   /**
    * Adds a new permission to this permissible and updates it if a permission with that name already exists.
@@ -123,7 +104,7 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
    *
    * @return a mutable map containing mutable lists of permissions
    */
-  @NonNull Map<String, Collection<Permission>> groupPermissions();
+  @NonNull Map<String, Set<Permission>> groupPermissions();
 
   /**
    * Gets a permission of this permissible by its name.

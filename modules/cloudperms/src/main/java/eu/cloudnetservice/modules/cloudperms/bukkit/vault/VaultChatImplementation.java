@@ -37,7 +37,8 @@ public class VaultChatImplementation extends Chat {
       .findFirst();
 
     return optionalPermissionUser
-      .map(permissionUser -> this.permissionManagement.highestPermissionGroup(permissionUser).name());
+      .map(this.permissionManagement::highestPermissionGroup)
+      .map(PermissionGroup::name);
   }
 
   private Optional<PermissionUser> permissionUserByName(String name) {
@@ -95,12 +96,7 @@ public class VaultChatImplementation extends Chat {
 
   @Override
   public void setGroupPrefix(String world, String group, String prefix) {
-    var optionalPermissionGroup = this.permissionGroupByName(group);
-
-    optionalPermissionGroup.ifPresent(permissionGroup -> {
-      permissionGroup.display(prefix);
-      this.permissionManagement.updateGroup(permissionGroup);
-    });
+    this.permissionManagement.modifyGroup(group, ($, builder) -> builder.prefix(prefix));
   }
 
   @Override
@@ -112,12 +108,7 @@ public class VaultChatImplementation extends Chat {
 
   @Override
   public void setGroupSuffix(String world, String group, String suffix) {
-    var optionalPermissionGroup = this.permissionGroupByName(group);
-
-    optionalPermissionGroup.ifPresent(permissionGroup -> {
-      permissionGroup.suffix(suffix);
-      this.permissionManagement.updateGroup(permissionGroup);
-    });
+    this.permissionManagement.modifyGroup(group, ($, builder) -> builder.suffix(suffix));
   }
 
   @Override

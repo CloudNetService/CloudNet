@@ -23,10 +23,9 @@ import lombok.NonNull;
 /**
  * A class definer which defines classes using a class loader. This is a fallback method which will not work as expected
  * on modern jvm implementations which have higher access check requirements. In normal cases this definer should never
- * get used as the {@link UnsafeClassDefiner} should handle jvm implementations up to {@code 15} and the newer lookup
- * based {@link LookupClassDefiner} handles jvm implementations from {@code 15}.
+ * get used as the {@link LookupClassDefiner} should define classes.
  *
- * @author Pasqual K.
+ * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
  * @since 1.0
  */
 final class FallbackClassDefiner implements ClassDefiner {

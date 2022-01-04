@@ -32,6 +32,7 @@ import eu.cloudnetservice.cloudnet.driver.permission.Permission;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionGroup;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionUser;
+import eu.cloudnetservice.cloudnet.driver.permission.PermissionUserGroupInfo;
 import eu.cloudnetservice.cloudnet.driver.service.GroupConfiguration;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.command.annotation.CommandAlias;
@@ -223,7 +224,7 @@ public final class CommandPermissions {
   @CommandMethod("permissions|perms user <user> changePassword <password>")
   public void changeUserPassword(CommandSource source, @Argument("user") PermissionUser permissionUser,
     @Argument("password") String password) {
-    this.updateUser(permissionUser, user -> user.changePassword(password), source);
+    this.updateUser(permissionUser, user -> user.password(password), source);
   }
 
   @CommandMethod("permissions|perms user <user> check <password>")
@@ -243,8 +244,11 @@ public final class CommandPermissions {
     @Argument("name") PermissionGroup permissionGroup,
     @Argument(value = "duration", parserName = "timeUnit") Long time
   ) {
-    this.updateUser(permissionUser,
-      user -> user.addGroup(permissionGroup.name(), time == null ? 0 : time), source);
+    this.updateUser(permissionUser, user -> user.addGroup(PermissionUserGroupInfo.builder()
+      .group(permissionGroup.name())
+      .timeOutMillis(time == null ? 0 : time)
+      .build()
+    ), source);
   }
 
   @CommandMethod("permissions|perms user <user> add permission <permission> [potency] [targetGroup] [duration]")
@@ -275,7 +279,7 @@ public final class CommandPermissions {
     @Argument("user") PermissionUser permissionUser,
     @Argument("group") PermissionGroup permissionGroup
   ) {
-    this.updateUser(permissionUser, user -> user.removeGroup(permissionGroup.name()), source);
+    this.updateUserDirect(permissionUser, user -> user.removeGroup(permissionGroup.name()), source);
   }
 
   @CommandMethod("permissions|perms group")
@@ -332,7 +336,7 @@ public final class CommandPermissions {
     @Argument("group") PermissionGroup permissionGroup,
     @Argument("name") PermissionGroup targetGroup
   ) {
-    this.updateGroup(permissionGroup, group -> permissionGroup.groups().add(targetGroup.name()));
+    this.updateGroup(permissionGroup, group -> group.addGroup(targetGroup));
   }
 
   @CommandMethod("permissions|perms group <group> add permission <permission> [potency] [targetGroup] [duration]")
@@ -363,12 +367,12 @@ public final class CommandPermissions {
     @Argument("group") PermissionGroup permissionGroup,
     @Argument("name") PermissionGroup targetGroup
   ) {
-    this.updateGroup(permissionGroup, group -> permissionGroup.groups().remove(targetGroup.name()));
+    this.updateGroupDirect(permissionGroup, group -> group.groupNames().remove(targetGroup.name()));
   }
 
   private void displayGroup(CommandSource source, PermissionGroup permissionGroup) {
     source.sendMessage("- " + permissionGroup.name() + " | Potency: " + permissionGroup.potency());
-    source.sendMessage("- Inherits: " + Arrays.toString(permissionGroup.groups().toArray()));
+    source.sendMessage("- Inherits: " + Arrays.toString(permissionGroup.groupNames().toArray()));
     source.sendMessage("- Default:" + permissionGroup.defaultGroup());
     source.sendMessage("- SortId: " + permissionGroup.sortId());
     source.sendMessage("- Prefix: " + permissionGroup.prefix());
@@ -444,17 +448,38 @@ public final class CommandPermissions {
     }
   }
 
-  private void updateGroup(PermissionGroup group, Consumer<PermissionGroup> groupConsumer) {
+  private void updateGroup(PermissionGroup group, Consumer<PermissionGroup.Builder> groupConsumer) {
+    var builder = PermissionGroup.builder(group);
+    groupConsumer.accept(builder);
+    this.permissionManagement().updateGroup(builder.build());
+  }
+
+  private void updateGroupDirect(PermissionGroup group, Consumer<PermissionGroup> groupConsumer) {
     groupConsumer.accept(group);
     this.permissionManagement().updateGroup(group);
   }
 
   private void updateUser(
     PermissionUser permissionUser,
+    Consumer<PermissionUser.Builder> permissionUserConsumer,
+    CommandSource source
+  ) {
+    var builder = PermissionUser.builder(permissionUser);
+    // apply the change action
+    permissionUserConsumer.accept(builder);
+    // update the user
+    this.permissionManagement().updateUser(builder.build());
+    source.sendMessage(
+      I18n.trans("command-permissions-user-update").replace("%name%", permissionUser.name()));
+  }
+
+  private void updateUserDirect(
+    PermissionUser permissionUser,
     Consumer<PermissionUser> permissionUserConsumer,
     CommandSource source
   ) {
     permissionUserConsumer.accept(permissionUser);
+    // update the user
     this.permissionManagement().updateUser(permissionUser);
     source.sendMessage(I18n.trans("command-permissions-user-update", permissionUser.name()));
   }

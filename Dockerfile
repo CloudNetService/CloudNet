@@ -2,7 +2,6 @@ FROM azul/zulu-openjdk-alpine:17-jre AS build
 
 COPY . /home/cloudnet-build
 WORKDIR /home/cloudnet-build
-VOLUME /root/.gradle
 
 RUN chmod +x gradlew && ./gradlew -x test --no-daemon --stacktrace
 

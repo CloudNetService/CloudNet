@@ -102,12 +102,17 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
 
   @Override
   public @NonNull PermissionUser addUser(@NonNull String name, @NonNull String password, int potency) {
-    return this.addPermissionUser(new PermissionUser(UUID.randomUUID(), name, password, potency));
+    return this.addPermissionUser(PermissionUser.builder()
+      .name(name)
+      .uniqueId(UUID.randomUUID())
+      .password(password)
+      .potency(potency)
+      .build());
   }
 
   @Override
   public @NonNull PermissionGroup addGroup(@NonNull String role, int potency) {
-    return this.addPermissionGroup(new PermissionGroup(role, potency));
+    return this.addPermissionGroup(PermissionGroup.builder().name(role).potency(potency).build());
   }
 
   @Override
@@ -189,7 +194,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
     var user = this.user(uniqueId);
     // create a new user if the current one is not present
     if (user == null) {
-      user = new PermissionUser(uniqueId, name, null, 0);
+      user = PermissionUser.builder().uniqueId(uniqueId).name(name).build();
       this.addPermissionUserAsync(user);
     }
     // return the created or old user
