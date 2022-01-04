@@ -129,7 +129,7 @@ public final class CommandCluster {
     var nodes = provider.nodeServers()
       .stream()
       .map(clusterNodeServer -> clusterNodeServer.nodeInfo().uniqueId())
-      .toList();
+      .collect(Collectors.toList());
     // add the own node to the suggestions
     nodes.add(provider.selfNode().nodeInfo().uniqueId());
     return nodes;
