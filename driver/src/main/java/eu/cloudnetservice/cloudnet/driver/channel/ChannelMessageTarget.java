@@ -50,6 +50,7 @@ import org.jetbrains.annotations.UnknownNullability;
  * @author Aldin (0utplay@cloudnetservice.eu)
  * @see ChannelMessage
  * @see ChannelMessageSender
+ * @since 4.0
  */
 @ToString
 @EqualsAndHashCode
