@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import lombok.NonNull;
-import org.jetbrains.annotations.NotNull;
 
 public class WrapperDatabase implements Database {
 
@@ -60,7 +59,7 @@ public class WrapperDatabase implements Database {
   }
 
   @Override
-  public JsonDocument get(@NotNull String key) {
+  public JsonDocument get(@NonNull String key) {
     return this.baseRPC.join(this.sender.invokeMethod("get", key)).fireSync();
   }
 

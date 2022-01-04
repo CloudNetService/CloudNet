@@ -29,7 +29,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 import lombok.NonNull;
-import org.jetbrains.annotations.NotNull;
 
 public abstract class SQLDatabase extends AbstractDatabase {
 
@@ -114,7 +113,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
   }
 
   @Override
-  public JsonDocument get(@NotNull String key) {
+  public JsonDocument get(@NonNull String key) {
     return this.databaseProvider.executeQuery(
       String.format("SELECT %s FROM `%s` WHERE %s = ?", TABLE_COLUMN_VAL, this.name, TABLE_COLUMN_KEY),
       resultSet -> resultSet.next() ? JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VAL)) : null,
