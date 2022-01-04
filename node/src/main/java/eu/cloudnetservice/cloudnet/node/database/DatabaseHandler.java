@@ -23,8 +23,6 @@ public interface DatabaseHandler {
 
   void handleInsert(@NonNull LocalDatabase database, @NonNull String key, @NonNull JsonDocument document);
 
-  void handleUpdate(@NonNull LocalDatabase database, @NonNull String key, @NonNull JsonDocument document);
-
   void handleDelete(@NonNull LocalDatabase database, @NonNull String key);
 
   void handleClear(@NonNull LocalDatabase database);

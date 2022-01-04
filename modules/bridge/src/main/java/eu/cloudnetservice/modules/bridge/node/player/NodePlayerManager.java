@@ -217,7 +217,7 @@ public class NodePlayerManager implements PlayerManager {
     // push the change to the cache
     this.pushOfflinePlayerCache(player.uniqueId(), player);
     // update the database
-    this.database().update(player.uniqueId().toString(), JsonDocument.newDocument(player));
+    this.database().insert(player.uniqueId().toString(), JsonDocument.newDocument(player));
     // notify the cluster
     ChannelMessage.builder()
       .targetAll()

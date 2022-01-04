@@ -127,7 +127,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   @Override
   public void updateUser(@NonNull PermissionUser user) {
     // update in the database
-    this.userDatabaseTable().update(user.uniqueId().toString(), JsonDocument.newDocument(user));
+    this.userDatabaseTable().insert(user.uniqueId().toString(), JsonDocument.newDocument(user));
     // notify the listener
     this.handler.handleUpdateUser(this, user);
   }

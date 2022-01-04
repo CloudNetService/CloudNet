@@ -22,53 +22,107 @@ import java.util.Collection;
 import lombok.NonNull;
 
 /**
- * This DatabaseProvider gives access to different {@link Database}
+ * Represents a provider for databases. A database in CloudNet might better be known as a table (SQL) or collection
+ * (MongoDB). Therefore, a database provider represents a collection of databases, also known as a Database
+ * (SQL/MongoDB).
+ * <p>
+ * Every database must have a unique name which is case-sensitive. When retrieving a database there is no difference
+ * between a database which runs externally or a database which is embedded. The creation of a new database (if
+ * required) should be executed when retrieving the database object. For remote databases (retrieval while not being on
+ * a node component) the create operation can be executed when the database is used for the first time. Therefore, the
+ * method {@link #database(String)} should never suspend the calling thread.
+ * <p>
+ * Deleting a database must remove all key-value pairs which are stored in the database. There is no guarantee that a
+ * database request/delete is directly visible to all components in the cluster as stated in {@link Database}.
+ * <p>
+ * Warning: In normal cases it is not recommended using the CloudNet database system for all of your data. The system
+ * will just write the value document as a plain string into the database which might lead to problems with some
+ * databases which are unable to handle such a mass of data. On the other hand it is much easier to use another
+ * structure if you want to randomly access single data fields instead of always accessing the hole chunk of data stored
+ * in the database.
+ *
+ * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
+ * @author Aldin (0utplay@cloudnetservice.eu)
+ * @see Database
+ * @since 4.0
  */
 public interface DatabaseProvider {
 
   /**
-   * Returns the already existing database or creates a new one with the given name
+   * Retrieves or creates non-blocking a facade for a database to write and read data to. The name of the database
+   * should be unique for later identification.
    *
-   * @param name the name of the database
-   * @return the corresponding database
+   * @param name the unique name of the database.
+   * @return a facade for a database to write and read data to.
+   * @throws NullPointerException if name is null.
    */
   @NonNull Database database(@NonNull String name);
 
   /**
-   * @param name the name of the database
-   * @return whether a database with the given name exists
+   * Checks whether the database with the given name already exists. When a call to {@link #database(String)} is made
+   * there is no requirement for the database to get created.
+   *
+   * @param name the name of the database to check.
+   * @return true if a database with the given name exists, false otherwise.
+   * @throws NullPointerException if name is null.
    */
   boolean containsDatabase(@NonNull String name);
 
   /**
-   * @param name the name of the database
-   * @return true if the database was deleted successfully, false if not
+   * Deletes the database with the given name, removing all data which was previously stored in it.
+   *
+   * @param name the name of the database to remove.
+   * @return true if the database was deleted and all data in it got dropped, false otherwise
+   * @throws NullPointerException if name is null.
    */
   boolean deleteDatabase(@NonNull String name);
 
   /**
-   * @return all present database names
+   * Retrieves all names of all top-level existing databases. When a call to {@link #database(String)} is made there is
+   * no requirement for the database to get created.
+   *
+   * @return all names of all top-level existing databases.
    */
   @NonNull Collection<String> databaseNames();
 
   /**
-   * @param name the name of the database
-   * @return whether a database with the given name exists
+   * Checks whether the database with the given name already exists. When a call to {@link #database(String)} is made
+   * there is no requirement for the database to get created.
+   * <p>
+   * The returned future, if completed successfully, completes with true to indicate that the database with the given
+   * name already exists and with false if either the lookup failed or the database does not exist.
+   *
+   * @param name the name of the database to check.
+   * @return a future completed with the existence status of the database.
+   * @throws NullPointerException if name is null.
    */
   default @NonNull Task<Boolean> containsDatabaseAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.containsDatabase(name));
   }
 
   /**
-   * @param name the name of the database
-   * @return true if the database was deleted successfully, false if not
+   * Deletes the database with the given name, removing all data which was previously stored in it.
+   * <p>
+   * The returned future, if completed successfully, completes with true to indicate that the database with the given
+   * name was removed successfully and all stored data in it was removed and with false if either the deletion failed or
+   * the database does not exist.
+   *
+   * @param name the name of the database to remove.
+   * @return a future completed with the deletion result of the database.
+   * @throws NullPointerException if name is null.
    */
   default @NonNull Task<Boolean> deleteDatabaseAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.deleteDatabase(name));
   }
 
   /**
-   * @return all present database names
+   * Retrieves all names of all top-level existing databases. When a call to {@link #database(String)} is made there is
+   * no requirement for the database to get created.
+   * <p>
+   * The returned future, if completed successfully, completes with a collection of all existing top-level database
+   * names or with an empty collection if either the query failed or no databases are existing.
+   *
+   * @return a future completed with a collection of all database names.
    */
   default @NonNull Task<Collection<String>> databaseNamesAsync() {
     return CompletableTask.supply(this::databaseNames);

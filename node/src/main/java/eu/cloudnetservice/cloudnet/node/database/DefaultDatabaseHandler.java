@@ -21,7 +21,6 @@ import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.node.event.database.DatabaseClearEntriesEvent;
 import eu.cloudnetservice.cloudnet.node.event.database.DatabaseDeleteEntryEvent;
 import eu.cloudnetservice.cloudnet.node.event.database.DatabaseInsertEntryEvent;
-import eu.cloudnetservice.cloudnet.node.event.database.DatabaseUpdateEntryEvent;
 import lombok.NonNull;
 
 public final class DefaultDatabaseHandler implements DatabaseHandler {
@@ -33,15 +32,6 @@ public final class DefaultDatabaseHandler implements DatabaseHandler {
     @NonNull JsonDocument document
   ) {
     CloudNetDriver.instance().eventManager().callEvent(new DatabaseInsertEntryEvent(database, key, document));
-  }
-
-  @Override
-  public void handleUpdate(
-    @NonNull LocalDatabase database,
-    @NonNull String key,
-    @NonNull JsonDocument document
-  ) {
-    CloudNetDriver.instance().eventManager().callEvent(new DatabaseUpdateEntryEvent(database, key, document));
   }
 
   @Override

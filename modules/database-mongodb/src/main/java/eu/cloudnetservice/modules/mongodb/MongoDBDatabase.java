@@ -36,6 +36,7 @@ import java.util.function.BiPredicate;
 import lombok.NonNull;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class MongoDBDatabase extends AbstractDatabase {
@@ -58,11 +59,6 @@ public class MongoDBDatabase extends AbstractDatabase {
 
   @Override
   public boolean insert(@NonNull String key, @NonNull JsonDocument document) {
-    return this.insertOrUpdate(key, document);
-  }
-
-  @Override
-  public boolean update(@NonNull String key, @NonNull JsonDocument document) {
     return this.insertOrUpdate(key, document);
   }
 
@@ -92,7 +88,7 @@ public class MongoDBDatabase extends AbstractDatabase {
   }
 
   @Override
-  public JsonDocument get(String key) {
+  public JsonDocument get(@NotNull String key) {
     var document = this.collection.find(Filters.eq(KEY_NAME, key)).first();
     return document == null ? null : JsonDocument.newDocument(document.get(VALUE_NAME, Document.class).toJson());
   }

@@ -29,6 +29,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class SQLDatabase extends AbstractDatabase {
 
@@ -79,12 +80,6 @@ public abstract class SQLDatabase extends AbstractDatabase {
     ) != -1;
   }
 
-  @Override
-  public boolean update(@NonNull String key, @NonNull JsonDocument document) {
-    this.databaseProvider.databaseHandler().handleUpdate(this, key, document);
-    return this.insertOrUpdate(key, document);
-  }
-
   public boolean update0(String key, JsonDocument document) {
     return this.databaseProvider.executeUpdate(
       "UPDATE `" + this.name + "` SET " + TABLE_COLUMN_VAL + "=? WHERE " + TABLE_COLUMN_KEY + "=?",
@@ -119,7 +114,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
   }
 
   @Override
-  public JsonDocument get(String key) {
+  public JsonDocument get(@NotNull String key) {
     return this.databaseProvider.executeQuery(
       String.format("SELECT %s FROM `%s` WHERE %s = ?", TABLE_COLUMN_VAL, this.name, TABLE_COLUMN_KEY),
       resultSet -> resultSet.next() ? JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VAL)) : null,

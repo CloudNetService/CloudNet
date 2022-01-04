@@ -34,6 +34,7 @@ import jetbrains.exodus.bindings.StringBinding;
 import jetbrains.exodus.env.Environment;
 import jetbrains.exodus.env.Store;
 import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class XodusDatabase extends AbstractDatabase {
@@ -56,13 +57,6 @@ public class XodusDatabase extends AbstractDatabase {
   @Override
   public boolean insert(@NonNull String key, @NonNull JsonDocument document) {
     this.databaseProvider.databaseHandler().handleInsert(this, key, document);
-
-    return this.insert0(key, document);
-  }
-
-  @Override
-  public boolean update(@NonNull String key, @NonNull JsonDocument document) {
-    this.databaseProvider.databaseHandler().handleUpdate(this, key, document);
 
     return this.insert0(key, document);
   }
@@ -93,7 +87,7 @@ public class XodusDatabase extends AbstractDatabase {
   }
 
   @Override
-  public JsonDocument get(String key) {
+  public JsonDocument get(@NotNull String key) {
     return this.environment.computeInReadonlyTransaction(txn -> {
       var entry = this.store().get(txn, StringBinding.stringToEntry(key));
       return entry == null ? null : JsonDocument.fromJsonBytes(entry.getBytesUnsafe());
