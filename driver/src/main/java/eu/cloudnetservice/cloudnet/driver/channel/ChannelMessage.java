@@ -101,7 +101,7 @@ public record ChannelMessage(
   /**
    * Sends this channel message using the current messenger of the environment. This is in fact just a shortcut method
    * for {@link CloudMessenger#sendChannelMessage(ChannelMessage)}. This method will not wait for the target component
-   * to respond (it doesn't event expects a response) but for the handling component to send the message.
+   * to respond (it doesn't even expect a response) but for the handling component to send the message.
    *
    * @see CloudNetDriver#messenger()
    */
