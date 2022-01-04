@@ -17,16 +17,15 @@
 package eu.cloudnetservice.cloudnet.driver.util.define;
 
 import java.lang.invoke.MethodHandles.Lookup;
-import java.lang.reflect.Array;
+import java.lang.invoke.MethodHandles.Lookup.ClassOption;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import lombok.NonNull;
 
 /**
  * A class definer for modern jvm implementation (Java 15+) which makes use of the newly added {@code defineHiddenClass}
  * method in the {@code Lookup} class.
  *
- * @author Pasqual K.
+ * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
  * @since 1.0
  */
 final class LookupClassDefiner implements ClassDefiner {
@@ -36,19 +35,9 @@ final class LookupClassDefiner implements ClassDefiner {
    * the current module.
    */
   private static final Lookup TRUSTED_LOOKUP;
-  /**
-   * The created option array to define a class.
-   */
-  private static final Object HIDDEN_CLASS_OPTIONS;
-  /**
-   * The method to define a hidden class using a lookup instance.
-   */
-  private static final Method DEFINE_HIDDEN_METHOD;
 
   static {
     Lookup trustedLookup = null;
-    Object hiddenClassOptions = null;
-    Method defineHiddenMethod = null;
 
     if (UnsafeAccess.available()) {
       try {
@@ -65,41 +54,11 @@ final class LookupClassDefiner implements ClassDefiner {
         trustedLookup = (Lookup) UnsafeAccess.UNSAFE_CLASS
           .getMethod("getObject", Object.class, long.class)
           .invoke(UnsafeAccess.THE_UNSAFE_INSTANCE, base, offset);
-        // get the options for defining hidden clases
-        hiddenClassOptions = classOptionArray();
-        // get the method to define a hidden class
-        var defineHiddenClassMethod = Lookup.class.getMethod("defineHiddenClass",
-          byte[].class,
-          boolean.class,
-          hiddenClassOptions.getClass());
-        defineHiddenClassMethod.setAccessible(true);
-        // convert to method handle
-        defineHiddenMethod = defineHiddenClassMethod;
       } catch (Throwable ignored) {
       }
     }
     // set the static final fields
     TRUSTED_LOOKUP = trustedLookup;
-    HIDDEN_CLASS_OPTIONS = hiddenClassOptions;
-    DEFINE_HIDDEN_METHOD = defineHiddenMethod;
-  }
-
-  /**
-   * Creates a new array of class options which is used to define a class in a lookup.
-   *
-   * @return the created class option array to define a class.
-   * @throws Exception if any exception occurs during the array lookup.
-   */
-  @SuppressWarnings({"rawtypes", "unchecked"})
-  private static @NonNull Object classOptionArray() throws Exception {
-    // the ClassOption enum is a subclass of the Lookup class
-    Class optionClass = Class.forName(Lookup.class.getName() + "$ClassOption");
-    // create an array of these options (for now always one option)
-    var resultingOptionArray = Array.newInstance(optionClass, 1);
-    // set the first option to NESTMATE
-    Array.set(resultingOptionArray, 0, Enum.valueOf(optionClass, "NESTMATE"));
-    // that's it
-    return resultingOptionArray;
   }
 
   /**
@@ -108,7 +67,7 @@ final class LookupClassDefiner implements ClassDefiner {
    * @return if the lookup class definer requirements are met to use the definer in the current jvm.
    */
   public static boolean available() {
-    return TRUSTED_LOOKUP != null && HIDDEN_CLASS_OPTIONS != null && DEFINE_HIDDEN_METHOD != null;
+    return TRUSTED_LOOKUP != null;
   }
 
   /**
@@ -117,14 +76,7 @@ final class LookupClassDefiner implements ClassDefiner {
   @Override
   public @NonNull Class<?> defineClass(@NonNull String name, @NonNull Class<?> parent, byte[] bytecode) {
     try {
-      // define the method using the method handle
-      var lookup = (Lookup) DEFINE_HIDDEN_METHOD.invoke(
-        TRUSTED_LOOKUP.in(parent),
-        bytecode,
-        false,
-        HIDDEN_CLASS_OPTIONS);
-      // get the class from the lookup
-      return lookup.lookupClass();
+      return TRUSTED_LOOKUP.in(parent).defineHiddenClass(bytecode, false, ClassOption.NESTMATE).lookupClass();
     } catch (Throwable throwable) {
       throw new IllegalStateException("Exception defining class " + name, throwable);
     }

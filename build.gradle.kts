@@ -102,8 +102,6 @@ subprojects {
   extensions.configure<LicenseExtension> {
     include("**/*.java")
     header(rootProject.file("LICENSE_HEADER"))
-    // third party library classes - keep their copyright
-    exclude("**/eu/cloudnetservice/cloudnet/driver/util/define/**")
   }
 }
 

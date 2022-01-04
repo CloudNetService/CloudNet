@@ -19,7 +19,7 @@ package eu.cloudnetservice.cloudnet.driver.util.define;
 /**
  * Gives access to the {@code Unsafe} class of the jvm which allows access to previously inaccessible magic.
  *
- * @author Pasqual K.
+ * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
  * @since 1.0
  */
 final class UnsafeAccess {

@@ -21,7 +21,7 @@ import lombok.NonNull;
 /**
  * Internal utility class to define classes in the runtime.
  *
- * @author Pasqual K.
+ * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
  * @since 1.0
  */
 @FunctionalInterface

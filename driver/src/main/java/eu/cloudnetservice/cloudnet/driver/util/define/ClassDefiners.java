@@ -21,7 +21,7 @@ import lombok.NonNull;
 /**
  * A holder class for the best class definer of the current jvm.
  *
- * @author Pasqual K.
+ * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
  * @since 1.0
  */
 public final class ClassDefiners {
@@ -36,8 +36,6 @@ public final class ClassDefiners {
     // not be used.
     if (LookupClassDefiner.available()) {
       DEFINER = new LookupClassDefiner();
-    } else if (UnsafeClassDefiner.available()) {
-      DEFINER = new UnsafeClassDefiner();
     } else {
       DEFINER = new FallbackClassDefiner();
     }
