@@ -23,28 +23,76 @@ import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import lombok.NonNull;
 
+/**
+ * Represents a sender of a channel message. A channel message sender is not required to be the actual component sending
+ * the message nor is there a requirement for the name to match the driver environment when creating a new target. But
+ * it is strongly recommended to not mismatch information as it may lead to confusing results on the receiver site.
+ * <p>
+ * Note: It is not recommended using the constructor directly. Consider using either {@link #self()} if you want a jvm
+ * static sender representing the current network component or {@link  #of(String, DriverEnvironment)} if you want to
+ * create a sender for another network component.
+ *
+ * @param name The name of the new sender.
+ * @param type The type of the new sender.
+ * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
+ * @author Aldin (0utplay@cloudnetservice.eu)
+ * @see ChannelMessage
+ * @see ChannelMessageTarget
+ * @since 4.0
+ */
 public record ChannelMessageSender(@NonNull String name, @NonNull DriverEnvironment type) {
 
   private static final ChannelMessageSender SELF = of(
     CloudNetDriver.instance().componentName(),
     CloudNetDriver.instance().environment());
 
+  /**
+   * Creates a new channel message sender with the given name and environment. If you want the sender representation of
+   * the current network component consider using {@link #self()} instead.
+   *
+   * @param name        The name of the new sender.
+   * @param environment The type of the new sender.
+   * @return a new channel message sender with the given name and environment.
+   */
   public static @NonNull ChannelMessageSender of(@NonNull String name, @NonNull DriverEnvironment environment) {
     return new ChannelMessageSender(name, environment);
   }
 
+  /**
+   * Get a jvm static sender representation of this network component.
+   *
+   * @return a sender representation of this network component.
+   */
   public static @NonNull ChannelMessageSender self() {
     return SELF;
   }
 
+  /**
+   * Checks if this sender represents the given service.
+   *
+   * @param serviceInfoSnapshot the service to check.
+   * @return true if this sender represents the given service, false otherwise.
+   */
   public boolean is(@NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
     return this.type == DriverEnvironment.WRAPPER && this.name.equals(serviceInfoSnapshot.name());
   }
 
+  /**
+   * Checks if this sender represents the given node.
+   *
+   * @param node the node to check.
+   * @return true if this sender represents the given node, false otherwise.
+   */
   public boolean is(@NonNull NetworkClusterNode node) {
     return this.type == DriverEnvironment.CLOUDNET && this.name.equals(node.uniqueId());
   }
 
+  /**
+   * Converts this sender to a target. The target has either the type {@link Type#NODE} if this sender represents a
+   * node, or the type {@link Type#SERVICE} if this sender represents a wrapper (or is running embedded).
+   *
+   * @return a new {@link ChannelMessageTarget} based on the information of this sender.
+   */
   public @NonNull ChannelMessageTarget toTarget() {
     var type = this.type == DriverEnvironment.CLOUDNET ? Type.NODE : Type.SERVICE;
     return new ChannelMessageTarget(type, this.name);

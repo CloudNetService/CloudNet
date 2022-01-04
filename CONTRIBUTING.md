@@ -50,6 +50,12 @@ Here are some labels that we are using to organize issues:
   * `@ScheduledForRemoval` - the removal version will be documented here. (Normally the next but one minor version).
 * The documentation of changed methods will contain the new method you should use instead.
 
+## Documentation
+
+* Always include documentation on newly added methods. All parameters and exceptions must get documented. For new
+  methods include a `@since` tag with the next release version.
+* Feel free to include yourself as an author of the class.
+
 ## License
 
 By contributing, you agree that your contributions will be licensed under the Apache 2.0 license.
