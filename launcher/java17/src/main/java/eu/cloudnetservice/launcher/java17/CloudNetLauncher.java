@@ -65,7 +65,7 @@ public final class CloudNetLauncher {
     // updater init - must be after the cnl run to ensure that all updater variables are present
     this.registry = new LauncherUpdaterRegistry(
       CommandLineHelper.findProperty(this.commandLineArguments, "updateRepo", "CloudNetService/launchermeta"),
-      CommandLineHelper.findProperty(this.commandLineArguments, "updateBranch", "master"),
+      CommandLineHelper.findProperty(this.commandLineArguments, "updateBranch", "release"),
       this);
 
     // start the application
