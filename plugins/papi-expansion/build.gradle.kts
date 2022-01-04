@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+tasks.withType<Jar> {
+  archiveFileName.set(Files.papiExpansion)
+}
+
 repositories {
   maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
 }
