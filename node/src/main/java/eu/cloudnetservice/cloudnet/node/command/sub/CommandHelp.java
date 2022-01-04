@@ -31,6 +31,7 @@ import eu.cloudnetservice.cloudnet.node.command.annotation.Description;
 import eu.cloudnetservice.cloudnet.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
 import java.util.Queue;
+import lombok.NonNull;
 
 @CommandAlias({"ask", "?"})
 @CommandPermission("cloudnet.command.help")
@@ -46,7 +47,7 @@ public final class CommandHelp {
 
   private final CommandProvider commandProvider;
 
-  public CommandHelp(CommandProvider commandProvider) {
+  public CommandHelp(@NonNull CommandProvider commandProvider) {
     this.commandProvider = commandProvider;
   }
 

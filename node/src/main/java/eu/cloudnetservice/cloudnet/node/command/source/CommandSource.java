@@ -20,6 +20,19 @@ import eu.cloudnetservice.cloudnet.common.Nameable;
 import java.util.Collection;
 import lombok.NonNull;
 
+/**
+ * The command source represents a message receiving object. All messages regarding command execution and command
+ * parsing are sent to the command source.
+ * <p>
+ * The console has its own CommandSource. If you want to use the console CommandSource use the jvm static {@link
+ * CommandSource#console()} method.
+ *
+ * @author Aldin S. (0utplay@cloudnetservice.eu)
+ * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
+ * @see DriverCommandSource
+ * @see eu.cloudnetservice.cloudnet.node.permission.command.PermissionUserCommandSource
+ * @since 4.0
+ */
 public interface CommandSource extends Nameable {
 
   /**

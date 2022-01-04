@@ -27,14 +27,26 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
+/**
+ * {@inheritDoc}
+ */
 final class DefaultSuggestionProcessor implements CommandSuggestionProcessor<CommandSource> {
 
   private final CommandProvider provider;
 
-  public DefaultSuggestionProcessor(CommandProvider provider) {
+  /**
+   * Constructs our own suggestion processor as we need to overwrite the default {@link CommandSuggestionProcessor} to
+   * support command unregister.
+   *
+   * @param provider the command provider to access the registered commands with.
+   */
+  DefaultSuggestionProcessor(@NonNull CommandProvider provider) {
     this.provider = provider;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull List<String> apply(
     @NonNull CommandPreprocessingContext<CommandSource> context,

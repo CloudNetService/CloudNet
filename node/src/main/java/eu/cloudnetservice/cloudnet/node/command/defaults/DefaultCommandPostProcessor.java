@@ -23,8 +23,14 @@ import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
 import eu.cloudnetservice.cloudnet.node.event.command.CommandPostProcessEvent;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
+/**
+ * {@inheritDoc}
+ */
 final class DefaultCommandPostProcessor implements CommandPostprocessor<CommandSource> {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void accept(@NonNull CommandPostprocessingContext<CommandSource> context) {
     var commandContext = context.getCommandContext();

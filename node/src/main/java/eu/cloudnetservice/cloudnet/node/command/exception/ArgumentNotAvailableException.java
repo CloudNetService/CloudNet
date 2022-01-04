@@ -17,15 +17,31 @@
 package eu.cloudnetservice.cloudnet.node.command.exception;
 
 /**
- * This exception is thrown if a command parser can not find a corresponding argument. The provided message is an
- * already translated and formatted message for the user.
+ * This exception is used when argument parsers need to hard fail the argument parsing because there is a syntax error.
+ * The message of the exception is sent to the user therefore it should be translated and formatted correctly.
+ *
+ * <p>
+ * Note: The {@link ArgumentNotAvailableException#fillInStackTrace()} method is empty, therefore the creation of this
+ * exception is not heavy, and it can be used frequently.
+ *
+ * @author Aldin S. (0utplay@cloudnetservice.eu)
+ * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
+ * @since 4.0
  */
 public class ArgumentNotAvailableException extends RuntimeException {
 
+  /**
+   * Constructs a new exception for argument parse failing.
+   *
+   * @param message the message to send to the user.
+   */
   public ArgumentNotAvailableException(String message) {
     super(message);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public synchronized Throwable fillInStackTrace() {
     return this;
