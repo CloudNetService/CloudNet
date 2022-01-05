@@ -50,13 +50,13 @@ public final class AsmHelper {
   /**
    * Pushes the given int value onto the stack and uses the best matching instruction opcode {@link
    * org.objectweb.asm.Opcodes} to push.
-   * <ui>
-   * <li> value < -1 uses a ldc
-   * <li> value <= 5 uses an ICONST
-   * <li> value <= {@code Byte.MAX_VALUE} uses a BIPUSH
-   * <li> value <= {@code Short.MAX_VALUE} uses a SIPUSH
-   * <li> otherwise uses a ldc
-   * </ui>
+   * <ul>
+   *   <li> value < -1 uses a ldc
+   *   <li> value <= 5 uses an ICONST
+   *   <li> value <= {@code Byte.MAX_VALUE} uses a BIPUSH
+   *   <li> value <= {@code Short.MAX_VALUE} uses a SIPUSH
+   *   <li> otherwise uses a ldc
+   * </ul>
    *
    * @param mv    the visitor to push to.
    * @param value the value to push onto the stack.
