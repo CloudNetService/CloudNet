@@ -40,7 +40,7 @@ import eu.cloudnetservice.cloudnet.driver.network.rpc.annotation.RPCFieldGetter;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.annotation.RPCIgnore;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.exception.ClassCreationException;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.object.ObjectMapper;
-import eu.cloudnetservice.cloudnet.driver.util.asm.AsmUtils;
+import eu.cloudnetservice.cloudnet.driver.util.asm.AsmHelper;
 import eu.cloudnetservice.cloudnet.driver.util.define.ClassDefiners;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -138,13 +138,13 @@ public class DataClassInvokerGenerator {
           // get the types field
           mv.visitFieldInsn(GETFIELD, className, "types", TYPES_DESC);
           // push the index of the array access of types to the stack
-          AsmUtils.pushInt(mv, i);
+          AsmHelper.pushInt(mv, i);
           mv.visitInsn(AALOAD);
           // invoke the read method of the ObjectMapper
           mv.visitMethodInsn(INVOKEINTERFACE, DATA_BUF_NAME, "readObject", READ_OBJECT_DESC, true);
           // check if the raw type is primitive
           if (rawType.isPrimitive()) {
-            AsmUtils.wrapperToPrimitive(mv, rawType);
+            AsmHelper.wrapperToPrimitive(mv, rawType);
           } else {
             // cast to the type
             mv.visitTypeInsn(CHECKCAST, Type.getInternalName(rawType));
@@ -279,7 +279,7 @@ public class DataClassInvokerGenerator {
           }
           // check if the type of the method or field is primitive
           if (rawType.isPrimitive()) {
-            AsmUtils.primitiveToWrapper(mv, rawType);
+            AsmHelper.primitiveToWrapper(mv, rawType);
           }
           // invoke the write method in the object mapper
           mv.visitMethodInsn(INVOKEINTERFACE, DATA_BUF_NAME, "writeObject", WRITE_OBJECT_DESC, true);

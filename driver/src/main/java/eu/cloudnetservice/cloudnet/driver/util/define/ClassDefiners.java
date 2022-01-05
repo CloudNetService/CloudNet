@@ -21,8 +21,9 @@ import lombok.NonNull;
 /**
  * A holder class for the best class definer of the current jvm.
  *
- * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
- * @since 1.0
+ * @author Aldin S. (0utplay@cloudnetservice.eu)
+ * @author Pasqual Koschmieder. (derklaro@cloudnetservice.eu)
+ * @since 4.0
  */
 public final class ClassDefiners {
 
@@ -41,6 +42,11 @@ public final class ClassDefiners {
     }
   }
 
+  /**
+   * Creating an instance of this helper class is not allowed, results in {@link UnsupportedOperationException}.
+   *
+   * @throws UnsupportedOperationException on invocation
+   */
   private ClassDefiners() {
     throw new UnsupportedOperationException();
   }

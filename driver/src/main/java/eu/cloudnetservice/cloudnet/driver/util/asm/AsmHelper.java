@@ -28,12 +28,38 @@ import lombok.NonNull;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
-public final class AsmUtils {
+/**
+ * The AsmHelper provides util methods for commonly used asm operations.
+ *
+ * @author Aldin S. (0utplay@cloudnetservice.eu)
+ * @author Pasqual Koschmieder. (derklaro@cloudnetservice.eu)
+ * @see org.objectweb.asm.Opcodes
+ * @since 4.0
+ */
+public final class AsmHelper {
 
-  private AsmUtils() {
+  /**
+   * Creating an instance of this helper class is not allowed, results in {@link UnsupportedOperationException}.
+   *
+   * @throws UnsupportedOperationException on invocation
+   */
+  private AsmHelper() {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Pushes the given int value onto the stack and uses the best matching instruction opcode {@link
+   * org.objectweb.asm.Opcodes} to push.
+   * <ui>
+   * <li> value < -1 uses a ldc
+   * <li> value <= 5 uses an ICONST
+   * <li> value <= {@code Byte.MAX_VALUE} uses a BIPUSH
+   * <li> value <= {@code Short.MAX_VALUE} uses a SIPUSH
+   * <li> otherwise uses a ldc
+   *
+   * @param mv    the visitor to push to.
+   * @param value the value to push onto the stack.
+   */
   public static void pushInt(@NonNull MethodVisitor mv, int value) {
     if (value < -1) {
       mv.visitLdcInsn(value);
@@ -48,6 +74,13 @@ public final class AsmUtils {
     }
   }
 
+  /**
+   * Unwraps a primitive wrapper to the raw primitive type and pushes it onto the given {@link MethodVisitor}.
+   * Counterpart to this is {@link AsmHelper#primitiveToWrapper(MethodVisitor, Class)}.
+   *
+   * @param mv            the visitor to push to.
+   * @param primitiveType the class of the primitive type
+   */
   public static void wrapperToPrimitive(@NonNull MethodVisitor mv, @NonNull Class<?> primitiveType) {
     var wrapper = Primitives.wrap(primitiveType);
     // cast to the wrapper type
@@ -61,6 +94,13 @@ public final class AsmUtils {
       false);
   }
 
+  /**
+   * Wraps a primitive type into it's wrapper type and pushes it onto the given {@link MethodVisitor}. Counterpart to
+   * this is {@link AsmHelper#wrapperToPrimitive(MethodVisitor, Class)}.
+   *
+   * @param mv            the visitor to push to.
+   * @param primitiveType the class of the primitive type
+   */
   public static void primitiveToWrapper(@NonNull MethodVisitor mv, @NonNull Class<?> primitiveType) {
     var wrapper = Primitives.wrap(primitiveType);
     // invoke the valueOf method in the wrapper to class to convert the primitive type to an object

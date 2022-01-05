@@ -38,7 +38,7 @@ import com.google.common.reflect.TypeToken;
 import eu.cloudnetservice.cloudnet.common.StringUtil;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.MethodInformation;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.exception.ClassCreationException;
-import eu.cloudnetservice.cloudnet.driver.util.asm.AsmUtils;
+import eu.cloudnetservice.cloudnet.driver.util.asm.AsmHelper;
 import eu.cloudnetservice.cloudnet.driver.util.define.ClassDefiners;
 import lombok.NonNull;
 import org.objectweb.asm.ClassWriter;
@@ -104,11 +104,11 @@ public class MethodInvokerGenerator {
           var rawType = TypeToken.of(methodInfo.arguments()[i]).getRawType();
           // load the argument supplied for the index
           mv.visitVarInsn(ALOAD, 1);
-          AsmUtils.pushInt(mv, i);
+          AsmHelper.pushInt(mv, i);
           mv.visitInsn(AALOAD);
           // check if the raw type is primitive
           if (rawType.isPrimitive()) {
-            AsmUtils.wrapperToPrimitive(mv, rawType);
+            AsmHelper.wrapperToPrimitive(mv, rawType);
           } else {
             mv.visitTypeInsn(CHECKCAST, Type.getInternalName(rawType));
           }
@@ -126,7 +126,7 @@ public class MethodInvokerGenerator {
         if (methodInfo.voidMethod()) {
           mv.visitInsn(ACONST_NULL);
         } else if (methodInfo.rawReturnType().isPrimitive()) {
-          AsmUtils.primitiveToWrapper(mv, methodInfo.rawReturnType());
+          AsmHelper.primitiveToWrapper(mv, methodInfo.rawReturnType());
         }
         // return the value of the stack
         mv.visitInsn(ARETURN);
