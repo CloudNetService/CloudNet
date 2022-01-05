@@ -56,6 +56,7 @@ public final class AsmHelper {
    * <li> value <= {@code Byte.MAX_VALUE} uses a BIPUSH
    * <li> value <= {@code Short.MAX_VALUE} uses a SIPUSH
    * <li> otherwise uses a ldc
+   * </ui>
    *
    * @param mv    the visitor to push to.
    * @param value the value to push onto the stack.
