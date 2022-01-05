@@ -20,6 +20,12 @@ jobs:
           java-version: 17
           check-latest: true
 
+      - name: Initialize gradle caching
+        uses: burrunan/gradle-cache-action@v1
+        with:
+          job-id: jdk17
+          concurrent: true
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v1
         with:
