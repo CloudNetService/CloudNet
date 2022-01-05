@@ -141,7 +141,7 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements Clust
   }
 
   @Override
-  public synchronized void close() throws Exception {
+  public void close() throws Exception {
     if (this.channel != null) {
       this.channel.close();
       ClusterNodeServerUtils.handleNodeServerClose(this.channel, this);

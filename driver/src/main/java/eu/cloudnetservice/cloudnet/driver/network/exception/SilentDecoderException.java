@@ -25,7 +25,7 @@ public class SilentDecoderException extends DecoderException {
   }
 
   @Override
-  public synchronized Throwable fillInStackTrace() {
+  public Throwable fillInStackTrace() {
     return this;
   }
 }

@@ -33,7 +33,7 @@ public final class Main {
     throw new UnsupportedOperationException();
   }
 
-  public static synchronized void main(String... args) throws Throwable {
+  public static void main(String... args) throws Throwable {
     // language init
     I18n.loadFromLanguageRegistryFile(Main.class.getClassLoader());
     I18n.language(System.getProperty("cloudnet.wrapper.messages.language", "english"));

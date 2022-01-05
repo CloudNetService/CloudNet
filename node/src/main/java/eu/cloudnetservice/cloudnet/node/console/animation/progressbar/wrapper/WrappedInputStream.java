@@ -74,13 +74,13 @@ public final class WrappedInputStream extends FilterInputStream {
   }
 
   @Override
-  public synchronized void mark(int mark) {
+  public void mark(int mark) {
     this.in.mark(mark);
     this.mark = this.animation.current();
   }
 
   @Override
-  public synchronized void reset() throws IOException {
+  public void reset() throws IOException {
     this.in.reset();
     this.animation.stepTo(this.mark);
   }
