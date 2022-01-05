@@ -25,19 +25,32 @@ import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
 import java.util.concurrent.Executors;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
+/**
+ * {@inheritDoc}
+ */
 final class DefaultCommandManager extends CommandManager<CommandSource> {
 
+  /**
+   * Constructs the default implementation of the {@link CommandManager}. Applying asynchronous command executing using
+   * a thread pool with 4 threads.
+   */
   public DefaultCommandManager() {
     super(AsynchronousCommandExecutionCoordinator.<CommandSource>newBuilder()
         .withExecutor(Executors.newFixedThreadPool(4)).build(),
       CommandRegistrationHandler.nullCommandRegistrationHandler());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean hasPermission(@NonNull CommandSource sender, @NonNull String permission) {
     return sender.checkPermission(permission);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull CommandMeta createDefaultCommandMeta() {
     return SimpleCommandMeta.empty();

@@ -21,6 +21,9 @@ import eu.cloudnetservice.cloudnet.common.log.Logger;
 import java.util.Collection;
 import lombok.NonNull;
 
+/**
+ * {@inheritDoc}
+ */
 public class ConsoleCommandSource implements CommandSource {
 
   private static final Logger LOGGER = LogManager.logger(ConsoleCommandSource.class);

@@ -24,8 +24,14 @@ import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
 import eu.cloudnetservice.cloudnet.node.event.command.CommandPreProcessEvent;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
+/**
+ * {@inheritDoc}
+ */
 final class DefaultCommandPreProcessor implements CommandPreprocessor<CommandSource> {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void accept(@NonNull CommandPreprocessingContext<CommandSource> context) {
     var commandContext = context.getCommandContext();

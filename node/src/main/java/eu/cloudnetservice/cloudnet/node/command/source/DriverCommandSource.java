@@ -21,6 +21,17 @@ import java.util.Arrays;
 import java.util.Collection;
 import lombok.NonNull;
 
+/**
+ * The driver command source represents a message receiving object for the driver api. All messages regarding command
+ * execution and command parsing are sent to the command source, which captures all of them to send them over the
+ * network, see {@link eu.cloudnetservice.cloudnet.driver.provider.NodeInfoProvider#sendCommandLine(String)}
+ *
+ * @author Aldin S. (0utplay@cloudnetservice.eu)
+ * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
+ * @see CommandSource
+ * @see eu.cloudnetservice.cloudnet.node.permission.command.PermissionUserCommandSource
+ * @since 4.0
+ */
 public class DriverCommandSource implements CommandSource {
 
   private final Collection<String> messages = new ArrayList<>();
