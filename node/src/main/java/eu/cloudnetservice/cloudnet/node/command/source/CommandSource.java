@@ -20,6 +20,19 @@ import eu.cloudnetservice.cloudnet.common.Nameable;
 import java.util.Collection;
 import lombok.NonNull;
 
+/**
+ * The command source represents a message receiving object. All messages regarding command execution and command
+ * parsing are sent to the command source.
+ * <p>
+ * The console has its own CommandSource. If you want to use the console CommandSource use the jvm static {@link
+ * CommandSource#console()} method.
+ *
+ * @author Aldin S. (0utplay@cloudnetservice.eu)
+ * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
+ * @see DriverCommandSource
+ * @see eu.cloudnetservice.cloudnet.node.permission.command.PermissionUserCommandSource
+ * @since 4.0
+ */
 public interface CommandSource extends Nameable {
 
   /**
@@ -31,16 +44,19 @@ public interface CommandSource extends Nameable {
 
   /**
    * @param message the message that is sent to the source
+   * @throws NullPointerException if message is null.
    */
   void sendMessage(@NonNull String message);
 
   /**
    * @param messages the messages that are sent to the source
+   * @throws NullPointerException if messages is null.
    */
   void sendMessage(@NonNull String... messages);
 
   /**
    * @param messages the messages that are sent to the source
+   * @throws NullPointerException if messages is null.
    */
   void sendMessage(@NonNull Collection<String> messages);
 
@@ -49,6 +65,7 @@ public interface CommandSource extends Nameable {
    *
    * @param permission the permission to check for
    * @return whether the source has the permission
+   * @throws NullPointerException if permission is null.
    */
   boolean checkPermission(@NonNull String permission);
 

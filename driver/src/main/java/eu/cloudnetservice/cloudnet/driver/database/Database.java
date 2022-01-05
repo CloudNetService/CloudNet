@@ -21,209 +21,307 @@ import eu.cloudnetservice.cloudnet.common.concurrent.CompletableTask;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * The database is used to store cloudnet related data, these databases can be used by an api user too. To create or
- * retrieve a database see {@link DatabaseProvider}
+ * Represents a database in the CloudNet. A database might be better known as a table (SQL) or collection (MongoDB).
+ * CloudNet uses a database to store values mapped to a key. A key must be unique within the database but can be
+ * overridden when a new value should get associated with a previously existing key. Every key is case-sensitive.
+ * <p>
+ * A database object can be obtained using {@link DatabaseProvider#database(String)} and should never be instantiated
+ * directly (may lead to unexpected behaviour when using the database).
+ * <p>
+ * Furthermore, there is no guarantee that writes to a database are synced directly into the cluster. You can verify if
+ * an operation will be directly visible to all nodes by calling {@link #synced()}. If the method returns false either
+ * the server owner should consider changing to a solution which syncs instantly in the cluster are you might run into
+ * synchronization problems when operating on the same data from different nodes.
+ * <p>
+ * Warning: In normal cases it is not recommended using the CloudNet database system for all of your data. The system
+ * will just write the value document as a plain string into the database which might lead to problems with some
+ * databases which are unable to handle such a mass of data. On the other hand it is much easier to use another
+ * structure if you want to randomly access single data fields instead of always accessing the hole chunk of data stored
+ * in the database.
+ * <p>
+ * Note: Great care must be taken when trying to read all values or key-value pairs from a database. The operation might
+ * take a while and for components which are not a node they need to get transferred over the network. Same thing
+ * applied for searches based on an entry in the database. These searches are not deep, meaning that you can only search
+ * reliably for top level entries in the value json rather than nested searches.
+ *
+ * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
+ * @author Aldin (0utplay@cloudnetservice.eu)
+ * @see DatabaseProvider
+ * @since 4.0
  */
 public interface Database extends Nameable, AutoCloseable {
 
   /**
-   * Insert the given document for the given key
+   * Associates the given key with the given document in the database. A key should be unique for later identification
+   * when trying other operations on the key like read or remove. If the key already exists it will get overridden.
    *
-   * @param key      the key in the database
-   * @param document the document to be stored
-   * @return whether the operation was successful or not
+   * @param key      the unique key for the document.
+   * @param document the document to associate with the key.
+   * @return true if the document was associated with the key successfully, false otherwise.
+   * @throws NullPointerException if either key or document is null.
    */
   boolean insert(@NonNull String key, @NonNull JsonDocument document);
 
   /**
-   * Updates the given document for the given key
+   * Tests whether a document is associated with the given key.
    *
-   * @param key      the key in the database
-   * @param document the document to be stored
-   * @return whether the operation was successful or not
-   */
-  boolean update(@NonNull String key, @NonNull JsonDocument document);
-
-  /**
-   * @param key the key to look for
-   * @return whether the database contains the given key
+   * @param key the key to check.
+   * @return true if the database contains the given key, false otherwise.
+   * @throws NullPointerException if key is null.
    */
   boolean contains(@NonNull String key);
 
   /**
-   * Deletes the given key and corresponding data
+   * Removes the key and the associated document from the database.
    *
-   * @param key the key to be deleted
-   * @return whether the operation was successful or not
+   * @param key the key to remove.
+   * @return true if the key and document were removed from the database, false otherwise.
+   * @throws NullPointerException if key is null.
    */
   boolean delete(@NonNull String key);
 
   /**
-   * Searches for a {@link JsonDocument} by the given key
+   * Gets the associated document with the given key from the database. If the returned document is null than there is
+   * no document associated with the given key.
    *
-   * @param key the key to the document
-   * @return the document associated with the key
+   * @param key the key of the document to get.
+   * @return the document associated with the key or null if there is no document associated with the key.
+   * @throws NullPointerException if key is null.
    */
-  @Nullable JsonDocument get(String key);
+  @Nullable JsonDocument get(@NonNull String key);
 
   /**
-   * Searches the database for a field that has the given fieldValue
+   * Searches for all entries in the database which value contains the given field and the field value matches the given
+   * value. Null as the field value is permitted and will be used as literally null. The search is not deep meaning that
+   * you can only reliably search for top-level value mappings, nested types might work but will most likely not.
    *
-   * @param fieldName  the fieldName to look for
-   * @param fieldValue the fieldValue associated with the fieldName
-   * @return a List with the documents containing the field and fieldValue
+   * @param fieldName  the name of the field which the document value must contain.
+   * @param fieldValue the value of the field which the document must have. Null is valid.
+   * @return all documents in the database which contain the given field mapped to the given field value.
+   * @throws NullPointerException if fieldName is null.
    */
-  @NonNull List<JsonDocument> get(@NonNull String fieldName, @Nullable Object fieldValue);
+  @NonNull Collection<JsonDocument> get(@NonNull String fieldName, @Nullable Object fieldValue);
 
   /**
-   * Filters the database by the given document filters
+   * Searches for all entries in the database which contain each entry of the given filters document mapped to each
+   * value in the given filters. Null as a field value is permitted and will be used as literally null. The search is
+   * not deep meaning that you can only reliably search for top-level value mappings, nested types might work but will
+   * most likely not.
    *
-   * @param filters the filter to filter with
-   * @return all documents that passed the filter
+   * @param filters the filters aka. key-value mappings that the document to search for must contain.
+   * @return all documents in the database which contain all key-value mappings of the filter document.
+   * @throws NullPointerException if filters is null.
    */
-  @NonNull List<JsonDocument> get(@NonNull JsonDocument filters);
+  @NonNull Collection<JsonDocument> get(@NonNull JsonDocument filters);
 
   /**
-   * @return all keys of the database
+   * Get all keys which are currently stored and mapped to a document in the database. This operation might be heavy
+   * when querying a huge database.
+   *
+   * @return all keys stored in the database.
    */
   @NonNull Collection<String> keys();
 
   /**
-   * @return all documents of the database
+   * Get all values which are currently stored and mapped to a key in the database. This operation might be heavy when
+   * querying a huge database.
+   *
+   * @return all documents stored in the database.
    */
   @NonNull Collection<JsonDocument> documents();
 
   /**
-   * Retrieves all keys and corresponding documents from the database.
+   * Get all key-value pairs which are currently stored in the database. This operation might be heavy when querying a
+   * huge database.
    *
-   * @return all entries of the database
+   * @return all key-value pairs stored in the database.
    */
   @NonNull Map<String, JsonDocument> entries();
 
   /**
-   * Clears the whole database
+   * Removes all key-value pairs which are currently stored in the database. This operation will not remove the
+   * database.
    */
   void clear();
 
   /**
-   * @return the count of all persistent documents
+   * Get the amount of key-value pairs currently stored in the database.
+   *
+   * @return the amount of key-value pairs in the database.
    */
   long documentCount();
 
   /**
-   * @return whether the database is synchronized (like MongoDB, MySQL) or not (like H2)
+   * Gets if this database is synced to the cluster. This means that every change made to the database will be directly
+   * visible to all components in the cluster rather than requiring a special sync. Normally synced databases are
+   * databases which are running as an external process, like MySQL or MongoDB.
+   *
+   * @return true if all modify operations are directly visible to all components in a cluster, false otherwise.
    */
   boolean synced();
 
   /**
-   * Insert the given document for the given key
+   * Associates the given key with the given document in the database. A key should be unique for later identification
+   * when trying other operations on the key like read or remove. If the key already exists it will get overridden.
+   * <p>
+   * The returned future, if completed successfully, completes with true to indicate that the value was written into the
+   * database successfully. Will be completed with false if the data wasn't written without specifying a reason.
    *
-   * @param key      the key in the database
-   * @param document the document to be stored
-   * @return whether the operation was successful or not
+   * @param key      the unique key for the document.
+   * @param document the document to associate with the key.
+   * @return a future completed with the write operation status.
+   * @throws NullPointerException if either key or document is null.
    */
   default @NonNull Task<Boolean> insertAsync(@NonNull String key, @NonNull JsonDocument document) {
     return CompletableTask.supply(() -> this.insert(key, document));
   }
 
   /**
-   * Updates the given document for the given key
+   * Tests whether a document is associated with the given key.
+   * <p>
+   * The returned future, if completed successfully, completes with true to indicate that the database contains the
+   * given key and with false to indicate that either the database does not contain the given key or the lookup failed
+   * without giving a reason for that.
    *
-   * @param key      the key in the database
-   * @param document the document to be stored
-   * @return whether the operation was successful or not
-   */
-  default @NonNull Task<Boolean> updateAsync(@NonNull String key, @NonNull JsonDocument document) {
-    return CompletableTask.supply(() -> this.update(key, document));
-  }
-
-  /**
-   * @param key the key to look for
-   * @return whether the database contains the given key
+   * @param key the key to check.
+   * @return a future completed with the lookup status when completed.
+   * @throws NullPointerException if key is null.
    */
   default @NonNull Task<Boolean> containsAsync(@NonNull String key) {
     return CompletableTask.supply(() -> this.contains(key));
   }
 
   /**
-   * Deletes the given key and corresponding data
+   * Removes the key and the associated document from the database.
+   * <p>
+   * The returned future, if completed successfully, completes with true to indicate that the database no longer
+   * contains a mapping for the given key and with false to indicate that there was an issue removing the key from the
+   * database without specifying a reason.
    *
-   * @param key the key to be deleted
-   * @return whether the operation was successful or not
+   * @param key the key to remove.
+   * @return a future completed with the removal status of the given key.
+   * @throws NullPointerException if key is null.
    */
   default @NonNull Task<Boolean> deleteAsync(@NonNull String key) {
     return CompletableTask.supply(() -> this.delete(key));
   }
 
   /**
-   * Searches for a {@link JsonDocument} by the given key
+   * Gets the associated document with the given key from the database. If the returned document is null than there is
+   * no document associated with the given key.
+   * <p>
+   * The returned future, if completed successfully, completes with the document mapped to the given key in the database
+   * and with null if either the lookup in the database failed or no document in the database is associated with the
+   * given key.
    *
-   * @param key the key to the document
-   * @return the document associated with the key
+   * @param key the key of the document to get.
+   * @return a future completed with the document associated with the given key.
+   * @throws NullPointerException if key is null.
    */
   default @NonNull Task<JsonDocument> getAsync(@NonNull String key) {
     return CompletableTask.supply(() -> this.get(key));
   }
 
   /**
-   * Searches the database for a field that has the given fieldValue
+   * Searches for all entries in the database which value contains the given field and the field value matches the given
+   * value. Null as the field value is permitted and will be used as literally null. The search is not deep meaning that
+   * you can only reliably search for top-level value mappings, nested types might work but will most likely not.
+   * <p>
+   * The returned future, if completed successfully, completes with a collection of documents which are all matching the
+   * given field key/value matcher or with an empty collection if either the lookup failed or the database does not
+   * contain any document matching the field key/value.
    *
-   * @param fieldName  the fieldName to look for
-   * @param fieldValue the fieldValue associated with the fieldName
-   * @return a List with the documents containing the field and fieldValue
+   * @param fieldName  the name of the field which the document value must contain.
+   * @param fieldValue the value of the field which the document must have. Null is valid.
+   * @return a future completed with all documents matching the given field key/value.
+   * @throws NullPointerException if fieldName is null.
    */
-  default @NonNull Task<List<JsonDocument>> getAsync(@NonNull String fieldName, @Nullable Object fieldValue) {
+  default @NonNull Task<Collection<JsonDocument>> getAsync(@NonNull String fieldName, @Nullable Object fieldValue) {
     return CompletableTask.supply(() -> this.get(fieldName, fieldValue));
   }
 
   /**
-   * Filters the database by the given document filters
+   * Searches for all entries in the database which contain each entry of the given filters document mapped to each
+   * value in the given filters. Null as a field value is permitted and will be used as literally null. The search is
+   * not deep meaning that you can only reliably search for top-level value mappings, nested types might work but will
+   * most likely not.
+   * <p>
+   * The returned future, if completed successfully, completes with a collection of documents which are all matching the
+   * given filters or with an empty collection if either the lookup failed or the database does not contain any document
+   * matching the given filters.
    *
-   * @param filters the filter to filter with
-   * @return all documents that passed the filter
+   * @param filters the filters aka. key-value mappings that the document to search for must contain.
+   * @return a future completed with all documents matching the given filters.
+   * @throws NullPointerException if filters is null.
    */
-  default @NonNull Task<List<JsonDocument>> getAsync(@NonNull JsonDocument filters) {
+  default @NonNull Task<Collection<JsonDocument>> getAsync(@NonNull JsonDocument filters) {
     return CompletableTask.supply(() -> this.get(filters));
   }
 
   /**
-   * @return all keys of the database
+   * Get all keys which are currently stored and mapped to a document in the database. This operation might be heavy
+   * when querying a huge database.
+   * <p>
+   * The returned future, if completed successfully, completes with a collection of all keys which are currently stored
+   * in the database or an empty collection if the lookup failed or the database does not contain any keys.
+   *
+   * @return a future completed with all keys which are currently stored in the database.
    */
   default @NonNull Task<Collection<String>> keysAsync() {
     return CompletableTask.supply(this::keys);
   }
 
   /**
-   * @return all documents of the database
+   * Get all values which are currently stored and mapped to a key in the database. This operation might be heavy when
+   * querying a huge database.
+   * <p>
+   * The returned future, if completed successfully, completes with a collection of all documents which are currently
+   * stored in the database or an empty collection if the lookup failed or the database does not contain any documents.
+   *
+   * @return a future completed with all documents which are currently stored in the database.
    */
   default @NonNull Task<Collection<JsonDocument>> documentsAsync() {
     return CompletableTask.supply(this::documents);
   }
 
   /**
-   * Retrieves all keys and corresponding documents from the database.
+   * Get all key-value pairs which are currently stored in the database. This operation might be heavy when querying a
+   * huge database.
+   * <p>
+   * The returned future, if completed successfully, completes with all key-value pairs which are currently stored in
+   * the database or an empty collection if the lookup failed or the database does not contain anything.
    *
-   * @return all entries of the database
+   * @return a future completed with all key-value pairs currently stored in the database.
    */
   default @NonNull Task<Map<String, JsonDocument>> entriesAsync() {
     return CompletableTask.supply(this::entries);
   }
 
   /**
-   * Clears the whole database
+   * Removes all key-value pairs which are currently stored in the database. This operation will not remove the
+   * database.
+   * <p>
+   * The returned future is just for listening reasons and has no special return value. It will always get completed
+   * with null.
+   *
+   * @return a future completed when the operation took place.
    */
   default @NonNull Task<Void> clearAsync() {
     return CompletableTask.supply(this::clear);
   }
 
   /**
-   * @return the count of all persistent documents
+   * Get the amount of key-value pairs currently stored in the database.
+   * <p>
+   * The returned future, if completed successfully, completes with the amount of key-value pairs currently stored in
+   * the database or 0 if the lookup failed or the database does not contain anything.
+   *
+   * @return a future completed with the amount of documents currently stored in the database.
    */
   default @NonNull Task<Long> documentCountAsync() {
     return CompletableTask.supply(this::documentCount);

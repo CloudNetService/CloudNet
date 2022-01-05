@@ -21,12 +21,23 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * This annotation specifies the description of a command. The command description is collected into the {@link
+ * eu.cloudnetservice.cloudnet.driver.command.CommandInfo}.
+ *
+ * @author Aldin S. (0utplay@cloudnetservice.eu)
+ * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
+ * @see eu.cloudnetservice.cloudnet.driver.command.CommandInfo
+ * @since 4.0
+ */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Description {
 
   /**
-   * @return the description for all commands in the class that is annotated with this
+   * Returns the description for all commands of a class which is annotated with this annotation.
+   *
+   * @return the description.
    */
   String value();
 

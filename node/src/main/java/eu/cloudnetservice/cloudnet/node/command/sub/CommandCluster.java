@@ -111,7 +111,7 @@ public final class CommandCluster {
     var nodeId = input.remove();
     var provider = CloudNet.instance().nodeServerProvider();
     var selfNode = provider.selfNode();
-    // check if the user requested the one node
+    // check if the user requested the own node
     if (selfNode.nodeInfo().uniqueId().equals(nodeId)) {
       return selfNode;
     }
@@ -129,7 +129,7 @@ public final class CommandCluster {
     var nodes = provider.nodeServers()
       .stream()
       .map(clusterNodeServer -> clusterNodeServer.nodeInfo().uniqueId())
-      .toList();
+      .collect(Collectors.toList());
     // add the own node to the suggestions
     nodes.add(provider.selfNode().nodeInfo().uniqueId());
     return nodes;

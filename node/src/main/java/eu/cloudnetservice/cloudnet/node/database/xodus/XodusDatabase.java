@@ -60,13 +60,6 @@ public class XodusDatabase extends AbstractDatabase {
     return this.insert0(key, document);
   }
 
-  @Override
-  public boolean update(@NonNull String key, @NonNull JsonDocument document) {
-    this.databaseProvider.databaseHandler().handleUpdate(this, key, document);
-
-    return this.insert0(key, document);
-  }
-
   protected boolean insert0(String key, JsonDocument document) {
     return this.environment.computeInExclusiveTransaction(
       txn -> this.store().put(
@@ -93,7 +86,7 @@ public class XodusDatabase extends AbstractDatabase {
   }
 
   @Override
-  public JsonDocument get(String key) {
+  public JsonDocument get(@NonNull String key) {
     return this.environment.computeInReadonlyTransaction(txn -> {
       var entry = this.store().get(txn, StringBinding.stringToEntry(key));
       return entry == null ? null : JsonDocument.fromJsonBytes(entry.getBytesUnsafe());

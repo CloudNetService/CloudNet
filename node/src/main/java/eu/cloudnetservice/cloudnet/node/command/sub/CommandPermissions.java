@@ -24,7 +24,6 @@ import cloud.commandframework.annotations.specifier.Greedy;
 import cloud.commandframework.annotations.specifier.Quoted;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
-import com.google.common.primitives.Longs;
 import eu.cloudnetservice.cloudnet.common.Nameable;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.driver.permission.Permissible;
@@ -41,11 +40,11 @@ import eu.cloudnetservice.cloudnet.node.command.exception.ArgumentNotAvailableEx
 import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -91,49 +90,6 @@ public final class CommandPermissions {
   @Suggestions("permissionGroup")
   public List<String> suggestPermissionGroup(CommandContext<CommandSource> $, String input) {
     return this.permissionManagement().groups().stream().map(Nameable::name).toList();
-  }
-
-  @Parser(name = "timeUnit")
-  public long timeUnitParser(CommandContext<CommandSource> $, Queue<String> input) {
-    var time = input.remove();
-    // lifetime is represented as -1
-    if (time.equalsIgnoreCase("lifetime")) {
-      return -1;
-    }
-    // try to parse the raw input since the user may not have specified a unit
-    var nonUnitTime = Longs.tryParse(time);
-    if (nonUnitTime != null) {
-      // no unit found, use days as fallback
-      return System.currentTimeMillis() + TimeUnit.DAYS.toMillis(nonUnitTime);
-    }
-    var length = time.length();
-    // check if there even is something to parse e.g. "1h"
-    if (length < 2) {
-      // unable to parse anything from that, use lifetime
-      return -1;
-    }
-    // remove the last char from the input as it is the unit char
-    var actualTime = time.substring(0, length - 2);
-    var unitTime = Longs.tryParse(actualTime);
-    // check if we successfully parsed the time from the input
-    if (unitTime == null) {
-      // unable to parse anything from that, use lifetime
-      return -1;
-    }
-    // get the unit the user used
-    var unit = time.charAt(length - 1);
-    // select the timeunit based on the entered unit of the user
-    switch (unit) {
-      case 'm' -> {
-        return TimeUnit.MINUTES.toMillis(unitTime) + System.currentTimeMillis();
-      }
-      case 'h' -> {
-        return TimeUnit.HOURS.toMillis(unitTime) + System.currentTimeMillis();
-      }
-      default -> {
-        return TimeUnit.DAYS.toMillis(unitTime) + System.currentTimeMillis();
-      }
-    }
   }
 
   @CommandMethod("permissions|perms reload")
@@ -242,11 +198,11 @@ public final class CommandPermissions {
     CommandSource source,
     @Argument("user") PermissionUser permissionUser,
     @Argument("name") PermissionGroup permissionGroup,
-    @Argument(value = "duration", parserName = "timeUnit") Long time
+    @Argument(value = "duration") Duration time
   ) {
     this.updateUser(permissionUser, user -> user.addGroup(PermissionUserGroupInfo.builder()
       .group(permissionGroup.name())
-      .timeOutMillis(time == null ? 0 : time)
+      .timeOut(time == null ? Duration.ZERO : time)
       .build()
     ), source);
   }
@@ -257,7 +213,7 @@ public final class CommandPermissions {
     @Argument("user") PermissionUser permissionUser,
     @Argument("permission") String rawPermission,
     @Argument("potency") Integer potency,
-    @Argument(value = "duration", parserName = "timeUnit") Long timeOut,
+    @Argument(value = "duration") Duration timeOut,
     @Argument("targetGroup") GroupConfiguration targetGroup
   ) {
     this.addPermission(permissionUser, rawPermission, potency, timeOut, targetGroup);
@@ -345,7 +301,7 @@ public final class CommandPermissions {
     @Argument("group") PermissionGroup permissionGroup,
     @Argument("permission") String rawPermission,
     @Argument("potency") Integer potency,
-    @Argument(value = "duration", parserName = "timeUnit") Long timeOut,
+    @Argument(value = "duration") Duration timeOut,
     @Argument("targetGroup") GroupConfiguration targetGroup
   ) {
     this.addPermission(permissionGroup, rawPermission, potency, timeOut, targetGroup);
@@ -409,7 +365,7 @@ public final class CommandPermissions {
   private void addPermission(Permissible permissible,
     @NonNull String rawPermission,
     @Nullable Integer potency,
-    @Nullable Long timeOut,
+    @Nullable Duration timeOut,
     @Nullable GroupConfiguration targetGroup
   ) {
     var permission = Permission.builder().name(rawPermission);
@@ -418,7 +374,7 @@ public final class CommandPermissions {
     }
 
     if (timeOut != null) {
-      permission.timeOutMillis(timeOut);
+      permission.timeOutMillis(System.currentTimeMillis() + timeOut.toMillis());
     }
 
     if (targetGroup != null) {

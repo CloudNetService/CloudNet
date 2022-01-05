@@ -49,11 +49,6 @@ public class WrapperDatabase implements Database {
   }
 
   @Override
-  public boolean update(@NonNull String key, @NonNull JsonDocument document) {
-    return this.baseRPC.join(this.sender.invokeMethod("update", key, document)).fireSync();
-  }
-
-  @Override
   public boolean contains(@NonNull String key) {
     return this.baseRPC.join(this.sender.invokeMethod("contains", key)).fireSync();
   }
@@ -64,7 +59,7 @@ public class WrapperDatabase implements Database {
   }
 
   @Override
-  public JsonDocument get(String key) {
+  public JsonDocument get(@NonNull String key) {
     return this.baseRPC.join(this.sender.invokeMethod("get", key)).fireSync();
   }
 

@@ -143,7 +143,7 @@ public class Wrapper extends CloudNetDriver {
   }
 
   @Override
-  public synchronized void start() throws Exception {
+  public void start() throws Exception {
     // load & enable the modules
     this.moduleProvider.loadAll().startAll();
 

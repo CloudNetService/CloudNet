@@ -41,6 +41,24 @@ import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * This exception handler provides a default handling of exceptions that can occur on command execution.
+ * <p>
+ * Handled exceptions:
+ * <ul>
+ *   <li> {@link InvalidSyntaxException}
+ *   <li> {@link NoPermissionException}
+ *   <li> {@link NoSuchCommandException}
+ *   <li> {@link InvalidCommandSenderException}
+ *   <li> {@link ArgumentParseException}
+ *   <li> {@link ArgumentNotAvailableException}
+ *   <li> {@link FlagParseException}
+ * </ul>
+ *
+ * @author Aldin S. (0utplay@cloudnetservice.eu)
+ * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
+ * @since 4.0
+ */
 public class CommandExceptionHandler {
 
   protected static final Logger LOGGER = LogManager.logger(CommandExceptionHandler.class);
@@ -57,6 +75,7 @@ public class CommandExceptionHandler {
    *
    * @param source the source of the command.
    * @param cause  the exception that occurred during the execution.
+   * @throws NullPointerException if source is null.
    */
   public void handleCommandExceptions(@NonNull CommandSource source, @Nullable Throwable cause) {
     // there is no cause if no exception occurred
@@ -91,19 +110,31 @@ public class CommandExceptionHandler {
     }
   }
 
-  protected void handleArgumentParseException(CommandSource source, ArgumentParseException exception) {
+  protected void handleArgumentParseException(
+    @NonNull CommandSource source,
+    @NonNull ArgumentParseException exception
+  ) {
     source.sendMessage(exception.getMessage());
   }
 
-  protected void handleFlagParseException(CommandSource source, FlagParseException flagParseException) {
+  protected void handleFlagParseException(
+    @NonNull CommandSource source,
+    @NonNull FlagParseException flagParseException
+  ) {
     // we just ignore this as we can't really handle this due to cloud
   }
 
-  protected void handleArgumentNotAvailableException(CommandSource source, ArgumentNotAvailableException exception) {
+  protected void handleArgumentNotAvailableException(
+    @NonNull CommandSource source,
+    @NonNull ArgumentNotAvailableException exception
+  ) {
     source.sendMessage(exception.getMessage());
   }
 
-  protected void handleInvalidSyntaxException(CommandSource source, InvalidSyntaxException exception) {
+  protected void handleInvalidSyntaxException(
+    @NonNull CommandSource source,
+    @NonNull InvalidSyntaxException exception
+  ) {
     if (this.replyWithCommandHelp(source, exception.getCurrentChain())) {
       return;
     }
@@ -118,7 +149,18 @@ public class CommandExceptionHandler {
     source.sendMessage(invalidSyntaxEvent.response());
   }
 
-  protected void handleNoSuchCommandException(CommandSource source, NoSuchCommandException exception) {
+  /**
+   * Calls the {@link CommandNotFoundEvent} when the executed command is unknown and sends the resulting message of the
+   * event to the command source.
+   *
+   * @param source    the source causing the exception.
+   * @param exception the exception that needs to be handled.
+   * @throws NullPointerException if source or exception is null.
+   */
+  protected void handleNoSuchCommandException(
+    @NonNull CommandSource source,
+    @NonNull NoSuchCommandException exception
+  ) {
     var notFoundEvent = CloudNet.instance().eventManager().callEvent(
       new CommandNotFoundEvent(
         source,
@@ -127,11 +169,30 @@ public class CommandExceptionHandler {
     source.sendMessage(notFoundEvent.response());
   }
 
-  protected void handleNoPermissionException(CommandSource source, NoPermissionException exception) {
+  /**
+   * Sends the command source a message regarding missing permissions.
+   *
+   * @param source    the source causing the exception.
+   * @param exception the exception that needs to be handled.
+   * @throws NullPointerException if source or exception is null.
+   */
+  protected void handleNoPermissionException(@NonNull CommandSource source, @NonNull NoPermissionException exception) {
     source.sendMessage(I18n.trans("command-sub-no-permission"));
   }
 
-  protected void handleInvalidCommandSourceException(CommandSource source, InvalidCommandSenderException exception) {
+  /**
+   * This notifies the {@link CommandSource} about the fact that the command is only allowed by the {@link
+   * ConsoleCommandSource} if it is a {@link eu.cloudnetservice.cloudnet.node.command.source.DriverCommandSource} and
+   * vice-versa.
+   *
+   * @param source    the source causing the exception.
+   * @param exception the exception that needs to be handled.
+   * @throws NullPointerException if source or exception is null.
+   */
+  protected void handleInvalidCommandSourceException(
+    @NonNull CommandSource source,
+    @NonNull InvalidCommandSenderException exception
+  ) {
     if (exception.getRequiredSender() == ConsoleCommandSource.class) {
       source.sendMessage(I18n.trans("command-console-only"));
     } else {
@@ -145,6 +206,7 @@ public class CommandExceptionHandler {
    * @param source       the source of the command
    * @param currentChain the current chain of entered commands
    * @return whether the cloud can handle the input or not
+   * @throws NullPointerException if source or currentChain is null.
    */
   protected boolean replyWithCommandHelp(
     @NonNull CommandSource source,
@@ -191,6 +253,7 @@ public class CommandExceptionHandler {
    *
    * @param source      the source to send the usages to
    * @param commandInfo the command to print the usage for
+   * @throws NullPointerException if source or commandInfo is null.
    */
   protected void printDefaultUsage(@NonNull CommandSource source, @NonNull CommandInfo commandInfo) {
     for (var usage : commandInfo.usage()) {

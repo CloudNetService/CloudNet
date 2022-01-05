@@ -56,6 +56,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 @CommandAlias("ser")
@@ -306,12 +307,15 @@ public final class CommandService {
   }
 
   @EventListener(channel = "service:screen")
-  public void handleLogEntry(CloudServiceLogEntryEvent event) {
+  public void handleLogEntry(@NonNull CloudServiceLogEntryEvent event) {
     LOGGER.info(String.format("&b[%s] %s", event.serviceInfo().name(), event.line()));
   }
 
-  private void displayServiceInfo(CommandSource source, @Nullable ServiceInfoSnapshot service,
-    boolean showCustomProperties) {
+  private void displayServiceInfo(
+    @NonNull CommandSource source,
+    @Nullable ServiceInfoSnapshot service,
+    boolean showCustomProperties
+  ) {
     if (service == null) {
       return;
     }

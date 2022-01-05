@@ -61,11 +61,6 @@ public class MongoDBDatabase extends AbstractDatabase {
     return this.insertOrUpdate(key, document);
   }
 
-  @Override
-  public boolean update(@NonNull String key, @NonNull JsonDocument document) {
-    return this.insertOrUpdate(key, document);
-  }
-
   protected boolean insertOrUpdate(String key, JsonDocument document) {
     var result = this.collection.updateOne(
       Filters.eq(KEY_NAME, key),
@@ -92,7 +87,7 @@ public class MongoDBDatabase extends AbstractDatabase {
   }
 
   @Override
-  public JsonDocument get(String key) {
+  public JsonDocument get(@NonNull String key) {
     var document = this.collection.find(Filters.eq(KEY_NAME, key)).first();
     return document == null ? null : JsonDocument.newDocument(document.get(VALUE_NAME, Document.class).toJson());
   }

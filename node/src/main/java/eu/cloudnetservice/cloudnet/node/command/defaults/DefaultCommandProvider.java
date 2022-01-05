@@ -67,7 +67,7 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * The default implementation of the {@link CommandProvider} for the cloud command framework.
+ * {@inheritDoc}
  */
 public class DefaultCommandProvider implements CommandProvider {
 
@@ -81,7 +81,13 @@ public class DefaultCommandProvider implements CommandProvider {
   private final CommandExceptionHandler exceptionHandler;
   private final Console console;
 
-  public DefaultCommandProvider(Console console) {
+  /**
+   * Constructs a new default implementation of the {@link CommandProvider}.
+   *
+   * @param console the console the provider is handling.
+   * @throws NullPointerException if console is null.
+   */
+  public DefaultCommandProvider(@NonNull Console console) {
     this.console = console;
     this.commandManager = new DefaultCommandManager();
     this.annotationParser = new AnnotationParser<>(this.commandManager, CommandSource.class,

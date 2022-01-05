@@ -17,15 +17,28 @@
 package eu.cloudnetservice.cloudnet.driver.command;
 
 import eu.cloudnetservice.cloudnet.common.Nameable;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import lombok.NonNull;
-import org.jetbrains.annotations.Contract;
 
 /**
- * The commandInfo class allows to easily serialize the command information
+ * Represents a command information object which holds all information for a single command that is registered on a
+ * node.
+ * <p>
+ * The CommandInfo has one main identification point. It's identified by the {@code name} of the command. The command
+ * represented by the CommandInfo is always the root of the command. Subcommands don't have an own CommandInfo, every
+ * needed information is stored in the root CommandInfo. The {@code usage} contains the syntax for every possible
+ * command, here are subcommands included too.
+ *
+ * @param name        the root name of the command.
+ * @param aliases     all aliases of the root command.
+ * @param permission  the permission that is needed to execute the command.
+ * @param description the description of the command which is used for the help command.
+ * @param usage       the correct syntax usages for each sub command.
+ * @author Aldin S. (0utplay@cloudnetservice.eu)
+ * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
+ * @since 4.0
  */
 public record CommandInfo(
   @NonNull String name,
@@ -35,11 +48,14 @@ public record CommandInfo(
   @NonNull List<String> usage
 ) implements Nameable {
 
-  @Contract("_ -> new")
-  public static @NonNull CommandInfo empty(@NonNull String name) {
-    return new CommandInfo(name, Collections.emptySet(), "", "", Collections.emptyList());
-  }
-
+  /**
+   * Joins the name of the registered command and the specified aliases into one String seperated by the {@code
+   * separator}.
+   *
+   * @param separator the separator to join with.
+   * @return the joined String with the name and all aliases.
+   * @throws NullPointerException if separator is null.
+   */
   public @NonNull String joinNameToAliases(@NonNull String separator) {
     var result = this.name;
     if (!this.aliases.isEmpty()) {
@@ -49,17 +65,23 @@ public record CommandInfo(
     return result;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
+  public boolean equals(Object other) {
+    if (this == other) {
       return true;
     }
-    if (!(o instanceof CommandInfo that)) {
+    if (!(other instanceof CommandInfo that)) {
       return false;
     }
     return this.name.equals(that.name);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int hashCode() {
     return Objects.hash(this.name);

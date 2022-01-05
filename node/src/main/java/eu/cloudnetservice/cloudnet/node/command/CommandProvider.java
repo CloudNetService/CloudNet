@@ -26,46 +26,73 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
+/**
+ * The CommandProvider allows access to the command execution and handling of a node. All node commands must be
+ * registered here in order to use them in the console or using the api, see {@link #execute(CommandSource, String)}.
+ * <p>
+ * Commands are registered on a per-class basis therefore every class should only contain one root command. With this
+ * one "root command" is meant that all commands in one class must start with a prefix that all have in common. The
+ * reason for this is that there is no other way to properly parse and register the commands than this one.
+ * <p>
+ * Note: Commands that have a requiredSender in their {@link cloud.commandframework.annotations.CommandMethod}
+ * annotation set are only executable using the console or the api.
+ *
+ * @author Aldin S. (0utplay@cloudnetservice.eu)
+ * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
+ * @see cloud.commandframework.annotations.CommandMethod
+ * @see CommandInfo
+ * @since 4.0
+ */
 public interface CommandProvider {
 
   /**
-   * Get command suggestions for the "next" argument that would yield a correctly parsing command input.
+   * Resolves the next correct command suggestions that would result in a successful command execution, while only
+   * suggesting commands that the {@code source} is allowed to execute.
    *
-   * @param source the command source that
-   * @param input  the input to get the suggestions for
-   * @return the suggestions for the current input
+   * @param source the commandSource for the suggestions. Mostly for permission checks.
+   * @param input  the command chain that suggestions are needed for.
+   * @return the suggestions for the current command chain.
+   * @throws NullPointerException if separator or input is null.
    */
   @NonNull List<String> suggest(@NonNull CommandSource source, @NonNull String input);
 
   /**
-   * Executes a command with the given command source and responds to the input. The command is executed
-   * asynchronously.
+   * Executes a command with the given command source and sends all responses to the given {@code source}.
+   * <p>
+   * Note: The command is executed asynchronously in a cached thread pool. If synchronous execution is necessary, then
+   * you should consider blocking for the command execution using {@link Task#getOrNull()}.
    *
-   * @param source the command source that is used to execute the command
-   * @param input  the commandline that is executed
+   * @param source the command source that is used to execute the command.
+   * @param input  the commandline that is executed.
+   * @return a task wrapping the command execution.
+   * @throws NullPointerException if source or input is null.
    */
   @NonNull Task<?> execute(@NonNull CommandSource source, @NonNull String input);
 
   /**
-   * Register a command for the node
+   * Registers a command on a per-class basis. All methods annotated with {@link cloud.commandframework.annotations.CommandMethod}
+   * are parsed into a command and only one common {@link CommandInfo}.
    *
-   * @param command the command to register
+   * @param command the instance of the class to register all commands for.
+   * @throws NullPointerException if object is null.
    */
   void register(@NonNull Object command);
 
   /**
-   * Unregister all commands that were registered by the given classloader.
+   * Unregisters every command that was registered by the given classloader.
    *
-   * @param classLoader the class loader that
+   * @param classLoader the classloader that was used to register the command.
+   * @throws NullPointerException if classLoader is null.
    */
   void unregister(@NonNull ClassLoader classLoader);
 
   /**
-   * Registers the console input and tab complete handler at the given console.
+   * Registers the console input and tab complete handler for the given console.
    *
-   * @param console the console to register the handler
+   * @param console the console to register the handlers for.
+   * @throws NullPointerException if console is null.
    */
-  void registerConsoleHandler(Console console);
+  void registerConsoleHandler(@NonNull Console console);
 
   /**
    * Registers the default commands of the cloudnet node.
@@ -77,11 +104,15 @@ public interface CommandProvider {
    *
    * @param name the command root name or an alias of the root
    * @return the command with the given name - null if no command was found with the given name / alias
+   * @throws NullPointerException if name is null.
    */
   @Nullable CommandInfo command(@NonNull String name);
 
   /**
-   * @return all commands that are registered on this node
+   * Collects all previously registered commands that are registered in a node and returns them in an unmodifiable
+   * collection.
+   *
+   * @return all registered commands.
    */
   @UnmodifiableView
   @NonNull Collection<CommandInfo> commands();

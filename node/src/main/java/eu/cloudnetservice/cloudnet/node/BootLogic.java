@@ -37,7 +37,7 @@ public final class BootLogic {
     throw new UnsupportedOperationException();
   }
 
-  public static synchronized void main(String[] args) throws Throwable {
+  public static void main(String[] args) throws Throwable {
     // language management init
     I18n.loadFromLanguageRegistryFile(BootLogic.class.getClassLoader());
     I18n.language(System.getProperty("cloudnet.messages.language", "english"));

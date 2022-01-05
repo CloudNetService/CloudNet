@@ -45,7 +45,7 @@ public class RPCValidationProcessor extends AbstractProcessor {
   private volatile Map<Element, List<Entry<String, Integer>>> elements;
 
   @Override
-  public synchronized void init(ProcessingEnvironment processingEnv) {
+  public void init(ProcessingEnvironment processingEnv) {
     super.init(processingEnv);
     this.eu = processingEnv.getElementUtils();
   }

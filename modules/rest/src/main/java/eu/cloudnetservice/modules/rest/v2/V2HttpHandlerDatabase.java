@@ -58,9 +58,6 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
         // insert of a document into a database
         this.handleInsertRequest(context);
       }
-    } else if (context.request().method().equalsIgnoreCase("PUT")) {
-      // update a document in the database
-      this.handleUpdateRequest(context);
     } else if (context.request().method().equalsIgnoreCase("DELETE")) {
       // deletes a document from the database
       this.handleDeleteRequest(context);
@@ -168,30 +165,6 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
 
     this.withContextData(context, (key, data) -> {
       if (database.insert(key, data)) {
-        this.ok(context)
-          .body(this.success().toString())
-          .context()
-          .closeAfter(true)
-          .cancelNext();
-      } else {
-        this.ok(context)
-          .body(this.failure().toString())
-          .context()
-          .closeAfter(true)
-          .cancelNext();
-      }
-    });
-  }
-
-  protected void handleUpdateRequest(HttpContext context) {
-    var database = this.database(context);
-    if (database == null) {
-      this.sendInvalidDatabaseName(context);
-      return;
-    }
-
-    this.withContextData(context, (key, data) -> {
-      if (database.update(key, data)) {
         this.ok(context)
           .body(this.success().toString())
           .context()
