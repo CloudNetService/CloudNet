@@ -52,8 +52,7 @@ public interface Console extends AutoCloseable {
 
   void commandInputValue(@NonNull String commandInputValue);
 
-  @NonNull
-  Task<String> readLine();
+  @NonNull Task<String> readLine();
 
   void enableAllHandlers();
 

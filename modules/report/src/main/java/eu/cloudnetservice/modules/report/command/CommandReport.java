@@ -23,6 +23,7 @@ import cloud.commandframework.annotations.Flag;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
+import com.google.common.collect.Iterables;
 import com.sun.management.HotSpotDiagnosticMXBean;
 import eu.cloudnetservice.cloudnet.common.Nameable;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
@@ -44,6 +45,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Queue;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 @CommandAlias("paste")
@@ -156,7 +158,7 @@ public final class CommandReport {
     }
   }
 
-  private boolean createThreadDump(Path path) {
+  private boolean createThreadDump(@NonNull Path path) {
     var builder = new StringBuilder();
     var threadBean = ManagementFactory.getThreadMXBean();
     for (var threadInfo : threadBean.dumpAllThreads(threadBean.isObjectMonitorUsageSupported(),
@@ -173,7 +175,7 @@ public final class CommandReport {
     }
   }
 
-  private boolean createHeapDump(Path path, boolean live) {
+  private boolean createHeapDump(@NonNull Path path, boolean live) {
     try {
       var server = ManagementFactory.getPlatformMBeanServer();
       var mxBean = ManagementFactory.newPlatformMXBeanProxy(
@@ -186,19 +188,13 @@ public final class CommandReport {
     }
   }
 
-  private PasteService fallbackPasteService(@Nullable PasteService service) {
+  private @NonNull PasteService fallbackPasteService(@Nullable PasteService service) {
     // paste services are optional, but the user entered one just return it
     if (service != null) {
       return service;
     }
 
-    var pasteServices = this.reportModule.reportConfiguration().pasteServers();
-    // there are no paste services, use fallback
-    if (pasteServices.isEmpty()) {
-      return PasteService.FALLBACK;
-    }
-    // use the first in the configuration
-    return this.reportModule.reportConfiguration().pasteServers().get(0);
+    return Iterables.getFirst(this.reportModule.reportConfiguration().pasteServers(), PasteService.FALLBACK);
   }
 
 }

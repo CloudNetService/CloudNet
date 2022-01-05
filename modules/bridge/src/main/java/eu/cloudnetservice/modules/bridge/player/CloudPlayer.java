@@ -89,11 +89,11 @@ public class CloudPlayer extends CloudOfflinePlayer {
     this.networkPlayerServerInfo = networkPlayerServerInfo;
   }
 
-  public JsonDocument onlineProperties() {
+  public @NonNull JsonDocument onlineProperties() {
     return this.onlineProperties;
   }
 
-  public PlayerExecutor playerExecutor() {
+  public @NonNull PlayerExecutor playerExecutor() {
     return CloudNetDriver.instance().servicesRegistry()
       .firstService(PlayerManager.class)
       .playerExecutor(this.uniqueId());

@@ -17,10 +17,11 @@
 package eu.cloudnetservice.cloudnet.node.event.setup;
 
 import eu.cloudnetservice.cloudnet.node.console.animation.setup.ConsoleSetupAnimation;
+import lombok.NonNull;
 
 public class SetupCompleteEvent extends SetupEvent {
 
-  public SetupCompleteEvent(ConsoleSetupAnimation setup) {
+  public SetupCompleteEvent(@NonNull ConsoleSetupAnimation setup) {
     super(setup);
   }
 }

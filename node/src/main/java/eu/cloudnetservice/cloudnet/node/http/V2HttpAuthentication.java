@@ -207,20 +207,20 @@ public class V2HttpAuthentication {
     return this.webSocketTicketManager;
   }
 
-  public record LoginResult<T>(T result, String errorMessage) {
+  public record LoginResult<T>(@Nullable T result, @Nullable String errorMessage) {
 
     private static final LoginResult<?> UNDEFINED_RESULT = LoginResult.failure(null);
 
     @SuppressWarnings("unchecked")
-    public static <T> LoginResult<T> undefinedFailure() {
+    public static <T> @NonNull LoginResult<T> undefinedFailure() {
       return (LoginResult<T>) UNDEFINED_RESULT;
     }
 
-    public static <T> LoginResult<T> success(@NonNull T result) {
+    public static <T> @NonNull LoginResult<T> success(@NonNull T result) {
       return new LoginResult<>(result, null);
     }
 
-    public static <T> LoginResult<T> failure(@Nullable String errorMessage) {
+    public static <T> @NonNull LoginResult<T> failure(@Nullable String errorMessage) {
       return new LoginResult<>(null, errorMessage);
     }
 

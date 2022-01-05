@@ -76,7 +76,7 @@ public final class I18n {
    * @return the message which is defined in language cache or a fallback message like {@code "<language LANGUAGE not
    * found>"} or {@code "<message property not found in LANGUAGE>"}
    */
-  public static String trans(@NonNull String messageKey) {
+  public static @NonNull String trans(@NonNull String messageKey) {
     if (language == null || !LANGUAGE_CACHE.containsKey(language)) {
       return "<language " + language + " not found>";
     }

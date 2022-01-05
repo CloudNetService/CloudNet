@@ -17,6 +17,8 @@
 package eu.cloudnetservice.modules.rest;
 
 import com.google.common.collect.Iterables;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 public final class RestUtils {
 
@@ -24,11 +26,11 @@ public final class RestUtils {
     throw new UnsupportedOperationException();
   }
 
-  public static <T> T first(Iterable<T> iterable) {
+  public static <T> @Nullable T first(@Nullable Iterable<T> iterable) {
     return first(iterable, null);
   }
 
-  public static <T> T first(Iterable<T> iterable, T def) {
+  public static <T> @UnknownNullability T first(@Nullable Iterable<T> iterable, T def) {
     if (iterable == null) {
       return def;
     } else {

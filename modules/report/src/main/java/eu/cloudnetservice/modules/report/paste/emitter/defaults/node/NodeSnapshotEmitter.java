@@ -19,11 +19,12 @@ package eu.cloudnetservice.modules.report.paste.emitter.defaults.node;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import eu.cloudnetservice.modules.report.paste.emitter.ReportDataEmitter;
+import org.jetbrains.annotations.NotNull;
 
 public class NodeSnapshotEmitter implements ReportDataEmitter<NetworkClusterNodeInfoSnapshot> {
 
   @Override
-  public void emitData(StringBuilder builder, NetworkClusterNodeInfoSnapshot context) {
+  public void emitData(@NotNull StringBuilder builder, @NotNull NetworkClusterNodeInfoSnapshot context) {
     builder
       .append(" - NodeSnapshot ")
       .append(context.node().uniqueId())

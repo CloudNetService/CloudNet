@@ -22,15 +22,16 @@ import eu.cloudnetservice.cloudnet.node.database.sql.SQLDatabaseProvider;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class MySQLDatabase extends SQLDatabase {
 
   public MySQLDatabase(
-    SQLDatabaseProvider databaseProvider,
-    String name,
+    @NonNull SQLDatabaseProvider databaseProvider,
+    @NonNull String name,
     long cacheRemovalDelay,
-    ExecutorService executorService
+    @NonNull ExecutorService executorService
   ) {
     super(databaseProvider, name, cacheRemovalDelay, executorService);
   }

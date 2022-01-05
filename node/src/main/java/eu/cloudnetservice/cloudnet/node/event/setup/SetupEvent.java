@@ -18,16 +18,17 @@ package eu.cloudnetservice.cloudnet.node.event.setup;
 
 import eu.cloudnetservice.cloudnet.driver.event.Event;
 import eu.cloudnetservice.cloudnet.node.console.animation.setup.ConsoleSetupAnimation;
+import lombok.NonNull;
 
 public class SetupEvent extends Event {
 
   private final ConsoleSetupAnimation setup;
 
-  public SetupEvent(ConsoleSetupAnimation setup) {
+  public SetupEvent(@NonNull ConsoleSetupAnimation setup) {
     this.setup = setup;
   }
 
-  public ConsoleSetupAnimation setup() {
+  public @NonNull ConsoleSetupAnimation setup() {
     return this.setup;
   }
 }

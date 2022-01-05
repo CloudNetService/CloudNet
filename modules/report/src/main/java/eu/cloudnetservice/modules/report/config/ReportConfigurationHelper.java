@@ -75,7 +75,7 @@ public final class ReportConfigurationHelper {
    * @param document the document containing the old configuration.
    * @return the new converted configuration.
    */
-  private static ReportConfiguration convertConfiguration(@NonNull JsonDocument document) {
+  private static @NonNull ReportConfiguration convertConfiguration(@NonNull JsonDocument document) {
     var saveRecords = document.getBoolean("savingRecords", true);
     var recordDestination = document.get("recordDestinationDirectory", Path.class, Path.of("records"));
     var pasteServices = Collections.singletonList(

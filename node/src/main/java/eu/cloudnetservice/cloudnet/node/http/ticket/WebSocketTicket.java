@@ -17,36 +17,14 @@
 package eu.cloudnetservice.cloudnet.node.http.ticket;
 
 import eu.cloudnetservice.cloudnet.node.http.HttpSession;
+import lombok.NonNull;
 
-public class WebSocketTicket {
-
-  private final String fullId;
-  private final String requestingIp;
-  private final long expirationTimestamp;
-  private final HttpSession associatedSession;
-
-  public WebSocketTicket(String fullId, String requestingIp, long expirationTimestamp, HttpSession session) {
-    this.fullId = fullId;
-    this.requestingIp = requestingIp;
-    this.expirationTimestamp = expirationTimestamp;
-    this.associatedSession = session;
-  }
-
-  public String fullId() {
-    return this.fullId;
-  }
-
-  public String requestingIp() {
-    return this.requestingIp;
-  }
-
-  public long expirationTimestamp() {
-    return this.expirationTimestamp;
-  }
-
-  public HttpSession associatedSession() {
-    return this.associatedSession;
-  }
+public record WebSocketTicket(
+  @NonNull String fullId,
+  @NonNull String requestingIp,
+  long expirationTimestamp,
+  @NonNull HttpSession associatedSession
+) {
 
   public boolean expired() {
     return System.currentTimeMillis() >= this.expirationTimestamp;

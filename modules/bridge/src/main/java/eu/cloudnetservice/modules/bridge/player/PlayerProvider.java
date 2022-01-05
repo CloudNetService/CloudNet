@@ -31,7 +31,7 @@ import lombok.NonNull;
 public interface PlayerProvider {
 
   /**
-   * @return all players as {@link ICloudPlayer}
+   * @return all players as {@link CloudPlayer}
    */
   @NonNull Collection<? extends CloudPlayer> players();
 
@@ -51,7 +51,7 @@ public interface PlayerProvider {
   int count();
 
   /**
-   * @return all players as {@link ICloudPlayer}
+   * @return all players as {@link CloudPlayer}
    */
   default @NonNull Task<Collection<? extends CloudPlayer>> playersAsync() {
     return CompletableTask.supply(this::players);

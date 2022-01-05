@@ -22,6 +22,7 @@ import eu.cloudnetservice.cloudnet.driver.permission.PermissionUser;
 import eu.cloudnetservice.cloudnet.node.http.HttpSession;
 import eu.cloudnetservice.cloudnet.node.http.V2HttpHandler;
 import java.util.concurrent.TimeUnit;
+import org.jetbrains.annotations.NotNull;
 
 public class V2HttpHandlerAuthorization extends V2HttpHandler {
 
@@ -30,7 +31,7 @@ public class V2HttpHandlerAuthorization extends V2HttpHandler {
   }
 
   @Override
-  protected void handleUnauthorized(String path, HttpContext context) {
+  protected void handleUnauthorized(@NotNull String path, @NotNull HttpContext context) {
     this.response(context, HttpResponseCode.HTTP_UNAUTHORIZED)
       .header("WWW-Authenticate", "Basic realm=\"CloudNet Rest\"")
       .context()
@@ -39,7 +40,7 @@ public class V2HttpHandlerAuthorization extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBasicAuthorized(String path, HttpContext context, PermissionUser user) {
+  protected void handleBasicAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull PermissionUser user) {
     var jwt = this.authentication.createJwt(user, TimeUnit.HOURS.toMillis(1)); // todo: configurable
     this.ok(context)
       .body(this.success().append("token", jwt).append("id", user.uniqueId()).toString())
@@ -49,7 +50,7 @@ public class V2HttpHandlerAuthorization extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(String path, HttpContext context, HttpSession session) {
+  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession session) {
     this.ok(context)
       .body(this.success().append("id", session.user().uniqueId()).toString())
       .context()

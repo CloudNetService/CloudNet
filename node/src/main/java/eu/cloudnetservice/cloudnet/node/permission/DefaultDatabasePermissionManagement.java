@@ -62,7 +62,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   }
 
   @Override
-  public PermissionUser firstUser(String name) {
+  public @Nullable PermissionUser firstUser(String name) {
     return Iterables.getFirst(this.usersByName(name), null);
   }
 

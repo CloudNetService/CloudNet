@@ -39,16 +39,14 @@ public class CommandPreProcessEvent extends Event implements Cancelable {
   /**
    * @return the command line that will be executed
    */
-  @NonNull
-  public String commandLine() {
+  public @NonNull String commandLine() {
     return this.commandLine;
   }
 
   /**
    * @return the source that executes the command
    */
-  @NonNull
-  public CommandSource commandSource() {
+  public @NonNull CommandSource commandSource() {
     return this.commandSource;
   }
 

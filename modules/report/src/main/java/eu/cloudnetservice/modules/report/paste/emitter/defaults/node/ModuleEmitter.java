@@ -21,11 +21,12 @@ import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.modules.report.paste.emitter.ReportDataEmitter;
+import org.jetbrains.annotations.NotNull;
 
 public class ModuleEmitter implements ReportDataEmitter<NetworkClusterNodeInfoSnapshot> {
 
   @Override
-  public void emitData(StringBuilder builder, NetworkClusterNodeInfoSnapshot context) {
+  public void emitData(@NotNull StringBuilder builder, @NotNull NetworkClusterNodeInfoSnapshot context) {
     builder
       .append(" - Loaded Modules ")
       .append(context.modules().size())

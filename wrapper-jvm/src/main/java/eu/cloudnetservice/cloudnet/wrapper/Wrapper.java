@@ -245,8 +245,7 @@ public class Wrapper extends CloudNetDriver {
    *
    * @return the new ServiceInfoSnapshot instance
    */
-  @NonNull
-  public ServiceInfoSnapshot createServiceInfoSnapshot() {
+  public @NonNull ServiceInfoSnapshot createServiceInfoSnapshot() {
     return new ServiceInfoSnapshot(
       System.currentTimeMillis(),
       this.currentServiceInfoSnapshot.address(),
@@ -259,13 +258,13 @@ public class Wrapper extends CloudNetDriver {
   }
 
   @Internal
-  public ServiceInfoSnapshot configureServiceInfoSnapshot() {
+  public @NonNull ServiceInfoSnapshot configureServiceInfoSnapshot() {
     var serviceInfoSnapshot = this.createServiceInfoSnapshot();
     this.configureServiceInfoSnapshot(serviceInfoSnapshot);
     return serviceInfoSnapshot;
   }
 
-  private void configureServiceInfoSnapshot(ServiceInfoSnapshot serviceInfoSnapshot) {
+  private void configureServiceInfoSnapshot(@NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
     this.eventManager.callEvent(new ServiceInfoSnapshotConfigureEvent(serviceInfoSnapshot));
 
     this.lastServiceInfoSnapShot = this.currentServiceInfoSnapshot;

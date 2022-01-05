@@ -23,7 +23,6 @@ import eu.cloudnetservice.cloudnet.driver.event.events.permission.PermissionDele
 import eu.cloudnetservice.cloudnet.driver.event.events.permission.PermissionSetGroupsEvent;
 import eu.cloudnetservice.cloudnet.driver.event.events.permission.PermissionUpdateGroupEvent;
 import eu.cloudnetservice.cloudnet.driver.event.events.permission.PermissionUpdateUserEvent;
-import eu.cloudnetservice.cloudnet.driver.permission.PermissionGroup;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
@@ -72,7 +71,7 @@ public final class PermissionCacheListener {
   public void handle(@NonNull PermissionSetGroupsEvent event) {
     this.permissionManagement.cachedPermissionGroups().clear();
 
-    for (PermissionGroup permissionGroup : event.groups()) {
+    for (var permissionGroup : event.groups()) {
       this.permissionManagement.cachedPermissionGroups().put(permissionGroup.name(), permissionGroup);
     }
   }

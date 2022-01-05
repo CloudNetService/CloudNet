@@ -40,12 +40,12 @@ public final class NodeNetworkUtils {
     throw new UnsupportedOperationException();
   }
 
-  static boolean shouldInitializeChannel(NetworkChannel channel, ChannelType type) {
+  static boolean shouldInitializeChannel(@NonNull NetworkChannel channel, @NonNull ChannelType type) {
     return !CloudNetDriver.instance().eventManager().callEvent(
       new NetworkChannelInitEvent(channel, type)).cancelled();
   }
 
-  public static void closeNodeServer(ClusterNodeServer clusterNodeServer) {
+  public static void closeNodeServer(@NonNull ClusterNodeServer clusterNodeServer) {
     try {
       clusterNodeServer.close();
     } catch (Exception exception) {

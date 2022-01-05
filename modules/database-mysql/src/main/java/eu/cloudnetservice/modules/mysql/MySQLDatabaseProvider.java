@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
 
@@ -44,7 +45,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   private HikariDataSource hikariDataSource;
   private List<MySQLConnectionEndpoint> addresses;
 
-  public MySQLDatabaseProvider(JsonDocument config, ExecutorService executorService) {
+  public MySQLDatabaseProvider(@NonNull JsonDocument config, @Nullable ExecutorService executorService) {
     super(executorService);
     this.config = config;
   }
@@ -146,11 +147,11 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
     return this.hikariDataSource;
   }
 
-  public JsonDocument config() {
+  public @NonNull JsonDocument config() {
     return this.config;
   }
 
-  public List<MySQLConnectionEndpoint> addresses() {
+  public @NonNull List<MySQLConnectionEndpoint> addresses() {
     return this.addresses;
   }
 
@@ -176,7 +177,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public <T> T executeQuery(@NonNull String query, @NonNull ThrowableFunction<ResultSet, T, SQLException> callback,
+  public <T> @Nullable T executeQuery(@NonNull String query, @NonNull ThrowableFunction<ResultSet, T, SQLException> callback,
     Object... objects) {
     Preconditions.checkNotNull(query);
     Preconditions.checkNotNull(callback);
