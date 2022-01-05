@@ -28,7 +28,11 @@ import lombok.NonNull;
 public final class EventListenerException extends RuntimeException {
 
   /**
-   * {@inheritDoc}
+   * Constructs a new event listener exception with the given message and cause.
+   *
+   * @param message the detailed context message why the exception occurred.
+   * @param cause   the cause why the exception occurred. In this cause the cause is required.
+   * @throws NullPointerException if either message or cause is null.
    */
   public EventListenerException(@NonNull String message, @NonNull Throwable cause) {
     super(message, cause);
