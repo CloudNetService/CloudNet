@@ -35,6 +35,7 @@ public class ArgumentNotAvailableException extends RuntimeException {
    * Constructs a new exception for argument parse failing.
    *
    * @param message the message to send to the user.
+   * @throws NullPointerException if message is null.
    */
   public ArgumentNotAvailableException(@NonNull String message) {
     super(message);

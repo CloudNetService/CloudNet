@@ -85,8 +85,9 @@ public class DefaultCommandProvider implements CommandProvider {
    * Constructs a new default implementation of the {@link CommandProvider}.
    *
    * @param console the console the provider is handling.
+   * @throws NullPointerException if console is null.
    */
-  public DefaultCommandProvider(Console console) {
+  public DefaultCommandProvider(@NonNull Console console) {
     this.console = console;
     this.commandManager = new DefaultCommandManager();
     this.annotationParser = new AnnotationParser<>(this.commandManager, CommandSource.class,

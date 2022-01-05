@@ -44,16 +44,19 @@ public interface CommandSource extends Nameable {
 
   /**
    * @param message the message that is sent to the source
+   * @throws NullPointerException if message is null.
    */
   void sendMessage(@NonNull String message);
 
   /**
    * @param messages the messages that are sent to the source
+   * @throws NullPointerException if messages is null.
    */
   void sendMessage(@NonNull String... messages);
 
   /**
    * @param messages the messages that are sent to the source
+   * @throws NullPointerException if messages is null.
    */
   void sendMessage(@NonNull Collection<String> messages);
 
@@ -62,6 +65,7 @@ public interface CommandSource extends Nameable {
    *
    * @param permission the permission to check for
    * @return whether the source has the permission
+   * @throws NullPointerException if permission is null.
    */
   boolean checkPermission(@NonNull String permission);
 
