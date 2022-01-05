@@ -90,13 +90,13 @@ public abstract class AbstractService implements CloudService {
   protected final ServiceConfigurationPreparer serviceConfigurationPreparer;
 
   protected final Lock lifecycleLock = new ReentrantLock(true);
+  protected final Map<ChannelMessageTarget, String> logTargets = new ConcurrentHashMap<>();
 
   protected final Queue<ServiceTemplate> waitingTemplates = new ConcurrentLinkedQueue<>();
   protected final Queue<ServiceDeployment> waitingDeployments = new ConcurrentLinkedQueue<>();
   protected final Queue<ServiceRemoteInclusion> waitingRemoteInclusions = new ConcurrentLinkedQueue<>();
 
   protected ServiceConsoleLogCache logCache;
-  protected Map<ChannelMessageTarget, String> logTargets = new ConcurrentHashMap<>();
   protected volatile NetworkChannel networkChannel;
 
   protected volatile ServiceInfoSnapshot lastServiceInfo;

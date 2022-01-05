@@ -90,7 +90,7 @@ public class DefaultEventManager implements EventManager {
         // check the parameter type
         var eventClass = method.getParameterTypes()[0];
         if (!Event.class.isAssignableFrom(eventClass)) {
-          throw new IllegalStateException(String.format(
+          throw new IllegalArgumentException(String.format(
             "Parameter type %s (index 0) of listener method %s in %s is not a subclass of Event",
             eventClass.getName(),
             method.getName(),

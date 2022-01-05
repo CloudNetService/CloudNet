@@ -36,9 +36,11 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
 /**
- * Generates {@link ListenerInvoker} implementations for certain event listener methods.
+ * Utility class to generate listener invokers for listeners using runtime code generation.
  *
+ * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
  * @see ListenerInvoker
+ * @since 4.0
  */
 public final class ListenerInvokerGenerator {
 
@@ -52,12 +54,14 @@ public final class ListenerInvokerGenerator {
     Type.getType(Event.class));
 
   /**
-   * Generates a new {@link ListenerInvoker}.
+   * Generates a new listener invoker for the given event listener method.
    *
-   * @param listener The listener class instance the event listener method is in
-   * @param method   The name of the event listener method
-   * @param event    The class of the event the listener method is handling
-   * @return The new generated {@link ListenerInvoker}, being able the invoke the event listener method.
+   * @param listener the instance of the listener class generating for.
+   * @param method   the method for which an invoker gets generated.
+   * @param event    the event class which the listener is handling.
+   * @return a generated event listener to invoke the target listener method.
+   * @throws NullPointerException   if the given listener, method or event class is null
+   * @throws EventListenerException if an exception occurs during the code generation.
    */
   @NonNull
   public static ListenerInvoker generate(@NonNull Object listener, @NonNull Method method, @NonNull Class<?> event) {

@@ -16,9 +16,21 @@
 
 package eu.cloudnetservice.cloudnet.driver.event;
 
+import lombok.NonNull;
+
+/**
+ * An exception to indicate that something went wrong in relation to an event listener. By default, this exception is
+ * thrown when an event invoker cannot get generated successfully or a listener invocation fails for any reason.
+ *
+ * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
+ * @since 4.0
+ */
 public final class EventListenerException extends RuntimeException {
 
-  public EventListenerException(String message, Throwable cause) {
+  /**
+   * {@inheritDoc}
+   */
+  public EventListenerException(@NonNull String message, @NonNull Throwable cause) {
     super(message, cause);
   }
 }

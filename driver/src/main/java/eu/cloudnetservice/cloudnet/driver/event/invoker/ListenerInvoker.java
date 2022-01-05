@@ -20,17 +20,29 @@ import eu.cloudnetservice.cloudnet.driver.event.Event;
 import lombok.NonNull;
 
 /**
- * Responsible for invoking event listener methods without reflection. An implementation is automatically generated for
- * every event listener method when registered.
+ * Represents an invoker for a listener method. An invoker can be implemented in many forms, by default an invoker gets
+ * dynamically generated in the runtime by using code generation. Other implementations (like reflection based method
+ * invocation) are possible too.
+ *
+ * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
+ * @see ListenerInvokerGenerator
+ * @since 4.0
  */
 @FunctionalInterface
 public interface ListenerInvoker {
 
   /**
-   * Invokes the event listener method.
+   * Invokes the target event listener method on the given instance with the given event. The event should always be a
+   * subtype of the event provided during listener registration in the listener method.
+   * <p>
+   * Uncaught exceptions will be passed through to the caller.
+   * <p>
+   * Event execution is not concurrent as per the event manager contract, therefore there is no need for locking before
+   * event execution.
    *
-   * @param event The event the listener method should be invoked with. Passing an event with the wrong type will result
-   *              in an exception
+   * @param listenerInstance the instance of the listener to call the event on.
+   * @param event            the event causing the invocation request.
+   * @throws NullPointerException if the listener instance or event is null.
    */
   void invoke(@NonNull Object listenerInstance, @NonNull Event event);
 }

@@ -17,15 +17,15 @@
 package eu.cloudnetservice.cloudnet.driver.event;
 
 /**
- * The root class for all events, which you want to fire with the EventManager implementations. It is also meant to make
- * it possible for listeners to have access to every object of every subclass.
+ * Represents an event which can be fired. This class is just a marker class to indicate that a class is an event.
+ * Events can be fired by using {@link EventManager#callEvent(Event)} and listened to by using a method with only one
+ * parameter (the event to listen to) which is annoted with {@code @EventListener}.
  *
- * @see EventManager
+ * @see EventManager#callEvent(Event)
+ * @see EventListener
+ * @see Cancelable
+ * @since 4.0
  */
 public abstract class Event {
-
-  public boolean debug() {
-    return true;
-  }
 
 }
