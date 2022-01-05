@@ -19,11 +19,12 @@ package eu.cloudnetservice.cloudnet.driver.provider;
 import com.google.common.collect.Iterables;
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class DefaultMessenger implements CloudMessenger {
 
   @Override
-  public ChannelMessage sendSingleChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
+  public @Nullable ChannelMessage sendSingleChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
     return Iterables.getFirst(this.sendChannelMessageQuery(channelMessage), null);
   }
 }

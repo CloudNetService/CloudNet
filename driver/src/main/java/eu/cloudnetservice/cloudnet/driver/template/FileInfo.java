@@ -35,23 +35,20 @@ public record FileInfo(
   long size
 ) {
 
-  @NonNull
-  public static FileInfo of(@NonNull Path path) throws IOException {
+  public static @NonNull FileInfo of(@NonNull Path path) throws IOException {
     return of(path, (Path) null);
   }
 
-  @NonNull
-  public static FileInfo of(@NonNull Path fullPath, @NonNull BasicFileAttributes attributes) throws IOException {
+  public static @NonNull FileInfo of(@NonNull Path fullPath, @NonNull BasicFileAttributes attributes)
+    throws IOException {
     return of(fullPath, null, attributes);
   }
 
-  @NonNull
-  public static FileInfo of(@NonNull Path path, @Nullable Path relativePath) throws IOException {
+  public static @NonNull FileInfo of(@NonNull Path path, @Nullable Path relativePath) throws IOException {
     return of(path, relativePath, Files.readAttributes(path, BasicFileAttributes.class));
   }
 
-  @NonNull
-  public static FileInfo of(
+  public static @NonNull FileInfo of(
     @NonNull Path fullPath,
     @Nullable Path relativePath,
     @NonNull BasicFileAttributes attributes
@@ -71,8 +68,7 @@ public record FileInfo(
       attributes.size());
   }
 
-  @NonNull
-  public static FileInfo of(@NonNull File file) throws IOException {
+  public static @NonNull FileInfo of(@NonNull File file) throws IOException {
     return of(file.toPath(), file.toPath());
   }
 }

@@ -18,10 +18,11 @@ package eu.cloudnetservice.cloudnet.driver.event.events;
 
 import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.driver.event.Event;
+import lombok.NonNull;
 
 public abstract class DriverEvent extends Event {
 
-  public CloudNetDriver driver() {
+  public @NonNull CloudNetDriver driver() {
     return CloudNetDriver.instance();
   }
 }

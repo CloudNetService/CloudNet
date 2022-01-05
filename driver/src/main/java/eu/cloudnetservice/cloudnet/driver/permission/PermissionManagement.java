@@ -36,8 +36,7 @@ public interface PermissionManagement {
    *
    * @return the child permission management or {@code null} if there is no child permission management.
    */
-  @Nullable
-  PermissionManagement childPermissionManagement();
+  @Nullable PermissionManagement childPermissionManagement();
 
   /**
    * Gets if this permission management can be overridden.
@@ -127,8 +126,7 @@ public interface PermissionManagement {
    * @param permissible the permissible to get the extended groups of.
    * @return the extended groups of the given {@code permissible}.
    */
-  @NonNull
-  Collection<PermissionGroup> groupsOf(@Nullable Permissible permissible);
+  @NonNull Collection<PermissionGroup> groupsOf(@Nullable Permissible permissible);
 
   /**
    * Checks if the given {@code permissible} has the given {@code permission}.
@@ -167,8 +165,7 @@ public interface PermissionManagement {
    * @return the check result. {@link PermissionCheckResult#DENIED} indicates that there was no allowing/forbidding
    * permission.
    */
-  @NonNull
-  PermissionCheckResult permissionResult(@NonNull Permissible permissible, @NonNull Permission permission);
+  @NonNull PermissionCheckResult permissionResult(@NonNull Permissible permissible, @NonNull Permission permission);
 
   /**
    * Checks if the given {@code permissible} has the given {@code permission}.
@@ -179,8 +176,7 @@ public interface PermissionManagement {
    * @return the check result. {@link PermissionCheckResult#DENIED} indicates that there was no allowing/forbidding
    * permission.
    */
-  @NonNull
-  PermissionCheckResult groupPermissionResult(
+  @NonNull PermissionCheckResult groupPermissionResult(
     @NonNull Permissible permissible,
     @NonNull String group,
     @NonNull Permission permission);
@@ -194,8 +190,7 @@ public interface PermissionManagement {
    * @return the check result. {@link PermissionCheckResult#DENIED} indicates that there was no allowing/forbidding
    * permission.
    */
-  @NonNull
-  PermissionCheckResult groupsPermissionResult(
+  @NonNull PermissionCheckResult groupsPermissionResult(
     @NonNull Permissible permissible,
     @NonNull String[] groups,
     @NonNull Permission permission);
@@ -209,8 +204,8 @@ public interface PermissionManagement {
    * @return the highest permission in the given {@code permission} or {@code null} if there is no permission with a
    * higher potency in the given collection
    */
-  @Nullable
-  Permission findHighestPermission(@NonNull Collection<Permission> permissions, @NonNull Permission permission);
+  @Nullable Permission findHighestPermission(@NonNull Collection<Permission> permissions,
+    @NonNull Permission permission);
 
   /**
    * Gets all permission of the specified {@code permissible}
@@ -218,8 +213,7 @@ public interface PermissionManagement {
    * @param permissible the permissible to get the permission of.
    * @return all permissions of the permissible
    */
-  @NonNull
-  Collection<Permission> allPermissions(@NonNull Permissible permissible);
+  @NonNull Collection<Permission> allPermissions(@NonNull Permissible permissible);
 
   /**
    * Gets all permission of the specified {@code permissible} on the given {@code group}.
@@ -228,8 +222,7 @@ public interface PermissionManagement {
    * @param group       the group to get the permission on or {@code null} if no specific group should be used.
    * @return all permissions of the permissible on the specified group if provided
    */
-  @NonNull
-  Collection<Permission> allGroupPermissions(@NonNull Permissible permissible, @Nullable String group);
+  @NonNull Collection<Permission> allGroupPermissions(@NonNull Permissible permissible, @Nullable String group);
 
   /**
    * Adds a new user to the database.

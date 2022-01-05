@@ -21,7 +21,6 @@ import org.jetbrains.annotations.Contract;
 
 public interface ChainableRPC extends RPCProvider {
 
-  @NonNull
   @Contract("_ -> new")
-  RPCChain join(@NonNull RPC rpc);
+  @NonNull RPCChain join(@NonNull RPC rpc);
 }

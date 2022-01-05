@@ -125,8 +125,7 @@ public interface NodeInfoProvider {
    * @param commandLine the commandLine to be sent
    * @return the reponse of the node
    */
-  @NonNull
-  default Task<Collection<String>> sendCommandLineAsync(@NonNull String commandLine) {
+  default @NonNull Task<Collection<String>> sendCommandLineAsync(@NonNull String commandLine) {
     return CompletableTask.supply(() -> this.sendCommandLine(commandLine));
   }
 
@@ -136,8 +135,7 @@ public interface NodeInfoProvider {
    * @param line the commandLine to be sent
    * @return the response of the node
    */
-  @NonNull
-  default Task<Collection<String>> sendCommandLineToNodeAsync(@NonNull String nodeUniqueId, @NonNull String line) {
+  default @NonNull Task<Collection<String>> sendCommandLineToNodeAsync(@NonNull String nodeUniqueId, @NonNull String line) {
     return CompletableTask.supply(() -> this.sendCommandLineToNode(nodeUniqueId, line));
   }
 

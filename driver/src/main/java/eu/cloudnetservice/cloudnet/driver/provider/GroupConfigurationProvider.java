@@ -92,8 +92,7 @@ public interface GroupConfigurationProvider {
   /**
    * Reloads the groups.json file
    */
-  @NonNull
-  default Task<Void> reloadAsync() {
+  default @NonNull Task<Void> reloadAsync() {
     return CompletableTask.supply(this::reload);
   }
 
@@ -102,8 +101,7 @@ public interface GroupConfigurationProvider {
    *
    * @return a list containing the group configurations of all groups
    */
-  @NonNull
-  default Task<Collection<GroupConfiguration>> groupConfigurationsAsync() {
+  default @NonNull Task<Collection<GroupConfiguration>> groupConfigurationsAsync() {
     return CompletableTask.supply(() -> this.groupConfigurations());
   }
 
@@ -112,8 +110,7 @@ public interface GroupConfigurationProvider {
    *
    * @param groupConfigurations the new groups
    */
-  @NonNull
-  default Task<Void> groupConfigurationsAsync(@NonNull Collection<GroupConfiguration> groupConfigurations) {
+  default @NonNull Task<Void> groupConfigurationsAsync(@NonNull Collection<GroupConfiguration> groupConfigurations) {
     return CompletableTask.supply(() -> this.groupConfigurations(groupConfigurations));
   }
 
@@ -123,8 +120,7 @@ public interface GroupConfigurationProvider {
    * @param name the name of the group
    * @return the group or {@code null} if no group with that name exists
    */
-  @NonNull
-  default Task<GroupConfiguration> groupConfigurationAsync(@NonNull String name) {
+  default @NonNull Task<GroupConfiguration> groupConfigurationAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.groupConfiguration(name));
   }
 
@@ -134,8 +130,7 @@ public interface GroupConfigurationProvider {
    * @param name the name of the group
    * @return {@code true} if the group exists or {@code false} otherwise
    */
-  @NonNull
-  default Task<Boolean> groupConfigurationPresentAsync(@NonNull String name) {
+  default @NonNull Task<Boolean> groupConfigurationPresentAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.groupConfigurationPresent(name));
   }
 
@@ -144,8 +139,7 @@ public interface GroupConfigurationProvider {
    *
    * @param groupConfiguration the group to be added
    */
-  @NonNull
-  default Task<Void> addGroupConfigurationAsync(@NonNull GroupConfiguration groupConfiguration) {
+  default @NonNull Task<Void> addGroupConfigurationAsync(@NonNull GroupConfiguration groupConfiguration) {
     return CompletableTask.supply(() -> this.addGroupConfiguration(groupConfiguration));
   }
 
@@ -154,8 +148,7 @@ public interface GroupConfigurationProvider {
    *
    * @param name the name of the group to be removed
    */
-  @NonNull
-  default Task<Void> removeGroupConfigurationByNameAsync(@NonNull String name) {
+  default @NonNull Task<Void> removeGroupConfigurationByNameAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.removeGroupConfigurationByName(name));
   }
 
@@ -165,8 +158,7 @@ public interface GroupConfigurationProvider {
    * @param groupConfiguration the group to be removed (the only thing that matters in this object is the name, the rest
    *                           is ignored)
    */
-  @NonNull
-  default Task<Void> removeGroupConfigurationAsync(@NonNull GroupConfiguration groupConfiguration) {
+  default @NonNull Task<Void> removeGroupConfigurationAsync(@NonNull GroupConfiguration groupConfiguration) {
     return CompletableTask.supply(() -> this.removeGroupConfiguration(groupConfiguration));
   }
 }
