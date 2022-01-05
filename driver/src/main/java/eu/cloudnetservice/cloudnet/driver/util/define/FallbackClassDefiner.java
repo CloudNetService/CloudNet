@@ -26,7 +26,7 @@ import lombok.NonNull;
  * get used as the {@link LookupClassDefiner} should define classes.
  *
  * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
- * @since 1.0
+ * @since 4.0
  */
 final class FallbackClassDefiner implements ClassDefiner {
 

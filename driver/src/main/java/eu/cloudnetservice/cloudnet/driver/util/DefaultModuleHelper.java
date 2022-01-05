@@ -24,14 +24,24 @@ import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import lombok.NonNull;
 
 /**
- * This class is for utility methods for the base modules in this multi module project
+ * This module helper class provides helper methods for cloudnet modules that also operate as a plugin on the services.
+ *
+ * @author Aldin S. (0utplay@cloudnetservice.eu)
+ * @author Pasqual Koschmieder. (derklaro@cloudnetservice.eu)
+ * @since 4.0
  */
 public final class DefaultModuleHelper {
 
   private static final Logger LOGGER = LogManager.logger(DefaultModuleHelper.class);
 
+  /**
+   * Creating an instance of this helper class is not allowed, results in {@link UnsupportedOperationException}.
+   *
+   * @throws UnsupportedOperationException on invocation
+   */
   private DefaultModuleHelper() {
     throw new UnsupportedOperationException();
   }
@@ -44,7 +54,7 @@ public final class DefaultModuleHelper {
    * @return true if the entry was copied successfully, false otherwise.
    * @throws NullPointerException if {@code clazz} or {@code target} is null.
    */
-  public static boolean copyCurrentModuleInstanceFromClass(Class<?> clazz, Path target) {
+  public static boolean copyCurrentModuleInstanceFromClass(@NonNull Class<?> clazz, @NonNull Path target) {
     try {
       // get the location of the class path entry associated with the given class
       var uri = ResourceResolver.resolveURIFromResourceByClass(clazz);
@@ -75,7 +85,11 @@ public final class DefaultModuleHelper {
    * @param file  the target file of the plugin to copy the file for.
    * @throws NullPointerException if clazz, type or file is null.
    */
-  public static void copyPluginConfigurationFileForEnvironment(Class<?> clazz, ServiceEnvironmentType type, Path file) {
+  public static void copyPluginConfigurationFileForEnvironment(
+    @NonNull Class<?> clazz,
+    @NonNull ServiceEnvironmentType type,
+    @NonNull Path file
+  ) {
     FileUtils.openZipFileSystem(file, fileSystem -> {
       // check if there is a plugin.yml file already - delete if it exists
       var pluginPath = fileSystem.getPath("plugin.yml");
