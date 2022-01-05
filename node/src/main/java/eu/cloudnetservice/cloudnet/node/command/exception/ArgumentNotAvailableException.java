@@ -16,10 +16,11 @@
 
 package eu.cloudnetservice.cloudnet.node.command.exception;
 
+import lombok.NonNull;
+
 /**
  * This exception is used when argument parsers need to hard fail the argument parsing because there is a syntax error.
  * The message of the exception is sent to the user therefore it should be translated and formatted correctly.
- *
  * <p>
  * Note: The {@link ArgumentNotAvailableException#fillInStackTrace()} method is empty, therefore the creation of this
  * exception is not heavy, and it can be used frequently.
@@ -35,15 +36,18 @@ public class ArgumentNotAvailableException extends RuntimeException {
    *
    * @param message the message to send to the user.
    */
-  public ArgumentNotAvailableException(String message) {
+  public ArgumentNotAvailableException(@NonNull String message) {
     super(message);
   }
 
   /**
-   * {@inheritDoc}
+   * Returns the own instance of this exception without filling the stacktrace, as the stacktrace is not needed for this
+   * exception.
+   *
+   * @return this instance for chaining.
    */
   @Override
-  public synchronized Throwable fillInStackTrace() {
+  public @NonNull Throwable fillInStackTrace() {
     return this;
   }
 
