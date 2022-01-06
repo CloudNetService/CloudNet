@@ -16,6 +16,9 @@
 
 package eu.cloudnetservice.cloudnet.driver.permission;
 
+import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
+
 /**
  * A response, if a permissible has to check his permission that contains and allow and element
  */
@@ -44,11 +47,11 @@ public enum PermissionCheckResult {
     this.value = value;
   }
 
-  public static PermissionCheckResult fromBoolean(Boolean result) {
+  public static @NonNull PermissionCheckResult fromBoolean(@Nullable Boolean result) {
     return result == null ? DENIED : result ? ALLOWED : FORBIDDEN;
   }
 
-  public static PermissionCheckResult fromPermission(Permission permission) {
+  public static @NonNull PermissionCheckResult fromPermission(@Nullable Permission permission) {
     return fromBoolean(permission == null ? null : permission.potency() >= 0);
   }
 

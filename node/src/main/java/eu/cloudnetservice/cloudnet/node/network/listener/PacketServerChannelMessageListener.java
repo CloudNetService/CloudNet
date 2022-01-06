@@ -34,7 +34,7 @@ public final class PacketServerChannelMessageListener implements PacketListener 
   private final NodeMessenger messenger;
   private final EventManager eventManager;
 
-  public PacketServerChannelMessageListener(NodeMessenger messenger, EventManager eventManager) {
+  public PacketServerChannelMessageListener(@NonNull NodeMessenger messenger, @NonNull EventManager eventManager) {
     this.messenger = messenger;
     this.eventManager = eventManager;
   }

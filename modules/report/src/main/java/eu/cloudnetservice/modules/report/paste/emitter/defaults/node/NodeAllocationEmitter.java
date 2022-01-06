@@ -20,11 +20,12 @@ import eu.cloudnetservice.cloudnet.common.unsafe.CPUUsageResolver;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import eu.cloudnetservice.modules.report.paste.emitter.ReportDataEmitter;
 import java.lang.management.ManagementFactory;
+import org.jetbrains.annotations.NotNull;
 
 public class NodeAllocationEmitter implements ReportDataEmitter<NetworkClusterNodeInfoSnapshot> {
 
   @Override
-  public void emitData(StringBuilder builder, NetworkClusterNodeInfoSnapshot context) {
+  public void emitData(@NotNull StringBuilder builder, @NotNull NetworkClusterNodeInfoSnapshot context) {
     var memoryMXBean = ManagementFactory.getMemoryMXBean();
 
     builder.append("CPU usage: (P/S) ")

@@ -43,8 +43,7 @@ public interface CloudMessenger {
    * @param channelMessage the channel message to be sent
    * @return a collection containing the responses from all receivers
    */
-  @NonNull
-  default Task<Collection<ChannelMessage>> sendChannelMessageQueryAsync(@NonNull ChannelMessage channelMessage) {
+  default @NonNull Task<Collection<ChannelMessage>> sendChannelMessageQueryAsync(@NonNull ChannelMessage channelMessage) {
     return CompletableTask.supply(() -> this.sendChannelMessageQuery(channelMessage));
   }
 
@@ -54,8 +53,7 @@ public interface CloudMessenger {
    * @param channelMessage the channel message to be sent
    * @return a collection containing the responses from all receivers
    */
-  @NonNull
-  Collection<ChannelMessage> sendChannelMessageQuery(@NonNull ChannelMessage channelMessage);
+  @NonNull Collection<ChannelMessage> sendChannelMessageQuery(@NonNull ChannelMessage channelMessage);
 
   /**
    * Sends a channel message into the cluster and waits for the result from the receivers. This method only returns the
@@ -64,8 +62,7 @@ public interface CloudMessenger {
    * @param channelMessage the channel message to be sent
    * @return the response of the first receiver
    */
-  @NonNull
-  default Task<ChannelMessage> sendSingleChannelMessageQueryAsync(@NonNull ChannelMessage channelMessage) {
+  default @NonNull Task<ChannelMessage> sendSingleChannelMessageQueryAsync(@NonNull ChannelMessage channelMessage) {
     return CompletableTask.supply(() -> this.sendSingleChannelMessageQuery(channelMessage));
   }
 
@@ -76,6 +73,5 @@ public interface CloudMessenger {
    * @param channelMessage the channel message to be sent
    * @return the response of the first receiver
    */
-  @Nullable
-  ChannelMessage sendSingleChannelMessageQuery(@NonNull ChannelMessage channelMessage);
+  @Nullable ChannelMessage sendSingleChannelMessageQuery(@NonNull ChannelMessage channelMessage);
 }

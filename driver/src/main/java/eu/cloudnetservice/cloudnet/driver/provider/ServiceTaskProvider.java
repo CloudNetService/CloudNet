@@ -57,8 +57,7 @@ public interface ServiceTaskProvider {
    * @param name the name of the task
    * @return the task or {@code null} if no task with that name exists
    */
-  @Nullable
-  ServiceTask serviceTask(@NonNull String name);
+  @Nullable ServiceTask serviceTask(@NonNull String name);
 
   /**
    * Checks whether the task with a specific name exists
@@ -93,8 +92,7 @@ public interface ServiceTaskProvider {
   /**
    * Reloads all tasks
    */
-  @NonNull
-  default Task<Void> reloadAsync() {
+  default @NonNull Task<Void> reloadAsync() {
     return CompletableTask.supply(this::reload);
   }
 
@@ -103,8 +101,7 @@ public interface ServiceTaskProvider {
    *
    * @return a list containing the task configurations of all tasks
    */
-  @NonNull
-  default Task<Collection<ServiceTask>> permanentServiceTasksAsync() {
+  default @NonNull Task<Collection<ServiceTask>> permanentServiceTasksAsync() {
     return CompletableTask.supply(() -> this.permanentServiceTasks());
   }
 
@@ -113,8 +110,7 @@ public interface ServiceTaskProvider {
    *
    * @param serviceTasks the new service tasks
    */
-  @NonNull
-  default Task<Void> permanentServiceTasksAsync(@NonNull Collection<ServiceTask> serviceTasks) {
+  default @NonNull Task<Void> permanentServiceTasksAsync(@NonNull Collection<ServiceTask> serviceTasks) {
     return CompletableTask.supply(() -> this.permanentServiceTasks(serviceTasks));
   }
 
@@ -124,8 +120,7 @@ public interface ServiceTaskProvider {
    * @param name the name of the task
    * @return the task or {@code null} if no task with that name exists
    */
-  @NonNull
-  default Task<ServiceTask> serviceTaskAsync(@NonNull String name) {
+  default @NonNull Task<ServiceTask> serviceTaskAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.serviceTask(name));
   }
 
@@ -135,8 +130,7 @@ public interface ServiceTaskProvider {
    * @param name the name of the task
    * @return {@code true} if the task exists or {@code false} otherwise
    */
-  @NonNull
-  default Task<Boolean> isServiceTaskPresentAsync(@NonNull String name) {
+  default @NonNull Task<Boolean> isServiceTaskPresentAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.serviceTaskPresent(name));
   }
 
@@ -145,8 +139,7 @@ public interface ServiceTaskProvider {
    *
    * @param serviceTask the task to be added
    */
-  @NonNull
-  default Task<Boolean> addPermanentServiceTaskAsync(@NonNull ServiceTask serviceTask) {
+  default @NonNull Task<Boolean> addPermanentServiceTaskAsync(@NonNull ServiceTask serviceTask) {
     return CompletableTask.supply(() -> this.addPermanentServiceTask(serviceTask));
   }
 
@@ -155,8 +148,7 @@ public interface ServiceTaskProvider {
    *
    * @param name the name of the task to be removed
    */
-  @NonNull
-  default Task<Void> removePermanentServiceTaskByNameAsync(@NonNull String name) {
+  default @NonNull Task<Void> removePermanentServiceTaskByNameAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.removePermanentServiceTaskByName(name));
   }
 
@@ -166,8 +158,7 @@ public interface ServiceTaskProvider {
    * @param serviceTask the task to be removed (the only thing that matters in this object is the name, the rest is
    *                    ignored)
    */
-  @NonNull
-  default Task<Void> removePermanentServiceTaskAsync(@NonNull ServiceTask serviceTask) {
+  default @NonNull Task<Void> removePermanentServiceTaskAsync(@NonNull ServiceTask serviceTask) {
     return this.removePermanentServiceTaskByNameAsync(serviceTask.name());
   }
 

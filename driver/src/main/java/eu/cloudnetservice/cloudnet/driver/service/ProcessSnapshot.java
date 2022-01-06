@@ -56,7 +56,7 @@ public record ProcessSnapshot(
    *
    * @return an empty constant {@link ProcessSnapshot}
    */
-  public static ProcessSnapshot empty() {
+  public static @NonNull ProcessSnapshot empty() {
     return EMPTY;
   }
 
@@ -65,7 +65,7 @@ public record ProcessSnapshot(
    *
    * @return a new {@link ProcessSnapshot}
    */
-  public static ProcessSnapshot self() {
+  public static @NonNull ProcessSnapshot self() {
     return new ProcessSnapshot(
       ownPID(),
       CPUUsageResolver.processCPUUsage(),
@@ -87,7 +87,7 @@ public record ProcessSnapshot(
   }
 
   @Override
-  public ProcessSnapshot clone() {
+  public @NonNull ProcessSnapshot clone() {
     try {
       return (ProcessSnapshot) super.clone();
     } catch (CloneNotSupportedException exception) {

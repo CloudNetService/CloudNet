@@ -22,6 +22,7 @@ import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.Flag;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.specifier.Greedy;
+import cloud.commandframework.annotations.specifier.Liberal;
 import cloud.commandframework.annotations.specifier.Quoted;
 import cloud.commandframework.annotations.specifier.Range;
 import cloud.commandframework.annotations.suggestions.Suggestions;
@@ -251,7 +252,7 @@ public final class CommandTasks {
   public void setMaintenance(
     CommandSource source,
     @Argument("name") Collection<ServiceTask> serviceTasks,
-    @Argument("enabled") boolean enabled
+    @Argument("enabled") @Liberal boolean enabled
   ) {
     for (var task : serviceTasks) {
       this.updateTask(task, builder -> builder.maintenance(enabled));
@@ -302,7 +303,7 @@ public final class CommandTasks {
   public void setAutoDeleteOnStop(
     CommandSource source,
     @Argument("name") Collection<ServiceTask> serviceTasks,
-    @Argument("enabled") boolean enabled
+    @Argument("enabled") @Liberal boolean enabled
   ) {
     for (var task : serviceTasks) {
       this.updateTask(task, builder -> builder.autoDeleteOnStop(enabled));
@@ -319,7 +320,7 @@ public final class CommandTasks {
   public void setStaticServices(
     CommandSource source,
     @Argument("name") Collection<ServiceTask> serviceTasks,
-    @Argument("enabled") boolean enabled
+    @Argument("enabled") @Liberal boolean enabled
   ) {
     for (var task : serviceTasks) {
       this.updateTask(task, builder -> builder.staticServices(enabled));
@@ -353,7 +354,7 @@ public final class CommandTasks {
   public void setDisableIpRewrite(
     CommandSource source,
     @Argument("name") Collection<ServiceTask> serviceTasks,
-    @Argument("enabled") boolean enabled
+    @Argument("enabled") @Liberal boolean enabled
   ) {
     for (var task : serviceTasks) {
       this.updateTask(task, builder -> builder.disableIpRewrite(enabled));

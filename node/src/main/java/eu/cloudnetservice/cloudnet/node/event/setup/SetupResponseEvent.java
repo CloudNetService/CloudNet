@@ -18,23 +18,29 @@ package eu.cloudnetservice.cloudnet.node.event.setup;
 
 import eu.cloudnetservice.cloudnet.node.console.animation.setup.ConsoleSetupAnimation;
 import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.QuestionListEntry;
+import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 public class SetupResponseEvent extends SetupEvent {
 
   private final QuestionListEntry<?> responseEntry;
   private final Object response;
 
-  public SetupResponseEvent(ConsoleSetupAnimation setup, QuestionListEntry<?> responseEntry, Object response) {
+  public SetupResponseEvent(
+    @NonNull ConsoleSetupAnimation setup,
+    @NonNull QuestionListEntry<?> responseEntry,
+    @Nullable Object response
+  ) {
     super(setup);
     this.responseEntry = responseEntry;
     this.response = response;
   }
 
-  public QuestionListEntry<?> responseEntry() {
+  public @NonNull QuestionListEntry<?> responseEntry() {
     return this.responseEntry;
   }
 
-  public Object response() {
+  public @NonNull Object response() {
     return this.response;
   }
 }

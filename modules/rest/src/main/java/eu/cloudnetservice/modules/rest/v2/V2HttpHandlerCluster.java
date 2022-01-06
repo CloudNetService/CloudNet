@@ -27,6 +27,7 @@ import eu.cloudnetservice.cloudnet.node.http.HttpSession;
 import eu.cloudnetservice.cloudnet.node.http.V2HttpHandler;
 import java.util.Collection;
 import java.util.stream.Collectors;
+import org.jetbrains.annotations.NotNull;
 
 public class V2HttpHandlerCluster extends V2HttpHandler {
 
@@ -35,7 +36,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(String path, HttpContext context, HttpSession session) {
+  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession session) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (context.request().pathParameters().containsKey("node")) {
         // specific node was requested

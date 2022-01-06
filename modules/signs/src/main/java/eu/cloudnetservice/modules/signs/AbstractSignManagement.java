@@ -46,7 +46,7 @@ public abstract class AbstractSignManagement implements SignManagement {
    *
    * @param signsConfiguration the sign configuration to use.
    */
-  protected AbstractSignManagement(SignsConfiguration signsConfiguration) {
+  protected AbstractSignManagement(@NonNull SignsConfiguration signsConfiguration) {
     this.signsConfiguration = signsConfiguration;
   }
 
@@ -129,7 +129,7 @@ public abstract class AbstractSignManagement implements SignManagement {
    * @param message the message of the channel message.
    * @return the channel message builder for further configuration.
    */
-  protected ChannelMessage.Builder channelMessage(@NonNull String message) {
+  protected @NonNull ChannelMessage.Builder channelMessage(@NonNull String message) {
     return ChannelMessage.builder()
       .channel(SIGN_CHANNEL_NAME)
       .message(message);

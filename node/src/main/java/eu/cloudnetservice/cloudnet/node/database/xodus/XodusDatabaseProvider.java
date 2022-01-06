@@ -31,6 +31,7 @@ import jetbrains.exodus.env.EnvironmentConfig;
 import jetbrains.exodus.env.Environments;
 import jetbrains.exodus.env.StoreConfig;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 public class XodusDatabaseProvider extends AbstractDatabaseProvider {
 
@@ -45,11 +46,15 @@ public class XodusDatabaseProvider extends AbstractDatabaseProvider {
 
   protected Environment environment;
 
-  public XodusDatabaseProvider(File databaseDirectory, boolean runsInCluster) {
+  public XodusDatabaseProvider(@NonNull File databaseDirectory, boolean runsInCluster) {
     this(databaseDirectory, runsInCluster, null);
   }
 
-  public XodusDatabaseProvider(File databaseDirectory, boolean runsInCluster, ExecutorService executorService) {
+  public XodusDatabaseProvider(
+    @NonNull File databaseDirectory,
+    boolean runsInCluster,
+    @Nullable ExecutorService executorService
+  ) {
     this.runsInCluster = runsInCluster;
     this.databaseDirectory = databaseDirectory;
     this.autoShutdownExecutorService = executorService == null;

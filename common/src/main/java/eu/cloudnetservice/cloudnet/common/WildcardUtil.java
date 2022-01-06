@@ -47,8 +47,7 @@ public final class WildcardUtil {
    * @return all input values matching the given pattern.
    * @see #filterWildcard(Collection, String, boolean)
    */
-  @NonNull
-  public static <T extends Nameable> Collection<T> filterWildcard(
+  public static <T extends Nameable> @NonNull Collection<T> filterWildcard(
     @NonNull Collection<T> inputValues,
     @NonNull String regex
   ) {
@@ -76,8 +75,7 @@ public final class WildcardUtil {
    * @param <T>           the type of the input values.
    * @return all input values matching the given pattern.
    */
-  @NonNull
-  public static <T extends Nameable> Collection<T> filterWildcard(
+  public static <T extends Nameable> @NonNull Collection<T> filterWildcard(
     @NonNull Collection<T> inputValues,
     @NonNull String regex,
     boolean caseSensitive
@@ -122,8 +120,7 @@ public final class WildcardUtil {
    * @param caseSensitive if the pattern should be case-insensitive
    * @return the compiled pattern or {@code null} if the compilation failed
    */
-  @Nullable
-  private static Pattern prepare(@NonNull String regex, boolean caseSensitive) {
+  private static @Nullable Pattern prepare(@NonNull String regex, boolean caseSensitive) {
     regex = regex.replace("*", "(.*)");
     return tryCompile(regex, caseSensitive);
   }
@@ -136,8 +133,7 @@ public final class WildcardUtil {
    * @param caseSensitive if the pattern should be case-insensitive
    * @return the compiled pattern or {@code null} if the compilation failed
    */
-  @Nullable
-  private static Pattern tryCompile(@NonNull String pattern, boolean caseSensitive) {
+  private static @Nullable Pattern tryCompile(@NonNull String pattern, boolean caseSensitive) {
     try {
       return Pattern.compile(pattern, caseSensitive ? 0 : Pattern.CASE_INSENSITIVE);
     } catch (PatternSyntaxException exception) {
@@ -154,7 +150,7 @@ public final class WildcardUtil {
    * @param caseSensitive if the pattern check should be case-insensitive
    * @return a fixed, compiled version of the pattern or {@code null} if the given exception is unclear
    */
-  private static Pattern tryFixPattern(@NonNull PatternSyntaxException exception, boolean caseSensitive) {
+  private static @Nullable Pattern tryFixPattern(@NonNull PatternSyntaxException exception, boolean caseSensitive) {
     if (exception.getPattern() != null && exception.getIndex() != -1) {
       var pattern = exception.getPattern();
       if (pattern.length() > exception.getIndex()) {
@@ -183,9 +179,8 @@ public final class WildcardUtil {
    * @param patternInput the pattern to check.
    * @return the same pattern as given but with fixed groups.
    */
-  @NonNull
   @VisibleForTesting
-  static String fixUnclosedGroups(@NonNull String patternInput) {
+  static @NonNull String fixUnclosedGroups(@NonNull String patternInput) {
     var result = new StringBuilder();
     var content = patternInput.toCharArray();
     // we need to record the group closings to actually find the group opening which is not escaped

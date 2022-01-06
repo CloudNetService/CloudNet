@@ -35,9 +35,9 @@ public interface HttpSession {
 
   @UnknownNullability PermissionUser user();
 
-  <T> T property(@NonNull String key);
+  <T> @UnknownNullability T property(@NonNull String key);
 
-  <T> T property(@NonNull String key, @Nullable T def);
+  <T> @UnknownNullability T property(@NonNull String key, @Nullable T def);
 
   @NonNull HttpSession setProperty(@NonNull String key, @NonNull Object value);
 

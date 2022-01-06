@@ -24,7 +24,7 @@ public final class CloudNetTickEvent extends DriverEvent {
 
   private final CloudNetTick ticker;
 
-  public CloudNetTickEvent(CloudNetTick ticker) {
+  public CloudNetTickEvent(@NonNull CloudNetTick ticker) {
     this.ticker = ticker;
   }
 

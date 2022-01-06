@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class CloudPermissionsHelper {
 
@@ -72,7 +73,7 @@ public final class CloudPermissionsHelper {
     }
   }
 
-  public static void handlePlayerQuit(PermissionManagement permissionsManagement, UUID uniqueId) {
+  public static void handlePlayerQuit(@Nullable PermissionManagement permissionsManagement, @NonNull UUID uniqueId) {
     var management = asCachedPermissionManagement(permissionsManagement);
     if (management != null) {
       var cachedUser = management.cachedUser(uniqueId);
@@ -82,7 +83,9 @@ public final class CloudPermissionsHelper {
     }
   }
 
-  public static CachedPermissionManagement asCachedPermissionManagement(PermissionManagement management) {
+  public static @Nullable CachedPermissionManagement asCachedPermissionManagement(
+    @Nullable PermissionManagement management
+  ) {
     return management instanceof CachedPermissionManagement ? (CachedPermissionManagement) management : null;
   }
 }

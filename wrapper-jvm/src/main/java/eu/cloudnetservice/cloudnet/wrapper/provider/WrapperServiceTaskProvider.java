@@ -23,6 +23,7 @@ import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.cloudnet.wrapper.network.listener.message.TaskChannelMessageListener;
 import java.util.Collection;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 public class WrapperServiceTaskProvider implements ServiceTaskProvider {
 
@@ -51,7 +52,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
   }
 
   @Override
-  public ServiceTask serviceTask(@NonNull String name) {
+  public @Nullable ServiceTask serviceTask(@NonNull String name) {
     return this.rpcSender.invokeMethod("serviceTask", name).fireSync();
   }
 

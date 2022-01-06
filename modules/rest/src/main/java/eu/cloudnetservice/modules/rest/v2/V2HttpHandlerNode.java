@@ -39,6 +39,7 @@ import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 import java.util.stream.Collectors;
 import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
 
@@ -50,17 +51,17 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
   }
 
   @Override
-  protected void handleUnauthorizedRequest(String path, HttpContext context) {
+  protected void handleUnauthorizedRequest(@NotNull String path, @NotNull HttpContext context) {
     this.response(context, HttpResponseCode.HTTP_NO_CONTENT).context().closeAfter(true).cancelNext();
   }
 
   @Override
-  protected void handleBasicAuthorized(String path, HttpContext context, PermissionUser user) {
+  protected void handleBasicAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull PermissionUser user) {
     this.sendNodeInformation(context);
   }
 
   @Override
-  protected void handleBearerAuthorized(String path, HttpContext context, HttpSession session) {
+  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession session) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.endsWith("/liveconsole")) {
         this.handleLiveConsoleRequest(context, session);
@@ -79,7 +80,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
   }
 
   @Override
-  protected void handleTicketAuthorizedRequest(String path, HttpContext context, HttpSession session) {
+  protected void handleTicketAuthorizedRequest(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession session) {
     this.handleLiveConsoleRequest(context, session);
   }
 

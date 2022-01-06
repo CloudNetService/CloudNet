@@ -46,15 +46,14 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
   }
 
   @Override
-  public NetworkClusterNode[] nodes() {
+  public @NonNull NetworkClusterNode[] nodes() {
     return this.clusterNodeServerProvider.nodeServers().stream()
       .map(ClusterNodeServer::nodeInfo)
       .toArray(NetworkClusterNode[]::new);
   }
 
-  @Nullable
   @Override
-  public NetworkClusterNode node(@NonNull String uniqueId) {
+  public @Nullable NetworkClusterNode node(@NonNull String uniqueId) {
     // check if the current node is requested
     if (uniqueId.equals(this.clusterNodeServerProvider.selfNode().nodeInfo().uniqueId())) {
       return this.clusterNodeServerProvider.selfNode().nodeInfo();
@@ -68,16 +67,15 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
   }
 
   @Override
-  public NetworkClusterNodeInfoSnapshot[] nodeInfoSnapshots() {
+  public @NonNull NetworkClusterNodeInfoSnapshot[] nodeInfoSnapshots() {
     return this.clusterNodeServerProvider.nodeServers().stream()
       .map(ClusterNodeServer::nodeInfoSnapshot)
       .filter(Objects::nonNull)
       .toArray(NetworkClusterNodeInfoSnapshot[]::new);
   }
 
-  @Nullable
   @Override
-  public NetworkClusterNodeInfoSnapshot nodeInfoSnapshot(@NonNull String uniqueId) {
+  public @Nullable NetworkClusterNodeInfoSnapshot nodeInfoSnapshot(@NonNull String uniqueId) {
     // check if the current node is requested
     if (uniqueId.equals(this.clusterNodeServerProvider.selfNode().nodeInfo().uniqueId())) {
       return this.clusterNodeServerProvider.selfNode().nodeInfoSnapshot();
@@ -113,9 +111,8 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
     return Collections.emptyList();
   }
 
-  @Nullable
   @Override
-  public CommandInfo consoleCommand(@NonNull String commandLine) {
+  public @Nullable CommandInfo consoleCommand(@NonNull String commandLine) {
     return CloudNet.instance().commandProvider().command(commandLine);
   }
 

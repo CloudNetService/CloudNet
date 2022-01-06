@@ -33,16 +33,14 @@ public class CommandPostProcessEvent extends Event {
   /**
    * @return the command source that executed the given commandline.
    */
-  @NonNull
-  public CommandSource commandSource() {
+  public @NonNull CommandSource commandSource() {
     return this.commandSource;
   }
 
   /**
    * @return the command line that was executed.
    */
-  @NonNull
-  public String commandLine() {
+  public @NonNull String commandLine() {
     return this.commandLine;
   }
 }

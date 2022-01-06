@@ -75,7 +75,7 @@ public abstract class SQLDatabaseProvider extends AbstractDatabaseProvider {
 
   public abstract int executeUpdate(@NonNull String query, @NonNull Object... objects);
 
-  public abstract <T> T executeQuery(
+  public abstract <T> @Nullable T executeQuery(
     @NonNull String query,
     @NonNull ThrowableFunction<ResultSet, T, SQLException> callback,
     @NonNull Object... objects);

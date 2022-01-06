@@ -40,6 +40,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
 
@@ -52,7 +53,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(String path, HttpContext context, HttpSession session) {
+  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession session) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.endsWith("/service")) {
         this.handleListServicesRequest(context);
@@ -83,7 +84,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
   }
 
   @Override
-  protected void handleTicketAuthorizedRequest(String path, HttpContext context, HttpSession session) {
+  protected void handleTicketAuthorizedRequest(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession session) {
     this.handleLiveLogRequest(context);
   }
 

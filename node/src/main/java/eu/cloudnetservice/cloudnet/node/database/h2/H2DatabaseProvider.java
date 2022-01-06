@@ -42,17 +42,15 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
   }
 
   private final Path h2dbFile;
-  private final boolean runsInCluster;
   private Connection connection;
 
-  public H2DatabaseProvider(@NonNull String h2File, boolean runsInCluster) {
-    this(h2File, runsInCluster, null);
+  public H2DatabaseProvider(@NonNull String h2File) {
+    this(h2File, null);
   }
 
-  public H2DatabaseProvider(@NonNull String h2File, boolean runsInCluster, @Nullable ExecutorService executorService) {
+  public H2DatabaseProvider(@NonNull String h2File, @Nullable ExecutorService executorService) {
     super(executorService);
     this.h2dbFile = Path.of(h2File);
-    this.runsInCluster = runsInCluster;
   }
 
   @Override

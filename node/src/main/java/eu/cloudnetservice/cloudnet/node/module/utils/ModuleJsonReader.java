@@ -27,8 +27,7 @@ public final class ModuleJsonReader {
     throw new UnsupportedOperationException();
   }
 
-  public static @NonNull
-  ModulesHolder read(@NonNull Path launcherDirPath) {
+  public static @NonNull ModulesHolder read(@NonNull Path launcherDirPath) {
     return JsonDocument.newDocument(launcherDirPath.resolve("modules.json")).toInstanceOf(ModulesHolder.class);
   }
 }

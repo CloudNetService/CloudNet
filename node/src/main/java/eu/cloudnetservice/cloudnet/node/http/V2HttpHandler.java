@@ -33,6 +33,7 @@ import eu.cloudnetservice.cloudnet.node.config.Configuration;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class V2HttpHandler implements HttpHandler {
 
@@ -46,12 +47,16 @@ public abstract class V2HttpHandler implements HttpHandler {
   protected final V2HttpAuthentication authentication;
   protected final AccessControlConfiguration accessControlConfiguration;
 
-  public V2HttpHandler(String requiredPermission, String... supportedRequestMethods) {
+  public V2HttpHandler(@Nullable String requiredPermission, @NonNull String... supportedRequestMethods) {
     this(requiredPermission, DEFAULT_AUTH, CloudNet.instance().config().accessControlConfig(), supportedRequestMethods);
   }
 
-  public V2HttpHandler(String requiredPermission, V2HttpAuthentication authentication,
-    AccessControlConfiguration accessControlConfiguration, String... supportedRequestMethods) {
+  public V2HttpHandler(
+    @Nullable String requiredPermission,
+    @NonNull V2HttpAuthentication authentication,
+    @NonNull AccessControlConfiguration accessControlConfiguration,
+    @NonNull String... supportedRequestMethods
+  ) {
     this.requiredPermission = requiredPermission;
     this.authentication = authentication;
     this.accessControlConfiguration = accessControlConfiguration;
@@ -113,14 +118,16 @@ public abstract class V2HttpHandler implements HttpHandler {
     }
   }
 
-  protected void handleUnauthorized(String path, HttpContext context) throws Exception {
+  protected void handleUnauthorized(@NonNull String path, @NonNull HttpContext context) throws Exception {
     this.send403(context, "Authentication required");
   }
 
-  protected void handleBasicAuthorized(String path, HttpContext context, PermissionUser user) {
+  protected void handleBasicAuthorized(@NonNull String path, @NonNull HttpContext context,
+    @NonNull PermissionUser user) {
   }
 
-  protected void handleBearerAuthorized(String path, HttpContext context, HttpSession session) {
+  protected void handleBearerAuthorized(@NonNull String path, @NonNull HttpContext context,
+    @NonNull HttpSession session) {
   }
 
   protected boolean testPermission(@NonNull PermissionUser user, @NonNull HttpRequest request) {
@@ -133,7 +140,7 @@ public abstract class V2HttpHandler implements HttpHandler {
     }
   }
 
-  protected void send403(HttpContext context, String reason) {
+  protected void send403(@NonNull HttpContext context, @NonNull String reason) {
     this.response(context, HttpResponseCode.HTTP_FORBIDDEN)
       .body(this.failure().append("reason", reason).toString().getBytes(StandardCharsets.UTF_8))
       .context()
@@ -141,7 +148,7 @@ public abstract class V2HttpHandler implements HttpHandler {
       .cancelNext();
   }
 
-  protected void sendOptions(HttpContext context) {
+  protected void sendOptions(@NonNull HttpContext context) {
     context
       .cancelNext(true)
       .response()
@@ -155,42 +162,42 @@ public abstract class V2HttpHandler implements HttpHandler {
       .header("Access-Control-Allow-Methods", this.supportedRequestMethodsString);
   }
 
-  protected HttpResponse ok(HttpContext context) {
+  protected HttpResponse ok(@NonNull HttpContext context) {
     return this.response(context, HttpResponseCode.HTTP_OK);
   }
 
-  protected HttpResponse badRequest(HttpContext context) {
+  protected HttpResponse badRequest(@NonNull HttpContext context) {
     return this.response(context, HttpResponseCode.HTTP_BAD_REQUEST);
   }
 
-  protected HttpResponse notFound(HttpContext context) {
+  protected HttpResponse notFound(@NonNull HttpContext context) {
     return this.response(context, HttpResponseCode.HTTP_NOT_FOUND);
   }
 
-  protected HttpResponse response(HttpContext context, int statusCode) {
+  protected HttpResponse response(@NonNull HttpContext context, int statusCode) {
     return context.response()
       .statusCode(statusCode)
       .header("Content-Type", "application/json")
       .header("Access-Control-Allow-Origin", this.accessControlConfiguration.corsPolicy());
   }
 
-  protected JsonDocument body(@NonNull HttpRequest request) {
+  protected @NonNull JsonDocument body(@NonNull HttpRequest request) {
     return JsonDocument.fromJsonBytes(request.body());
   }
 
-  protected JsonDocument success() {
+  protected @NonNull JsonDocument success() {
     return JsonDocument.newDocument("success", true);
   }
 
-  protected JsonDocument failure() {
+  protected @NonNull JsonDocument failure() {
     return JsonDocument.newDocument("success", false);
   }
 
-  protected CloudNet node() {
+  protected @NonNull CloudNet node() {
     return CloudNet.instance();
   }
 
-  protected Configuration configuration() {
+  protected @NonNull Configuration configuration() {
     return this.node().config();
   }
 }

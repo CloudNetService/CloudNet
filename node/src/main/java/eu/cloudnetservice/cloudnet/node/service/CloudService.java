@@ -36,8 +36,7 @@ public interface CloudService extends SpecificCloudServiceProvider {
   @Override
   @NonNull ServiceInfoSnapshot serviceInfo();
 
-  @NonNull
-  String runtime();
+  @NonNull String runtime();
 
   @NonNull Queue<ServiceRemoteInclusion> waitingIncludes();
 
@@ -45,35 +44,26 @@ public interface CloudService extends SpecificCloudServiceProvider {
 
   @NonNull Queue<ServiceDeployment> waitingDeployments();
 
-  @NonNull
-  ServiceLifeCycle lifeCycle();
+  @NonNull ServiceLifeCycle lifeCycle();
 
-  @NonNull
-  CloudServiceManager cloudServiceManager();
+  @NonNull CloudServiceManager cloudServiceManager();
 
-  @NonNull
-  ServiceConfiguration serviceConfiguration();
+  @NonNull ServiceConfiguration serviceConfiguration();
 
-  @NonNull
-  ServiceId serviceId();
+  @NonNull ServiceId serviceId();
 
-  @NonNull
-  String connectionKey();
+  @NonNull String connectionKey();
 
-  @NonNull
-  Path directory();
+  @NonNull Path directory();
 
-  @Nullable
-  NetworkChannel networkChannel();
+  @Nullable NetworkChannel networkChannel();
 
   @Internal
   void networkChannel(@Nullable NetworkChannel channel);
 
-  @NonNull
-  ServiceInfoSnapshot lastServiceInfoSnapshot();
+  @NonNull ServiceInfoSnapshot lastServiceInfoSnapshot();
 
-  @NonNull
-  ServiceConsoleLogCache serviceConsoleLogCache();
+  @NonNull ServiceConsoleLogCache serviceConsoleLogCache();
 
   boolean alive();
 

@@ -202,7 +202,7 @@ public final class CommandPermissions {
   ) {
     this.updateUser(permissionUser, user -> user.addGroup(PermissionUserGroupInfo.builder()
       .group(permissionGroup.name())
-      .timeOut(time == null ? Duration.ZERO : time)
+      .timeOutMillis(time == null ? 0 : System.currentTimeMillis() + time.toMillis())
       .build()
     ), source);
   }
