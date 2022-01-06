@@ -20,14 +20,30 @@ import eu.cloudnetservice.cloudnet.driver.event.Event;
 import eu.cloudnetservice.cloudnet.driver.service.GroupConfiguration;
 import lombok.NonNull;
 
+/**
+ * Event triggered when a group configuration was removed.
+ *
+ * @since 4.0
+ */
 public class GroupConfigurationRemoveEvent extends Event {
 
   private final GroupConfiguration configuration;
 
+  /**
+   * Constructs a new group configuration remove event with the given configuration as its base.
+   *
+   * @param configuration the configuration which was removed.
+   * @throws NullPointerException if the given configuration is null.
+   */
   public GroupConfigurationRemoveEvent(@NonNull GroupConfiguration configuration) {
     this.configuration = configuration;
   }
 
+  /**
+   * Get the configuration which was removed.
+   *
+   * @return the configuration which was removed.
+   */
   public @NonNull GroupConfiguration configuration() {
     return this.configuration;
   }

@@ -20,14 +20,31 @@ import eu.cloudnetservice.cloudnet.driver.event.Event;
 import eu.cloudnetservice.cloudnet.driver.service.GroupConfiguration;
 import lombok.NonNull;
 
+/**
+ * Event called when a group configuration was added or updated. This is due to the fact that adding or updating makes
+ * no difference for the cloudnet internal handling so there is no reason to split the same behaviour into two events.
+ *
+ * @since 4.0
+ */
 public class GroupConfigurationAddEvent extends Event {
 
   private final GroupConfiguration configuration;
 
+  /**
+   * Creates a new group configuration add event with the given configuration.
+   *
+   * @param configuration the configuration which was added or updated.
+   * @throws NullPointerException if the given configuration is null.
+   */
   public GroupConfigurationAddEvent(@NonNull GroupConfiguration configuration) {
     this.configuration = configuration;
   }
 
+  /**
+   * Get the group configuration which was added or updated and triggered this event.
+   *
+   * @return the group configuration which was added or updated.
+   */
   public @NonNull GroupConfiguration configuration() {
     return configuration;
   }

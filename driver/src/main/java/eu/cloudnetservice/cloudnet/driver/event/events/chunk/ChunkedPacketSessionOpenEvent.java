@@ -22,23 +22,59 @@ import eu.cloudnetservice.cloudnet.driver.network.chunk.data.ChunkSessionInforma
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Called when a chunked packet transfer to the current network component was requested and is about to start. This
+ * event is used in combination with the {@code EventChunkHandlerFactory} which is calling this event to determine which
+ * handler should be used for the transfer. If no handler gets set by any listener this results in an exception and
+ * prevents the chunk handling transfer from happening. If the event based solution is not used as the factory, this
+ * event will (by default) never get fired.
+ *
+ * @see eu.cloudnetservice.cloudnet.driver.network.chunk.defaults.factory.EventChunkHandlerFactory
+ * @since 4.0
+ */
 public final class ChunkedPacketSessionOpenEvent extends Event {
 
   private final ChunkSessionInformation sessionInformation;
   private volatile ChunkedPacketHandler chunkedPacketHandler;
 
+  /**
+   * Constructs a new chunked packet session open event with the given session information as the reason for it to get
+   * fired.
+   *
+   * @param sessionInformation the chunked transfer session information.
+   * @throws NullPointerException if the given session information is null.
+   */
   public ChunkedPacketSessionOpenEvent(@NonNull ChunkSessionInformation sessionInformation) {
     this.sessionInformation = sessionInformation;
   }
 
+  /**
+   * Get the session information about the chunked transfer that was requested. Further data will only contain some
+   * information to identify itself.
+   *
+   * @return the session information about the chunked transfer that was requested.
+   */
   public @NonNull ChunkSessionInformation session() {
     return this.sessionInformation;
   }
 
+  /**
+   * Get the handler which should be used to open the session. If no handler is defined then the transfer will not
+   * happen and an exception will be thrown to indicate that the handler is missing.
+   *
+   * @return the handler which should be used to open the session.
+   */
   public @Nullable ChunkedPacketHandler handler() {
     return this.chunkedPacketHandler;
   }
 
+  /**
+   * Sets the handler which should be used to open session. Null is an accepted value and will result in the factory to
+   * not be set. If the factory is not set after all listeners were called, the transfer of the chunked data will not
+   * happen and an exception will be thrown to indicate that.
+   *
+   * @param chunkedPacketHandler the handler for the session to use.
+   */
   public void handler(@Nullable ChunkedPacketHandler chunkedPacketHandler) {
     this.chunkedPacketHandler = chunkedPacketHandler;
   }
