@@ -143,8 +143,7 @@ public class CommandExceptionHandler {
       new CommandInvalidSyntaxEvent(
         source,
         exception.getCorrectSyntax(),
-        I18n.trans("command-invalid-syntax")
-          .replace("%syntax%", exception.getCorrectSyntax())
+        I18n.trans("command-invalid-syntax", exception.getCorrectSyntax())
       )
     );
     source.sendMessage(invalidSyntaxEvent.response());
@@ -166,9 +165,7 @@ public class CommandExceptionHandler {
       new CommandNotFoundEvent(
         source,
         exception.getSuppliedCommand(),
-        I18n.trans("command-not-found")
-      )
-    );
+        I18n.trans("command-not-found")));
     source.sendMessage(notFoundEvent.response());
   }
 

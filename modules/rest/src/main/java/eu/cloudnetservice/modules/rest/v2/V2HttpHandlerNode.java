@@ -132,22 +132,19 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
   protected void handleReloadRequest(HttpContext context) {
     var type = RestUtils.first(context.request().queryParameters().get("type"), "all").toLowerCase();
     switch (type) {
-      case "all":
-        //TODO what to reload
-        break;
-      case "config":
-        this.node().config().load();
-        this.node().serviceTaskProvider().reload();
-        this.node().groupConfigurationProvider().reload();
-        this.node().permissionManagement().reload();
-        break;
-      default:
+      case "all" -> {
+        this.reloadConfig();
+        this.node().moduleProvider().reloadAll();
+      }
+      case "config" -> this.reloadConfig();
+      default -> {
         this.badRequest(context)
           .body(this.failure().append("reason", "Invalid reload type").toString())
           .context()
           .closeAfter(true)
           .cancelNext();
         return;
+      }
     }
 
     this.ok(context)
@@ -165,6 +162,13 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
       channel.addListener(handler);
       LogManager.rootLogger().addHandler(handler);
     }
+  }
+
+  protected void reloadConfig() {
+    this.node().config(this.node().config().load());
+    this.node().serviceTaskProvider().reload();
+    this.node().groupConfigurationProvider().reload();
+    this.node().permissionManagement().reload();
   }
 
   protected class WebSocketLogHandler extends AbstractHandler implements WebSocketListener {

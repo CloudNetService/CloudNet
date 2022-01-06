@@ -88,7 +88,7 @@ public final class CommandMigrate {
     try {
       for (var databaseName : sourceDatabaseProvider.databaseNames()) {
         source.sendMessage(
-          I18n.trans("command-migrate-current-database").replace("%db%", databaseName));
+          I18n.trans("command-migrate-current-database", databaseName));
 
         var sourceDatabase = sourceDatabaseProvider.database(databaseName);
         var targetDatabase = targetDatabaseProvider.database(databaseName);
@@ -96,17 +96,16 @@ public final class CommandMigrate {
         sourceDatabase.iterate(targetDatabase::insert, chunkSize);
       }
     } catch (Exception exception) {
-      LOGGER.severe(
-        I18n.trans("command-migrate-database-connection-failed"), exception);
+      LOGGER.severe(I18n.trans("command-migrate-database-connection-failed"), exception);
       return;
     }
 
     this.executeIfNotCurrentProvider(sourceDatabaseProvider, AbstractDatabaseProvider::close);
     this.executeIfNotCurrentProvider(targetDatabaseProvider, AbstractDatabaseProvider::close);
 
-    source.sendMessage(I18n.trans("command-migrate-success")
-      .replace("%source%", sourceDatabaseProvider.name())
-      .replace("%target%", targetDatabaseProvider.name()));
+    source.sendMessage(I18n.trans("command-migrate-success",
+      sourceDatabaseProvider.name(),
+      targetDatabaseProvider.name()));
   }
 
   private boolean executeIfNotCurrentProvider(@NonNull AbstractDatabaseProvider sourceProvider,
@@ -115,8 +114,7 @@ public final class CommandMigrate {
       try {
         handler.accept(sourceProvider);
       } catch (Throwable throwable) {
-        LOGGER.severe(
-          I18n.trans("command-migrate-database-connection-failed"), throwable);
+        LOGGER.severe(I18n.trans("command-migrate-database-connection-failed"), throwable);
         return false;
       }
     }

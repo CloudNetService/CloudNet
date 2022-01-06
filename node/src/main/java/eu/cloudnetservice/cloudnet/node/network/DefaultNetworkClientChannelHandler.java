@@ -53,9 +53,10 @@ public final class DefaultNetworkClientChannelHandler implements NetworkChannelH
           .writeUniqueId(CloudNet.instance().config().clusterConfig().clusterId())
           .writeObject(CloudNet.instance().config().identity())));
 
-      LOGGER.fine(I18n.trans("client-network-channel-init")
-        .replace("%serverAddress%", channel.serverAddress().host() + ":" + channel.serverAddress().port())
-        .replace("%clientAddress%", channel.clientAddress().host() + ":" + channel.clientAddress().port()));
+      LOGGER.fine(
+        I18n.trans("client-network-channel-init",
+          channel.serverAddress().host() + ":" + channel.serverAddress().port(),
+          channel.clientAddress().host() + ":" + channel.clientAddress().port()));
     } else {
       channel.close();
     }
@@ -73,9 +74,10 @@ public final class DefaultNetworkClientChannelHandler implements NetworkChannelH
       new NetworkChannelCloseEvent(channel, ChannelType.CLIENT_CHANNEL));
     CONNECTION_COUNTER.decrementAndGet();
 
-    LOGGER.fine(I18n.trans("client-network-channel-close")
-      .replace("%serverAddress%", channel.serverAddress().host() + ":" + channel.serverAddress().port())
-      .replace("%clientAddress%", channel.clientAddress().host() + ":" + channel.clientAddress().port()));
+    LOGGER.fine(
+      I18n.trans("client-network-channel-close",
+        channel.serverAddress().host() + ":" + channel.serverAddress().port(),
+        channel.clientAddress().host() + ":" + channel.clientAddress().port()));
 
     var clusterNodeServer = CloudNet.instance().nodeServerProvider().nodeServer(channel);
     if (clusterNodeServer != null) {

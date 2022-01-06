@@ -52,10 +52,8 @@ public final class CloudflareStartAndStopListener {
           SRVRecord.forConfiguration(entry, configuration, event.service().serviceConfiguration().port()));
         // publish a message to the node log if the record was created successfully
         if (recordDetail != null) {
-          LOGGER.info(I18n.trans("module-cloudflare-create-dns-record-for-service")
-            .replace("%service%", event.service().serviceId().name())
-            .replace("%domain%", entry.domainName())
-            .replace("%recordId%", recordDetail.id()));
+          LOGGER.info(I18n.trans("module-cloudflare-create-dns-record-for-service", entry.domainName(),
+            event.service().serviceId().name(), recordDetail.id()));
         }
       });
     }
@@ -67,10 +65,8 @@ public final class CloudflareStartAndStopListener {
       this.handleWithConfiguration(event.service(), (entry, configuration) -> {
         // delete all records of the the service
         for (var detail : this.cloudFlareAPI.deleteAllRecords(event.service())) {
-          LOGGER.info(I18n.trans("module-cloudflare-delete-dns-record-for-service")
-            .replace("%service%", event.service().serviceId().name())
-            .replace("%domain%", entry.domainName())
-            .replace("%recordId%", detail.id()));
+          LOGGER.info(I18n.trans("module-cloudflare-delete-dns-record-for-service", entry.domainName(),
+            event.service().serviceId().name(), detail.id()));
         }
       });
     }

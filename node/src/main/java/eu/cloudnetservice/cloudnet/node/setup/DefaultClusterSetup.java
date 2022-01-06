@@ -80,7 +80,7 @@ public class DefaultClusterSetup implements DefaultSetup {
                     .addResultListener((___, nodes) -> animation.addEntriesFirst(nodes.stream()
                       .map(node -> QuestionListEntry.<HostAndPort>builder()
                         .key("nodeHost-" + node)
-                        .question(trans("cloudnet-init-setup-cluster-node-host").replace("%node%", node))
+                        .question(trans("cloudnet-init-setup-cluster-node-host", node))
                         .answerType(QuestionAnswerType.<HostAndPort>builder()
                           .parser(validatedHostAndPort(true))))
                       .map(Builder::build)

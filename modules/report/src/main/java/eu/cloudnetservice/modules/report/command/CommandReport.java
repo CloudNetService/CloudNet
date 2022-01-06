@@ -107,11 +107,9 @@ public final class CommandReport {
 
     var response = pasteCreator.createNodePaste(selfNode);
     if (response == null) {
-      source.sendMessage(I18n.trans("module-report-command-paste-failed")
-        .replace("%url%", pasteService.serviceUrl()));
+      source.sendMessage(I18n.trans("module-report-command-paste-failed", pasteService.serviceUrl()));
     } else {
-      source.sendMessage(I18n.trans("module-report-command-paste-success")
-        .replace("%url%", response));
+      source.sendMessage(I18n.trans("module-report-command-paste-success", response));
     }
   }
 
@@ -126,11 +124,9 @@ public final class CommandReport {
 
     var response = pasteCreator.createServicePaste(service);
     if (response == null) {
-      source.sendMessage(I18n.trans("module-report-command-paste-failed")
-        .replace("%url%", pasteService.serviceUrl()));
+      source.sendMessage(I18n.trans("module-report-command-paste-failed", pasteService.serviceUrl()));
     } else {
-      source.sendMessage(I18n.trans("module-report-command-paste-success")
-        .replace("%url%", response));
+      source.sendMessage(I18n.trans("module-report-command-paste-success", response));
     }
   }
 
@@ -140,7 +136,7 @@ public final class CommandReport {
 
     if (this.createThreadDump(file)) {
       source.sendMessage(
-        I18n.trans("module-report-thread-dump-success").replace("%file%", file.toString()));
+        I18n.trans("module-report-thread-dump-success", file.toString()));
     } else {
       source.sendMessage(I18n.trans("module-report-thread-dump-failed"));
     }
@@ -152,7 +148,7 @@ public final class CommandReport {
 
     if (this.createHeapDump(file, live)) {
       source.sendMessage(
-        I18n.trans("module-report-heap-dump-success").replace("%file%", file.toString()));
+        I18n.trans("module-report-heap-dump-success", file.toString()));
     } else {
       source.sendMessage(I18n.trans("module-report-heap-dump-failed"));
     }

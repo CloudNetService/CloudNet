@@ -126,13 +126,13 @@ public final class CommandPermissions {
 
     this.permissionManagement().addGroup(name, potency);
     source.sendMessage(
-      I18n.trans("command-permissions-create-group-successful").replace("%name%", name));
+      I18n.trans("command-permissions-create-group-successful", name));
   }
 
   @CommandMethod("permissions|perms delete user <name>")
   public void deleteUser(CommandSource source, @Argument("name") PermissionUser user) {
     if (this.permissionManagement().deletePermissionUser(user)) {
-      source.sendMessage(I18n.trans("command-permissions-delete-user-successful").replace("%name%", user.name()));
+      source.sendMessage(I18n.trans("command-permissions-delete-user-successful", user.name()));
     } else {
       source.sendMessage(I18n.trans("command-permissions-user-not-found"));
     }
@@ -141,7 +141,7 @@ public final class CommandPermissions {
   @CommandMethod("permissions|perms delete group <name>")
   public void deleteGroup(CommandSource source, @Argument("name") PermissionGroup group) {
     if (this.permissionManagement().deletePermissionGroup(group)) {
-      source.sendMessage(I18n.trans("command-permissions-delete-group-successful").replace("%name%", group.name()));
+      source.sendMessage(I18n.trans("command-permissions-delete-group-successful", group.name()));
     } else {
       source.sendMessage(I18n.trans("command-permissions-group-not-found"));
     }
@@ -437,8 +437,7 @@ public final class CommandPermissions {
     permissionUserConsumer.accept(permissionUser);
     // update the user
     this.permissionManagement().updateUser(permissionUser);
-    source.sendMessage(
-      I18n.trans("command-permissions-user-update").replace("%name%", permissionUser.name()));
+    source.sendMessage(I18n.trans("command-permissions-user-update", permissionUser.name()));
   }
 
   private PermissionManagement permissionManagement() {

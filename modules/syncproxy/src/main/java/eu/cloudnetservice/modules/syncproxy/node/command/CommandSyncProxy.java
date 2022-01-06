@@ -138,10 +138,9 @@ public final class CommandSyncProxy {
         .addLoginConfiguration(updatedLoginConfiguration)
         .build());
 
-    source.sendMessage(
-      I18n.trans("module-syncproxy-command-set-maxplayers")
-        .replace("%group%", loginConfiguration.targetGroup())
-        .replace("%amount%", Integer.toString(amount)));
+    source.sendMessage(I18n.trans("module-syncproxy-command-set-maxplayers",
+      loginConfiguration.targetGroup(),
+      amount));
   }
 
   @CommandMethod("syncproxy|sp target <targetGroup> whitelist add <name>")
@@ -153,9 +152,9 @@ public final class CommandSyncProxy {
     loginConfiguration.whitelist().add(name);
     this.updateSyncProxyConfiguration();
 
-    source.sendMessage(I18n.trans("module-syncproxy-command-add-whitelist-entry")
-      .replace("%name%", name)
-      .replace("%group%", loginConfiguration.targetGroup()));
+    source.sendMessage(I18n.trans("module-syncproxy-command-add-whitelist-entry",
+      name,
+      loginConfiguration.targetGroup()));
   }
 
   @CommandMethod("syncproxy|sp target <targetGroup> whitelist remove <name>")
@@ -168,9 +167,9 @@ public final class CommandSyncProxy {
       this.updateSyncProxyConfiguration();
     }
 
-    source.sendMessage(I18n.trans("module-syncproxy-command-remove-whitelist-entry")
-      .replace("%name%", name)
-      .replace("%group%", loginConfiguration.targetGroup()));
+    source.sendMessage(I18n.trans("module-syncproxy-command-remove-whitelist-entry",
+      name,
+      loginConfiguration.targetGroup()));
   }
 
   @CommandMethod("syncproxy|sp target <targetGroup> maintenance <enabled>")
@@ -188,9 +187,9 @@ public final class CommandSyncProxy {
         .addLoginConfiguration(updatedLoginConfiguration)
         .build());
 
-    source.sendMessage(I18n.trans("module-syncproxy-command-set-maintenance")
-      .replace("%group%", loginConfiguration.targetGroup())
-      .replace("%maintenance%", Boolean.toString(enabled)));
+    source.sendMessage(I18n.trans("module-syncproxy-command-set-maintenance",
+      loginConfiguration.targetGroup(),
+      enabled));
   }
 
   private void updateSyncProxyConfiguration() {

@@ -202,19 +202,21 @@ public final class CommandTemplate {
       return;
     }
 
+    var fullVersionName = versionType.name() + "-" + serviceVersion.name();
+
     if (!versionType.canInstall(serviceVersion, javaVersion)) {
-      source.sendMessage(I18n.trans("command-template-install-wrong-java")
-        .replace("%version%", versionType.name() + "-" + serviceVersion.name())
-        .replace("%java%", javaVersion.name()));
+      source.sendMessage(I18n.trans("command-template-install-wrong-java",
+        fullVersionName,
+        javaVersion.name()));
       if (!forceInstall) {
         return;
       }
     }
 
     CloudNet.instance().mainThread().runTask(() -> {
-      source.sendMessage(I18n.trans("command-template-install-try")
-        .replace("%version%", versionType.name() + "-" + serviceVersion.name())
-        .replace("%template%", serviceTemplate.toString()));
+      source.sendMessage(I18n.trans("command-template-install-try",
+        fullVersionName,
+        serviceTemplate));
 
       var installInformation = InstallInformation.builder()
         .serviceVersionType(versionType)
@@ -225,13 +227,9 @@ public final class CommandTemplate {
         .build();
 
       if (CloudNet.instance().serviceVersionProvider().installServiceVersion(installInformation, forceInstall)) {
-        source.sendMessage(I18n.trans("command-template-install-success")
-          .replace("%version%", versionType.name() + "-" + serviceVersion.name())
-          .replace("%template%", serviceTemplate.toString()));
+        source.sendMessage(I18n.trans("command-template-install-success", fullVersionName, serviceTemplate));
       } else {
-        source.sendMessage(I18n.trans("command-template-install-failed")
-          .replace("%version%", versionType.name() + "-" + serviceVersion.name())
-          .replace("%template%", serviceTemplate.toString()));
+        source.sendMessage(I18n.trans("command-template-install-failed", fullVersionName, serviceTemplate));
       }
     });
 
@@ -241,9 +239,9 @@ public final class CommandTemplate {
   public void deleteTemplate(CommandSource source, @Argument("template") ServiceTemplate template) {
     var templateStorage = template.storage();
     if (!templateStorage.exists()) {
-      source.sendMessage(I18n.trans("command-template-delete-template-not-found")
-        .replace("%template%", template.fullName())
-        .replace("%storage%", template.storageName()));
+      source.sendMessage(I18n.trans("command-template-delete-template-not-found",
+        template.fullName(),
+        template.storageName()));
       return;
     }
 
@@ -265,14 +263,10 @@ public final class CommandTemplate {
 
     try {
       if (TemplateStorageUtil.createAndPrepareTemplate(template, template.storage(), environmentType)) {
-        source.sendMessage(I18n.trans("command-template-create-success")
-          .replace("%template%", template.fullName())
-          .replace("%storage%", template.storageName()));
+        source.sendMessage(I18n.trans("command-template-create-success", template.fullName(), template.storageName()));
       }
     } catch (IOException exception) {
-      source.sendMessage(I18n.trans("command-template-create-failed")
-        .replace("%template%", template.fullName())
-        .replace("%storage%", template.storageName()));
+      source.sendMessage(I18n.trans("command-template-create-failed", template.fullName(), template.storageName()));
     }
   }
 
@@ -291,9 +285,7 @@ public final class CommandTemplate {
     var targetStorage = targetTemplate.storage();
 
     CloudNet.instance().mainThread().runTask(() -> {
-      source.sendMessage(I18n.trans("command-template-copy")
-        .replace("%sourceTemplate%", sourceTemplate.toString())
-        .replace("%targetTemplate%", targetTemplate.toString()));
+      source.sendMessage(I18n.trans("command-template-copy", sourceTemplate, targetTemplate));
 
       targetStorage.delete();
       targetStorage.create();
@@ -304,9 +296,7 @@ public final class CommandTemplate {
         }
 
         targetStorage.deploy(stream);
-        source.sendMessage(I18n.trans("command-template-copy-success")
-          .replace("%sourceTemplate%", sourceTemplate.toString())
-          .replace("%targetTemplate%", targetTemplate.toString()));
+        source.sendMessage(I18n.trans("command-template-copy-success", sourceTemplate, targetTemplate));
       } catch (IOException exception) {
         source.sendMessage(I18n.trans("command-template-copy-failed"));
       }
