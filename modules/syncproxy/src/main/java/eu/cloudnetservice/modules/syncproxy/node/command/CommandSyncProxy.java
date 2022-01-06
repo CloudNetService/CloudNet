@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.syncproxy.node.command;
 import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.parsers.Parser;
+import cloud.commandframework.annotations.specifier.Liberal;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import eu.cloudnetservice.cloudnet.common.Nameable;
@@ -176,7 +177,7 @@ public final class CommandSyncProxy {
   public void maintenance(
     CommandSource source,
     @Argument("targetGroup") SyncProxyLoginConfiguration loginConfiguration,
-    @Argument("enabled") boolean enabled
+    @Argument("enabled") @Liberal boolean enabled
   ) {
     var updatedLoginConfiguration = SyncProxyLoginConfiguration.builder(loginConfiguration)
       .maintenance(enabled)
