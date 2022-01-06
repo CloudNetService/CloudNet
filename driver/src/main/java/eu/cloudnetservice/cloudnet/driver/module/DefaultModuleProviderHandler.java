@@ -41,11 +41,7 @@ public class DefaultModuleProviderHandler implements ModuleProviderHandler {
 
   @Override
   public boolean handlePreModuleLoad(@NonNull ModuleWrapper moduleWrapper) {
-    var cancelled = this.callEvent(new ModulePreLoadEvent(this.moduleProvider(), moduleWrapper)).cancelled();
-    if (!cancelled) {
-      LOGGER.info(I18n.trans("cloudnet-pre-load-module", this.moduleArguments(moduleWrapper.moduleConfiguration())));
-    }
-    return !cancelled;
+    return !this.callEvent(new ModulePreLoadEvent(this.moduleProvider(), moduleWrapper)).cancelled();
   }
 
   @Override
@@ -58,7 +54,6 @@ public class DefaultModuleProviderHandler implements ModuleProviderHandler {
   public boolean handlePreModuleStart(@NonNull ModuleWrapper moduleWrapper) {
     var cancelled = this.callEvent(new ModulePreStartEvent(this.moduleProvider(), moduleWrapper)).cancelled();
     if (!cancelled) {
-      LOGGER.info(I18n.trans("cloudnet-pre-start-module", this.moduleArguments(moduleWrapper.moduleConfiguration())));
       CloudNetDriver.instance().eventManager().registerListener(moduleWrapper.module());
     }
     return !cancelled;
@@ -72,11 +67,7 @@ public class DefaultModuleProviderHandler implements ModuleProviderHandler {
 
   @Override
   public boolean handlePreModuleReload(@NonNull ModuleWrapper moduleWrapper) {
-    var cancelled = this.callEvent(new ModulePreReloadEvent(this.moduleProvider(), moduleWrapper)).cancelled();
-    if (!cancelled) {
-      LOGGER.info(I18n.trans("cloudnet-pre-reload-module", this.moduleArguments(moduleWrapper.moduleConfiguration())));
-    }
-    return !cancelled;
+    return !this.callEvent(new ModulePreReloadEvent(this.moduleProvider(), moduleWrapper)).cancelled();
   }
 
   @Override
@@ -88,11 +79,7 @@ public class DefaultModuleProviderHandler implements ModuleProviderHandler {
 
   @Override
   public boolean handlePreModuleStop(@NonNull ModuleWrapper moduleWrapper) {
-    var cancelled = this.callEvent(new ModulePreStopEvent(this.moduleProvider(), moduleWrapper)).cancelled();
-    if (!cancelled) {
-      LOGGER.info(I18n.trans("cloudnet-pre-stop-module", this.moduleArguments(moduleWrapper.moduleConfiguration())));
-    }
-    return !cancelled;
+    return !this.callEvent(new ModulePreStopEvent(this.moduleProvider(), moduleWrapper)).cancelled();
   }
 
   @Override
@@ -107,7 +94,6 @@ public class DefaultModuleProviderHandler implements ModuleProviderHandler {
   @Override
   public void handlePreModuleUnload(@NonNull ModuleWrapper moduleWrapper) {
     this.callEvent(new ModulePreUnloadEvent(this.moduleProvider(), moduleWrapper));
-    LOGGER.info(I18n.trans("cloudnet-pre-unload-module", this.moduleArguments(moduleWrapper.moduleConfiguration())));
   }
 
   @Override
@@ -122,11 +108,6 @@ public class DefaultModuleProviderHandler implements ModuleProviderHandler {
     @NonNull ModuleDependency dependency
   ) {
     this.callEvent(new ModulePreInstallDependencyEvent(this.moduleProvider(), configuration, dependency));
-    LOGGER.fine(I18n.trans("cloudnet-pre-install-dependency-module",
-      this.moduleArguments(configuration),
-      dependency.group(),
-      dependency.name(),
-      dependency.version()));
   }
 
   @Override
