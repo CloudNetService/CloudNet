@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.event.events.chunk;
 
-import eu.cloudnetservice.cloudnet.driver.event.Event;
+import eu.cloudnetservice.cloudnet.driver.event.events.DriverEvent;
 import eu.cloudnetservice.cloudnet.driver.network.chunk.ChunkedPacketHandler;
 import eu.cloudnetservice.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
 import lombok.NonNull;
@@ -32,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
  * @see eu.cloudnetservice.cloudnet.driver.network.chunk.defaults.factory.EventChunkHandlerFactory
  * @since 4.0
  */
-public final class ChunkedPacketSessionOpenEvent extends Event {
+public final class ChunkedPacketSessionOpenEvent extends DriverEvent {
 
   private final ChunkSessionInformation sessionInformation;
   private volatile ChunkedPacketHandler chunkedPacketHandler;

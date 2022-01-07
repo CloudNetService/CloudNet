@@ -23,20 +23,25 @@ import lombok.NonNull;
 
 /**
  * This event gets called after a dependency for a module has been loaded.
+ *
+ * @since 4.0
  */
 public final class ModulePostInstallDependencyEvent extends UnloadedModuleEvent {
 
   private final ModuleDependency moduleDependency;
 
   /**
-   * {@inheritDoc}
+   * Creates a new module installed dependency (post) event.
    *
-   * @param dependency the dependency which got loaded.
+   * @param provider      the module provider by which the module got loaded.
+   * @param configuration the configuration of the module which got loaded as there is no instance yet created.
+   * @param dependency    the dependency which got loaded.
+   * @throws NullPointerException if the given provider, configuration or dependency is null.
    */
   public ModulePostInstallDependencyEvent(
-    ModuleProvider provider,
-    ModuleConfiguration configuration,
-    ModuleDependency dependency
+    @NonNull ModuleProvider provider,
+    @NonNull ModuleConfiguration configuration,
+    @NonNull ModuleDependency dependency
   ) {
     super(provider, configuration);
     this.moduleDependency = dependency;

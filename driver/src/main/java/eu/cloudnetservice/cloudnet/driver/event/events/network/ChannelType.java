@@ -16,9 +16,21 @@
 
 package eu.cloudnetservice.cloudnet.driver.event.events.network;
 
+/**
+ * Represents a type of channel. A client channel is a channel which connects from or to a client. For instance, all
+ * channels opened by a wrapper are client channels. On the other hand, a server channel represents a channel to a
+ * network server. All wrapper connections to the server are handled as server channels.
+ *
+ * @since 4.0
+ */
 public enum ChannelType {
 
+  /**
+   * A channel which connects from or to a client.
+   */
   CLIENT_CHANNEL,
+  /**
+   * All channels which are connecting to a server.
+   */
   SERVER_CHANNEL
-
 }

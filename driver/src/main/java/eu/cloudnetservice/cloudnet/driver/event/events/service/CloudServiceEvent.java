@@ -20,14 +20,31 @@ import eu.cloudnetservice.cloudnet.driver.event.events.DriverEvent;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import lombok.NonNull;
 
+/**
+ * Represents an event which is related to services running within the cluster. More specific events are only available
+ * on a per-node basis.
+ *
+ * @since 4.0
+ */
 public abstract class CloudServiceEvent extends DriverEvent {
 
   protected final ServiceInfoSnapshot serviceInfo;
 
+  /**
+   * Constructs a new cloud service event.
+   *
+   * @param serviceInfo the service info associated with this event.
+   * @throws NullPointerException if the given service info is null.
+   */
   public CloudServiceEvent(@NonNull ServiceInfoSnapshot serviceInfo) {
     this.serviceInfo = serviceInfo;
   }
 
+  /**
+   * Get the service info which is associated with this event.
+   *
+   * @return the service info which is associated with this event.
+   */
   public @NonNull ServiceInfoSnapshot serviceInfo() {
     return this.serviceInfo;
   }

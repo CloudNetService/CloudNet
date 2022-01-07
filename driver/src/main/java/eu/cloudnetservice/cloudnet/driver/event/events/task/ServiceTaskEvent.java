@@ -14,37 +14,37 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.driver.event.events.network;
+package eu.cloudnetservice.cloudnet.driver.event.events.task;
 
 import eu.cloudnetservice.cloudnet.driver.event.events.DriverEvent;
-import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
+import eu.cloudnetservice.cloudnet.driver.service.ServiceTask;
 import lombok.NonNull;
 
 /**
- * Represents any event which is related to any network channel connected to the current network component.
+ * Represents an event which is related to service tasks in any way.
  *
  * @since 4.0
  */
-public abstract class NetworkEvent extends DriverEvent {
+public abstract class ServiceTaskEvent extends DriverEvent {
 
-  private final NetworkChannel channel;
+  private final ServiceTask task;
 
   /**
-   * Creates a new instance of this network event.
+   * Constructs a new service task event.
    *
-   * @param channel the channel which is associated with this event.
-   * @throws NullPointerException if the given channel is null.
+   * @param task the task associated with this event.
+   * @throws NullPointerException if the given task is null.
    */
-  public NetworkEvent(@NonNull NetworkChannel channel) {
-    this.channel = channel;
+  public ServiceTaskEvent(@NonNull ServiceTask task) {
+    this.task = task;
   }
 
   /**
-   * Get the channel which is associated with this event.
+   * Get the task which is associated with this event.
    *
-   * @return the channel.
+   * @return the task which is associated with this event.
    */
-  public @NonNull NetworkChannel networkChannel() {
-    return this.channel;
+  public @NonNull ServiceTask task() {
+    return this.task;
   }
 }

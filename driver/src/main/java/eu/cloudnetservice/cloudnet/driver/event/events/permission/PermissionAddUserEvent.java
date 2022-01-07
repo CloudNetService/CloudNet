@@ -20,8 +20,20 @@ import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionUser;
 import lombok.NonNull;
 
+/**
+ * An event being called when a permission user gets added.
+ *
+ * @since 4.0
+ */
 public final class PermissionAddUserEvent extends PermissionUserEvent {
 
+  /**
+   * Constructs a new permission add user event.
+   *
+   * @param permissionManagement the permission management associated with this event.
+   * @param permissionUser       the permission user associated with this event.
+   * @throws NullPointerException if the permission management or user is null.
+   */
   public PermissionAddUserEvent(
     @NonNull PermissionManagement permissionManagement,
     @NonNull PermissionUser permissionUser

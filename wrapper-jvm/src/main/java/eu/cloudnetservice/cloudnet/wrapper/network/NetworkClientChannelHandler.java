@@ -33,7 +33,7 @@ public class NetworkClientChannelHandler implements NetworkChannelHandler {
 
   @Override
   public void handleChannelInitialize(@NonNull NetworkChannel channel) {
-    var networkChannelInitEvent = new NetworkChannelInitEvent(channel, ChannelType.SERVER_CHANNEL);
+    var networkChannelInitEvent = new NetworkChannelInitEvent(channel, ChannelType.CLIENT_CHANNEL);
     CloudNetDriver.instance().eventManager().callEvent(networkChannelInitEvent);
 
     if (networkChannelInitEvent.cancelled()) {

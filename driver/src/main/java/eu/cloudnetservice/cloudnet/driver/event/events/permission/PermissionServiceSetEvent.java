@@ -16,19 +16,24 @@
 
 package eu.cloudnetservice.cloudnet.driver.event.events.permission;
 
-import eu.cloudnetservice.cloudnet.driver.event.events.DriverEvent;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
 import lombok.NonNull;
 
-public final class PermissionServiceSetEvent extends DriverEvent {
+/**
+ * An event being called when the permission management gets updated or initially set.
+ *
+ * @see eu.cloudnetservice.cloudnet.driver.CloudNetDriver#permissionManagement(PermissionManagement)
+ * @since 4.0
+ */
+public final class PermissionServiceSetEvent extends PermissionEvent {
 
-  private final PermissionManagement permissionManagement;
-
+  /**
+   * Constructs a new permission service set event.
+   *
+   * @param permissionManagement the permission management associated with this event.
+   * @throws NullPointerException if the permission management is null.
+   */
   public PermissionServiceSetEvent(@NonNull PermissionManagement permissionManagement) {
-    this.permissionManagement = permissionManagement;
-  }
-
-  public @NonNull PermissionManagement permissionManagement() {
-    return this.permissionManagement;
+    super(permissionManagement);
   }
 }

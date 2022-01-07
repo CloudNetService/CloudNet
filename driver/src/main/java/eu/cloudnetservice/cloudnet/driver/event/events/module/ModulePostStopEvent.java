@@ -25,9 +25,18 @@ import lombok.NonNull;
  * This event is being called after a module has been stopped and the tasks with the lifecycle {@link
  * ModuleLifeCycle#STOPPED} of this module have been fired. {@link ModuleWrapper#moduleLifeCycle()} is still {@link
  * ModuleLifeCycle#STARTED} or {@link ModuleLifeCycle#LOADED}.
+ *
+ * @since 4.0
  */
 public final class ModulePostStopEvent extends ModuleEvent {
 
+  /**
+   * Constructs a new module post stop event.
+   *
+   * @param moduleProvider the provider in which the module is loaded.
+   * @param module         the module which is associated with this event.
+   * @throws NullPointerException if either the provider or wrapper is null.
+   */
   public ModulePostStopEvent(@NonNull ModuleProvider moduleProvider, @NonNull ModuleWrapper module) {
     super(moduleProvider, module);
   }

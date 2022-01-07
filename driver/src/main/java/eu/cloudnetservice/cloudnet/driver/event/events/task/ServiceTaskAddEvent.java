@@ -16,19 +16,25 @@
 
 package eu.cloudnetservice.cloudnet.driver.event.events.task;
 
-import eu.cloudnetservice.cloudnet.driver.event.Event;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTask;
 import lombok.NonNull;
 
-public final class ServiceTaskAddEvent extends Event {
+/**
+ * An event being called when a service task gets added or updated. This is due to the fact that adding or updating
+ * makes no difference for the cloudnet internal handling so there is no reason to split the same behaviour into two
+ * events.
+ *
+ * @since 4.0
+ */
+public final class ServiceTaskAddEvent extends ServiceTaskEvent {
 
-  private final ServiceTask task;
-
+  /**
+   * Constructs a new service task add event.
+   *
+   * @param task the task associated with this event.
+   * @throws NullPointerException if the given task is null.
+   */
   public ServiceTaskAddEvent(@NonNull ServiceTask task) {
-    this.task = task;
-  }
-
-  public @NonNull ServiceTask task() {
-    return this.task;
+    super(task);
   }
 }

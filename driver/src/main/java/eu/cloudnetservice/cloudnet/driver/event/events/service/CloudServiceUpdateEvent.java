@@ -20,10 +20,27 @@ import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import lombok.NonNull;
 
 /**
- * This event will be called when any service is updated.
+ * An event being fired when a service updates its information. Normally an update is triggered by one of:
+ * <ol>
+ *   <li>a specific call to the wrapper api by a plugin.
+ *   <li>a state change of the service, for example from running to deleted.
+ *   <li>a change happening on the service, for example a player join or leave.
+ * </ol>
+ * <p>
+ * This event contains the service info after the update of it. To save resources (and as there is no need internally
+ * for it) the old service info will not be available in this event and must rather be read from another cache (for
+ * example an own one).
+ *
+ * @since 4.0
  */
 public final class CloudServiceUpdateEvent extends CloudServiceEvent {
 
+  /**
+   * Constructs a new cloud service update event.
+   *
+   * @param serviceInfo the service info associated with this event.
+   * @throws NullPointerException if the given service info is null.
+   */
   public CloudServiceUpdateEvent(@NonNull ServiceInfoSnapshot serviceInfo) {
     super(serviceInfo);
   }
