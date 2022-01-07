@@ -24,6 +24,7 @@ import eu.cloudnetservice.cloudnet.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import java.util.function.Supplier;
 import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class RemoteCloudServiceFactory implements CloudServiceFactory {
@@ -41,7 +42,7 @@ public class RemoteCloudServiceFactory implements CloudServiceFactory {
   }
 
   @Override
-  public @Nullable ServiceInfoSnapshot createCloudService(ServiceConfiguration config) {
+  public @Nullable ServiceInfoSnapshot createCloudService(@NotNull ServiceConfiguration config) {
     return this.rpcSender.invokeMethod("createCloudService", config).fireSync(this.channelSupplier.get());
   }
 }

@@ -1,0 +1,4 @@
+commit_message: '[ci skip]'
+files:
+  - source: /node/src/main/resources/lang/*.properties
+    translation: /node/src/main/resources/lang/%locale_with_underscore%.properties

@@ -177,7 +177,7 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
    * @return the channel message builder for further configuration.
    */
   @Override
-  protected ChannelMessage.Builder channelMessage(@NonNull String message) {
+  protected @NonNull ChannelMessage.Builder channelMessage(@NonNull String message) {
     return super.channelMessage(message)
       .target(ChannelMessageTarget.Type.NODE, Wrapper.instance().nodeUniqueId());
   }

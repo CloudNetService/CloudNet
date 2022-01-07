@@ -39,24 +39,21 @@ public class CommandNotFoundEvent extends Event {
   /**
    * @return the command source that executed the command.
    */
-  @NonNull
-  public CommandSource commandSource() {
+  public @NonNull CommandSource commandSource() {
     return this.commandSource;
   }
 
   /**
    * @return the executed commandline.
    */
-  @NonNull
-  public String commandLine() {
+  public @NonNull String commandLine() {
     return this.commandLine;
   }
 
   /**
    * @return the translated invalid syntax message that is the user will receive
    */
-  @NonNull
-  public String response() {
+  public @NonNull String response() {
     return this.response;
   }
 

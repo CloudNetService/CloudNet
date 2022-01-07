@@ -29,6 +29,7 @@ import eu.cloudnetservice.cloudnet.node.template.install.ServiceVersionType;
 import eu.cloudnetservice.modules.rest.RestUtils;
 import java.io.IOException;
 import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class V2HttpHandlerTemplate extends V2HttpHandler {
@@ -38,7 +39,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(String path, HttpContext context, HttpSession session) {
+  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession session) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.contains("/file/")) {
         if (path.contains("/download")) {

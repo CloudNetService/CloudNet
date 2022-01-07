@@ -260,8 +260,7 @@ public final class CommandCluster {
     @Argument("enabled") boolean enabled
   ) {
     nodeServer.drain(enabled);
-    source.sendMessage(I18n.trans("command-cluster-node-set-drain")
-      .replace("%value%", String.valueOf(enabled).replace("%node%", nodeServer.nodeInfo().uniqueId())));
+    source.sendMessage(I18n.trans("command-cluster-node-set-drain", enabled, nodeServer.nodeInfo().uniqueId()));
   }
 
   @CommandMethod("cluster|clu sync")
@@ -331,7 +330,7 @@ public final class CommandCluster {
     var templateName = template.toString();
     try {
       source.sendMessage(
-        I18n.trans("command-cluster-push-template-compress").replace("%template%", templateName));
+        I18n.trans("command-cluster-push-template-compress", templateName));
       // compress the template and create an InputStream
       var inputStream = template.storage().zipTemplate();
       // check if the template really exists in the given storage
@@ -341,16 +340,14 @@ public final class CommandCluster {
           .onComplete(transferStatus -> {
             if (transferStatus == TransferStatus.FAILURE) {
               // the transfer failed
-              source.sendMessage(
-                I18n.trans("command-cluster-push-template-failed").replace("%template%", templateName));
+              source.sendMessage(I18n.trans("command-cluster-push-template-failed", templateName));
             } else {
               // the transfer was successful
-              source.sendMessage(
-                I18n.trans("command-cluster-push-template-success").replace("%template%", templateName));
+              source.sendMessage(I18n.trans("command-cluster-push-template-success", templateName));
             }
           });
       } else {
-        source.sendMessage(I18n.trans("command-template-not-found").replace("%template%", templateName));
+        source.sendMessage(I18n.trans("command-template-not-found", templateName));
       }
     } catch (IOException exception) {
       LOGGER.severe("An exception occurred while compressing template %s", exception, templateName);

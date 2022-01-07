@@ -140,8 +140,7 @@ public interface GeneralCloudServiceProvider {
    * @param name the name of the service
    * @return the info of the service or {@code null} if the service doesn't exist
    */
-  @Nullable
-  ServiceInfoSnapshot serviceByName(@NonNull String name);
+  @Nullable ServiceInfoSnapshot serviceByName(@NonNull String name);
 
   /**
    * Gets the info of a cloud service by its uniqueId
@@ -149,8 +148,7 @@ public interface GeneralCloudServiceProvider {
    * @param uniqueId the uniqueId of the service
    * @return the info of the service or {@code null} if the service doesn't exist
    */
-  @Nullable
-  ServiceInfoSnapshot service(@NonNull UUID uniqueId);
+  @Nullable ServiceInfoSnapshot service(@NonNull UUID uniqueId);
 
   default @NonNull Task<SpecificCloudServiceProvider> specificProviderAsync(@NonNull UUID serviceUniqueId) {
     return CompletableTask.supply(() -> this.specificProvider(serviceUniqueId));
@@ -165,8 +163,7 @@ public interface GeneralCloudServiceProvider {
    *
    * @return a list containing the uniqueIds of every service in the whole cloud
    */
-  @NonNull
-  default Task<Collection<UUID>> servicesAsUniqueIdAsync() {
+  default @NonNull Task<Collection<UUID>> servicesAsUniqueIdAsync() {
     return CompletableTask.supply(this::servicesAsUniqueId);
   }
 
@@ -175,8 +172,7 @@ public interface GeneralCloudServiceProvider {
    *
    * @return a list containing the infos of every service in the whole cloud
    */
-  @NonNull
-  default Task<Collection<ServiceInfoSnapshot>> servicesAsync() {
+  default @NonNull Task<Collection<ServiceInfoSnapshot>> servicesAsync() {
     return CompletableTask.supply(this::services);
   }
 
@@ -185,8 +181,7 @@ public interface GeneralCloudServiceProvider {
    *
    * @return a list containing the infos of every started service in the whole cloud
    */
-  @NonNull
-  default Task<Collection<ServiceInfoSnapshot>> runningServicesAsync() {
+  default @NonNull Task<Collection<ServiceInfoSnapshot>> runningServicesAsync() {
     return CompletableTask.supply(this::runningServices);
   }
 
@@ -196,20 +191,20 @@ public interface GeneralCloudServiceProvider {
    * @param taskName the name of the task every service in the list should have
    * @return a list containing the infos of every service with the given task in the whole cloud
    */
-  @NonNull
-  default Task<Collection<ServiceInfoSnapshot>> servicesByTaskAsync(@NonNull String taskName) {
+  default @NonNull Task<Collection<ServiceInfoSnapshot>> servicesByTaskAsync(@NonNull String taskName) {
     return CompletableTask.supply(() -> this.servicesByTask(taskName));
   }
 
   /**
    * Gets a list with the infos of all services in the cloud that have the given environment
    *
-   * @param e the environment every service in the list should have
+   * @param environmentType the environment every service in the list should have
    * @return a list containing the infos of every service with the given environment in the whole cloud
    */
-  @NonNull
-  default Task<Collection<ServiceInfoSnapshot>> servicesByEnvironmentAsync(@NonNull ServiceEnvironmentType e) {
-    return CompletableTask.supply(() -> this.servicesByEnvironment(e));
+  default @NonNull Task<Collection<ServiceInfoSnapshot>> servicesByEnvironmentAsync(
+    @NonNull ServiceEnvironmentType environmentType
+  ) {
+    return CompletableTask.supply(() -> this.servicesByEnvironment(environmentType));
   }
 
   /**
@@ -218,8 +213,7 @@ public interface GeneralCloudServiceProvider {
    * @param group the name of the task every service in the list should have
    * @return a list containing the infos of every service with the given group in the whole cloud
    */
-  @NonNull
-  default Task<Collection<ServiceInfoSnapshot>> servicesByGroupAsync(@NonNull String group) {
+  default @NonNull Task<Collection<ServiceInfoSnapshot>> servicesByGroupAsync(@NonNull String group) {
     return CompletableTask.supply(() -> this.servicesByGroup(group));
   }
 
@@ -228,8 +222,7 @@ public interface GeneralCloudServiceProvider {
    *
    * @return an integer for the amount of services in the whole cloud
    */
-  @NonNull
-  default Task<Integer> serviceCountAsync() {
+  default @NonNull Task<Integer> serviceCountAsync() {
     return CompletableTask.supply(this::serviceCount);
   }
 
@@ -239,8 +232,7 @@ public interface GeneralCloudServiceProvider {
    * @param group the group every service counting should have
    * @return an integer for the amount of services in the whole cloud
    */
-  @NonNull
-  default Task<Integer> serviceCountByGroupAsync(@NonNull String group) {
+  default @NonNull Task<Integer> serviceCountByGroupAsync(@NonNull String group) {
     return CompletableTask.supply(() -> this.serviceCountByGroup(group));
   }
 
@@ -250,8 +242,7 @@ public interface GeneralCloudServiceProvider {
    * @param taskName the task every service counting should have
    * @return an integer for the amount of services in the whole cloud
    */
-  @NonNull
-  default Task<Integer> serviceCountByTaskAsync(@NonNull String taskName) {
+  default @NonNull Task<Integer> serviceCountByTaskAsync(@NonNull String taskName) {
     return CompletableTask.supply(() -> this.serviceCountByTask(taskName));
   }
 
@@ -261,8 +252,7 @@ public interface GeneralCloudServiceProvider {
    * @param name the name of the service
    * @return the info of the service or {@code null} if the service doesn't exist
    */
-  @NonNull
-  default Task<ServiceInfoSnapshot> serviceByNameAsync(@NonNull String name) {
+  default @NonNull Task<ServiceInfoSnapshot> serviceByNameAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.serviceByName(name));
   }
 
@@ -272,8 +262,7 @@ public interface GeneralCloudServiceProvider {
    * @param uniqueId the uniqueId of the service
    * @return the info of the service or {@code null} if the service doesn't exist
    */
-  @NonNull
-  default Task<ServiceInfoSnapshot> serviceAsync(@NonNull UUID uniqueId) {
+  default @NonNull Task<ServiceInfoSnapshot> serviceAsync(@NonNull UUID uniqueId) {
     return CompletableTask.supply(() -> this.service(uniqueId));
   }
 }

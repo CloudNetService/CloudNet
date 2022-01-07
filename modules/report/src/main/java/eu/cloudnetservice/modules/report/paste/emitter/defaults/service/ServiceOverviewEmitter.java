@@ -19,11 +19,12 @@ package eu.cloudnetservice.modules.report.paste.emitter.defaults.service;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.service.CloudService;
 import eu.cloudnetservice.modules.report.paste.emitter.ReportDataEmitter;
+import org.jetbrains.annotations.NotNull;
 
 public class ServiceOverviewEmitter implements ReportDataEmitter<CloudService> {
 
   @Override
-  public void emitData(StringBuilder builder, CloudService service) {
+  public void emitData(@NotNull StringBuilder builder, @NotNull CloudService service) {
     var services = CloudNet.instance().cloudServiceProvider().services();
     builder.append(" - Other Services - \n");
     builder.append("Total services: ").append(services.size()).append("\n");

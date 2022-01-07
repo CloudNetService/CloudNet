@@ -24,11 +24,6 @@ import lombok.NonNull;
 
 public record NetworkServiceInfo(@NonNull Set<String> groups, @NonNull ServiceId serviceId) {
 
-  public NetworkServiceInfo(@NonNull Set<String> groups, @NonNull ServiceId serviceId) {
-    this.groups = groups;
-    this.serviceId = serviceId;
-  }
-
   public @NonNull ServiceEnvironmentType environment() {
     return this.serviceId.environment();
   }

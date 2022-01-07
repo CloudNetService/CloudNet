@@ -71,6 +71,7 @@ public class DriverCommandSource implements CommandSource {
   /**
    * @param permission the permission to check for
    * @return always {@code true} as the driver is allowed to execute every command
+   * @throws NullPointerException if permission is null.
    */
   @Override
   public boolean checkPermission(@NonNull String permission) {
@@ -80,8 +81,7 @@ public class DriverCommandSource implements CommandSource {
   /**
    * @return all captured messages for the driver
    */
-  @NonNull
-  public Collection<String> messages() {
+  public @NonNull Collection<String> messages() {
     return this.messages;
   }
 }

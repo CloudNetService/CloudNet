@@ -52,32 +52,32 @@ public record LabyModEmoteConfiguration(
 
     private boolean syncEmotesBetweenNPCs = false;
 
-    public Builder emoteIds(int[] emoteIds) {
+    public @NonNull Builder emoteIds(int[] emoteIds) {
       this.emoteIds = emoteIds;
       return this;
     }
 
-    public Builder onJoinEmoteIds(int[] onJoinEmoteIds) {
+    public @NonNull Builder onJoinEmoteIds(int[] onJoinEmoteIds) {
       this.onJoinEmoteIds = onJoinEmoteIds;
       return this;
     }
 
-    public Builder onKnockbackEmoteIds(int[] onKnockbackEmoteIds) {
+    public @NonNull Builder onKnockbackEmoteIds(int[] onKnockbackEmoteIds) {
       this.onKnockbackEmoteIds = onKnockbackEmoteIds;
       return this;
     }
 
-    public Builder minEmoteDelayTicks(long minEmoteDelayTicks) {
+    public @NonNull Builder minEmoteDelayTicks(long minEmoteDelayTicks) {
       this.minEmoteDelayTicks = minEmoteDelayTicks;
       return this;
     }
 
-    public Builder maxEmoteDelayTicks(long maxEmoteDelayTicks) {
+    public @NonNull Builder maxEmoteDelayTicks(long maxEmoteDelayTicks) {
       this.maxEmoteDelayTicks = maxEmoteDelayTicks;
       return this;
     }
 
-    public Builder syncEmotesBetweenNPCs(boolean syncEmotesBetweenNPCs) {
+    public @NonNull Builder syncEmotesBetweenNPCs(boolean syncEmotesBetweenNPCs) {
       this.syncEmotesBetweenNPCs = syncEmotesBetweenNPCs;
       return this;
     }

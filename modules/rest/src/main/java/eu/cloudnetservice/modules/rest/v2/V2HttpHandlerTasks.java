@@ -23,6 +23,7 @@ import eu.cloudnetservice.cloudnet.driver.service.ServiceTask;
 import eu.cloudnetservice.cloudnet.node.http.HttpSession;
 import eu.cloudnetservice.cloudnet.node.http.V2HttpHandler;
 import java.util.function.Consumer;
+import org.jetbrains.annotations.NotNull;
 
 public class V2HttpHandlerTasks extends V2HttpHandler {
 
@@ -31,7 +32,7 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(String path, HttpContext context, HttpSession session) {
+  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession session) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.endsWith("/task")) {
         this.handleTaskListRequest(context);

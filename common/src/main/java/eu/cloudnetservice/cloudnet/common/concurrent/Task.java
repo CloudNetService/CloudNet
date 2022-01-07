@@ -45,8 +45,7 @@ public interface Task<V> extends Future<V> {
 
   @NonNull <T> Task<T> map(@NonNull ThrowableFunction<V, T, Throwable> mapper);
 
-  @NonNull
-  default Task<V> onComplete(@NonNull Consumer<V> consumer) {
+  default @NonNull Task<V> onComplete(@NonNull Consumer<V> consumer) {
     return this.addListener(new TaskListener<>() {
       @Override
       public void onComplete(@NonNull Task<V> task, @Nullable V v) {

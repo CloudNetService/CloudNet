@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.common.language;
 
+import com.google.common.collect.ImmutableMap;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
 import java.io.BufferedReader;
@@ -26,10 +27,12 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.MessageFormat;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 import lombok.NonNull;
 
 /**
@@ -39,10 +42,12 @@ import lombok.NonNull;
 public final class I18n {
 
   private static final Logger LOGGER = LogManager.logger(I18n.class);
-  private static final Map<String, Properties> LANGUAGE_CACHE = new ConcurrentHashMap<>();
+  private static final Map<String, Map<String, MessageFormat>> LANGUAGE_CACHE = new ConcurrentHashMap<>();
+  // https://regex101.com/r/syFEig/1
+  private static final Pattern MESSAGE_FORMAT = Pattern.compile("\\{(.+?)\\$.+?\\$}");
 
   /**
-   * The current language, which the getMessage() method will the message return
+   * The current language, which the trans() method will the message return
    */
   private static volatile String language;
 
@@ -76,28 +81,39 @@ public final class I18n {
    * @return the message which is defined in language cache or a fallback message like {@code "<language LANGUAGE not
    * found>"} or {@code "<message property not found in LANGUAGE>"}
    */
-  public static String trans(@NonNull String messageKey) {
+  public static String trans(@NonNull String messageKey, @NonNull Object... args) {
     if (language == null || !LANGUAGE_CACHE.containsKey(language)) {
       return "<language " + language + " not found>";
     }
-
-    return LANGUAGE_CACHE.get(language)
-      .getProperty(messageKey, "<message " + messageKey + " not found in language " + language + ">");
+    var message = LANGUAGE_CACHE.get(language)
+      .get(messageKey);
+    // check if we know this key
+    if (message == null) {
+      return "<message " + messageKey + " not found in language " + language + ">";
+    }
+    // apply the args to the message
+    return message.format(args);
   }
 
   /**
-   * Add a new language properties, which can resolve with getMessage() in the configured language.
+   * Add a new language properties, which can resolve with trans() in the configured language.
    *
    * @param language   the language, which should append
    * @param properties the properties which will add in the language as parameter
    */
   public static void addLanguageFile(@NonNull String language, @NonNull Properties properties) {
-    LANGUAGE_CACHE.computeIfAbsent(language, $ -> new Properties()).putAll(properties);
+    var format = ImmutableMap.<String, MessageFormat>builder();
+    for (var key : properties.stringPropertyNames()) {
+      var property = properties.getProperty(key);
+      // store the key & the new MessageFormat for the property
+      format.put(key, new MessageFormat(MESSAGE_FORMAT.matcher(property).replaceAll("{$1}")));
+    }
+    LANGUAGE_CACHE.put(language, format.build());
     LOGGER.fine("Registering language file %s with %d translations", null, language, properties.size());
   }
 
   /**
-   * Add a new language properties, which can resolve with getMessage() in the configured language.
+   * Add a new language properties, which can resolve with trans() in the configured language.
    *
    * @param language the language, which should append
    * @param file     the properties which will add in the language as parameter
@@ -111,13 +127,13 @@ public final class I18n {
   }
 
   /**
-   * Add a new language properties, which can resolve with getMessage() in the configured language.
+   * Add a new language properties, which can resolve with trans() in the configured language.
    *
    * @param language    the language, which should append
    * @param inputStream the properties which will add in the language as parameter
    */
   public static void addLanguageFile(@NonNull String language, @NonNull InputStream inputStream) {
-    try (Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
+    try (var reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
       addLanguageFile(language, reader);
     } catch (IOException exception) {
       LOGGER.severe("Exception while reading language file", exception);
@@ -125,7 +141,7 @@ public final class I18n {
   }
 
   /**
-   * Add a new language properties, which can resolve with getMessage() in the configured language.
+   * Add a new language properties, which can resolve with trans() in the configured language.
    *
    * @param language the language, which should append
    * @param reader   the properties which will be added in the language as parameter

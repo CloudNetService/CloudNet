@@ -118,8 +118,7 @@ public interface PlayerManager {
    * @return the registered player if there is at least one player with the given name registered or null if there is no
    * player with that name registered
    */
-  @Nullable
-  default CloudOfflinePlayer firstOfflinePlayer(@NonNull String name) {
+  default @Nullable CloudOfflinePlayer firstOfflinePlayer(@NonNull String name) {
     var players = this.offlinePlayers(name);
     return players.isEmpty() ? null : players.get(0);
   }
@@ -130,8 +129,7 @@ public interface PlayerManager {
    * @param name the name of the player(s)
    * @return a list containing all players registered in the cloud with the given name
    */
-  @NonNull
-  List<? extends CloudOfflinePlayer> offlinePlayers(@NonNull String name);
+  @NonNull List<? extends CloudOfflinePlayer> offlinePlayers(@NonNull String name);
 
   /**
    * Gets a list of all registered players in the network.
@@ -203,8 +201,7 @@ public interface PlayerManager {
    * @return the online player if there is at least one player with the given name online or null if there is no player
    * with that name online
    */
-  @NonNull
-  default Task<CloudPlayer> firstOnlinePlayerAsync(@NonNull String name) {
+  default @NonNull Task<CloudPlayer> firstOnlinePlayerAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.firstOnlinePlayer(name));
   }
 

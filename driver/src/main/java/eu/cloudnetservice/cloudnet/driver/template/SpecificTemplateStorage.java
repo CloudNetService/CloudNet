@@ -38,8 +38,7 @@ public interface SpecificTemplateStorage extends Nameable {
    * @return a new instance of the {@link SpecificTemplateStorage}
    * @throws IllegalArgumentException if the storage of the given template doesn't exist
    */
-  @NonNull
-  static SpecificTemplateStorage of(@NonNull ServiceTemplate template) {
+  static @NonNull SpecificTemplateStorage of(@NonNull ServiceTemplate template) {
     return DefaultSpecificTemplateStorage.of(template);
   }
 
@@ -51,22 +50,19 @@ public interface SpecificTemplateStorage extends Nameable {
    * @return a new instance of the {@link SpecificTemplateStorage}
    * @throws IllegalArgumentException if the name of the storage doesn't match the name of the storage in the template
    */
-  @NonNull
-  static SpecificTemplateStorage of(@NonNull ServiceTemplate template, @NonNull TemplateStorage storage) {
+  static @NonNull SpecificTemplateStorage of(@NonNull ServiceTemplate template, @NonNull TemplateStorage storage) {
     return DefaultSpecificTemplateStorage.of(template, storage);
   }
 
   /**
    * Gets the template this class is wrapping.
    */
-  @NonNull
-  ServiceTemplate targetTemplate();
+  @NonNull ServiceTemplate targetTemplate();
 
   /**
    * Gets the storage this class is wrapping.
    */
-  @NonNull
-  TemplateStorage wrappedStorage();
+  @NonNull TemplateStorage wrappedStorage();
 
   /**
    * @see TemplateStorage#deployDirectory(Path, ServiceTemplate, Predicate)
@@ -93,14 +89,12 @@ public interface SpecificTemplateStorage extends Nameable {
   /**
    * @see TemplateStorage#asZipInputStream(ServiceTemplate)
    */
-  @Nullable
-  ZipInputStream asZipInputStream() throws IOException;
+  @Nullable ZipInputStream asZipInputStream() throws IOException;
 
   /**
    * @see TemplateStorage#zipTemplate(ServiceTemplate)
    */
-  @Nullable
-  InputStream zipTemplate() throws IOException;
+  @Nullable InputStream zipTemplate() throws IOException;
 
   /**
    * @see TemplateStorage#delete(ServiceTemplate)
@@ -120,14 +114,12 @@ public interface SpecificTemplateStorage extends Nameable {
   /**
    * @see TemplateStorage#appendOutputStream(ServiceTemplate, String)
    */
-  @Nullable
-  OutputStream appendOutputStream(@NonNull String path) throws IOException;
+  @Nullable OutputStream appendOutputStream(@NonNull String path) throws IOException;
 
   /**
    * @see TemplateStorage#newOutputStream(ServiceTemplate, String)
    */
-  @Nullable
-  OutputStream newOutputStream(@NonNull String path) throws IOException;
+  @Nullable OutputStream newOutputStream(@NonNull String path) throws IOException;
 
   /**
    * @see TemplateStorage#createFile(ServiceTemplate, String)
@@ -152,176 +144,149 @@ public interface SpecificTemplateStorage extends Nameable {
   /**
    * @see TemplateStorage#newInputStream(ServiceTemplate, String)
    */
-  @Nullable
-  InputStream newInputStream(@NonNull String path) throws IOException;
+  @Nullable InputStream newInputStream(@NonNull String path) throws IOException;
 
   /**
    * @see TemplateStorage#fileInfo(ServiceTemplate, String)
    */
-  @Nullable
-  FileInfo fileInfo(@NonNull String path) throws IOException;
+  @Nullable FileInfo fileInfo(@NonNull String path) throws IOException;
 
   /**
    * @see TemplateStorage#listFiles(ServiceTemplate, String, boolean)
    */
-  @Nullable
-  FileInfo[] listFiles(@NonNull String dir, boolean deep) throws IOException;
+  @Nullable FileInfo[] listFiles(@NonNull String dir, boolean deep) throws IOException;
 
   /**
    * @see TemplateStorage#listFiles(ServiceTemplate, boolean)
    */
-  @Nullable
-  default FileInfo[] listFiles(boolean deep) throws IOException {
+  default @Nullable FileInfo[] listFiles(boolean deep) throws IOException {
     return this.listFiles("", deep);
   }
 
   /**
    * @see TemplateStorage#listFiles(ServiceTemplate, String)
    */
-  @Nullable
-  default FileInfo[] listFiles(@NonNull String dir) throws IOException {
+  default @Nullable FileInfo[] listFiles(@NonNull String dir) throws IOException {
     return this.listFiles(dir, true);
   }
 
   /**
    * @see TemplateStorage#listFiles(ServiceTemplate)
    */
-  @Nullable
-  default FileInfo[] listFiles() throws IOException {
+  default @Nullable FileInfo[] listFiles() throws IOException {
     return this.listFiles(true);
   }
 
   /**
    * @see TemplateStorage#deployDirectoryAsync(Path, ServiceTemplate, Predicate)
    */
-  @NonNull
-  Task<Boolean> deployAsync(@NonNull Path directory, @Nullable Predicate<Path> fileFilter);
+  @NonNull Task<Boolean> deployAsync(@NonNull Path directory, @Nullable Predicate<Path> fileFilter);
 
   /**
    * @see TemplateStorage#deployDirectoryAsync(Path, ServiceTemplate)
    */
-  @NonNull
-  default Task<Boolean> deployAsync(@NonNull Path directory) {
+  default @NonNull Task<Boolean> deployAsync(@NonNull Path directory) {
     return this.deployAsync(directory, null);
   }
 
   /**
    * @see TemplateStorage#deployAsync(InputStream, ServiceTemplate)
    */
-  @NonNull
-  Task<Boolean> deployAsync(@NonNull InputStream inputStream);
+  @NonNull Task<Boolean> deployAsync(@NonNull InputStream inputStream);
 
   /**
    * @see TemplateStorage#copyAsync(ServiceTemplate, Path)
    */
-  @NonNull
-  Task<Boolean> copyAsync(@NonNull Path directory);
+  @NonNull Task<Boolean> copyAsync(@NonNull Path directory);
 
   /**
    * @see TemplateStorage#asZipInputStreamAsync(ServiceTemplate)
    */
-  @NonNull
-  Task<ZipInputStream> asZipInputStreamAsync();
+  @NonNull Task<ZipInputStream> asZipInputStreamAsync();
 
   /**
    * @see TemplateStorage#zipTemplateAsync(ServiceTemplate)
    */
-  @NonNull
-  Task<InputStream> zipTemplateAsync();
+  @NonNull Task<InputStream> zipTemplateAsync();
 
   /**
    * @see TemplateStorage#deleteAsync(ServiceTemplate)
    */
-  @NonNull
-  Task<Boolean> deleteAsync();
+  @NonNull Task<Boolean> deleteAsync();
 
   /**
    * @see TemplateStorage#createAsync(ServiceTemplate)
    */
-  @NonNull
-  Task<Boolean> createAsync();
+  @NonNull Task<Boolean> createAsync();
 
   /**
    * @see TemplateStorage#hasAsync(ServiceTemplate)
    */
-  @NonNull
-  Task<Boolean> existsAsync();
+  @NonNull Task<Boolean> existsAsync();
 
   /**
    * @see TemplateStorage#appendOutputStreamAsync(ServiceTemplate, String)
    */
-  @NonNull
-  Task<OutputStream> appendOutputStreamAsync(@NonNull String path);
+  @NonNull Task<OutputStream> appendOutputStreamAsync(@NonNull String path);
 
   /**
    * @see TemplateStorage#newOutputStreamAsync(ServiceTemplate, String)
    */
-  @NonNull
-  Task<OutputStream> newOutputStreamAsync(@NonNull String path);
+  @NonNull Task<OutputStream> newOutputStreamAsync(@NonNull String path);
 
   /**
    * @see TemplateStorage#createFileAsync(ServiceTemplate, String)
    */
-  @NonNull
-  Task<Boolean> createFileAsync(@NonNull String path);
+  @NonNull Task<Boolean> createFileAsync(@NonNull String path);
 
   /**
    * @see TemplateStorage#createDirectoryAsync(ServiceTemplate, String)
    */
-  @NonNull
-  Task<Boolean> createDirectoryAsync(@NonNull String path);
+  @NonNull Task<Boolean> createDirectoryAsync(@NonNull String path);
 
   /**
    * @see TemplateStorage#hasFileAsync(ServiceTemplate, String)
    */
-  @NonNull
-  Task<Boolean> hasFileAsync(@NonNull String path);
+  @NonNull Task<Boolean> hasFileAsync(@NonNull String path);
 
   /**
    * @see TemplateStorage#deleteFileAsync(ServiceTemplate, String)
    */
-  @NonNull
-  Task<Boolean> deleteFileAsync(@NonNull String path);
+  @NonNull Task<Boolean> deleteFileAsync(@NonNull String path);
 
   /**
    * @see TemplateStorage#newInputStreamAsync(ServiceTemplate, String)
    */
-  @NonNull
-  Task<InputStream> newInputStreamAsync(@NonNull String path);
+  @NonNull Task<InputStream> newInputStreamAsync(@NonNull String path);
 
   /**
    * @see TemplateStorage#fileInfoAsync(ServiceTemplate, String)
    */
-  @NonNull
-  Task<FileInfo> fileInfoAsync(@NonNull String path);
+  @NonNull Task<FileInfo> fileInfoAsync(@NonNull String path);
 
   /**
    * @see TemplateStorage#listFilesAsync(ServiceTemplate, String, boolean)
    */
-  @NonNull
-  Task<FileInfo[]> listFilesAsync(@NonNull String dir, boolean deep);
+  @NonNull Task<FileInfo[]> listFilesAsync(@NonNull String dir, boolean deep);
 
   /**
    * @see TemplateStorage#listFilesAsync(ServiceTemplate, boolean)
    */
-  @NonNull
-  default Task<FileInfo[]> listFilesAsync(boolean deep) {
+  default @NonNull Task<FileInfo[]> listFilesAsync(boolean deep) {
     return this.listFilesAsync("", deep);
   }
 
   /**
    * @see TemplateStorage#listFilesAsync(ServiceTemplate, String)
    */
-  @NonNull
-  default Task<FileInfo[]> listFilesAsync(@NonNull String dir) {
+  default @NonNull Task<FileInfo[]> listFilesAsync(@NonNull String dir) {
     return this.listFilesAsync(dir, true);
   }
 
   /**
    * @see TemplateStorage#listFilesAsync(ServiceTemplate)
    */
-  @NonNull
-  default Task<FileInfo[]> listFilesAsync() {
+  default @NonNull Task<FileInfo[]> listFilesAsync() {
     return this.listFilesAsync(true);
   }
 

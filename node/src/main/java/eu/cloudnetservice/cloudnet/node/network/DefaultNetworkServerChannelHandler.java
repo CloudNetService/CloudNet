@@ -51,9 +51,10 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
         NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL,
         new PacketClientAuthorizationListener());
 
-      LOGGER.fine(I18n.trans("server-network-channel-init")
-        .replace("%serverAddress%", channel.serverAddress().host() + ":" + channel.serverAddress().port())
-        .replace("%clientAddress%", channel.clientAddress().host() + ":" + channel.clientAddress().port()));
+      LOGGER.fine(
+        I18n.trans("server-network-channel-init",
+          channel.serverAddress().host() + ":" + channel.serverAddress().port(),
+          channel.clientAddress().host() + ":" + channel.clientAddress().port()));
     } else {
       channel.close();
     }
@@ -70,9 +71,10 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
     CloudNetDriver.instance().eventManager().callEvent(
       new NetworkChannelCloseEvent(channel, ChannelType.SERVER_CHANNEL));
 
-    LOGGER.fine(I18n.trans("server-network-channel-close")
-      .replace("%serverAddress%", channel.serverAddress().host() + ":" + channel.serverAddress().port())
-      .replace("%clientAddress%", channel.clientAddress().host() + ":" + channel.clientAddress().port()));
+    LOGGER.fine(
+      I18n.trans("server-network-channel-close",
+        channel.serverAddress().host() + ":" + channel.serverAddress().port(),
+        channel.clientAddress().host() + ":" + channel.clientAddress().port()));
 
     var cloudService = CloudNet.instance()
       .cloudServiceProvider()
@@ -97,12 +99,12 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
     cloudService.networkChannel(null);
     cloudService.updateLifecycle(ServiceLifeCycle.STOPPED);
 
-    LOGGER.info(I18n.trans("cloud-service-networking-disconnected")
-      .replace("%id%", cloudService.serviceId().uniqueId().toString())
-      .replace("%task%", cloudService.serviceId().taskName())
-      .replace("%serviceId%", String.valueOf(cloudService.serviceId().taskServiceId()))
-      .replace("%serverAddress%", channel.serverAddress().host() + ":" + channel.serverAddress().port())
-      .replace("%clientAddress%", channel.clientAddress().host() + ":" + channel.clientAddress().port()));
+    LOGGER.info(I18n.trans("cloudnet-service-networking-disconnected",
+      cloudService.serviceId().uniqueId(),
+      cloudService.serviceId().taskName(),
+      cloudService.serviceId().taskServiceId(),
+      channel.serverAddress().host() + ":" + channel.serverAddress().port(),
+      channel.clientAddress().host() + ":" + channel.clientAddress().port()));
   }
 
   private boolean shouldDenyConnection(@NonNull NetworkChannel channel) {

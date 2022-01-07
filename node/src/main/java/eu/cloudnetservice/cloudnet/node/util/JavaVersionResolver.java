@@ -51,7 +51,7 @@ public final class JavaVersionResolver {
     }
 
     try {
-      var process = Runtime.getRuntime().exec(input + " -version");
+      var process = Runtime.getRuntime().exec(new String[]{input, "-version"});
       try (Reader reader = new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8)) {
         var matcher = JAVA_REGEX.matcher(CharStreams.toString(reader));
         if (matcher.matches()) {

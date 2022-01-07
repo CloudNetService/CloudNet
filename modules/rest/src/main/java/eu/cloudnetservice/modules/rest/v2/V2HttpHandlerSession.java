@@ -21,6 +21,7 @@ import eu.cloudnetservice.cloudnet.driver.network.http.HttpResponseCode;
 import eu.cloudnetservice.cloudnet.node.http.HttpSession;
 import eu.cloudnetservice.cloudnet.node.http.V2HttpHandler;
 import java.util.concurrent.TimeUnit;
+import org.jetbrains.annotations.NotNull;
 
 public class V2HttpHandlerSession extends V2HttpHandler {
 
@@ -29,7 +30,7 @@ public class V2HttpHandlerSession extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(String path, HttpContext context, HttpSession session) {
+  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession session) {
     if (path.startsWith("/api/v2/session/logout")) {
       this.handleLogout(context, session);
     } else if (path.startsWith("/api/v2/session/refresh")) {

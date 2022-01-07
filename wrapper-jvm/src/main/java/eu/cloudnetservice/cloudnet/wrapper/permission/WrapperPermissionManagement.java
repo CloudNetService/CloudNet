@@ -96,7 +96,7 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
   }
 
   @Override
-  public PermissionGroup defaultPermissionGroup() {
+  public @Nullable PermissionGroup defaultPermissionGroup() {
     return this.permissionGroupCache.asMap().values().stream()
       .filter(PermissionGroup::defaultGroup)
       .findFirst()
@@ -242,7 +242,7 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
   }
 
   @Override
-  public PermissionManagement childPermissionManagement() {
+  public @Nullable PermissionManagement childPermissionManagement() {
     return null;
   }
 
@@ -252,7 +252,7 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
   }
 
   @Override
-  public PermissionUser firstUser(String name) {
+  public @Nullable PermissionUser firstUser(String name) {
     for (var permissionUser : this.permissionUserCache.asMap().values()) {
       if (permissionUser.name().equals(name)) {
         return permissionUser;

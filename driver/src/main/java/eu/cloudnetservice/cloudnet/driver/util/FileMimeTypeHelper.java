@@ -22,17 +22,49 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import lombok.NonNull;
 
+/**
+ * The FileMimeTypeHelper provides util methods to guess the file mime type from a file.
+ * <p>
+ * The fallback file type is "application/octet-stream" for all methods.
+ *
+ * @author Aldin S. (0utplay@cloudnetservice.eu)
+ * @author Pasqual Koschmieder. (derklaro@cloudnetservice.eu)
+ * @see Files#probeContentType(Path)
+ * @see URLConnection#guessContentTypeFromName(String)
+ * @since 4.0
+ */
 public final class FileMimeTypeHelper {
 
+  /**
+   * Creating an instance of this helper class is not allowed, results in {@link UnsupportedOperationException}.
+   *
+   * @throws UnsupportedOperationException on invocation
+   */
   private FileMimeTypeHelper() {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Returns the file mime type by guessing it for the file at the given filePath.
+   *
+   * @param filePath the path to the file to guess the mime type for.
+   * @return the guessed mime type for the file, defaults to "application/octet-stream".
+   * @throws NullPointerException if filePath is null.
+   * @see URLConnection#guessContentTypeFromName(String)
+   */
   public static @NonNull String fileType(@NonNull String filePath) {
     var mimeType = URLConnection.guessContentTypeFromName(filePath);
     return mimeType == null ? "application/octet-stream" : mimeType;
   }
 
+  /**
+   * Returns the file mime type by guessing it for the file at the given path.
+   *
+   * @param path the path to the file to guess the mime type for.
+   * @return the guessed mime type for the file, defaults to "application/octet-stream".
+   * @throws NullPointerException if path is null.
+   * @see Files#probeContentType(Path)
+   */
   public static @NonNull String fileType(@NonNull Path path) {
     try {
       var mimeType = Files.probeContentType(path);

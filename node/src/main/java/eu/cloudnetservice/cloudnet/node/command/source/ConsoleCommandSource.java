@@ -68,6 +68,7 @@ public class ConsoleCommandSource implements CommandSource {
   /**
    * @param permission the permission to check for
    * @return always {@code true} as the console is allowed to execute every command
+   * @throws NullPointerException if permission is null.
    */
   @Override
   public boolean checkPermission(@NonNull String permission) {

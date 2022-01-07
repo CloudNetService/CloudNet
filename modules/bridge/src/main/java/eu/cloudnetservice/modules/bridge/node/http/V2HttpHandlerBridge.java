@@ -24,6 +24,7 @@ import eu.cloudnetservice.modules.bridge.player.CloudOfflinePlayer;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import java.util.UUID;
 import java.util.function.Consumer;
+import org.jetbrains.annotations.NotNull;
 
 public class V2HttpHandlerBridge extends V2HttpHandler {
 
@@ -32,7 +33,7 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(String path, HttpContext context, HttpSession session) {
+  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession session) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.endsWith("/exists")) {
         this.handleCloudPlayerExistsRequest(context);

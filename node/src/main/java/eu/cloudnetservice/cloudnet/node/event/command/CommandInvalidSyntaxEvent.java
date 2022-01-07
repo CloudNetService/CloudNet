@@ -39,24 +39,21 @@ public class CommandInvalidSyntaxEvent extends Event {
   /**
    * @return the command source that executed the commandline.
    */
-  @NonNull
-  public CommandSource commandSource() {
+  public @NonNull CommandSource commandSource() {
     return this.source;
   }
 
   /**
    * @return the correct syntax for the executed command
    */
-  @NonNull
-  public String correctSyntax() {
+  public @NonNull String correctSyntax() {
     return this.correctSyntax;
   }
 
   /**
    * @return the translated invalid syntax message that is the user will receive
    */
-  @NonNull
-  public String response() {
+  public @NonNull String response() {
     return this.response;
   }
 

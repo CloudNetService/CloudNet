@@ -54,6 +54,7 @@ public record CommandInfo(
    *
    * @param separator the separator to join with.
    * @return the joined String with the name and all aliases.
+   * @throws NullPointerException if separator is null.
    */
   public @NonNull String joinNameToAliases(@NonNull String separator) {
     var result = this.name;

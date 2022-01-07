@@ -52,6 +52,7 @@ public interface CommandProvider {
    * @param source the commandSource for the suggestions. Mostly for permission checks.
    * @param input  the command chain that suggestions are needed for.
    * @return the suggestions for the current command chain.
+   * @throws NullPointerException if separator or input is null.
    */
   @NonNull List<String> suggest(@NonNull CommandSource source, @NonNull String input);
 
@@ -59,10 +60,12 @@ public interface CommandProvider {
    * Executes a command with the given command source and sends all responses to the given {@code source}.
    * <p>
    * Note: The command is executed asynchronously in a cached thread pool. If synchronous execution is necessary, then
-   * you should consider blocking for the command execution using {@link Task#getOrNull()}
+   * you should consider blocking for the command execution using {@link Task#getOrNull()}.
    *
-   * @param source the command source that is used to execute the command
-   * @param input  the commandline that is executed
+   * @param source the command source that is used to execute the command.
+   * @param input  the commandline that is executed.
+   * @return a task wrapping the command execution.
+   * @throws NullPointerException if source or input is null.
    */
   @NonNull Task<?> execute(@NonNull CommandSource source, @NonNull String input);
 
@@ -71,6 +74,7 @@ public interface CommandProvider {
    * are parsed into a command and only one common {@link CommandInfo}.
    *
    * @param command the instance of the class to register all commands for.
+   * @throws NullPointerException if object is null.
    */
   void register(@NonNull Object command);
 
@@ -78,6 +82,7 @@ public interface CommandProvider {
    * Unregisters every command that was registered by the given classloader.
    *
    * @param classLoader the classloader that was used to register the command.
+   * @throws NullPointerException if classLoader is null.
    */
   void unregister(@NonNull ClassLoader classLoader);
 
@@ -85,8 +90,9 @@ public interface CommandProvider {
    * Registers the console input and tab complete handler for the given console.
    *
    * @param console the console to register the handlers for.
+   * @throws NullPointerException if console is null.
    */
-  void registerConsoleHandler(Console console);
+  void registerConsoleHandler(@NonNull Console console);
 
   /**
    * Registers the default commands of the cloudnet node.
@@ -98,6 +104,7 @@ public interface CommandProvider {
    *
    * @param name the command root name or an alias of the root
    * @return the command with the given name - null if no command was found with the given name / alias
+   * @throws NullPointerException if name is null.
    */
   @Nullable CommandInfo command(@NonNull String name);
 

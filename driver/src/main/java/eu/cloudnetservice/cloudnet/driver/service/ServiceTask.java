@@ -19,9 +19,9 @@ package eu.cloudnetservice.cloudnet.driver.service;
 import com.google.common.base.Verify;
 import eu.cloudnetservice.cloudnet.common.Nameable;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Pattern;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -45,9 +45,9 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
   private final boolean autoDeleteOnStop;
   private final boolean staticServices;
 
-  private final Collection<String> groups;
-  private final Collection<String> associatedNodes;
-  private final Collection<String> deletedFilesAfterStop;
+  private final Set<String> groups;
+  private final Set<String> associatedNodes;
+  private final Set<String> deletedFilesAfterStop;
 
   private final ProcessConfiguration processConfiguration;
 
@@ -63,15 +63,15 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
     boolean maintenance,
     boolean autoDeleteOnStop,
     boolean staticServices,
-    @NonNull Collection<String> groups,
-    @NonNull Collection<String> associatedNodes,
-    @NonNull Collection<String> deletedFilesAfterStop,
+    @NonNull Set<String> groups,
+    @NonNull Set<String> associatedNodes,
+    @NonNull Set<String> deletedFilesAfterStop,
     @NonNull ProcessConfiguration processConfiguration,
     int startPort,
     int minServiceCount,
-    @NonNull Collection<ServiceTemplate> templates,
-    @NonNull Collection<ServiceDeployment> deployments,
-    @NonNull Collection<ServiceRemoteInclusion> includes,
+    @NonNull Set<ServiceTemplate> templates,
+    @NonNull Set<ServiceDeployment> deployments,
+    @NonNull Set<ServiceRemoteInclusion> includes,
     @NonNull JsonDocument properties
   ) {
     super(templates, deployments, includes, properties);
@@ -212,9 +212,9 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
     private boolean disableIpRewrite;
     private boolean autoDeleteOnStop = true;
 
-    private Collection<String> groups = new ArrayList<>();
-    private Collection<String> associatedNodes = new ArrayList<>();
-    private Collection<String> deletedFilesAfterStop = new ArrayList<>();
+    private Set<String> groups = new HashSet<>();
+    private Set<String> associatedNodes = new HashSet<>();
+    private Set<String> deletedFilesAfterStop = new HashSet<>();
 
     private ProcessConfiguration.Builder processConfiguration = ProcessConfiguration.builder();
 

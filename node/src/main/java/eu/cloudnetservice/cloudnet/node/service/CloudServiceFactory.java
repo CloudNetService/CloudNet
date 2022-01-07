@@ -22,6 +22,6 @@ import lombok.NonNull;
 @FunctionalInterface
 public interface CloudServiceFactory {
 
-  @NonNull
-  CloudService createCloudService(@NonNull CloudServiceManager manager, @NonNull ServiceConfiguration configuration);
+  @NonNull CloudService createCloudService(@NonNull CloudServiceManager manager,
+    @NonNull ServiceConfiguration configuration);
 }

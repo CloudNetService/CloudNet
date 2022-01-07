@@ -265,7 +265,7 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
    * @param permission  the permission to check
    * @return the result of this check
    */
-  default PermissionCheckResult hasPermission(
+  default @NonNull PermissionCheckResult hasPermission(
     @NonNull Collection<Permission> permissions,
     @NonNull Permission permission
   ) {
@@ -295,7 +295,7 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
    * @param permission the permission to check for
    * @return the result of this check
    */
-  default PermissionCheckResult hasPermission(@NonNull String group, @NonNull Permission permission) {
+  default @NonNull PermissionCheckResult hasPermission(@NonNull String group, @NonNull Permission permission) {
     return this.groupPermissions().containsKey(group)
       ? this.hasPermission(this.groupPermissions().get(group), permission)
       : PermissionCheckResult.DENIED;
@@ -307,7 +307,7 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
    * @param permission the permission to check for
    * @return the result of this check
    */
-  default PermissionCheckResult hasPermission(@NonNull Permission permission) {
+  default @NonNull PermissionCheckResult hasPermission(@NonNull Permission permission) {
     return this.hasPermission(this.permissions(), permission);
   }
 
@@ -319,7 +319,7 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
    * @param permission the permission to check for
    * @return the result of this check
    */
-  default PermissionCheckResult hasPermission(@NonNull String permission) {
+  default @NonNull PermissionCheckResult hasPermission(@NonNull String permission) {
     return this.hasPermission(Permission.of(permission));
   }
 

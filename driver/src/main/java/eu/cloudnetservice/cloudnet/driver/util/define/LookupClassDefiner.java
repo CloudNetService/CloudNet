@@ -25,8 +25,9 @@ import lombok.NonNull;
  * A class definer for modern jvm implementation (Java 15+) which makes use of the newly added {@code defineHiddenClass}
  * method in the {@code Lookup} class.
  *
- * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
- * @since 1.0
+ * @author Aldin S. (0utplay@cloudnetservice.eu)
+ * @author Pasqual Koschmieder. (derklaro@cloudnetservice.eu)
+ * @since 4.0
  */
 final class LookupClassDefiner implements ClassDefiner {
 

@@ -36,7 +36,7 @@ public interface CloudServiceFactory {
    * @param serviceConfiguration the configuration for the new service
    * @return the info of the created service or null if the service couldn't be created
    */
-  @Nullable ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration);
+  @Nullable ServiceInfoSnapshot createCloudService(@NonNull ServiceConfiguration serviceConfiguration);
 
   /**
    * Creates and prepares a new cloud service

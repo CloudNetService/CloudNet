@@ -62,7 +62,7 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
   }
 
   @Override
-  public NetworkClusterNode[] nodes() {
+  public @NonNull NetworkClusterNode[] nodes() {
     return this.rpcSender.invokeMethod("nodes").fireSync();
   }
 
@@ -72,7 +72,7 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
   }
 
   @Override
-  public NetworkClusterNodeInfoSnapshot[] nodeInfoSnapshots() {
+  public @NonNull NetworkClusterNodeInfoSnapshot[] nodeInfoSnapshots() {
     return this.rpcSender.invokeMethod("nodeInfoSnapshots").fireSync();
   }
 

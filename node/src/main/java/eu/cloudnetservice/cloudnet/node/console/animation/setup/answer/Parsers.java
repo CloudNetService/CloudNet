@@ -39,8 +39,7 @@ public final class Parsers {
     throw new UnsupportedOperationException();
   }
 
-  public static @NonNull
-  QuestionAnswerType.Parser<String> nonEmptyStr() {
+  public static @NonNull QuestionAnswerType.Parser<String> nonEmptyStr() {
     return input -> {
       if (input.trim().isEmpty()) {
         throw ParserException.INSTANCE;
@@ -53,8 +52,7 @@ public final class Parsers {
     return input -> Verify.verifyNotNull(Enums.getIfPresent(enumClass, input.toUpperCase()).orNull());
   }
 
-  public static @NonNull
-  QuestionAnswerType.Parser<String> regex(@NonNull Pattern pattern) {
+  public static @NonNull QuestionAnswerType.Parser<String> regex(@NonNull Pattern pattern) {
     return input -> {
       if (pattern.matcher(input).matches()) {
         return input;
@@ -63,8 +61,7 @@ public final class Parsers {
     };
   }
 
-  public static @NonNull
-  QuestionAnswerType.Parser<Pair<String, JavaVersion>> javaVersion() {
+  public static @NonNull QuestionAnswerType.Parser<Pair<String, JavaVersion>> javaVersion() {
     return input -> {
       var version = JavaVersionResolver.resolveFromJavaExecutable(input);
       if (version == null) {
@@ -74,8 +71,7 @@ public final class Parsers {
     };
   }
 
-  public static @NonNull
-  QuestionAnswerType.Parser<Pair<ServiceVersionType, ServiceVersion>> serviceVersion() {
+  public static @NonNull QuestionAnswerType.Parser<Pair<ServiceVersionType, ServiceVersion>> serviceVersion() {
     return input -> {
       // install no version
       if (input.equalsIgnoreCase("none")) {
@@ -96,15 +92,13 @@ public final class Parsers {
     };
   }
 
-  public static @NonNull
-  QuestionAnswerType.Parser<ServiceEnvironmentType> serviceEnvironmentType() {
+  public static @NonNull QuestionAnswerType.Parser<ServiceEnvironmentType> serviceEnvironmentType() {
     return input -> CloudNet.instance().serviceVersionProvider()
       .getEnvironmentType(input)
       .orElseThrow(() -> ParserException.INSTANCE);
   }
 
-  public static @NonNull
-  QuestionAnswerType.Parser<String> nonExistingTask() {
+  public static @NonNull QuestionAnswerType.Parser<String> nonExistingTask() {
     return input -> {
       var task = CloudNet.instance().serviceTaskProvider().serviceTask(input);
       if (task != null) {
@@ -114,18 +108,15 @@ public final class Parsers {
     };
   }
 
-  public static @NonNull
-  QuestionAnswerType.Parser<UUID> uuid() {
+  public static @NonNull QuestionAnswerType.Parser<UUID> uuid() {
     return UUID::fromString;
   }
 
-  public static @NonNull
-  QuestionAnswerType.Parser<Integer> anyNumber() {
+  public static @NonNull QuestionAnswerType.Parser<Integer> anyNumber() {
     return Integer::parseInt;
   }
 
-  public static @NonNull
-  QuestionAnswerType.Parser<Integer> ranged(int from, int to) {
+  public static @NonNull QuestionAnswerType.Parser<Integer> ranged(int from, int to) {
     return input -> {
       var value = Integer.parseInt(input);
       if (value < from || value > to) {
@@ -135,8 +126,7 @@ public final class Parsers {
     };
   }
 
-  public static @NonNull
-  QuestionAnswerType.Parser<Boolean> bool() {
+  public static @NonNull QuestionAnswerType.Parser<Boolean> bool() {
     return input -> {
       if (input.equalsIgnoreCase("yes") || input.equalsIgnoreCase("no")) {
         return input.equalsIgnoreCase("yes");
@@ -146,8 +136,7 @@ public final class Parsers {
     };
   }
 
-  public static @NonNull
-  QuestionAnswerType.Parser<HostAndPort> validatedHostAndPort(boolean withPort) {
+  public static @NonNull QuestionAnswerType.Parser<HostAndPort> validatedHostAndPort(boolean withPort) {
     return input -> {
       // fetch the uri
       var uri = URI.create("tcp://" + input);

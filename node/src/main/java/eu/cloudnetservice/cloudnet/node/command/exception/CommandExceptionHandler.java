@@ -75,6 +75,7 @@ public class CommandExceptionHandler {
    *
    * @param source the source of the command.
    * @param cause  the exception that occurred during the execution.
+   * @throws NullPointerException if source is null.
    */
   public void handleCommandExceptions(@NonNull CommandSource source, @Nullable Throwable cause) {
     // there is no cause if no exception occurred
@@ -142,8 +143,7 @@ public class CommandExceptionHandler {
       new CommandInvalidSyntaxEvent(
         source,
         exception.getCorrectSyntax(),
-        I18n.trans("command-invalid-syntax")
-          .replace("%syntax%", exception.getCorrectSyntax())
+        I18n.trans("command-invalid-syntax", exception.getCorrectSyntax())
       )
     );
     source.sendMessage(invalidSyntaxEvent.response());
@@ -155,6 +155,7 @@ public class CommandExceptionHandler {
    *
    * @param source    the source causing the exception.
    * @param exception the exception that needs to be handled.
+   * @throws NullPointerException if source or exception is null.
    */
   protected void handleNoSuchCommandException(
     @NonNull CommandSource source,
@@ -164,9 +165,7 @@ public class CommandExceptionHandler {
       new CommandNotFoundEvent(
         source,
         exception.getSuppliedCommand(),
-        I18n.trans("command-not-found")
-      )
-    );
+        I18n.trans("command-not-found")));
     source.sendMessage(notFoundEvent.response());
   }
 
@@ -175,6 +174,7 @@ public class CommandExceptionHandler {
    *
    * @param source    the source causing the exception.
    * @param exception the exception that needs to be handled.
+   * @throws NullPointerException if source or exception is null.
    */
   protected void handleNoPermissionException(@NonNull CommandSource source, @NonNull NoPermissionException exception) {
     source.sendMessage(I18n.trans("command-sub-no-permission"));
@@ -187,6 +187,7 @@ public class CommandExceptionHandler {
    *
    * @param source    the source causing the exception.
    * @param exception the exception that needs to be handled.
+   * @throws NullPointerException if source or exception is null.
    */
   protected void handleInvalidCommandSourceException(
     @NonNull CommandSource source,
@@ -205,6 +206,7 @@ public class CommandExceptionHandler {
    * @param source       the source of the command
    * @param currentChain the current chain of entered commands
    * @return whether the cloud can handle the input or not
+   * @throws NullPointerException if source or currentChain is null.
    */
   protected boolean replyWithCommandHelp(
     @NonNull CommandSource source,
@@ -251,6 +253,7 @@ public class CommandExceptionHandler {
    *
    * @param source      the source to send the usages to
    * @param commandInfo the command to print the usage for
+   * @throws NullPointerException if source or commandInfo is null.
    */
   protected void printDefaultUsage(@NonNull CommandSource source, @NonNull CommandInfo commandInfo) {
     for (var usage : commandInfo.usage()) {

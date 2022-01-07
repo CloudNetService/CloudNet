@@ -93,7 +93,7 @@ public abstract class AbstractNPCManagement implements NPCManagement {
     this.npcConfiguration = configuration;
   }
 
-  protected ChannelMessage.Builder channelMessage(@NonNull String message) {
+  protected @NonNull ChannelMessage.Builder channelMessage(@NonNull String message) {
     return ChannelMessage.builder()
       .channel(NPC_CHANNEL_NAME)
       .message(message);

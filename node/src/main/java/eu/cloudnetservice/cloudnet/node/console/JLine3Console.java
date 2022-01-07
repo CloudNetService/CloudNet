@@ -157,8 +157,7 @@ public final class JLine3Console implements Console {
   }
 
   @Override
-  @NonNull
-  public Task<String> readLine() {
+  public @NonNull Task<String> readLine() {
     return this.consoleReadThread.currentTask();
   }
 
@@ -378,21 +377,18 @@ public final class JLine3Console implements Console {
     }
   }
 
-  @NonNull
   @Internal
-  LineReader lineReader() {
+  @NonNull LineReader lineReader() {
     return this.lineReader;
   }
 
-  @NonNull
   @Internal
-  Map<UUID, ConsoleInputHandler> consoleInputHandler() {
+  @NonNull Map<UUID, ConsoleInputHandler> consoleInputHandler() {
     return this.consoleInputHandler;
   }
 
-  @NonNull
   @Internal
-  Map<UUID, ConsoleTabCompleteHandler> tabCompleteHandlers() {
+  @NonNull Map<UUID, ConsoleTabCompleteHandler> tabCompleteHandlers() {
     return this.tabCompleteHandler;
   }
 

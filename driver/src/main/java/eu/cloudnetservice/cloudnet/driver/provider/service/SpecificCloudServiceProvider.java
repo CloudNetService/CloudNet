@@ -41,8 +41,7 @@ public interface SpecificCloudServiceProvider {
    * @return the info or {@code null}, if the service doesn't exist
    * @throws IllegalArgumentException if no uniqueId/name/serviceInfo was given when creating this provider
    */
-  @Nullable
-  ServiceInfoSnapshot serviceInfo();
+  @Nullable ServiceInfoSnapshot serviceInfo();
 
   /**
    * Checks whether the service info on this provider is available or not.
@@ -58,8 +57,7 @@ public interface SpecificCloudServiceProvider {
    * @return the current info or {@code null} if the service is not connected
    * @throws IllegalArgumentException if no uniqueId/name/serviceInfo was given on creating this provider
    */
-  @Nullable
-  ServiceInfoSnapshot forceUpdateServiceInfo();
+  @Nullable ServiceInfoSnapshot forceUpdateServiceInfo();
 
   /**
    * Adds a service template to this service. This template won't be copied directly after adding it but when the
@@ -249,24 +247,21 @@ public interface SpecificCloudServiceProvider {
   /**
    * Stops this service by executing the "stop" and "end" commands in its console if it is running.
    */
-  @NonNull
-  default Task<Void> stopAsync() {
+  default @NonNull Task<Void> stopAsync() {
     return this.updateLifecycleAsync(ServiceLifeCycle.STOPPED);
   }
 
   /**
    * Starts this service if it is prepared or stopped.
    */
-  @NonNull
-  default Task<Void> startAsync() {
+  default @NonNull Task<Void> startAsync() {
     return this.updateLifecycleAsync(ServiceLifeCycle.RUNNING);
   }
 
   /**
    * Deletes this service if it is not deleted yet.
    */
-  @NonNull
-  default Task<Void> deleteAsync() {
+  default @NonNull Task<Void> deleteAsync() {
     return this.updateLifecycleAsync(ServiceLifeCycle.DELETED);
   }
 

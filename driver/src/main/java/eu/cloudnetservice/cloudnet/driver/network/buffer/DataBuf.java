@@ -28,8 +28,7 @@ public interface DataBuf extends AutoCloseable {
   /**
    * @see DataBufFactory#createEmpty()
    */
-  @NonNull
-  static DataBuf.Mutable empty() {
+  static @NonNull DataBuf.Mutable empty() {
     return DataBufFactory.defaultFactory().createEmpty();
   }
 

@@ -37,7 +37,7 @@ public final class QueuedConsoleLogHandler extends AbstractHandler {
   private final Queue<LogRecord> cachedQueuedLogEntries = new ConcurrentLinkedQueue<>();
 
   @Override
-  public void publish(LogRecord record) {
+  public void publish(@NonNull LogRecord record) {
     this.cachedQueuedLogEntries.offer(record);
     while (this.cachedQueuedLogEntries.size() > 128) {
       this.cachedQueuedLogEntries.poll();

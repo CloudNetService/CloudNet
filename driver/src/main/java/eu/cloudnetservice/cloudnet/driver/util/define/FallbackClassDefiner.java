@@ -19,6 +19,7 @@ package eu.cloudnetservice.cloudnet.driver.util.define;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A class definer which defines classes using a class loader. This is a fallback method which will not work as expected
@@ -26,7 +27,7 @@ import lombok.NonNull;
  * get used as the {@link LookupClassDefiner} should define classes.
  *
  * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
- * @since 1.0
+ * @since 4.0
  */
 final class FallbackClassDefiner implements ClassDefiner {
 
@@ -56,7 +57,7 @@ final class FallbackClassDefiner implements ClassDefiner {
      *
      * @param parent the parent class loader for delegation.
      */
-    public DefiningClassLoader(ClassLoader parent) {
+    public DefiningClassLoader(@Nullable ClassLoader parent) {
       super(parent);
     }
 

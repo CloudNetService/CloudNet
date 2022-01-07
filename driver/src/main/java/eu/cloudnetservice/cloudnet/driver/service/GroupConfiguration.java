@@ -21,6 +21,7 @@ import eu.cloudnetservice.cloudnet.common.Nameable;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
@@ -31,18 +32,18 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
 
   protected String name;
 
-  protected Collection<String> jvmOptions;
-  protected Collection<String> processParameters;
-  protected Collection<String> targetEnvironments;
+  protected Set<String> jvmOptions;
+  protected Set<String> processParameters;
+  protected Set<String> targetEnvironments;
 
   protected GroupConfiguration(
     @NonNull String name,
-    @NonNull Collection<String> jvmOptions,
-    @NonNull Collection<String> processParameters,
-    @NonNull Collection<String> targetEnvironments,
-    @NonNull Collection<ServiceTemplate> templates,
-    @NonNull Collection<ServiceDeployment> deployments,
-    @NonNull Collection<ServiceRemoteInclusion> includes,
+    @NonNull Set<String> jvmOptions,
+    @NonNull Set<String> processParameters,
+    @NonNull Set<String> targetEnvironments,
+    @NonNull Set<ServiceTemplate> templates,
+    @NonNull Set<ServiceDeployment> deployments,
+    @NonNull Set<ServiceRemoteInclusion> includes,
     @NonNull JsonDocument properties
   ) {
     super(templates, deployments, includes, properties);
@@ -88,7 +89,7 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
   public static class Builder extends ServiceConfigurationBase.Builder<GroupConfiguration, Builder> {
 
     protected String name;
-    protected Collection<String> targetEnvironments = new HashSet<>();
+    protected Set<String> targetEnvironments = new HashSet<>();
 
     public @NonNull Builder name(@NonNull String name) {
       this.name = name;

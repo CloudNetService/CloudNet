@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class V2HttpHandlerModule extends V2HttpHandler {
@@ -38,7 +39,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(String path, HttpContext context, HttpSession session) {
+  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession session) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.endsWith("/module")) {
         this.handleModuleListRequest(context);

@@ -31,8 +31,8 @@ import eu.cloudnetservice.cloudnet.node.command.annotation.Description;
 import eu.cloudnetservice.cloudnet.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
 import eu.cloudnetservice.cloudnet.node.config.Configuration;
-import eu.cloudnetservice.cloudnet.node.config.JsonConfiguration;
 import java.util.Queue;
+import lombok.NonNull;
 
 @Description("")
 @CommandPermission("cloudnet.command.config")
@@ -43,7 +43,7 @@ public final class CommandConfig {
     var address = input.remove();
 
     if (!InetAddresses.isInetAddress(address)) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-node-ip-invalid"));
+      throw new ArgumentNotAvailableException(I18n.trans("command-config-node-ip-invalid"));
     }
 
     return address;
@@ -51,17 +51,17 @@ public final class CommandConfig {
 
   @CommandMethod("config reload")
   public void reloadConfigs(CommandSource source) {
-    this.updateNodeConfig(JsonConfiguration.loadFromFile(CloudNet.instance()));
+    this.updateNodeConfig(CloudNet.instance().config().load());
     CloudNet.instance().serviceTaskProvider().reload();
     CloudNet.instance().groupConfigurationProvider().reload();
     CloudNet.instance().permissionManagement().reload();
-    source.sendMessage(I18n.trans("command-reload-reload-config-success"));
+    source.sendMessage(I18n.trans("command-node-reload-config-success"));
   }
 
   @CommandMethod("config node reload")
   public void reloadNodeConfig(CommandSource source) {
-    this.updateNodeConfig(JsonConfiguration.loadFromFile(CloudNet.instance()));
-    source.sendMessage(I18n.trans("command-reload-node-config"));
+    this.updateNodeConfig(CloudNet.instance().config().load());
+    source.sendMessage(I18n.trans("command-config-node-reload-config"));
   }
 
   @CommandMethod("config node add ip <ip>")
@@ -71,9 +71,9 @@ public final class CommandConfig {
     if (ipWhitelist.add(ip)) {
       // update the config as we have a change
       this.updateNodeConfig();
-      source.sendMessage(I18n.trans("command-node-add-ip-whitelist").replace("%ip%", ip));
+      source.sendMessage(I18n.trans("command-config-node-add-ip-whitelist", ip));
     } else {
-      source.sendMessage(I18n.trans("command-node-ip-already-whitelisted"));
+      source.sendMessage(I18n.trans("command-config-node-ip-already-whitelisted", ip));
     }
   }
 
@@ -84,9 +84,9 @@ public final class CommandConfig {
     if (ipWhitelist.remove(ip)) {
       // update the config as we have a change
       this.updateNodeConfig();
-      source.sendMessage(I18n.trans("command-node-remove-ip-whitelist").replace("%ip%", ip));
+      source.sendMessage(I18n.trans("command-config-node-remove-ip-whitelist", ip));
     } else {
-      source.sendMessage(I18n.trans("command-node-ip-not-whitelisted"));
+      source.sendMessage(I18n.trans("command-config-node-ip-not-whitelisted", ip));
     }
   }
 
@@ -94,8 +94,7 @@ public final class CommandConfig {
   public void setMaxMemory(CommandSource source, @Argument("maxMemory") @Range(min = "0") int maxMemory) {
     this.nodeConfig().maxMemory(maxMemory);
     this.updateNodeConfig();
-    source.sendMessage(I18n.trans("command-node-max-memory-set")
-      .replace("%memory%", Integer.toString(maxMemory)));
+    source.sendMessage(I18n.trans("command-config-node-max-memory-set", maxMemory));
   }
 
   @CommandMethod("config node set javaCommand <executable>")
@@ -105,9 +104,9 @@ public final class CommandConfig {
   ) {
     this.nodeConfig().javaCommand(executable.first());
     this.updateNodeConfig();
-    source.sendMessage(I18n.trans("command-node-set-java-command")
-      .replace("%executable%", executable.first())
-      .replace("%ver%", executable.second().name()));
+    source.sendMessage(I18n.trans("command-config-node-set-java-command",
+      executable.first(),
+      executable.second().name()));
   }
 
   private Configuration nodeConfig() {
@@ -118,8 +117,7 @@ public final class CommandConfig {
     this.updateNodeConfig(CloudNet.instance().config());
   }
 
-  private void updateNodeConfig(Configuration configuration) {
-    CloudNet.instance().config(configuration);
-    configuration.save();
+  private void updateNodeConfig(@NonNull Configuration configuration) {
+    CloudNet.instance().config(configuration.save());
   }
 }

@@ -35,31 +35,25 @@ import org.jetbrains.annotations.UnmodifiableView;
 
 public interface CloudServiceManager extends GeneralCloudServiceProvider {
 
-  @NonNull
-  Collection<CloudServiceFactory> cloudServiceFactories();
+  @NonNull Collection<CloudServiceFactory> cloudServiceFactories();
 
-  @NonNull
-  Optional<CloudServiceFactory> cloudServiceFactory(@NonNull String runtime);
+  @NonNull Optional<CloudServiceFactory> cloudServiceFactory(@NonNull String runtime);
 
   void addCloudServiceFactory(@NonNull String runtime, @NonNull CloudServiceFactory factory);
 
   void removeCloudServiceFactory(@NonNull String runtime);
 
-  @NonNull
-  Collection<ServiceConfigurationPreparer> servicePreparers();
+  @NonNull Collection<ServiceConfigurationPreparer> servicePreparers();
 
-  @NonNull
-  Optional<ServiceConfigurationPreparer> servicePreparer(@NonNull ServiceEnvironmentType environmentType);
+  @NonNull Optional<ServiceConfigurationPreparer> servicePreparer(@NonNull ServiceEnvironmentType environmentType);
 
   void addServicePreparer(@NonNull ServiceEnvironmentType type, @NonNull ServiceConfigurationPreparer preparer);
 
   void removeServicePreparer(@NonNull ServiceEnvironmentType type);
 
-  @NonNull
-  Path tempDirectory();
+  @NonNull Path tempDirectory();
 
-  @NonNull
-  Path persistentServicesDirectory();
+  @NonNull Path persistentServicesDirectory();
 
   void startAllCloudServices();
 
@@ -74,14 +68,11 @@ public interface CloudServiceManager extends GeneralCloudServiceProvider {
   @NonNull
   @UnmodifiableView Collection<CloudService> localCloudServices();
 
-  @Nullable
-  CloudService localCloudService(@NonNull String name);
+  @Nullable CloudService localCloudService(@NonNull String name);
 
-  @Nullable
-  CloudService localCloudService(@NonNull UUID uniqueId);
+  @Nullable CloudService localCloudService(@NonNull UUID uniqueId);
 
-  @Nullable
-  CloudService localCloudService(@NonNull ServiceInfoSnapshot snapshot);
+  @Nullable CloudService localCloudService(@NonNull ServiceInfoSnapshot snapshot);
 
   @Internal
   void registerLocalService(@NonNull CloudService service);

@@ -50,12 +50,10 @@ public interface ClusterNodeServerProvider extends NodeServerProvider<ClusterNod
    */
   void clusterServers(@NonNull NetworkCluster networkCluster);
 
-  @NonNull
-  Task<TransferStatus> deployTemplateToCluster(@NonNull ServiceTemplate template, @NonNull InputStream stream,
+  @NonNull Task<TransferStatus> deployTemplateToCluster(@NonNull ServiceTemplate template, @NonNull InputStream stream,
     boolean overwrite);
 
-  @NonNull
-  Task<TransferStatus> deployStaticServiceToCluster(@NonNull String name, @NonNull InputStream stream,
+  @NonNull Task<TransferStatus> deployStaticServiceToCluster(@NonNull String name, @NonNull InputStream stream,
     boolean overwrite);
 
   /**

@@ -42,36 +42,30 @@ public record QuestionListEntry<T>(
     private String question;
     private QuestionAnswerType<T> answerType;
 
-    public @NonNull
-    Builder<T> key(@NonNull String key) {
+    public @NonNull Builder<T> key(@NonNull String key) {
       this.key = key;
       return this;
     }
 
-    public @NonNull
-    Builder<T> translatedQuestion(@NonNull String questionTranslationKey) {
+    public @NonNull Builder<T> translatedQuestion(@NonNull String questionTranslationKey) {
       return this.question(I18n.trans(questionTranslationKey));
     }
 
-    public @NonNull
-    Builder<T> question(@NonNull String question) {
+    public @NonNull Builder<T> question(@NonNull String question) {
       this.question = question;
       return this;
     }
 
-    public @NonNull
-    Builder<T> answerType(@NonNull QuestionAnswerType.Builder<T> type) {
+    public @NonNull Builder<T> answerType(@NonNull QuestionAnswerType.Builder<T> type) {
       return this.answerType(type.build());
     }
 
-    public @NonNull
-    Builder<T> answerType(@NonNull QuestionAnswerType<T> type) {
+    public @NonNull Builder<T> answerType(@NonNull QuestionAnswerType<T> type) {
       this.answerType = type;
       return this;
     }
 
-    public @NonNull
-    QuestionListEntry<T> build() {
+    public @NonNull QuestionListEntry<T> build() {
       Verify.verifyNotNull(this.key, "no key given");
       Verify.verifyNotNull(this.question, "no question given");
       Verify.verifyNotNull(this.answerType, "no answer type given");

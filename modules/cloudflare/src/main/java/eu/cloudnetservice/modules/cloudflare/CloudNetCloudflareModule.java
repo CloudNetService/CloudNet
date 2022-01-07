@@ -106,10 +106,8 @@ public final class CloudNetCloudflareModule extends DriverModule {
             entry.hostAddress(),
             JsonDocument.emptyDocument()));
         if (recordDetail != null) {
-          LOGGER.info(I18n.trans("module-cloudflare-create-dns-record-for-service")
-            .replace("%service%", cloudConfig.identity().uniqueId())
-            .replace("%domain%", entry.domainName())
-            .replace("%recordId%", recordDetail.id()));
+          LOGGER.info(I18n.trans("module-cloudflare-create-dns-record-for-service", entry.domainName(),
+            cloudConfig.identity().uniqueId(), recordDetail.id()));
         }
       }
     }

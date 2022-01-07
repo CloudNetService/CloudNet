@@ -18,6 +18,7 @@ package eu.cloudnetservice.cloudnet.node.setup;
 
 import com.google.common.collect.ImmutableSet;
 import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.driver.module.DefaultModuleProvider;
 import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNode;
@@ -155,7 +156,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
               if (!checksum.equals(entry.sha3256())) {
                 // remove the file and fail hard
                 FileUtils.delete(targetPath);
-                throw new IllegalStateException(""); // TODO: insert message here
+                throw new IllegalStateException(I18n.trans("cloudnet-install-modules-invalid-checksum", entry.name()));
               }
               // load the module
               CloudNet.instance().moduleProvider().loadModule(targetPath);

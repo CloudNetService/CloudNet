@@ -18,6 +18,7 @@ package eu.cloudnetservice.cloudnet.node.setup;
 
 import eu.cloudnetservice.cloudnet.common.JavaVersion;
 import eu.cloudnetservice.cloudnet.common.collection.Pair;
+import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.driver.service.GroupConfiguration;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTask;
@@ -55,14 +56,6 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
         .translatedQuestion("command-tasks-setup-question-maintenance")
         .answerType(QuestionAnswerType.<Boolean>builder()
           .recommendation("no")
-          .possibleResults("yes", "no")
-          .parser(Parsers.bool()))
-        .build(),
-      QuestionListEntry.<Boolean>builder()
-        .key("taskAutoDelete")
-        .translatedQuestion("command-tasks-setup-question-auto-delete")
-        .answerType(QuestionAnswerType.<Boolean>builder()
-          .recommendation("yes")
           .possibleResults("yes", "no")
           .parser(Parsers.bool()))
         .build(),
@@ -133,7 +126,6 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
       .name(name)
       .maxHeapMemory(animation.result("taskMemory"))
       .maintenance(animation.result("taskMaintenance"))
-      .autoDeleteOnStop(animation.result("taskAutoDelete"))
       .staticServices(animation.result("taskStaticServices"))
       .minServiceCount(animation.result("taskMinServices"))
       .serviceEnvironmentType(environment)
@@ -159,5 +151,6 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
         .executable(javaVersion.first())
         .build(), false);
     }
+    LOGGER.info(I18n.trans("command-tasks-setup-create-success", task.name()));
   }
 }

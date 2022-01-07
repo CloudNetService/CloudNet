@@ -33,7 +33,7 @@ public final class RecordReportListener {
   private static final Logger LOGGER = LogManager.logger(RecordReportListener.class);
   private final CloudNetReportModule reportModule;
 
-  public RecordReportListener(CloudNetReportModule reportModule) {
+  public RecordReportListener(@NonNull CloudNetReportModule reportModule) {
     this.reportModule = reportModule;
   }
 
@@ -57,7 +57,7 @@ public final class RecordReportListener {
   }
 
   @EventListener
-  public void handleServiceCrash(CloudServicePreForceStopEvent event) {
+  public void handleServiceCrash(@NonNull CloudServicePreForceStopEvent event) {
     // check if the user disabled records
     if (!this.reportModule.reportConfiguration().saveRecords()) {
       return;
@@ -67,7 +67,7 @@ public final class RecordReportListener {
   }
 
   @EventListener
-  public void handleServicePreDelete(CloudServicePreLifecycleEvent event) {
+  public void handleServicePreDelete(@NonNull CloudServicePreLifecycleEvent event) {
     // we just handle the deleted lifecycle
     if (event.targetLifecycle() != ServiceLifeCycle.DELETED
       && event.targetLifecycle() != ServiceLifeCycle.STOPPED) {
@@ -85,7 +85,7 @@ public final class RecordReportListener {
     this.createRecord(event.service());
   }
 
-  private void createRecord(CloudService cloudService) {
+  private void createRecord(@NonNull CloudService cloudService) {
     // we need to check and create the record directory as it's time based.
     var recordCreator = RecordMaker.forService(this.reportModule.currentRecordDirectory(), cloudService);
     // unable to create records as the directory already exists

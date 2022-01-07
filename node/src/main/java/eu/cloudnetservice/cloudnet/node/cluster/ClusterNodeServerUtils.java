@@ -60,10 +60,7 @@ final class ClusterNodeServerUtils {
       }
     }
 
-    LOGGER.info(I18n.trans("cluster-server-networking-disconnected")
-      .replace("%id%", server.nodeInfo().uniqueId())
-      .replace("%serverAddress%", channel.serverAddress().toString())
-      .replace("%clientAddress%", channel.clientAddress().toString()));
+    LOGGER.info(I18n.trans("cluster-server-networking-disconnected", server.nodeInfo().uniqueId()));
   }
 
   private static @NonNull ChannelMessage.Builder targetLocalServices() {

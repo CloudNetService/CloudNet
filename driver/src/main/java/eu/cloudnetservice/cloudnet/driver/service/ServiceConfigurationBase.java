@@ -20,6 +20,7 @@ import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.common.document.property.JsonDocPropertyHolder;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
@@ -28,14 +29,14 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = false)
 public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
 
-  protected final Collection<ServiceTemplate> templates;
-  protected final Collection<ServiceDeployment> deployments;
-  protected final Collection<ServiceRemoteInclusion> includes;
+  protected final Set<ServiceTemplate> templates;
+  protected final Set<ServiceDeployment> deployments;
+  protected final Set<ServiceRemoteInclusion> includes;
 
   protected ServiceConfigurationBase(
-    @NonNull Collection<ServiceTemplate> templates,
-    @NonNull Collection<ServiceDeployment> deployments,
-    @NonNull Collection<ServiceRemoteInclusion> includes,
+    @NonNull Set<ServiceTemplate> templates,
+    @NonNull Set<ServiceDeployment> deployments,
+    @NonNull Set<ServiceRemoteInclusion> includes,
     @NonNull JsonDocument properties
   ) {
     this.templates = templates;
@@ -63,11 +64,11 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
   public abstract static class Builder<T extends ServiceConfigurationBase, B extends Builder<T, B>> {
 
     protected JsonDocument properties = JsonDocument.newDocument();
-    protected Collection<String> jvmOptions = new HashSet<>();
-    protected Collection<String> processParameters = new HashSet<>();
-    protected Collection<ServiceTemplate> templates = new HashSet<>();
-    protected Collection<ServiceDeployment> deployments = new HashSet<>();
-    protected Collection<ServiceRemoteInclusion> includes = new HashSet<>();
+    protected Set<String> jvmOptions = new HashSet<>();
+    protected Set<String> processParameters = new HashSet<>();
+    protected Set<ServiceTemplate> templates = new HashSet<>();
+    protected Set<ServiceDeployment> deployments = new HashSet<>();
+    protected Set<ServiceRemoteInclusion> includes = new HashSet<>();
 
     public @NonNull B properties(@NonNull JsonDocument properties) {
       this.properties = properties;
