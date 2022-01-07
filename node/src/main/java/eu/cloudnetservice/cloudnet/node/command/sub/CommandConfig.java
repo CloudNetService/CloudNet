@@ -109,7 +109,7 @@ public final class CommandConfig {
       executable.second().name()));
   }
 
-  private Configuration nodeConfig() {
+  private @NonNull Configuration nodeConfig() {
     return CloudNet.instance().config();
   }
 

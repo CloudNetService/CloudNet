@@ -55,7 +55,7 @@ public final class CommandGroups {
 
     var configuration = this.groupProvider().groupConfiguration(name);
     if (configuration == null) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-service-base-group-not-found"));
+      throw new ArgumentNotAvailableException(I18n.trans("command-general-group-does-not-exist"));
     }
 
     return configuration;

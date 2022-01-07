@@ -54,7 +54,7 @@ public class CommandBridge {
     var name = input.remove();
     var group = this.groupConfigurationProvider.groupConfiguration(name);
     if (group == null) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-service-base-group-not-found"));
+      throw new ArgumentNotAvailableException(I18n.trans("command-general-group-does-not-exist"));
     }
     var fallbacks = this.bridgeManagement.configuration().fallbackConfigurations()
       .stream();

@@ -53,7 +53,7 @@ public final class CommandSyncProxy {
       .stream()
       .filter(login -> login.targetGroup().equals(name)).findFirst()
       .orElseThrow(
-        () -> new ArgumentNotAvailableException(I18n.trans("module-syncproxy-command-create-entry-group-not-found")));
+        () -> new ArgumentNotAvailableException(I18n.trans("command-general-group-does-not-exist")));
   }
 
   @Suggestions("loginConfiguration")
@@ -70,7 +70,7 @@ public final class CommandSyncProxy {
     var configuration = CloudNet.instance().groupConfigurationProvider()
       .groupConfiguration(name);
     if (configuration == null) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-service-base-group-not-found"));
+      throw new ArgumentNotAvailableException(I18n.trans("command-general-group-does-not-exist"));
     }
 
     if (this.syncProxyManagement.configuration().loginConfigurations()
@@ -196,14 +196,16 @@ public final class CommandSyncProxy {
     this.syncProxyManagement.configuration(this.syncProxyManagement.configuration());
   }
 
-  private void displayListConfiguration(CommandSource source, SyncProxyConfiguration syncProxyConfiguration) {
+  private void displayListConfiguration(
+    @NonNull CommandSource source,
+    @NonNull SyncProxyConfiguration syncProxyConfiguration
+  ) {
     for (var syncProxyLoginConfiguration : syncProxyConfiguration
       .loginConfigurations()) {
       this.displayConfiguration(source, syncProxyLoginConfiguration);
     }
 
-    for (var syncProxyTabListConfiguration : syncProxyConfiguration
-      .tabListConfigurations()) {
+    for (var syncProxyTabListConfiguration : syncProxyConfiguration.tabListConfigurations()) {
       source.sendMessage(
         "* " + syncProxyTabListConfiguration.targetGroup(),
         "AnimationsPerSecond: " + syncProxyTabListConfiguration.animationsPerSecond(),
@@ -222,8 +224,10 @@ public final class CommandSyncProxy {
     }
   }
 
-  private void displayConfiguration(CommandSource source,
-    SyncProxyLoginConfiguration syncProxyLoginConfiguration) {
+  private void displayConfiguration(
+    @NonNull CommandSource source,
+    @NonNull SyncProxyLoginConfiguration syncProxyLoginConfiguration
+  ) {
     source.sendMessage(
       "* " + syncProxyLoginConfiguration.targetGroup(),
       "Maintenance: " + (syncProxyLoginConfiguration.maintenance() ? "enabled" : "disabled"),
@@ -242,7 +246,7 @@ public final class CommandSyncProxy {
     }
   }
 
-  private void displayMotd(CommandSource source, SyncProxyMotd syncProxyMotd) {
+  private void displayMotd(@NonNull CommandSource source, @NonNull SyncProxyMotd syncProxyMotd) {
     source.sendMessage(
       "- Motd",
       "AutoSlot: " + syncProxyMotd.autoSlot(),
@@ -258,7 +262,7 @@ public final class CommandSyncProxy {
     }
   }
 
-  private void displayWhitelist(CommandSource source, Collection<String> whitelistEntries) {
+  private void displayWhitelist(@NonNull CommandSource source, @NonNull Collection<String> whitelistEntries) {
     source.sendMessage("Whitelist:");
 
     for (var whitelistEntry : whitelistEntries) {

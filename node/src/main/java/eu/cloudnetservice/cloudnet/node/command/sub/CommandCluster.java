@@ -238,9 +238,9 @@ public final class CommandCluster {
       nodeConfig.clusterConfig(cluster);
       // write the node config
       nodeConfig.save();
-
-      source.sendMessage(I18n.trans("command-cluster-remove-node-success"));
     }
+
+    source.sendMessage(I18n.trans("command-cluster-remove-node-success"));
   }
 
   @CommandMethod("cluster|clu nodes")
@@ -372,7 +372,7 @@ public final class CommandCluster {
     }
   }
 
-  private void displayNode(CommandSource source, ClusterNodeServer node) {
+  private void displayNode(@NonNull CommandSource source, @NonNull ClusterNodeServer node) {
     List<String> list = new ArrayList<>(Arrays.asList(
       " ",
       "Id: " + node.nodeInfo().uniqueId() + (node.headNode() ? " (Head)" : ""),

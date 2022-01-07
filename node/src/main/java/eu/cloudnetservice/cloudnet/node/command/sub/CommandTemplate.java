@@ -246,7 +246,7 @@ public final class CommandTemplate {
     }
 
     templateStorage.delete();
-    source.sendMessage("Deleted template");
+    source.sendMessage(I18n.trans("command-template-delete-success", template.toString(), templateStorage.name()));
   }
 
   @CommandMethod("template|t create <template> <environment>")
