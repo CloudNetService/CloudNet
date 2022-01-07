@@ -71,7 +71,7 @@ public class XodusDatabaseProvider extends AbstractDatabaseProvider {
   @Override
   public boolean init() {
     if (this.runsInCluster) {
-      LocalDatabaseUtils.bigWarningThatEveryoneCanSee(I18n.trans("cloudnet-cluster-local-db-warning"));
+      LocalDatabaseUtils.bigWarningThatEveryoneCanSee(I18n.trans("cluster-local-db-warning"));
     }
 
     this.environment = Environments.newInstance(this.databaseDirectory, this.environmentConfig);
