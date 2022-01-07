@@ -110,7 +110,7 @@ public abstract class AbstractServiceLogCache implements ServiceConsoleLogCache 
     // call all handlers
     if (!this.handlers.isEmpty()) {
       for (var handler : this.handlers) {
-        handler.handleLine(this, entry);
+        handler.handleLine(this, entry, comesFromErrorStream);
       }
     }
   }

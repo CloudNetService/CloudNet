@@ -21,5 +21,5 @@ import lombok.NonNull;
 @FunctionalInterface
 public interface ServiceConsoleLineHandler {
 
-  void handleLine(@NonNull ServiceConsoleLogCache source, @NonNull String line);
+  void handleLine(@NonNull ServiceConsoleLogCache source, @NonNull String line, boolean stderr);
 }

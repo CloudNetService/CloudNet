@@ -21,6 +21,7 @@ import eu.cloudnetservice.cloudnet.driver.event.EventManager;
 import eu.cloudnetservice.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import eu.cloudnetservice.cloudnet.driver.event.events.service.CloudServiceLifecycleChangeEvent;
 import eu.cloudnetservice.cloudnet.driver.event.events.service.CloudServiceLogEntryEvent;
+import eu.cloudnetservice.cloudnet.driver.event.events.service.CloudServiceLogEntryEvent.StreamType;
 import eu.cloudnetservice.cloudnet.driver.event.events.service.CloudServiceUpdateEvent;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
@@ -54,15 +55,17 @@ public final class ServiceChannelMessageListener {
         // request to start a service
         case "node_to_head_start_service" -> {
           var configuration = event.content().readObject(ServiceConfiguration.class);
-          event.binaryResponse(DataBuf.empty().writeObject(
-              this.cloudServiceFactory.createCloudService(configuration)));
+          var service = this.cloudServiceFactory.createCloudService(configuration);
+
+          event.binaryResponse(DataBuf.empty().writeObject(service));
         }
 
         // request to start a service on the local node
         case "head_node_to_node_start_service" -> {
           var configuration = event.content().readObject(ServiceConfiguration.class);
-          event.binaryResponse(DataBuf.empty().writeObject(
-              this.serviceManager.createLocalCloudService(configuration).serviceInfo()));
+          var service = this.serviceManager.createLocalCloudService(configuration);
+
+          event.binaryResponse(DataBuf.empty().writeObject(service.serviceInfo()));
         }
 
         // update of a service in the network
@@ -87,8 +90,9 @@ public final class ServiceChannelMessageListener {
           var snapshot = event.content().readObject(ServiceInfoSnapshot.class);
           var eventChannel = event.content().readString();
           var line = event.content().readString();
+          var type = event.content().readBoolean() ? StreamType.STDERR : StreamType.STDOUT;
 
-          this.eventManager.callEvent(eventChannel, new CloudServiceLogEntryEvent(snapshot, line));
+          this.eventManager.callEvent(eventChannel, new CloudServiceLogEntryEvent(snapshot, line, type));
         }
 
         // none of our business

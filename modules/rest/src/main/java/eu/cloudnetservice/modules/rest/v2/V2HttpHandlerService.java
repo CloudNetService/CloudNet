@@ -53,7 +53,8 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession session) {
+  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context,
+    @NotNull HttpSession session) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.endsWith("/service")) {
         this.handleListServicesRequest(context);
@@ -84,7 +85,8 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
   }
 
   @Override
-  protected void handleTicketAuthorizedRequest(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession session) {
+  protected void handleTicketAuthorizedRequest(@NotNull String path, @NotNull HttpContext context,
+    @NotNull HttpSession session) {
     this.handleLiveLogRequest(context);
   }
 
@@ -209,8 +211,8 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
           return;
         }
 
-        var handler = (ServiceConsoleLineHandler) (console, line) -> webSocketChannel
-          .sendWebSocketFrame(WebSocketFrameType.TEXT, line);
+        ServiceConsoleLineHandler handler = (console, line, stderr) ->
+          webSocketChannel.sendWebSocketFrame(WebSocketFrameType.TEXT, line);
         cloudService.serviceConsoleLogCache().addHandler(handler);
 
         webSocketChannel

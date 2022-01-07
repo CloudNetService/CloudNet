@@ -42,8 +42,7 @@ public class ProcessServiceLogCache extends AbstractServiceLogCache {
   }
 
   @Override
-  public @NonNull
-  ServiceConsoleLogCache update() {
+  public @NonNull ServiceConsoleLogCache update() {
     // check if we can currently update
     var process = this.processSupplier.get();
     if (process != null) {

@@ -30,17 +30,20 @@ import lombok.NonNull;
 public final class CloudServiceLogEntryEvent extends CloudServiceEvent {
 
   private final String line;
+  private final StreamType streamType;
 
   /**
    * Constructs a new cloud log entry service event.
    *
-   * @param service the service info associated with this event.
-   * @param line    the line printed out one of the std streams.
-   * @throws NullPointerException if either the service or line is null.
+   * @param info the service info associated with this event.
+   * @param line the line printed out one of the std streams.
+   * @param type the type of stream from which the line comes.
+   * @throws NullPointerException if either the service, line or stream type is null.
    */
-  public CloudServiceLogEntryEvent(@NonNull ServiceInfoSnapshot service, @NonNull String line) {
-    super(service);
+  public CloudServiceLogEntryEvent(@NonNull ServiceInfoSnapshot info, @NonNull String line, @NonNull StreamType type) {
+    super(info);
     this.line = line;
+    this.streamType = type;
   }
 
   /**
@@ -50,5 +53,29 @@ public final class CloudServiceLogEntryEvent extends CloudServiceEvent {
    */
   public @NonNull String line() {
     return this.line;
+  }
+
+  /**
+   * Get the type of stream from which the log line is coming.
+   *
+   * @return the type of stream from which the log line is coming.
+   */
+  public @NonNull StreamType streamType() {
+    return this.streamType;
+  }
+
+  /**
+   * Represents a type of std stream.
+   */
+  public enum StreamType {
+
+    /**
+     * Represents the standard output stream. (In java accessed by using {@code System.out}).
+     */
+    STDOUT,
+    /**
+     * Represents the error output stream. (In java accessed by using {@code System.err}).
+     */
+    STDERR
   }
 }

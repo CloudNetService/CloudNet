@@ -27,6 +27,7 @@ import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessageSender;
 import eu.cloudnetservice.cloudnet.driver.event.EventManager;
 import eu.cloudnetservice.cloudnet.driver.event.events.service.CloudServiceLogEntryEvent;
+import eu.cloudnetservice.cloudnet.driver.event.events.service.CloudServiceLogEntryEvent.StreamType;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceConfiguration;
@@ -206,11 +207,16 @@ public class JVMService extends AbstractService {
   }
 
   protected void initLogHandler() {
-    super.logCache.addHandler(($, line) -> {
+    super.logCache.addHandler(($, line, stderr) -> {
       for (var logTarget : super.logTargets.entrySet()) {
         if (logTarget.getKey().equals(ChannelMessageSender.self().toTarget())) {
-          this.eventManager.callEvent(logTarget.getValue(), new CloudServiceLogEntryEvent(this.lastServiceInfo, line));
+          // the current target is the node this service is running on, print it directly here
+          this.eventManager.callEvent(logTarget.getValue(), new CloudServiceLogEntryEvent(
+            this.lastServiceInfo,
+            line,
+            stderr ? StreamType.STDERR : StreamType.STDOUT));
         } else {
+          // the listener is listening remotely, send the line to the network component
           ChannelMessage.builder()
             .target(logTarget.getKey())
             .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
@@ -218,7 +224,8 @@ public class JVMService extends AbstractService {
             .buffer(DataBuf.empty()
               .writeObject(this.lastServiceInfo)
               .writeString(logTarget.getValue())
-              .writeString(line))
+              .writeString(line)
+              .writeBoolean(stderr))
             .build()
             .send();
         }
