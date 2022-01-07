@@ -34,7 +34,7 @@ public final class ModuleJsonReader {
     // check if the file exists, if the file does not exist (probably when running in development mode) then we silently
     // ignore that and return an empty module holder
     if (Files.exists(jsonFile)) {
-      return JsonDocument.newDocument().toInstanceOf(ModulesHolder.class);
+      return JsonDocument.newDocument(jsonFile).toInstanceOf(ModulesHolder.class);
     } else {
       return new ModulesHolder(Set.of());
     }
