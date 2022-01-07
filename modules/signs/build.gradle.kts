@@ -15,6 +15,8 @@
  *
  */
 
+import eu.cloudnetservice.gradle.juppiter.ModuleConfiguration
+
 plugins {
   id("com.github.johnrengelman.shadow") version Versions.shadow
 }
@@ -25,8 +27,8 @@ tasks.withType<Jar> {
 
 dependencies {
   "compileOnly"(projects.cloudnetWrapperJvm)
+  "compileOnly"(projects.cloudnetModules.bridge)
   "compileOnly"(projects.cloudnetExt.adventureHelper)
-  "moduleDependency"(projects.cloudnetModules.bridge)
   "implementation"(projects.cloudnetExt.bukkitCommand)
 
   "compileOnly"(libs.bundles.serverPlatform)
@@ -37,4 +39,10 @@ moduleJson {
   author = "CloudNetService"
   main = "eu.cloudnetservice.modules.signs.node.CloudNetSignsModule"
   description = "CloudNet extension which adds sign connector support for Bukkit, Nukkit and Sponge"
+  // depend on internal modules
+  dependencies.add(ModuleConfiguration.Dependency("CloudNet-Bridge").apply {
+    needsRepoResolve = false
+    group = project.group.toString()
+    version = project.version.toString()
+  })
 }

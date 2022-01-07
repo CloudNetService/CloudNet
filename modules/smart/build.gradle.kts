@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
+import eu.cloudnetservice.gradle.juppiter.ModuleConfiguration
+
 tasks.withType<Jar> {
   archiveFileName.set(Files.smart)
 }
 
 dependencies {
-  "moduleDependency"(project(":cloudnet-modules:bridge"))
+  "compileOnly"(projects.cloudnetModules.bridge)
 }
 
 moduleJson {
@@ -28,4 +30,10 @@ moduleJson {
   main = "eu.cloudnetservice.modules.smart.CloudNetSmartModule"
   description = "CloudNet extension, which implement smart network handling and automatic services providing"
   runtimeModule = true
+  // depend on internal modules
+  dependencies.add(ModuleConfiguration.Dependency("CloudNet-Bridge").apply {
+    needsRepoResolve = false
+    group = project.group.toString()
+    version = project.version.toString()
+  })
 }

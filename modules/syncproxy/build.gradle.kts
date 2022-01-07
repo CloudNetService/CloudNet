@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import eu.cloudnetservice.gradle.juppiter.ModuleConfiguration
+
 plugins {
   id("com.github.johnrengelman.shadow") version Versions.shadow
 }
@@ -23,9 +25,9 @@ tasks.withType<Jar> {
 }
 
 dependencies {
-  "moduleDependency"(projects.cloudnetModules.bridge)
-  "compileOnly"(projects.cloudnetWrapperJvm)
   "compileOnly"(libs.bundles.proxyPlatform)
+  "compileOnly"(projects.cloudnetWrapperJvm)
+  "compileOnly"(projects.cloudnetModules.bridge)
 
   "annotationProcessor"(libs.velocity)
   "implementation"(projects.cloudnetExt.adventureHelper)
@@ -36,4 +38,10 @@ moduleJson {
   name = "CloudNet-SyncProxy"
   main = "eu.cloudnetservice.modules.syncproxy.node.CloudNetSyncProxyModule"
   description = "CloudNet extension which serves proxy utils with CloudNet support"
+  // depend on internal modules
+  dependencies.add(ModuleConfiguration.Dependency("CloudNet-Bridge").apply {
+    needsRepoResolve = false
+    group = project.group.toString()
+    version = project.version.toString()
+  })
 }

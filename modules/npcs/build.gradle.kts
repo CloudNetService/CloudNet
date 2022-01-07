@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import eu.cloudnetservice.gradle.juppiter.ModuleConfiguration
+
 plugins {
   id("com.github.johnrengelman.shadow") version Versions.shadow
 }
@@ -24,7 +26,7 @@ tasks.withType<Jar> {
 
 dependencies {
   "compileOnly"(projects.cloudnetWrapperJvm)
-  "moduleDependency"(projects.cloudnetModules.bridge)
+  "compileOnly"(projects.cloudnetModules.bridge)
   "implementation"(projects.cloudnetExt.bukkitCommand)
 
   "compileOnly"(libs.bundles.serverPlatform)
@@ -38,4 +40,10 @@ moduleJson {
   author = "CloudNetService"
   main = "eu.cloudnetservice.modules.npc.node.CloudNetNPCModule"
   description = "CloudNet extension which adds NPCs for server selection"
+  // depend on internal modules
+  dependencies.add(ModuleConfiguration.Dependency("CloudNet-Bridge").apply {
+    needsRepoResolve = false
+    group = project.group.toString()
+    version = project.version.toString()
+  })
 }
