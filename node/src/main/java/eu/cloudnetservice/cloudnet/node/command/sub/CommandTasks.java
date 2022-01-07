@@ -37,6 +37,7 @@ import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.cloudnet.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.cloudnet.driver.service.GroupConfiguration;
+import eu.cloudnetservice.cloudnet.driver.service.ServiceConfigurationBase;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceDeployment;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceRemoteInclusion;
@@ -90,8 +91,58 @@ public final class CommandTasks {
 
   private final Console console;
 
-  public CommandTasks(Console console) {
+  public CommandTasks(@NonNull Console console) {
     this.console = console;
+  }
+
+  public static void applyServiceConfigurationDisplay(
+    @NonNull Collection<String> messages,
+    @NonNull ServiceConfigurationBase configurationBase) {
+    messages.add(" ");
+
+    messages.add("Includes:");
+
+    for (var inclusion : configurationBase.includes()) {
+      messages.add("- " + inclusion.url() + " => " + inclusion.destination());
+    }
+
+    messages.add(" ");
+    messages.add("Templates:");
+
+    for (var template : configurationBase.templates()) {
+      messages.add("- " + template);
+    }
+
+    messages.add(" ");
+    messages.add("Deployments:");
+
+    for (var deployment : configurationBase.deployments()) {
+      messages.add("- ");
+      messages.add(
+        "Template:  " + deployment.template());
+      messages.add("Excludes: " + deployment.excludes());
+    }
+
+    messages.add(" ");
+    messages.add("JVM Options:");
+
+    for (var jvmOption : configurationBase.jvmOptions()) {
+      messages.add("- " + jvmOption);
+    }
+
+    messages.add(" ");
+    messages.add("Process Parameters:");
+
+    for (var processParameters : configurationBase.processParameters()) {
+      messages.add("- " + processParameters);
+    }
+
+    messages.add(" ");
+
+    messages.add("Properties: ");
+
+    messages.addAll(Arrays.asList(configurationBase.properties().toPrettyJson().split("\n")));
+    messages.add(" ");
   }
 
   @Parser(suggestions = "serviceTask")
@@ -226,7 +277,7 @@ public final class CommandTasks {
       messages.add("Deleted files after stop: " + Arrays.toString(serviceTask.deletedFilesAfterStop().toArray()));
       messages.add("Environment: " + serviceTask.processConfiguration().environment());
 
-      CommandServiceConfiguration.applyServiceConfigurationDisplay(messages, serviceTask);
+      applyServiceConfigurationDisplay(messages, serviceTask);
       source.sendMessage(messages);
     }
   }

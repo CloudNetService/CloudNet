@@ -71,10 +71,8 @@ public final class CommandConfig {
     if (ipWhitelist.add(ip)) {
       // update the config as we have a change
       this.updateNodeConfig();
-      source.sendMessage(I18n.trans("command-config-node-add-ip-whitelist", ip));
-    } else {
-      source.sendMessage(I18n.trans("command-config-node-ip-already-whitelisted", ip));
     }
+    source.sendMessage(I18n.trans("command-config-node-add-ip-whitelist", ip));
   }
 
   @CommandMethod("config node remove ip <ip>")
@@ -84,10 +82,8 @@ public final class CommandConfig {
     if (ipWhitelist.remove(ip)) {
       // update the config as we have a change
       this.updateNodeConfig();
-      source.sendMessage(I18n.trans("command-config-node-remove-ip-whitelist", ip));
-    } else {
-      source.sendMessage(I18n.trans("command-config-node-ip-not-whitelisted", ip));
     }
+    source.sendMessage(I18n.trans("command-config-node-remove-ip-whitelist", ip));
   }
 
   @CommandMethod("config node set maxMemory <maxMemory>")

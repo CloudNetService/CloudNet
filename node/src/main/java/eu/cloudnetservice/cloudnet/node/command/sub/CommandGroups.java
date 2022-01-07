@@ -43,6 +43,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 @CommandPermission("cloudnet.command.groups")
@@ -74,14 +75,18 @@ public final class CommandGroups {
 
   @CommandMethod("groups create <name>")
   public void createGroup(CommandSource source, @Argument("name") String groupName) {
-    if (!this.groupProvider().groupConfigurationPresent(groupName)) {
-      this.groupProvider().addGroupConfiguration(GroupConfiguration.builder().name(groupName).build());
+    if (this.groupProvider().groupConfigurationPresent(groupName)) {
+      source.sendMessage(I18n.trans("command-groups-group-already-existing"));
+    } else {
+      this.updateGroup(GroupConfiguration.builder().name(groupName).build());
+      source.sendMessage(I18n.trans("command-service-base-create-group", groupName));
     }
   }
 
   @CommandMethod("groups reload")
   public void reloadGroups(CommandSource source) {
     CloudNet.instance().groupConfigurationProvider().reload();
+    source.sendMessage(I18n.trans("command-groups-reload-success"));
   }
 
   @CommandMethod("groups list")
@@ -105,7 +110,7 @@ public final class CommandGroups {
     messages.add("Name: " + group.name());
     messages.add("Environments:" + Arrays.toString(group.targetEnvironments().toArray()));
 
-    CommandServiceConfiguration.applyServiceConfigurationDisplay(messages, group);
+    CommandTasks.applyServiceConfigurationDisplay(messages, group);
     source.sendMessage(messages);
   }
 
@@ -116,7 +121,8 @@ public final class CommandGroups {
     @Argument("environment") ServiceEnvironmentType environmentType
   ) {
     group.targetEnvironments().add(environmentType.name());
-    this.groupProvider().addGroupConfiguration(group);
+    this.updateGroup(group);
+
     source.sendMessage(I18n.trans("command-groups-add-environment-success"));
   }
 
@@ -127,11 +133,9 @@ public final class CommandGroups {
     @Argument("environment") ServiceEnvironmentType environmentType
   ) {
     if (group.targetEnvironments().remove(environmentType.name())) {
-      this.groupProvider().addGroupConfiguration(group);
-      source.sendMessage(I18n.trans("command-groups-remove-environment-success"));
-    } else {
-      source.sendMessage(I18n.trans("command-groups-remove-environment-not-found"));
+      this.updateGroup(group);
     }
+    source.sendMessage(I18n.trans("command-groups-remove-environment-success"));
   }
 
   @CommandMethod("groups group <name> add deployment <deployment>")
@@ -148,6 +152,7 @@ public final class CommandGroups {
 
     group.deployments().add(deployment);
     this.updateGroup(group);
+    source.sendMessage(I18n.trans("command-service-base-add-deployment-success"));
   }
 
   @CommandMethod("groups group <name> add template <template>")
@@ -158,6 +163,7 @@ public final class CommandGroups {
   ) {
     group.templates().add(template);
     this.updateGroup(group);
+    source.sendMessage(I18n.trans("command-service-base-add-template-success"));
   }
 
   @CommandMethod("groups group <name> add inclusion <url> <path>")
@@ -171,6 +177,7 @@ public final class CommandGroups {
 
     group.includes().add(inclusion);
     this.updateGroup(group);
+    source.sendMessage(I18n.trans("command-service-base-add-inclusion-success"));
   }
 
   @CommandMethod("groups group <name> add jvmOption <options>")
@@ -183,6 +190,7 @@ public final class CommandGroups {
       group.jvmOptions().add(jvmOption);
     }
     this.updateGroup(group);
+    source.sendMessage(I18n.trans("command-service-base-add-jvm-option-success"));
   }
 
   @CommandMethod("groups group <name> add processParameter <options>")
@@ -195,6 +203,7 @@ public final class CommandGroups {
       group.processParameters().add(processParameter);
     }
     this.updateGroup(group);
+    source.sendMessage(I18n.trans("command-service-base-add-process-parameters-success"));
   }
 
   @CommandMethod("groups group <name> remove deployment <deployment>")
@@ -211,6 +220,7 @@ public final class CommandGroups {
 
     group.deployments().remove(deployment);
     this.updateGroup(group);
+    source.sendMessage(I18n.trans("command-service-base-remove-deployment-success"));
   }
 
   @CommandMethod("groups group <name> remove template <template>")
@@ -221,6 +231,7 @@ public final class CommandGroups {
   ) {
     group.templates().remove(template);
     this.updateGroup(group);
+    source.sendMessage(I18n.trans("command-service-base-remove-template-success"));
   }
 
   @CommandMethod("groups group <name> remove inclusion <url> <path>")
@@ -234,6 +245,7 @@ public final class CommandGroups {
 
     group.includes().remove(inclusion);
     this.updateGroup(group);
+    source.sendMessage(I18n.trans("command-service-base-remove-inclusion-success"));
   }
 
   @CommandMethod("groups group <name> remove jvmOption <options>")
@@ -246,6 +258,7 @@ public final class CommandGroups {
       group.jvmOptions().remove(jvmOption);
     }
     this.updateGroup(group);
+    source.sendMessage(I18n.trans("command-service-base-remove-jvm-success"));
   }
 
   @CommandMethod("groups group <name> remove processParameter <options>")
@@ -258,29 +271,36 @@ public final class CommandGroups {
       group.processParameters().remove(processParameter);
     }
     this.updateGroup(group);
+    source.sendMessage(I18n.trans("command-service-base-remove-process-parameter-success"));
   }
 
   @CommandMethod("groups group <name> clear jvmOptions")
   public void clearJvmOptions(CommandSource source, @Argument("name") GroupConfiguration group) {
     group.jvmOptions().clear();
     this.updateGroup(group);
+    source.sendMessage(I18n.trans("command-service-base-clear-jvm-options-success"));
   }
 
-  private void updateGroup(GroupConfiguration groupConfiguration) {
+  @CommandMethod("groups group <name> clear processParameters")
+  public void clearProcessParameters(CommandSource source, @Argument("name") GroupConfiguration group) {
+    group.processParameters().clear();
+    this.updateGroup(group);
+    source.sendMessage(I18n.trans("command-service-base-clear-process-parameters-success"));
+  }
+
+  private void updateGroup(@NonNull GroupConfiguration groupConfiguration) {
     this.groupProvider().addGroupConfiguration(groupConfiguration);
   }
 
-  private GroupConfigurationProvider groupProvider() {
+  private @NonNull GroupConfigurationProvider groupProvider() {
     return CloudNet.instance().groupConfigurationProvider();
   }
 
-  private Collection<String> parseExcludes(@Nullable String excludes) {
+  private @NonNull Collection<String> parseExcludes(@Nullable String excludes) {
     if (excludes == null) {
       return Collections.emptyList();
     }
 
     return Arrays.asList(excludes.split(";"));
   }
-
-
 }

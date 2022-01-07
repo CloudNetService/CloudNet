@@ -58,6 +58,17 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
     return new Builder();
   }
 
+  public static @NonNull Builder builder(@NonNull GroupConfiguration group) {
+    return builder()
+      .name(group.name())
+      .jvmOptions(group.jvmOptions())
+      .processParameters(group.processParameters())
+      .targetEnvironments(group.targetEnvironments())
+      .templates(group.templates())
+      .deployments(group.deployments())
+      .includes(group.includes());
+  }
+
   @Override
   public @NonNull Collection<String> jvmOptions() {
     return this.jvmOptions;
