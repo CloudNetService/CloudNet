@@ -20,19 +20,50 @@ import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceLifeCycle;
 import lombok.NonNull;
 
+/**
+ * An event being fired when the lifecycle of a service changes. For example from running to stopped. Note that this
+ * event is not fired for all service state changes. For example when auto delete on stop is enabled for a service, this
+ * event will be fired for the change from running to deleted, but never from running to stopped nor from stopped to
+ * deleted.
+ * <p>
+ * This event is fired after the change of the lifecycle, the new lifecycle is already set in the associated service
+ * info.
+ *
+ * @since 4.0
+ */
 public final class CloudServiceLifecycleChangeEvent extends CloudServiceEvent {
 
   private final ServiceLifeCycle lastLifeCycle;
 
+  /**
+   * Constructs a new cloud service lifecycle event.
+   *
+   * @param lastLifeCycle the lifecycle of the service before changing to the new lifecycle.
+   * @param info          the service info associated with this event.
+   * @throws NullPointerException if either the last lifecycle or service info is null.
+   */
   public CloudServiceLifecycleChangeEvent(@NonNull ServiceLifeCycle lastLifeCycle, @NonNull ServiceInfoSnapshot info) {
     super(info);
     this.lastLifeCycle = lastLifeCycle;
   }
 
+  /**
+   * Get the lifecycle the service was in before changing.
+   *
+   * @return the lifecycle the service was in before changing.
+   */
   public @NonNull ServiceLifeCycle lastLifeCycle() {
     return this.lastLifeCycle;
   }
 
+  /**
+   * Get the lifecycle the service changed to. This lifecycle is already present in the service info associated with
+   * this event.
+   * <p>
+   * This method call is equivalent to {@code serviceInfo().lifeCycle()}.
+   *
+   * @return the lifecycle the service changed to.
+   */
   public @NonNull ServiceLifeCycle newLifeCycle() {
     return this.serviceInfo.lifeCycle();
   }

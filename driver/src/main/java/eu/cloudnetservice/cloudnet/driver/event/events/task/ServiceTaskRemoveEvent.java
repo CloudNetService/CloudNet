@@ -16,19 +16,23 @@
 
 package eu.cloudnetservice.cloudnet.driver.event.events.task;
 
-import eu.cloudnetservice.cloudnet.driver.event.Event;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTask;
 import lombok.NonNull;
 
-public class ServiceTaskRemoveEvent extends Event {
+/**
+ * An event being fired when a service task gets removed.
+ *
+ * @since 4.0
+ */
+public final class ServiceTaskRemoveEvent extends ServiceTaskEvent {
 
-  private final ServiceTask task;
-
+  /**
+   * Constructs a new service task remove event.
+   *
+   * @param task the task associated with this event.
+   * @throws NullPointerException if the given task is null.
+   */
   public ServiceTaskRemoveEvent(@NonNull ServiceTask task) {
-    this.task = task;
-  }
-
-  public @NonNull ServiceTask task() {
-    return this.task;
+    super(task);
   }
 }

@@ -26,20 +26,35 @@ import lombok.NonNull;
  * This event is being called after a module has been loaded and before the tasks with the lifecycle {@link
  * ModuleLifeCycle#LOADED} of this module have been fired. {@link ModuleWrapper#moduleLifeCycle()} is still {@link
  * ModuleLifeCycle#UNLOADED}.
+ *
+ * @since 4.0
  */
 public final class ModulePreLoadEvent extends ModuleEvent implements Cancelable {
 
   private boolean cancelled;
 
+  /**
+   * Constructs a new pre load module event.
+   *
+   * @param moduleProvider the provider in which the module is loaded.
+   * @param module         the module which is associated with this event.
+   * @throws NullPointerException if either the provider or wrapper is null.
+   */
   public ModulePreLoadEvent(@NonNull ModuleProvider moduleProvider, @NonNull ModuleWrapper module) {
     super(moduleProvider, module);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean cancelled() {
     return this.cancelled;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void cancelled(boolean value) {
     this.cancelled = value;

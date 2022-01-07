@@ -20,9 +20,20 @@ import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.driver.event.Event;
 import lombok.NonNull;
 
+/**
+ * A super class implemented by any event which is related to the driver. Normally modules and external components
+ * should either define their own super class for an event or extend the event class directly.
+ */
 public abstract class DriverEvent extends Event {
 
-  public @NonNull CloudNetDriver driver() {
+  /**
+   * Gets the current driver instance of the component. Can never be null.
+   * <p>
+   * This method is equivalent to a call of {@link CloudNetDriver#instance()}.
+   *
+   * @return the current driver instance of the component.
+   */
+  public final @NonNull CloudNetDriver driver() {
     return CloudNetDriver.instance();
   }
 }

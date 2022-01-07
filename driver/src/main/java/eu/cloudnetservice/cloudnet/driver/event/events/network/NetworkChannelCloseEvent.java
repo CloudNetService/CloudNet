@@ -19,15 +19,32 @@ package eu.cloudnetservice.cloudnet.driver.event.events.network;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import lombok.NonNull;
 
+/**
+ * An event being fired when a channel connected to either a client or server gets closed.
+ *
+ * @since 4.0
+ */
 public final class NetworkChannelCloseEvent extends NetworkEvent {
 
   private final ChannelType channelType;
 
+  /**
+   * Creates a new instance of this network event.
+   *
+   * @param channel     the channel which is associated with this event.
+   * @param channelType the type of channel being closed.
+   * @throws NullPointerException if the given channel or type is null.
+   */
   public NetworkChannelCloseEvent(@NonNull NetworkChannel channel, @NonNull ChannelType channelType) {
     super(channel);
     this.channelType = channelType;
   }
 
+  /**
+   * Get the type of channel which got closed.
+   *
+   * @return the type of channel which got closed.
+   */
   public @NonNull ChannelType channelType() {
     return this.channelType;
   }

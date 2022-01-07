@@ -23,29 +23,34 @@ import lombok.NonNull;
 
 /**
  * This event is being called before a dependency for a module is being loaded.
+ *
+ * @since 4.0
  */
 public final class ModulePreInstallDependencyEvent extends UnloadedModuleEvent {
 
   private final ModuleDependency moduleDependency;
 
   /**
-   * {@inheritDoc}
+   * Creates a new unloaded module event instance.
    *
-   * @param dependency the dependency which got loaded.
+   * @param provider      the module provider by which the module got loaded.
+   * @param configuration the configuration of the module which got loaded as there is no instance yet created.
+   * @param dependency    the dependency which got loaded.
+   * @throws NullPointerException if the given provider, configuration or dependency is null.
    */
   public ModulePreInstallDependencyEvent(
-    ModuleProvider provider,
-    ModuleConfiguration configuration,
-    ModuleDependency dependency
+    @NonNull ModuleProvider provider,
+    @NonNull ModuleConfiguration configuration,
+    @NonNull ModuleDependency dependency
   ) {
     super(provider, configuration);
     this.moduleDependency = dependency;
   }
 
   /**
-   * Get the dependency which got loaded for the module.
+   * Get the dependency which will get loaded for the module.
    *
-   * @return the dependency which got loaded for the module.
+   * @return the dependency which will get loaded for the module.
    */
   public @NonNull ModuleDependency moduleDependency() {
     return this.moduleDependency;

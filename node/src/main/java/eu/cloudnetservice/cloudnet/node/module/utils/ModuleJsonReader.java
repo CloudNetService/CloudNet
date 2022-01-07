@@ -18,7 +18,9 @@ package eu.cloudnetservice.cloudnet.node.module.utils;
 
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.node.module.ModulesHolder;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Set;
 import lombok.NonNull;
 
 public final class ModuleJsonReader {
@@ -28,6 +30,13 @@ public final class ModuleJsonReader {
   }
 
   public static @NonNull ModulesHolder read(@NonNull Path launcherDirPath) {
-    return JsonDocument.newDocument(launcherDirPath.resolve("modules.json")).toInstanceOf(ModulesHolder.class);
+    var jsonFile = launcherDirPath.resolve("modules.json");
+    // check if the file exists, if the file does not exist (probably when running in development mode) then we silently
+    // ignore that and return an empty module holder
+    if (Files.exists(jsonFile)) {
+      return JsonDocument.newDocument().toInstanceOf(ModulesHolder.class);
+    } else {
+      return new ModulesHolder(Set.of());
+    }
   }
 }

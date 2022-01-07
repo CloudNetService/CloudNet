@@ -21,10 +21,24 @@ import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
 import java.util.Collection;
 import lombok.NonNull;
 
+/**
+ * An event being fired when the permission groups get updated during a cluster sync or all groups were set using the
+ * api.
+ *
+ * @see PermissionManagement#groups(Collection)
+ * @since 4.0
+ */
 public final class PermissionSetGroupsEvent extends PermissionEvent {
 
   private final Collection<? extends PermissionGroup> groups;
 
+  /**
+   * Constructs a new permission event.
+   *
+   * @param permissionManagement the permission management associated with this event.
+   * @param groups               all groups which are now recognized by the permission management.
+   * @throws NullPointerException if either the given management or group collection is null.
+   */
   public PermissionSetGroupsEvent(
     @NonNull PermissionManagement permissionManagement,
     @NonNull Collection<? extends PermissionGroup> groups
@@ -33,6 +47,11 @@ public final class PermissionSetGroupsEvent extends PermissionEvent {
     this.groups = groups;
   }
 
+  /**
+   * Get all groups which were set during the update and are now recognized by the permission management.
+   *
+   * @return all groups which were set during the update.
+   */
   public @NonNull Collection<? extends PermissionGroup> groups() {
     return this.groups;
   }

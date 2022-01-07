@@ -23,6 +23,8 @@ import lombok.NonNull;
 
 /**
  * Defines events which will be called when a module is not yet instantiated.
+ *
+ * @since 4.0
  */
 public abstract class UnloadedModuleEvent extends DriverEvent {
 

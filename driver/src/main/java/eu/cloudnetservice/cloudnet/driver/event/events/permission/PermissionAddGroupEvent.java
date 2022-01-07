@@ -20,8 +20,20 @@ import eu.cloudnetservice.cloudnet.driver.permission.PermissionGroup;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
 import lombok.NonNull;
 
+/**
+ * An event fired when a permission group was added.
+ *
+ * @since 4.0
+ */
 public final class PermissionAddGroupEvent extends PermissionGroupEvent {
 
+  /**
+   * Constructs a new permission add group event.
+   *
+   * @param permissionManagement the permission management associated with this event.
+   * @param permissionGroup      the permission group associated with this event.
+   * @throws NullPointerException if either the permission management or group is null.
+   */
   public PermissionAddGroupEvent(
     @NonNull PermissionManagement permissionManagement,
     @NonNull PermissionGroup permissionGroup

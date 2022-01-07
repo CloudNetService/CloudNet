@@ -20,10 +20,22 @@ import eu.cloudnetservice.cloudnet.driver.permission.PermissionGroup;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
 import lombok.NonNull;
 
-abstract class PermissionGroupEvent extends PermissionEvent {
+/**
+ * Represents an event which is related to a permission group.
+ *
+ * @since 4.0
+ */
+public abstract class PermissionGroupEvent extends PermissionEvent {
 
   private final PermissionGroup permissionGroup;
 
+  /**
+   * Constructs a new permission group event.
+   *
+   * @param permissionManagement the permission management associated with this event.
+   * @param permissionGroup      the permission group associated with this event.
+   * @throws NullPointerException if either the permission management or group is null.
+   */
   public PermissionGroupEvent(
     @NonNull PermissionManagement permissionManagement,
     @NonNull PermissionGroup permissionGroup
@@ -32,6 +44,11 @@ abstract class PermissionGroupEvent extends PermissionEvent {
     this.permissionGroup = permissionGroup;
   }
 
+  /**
+   * Get the permission group which is associated with this event.
+   *
+   * @return the permission group which is associated with this event.
+   */
   public @NonNull PermissionGroup permissionGroup() {
     return this.permissionGroup;
   }

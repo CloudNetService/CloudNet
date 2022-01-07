@@ -20,8 +20,20 @@ import eu.cloudnetservice.cloudnet.driver.permission.PermissionGroup;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
 import lombok.NonNull;
 
+/**
+ * An event being called when a permission group gets deleted.
+ *
+ * @since 4.0
+ */
 public final class PermissionDeleteGroupEvent extends PermissionGroupEvent {
 
+  /**
+   * Constructs a new permission delete group event.
+   *
+   * @param permissionManagement the permission management associated with this event.
+   * @param permissionGroup      the permission group associated with this event.
+   * @throws NullPointerException if either the permission management or group is null.
+   */
   public PermissionDeleteGroupEvent(
     @NonNull PermissionManagement permissionManagement,
     @NonNull PermissionGroup permissionGroup

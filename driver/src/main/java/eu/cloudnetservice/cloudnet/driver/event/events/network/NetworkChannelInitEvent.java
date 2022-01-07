@@ -20,25 +20,48 @@ import eu.cloudnetservice.cloudnet.driver.event.Cancelable;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import lombok.NonNull;
 
-public class NetworkChannelInitEvent extends NetworkEvent implements Cancelable {
+/**
+ * An event being fired when a network channel get initialized either on the client or server side.
+ *
+ * @since 4.0
+ */
+public final class NetworkChannelInitEvent extends NetworkEvent implements Cancelable {
 
   private final ChannelType channelType;
   private boolean cancelled;
 
+  /**
+   * Creates a new instance of this network event.
+   *
+   * @param channel     the channel which is associated with this event.
+   * @param channelType the type of channel being initialized.
+   * @throws NullPointerException if the given channel or type is null.
+   */
   public NetworkChannelInitEvent(@NonNull NetworkChannel channel, @NonNull ChannelType channelType) {
     super(channel);
     this.channelType = channelType;
   }
 
+  /**
+   * Get the type of channel getting initialized.
+   *
+   * @return the type of channel getting initialized.
+   */
   public @NonNull ChannelType channelType() {
     return this.channelType;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean cancelled() {
     return this.cancelled;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void cancelled(boolean cancelled) {
     this.cancelled = cancelled;

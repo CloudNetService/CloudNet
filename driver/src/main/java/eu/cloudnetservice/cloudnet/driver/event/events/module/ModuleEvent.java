@@ -18,27 +18,48 @@ package eu.cloudnetservice.cloudnet.driver.event.events.module;
 
 import eu.cloudnetservice.cloudnet.driver.event.events.DriverEvent;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleProvider;
-import eu.cloudnetservice.cloudnet.driver.module.ModuleProviderHandler;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleWrapper;
 import lombok.NonNull;
 
 /**
- * The {@link ModuleEvent}s are being called for every action in the {@link ModuleProviderHandler}.
+ * The base event for all events which are related to modules. By default, all module state changes have their own
+ * event. See the package files for a list of all modules.
+ * <p>
+ * Each module event contains the associated module and the provider which is associated with the module action.
+ *
+ * @since 4.0
  */
 public abstract class ModuleEvent extends DriverEvent {
 
   private final ModuleWrapper module;
   private final ModuleProvider moduleProvider;
 
+  /**
+   * Constructs a new module event.
+   *
+   * @param moduleProvider the provider in which the module is loaded.
+   * @param module         the module which is associated with this event.
+   * @throws NullPointerException if either the provider or wrapper is null.
+   */
   public ModuleEvent(@NonNull ModuleProvider moduleProvider, @NonNull ModuleWrapper module) {
     this.moduleProvider = moduleProvider;
     this.module = module;
   }
 
+  /**
+   * Get the module provider from which the associated module was loaded.
+   *
+   * @return the module provider from which the associated module was loaded.
+   */
   public @NonNull ModuleProvider moduleProvider() {
     return this.moduleProvider;
   }
 
+  /**
+   * Get the module on which the action is currently taking place.
+   *
+   * @return the module on which the action is currently taking place.
+   */
   public @NonNull ModuleWrapper module() {
     return this.module;
   }

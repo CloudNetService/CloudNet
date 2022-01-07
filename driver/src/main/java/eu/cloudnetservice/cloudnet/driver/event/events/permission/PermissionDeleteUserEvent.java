@@ -20,8 +20,20 @@ import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionUser;
 import lombok.NonNull;
 
+/**
+ * An event being fired when a permission user gets deleted.
+ *
+ * @since 4.0
+ */
 public final class PermissionDeleteUserEvent extends PermissionUserEvent {
 
+  /**
+   * Constructs a new permission delete user event.
+   *
+   * @param permissionManagement the permission management associated with this event.
+   * @param permissionUser       the permission user associated with this event.
+   * @throws NullPointerException if the permission management or user is null.
+   */
   public PermissionDeleteUserEvent(
     @NonNull PermissionManagement permissionManagement,
     @NonNull PermissionUser permissionUser

@@ -20,8 +20,21 @@ import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionUser;
 import lombok.NonNull;
 
+/**
+ * An event being fired when a permission user gets updated.
+ *
+ * @see PermissionManagement#updateUser(PermissionUser)
+ * @since 4.0
+ */
 public final class PermissionUpdateUserEvent extends PermissionUserEvent {
 
+  /**
+   * Constructs a new permission update user event.
+   *
+   * @param permissionManagement the permission management associated with this event.
+   * @param permissionUser       the permission user associated with this event.
+   * @throws NullPointerException if the permission management or user is null.
+   */
   public PermissionUpdateUserEvent(
     @NonNull PermissionManagement permissionManagement,
     @NonNull PermissionUser permissionUser

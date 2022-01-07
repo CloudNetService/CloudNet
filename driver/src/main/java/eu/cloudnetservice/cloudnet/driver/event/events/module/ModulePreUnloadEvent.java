@@ -23,11 +23,20 @@ import lombok.NonNull;
 
 /**
  * This event is being called after a module has been unloaded and the tasks with the lifecycle {@link
- * ModuleLifeCycle#UNLOADED} of this module have been fired. {@link ModuleWrapper#moduleLifeCycle()} is either
- * {@link ModuleLifeCycle#UNLOADED} or {@link ModuleLifeCycle#STOPPED}
+ * ModuleLifeCycle#UNLOADED} of this module have been fired. {@link ModuleWrapper#moduleLifeCycle()} is either {@link
+ * ModuleLifeCycle#UNLOADED} or {@link ModuleLifeCycle#STOPPED}.
+ *
+ * @since 4.0
  */
 public final class ModulePreUnloadEvent extends ModuleEvent {
 
+  /**
+   * Constructs a new module pre unload event.
+   *
+   * @param moduleProvider the provider in which the module is loaded.
+   * @param module         the module which is associated with this event.
+   * @throws NullPointerException if either the provider or wrapper is null.
+   */
   public ModulePreUnloadEvent(@NonNull ModuleProvider moduleProvider, @NonNull ModuleWrapper module) {
     super(moduleProvider, module);
   }

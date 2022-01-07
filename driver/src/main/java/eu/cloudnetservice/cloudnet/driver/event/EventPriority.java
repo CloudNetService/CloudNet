@@ -18,29 +18,63 @@ package eu.cloudnetservice.cloudnet.driver.event;
 
 import java.util.Comparator;
 import lombok.NonNull;
-import org.jetbrains.annotations.Contract;
 
+/**
+ * An event priority during execution set by the corresponding {@link EventListener} annotation for the listener.
+ *
+ * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
+ * @see EventListener
+ * @see RegisteredEventListener
+ * @since 4.0
+ */
 public enum EventPriority implements Comparator<EventPriority> {
 
+  /**
+   * The listener has the highest priority and should always decide about the outcome of the event.
+   */
   HIGHEST(128),
+  /**
+   * The listener has a higher importance than a normal listener but isn't required to decide about the outcome.
+   */
   HIGH(64),
+  /**
+   * The listener call is neither important nor unimportant and should run normally. This is the default behaviour.
+   */
   NORMAL(32),
+  /**
+   * The listener has no high importance for the outcome of the event call.
+   */
   LOW(16),
+  /**
+   * The listener has no importance for the event outcome.
+   */
   LOWEST(8);
 
   private final int value;
 
+  /**
+   * Constructs a new event priority.
+   *
+   * @param value the priority in int form, decides about the order of the priority enum.
+   */
   EventPriority(int value) {
     this.value = value;
   }
 
-  @Override
-  @Contract(pure = true)
-  public int compare(@NonNull EventPriority o1, @NonNull EventPriority o2) {
-    return Integer.compare(o1.value, o2.value);
-  }
-
+  /**
+   * Get the priority value in form of an int for comparison reasons.
+   *
+   * @return the priority value in form of an int for comparison reasons.
+   */
   public int value() {
     return this.value;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int compare(@NonNull EventPriority o1, @NonNull EventPriority o2) {
+    return Integer.compare(o1.value, o2.value);
   }
 }

@@ -20,10 +20,22 @@ import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionUser;
 import lombok.NonNull;
 
-abstract class PermissionUserEvent extends PermissionEvent {
+/**
+ * Represents an event which is associated with a permission user.
+ *
+ * @since 4.0
+ */
+public abstract class PermissionUserEvent extends PermissionEvent {
 
   private final PermissionUser permissionUser;
 
+  /**
+   * Constructs a new permission user event.
+   *
+   * @param permissionManagement the permission management associated with this event.
+   * @param permissionUser       the permission user associated with this event.
+   * @throws NullPointerException if the permission management or user is null.
+   */
   public PermissionUserEvent(
     @NonNull PermissionManagement permissionManagement,
     @NonNull PermissionUser permissionUser
@@ -32,6 +44,11 @@ abstract class PermissionUserEvent extends PermissionEvent {
     this.permissionUser = permissionUser;
   }
 
+  /**
+   * Get the permission user which is associated with this event.
+   *
+   * @return the permission user which is associated with this event.
+   */
   public @NonNull PermissionUser permissionUser() {
     return this.permissionUser;
   }

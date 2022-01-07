@@ -16,9 +16,30 @@
 
 package eu.cloudnetservice.cloudnet.driver.event;
 
+/**
+ * This class represents an event which is cancelable. All events which can be prevented from execution should implement
+ * this interface. If an event is forced to execute, for example a post-processing event which has just notification
+ * purposes, should not implement this interface nor expose any method to prevent the execution of the event in any
+ * other way.
+ *
+ * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
+ * @since 4.0
+ */
 public interface Cancelable {
 
+  /**
+   * Gets the cancellation state of the event. A cancelled event will stop the execution of the representing change in
+   * the system, but will be passed to all event listeners nevertheless.
+   *
+   * @return true if this is cancelled, false otherwise.
+   */
   boolean cancelled();
 
+  /**
+   * Marks this event as cancelled and stops the execution of the representing change in the system. The event will be
+   * passed to other event listeners down the line anyway.
+   *
+   * @param value true if this event should get marked as cancelled, false otherwise.
+   */
   void cancelled(boolean value);
 }
