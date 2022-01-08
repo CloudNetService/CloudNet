@@ -69,6 +69,7 @@ public enum ModuleLifeCycle {
    *
    * @param target the target state the module want's to change to.
    * @return If the module can change from the current into the {@code target} state.
+   * @throws NullPointerException if target is null.
    */
   public boolean canChangeTo(@NonNull ModuleLifeCycle target) {
     return Arrays.binarySearch(this.possibleChangeTargetOrdinals, target.ordinal()) >= 0;

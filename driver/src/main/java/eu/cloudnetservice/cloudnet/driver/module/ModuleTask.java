@@ -23,11 +23,17 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Represents a task a module can define in its main class. This annotation replaces the wideline known (mostly from
- * bukkit or bungeecord) {@code onLoad}, {@code onEnable} and {@code onDisable} methods. Please note that module
- * dependencies are only loaded in the {@link ModuleLifeCycle#STARTED} state and module task targeting the {@link
- * ModuleLifeCycle#UNUSABLE} will never fire. For more details see the javadoc comments on the enum constants in {@link
- * ModuleLifeCycle}.
+ * Represents a method that a {@link Module} can specify. A method annotated with this annotation is captured during the
+ * runtime in the {@link ModuleTaskEntry}. These methods are like startup and stop methods and are invoked when the
+ * module switches to the specified {@link ModuleLifeCycle}.
+ * <p>
+ * The dependencies of a {@link Module} are loaded for the first time in the {@link ModuleLifeCycle#STARTED} lifecycle.
+ * All module tasks that target the {@link ModuleLifeCycle#UNUSABLE} lifecycle are never invoked.
+ *
+ * @see Module
+ * @see ModuleTaskEntry
+ * @see ModuleLifeCycle
+ * @since 4.0
  */
 @Documented
 @Target(ElementType.METHOD)

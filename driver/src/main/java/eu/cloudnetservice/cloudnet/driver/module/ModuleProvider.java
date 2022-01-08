@@ -42,6 +42,7 @@ public interface ModuleProvider {
    * did not specifically set a data directory.
    *
    * @param moduleDirectory the module directory to use.
+   * @throws NullPointerException if {@code moduleDirectory} is null.
    * @see #moduleDirectoryPath()
    */
   void moduleDirectoryPath(@NonNull Path moduleDirectory);
@@ -58,6 +59,7 @@ public interface ModuleProvider {
    * Sets the module provider handler of this provider.
    *
    * @param moduleProviderHandler the new module provider to use or {@code null} when no handler should be used.
+   * @throws NullPointerException if {@code moduleProviderHandler} is null.
    * @see #moduleProviderHandler()
    */
   void moduleProviderHandler(@Nullable ModuleProviderHandler moduleProviderHandler);
@@ -76,6 +78,7 @@ public interface ModuleProvider {
    * Sets the module dependency loader which should be used by this provider.
    *
    * @param moduleDependencyLoader the module dependency loader to use.
+   * @throws NullPointerException if {@code moduleDependencyLoader} is null.
    * @see #moduleDependencyLoader()
    * @see DefaultModuleDependencyLoader
    */
@@ -96,6 +99,7 @@ public interface ModuleProvider {
    * @param group the group id of the modules to get.
    * @return an immutable set of all loaded, started, stopped modules provided by this provider which have the specific
    * given group.
+   * @throws NullPointerException if group is null.
    * @see ModuleLifeCycle
    */
   @NonNull
@@ -106,6 +110,7 @@ public interface ModuleProvider {
    *
    * @param name the name of the module to get.
    * @return the module associated with the name or {@code null} if no such module is loaded.
+   * @throws NullPointerException if name is null.
    */
   @Nullable ModuleWrapper module(@NonNull String name);
 
@@ -120,6 +125,7 @@ public interface ModuleProvider {
    * @throws com.google.common.base.VerifyException       if required properties are missing in dependency or repository
    *                                                      information.
    * @throws AssertionError                               if any exception occurs during the load of the module.
+   * @throws NullPointerException                         if url is null.
    */
   @Nullable ModuleWrapper loadModule(@NonNull URL url);
 
@@ -134,6 +140,7 @@ public interface ModuleProvider {
    * @throws com.google.common.base.VerifyException       if required properties are missing in dependency or repository
    *                                                      information.
    * @throws AssertionError                               if any exception occurs during the load of the module.
+   * @throws NullPointerException                         if path is null.
    * @see #loadModule(URL)
    */
   @Nullable ModuleWrapper loadModule(@NonNull Path path);
@@ -189,6 +196,7 @@ public interface ModuleProvider {
    * @param wrapper   the wrapper which is changing the lifecycle.
    * @param lifeCycle the lifecycle the wrapper want's to change to.
    * @return If the wrapper is allowed to change the lifecycle to the provided lifecycle.
+   * @throws NullPointerException if wrapper or lifeCycle is null.
    */
   boolean notifyPreModuleLifecycleChange(@NonNull ModuleWrapper wrapper, @NonNull ModuleLifeCycle lifeCycle);
 
@@ -197,6 +205,7 @@ public interface ModuleProvider {
    *
    * @param wrapper   the wrapper which changed the lifecycle.
    * @param lifeCycle the lifecycle the wrapper changed to.
+   * @throws NullPointerException if wrapper or lifeCycle is null.
    */
   void notifyPostModuleLifecycleChange(@NonNull ModuleWrapper wrapper, @NonNull ModuleLifeCycle lifeCycle);
 }

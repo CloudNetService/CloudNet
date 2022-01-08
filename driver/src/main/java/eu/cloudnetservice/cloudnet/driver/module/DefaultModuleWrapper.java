@@ -40,7 +40,7 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Unmodifiable;
 
 /**
- * A default implementation of an {@link ModuleWrapper}.
+ * {@inheritDoc}
  */
 public class DefaultModuleWrapper implements ModuleWrapper {
 
@@ -365,7 +365,7 @@ public class DefaultModuleWrapper implements ModuleWrapper {
       entry.fire();
       return false;
     } catch (Throwable exception) {
-      LOGGER.severe("Exception firing module task entry " + entry, exception);
+      LOGGER.severe("Exception firing module task entry %s", exception, entry);
       return true;
     }
   }

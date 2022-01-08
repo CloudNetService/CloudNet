@@ -24,7 +24,11 @@ import lombok.ToString;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
 /**
- * Represents a repository in which a {@link ModuleDependency} can be located.
+ * Represents a repository for a {@link ModuleDependency}, the dependency is locatable at this repository.
+ *
+ * @see ModuleDependency
+ * @see ModuleConfiguration
+ * @since 4.0
  */
 @ToString
 @EqualsAndHashCode
@@ -38,6 +42,7 @@ public class ModuleRepository implements Nameable {
    *
    * @param name the name of the repository, must be unique. Duplicate names will override each other.
    * @param url  the url of the repository.
+   * @throws NullPointerException if name or url is null
    */
   public ModuleRepository(@NonNull String name, @NonNull String url) {
     this.name = name;

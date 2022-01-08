@@ -28,6 +28,7 @@ public interface ModuleProviderHandler {
    *
    * @param moduleWrapper the module wrapper which will be loaded.
    * @return if the module is allowed to load.
+   * @throws NullPointerException if {@code moduleWrapper} is null.
    */
   boolean handlePreModuleLoad(@NonNull ModuleWrapper moduleWrapper);
 
@@ -35,6 +36,7 @@ public interface ModuleProviderHandler {
    * Called when a module was loaded.
    *
    * @param moduleWrapper the module which was loaded.
+   * @throws NullPointerException if {@code moduleWrapper} is null.
    */
   void handlePostModuleLoad(@NonNull ModuleWrapper moduleWrapper);
 
@@ -43,6 +45,7 @@ public interface ModuleProviderHandler {
    *
    * @param moduleWrapper the module which will be started.
    * @return if the module is allowed to start.
+   * @throws NullPointerException if {@code moduleWrapper} is null.
    */
   boolean handlePreModuleStart(@NonNull ModuleWrapper moduleWrapper);
 
@@ -50,6 +53,7 @@ public interface ModuleProviderHandler {
    * Called when a module was started.
    *
    * @param moduleWrapper the module which was started.
+   * @throws NullPointerException if {@code moduleWrapper} is null.
    */
   void handlePostModuleStart(@NonNull ModuleWrapper moduleWrapper);
 
@@ -58,6 +62,7 @@ public interface ModuleProviderHandler {
    *
    * @param moduleWrapper the module which will be reloaded.
    * @return if the module is allowed to be reloaded.
+   * @throws NullPointerException if {@code moduleWrapper} is null.
    */
   boolean handlePreModuleReload(@NonNull ModuleWrapper moduleWrapper);
 
@@ -65,6 +70,7 @@ public interface ModuleProviderHandler {
    * Called when a module was reloaded.
    *
    * @param moduleWrapper the module which was reloaded.
+   * @throws NullPointerException if {@code moduleWrapper} is null.
    */
   void handlePostModuleReload(@NonNull ModuleWrapper moduleWrapper);
 
@@ -73,6 +79,7 @@ public interface ModuleProviderHandler {
    *
    * @param moduleWrapper the module which will be stopped.
    * @return if the module is allowed to stop.
+   * @throws NullPointerException if {@code moduleWrapper} is null.
    */
   boolean handlePreModuleStop(@NonNull ModuleWrapper moduleWrapper);
 
@@ -80,6 +87,7 @@ public interface ModuleProviderHandler {
    * Called when a module was stopped.
    *
    * @param moduleWrapper the module which was stopped.
+   * @throws NullPointerException if {@code moduleWrapper} is null.
    */
   void handlePostModuleStop(@NonNull ModuleWrapper moduleWrapper);
 
@@ -87,6 +95,7 @@ public interface ModuleProviderHandler {
    * Called when a module is about to get unloaded.
    *
    * @param moduleWrapper the module which will be unloaded.
+   * @throws NullPointerException if {@code moduleWrapper} is null.
    */
   void handlePreModuleUnload(@NonNull ModuleWrapper moduleWrapper);
 
@@ -94,6 +103,7 @@ public interface ModuleProviderHandler {
    * Called when a module was unloaded.
    *
    * @param moduleWrapper the module which was unloaded.
+   * @throws NullPointerException if {@code moduleWrapper} is null.
    */
   void handlePostModuleUnload(@NonNull ModuleWrapper moduleWrapper);
 
@@ -102,6 +112,7 @@ public interface ModuleProviderHandler {
    *
    * @param configuration the configuration of the module in which the dependency is declared.
    * @param dependency    the dependency which will be loaded.
+   * @throws NullPointerException if configuration or dependency is null.
    */
   void handlePreInstallDependency(@NonNull ModuleConfiguration configuration, @NonNull ModuleDependency dependency);
 
@@ -110,6 +121,7 @@ public interface ModuleProviderHandler {
    *
    * @param configuration the configuration of the module in which the dependency is declared.
    * @param dependency    the dependency which was loaded.
+   * @throws NullPointerException if configuration or dependency is null.
    */
   void handlePostInstallDependency(@NonNull ModuleConfiguration configuration, @NonNull ModuleDependency dependency);
 }

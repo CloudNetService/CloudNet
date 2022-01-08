@@ -31,6 +31,7 @@ public class ModuleDependencyOutdatedException extends RuntimeException {
    * @param semverIndex     the semver index name: major, minor, patch
    * @param required        the required version of the semver index.
    * @param actual          the actual running version of the semver index.
+   * @throws NullPointerException if {@code requiringModule}, {@code dependency} or {@code semverIndex} is null.
    */
   public ModuleDependencyOutdatedException(
     @NonNull ModuleWrapper requiringModule,

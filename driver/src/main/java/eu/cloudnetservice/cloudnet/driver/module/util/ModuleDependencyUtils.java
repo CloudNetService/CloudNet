@@ -33,6 +33,10 @@ import lombok.NonNull;
 
 /**
  * Utility to find dependencies of a module, ensure that they are loaded and that there is no circular dependency.
+ *
+ * @see ModuleDependency
+ * @see ModuleWrapper
+ * @since 4.0
  */
 public final class ModuleDependencyUtils {
 

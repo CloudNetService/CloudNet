@@ -28,6 +28,7 @@ public class ModuleDependencyNotFoundException extends RuntimeException {
    *
    * @param dependency      the name of the dependency which is missing.
    * @param requiringModule the module which required the dependency to be present.
+   * @throws NullPointerException if dependency or {@code requiringModule} is null.
    */
   public ModuleDependencyNotFoundException(@NonNull String dependency, @NonNull String requiringModule) {
     super(String.format("Missing module dependency %s required by %s", dependency, requiringModule));

@@ -30,7 +30,8 @@ public interface ModuleDependencyLoader {
    * @param configuration the module configuration associated with the module which loads the dependency.
    * @param dependency    the dependency will should be converted to a download url.
    * @return an url targeting the source of the dependency from which it can be loaded.
-   * @throws Exception if any exception occurs during the load of the dependency.
+   * @throws Exception            if any exception occurs during the load of the dependency.
+   * @throws NullPointerException if configuration or dependency is null.
    * @see ModuleDependency#url()
    */
   @NonNull URL loadModuleDependencyByUrl(
@@ -43,7 +44,8 @@ public interface ModuleDependencyLoader {
    * @param dependency    the dependency will should be converted to a download url.
    * @param repositoryUrl the repository which is associated with the dependency.
    * @return an url targeting the source of the dependency from which it can be loaded.
-   * @throws Exception if any exception occurs during the load of the dependency.
+   * @throws Exception            if any exception occurs during the load of the dependency.
+   * @throws NullPointerException if configuration, dependency or {@code repositoryUrl} is null.
    */
   @NonNull URL loadModuleDependencyByRepository(@NonNull ModuleConfiguration configuration,
     @NonNull ModuleDependency dependency, @NonNull String repositoryUrl) throws Exception;

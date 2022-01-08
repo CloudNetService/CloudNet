@@ -27,7 +27,21 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents a deserialized form of a module.json file.
+ * Represents the module.json file that each module.jar has to contain. The configuration requires the following
+ * properties:
+ * <ul>
+ *   <li>group</li>
+ *   <li>name</li>
+ *   <li>version</li>
+ *   <li>main</li>
+ * </ul>
+ * <p>
+ * All required dependencies of a module should be listed in the {@link ModuleConfiguration#dependencies()} instead of shading them into the module jar.
+ * If a dependency is not located in maven central the repo of the {@link ModuleDependency} needs to be specified.
+ *
+ * @see ModuleConfigurationNotFoundException
+ * @see ModuleConfigurationPropertyNotFoundException
+ * @since 4.0
  */
 @ToString
 @EqualsAndHashCode

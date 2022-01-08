@@ -20,6 +20,17 @@ import lombok.NonNull;
 
 /**
  * An exception thrown when a required property was not found in a module.json file.
+ * <p>
+ * Required properties:
+ * <ul>
+ *   <li>group</li>
+ *   <li>name</li>
+ *   <li>version</li>
+ *   <li>main</li>
+ * </ul>
+ *
+ * @see ModuleConfiguration
+ * @since 4.0
  */
 public class ModuleConfigurationPropertyNotFoundException extends RuntimeException {
 

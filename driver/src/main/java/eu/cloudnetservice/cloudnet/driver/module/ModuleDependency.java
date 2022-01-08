@@ -22,7 +22,15 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents a dependency of a module.
+ * Represents a dependency for the desired module. The module dependencies for a module
+ * are specified in the {@link ModuleConfiguration}.
+ * <p>
+ * The specified dependency in the {@link ModuleConfiguration} has to match in the following parts:
+ * <ul>
+ *   <li>group</li>
+ *   <li>name</li>
+ *   <li>version</li>
+ * </ul>
  */
 @EqualsAndHashCode
 public class ModuleDependency {

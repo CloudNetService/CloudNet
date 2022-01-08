@@ -21,6 +21,9 @@ import lombok.NonNull;
 
 /**
  * Represents an exception thrown when the module configuration of a module cannot be found in the module file.
+ *
+ * @see ModuleConfiguration
+ * @since 4.0
  */
 public class ModuleConfigurationNotFoundException extends RuntimeException {
 
