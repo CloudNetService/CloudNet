@@ -273,7 +273,10 @@ public final class CommandPermissions {
     @Argument("sortId") int sortId
   ) {
     this.updateGroup(permissionGroup, group -> group.sortId(sortId));
-    source.sendMessage(I18n.trans("command-permissions-group-set-sortid", permissionGroup.name(), sortId));
+    source.sendMessage(I18n.trans("command-permissions-group-set-property",
+      "sortId",
+      permissionGroup.name(),
+      sortId));
   }
 
   @CommandMethod("permissions|perms group <group> set display <display>")
@@ -283,7 +286,10 @@ public final class CommandPermissions {
     @Quoted @Argument("display") String display
   ) {
     this.updateGroup(permissionGroup, group -> group.display(display));
-    source.sendMessage(I18n.trans("command-permissions-group-set-display", permissionGroup.name(), display));
+    source.sendMessage(I18n.trans("command-permissions-group-set-property",
+      "display",
+      permissionGroup.name(),
+      display));
   }
 
   @CommandMethod("permissions|perms group <group> set prefix <prefix>")
@@ -293,7 +299,10 @@ public final class CommandPermissions {
     @Quoted @Argument("prefix") String prefix
   ) {
     this.updateGroup(permissionGroup, group -> group.prefix(prefix));
-    source.sendMessage(I18n.trans("command-permissions-group-set-prefix", permissionGroup.name(), prefix));
+    source.sendMessage(I18n.trans("command-permissions-group-set-property",
+      "prefix",
+      permissionGroup.name(),
+      prefix));
   }
 
   @CommandMethod("permissions|perms group <group> set suffix <suffix>")
@@ -303,7 +312,10 @@ public final class CommandPermissions {
     @Quoted @Argument("suffix") String suffix
   ) {
     this.updateGroup(permissionGroup, group -> group.suffix(suffix));
-    source.sendMessage(I18n.trans("command-permissions-group-set-suffix", permissionGroup.name(), suffix));
+    source.sendMessage(I18n.trans("command-permissions-group-set-property",
+      "suffix",
+      permissionGroup.name(),
+      suffix));
   }
 
   @CommandMethod("permissions|perms group <group> set color <color>")
@@ -313,7 +325,7 @@ public final class CommandPermissions {
     @Quoted @Argument("color") String color
   ) {
     this.updateGroup(permissionGroup, group -> group.color(color));
-    source.sendMessage(I18n.trans("command-permissions-group-set-color", permissionGroup.name(), color));
+    source.sendMessage(I18n.trans("command-permissions-group-set-property", "color", permissionGroup.name(), color));
   }
 
   @CommandMethod("permissions|perms group <group> set defaultGroup <defaultGroup>")
@@ -323,7 +335,10 @@ public final class CommandPermissions {
     @Argument("defaultGroup") boolean defaultGroup
   ) {
     this.updateGroup(permissionGroup, group -> group.defaultGroup(defaultGroup));
-    source.sendMessage(I18n.trans("command-permissions-group-set-default-group", permissionGroup.name(), defaultGroup));
+    source.sendMessage(I18n.trans("command-permissions-group-set-property",
+      "defaultGroup",
+      permissionGroup.name(),
+      defaultGroup));
   }
 
   @CommandMethod("permissions|perms group <group> add group <name>")

@@ -79,7 +79,7 @@ public final class CommandGroups {
       source.sendMessage(I18n.trans("command-groups-group-already-existing"));
     } else {
       this.updateGroup(GroupConfiguration.builder().name(groupName).build());
-      source.sendMessage(I18n.trans("command-service-base-create-group", groupName));
+      source.sendMessage(I18n.trans("command-groups-create-success", groupName));
     }
   }
 
@@ -123,19 +123,10 @@ public final class CommandGroups {
     group.targetEnvironments().add(environmentType.name());
     this.updateGroup(group);
 
-    source.sendMessage(I18n.trans("command-groups-add-environment-success"));
-  }
-
-  @CommandMethod("groups group <name> remove environment <environment>")
-  public void removeEnvironment(
-    CommandSource source,
-    @Argument("name") GroupConfiguration group,
-    @Argument("environment") ServiceEnvironmentType environmentType
-  ) {
-    if (group.targetEnvironments().remove(environmentType.name())) {
-      this.updateGroup(group);
-    }
-    source.sendMessage(I18n.trans("command-groups-remove-environment-success"));
+    source.sendMessage(I18n.trans("command-groups-add-collection-property",
+      "environment",
+      environmentType.name(),
+      group.name()));
   }
 
   @CommandMethod("groups group <name> add deployment <deployment>")
@@ -152,7 +143,10 @@ public final class CommandGroups {
 
     group.deployments().add(deployment);
     this.updateGroup(group);
-    source.sendMessage(I18n.trans("command-service-base-add-deployment-success"));
+    source.sendMessage(I18n.trans("command-groups-add-collection-property",
+      "deployment",
+      deployment.template(),
+      group.name()));
   }
 
   @CommandMethod("groups group <name> add template <template>")
@@ -163,7 +157,10 @@ public final class CommandGroups {
   ) {
     group.templates().add(template);
     this.updateGroup(group);
-    source.sendMessage(I18n.trans("command-service-base-add-template-success"));
+    source.sendMessage(I18n.trans("command-groups-add-collection-property",
+      "template",
+      template,
+      group.name()));
   }
 
   @CommandMethod("groups group <name> add inclusion <url> <path>")
@@ -177,7 +174,10 @@ public final class CommandGroups {
 
     group.includes().add(inclusion);
     this.updateGroup(group);
-    source.sendMessage(I18n.trans("command-service-base-add-inclusion-success"));
+    source.sendMessage(I18n.trans("command-groups-add-collection-property",
+      "inclusion",
+      inclusion,
+      group.name()));
   }
 
   @CommandMethod("groups group <name> add jvmOption <options>")
@@ -190,7 +190,10 @@ public final class CommandGroups {
       group.jvmOptions().add(jvmOption);
     }
     this.updateGroup(group);
-    source.sendMessage(I18n.trans("command-service-base-add-jvm-option-success"));
+    source.sendMessage(I18n.trans("command-groups-add-collection-property",
+      "jvmOption",
+      jvmOptions,
+      group.name()));
   }
 
   @CommandMethod("groups group <name> add processParameter <options>")
@@ -203,7 +206,25 @@ public final class CommandGroups {
       group.processParameters().add(processParameter);
     }
     this.updateGroup(group);
-    source.sendMessage(I18n.trans("command-service-base-add-process-parameters-success"));
+    source.sendMessage(I18n.trans("command-groups-add-collection-property",
+      "processParameter",
+      processParameters,
+      group.name()));
+  }
+
+  @CommandMethod("groups group <name> remove environment <environment>")
+  public void removeEnvironment(
+    CommandSource source,
+    @Argument("name") GroupConfiguration group,
+    @Argument("environment") ServiceEnvironmentType environmentType
+  ) {
+    if (group.targetEnvironments().remove(environmentType.name())) {
+      this.updateGroup(group);
+    }
+    source.sendMessage(I18n.trans("command-groups-remove-collection-property",
+      "environment",
+      environmentType.name(),
+      group.name()));
   }
 
   @CommandMethod("groups group <name> remove deployment <deployment>")
@@ -220,7 +241,10 @@ public final class CommandGroups {
 
     group.deployments().remove(deployment);
     this.updateGroup(group);
-    source.sendMessage(I18n.trans("command-service-base-remove-deployment-success"));
+    source.sendMessage(I18n.trans("command-groups-remove-collection-property",
+      "deployment",
+      deployment.template(),
+      group.name()));
   }
 
   @CommandMethod("groups group <name> remove template <template>")
@@ -231,7 +255,10 @@ public final class CommandGroups {
   ) {
     group.templates().remove(template);
     this.updateGroup(group);
-    source.sendMessage(I18n.trans("command-service-base-remove-template-success"));
+    source.sendMessage(I18n.trans("command-groups-remove-collection-property",
+      "template",
+      template,
+      group.name()));
   }
 
   @CommandMethod("groups group <name> remove inclusion <url> <path>")
@@ -245,7 +272,10 @@ public final class CommandGroups {
 
     group.includes().remove(inclusion);
     this.updateGroup(group);
-    source.sendMessage(I18n.trans("command-service-base-remove-inclusion-success"));
+    source.sendMessage(I18n.trans("command-groups-remove-collection-property",
+      "inclusion",
+      inclusion,
+      group.name()));
   }
 
   @CommandMethod("groups group <name> remove jvmOption <options>")
@@ -258,7 +288,10 @@ public final class CommandGroups {
       group.jvmOptions().remove(jvmOption);
     }
     this.updateGroup(group);
-    source.sendMessage(I18n.trans("command-service-base-remove-jvm-success"));
+    source.sendMessage(I18n.trans("command-groups-remove-collection-property",
+      "jvmOptions",
+      jvmOptions,
+      group.name()));
   }
 
   @CommandMethod("groups group <name> remove processParameter <options>")
@@ -271,21 +304,30 @@ public final class CommandGroups {
       group.processParameters().remove(processParameter);
     }
     this.updateGroup(group);
-    source.sendMessage(I18n.trans("command-service-base-remove-process-parameter-success"));
+    source.sendMessage(I18n.trans("command-groups-remove-collection-property",
+      "processParameter",
+      processParameters,
+      group.name()));
   }
 
   @CommandMethod("groups group <name> clear jvmOptions")
   public void clearJvmOptions(CommandSource source, @Argument("name") GroupConfiguration group) {
     group.jvmOptions().clear();
     this.updateGroup(group);
-    source.sendMessage(I18n.trans("command-service-base-clear-jvm-options-success"));
+    source.sendMessage(I18n.trans("command-service-base-clear-property",
+      "jvmOptions",
+      "group",
+      group.name()));
   }
 
   @CommandMethod("groups group <name> clear processParameters")
   public void clearProcessParameters(CommandSource source, @Argument("name") GroupConfiguration group) {
     group.processParameters().clear();
     this.updateGroup(group);
-    source.sendMessage(I18n.trans("command-service-base-clear-process-parameters-success"));
+    source.sendMessage(I18n.trans("command-service-base-clear-property",
+      "processParameters",
+      "group",
+      group.name()));
   }
 
   private void updateGroup(@NonNull GroupConfiguration groupConfiguration) {
