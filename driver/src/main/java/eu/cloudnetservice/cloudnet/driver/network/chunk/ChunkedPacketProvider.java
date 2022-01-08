@@ -19,9 +19,24 @@ package eu.cloudnetservice.cloudnet.driver.network.chunk;
 import eu.cloudnetservice.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
 import lombok.NonNull;
 
+/**
+ * Represents an object which is associated to chunked packets in any way and provides general information.
+ *
+ * @since 4.0
+ */
 public interface ChunkedPacketProvider {
 
+  /**
+   * Get the current transfer status, either while sending or receiving.
+   *
+   * @return the current transfer status
+   */
   @NonNull TransferStatus transferStatus();
 
+  /**
+   * Get the session information which is associated with this provider.
+   *
+   * @return the session information.
+   */
   @NonNull ChunkSessionInformation sessionInformation();
 }

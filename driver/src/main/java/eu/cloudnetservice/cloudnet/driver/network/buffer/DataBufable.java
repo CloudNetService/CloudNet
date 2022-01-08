@@ -16,11 +16,41 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.buffer;
 
+import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf.Mutable;
+import java.lang.reflect.Type;
 import lombok.NonNull;
 
+/**
+ * Represents an object which can be written into a DataBuf but not using the default way the object mapper takes.
+ * Therefore, this class provides the traditional read and write methods to (de-) serialize an object from a DataBuf.
+ * <p>
+ * A class which implements this interface is required to contain a no-args constructor which contains no special logic
+ * for the data reader to create an empty instance of it. The data of the buffer is then filled in using the read
+ * method.
+ *
+ * @see eu.cloudnetservice.cloudnet.driver.network.rpc.object.ObjectMapper#writeObject(Mutable, Object)
+ * @see eu.cloudnetservice.cloudnet.driver.network.rpc.object.ObjectMapper#readObject(DataBuf, Type)
+ * @since 4.0
+ */
 public interface DataBufable {
 
-  void writeData(@NonNull DataBuf dataBuf);
+  /**
+   * Writes all needed data from this object into the given data buf.
+   *
+   * @param dataBuf the buffer to write the data to.
+   * @throws NullPointerException if the given buffer is null.
+   */
+  void writeData(@NonNull DataBuf.Mutable dataBuf);
 
+  /**
+   * Reads all data of this object from the given buffer. The deserializer uses the no-args constructor which must be
+   * available in this class and creates an empty instance of this class. This method is then responsible to fill the
+   * object data.
+   * <p>
+   * The given buffer should NEVER be read from more than written into the buffer in the write method.
+   *
+   * @param dataBuf the data buf to read the class data from.
+   * @throws NullPointerException if the given buffer is null.
+   */
   void readData(@NonNull DataBuf dataBuf);
 }
