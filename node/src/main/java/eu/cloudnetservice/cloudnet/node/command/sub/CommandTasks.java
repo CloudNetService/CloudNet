@@ -290,12 +290,10 @@ public final class CommandTasks {
   ) {
     for (var task : serviceTasks) {
       this.updateTask(task, builder -> builder.minServiceCount(amount));
-      source.sendMessage(
-        I18n.trans("command-tasks-set-property-success")
-          .replace("%property%", "minServiceCount")
-          .replace("%name%", task.name())
-          .replace("%value%", amount.toString())
-      );
+      source.sendMessage(I18n.trans("command-tasks-set-property-success",
+        "minServiceCount",
+        task.name(),
+        amount));
     }
   }
 
