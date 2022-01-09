@@ -28,7 +28,7 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 public final class NettyPacketLengthDeserializer extends ByteToMessageDecoder {
 
   private static final SilentDecoderException BAD_LENGTH = new SilentDecoderException("Bad packet length");
-  private static final SilentDecoderException INVALID_VAR_INT = new SilentDecoderException("Invalid var int");
+  private static final SilentDecoderException INVALID_VAR_INT = new SilentDecoderException("Invalid decoder var int");
 
   @Override
   protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) {

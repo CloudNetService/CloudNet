@@ -17,13 +17,34 @@
 package eu.cloudnetservice.cloudnet.driver.network.exception;
 
 import io.netty.handler.codec.DecoderException;
+import lombok.NonNull;
 
+/**
+ * A subtype of a decoder exception indicating that something went wrong during decoding. This exception will not
+ * generate a stack trace as it is not needed for further understanding what happened, the message should be unique.
+ * <p>
+ * Instances of this exception should get cached as there is no stack trace (and therefore only cluttering of new
+ * instances which all have one thing in common: no difference in information).
+ *
+ * @since 4.0
+ */
 public class SilentDecoderException extends DecoderException {
 
-  public SilentDecoderException(String message) {
+  /**
+   * Constructs a new silent decoder exception instance.
+   *
+   * @param message the message why the exception happened, should be unique.
+   * @throws NullPointerException if the given message is null.
+   */
+  public SilentDecoderException(@NonNull String message) {
     super(message);
   }
 
+  /**
+   * Overridden method to prevent filling the stack trace. This method call does nothing.
+   *
+   * @return the same instance as used to call the method, without any change made to it.
+   */
   @Override
   public Throwable fillInStackTrace() {
     return this;
