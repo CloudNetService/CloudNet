@@ -20,6 +20,12 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import lombok.NonNull;
 
+/**
+ * All http response codes. See <a href="https://developer.mozilla.org/de/docs/Web/HTTP/Status">here</a> for a full list
+ * with a detailed explanation of each response code.
+ *
+ * @since 4.0
+ */
 public enum HttpResponseCode {
 
   /**
@@ -430,14 +436,30 @@ public enum HttpResponseCode {
 
   private final int code;
 
+  /**
+   * Constructs a new http response code.
+   *
+   * @param code the numeric representation of the response code.
+   */
   HttpResponseCode(int code) {
     this.code = code;
   }
 
+  /**
+   * Get the http response code associated from the numeric status code, falling back to OK if the code was not found.
+   *
+   * @param numeric the numeric version of the response code.
+   * @return the response code associated with the numeric value, or OK.
+   */
   public static @NonNull HttpResponseCode fromNumeric(int numeric) {
     return BY_CODE.getOrDefault(numeric, HttpResponseCode.OK);
   }
 
+  /**
+   * Get the numeric representation of the http response code.
+   *
+   * @return the numeric representation of the http response code.
+   */
   public int code() {
     return this.code;
   }
