@@ -20,6 +20,14 @@ import java.util.Collection;
 import java.util.UUID;
 import lombok.NonNull;
 
+/**
+ * Represents the main entry point which holds all information about a cluster configuration. Essentially, this class
+ * holds everything a cluster needs to run.
+ *
+ * @param clusterId the id of the cluster which is running.
+ * @param nodes     all nodes which are running in the cluster.
+ * @since 4.0
+ */
 public record NetworkCluster(@NonNull UUID clusterId, @NonNull Collection<NetworkClusterNode> nodes) {
 
 }
