@@ -21,21 +21,38 @@ import eu.cloudnetservice.cloudnet.driver.network.chunk.TransferStatus;
 import eu.cloudnetservice.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
 import lombok.NonNull;
 
+/**
+ * Represents a default, shared implementation of a chunked packet provider.
+ *
+ * @since 4.0
+ */
 public abstract class DefaultChunkedPacketProvider implements ChunkedPacketProvider {
 
   protected final ChunkSessionInformation chunkSessionInformation;
   protected TransferStatus transferStatus;
 
-  protected DefaultChunkedPacketProvider(ChunkSessionInformation sessionInformation) {
+  /**
+   * Creates a new instance of this class.
+   *
+   * @param sessionInformation the information about the chunked session.
+   * @throws NullPointerException if the given session information is null.
+   */
+  protected DefaultChunkedPacketProvider(@NonNull ChunkSessionInformation sessionInformation) {
     this.chunkSessionInformation = sessionInformation;
     this.transferStatus = TransferStatus.RUNNING;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull TransferStatus transferStatus() {
     return this.transferStatus;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull ChunkSessionInformation sessionInformation() {
     return this.chunkSessionInformation;

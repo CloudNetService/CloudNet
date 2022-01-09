@@ -27,6 +27,14 @@ import java.io.InputStream;
 import java.util.function.Consumer;
 import lombok.NonNull;
 
+/**
+ * Represents a default implementation of a chunked packet sender specifically created for chunked transferring of a
+ * huge file, e.g. a zip archive.
+ * <p>
+ * This class shouldn't get instantiated directly, use {@link ChunkedPacketSender#forFileTransfer()} instead.
+ *
+ * @since 4.0
+ */
 public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider implements ChunkedPacketSender {
 
   protected static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
@@ -34,6 +42,14 @@ public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider i
   protected final InputStream source;
   protected final Consumer<Packet> packetSplitter;
 
+  /**
+   * Constructs a new chunked packet sender for file transfer.
+   *
+   * @param sessionInformation the information about the chunked session.
+   * @param source             the source stream of the file, will be closed automatically.
+   * @param packetSplitter     the splitter for each chunk part to transfer.
+   * @throws NullPointerException if either the information, source or splitter is null.
+   */
   public DefaultFileChunkPacketSender(
     @NonNull ChunkSessionInformation sessionInformation,
     @NonNull InputStream source,
@@ -45,16 +61,25 @@ public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider i
     this.packetSplitter = packetSplitter;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull InputStream source() {
     return this.source;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Consumer<Packet> packetSplitter() {
     return this.packetSplitter;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Task<TransferStatus> transferChunkedData() {
     return CompletableTask.supply(() -> {
