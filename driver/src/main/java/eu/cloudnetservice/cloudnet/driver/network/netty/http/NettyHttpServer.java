@@ -159,12 +159,6 @@ public class NettyHttpServer extends NettySSLServer implements HttpServer {
   }
 
   @Override
-  public @NonNull HttpServer removeHandler(@NonNull Class<? extends HttpHandler> handler) {
-    this.registeredHandlers.removeIf(registeredHandler -> registeredHandler.httpHandler.getClass().equals(handler));
-    return this;
-  }
-
-  @Override
   public @NonNull HttpServer removeHandler(@NonNull ClassLoader classLoader) {
     this.registeredHandlers.removeIf(handler -> handler.httpHandler.getClass().getClassLoader().equals(classLoader));
     return this;

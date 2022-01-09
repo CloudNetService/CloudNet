@@ -19,6 +19,7 @@ package eu.cloudnetservice.cloudnet.driver.network.netty.http;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
+import eu.cloudnetservice.cloudnet.driver.network.http.HttpResponseCode;
 import eu.cloudnetservice.cloudnet.driver.network.netty.http.NettyHttpServer.HttpHandlerEntry;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -123,7 +124,7 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
 
     if (!context.cancelSendResponse) {
       var response = context.httpServerResponse;
-      if (response.statusCode() == 404 && !response.hasBody()) {
+      if (response.status() == HttpResponseCode.NOT_FOUND && !response.hasBody()) {
         response.body("Resource not found!");
       }
 

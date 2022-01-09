@@ -21,8 +21,18 @@ import eu.cloudnetservice.cloudnet.driver.network.http.HttpHandler;
 import eu.cloudnetservice.cloudnet.driver.network.http.HttpResponseCode;
 import lombok.NonNull;
 
+/**
+ * A http handler which provides the requested content from the http request uri using the given content stream
+ * provider.
+ *
+ * @param provider the content stream provider which serves the requested content.
+ * @since 4.0
+ */
 public record StaticContentHttpHandler(@NonNull ContentStreamProvider provider) implements HttpHandler {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void handle(@NonNull String path, @NonNull HttpContext context) throws Exception {
     path = path.replaceFirst(context.pathPrefix(), "");
@@ -35,7 +45,7 @@ public record StaticContentHttpHandler(@NonNull ContentStreamProvider provider) 
         .closeAfter(true)
         .cancelNext(true)
         .response()
-        .statusCode(HttpResponseCode.HTTP_MOVED_PERM)
+        .status(HttpResponseCode.MOVED_PERMANENTLY)
         .header("Location", pathPrefix + "index.html");
       return;
     }
@@ -46,7 +56,7 @@ public record StaticContentHttpHandler(@NonNull ContentStreamProvider provider) 
         .closeAfter(true)
         .cancelNext(true)
         .response()
-        .statusCode(HttpResponseCode.HTTP_OK)
+        .status(HttpResponseCode.OK)
         .header("Content-Type", content.contentType())
         .body(content.openStream());
     }

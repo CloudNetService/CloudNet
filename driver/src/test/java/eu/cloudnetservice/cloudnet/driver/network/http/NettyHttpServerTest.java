@@ -89,7 +89,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
       "/test",
       ($, context) -> {
         Assertions.assertEquals(SUPPORTED_METHODS.get(handledTypes.getAndIncrement()), context.request().method());
-        context.response().statusCode(200).context().cancelNext(true).closeAfter();
+        context.response().status(HttpResponseCode.OK).context().cancelNext(true).closeAfter();
       });
 
     Assertions.assertEquals(1, server.httpHandlers().size());
@@ -115,7 +115,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
       "/test/{id}",
       ($, context) -> {
         Assertions.assertEquals("1234", context.request().pathParameters().get("id"));
-        context.response().statusCode(200).context().cancelNext(true).closeAfter();
+        context.response().status(HttpResponseCode.OK).context().cancelNext(true).closeAfter();
       });
 
     Assertions.assertEquals(1, server.httpHandlers().size());
@@ -136,7 +136,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
       ($, context) -> {
         Assertions.assertEquals("1234", Iterables.getFirst(context.request().queryParameters().get("id"), null));
         Assertions.assertIterableEquals(Arrays.asList("1", "2"), context.request().queryParameters().get("array"));
-        context.response().statusCode(200).context().cancelNext(true).closeAfter();
+        context.response().status(HttpResponseCode.OK).context().cancelNext(true).closeAfter();
       });
 
     Assertions.assertEquals(1, server.httpHandlers().size());
@@ -158,13 +158,13 @@ public class NettyHttpServerTest extends NetworkTestCase {
       ($, context) -> {
         var cancelNext = Boolean.parseBoolean(
           Iterables.getFirst(context.request().queryParameters().get("cancelNext"), null));
-        context.response().statusCode(200).context().cancelNext(cancelNext);
+        context.response().status(HttpResponseCode.OK).context().cancelNext(cancelNext);
       }
     );
     server.registerHandler(
       "/test1",
       HttpHandler.PRIORITY_HIGH,
-      ($, context) -> context.response().statusCode(201).context().closeAfter()
+      ($, context) -> context.response().status(HttpResponseCode.CREATED).context().closeAfter()
     );
 
     Assertions.assertEquals(2, server.httpHandlers().size());
@@ -189,7 +189,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
           JsonDocument.newDocument(context.request().bodyStream()));
 
         context.response()
-          .statusCode(201)
+          .status(HttpResponseCode.CREATED)
           .header("derklaro_response_status", "derklaro_was_there")
           .body(JsonDocument.newDocument("test", "passed").toString().getBytes(StandardCharsets.UTF_8))
           .context()
@@ -235,7 +235,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
 
         context
           .response()
-          .statusCode(200)
+          .status(HttpResponseCode.OK)
           .context()
           .cancelNext(true)
           .closeAfter(true)
@@ -285,20 +285,20 @@ public class NettyHttpServerTest extends NetworkTestCase {
     // global handler
     server.registerHandler(
       "/global",
-      ($, context) -> context.response().statusCode(201).context().cancelNext(true).closeAfter()
+      ($, context) -> context.response().status(HttpResponseCode.CREATED).context().cancelNext(true).closeAfter()
     );
     // port specific handlers
     server.registerHandler(
       "/test1",
       port,
       HttpHandler.PRIORITY_NORMAL,
-      ($, context) -> context.response().statusCode(200).context().cancelNext(true).closeAfter()
+      ($, context) -> context.response().status(HttpResponseCode.OK).context().cancelNext(true).closeAfter()
     );
     server.registerHandler(
       "/test2",
       secondPort,
       HttpHandler.PRIORITY_NORMAL,
-      ($, context) -> context.response().statusCode(200).context().cancelNext(true).closeAfter()
+      ($, context) -> context.response().status(HttpResponseCode.OK).context().cancelNext(true).closeAfter()
     );
 
     Assertions.assertEquals(3, server.httpHandlers().size());

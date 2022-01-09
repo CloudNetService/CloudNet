@@ -18,6 +18,7 @@ package eu.cloudnetservice.cloudnet.driver.network.netty.http;
 
 import eu.cloudnetservice.cloudnet.driver.network.http.HttpContext;
 import eu.cloudnetservice.cloudnet.driver.network.http.HttpResponse;
+import eu.cloudnetservice.cloudnet.driver.network.http.HttpResponseCode;
 import eu.cloudnetservice.cloudnet.driver.network.http.HttpVersion;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
@@ -29,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 final class NettyHttpServerResponse extends NettyHttpMessage implements HttpResponse {
 
@@ -47,13 +49,13 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements HttpResp
   }
 
   @Override
-  public int statusCode() {
-    return this.httpResponse.status().code();
+  public @NonNull HttpResponseCode status() {
+    return HttpResponseCode.fromNumeric(this.httpResponse.status().code());
   }
 
   @Override
-  public @NonNull HttpResponse statusCode(int code) {
-    this.httpResponse.setStatus(HttpResponseStatus.valueOf(code));
+  public @NonNull HttpResponse status(@NonNull HttpResponseCode code) {
+    this.httpResponse.setStatus(HttpResponseStatus.valueOf(code.code()));
     return this;
   }
 
@@ -63,12 +65,12 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements HttpResp
   }
 
   @Override
-  public String header(@NonNull String name) {
+  public @Nullable String header(@NonNull String name) {
     return this.httpResponse.headers().getAsString(name);
   }
 
   @Override
-  public int headerAsInt(@NonNull String name) {
+  public @Nullable Integer headerAsInt(@NonNull String name) {
     return this.httpResponse.headers().getInt(name);
   }
 

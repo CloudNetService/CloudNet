@@ -25,8 +25,18 @@ import java.nio.file.Path;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * A provider which loads the stream content from a file in the given working directory, while preventing any kind of
+ * path traversal.
+ *
+ * @param workingDirectory the directory to lookup requested paths in.
+ * @since 4.0
+ */
 record FileContentStreamProvider(@NonNull Path workingDirectory) implements ContentStreamProvider {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable StreamableContent provideContent(@NonNull String path) {
     var targetPath = this.workingDirectory.resolve(path);
@@ -38,21 +48,38 @@ record FileContentStreamProvider(@NonNull Path workingDirectory) implements Cont
     }
   }
 
+  /**
+   * A stream source wrapping a specific file.
+   *
+   * @since 4.0
+   */
   private static final class FileStreamableContent implements StreamableContent {
 
     private final Path path;
     private final String contentType;
 
-    public FileStreamableContent(Path path) {
+    /**
+     * Constructs a new file streamable content instance.
+     *
+     * @param path the path to the wrapped content.
+     * @throws NullPointerException if the given path is null.
+     */
+    public FileStreamableContent(@NonNull Path path) {
       this.path = path;
       this.contentType = FileMimeTypeHelper.fileType(path) + "; charset=UTF-8";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull InputStream openStream() throws IOException {
       return Files.newInputStream(this.path);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull String contentType() {
       return this.contentType;

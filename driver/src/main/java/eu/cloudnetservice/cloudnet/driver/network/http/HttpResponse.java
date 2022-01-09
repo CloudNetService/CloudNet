@@ -18,9 +18,28 @@ package eu.cloudnetservice.cloudnet.driver.network.http;
 
 import lombok.NonNull;
 
+/**
+ * Represents a response http message transferred from a server to a client.
+ *
+ * @since 4.0
+ */
 public interface HttpResponse extends HttpMessage<HttpResponse> {
 
-  int statusCode();
+  /**
+   * The status code of the http response. The response status code set here should, but must not be a valid one. See
+   * the <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status">mdn</a> documentation about status codes for
+   * more information.
+   *
+   * @return the http response code of this response.
+   */
+  @NonNull HttpResponseCode status();
 
-  @NonNull HttpResponse statusCode(int code);
+  /**
+   * Sets the status of this response.
+   *
+   * @param code the new response status.
+   * @return the same instance as used to call the method, for chaining.
+   * @throws NullPointerException if the given response code is null.
+   */
+  @NonNull HttpResponse status(@NonNull HttpResponseCode code);
 }

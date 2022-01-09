@@ -16,9 +16,19 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.http;
 
+/**
+ * The version of a http request, currently only http 1.X is supported by CloudNet.
+ *
+ * @since 4.0
+ */
 public enum HttpVersion {
 
+  /**
+   * Http version 1.0
+   */
   HTTP_1_0,
+  /**
+   * Http version 1.1
+   */
   HTTP_1_1
-
 }

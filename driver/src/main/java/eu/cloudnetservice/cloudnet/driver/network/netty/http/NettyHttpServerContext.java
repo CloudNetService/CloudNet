@@ -35,7 +35,6 @@ import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
-import io.netty.handler.codec.http.websocketx.WebSocketHandshakeException;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import java.net.URI;
 import java.util.ArrayList;
@@ -118,8 +117,8 @@ final class NettyHttpServerContext implements HttpContext {
       } else {
         this.nettyChannel.pipeline().remove("http-server-handler");
         try {
-          handshaker.handshake(this.nettyChannel, this.httpRequest);
-        } catch (WebSocketHandshakeException exception) {
+          handshaker.handshake(this.nettyChannel, this.httpRequest).syncUninterruptibly();
+        } catch (Exception exception) {
           this.nettyChannel.writeAndFlush(new DefaultFullHttpResponse(
             this.httpRequest.protocolVersion(),
             HttpResponseStatus.OK,
@@ -191,7 +190,7 @@ final class NettyHttpServerContext implements HttpContext {
 
   @Override
   public boolean closeAfter() {
-    return this.closeAfter;
+    return this.closeAfter = true;
   }
 
   @Override

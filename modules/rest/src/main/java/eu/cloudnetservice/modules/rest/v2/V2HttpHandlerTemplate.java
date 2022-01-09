@@ -39,7 +39,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession session) {
+  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession ses) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.contains("/file/")) {
         if (path.contains("/download")) {
@@ -373,7 +373,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
   protected void notifyException(HttpContext context, Exception exception) {
     LOGGER.fine("Exception handling template request", exception);
-    this.response(context, HttpResponseCode.HTTP_INTERNAL_ERROR)
+    this.response(context, HttpResponseCode.INTERNAL_SERVER_ERROR)
       .body(this.failure().append("reason", "Exception processing request").toString())
       .context()
       .closeAfter(true)
@@ -382,7 +382,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
   protected HttpResponse ok(@NonNull HttpContext context, @NonNull String contentType) {
     return context.response()
-      .statusCode(HttpResponseCode.HTTP_OK)
+      .status(HttpResponseCode.OK)
       .header("Content-Type", contentType)
       .header("Access-Control-Allow-Origin", this.accessControlConfiguration.corsPolicy());
   }

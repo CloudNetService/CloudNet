@@ -32,7 +32,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession session) {
+  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession ses) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.endsWith("/group")) {
         this.handleGroupListRequest(context);
@@ -96,7 +96,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
     }
 
     this.groupProvider().addGroupConfiguration(configuration);
-    this.response(context, HttpResponseCode.HTTP_CREATED)
+    this.response(context, HttpResponseCode.CREATED)
       .body(this.success().toString())
       .context()
       .closeAfter(true)
@@ -113,7 +113,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
           .closeAfter(true)
           .cancelNext();
       } else {
-        this.response(context, HttpResponseCode.HTTP_GONE)
+        this.response(context, HttpResponseCode.GONE)
           .body(this.failure().append("reason", "No such group").toString())
           .context()
           .closeAfter(true)

@@ -18,6 +18,13 @@ package eu.cloudnetservice.cloudnet.driver.network.http;
 
 import lombok.NonNull;
 
+/**
+ * A handler for a http request. Each request, matching the given attributes supplied when registering, will be called
+ * directly into this handler. A request is only processed by one handler at a time. Handlers with a high priority will
+ * get called before handlers with a low priority.
+ *
+ * @since 4.0
+ */
 @FunctionalInterface
 public interface HttpHandler {
 
@@ -26,5 +33,15 @@ public interface HttpHandler {
   int PRIORITY_LOW = 16;
   int PRIORITY_LOWEST = 0;
 
+  /**
+   * Handles a http request whose path (and other supplied attributes) while registering is matching the requested path
+   * of the client. A request is only processed by one handler at a time, giving the handler full control about changing
+   * the context. Changes to the context will be reflected into other handlers and vise-versa.
+   *
+   * @param path    the full path of the client request.
+   * @param context the current context of the request.
+   * @throws Exception            if any exception occurs during the request handling.
+   * @throws NullPointerException if the given path or context is null.
+   */
   void handle(@NonNull String path, @NonNull HttpContext context) throws Exception;
 }

@@ -40,8 +40,7 @@ final class NettyHttpServerInitializer extends ChannelInitializer<Channel> {
   @Override
   protected void initChannel(@NonNull Channel ch) {
     if (this.nettyHttpServer.sslContext != null) {
-      ch.pipeline()
-        .addLast(this.nettyHttpServer.sslContext.newHandler(ch.alloc()));
+      ch.pipeline().addLast(this.nettyHttpServer.sslContext.newHandler(ch.alloc()));
     }
 
     ch.pipeline()
@@ -49,7 +48,6 @@ final class NettyHttpServerInitializer extends ChannelInitializer<Channel> {
       .addLast("http-object-aggregator", new HttpObjectAggregator(Short.MAX_VALUE))
       .addLast("http-response-encoder", new HttpResponseEncoder())
       .addLast("http-chunk-handler", new ChunkedWriteHandler())
-      .addLast("http-server-handler", new NettyHttpServerHandler(this.nettyHttpServer, this.hostAndPort))
-    ;
+      .addLast("http-server-handler", new NettyHttpServerHandler(this.nettyHttpServer, this.hostAndPort));
   }
 }

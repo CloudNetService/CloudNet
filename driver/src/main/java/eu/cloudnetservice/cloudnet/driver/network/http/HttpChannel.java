@@ -19,9 +19,31 @@ package eu.cloudnetservice.cloudnet.driver.network.http;
 import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
 import lombok.NonNull;
 
+/**
+ * A http channel represented in the most basic form. The channel only provides basic information about the connection
+ * to the client and allows to close it.
+ *
+ * @since 4.0
+ */
 public interface HttpChannel extends AutoCloseable {
 
+  /**
+   * Get the host and port of the server binding the client is connected to.
+   *
+   * @return the host and port of the server.
+   */
   @NonNull HostAndPort serverAddress();
 
+  /**
+   * Get the host and port of the client which is connected to the server.
+   *
+   * @return the host and port of the client.
+   */
   @NonNull HostAndPort clientAddress();
+
+  /**
+   * Closes the underlying connection of the client to the server. After the close this channel cannot be used anymore.
+   */
+  @Override
+  void close();
 }

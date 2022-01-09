@@ -89,12 +89,12 @@ final class NettyHttpServerRequest extends NettyHttpMessage implements HttpReque
   }
 
   @Override
-  public String header(@NonNull String name) {
+  public @Nullable String header(@NonNull String name) {
     return this.httpRequest.headers().getAsString(name);
   }
 
   @Override
-  public int headerAsInt(@NonNull String name) {
+  public @Nullable Integer headerAsInt(@NonNull String name) {
     return this.httpRequest.headers().getInt(name);
   }
 
@@ -200,7 +200,6 @@ final class NettyHttpServerRequest extends NettyHttpMessage implements HttpReque
 
   @Override
   public boolean hasBody() {
-    return this.httpRequest instanceof FullHttpRequest
-      && ((FullHttpRequest) this.httpRequest).content().readableBytes() > 0;
+    return this.httpRequest instanceof FullHttpRequest request && request.content().readableBytes() > 0;
   }
 }

@@ -28,7 +28,6 @@ import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
@@ -37,6 +36,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.Nullable;
 
 @Internal
 final class NettyWebSocketServerChannel implements WebSocketChannel {
@@ -67,12 +67,6 @@ final class NettyWebSocketServerChannel implements WebSocketChannel {
   }
 
   @Override
-  public @NonNull WebSocketChannel removeListener(@NonNull Collection<Class<? extends WebSocketListener>> classes) {
-    this.webSocketListeners.removeIf(listener -> classes.contains(listener.getClass()));
-    return this;
-  }
-
-  @Override
   public @NonNull WebSocketChannel removeListener(@NonNull ClassLoader classLoader) {
     this.webSocketListeners.removeIf(listener -> listener.getClass().getClassLoader().equals(classLoader));
     return this;
@@ -96,7 +90,7 @@ final class NettyWebSocketServerChannel implements WebSocketChannel {
 
   @Override
   public @NonNull WebSocketChannel sendWebSocketFrame(@NonNull WebSocketFrameType webSocketFrameType, byte[] bytes) {
-    WebSocketFrame webSocketFrame = switch (webSocketFrameType) {
+    var webSocketFrame = switch (webSocketFrameType) {
       case PING -> new PingWebSocketFrame(Unpooled.buffer(bytes.length).writeBytes(bytes));
       case PONG -> new PongWebSocketFrame(Unpooled.buffer(bytes.length).writeBytes(bytes));
       case TEXT -> new TextWebSocketFrame(Unpooled.buffer(bytes.length).writeBytes(bytes));
@@ -113,7 +107,7 @@ final class NettyWebSocketServerChannel implements WebSocketChannel {
   }
 
   @Override
-  public void close(int statusCode, @NonNull String reasonText) {
+  public void close(int statusCode, @Nullable String reasonText) {
     var statusCodeReference = new AtomicInteger(statusCode);
     var reasonTextReference = new AtomicReference<>(reasonText);
 
@@ -121,12 +115,13 @@ final class NettyWebSocketServerChannel implements WebSocketChannel {
       listener.handleClose(this, statusCodeReference, reasonTextReference);
     }
 
-    this.channel.writeAndFlush(new CloseWebSocketFrame(statusCodeReference.get(), reasonTextReference.get()))
+    this.channel
+      .writeAndFlush(new CloseWebSocketFrame(statusCodeReference.get(), reasonTextReference.get()))
       .addListener(ChannelFutureListener.CLOSE);
   }
 
   @Override
   public void close() {
-    this.close(200, "default closing");
+    this.close(1000, "goodbye");
   }
 }

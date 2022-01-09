@@ -52,19 +52,19 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
 
   @Override
   protected void handleUnauthorizedRequest(@NotNull String path, @NotNull HttpContext context) {
-    this.response(context, HttpResponseCode.HTTP_NO_CONTENT).context().closeAfter(true).cancelNext();
+    this.response(context, HttpResponseCode.NO_CONTENT).context().closeAfter(true).cancelNext();
   }
 
   @Override
-  protected void handleBasicAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull PermissionUser user) {
+  protected void handleBasicAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull PermissionUser u) {
     this.sendNodeInformation(context);
   }
 
   @Override
-  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession session) {
+  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession ses) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.endsWith("/liveconsole")) {
-        this.handleLiveConsoleRequest(context, session);
+        this.handleLiveConsoleRequest(context, ses);
       } else if (path.endsWith("/config")) {
         this.handleNodeConfigRequest(context);
       } else if (path.endsWith("/reload")) {
@@ -80,8 +80,8 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
   }
 
   @Override
-  protected void handleTicketAuthorizedRequest(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession session) {
-    this.handleLiveConsoleRequest(context, session);
+  protected void handleTicketAuthorizedRequest(@NotNull String $, @NotNull HttpContext con, @NotNull HttpSession ses) {
+    this.handleLiveConsoleRequest(con, ses);
   }
 
   protected void sendNodeInformation(HttpContext context) {
