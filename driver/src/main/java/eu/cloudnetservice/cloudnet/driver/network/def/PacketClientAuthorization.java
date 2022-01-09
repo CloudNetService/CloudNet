@@ -18,18 +18,60 @@ package eu.cloudnetservice.cloudnet.driver.network.def;
 
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.BasePacket;
+import lombok.NonNull;
 
+/**
+ * The packet which is used for authorization between:
+ * <ul>
+ *   <li>A wrapper and a node.
+ *   <li>A node and a node.
+ * </ul>
+ * <p>
+ * This packet holds all information which is required for a node to determine all information needed for a successful
+ * authentication. When authenticating a wrapper with a node this packet contains:
+ * <ol>
+ *   <li>The connection key assigned to the service by the node when starting the service.
+ *   <li>The service id of the service which connects to the node.
+ * </ol>
+ * <p>
+ * When authenticating a node with a node this packet contains:
+ * <ol>
+ *   <li>The cluster id
+ *   <li>The network cluster node (offline information) of the node.
+ * </ol>
+ *
+ * @since 4.0
+ */
 public final class PacketClientAuthorization extends BasePacket {
 
-  public PacketClientAuthorization(PacketAuthorizationType type, DataBuf dataBuf) {
+  /**
+   * Constructs a new authorization packet.
+   *
+   * @param type    the requested type of authorization.
+   * @param dataBuf the data for the authorization which are required for the given type.
+   * @throws NullPointerException if either the type or data buf is null.
+   */
+  public PacketClientAuthorization(@NonNull PacketAuthorizationType type, @NonNull DataBuf dataBuf) {
     super(
       NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL,
       DataBuf.empty().writeObject(type).writeDataBuf(dataBuf));
   }
 
+  /**
+   * The type of authorization used to determine which type of component is connecting and which information is required
+   * for a successful auth.
+   *
+   * @since 4.0
+   */
   public enum PacketAuthorizationType {
 
+    /**
+     * The authorization type for a node which should authenticate another node.
+     */
     NODE_TO_NODE,
+    /**
+     * The authorization type for a node which should authenticate a wrapper (or a running service in other words).
+     */
     WRAPPER_TO_NODE
   }
 }

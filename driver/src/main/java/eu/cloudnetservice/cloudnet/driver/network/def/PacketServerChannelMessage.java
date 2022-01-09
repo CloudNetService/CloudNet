@@ -21,8 +21,21 @@ import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.BasePacket;
 import lombok.NonNull;
 
+/**
+ * A packet which gets sent to indicate that a channel message should get processed. Sending this packet to a node will
+ * cause the node to either process it or redirect it into the cluster if needed. When sent to a wrapper, the wrapper
+ * will always post the receive event without further checks (the node is required to do these).
+ *
+ * @since 4.0
+ */
 public final class PacketServerChannelMessage extends BasePacket {
 
+  /**
+   * Constructs a new channel message packet instance.
+   *
+   * @param message the channel message (or content) which should be sent to the other component.
+   * @throws NullPointerException if the given channel message is null.
+   */
   public PacketServerChannelMessage(@NonNull ChannelMessage message) {
     super(NetworkConstants.CHANNEL_MESSAGING_CHANNEL, DataBuf.empty().writeObject(message));
   }
