@@ -20,22 +20,37 @@ import eu.cloudnetservice.cloudnet.driver.network.netty.NettyUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
+/**
+ * An encoder for the length of the packet sent into a netty channel.
+ *
+ * @since 4.0
+ */
 @Internal
 public final class NettyPacketLengthSerializer extends MessageToByteEncoder<ByteBuf> {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  protected void encode(ChannelHandlerContext ctx, ByteBuf in, ByteBuf out) {
+  protected void encode(@NonNull ChannelHandlerContext ctx, @NonNull ByteBuf in, @NonNull ByteBuf out) {
+    // write the var int before other content into the buffer, there is no need to expand the buffer as the buffer
+    // is always large enough due to the overridden allocateBuffer method.
     NettyUtils.writeVarInt(out, in.readableBytes());
     out.writeBytes(in);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  protected ByteBuf allocateBuffer(ChannelHandlerContext ctx, ByteBuf msg, boolean preferDirect) {
-    var initialSize = 5 + msg.readableBytes();
+  protected ByteBuf allocateBuffer(@NonNull ChannelHandlerContext ctx, @NonNull ByteBuf msg, boolean preferDirect) {
+    // only pre-allocate exactly the amount of bytes we're needing to write the message prefixed by the length of it.
+    var initialSize = NettyUtils.varIntByteAmount(msg.readableBytes()) + msg.readableBytes();
     return preferDirect
-      ? ctx.alloc().ioBuffer(initialSize)
-      : ctx.alloc().heapBuffer(initialSize);
+      ? ctx.alloc().heapBuffer(initialSize)
+      : ctx.alloc().directBuffer(initialSize);
   }
 }

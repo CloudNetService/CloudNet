@@ -31,6 +31,11 @@ import java.io.IOException;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
+/**
+ * The default netty based handler for web socket messages.
+ *
+ * @since 4.0
+ */
 @Internal
 final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 
@@ -38,10 +43,19 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
 
   private final NettyWebSocketServerChannel webSocketServerChannel;
 
-  public NettyWebSocketServerChannelHandler(NettyWebSocketServerChannel webSocketServerChannel) {
+  /**
+   * Constructs a new web socket server handler instance.
+   *
+   * @param webSocketServerChannel the wrapped web socket channel.
+   * @throws NullPointerException if the channel to wrap is null.
+   */
+  public NettyWebSocketServerChannelHandler(@NonNull NettyWebSocketServerChannel webSocketServerChannel) {
     this.webSocketServerChannel = webSocketServerChannel;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void exceptionCaught(@NonNull ChannelHandlerContext ctx, @NonNull Throwable cause) {
     if (!(cause instanceof IOException)) {
@@ -49,11 +63,17 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void channelReadComplete(@NonNull ChannelHandlerContext ctx) {
     ctx.flush();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void channelInactive(@NonNull ChannelHandlerContext ctx) {
     if (!ctx.channel().isActive() || !ctx.channel().isOpen() || !ctx.channel().isWritable()) {
@@ -61,6 +81,9 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected void channelRead0(@NonNull ChannelHandlerContext ctx, @NonNull WebSocketFrame webSocketFrame) {
     if (webSocketFrame instanceof PingWebSocketFrame) {
@@ -84,6 +107,13 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
     }
   }
 
+  /**
+   * Invokes all handlers when a web socket frame was received.
+   *
+   * @param type           the type of frame received.
+   * @param webSocketFrame the actual frame which was received.
+   * @throws NullPointerException if either the given type of frame is null.
+   */
   private void invoke0(@NonNull WebSocketFrameType type, @NonNull WebSocketFrame webSocketFrame) {
     var bytes = this.readContentFromWebSocketFrame(webSocketFrame);
     for (var listener : this.webSocketServerChannel.listeners()) {
@@ -95,6 +125,13 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
     }
   }
 
+  /**
+   * Converts the body of a web socket frame to a byte array.
+   *
+   * @param frame the received frame to read the body from.
+   * @return the body of the frame, in bytes.
+   * @throws NullPointerException if the given frame is null.
+   */
   private byte[] readContentFromWebSocketFrame(@NonNull WebSocketFrame frame) {
     var bytes = new byte[frame.content().readableBytes()];
     frame.content().getBytes(frame.content().readerIndex(), bytes);

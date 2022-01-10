@@ -22,7 +22,7 @@ import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
 import eu.cloudnetservice.cloudnet.driver.network.http.HttpHandler;
 import eu.cloudnetservice.cloudnet.driver.network.http.HttpServer;
-import eu.cloudnetservice.cloudnet.driver.network.netty.NettySSLServer;
+import eu.cloudnetservice.cloudnet.driver.network.netty.NettySslServer;
 import eu.cloudnetservice.cloudnet.driver.network.netty.NettyUtils;
 import eu.cloudnetservice.cloudnet.driver.network.ssl.SSLConfiguration;
 import io.netty.bootstrap.ServerBootstrap;
@@ -39,7 +39,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public class NettyHttpServer extends NettySSLServer implements HttpServer {
+/**
+ * The default implementation of the web server, using netty as its backing mechanism.
+ *
+ * @since 4.0
+ */
+public class NettyHttpServer extends NettySslServer implements HttpServer {
 
   private static final Logger LOGGER = LogManager.logger(NettyHttpServer.class);
 
@@ -49,11 +54,19 @@ public class NettyHttpServer extends NettySSLServer implements HttpServer {
   protected final EventLoopGroup bossGroup = NettyUtils.newEventLoopGroup();
   protected final EventLoopGroup workerGroup = NettyUtils.newEventLoopGroup();
 
+  /**
+   * Constructs a new instance of a netty http server instance. Equivalent to {@code new NettyHttpServer(null)}.
+   */
   public NettyHttpServer() {
     this(null);
   }
 
-  public NettyHttpServer(SSLConfiguration sslConfiguration) {
+  /**
+   * Constructs a new netty http server instance with the given ssl configuration.
+   *
+   * @param sslConfiguration the ssl configuration to use, null for no ssl.
+   */
+  public NettyHttpServer(@Nullable SSLConfiguration sslConfiguration) {
     super(sslConfiguration);
 
     try {
@@ -63,21 +76,33 @@ public class NettyHttpServer extends NettySSLServer implements HttpServer {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean sslEnabled() {
     return this.sslContext != null;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean addListener(int port) {
     return this.addListener(new HostAndPort("0.0.0.0", port));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean addListener(@NonNull SocketAddress socketAddress) {
     return this.addListener(HostAndPort.fromSocketAddress(socketAddress));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean addListener(@NonNull HostAndPort hostAndPort) {
     try {
@@ -107,76 +132,100 @@ public class NettyHttpServer extends NettySSLServer implements HttpServer {
     return false;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpServer registerHandler(@NonNull String path, HttpHandler... handlers) {
     return this.registerHandler(path, HttpHandler.PRIORITY_NORMAL, handlers);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpServer registerHandler(@NonNull String path, int priority, HttpHandler... handlers) {
     return this.registerHandler(path, null, priority, handlers);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpServer registerHandler(
-    @NonNull String path, Integer port,
+    @NonNull String path,
+    @Nullable Integer port,
     int priority,
-    HttpHandler... handlers
+    @NonNull HttpHandler... handlers
   ) {
+    // ensure that the path starts with a / (later needed for uri matching)
     if (!path.startsWith("/")) {
       path = "/" + path;
     }
 
+    // ensure that the path ends with a / (if the path is not the root handler)
     if (path.endsWith("/") && !path.equals("/")) {
       path = path.substring(0, path.length() - 1);
     }
 
+    // register each handler
+    register:
     for (var httpHandler : handlers) {
-      if (httpHandler != null) {
-        var value = true;
-
-        for (var registeredHandler : this.registeredHandlers) {
-          if (registeredHandler.path.equals(path) && registeredHandler.httpHandler.getClass()
-            .equals(httpHandler.getClass())) {
-            value = false;
-            break;
-          }
-        }
-
-        if (value) {
-          this.registeredHandlers.add(new HttpHandlerEntry(path, httpHandler, port, priority));
+      // validate  that we are not registering a handler twice, except if the handler is another class
+      for (var knownHandler : this.registeredHandlers) {
+        if (knownHandler.path.equals(path) && knownHandler.httpHandler.getClass().equals(httpHandler.getClass())) {
+          // a handler already exists - continue registering the provided handlers
+          continue register;
         }
       }
+
+      // register the handler
+      this.registeredHandlers.add(new HttpHandlerEntry(path, httpHandler, port, priority));
     }
 
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpServer removeHandler(@NonNull HttpHandler handler) {
     this.registeredHandlers.removeIf(registeredHandler -> registeredHandler.httpHandler.equals(handler));
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpServer removeHandler(@NonNull ClassLoader classLoader) {
     this.registeredHandlers.removeIf(handler -> handler.httpHandler.getClass().getClassLoader().equals(classLoader));
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Collection<HttpHandler> httpHandlers() {
     return this.registeredHandlers.stream()
-      .map(httpHandlerEntry -> httpHandlerEntry.httpHandler)
+      .map(HttpHandlerEntry::httpHandler)
       .toList();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpServer clearHandlers() {
     this.registeredHandlers.clear();
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void close() {
     for (var entry : this.channelFutures.values()) {
@@ -188,6 +237,15 @@ public class NettyHttpServer extends NettySSLServer implements HttpServer {
     this.clearHandlers();
   }
 
+  /**
+   * Represents a registered http handler, holding all the information needed for later calling of it.
+   *
+   * @param path        the path to which the handler is bound.
+   * @param httpHandler the actual registered handler to call.
+   * @param port        the specific port the handlers listen to, or null if no port is selected.
+   * @param priority    the priority of the handler.
+   * @since 4.0
+   */
   public record HttpHandlerEntry(
     @NonNull String path,
     @NonNull HttpHandler httpHandler,
@@ -195,9 +253,12 @@ public class NettyHttpServer extends NettySSLServer implements HttpServer {
     int priority
   ) implements Comparable<HttpHandlerEntry> {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int compareTo(@NonNull HttpHandlerEntry httpHandlerEntry) {
-      return this.priority + httpHandlerEntry.priority;
+      return Integer.compare(this.priority, httpHandlerEntry.priority());
     }
   }
 }

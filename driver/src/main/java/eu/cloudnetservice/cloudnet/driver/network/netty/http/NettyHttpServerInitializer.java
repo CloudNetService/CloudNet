@@ -26,21 +26,36 @@ import io.netty.handler.stream.ChunkedWriteHandler;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
+/**
+ * The default channel initializer used to initialize http server connections.
+ *
+ * @since 4.0
+ */
 @Internal
 final class NettyHttpServerInitializer extends ChannelInitializer<Channel> {
 
   private final NettyHttpServer nettyHttpServer;
   private final HostAndPort hostAndPort;
 
-  public NettyHttpServerInitializer(NettyHttpServer nettyHttpServer, HostAndPort hostAndPort) {
+  /**
+   * Constructs a new netty http server initializer instance.
+   *
+   * @param nettyHttpServer the http server the initializer belongs to.
+   * @param hostAndPort     the host and port of the listener which was bound.
+   * @throws NullPointerException if either the http server or host and port is null.
+   */
+  public NettyHttpServerInitializer(@NonNull NettyHttpServer nettyHttpServer, @NonNull HostAndPort hostAndPort) {
     this.nettyHttpServer = nettyHttpServer;
     this.hostAndPort = hostAndPort;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected void initChannel(@NonNull Channel ch) {
     if (this.nettyHttpServer.sslContext != null) {
-      ch.pipeline().addLast(this.nettyHttpServer.sslContext.newHandler(ch.alloc()));
+      ch.pipeline().addLast("ssl-handler", this.nettyHttpServer.sslContext.newHandler(ch.alloc()));
     }
 
     ch.pipeline()

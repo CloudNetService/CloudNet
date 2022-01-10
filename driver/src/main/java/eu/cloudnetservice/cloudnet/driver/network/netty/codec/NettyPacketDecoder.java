@@ -27,28 +27,51 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import java.util.List;
 import java.util.UUID;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
+/**
+ * An internal implementation of the packet decoder used for client to server communication. This decoder reverses the
+ * encoding steps done in {@link NettyPacketEncoder} while ensuring that the channel is open and data was transferred to
+ * the component before starting the decoding process.
+ * <p>
+ * A packet always contains the following data:
+ * <ol>
+ *   <li>The numeric id of the channel being sent to, by default a var int.
+ *   <li>An optional query unique id if the packet is a query.
+ *   <li>The data transferred to this component, might be empty.
+ * </ol>
+ *
+ * @since 4.0
+ */
 @Internal
 public final class NettyPacketDecoder extends ByteToMessageDecoder {
 
   private static final Logger LOGGER = LogManager.logger(NettyPacketDecoder.class);
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  protected void decode(ChannelHandlerContext ctx, ByteBuf byteBuf, List<Object> out) {
-    if (!ctx.channel().isActive() || !byteBuf.isReadable()) {
-      byteBuf.clear();
+  protected void decode(@NonNull ChannelHandlerContext ctx, @NonNull ByteBuf buf, @NonNull List<Object> out) {
+    // validates that the channel associated to this decoder call is still active and actually transferred data before
+    // beginning to read.
+    if (!ctx.channel().isActive() || !buf.isReadable()) {
+      buf.clear();
       return;
     }
 
     try {
-      var channel = NettyUtils.readVarInt(byteBuf);
-      var queryUniqueId = byteBuf.readBoolean() ? new UUID(byteBuf.readLong(), byteBuf.readLong()) : null;
-      DataBuf body = new NettyImmutableDataBuf(byteBuf.readBytes(NettyUtils.readVarInt(byteBuf)));
+      // read the required base data from the buffer
+      var channel = NettyUtils.readVarInt(buf);
+      var queryUniqueId = buf.readBoolean() ? new UUID(buf.readLong(), buf.readLong()) : null;
+      DataBuf body = new NettyImmutableDataBuf(buf.readBytes(NettyUtils.readVarInt(buf)));
 
+      // construct the packet
       var packet = new BasePacket(channel, body);
       packet.uniqueId(queryUniqueId);
 
+      // register the packet for further downstream handling
       out.add(packet);
     } catch (Exception exception) {
       LOGGER.severe("Exception while decoding packet", exception);

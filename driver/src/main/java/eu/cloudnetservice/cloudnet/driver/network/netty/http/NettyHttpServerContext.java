@@ -45,6 +45,11 @@ import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * The default netty implementation of a http handling context.
+ *
+ * @since 4.0
+ */
 @Internal
 final class NettyHttpServerContext implements HttpContext {
 
@@ -69,6 +74,16 @@ final class NettyHttpServerContext implements HttpContext {
   private volatile HttpHandler lastHandler;
   private volatile NettyWebSocketServerChannel webSocketServerChannel;
 
+  /**
+   * Constructs a new netty http server context instance.
+   *
+   * @param nettyHttpServer the http server which received the request handled by this context.
+   * @param channel         the channel to which the request was sent.
+   * @param uri             the uri of the request.
+   * @param pathParameters  the path parameters pre-parsed, by default an empty map.
+   * @param httpRequest     the http request which was received originally.
+   * @throws NullPointerException if one of the constructor parameters is null.
+   */
   public NettyHttpServerContext(
     @NonNull NettyHttpServer nettyHttpServer,
     @NonNull NettyHttpChannel channel,
@@ -101,9 +116,13 @@ final class NettyHttpServerContext implements HttpContext {
     this.updateHeaderResponse();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable WebSocketChannel upgrade() {
     if (this.webSocketServerChannel == null) {
+      // not upgraded yet, build a new handshaker based on the given information
       var handshaker = new WebSocketServerHandshakerFactory(
         this.httpRequest.uri(),
         null,
@@ -111,11 +130,15 @@ final class NettyHttpServerContext implements HttpContext {
         Short.MAX_VALUE,
         false
       ).newHandshaker(this.httpRequest);
+      // no handshaker (as per the netty docs) means that the websocket version of the request is unsupported.
       if (handshaker == null) {
         WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(this.nettyChannel);
         return null;
       } else {
+        // remove the http handler from the pipeline, gets replaced with the websocket one.
         this.nettyChannel.pipeline().remove("http-server-handler");
+
+        // try to greet the client, block until the operation is done
         try {
           handshaker.handshake(this.nettyChannel, this.httpRequest).syncUninterruptibly();
         } catch (Exception exception) {
@@ -129,10 +152,13 @@ final class NettyHttpServerContext implements HttpContext {
         }
       }
 
+      // upgrading done, add the handler to the pipeline
       this.webSocketServerChannel = new NettyWebSocketServerChannel(this.channel, this.nettyChannel);
-      this.nettyChannel.pipeline().addLast("websocket-server-channel-handler",
+      this.nettyChannel.pipeline().addLast(
+        "websocket-server-channel-handler",
         new NettyWebSocketServerChannelHandler(this.webSocketServerChannel));
 
+      // cancel the next request and the response send to the client by the handler
       this.cancelNext(true);
       this.closeAfter(false);
       this.cancelSendResponse = true;
@@ -141,58 +167,91 @@ final class NettyHttpServerContext implements HttpContext {
     return this.webSocketServerChannel;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable WebSocketChannel webSocketChanel() {
     return this.webSocketServerChannel;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpChannel channel() {
     return this.channel;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpRequest request() {
     return this.httpServerRequest;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpResponse response() {
     return this.httpServerResponse;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean cancelNext() {
     return this.cancelNext = true;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpContext cancelNext(boolean cancelNext) {
     this.cancelNext = cancelNext;
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable HttpHandler peekLast() {
     return this.lastHandler;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpComponent<HttpServer> component() {
     return this.nettyHttpServer;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpContext closeAfter(boolean value) {
     this.closeAfter = value;
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean closeAfter() {
     return this.closeAfter = true;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public HttpCookie cookie(@NonNull String name) {
     return this.cookies.stream()
@@ -201,16 +260,25 @@ final class NettyHttpServerContext implements HttpContext {
       .orElse(null);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Collection<HttpCookie> cookies() {
     return this.cookies;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean hasCookie(@NonNull String name) {
     return this.cookies.stream().anyMatch(httpCookie -> httpCookie.name().equalsIgnoreCase(name));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpContext cookies(@NonNull Collection<HttpCookie> cookies) {
     this.cookies.clear();
@@ -220,6 +288,9 @@ final class NettyHttpServerContext implements HttpContext {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpContext addCookie(@NonNull HttpCookie httpCookie) {
     var cookie = this.cookie(httpCookie.name());
@@ -233,6 +304,9 @@ final class NettyHttpServerContext implements HttpContext {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpContext removeCookie(@NonNull String name) {
     this.cookies.removeIf(cookie -> cookie.name().equals(name));
@@ -240,6 +314,9 @@ final class NettyHttpServerContext implements HttpContext {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpContext clearCookies() {
     this.cookies.clear();
@@ -247,15 +324,38 @@ final class NettyHttpServerContext implements HttpContext {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull String pathPrefix() {
     return this.pathPrefix;
   }
 
+  /**
+   * Sets the current path prefix of the handler being processed.
+   *
+   * @param pathPrefix the path prefix of the current handler.
+   * @throws NullPointerException if the given path prefix is null.
+   */
   public void pathPrefix(@NonNull String pathPrefix) {
     this.pathPrefix = pathPrefix;
   }
 
+  /**
+   * Sets the last handler which was processed in the processing chain, for later access from the next handler in the
+   * chain. Use {@link #peekLast()} to get the previous handler in the chain.
+   *
+   * @param lastHandler the last processed handler in the chain.
+   * @throws NullPointerException if the last handler is null.
+   */
+  public void pushChain(@NonNull HttpHandler lastHandler) {
+    this.lastHandler = lastHandler;
+  }
+
+  /**
+   * Updates the response header according to the new cookies set during the request.
+   */
   private void updateHeaderResponse() {
     if (this.cookies.isEmpty()) {
       this.httpServerResponse.httpResponse.headers().remove("Set-Cookie");
@@ -273,9 +373,5 @@ final class NettyHttpServerContext implements HttpContext {
           return cookie;
         }).collect(Collectors.toList())));
     }
-  }
-
-  public void setLastHandler(@NonNull HttpHandler lastHandler) {
-    this.lastHandler = lastHandler;
   }
 }

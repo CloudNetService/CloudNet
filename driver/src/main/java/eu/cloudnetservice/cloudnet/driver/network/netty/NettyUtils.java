@@ -47,11 +47,14 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Range;
 
 /**
- * Internal util for Netty and its ByteBuf
+ * Internal util for the default netty based communication between server and clients, http and websocket.
+ *
+ * @since 4.0
  */
 @Internal
 public final class NettyUtils {
 
+  public static final int[] VAR_INT_LENGTHS = new int[33];
   public static final boolean NATIVE_TRANSPORT = Epoll.isAvailable();
   public static final ThreadFactory THREAD_FACTORY = FastThreadLocalThread::new;
   public static final SilentDecoderException INVALID_VAR_INT = new SilentDecoderException("Invalid var int");
@@ -66,6 +69,13 @@ public final class NettyUtils {
     if (System.getProperty("io.netty.leakDetection.level") == null) {
       ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
     }
+
+    // initializes the length of each var int which removes the need for that later
+    for (int i = 0; i <= 32; ++i) {
+      VAR_INT_LENGTHS[i] = (int) Math.ceil(31D - (i - 1) / 7D);
+    }
+    // 0 is always one byte long
+    VAR_INT_LENGTHS[32] = 1;
   }
 
   private NettyUtils() {
@@ -101,7 +111,7 @@ public final class NettyUtils {
   /**
    * Creates a new nio or epoll event loop group based on their availability.
    *
-   * @return a new nio or epoll event loop group based on their availability.
+   * @return a new nio or epoll event loop group.
    */
   public static @NonNull EventLoopGroup newEventLoopGroup() {
     return Epoll.isAvailable()
@@ -173,6 +183,16 @@ public final class NettyUtils {
       }
     }
     throw INVALID_VAR_INT;
+  }
+
+  /**
+   * Get the amount of bytes the given integer will consume when converted to a var int.
+   *
+   * @param varInt the var int to write.
+   * @return the number of bytes the given var int takes when serializing.
+   */
+  public static int varIntByteAmount(int varInt) {
+    return VAR_INT_LENGTHS[Integer.numberOfLeadingZeros(varInt)];
   }
 
   /**
