@@ -238,6 +238,14 @@ public class NettyImmutableDataBuf implements DataBuf {
    * {@inheritDoc}
    */
   @Override
+  public boolean accessible() {
+    return this.byteBuf.refCnt() > 0;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public @NonNull DataBuf disableReleasing() {
     this.releasable = false;
     return this;

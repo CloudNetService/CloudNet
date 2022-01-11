@@ -21,62 +21,100 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalListener;
 import eu.cloudnetservice.cloudnet.common.concurrent.CompletableTask;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
-import eu.cloudnetservice.cloudnet.driver.network.protocol.BasePacket;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.QueryPacketManager;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
+/**
+ * The default implementation of the query manager.
+ *
+ * @since 4.0
+ */
 public class DefaultQueryPacketManager implements QueryPacketManager {
 
-  private final long queryTimeoutMillis;
+  private static final Duration DEFAULT_TIMEOUT_DURATION = Duration.ofSeconds(30);
+
+  private final Duration queryTimeout;
   private final NetworkChannel networkChannel;
   private final Cache<UUID, CompletableTask<Packet>> waitingHandlers;
 
-  public DefaultQueryPacketManager(NetworkChannel networkChannel) {
-    this(networkChannel, TimeUnit.SECONDS.toMillis(30));
+  /**
+   * Constructs a new query manager for the given network channel and a timeout of 30 seconds for each query.
+   *
+   * @param networkChannel the network channel associated with this manager.
+   * @throws NullPointerException if the given network channel is null.
+   */
+  public DefaultQueryPacketManager(@NonNull NetworkChannel networkChannel) {
+    this(networkChannel, DEFAULT_TIMEOUT_DURATION);
   }
 
-  public DefaultQueryPacketManager(NetworkChannel networkChannel, long queryTimeoutMillis) {
+  /**
+   * Constructs a new query manager for the given network with the provided query timeout.
+   *
+   * @param networkChannel the network channel associated with this manager.
+   * @param queryTimeout   the time to wait for a response to each query before being completed with an empty packet.
+   * @throws NullPointerException if either the given network channel or query timeout is null.
+   */
+  public DefaultQueryPacketManager(@NonNull NetworkChannel networkChannel, @NonNull Duration queryTimeout) {
     this.networkChannel = networkChannel;
-    this.queryTimeoutMillis = queryTimeoutMillis;
+    this.queryTimeout = queryTimeout;
+    // construct the cache based on the given information
     this.waitingHandlers = CacheBuilder.newBuilder()
+      .expireAfterWrite(queryTimeout)
       .removalListener(this.newRemovalListener())
-      .expireAfterWrite(queryTimeoutMillis, TimeUnit.MILLISECONDS)
       .build();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public long queryTimeoutMillis() {
-    return this.queryTimeoutMillis;
+  public @NonNull Duration queryTimeout() {
+    return this.queryTimeout;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull NetworkChannel networkChannel() {
     return this.networkChannel;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull @UnmodifiableView Map<UUID, CompletableTask<Packet>> waitingHandlers() {
     return Collections.unmodifiableMap(this.waitingHandlers.asMap());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean hasWaitingHandler(@NonNull UUID queryUniqueId) {
     return this.waitingHandlers.getIfPresent(queryUniqueId) != null;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean unregisterWaitingHandler(@NonNull UUID queryUniqueId) {
     this.waitingHandlers.invalidate(queryUniqueId);
     return true;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable CompletableTask<Packet> waitingHandler(@NonNull UUID queryUniqueId) {
     var task = this.waitingHandlers.getIfPresent(queryUniqueId);
@@ -86,11 +124,17 @@ public class DefaultQueryPacketManager implements QueryPacketManager {
     return task;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull CompletableTask<Packet> sendQueryPacket(@NonNull Packet packet) {
     return this.sendQueryPacket(packet, UUID.randomUUID());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull CompletableTask<Packet> sendQueryPacket(@NonNull Packet packet, @NonNull UUID queryUniqueId) {
     // create & register the result handler
@@ -103,10 +147,16 @@ public class DefaultQueryPacketManager implements QueryPacketManager {
     return task;
   }
 
+  /**
+   * Constructs a new removal listener for the cache, completing the future of a query packet with an empty packet if
+   * the future times out.
+   *
+   * @return a new removal listeners for unanswered packet future completion.
+   */
   protected @NonNull RemovalListener<UUID, CompletableTask<Packet>> newRemovalListener() {
     return notification -> {
       if (notification.wasEvicted() && notification.getValue() != null) {
-        notification.getValue().complete(BasePacket.EMPTY);
+        notification.getValue().complete(Packet.empty());
       }
     };
   }

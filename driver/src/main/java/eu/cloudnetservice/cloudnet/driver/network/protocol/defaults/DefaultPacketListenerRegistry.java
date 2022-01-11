@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.protocol.defaults;
 
+import com.google.common.base.Verify;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
@@ -34,32 +35,54 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
 /**
- * Default IPacketListenerRegistry implementation
+ * The default implementation of the packet listener registry.
+ *
+ * @since 4.0
  */
 public class DefaultPacketListenerRegistry implements PacketListenerRegistry {
 
   private final PacketListenerRegistry parent;
   private final Multimap<Integer, PacketListener> listeners;
 
+  /**
+   * Constructs a new packet listener registry instance with no parent packet listener given. This call is equivalent to
+   * {@code new DefaultPacketListenerRegistry(null)}.
+   */
   public DefaultPacketListenerRegistry() {
     this(null);
   }
 
-  public DefaultPacketListenerRegistry(PacketListenerRegistry parent) {
+  /**
+   * Constructs a new packet listener registry instance.
+   *
+   * @param parent the parent registry or null if no parent registry should be set.
+   */
+  public DefaultPacketListenerRegistry(@Nullable PacketListenerRegistry parent) {
     this.parent = parent;
     this.listeners = Multimaps.newMultimap(new ConcurrentHashMap<>(), ConcurrentLinkedQueue::new);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable PacketListenerRegistry parent() {
     return this.parent;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void addListener(int channel, @NonNull PacketListener... listeners) {
+    // validate that the user is not trying to listen to a reserved channel
+    Verify.verify(channel != -1, "Tried to register listeners to forbidden channel id -1");
     this.listeners.putAll(channel, List.of(listeners));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void removeListener(int channel, @NonNull PacketListener... listeners) {
     var registeredListeners = this.listeners.get(channel);
@@ -75,11 +98,17 @@ public class DefaultPacketListenerRegistry implements PacketListenerRegistry {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void removeListeners(int channel) {
     this.listeners.removeAll(channel);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void removeListeners(@NonNull ClassLoader classLoader) {
     for (var entry : this.listeners.entries()) {
@@ -89,31 +118,49 @@ public class DefaultPacketListenerRegistry implements PacketListenerRegistry {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean hasListeners(int channel) {
     return this.listeners.containsKey(channel);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void removeListeners() {
     this.listeners.clear();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull @UnmodifiableView Collection<Integer> channels() {
     return Collections.unmodifiableCollection(this.listeners.keySet());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull @UnmodifiableView Collection<PacketListener> listeners() {
     return this.listeners.values();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull @UnmodifiableView Map<Integer, Collection<PacketListener>> packetListeners() {
     return Collections.unmodifiableMap(this.listeners.asMap());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void handlePacket(@NonNull NetworkChannel channel, @NonNull Packet packet) {
     if (this.parent != null) {

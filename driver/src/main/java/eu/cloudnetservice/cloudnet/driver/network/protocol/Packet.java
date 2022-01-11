@@ -16,77 +16,110 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.protocol;
 
-import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
+import java.time.Instant;
 import java.util.UUID;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * A packet represents the main communication unit between to network participants within the CloudNet network. This can
- * be between two nodes or between the Wrapper and the node.
+ * Represents the main communication entrypoint for the CloudNet network. Every data which is sent over the network must
+ * implement this class in order to indicate that. A packet contains 3 objects, 2 of them are required:
+ * <ol>
+ *   <li>The channel id of the channel to send the packet to, for later identification. (Required)
+ *   <li>The data buf, representing the content of the packet which gets transferred. (Required)
+ *   <li>The query unique id for identification of the query when a network component responds. (Optional)
+ * </ol>
+ * <p>
+ * A packet channel id must be unique within the network and represents the first identification point when receiving a
+ * packet. Each listener for packets, registered via the packet listener registry, uses the id to identify all listeners
+ * which must get called in order to process the packet. Later identification in more detail can be made by reading from
+ * the content of the buffer.
+ * <p>
+ * The query unique id of the packet is only set in two cases, either if the packet sender expects a response from the
+ * component to which the packet get sent, or if the packet is a response to a query, in which case the packet unique id
+ * should be -1.
  *
- * @see BasePacket
- * @see NetworkChannel
+ * @since 4.0
  */
 public interface Packet {
 
   /**
-   * Constructs a new packet that holds the same uuid as the packet used to create the response
+   * Get a jvm static implementation of a packet which holds no content and is designed to catch read/write activity on
+   * those packets by throwing an exception. Normally used by the query manager to complete futures which timed out.
    *
-   * @param content the content of the new packet
-   * @return the new constructed packet
+   * @return a jvm static instance of an empty packet.
+   */
+  static @NonNull Packet empty() {
+    return EmptyPacket.INSTANCE;
+  }
+
+  /**
+   * Constructs a new packet as a response to this packet. This is used for query communication where responding to a
+   * query is very common. The resulting packet will
+   * <ol>
+   *   <li>have a packet id set to -1 for query identification.
+   *   <li>have the same query unique id than this packet has.
+   *   <li>have the given content buffer as the content set.
+   * </ol>
+   *
+   * @param content the content of the response to this packet.
+   * @return a new packet representing a response to this packet.
+   * @throws NullPointerException if the given content is null.
    */
   @NonNull Packet constructResponse(@NonNull DataBuf content);
 
   /**
-   * Get the unique id of this packet. This field must not be defined if the packet has no unique id set. If the unique
-   * id is set a response to this packet is expected by the client receiving it. Not responding to the packet can lead
-   * to internal issues or thread deadlocks.
+   * Get the unique id of this packet. The unique id of the packet is only set when this packet is a query packet and
+   * expects a response. In this case the response to this packet should have the packet id set to -1 and the same query
+   * unique id than this packet has. Normally a response is constructed by {@link #constructResponse(DataBuf)}.
    *
-   * @return the query unique id of the packet or {@code null} if this packet is not a query packet.
+   * @return the unique id of this packet, or null if this packet is not a query packet.
    */
   @Nullable UUID uniqueId();
 
   /**
    * Sets the unique id of this packet. If the unique id is set and the packet is sent the packet will be handled as a
-   * query packet.
+   * query packet. This method should not be used directly to set or change the unique id of a packet. The unique id
+   * handling is made by the query manager used to send the packet as a query.
    *
-   * @param uniqueId the unique id of the packet or {@code null} if the packet should not be a query packet.
+   * @param uniqueId the new unique id of this packet or null if this packet is not a query packet.
    */
+  @Internal
   void uniqueId(@Nullable UUID uniqueId);
 
   /**
    * Get the channel id to which this packet was sent. Listeners can be registered to that channel and will be notified
-   * if a packet was received for the specified channel.
+   * if a packet was received for the specified channel. Each packet id should be unique within the whole network.
    *
    * @return the channel id to which this packet was sent.
    */
   int channel();
 
   /**
-   * Get the content of this packet. Data written to the buffer must not be accepted but will never throw an exception.
-   * If the packet was sent by a network participant the buffer will never be writable.
+   * Get if this packet still has readable bytes left. Useful to verify that from a packet can actually be read instead
+   * of running into exceptions because the end of the buffer has been reached.
+   *
+   * @return true if this packet still has data to read, false otherwise.
+   */
+  boolean readable();
+
+  /**
+   * Get the content of this packet. This method call always returns the same buffer to the caller, handling the buffer
+   * release and transactional reading is crucial to not run into exceptions when multiple handlers are handling the
+   * same packet.
    *
    * @return the content of this packet.
    */
   @NonNull DataBuf content();
 
   /**
-   * Get a unix timestamp of the creation milliseconds of this packet. When the packet is created by a decoder, the time
-   * will be used as the creation millis.
+   * Get an epoch timestamp of the creation time of this packet. When the packet is created by a decoder, the time will
+   * be used as the creation millis. There is no guarantee for this time to be the exact same time as when the packet
+   * gets sent to the component, nor when a listener first received the packet.
    *
-   * @return the creation milliseconds of this packet.
+   * @return the creation timestamp of this packet.
    */
-  long creationMillis();
-
-  /**
-   * Defines if there should be a debug message when the packet get encoded, sent, received etc. This setting will be
-   * enabled by default but should be disabled for very high rated packets.
-   *
-   * @return if there should be debug messages for this type of packet
-   */
-  default boolean showDebug() {
-    return true;
-  }
+  @NonNull Instant creation();
 }

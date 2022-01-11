@@ -292,6 +292,13 @@ public interface DataBuf extends AutoCloseable {
   // direct memory access
 
   /**
+   * Get if the current buffer is still accessible or if it was released already.
+   *
+   * @return if the current buffer is still accessible.
+   */
+  boolean accessible();
+
+  /**
    * Disables that the underlying buffer can be released when the reader index of this buffer reaches the tail or an
    * explicit call to {@code release()} or {@code close()} is made.
    *

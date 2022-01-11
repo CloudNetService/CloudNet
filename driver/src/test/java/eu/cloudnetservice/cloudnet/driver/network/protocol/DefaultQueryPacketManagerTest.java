@@ -19,6 +19,7 @@ package eu.cloudnetservice.cloudnet.driver.network.protocol;
 import eu.cloudnetservice.cloudnet.common.collection.Pair;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.defaults.DefaultQueryPacketManager;
+import java.time.Duration;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Assertions;
@@ -73,7 +74,9 @@ public class DefaultQueryPacketManagerTest {
   @Timeout(10)
   void testHandlerTimeout() throws InterruptedException {
     var mockedPacket = this.mockUniqueIdAblePacket();
-    QueryPacketManager manager = new DefaultQueryPacketManager(Mockito.mock(NetworkChannel.class), 2000);
+    QueryPacketManager manager = new DefaultQueryPacketManager(
+      Mockito.mock(NetworkChannel.class),
+      Duration.ofSeconds(2));
 
     var task = manager.sendQueryPacket(mockedPacket.first());
     Assertions.assertTrue(manager.hasWaitingHandler(mockedPacket.second().get()));
