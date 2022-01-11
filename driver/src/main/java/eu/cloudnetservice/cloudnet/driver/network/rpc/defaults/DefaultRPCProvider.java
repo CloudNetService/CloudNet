@@ -21,12 +21,25 @@ import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCProvider;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.object.ObjectMapper;
 import lombok.NonNull;
 
+/**
+ * An abstract implementation of a rpc provider for easier implementation in subclasses.
+ *
+ * @since 4.0
+ */
 public abstract class DefaultRPCProvider implements RPCProvider {
 
   protected final Class<?> targetClass;
   protected final ObjectMapper objectMapper;
   protected final DataBufFactory dataBufFactory;
 
+  /**
+   * Constructs a new default rpc provider instance.
+   *
+   * @param targetClass    the target class of method calls handled by this provider.
+   * @param objectMapper   the object mapper to use to write and read data from the buffers.
+   * @param dataBufFactory the buffer factory used for buffer allocations.
+   * @throws NullPointerException if the given class, object mapper or data buf factory is null.
+   */
   protected DefaultRPCProvider(
     @NonNull Class<?> targetClass,
     @NonNull ObjectMapper objectMapper,
@@ -37,16 +50,25 @@ public abstract class DefaultRPCProvider implements RPCProvider {
     this.dataBufFactory = dataBufFactory;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Class<?> targetClass() {
     return this.targetClass;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull ObjectMapper objectMapper() {
     return this.objectMapper;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull DataBufFactory dataBufFactory() {
     return this.dataBufFactory;

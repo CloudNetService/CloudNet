@@ -31,7 +31,7 @@ public interface ObjectMapper {
   @NonNull <T> ObjectMapper registerBinding(@NonNull Type type, @NonNull ObjectSerializer<T> serializer,
     boolean superTypes);
 
-  @NonNull DataBuf.Mutable writeObject(@NonNull DataBuf.Mutable dataBuf, @Nullable Object object);
+  @NonNull <T> DataBuf.Mutable writeObject(@NonNull DataBuf.Mutable dataBuf, @Nullable T object);
 
   @UnknownNullability <T> T readObject(@NonNull DataBuf dataBuf, @NonNull Type type);
 }

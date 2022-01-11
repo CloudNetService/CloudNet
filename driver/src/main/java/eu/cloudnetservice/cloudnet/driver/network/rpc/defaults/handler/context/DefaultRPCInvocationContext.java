@@ -21,75 +21,119 @@ import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCInvocationContext;
 import java.util.Optional;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
+/**
+ * The default implementation of a rpc invocation context.
+ *
+ * @since 4.0
+ */
 public class DefaultRPCInvocationContext implements RPCInvocationContext {
 
-  protected int argumentCount;
+  protected final int argumentCount;
 
-  protected boolean expectsMethodResult;
-  protected boolean normalizePrimitives;
-  protected boolean strictInstanceUsage;
+  protected final boolean expectsMethodResult;
+  protected final boolean normalizePrimitives;
+  protected final boolean strictInstanceUsage;
 
-  protected String methodName;
-  protected NetworkChannel channel;
+  protected final String methodName;
+  protected final NetworkChannel channel;
 
-  protected DataBuf arguments;
-  protected Object workingInstance;
+  protected final DataBuf arguments;
+  protected final Object workingInstance;
 
-  public DefaultRPCInvocationContext(
+  /**
+   * Constructs a new default rpc invocation context instance.
+   *
+   * @param argumentCount       the number of arguments the target method has.
+   * @param expectsMethodResult if true the caller of the method expects a result being sent back to the sender.
+   * @param normalizePrimitives if true primitive data types which are null will be normalized to their default value.
+   * @param strictInstanceUsage if true the caller will not use any other instance than provided to this context.
+   * @param methodName          the name of the method to invoke.
+   * @param channel             the channel from which the invocation request came.
+   * @param arguments           the buffer containing the arguments for the method invocation.
+   * @param workingInstance     the instance to work with, null if no binding instance should be used.
+   * @throws NullPointerException if either the given method name, channel or argument buffer is null.
+   */
+  protected DefaultRPCInvocationContext(
+    int argumentCount,
     boolean expectsMethodResult,
     boolean normalizePrimitives,
-    String methodName,
-    NetworkChannel channel,
-    DataBuf arguments,
-    Object workingInstance
+    boolean strictInstanceUsage,
+    @NonNull String methodName,
+    @NonNull NetworkChannel channel,
+    @NonNull DataBuf arguments,
+    @Nullable Object workingInstance
   ) {
+    this.argumentCount = argumentCount;
     this.expectsMethodResult = expectsMethodResult;
     this.normalizePrimitives = normalizePrimitives;
+    this.strictInstanceUsage = strictInstanceUsage;
     this.methodName = methodName;
     this.channel = channel;
     this.arguments = arguments;
     this.workingInstance = workingInstance;
   }
 
-  protected DefaultRPCInvocationContext() {
-  }
-
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int argumentCount() {
     return this.argumentCount;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean expectsMethodResult() {
     return this.expectsMethodResult;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean normalizePrimitives() {
     return this.normalizePrimitives;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean strictInstanceUsage() {
     return this.strictInstanceUsage;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull String methodName() {
     return this.methodName;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull NetworkChannel channel() {
     return this.channel;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull DataBuf argumentInformation() {
     return this.arguments;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Optional<Object> workingInstance() {
     return Optional.ofNullable(this.workingInstance);

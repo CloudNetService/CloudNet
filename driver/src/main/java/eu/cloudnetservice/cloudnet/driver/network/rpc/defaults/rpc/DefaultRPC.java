@@ -36,6 +36,11 @@ import java.util.concurrent.ExecutionException;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * The default implementation of a rpc.
+ *
+ * @since 4.0
+ */
 public class DefaultRPC extends DefaultRPCProvider implements RPC {
 
   private final RPCSender sender;
@@ -46,6 +51,18 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
 
   private boolean resultExpectation = true;
 
+  /**
+   * Constructs a new default rpc instance.
+   *
+   * @param sender             the sender of this rpc.
+   * @param clazz              the target class of this rpc.
+   * @param methodName         the name of the method which should get invoked.
+   * @param arguments          the arguments which should get supplied to the method to invoke.
+   * @param objectMapper       the object mapper used to write/read data from constructed buffers.
+   * @param expectedResultType true if this rpc execution expects a result, false otherwise.
+   * @param dataBufFactory     the data buf factory to use for data buf allocation.
+   * @throws NullPointerException if one of the given arguments is null.
+   */
   public DefaultRPC(
     @NonNull RPCSender sender,
     @NonNull Class<?> clazz,
@@ -64,67 +81,106 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
     this.expectedResultType = expectedResultType;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull RPCChain join(@NonNull RPC rpc) {
     return new DefaultRPCChain(this, rpc);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull RPCSender sender() {
     return this.sender;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull String className() {
     return this.className;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull String methodName() {
     return this.methodName;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Object[] arguments() {
     return this.arguments;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Type expectedResultType() {
     return this.expectedResultType;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull RPC disableResultExpectation() {
     this.resultExpectation = false;
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean expectsResult() {
     return this.resultExpectation;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void fireAndForget() {
     this.fireAndForget(Objects.requireNonNull(this.sender.associatedComponent().firstChannel()));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <T> @Nullable T fireSync() {
     return this.fireSync(Objects.requireNonNull(this.sender.associatedComponent().firstChannel()));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull <T> Task<T> fire() {
     return this.fire(Objects.requireNonNull(this.sender.associatedComponent().firstChannel()));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void fireAndForget(@NonNull NetworkChannel component) {
     this.disableResultExpectation().fireSync(component);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <T> @Nullable T fireSync(@NonNull NetworkChannel component) {
     try {
@@ -141,6 +197,9 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull <T> Task<T> fire(@NonNull NetworkChannel component) {
     // write the default needed information we need

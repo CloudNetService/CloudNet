@@ -22,6 +22,15 @@ import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.MethodInformation
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents the result of a method invocation.
+ *
+ * @param wasSuccessful           if the method invocation was successful or ended by an exception.
+ * @param invocationResult        the result of the method invocation.
+ * @param invocationHandler       the handler which is responsible for the class the method wss invoked in.
+ * @param targetMethodInformation the information of the method which was invoked.
+ * @since 4.0
+ */
 public record DefaultHandlingResult(
   boolean wasSuccessful,
   @Nullable Object invocationResult,
@@ -29,6 +38,15 @@ public record DefaultHandlingResult(
   @NonNull MethodInformation targetMethodInformation
 ) implements HandlingResult {
 
+  /**
+   * Constructs a new successful invocation result with the information provided.
+   *
+   * @param methodInformation the information of the method which was invoked.
+   * @param invocationHandler the handler which is responsible for the class the method wss invoked in.
+   * @param result            the result of the method invocation.
+   * @return the constructed method invocation result.
+   * @throws NullPointerException if either the given method information or handler is null.
+   */
   public static @NonNull HandlingResult success(
     @NonNull MethodInformation methodInformation,
     @NonNull RPCHandler invocationHandler,
@@ -37,6 +55,16 @@ public record DefaultHandlingResult(
     return new DefaultHandlingResult(true, result, invocationHandler, methodInformation);
   }
 
+  /**
+   * Constructs a new failed invocation result, indicating that an exception was thrown as the result of the method
+   * call.
+   *
+   * @param information       the information of the method which was invoked.
+   * @param invocationHandler the handler which is responsible for the class the method wss invoked in.
+   * @param result            the exception which was thrown during the method invocation.
+   * @return the constructed method invocation result.
+   * @throws NullPointerException if either the given method information, handler or exception is null.
+   */
   public static @NonNull HandlingResult failure(
     @NonNull MethodInformation information,
     @NonNull RPCHandler invocationHandler,

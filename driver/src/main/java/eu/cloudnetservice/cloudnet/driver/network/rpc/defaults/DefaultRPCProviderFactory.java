@@ -27,31 +27,58 @@ import eu.cloudnetservice.cloudnet.driver.network.rpc.object.ObjectMapper;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * The default factory implementation for everything related to rpc.
+ *
+ * @since 4.0
+ */
 public class DefaultRPCProviderFactory implements RPCProviderFactory {
 
   protected final ObjectMapper defaultObjectMapper;
   protected final DataBufFactory defaultDataBufFactory;
 
-  public DefaultRPCProviderFactory(ObjectMapper defaultObjectMapper, DataBufFactory defaultDataBufFactory) {
+  /**
+   * Constructs a new default rpc provider factory instance.
+   *
+   * @param defaultObjectMapper   the default object mapper to use if no object mapper is provided in factory calls.
+   * @param defaultDataBufFactory the default data buf factory to use if no object mapper is provided in factory calls.
+   * @throws NullPointerException if either the given object mapper or data buf factory is null.
+   */
+  public DefaultRPCProviderFactory(
+    @NonNull ObjectMapper defaultObjectMapper,
+    @NonNull DataBufFactory defaultDataBufFactory
+  ) {
     this.defaultObjectMapper = defaultObjectMapper;
     this.defaultDataBufFactory = defaultDataBufFactory;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull ObjectMapper defaultObjectMapper() {
     return this.defaultObjectMapper;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull DataBufFactory defaultDataBufFactory() {
     return this.defaultDataBufFactory;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull RPCSender providerForClass(@Nullable NetworkComponent component, @NonNull Class<?> clazz) {
     return this.providerForClass(component, clazz, this.defaultObjectMapper, this.defaultDataBufFactory);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull RPCSender providerForClass(
     @Nullable NetworkComponent component,
@@ -62,11 +89,17 @@ public class DefaultRPCProviderFactory implements RPCProviderFactory {
     return new DefaultRPCSender(this, component, clazz, objectMapper, dataBufFactory);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull RPCHandler newHandler(@NonNull Class<?> clazz, @Nullable Object binding) {
     return this.newHandler(clazz, binding, this.defaultObjectMapper, this.defaultDataBufFactory);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull RPCHandler newHandler(
     @NonNull Class<?> clazz,

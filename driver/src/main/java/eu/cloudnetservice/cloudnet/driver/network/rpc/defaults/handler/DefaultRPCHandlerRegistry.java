@@ -25,55 +25,90 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
+/**
+ * The default implementation of a rpc handler registry.
+ *
+ * @since 4.0
+ */
 public class DefaultRPCHandlerRegistry implements RPCHandlerRegistry {
 
   protected final Map<String, RPCHandler> handlers = new ConcurrentHashMap<>();
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull @UnmodifiableView Map<String, RPCHandler> registeredHandlers() {
     return Collections.unmodifiableMap(this.handlers);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean hasHandler(@NonNull Class<?> targetClass) {
     return this.hasHandler(targetClass.getCanonicalName());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean hasHandler(@NonNull String targetClassName) {
     return this.handlers.containsKey(targetClassName);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable RPCHandler handler(@NonNull Class<?> targetClass) {
     return this.handler(targetClass.getCanonicalName());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable RPCHandler handler(@NonNull String targetClassName) {
     return this.handlers.get(targetClassName);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean registerHandler(@NonNull RPCHandler rpcHandler) {
     return this.handlers.put(rpcHandler.targetClass().getCanonicalName(), rpcHandler) == null;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean unregisterHandler(@NonNull RPCHandler rpcHandler) {
     return this.unregisterHandler(rpcHandler.targetClass());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean unregisterHandler(@NonNull Class<?> rpcHandlerTargetClass) {
     return this.unregisterHandler(rpcHandlerTargetClass.getCanonicalName());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean unregisterHandler(@NonNull String rpcHandlerTargetClassName) {
     return this.handlers.remove(rpcHandlerTargetClassName) != null;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void unregisterHandlers(@NonNull ClassLoader classLoader) {
     for (var entry : this.handlers.entrySet()) {

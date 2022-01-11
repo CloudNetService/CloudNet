@@ -24,65 +24,116 @@ import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCInvocationContext.Build
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * The default implementation of a rpc invocation context builder.
+ *
+ * @see RPCInvocationContext#builder()
+ * @since 4.0
+ */
 public class DefaultRPCInvocationContextBuilder implements Builder {
 
-  protected final DefaultRPCInvocationContext context = new DefaultRPCInvocationContext();
+  protected int argumentCount = 0;
 
+  protected boolean expectsMethodResult = true;
+  protected boolean normalizePrimitives = true;
+  protected boolean strictInstanceUsage = false;
+
+  protected String methodName;
+  protected NetworkChannel channel;
+
+  protected DataBuf arguments;
+  protected Object workingInstance;
+
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull RPCInvocationContext.Builder argumentCount(int argumentCount) {
-    context.argumentCount = argumentCount;
+    this.argumentCount = argumentCount;
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull RPCInvocationContext.Builder expectsMethodResult(boolean expectsResult) {
-    this.context.expectsMethodResult = expectsResult;
+    this.expectsMethodResult = expectsResult;
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull RPCInvocationContext.Builder normalizePrimitives(boolean normalizePrimitives) {
-    this.context.normalizePrimitives = normalizePrimitives;
+    this.normalizePrimitives = normalizePrimitives;
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull RPCInvocationContext.Builder strictInstanceUsage(boolean strictInstanceUsage) {
-    this.context.strictInstanceUsage = strictInstanceUsage;
+    this.strictInstanceUsage = strictInstanceUsage;
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull RPCInvocationContext.Builder methodName(@NonNull String methodName) {
-    this.context.methodName = methodName;
+    this.methodName = methodName;
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull RPCInvocationContext.Builder channel(@NonNull NetworkChannel channel) {
-    this.context.channel = channel;
+    this.channel = channel;
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull RPCInvocationContext.Builder argumentInformation(@NonNull DataBuf information) {
-    this.context.arguments = information;
+    this.arguments = information;
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull RPCInvocationContext.Builder workingInstance(@Nullable Object instance) {
-    this.context.workingInstance = instance;
+    this.workingInstance = instance;
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull RPCInvocationContext build() {
     // validate the context
-    Verify.verifyNotNull(this.context.arguments, "No arguments supplied");
-    Verify.verifyNotNull(this.context.channel, "No source channel supplied");
-    Verify.verifyNotNull(this.context.methodName, "No method name supplied");
-    // return the created context
-    return this.context;
+    Verify.verifyNotNull(this.arguments, "No arguments supplied");
+    Verify.verifyNotNull(this.channel, "No source channel supplied");
+    Verify.verifyNotNull(this.methodName, "No method name supplied");
+    // create the context
+    return new DefaultRPCInvocationContext(
+      this.argumentCount,
+      this.expectsMethodResult,
+      this.normalizePrimitives,
+      this.strictInstanceUsage,
+      this.methodName,
+      this.channel,
+      this.arguments,
+      this.workingInstance);
   }
 }

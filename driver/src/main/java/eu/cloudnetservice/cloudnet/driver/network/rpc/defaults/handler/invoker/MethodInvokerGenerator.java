@@ -45,6 +45,11 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
+/**
+ * A utility class to generate and define an invoker for a method in the runtime.
+ *
+ * @since 4.0
+ */
 public class MethodInvokerGenerator {
 
   private static final String SUPER = "java/lang/Object";
@@ -62,6 +67,13 @@ public class MethodInvokerGenerator {
   private static final String CLASS_NAME_FORMAT = "%s$GeneratedInvoker_%s_%s";
   private static final String NO_ARGS_CONSTRUCTOR_CLASS_NAME_FORMAT = "%s$GeneratedConstructorInvoker_%s";
 
+  /**
+   * Generates a method invoker based on the information supplied from the method information.
+   *
+   * @param methodInfo the information about the method the invoker is generated for.
+   * @return the generated method invoker.
+   * @throws ClassCreationException if something goes wrong during the class generation.
+   */
   public @NonNull MethodInvoker makeMethodInvoker(@NonNull MethodInformation methodInfo) {
     try {
       var className = String.format(
@@ -152,6 +164,13 @@ public class MethodInvokerGenerator {
     }
   }
 
+  /**
+   * Makes an invoker for a no-args {@code &lt;init&gt;} method (better known as a constructor) for the given class.
+   *
+   * @param clazz the class in which the no args constructor is located.
+   * @return a generated invoker for the given class no-args constructor.
+   * @throws ClassCreationException if something goes wrong during the class generation.
+   */
   public @NonNull MethodInvoker makeNoArgsConstructorInvoker(@NonNull Class<?> clazz) {
     try {
       // make a class name which is definitely unique for the class

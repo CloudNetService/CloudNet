@@ -25,24 +25,7 @@ public interface ObjectSerializer<T> {
 
   @Nullable Object read(@NonNull DataBuf source, @NonNull Type type, @NonNull ObjectMapper caller);
 
-  @SuppressWarnings("unchecked")
-  default void writeObject(
-    @NonNull DataBuf.Mutable dataBuf,
-    @NonNull Object object,
-    @NonNull Type type,
-    @NonNull ObjectMapper caller
-  ) {
-    this.write(dataBuf, (T) object, type, caller);
-  }
-
-  default void write(
-    @NonNull DataBuf.Mutable dataBuf,
-    @NonNull T object,
-    @NonNull Type type,
-    @NonNull ObjectMapper caller
-  ) {
-    throw new UnsupportedOperationException();
-  }
+  void write(@NonNull DataBuf.Mutable dataBuf, @NonNull T object, @NonNull Type type, @NonNull ObjectMapper caller);
 
   default boolean preWriteCheckAccepts(@NonNull Object object) {
     return true;

@@ -26,10 +26,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * A serializer to write enum constants to a data buf.
+ *
+ * @since 4.0
+ */
 public class EnumObjectSerializer implements ObjectSerializer<Enum<?>> {
 
   private final Map<Type, Object[]> enumConstantCache = new ConcurrentHashMap<>();
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable Enum<?> read(
     @NonNull DataBuf source,
@@ -45,6 +53,9 @@ public class EnumObjectSerializer implements ObjectSerializer<Enum<?>> {
     return ordinal >= enumConstants.length ? null : (Enum<?>) enumConstants[ordinal];
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void write(
     @NonNull DataBuf.Mutable dataBuf,

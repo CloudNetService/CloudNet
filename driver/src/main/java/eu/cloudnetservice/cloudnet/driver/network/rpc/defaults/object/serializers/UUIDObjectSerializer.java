@@ -24,8 +24,16 @@ import java.util.UUID;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * An object serializer which can write and read a unique id from/to a buffer.
+ *
+ * @since 4.0
+ */
 public class UUIDObjectSerializer implements ObjectSerializer<UUID> {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable Object read(
     @NonNull DataBuf source,
@@ -35,6 +43,9 @@ public class UUIDObjectSerializer implements ObjectSerializer<UUID> {
     return new UUID(source.readLong(), source.readLong());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void write(
     @NonNull DataBuf.Mutable dataBuf,
