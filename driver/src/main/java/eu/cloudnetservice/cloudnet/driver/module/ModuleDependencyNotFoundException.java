@@ -19,12 +19,15 @@ package eu.cloudnetservice.cloudnet.driver.module;
 import lombok.NonNull;
 
 /**
- * Thrown when a module depends on another module which is not loaded.
+ * Represents an exception that is thrown when a {@link Module} depends on another module which is not loaded.
+ *
+ * @see ModuleDependency
+ * @since 4.0
  */
 public class ModuleDependencyNotFoundException extends RuntimeException {
 
   /**
-   * Constructs a new instance of this class.
+   * Constructs a new instance of this ModuleDependencyNotFoundException.
    *
    * @param dependency      the name of the dependency which is missing.
    * @param requiringModule the module which required the dependency to be present.

@@ -24,7 +24,13 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
 /**
- * Represents a loader and holder of modules.
+ * The ModuleProvider allows access to all loaded modules and the module paths. It keeps track of all known modules and
+ * provides access their {@link ModuleWrapper} and changing the {@link ModuleLifeCycle} for the modules.
+ *
+ * @since 4.0
+ * @see ModuleWrapper
+ * @see ModuleLifeCycle
+ * @see ModuleProviderHandler
  */
 public interface ModuleProvider {
 

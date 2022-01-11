@@ -22,8 +22,8 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents a dependency for the desired module. The module dependencies for a module
- * are specified in the {@link ModuleConfiguration}.
+ * Represents a dependency for the desired module. The module dependencies for a module are specified in the {@link
+ * ModuleConfiguration}.
  * <p>
  * The specified dependency in the {@link ModuleConfiguration} has to match in the following parts:
  * <ul>
@@ -31,6 +31,9 @@ import org.jetbrains.annotations.Nullable;
  *   <li>name</li>
  *   <li>version</li>
  * </ul>
+ *
+ * @see ModuleConfiguration
+ * @since 4.0
  */
 @EqualsAndHashCode
 public class ModuleDependency {
@@ -47,6 +50,7 @@ public class ModuleDependency {
    * @param group   the group of the dependency.
    * @param name    the name of the dependency.
    * @param version the version of the dependency.
+   * @throws NullPointerException if group, name or version is null.
    */
   public ModuleDependency(@NonNull String group, @NonNull String name, @NonNull String version) {
     this(null, group, name, version);
@@ -61,6 +65,7 @@ public class ModuleDependency {
    * @param group   the group of the dependency.
    * @param name    the name of the dependency.
    * @param version the version of the dependency.
+   * @throws NullPointerException if group, name or version is null.
    */
   public ModuleDependency(@Nullable String repo, @NonNull String group, @NonNull String name, @NonNull String version) {
     this(repo, null, group, name, version);
@@ -78,6 +83,7 @@ public class ModuleDependency {
    * @param group   the group of the dependency.
    * @param name    the name of the dependency.
    * @param version the version of the dependency.
+   * @throws NullPointerException if group, name or version is null.
    */
   public ModuleDependency(
     @Nullable String repo,

@@ -19,6 +19,15 @@ package eu.cloudnetservice.cloudnet.driver.module;
 import java.util.Arrays;
 import lombok.NonNull;
 
+/**
+ * The ModuleLifeCycle represents the state of a {@link Module}. Each Module is only ever in exactly one of these
+ * lifecycles.
+ * <p>
+ * Note: The lifecycles can't change from one to another without visiting a lifecycle in between.
+ *
+ * @see Module
+ * @since 4.0
+ */
 public enum ModuleLifeCycle {
   /**
    * The initial state of a module until the module gets loaded. Defined module tasks for this state will never fire.

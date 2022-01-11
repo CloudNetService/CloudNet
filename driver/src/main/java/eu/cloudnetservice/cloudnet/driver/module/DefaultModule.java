@@ -20,7 +20,11 @@ import com.google.common.base.Verify;
 import lombok.NonNull;
 
 /**
- * {@inheritDoc}
+ * Represents the default implementation of the {@link Module}.
+ *
+ * @see Module
+ * @see eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule
+ * @since 4.0
  */
 public class DefaultModule implements Module {
 

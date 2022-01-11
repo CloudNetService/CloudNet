@@ -19,7 +19,12 @@ package eu.cloudnetservice.cloudnet.driver.module;
 import lombok.NonNull;
 
 /**
- * Represents a handler for module provider actions.
+ * The ModuleProviderHandler handles the notifications for all {@link ModuleLifeCycle} changes for all loaded modules.
+ *
+ * @see ModuleLifeCycle
+ * @see ModuleWrapper
+ * @see ModuleProvider
+ * @since 4.0
  */
 public interface ModuleProviderHandler {
 

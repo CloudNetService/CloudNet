@@ -21,6 +21,12 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import lombok.NonNull;
 
+/**
+ * Represents the default implementation of the {@link ModuleTaskEntry}.
+ *
+ * @see ModuleTaskEntry
+ * @since 4.0
+ */
 public class DefaultModuleTaskEntry implements ModuleTaskEntry {
 
   /**
@@ -40,8 +46,13 @@ public class DefaultModuleTaskEntry implements ModuleTaskEntry {
    * @param task    the module task annotation based on which this entry was created.
    * @param method  the method which was annotated with {@link ModuleTask}.
    * @throws IllegalAccessException if access checking for the provided method fails.
+   * @throws NullPointerException   if wrapper, task or method is null.
    */
-  public DefaultModuleTaskEntry(ModuleWrapper wrapper, ModuleTask task, Method method) throws IllegalAccessException {
+  public DefaultModuleTaskEntry(
+    @NonNull ModuleWrapper wrapper,
+    @NonNull ModuleTask task,
+    @NonNull Method method
+  ) throws IllegalAccessException {
     this.moduleTask = task;
     this.moduleWrapper = wrapper;
     this.method = MethodHandles.lookup().unreflect(method);

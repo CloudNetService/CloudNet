@@ -40,7 +40,10 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Unmodifiable;
 
 /**
- * {@inheritDoc}
+ * Represents the default implementation of the {@link ModuleWrapper}.
+ *
+ * @see ModuleWrapper
+ * @since 4.0
  */
 public class DefaultModuleWrapper implements ModuleWrapper {
 
@@ -75,16 +78,18 @@ public class DefaultModuleWrapper implements ModuleWrapper {
    * @param classLoader         the class loader which was used to load the main class from the file.
    * @param dependingModules    the modules this module depends on and which need to get loaded first.
    * @param moduleConfiguration the parsed module configuration located in the module file.
-   * @throws URISyntaxException if the given module source is not formatted strictly according to RFC2396.
+   * @throws URISyntaxException   if the given module source is not formatted strictly according to RFC2396.
+   * @throws NullPointerException source, module, {@code dataDirectory}, provider, {@code classLoader}, {@code
+   *                              dependingModules} or {@code moduleConfiguration} is null.
    */
   public DefaultModuleWrapper(
-    URL source,
-    Module module,
-    Path dataDirectory,
-    ModuleProvider provider,
-    URLClassLoader classLoader,
-    Set<ModuleDependency> dependingModules,
-    ModuleConfiguration moduleConfiguration
+    @NonNull URL source,
+    @NonNull Module module,
+    @NonNull Path dataDirectory,
+    @NonNull ModuleProvider provider,
+    @NonNull URLClassLoader classLoader,
+    @NonNull Set<ModuleDependency> dependingModules,
+    @NonNull ModuleConfiguration moduleConfiguration
   ) throws URISyntaxException {
     this.source = source;
     this.module = module;
@@ -95,7 +100,7 @@ public class DefaultModuleWrapper implements ModuleWrapper {
     this.moduleConfiguration = moduleConfiguration;
     // initialize the uri of the module now as it's always required in order for the default provider to work
     this.sourceUri = source.toURI();
-    // resolve all tasks the module must execute now as we need them later anyways
+    // resolve all tasks the module must execute now as we need them later anyway
     this.tasks.putAll(this.resolveModuleTasks(module));
   }
 

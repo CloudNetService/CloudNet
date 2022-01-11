@@ -20,7 +20,16 @@ import java.net.URL;
 import lombok.NonNull;
 
 /**
- * A loader for dependencies which can be provided by a module.
+ * This ModuleDependencyLoader is used to download the {@link ModuleDependency} of a module into the default launcher
+ * libs directory.
+ * <p>
+ * Note: The ModuleDependencyLoader is not loading any of the downloaded dependencies, they are just downloaded and
+ * stored in the libs directory.
+ *
+ * @see DefaultModuleProvider#DEFAULT_LIB_DIR
+ * @see ModuleDependency
+ * @see ModuleConfiguration
+ * @since 4.0
  */
 public interface ModuleDependencyLoader {
 

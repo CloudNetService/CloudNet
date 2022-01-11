@@ -36,7 +36,9 @@ import org.jetbrains.annotations.Nullable;
  *   <li>main</li>
  * </ul>
  * <p>
- * All required dependencies of a module should be listed in the {@link ModuleConfiguration#dependencies()} instead of shading them into the module jar.
+ * All required dependencies of a module should be listed in the {@link ModuleConfiguration#dependencies()}
+ * instead of shading them into the module jar.
+ * <p>
  * If a dependency is not located in maven central the repo of the {@link ModuleDependency} needs to be specified.
  *
  * @see ModuleConfigurationNotFoundException

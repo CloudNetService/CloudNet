@@ -21,41 +21,101 @@ import eu.cloudnetservice.cloudnet.common.registry.ServicesRegistry;
 import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.driver.event.EventManager;
 import eu.cloudnetservice.cloudnet.driver.module.DefaultModule;
+import eu.cloudnetservice.cloudnet.driver.module.ModuleWrapper;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCProviderFactory;
 import java.nio.file.Path;
 import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
 
+/**
+ * Represents a cloudnet driver specific implementation for the {@link eu.cloudnetservice.cloudnet.driver.module.Module}.
+ * Usually this should be used as entry point of a module.
+ *
+ * @see eu.cloudnetservice.cloudnet.driver.module.ModuleTask
+ * @see eu.cloudnetservice.cloudnet.driver.module.Module
+ * @see DefaultModule
+ * @since 4.0
+ */
 public class DriverModule extends DefaultModule {
 
+  /**
+   * Reads the config at the default configuration path {@link DriverModule#configPath()} into a {@link JsonDocument}.
+   *
+   * @return the config at the default path.
+   * @see JsonDocument#newDocument(Path)
+   */
   public @NonNull JsonDocument readConfig() {
     return JsonDocument.newDocument(this.configPath());
   }
 
+  /**
+   * Writes the given {@link JsonDocument} to the default configuration path {@link DriverModule#configPath()}.
+   *
+   * @param config the config to write.
+   * @see JsonDocument#write(Path)
+   */
   public void writeConfig(@NonNull JsonDocument config) {
     config.write(this.configPath());
   }
 
+  /**
+   * The default configuration path located in the directory for this module. By default, this is {@code
+   * "Module-Name/config.json"}.
+   *
+   * @return the path of the config.
+   * @see ModuleWrapper#dataDirectory()
+   */
   protected @NonNull Path configPath() {
     return this.moduleWrapper().dataDirectory().resolve("config.json");
   }
 
+  /**
+   * Registers the given listener to the {@link EventManager}. Down calls to {@link CloudNetDriver#eventManager()} and
+   * {@link EventManager#registerListeners(Object...)}.
+   *
+   * @param listener the listeners to register
+   * @return the EventManager that was used to register the listeners.
+   */
   public final @NonNull EventManager registerListener(Object @NonNull ... listener) {
     return this.eventManager().registerListeners(listener);
   }
 
+  /**
+   * Gets the {@link ServicesRegistry} of the driver.
+   *
+   * @return the ServiceRegistry.
+   * @see CloudNetDriver#servicesRegistry()
+   */
   public final @NonNull ServicesRegistry serviceRegistry() {
     return this.driver().servicesRegistry();
   }
 
+  /**
+   * Gets the {@link EventManager} of the driver.
+   *
+   * @return the EventManager.
+   * @see CloudNetDriver#eventManager()
+   */
   public final @NonNull EventManager eventManager() {
     return this.driver().eventManager();
   }
 
+  /**
+   * Gets the {@link RPCProviderFactory} of the driver.
+   *
+   * @return the RPCProviderFactory.
+   * @see CloudNetDriver#rpcProviderFactory()
+   */
   public final @NonNull RPCProviderFactory rpcFactory() {
     return this.driver().rpcProviderFactory();
   }
 
+  /**
+   * Gets the {@link CloudNetDriver} instance.
+   *
+   * @return the CloudNetDriver instance.
+   * @see CloudNetDriver#instance()
+   */
   @Contract(pure = true)
   public final @NonNull CloudNetDriver driver() {
     return CloudNetDriver.instance();
