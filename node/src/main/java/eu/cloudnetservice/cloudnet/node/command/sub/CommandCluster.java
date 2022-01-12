@@ -260,7 +260,7 @@ public final class CommandCluster {
     @Argument("enabled") boolean enabled
   ) {
     nodeServer.drain(enabled);
-    source.sendMessage(I18n.trans("command-cluster-node-set-drain", enabled, nodeServer.nodeInfo().uniqueId()));
+    source.sendMessage(I18n.trans("command-cluster-node-set-drain", enabled ? 1 : 0, nodeServer.nodeInfo().uniqueId()));
   }
 
   @CommandMethod("cluster|clu sync")
