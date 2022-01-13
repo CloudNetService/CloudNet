@@ -20,12 +20,10 @@ import eu.cloudnetservice.cloudnet.common.concurrent.CompletedTask;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBufFactory;
-import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPC;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCChain;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.DefaultRPCProvider;
-import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.handler.util.ExceptionalResultUtil;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.exception.RPCException;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.exception.RPCExecutionException;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.object.ObjectMapper;
@@ -216,18 +214,9 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
     // send query if result is needed
     if (this.resultExpectation) {
       // now send the query and read the response
-      return component.sendQueryAsync(new RPCRequestPacket(dataBuf))
-        .map(Packet::content)
-        .map(content -> {
-          if (content.readBoolean()) {
-            // the execution did not throw an exception
-            return this.objectMapper.readObject(content, this.expectedResultType);
-          } else {
-            // rethrow the execution exception
-            ExceptionalResultUtil.rethrowException(content);
-            return null; // ok fine, but this will never happen - no one was seen again after entering the rethrowException method
-          }
-        });
+      return component
+        .sendQueryAsync(new RPCRequestPacket(dataBuf))
+        .map(new RPCResultMapper<>(this.expectedResultType, this.objectMapper));
     } else {
       // just send the method invocation request
       component.sendPacket(new RPCRequestPacket(dataBuf));

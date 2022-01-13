@@ -16,21 +16,18 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.rpc;
 
-import com.google.common.collect.Lists;
 import eu.cloudnetservice.cloudnet.common.concurrent.CompletedTask;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPC;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCChain;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.DefaultRPCProvider;
-import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.handler.util.ExceptionalResultUtil;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.exception.RPCException;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.exception.RPCExecutionException;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.packet.RPCRequestPacket;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -58,7 +55,7 @@ public class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
     @NonNull RPC rootRPC,
     @NonNull RPC headRPC
   ) {
-    this(rootRPC, headRPC, Lists.newArrayList(headRPC));
+    this(rootRPC, headRPC, List.of(headRPC));
   }
 
   /**
@@ -78,7 +75,7 @@ public class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
 
     this.rootRPC = rootRPC;
     this.headRPC = headRPC;
-    this.rpcChain = rpcChain;
+    this.rpcChain = List.copyOf(rpcChain);
   }
 
   /**
@@ -87,9 +84,10 @@ public class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
   @Override
   public @NonNull RPCChain join(@NonNull RPC rpc) {
     // add the rpc call to chain
-    this.rpcChain.add(rpc);
+    var newChain = new LinkedList<>(this.rpcChain);
+    newChain.add(rpc);
     // create the new chain instance
-    return new DefaultRPCChain(this.rootRPC, rpc, this.rpcChain);
+    return new DefaultRPCChain(this.rootRPC, rpc, newChain);
   }
 
   /**
@@ -105,7 +103,7 @@ public class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
    */
   @Override
   public @NonNull Collection<RPC> joins() {
-    return Collections.unmodifiableCollection(this.rpcChain);
+    return this.rpcChain;
   }
 
   /**
@@ -178,18 +176,9 @@ public class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
     // send query if result is needed
     if (this.headRPC.expectsResult()) {
       // now send the query and read the response
-      return component.sendQueryAsync(new RPCRequestPacket(dataBuf))
-        .map(Packet::content)
-        .map(content -> {
-          if (content.readBoolean()) {
-            // the execution did not throw an exception
-            return this.objectMapper.readObject(content, this.headRPC.expectedResultType());
-          } else {
-            // rethrow the execution exception
-            ExceptionalResultUtil.rethrowException(content);
-            return null; // ok fine, but this will never happen - no one was seen again after entering the rethrowException method
-          }
-        });
+      return component
+        .sendQueryAsync(new RPCRequestPacket(dataBuf))
+        .map(new RPCResultMapper<>(this.headRPC.expectedResultType(), this.objectMapper));
     } else {
       // just send the method invocation request
       component.sendPacket(new RPCRequestPacket(dataBuf));

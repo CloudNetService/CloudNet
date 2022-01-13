@@ -20,10 +20,26 @@ import java.util.Collection;
 import lombok.NonNull;
 import org.jetbrains.annotations.UnmodifiableView;
 
+/**
+ * Represents a chain of rpc calls, each of them behaves exactly as described in {@link RPC} and {@link ChainableRPC}.
+ *
+ * @since 4.0
+ */
 public interface RPCChain extends RPCProvider, RPCExecutable, ChainableRPC {
 
+  /**
+   * Get the current last call of the chain (the head). All result expectations are based on this rpc.
+   *
+   * @return the last call in the rpc chain.
+   */
   @NonNull RPC head();
 
+  /**
+   * Get all joins of the rpc in the order in which they get called. The first call in the chain will be the first
+   * element of this collection (method call order).
+   *
+   * @return all joins of the rpc in the order in which they get called.
+   */
   @NonNull
   @UnmodifiableView Collection<RPC> joins();
 }
