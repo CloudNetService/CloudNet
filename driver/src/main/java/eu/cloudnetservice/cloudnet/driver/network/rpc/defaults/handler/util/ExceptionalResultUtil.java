@@ -26,9 +26,9 @@ import lombok.NonNull;
  *
  * @since 4.0
  */
-public final class ExceptionalResultUtils {
+public final class ExceptionalResultUtil {
 
-  private ExceptionalResultUtils() {
+  private ExceptionalResultUtil() {
     throw new UnsupportedOperationException();
   }
 

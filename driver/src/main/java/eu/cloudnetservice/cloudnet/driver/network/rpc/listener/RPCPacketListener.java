@@ -25,19 +25,35 @@ import eu.cloudnetservice.cloudnet.driver.network.protocol.PacketListener;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCHandler.HandlingResult;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCHandlerRegistry;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCInvocationContext;
-import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.handler.util.ExceptionalResultUtils;
+import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.handler.util.ExceptionalResultUtil;
+import eu.cloudnetservice.cloudnet.driver.network.rpc.exception.CannotDecideException;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.object.ObjectMapper;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * A network packet listener designed to handle all rpc messages using an underlying handler registry to post method
+ * call instructions to it.
+ *
+ * @since 4.0
+ */
 public class RPCPacketListener implements PacketListener {
 
   private final RPCHandlerRegistry rpcHandlerRegistry;
 
+  /**
+   * Constructs a new rpc packet listener instance.
+   *
+   * @param rpcHandlerRegistry the registry to use to downstream call instructions to.
+   * @throws NullPointerException if the given rpc handler registry is null.
+   */
   public RPCPacketListener(@NonNull RPCHandlerRegistry rpcHandlerRegistry) {
     this.rpcHandlerRegistry = rpcHandlerRegistry;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void handle(@NonNull NetworkChannel channel, @NonNull Packet packet) throws Exception {
     // the result of the invocation, encoded
@@ -92,6 +108,17 @@ public class RPCPacketListener implements PacketListener {
     }
   }
 
+  /**
+   * Posts the next rpc instruction in the given context into the handler for the given class which potentially contains
+   * the target method and serializes the result into a data buffer. Null is returned when no handler for the given
+   * class is present.
+   *
+   * @param clazz   the class in which the method to call is located.
+   * @param context the context of the method invocation passed to the handler for the method invocation.
+   * @return the serialized result of the method invocation, or null if no handler for the given class is registered.
+   * @throws NullPointerException  if either the given class or invocation context is null.
+   * @throws CannotDecideException if none or multiple methods are matching the method to call in the given class.
+   */
   protected @Nullable DataBuf handle(@NonNull String clazz, @NonNull RPCInvocationContext context) {
     // get the handler associated with the class of the rpc
     var handler = this.rpcHandlerRegistry.handler(clazz);
@@ -125,13 +152,23 @@ public class RPCPacketListener implements PacketListener {
       } else {
         // not successful - send some basic information about the result
         var throwable = (Throwable) result.invocationResult();
-        return ExceptionalResultUtils.serializeThrowable(dataBufFactory.createEmpty().writeBoolean(false), throwable);
+        return ExceptionalResultUtil.serializeThrowable(dataBufFactory.createEmpty().writeBoolean(false), throwable);
       }
     }
     // no result expected or no handler
     return null;
   }
 
+  /**
+   * Posts the next rpc instruction in the given context into the handler for the given class which potentially contains
+   * the target method. Null is returned when no handler for the given class is present.
+   *
+   * @param clazz   the class in which the method to call is located.
+   * @param context the context of the method invocation passed to the handler for the method invocation.
+   * @return the result of the method invocation, or null if no handler for the given class is registered.
+   * @throws NullPointerException  if either the given class or invocation context is null.
+   * @throws CannotDecideException if none or multiple methods are matching the method to call in the given class.
+   */
   protected @Nullable HandlingResult handleRaw(@NonNull String clazz, @NonNull RPCInvocationContext context) {
     // get the handler associated with the class of the rpc
     var handler = this.rpcHandlerRegistry.handler(clazz);
@@ -139,6 +176,22 @@ public class RPCPacketListener implements PacketListener {
     return handler == null ? null : handler.handle(context);
   }
 
+  /**
+   * Builds a new context for a rpc method invocation based on the given information and remaining content in the
+   * buffer. The given buffer should still contain (in the given order):
+   * <ol>
+   *   <li>the target method name
+   *   <li>a boolean indicating if the rpc call expects a result
+   *   <li>the number of arguments of the target method
+   * </ol>
+   *
+   * @param channel             the network channel on which the rpc request was received.
+   * @param content             the remaining buffer content, containing the data as described above.
+   * @param on                  the object to call the method on, when using a rpc chain.
+   * @param strictInstanceUsage if using the instance provided to the context is required.
+   * @return a generated invocation context based on the given information.
+   * @throws NullPointerException if either the given channel or content buffer is null.
+   */
   protected @NonNull RPCInvocationContext buildContext(
     @NonNull NetworkChannel channel,
     @NonNull DataBuf content,

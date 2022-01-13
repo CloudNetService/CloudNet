@@ -210,12 +210,12 @@ public class DefaultObjectMapper implements ObjectMapper {
       ObjectSerializer<T> serializer = null;
       for (TypeToken<?> type : typeToken.getTypes()) {
         serializer = this.serializerForType(type);
-        if (serializer != null && serializer.preWriteCheckAccepts(obj)) {
+        if (serializer != null && serializer.preWriteCheckAccepts(obj, this)) {
           break;
         }
       }
       // check if a serializer was found
-      if (serializer == null || !serializer.preWriteCheckAccepts(obj)) {
+      if (serializer == null || !serializer.preWriteCheckAccepts(obj, this)) {
         throw new MissingObjectSerializerException(obj.getClass());
       }
       // serialize the object into the buffer
@@ -236,12 +236,12 @@ public class DefaultObjectMapper implements ObjectMapper {
       ObjectSerializer<?> serializer = null;
       for (TypeToken<?> subType : typeToken.getTypes()) {
         serializer = this.serializerForType(subType);
-        if (serializer != null && serializer.preReadCheckAccepts(type)) {
+        if (serializer != null && serializer.preReadCheckAccepts(type, this)) {
           break;
         }
       }
       // check if a serializer was found
-      if (serializer == null || !serializer.preReadCheckAccepts(type)) {
+      if (serializer == null || !serializer.preReadCheckAccepts(type, this)) {
         throw new MissingObjectSerializerException(type);
       }
       // read the object from the buffer

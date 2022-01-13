@@ -18,8 +18,20 @@ package eu.cloudnetservice.cloudnet.driver.network.rpc.exception;
 
 import lombok.NonNull;
 
+/**
+ * A runtime exception being thrown when the method selector for rpc cannot decide which method to use for the requested
+ * remote call because either no method or multiple methods are matching the given filter options.
+ *
+ * @since 4.0
+ */
 public class CannotDecideException extends RuntimeException {
 
+  /**
+   * Constructs a new cannot decide exception wrapping the given method name into a nice readable message.
+   *
+   * @param methodName the name of the method which cannot be found.
+   * @throws NullPointerException if the given method name is null.
+   */
   public CannotDecideException(@NonNull String methodName) {
     super(String.format(
       "Cannot decide which method to call by rpc; expected exactly one method with name %s.",

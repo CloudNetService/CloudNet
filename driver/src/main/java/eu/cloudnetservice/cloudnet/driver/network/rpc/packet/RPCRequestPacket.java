@@ -19,10 +19,23 @@ package eu.cloudnetservice.cloudnet.driver.network.rpc.packet;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.BasePacket;
+import lombok.NonNull;
 
-public class RPCQueryPacket extends BasePacket {
+/**
+ * The packet used for any rpc within the CloudNet network. This packet should only be used internally, and any
+ * developer should use the rpc api rather than sending this packet themselves.
+ *
+ * @since 4.0
+ */
+public class RPCRequestPacket extends BasePacket {
 
-  public RPCQueryPacket(DataBuf dataBuf) {
+  /**
+   * Constructs a new rpc request packet.
+   *
+   * @param dataBuf the encoded data of the rpc, ready for interpretation and handling on the receiver site.
+   * @throws NullPointerException if the given data buffer is null.
+   */
+  public RPCRequestPacket(@NonNull DataBuf dataBuf) {
     super(NetworkConstants.INTERNAL_RPC_COM_CHANNEL, dataBuf);
   }
 }

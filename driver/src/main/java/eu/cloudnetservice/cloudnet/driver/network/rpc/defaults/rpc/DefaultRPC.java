@@ -25,11 +25,11 @@ import eu.cloudnetservice.cloudnet.driver.network.rpc.RPC;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCChain;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.DefaultRPCProvider;
-import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.handler.util.ExceptionalResultUtils;
+import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.handler.util.ExceptionalResultUtil;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.exception.RPCException;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.exception.RPCExecutionException;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.object.ObjectMapper;
-import eu.cloudnetservice.cloudnet.driver.network.rpc.packet.RPCQueryPacket;
+import eu.cloudnetservice.cloudnet.driver.network.rpc.packet.RPCRequestPacket;
 import java.lang.reflect.Type;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -187,9 +187,9 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
       Task<T> queryTask = this.fire(component);
       return queryTask.get();
     } catch (InterruptedException | ExecutionException exception) {
-      if (exception.getCause() instanceof RPCExecutionException) {
+      if (exception.getCause() instanceof RPCExecutionException executionException) {
         // may be thrown when the handler did throw an exception, just rethrow that one
-        throw (RPCExecutionException) exception.getCause();
+        throw executionException;
       } else {
         // any other exception should get wrapped
         throw new RPCException(this, exception);
@@ -216,7 +216,7 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
     // send query if result is needed
     if (this.resultExpectation) {
       // now send the query and read the response
-      return component.sendQueryAsync(new RPCQueryPacket(dataBuf))
+      return component.sendQueryAsync(new RPCRequestPacket(dataBuf))
         .map(Packet::content)
         .map(content -> {
           if (content.readBoolean()) {
@@ -224,13 +224,13 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
             return this.objectMapper.readObject(content, this.expectedResultType);
           } else {
             // rethrow the execution exception
-            ExceptionalResultUtils.rethrowException(content);
+            ExceptionalResultUtil.rethrowException(content);
             return null; // ok fine, but this will never happen - no one was seen again after entering the rethrowException method
           }
         });
     } else {
       // just send the method invocation request
-      component.sendPacket(new RPCQueryPacket(dataBuf));
+      component.sendPacket(new RPCRequestPacket(dataBuf));
       return CompletedTask.done(null);
     }
   }

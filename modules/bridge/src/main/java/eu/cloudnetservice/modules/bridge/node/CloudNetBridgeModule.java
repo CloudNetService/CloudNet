@@ -49,8 +49,9 @@ public final class CloudNetBridgeModule extends DriverModule {
 
   @ModuleTask(order = 50, event = ModuleLifeCycle.LOADED)
   public void initNetworkHelpers() {
-    DefaultObjectMapper.DEFAULT_MAPPER.registerBinding(Title.class, new TitleObjectSerializer(), false);
-    DefaultObjectMapper.DEFAULT_MAPPER.registerBinding(Component.class, new ComponentObjectSerializer(), false);
+    DefaultObjectMapper.DEFAULT_MAPPER
+      .registerBinding(Title.class, new TitleObjectSerializer(), false)
+      .registerBinding(Component.class, new ComponentObjectSerializer(), false);
   }
 
   @ModuleTask(order = 40, event = ModuleLifeCycle.LOADED)

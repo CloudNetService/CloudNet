@@ -18,8 +18,23 @@ package eu.cloudnetservice.cloudnet.driver.network.rpc.exception;
 
 import lombok.NonNull;
 
+/**
+ * A runtime exception wrapping all remote execution exceptions produced by a rpc which get send back to the calling
+ * network component.
+ *
+ * @since 4.0
+ */
 public class RPCExecutionException extends RuntimeException {
 
+  /**
+   * Constructs a new rpc execution exception instance, with a formatted human-readable message based on the supplied
+   * arguments.
+   *
+   * @param exceptionName the name of the original thrown exception.
+   * @param message       the message of the original thrown exception.
+   * @param firstElement  the formatted first stack trace element of the original thrown exception.
+   * @throws NullPointerException if either the given exception name, message or first stack element is null.
+   */
   public RPCExecutionException(@NonNull String exceptionName, @NonNull String message, @NonNull String firstElement) {
     super(String.format("%s(%s @ %s)", exceptionName, message, firstElement));
   }

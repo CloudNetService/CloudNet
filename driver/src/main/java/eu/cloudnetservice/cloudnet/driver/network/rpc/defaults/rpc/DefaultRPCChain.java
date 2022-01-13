@@ -25,10 +25,10 @@ import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPC;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCChain;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.DefaultRPCProvider;
-import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.handler.util.ExceptionalResultUtils;
+import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.handler.util.ExceptionalResultUtil;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.exception.RPCException;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.exception.RPCExecutionException;
-import eu.cloudnetservice.cloudnet.driver.network.rpc.packet.RPCQueryPacket;
+import eu.cloudnetservice.cloudnet.driver.network.rpc.packet.RPCRequestPacket;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -178,7 +178,7 @@ public class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
     // send query if result is needed
     if (this.headRPC.expectsResult()) {
       // now send the query and read the response
-      return component.sendQueryAsync(new RPCQueryPacket(dataBuf))
+      return component.sendQueryAsync(new RPCRequestPacket(dataBuf))
         .map(Packet::content)
         .map(content -> {
           if (content.readBoolean()) {
@@ -186,13 +186,13 @@ public class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
             return this.objectMapper.readObject(content, this.headRPC.expectedResultType());
           } else {
             // rethrow the execution exception
-            ExceptionalResultUtils.rethrowException(content);
+            ExceptionalResultUtil.rethrowException(content);
             return null; // ok fine, but this will never happen - no one was seen again after entering the rethrowException method
           }
         });
     } else {
       // just send the method invocation request
-      component.sendPacket(new RPCQueryPacket(dataBuf));
+      component.sendPacket(new RPCRequestPacket(dataBuf));
       return CompletedTask.done(null);
     }
   }
