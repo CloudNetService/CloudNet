@@ -21,26 +21,43 @@ import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
 import java.util.Collection;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
+/**
+ * A delegate default interface for a network component implementation.
+ *
+ * @since 4.0
+ */
 public interface DefaultNetworkComponent extends NetworkComponent {
 
   Logger LOGGER = LogManager.logger(DefaultNetworkComponent.class);
 
-  Collection<NetworkChannel> modifiableChannels();
+  /**
+   * Get the collection of channels which are connected to this network component. The returned collection is
+   * modifiable, but should not be used by developers to make any changes to it. If you need all channels which are
+   * connected to the component use {@link #channels()} instead.
+   *
+   * @return all channels which are connected to this component, modifiable.
+   */
+  @Internal
+  @NonNull Collection<NetworkChannel> modifiableChannels();
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   default void closeChannels() {
-    for (var channel : this.modifiableChannels()) {
-      try {
-        channel.close();
-      } catch (Exception exception) {
-        LOGGER.severe("Exception while closing channels", exception);
-      }
+    var iterator = this.modifiableChannels().iterator();
+    while (iterator.hasNext()) {
+      // close the next channel and remove it
+      iterator.next().close();
+      iterator.remove();
     }
-
-    this.modifiableChannels().clear();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   default void sendPacket(@NonNull Packet packet) {
     for (var channel : this.modifiableChannels()) {
@@ -48,6 +65,9 @@ public interface DefaultNetworkComponent extends NetworkComponent {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   default void sendPacketSync(@NonNull Packet packet) {
     for (var channel : this.modifiableChannels()) {
@@ -55,6 +75,9 @@ public interface DefaultNetworkComponent extends NetworkComponent {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   default void sendPacket(@NonNull Packet... packets) {
     for (var channel : this.modifiableChannels()) {

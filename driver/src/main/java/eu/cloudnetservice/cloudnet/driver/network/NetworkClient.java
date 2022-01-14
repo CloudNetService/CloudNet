@@ -19,15 +19,18 @@ package eu.cloudnetservice.cloudnet.driver.network;
 import lombok.NonNull;
 
 /**
- * Represents a client in the network which connect to a network server.
+ * Represents a network component which can be connected to any network server.
+ *
+ * @since 4.0
  */
 public interface NetworkClient extends NetworkComponent, AutoCloseable {
 
   /**
-   * Connects this network client to a network server.
+   * Connects this network client to the network server running at the given host and port.
    *
-   * @param hostAndPort the target host to which the client should connect.
-   * @return {@code true} if the connection was established successfully, {@code false} otherwise.
+   * @param hostAndPort the target host and port to which the client should get connected.
+   * @return true if the connection was established successfully, false otherwise.
+   * @throws NullPointerException if the given host and port is null.
    */
   boolean connect(@NonNull HostAndPort hostAndPort);
 }

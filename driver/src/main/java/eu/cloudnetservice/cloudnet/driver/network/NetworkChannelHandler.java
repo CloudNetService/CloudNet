@@ -16,37 +16,43 @@
 
 package eu.cloudnetservice.cloudnet.driver.network;
 
-import eu.cloudnetservice.cloudnet.driver.network.protocol.BasePacket;
+import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
 import lombok.NonNull;
 
 /**
- * A networkChannelHandler provides the operation with the INetworkChannel
+ * A handler for operations performed on a channel.
  *
- * @see NetworkChannel
+ * @since 4.0
  */
 public interface NetworkChannelHandler {
 
   /**
-   * Handles an new open connected channel
+   * Handles the initialization of the channel, called the first time when a channel becomes active.
    *
-   * @param channel the providing channel on that this handler is sets on this
+   * @param channel the channel which was opened and to which this handler is bound.
+   * @throws NullPointerException if the given channel is null.
+   * @throws Exception            if any exception occurs during the event processing.
    */
   void handleChannelInitialize(@NonNull NetworkChannel channel) throws Exception;
 
   /**
-   * Handles a incoming packet from a provided channel, that contains that channel handler
+   * Handles the receive of a packet on the channel this handler is bound to.
    *
-   * @param channel the providing channel on that this handler is sets on this
-   * @param packet  the packet, that will received from the remote component
-   * @return should return true that, the packet that was received is allowed to handle from the packet listeners at the
-   * packetListenerRegistry
+   * @param channel the channel to which the packet was sent and the handler is bound.
+   * @param packet  the packet which was received.
+   * @return true if the packet should get processed by the packet registry, false otherwise.
+   * @throws NullPointerException if either the given channel or packet is null.
+   * @throws Exception            if any exception occurs during the event processing.
    */
-  boolean handlePacketReceive(@NonNull NetworkChannel channel, @NonNull BasePacket packet) throws Exception;
+  boolean handlePacketReceive(@NonNull NetworkChannel channel, @NonNull Packet packet) throws Exception;
 
   /**
-   * Handles the close phase from a NetworkChannel
+   * Handles the inactivation processing of a channel, at this point the channel was closed either by a local handler or
+   * the remote directly.
    *
-   * @param channel the providing channel on that this handler is sets on this
+   * @param channel the channel which was closed and this handler is bound to.
+   * @throws NullPointerException if the given channel is null.
+   * @throws Exception            if any exception occurs during the event processing.
    */
   void handleChannelClose(@NonNull NetworkChannel channel) throws Exception;
 }

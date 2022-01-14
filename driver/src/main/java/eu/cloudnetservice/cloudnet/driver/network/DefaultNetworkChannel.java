@@ -22,15 +22,19 @@ import eu.cloudnetservice.cloudnet.driver.network.protocol.PacketListenerRegistr
 import eu.cloudnetservice.cloudnet.driver.network.protocol.QueryPacketManager;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.defaults.DefaultPacketListenerRegistry;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.defaults.DefaultQueryPacketManager;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.NonNull;
 
+/**
+ * The default abstract implementation of a network channel.
+ *
+ * @since 4.0
+ */
 public abstract class DefaultNetworkChannel implements NetworkChannel {
 
   private static final AtomicLong CHANNEL_ID_COUNTER = new AtomicLong();
 
-  private final long channelId = CHANNEL_ID_COUNTER.addAndGet(1);
+  private final long channelId = CHANNEL_ID_COUNTER.incrementAndGet();
 
   private final QueryPacketManager queryPacketManager;
   private final PacketListenerRegistry packetRegistry;
@@ -39,15 +43,24 @@ public abstract class DefaultNetworkChannel implements NetworkChannel {
   private final HostAndPort clientAddress;
 
   private final boolean clientProvidedChannel;
+  private final NetworkChannelHandler handler;
 
-  private NetworkChannelHandler handler;
-
+  /**
+   * Constructs a new default network channel instance.
+   *
+   * @param packetRegistry        the packet registry to use for the channel.
+   * @param serverAddress         the associated server address for the connection.
+   * @param clientAddress         the associated client address for the connection.
+   * @param clientProvidedChannel true if this channel was opened by a client, false otherwise.
+   * @param handler               the handler to post underlying network events to.
+   * @throws NullPointerException if one of the given arguments is null.
+   */
   public DefaultNetworkChannel(
-    PacketListenerRegistry packetRegistry,
-    HostAndPort serverAddress,
-    HostAndPort clientAddress,
+    @NonNull PacketListenerRegistry packetRegistry,
+    @NonNull HostAndPort serverAddress,
+    @NonNull HostAndPort clientAddress,
     boolean clientProvidedChannel,
-    NetworkChannelHandler handler
+    @NonNull NetworkChannelHandler handler
   ) {
     this.queryPacketManager = new DefaultQueryPacketManager(this);
     this.packetRegistry = new DefaultPacketListenerRegistry(packetRegistry);
@@ -57,54 +70,75 @@ public abstract class DefaultNetworkChannel implements NetworkChannel {
     this.handler = handler;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Task<Packet> sendQueryAsync(@NonNull Packet packet) {
     return this.queryPacketManager.sendQueryPacket(packet);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Packet sendQuery(@NonNull Packet packet) {
-    return this.sendQueryAsync(packet).get(5, TimeUnit.SECONDS, null);
+    return this.sendQueryAsync(packet).getOrNull();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public long channelId() {
     return this.channelId;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull PacketListenerRegistry packetRegistry() {
     return this.packetRegistry;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull QueryPacketManager queryPacketManager() {
     return this.queryPacketManager;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HostAndPort serverAddress() {
     return this.serverAddress;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HostAndPort clientAddress() {
     return this.clientAddress;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean clientProvidedChannel() {
     return this.clientProvidedChannel;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull NetworkChannelHandler handler() {
     return this.handler;
   }
-
-  @Override
-  public void handler(@NonNull NetworkChannelHandler handler) {
-    this.handler = handler;
-  }
-
 }

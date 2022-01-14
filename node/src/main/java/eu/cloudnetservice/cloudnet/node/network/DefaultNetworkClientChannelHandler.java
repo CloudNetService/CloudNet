@@ -28,7 +28,7 @@ import eu.cloudnetservice.cloudnet.driver.network.NetworkChannelHandler;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.network.def.PacketClientAuthorization;
-import eu.cloudnetservice.cloudnet.driver.network.protocol.BasePacket;
+import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.network.listener.PacketServerAuthorizationResponseListener;
 import java.util.concurrent.atomic.AtomicLong;
@@ -63,7 +63,7 @@ public final class DefaultNetworkClientChannelHandler implements NetworkChannelH
   }
 
   @Override
-  public boolean handlePacketReceive(@NonNull NetworkChannel channel, @NonNull BasePacket packet) {
+  public boolean handlePacketReceive(@NonNull NetworkChannel channel, @NonNull Packet packet) {
     return !CloudNetDriver.instance().eventManager().callEvent(
       new NetworkChannelPacketReceiveEvent(channel, packet)).cancelled();
   }

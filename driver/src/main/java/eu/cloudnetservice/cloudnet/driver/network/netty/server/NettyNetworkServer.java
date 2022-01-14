@@ -34,7 +34,6 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.WriteBufferWaterMark;
-import java.net.SocketAddress;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -43,6 +42,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -110,14 +110,6 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
   @Override
   public boolean addListener(int port) {
     return this.addListener(new HostAndPort("0.0.0.0", port));
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean addListener(@NonNull SocketAddress socketAddress) {
-    return this.addListener(HostAndPort.fromSocketAddress(socketAddress));
   }
 
   /**
@@ -196,7 +188,7 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
    * {@inheritDoc}
    */
   @Override
-  public @NonNull Collection<NetworkChannel> modifiableChannels() {
+  public @NonNull @NotNull Collection<NetworkChannel> modifiableChannels() {
     return this.channels;
   }
 

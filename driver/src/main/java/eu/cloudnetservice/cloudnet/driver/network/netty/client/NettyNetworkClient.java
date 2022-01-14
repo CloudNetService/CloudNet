@@ -172,7 +172,7 @@ public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClien
    * {@inheritDoc}
    */
   @Override
-  public Collection<NetworkChannel> modifiableChannels() {
+  public @NonNull Collection<NetworkChannel> modifiableChannels() {
     return this.channels;
   }
 

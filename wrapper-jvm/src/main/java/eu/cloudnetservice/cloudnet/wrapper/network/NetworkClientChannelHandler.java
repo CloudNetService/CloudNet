@@ -25,7 +25,7 @@ import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannelHandler;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.def.PacketClientAuthorization;
-import eu.cloudnetservice.cloudnet.driver.network.protocol.BasePacket;
+import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
 import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
 import lombok.NonNull;
 
@@ -49,7 +49,7 @@ public class NetworkClientChannelHandler implements NetworkChannelHandler {
   }
 
   @Override
-  public boolean handlePacketReceive(@NonNull NetworkChannel channel, @NonNull BasePacket packet) {
+  public boolean handlePacketReceive(@NonNull NetworkChannel channel, @NonNull Packet packet) {
     return !CloudNetDriver.instance().eventManager().callEvent(
       new NetworkChannelPacketReceiveEvent(channel, packet)).cancelled();
   }
