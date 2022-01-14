@@ -26,28 +26,36 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import lombok.NonNull;
 
-public class FinalizeURLClassLoader extends URLClassLoader {
+/**
+ * This module url class loader is a unique url class loader for each module. Loading a class using this ClassLoader
+ * ensures that all other modules have access to the loaded class too.
+ *
+ * @see Module
+ * @since 4.0
+ */
+public class ModuleURLClassLoader extends URLClassLoader {
 
   /**
    * All loaders which were created and of which the associated module is still loaded.
    */
   protected static final Lock CLASS_LOADING_LOCK = new ReentrantLock();
-  protected static final Set<FinalizeURLClassLoader> LOADERS = new HashSet<>();
+  protected static final Set<ModuleURLClassLoader> LOADERS = new HashSet<>();
 
   static {
     ClassLoader.registerAsParallelCapable();
   }
 
   /**
-   * Creates an instance of this class loader.
+   * Creates an instance of this FinalizeURLClassLoader.
    *
    * @param moduleFileUrl        the module file to which this loader is associated.
    * @param moduleDependencyUrls all dependencies which were loaded for the module.
+   * @throws NullPointerException if moduleFileUrl or moduleDependencyUrls is null.
    */
-  public FinalizeURLClassLoader(@NonNull URL moduleFileUrl, @NonNull Set<URL> moduleDependencyUrls) {
+  public ModuleURLClassLoader(@NonNull URL moduleFileUrl, @NonNull Set<URL> moduleDependencyUrls) {
     super(
       ObjectArrays.concat(moduleFileUrl, moduleDependencyUrls.toArray(new URL[0])),
-      FinalizeURLClassLoader.class.getClassLoader());
+      ModuleURLClassLoader.class.getClassLoader());
   }
 
   /**
@@ -89,11 +97,11 @@ public class FinalizeURLClassLoader extends URLClassLoader {
   /**
    * Tries to load a class by the provided name.
    *
-   * @param name    The name of the class to load.
-   * @param resolve If the class should be resolved.
-   * @param global  If all loaders registered in {@link FinalizeURLClassLoader#LOADERS} should be checked.
-   * @return The resulting {@code Class} object
-   * @throws ClassNotFoundException If the class could not be found
+   * @param name    the name of the class to load.
+   * @param resolve if the class should be resolved.
+   * @param global  if all loaders registered in {@link ModuleURLClassLoader#LOADERS} should be checked.
+   * @return The resulting Class object
+   * @throws ClassNotFoundException if the class could not be found
    */
   protected @NonNull Class<?> loadClass(String name, boolean resolve, boolean global) throws ClassNotFoundException {
     try {

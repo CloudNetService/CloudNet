@@ -27,8 +27,6 @@ import lombok.NonNull;
  * <p>
  * The fallback file type is "application/octet-stream" for all methods.
  *
- * @author Aldin S. (0utplay@cloudnetservice.eu)
- * @author Pasqual Koschmieder. (derklaro@cloudnetservice.eu)
  * @see Files#probeContentType(Path)
  * @see URLConnection#guessContentTypeFromName(String)
  * @since 4.0

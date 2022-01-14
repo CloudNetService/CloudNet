@@ -152,20 +152,20 @@ public final class PlatformChannelMessageListener {
 
         // connect using the given selector
         case "connect_to_selector" -> executor.connectSelecting(
-            event.content().readObject(ServerSelectorType.class));
+          event.content().readObject(ServerSelectorType.class));
 
         // connect to a fallback
         case "connect_to_fallback" -> executor.connectToFallback();
 
         // connect to a group
         case "connect_to_group" -> executor.connectToGroup(
-            event.content().readString(),
-            event.content().readObject(ServerSelectorType.class));
+          event.content().readString(),
+          event.content().readObject(ServerSelectorType.class));
 
         // connect to a task
         case "connect_to_task" -> executor.connectToTask(
-            event.content().readString(),
-            event.content().readObject(ServerSelectorType.class));
+          event.content().readString(),
+          event.content().readObject(ServerSelectorType.class));
 
         // kick a player from the current service
         case "kick_player" -> executor.kick(event.content().readObject(Component.class));
@@ -175,12 +175,12 @@ public final class PlatformChannelMessageListener {
 
         // send a chat message to the player
         case "send_chat_message" -> executor.sendChatMessage(
-            event.content().readObject(Component.class),
-            event.content().readNullable(DataBuf::readString));
+          event.content().readObject(Component.class),
+          event.content().readNullable(DataBuf::readString));
 
         // send a plugin message to the player
         case "send_plugin_message" -> executor.sendPluginMessage(event.content().readString(),
-            event.content().readByteArray());
+          event.content().readByteArray());
 
         // sends a chat message like when a player does type into the chat
         case "dispatch_proxy_command" -> executor.dispatchProxyCommand(event.content().readString());

@@ -58,7 +58,7 @@ public final class StringUtil {
    *
    * @param s      the string to check.
    * @param suffix the suffix to validate the string ends with.
-   * @return {@code true} if the given string ends with the given suffix.
+   * @return true if the given string ends with the given suffix, false otherwise.
    */
   public static boolean endsWithIgnoreCase(@NonNull String s, @NonNull String suffix) {
     var suffixLength = suffix.length();
@@ -70,7 +70,7 @@ public final class StringUtil {
    *
    * @param s      the string to check.
    * @param prefix the prefix to validate the string starts with.
-   * @return {@code true} if the given string starts with the given prefix.
+   * @return true if the given string starts with the given prefix, false otherwise.
    */
   public static boolean startsWithIgnoreCase(@NonNull String s, @NonNull String prefix) {
     return s.regionMatches(true, 0, prefix, 0, prefix.length());

@@ -22,7 +22,6 @@ package eu.cloudnetservice.cloudnet.driver;
  * of managing services like the default node implementation. A {@link #WRAPPER} implementation on the other hand means
  * that CloudNet manages a service process like a Paper server software instance.
  *
- * @author Pasqual K. (derklaro@cloudnetservice.eu)
  * @see CloudNetDriver#environment()
  */
 public enum DriverEnvironment {

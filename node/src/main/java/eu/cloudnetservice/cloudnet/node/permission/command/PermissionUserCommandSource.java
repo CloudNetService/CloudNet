@@ -33,7 +33,7 @@ public final class PermissionUserCommandSource extends DriverCommandSource {
   /**
    * Constructs a new PermissionUserCommandSource to check permissions for a user when executing commands.
    *
-   * @param permissionUser the permission user to check the permissions against.
+   * @param permissionUser       the permission user to check the permissions against.
    * @param permissionManagement the permission management for used for backing permission checks.
    */
   public PermissionUserCommandSource(

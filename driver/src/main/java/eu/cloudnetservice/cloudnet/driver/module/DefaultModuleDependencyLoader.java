@@ -25,17 +25,18 @@ import kong.unirest.Unirest;
 import lombok.NonNull;
 
 /**
- * A dependency loader which will download and save the provided module dependencies persistently on the local file
- * system.
+ * Represents the default implementation of the module dependency loader.
+ *
+ * @since 4.0
  */
 public class DefaultModuleDependencyLoader implements ModuleDependencyLoader {
 
   /**
-   * A format for the file name with which the module will be stored: {@code <name>-<version>.jar}
+   * A format for the file name with which the module will be stored: name-version.jar
    */
   protected static final String FILE_NAME_FORMAT = "%s-%s.jar";
   /**
-   * Represents a maven dependency download url in the format: {@code <repo-url><group>/<name>/<version>/<name>-<version>.jar}.
+   * Represents a maven dependency download url in the format: repo-urlgroup/name/version/name-version.jar.
    */
   protected static final String REMOTE_DEPENDENCY_URL_FORMAT = "%s%s/%s/%s/%s-%s.jar";
 
@@ -45,8 +46,9 @@ public class DefaultModuleDependencyLoader implements ModuleDependencyLoader {
    * Constructs a new instance of this class.
    *
    * @param baseDirectory the base directory in which the dependencies should be stored.
+   * @throws NullPointerException if the given base directory is null.
    */
-  public DefaultModuleDependencyLoader(Path baseDirectory) {
+  public DefaultModuleDependencyLoader(@NonNull Path baseDirectory) {
     this.baseDirectory = baseDirectory;
   }
 
@@ -90,7 +92,8 @@ public class DefaultModuleDependencyLoader implements ModuleDependencyLoader {
    * @param dependency the dependency which gets loaded.
    * @param url        the url from where the dependency should be loaded.
    * @return the url to the file on the local file system after the load.
-   * @throws Exception if any exception occurs during the load of the dependency.
+   * @throws Exception            if any exception occurs during the load of the dependency.
+   * @throws NullPointerException if either the given dependency or url is null.
    */
   protected @NonNull URL loadDependency(@NonNull ModuleDependency dependency, @NonNull URL url) throws Exception {
     var destFile = FileUtils.resolve(this.baseDirectory, dependency.group().split("\\."))
@@ -111,6 +114,7 @@ public class DefaultModuleDependencyLoader implements ModuleDependencyLoader {
    * Get the base directory in which the dependencies should be stored.
    *
    * @return the base directory in which the dependencies should be stored.
+   * @see DefaultModuleProvider#DEFAULT_LIB_DIR
    */
   public @NonNull Path baseDirectory() {
     return this.baseDirectory;

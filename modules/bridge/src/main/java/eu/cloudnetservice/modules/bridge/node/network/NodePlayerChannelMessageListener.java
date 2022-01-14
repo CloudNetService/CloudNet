@@ -71,8 +71,8 @@ public final class NodePlayerChannelMessageListener {
           // set the event cancelled by default if the player is already connected
           if (this.playerManager.onlinePlayer(info.uniqueId()) != null) {
             preLoginEvent.result(Result.denied(Component.text(this.bridgeManagement.configuration().message(
-                Locale.ENGLISH,
-                "already-connected"))));
+              Locale.ENGLISH,
+              "already-connected"))));
           }
           // publish the event
           var result = this.eventManager.callEvent(preLoginEvent).result();
@@ -150,12 +150,12 @@ public final class NodePlayerChannelMessageListener {
             this.eventManager.callEvent(new BridgeProxyPlayerServerSwitchEvent(player, prev));
             // redirect to the cluster
             ChannelMessage.builder()
-                .targetAll()
-                .message("cloud_player_service_switch")
-                .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
-                .buffer(DataBuf.empty().writeObject(player).writeObject(prev))
-                .build()
-                .send();
+              .targetAll()
+              .message("cloud_player_service_switch")
+              .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
+              .buffer(DataBuf.empty().writeObject(player).writeObject(prev))
+              .build()
+              .send();
           }
         }
 
@@ -188,12 +188,12 @@ public final class NodePlayerChannelMessageListener {
             // redirect to the cluster
             // redirect to the cluster
             ChannelMessage.builder()
-                .targetAll()
-                .message("cloud_player_server_login")
-                .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
-                .buffer(DataBuf.empty().writeObject(player).writeObject(info))
-                .build()
-                .send();
+              .targetAll()
+              .message("cloud_player_server_login")
+              .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
+              .buffer(DataBuf.empty().writeObject(player).writeObject(info))
+              .build()
+              .send();
           }
         }
 
@@ -210,12 +210,12 @@ public final class NodePlayerChannelMessageListener {
             // redirect to the cluster
             // redirect to the cluster
             ChannelMessage.builder()
-                .targetAll()
-                .message("cloud_player_server_disconnect")
-                .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
-                .buffer(DataBuf.empty().writeObject(player).writeObject(info))
-                .build()
-                .send();
+              .targetAll()
+              .message("cloud_player_server_disconnect")
+              .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
+              .buffer(DataBuf.empty().writeObject(player).writeObject(info))
+              .build()
+              .send();
           }
         }
 

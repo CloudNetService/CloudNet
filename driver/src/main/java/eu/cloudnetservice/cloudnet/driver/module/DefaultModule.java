@@ -20,7 +20,10 @@ import com.google.common.base.Verify;
 import lombok.NonNull;
 
 /**
- * A default implementation of an {@link Module} which holds some general information about the module.
+ * Represents the default implementation of the module.
+ *
+ * @see eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule
+ * @since 4.0
  */
 public class DefaultModule implements Module {
 
@@ -32,8 +35,7 @@ public class DefaultModule implements Module {
    * {@inheritDoc}
    */
   @Override
-  public void init(@NonNull ClassLoader loader, @NonNull ModuleWrapper wrapper,
-    @NonNull ModuleConfiguration config) {
+  public void init(@NonNull ClassLoader loader, @NonNull ModuleWrapper wrapper, @NonNull ModuleConfiguration config) {
     // ensure that this is not initialized
     Verify.verify(this.classLoader == null || this.moduleWrapper == null || this.moduleConfig == null,
       "Cannot call init twice on a module wrapper");

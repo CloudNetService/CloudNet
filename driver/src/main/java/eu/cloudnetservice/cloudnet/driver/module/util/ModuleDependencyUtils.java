@@ -33,6 +33,10 @@ import lombok.NonNull;
 
 /**
  * Utility to find dependencies of a module, ensure that they are loaded and that there is no circular dependency.
+ *
+ * @see ModuleDependency
+ * @see ModuleWrapper
+ * @since 4.0
  */
 public final class ModuleDependencyUtils {
 
@@ -42,6 +46,11 @@ public final class ModuleDependencyUtils {
   private static final Pattern SEMVER_PATTERN = Pattern.compile(
     "(0|[1-9]\\d*)(?:\\.(0|[1-9]\\d*)(?:\\.(0|[1-9]\\d*))?)?");
 
+  /**
+   * Creating an instance of this helper class is not allowed, results in {@link UnsupportedOperationException}.
+   *
+   * @throws UnsupportedOperationException on invocation
+   */
   private ModuleDependencyUtils() {
     throw new UnsupportedOperationException();
   }
@@ -54,6 +63,7 @@ public final class ModuleDependencyUtils {
    * @return a set of all dependencies which need to be enabled before the caller can be enabled.
    * @throws ModuleDependencyNotFoundException if a module dependency is missing.
    * @throws ModuleDependencyOutdatedException if the running module can not provide the minimum required version.
+   * @throws NullPointerException              if caller or moduleProvider is null.
    */
   public static @NonNull Set<ModuleWrapper> collectDependencies(
     @NonNull ModuleWrapper caller,
@@ -86,6 +96,8 @@ public final class ModuleDependencyUtils {
    * @param moduleProvider   the module provider which originally loaded the dependencies.
    * @throws ModuleDependencyNotFoundException if a module dependency is missing.
    * @throws ModuleDependencyOutdatedException if the running module can not provide the minimum required version.
+   * @throws NullPointerException              if visitedNodes, dependencies, originalSource, dependencyHolder or
+   *                                           moduleProvider is null.
    */
   private static void visitDependencies(
     @NonNull Deque<ModuleWrapper> visitedNodes,
@@ -118,6 +130,7 @@ public final class ModuleDependencyUtils {
    * @return the associated module wrapper with the given module dependency.
    * @throws ModuleDependencyNotFoundException if a module dependency is missing.
    * @throws ModuleDependencyOutdatedException if the running module can not provide the minimum required version.
+   * @throws NullPointerException              if dependency, provider or dependencyHolder is null.
    */
   private static @NonNull ModuleWrapper associatedModuleWrapper(
     @NonNull ModuleDependency dependency,
@@ -150,6 +163,8 @@ public final class ModuleDependencyUtils {
    * @param dependencyVersion a matcher for the semver versioning of the dependency.
    * @param moduleVersion     a matcher for the semver versioning of the running module.
    * @throws ModuleDependencyOutdatedException if the running module can not provide the minimum required version.
+   * @throws NullPointerException              if requiringModule, dependency, dependencyVersion or moduleVersion is
+   *                                           null.
    */
   private static void checkDependencyVersion(
     @NonNull ModuleWrapper requiringModule,

@@ -37,8 +37,6 @@ import org.jetbrains.annotations.UnmodifiableView;
  * Note: Commands that have a requiredSender in their {@link cloud.commandframework.annotations.CommandMethod}
  * annotation set are only executable using the console or the api.
  *
- * @author Aldin S. (0utplay@cloudnetservice.eu)
- * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
  * @see cloud.commandframework.annotations.CommandMethod
  * @see CommandInfo
  * @since 4.0
@@ -47,7 +45,7 @@ public interface CommandProvider {
 
   /**
    * Resolves the next correct command suggestions that would result in a successful command execution, while only
-   * suggesting commands that the {@code source} is allowed to execute.
+   * suggesting commands that the source is allowed to execute.
    *
    * @param source the commandSource for the suggestions. Mostly for permission checks.
    * @param input  the command chain that suggestions are needed for.
@@ -57,7 +55,7 @@ public interface CommandProvider {
   @NonNull List<String> suggest(@NonNull CommandSource source, @NonNull String input);
 
   /**
-   * Executes a command with the given command source and sends all responses to the given {@code source}.
+   * Executes a command with the given command source and sends all responses to the given source.
    * <p>
    * Note: The command is executed asynchronously in a cached thread pool. If synchronous execution is necessary, then
    * you should consider blocking for the command execution using {@link Task#getOrNull()}.

@@ -74,10 +74,10 @@ public class ServiceTemplate implements Nameable, Comparable<ServiceTemplate>, C
    * Parses a template out of a string in the following format: storage:prefix/name "storage:" is optional, only
    * "prefix/name" needs to be provided
    * <p>
-   * {@code alwaysCopyToStaticServices} will always be false in the returned {@link ServiceTemplate}.
+   * alwaysCopyToStaticServices will always be false in the returned ServiceTemplate.
    *
    * @param template the template in the specified format
-   * @return the parsed {@link ServiceTemplate} or null if the format was invalid
+   * @return the parsed ServiceTemplate or null if the format was invalid
    */
   public static @Nullable ServiceTemplate parse(@NonNull String template) {
     // check if the template contains a storage-name splitter

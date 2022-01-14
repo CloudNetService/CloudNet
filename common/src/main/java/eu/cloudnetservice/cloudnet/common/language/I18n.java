@@ -78,8 +78,8 @@ public final class I18n {
    * Resolve and returns the following message in the language which is currently set as member "language"
    *
    * @param messageKey the following message property, which should sort out
-   * @return the message which is defined in language cache or a fallback message like {@code "<language LANGUAGE not
-   * found>"} or {@code "<message property not found in LANGUAGE>"}
+   * @return the message which is defined in language cache or a fallback message like {@literal "<language LANGUAGE not
+   * found>"} or {@literal "<message property not found in LANGUAGE>"}
    */
   public static String trans(@NonNull String messageKey, @NonNull Object... args) {
     if (language == null || !LANGUAGE_CACHE.containsKey(language)) {

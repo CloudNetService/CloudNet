@@ -39,11 +39,11 @@ public final class FileDeployCallbackListener {
   public void handle(@NonNull ChunkedPacketSessionOpenEvent event) {
     switch (event.session().transferChannel()) {
       case "deploy_service_template" -> event.handler(
-          new DefaultFileChunkedPacketHandler(event.session(), TemplateDeployCallback.INSTANCE));
+        new DefaultFileChunkedPacketHandler(event.session(), TemplateDeployCallback.INSTANCE));
       case "deploy_single_file" -> event.handler(
-          new DefaultFileChunkedPacketHandler(event.session(), TemplateFileDeployCallback.INSTANCE));
+        new DefaultFileChunkedPacketHandler(event.session(), TemplateFileDeployCallback.INSTANCE));
       case "deploy_static_service" -> event.handler(
-          new DefaultFileChunkedPacketHandler(event.session(), StaticServiceDeployCallback.INSTANCE));
+        new DefaultFileChunkedPacketHandler(event.session(), StaticServiceDeployCallback.INSTANCE));
       default -> {
       }
     }

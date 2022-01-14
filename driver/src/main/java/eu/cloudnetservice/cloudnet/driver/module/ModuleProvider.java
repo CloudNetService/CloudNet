@@ -24,7 +24,13 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
 /**
- * Represents a loader and holder of modules.
+ * The module provider allows access to all loaded modules and the module paths. It keeps track of all known modules and
+ * provides access their module wrapper and changing the module lifecycle for the modules.
+ *
+ * @see ModuleWrapper
+ * @see ModuleLifeCycle
+ * @see ModuleProviderHandler
+ * @since 4.0
  */
 public interface ModuleProvider {
 
@@ -42,14 +48,15 @@ public interface ModuleProvider {
    * did not specifically set a data directory.
    *
    * @param moduleDirectory the module directory to use.
+   * @throws NullPointerException if moduleDirectory is null.
    * @see #moduleDirectoryPath()
    */
   void moduleDirectoryPath(@NonNull Path moduleDirectory);
 
   /**
-   * Get the module provider handler of this provider or {@code null} when no handler is specified.
+   * Get the module provider handler of this provider or null when no handler is specified.
    *
-   * @return the module provider handler of this provider or {@code null}.
+   * @return the module provider handler of this provider or null.
    * @see #moduleProviderHandler(ModuleProviderHandler)
    */
   @Nullable ModuleProviderHandler moduleProviderHandler();
@@ -57,7 +64,8 @@ public interface ModuleProvider {
   /**
    * Sets the module provider handler of this provider.
    *
-   * @param moduleProviderHandler the new module provider to use or {@code null} when no handler should be used.
+   * @param moduleProviderHandler the new module provider to use or null when no handler should be used.
+   * @throws NullPointerException if the given module provider handler is null.
    * @see #moduleProviderHandler()
    */
   void moduleProviderHandler(@Nullable ModuleProviderHandler moduleProviderHandler);
@@ -76,6 +84,7 @@ public interface ModuleProvider {
    * Sets the module dependency loader which should be used by this provider.
    *
    * @param moduleDependencyLoader the module dependency loader to use.
+   * @throws NullPointerException if moduleDependencyLoader is null.
    * @see #moduleDependencyLoader()
    * @see DefaultModuleDependencyLoader
    */
@@ -96,6 +105,7 @@ public interface ModuleProvider {
    * @param group the group id of the modules to get.
    * @return an immutable set of all loaded, started, stopped modules provided by this provider which have the specific
    * given group.
+   * @throws NullPointerException if group is null.
    * @see ModuleLifeCycle
    */
   @NonNull
@@ -105,35 +115,38 @@ public interface ModuleProvider {
    * Get a module by the given name.
    *
    * @param name the name of the module to get.
-   * @return the module associated with the name or {@code null} if no such module is loaded.
+   * @return the module associated with the name or null if no such module is loaded.
+   * @throws NullPointerException if name is null.
    */
   @Nullable ModuleWrapper module(@NonNull String name);
 
   /**
-   * Loads a module from the given {@code url}.
+   * Loads a module from the given url.
    *
    * @param url the url to load the module from.
-   * @return the loaded module or {@code null} if checks failed or a module from this url is already loaded.
+   * @return the loaded module or null if checks failed or a module from this url is already loaded.
    * @throws ModuleConfigurationNotFoundException         if the file associated with the url doesn't contain a
    *                                                      module.json.
    * @throws ModuleConfigurationPropertyNotFoundException if a required property is missing in the module.json file.
    * @throws com.google.common.base.VerifyException       if required properties are missing in dependency or repository
    *                                                      information.
    * @throws AssertionError                               if any exception occurs during the load of the module.
+   * @throws NullPointerException                         if url is null.
    */
   @Nullable ModuleWrapper loadModule(@NonNull URL url);
 
   /**
-   * Loads the module by the file provided by the given {@code path}.
+   * Loads the module by the file provided by the given path.
    *
    * @param path the path to load the module from.
-   * @return the loaded module or {@code null} if checks failed or a module from this path is already loaded.
+   * @return the loaded module or null if checks failed or a module from this path is already loaded.
    * @throws ModuleConfigurationNotFoundException         if the file associated with the url doesn't contain a
    *                                                      module.json.
    * @throws ModuleConfigurationPropertyNotFoundException if a required property is missing in the module.json file.
    * @throws com.google.common.base.VerifyException       if required properties are missing in dependency or repository
    *                                                      information.
    * @throws AssertionError                               if any exception occurs during the load of the module.
+   * @throws NullPointerException                         if path is null.
    * @see #loadModule(URL)
    */
   @Nullable ModuleWrapper loadModule(@NonNull Path path);
@@ -189,6 +202,7 @@ public interface ModuleProvider {
    * @param wrapper   the wrapper which is changing the lifecycle.
    * @param lifeCycle the lifecycle the wrapper want's to change to.
    * @return If the wrapper is allowed to change the lifecycle to the provided lifecycle.
+   * @throws NullPointerException if wrapper or lifeCycle is null.
    */
   boolean notifyPreModuleLifecycleChange(@NonNull ModuleWrapper wrapper, @NonNull ModuleLifeCycle lifeCycle);
 
@@ -197,6 +211,7 @@ public interface ModuleProvider {
    *
    * @param wrapper   the wrapper which changed the lifecycle.
    * @param lifeCycle the lifecycle the wrapper changed to.
+   * @throws NullPointerException if wrapper or lifeCycle is null.
    */
   void notifyPostModuleLifecycleChange(@NonNull ModuleWrapper wrapper, @NonNull ModuleLifeCycle lifeCycle);
 }

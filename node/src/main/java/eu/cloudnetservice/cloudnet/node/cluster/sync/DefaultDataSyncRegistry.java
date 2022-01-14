@@ -158,8 +158,8 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
                 LOGGER.info(I18n.trans("cluster-sync-accept-yours"));
               }
               case 3 ->
-                  // skip the current change
-                  LOGGER.info(I18n.trans("cluster-sync-skip"));
+                // skip the current change
+                LOGGER.info(I18n.trans("cluster-sync-skip"));
               default -> {
               }
               // cannot happen

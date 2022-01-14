@@ -20,8 +20,13 @@ import java.lang.invoke.MethodHandle;
 import lombok.NonNull;
 
 /**
- * A task which will be dynamically created in the runtime for every method in a module's main class which is annotated
- * with {@link ModuleTask}. This annotation will hold all information about the task, and it's invocation lifecycle.
+ * This ModuleTaskEntry is dynamically generated in the runtime. The entry represents one method in the main class of a
+ * module that is annotated with the module task annotation. This entry contains all necessary information for
+ * invocation of the corresponding method.
+ *
+ * @see ModuleTask
+ * @see Module
+ * @since 4.0
  */
 public interface ModuleTaskEntry {
 

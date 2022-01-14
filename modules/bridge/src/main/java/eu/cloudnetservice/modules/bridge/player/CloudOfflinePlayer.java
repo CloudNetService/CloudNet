@@ -28,11 +28,9 @@ import org.jetbrains.annotations.UnknownNullability;
 @EqualsAndHashCode(callSuper = false)
 public class CloudOfflinePlayer extends JsonDocPropertyHolder implements Cloneable, Nameable {
 
+  protected final String name;
   protected long firstLoginTimeMillis;
   protected long lastLoginTimeMillis;
-
-  protected final String name;
-
   protected NetworkPlayerProxyInfo lastNetworkPlayerProxyInfo;
 
   public CloudOfflinePlayer(

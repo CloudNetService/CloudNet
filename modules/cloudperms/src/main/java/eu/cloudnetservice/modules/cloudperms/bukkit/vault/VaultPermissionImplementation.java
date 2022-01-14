@@ -161,7 +161,7 @@ public class VaultPermissionImplementation extends Permission {
     var optionalPermissionUser = this.permissionUserByName(player);
 
     return optionalPermissionUser.map(permissionUser ->
-      permissionUser.groups().stream().map(PermissionUserGroupInfo::group).toArray(String[]::new))
+        permissionUser.groups().stream().map(PermissionUserGroupInfo::group).toArray(String[]::new))
       .orElse(new String[0]);
   }
 

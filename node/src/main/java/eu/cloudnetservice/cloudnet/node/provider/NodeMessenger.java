@@ -126,9 +126,9 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
         Set<NetworkChannel> result = new HashSet<>();
         // all local services
         this.cloudServiceManager.localCloudServices().stream()
-            .map(CloudService::networkChannel)
-            .filter(Objects::nonNull)
-            .forEach(result::add);
+          .map(CloudService::networkChannel)
+          .filter(Objects::nonNull)
+          .forEach(result::add);
         // all connected nodes
         if (allowClusterRedirect) {
           result.addAll(this.nodeServerProvider.connectedChannels());
@@ -145,8 +145,8 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
           // check if we know the target node server
           var server = this.nodeServerProvider.nodeServer(target.name());
           return server == null || !server.connected()
-              ? Collections.emptySet()
-              : Collections.singleton(server.channel());
+            ? Collections.emptySet()
+            : Collections.singleton(server.channel());
         } else {
           // not allowed to redirect the message
           return Collections.emptySet();
@@ -157,9 +157,9 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
         if (target.name() == null) {
           // if no specific name is given just get all local channels
           Collection<NetworkChannel> channels = this.cloudServiceManager.localCloudServices().stream()
-              .map(CloudService::networkChannel)
-              .filter(Objects::nonNull)
-              .collect(Collectors.toSet());
+            .map(CloudService::networkChannel)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
           // check if cluster redirect is allowed - add all connected node channels then
           if (allowClusterRedirect) {
             channels.addAll(this.nodeServerProvider.connectedChannels());
@@ -171,8 +171,8 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
           var localService = this.cloudServiceManager.localCloudService(target.name());
           if (localService != null) {
             return localService.networkChannel() == null
-                ? Collections.emptySet()
-                : Collections.singleton(localService.networkChannel());
+              ? Collections.emptySet()
+              : Collections.singleton(localService.networkChannel());
           }
         }
         // check if we are allowed to redirect the message to the node running the service
@@ -187,8 +187,8 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
             // check if we know the target node server to send the channel message to instead
             var server = this.nodeServerProvider.nodeServer(service.serviceId().nodeUniqueId());
             return server == null || !server.connected()
-                ? Collections.emptySet()
-                : Collections.singleton(server.channel());
+              ? Collections.emptySet()
+              : Collections.singleton(server.channel());
           }
         }
         // unable to retrieve information about the target - just an empty set then
@@ -197,20 +197,20 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
       case TASK -> {
         // lookup all services of the given task
         return this.filterChannels(
-            this.cloudServiceManager.servicesByTask(target.name()),
-            allowClusterRedirect);
+          this.cloudServiceManager.servicesByTask(target.name()),
+          allowClusterRedirect);
       }
       case ENVIRONMENT -> {
         // lookup all services of the given environment
         return this.filterChannels(
-            this.cloudServiceManager.servicesByEnvironment(target.environment()),
-            allowClusterRedirect);
+          this.cloudServiceManager.servicesByEnvironment(target.environment()),
+          allowClusterRedirect);
       }
       case GROUP -> {
         // lookup all services of the given group
         return this.filterChannels(
-            this.cloudServiceManager.servicesByGroup(target.name()),
-            allowClusterRedirect);
+          this.cloudServiceManager.servicesByGroup(target.name()),
+          allowClusterRedirect);
       }
       default -> throw new IllegalArgumentException("Unhandled ChannelMessageTarget.Type: " + target.type());
     }

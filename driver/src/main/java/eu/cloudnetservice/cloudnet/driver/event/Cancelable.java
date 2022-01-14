@@ -22,7 +22,6 @@ package eu.cloudnetservice.cloudnet.driver.event;
  * purposes, should not implement this interface nor expose any method to prevent the execution of the event in any
  * other way.
  *
- * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
  * @since 4.0
  */
 public interface Cancelable {

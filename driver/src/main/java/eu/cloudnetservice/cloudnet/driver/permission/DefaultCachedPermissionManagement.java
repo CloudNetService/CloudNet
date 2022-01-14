@@ -33,6 +33,16 @@ public abstract class DefaultCachedPermissionManagement extends DefaultPermissio
   protected final Map<UUID, AtomicInteger> permissionUserLocks = new ConcurrentHashMap<>();
   protected final Map<String, AtomicInteger> permissionGroupLocks = new ConcurrentHashMap<>();
 
+  @Override
+  public @NonNull Map<UUID, PermissionUser> cachedPermissionUsers() {
+    return this.permissionUserCache.asMap();
+  }
+
+  @Override
+  public @NonNull Map<String, PermissionGroup> cachedPermissionGroups() {
+    return this.permissionGroupCache.asMap();
+  }
+
   protected final Cache<UUID, PermissionUser> permissionUserCache = CacheBuilder.newBuilder()
     .expireAfterAccess(5, TimeUnit.MINUTES)
     .concurrencyLevel(4)
@@ -49,16 +59,6 @@ public abstract class DefaultCachedPermissionManagement extends DefaultPermissio
       (PermissionGroup) notification.getValue(),
       notification.getCause()))
     .build();
-
-  @Override
-  public @NonNull Map<UUID, PermissionUser> cachedPermissionUsers() {
-    return this.permissionUserCache.asMap();
-  }
-
-  @Override
-  public @NonNull Map<String, PermissionGroup> cachedPermissionGroups() {
-    return this.permissionGroupCache.asMap();
-  }
 
   @Override
   public @Nullable PermissionUser cachedUser(@NonNull UUID uniqueId) {
