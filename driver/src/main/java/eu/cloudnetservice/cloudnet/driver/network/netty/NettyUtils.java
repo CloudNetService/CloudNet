@@ -86,11 +86,10 @@ public final class NettyUtils {
    * Get a so-called "packet dispatcher" which represents an executor handling the received packets sent to a network
    * component. The executor is optimized for the currently running-in environment - this represents the default
    * settings applied to the dispatcher. If running in a node env the packet dispatcher uses the amount of processors
-   * multiplied by 2 for the maximum thread amount, in a wrapper env this is fixed to {@code 8}. All threads in the
-   * dispatcher can idle for 30 seconds before they are terminated forcefully. One thread will always idle in the
-   * handler to speed up just-in-time handling of packets. Given tasks are queued in the order they are given into the
-   * dispatcher and if the dispatcher has no capacity to run the task, the caller will automatically call the task
-   * instead.
+   * multiplied by 2 for the maximum thread amount, in a wrapper env this is fixed to 8. All threads in the dispatcher
+   * can idle for 30 seconds before they are terminated forcefully. One thread will always idle in the handler to speed
+   * up just-in-time handling of packets. Given tasks are queued in the order they are given into the dispatcher and if
+   * the dispatcher has no capacity to run the task, the caller will automatically call the task instead.
    *
    * @return a new packet dispatcher instance.
    * @see #threadAmount()
@@ -143,6 +142,7 @@ public final class NettyUtils {
    * @param byteBuf the buffer to write to.
    * @param value   the value to write into the buffer.
    * @return the buffer used to call the method, for chaining.
+   * @throws NullPointerException if the given byte buf is null.
    */
   public static @NonNull ByteBuf writeVarInt(@NonNull ByteBuf byteBuf, int value) {
     if ((value & -128) == 0) {
@@ -171,6 +171,7 @@ public final class NettyUtils {
    * @param byteBuf the buffer to read from.
    * @return the var int read from the buffer.
    * @throws SilentDecoderException if the buf current position has no var int.
+   * @throws NullPointerException   if the given buffer to read from is null.
    */
   public static int readVarInt(@NonNull ByteBuf byteBuf) {
     var i = 0;
@@ -196,10 +197,11 @@ public final class NettyUtils {
   }
 
   /**
-   * Releases the given {@link ReferenceCounted} object with a pre-check if the reference count is {@code > 0} before
-   * releasing the message.
+   * Releases the given link reference counted object with a pre-check if the reference count is still more than 0
+   * before releasing the message.
    *
    * @param counted the object to safe release.
+   * @throws NullPointerException if the given reference counted object is null.
    */
   public static void safeRelease(@NonNull ReferenceCounted counted) {
     if (counted.refCnt() > 0) {
@@ -208,9 +210,9 @@ public final class NettyUtils {
   }
 
   /**
-   * Get the thread amount used by the packet dispatcher to dispatch incoming packets. This method returns always {@code
-   * 4} when running in {@link DriverEnvironment#WRAPPER} and the amount of processors cores multiplied by 2 when
-   * running on a node.
+   * Get the thread amount used by the packet dispatcher to dispatch incoming packets. This method returns always 4 when
+   * running in as a wrapper and the amount of processors cores multiplied by 2 when running either embedded or as a
+   * node.
    *
    * @return the thread amount used by the packet dispatcher to dispatch incoming packets.
    */
