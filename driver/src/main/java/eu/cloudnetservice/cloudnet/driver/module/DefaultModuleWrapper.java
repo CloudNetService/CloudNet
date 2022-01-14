@@ -40,7 +40,7 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Unmodifiable;
 
 /**
- * Represents the default implementation of the {@link ModuleWrapper}.
+ * Represents the default implementation of the module wrapper.
  *
  * @see ModuleWrapper
  * @since 4.0
@@ -79,8 +79,8 @@ public class DefaultModuleWrapper implements ModuleWrapper {
    * @param dependingModules    the modules this module depends on and which need to get loaded first.
    * @param moduleConfiguration the parsed module configuration located in the module file.
    * @throws URISyntaxException   if the given module source is not formatted strictly according to RFC2396.
-   * @throws NullPointerException source, module, {@code dataDirectory}, provider, {@code classLoader}, {@code
-   *                              dependingModules} or {@code moduleConfiguration} is null.
+   * @throws NullPointerException source, module, dataDirectory, provider, classLoader dependingModules or
+   *                              moduleConfiguration is null.
    */
   public DefaultModuleWrapper(
     @NonNull URL source,
@@ -320,7 +320,7 @@ public class DefaultModuleWrapper implements ModuleWrapper {
   }
 
   /**
-   * Fires all handlers registered for the specified {@code lifeCycle}.
+   * Fires all handlers registered for the specified lifeCycle.
    *
    * @param lifeCycle      the lifecycle to fire the tasks of.
    * @param notifyProvider if the module provider should be notified about the change or not.
@@ -363,7 +363,7 @@ public class DefaultModuleWrapper implements ModuleWrapper {
    * Fires a specific module task entry.
    *
    * @param entry the entry to fire.
-   * @return {@code true} if the entry couldn't be fired successfully, {@code false} otherwise.
+   * @return true if the entry couldn't be fired successfully, false otherwise.
    */
   protected boolean fireModuleTaskEntry(@NonNull ModuleTaskEntry entry) {
     try {

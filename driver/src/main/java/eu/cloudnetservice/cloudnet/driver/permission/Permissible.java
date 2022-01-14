@@ -48,8 +48,7 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
    * PermissionManagement#updateGroup(PermissionGroup)} is required.
    *
    * @param permission the permission
-   * @return {@code true} if the permission has been added successfully or {@code false} if the given {@code permission}
-   * was null
+   * @return true if the permission has been added successfully or false if the given permission was null
    */
   boolean addPermission(@NonNull Permission permission);
 
@@ -62,8 +61,7 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
    *
    * @param group      the group where this permission should be effective
    * @param permission the permission
-   * @return {@code true} if the permission has been added successfully or {@code false} if the given {@code permission}
-   * was null
+   * @return true if the permission has been added successfully or false if the given permission was null
    */
   boolean addPermission(@NonNull String group, @NonNull Permission permission);
 
@@ -74,8 +72,7 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
    * PermissionManagement#updateGroup(PermissionGroup)} is required.
    *
    * @param permission the permission
-   * @return {@code true} if the permission has been removed successfully or {@code false} if the given {@code
-   * permission} doesn't exist
+   * @return true if the permission has been removed successfully or false if the given permission doesn't exist
    */
   boolean removePermission(@NonNull String permission);
 
@@ -87,8 +84,7 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
    *
    * @param group      the group where this permission is effective
    * @param permission the permission
-   * @return {@code true} if the permission has been removed successfully or {@code false} if the given {@code
-   * permission} doesn't exist
+   * @return true if the permission has been removed successfully or false if the given permission doesn't exist
    */
   boolean removePermission(@NonNull String group, @NonNull String permission);
 
@@ -110,8 +106,8 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
    * Gets a permission of this permissible by its name.
    *
    * @param name the case-insensitive name of the permission
-   * @return the {@link Permission} if the permission exists or {@code null} if the permission doesn't exist in this
-   * permissible or the name is null
+   * @return the {@link Permission} if the permission exists or null if the permission doesn't exist in this permissible
+   * or the name is null
    */
   default @Nullable Permission permission(@Nullable String name) {
     return name == null ? null : this.permissions().stream()
@@ -124,8 +120,8 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
    * Checks if a permission exists in this permissible by its name.
    *
    * @param name the case-insensitive name of the permission
-   * @return {@code true} if the permission exists or {@code false} if the permission doesn't exist in this permissible
-   * or this name is null
+   * @return true if the permission exists or false if the permission doesn't exist in this permissible or this name is
+   * null
    */
   default boolean isPermissionSet(@NonNull String name) {
     return this.permissions().stream().anyMatch(permission -> permission.name().equalsIgnoreCase(name));
@@ -140,8 +136,7 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
    * Equivalent to {@code #addPermission(permission, 0)}
    *
    * @param permission the permission
-   * @return {@code true} if the permission has been added successfully or {@code false} if the given {@code permission}
-   * was null
+   * @return true if the permission has been added successfully or false if the given permission was null
    */
   default boolean addPermission(@NonNull String permission) {
     return this.addPermission(permission, 0);
@@ -157,8 +152,7 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
    *
    * @param permission the permission
    * @param value      whether this permission should be applied or not
-   * @return {@code true} if the permission has been added successfully or {@code false} if the given {@code permission}
-   * was null
+   * @return true if the permission has been added successfully or false if the given permission was null
    */
   default boolean addPermission(@NonNull String permission, boolean value) {
     return this.addPermission(Permission.builder().name(permission).potency(value ? 1 : -1).build());
@@ -174,8 +168,7 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
    *
    * @param permission the permission
    * @param potency    the potency of the permission
-   * @return {@code true} if the permission has been added successfully or {@code false} if the given {@code permission}
-   * was null
+   * @return true if the permission has been added successfully or false if the given permission was null
    */
   default boolean addPermission(@NonNull String permission, int potency) {
     return this.addPermission(Permission.builder().name(permission).potency(potency).build());
@@ -191,8 +184,7 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
    *
    * @param group      the group where this permission should be effective
    * @param permission the permission
-   * @return {@code true} if the permission has been added successfully or {@code false} if the given {@code permission}
-   * was null
+   * @return true if the permission has been added successfully or false if the given permission was null
    */
   default boolean addPermission(@NonNull String group, @NonNull String permission) {
     return this.addPermission(group, permission, 0);
@@ -209,8 +201,7 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
    * @param group      the group where this permission should be effective
    * @param permission the permission
    * @param potency    the potency of the permission
-   * @return {@code true} if the permission has been added successfully or {@code false} if the given {@code permission}
-   * was null
+   * @return true if the permission has been added successfully or false if the given permission was null
    */
   default boolean addPermission(@NonNull String group, @NonNull String permission, int potency) {
     return this.addPermission(group, Permission.builder().name(permission).potency(potency).build());
@@ -229,9 +220,8 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
    * @param permission the permission
    * @param potency    the potency of the permission
    * @param time       the time when this permission should expire
-   * @param unit       the time unit of the {@code time} param
-   * @return {@code true} if the permission has been added successfully or {@code false} if the given {@code permission}
-   * was null
+   * @param unit       the time unit of the time param
+   * @return true if the permission has been added successfully or false if the given permission was null
    */
   default boolean addPermission(
     @NonNull String group,
@@ -259,7 +249,7 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
   }
 
   /**
-   * Checks whether the given {@code permission} is allowed in the given list of permissions.
+   * Checks whether the given permission is allowed in the given list of permissions.
    *
    * @param permissions the list of available permissions
    * @param permission  the permission to check
@@ -273,8 +263,8 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
   }
 
   /**
-   * Finds the best matching permission in the given {@code permissions} by logically checking the absolute potency
-   * against each other to find the permission with the highest positive or negative potency.
+   * Finds the best matching permission in the given permissions by logically checking the absolute potency against each
+   * other to find the permission with the highest positive or negative potency.
    *
    * @param permissions the permission to check for.
    * @param permission  the initial permission to check against.
@@ -288,7 +278,7 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
   }
 
   /**
-   * Checks whether the given {@code permission} is allowed in the list of permissions for the specified group in this
+   * Checks whether the given permission is allowed in the list of permissions for the specified group in this
    * permissible.
    *
    * @param group      the group to get the available permissions from
@@ -302,7 +292,7 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
   }
 
   /**
-   * Checks whether the given {@code permission} is allowed in the list of global permissions in this permissible.
+   * Checks whether the given permission is allowed in the list of global permissions in this permissible.
    *
    * @param permission the permission to check for
    * @return the result of this check
@@ -312,9 +302,9 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
   }
 
   /**
-   * Checks whether the given {@code permission} is allowed in the list of global permissions in this permissible.
+   * Checks whether the given permission is allowed in the list of global permissions in this permissible.
    * <p>
-   * Equivalent to {@code #hasPermission(new Permission(permission, 0)}
+   * Equivalent to #hasPermission(new Permission(permission, 0)
    *
    * @param permission the permission to check for
    * @return the result of this check

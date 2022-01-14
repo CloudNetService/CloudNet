@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.module.driver;
 
+import com.google.gson.JsonSyntaxException;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.common.registry.ServicesRegistry;
 import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
@@ -28,8 +29,8 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
 
 /**
- * Represents a cloudnet driver specific implementation for the {@link eu.cloudnetservice.cloudnet.driver.module.Module}.
- * Usually this should be used as entry point of a module.
+ * Represents a cloudnet driver specific implementation for the module. Usually this should be used as entry point of a
+ * module.
  *
  * @see eu.cloudnetservice.cloudnet.driver.module.ModuleTask
  * @see eu.cloudnetservice.cloudnet.driver.module.Module
@@ -39,9 +40,11 @@ import org.jetbrains.annotations.Contract;
 public class DriverModule extends DefaultModule {
 
   /**
-   * Reads the config at the default configuration path {@link DriverModule#configPath()} into a {@link JsonDocument}.
+   * Reads the configuration file of this module from the default or overridden configuration path (via module.json)
+   * into a json document, throwing an exception when the document is invalid.
    *
    * @return the config at the default path.
+   * @throws JsonSyntaxException if the document is invalid.
    * @see JsonDocument#newDocument(Path)
    */
   public @NonNull JsonDocument readConfig() {
@@ -59,8 +62,8 @@ public class DriverModule extends DefaultModule {
   }
 
   /**
-   * The default configuration path located in the directory for this module. By default, this is {@code
-   * "Module-Name/config.json"}.
+   * The default configuration path located in the directory for this module. By default, this is
+   * "Module-Name/config.json".
    *
    * @return the path of the config.
    * @see ModuleWrapper#dataDirectory()

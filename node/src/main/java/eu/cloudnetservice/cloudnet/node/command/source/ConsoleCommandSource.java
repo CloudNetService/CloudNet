@@ -26,8 +26,8 @@ import lombok.NonNull;
  */
 public class ConsoleCommandSource implements CommandSource {
 
-  private static final Logger LOGGER = LogManager.logger(ConsoleCommandSource.class);
   public static final ConsoleCommandSource INSTANCE = new ConsoleCommandSource();
+  private static final Logger LOGGER = LogManager.logger(ConsoleCommandSource.class);
 
   /**
    * @return "Console" for the console command source.
@@ -67,7 +67,7 @@ public class ConsoleCommandSource implements CommandSource {
 
   /**
    * @param permission the permission to check for
-   * @return always {@code true} as the console is allowed to execute every command
+   * @return always true as the console is allowed to execute every command
    * @throws NullPointerException if permission is null.
    */
   @Override

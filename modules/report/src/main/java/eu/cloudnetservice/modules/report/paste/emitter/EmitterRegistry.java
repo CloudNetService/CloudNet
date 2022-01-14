@@ -28,8 +28,6 @@ import org.jetbrains.annotations.UnmodifiableView;
 
 /**
  * The EmitterRegistry keeps track of all {@link ReportDataEmitter} that are used to collect data for reports.
- *
- * @author Aldin s. (0utplay@cloudnetservice.eu)
  */
 public class EmitterRegistry {
 
@@ -45,8 +43,8 @@ public class EmitterRegistry {
 
   /**
    * @param clazz the class the emitters are registered for.
-   * @param <T>   the type of the report, currently {@link CloudService} & {@link
-   *              NetworkClusterNodeInfoSnapshot} are supported
+   * @param <T>   the type of the report, currently {@link CloudService} & {@link NetworkClusterNodeInfoSnapshot} are
+   *              supported
    * @return an unmodifiable collection of all emitters for the given class
    */
   @UnmodifiableView
@@ -63,8 +61,8 @@ public class EmitterRegistry {
    *
    * @param clazz   the class to register the emitter for
    * @param emitter the emitters for the given class appending data
-   * @param <T>     the type of the report, currently {@link CloudService} & {@link
-   *                NetworkClusterNodeInfoSnapshot} are supported
+   * @param <T>     the type of the report, currently {@link CloudService} & {@link NetworkClusterNodeInfoSnapshot} are
+   *                supported
    */
   public <T> void registerDataEmitter(@NonNull Class<T> clazz, @NonNull ReportDataEmitter<T>... emitter) {
     this.emitters.putAll(clazz, Arrays.asList(emitter));

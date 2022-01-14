@@ -51,7 +51,7 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
 
 public final class NPCCommand extends BaseTabExecutor {
-  
+
   private static final Material[] MATERIALS = Material.values();
 
   private static final List<String> TRUE_FALSE = Arrays.asList("true", "yes", "y", "false", "no", "n");

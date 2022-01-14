@@ -20,11 +20,11 @@ import java.net.URL;
 import lombok.NonNull;
 
 /**
- * This ModuleDependencyLoader is used to download the {@link ModuleDependency} of a module into the default launcher
- * libs directory.
+ * This module dependency loader is used to download the module dependency of a module into the default launcher libs
+ * directory.
  * <p>
- * Note: The ModuleDependencyLoader is not loading any of the downloaded dependencies, they are just downloaded and
- * stored in the libs directory.
+ * Note: The module dependency loader is not loading any of the downloaded dependencies, they are just downloaded and
+ * stored in the libs' directory.
  *
  * @see DefaultModuleProvider#DEFAULT_LIB_DIR
  * @see ModuleDependency
@@ -54,7 +54,7 @@ public interface ModuleDependencyLoader {
    * @param repositoryUrl the repository which is associated with the dependency.
    * @return an url targeting the source of the dependency from which it can be loaded.
    * @throws Exception            if any exception occurs during the load of the dependency.
-   * @throws NullPointerException if configuration, dependency or {@code repositoryUrl} is null.
+   * @throws NullPointerException if configuration, dependency or repositoryUrl is null.
    */
   @NonNull URL loadModuleDependencyByRepository(@NonNull ModuleConfiguration configuration,
     @NonNull ModuleDependency dependency, @NonNull String repositoryUrl) throws Exception;

@@ -55,8 +55,6 @@ import org.jetbrains.annotations.Nullable;
  *   <li> {@link FlagParseException}
  * </ul>
  *
- * @author Aldin S. (0utplay@cloudnetservice.eu)
- * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
  * @since 4.0
  */
 public class CommandExceptionHandler {

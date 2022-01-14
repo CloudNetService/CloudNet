@@ -63,7 +63,7 @@ public final class ModuleDependencyUtils {
    * @return a set of all dependencies which need to be enabled before the caller can be enabled.
    * @throws ModuleDependencyNotFoundException if a module dependency is missing.
    * @throws ModuleDependencyOutdatedException if the running module can not provide the minimum required version.
-   * @throws NullPointerException              if caller or {@code moduleProvider} is null.
+   * @throws NullPointerException              if caller or moduleProvider is null.
    */
   public static @NonNull Set<ModuleWrapper> collectDependencies(
     @NonNull ModuleWrapper caller,
@@ -96,8 +96,8 @@ public final class ModuleDependencyUtils {
    * @param moduleProvider   the module provider which originally loaded the dependencies.
    * @throws ModuleDependencyNotFoundException if a module dependency is missing.
    * @throws ModuleDependencyOutdatedException if the running module can not provide the minimum required version.
-   * @throws NullPointerException              if {@code visitedNodes}, dependencies, {@code originalSource}, {@code
-   *                                           dependencyHolder} or {@code moduleProvider} is null.
+   * @throws NullPointerException              if visitedNodes, dependencies, originalSource, dependencyHolder or
+   *                                           moduleProvider is null.
    */
   private static void visitDependencies(
     @NonNull Deque<ModuleWrapper> visitedNodes,
@@ -130,7 +130,7 @@ public final class ModuleDependencyUtils {
    * @return the associated module wrapper with the given module dependency.
    * @throws ModuleDependencyNotFoundException if a module dependency is missing.
    * @throws ModuleDependencyOutdatedException if the running module can not provide the minimum required version.
-   * @throws NullPointerException              if dependency, provider or {@code dependencyHolder} is null.
+   * @throws NullPointerException              if dependency, provider or dependencyHolder is null.
    */
   private static @NonNull ModuleWrapper associatedModuleWrapper(
     @NonNull ModuleDependency dependency,
@@ -163,8 +163,8 @@ public final class ModuleDependencyUtils {
    * @param dependencyVersion a matcher for the semver versioning of the dependency.
    * @param moduleVersion     a matcher for the semver versioning of the running module.
    * @throws ModuleDependencyOutdatedException if the running module can not provide the minimum required version.
-   * @throws NullPointerException              if {@code requiringModule}, dependency, {@code dependencyVersion} or
-   *                                           {@code moduleVersion} is null.
+   * @throws NullPointerException              if requiringModule, dependency, dependencyVersion or moduleVersion is
+   *                                           null.
    */
   private static void checkDependencyVersion(
     @NonNull ModuleWrapper requiringModule,

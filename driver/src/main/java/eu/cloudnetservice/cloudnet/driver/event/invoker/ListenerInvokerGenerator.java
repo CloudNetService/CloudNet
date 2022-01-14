@@ -38,7 +38,6 @@ import org.objectweb.asm.Type;
 /**
  * Utility class to generate listener invokers for listeners using runtime code generation.
  *
- * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
  * @see ListenerInvoker
  * @since 4.0
  */

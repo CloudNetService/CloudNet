@@ -45,7 +45,7 @@ public final class NodeChannelMessageListener {
       switch (event.message()) {
         // deletes an existing npc
         case PlatformNPCManagement.NPC_DELETE -> this.management.deleteNPC(
-            event.content().readObject(WorldPosition.class));
+          event.content().readObject(WorldPosition.class));
 
         // creates a new npc
         case PlatformNPCManagement.NPC_CREATE -> this.management.createNPC(event.content().readObject(NPC.class));
@@ -57,7 +57,7 @@ public final class NodeChannelMessageListener {
         }
         // deletes all npcs
         case PlatformNPCManagement.NPC_ALL_DELETE -> event.binaryResponse(
-            DataBuf.empty().writeInt(this.management.deleteAllNPCs()));
+          DataBuf.empty().writeInt(this.management.deleteAllNPCs()));
 
         // get all npcs of a specific group
         case PlatformNPCManagement.NPC_GET_NPCS_BY_GROUP -> {
@@ -66,11 +66,11 @@ public final class NodeChannelMessageListener {
         }
         // request of a service for the npc config
         case PlatformNPCManagement.NPC_REQUEST_CONFIG -> event.binaryResponse(
-            DataBuf.empty().writeObject(this.management.npcConfiguration()));
+          DataBuf.empty().writeObject(this.management.npcConfiguration()));
 
         // set the npc config
         case PlatformNPCManagement.NPC_SET_CONFIG -> this.management.npcConfiguration(
-            event.content().readObject(NPCConfiguration.class));
+          event.content().readObject(NPCConfiguration.class));
 
         // not our business
         default -> {

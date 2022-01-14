@@ -26,7 +26,6 @@ import org.jetbrains.annotations.Nullable;
  * on modern jvm implementations which have higher access check requirements. In normal cases this definer should never
  * get used as the {@link LookupClassDefiner} should define classes.
  *
- * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
  * @since 4.0
  */
 final class FallbackClassDefiner implements ClassDefiner {
@@ -45,9 +44,8 @@ final class FallbackClassDefiner implements ClassDefiner {
   }
 
   /**
-   * A class loader which gives access to the normally protected {@code defineClass} method.
+   * A class loader which gives access to the normally protected defineClass method.
    *
-   * @author Pasqual K.
    * @since 1.0
    */
   private static final class DefiningClassLoader extends ClassLoader {
@@ -62,12 +60,12 @@ final class FallbackClassDefiner implements ClassDefiner {
     }
 
     /**
-     * An exposed method which allows converting the given {@code bytecode} into an instance of class delegating the
-     * call to {@link ClassLoader#defineClass(String, byte[], int, int)}.
+     * An exposed method which allows converting the given bytecode into an instance of class delegating the call to
+     * {@link ClassLoader#defineClass(String, byte[], int, int)}.
      *
      * @param name     the expected name of the class.
      * @param byteCode the bytecode of the class to define.
-     * @return the constructed class object from the given {@code bytecode}.
+     * @return the constructed class object from the given bytecode.
      */
     public @NonNull Class<?> defineClass(@NonNull String name, byte[] byteCode) {
       return super.defineClass(name, byteCode, 0, byteCode.length);

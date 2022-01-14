@@ -29,9 +29,6 @@ import org.jetbrains.annotations.UnmodifiableView;
 
 /**
  * This class provides methods to get information to the services in the cluster.
- *
- * @author derrop (derrop@cloudnetservice.eu)
- * @author Pasqual K. (derklaro@cloudnetservice.eu)
  */
 @RPCValidation
 public interface GeneralCloudServiceProvider {
@@ -138,7 +135,7 @@ public interface GeneralCloudServiceProvider {
    * Gets the info of a cloud service by its name
    *
    * @param name the name of the service
-   * @return the info of the service or {@code null} if the service doesn't exist
+   * @return the info of the service or null if the service doesn't exist
    */
   @Nullable ServiceInfoSnapshot serviceByName(@NonNull String name);
 
@@ -146,7 +143,7 @@ public interface GeneralCloudServiceProvider {
    * Gets the info of a cloud service by its uniqueId
    *
    * @param uniqueId the uniqueId of the service
-   * @return the info of the service or {@code null} if the service doesn't exist
+   * @return the info of the service or null if the service doesn't exist
    */
   @Nullable ServiceInfoSnapshot service(@NonNull UUID uniqueId);
 
@@ -250,7 +247,7 @@ public interface GeneralCloudServiceProvider {
    * Gets the info of a cloud service by its name
    *
    * @param name the name of the service
-   * @return the info of the service or {@code null} if the service doesn't exist
+   * @return the info of the service or null if the service doesn't exist
    */
   default @NonNull Task<ServiceInfoSnapshot> serviceByNameAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.serviceByName(name));
@@ -260,7 +257,7 @@ public interface GeneralCloudServiceProvider {
    * Gets the info of a cloud service by its uniqueId
    *
    * @param uniqueId the uniqueId of the service
-   * @return the info of the service or {@code null} if the service doesn't exist
+   * @return the info of the service or null if the service doesn't exist
    */
   default @NonNull Task<ServiceInfoSnapshot> serviceAsync(@NonNull UUID uniqueId) {
     return CompletableTask.supply(() -> this.service(uniqueId));

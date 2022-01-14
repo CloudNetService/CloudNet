@@ -41,8 +41,6 @@ import lombok.NonNull;
  * structure if you want to randomly access single data fields instead of always accessing the hole chunk of data stored
  * in the database.
  *
- * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
- * @author Aldin (0utplay@cloudnetservice.eu)
  * @see Database
  * @since 4.0
  */

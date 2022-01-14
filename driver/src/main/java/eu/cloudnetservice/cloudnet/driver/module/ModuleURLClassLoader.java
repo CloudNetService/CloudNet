@@ -27,8 +27,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import lombok.NonNull;
 
 /**
- * This ModuleURLClassLoader is a unique {@link URLClassLoader} for each {@link Module}. Loading a class using this
- * ClassLoader ensures that all other modules have access to the loaded class too.
+ * This module url class loader is a unique url class loader for each module. Loading a class using this ClassLoader
+ * ensures that all other modules have access to the loaded class too.
  *
  * @see Module
  * @since 4.0
@@ -50,7 +50,7 @@ public class ModuleURLClassLoader extends URLClassLoader {
    *
    * @param moduleFileUrl        the module file to which this loader is associated.
    * @param moduleDependencyUrls all dependencies which were loaded for the module.
-   * @throws NullPointerException if {@code moduleFileUrl} or {@code moduleDependencyUrls} is null.
+   * @throws NullPointerException if moduleFileUrl or moduleDependencyUrls is null.
    */
   public ModuleURLClassLoader(@NonNull URL moduleFileUrl, @NonNull Set<URL> moduleDependencyUrls) {
     super(
@@ -100,7 +100,7 @@ public class ModuleURLClassLoader extends URLClassLoader {
    * @param name    the name of the class to load.
    * @param resolve if the class should be resolved.
    * @param global  if all loaders registered in {@link ModuleURLClassLoader#LOADERS} should be checked.
-   * @return The resulting {@code Class} object
+   * @return The resulting Class object
    * @throws ClassNotFoundException if the class could not be found
    */
   protected @NonNull Class<?> loadClass(String name, boolean resolve, boolean global) throws ClassNotFoundException {

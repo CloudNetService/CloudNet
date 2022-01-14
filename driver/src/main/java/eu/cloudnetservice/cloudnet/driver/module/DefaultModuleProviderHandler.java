@@ -36,7 +36,7 @@ import eu.cloudnetservice.cloudnet.driver.event.events.module.ModulePreUnloadEve
 import lombok.NonNull;
 
 /**
- * Represents the default implementation of the {@link ModuleProviderHandler}.
+ * Represents the default implementation of the module provider handler.
  *
  * @see ModuleProviderHandler
  * @since 4.0

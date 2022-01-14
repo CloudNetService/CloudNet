@@ -22,7 +22,6 @@ import lombok.NonNull;
 /**
  * An event priority during execution set by the corresponding {@link EventListener} annotation for the listener.
  *
- * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
  * @see EventListener
  * @see RegisteredEventListener
  * @since 4.0

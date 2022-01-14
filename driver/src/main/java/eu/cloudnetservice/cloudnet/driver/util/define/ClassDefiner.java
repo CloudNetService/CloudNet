@@ -21,22 +21,20 @@ import lombok.NonNull;
 /**
  * Internal utility class to define classes in the runtime.
  *
- * @author Aldin S. (0utplay@cloudnetservice.eu)
- * @author Pasqual Koschmieder. (derklaro@cloudnetservice.eu)
  * @since 4.0
  */
 @FunctionalInterface
 public interface ClassDefiner {
 
   /**
-   * Defines the given class {@code bytecode} and return the constructed class object.
+   * Defines the given class bytecode and return the constructed class object.
    *
    * @param name     the name of the class to construct.
    * @param parent   the parent class of this class as we are assuming to define an anonymous class.
    * @param bytecode the bytecode of the class to define.
-   * @return the constructed class object from the given {@code bytecode}.
+   * @return the constructed class object from the given bytecode.
    * @throws IllegalStateException if the class defining failed.
-   * @throws NullPointerException if name or parent is null.
+   * @throws NullPointerException  if name or parent is null.
    */
   @NonNull Class<?> defineClass(@NonNull String name, @NonNull Class<?> parent, byte[] bytecode);
 }

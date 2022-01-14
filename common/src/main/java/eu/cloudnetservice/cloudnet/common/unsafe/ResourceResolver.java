@@ -32,11 +32,11 @@ public final class ResourceResolver {
   }
 
   /**
-   * Resolves the location of the given {@code clazz} in the class path.
+   * Resolves the location of the given clazz in the class path.
    *
    * @param clazz the clazz to get the location of.
-   * @return the uri of the clazz location in the class path.
-   * @throws NullPointerException if {@code clazz} is null.
+   * @return the uri of the class location in the class path.
+   * @throws NullPointerException if clazz is null.
    */
   public static @NonNull URI resolveURIFromResourceByClass(@NonNull Class<?> clazz) {
     try {

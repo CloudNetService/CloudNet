@@ -309,7 +309,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
 
     /**
      * The node where the new service will start. If the service cannot be created on this node or the node doesn't
-     * exist, it will NOT be created and {@link ServiceConfiguration#createNewService()} will return {@code null}.
+     * exist, it will NOT be created and {@link ServiceConfiguration#createNewService()} will return null.
      */
     public @NonNull Builder node(@Nullable String nodeUniqueId) {
       this.serviceId.nodeUniqueId(nodeUniqueId);
@@ -348,7 +348,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     }
 
     /**
-     * Alias for {@code autoDeleteOnStop(true)}.
+     * Alias for autoDeleteOnStop(true).
      */
     public @NonNull Builder autoDeleteOnStop() {
       return this.autoDeleteOnStop(true);
@@ -363,7 +363,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     }
 
     /**
-     * Alias for {@code staticService(true)}.
+     * Alias for staticService(true).
      */
     public @NonNull Builder staticService() {
       return this.staticService(true);

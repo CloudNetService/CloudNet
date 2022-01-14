@@ -23,12 +23,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Represents a method that a {@link Module} can specify. A method annotated with this annotation is captured during the
- * runtime in the {@link ModuleTaskEntry}. These methods are like startup and stop methods and are invoked when the
- * module switches to the specified {@link ModuleLifeCycle}.
+ * Represents a method that a module can specify. A method annotated with this annotation is captured during the runtime
+ * in the module task entry. These methods are like startup and stop methods and are invoked when the module switches to
+ * the specified module lifecycle.
  * <p>
- * The dependencies of a {@link Module} are loaded for the first time in the {@link ModuleLifeCycle#STARTED} lifecycle.
- * All module tasks that target the {@link ModuleLifeCycle#UNUSABLE} lifecycle are never invoked.
+ * The dependencies of a module are loaded for the first time in the {@link ModuleLifeCycle#STARTED} lifecycle. All
+ * module tasks that target the {@link ModuleLifeCycle#UNUSABLE} lifecycle are never invoked.
  *
  * @see Module
  * @see ModuleTaskEntry
@@ -44,7 +44,7 @@ public @interface ModuleTask {
    * Get the order of this task to be fired within the other task in the same lifecycle. If two tasks with the same
    * lifecycle target and order are defined, the sort operation will fall back to the java natural order which may
    * change from execution to execution.
-   * <p>This property defaults to {@code 32}.</p>
+   * <p>This property defaults to 32.</p>
    *
    * @return the order in which this task will be fired.
    */

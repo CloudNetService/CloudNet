@@ -25,8 +25,6 @@ import java.lang.annotation.Target;
  * This annotation specifies all aliases of a command. The processing of this annotation is done in the runtime to
  * collect all aliases of a command for the {@link eu.cloudnetservice.cloudnet.driver.command.CommandInfo}
  *
- * @author Aldin S. (0utplay@cloudnetservice.eu)
- * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
  * @see eu.cloudnetservice.cloudnet.driver.command.CommandInfo
  * @since 4.0
  */

@@ -43,7 +43,9 @@ public interface CloudMessenger {
    * @param channelMessage the channel message to be sent
    * @return a collection containing the responses from all receivers
    */
-  default @NonNull Task<Collection<ChannelMessage>> sendChannelMessageQueryAsync(@NonNull ChannelMessage channelMessage) {
+  default @NonNull Task<Collection<ChannelMessage>> sendChannelMessageQueryAsync(
+    @NonNull ChannelMessage channelMessage
+  ) {
     return CompletableTask.supply(() -> this.sendChannelMessageQuery(channelMessage));
   }
 

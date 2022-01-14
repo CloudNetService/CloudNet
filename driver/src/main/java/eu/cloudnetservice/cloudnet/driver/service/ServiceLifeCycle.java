@@ -28,26 +28,24 @@ import lombok.NonNull;
 public enum ServiceLifeCycle {
 
   /**
-   * This is the state directly after {@code DEFINED} or after {@code STOPPED} (only if autoDeleteOnStop is disabled for
-   * the service). It will be prepared until it is changed to {@code RUNNING} by {@link
-   * SpecificCloudServiceProvider#start()}.
+   * This is the state directly after DEFINED or after STOPPED (only if autoDeleteOnStop is disabled for the service).
+   * It will be prepared until it is changed to RUNNING by {@link SpecificCloudServiceProvider#start()}.
    */
   PREPARED(1, 2, 3),
   /**
-   * This is the state after {@code PREPARED}. It is invoked by {@link SpecificCloudServiceProvider#start()}. It will be
-   * running until the process of the service has exited.
+   * This is the state after PREPARED. It is invoked by {@link SpecificCloudServiceProvider#start()}. It will be running
+   * until the process of the service has exited.
    */
   RUNNING(2, 3),
   /**
-   * This is the state after {@code RUNNING}. It is invoked by exiting the process. This will only be for a very short
-   * time after the process has exited. There are two possibilities for the next state: - If autoDeleteOnStop is
-   * enabled, the state will be switched to {@code DELETED}. - If autoDeleteOnStop is disabled, the state will be
-   * switched to {@code PREPARED}.
+   * This is the state after RUNNING. It is invoked by exiting the process. This will only be for a very short time
+   * after the process has exited. There are two possibilities for the next state: - If autoDeleteOnStop is enabled, the
+   * state will be switched to DELETED. - If autoDeleteOnStop is disabled, the state will be switched to PREPARED.
    */
   STOPPED(0, 3),
   /**
-   * This is the state after {@code STOPPED}. When this state is set, the service is no more registered in the cloud and
-   * methods like {@link GeneralCloudServiceProvider#service(UUID)} won't return this service anymore.
+   * This is the state after STOPPED. When this state is set, the service is no more registered in the cloud and methods
+   * like {@link GeneralCloudServiceProvider#service(UUID)} won't return this service anymore.
    */
   DELETED;
 
@@ -64,10 +62,10 @@ public enum ServiceLifeCycle {
   }
 
   /**
-   * Checks if a service can change from this state to the given {@code target}.
+   * Checks if a service can change from this state to the given target.
    *
    * @param target the target state the service want's to change to.
-   * @return If the service can change from the current into the {@code target} state.
+   * @return If the service can change from the current into the target state.
    */
   public boolean canChangeTo(@NonNull ServiceLifeCycle target) {
     return Arrays.binarySearch(this.possibleChangeTargetOrdinals, target.ordinal()) >= 0;

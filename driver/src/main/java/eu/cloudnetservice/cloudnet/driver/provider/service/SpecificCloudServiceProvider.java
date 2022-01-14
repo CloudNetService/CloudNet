@@ -38,7 +38,7 @@ public interface SpecificCloudServiceProvider {
   /**
    * Gets the info of the service this provider is for.
    *
-   * @return the info or {@code null}, if the service doesn't exist
+   * @return the info or null, if the service doesn't exist
    * @throws IllegalArgumentException if no uniqueId/name/serviceInfo was given when creating this provider
    */
   @Nullable ServiceInfoSnapshot serviceInfo();
@@ -46,7 +46,7 @@ public interface SpecificCloudServiceProvider {
   /**
    * Checks whether the service info on this provider is available or not.
    *
-   * @return {@code true} if it is or {@code false} if not
+   * @return true if it is or false if not
    */
   boolean valid();
 
@@ -54,7 +54,7 @@ public interface SpecificCloudServiceProvider {
    * Forces this service to update its {@link ServiceInfoSnapshot}, instead of {@link #serviceInfo()}, this method
    * always returns the current snapshot with the current e.g. CPU and memory usage.
    *
-   * @return the current info or {@code null} if the service is not connected
+   * @return the current info or null if the service is not connected
    * @throws IllegalArgumentException if no uniqueId/name/serviceInfo was given on creating this provider
    */
   @Nullable ServiceInfoSnapshot forceUpdateServiceInfo();
@@ -177,7 +177,7 @@ public interface SpecificCloudServiceProvider {
   /**
    * Gets the info of the service this provider is for
    *
-   * @return the info or {@code null}, if the service doesn't exist
+   * @return the info or null, if the service doesn't exist
    * @throws IllegalArgumentException if no uniqueId/name/serviceInfo was given on creating this provider
    */
   default @NonNull Task<ServiceInfoSnapshot> serviceInfoAsync() {
@@ -187,7 +187,7 @@ public interface SpecificCloudServiceProvider {
   /**
    * Checks whether the service info on this provider is available or not.
    *
-   * @return {@code true} if it is or {@code false} if not
+   * @return true if it is or false if not
    */
   default @NonNull Task<Boolean> validAsync() {
     return CompletableTask.supply(this::valid);
@@ -197,7 +197,7 @@ public interface SpecificCloudServiceProvider {
    * Forces this service to update its {@link ServiceInfoSnapshot}, instead of {@link #serviceInfo()}, this method
    * always returns the current snapshot with the current e.g. CPU and memory usage.
    *
-   * @return the current info or {@code null} if the service is not connected
+   * @return the current info or null if the service is not connected
    * @throws IllegalArgumentException if no uniqueId/name/serviceInfo was given on creating this provider
    */
   default @NonNull Task<ServiceInfoSnapshot> forceUpdateServiceInfoAsync() {

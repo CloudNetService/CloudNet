@@ -28,4 +28,5 @@ public record NetworkPlayerServerInfo(
   @NonNull HostAndPort address,
   @NonNull NetworkServiceInfo networkService
 ) {
+
 }

@@ -24,7 +24,7 @@ import lombok.ToString;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
 /**
- * Represents a repository for a {@link ModuleDependency}, the dependency is locatable at this repository.
+ * Represents a repository for a module dependency, the dependency is locatable at this repository.
  *
  * @see ModuleDependency
  * @see ModuleConfiguration

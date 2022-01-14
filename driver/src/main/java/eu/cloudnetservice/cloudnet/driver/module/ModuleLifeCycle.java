@@ -20,8 +20,7 @@ import java.util.Arrays;
 import lombok.NonNull;
 
 /**
- * The ModuleLifeCycle represents the state of a {@link Module}. Each Module is only ever in exactly one of these
- * lifecycles.
+ * The module lifecycle represents the state of a module. Each Module is only ever in exactly one of these lifecycles.
  * <p>
  * Note: The lifecycles can't change from one to another without visiting a lifecycle in between.
  *
@@ -74,10 +73,10 @@ public enum ModuleLifeCycle {
   }
 
   /**
-   * Checks if a module can change from this state to the given {@code target}.
+   * Checks if a module can change from this state to the given target.
    *
    * @param target the target state the module want's to change to.
-   * @return If the module can change from the current into the {@code target} state.
+   * @return if the module can change from the current into the target state.
    * @throws NullPointerException if target is null.
    */
   public boolean canChangeTo(@NonNull ModuleLifeCycle target) {

@@ -39,7 +39,7 @@ public final class WildcardUtil {
   }
 
   /**
-   * Filters all values out of the given {@code inputValues} which are matching the given {@code pattern}.
+   * Filters all values out of the given inputValues which are matching the given pattern.
    *
    * @param inputValues the input values to search trough.
    * @param regex       the regex to use for searching.
@@ -55,11 +55,11 @@ public final class WildcardUtil {
   }
 
   /**
-   * Checks if any of the given {@code values} matches the given {@code regex}.
+   * Checks if any of the given values matches the given regex.
    *
    * @param values the values to search trough.
    * @param regex  the regex to use for searching.
-   * @return {@code true} if any of the values matches the given regex.
+   * @return true if any of the values matches the given regex, false otherwise.
    * @see #anyMatch(Collection, String, boolean)
    */
   public static boolean anyMatch(@NonNull Collection<? extends Nameable> values, @NonNull String regex) {
@@ -67,7 +67,7 @@ public final class WildcardUtil {
   }
 
   /**
-   * Filters all values out of the given {@code inputValues} which are matching the given {@code pattern}.
+   * Filters all values out of the given inputValues which are matching the given pattern.
    *
    * @param inputValues   the input values to search trough.
    * @param regex         the regex to use for searching.
@@ -91,12 +91,12 @@ public final class WildcardUtil {
   }
 
   /**
-   * Checks if any of the given {@code values} matches the given {@code regex}.
+   * Checks if any of the given values matches the given regex.
    *
    * @param values        the values to search trough.
    * @param regex         the regex to use for searching.
    * @param caseSensitive if the search should be case-sensitive.
-   * @return {@code true} if any of the values matches the given regex.
+   * @return true if any of the values matches the given regex, false otherwise.
    */
   public static boolean anyMatch(
     @NonNull Collection<? extends Nameable> values,
@@ -113,12 +113,11 @@ public final class WildcardUtil {
   }
 
   /**
-   * Prepares the given {@code regex} string, grouping every {@literal *} in the provided string to a separate regex
-   * group.
+   * Prepares the given regex string, grouping every {@literal *} in the provided string to a separate regex group.
    *
    * @param regex         the regex string to prepare and compile.
    * @param caseSensitive if the pattern should be case-insensitive
-   * @return the compiled pattern or {@code null} if the compilation failed
+   * @return the compiled pattern or null if the compilation failed
    */
   private static @Nullable Pattern prepare(@NonNull String regex, boolean caseSensitive) {
     regex = regex.replace("*", "(.*)");
@@ -126,12 +125,12 @@ public final class WildcardUtil {
   }
 
   /**
-   * Tries to compile the given pattern string and tries to automatically fix it if the input {@code pattern} is not
+   * Tries to compile the given pattern string and tries to automatically fix it if the input pattern is not
    * compilable.
    *
    * @param pattern       the pattern string to compile
    * @param caseSensitive if the pattern should be case-insensitive
-   * @return the compiled pattern or {@code null} if the compilation failed
+   * @return the compiled pattern or null if the compilation failed
    */
   private static @Nullable Pattern tryCompile(@NonNull String pattern, boolean caseSensitive) {
     try {
@@ -144,11 +143,11 @@ public final class WildcardUtil {
   }
 
   /**
-   * Tries to automatically fix a pattern based on the given {@code exception}.
+   * Tries to automatically fix a pattern based on the given exception.
    *
    * @param exception     the exception occurred during the compile of the pattern string
    * @param caseSensitive if the pattern check should be case-insensitive
-   * @return a fixed, compiled version of the pattern or {@code null} if the given exception is unclear
+   * @return a fixed, compiled version of the pattern or null if the given exception is unclear
    */
   private static @Nullable Pattern tryFixPattern(@NonNull PatternSyntaxException exception, boolean caseSensitive) {
     if (exception.getPattern() != null && exception.getIndex() != -1) {
@@ -173,8 +172,8 @@ public final class WildcardUtil {
   }
 
   /**
-   * Searches for unclosed groups in the given {@code patternInput} and replaces the group openers {@literal (} with an
-   * escaped {@literal \(} while taking care of completed groups.
+   * Searches for unclosed groups in the given patternInput and replaces the group openers {@literal (} with an escaped
+   * {@literal \(} while taking care of completed groups.
    *
    * @param patternInput the pattern to check.
    * @return the same pattern as given but with fixed groups.
@@ -185,7 +184,7 @@ public final class WildcardUtil {
     var content = patternInput.toCharArray();
     // we need to record the group closings to actually find the group opening which is not escaped
     var metGroupClosings = 0;
-    // we loop reversed over it as we know that the group start must be before the group end and we
+    // we loop reversed over it as we know that the group start must be before the group end, and we
     // are searching for it
     for (var index = content.length - 1; index >= 0; index--) {
       var c = content[index];
@@ -207,9 +206,9 @@ public final class WildcardUtil {
   /**
    * Checks if the current content index is part of the pattern or escaped.
    *
-   * @param content the whole content of the pattern as char array
-   * @param index   the current reader index of the char to check
-   * @return {@code true} if the char is part of the pattern or {@code false} if escaped
+   * @param content the whole content of the pattern as char array.
+   * @param index   the current reader index of the char to check.
+   * @return true if the char is part of the pattern or false if escaped.
    */
   private static boolean isPartOfPattern(char[] content, int index) {
     return index <= 0 || content[--index] != '\\';

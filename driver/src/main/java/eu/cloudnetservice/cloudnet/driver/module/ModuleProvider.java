@@ -24,13 +24,13 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
 /**
- * The ModuleProvider allows access to all loaded modules and the module paths. It keeps track of all known modules and
- * provides access their {@link ModuleWrapper} and changing the {@link ModuleLifeCycle} for the modules.
+ * The module provider allows access to all loaded modules and the module paths. It keeps track of all known modules and
+ * provides access their module wrapper and changing the module lifecycle for the modules.
  *
- * @since 4.0
  * @see ModuleWrapper
  * @see ModuleLifeCycle
  * @see ModuleProviderHandler
+ * @since 4.0
  */
 public interface ModuleProvider {
 
@@ -48,15 +48,15 @@ public interface ModuleProvider {
    * did not specifically set a data directory.
    *
    * @param moduleDirectory the module directory to use.
-   * @throws NullPointerException if {@code moduleDirectory} is null.
+   * @throws NullPointerException if moduleDirectory is null.
    * @see #moduleDirectoryPath()
    */
   void moduleDirectoryPath(@NonNull Path moduleDirectory);
 
   /**
-   * Get the module provider handler of this provider or {@code null} when no handler is specified.
+   * Get the module provider handler of this provider or null when no handler is specified.
    *
-   * @return the module provider handler of this provider or {@code null}.
+   * @return the module provider handler of this provider or null.
    * @see #moduleProviderHandler(ModuleProviderHandler)
    */
   @Nullable ModuleProviderHandler moduleProviderHandler();
@@ -64,8 +64,8 @@ public interface ModuleProvider {
   /**
    * Sets the module provider handler of this provider.
    *
-   * @param moduleProviderHandler the new module provider to use or {@code null} when no handler should be used.
-   * @throws NullPointerException if {@code moduleProviderHandler} is null.
+   * @param moduleProviderHandler the new module provider to use or null when no handler should be used.
+   * @throws NullPointerException if the given module provider handler is null.
    * @see #moduleProviderHandler()
    */
   void moduleProviderHandler(@Nullable ModuleProviderHandler moduleProviderHandler);
@@ -84,7 +84,7 @@ public interface ModuleProvider {
    * Sets the module dependency loader which should be used by this provider.
    *
    * @param moduleDependencyLoader the module dependency loader to use.
-   * @throws NullPointerException if {@code moduleDependencyLoader} is null.
+   * @throws NullPointerException if moduleDependencyLoader is null.
    * @see #moduleDependencyLoader()
    * @see DefaultModuleDependencyLoader
    */
@@ -115,16 +115,16 @@ public interface ModuleProvider {
    * Get a module by the given name.
    *
    * @param name the name of the module to get.
-   * @return the module associated with the name or {@code null} if no such module is loaded.
+   * @return the module associated with the name or null if no such module is loaded.
    * @throws NullPointerException if name is null.
    */
   @Nullable ModuleWrapper module(@NonNull String name);
 
   /**
-   * Loads a module from the given {@code url}.
+   * Loads a module from the given url.
    *
    * @param url the url to load the module from.
-   * @return the loaded module or {@code null} if checks failed or a module from this url is already loaded.
+   * @return the loaded module or null if checks failed or a module from this url is already loaded.
    * @throws ModuleConfigurationNotFoundException         if the file associated with the url doesn't contain a
    *                                                      module.json.
    * @throws ModuleConfigurationPropertyNotFoundException if a required property is missing in the module.json file.
@@ -136,10 +136,10 @@ public interface ModuleProvider {
   @Nullable ModuleWrapper loadModule(@NonNull URL url);
 
   /**
-   * Loads the module by the file provided by the given {@code path}.
+   * Loads the module by the file provided by the given path.
    *
    * @param path the path to load the module from.
-   * @return the loaded module or {@code null} if checks failed or a module from this path is already loaded.
+   * @return the loaded module or null if checks failed or a module from this path is already loaded.
    * @throws ModuleConfigurationNotFoundException         if the file associated with the url doesn't contain a
    *                                                      module.json.
    * @throws ModuleConfigurationPropertyNotFoundException if a required property is missing in the module.json file.

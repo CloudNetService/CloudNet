@@ -36,7 +36,6 @@ import lombok.NonNull;
  * implementations are free to change this behaviour as long as there are no calls to the same event listener
  * simultaneously.
  *
- * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
  * @see EventListener
  * @see RegisteredEventListener
  * @since 4.0
@@ -48,7 +47,7 @@ public interface EventManager {
    *
    * @param classLoader the loader based onm which to unregister listeners.
    * @return the same event manager as used to call the method, for chaining.
-   * @throws NullPointerException if {@code classLoader} is null.
+   * @throws NullPointerException if class loader is null.
    */
   @NonNull EventManager unregisterListeners(@NonNull ClassLoader classLoader);
 
@@ -62,7 +61,7 @@ public interface EventManager {
   @NonNull EventManager unregisterListener(Object @NonNull ... listeners);
 
   /**
-   * Calls the given event to the {@code *} channel, triggering all event listeners which are listening to it.
+   * Calls the given event to the * channel, triggering all event listeners which are listening to it.
    * <p>
    * This method call is equivalent to {@code callEvent("*", event)}.
    *
@@ -78,7 +77,7 @@ public interface EventManager {
 
   /**
    * Calls the given event to the given channel, only triggering the event listeners which are specifically listening to
-   * the given channel unless the channel is {@code *}.
+   * the given channel unless the channel is *.
    *
    * @param channel the specific channel to call the listeners on.
    * @param event   the event to call.

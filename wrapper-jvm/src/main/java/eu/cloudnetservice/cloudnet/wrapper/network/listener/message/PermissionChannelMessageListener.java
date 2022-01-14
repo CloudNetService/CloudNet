@@ -49,23 +49,23 @@ public final class PermissionChannelMessageListener {
   @EventListener
   public void handleChannelMessage(@NonNull ChannelMessageReceiveEvent event) {
     if (event.channel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL) && event.message()
-        .startsWith("permissions_")) {
+      .startsWith("permissions_")) {
       // permission message - handler
       switch (event.message().replaceFirst("permissions_", "")) {
         // user add
         case "add_user" -> this.eventManager.callEvent(new PermissionAddUserEvent(
-            this.permissionManagement,
-            event.content().readObject(PermissionUser.class)));
+          this.permissionManagement,
+          event.content().readObject(PermissionUser.class)));
 
         // user update
         case "update_user" -> this.eventManager.callEvent(new PermissionUpdateUserEvent(
-            this.permissionManagement,
-            event.content().readObject(PermissionUser.class)));
+          this.permissionManagement,
+          event.content().readObject(PermissionUser.class)));
 
         // user remove
         case "delete_user" -> this.eventManager.callEvent(new PermissionDeleteUserEvent(
-            this.permissionManagement,
-            event.content().readObject(PermissionUser.class)));
+          this.permissionManagement,
+          event.content().readObject(PermissionUser.class)));
 
         // group add
         case "add_group" -> {

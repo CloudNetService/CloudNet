@@ -23,10 +23,10 @@ import lombok.NonNull;
  * <p>
  * Required properties:
  * <ul>
- *   <li>group</li>
- *   <li>name</li>
- *   <li>version</li>
- *   <li>main</li>
+ *   <li>group
+ *   <li>name
+ *   <li>version
+ *   <li>main
  * </ul>
  *
  * @see ModuleConfiguration

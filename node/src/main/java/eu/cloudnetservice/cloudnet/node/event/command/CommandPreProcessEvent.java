@@ -23,7 +23,7 @@ import lombok.NonNull;
 
 /**
  * This event is called before the actual processing of the given command is done. To cancel the execution of the
- * backing command use {@link #cancelled(boolean)} and set it to {@code true}
+ * backing command use {@link #cancelled(boolean)} and set it to true
  */
 public class CommandPreProcessEvent extends Event implements Cancelable {
 

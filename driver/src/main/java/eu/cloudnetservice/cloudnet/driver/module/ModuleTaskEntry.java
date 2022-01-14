@@ -21,7 +21,7 @@ import lombok.NonNull;
 
 /**
  * This ModuleTaskEntry is dynamically generated in the runtime. The entry represents one method in the main class of a
- * {@link Module} that is annotated with {@link ModuleTask}. This entry contains all necessary information for
+ * module that is annotated with the module task annotation. This entry contains all necessary information for
  * invocation of the corresponding method.
  *
  * @see ModuleTask

@@ -19,7 +19,7 @@ package eu.cloudnetservice.cloudnet.driver.event;
 /**
  * Represents an event which can be fired. This class is just a marker class to indicate that a class is an event.
  * Events can be fired by using {@link EventManager#callEvent(Event)} and listened to by using a method with only one
- * parameter (the event to listen to) which is annoted with {@code @EventListener}.
+ * parameter (the event to listen to) which is annotated with {@code @EventListener}.
  *
  * @see EventManager#callEvent(Event)
  * @see EventListener

@@ -33,7 +33,11 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession session) {
+  protected void handleBearerAuthorized(
+    @NotNull String path,
+    @NotNull HttpContext context,
+    @NotNull HttpSession session
+  ) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.endsWith("/exists")) {
         this.handleCloudPlayerExistsRequest(context);

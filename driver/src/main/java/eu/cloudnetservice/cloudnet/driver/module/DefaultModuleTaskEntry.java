@@ -22,7 +22,7 @@ import java.lang.reflect.Method;
 import lombok.NonNull;
 
 /**
- * Represents the default implementation of the {@link ModuleTaskEntry}.
+ * Represents the default implementation of the module task entry.
  *
  * @see ModuleTaskEntry
  * @since 4.0
@@ -30,7 +30,7 @@ import lombok.NonNull;
 public class DefaultModuleTaskEntry implements ModuleTaskEntry {
 
   /**
-   * A simple format which allows unique method identifiers. Format: {@code <declaring class>@<method name>()}
+   * A simple format which allows unique method identifiers. Format: declaring class@method name()
    */
   protected static final String METHOD_SIGNATURE_FORMAT = "%s@%s()";
 

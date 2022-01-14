@@ -19,8 +19,8 @@ package eu.cloudnetservice.cloudnet.driver.module;
 import lombok.NonNull;
 
 /**
- * Represents an exception that is thrown if a {@link Module} depends on a specific version of a module and the versions
- * do not match.
+ * Represents an exception that is thrown if a module depends on a specific version of a module and the versions do not
+ * match.
  *
  * @see ModuleDependency
  * @since 4.0
@@ -35,7 +35,7 @@ public class ModuleDependencyOutdatedException extends RuntimeException {
    * @param semverIndex     the semver index name: major, minor, patch
    * @param required        the required version of the semver index.
    * @param actual          the actual running version of the semver index.
-   * @throws NullPointerException if {@code requiringModule}, dependency or {@code semverIndex} is null.
+   * @throws NullPointerException if requiringModule, dependency or semverIndex is null.
    */
   public ModuleDependencyOutdatedException(
     @NonNull ModuleWrapper requiringModule,

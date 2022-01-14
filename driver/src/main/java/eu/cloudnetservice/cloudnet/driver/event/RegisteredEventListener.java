@@ -53,8 +53,7 @@ public interface RegisteredEventListener extends Comparable<RegisteredEventListe
   @NonNull EventPriority priority();
 
   /**
-   * Get the channel this event is listening to. Defaults to {@code *} meaning that the listener listens to all
-   * channels.
+   * Get the channel this event is listening to. Defaults to * meaning that the listener listens to all channels.
    *
    * @return the channel this event is listening to.
    */

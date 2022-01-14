@@ -26,8 +26,6 @@ import lombok.NonNull;
  * execution and command parsing are sent to the command source, which captures all of them to send them over the
  * network, see {@link eu.cloudnetservice.cloudnet.driver.provider.NodeInfoProvider#sendCommandLine(String)}
  *
- * @author Aldin S. (0utplay@cloudnetservice.eu)
- * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
  * @see CommandSource
  * @see eu.cloudnetservice.cloudnet.node.permission.command.PermissionUserCommandSource
  * @since 4.0
@@ -70,7 +68,7 @@ public class DriverCommandSource implements CommandSource {
 
   /**
    * @param permission the permission to check for
-   * @return always {@code true} as the driver is allowed to execute every command
+   * @return always true as the driver is allowed to execute every command
    * @throws NullPointerException if permission is null.
    */
   @Override

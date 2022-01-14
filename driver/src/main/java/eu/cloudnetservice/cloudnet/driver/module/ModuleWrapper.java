@@ -26,9 +26,8 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Unmodifiable;
 
 /**
- * The ModuleWrapper represents a loaded {@link Module}. The wrapper holds the configuration and other runtime
- * information about the module like the {@link ModuleLifeCycle}. The wrapper is also responsible for changing the
- * {@link ModuleLifeCycle} of a module.
+ * The module wrapper represents a loaded module. The wrapper holds the configuration and other runtime information about
+ * the module like the module lifecycle. The wrapper is also responsible for changing the module lifecycle of a module.
  *
  * @see ModuleLifeCycle
  * @since 4.0
