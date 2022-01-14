@@ -87,7 +87,14 @@ public class DefaultRPCHandlerRegistry implements RPCHandlerRegistry {
    */
   @Override
   public boolean unregisterHandler(@NonNull RPCHandler rpcHandler) {
-    return this.unregisterHandler(rpcHandler.targetClass());
+    // get the previous handler for the class and validate that they equal
+    var handler = this.handler(rpcHandler.targetClass());
+    if (handler == rpcHandler) {
+      this.handlers.remove(handler.targetClass().getCanonicalName());
+      return true;
+    }
+    // the handlers did not match and was no unregistered
+    return false;
   }
 
   /**
