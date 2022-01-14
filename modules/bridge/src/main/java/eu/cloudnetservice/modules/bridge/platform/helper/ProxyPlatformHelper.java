@@ -35,7 +35,8 @@ public final class ProxyPlatformHelper {
     throw new UnsupportedOperationException();
   }
 
-  public static @NonNull LocalPlayerPreLoginEvent.Result sendChannelMessagePreLogin(@NonNull NetworkPlayerProxyInfo playerInfo) {
+  public static @NonNull LocalPlayerPreLoginEvent.Result sendChannelMessagePreLogin(
+    @NonNull NetworkPlayerProxyInfo playerInfo) {
     var result = toCurrentNode()
       .message("proxy_player_pre_login")
       .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)

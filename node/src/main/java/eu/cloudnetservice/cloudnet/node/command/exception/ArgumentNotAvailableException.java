@@ -25,8 +25,6 @@ import lombok.NonNull;
  * Note: The {@link ArgumentNotAvailableException#fillInStackTrace()} method is empty, therefore the creation of this
  * exception is not heavy, and it can be used frequently.
  *
- * @author Aldin S. (0utplay@cloudnetservice.eu)
- * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
  * @since 4.0
  */
 public class ArgumentNotAvailableException extends RuntimeException {

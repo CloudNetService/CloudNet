@@ -21,9 +21,7 @@ import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.common.document.property.JsonDocPropertyHolder;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
-import lombok.ToString;
 
-@ToString
 @EqualsAndHashCode(callSuper = false)
 public class ServiceRemoteInclusion extends JsonDocPropertyHolder implements Cloneable {
 
@@ -53,6 +51,10 @@ public class ServiceRemoteInclusion extends JsonDocPropertyHolder implements Clo
 
   public @NonNull String destination() {
     return this.destination;
+  }
+
+  public @NonNull String toString() {
+    return this.url + ':' + this.destination;
   }
 
   @Override

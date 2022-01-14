@@ -69,7 +69,7 @@ public final class ChannelMessageReceiveEvent extends NetworkEvent {
   /**
    * Get the original sender of the channel message.
    * <p>
-   * This call is equivalent to {@code channelMessage().sender()}
+   * This call is equivalent to {@code channelMessage().sender()}.
    *
    * @return the original sender of the channel message.
    */
@@ -80,7 +80,7 @@ public final class ChannelMessageReceiveEvent extends NetworkEvent {
   /**
    * Get all targets of the received channel message.
    * <p>
-   * This call is equivalent to {@code channelMessage().targets()}
+   * This call is equivalent to {@code channelMessage().targets()}.
    *
    * @return all targets of the received channel message.
    */
@@ -92,7 +92,7 @@ public final class ChannelMessageReceiveEvent extends NetworkEvent {
    * Get the channel to which the channel message got sent. Should be unique and therefore a grouping target for
    * identification.
    * <p>
-   * This call is equivalent to {@code channelMessage().channel()}
+   * This call is equivalent to {@code channelMessage().channel()}.
    *
    * @return the channel to which the channel message got sent.
    */
@@ -103,7 +103,7 @@ public final class ChannelMessageReceiveEvent extends NetworkEvent {
   /**
    * Get the message key of the channel message. Should be unique and therefore the main target for identification.
    * <p>
-   * This call is equivalent to {@code channelMessage().message()}
+   * This call is equivalent to {@code channelMessage().message()}.
    *
    * @return the message key of the channel message.
    */
@@ -126,7 +126,7 @@ public final class ChannelMessageReceiveEvent extends NetworkEvent {
    * the reader index of the buffer is reset to the first byte of the buffer (any read will start from the beginning
    * again then).
    * <p>
-   * This call is equivalent to {@code channelMessage().content()}
+   * This call is equivalent to {@code channelMessage().content()}.
    *
    * @return the content of the channel message.
    */

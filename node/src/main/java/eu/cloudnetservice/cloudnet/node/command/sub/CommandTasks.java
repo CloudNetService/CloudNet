@@ -37,6 +37,7 @@ import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.cloudnet.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.cloudnet.driver.service.GroupConfiguration;
+import eu.cloudnetservice.cloudnet.driver.service.ServiceConfigurationBase;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceDeployment;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceRemoteInclusion;
@@ -90,8 +91,58 @@ public final class CommandTasks {
 
   private final Console console;
 
-  public CommandTasks(Console console) {
+  public CommandTasks(@NonNull Console console) {
     this.console = console;
+  }
+
+  public static void applyServiceConfigurationDisplay(
+    @NonNull Collection<String> messages,
+    @NonNull ServiceConfigurationBase configurationBase) {
+    messages.add(" ");
+
+    messages.add("Includes:");
+
+    for (var inclusion : configurationBase.includes()) {
+      messages.add("- " + inclusion.url() + " => " + inclusion.destination());
+    }
+
+    messages.add(" ");
+    messages.add("Templates:");
+
+    for (var template : configurationBase.templates()) {
+      messages.add("- " + template);
+    }
+
+    messages.add(" ");
+    messages.add("Deployments:");
+
+    for (var deployment : configurationBase.deployments()) {
+      messages.add("- ");
+      messages.add(
+        "Template:  " + deployment.template());
+      messages.add("Excludes: " + deployment.excludes());
+    }
+
+    messages.add(" ");
+    messages.add("JVM Options:");
+
+    for (var jvmOption : configurationBase.jvmOptions()) {
+      messages.add("- " + jvmOption);
+    }
+
+    messages.add(" ");
+    messages.add("Process Parameters:");
+
+    for (var processParameters : configurationBase.processParameters()) {
+      messages.add("- " + processParameters);
+    }
+
+    messages.add(" ");
+
+    messages.add("Properties: ");
+
+    messages.addAll(Arrays.asList(configurationBase.properties().toPrettyJson().split("\n")));
+    messages.add(" ");
   }
 
   @Parser(suggestions = "serviceTask")
@@ -226,7 +277,7 @@ public final class CommandTasks {
       messages.add("Deleted files after stop: " + Arrays.toString(serviceTask.deletedFilesAfterStop().toArray()));
       messages.add("Environment: " + serviceTask.processConfiguration().environment());
 
-      CommandServiceConfiguration.applyServiceConfigurationDisplay(messages, serviceTask);
+      applyServiceConfigurationDisplay(messages, serviceTask);
       source.sendMessage(messages);
     }
   }
@@ -239,12 +290,10 @@ public final class CommandTasks {
   ) {
     for (var task : serviceTasks) {
       this.updateTask(task, builder -> builder.minServiceCount(amount));
-      source.sendMessage(
-        I18n.trans("command-tasks-set-property-success")
-          .replace("%property%", "minServiceCount")
-          .replace("%name%", task.name())
-          .replace("%value%", amount.toString())
-      );
+      source.sendMessage(I18n.trans("command-tasks-set-property-success",
+        "minServiceCount",
+        task.name(),
+        amount));
     }
   }
 
@@ -256,12 +305,10 @@ public final class CommandTasks {
   ) {
     for (var task : serviceTasks) {
       this.updateTask(task, builder -> builder.maintenance(enabled));
-      source.sendMessage(
-        I18n.trans("command-tasks-set-property-success")
-          .replace("%property%", "maintenance")
-          .replace("%name%", task.name())
-          .replace("%value%", String.valueOf(enabled))
-      );
+      source.sendMessage(I18n.trans("command-tasks-set-property-success",
+        "maintenance",
+        task.name(),
+        enabled));
     }
   }
 
@@ -273,12 +320,7 @@ public final class CommandTasks {
   ) {
     for (var task : serviceTasks) {
       this.updateTask(task, builder -> builder.maxHeapMemory(amount));
-      source.sendMessage(
-        I18n.trans("command-tasks-set-property-success")
-          .replace("%property%", "maxHeapMemory")
-          .replace("%name%", task.name())
-          .replace("%value%", amount.toString())
-      );
+      source.sendMessage(I18n.trans("command-tasks-set-property-success", "maxHeapMemory", task.name(), amount));
     }
   }
 
@@ -290,29 +332,7 @@ public final class CommandTasks {
   ) {
     for (var task : serviceTasks) {
       this.updateTask(task, builder -> builder.startPort(amount));
-      source.sendMessage(
-        I18n.trans("command-tasks-set-property-success")
-          .replace("%property%", "startPort")
-          .replace("%name%", task.name())
-          .replace("%value%", amount.toString())
-      );
-    }
-  }
-
-  @CommandMethod("tasks task <name> set autoDeleteOnStop <enabled>")
-  public void setAutoDeleteOnStop(
-    CommandSource source,
-    @Argument("name") Collection<ServiceTask> serviceTasks,
-    @Argument("enabled") @Liberal boolean enabled
-  ) {
-    for (var task : serviceTasks) {
-      this.updateTask(task, builder -> builder.autoDeleteOnStop(enabled));
-      source.sendMessage(
-        I18n.trans("command-tasks-set-property-success")
-          .replace("%property%", "autoDeleteOnStop")
-          .replace("%name%", task.name())
-          .replace("%value%", String.valueOf(enabled))
-      );
+      source.sendMessage(I18n.trans("command-tasks-set-property-success", "startPort", task.name(), amount));
     }
   }
 
@@ -324,12 +344,7 @@ public final class CommandTasks {
   ) {
     for (var task : serviceTasks) {
       this.updateTask(task, builder -> builder.staticServices(enabled));
-      source.sendMessage(
-        I18n.trans("command-tasks-set-property-success")
-          .replace("%property%", "staticServices")
-          .replace("%name%", task.name())
-          .replace("%value%", String.valueOf(enabled))
-      );
+      source.sendMessage(I18n.trans("command-tasks-set-property-success", "staticServices", task.name(), enabled));
     }
   }
 
@@ -341,12 +356,10 @@ public final class CommandTasks {
   ) {
     for (var task : serviceTasks) {
       this.updateTask(task, builder -> builder.serviceEnvironmentType(environmentType));
-      source.sendMessage(
-        I18n.trans("command-tasks-set-property-success")
-          .replace("%property%", "staticServices")
-          .replace("%name%", task.name())
-          .replace("%value%", String.valueOf(environmentType))
-      );
+      source.sendMessage(I18n.trans("command-tasks-set-property-success",
+        "environment",
+        task.name(),
+        environmentType.name()));
     }
   }
 
@@ -358,12 +371,7 @@ public final class CommandTasks {
   ) {
     for (var task : serviceTasks) {
       this.updateTask(task, builder -> builder.disableIpRewrite(enabled));
-      source.sendMessage(
-        I18n.trans("command-tasks-set-property-success")
-          .replace("%property%", "disableIpRewrite")
-          .replace("%name%", task.name())
-          .replace("%value%", String.valueOf(enabled))
-      );
+      source.sendMessage(I18n.trans("command-tasks-set-property-success", "disableIpRewrite", task.name(), enabled));
     }
   }
 
@@ -376,11 +384,7 @@ public final class CommandTasks {
     for (var task : serviceTasks) {
       this.updateTask(task, builder -> builder.javaCommand(executable.first()));
       source.sendMessage(
-        I18n.trans("command-tasks-set-property-success")
-          .replace("%property%", "javaCommand")
-          .replace("%name%", task.name())
-          .replace("%value%", executable.first())
-      );
+        I18n.trans("command-tasks-set-property-success", "javaCommand", task.name(), executable.first()));
     }
   }
 
@@ -396,12 +400,7 @@ public final class CommandTasks {
       }
 
       this.updateTask(task, builder -> builder.addAssociatedNode(node));
-      source.sendMessage(
-        I18n.trans("command-tasks-set-property-success")
-          .replace("%property%", "node")
-          .replace("%name%", task.name())
-          .replace("%value%", node)
-      );
+      source.sendMessage(I18n.trans("command-tasks-add-collection-property", "node", node, task.name()));
     }
   }
 
@@ -417,12 +416,7 @@ public final class CommandTasks {
       }
 
       this.updateTask(task, builder -> builder.addGroup(group.name()));
-      source.sendMessage(
-        I18n.trans("command-tasks-set-property-success")
-          .replace("%property%", "group")
-          .replace("%name%", task.name())
-          .replace("%value%", group.name())
-      );
+      source.sendMessage(I18n.trans("command-tasks-add-collection-property", "group", group, task.name()));
     }
   }
 
@@ -434,12 +428,7 @@ public final class CommandTasks {
   ) {
     for (var task : serviceTasks) {
       this.updateTaskDirect(task, serviceTask -> serviceTask.associatedNodes().remove(node));
-      source.sendMessage(
-        I18n.trans("command-tasks-set-property-success")
-          .replace("%property%", "node")
-          .replace("%name%", task.name())
-          .replace("%value%", node)
-      );
+      source.sendMessage(I18n.trans("command-tasks-remove-collection-property", "node", node, task.name()));
     }
   }
 
@@ -451,12 +440,7 @@ public final class CommandTasks {
   ) {
     for (var task : serviceTasks) {
       this.updateTaskDirect(task, serviceTask -> serviceTask.groups().remove(group));
-      source.sendMessage(
-        I18n.trans("command-tasks-set-property-success")
-          .replace("%property%", "group")
-          .replace("%name%", task.name())
-          .replace("%value%", group)
-      );
+      source.sendMessage(I18n.trans("command-tasks-remove-collection-property", "group", group, task.name()));
     }
   }
 
@@ -473,12 +457,10 @@ public final class CommandTasks {
       .build();
     for (var serviceTask : serviceTasks) {
       this.updateTask(serviceTask, builder -> builder.addDeployment(deployment));
-      source.sendMessage(
-        I18n.trans("command-tasks-set-property-success")
-          .replace("%property%", "deployment")
-          .replace("%name%", serviceTask.name())
-          .replace("%value%", template.fullName())
-      );
+      source.sendMessage(I18n.trans("command-tasks-add-collection-property",
+        "deployment",
+        deployment.template(),
+        serviceTask.name()));
     }
   }
 
@@ -490,12 +472,7 @@ public final class CommandTasks {
   ) {
     for (var serviceTask : serviceTasks) {
       this.updateTask(serviceTask, task -> task.addTemplate(template));
-      source.sendMessage(
-        I18n.trans("command-tasks-set-property-success")
-          .replace("%property%", "template")
-          .replace("%name%", serviceTask.name())
-          .replace("%value%", template.fullName())
-      );
+      source.sendMessage(I18n.trans("command-tasks-add-collection-property", "template", template, serviceTask.name()));
     }
   }
 
@@ -510,12 +487,10 @@ public final class CommandTasks {
 
     for (var serviceTask : serviceTasks) {
       this.updateTask(serviceTask, task -> task.addInclude(inclusion));
-      source.sendMessage(
-        I18n.trans("command-tasks-set-property-success")
-          .replace("%property%", "inclusion")
-          .replace("%name%", serviceTask.name())
-          .replace("%value%", inclusion.url())
-      );
+      source.sendMessage(I18n.trans("command-tasks-add-collection-property",
+        "inclusion",
+        inclusion,
+        serviceTask.name()));
     }
   }
 
@@ -529,12 +504,10 @@ public final class CommandTasks {
     for (var serviceTask : serviceTasks) {
       serviceTask.jvmOptions().addAll(splittedOptions);
       this.updateTask(serviceTask);
-      source.sendMessage(
-        I18n.trans("command-tasks-set-property-success")
-          .replace("%property%", "jvmOptions")
-          .replace("%name%", serviceTask.name())
-          .replace("%value%", jvmOptions)
-      );
+      source.sendMessage(I18n.trans("command-tasks-add-collection-property",
+        "jvmOption",
+        jvmOptions,
+        serviceTask.name()));
     }
   }
 
@@ -548,12 +521,10 @@ public final class CommandTasks {
     for (var serviceTask : serviceTasks) {
       serviceTask.processParameters().addAll(splittedOptions);
       this.updateTask(serviceTask);
-      source.sendMessage(
-        I18n.trans("command-tasks-set-property-success")
-          .replace("%property%", "processParameters")
-          .replace("%name%", serviceTask.name())
-          .replace("%value%", processParameters)
-      );
+      source.sendMessage(I18n.trans("command-tasks-add-collection-property",
+        "processParameter",
+        processParameters,
+        serviceTask.name()));
     }
   }
 
@@ -570,12 +541,10 @@ public final class CommandTasks {
       .build();
     for (var serviceTask : serviceTasks) {
       this.updateTaskDirect(serviceTask, task -> task.deployments().remove(deployment));
-      source.sendMessage(
-        I18n.trans("command-tasks-set-property-success")
-          .replace("%property%", "deployment")
-          .replace("%name%", serviceTask.name())
-          .replace("%value%", template.fullName())
-      );
+      source.sendMessage(I18n.trans("command-tasks-remove-collection-property",
+        "deployment",
+        template,
+        serviceTask.name()));
     }
   }
 
@@ -587,12 +556,10 @@ public final class CommandTasks {
   ) {
     for (var serviceTask : serviceTasks) {
       this.updateTaskDirect(serviceTask, task -> task.templates().remove(template));
-      source.sendMessage(
-        I18n.trans("command-tasks-set-property-success")
-          .replace("%property%", "template")
-          .replace("%name%", serviceTask.name())
-          .replace("%value%", template.fullName())
-      );
+      source.sendMessage(I18n.trans("command-tasks-remove-collection-property",
+        "template",
+        template,
+        serviceTask.name()));
     }
   }
 
@@ -607,12 +574,10 @@ public final class CommandTasks {
 
     for (var serviceTask : serviceTasks) {
       this.updateTaskDirect(serviceTask, task -> task.includes().remove(inclusion));
-      source.sendMessage(
-        I18n.trans("command-tasks-set-property-success")
-          .replace("%property%", "inclusion")
-          .replace("%name%", serviceTask.name())
-          .replace("%value%", inclusion.url())
-      );
+      source.sendMessage(I18n.trans("command-tasks-remove-collection-property",
+        "inclusion",
+        inclusion,
+        serviceTask.name()));
     }
   }
 
@@ -626,12 +591,10 @@ public final class CommandTasks {
     for (var serviceTask : serviceTasks) {
       serviceTask.jvmOptions().removeAll(splittedOptions);
       this.updateTask(serviceTask);
-      source.sendMessage(
-        I18n.trans("command-tasks-set-property-success")
-          .replace("%property%", "jvmOptions")
-          .replace("%name%", serviceTask.name())
-          .replace("%value%", String.join(", ", serviceTask.jvmOptions()))
-      );
+      source.sendMessage(I18n.trans("command-tasks-remove-collection-property",
+        "jvmOption",
+        jvmOptions,
+        serviceTask.name()));
     }
   }
 
@@ -645,12 +608,10 @@ public final class CommandTasks {
     for (var serviceTask : serviceTasks) {
       serviceTask.processParameters().removeAll(splittedOptions);
       this.updateTask(serviceTask);
-      source.sendMessage(
-        I18n.trans("command-tasks-set-property-success")
-          .replace("%property%", "processParameters")
-          .replace("%name%", serviceTask.name())
-          .replace("%value%", String.join(", ", serviceTask.processParameters()))
-      );
+      source.sendMessage(I18n.trans("command-tasks-remove-collection-property",
+        "processParamter",
+        processParameters,
+        serviceTask.name()));
     }
   }
 
@@ -658,43 +619,39 @@ public final class CommandTasks {
   public void clearJvmOptions(CommandSource source, @Argument("name") Collection<ServiceTask> serviceTasks) {
     for (var serviceTask : serviceTasks) {
       this.updateTaskDirect(serviceTask, task -> task.jvmOptions().clear());
-      source.sendMessage(
-        I18n.trans("command-tasks-set-property-success")
-          .replace("%property%", "jvmOptions")
-          .replace("%name%", serviceTask.name())
-          .replace("%value%", "empty")
-      );
+      source.sendMessage(I18n.trans("command-service-base-clear-property",
+        "jvmOptions",
+        "task",
+        serviceTask.name()));
     }
   }
 
-  @CommandMethod("tasks task <name> clear processParameter")
+  @CommandMethod("tasks task <name> clear processParameters")
   public void clearProcessParameter(CommandSource source, @Argument("name") Collection<ServiceTask> serviceTasks) {
     for (var serviceTask : serviceTasks) {
       this.updateTaskDirect(serviceTask, task -> task.processParameters().clear());
-      source.sendMessage(
-        I18n.trans("command-tasks-set-property-success")
-          .replace("%property%", "processParameters")
-          .replace("%name%", serviceTask.name())
-          .replace("%value%", "empty")
-      );
+      source.sendMessage(I18n.trans("command-service-base-clear-property",
+        "processParameters",
+        "task",
+        serviceTask.name()));
     }
   }
 
-  private void updateTask(ServiceTask task) {
+  private void updateTask(@NonNull ServiceTask task) {
     this.taskProvider().addPermanentServiceTask(task);
   }
 
-  private void updateTask(ServiceTask task, @NonNull Consumer<ServiceTask.Builder> consumer) {
+  private void updateTask(@NonNull ServiceTask task, @NonNull Consumer<ServiceTask.Builder> consumer) {
     consumer
       .andThen(result -> this.updateTask(result.build()))
       .accept(ServiceTask.builder(task));
   }
 
-  private void updateTaskDirect(ServiceTask task, @NonNull Consumer<ServiceTask> consumer) {
+  private void updateTaskDirect(@NonNull ServiceTask task, @NonNull Consumer<ServiceTask> consumer) {
     consumer.andThen(this::updateTask).accept(task);
   }
 
-  private Collection<String> parseExcludes(@Nullable String excludes) {
+  private @NonNull Collection<String> parseExcludes(@Nullable String excludes) {
     if (excludes == null) {
       return Collections.emptyList();
     }
@@ -702,7 +659,7 @@ public final class CommandTasks {
     return Arrays.asList(excludes.split(";"));
   }
 
-  private ServiceTaskProvider taskProvider() {
+  private @NonNull ServiceTaskProvider taskProvider() {
     return CloudNet.instance().serviceTaskProvider();
   }
 

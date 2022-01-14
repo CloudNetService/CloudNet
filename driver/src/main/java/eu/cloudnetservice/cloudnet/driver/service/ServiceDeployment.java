@@ -27,8 +27,8 @@ import lombok.ToString;
 
 /**
  * Defines the properties for a service that is copied to a specified template. It contains the {@link ServiceTemplate}
- * and {@code excludes} for excluded files/directories. For excluded files, just add the path to the file to the
- * excludes (e.g. "spigot.jar"). For excluded directories, the path has to end with a "/" (e.g. "plugins/").
+ * and excludes for excluded files/directories. For excluded files, just add the path to the file to the excludes (e.g.
+ * "spigot.jar"). For excluded directories, the path has to end with a "/" (e.g. "plugins/").
  */
 @ToString
 @EqualsAndHashCode(callSuper = false)

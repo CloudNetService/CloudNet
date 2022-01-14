@@ -31,8 +31,6 @@ import org.objectweb.asm.Type;
 /**
  * The AsmHelper provides util methods for commonly used asm operations.
  *
- * @author Aldin S. (0utplay@cloudnetservice.eu)
- * @author Pasqual Koschmieder. (derklaro@cloudnetservice.eu)
  * @see org.objectweb.asm.Opcodes
  * @since 4.0
  */

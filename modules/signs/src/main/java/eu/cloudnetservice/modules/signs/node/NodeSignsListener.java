@@ -78,7 +78,7 @@ public class NodeSignsListener {
       switch (event.message()) {
         // config request
         case AbstractPlatformSignManagement.REQUEST_CONFIG -> event.binaryResponse(
-            DataBuf.empty().writeObject(this.signManagement.signsConfiguration()));
+          DataBuf.empty().writeObject(this.signManagement.signsConfiguration()));
 
         // delete all signs
         case AbstractPlatformSignManagement.SIGN_ALL_DELETE -> {

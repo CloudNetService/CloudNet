@@ -32,24 +32,24 @@ import org.jetbrains.annotations.Nullable;
 public interface PermissionManagement {
 
   /**
-   * Get the child permission management or {@code null} if there is no child permission management.
+   * Get the child permission management or null if there is no child permission management.
    *
-   * @return the child permission management or {@code null} if there is no child permission management.
+   * @return the child permission management or null if there is no child permission management.
    */
   @Nullable PermissionManagement childPermissionManagement();
 
   /**
    * Gets if this permission management can be overridden.
    *
-   * @return if this permission management can be overridden.
+   * @return if this permission management can be overridden, false otherwise.
    */
   boolean canBeOverwritten();
 
   /**
-   * Gets the first permission user with the given {@code name}.
+   * Gets the first permission user with the given name.
    *
    * @param name the name of the user to get.
-   * @return the first permission user or {@code null} if no user with this name exists.
+   * @return the first permission user or null if no user with this name exists.
    */
   @Nullable PermissionUser firstUser(String name);
 
@@ -66,7 +66,7 @@ public interface PermissionManagement {
   /**
    * Reloads this permission management
    *
-   * @return {@code true} if the reload was successful
+   * @return true if the reload was successful, false otherwise.
    */
   boolean reload();
 
@@ -86,23 +86,23 @@ public interface PermissionManagement {
   @Nullable PermissionGroup defaultPermissionGroup();
 
   /**
-   * Removes all timed-out permissions and groups of the given {@code permissionUser}.
+   * Removes all timed-out permissions and groups of the given permission user.
    *
    * @param permissionUser the permission user to check.
-   * @return {@code true} if at least one permission was removed.
+   * @return true if at least one permission was removed, false otherwise.
    */
   boolean testPermissionUser(@Nullable PermissionUser permissionUser);
 
   /**
-   * Removes the timed-out permissions of the given {@code permissible}.
+   * Removes the timed-out permissions of the given permissible.
    *
    * @param permissible the permissible to check.
-   * @return {@code true} if at least one permission was removed.
+   * @return true if at least one permission was removed, false otherwise.
    */
   boolean testPermissible(@Nullable Permissible permissible);
 
   /**
-   * Adds a new permission user if it does not already exists.
+   * Adds a new permission user if it does not already exist.
    *
    * @param name     the name of the new user.
    * @param password the password of the new user.
@@ -121,15 +121,15 @@ public interface PermissionManagement {
   @NonNull PermissionGroup addGroup(@NonNull String role, int potency);
 
   /**
-   * Gets the extended groups of the specified {@code group}.
+   * Gets the extended groups of the specified group.
    *
    * @param permissible the permissible to get the extended groups of.
-   * @return the extended groups of the given {@code permissible}.
+   * @return the extended groups of the given permissible.
    */
   @NonNull Collection<PermissionGroup> groupsOf(@Nullable Permissible permissible);
 
   /**
-   * Checks if the given {@code permissible} has the given {@code permission}.
+   * Checks if the given permissible has the given permission.
    *
    * @param permissible the permissible to check if the permission is set.
    * @param permission  the permission to check.
@@ -141,7 +141,7 @@ public interface PermissionManagement {
   }
 
   /**
-   * Checks if the given {@code permissible} has the given {@code permission}.
+   * Checks if the given permissible has the given permission.
    *
    * @param permissible the permissible to check if the permission is set.
    * @param group       the group to get the permissions on.
@@ -158,7 +158,7 @@ public interface PermissionManagement {
   }
 
   /**
-   * Checks if the given {@code permissible} has the given {@code permission}.
+   * Checks if the given permissible has the given permission.
    *
    * @param permissible the permissible to check if the permission is set.
    * @param permission  the permission to check.
@@ -168,7 +168,7 @@ public interface PermissionManagement {
   @NonNull PermissionCheckResult permissionResult(@NonNull Permissible permissible, @NonNull Permission permission);
 
   /**
-   * Checks if the given {@code permissible} has the given {@code permission}.
+   * Checks if the given permissible has the given permission.
    *
    * @param permissible the permissible to check if the permission is set.
    * @param group       the group to get the permissions on.
@@ -182,7 +182,7 @@ public interface PermissionManagement {
     @NonNull Permission permission);
 
   /**
-   * Checks if the given {@code permissible} has the given {@code permission}.
+   * Checks if the given permissible has the given permission.
    *
    * @param permissible the permissible to check if the permission is set.
    * @param groups      the groups to get the permissions on.
@@ -196,19 +196,19 @@ public interface PermissionManagement {
     @NonNull Permission permission);
 
   /**
-   * Finds the highest permission (sorted by the potency) in the given {@code permissions} array using the given {@code
-   * permission} potency as the starting point.
+   * Finds the highest permission (sorted by the potency) in the given permissions array using the given permission
+   * potency as the starting point.
    *
    * @param permissions the permissions to check through.
    * @param permission  the starting point for the check to run.
-   * @return the highest permission in the given {@code permission} or {@code null} if there is no permission with a
-   * higher potency in the given collection
+   * @return the highest permission in the given permission or null if there is no permission with a higher potency in
+   * the given collection
    */
   @Nullable Permission findHighestPermission(@NonNull Collection<Permission> permissions,
     @NonNull Permission permission);
 
   /**
-   * Gets all permission of the specified {@code permissible}
+   * Gets all permission of the specified permissible
    *
    * @param permissible the permissible to get the permission of.
    * @return all permissions of the permissible
@@ -216,10 +216,10 @@ public interface PermissionManagement {
   @NonNull Collection<Permission> allPermissions(@NonNull Permissible permissible);
 
   /**
-   * Gets all permission of the specified {@code permissible} on the given {@code group}.
+   * Gets all permission of the specified permissible on the given group.
    *
    * @param permissible the permissible to get the permission of.
-   * @param group       the group to get the permission on or {@code null} if no specific group should be used.
+   * @param group       the group to get the permission on or null if no specific group should be used.
    * @return all permissions of the permissible on the specified group if provided
    */
   @NonNull Collection<Permission> allGroupPermissions(@NonNull Permissible permissible, @Nullable String group);
@@ -257,7 +257,7 @@ public interface PermissionManagement {
    * Checks if a user with the given uniqueId is stored in the database.
    *
    * @param uniqueId the uniqueId of the user
-   * @return {@code true} if there is a user with that uniqueId, {@code false} otherwise
+   * @return true if there is a user with that uniqueId, false otherwise
    */
   boolean containsUser(@NonNull UUID uniqueId);
 
@@ -265,7 +265,7 @@ public interface PermissionManagement {
    * Checks if at least one user with the given name is stored in the database. This method is case-sensitive.
    *
    * @param name the name of the user
-   * @return {@code true} if there is a user with that name, {@code false} otherwise
+   * @return true if there is a user with that name, false otherwise
    */
   boolean containsOneUser(@NonNull String name);
 
@@ -273,7 +273,7 @@ public interface PermissionManagement {
    * Gets a user with the given uniqueId out of the database.
    *
    * @param uniqueId the uniqueId of the user
-   * @return the {@link PermissionUser} from the database or {@code null} if there is no user with that uniqueId stored
+   * @return the {@link PermissionUser} from the database or null if there is no user with that uniqueId stored
    */
   @Nullable PermissionUser user(@NonNull UUID uniqueId);
 
@@ -355,7 +355,7 @@ public interface PermissionManagement {
    * Checks if a specific group exists.
    *
    * @param group the case-sensitive name of the group
-   * @return {@code true} if the group exists, {@code false} otherwise
+   * @return true if the group exists, false otherwise
    */
   boolean containsGroup(@NonNull String group);
 
@@ -363,7 +363,7 @@ public interface PermissionManagement {
    * Gets a specific group by its name.
    *
    * @param name the case-sensitive name of the group
-   * @return the {@link PermissionUser} if it exists, {@code null} otherwise
+   * @return the {@link PermissionUser} if it exists, null otherwise
    */
   @Nullable PermissionGroup group(@NonNull String name);
 
@@ -428,7 +428,7 @@ public interface PermissionManagement {
   @NonNull Collection<String> sendCommandLine(@NonNull PermissionUser user, @NonNull String commandLine);
 
   /**
-   * Retrieves every permission group object of the specified {@code permissionUser}.
+   * Retrieves every permission group object of the specified permissionUser.
    *
    * @param permissionUser the user to get the groups of
    * @return a collection of all group objects the user is in
@@ -493,7 +493,7 @@ public interface PermissionManagement {
    * Checks if a user with the given uniqueId is stored in the database.
    *
    * @param uniqueId the uniqueId of the user
-   * @return {@code true} if there is a user with that uniqueId, {@code false} otherwise
+   * @return true if there is a user with that uniqueId, false otherwise
    */
   default @NonNull Task<Boolean> containsUserAsync(@NonNull UUID uniqueId) {
     return CompletableTask.supply(() -> this.containsUser(uniqueId));
@@ -503,7 +503,7 @@ public interface PermissionManagement {
    * Checks if at least one user with the given name is stored in the database. This method is case-sensitive.
    *
    * @param name the name of the user
-   * @return {@code true} if there is a user with that name, {@code false} otherwise
+   * @return true if there is a user with that name, false otherwise
    */
   default @NonNull Task<Boolean> containsOneUserAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.containsOneUser(name));
@@ -513,7 +513,7 @@ public interface PermissionManagement {
    * Gets a user with the given uniqueId out of the database.
    *
    * @param uniqueId the uniqueId of the user
-   * @return the {@link PermissionUser} from the database or {@code null} if there is no user with that uniqueId stored
+   * @return the {@link PermissionUser} from the database or null if there is no user with that uniqueId stored
    */
   default @NonNull Task<PermissionUser> userAsync(@NonNull UUID uniqueId) {
     return CompletableTask.supply(() -> this.user(uniqueId));
@@ -544,10 +544,10 @@ public interface PermissionManagement {
   }
 
   /**
-   * Gets the first user with the specified {@code name}.
+   * Gets the first user with the specified name.
    *
    * @param name the name of the user to get.
-   * @return the {@link PermissionUser} from the database or {@code null} if there is no user with that name stored
+   * @return the {@link PermissionUser} from the database or null if there is no user with that name stored
    */
   default @NonNull Task<PermissionUser> firstUserAsync(String name) {
     return CompletableTask.supply(() -> this.firstUser(name));
@@ -639,7 +639,7 @@ public interface PermissionManagement {
    * Checks if a specific group exists.
    *
    * @param group the case-sensitive name of the group
-   * @return {@code true} if the group exists, {@code false} otherwise
+   * @return true if the group exists, false otherwise
    */
   default @NonNull Task<Boolean> containsGroupAsync(@NonNull String group) {
     return CompletableTask.supply(() -> this.containsGroup(group));
@@ -649,7 +649,7 @@ public interface PermissionManagement {
    * Gets a specific group by its name.
    *
    * @param name the case-sensitive name of the group
-   * @return the {@link PermissionUser} if it exists, {@code null} otherwise
+   * @return the {@link PermissionUser} if it exists, null otherwise
    */
   default @NonNull Task<PermissionGroup> groupAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.group(name));

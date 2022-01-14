@@ -177,8 +177,11 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public <T> @Nullable T executeQuery(@NonNull String query, @NonNull ThrowableFunction<ResultSet, T, SQLException> callback,
-    Object... objects) {
+  public <T> @Nullable T executeQuery(
+    @NonNull String query,
+    @NonNull ThrowableFunction<ResultSet, T, SQLException> callback,
+    Object... objects
+  ) {
     Preconditions.checkNotNull(query);
     Preconditions.checkNotNull(callback);
     Preconditions.checkNotNull(objects);

@@ -27,7 +27,23 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents a deserialized form of a module.json file.
+ * Represents the module.json file that each module.jar has to contain. The configuration requires the following
+ * properties:
+ * <ul>
+ *   <li>group</li>
+ *   <li>name</li>
+ *   <li>version</li>
+ *   <li>main</li>
+ * </ul>
+ * <p>
+ * All required dependencies of a module should be listed in the {@link #dependencies()}
+ * instead of shading them into the module jar.
+ * <p>
+ * If a dependency is not located in maven central the repo of the module dependency needs to be specified.
+ *
+ * @see ModuleConfigurationNotFoundException
+ * @see ModuleConfigurationPropertyNotFoundException
+ * @since 4.0
  */
 @ToString
 @EqualsAndHashCode
@@ -112,8 +128,8 @@ public class ModuleConfiguration {
   }
 
   /**
-   * Get if this module stores sensitive data. If {@code true} the module configuration will not be dumped to the paste
-   * command output.
+   * Get if this module stores sensitive data. If true the module configuration will not be dumped to the paste command
+   * output.
    *
    * @return if this module stores sensitive data.
    */
@@ -158,7 +174,7 @@ public class ModuleConfiguration {
   }
 
   /**
-   * Get the description of this module or {@code null} if no description is provided.
+   * Get the description of this module or null if no description is provided.
    *
    * @return the description of this module.
    */
@@ -167,7 +183,7 @@ public class ModuleConfiguration {
   }
 
   /**
-   * Get the author of this module or {@code null} if no author is defined.
+   * Get the author of this module or null if no author is defined.
    *
    * @return the author of this module.
    */
@@ -176,7 +192,7 @@ public class ModuleConfiguration {
   }
 
   /**
-   * Get the website of this module or {@code null} if no website is defined.
+   * Get the website of this module or null if no website is defined.
    *
    * @return the website of this module.
    */
@@ -185,7 +201,7 @@ public class ModuleConfiguration {
   }
 
   /**
-   * Get the data folder of this module or {@code null} if no data folder is defined.
+   * Get the data folder of this module or null if no data folder is defined.
    *
    * @return the data folder of this module.
    */
@@ -211,7 +227,7 @@ public class ModuleConfiguration {
   }
 
   /**
-   * Get all defined repositories of this module or {@code null} if no repositories are defined.
+   * Get all defined repositories of this module or null if no repositories are defined.
    *
    * @return all defined repositories of this module.
    */
@@ -220,7 +236,7 @@ public class ModuleConfiguration {
   }
 
   /**
-   * Get all defined dependencies of this module or {@code null} if no dependencies are defined.
+   * Get all defined dependencies of this module or null if no dependencies are defined.
    *
    * @return all defined dependencies of this module.
    */
@@ -229,7 +245,7 @@ public class ModuleConfiguration {
   }
 
   /**
-   * Get the properties of this module or {@code null} if no properties are defined.
+   * Get the properties of this module or null if no properties are defined.
    *
    * @return all defined properties of this module.
    */
@@ -239,7 +255,7 @@ public class ModuleConfiguration {
 
   /**
    * Get the min java version number this module can run on. For example if the module can run on java 11+ this method
-   * will return {@code 11}.
+   * will return 11.
    *
    * @return the min java version number this module can run on.
    */
@@ -248,7 +264,7 @@ public class ModuleConfiguration {
   }
 
   /**
-   * Get the minimum java runtime version this module can run on or {@code null} if all runtime versions are supported.
+   * Get the minimum java runtime version this module can run on or null if all runtime versions are supported.
    *
    * @return the minimum java runtime version this module can run on.
    */

@@ -23,9 +23,13 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents the main class of a module.
+ * Represents the main class or entry point of the module. The entry point is allowed to specify own module lifecycle
+ * update methods using the module task annotation.
  *
  * @see DriverModule
+ * @see DefaultModule
+ * @see ModuleTaskEntry
+ * @see ModuleTask
  */
 public interface Module extends Nameable {
 

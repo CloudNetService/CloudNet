@@ -25,8 +25,6 @@ import java.lang.annotation.Target;
  * This annotation specifies the description of a command. The command description is collected into the {@link
  * eu.cloudnetservice.cloudnet.driver.command.CommandInfo}.
  *
- * @author Aldin S. (0utplay@cloudnetservice.eu)
- * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
  * @see eu.cloudnetservice.cloudnet.driver.command.CommandInfo
  * @since 4.0
  */

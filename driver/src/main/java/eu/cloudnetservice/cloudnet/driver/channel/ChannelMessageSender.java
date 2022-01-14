@@ -34,8 +34,6 @@ import lombok.NonNull;
  *
  * @param name The name of the new sender.
  * @param type The type of the new sender.
- * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
- * @author Aldin (0utplay@cloudnetservice.eu)
  * @see ChannelMessage
  * @see ChannelMessageTarget
  * @since 4.0

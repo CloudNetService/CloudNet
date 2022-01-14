@@ -49,8 +49,6 @@ import org.jetbrains.annotations.Nullable;
  * applied for searches based on an entry in the database. These searches are not deep, meaning that you can only search
  * reliably for top level entries in the value json rather than nested searches.
  *
- * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
- * @author Aldin (0utplay@cloudnetservice.eu)
  * @see DatabaseProvider
  * @since 4.0
  */

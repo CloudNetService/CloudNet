@@ -24,7 +24,6 @@ import lombok.NonNull;
  * dynamically generated in the runtime by using code generation. Other implementations (like reflection based method
  * invocation) are possible too.
  *
- * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
  * @see ListenerInvokerGenerator
  * @since 4.0
  */

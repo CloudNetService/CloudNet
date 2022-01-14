@@ -46,7 +46,7 @@ public interface NodeInfoProvider {
   /**
    * Gets all tab complete results for the specific command line. If the line contains at least one space, it will get
    * the command and then the tab complete results out of it. If the line doesn't contain any spaces, it will return the
-   * names of all registered commands that begin with the {@code commandLine} (case-insensitive).
+   * names of all registered commands that begin with the commandLine (case-insensitive).
    *
    * @param commandLine the command with arguments to get the results from
    * @return a collection containing all unsorted results
@@ -110,7 +110,7 @@ public interface NodeInfoProvider {
   /**
    * Gets all tab complete results for the specific command line. If the line contains at least one space, it will get
    * the command and then the tab complete results out of it. If the line doesn't contain any spaces, it will return the
-   * names of all registered commands that begin with the {@code commandLine} (case-insensitive).
+   * names of all registered commands that begin with the commandLine (case-insensitive).
    *
    * @param commandLine the command with arguments to get the results from
    * @return a collection containing all unsorted results
@@ -135,7 +135,10 @@ public interface NodeInfoProvider {
    * @param line the commandLine to be sent
    * @return the response of the node
    */
-  default @NonNull Task<Collection<String>> sendCommandLineToNodeAsync(@NonNull String nodeUniqueId, @NonNull String line) {
+  default @NonNull Task<Collection<String>> sendCommandLineToNodeAsync(
+    @NonNull String nodeUniqueId,
+    @NonNull String line
+  ) {
     return CompletableTask.supply(() -> this.sendCommandLineToNode(nodeUniqueId, line));
   }
 

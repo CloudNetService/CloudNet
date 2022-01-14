@@ -37,14 +37,14 @@ import org.jetbrains.annotations.Nullable;
  * components which are somewhere connected in the network. This means that it is possible to send a channel message to
  * a service which is running on another node than the current service which is sending the channel message.
  * <p>
- * A channel message has two main identification points. One is the {@code channel} to which the message gets sent. The
- * channel is a string object which is generally used to collect multiple types of channel message to a collection of
- * message types. On the other hand a channel message contains a {@code message} object which should be unique within in
- * the network and is used to identify a channel message in a group messages sent to the same {@code channel}.
+ * A channel message has two main identification points. One is the channel to which the message gets sent. The channel
+ * is a string object which is generally used to collect multiple types of channel message to a collection of message
+ * types. On the other hand a channel message contains a message object which should be unique within in the network and
+ * is used to identify a channel message in a group messages sent to the same channel.
  * <p>
  * The message contains a {@link DataBuf} containing the actual content of the message. There is no real way to identify
- * which types are in the buffer or not, therefore it is crucial that a channel message gets identified via its {@code
- * channel} and/or {@code message}.
+ * which types are in the buffer or not, therefore it is crucial that a channel message gets identified via its channel
+ * and/or message.
  * <p>
  * If targets were given that are not locatable in the network they will get ignored silently. On the other hand this
  * means that if you try to send a channel message to a non-existing target, the send method will block until the future
@@ -60,8 +60,6 @@ import org.jetbrains.annotations.Nullable;
  * @param content The content of this channel message (the actual data to send).
  * @param sender  The sender of the channel message. Should be, but must not the current network component.
  * @param targets The targets to which the channel message should get send.
- * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
- * @author Aldin (0utplay@cloudnetservice.eu)
  * @see ChannelMessageSender
  * @see ChannelMessageTarget
  * @see eu.cloudnetservice.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent
@@ -88,7 +86,7 @@ public record ChannelMessage(
   /**
    * Constructs a new builder which contains all needed data to respond to a channel message. As the channel message
    * will get directly handled by the waiting future, there is no need to actually set the channel and message of the
-   * returned builder. The new builder will target the sender of the given {@code input} and has no data set.
+   * returned builder. The new builder will target the sender of the given input and has no data set.
    *
    * @param input the channel message to respond to.
    * @return a new builder for a channel message holding all base information to respond to the given source message.

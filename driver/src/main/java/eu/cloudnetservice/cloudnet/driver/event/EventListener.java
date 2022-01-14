@@ -42,7 +42,7 @@ import java.lang.annotation.Target;
 public @interface EventListener {
 
   /**
-   * The channel this event is listening to. Defaults to {@code *} meaning that the listener listens to all channels.
+   * The channel this event is listening to. Defaults to * meaning that the listener listens to all channels.
    *
    * @return the channel this listener listens to.
    */

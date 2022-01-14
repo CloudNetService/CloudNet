@@ -206,7 +206,7 @@ public final class CloudNetTick {
      * Executes this task and resets the future to prepare for the next execution.
      *
      * @param currentTick the current tick number.
-     * @return {@code true} if this task terminated and should be unregistered after the execution.
+     * @return true if this task terminated and should be unregistered after the execution, false otherwise.
      */
     private boolean execute(long currentTick) {
       // check if the task is scheduled to run in this tick

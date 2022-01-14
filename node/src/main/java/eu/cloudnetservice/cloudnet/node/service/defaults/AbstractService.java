@@ -443,11 +443,11 @@ public abstract class AbstractService implements CloudService {
     if (this.logTargets.remove(target) != null) {
       return false;
     }
+    // this returns always true, just to inline it.
     return this.logTargets.put(target, channel) == null;
   }
 
-  protected @NonNull
-  Configuration nodeConfiguration() {
+  protected @NonNull Configuration nodeConfiguration() {
     return this.nodeInstance.config();
   }
 

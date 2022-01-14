@@ -29,8 +29,6 @@ import lombok.NonNull;
 /**
  * This module helper class provides helper methods for cloudnet modules that also operate as a plugin on the services.
  *
- * @author Aldin S. (0utplay@cloudnetservice.eu)
- * @author Pasqual Koschmieder. (derklaro@cloudnetservice.eu)
  * @since 4.0
  */
 public final class DefaultModuleHelper {
@@ -47,12 +45,12 @@ public final class DefaultModuleHelper {
   }
 
   /**
-   * Copies the caller {@code clazz} location from the class path to the given {@code target} path.
+   * Copies the caller class location from the class path to the given target path.
    *
    * @param clazz  the class of which the associated class path entry should get copied.
    * @param target the target file to copy the file into - the file is not required to exist.
    * @return true if the entry was copied successfully, false otherwise.
-   * @throws NullPointerException if {@code clazz} or {@code target} is null.
+   * @throws NullPointerException if clazz or target is null.
    */
   public static boolean copyCurrentModuleInstanceFromClass(@NonNull Class<?> clazz, @NonNull Path target) {
     try {
@@ -70,8 +68,8 @@ public final class DefaultModuleHelper {
   }
 
   /**
-   * Copies the appropriate plugin configuration file for the given service environment {@code type}. All the listed
-   * files will be copied and renamed to {@code plugin.yml}:
+   * Copies the appropriate plugin configuration file for the given service environment type. All the listed files will
+   * be copied and renamed to plugin.yml:
    *
    * <ul>
    *   <li>plugin.bungee.yml if the given environment is BUNGEECORD.</li>

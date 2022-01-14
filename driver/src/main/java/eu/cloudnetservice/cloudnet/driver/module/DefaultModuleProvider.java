@@ -44,6 +44,11 @@ import java.util.jar.JarInputStream;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents the default implementation of the module provider.
+ *
+ * @since 4.0
+ */
 public class DefaultModuleProvider implements ModuleProvider {
 
   public static final Path DEFAULT_LIB_DIR = Path.of(".libs");
@@ -58,10 +63,25 @@ public class DefaultModuleProvider implements ModuleProvider {
   protected ModuleProviderHandler moduleProviderHandler;
   protected ModuleDependencyLoader moduleDependencyLoader;
 
+  /**
+   * Creates a new default module provider by calling with the default library directory and the default dependency
+   * loader.
+   * <p>
+   * The default library directory is {@link #DEFAULT_LIB_DIR}. The default dependency loader is {@link
+   * #DEFAULT_DEP_LOADER}
+   */
   public DefaultModuleProvider() {
     this(DEFAULT_MODULE_DIR, DEFAULT_DEP_LOADER);
   }
 
+  /**
+   * Creates a new default module provider with the given directory and dependency loader.
+   *
+   * @param moduleDirectory        the directory where modules are stored.
+   * @param moduleDependencyLoader the dependency loader to load all module dependencies.
+   * @throws NullPointerException if the given module directory or dependency loader is null.
+   * @see ModuleDependencyLoader
+   */
   public DefaultModuleProvider(@NonNull Path moduleDirectory, @NonNull ModuleDependencyLoader moduleDependencyLoader) {
     this.moduleDirectory = moduleDirectory;
     this.moduleDependencyLoader = moduleDependencyLoader;
@@ -170,7 +190,7 @@ public class DefaultModuleProvider implements ModuleProvider {
       var repositories = this.collectModuleProvidedRepositories(moduleConfiguration);
       var dependencies = this.loadDependencies(repositories, moduleConfiguration);
       // create the class loader for the module
-      var loader = new FinalizeURLClassLoader(url, dependencies.first());
+      var loader = new ModuleURLClassLoader(url, dependencies.first());
       loader.registerGlobally();
       // try to load and create the main class instance
       var mainModuleClass = loader.loadClass(moduleConfiguration.mainClass());
@@ -317,11 +337,12 @@ public class DefaultModuleProvider implements ModuleProvider {
   }
 
   /**
-   * Finds the module.json file in the provided {@code moduleFile} and deserializes it.
+   * Finds the module.json file in the provided module file and deserializes it.
    *
    * @param moduleFile the module file to find the module configuration of.
-   * @return the deserialized module configuration file located in the provided {@code moduleFile}.
-   * @throws IOException if an I/O or deserialize exception occurs.
+   * @return the deserialized module configuration file located in the provided module file.
+   * @throws IOException          if an I/O or deserialize exception occurs.
+   * @throws NullPointerException if the given module file is null.
    */
   protected @NonNull Optional<ModuleConfiguration> findModuleConfiguration(@NonNull URL moduleFile) throws IOException {
     try (
@@ -340,11 +361,12 @@ public class DefaultModuleProvider implements ModuleProvider {
   }
 
   /**
-   * Finds a loaded module based on the given {@code fileSource} url.
+   * Finds a loaded module based on the given file source url.
    *
    * @param fileSource the source to find the associated module with.
    * @return the associated module to the given url.
-   * @throws URISyntaxException if the given URL is not formatted strictly according to RFC2396.
+   * @throws URISyntaxException   if the given URL is not formatted strictly according to RFC2396.
+   * @throws NullPointerException if the given file source is null.
    */
   protected @NonNull Optional<ModuleWrapper> findModuleBySource(@NonNull URL fileSource) throws URISyntaxException {
     // This implementation validates that the uri's of the path do equal. From the talk "Java Puzzlers Serves Up Brain" by Benders Galore:
@@ -369,6 +391,7 @@ public class DefaultModuleProvider implements ModuleProvider {
    *
    * @param configuration the module configuration to read the repositories from.
    * @return all configured repositories in a standardized way.
+   * @throws NullPointerException if configuration is null.
    */
   protected @NonNull Map<String, String> collectModuleProvidedRepositories(@NonNull ModuleConfiguration configuration) {
     Map<String, String> repositories = new HashMap<>();
@@ -392,7 +415,8 @@ public class DefaultModuleProvider implements ModuleProvider {
    * @param repos         the repositories from which the dependencies can get loaded.
    * @param configuration the configuration of the module to load the dependencies of.
    * @return a pair, first are all the loaded dependencies; second are all the pending ones (module dependencies)
-   * @throws AssertionError If one dependency can't be loaded.
+   * @throws AssertionError       if one dependency can't be loaded.
+   * @throws NullPointerException if repos or configuration is null.
    */
   protected @NonNull Pair<Set<URL>, Set<ModuleDependency>> loadDependencies(
     @NonNull Map<String, String> repos,
@@ -439,10 +463,11 @@ public class DefaultModuleProvider implements ModuleProvider {
    *
    * @param dependency    the dependency to load.
    * @param configuration the configuration from which the dependency was declared.
-   * @param handler       the provider handler if one is set and should be notified, else {@code null}.
+   * @param handler       the provider handler if one is set and should be notified, else null.
    * @param loader        the callback which will load the dependency.
    * @return the location of the loaded dependency in url form.
-   * @throws AssertionError if loader fails to load the dependency.
+   * @throws AssertionError       if loader fails to load the dependency.
+   * @throws NullPointerException if dependency, configuration, handler or loader is null.
    */
   protected @NonNull URL doLoadDependency(
     @NonNull ModuleDependency dependency,

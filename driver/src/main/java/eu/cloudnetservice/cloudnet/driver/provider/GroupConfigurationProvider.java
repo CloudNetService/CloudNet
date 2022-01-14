@@ -55,7 +55,7 @@ public interface GroupConfigurationProvider {
    * Gets a specific group by its name
    *
    * @param name the name of the group
-   * @return the group or {@code null} if no group with that name exists
+   * @return the group or null if no group with that name exists
    */
   @Nullable GroupConfiguration groupConfiguration(@NonNull String name);
 
@@ -63,7 +63,7 @@ public interface GroupConfigurationProvider {
    * Checks whether the group with a specific name exists
    *
    * @param name the name of the group
-   * @return {@code true} if the group exists or {@code false} otherwise
+   * @return true if the group exists or false otherwise
    */
   boolean groupConfigurationPresent(@NonNull String name);
 
@@ -118,7 +118,7 @@ public interface GroupConfigurationProvider {
    * Gets a specific group by its name
    *
    * @param name the name of the group
-   * @return the group or {@code null} if no group with that name exists
+   * @return the group or null if no group with that name exists
    */
   default @NonNull Task<GroupConfiguration> groupConfigurationAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.groupConfiguration(name));
@@ -128,7 +128,7 @@ public interface GroupConfigurationProvider {
    * Checks whether the group with a specific name exists
    *
    * @param name the name of the group
-   * @return {@code true} if the group exists or {@code false} otherwise
+   * @return true if the group exists or false otherwise
    */
   default @NonNull Task<Boolean> groupConfigurationPresentAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.groupConfigurationPresent(name));

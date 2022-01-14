@@ -37,7 +37,7 @@ import org.jetbrains.annotations.UnknownNullability;
  * <p>
  * A channel message target can optionally take a name of the target. If no name is provided its interpreted as
  * &quot;all components of the given type&quot;. It is illegal to create a target with no name given for the types
- * {@link Type#TASK} and {@link Type#GROUP}. However, a creation of these types in combination with {@code null} as the
+ * {@link Type#TASK} and {@link Type#GROUP}. However, a creation of these types in combination with null as the
  * name is a valid operation and will not fail.
  * <p>
  * Note: Types are not overriding meaning that setting a target for all services and (for example) specifically the
@@ -46,8 +46,6 @@ import org.jetbrains.annotations.UnknownNullability;
  * Do not extend this class to get access to it's constructors, use {@link #of(Type, String)} or for targeting a specific
  * environment {@link #environment(ServiceEnvironmentType)} instead.
  *
- * @author Pasqual Koschmieder (derklaro@cloudnetservice.eu)
- * @author Aldin (0utplay@cloudnetservice.eu)
  * @see ChannelMessage
  * @see ChannelMessageSender
  * @since 4.0

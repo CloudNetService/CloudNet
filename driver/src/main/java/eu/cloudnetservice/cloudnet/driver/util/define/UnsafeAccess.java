@@ -17,20 +17,18 @@
 package eu.cloudnetservice.cloudnet.driver.util.define;
 
 /**
- * Gives access to the {@code Unsafe} class of the jvm which allows access to previously inaccessible magic.
+ * Gives access to the Unsafe class of the jvm which allows access to previously inaccessible magic.
  *
- * @author Aldin S. (0utplay@cloudnetservice.eu)
- * @author Pasqual Koschmieder. (derklaro@cloudnetservice.eu)
  * @since 4.0
  */
 final class UnsafeAccess {
 
   /**
-   * The {@code unsafe} class object if present.
+   * The unsafe class object if present.
    */
   static final Class<?> UNSAFE_CLASS;
   /**
-   * The jvm static {@code Unsafe} instance if present.
+   * The jvm static Unsafe instance if present.
    */
   static final Object THE_UNSAFE_INSTANCE;
 
@@ -62,9 +60,9 @@ final class UnsafeAccess {
   }
 
   /**
-   * Get if the {@code Unsafe} class and instance were successfully loaded.
+   * Get if the Unsafe class and instance were successfully loaded.
    *
-   * @return if the {@code Unsafe} class and instance were successfully loaded.
+   * @return if the Unsafe class and instance were successfully loaded.
    */
   static boolean available() {
     return UNSAFE_CLASS != null && THE_UNSAFE_INSTANCE != null;

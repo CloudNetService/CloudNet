@@ -37,11 +37,11 @@ public final class SharedChannelMessageListener {
       switch (event.message()) {
         // a new npc was created
         case AbstractNPCManagement.NPC_CREATED -> this.npcManagement.handleInternalNPCCreate(
-            event.content().readObject(NPC.class));
+          event.content().readObject(NPC.class));
 
         // a npc was deleted
         case AbstractNPCManagement.NPC_DELETED -> this.npcManagement.handleInternalNPCRemove(
-            event.content().readObject(WorldPosition.class));
+          event.content().readObject(WorldPosition.class));
 
         // multiple npcs were deleted - remove then one by one
         case AbstractNPCManagement.NPC_BULK_DELETE -> {
@@ -50,7 +50,7 @@ public final class SharedChannelMessageListener {
         }
         // the npc configuration was updated
         case AbstractNPCManagement.NPC_CONFIGURATION_UPDATE -> this.npcManagement.handleInternalNPCConfigUpdate(
-            event.content().readObject(NPCConfiguration.class));
+          event.content().readObject(NPCConfiguration.class));
 
         // not our business
         default -> {

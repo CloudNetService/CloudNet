@@ -17,6 +17,8 @@
 package eu.cloudnetservice.cloudnet.common.language;
 
 import eu.cloudnetservice.cloudnet.common.StringUtil;
+import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import java.nio.file.Path;
 import java.util.Properties;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -43,5 +45,15 @@ public class I18nTest {
     for (var entry : properties.entrySet()) {
       Assertions.assertEquals(entry.getValue(), I18n.trans(entry.getKey().toString()));
     }
+  }
+
+  @Test
+  public void testMessageFormatting() {
+    var directory = Path.of("../node/src/main/resources/lang");
+    // walk the lang directory and try to parse all translations to check if there are no unclosed formatting characters
+    FileUtils.walkFileTree(
+      directory,
+      (root, sub) -> I18n.addLanguageFile("test_TEST", sub),
+      true);
   }
 }

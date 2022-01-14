@@ -55,7 +55,7 @@ public interface ServiceTaskProvider {
    * Gets a specific task by its name
    *
    * @param name the name of the task
-   * @return the task or {@code null} if no task with that name exists
+   * @return the task or null if no task with that name exists
    */
   @Nullable ServiceTask serviceTask(@NonNull String name);
 
@@ -63,7 +63,7 @@ public interface ServiceTaskProvider {
    * Checks whether the task with a specific name exists
    *
    * @param name the name of the task
-   * @return {@code true} if the task exists or {@code false} otherwise
+   * @return true if the task exists or false otherwise
    */
   boolean serviceTaskPresent(@NonNull String name);
 
@@ -118,7 +118,7 @@ public interface ServiceTaskProvider {
    * Gets a specific task by its name
    *
    * @param name the name of the task
-   * @return the task or {@code null} if no task with that name exists
+   * @return the task or null if no task with that name exists
    */
   default @NonNull Task<ServiceTask> serviceTaskAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.serviceTask(name));
@@ -128,7 +128,7 @@ public interface ServiceTaskProvider {
    * Checks whether the task with a specific name exists
    *
    * @param name the name of the task
-   * @return {@code true} if the task exists or {@code false} otherwise
+   * @return true if the task exists or false otherwise
    */
   default @NonNull Task<Boolean> isServiceTaskPresentAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.serviceTaskPresent(name));

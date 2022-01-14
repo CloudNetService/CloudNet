@@ -22,7 +22,18 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents a dependency of a module.
+ * Represents a dependency for the desired module. The module dependencies for a module are specified in the module
+ * configuration.
+ * <p>
+ * The specified dependency in the module configuration has to match in the following parts:
+ * <ul>
+ *   <li>group
+ *   <li>name
+ *   <li>version
+ * </ul>
+ *
+ * @see ModuleConfiguration
+ * @since 4.0
  */
 @EqualsAndHashCode
 public class ModuleDependency {
@@ -39,6 +50,7 @@ public class ModuleDependency {
    * @param group   the group of the dependency.
    * @param name    the name of the dependency.
    * @param version the version of the dependency.
+   * @throws NullPointerException if group, name or version is null.
    */
   public ModuleDependency(@NonNull String group, @NonNull String name, @NonNull String version) {
     this(null, group, name, version);
@@ -47,12 +59,13 @@ public class ModuleDependency {
   /**
    * Creates a new module dependency instance. This dependency type will (when the repository is provided) require a
    * dependency from a remote repository which needs to be downloaded. If the repository is not provided (in this case
-   * {@code null}) this dependency will require another module to be loaded before.
+   * null) this dependency will require another module to be loaded before.
    *
    * @param repo    the repository in which this dependency is located.
    * @param group   the group of the dependency.
    * @param name    the name of the dependency.
    * @param version the version of the dependency.
+   * @throws NullPointerException if group, name or version is null.
    */
   public ModuleDependency(@Nullable String repo, @NonNull String group, @NonNull String name, @NonNull String version) {
     this(repo, null, group, name, version);
@@ -62,14 +75,15 @@ public class ModuleDependency {
    * Creates a new module dependency instance. This dependency type will (when the repository is provided) require a
    * dependency from a remote repository which needs to be downloaded. If the direct download url is provided this
    * dependency will be loaded from the direct url. Please note: if both the repository and url is provided, the direct
-   * download url will be ignored. If neither the repository nor the direct url is not provided (in this case {@code
-   * null}) this dependency will require another module to be loaded before.
+   * download url will be ignored. If neither the repository nor the direct url is not provided (in this case null) this
+   * dependency will require another module to be loaded before.
    *
    * @param repo    the repository in which this dependency is located.
    * @param url     the direct download url of this dependency.
    * @param group   the group of the dependency.
    * @param name    the name of the dependency.
    * @param version the version of the dependency.
+   * @throws NullPointerException if group, name or version is null.
    */
   public ModuleDependency(
     @Nullable String repo,
@@ -88,7 +102,7 @@ public class ModuleDependency {
   /**
    * Get the repository this dependency is located in.
    *
-   * @return the repository this dependency is located in or {@code null} if not located in a repository.
+   * @return the repository this dependency is located in or null if not located in a repository.
    */
   public @Nullable String repo() {
     return this.repo;
@@ -97,7 +111,7 @@ public class ModuleDependency {
   /**
    * Get the direct download url of this dependency.
    *
-   * @return the direct download url of this dependency or {@code null} if there is no direct download url.
+   * @return the direct download url of this dependency or null if there is no direct download url.
    */
   public @Nullable String url() {
     return this.url;

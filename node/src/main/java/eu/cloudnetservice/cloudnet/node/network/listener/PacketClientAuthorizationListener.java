@@ -60,7 +60,7 @@ public final class PacketClientAuthorizationListener implements PacketListener {
               channel.sendPacketSync(new PacketServerAuthorizationResponse(true));
               // call the auth success event
               CloudNet.instance().eventManager().callEvent(
-                  new NetworkClusterNodeAuthSuccessEvent(nodeServer, channel));
+                new NetworkClusterNodeAuthSuccessEvent(nodeServer, channel));
               // do not search for more nodes
               return;
             }
@@ -74,7 +74,7 @@ public final class PacketClientAuthorizationListener implements PacketListener {
           var id = content.readObject(ServiceId.class);
           // get the cloud service associated with the service id
           var service = CloudNet.instance().cloudServiceProvider()
-              .localCloudService(id.uniqueId());
+            .localCloudService(id.uniqueId());
           // we can only accept the connection if the service is present, and the connection key is correct
           if (service != null && service.connectionKey().equals(connectionKey)) {
             // update the cloud service
