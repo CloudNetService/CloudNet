@@ -18,6 +18,7 @@ package eu.cloudnetservice.cloudnet.node.command.sub;
 
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
+import cloud.commandframework.annotations.Flag;
 import eu.cloudnetservice.cloudnet.common.unsafe.CPUUsageResolver;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.command.annotation.CommandAlias;
@@ -25,12 +26,16 @@ import eu.cloudnetservice.cloudnet.node.command.annotation.Description;
 import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
 import java.lang.management.ManagementFactory;
 import java.util.List;
+import java.util.UUID;
+import java.util.regex.Pattern;
+import lombok.NonNull;
 
 @CommandAlias("info")
 @CommandPermission("cloudnet.command.me")
 @Description("Displays all important information about this process and the JVM")
 public final class CommandMe {
 
+  private static final Pattern UUID_REPLACE = Pattern.compile("-\\w{4}-");
   private static final String VM_NAME = System.getProperty("java.vm.name");
   private static final String VM_VERSION = System.getProperty("java.vm.version");
 
@@ -38,17 +43,23 @@ public final class CommandMe {
   private static final String UPDATE_REPO = System.getProperty("cloudnet.updateRepo", "CloudNetService/launchermeta");
 
   @CommandMethod("me|info")
-  public void me(CommandSource commandSource) {
+  public void me(CommandSource commandSource, @Flag("showClusterId") boolean showFullClusterId) {
     var cloudNet = CloudNet.instance();
     var memoryMXBean = ManagementFactory.getMemoryMXBean();
     var nodeInfoSnapshot = cloudNet.nodeServerProvider().selfNode().nodeInfoSnapshot();
+
+    String clusterId = cloudNet.config().clusterConfig().clusterId().toString();
+    // hide the middle parts of the uuid if specified
+    if (!showFullClusterId) {
+      clusterId = this.removeUUIDParts(cloudNet.config().clusterConfig().clusterId());
+    }
 
     commandSource.sendMessage(List.of(
       " ",
       CloudNet.instance().version() + " created by Dytanic, maintained by the CloudNet Community",
       "Discord: <https://discord.cloudnetservice.eu/>",
       " ",
-      "ClusterId: " + cloudNet.config().clusterConfig().clusterId(),
+      "ClusterId: " + clusterId,
       "NodeId: " + cloudNet.config().identity().uniqueId(),
       "Head-NodeId: " + cloudNet.nodeServerProvider().headnode().nodeInfo().uniqueId(),
       "CPU usage: (P/S) "
@@ -75,5 +86,10 @@ public final class CommandMe {
         + UPDATE_BRANCH
         + (cloudNet.dev() ? " (development mode)" : ""),
       " "));
+  }
+
+  private @NonNull String removeUUIDParts(@NonNull UUID uuid) {
+    var matcher = UUID_REPLACE.matcher(uuid.toString());
+    return matcher.replaceAll("-****-");
   }
 }
