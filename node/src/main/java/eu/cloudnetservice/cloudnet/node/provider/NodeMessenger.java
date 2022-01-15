@@ -70,7 +70,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
 
   public void sendChannelMessage(@NonNull ChannelMessage message, boolean allowClusterRedirect) {
     for (var channel : this.findChannels(message.targets(), allowClusterRedirect)) {
-      channel.sendPacket(new PacketServerChannelMessage(message));
+      channel.sendPacket(new PacketServerChannelMessage(message, false));
     }
   }
 
@@ -85,7 +85,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     var task = new CountingTask<Collection<ChannelMessage>>(result, channels.size());
     // send the packet to each channel
     for (var channel : channels) {
-      channel.sendQueryAsync(new PacketServerChannelMessage(message)).onComplete(resultPacket -> {
+      channel.sendQueryAsync(new PacketServerChannelMessage(message, false)).onComplete(resultPacket -> {
         // check if we got an actual result from the request
         if (resultPacket.readable()) {
           // add all resulting messages we got

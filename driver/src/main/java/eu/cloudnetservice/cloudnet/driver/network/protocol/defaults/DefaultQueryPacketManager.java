@@ -145,7 +145,7 @@ public class DefaultQueryPacketManager implements QueryPacketManager {
     this.waitingHandlers.put(queryUniqueId, task);
     // set the unique id of the packet and send
     packet.uniqueId(queryUniqueId);
-    this.networkChannel.sendPacket(packet);
+    this.networkChannel.sendPacketSync(packet);
     // return the created handler
     return task;
   }

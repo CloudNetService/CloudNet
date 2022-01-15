@@ -34,9 +34,10 @@ public final class PacketServerChannelMessage extends BasePacket {
    * Constructs a new channel message packet instance.
    *
    * @param message the channel message (or content) which should be sent to the other component.
+   * @param wrapper if the channel was sent by a wrapper component.
    * @throws NullPointerException if the given channel message is null.
    */
-  public PacketServerChannelMessage(@NonNull ChannelMessage message) {
-    super(NetworkConstants.CHANNEL_MESSAGING_CHANNEL, DataBuf.empty().writeObject(message));
+  public PacketServerChannelMessage(@NonNull ChannelMessage message, boolean wrapper) {
+    super(NetworkConstants.CHANNEL_MESSAGING_CHANNEL, DataBuf.empty().writeBoolean(wrapper).writeObject(message));
   }
 }
