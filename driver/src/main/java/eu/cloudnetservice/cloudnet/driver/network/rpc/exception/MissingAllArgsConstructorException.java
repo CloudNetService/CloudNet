@@ -19,8 +19,21 @@ package eu.cloudnetservice.cloudnet.driver.network.rpc.exception;
 import java.util.Arrays;
 import lombok.NonNull;
 
+/**
+ * A runtime exception being thrown when the constructor with all arguments of a class included for rpc (de-)
+ * serialization is missing.
+ *
+ * @since 4.0
+ */
 public class MissingAllArgsConstructorException extends IllegalStateException {
 
+  /**
+   * Constructs a new missing all args constructor exception instance.
+   *
+   * @param clazz     the class in which the constructor is missing.
+   * @param arguments the argument types which the constructor is missing.
+   * @throws NullPointerException if the given class or arguments array is null.
+   */
   public MissingAllArgsConstructorException(@NonNull Class<?> clazz, @NonNull Class<?>[] arguments) {
     super(String.format(
       "Missing all args constructor for class %s with args %s",

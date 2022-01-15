@@ -31,6 +31,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents an object serializer used to write subclasses of {@code DataBufable} into the outgoing buffer.
+ *
+ * @since 4.0
+ */
 public class DataBufableObjectSerializer implements ObjectSerializer<DataBufable> {
 
   private static final Object[] NO_ARGS = new Object[0];
@@ -38,6 +43,9 @@ public class DataBufableObjectSerializer implements ObjectSerializer<DataBufable
   private final MethodInvokerGenerator generator = new MethodInvokerGenerator();
   private final Map<Type, MethodInvoker> cachedConstructors = new ConcurrentHashMap<>();
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable DataBufable read(
     @NonNull DataBuf source,
@@ -68,6 +76,9 @@ public class DataBufableObjectSerializer implements ObjectSerializer<DataBufable
     return object;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void write(
     @NonNull DataBuf.Mutable dataBuf,

@@ -19,38 +19,24 @@ package eu.cloudnetservice.cloudnet.driver.network.protocol;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import java.time.Instant;
 import java.util.UUID;
-import lombok.EqualsAndHashCode;
 import lombok.NonNull;
-import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * The default implementation of a packet. Each subclass of a packet might implement the packet interface themselves,
- * but it is much more convenient and easy to extend from this class.
+ * Represents a packet with no content in it, throwing an exception when trying to construct a response for or trying to
+ * read from. The exception is intentionally placed, so that unexpected packets will lead the system to explode rather
+ * than throwing unexpected exceptions which no real way to understand what happened.
  *
  * @since 4.0
  */
-@ToString
-@EqualsAndHashCode
-public class BasePacket implements Packet {
+final class EmptyPacket implements Packet {
 
-  protected final int channel;
-  protected final DataBuf dataBuf;
-  protected final Instant creationStamp;
-
-  protected UUID uniqueId;
+  public static final EmptyPacket INSTANCE = new EmptyPacket();
 
   /**
-   * Constructs a new base packet instance.
-   *
-   * @param channel the channel to which the packet was sent.
-   * @param dataBuf the buffer (or content) of the packet.
-   * @throws NullPointerException if the given buffer is null.
+   * Private no-args constructor which is not throwing an exception to allow a single instance creation of the class.
    */
-  public BasePacket(int channel, @NonNull DataBuf dataBuf) {
-    this.channel = channel;
-    this.dataBuf = dataBuf;
-    this.creationStamp = Instant.now();
+  private EmptyPacket() {
   }
 
   /**
@@ -58,9 +44,7 @@ public class BasePacket implements Packet {
    */
   @Override
   public @NonNull Packet constructResponse(@NonNull DataBuf content) {
-    var packet = new BasePacket(-1, content);
-    packet.uniqueId(this.uniqueId());
-    return packet;
+    throw new UnsupportedOperationException("Unable to construct response for empty packet");
   }
 
   /**
@@ -68,7 +52,7 @@ public class BasePacket implements Packet {
    */
   @Override
   public @Nullable UUID uniqueId() {
-    return this.uniqueId;
+    return null;
   }
 
   /**
@@ -76,7 +60,7 @@ public class BasePacket implements Packet {
    */
   @Override
   public void uniqueId(@Nullable UUID uniqueId) {
-    this.uniqueId = uniqueId;
+    // no-op
   }
 
   /**
@@ -84,7 +68,7 @@ public class BasePacket implements Packet {
    */
   @Override
   public int channel() {
-    return this.channel;
+    return -1;
   }
 
   /**
@@ -92,7 +76,7 @@ public class BasePacket implements Packet {
    */
   @Override
   public boolean readable() {
-    return this.dataBuf.accessible() && this.dataBuf.readableBytes() > 0;
+    return false;
   }
 
   /**
@@ -100,7 +84,7 @@ public class BasePacket implements Packet {
    */
   @Override
   public @NonNull DataBuf content() {
-    return this.dataBuf;
+    throw new UnsupportedOperationException("Empty packet has no buffer.");
   }
 
   /**
@@ -108,6 +92,6 @@ public class BasePacket implements Packet {
    */
   @Override
   public @NonNull Instant creation() {
-    return this.creationStamp;
+    return Instant.EPOCH;
   }
 }

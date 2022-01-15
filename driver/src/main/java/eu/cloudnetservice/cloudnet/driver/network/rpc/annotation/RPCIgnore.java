@@ -22,6 +22,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * An annotation which can be added to a field to mark it as ignored when a data class serializer is generated. The
+ * constructor of the class is required to not hold the annotated field as well.
+ *
+ * @since 4.0
+ */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.FIELD})

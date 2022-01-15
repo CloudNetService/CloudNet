@@ -27,18 +27,39 @@ import java.util.function.Supplier;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * An object serializer which can read and write any type of collection to/from a buffer.
+ *
+ * @since 4.0
+ */
 public class CollectionObjectSerializer implements ObjectSerializer<Collection<?>> {
 
   private final Supplier<Collection<?>> collectionFactory;
 
-  protected CollectionObjectSerializer(Supplier<Collection<?>> collectionFactory) {
+  /**
+   * Constructs a new collection object serializer instance.
+   *
+   * @param collectionFactory the factory to create the underlying collection instance.
+   * @throws NullPointerException if the given factory is null.
+   */
+  protected CollectionObjectSerializer(@NonNull Supplier<Collection<?>> collectionFactory) {
     this.collectionFactory = collectionFactory;
   }
 
+  /**
+   * Constructs a new collection object serializer instance.
+   *
+   * @param collectionFactory the factory to create the underlying collection instance.
+   * @return the collection factory instance.
+   * @throws NullPointerException if the given factory is null.
+   */
   public static @NonNull CollectionObjectSerializer of(@NonNull Supplier<Collection<?>> collectionFactory) {
     return new CollectionObjectSerializer(collectionFactory);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable Collection<?> read(
     @NonNull DataBuf source,
@@ -65,6 +86,9 @@ public class CollectionObjectSerializer implements ObjectSerializer<Collection<?
     return collection;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void write(
     @NonNull DataBuf.Mutable dataBuf,

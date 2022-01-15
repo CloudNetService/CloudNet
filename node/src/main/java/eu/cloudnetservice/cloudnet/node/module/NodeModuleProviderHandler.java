@@ -42,6 +42,8 @@ public final class NodeModuleProviderHandler extends DefaultModuleProviderHandle
     // unregister all listeners added to the network handlers
     this.nodeInstance.networkClient().packetRegistry().removeListeners(moduleWrapper.classLoader());
     this.nodeInstance.networkServer().packetRegistry().removeListeners(moduleWrapper.classLoader());
+    // remove all rpc handlers
+    this.nodeInstance.rpcHandlerRegistry().unregisterHandlers(moduleWrapper.classLoader());
     // unregister all listeners added to the network channels
     this.removeListeners(this.nodeInstance.networkClient().channels(), moduleWrapper.classLoader());
     this.removeListeners(this.nodeInstance.networkServer().channels(), moduleWrapper.classLoader());

@@ -18,6 +18,14 @@ package eu.cloudnetservice.cloudnet.driver.network.def;
 
 import org.jetbrains.annotations.ApiStatus.Internal;
 
+/**
+ * Holds some internal constants for network communication which are shared between wrappers and nodes. The class is
+ * marked as internal, however developers are allowed to use this class. <strong>BUT</strong> there might be changes to
+ * this class which are breaking, even when doing a patch release (for example a constant can get removed or changed).
+ * This class should therefore be used with caution.
+ *
+ * @since 4.0
+ */
 @Internal
 public final class NetworkConstants {
 

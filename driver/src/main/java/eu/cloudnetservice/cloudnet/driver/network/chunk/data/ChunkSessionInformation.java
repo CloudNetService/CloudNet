@@ -20,6 +20,17 @@ import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import java.util.UUID;
 import lombok.NonNull;
 
+/**
+ * Contains all needed information for a chunked data transfer to be initialized. The transfer information in this
+ * object are there to allow writes of additional information needed for the transfer to work, for example the target
+ * file name.
+ *
+ * @param chunkSize           the size of data transferred in each chunk, should always be the exact amount of bytes.
+ * @param sessionUniqueId     the unique id of the transfer session, for identification reasons.
+ * @param transferChannel     the name of the channel the data is transferred in, for identification reasons.
+ * @param transferInformation additional information for the transfer handler to handle the chunks correctly.
+ * @since 4.0
+ */
 public record ChunkSessionInformation(
   int chunkSize,
   @NonNull UUID sessionUniqueId,
@@ -27,6 +38,9 @@ public record ChunkSessionInformation(
   @NonNull DataBuf transferInformation
 ) {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -38,6 +52,9 @@ public record ChunkSessionInformation(
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int hashCode() {
     return this.sessionUniqueId().hashCode();

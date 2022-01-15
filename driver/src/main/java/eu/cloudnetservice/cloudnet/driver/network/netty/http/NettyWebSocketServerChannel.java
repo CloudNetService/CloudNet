@@ -28,7 +28,6 @@ import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
@@ -37,7 +36,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.Nullable;
 
+/**
+ * The default netty based implementation of a web socket channel.
+ *
+ * @since 4.0
+ */
 @Internal
 final class NettyWebSocketServerChannel implements WebSocketChannel {
 
@@ -46,57 +51,76 @@ final class NettyWebSocketServerChannel implements WebSocketChannel {
   private final Channel channel;
   private final HttpChannel httpChannel;
 
-  public NettyWebSocketServerChannel(
-    @NonNull HttpChannel httpChannel,
-    @NonNull Channel channel
-  ) {
+  /**
+   * Constructs a new netty web socket channel instance.
+   *
+   * @param httpChannel the original channel the upgrade request came from.
+   * @param channel     the unwrapped netty channel.
+   * @throws NullPointerException if either the given http or netty channel is null.
+   */
+  public NettyWebSocketServerChannel(@NonNull HttpChannel httpChannel, @NonNull Channel channel) {
     this.httpChannel = httpChannel;
     this.channel = channel;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull WebSocketChannel addListener(@NonNull WebSocketListener... listeners) {
     this.webSocketListeners.addAll(Arrays.asList(listeners));
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull WebSocketChannel removeListener(@NonNull WebSocketListener... listeners) {
     this.webSocketListeners.removeIf(listener -> Arrays.asList(listeners).contains(listener));
     return this;
   }
 
-  @Override
-  public @NonNull WebSocketChannel removeListener(@NonNull Collection<Class<? extends WebSocketListener>> classes) {
-    this.webSocketListeners.removeIf(listener -> classes.contains(listener.getClass()));
-    return this;
-  }
-
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull WebSocketChannel removeListener(@NonNull ClassLoader classLoader) {
     this.webSocketListeners.removeIf(listener -> listener.getClass().getClassLoader().equals(classLoader));
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull WebSocketChannel clearListeners() {
     this.webSocketListeners.clear();
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Collection<WebSocketListener> listeners() {
     return this.webSocketListeners;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull WebSocketChannel sendWebSocketFrame(@NonNull WebSocketFrameType type, @NonNull String text) {
     return this.sendWebSocketFrame(type, text.getBytes(StandardCharsets.UTF_8));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull WebSocketChannel sendWebSocketFrame(@NonNull WebSocketFrameType webSocketFrameType, byte[] bytes) {
-    WebSocketFrame webSocketFrame = switch (webSocketFrameType) {
+    var webSocketFrame = switch (webSocketFrameType) {
       case PING -> new PingWebSocketFrame(Unpooled.buffer(bytes.length).writeBytes(bytes));
       case PONG -> new PongWebSocketFrame(Unpooled.buffer(bytes.length).writeBytes(bytes));
       case TEXT -> new TextWebSocketFrame(Unpooled.buffer(bytes.length).writeBytes(bytes));
@@ -107,13 +131,19 @@ final class NettyWebSocketServerChannel implements WebSocketChannel {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpChannel channel() {
     return this.httpChannel;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public void close(int statusCode, @NonNull String reasonText) {
+  public void close(int statusCode, @Nullable String reasonText) {
     var statusCodeReference = new AtomicInteger(statusCode);
     var reasonTextReference = new AtomicReference<>(reasonText);
 
@@ -121,12 +151,16 @@ final class NettyWebSocketServerChannel implements WebSocketChannel {
       listener.handleClose(this, statusCodeReference, reasonTextReference);
     }
 
-    this.channel.writeAndFlush(new CloseWebSocketFrame(statusCodeReference.get(), reasonTextReference.get()))
+    this.channel
+      .writeAndFlush(new CloseWebSocketFrame(statusCodeReference.get(), reasonTextReference.get()))
       .addListener(ChannelFutureListener.CLOSE);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void close() {
-    this.close(200, "default closing");
+    this.close(1000, "goodbye");
   }
 }

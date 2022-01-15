@@ -23,8 +23,16 @@ import java.lang.reflect.Type;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * An object serializer to write a data buf into the outbound buffer.
+ *
+ * @since 4.0
+ */
 public class DataBufObjectSerializer implements ObjectSerializer<DataBuf> {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void write(
     @NonNull DataBuf.Mutable dataBuf,
@@ -35,6 +43,9 @@ public class DataBufObjectSerializer implements ObjectSerializer<DataBuf> {
     dataBuf.writeDataBuf(object);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable Object read(
     @NonNull DataBuf source,

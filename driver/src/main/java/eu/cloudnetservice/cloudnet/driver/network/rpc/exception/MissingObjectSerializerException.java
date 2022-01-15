@@ -19,8 +19,19 @@ package eu.cloudnetservice.cloudnet.driver.network.rpc.exception;
 import java.lang.reflect.Type;
 import lombok.NonNull;
 
+/**
+ * An illegal state of the object serializer thrown when no serializer for the class to (de-) serialize is found.
+ *
+ * @since 4.0
+ */
 public class MissingObjectSerializerException extends IllegalStateException {
 
+  /**
+   * Constructs a new missing object serializer exception.
+   *
+   * @param type the type for which no serializer could be found.
+   * @throws NullPointerException if the given type is null.
+   */
   public MissingObjectSerializerException(@NonNull Type type) {
     super(String.format("Missing object type serializer for %s", type.getTypeName()));
   }

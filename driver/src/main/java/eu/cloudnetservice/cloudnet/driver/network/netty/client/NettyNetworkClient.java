@@ -44,7 +44,13 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
+/**
+ * The default implementation of a network client, using the netty network client implementations.
+ *
+ * @since 4.0
+ */
 public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClient {
 
   private static final int CONNECTION_TIMEOUT_MILLIS = 5_000;
@@ -57,16 +63,32 @@ public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClien
   protected final PacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
 
   protected final SSLConfiguration sslConfiguration;
-  protected final Callable<NetworkChannelHandler> networkChannelHandler;
+  protected final Callable<NetworkChannelHandler> handlerFactory;
 
   protected SslContext sslContext;
 
-  public NettyNetworkClient(Callable<NetworkChannelHandler> networkChannelHandler) {
-    this(networkChannelHandler, null);
+  /**
+   * Constructs a new netty network client instance. Equivalent to {@code new NettyNetworkClient(handlerFactory, null)}
+   *
+   * @param handlerFactory the factory for new handlers to be created with.
+   * @throws NullPointerException if the given factory is null.
+   */
+  public NettyNetworkClient(@NonNull Callable<NetworkChannelHandler> handlerFactory) {
+    this(handlerFactory, null);
   }
 
-  public NettyNetworkClient(Callable<NetworkChannelHandler> networkChannelHandler, SSLConfiguration sslConfiguration) {
-    this.networkChannelHandler = networkChannelHandler;
+  /**
+   * Constructs a new netty network client instance.
+   *
+   * @param handlerFactory   the factory for new handler to be created with.
+   * @param sslConfiguration the ssl configuration applying to this client, or null for no ssl configuration.
+   * @throws NullPointerException if the given handler factory is null.
+   */
+  public NettyNetworkClient(
+    @NonNull Callable<NetworkChannelHandler> handlerFactory,
+    @Nullable SSLConfiguration sslConfiguration
+  ) {
+    this.handlerFactory = handlerFactory;
     this.sslConfiguration = sslConfiguration;
 
     try {
@@ -76,11 +98,17 @@ public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClien
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean sslEnabled() {
     return this.sslContext != null;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean connect(@NonNull HostAndPort hostAndPort) {
     Preconditions.checkNotNull(hostAndPort.host());
@@ -115,32 +143,53 @@ public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClien
     return false;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void close() {
     this.closeChannels();
     this.eventLoopGroup.shutdownGracefully();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Collection<NetworkChannel> channels() {
     return Collections.unmodifiableCollection(this.channels);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Executor packetDispatcher() {
     return this.packetDispatcher;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public Collection<NetworkChannel> modifiableChannels() {
+  public @NonNull Collection<NetworkChannel> modifiableChannels() {
     return this.channels;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull PacketListenerRegistry packetRegistry() {
     return this.packetRegistry;
   }
 
+  /**
+   * Builds the ssl context for this client if a ssl configuration was supplied and is active. If no certificates are
+   * set in the given ssl configuration, the client will self-sign a certificate.
+   *
+   * @throws Exception if any exception occurs during the creation of the ssl context.
+   */
   private void init() throws Exception {
     if (this.sslConfiguration != null && this.sslConfiguration.enabled()) {
       if (this.sslConfiguration.certificatePath() != null && this.sslConfiguration.privateKeyPath() != null) {

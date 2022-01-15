@@ -24,8 +24,23 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import lombok.NonNull;
 
+/**
+ * Represents a builder for chunked packet sessions which are transferring files.
+ *
+ * @see DefaultFileChunkPacketSender
+ * @see ChunkedPacketSender#forFileTransfer()
+ * @since 4.0
+ */
 public class FileChunkedPacketSenderBuilder extends DefaultChunkedPacketSenderBuilder {
 
+  /**
+   * Sets the file to transfer in the session. The file path must exist.
+   *
+   * @param path the path to the file to transfer.
+   * @return the same builder instance as used to call the method, for chaining.
+   * @throws AssertionError       if an i/o error occurs while opening the file stream.
+   * @throws NullPointerException if the given file path is null.
+   */
   public @NonNull FileChunkedPacketSenderBuilder forFile(@NonNull Path path) {
     try {
       this.source(Files.newInputStream(path));
@@ -35,6 +50,9 @@ public class FileChunkedPacketSenderBuilder extends DefaultChunkedPacketSenderBu
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected @NonNull ChunkedPacketSender doBuild() {
     return new DefaultFileChunkPacketSender(new ChunkSessionInformation(

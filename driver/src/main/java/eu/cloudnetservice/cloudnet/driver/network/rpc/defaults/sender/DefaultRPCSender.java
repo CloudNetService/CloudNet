@@ -30,6 +30,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * The default implementation of a rpc sender.
+ *
+ * @since 4.0
+ */
 public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
 
   protected static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
@@ -39,6 +44,16 @@ public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
   protected final NetworkComponent networkComponent;
   protected final Map<String, MethodInformation> cachedMethodInformation;
 
+  /**
+   * Constructs a new default rpc sender instance.
+   *
+   * @param factory        the factory used to create this instance.
+   * @param component      the network component which is associated with this component, might be null.
+   * @param targetClass    the target call for method invocations sent by this sender.
+   * @param objectMapper   the object mapper to use to write and read data from the buffers.
+   * @param dataBufFactory the buffer factory used for buffer allocations.
+   * @throws NullPointerException if one of the required constructor parameters is null.
+   */
   public DefaultRPCSender(
     @NonNull RPCProviderFactory factory,
     @Nullable NetworkComponent component,
@@ -54,11 +69,17 @@ public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
     this.cachedMethodInformation = new ConcurrentHashMap<>();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull RPCProviderFactory factory() {
     return this.factory;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull NetworkComponent associatedComponent() {
     // possible to create without an associated component - throw an exception if so
@@ -68,11 +89,17 @@ public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
     return this.networkComponent;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull RPC invokeMethod(@NonNull String methodName) {
     return this.invokeMethod(methodName, EMPTY_OBJECT_ARRAY);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull RPC invokeMethod(@NonNull String methodName, Object... args) {
     // find the method information of the method we want to invoke

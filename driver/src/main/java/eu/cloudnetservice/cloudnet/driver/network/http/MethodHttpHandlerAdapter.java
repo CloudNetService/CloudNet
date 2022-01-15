@@ -18,40 +18,72 @@ package eu.cloudnetservice.cloudnet.driver.network.http;
 
 import lombok.NonNull;
 
+/**
+ * An adapter of a method http handler allowing to only override the needed http method handlers.
+ *
+ * @since 4.0
+ */
 public class MethodHttpHandlerAdapter implements MethodHttpHandler {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void handlePost(@NonNull String path, @NonNull HttpContext context) throws Exception {
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void handleGet(@NonNull String path, @NonNull HttpContext context) throws Exception {
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void handlePut(@NonNull String path, @NonNull HttpContext context) throws Exception {
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void handleHead(@NonNull String path, @NonNull HttpContext context) throws Exception {
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void handleDelete(@NonNull String path, @NonNull HttpContext context) throws Exception {
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void handlePatch(@NonNull String path, @NonNull HttpContext context) throws Exception {
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void handleTrace(@NonNull String path, @NonNull HttpContext context) throws Exception {
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void handleOptions(@NonNull String path, @NonNull HttpContext context) throws Exception {
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void handleConnect(@NonNull String path, @NonNull HttpContext context) throws Exception {
   }

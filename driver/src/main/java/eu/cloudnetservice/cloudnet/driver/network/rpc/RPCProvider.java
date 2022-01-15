@@ -20,11 +20,31 @@ import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.object.ObjectMapper;
 import lombok.NonNull;
 
+/**
+ * The base class implemented by anything which is related to rpc.
+ *
+ * @since 4.0
+ */
 public interface RPCProvider {
 
+  /**
+   * Get the class which is targeted by the associated rpc.
+   *
+   * @return the target class.
+   */
   @NonNull Class<?> targetClass();
 
+  /**
+   * Get the object mapper which is used for (de-) serialization of objects if needed.
+   *
+   * @return the associated object mapper.
+   */
   @NonNull ObjectMapper objectMapper();
 
+  /**
+   * Get the data buf factory which is used to allocate network data buffers if needed.
+   *
+   * @return the associated data buf factory.
+   */
   @NonNull DataBufFactory dataBufFactory();
 }

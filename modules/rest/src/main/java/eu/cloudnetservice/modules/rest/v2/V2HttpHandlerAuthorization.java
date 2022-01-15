@@ -32,7 +32,7 @@ public class V2HttpHandlerAuthorization extends V2HttpHandler {
 
   @Override
   protected void handleUnauthorized(@NotNull String path, @NotNull HttpContext context) {
-    this.response(context, HttpResponseCode.HTTP_UNAUTHORIZED)
+    this.response(context, HttpResponseCode.UNAUTHORIZED)
       .header("WWW-Authenticate", "Basic realm=\"CloudNet Rest\"")
       .context()
       .closeAfter(true)
@@ -40,9 +40,9 @@ public class V2HttpHandlerAuthorization extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBasicAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull PermissionUser user) {
+  protected void handleBasicAuthorized(@NotNull String path, @NotNull HttpContext con, @NotNull PermissionUser user) {
     var jwt = this.authentication.createJwt(user, TimeUnit.HOURS.toMillis(1)); // todo: configurable
-    this.ok(context)
+    this.ok(con)
       .body(this.success().append("token", jwt).append("id", user.uniqueId()).toString())
       .context()
       .closeAfter(true)
@@ -50,7 +50,8 @@ public class V2HttpHandlerAuthorization extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession session) {
+  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context,
+    @NotNull HttpSession session) {
     this.ok(context)
       .body(this.success().append("id", session.user().uniqueId()).toString())
       .context()

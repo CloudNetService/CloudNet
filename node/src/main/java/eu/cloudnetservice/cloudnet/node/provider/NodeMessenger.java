@@ -24,7 +24,6 @@ import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessageTarget;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.def.PacketServerChannelMessage;
-import eu.cloudnetservice.cloudnet.driver.network.protocol.BasePacket;
 import eu.cloudnetservice.cloudnet.driver.provider.CloudMessenger;
 import eu.cloudnetservice.cloudnet.driver.provider.DefaultMessenger;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -88,7 +87,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     for (var channel : channels) {
       channel.sendQueryAsync(new PacketServerChannelMessage(message)).onComplete(resultPacket -> {
         // check if we got an actual result from the request
-        if (resultPacket != BasePacket.EMPTY && resultPacket.content().readableBytes() > 0) {
+        if (resultPacket.readable()) {
           // add all resulting messages we got
           result.addAll(resultPacket.content().readObject(COL_MSG));
         }

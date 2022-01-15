@@ -27,65 +27,106 @@ import java.util.function.BiConsumer;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents the default implementation of a mutable data buf, wrapping a netty byte buffer.
+ *
+ * @since 4.0
+ */
 public class NettyMutableDataBuf extends NettyImmutableDataBuf implements Mutable {
 
-  public NettyMutableDataBuf(ByteBuf byteBuf) {
+  /**
+   * Constructs a new mutable data buf instance.
+   *
+   * @param byteBuf the netty buffer to wrap.
+   * @throws NullPointerException if the given buffer is null.
+   */
+  public NettyMutableDataBuf(@NonNull ByteBuf byteBuf) {
     super(byteBuf);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull DataBuf.Mutable writeBoolean(boolean b) {
     this.byteBuf.writeBoolean(b);
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull DataBuf.Mutable writeInt(int integer) {
     this.byteBuf.writeInt(integer);
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull DataBuf.Mutable writeByte(byte b) {
     this.byteBuf.writeByte(b);
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull DataBuf.Mutable writeShort(short s) {
     this.byteBuf.writeShort(s);
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull DataBuf.Mutable writeLong(long l) {
     this.byteBuf.writeLong(l);
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull DataBuf.Mutable writeFloat(float f) {
     this.byteBuf.writeFloat(f);
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull DataBuf.Mutable writeDouble(double d) {
     this.byteBuf.writeDouble(d);
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull DataBuf.Mutable writeChar(char c) {
     this.byteBuf.writeChar(c);
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull DataBuf.Mutable writeByteArray(byte[] b) {
     return this.writeByteArray(b, b.length);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull DataBuf.Mutable writeByteArray(byte[] b, int amount) {
     NettyUtils.writeVarInt(this.byteBuf, amount);
@@ -93,16 +134,25 @@ public class NettyMutableDataBuf extends NettyImmutableDataBuf implements Mutabl
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull DataBuf.Mutable writeUniqueId(@NonNull UUID uuid) {
     return this.writeLong(uuid.getMostSignificantBits()).writeLong(uuid.getLeastSignificantBits());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull DataBuf.Mutable writeString(@NonNull String string) {
     return this.writeByteArray(string.getBytes(StandardCharsets.UTF_8));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull DataBuf.Mutable writeDataBuf(@NonNull DataBuf buf) {
     buf.startTransaction();
@@ -115,11 +165,17 @@ public class NettyMutableDataBuf extends NettyImmutableDataBuf implements Mutabl
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull DataBuf.Mutable writeObject(@Nullable Object obj) {
     return DefaultObjectMapper.DEFAULT_MAPPER.writeObject(this, obj);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull <T> Mutable writeNullable(@Nullable T object, @NonNull BiConsumer<Mutable, T> handlerWhenNonNull) {
     this.writeBoolean(object != null);
@@ -129,6 +185,9 @@ public class NettyMutableDataBuf extends NettyImmutableDataBuf implements Mutabl
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull DataBuf asImmutable() {
     return new NettyImmutableDataBuf(this.byteBuf);

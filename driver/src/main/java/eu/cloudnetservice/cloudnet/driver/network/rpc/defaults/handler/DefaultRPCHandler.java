@@ -31,6 +31,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents the default implementation of a rpc handler.
+ *
+ * @since 4.0
+ */
 public class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler {
 
   protected final Class<?> bindingClass;
@@ -39,6 +44,15 @@ public class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler 
 
   protected final Map<String, MethodInformation> methodCache = new ConcurrentHashMap<>();
 
+  /**
+   * Constructs a new default rpc handler instance.
+   *
+   * @param clazz          the raw clazz to which the handler is bound.
+   * @param binding        the instance to which the handler is bound, might be null if not needed.
+   * @param objectMapper   the object mapper used for reading / writing of arguments and return values.
+   * @param dataBufFactory the data buf factory used to allocate response buffers.
+   * @throws NullPointerException if either the given class, object mapper or buffer factory is null.
+   */
   public DefaultRPCHandler(
     @NonNull Class<?> clazz,
     @Nullable Object binding,
@@ -52,16 +66,25 @@ public class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler 
     this.generator = new MethodInvokerGenerator();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void registerToDefaultRegistry() {
     this.registerTo(CloudNetDriver.instance().rpcHandlerRegistry());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void registerTo(@NonNull RPCHandlerRegistry registry) {
     registry.registerHandler(this);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HandlingResult handle(@NonNull RPCInvocationContext context) {
     // get the working instance

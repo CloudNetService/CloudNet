@@ -20,22 +20,25 @@ import eu.cloudnetservice.cloudnet.common.concurrent.CompletedTask;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBufFactory;
-import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPC;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCChain;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.DefaultRPCProvider;
-import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.handler.util.ExceptionalResultUtils;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.exception.RPCException;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.exception.RPCExecutionException;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.object.ObjectMapper;
-import eu.cloudnetservice.cloudnet.driver.network.rpc.packet.RPCQueryPacket;
+import eu.cloudnetservice.cloudnet.driver.network.rpc.packet.RPCRequestPacket;
 import java.lang.reflect.Type;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * The default implementation of a rpc.
+ *
+ * @since 4.0
+ */
 public class DefaultRPC extends DefaultRPCProvider implements RPC {
 
   private final RPCSender sender;
@@ -46,6 +49,18 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
 
   private boolean resultExpectation = true;
 
+  /**
+   * Constructs a new default rpc instance.
+   *
+   * @param sender             the sender of this rpc.
+   * @param clazz              the target class of this rpc.
+   * @param methodName         the name of the method which should get invoked.
+   * @param arguments          the arguments which should get supplied to the method to invoke.
+   * @param objectMapper       the object mapper used to write/read data from constructed buffers.
+   * @param expectedResultType true if this rpc execution expects a result, false otherwise.
+   * @param dataBufFactory     the data buf factory to use for data buf allocation.
+   * @throws NullPointerException if one of the given arguments is null.
+   */
   public DefaultRPC(
     @NonNull RPCSender sender,
     @NonNull Class<?> clazz,
@@ -64,76 +79,115 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
     this.expectedResultType = expectedResultType;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull RPCChain join(@NonNull RPC rpc) {
     return new DefaultRPCChain(this, rpc);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull RPCSender sender() {
     return this.sender;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull String className() {
     return this.className;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull String methodName() {
     return this.methodName;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Object[] arguments() {
     return this.arguments;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Type expectedResultType() {
     return this.expectedResultType;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull RPC disableResultExpectation() {
     this.resultExpectation = false;
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean expectsResult() {
     return this.resultExpectation;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void fireAndForget() {
     this.fireAndForget(Objects.requireNonNull(this.sender.associatedComponent().firstChannel()));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <T> @Nullable T fireSync() {
     return this.fireSync(Objects.requireNonNull(this.sender.associatedComponent().firstChannel()));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull <T> Task<T> fire() {
     return this.fire(Objects.requireNonNull(this.sender.associatedComponent().firstChannel()));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void fireAndForget(@NonNull NetworkChannel component) {
     this.disableResultExpectation().fireSync(component);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <T> @Nullable T fireSync(@NonNull NetworkChannel component) {
     try {
       Task<T> queryTask = this.fire(component);
       return queryTask.get();
     } catch (InterruptedException | ExecutionException exception) {
-      if (exception.getCause() instanceof RPCExecutionException) {
+      if (exception.getCause() instanceof RPCExecutionException executionException) {
         // may be thrown when the handler did throw an exception, just rethrow that one
-        throw (RPCExecutionException) exception.getCause();
+        throw executionException;
       } else {
         // any other exception should get wrapped
         throw new RPCException(this, exception);
@@ -141,6 +195,9 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull <T> Task<T> fire(@NonNull NetworkChannel component) {
     // write the default needed information we need
@@ -157,21 +214,12 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
     // send query if result is needed
     if (this.resultExpectation) {
       // now send the query and read the response
-      return component.sendQueryAsync(new RPCQueryPacket(dataBuf))
-        .map(Packet::content)
-        .map(content -> {
-          if (content.readBoolean()) {
-            // the execution did not throw an exception
-            return this.objectMapper.readObject(content, this.expectedResultType);
-          } else {
-            // rethrow the execution exception
-            ExceptionalResultUtils.rethrowException(content);
-            return null; // ok fine, but this will never happen - no one was seen again after entering the rethrowException method
-          }
-        });
+      return component
+        .sendQueryAsync(new RPCRequestPacket(dataBuf))
+        .map(new RPCResultMapper<>(this.expectedResultType, this.objectMapper));
     } else {
       // just send the method invocation request
-      component.sendPacket(new RPCQueryPacket(dataBuf));
+      component.sendPacket(new RPCRequestPacket(dataBuf));
       return CompletedTask.done(null);
     }
   }

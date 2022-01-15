@@ -33,11 +33,7 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(
-    @NotNull String path,
-    @NotNull HttpContext context,
-    @NotNull HttpSession session
-  ) {
+  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession ses) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.endsWith("/exists")) {
         this.handleCloudPlayerExistsRequest(context);
@@ -100,7 +96,7 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
     }
 
     this.playerManager().updateOfflinePlayer(cloudOfflinePlayer);
-    this.response(context, HttpResponseCode.HTTP_CREATED)
+    this.response(context, HttpResponseCode.CREATED)
       .body(this.success().toString())
       .context()
       .closeAfter(true)

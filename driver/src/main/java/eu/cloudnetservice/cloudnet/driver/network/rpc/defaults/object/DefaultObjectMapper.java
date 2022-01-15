@@ -54,6 +54,11 @@ import java.util.concurrent.ConcurrentMap;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * The default object mapper implementation.
+ *
+ * @since 4.0
+ */
 public class DefaultObjectMapper implements ObjectMapper {
 
   public static final ObjectMapper DEFAULT_MAPPER;
@@ -117,16 +122,28 @@ public class DefaultObjectMapper implements ObjectMapper {
   private final Map<Type, TypeToken<?>> typeTokenCache = new ConcurrentHashMap<>();
   private final Map<Type, ObjectSerializer<?>> registeredSerializers = new ConcurrentHashMap<>();
 
+  /**
+   * Constructs a new default object mapper instance with all default object serializers already registerd. This call is
+   * equivalent to {@code new DefaultObjectMapper(true)}.
+   */
   public DefaultObjectMapper() {
     this(true);
   }
 
+  /**
+   * Constructs a new default object mapper instance and optionally registers the default serializers to it.
+   *
+   * @param registerDefaultSerializers true if the default serializers should get registered, false otherwise.
+   */
   public DefaultObjectMapper(boolean registerDefaultSerializers) {
     if (registerDefaultSerializers) {
       this.registeredSerializers.putAll(DEFAULT_SERIALIZERS);
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull ObjectMapper unregisterBinding(@NonNull Type type, boolean superTypes) {
     if (superTypes) {
@@ -143,6 +160,9 @@ public class DefaultObjectMapper implements ObjectMapper {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull ObjectMapper unregisterBindings(@NonNull ClassLoader classLoader) {
     for (var entry : this.registeredSerializers.entrySet()) {
@@ -154,6 +174,9 @@ public class DefaultObjectMapper implements ObjectMapper {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull <T> ObjectMapper registerBinding(
     @NonNull Type type,
@@ -174,28 +197,35 @@ public class DefaultObjectMapper implements ObjectMapper {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public @NonNull DataBuf.Mutable writeObject(@NonNull DataBuf.Mutable dataBuf, @Nullable Object object) {
+  @SuppressWarnings("unchecked")
+  public @NonNull <T> DataBuf.Mutable writeObject(@NonNull DataBuf.Mutable dataBuf, @Nullable T object) {
     return dataBuf.writeNullable(object, (buffer, obj) -> {
       // Get the type token of the type
-      var typeToken = this.typeTokenCache.computeIfAbsent(obj.getClass(), TypeToken::of);
+      var typeToken = (TypeToken<T>) this.typeTokenCache.computeIfAbsent(obj.getClass(), TypeToken::of);
       // get the registered serializer for the type
-      ObjectSerializer<?> serializer = null;
+      ObjectSerializer<T> serializer = null;
       for (TypeToken<?> type : typeToken.getTypes()) {
         serializer = this.serializerForType(type);
-        if (serializer != null && serializer.preWriteCheckAccepts(obj)) {
+        if (serializer != null && serializer.preWriteCheckAccepts(obj, this)) {
           break;
         }
       }
       // check if a serializer was found
-      if (serializer == null || !serializer.preWriteCheckAccepts(obj)) {
+      if (serializer == null || !serializer.preWriteCheckAccepts(obj, this)) {
         throw new MissingObjectSerializerException(obj.getClass());
       }
       // serialize the object into the buffer
-      serializer.writeObject(buffer, obj, obj.getClass(), this);
+      serializer.write(buffer, obj, obj.getClass(), this);
     });
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   @SuppressWarnings("unchecked")
   public <T> @Nullable T readObject(@NonNull DataBuf dataBuf, @NonNull Type type) {
@@ -206,12 +236,12 @@ public class DefaultObjectMapper implements ObjectMapper {
       ObjectSerializer<?> serializer = null;
       for (TypeToken<?> subType : typeToken.getTypes()) {
         serializer = this.serializerForType(subType);
-        if (serializer != null && serializer.preReadCheckAccepts(type)) {
+        if (serializer != null && serializer.preReadCheckAccepts(type, this)) {
           break;
         }
       }
       // check if a serializer was found
-      if (serializer == null || !serializer.preReadCheckAccepts(type)) {
+      if (serializer == null || !serializer.preReadCheckAccepts(type, this)) {
         throw new MissingObjectSerializerException(type);
       }
       // read the object from the buffer
@@ -219,8 +249,18 @@ public class DefaultObjectMapper implements ObjectMapper {
     });
   }
 
-  protected @Nullable ObjectSerializer<?> serializerForType(@NonNull TypeToken<?> typeToken) {
-    var byType = this.registeredSerializers.get(typeToken.getType());
-    return byType == null ? this.registeredSerializers.get(typeToken.getRawType()) : byType;
+  /**
+   * Finds the best matching serializer for the given type. The method first tries to get the serializer by the exact
+   * type of the supplied type token, then by the raw type.
+   *
+   * @param typeToken the type token of the type to get.
+   * @param <T>       the generic type of the object serializer to get.
+   * @return the best matching object serializer for the given type.
+   * @throws NullPointerException if the given type token is null.
+   */
+  @SuppressWarnings("unchecked")
+  protected @Nullable <T> ObjectSerializer<T> serializerForType(@NonNull TypeToken<?> typeToken) {
+    var byType = (ObjectSerializer<T>) this.registeredSerializers.get(typeToken.getType());
+    return byType == null ? (ObjectSerializer<T>) this.registeredSerializers.get(typeToken.getRawType()) : byType;
   }
 }

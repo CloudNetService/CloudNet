@@ -18,8 +18,17 @@ package eu.cloudnetservice.cloudnet.driver.network.http;
 
 import lombok.NonNull;
 
+/**
+ * A http handler which allows listening to only specific http methods instead of all, or handling requests based on
+ * their http method.
+ *
+ * @since 4.0
+ */
 public interface MethodHttpHandler extends HttpHandler {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   default void handle(@NonNull String path, @NonNull HttpContext context) throws Exception {
     switch (context.request().method().toUpperCase()) {
@@ -37,21 +46,111 @@ public interface MethodHttpHandler extends HttpHandler {
     }
   }
 
+  /**
+   * Handles a post http request whose path (and other supplied attributes) while registering is matching the requested
+   * path of the client. A request is only processed by one handler at a time, giving the handler full control about
+   * changing the context. Changes to the context will be reflected into other handlers and vise-versa.
+   *
+   * @param path    the full path of the client request.
+   * @param context the current context of the request.
+   * @throws Exception            if any exception occurs during the request handling.
+   * @throws NullPointerException if the given path or context is null.
+   */
   void handlePost(@NonNull String path, @NonNull HttpContext context) throws Exception;
 
+  /**
+   * Handles a get http request whose path (and other supplied attributes) while registering is matching the requested
+   * path of the client. A request is only processed by one handler at a time, giving the handler full control about
+   * changing the context. Changes to the context will be reflected into other handlers and vise-versa.
+   *
+   * @param path    the full path of the client request.
+   * @param context the current context of the request.
+   * @throws Exception            if any exception occurs during the request handling.
+   * @throws NullPointerException if the given path or context is null.
+   */
   void handleGet(@NonNull String path, @NonNull HttpContext context) throws Exception;
 
+  /**
+   * Handles a put http request whose path (and other supplied attributes) while registering is matching the requested
+   * path of the client. A request is only processed by one handler at a time, giving the handler full control about
+   * changing the context. Changes to the context will be reflected into other handlers and vise-versa.
+   *
+   * @param path    the full path of the client request.
+   * @param context the current context of the request.
+   * @throws Exception            if any exception occurs during the request handling.
+   * @throws NullPointerException if the given path or context is null.
+   */
   void handlePut(@NonNull String path, @NonNull HttpContext context) throws Exception;
 
+  /**
+   * Handles a head http request whose path (and other supplied attributes) while registering is matching the requested
+   * path of the client. A request is only processed by one handler at a time, giving the handler full control about
+   * changing the context. Changes to the context will be reflected into other handlers and vise-versa.
+   *
+   * @param path    the full path of the client request.
+   * @param context the current context of the request.
+   * @throws Exception            if any exception occurs during the request handling.
+   * @throws NullPointerException if the given path or context is null.
+   */
   void handleHead(@NonNull String path, @NonNull HttpContext context) throws Exception;
 
+  /**
+   * Handles a delete http request whose path (and other supplied attributes) while registering is matching the
+   * requested path of the client. A request is only processed by one handler at a time, giving the handler full control
+   * about changing the context. Changes to the context will be reflected into other handlers and vise-versa.
+   *
+   * @param path    the full path of the client request.
+   * @param context the current context of the request.
+   * @throws Exception            if any exception occurs during the request handling.
+   * @throws NullPointerException if the given path or context is null.
+   */
   void handleDelete(@NonNull String path, @NonNull HttpContext context) throws Exception;
 
+  /**
+   * Handles a patch http request whose path (and other supplied attributes) while registering is matching the requested
+   * path of the client. A request is only processed by one handler at a time, giving the handler full control about
+   * changing the context. Changes to the context will be reflected into other handlers and vise-versa.
+   *
+   * @param path    the full path of the client request.
+   * @param context the current context of the request.
+   * @throws Exception            if any exception occurs during the request handling.
+   * @throws NullPointerException if the given path or context is null.
+   */
   void handlePatch(@NonNull String path, @NonNull HttpContext context) throws Exception;
 
+  /**
+   * Handles a trace http request whose path (and other supplied attributes) while registering is matching the requested
+   * path of the client. A request is only processed by one handler at a time, giving the handler full control about
+   * changing the context. Changes to the context will be reflected into other handlers and vise-versa.
+   *
+   * @param path    the full path of the client request.
+   * @param context the current context of the request.
+   * @throws Exception            if any exception occurs during the request handling.
+   * @throws NullPointerException if the given path or context is null.
+   */
   void handleTrace(@NonNull String path, @NonNull HttpContext context) throws Exception;
 
+  /**
+   * Handles an options http request whose path (and other supplied attributes) while registering is matching the
+   * requested path of the client. A request is only processed by one handler at a time, giving the handler full control
+   * about changing the context. Changes to the context will be reflected into other handlers and vise-versa.
+   *
+   * @param path    the full path of the client request.
+   * @param context the current context of the request.
+   * @throws Exception            if any exception occurs during the request handling.
+   * @throws NullPointerException if the given path or context is null.
+   */
   void handleOptions(@NonNull String path, @NonNull HttpContext context) throws Exception;
 
+  /**
+   * Handles a connect http request whose path (and other supplied attributes) while registering is matching the
+   * requested path of the client. A request is only processed by one handler at a time, giving the handler full control
+   * about changing the context. Changes to the context will be reflected into other handlers and vise-versa.
+   *
+   * @param path    the full path of the client request.
+   * @param context the current context of the request.
+   * @throws Exception            if any exception occurs during the request handling.
+   * @throws NullPointerException if the given path or context is null.
+   */
   void handleConnect(@NonNull String path, @NonNull HttpContext context) throws Exception;
 }

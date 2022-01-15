@@ -24,73 +24,104 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
 /**
- * The packet listener registry allows to manage listeners that can handle input packet messages.
+ * A packet listener registry is responsible for registering packet listeners and posting packet listeners to their
+ * handler. Multiple packet listeners can be registered to a packet listener registry. If a parent registry is set, the
+ * received packet will be posted to the parent registry first.
+ *
+ * @since 4.0
  */
 public interface PacketListenerRegistry {
 
   /**
-   * Returns the parent PacketListenerRegistry implementation instance if exists
+   * Get the parent listener registry of this registry or null if no parent registry is present.
+   *
+   * @return the parent listener registry of this registry.
    */
   @Nullable PacketListenerRegistry parent();
 
   /**
-   * Adds a new listeners for packets that are received on a specific channel
+   * Adds a packet listener for each packet that uses the provided channel id. Multiple listeners for a channel are
+   * indeed possible and will be called in the order of registration.
+   * <p>
+   * The only channel to which no listener can be registered is the channel with the id -1 as it is used for query
+   * responses and therefore reserved.
    *
-   * @param channel   the channel, that the listener should listen on
-   * @param listeners the listeners that should be add for this channel
+   * @param channel   the channel the listener wants to listen to.
+   * @param listeners the listeners to register for the channel.
+   * @throws NullPointerException                   if the given listeners are null.
+   * @throws com.google.common.base.VerifyException if the given channel id is invalid.
    */
   void addListener(int channel, @NonNull PacketListener... listeners);
 
   /**
-   * Removes the listeners if they are registered on this listener registry. If the listeners items are null, then it
-   * should ignored
+   * Removes all given listeners from the given channel if they were registered previously.
    *
-   * @param channel   the channel, that the listener should listen on
-   * @param listeners the listeners, that should remove on this registry
+   * @param channel   the id of the channel to remove the listener from.
+   * @param listeners the listeners to remove from the channel.
+   * @throws NullPointerException if the given listeners are null.
    */
   void removeListener(int channel, @NonNull PacketListener... listeners);
 
   /**
-   * Removes all listeners on a specific channel
+   * Removes all previously registered listeners from the given channel.
    *
-   * @param channel the channel id from that all listeners should remove
+   * @param channel the id of the channel to remove the listeners from.
    */
   void removeListeners(int channel);
 
   /**
-   * Remove all listeners that are registered on the specific classLoader instance
+   * Removes all listeners from this registry whose classes were loaded by the given class loader.
    *
-   * @param classLoader the classLoader, from that all listeners that are contained on the registry should remove
+   * @param classLoader the class loader of the packet listeners to unregister.
+   * @throws NullPointerException if the given class loader is null.
    */
   void removeListeners(@NonNull ClassLoader classLoader);
 
-  boolean hasListeners(int channel);
-
   /**
-   * Removes all listeners by all channel from the registry
+   * Removes all listeners from this registry which are registered to any channel.
    */
   void removeListeners();
 
   /**
-   * Returns all channelIds that the packet listener registry has listeners registered
+   * Checks if this registry has at least one listener for the specified channel.
+   *
+   * @param channel the channel to check.
+   * @return true if at least one listener is registered to the channel, false otherwise.
+   */
+  boolean hasListeners(int channel);
+
+  /**
+   * Get all channel ids to which a listener was registered previously.
+   *
+   * @return all channels which have a listener in this registry.
    */
   @NonNull
   @UnmodifiableView Collection<Integer> channels();
 
   /**
-   * Returns all listeners by all channels from the registry
+   * Get all listener instances which are registered to any channel in this registry.
+   *
+   * @return all listener instances registered in this registry.
    */
   @NonNull
   @UnmodifiableView Collection<PacketListener> listeners();
 
+  /**
+   * Get a channel id - listeners mapping of listeners which were registered to this registry.
+   *
+   * @return all channel ids mapped to the listeners this registry has listeners for.
+   */
   @NonNull
   @UnmodifiableView Map<Integer, Collection<PacketListener>> packetListeners();
 
   /**
-   * Handles an incoming packet and invoke all listeners that are registered in this registry
+   * Handles an incoming packets and post this to all listeners which are registered to the channel the packet was sent
+   * to. The parent listener registry (if one exists) is called before this one. The listeners are handled in a frfc
+   * (first registered, first called) order.
    *
-   * @param channel the channel, from that the packet was received
-   * @param packet  the packet that should handle
+   * @param channel the channel from which the packet came.
+   * @param packet  the packet which was received.
+   * @throws NullPointerException if either the given channel or packet is null.
    */
   void handlePacket(@NonNull NetworkChannel channel, @NonNull Packet packet);
 }

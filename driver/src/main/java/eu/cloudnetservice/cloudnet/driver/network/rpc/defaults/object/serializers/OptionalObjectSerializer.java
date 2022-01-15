@@ -26,8 +26,17 @@ import java.util.Optional;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * An object serializer which can read and write an optional to/from a buffer by unwrapping the value and re-wrapping
+ * it.
+ *
+ * @since 4.0
+ */
 public class OptionalObjectSerializer implements ObjectSerializer<Optional<?>> {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable Optional<?> read(
     @NonNull DataBuf source,
@@ -50,6 +59,9 @@ public class OptionalObjectSerializer implements ObjectSerializer<Optional<?>> {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void write(
     @NonNull DataBuf.Mutable dataBuf,

@@ -26,16 +26,40 @@ import java.util.function.Function;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * An object serializer instance which passes the read and write calls to the functional providers previously added.
+ *
+ * @param <T> the type of data to write/read from the buffer.
+ * @since 4.0
+ */
 public class FunctionalObjectSerializer<T> implements ObjectSerializer<T> {
 
   private final Function<DataBuf, T> reader;
   private final BiConsumer<DataBuf.Mutable, T> writer;
 
-  protected FunctionalObjectSerializer(Function<DataBuf, T> reader, BiConsumer<Mutable, T> writer) {
+  /**
+   * Constructs a new functional object serializer instance.
+   *
+   * @param reader the reader to read the content from the buffer.
+   * @param writer the writer which writes the given data to the buffer.
+   * @throws NullPointerException if either the writer or reader is null.
+   */
+  protected FunctionalObjectSerializer(
+    @NonNull Function<DataBuf, T> reader,
+    @NonNull BiConsumer<Mutable, T> writer
+  ) {
     this.reader = reader;
     this.writer = writer;
   }
 
+  /**
+   * Constructs a new functional object serializer instance.
+   *
+   * @param reader the reader to read the content from the buffer.
+   * @param writer the writer which writes the given data to the buffer.
+   * @return the created functional object serializer instance.
+   * @throws NullPointerException if either the writer or reader is null.
+   */
   public static @NonNull <T> FunctionalObjectSerializer<T> of(
     @NonNull Function<DataBuf, T> reader,
     @NonNull BiConsumer<Mutable, T> writer
@@ -43,6 +67,9 @@ public class FunctionalObjectSerializer<T> implements ObjectSerializer<T> {
     return new FunctionalObjectSerializer<>(reader, writer);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable T read(
     @NonNull DataBuf source,
@@ -52,6 +79,9 @@ public class FunctionalObjectSerializer<T> implements ObjectSerializer<T> {
     return this.reader.apply(source);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void write(
     @NonNull DataBuf.Mutable dataBuf,

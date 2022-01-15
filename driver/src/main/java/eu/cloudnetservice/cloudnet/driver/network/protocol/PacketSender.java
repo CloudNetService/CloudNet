@@ -19,29 +19,34 @@ package eu.cloudnetservice.cloudnet.driver.network.protocol;
 import lombok.NonNull;
 
 /**
- * Represents a sender of packets who can receive packets too.
+ * Represents a source of packets which is connected to a specific target.
+ *
+ * @since 4.0
  */
 public interface PacketSender {
 
   /**
-   * Sends a packet to this sender.
+   * Sends the given packet to the associated target.
    *
    * @param packet the packet to send.
+   * @throws NullPointerException if the packet is null.
    */
   void sendPacket(@NonNull Packet packet);
 
   /**
-   * Sends a packet to this sender and blocks until the packet was flushed into the channel.
+   * Sends the given packet to the associated target, waiting for the packet write to the channel to complete before
+   * resuming the current thread.
    *
    * @param packet the packet to send.
+   * @throws NullPointerException if the given packet is null.
    */
   void sendPacketSync(@NonNull Packet packet);
 
   /**
-   * Sends all given packets to this sender.
+   * Sends all the given packets to the associated target.
    *
    * @param packets the packets to send.
-   * @see #sendPacket(Packet)
+   * @throws NullPointerException if the packets are null.
    */
   default void sendPacket(@NonNull Packet... packets) {
     for (var packet : packets) {
@@ -50,10 +55,11 @@ public interface PacketSender {
   }
 
   /**
-   * Sends all given packets to this sender and waits until the packets were flushed into the channel.
+   * Sends all the given packets to the associated target, waiting for the packet writes to the channel to complete
+   * before resuming the current thread.
    *
    * @param packets the packets to send.
-   * @see #sendPacketSync(Packet)
+   * @throws NullPointerException if the packets are null.
    */
   default void sendPacketSync(@NonNull Packet... packets) {
     for (var packet : packets) {

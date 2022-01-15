@@ -39,7 +39,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession session) {
+  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession ses) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.endsWith("/module")) {
         this.handleModuleListRequest(context);
@@ -136,7 +136,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
     try (var outputStream = Files.newOutputStream(moduleTarget)) {
       FileUtils.copy(moduleStream, outputStream);
     } catch (IOException exception) {
-      this.response(context, HttpResponseCode.HTTP_INTERNAL_ERROR)
+      this.response(context, HttpResponseCode.INTERNAL_SERVER_ERROR)
         .body(this.failure().append("reason", "Unable to copy module file").toString())
         .context()
         .closeAfter(true)
@@ -207,10 +207,10 @@ public class V2HttpHandlerModule extends V2HttpHandler {
     } else {
       this.ok(context)
         .body(this.success()
-        .append("lifecycle", wrapper.moduleLifeCycle())
-        .append("configuration", wrapper.moduleConfiguration())
-        .toString()
-      ).context().closeAfter(true).cancelNext();
+          .append("lifecycle", wrapper.moduleLifeCycle())
+          .append("configuration", wrapper.moduleConfiguration())
+          .toString()
+        ).context().closeAfter(true).cancelNext();
     }
   }
 

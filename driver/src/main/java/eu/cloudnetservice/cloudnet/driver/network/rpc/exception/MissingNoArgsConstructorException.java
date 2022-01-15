@@ -18,8 +18,19 @@ package eu.cloudnetservice.cloudnet.driver.network.rpc.exception;
 
 import lombok.NonNull;
 
+/**
+ * A runtime exception being thrown when the required no args constructor for databufable serialization is missing.
+ *
+ * @since 4.0
+ */
 public class MissingNoArgsConstructorException extends IllegalStateException {
 
+  /**
+   * Constructs a new missing no args constructor exception instance.
+   *
+   * @param clazz the class in which the constructor is missing.
+   * @throws NullPointerException if the given class is null.
+   */
   public MissingNoArgsConstructorException(@NonNull Class<?> clazz) {
     super(String.format("Missing no args constructor for class %s", clazz.getCanonicalName()));
   }

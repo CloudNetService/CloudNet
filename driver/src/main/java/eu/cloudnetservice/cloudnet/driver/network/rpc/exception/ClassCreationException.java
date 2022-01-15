@@ -16,9 +16,23 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.rpc.exception;
 
+import lombok.NonNull;
+
+/**
+ * A runtime exception which gets thrown when an exception occurs during runtime code generation.
+ *
+ * @since 4.0
+ */
 public class ClassCreationException extends RuntimeException {
 
-  public ClassCreationException(String message, Throwable cause) {
+  /**
+   * Constructs a new class creation exception instance.
+   *
+   * @param message the detailed message why the exception occurred.
+   * @param cause   the original exception thrown during the class creation.
+   * @throws NullPointerException if either the given message or exception is null.
+   */
+  public ClassCreationException(@NonNull String message, @NonNull Throwable cause) {
     super(message, cause);
   }
 }

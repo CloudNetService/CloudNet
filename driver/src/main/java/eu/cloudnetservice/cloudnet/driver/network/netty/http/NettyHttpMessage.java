@@ -19,8 +19,22 @@ package eu.cloudnetservice.cloudnet.driver.network.netty.http;
 import eu.cloudnetservice.cloudnet.driver.network.http.HttpVersion;
 import lombok.NonNull;
 
-public class NettyHttpMessage {
+/**
+ * An abstract class which each http message implementation has to override, providing basic access to http version
+ * conversion between CloudNet and netty. This class is not a direct subclass of a http message, to prevent the need of
+ * a generic type.
+ *
+ * @since 4.0
+ */
+public abstract class NettyHttpMessage {
 
+  /**
+   * Converts the given netty http version to its CloudNet association.
+   *
+   * @param httpVersion the netty http version to convert.
+   * @return the associated CloudNet http version.
+   * @throws NullPointerException if the given netty http version is null.
+   */
   protected @NonNull HttpVersion versionFromNetty(@NonNull io.netty.handler.codec.http.HttpVersion httpVersion) {
     if (httpVersion == io.netty.handler.codec.http.HttpVersion.HTTP_1_1) {
       return HttpVersion.HTTP_1_1;
@@ -29,6 +43,13 @@ public class NettyHttpMessage {
     }
   }
 
+  /**
+   * Converts the given CloudNet http version to its netty association.
+   *
+   * @param httpVersion the CloudNet http version to convert.
+   * @return the associated netty http version.
+   * @throws NullPointerException if the given CloudNet http version is null.
+   */
   protected @NonNull io.netty.handler.codec.http.HttpVersion versionToNetty(@NonNull HttpVersion httpVersion) {
     if (httpVersion == HttpVersion.HTTP_1_1) {
       return io.netty.handler.codec.http.HttpVersion.HTTP_1_1;

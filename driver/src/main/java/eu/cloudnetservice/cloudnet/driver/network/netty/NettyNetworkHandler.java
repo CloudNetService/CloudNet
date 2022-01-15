@@ -28,6 +28,11 @@ import java.util.concurrent.Executor;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
+/**
+ * The default netty inbound handler used to call downstream packet listeners when receiving a packet.
+ *
+ * @since 4.0
+ */
 @Internal
 public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<BasePacket> {
 
@@ -35,18 +40,22 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Ba
 
   protected volatile NettyNetworkChannel channel;
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void channelInactive(@NonNull ChannelHandlerContext ctx) throws Exception {
     if (!ctx.channel().isActive() || !ctx.channel().isOpen() || !ctx.channel().isWritable()) {
-      if (this.channel.handler() != null) {
-        this.channel.handler().handleChannelClose(this.channel);
-      }
+      this.channel.handler().handleChannelClose(this.channel);
 
       ctx.channel().close();
       this.channels().remove(this.channel);
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void exceptionCaught(@NonNull ChannelHandlerContext ctx, @NonNull Throwable cause) {
     if (!(cause instanceof IOException)) {
@@ -54,11 +63,17 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Ba
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void channelReadComplete(@NonNull ChannelHandlerContext ctx) {
     ctx.flush();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected void channelRead0(@NonNull ChannelHandlerContext ctx, @NonNull BasePacket msg) {
     this.packetDispatcher().execute(() -> {
@@ -73,7 +88,8 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Ba
           }
         }
 
-        if (this.channel.handler() == null || this.channel.handler().handlePacketReceive(this.channel, msg)) {
+        // check if we're allowed to handle the packet
+        if (this.channel.handler().handlePacketReceive(this.channel, msg)) {
           this.channel.packetRegistry().handlePacket(this.channel, msg);
         }
       } catch (Exception exception) {
@@ -82,7 +98,18 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Ba
     });
   }
 
+  /**
+   * Get all channels which are connected to the underlying network component.
+   *
+   * @return all connected channels.
+   */
   protected abstract @NonNull Collection<NetworkChannel> channels();
 
+  /**
+   * Get the packet dispatcher used to dispatch incoming packets. Each dispatcher is normally bound to the network
+   * component which opened/received the connection and requested this handler.
+   *
+   * @return the dispatcher used to dispatch packets.
+   */
   protected abstract @NonNull Executor packetDispatcher();
 }

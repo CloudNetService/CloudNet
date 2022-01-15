@@ -29,6 +29,14 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import lombok.NonNull;
 
+/**
+ * Represents a default abstract implementation of a chunked packet sender builder for other types of transfer to
+ * expand.
+ *
+ * @see FileChunkedPacketSenderBuilder
+ * @see ChunkedPacketSender#forFileTransfer()
+ * @since 4.0
+ */
 public abstract class DefaultChunkedPacketSenderBuilder implements ChunkedPacketSender.Builder {
 
   public static final int DEFAULT_CHUNK_SIZE = 1024 * 1024;
@@ -41,52 +49,79 @@ public abstract class DefaultChunkedPacketSenderBuilder implements ChunkedPacket
   protected UUID sessionUniqueId = UUID.randomUUID();
   protected DataBuf transferInformation = DataBuf.empty();
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull ChunkedPacketSender.Builder chunkSize(int chunkSize) {
     this.chunkSize = chunkSize;
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull ChunkedPacketSender.Builder sessionUniqueId(@NonNull UUID uuid) {
     this.sessionUniqueId = uuid;
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull ChunkedPacketSender.Builder transferChannel(@NonNull String transferChannel) {
     this.transferChannel = transferChannel;
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull ChunkedPacketSender.Builder source(@NonNull InputStream source) {
     this.source = source;
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull ChunkedPacketSender.Builder toChannels(NetworkChannel @NonNull ... channels) {
     return this.toChannels(Arrays.asList(channels));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull ChunkedPacketSender.Builder toChannels(@NonNull Collection<NetworkChannel> channels) {
     return this.packetSplitter(new NetworkChannelsPacketSplitter(channels));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull ChunkedPacketSender.Builder packetSplitter(@NonNull Consumer<Packet> splitter) {
     this.packetSplitter = splitter;
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull ChunkedPacketSender.Builder withExtraData(@NonNull DataBuf extraData) {
     this.transferInformation = extraData.disableReleasing();
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull ChunkedPacketSender build() {
     Verify.verifyNotNull(this.source, "no source given to send");
@@ -98,5 +133,13 @@ public abstract class DefaultChunkedPacketSenderBuilder implements ChunkedPacket
     return this.doBuild();
   }
 
+  /**
+   * Delegate method which must get overridden by any class which extends from this builder. The method is used to
+   * actually build the sender while being sure that there are no violations to the build contract (the delegation
+   * method should, but must not be assertion free).
+   *
+   * @return the sender instance build based on the information supplied to this builder.
+   * @throws com.google.common.base.VerifyException if any assertions must be made separately and fails.
+   */
   protected abstract @NonNull ChunkedPacketSender doBuild();
 }

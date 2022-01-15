@@ -26,14 +26,16 @@ import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.Unmodifiable;
 
 /**
- * Includes the basic functions for the client and the server
+ * Represents a peer in any form within the network.
+ *
+ * @since 4.0
  */
 public interface NetworkComponent extends PacketSender {
 
   /**
    * Get if this component has ssl enabled.
    *
-   * @return if this component has ssl enabled.
+   * @return true if this component has ssl enabled, false otherwise.
    */
   boolean sslEnabled();
 
@@ -46,25 +48,25 @@ public interface NetworkComponent extends PacketSender {
   @Unmodifiable Collection<NetworkChannel> channels();
 
   /**
-   * Get the first channel which is known to this component or {@code null} if no channel is known.
+   * Get the first channel which is known to this component or null if no channel is present.
    *
-   * @return the first channel which is known to this component or {@code null} if no channel is known.
+   * @return the first channel of component or null if no channel is present.
    */
   default @UnknownNullability NetworkChannel firstChannel() {
     return Iterables.getFirst(this.channels(), null);
   }
 
   /**
-   * Get the dispatching executor for received packets in this channel.
+   * Get the dispatching executor for received packets in any channel which is bound to this network component.
    *
-   * @return the dispatching executor for received packets in this channel.
+   * @return the dispatching executor for received packets.
    */
   @NonNull Executor packetDispatcher();
 
   /**
    * Get the packet listener registry which will be the root registry for all channels initialized by this component.
    *
-   * @return the root packet listener for all associated channels.
+   * @return the root packet registry for all associated channels.
    */
   @NonNull PacketListenerRegistry packetRegistry();
 

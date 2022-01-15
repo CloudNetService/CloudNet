@@ -21,6 +21,11 @@ import eu.cloudnetservice.cloudnet.driver.network.http.HttpChannel;
 import io.netty.channel.Channel;
 import lombok.NonNull;
 
+/**
+ * The default implementation of the http channel, delegating all method calls to netty.
+ *
+ * @since 4.0
+ */
 public record NettyHttpChannel(
   @NonNull Channel channel,
   @NonNull HostAndPort serverAddress,

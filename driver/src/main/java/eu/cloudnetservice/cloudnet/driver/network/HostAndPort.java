@@ -16,72 +16,73 @@
 
 package eu.cloudnetservice.cloudnet.driver.network;
 
-import com.google.common.base.Preconditions;
+import com.google.common.base.Verify;
+import com.google.common.base.VerifyException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnknownNullability;
 
 /**
- * This class holds an easy IP/Hostname and port configuration for a server or a client bind address
+ * Represents an immutable host and port mapping. Validation of a host and port is up to the caller. A host of this
+ * class might be an ipv4/ipv6 address, but can also be the path to a unix domain socket.
+ *
+ * @since 4.0
  */
-@EqualsAndHashCode
-public class HostAndPort {
+public record HostAndPort(@NonNull String host, int port) {
 
-  /**
-   * The host address which is configured by the constructors The host string can be an IPv4, IPv6 and a string
-   */
-  protected String host;
-  /**
-   * The port is the port where the object is bound on
-   */
-  protected int port;
+  private static final int NO_PORT = -1;
 
-  public HostAndPort(@Nullable InetSocketAddress socketAddress) {
-    if (socketAddress == null) {
-      return;
-    }
-
-    this.host = socketAddress.getAddress().getHostAddress();
-    this.port = socketAddress.getPort();
-  }
-
-  public HostAndPort(@NonNull String host, int port) {
-    Preconditions.checkArgument(port >= -1 && port <= 65535, "Illegal port: " + port);
-
-    this.host = host.trim();
-    this.port = port;
+  // TODO: remove
+  public HostAndPort(@NonNull InetSocketAddress socketAddress) {
+    this(socketAddress.getAddress().getHostAddress(), socketAddress.getPort());
   }
 
   /**
-   * Tries to cast the provided socketAddress to an InetSocketAddress and returns a new HostAndPort based on it
+   * Constructs a new host and port instance, validating the port.
    *
-   * @param socketAddress the socketAddress to get a new HostAndPort instance from
-   * @return a new HostAndPort instance
-   * @throws IllegalArgumentException if the provided socketAddress isn't instanceof InetSocketAddress
+   * @param host the host of the address.
+   * @param port the port of the address, or -1 if no port is given.
+   * @throws NullPointerException if the given host is null.
+   * @throws VerifyException      if the given port exceeds the port range.
+   */
+  public HostAndPort {
+    Verify.verify(this.port() >= -1 && this.port() <= 65535, "invalid port given");
+  }
+
+  /**
+   * Tries to convert the given socket address into a host and port, throwing an exception if not possible.
+   *
+   * @param socketAddress the socket address to convert.
+   * @return the created host and port based on the given address.
+   * @throws NullPointerException          if the given socket address is null.
+   * @throws UnsupportedOperationException if the given socket address type cannot be converted.
    */
   @Contract("_ -> new")
   public static @NonNull HostAndPort fromSocketAddress(@NonNull SocketAddress socketAddress) {
+    // TODO: better
     if (socketAddress instanceof InetSocketAddress inetSocketAddress) {
       return new HostAndPort(inetSocketAddress);
     }
 
-    throw new IllegalArgumentException("socketAddress must be instance of InetSocketAddress!");
+    throw new UnsupportedOperationException("socketAddress must be instance of InetSocketAddress!");
   }
 
-  public @UnknownNullability String host() {
-    return this.host.trim();
+  /**
+   * Checks if this host and port has a port provided. No port might be provided if the connection comes for example
+   * from a unix domain socket.
+   *
+   * @return true if this host and port has a port given, false otherwise.
+   */
+  public boolean validPort() {
+    return this.port != NO_PORT;
   }
 
-  public int port() {
-    return this.port;
-  }
-
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public String toString() {
+  public @NonNull String toString() {
     return this.host + ":" + this.port;
   }
 }

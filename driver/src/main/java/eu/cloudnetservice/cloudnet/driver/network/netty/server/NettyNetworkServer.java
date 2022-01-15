@@ -22,7 +22,7 @@ import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannelHandler;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkServer;
-import eu.cloudnetservice.cloudnet.driver.network.netty.NettySSLServer;
+import eu.cloudnetservice.cloudnet.driver.network.netty.NettySslServer;
 import eu.cloudnetservice.cloudnet.driver.network.netty.NettyUtils;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.PacketListenerRegistry;
@@ -34,7 +34,6 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.WriteBufferWaterMark;
-import java.net.SocketAddress;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -43,8 +42,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class NettyNetworkServer extends NettySSLServer implements DefaultNetworkComponent, NetworkServer {
+/**
+ * The default netty based implementation of the network server.
+ *
+ * @since 4.0
+ */
+public class NettyNetworkServer extends NettySslServer implements DefaultNetworkComponent, NetworkServer {
 
   protected static final WriteBufferWaterMark WATER_MARK = new WriteBufferWaterMark(1 << 20, 1 << 21);
 
@@ -57,16 +63,31 @@ public class NettyNetworkServer extends NettySSLServer implements DefaultNetwork
   protected final Executor packetDispatcher = NettyUtils.newPacketDispatcher();
   protected final PacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
 
-  protected final Callable<NetworkChannelHandler> networkChannelHandlerFactory;
+  protected final Callable<NetworkChannelHandler> handlerFactory;
 
-  public NettyNetworkServer(Callable<NetworkChannelHandler> networkChannelHandler) {
-    this(networkChannelHandler, null);
+  /**
+   * Constructs a new netty network server instance. Equivalent to {@code new NettyNetworkServer(factory, null)}.
+   *
+   * @param handlerFactory the handler factory to use.
+   * @throws NullPointerException if the given handler factory is null.
+   */
+  public NettyNetworkServer(@NonNull Callable<NetworkChannelHandler> handlerFactory) {
+    this(handlerFactory, null);
   }
 
-  public NettyNetworkServer(Callable<NetworkChannelHandler> networkChannelHandler, SSLConfiguration sslConfiguration) {
+  /**
+   * Constructs a new netty network server instance.
+   *
+   * @param handlerFactory   the handler factory to use.
+   * @param sslConfiguration the ssl configuration to apply, or null if ssl should be disabled.
+   * @throws NullPointerException if the given handler factory is null.
+   */
+  public NettyNetworkServer(
+    @NonNull Callable<NetworkChannelHandler> handlerFactory,
+    @Nullable SSLConfiguration sslConfiguration
+  ) {
     super(sslConfiguration);
-
-    this.networkChannelHandlerFactory = networkChannelHandler;
+    this.handlerFactory = handlerFactory;
 
     try {
       this.init();
@@ -75,21 +96,25 @@ public class NettyNetworkServer extends NettySSLServer implements DefaultNetwork
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean sslEnabled() {
     return this.sslContext != null;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean addListener(int port) {
     return this.addListener(new HostAndPort("0.0.0.0", port));
   }
 
-  @Override
-  public boolean addListener(@NonNull SocketAddress socketAddress) {
-    return this.addListener(HostAndPort.fromSocketAddress(socketAddress));
-  }
-
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean addListener(@NonNull HostAndPort hostAndPort) {
     // check if a server is already bound to the port
@@ -128,6 +153,9 @@ public class NettyNetworkServer extends NettySSLServer implements DefaultNetwork
     return false;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void close() {
     this.closeChannels();
@@ -140,21 +168,33 @@ public class NettyNetworkServer extends NettySSLServer implements DefaultNetwork
     this.workerEventLoopGroup.shutdownGracefully();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Collection<NetworkChannel> channels() {
     return Collections.unmodifiableCollection(this.channels);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Executor packetDispatcher() {
     return this.packetDispatcher;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public @NonNull Collection<NetworkChannel> modifiableChannels() {
+  public @NonNull @NotNull Collection<NetworkChannel> modifiableChannels() {
     return this.channels;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void sendPacketSync(@NonNull Packet... packets) {
     for (var channel : this.channels) {
@@ -162,6 +202,9 @@ public class NettyNetworkServer extends NettySSLServer implements DefaultNetwork
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull PacketListenerRegistry packetRegistry() {
     return this.packetRegistry;

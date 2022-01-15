@@ -28,56 +28,94 @@ import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * The default implementation of an immutable data buf wrapping a netty byte buf.
+ *
+ * @since 4.0
+ */
 public class NettyImmutableDataBuf implements DataBuf {
 
   protected final ByteBuf byteBuf;
   protected boolean releasable;
 
-  public NettyImmutableDataBuf(ByteBuf byteBuf) {
+  /**
+   * Constructs a new netty immutable data buf instance.
+   *
+   * @param byteBuf the netty buffer to wrap.
+   * @throws NullPointerException if the given buffer is null.
+   */
+  public NettyImmutableDataBuf(@NonNull ByteBuf byteBuf) {
     this.byteBuf = byteBuf;
     this.enableReleasing();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean readBoolean() {
     return this.hotRead(ByteBuf::readBoolean);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public byte readByte() {
     return this.hotRead(ByteBuf::readByte);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int readInt() {
     return this.hotRead(ByteBuf::readInt);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public short readShort() {
     return this.hotRead(ByteBuf::readShort);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public long readLong() {
     return this.hotRead(ByteBuf::readLong);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public float readFloat() {
     return this.hotRead(ByteBuf::readFloat);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double readDouble() {
     return this.hotRead(ByteBuf::readDouble);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public char readChar() {
     return this.hotRead(ByteBuf::readChar);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public byte[] readByteArray() {
     return this.hotRead(buf -> {
@@ -87,21 +125,33 @@ public class NettyImmutableDataBuf implements DataBuf {
     });
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull UUID readUniqueId() {
     return new UUID(this.readLong(), this.readLong());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull String readString() {
     return new String(this.readByteArray(), StandardCharsets.UTF_8);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull DataBuf readDataBuf() {
     return this.hotRead(buf -> new NettyImmutableDataBuf(buf.readBytes(buf.readInt())));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public byte[] toByteArray() {
     var bytes = new byte[this.readableBytes()];
@@ -111,21 +161,33 @@ public class NettyImmutableDataBuf implements DataBuf {
     });
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <T> @Nullable T readObject(@NonNull Class<T> type) {
     return DefaultObjectMapper.DEFAULT_MAPPER.readObject(this, type);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <T> T readObject(@NonNull Type type) {
     return DefaultObjectMapper.DEFAULT_MAPPER.readObject(this, type);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <T> @Nullable T readNullable(@NonNull Function<DataBuf, T> readerWhenNonNull) {
     return this.readNullable(readerWhenNonNull, null);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <T> T readNullable(@NonNull Function<DataBuf, T> readerWhenNonNull, T valueWhenNull) {
     return this.hotRead(buf -> {
@@ -134,11 +196,17 @@ public class NettyImmutableDataBuf implements DataBuf {
     });
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int readableBytes() {
     return this.byteBuf.readableBytes();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull DataBuf startTransaction() {
     this.byteBuf.markReaderIndex();
@@ -147,6 +215,9 @@ public class NettyImmutableDataBuf implements DataBuf {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull DataBuf redoTransaction() {
     this.byteBuf.resetReaderIndex();
@@ -155,23 +226,43 @@ public class NettyImmutableDataBuf implements DataBuf {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull DataBuf.Mutable asMutable() {
     return new NettyMutableDataBuf(this.byteBuf);
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean accessible() {
+    return this.byteBuf.refCnt() > 0;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull DataBuf disableReleasing() {
     this.releasable = false;
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull DataBuf enableReleasing() {
     this.releasable = true;
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void release() {
     if (this.releasable) {
@@ -179,16 +270,31 @@ public class NettyImmutableDataBuf implements DataBuf {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void close() {
     this.release();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Internal
   public @NonNull ByteBuf byteBuf() {
     return this.byteBuf;
   }
 
+  /**
+   * Reads from this buffer, releasing it when the end of the input has been reached and releasing is enabled to prevent
+   * memory leaks.
+   *
+   * @param reader the function which reads the requested data from the buffer.
+   * @param <T>    the type of data to read.
+   * @return the data read from the buffer.
+   * @throws NullPointerException if the given reader function is null.
+   */
   protected @NonNull <T> T hotRead(@NonNull Function<ByteBuf, T> reader) {
     // get the result
     var result = reader.apply(this.byteBuf);

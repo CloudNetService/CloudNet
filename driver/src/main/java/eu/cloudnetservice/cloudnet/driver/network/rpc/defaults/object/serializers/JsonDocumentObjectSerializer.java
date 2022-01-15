@@ -24,8 +24,16 @@ import java.lang.reflect.Type;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * An object serializer which can write and read a json document to/from the buffer.
+ *
+ * @since 4.0
+ */
 public class JsonDocumentObjectSerializer implements ObjectSerializer<JsonDocument> {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable Object read(
     @NonNull DataBuf source,
@@ -35,6 +43,9 @@ public class JsonDocumentObjectSerializer implements ObjectSerializer<JsonDocume
     return JsonDocument.fromJsonString(source.readString());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void write(
     @NonNull DataBuf.Mutable dataBuf,

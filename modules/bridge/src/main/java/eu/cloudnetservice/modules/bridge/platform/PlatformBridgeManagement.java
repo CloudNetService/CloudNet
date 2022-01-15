@@ -89,8 +89,9 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     this.cacheRegisterListener = this.cacheUnregisterListener = $ -> {
     };
     // init the rpc handler
-    DefaultObjectMapper.DEFAULT_MAPPER.registerBinding(Title.class, new TitleObjectSerializer(), false);
-    DefaultObjectMapper.DEFAULT_MAPPER.registerBinding(Component.class, new ComponentObjectSerializer(), false);
+    DefaultObjectMapper.DEFAULT_MAPPER
+      .registerBinding(Title.class, new TitleObjectSerializer(), false)
+      .registerBinding(Component.class, new ComponentObjectSerializer(), false);
     // init the player manager once
     this.playerManager = new PlatformPlayerManager(wrapper);
     this.sender = wrapper.rpcProviderFactory().providerForClass(wrapper.networkClient(), BridgeManagement.class);

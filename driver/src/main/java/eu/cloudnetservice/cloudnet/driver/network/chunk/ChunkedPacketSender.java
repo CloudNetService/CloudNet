@@ -27,36 +27,161 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import lombok.NonNull;
 
+/**
+ * A sender of chunked data in any form. It is responsible to transfer all data chunks to the target network component
+ * of the transfer.
+ *
+ * @since 4.0
+ */
 public interface ChunkedPacketSender extends ChunkedPacketProvider {
 
+  /**
+   * Get a new builder for a packet sender which allows to transfer a single but huge file, e.g. a zip folder in chunks
+   * through the network.
+   *
+   * @return a builder for file based chunked packet transfer.
+   */
   static @NonNull FileChunkedPacketSenderBuilder forFileTransfer() {
     return new FileChunkedPacketSenderBuilder();
   }
 
+  /**
+   * Get the source of data to stream and transfer through the network. The stream gets closed automatically when the
+   * transfer succeeded.
+   *
+   * @return the source of data to stream and transfer.
+   */
   @NonNull InputStream source();
 
+  /**
+   * Get the splitter of each packet which is sent through the network. The splitter is responsible to send the packet
+   * to the network component(s) which this sender is targeting. It's for example used to allow transfer of a single
+   * chunk packet to multiple network components by multiplying it.
+   *
+   * @return the packet splitter.
+   */
   @NonNull Consumer<Packet> packetSplitter();
 
+  /**
+   * Transfers the data from the data source to all targets of this sender. The returned future is completed when:
+   * <ul>
+   *   <li>The transfer completed successfully.
+   *   <li>The transfer failed for any reason. The returned task will be completed holding the reason exception.
+   * </ul>
+   *
+   * @return a future completed when the transfer finishes.
+   */
   @NonNull Task<TransferStatus> transferChunkedData();
 
+  /**
+   * A builder for a chunked packet sender, holding all general options.
+   *
+   * @since 4.0
+   */
   interface Builder {
 
+    /**
+     * Sets the size each chunk has except for the last one must have. This defaults to 1 MB. The supplied value must be
+     * greater than 0.
+     *
+     * @param chunkSize the size of each transferred chunk.
+     * @return the same builder as used to call the method, for chaining.
+     */
     @NonNull Builder chunkSize(int chunkSize);
 
+    /**
+     * Sets the unique id of the session. This defaults to a random id.
+     *
+     * @param uuid the session id to use.
+     * @return the same builder as used to call the method, for chaining.
+     * @throws NullPointerException if the given id is null.
+     */
     @NonNull Builder sessionUniqueId(@NonNull UUID uuid);
 
+    /**
+     * Sets the name of the transfer channel. This option is required to be set by yourself. The channel role is just
+     * identification of the incoming data. There should never be two channels named the same way.
+     *
+     * @param transferChannel the transfer channel name to use.
+     * @return the same builder as used to call the method, for chaining.
+     * @throws NullPointerException if the given channel name is null.
+     */
     @NonNull Builder transferChannel(@NonNull String transferChannel);
 
+    /**
+     * Sets the source of this data transfer. This option is required to be set by yourself. The source stream should
+     * not be closed by you, it will be closed when the transfer finished successfully.
+     *
+     * @param source the data source of the transfer.
+     * @return the same builder as used to call the method, for chaining.
+     * @throws NullPointerException if the given source is null.
+     */
     @NonNull Builder source(@NonNull InputStream source);
 
+    /**
+     * Sends each chunk data packet to all the provided channels. You need to call one of these methods:
+     * <ul>
+     *   <li>{@code toChannels(NetworkChannel...)}
+     *   <li>{@code toChannels(Collection)}
+     *   <li>{@code packetSplitter(Consumer)}
+     * </ul>
+     * to set the packet splitter of this sender which is required.
+     *
+     * @param channels the channels to send the packet to.
+     * @return the same builder as used to call the method, for chaining.
+     * @throws NullPointerException if one of the given channels is null.
+     */
     @NonNull Builder toChannels(NetworkChannel @NonNull ... channels);
 
+    /**
+     * Sends each chunk data packet to all the provided channels. You need to call one of these methods:
+     * <ul>
+     *   <li>{@code toChannels(NetworkChannel...)}
+     *   <li>{@code toChannels(Collection)}
+     *   <li>{@code packetSplitter(Consumer)}
+     * </ul>
+     * to set the packet splitter of this sender which is required.
+     *
+     * @param channels the channels to send the packet to.
+     * @return the same builder as used to call the method, for chaining.
+     * @throws NullPointerException if the given channel collection is null.
+     */
     @NonNull Builder toChannels(@NonNull Collection<NetworkChannel> channels);
 
+    /**
+     * Sets the handler and processor of each packet which will be sent during the chunked data transfer. You need to
+     * call one of these methods:
+     * <ul>
+     *   <li>{@code toChannels(NetworkChannel...)}
+     *   <li>{@code toChannels(Collection)}
+     *   <li>{@code packetSplitter(Consumer)}
+     * </ul>
+     * to set the packet splitter of this sender which is required.
+     *
+     * @param splitter the custom packet splitter to use.
+     * @return the same builder as used to call the method, for chaining.
+     * @throws NullPointerException if the given splitter is null.
+     */
     @NonNull Builder packetSplitter(@NonNull Consumer<Packet> splitter);
 
+    /**
+     * Sets the extra information provided to each target component when opening a chunked session. The data is mainly
+     * used for identifying specific parts of the transfer, for example the target file name might be a use case. This
+     * defaults to an empty buffer.
+     *
+     * @param extraData the extra data to sent initially.
+     * @return the same builder as used to call the method, for chaining.
+     * @throws NullPointerException if the data buffer is null.
+     */
     @NonNull Builder withExtraData(@NonNull DataBuf extraData);
 
+    /**
+     * Builds the chunked packet sender based on the supplied information in this builder.
+     *
+     * @return the instance build from the information.
+     * @throws com.google.common.base.VerifyException if no source, splitter or channel were given, or the chunk size is
+     *                                                not greater than 0.
+     */
     @NonNull ChunkedPacketSender build();
   }
 }

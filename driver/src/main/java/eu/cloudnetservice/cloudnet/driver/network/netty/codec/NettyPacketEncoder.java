@@ -22,31 +22,48 @@ import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
+import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
+/**
+ * An internal implementation of the packet encoder used for client to server communication.
+ * <p>
+ * A packet always contains the following data:
+ * <ol>
+ *   <li>The numeric id of the channel being sent to, by default a var int.
+ *   <li>An optional query unique id if the packet is a query.
+ *   <li>The data transferred to this component, might be empty.
+ * </ol>
+ *
+ * @since 4.0
+ */
 @Internal
 public final class NettyPacketEncoder extends MessageToByteEncoder<Packet> {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  protected void encode(ChannelHandlerContext ctx, Packet packet, ByteBuf byteBuf) {
+  protected void encode(@NonNull ChannelHandlerContext ctx, @NonNull Packet packet, @NonNull ByteBuf buf) {
     // channel
-    NettyUtils.writeVarInt(byteBuf, packet.channel());
+    NettyUtils.writeVarInt(buf, packet.channel());
     // query id (if present)
     var queryUniqueId = packet.uniqueId();
-    byteBuf.writeBoolean(queryUniqueId != null);
+    buf.writeBoolean(queryUniqueId != null);
     if (queryUniqueId != null) {
-      byteBuf
+      buf
         .writeLong(queryUniqueId.getMostSignificantBits())
         .writeLong(queryUniqueId.getLeastSignificantBits());
     }
     // body
     // we only support netty buf
-    var buf = ((NettyImmutableDataBuf) packet.content()).byteBuf();
+    var content = ((NettyImmutableDataBuf) packet.content()).byteBuf();
     // write information to buffer
-    var length = buf.readableBytes();
-    NettyUtils.writeVarInt(byteBuf, length);
-    byteBuf.writeBytes(buf, 0, length);
-    // release the content of the packet now
+    var length = content.readableBytes();
+    NettyUtils.writeVarInt(buf, length);
+    buf.writeBytes(content, 0, length);
+    // release the content of the packet now, don't use the local field to respect if releasing was disabled in the
+    // original buffer.
     packet.content().release();
   }
 }

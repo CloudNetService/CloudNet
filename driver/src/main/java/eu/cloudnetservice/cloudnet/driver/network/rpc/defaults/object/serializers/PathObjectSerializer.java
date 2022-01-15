@@ -24,8 +24,16 @@ import java.nio.file.Path;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * An object serializer which can write and read a path from/to a buffer.
+ *
+ * @since 4.0
+ */
 public class PathObjectSerializer implements ObjectSerializer<Path> {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable Object read(
     @NonNull DataBuf source,
@@ -35,6 +43,9 @@ public class PathObjectSerializer implements ObjectSerializer<Path> {
     return Path.of(source.readString());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void write(
     @NonNull DataBuf.Mutable dataBuf,

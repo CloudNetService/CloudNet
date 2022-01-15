@@ -25,7 +25,13 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
+/**
+ * Holds the full information about a specific method needed for rpc to work properly.
+ *
+ * @since 4.0
+ */
 public class MethodInformation {
 
   private final String name;
@@ -37,7 +43,18 @@ public class MethodInformation {
   private final Class<?> definingClass;
   private final MethodInvoker methodInvoker;
 
-  public MethodInformation(
+  /**
+   * Constructs a new method information instance.
+   *
+   * @param name           the name of the method.
+   * @param rType          the return type of the method.
+   * @param arguments      the argument types of the method.
+   * @param sourceInstance the original instance the method was located in or null if not bound.
+   * @param definingClass  the class in which the method is located.
+   * @param generator      the generator to use to make a method invoker or null if no method invoker is needed.
+   * @throws NullPointerException if one of the required constrcutor paramters is null.
+   */
+  protected MethodInformation(
     @NonNull String name,
     @NonNull Type rType,
     @NonNull Type[] arguments,
@@ -55,6 +72,20 @@ public class MethodInformation {
     this.methodInvoker = generator == null ? null : generator.makeMethodInvoker(this);
   }
 
+  /**
+   * Finds a method in the source class with the given name and argument count, throwing an exception if multiple
+   * methods are matching, or no method is matching. This method excludes all methods from the search which are
+   * annotated with {@code @RPCIgnore}.
+   *
+   * @param instance      the instance to which the method should get bound or null if not bound.
+   * @param sourceClass   the class in which to search for the method.
+   * @param name          the name of the method to find.
+   * @param generator     the generator used for later method invoker generating, null if no generator is needed.
+   * @param argumentCount the amount of arguments the target method must have to match.
+   * @return the information of the method matching the required properties.
+   * @throws NullPointerException  if either the given source class or method name is null.
+   * @throws CannotDecideException if either none or multiple methods are matching the given filters.
+   */
   public static @NonNull MethodInformation find(
     @Nullable Object instance,
     @NonNull Class<?> sourceClass,
@@ -91,35 +122,78 @@ public class MethodInformation {
       generator);
   }
 
+  /**
+   * Get the name of the underlying method.
+   *
+   * @return the name of the underlying method.
+   */
   public @NonNull String name() {
     return this.name;
   }
 
+  /**
+   * Get the return type of the underlying method.
+   *
+   * @return the name of the underlying method.
+   */
   public @NonNull Type returnType() {
     return this.returnType;
   }
 
+  /**
+   * Get the raw return type of the underlying method. For example a method with a return type of {@code
+   * Collection&lt;String&gt;} would result in {@code Collection}.
+   *
+   * @return the raw return type of the method.
+   */
   public @NonNull Class<?> rawReturnType() {
     return this.rawReturnType;
   }
 
+  /**
+   * Get the type of each argument the method has.
+   *
+   * @return the type of each argument the method has.
+   */
   public Type @NonNull [] arguments() {
     return this.arguments;
   }
 
+  /**
+   * Get if the method has a void return type.
+   *
+   * @return true if the method has a void return type, false otherwise.
+   */
   public boolean voidMethod() {
     return this.voidMethod;
   }
 
-  public Object sourceInstance() {
+  /**
+   * Get the instance to which this method is bound, used for chained rpc call lookups to process on the instance
+   * returned by the previous rpc rather than a global one.
+   *
+   * @return the instance to which the method is bound, or null if not bound.
+   */
+  public @UnknownNullability Object sourceInstance() {
     return this.sourceInstance;
   }
 
+  /**
+   * Get the class in which the method is defined.
+   *
+   * @return the class in which the method is defined.
+   */
   public @NonNull Class<?> definingClass() {
     return this.definingClass;
   }
 
-  public MethodInvoker methodInvoker() {
+  /**
+   * Get a method invoker for the class, if generated. The invoker can only be generated during construction of this
+   * class not afterwards.
+   *
+   * @return a method invoker for the class, if generated.
+   */
+  public @UnknownNullability MethodInvoker methodInvoker() {
     return this.methodInvoker;
   }
 }

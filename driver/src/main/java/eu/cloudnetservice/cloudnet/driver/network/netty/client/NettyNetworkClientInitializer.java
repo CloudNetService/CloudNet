@@ -25,24 +25,38 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import lombok.NonNull;
 
+/**
+ * The channel handler implementation responsible for initializing the newly opened channel.
+ *
+ * @since 4.0
+ */
 public class NettyNetworkClientInitializer extends ChannelInitializer<Channel> {
 
   protected final HostAndPort hostAndPort;
   protected final NettyNetworkClient nettyNetworkClient;
 
-  public NettyNetworkClientInitializer(HostAndPort targetHost, NettyNetworkClient networkClient) {
+  /**
+   * Constructs a new network client initializer instance.
+   *
+   * @param targetHost    the target host to which the network client connected.
+   * @param networkClient the network client which connected to a server.
+   * @throws NullPointerException if either the target host or client is null.
+   */
+  public NettyNetworkClientInitializer(@NonNull HostAndPort targetHost, @NonNull NettyNetworkClient networkClient) {
     this.hostAndPort = targetHost;
     this.nettyNetworkClient = networkClient;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected void initChannel(@NonNull Channel channel) {
     if (this.nettyNetworkClient.sslContext != null) {
-      var handler = this.nettyNetworkClient.sslContext.newHandler(
+      channel.pipeline().addLast("ssl-handler", this.nettyNetworkClient.sslContext.newHandler(
         channel.alloc(),
         this.hostAndPort.host(),
-        this.hostAndPort.port());
-      channel.pipeline().addLast("ssl-handler", handler);
+        this.hostAndPort.port()));
     }
 
     channel.pipeline()

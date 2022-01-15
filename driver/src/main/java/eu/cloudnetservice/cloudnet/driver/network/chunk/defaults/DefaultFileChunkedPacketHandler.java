@@ -33,6 +33,11 @@ import java.util.concurrent.locks.ReentrantLock;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents a handler for a chunked packet transfer which transfers a file.
+ *
+ * @since 4.0
+ */
 public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvider implements ChunkedPacketHandler {
 
   protected final Path tempFilePath;
@@ -43,6 +48,14 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
 
   protected Integer expectedFileParts;
 
+  /**
+   * Creates the session handler initially. Sessions should be manged by some sort of handler which is responsible for
+   * handling incoming chunk parts as well.
+   *
+   * @param sessionInformation the information transferred by the sender initially.
+   * @param completeHandler    the handler to call when the file transfer finished successfully.
+   * @throws NullPointerException if the given session information is null.
+   */
   public DefaultFileChunkedPacketHandler(
     @NonNull ChunkSessionInformation sessionInformation,
     @Nullable Callback completeHandler
@@ -50,6 +63,15 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
     this(sessionInformation, completeHandler, FileUtils.createTempFile());
   }
 
+  /**
+   * Creates the session handler initially. Sessions should be manged by some sort of handler which is responsible for
+   * handling incoming chunk parts as well.
+   *
+   * @param sessionInformation the information transferred by the sender initially.
+   * @param completeHandler    the handler to call when the file transfer finished successfully.
+   * @param tempFilePath       the path to the temp file to write the received data to.
+   * @throws NullPointerException if the given session information or temp path is null.
+   */
   public DefaultFileChunkedPacketHandler(
     @NonNull ChunkSessionInformation sessionInformation,
     @Nullable Callback completeHandler,
@@ -73,6 +95,9 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean handleChunkPart(int chunkPosition, @NonNull DataBuf dataBuf) {
     // if the handling failed before we skip the handling of the packet
@@ -119,11 +144,22 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Callback callback() {
     return this.writeCompleteHandler;
   }
 
+  /**
+   * Writes the content of a chunk part to the backing file, increasing the amount of written bytes by one.
+   *
+   * @param chunkPosition the index of the chunk to write.
+   * @param dataBuf       the buf transferred to this handler, the next content should be the actual chunk data.
+   * @throws IOException          if an i/o error occurs during the chunk write.
+   * @throws NullPointerException if the given buffer is null.
+   */
   protected void writePacketContent(int chunkPosition, @NonNull DataBuf dataBuf) throws IOException {
     // calculate the index of to which we need to sink in order to write
     var targetIndex = chunkPosition * this.chunkSessionInformation.chunkSize();
@@ -135,6 +171,14 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
     this.writtenFileParts.incrementAndGet();
   }
 
+  /**
+   * Updates the status of the file transfer. This method will set the status to completed when:
+   * <ol>
+   *   <li>The current status is {@code RUNNING}.
+   *   <li>The amount of chunk parts of the transfer is known.
+   *   <li>The amount of written chunk parts matches the amount of expected chunk parts.
+   * </ol>
+   */
   protected void updateStatus() {
     // we only need to update the status when the transfer is running but the whole content was written
     if (this.transferStatus == TransferStatus.RUNNING

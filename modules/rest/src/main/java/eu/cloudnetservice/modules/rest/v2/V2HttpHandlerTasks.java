@@ -32,7 +32,7 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession session) {
+  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession ses) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.endsWith("/task")) {
         this.handleTaskListRequest(context);
@@ -96,7 +96,7 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
     }
 
     if (this.taskProvider().addPermanentServiceTask(serviceTask)) {
-      this.response(context, HttpResponseCode.HTTP_CREATED).body(this.success().toString()).context()
+      this.response(context, HttpResponseCode.CREATED).body(this.success().toString()).context()
         .closeAfter(true).cancelNext();
     } else {
       this.ok(context).body(this.failure().toString()).context().closeAfter(true).cancelNext();
@@ -114,7 +114,7 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
           .closeAfter(true)
           .cancelNext();
       } else {
-        this.response(context, HttpResponseCode.HTTP_GONE)
+        this.response(context, HttpResponseCode.GONE)
           .body(this.failure().append("reason", "No such service task").toString())
           .context()
           .closeAfter(true)

@@ -32,6 +32,11 @@ import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * The default netty based implementation of a http request.
+ *
+ * @since 4.0
+ */
 @Internal
 final class NettyHttpServerRequest extends NettyHttpMessage implements HttpRequest {
 
@@ -45,6 +50,15 @@ final class NettyHttpServerRequest extends NettyHttpMessage implements HttpReque
 
   private byte[] body;
 
+  /**
+   * Constructs a new netty http request instance.
+   *
+   * @param context        the context in which the request is processed.
+   * @param httpRequest    the original netty request which gets wrapped.
+   * @param pathParameters the extracted path parameters from the uri.
+   * @param uri            the original uri of the request.
+   * @throws NullPointerException if one of the given properties is null.
+   */
   public NettyHttpServerRequest(
     @NonNull NettyHttpServerContext context,
     @NonNull io.netty.handler.codec.http.HttpRequest httpRequest,
@@ -58,96 +72,146 @@ final class NettyHttpServerRequest extends NettyHttpMessage implements HttpReque
     this.queryParameters = new QueryStringDecoder(httpRequest.uri()).parameters();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Map<String, String> pathParameters() {
     return this.pathParameters;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull String path() {
     return this.uri.getPath();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull String uri() {
     return this.httpRequest.uri();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull String method() {
     return this.httpRequest.method().name();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Map<String, List<String>> queryParameters() {
     return this.queryParameters;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpContext context() {
     return this.context;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public String header(@NonNull String name) {
+  public @Nullable String header(@NonNull String name) {
     return this.httpRequest.headers().getAsString(name);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public int headerAsInt(@NonNull String name) {
+  public @Nullable Integer headerAsInt(@NonNull String name) {
     return this.httpRequest.headers().getInt(name);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean headerAsBoolean(@NonNull String name) {
     return Boolean.parseBoolean(this.httpRequest.headers().get(name));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpRequest header(@NonNull String name, @NonNull String value) {
     this.httpRequest.headers().set(name, value);
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpRequest removeHeader(@NonNull String name) {
     this.httpRequest.headers().remove(name);
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpRequest clearHeaders() {
     this.httpRequest.headers().clear();
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean hasHeader(@NonNull String name) {
     return this.httpRequest.headers().contains(name);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Map<String, String> headers() {
-    Map<String, String> maps = new HashMap<>(this.httpRequest.headers().size());
-
+    Map<String, String> headers = new HashMap<>(this.httpRequest.headers().size());
     for (var key : this.httpRequest.headers().names()) {
-      maps.put(key, this.httpRequest.headers().get(key));
+      headers.put(key, this.httpRequest.headers().get(key));
     }
 
-    return maps;
+    return headers;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpVersion version() {
     return super.versionFromNetty(this.httpRequest.protocolVersion());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpRequest version(@NonNull HttpVersion version) {
     this.httpRequest.setProtocolVersion(super.versionToNetty(version));
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public byte[] body() {
     if (this.httpRequest instanceof FullHttpRequest) {
@@ -169,21 +233,33 @@ final class NettyHttpServerRequest extends NettyHttpMessage implements HttpReque
     return new byte[0];
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull String bodyAsString() {
     return new String(this.body(), StandardCharsets.UTF_8);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpRequest body(byte[] byteArray) {
     throw new UnsupportedOperationException("Unable to set body in request");
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpRequest body(@NonNull String text) {
     return this.body(text.getBytes(StandardCharsets.UTF_8));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable InputStream bodyStream() {
     if (this.httpRequest instanceof FullHttpRequest) {
@@ -193,14 +269,19 @@ final class NettyHttpServerRequest extends NettyHttpMessage implements HttpReque
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpRequest body(@Nullable InputStream body) {
     throw new UnsupportedOperationException("Unable to set body in request");
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean hasBody() {
-    return this.httpRequest instanceof FullHttpRequest
-      && ((FullHttpRequest) this.httpRequest).content().readableBytes() > 0;
+    return this.httpRequest instanceof FullHttpRequest request && request.content().readableBytes() > 0;
   }
 }

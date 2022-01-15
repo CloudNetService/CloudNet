@@ -36,7 +36,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession session) {
+  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession ses) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (context.request().pathParameters().containsKey("node")) {
         // specific node was requested
@@ -71,7 +71,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
         .closeAfter(true)
         .cancelNext();
     } else {
-      this.response(context, HttpResponseCode.HTTP_NOT_FOUND)
+      this.response(context, HttpResponseCode.NOT_FOUND)
         .body(this.failure().append("reason", "No such node found").toString())
         .context()
         .closeAfter(true)
@@ -140,7 +140,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
 
     this.nodeProvider().clusterServers(configuration.clusterConfig());
 
-    this.response(context, HttpResponseCode.HTTP_CREATED)
+    this.response(context, HttpResponseCode.CREATED)
       .body(this.success().toString())
       .context()
       .closeAfter(true)
@@ -164,13 +164,13 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
       this.configuration().save();
       this.nodeProvider().clusterServers(this.configuration().clusterConfig());
 
-      this.response(context, HttpResponseCode.HTTP_OK)
+      this.response(context, HttpResponseCode.OK)
         .body(this.success().toString())
         .context()
         .closeAfter(true)
         .cancelNext();
     } else {
-      this.response(context, HttpResponseCode.HTTP_NOT_FOUND)
+      this.response(context, HttpResponseCode.NOT_FOUND)
         .body(this.failure().append("reason", "No node with that unique id present").toString())
         .context()
         .closeAfter(true)
@@ -195,7 +195,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
       .findFirst()
       .orElse(null);
     if (registered == null) {
-      this.response(context, HttpResponseCode.HTTP_NOT_FOUND)
+      this.response(context, HttpResponseCode.NOT_FOUND)
         .body(this.failure().append("reason", "No node with that unique id present").toString())
         .context()
         .closeAfter(true)

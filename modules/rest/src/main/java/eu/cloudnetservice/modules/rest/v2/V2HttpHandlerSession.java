@@ -30,13 +30,13 @@ public class V2HttpHandlerSession extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession session) {
+  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession ses) {
     if (path.startsWith("/api/v2/session/logout")) {
-      this.handleLogout(context, session);
+      this.handleLogout(context, ses);
     } else if (path.startsWith("/api/v2/session/refresh")) {
-      this.handleRefresh(context, session);
+      this.handleRefresh(context, ses);
     } else {
-      this.response(context, HttpResponseCode.HTTP_NOT_FOUND).context().closeAfter(true).cancelNext();
+      this.response(context, HttpResponseCode.NOT_FOUND).context().closeAfter(true).cancelNext();
     }
   }
 

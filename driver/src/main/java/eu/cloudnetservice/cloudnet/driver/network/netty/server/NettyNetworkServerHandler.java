@@ -26,38 +26,57 @@ import java.util.concurrent.Executor;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
+/**
+ * The default netty based implementation of the netty network handler responsible to provide basic access to the
+ * network server handling.
+ *
+ * @since 4.0
+ */
 @Internal
 public class NettyNetworkServerHandler extends NettyNetworkHandler {
 
   private final HostAndPort serverLocalAddress;
   private final NettyNetworkServer networkServer;
 
-  public NettyNetworkServerHandler(NettyNetworkServer networkServer, HostAndPort serverLocalAddress) {
+  /**
+   * Constructs a new network server handler instance.
+   *
+   * @param networkServer      the network server associated with this handler.
+   * @param serverLocalAddress the server address this handler is associated with.
+   * @throws NullPointerException if either the given server or address is null.
+   */
+  public NettyNetworkServerHandler(@NonNull NettyNetworkServer networkServer, @NonNull HostAndPort serverLocalAddress) {
     this.networkServer = networkServer;
     this.serverLocalAddress = serverLocalAddress;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void channelActive(@NonNull ChannelHandlerContext ctx) throws Exception {
     this.networkServer.channels.add(this.channel = new NettyNetworkChannel(
       ctx.channel(),
       this.networkServer.packetRegistry(),
-      this.networkServer.networkChannelHandlerFactory.call(),
+      this.networkServer.handlerFactory.call(),
       this.serverLocalAddress,
       HostAndPort.fromSocketAddress(ctx.channel().remoteAddress()),
       false
     ));
-
-    if (this.channel.handler() != null) {
-      this.channel.handler().handleChannelInitialize(this.channel);
-    }
+    this.channel.handler().handleChannelInitialize(this.channel);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected @NonNull Collection<NetworkChannel> channels() {
     return this.networkServer.channels;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected @NonNull Executor packetDispatcher() {
     return this.networkServer.packetDispatcher();

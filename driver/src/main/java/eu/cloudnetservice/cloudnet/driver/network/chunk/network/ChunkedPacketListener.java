@@ -26,15 +26,29 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import lombok.NonNull;
 
+/**
+ * A listener for chunked packets, opening the chunked pocket sessions.
+ *
+ * @since 4.0
+ */
 public class ChunkedPacketListener implements PacketListener {
 
   private final Function<ChunkSessionInformation, ChunkedPacketHandler> handlerFactory;
   private final Map<ChunkSessionInformation, ChunkedPacketHandler> runningSessions = new ConcurrentHashMap<>();
 
+  /**
+   * Creates a new packet listener instance.
+   *
+   * @param handlerFactory the factory to create the chunked packet handlers when receiving the initial request.
+   * @throws NullPointerException if the given factory is null.
+   */
   public ChunkedPacketListener(@NonNull Function<ChunkSessionInformation, ChunkedPacketHandler> handlerFactory) {
     this.handlerFactory = handlerFactory;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void handle(@NonNull NetworkChannel channel, @NonNull Packet packet) throws Exception {
     // read the chunk information from the buffer

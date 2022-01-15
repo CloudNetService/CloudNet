@@ -22,20 +22,28 @@ import eu.cloudnetservice.cloudnet.driver.network.rpc.object.ObjectMapper;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.object.ObjectSerializer;
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * A serializer for all data classes and arrays which have no special serializer available.
+ *
+ * @since 4.0
+ */
 public class DataClassSerializer implements ObjectSerializer<Object> {
 
   private final Lock readLock = new ReentrantLock();
 
   private final DataClassInvokerGenerator generator = new DataClassInvokerGenerator();
-  private final Map<Type, DataClassInformation> cachedClassInformation = new ConcurrentHashMap<>();
+  private final Map<Type, DataClassInformation> cachedClassInformation = new HashMap<>();
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable Object read(
     @NonNull DataBuf source,
@@ -49,20 +57,14 @@ public class DataClassSerializer implements ObjectSerializer<Object> {
     if (clazz.isArray()) {
       return this.readArray(source, clazz, caller);
     }
-    // ensure that only one thread generates data at the same time
-    this.readLock.lock();
-    try {
-      // get the class information
-      var information = this.cachedClassInformation.computeIfAbsent(
-        type,
-        $ -> DataClassInformation.createClassInformation((Class<?>) type, this.generator));
-      // let the instance creator do the stuff
-      return information.instanceCreator().makeInstance(source, caller);
-    } finally {
-      this.readLock.unlock();
-    }
+    // get the class information and deserialize the object
+    var information = this.readOrCreateInformation(type);
+    return information.instanceCreator().makeInstance(source, caller);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void write(
     @NonNull DataBuf.Mutable dataBuf,
@@ -78,14 +80,20 @@ public class DataClassSerializer implements ObjectSerializer<Object> {
       this.writeArray(dataBuf, object, caller);
       return;
     }
-    // get the class information
-    var information = this.cachedClassInformation.computeIfAbsent(
-      type,
-      $ -> DataClassInformation.createClassInformation((Class<?>) type, this.generator));
-    // let the information writer do the stuff
+    // get the class information and serialize the object
+    var information = this.readOrCreateInformation(type);
     information.informationWriter().writeInformation(dataBuf, object, caller);
   }
 
+  /**
+   * Reads an array from the given data buf source.
+   *
+   * @param source the buffer to read the array from.
+   * @param clazz  the type of the array to read.
+   * @param caller the object mapper used for deserialization of the entries.
+   * @return the read array from the buffer.
+   * @throws NullPointerException if either the given buffer, type or object mapper is null.
+   */
   protected @Nullable Object readArray(@NonNull DataBuf source, @NonNull Class<?> clazz, @NonNull ObjectMapper caller) {
     // read the array component type information
     var arrayType = clazz.getComponentType();
@@ -100,6 +108,14 @@ public class DataClassSerializer implements ObjectSerializer<Object> {
     return array;
   }
 
+  /**
+   * Writes the given array to the given data buffer.
+   *
+   * @param dataBuf the buffer to write the array to.
+   * @param object  the array to write.
+   * @param caller  the object mapper to serialize the array to.
+   * @throws NullPointerException if the given buffer, array or object mapper is null.
+   */
   protected void writeArray(@NonNull DataBuf.Mutable dataBuf, @NonNull Object object, @NonNull ObjectMapper caller) {
     // read the array information
     var arraySize = Array.getLength(object);
@@ -107,6 +123,26 @@ public class DataClassSerializer implements ObjectSerializer<Object> {
     dataBuf.writeInt(arraySize);
     for (var i = 0; i < arraySize; i++) {
       caller.writeObject(dataBuf, Array.get(object, i));
+    }
+  }
+
+  /**
+   * Gets or creates a new data class information reader for the given type.
+   *
+   * @param targetType the type of the class to create the data class information for.
+   * @return the created data class information, either computed or from cache.
+   * @throws NullPointerException if the given type is null.
+   */
+  protected @NonNull DataClassInformation readOrCreateInformation(@NonNull Type targetType) {
+    // lock to no generate a data class information twice for no reason
+    this.readLock.lock();
+    // get or generate a new class information for the given type
+    try {
+      return this.cachedClassInformation.computeIfAbsent(
+        targetType,
+        $ -> DataClassInformation.createClassInformation((Class<?>) targetType, this.generator));
+    } finally {
+      this.readLock.unlock();
     }
   }
 }

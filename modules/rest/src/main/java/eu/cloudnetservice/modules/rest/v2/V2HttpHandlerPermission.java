@@ -34,7 +34,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession session) {
+  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession ses) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.endsWith("exists")) {
         if (path.contains("user")) {
@@ -103,7 +103,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
     }
 
     this.permissionManagement().addPermissionGroup(permissionGroup);
-    this.response(context, HttpResponseCode.HTTP_CREATED)
+    this.response(context, HttpResponseCode.CREATED)
       .body(this.success().toString())
       .context()
       .closeAfter(true)
@@ -150,7 +150,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
     }
 
     this.permissionManagement().addPermissionUser(permissionUser);
-    this.response(context, HttpResponseCode.HTTP_CREATED)
+    this.response(context, HttpResponseCode.CREATED)
       .body(this.success().toString())
       .context()
       .closeAfter(true)

@@ -22,10 +22,21 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * An annotation which can be added to a field to indicate when generating a data class serializer, that a specific
+ * method should be used as the getter rather than either a direct field access or the best matching method.
+ *
+ * @since 4.0
+ */
 @Documented
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RPCFieldGetter {
 
+  /**
+   * Get the name of the method (case-sensitive) to use as the getter for a specific field.
+   *
+   * @return the name of the getter method to use.
+   */
   String value();
 }

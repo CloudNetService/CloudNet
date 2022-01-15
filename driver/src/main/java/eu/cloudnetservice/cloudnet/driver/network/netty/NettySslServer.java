@@ -24,18 +24,36 @@ import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import java.nio.file.Files;
 import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.Nullable;
 
+/**
+ * A utility class for all netty based network servers to extends which simplifies creating an ssl context for the
+ * current server, if enabled.
+ *
+ * @since 4.0
+ */
 @Internal
-public abstract class NettySSLServer {
+public abstract class NettySslServer {
 
   protected final SSLConfiguration sslConfiguration;
 
   public SslContext sslContext;
 
-  public NettySSLServer(SSLConfiguration sslConfiguration) {
+  /**
+   * Constructs a new netty ssl server instance.
+   *
+   * @param sslConfiguration the ssl configuration of the server, or null if disabled.
+   */
+  public NettySslServer(@Nullable SSLConfiguration sslConfiguration) {
     this.sslConfiguration = sslConfiguration;
   }
 
+  /**
+   * Initializes the ssl context based on the given configuration if enabled. If no certificate paths are defined the
+   * server will use self-signed certificates.
+   *
+   * @throws Exception if any exception occurs during reading of the certificates.
+   */
   protected void init() throws Exception {
     if (this.sslConfiguration != null && this.sslConfiguration.enabled()) {
       if (this.sslConfiguration.certificatePath() != null && this.sslConfiguration.privateKeyPath() != null) {

@@ -20,11 +20,36 @@ import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
 import java.net.SocketAddress;
 import lombok.NonNull;
 
+/**
+ * Represents a http component which can be bound, receive and handle http messages.
+ *
+ * @since 4.0
+ */
 public interface HttpServer extends HttpComponent<HttpServer> {
 
+  /**
+   * Adds a listener on the given port if a listener on the port does not exist already.
+   *
+   * @param port the to bind to.
+   * @return true if the bind was successful, false otherwise.
+   */
   boolean addListener(int port);
 
+  /**
+   * Adds a listener on the given socket address if the listener does not exist already.
+   *
+   * @param socketAddress the address to listen to.
+   * @return true if the bind was successful, false otherwise.
+   * @throws NullPointerException if the given socket address is null.
+   */
   boolean addListener(@NonNull SocketAddress socketAddress);
 
+  /**
+   * Adds a listener on the given host and port if the listener does not exist already.
+   *
+   * @param hostAndPort the host and port to listen to.
+   * @return true if the bind was successful, false otherwise.
+   * @throws NullPointerException if the given host and port is null.
+   */
   boolean addListener(@NonNull HostAndPort hostAndPort);
 }

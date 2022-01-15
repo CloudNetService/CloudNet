@@ -18,6 +18,7 @@ package eu.cloudnetservice.cloudnet.driver.network.netty.http;
 
 import eu.cloudnetservice.cloudnet.driver.network.http.HttpContext;
 import eu.cloudnetservice.cloudnet.driver.network.http.HttpResponse;
+import eu.cloudnetservice.cloudnet.driver.network.http.HttpResponseCode;
 import eu.cloudnetservice.cloudnet.driver.network.http.HttpVersion;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
@@ -29,7 +30,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
+/**
+ * The default netty based implementation of a http response.
+ *
+ * @since 4.0
+ */
 final class NettyHttpServerResponse extends NettyHttpMessage implements HttpResponse {
 
   final DefaultFullHttpResponse httpResponse;
@@ -37,101 +44,154 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements HttpResp
 
   private InputStream responseInputStream;
 
-  public NettyHttpServerResponse(NettyHttpServerContext context, HttpRequest httpRequest) {
+  /**
+   * Constructs a new netty http response instance.
+   *
+   * @param context     the context in which the request (and this response to the request) is handled.
+   * @param httpRequest the original unwrapped request sent to the server.
+   * @throws NullPointerException if either the context or request is null.
+   */
+  public NettyHttpServerResponse(@NonNull NettyHttpServerContext context, @NonNull HttpRequest httpRequest) {
     this.context = context;
     this.httpResponse = new DefaultFullHttpResponse(
       httpRequest.protocolVersion(),
       HttpResponseStatus.NOT_FOUND,
-      Unpooled.buffer()
-    );
+      Unpooled.buffer());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public int statusCode() {
-    return this.httpResponse.status().code();
+  public @NonNull HttpResponseCode status() {
+    return HttpResponseCode.fromNumeric(this.httpResponse.status().code());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public @NonNull HttpResponse statusCode(int code) {
-    this.httpResponse.setStatus(HttpResponseStatus.valueOf(code));
+  public @NonNull HttpResponse status(@NonNull HttpResponseCode code) {
+    this.httpResponse.setStatus(HttpResponseStatus.valueOf(code.code()));
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpContext context() {
     return this.context;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public String header(@NonNull String name) {
+  public @Nullable String header(@NonNull String name) {
     return this.httpResponse.headers().getAsString(name);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public int headerAsInt(@NonNull String name) {
+  public @Nullable Integer headerAsInt(@NonNull String name) {
     return this.httpResponse.headers().getInt(name);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean headerAsBoolean(@NonNull String name) {
     return Boolean.parseBoolean(this.httpResponse.headers().get(name));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpResponse header(@NonNull String name, @NonNull String value) {
     this.httpResponse.headers().set(name, value);
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpResponse removeHeader(@NonNull String name) {
     this.httpResponse.headers().remove(name);
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpResponse clearHeaders() {
     this.httpResponse.headers().clear();
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean hasHeader(@NonNull String name) {
     return this.httpResponse.headers().contains(name);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Map<String, String> headers() {
-    Map<String, String> maps = new HashMap<>(this.httpResponse.headers().size());
-
+    Map<String, String> headers = new HashMap<>(this.httpResponse.headers().size());
     for (var key : this.httpResponse.headers().names()) {
-      maps.put(key, this.httpResponse.headers().get(key));
+      headers.put(key, this.httpResponse.headers().get(key));
     }
 
-    return maps;
+    return headers;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpVersion version() {
     return super.versionFromNetty(this.httpResponse.protocolVersion());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpResponse version(@NonNull HttpVersion version) {
     this.httpResponse.setProtocolVersion(super.versionToNetty(version));
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public byte[] body() {
     return this.httpResponse.content().array();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull String bodyAsString() {
     return new String(this.body(), StandardCharsets.UTF_8);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpResponse body(byte[] byteArray) {
     this.httpResponse.content().clear();
@@ -139,6 +199,9 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements HttpResp
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpResponse body(@NonNull String text) {
     this.httpResponse.content().clear();
@@ -146,11 +209,17 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements HttpResp
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public InputStream bodyStream() {
     return this.responseInputStream;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull HttpResponse body(InputStream body) {
     if (this.responseInputStream != null) {
@@ -164,6 +233,9 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements HttpResp
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean hasBody() {
     return this.httpResponse.content().readableBytes() > 0 || this.responseInputStream != null;

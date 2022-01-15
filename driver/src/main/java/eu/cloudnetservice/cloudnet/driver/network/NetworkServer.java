@@ -16,33 +16,32 @@
 
 package eu.cloudnetservice.cloudnet.driver.network;
 
-import java.net.SocketAddress;
+import com.google.common.base.VerifyException;
 import lombok.NonNull;
 
 /**
- * The network server represents a server that can register and receive INetworkClient connections and packets It is
- * made for a simple read and write network with a client and a server. You can bind this server on more than one
- * addresses
+ * Represents a network component which can accept connection from other network components within the network.
  *
- * @see NetworkClient
+ * @since 4.0
  */
 public interface NetworkServer extends NetworkComponent, AutoCloseable {
 
   /**
-   * Binds the server to a specific port with the host alias address "0.0.0.0"
+   * Binds this network server to the given port on any local address (ipv6 form: {@code ::/0}) if no other listener is
+   * already listening to that port.
    *
-   * @param port the port, that the server should bind
-   * @return true when the binding was successful or false if an error was threw or the port is already bind
+   * @param port the port to which the listener should get bound.
+   * @return true if the listener was added to the given port, false otherwise.
+   * @throws VerifyException if the given port exceeds the port range.
    */
   boolean addListener(int port);
 
-  boolean addListener(@NonNull SocketAddress socketAddress);
-
   /**
-   * Binds the server to a specific address that is as parameter defined
+   * Binds this network server to the given host and port if no listener is already listening on the given address.
    *
-   * @param hostAndPort the address that should the server bind
-   * @return true when the binding was successful or false if an error was threw or the port is already bind
+   * @param hostAndPort the address to which a listener should get bound.
+   * @return true if the listener was added to the given address, false otherwise.
+   * @throws NullPointerException if the given host and port is null.
    */
   boolean addListener(@NonNull HostAndPort hostAndPort);
 }

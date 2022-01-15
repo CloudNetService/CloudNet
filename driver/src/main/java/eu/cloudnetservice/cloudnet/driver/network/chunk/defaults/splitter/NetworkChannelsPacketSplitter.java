@@ -22,9 +22,19 @@ import java.util.Collection;
 import java.util.function.Consumer;
 import lombok.NonNull;
 
-public record NetworkChannelsPacketSplitter(@NonNull Collection<NetworkChannel> channels)
-  implements Consumer<Packet> {
+/**
+ * A default implementation of a chunked packet splitter, splitting each packet chunk to multiple channels.
+ *
+ * @since 4.0
+ */
+public record NetworkChannelsPacketSplitter(@NonNull Collection<NetworkChannel> channels) implements Consumer<Packet> {
 
+  /**
+   * Sends the given packet safely to all listening components of the chunked data transfer.
+   *
+   * @param packet the packet to send.
+   * @throws NullPointerException if the given packet is null.
+   */
   @Override
   public void accept(@NonNull Packet packet) {
     // disable releasing of the content as we need to content multiple times

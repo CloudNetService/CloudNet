@@ -27,18 +27,39 @@ import java.util.function.Supplier;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * An object serializer which can de- serialize any kind of map from/to a buffer.
+ *
+ * @since 4.0
+ */
 public class MapObjectSerializer implements ObjectSerializer<Map<?, ?>> {
 
   private final Supplier<Map<?, ?>> mapFactory;
 
-  protected MapObjectSerializer(Supplier<Map<?, ?>> mapFactory) {
+  /**
+   * Constructs a new map object serializer instance.
+   *
+   * @param mapFactory the map factory to use to construct the map instances.
+   * @throws NullPointerException if the given map factory is null.
+   */
+  protected MapObjectSerializer(@NonNull Supplier<Map<?, ?>> mapFactory) {
     this.mapFactory = mapFactory;
   }
 
+  /**
+   * Constructs a new map object serializer instance.
+   *
+   * @param mapFactory the map factory to use to construct the map instances.
+   * @return the created map object serializer instance.
+   * @throws NullPointerException if the given map factory is null.
+   */
   public static @NonNull MapObjectSerializer of(@NonNull Supplier<Map<?, ?>> mapFactory) {
     return new MapObjectSerializer(mapFactory);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable Map<?, ?> read(
     @NonNull DataBuf source,
@@ -66,6 +87,9 @@ public class MapObjectSerializer implements ObjectSerializer<Map<?, ?>> {
     return map;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void write(
     @NonNull DataBuf.Mutable dataBuf,

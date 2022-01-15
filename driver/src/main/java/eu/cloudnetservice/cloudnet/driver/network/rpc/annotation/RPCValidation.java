@@ -21,14 +21,32 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import lombok.NonNull;
+import org.intellij.lang.annotations.Language;
 
+/**
+ * An annotation used in combination with the annotation processor to validate that an api class can be used to remotely
+ * execute methods. It validates that a class does not break the contract defined in the {@link
+ * eu.cloudnetservice.cloudnet.driver.network.rpc.RPC} class.
+ *
+ * @since 4.0
+ */
 @Documented
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RPCValidation {
 
-  @NonNull String value() default "";
+  /**
+   * Get a regular expression of the methods names to skip while validating the class. Defaults to an empty indicating
+   * that no methods should get skipped during validation.
+   *
+   * @return a regular expression of the methods names to skip while validating the class.
+   */
+  @Language("RegExp") String value() default "";
 
+  /**
+   * Get if static methods in the class should get validated as well. Defaults to false.
+   *
+   * @return if static methods in the class should get validated as well.
+   */
   boolean includeStatic() default false;
 }

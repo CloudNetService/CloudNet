@@ -25,16 +25,34 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import lombok.NonNull;
 
+/**
+ * The default netty based handler responsible to initialize new channels which get connected to the current node.
+ *
+ * @since 4.0
+ */
 public class NettyNetworkServerInitializer extends ChannelInitializer<Channel> {
 
   private final HostAndPort serverLocalAddress;
   private final NettyNetworkServer networkServer;
 
-  public NettyNetworkServerInitializer(NettyNetworkServer networkServer, HostAndPort serverLocalAddress) {
+  /**
+   * Constructs a new network initializer instance.
+   *
+   * @param networkServer      the network server this handler belongs to.
+   * @param serverLocalAddress the local address associated with this handler.
+   * @throws NullPointerException if then given server or address is null.
+   */
+  public NettyNetworkServerInitializer(
+    @NonNull NettyNetworkServer networkServer,
+    @NonNull HostAndPort serverLocalAddress
+  ) {
     this.networkServer = networkServer;
     this.serverLocalAddress = serverLocalAddress;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected void initChannel(@NonNull Channel ch) {
     if (this.networkServer.sslContext != null) {
@@ -46,7 +64,6 @@ public class NettyNetworkServerInitializer extends ChannelInitializer<Channel> {
       .addLast("packet-decoder", new NettyPacketDecoder())
       .addLast("packet-length-serializer", new NettyPacketLengthSerializer())
       .addLast("packet-encoder", new NettyPacketEncoder())
-      .addLast("network-server-handler", new NettyNetworkServerHandler(this.networkServer, this.serverLocalAddress))
-    ;
+      .addLast("network-server-handler", new NettyNetworkServerHandler(this.networkServer, this.serverLocalAddress));
   }
 }

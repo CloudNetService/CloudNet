@@ -25,37 +25,60 @@ import java.util.Collection;
 import java.util.concurrent.Executor;
 import lombok.NonNull;
 
+/**
+ * Constructs a default implementation for a client network handler, delegating most of the calls to the network
+ * client.
+ *
+ * @since 4.0
+ */
 public class NettyNetworkClientHandler extends NettyNetworkHandler {
 
   private final HostAndPort connectedAddress;
   private final NettyNetworkClient nettyNetworkClient;
 
-  public NettyNetworkClientHandler(NettyNetworkClient nettyNetworkClient, HostAndPort connectedAddress) {
+  /**
+   * Constructs a new network client handler instance.
+   *
+   * @param nettyNetworkClient the client which connected to the endpoint.
+   * @param connectedAddress   the server address to which the client connected.
+   * @throws NullPointerException if either the given client or connect address is null.
+   */
+  public NettyNetworkClientHandler(
+    @NonNull NettyNetworkClient nettyNetworkClient,
+    @NonNull HostAndPort connectedAddress
+  ) {
     this.nettyNetworkClient = nettyNetworkClient;
     this.connectedAddress = connectedAddress;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public void channelActive(ChannelHandlerContext ctx) throws Exception {
+  public void channelActive(@NonNull ChannelHandlerContext ctx) throws Exception {
     super.channel = new NettyNetworkChannel(
       ctx.channel(),
       this.nettyNetworkClient.packetRegistry(),
-      this.nettyNetworkClient.networkChannelHandler.call(),
+      this.nettyNetworkClient.handlerFactory.call(),
       this.connectedAddress,
       HostAndPort.fromSocketAddress(ctx.channel().localAddress()),
       true);
     this.nettyNetworkClient.channels.add(super.channel);
-
-    if (this.channel.handler() != null) {
-      this.channel.handler().handleChannelInitialize(super.channel);
-    }
+    // post the channel initialize to the handler
+    this.channel.handler().handleChannelInitialize(super.channel);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected @NonNull Collection<NetworkChannel> channels() {
     return this.nettyNetworkClient.channels;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected @NonNull Executor packetDispatcher() {
     return this.nettyNetworkClient.packetDispatcher();

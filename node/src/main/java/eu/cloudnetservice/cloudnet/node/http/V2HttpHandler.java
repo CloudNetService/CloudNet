@@ -75,7 +75,7 @@ public abstract class V2HttpHandler implements HttpHandler {
     } else {
       if (this.supportedRequestMethods.length > 0
         && Arrays.binarySearch(this.supportedRequestMethods, context.request().method().toUpperCase()) < 0) {
-        this.response(context, HttpResponseCode.HTTP_BAD_METHOD)
+        this.response(context, HttpResponseCode.METHOD_NOT_ALLOWED)
           .header("Allow", this.supportedRequestMethodsString)
           .context()
           .cancelNext(true)
@@ -141,7 +141,7 @@ public abstract class V2HttpHandler implements HttpHandler {
   }
 
   protected void send403(@NonNull HttpContext context, @NonNull String reason) {
-    this.response(context, HttpResponseCode.HTTP_FORBIDDEN)
+    this.response(context, HttpResponseCode.FORBIDDEN)
       .body(this.failure().append("reason", reason).toString().getBytes(StandardCharsets.UTF_8))
       .context()
       .closeAfter(true)
@@ -152,7 +152,7 @@ public abstract class V2HttpHandler implements HttpHandler {
     context
       .cancelNext(true)
       .response()
-      .statusCode(HttpResponseCode.HTTP_OK)
+      .status(HttpResponseCode.OK)
       .header("Access-Control-Max-Age", Integer.toString(this.accessControlConfiguration.accessControlMaxAge()))
       .header("Access-Control-Allow-Origin", this.accessControlConfiguration.corsPolicy())
       .header("Access-Control-Allow-Headers", "*")
@@ -163,20 +163,20 @@ public abstract class V2HttpHandler implements HttpHandler {
   }
 
   protected HttpResponse ok(@NonNull HttpContext context) {
-    return this.response(context, HttpResponseCode.HTTP_OK);
+    return this.response(context, HttpResponseCode.OK);
   }
 
   protected HttpResponse badRequest(@NonNull HttpContext context) {
-    return this.response(context, HttpResponseCode.HTTP_BAD_REQUEST);
+    return this.response(context, HttpResponseCode.BAD_REQUEST);
   }
 
   protected HttpResponse notFound(@NonNull HttpContext context) {
-    return this.response(context, HttpResponseCode.HTTP_NOT_FOUND);
+    return this.response(context, HttpResponseCode.NOT_FOUND);
   }
 
-  protected HttpResponse response(@NonNull HttpContext context, int statusCode) {
+  protected HttpResponse response(@NonNull HttpContext context, @NonNull HttpResponseCode statusCode) {
     return context.response()
-      .statusCode(statusCode)
+      .status(statusCode)
       .header("Content-Type", "application/json")
       .header("Access-Control-Allow-Origin", this.accessControlConfiguration.corsPolicy());
   }

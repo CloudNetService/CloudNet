@@ -24,11 +24,21 @@ import java.net.URL;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents a content stream source for resources located and streamable from a class loader.
+ *
+ * @param pathPrefix    the prefix to append to each resource location.
+ * @param contentSource the source to try load the content from.
+ * @since 4.0
+ */
 record ClassLoaderContentStreamProvider(
   @NonNull String pathPrefix,
   @NonNull ClassLoader contentSource
 ) implements ContentStreamProvider {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable StreamableContent provideContent(@NonNull String path) {
     var resourceLocation = this.pathPrefix + path;
@@ -40,6 +50,13 @@ record ClassLoaderContentStreamProvider(
       : URLStreamableContent.of(FileMimeTypeHelper.fileType(resourceLocation), contentLocationUrl);
   }
 
+  /**
+   * A resource located at a specific url.
+   *
+   * @param contentType        the content type of the stream.
+   * @param contentLocationUrl the content location in form of an url.
+   * @since 4.0
+   */
   private record URLStreamableContent(
     @NonNull String contentType,
     @NonNull URL contentLocationUrl
@@ -49,6 +66,9 @@ record ClassLoaderContentStreamProvider(
       return new URLStreamableContent(contentType + "; charset=UTF-8", contentLocationUrl);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull InputStream openStream() throws IOException {
       return this.contentLocationUrl.openStream();

@@ -20,12 +20,30 @@ import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.exception.RPCExecutionException;
 import lombok.NonNull;
 
-public final class ExceptionalResultUtils {
+/**
+ * A utility class used to rethrow exceptions which happened during rpc on the executor side and got sent back to the
+ * original caller.
+ *
+ * @since 4.0
+ */
+public final class ExceptionalResultUtil {
 
-  private ExceptionalResultUtils() {
+  private ExceptionalResultUtil() {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Serializes the given throwable into the given data buffer by writing the
+   * <ol>
+   *   <li>name of the exception which was thrown.
+   *   <li>optionally the message of the throwable if given.
+   *   <li>first stack trace element.
+   * </ol>
+   *
+   * @param target    the buffer to serialize the exception to.
+   * @param throwable the throwable to serialize into the buffer.
+   * @return the same buffer used to call the method, for chaining.
+   */
   public static @NonNull DataBuf serializeThrowable(@NonNull DataBuf.Mutable target, @NonNull Throwable throwable) {
     // write the class name and the message of the exception
     target
@@ -35,6 +53,13 @@ public final class ExceptionalResultUtils {
     return serializeFirstElement(target, throwable.getStackTrace());
   }
 
+  /**
+   * Rethrows a serialized exception by wrapping the message and stack trace information into on message and using it as
+   * a message in a {@code RPCExecutionException}.
+   *
+   * @param source the source buffer to read the information from.
+   * @throws RPCExecutionException always, that is the point of this method.
+   */
   public static void rethrowException(@NonNull DataBuf source) {
     // read the information about the exception name
     var exceptionClassName = source.readString();
@@ -58,6 +83,20 @@ public final class ExceptionalResultUtils {
     throw new RPCExecutionException(exceptionClassName, exceptionMessage, formattedElement);
   }
 
+  /**
+   * Writes the first stack trace element into the given buffer using the following format:
+   * <ol>
+   *   <li>A boolean, indicating if a stack trace element is following, if false no other field will follow.
+   *   <li>A string, the class name where the exception happened.
+   *   <li>A string, the method name where the exception happened.
+   *   <li>An optional string, the file name where the exception happened.
+   *   <li>An integer, the line number where the exception happened.
+   * </ol>
+   *
+   * @param target   the buffer to write the element to.
+   * @param elements the stack trace elements.
+   * @return the same buffer used to call the methods, for chaining.
+   */
   private static @NonNull DataBuf serializeFirstElement(
     @NonNull DataBuf.Mutable target,
     StackTraceElement @NonNull [] elements

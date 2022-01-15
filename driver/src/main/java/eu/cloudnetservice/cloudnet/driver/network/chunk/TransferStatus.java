@@ -16,9 +16,23 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.chunk;
 
+/**
+ * Represents the status of a finished chunked packet transfer.
+ *
+ * @since 4.0
+ */
 public enum TransferStatus {
 
+  /**
+   * The transfer is currently running and unfinished.
+   */
   RUNNING,
+  /**
+   * The transfer was completed successfully.
+   */
   SUCCESS,
+  /**
+   * The transfer failed for some reason.
+   */
   FAILURE
 }

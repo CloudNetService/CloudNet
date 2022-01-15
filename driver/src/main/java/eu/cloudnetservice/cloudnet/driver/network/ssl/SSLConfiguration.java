@@ -19,6 +19,17 @@ package eu.cloudnetservice.cloudnet.driver.network.ssl;
 import java.nio.file.Path;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents the configuration option for ssl. A ssl configuration can be enabled without any certificates given,
+ * meaning that the server/client should use self-signed certificates and an insecure trust store.
+ *
+ * @param enabled              if the ssl configuration is enabled.
+ * @param clientAuth           if client authorization should be required.
+ * @param trustCertificatePath the trusted certificate for remote certificate validation.
+ * @param certificatePath      the path to an X509 certificate chain in the pem format.
+ * @param privateKeyPath       the path to a PKCS#8 private key in PEM format.
+ * @since 4.0
+ */
 public record SSLConfiguration(
   boolean enabled,
   boolean clientAuth,

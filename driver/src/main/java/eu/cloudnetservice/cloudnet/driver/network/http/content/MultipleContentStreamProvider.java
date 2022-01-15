@@ -19,8 +19,17 @@ package eu.cloudnetservice.cloudnet.driver.network.http.content;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * A content provider which tries to load the requested content from one of the given providers.
+ *
+ * @param providers the providers to use as the backing lookup providers.
+ * @since 4.0
+ */
 record MultipleContentStreamProvider(@NonNull ContentStreamProvider... providers) implements ContentStreamProvider {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable StreamableContent provideContent(@NonNull String path) {
     for (var provider : this.providers) {

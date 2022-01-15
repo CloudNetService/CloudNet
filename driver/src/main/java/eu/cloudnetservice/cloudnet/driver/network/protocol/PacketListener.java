@@ -20,22 +20,24 @@ import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import lombok.NonNull;
 
 /**
- * An packet listeners, allows to handle incoming packets, from some channel, that use the IPacketListenerRegistry in
- * that the listener has to be register
- * <p>
- * It will called on all channels, that the registry has register the listener
+ * Represents a listener for a specific packet. A packet listener can be registered through the packet listener registry
+ * on a per-network-component and a per-channel basis. Each packet listener gets called in the order the listener was
+ * registered, the first registered listener will be called first.
  *
- * @see PacketListenerRegistry
+ * @since 4.0
  */
 @FunctionalInterface
 public interface PacketListener {
 
   /**
-   * Handles a new incoming packet message. The channel and the packet will not null
+   * Handles the incoming packet. A packet handle should be release-safe and transactional to preserve the content of
+   * the packet for listeners which are following in the chain. If a packet listener is not doing that, it might lead to
+   * unexpected exceptions in other packet listener implementations for the same packet.
    *
-   * @param channel the channel, from that the message was received
-   * @param packet  the received packet message, which should handle from the listener
-   * @throws Exception catch the exception, if the handle throws one
+   * @param channel the channel from which the original packet came.
+   * @param packet  the packet which was received.
+   * @throws Exception            if any exception occurs during handling of the packet.
+   * @throws NullPointerException if either the given channel or packet is null.
    */
   void handle(@NonNull NetworkChannel channel, @NonNull Packet packet) throws Exception;
 }
