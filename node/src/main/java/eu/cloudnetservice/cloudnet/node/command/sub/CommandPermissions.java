@@ -258,6 +258,7 @@ public final class CommandPermissions {
   public void displayGroupInformation(CommandSource source) {
     for (var group : this.permissionManagement().groups()) {
       this.displayGroup(source, group);
+      source.sendMessage(" ");
     }
   }
 
@@ -395,32 +396,32 @@ public final class CommandPermissions {
 
   private void displayGroup(@NonNull CommandSource source, @NonNull PermissionGroup permissionGroup) {
     source.sendMessage("- " + permissionGroup.name() + " | Potency: " + permissionGroup.potency());
-    source.sendMessage("- Inherits: " + Arrays.toString(permissionGroup.groupNames().toArray()));
-    source.sendMessage("- Default:" + permissionGroup.defaultGroup());
-    source.sendMessage("- SortId: " + permissionGroup.sortId());
-    source.sendMessage("- Prefix: " + permissionGroup.prefix());
-    source.sendMessage("- Color: " + permissionGroup.color());
-    source.sendMessage("- Suffix:" + permissionGroup.suffix());
-    source.sendMessage("- Chat-Display: " + permissionGroup.display());
+    source.sendMessage(" - Inherits: " + Arrays.toString(permissionGroup.groupNames().toArray()));
+    source.sendMessage(" - Default: " + permissionGroup.defaultGroup());
+    source.sendMessage(" - SortId: " + permissionGroup.sortId());
+    source.sendMessage(" - Prefix: " + permissionGroup.prefix());
+    source.sendMessage(" - Color: " + permissionGroup.color());
+    source.sendMessage(" - Suffix: " + permissionGroup.suffix());
+    source.sendMessage(" - Chat-Display: " + permissionGroup.display());
     this.displayPermission(source, permissionGroup);
   }
 
   private void displayPermission(@NonNull CommandSource source, @NonNull Permissible permissible) {
-    source.sendMessage("- Permissions:");
+    source.sendMessage(" - Permissions:");
     for (var permission : permissible.permissions()) {
-      source.sendMessage(this.formatPermission(permission));
+      source.sendMessage("  " + this.formatPermission(permission));
     }
 
     for (var groupPermission : permissible.groupPermissions().entrySet()) {
-      source.sendMessage("* " + groupPermission.getKey());
+      source.sendMessage(" * " + groupPermission.getKey());
 
       for (var permission : groupPermission.getValue()) {
-        source.sendMessage(this.formatPermission(permission));
+        source.sendMessage("  " + this.formatPermission(permission));
       }
     }
   }
 
-  private String formatPermission(@NonNull Permission permission) {
+  private @NonNull String formatPermission(@NonNull Permission permission) {
     var timeout = "LIFETIME";
     if (permission.timeOutMillis() > 0) {
       timeout = DATE_FORMAT.format(permission.timeOutMillis());
