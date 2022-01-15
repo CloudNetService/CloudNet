@@ -23,10 +23,13 @@ import com.github.dockerjava.api.command.PullImageCmd;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.Bind;
+import com.github.dockerjava.api.model.Capability;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.Frame;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.InternetProtocol;
+import com.github.dockerjava.api.model.LogConfig;
+import com.github.dockerjava.api.model.LogConfig.LoggingType;
 import com.github.dockerjava.api.model.RestartPolicy;
 import com.github.dockerjava.api.model.Volume;
 import com.google.common.collect.Iterables;
@@ -45,6 +48,7 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +59,25 @@ import java.util.stream.Stream;
 import lombok.NonNull;
 
 public class DockerizedService extends JVMService {
+
+  // do not create a huge logging file as we only need the last ~100 log lines of the service
+  protected static final Map<String, String> LOGGING_OPTIONS = Map.of(
+    "max-file", "1",
+    "max-size", "5m",
+    "compress", "false");
+  // drop some kernel capabilities which no normal minecraft server could ever need for anything
+  protected static final Capability[] DROPPED_CAPABILITIES = EnumSet.of(
+    Capability.MKNOD,
+    Capability.FSETID,
+    Capability.FOWNER,
+    Capability.SETPCAP,
+    Capability.SETFCAP,
+    Capability.NET_RAW,
+    Capability.SYS_CHROOT,
+    Capability.AUDIT_WRITE,
+    Capability.DAC_OVERRIDE,
+    Capability.NET_BIND_SERVICE
+  ).toArray(Capability[]::new);
 
   protected final DockerClient dockerClient;
   protected final DockerConfiguration configuration;
@@ -162,8 +185,10 @@ public class DockerizedService extends JVMService {
         .withWorkingDir(this.serviceDirectory.toAbsolutePath().toString())
         .withHostConfig(HostConfig.newHostConfig()
           .withBinds(binds)
+          .withCapDrop(DROPPED_CAPABILITIES)
+          .withRestartPolicy(RestartPolicy.noRestart())
           .withNetworkMode(this.configuration.network())
-          .withRestartPolicy(RestartPolicy.noRestart()))
+          .withLogConfig(new LogConfig(LoggingType.JSON_FILE, LOGGING_OPTIONS)))
         .withLabels(Map.of(
           "Service", "CloudNet",
           "Name", this.serviceId().name(),
@@ -219,19 +244,19 @@ public class DockerizedService extends JVMService {
 
   @Override
   public void doDelete() {
+    // stop & execute operations on the remaining files
+    super.doDelete();
     // remove the container if the container exists
     if (this.containerId != null) {
       try {
         // try to remove the container, ignore if the container is already gone
-        this.dockerClient.removeContainerCmd(this.containerId).withRemoveVolumes(true).withForce(true).exec();
+        this.dockerClient.removeContainerCmd(this.containerId).withRemoveVolumes(true).withForce(false).exec();
         // remove the container id to prevent further unnecessary calls
         this.containerId = null;
       } catch (NotFoundException exception) {
         LOGGER.fine("Unable to remove docker container", exception);
       }
     }
-    // remove all service files after stopping the container
-    super.doDelete();
   }
 
   protected @NonNull Bind[] collectBinds(@NonNull Path wrapperFilePath) {
