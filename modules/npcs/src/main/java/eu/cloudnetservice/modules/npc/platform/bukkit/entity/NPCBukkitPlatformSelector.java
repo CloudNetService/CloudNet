@@ -79,7 +79,7 @@ public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
       .lookAtPlayer(this.npc.lookAtPlayer())
       .usePlayerProfiles(this.npc.usePlayerSkin())
       .profile(new Profile(
-        new UUID(ThreadLocalRandom.current().nextLong(), 0),
+        this.uniqueId,
         this.npc.displayName(),
         this.npc.profileProperties().stream()
           .map(prop -> new Property(prop.name(), prop.value(), prop.signature()))
