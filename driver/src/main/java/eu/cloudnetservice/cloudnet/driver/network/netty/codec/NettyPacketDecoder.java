@@ -18,7 +18,6 @@ package eu.cloudnetservice.cloudnet.driver.network.netty.codec;
 
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
-import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.netty.NettyUtils;
 import eu.cloudnetservice.cloudnet.driver.network.netty.buffer.NettyImmutableDataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.BasePacket;
@@ -65,7 +64,7 @@ public final class NettyPacketDecoder extends ByteToMessageDecoder {
       // read the required base data from the buffer
       var channel = NettyUtils.readVarInt(buf);
       var queryUniqueId = buf.readBoolean() ? new UUID(buf.readLong(), buf.readLong()) : null;
-      DataBuf body = new NettyImmutableDataBuf(buf.readBytes(NettyUtils.readVarInt(buf)));
+      var body = new NettyImmutableDataBuf(buf.readBytes(NettyUtils.readVarInt(buf)));
 
       // construct the packet
       var packet = new BasePacket(channel, body);

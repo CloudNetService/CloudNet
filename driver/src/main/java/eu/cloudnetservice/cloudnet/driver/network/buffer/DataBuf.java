@@ -145,7 +145,7 @@ public interface DataBuf extends AutoCloseable {
    * Reads the next array of bytes from the buffer. A byte array is serialized in a special way. The bytes in the buffer
    * are prefixed with the number of bytes in the array. Two steps are made to read an array from the buffer:
    * <ol>
-   *   <li>The number of bytes in the following array are read from the buffer (by default a var int)
+   *   <li>The number of bytes in the following array are read from the buffer (by default a var int).
    *   <li>The number of bytes the array is prefixed with are read from the buffer and put into a new array.
    * </ol>
    * <p>

@@ -65,7 +65,7 @@ public interface ChunkedPacketSender extends ChunkedPacketProvider {
   /**
    * Transfers the data from the data source to all targets of this sender. The returned future is completed when:
    * <ul>
-   *   <li>The transfer completed successfully
+   *   <li>The transfer completed successfully.
    *   <li>The transfer failed for any reason. The returned task will be completed holding the reason exception.
    * </ul>
    *

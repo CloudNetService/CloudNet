@@ -23,7 +23,7 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * A web socket channel to which can be listed and written to after upgrading a http connection.
+ * A web socket channel to which can be listened and written to after upgrading a http connection.
  *
  * @see HttpContext#upgrade()
  * @since 4.0

@@ -54,7 +54,7 @@ public interface PacketListenerRegistry {
   void addListener(int channel, @NonNull PacketListener... listeners);
 
   /**
-   * Removes all the given listeners from the given channel if they were registered previously.
+   * Removes all given listeners from the given channel if they were registered previously.
    *
    * @param channel   the id of the channel to remove the listener from.
    * @param listeners the listeners to remove from the channel.

@@ -38,7 +38,7 @@ import org.jetbrains.annotations.Nullable;
  * the content of the buffer.
  * <p>
  * The query unique id of the packet is only set in two cases, either if the packet sender expects a response from the
- * component to which the packet get sent, or if the packet is a response to a query, in which case the packet unique id
+ * component to which the packet got sent, or if the packet is a response to a query, in which case the packet unique id
  * should be -1.
  *
  * @since 4.0
@@ -60,7 +60,7 @@ public interface Packet {
    * query is very common. The resulting packet will
    * <ol>
    *   <li>have a packet id set to -1 for query identification.
-   *   <li>have the same query unique id than this packet has.
+   *   <li>have the same query unique id as this packet has.
    *   <li>have the given content buffer as the content set.
    * </ol>
    *
@@ -73,7 +73,7 @@ public interface Packet {
   /**
    * Get the unique id of this packet. The unique id of the packet is only set when this packet is a query packet and
    * expects a response. In this case the response to this packet should have the packet id set to -1 and the same query
-   * unique id than this packet has. Normally a response is constructed by {@link #constructResponse(DataBuf)}.
+   * unique id as this packet has. Normally a response is constructed by {@link #constructResponse(DataBuf)}.
    *
    * @return the unique id of this packet, or null if this packet is not a query packet.
    */
