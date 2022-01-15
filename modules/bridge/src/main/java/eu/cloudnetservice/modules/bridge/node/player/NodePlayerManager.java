@@ -358,9 +358,9 @@ public class NodePlayerManager implements PlayerManager {
           connectionInfo,
           serverInfo,
           JsonDocument.newDocument(),
+          connectionInfo.name(),
           cloudOfflinePlayer.firstLoginTimeMillis(),
           System.currentTimeMillis(),
-          connectionInfo.name(),
           cloudOfflinePlayer.lastNetworkPlayerProxyInfo(),
           cloudOfflinePlayer.properties());
         // cache the online player for later use
@@ -439,9 +439,9 @@ public class NodePlayerManager implements PlayerManager {
     if (cloudOfflinePlayer == null) {
       // create a new player and cache it, the insert into the database will be done later during the login
       cloudOfflinePlayer = new CloudOfflinePlayer(
-        System.currentTimeMillis(),
-        System.currentTimeMillis(),
         proxyInfo.name(),
+        System.currentTimeMillis(),
+        System.currentTimeMillis(),
         proxyInfo);
       this.offlinePlayerCache.put(proxyInfo.uniqueId(), Optional.of(cloudOfflinePlayer));
     }

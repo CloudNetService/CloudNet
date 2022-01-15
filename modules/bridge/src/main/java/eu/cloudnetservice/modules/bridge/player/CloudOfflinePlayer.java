@@ -29,26 +29,28 @@ import org.jetbrains.annotations.UnknownNullability;
 public class CloudOfflinePlayer extends JsonDocPropertyHolder implements Cloneable, Nameable {
 
   protected final String name;
+
   protected long firstLoginTimeMillis;
   protected long lastLoginTimeMillis;
   protected NetworkPlayerProxyInfo lastNetworkPlayerProxyInfo;
 
   public CloudOfflinePlayer(
+    @NonNull String name,
     long firstLoginTimeMillis,
     long lastLoginTimeMillis,
-    @NonNull String name,
-    @NonNull NetworkPlayerProxyInfo proxyInfo) {
+    @NonNull NetworkPlayerProxyInfo proxyInfo
+  ) {
+    this.name = name;
     this.firstLoginTimeMillis = firstLoginTimeMillis;
     this.lastLoginTimeMillis = lastLoginTimeMillis;
-    this.name = name;
     this.lastNetworkPlayerProxyInfo = proxyInfo;
   }
 
   public static @NonNull CloudOfflinePlayer offlineCopy(@NonNull CloudPlayer onlineVariant) {
     return new CloudOfflinePlayer(
+      onlineVariant.name(),
       onlineVariant.firstLoginTimeMillis(),
       onlineVariant.lastLoginTimeMillis(),
-      onlineVariant.name(),
       onlineVariant.networkPlayerProxyInfo().clone());
   }
 
