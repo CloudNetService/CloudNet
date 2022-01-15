@@ -27,4 +27,4 @@ dependencies {
   "implementation"(projects.cloudnetLauncher.java8)
 }
 
-applyJarMetadata("eu.cloudnetservice.launcher.java6.Launcher", "eu.cloudnetservice.launcher")
+applyJarMetadata("eu.cloudnetservice.launcher.java8.Launcher", "eu.cloudnetservice.launcher")
