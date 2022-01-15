@@ -102,7 +102,7 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
     LOGGER.info(I18n.trans("cloudnet-service-networking-disconnected",
       cloudService.serviceId().uniqueId(),
       cloudService.serviceId().taskName(),
-      cloudService.serviceId().taskServiceId(),
+      cloudService.serviceId().name(),
       channel.serverAddress().host() + ":" + channel.serverAddress().port(),
       channel.clientAddress().host() + ":" + channel.clientAddress().port()));
   }
