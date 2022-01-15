@@ -24,8 +24,6 @@ import com.github.juliarn.npc.profile.Profile;
 import com.github.juliarn.npc.profile.Profile.Property;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
-import java.util.UUID;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.bukkit.Material;
