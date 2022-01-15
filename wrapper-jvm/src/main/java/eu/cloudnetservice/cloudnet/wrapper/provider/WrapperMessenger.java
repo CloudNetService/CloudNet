@@ -39,14 +39,14 @@ public class WrapperMessenger extends DefaultMessenger implements CloudMessenger
 
   @Override
   public void sendChannelMessage(@NonNull ChannelMessage channelMessage) {
-    this.component.sendPacket(new PacketServerChannelMessage(channelMessage));
+    this.component.sendPacket(new PacketServerChannelMessage(channelMessage, true));
   }
 
   @Override
   public @NonNull Collection<ChannelMessage> sendChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
     return this.component.firstChannel()
       .queryPacketManager()
-      .sendQueryPacket(new PacketServerChannelMessage(channelMessage))
+      .sendQueryPacket(new PacketServerChannelMessage(channelMessage, true))
       .join()
       .content()
       .readObject(MESSAGES);

@@ -30,6 +30,8 @@ public final class PacketServerChannelMessageListener implements PacketListener 
 
   @Override
   public void handle(@NonNull NetworkChannel channel, @NonNull Packet packet) {
+    // skip the first boolean in the buffer as we don't need it
+    packet.content().readBoolean();
     // read the channel message from the buffer
     var message = packet.content().readObject(ChannelMessage.class);
     // get the query response if available
