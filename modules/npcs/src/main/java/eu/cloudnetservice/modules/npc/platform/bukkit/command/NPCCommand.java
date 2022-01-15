@@ -345,6 +345,11 @@ public final class NPCCommand extends BaseTabExecutor {
           }
         }
 
+        // set if the npc name tag should be hidden
+        case "hen", "hideentityname" -> {
+          updatedNpc = NPC.builder(npc).hideEntityName(this.parseBoolean(args[2])).build();
+        }
+
         // sets if the npc should "fly" with an elytra
         case "fwe", "flyingwithelytra" -> {
           if (this.canChangeSetting(sender, npc)) {
@@ -500,7 +505,7 @@ public final class NPCCommand extends BaseTabExecutor {
       // update & notify
       this.management.createNPC(updatedNpc);
       sender.sendMessage(String.format(
-        "§7The option §6%s was updated §asuccessfully§7! It may take a few seconds for the change to become visible.",
+        "§7The option §6%s §7was updated §asuccessfully§7! It may take a few seconds for the change to become visible.",
         args[1].toLowerCase()));
       return true;
     }
@@ -560,6 +565,7 @@ public final class NPCCommand extends BaseTabExecutor {
           "imitateplayer",
           "useplayerskin",
           "glowingcolor",
+          "hideentityname",
           "flyingwithelytra",
           "floatingitem",
           "leftclickaction",
@@ -574,7 +580,8 @@ public final class NPCCommand extends BaseTabExecutor {
       if (args.length == 3) {
         return switch (args[1].toLowerCase()) {
           // true-false options
-          case "lap", "lookatplayer", "ip", "imitateplayer", "ups", "useplayerskin", "fwe", "flyingwithelytra" -> TRUE_FALSE;
+          case "lap", "lookatplayer", "ip", "imitateplayer", "ups", "useplayerskin",
+            "hen", "hideentityname", "fwe", "flyingwithelytra" -> TRUE_FALSE;
           // click action options
           case "lca", "leftclickaction", "rca", "rightclickaction" -> CLICK_ACTIONS;
           // color options

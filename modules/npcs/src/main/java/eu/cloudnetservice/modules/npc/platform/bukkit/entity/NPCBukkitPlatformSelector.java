@@ -24,8 +24,6 @@ import com.github.juliarn.npc.profile.Profile;
 import com.github.juliarn.npc.profile.Profile.Property;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
-import java.util.UUID;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.bukkit.Material;
@@ -79,7 +77,7 @@ public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
       .lookAtPlayer(this.npc.lookAtPlayer())
       .usePlayerProfiles(this.npc.usePlayerSkin())
       .profile(new Profile(
-        new UUID(ThreadLocalRandom.current().nextLong(), 0),
+        this.uniqueId,
         this.npc.displayName(),
         this.npc.profileProperties().stream()
           .map(prop -> new Property(prop.name(), prop.value(), prop.signature()))
