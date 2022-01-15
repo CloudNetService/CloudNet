@@ -26,7 +26,7 @@ import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import eu.cloudnetservice.cloudnet.common.column.ColumnFormatter;
 import eu.cloudnetservice.cloudnet.common.column.RowBasedFormatter;
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleProvider;
@@ -39,7 +39,7 @@ import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
 import eu.cloudnetservice.cloudnet.node.console.animation.progressbar.ConsoleProgressWrappers;
 import eu.cloudnetservice.cloudnet.node.module.ModuleEntry;
 import eu.cloudnetservice.cloudnet.node.module.ModulesHolder;
-import eu.cloudnetservice.ext.updater.util.ChecksumUtils;
+import eu.cloudnetservice.ext.updater.util.ChecksumUtil;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -282,12 +282,12 @@ public final class CommandModules {
 
     // download the module
     var target = this.provider.moduleDirectoryPath().resolve(entry.name() + ".jar");
-    ConsoleProgressWrappers.wrapDownload(entry.url(), stream -> FileUtils.copy(stream, target));
+    ConsoleProgressWrappers.wrapDownload(entry.url(), stream -> FileUtil.copy(stream, target));
 
     // validate the downloaded file
-    var checksum = ChecksumUtils.fileShaSum(target);
+    var checksum = ChecksumUtil.fileShaSum(target);
     if (!checksum.equals(entry.sha3256())) {
-      FileUtils.delete(target);
+      FileUtil.delete(target);
       source.sendMessage(I18n.trans("cloudnet-install-modules-invalid-checksum", entry.name()));
       return;
     }

@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.report.util;
 
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
@@ -56,7 +56,7 @@ public record RecordMaker(@NonNull Path directory, @NonNull CloudService service
       return null;
     }
 
-    FileUtils.createDirectory(directory);
+    FileUtil.createDirectory(directory);
     return of(directory, service);
   }
 
@@ -78,14 +78,14 @@ public record RecordMaker(@NonNull Path directory, @NonNull CloudService service
   public void copyLogFiles() {
     try {
       var targetDirectory = this.directory.resolve("logs");
-      FileUtils.createDirectory(targetDirectory);
+      FileUtil.createDirectory(targetDirectory);
 
       if (this.service.serviceId().environment().equals(ServiceEnvironmentType.BUNGEECORD)) {
-        FileUtils.walkFileTree(this.service.directory(),
-          (root, current) -> FileUtils.copy(current, targetDirectory.resolve(root.relativize(current))), false,
+        FileUtil.walkFileTree(this.service.directory(),
+          (root, current) -> FileUtil.copy(current, targetDirectory.resolve(root.relativize(current))), false,
           "proxy.log*");
       } else {
-        FileUtils.copyDirectory(this.service.directory().resolve("logs"), targetDirectory);
+        FileUtil.copyDirectory(this.service.directory().resolve("logs"), targetDirectory);
       }
     } catch (Exception exception) {
       LOGGER.severe("Exception while creating directory", exception);

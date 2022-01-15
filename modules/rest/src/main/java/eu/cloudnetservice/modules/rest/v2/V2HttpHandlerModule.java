@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.rest.v2;
 
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleProvider;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleWrapper;
 import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
@@ -130,17 +130,17 @@ public class V2HttpHandlerModule extends V2HttpHandler {
     }
 
     var moduleTarget = this.moduleProvider().moduleDirectoryPath().resolve(name);
-    FileUtils.ensureChild(this.moduleProvider().moduleDirectoryPath(), moduleTarget);
+    FileUtil.ensureChild(this.moduleProvider().moduleDirectoryPath(), moduleTarget);
 
     try (var outputStream = Files.newOutputStream(moduleTarget)) {
-      FileUtils.copy(moduleStream, outputStream);
+      FileUtil.copy(moduleStream, outputStream);
     } catch (IOException exception) {
       this.response(context, HttpResponseCode.INTERNAL_SERVER_ERROR)
         .body(this.failure().append("reason", "Unable to copy module file").toString())
         .context()
         .closeAfter(true)
         .cancelNext();
-      FileUtils.delete(moduleTarget);
+      FileUtil.delete(moduleTarget);
       return;
     }
 

@@ -17,7 +17,7 @@
 package eu.cloudnetservice.cloudnet.node;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.common.log.defaults.DefaultLogFormatter;
@@ -59,7 +59,7 @@ import eu.cloudnetservice.cloudnet.node.module.NodeModuleProviderHandler;
 import eu.cloudnetservice.cloudnet.node.module.updater.ModuleUpdater;
 import eu.cloudnetservice.cloudnet.node.module.updater.ModuleUpdaterContext;
 import eu.cloudnetservice.cloudnet.node.module.updater.ModuleUpdaterRegistry;
-import eu.cloudnetservice.cloudnet.node.module.utils.ModuleJsonReader;
+import eu.cloudnetservice.cloudnet.node.module.util.ModuleJsonReader;
 import eu.cloudnetservice.cloudnet.node.network.DefaultNetworkClientChannelHandler;
 import eu.cloudnetservice.cloudnet.node.network.DefaultNetworkServerChannelHandler;
 import eu.cloudnetservice.cloudnet.node.network.chunk.FileDeployCallbackListener;
@@ -336,7 +336,7 @@ public class CloudNet extends CloudNetDriver {
         this.networkServer.close();
 
         // remove temp directory
-        FileUtils.delete(FileUtils.TEMP_DIR);
+        FileUtil.delete(FileUtil.TEMP_DIR);
 
         // close console
         this.console.close();

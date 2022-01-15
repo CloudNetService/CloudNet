@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.common.log.defaults;
 
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -52,7 +52,7 @@ public final class DefaultFileHandler extends FileHandler {
   public static @NonNull DefaultFileHandler newInstance(@NonNull Path pattern, int limit, int count, boolean append) {
     try {
       // check if the parent directory referenced by the pattern exists
-      FileUtils.createDirectory(pattern.getParent());
+      FileUtil.createDirectory(pattern.getParent());
       return new DefaultFileHandler(pattern.toAbsolutePath().toString(), limit, count, append);
     } catch (IOException exception) {
       throw new IllegalStateException("Unable to create file handler instance", exception);

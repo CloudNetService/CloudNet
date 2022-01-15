@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.node.network.chunk;
 
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
@@ -55,11 +55,11 @@ final class StaticServiceDeployCallback implements Callback {
         return;
       }
       // delete the old contents
-      FileUtils.delete(servicePath);
+      FileUtil.delete(servicePath);
       // recreate the directory
-      FileUtils.createDirectory(servicePath);
+      FileUtil.createDirectory(servicePath);
       // extract the received data to the given path of the service
-      FileUtils.extract(dataInput, servicePath);
+      FileUtil.extract(dataInput, servicePath);
       LOGGER.info(I18n.trans("command-cluster-push-static-services-received-success"));
     } else {
       LOGGER.severe(I18n.trans("command-cluster-push-static-services-running"));

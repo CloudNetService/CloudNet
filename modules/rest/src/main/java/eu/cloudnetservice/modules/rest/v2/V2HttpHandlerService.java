@@ -33,7 +33,7 @@ import eu.cloudnetservice.cloudnet.node.http.WebSocketAbleV2HttpHandler;
 import eu.cloudnetservice.cloudnet.node.service.CloudService;
 import eu.cloudnetservice.cloudnet.node.service.ServiceConsoleLineHandler;
 import eu.cloudnetservice.cloudnet.node.service.ServiceConsoleLogCache;
-import eu.cloudnetservice.modules.rest.RestUtils;
+import eu.cloudnetservice.modules.rest.RestUtil;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -108,7 +108,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
 
   protected void handleServiceStateUpdateRequest(HttpContext context) {
     this.handleWithServiceContext(context, service -> {
-      var targetState = RestUtils.first(context.request().queryParameters().get("target"));
+      var targetState = RestUtil.first(context.request().queryParameters().get("target"));
       if (targetState == null) {
         this.badRequest(context)
           .body(this.failure().append("reason", "Missing target state in query").toString())
@@ -155,7 +155,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
 
   protected void handleIncludeRequest(HttpContext context) {
     this.handleWithServiceContext(context, service -> {
-      var type = RestUtils.first(context.request().queryParameters().get("type"));
+      var type = RestUtil.first(context.request().queryParameters().get("type"));
       if (type != null) {
         if (type.equalsIgnoreCase("templates")) {
           service.provider().includeWaitingServiceTemplates();
@@ -184,7 +184,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
   protected void handleDeployResourcesRequest(HttpContext context) {
     this.handleWithServiceContext(context, service -> {
       var removeDeployments = Boolean
-        .getBoolean(RestUtils.first(context.request().queryParameters().get("remove"), "true"));
+        .getBoolean(RestUtil.first(context.request().queryParameters().get("remove"), "true"));
       service.provider().deployResources(removeDeployments);
 
       this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
@@ -282,7 +282,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
 
   protected void handleAddRequest(HttpContext context) {
     this.handleWithServiceContext(context, service -> {
-      var type = RestUtils.first(context.request().queryParameters().get("type"), null);
+      var type = RestUtil.first(context.request().queryParameters().get("type"), null);
       if (type == null) {
         this.badRequest(context)
           .body(this.failure().append("reason", "Missing type in query params").toString())
@@ -292,7 +292,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
       } else {
         var body = this.body(context.request());
         var flushAfter = Boolean
-          .getBoolean(RestUtils.first(context.request().queryParameters().get("flush"), "false"));
+          .getBoolean(RestUtil.first(context.request().queryParameters().get("flush"), "false"));
 
         if (type.equalsIgnoreCase("template")) {
           var template = body.get("template", ServiceTemplate.class);

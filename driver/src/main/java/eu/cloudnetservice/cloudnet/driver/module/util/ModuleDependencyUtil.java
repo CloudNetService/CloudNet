@@ -38,7 +38,7 @@ import lombok.NonNull;
  * @see ModuleWrapper
  * @since 4.0
  */
-public final class ModuleDependencyUtils {
+public final class ModuleDependencyUtil {
 
   /**
    * A regex to match semver versions. See <a href="https://regex101.com/r/Gqy0sh/1">here</a> for testing.
@@ -51,7 +51,7 @@ public final class ModuleDependencyUtils {
    *
    * @throws UnsupportedOperationException on invocation
    */
-  private ModuleDependencyUtils() {
+  private ModuleDependencyUtil() {
     throw new UnsupportedOperationException();
   }
 

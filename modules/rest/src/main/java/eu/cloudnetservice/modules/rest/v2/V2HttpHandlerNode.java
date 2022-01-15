@@ -31,7 +31,7 @@ import eu.cloudnetservice.cloudnet.node.config.JsonConfiguration;
 import eu.cloudnetservice.cloudnet.node.http.HttpSession;
 import eu.cloudnetservice.cloudnet.node.http.WebSocketAbleV2HttpHandler;
 import eu.cloudnetservice.cloudnet.node.permission.command.PermissionUserCommandSource;
-import eu.cloudnetservice.modules.rest.RestUtils;
+import eu.cloudnetservice.modules.rest.RestUtil;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -129,7 +129,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
   }
 
   protected void handleReloadRequest(HttpContext context) {
-    var type = RestUtils.first(context.request().queryParameters().get("type"), "all").toLowerCase();
+    var type = RestUtil.first(context.request().queryParameters().get("type"), "all").toLowerCase();
     switch (type) {
       case "all" -> {
         this.reloadConfig();

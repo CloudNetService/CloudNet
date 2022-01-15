@@ -22,7 +22,7 @@ import eu.cloudnetservice.cloudnet.driver.database.DatabaseProvider;
 import eu.cloudnetservice.cloudnet.driver.network.http.HttpContext;
 import eu.cloudnetservice.cloudnet.node.http.HttpSession;
 import eu.cloudnetservice.cloudnet.node.http.V2HttpHandler;
-import eu.cloudnetservice.modules.rest.RestUtils;
+import eu.cloudnetservice.modules.rest.RestUtil;
 import java.util.function.BiConsumer;
 
 public class V2HttpHandlerDatabase extends V2HttpHandler {
@@ -94,7 +94,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
       return;
     }
 
-    var key = RestUtils.first(context.request().queryParameters().get("key"));
+    var key = RestUtil.first(context.request().queryParameters().get("key"));
     if (key == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing key in request").toString())
@@ -188,7 +188,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
       return;
     }
 
-    var key = RestUtils.first(context.request().queryParameters().get("key"));
+    var key = RestUtil.first(context.request().queryParameters().get("key"));
     if (key != null && database.delete(key)) {
       this.ok(context)
         .body(this.success().toString())

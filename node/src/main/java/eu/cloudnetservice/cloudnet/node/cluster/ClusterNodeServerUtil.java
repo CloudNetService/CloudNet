@@ -29,11 +29,11 @@ import eu.cloudnetservice.cloudnet.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import lombok.NonNull;
 
-final class ClusterNodeServerUtils {
+final class ClusterNodeServerUtil {
 
-  private static final Logger LOGGER = LogManager.logger(ClusterNodeServerUtils.class);
+  private static final Logger LOGGER = LogManager.logger(ClusterNodeServerUtil.class);
 
-  private ClusterNodeServerUtils() {
+  private ClusterNodeServerUtil() {
     throw new UnsupportedOperationException();
   }
 

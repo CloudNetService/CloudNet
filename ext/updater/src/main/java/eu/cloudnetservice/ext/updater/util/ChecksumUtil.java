@@ -24,11 +24,11 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import lombok.NonNull;
 
-public final class ChecksumUtils {
+public final class ChecksumUtil {
 
   private static final ThreadLocal<byte[]> READ_BUFFERS = ThreadLocal.withInitial(() -> new byte[8096]);
 
-  private ChecksumUtils() {
+  private ChecksumUtil() {
     throw new UnsupportedOperationException();
   }
 

@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.launcher.java17.dependency;
 
-import eu.cloudnetservice.launcher.java17.utils.HttpUtils;
+import eu.cloudnetservice.launcher.java17.util.HttpUtil;
 import java.net.URI;
 import java.nio.file.Path;
 import lombok.NonNull;
@@ -28,7 +28,7 @@ public record Repository(@NonNull String name, @NonNull URI url) {
     // CHECKSTYLE.OFF: Launcher has no proper logger
     System.out.printf("Downloading dependency %s to %s... %n", dependency, targetPath);
     // CHECKSTYLE.ON
-    HttpUtils.get(
+    HttpUtil.get(
       URI.create(String.format(
         "%s/%s/%s/%s/%s-%s.jar",
         this.url,
@@ -37,7 +37,7 @@ public record Repository(@NonNull String name, @NonNull URI url) {
         dependency.originalVersion(),
         dependency.name(),
         dependency.fullVersion())),
-      HttpUtils.handlerForFile(targetPath)
+      HttpUtil.handlerForFile(targetPath)
     ).body();
   }
 }

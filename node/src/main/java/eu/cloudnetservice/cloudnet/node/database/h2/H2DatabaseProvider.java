@@ -17,9 +17,9 @@
 package eu.cloudnetservice.cloudnet.node.database.h2;
 
 import eu.cloudnetservice.cloudnet.common.function.ThrowableFunction;
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.node.database.sql.SQLDatabaseProvider;
-import eu.cloudnetservice.cloudnet.node.database.util.LocalDatabaseUtils;
+import eu.cloudnetservice.cloudnet.node.database.util.LocalDatabaseUtil;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -55,10 +55,10 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
 
   @Override
   public boolean init() throws Exception {
-    LocalDatabaseUtils.bigWarningThatEveryoneCanSee(
+    LocalDatabaseUtil.bigWarningThatEveryoneCanSee(
       "! Using H2 is deprecated ! Consider migrating to xodus. H2 support will be dropped in a future release.");
 
-    FileUtils.createDirectory(this.h2dbFile.getParent());
+    FileUtil.createDirectory(this.h2dbFile.getParent());
     this.connection = DriverManager.getConnection("jdbc:h2:" + this.h2dbFile.toAbsolutePath());
 
     return this.connection != null;

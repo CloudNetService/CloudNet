@@ -56,17 +56,17 @@ import org.jetbrains.annotations.Nullable;
  * </ol>
  */
 @Internal
-public final class FileUtils {
+public final class FileUtil {
 
   public static final Path TEMP_DIR = Path.of(System.getProperty("cloudnet.tempDir", "temp"));
 
-  private static final Logger LOGGER = LogManager.logger(FileUtils.class);
+  private static final Logger LOGGER = LogManager.logger(FileUtil.class);
   private static final DirectoryStream.Filter<Path> ACCEPTING_FILTER = $ -> true;
 
   private static final Map<String, String> ZIP_FILE_SYSTEM_PROPERTIES = Map.of(
     "create", "false", "encoding", "UTF-8");
 
-  private FileUtils() {
+  private FileUtil() {
     throw new UnsupportedOperationException();
   }
 
@@ -98,9 +98,9 @@ public final class FileUtils {
 
   public static void copy(@Nullable InputStream inputStream, @Nullable Path target) {
     if (inputStream != null && target != null) {
-      FileUtils.createDirectory(target.getParent());
+      FileUtil.createDirectory(target.getParent());
       try (var out = Files.newOutputStream(target)) {
-        FileUtils.copy(inputStream, out);
+        FileUtil.copy(inputStream, out);
       } catch (IOException exception) {
         LOGGER.severe("Exception copying InputStream to Path", exception);
       }
@@ -124,7 +124,7 @@ public final class FileUtils {
   public static void copyDirectory(Path from, Path to, DirectoryStream.Filter<Path> filter) {
     walkFileTree(from, ($, current) -> {
       if (!Files.isDirectory(current)) {
-        FileUtils.copy(current, to.resolve(from.relativize(current)));
+        FileUtil.copy(current, to.resolve(from.relativize(current)));
       }
     }, true, filter == null ? ACCEPTING_FILTER : filter);
   }
@@ -133,7 +133,7 @@ public final class FileUtils {
     if (path != null && Files.exists(path)) {
       // delete all files in the directory
       if (Files.isDirectory(path)) {
-        walkFileTree(path, ($, current) -> FileUtils.delete(current));
+        walkFileTree(path, ($, current) -> FileUtil.delete(current));
       }
       // remove the directory or the file
       try {
@@ -254,9 +254,9 @@ public final class FileUtils {
     ensureChild(targetDirectory, file);
 
     if (zipEntry.isDirectory()) {
-      FileUtils.createDirectory(file);
+      FileUtil.createDirectory(file);
     } else {
-      FileUtils.createDirectory(file.getParent());
+      FileUtil.createDirectory(file.getParent());
       try (var outputStream = Files.newOutputStream(file)) {
         copy(in, outputStream);
       }

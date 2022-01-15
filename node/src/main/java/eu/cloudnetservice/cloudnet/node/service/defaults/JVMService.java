@@ -19,7 +19,7 @@ package eu.cloudnetservice.cloudnet.node.service.defaults;
 import com.google.common.primitives.Ints;
 import eu.cloudnetservice.cloudnet.common.collection.Pair;
 import eu.cloudnetservice.cloudnet.common.function.ThrowableFunction;
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
@@ -60,7 +60,7 @@ public class JVMService extends AbstractService {
 
   protected static final Logger LOGGER = LogManager.logger(JVMService.class);
   protected static final Pattern FILE_NUMBER_PATTERN = Pattern.compile("(\\d+).*");
-  protected static final Path WRAPPER_TEMP_FILE = FileUtils.TEMP_DIR.resolve("caches").resolve("wrapper.jar");
+  protected static final Path WRAPPER_TEMP_FILE = FileUtil.TEMP_DIR.resolve("caches").resolve("wrapper.jar");
   protected static final Collection<String> DEFAULT_JVM_SYSTEM_PROPERTIES = Arrays.asList(
     "-Dfile.encoding=UTF-8",
     "-Dclient.encoding.override=UTF-8",
@@ -236,7 +236,7 @@ public class JVMService extends AbstractService {
   protected @Nullable Pair<Path, Attributes> prepareWrapperFile() {
     // check if the wrapper file is there - unpack it if not
     if (Files.notExists(WRAPPER_TEMP_FILE)) {
-      FileUtils.createDirectory(WRAPPER_TEMP_FILE.getParent());
+      FileUtil.createDirectory(WRAPPER_TEMP_FILE.getParent());
       try (var stream = JVMService.class.getClassLoader().getResourceAsStream("wrapper.jar")) {
         // ensure that the wrapper file is there
         if (stream == null) {

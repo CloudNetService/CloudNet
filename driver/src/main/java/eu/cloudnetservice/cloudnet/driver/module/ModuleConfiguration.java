@@ -18,7 +18,7 @@ package eu.cloudnetservice.cloudnet.driver.module;
 
 import eu.cloudnetservice.cloudnet.common.JavaVersion;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import java.nio.file.Path;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -222,7 +222,7 @@ public class ModuleConfiguration {
       return moduleProviderBaseDirectory.resolve(this.name);
     } else {
       // get the data folder of this module from the root directory of the cloud
-      return FileUtils.resolve(Path.of(""), this.dataFolder.split("/"));
+      return FileUtil.resolve(Path.of(""), this.dataFolder.split("/"));
     }
   }
 

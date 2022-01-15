@@ -25,9 +25,9 @@ import lombok.NonNull;
 /**
  * Util for the {@link Logger}
  */
-public final class LoggingUtils {
+public final class LoggingUtil {
 
-  private LoggingUtils() {
+  private LoggingUtil() {
     throw new UnsupportedOperationException();
   }
 

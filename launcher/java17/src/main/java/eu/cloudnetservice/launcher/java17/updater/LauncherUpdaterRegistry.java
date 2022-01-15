@@ -19,7 +19,7 @@ package eu.cloudnetservice.launcher.java17.updater;
 import eu.cloudnetservice.ext.updater.defaults.DefaultUpdaterRegistry;
 import eu.cloudnetservice.ext.updater.util.GitHubUtil;
 import eu.cloudnetservice.launcher.java17.CloudNetLauncher;
-import eu.cloudnetservice.launcher.java17.utils.HttpUtils;
+import eu.cloudnetservice.launcher.java17.util.HttpUtil;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.http.HttpResponse.BodySubscribers;
@@ -44,9 +44,9 @@ public final class LauncherUpdaterRegistry extends DefaultUpdaterRegistry<Launch
     System.out.printf("Loading checksums (Update repo: %s, Update branch: %s)... %n", this.repo, this.branch);
     // CHECKSTYLE.ON
     // load the properties file which contains the checksum information
-    return HttpUtils.get(
+    return HttpUtil.get(
       GitHubUtil.buildUri(this.repo, this.branch, "checksums.properties"),
-      HttpUtils.handlerFromSubscriber(BodySubscribers.mapping(BodySubscribers.ofInputStream(), stream -> {
+      HttpUtil.handlerFromSubscriber(BodySubscribers.mapping(BodySubscribers.ofInputStream(), stream -> {
         try {
           // parse the checksum properties from the stream
           var checksums = new Properties();

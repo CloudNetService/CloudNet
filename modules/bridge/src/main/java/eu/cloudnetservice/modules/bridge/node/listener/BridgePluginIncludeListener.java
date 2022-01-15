@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.node.listener;
 
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.driver.event.EventListener;
 import eu.cloudnetservice.cloudnet.driver.util.DefaultModuleHelper;
 import eu.cloudnetservice.cloudnet.node.event.service.CloudServicePreProcessStartEvent;
@@ -38,10 +38,10 @@ public final class BridgePluginIncludeListener {
       .noneMatch(group -> event.service().serviceConfiguration().groups().contains(group))) {
       // get the target of the copy
       var plugins = event.service().directory().resolve("plugins");
-      FileUtils.createDirectory(plugins);
+      FileUtil.createDirectory(plugins);
       // remove the old bridge plugin
       var bridgePluginFile = plugins.resolve("cloudnet-bridge.jar");
-      FileUtils.delete(bridgePluginFile);
+      FileUtil.delete(bridgePluginFile);
       // try to copy the current bridge file
       if (DefaultModuleHelper.copyCurrentModuleInstanceFromClass(BridgePluginIncludeListener.class, bridgePluginFile)) {
         // copy the plugin.yml file for the environment

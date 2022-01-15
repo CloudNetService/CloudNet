@@ -27,7 +27,7 @@ import eu.cloudnetservice.launcher.java17.updater.updaters.LauncherCloudNetUpdat
 import eu.cloudnetservice.launcher.java17.updater.updaters.LauncherModuleJsonUpdater;
 import eu.cloudnetservice.launcher.java17.updater.updaters.LauncherPatcherUpdater;
 import eu.cloudnetservice.launcher.java17.updater.updaters.LauncherUpdater;
-import eu.cloudnetservice.launcher.java17.utils.CommandLineHelper;
+import eu.cloudnetservice.launcher.java17.util.CommandLineHelper;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;

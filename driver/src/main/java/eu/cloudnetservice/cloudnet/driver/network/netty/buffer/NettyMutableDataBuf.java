@@ -18,7 +18,7 @@ package eu.cloudnetservice.cloudnet.driver.network.netty.buffer;
 
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf.Mutable;
-import eu.cloudnetservice.cloudnet.driver.network.netty.NettyUtils;
+import eu.cloudnetservice.cloudnet.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import io.netty.buffer.ByteBuf;
 import java.nio.charset.StandardCharsets;
@@ -129,7 +129,7 @@ public class NettyMutableDataBuf extends NettyImmutableDataBuf implements Mutabl
    */
   @Override
   public @NonNull DataBuf.Mutable writeByteArray(byte[] b, int amount) {
-    NettyUtils.writeVarInt(this.byteBuf, amount);
+    NettyUtil.writeVarInt(this.byteBuf, amount);
     this.byteBuf.writeBytes(b, 0, amount);
     return this;
   }

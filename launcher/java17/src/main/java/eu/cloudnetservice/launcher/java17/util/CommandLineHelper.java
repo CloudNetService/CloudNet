@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.launcher.java17.utils;
+package eu.cloudnetservice.launcher.java17.util;
 
 import java.util.Properties;
 import java.util.function.Function;

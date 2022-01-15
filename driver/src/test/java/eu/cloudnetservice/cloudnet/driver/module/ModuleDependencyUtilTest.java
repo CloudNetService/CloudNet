@@ -17,7 +17,7 @@
 package eu.cloudnetservice.cloudnet.driver.module;
 
 import com.google.common.collect.Iterables;
-import eu.cloudnetservice.cloudnet.driver.module.util.ModuleDependencyUtils;
+import eu.cloudnetservice.cloudnet.driver.module.util.ModuleDependencyUtil;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,7 +30,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.mockito.Mockito;
 
 @TestMethodOrder(OrderAnnotation.class)
-public class ModuleDependencyUtilsTest {
+public class ModuleDependencyUtilTest {
 
   @Test
   @Order(0)
@@ -47,7 +47,7 @@ public class ModuleDependencyUtilsTest {
 
     Assertions.assertEquals(3, provider.modules().size());
 
-    Collection<ModuleWrapper> dependencies = ModuleDependencyUtils.collectDependencies(rootModule, provider);
+    Collection<ModuleWrapper> dependencies = ModuleDependencyUtil.collectDependencies(rootModule, provider);
     Assertions.assertEquals(1, dependencies.size());
     Assertions.assertEquals("sub", Iterables.get(dependencies, 0).module().name());
   }
@@ -60,7 +60,7 @@ public class ModuleDependencyUtilsTest {
 
     Assertions.assertThrows(
       ModuleDependencyNotFoundException.class,
-      () -> ModuleDependencyUtils.collectDependencies(this.mockRootModule(provider), provider));
+      () -> ModuleDependencyUtil.collectDependencies(this.mockRootModule(provider), provider));
   }
 
   @Test
@@ -73,7 +73,7 @@ public class ModuleDependencyUtilsTest {
 
     Assertions.assertThrows(
       ModuleDependencyOutdatedException.class,
-      () -> ModuleDependencyUtils.collectDependencies(this.mockRootModule(provider), provider));
+      () -> ModuleDependencyUtil.collectDependencies(this.mockRootModule(provider), provider));
   }
 
   private ModuleProvider mockModuleProvider(Collection<ModuleWrapper> wrappers) {

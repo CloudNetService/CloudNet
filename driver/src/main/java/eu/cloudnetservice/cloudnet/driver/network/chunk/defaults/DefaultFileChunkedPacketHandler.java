@@ -17,7 +17,7 @@
 package eu.cloudnetservice.cloudnet.driver.network.chunk.defaults;
 
 import com.google.common.base.Verify;
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.chunk.ChunkedPacketHandler;
 import eu.cloudnetservice.cloudnet.driver.network.chunk.TransferStatus;
@@ -60,7 +60,7 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
     @NonNull ChunkSessionInformation sessionInformation,
     @Nullable Callback completeHandler
   ) {
-    this(sessionInformation, completeHandler, FileUtils.createTempFile());
+    this(sessionInformation, completeHandler, FileUtil.createTempFile());
   }
 
   /**

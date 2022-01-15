@@ -21,7 +21,7 @@ import eu.cloudnetservice.cloudnet.node.http.HttpSession;
 import eu.cloudnetservice.cloudnet.node.http.V2HttpHandler;
 import eu.cloudnetservice.cloudnet.node.template.install.ServiceVersionProvider;
 import eu.cloudnetservice.cloudnet.node.template.install.ServiceVersionType;
-import eu.cloudnetservice.modules.rest.RestUtils;
+import eu.cloudnetservice.modules.rest.RestUtil;
 import java.io.IOException;
 
 public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
@@ -83,7 +83,7 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
   }
 
   protected void handleVersionLoadRequest(HttpContext context) {
-    var url = RestUtils.first(context.request().queryParameters().get("url"), null);
+    var url = RestUtil.first(context.request().queryParameters().get("url"), null);
     if (url == null) {
       this.versionProvider().loadDefaultVersionTypes();
     } else {

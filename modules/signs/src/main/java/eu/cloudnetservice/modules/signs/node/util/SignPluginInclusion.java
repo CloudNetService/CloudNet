@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.signs.node.util;
 
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.driver.util.DefaultModuleHelper;
 import eu.cloudnetservice.cloudnet.node.service.CloudService;
@@ -37,10 +37,10 @@ public final class SignPluginInclusion {
     if (ServiceEnvironmentType.isMinecraftServer(type)
       && hasConfigurationEntry(cloudService.serviceConfiguration().groups(), configuration)) {
       var pluginDirectory = cloudService.directory().resolve("plugins");
-      FileUtils.createDirectory(pluginDirectory);
+      FileUtil.createDirectory(pluginDirectory);
 
       var pluginFile = pluginDirectory.resolve("cloudnet-signs.jar");
-      FileUtils.delete(pluginFile);
+      FileUtil.delete(pluginFile);
 
       if (DefaultModuleHelper.copyCurrentModuleInstanceFromClass(SignPluginInclusion.class, pluginFile)) {
         DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(SignPluginInclusion.class, type, pluginFile);

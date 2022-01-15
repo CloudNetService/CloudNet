@@ -26,7 +26,7 @@ import cloud.commandframework.context.CommandContext;
 import com.google.common.net.InetAddresses;
 import eu.cloudnetservice.cloudnet.common.column.ColumnFormatter;
 import eu.cloudnetservice.cloudnet.common.column.RowBasedFormatter;
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
@@ -310,7 +310,7 @@ public final class CommandCluster {
     @NonNull String serviceName
   ) {
     // zip the whole directory into a stream
-    var stream = FileUtils.zipToStream(servicePath);
+    var stream = FileUtil.zipToStream(servicePath);
     // notify the source about the deployment
     source.sendMessage(I18n.trans("command-cluster-push-static-service-starting"));
     // deploy the static service into the cluster

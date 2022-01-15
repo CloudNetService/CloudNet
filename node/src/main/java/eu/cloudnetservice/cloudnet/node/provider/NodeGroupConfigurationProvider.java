@@ -19,7 +19,7 @@ package eu.cloudnetservice.cloudnet.node.provider;
 import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.cloudnet.common.Nameable;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
 import eu.cloudnetservice.cloudnet.driver.event.EventManager;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
@@ -75,7 +75,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
     if (Files.exists(GROUP_DIRECTORY_PATH)) {
       this.loadGroupConfigurations();
     } else {
-      FileUtils.createDirectory(GROUP_DIRECTORY_PATH);
+      FileUtil.createDirectory(GROUP_DIRECTORY_PATH);
     }
     // run the conversion of the old file
     this.upgrade();
@@ -166,7 +166,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
     // remove the group from the cache
     this.groupConfigurations.remove(groupConfiguration.name());
     // remove the local file
-    FileUtils.delete(this.groupFile(groupConfiguration));
+    FileUtil.delete(this.groupFile(groupConfiguration));
   }
 
   public void groupConfigurationSilently(@NonNull Collection<GroupConfiguration> groupConfigurations) {
@@ -186,7 +186,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
       // save the new configurations
       this.writeAllGroupConfigurations();
       // delete the old file
-      FileUtils.delete(OLD_GROUPS_FILE);
+      FileUtil.delete(OLD_GROUPS_FILE);
     }
   }
 
@@ -204,24 +204,24 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
       this.writeGroupConfiguration(configuration);
     }
     // delete all group files which do not exist anymore
-    FileUtils.walkFileTree(GROUP_DIRECTORY_PATH, ($, file) -> {
+    FileUtil.walkFileTree(GROUP_DIRECTORY_PATH, ($, file) -> {
       // check if we know the file name
       var groupName = file.getFileName().toString().replace(".json", "");
       if (!this.groupConfigurations.containsKey(groupName)) {
-        FileUtils.delete(file);
+        FileUtil.delete(file);
       }
     }, false, "*.json");
   }
 
   protected void loadGroupConfigurations() {
-    FileUtils.walkFileTree(GROUP_DIRECTORY_PATH, ($, file) -> {
+    FileUtil.walkFileTree(GROUP_DIRECTORY_PATH, ($, file) -> {
       // load the group
       var group = JsonDocument.newDocument(file).toInstanceOf(GroupConfiguration.class);
       // check if the file name is still up-to-date
       var groupName = file.getFileName().toString().replace(".json", "");
       if (!groupName.equals(group.name())) {
         // rename the file
-        FileUtils.move(file, this.groupFile(group), StandardCopyOption.REPLACE_EXISTING);
+        FileUtil.move(file, this.groupFile(group), StandardCopyOption.REPLACE_EXISTING);
       }
       // cache the task
       this.addGroupConfiguration(group);

@@ -32,11 +32,11 @@ import eu.cloudnetservice.cloudnet.node.cluster.ClusterNodeServer;
 import eu.cloudnetservice.cloudnet.node.network.listener.PacketServerChannelMessageListener;
 import lombok.NonNull;
 
-public final class NodeNetworkUtils {
+public final class NodeNetworkUtil {
 
-  private static final Logger LOGGER = LogManager.logger(NodeNetworkUtils.class);
+  private static final Logger LOGGER = LogManager.logger(NodeNetworkUtil.class);
 
-  private NodeNetworkUtils() {
+  private NodeNetworkUtil() {
     throw new UnsupportedOperationException();
   }
 

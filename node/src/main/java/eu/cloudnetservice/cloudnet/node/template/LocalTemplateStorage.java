@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.node.template;
 
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
@@ -49,7 +49,7 @@ public class LocalTemplateStorage implements TemplateStorage {
 
   public LocalTemplateStorage(@NonNull Path storageDirectory) {
     this.storageDirectory = storageDirectory;
-    FileUtils.createDirectory(storageDirectory);
+    FileUtil.createDirectory(storageDirectory);
   }
 
   @Override
@@ -64,7 +64,7 @@ public class LocalTemplateStorage implements TemplateStorage {
     @Nullable Predicate<Path> fileFilter
   ) {
     if (Files.exists(directory)) {
-      FileUtils.copyDirectory(
+      FileUtil.copyDirectory(
         directory,
         this.getTemplatePath(target),
         fileFilter == null ? null : fileFilter::test);
@@ -75,13 +75,13 @@ public class LocalTemplateStorage implements TemplateStorage {
 
   @Override
   public boolean deploy(@NonNull InputStream inputStream, @NonNull ServiceTemplate target) {
-    FileUtils.extractZipStream(new ZipInputStream(inputStream), this.getTemplatePath(target));
+    FileUtil.extractZipStream(new ZipInputStream(inputStream), this.getTemplatePath(target));
     return true;
   }
 
   @Override
   public boolean copy(@NonNull ServiceTemplate template, @NonNull Path directory) {
-    FileUtils.copyDirectory(this.getTemplatePath(template), directory);
+    FileUtil.copyDirectory(this.getTemplatePath(template), directory);
     return true;
   }
 
@@ -89,8 +89,8 @@ public class LocalTemplateStorage implements TemplateStorage {
   public @Nullable InputStream zipTemplate(@NonNull ServiceTemplate template) throws IOException {
     if (this.has(template)) {
       // create a new temp file
-      var temp = FileUtils.createTempFile();
-      var zippedFile = FileUtils.zipToFile(this.getTemplatePath(template), temp);
+      var temp = FileUtil.createTempFile();
+      var zippedFile = FileUtil.zipToFile(this.getTemplatePath(template), temp);
       // open a stream to the file if possible
       if (zippedFile != null) {
         return Files.newInputStream(zippedFile, StandardOpenOption.DELETE_ON_CLOSE, LinkOption.NOFOLLOW_LINKS);
@@ -105,7 +105,7 @@ public class LocalTemplateStorage implements TemplateStorage {
     if (Files.notExists(templateDir)) {
       return false;
     } else {
-      FileUtils.delete(templateDir);
+      FileUtil.delete(templateDir);
       return true;
     }
   }
@@ -114,7 +114,7 @@ public class LocalTemplateStorage implements TemplateStorage {
   public boolean create(@NonNull ServiceTemplate template) {
     var templateDir = this.getTemplatePath(template);
     if (Files.notExists(templateDir)) {
-      FileUtils.createDirectory(templateDir);
+      FileUtil.createDirectory(templateDir);
       return true;
     }
 
@@ -223,7 +223,7 @@ public class LocalTemplateStorage implements TemplateStorage {
     List<FileInfo> out = new ArrayList<>();
     var root = this.getTemplatePath(template).resolve(dir);
     // walk over all files
-    FileUtils.walkFileTree(root, (parent, file) -> {
+    FileUtil.walkFileTree(root, (parent, file) -> {
       try {
         out.add(FileInfo.of(file, root.relativize(file)));
       } catch (IOException ignored) {

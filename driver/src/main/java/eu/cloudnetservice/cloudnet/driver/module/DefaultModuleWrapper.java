@@ -18,7 +18,7 @@ package eu.cloudnetservice.cloudnet.driver.module;
 
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
-import eu.cloudnetservice.cloudnet.driver.module.util.ModuleDependencyUtils;
+import eu.cloudnetservice.cloudnet.driver.module.util.ModuleDependencyUtil;
 import java.io.IOException;
 import java.lang.reflect.InaccessibleObjectException;
 import java.net.URI;
@@ -177,7 +177,7 @@ public class DefaultModuleWrapper implements ModuleWrapper {
     if (this.moduleLifeCycle().canChangeTo(ModuleLifeCycle.STARTED)
       && this.provider.notifyPreModuleLifecycleChange(this, ModuleLifeCycle.STARTED)) {
       // Resolve all dependencies of this module to start them before this module
-      for (var wrapper : ModuleDependencyUtils.collectDependencies(this, this.provider)) {
+      for (var wrapper : ModuleDependencyUtil.collectDependencies(this, this.provider)) {
         wrapper.startModule();
       }
       // now we can start this module
@@ -201,7 +201,7 @@ public class DefaultModuleWrapper implements ModuleWrapper {
     if (this.moduleLifeCycle().canChangeTo(ModuleLifeCycle.RELOADING)
       && this.provider.notifyPreModuleLifecycleChange(this, ModuleLifeCycle.RELOADING)) {
       // Resolve all dependencies of this module to reload them before this module
-      for (var wrapper : ModuleDependencyUtils.collectDependencies(this, this.provider)) {
+      for (var wrapper : ModuleDependencyUtil.collectDependencies(this, this.provider)) {
         wrapper.reloadModule();
       }
       //now we can reload this module

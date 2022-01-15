@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.npc.node.listeners;
 
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.driver.event.EventListener;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.driver.util.DefaultModuleHelper;
@@ -30,7 +30,7 @@ import lombok.NonNull;
 
 public final class NodePluginIncludeListener {
 
-  private static final Path PROTOCOLLIB_CACHE_PATH = FileUtils.TEMP_DIR.resolve("caches/ProtocolLib.jar");
+  private static final Path PROTOCOLLIB_CACHE_PATH = FileUtil.TEMP_DIR.resolve("caches/ProtocolLib.jar");
 
   private final AbstractNPCManagement management;
   private final AtomicBoolean didDownloadProtocolLib = new AtomicBoolean();
@@ -41,10 +41,10 @@ public final class NodePluginIncludeListener {
     ConsoleProgressWrappers.wrapDownload(
       "https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/target/ProtocolLib.jar",
       stream -> {
-        FileUtils.createDirectory(PROTOCOLLIB_CACHE_PATH.getParent());
+        FileUtil.createDirectory(PROTOCOLLIB_CACHE_PATH.getParent());
         // copy the input to the file
         try (var out = Files.newOutputStream(PROTOCOLLIB_CACHE_PATH)) {
-          FileUtils.copy(stream, out);
+          FileUtil.copy(stream, out);
         }
         // success!
         this.didDownloadProtocolLib.set(true);
@@ -63,10 +63,10 @@ public final class NodePluginIncludeListener {
           var pluginsDirectory = event.service().directory().resolve("plugins");
           // copy protocol lib
           var protocolLibPath = pluginsDirectory.resolve("ProtocolLib.jar");
-          FileUtils.copy(PROTOCOLLIB_CACHE_PATH, protocolLibPath);
+          FileUtil.copy(PROTOCOLLIB_CACHE_PATH, protocolLibPath);
           // copy the plugin
           var pluginPath = pluginsDirectory.resolve("cloudnet-npcs.jar");
-          FileUtils.delete(pluginPath);
+          FileUtil.delete(pluginPath);
           if (DefaultModuleHelper.copyCurrentModuleInstanceFromClass(NodePluginIncludeListener.class, pluginPath)) {
             DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(
               NodePluginIncludeListener.class,

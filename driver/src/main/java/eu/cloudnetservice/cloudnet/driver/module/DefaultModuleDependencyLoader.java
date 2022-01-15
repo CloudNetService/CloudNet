@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.module;
 
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -96,11 +96,11 @@ public class DefaultModuleDependencyLoader implements ModuleDependencyLoader {
    * @throws NullPointerException if either the given dependency or url is null.
    */
   protected @NonNull URL loadDependency(@NonNull ModuleDependency dependency, @NonNull URL url) throws Exception {
-    var destFile = FileUtils.resolve(this.baseDirectory, dependency.group().split("\\."))
+    var destFile = FileUtil.resolve(this.baseDirectory, dependency.group().split("\\."))
       .resolve(dependency.name())
       .resolve(dependency.version())
       .resolve(String.format(FILE_NAME_FORMAT, dependency.name(), dependency.version()));
-    FileUtils.ensureChild(this.baseDirectory, destFile);
+    FileUtil.ensureChild(this.baseDirectory, destFile);
 
     if (Files.notExists(destFile)) {
       Files.createDirectories(destFile.getParent());

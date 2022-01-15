@@ -41,7 +41,7 @@ public final class DefaultNetworkClientChannelHandler implements NetworkChannelH
 
   @Override
   public void handleChannelInitialize(@NonNull NetworkChannel channel) {
-    if (NodeNetworkUtils.shouldInitializeChannel(channel, ChannelType.CLIENT_CHANNEL)) {
+    if (NodeNetworkUtil.shouldInitializeChannel(channel, ChannelType.CLIENT_CHANNEL)) {
       // add the result handler for the auth
       channel.packetRegistry().addListener(
         NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL,
@@ -81,7 +81,7 @@ public final class DefaultNetworkClientChannelHandler implements NetworkChannelH
 
     var clusterNodeServer = CloudNet.instance().nodeServerProvider().nodeServer(channel);
     if (clusterNodeServer != null) {
-      NodeNetworkUtils.closeNodeServer(clusterNodeServer);
+      NodeNetworkUtil.closeNodeServer(clusterNodeServer);
     }
   }
 }

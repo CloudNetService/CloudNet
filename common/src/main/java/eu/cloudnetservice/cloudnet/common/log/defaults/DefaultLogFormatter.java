@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.common.log.defaults;
 
-import eu.cloudnetservice.cloudnet.common.log.LoggingUtils;
+import eu.cloudnetservice.cloudnet.common.log.LoggingUtil;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.logging.Formatter;
@@ -45,7 +45,7 @@ public final class DefaultLogFormatter extends Formatter {
       .append(": ")
       .append(super.formatMessage(record))
       .append(this.closeWithLineSeparator ? System.lineSeparator() : "");
-    LoggingUtils.printStackTraceInto(builder, record);
+    LoggingUtil.printStackTraceInto(builder, record);
 
     return builder.toString();
   }

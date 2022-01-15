@@ -19,7 +19,7 @@ package eu.cloudnetservice.cloudnet.node.provider;
 import eu.cloudnetservice.cloudnet.common.JavaVersion;
 import eu.cloudnetservice.cloudnet.common.Nameable;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
@@ -76,7 +76,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     if (Files.exists(TASKS_DIRECTORY)) {
       this.loadServiceTasks();
     } else {
-      FileUtils.createDirectory(TASKS_DIRECTORY);
+      FileUtil.createDirectory(TASKS_DIRECTORY);
       nodeInstance.installation().registerSetup(new DefaultTaskSetup());
     }
   }
@@ -167,7 +167,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     // remove from cache
     this.serviceTasks.remove(serviceTask.name());
     // remove the local file if it exists
-    FileUtils.delete(this.taskFile(serviceTask));
+    FileUtil.delete(this.taskFile(serviceTask));
   }
 
   public void permanentServiceTasksSilently(@NonNull Collection<ServiceTask> serviceTasks) {
@@ -192,24 +192,24 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
       this.writeServiceTask(serviceTask);
     }
     // delete all service task files which do not exist anymore
-    FileUtils.walkFileTree(TASKS_DIRECTORY, ($, file) -> {
+    FileUtil.walkFileTree(TASKS_DIRECTORY, ($, file) -> {
       // check if we know the file name
       var taskName = file.getFileName().toString().replace(".json", "");
       if (!this.serviceTasks.containsKey(taskName)) {
-        FileUtils.delete(file);
+        FileUtil.delete(file);
       }
     }, false, "*.json");
   }
 
   protected void loadServiceTasks() {
-    FileUtils.walkFileTree(TASKS_DIRECTORY, ($, file) -> {
+    FileUtil.walkFileTree(TASKS_DIRECTORY, ($, file) -> {
       // load the service task
       var task = JsonDocument.newDocument(file).toInstanceOf(ServiceTask.class);
       // check if the file name is still up-to-date
       var taskName = file.getFileName().toString().replace(".json", "");
       if (!taskName.equals(task.name())) {
         // rename the file
-        FileUtils.move(file, this.taskFile(task), StandardCopyOption.REPLACE_EXISTING);
+        FileUtil.move(file, this.taskFile(task), StandardCopyOption.REPLACE_EXISTING);
       }
 
       // Wrap the command to a path and unwrap it again to ensure that the command is os specific

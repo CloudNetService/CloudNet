@@ -24,7 +24,7 @@ import java.util.function.Function;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-final class ConfigurationUtils {
+final class ConfigurationUtil {
 
   static final Function<String, HostAndPort[]> HOST_AND_PORT_PARSER = value -> {
     // the result
@@ -45,7 +45,7 @@ final class ConfigurationUtils {
     return listeners.toArray(new HostAndPort[0]);
   };
 
-  private ConfigurationUtils() {
+  private ConfigurationUtil() {
     throw new UnsupportedOperationException();
   }
 

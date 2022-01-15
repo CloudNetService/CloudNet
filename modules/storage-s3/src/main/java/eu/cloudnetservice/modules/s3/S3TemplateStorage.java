@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.s3;
 
 import eu.cloudnetservice.cloudnet.common.function.ThrowableConsumer;
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.common.stream.ListeningOutputStream;
@@ -105,7 +105,7 @@ public class S3TemplateStorage implements TemplateStorage {
   ) {
     var result = new AtomicBoolean(true);
     // walk down the file tree
-    FileUtils.walkFileTree(directory, ($, file) -> {
+    FileUtil.walkFileTree(directory, ($, file) -> {
       if (!Files.isDirectory(file)) {
         try {
           var request = PutObjectRequest.builder()
@@ -132,12 +132,12 @@ public class S3TemplateStorage implements TemplateStorage {
     @NonNull InputStream inputStream,
     @NonNull ServiceTemplate target
   ) {
-    var temp = FileUtils.extract(inputStream, FileUtils.createTempFile());
+    var temp = FileUtil.extract(inputStream, FileUtil.createTempFile());
     if (temp != null) {
       try {
         return this.deployDirectory(temp, target, null);
       } finally {
-        FileUtils.delete(temp);
+        FileUtil.delete(temp);
       }
     }
     return false;
@@ -152,14 +152,14 @@ public class S3TemplateStorage implements TemplateStorage {
       return this.listAllObjects(templatePath, null, content -> {
         // filter the content key
         var target = directory.resolve(content.key().substring(templatePath.length() + 1));
-        FileUtils.createDirectory(target.getParent());
+        FileUtil.createDirectory(target.getParent());
         // get the file
         var req = GetObjectRequest.builder()
           .key(content.key())
           .bucket(this.config().bucket())
           .build();
         try (InputStream stream = this.client.getObject(req); var out = Files.newOutputStream(target)) {
-          FileUtils.copy(stream, out);
+          FileUtil.copy(stream, out);
         }
       });
     } catch (Exception exception) {
@@ -170,9 +170,9 @@ public class S3TemplateStorage implements TemplateStorage {
 
   @Override
   public @Nullable InputStream zipTemplate(@NonNull ServiceTemplate template) {
-    var localTarget = FileUtils.createTempFile();
+    var localTarget = FileUtil.createTempFile();
     if (this.copy(template, localTarget)) {
-      return FileUtils.zipToStream(localTarget);
+      return FileUtil.zipToStream(localTarget);
     } else {
       return null;
     }

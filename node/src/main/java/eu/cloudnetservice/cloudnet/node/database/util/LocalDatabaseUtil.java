@@ -20,11 +20,11 @@ import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
 import lombok.NonNull;
 
-public final class LocalDatabaseUtils {
+public final class LocalDatabaseUtil {
 
-  private static final Logger LOGGER = LogManager.logger(LocalDatabaseUtils.class);
+  private static final Logger LOGGER = LogManager.logger(LocalDatabaseUtil.class);
 
-  private LocalDatabaseUtils() {
+  private LocalDatabaseUtil() {
     throw new UnsupportedOperationException();
   }
 

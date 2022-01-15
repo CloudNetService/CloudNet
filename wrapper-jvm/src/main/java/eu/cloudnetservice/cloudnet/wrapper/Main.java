@@ -19,7 +19,7 @@ package eu.cloudnetservice.cloudnet.wrapper;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
-import eu.cloudnetservice.cloudnet.common.log.LoggingUtils;
+import eu.cloudnetservice.cloudnet.common.log.LoggingUtil;
 import eu.cloudnetservice.cloudnet.common.log.defaults.DefaultFileHandler;
 import eu.cloudnetservice.cloudnet.common.log.defaults.DefaultLogFormatter;
 import eu.cloudnetservice.cloudnet.common.log.defaults.ThreadedLogRecordDispatcher;
@@ -45,10 +45,10 @@ public final class Main {
   }
 
   private static void initLogger(@NonNull Logger logger) {
-    LoggingUtils.removeHandlers(logger);
+    LoggingUtil.removeHandlers(logger);
     var logFilePattern = Path.of(".wrapper", "logs", "wrapper.%g.log");
 
-    logger.setLevel(LoggingUtils.defaultLogLevel());
+    logger.setLevel(LoggingUtil.defaultLogLevel());
     logger.logRecordDispatcher(ThreadedLogRecordDispatcher.forLogger(logger));
 
     logger.addHandler(InternalPrintStreamLogHandler.forSystemStreams().withFormatter(DefaultLogFormatter.END_CLEAN));

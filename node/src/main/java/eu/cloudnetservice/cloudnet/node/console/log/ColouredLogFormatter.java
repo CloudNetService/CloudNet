@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.node.console.log;
 
-import eu.cloudnetservice.cloudnet.common.log.LoggingUtils;
+import eu.cloudnetservice.cloudnet.common.log.LoggingUtil;
 import eu.cloudnetservice.cloudnet.node.console.ConsoleColor;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -43,7 +43,7 @@ public final class ColouredLogFormatter extends Formatter {
       .append(": ")
       .append(ConsoleColor.DEFAULT)
       .append(super.formatMessage(record));
-    LoggingUtils.printStackTraceInto(builder, record);
+    LoggingUtil.printStackTraceInto(builder, record);
 
     return builder.toString();
   }

@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.cloudperms.node.listener;
 
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.driver.event.EventListener;
 import eu.cloudnetservice.cloudnet.driver.util.DefaultModuleHelper;
 import eu.cloudnetservice.cloudnet.node.event.service.CloudServicePreProcessStartEvent;
@@ -39,10 +39,10 @@ public final class IncludePluginListener {
       .noneMatch(group -> event.service().serviceConfiguration().groups().contains(group))) {
       // get the target of the copy
       var plugins = event.service().directory().resolve("plugins");
-      FileUtils.createDirectory(plugins);
+      FileUtil.createDirectory(plugins);
       // remove the old perms plugin
       var permsPluginFile = plugins.resolve("cloudnet-cloudperms.jar");
-      FileUtils.delete(permsPluginFile);
+      FileUtil.delete(permsPluginFile);
       // try to copy the current perms file
       if (DefaultModuleHelper.copyCurrentModuleInstanceFromClass(IncludePluginListener.class, permsPluginFile)) {
         // copy the plugin.yml file for the environment

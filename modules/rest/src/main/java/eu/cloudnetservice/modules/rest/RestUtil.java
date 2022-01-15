@@ -20,9 +20,9 @@ import com.google.common.collect.Iterables;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
-public final class RestUtils {
+public final class RestUtil {
 
-  private RestUtils() {
+  private RestUtil() {
     throw new UnsupportedOperationException();
   }
 

@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.wrapper.network.chunk;
 
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.driver.event.EventListener;
 import eu.cloudnetservice.cloudnet.driver.event.events.chunk.ChunkedPacketSessionOpenEvent;
 import eu.cloudnetservice.cloudnet.driver.network.chunk.defaults.DefaultFileChunkedPacketHandler;
@@ -30,7 +30,7 @@ public final class TemplateStorageCallbackListener {
       event.handler(new DefaultFileChunkedPacketHandler(
         event.session(),
         null,
-        FileUtils.TEMP_DIR.resolve(event.session().sessionUniqueId().toString())));
+        FileUtil.TEMP_DIR.resolve(event.session().sessionUniqueId().toString())));
     }
   }
 }

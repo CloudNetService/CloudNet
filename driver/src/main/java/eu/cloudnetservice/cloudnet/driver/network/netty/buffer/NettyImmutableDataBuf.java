@@ -17,7 +17,7 @@
 package eu.cloudnetservice.cloudnet.driver.network.netty.buffer;
 
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.cloudnet.driver.network.netty.NettyUtils;
+import eu.cloudnetservice.cloudnet.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import io.netty.buffer.ByteBuf;
 import java.lang.reflect.Type;
@@ -119,7 +119,7 @@ public class NettyImmutableDataBuf implements DataBuf {
   @Override
   public byte[] readByteArray() {
     return this.hotRead(buf -> {
-      var bytes = new byte[NettyUtils.readVarInt(buf)];
+      var bytes = new byte[NettyUtil.readVarInt(buf)];
       buf.readBytes(bytes);
       return bytes;
     });
@@ -266,7 +266,7 @@ public class NettyImmutableDataBuf implements DataBuf {
   @Override
   public void release() {
     if (this.releasable) {
-      NettyUtils.safeRelease(this.byteBuf);
+      NettyUtil.safeRelease(this.byteBuf);
     }
   }
 

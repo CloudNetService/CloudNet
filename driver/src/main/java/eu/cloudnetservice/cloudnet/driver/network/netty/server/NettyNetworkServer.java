@@ -23,7 +23,7 @@ import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannelHandler;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkServer;
 import eu.cloudnetservice.cloudnet.driver.network.netty.NettySslServer;
-import eu.cloudnetservice.cloudnet.driver.network.netty.NettyUtils;
+import eu.cloudnetservice.cloudnet.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.PacketListenerRegistry;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.defaults.DefaultPacketListenerRegistry;
@@ -53,13 +53,13 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
 
   protected static final WriteBufferWaterMark WATER_MARK = new WriteBufferWaterMark(1 << 20, 1 << 21);
 
-  protected final EventLoopGroup bossEventLoopGroup = NettyUtils.newEventLoopGroup();
-  protected final EventLoopGroup workerEventLoopGroup = NettyUtils.newEventLoopGroup();
+  protected final EventLoopGroup bossEventLoopGroup = NettyUtil.newEventLoopGroup();
+  protected final EventLoopGroup workerEventLoopGroup = NettyUtil.newEventLoopGroup();
 
   protected final Collection<NetworkChannel> channels = new ConcurrentLinkedQueue<>();
   protected final Map<Integer, Pair<HostAndPort, ChannelFuture>> channelFutures = new ConcurrentHashMap<>();
 
-  protected final Executor packetDispatcher = NettyUtils.newPacketDispatcher();
+  protected final Executor packetDispatcher = NettyUtil.newPacketDispatcher();
   protected final PacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
 
   protected final Callable<NetworkChannelHandler> handlerFactory;
@@ -121,7 +121,7 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
       try {
         // create the server
         var bootstrap = new ServerBootstrap()
-          .channelFactory(NettyUtils.serverChannelFactory())
+          .channelFactory(NettyUtil.serverChannelFactory())
           .group(this.bossEventLoopGroup, this.workerEventLoopGroup)
           .childHandler(new NettyNetworkServerInitializer(this, hostAndPort))
 
@@ -132,7 +132,7 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
           .childOption(ChannelOption.SO_REUSEADDR, true)
           .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK);
         // check if tcp fast open is supported
-        if (NettyUtils.NATIVE_TRANSPORT) {
+        if (NettyUtil.NATIVE_TRANSPORT) {
           bootstrap.option(ChannelOption.TCP_FASTOPEN, 0x3);
         }
         // register the server and bind it

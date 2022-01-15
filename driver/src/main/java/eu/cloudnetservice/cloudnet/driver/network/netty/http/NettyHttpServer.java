@@ -23,7 +23,7 @@ import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
 import eu.cloudnetservice.cloudnet.driver.network.http.HttpHandler;
 import eu.cloudnetservice.cloudnet.driver.network.http.HttpServer;
 import eu.cloudnetservice.cloudnet.driver.network.netty.NettySslServer;
-import eu.cloudnetservice.cloudnet.driver.network.netty.NettyUtils;
+import eu.cloudnetservice.cloudnet.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.cloudnet.driver.network.ssl.SSLConfiguration;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBufAllocator;
@@ -51,8 +51,8 @@ public class NettyHttpServer extends NettySslServer implements HttpServer {
   protected final Collection<HttpHandlerEntry> registeredHandlers = new ConcurrentLinkedQueue<>();
   protected final Map<Integer, Pair<HostAndPort, ChannelFuture>> channelFutures = new ConcurrentHashMap<>();
 
-  protected final EventLoopGroup bossGroup = NettyUtils.newEventLoopGroup();
-  protected final EventLoopGroup workerGroup = NettyUtils.newEventLoopGroup();
+  protected final EventLoopGroup bossGroup = NettyUtil.newEventLoopGroup();
+  protected final EventLoopGroup workerGroup = NettyUtil.newEventLoopGroup();
 
   /**
    * Constructs a new instance of a netty http server instance. Equivalent to {@code new NettyHttpServer(null)}.
@@ -109,7 +109,7 @@ public class NettyHttpServer extends NettySslServer implements HttpServer {
       if (!this.channelFutures.containsKey(hostAndPort.port())) {
         return this.channelFutures.putIfAbsent(hostAndPort.port(), new Pair<>(hostAndPort, new ServerBootstrap()
           .group(this.bossGroup, this.workerGroup)
-          .channelFactory(NettyUtils.serverChannelFactory())
+          .channelFactory(NettyUtil.serverChannelFactory())
           .childHandler(new NettyHttpServerInitializer(this, hostAndPort))
 
           .childOption(ChannelOption.IP_TOS, 24)

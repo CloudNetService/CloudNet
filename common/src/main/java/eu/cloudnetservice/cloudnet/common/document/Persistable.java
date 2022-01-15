@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.common.document;
 
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
 import java.io.IOException;
@@ -50,7 +50,7 @@ public interface Persistable {
   default @NonNull Persistable write(@Nullable Path path) {
     if (path != null) {
       // ensure that the parent directory exists
-      FileUtils.createDirectory(path.getParent());
+      FileUtil.createDirectory(path.getParent());
       // write to the file
       try (var stream = Files.newOutputStream(path)) {
         return this.write(stream);

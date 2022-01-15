@@ -19,7 +19,7 @@ package eu.cloudnetservice.cloudnet.node.database.xodus;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.node.database.AbstractDatabaseProvider;
 import eu.cloudnetservice.cloudnet.node.database.LocalDatabase;
-import eu.cloudnetservice.cloudnet.node.database.util.LocalDatabaseUtils;
+import eu.cloudnetservice.cloudnet.node.database.util.LocalDatabaseUtil;
 import java.io.File;
 import java.util.Collection;
 import java.util.Map;
@@ -71,7 +71,7 @@ public class XodusDatabaseProvider extends AbstractDatabaseProvider {
   @Override
   public boolean init() {
     if (this.runsInCluster) {
-      LocalDatabaseUtils.bigWarningThatEveryoneCanSee(I18n.trans("cluster-local-db-warning"));
+      LocalDatabaseUtil.bigWarningThatEveryoneCanSee(I18n.trans("cluster-local-db-warning"));
     }
 
     this.environment = Environments.newInstance(this.databaseDirectory, this.environmentConfig);

@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.launcher.java17.updater.util;
 
-import eu.cloudnetservice.ext.updater.util.ChecksumUtils;
-import eu.cloudnetservice.launcher.java17.utils.HttpUtils;
+import eu.cloudnetservice.ext.updater.util.ChecksumUtil;
+import eu.cloudnetservice.launcher.java17.util.HttpUtil;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,7 +37,7 @@ public final class FileDownloadUpdateHelper {
   ) throws Exception {
     // if the target file exists we can pre-validate the checksum to determine if an update is required
     if (Files.exists(target)) {
-      var currentChecksum = ChecksumUtils.fileShaSum(target);
+      var currentChecksum = ChecksumUtil.fileShaSum(target);
       if (currentChecksum.equals(expectedChecksum)) {
         // already using the latest file
         // CHECKSTYLE.OFF: Launcher has no proper logger
@@ -50,9 +50,9 @@ public final class FileDownloadUpdateHelper {
     // CHECKSTYLE.OFF: Launcher has no proper logger
     System.out.printf("Downloading update of file \"%s\" from %s... %n", displayName, downloadUri);
     // CHECKSTYLE.ON
-    HttpUtils.get(downloadUri, HttpUtils.handlerForFile(target));
+    HttpUtil.get(downloadUri, HttpUtil.handlerForFile(target));
     // ensure that the file is now correct
-    var newChecksum = ChecksumUtils.fileShaSum(target);
+    var newChecksum = ChecksumUtil.fileShaSum(target);
     if (!newChecksum.equals(expectedChecksum)) {
       throw new IllegalStateException("Suspicious checksum for file " + target);
     }

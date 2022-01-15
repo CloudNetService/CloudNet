@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.sftp;
 
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
 import eu.cloudnetservice.cloudnet.driver.template.FileInfo;
@@ -51,7 +51,7 @@ public final class SFTPTemplateStorageTest {
     .storage("sftp")
     .build();
 
-  private static final Path TEMPLATE_PATH = FileUtils.resolve(BASE_PATH, "home", "CloudNet", "global", "proxy");
+  private static final Path TEMPLATE_PATH = FileUtil.resolve(BASE_PATH, "home", "CloudNet", "global", "proxy");
 
   private static SshServer server;
   private static SFTPTemplateStorage storage;
@@ -101,7 +101,7 @@ public final class SFTPTemplateStorageTest {
     storage.close();
     server.close(true).await();
 
-    FileUtils.delete(BASE_PATH.resolve("home"));
+    FileUtil.delete(BASE_PATH.resolve("home"));
   }
 
   @Test

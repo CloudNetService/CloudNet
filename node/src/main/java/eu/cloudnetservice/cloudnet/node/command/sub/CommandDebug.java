@@ -19,7 +19,7 @@ package eu.cloudnetservice.cloudnet.node.command.sub;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
-import eu.cloudnetservice.cloudnet.common.log.LoggingUtils;
+import eu.cloudnetservice.cloudnet.common.log.LoggingUtil;
 import eu.cloudnetservice.cloudnet.node.command.annotation.Description;
 import java.util.logging.Level;
 
@@ -31,7 +31,7 @@ public final class CommandDebug {
   public void debug() {
     var rootLogger = LogManager.rootLogger();
     if (rootLogger.isLoggable(Level.FINEST)) {
-      rootLogger.setLevel(LoggingUtils.defaultLogLevel());
+      rootLogger.setLevel(LoggingUtil.defaultLogLevel());
     } else {
       rootLogger.setLevel(Level.FINEST);
     }

@@ -18,7 +18,7 @@ package eu.cloudnetservice.cloudnet.node.config;
 
 import eu.cloudnetservice.cloudnet.common.StringUtil;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkCluster;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNode;
@@ -96,7 +96,7 @@ public final class JsonConfiguration implements Configuration {
         this.properties.append(entries);
       }
       // remove the old file
-      FileUtils.delete(oldRegistry);
+      FileUtil.delete(oldRegistry);
     }
   }
 
@@ -119,19 +119,19 @@ public final class JsonConfiguration implements Configuration {
   public @NonNull Configuration load() {
     if (this.identity == null) {
       this.identity = new NetworkClusterNode(
-        ConfigurationUtils.get(
+        ConfigurationUtil.get(
           "cloudnet.config.identity",
           "Node-" + StringUtil.generateRandomString(4)),
-        ConfigurationUtils.get(
+        ConfigurationUtil.get(
           "cloudnet.config.listeners",
           new HostAndPort[]{new HostAndPort(NetworkAddressUtil.localAddress(), 1410)},
-          ConfigurationUtils.HOST_AND_PORT_PARSER));
+          ConfigurationUtil.HOST_AND_PORT_PARSER));
     }
 
     if (this.clusterConfig == null) {
       this.clusterConfig = new NetworkCluster(
-        ConfigurationUtils.get("cloudnet.cluster.id", UUID.randomUUID(), UUID::fromString),
-        ConfigurationUtils.get(
+        ConfigurationUtil.get("cloudnet.cluster.id", UUID.randomUUID(), UUID::fromString),
+        ConfigurationUtil.get(
           "cloudnet.config.clusterConfig",
           Collections.emptyList(),
           value -> {
@@ -142,7 +142,7 @@ public final class JsonConfiguration implements Configuration {
               // split at '-': <name>-<listeners>
               var info = entry.split("-");
               if (info.length == 2) {
-                nodes.add(new NetworkClusterNode(info[0], ConfigurationUtils.HOST_AND_PORT_PARSER.apply(info[1])));
+                nodes.add(new NetworkClusterNode(info[0], ConfigurationUtil.HOST_AND_PORT_PARSER.apply(info[1])));
               }
             }
             return nodes;
@@ -150,82 +150,82 @@ public final class JsonConfiguration implements Configuration {
     }
 
     if (this.ipWhitelist == null) {
-      this.ipWhitelist = ConfigurationUtils.get(
+      this.ipWhitelist = ConfigurationUtil.get(
         "cloudnet.config.ipWhitelist",
         NetworkAddressUtil.availableIPAddresses(),
         value -> Set.of(value.split(",")));
     }
 
     if (this.maxCPUUsageToStartServices <= 0) {
-      this.maxCPUUsageToStartServices = ConfigurationUtils.get(
+      this.maxCPUUsageToStartServices = ConfigurationUtil.get(
         "cloudnet.config.maxCPUUsageToStartServices",
         90D,
         Double::parseDouble);
     }
 
     if (this.maxMemory <= 0) {
-      this.maxMemory = ConfigurationUtils.get(
+      this.maxMemory = ConfigurationUtil.get(
         "cloudnet.config.maxMemory",
         (int) ((ProcessSnapshot.OS_BEAN.getTotalMemorySize() / (1024 * 1024)) - 512),
         Integer::parseInt);
     }
 
     if (this.maxServiceConsoleLogCacheSize <= 0) {
-      this.maxServiceConsoleLogCacheSize = ConfigurationUtils.get(
+      this.maxServiceConsoleLogCacheSize = ConfigurationUtil.get(
         "cloudnet.config.maxServiceConsoleLogCacheSize",
         64,
         Integer::parseInt);
     }
 
     if (this.processTerminationTimeoutSeconds <= 0) {
-      this.processTerminationTimeoutSeconds = ConfigurationUtils.get(
+      this.processTerminationTimeoutSeconds = ConfigurationUtil.get(
         "cloudnet.config.processTerminationTimeoutSeconds",
         5,
         Integer::parseInt);
     }
 
     if (this.forceInitialClusterDataSync == null) {
-      this.forceInitialClusterDataSync = ConfigurationUtils.get(
+      this.forceInitialClusterDataSync = ConfigurationUtil.get(
         "cloudnet.config.forceInitialClusterDataSync",
         false,
         Boolean::parseBoolean);
     }
 
     if (this.printErrorStreamLinesFromServices == null) {
-      this.printErrorStreamLinesFromServices = ConfigurationUtils.get(
+      this.printErrorStreamLinesFromServices = ConfigurationUtil.get(
         "cloudnet.config.printErrorStreamLinesFromServices",
         true,
         Boolean::parseBoolean);
     }
 
     if (this.runBlockedServiceStartTryLaterAutomatic == null) {
-      this.runBlockedServiceStartTryLaterAutomatic = ConfigurationUtils.get(
+      this.runBlockedServiceStartTryLaterAutomatic = ConfigurationUtil.get(
         "cloudnet.config.runBlockedServiceStartTryLaterAutomatic",
         true,
         Boolean::parseBoolean);
     }
 
     if (this.jvmCommand == null) {
-      this.jvmCommand = ConfigurationUtils.get("cloudnet.config.jvmCommand", "java");
+      this.jvmCommand = ConfigurationUtil.get("cloudnet.config.jvmCommand", "java");
     }
 
     if (this.hostAddress == null) {
-      this.hostAddress = ConfigurationUtils.get("cloudnet.config.hostAddress", NetworkAddressUtil.localAddress());
+      this.hostAddress = ConfigurationUtil.get("cloudnet.config.hostAddress", NetworkAddressUtil.localAddress());
     }
 
     if (this.connectHostAddress == null) {
-      this.connectHostAddress = ConfigurationUtils.get("cloudnet.config.connectHostAddress", this.hostAddress);
+      this.connectHostAddress = ConfigurationUtil.get("cloudnet.config.connectHostAddress", this.hostAddress);
     }
 
     if (this.httpListeners == null) {
-      this.httpListeners = ConfigurationUtils.get(
+      this.httpListeners = ConfigurationUtil.get(
         "cloudnet.config.httpListeners",
         new ArrayList<>(Collections.singleton(new HostAndPort("0.0.0.0", 2812))),
-        value -> new ArrayList<>(Arrays.asList(ConfigurationUtils.HOST_AND_PORT_PARSER.apply(value))));
+        value -> new ArrayList<>(Arrays.asList(ConfigurationUtil.HOST_AND_PORT_PARSER.apply(value))));
     }
 
     if (this.accessControlConfiguration == null) {
-      this.accessControlConfiguration = ConfigurationUtils.get(
+      this.accessControlConfiguration = ConfigurationUtil.get(
         "cloudnet.config.accessControlConfiguration",
         new AccessControlConfiguration("*", 3600),
         value -> {
@@ -239,7 +239,7 @@ public final class JsonConfiguration implements Configuration {
     }
 
     if (this.clientSslConfig == null) {
-      this.clientSslConfig = ConfigurationUtils.get(
+      this.clientSslConfig = ConfigurationUtil.get(
         "cloudnet.config.clientSslConfig",
         new SSLConfiguration(
           false,
@@ -251,7 +251,7 @@ public final class JsonConfiguration implements Configuration {
     }
 
     if (this.serverSslConfig == null) {
-      this.serverSslConfig = ConfigurationUtils.get(
+      this.serverSslConfig = ConfigurationUtil.get(
         "cloudnet.config.serverSslConfig",
         new SSLConfiguration(
           false,
@@ -263,7 +263,7 @@ public final class JsonConfiguration implements Configuration {
     }
 
     if (this.webSslConfig == null) {
-      this.webSslConfig = ConfigurationUtils.get(
+      this.webSslConfig = ConfigurationUtil.get(
         "cloudnet.config.webSslConfig",
         new SSLConfiguration(
           false,
@@ -275,7 +275,7 @@ public final class JsonConfiguration implements Configuration {
     }
 
     if (this.properties == null) {
-      this.properties = ConfigurationUtils.get(
+      this.properties = ConfigurationUtil.get(
         "cloudnet.config.properties",
         JsonDocument.newDocument("database_provider", "xodus"),
         JsonDocument::fromJsonString);

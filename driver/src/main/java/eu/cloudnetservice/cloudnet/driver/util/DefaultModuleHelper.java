@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.util;
 
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.common.unsafe.ResourceResolver;
@@ -58,7 +58,7 @@ public final class DefaultModuleHelper {
       var uri = ResourceResolver.resolveURIFromResourceByClass(clazz);
       // copy the file
       try (var out = Files.newOutputStream(target)) {
-        FileUtils.copy(uri.toURL().openStream(), out);
+        FileUtil.copy(uri.toURL().openStream(), out);
         return true;
       }
     } catch (IOException exception) {
@@ -88,7 +88,7 @@ public final class DefaultModuleHelper {
     @NonNull ServiceEnvironmentType type,
     @NonNull Path file
   ) {
-    FileUtils.openZipFileSystem(file, fileSystem -> {
+    FileUtil.openZipFileSystem(file, fileSystem -> {
       // check if there is a plugin.yml file already - delete if it exists
       var pluginPath = fileSystem.getPath("plugin.yml");
       if (Files.exists(pluginPath)) {

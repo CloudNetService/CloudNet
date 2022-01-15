@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.launcher.java17.utils;
+package eu.cloudnetservice.launcher.java17.util;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -32,7 +32,7 @@ import java.nio.file.StandardOpenOption;
 import java.time.Duration;
 import lombok.NonNull;
 
-public final class HttpUtils {
+public final class HttpUtil {
 
   private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
     .followRedirects(Redirect.NORMAL)
@@ -41,7 +41,7 @@ public final class HttpUtils {
   private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
     + "(KHTML, like Gecko) Chrome/97.0.4692.56 Safari/537.36";
 
-  private HttpUtils() {
+  private HttpUtil() {
     throw new UnsupportedOperationException();
   }
 

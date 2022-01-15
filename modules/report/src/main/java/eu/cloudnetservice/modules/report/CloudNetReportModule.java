@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.report;
 
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
 import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
@@ -93,7 +93,7 @@ public final class CloudNetReportModule extends DriverModule {
       return this.recordDirectory;
     }
 
-    FileUtils.createDirectory(timeBasedDestination);
+    FileUtil.createDirectory(timeBasedDestination);
     return this.recordDirectory = timeBasedDestination;
   }
 

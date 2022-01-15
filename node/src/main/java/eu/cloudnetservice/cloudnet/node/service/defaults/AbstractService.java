@@ -19,7 +19,7 @@ package eu.cloudnetservice.cloudnet.node.service.defaults;
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.common.StringUtil;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
@@ -76,7 +76,7 @@ public abstract class AbstractService implements CloudService {
 
   protected static final Logger LOGGER = LogManager.logger(AbstractService.class);
 
-  protected static final Path INCLUSION_TEMP_DIR = FileUtils.TEMP_DIR.resolve("inclusions");
+  protected static final Path INCLUSION_TEMP_DIR = FileUtil.TEMP_DIR.resolve("inclusions");
   protected static final Path WRAPPER_CONFIG_PATH = Path.of(".wrapper", "wrapper.json");
   protected static final Collection<String> DEFAULT_DEPLOYMENT_EXCLUSIONS = Arrays.asList("wrapper.jar", ".wrapper/");
 
@@ -200,7 +200,7 @@ public abstract class AbstractService implements CloudService {
     // stop the process & delete the configured files
     this.doDelete();
     // delete the folder of the service, even if it's a static service
-    FileUtils.delete(this.serviceDirectory);
+    FileUtil.delete(this.serviceDirectory);
     // push the new lifecycle
     this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.DELETED);
   }
@@ -309,9 +309,9 @@ public abstract class AbstractService implements CloudService {
         }
         // resolve the desired output path
         var target = this.serviceDirectory.resolve(inclusion.destination());
-        FileUtils.ensureChild(this.serviceDirectory, target);
+        FileUtil.ensureChild(this.serviceDirectory, target);
         // copy the file to the desired output path
-        FileUtils.copy(destination, target);
+        FileUtil.copy(destination, target);
       }
     }
   }
@@ -342,7 +342,7 @@ public abstract class AbstractService implements CloudService {
     this.removeAndExecuteDeployments();
     // remove the current directory if the service is not static
     if (!this.serviceConfiguration().staticService()) {
-      FileUtils.delete(this.serviceDirectory);
+      FileUtil.delete(this.serviceDirectory);
     }
   }
 
@@ -493,7 +493,7 @@ public abstract class AbstractService implements CloudService {
 
   protected void doRemoveFilesAfterStop() {
     for (var file : this.serviceConfiguration.deletedFilesAfterStop()) {
-      FileUtils.delete(this.serviceDirectory.resolve(file));
+      FileUtil.delete(this.serviceDirectory.resolve(file));
     }
   }
 
@@ -562,7 +562,7 @@ public abstract class AbstractService implements CloudService {
   protected void prepareService() {
     // initialize the service directory
     var firstStartup = Files.notExists(this.serviceDirectory);
-    FileUtils.createDirectory(this.serviceDirectory);
+    FileUtil.createDirectory(this.serviceDirectory);
     // write the configuration file for the service
     var listeners = this.nodeConfiguration().identity().listeners();
     JsonDocument.newDocument()
@@ -593,15 +593,15 @@ public abstract class AbstractService implements CloudService {
     var wrapperDir = this.serviceDirectory.resolve(".wrapper");
     // copy the certificate if available
     if (configuration.certificatePath() != null && Files.exists(configuration.certificatePath())) {
-      FileUtils.copy(configuration.certificatePath(), wrapperDir.resolve("certificate"));
+      FileUtil.copy(configuration.certificatePath(), wrapperDir.resolve("certificate"));
     }
     // copy the private key if available
     if (configuration.privateKeyPath() != null && Files.exists(configuration.privateKeyPath())) {
-      FileUtils.copy(configuration.privateKeyPath(), wrapperDir.resolve("privateKey"));
+      FileUtil.copy(configuration.privateKeyPath(), wrapperDir.resolve("privateKey"));
     }
     // copy the trust certificate if available
     if (configuration.trustCertificatePath() != null && Files.exists(configuration.trustCertificatePath())) {
-      FileUtils.copy(configuration.trustCertificatePath(), wrapperDir.resolve("trustCertificate"));
+      FileUtil.copy(configuration.trustCertificatePath(), wrapperDir.resolve("trustCertificate"));
     }
   }
 

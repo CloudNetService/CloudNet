@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.netty.codec;
 
-import eu.cloudnetservice.cloudnet.driver.network.netty.NettyUtils;
+import eu.cloudnetservice.cloudnet.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.cloudnet.driver.network.netty.buffer.NettyImmutableDataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
 import io.netty.buffer.ByteBuf;
@@ -46,7 +46,7 @@ public final class NettyPacketEncoder extends MessageToByteEncoder<Packet> {
   @Override
   protected void encode(@NonNull ChannelHandlerContext ctx, @NonNull Packet packet, @NonNull ByteBuf buf) {
     // channel
-    NettyUtils.writeVarInt(buf, packet.channel());
+    NettyUtil.writeVarInt(buf, packet.channel());
     // query id (if present)
     var queryUniqueId = packet.uniqueId();
     buf.writeBoolean(queryUniqueId != null);
@@ -60,7 +60,7 @@ public final class NettyPacketEncoder extends MessageToByteEncoder<Packet> {
     var content = ((NettyImmutableDataBuf) packet.content()).byteBuf();
     // write information to buffer
     var length = content.readableBytes();
-    NettyUtils.writeVarInt(buf, length);
+    NettyUtil.writeVarInt(buf, length);
     buf.writeBytes(content, 0, length);
     // release the content of the packet now, don't use the local field to respect if releasing was disabled in the
     // original buffer.

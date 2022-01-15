@@ -144,7 +144,7 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements Clust
   public void close() throws Exception {
     if (this.channel != null) {
       this.channel.close();
-      ClusterNodeServerUtils.handleNodeServerClose(this.channel, this);
+      ClusterNodeServerUtil.handleNodeServerClose(this.channel, this);
 
       this.channel = null;
     }

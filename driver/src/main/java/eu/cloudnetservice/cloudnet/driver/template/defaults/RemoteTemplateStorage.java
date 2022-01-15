@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.template.defaults;
 
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.common.stream.ListeningOutputStream;
 import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
@@ -67,7 +67,7 @@ public class RemoteTemplateStorage implements TemplateStorage {
     @NonNull ServiceTemplate target,
     @Nullable Predicate<Path> fileFilter
   ) {
-    try (var inputStream = FileUtils.zipToStream(directory, fileFilter)) {
+    try (var inputStream = FileUtil.zipToStream(directory, fileFilter)) {
       return this.deploy(inputStream, target);
     } catch (IOException exception) {
       return false;
@@ -107,7 +107,7 @@ public class RemoteTemplateStorage implements TemplateStorage {
       return null;
     }
     // the file is transferred and should be readable
-    return Files.newInputStream(FileUtils.TEMP_DIR.resolve(responseId.toString()), StandardOpenOption.DELETE_ON_CLOSE);
+    return Files.newInputStream(FileUtil.TEMP_DIR.resolve(responseId.toString()), StandardOpenOption.DELETE_ON_CLOSE);
   }
 
   @Override
@@ -130,7 +130,7 @@ public class RemoteTemplateStorage implements TemplateStorage {
     @NonNull ServiceTemplate template,
     @NonNull String path
   ) throws IOException {
-    return this.openLocalOutputStream(template, path, FileUtils.createTempFile(), true);
+    return this.openLocalOutputStream(template, path, FileUtil.createTempFile(), true);
   }
 
   @Override
@@ -138,7 +138,7 @@ public class RemoteTemplateStorage implements TemplateStorage {
     @NonNull ServiceTemplate template,
     @NonNull String path
   ) throws IOException {
-    return this.openLocalOutputStream(template, path, FileUtils.createTempFile(), false);
+    return this.openLocalOutputStream(template, path, FileUtil.createTempFile(), false);
   }
 
   protected @NonNull OutputStream openLocalOutputStream(
@@ -199,7 +199,7 @@ public class RemoteTemplateStorage implements TemplateStorage {
       return null;
     }
     // the file is transferred and should be readable
-    return Files.newInputStream(FileUtils.TEMP_DIR.resolve(responseId.toString()), StandardOpenOption.DELETE_ON_CLOSE);
+    return Files.newInputStream(FileUtil.TEMP_DIR.resolve(responseId.toString()), StandardOpenOption.DELETE_ON_CLOSE);
   }
 
   @Override

@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.syncproxy.node.listener;
 
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.driver.event.EventListener;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.driver.util.DefaultModuleHelper;
@@ -47,10 +47,10 @@ public final class IncludePluginListener {
 
     if (groupEntryExists) {
       var pluginsFolder = event.service().directory().resolve("plugins");
-      FileUtils.createDirectory(pluginsFolder);
+      FileUtil.createDirectory(pluginsFolder);
 
       var targetFile = pluginsFolder.resolve("cloudnet-syncproxy.jar");
-      FileUtils.delete(targetFile);
+      FileUtil.delete(targetFile);
 
       if (DefaultModuleHelper.copyCurrentModuleInstanceFromClass(IncludePluginListener.class, targetFile)) {
         DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(

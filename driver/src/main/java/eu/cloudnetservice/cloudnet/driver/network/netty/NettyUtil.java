@@ -52,7 +52,7 @@ import org.jetbrains.annotations.Range;
  * @since 4.0
  */
 @Internal
-public final class NettyUtils {
+public final class NettyUtil {
 
   public static final int[] VAR_INT_LENGTHS = new int[33];
   public static final boolean NATIVE_TRANSPORT = Epoll.isAvailable();
@@ -78,7 +78,7 @@ public final class NettyUtils {
     VAR_INT_LENGTHS[32] = 1;
   }
 
-  private NettyUtils() {
+  private NettyUtil() {
     throw new UnsupportedOperationException();
   }
 

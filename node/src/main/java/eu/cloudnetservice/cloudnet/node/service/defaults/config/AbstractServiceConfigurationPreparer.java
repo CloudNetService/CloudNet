@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.node.service.defaults.config;
 
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
@@ -44,7 +44,7 @@ public abstract class AbstractServiceConfigurationPreparer implements ServiceCon
     if (Files.notExists(targetLocation)) {
       try (var stream = ServiceConfigurationPreparer.class.getClassLoader().getResourceAsStream(fileName)) {
         if (stream != null) {
-          FileUtils.createDirectory(targetLocation.getParent());
+          FileUtil.createDirectory(targetLocation.getParent());
           Files.copy(stream, targetLocation);
         }
       } catch (IOException exception) {

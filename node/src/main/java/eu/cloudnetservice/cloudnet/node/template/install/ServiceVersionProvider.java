@@ -21,7 +21,7 @@ import static com.google.gson.reflect.TypeToken.getParameterized;
 import com.google.common.base.Verify;
 import eu.cloudnetservice.cloudnet.common.JavaVersion;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
@@ -175,7 +175,7 @@ public class ServiceVersionProvider {
       LOGGER.severe("Exception while deleting old application files", exception);
     }
 
-    var workingDirectory = FileUtils.createTempFile();
+    var workingDirectory = FileUtil.createTempFile();
     var cachedFilePath = VERSION_CACHE_PATH.resolve(fullVersionIdentifier);
 
     try {
@@ -205,7 +205,7 @@ public class ServiceVersionProvider {
       for (var entry : information.serviceVersion().additionalDownloads().entrySet()) {
         ConsoleProgressWrappers.wrapDownload(entry.getKey(), stream -> {
           try (var out = information.templateStorage().newOutputStream(entry.getKey())) {
-            FileUtils.copy(stream, out);
+            FileUtil.copy(stream, out);
           }
         });
       }
@@ -214,7 +214,7 @@ public class ServiceVersionProvider {
     } catch (Exception exception) {
       LOGGER.severe("Exception while installing application files", exception);
     } finally {
-      FileUtils.delete(workingDirectory);
+      FileUtil.delete(workingDirectory);
     }
 
     return false;

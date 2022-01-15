@@ -17,7 +17,7 @@
 package eu.cloudnetservice.cloudnet.node.setup;
 
 import com.google.common.collect.ImmutableSet;
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.driver.module.DefaultModuleProvider;
 import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
@@ -31,7 +31,7 @@ import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.QuestionA
 import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.QuestionListEntry;
 import eu.cloudnetservice.cloudnet.node.module.ModuleEntry;
 import eu.cloudnetservice.cloudnet.node.util.NetworkAddressUtil;
-import eu.cloudnetservice.ext.updater.util.ChecksumUtils;
+import eu.cloudnetservice.ext.updater.util.ChecksumUtil;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.HashSet;
@@ -148,14 +148,14 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
             result.forEach(entry -> {
               // ensure that the target path actually is there
               var targetPath = DefaultModuleProvider.DEFAULT_MODULE_DIR.resolve(entry.name() + ".jar");
-              FileUtils.createDirectory(targetPath.getParent());
+              FileUtil.createDirectory(targetPath.getParent());
               // download the module file
               Unirest.get(entry.url()).asFile(targetPath.toString(), StandardCopyOption.REPLACE_EXISTING);
               // validate the downloaded file
-              var checksum = ChecksumUtils.fileShaSum(targetPath);
+              var checksum = ChecksumUtil.fileShaSum(targetPath);
               if (!checksum.equals(entry.sha3256())) {
                 // remove the file and fail hard
-                FileUtils.delete(targetPath);
+                FileUtil.delete(targetPath);
                 throw new IllegalStateException(I18n.trans("cloudnet-install-modules-invalid-checksum", entry.name()));
               }
               // load the module

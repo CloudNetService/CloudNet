@@ -26,7 +26,7 @@ import eu.cloudnetservice.cloudnet.node.http.V2HttpHandler;
 import eu.cloudnetservice.cloudnet.node.template.install.InstallInformation;
 import eu.cloudnetservice.cloudnet.node.template.install.ServiceVersion;
 import eu.cloudnetservice.cloudnet.node.template.install.ServiceVersionType;
-import eu.cloudnetservice.modules.rest.RestUtils;
+import eu.cloudnetservice.modules.rest.RestUtil;
 import java.io.IOException;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -157,8 +157,8 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
   protected void handleFileListRequest(HttpContext context) {
     this.handleWithTemplateContext(context, (template, storage) -> {
-      var dir = RestUtils.first(context.request().queryParameters().get("directory"), "");
-      var deep = Boolean.parseBoolean(RestUtils.first(context.request().queryParameters().get("deep"), "false"));
+      var dir = RestUtil.first(context.request().queryParameters().get("directory"), "");
+      var deep = Boolean.parseBoolean(RestUtil.first(context.request().queryParameters().get("deep"), "false"));
 
       var files = storage.listFilesAsync(dir, deep).get();
       this.ok(context)
@@ -356,7 +356,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     ThrowableTriConsumer<ServiceTemplate, SpecificTemplateStorage, String, Exception> handler
   ) {
     this.handleWithTemplateContext(context, (template, storage) -> {
-      var fileName = RestUtils.first(context.request().queryParameters().get("path"), null);
+      var fileName = RestUtil.first(context.request().queryParameters().get("path"), null);
       if (fileName == null) {
         this.badRequest(context)
           .body(this.failure().append("reason", "Missing file name in path").toString())

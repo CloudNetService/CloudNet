@@ -20,7 +20,7 @@ import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.common.JavaVersion;
 import eu.cloudnetservice.cloudnet.common.collection.Pair;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
 import java.io.BufferedInputStream;
@@ -232,7 +232,7 @@ public class DefaultModuleProvider implements ModuleProvider {
 
   @Override
   public @NonNull ModuleProvider loadAll() {
-    FileUtils.walkFileTree(
+    FileUtil.walkFileTree(
       this.moduleDirectory,
       ($, current) -> this.loadModule(current),
       false,

@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.labymod.node;
 
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.driver.event.EventListener;
 import eu.cloudnetservice.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
@@ -56,10 +56,10 @@ public class NodeLabyModListener {
     }
 
     var pluginsFolder = event.service().directory().resolve("plugins");
-    FileUtils.createDirectory(pluginsFolder);
+    FileUtil.createDirectory(pluginsFolder);
 
     var targetFile = pluginsFolder.resolve("cloudnet-labymod.jar");
-    FileUtils.delete(targetFile);
+    FileUtil.delete(targetFile);
 
     if (DefaultModuleHelper.copyCurrentModuleInstanceFromClass(NodeLabyModListener.class, targetFile)) {
       DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(

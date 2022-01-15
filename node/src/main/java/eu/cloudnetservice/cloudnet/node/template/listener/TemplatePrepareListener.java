@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.node.template.listener;
 
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.driver.event.EventListener;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.driver.template.SpecificTemplateStorage;
@@ -42,39 +42,39 @@ public final class TemplatePrepareListener {
       // server.properties & nukkit.yml
       try (var out = event.storage().newOutputStream("server.properties");
         var in = resourceStream("files/nukkit/server.properties")) {
-        FileUtils.copy(in, out);
+        FileUtil.copy(in, out);
       }
 
       try (var out = event.storage().newOutputStream("nukkit.yml");
         var in = resourceStream("files/nukkit/nukkit.yml")) {
-        FileUtils.copy(in, out);
+        FileUtil.copy(in, out);
       }
     } else if (event.environmentType().equals(ServiceEnvironmentType.MINECRAFT_SERVER)) {
       // server.properties, bukkit.yml, spigot.yml & sponge.conf
       try (var out = event.storage().newOutputStream("server.properties");
         var in = resourceStream("files/nms/server.properties")) {
-        FileUtils.copy(in, out);
+        FileUtil.copy(in, out);
       }
 
       try (var out = event.storage().newOutputStream("bukkit.yml");
         var in = resourceStream("files/nms/bukkit.yml")) {
-        FileUtils.copy(in, out);
+        FileUtil.copy(in, out);
       }
 
       try (var out = event.storage().newOutputStream("spigot.yml");
         var in = resourceStream("files/nms/spigot.yml")) {
-        FileUtils.copy(in, out);
+        FileUtil.copy(in, out);
       }
 
       try (var out = event.storage().newOutputStream("config/sponge/sponge.conf");
         var in = CloudNet.class.getClassLoader().getResourceAsStream("files/nms/sponge.conf")) {
-        FileUtils.copy(in, out);
+        FileUtil.copy(in, out);
       }
     } else if (event.environmentType().equals(ServiceEnvironmentType.GLOWSTONE)) {
       // glowstone.yml
       try (var out = event.storage().newOutputStream("config/glowstone.yml");
         var in = resourceStream("files/glowstone/glowstone.yml")) {
-        FileUtils.copy(in, out);
+        FileUtil.copy(in, out);
       }
     }
   }
@@ -85,12 +85,12 @@ public final class TemplatePrepareListener {
     @NonNull String internalPath
   ) throws IOException {
     try (var out = storage.newOutputStream(target); var in = this.resourceStream(internalPath)) {
-      FileUtils.copy(in, out);
+      FileUtil.copy(in, out);
     }
 
     try (var out = storage.newOutputStream("server-icon.png");
       var in = resourceStream("files/server-icon.png")) {
-      FileUtils.copy(in, out);
+      FileUtil.copy(in, out);
     }
   }
 

@@ -27,18 +27,18 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public final class FileUtilsTest {
+public final class FileUtilTest {
 
   private static final Path TEST_DIR = Path.of("build", "testDirectory");
 
   @BeforeAll
   static void setupTestDirectories() {
-    FileUtils.createDirectory(TEST_DIR);
+    FileUtil.createDirectory(TEST_DIR);
   }
 
   @AfterAll
   static void removeTestDirectories() {
-    FileUtils.delete(TEST_DIR);
+    FileUtil.delete(TEST_DIR);
   }
 
   @Test
@@ -47,19 +47,19 @@ public final class FileUtilsTest {
 
     try (
       var out = Files.newOutputStream(zipFilePath);
-      var is = FileUtilsTest.class.getClassLoader().getResourceAsStream("empty_zip_file.zip")
+      var is = FileUtilTest.class.getClassLoader().getResourceAsStream("empty_zip_file.zip")
     ) {
-      FileUtils.copy(is, out);
+      FileUtil.copy(is, out);
     }
 
-    FileUtils.openZipFileSystem(zipFilePath, fileSystem -> {
+    FileUtil.openZipFileSystem(zipFilePath, fileSystem -> {
       var zipEntryInfoFile = fileSystem.getPath("info.txt");
 
       try (
         var out = Files.newOutputStream(zipEntryInfoFile);
         var is = new ByteArrayInputStream("Info message :3".getBytes())
       ) {
-        FileUtils.copy(is, out);
+        FileUtil.copy(is, out);
       }
     });
 
@@ -68,13 +68,13 @@ public final class FileUtilsTest {
       Assertions.assertNotNull(zipEntry);
 
       try (var inputStream = zipFile.getInputStream(zipEntry)) {
-        FileUtils.copy(inputStream, out);
+        FileUtil.copy(inputStream, out);
       }
 
       Assertions.assertEquals("Info message :3", out.toString(StandardCharsets.UTF_8.name()));
     }
 
-    FileUtils.delete(TEST_DIR);
+    FileUtil.delete(TEST_DIR);
     Assertions.assertFalse(Files.exists(TEST_DIR));
   }
 
@@ -84,12 +84,12 @@ public final class FileUtilsTest {
 
     try (
       var outputStream = Files.newOutputStream(zipFilePath);
-      var is = FileUtilsTest.class.getClassLoader().getResourceAsStream("file_utils_resources.zip")
+      var is = FileUtilTest.class.getClassLoader().getResourceAsStream("file_utils_resources.zip")
     ) {
-      FileUtils.copy(is, outputStream);
+      FileUtil.copy(is, outputStream);
     }
 
-    FileUtils.extract(zipFilePath, TEST_DIR);
+    FileUtil.extract(zipFilePath, TEST_DIR);
 
     Assertions.assertTrue(Files.exists(TEST_DIR));
     Assertions.assertTrue(Files.exists(TEST_DIR.resolve("bungee/config.yml")));

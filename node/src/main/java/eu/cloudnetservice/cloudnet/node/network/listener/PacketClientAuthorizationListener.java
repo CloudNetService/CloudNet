@@ -26,7 +26,7 @@ import eu.cloudnetservice.cloudnet.driver.service.ServiceId;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.event.network.NetworkClusterNodeAuthSuccessEvent;
 import eu.cloudnetservice.cloudnet.node.event.network.NetworkServiceAuthSuccessEvent;
-import eu.cloudnetservice.cloudnet.node.network.NodeNetworkUtils;
+import eu.cloudnetservice.cloudnet.node.network.NodeNetworkUtil;
 import eu.cloudnetservice.cloudnet.node.network.packet.PacketServerAuthorizationResponse;
 import lombok.NonNull;
 
@@ -55,7 +55,7 @@ public final class PacketClientAuthorizationListener implements PacketListener {
               nodeServer.channel(channel);
               // add the required packet listeners
               channel.packetRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
-              NodeNetworkUtils.addDefaultPacketListeners(channel.packetRegistry(), CloudNet.instance());
+              NodeNetworkUtil.addDefaultPacketListeners(channel.packetRegistry(), CloudNet.instance());
               // successful auth
               channel.sendPacketSync(new PacketServerAuthorizationResponse(true));
               // call the auth success event
@@ -83,7 +83,7 @@ public final class PacketClientAuthorizationListener implements PacketListener {
             service.publishServiceInfoSnapshot();
             // add the required packet listeners
             channel.packetRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
-            NodeNetworkUtils.addDefaultPacketListeners(channel.packetRegistry(), CloudNet.instance());
+            NodeNetworkUtil.addDefaultPacketListeners(channel.packetRegistry(), CloudNet.instance());
             // successful auth
             channel.sendPacket(new PacketServerAuthorizationResponse(true));
             // call the auth success event

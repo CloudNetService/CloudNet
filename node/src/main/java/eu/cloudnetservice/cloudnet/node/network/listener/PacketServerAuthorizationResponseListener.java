@@ -24,7 +24,7 @@ import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.PacketListener;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
-import eu.cloudnetservice.cloudnet.node.network.NodeNetworkUtils;
+import eu.cloudnetservice.cloudnet.node.network.NodeNetworkUtil;
 import java.util.Arrays;
 import java.util.Objects;
 import lombok.NonNull;
@@ -49,7 +49,7 @@ public final class PacketServerAuthorizationResponseListener implements PacketLi
         server.channel(channel);
         // add the packet listeners
         channel.packetRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
-        NodeNetworkUtils.addDefaultPacketListeners(channel.packetRegistry(), CloudNet.instance());
+        NodeNetworkUtil.addDefaultPacketListeners(channel.packetRegistry(), CloudNet.instance());
         // we are good to go :)
         return;
       }

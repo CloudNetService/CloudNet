@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.node.module.utils;
+package eu.cloudnetservice.cloudnet.node.module.util;
 
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.node.module.ModulesHolder;

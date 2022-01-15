@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.node.network.chunk;
 
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.driver.network.chunk.ChunkedPacketHandler.Callback;
 import eu.cloudnetservice.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
@@ -50,7 +50,7 @@ final class TemplateFileDeployCallback implements Callback {
         ? storage.appendOutputStream(template, path)
         : storage.newOutputStream(template, path)
       ) {
-        FileUtils.copy(dataInput, out);
+        FileUtil.copy(dataInput, out);
       }
     }
   }

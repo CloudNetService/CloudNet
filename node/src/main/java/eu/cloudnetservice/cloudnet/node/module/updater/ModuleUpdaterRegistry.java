@@ -17,7 +17,7 @@
 package eu.cloudnetservice.cloudnet.node.module.updater;
 
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.driver.module.DefaultModuleProvider;
 import eu.cloudnetservice.cloudnet.node.module.ModulesHolder;
 import eu.cloudnetservice.ext.updater.defaults.DefaultUpdaterRegistry;
@@ -33,9 +33,9 @@ public final class ModuleUpdaterRegistry extends DefaultUpdaterRegistry<ModuleUp
   protected @NonNull ModuleUpdaterContext provideContext(@NonNull ModulesHolder provisionContext) throws Exception {
     // read the module names from all existing modules
     Map<Path, String> moduleNames = new HashMap<>();
-    FileUtils.walkFileTree(DefaultModuleProvider.DEFAULT_MODULE_DIR, ($, file) -> {
+    FileUtil.walkFileTree(DefaultModuleProvider.DEFAULT_MODULE_DIR, ($, file) -> {
       // open the jar file
-      FileUtils.openZipFileSystem(file, fs -> {
+      FileUtil.openZipFileSystem(file, fs -> {
         var moduleJson = fs.getPath("module.json");
         if (Files.exists(moduleJson)) {
           // read the file

@@ -22,7 +22,7 @@ import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannelHandler;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkClient;
-import eu.cloudnetservice.cloudnet.driver.network.netty.NettyUtils;
+import eu.cloudnetservice.cloudnet.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.PacketListenerRegistry;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.defaults.DefaultPacketListenerRegistry;
 import eu.cloudnetservice.cloudnet.driver.network.ssl.SSLConfiguration;
@@ -56,8 +56,8 @@ public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClien
   private static final int CONNECTION_TIMEOUT_MILLIS = 5_000;
   private static final WriteBufferWaterMark WATER_MARK = new WriteBufferWaterMark(1 << 20, 1 << 21);
 
-  protected final Executor packetDispatcher = NettyUtils.newPacketDispatcher();
-  protected final EventLoopGroup eventLoopGroup = NettyUtils.newEventLoopGroup();
+  protected final Executor packetDispatcher = NettyUtil.newPacketDispatcher();
+  protected final EventLoopGroup eventLoopGroup = NettyUtil.newEventLoopGroup();
 
   protected final Collection<NetworkChannel> channels = new ConcurrentLinkedQueue<>();
   protected final PacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
@@ -116,7 +116,7 @@ public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClien
     try {
       var bootstrap = new Bootstrap()
         .group(this.eventLoopGroup)
-        .channelFactory(NettyUtils.clientChannelFactory())
+        .channelFactory(NettyUtil.clientChannelFactory())
         .handler(new NettyNetworkClientInitializer(hostAndPort, this))
 
         .option(ChannelOption.IP_TOS, 0x18)
@@ -126,7 +126,7 @@ public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClien
         .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
         .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECTION_TIMEOUT_MILLIS);
       // enable tcp fast open if supported
-      if (NettyUtils.NATIVE_TRANSPORT) {
+      if (NettyUtil.NATIVE_TRANSPORT) {
         bootstrap.option(ChannelOption.TCP_FASTOPEN_CONNECT, true);
       }
       // connect to the server

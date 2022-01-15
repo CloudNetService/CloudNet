@@ -25,7 +25,7 @@ import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class NettyUtilsTest {
+public class NettyUtilTest {
 
   @Test
   void testWrapperThreadAmount() {
@@ -33,7 +33,7 @@ public class NettyUtilsTest {
       .when(DriverTestUtility.mockAndSetDriverInstance().environment())
       .thenReturn(DriverEnvironment.WRAPPER);
 
-    Assertions.assertEquals(4, NettyUtils.threadAmount());
+    Assertions.assertEquals(4, NettyUtil.threadAmount());
   }
 
   @Test
@@ -42,7 +42,7 @@ public class NettyUtilsTest {
       .when(DriverTestUtility.mockAndSetDriverInstance().environment())
       .thenReturn(DriverEnvironment.CLOUDNET);
 
-    Assertions.assertEquals(Runtime.getRuntime().availableProcessors() * 2, NettyUtils.threadAmount());
+    Assertions.assertEquals(Runtime.getRuntime().availableProcessors() * 2, NettyUtil.threadAmount());
   }
 
   @RepeatedTest(30)
@@ -51,8 +51,8 @@ public class NettyUtilsTest {
     var i = ThreadLocalRandom.current().nextInt();
 
     try {
-      Assertions.assertNotNull(NettyUtils.writeVarInt(byteBuf, i));
-      Assertions.assertEquals(i, NettyUtils.readVarInt(byteBuf));
+      Assertions.assertNotNull(NettyUtil.writeVarInt(byteBuf, i));
+      Assertions.assertEquals(i, NettyUtil.readVarInt(byteBuf));
     } finally {
       byteBuf.release();
     }

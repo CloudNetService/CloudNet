@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.http.content;
 
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.driver.util.FileMimeTypeHelper;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,7 +43,7 @@ record FileContentStreamProvider(@NonNull Path workingDirectory) implements Cont
     if (Files.notExists(targetPath) || Files.isDirectory(targetPath)) {
       return null;
     } else {
-      FileUtils.ensureChild(this.workingDirectory, targetPath);
+      FileUtil.ensureChild(this.workingDirectory, targetPath);
       return new FileStreamableContent(targetPath);
     }
   }

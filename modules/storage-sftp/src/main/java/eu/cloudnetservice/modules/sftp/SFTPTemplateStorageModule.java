@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.sftp;
 
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.common.io.FileUtils;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
 import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
@@ -56,7 +56,7 @@ public final class SFTPTemplateStorageModule extends DriverModule {
         config.getString("baseDirectory"),
         4));
       // remove the old directory
-      FileUtils.delete(oldConfigPath.getParent());
+      FileUtil.delete(oldConfigPath.getParent());
     }
   }
 
