@@ -20,7 +20,6 @@ import com.google.common.base.Verify;
 import eu.cloudnetservice.cloudnet.common.Nameable;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
-import org.jetbrains.annotations.NotNull;
 
 public record Permission(
   @NonNull String name,
@@ -69,7 +68,7 @@ public record Permission(
       return this;
     }
 
-    public @NotNull Builder timeOutMillis(@NonNull TimeUnit unit, long timeOut) {
+    public @NonNull Builder timeOutMillis(@NonNull TimeUnit unit, long timeOut) {
       return this.timeOutMillis(System.currentTimeMillis() + unit.toMillis(timeOut));
     }
 

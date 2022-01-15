@@ -37,7 +37,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.NonNull;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManagement {
@@ -164,7 +163,7 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
   }
 
   @Override
-  protected @NotNull Builder channelMessage(@NonNull String message) {
+  protected @NonNull Builder channelMessage(@NonNull String message) {
     return ChannelMessage.builder()
       .channel(NPC_CHANNEL_NAME)
       .message(message)

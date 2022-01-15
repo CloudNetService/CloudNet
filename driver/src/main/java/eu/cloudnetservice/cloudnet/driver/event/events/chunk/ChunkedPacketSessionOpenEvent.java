@@ -24,10 +24,10 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Called when a chunked packet transfer to the current network component was requested and is about to start. This
- * event is used in combination with the event chunk handler factory which is calling this event to determine which handler
- * should be used for the transfer. If no handler gets set by any listener this results in an exception and prevents the
- * chunk handling transfer from happening. If the event based solution is not used as the factory, this event will (by
- * default) never get fired.
+ * event is used in combination with the event chunk handler factory which is calling this event to determine which
+ * handler should be used for the transfer. If no handler gets set by any listener this results in an exception and
+ * prevents the chunk handling transfer from happening. If the event based solution is not used as the factory, this
+ * event will (by default) never get fired.
  *
  * @see eu.cloudnetservice.cloudnet.driver.network.chunk.defaults.factory.EventChunkHandlerFactory
  * @since 4.0

@@ -18,12 +18,11 @@ package eu.cloudnetservice.modules.report.paste.emitter.defaults.service;
 
 import eu.cloudnetservice.cloudnet.node.service.CloudService;
 import eu.cloudnetservice.modules.report.paste.emitter.ReportDataEmitter;
-import org.jetbrains.annotations.NotNull;
 
 public class ServiceLogEmitter implements ReportDataEmitter<CloudService> {
 
   @Override
-  public void emitData(@NotNull StringBuilder builder, @NotNull CloudService context) {
+  public void emitData(@NonNull StringBuilder builder, @NonNull CloudService context) {
     for (var cachedLogMessage : context.cachedLogMessages()) {
       builder.append(cachedLogMessage).append("\n");
     }

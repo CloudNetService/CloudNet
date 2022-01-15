@@ -34,7 +34,6 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.NonNull;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class NodeCloudServiceFactory implements CloudServiceFactory {
@@ -54,7 +53,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
   }
 
   @Override
-  public @Nullable ServiceInfoSnapshot createCloudService(@NotNull ServiceConfiguration serviceConfiguration) {
+  public @Nullable ServiceInfoSnapshot createCloudService(@NonNull ServiceConfiguration serviceConfiguration) {
     // check if this node can start services
     if (this.nodeServerProvider.headnode().equals(this.nodeServerProvider.selfNode())) {
       // prepare the service configuration

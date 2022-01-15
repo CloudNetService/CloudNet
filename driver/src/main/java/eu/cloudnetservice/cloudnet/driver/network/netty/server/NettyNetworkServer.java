@@ -42,7 +42,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import lombok.NonNull;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -188,7 +187,7 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
    * {@inheritDoc}
    */
   @Override
-  public @NonNull @NotNull Collection<NetworkChannel> modifiableChannels() {
+  public @NonNull Collection<NetworkChannel> modifiableChannels() {
     return this.channels;
   }
 

@@ -105,7 +105,8 @@ public final class NodeSignsConfigurationHelper {
   }
 
   @Contract("_ -> new")
-  private static @NonNull SignLayout convertSignLayout(@NonNull eu.cloudnetservice.modules.signs._deprecated.SignLayout oldLayout) {
+  private static @NonNull SignLayout convertSignLayout(
+    @NonNull eu.cloudnetservice.modules.signs._deprecated.SignLayout oldLayout) {
     return new SignLayout(oldLayout.getLines(), oldLayout.getBlockType(), oldLayout.getSubId(), null);
   }
 

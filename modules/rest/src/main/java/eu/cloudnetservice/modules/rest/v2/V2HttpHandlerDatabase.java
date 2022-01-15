@@ -24,7 +24,6 @@ import eu.cloudnetservice.cloudnet.node.http.HttpSession;
 import eu.cloudnetservice.cloudnet.node.http.V2HttpHandler;
 import eu.cloudnetservice.modules.rest.RestUtils;
 import java.util.function.BiConsumer;
-import org.jetbrains.annotations.NotNull;
 
 public class V2HttpHandlerDatabase extends V2HttpHandler {
 
@@ -33,7 +32,8 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession session) {
+  protected void handleBearerAuthorized(@NonNull String path, @NonNull HttpContext context,
+    @NonNull HttpSession session) {
     if (context.request().method().equals("GET")) {
       if (path.endsWith("/contains")) {
         // contains in a specific database

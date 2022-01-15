@@ -20,12 +20,11 @@ import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.service.CloudService;
 import eu.cloudnetservice.modules.report.paste.emitter.ReportDataEmitter;
-import org.jetbrains.annotations.NotNull;
 
 public class ServiceTaskEmitter implements ReportDataEmitter<CloudService> {
 
   @Override
-  public void emitData(@NotNull StringBuilder builder, @NotNull CloudService service) {
+  public void emitData(@NonNull StringBuilder builder, @NonNull CloudService service) {
     var taskProvider = CloudNet.instance().serviceTaskProvider();
     var serviceTask = taskProvider.serviceTask(service.serviceId().taskName());
     if (serviceTask == null) {

@@ -19,7 +19,6 @@ package eu.cloudnetservice.modules.rest.v2;
 import eu.cloudnetservice.cloudnet.driver.network.http.HttpContext;
 import eu.cloudnetservice.cloudnet.node.http.HttpSession;
 import eu.cloudnetservice.cloudnet.node.http.V2HttpHandler;
-import org.jetbrains.annotations.NotNull;
 
 public class V2HttpHandlerWebSocketTicket extends V2HttpHandler {
 
@@ -28,7 +27,8 @@ public class V2HttpHandlerWebSocketTicket extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession session) {
+  protected void handleBearerAuthorized(@NonNull String path, @NonNull HttpContext context,
+    @NonNull HttpSession session) {
     var ticket = this.authentication.webSocketTicketManager().issueTicket(context.request(), session);
     this.ok(context)
       .body(

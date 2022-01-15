@@ -19,12 +19,11 @@ package eu.cloudnetservice.modules.report.paste.emitter.defaults.service;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.node.service.CloudService;
 import eu.cloudnetservice.modules.report.paste.emitter.ReportDataEmitter;
-import org.jetbrains.annotations.NotNull;
 
 public class ServiceInfoSnapshotEmitter implements ReportDataEmitter<CloudService> {
 
   @Override
-  public void emitData(@NotNull StringBuilder builder, @NotNull CloudService service) {
+  public void emitData(@NonNull StringBuilder builder, @NonNull CloudService service) {
     builder
       .append(" - ServiceInfoSnapshot ").append(service.serviceId().name()).append(" - \n")
       .append(JsonDocument.newDocument(service.serviceInfo()).toPrettyJson()).append("\n")

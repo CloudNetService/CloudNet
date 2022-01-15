@@ -25,7 +25,6 @@ import eu.cloudnetservice.cloudnet.node.http.HttpSession;
 import eu.cloudnetservice.cloudnet.node.http.V2HttpHandler;
 import java.util.UUID;
 import java.util.function.Consumer;
-import org.jetbrains.annotations.NotNull;
 
 public class V2HttpHandlerPermission extends V2HttpHandler {
 
@@ -34,7 +33,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession ses) {
+  protected void handleBearerAuthorized(@NonNull String path, @NonNull HttpContext context, @NonNull HttpSession ses) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.endsWith("exists")) {
         if (path.contains("user")) {

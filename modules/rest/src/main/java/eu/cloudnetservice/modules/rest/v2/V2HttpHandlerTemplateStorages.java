@@ -23,7 +23,6 @@ import eu.cloudnetservice.cloudnet.node.http.HttpSession;
 import eu.cloudnetservice.cloudnet.node.http.V2HttpHandler;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
 
 public class V2HttpHandlerTemplateStorages extends V2HttpHandler {
 
@@ -32,7 +31,8 @@ public class V2HttpHandlerTemplateStorages extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession session) {
+  protected void handleBearerAuthorized(@NonNull String path, @NonNull HttpContext context,
+    @NonNull HttpSession session) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.endsWith("/templatestorage")) {
         this.handleStorageListRequest(context);

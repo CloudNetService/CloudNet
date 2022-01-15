@@ -23,7 +23,6 @@ import eu.cloudnetservice.cloudnet.node.template.install.ServiceVersionProvider;
 import eu.cloudnetservice.cloudnet.node.template.install.ServiceVersionType;
 import eu.cloudnetservice.modules.rest.RestUtils;
 import java.io.IOException;
-import org.jetbrains.annotations.NotNull;
 
 public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
 
@@ -32,7 +31,8 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(@NotNull String path, @NotNull HttpContext context, @NotNull HttpSession session) {
+  protected void handleBearerAuthorized(@NonNull String path, @NonNull HttpContext context,
+    @NonNull HttpSession session) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.endsWith("/serviceversion")) {
         this.handleVersionListRequest(context);

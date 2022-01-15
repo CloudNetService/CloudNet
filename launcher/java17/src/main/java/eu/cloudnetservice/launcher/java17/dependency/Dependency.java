@@ -17,7 +17,6 @@
 package eu.cloudnetservice.launcher.java17.dependency;
 
 import lombok.NonNull;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public record Dependency(
@@ -29,7 +28,7 @@ public record Dependency(
   @Nullable String classifier
 ) {
 
-  public @NotNull String normalizedGroup() {
+  public @NonNull String normalizedGroup() {
     return group.replace('.', '/');
   }
 
