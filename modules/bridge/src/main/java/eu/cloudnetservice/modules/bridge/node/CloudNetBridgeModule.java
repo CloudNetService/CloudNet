@@ -26,6 +26,7 @@ import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
 import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
+import eu.cloudnetservice.cloudnet.driver.network.http.HttpHandler;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncHandler;
@@ -33,6 +34,7 @@ import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.config.BridgeConfiguration;
 import eu.cloudnetservice.modules.bridge.config.ProxyFallbackConfiguration;
 import eu.cloudnetservice.modules.bridge.node.command.CommandBridge;
+import eu.cloudnetservice.modules.bridge.node.http.V2HttpHandlerBridge;
 import eu.cloudnetservice.modules.bridge.rpc.ComponentObjectSerializer;
 import eu.cloudnetservice.modules.bridge.rpc.TitleObjectSerializer;
 import java.nio.file.Files;
@@ -165,6 +167,12 @@ public final class CloudNetBridgeModule extends DriverModule {
       .build());
     // register the bridge command
     CloudNet.instance().commandProvider().register(new CommandBridge(management));
+    // register the bridge rest handler
+    CloudNet.instance().httpServer()
+      .registerHandler("/api/v2/player", new V2HttpHandlerBridge("http.v2.bridge"))
+      .registerHandler("/api/v2/player/{identifier}", new V2HttpHandlerBridge("http.v2.bridge"))
+      .registerHandler("/api/v2/player/{identifier}/exists", HttpHandler.PRIORITY_LOW,
+        new V2HttpHandlerBridge("http.v2.bridge"));
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)

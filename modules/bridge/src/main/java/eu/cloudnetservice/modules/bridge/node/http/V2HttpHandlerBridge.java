@@ -37,9 +37,9 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.endsWith("/exists")) {
         this.handleCloudPlayerExistsRequest(context);
-      } else if (path.endsWith("/onlineCount")) {
+      } else if (path.endsWith("/onlinecount")) {
         this.handleOnlinePlayerCountRequest(context);
-      } else if (path.endsWith("/registeredCount")) {
+      } else if (path.endsWith("/registeredcount")) {
         this.handleRegisteredPlayerCountRequest(context);
       } else {
         this.handleCloudPlayerRequest(context);
@@ -119,7 +119,7 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
     boolean mayBeNull,
     Consumer<CloudOfflinePlayer> handler
   ) {
-    var identifier = context.request().pathParameters().get("player");
+    var identifier = context.request().pathParameters().get("identifier");
     if (identifier == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing player identifier").toString())
