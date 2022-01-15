@@ -23,6 +23,7 @@ import eu.cloudnetservice.cloudnet.node.http.HttpSession;
 import eu.cloudnetservice.cloudnet.node.http.V2HttpHandler;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import lombok.NonNull;
 
 public class V2HttpHandlerTemplateStorages extends V2HttpHandler {
 

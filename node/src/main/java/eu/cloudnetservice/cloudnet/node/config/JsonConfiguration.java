@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.node.config;
 
+import com.google.common.collect.Lists;
 import eu.cloudnetservice.cloudnet.common.StringUtil;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.common.io.FileUtil;
@@ -30,7 +31,6 @@ import eu.cloudnetservice.cloudnet.node.util.NetworkAddressUtil;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -124,7 +124,7 @@ public final class JsonConfiguration implements Configuration {
           "Node-" + StringUtil.generateRandomString(4)),
         ConfigurationUtil.get(
           "cloudnet.config.listeners",
-          new HostAndPort[]{new HostAndPort(NetworkAddressUtil.localAddress(), 1410)},
+          Lists.newArrayList(new HostAndPort(NetworkAddressUtil.localAddress(), 1410)),
           ConfigurationUtil.HOST_AND_PORT_PARSER));
     }
 
@@ -220,8 +220,8 @@ public final class JsonConfiguration implements Configuration {
     if (this.httpListeners == null) {
       this.httpListeners = ConfigurationUtil.get(
         "cloudnet.config.httpListeners",
-        new ArrayList<>(Collections.singleton(new HostAndPort("0.0.0.0", 2812))),
-        value -> new ArrayList<>(Arrays.asList(ConfigurationUtil.HOST_AND_PORT_PARSER.apply(value))));
+        Lists.newArrayList(new HostAndPort("0.0.0.0", 2812)),
+        ConfigurationUtil.HOST_AND_PORT_PARSER);
     }
 
     if (this.accessControlConfiguration == null) {

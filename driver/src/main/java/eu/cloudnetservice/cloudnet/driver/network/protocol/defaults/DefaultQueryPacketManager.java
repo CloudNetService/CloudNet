@@ -16,9 +16,10 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.protocol.defaults;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.RemovalListener;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.RemovalListener;
+import com.github.benmanes.caffeine.cache.Scheduler;
 import eu.cloudnetservice.cloudnet.common.concurrent.CompletableTask;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
@@ -27,6 +28,7 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeoutException;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -65,8 +67,9 @@ public class DefaultQueryPacketManager implements QueryPacketManager {
     this.networkChannel = networkChannel;
     this.queryTimeout = queryTimeout;
     // construct the cache based on the given information
-    this.waitingHandlers = CacheBuilder.newBuilder()
+    this.waitingHandlers = Caffeine.newBuilder()
       .expireAfterWrite(queryTimeout)
+      .scheduler(Scheduler.systemScheduler())
       .removalListener(this.newRemovalListener())
       .build();
   }
@@ -148,15 +151,15 @@ public class DefaultQueryPacketManager implements QueryPacketManager {
   }
 
   /**
-   * Constructs a new removal listener for the cache, completing the future of a query packet with an empty packet if
-   * the future times out.
+   * Constructs a new removal listener for the cache, completing the future of a query packet with a timeout exception
+   * when evicted from the cache.
    *
    * @return a new removal listeners for unanswered packet future completion.
    */
   protected @NonNull RemovalListener<UUID, CompletableTask<Packet>> newRemovalListener() {
-    return notification -> {
-      if (notification.wasEvicted() && notification.getValue() != null) {
-        notification.getValue().complete(Packet.empty());
+    return ($, value, cause) -> {
+      if (cause.wasEvicted() && value != null) {
+        value.completeExceptionally(new TimeoutException());
       }
     };
   }

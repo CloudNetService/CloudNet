@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.launcher.java6;
+package eu.cloudnetservice.launcher.java8;
 
 public final class Launcher {
 

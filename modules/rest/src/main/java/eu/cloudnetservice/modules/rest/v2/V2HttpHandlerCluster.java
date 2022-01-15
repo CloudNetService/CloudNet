@@ -27,6 +27,7 @@ import eu.cloudnetservice.cloudnet.node.http.HttpSession;
 import eu.cloudnetservice.cloudnet.node.http.V2HttpHandler;
 import java.util.Collection;
 import java.util.stream.Collectors;
+import lombok.NonNull;
 
 public class V2HttpHandlerCluster extends V2HttpHandler {
 
@@ -115,7 +116,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
 
   protected void handleNodeCreateRequest(HttpContext context) {
     var server = this.body(context.request()).toInstanceOf(NetworkClusterNode.class);
-    if (server == null || server.listeners() == null) {
+    if (server == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing node server information").toString())
         .context()

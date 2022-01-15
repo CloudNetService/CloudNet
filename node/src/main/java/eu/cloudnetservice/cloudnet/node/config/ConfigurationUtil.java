@@ -18,17 +18,17 @@ package eu.cloudnetservice.cloudnet.node.config;
 
 import com.google.common.primitives.Ints;
 import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 final class ConfigurationUtil {
 
-  static final Function<String, HostAndPort[]> HOST_AND_PORT_PARSER = value -> {
+  static final Function<String, List<HostAndPort>> HOST_AND_PORT_PARSER = value -> {
     // the result
-    Collection<HostAndPort> listeners = new HashSet<>();
+    List<HostAndPort> listeners = new ArrayList<>();
     // read from the value
     var hostAndPorts = value.split(",");
     for (var hostAndPort : hostAndPorts) {
@@ -41,8 +41,7 @@ final class ConfigurationUtil {
         }
       }
     }
-    // collect to an array
-    return listeners.toArray(new HostAndPort[0]);
+    return listeners;
   };
 
   private ConfigurationUtil() {

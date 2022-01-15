@@ -17,6 +17,7 @@
 package eu.cloudnetservice.cloudnet.node.setup;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.driver.module.DefaultModuleProvider;
@@ -175,7 +176,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
     HostAndPort host = animation.result("internalHost");
     config.identity(new NetworkClusterNode(
       animation.hasResult("nodeId") ? animation.result("nodeId") : "Node-1",
-      new HostAndPort[]{host}));
+      Lists.newArrayList(host)));
     // whitelist the host address
     config.ipWhitelist().add(host.host());
 

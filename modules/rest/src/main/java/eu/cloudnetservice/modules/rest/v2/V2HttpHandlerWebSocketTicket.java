@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.rest.v2;
 import eu.cloudnetservice.cloudnet.driver.network.http.HttpContext;
 import eu.cloudnetservice.cloudnet.node.http.HttpSession;
 import eu.cloudnetservice.cloudnet.node.http.V2HttpHandler;
+import lombok.NonNull;
 
 public class V2HttpHandlerWebSocketTicket extends V2HttpHandler {
 

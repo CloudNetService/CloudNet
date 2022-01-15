@@ -22,6 +22,7 @@ import eu.cloudnetservice.cloudnet.driver.permission.PermissionUser;
 import eu.cloudnetservice.cloudnet.node.http.HttpSession;
 import eu.cloudnetservice.cloudnet.node.http.V2HttpHandler;
 import java.util.concurrent.TimeUnit;
+import lombok.NonNull;
 
 public class V2HttpHandlerAuthorization extends V2HttpHandler {
 

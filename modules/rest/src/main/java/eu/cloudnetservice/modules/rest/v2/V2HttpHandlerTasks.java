@@ -23,6 +23,7 @@ import eu.cloudnetservice.cloudnet.driver.service.ServiceTask;
 import eu.cloudnetservice.cloudnet.node.http.HttpSession;
 import eu.cloudnetservice.cloudnet.node.http.V2HttpHandler;
 import java.util.function.Consumer;
+import lombok.NonNull;
 
 public class V2HttpHandlerTasks extends V2HttpHandler {
 

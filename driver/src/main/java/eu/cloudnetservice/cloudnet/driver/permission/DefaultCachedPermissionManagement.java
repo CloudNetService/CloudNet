@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.cloudnet.driver.permission;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.RemovalCause;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.RemovalCause;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,6 +33,25 @@ public abstract class DefaultCachedPermissionManagement extends DefaultPermissio
   protected final Map<UUID, AtomicInteger> permissionUserLocks = new ConcurrentHashMap<>();
   protected final Map<String, AtomicInteger> permissionGroupLocks = new ConcurrentHashMap<>();
 
+  // holds all cached permission users and tries to unload them after 5 minutes of inactivity
+  // will be prevented if a lock is known for the given player object, for example when connected
+  protected final Cache<UUID, PermissionUser> permissionUserCache = Caffeine.newBuilder()
+    .expireAfterAccess(5, TimeUnit.MINUTES)
+    .removalListener((key, value, cause) -> {
+      if (key != null && value != null) {
+        this.handleUserRemove((UUID) key, (PermissionUser) value, cause);
+      }
+    })
+    .build();
+  // holds all cached permission groups, removes will get blocked if a lock for a group was obtained
+  protected final Cache<String, PermissionGroup> permissionGroupCache = Caffeine.newBuilder()
+    .removalListener((key, value, cause) -> {
+      if (key != null && value != null) {
+        this.handleGroupRemove((String) key, (PermissionGroup) value, cause);
+      }
+    })
+    .build();
+
   @Override
   public @NonNull Map<UUID, PermissionUser> cachedPermissionUsers() {
     return this.permissionUserCache.asMap();
@@ -42,23 +61,6 @@ public abstract class DefaultCachedPermissionManagement extends DefaultPermissio
   public @NonNull Map<String, PermissionGroup> cachedPermissionGroups() {
     return this.permissionGroupCache.asMap();
   }
-
-  protected final Cache<UUID, PermissionUser> permissionUserCache = CacheBuilder.newBuilder()
-    .expireAfterAccess(5, TimeUnit.MINUTES)
-    .concurrencyLevel(4)
-    .removalListener(notification -> this.handleUserRemove(
-      (UUID) notification.getKey(),
-      (PermissionUser) notification.getValue(),
-      notification.getCause()))
-    .build();
-
-  protected final Cache<String, PermissionGroup> permissionGroupCache = CacheBuilder.newBuilder()
-    .concurrencyLevel(4)
-    .removalListener(notification -> this.handleGroupRemove(
-      (String) notification.getKey(),
-      (PermissionGroup) notification.getValue(),
-      notification.getCause()))
-    .build();
 
   @Override
   public @Nullable PermissionUser cachedUser(@NonNull UUID uniqueId) {

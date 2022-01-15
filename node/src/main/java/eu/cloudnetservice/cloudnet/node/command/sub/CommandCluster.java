@@ -23,6 +23,7 @@ import cloud.commandframework.annotations.Flag;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
+import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import eu.cloudnetservice.cloudnet.common.column.ColumnFormatter;
 import eu.cloudnetservice.cloudnet.common.column.RowBasedFormatter;
@@ -82,7 +83,7 @@ public final class CommandCluster {
         return "Not connected";
       }
     })
-    .column(server -> Arrays.stream(server.nodeInfo().listeners())
+    .column(server -> server.nodeInfo().listeners().stream()
       .map(HostAndPort::toString)
       .collect(Collectors.joining(", ")))
     .build();
@@ -221,7 +222,7 @@ public final class CommandCluster {
     var nodeConfig = CloudNet.instance().config();
     var networkCluster = nodeConfig.clusterConfig();
     // add the new node to the cluster config
-    networkCluster.nodes().add(new NetworkClusterNode(nodeId, new HostAndPort[]{hostAndPort}));
+    networkCluster.nodes().add(new NetworkClusterNode(nodeId, Lists.newArrayList(hostAndPort)));
     nodeConfig.clusterConfig(networkCluster);
     // write the changes to the file
     nodeConfig.save();

@@ -23,6 +23,7 @@ import static eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.Pa
 import static eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.Parsers.uuid;
 import static eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.Parsers.validatedHostAndPort;
 
+import com.google.common.collect.Lists;
 import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkCluster;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNode;
@@ -106,7 +107,7 @@ public class DefaultClusterSetup implements DefaultSetup {
             // whitelist the address
             config.ipWhitelist().add(address.host());
             // map to a node
-            return new NetworkClusterNode(node, new HostAndPort[]{address});
+            return new NetworkClusterNode(node, Lists.newArrayList(address));
           })
           .collect(Collectors.toList())));
       // save the config to apply all changes
