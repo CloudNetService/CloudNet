@@ -25,7 +25,6 @@ import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.PacketListener;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.network.NodeNetworkUtil;
-import java.util.Arrays;
 import java.util.Objects;
 import lombok.NonNull;
 
@@ -39,7 +38,7 @@ public final class PacketServerAuthorizationResponseListener implements PacketLi
     if (packet.content().readBoolean()) {
       // search for the node to which the auth succeeded
       var server = CloudNet.instance().config().clusterConfig().nodes().stream()
-        .filter(node -> Arrays.stream(node.listeners()).anyMatch(host -> channel.serverAddress().equals(host)))
+        .filter(node -> node.listeners().stream().anyMatch(host -> channel.serverAddress().equals(host)))
         .map(node -> CloudNet.instance().nodeServerProvider().nodeServer(node.uniqueId()))
         .filter(Objects::nonNull)
         .filter(node -> node.acceptableConnection(channel, node.nodeInfo().uniqueId()))

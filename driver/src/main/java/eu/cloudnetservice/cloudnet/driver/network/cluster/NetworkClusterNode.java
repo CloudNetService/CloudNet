@@ -19,6 +19,7 @@ package eu.cloudnetservice.cloudnet.driver.network.cluster;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.common.document.property.JsonDocPropertyHolder;
 import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
+import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
@@ -34,7 +35,7 @@ import lombok.ToString;
 public class NetworkClusterNode extends JsonDocPropertyHolder {
 
   private final String uniqueId;
-  private final HostAndPort[] listeners;
+  private final List<HostAndPort> listeners;
 
   /**
    * Creates a new instance of a network cluster node.
@@ -43,7 +44,7 @@ public class NetworkClusterNode extends JsonDocPropertyHolder {
    * @param listeners the listeners of the node which are always running.
    * @throws NullPointerException if either the id or listener array is null.
    */
-  public NetworkClusterNode(@NonNull String uniqueId, @NonNull HostAndPort[] listeners) {
+  public NetworkClusterNode(@NonNull String uniqueId, @NonNull List<HostAndPort> listeners) {
     this.uniqueId = uniqueId;
     this.listeners = listeners;
   }
@@ -58,7 +59,7 @@ public class NetworkClusterNode extends JsonDocPropertyHolder {
    */
   public NetworkClusterNode(
     @NonNull String uniqueId,
-    @NonNull HostAndPort[] listeners,
+    @NonNull List<HostAndPort> listeners,
     @NonNull JsonDocument properties
   ) {
     this.uniqueId = uniqueId;
@@ -80,7 +81,7 @@ public class NetworkClusterNode extends JsonDocPropertyHolder {
    *
    * @return all listener of this node.
    */
-  public @NonNull HostAndPort[] listeners() {
+  public @NonNull List<HostAndPort> listeners() {
     return this.listeners;
   }
 }

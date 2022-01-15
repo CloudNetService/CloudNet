@@ -24,6 +24,7 @@ import eu.cloudnetservice.modules.bridge.player.CloudOfflinePlayer;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import java.util.UUID;
 import java.util.function.Consumer;
+import lombok.NonNull;
 
 public class V2HttpHandlerBridge extends V2HttpHandler {
 

@@ -23,6 +23,7 @@ import eu.cloudnetservice.cloudnet.node.template.install.ServiceVersionProvider;
 import eu.cloudnetservice.cloudnet.node.template.install.ServiceVersionType;
 import eu.cloudnetservice.modules.rest.RestUtil;
 import java.io.IOException;
+import lombok.NonNull;
 
 public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
 

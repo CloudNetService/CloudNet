@@ -24,6 +24,7 @@ import eu.cloudnetservice.cloudnet.node.http.HttpSession;
 import eu.cloudnetservice.cloudnet.node.http.V2HttpHandler;
 import eu.cloudnetservice.modules.rest.RestUtil;
 import java.util.function.BiConsumer;
+import lombok.NonNull;
 
 public class V2HttpHandlerDatabase extends V2HttpHandler {
 

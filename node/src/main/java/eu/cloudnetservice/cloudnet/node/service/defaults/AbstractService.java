@@ -570,7 +570,7 @@ public abstract class AbstractService implements CloudService {
       .append("serviceInfoSnapshot", this.currentServiceInfo)
       .append("serviceConfiguration", this.serviceConfiguration())
       .append("sslConfiguration", this.nodeConfiguration().serverSSLConfig())
-      .append("targetListener", listeners[ThreadLocalRandom.current().nextInt(listeners.length)])
+      .append("targetListener", listeners.get(ThreadLocalRandom.current().nextInt(listeners.size())))
       .write(this.serviceDirectory.resolve(WRAPPER_CONFIG_PATH));
     // load the ssl configuration if enabled
     var sslConfiguration = this.nodeConfiguration().serverSSLConfig();

@@ -20,6 +20,7 @@ import eu.cloudnetservice.cloudnet.common.unsafe.CPUUsageResolver;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import eu.cloudnetservice.modules.report.paste.emitter.ReportDataEmitter;
 import java.lang.management.ManagementFactory;
+import lombok.NonNull;
 
 public class NodeAllocationEmitter implements ReportDataEmitter<NetworkClusterNodeInfoSnapshot> {
 

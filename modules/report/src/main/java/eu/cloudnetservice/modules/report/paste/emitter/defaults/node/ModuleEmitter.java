@@ -21,6 +21,7 @@ import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.modules.report.paste.emitter.ReportDataEmitter;
+import lombok.NonNull;
 
 public class ModuleEmitter implements ReportDataEmitter<NetworkClusterNodeInfoSnapshot> {
 

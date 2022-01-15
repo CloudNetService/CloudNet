@@ -25,6 +25,7 @@ import eu.cloudnetservice.cloudnet.node.http.HttpSession;
 import eu.cloudnetservice.cloudnet.node.http.V2HttpHandler;
 import java.util.UUID;
 import java.util.function.Consumer;
+import lombok.NonNull;
 
 public class V2HttpHandlerPermission extends V2HttpHandler {
 

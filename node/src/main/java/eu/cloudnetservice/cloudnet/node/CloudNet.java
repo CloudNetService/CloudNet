@@ -253,9 +253,9 @@ public class CloudNet extends CloudNetDriver {
     for (var node : this.nodeServerProvider.nodeServers()) {
       var listeners = node.nodeInfo().listeners();
       // check if there are any listeners
-      if (listeners.length > 0) {
+      if (!listeners.isEmpty()) {
         // get a random listener of the node
-        var listener = listeners[ThreadLocalRandom.current().nextInt(0, listeners.length)];
+        var listener = listeners.get(ThreadLocalRandom.current().nextInt(0, listeners.size()));
         if (this.networkClient.connect(listener)) {
           // register a future that waits for the node to become available
           futures.add(CompletableFuture.runAsync(() -> {

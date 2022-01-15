@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class V2HttpHandlerModule extends V2HttpHandler {
