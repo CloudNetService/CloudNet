@@ -53,6 +53,7 @@ public class NPC extends JsonDocPropertyHolder {
   private final boolean glowing;
   private final String glowingColor;
 
+  private final boolean hideEntityName;
   private final boolean flyingWithElytra;
 
   private final String floatingItem;
@@ -73,6 +74,7 @@ public class NPC extends JsonDocPropertyHolder {
     boolean usePlayerSkin,
     boolean glowing,
     @NonNull String glowingColor,
+    boolean hideEntityName,
     boolean flyingWithElytra,
     @Nullable String floatingItem,
     @NonNull ClickAction leftClickAction,
@@ -90,6 +92,7 @@ public class NPC extends JsonDocPropertyHolder {
     this.usePlayerSkin = usePlayerSkin;
     this.glowing = glowing;
     this.glowingColor = glowingColor;
+    this.hideEntityName = hideEntityName;
     this.flyingWithElytra = flyingWithElytra;
     this.floatingItem = floatingItem;
     this.leftClickAction = leftClickAction;
@@ -113,6 +116,7 @@ public class NPC extends JsonDocPropertyHolder {
       .usePlayerSkin(npc.usePlayerSkin())
       .glowing(npc.glowing())
       .glowingColor(npc.glowingColor())
+      .hideEntityName(npc.hideEntityName())
       .flyingWithElytra(npc.flyingWithElytra())
       .floatingItem(npc.floatingItem())
       .leftClickAction(npc.leftClickAction())
@@ -177,6 +181,10 @@ public class NPC extends JsonDocPropertyHolder {
     return this.glowingColor;
   }
 
+  public boolean hideEntityName() {
+    return this.hideEntityName;
+  }
+
   public boolean flyingWithElytra() {
     return this.flyingWithElytra;
   }
@@ -231,6 +239,7 @@ public class NPC extends JsonDocPropertyHolder {
     private boolean glowing = false;
     private String glowingColor = "§f";
 
+    private boolean hideEntityName = false;
     private boolean flyingWithElytra = false;
 
     private String floatingItem;
@@ -298,6 +307,11 @@ public class NPC extends JsonDocPropertyHolder {
       return this;
     }
 
+    public @NonNull Builder hideEntityName(boolean hideEntityName) {
+      this.hideEntityName = hideEntityName;
+      return this;
+    }
+
     public @NonNull Builder flyingWithElytra(boolean flyingWithElytra) {
       this.flyingWithElytra = flyingWithElytra;
       return this;
@@ -340,6 +354,7 @@ public class NPC extends JsonDocPropertyHolder {
         this.usePlayerSkin,
         this.glowing,
         this.glowingColor,
+        this.hideEntityName,
         this.flyingWithElytra,
         this.floatingItem,
         this.leftClickAction,

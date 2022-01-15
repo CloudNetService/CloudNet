@@ -91,8 +91,8 @@ public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEn
     // spawn the entity
     this.entity = (LivingEntity) this.npcLocation.getWorld().spawnEntity(this.npcLocation, type);
     this.entity.setFireTicks(0);
-    this.entity.setCustomNameVisible(true);
     this.entity.setCustomName(this.npc.displayName());
+    this.entity.setCustomNameVisible(!this.npc.hideEntityName());
     // set the profession of the villager to prevent inconsistency
     if (this.entity instanceof Villager) {
       ((Villager) this.entity).setProfession(Profession.FARMER);
