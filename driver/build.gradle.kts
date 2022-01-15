@@ -45,6 +45,7 @@ dependencies {
   "api"(projects.cloudnetCommon)
 
   "api"(libs.asm)
+  "api"(libs.caffeine)
   "implementation"(libs.bundles.netty)
   "implementation"(variantOf(libs.nettyNativeEpoll) { classifier("linux-x86_64") })
 

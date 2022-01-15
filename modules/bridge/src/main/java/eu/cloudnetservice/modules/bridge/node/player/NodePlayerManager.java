@@ -16,10 +16,9 @@
 
 package eu.cloudnetservice.modules.bridge.node.player;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.google.common.base.Preconditions;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.Striped;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
@@ -72,18 +71,15 @@ public class NodePlayerManager implements PlayerManager {
     () -> this.onlinePlayers.values().stream());
 
   protected final Striped<Lock> playerReadWriteLocks = Striped.lazyWeakLock(1);
-  protected final LoadingCache<UUID, Optional<CloudOfflinePlayer>> offlinePlayerCache = CacheBuilder.newBuilder()
-    .concurrencyLevel(4)
+  protected final LoadingCache<UUID, Optional<CloudOfflinePlayer>> offlinePlayerCache = Caffeine.newBuilder()
     .expireAfterAccess(5, TimeUnit.MINUTES)
-    .build(new CacheLoader<>() {
-      @Override
-      public Optional<CloudOfflinePlayer> load(@NonNull UUID uniqueId) {
-        var document = NodePlayerManager.this.database().get(uniqueId.toString());
-        if (document == null) {
-          return Optional.empty();
-        } else {
-          return Optional.of(document.toInstanceOf(CloudOfflinePlayer.class));
-        }
+    .build(uniqueId -> {
+      // load the player from the database sync to block the current thread
+      var document = NodePlayerManager.this.database().get(uniqueId.toString());
+      if (document == null) {
+        return Optional.empty();
+      } else {
+        return Optional.of(document.toInstanceOf(CloudOfflinePlayer.class));
       }
     });
 
@@ -184,7 +180,7 @@ public class NodePlayerManager implements PlayerManager {
 
   @Override
   public CloudOfflinePlayer offlinePlayer(@NonNull UUID uniqueId) {
-    return this.offlinePlayerCache.getUnchecked(uniqueId).orElse(null);
+    return this.offlinePlayerCache.get(uniqueId).orElse(null);
   }
 
   @Override
