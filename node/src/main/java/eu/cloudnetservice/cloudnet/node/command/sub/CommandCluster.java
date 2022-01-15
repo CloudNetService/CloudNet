@@ -226,7 +226,7 @@ public final class CommandCluster {
     nodeConfig.clusterConfig(networkCluster);
     // write the changes to the file
     nodeConfig.save();
-    source.sendMessage(I18n.trans("command-cluster-create-node-success"));
+    source.sendMessage(I18n.trans("command-cluster-add-node-success"));
   }
 
   @CommandMethod("cluster|clu remove <nodeId>")

@@ -55,8 +55,8 @@ public final class DefaultNetworkClientChannelHandler implements NetworkChannelH
 
       LOGGER.fine(
         I18n.trans("client-network-channel-init",
-          channel.serverAddress().host() + ":" + channel.serverAddress().port(),
-          channel.clientAddress().host() + ":" + channel.clientAddress().port()));
+          channel.serverAddress(),
+          channel.clientAddress().host()));
     } else {
       channel.close();
     }
@@ -76,8 +76,8 @@ public final class DefaultNetworkClientChannelHandler implements NetworkChannelH
 
     LOGGER.fine(
       I18n.trans("client-network-channel-close",
-        channel.serverAddress().host() + ":" + channel.serverAddress().port(),
-        channel.clientAddress().host() + ":" + channel.clientAddress().port()));
+        channel.serverAddress(),
+        channel.clientAddress()));
 
     var clusterNodeServer = CloudNet.instance().nodeServerProvider().nodeServer(channel);
     if (clusterNodeServer != null) {

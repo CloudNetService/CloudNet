@@ -55,6 +55,6 @@ public final class PacketServerAuthorizationResponseListener implements PacketLi
     }
 
     channel.close();
-    LOGGER.warning(I18n.trans("cluster-server-networking-authorization-failed"));
+    LOGGER.warning(I18n.trans("cluster-server-networking-authorization-failed", channel.serverAddress()));
   }
 }
