@@ -87,8 +87,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
     var nodeServer = this.node().nodeServerProvider().selfNode();
 
     var information = this.success()
-      .append("title", CloudNet.class.getPackage().getImplementationTitle())
-      .append("version", CloudNet.class.getPackage().getImplementationVersion())
+      .append("version", CloudNet.instance().version())
       .append("nodeInfoSnapshot", nodeServer.nodeInfoSnapshot())
       .append("lastNodeInfoSnapshot", nodeServer.lastNodeInfoSnapshot())
       .append("serviceCount", this.node().cloudServiceProvider().serviceCount())

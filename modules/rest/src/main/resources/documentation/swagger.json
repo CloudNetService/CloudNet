@@ -1,5 +1,5 @@
 {
-  "openapi" : "3.0.3",
+  "openapi" : "3.0.1",
   "info" : {
     "description" : "CloudNet's rest API version 2 is the next generation in CloudNet's rest history. It has\ndefinitely more opportunities than the previous version of it and provides\na lot of methods to manage and control the CloudNet node and cluster behaviour.\n\nThe API is based on http/https requests and mostely JSON responses. You need\nto send your session bearer token when you make a request. The token can be\nobtained by sending a request to the /auth route. Most of the routes require\nan authentication and a permission which must be set to access the endpoint.\n\nAll the responses contain a `success` boolean (if they are JSON responses) giving\ninformation whether or not the request was handled successfully. If that boolean is\n`false` an extra `reason` field is appended to the JSON entity defining the cause\nof the failure.\n\nEvery rest rout is fixed to a version number and every call must contain one.\nThe latest one is 2. The latest stable endpoint base URL is\n`http(s)://{host}:{port}/api/v2/`. Host and port is the one defined in your\nCloudNet's node config.json `httpListeners` section. If you want to use https\nyou have to configure the web SSL settings in the same file.\n",
     "version" : "2",
@@ -3569,89 +3569,92 @@
       },
       "JsonConfiguration" : {
         "type" : "object",
-        "properties" : {
-          "identity" : {
-            "$ref" : "#/components/schemas/NetworkClusterNode"
-          },
-          "clusterConfig" : {
-            "type" : "object",
-            "properties" : {
-              "clusterId" : {
-                "type" : "string",
-                "example" : "a0e8765e-7853-455b-bb2b-7a022a607be2"
-              },
-              "nodes" : {
-                "type" : "array",
-                "items" : {
-                  "$ref" : "#/components/schemas/NetworkClusterNode"
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/JsonDocPropertyable"
+        }, {
+          "properties" : {
+            "identity" : {
+              "$ref" : "#/components/schemas/NetworkClusterNode"
+            },
+            "clusterConfig" : {
+              "type" : "object",
+              "properties" : {
+                "clusterId" : {
+                  "type" : "string",
+                  "example" : "a0e8765e-7853-455b-bb2b-7a022a607be2"
+                },
+                "nodes" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/NetworkClusterNode"
+                  }
                 }
               }
-            }
-          },
-          "ipWhitelist" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
             },
-            "example" : [ "192.168.56.1", "127.0.0.1" ]
-          },
-          "maxCPUUsageToStartServices" : {
-            "type" : "number",
-            "example" : 90.0
-          },
-          "parallelServiceStartSequence" : {
-            "type" : "boolean",
-            "example" : true
-          },
-          "runBlockedServiceStartTryLaterAutomatic" : {
-            "type" : "boolean",
-            "example" : true
-          },
-          "maxMemory" : {
-            "type" : "number",
-            "example" : 2048
-          },
-          "maxServiceConsoleLogCacheSize" : {
-            "type" : "integer",
-            "example" : 128
-          },
-          "printErrorStreamLinesFromServices" : {
-            "type" : "boolean",
-            "example" : true
-          },
-          "defaultJVMFlags" : {
-            "type" : "string",
-            "enum" : [ "NONE", "DYTANIC", "AIKAR" ],
-            "example" : "DYTANIC"
-          },
-          "jvmCommand" : {
-            "type" : "string",
-            "example" : "java"
-          },
-          "hostAddress" : {
-            "type" : "string",
-            "example" : "127.0.0.1"
-          },
-          "connectHostAddress" : {
-            "type" : "string",
-            "example" : "127.0.0.1"
-          },
-          "httpListeners" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/HostAndPort"
+            "ipWhitelist" : {
+              "type" : "array",
+              "items" : {
+                "type" : "string"
+              },
+              "example" : [ "192.168.56.1", "127.0.0.1" ]
+            },
+            "maxCPUUsageToStartServices" : {
+              "type" : "number",
+              "example" : 90.0
+            },
+            "maxMemory" : {
+              "type" : "number",
+              "example" : 2048
+            },
+            "maxServiceConsoleLogCacheSize" : {
+              "type" : "integer",
+              "example" : 128
+            },
+            "processTerminationTimeoutSeconds" : {
+              "type" : "integer",
+              "example" : 5
+            },
+            "forceInitialClusterDataSync" : {
+              "type" : "boolean",
+              "example" : true
+            },
+            "printErrorStreamLinesFromServices" : {
+              "type" : "boolean",
+              "example" : true
+            },
+            "runBlockedServiceStartTryLaterAutomatic" : {
+              "type" : "boolean",
+              "example" : true
+            },
+            "jvmCommand" : {
+              "type" : "string",
+              "example" : "java"
+            },
+            "hostAddress" : {
+              "type" : "string",
+              "example" : "127.0.0.1"
+            },
+            "connectHostAddress" : {
+              "type" : "string",
+              "example" : "127.0.0.1"
+            },
+            "httpListeners" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/components/schemas/HostAndPort"
+              }
+            },
+            "clientSslConfig" : {
+              "$ref" : "#/components/schemas/ConfigurationOptionSSL"
+            },
+            "serverSslConfig" : {
+              "$ref" : "#/components/schemas/ConfigurationOptionSSL"
+            },
+            "webSslConfig" : {
+              "$ref" : "#/components/schemas/ConfigurationOptionSSL"
             }
-          },
-          "clientSslConfig" : {
-            "$ref" : "#/components/schemas/ConfigurationOptionSSL"
-          },
-          "serverSslConfig" : {
-            "$ref" : "#/components/schemas/ConfigurationOptionSSL"
-          },
-          "webSslConfig" : {
-            "$ref" : "#/components/schemas/ConfigurationOptionSSL"
           }
-        }
+        } ]
       },
       "ConfigurationOptionSSL" : {
         "type" : "object",
@@ -3709,16 +3712,9 @@
                     "type" : "number",
                     "example" : "1620819600457"
                   },
-                  "node" : {
-                    "$ref" : "#/components/schemas/NetworkClusterNode"
-                  },
-                  "version" : {
-                    "type" : "string",
-                    "example" : "3.4.0-SNAPSHOT-1e90354"
-                  },
-                  "currentServicesCount" : {
-                    "type" : "integer",
-                    "example" : 5
+                  "maxMemory" : {
+                    "type" : "number",
+                    "example" : 2048
                   },
                   "usedMemory" : {
                     "type" : "number",
@@ -3728,26 +3724,32 @@
                     "type" : "number",
                     "example" : 1024
                   },
-                  "maxMemory" : {
-                    "type" : "number",
-                    "example" : 2048
+                  "currentServicesCount" : {
+                    "type" : "integer",
+                    "example" : 5
+                  },
+                  "drain" : {
+                    "type" : "boolean",
+                    "example" : false
+                  },
+                  "node" : {
+                    "$ref" : "#/components/schemas/NetworkClusterNode"
+                  },
+                  "version" : {
+                    "$ref" : "#/components/schemas/CloudNetVersion"
+                  },
+                  "processSnapshot" : {
+                    "$ref" : "#/components/schemas/ProcessSnapshot"
                   },
                   "maxCPUUsageToStartServices" : {
                     "type" : "number",
                     "example" : 90
-                  },
-                  "processSnapshot" : {
-                    "$ref" : "#/components/schemas/ProcessSnapshot"
                   },
                   "modules" : {
                     "type" : "array",
                     "items" : {
                       "$ref" : "#/components/schemas/ModuleConfiguration"
                     }
-                  },
-                  "systemCpuUsage" : {
-                    "type" : "number",
-                    "example" : 59.49392987250135
                   }
                 }
               } ]
@@ -3823,12 +3825,6 @@
           "$ref" : "#/components/schemas/JsonDocPropertyable"
         }, {
           "properties" : {
-            "includes" : {
-              "type" : "array",
-              "items" : {
-                "$ref" : "#/components/schemas/ServiceRemoteInclusion"
-              }
-            },
             "templates" : {
               "type" : "array",
               "items" : {
@@ -3839,6 +3835,12 @@
               "type" : "array",
               "items" : {
                 "$ref" : "#/components/schemas/ServiceDeployment"
+              }
+            },
+            "includes" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/components/schemas/ServiceRemoteInclusion"
               }
             }
           }
@@ -3871,7 +3873,7 @@
             "targetEnvironments" : {
               "type" : "array",
               "items" : {
-                "type" : "object"
+                "type" : "string"
               },
               "example" : [ "MINECRAFT_SERVER", "VELOCITY" ]
             }
@@ -3880,55 +3882,42 @@
       },
       "PermissionGroup" : {
         "type" : "object",
-        "properties" : {
-          "groups" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/Permissible"
+        }, {
+          "properties" : {
+            "color" : {
+              "type" : "string",
+              "example" : "&6"
             },
-            "example" : [ "Other group 1", "Other group 2" ]
-          },
-          "prefix" : {
-            "type" : "string",
-            "example" : "&7Spieler"
-          },
-          "color" : {
-            "type" : "string",
-            "example" : "&6"
-          },
-          "suffix" : {
-            "type" : "string",
-            "example" : "&a"
-          },
-          "display" : {
-            "type" : "string",
-            "example" : "&7Spieler"
-          },
-          "sortId" : {
-            "type" : "integer",
-            "example" : 50
-          },
-          "defaultGroup" : {
-            "type" : "boolean"
-          },
-          "createdTime" : {
-            "type" : "number"
-          },
-          "name" : {
-            "type" : "string",
-            "example" : "Spieler"
-          },
-          "potency" : {
-            "type" : "integer",
-            "example" : 10
-          },
-          "permissions" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/Permission"
+            "prefix" : {
+              "type" : "string",
+              "example" : "&7Spieler"
+            },
+            "suffix" : {
+              "type" : "string",
+              "example" : "&a"
+            },
+            "display" : {
+              "type" : "string",
+              "example" : "&7Spieler"
+            },
+            "sortId" : {
+              "type" : "integer",
+              "example" : 50
+            },
+            "defaultGroup" : {
+              "type" : "boolean",
+              "example" : true
+            },
+            "groups" : {
+              "type" : "array",
+              "items" : {
+                "type" : "string"
+              }
             }
           }
-        }
+        } ]
       },
       "Permission" : {
         "type" : "object",
@@ -3949,48 +3938,104 @@
       },
       "PermissionUser" : {
         "type" : "object",
-        "properties" : {
-          "uniqueId" : {
-            "type" : "string",
-            "example" : "62b37d32-3305-475a-bf26-9abee4b0b90f"
-          },
-          "groups" : {
-            "type" : "array",
-            "items" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/Permissible"
+        }, {
+          "properties" : {
+            "uniqueId" : {
               "type" : "string",
-              "example" : [ "Group1", "Group2" ]
-            }
-          },
-          "hashedPassword" : {
-            "type" : "string",
-            "example" : "pmWkWSBCL51Bfkhn79xPuKBKHz//H6B+mY6G9/eieuM="
-          },
-          "createdTime" : {
-            "type" : "integer",
-            "example" : 1624713880928
-          },
-          "name" : {
-            "type" : "string",
-            "example" : "CloudNetUser"
-          },
-          "potency" : {
-            "type" : "integer",
-            "example" : 100
-          },
-          "permissions" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/Permission"
+              "example" : "62b37d32-3305-475a-bf26-9abee4b0b90f"
+            },
+            "hashedPassword" : {
+              "type" : "string",
+              "example" : "pmWkWSBCL51Bfkhn79xPuKBKHz//H6B+mY6G9/eieuM=",
+              "description" : "A sha-256 hashed string encoded in base64"
+            },
+            "groups" : {
+              "type" : "array",
+              "items" : {
+                "type" : "object",
+                "properties" : {
+                  "group" : {
+                    "type" : "string",
+                    "example" : "Admin"
+                  },
+                  "timeOutMillis" : {
+                    "type" : "number",
+                    "example" : -1
+                  }
+                }
+              }
             }
           }
-        }
+        } ]
+      },
+      "Permissible" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/JsonDocPropertyable"
+        }, {
+          "properties" : {
+            "name" : {
+              "type" : "string",
+              "example" : "Spieler"
+            },
+            "potency" : {
+              "type" : "integer",
+              "example" : 10
+            },
+            "createdTime" : {
+              "type" : "number",
+              "example" : 1642377151
+            },
+            "permissions" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/components/schemas/Permission"
+              }
+            },
+            "groupPermissions" : {
+              "type" : "object",
+              "additionalProperties" : {
+                "type" : "array",
+                "items" : {
+                  "$ref" : "#/components/schemas/Permission"
+                }
+              }
+            }
+          }
+        } ]
       },
       "OfflinePlayer" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/JsonDocPropertyable"
+        }, {
+          "properties" : {
+            "name" : {
+              "type" : "string",
+              "example" : "derklaro"
+            },
+            "firstLoginTimeMillis" : {
+              "type" : "number",
+              "example" : 1642409856
+            },
+            "lastLoginTimeMillis" : {
+              "type" : "number",
+              "example" : 1642409856
+            },
+            "lastNetworkPlayerProxyInfo" : {
+              "$ref" : "#/components/schemas/NetworkPlayerProxyInfo"
+            }
+          }
+        } ]
+      },
+      "NetworkPlayerProxyInfo" : {
         "type" : "object",
         "properties" : {
           "uniqueId" : {
             "type" : "string",
-            "example" : "bcc582ed-494d-4b93-86cb-b58564651a26"
+            "example" : ""
           },
           "name" : {
             "type" : "string",
@@ -4000,59 +4045,36 @@
             "type" : "string",
             "example" : null
           },
-          "firstLoginTimeMillis" : {
-            "type" : "number",
-            "example" : 1626194104
+          "version" : {
+            "type" : "integer",
+            "example" : 47
           },
-          "lastLoginTimeMillis" : {
-            "type" : "number",
-            "example" : 1626194104
+          "address" : {
+            "$ref" : "#/components/schemas/HostAndPort"
           },
-          "lastNetworkConnectionInfo" : {
-            "type" : "object",
-            "properties" : {
-              "uniqueId" : {
-                "type" : "string",
-                "example" : "bcc582ed-494d-4b93-86cb-b58564651a26"
-              },
-              "name" : {
-                "type" : "string",
-                "example" : "derklaro"
-              },
-              "version" : {
-                "type" : "integer",
-                "example" : 756
-              },
-              "address" : {
-                "$ref" : "#/components/schemas/HostAndPort"
-              },
-              "listener" : {
-                "$ref" : "#/components/schemas/HostAndPort"
-              },
-              "onlineMode" : {
-                "type" : "boolean",
-                "example" : true
-              },
-              "legacy" : {
-                "type" : "boolean",
-                "example" : false
-              },
-              "networkService" : {
-                "type" : "object",
-                "properties" : {
-                  "serviceId" : {
-                    "$ref" : "#/components/schemas/ServiceId"
-                  },
-                  "groups" : {
-                    "type" : "array",
-                    "items" : {
-                      "type" : "string"
-                    },
-                    "example" : [ "Global", "Global-Proxy" ]
-                  }
-                }
-              }
+          "listener" : {
+            "$ref" : "#/components/schemas/HostAndPort"
+          },
+          "onlineMode" : {
+            "type" : "boolean",
+            "example" : true
+          },
+          "networkService" : {
+            "$ref" : "#/components/schemas/NetworkServiceInfo"
+          }
+        }
+      },
+      "NetworkServiceInfo" : {
+        "type" : "object",
+        "properties" : {
+          "groups" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
             }
+          },
+          "serviceId" : {
+            "$ref" : "#/components/schemas/ServiceId"
           }
         }
       },
@@ -4071,6 +4093,10 @@
             "type" : "string",
             "example" : "local"
           },
+          "priority" : {
+            "type" : "integer",
+            "example" : 5
+          },
           "alwaysCopyToStaticServices" : {
             "type" : "boolean",
             "example" : false
@@ -4083,16 +4109,14 @@
           "$ref" : "#/components/schemas/Success"
         }, {
           "properties" : {
-            "title" : {
-              "type" : "string",
-              "example" : "Earthquake"
-            },
             "version" : {
-              "type" : "string",
-              "example" : "3.4.0-SNAPSHOT-1e90354"
+              "$ref" : "#/components/schemas/CloudNetVersion"
             },
             "nodeInfoSnapshot" : {
-              "type" : "object"
+              "$ref" : "#/components/schemas/NetworkClusterNodeInfoSnapshot"
+            },
+            "lastNodeInfoSnapshot" : {
+              "$ref" : "#/components/schemas/NetworkClusterNodeInfoSnapshot"
             },
             "serviceCount" : {
               "type" : "integer",
@@ -4111,6 +4135,22 @@
       "ProcessSnapshot" : {
         "type" : "object",
         "properties" : {
+          "pid" : {
+            "type" : "integer",
+            "example" : 8168
+          },
+          "cpuUsage" : {
+            "type" : "number",
+            "example" : 0.7781862806132257
+          },
+          "systemCpuUsage" : {
+            "type" : "number",
+            "example" : 0.7781862806132257
+          },
+          "maxHeapMemory" : {
+            "type" : "number",
+            "example" : 2111832064
+          },
           "heapUsageMemory" : {
             "type" : "number",
             "example" : 230091112
@@ -4119,35 +4159,23 @@
             "type" : "number",
             "example" : 46906136
           },
-          "maxHeapMemory" : {
+          "unloadedClassCount" : {
             "type" : "number",
-            "example" : 2111832064
-          },
-          "currentLoadedClassCount" : {
-            "type" : "number",
-            "example" : 5919
+            "example" : 21
           },
           "totalLoadedClassCount" : {
             "type" : "number",
             "example" : 5940
           },
-          "unloadedClassCount" : {
+          "currentLoadedClassCount" : {
             "type" : "number",
-            "example" : 21
+            "example" : 5919
           },
           "threads" : {
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/ThreadSnapshot"
             }
-          },
-          "cpuUsage" : {
-            "type" : "number",
-            "example" : 0.7781862806132257
-          },
-          "pid" : {
-            "type" : "integer",
-            "example" : 8168
           }
         }
       },
@@ -4158,6 +4186,14 @@
             "type" : "number",
             "example" : 5
           },
+          "priority" : {
+            "type" : "integer",
+            "example" : 1
+          },
+          "daemon" : {
+            "type" : "boolean",
+            "example" : true
+          },
           "name" : {
             "type" : "string",
             "example" : "WindowsStreamPump"
@@ -4166,14 +4202,6 @@
             "type" : "string",
             "enum" : [ "NEW", "RUNNABLE", "BLOCKED", "WAITING", "TIMED_WAITING", "TERMINATED" ],
             "example" : "RUNNABLE"
-          },
-          "daemon" : {
-            "type" : "boolean",
-            "example" : true
-          },
-          "priority" : {
-            "type" : "integer",
-            "example" : 1
           }
         }
       },
@@ -4190,7 +4218,7 @@
           },
           "group" : {
             "type" : "string",
-            "example" : "de.dytanic.cloudnet.modules"
+            "example" : "eu.cloudnetservice.modules"
           },
           "name" : {
             "type" : "string",
@@ -4202,7 +4230,7 @@
           },
           "main" : {
             "type" : "string",
-            "example" : "de.dytanic.cloudnet.ext.cloudflare.CloudNetCloudflareModule"
+            "example" : "eu.cloudnetservice.cloudnet.modules.CloudNetCloudflareModule"
           },
           "description" : {
             "type" : "string",
@@ -4216,7 +4244,11 @@
             "type" : "string",
             "example" : "https://cloudnetservice.eu"
           },
-          "repos" : {
+          "dataFolder" : {
+            "type" : "string",
+            "example" : null
+          },
+          "repositories" : {
             "type" : "array",
             "items" : {
               "type" : "object",
@@ -4247,7 +4279,7 @@
                 },
                 "group" : {
                   "type" : "string",
-                  "example" : "de.dytanic.cloudnet.modules"
+                  "example" : "eu.cloudnetservice.cloudnet"
                 },
                 "name" : {
                   "type" : "string",
@@ -4259,6 +4291,10 @@
                 }
               }
             }
+          },
+          "minJavaVersionId" : {
+            "type" : "integer",
+            "example" : 11
           },
           "properties" : {
             "type" : "object",
@@ -4301,7 +4337,8 @@
           "properties" : {
             "name" : {
               "type" : "string",
-              "example" : "Lobby"
+              "example" : "Lobby",
+              "pattern" : "^[a-zA-Z0-9._\\-*]*$"
             },
             "runtime" : {
               "type" : "string",
@@ -4310,6 +4347,10 @@
             "javaCommand" : {
               "type" : "string",
               "example" : "java"
+            },
+            "nameSplitter" : {
+              "type" : "string",
+              "example" : "-"
             },
             "disableIpRewrite" : {
               "type" : "boolean",
@@ -4327,19 +4368,19 @@
               "type" : "boolean",
               "example" : true
             },
-            "associatedNodes" : {
-              "type" : "array",
-              "items" : {
-                "type" : "string"
-              },
-              "example" : [ "Node-1", "Node-2" ]
-            },
             "groups" : {
               "type" : "array",
               "items" : {
                 "type" : "string"
               },
               "example" : [ "Lobby", "Global-Lobby" ]
+            },
+            "associatedNodes" : {
+              "type" : "array",
+              "items" : {
+                "type" : "string"
+              },
+              "example" : [ "Node-1", "Node-2" ]
             },
             "deletedFilesAfterStop" : {
               "type" : "array",
@@ -4365,13 +4406,28 @@
       "ServiceId" : {
         "type" : "object",
         "properties" : {
-          "uniqueId" : {
-            "type" : "string",
-            "example" : "43a9e824-cc3c-459b-b574-4f41e6509bda"
-          },
           "taskName" : {
             "type" : "string",
             "example" : "Lobby"
+          },
+          "nameSplitter" : {
+            "type" : "string",
+            "example" : "-"
+          },
+          "environmentName" : {
+            "type" : "string",
+            "example" : "MINECRAFT_SERVER"
+          },
+          "allowedNodes" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            },
+            "example" : [ "Node-1", "Node-2" ]
+          },
+          "uniqueId" : {
+            "type" : "string",
+            "example" : "43a9e824-cc3c-459b-b574-4f41e6509bda"
           },
           "taskServiceId" : {
             "type" : "integer",
@@ -4381,16 +4437,8 @@
             "type" : "string",
             "example" : "Node-2"
           },
-          "allowedNodes" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            },
-            "example" : [ "Node-1", "Node-2" ]
-          },
           "environment" : {
-            "type" : "string",
-            "example" : "MINECRAFT_SERVER"
+            "$ref" : "#/components/schemas/ServiceEnvironmentType"
           }
         }
       },
@@ -4403,6 +4451,9 @@
             "serviceId" : {
               "$ref" : "#/components/schemas/ServiceId"
             },
+            "processConfig" : {
+              "$ref" : "#/components/schemas/ProcessConfiguration"
+            },
             "runtime" : {
               "type" : "string",
               "example" : "jvm"
@@ -4411,6 +4462,14 @@
               "type" : "string",
               "example" : "java"
             },
+            "autoDeleteOnStop" : {
+              "type" : "boolean",
+              "example" : true
+            },
+            "staticService" : {
+              "type" : "boolean",
+              "example" : true
+            },
             "groups" : {
               "type" : "array",
               "items" : {
@@ -4418,11 +4477,12 @@
               },
               "example" : [ "Lobby", "Lobby-Global" ]
             },
-            "includes" : {
+            "deletedFilesAfterStop" : {
               "type" : "array",
               "items" : {
-                "$ref" : "#/components/schemas/ServiceRemoteInclusion"
-              }
+                "type" : "string"
+              },
+              "example" : [ "server.properties", "plugins/cool/config.json" ]
             },
             "templates" : {
               "type" : "array",
@@ -4436,37 +4496,15 @@
                 "$ref" : "#/components/schemas/ServiceDeployment"
               }
             },
-            "deletedFilesAfterStop" : {
-              "type" : "array",
-              "items" : {
-                "type" : "string"
-              },
-              "example" : [ "server.properties", "plugins/cool/config.json" ]
-            },
-            "processConfig" : {
-              "$ref" : "#/components/schemas/ProcessConfiguration"
-            },
-            "port" : {
-              "type" : "integer",
-              "example" : 25565
-            },
-            "initIncludes" : {
+            "includes" : {
               "type" : "array",
               "items" : {
                 "$ref" : "#/components/schemas/ServiceRemoteInclusion"
               }
             },
-            "initTemplates" : {
-              "type" : "array",
-              "items" : {
-                "$ref" : "#/components/schemas/ServiceTemplate"
-              }
-            },
-            "initDeployments" : {
-              "type" : "array",
-              "items" : {
-                "$ref" : "#/components/schemas/ServiceDeployment"
-              }
+            "port" : {
+              "type" : "integer",
+              "example" : 25565
             }
           }
         } ]
@@ -4487,20 +4525,20 @@
             "connectAddress" : {
               "$ref" : "#/components/schemas/HostAndPort"
             },
+            "processSnapshot" : {
+              "$ref" : "#/components/schemas/ProcessSnapshot"
+            },
+            "configuration" : {
+              "$ref" : "#/components/schemas/ServiceConfiguration"
+            },
             "connectedTime" : {
               "type" : "number",
               "example" : 1620824797599
             },
             "lifeCycle" : {
               "type" : "string",
-              "enum" : [ "DEFINED", "PREPARED", "RUNNING", "STOPPED", "DELETED" ],
+              "enum" : [ "PREPARED", "RUNNING", "STOPPED", "DELETED" ],
               "example" : "PREPARED"
-            },
-            "processSnapshot" : {
-              "$ref" : "#/components/schemas/ProcessSnapshot"
-            },
-            "configuration" : {
-              "$ref" : "#/components/schemas/ServiceConfiguration"
             }
           }
         } ]
@@ -4558,15 +4596,6 @@
       "ServiceVersion" : {
         "type" : "object",
         "properties" : {
-          "additionalDownloads" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            },
-            "example" : {
-              "modules/gson-2.8.6.jar" : "https://repo1.maven.org/maven2/com/google/code/gson/gson/2.8.6/gson-2.8.6.jar"
-            }
-          },
           "name" : {
             "type" : "string",
             "example" : "latest"
@@ -4594,6 +4623,12 @@
           "properties" : {
             "type" : "object",
             "example" : { }
+          },
+          "additionalDownloads" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
           }
         }
       },
@@ -4604,16 +4639,16 @@
             "type" : "string",
             "example" : "paperspigot"
           },
-          "targetEnvironment" : {
+          "environmentType" : {
             "type" : "string",
-            "example" : "MINECRAFT_SERVER_PAPER_SPIGOT"
+            "example" : "MINECRAFT_SERVER"
           },
           "installSteps" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             },
-            "example" : [ "PAPER_API", "DOWNLOAD", "BUILD", "COPY_FILTER" ]
+            "example" : [ "DOWNLOAD", "BUILD", "UNZIP", "COPY_FILTER" ]
           },
           "versions" : {
             "type" : "array",
@@ -4623,15 +4658,67 @@
           }
         }
       },
+      "ServiceEnvironmentType" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/JsonDocPropertyable"
+        }, {
+          "properties" : {
+            "name" : {
+              "type" : "string",
+              "example" : "MINECRAFT_SERVER"
+            },
+            "defaultServiceStartPort" : {
+              "type" : "integer",
+              "example" : 25565
+            },
+            "defaultProcessArguments" : {
+              "type" : "array",
+              "items" : {
+                "type" : "string"
+              }
+            }
+          }
+        } ]
+      },
       "ModuleInfo" : {
         "type" : "object",
         "properties" : {
           "lifecycle" : {
             "type" : "string",
-            "enum" : [ "LOADED", "STARTED", "STOPPED", "UNLOADED", "UNUSEABLE" ]
+            "enum" : [ "CREATED", "LOADED", "STARTED", "RELOADING", "STOPPED", "UNLOADED", "UNUSEABLE" ]
           },
           "configuration" : {
             "$ref" : "#/components/schemas/ModuleConfiguration"
+          }
+        }
+      },
+      "CloudNetVersion" : {
+        "type" : "object",
+        "properties" : {
+          "major" : {
+            "type" : "integer",
+            "example" : 4
+          },
+          "minor" : {
+            "type" : "integer",
+            "example" : 0
+          },
+          "patch" : {
+            "type" : "integer",
+            "example" : 1
+          },
+          "revision" : {
+            "type" : "string",
+            "example" : "5dd7f63"
+          },
+          "versionType" : {
+            "type" : "string",
+            "example" : "RELEASE"
+          },
+          "versionTitle" : {
+            "type" : "string",
+            "example" : "Blizzard"
           }
         }
       },
