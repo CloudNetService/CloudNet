@@ -17,7 +17,6 @@
 package eu.cloudnetservice.modules.bridge.platform.bukkit;
 
 import eu.cloudnetservice.cloudnet.common.registry.ServicesRegistry;
-import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
@@ -26,6 +25,7 @@ import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.bridge.player.ServicePlayer;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
+import eu.cloudnetservice.modules.bridge.util.BridgeHostAndPortUtil;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
@@ -74,7 +74,7 @@ final class BukkitBridgeManagement extends PlatformBridgeManagement<Player, Netw
       player.getUniqueId(),
       player.getName(),
       null,
-      new HostAndPort(player.getAddress()),
+      BridgeHostAndPortUtil.fromSocketAddress(player.getAddress()),
       this.ownNetworkServiceInfo);
   }
 

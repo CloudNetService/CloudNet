@@ -20,7 +20,6 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.permission.Permissible;
 import eu.cloudnetservice.cloudnet.common.registry.ServicesRegistry;
-import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
@@ -29,6 +28,7 @@ import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.bridge.player.ServicePlayer;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
+import eu.cloudnetservice.modules.bridge.util.BridgeHostAndPortUtil;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
@@ -70,7 +70,7 @@ final class NukkitBridgeManagement extends PlatformBridgeManagement<Player, Netw
       player.getUniqueId(),
       player.getName(),
       player.getLoginChainData().getXUID(),
-      new HostAndPort(player.getSocketAddress()),
+      BridgeHostAndPortUtil.fromSocketAddress(player.getSocketAddress()),
       this.ownNetworkServiceInfo);
   }
 

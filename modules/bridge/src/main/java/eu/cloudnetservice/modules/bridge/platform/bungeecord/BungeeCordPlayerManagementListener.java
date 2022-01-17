@@ -18,13 +18,12 @@ package eu.cloudnetservice.modules.bridge.platform.bungeecord;
 
 import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
 
-import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
 import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.helper.ProxyPlatformHelper;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
-import java.net.InetSocketAddress;
+import eu.cloudnetservice.modules.bridge.util.BridgeHostAndPortUtil;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
@@ -87,8 +86,8 @@ final class BungeeCordPlayerManagementListener implements Listener {
       event.getConnection().getName(),
       null,
       event.getConnection().getVersion(),
-      new HostAndPort((InetSocketAddress) event.getConnection().getSocketAddress()),
-      new HostAndPort((InetSocketAddress) event.getConnection().getListener().getSocketAddress()),
+      BridgeHostAndPortUtil.fromSocketAddress(event.getConnection().getSocketAddress()),
+      BridgeHostAndPortUtil.fromSocketAddress(event.getConnection().getListener().getSocketAddress()),
       event.getConnection().isOnlineMode(),
       this.management.ownNetworkServiceInfo()));
     if (!loginResult.permitLogin()) {
