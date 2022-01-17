@@ -1,11 +1,15 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>CloudNet v3 REST Documentation</title>
-  <script defer="defer" src="app.bundle.js"></script>
+  <meta charset="utf-8">
+  <title>CloudNet Rest V2 Documentation</title>
+  <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
 </head>
 <body>
-<div id="swagger"></div>
+  <rapi-doc spec-url="swagger.json" theme="dark" bg-color="#14191f" text-color="#aec2e0" primary-color="#00ACE5" show-header="false">
+    <div slot="nav-logo" style="display: flex; align-items: center; justify-content: center;">
+      <img src="logo.svg" style="width:40px; margin-right: 20px" alt="CloudNet Logo"> <span style="color:#fff"><b>CloudNetService</b></span>
+    </div>
+  </rapi-doc>
 </body>
 </html>
