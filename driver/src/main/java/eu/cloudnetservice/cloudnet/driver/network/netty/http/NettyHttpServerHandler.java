@@ -275,10 +275,13 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
       httpHandlerEntry.httpHandler().handle(fullPath.toLowerCase(), context);
       return true;
     } catch (Exception exception) {
-      LOGGER.severe(
+      LOGGER.finer(
         "Exception posting http request to handler %s",
         exception,
         httpHandlerEntry.httpHandler().getClass().getName());
+      // assume that the request was bad so that the handler was unable to handle it
+      context.response().status(HttpResponseCode.BAD_REQUEST);
+      // continue with the next handler in the chain
       return false;
     }
   }
