@@ -4035,11 +4035,11 @@
         "properties" : {
           "uniqueId" : {
             "type" : "string",
-            "example" : ""
+            "example" : "05bf52c6-7bb0-4f13-8951-0e1fd803df35"
           },
           "name" : {
             "type" : "string",
-            "example" : "derklaro"
+            "example" : "TheMeinerLP"
           },
           "xBoxId" : {
             "type" : "string",
