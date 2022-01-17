@@ -47,8 +47,8 @@ public final class LauncherUpdater implements Updater<LauncherUpdaterContext> {
             "-jar",
             launcherPatcherPath.toAbsolutePath().toString(),
             Long.toString(ProcessHandle.current().pid()),
-            String.format("\"%s\"", currentJar.toAbsolutePath()),
-            String.format("\"%s\"", launcherPath.toAbsolutePath()));
+            currentJar.toAbsolutePath().toString(),
+            launcherPath.toAbsolutePath().toString());
           var updaterLogFile = context.launcher().workingDirectory().resolve("launcher_updater.log").toFile();
           // start the process
           new ProcessBuilder(command)
