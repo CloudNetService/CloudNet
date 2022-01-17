@@ -18,7 +18,6 @@ package eu.cloudnetservice.modules.bridge.platform.bungeecord;
 
 import com.google.common.collect.Iterables;
 import eu.cloudnetservice.cloudnet.common.registry.ServicesRegistry;
-import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
@@ -28,7 +27,7 @@ import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.bridge.player.ServicePlayer;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
-import java.net.InetSocketAddress;
+import eu.cloudnetservice.modules.bridge.util.BridgeHostAndPortUtil;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
@@ -83,8 +82,8 @@ final class BungeeCordBridgeManagement extends PlatformBridgeManagement<ProxiedP
       player.getName(),
       null,
       player.getPendingConnection().getVersion(),
-      new HostAndPort((InetSocketAddress) player.getSocketAddress()),
-      new HostAndPort((InetSocketAddress) player.getPendingConnection().getListener().getSocketAddress()),
+      BridgeHostAndPortUtil.fromSocketAddress(player.getSocketAddress()),
+      BridgeHostAndPortUtil.fromSocketAddress(player.getPendingConnection().getListener().getSocketAddress()),
       player.getPendingConnection().isOnlineMode(),
       this.ownNetworkServiceInfo);
   }

@@ -20,6 +20,7 @@ import com.google.common.base.Verify;
 import com.google.common.base.VerifyException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.net.UnixDomainSocketAddress;
 import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
 
@@ -31,12 +32,7 @@ import org.jetbrains.annotations.Contract;
  */
 public record HostAndPort(@NonNull String host, int port) {
 
-  private static final int NO_PORT = -1;
-
-  // TODO: remove
-  public HostAndPort(@NonNull InetSocketAddress socketAddress) {
-    this(socketAddress.getAddress().getHostAddress(), socketAddress.getPort());
-  }
+  public static final int NO_PORT = -1;
 
   /**
    * Constructs a new host and port instance, validating the port.
@@ -55,17 +51,21 @@ public record HostAndPort(@NonNull String host, int port) {
    *
    * @param socketAddress the socket address to convert.
    * @return the created host and port based on the given address.
-   * @throws NullPointerException          if the given socket address is null.
-   * @throws UnsupportedOperationException if the given socket address type cannot be converted.
+   * @throws NullPointerException     if the given socket address is null.
+   * @throws IllegalArgumentException if the given socket address type cannot be converted.
    */
   @Contract("_ -> new")
   public static @NonNull HostAndPort fromSocketAddress(@NonNull SocketAddress socketAddress) {
-    // TODO: better
-    if (socketAddress instanceof InetSocketAddress inetSocketAddress) {
-      return new HostAndPort(inetSocketAddress);
+    // inet socket address
+    if (socketAddress instanceof InetSocketAddress inet) {
+      return new HostAndPort(inet.getAddress().getHostAddress(), inet.getPort());
     }
-
-    throw new UnsupportedOperationException("socketAddress must be instance of InetSocketAddress!");
+    // unix socket address
+    if (socketAddress instanceof UnixDomainSocketAddress unix) {
+      return new HostAndPort(unix.getPath().toString(), NO_PORT);
+    }
+    // unsupported
+    throw new IllegalArgumentException("Unsupported socket address type: " + socketAddress.getClass().getName());
   }
 
   /**

@@ -22,7 +22,6 @@ import dev.waterdog.waterdogpe.command.CommandSender;
 import dev.waterdog.waterdogpe.network.serverinfo.BedrockServerInfo;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
 import eu.cloudnetservice.cloudnet.common.registry.ServicesRegistry;
-import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
@@ -32,6 +31,7 @@ import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.bridge.player.ServicePlayer;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
+import eu.cloudnetservice.modules.bridge.util.BridgeHostAndPortUtil;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.Optional;
@@ -88,8 +88,8 @@ final class WaterDogPEBridgeManagement extends PlatformBridgeManagement<ProxiedP
       player.getName(),
       player.getXuid(),
       player.getProtocol().getRaknetVersion(),
-      new HostAndPort(player.getAddress()),
-      new HostAndPort(ProxyServer.getInstance().getConfiguration().getBindAddress()),
+      BridgeHostAndPortUtil.fromSocketAddress(player.getAddress()),
+      BridgeHostAndPortUtil.fromSocketAddress(ProxyServer.getInstance().getConfiguration().getBindAddress()),
       player.getLoginData().isXboxAuthed(),
       this.ownNetworkServiceInfo);
   }

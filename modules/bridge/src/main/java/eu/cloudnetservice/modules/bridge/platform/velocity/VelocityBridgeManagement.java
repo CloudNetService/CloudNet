@@ -24,7 +24,6 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 import eu.cloudnetservice.cloudnet.common.registry.ServicesRegistry;
-import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
@@ -34,6 +33,7 @@ import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.bridge.player.ServicePlayer;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
+import eu.cloudnetservice.modules.bridge.util.BridgeHostAndPortUtil;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.Optional;
@@ -92,8 +92,8 @@ final class VelocityBridgeManagement extends PlatformBridgeManagement<Player, Ne
       player.getUsername(),
       null,
       player.getProtocolVersion().getProtocol(),
-      new HostAndPort(player.getRemoteAddress()),
-      new HostAndPort(this.proxyServer.getBoundAddress()),
+      BridgeHostAndPortUtil.fromSocketAddress(player.getRemoteAddress()),
+      BridgeHostAndPortUtil.fromSocketAddress(this.proxyServer.getBoundAddress()),
       player.isOnlineMode(),
       this.ownNetworkServiceInfo);
   }
