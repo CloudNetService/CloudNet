@@ -17,12 +17,14 @@
 package eu.cloudnetservice.modules.bridge.platform.fabric.mixin.forwarding;
 
 import com.mojang.authlib.GameProfile;
+import eu.cloudnetservice.modules.bridge.platform.fabric.FabricBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.fabric.util.BridgedClientConnection;
+import lombok.NonNull;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.network.ClientConnection;
-import net.minecraft.network.packet.c2s.login.LoginHelloC2SPacket;
-import net.minecraft.server.network.ServerLoginNetworkHandler;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.login.ServerboundHelloPacket;
+import net.minecraft.server.network.ServerLoginPacketListenerImpl;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -33,15 +35,15 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.SERVER)
-@Mixin(ServerLoginNetworkHandler.class)
-public final class ServerLoginNetworkHandlerMixin {
+@Mixin(ServerLoginPacketListenerImpl.class)
+public final class ServerLoginPacketListenerMixin {
 
   @Final
   @Shadow
-  public ClientConnection connection;
+  public Connection connection;
 
   @Shadow
-  GameProfile profile;
+  GameProfile gameProfile;
 
   @Inject(
     at = @At(
@@ -49,16 +51,18 @@ public final class ServerLoginNetworkHandlerMixin {
       value = "FIELD",
       shift = Shift.AFTER,
       opcode = Opcodes.PUTFIELD,
-      target = "Lnet/minecraft/server/network/ServerLoginNetworkHandler;profile:Lcom/mojang/authlib/GameProfile;"
+      target = "Lnet/minecraft/server/network/ServerLoginPacketListenerImpl;gameProfile:Lcom/mojang/authlib/GameProfile;"
     ),
-    method = "onHello"
+    method = "handleHello"
   )
-  private void onHello(LoginHelloC2SPacket packet, CallbackInfo info) {
-    var bridged = (BridgedClientConnection) this.connection;
-    // update the profile according to the forwarded data
-    this.profile = new GameProfile(bridged.forwardedUniqueId(), this.profile.getName());
-    for (var property : bridged.forwardedProfile()) {
-      this.profile.getProperties().put(property.getName(), property);
+  private void onHello(@NonNull ServerboundHelloPacket packet, @NonNull CallbackInfo info) {
+    if (!FabricBridgeManagement.DISABLE_CLOUDNET_FORWARDING) {
+      var bridged = (BridgedClientConnection) this.connection;
+      // update the profile according to the forwarded data
+      this.gameProfile = new GameProfile(bridged.forwardedUniqueId(), this.gameProfile.getName());
+      for (var property : bridged.forwardedProfile()) {
+        this.gameProfile.getProperties().put(property.getName(), property);
+      }
     }
   }
 }

@@ -25,21 +25,22 @@ import java.util.function.Supplier;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
-import net.minecraft.util.Identifier;
+import net.minecraft.Util;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.Nullable;
 
 public final class FabricDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
 
   private final UUID uniqueId;
-  private final Supplier<? extends Collection<ServerPlayerEntity>> players;
+  private final Supplier<? extends Collection<ServerPlayer>> players;
 
   public FabricDirectPlayerExecutor(
     @NonNull UUID uniqueId,
-    @NonNull Supplier<? extends Collection<ServerPlayerEntity>> players
+    @NonNull Supplier<? extends Collection<ServerPlayer>> players
   ) {
     this.uniqueId = uniqueId;
     this.players = players;
@@ -77,14 +78,14 @@ public final class FabricDirectPlayerExecutor extends PlatformPlayerExecutorAdap
 
   @Override
   public void kick(@NonNull Component message) {
-    var reason = new LiteralText(LegacyComponentSerializer.legacySection().serialize(message));
-    this.players.get().forEach(player -> player.networkHandler.disconnect(reason));
+    var reason = new TextComponent(LegacyComponentSerializer.legacySection().serialize(message));
+    this.players.get().forEach(player -> player.connection.disconnect(reason));
   }
 
   @Override
   public void sendMessage(@NonNull Component message) {
-    var text = new LiteralText(LegacyComponentSerializer.legacySection().serialize(message));
-    this.players.get().forEach(player -> player.sendMessage(text, false));
+    var text = new TextComponent(LegacyComponentSerializer.legacySection().serialize(message));
+    this.players.get().forEach(player -> player.sendMessage(text, Util.NIL_UUID));
   }
 
   @Override
@@ -95,14 +96,14 @@ public final class FabricDirectPlayerExecutor extends PlatformPlayerExecutorAdap
 
   @Override
   public void sendPluginMessage(@NonNull String tag, byte[] data) {
-    var identifier = new Identifier(tag);
-    this.players.get().forEach(player -> player.networkHandler.sendPacket(new CustomPayloadS2CPacket(
+    var identifier = new ResourceLocation(tag);
+    this.players.get().forEach(player -> player.connection.send(new ClientboundCustomPayloadPacket(
       identifier,
-      new PacketByteBuf(Unpooled.wrappedBuffer(data)))));
+      new FriendlyByteBuf(Unpooled.wrappedBuffer(data)))));
   }
 
   @Override
   public void dispatchProxyCommand(@NonNull String command) {
-    this.players.get().forEach(player -> player.networkHandler.executeCommand(command));
+    this.players.get().forEach(player -> player.connection.handleCommand(command));
   }
 }

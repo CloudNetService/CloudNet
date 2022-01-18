@@ -20,15 +20,16 @@ import com.mojang.authlib.properties.Property;
 import eu.cloudnetservice.modules.bridge.platform.fabric.util.BridgedClientConnection;
 import java.net.SocketAddress;
 import java.util.UUID;
+import lombok.NonNull;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.network.ClientConnection;
+import net.minecraft.network.Connection;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Environment(EnvType.SERVER)
-@Mixin(ClientConnection.class)
-public final class ClientConnectionMixin implements BridgedClientConnection {
+@Mixin(Connection.class)
+public final class ConnectionMixin implements BridgedClientConnection {
 
   @Shadow
   private SocketAddress address;
@@ -37,27 +38,27 @@ public final class ClientConnectionMixin implements BridgedClientConnection {
   private Property[] forwardedProperties;
 
   @Override
-  public void addr(SocketAddress address) {
+  public void addr(@NonNull SocketAddress address) {
     this.address = address;
   }
 
   @Override
-  public UUID forwardedUniqueId() {
+  public @NonNull UUID forwardedUniqueId() {
     return this.forwardedUniqueId;
   }
 
   @Override
-  public void forwardedUniqueId(UUID uuid) {
+  public void forwardedUniqueId(@NonNull UUID uuid) {
     this.forwardedUniqueId = uuid;
   }
 
   @Override
-  public Property[] forwardedProfile() {
+  public @NonNull Property[] forwardedProfile() {
     return this.forwardedProperties;
   }
 
   @Override
-  public void forwardedProfile(Property[] profile) {
+  public void forwardedProfile(@NonNull Property[] profile) {
     this.forwardedProperties = profile;
   }
 }

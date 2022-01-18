@@ -20,7 +20,9 @@ import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
 import java.util.Collection;
 import java.util.UUID;
-import net.minecraft.server.network.ServerPlayerEntity;
+import lombok.NonNull;
+import net.minecraft.server.level.ServerPlayer;
+import org.jetbrains.annotations.Nullable;
 
 public interface BridgedServer {
 
@@ -28,11 +30,11 @@ public interface BridgedServer {
 
   int playerCount();
 
-  String motd();
+  @NonNull String motd();
 
-  Collection<ServerPlayerEntity> players();
+  @NonNull Collection<ServerPlayer> players();
 
-  ServerPlayerEntity player(UUID uniqueId);
+  @Nullable ServerPlayer player(@NonNull UUID uniqueId);
 
-  PlatformBridgeManagement<ServerPlayerEntity, NetworkPlayerServerInfo> management();
+  @NonNull PlatformBridgeManagement<ServerPlayer, NetworkPlayerServerInfo> management();
 }

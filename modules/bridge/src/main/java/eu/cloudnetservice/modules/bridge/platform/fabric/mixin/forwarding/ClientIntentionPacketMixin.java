@@ -16,23 +16,31 @@
 
 package eu.cloudnetservice.modules.bridge.platform.fabric.mixin.forwarding;
 
+import eu.cloudnetservice.modules.bridge.platform.fabric.FabricBridgeManagement;
+import lombok.NonNull;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Environment(EnvType.SERVER)
-@Mixin(HandshakeC2SPacket.class)
-public final class HandshakeC2SPacketMixin {
+@Mixin(ClientIntentionPacket.class)
+public final class ClientIntentionPacketMixin {
 
   @Redirect(
-    at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;readString(I)Ljava/lang/String;"),
-    method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V"
+    at = @At(value = "INVOKE", target = "Lnet/minecraft/network/FriendlyByteBuf;readUtf(I)Ljava/lang/String;"),
+    method = "<init>(Lnet/minecraft/network/FriendlyByteBuf;)V"
   )
-  public String read(PacketByteBuf buf, int amount) {
-    return buf.readString(Short.MAX_VALUE);
+  public String read(@NonNull FriendlyByteBuf buf, int amount) {
+    if (FabricBridgeManagement.DISABLE_CLOUDNET_FORWARDING) {
+      // default behaviour
+      return buf.readUtf(255);
+    } else {
+      // to fit the bungee information
+      return buf.readUtf(Short.MAX_VALUE);
+    }
   }
 }

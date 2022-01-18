@@ -19,16 +19,17 @@ package eu.cloudnetservice.modules.bridge.platform.fabric.util;
 import com.mojang.authlib.properties.Property;
 import java.net.SocketAddress;
 import java.util.UUID;
+import lombok.NonNull;
 
 public interface BridgedClientConnection {
 
-  void addr(SocketAddress address);
+  void addr(@NonNull SocketAddress address);
 
-  UUID forwardedUniqueId();
+  @NonNull UUID forwardedUniqueId();
 
-  void forwardedUniqueId(UUID uuid);
+  void forwardedUniqueId(@NonNull UUID uuid);
 
-  Property[] forwardedProfile();
+  @NonNull Property[] forwardedProfile();
 
-  void forwardedProfile(Property[] profile);
+  void forwardedProfile(@NonNull Property[] profile);
 }

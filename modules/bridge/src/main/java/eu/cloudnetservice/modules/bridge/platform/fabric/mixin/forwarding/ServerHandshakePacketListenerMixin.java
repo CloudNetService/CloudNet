@@ -19,17 +19,19 @@ package eu.cloudnetservice.modules.bridge.platform.fabric.mixin.forwarding;
 import com.google.gson.Gson;
 import com.mojang.authlib.properties.Property;
 import com.mojang.util.UUIDTypeAdapter;
+import eu.cloudnetservice.modules.bridge.platform.fabric.FabricBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.fabric.util.BridgedClientConnection;
 import java.net.InetSocketAddress;
+import lombok.NonNull;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.network.ClientConnection;
-import net.minecraft.network.NetworkState;
-import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket;
-import net.minecraft.network.packet.s2c.play.DisconnectS2CPacket;
-import net.minecraft.server.network.ServerHandshakeNetworkHandler;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
+import net.minecraft.network.Connection;
+import net.minecraft.network.ConnectionProtocol;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
+import net.minecraft.network.protocol.login.ClientboundLoginDisconnectPacket;
+import net.minecraft.server.network.ServerHandshakePacketListenerImpl;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -38,36 +40,37 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.SERVER)
-@Mixin(ServerHandshakeNetworkHandler.class)
-public final class ServerHandshakeNetworkHandlerMixin {
+@Mixin(ServerHandshakePacketListenerImpl.class)
+public final class ServerHandshakePacketListenerMixin {
 
   private static final Gson GSON = new Gson();
-  private static final Text IP_INFO_MISSING = new LiteralText(
+  private static final Component IP_INFO_MISSING = new TextComponent(
     "If you wish to use IP forwarding, please enable it in your BungeeCord config as well!");
 
   @Final
   @Shadow
-  private ClientConnection connection;
+  private Connection connection;
 
-  @Inject(at = @At("HEAD"), method = "onHandshake")
-  public void onHandshake(HandshakeC2SPacket packet, CallbackInfo info) {
+  @Inject(at = @At("HEAD"), method = "handleIntention")
+  public void onHandshake(@NonNull ClientIntentionPacket packet, @NonNull CallbackInfo info) {
     // do not try this for pings
-    if (packet.getIntendedState() == NetworkState.LOGIN) {
+    if (!FabricBridgeManagement.DISABLE_CLOUDNET_FORWARDING && packet.getIntention() == ConnectionProtocol.LOGIN) {
       var bridged = (BridgedClientConnection) this.connection;
       // decode the bungee handshake
-      var split = packet.getAddress().split("\00");
+      var split = packet.getHostName().split("\00");
       if (split.length == 3 || split.length == 4) {
-        packet.address = split[0];
+        packet.hostName = split[0];
         // set bridged properties for later use
         bridged.forwardedUniqueId(UUIDTypeAdapter.fromString(split[2]));
-        bridged.addr(new InetSocketAddress(split[1], ((InetSocketAddress) this.connection.getAddress()).getPort()));
+        bridged.addr(
+          new InetSocketAddress(split[1], ((InetSocketAddress) this.connection.getRemoteAddress()).getPort()));
         // check if properties were supplied
         if (split.length == 4) {
           bridged.forwardedProfile(GSON.fromJson(split[3], Property[].class));
         }
       } else {
         // disconnect will not send the packet - it will just close the channel and set the disconnect reason
-        this.connection.send(new DisconnectS2CPacket(IP_INFO_MISSING));
+        this.connection.send(new ClientboundLoginDisconnectPacket(IP_INFO_MISSING));
         this.connection.disconnect(IP_INFO_MISSING);
       }
     }

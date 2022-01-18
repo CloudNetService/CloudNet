@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.platform.fabric.mixin.forwarding;
 
+import eu.cloudnetservice.modules.bridge.platform.fabric.FabricBridgeManagement;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.server.MinecraftServer;
@@ -28,9 +29,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(MinecraftServer.class)
 public final class CompressionThresholdMixin {
 
-  @Inject(at = @At("RETURN"), method = "getNetworkCompressionThreshold", cancellable = true)
+  @Inject(at = @At("RETURN"), method = "getCompressionThreshold", cancellable = true)
   public void getNetworkCompressionThreshold(CallbackInfoReturnable<Integer> returnable) {
-    // disable the network compression by default as we expect this server to run behind a proxy
-    returnable.setReturnValue(-1);
+    if (!FabricBridgeManagement.DISABLE_CLOUDNET_FORWARDING) {
+      // disable the network compression when the server runs behind a proxy
+      returnable.setReturnValue(-1);
+    }
   }
 }

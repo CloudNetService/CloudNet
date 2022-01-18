@@ -23,11 +23,13 @@ import eu.cloudnetservice.modules.bridge.platform.fabric.util.BridgedServer;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
 import java.util.Collection;
 import java.util.UUID;
+import lombok.NonNull;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.PlayerManager;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.PlayerList;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -40,19 +42,19 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MinecraftServerMixin implements BridgedServer {
 
   @Unique
-  private PlatformBridgeManagement<ServerPlayerEntity, NetworkPlayerServerInfo> management;
+  private PlatformBridgeManagement<ServerPlayer, NetworkPlayerServerInfo> management;
 
   @Shadow
-  public abstract PlayerManager getPlayerManager();
+  public abstract PlayerList getPlayerList();
 
   @Shadow
-  public abstract String getServerMotd();
+  public abstract String getMotd();
 
   @Inject(
     at = @At(
       ordinal = 0,
       value = "INVOKE",
-      target = "Lnet/minecraft/server/MinecraftServer;setFavicon(Lnet/minecraft/server/ServerMetadata;)V"
+      target = "Lnet/minecraft/server/MinecraftServer;updateStatusIcon(Lnet/minecraft/network/protocol/status/ServerStatus;)V"
     ),
     method = "runServer"
   )
@@ -65,31 +67,31 @@ public abstract class MinecraftServerMixin implements BridgedServer {
 
   @Override
   public int maxPlayers() {
-    return this.getPlayerManager().getMaxPlayerCount();
+    return this.getPlayerList().getMaxPlayers();
   }
 
   @Override
   public int playerCount() {
-    return this.getPlayerManager().getCurrentPlayerCount();
+    return this.getPlayerList().getPlayerCount();
   }
 
   @Override
-  public String motd() {
-    return this.getServerMotd();
+  public @NonNull String motd() {
+    return this.getMotd();
   }
 
   @Override
-  public Collection<ServerPlayerEntity> players() {
-    return this.getPlayerManager().getPlayerList();
+  public @NonNull Collection<ServerPlayer> players() {
+    return this.getPlayerList().getPlayers();
   }
 
   @Override
-  public ServerPlayerEntity player(UUID uniqueId) {
-    return this.getPlayerManager().getPlayer(uniqueId);
+  public @Nullable ServerPlayer player(@NonNull UUID uniqueId) {
+    return this.getPlayerList().getPlayer(uniqueId);
   }
 
   @Override
-  public PlatformBridgeManagement<ServerPlayerEntity, NetworkPlayerServerInfo> management() {
+  public @NonNull PlatformBridgeManagement<ServerPlayer, NetworkPlayerServerInfo> management() {
     return this.management;
   }
 }
