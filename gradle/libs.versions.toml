@@ -59,7 +59,6 @@ npcLib = "development-SNAPSHOT"
 # fabric platform special dependencies
 minecraft = "1.18.1"
 fabricLoader = "0.12.12"
-yarnMappings = "1.18.1+build.22"
 
 
 [libraries]
@@ -146,7 +145,6 @@ protocolLib = { group = "com.github.dmulloy2", name = "ProtocolLib", version.ref
 
 # fabric platform special dependencies
 minecraft = { group = "com.mojang", name = "minecraft", version.ref = "minecraft" }
-yarnMappings = { group = "net.fabricmc", name = "yarn", version.ref = "yarnMappings" }
 fabricLoader = { group = "net.fabricmc", name = "fabric-loader", version.ref = "fabricLoader" }
 
 
