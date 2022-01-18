@@ -15,6 +15,7 @@
  */
 
 plugins {
+  id("fabric-loom") version Versions.fabricLoom
   id("com.github.johnrengelman.shadow") version Versions.shadow
 }
 
@@ -30,6 +31,14 @@ dependencies {
   "annotationProcessor"(libs.velocity)
   "implementation"(libs.bundles.adventure)
   "implementation"(projects.cloudnetExt.adventureHelper)
+
+  "minecraft"(libs.minecraft)
+  "mappings"(libs.yarnMappings)
+  "modImplementation"(libs.fabricLoader)
+}
+
+loom {
+  accessWidenerPath.set(project.file("src/main/resources/cloudnet_bridge.accesswidener"))
 }
 
 moduleJson {

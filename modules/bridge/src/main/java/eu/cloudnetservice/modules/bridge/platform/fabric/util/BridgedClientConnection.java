@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-object Versions {
+package eu.cloudnetservice.modules.bridge.platform.fabric.util;
 
-  // internal versions
-  const val cloudNet = "4.0.0-SNAPSHOT"
-  const val cloudNetCodeName = "Blizzard"
+import com.mojang.authlib.properties.Property;
+import java.net.SocketAddress;
+import java.util.UUID;
 
-  // plugin versions
-  const val shadow = "7.1.2"
-  const val blossom = "1.3.0"
-  const val juppiter = "0.2.0"
-  const val fabricLoom = "0.11.4"
+public interface BridgedClientConnection {
 
-  // external tools
-  const val checkstyleTools = "9.2.1"
+  void addr(SocketAddress address);
+
+  UUID forwardedUniqueId();
+
+  void forwardedUniqueId(UUID uuid);
+
+  Property[] forwardedProfile();
+
+  void forwardedProfile(Property[] profile);
 }

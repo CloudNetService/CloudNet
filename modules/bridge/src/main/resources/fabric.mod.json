@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "cloudnet_bridge",
+  "version": "{version}",
+  "name": "CloudNet-Bridge",
+  "license": "Apache 2.0",
+  "authors": [
+    {
+      "name": "CloudNetService",
+      "contact": {
+        "homepage": "https://cloudnetservice.eu"
+      }
+    }
+  ],
+  "contact": {
+    "homepage": "https://cloudnetservice.eu",
+    "sources": "https://github.com/CloudNetService/CloudNet-v3",
+    "issues": "https://github.com/CloudNetService/CloudNet-v3/issues"
+  },
+  "environment": "server",
+  "entrypoints": {
+    "server": [
+      "eu.cloudnetservice.modules.bridge.platform.fabric.FabricBridgeInitializer"
+    ]
+  },
+  "mixins": [
+    "cloudnet_bridge.mixins.json"
+  ],
+  "accessWidener": "cloudnet_bridge.accesswidener",
+  "depends": {
+    "fabricloader": ">=0.11.3",
+    "minecraft": ">=1.18"
+  }
+}

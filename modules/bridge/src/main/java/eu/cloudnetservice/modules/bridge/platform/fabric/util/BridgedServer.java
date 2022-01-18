@@ -14,18 +14,25 @@
  * limitations under the License.
  */
 
-object Versions {
+package eu.cloudnetservice.modules.bridge.platform.fabric.util;
 
-  // internal versions
-  const val cloudNet = "4.0.0-SNAPSHOT"
-  const val cloudNetCodeName = "Blizzard"
+import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
+import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
+import java.util.Collection;
+import java.util.UUID;
+import net.minecraft.server.network.ServerPlayerEntity;
 
-  // plugin versions
-  const val shadow = "7.1.2"
-  const val blossom = "1.3.0"
-  const val juppiter = "0.2.0"
-  const val fabricLoom = "0.11.4"
+public interface BridgedServer {
 
-  // external tools
-  const val checkstyleTools = "9.2.1"
+  int maxPlayers();
+
+  int playerCount();
+
+  String motd();
+
+  Collection<ServerPlayerEntity> players();
+
+  ServerPlayerEntity player(UUID uniqueId);
+
+  PlatformBridgeManagement<ServerPlayerEntity, NetworkPlayerServerInfo> management();
 }

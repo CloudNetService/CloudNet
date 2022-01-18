@@ -56,6 +56,11 @@ placeholderApi = "2.11.1"
 protocolLib = "master-SNAPSHOT"
 npcLib = "development-SNAPSHOT"
 
+# fabric platform special dependencies
+minecraft = "1.18.1"
+fabricLoader = "0.12.12"
+yarnMappings = "1.18.1+build.22"
+
 
 [libraries]
 
@@ -138,6 +143,11 @@ npcLib = { group = "com.github.juliarn", name = "npc-lib", version.ref = "npcLib
 modLauncher = { group = "cpw.mods", name = "modlauncher", version.ref = "modlauncher" }
 placeholderApi = { group = "me.clip", name = "placeholderapi", version.ref = "placeholderApi" }
 protocolLib = { group = "com.github.dmulloy2", name = "ProtocolLib", version.ref = "protocolLib" }
+
+# fabric platform special dependencies
+minecraft = { group = "com.mojang", name = "minecraft", version.ref = "minecraft" }
+yarnMappings = { group = "net.fabricmc", name = "yarn", version.ref = "yarnMappings" }
+fabricLoader = { group = "net.fabricmc", name = "fabric-loader", version.ref = "fabricLoader" }
 
 
 [bundles]
