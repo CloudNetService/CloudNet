@@ -71,7 +71,7 @@ public final class TemplatePrepareListener {
       }
     } else if (event.environmentType().equals(ServiceEnvironmentType.MODDED_MINECRAFT_SERVER)) {
       try (var out = event.storage().newOutputStream("server.properties")) {
-        var in = resourceStream("files/fabric/server.properties");
+        var in = resourceStream("files/nms/server.properties");
         FileUtil.copy(in, out);
       }
     } else if (event.environmentType().equals(ServiceEnvironmentType.GLOWSTONE)) {
