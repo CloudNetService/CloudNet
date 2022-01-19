@@ -396,8 +396,7 @@
               "-mcversion %version%",
               "-downloadMinecraft"
             ],
-            "fetchOverFabricApi": true,
-            "versionGroup": "1.18.1"
+            "fetchOverFabricApi": true
           }
         }
       ]

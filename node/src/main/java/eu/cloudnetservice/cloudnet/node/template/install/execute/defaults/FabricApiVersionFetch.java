@@ -68,7 +68,6 @@ public class FabricApiVersionFetch implements InstallStepExecutor {
     var response = Unirest.get(FabricApiVersionFetch.FABRIC_INSTALLER_URL)
       .accept("application/json")
       .asString();
-
     if (response.isSuccess()) {
       return JsonParser.parseString(response.getBody());
     }
