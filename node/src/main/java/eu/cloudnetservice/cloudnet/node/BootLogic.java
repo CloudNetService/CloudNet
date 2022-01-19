@@ -39,8 +39,8 @@ public final class BootLogic {
 
   public static void main(String[] args) throws Throwable {
     // language management init
-    I18n.loadFromLanguageRegistryFile(BootLogic.class.getClassLoader());
-    I18n.language(System.getProperty("cloudnet.messages.language", "english"));
+    I18n.loadFromLangPath(BootLogic.class);
+    I18n.language(System.getProperty("cloudnet.messages.language", "en_US"));
 
     // init logger and console
     Console console = new JLine3Console();

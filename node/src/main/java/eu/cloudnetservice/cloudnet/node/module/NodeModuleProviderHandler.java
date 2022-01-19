@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.node.module;
 
+import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.driver.module.DefaultModuleProviderHandler;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleProviderHandler;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleWrapper;
@@ -55,6 +56,8 @@ public final class NodeModuleProviderHandler extends DefaultModuleProviderHandle
     this.nodeInstance.dataSyncRegistry().unregisterHandler(moduleWrapper.classLoader());
     // unregister all object mappers which are registered
     DefaultObjectMapper.DEFAULT_MAPPER.unregisterBindings(moduleWrapper.classLoader());
+    // unregister all language files
+    I18n.unregisterLanguageFiles(moduleWrapper.classLoader());
   }
 
   private void removeListeners(@NonNull Collection<NetworkChannel> channels, @NonNull ClassLoader loader) {

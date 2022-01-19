@@ -35,8 +35,8 @@ public final class Main {
 
   public static void main(String... args) throws Throwable {
     // language init
-    I18n.loadFromLanguageRegistryFile(Main.class.getClassLoader());
-    I18n.language(System.getProperty("cloudnet.wrapper.messages.language", "english"));
+    I18n.loadFromLangPath(Main.class);
+    I18n.language(System.getProperty("cloudnet.wrapper.messages.language", "en_US"));
     // logger init
     initLogger(LogManager.rootLogger());
     // boot the wrapper

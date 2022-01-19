@@ -43,7 +43,7 @@ var cloudnet.logging.defaultlevel INFO
 # Sets the path of the directory in which all temporary services are saved.
 #var cloudnet.tempDir.services temp/services
 # Sets the language CloudNet uses to print messages. This defaults to english if the given language doesn't exist.
-#var cloudnet.messages.language english
+#var cloudnet.messages.language en_US
 # Sets the directory where the launcher safes it's data to. This includes updater data and libraries.
 #var cloudnet.launcherdir launcher
 # Sets the config file location of the node configuration.
