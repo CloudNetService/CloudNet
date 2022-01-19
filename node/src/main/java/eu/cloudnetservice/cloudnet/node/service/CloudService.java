@@ -56,6 +56,8 @@ public interface CloudService extends SpecificCloudServiceProvider {
 
   @NonNull Path directory();
 
+  @NonNull Path pluginDirectory();
+
   @Nullable NetworkChannel networkChannel();
 
   @Internal

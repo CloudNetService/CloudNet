@@ -36,6 +36,7 @@ import eu.cloudnetservice.cloudnet.driver.network.ssl.SSLConfiguration;
 import eu.cloudnetservice.cloudnet.driver.service.ProcessSnapshot;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceDeployment;
+import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceId;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceLifeCycle;
@@ -84,6 +85,7 @@ public abstract class AbstractService implements CloudService {
 
   protected final String connectionKey;
   protected final Path serviceDirectory;
+  protected final Path pluginDirectory;
   protected final CloudNet nodeInstance;
   protected final CloudServiceManager cloudServiceManager;
   protected final ServiceConfiguration serviceConfiguration;
@@ -117,6 +119,8 @@ public abstract class AbstractService implements CloudService {
 
     this.connectionKey = StringUtil.generateRandomString(64);
     this.serviceDirectory = resolveServicePath(configuration.serviceId(), manager, configuration.staticService());
+    this.pluginDirectory = this.serviceDirectory
+      .resolve(configuration.serviceId().environment().property(ServiceEnvironmentType.PLUGIN_DIR));
 
     this.currentServiceInfo = new ServiceInfoSnapshot(
       System.currentTimeMillis(),
@@ -389,6 +393,11 @@ public abstract class AbstractService implements CloudService {
   @Override
   public @NonNull Path directory() {
     return this.serviceDirectory;
+  }
+
+  @Override
+  public @NonNull Path pluginDirectory() {
+    return this.pluginDirectory;
   }
 
   @Override

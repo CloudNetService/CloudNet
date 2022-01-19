@@ -37,7 +37,7 @@ public final class BridgePluginIncludeListener {
     if (this.management.configuration().excludedGroups().stream()
       .noneMatch(group -> event.service().serviceConfiguration().groups().contains(group))) {
       // get the target of the copy
-      var plugins = event.service().directory().resolve("plugins");
+      var plugins = event.service().pluginDirectory();
       FileUtil.createDirectory(plugins);
       // remove the old bridge plugin
       var bridgePluginFile = plugins.resolve("cloudnet-bridge.jar");

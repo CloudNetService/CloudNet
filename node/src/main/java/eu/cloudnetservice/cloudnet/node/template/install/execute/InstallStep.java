@@ -21,6 +21,7 @@ import eu.cloudnetservice.cloudnet.node.template.install.execute.defaults.BuildS
 import eu.cloudnetservice.cloudnet.node.template.install.execute.defaults.CopyFilterStepExecutor;
 import eu.cloudnetservice.cloudnet.node.template.install.execute.defaults.DeployStepExecutor;
 import eu.cloudnetservice.cloudnet.node.template.install.execute.defaults.DownloadStepExecutor;
+import eu.cloudnetservice.cloudnet.node.template.install.execute.defaults.FabricApiVersionFetch;
 import eu.cloudnetservice.cloudnet.node.template.install.execute.defaults.PaperApiVersionFetchStepExecutor;
 import eu.cloudnetservice.cloudnet.node.template.install.execute.defaults.UnzipStepExecutor;
 import java.io.IOException;
@@ -35,11 +36,12 @@ public enum InstallStep {
   UNZIP(new UnzipStepExecutor()),
   COPY_FILTER(new CopyFilterStepExecutor()),
   DEPLOY(new DeployStepExecutor()),
-  PAPER_API(new PaperApiVersionFetchStepExecutor());
+  PAPER_API(new PaperApiVersionFetchStepExecutor()),
+  FABRIC_API(new FabricApiVersionFetch());
 
   private final InstallStepExecutor executor;
 
-  InstallStep(InstallStepExecutor executor) {
+  InstallStep(@NonNull InstallStepExecutor executor) {
     this.executor = executor;
   }
 

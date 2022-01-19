@@ -53,6 +53,10 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
     .reader(document -> document.getBoolean("isPeServer"))
     .writer((bool, document) -> document.append("isPeServer", bool))
     .build();
+  public static final DocProperty<String> PLUGIN_DIR = FunctionalDocProperty.<String>forNamedProperty("pluginDir")
+    .reader(document -> document.getString("pluginDir", "plugins"))
+    .writer((dir, document) -> document.append("pluginDir", dir))
+    .build();
 
   public static final ServiceEnvironmentType NUKKIT = ServiceEnvironmentType.builder()
     .name("NUKKIT")
@@ -64,6 +68,12 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
     .addDefaultProcessArgument("nogui")
     .properties(JsonDocument.newDocument().property(JAVA_SERVER, true))
     .build();
+  public static final ServiceEnvironmentType MODDED_MINECRAFT_SERVER = ServiceEnvironmentType.builder()
+    .name("MODDED_MINECRAFT_SERVER")
+    .addDefaultProcessArgument("nogui")
+    .properties(JsonDocument.newDocument().property(JAVA_SERVER, true).property(PLUGIN_DIR, "mods"))
+    .build();
+
   public static final ServiceEnvironmentType GLOWSTONE = ServiceEnvironmentType.builder()
     .name("GLOWSTONE")
     .properties(JsonDocument.newDocument().property(JAVA_SERVER, true))

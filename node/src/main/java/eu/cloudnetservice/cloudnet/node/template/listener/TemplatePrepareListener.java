@@ -20,7 +20,6 @@ import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.driver.event.EventListener;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.driver.template.SpecificTemplateStorage;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.event.template.ServiceTemplateInstallEvent;
 import eu.cloudnetservice.cloudnet.node.template.TemplateStorageUtil;
 import java.io.IOException;
@@ -67,7 +66,12 @@ public final class TemplatePrepareListener {
       }
 
       try (var out = event.storage().newOutputStream("config/sponge/sponge.conf");
-        var in = CloudNet.class.getClassLoader().getResourceAsStream("files/nms/sponge.conf")) {
+        var in = resourceStream("files/nms/sponge.conf")) {
+        FileUtil.copy(in, out);
+      }
+    } else if (event.environmentType().equals(ServiceEnvironmentType.MODDED_MINECRAFT_SERVER)) {
+      try (var out = event.storage().newOutputStream("server.properties")) {
+        var in = resourceStream("files/fabric/server.properties");
         FileUtil.copy(in, out);
       }
     } else if (event.environmentType().equals(ServiceEnvironmentType.GLOWSTONE)) {
