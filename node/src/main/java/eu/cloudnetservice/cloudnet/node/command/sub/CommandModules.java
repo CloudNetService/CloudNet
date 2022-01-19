@@ -67,13 +67,12 @@ public final class CommandModules {
     .build();
   private static final RowBasedFormatter<ModuleEntry> MODULE_ENTRY_FORMATTER = RowBasedFormatter.<ModuleEntry>builder()
     .defaultFormatter(ColumnFormatter.builder()
-      .columnTitles("Name", "Version", "Author", "Description", "Official")
+      .columnTitles("Name", "Author", "Description", "Website")
       .build())
     .column(ModuleEntry::name)
-    .column(ModuleEntry::version)
     .column(entry -> String.join(", ", entry.maintainers()))
     .column(ModuleEntry::description)
-    .column(entry -> entry.maintainers().contains("CloudNetService"))
+    .column(ModuleEntry::website)
     .build();
 
   private final ModuleProvider provider = CloudNet.instance().moduleProvider();

@@ -21,6 +21,7 @@ import lombok.NonNull;
 
 public record ModuleEntry(
   @NonNull String name,
+  @NonNull String website,
   @NonNull String version,
   @NonNull String sha3256,
   @NonNull String description,

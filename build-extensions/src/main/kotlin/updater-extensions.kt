@@ -70,6 +70,7 @@ private fun updateModuleInformation() {
   internalModules.forEach {
     moduleJsonFile.add(JsonObject().apply {
       addProperty("name", it.second.get("name").asString)
+      addProperty("website", it.second.get("website").asString)
       addProperty("version", it.second.get("version").asString)
       addProperty("sha3256", ChecksumHelper.fileShaSum(it.first))
       addProperty("description", it.second.get("description").asString)
