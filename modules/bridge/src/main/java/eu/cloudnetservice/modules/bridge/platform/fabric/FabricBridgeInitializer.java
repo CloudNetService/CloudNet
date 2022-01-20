@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-object Versions {
+package eu.cloudnetservice.modules.bridge.platform.fabric;
 
-  // internal versions
-  const val cloudNet = "4.0.0-SNAPSHOT"
-  const val cloudNetCodeName = "Blizzard"
+import net.fabricmc.api.DedicatedServerModInitializer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
-  // plugin versions
-  const val shadow = "7.1.2"
-  const val blossom = "1.3.0"
-  const val juppiter = "0.2.0"
-  const val fabricLoom = "0.11.5"
+@Environment(EnvType.SERVER)
+public final class FabricBridgeInitializer implements DedicatedServerModInitializer {
 
-  // external tools
-  const val checkstyleTools = "9.2.1"
+  @Override
+  public void onInitializeServer() {
+  }
 }

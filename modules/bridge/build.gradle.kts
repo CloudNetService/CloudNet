@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
+import net.fabricmc.loom.task.RemapJarTask
+import net.kyori.blossom.BlossomExtension
+
 plugins {
-  id("com.github.johnrengelman.shadow") version Versions.shadow
+  id("fabric-loom") version Versions.fabricLoom
 }
 
-tasks.withType<Jar> {
-  archiveFileName.set(Files.bridge)
+configurations {
+  // custom configuration for later dependency resolution
+  create("runtimeImpl") {
+    configurations.getByName("api").extendsFrom(this)
+  }
 }
 
 dependencies {
@@ -28,8 +34,29 @@ dependencies {
   "compileOnly"(libs.bundles.serverPlatform)
 
   "annotationProcessor"(libs.velocity)
-  "implementation"(libs.bundles.adventure)
-  "implementation"(projects.cloudnetExt.adventureHelper)
+  "runtimeImpl"(libs.bundles.adventure)
+  "runtimeImpl"(projects.cloudnetExt.adventureHelper)
+
+  "minecraft"(libs.minecraft)
+  "modImplementation"(libs.fabricLoader)
+  "mappings"(loom.officialMojangMappings())
+}
+
+tasks.withType<RemapJarTask> {
+  // depend on adventure helper jar task
+  dependsOn(":cloudnet-ext:adventure-helper:jar")
+  // base setup
+  archiveFileName.set(Files.bridge)
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+  // includes all dependencies of runtimeImpl but excludes gson because we don't need it
+  from(configurations.getByName("runtimeImpl").map { if (it.isDirectory) it else zipTree(it) })
+  exclude {
+    it.file.absolutePath.contains(setOf("com", "google", "gson").joinToString(separator = File.separator))
+  }
+}
+
+loom {
+  accessWidenerPath.set(project.file("src/main/resources/cloudnet_bridge.accesswidener"))
 }
 
 moduleJson {
@@ -39,11 +66,6 @@ moduleJson {
   description = "Bridges service software support between all supported versions for easy CloudNet plugin development"
 }
 
-tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
-  // drop unused classes which are making the jar bigger
-  minimize()
-}
-
-configure<net.kyori.blossom.BlossomExtension> {
+configure<BlossomExtension> {
   replaceToken("{project.build.version}", project.version)
 }

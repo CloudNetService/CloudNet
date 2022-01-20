@@ -12,6 +12,17 @@
       }
     },
     {
+      "name": "MODDED_MINECRAFT_SERVER",
+      "defaultServiceStartPort": 44955,
+      "defaultProcessArguments": [
+        "nogui"
+      ],
+      "properties": {
+        "isJavaServer": true,
+        "pluginDir": "mods"
+      }
+    },
+    {
       "name": "GLOWSTONE",
       "defaultServiceStartPort": 44955,
       "defaultProcessArguments": [],
@@ -355,6 +366,38 @@
           "url": "https://cdn.getbukkit.org/spigot/spigot-1.8.8-R0.1-SNAPSHOT-latest.jar",
           "deprecated": true,
           "maxJavaVersion": 8
+        }
+      ]
+    },
+    {
+      "name": "fabric",
+      "environmentType": "MODDED_MINECRAFT_SERVER",
+      "installSteps": [
+        "FABRIC_API",
+        "DOWNLOAD",
+        "BUILD",
+        "COPY_FILTER"
+      ],
+      "website": "https://fabricmc.net",
+      "versions": [
+        {
+          "name": "latest",
+          "cacheFiles": false,
+          "minJavaVersion": 17,
+          "properties": {
+            "copy": {
+              "fabric-server-launch\\.jar": "fabric.jar",
+              "libraries/.*": "/",
+              "versions/.*": "/",
+              "server\\.jar": "server.jar"
+            },
+            "parameters": [
+              "server",
+              "-mcversion %version%",
+              "-downloadMinecraft"
+            ],
+            "fetchOverFabricApi": true
+          }
         }
       ]
     },

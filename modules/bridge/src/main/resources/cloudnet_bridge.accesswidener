@@ -1,0 +1,7 @@
+accessWidener	v1	 named
+# fields
+accessible    field     net/minecraft/network/protocol/handshake/ClientIntentionPacket    hostName            Ljava/lang/String;
+mutable       field     net/minecraft/network/protocol/handshake/ClientIntentionPacket    hostName            Ljava/lang/String;
+
+# methods
+accessible    method    net/minecraft/server/network/ServerGamePacketListenerImpl         handleCommand       (Ljava/lang/String;)V

@@ -19,6 +19,13 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
   includeBuild("build-extensions")
+  repositories {
+    gradlePluginPortal()
+    maven {
+      name = "Fabric"
+      url = uri("https://maven.fabricmc.net/")
+    }
+  }
 }
 
 rootProject.name = "cloudnet-root"

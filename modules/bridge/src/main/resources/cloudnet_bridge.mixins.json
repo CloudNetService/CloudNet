@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "compatibilityLevel": "JAVA_16",
+  "package": "eu.cloudnetservice.modules.bridge.platform.fabric.mixin",
+  "server": [
+    "forwarding.ConnectionMixin",
+    "forwarding.CompressionThresholdMixin",
+    "forwarding.ClientIntentionPacketMixin",
+    "forwarding.ServerHandshakePacketListenerMixin",
+    "forwarding.ServerLoginPacketListenerMixin",
+    "handling.MinecraftServerMixin",
+    "handling.PlayerListMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
