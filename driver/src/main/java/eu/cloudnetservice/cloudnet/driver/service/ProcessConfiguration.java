@@ -79,8 +79,8 @@ public record ProcessConfiguration(
       return this;
     }
 
-    public @NonNull Builder addJvmOption(@NonNull String jvmOption) {
-      this.jvmOptions.add(jvmOption);
+    public @NonNull Builder addJvmOptions(@NonNull Collection<String> jvmOption) {
+      this.jvmOptions.addAll(jvmOption);
       return this;
     }
 
@@ -89,8 +89,8 @@ public record ProcessConfiguration(
       return this;
     }
 
-    public @NonNull Builder addProcessParameter(@NonNull String processParameter) {
-      this.processParameters.add(processParameter);
+    public @NonNull Builder addProcessParameters(@NonNull Collection<String> processParameter) {
+      this.processParameters.addAll(processParameter);
       return this;
     }
 

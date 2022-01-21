@@ -83,6 +83,25 @@ public class ConsoleProgressAnimation extends AbstractConsoleAnimation {
     this.startInstant = Instant.now();
   }
 
+  public static @NonNull ConsoleProgressAnimation createDefault(
+    @NonNull String task,
+    @NonNull String unitName,
+    long maximum
+  ) {
+    return new ConsoleProgressAnimation(
+      '█',
+      ' ',
+      " ▏▎▍▌▋▊▉",
+      '[',
+      ']',
+      task + " (%ratio%): %percent%  ",
+      " %speed% (%elapsed%/%eta%)",
+      1,
+      unitName,
+      new DecimalFormat("#.0"),
+      maximum);
+  }
+
   @Override
   protected boolean handleTick() {
     super.print(this.render());

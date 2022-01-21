@@ -51,8 +51,8 @@ public class NettyHttpServer extends NettySslServer implements HttpServer {
   protected final Collection<HttpHandlerEntry> registeredHandlers = new ConcurrentLinkedQueue<>();
   protected final Map<Integer, Pair<HostAndPort, ChannelFuture>> channelFutures = new ConcurrentHashMap<>();
 
-  protected final EventLoopGroup bossGroup = NettyUtil.newEventLoopGroup();
-  protected final EventLoopGroup workerGroup = NettyUtil.newEventLoopGroup();
+  protected final EventLoopGroup bossGroup = NettyUtil.newEventLoopGroup(1);
+  protected final EventLoopGroup workerGroup = NettyUtil.newEventLoopGroup(0);
 
   /**
    * Constructs a new instance of a netty http server instance. Equivalent to {@code new NettyHttpServer(null)}.

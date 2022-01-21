@@ -18,6 +18,8 @@ package eu.cloudnetservice.cloudnet.driver.event.events.channel;
 
 import com.google.common.base.Verify;
 import com.google.common.base.VerifyException;
+import eu.cloudnetservice.cloudnet.common.concurrent.CompletedTask;
+import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessageSender;
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessageTarget;
@@ -45,7 +47,7 @@ public final class ChannelMessageReceiveEvent extends NetworkEvent {
   private final ChannelMessage channelMessage;
   private final boolean query;
 
-  private volatile ChannelMessage queryResponse;
+  private volatile Task<ChannelMessage> queryResponse;
 
   /**
    * Constructs a new instance of a channel message receive event.
@@ -162,7 +164,7 @@ public final class ChannelMessageReceiveEvent extends NetworkEvent {
    *
    * @return the current query response to the received channel message.
    */
-  public @Nullable ChannelMessage queryResponse() {
+  public @Nullable Task<ChannelMessage> queryResponse() {
     return this.queryResponse;
   }
 
@@ -175,6 +177,20 @@ public final class ChannelMessageReceiveEvent extends NetworkEvent {
    * @throws VerifyException      if the received channel message is not expecting a response.
    */
   public void queryResponse(@Nullable ChannelMessage queryResponse) {
+    Verify.verify(this.query, "Cannot set query response of no query");
+    this.queryResponse = queryResponse == null ? null : CompletedTask.done(queryResponse);
+  }
+
+  /**
+   * Sets the query response of the received channel message to the given channel message. Null is accepted and a valid
+   * value, representing that there will be no response to the channel message. The caller of the event will wait for
+   * the given task to compute a response but will resume the calling thread.
+   *
+   * @param queryResponse a task completed with the query response to the received channel message.
+   * @throws NullPointerException if the given response task is null.
+   * @throws VerifyException      if the received channel message is not expecting a response.
+   */
+  public void queryResponse(@Nullable Task<ChannelMessage> queryResponse) {
     Verify.verify(this.query, "Cannot set query response of no query");
     this.queryResponse = queryResponse;
   }

@@ -25,12 +25,13 @@ import eu.cloudnetservice.cloudnet.common.JavaVersion;
 import eu.cloudnetservice.cloudnet.common.collection.Pair;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceConfiguration;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTask;
+import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.command.annotation.Description;
 import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
-import java.util.ArrayList;
-import java.util.List;
+import eu.cloudnetservice.cloudnet.node.console.animation.progressbar.ConsoleProgressAnimation;
+import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 @CommandPermission("cloudnet.command.create")
 @Description("Creates one or more new services based on a task or completely independent")
@@ -64,24 +65,56 @@ public final class CommandCreate {
       configurationBuilder.maxHeapMemory(memory);
     }
 
-    List<ServiceInfoSnapshot> createdServices = new ArrayList<>();
+    if (amount >= 10) {
+      // display with progress animation
+      this.startServices(
+        source,
+        configurationBuilder.build(),
+        ConsoleProgressAnimation.createDefault("Creating", " Services", amount),
+        amount,
+        startService);
+    } else {
+      // start without progress animation
+      this.startServices(source, configurationBuilder.build(), null, amount, startService);
+    }
+  }
+
+  private void startServices(
+    @NonNull CommandSource source,
+    @NonNull ServiceConfiguration configuration,
+    @Nullable ConsoleProgressAnimation animation,
+    int amount,
+    boolean start
+  ) {
+    source.sendMessage(I18n.trans("command-create-by-task-starting", configuration.serviceId().taskName(), amount));
+    // start the progress animation if needed
+    if (animation != null && !CloudNet.instance().console().animationRunning()) {
+      CloudNet.instance().console().startAnimation(animation);
+    }
+    // try to start the provided amount of services based on the configuration
     for (var i = 0; i < amount; i++) {
-      var service = configurationBuilder.build().createNewService();
-      if (service != null) {
-        createdServices.add(service);
+      var service = configuration.createNewService();
+      // stop creating new services if the creation failed once
+      if (service == null) {
+        source.sendMessage(I18n.trans("command-create-by-task-failed"));
+        // stop the animation
+        if (animation != null) {
+          animation.stepToEnd();
+        }
+        return;
+      }
+      // start the service if requested
+      if (start) {
+        service.provider().start();
+      }
+      // step the progress bar by one if given
+      if (animation != null) {
+        animation.step();
       }
     }
-
-    if (createdServices.isEmpty()) {
-      source.sendMessage(I18n.trans("command-create-by-task-failed"));
-      return;
-    }
-
-    source.sendMessage(I18n.trans("command-create-by-task-success"));
-    if (startService) {
-      for (var createdService : createdServices) {
-        createdService.provider().start();
-      }
+    // print the finish message if no other progress indication is there
+    if (animation == null) {
+      source.sendMessage(I18n.trans("command-create-by-task-success"));
     }
   }
 }

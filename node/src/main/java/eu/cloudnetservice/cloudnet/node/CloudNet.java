@@ -437,8 +437,7 @@ public class CloudNet extends CloudNetDriver {
     this.configuration = configuration;
   }
 
-  public @NonNull
-  ClusterNodeServerProvider nodeServerProvider() {
+  public @NonNull ClusterNodeServerProvider nodeServerProvider() {
     return this.nodeServerProvider;
   }
 

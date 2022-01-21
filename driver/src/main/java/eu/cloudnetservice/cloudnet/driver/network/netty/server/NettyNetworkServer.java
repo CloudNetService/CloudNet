@@ -53,8 +53,8 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
 
   protected static final WriteBufferWaterMark WATER_MARK = new WriteBufferWaterMark(1 << 20, 1 << 21);
 
-  protected final EventLoopGroup bossEventLoopGroup = NettyUtil.newEventLoopGroup();
-  protected final EventLoopGroup workerEventLoopGroup = NettyUtil.newEventLoopGroup();
+  protected final EventLoopGroup bossEventLoopGroup = NettyUtil.newEventLoopGroup(1);
+  protected final EventLoopGroup workerEventLoopGroup = NettyUtil.newEventLoopGroup(0);
 
   protected final Collection<NetworkChannel> channels = new ConcurrentLinkedQueue<>();
   protected final Map<Integer, Pair<HostAndPort, ChannelFuture>> channelFutures = new ConcurrentHashMap<>();

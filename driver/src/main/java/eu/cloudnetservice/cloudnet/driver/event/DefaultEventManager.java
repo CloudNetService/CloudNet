@@ -21,17 +21,14 @@ import com.google.common.collect.ListMultimap;
 import eu.cloudnetservice.cloudnet.driver.event.invoker.ListenerInvokerGenerator;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Predicate;
 import lombok.NonNull;
 
 public class DefaultEventManager implements EventManager {
 
-  /**
-   * Holds all registered events mapped to all registered events listeners
-   */
-  protected final Lock lock = new ReentrantLock();
+  protected final ReadWriteLock lock = new ReentrantReadWriteLock();
   protected final ListMultimap<Class<?>, RegisteredEventListener> listeners = ArrayListMultimap.create();
 
   @Override
@@ -51,7 +48,7 @@ public class DefaultEventManager implements EventManager {
 
   @Override
   public <T extends Event> @NonNull T callEvent(@NonNull String channel, @NonNull T event) {
-    this.lock.lock();
+    this.lock.readLock().lock();
     try {
       // get all registered listeners of the event
       var listeners = this.listeners.get(event.getClass());
@@ -74,7 +71,7 @@ public class DefaultEventManager implements EventManager {
         }
       }
     } finally {
-      this.lock.unlock();
+      this.lock.readLock().unlock();
     }
     // for chaining
     return event;
@@ -104,14 +101,14 @@ public class DefaultEventManager implements EventManager {
           annotation,
           ListenerInvokerGenerator.generate(listener, method, eventClass));
         // bake an event listener from the information
-        this.lock.lock();
+        this.lock.writeLock().lock();
         try {
           var listeners = this.listeners.get(eventClass);
           listeners.add(eventListener);
           // sort now - we don't need to sort lather then
           Collections.sort(listeners);
         } finally {
-          this.lock.unlock();
+          this.lock.writeLock().unlock();
         }
       }
     }
@@ -120,12 +117,12 @@ public class DefaultEventManager implements EventManager {
   }
 
   protected void safeRemove(@NonNull Predicate<RegisteredEventListener> predicate) {
-    this.lock.lock();
+    this.lock.writeLock().lock();
     try {
       // prevents concurrency issues
       this.listeners.values().removeIf(predicate);
     } finally {
-      this.lock.unlock();
+      this.lock.writeLock().unlock();
     }
   }
 }

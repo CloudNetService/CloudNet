@@ -25,12 +25,13 @@ import lombok.NonNull;
 
 public abstract class AbstractServiceFactory implements CloudServiceFactory {
 
-  protected void validateConfiguration(
+  protected @NonNull ServiceConfiguration validateConfiguration(
     @NonNull CloudServiceManager manager,
     @NonNull ServiceConfiguration configuration
   ) {
+    var configurationBuilder = ServiceConfiguration.builder(configuration);
     // set the node unique id
-    configuration.serviceId().nodeUniqueId(CloudNet.instance().nodeUniqueId());
+    configurationBuilder.node(CloudNet.instance().nodeUniqueId());
 
     // set the environment type
     if (configuration.serviceId().environment() == null) {
@@ -39,7 +40,7 @@ public abstract class AbstractServiceFactory implements CloudServiceFactory {
         .orElseThrow(() -> new IllegalArgumentException(
           "Unknown environment type " + configuration.serviceId().environmentName()));
       // set the environment type
-      configuration.serviceId().environment(env);
+      configurationBuilder.environment(env);
     }
 
     // find a free port for the service
@@ -48,7 +49,7 @@ public abstract class AbstractServiceFactory implements CloudServiceFactory {
       port++;
     }
     // set the port
-    configuration.port(port);
+    return configurationBuilder.startPort(port).build();
   }
 
   protected boolean isPortInUse(@NonNull CloudServiceManager manager, int port) {

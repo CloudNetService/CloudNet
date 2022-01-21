@@ -28,7 +28,7 @@ import lombok.NonNull;
 public final class DefaultFileHandler extends FileHandler {
 
   public static final int DEFAULT_COUNT = 8;
-  public static final int DEFAULT_LIMIT = 1 << 25;
+  public static final int DEFAULT_LIMIT = 1 << 22;
 
   private DefaultFileHandler(String pattern, int limit, int count, boolean append) throws IOException {
     super(pattern, limit, count, append);

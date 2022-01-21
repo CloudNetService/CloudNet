@@ -305,6 +305,13 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
     // remove the setup from the screen
     this.console().clearScreen();
 
+    // reset the console settings
+    this.console().enableAllHandlers();
+    this.console().prompt(this.previousPrompt);
+    this.console().commandHistory(this.previousHistory);
+    this.console().togglePrinting(this.previousPrintingEnabled);
+    this.console().usingMatchingHistoryComplete(this.previousUseMatchingHistorySearch);
+
     // write the old lines back if there are some
     if (this.previousConsoleLines.isEmpty()) {
       // send an empty line to prevent bugs
@@ -314,13 +321,6 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
         this.console().forceWriteLine(line);
       }
     }
-
-    // reset the console settings
-    this.console().enableAllHandlers();
-    this.console().prompt(this.previousPrompt);
-    this.console().commandHistory(this.previousHistory);
-    this.console().togglePrinting(this.previousPrintingEnabled);
-    this.console().usingMatchingHistoryComplete(this.previousUseMatchingHistorySearch);
 
     super.resetConsole();
   }

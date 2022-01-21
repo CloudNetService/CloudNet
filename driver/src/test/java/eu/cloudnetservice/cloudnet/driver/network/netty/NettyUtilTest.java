@@ -42,7 +42,7 @@ public class NettyUtilTest {
       .when(DriverTestUtility.mockAndSetDriverInstance().environment())
       .thenReturn(DriverEnvironment.CLOUDNET);
 
-    Assertions.assertEquals(Runtime.getRuntime().availableProcessors() * 2, NettyUtil.threadAmount());
+    Assertions.assertTrue(NettyUtil.threadAmount() >= 8);
   }
 
   @RepeatedTest(30)

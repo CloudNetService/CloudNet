@@ -95,11 +95,11 @@ public class ModuleConfiguration {
     @NonNull String description,
     @NonNull String author,
     @NonNull String website,
-    @NonNull String dataFolder,
-    @NonNull ModuleRepository[] repositories,
-    @NonNull ModuleDependency[] dependencies,
+    @Nullable String dataFolder,
+    @Nullable ModuleRepository[] repositories,
+    @Nullable ModuleDependency[] dependencies,
     int minJavaVersionId,
-    @NonNull JsonDocument properties
+    @Nullable JsonDocument properties
   ) {
     this.runtimeModule = runtimeModule;
     this.storesSensitiveData = storesSensitiveData;
@@ -174,11 +174,11 @@ public class ModuleConfiguration {
   }
 
   /**
-   * Get the description of this module or null if no description is provided.
+   * Get the description of this module
    *
    * @return the description of this module.
    */
-  public @Nullable String description() {
+  public @NonNull String description() {
     return this.description;
   }
 
@@ -187,21 +187,21 @@ public class ModuleConfiguration {
    *
    * @return the author of this module.
    */
-  public @Nullable String author() {
+  public @NonNull String author() {
     return this.author;
   }
 
   /**
-   * Get the website of this module or null if no website is defined.
+   * Get the website of this module
    *
    * @return the website of this module.
    */
-  public @Nullable String website() {
+  public @NonNull String website() {
     return this.website;
   }
 
   /**
-   * Get the data folder of this module or null if no data folder is defined.
+   * Get the data folder of this module
    *
    * @return the data folder of this module.
    */
