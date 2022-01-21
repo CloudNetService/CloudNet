@@ -23,7 +23,7 @@ import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.PacketListener;
-import java.util.Collections;
+import java.util.Set;
 import lombok.NonNull;
 
 public final class PacketServerChannelMessageListener implements PacketListener {
@@ -35,15 +35,26 @@ public final class PacketServerChannelMessageListener implements PacketListener 
     // read the channel message from the buffer
     var message = packet.content().readObject(ChannelMessage.class);
     // get the query response if available
-    var response = CloudNetDriver.instance().eventManager().callEvent(
-      new ChannelMessageReceiveEvent(message, channel, packet.uniqueId() != null)).queryResponse();
+    var response = CloudNetDriver.instance().eventManager()
+      .callEvent(new ChannelMessageReceiveEvent(message, channel, packet.uniqueId() != null))
+      .queryResponse();
     // check if we need to respond to the channel message
-    if (response != null || packet.uniqueId() != null) {
-      // respond either using the query result or an empty result
-      DataBuf content = response == null
-        ? DataBuf.empty()
-        : DataBuf.empty().writeObject(Collections.singleton(response));
-      channel.sendPacket(packet.constructResponse(content));
+    if (packet.uniqueId() != null) {
+      // wait for the future if a response was supplied
+      if (response != null) {
+        response.then(queryResponse -> {
+          // respond with nothing if no result was set
+          if (queryResponse == null) {
+            channel.sendPacket(packet.constructResponse(DataBuf.empty()));
+          } else {
+            // serialize the single response
+            channel.sendPacket(packet.constructResponse(DataBuf.empty().writeObject(Set.of(queryResponse))));
+          }
+        });
+      } else {
+        // respond with an empty buffer to indicate the node that there was no result
+        channel.sendPacket(packet.constructResponse(DataBuf.empty()));
+      }
     }
   }
 }

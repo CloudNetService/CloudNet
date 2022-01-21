@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.node.network.listener.message;
 
+import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
 import eu.cloudnetservice.cloudnet.driver.event.EventListener;
 import eu.cloudnetservice.cloudnet.driver.event.EventManager;
 import eu.cloudnetservice.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
@@ -55,9 +56,10 @@ public final class ServiceChannelMessageListener {
         // request to start a service
         case "node_to_head_start_service" -> {
           var configuration = event.content().readObject(ServiceConfiguration.class);
-          var service = this.cloudServiceFactory.createCloudService(configuration);
-
-          event.binaryResponse(DataBuf.empty().writeObject(service));
+          event.queryResponse(this.cloudServiceFactory.createCloudServiceAsync(configuration)
+            .map(service -> ChannelMessage.buildResponseFor(event.channelMessage())
+              .buffer(DataBuf.empty().writeObject(service))
+              .build()));
         }
 
         // request to start a service on the local node

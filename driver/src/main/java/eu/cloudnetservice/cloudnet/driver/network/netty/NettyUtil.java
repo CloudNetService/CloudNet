@@ -110,12 +110,13 @@ public final class NettyUtil {
   /**
    * Creates a new nio or epoll event loop group based on their availability.
    *
+   * @param threads the number of threads to use for the event loop.
    * @return a new nio or epoll event loop group.
    */
-  public static @NonNull EventLoopGroup newEventLoopGroup() {
+  public static @NonNull EventLoopGroup newEventLoopGroup(int threads) {
     return Epoll.isAvailable()
-      ? new EpollEventLoopGroup(4, THREAD_FACTORY)
-      : new NioEventLoopGroup(4, THREAD_FACTORY);
+      ? new EpollEventLoopGroup(threads, THREAD_FACTORY)
+      : new NioEventLoopGroup(threads, THREAD_FACTORY);
   }
 
   /**
@@ -218,6 +219,6 @@ public final class NettyUtil {
    */
   public static @Range(from = 2, to = Integer.MAX_VALUE) int threadAmount() {
     var environment = CloudNetDriver.instance().environment();
-    return environment == DriverEnvironment.CLOUDNET ? Runtime.getRuntime().availableProcessors() * 2 : 4;
+    return environment == DriverEnvironment.CLOUDNET ? Math.max(8, Runtime.getRuntime().availableProcessors() * 2) : 4;
   }
 }

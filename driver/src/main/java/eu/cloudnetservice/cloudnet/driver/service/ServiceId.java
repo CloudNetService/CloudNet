@@ -24,7 +24,6 @@ import java.util.Set;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
@@ -33,36 +32,49 @@ public class ServiceId implements Nameable {
 
   protected final String taskName;
   protected final String nameSplitter;
-  protected final String environmentName;
   protected final Set<String> allowedNodes;
 
-  protected volatile UUID uniqueId;
-  protected volatile int taskServiceId;
-  protected volatile String nodeUniqueId;
-  protected volatile ServiceEnvironmentType environment;
+  protected final UUID uniqueId;
+  protected final int taskServiceId;
+  protected final String nodeUniqueId;
+
+  protected final String environmentName;
+  protected final ServiceEnvironmentType environment;
 
   protected ServiceId(
     @NonNull String taskName,
     @NonNull String nameSplitter,
-    @NonNull String environmentName,
     @NonNull Set<String> allowedNodes,
     @NonNull UUID uniqueId,
     int taskServiceId,
     @Nullable String nodeUniqueId,
+    @NonNull String environmentName,
     @Nullable ServiceEnvironmentType environment
   ) {
     this.uniqueId = uniqueId;
     this.taskName = taskName;
     this.nameSplitter = nameSplitter;
-    this.environmentName = environmentName;
     this.taskServiceId = taskServiceId;
     this.nodeUniqueId = nodeUniqueId;
     this.allowedNodes = allowedNodes;
+    this.environmentName = environmentName;
     this.environment = environment;
   }
 
   public static @NonNull Builder builder() {
     return new Builder();
+  }
+
+  public static @NonNull Builder builder(@NonNull ServiceId serviceId) {
+    return builder()
+      .uniqueId(serviceId.uniqueId())
+      .taskName(serviceId.taskName())
+      .nameSplitter(serviceId.nameSplitter())
+      .environment(serviceId.environmentName())
+      .environment(serviceId.environment())
+      .taskServiceId(serviceId.taskServiceId())
+      .nodeUniqueId(serviceId.nodeUniqueId())
+      .allowedNodes(serviceId.allowedNodes());
   }
 
   @Override
@@ -74,18 +86,8 @@ public class ServiceId implements Nameable {
     return this.uniqueId;
   }
 
-  @Internal
-  public void uniqueId(@NonNull UUID uniqueId) {
-    this.uniqueId = uniqueId;
-  }
-
   public @UnknownNullability String nodeUniqueId() {
     return this.nodeUniqueId;
-  }
-
-  @Internal
-  public void nodeUniqueId(@NonNull String nodeUniqueId) {
-    this.nodeUniqueId = nodeUniqueId;
   }
 
   public @NonNull Collection<String> allowedNodes() {
@@ -108,18 +110,8 @@ public class ServiceId implements Nameable {
     return this.taskServiceId;
   }
 
-  @Internal
-  public void taskServiceId(int taskServiceId) {
-    this.taskServiceId = taskServiceId;
-  }
-
   public @UnknownNullability ServiceEnvironmentType environment() {
     return this.environment;
-  }
-
-  @Internal
-  public void environment(@NonNull ServiceEnvironmentType environment) {
-    this.environment = environment;
   }
 
   @Override
@@ -170,9 +162,11 @@ public class ServiceId implements Nameable {
       return this;
     }
 
-    public @NonNull Builder environment(@NonNull ServiceEnvironmentType environment) {
-      this.environment = environment;
-      this.environmentName = environment.name();
+    public @NonNull Builder environment(@Nullable ServiceEnvironmentType environment) {
+      if (environment != null) {
+        this.environment = environment;
+        this.environmentName = environment.name();
+      }
       return this;
     }
 
@@ -194,11 +188,11 @@ public class ServiceId implements Nameable {
       return new ServiceId(
         this.taskName,
         this.nameSplitter,
-        this.environmentName,
         this.allowedNodes,
         this.uniqueId,
         this.taskServiceId,
         this.nodeUniqueId,
+        this.environmentName,
         this.environment);
     }
   }

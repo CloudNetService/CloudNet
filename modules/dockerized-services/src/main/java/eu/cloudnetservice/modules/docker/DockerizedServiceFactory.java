@@ -51,14 +51,14 @@ public class DockerizedServiceFactory extends AbstractServiceFactory {
     @NonNull ServiceConfiguration configuration
   ) {
     // validates the settings of the configuration
-    this.validateConfiguration(manager, configuration);
+    var config = this.validateConfiguration(manager, configuration);
     // select the configuration preparer for the environment
     var preparer = manager
-      .servicePreparer(configuration.serviceId().environment())
-      .orElseThrow(() -> new IllegalArgumentException("Unable to prepare config for " + configuration.serviceId()));
+      .servicePreparer(config.serviceId().environment())
+      .orElseThrow(() -> new IllegalArgumentException("Unable to prepare config for " + config.serviceId()));
     // create the service
     return new DockerizedService(
-      configuration,
+      config,
       manager,
       this.eventManager,
       this.nodeInstance,

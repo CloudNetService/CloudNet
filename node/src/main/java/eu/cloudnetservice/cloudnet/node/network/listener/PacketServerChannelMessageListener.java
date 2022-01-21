@@ -25,10 +25,10 @@ import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.PacketListener;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.provider.NodeMessenger;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class PacketServerChannelMessageListener implements PacketListener {
 
@@ -42,7 +42,6 @@ public final class PacketServerChannelMessageListener implements PacketListener 
 
   @Override
   public void handle(@NonNull NetworkChannel channel, @NonNull Packet packet) {
-    var responses = new ArrayList<>();
     var comesFromWrapper = packet.content().readBoolean();
     var message = packet.content().readObject(ChannelMessage.class);
     // disable releasing of the message content
@@ -57,22 +56,60 @@ public final class PacketServerChannelMessageListener implements PacketListener 
       // mark the index of the data buf
       message.content().startTransaction();
       // call the receive event
-      var response = this.eventManager.callEvent(
-        new ChannelMessageReceiveEvent(message, channel, packet.uniqueId() != null)).queryResponse();
+      var responseTask = this.eventManager
+        .callEvent(new ChannelMessageReceiveEvent(message, channel, packet.uniqueId() != null))
+        .queryResponse();
       // reset the index
       message.content().redoTransaction();
-      // add the response to the list
-      if (response != null) {
-        responses.add(response);
+      // wait for the response to become available if given before resuming
+      if (responseTask != null) {
+        responseTask.then(response -> this.resumeHandling(packet, channel, message, response, comesFromWrapper));
+        return;
       }
     }
+    // resume instantly
+    this.resumeHandling(packet, channel, message, null, comesFromWrapper);
+  }
+
+  private void resumeHandling(
+    @NonNull Packet packet,
+    @NonNull NetworkChannel channel,
+    @NonNull ChannelMessage message,
+    @Nullable ChannelMessage initialResponse,
+    boolean comesFromWrapper
+  ) {
     // do not redirect the channel message to the cluster to prevent infinite loops
     if (packet.uniqueId() != null) {
-      responses.addAll(this.messenger
-        .sendChannelMessageQueryAsync(message, comesFromWrapper)
-        .get(20, TimeUnit.SECONDS, Collections.emptyList()));
-      // respond with the available responses
-      channel.sendPacket(packet.constructResponse(DataBuf.empty().writeObject(responses)));
+      this.messenger.sendChannelMessageQueryAsync(message, comesFromWrapper)
+        .orTimeout(20, TimeUnit.SECONDS)
+        .whenComplete((result, exception) -> {
+          DataBuf responseContent;
+          // check if the handling was successful
+          if (exception == null) {
+            // respond with the result or just the single initial response if given
+            if (result == null) {
+              responseContent = initialResponse == null
+                ? DataBuf.empty()
+                : DataBuf.empty().writeObject(Set.of(initialResponse));
+            } else {
+              // add the initial response if given before writing
+              if (initialResponse != null) {
+                result.add(initialResponse);
+              }
+              // serialize the response
+              if (result.isEmpty()) {
+                responseContent = DataBuf.empty();
+              } else {
+                responseContent = DataBuf.empty().writeObject(result);
+              }
+            }
+          } else {
+            // just respond with nothing when an exception was thrown
+            responseContent = DataBuf.empty();
+          }
+          // send the results to the sender
+          channel.sendPacket(packet.constructResponse(responseContent));
+        });
     } else {
       this.messenger.sendChannelMessage(message, comesFromWrapper);
     }

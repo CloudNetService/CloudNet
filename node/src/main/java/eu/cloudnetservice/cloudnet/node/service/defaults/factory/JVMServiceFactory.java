@@ -29,24 +29,23 @@ public class JVMServiceFactory extends AbstractServiceFactory {
   private final CloudNet nodeInstance;
   private final EventManager eventManager;
 
-  public JVMServiceFactory(CloudNet nodeInstance, EventManager eventManager) {
+  public JVMServiceFactory(@NonNull CloudNet nodeInstance, @NonNull EventManager eventManager) {
     this.nodeInstance = nodeInstance;
     this.eventManager = eventManager;
   }
 
   @Override
-  public @NonNull
-  CloudService createCloudService(
+  public @NonNull CloudService createCloudService(
     @NonNull CloudServiceManager manager,
     @NonNull ServiceConfiguration configuration
   ) {
     // validates the settings of the configuration
-    this.validateConfiguration(manager, configuration);
+    var config = this.validateConfiguration(manager, configuration);
     // select the configuration preparer for the environment
     var preparer = manager
-      .servicePreparer(configuration.serviceId().environment())
-      .orElseThrow(() -> new IllegalArgumentException("Unable to prepare config for " + configuration.serviceId()));
+      .servicePreparer(config.serviceId().environment())
+      .orElseThrow(() -> new IllegalArgumentException("Unable to prepare config for " + config.serviceId()));
     // create the service
-    return new JVMService(configuration, manager, this.eventManager, this.nodeInstance, preparer);
+    return new JVMService(config, manager, this.eventManager, this.nodeInstance, preparer);
   }
 }

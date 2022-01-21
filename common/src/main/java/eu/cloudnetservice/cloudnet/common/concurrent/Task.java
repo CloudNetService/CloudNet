@@ -72,6 +72,13 @@ public interface Task<V> extends Future<V> {
     });
   }
 
+  default @NonNull Task<V> then(@NonNull Consumer<V> handler) {
+    return this
+      .onComplete(handler)
+      .onCancelled($ -> handler.accept(null))
+      .onFailure($ -> handler.accept(null));
+  }
+
   default @NonNull Task<V> fireExceptionOnFailure() {
     return this.onFailure(Throwable::printStackTrace);
   }

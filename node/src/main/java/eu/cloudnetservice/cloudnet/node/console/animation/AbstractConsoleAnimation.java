@@ -33,7 +33,7 @@ public abstract class AbstractConsoleAnimation implements Runnable {
   protected final int updateInterval;
   protected final Collection<Runnable> finishHandler = new ArrayList<>();
 
-  protected int cursorUp = 1;
+  protected int cursorUp = 0;
   protected boolean staticCursor;
 
   protected Console console;
@@ -77,6 +77,8 @@ public abstract class AbstractConsoleAnimation implements Runnable {
   public final void run() {
     // set the start time
     this.startInstant = Instant.now();
+    // move the input one down to keep the last line in the console
+    this.console.forceWriteLine(System.lineSeparator());
     // run the animation as long as the animation needs to run
     while (!Thread.interrupted() && !this.handleTick()) {
       try {

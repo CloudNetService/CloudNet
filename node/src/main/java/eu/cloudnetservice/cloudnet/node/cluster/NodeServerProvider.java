@@ -50,7 +50,7 @@ public interface NodeServerProvider<T extends NodeServer> {
    *
    * @return the jvm static local node server implementation.
    */
-  @NonNull NodeServer selfNode();
+  @NonNull LocalNodeServer selfNode();
 
   /**
    * Re-calculates the head node of the current cluster.

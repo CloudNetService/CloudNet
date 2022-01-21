@@ -26,7 +26,6 @@ import eu.cloudnetservice.cloudnet.node.console.animation.progressbar.wrapper.Wr
 import eu.cloudnetservice.cloudnet.node.console.animation.progressbar.wrapper.WrappedIterator;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.Iterator;
 import kong.unirest.Unirest;
@@ -57,18 +56,7 @@ public final class ConsoleProgressWrappers {
     return console.animationRunning() ? collection.iterator() : new WrappedIterator<>(
       collection.iterator(),
       console,
-      new ConsoleProgressAnimation(
-        '█',
-        ' ',
-        " ▏▎▍▌▋▊▉",
-        '[',
-        ']',
-        task + " (%ratio%): %percent%  ",
-        " %speed% (%elapsed%/%eta%)",
-        1,
-        unitName,
-        new DecimalFormat("#.0"),
-        collection.size()));
+      ConsoleProgressAnimation.createDefault(task, unitName, collection.size()));
   }
 
   public static void wrapDownload(@NonNull String url, @NonNull ThrowableConsumer<InputStream, IOException> handler) {
@@ -89,18 +77,12 @@ public final class ConsoleProgressWrappers {
           var contentLength = Longs.tryParse(rawResponse.getHeaders().getFirst("Content-Length"));
 
           try {
-            streamHandler.accept(console.animationRunning() ? stream
-              : new WrappedInputStream(stream, console, new ConsoleProgressAnimation(
-                '█',
-                ' ',
-                " ▏▎▍▌▋▊▉",
-                '[',
-                ']',
-                "Downloading (%ratio%): %percent%  ",
-                " %speed% (%elapsed%/%eta%)",
-                1024 * 1024,
+            streamHandler.accept(console.animationRunning() ? stream : new WrappedInputStream(
+              stream,
+              console,
+              ConsoleProgressAnimation.createDefault(
+                "Downloading",
                 "MB",
-                new DecimalFormat("#.0"),
                 contentLength == null ? stream.available() : contentLength)));
           } catch (IOException exception) {
             LOGGER.severe("Exception downloading file from %s", exception, url);

@@ -90,10 +90,10 @@ public class DefaultEventManagerTest {
     Assertions.assertSame(event, eventManager.callEvent(event));
 
     Assertions.assertNotNull(event.queryResponse());
-    Assertions.assertEquals("abc", event.queryResponse().channel());
+    Assertions.assertEquals("abc", event.queryResponse().getOrNull().channel());
 
-    Assertions.assertNotNull(event.queryResponse().content());
-    Assertions.assertEquals("passed", event.queryResponse().content().readString());
+    Assertions.assertNotNull(event.queryResponse().getOrNull().content());
+    Assertions.assertEquals("passed", event.queryResponse().getOrNull().content().readString());
   }
 
   @Test

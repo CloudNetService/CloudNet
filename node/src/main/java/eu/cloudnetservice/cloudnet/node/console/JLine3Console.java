@@ -296,6 +296,7 @@ public final class JLine3Console implements Console {
   public void clearScreen() {
     this.terminal.puts(InfoCmp.Capability.clear_screen);
     this.terminal.flush();
+    this.redisplay();
   }
 
   @Override

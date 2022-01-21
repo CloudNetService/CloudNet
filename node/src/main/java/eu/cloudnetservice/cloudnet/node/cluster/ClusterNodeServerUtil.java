@@ -27,6 +27,8 @@ import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.service.CloudService;
+import java.util.Collection;
 import lombok.NonNull;
 
 final class ClusterNodeServerUtil {
@@ -49,8 +51,9 @@ final class ClusterNodeServerUtil {
         // call the local change event
         CloudNet.instance().eventManager().callEvent(new CloudServiceLifecycleChangeEvent(lifeCycle, snapshot));
         // send the change to all service - all other nodes will handle the close as well (if there are any)
-        if (!CloudNet.instance().cloudServiceProvider().localCloudServices().isEmpty()) {
-          targetLocalServices()
+        var localServices = CloudNet.instance().cloudServiceProvider().localCloudServices();
+        if (!localServices.isEmpty()) {
+          targetServices(localServices)
             .message("update_service_lifecycle")
             .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
             .buffer(DataBuf.empty().writeObject(lifeCycle).writeObject(snapshot))
@@ -63,13 +66,11 @@ final class ClusterNodeServerUtil {
     LOGGER.info(I18n.trans("cluster-server-networking-disconnected", server.nodeInfo().uniqueId()));
   }
 
-  private static @NonNull ChannelMessage.Builder targetLocalServices() {
+  private static @NonNull ChannelMessage.Builder targetServices(@NonNull Collection<CloudService> services) {
     var builder = ChannelMessage.builder();
     // iterate over all local services - if the service is connected append it as target
-    for (var service : CloudNet.instance().cloudServiceProvider().localCloudServices()) {
-      if (service.networkChannel() != null) {
-        builder.target(Type.SERVICE, service.serviceId().name());
-      }
+    for (var service : services) {
+      builder.target(Type.SERVICE, service.serviceId().name());
     }
     // for chaining
     return builder;
