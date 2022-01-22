@@ -18,6 +18,7 @@ package eu.cloudnetservice.cloudnet.node.setup;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import com.google.common.net.InetAddresses;
 import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.driver.module.DefaultModuleProvider;
@@ -33,6 +34,7 @@ import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.QuestionL
 import eu.cloudnetservice.cloudnet.node.module.ModuleEntry;
 import eu.cloudnetservice.cloudnet.node.util.NetworkAddressUtil;
 import eu.cloudnetservice.ext.updater.util.ChecksumUtil;
+import java.net.Inet6Address;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.HashSet;
@@ -183,7 +185,16 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
     // init the host address
     HostAndPort hostAddress = animation.result("hostAddress");
     config.hostAddress(hostAddress.host());
-    config.connectHostAddress(hostAddress.host());
+
+    // if the host address is a wildcard address we need to specify a loopback address as connect host address
+    // this is because the connect address should be used by a proxy to connect a player to a downstream service
+    var address = InetAddresses.forString(hostAddress.host());
+    if (address.isAnyLocalAddress()) {
+      // keep ipv6 address types
+      config.connectHostAddress(address instanceof Inet6Address ? "::1" : "127.0.0.1");
+    } else {
+      config.connectHostAddress(hostAddress.host());
+    }
 
     // init the web host address
     config.httpListeners().clear();
