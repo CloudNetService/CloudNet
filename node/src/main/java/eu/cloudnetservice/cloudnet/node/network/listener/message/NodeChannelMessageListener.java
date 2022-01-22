@@ -16,9 +16,15 @@
 
 package eu.cloudnetservice.cloudnet.node.network.listener.message;
 
+import com.google.common.collect.Lists;
+import eu.cloudnetservice.cloudnet.common.language.I18n;
+import eu.cloudnetservice.cloudnet.common.log.LogManager;
+import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.driver.event.EventListener;
 import eu.cloudnetservice.cloudnet.driver.event.EventManager;
 import eu.cloudnetservice.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
+import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
+import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
@@ -28,6 +34,8 @@ import eu.cloudnetservice.cloudnet.node.event.cluster.NetworkClusterNodeInfoUpda
 import lombok.NonNull;
 
 public final class NodeChannelMessageListener {
+
+  private final static Logger LOGGER = LogManager.logger(NodeChannelMessageListener.class);
 
   private final EventManager eventManager;
   private final DataSyncRegistry dataSyncRegistry;
@@ -64,6 +72,34 @@ public final class NodeChannelMessageListener {
           var result = this.dataSyncRegistry.handle(event.content(), event.content().readBoolean());
           if (result != null && event.query()) {
             event.binaryResponse(result);
+          }
+        }
+
+        // handle adding a new cluster node on other nodes
+        case "cluster-add-host" -> {
+          var nodeId = event.content().readString();
+          var hostAndPort = event.content().readObject(HostAndPort.class);
+          var nodeConfig = CloudNet.instance().config();
+          // add the new node to the configuration
+          if (nodeConfig.clusterConfig().nodes().add(new NetworkClusterNode(nodeId, Lists.newArrayList(hostAndPort)))) {
+            // only save if we have changes
+            nodeConfig.save();
+            // notify the user about the new node
+            LOGGER.info(I18n.trans("command-cluster-add-node-success", nodeId, hostAndPort.host()));
+          }
+        }
+
+        // handle the removal of a cluster node from other nodes
+        case "cluster-remove-host" -> {
+          var nodeId = event.content().readString();
+          var hostAndPort = event.content().readObject(HostAndPort.class);
+          var nodeConfig = CloudNet.instance().config();
+          // remove the node from the configuration
+          if (nodeConfig.clusterConfig().nodes().remove(new NetworkClusterNode(nodeId, Lists.newArrayList(hostAndPort)))) {
+            // only save if we have changes
+            nodeConfig.save();
+            // notify the user about the new node
+            LOGGER.info(I18n.trans("command-cluster-remove-node-success", nodeId, hostAndPort.host()));
           }
         }
 

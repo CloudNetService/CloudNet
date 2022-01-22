@@ -23,6 +23,7 @@ import cloud.commandframework.annotations.Flag;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import eu.cloudnetservice.cloudnet.common.column.ColumnFormatter;
@@ -32,9 +33,12 @@ import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.common.unsafe.CPUUsageResolver;
+import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
 import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
+import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.chunk.TransferStatus;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNode;
+import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.cluster.ClusterNodeServer;
@@ -220,23 +224,34 @@ public final class CommandCluster {
     @Argument("host") HostAndPort hostAndPort
   ) {
     var nodeConfig = CloudNet.instance().config();
-    var networkCluster = nodeConfig.clusterConfig();
-    // add the new node to the cluster config
-    networkCluster.nodes().add(new NetworkClusterNode(nodeId, Lists.newArrayList(hostAndPort)));
-    nodeConfig.clusterConfig(networkCluster);
-    // write the changes to the file
-    nodeConfig.save();
-    source.sendMessage(I18n.trans("command-cluster-add-node-success"));
+    // only add the new network node if we have a change to the underlying set
+    if (nodeConfig.clusterConfig().nodes().add(new NetworkClusterNode(nodeId, Lists.newArrayList(hostAndPort)))) {
+      // add the ip to the ip whitelist to allow a connection
+      nodeConfig.ipWhitelist().add(hostAndPort.host());
+      // write the changes to the file
+      nodeConfig.save();
+      // notify other nodes about this change and add the node there too
+      this.updateClusterNodes(nodeId, hostAndPort)
+        .message("cluster-add-host")
+        .build()
+        .send();
+    }
+    source.sendMessage(I18n.trans("command-cluster-add-node-success", nodeId, hostAndPort.host()));
   }
 
   @CommandMethod("cluster|clu remove <nodeId>")
   public void removeNodeFromCluster(CommandSource source, @Argument("nodeId") NetworkClusterNode node) {
     var nodeConfig = CloudNet.instance().config();
-    var cluster = nodeConfig.clusterConfig();
     // try to remove the node from the cluster config
-    if (cluster.nodes().remove(node)) {
-      // update the cluster config in the node config
-      nodeConfig.clusterConfig(cluster);
+    if (nodeConfig.clusterConfig().nodes().remove(node)) {
+      var listener = Iterables.getFirst(node.listeners(), null);
+      if (listener != null) {
+        // notify other nodes about this change and remove the node
+        this.updateClusterNodes(node.uniqueId(), listener)
+          .message("cluster-remove-host")
+          .build()
+          .send();
+      }
       // write the node config
       nodeConfig.save();
     }
@@ -407,6 +422,13 @@ public final class CommandCluster {
       ));
     }
     source.sendMessage(list);
+  }
+
+  private ChannelMessage.Builder updateClusterNodes(@NonNull String nodeId, @NonNull HostAndPort hostAndPort) {
+    return ChannelMessage.builder()
+      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+      .targetNodes()
+      .buffer(DataBuf.empty().writeString(nodeId).writeObject(hostAndPort));
   }
 
 }
