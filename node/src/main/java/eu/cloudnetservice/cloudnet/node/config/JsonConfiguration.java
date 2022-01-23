@@ -27,7 +27,7 @@ import eu.cloudnetservice.cloudnet.driver.network.ssl.SSLConfiguration;
 import eu.cloudnetservice.cloudnet.driver.service.ProcessSnapshot;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.setup.DefaultConfigSetup;
-import eu.cloudnetservice.cloudnet.node.util.NetworkAddressUtil;
+import eu.cloudnetservice.cloudnet.node.util.NetworkUtil;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -124,7 +124,7 @@ public final class JsonConfiguration implements Configuration {
           "Node-" + StringUtil.generateRandomString(4)),
         ConfigurationUtil.get(
           "cloudnet.config.listeners",
-          Lists.newArrayList(new HostAndPort(NetworkAddressUtil.localAddress(), 1410)),
+          Lists.newArrayList(new HostAndPort(NetworkUtil.localAddress(), 1410)),
           ConfigurationUtil.HOST_AND_PORT_PARSER));
     }
 
@@ -152,7 +152,7 @@ public final class JsonConfiguration implements Configuration {
     if (this.ipWhitelist == null) {
       this.ipWhitelist = ConfigurationUtil.get(
         "cloudnet.config.ipWhitelist",
-        NetworkAddressUtil.availableIPAddresses(),
+        NetworkUtil.availableIPAddresses(),
         value -> Set.of(value.split(",")));
     }
 
@@ -210,7 +210,7 @@ public final class JsonConfiguration implements Configuration {
     }
 
     if (this.hostAddress == null) {
-      this.hostAddress = ConfigurationUtil.get("cloudnet.config.hostAddress", NetworkAddressUtil.localAddress());
+      this.hostAddress = ConfigurationUtil.get("cloudnet.config.hostAddress", NetworkUtil.localAddress());
     }
 
     if (this.connectHostAddress == null) {

@@ -18,18 +18,20 @@ package eu.cloudnetservice.cloudnet.node.util;
 
 import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
+import java.net.ServerSocket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.NonNull;
 
-public final class NetworkAddressUtil {
+public final class NetworkUtil {
 
   private static final String LOCAL_ADDRESS = findLocalAddress();
 
-  private NetworkAddressUtil() {
+  private NetworkUtil() {
     throw new UnsupportedOperationException();
   }
 
@@ -54,6 +56,16 @@ public final class NetworkAddressUtil {
 
   public static String localAddress() {
     return LOCAL_ADDRESS;
+  }
+
+  public static boolean isInUse(int port) {
+    try (var serverSocket = new ServerSocket()) {
+      // try to bind on the port, if successful the port is free
+      serverSocket.bind(new InetSocketAddress(port));
+      return false;
+    } catch (Exception exception) {
+      return true;
+    }
   }
 
   private static @NonNull String findLocalAddress() {

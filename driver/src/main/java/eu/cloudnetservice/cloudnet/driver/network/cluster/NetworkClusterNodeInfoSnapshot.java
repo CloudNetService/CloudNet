@@ -207,9 +207,18 @@ public class NetworkClusterNodeInfoSnapshot extends JsonDocPropertyHolder {
   /**
    * Get all modules which are running on the associated node.
    *
-   * @return all modules which are running on the associated node
+   * @return all modules which are running on the associated node.
    */
   public @NonNull Collection<ModuleConfiguration> modules() {
     return this.modules;
+  }
+
+  /**
+   * Get a rounded percentile of the memory the associated node is currently using.
+   *
+   * @return a rounded percentile of the memory the associated node is currently using.
+   */
+  public int memoryUsagePercentile() {
+    return (int) (this.reservedMemory() / this.maxMemory() * 100D);
   }
 }

@@ -324,7 +324,6 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
   public int currentUsedHeapMemory() {
     return this.localCloudServices().stream()
       .map(SpecificCloudServiceProvider::serviceInfo)
-      .filter(Objects::nonNull)
       .filter(snapshot -> snapshot.lifeCycle() == ServiceLifeCycle.RUNNING)
       .mapToInt(snapshot -> snapshot.configuration().processConfig().maxHeapMemorySize())
       .sum();
@@ -334,7 +333,6 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
   public int currentReservedMemory() {
     return this.localCloudServices().stream()
       .map(SpecificCloudServiceProvider::serviceInfo)
-      .filter(Objects::nonNull)
       .mapToInt(snapshot -> snapshot.configuration().processConfig().maxHeapMemorySize())
       .sum();
   }
@@ -394,12 +392,12 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
       .filter(taskService -> taskService.lifeCycle() == ServiceLifeCycle.PREPARED)
       .map(service -> {
         // get the node server associated with the node
-        var nodeServer = this.clusterNodeServerProvider.nodeServer(
-          service.serviceId().nodeUniqueId());
+        var nodeServer = this.clusterNodeServerProvider.nodeServer(service.serviceId().nodeUniqueId());
         // the server should never be null - just to be sure
         return nodeServer == null ? null : new Pair<>(service, nodeServer);
       })
       .filter(Objects::nonNull)
+      .filter(pair -> pair.second().drain())
       .filter(pair -> pair.second().available())
       .filter(pair -> {
         // filter out all nodes which are not able to start the service
@@ -411,10 +409,8 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
       .min((left, right) -> {
         // begin by comparing the heap memory usage
         var chain = ComparisonChain.start().compare(
-          left.second().nodeInfoSnapshot().usedMemory()
-            + left.first().configuration().processConfig().maxHeapMemorySize(),
-          right.second().nodeInfoSnapshot().usedMemory()
-            + right.first().configuration().processConfig().maxHeapMemorySize());
+          left.second().nodeInfoSnapshot().memoryUsagePercentile(),
+          right.second().nodeInfoSnapshot().memoryUsagePercentile());
         // only include the cpu usage if both nodes can provide a value
         if (left.second().nodeInfoSnapshot().processSnapshot().systemCpuUsage() >= 0
           && right.second().nodeInfoSnapshot().processSnapshot().systemCpuUsage() >= 0) {

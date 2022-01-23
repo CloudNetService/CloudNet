@@ -20,7 +20,7 @@ import eu.cloudnetservice.cloudnet.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.service.CloudServiceFactory;
 import eu.cloudnetservice.cloudnet.node.service.CloudServiceManager;
-import eu.cloudnetservice.cloudnet.node.util.PortValidator;
+import eu.cloudnetservice.cloudnet.node.util.NetworkUtil;
 import lombok.NonNull;
 
 public abstract class AbstractServiceFactory implements CloudServiceFactory {
@@ -60,6 +60,6 @@ public abstract class AbstractServiceFactory implements CloudServiceFactory {
       }
     }
     // validate that the port is free
-    return !PortValidator.checkPort(port);
+    return NetworkUtil.isInUse(port);
   }
 }

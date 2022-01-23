@@ -20,7 +20,6 @@ import com.google.common.collect.ComparisonChain;
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessageTarget.Type;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.provider.service.CloudServiceFactory;
 import eu.cloudnetservice.cloudnet.driver.service.GroupConfiguration;
@@ -167,7 +166,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
       .min((left, right) -> {
         // begin by comparing the heap memory usage
         var chain = ComparisonChain.start()
-          .compare(this.calculateHeapUsage(left.nodeInfoSnapshot()), this.calculateHeapUsage(right.nodeInfoSnapshot()));
+          .compare(left.nodeInfoSnapshot().memoryUsagePercentile(), right.nodeInfoSnapshot().memoryUsagePercentile());
         // only include the cpu usage if both nodes can provide a value
         if (left.nodeInfoSnapshot().processSnapshot().systemCpuUsage() >= 0
           && right.nodeInfoSnapshot().processSnapshot().systemCpuUsage() >= 0) {
@@ -243,9 +242,5 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     }
     // set the new unique id
     output.uniqueId(uniqueId);
-  }
-
-  protected int calculateHeapUsage(@NonNull NetworkClusterNodeInfoSnapshot snapshot) {
-    return (int) (snapshot.reservedMemory() / snapshot.maxMemory() * 100D);
   }
 }
