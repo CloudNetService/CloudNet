@@ -41,16 +41,24 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
+import java.util.NavigableSet;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.Vector;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.LinkedBlockingDeque;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -99,11 +107,15 @@ public class DefaultObjectMapper implements ObjectMapper {
     .put(Collection.class, CollectionObjectSerializer.of(ArrayList::new))
     .put(List.class, CollectionObjectSerializer.of(ArrayList::new))
     .put(Set.class, CollectionObjectSerializer.of(HashSet::new))
+    .put(NavigableSet.class, CollectionObjectSerializer.of(TreeSet::new))
     .put(Vector.class, CollectionObjectSerializer.of(Vector::new))
+    .put(Queue.class, CollectionObjectSerializer.of(LinkedList::new))
+    .put(BlockingQueue.class, CollectionObjectSerializer.of(LinkedBlockingDeque::new))
     // some map types, map is always mapped to HashMap
     .put(Map.class, MapObjectSerializer.of(HashMap::new))
     .put(ConcurrentMap.class, MapObjectSerializer.of(ConcurrentHashMap::new))
-    .put(SortedMap.class, MapObjectSerializer.of(TreeMap::new))
+    .put(NavigableMap.class, MapObjectSerializer.of(TreeMap::new))
+    .put(ConcurrentNavigableMap.class, MapObjectSerializer.of(ConcurrentSkipListMap::new))
     //    ==== object data class types ====
     // data classes
     .put(Path.class, new PathObjectSerializer())
@@ -123,8 +135,8 @@ public class DefaultObjectMapper implements ObjectMapper {
   private final Map<Type, ObjectSerializer<?>> registeredSerializers = new ConcurrentHashMap<>();
 
   /**
-   * Constructs a new default object mapper instance with all default object serializers already registerd. This call is
-   * equivalent to {@code new DefaultObjectMapper(true)}.
+   * Constructs a new default object mapper instance with all default object serializers already registered. This call
+   * is equivalent to {@code new DefaultObjectMapper(true)}.
    */
   public DefaultObjectMapper() {
     this(true);
@@ -148,13 +160,13 @@ public class DefaultObjectMapper implements ObjectMapper {
   public @NonNull ObjectMapper unregisterBinding(@NonNull Type type, boolean superTypes) {
     if (superTypes) {
       var typeToken = this.typeTokenCache.computeIfAbsent(type, TypeToken::of);
-      // unregister all sub-types of the type
+      // unregister all subtypes of the type
       for (TypeToken<?> subType : typeToken.getTypes()) {
         this.registeredSerializers.remove(subType.getType());
         this.registeredSerializers.remove(subType.getRawType());
       }
     } else {
-      // we don't need to unregister the sub-types of the type, skip the lookup
+      // we don't need to unregister the subtypes of the type, skip the lookup
       this.registeredSerializers.remove(type);
     }
     return this;
@@ -185,13 +197,13 @@ public class DefaultObjectMapper implements ObjectMapper {
   ) {
     if (superTypes) {
       var typeToken = this.typeTokenCache.computeIfAbsent(type, TypeToken::of);
-      // register all sub-types of the type
+      // register all subtypes of the type
       for (TypeToken<?> token : typeToken.getTypes()) {
         this.registeredSerializers.putIfAbsent(token.getType(), serializer);
         this.registeredSerializers.putIfAbsent(token.getRawType(), serializer);
       }
     } else {
-      // we don't need to register the sub-types of the type, skip the lookup
+      // we don't need to register the subtypes of the type, skip the lookup
       this.registeredSerializers.putIfAbsent(type, serializer);
     }
     return this;
