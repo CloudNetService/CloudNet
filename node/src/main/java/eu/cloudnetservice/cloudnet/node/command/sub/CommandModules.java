@@ -285,7 +285,7 @@ public final class CommandModules {
 
     // validate the downloaded file
     var checksum = ChecksumUtil.fileShaSum(target);
-    if (!checksum.equals(entry.sha3256())) {
+    if (!CloudNet.instance().dev() && !checksum.equals(entry.sha3256())) {
       FileUtil.delete(target);
       source.sendMessage(I18n.trans("cloudnet-install-modules-invalid-checksum", entry.name()));
       return;
