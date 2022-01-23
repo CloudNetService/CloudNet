@@ -1,1 +1,10 @@
-java -XX:+UseG1GC -XX:MaxGCPauseMillis=50 -XX:+UnlockExperimentalVMOptions -XX:+UseCompressedOops -XX:-UseAdaptiveSizePolicy -XX:CompileThreshold=100 -Dfile.encoding=UTF-8 -Xmx456M -Xms256m -jar launcher.jar
+#!/bin/bash
+cd "$(dirname "$0")" || exit 1
+
+# check if java is installed
+if [ -x "$(command -v java)" ]; then
+  java -Xms256M -Xmx256M -XX:+UseZGC -XX:+PerfDisableSharedMem -XX:+DisableExplicitGC -jar launcher.jar
+else
+  echo "No valid java installation was found, please install java in order to run CloudNet"
+  exit 1
+fi
