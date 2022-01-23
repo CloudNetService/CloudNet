@@ -397,7 +397,7 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
         return nodeServer == null ? null : new Pair<>(service, nodeServer);
       })
       .filter(Objects::nonNull)
-      .filter(pair -> pair.second().drain())
+      .filter(pair -> !pair.second().drain())
       .filter(pair -> pair.second().available())
       .filter(pair -> {
         // filter out all nodes which are not able to start the service
