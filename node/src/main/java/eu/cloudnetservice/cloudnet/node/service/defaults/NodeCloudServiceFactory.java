@@ -133,9 +133,21 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
   protected @Nullable NodeServer peekLogicNodeServer(@NonNull ServiceConfiguration configuration) {
     // check if the node is already specified
     if (configuration.serviceId().nodeUniqueId() != null) {
+      // check for a cluster node server
       var server = this.nodeServerProvider.nodeServer(configuration.serviceId().nodeUniqueId());
-      return server == null || !server.available() ? null : server;
+      if (server != null) {
+        // the requested node is a cluster node, check if that node is still accepting services
+        return !server.available() || server.nodeInfoSnapshot().draining() ? null : server;
+      }
+      // check if the requested node is the local node
+      var local = this.nodeServerProvider.selfNode();
+      if (local.nodeInfo().uniqueId().equals(configuration.serviceId().nodeUniqueId()) && !local.drain()) {
+        return local;
+      }
+      // no node server with the given name which can start services found
+      return null;
     }
+
     // get all available node servers
     var available = this.nodeServerProvider.nodeServers().stream()
       .filter(ClusterNodeServer::available)
@@ -144,8 +156,6 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
         set.add(this.nodeServerProvider.selfNode());
         return set;
       }));
-    // extract the max heap memory from the snapshot which will be used for later memory usage comparison
-    var mh = configuration.processConfig().maxHeapMemorySize();
     // find the best node server
     return available.stream()
       // only allow service start on nodes that are not marked for draining
