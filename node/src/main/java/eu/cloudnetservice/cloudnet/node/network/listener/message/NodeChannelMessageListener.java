@@ -35,7 +35,7 @@ import lombok.NonNull;
 
 public final class NodeChannelMessageListener {
 
-  private final static Logger LOGGER = LogManager.logger(NodeChannelMessageListener.class);
+  private static final Logger LOGGER = LogManager.logger(NodeChannelMessageListener.class);
 
   private final EventManager eventManager;
   private final DataSyncRegistry dataSyncRegistry;
@@ -76,31 +76,33 @@ public final class NodeChannelMessageListener {
         }
 
         // handle adding a new cluster node on other nodes
-        case "cluster-add-host" -> {
+        case "register_known_node" -> {
           var nodeId = event.content().readString();
           var hostAndPort = event.content().readObject(HostAndPort.class);
           var nodeConfig = CloudNet.instance().config();
           // add the new node to the configuration
           if (nodeConfig.clusterConfig().nodes().add(new NetworkClusterNode(nodeId, Lists.newArrayList(hostAndPort)))) {
-            // only save if we have changes
+            // save and notify as the new node was registered successfully
             nodeConfig.save();
-            // notify the user about the new node
             LOGGER.info(I18n.trans("command-cluster-add-node-success", nodeId, hostAndPort.host()));
           }
         }
 
         // handle the removal of a cluster node from other nodes
-        case "cluster-remove-host" -> {
+        case "remove_known_node" -> {
           var nodeId = event.content().readString();
           var hostAndPort = event.content().readObject(HostAndPort.class);
           var nodeConfig = CloudNet.instance().config();
           // remove the node from the configuration
-          if (nodeConfig.clusterConfig().nodes().remove(new NetworkClusterNode(nodeId, Lists.newArrayList(hostAndPort)))) {
-            // only save if we have changes
-            nodeConfig.save();
-            // notify the user about the new node
-            LOGGER.info(I18n.trans("command-cluster-remove-node-success", nodeId, hostAndPort.host()));
-          }
+          nodeConfig.clusterConfig().nodes().stream()
+            .filter(node -> node.uniqueId().equals(nodeId) && node.listeners().stream().anyMatch(hostAndPort::equals))
+            .forEach(node -> {
+              // this will remove duplicates as well (even if there should never be a duplicate)
+              nodeConfig.clusterConfig().nodes().remove(node);
+              // save and notify about the change directly
+              nodeConfig.save();
+              LOGGER.info(I18n.trans("command-cluster-remove-node-success", nodeId, hostAndPort.host()));
+            });
         }
 
         // handles the shutdown of a cluster node

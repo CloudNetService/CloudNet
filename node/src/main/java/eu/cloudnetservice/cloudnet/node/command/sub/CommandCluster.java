@@ -231,10 +231,7 @@ public final class CommandCluster {
       // write the changes to the file
       nodeConfig.save();
       // notify other nodes about this change and add the node there too
-      this.updateClusterNodes(nodeId, hostAndPort)
-        .message("cluster-add-host")
-        .build()
-        .send();
+      this.updateClusterNodes("register_known_node", nodeId, hostAndPort);
     }
     source.sendMessage(I18n.trans("command-cluster-add-node-success", nodeId, hostAndPort.host()));
   }
@@ -247,10 +244,7 @@ public final class CommandCluster {
       var listener = Iterables.getFirst(node.listeners(), null);
       if (listener != null) {
         // notify other nodes about this change and remove the node
-        this.updateClusterNodes(node.uniqueId(), listener)
-          .message("cluster-remove-host")
-          .build()
-          .send();
+        this.updateClusterNodes("remove_known_node", node.uniqueId(), listener);
       }
       // write the node config
       nodeConfig.save();
@@ -424,11 +418,17 @@ public final class CommandCluster {
     source.sendMessage(list);
   }
 
-  private ChannelMessage.Builder updateClusterNodes(@NonNull String nodeId, @NonNull HostAndPort hostAndPort) {
-    return ChannelMessage.builder()
-      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+  private void updateClusterNodes(
+    @NonNull String messageKey,
+    @NonNull String nodeId,
+    @NonNull HostAndPort hostAndPort
+  ) {
+    ChannelMessage.builder()
       .targetNodes()
-      .buffer(DataBuf.empty().writeString(nodeId).writeObject(hostAndPort));
+      .message(messageKey)
+      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+      .buffer(DataBuf.empty().writeString(nodeId).writeObject(hostAndPort))
+      .build()
+      .send();
   }
-
 }
