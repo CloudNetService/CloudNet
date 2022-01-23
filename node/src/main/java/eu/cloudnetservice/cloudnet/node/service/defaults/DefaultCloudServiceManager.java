@@ -409,8 +409,8 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
       .min((left, right) -> {
         // begin by comparing the heap memory usage
         var chain = ComparisonChain.start().compare(
-          left.second().nodeInfoSnapshot().memoryUsagePercentile(),
-          right.second().nodeInfoSnapshot().memoryUsagePercentile());
+          left.second().nodeInfoSnapshot().memoryUsagePercentage(),
+          right.second().nodeInfoSnapshot().memoryUsagePercentage());
         // only include the cpu usage if both nodes can provide a value
         if (left.second().nodeInfoSnapshot().processSnapshot().systemCpuUsage() >= 0
           && right.second().nodeInfoSnapshot().processSnapshot().systemCpuUsage() >= 0) {

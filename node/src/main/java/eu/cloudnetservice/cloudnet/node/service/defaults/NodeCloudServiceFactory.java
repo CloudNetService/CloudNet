@@ -166,7 +166,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
       .min((left, right) -> {
         // begin by comparing the heap memory usage
         var chain = ComparisonChain.start()
-          .compare(left.nodeInfoSnapshot().memoryUsagePercentile(), right.nodeInfoSnapshot().memoryUsagePercentile());
+          .compare(left.nodeInfoSnapshot().memoryUsagePercentage(), right.nodeInfoSnapshot().memoryUsagePercentage());
         // only include the cpu usage if both nodes can provide a value
         if (left.nodeInfoSnapshot().processSnapshot().systemCpuUsage() >= 0
           && right.nodeInfoSnapshot().processSnapshot().systemCpuUsage() >= 0) {

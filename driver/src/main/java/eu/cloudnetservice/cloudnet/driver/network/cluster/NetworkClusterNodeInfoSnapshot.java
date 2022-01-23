@@ -214,11 +214,11 @@ public class NetworkClusterNodeInfoSnapshot extends JsonDocPropertyHolder {
   }
 
   /**
-   * Get a rounded percentile of the memory the associated node is currently using.
+   * Get a rounded percentage of the memory the associated node is currently using.
    *
-   * @return a rounded percentile of the memory the associated node is currently using.
+   * @return a rounded percentage of the memory the associated node is currently using.
    */
-  public int memoryUsagePercentile() {
+  public int memoryUsagePercentage() {
     return (int) (this.reservedMemory() / this.maxMemory() * 100D);
   }
 }
