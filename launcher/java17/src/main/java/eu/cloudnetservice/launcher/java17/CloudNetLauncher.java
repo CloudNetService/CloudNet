@@ -34,6 +34,7 @@ import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.jar.JarInputStream;
 import lombok.NonNull;
 
@@ -61,6 +62,33 @@ public final class CloudNetLauncher {
       "launcherdir",
       "launcher",
       Path::of);
+    Files.createDirectories(this.workingDirectory);
+
+    // ensure that the application only runs once
+    var lock = new ApplicationLock();
+    if (lock.acquireLock(this.workingDirectory)) {
+      // successfully got the lock, release on exit
+      Runtime.getRuntime().addShutdownHook(new Thread(lock::releaseLock));
+    } else {
+      // CHECKSTYLE.OFF: Launcher has no proper logger
+      // the application is already running, warn about that
+      System.err.println("╔═══════════════════════════════════════════════════════════════════╗");
+      System.err.println("║                              WARNING                              ║");
+      System.err.println("║                                                                   ║");
+      System.err.println("║     It looks like CloudNet is already running! Stop the other     ║");
+      System.err.println("║          running instance and try running CloudNet again!         ║");
+      System.err.println("║                                                                   ║");
+      System.err.println("║              This instance will stop in 10 Seconds!               ║");
+      System.err.println("║                                                                   ║");
+      System.err.println("║                                                                   ║");
+      System.err.println("║  If you are sure that there are no instances running, delete the  ║");
+      System.err.println("║          app.lock file located in the launcher directory.         ║");
+      System.err.println("╚═══════════════════════════════════════════════════════════════════╝");
+      // wait 10 Seconds and stop
+      TimeUnit.SECONDS.sleep(10);
+      System.exit(1);
+      // CHECKSTYLE.ON
+    }
 
     // updater init - must be after the cnl run to ensure that all updater variables are present
     this.registry = new LauncherUpdaterRegistry(
