@@ -43,6 +43,7 @@ public class ModuleDependency {
   private final String group;
   private final String name;
   private final String version;
+  private final String checksum;
 
   /**
    * Creates a new module dependency instance. This dependency will require another module to be loaded before.
@@ -68,7 +69,7 @@ public class ModuleDependency {
    * @throws NullPointerException if group, name or version is null.
    */
   public ModuleDependency(@Nullable String repo, @NonNull String group, @NonNull String name, @NonNull String version) {
-    this(repo, null, group, name, version);
+    this(repo, null, group, name, version, null);
   }
 
   /**
@@ -78,11 +79,12 @@ public class ModuleDependency {
    * download url will be ignored. If neither the repository nor the direct url is not provided (in this case null) this
    * dependency will require another module to be loaded before.
    *
-   * @param repo    the repository in which this dependency is located.
-   * @param url     the direct download url of this dependency.
-   * @param group   the group of the dependency.
-   * @param name    the name of the dependency.
-   * @param version the version of the dependency.
+   * @param repo     the repository in which this dependency is located.
+   * @param url      the direct download url of this dependency.
+   * @param group    the group of the dependency.
+   * @param name     the name of the dependency.
+   * @param version  the version of the dependency.
+   * @param checksum the checksum of the dependency, null if this dependency represents a module.
    * @throws NullPointerException if group, name or version is null.
    */
   public ModuleDependency(
@@ -90,13 +92,15 @@ public class ModuleDependency {
     @Nullable String url,
     @NonNull String group,
     @NonNull String name,
-    @NonNull String version
+    @NonNull String version,
+    @Nullable String checksum
   ) {
     this.repo = repo;
     this.url = url;
     this.group = group;
     this.name = name;
     this.version = version;
+    this.checksum = checksum;
   }
 
   /**
@@ -142,6 +146,15 @@ public class ModuleDependency {
    */
   public @NonNull String version() {
     return this.version;
+  }
+
+  /**
+   * Get the checksum of this dependency, if known.
+   *
+   * @return the checksum of this dependency.
+   */
+  public @Nullable String checksum() {
+    return this.checksum;
   }
 
   /**

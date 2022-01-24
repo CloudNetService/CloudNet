@@ -43,6 +43,7 @@ extensions.configure<JavaPluginExtension> {
 
 dependencies {
   "api"(projects.cloudnetCommon)
+  "api"(projects.cloudnetExt.updater)
 
   "api"(libs.asm)
   "api"(libs.caffeine)

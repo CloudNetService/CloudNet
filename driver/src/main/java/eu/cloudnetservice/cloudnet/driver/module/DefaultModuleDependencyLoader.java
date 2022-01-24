@@ -17,6 +17,7 @@
 package eu.cloudnetservice.cloudnet.driver.module;
 
 import eu.cloudnetservice.cloudnet.common.io.FileUtil;
+import eu.cloudnetservice.ext.updater.util.ChecksumUtil;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -102,9 +103,28 @@ public class DefaultModuleDependencyLoader implements ModuleDependencyLoader {
       .resolve(String.format(FILE_NAME_FORMAT, dependency.name(), dependency.version()));
     FileUtil.ensureChild(this.baseDirectory, destFile);
 
+    // pre-validate the checksum of the file (if present)
+    if (dependency.checksum() != null && Files.exists(destFile)) {
+      var checksum = ChecksumUtil.fileShaSum(destFile);
+      if (!checksum.equals(dependency.checksum())) {
+        // remove the file, re-download below
+        FileUtil.delete(destFile);
+      }
+    }
+
     if (Files.notExists(destFile)) {
       Files.createDirectories(destFile.getParent());
       Unirest.get(url.toExternalForm()).asFile(destFile.toString());
+
+      // validate the checksum before continuing (if given)
+      if (dependency.checksum() != null) {
+        var checksum = ChecksumUtil.fileShaSum(destFile);
+        if (!checksum.equals(dependency.checksum())) {
+          // remove the file, and hard fail
+          FileUtil.delete(destFile);
+          throw new IllegalStateException("Unable to verify checksum of downloaded dependency " + dependency);
+        }
+      }
     }
 
     return destFile.toUri().toURL();

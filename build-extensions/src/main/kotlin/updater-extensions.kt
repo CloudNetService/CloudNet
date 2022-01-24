@@ -142,7 +142,6 @@ object UpdaterFiles {
 object ChecksumHelper {
 
   @Throws(IOException::class)
-  @Suppress("ControlFlowWithEmptyBody")
   fun fileShaSum(path: File): String {
     return newSha3256Digest().run {
       update(path.readBytes())
