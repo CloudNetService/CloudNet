@@ -16,6 +16,9 @@
 
 package eu.cloudnetservice.cloudnet.node.network.listener.message;
 
+import eu.cloudnetservice.cloudnet.common.language.I18n;
+import eu.cloudnetservice.cloudnet.common.log.LogManager;
+import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
 import eu.cloudnetservice.cloudnet.driver.event.EventListener;
 import eu.cloudnetservice.cloudnet.driver.event.EventManager;
@@ -34,6 +37,8 @@ import eu.cloudnetservice.cloudnet.node.service.CloudServiceManager;
 import lombok.NonNull;
 
 public final class ServiceChannelMessageListener {
+
+  private static final Logger LOGGER = LogManager.logger(ServiceChannelMessageListener.class);
 
   private final EventManager eventManager;
   private final CloudServiceManager serviceManager;
@@ -100,6 +105,19 @@ public final class ServiceChannelMessageListener {
         // none of our business
         default -> {
         }
+      }
+    }
+  }
+
+  @EventListener
+  public void handleRemoteLifecycleChanges(@NonNull CloudServiceLifecycleChangeEvent event) {
+    var id = event.serviceInfo().serviceId();
+    var replacements = new Object[]{id.uniqueId(), id.taskName(), id.name(), id.nodeUniqueId()};
+
+    switch (event.newLifeCycle()) {
+      case RUNNING -> LOGGER.info(I18n.trans("cloudnet-service-post-start-message-different-node", replacements));
+      case STOPPED -> LOGGER.info(I18n.trans("cloudnet-service-post-stop-message-different-node", replacements));
+      default -> {
       }
     }
   }

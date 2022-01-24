@@ -51,7 +51,7 @@ final class StaticServiceDeployCallback implements Callback {
       var servicePath = serviceManager.persistentServicesDirectory().resolve(service);
       // check if the service path exists, and we can overwrite it
       if (Files.exists(servicePath) && !overwriteService) {
-        LOGGER.severe(I18n.trans("command-cluster-push-static-services-existing"));
+        LOGGER.severe(I18n.trans("command-cluster-push-static-service-existing", service));
         return;
       }
       // delete the old contents
@@ -60,9 +60,9 @@ final class StaticServiceDeployCallback implements Callback {
       FileUtil.createDirectory(servicePath);
       // extract the received data to the given path of the service
       FileUtil.extract(dataInput, servicePath);
-      LOGGER.info(I18n.trans("command-cluster-push-static-services-received-success"));
+      LOGGER.info(I18n.trans("command-cluster-push-static-service-received-success", service));
     } else {
-      LOGGER.severe(I18n.trans("command-cluster-push-static-services-running"));
+      LOGGER.severe(I18n.trans("command-cluster-push-static-service-running-remote", service));
     }
   }
 }

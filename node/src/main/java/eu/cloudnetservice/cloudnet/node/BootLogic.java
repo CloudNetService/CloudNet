@@ -29,6 +29,7 @@ import eu.cloudnetservice.cloudnet.node.console.Console;
 import eu.cloudnetservice.cloudnet.node.console.JLine3Console;
 import eu.cloudnetservice.cloudnet.node.console.log.ColouredLogFormatter;
 import java.nio.file.Path;
+import java.time.Instant;
 import lombok.NonNull;
 
 public final class BootLogic {
@@ -38,6 +39,8 @@ public final class BootLogic {
   }
 
   public static void main(String[] args) throws Throwable {
+    var startInstant = Instant.now();
+
     // language management init
     I18n.loadFromLangPath(BootLogic.class);
     I18n.language(System.getProperty("cloudnet.messages.language", "en_US"));
@@ -48,7 +51,7 @@ public final class BootLogic {
 
     // boot CloudNet
     var nodeInstance = new CloudNet(args, console, LogManager.rootLogger());
-    nodeInstance.start();
+    nodeInstance.start(startInstant);
   }
 
   private static void initLoggerAndConsole(@NonNull Console console, @NonNull Logger logger) {

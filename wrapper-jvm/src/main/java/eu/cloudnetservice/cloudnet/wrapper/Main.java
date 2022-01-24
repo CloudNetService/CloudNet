@@ -25,6 +25,7 @@ import eu.cloudnetservice.cloudnet.common.log.defaults.DefaultLogFormatter;
 import eu.cloudnetservice.cloudnet.common.log.defaults.ThreadedLogRecordDispatcher;
 import eu.cloudnetservice.cloudnet.wrapper.log.InternalPrintStreamLogHandler;
 import java.nio.file.Path;
+import java.time.Instant;
 import lombok.NonNull;
 
 public final class Main {
@@ -34,6 +35,7 @@ public final class Main {
   }
 
   public static void main(String... args) throws Throwable {
+    var startInstant = Instant.now();
     // language init
     I18n.loadFromLangPath(Main.class);
     I18n.language(System.getProperty("cloudnet.wrapper.messages.language", "en_US"));
@@ -41,7 +43,7 @@ public final class Main {
     initLogger(LogManager.rootLogger());
     // boot the wrapper
     var wrapper = new Wrapper(args);
-    wrapper.start();
+    wrapper.start(startInstant);
   }
 
   private static void initLogger(@NonNull Logger logger) {

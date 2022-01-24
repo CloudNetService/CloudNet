@@ -28,6 +28,8 @@ import lombok.NonNull;
  * <p>
  * This event is fired after the change of the lifecycle, the new lifecycle is already set in the associated service
  * info.
+ * <p>
+ * This event is not called on the own node of the service.
  *
  * @since 4.0
  */

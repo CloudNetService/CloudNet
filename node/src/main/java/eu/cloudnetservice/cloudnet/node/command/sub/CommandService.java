@@ -240,6 +240,7 @@ public final class CommandService {
     for (var matchedService : matchedServices) {
       matchedService.provider().includeWaitingServiceInclusions();
     }
+    source.sendMessage(I18n.trans("command-service-include-inclusion-success"));
   }
 
   @CommandMethod("service|ser <name> includeTemplates")
@@ -250,6 +251,7 @@ public final class CommandService {
     for (var matchedService : matchedServices) {
       matchedService.provider().includeWaitingServiceTemplates();
     }
+    source.sendMessage(I18n.trans("command-service-include-templates-success"));
   }
 
   @CommandMethod("service|ser <name> deployResources")
@@ -257,6 +259,7 @@ public final class CommandService {
     for (var matchedService : matchedServices) {
       matchedService.provider().removeAndExecuteDeployments();
     }
+    source.sendMessage(I18n.trans("command-service-deploy-deployment-success"));
   }
 
   @CommandMethod("service|ser <name> command|cmd <command>")
@@ -280,6 +283,7 @@ public final class CommandService {
     for (var matchedService : matchedServices) {
       matchedService.provider().addServiceDeployment(deployment);
     }
+    source.sendMessage(I18n.trans("command-service-add-deployment-success", deployment.template().fullName()));
   }
 
   @CommandMethod("service|ser <name> add template <template>")
@@ -291,6 +295,7 @@ public final class CommandService {
     for (var matchedService : matchedServices) {
       matchedService.provider().addServiceTemplate(template);
     }
+    source.sendMessage(I18n.trans("command-service-add-template-success", template.fullName()));
   }
 
   @CommandMethod("service|ser <name> add inclusion <url> <path>")
@@ -304,6 +309,7 @@ public final class CommandService {
     for (var matchedService : matchedServices) {
       matchedService.provider().addServiceRemoteInclusion(remoteInclusion);
     }
+    source.sendMessage(I18n.trans("command-service-add-inclusion-success", remoteInclusion.toString()));
   }
 
   @EventListener(channel = "service:screen")
@@ -322,7 +328,7 @@ public final class CommandService {
 
     Collection<String> list = new ArrayList<>(Arrays.asList(
       " ",
-      "* CloudService: " + service.serviceId().uniqueId().toString(),
+      "* CloudService: " + service.serviceId().uniqueId(),
       "* Name: " + service.serviceId().name(),
       "* Node: " + service.serviceId().nodeUniqueId(),
       "* Address: " + service.address().host() + ":" + service.address().port()

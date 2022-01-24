@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.npc.configuration;
 
+import com.google.common.base.Verify;
 import lombok.NonNull;
 
 public record NPCConfigurationEntry(
@@ -93,6 +94,8 @@ public record NPCConfigurationEntry(
     }
 
     public @NonNull NPCConfigurationEntry build() {
+      Verify.verifyNotNull(this.targetGroup, "Missing npc entry targetGroup");
+
       return new NPCConfigurationEntry(
         this.targetGroup,
         this.infoLineDistance,

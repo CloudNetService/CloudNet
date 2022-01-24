@@ -19,7 +19,6 @@ package eu.cloudnetservice.cloudnet.common.registry;
 import com.google.common.collect.Iterables;
 import java.util.Collection;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.UnmodifiableView;
 
@@ -123,7 +122,7 @@ public interface ServicesRegistry {
    * @param <T>   the interface or abstract type which you want the implementation providing for
    * @return the service implementation of the base class or the base class himself
    */
-  @Nullable <T> T service(@NonNull Class<T> clazz, @NonNull String name);
+  @UnknownNullability <T> T service(@NonNull Class<T> clazz, @NonNull String name);
 
   /**
    * Returns the service implementation or null from this registry

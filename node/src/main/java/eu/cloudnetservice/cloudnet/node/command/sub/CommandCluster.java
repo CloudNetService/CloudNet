@@ -250,7 +250,7 @@ public final class CommandCluster {
       nodeConfig.save();
     }
 
-    source.sendMessage(I18n.trans("command-cluster-remove-node-success"));
+    source.sendMessage(I18n.trans("command-cluster-remove-node-success", node.uniqueId()));
   }
 
   @CommandMethod("cluster|clu nodes")

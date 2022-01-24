@@ -336,7 +336,7 @@ public final class CommandTasks {
     }
   }
 
-  @CommandMethod("tasks task <name> set staticServices <enabled>")
+  @CommandMethod("tasks task <name> set staticServices|static|staticService <enabled>")
   public void setStaticServices(
     CommandSource source,
     @Argument("name") Collection<ServiceTask> serviceTasks,

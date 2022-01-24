@@ -220,16 +220,16 @@ public abstract class AbstractService implements CloudService {
       }
       // select the appropriate method for the lifecycle
       switch (lifeCycle) {
-        case DELETED: {
+        case DELETED -> {
           if (this.preLifecycleChange(ServiceLifeCycle.DELETED)) {
             this.doDelete();
             // update the current service info
             this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.DELETED);
+            LOGGER.info(I18n.trans("cloudnet-service-post-delete-message", this.serviceReplacement()));
           }
-          break;
         }
 
-        case RUNNING: {
+        case RUNNING -> {
           if (this.preLifecycleChange(ServiceLifeCycle.RUNNING)) {
             // check if we can start the process now
             if (this.lifeCycle() == ServiceLifeCycle.PREPARED && this.canStartNow()) {
@@ -237,18 +237,19 @@ public abstract class AbstractService implements CloudService {
               this.startProcess();
               // update the current service info
               this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.RUNNING);
+              LOGGER.info(I18n.trans("cloudnet-service-post-start-message", this.serviceReplacement()));
             }
           }
-          break;
         }
 
-        case STOPPED: {
+        case STOPPED -> {
           if (this.preLifecycleChange(ServiceLifeCycle.STOPPED)) {
             // check if we should delete the service when stopping
             if (this.serviceConfiguration().autoDeleteOnStop()) {
               this.doDelete();
               // update the current service info
               this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.DELETED);
+              LOGGER.info(I18n.trans("cloudnet-service-post-stop-message", this.serviceReplacement()));
             } else if (this.lifeCycle() == ServiceLifeCycle.RUNNING) {
               this.stopProcess();
               this.doRemoveFilesAfterStop();
@@ -256,14 +257,11 @@ public abstract class AbstractService implements CloudService {
               this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.PREPARED);
             }
           }
-          break;
         }
+        // cannot be set - just ignore
+        case PREPARED -> LOGGER.info(I18n.trans("cloudnet-service-post-prepared-message", this.serviceReplacement()));
+        default -> throw new IllegalStateException("Unhandled ServiceLifeCycle: " + lifeCycle);
 
-        case PREPARED:
-          break; // cannot be set - just ignore
-
-        default:
-          throw new IllegalStateException("Unhandled ServiceLifeCycle: " + lifeCycle);
       }
     } finally {
       this.lifecycleLock.unlock();
@@ -548,7 +546,7 @@ public abstract class AbstractService implements CloudService {
       if (this.nodeConfiguration().runBlockedServiceStartTryLaterAutomatic()) {
         CloudNet.instance().mainThread().runTask(this::start);
       } else {
-        LOGGER.info(I18n.trans("cloud-service-manager-max-memory-error"));
+        LOGGER.info(I18n.trans("cloudnet-service-manager-max-memory-error"));
       }
       // no starting now
       return false;
@@ -559,7 +557,7 @@ public abstract class AbstractService implements CloudService {
       if (this.nodeConfiguration().runBlockedServiceStartTryLaterAutomatic()) {
         CloudNet.instance().mainThread().runTask(this::start);
       } else {
-        LOGGER.info(I18n.trans("cloud-service-manager-cpu-usage-to-high-error"));
+        LOGGER.info(I18n.trans("cloudnet-service-manager-cpu-usage-to-high-error"));
       }
       // no starting now
       return false;
@@ -612,6 +610,12 @@ public abstract class AbstractService implements CloudService {
     if (configuration.trustCertificatePath() != null && Files.exists(configuration.trustCertificatePath())) {
       FileUtil.copy(configuration.trustCertificatePath(), wrapperDir.resolve("trustCertificate"));
     }
+  }
+
+  protected @NonNull Object[] serviceReplacement() {
+    return new Object[]{this.serviceId().uniqueId(), this.serviceId().taskName(),
+      this.serviceId().name(),
+      this.serviceId().nodeUniqueId()};
   }
 
   protected abstract void startProcess();

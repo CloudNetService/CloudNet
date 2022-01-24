@@ -62,6 +62,7 @@ import eu.cloudnetservice.cloudnet.wrapper.transform.netty.OldEpollDisableTransf
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -143,7 +144,7 @@ public class Wrapper extends CloudNetDriver {
   }
 
   @Override
-  public void start() throws Exception {
+  public void start(@NonNull Instant startInstant) throws Exception {
     // load & enable the modules
     this.moduleProvider.loadAll().startAll();
 

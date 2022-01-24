@@ -44,7 +44,7 @@ public final class H2Database extends SQLDatabase {
   @Override
   public @Nullable Map<String, JsonDocument> readChunk(long beginIndex, int chunkSize) {
     return this.databaseProvider.executeQuery(
-      String.format("SELECT * FROM `%s` WHERE rownum() BETWEEN ? AND ?;", this.name),
+      String.format("SELECT * FROM `%s` ORDER BY `%s` OFFSET ? LIMIT ?;", this.name, TABLE_COLUMN_KEY),
       resultSet -> {
         Map<String, JsonDocument> result = new HashMap<>();
         while (resultSet.next()) {
@@ -55,7 +55,7 @@ public final class H2Database extends SQLDatabase {
 
         return result.isEmpty() ? null : result;
       },
-      beginIndex, beginIndex + chunkSize
+      beginIndex, chunkSize
     );
   }
 }

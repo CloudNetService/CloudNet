@@ -96,7 +96,10 @@ public class JVMService extends AbstractService {
     // load the application file information if possible
     var applicationInformation = this.prepareApplicationFile(environmentType);
     if (applicationInformation == null) {
-      LOGGER.severe("Unable to load application information for service startup");
+      LOGGER.severe(I18n.trans("cloudnet-service-jar-file-not-found-error",
+        this.serviceId().uniqueId(),
+        this.serviceId().taskName(),
+        this.serviceId().name()));
       return;
     }
 

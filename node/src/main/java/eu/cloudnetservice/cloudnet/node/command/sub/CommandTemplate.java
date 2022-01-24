@@ -84,8 +84,10 @@ public final class CommandTemplate {
 
   @Parser
   public ServiceEnvironmentType defaultServiceEnvironmentTypeParser(CommandContext<?> $, Queue<String> input) {
-    return CloudNet.instance().serviceVersionProvider().getEnvironmentType(input.remove())
-      .orElseThrow(() -> new ArgumentNotAvailableException("No such version type"));
+    var env = input.remove();
+    return CloudNet.instance().serviceVersionProvider().getEnvironmentType(env)
+      .orElseThrow(() ->
+        new ArgumentNotAvailableException(I18n.trans("command-template-environment-not-found", env)));
   }
 
   @Suggestions("serviceTemplate")
@@ -98,9 +100,10 @@ public final class CommandTemplate {
 
   @Parser
   public TemplateStorage defaultTemplateStorageParser(CommandContext<CommandSource> $, Queue<String> input) {
-    var templateStorage = CloudNet.instance().templateStorage(input.remove());
+    var storage = input.remove();
+    var templateStorage = CloudNet.instance().templateStorage(storage);
     if (templateStorage == null) {
-      throw new ArgumentNotAvailableException(I18n.trans("ca-question-list-template-invalid-storage"));
+      throw new ArgumentNotAvailableException(I18n.trans("command-template-storage-not-found", storage));
     }
 
     return templateStorage;
@@ -119,7 +122,7 @@ public final class CommandTemplate {
     var versionTypeName = input.remove().toLowerCase();
     return CloudNet.instance().serviceVersionProvider().getServiceVersionType(versionTypeName)
       .orElseThrow(() -> new ArgumentNotAvailableException(
-        I18n.trans("ca-question-list-invalid-service-version")));
+        I18n.trans("command-template-invalid-version-type")));
   }
 
   @Suggestions("serviceVersionType")

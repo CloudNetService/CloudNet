@@ -18,6 +18,7 @@ package eu.cloudnetservice.modules.syncproxy.node.command;
 
 import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
+import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.specifier.Liberal;
 import cloud.commandframework.annotations.suggestions.Suggestions;
@@ -25,6 +26,8 @@ import cloud.commandframework.context.CommandContext;
 import eu.cloudnetservice.cloudnet.common.Nameable;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.command.annotation.CommandAlias;
+import eu.cloudnetservice.cloudnet.node.command.annotation.Description;
 import eu.cloudnetservice.cloudnet.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
@@ -37,6 +40,9 @@ import java.util.List;
 import java.util.Queue;
 import lombok.NonNull;
 
+@CommandAlias("sp")
+@CommandPermission("cloudnet.command.syncproxy")
+@Description("")
 public final class CommandSyncProxy {
 
   private final NodeSyncProxyManagement syncProxyManagement;
@@ -123,7 +129,7 @@ public final class CommandSyncProxy {
     this.displayConfiguration(source, loginConfiguration);
   }
 
-  @CommandMethod("syncproxy|sp target <targetGroup> maxPlayers <amount>")
+  @CommandMethod("syncproxy|sp target <targetGroup> set maxPlayers <amount>")
   public void setMaxPlayers(
     CommandSource source,
     @Argument("targetGroup") SyncProxyLoginConfiguration loginConfiguration,
@@ -172,7 +178,7 @@ public final class CommandSyncProxy {
       loginConfiguration.targetGroup()));
   }
 
-  @CommandMethod("syncproxy|sp target <targetGroup> maintenance <enabled>")
+  @CommandMethod("syncproxy|sp target <targetGroup> set maintenance <enabled>")
   public void maintenance(
     CommandSource source,
     @Argument("targetGroup") SyncProxyLoginConfiguration loginConfiguration,

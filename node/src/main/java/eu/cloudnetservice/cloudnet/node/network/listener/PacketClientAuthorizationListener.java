@@ -16,6 +16,9 @@
 
 package eu.cloudnetservice.cloudnet.node.network.listener;
 
+import eu.cloudnetservice.cloudnet.common.language.I18n;
+import eu.cloudnetservice.cloudnet.common.log.LogManager;
+import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
@@ -31,6 +34,8 @@ import eu.cloudnetservice.cloudnet.node.network.packet.PacketServerAuthorization
 import lombok.NonNull;
 
 public final class PacketClientAuthorizationListener implements PacketListener {
+
+  private static final Logger LOGGER = LogManager.logger(PacketServerAuthorizationResponseListener.class);
 
   @Override
   public void handle(@NonNull NetworkChannel channel, @NonNull Packet packet) {
@@ -88,6 +93,13 @@ public final class PacketClientAuthorizationListener implements PacketListener {
             channel.sendPacket(new PacketServerAuthorizationResponse(true));
             // call the auth success event
             CloudNet.instance().eventManager().callEvent(new NetworkServiceAuthSuccessEvent(service, channel));
+            var serviceId = service.serviceId();
+            LOGGER.info(I18n.trans("cloudnet-service-networking-connected",
+              serviceId.uniqueId(),
+              serviceId.taskName(),
+              serviceId.name(),
+              channel.serverAddress(),
+              channel.clientAddress()));
             // do not search for other services
             return;
           }

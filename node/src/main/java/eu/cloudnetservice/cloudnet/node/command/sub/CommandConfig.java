@@ -56,7 +56,7 @@ public final class CommandConfig {
     CloudNet.instance().serviceTaskProvider().reload();
     CloudNet.instance().groupConfigurationProvider().reload();
     CloudNet.instance().permissionManagement().reload();
-    source.sendMessage(I18n.trans("command-node-reload-config-success"));
+    source.sendMessage(I18n.trans("command-config-node-reload-config"));
   }
 
   @CommandMethod("config node reload")

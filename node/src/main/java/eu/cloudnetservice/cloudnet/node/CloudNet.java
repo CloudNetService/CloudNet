@@ -18,6 +18,7 @@ package eu.cloudnetservice.cloudnet.node;
 
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.common.io.FileUtil;
+import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.common.log.defaults.DefaultLogFormatter;
@@ -79,6 +80,8 @@ import eu.cloudnetservice.cloudnet.node.template.install.ServiceVersionProvider;
 import eu.cloudnetservice.ext.updater.UpdaterRegistry;
 import java.io.File;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -185,11 +188,11 @@ public class CloudNet extends CloudNetDriver {
   }
 
   @Override
-  public void start() throws Exception {
+  public void start(@NonNull Instant startInstant) throws Exception {
     HeaderReader.readAndPrintHeader(this.console);
     // load the service versions
     this.serviceVersionProvider.loadDefaultVersionTypes();
-
+    LOGGER.info(I18n.trans("start-version-provider", this.serviceVersionProvider.serviceVersionTypes().size()));
     // init the default services
     this.servicesRegistry.registerService(
       TemplateStorage.class,
@@ -198,15 +201,13 @@ public class CloudNet extends CloudNetDriver {
     // init the default database providers
     this.servicesRegistry.registerService(
       AbstractDatabaseProvider.class,
-      "h2",
-      new H2DatabaseProvider(
-        System.getProperty("cloudnet.database.h2.path", "local/database/h2")));
-    this.servicesRegistry.registerService(
-      AbstractDatabaseProvider.class,
       "xodus",
       new XodusDatabaseProvider(
         new File(System.getProperty("cloudnet.database.xodus.path", "local/database/xodus")),
         !this.configuration.clusterConfig().nodes().isEmpty()));
+
+    // convert from h2 to xodus if needed
+    this.convertDatabase();
 
     // initialize the default database provider
     this.databaseProvider(this.servicesRegistry.service(
@@ -215,8 +216,10 @@ public class CloudNet extends CloudNetDriver {
 
     // apply all module updates if we're not running in dev mode
     if (!DEV_MODE) {
+      LOGGER.info(I18n.trans("start-module-updater"));
       this.moduleUpdaterRegistry.runUpdater(this.modulesHolder);
     }
+
     // load the modules before proceeding for example to allow the database provider init
     this.moduleProvider.loadAll();
 
@@ -243,11 +246,14 @@ public class CloudNet extends CloudNetDriver {
     // network server init
     for (var listener : this.configuration.identity().listeners()) {
       this.networkServer.addListener(listener);
+      LOGGER.info(I18n.trans("network-listener-bound", listener));
     }
     // http server init
-    for (var httpListener : this.configuration.httpListeners()) {
-      this.httpServer.addListener(httpListener);
+    for (var listener : this.configuration.httpListeners()) {
+      this.httpServer.addListener(listener);
+      LOGGER.info(I18n.trans("http-listener-bound", listener));
     }
+
     // network client init
     Set<CompletableFuture<Void>> futures = new HashSet<>(); // all futures of connections
     for (var node : this.nodeServerProvider.nodeServers()) {
@@ -256,6 +262,8 @@ public class CloudNet extends CloudNetDriver {
       if (!listeners.isEmpty()) {
         // get a random listener of the node
         var listener = listeners.get(ThreadLocalRandom.current().nextInt(0, listeners.size()));
+        LOGGER.info(I18n.trans("start-node-connection-try", node.nodeInfo().uniqueId(), listener));
+        // try to connect
         if (this.networkClient.connect(listener)) {
           // register a future that waits for the node to become available
           futures.add(CompletableFuture.runAsync(() -> {
@@ -275,6 +283,7 @@ public class CloudNet extends CloudNetDriver {
     // now we can wait for all nodes to become available (if needed)
     if (!futures.isEmpty()) {
       try {
+        LOGGER.info(I18n.trans("start-node-connection-waiting", futures.size()));
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get(7, TimeUnit.SECONDS);
       } catch (TimeoutException ignored) {
         // auth failed to a node in the cluster - ignore
@@ -283,6 +292,7 @@ public class CloudNet extends CloudNetDriver {
 
     // we are now connected to all nodes - request the full cluster data set if the head node is not the current one
     if (!this.nodeServerProvider.headnode().equals(this.nodeServerProvider.selfNode())) {
+      LOGGER.info(I18n.trans("start-requesting-data"));
       ChannelMessage.builder()
         .message("request_initial_cluster_data")
         .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
@@ -293,7 +303,9 @@ public class CloudNet extends CloudNetDriver {
 
     // start modules
     this.moduleProvider.startAll();
+
     // enable console command handling
+    LOGGER.info(I18n.trans("start-commands"));
     this.commandProvider.registerDefaultCommands();
     this.commandProvider.registerConsoleHandler(this.console);
 
@@ -302,6 +314,7 @@ public class CloudNet extends CloudNetDriver {
     this.eventManager.callEvent(new CloudNetNodePostInitializationEvent(this));
 
     Runtime.getRuntime().addShutdownHook(new Thread(this::stop, "Shutdown Thread"));
+    LOGGER.info(I18n.trans("start-done", Duration.between(startInstant, Instant.now()).toMillis()));
 
     // run the main loop
     this.mainThread.start();
@@ -309,37 +322,43 @@ public class CloudNet extends CloudNetDriver {
 
   @Override
   public void stop() {
-    // check if we are in the shutdown thread - execute in the shutdown thread if not
-    if (!Thread.currentThread().getName().equals("Shutdown Thread")) {
-      System.exit(0);
-      return;
-    }
     // check if the node is still running
     if (this.running.getAndSet(false)) {
       try {
+        LOGGER.info(I18n.trans("stop-application"));
+
         // stop task execution
         this.scheduler.shutdownNow();
         this.serviceVersionProvider.interruptInstallSteps();
 
         // close all providers
+        LOGGER.info(I18n.trans("stop-providers"));
         this.nodeServerProvider.close();
         this.permissionManagement.close();
         this.databaseProvider.close();
         this.moduleProvider.unloadAll();
 
         // close all services
+        LOGGER.info(I18n.trans("stop-services"));
         this.cloudServiceProvider().deleteAllCloudServices();
 
         // close all networking listeners
+        LOGGER.info(I18n.trans("stop-network-components"));
         this.httpServer.close();
         this.networkClient.close();
         this.networkServer.close();
 
         // remove temp directory
+        LOGGER.info(I18n.trans("stop-delete-temp"));
         FileUtil.delete(FileUtil.TEMP_DIR);
 
         // close console
         this.console.close();
+
+        // check if we are in the shutdown thread - execute a clean shutdown if not
+        if (!Thread.currentThread().getName().equals("Shutdown Thread")) {
+          System.exit(0);
+        }
       } catch (Exception exception) {
         LOGGER.severe("Exception during node shutdown", exception);
       }
@@ -487,5 +506,37 @@ public class CloudNet extends CloudNetDriver {
 
   public boolean running() {
     return this.running.get();
+  }
+
+  // TODO: remove in 4.1
+  private void convertDatabase() throws Exception {
+    var configuredDatabase = this.configuration.properties().getString("database_provider", "xodus");
+    // check if we need to migrate the old h2 database into a new xodus database
+    if (configuredDatabase.equals("h2")) {
+      // initialize the provider for the local h2 files
+      var h2Provider = new H2DatabaseProvider(System.getProperty("cloudnet.database.h2.path", "local/database/h2"));
+      h2Provider.init();
+      // initialize the provider for our new xodus database
+      var xodusProvider = this.servicesRegistry.service(AbstractDatabaseProvider.class, "xodus");
+      xodusProvider.init();
+      // run the migration on all tables in the h2 database
+      for (var databaseName : h2Provider.databaseNames()) {
+        var h2Database = h2Provider.database(databaseName);
+        // create the new xodus storage
+        var xodusDatabase = xodusProvider.database(databaseName);
+        // insert the data of the h2 database into the xodus database
+        // in chunks of 100 documents to prevent oom
+        h2Database.iterate(xodusDatabase::insert, 100);
+      }
+      // we've run the conversion, the new provider is xodus
+      configuredDatabase = "xodus";
+      // close the old h2 provider as it is not needed anymore
+      h2Provider.close();
+      // close xodus too as it is initialized later on
+      xodusProvider.close();
+      // save the updated configuration
+      this.configuration.properties().append("database_provider", configuredDatabase);
+      this.configuration.save();
+    }
   }
 }

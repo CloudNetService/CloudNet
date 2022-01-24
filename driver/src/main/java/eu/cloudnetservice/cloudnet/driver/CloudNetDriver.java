@@ -43,6 +43,7 @@ import eu.cloudnetservice.cloudnet.driver.provider.service.CloudServiceFactory;
 import eu.cloudnetservice.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import eu.cloudnetservice.cloudnet.driver.service.ProcessSnapshot;
 import eu.cloudnetservice.cloudnet.driver.template.TemplateStorage;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -100,7 +101,7 @@ public abstract class CloudNetDriver {
     CloudNetDriver.instance = instance;
   }
 
-  public abstract void start() throws Exception;
+  public abstract void start(@NonNull Instant startInstant) throws Exception;
 
   public abstract void stop();
 
