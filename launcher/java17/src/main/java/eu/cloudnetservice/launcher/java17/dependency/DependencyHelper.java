@@ -16,9 +16,8 @@
 
 package eu.cloudnetservice.launcher.java17.dependency;
 
+import eu.cloudnetservice.ext.updater.util.ChecksumUtil;
 import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -65,17 +64,18 @@ public final class DependencyHelper {
               repositories.put(parts[1], new Repository(parts[1], URI.create(parts[2])));
             } else if (parts[0].equalsIgnoreCase("include")) {
               // check that it can actually be a valid dependency definition
-              Objects.checkIndex(5, parts.length);
+              Objects.checkIndex(6, parts.length);
               dependencies.add(new Dependency(
                 parts[1],
                 parts[2],
                 parts[3],
                 parts[4],
                 parts[5],
-                parts.length == 7 ? parts[6] : null));
+                parts[6],
+                parts.length == 8 ? parts[7] : null));
             } else {
               // well somebody tried to troll us, huh?
-              throw new IllegalArgumentException("Unsure how to handle line \"" + line + "\" in libraries.versions");
+              throw new IllegalArgumentException("Unsure how to handle line \"" + line + "\" in cloudnet.cnl");
             }
           }
         }
@@ -88,7 +88,7 @@ public final class DependencyHelper {
   public static @NonNull Set<URL> load(
     @NonNull Map<String, Repository> repositories,
     @NonNull Collection<Dependency> dependencies
-  ) {
+  ) throws IOException {
     Set<URL> loadedDependencyPaths = new HashSet<>();
     for (var dependency : dependencies) {
       // get the associated repository
@@ -100,6 +100,14 @@ public final class DependencyHelper {
         .resolve(dependency.name())
         .resolve(dependency.originalVersion())
         .resolve(String.format("%s-%s.jar", dependency.name(), dependency.fullVersion()));
+      // if the file already exists, ensure that the checksum still matches
+      if (Files.exists(targetFile)) {
+        var checksum = ChecksumUtil.fileShaSum(targetFile);
+        if (!checksum.equals(dependency.checksum())) {
+          // remove the file here, this will trigger a re-download
+          Files.deleteIfExists(targetFile);
+        }
+      }
       // we don't need to load the dependency if we already loaded it
       if (Files.notExists(targetFile)) {
         try {
@@ -110,12 +118,7 @@ public final class DependencyHelper {
         }
       }
       // the dependency is available for loading now
-      try {
-        loadedDependencyPaths.add(targetFile.toUri().toURL());
-      } catch (MalformedURLException exception) {
-        // this should (and can) never happen - just explode
-        throw new UncheckedIOException("Unreachable normally you freak", exception);
-      }
+      loadedDependencyPaths.add(targetFile.toUri().toURL());
     }
     return loadedDependencyPaths;
   }

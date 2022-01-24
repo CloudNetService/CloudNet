@@ -16,8 +16,10 @@
 
 package eu.cloudnetservice.launcher.java17.dependency;
 
+import eu.cloudnetservice.ext.updater.util.ChecksumUtil;
 import eu.cloudnetservice.launcher.java17.util.HttpUtil;
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import lombok.NonNull;
 
@@ -28,16 +30,39 @@ public record Repository(@NonNull String name, @NonNull URI url) {
     // CHECKSTYLE.OFF: Launcher has no proper logger
     System.out.printf("Downloading dependency %s to %s... %n", dependency, targetPath);
     // CHECKSTYLE.ON
-    HttpUtil.get(
+    for (int i = 0; i < 3; i++) {
+      // try to download the dependency
+      if (this.downloadDependency(targetPath, dependency)) {
+        // successful, do not throw an exception
+        return;
+      }
+    }
+    // unsuccessful, abort
+    throw new IllegalStateException("Tried and failed 3 times to download dependency " + dependency + ", aborting!");
+  }
+
+  private boolean downloadDependency(@NonNull Path target, @NonNull Dependency dependency) throws Exception {
+    var actualPath = HttpUtil.get(
       URI.create(String.format(
-        "%s/%s/%s/%s/%s-%s.jar",
+        "%s/%s/%s/%s/%s-%s%s.jar",
         this.url,
         dependency.normalizedGroup(),
         dependency.name(),
         dependency.originalVersion(),
         dependency.name(),
-        dependency.fullVersion())),
-      HttpUtil.handlerForFile(targetPath)
+        dependency.fullVersion(),
+        dependency.classifier())),
+      HttpUtil.handlerForFile(target)
     ).body();
+    // validate the checksum of the file
+    var checksum = ChecksumUtil.fileShaSum(actualPath);
+    if (!checksum.equals(dependency.checksum())) {
+      // remove the file
+      Files.deleteIfExists(actualPath);
+      return false;
+    } else {
+      // successful download
+      return true;
+    }
   }
 }
