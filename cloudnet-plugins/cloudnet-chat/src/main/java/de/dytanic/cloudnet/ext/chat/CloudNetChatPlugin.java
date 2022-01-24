@@ -46,7 +46,6 @@ public class CloudNetChatPlugin extends JavaPlugin implements Listener {
     Player player = event.getPlayer();
 
     IPermissionUser user = CloudNetDriver.getInstance().getPermissionManagement().getUser(player.getUniqueId());
-
     if (user == null) {
       return;
     }

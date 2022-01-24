@@ -93,10 +93,10 @@ public final class CloudNetSimpleNameTagsPlugin extends JavaPlugin {
       .max()
       .orElse(0);
 
-    this.initScoreboard(player);
+    this.initScoreboard(player, playerPermissionUser);
 
     Bukkit.getOnlinePlayers().forEach(all -> {
-      this.initScoreboard(all);
+      this.initScoreboard(all, playerPermissionUser);
 
       if (playerPermissionGroup.get() != null) {
         this.addTeamEntry(player, all, playerPermissionGroup.get(), sortIdLength);
@@ -168,18 +168,21 @@ public final class CloudNetSimpleNameTagsPlugin extends JavaPlugin {
       exception.printStackTrace();
     }
 
-    team.setPrefix(ChatColor.translateAlternateColorCodes('&', prefix));
+    //team.setPrefix(ChatColor.translateAlternateColorCodes('&', prefix));
 
-    team.setSuffix(ChatColor.translateAlternateColorCodes('&', suffix));
+    //team.setSuffix(ChatColor.translateAlternateColorCodes('&', suffix));
 
     team.addEntry(target.getName());
 
     target.setDisplayName(ChatColor.translateAlternateColorCodes('&', permissionGroup.getDisplay() + target.getName()));
   }
 
-  private void initScoreboard(Player all) {
+  private void initScoreboard(Player all, IPermissionUser user) {
+    IPermissionGroup group = CloudNetDriver.getInstance().getPermissionManagement().getHighestPermissionGroup(user);
+
     if (all.getScoreboard().equals(all.getServer().getScoreboardManager().getMainScoreboard())) {
       all.setScoreboard(all.getServer().getScoreboardManager().getNewScoreboard());
+      all.setPlayerListName(group.getPrefix().replace("&", "§") + all.getName());
     }
   }
 }
