@@ -23,7 +23,7 @@ object Versions {
   // plugin versions
   const val shadow = "7.1.2"
   const val blossom = "1.3.0"
-  const val juppiter = "0.2.0"
+  const val juppiter = "0.3.0"
   const val fabricLoom = "0.11.5"
 
   // external tools

@@ -25,6 +25,7 @@ public record Dependency(
   @NonNull String name,
   @NonNull String originalVersion,
   @NonNull String fullVersion,
+  @NonNull String checksum,
   @Nullable String classifier
 ) {
 

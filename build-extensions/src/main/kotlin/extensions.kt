@@ -95,7 +95,8 @@ fun Project.exportCnlFile(fileName: String): String {
       "${id.group.replace('.', '/')}/${id.name}/${id.version}/${id.name}-$version.jar",
       mavenRepositories()
     )?.run {
-      stringBuilder.append("include $name ${id.group} ${id.name} ${id.version} $version ${it.classifier ?: ""}\n")
+      val cs = ChecksumHelper.fileShaSum(it.file)
+      stringBuilder.append("include $name ${id.group} ${id.name} ${id.version} $version $cs ${it.classifier ?: ""}\n")
     }
   }
 
