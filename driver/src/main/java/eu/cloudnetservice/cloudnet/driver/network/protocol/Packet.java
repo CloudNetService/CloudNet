@@ -98,6 +98,18 @@ public interface Packet {
   int channel();
 
   /**
+   * Get if this packet is prioritized. If a packet is marked as high priority, it will instantly get handled on the
+   * receiving component without getting queued.
+   * <p>
+   * This option should be used with care, as each thread which will normally read from the channel will be blocked with
+   * the packet handling of this packet. Blocking the handler thread too long will cause other packets to be delayed for
+   * no visible reason.
+   *
+   * @return if this packet is prioritized.
+   */
+  boolean prioritized();
+
+  /**
    * Get if this packet still has readable bytes left. Useful to verify that from a packet can actually be read instead
    * of running into exceptions because the end of the buffer has been reached.
    *

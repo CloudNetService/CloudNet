@@ -38,6 +38,9 @@ public final class PacketServerChannelMessage extends BasePacket {
    * @throws NullPointerException if the given channel message is null.
    */
   public PacketServerChannelMessage(@NonNull ChannelMessage message, boolean wrapper) {
-    super(NetworkConstants.CHANNEL_MESSAGING_CHANNEL, DataBuf.empty().writeBoolean(wrapper).writeObject(message));
+    super(
+      NetworkConstants.CHANNEL_MESSAGING_CHANNEL,
+      message.prioritized(),
+      DataBuf.empty().writeBoolean(wrapper).writeObject(message));
   }
 }

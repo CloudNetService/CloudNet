@@ -38,7 +38,6 @@ import java.text.Format;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -60,16 +59,28 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
       cloudNet.dataSyncRegistry(),
       this));
     // schedule the task for updating of the local node information
-    cloudNet.taskExecutor().scheduleAtFixedRate(() -> {
-      if (this.localNode.available()) {
+    // this is in an extra, exclusive thread as it causes cluster failures when not executed properly
+    var thread = new Thread(() -> {
+      while (cloudNet.running()) {
+        if (this.localNode.available()) {
+          try {
+            this.checkForDeadNodes();
+            this.localNode.publishNodeInfoSnapshotUpdate();
+          } catch (Throwable throwable) {
+            LOGGER.severe("Exception while ticking node server provider", throwable);
+          }
+        }
+        // wait one second before re-sending
         try {
-          this.checkForDeadNodes();
-          this.localNode.publishNodeInfoSnapshotUpdate();
-        } catch (Throwable throwable) {
-          LOGGER.severe("Exception while ticking node server provider", throwable);
+          //noinspection BusyWait
+          Thread.sleep(1000);
+        } catch (InterruptedException ignored) {
+          break;
         }
       }
-    }, 1, 1, TimeUnit.SECONDS);
+    });
+    thread.setDaemon(true);
+    thread.start();
   }
 
   @Override

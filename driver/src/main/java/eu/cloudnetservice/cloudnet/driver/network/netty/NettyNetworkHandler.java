@@ -76,26 +76,40 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Ba
    */
   @Override
   protected void channelRead0(@NonNull ChannelHandlerContext ctx, @NonNull BasePacket msg) {
-    this.packetDispatcher().execute(() -> {
-      try {
-        var uuid = msg.uniqueId();
-        if (uuid != null) {
-          var task = this.channel.queryPacketManager().waitingHandler(uuid);
-          if (task != null) {
-            task.complete(msg);
-            // don't post a query response packet to another handler at all
-            return;
-          }
-        }
+    // post directly if the packet has a high priority
+    if (msg.prioritized()) {
+      this.doHandlePacket(msg);
+    } else {
+      this.packetDispatcher().execute(() -> this.doHandlePacket(msg));
+    }
+  }
 
-        // check if we're allowed to handle the packet
-        if (this.channel.handler().handlePacketReceive(this.channel, msg)) {
-          this.channel.packetRegistry().handlePacket(this.channel, msg);
+  /**
+   * Handles the incoming packet and posts it either to the associated waiting query handler or directly into the packet
+   * registry, calling all associated handlers.
+   *
+   * @param packet the packet to handle.
+   * @throws NullPointerException if the given packet is null.
+   */
+  protected void doHandlePacket(@NonNull BasePacket packet) {
+    try {
+      var uuid = packet.uniqueId();
+      if (uuid != null) {
+        var task = this.channel.queryPacketManager().waitingHandler(uuid);
+        if (task != null) {
+          task.complete(packet);
+          // don't post a query response packet to another handler at all
+          return;
         }
-      } catch (Exception exception) {
-        LOGGER.severe("Exception whilst handling packet " + msg, exception);
       }
-    });
+
+      // check if we're allowed to handle the packet
+      if (this.channel.handler().handlePacketReceive(this.channel, packet)) {
+        this.channel.packetRegistry().handlePacket(this.channel, packet);
+      }
+    } catch (Exception exception) {
+      LOGGER.severe("Exception whilst handling packet %s", exception, packet);
+    }
   }
 
   /**
