@@ -35,6 +35,7 @@ import java.text.Format;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -47,10 +48,10 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
   private static final Format TIME_FORMAT = new DecimalFormat("##.###");
   private static final long MAX_NO_UPDATE_MILLIS = Long.getLong("cloudnet.max.node.idle.millis", 30_000);
 
-  public DefaultClusterNodeServerProvider(CloudNet cloudNet) {
+  public DefaultClusterNodeServerProvider(CloudNet cloudNet, ScheduledExecutorService service) {
     super(cloudNet);
 
-    cloudNet.getTaskExecutor().scheduleAtFixedRate(() -> {
+    service.scheduleAtFixedRate(() -> {
       try {
         cloudNet.publishNetworkClusterNodeInfoSnapshotUpdate();
         this.checkForDeadNodes();
