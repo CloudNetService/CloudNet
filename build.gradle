@@ -23,7 +23,7 @@ defaultTasks 'build', 'checkLicenses', 'test', 'jar'
 
 allprojects {
 
-  def major = 3, minor = 4, patch = 2, versionType = "RELEASE"
+  def major = 3, minor = 4, patch = 3, versionType = "SNAPSHOT"
 
   group 'de.dytanic.cloudnet'
   version "$major.$minor.$patch-$versionType"
@@ -77,7 +77,7 @@ allprojects {
     dependencyLombokVersion = '1.18.22'
     dependencyH2Version = '1.4.197' // do not update, leads to database incompatibility
     dependencyGsonVersion = '2.8.9'
-    dependencyNettyVersion = '4.1.72.Final'
+    dependencyNettyVersion = '4.1.73.Final'
     dependencyJLineVersion = '3.21.0'
     dependencyJAnsiVersion = '2.4.0'
     dependencySpigotApiVersion = '1.8.8-R0.1-SNAPSHOT'
@@ -97,9 +97,9 @@ allprojects {
     dependencyJavassistVersion = '3.28.0-GA'
 
     testJunitVersion = '4.13.2'
-    testBcpkixJdk15OnVersion = '1.69'
+    testBcpkixJdk15OnVersion = '1.70'
 
-    buildCheckstyleToolVersion = '8.43'
+    buildCheckstyleToolVersion = '9.2.1'
 
     //file
     cloudnetLauncherFile = 'launcher.jar'
