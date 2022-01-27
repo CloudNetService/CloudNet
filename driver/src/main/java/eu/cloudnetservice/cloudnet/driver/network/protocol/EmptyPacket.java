@@ -72,7 +72,6 @@ final class EmptyPacket implements Packet {
   }
 
   /**
-   *
    * {@inheritDoc}
    */
   @Override
