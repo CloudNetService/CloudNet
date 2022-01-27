@@ -61,11 +61,6 @@ public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
   }
 
   @Override
-  public boolean removeWhenWorldSaving() {
-    return false;
-  }
-
-  @Override
   public boolean spawned() {
     return this.handleNpc != null;
   }

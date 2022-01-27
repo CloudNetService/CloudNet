@@ -73,11 +73,6 @@ public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEn
   }
 
   @Override
-  public boolean removeWhenWorldSaving() {
-    return true;
-  }
-
-  @Override
   public boolean spawned() {
     return this.entity != null;
   }

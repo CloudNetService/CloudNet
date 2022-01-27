@@ -71,7 +71,6 @@ public final class BukkitWorldListener implements Listener {
   public void handleWorldSave(@NonNull WorldSaveEvent event) {
     var entities = this.management.trackedEntities().values().stream()
       .filter(PlatformSelectorEntity::spawned)
-      .filter(PlatformSelectorEntity::removeWhenWorldSaving)
       .filter(npc -> npc.location().getWorld().getUID().equals(event.getWorld().getUID()))
       .toList();
     // remove all mobs

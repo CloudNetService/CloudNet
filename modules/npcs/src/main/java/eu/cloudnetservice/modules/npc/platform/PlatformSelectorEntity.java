@@ -51,8 +51,6 @@ public interface PlatformSelectorEntity<L, P, M, I> {
 
   @NonNull String scoreboardRepresentation();
 
-  boolean removeWhenWorldSaving();
-
   boolean spawned();
 
   boolean canSpawn();

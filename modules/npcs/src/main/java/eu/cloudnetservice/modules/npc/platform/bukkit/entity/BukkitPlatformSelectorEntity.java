@@ -160,21 +160,28 @@ public abstract class BukkitPlatformSelectorEntity
 
   @Override
   public void remove() {
-    Bukkit.getScheduler().runTask(this.plugin, () -> {
-      for (var infoLine : this.infoLines) {
-        // remove the armor stand passenger (if any)
-        var passenger = infoLine.armorStand.getPassenger();
-        if (passenger != null) {
-          passenger.remove();
-        }
-        // remove the info line armor stand
-        infoLine.armorStand.remove();
+    // remove instantly when on main thread, else delay by one tick because we need to be on the main thread
+    if (Bukkit.isPrimaryThread()) {
+      this.doRemove();
+    } else {
+      Bukkit.getScheduler().runTask(this.plugin, this::doRemove);
+    }
+  }
+
+  protected void doRemove() {
+    for (var infoLine : this.infoLines) {
+      // remove the armor stand passenger (if any)
+      var passenger = infoLine.armorStand.getPassenger();
+      if (passenger != null) {
+        passenger.remove();
       }
-      this.infoLines.clear();
-      this.infoLineEntityIds.clear();
-      // remove the actual selector npc
-      this.remove0();
-    });
+      // remove the info line armor stand
+      infoLine.armorStand.remove();
+    }
+    this.infoLines.clear();
+    this.infoLineEntityIds.clear();
+    // remove the actual selector npc
+    this.remove0();
   }
 
   @Override
