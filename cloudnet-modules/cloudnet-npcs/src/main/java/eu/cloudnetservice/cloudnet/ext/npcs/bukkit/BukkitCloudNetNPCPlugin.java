@@ -53,7 +53,7 @@ public class BukkitCloudNetNPCPlugin extends JavaPlugin {
 
     CloudNetDriver.getInstance().getEventManager().registerListener(this.npcManagement);
     Bukkit.getPluginManager().registerEvents(new NPCInventoryListener(this.npcManagement), this);
-    Bukkit.getPluginManager().registerEvents(new WorldEventListener(this, this.npcManagement), this);
+    Bukkit.getPluginManager().registerEvents(new WorldEventListener(this.npcManagement), this);
     Bukkit.getPluginManager().registerEvents(new LabyModEmotePlayer(this, this.npcManagement), this);
 
     NPCConfigurationEntry ownNPCConfigurationEntry = this.npcManagement.getOwnNPCConfigurationEntry();

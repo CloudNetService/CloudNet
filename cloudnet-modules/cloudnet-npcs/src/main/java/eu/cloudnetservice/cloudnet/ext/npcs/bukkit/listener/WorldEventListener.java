@@ -20,32 +20,42 @@ import eu.cloudnetservice.cloudnet.ext.npcs.CloudNPC;
 import eu.cloudnetservice.cloudnet.ext.npcs.bukkit.BukkitNPCManagement;
 import java.util.Collection;
 import java.util.stream.Collectors;
-import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.world.WorldSaveEvent;
-import org.bukkit.plugin.Plugin;
+import org.bukkit.event.world.ChunkLoadEvent;
+import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.util.NumberConversions;
 import org.jetbrains.annotations.NotNull;
 
 public final class WorldEventListener implements Listener {
 
-  private final Plugin plugin;
   private final BukkitNPCManagement management;
 
-  public WorldEventListener(@NotNull Plugin plugin, @NotNull BukkitNPCManagement management) {
-    this.plugin = plugin;
+  public WorldEventListener(@NotNull BukkitNPCManagement management) {
     this.management = management;
   }
 
   @EventHandler
-  public void handle(@NotNull WorldSaveEvent event) {
-    Collection<CloudNPC> npcs = this.management.getCloudNPCS().stream()
-      .filter(npc -> npc.getPosition().getWorld().equals(event.getWorld().getName()))
+  public void handle(@NotNull ChunkUnloadEvent event) {
+    this.getNPCsInChunk(event.getChunk())
+      .forEach(npc -> this.management.getInfoLineStand(npc, false).getSecond().ifPresent(Entity::remove));
+  }
+
+  @EventHandler
+  public void handle(@NotNull ChunkLoadEvent event) {
+    this.getNPCsInChunk(event.getChunk()).forEach(this.management::updateNPC);
+  }
+
+  private @NotNull Collection<CloudNPC> getNPCsInChunk(@NotNull Chunk chunk) {
+    return this.management.getCloudNPCS().stream()
+      .filter(npc -> {
+        int chunkX = NumberConversions.floor(npc.getPosition().getX()) >> 4;
+        int chunkZ = NumberConversions.floor(npc.getPosition().getZ()) >> 4;
+
+        return chunk.getX() == chunkX && chunk.getZ() == chunkZ;
+      })
       .collect(Collectors.toSet());
-    // remove all info line stands
-    npcs.forEach(npc -> this.management.getInfoLineStand(npc, false).ifPresent(Entity::remove));
-    // respawn the armor stands after two seconds and hope that the world save is done
-    Bukkit.getScheduler().runTaskLater(this.plugin, () -> npcs.forEach(this.management::updateNPC), 2 * 20);
   }
 }
