@@ -36,6 +36,7 @@ import static org.objectweb.asm.Opcodes.V1_8;
 
 import eu.cloudnetservice.cloudnet.common.StringUtil;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
+import eu.cloudnetservice.cloudnet.driver.network.NetworkComponent;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPC;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCExecutable;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCSender;
@@ -57,6 +58,12 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
+/**
+ * The generator for api implementations based on rpc.
+ *
+ * @see eu.cloudnetservice.cloudnet.driver.network.rpc.RPCFactory#generateRPCBasedApi(Class, NetworkComponent)
+ * @since 4.0
+ */
 public final class ApiImplementationGenerator {
 
   private static final String DEFAULT_SUPER = "java/lang/Object";
@@ -82,6 +89,18 @@ public final class ApiImplementationGenerator {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Generates an implementation of a class sending rpc requests based on the given generation context.
+   *
+   * @param baseClass the return type model class.
+   * @param context   the generation context.
+   * @param sender    the rpc sender to use for the class.
+   * @param <T>       the type which gets generated.
+   * @return an implementation of the given class which has all requested methods rpc based implemented.
+   * @throws NullPointerException   if the given base class, context or rpc sender is null.
+   * @throws ClassCreationException if the generator is unable to generate an implementation of the class.
+   */
+  // Suppresses ConstantConditions as IJ is dumb
   @SuppressWarnings({"unchecked", "ConstantConditions"})
   public static @NonNull <T> T generateApiImplementation(
     @NonNull Class<T> baseClass,
@@ -227,6 +246,13 @@ public final class ApiImplementationGenerator {
     }
   }
 
+  /**
+   * Collects all methods based on the given context which should get implemented.
+   *
+   * @param context the context.
+   * @return all methods which need to get implemented.
+   * @throws NullPointerException if the given context is null.
+   */
   private static @NotNull Collection<Method> collectMethodsToVisit(@NotNull GenerationContext context) {
     Map<String, Method> visitedMethods = new HashMap<>();
     // first travel the class we should extend (if given)
@@ -253,6 +279,14 @@ public final class ApiImplementationGenerator {
     }
   }
 
+  /**
+   * Travels down the class hierarchy of the given class, first visiting all superclasses (except Object) and then all
+   * interfaces, posting all public, non-static methods to the given handler.
+   *
+   * @param start   the class to start the travel from.
+   * @param handler the handler to accept all methods.
+   * @throws NullPointerException if the given start class or handler is null.
+   */
   private static void travelClassHierarchy(@NonNull Class<?> start, @NonNull Consumer<Method> handler) {
     // travel down the class hierarchy first
     travelClassesUntilObject(start, handler);
@@ -260,6 +294,13 @@ public final class ApiImplementationGenerator {
     travelInterfaces(start, handler);
   }
 
+  /**
+   * Travels over all super classes of the given class until reaching Object.
+   *
+   * @param start   the class to start the travel from.
+   * @param handler the handler to accept all methods.
+   * @throws NullPointerException if the given start class or handler is null.
+   */
   private static void travelClassesUntilObject(@NonNull Class<?> start, @NonNull Consumer<Method> handler) {
     Class<?> curr = start;
     do {
@@ -275,12 +316,19 @@ public final class ApiImplementationGenerator {
     } while (curr != null && curr != Object.class);
   }
 
+  /**
+   * Travels over all interfaces of the given class.
+   *
+   * @param start   the class to start the travel from.
+   * @param handler the handler to accept all methods.
+   * @throws NullPointerException if the given start class or handler is null.
+   */
   private static void travelInterfaces(@NonNull Class<?> start, @NonNull Consumer<Method> handler) {
     for (var inter : start.getInterfaces()) {
       // we only need public visible methods
       for (var method : inter.getDeclaredMethods()) {
         var mod = method.getModifiers();
-        if (Modifier.isPublic(mod) && !method.isAnnotationPresent(RPCIgnore.class)) {
+        if (Modifier.isPublic(mod) && !Modifier.isStatic(mod) && !method.isAnnotationPresent(RPCIgnore.class)) {
           handler.accept(method);
         }
       }
