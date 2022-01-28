@@ -28,6 +28,7 @@ import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import java.util.ArrayList;
 import java.util.Collection;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,17 +56,19 @@ import org.jetbrains.annotations.Nullable;
  * <p>
  * The actual constructor of this class shouldn't get used. Use {@link #builder()} instead.
  *
- * @param channel The channel to which the channel message gets sent. Mostly for identification reasons.
- * @param message The message key of this channel message. Mostly for identification reasons.
- * @param content The content of this channel message (the actual data to send).
- * @param sender  The sender of the channel message. Should be, but must not the current network component.
- * @param targets The targets to which the channel message should get send.
+ * @param prioritized whether this channel message should be handled with priority over other channel messages.
+ * @param channel     the channel to which the channel message gets sent. Mostly for identification reasons.
+ * @param message     the message key of this channel message. Mostly for identification reasons.
+ * @param content     the content of this channel message (the actual data to send).
+ * @param sender      the sender of the channel message. Should be, but must not the current network component.
+ * @param targets     the targets to which the channel message should get send.
  * @see ChannelMessageSender
  * @see ChannelMessageTarget
  * @see eu.cloudnetservice.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent
  * @since 4.0
  */
 public record ChannelMessage(
+  boolean prioritized,
   @NonNull String channel,
   @NonNull String message,
   @NonNull DataBuf content,
@@ -185,6 +188,8 @@ public record ChannelMessage(
     private String channel;
     private String message;
 
+    private boolean prioritized;
+
     private DataBuf content;
     private ChannelMessageSender sender;
 
@@ -221,6 +226,22 @@ public record ChannelMessage(
      */
     public @NonNull Builder message(@NonNull String message) {
       this.message = message;
+      return this;
+    }
+
+    /**
+     * Sets if the channel message should be prioritized over other channel messages.
+     * <p>
+     * <strong>USE WITH CAUTION!</strong> This can cause other packet to get read and handled delayed. Use this option
+     * only if you know what you're doing and are absolutely sure that the packet is urgent for CloudNet to work for as
+     * expected. Otherwise, don't touch this method.
+     *
+     * @param prioritized if the channel message is prioritized
+     * @return the same builder as used to call the method, for chaining.
+     */
+    @Experimental
+    public @NonNull Builder prioritized(boolean prioritized) {
+      this.prioritized = prioritized;
       return this;
     }
 
@@ -370,6 +391,7 @@ public record ChannelMessage(
       Verify.verify(!this.targets.isEmpty(), "No targets provided");
 
       return new ChannelMessage(
+        this.prioritized,
         this.channel,
         this.message,
         this.content == null ? DataBuf.empty() : this.content,

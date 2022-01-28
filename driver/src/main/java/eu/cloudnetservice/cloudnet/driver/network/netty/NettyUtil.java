@@ -37,8 +37,8 @@ import io.netty.util.concurrent.FastThreadLocalThread;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.JdkLoggerFactory;
 import java.util.concurrent.Executor;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -103,7 +103,7 @@ public final class NettyUtil {
       threadAmount(),
       30L,
       TimeUnit.SECONDS,
-      new SynchronousQueue<>(true),
+      new LinkedBlockingQueue<>(),
       DEFAULT_REJECT_HANDLER);
   }
 

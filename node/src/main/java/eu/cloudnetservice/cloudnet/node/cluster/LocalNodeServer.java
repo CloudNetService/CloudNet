@@ -121,11 +121,13 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
     // set the snapshot
     this.nodeInfoSnapshot(snapshot);
     // send the new node info to all nodes
+    // send every 10th update prioritized to prevent cluster disconnect issues
     ChannelMessage.builder()
       .targetNodes()
       .message("update_node_info_snapshot")
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
       .buffer(DataBuf.empty().writeObject(this.currentSnapshot))
+      .prioritized(this.cloudNet.mainThread().currentTick() % 10 == 0)
       .build()
       .send();
   }

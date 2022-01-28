@@ -47,6 +47,8 @@ public final class NettyPacketEncoder extends MessageToByteEncoder<Packet> {
   protected void encode(@NonNull ChannelHandlerContext ctx, @NonNull Packet packet, @NonNull ByteBuf buf) {
     // channel
     NettyUtil.writeVarInt(buf, packet.channel());
+    // packet priority
+    buf.writeBoolean(packet.prioritized());
     // query id (if present)
     var queryUniqueId = packet.uniqueId();
     buf.writeBoolean(queryUniqueId != null);

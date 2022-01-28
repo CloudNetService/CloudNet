@@ -36,6 +36,7 @@ public class BasePacket implements Packet {
 
   protected final int channel;
   protected final DataBuf dataBuf;
+  protected final boolean prioritized;
   protected final Instant creationStamp;
 
   protected UUID uniqueId;
@@ -48,8 +49,21 @@ public class BasePacket implements Packet {
    * @throws NullPointerException if the given buffer is null.
    */
   public BasePacket(int channel, @NonNull DataBuf dataBuf) {
+    this(channel, false, dataBuf);
+  }
+
+  /**
+   * Constructs a new base packet instance.
+   *
+   * @param channel     the channel to which the packet was sent.
+   * @param prioritized if the packet should be prioritized.
+   * @param dataBuf     the buffer (or content) of the packet.
+   * @throws NullPointerException if the given buffer is null.
+   */
+  public BasePacket(int channel, boolean prioritized, @NonNull DataBuf dataBuf) {
     this.channel = channel;
     this.dataBuf = dataBuf;
+    this.prioritized = prioritized;
     this.creationStamp = Instant.now();
   }
 
@@ -85,6 +99,14 @@ public class BasePacket implements Packet {
   @Override
   public int channel() {
     return this.channel;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean prioritized() {
+    return this.prioritized;
   }
 
   /**

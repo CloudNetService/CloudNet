@@ -75,6 +75,14 @@ final class EmptyPacket implements Packet {
    * {@inheritDoc}
    */
   @Override
+  public boolean prioritized() {
+    return false;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public boolean readable() {
     return false;
   }
