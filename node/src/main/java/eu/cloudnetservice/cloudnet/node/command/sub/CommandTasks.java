@@ -416,7 +416,7 @@ public final class CommandTasks {
       }
 
       this.updateTask(task, builder -> builder.addGroup(group.name()));
-      source.sendMessage(I18n.trans("command-tasks-add-collection-property", "group", group, task.name()));
+      source.sendMessage(I18n.trans("command-tasks-add-collection-property", "group", group.name(), task.name()));
     }
   }
 
