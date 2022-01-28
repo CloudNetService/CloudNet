@@ -32,7 +32,7 @@ public interface RPCSender extends RPCProvider {
    *
    * @return the provider factory used to construct this rpc sender.
    */
-  @NonNull RPCProviderFactory factory();
+  @NonNull RPCFactory factory();
 
   /**
    * Get the network component associated with this rpc sender.

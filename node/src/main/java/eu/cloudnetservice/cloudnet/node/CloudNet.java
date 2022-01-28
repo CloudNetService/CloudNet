@@ -176,9 +176,9 @@ public class CloudNet extends CloudNetDriver {
     this.httpServer = new NettyHttpServer(this.configuration.webSSLConfig());
 
     // register all rpc handlers associated with methods of this class
-    this.rpcProviderFactory.newHandler(Database.class, null).registerToDefaultRegistry();
-    this.rpcProviderFactory.newHandler(CloudNetDriver.class, this).registerToDefaultRegistry();
-    this.rpcProviderFactory.newHandler(TemplateStorage.class, null).registerToDefaultRegistry();
+    this.rpcFactory.newHandler(Database.class, null).registerToDefaultRegistry();
+    this.rpcFactory.newHandler(CloudNetDriver.class, this).registerToDefaultRegistry();
+    this.rpcFactory.newHandler(TemplateStorage.class, null).registerToDefaultRegistry();
 
     this.driverEnvironment = DriverEnvironment.CLOUDNET;
   }
@@ -409,7 +409,7 @@ public class CloudNet extends CloudNetDriver {
           this.databaseProvider.close();
         }
         this.databaseProvider = databaseProvider;
-        this.rpcProviderFactory.newHandler(DatabaseProvider.class, databaseProvider).registerToDefaultRegistry();
+        this.rpcFactory.newHandler(DatabaseProvider.class, databaseProvider).registerToDefaultRegistry();
       } catch (Exception exception) {
         LOGGER.severe("Unable to update current database provider", exception);
       }
@@ -445,7 +445,7 @@ public class CloudNet extends CloudNetDriver {
     super.permissionManagement(management);
     // re-register the handler for the permission management - the call to super.setPermissionManagement will not exit
     // if the permission management is invalid
-    this.rpcProviderFactory.newHandler(PermissionManagement.class, management).registerToDefaultRegistry();
+    this.rpcFactory.newHandler(PermissionManagement.class, management).registerToDefaultRegistry();
   }
 
   public @NonNull Configuration config() {

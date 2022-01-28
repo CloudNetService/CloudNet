@@ -21,7 +21,7 @@ import eu.cloudnetservice.cloudnet.common.registry.ServicesRegistry;
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
 import eu.cloudnetservice.cloudnet.driver.event.EventManager;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCProviderFactory;
+import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
@@ -45,7 +45,7 @@ public class NodeBridgeManagement implements BridgeManagement {
     @NonNull BridgeConfiguration configuration,
     @NonNull EventManager eventManager,
     @NonNull DataSyncRegistry registry,
-    @NonNull RPCProviderFactory providerFactory
+    @NonNull RPCFactory providerFactory
   ) {
     this.eventManager = eventManager;
     this.bridgeModule = bridgeModule;

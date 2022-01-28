@@ -17,7 +17,7 @@
 package eu.cloudnetservice.cloudnet.driver.event;
 
 import eu.cloudnetservice.cloudnet.driver.DriverEnvironment;
-import eu.cloudnetservice.cloudnet.driver.DriverTestUtility;
+import eu.cloudnetservice.cloudnet.driver.DriverTestUtil;
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
 import eu.cloudnetservice.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import eu.cloudnetservice.cloudnet.driver.event.events.service.CloudServiceLifecycleChangeEvent;
@@ -37,7 +37,7 @@ public class DefaultEventManagerTest {
 
   @BeforeAll
   public static void initDriver() {
-    var driver = DriverTestUtility.mockAndSetDriverInstance();
+    var driver = DriverTestUtil.mockAndSetDriverInstance();
     Mockito.when(driver.componentName()).thenReturn("Node-1");
     Mockito.when(driver.environment()).thenReturn(DriverEnvironment.CLOUDNET);
   }

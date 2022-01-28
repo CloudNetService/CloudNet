@@ -16,6 +16,8 @@
 
 package eu.cloudnetservice.cloudnet.wrapper.permission;
 
+import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
+import eu.cloudnetservice.cloudnet.driver.event.EventManager;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.cloudnet.driver.permission.DefaultCachedPermissionManagement;
 import eu.cloudnetservice.cloudnet.driver.permission.Permissible;
@@ -27,27 +29,24 @@ import eu.cloudnetservice.cloudnet.driver.permission.PermissionUser;
 import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.cloudnet.wrapper.network.listener.message.PermissionChannelMessageListener;
 import java.util.Collection;
-import java.util.List;
 import java.util.UUID;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public class WrapperPermissionManagement extends DefaultCachedPermissionManagement implements PermissionManagement {
+public abstract class WrapperPermissionManagement extends DefaultCachedPermissionManagement {
 
-  private final Wrapper wrapper;
   private final RPCSender rpcSender;
+  private final EventManager eventManager;
 
   private final PermissionCacheListener cacheListener;
   private final PermissionChannelMessageListener channelMessageListener;
 
-  public WrapperPermissionManagement(@NonNull Wrapper wrapper) {
-    this.wrapper = wrapper;
-    this.rpcSender = wrapper.rpcProviderFactory().providerForClass(
-      wrapper.networkClient(),
-      PermissionManagement.class);
+  public WrapperPermissionManagement(@NonNull RPCSender sender) {
+    this.rpcSender = sender;
+    this.eventManager = CloudNetDriver.instance().eventManager();
 
     this.cacheListener = new PermissionCacheListener(this);
-    this.channelMessageListener = new PermissionChannelMessageListener(wrapper.eventManager(), this);
+    this.channelMessageListener = new PermissionChannelMessageListener(this.eventManager, this);
   }
 
   @Override
@@ -59,12 +58,12 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
       }
     }
 
-    this.wrapper.eventManager().registerListeners(this.cacheListener, this.channelMessageListener);
+    this.eventManager.registerListeners(this.cacheListener, this.channelMessageListener);
   }
 
   @Override
   public void close() {
-    this.wrapper.eventManager().unregisterListener(this.cacheListener, this.channelMessageListener);
+    this.eventManager.unregisterListener(this.cacheListener, this.channelMessageListener);
   }
 
   @Override
@@ -88,11 +87,6 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
   @Override
   public @NonNull Collection<PermissionGroup> groups() {
     return this.permissionGroupCache.asMap().values();
-  }
-
-  @Override
-  public void groups(@Nullable Collection<? extends PermissionGroup> groups) {
-    this.rpcSender.invokeMethod("groups", groups).fireSync();
   }
 
   @Override
@@ -125,28 +119,8 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
   ) {
     return this.groupsPermissionResult(
       permissible,
-      this.wrapper.currentServiceInfo().configuration().groups().toArray(new String[0]),
+      Wrapper.instance().currentServiceInfo().configuration().groups().toArray(new String[0]),
       permission);
-  }
-
-  @Override
-  public @NonNull PermissionUser addPermissionUser(@NonNull PermissionUser permissionUser) {
-    return this.rpcSender.invokeMethod("addPermissionUser", permissionUser).fireSync();
-  }
-
-  @Override
-  public void updateUser(@NonNull PermissionUser permissionUser) {
-    this.rpcSender.invokeMethod("updateUser", permissionUser).fireSync();
-  }
-
-  @Override
-  public boolean deleteUser(@NonNull String name) {
-    return this.rpcSender.invokeMethod("deleteUser", name).fireSync();
-  }
-
-  @Override
-  public boolean deletePermissionUser(@NonNull PermissionUser permissionUser) {
-    return this.rpcSender.invokeMethod("deletePermissionUser", permissionUser).fireSync();
   }
 
   @Override
@@ -197,41 +171,6 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
   }
 
   @Override
-  public @NonNull List<PermissionUser> usersByName(@NonNull String name) {
-    return this.rpcSender.invokeMethod("usersByName", name).fireSync();
-  }
-
-  @Override
-  public @NonNull Collection<PermissionUser> users() {
-    return this.rpcSender.invokeMethod("users").fireSync();
-  }
-
-  @Override
-  public @NonNull Collection<PermissionUser> usersByGroup(@NonNull String group) {
-    return this.rpcSender.invokeMethod("usersByGroup", group).fireSync();
-  }
-
-  @Override
-  public @NonNull PermissionGroup addPermissionGroup(@NonNull PermissionGroup permissionGroup) {
-    return this.rpcSender.invokeMethod("addPermissionGroup", permissionGroup).fireSync();
-  }
-
-  @Override
-  public void updateGroup(@NonNull PermissionGroup permissionGroup) {
-    this.rpcSender.invokeMethod("updateGroup", permissionGroup).fireSync();
-  }
-
-  @Override
-  public boolean deleteGroup(@NonNull String name) {
-    return this.rpcSender.invokeMethod("deleteGroup", name).fireSync();
-  }
-
-  @Override
-  public boolean deletePermissionGroup(@NonNull PermissionGroup permissionGroup) {
-    return this.rpcSender.invokeMethod("deletePermissionGroup", permissionGroup).fireSync();
-  }
-
-  @Override
   public boolean containsGroup(@NonNull String group) {
     return this.permissionGroupCache.getIfPresent(group) != null;
   }
@@ -260,11 +199,6 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
     }
 
     return this.rpcSender.invokeMethod("firstUser", name).fireSync();
-  }
-
-  @Override
-  public @NonNull Collection<String> sendCommandLine(@NonNull PermissionUser user, @NonNull String commandLine) {
-    return this.rpcSender.invokeMethod("sendCommandLine", user, commandLine).fireSync();
   }
 
   protected @NonNull Collection<PermissionGroup> loadGroups() {

@@ -23,7 +23,7 @@ import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.driver.event.EventManager;
 import eu.cloudnetservice.cloudnet.driver.module.DefaultModule;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleWrapper;
-import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCProviderFactory;
+import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCFactory;
 import java.nio.file.Path;
 import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
@@ -104,12 +104,12 @@ public class DriverModule extends DefaultModule {
   }
 
   /**
-   * Gets the {@link RPCProviderFactory} of the driver.
+   * Gets the {@link RPCFactory} of the driver.
    *
    * @return the RPCProviderFactory.
    * @see CloudNetDriver#rpcProviderFactory()
    */
-  public final @NonNull RPCProviderFactory rpcFactory() {
+  public final @NonNull RPCFactory rpcFactory() {
     return this.driver().rpcProviderFactory();
   }
 

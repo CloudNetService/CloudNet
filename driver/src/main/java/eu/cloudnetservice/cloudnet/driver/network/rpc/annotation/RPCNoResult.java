@@ -23,17 +23,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * An annotation which can be added to a field to mark it as ignored when a data class serializer is generated. The
- * constructor of the class is required to not hold the annotated field as well.
- * <p>
- * When a method in an api class is annotated with this annotation, the processor will not implement the method in the
- * resulting api implementation.
+ * Marks a method in an api class which returns void but should not wait to the result signal of the remote rpc to
+ * become available.
  *
  * @since 4.0
  */
 @Documented
+@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD, ElementType.FIELD})
-public @interface RPCIgnore {
+public @interface RPCNoResult {
 
 }

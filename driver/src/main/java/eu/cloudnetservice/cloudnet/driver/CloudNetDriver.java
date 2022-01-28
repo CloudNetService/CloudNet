@@ -29,9 +29,9 @@ import eu.cloudnetservice.cloudnet.driver.module.DefaultModuleProvider;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleProvider;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkClient;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBufFactory;
+import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCHandlerRegistry;
-import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCProviderFactory;
-import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.DefaultRPCProviderFactory;
+import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.DefaultRPCFactory;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.handler.DefaultRPCHandlerRegistry;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
@@ -66,7 +66,7 @@ public abstract class CloudNetDriver {
   protected final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
 
   protected final RPCHandlerRegistry rpcHandlerRegistry = new DefaultRPCHandlerRegistry();
-  protected final RPCProviderFactory rpcProviderFactory = new DefaultRPCProviderFactory(
+  protected final RPCFactory rpcFactory = new DefaultRPCFactory(
     DefaultObjectMapper.DEFAULT_MAPPER,
     DataBufFactory.defaultFactory());
 
@@ -256,8 +256,8 @@ public abstract class CloudNetDriver {
     return this.scheduler;
   }
 
-  public @NonNull RPCProviderFactory rpcProviderFactory() {
-    return this.rpcProviderFactory;
+  public @NonNull RPCFactory rpcProviderFactory() {
+    return this.rpcFactory;
   }
 
   public @NonNull RPCHandlerRegistry rpcHandlerRegistry() {

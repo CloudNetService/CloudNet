@@ -20,7 +20,6 @@ import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.driver.database.Database;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPC;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCSender;
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -33,10 +32,10 @@ public class WrapperDatabase implements Database {
   private final RPC baseRPC;
   private final RPCSender sender;
 
-  public WrapperDatabase(@NonNull String name, @NonNull Wrapper wrapper, @NonNull RPC baseRPC) {
+  public WrapperDatabase(@NonNull String name, @NonNull RPC baseRPC) {
     this.name = name;
     this.baseRPC = baseRPC;
-    this.sender = wrapper.rpcProviderFactory().providerForClass(wrapper.networkClient(), Database.class);
+    this.sender = baseRPC.sender().factory().providerForClass(null, Database.class);
   }
 
   @Override

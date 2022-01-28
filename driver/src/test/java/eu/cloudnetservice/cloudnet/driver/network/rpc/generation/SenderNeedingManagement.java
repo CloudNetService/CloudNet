@@ -14,24 +14,19 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.driver;
+package eu.cloudnetservice.cloudnet.driver.network.rpc.generation;
 
-import org.mockito.Mockito;
+import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCSender;
 
-/**
- * A utility class for testing code that is driver method dependant.
- */
-public final class DriverTestUtility {
+public abstract class SenderNeedingManagement extends BasePermissionManagement {
 
-  /**
-   * Mocks the {@link CloudNetDriver} class and sets the instance of the CloudNet driver to the mocked one.
-   *
-   * @return the mocked driver instance.
-   */
-  public static CloudNetDriver mockAndSetDriverInstance() {
-    var driver = Mockito.mock(CloudNetDriver.class);
-    CloudNetDriver.instance(driver);
+  public final RPCSender sender;
 
-    return driver;
+  public SenderNeedingManagement() {
+    this(null);
+  }
+
+  public SenderNeedingManagement(RPCSender sender) {
+    this.sender = sender;
   }
 }

@@ -18,11 +18,13 @@ package eu.cloudnetservice.cloudnet.driver.network.rpc.defaults;
 
 import eu.cloudnetservice.cloudnet.driver.network.NetworkComponent;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBufFactory;
+import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCHandler;
-import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCProviderFactory;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCSender;
+import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.generation.ApiImplementationGenerator;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.handler.DefaultRPCHandler;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.sender.DefaultRPCSender;
+import eu.cloudnetservice.cloudnet.driver.network.rpc.generation.GenerationContext;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.object.ObjectMapper;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
-public class DefaultRPCProviderFactory implements RPCProviderFactory {
+public class DefaultRPCFactory implements RPCFactory {
 
   protected final ObjectMapper defaultObjectMapper;
   protected final DataBufFactory defaultDataBufFactory;
@@ -44,7 +46,7 @@ public class DefaultRPCProviderFactory implements RPCProviderFactory {
    * @param defaultDataBufFactory the default data buf factory to use if no object mapper is provided in factory calls.
    * @throws NullPointerException if either the given object mapper or data buf factory is null.
    */
-  public DefaultRPCProviderFactory(
+  public DefaultRPCFactory(
     @NonNull ObjectMapper defaultObjectMapper,
     @NonNull DataBufFactory defaultDataBufFactory
   ) {
@@ -87,6 +89,46 @@ public class DefaultRPCProviderFactory implements RPCProviderFactory {
     @NonNull DataBufFactory dataBufFactory
   ) {
     return new DefaultRPCSender(this, component, clazz, objectMapper, dataBufFactory);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public <T> @NonNull T generateRPCBasedApi(@NonNull Class<T> baseClass, @Nullable NetworkComponent component) {
+    return this.generateRPCBasedApi(baseClass, GenerationContext.forClass(baseClass).build(), component);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public <T> @NonNull T generateRPCBasedApi(
+    @NonNull Class<T> baseClass,
+    @NonNull GenerationContext context,
+    @Nullable NetworkComponent component
+  ) {
+    return this.generateRPCBasedApi(
+      baseClass,
+      context,
+      component,
+      this.defaultObjectMapper,
+      this.defaultDataBufFactory);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public <T> @NonNull T generateRPCBasedApi(
+    @NonNull Class<T> baseClass,
+    @NonNull GenerationContext context,
+    @Nullable NetworkComponent component,
+    @NonNull ObjectMapper objectMapper,
+    @NonNull DataBufFactory dataBufFactory
+  ) {
+    var sender = this.providerForClass(component, baseClass, objectMapper, dataBufFactory);
+    return ApiImplementationGenerator.generateApiImplementation(baseClass, context, sender);
   }
 
   /**
