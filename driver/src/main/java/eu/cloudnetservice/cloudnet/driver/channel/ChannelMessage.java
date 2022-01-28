@@ -93,6 +93,7 @@ public record ChannelMessage(
    *
    * @param input the channel message to respond to.
    * @return a new builder for a channel message holding all base information to respond to the given source message.
+   * @throws NullPointerException if the given input is null.
    */
   @Contract("_ -> new")
   public static @NonNull Builder buildResponseFor(@NonNull ChannelMessage input) {
@@ -200,6 +201,7 @@ public record ChannelMessage(
      *
      * @param sender the sender of this message.
      * @return the same builder as used to call the method, for chaining.
+     * @throws NullPointerException if the given sender is null.
      * @see ChannelMessageSender#self()
      */
     public @NonNull Builder sender(@NonNull ChannelMessageSender sender) {
@@ -212,6 +214,7 @@ public record ChannelMessage(
      *
      * @param channel the channel.
      * @return the same builder as used to call the method, for chaining.
+     * @throws NullPointerException if the given channel is null.
      */
     public @NonNull Builder channel(@NonNull String channel) {
       this.channel = channel;
@@ -223,6 +226,7 @@ public record ChannelMessage(
      *
      * @param message the message key.
      * @return the same builder as used to call the method, for chaining.
+     * @throws NullPointerException if the given message is null.
      */
     public @NonNull Builder message(@NonNull String message) {
       this.message = message;
@@ -261,6 +265,7 @@ public record ChannelMessage(
      *
      * @param target the target to add.
      * @return the same builder as used to call the method, for chaining.
+     * @throws NullPointerException if the given target is null.
      */
     public @NonNull Builder target(@NonNull ChannelMessageTarget target) {
       this.targets.add(target);
@@ -274,6 +279,7 @@ public record ChannelMessage(
      * @param name the name of the receiver.
      * @return the same builder as used to call the method, for chaining.
      * @throws IllegalArgumentException if type is {@link Type#ENVIRONMENT}
+     * @throws NullPointerException     if the given target type is null.
      * @see ChannelMessageTarget#of(Type, String)
      */
     public @NonNull Builder target(@NonNull ChannelMessageTarget.Type type, @Nullable String name) {
@@ -287,6 +293,7 @@ public record ChannelMessage(
      * @param name        the name of the target, might be null to target all components with the given environment.
      * @return the same builder as used to call the method, for chaining.
      * @throws IllegalArgumentException if type is {@link Type#ENVIRONMENT}
+     * @throws NullPointerException     if the given environment is null.
      * @see ChannelMessageTarget#of(Type, String)
      */
     public @NonNull Builder target(@NonNull DriverEnvironment environment, @Nullable String name) {
@@ -301,6 +308,7 @@ public record ChannelMessage(
      * @param type the type of the receivers to target.
      * @return the same builder as used to call the method, for chaining.
      * @throws IllegalArgumentException if type is {@link Type#ENVIRONMENT}
+     * @throws NullPointerException     if the given target type is null.
      * @see ChannelMessageTarget#of(Type, String)
      */
     public @NonNull Builder targetAll(@NonNull ChannelMessageTarget.Type type) {
@@ -373,6 +381,7 @@ public record ChannelMessage(
      *
      * @param environment the environment to target.
      * @return the same builder as used to call the method, for chaining.
+     * @throws NullPointerException if the given environment is null.
      */
     public @NonNull Builder targetEnvironment(@NonNull ServiceEnvironmentType environment) {
       return this.target(ChannelMessageTarget.environment(environment));

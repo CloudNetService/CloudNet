@@ -32,8 +32,8 @@ import lombok.NonNull;
  * static sender representing the current network component or {@link  #of(String, DriverEnvironment)} if you want to
  * create a sender for another network component.
  *
- * @param name The name of the new sender.
- * @param type The type of the new sender.
+ * @param name the name of the new sender.
+ * @param type the type of the new sender.
  * @see ChannelMessage
  * @see ChannelMessageTarget
  * @since 4.0
@@ -48,9 +48,10 @@ public record ChannelMessageSender(@NonNull String name, @NonNull DriverEnvironm
    * Creates a new channel message sender with the given name and environment. If you want the sender representation of
    * the current network component consider using {@link #self()} instead.
    *
-   * @param name        The name of the new sender.
-   * @param environment The type of the new sender.
+   * @param name        the name of the new sender.
+   * @param environment the type of the new sender.
    * @return a new channel message sender with the given name and environment.
+   * @throws NullPointerException if the given name or environment is null.
    */
   public static @NonNull ChannelMessageSender of(@NonNull String name, @NonNull DriverEnvironment environment) {
     return new ChannelMessageSender(name, environment);
@@ -70,6 +71,7 @@ public record ChannelMessageSender(@NonNull String name, @NonNull DriverEnvironm
    *
    * @param serviceInfoSnapshot the service to check.
    * @return true if this sender represents the given service, false otherwise.
+   * @throws NullPointerException if the given snapshot is null.
    */
   public boolean is(@NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
     return this.type == DriverEnvironment.WRAPPER && this.name.equals(serviceInfoSnapshot.name());
@@ -80,6 +82,7 @@ public record ChannelMessageSender(@NonNull String name, @NonNull DriverEnvironm
    *
    * @param node the node to check.
    * @return true if this sender represents the given node, false otherwise.
+   * @throws NullPointerException if the given input is null.
    */
   public boolean is(@NonNull NetworkClusterNode node) {
     return this.type == DriverEnvironment.CLOUDNET && this.name.equals(node.uniqueId());

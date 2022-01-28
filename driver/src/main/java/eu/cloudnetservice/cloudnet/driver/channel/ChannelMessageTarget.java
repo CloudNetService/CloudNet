@@ -67,7 +67,7 @@ public class ChannelMessageTarget {
    *
    * @param type the type of the target.
    * @param name the optional name of the target.
-   * @throws NullPointerException if type is null.
+   * @throws NullPointerException if the given type is null.
    */
   protected ChannelMessageTarget(@NonNull Type type, @Nullable String name) {
     this.type = type;
@@ -79,7 +79,7 @@ public class ChannelMessageTarget {
    * Constructs a new ChannelMessageTarget targeting a specific service environment. No name will be set.
    *
    * @param environment the environment of the target.
-   * @throws NullPointerException if environment is null.
+   * @throws NullPointerException if the given environment is null.
    */
   protected ChannelMessageTarget(@NonNull ServiceEnvironmentType environment) {
     this.type = Type.ENVIRONMENT;
@@ -93,8 +93,13 @@ public class ChannelMessageTarget {
    * @param type        the type of the target.
    * @param name        the optional name of the target.
    * @param environment the environment of the target.
+   * @throws NullPointerException if either the given type or environment is null.
    */
-  protected ChannelMessageTarget(Type type, String name, ServiceEnvironmentType environment) {
+  protected ChannelMessageTarget(
+    @NonNull Type type,
+    @Nullable String name,
+    @NonNull ServiceEnvironmentType environment
+  ) {
     this.type = type;
     this.name = name;
     this.environment = environment;
@@ -105,7 +110,7 @@ public class ChannelMessageTarget {
    *
    * @param type the environment to target.
    * @return the created ChannelMessageTarget.
-   * @throws NullPointerException if type is null.
+   * @throws NullPointerException if the given type is null.
    */
   public static @NonNull ChannelMessageTarget environment(@NonNull ServiceEnvironmentType type) {
     return new ChannelMessageTarget(type);
@@ -117,7 +122,7 @@ public class ChannelMessageTarget {
    * @param type the type of the new channel message target.
    * @param name optional name of the component with the given type to target.
    * @return the created ChannelMessageTarget.
-   * @throws NullPointerException     if type is null.
+   * @throws NullPointerException     if given type is null.
    * @throws IllegalArgumentException if type is ENVIRONMENT. For that purpose use {@link #environment(ServiceEnvironmentType)}
    *                                  instead.
    */
