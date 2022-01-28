@@ -19,7 +19,7 @@ package eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.sender;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkComponent;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPC;
-import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCProviderFactory;
+import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.DefaultRPCProvider;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.MethodInformation;
@@ -40,7 +40,7 @@ public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
   protected static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
 
   protected final Class<?> targetClass;
-  protected final RPCProviderFactory factory;
+  protected final RPCFactory factory;
   protected final NetworkComponent networkComponent;
   protected final Map<String, MethodInformation> cachedMethodInformation;
 
@@ -55,7 +55,7 @@ public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
    * @throws NullPointerException if one of the required constructor parameters is null.
    */
   public DefaultRPCSender(
-    @NonNull RPCProviderFactory factory,
+    @NonNull RPCFactory factory,
     @Nullable NetworkComponent component,
     @NonNull Class<?> targetClass,
     @NonNull ObjectMapper objectMapper,
@@ -73,7 +73,7 @@ public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull RPCProviderFactory factory() {
+  public @NonNull RPCFactory factory() {
     return this.factory;
   }
 

@@ -19,7 +19,7 @@ package eu.cloudnetservice.modules.labymod.node;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCProviderFactory;
+import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.modules.labymod.LabyModManagement;
 import eu.cloudnetservice.modules.labymod.config.LabyModConfiguration;
 import lombok.NonNull;
@@ -32,11 +32,11 @@ public class NodeLabyModManagement implements LabyModManagement {
   public NodeLabyModManagement(
     @NonNull CloudNetLabyModModule labyModModule,
     @NonNull LabyModConfiguration configuration,
-    @NonNull RPCProviderFactory rpcProviderFactory
+    @NonNull RPCFactory rpcFactory
   ) {
     this.labyModModule = labyModModule;
     this.configuration = configuration;
-    rpcProviderFactory.newHandler(LabyModManagement.class, this).registerToDefaultRegistry();
+    rpcFactory.newHandler(LabyModManagement.class, this).registerToDefaultRegistry();
   }
 
   @Override

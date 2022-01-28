@@ -17,7 +17,7 @@
 package eu.cloudnetservice.cloudnet.driver.network.netty.communication;
 
 import eu.cloudnetservice.cloudnet.driver.DriverEnvironment;
-import eu.cloudnetservice.cloudnet.driver.DriverTestUtility;
+import eu.cloudnetservice.cloudnet.driver.DriverTestUtil;
 import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannelHandler;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkClient;
@@ -37,7 +37,7 @@ public class NettyNetworkServerClientTest extends NetworkTestCase {
   @BeforeAll
   static void setupDriver() {
     Mockito
-      .when(DriverTestUtility.mockAndSetDriverInstance().environment())
+      .when(DriverTestUtil.mockAndSetDriverInstance().environment())
       .thenReturn(DriverEnvironment.WRAPPER);
   }
 

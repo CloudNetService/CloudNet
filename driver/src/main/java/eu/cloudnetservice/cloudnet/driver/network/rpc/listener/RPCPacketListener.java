@@ -133,6 +133,17 @@ public class RPCPacketListener implements PacketListener {
     return null;
   }
 
+  /**
+   * Serializes the given handling result into a newly allocated buffer using the given data buf factory. This method
+   * returns null if the caller of this handler did not expect an invocation result.
+   *
+   * @param result         the result to serialize.
+   * @param dataBufFactory the factory to use for buffer allocation.
+   * @param objectMapper   the mapper to use for object serialization.
+   * @param context        the invocation context of the invocation the result is getting serialized of.
+   * @return the serialized invocation result or null if the calling method did not expect a result.
+   * @throws NullPointerException if one of the given parameters is null.
+   */
   protected @Nullable DataBuf serializeResult(
     @NonNull HandlingResult result,
     @NonNull DataBufFactory dataBufFactory,

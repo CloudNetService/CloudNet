@@ -17,9 +17,9 @@
 package eu.cloudnetservice.cloudnet.driver.network.rpc.registry;
 
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBufFactory;
+import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCHandlerRegistry;
-import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCProviderFactory;
-import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.DefaultRPCProviderFactory;
+import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.DefaultRPCFactory;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.handler.DefaultRPCHandlerRegistry;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.handler.DefaultRPCHandlerTest.TestApiClass;
@@ -68,7 +68,7 @@ public class DefaultRPCHandlerRegistryTest {
     Assertions.assertNull(registry.registeredHandlers().get(TestApiClass.class.getCanonicalName()));
   }
 
-  private RPCProviderFactory provideFactory() {
-    return new DefaultRPCProviderFactory(new DefaultObjectMapper(), DataBufFactory.defaultFactory());
+  private RPCFactory provideFactory() {
+    return new DefaultRPCFactory(new DefaultObjectMapper(), DataBufFactory.defaultFactory());
   }
 }

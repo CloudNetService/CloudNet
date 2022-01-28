@@ -117,7 +117,7 @@ public class Wrapper extends CloudNetDriver {
     this.cloudNetVersion = CloudNetVersion.fromClassInformation(Wrapper.class.getPackage());
 
     super.networkClient = new NettyNetworkClient(NetworkClientChannelHandler::new, this.config.sslConfiguration());
-    this.rpcSender = this.rpcProviderFactory.providerForClass(this.networkClient, CloudNetDriver.class);
+    this.rpcSender = this.rpcFactory.providerForClass(this.networkClient, CloudNetDriver.class);
 
     super.databaseProvider = new DefaultWrapperDatabaseProvider(this);
 
@@ -130,7 +130,7 @@ public class Wrapper extends CloudNetDriver {
     super.cloudServiceFactory = new RemoteCloudServiceFactory(
       this.networkClient::firstChannel,
       this.networkClient,
-      this.rpcProviderFactory);
+      this.rpcFactory);
 
     super.moduleProvider.moduleProviderHandler(new DefaultModuleProviderHandler());
     super.moduleProvider.moduleDirectoryPath(Path.of(".wrapper", "modules"));

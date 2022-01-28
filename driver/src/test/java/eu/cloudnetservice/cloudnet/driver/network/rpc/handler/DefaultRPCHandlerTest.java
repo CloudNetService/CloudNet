@@ -25,9 +25,9 @@ import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.PacketListener;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.QueryPacketManager;
+import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCHandlerRegistry;
-import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCProviderFactory;
-import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.DefaultRPCProviderFactory;
+import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.DefaultRPCFactory;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.handler.DefaultRPCHandlerRegistry;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.exception.RPCExecutionException;
@@ -55,7 +55,7 @@ public class DefaultRPCHandlerTest {
     // handler init
     PacketListener listener = new RPCPacketListener(registry);
     // factory init
-    RPCProviderFactory factory = new DefaultRPCProviderFactory(
+    RPCFactory factory = new DefaultRPCFactory(
       new DefaultObjectMapper(),
       DataBufFactory.defaultFactory());
     // handler initialize

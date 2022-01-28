@@ -18,16 +18,17 @@ package eu.cloudnetservice.cloudnet.driver.network.rpc;
 
 import eu.cloudnetservice.cloudnet.driver.network.NetworkComponent;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBufFactory;
+import eu.cloudnetservice.cloudnet.driver.network.rpc.generation.GenerationContext;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.object.ObjectMapper;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * A factory which can provide any type of rpc provider.
+ * A factory which can provide anything which is related to rpc.
  *
  * @since 4.0
  */
-public interface RPCProviderFactory {
+public interface RPCFactory {
 
   /**
    * Get the default object mapper used by this factory if no other mapper is supplied to a factory method.
@@ -67,6 +68,22 @@ public interface RPCProviderFactory {
   @NonNull RPCSender providerForClass(
     @Nullable NetworkComponent component,
     @NonNull Class<?> clazz,
+    @NonNull ObjectMapper objectMapper,
+    @NonNull DataBufFactory dataBufFactory);
+
+  @NonNull <T> T generateRPCBasedApi(
+    @NonNull Class<T> baseClass,
+    @Nullable NetworkComponent component);
+
+  @NonNull <T> T generateRPCBasedApi(
+    @NonNull Class<T> baseClass,
+    @NonNull GenerationContext context,
+    @Nullable NetworkComponent component);
+
+  @NonNull <T> T generateRPCBasedApi(
+    @NonNull Class<T> baseClass,
+    @NonNull GenerationContext context,
+    @Nullable NetworkComponent component,
     @NonNull ObjectMapper objectMapper,
     @NonNull DataBufFactory dataBufFactory);
 

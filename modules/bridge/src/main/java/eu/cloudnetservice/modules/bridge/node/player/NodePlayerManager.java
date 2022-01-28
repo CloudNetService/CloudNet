@@ -24,7 +24,7 @@ import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
 import eu.cloudnetservice.cloudnet.driver.event.EventManager;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCProviderFactory;
+import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncHandler;
@@ -87,7 +87,7 @@ public class NodePlayerManager implements PlayerManager {
     @NonNull String databaseName,
     @NonNull EventManager eventManager,
     @NonNull DataSyncRegistry dataSyncRegistry,
-    @NonNull RPCProviderFactory providerFactory,
+    @NonNull RPCFactory providerFactory,
     @NonNull BridgeManagement bridgeManagement
   ) {
     this.databaseName = databaseName;

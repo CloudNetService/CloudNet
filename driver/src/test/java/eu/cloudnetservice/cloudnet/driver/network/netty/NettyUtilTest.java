@@ -17,7 +17,7 @@
 package eu.cloudnetservice.cloudnet.driver.network.netty;
 
 import eu.cloudnetservice.cloudnet.driver.DriverEnvironment;
-import eu.cloudnetservice.cloudnet.driver.DriverTestUtility;
+import eu.cloudnetservice.cloudnet.driver.DriverTestUtil;
 import io.netty.buffer.Unpooled;
 import java.util.concurrent.ThreadLocalRandom;
 import org.junit.jupiter.api.Assertions;
@@ -30,7 +30,7 @@ public class NettyUtilTest {
   @Test
   void testWrapperThreadAmount() {
     Mockito
-      .when(DriverTestUtility.mockAndSetDriverInstance().environment())
+      .when(DriverTestUtil.mockAndSetDriverInstance().environment())
       .thenReturn(DriverEnvironment.WRAPPER);
 
     Assertions.assertEquals(4, NettyUtil.threadAmount());
@@ -39,7 +39,7 @@ public class NettyUtilTest {
   @Test
   void testNodeThreadAmount() {
     Mockito
-      .when(DriverTestUtility.mockAndSetDriverInstance().environment())
+      .when(DriverTestUtil.mockAndSetDriverInstance().environment())
       .thenReturn(DriverEnvironment.CLOUDNET);
 
     Assertions.assertTrue(NettyUtil.threadAmount() >= 8);
