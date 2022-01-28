@@ -24,6 +24,7 @@ import io.netty.util.ByteProcessor;
 import java.util.List;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.VisibleForTesting;
 
 /**
  * An adapted version of the MinecraftVarintFrameDecoder in the PaperMC/Velocity project. This processor works the same
@@ -110,7 +111,8 @@ public final class NettyPacketLengthDeserializer extends ByteToMessageDecoder {
    *
    * @since 4.0
    */
-  private enum ProcessingResult {
+  @VisibleForTesting
+  enum ProcessingResult {
 
     /**
      * The var int was processed successfully.
@@ -136,11 +138,12 @@ public final class NettyPacketLengthDeserializer extends ByteToMessageDecoder {
    *
    * @since 4.0
    */
-  private static final class VarIntByteProcessor implements ByteProcessor {
+  @VisibleForTesting
+  static final class VarIntByteProcessor implements ByteProcessor {
 
-    private int varInt;
-    private int bytesRead;
-    private ProcessingResult result;
+    int varInt;
+    int bytesRead;
+    ProcessingResult result;
 
     /**
      * Constructs a new var int processor instance, setting the initial result to TOO_SHORT.
