@@ -19,39 +19,18 @@ package eu.cloudnetservice.cloudnet.wrapper.database;
 import eu.cloudnetservice.cloudnet.driver.database.Database;
 import eu.cloudnetservice.cloudnet.driver.database.DatabaseProvider;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCSender;
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
-import java.util.Collection;
 import lombok.NonNull;
 
-public class DefaultWrapperDatabaseProvider implements DatabaseProvider {
+public abstract class DefaultWrapperDatabaseProvider implements DatabaseProvider {
 
-  private final Wrapper wrapper;
   private final RPCSender rpcSender;
 
-  public DefaultWrapperDatabaseProvider(@NonNull Wrapper wrapper) {
-    this.wrapper = wrapper;
-    this.rpcSender = wrapper.rpcProviderFactory().providerForClass(
-      wrapper.networkClient(),
-      DatabaseProvider.class);
+  public DefaultWrapperDatabaseProvider(@NonNull RPCSender sender) {
+    this.rpcSender = sender;
   }
 
   @Override
   public @NonNull Database database(@NonNull String name) {
-    return new WrapperDatabase(name, this.wrapper, this.rpcSender.invokeMethod("database", name));
-  }
-
-  @Override
-  public boolean containsDatabase(@NonNull String name) {
-    return this.rpcSender.invokeMethod("containsDatabase", name).fireSync();
-  }
-
-  @Override
-  public boolean deleteDatabase(@NonNull String name) {
-    return this.rpcSender.invokeMethod("deleteDatabase", name).fireSync();
-  }
-
-  @Override
-  public @NonNull Collection<String> databaseNames() {
-    return this.rpcSender.invokeMethod("databaseNames").fireSync();
+    return new WrapperDatabase(name, this.rpcSender.invokeMethod("database", name));
   }
 }

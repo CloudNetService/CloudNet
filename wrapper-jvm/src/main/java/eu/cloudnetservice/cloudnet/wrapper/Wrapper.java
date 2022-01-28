@@ -22,6 +22,7 @@ import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.driver.CloudNetVersion;
 import eu.cloudnetservice.cloudnet.driver.DriverEnvironment;
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
+import eu.cloudnetservice.cloudnet.driver.database.DatabaseProvider;
 import eu.cloudnetservice.cloudnet.driver.module.DefaultModuleProviderHandler;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.chunk.defaults.factory.EventChunkHandlerFactory;
@@ -29,6 +30,12 @@ import eu.cloudnetservice.cloudnet.driver.network.chunk.network.ChunkedPacketLis
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.network.netty.client.NettyNetworkClient;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCSender;
+import eu.cloudnetservice.cloudnet.driver.network.rpc.generation.GenerationContext;
+import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
+import eu.cloudnetservice.cloudnet.driver.provider.GroupConfigurationProvider;
+import eu.cloudnetservice.cloudnet.driver.provider.NodeInfoProvider;
+import eu.cloudnetservice.cloudnet.driver.provider.ServiceTaskProvider;
+import eu.cloudnetservice.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import eu.cloudnetservice.cloudnet.driver.provider.service.RemoteCloudServiceFactory;
 import eu.cloudnetservice.cloudnet.driver.service.ProcessSnapshot;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceConfiguration;
@@ -48,12 +55,12 @@ import eu.cloudnetservice.cloudnet.wrapper.network.NetworkClientChannelHandler;
 import eu.cloudnetservice.cloudnet.wrapper.network.chunk.TemplateStorageCallbackListener;
 import eu.cloudnetservice.cloudnet.wrapper.network.listener.PacketAuthorizationResponseListener;
 import eu.cloudnetservice.cloudnet.wrapper.network.listener.PacketServerChannelMessageListener;
+import eu.cloudnetservice.cloudnet.wrapper.network.listener.message.GroupChannelMessageListener;
+import eu.cloudnetservice.cloudnet.wrapper.network.listener.message.ServiceChannelMessageListener;
+import eu.cloudnetservice.cloudnet.wrapper.network.listener.message.TaskChannelMessageListener;
 import eu.cloudnetservice.cloudnet.wrapper.permission.WrapperPermissionManagement;
 import eu.cloudnetservice.cloudnet.wrapper.provider.WrapperGeneralCloudServiceProvider;
-import eu.cloudnetservice.cloudnet.wrapper.provider.WrapperGroupConfigurationProvider;
 import eu.cloudnetservice.cloudnet.wrapper.provider.WrapperMessenger;
-import eu.cloudnetservice.cloudnet.wrapper.provider.WrapperNodeInfoProvider;
-import eu.cloudnetservice.cloudnet.wrapper.provider.WrapperServiceTaskProvider;
 import eu.cloudnetservice.cloudnet.wrapper.transform.TransformerRegistry;
 import eu.cloudnetservice.cloudnet.wrapper.transform.bukkit.BukkitCommodoreTransformer;
 import eu.cloudnetservice.cloudnet.wrapper.transform.bukkit.BukkitJavaVersionCheckTransformer;
@@ -119,13 +126,29 @@ public class Wrapper extends CloudNetDriver {
     super.networkClient = new NettyNetworkClient(NetworkClientChannelHandler::new, this.config.sslConfiguration());
     this.rpcSender = this.rpcFactory.providerForClass(this.networkClient, CloudNetDriver.class);
 
-    super.databaseProvider = new DefaultWrapperDatabaseProvider(this);
-
     super.messenger = new WrapperMessenger(this);
-    super.nodeInfoProvider = new WrapperNodeInfoProvider(this);
-    super.serviceTaskProvider = new WrapperServiceTaskProvider(this);
-    super.groupConfigurationProvider = new WrapperGroupConfigurationProvider(this);
-    super.generalCloudServiceProvider = new WrapperGeneralCloudServiceProvider(this);
+
+    // auto generated providers
+    super.nodeInfoProvider = this.rpcFactory.generateRPCBasedApi(NodeInfoProvider.class, this.networkClient);
+    super.serviceTaskProvider = this.rpcFactory.generateRPCBasedApi(ServiceTaskProvider.class, this.networkClient);
+    super.groupConfigurationProvider = this.rpcFactory.generateRPCBasedApi(
+      GroupConfigurationProvider.class,
+      this.networkClient);
+
+    // these cannot be auto generated directly as we need to depend on some overridden methods for the wrapper
+    super.databaseProvider = this.rpcFactory.generateRPCBasedApi(
+      DatabaseProvider.class,
+      GenerationContext.forClass(DefaultWrapperDatabaseProvider.class).build(),
+      this.networkClient);
+    super.generalCloudServiceProvider = this.rpcFactory.generateRPCBasedApi(
+      GeneralCloudServiceProvider.class,
+      GenerationContext.forClass(WrapperGeneralCloudServiceProvider.class).build(),
+      this.networkClient);
+
+    // channel message listeners for downstream event calls
+    this.eventManager.registerListener(new TaskChannelMessageListener(this.eventManager));
+    this.eventManager.registerListener(new GroupChannelMessageListener(this.eventManager));
+    this.eventManager.registerListener(new ServiceChannelMessageListener(this.eventManager));
 
     super.cloudServiceFactory = new RemoteCloudServiceFactory(
       this.networkClient::firstChannel,
@@ -135,7 +158,12 @@ public class Wrapper extends CloudNetDriver {
     super.moduleProvider.moduleProviderHandler(new DefaultModuleProviderHandler());
     super.moduleProvider.moduleDirectoryPath(Path.of(".wrapper", "modules"));
 
-    super.permissionManagement(new WrapperPermissionManagement(this));
+    var management = this.rpcFactory.generateRPCBasedApi(
+      PermissionManagement.class,
+      GenerationContext.forClass(WrapperPermissionManagement.class).build(),
+      this.networkClient);
+    super.permissionManagement(management);
+
     super.driverEnvironment = DriverEnvironment.WRAPPER;
   }
 
