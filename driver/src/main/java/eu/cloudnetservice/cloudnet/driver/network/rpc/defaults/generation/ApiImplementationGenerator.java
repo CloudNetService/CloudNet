@@ -52,6 +52,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.ClassWriter;
@@ -84,6 +85,16 @@ public final class ApiImplementationGenerator {
   private static final String EXECUTABLE_FIRE_SYNC = Type.getMethodDescriptor(Type.getType(Object.class));
   // information regarding the generated class
   private static final String GENERATED_CLASS_NAME_FORMAT = "%s$Impl_%s";
+  // the main checker function if a method should be overridden or not, only applying the base checks
+  // this checks if the applied method is public, not static, not a bridge, not final and isn't annotated with @RPCIgnore
+  private static final Predicate<Method> SHOULD_GENERATE_IMPL = method -> {
+    var mod = method.getModifiers();
+    return Modifier.isPublic(mod)
+      && !Modifier.isStatic(mod)
+      && !Modifier.isFinal(mod)
+      && !method.isBridge()
+      && !method.isAnnotationPresent(RPCIgnore.class);
+  };
 
   private ApiImplementationGenerator() {
     throw new UnsupportedOperationException();
@@ -306,8 +317,7 @@ public final class ApiImplementationGenerator {
     do {
       // we only need public visible methods
       for (var method : curr.getDeclaredMethods()) {
-        var mod = method.getModifiers();
-        if (Modifier.isPublic(mod) && !Modifier.isStatic(mod) && !method.isAnnotationPresent(RPCIgnore.class)) {
+        if (SHOULD_GENERATE_IMPL.test(method)) {
           handler.accept(method);
         }
       }
@@ -327,8 +337,7 @@ public final class ApiImplementationGenerator {
     for (var inter : start.getInterfaces()) {
       // we only need public visible methods
       for (var method : inter.getDeclaredMethods()) {
-        var mod = method.getModifiers();
-        if (Modifier.isPublic(mod) && !Modifier.isStatic(mod) && !method.isAnnotationPresent(RPCIgnore.class)) {
+        if (SHOULD_GENERATE_IMPL.test(method)) {
           handler.accept(method);
         }
       }
