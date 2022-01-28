@@ -4,7 +4,7 @@ author: CloudNetService
 website: https://cloudnetservice.eu
 description: Bukkit extension for the CloudNet runtime which adds sign connector support
 
-main: eu.cloudnetservice.cloudnet.ext.signs.platform.bukkit.BukkitSignsPlugin
+main: eu.cloudnetservice.modules.signs.platform.bukkit.BukkitSignsPlugin
 
 depend: [ CloudNet-Bridge ]
 

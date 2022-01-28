@@ -5,7 +5,7 @@ author: CloudNetService
 website: https://cloudnetservice.eu
 description: Nukkit extension for the CloudNet runtime which adds sign connector support
 
-main: eu.cloudnetservice.cloudnet.ext.signs.platform.nukkit.NukkitSignsPlugin
+main: eu.cloudnetservice.modules.signs.platform.nukkit.NukkitSignsPlugin
 
 depend: [ CloudNet-Bridge ]
 
