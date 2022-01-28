@@ -331,12 +331,9 @@ public class CloudNet extends CloudNetDriver {
         this.scheduler.shutdownNow();
         this.serviceVersionProvider.interruptInstallSteps();
 
-        // close all providers
-        LOGGER.info(I18n.trans("stop-providers"));
+        // interrupt the connection to other nodes
+        LOGGER.info(I18n.trans("stop-node-connections"));
         this.nodeServerProvider.close();
-        this.permissionManagement.close();
-        this.databaseProvider.close();
-        this.moduleProvider.unloadAll();
 
         // close all services
         LOGGER.info(I18n.trans("stop-services"));
@@ -347,6 +344,15 @@ public class CloudNet extends CloudNetDriver {
         this.httpServer.close();
         this.networkClient.close();
         this.networkServer.close();
+
+        // close all the other providers
+        LOGGER.info(I18n.trans("stop-providers"));
+        this.permissionManagement.close();
+        this.databaseProvider.close();
+
+        // stop & unload all modules
+        this.moduleProvider.stopAll();
+        this.moduleProvider.unloadAll();
 
         // remove temp directory
         LOGGER.info(I18n.trans("stop-delete-temp"));

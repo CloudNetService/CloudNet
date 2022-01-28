@@ -92,13 +92,13 @@ public class ChannelMessageTarget {
    *
    * @param type        the type of the target.
    * @param name        the optional name of the target.
-   * @param environment the environment of the target.
-   * @throws NullPointerException if either the given type or environment is null.
+   * @param environment the optional environment of the target.
+   * @throws NullPointerException if the given type is null.
    */
   protected ChannelMessageTarget(
     @NonNull Type type,
     @Nullable String name,
-    @NonNull ServiceEnvironmentType environment
+    @Nullable ServiceEnvironmentType environment
   ) {
     this.type = type;
     this.name = name;
