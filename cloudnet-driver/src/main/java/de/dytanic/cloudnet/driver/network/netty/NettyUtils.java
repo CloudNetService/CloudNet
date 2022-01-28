@@ -43,8 +43,8 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.JdkLoggerFactory;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executor;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -84,7 +84,7 @@ public final class NettyUtils {
     // a cached pool with a thread idle-lifetime of 30 seconds
     // rejected tasks will be executed on the calling thread (See ThreadPoolExecutor.CallerRunsPolicy)
     return new ThreadPoolExecutor(0, getThreadAmount(),
-      30L, TimeUnit.SECONDS, new SynchronousQueue<>(true), DEFAULT_REJECT_HANDLER);
+      30L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), DEFAULT_REJECT_HANDLER);
   }
 
   @Deprecated

@@ -62,6 +62,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
@@ -88,8 +89,8 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
   private final Map<UUID, ICloudService> cloudServices = new ConcurrentHashMap<>();
   private final Map<String, ICloudServiceFactory> cloudServiceFactories = new ConcurrentHashMap<>();
 
-  public DefaultCloudServiceManager() {
-    CloudNet.getInstance().getTaskExecutor().scheduleAtFixedRate(() -> {
+  public DefaultCloudServiceManager(@NotNull ScheduledExecutorService service) {
+    service.scheduleAtFixedRate(() -> {
       try {
         this.stopDeadServices();
         this.updateServiceLogs();

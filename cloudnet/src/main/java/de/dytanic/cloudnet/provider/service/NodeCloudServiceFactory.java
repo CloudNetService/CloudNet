@@ -66,7 +66,7 @@ public class NodeCloudServiceFactory extends DefaultCloudServiceFactory implemen
 
   @Override
   public @NotNull ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceConfiguration serviceConfiguration) {
-    return this.cloudNet.scheduleTask(() -> this.createCloudService(serviceConfiguration));
+    return this.cloudNet.runTask(() -> this.createCloudService(serviceConfiguration));
   }
 
   private ServiceInfoSnapshot createCloudServiceAsHeadNode(ServiceConfiguration serviceConfiguration) {
@@ -101,9 +101,9 @@ public class NodeCloudServiceFactory extends DefaultCloudServiceFactory implemen
         snapshot = cloudService != null ? cloudService.getServiceInfoSnapshot() : null;
       } else if (nodeServer instanceof IClusterNodeServer) {
         snapshot = ((IClusterNodeServer) nodeServer).getChannel().sendQueryAsync(new PacketClientDriverAPI(
-          DriverAPIRequestType.FORCE_CREATE_CLOUD_SERVICE_BY_CONFIGURATION,
-          buffer -> buffer.writeObject(serviceConfiguration)
-        ))
+            DriverAPIRequestType.FORCE_CREATE_CLOUD_SERVICE_BY_CONFIGURATION,
+            buffer -> buffer.writeObject(serviceConfiguration)
+          ))
           .map(packet -> packet.getBuffer().readOptionalObject(ServiceInfoSnapshot.class))
           .get(6, TimeUnit.SECONDS, null);
       } else {

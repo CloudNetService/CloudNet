@@ -75,15 +75,21 @@ public class CloudNetTick {
         }
 
         lastTick = System.currentTimeMillis();
-        while (!this.processQueue.isEmpty()) {
+
+        // ensure that we're not running tasks added during task execution
+        int maxTasks = this.processQueue.size();
+        for (int i = 0; i < maxTasks; i++) {
           ITask<?> task = this.processQueue.poll();
-          if (task != null) {
-            task.call();
+          // no more tasks?
+          if (task == null) {
+            break;
           }
+
+          task.call();
         }
 
         if (this.cloudNet.getClusterNodeServerProvider().getSelfNode().isHeadNode()) {
-          if (currentTickNumber % TPS * 2 == 0) {
+          if (currentTickNumber % TPS == 0) {
             this.startService();
           }
         }
@@ -108,15 +114,18 @@ public class CloudNetTick {
         if (serviceTask.getMinServiceCount() > runningServicesCount) {
           // checking if there is a prepared service that can be started instead of creating a new service
           if (this.startPreparedService(taskServices)) {
-            return;
+            continue;
           }
           // start a new service if no service is available
           NodeServer nodeServer = this.cloudNet.searchLogicNodeServer(serviceTask);
           if (nodeServer != null) {
             // found the best node server to start the service on
-            nodeServer.getCloudServiceFactory()
-              .createCloudServiceAsync(ServiceConfiguration.builder(serviceTask).build())
-              .onComplete(snapshot -> this.startPreparedService(nodeServer, snapshot));
+            ServiceInfoSnapshot snapshot = nodeServer.getCloudServiceFactory()
+              .createCloudService(ServiceConfiguration.builder(serviceTask).build());
+            if (snapshot != null) {
+              // start the service now
+              this.startPreparedService(nodeServer, snapshot);
+            }
           }
         }
       }

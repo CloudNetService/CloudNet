@@ -160,6 +160,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -173,6 +174,7 @@ public final class CloudNet extends CloudNetDriver {
   private final long startupMillis = System.currentTimeMillis();
 
   private final CloudNetTick mainLoop = new CloudNetTick(this);
+  private final ScheduledExecutorService prioritizedTaskScheduler = Executors.newScheduledThreadPool(4);
 
   private final LogLevel defaultLogLevel = LogLevel
     .getDefaultLogLevel(System.getProperty("cloudnet.logging.defaultlevel")).orElse(LogLevel.FATAL);
@@ -213,7 +215,7 @@ public final class CloudNet extends CloudNetDriver {
 
     logger.setLevel(this.defaultLogLevel);
 
-    this.cloudServiceManager = new DefaultCloudServiceManager();
+    this.cloudServiceManager = new DefaultCloudServiceManager(this.prioritizedTaskScheduler);
 
     super.cloudServiceFactory = new NodeCloudServiceFactory(this, this.cloudServiceManager);
     super.generalCloudServiceProvider = new NodeGeneralCloudServiceProvider(this);
@@ -267,7 +269,7 @@ public final class CloudNet extends CloudNetDriver {
     this.config.load();
 
     this.defaultInstallation.executeFirstStartSetup(this.console, configFileAvailable);
-    this.clusterNodeServerProvider = new DefaultClusterNodeServerProvider(this);
+    this.clusterNodeServerProvider = new DefaultClusterNodeServerProvider(this, this.prioritizedTaskScheduler);
 
     HeaderReader.readAndPrintHeader(this.console);
 
