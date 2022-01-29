@@ -46,7 +46,7 @@ import org.jetbrains.annotations.Range;
 public final class NettyUtil {
 
   // transport
-  private static final boolean NO_NATIVE_TRANSPORT = Boolean.getBoolean("cloudet.no-native");
+  private static final boolean NO_NATIVE_TRANSPORT = Boolean.getBoolean("cloudnet.no-native");
   private static final NettyTransport CURR_NETTY_TRANSPORT = NettyTransport.availableTransport(NO_NATIVE_TRANSPORT);
   // var int codec
   private static final int[] VAR_INT_LENGTHS = new int[33];

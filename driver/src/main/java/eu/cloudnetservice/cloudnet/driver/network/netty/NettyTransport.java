@@ -94,7 +94,7 @@ public enum NettyTransport {
    * @param eventLoopFactory     the factory for event loop groups.
    * @param clientChannelFactory the factory for client channels.
    * @param serverChannelFactory the factory for server channels.
-   * @throws NullPointerException if one of the given paramters is null.
+   * @throws NullPointerException if one of the given parameters is null.
    */
   NettyTransport(
     @NonNull String name,
