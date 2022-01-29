@@ -24,22 +24,13 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFactory;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ServerChannel;
-import io.netty.channel.epoll.Epoll;
-import io.netty.channel.epoll.EpollEventLoopGroup;
-import io.netty.channel.epoll.EpollServerSocketChannel;
-import io.netty.channel.epoll.EpollSocketChannel;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.ReferenceCounted;
 import io.netty.util.ResourceLeakDetector;
-import io.netty.util.concurrent.FastThreadLocalThread;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.JdkLoggerFactory;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
@@ -54,11 +45,14 @@ import org.jetbrains.annotations.Range;
 @Internal
 public final class NettyUtil {
 
-  public static final int[] VAR_INT_LENGTHS = new int[33];
-  public static final boolean NATIVE_TRANSPORT = Epoll.isAvailable();
-  public static final ThreadFactory THREAD_FACTORY = FastThreadLocalThread::new;
-  public static final SilentDecoderException INVALID_VAR_INT = new SilentDecoderException("Invalid var int");
-  public static final RejectedExecutionHandler DEFAULT_REJECT_HANDLER = new ThreadPoolExecutor.CallerRunsPolicy();
+  // transport
+  private static final boolean NO_NATIVE_TRANSPORT = Boolean.getBoolean("cloudet.no-native");
+  private static final NettyTransport CURR_NETTY_TRANSPORT = NettyTransport.availableTransport(NO_NATIVE_TRANSPORT);
+  // var int codec
+  private static final int[] VAR_INT_LENGTHS = new int[33];
+  private static final SilentDecoderException INVALID_VAR_INT = new SilentDecoderException("Invalid var int");
+  // packet thread handling
+  private static final RejectedExecutionHandler DEFAULT_REJECT_HANDLER = new ThreadPoolExecutor.CallerRunsPolicy();
 
   static {
     // use jdk logger to prevent issues with older slf4j versions
@@ -114,9 +108,7 @@ public final class NettyUtil {
    * @return a new nio or epoll event loop group.
    */
   public static @NonNull EventLoopGroup newEventLoopGroup(int threads) {
-    return Epoll.isAvailable()
-      ? new EpollEventLoopGroup(threads, THREAD_FACTORY)
-      : new NioEventLoopGroup(threads, THREAD_FACTORY);
+    return CURR_NETTY_TRANSPORT.createEventLoopGroup(threads);
   }
 
   /**
@@ -125,7 +117,7 @@ public final class NettyUtil {
    * @return a new channel factory for network clients based on the epoll availability.
    */
   public static @NonNull ChannelFactory<? extends Channel> clientChannelFactory() {
-    return Epoll.isAvailable() ? EpollSocketChannel::new : NioSocketChannel::new;
+    return CURR_NETTY_TRANSPORT.clientChannelFactory();
   }
 
   /**
@@ -134,7 +126,7 @@ public final class NettyUtil {
    * @return a new channel factory for network servers based on the epoll availability.
    */
   public static @NonNull ChannelFactory<? extends ServerChannel> serverChannelFactory() {
-    return Epoll.isAvailable() ? EpollServerSocketChannel::new : NioServerSocketChannel::new;
+    return CURR_NETTY_TRANSPORT.serverChannelFactory();
   }
 
   /**
@@ -220,5 +212,14 @@ public final class NettyUtil {
   public static @Range(from = 2, to = Integer.MAX_VALUE) int threadAmount() {
     var environment = CloudNetDriver.instance().environment();
     return environment == DriverEnvironment.CLOUDNET ? Math.max(8, Runtime.getRuntime().availableProcessors() * 2) : 4;
+  }
+
+  /**
+   * Get the selected netty transport which will be used for client/server channel and event loop group construction.
+   *
+   * @return the selected netty transport.
+   */
+  public static @NonNull NettyTransport selectedNettyTransport() {
+    return CURR_NETTY_TRANSPORT;
   }
 }

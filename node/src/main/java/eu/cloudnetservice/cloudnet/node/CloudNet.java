@@ -33,6 +33,7 @@ import eu.cloudnetservice.cloudnet.driver.network.NetworkClient;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkServer;
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.network.http.HttpServer;
+import eu.cloudnetservice.cloudnet.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.cloudnet.driver.network.netty.client.NettyNetworkClient;
 import eu.cloudnetservice.cloudnet.driver.network.netty.http.NettyHttpServer;
 import eu.cloudnetservice.cloudnet.driver.network.netty.server.NettyNetworkServer;
@@ -244,6 +245,7 @@ public class CloudNet extends CloudNetDriver {
     this.nodeServerProvider.selfNode().publishNodeInfoSnapshotUpdate();
 
     // network server init
+    LOGGER.info(I18n.trans("network-selected-transport", NettyUtil.selectedNettyTransport().displayName()));
     for (var listener : this.configuration.identity().listeners()) {
       this.networkServer.addListener(listener);
       LOGGER.info(I18n.trans("network-listener-bound", listener));

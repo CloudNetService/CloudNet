@@ -131,10 +131,6 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
           .childOption(ChannelOption.SO_KEEPALIVE, true)
           .childOption(ChannelOption.SO_REUSEADDR, true)
           .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK);
-        // check if tcp fast open is supported
-        if (NettyUtil.NATIVE_TRANSPORT) {
-          bootstrap.option(ChannelOption.TCP_FASTOPEN, 0x3);
-        }
         // register the server and bind it
         return this.channelFutures.putIfAbsent(hostAndPort.port(), new Pair<>(hostAndPort, bootstrap
           .bind(hostAndPort.host(), hostAndPort.port())

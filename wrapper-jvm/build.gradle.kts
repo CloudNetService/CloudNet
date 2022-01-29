@@ -25,9 +25,9 @@ tasks.withType<ShadowJar> {
   archiveVersion.set(null as String?)
 
   // netty relocation
-  relocate("io.netty", "eu.cloudnetservice.relocate.netty")
+  relocate("io.netty", "eu.cloudnetservice.relocate.io.netty")
   relocate("META-INF/native/netty", "META-INF/native/eu_cloudnetservice_relocate_netty")
-  relocate("META-INF/native/libnetty", "META-INF/native/eu_cloudnetservice_relocate_libnetty")
+  relocate("META-INF/native/libnetty", "META-INF/native/libeu_cloudnetservice_relocate_netty")
 
   // google lib relocation
   relocate("com.google.gson", "eu.cloudnetservice.relocate.gson")

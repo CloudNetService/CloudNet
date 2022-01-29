@@ -125,10 +125,6 @@ public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClien
         .option(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK)
         .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
         .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECTION_TIMEOUT_MILLIS);
-      // enable tcp fast open if supported
-      if (NettyUtil.NATIVE_TRANSPORT) {
-        bootstrap.option(ChannelOption.TCP_FASTOPEN_CONNECT, true);
-      }
       // connect to the server
       bootstrap.connect(hostAndPort.host(), hostAndPort.port())
         .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)

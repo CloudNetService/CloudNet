@@ -39,6 +39,7 @@ dockerJava = "3.2.12"
 unirest = "4.0.0-RC2"
 netty = "4.1.73.Final"
 annotations = "23.0.0"
+nettyIoUring = "0.0.12.Final"
 
 # platform api versions
 velocity = "3.1.0"
@@ -106,6 +107,8 @@ dockerJavaHttpclient5 = { group = "com.github.docker-java", name = "docker-java-
 nettyHandler = { group = "io.netty", name = "netty-handler", version.ref = "netty" }
 nettyCodecHttp = { group = "io.netty", name = "netty-codec-http", version.ref = "netty" }
 nettyNativeEpoll = { group = "io.netty", name = "netty-transport-native-epoll", version.ref = "netty" }
+nettyNativeKqueue = { group = "io.netty", name = "netty-transport-native-kqueue", version.ref = "netty" }
+nettyNativeIoUring = { group = "io.netty.incubator", name = "netty-incubator-transport-native-io_uring", version.ref = "nettyIoUring" }
 
 # general
 asm = { group = "org.ow2.asm", name = "asm-tree", version.ref = "asm" }

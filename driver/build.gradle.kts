@@ -48,7 +48,11 @@ dependencies {
   "api"(libs.asm)
   "api"(libs.caffeine)
   "implementation"(libs.bundles.netty)
+
+  // native transports
+  "implementation"(variantOf(libs.nettyNativeKqueue) { classifier("osx-x86_64") })
   "implementation"(variantOf(libs.nettyNativeEpoll) { classifier("linux-x86_64") })
+  "implementation"(variantOf(libs.nettyNativeIoUring) { classifier("linux-x86_64") })
 
   // hack - depend on the output of the ap output to apply the annotation process to this project too
   "annotationProcessor"(project.sourceSets()["ap"].output)
