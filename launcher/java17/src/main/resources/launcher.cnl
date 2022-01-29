@@ -66,3 +66,7 @@ var cloudnet.logging.defaultlevel INFO
 #var cloudnet.database.xodus.path local/database/xodus
 # Sets the path in which the local templates are stored
 #var cloudnet.storage.local local/templates
+# Sets if CloudNet should use a native transport (io_uring, epoll, kqueue) if available
+# These transports are platform optimized, generally generate less garbage and improve performance over the non-native
+# (but fallback when native is disabled) nio transport
+#var cloudnet.no-native false
