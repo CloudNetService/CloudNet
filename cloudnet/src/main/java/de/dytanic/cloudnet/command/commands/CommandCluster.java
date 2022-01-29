@@ -269,7 +269,9 @@ public final class CommandCluster extends SubCommandHandler {
       stringBuilder.append("\n\n");
     }
 
-    sender.sendMessage(stringBuilder.substring(0, stringBuilder.length() - 1).split("\n"));
+    if (stringBuilder.length() > 0) {
+      sender.sendMessage(stringBuilder.substring(0, stringBuilder.length() - 1).split("\n"));
+    }
   }
 
   private static void displayNode(ICommandSender sender, IClusterNodeServer node) {
