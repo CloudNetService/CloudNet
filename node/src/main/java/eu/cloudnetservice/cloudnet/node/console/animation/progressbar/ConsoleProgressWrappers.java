@@ -56,7 +56,7 @@ public final class ConsoleProgressWrappers {
     return console.animationRunning() ? collection.iterator() : new WrappedIterator<>(
       collection.iterator(),
       console,
-      ConsoleProgressAnimation.createDefault(task, unitName, collection.size()));
+      ConsoleProgressAnimation.createDefault(task, unitName, 1, collection.size()));
   }
 
   public static void wrapDownload(@NonNull String url, @NonNull ThrowableConsumer<InputStream, IOException> handler) {
@@ -83,6 +83,7 @@ public final class ConsoleProgressWrappers {
               ConsoleProgressAnimation.createDefault(
                 "Downloading",
                 "MB",
+                1024 * 1024,
                 contentLength == null ? stream.available() : contentLength)));
           } catch (IOException exception) {
             LOGGER.severe("Exception downloading file from %s", exception, url);

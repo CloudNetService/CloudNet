@@ -70,7 +70,7 @@ public final class CommandCreate {
       this.startServices(
         source,
         configurationBuilder.build(),
-        ConsoleProgressAnimation.createDefault("Creating", " Services", amount),
+        ConsoleProgressAnimation.createDefault("Creating", " Services", 1, amount),
         amount,
         startService);
     } else {
