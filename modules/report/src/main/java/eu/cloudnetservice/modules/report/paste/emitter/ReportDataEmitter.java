@@ -21,7 +21,7 @@ import lombok.NonNull;
 
 /**
  * Represents an emitter for collecting data for reports of this module. An emitter can be registered using {@link
- * EmitterRegistry#registerDataEmitter(Class, ReportDataEmitter[])}
+ * EmitterRegistry#registerDataEmitter(Class, ReportDataEmitter)}
  *
  * @param <T> the context type that the data is collected for
  */

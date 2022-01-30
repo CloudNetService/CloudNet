@@ -53,20 +53,19 @@ public final class CloudNetReportModule extends DriverModule {
     // create a new registry for our report data emitters
     this.registry = new EmitterRegistry();
     // register all emitters that are used for the ICloudService report
-    this.registry.registerDataEmitter(CloudService.class,
-      new ServiceLogEmitter(),
-      new ServiceInfoSnapshotEmitter(),
-      new ServiceOverviewEmitter(),
-      new ServiceTaskEmitter());
+    this.registry.registerDataEmitter(CloudService.class, new ServiceLogEmitter())
+      .registerDataEmitter(CloudService.class, new ServiceInfoSnapshotEmitter())
+      .registerDataEmitter(CloudService.class, new ServiceOverviewEmitter())
+      .registerDataEmitter(CloudService.class, new ServiceTaskEmitter());
     // register all emitters that are used for the Node report
-    this.registry.registerDataEmitter(NetworkClusterNodeInfoSnapshot.class,
-      new ConsoleLogEmitter(),
-      new NodeAllocationEmitter(),
-      new NodeSnapshotEmitter(),
-      new NodeConfigurationEmitter(),
-      new ModuleEmitter());
+    this.registry.registerDataEmitter(NetworkClusterNodeInfoSnapshot.class, new ConsoleLogEmitter())
+      .registerDataEmitter(NetworkClusterNodeInfoSnapshot.class, new NodeAllocationEmitter())
+      .registerDataEmitter(NetworkClusterNodeInfoSnapshot.class, new NodeSnapshotEmitter())
+      .registerDataEmitter(NetworkClusterNodeInfoSnapshot.class, new NodeConfigurationEmitter())
+      .registerDataEmitter(NetworkClusterNodeInfoSnapshot.class, new ModuleEmitter());
     // register our listener to handle stopping and deleted services
     this.registerListener(new RecordReportListener(this));
+    this.serviceRegistry().registerService(EmitterRegistry.class, "EmitterRegistry", this.registry);
     // register the command of the module at the node
     CloudNet.instance().commandProvider().register(new CommandReport(this));
   }

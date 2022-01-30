@@ -28,13 +28,11 @@ public class ServiceTaskEmitter implements ReportDataEmitter<CloudService> {
   public void emitData(@NonNull StringBuilder builder, @NonNull CloudService service) {
     var taskProvider = CloudNet.instance().serviceTaskProvider();
     var serviceTask = taskProvider.serviceTask(service.serviceId().taskName());
-    if (serviceTask == null) {
-      return;
+    if (serviceTask != null) {
+      builder
+        .append(" - Task ").append(serviceTask.name()).append(" - \n")
+        .append(JsonDocument.newDocument(serviceTask).toPrettyJson()).append("\n")
+        .append(" - Task END - \n\n");
     }
-
-    builder
-      .append(" - Task ").append(serviceTask.name()).append(" - \n")
-      .append(JsonDocument.newDocument(serviceTask).toPrettyJson()).append("\n")
-      .append(" - Task END - \n\n");
   }
 }
