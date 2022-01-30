@@ -44,6 +44,8 @@ public class PermissionGroupSetup implements DefaultSetup {
   public void handleResults(@NonNull ConsoleSetupAnimation animation) {
     if (animation.result("addDefaultGroups")) {
       var adminGroup = PermissionGroup.builder()
+        .name("admin")
+        .potency(100)
         .addPermission(Permission.of("*"))
         .prefix("&4Admin &8| &7")
         .color("&4")
@@ -52,6 +54,8 @@ public class PermissionGroupSetup implements DefaultSetup {
         .sortId(10)
         .build();
       var defaultGroup = PermissionGroup.builder()
+        .name("default")
+        .potency(100)
         .addPermission(Permission.of("bukkit.broadcast.user"))
         .defaultGroup(true)
         .prefix("&7")
