@@ -18,8 +18,8 @@ import org.cadixdev.gradle.licenser.LicenseExtension
 
 plugins {
   id("cloudnet.parent-build-logic")
-  id("com.github.ben-manes.versions") version "0.41.0"
-  id("org.cadixdev.licenser") version "0.6.1" apply false
+  alias(libs.plugins.versions)
+  alias(libs.plugins.licenser)
 }
 
 defaultTasks("build", "checkLicenses", "test", "shadowJar")

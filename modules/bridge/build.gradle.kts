@@ -18,7 +18,7 @@ import net.fabricmc.loom.task.RemapJarTask
 import net.kyori.blossom.BlossomExtension
 
 plugins {
-  id("fabric-loom") version Versions.fabricLoom
+  alias(libs.plugins.fabricLoom)
 }
 
 configurations {

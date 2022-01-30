@@ -20,12 +20,6 @@ object Versions {
   const val cloudNet = "4.0.0-SNAPSHOT"
   const val cloudNetCodeName = "Blizzard"
 
-  // plugin versions
-  const val shadow = "7.1.2"
-  const val blossom = "1.3.0"
-  const val juppiter = "0.3.0"
-  const val fabricLoom = "0.11.5"
-
   // external tools
   const val checkstyleTools = "9.2.1"
 }

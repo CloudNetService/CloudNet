@@ -15,7 +15,7 @@
  */
 
 plugins {
-  id("net.kyori.blossom") version Versions.blossom apply false
+  alias(libs.plugins.blossom) apply false
 }
 
 subprojects {

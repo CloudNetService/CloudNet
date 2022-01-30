@@ -15,7 +15,7 @@
  */
 
 plugins {
-  id("com.github.johnrengelman.shadow") version Versions.shadow
+  alias(libs.plugins.shadow)
 }
 
 tasks.withType<Jar> {
