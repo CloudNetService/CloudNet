@@ -24,7 +24,9 @@ import eu.cloudnetservice.cloudnet.driver.event.EventManager;
 import eu.cloudnetservice.cloudnet.driver.module.DefaultModule;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleWrapper;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCFactory;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.function.Supplier;
 import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
 
@@ -59,6 +61,37 @@ public class DriverModule extends DefaultModule {
    */
   public void writeConfig(@NonNull JsonDocument config) {
     config.write(this.configPath());
+  }
+
+  /**
+   * Reads the config of this module to the given model type, creating a new configuration if necessary. This method
+   * rethrows the parsing exception wrapped if the reader was unable to read the config model (for example an exception
+   * happens during the model instantiation with the supplied arguments by the user in the configuration).
+   * <p>
+   * The config factory is allowed to return null, an empty json object will be written to the file in that case.
+   *
+   * @param configModelType      the modeling class of the configuration.
+   * @param defaultConfigFactory a factory constructing a default config instance if needed.
+   * @param <T>                  the type of the configuration model.
+   * @return a newly created default config instance or the read config instance from the config path.
+   * @throws NullPointerException                if either the given config model or config factory is null.
+   * @throws ModuleConfigurationInvalidException if the reader is unable to read the configuration model from the file.
+   */
+  public @NonNull <T> T readConfig(@NonNull Class<T> configModelType, @NonNull Supplier<T> defaultConfigFactory) {
+    // check if the config already exists, create a default one if not
+    if (Files.notExists(this.configPath())) {
+      var config = defaultConfigFactory.get();
+      this.writeConfig(JsonDocument.newDocument(config));
+      return config;
+    } else {
+      // either we can read the config to the given model type, or we return null and let the module handle it
+      try {
+        return this.readConfig().toInstanceOf(configModelType);
+      } catch (Exception exception) {
+        // wrap and rethrow the exception
+        throw new ModuleConfigurationInvalidException(this.configPath(), exception);
+      }
+    }
   }
 
   /**

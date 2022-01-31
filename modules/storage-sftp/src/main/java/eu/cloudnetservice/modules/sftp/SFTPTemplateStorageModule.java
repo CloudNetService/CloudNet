@@ -45,7 +45,7 @@ public final class SFTPTemplateStorageModule extends DriverModule {
     if (Files.exists(oldConfigPath)) {
       var config = JsonDocument.newDocument(oldConfigPath);
       // convert to the new config format
-      this.writeConfig(new SFTPTemplateStorageConfig(
+      this.updateConfig(new SFTPTemplateStorageConfig(
         config.get("address", HostAndPort.class),
         config.getString("storage"),
         config.getString("username"),
@@ -62,24 +62,19 @@ public final class SFTPTemplateStorageModule extends DriverModule {
 
   @ModuleTask(event = ModuleLifeCycle.LOADED)
   public void handleInit() {
-    if (Files.exists(this.configPath())) {
-      // load the config
-      this.config = JsonDocument.newDocument(this.configPath()).toInstanceOf(SFTPTemplateStorageConfig.class);
-      // init the storage
-      this.storage = new SFTPTemplateStorage(this.config);
-      this.serviceRegistry().registerService(TemplateStorage.class, this.storage.name(), this.storage);
-      // register the cluster sync handler
-      CloudNet.instance().dataSyncRegistry().registerHandler(DataSyncHandler.<SFTPTemplateStorageConfig>builder()
-        .key("sftp-storage-config")
-        .nameExtractor($ -> "SFTP Template Storage Config")
-        .convertObject(SFTPTemplateStorageConfig.class)
-        .writer(this::writeConfig)
-        .singletonCollector(() -> this.config)
-        .currentGetter($ -> this.config)
-        .build());
-    } else {
-      JsonDocument.newDocument(new SFTPTemplateStorageConfig()).write(this.configPath());
-    }
+    this.config = this.readConfig(SFTPTemplateStorageConfig.class, SFTPTemplateStorageConfig::new);
+    // init the storage
+    this.storage = new SFTPTemplateStorage(this.config);
+    this.serviceRegistry().registerService(TemplateStorage.class, this.storage.name(), this.storage);
+    // register the cluster sync handler
+    CloudNet.instance().dataSyncRegistry().registerHandler(DataSyncHandler.<SFTPTemplateStorageConfig>builder()
+      .key("sftp-storage-config")
+      .nameExtractor($ -> "SFTP Template Storage Config")
+      .convertObject(SFTPTemplateStorageConfig.class)
+      .writer(this::updateConfig)
+      .singletonCollector(() -> this.config)
+      .currentGetter($ -> this.config)
+      .build());
   }
 
   @ModuleTask(event = ModuleLifeCycle.STOPPED)
@@ -88,8 +83,8 @@ public final class SFTPTemplateStorageModule extends DriverModule {
     this.serviceRegistry().unregisterService(TemplateStorage.class, this.storage.name());
   }
 
-  public void writeConfig(@NonNull SFTPTemplateStorageConfig config) {
+  public void updateConfig(@NonNull SFTPTemplateStorageConfig config) {
     this.config = config;
-    JsonDocument.newDocument(config).write(this.configPath());
+    this.writeConfig(JsonDocument.newDocument(config));
   }
 }

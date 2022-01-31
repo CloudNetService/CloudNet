@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.syncproxy.node;
 
-import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
 import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
@@ -32,17 +31,7 @@ import lombok.NonNull;
 
 public final class CloudNetSyncProxyModule extends DriverModule {
 
-  private static CloudNetSyncProxyModule instance;
-
   private NodeSyncProxyManagement nodeSyncProxyManagement;
-
-  public CloudNetSyncProxyModule() {
-    instance = this;
-  }
-
-  public static CloudNetSyncProxyModule instance() {
-    return CloudNetSyncProxyModule.instance;
-  }
 
   @ModuleTask(order = 127, event = ModuleLifeCycle.LOADED)
   public void convertConfig() {
@@ -96,13 +85,6 @@ public final class CloudNetSyncProxyModule extends DriverModule {
   }
 
   private @NonNull SyncProxyConfiguration loadConfiguration() {
-    // read the config from the file
-    var configuration = this.readConfig().toInstanceOf(SyncProxyConfiguration.class);
-    // check if we need to create a default config
-    if (configuration == null || Files.notExists(this.configPath())) {
-      // create default config and write to the file
-      this.writeConfig(JsonDocument.newDocument(configuration = SyncProxyConfiguration.createDefault("Proxy")));
-    }
-    return configuration;
+    return this.readConfig(SyncProxyConfiguration.class, () -> SyncProxyConfiguration.createDefault("Proxy"));
   }
 }

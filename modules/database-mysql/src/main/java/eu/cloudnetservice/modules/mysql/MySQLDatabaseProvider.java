@@ -16,46 +16,40 @@
 
 package eu.cloudnetservice.modules.mysql;
 
-import com.google.common.base.Preconditions;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.common.function.ThrowableFunction;
 import eu.cloudnetservice.cloudnet.node.database.LocalDatabase;
 import eu.cloudnetservice.cloudnet.node.database.sql.SQLDatabaseProvider;
-import eu.cloudnetservice.modules.mysql.util.MySQLConnectionEndpoint;
+import eu.cloudnetservice.modules.mysql.config.MySQLConfiguration;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.Random;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
 
-  private static final long NEW_CREATION_DELAY = 600_000;
   private static final String CONNECT_URL_FORMAT = "jdbc:mysql://%s:%d/%s?serverTimezone=UTC&useSSL=%b&trustServerCertificate=%b";
 
-  private final JsonDocument config;
+  private final MySQLConfiguration config;
+  private volatile HikariDataSource hikariDataSource;
 
-  private HikariDataSource hikariDataSource;
-  private List<MySQLConnectionEndpoint> addresses;
-
-  public MySQLDatabaseProvider(@NonNull JsonDocument config, @Nullable ExecutorService executorService) {
+  public MySQLDatabaseProvider(@NonNull MySQLConfiguration config, @Nullable ExecutorService executorService) {
     super(executorService);
     this.config = config;
   }
 
   @Override
   public boolean init() {
-    this.addresses = this.config.get("addresses", CloudNetMySQLDatabaseModule.TYPE);
-    var endpoint = this.addresses.get(new Random().nextInt(this.addresses.size()));
-
     var hikariConfig = new HikariConfig();
+    var endpoint = this.config.randomEndpoint();
 
     hikariConfig.setJdbcUrl(String.format(
       CONNECT_URL_FORMAT,
@@ -63,8 +57,8 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
       endpoint.database(), endpoint.useSsl(), endpoint.useSsl()
     ));
     hikariConfig.setDriverClassName("com.mysql.cj.jdbc.Driver");
-    hikariConfig.setUsername(this.config.getString("username"));
-    hikariConfig.setPassword(this.config.getString("password"));
+    hikariConfig.setUsername(this.config.username());
+    hikariConfig.setPassword(this.config.password());
 
     hikariConfig.addDataSourceProperty("cachePrepStmts", "true");
     hikariConfig.addDataSourceProperty("prepStmtCacheSize", "250");
@@ -77,12 +71,10 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
     hikariConfig.addDataSourceProperty("elideSetAutoCommits", "true");
     hikariConfig.addDataSourceProperty("maintainTimeStats", "false");
 
-    var maxPoolSize = this.config.getInt("connectionMaxPoolSize");
-
-    hikariConfig.setMaximumPoolSize(maxPoolSize);
-    hikariConfig.setMinimumIdle(Math.min(maxPoolSize, this.config.getInt("connectionMinPoolSize")));
-    hikariConfig.setConnectionTimeout(this.config.getInt("connectionTimeout"));
-    hikariConfig.setValidationTimeout(this.config.getInt("validationTimeout"));
+    hikariConfig.setMinimumIdle(2);
+    hikariConfig.setMaximumPoolSize(100);
+    hikariConfig.setConnectionTimeout(10_000);
+    hikariConfig.setValidationTimeout(10_000);
 
     this.hikariDataSource = new HikariDataSource(hikariConfig);
     return true;
@@ -90,18 +82,13 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
 
   @Override
   public @NonNull LocalDatabase database(@NonNull String name) {
-    Preconditions.checkNotNull(name);
-
-    this.removedOutdatedEntries();
-    return this.cachedDatabaseInstances.computeIfAbsent(name,
-      $ -> new MySQLDatabase(this, name, NEW_CREATION_DELAY, super.executorService));
+    return this.databaseCache.get(
+      name,
+      $ -> new MySQLDatabase(this, name, super.executorService));
   }
 
   @Override
   public boolean deleteDatabase(@NonNull String name) {
-    Preconditions.checkNotNull(name);
-
-    this.cachedDatabaseInstances.remove(name);
     return this.executeUpdate(String.format("DROP TABLE IF EXISTS `%s`;", name)) != -1;
   }
 
@@ -116,19 +103,17 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
         }
 
         return collection;
-      }
-    );
+      }, Set.of());
   }
 
   @Override
   public @NonNull String name() {
-    return this.config.getString("database");
+    return this.config.databaseServiceName();
   }
 
   @Override
   public void close() throws Exception {
     super.close();
-
     this.hikariDataSource.close();
   }
 
@@ -137,70 +122,47 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
     try {
       return this.hikariDataSource.getConnection();
     } catch (SQLException exception) {
-      LOGGER.severe("Exception while opening connection", exception);
+      throw new IllegalStateException("Unable to retrieve connection from pool", exception);
     }
-
-    return null;
-  }
-
-  public HikariDataSource hikariDataSource() {
-    return this.hikariDataSource;
-  }
-
-  public @NonNull JsonDocument config() {
-    return this.config;
-  }
-
-  public @NonNull List<MySQLConnectionEndpoint> addresses() {
-    return this.addresses;
   }
 
   @Override
-  public int executeUpdate(@NonNull String query, Object... objects) {
-    Preconditions.checkNotNull(query);
-    Preconditions.checkNotNull(objects);
-
-    try (var connection = this.connection();
-      var preparedStatement = connection.prepareStatement(query)) {
-      var i = 1;
-      for (var object : objects) {
-        preparedStatement.setString(i++, object.toString());
+  public int executeUpdate(@NonNull String query, @NonNull Object... objects) {
+    try (var con = this.connection(); var statement = con.prepareStatement(query)) {
+      // write all parameters
+      for (int i = 0; i < objects.length; i++) {
+        statement.setString(i + 1, Objects.toString(objects[i]));
       }
 
-      return preparedStatement.executeUpdate();
-
+      // execute the statement
+      return statement.executeUpdate();
     } catch (SQLException exception) {
       LOGGER.severe("Exception while executing database update", exception);
+      return -1;
     }
-
-    return -1;
   }
 
   @Override
-  public <T> @Nullable T executeQuery(
+  public <T> @UnknownNullability T executeQuery(
     @NonNull String query,
     @NonNull ThrowableFunction<ResultSet, T, SQLException> callback,
-    Object... objects
+    @Nullable T def,
+    @NonNull Object... objects
   ) {
-    Preconditions.checkNotNull(query);
-    Preconditions.checkNotNull(callback);
-    Preconditions.checkNotNull(objects);
-
-    try (var connection = this.connection();
-      var preparedStatement = connection.prepareStatement(query)) {
-      var i = 1;
-      for (var object : objects) {
-        preparedStatement.setString(i++, object.toString());
+    try (var con = this.connection(); var statement = con.prepareStatement(query)) {
+      // write all parameters
+      for (int i = 0; i < objects.length; i++) {
+        statement.setString(i + 1, Objects.toString(objects[i]));
       }
 
-      try (var resultSet = preparedStatement.executeQuery()) {
+      // execute the statement, apply to the result handler
+      try (var resultSet = statement.executeQuery()) {
         return callback.apply(resultSet);
       }
     } catch (Throwable throwable) {
       LOGGER.severe("Exception while executing database query", throwable);
     }
 
-    return null;
+    return def;
   }
-
 }
