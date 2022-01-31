@@ -31,7 +31,7 @@ import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.config.AccessControlConfiguration;
 import eu.cloudnetservice.cloudnet.node.config.Configuration;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.util.Set;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,31 +41,28 @@ public abstract class V2HttpHandler implements HttpHandler {
   protected static final V2HttpAuthentication DEFAULT_AUTH = new V2HttpAuthentication();
 
   protected final String requiredPermission;
-  protected final String[] supportedRequestMethods;
-  protected final String supportedRequestMethodsString;
+  protected final Set<String> requestMethods;
+  protected final String requestMethodsString;
 
   protected final V2HttpAuthentication authentication;
   protected final AccessControlConfiguration accessControlConfiguration;
 
-  public V2HttpHandler(@Nullable String requiredPermission, @NonNull String... supportedRequestMethods) {
-    this(requiredPermission, DEFAULT_AUTH, CloudNet.instance().config().accessControlConfig(), supportedRequestMethods);
+  public V2HttpHandler(@Nullable String requiredPermission, @NonNull String... requestMethods) {
+    this(requiredPermission, DEFAULT_AUTH, CloudNet.instance().config().accessControlConfig(), requestMethods);
   }
 
   public V2HttpHandler(
     @Nullable String requiredPermission,
     @NonNull V2HttpAuthentication authentication,
     @NonNull AccessControlConfiguration accessControlConfiguration,
-    @NonNull String... supportedRequestMethods
+    @NonNull String... requestMethods
   ) {
     this.requiredPermission = requiredPermission;
     this.authentication = authentication;
     this.accessControlConfiguration = accessControlConfiguration;
 
-    this.supportedRequestMethods = supportedRequestMethods;
-    // needed to use a binary search later
-    Arrays.sort(this.supportedRequestMethods);
-    this.supportedRequestMethodsString = supportedRequestMethods.length == 0
-      ? "*" : String.join(", ", supportedRequestMethods);
+    this.requestMethods = Set.of(requestMethods);
+    this.requestMethodsString = requestMethods.length == 0 ? "*" : String.join(", ", requestMethods);
   }
 
   @Override
@@ -73,17 +70,15 @@ public abstract class V2HttpHandler implements HttpHandler {
     if (context.request().method().equalsIgnoreCase("OPTIONS")) {
       this.sendOptions(context);
     } else {
-      if (this.supportedRequestMethods.length > 0
-        && Arrays.binarySearch(this.supportedRequestMethods, context.request().method().toUpperCase()) < 0) {
+      if (!this.requestMethods.isEmpty() && this.requestMethods.contains(context.request().method().toUpperCase())) {
         this.response(context, HttpResponseCode.METHOD_NOT_ALLOWED)
-          .header("Allow", this.supportedRequestMethodsString)
+          .header("Allow", this.requestMethodsString)
           .context()
           .cancelNext(true)
           .closeAfter();
       } else if (context.request().hasHeader("Authorization")) {
         // try the more often used bearer auth first
-        var session = this.authentication
-          .handleBearerLoginRequest(context.request());
+        var session = this.authentication.handleBearerLoginRequest(context.request());
         if (session.succeeded()) {
           if (this.testPermission(session.result().user(), context.request())) {
             this.handleBearerAuthorized(path, context, session.result());
@@ -96,17 +91,16 @@ public abstract class V2HttpHandler implements HttpHandler {
           return;
         }
         // try the basic auth method
-        var user = this.authentication
-          .handleBasicLoginRequest(context.request());
-        if (user.succeeded()) {
-          if (this.testPermission(user.result(), context.request())) {
-            this.handleBasicAuthorized(path, context, user.result());
+        var basic = this.authentication.handleBasicLoginRequest(context.request());
+        if (basic.succeeded()) {
+          if (this.testPermission(basic.result(), context.request())) {
+            this.handleBasicAuthorized(path, context, basic.result());
           } else {
             this.send403(context, String.format("Required permission %s not set", this.requiredPermission));
           }
           return;
-        } else if (user.hasErrorMessage()) {
-          this.send403(context, user.errorMessage());
+        } else if (basic.hasErrorMessage()) {
+          this.send403(context, basic.errorMessage());
           return;
         }
         // send an unauthorized response
@@ -122,12 +116,18 @@ public abstract class V2HttpHandler implements HttpHandler {
     this.send403(context, "Authentication required");
   }
 
-  protected void handleBasicAuthorized(@NonNull String path, @NonNull HttpContext context,
-    @NonNull PermissionUser user) {
+  protected void handleBasicAuthorized(
+    @NonNull String path,
+    @NonNull HttpContext context,
+    @NonNull PermissionUser user
+  ) {
   }
 
-  protected void handleBearerAuthorized(@NonNull String path, @NonNull HttpContext context,
-    @NonNull HttpSession session) {
+  protected void handleBearerAuthorized(
+    @NonNull String path,
+    @NonNull HttpContext context,
+    @NonNull HttpSession session
+  ) {
   }
 
   protected boolean testPermission(@NonNull PermissionUser user, @NonNull HttpRequest request) {
@@ -159,7 +159,7 @@ public abstract class V2HttpHandler implements HttpHandler {
       .header("Access-Control-Expose-Headers", "Accept, Origin, if-none-match, Access-Control-Allow-Headers, " +
         "Access-Control-Allow-Origin, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
       .header("Access-Control-Allow-Credentials", "true")
-      .header("Access-Control-Allow-Methods", this.supportedRequestMethodsString);
+      .header("Access-Control-Allow-Methods", this.requestMethodsString);
   }
 
   protected HttpResponse ok(@NonNull HttpContext context) {
