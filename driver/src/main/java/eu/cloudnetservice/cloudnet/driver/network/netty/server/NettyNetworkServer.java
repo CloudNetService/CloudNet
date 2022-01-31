@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.netty.server;
 
-import eu.cloudnetservice.cloudnet.common.collection.Pair;
 import eu.cloudnetservice.cloudnet.driver.network.DefaultNetworkComponent;
 import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
@@ -57,7 +56,7 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
   protected final EventLoopGroup workerEventLoopGroup = NettyUtil.newEventLoopGroup(0);
 
   protected final Collection<NetworkChannel> channels = new ConcurrentLinkedQueue<>();
-  protected final Map<Integer, Pair<HostAndPort, ChannelFuture>> channelFutures = new ConcurrentHashMap<>();
+  protected final Map<HostAndPort, ChannelFuture> channelFutures = new ConcurrentHashMap<>();
 
   protected final Executor packetDispatcher = NettyUtil.newPacketDispatcher();
   protected final PacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
@@ -117,7 +116,7 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
   @Override
   public boolean addListener(@NonNull HostAndPort hostAndPort) {
     // check if a server is already bound to the port
-    if (!this.channelFutures.containsKey(hostAndPort.port())) {
+    if (!this.channelFutures.containsKey(hostAndPort)) {
       try {
         // create the server
         var bootstrap = new ServerBootstrap()
@@ -132,14 +131,15 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
           .childOption(ChannelOption.SO_REUSEADDR, true)
           .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK);
         // register the server and bind it
-        return this.channelFutures.putIfAbsent(hostAndPort.port(), new Pair<>(hostAndPort, bootstrap
+        this.channelFutures.putIfAbsent(hostAndPort, bootstrap
           .bind(hostAndPort.host(), hostAndPort.port())
           .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
           .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
 
           .sync()
           .channel()
-          .closeFuture())) == null;
+          .closeFuture());
+        return true;
       } catch (InterruptedException exception) {
         LOGGER.severe("Exception binding network server instance to %s", exception, hostAndPort);
       }
@@ -156,7 +156,7 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
     this.closeChannels();
 
     for (var entry : this.channelFutures.values()) {
-      entry.second().cancel(true);
+      entry.cancel(true);
     }
 
     this.bossEventLoopGroup.shutdownGracefully();
