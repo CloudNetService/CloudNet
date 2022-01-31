@@ -17,67 +17,51 @@
 package eu.cloudnetservice.modules.mysql;
 
 import com.google.gson.reflect.TypeToken;
+import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
 import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
 import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
 import eu.cloudnetservice.cloudnet.node.database.AbstractDatabaseProvider;
-import eu.cloudnetservice.modules.mysql.util.MySQLConnectionEndpoint;
-import java.lang.reflect.Type;
-import java.util.Collections;
+import eu.cloudnetservice.modules.mysql.config.MySQLConfiguration;
+import eu.cloudnetservice.modules.mysql.config.MySQLConnectionEndpoint;
 import java.util.List;
 
 public final class CloudNetMySQLDatabaseModule extends DriverModule {
 
-  public static final Type TYPE = TypeToken.getParameterized(List.class, MySQLConnectionEndpoint.class).getType();
-
-  private static CloudNetMySQLDatabaseModule instance;
-
-  public static CloudNetMySQLDatabaseModule instance() {
-    return CloudNetMySQLDatabaseModule.instance;
-  }
+  private volatile MySQLConfiguration configuration;
 
   @ModuleTask(order = 127, event = ModuleLifeCycle.LOADED)
-  public void init() {
-    instance = this;
-  }
-
-  @ModuleTask(order = 126, event = ModuleLifeCycle.LOADED)
-  public void initConfig() {
-
-    var configuration = this.readConfig();
-
-    configuration.getString("database", "mysql");
-    configuration.get("addresses", TYPE, Collections.singletonList(
-      new MySQLConnectionEndpoint(false, "CloudNet", new HostAndPort("127.0.0.1", 3306))
-    ));
-
-    configuration.getString("username", "root");
-    configuration.getString("password", "root");
-
-    var connectionMaxPoolSize = 20;
-
-    if (configuration.contains("connectionPoolSize")) {
-      connectionMaxPoolSize = configuration.getInt("connectionPoolSize");
-      configuration.remove("connectionPoolSize");
+  public void convertConfig() {
+    var config = this.readConfig();
+    if (config.contains("addresses")) {
+      // convert all entries
+      this.writeConfig(JsonDocument.newDocument(new MySQLConfiguration(
+        config.getString("username"),
+        config.getString("password"),
+        config.getString("database"),
+        config.get("addresses", TypeToken.getParameterized(List.class, MySQLConnectionEndpoint.class).getType())
+      )));
     }
-
-    configuration.getInt("connectionMaxPoolSize", connectionMaxPoolSize);
-    configuration.getInt("connectionMinPoolSize", 10);
-    configuration.getInt("connectionTimeout", 5000);
-    configuration.getInt("validationTimeout", 5000);
-
-    this.writeConfig(configuration);
   }
 
   @ModuleTask(order = 125, event = ModuleLifeCycle.LOADED)
   public void registerDatabaseProvider() {
-    this.serviceRegistry().registerService(AbstractDatabaseProvider.class, this.readConfig().getString("database"),
-      new MySQLDatabaseProvider(this.readConfig(), null));
+    this.configuration = this.readConfig(MySQLConfiguration.class, () -> new MySQLConfiguration(
+      "root",
+      "123456",
+      "mysql",
+      List.of(new MySQLConnectionEndpoint(false, "cloudnet", new HostAndPort("127.0.0.1", 3306)))
+    ));
+
+    this.serviceRegistry().registerService(
+      AbstractDatabaseProvider.class,
+      this.configuration.databaseServiceName(),
+      new MySQLDatabaseProvider(this.configuration, null));
   }
 
   @ModuleTask(order = 127, event = ModuleLifeCycle.STOPPED)
   public void unregisterDatabaseProvider() {
-    this.serviceRegistry().unregisterService(AbstractDatabaseProvider.class, this.readConfig().getString("database"));
+    this.serviceRegistry().unregisterService(AbstractDatabaseProvider.class, this.configuration.databaseServiceName());
   }
 }

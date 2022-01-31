@@ -107,12 +107,6 @@ public class CloudNetLabyModModule extends DriverModule {
   }
 
   private @NonNull LabyModConfiguration loadConfiguration() {
-    // read the config from the file
-    var configuration = this.readConfig().toInstanceOf(LabyModConfiguration.class);
-    if (configuration == null || Files.notExists(this.configPath())) {
-      // create default config and write to the file
-      this.writeConfig(JsonDocument.newDocument(configuration = LabyModConfiguration.builder().build()));
-    }
-    return configuration;
+    return this.readConfig(LabyModConfiguration.class, () -> LabyModConfiguration.builder().build());
   }
 }

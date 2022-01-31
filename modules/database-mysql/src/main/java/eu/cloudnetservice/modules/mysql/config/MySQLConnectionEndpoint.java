@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.mysql.util;
+package eu.cloudnetservice.modules.mysql.config;
 
 import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
 import lombok.NonNull;

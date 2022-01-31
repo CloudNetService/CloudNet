@@ -40,25 +40,23 @@ import lombok.NonNull;
 public final class CloudNetCloudflareModule extends DriverModule {
 
   private static final Logger LOGGER = LogManager.logger(CloudNetCloudflareModule.class);
-  private static CloudNetCloudflareModule instance;
+
   private CloudFlareAPI cloudFlareAPI;
   private CloudflareConfiguration cloudflareConfiguration;
 
-  public CloudNetCloudflareModule() {
-    instance = this;
-  }
-
-  public static CloudNetCloudflareModule instance() {
-    return CloudNetCloudflareModule.instance;
+  @ModuleTask(event = ModuleLifeCycle.LOADED)
+  public void convertConfiguration() {
+    var config = this.readConfig().get("config");
+    if (config != null) {
+      this.writeConfig(JsonDocument.newDocument(config));
+    }
   }
 
   @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
   public void loadConfiguration() {
-    var configuration = this.readConfig();
-    this.cloudflareConfiguration = configuration.get(
-      "config",
+    var configuration = this.readConfig(
       CloudflareConfiguration.class,
-      new CloudflareConfiguration(
+      () -> new CloudflareConfiguration(
         new ArrayList<>(Collections.singletonList(
           new CloudflareConfigurationEntry(
             false,
@@ -74,8 +72,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
           )
         ))
       ));
-
-    this.updateConfiguration(this.cloudflareConfiguration);
+    this.updateConfiguration(configuration);
   }
 
   @ModuleTask(order = 126, event = ModuleLifeCycle.STARTED)
@@ -120,7 +117,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
 
   @ModuleTask(order = 124, event = ModuleLifeCycle.STARTED)
   public void registerListeners() {
-    this.registerListener(new CloudflareStartAndStopListener(this.cloudFlareAPI));
+    this.registerListener(new CloudflareStartAndStopListener(this));
   }
 
   @ModuleTask(order = 64, event = ModuleLifeCycle.STOPPED)
@@ -136,16 +133,16 @@ public final class CloudNetCloudflareModule extends DriverModule {
     }
   }
 
-  public CloudflareConfiguration cloudFlareConfiguration() {
+  public @NonNull CloudflareConfiguration cloudFlareConfiguration() {
     return this.cloudflareConfiguration;
   }
 
   public void updateConfiguration(@NonNull CloudflareConfiguration cloudflareConfiguration) {
     this.cloudflareConfiguration = cloudflareConfiguration;
-    this.writeConfig(JsonDocument.newDocument("config", cloudflareConfiguration));
+    this.writeConfig(JsonDocument.newDocument(cloudflareConfiguration));
   }
 
-  public CloudFlareAPI cloudFlareAPI() {
+  public @NonNull CloudFlareAPI cloudFlareAPI() {
     return this.cloudFlareAPI;
   }
 }

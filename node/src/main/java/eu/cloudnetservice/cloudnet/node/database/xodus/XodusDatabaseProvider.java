@@ -22,8 +22,6 @@ import eu.cloudnetservice.cloudnet.node.database.LocalDatabase;
 import eu.cloudnetservice.cloudnet.node.database.util.LocalDatabaseUtil;
 import java.io.File;
 import java.util.Collection;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import jetbrains.exodus.env.Environment;
@@ -40,7 +38,6 @@ public class XodusDatabaseProvider extends AbstractDatabaseProvider {
   protected final File databaseDirectory;
   protected final ExecutorService executorService;
   protected final boolean autoShutdownExecutorService;
-  protected final Map<String, LocalDatabase> cachedDatabaseInstances;
 
   protected final EnvironmentConfig environmentConfig;
 
@@ -59,7 +56,6 @@ public class XodusDatabaseProvider extends AbstractDatabaseProvider {
     this.databaseDirectory = databaseDirectory;
     this.autoShutdownExecutorService = executorService == null;
     this.executorService = executorService == null ? Executors.newCachedThreadPool() : executorService;
-    this.cachedDatabaseInstances = new ConcurrentHashMap<>();
 
     this.environmentConfig = new EnvironmentConfig()
       .setLogCacheShared(true)
@@ -80,7 +76,7 @@ public class XodusDatabaseProvider extends AbstractDatabaseProvider {
 
   @Override
   public @NonNull LocalDatabase database(@NonNull String name) {
-    return this.cachedDatabaseInstances.computeIfAbsent(name, $ -> this.environment.computeInTransaction(txn -> {
+    return this.databaseCache.get(name, $ -> this.environment.computeInTransaction(txn -> {
       var store = this.environment.openStore(name, StoreConfig.WITHOUT_DUPLICATES_WITH_PREFIXING, txn);
       return new XodusDatabase(name, this.executorService, store, this);
     }));
@@ -93,7 +89,7 @@ public class XodusDatabaseProvider extends AbstractDatabaseProvider {
 
   @Override
   public boolean deleteDatabase(@NonNull String name) {
-    this.cachedDatabaseInstances.remove(name);
+    this.databaseCache.invalidate(name);
     this.environment.executeInTransaction(txn -> this.environment.removeStore(name, txn));
 
     return true;
@@ -105,9 +101,9 @@ public class XodusDatabaseProvider extends AbstractDatabaseProvider {
   }
 
   @Override
-  public void close() {
+  public void close() throws Exception {
+    super.close();
     this.environment.close();
-    this.cachedDatabaseInstances.clear();
 
     if (this.autoShutdownExecutorService) {
       this.executorService.shutdownNow();

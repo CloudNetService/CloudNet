@@ -16,12 +16,20 @@
 
 package eu.cloudnetservice.cloudnet.node.database;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.Scheduler;
 import eu.cloudnetservice.cloudnet.common.Nameable;
 import eu.cloudnetservice.cloudnet.driver.database.DatabaseProvider;
+import java.time.Duration;
 import lombok.NonNull;
 
 public abstract class AbstractDatabaseProvider implements DatabaseProvider, Nameable, AutoCloseable {
 
+  protected final Cache<String, LocalDatabase> databaseCache = Caffeine.newBuilder()
+    .scheduler(Scheduler.systemScheduler())
+    .expireAfterAccess(Duration.ofMinutes(5))
+    .build();
   protected DatabaseHandler databaseHandler = new DefaultDatabaseHandler();
 
   public abstract boolean init() throws Exception;
@@ -32,6 +40,15 @@ public abstract class AbstractDatabaseProvider implements DatabaseProvider, Name
 
   public void databaseHandler(@NonNull DatabaseHandler databaseHandler) {
     this.databaseHandler = databaseHandler;
+  }
+
+  public @NonNull Cache<String, LocalDatabase> databaseCache() {
+    return this.databaseCache;
+  }
+
+  @Override
+  public void close() throws Exception {
+    this.databaseCache.invalidateAll();
   }
 
   @Override

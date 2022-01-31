@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.function.BiConsumer;
@@ -37,26 +38,18 @@ public abstract class SQLDatabase extends AbstractDatabase {
   protected static final String TABLE_COLUMN_VAL = "Document";
 
   protected final String name;
+  protected final ExecutorService executorService;
   protected final SQLDatabaseProvider databaseProvider;
 
-  protected final long cacheTimeoutTime;
-  protected final ExecutorService executorService;
-
-  public SQLDatabase(
-    @NonNull SQLDatabaseProvider databaseProvider,
-    @NonNull String name,
-    long cacheRemovalDelay,
-    @NonNull ExecutorService executorService
-  ) {
-    super(name, executorService, databaseProvider);
+  public SQLDatabase(@NonNull SQLDatabaseProvider provider, @NonNull String name, @NonNull ExecutorService executor) {
+    super(name, executor, provider);
 
     this.name = name;
-    this.databaseProvider = databaseProvider;
+    this.executorService = executor;
+    this.databaseProvider = provider;
 
-    this.executorService = executorService;
-    this.cacheTimeoutTime = System.currentTimeMillis() + cacheRemovalDelay;
-
-    databaseProvider.executeUpdate(String.format(
+    // create the table
+    provider.executeUpdate(String.format(
       "CREATE TABLE IF NOT EXISTS `%s` (%s VARCHAR(64) PRIMARY KEY, %s TEXT);",
       name, TABLE_COLUMN_KEY, TABLE_COLUMN_VAL
     ));
@@ -64,7 +57,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
 
   @Override
   public void close() {
-    this.databaseProvider.cachedDatabaseInstances.remove(this.name);
+    this.databaseProvider.databaseCache().invalidate(this.name);
   }
 
   @Override
@@ -96,8 +89,8 @@ public abstract class SQLDatabase extends AbstractDatabase {
     return this.databaseProvider.executeQuery(
       String.format("SELECT %s FROM `%s` WHERE %s = ?", TABLE_COLUMN_KEY, this.name, TABLE_COLUMN_KEY),
       ResultSet::next,
-      key
-    );
+      false,
+      key);
   }
 
   @Override
@@ -118,6 +111,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
     return this.databaseProvider.executeQuery(
       String.format("SELECT %s FROM `%s` WHERE %s = ?", TABLE_COLUMN_VAL, this.name, TABLE_COLUMN_KEY),
       resultSet -> resultSet.next() ? JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VAL)) : null,
+      null,
       key
     );
   }
@@ -134,13 +128,15 @@ public abstract class SQLDatabase extends AbstractDatabase {
 
         return jsonDocuments;
       },
+      List.of(),
       "%\"" + fieldName + "\":" + JsonDocument.GSON.toJson(fieldValue).replaceAll("([_%])", "\\$$1") + "%"
     );
   }
 
   @Override
   public @NonNull List<JsonDocument> get(@NonNull JsonDocument filters) {
-    var stringBuilder = new StringBuilder("SELECT ").append(TABLE_COLUMN_VAL).append(" FROM `")
+    var stringBuilder = new StringBuilder("SELECT ")
+      .append(TABLE_COLUMN_VAL).append(" FROM `")
       .append(this.name).append('`');
 
     Collection<String> collection = new ArrayList<>();
@@ -173,6 +169,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
 
         return jsonDocuments;
       },
+      List.of(),
       collection.toArray()
     );
   }
@@ -188,8 +185,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
         }
 
         return keys;
-      }
-    );
+      }, Set.of());
   }
 
   @Override
@@ -203,8 +199,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
         }
 
         return documents;
-      }
-    );
+      }, Set.of());
   }
 
   @Override
@@ -219,8 +214,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
         }
 
         return map;
-      }
-    );
+      }, Map.of());
   }
 
   @Override
@@ -239,8 +233,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
         }
 
         return map;
-      }
-    );
+      }, Map.of());
   }
 
   @Override
@@ -255,8 +248,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
         }
 
         return null;
-      }
-    );
+      }, null);
   }
 
   @Override
@@ -272,6 +264,6 @@ public abstract class SQLDatabase extends AbstractDatabase {
         return resultSet.getLong(1);
       }
       return -1L;
-    });
+    }, -1L);
   }
 }

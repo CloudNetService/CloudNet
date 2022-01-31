@@ -24,7 +24,6 @@ import eu.cloudnetservice.cloudnet.driver.template.TemplateStorage;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.modules.s3.config.S3TemplateStorageConfig;
-import java.nio.file.Files;
 import lombok.NonNull;
 
 public final class S3TemplateStorageModule extends DriverModule {
@@ -34,23 +33,19 @@ public final class S3TemplateStorageModule extends DriverModule {
 
   @ModuleTask(event = ModuleLifeCycle.LOADED)
   public void handleInit() {
-    if (Files.exists(this.configPath())) {
-      this.config = JsonDocument.newDocument(this.configPath()).toInstanceOf(S3TemplateStorageConfig.class);
-      // init the storage
-      this.storage = new S3TemplateStorage(this);
-      this.serviceRegistry().registerService(TemplateStorage.class, config.name(), this.storage);
-      // register the cluster sync handler
-      CloudNet.instance().dataSyncRegistry().registerHandler(DataSyncHandler.<S3TemplateStorageConfig>builder()
-        .key("s3-storage-config")
-        .nameExtractor($ -> "S3 Template Storage Config")
-        .convertObject(S3TemplateStorageConfig.class)
-        .writer(this::writeConfig)
-        .singletonCollector(() -> this.config)
-        .currentGetter($ -> this.config)
-        .build());
-    } else {
-      JsonDocument.newDocument(new S3TemplateStorageConfig()).write(this.configPath());
-    }
+    this.config = this.readConfig(S3TemplateStorageConfig.class, S3TemplateStorageConfig::new);
+    // init the storage
+    this.storage = new S3TemplateStorage(this);
+    this.serviceRegistry().registerService(TemplateStorage.class, config.name(), this.storage);
+    // register the cluster sync handler
+    CloudNet.instance().dataSyncRegistry().registerHandler(DataSyncHandler.<S3TemplateStorageConfig>builder()
+      .key("s3-storage-config")
+      .nameExtractor($ -> "S3 Template Storage Config")
+      .convertObject(S3TemplateStorageConfig.class)
+      .writer(this::writeConfig)
+      .singletonCollector(() -> this.config)
+      .currentGetter($ -> this.config)
+      .build());
   }
 
   @ModuleTask(event = ModuleLifeCycle.STOPPED)
