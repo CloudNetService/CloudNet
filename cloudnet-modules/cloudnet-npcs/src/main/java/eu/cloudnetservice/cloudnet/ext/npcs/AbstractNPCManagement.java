@@ -18,11 +18,13 @@ package eu.cloudnetservice.cloudnet.ext.npcs;
 
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.ext.bridge.ServiceInfoStateWatcher;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.cloudnet.ext.npcs.configuration.NPCConfiguration;
@@ -242,4 +244,16 @@ public abstract class AbstractNPCManagement extends ServiceInfoStateWatcher {
     return new HashSet<>(this.cloudNPCS);
   }
 
+  /**
+   * Get the max services from target group
+   *
+   * @return the max service count
+   */
+  public int getMaxServices(@NotNull CloudNPC cloudNPC) {
+    ServiceTask serviceTask = CloudNetDriver.getInstance()
+      .getServiceTaskProvider().getServiceTask(cloudNPC.getTargetGroup());
+
+    if (serviceTask == null) return 0;
+    return serviceTask.getProperties().getDocument("smartConfig").getInt("maxServiceCount");
+  }
 }
