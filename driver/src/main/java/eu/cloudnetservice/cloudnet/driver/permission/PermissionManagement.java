@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Nullable;
 
 @RPCValidation
@@ -32,26 +33,20 @@ import org.jetbrains.annotations.Nullable;
 public interface PermissionManagement {
 
   /**
-   * Get the child permission management or null if there is no child permission management.
+   * Gets the child permission management of this permission management. The child is null if there is no child
+   * permission management.
    *
-   * @return the child permission management or null if there is no child permission management.
+   * @return the child management, null if there is no child.
    */
   @Nullable PermissionManagement childPermissionManagement();
 
   /**
-   * Gets if this permission management can be overridden.
+   * Gets if this permission management can be overridden. If this is the case the permission management is replaceable
+   * using {@link eu.cloudnetservice.cloudnet.driver.CloudNetDriver#permissionManagement(PermissionManagement)}.
    *
-   * @return if this permission management can be overridden, false otherwise.
+   * @return if overriding is allowed.
    */
   boolean canBeOverwritten();
-
-  /**
-   * Gets the first permission user with the given name.
-   *
-   * @param name the name of the user to get.
-   * @return the first permission user or null if no user with this name exists.
-   */
-  @Nullable PermissionUser firstUser(String name);
 
   /**
    * Initializes this permission management.
@@ -59,31 +54,16 @@ public interface PermissionManagement {
   void init();
 
   /**
-   * TODO
+   * Closes the permission management.
    */
   void close();
 
   /**
-   * Reloads this permission management
+   * Reloads this permission management.
    *
-   * @return true if the reload was successful, false otherwise.
+   * @return true if reloading was successful, false otherwise.
    */
   boolean reload();
-
-  /**
-   * Gets the highest permission group of the specified user, evaluated by using the group potency.
-   *
-   * @param permissionUser the user
-   * @return the highest permission group.
-   */
-  @Nullable PermissionGroup highestPermissionGroup(@NonNull PermissionUser permissionUser);
-
-  /**
-   * Gets the default permission group.
-   *
-   * @return the default permission group.
-   */
-  @Nullable PermissionGroup defaultPermissionGroup();
 
   /**
    * Removes all timed-out permissions and groups of the given permission user.
@@ -102,38 +82,43 @@ public interface PermissionManagement {
   boolean testPermissible(@Nullable Permissible permissible);
 
   /**
-   * Adds a new permission user if it does not already exist.
+   * Creates a new permission user and inserts it into the database. If the there already is a user in the database the
+   * user is updated.
    *
    * @param name     the name of the new user.
    * @param password the password of the new user.
    * @param potency  the potency of the new user.
    * @return the newly created permission user.
+   * @throws NullPointerException if the given name or password is null.
    */
-  @NonNull PermissionUser addUser(@NonNull String name, @NonNull String password, int potency);
+  @NonNull PermissionUser addPermissionUser(@NonNull String name, @NonNull String password, int potency);
 
   /**
-   * Adds a new permission group if it does not already exists.
+   * Inserts the given permission user into the database. If there already is a permission user with the same unique id
+   * the old one is replaced by the given permission user.
    *
-   * @param role    the case-sensitive name of the new group
-   * @param potency the potency of the new group
-   * @return the newly created permission group
+   * @param permissionUser the user to add.
+   * @return the same instance that was given.
+   * @throws NullPointerException if the given user is null.
    */
-  @NonNull PermissionGroup addGroup(@NonNull String role, int potency);
+  @NonNull PermissionUser addPermissionUser(@NonNull PermissionUser permissionUser);
 
   /**
-   * Gets the extended groups of the specified group.
+   * Gets all groups that are associated with the given permissible.
    *
-   * @param permissible the permissible to get the extended groups of.
-   * @return the extended groups of the given permissible.
+   * @param permissible the permissible to retrieve the groups for.
+   * @return all found groups.
    */
   @NonNull Collection<PermissionGroup> groupsOf(@Nullable Permissible permissible);
 
   /**
-   * Checks if the given permissible has the given permission.
+   * Checks if the given permissible or any group that is associated with the permissible has the permission, and it is
+   * not overriden by another permission with a negative potency.
    *
    * @param permissible the permissible to check if the permission is set.
-   * @param permission  the permission to check.
-   * @return the check result.
+   * @param permission  the permission to check for.
+   * @return true if the permissible has the permission, false otherwise.
+   * @throws NullPointerException if the given permissible or permission is null.
    * @see #permissionResult(Permissible, Permission)
    */
   default boolean hasPermission(@NonNull Permissible permissible, @NonNull Permission permission) {
@@ -141,12 +126,13 @@ public interface PermissionManagement {
   }
 
   /**
-   * Checks if the given permissible has the given permission.
+   * Checks if the given permissible has the given permission for the given group.
    *
    * @param permissible the permissible to check if the permission is set.
-   * @param group       the group to get the permissions on.
+   * @param group       the group that the permission is assigned to.
    * @param permission  the permission to check.
-   * @return the check result.
+   * @return true if the permissible has the permission on the given group, false otherwise.
+   * @throws NullPointerException if the given permissible, group or permission is null.
    * @see #groupPermissionResult(Permissible, String, Permission)
    */
   default boolean hasGroupPermission(
@@ -158,23 +144,24 @@ public interface PermissionManagement {
   }
 
   /**
-   * Checks if the given permissible has the given permission.
+   * Checks if the given permissible or any group that is associated with the permissible has the permission, and it is
+   * not overriden by another permission with a negative potency.
    *
    * @param permissible the permissible to check if the permission is set.
    * @param permission  the permission to check.
-   * @return the check result. {@link PermissionCheckResult#DENIED} indicates that there was no allowing/forbidding
-   * permission.
+   * @return the result of the permission check.
+   * @throws NullPointerException if the given permissible or permission is null.
    */
   @NonNull PermissionCheckResult permissionResult(@NonNull Permissible permissible, @NonNull Permission permission);
 
   /**
-   * Checks if the given permissible has the given permission.
+   * Checks if the given permissible has the given permission for the given group.
    *
    * @param permissible the permissible to check if the permission is set.
    * @param group       the group to get the permissions on.
    * @param permission  the permission to check.
-   * @return the check result. {@link PermissionCheckResult#DENIED} indicates that there was no allowing/forbidding
-   * permission.
+   * @return the result of the permission check.
+   * @throws NullPointerException if the given permissible, group or permission is null.
    */
   @NonNull PermissionCheckResult groupPermissionResult(
     @NonNull Permissible permissible,
@@ -182,13 +169,13 @@ public interface PermissionManagement {
     @NonNull Permission permission);
 
   /**
-   * Checks if the given permissible has the given permission.
+   * Checks if the given permissible has the given permission for the given groups.
    *
    * @param permissible the permissible to check if the permission is set.
    * @param groups      the groups to get the permissions on.
    * @param permission  the permission to check.
-   * @return the check result. {@link PermissionCheckResult#DENIED} indicates that there was no allowing/forbidding
-   * permission.
+   * @return the result of the permission check.
+   * @throws NullPointerException if the given permissible, groups or permission is null.
    */
   @NonNull PermissionCheckResult groupsPermissionResult(
     @NonNull Permissible permissible,
@@ -196,22 +183,24 @@ public interface PermissionManagement {
     @NonNull Permission permission);
 
   /**
-   * Finds the highest permission (sorted by the potency) in the given permissions array using the given permission
+   * Finds the highest permission (sorted by the potency) in the given permission collection using the given permission
    * potency as the starting point.
    *
    * @param permissions the permissions to check through.
    * @param permission  the starting point for the check to run.
    * @return the highest permission in the given permission or null if there is no permission with a higher potency in
-   * the given collection
+   * the given collection.
+   * @throws NullPointerException if the given permissions or permission is null.
    */
   @Nullable Permission findHighestPermission(@NonNull Collection<Permission> permissions,
     @NonNull Permission permission);
 
   /**
-   * Gets all permission of the specified permissible
+   * Gets all permission of the specified permissible.
    *
    * @param permissible the permissible to get the permission of.
-   * @return all permissions of the permissible
+   * @return all permissions of the permissible.
+   * @throws NullPointerException if the given permissible is null.
    */
   @NonNull Collection<Permission> allPermissions(@NonNull Permissible permissible);
 
@@ -220,164 +209,213 @@ public interface PermissionManagement {
    *
    * @param permissible the permissible to get the permission of.
    * @param group       the group to get the permission on or null if no specific group should be used.
-   * @return all permissions of the permissible on the specified group if provided
+   * @return all permissions of the permissible on the specified group if provided.
+   * @throws NullPointerException if the given permissible or group is null.
    */
   @NonNull Collection<Permission> allGroupPermissions(@NonNull Permissible permissible, @Nullable String group);
 
   /**
-   * Adds a new user to the database.
+   * Updates the given permission user in the database. If there is no user with the unique id the user is just inserted
+   * into the database.
    *
-   * @param permissionUser the user to be added
-   * @return the new user
-   */
-  @NonNull PermissionUser addPermissionUser(@NonNull PermissionUser permissionUser);
-
-  /**
-   * Updates an already existing user in the database.
-   *
-   * @param permissionUser the user to be updated
+   * @param permissionUser the user to update in the database.
+   * @throws NullPointerException if the given user is null.
    */
   void updateUser(@NonNull PermissionUser permissionUser);
 
   /**
-   * Deletes all users in the database matching the given name. This method is case-sensitive.
+   * Deletes all users in the database matching the given name. The given name is case-sensitive.
    *
    * @param name the name of the users to be deleted
+   * @return true if any user was deleted, false if none was deleted.
+   * @throws NullPointerException if the given name is null.
    */
   boolean deleteUser(@NonNull String name);
 
   /**
-   * Deletes one user with the uniqueId of the given user.
+   * Deletes the given user from the database.
    *
-   * @param permissionUser the user to be deleted
+   * @param permissionUser the user to delete from the database.
+   * @return if there was a user with the unique id of the given user, false otherwise.
+   * @throws NullPointerException if the given user is null.
    */
   boolean deletePermissionUser(@NonNull PermissionUser permissionUser);
 
   /**
-   * Checks if a user with the given uniqueId is stored in the database.
+   * Checks if a user with the given unique id is stored in the database.
    *
-   * @param uniqueId the uniqueId of the user
-   * @return true if there is a user with that uniqueId, false otherwise
+   * @param uniqueId the unique id of the user.
+   * @return true if there is a user with the given unique id, false otherwise.
+   * @throws NullPointerException if the given unique id is null.
    */
   boolean containsUser(@NonNull UUID uniqueId);
 
   /**
-   * Checks if at least one user with the given name is stored in the database. This method is case-sensitive.
+   * Checks if at least one user with the given name is stored in the database. This given name is case-sensitive.
    *
    * @param name the name of the user
    * @return true if there is a user with that name, false otherwise
+   * @throws NullPointerException if the given name is null.
    */
   boolean containsOneUser(@NonNull String name);
 
   /**
-   * Gets a user with the given uniqueId out of the database.
+   * Searches for the user with the given unique id.
    *
-   * @param uniqueId the uniqueId of the user
-   * @return the {@link PermissionUser} from the database or null if there is no user with that uniqueId stored
+   * @param uniqueId the unique id of the user.
+   * @return the found permission user, null if no user was found.
+   * @throws NullPointerException if the given unique id is null.
    */
   @Nullable PermissionUser user(@NonNull UUID uniqueId);
 
   /**
-   * Gets a user with the given uniqueId out of the database or creates a new one if the database contains no such
-   * entry.
+   * Searches the database for a permission user with the given unique id. If no user with the given id is found a new
+   * user is stored in the database.
+   * <p>
+   * The given name is not used to search for the user.
    *
-   * @param uniqueId the uniqueId of the user
-   * @param name     the name of the permission user
-   * @return the {@link PermissionUser} from the database or a newly created one.
+   * @param uniqueId the uniqueId of the user.
+   * @param name     the name of the user.
+   * @return the found or created permission user.
+   * @throws NullPointerException if the given unique id or name is null.
    */
   @NonNull PermissionUser getOrCreateUser(@NonNull UUID uniqueId, @NonNull String name);
 
   /**
-   * Gets a list of all users with the given name out of the database. This can only return null when the connection to
-   * the database (or when it is executed in a Wrapper instance the connection to the cloud) times out.
+   * Searches all users matching the given name and selecting the first one.
    *
-   * @param name the name of the users
-   * @return a list of all {@link PermissionUser}s stored in the database or an empty list if there is no user with that
-   * name stored.
+   * @param name the name of the user to search.
+   * @return the found user or null if no user with this name exists.
+   * @throws NullPointerException if the given name is null.
+   */
+  @Nullable PermissionUser firstUser(@NonNull String name);
+
+  /**
+   * Gets a list of all users with the given name out of the database.
+   *
+   * @param name the name to search in the database for.
+   * @return all found users that have the given name.
+   * @throws NullPointerException if the given name is null.
    */
   @NonNull List<PermissionUser> usersByName(@NonNull String name);
 
   /**
-   * Gets a list of all users stored in the database. This can only return null when the connection to the database (or
-   * when it is executed in a Wrapper instance the connection to the cloud) times out.
+   * Gets a list of all stored permission users in the database.
    * <p>
-   * This method shouldn't be used when there are many users stored in the database, because that takes a lot of
+   * Note: If there are many users in the database this might lead to memory issues as all of them are loaded into
    * memory.
    *
-   * @return a list of all {@link PermissionUser}s stored in the database or an empty list if there is no user with that
-   * name stored.
+   * @return all permission users.
    */
+  @Experimental
   @NonNull Collection<PermissionUser> users();
 
   /**
-   * Gets a list of all users stored in the database with the given group. This can only return null when the connection
-   * to the database (or when it is executed in a Wrapper instance the connection to the cloud) times out.
+   * Gets a list of all stored permission users in the database that are in the given group.
    * <p>
-   * This method shouldn't be used when there are many users with that group stored in the database, because that takes
-   * a lot of memory.
+   * Note: If there are many users in the database this might lead to memory issues as all of them are loaded into
+   * memory.
    *
-   * @return a list of all {@link PermissionUser}s stored in the database or an empty list if there is no user with that
-   * name stored.
+   * @return all permission users in the given group.
+   * @throws NullPointerException if the given group is null.
    */
   @NonNull Collection<PermissionUser> usersByGroup(@NonNull String group);
 
   /**
-   * Adds a new permission group to the list of groups. If a group with that name already exists, it will be deleted and
-   * created again.
+   * Gets the default permission group. The default group is determined by the {@link PermissionGroup#defaultGroup()}
+   * property. If multiple groups are the default group this method might return another result for each call.
    *
-   * @param permissionGroup the {@link PermissionGroup} to be added
-   * @return the new group
+   * @return the default permission group, null if no group is marked as default.
+   */
+  @Nullable PermissionGroup defaultPermissionGroup();
+
+  /**
+   * Gets the highest permission group for the given user. The highest permission group is determined by the potency of
+   * the group. A higher potency results in the highest group.
+   *
+   * @param permissionUser the user to get the group for.
+   * @return the highest permission group, null if the user is not in any group and there is no default group.
+   * @throws NullPointerException if the given user is null.
+   */
+  @Nullable PermissionGroup highestPermissionGroup(@NonNull PermissionUser permissionUser);
+
+  /**
+   * Creates a new permission group with the given name and potency. If there already is group with the given name the
+   * old group is replaced by the newly created one.
+   *
+   * @param name    the case-sensitive name of the new group.
+   * @param potency the potency of the new group.
+   * @return the newly created permission group.
+   * @throws NullPointerException if the given name is null.
+   */
+  @NonNull PermissionGroup addPermissionGroup(@NonNull String name, int potency);
+
+  /**
+   * Stores the given permission group. If there already is a group with the same name the old group is replaced by the
+   * given one.
+   *
+   * @param permissionGroup the group to add.
+   * @return the same instance that was given.
+   * @throws NullPointerException if the given permission group is null.
    */
   @NonNull PermissionGroup addPermissionGroup(@NonNull PermissionGroup permissionGroup);
 
   /**
-   * Updates a permission group in the list of groups. If a group with that name doesn't exist, it will be created.
+   * Updates the given permission group. If there is no group with the given name the group is added.
    *
-   * @param permissionGroup the {@link PermissionGroup} to be updated
+   * @param permissionGroup the group to update.
+   * @throws NullPointerException if the given permission group is null.
    */
   void updateGroup(@NonNull PermissionGroup permissionGroup);
 
   /**
-   * Deletes a group by its name out of the list of groups. If a group with that name doesn't exist, nothing happens.
+   * Deletes the group by the given name.
    *
-   * @param name the case-sensitive name of the group
+   * @param name the name of the group to delete.
+   * @return true if a group with the name was found and deleted, false otherwise.
+   * @throws NullPointerException if the given name is null.
    */
   boolean deleteGroup(@NonNull String name);
 
   /**
-   * Deletes a group by its name out of the list of groups. If a group with that name doesn't exist, nothing happens.
+   * Deletes the given permission group.
    *
-   * @param permissionGroup the {@link PermissionGroup} to be deleted
+   * @param permissionGroup the permission group to delete.
+   * @return always true as the group is already present.
+   * @throws NullPointerException if the given group is null.
    */
   boolean deletePermissionGroup(@NonNull PermissionGroup permissionGroup);
 
   /**
-   * Checks if a specific group exists.
+   * Checks if the given group exists.
    *
-   * @param group the case-sensitive name of the group
-   * @return true if the group exists, false otherwise
+   * @param group the case-sensitive name of the group.
+   * @return true if the group exists, false otherwise.
+   * @throws NullPointerException if the given group is null.
    */
   boolean containsGroup(@NonNull String group);
 
   /**
-   * Gets a specific group by its name.
+   * Gets the permission group by the given name.
    *
-   * @param name the case-sensitive name of the group
-   * @return the {@link PermissionUser} if it exists, null otherwise
+   * @param name the case-sensitive name of the group.
+   * @return the permission group with the given name, null if there is no group with the given name.
+   * @throws NullPointerException if the given name is null.
    */
   @Nullable PermissionGroup group(@NonNull String name);
 
   /**
-   * Gets the list of all groups in the Cloud.
+   * Gets all known permission groups.
    *
-   * @return a list of {@link PermissionGroup}s registered in the cloud or an empty list if there is no group registered
+   * @return all permissions groups.
    */
   @NonNull Collection<PermissionGroup> groups();
 
   /**
-   * Clears all groups in the Cloud and sets given groups.
+   * Overwrites all known groups with the given collection of groups. Null is allowed and results in the removal of all
+   * groups without a replacement.
    *
-   * @param groups the new groups
+   * @param groups the groups to add after clearing all other groups.
    */
   void groups(@Nullable Collection<? extends PermissionGroup> groups);
 
@@ -385,33 +423,35 @@ public interface PermissionManagement {
    * Gets the permission group with the given name by using {@link #group(String)} and, if not null, puts it into the
    * consumer, after that, the group will be updated by using {@link #updateGroup(PermissionGroup)}.
    *
-   * @param name     the name of the group
-   * @param modifier the Consumer to modify the user
-   * @return the modified group
+   * @param name     the name of the group.
+   * @param modifier the consumer to modify the user.
+   * @return the modified group, null if no group was found with the given name.
+   * @throws NullPointerException if the given name or consumer is null.
    */
-  @Nullable PermissionGroup modifyGroup(
-    @NonNull String name,
+  @Nullable PermissionGroup modifyGroup(@NonNull String name,
     @NonNull BiConsumer<PermissionGroup, PermissionGroup.Builder> modifier);
 
   /**
-   * Gets the permission user with the given uniqueId by using {@link #user(UUID)} and, if not null, puts them into the
+   * Gets the permission user with the given unique id using {@link #user(UUID)} and, if not null, puts them into the
    * consumer, after that, the user will be updated by using {@link #updateUser(PermissionUser)}.
    *
-   * @param uniqueId the uniqueId of the user
-   * @param modifier the Consumer to modify the user
-   * @return the modified user
+   * @param uniqueId the unique id of the user
+   * @param modifier the consumer to modify the user
+   * @return the modified user, null if no user was found with the given unique id.
+   * @throws NullPointerException if the given unique id or consumer is null.
    */
   @Nullable PermissionUser modifyUser(
     @NonNull UUID uniqueId,
     @NonNull BiConsumer<PermissionUser, PermissionUser.Builder> modifier);
 
   /**
-   * Gets every user matching the given name by using {@link #usersByName(String)} and puts them into the consumer,
-   * after that, every user will be updated by using {@link #updateUser(PermissionUser)}.
+   * Gets every user matching the given name using {@link #usersByName(String)} and puts them into the consumer, after
+   * that, every user will be updated by using {@link #updateUser(PermissionUser)}.
    *
-   * @param name     the name of the users
-   * @param modifier the Consumer to modify the available users
-   * @return a list of all modified users
+   * @param name     the name of the users.
+   * @param modifier the consumer to modify the available users.
+   * @return a list containing all modified users.
+   * @throws NullPointerException if the given name or consumer is null.
    */
   @NonNull List<PermissionUser> modifyUsers(
     @NonNull String name,
@@ -421,274 +461,297 @@ public interface PermissionManagement {
    * Sends a command line to the node the method is called on or the node the wrapper is connected to. The command line
    * is executed and all resulting messages are collected in the collection of strings.
    *
-   * @param user        the user to execute the command line with
-   * @param commandLine the command line to execute on the node
-   * @return all messages regarding the command execution
+   * @param user        the user to execute the command line with.
+   * @param commandLine the command line to execute on the node.
+   * @return all messages regarding the command execution.
+   * @throws NullPointerException if the given user or command line is null.
    */
   @NonNull Collection<String> sendCommandLine(@NonNull PermissionUser user, @NonNull String commandLine);
 
   /**
-   * Retrieves every permission group object of the specified permissionUser.
+   * Gets all groups that are associated with the given permissible.
    *
-   * @param permissionUser the user to get the groups of
-   * @return a collection of all group objects the user is in
+   * @param permissible the permissible to retrieve the groups for.
+   * @return a task containing all found groups.
    */
-  default @NonNull Task<Collection<PermissionGroup>> groupsOfAsync(@Nullable PermissionUser permissionUser) {
-    return CompletableTask.supply(() -> this.groupsOf(permissionUser));
+  default @NonNull Task<Collection<PermissionGroup>> groupsOfAsync(@Nullable Permissible permissible) {
+    return CompletableTask.supply(() -> this.groupsOf(permissible));
   }
 
   /**
-   * Adds a new user to the database.
+   * Inserts the given permission user into the database. If there already is a permission user with the same unique id
+   * the old one is replaced by the given permission user.
    *
-   * @param permissionUser the user to be added
-   * @return the created permission user
+   * @param permissionUser the user to add.
+   * @return a task containing the same instance that was given.
+   * @throws NullPointerException if the given user is null.
    */
   default @NonNull Task<PermissionUser> addPermissionUserAsync(@NonNull PermissionUser permissionUser) {
     return CompletableTask.supply(() -> this.addPermissionUser(permissionUser));
   }
 
   /**
-   * Adds a new user to the database.
+   * Creates a new permission user and inserts it into the database. If the there already is a user in the database the
+   * user is updated.
    *
-   * @param name     the name of the new user
-   * @param password the password of the new user
-   * @param potency  the potency of the new user
-   * @return the created permission user
+   * @param name     the name of the new user.
+   * @param password the password of the new user.
+   * @param potency  the potency of the new user.
+   * @return a task containing the newly created permission user.
+   * @throws NullPointerException if the given name or password is null.
    */
   default @NonNull Task<PermissionUser> addUserAsync(@NonNull String name, @NonNull String password, int potency) {
-    return CompletableTask.supply(() -> this.addUser(name, password, potency));
+    return CompletableTask.supply(() -> this.addPermissionUser(name, password, potency));
   }
 
   /**
-   * Updates an already existing user in the database.
+   * Updates the given permission user in the database. If there is no user with the unique id the user is just inserted
+   * into the database.
    *
-   * @param permissionUser the user to be updated
-   * @return a task completed when the operation was executed
+   * @param permissionUser the user to update in the database.
+   * @return a task that completes when the user was updated.
+   * @throws NullPointerException if the given user is null.
    */
   default @NonNull Task<Void> updateUserAsync(@NonNull PermissionUser permissionUser) {
     return CompletableTask.supply(() -> this.updateUser(permissionUser));
   }
 
   /**
-   * Deletes all users in the database matching the given name. This method is case-sensitive.
+   * Deletes all users in the database matching the given name. The given name is case-sensitive.
    *
    * @param name the name of the users to be deleted
-   * @return if the operation was successful
+   * @return a task containing true if any user was deleted, false if none was deleted.
+   * @throws NullPointerException if the given name is null.
    */
   default @NonNull Task<Boolean> deleteUserAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.deleteUser(name));
   }
 
   /**
-   * Deletes one user with the uniqueId of the given user.
+   * Deletes the given user from the database.
    *
-   * @param permissionUser the user to be deleted
-   * @return if the operation was successful
+   * @param permissionUser the user to delete from the database.
+   * @return a task containing if there was a user with the unique id of the given user, false otherwise.
+   * @throws NullPointerException if the given user is null.
    */
   default @NonNull Task<Boolean> deletePermissionUserAsync(@NonNull PermissionUser permissionUser) {
     return CompletableTask.supply(() -> this.deletePermissionUser(permissionUser));
   }
 
   /**
-   * Checks if a user with the given uniqueId is stored in the database.
+   * Checks if a user with the given unique id is stored in the database.
    *
-   * @param uniqueId the uniqueId of the user
-   * @return true if there is a user with that uniqueId, false otherwise
+   * @param uniqueId the unique id of the user.
+   * @return a task containing true if there is a user with the given unique id, false otherwise.
+   * @throws NullPointerException if the given unique id is null.
    */
   default @NonNull Task<Boolean> containsUserAsync(@NonNull UUID uniqueId) {
     return CompletableTask.supply(() -> this.containsUser(uniqueId));
   }
 
   /**
-   * Checks if at least one user with the given name is stored in the database. This method is case-sensitive.
+   * Checks if at least one user with the given name is stored in the database. This given name is case-sensitive.
    *
    * @param name the name of the user
-   * @return true if there is a user with that name, false otherwise
+   * @return a task containing true if there is a user with that name, false otherwise
+   * @throws NullPointerException if the given name is null.
    */
   default @NonNull Task<Boolean> containsOneUserAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.containsOneUser(name));
   }
 
   /**
-   * Gets a user with the given uniqueId out of the database.
+   * Searches for the user with the given unique id.
    *
-   * @param uniqueId the uniqueId of the user
-   * @return the {@link PermissionUser} from the database or null if there is no user with that uniqueId stored
+   * @param uniqueId the unique id of the user.
+   * @return a task containing the found permission user, null if no user was found.
+   * @throws NullPointerException if the given unique id is null.
    */
   default @NonNull Task<PermissionUser> userAsync(@NonNull UUID uniqueId) {
     return CompletableTask.supply(() -> this.user(uniqueId));
   }
 
   /**
-   * Gets a user with the given uniqueId out of the database or creates a new one if the database contains no such
-   * entry.
+   * Searches the database for a permission user with the given unique id. If no user with the given id is found a new
+   * user is stored in the database.
+   * <p>
+   * The given name is not used to search for the user.
    *
-   * @param uniqueId the uniqueId of the user
-   * @param name     the name of the permission user
-   * @return the {@link PermissionUser} from the database or a newly created one.
+   * @param uniqueId the uniqueId of the user.
+   * @param name     the name of the user.
+   * @return a task containing the found or created permission user.
+   * @throws NullPointerException if the given unique id or name is null.
    */
   default @NonNull Task<PermissionUser> getOrCreateUserAsync(@NonNull UUID uniqueId, @NonNull String name) {
     return CompletableTask.supply(() -> this.getOrCreateUser(uniqueId, name));
   }
 
   /**
-   * Gets a list of all users with the given name out of the database. This can only return null when the connection to
-   * the database (or when it is executed in a Wrapper instance the connection to the cloud) times out.
+   * Gets a list of all users with the given name out of the database.
    *
-   * @param name the name of the users
-   * @return a list of all {@link PermissionUser}s stored in the database or an empty list if there is no user with that
-   * name stored.
+   * @param name the name to search in the database for.
+   * @return a task containing all found users that have the given name.
+   * @throws NullPointerException if the given name is null.
    */
   default @NonNull Task<List<PermissionUser>> usersByNameAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.usersByName(name));
   }
 
   /**
-   * Gets the first user with the specified name.
+   * Searches all users matching the given name and selecting the first one.
    *
-   * @param name the name of the user to get.
-   * @return the {@link PermissionUser} from the database or null if there is no user with that name stored
+   * @param name the name of the user to search.
+   * @return a task containing the found user or null if no user with this name exists.
+   * @throws NullPointerException if the given name is null.
    */
   default @NonNull Task<PermissionUser> firstUserAsync(String name) {
     return CompletableTask.supply(() -> this.firstUser(name));
   }
 
   /**
-   * Gets a list of all users stored in the database. This can only return null when the connection to the database (or
-   * when it is executed in a Wrapper instance the connection to the cloud) times out.
+   * Gets a list of all stored permission users in the database.
    * <p>
-   * This method shouldn't be used when there are many users stored in the database, because that takes a lot of
+   * Note: If there are many users in the database this might lead to memory issues as all of them are loaded into
    * memory.
    *
-   * @return a list of all {@link PermissionUser}s stored in the database or an empty list if there is no user with that
-   * name stored.
+   * @return a task containing all permission users.
    */
+  @Experimental
   default @NonNull Task<Collection<PermissionUser>> usersAsync() {
     return CompletableTask.supply(this::users);
   }
 
   /**
-   * Gets a list of all users stored in the database with the given group. This can only return null when the connection
-   * to the database (or when it is executed in a Wrapper instance the connection to the cloud) times out.
+   * Gets a list of all stored permission users in the database that are in the given group.
    * <p>
-   * This method shouldn't be used when there are many users with that group stored in the database, because that takes
-   * a lot of memory.
+   * Note: If there are many users in the database this might lead to memory issues as all of them are loaded into
+   * memory.
    *
-   * @param group the name of the group to get the users of.
-   * @return a list of all {@link PermissionUser}s stored in the database or an empty list if there is no user with that
-   * name stored.
+   * @return a task containing all permission users in the given group.
+   * @throws NullPointerException if the given group is null.
    */
   default @NonNull Task<Collection<PermissionUser>> usersByGroupAsync(@NonNull String group) {
     return CompletableTask.supply(() -> this.usersByGroup(group));
   }
 
   /**
-   * Adds a new permission group to the list of groups. If a group with that name already exists, it will be deleted and
-   * created again.
+   * Stores the given permission group. If there already is a group with the same name the old group is replaced by the
+   * given one.
    *
-   * @param permissionGroup the {@link PermissionGroup} to be added
-   * @return the created permission group.
+   * @param permissionGroup the group to add.
+   * @return a task containing the same instance that was given.
+   * @throws NullPointerException if the given permission group is null.
    */
   default @NonNull Task<PermissionGroup> addPermissionGroupAsync(@NonNull PermissionGroup permissionGroup) {
     return CompletableTask.supply(() -> this.addPermissionGroup(permissionGroup));
   }
 
   /**
-   * Adds a new permission group to the list of groups. If a group with that name already exists, it will be deleted and
-   * created again.
+   * Creates a new permission group with the given name and potency. If there already is group with the given name the
+   * old group is replaced by the newly created one.
    *
-   * @param role    the name of the group to create.
+   * @param name    the case-sensitive name of the new group.
    * @param potency the potency of the new group.
-   * @return the created permission group.
+   * @return a task containing the newly created permission group.
+   * @throws NullPointerException if the given name is null.
    */
-  default @NonNull Task<PermissionGroup> addGroupAsync(@NonNull String role, int potency) {
-    return CompletableTask.supply(() -> this.addGroup(role, potency));
+  default @NonNull Task<PermissionGroup> addGroupAsync(@NonNull String name, int potency) {
+    return CompletableTask.supply(() -> this.addPermissionGroup(name, potency));
   }
 
   /**
-   * Updates a permission group in the list of groups. If a group with that name doesn't exist, it will be created.
+   * Updates the given permission group. If there is no group with the given name the group is added.
    *
-   * @param permissionGroup the {@link PermissionGroup} to be updated
-   * @return a task completed when the operation was executed
+   * @param permissionGroup the group to update.
+   * @return a task that completes after the group is updated.
+   * @throws NullPointerException if the given permission group is null.
    */
   default @NonNull Task<Void> updateGroupAsync(@NonNull PermissionGroup permissionGroup) {
     return CompletableTask.supply(() -> this.updateGroup(permissionGroup));
   }
 
   /**
-   * Deletes a group by its name out of the list of groups. If a group with that name doesn't exist, nothing happens.
+   * Deletes the group by the given name.
    *
-   * @param name the case-sensitive name of the group
-   * @return a task completed when the operation was executed
+   * @param name the name of the group to delete.
+   * @return a task containing true if a group with the name was found and deleted, false otherwise.
+   * @throws NullPointerException if the given name is null.
    */
   default @NonNull Task<Boolean> deleteGroupAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.deleteGroup(name));
   }
 
   /**
-   * Deletes a group by its name out of the list of groups. If a group with that name doesn't exist, nothing happens.
+   * Deletes the given permission group.
    *
-   * @param permissionGroup the {@link PermissionGroup} to be deleted
-   * @return a task completed when the operation was executed
+   * @param permissionGroup the permission group to delete.
+   * @return a task containing always true as the group is already present.
+   * @throws NullPointerException if the given group is null.
    */
   default @NonNull Task<Boolean> deletePermissionGroupAsync(@NonNull PermissionGroup permissionGroup) {
     return CompletableTask.supply(() -> this.deletePermissionGroup(permissionGroup));
   }
 
   /**
-   * Checks if a specific group exists.
+   * Checks if the given group exists.
    *
-   * @param group the case-sensitive name of the group
-   * @return true if the group exists, false otherwise
+   * @param group the case-sensitive name of the group.
+   * @return a task containing true if the group exists, false otherwise.
+   * @throws NullPointerException if the given group is null.
    */
   default @NonNull Task<Boolean> containsGroupAsync(@NonNull String group) {
     return CompletableTask.supply(() -> this.containsGroup(group));
   }
 
   /**
-   * Gets a specific group by its name.
+   * Gets the permission group by the given name.
    *
-   * @param name the case-sensitive name of the group
-   * @return the {@link PermissionUser} if it exists, null otherwise
+   * @param name the case-sensitive name of the group.
+   * @return a task containing the permission group with the given name, null if there is no group with the given name.
+   * @throws NullPointerException if the given name is null.
    */
   default @NonNull Task<PermissionGroup> groupAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.group(name));
   }
 
   /**
-   * Gets the default permission group.
+   * Gets the default permission group. The default group is determined by the {@link PermissionGroup#defaultGroup()}
+   * property. If multiple groups are the default group this method might return another result for each call.
    *
-   * @return the default permission group.
+   * @return a task containing the default permission group, null if no group is marked as default.
    */
   default @NonNull Task<PermissionGroup> defaultPermissionGroupAsync() {
     return CompletableTask.supply(this::defaultPermissionGroup);
   }
 
   /**
-   * Gets the list of all groups in the Cloud.
+   * Gets all known permission groups.
    *
-   * @return a list of {@link PermissionGroup}s registered in the cloud or an empty list if there is no group registered
+   * @return a task containing all permissions groups.
    */
   default @NonNull Task<Collection<PermissionGroup>> groupsAsync() {
     return CompletableTask.supply((ThrowableSupplier<Collection<PermissionGroup>, Throwable>) this::groups);
   }
 
   /**
-   * Clears all groups in the Cloud and sets given groups.
+   * Overwrites all known groups with the given collection of groups. Null is allowed and results in the removal of all
+   * groups without a replacement.
    *
-   * @param groups the new groups
+   * @param groups the groups to add after clearing all other groups.
+   * @return a task that completes after the groups were replaced.
    */
   default @NonNull Task<Void> groupsAsync(@Nullable Collection<? extends PermissionGroup> groups) {
     return CompletableTask.supply(() -> this.groups(groups));
   }
 
   /**
-   * Gets the permission group with the given name by using {@link #groupAsync(String)} and, if not null, puts it into
-   * the consumer, after that, the group will be updated by using {@link #updateGroup(PermissionGroup)}.
+   * Gets the permission group with the given name by using {@link #group(String)} and, if not null, puts it into the
+   * consumer, after that, the group will be updated by using {@link #updateGroup(PermissionGroup)}.
    *
-   * @param name     the name of the group
-   * @param modifier the Consumer to modify the user
-   * @return the modified user
+   * @param name     the name of the group.
+   * @param modifier the consumer to modify the user.
+   * @return a task containing the modified group, null if no group was found with the given name.
+   * @throws NullPointerException if the given name or consumer is null.
    */
   default @NonNull Task<PermissionGroup> modifyGroupAsync(
     @NonNull String name,
@@ -698,12 +761,13 @@ public interface PermissionManagement {
   }
 
   /**
-   * Gets the permission user with the given uniqueId by using {@link #userAsync(UUID)} and, if not null, puts them into
-   * the consumer, after that, the user will be updated by using {@link #updateUser(PermissionUser)}.
+   * Gets the permission user with the given unique id using {@link #user(UUID)} and, if not null, puts them into the
+   * consumer, after that, the user will be updated by using {@link #updateUser(PermissionUser)}.
    *
-   * @param uniqueId the uniqueId of the user
-   * @param modifier the Consumer to modify the user
-   * @return the modified user
+   * @param uniqueId the unique id of the user
+   * @param modifier the consumer to modify the user
+   * @return a task containing the modified user, null if no user was found with the given unique id.
+   * @throws NullPointerException if the given unique id or consumer is null.
    */
   default @NonNull Task<PermissionUser> modifyUserAsync(
     @NonNull UUID uniqueId,
@@ -713,12 +777,13 @@ public interface PermissionManagement {
   }
 
   /**
-   * Gets every user matching the given name by using {@link #usersByNameAsync(String)} and puts them into the consumer,
-   * after that, every user will be updated by using {@link #updateUser(PermissionUser)}.
+   * Gets every user matching the given name using {@link #usersByName(String)} and puts them into the consumer, after
+   * that, every user will be updated by using {@link #updateUser(PermissionUser)}.
    *
-   * @param name     the name of the users
-   * @param modifier the Consumer to modify the available users
-   * @return a list of all modified users
+   * @param name     the name of the users.
+   * @param modifier the consumer to modify the available users.
+   * @return a task containing a list containing all modified users.
+   * @throws NullPointerException if the given name or consumer is null.
    */
   default @NonNull Task<List<PermissionUser>> modifyUsersAsync(
     @NonNull String name,
@@ -731,9 +796,10 @@ public interface PermissionManagement {
    * Sends a command line to the node the method is called on or the node the wrapper is connected to. The command line
    * is executed and all resulting messages are collected in the collection of strings.
    *
-   * @param user        the user to execute the command line with
-   * @param commandLine the command line to execute on the node
-   * @return all messages regarding the command execution
+   * @param user        the user to execute the command line with.
+   * @param commandLine the command line to execute on the node.
+   * @return a task containing all messages regarding the command execution.
+   * @throws NullPointerException if the given user or command line is null.
    */
   default @NonNull Task<Collection<String>> sendCommandLineAsync(
     @NonNull PermissionUser user,

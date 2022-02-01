@@ -19,15 +19,14 @@ package eu.cloudnetservice.cloudnet.driver.permission;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.common.document.property.JsonDocPropertyHolder;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
-import org.jetbrains.annotations.Nullable;
 
+//TODO: header
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public abstract class AbstractPermissible extends JsonDocPropertyHolder implements Permissible {
@@ -39,12 +38,17 @@ public abstract class AbstractPermissible extends JsonDocPropertyHolder implemen
   protected Set<Permission> permissions;
   protected Map<String, Set<Permission>> groupPermissions;
 
-  public AbstractPermissible() {
-    this.createdTime = System.currentTimeMillis();
-    this.permissions = new HashSet<>();
-    this.groupPermissions = new HashMap<>();
-  }
-
+  /**
+   * Constructs a new abstract permissible which is the underlying base for a permission group or user.
+   *
+   * @param name             the name of the permissible.
+   * @param potency          the potency of the permissible.
+   * @param createdTime      the creation time as unix timestamp.
+   * @param permissions      all permissions of the permissible.
+   * @param groupPermissions all permissions of the permissible that are per (service) group.
+   * @param properties       extra properties for the permissible.
+   * @throws NullPointerException if the given name, permissions, groupPermissions or properties is null.
+   */
   public AbstractPermissible(
     @NonNull String name,
     int potency,
@@ -61,27 +65,38 @@ public abstract class AbstractPermissible extends JsonDocPropertyHolder implemen
     this.properties = properties;
   }
 
-  private boolean addPermission(@NonNull Collection<Permission> permissions, @Nullable Permission permission) {
-    if (permission == null) {
-      return false;
-    }
-
+  /**
+   * Adds the given permission into the set of permissions. If the collection contains a permission with the same
+   * name it is removed before adding the new permission.
+   *
+   * @param permissions the set of permissions to add the given permission to.
+   * @param permission  the permission to add to the other permissions.
+   * @throws NullPointerException if the given permissions or the permission is null.
+   */
+  private void addPermission(@NonNull Set<Permission> permissions, @NonNull Permission permission) {
     permissions.removeIf(existingPermission -> existingPermission.name().equalsIgnoreCase(permission.name()));
     permissions.add(permission);
-
-    return true;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public boolean addPermission(@NonNull Permission permission) {
-    return this.addPermission(this.permissions, permission);
+  public void addPermission(@NonNull Permission permission) {
+    this.addPermission(this.permissions, permission);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public boolean addPermission(@NonNull String group, @NonNull Permission permission) {
-    return this.addPermission(this.groupPermissions.computeIfAbsent(group, s -> new HashSet<>()), permission);
+  public void addPermission(@NonNull String group, @NonNull Permission permission) {
+    this.addPermission(this.groupPermissions.computeIfAbsent(group, s -> new HashSet<>()), permission);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean removePermission(@NonNull String permission) {
     var exist = this.permission(permission);
@@ -93,6 +108,9 @@ public abstract class AbstractPermissible extends JsonDocPropertyHolder implemen
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean removePermission(@NonNull String group, @NonNull String permission) {
     if (this.groupPermissions.containsKey(group)) {
@@ -107,25 +125,42 @@ public abstract class AbstractPermissible extends JsonDocPropertyHolder implemen
     return false;
   }
 
+  /**
+   * Gets the creation time as unix timestamp of this permissible.
+   *
+   * @return the creation time of this permissible.
+   */
   public long createdTime() {
     return this.createdTime;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull String name() {
     return this.name;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int potency() {
     return this.potency;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Collection<Permission> permissions() {
     return this.permissions;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Map<String, Set<Permission>> groupPermissions() {
     return this.groupPermissions;

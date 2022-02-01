@@ -107,7 +107,7 @@ public final class CommandPermissions {
     if (this.permissionManagement().firstUser(name) != null) {
       source.sendMessage(I18n.trans("command-permissions-create-user-already-exists"));
     } else {
-      this.permissionManagement().addUser(name, password, potency);
+      this.permissionManagement().addPermissionUser(name, password, potency);
       source.sendMessage(I18n.trans("command-permissions-create-user-successful", name));
     }
   }
@@ -121,7 +121,7 @@ public final class CommandPermissions {
     if (this.permissionManagement().group(name) != null) {
       source.sendMessage(I18n.trans("command-permissions-create-group-already-exists"));
     } else {
-      this.permissionManagement().addGroup(name, potency);
+      this.permissionManagement().addPermissionGroup(name, potency);
       source.sendMessage(I18n.trans("command-permissions-create-group-successful", name));
     }
   }
