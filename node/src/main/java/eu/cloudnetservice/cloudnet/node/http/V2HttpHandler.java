@@ -70,7 +70,7 @@ public abstract class V2HttpHandler implements HttpHandler {
     if (context.request().method().equalsIgnoreCase("OPTIONS")) {
       this.sendOptions(context);
     } else {
-      if (!this.requestMethods.isEmpty() && this.requestMethods.contains(context.request().method().toUpperCase())) {
+      if (!this.requestMethods.isEmpty() && !this.requestMethods.contains(context.request().method().toUpperCase())) {
         this.response(context, HttpResponseCode.METHOD_NOT_ALLOWED)
           .header("Allow", this.requestMethodsString)
           .context()
