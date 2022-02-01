@@ -17,18 +17,18 @@
 package eu.cloudnetservice.cloudnet.node.network.packet;
 
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.BasePacket;
-import org.jetbrains.annotations.Nullable;
+import lombok.NonNull;
 
-public final class PacketServerAuthorizationResponse extends BasePacket {
+public final class PacketServerServiceSyncAckPacket extends BasePacket {
 
-  public PacketServerAuthorizationResponse(boolean success, boolean reconnect, @Nullable DataBuf extraData) {
+  public PacketServerServiceSyncAckPacket(@NonNull NetworkClusterNodeInfoSnapshot info, @NonNull DataBuf localData) {
     super(
-      NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL,
+      NetworkConstants.INTERNAL_SERVICE_SYNC_ACK_CHANNEL,
       DataBuf.empty()
-        .writeBoolean(success)
-        .writeBoolean(reconnect)
-        .writeObject(extraData));
+        .writeObject(info)
+        .writeDataBuf(localData));
   }
 }

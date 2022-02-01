@@ -27,7 +27,10 @@ import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.PacketListener;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceId;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.cluster.NodeServerState;
+import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.cloudnet.node.event.network.NetworkClusterNodeAuthSuccessEvent;
+import eu.cloudnetservice.cloudnet.node.event.network.NetworkClusterNodeReconnectEvent;
 import eu.cloudnetservice.cloudnet.node.event.network.NetworkServiceAuthSuccessEvent;
 import eu.cloudnetservice.cloudnet.node.network.NodeNetworkUtil;
 import eu.cloudnetservice.cloudnet.node.network.packet.PacketServerAuthorizationResponse;
@@ -54,18 +57,32 @@ public final class PacketClientAuthorizationListener implements PacketListener {
             break;
           }
           // search for the node server which represents the connected node and initialize it
-          for (var nodeServer : CloudNet.instance().nodeServerProvider().nodeServers()) {
-            if (nodeServer.acceptableConnection(channel, node.uniqueId())) {
-              // set up the node
-              nodeServer.channel(channel);
+          for (var server : CloudNet.instance().nodeServerProvider().nodeServers()) {
+            if (server.info().uniqueId().equals(node.uniqueId())) {
               // add the required packet listeners
-              channel.packetRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
               NodeNetworkUtil.addDefaultPacketListeners(channel.packetRegistry(), CloudNet.instance());
-              // successful auth
-              channel.sendPacketSync(new PacketServerAuthorizationResponse(true));
-              // call the auth success event
-              CloudNet.instance().eventManager().callEvent(
-                new NetworkClusterNodeAuthSuccessEvent(nodeServer, channel));
+              channel.packetRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
+              // check if the node is currently marked disconnected and reconnected to the network
+              if (server.state() == NodeServerState.DISCONNECTED) {
+                // respond with an auth success
+                var data = CloudNet.instance().dataSyncRegistry().prepareClusterData(
+                  true,
+                  DataSyncHandler::alwaysForceApply);
+                channel.sendPacket(new PacketServerAuthorizationResponse(true, true, data));
+                // reset the state of the server
+                server.state(NodeServerState.SYNCING);
+                // call the node reconnect success event
+                CloudNet.instance().eventManager().callEvent(new NetworkClusterNodeReconnectEvent(server, channel));
+              } else {
+                // reply with a default auth success
+                channel.sendPacket(new PacketServerAuthorizationResponse(true, false, null));
+                // set the state of the node for further handling
+                server.channel(channel);
+                server.state(NodeServerState.READY);
+                // call the auth success event
+                CloudNet.instance().eventManager().callEvent(new NetworkClusterNodeAuthSuccessEvent(server, channel));
+              }
+
               // do not search for more nodes
               return;
             }
@@ -90,7 +107,7 @@ public final class PacketClientAuthorizationListener implements PacketListener {
             channel.packetRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
             NodeNetworkUtil.addDefaultPacketListeners(channel.packetRegistry(), CloudNet.instance());
             // successful auth
-            channel.sendPacket(new PacketServerAuthorizationResponse(true));
+            channel.sendPacket(new PacketServerAuthorizationResponse(true, false, null));
             // call the auth success event
             CloudNet.instance().eventManager().callEvent(new NetworkServiceAuthSuccessEvent(service, channel));
             var serviceId = service.serviceId();
@@ -109,7 +126,7 @@ public final class PacketClientAuthorizationListener implements PacketListener {
       }
     }
     // auth not successful
-    channel.sendPacketSync(new PacketServerAuthorizationResponse(false));
+    channel.sendPacketSync(new PacketServerAuthorizationResponse(false, false, null));
     channel.close();
   }
 }

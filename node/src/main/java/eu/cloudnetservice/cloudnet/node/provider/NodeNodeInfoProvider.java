@@ -21,8 +21,8 @@ import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import eu.cloudnetservice.cloudnet.driver.provider.NodeInfoProvider;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
-import eu.cloudnetservice.cloudnet.node.cluster.ClusterNodeServer;
-import eu.cloudnetservice.cloudnet.node.cluster.ClusterNodeServerProvider;
+import eu.cloudnetservice.cloudnet.node.cluster.NodeServer;
+import eu.cloudnetservice.cloudnet.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
 import eu.cloudnetservice.cloudnet.node.command.source.DriverCommandSource;
 import java.util.Collection;
@@ -33,7 +33,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class NodeNodeInfoProvider implements NodeInfoProvider {
 
-  private final ClusterNodeServerProvider clusterNodeServerProvider;
+  private final NodeServerProvider clusterNodeServerProvider;
 
   public NodeNodeInfoProvider(@NonNull CloudNet nodeInstance) {
     this.clusterNodeServerProvider = nodeInstance.nodeServerProvider();
@@ -48,19 +48,15 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
   @Override
   public @NonNull NetworkClusterNode[] nodes() {
     return this.clusterNodeServerProvider.nodeServers().stream()
-      .map(ClusterNodeServer::nodeInfo)
+      .map(NodeServer::info)
       .toArray(NetworkClusterNode[]::new);
   }
 
   @Override
   public @Nullable NetworkClusterNode node(@NonNull String uniqueId) {
-    // check if the current node is requested
-    if (uniqueId.equals(this.clusterNodeServerProvider.selfNode().nodeInfo().uniqueId())) {
-      return this.clusterNodeServerProvider.selfNode().nodeInfo();
-    }
     // find the node info
     return this.clusterNodeServerProvider.nodeServers().stream()
-      .map(ClusterNodeServer::nodeInfo)
+      .map(NodeServer::info)
       .filter(nodeInfo -> nodeInfo.uniqueId().equals(uniqueId))
       .findFirst()
       .orElse(null);
@@ -69,21 +65,17 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
   @Override
   public @NonNull NetworkClusterNodeInfoSnapshot[] nodeInfoSnapshots() {
     return this.clusterNodeServerProvider.nodeServers().stream()
-      .map(ClusterNodeServer::nodeInfoSnapshot)
+      .map(NodeServer::nodeInfoSnapshot)
       .filter(Objects::nonNull)
       .toArray(NetworkClusterNodeInfoSnapshot[]::new);
   }
 
   @Override
   public @Nullable NetworkClusterNodeInfoSnapshot nodeInfoSnapshot(@NonNull String uniqueId) {
-    // check if the current node is requested
-    if (uniqueId.equals(this.clusterNodeServerProvider.selfNode().nodeInfo().uniqueId())) {
-      return this.clusterNodeServerProvider.selfNode().nodeInfoSnapshot();
-    }
     // find the node we are looking for
     return this.clusterNodeServerProvider.nodeServers().stream()
-      .filter(nodeServer -> nodeServer.nodeInfo().uniqueId().equals(uniqueId))
-      .map(ClusterNodeServer::nodeInfoSnapshot)
+      .filter(nodeServer -> nodeServer.info().uniqueId().equals(uniqueId))
+      .map(NodeServer::nodeInfoSnapshot)
       .filter(Objects::nonNull)
       .findFirst()
       .orElse(null);
@@ -98,13 +90,9 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
 
   @Override
   public @NonNull Collection<String> sendCommandLineToNode(@NonNull String nodeUniqueId, @NonNull String commandLine) {
-    // check if we should execute the command on the current node
-    if (nodeUniqueId.equals(this.clusterNodeServerProvider.selfNode().nodeInfo().uniqueId())) {
-      return this.sendCommandLine(commandLine);
-    }
     // find the node server and execute the command on there
-    var clusterNodeServer = this.clusterNodeServerProvider.nodeServer(nodeUniqueId);
-    if (clusterNodeServer != null && clusterNodeServer.connected()) {
+    var clusterNodeServer = this.clusterNodeServerProvider.node(nodeUniqueId);
+    if (clusterNodeServer != null && clusterNodeServer.available()) {
       return clusterNodeServer.sendCommandLine(commandLine);
     }
     // unable to execute the command

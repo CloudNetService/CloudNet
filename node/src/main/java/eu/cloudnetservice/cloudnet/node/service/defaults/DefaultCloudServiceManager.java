@@ -32,7 +32,7 @@ import eu.cloudnetservice.cloudnet.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTask;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.CloudNetTick;
-import eu.cloudnetservice.cloudnet.node.cluster.ClusterNodeServerProvider;
+import eu.cloudnetservice.cloudnet.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.cloudnet.node.event.service.CloudServicePreForceStopEvent;
 import eu.cloudnetservice.cloudnet.node.service.CloudService;
@@ -71,7 +71,7 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
   private static final Logger LOGGER = LogManager.logger(CloudServiceManager.class);
 
   protected final RPCSender sender;
-  protected final ClusterNodeServerProvider clusterNodeServerProvider;
+  protected final NodeServerProvider clusterNodeServerProvider;
 
   protected final Map<UUID, SpecificCloudServiceProvider> knownServices = new ConcurrentHashMap<>();
   protected final Map<String, CloudServiceFactory> cloudServiceFactories = new ConcurrentHashMap<>();
@@ -107,7 +107,7 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
         .convertObject(ServiceInfoSnapshot.class)
         .writer(ser -> {
           // ugly hack to get the channel of the service's associated node
-          var node = this.clusterNodeServerProvider.nodeServer(ser.serviceId().nodeUniqueId());
+          var node = this.clusterNodeServerProvider.node(ser.serviceId().nodeUniqueId());
           if (node != null && node.available()) {
             this.handleServiceUpdate(ser, node.channel());
           }
@@ -392,12 +392,12 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
       .filter(taskService -> taskService.lifeCycle() == ServiceLifeCycle.PREPARED)
       .map(service -> {
         // get the node server associated with the node
-        var nodeServer = this.clusterNodeServerProvider.nodeServer(service.serviceId().nodeUniqueId());
+        var nodeServer = this.clusterNodeServerProvider.node(service.serviceId().nodeUniqueId());
         // the server should never be null - just to be sure
         return nodeServer == null ? null : new Pair<>(service, nodeServer);
       })
       .filter(Objects::nonNull)
-      .filter(pair -> !pair.second().drain())
+      .filter(pair -> !pair.second().draining())
       .filter(pair -> pair.second().available())
       .filter(pair -> {
         // filter out all nodes which are not able to start the service

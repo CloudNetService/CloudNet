@@ -21,11 +21,11 @@ import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServer;
 import lombok.NonNull;
 
-public final class NetworkClusterNodeAuthSuccessEvent extends NetworkEvent {
+public class NetworkClusterNodeReconnectEvent extends NetworkEvent {
 
   private final NodeServer node;
 
-  public NetworkClusterNodeAuthSuccessEvent(@NonNull NodeServer node, @NonNull NetworkChannel channel) {
+  public NetworkClusterNodeReconnectEvent(@NonNull NodeServer node, @NonNull NetworkChannel channel) {
     super(channel);
     this.node = node;
   }

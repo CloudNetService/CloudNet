@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.node.cluster;
+package eu.cloudnetservice.cloudnet.node.cluster.util;
 
 import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
@@ -22,26 +22,26 @@ import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessageTarget.Type;
 import eu.cloudnetservice.cloudnet.driver.event.events.service.CloudServiceLifecycleChangeEvent;
-import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.cluster.NodeServer;
 import eu.cloudnetservice.cloudnet.node.service.CloudService;
 import java.util.Collection;
 import lombok.NonNull;
 
-final class ClusterNodeServerUtil {
+public final class NodeServerUtil {
 
-  private static final Logger LOGGER = LogManager.logger(ClusterNodeServerUtil.class);
+  private static final Logger LOGGER = LogManager.logger(NodeServerUtil.class);
 
-  private ClusterNodeServerUtil() {
+  private NodeServerUtil() {
     throw new UnsupportedOperationException();
   }
 
-  public static void handleNodeServerClose(@NonNull NetworkChannel channel, @NonNull ClusterNodeServer server) {
+  public static void handleNodeServerClose(@NonNull NodeServer server) {
     for (var snapshot : CloudNet.instance().cloudServiceProvider().services()) {
-      if (snapshot.serviceId().nodeUniqueId().equalsIgnoreCase(server.nodeInfo().uniqueId())) {
+      if (snapshot.serviceId().nodeUniqueId().equalsIgnoreCase(server.name())) {
         // store the last lifecycle for the update event
         var lifeCycle = snapshot.lifeCycle();
         // mark the service as deleted
@@ -63,7 +63,7 @@ final class ClusterNodeServerUtil {
       }
     }
 
-    LOGGER.info(I18n.trans("cluster-server-networking-disconnected", server.nodeInfo().uniqueId()));
+    LOGGER.info(I18n.trans("cluster-server-networking-disconnected", server.name()));
   }
 
   private static @NonNull ChannelMessage.Builder targetServices(@NonNull Collection<CloudService> services) {
