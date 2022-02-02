@@ -104,15 +104,6 @@ public final class CommandCluster {
       .toList();
   }
 
-  @Suggestions("selfNodeServer")
-  public List<String> suggestNodeServer(CommandContext<CommandSource> $, String input) {
-    var provider = CloudNet.instance().nodeServerProvider();
-    return provider.nodeServers()
-      .stream()
-      .map(clusterNodeServer -> clusterNodeServer.info().uniqueId())
-      .toList();
-  }
-
   @Parser(suggestions = "networkClusterNode")
   public NetworkClusterNode defaultNetworkClusterNodeParser(CommandContext<CommandSource> $, Queue<String> input) {
     var nodeId = input.remove();

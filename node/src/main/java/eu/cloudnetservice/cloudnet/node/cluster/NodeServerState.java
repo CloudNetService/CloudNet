@@ -20,6 +20,5 @@ public enum NodeServerState {
   UNAVAILABLE,
   SYNCING,
   READY,
-  GOING_AWAY,
   DISCONNECTED
 }

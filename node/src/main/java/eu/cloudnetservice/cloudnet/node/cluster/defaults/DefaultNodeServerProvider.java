@@ -32,6 +32,7 @@ import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServer;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.cloudnet.node.cluster.task.LocalNodeUpdateTask;
+import eu.cloudnetservice.cloudnet.node.cluster.task.NodeDisconnectTrackerTask;
 import eu.cloudnetservice.cloudnet.node.network.listener.message.NodeChannelMessageListener;
 import java.io.InputStream;
 import java.util.Collection;
@@ -71,6 +72,7 @@ public class DefaultNodeServerProvider implements NodeServerProvider {
       node.dataSyncRegistry(),
       this));
     this.executor.scheduleAtFixedRate(new LocalNodeUpdateTask(this), 1, 1, TimeUnit.SECONDS);
+    this.executor.scheduleAtFixedRate(new NodeDisconnectTrackerTask(this), 5, 5, TimeUnit.SECONDS);
 
     // set the head node initially
     this.selectHeadNode();
@@ -127,6 +129,8 @@ public class DefaultNodeServerProvider implements NodeServerProvider {
 
   @Override
   public void registerNodes(@NonNull NetworkCluster cluster) {
+    // remove all remote node servers
+    this.nodeServers.removeIf(server -> !(server instanceof LocalNodeServer));
     cluster.nodes().forEach(this::registerNode);
   }
 
