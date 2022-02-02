@@ -46,10 +46,8 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
   }
 
   @Override
-  public @NonNull NetworkClusterNode[] nodes() {
-    return this.clusterNodeServerProvider.nodeServers().stream()
-      .map(NodeServer::info)
-      .toArray(NetworkClusterNode[]::new);
+  public @NonNull Collection<NetworkClusterNode> nodes() {
+    return this.clusterNodeServerProvider.nodeServers().stream().map(NodeServer::info).toList();
   }
 
   @Override
@@ -63,11 +61,11 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
   }
 
   @Override
-  public @NonNull NetworkClusterNodeInfoSnapshot[] nodeInfoSnapshots() {
+  public @NonNull Collection<NetworkClusterNodeInfoSnapshot> nodeInfoSnapshots() {
     return this.clusterNodeServerProvider.nodeServers().stream()
       .map(NodeServer::nodeInfoSnapshot)
       .filter(Objects::nonNull)
-      .toArray(NetworkClusterNodeInfoSnapshot[]::new);
+      .toList();
   }
 
   @Override
