@@ -51,7 +51,7 @@ public class NodeLabyModListener {
   @EventListener
   public void handle(@NonNull CloudServicePreProcessStartEvent event) {
     var service = event.service();
-    if (!ServiceEnvironmentType.isMinecraftProxy(service.serviceId().environment())) {
+    if (!ServiceEnvironmentType.minecraftProxy(service.serviceId().environment())) {
       return;
     }
 

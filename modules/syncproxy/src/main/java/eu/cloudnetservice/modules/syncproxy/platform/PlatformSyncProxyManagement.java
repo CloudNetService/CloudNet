@@ -66,10 +66,10 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
   }
 
   protected void init() {
-    this.setConfigurationSilently(this.rpcSender.invokeMethod("configuration").fireSync());
+    this.configurationSilently(this.rpcSender.invokeMethod("configuration").fireSync());
   }
 
-  public void setConfigurationSilently(@NonNull SyncProxyConfiguration configuration) {
+  public void configurationSilently(@NonNull SyncProxyConfiguration configuration) {
     this.configuration = configuration;
     this.eventManager.callEvent(new SyncProxyConfigurationUpdateEvent(configuration));
 
@@ -157,7 +157,7 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
   }
 
   public void cacheServiceInfoSnapshot(@NonNull ServiceInfoSnapshot snapshot) {
-    if (ServiceEnvironmentType.isMinecraftProxy(snapshot.serviceId().environment())
+    if (ServiceEnvironmentType.minecraftProxy(snapshot.serviceId().environment())
       && this.checkServiceGroup(snapshot)) {
       this.proxyOnlineCountCache.put(
         snapshot.serviceId().uniqueId(),

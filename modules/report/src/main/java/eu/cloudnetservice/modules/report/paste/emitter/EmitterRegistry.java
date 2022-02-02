@@ -64,7 +64,10 @@ public class EmitterRegistry {
    *                supported
    * @return the same emitter registry, for chaining
    */
-  public <T> EmitterRegistry registerDataEmitter(@NonNull Class<T> clazz, @NonNull ReportDataEmitter<T> emitter) {
+  public <T> @NonNull EmitterRegistry registerDataEmitter(
+    @NonNull Class<T> clazz,
+    @NonNull ReportDataEmitter<T> emitter
+  ) {
     this.emitters.put(clazz, emitter);
     return this;
   }

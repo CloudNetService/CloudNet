@@ -18,7 +18,6 @@ package eu.cloudnetservice.modules.labymod.platform;
 
 import static eu.cloudnetservice.modules.bridge.BridgeServiceProperties.IS_IN_GAME;
 
-import eu.cloudnetservice.cloudnet.common.concurrent.CompletableTask;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
@@ -76,7 +75,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
     }
 
     var serviceDisplay = this.configuration.gameModeSwitchMessages();
-    var playingServer = serviceDisplay.getDisplay(snapshot);
+    var playingServer = serviceDisplay.display(snapshot);
     // if the display is null we can't send anything
     if (playingServer != null) {
       var labyModResponse = JsonDocument.newDocument("show_gamemode", true)
@@ -157,7 +156,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
   protected void handleDiscordRPC(@NonNull CloudPlayer cloudPlayer, @NonNull JsonDocument jsonData) {
     var joinSecret = jsonData.get("joinSecret", UUID.class);
     if (joinSecret != null) {
-      this.getPlayerByJoinSecret(joinSecret).onComplete(player -> {
+      this.playerByJoinSecret(joinSecret).onComplete(player -> {
         if (player != null && player.connectedService() != null) {
           var playerOptions = this.parsePlayerOptions(player);
           // check if the player is using labymod and has its options
@@ -179,7 +178,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
       });
     } else {
       var spectateSecret = jsonData.get("spectateSecret", UUID.class);
-      this.getPlayerBySpectateSecret(spectateSecret).onComplete(player -> {
+      this.playerBySpectateSecret(spectateSecret).onComplete(player -> {
         if (player != null && player.connectedService() != null) {
           var playerOptions = this.parsePlayerOptions(player);
           // check if the player is using labymod and has its options
@@ -206,7 +205,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
     @NonNull CloudPlayer cloudPlayer,
     @NonNull ServiceInfoSnapshot snapshot
   ) {
-    var playingService = this.configuration.discordRPC().getDisplay(snapshot);
+    var playingService = this.configuration.discordRPC().display(snapshot);
     // only create a rpc information if it's enabled and configured in the config
     if (playingService == null) {
       return null;
@@ -222,7 +221,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
     // used to determine if we need to send the join secret
     var sendJoinSecret = false;
     // check if joining the match is enabled
-    if (joinMatch.enabled() && joinMatch.isEnabled(snapshot) && !IS_IN_GAME.read(snapshot).orElse(false)) {
+    if (joinMatch.enabled() && joinMatch.enabled(snapshot) && !IS_IN_GAME.read(snapshot).orElse(false)) {
       // create a new join secret
       playerOptionsBuilder.joinSecret(UUID.randomUUID());
       sendJoinSecret = true;
@@ -235,7 +234,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
     // used to determine if we need to send the spectate secret
     var sendSpectateSecret = false;
     // check if spectating a match is allowed
-    if (spectateMatch.enabled() && spectateMatch.isEnabled(snapshot) && IS_IN_GAME.read(snapshot).orElse(false)) {
+    if (spectateMatch.enabled() && spectateMatch.enabled(snapshot) && IS_IN_GAME.read(snapshot).orElse(false)) {
       // create a new spectate secret
       playerOptionsBuilder.spectateSecret(UUID.randomUUID());
       sendSpectateSecret = true;
@@ -270,28 +269,26 @@ public class PlatformLabyModManagement implements LabyModManagement {
     return DataBuf.empty().writeString("discord_rpc").writeString(labyModProtocolResponse.toString());
   }
 
-  protected @NonNull Task<@Nullable CloudPlayer> getPlayerByJoinSecret(@NonNull UUID joinSecret) {
-    return CompletableTask.supply(() -> {
-      for (CloudPlayer player : this.playerManager.onlinePlayers().players()) {
+  protected @NonNull Task<@Nullable CloudPlayer> playerByJoinSecret(@NonNull UUID joinSecret) {
+    return this.playerManager.onlinePlayers().playersAsync().map(players -> {
+      for (var player : players) {
         var playerOptions = this.parsePlayerOptions(player);
         if (playerOptions != null && joinSecret.equals(playerOptions.joinSecret())) {
           return player;
         }
       }
-
       return null;
     });
   }
 
-  protected @NonNull Task<CloudPlayer> getPlayerBySpectateSecret(@NonNull UUID spectateSecret) {
-    return CompletableTask.supply(() -> {
-      for (CloudPlayer player : this.playerManager.onlinePlayers().players()) {
+  protected @NonNull Task<CloudPlayer> playerBySpectateSecret(@NonNull UUID spectateSecret) {
+    return this.playerManager.onlinePlayers().playersAsync().map(players -> {
+      for (var player : players) {
         var playerOptions = this.parsePlayerOptions(player);
         if (playerOptions != null && spectateSecret.equals(playerOptions.spectateSecret())) {
           return player;
         }
       }
-
       return null;
     });
   }

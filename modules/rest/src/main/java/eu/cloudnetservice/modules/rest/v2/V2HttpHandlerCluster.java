@@ -63,7 +63,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
   }
 
   protected void handleNodeRequest(HttpContext context) {
-    var server = this.getNodeServer(context, true);
+    var server = this.nodeServer(context, true);
     if (server != null) {
       this.ok(context)
         .body(this.success().append("node", this.createNodeInfoDocument(server)).toString())
@@ -94,7 +94,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
   }
 
   protected void handleNodeCommandRequest(HttpContext context) {
-    var nodeServer = this.getNodeServer(context, true);
+    var nodeServer = this.nodeServer(context, true);
     var commandLine = this.body(context.request()).getString("command");
     if (commandLine == null || nodeServer == null) {
       this.badRequest(context)
@@ -125,7 +125,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
       return;
     }
 
-    if (this.getNodeServer(server.uniqueId(), true) != null) {
+    if (this.nodeServer(server.uniqueId(), true) != null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "The node server is already registered").toString())
         .context()
@@ -221,12 +221,12 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
       .append("nodeInfoSnapshot", node.nodeInfoSnapshot());
   }
 
-  protected NodeServer getNodeServer(HttpContext context, boolean includeLocal) {
+  protected NodeServer nodeServer(HttpContext context, boolean includeLocal) {
     var nodeName = context.request().pathParameters().get("node");
-    return nodeName == null ? null : this.getNodeServer(nodeName, includeLocal);
+    return nodeName == null ? null : this.nodeServer(nodeName, includeLocal);
   }
 
-  protected NodeServer getNodeServer(String nodeName, boolean includeLocal) {
+  protected NodeServer nodeServer(String nodeName, boolean includeLocal) {
     NodeServer server = this.nodeProvider().nodeServer(nodeName);
     if (server == null && includeLocal && nodeName.equals(CloudNet.instance().componentName())) {
       server = this.nodeProvider().selfNode();

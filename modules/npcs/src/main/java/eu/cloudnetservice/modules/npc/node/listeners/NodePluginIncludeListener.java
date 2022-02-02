@@ -55,7 +55,7 @@ public final class NodePluginIncludeListener {
   public void includePluginIfNecessary(@NonNull CloudServicePreProcessStartEvent event) {
     if (this.didDownloadProtocolLib.get()) {
       var type = event.service().serviceConfiguration().serviceId().environment();
-      if (ServiceEnvironmentType.isMinecraftServer(type)) {
+      if (ServiceEnvironmentType.minecraftServer(type)) {
         // check if we have an entry for the current group
         var hasEntry = this.management.npcConfiguration().entries().stream()
           .anyMatch(entry -> event.serviceConfiguration().groups().contains(entry.targetGroup()));
