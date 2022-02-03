@@ -253,61 +253,145 @@ public class PermissionUser extends AbstractPermissible {
     private Set<PermissionUserGroupInfo> groups = new HashSet<>();
     private Map<String, Set<Permission>> groupPermissions = new HashMap<>();
 
+    /**
+     * Sets the name of the new permission user.
+     *
+     * @param name the name for the new user.
+     * @return the same builder instance for chaining.
+     * @throws NullPointerException if the given name is null.
+     */
     public @NonNull Builder name(@NonNull String name) {
       this.name = name;
       return this;
     }
 
+    /**
+     * Sets the unique id of the new permission user.
+     *
+     * @param uniqueId the unique id for the new user.
+     * @return the same builder instance for chaining.
+     * @throws NullPointerException if the given unique id is null.
+     */
     public @NonNull Builder uniqueId(@NonNull UUID uniqueId) {
       this.uniqueId = uniqueId;
       return this;
     }
 
+    /**
+     * Sets the raw password of the new permission user. The given input is hashed using SHA-256 and encoded using
+     * Base64.
+     *
+     * @param password the password for the new user.
+     * @return the same builder instance for chaining.
+     * @throws NullPointerException if the given password is null.
+     */
     public @NonNull Builder password(@NonNull String password) {
       this.hashedPassword = Base64.getEncoder().encodeToString(EncryptTo.encryptToSHA256(password));
       return this;
     }
 
+    /**
+     * Sets the already hashed password for the new permission user. The password should be hashed using SHA-256 and
+     * encoded using Base64.
+     *
+     * @param hashedPassword the hashed password for the new user.
+     * @return the same builder instance for chaining.
+     * @throws NullPointerException if the given hashed password is null.
+     */
     public @NonNull Builder hashedPassword(@Nullable String hashedPassword) {
       this.hashedPassword = hashedPassword;
       return this;
     }
 
+    /**
+     * Sets the potency of the new permission user.
+     *
+     * @param potency the potency for the new user.
+     * @return the same builder instance for chaining.
+     */
     public @NonNull Builder potency(int potency) {
       this.potency = potency;
       return this;
     }
 
+    /**
+     * Sets the permissions of the new permission user.
+     *
+     * @param permissions the permissions for the new user.
+     * @return the same builder instance for chaining.
+     * @throws NullPointerException if the given permission collection is null.
+     */
     public @NonNull Builder permissions(@NonNull Collection<Permission> permissions) {
       this.permissions = new HashSet<>(permissions);
       return this;
     }
 
+    /**
+     * Adds the given permission to the permissions of the new user.
+     *
+     * @param permission the permission to add to the new user.
+     * @return the same builder instance for chaining.
+     * @throws NullPointerException if the given permission is null.
+     */
     public @NonNull Builder addPermission(@NonNull Permission permission) {
       this.permissions.add(permission);
       return this;
     }
 
+    /**
+     * Sets the groups of the new permission user.
+     *
+     * @param groups the groups for the new user.
+     * @return the same builder instance for chaining.
+     * @throws NullPointerException if the given group collection is null.
+     */
     public @NonNull Builder groups(@NonNull Collection<PermissionUserGroupInfo> groups) {
       this.groups = new HashSet<>(groups);
       return this;
     }
 
+    /**
+     * Adds the given group to the groups of the new user.
+     *
+     * @param group the group to add to the new user.
+     * @return the same builder instance for chaining.
+     * @throws NullPointerException if the given group is null.
+     */
     public @NonNull Builder addGroup(@NonNull PermissionUserGroupInfo group) {
       this.groups.add(group);
       return this;
     }
 
+    /**
+     * Sets the group permissions of the new permission user.
+     *
+     * @param groupPermissions the group specific permissions for the new user.
+     * @return the same builder instance for chaining.
+     * @throws NullPointerException if the given group permissions are null.
+     */
     public @NonNull Builder groupPermissions(@NonNull Map<String, Set<Permission>> groupPermissions) {
       this.groupPermissions = new HashMap<>(groupPermissions);
       return this;
     }
 
+    /**
+     * Sets the properties of the new permission user.
+     *
+     * @param properties the properties for the new user.
+     * @return the same builder instance for chaining.
+     * @throws NullPointerException if the given properties are null.
+     */
     public @NonNull Builder properties(@NonNull JsonDocument properties) {
       this.properties = properties.clone();
       return this;
     }
 
+    /**
+     * Constructs the new permission user from this builder.
+     *
+     * @return the new permission user.
+     * @throws com.google.common.base.VerifyException if the name or unique id is missing.
+     */
     public @NonNull PermissionUser build() {
       Verify.verifyNotNull(this.name, "Name must be given");
       Verify.verifyNotNull(this.uniqueId, "Unique id must be given");

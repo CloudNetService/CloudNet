@@ -120,6 +120,7 @@ public record Permission(
      * @param unit    the unit of the given time out.
      * @param timeOut the time-out for this permission.
      * @return the same instance for chaining.
+     * @throws NullPointerException if the given unit is null.
      */
     public @NonNull Builder timeOutMillis(@NonNull TimeUnit unit, long timeOut) {
       return this.timeOutMillis(System.currentTimeMillis() + unit.toMillis(timeOut));
