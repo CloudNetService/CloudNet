@@ -30,6 +30,7 @@ moduleJson {
   author = "CloudNetService"
   main = "eu.cloudnetservice.modules.influx.InfluxModule"
   description = "CloudNet extension which periodically writes stats data into an InfluxDB"
+  runtimeModule = true
   storesSensitiveData = true
   // depend on internal modules
   dependencies.add(ModuleConfiguration.Dependency("CloudNet-Bridge").apply {
