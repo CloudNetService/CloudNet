@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.node.setup;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
@@ -39,12 +40,12 @@ import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 import kong.unirest.Unirest;
 import lombok.NonNull;
 
 public class DefaultConfigSetup extends DefaultClusterSetup {
 
+  private static final Splitter SPACE_SPLITTER = Splitter.on(" ").omitEmptyStrings();
   private static final Collection<String> DEFAULT_WHITELIST = ImmutableSet.<String>builder()
     .add("127.0.0.1")
     .add("127.0.1.1")
@@ -116,8 +117,8 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
         .translatedQuestion("cloudnet-init-default-modules")
         .answerType(QuestionAnswerType.<Collection<ModuleEntry>>builder()
           .parser(string -> {
-            var entries = string.split(";");
-            if (entries.length == 0) {
+            var entries = SPACE_SPLITTER.splitToList(string);
+            if (entries.isEmpty()) {
               return Set.of();
             }
             // try to find each provided module
@@ -144,8 +145,8 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
           })
           .possibleResults(CloudNet.instance().modulesHolder().entries().stream()
             .map(ModuleEntry::name)
-            .collect(Collectors.joining(";")))
-          .recommendation("CloudNet-Bridge;CloudNet-Signs")
+            .toList())
+          .recommendation("CloudNet-Bridge CloudNet-Signs")
           .addResultListener((__, result) -> {
             // install all the modules
             result.forEach(entry -> {
@@ -156,7 +157,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
               Unirest.get(entry.url()).asFile(targetPath.toString(), StandardCopyOption.REPLACE_EXISTING);
               // validate the downloaded file
               var checksum = ChecksumUtil.fileShaSum(targetPath);
-              if (!checksum.equals(entry.sha3256())) {
+              if (!checksum.equals(entry.sha3256()) && !CloudNet.instance().dev()) {
                 // remove the file and fail hard
                 FileUtil.delete(targetPath);
                 throw new IllegalStateException(I18n.trans("cloudnet-install-modules-invalid-checksum", entry.name()));
