@@ -26,10 +26,8 @@ import eu.cloudnetservice.cloudnet.driver.service.GroupConfiguration;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
-import eu.cloudnetservice.cloudnet.node.cluster.ClusterNodeServer;
-import eu.cloudnetservice.cloudnet.node.cluster.ClusterNodeServerProvider;
-import eu.cloudnetservice.cloudnet.node.cluster.LocalNodeServer;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServer;
+import eu.cloudnetservice.cloudnet.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.cloudnet.node.network.listener.message.ServiceChannelMessageListener;
 import eu.cloudnetservice.cloudnet.node.service.CloudServiceManager;
 import java.util.UUID;
@@ -43,7 +41,7 @@ import org.jetbrains.annotations.Nullable;
 public class NodeCloudServiceFactory implements CloudServiceFactory {
 
   private final CloudServiceManager serviceManager;
-  private final ClusterNodeServerProvider nodeServerProvider;
+  private final NodeServerProvider nodeServerProvider;
 
   private final Lock serviceCreationLock = new ReentrantLock(true);
 
@@ -61,7 +59,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
   @Override
   public @Nullable ServiceInfoSnapshot createCloudService(@NonNull ServiceConfiguration serviceConfiguration) {
     // check if this node can start services
-    if (this.nodeServerProvider.headnode().equals(this.nodeServerProvider.selfNode())) {
+    if (this.nodeServerProvider.localNode().head()) {
       // ensure that we're only creating one service
       this.serviceCreationLock.lock();
       try {
@@ -76,25 +74,22 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
         var nodeServer = this.peekLogicNodeServer(serviceConfiguration);
         // if there is a node server send a request to start a service
         if (nodeServer != null) {
-          if (nodeServer instanceof ClusterNodeServer clusterServer) {
+          if (nodeServer.channel() != null) {
             // send a request to start on the selected cluster node
             var service = this.sendNodeServerStartRequest(
               "head_node_to_node_start_service",
-              nodeServer.nodeInfo().uniqueId(),
+              nodeServer.info().uniqueId(),
               configurationBuilder.build());
             if (service != null) {
               // register the service locally in case the registration packet was not sent before a response to this
               // packet was received
-              this.serviceManager.handleServiceUpdate(service, clusterServer.channel());
+              this.serviceManager.handleServiceUpdate(service, nodeServer.channel());
             }
             // return the service even if not given
             return service;
-          } else if (nodeServer instanceof LocalNodeServer) {
+          } else {
             // start on the current node
             return this.serviceManager.createLocalCloudService(configurationBuilder.build()).serviceInfo();
-          } else {
-            // can not happen - just explode
-            throw new IllegalStateException("Unsupported node server type " + nodeServer.getClass().getName());
           }
         }
         // unable to find a node to start the service
@@ -106,7 +101,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
       // send a request to the head node to start a service on the best node server
       return this.sendNodeServerStartRequest(
         "node_to_head_start_service",
-        this.nodeServerProvider.headnode().nodeInfo().uniqueId(),
+        this.nodeServerProvider.headNode().info().uniqueId(),
         serviceConfiguration);
     }
   }
@@ -133,35 +128,22 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     // check if the node is already specified
     if (configuration.serviceId().nodeUniqueId() != null) {
       // check for a cluster node server
-      var server = this.nodeServerProvider.nodeServer(configuration.serviceId().nodeUniqueId());
+      var server = this.nodeServerProvider.node(configuration.serviceId().nodeUniqueId());
       if (server != null) {
         // the requested node is a cluster node, check if that node is still accepting services
         return !server.available() || server.nodeInfoSnapshot().draining() ? null : server;
-      }
-      // check if the requested node is the local node
-      var local = this.nodeServerProvider.selfNode();
-      if (local.nodeInfo().uniqueId().equals(configuration.serviceId().nodeUniqueId()) && !local.drain()) {
-        return local;
       }
       // no node server with the given name which can start services found
       return null;
     }
 
-    // get all available node servers
-    var available = this.nodeServerProvider.nodeServers().stream()
-      .filter(ClusterNodeServer::available)
-      .map(server -> (NodeServer) server)
-      .collect(Collectors.collectingAndThen(Collectors.toSet(), set -> {
-        set.add(this.nodeServerProvider.selfNode());
-        return set;
-      }));
     // find the best node server
-    return available.stream()
-      // only allow service start on nodes that are not marked for draining
+    return this.nodeServerProvider.nodeServers().stream()
+      .filter(NodeServer::available)
       .filter(nodeServer -> !nodeServer.nodeInfoSnapshot().draining())
       .filter(server -> {
         var allowedNodes = configuration.serviceId().allowedNodes();
-        return allowedNodes.isEmpty() || allowedNodes.contains(server.nodeInfo().uniqueId());
+        return allowedNodes.isEmpty() || allowedNodes.contains(server.info().uniqueId());
       })
       .min((left, right) -> {
         // begin by comparing the heap memory usage

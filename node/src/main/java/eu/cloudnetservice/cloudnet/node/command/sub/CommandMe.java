@@ -46,7 +46,7 @@ public final class CommandMe {
   public void me(CommandSource commandSource, @Flag("showClusterId") boolean showFullClusterId) {
     var cloudNet = CloudNet.instance();
     var memoryMXBean = ManagementFactory.getMemoryMXBean();
-    var nodeInfoSnapshot = cloudNet.nodeServerProvider().selfNode().nodeInfoSnapshot();
+    var nodeInfoSnapshot = cloudNet.nodeServerProvider().localNode().nodeInfoSnapshot();
 
     String clusterId = cloudNet.config().clusterConfig().clusterId().toString();
     // hide the middle parts of the uuid if specified
@@ -61,7 +61,7 @@ public final class CommandMe {
       " ",
       "ClusterId: " + clusterId,
       "NodeId: " + cloudNet.config().identity().uniqueId(),
-      "Head-NodeId: " + cloudNet.nodeServerProvider().headnode().nodeInfo().uniqueId(),
+      "Head-NodeId: " + cloudNet.nodeServerProvider().headNode().info().uniqueId(),
       "CPU usage: (P/S) "
         + CPUUsageResolver.FORMAT.format(CPUUsageResolver.processCPUUsage())
         + "/"

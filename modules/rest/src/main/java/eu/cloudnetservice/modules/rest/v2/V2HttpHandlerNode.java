@@ -84,7 +84,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
   }
 
   protected void sendNodeInformation(HttpContext context) {
-    var nodeServer = this.node().nodeServerProvider().selfNode();
+    var nodeServer = this.node().nodeServerProvider().localNode();
 
     var information = this.success()
       .append("version", CloudNet.instance().version())

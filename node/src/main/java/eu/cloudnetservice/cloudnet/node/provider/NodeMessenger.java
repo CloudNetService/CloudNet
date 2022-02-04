@@ -29,7 +29,7 @@ import eu.cloudnetservice.cloudnet.driver.provider.CloudMessenger;
 import eu.cloudnetservice.cloudnet.driver.provider.DefaultMessenger;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
-import eu.cloudnetservice.cloudnet.node.cluster.ClusterNodeServerProvider;
+import eu.cloudnetservice.cloudnet.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.cloudnet.node.service.CloudService;
 import eu.cloudnetservice.cloudnet.node.service.CloudServiceManager;
 import java.lang.reflect.Type;
@@ -46,12 +46,12 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
 
   protected static final Type COL_MSG = TypeToken.getParameterized(Collection.class, ChannelMessage.class).getType();
 
+  protected final NodeServerProvider nodeServerProvider;
   protected final CloudServiceManager cloudServiceManager;
-  protected final ClusterNodeServerProvider nodeServerProvider;
 
   public NodeMessenger(@NonNull CloudNet nodeInstance) {
-    this.cloudServiceManager = nodeInstance.cloudServiceProvider();
     this.nodeServerProvider = nodeInstance.nodeServerProvider();
+    this.cloudServiceManager = nodeInstance.cloudServiceProvider();
   }
 
   @Override
@@ -131,7 +131,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
           .forEach(result::add);
         // all connected nodes
         if (allowClusterRedirect) {
-          result.addAll(this.nodeServerProvider.connectedChannels());
+          result.addAll(this.nodeServerProvider.connectedNodeChannels());
         }
         return result;
       }
@@ -140,11 +140,11 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
         if (allowClusterRedirect) {
           // check if a specific node server was selected or all node servers are targeted
           if (target.name() == null) {
-            return this.nodeServerProvider.connectedChannels();
+            return this.nodeServerProvider.connectedNodeChannels();
           }
           // check if we know the target node server
-          var server = this.nodeServerProvider.nodeServer(target.name());
-          return server == null || !server.connected()
+          var server = this.nodeServerProvider.node(target.name());
+          return server == null || server.channel() == null
             ? Collections.emptySet()
             : Collections.singleton(server.channel());
         } else {
@@ -162,7 +162,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
             .collect(Collectors.toSet());
           // check if cluster redirect is allowed - add all connected node channels then
           if (allowClusterRedirect) {
-            channels.addAll(this.nodeServerProvider.connectedChannels());
+            channels.addAll(this.nodeServerProvider.connectedNodeChannels());
           }
           // return here
           return channels;
@@ -179,14 +179,14 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
         if (allowClusterRedirect) {
           // if no specific service is given just send it to all nodes
           if (target.name() == null) {
-            return this.nodeServerProvider.connectedChannels();
+            return this.nodeServerProvider.connectedNodeChannels();
           }
           // check if we know the service from the cluster
           var service = this.cloudServiceManager.serviceByName(target.name());
           if (service != null) {
             // check if we know the target node server to send the channel message to instead
-            var server = this.nodeServerProvider.nodeServer(service.serviceId().nodeUniqueId());
-            return server == null || !server.connected()
+            var server = this.nodeServerProvider.node(service.serviceId().nodeUniqueId());
+            return server == null || server.channel() == null
               ? Collections.emptySet()
               : Collections.singleton(server.channel());
           }
@@ -230,8 +230,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
         // check if we are allowed to redirect the message to the node running the service
         if (allowClusterRedirect) {
           // check if we know the node on which the service is running
-          var nodeServer = this.nodeServerProvider.nodeServer(
-            service.serviceId().nodeUniqueId());
+          var nodeServer = this.nodeServerProvider.node(service.serviceId().nodeUniqueId());
           return nodeServer == null ? null : nodeServer.channel();
         }
         // no target found

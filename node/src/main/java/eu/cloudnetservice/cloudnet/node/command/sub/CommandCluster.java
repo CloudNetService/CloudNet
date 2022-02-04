@@ -41,7 +41,6 @@ import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
-import eu.cloudnetservice.cloudnet.node.cluster.ClusterNodeServer;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServer;
 import eu.cloudnetservice.cloudnet.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.cloudnet.node.command.annotation.Description;
@@ -68,34 +67,28 @@ public final class CommandCluster {
 
   private static final Logger LOGGER = LogManager.logger(CommandCluster.class);
   private static final DateFormat DEFAULT_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-  private static final RowBasedFormatter<ClusterNodeServer> FORMATTER = RowBasedFormatter.<ClusterNodeServer>builder()
-    .defaultFormatter(ColumnFormatter.builder().columnTitles("Name", "State", "Listeners").build())
-    .column(server -> server.nodeInfo().uniqueId())
-    .column(server -> {
-      // we can display much more information if the node is connected
-      if (server.connected()) {
-        if (server.headNode() && server.drain()) {
-          return "Connected (Head, Draining)";
-        } else if (server.headNode()) {
-          return "Connected (Head)";
-        } else if (server.drain()) {
-          return "Connected (Draining)";
-        } else {
-          return "Connected";
-        }
-      } else {
-        return "Not connected";
-      }
-    })
-    .column(server -> server.nodeInfo().listeners().stream()
+  private static final RowBasedFormatter<NodeServer> FORMATTER = RowBasedFormatter.<NodeServer>builder()
+    .defaultFormatter(ColumnFormatter.builder().columnTitles("Name", "State", "Listeners", "Extra").build())
+    .column(server -> server.info().uniqueId())
+    .column(NodeServer::state)
+    .column(server -> server.info().listeners().stream()
       .map(HostAndPort::toString)
       .collect(Collectors.joining(", ")))
+    .column(server -> {
+      var result = "";
+      if (server.head()) {
+        result += "Head";
+      }
+      if (server.draining()) {
+        result += (result.isEmpty() ? "Draining" : ", Draining");
+      }
+      return result;
+    })
     .build();
 
   @Parser(suggestions = "clusterNodeServer")
-  public ClusterNodeServer defaultClusterNodeServerParser(CommandContext<CommandSource> $, Queue<String> input) {
-    var nodeId = input.remove();
-    var nodeServer = CloudNet.instance().nodeServerProvider().nodeServer(nodeId);
+  public NodeServer defaultClusterNodeServerParser(CommandContext<CommandSource> $, Queue<String> input) {
+    var nodeServer = CloudNet.instance().nodeServerProvider().node(input.remove());
     if (nodeServer == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-cluster-node-not-found"));
     }
@@ -107,37 +100,8 @@ public final class CommandCluster {
   public List<String> suggestClusterNodeServer(CommandContext<CommandSource> $, String input) {
     return CloudNet.instance().nodeServerProvider().nodeServers()
       .stream()
-      .map(clusterNodeServer -> clusterNodeServer.nodeInfo().uniqueId())
+      .map(clusterNodeServer -> clusterNodeServer.info().uniqueId())
       .toList();
-  }
-
-  @Parser(suggestions = "selfNodeServer")
-  public NodeServer selfNodeServerParser(CommandContext<CommandSource> $, Queue<String> input) {
-    var nodeId = input.remove();
-    var provider = CloudNet.instance().nodeServerProvider();
-    var selfNode = provider.selfNode();
-    // check if the user requested the own node
-    if (selfNode.nodeInfo().uniqueId().equals(nodeId)) {
-      return selfNode;
-    }
-    NodeServer nodeServer = provider.nodeServer(nodeId);
-    // check if the nodeServer exists
-    if (nodeServer == null) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-cluster-node-not-found"));
-    }
-    return nodeServer;
-  }
-
-  @Suggestions("selfNodeServer")
-  public List<String> suggestNodeServer(CommandContext<CommandSource> $, String input) {
-    var provider = CloudNet.instance().nodeServerProvider();
-    var nodes = provider.nodeServers()
-      .stream()
-      .map(clusterNodeServer -> clusterNodeServer.nodeInfo().uniqueId())
-      .collect(Collectors.toList());
-    // add the own node to the suggestions
-    nodes.add(provider.selfNode().nodeInfo().uniqueId());
-    return nodes;
   }
 
   @Parser(suggestions = "networkClusterNode")
@@ -259,7 +223,7 @@ public final class CommandCluster {
   }
 
   @CommandMethod("cluster|clu node <nodeId>")
-  public void listNode(CommandSource source, @Argument("nodeId") ClusterNodeServer nodeServer) {
+  public void listNode(CommandSource source, @Argument("nodeId") NodeServer nodeServer) {
     this.displayNode(source, nodeServer);
   }
 
@@ -270,14 +234,14 @@ public final class CommandCluster {
     @Argument("enabled") boolean enabled
   ) {
     nodeServer.drain(enabled);
-    source.sendMessage(I18n.trans("command-cluster-node-set-drain", enabled ? 1 : 0, nodeServer.nodeInfo().uniqueId()));
+    source.sendMessage(I18n.trans("command-cluster-node-set-drain", enabled ? 1 : 0, nodeServer.info().uniqueId()));
   }
 
   @CommandMethod("cluster|clu sync")
   public void sync(CommandSource source) {
     source.sendMessage(I18n.trans("command-cluster-start-sync"));
     // perform a cluster sync that takes care of tasks, groups and more
-    CloudNet.instance().nodeServerProvider().syncClusterData();
+    CloudNet.instance().nodeServerProvider().syncDataIntoCluster();
   }
 
   @CommandMethod("cluster|clu push templates [template]")
@@ -382,16 +346,16 @@ public final class CommandCluster {
     }
   }
 
-  private void displayNode(@NonNull CommandSource source, @NonNull ClusterNodeServer node) {
+  private void displayNode(@NonNull CommandSource source, @NonNull NodeServer node) {
     List<String> list = new ArrayList<>(Arrays.asList(
       " ",
-      "Id: " + node.nodeInfo().uniqueId() + (node.headNode() ? " (Head)" : ""),
-      "State: " + (node.connected() ? "Connected" : "Not connected"),
+      "Id: " + node.info().uniqueId() + (node.head() ? " (Head)" : ""),
+      "State: " + node.state(),
       " ",
       "Address: "
     ));
 
-    for (var hostAndPort : node.nodeInfo().listeners()) {
+    for (var hostAndPort : node.info().listeners()) {
       list.add("- " + hostAndPort.host() + ":" + hostAndPort.port());
     }
 

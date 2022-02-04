@@ -25,9 +25,9 @@ import eu.cloudnetservice.cloudnet.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTask;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.CloudNetTick;
-import eu.cloudnetservice.cloudnet.node.cluster.ClusterNodeServerProvider;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServer;
-import eu.cloudnetservice.cloudnet.node.event.instance.CloudNetTickEvent;
+import eu.cloudnetservice.cloudnet.node.cluster.NodeServerProvider;
+import eu.cloudnetservice.cloudnet.node.event.instance.CloudNetTickServiceStartEvent;
 import eu.cloudnetservice.cloudnet.node.service.CloudServiceManager;
 import eu.cloudnetservice.modules.bridge.BridgeServiceProperties;
 import eu.cloudnetservice.modules.smart.CloudNetSmartModule;
@@ -57,8 +57,8 @@ public final class CloudNetTickListener {
   }
 
   @EventListener
-  public void handleTick(@NonNull CloudNetTickEvent event) {
-    if (CloudNet.instance().nodeServerProvider().selfNode().headNode()
+  public void handleTick(@NonNull CloudNetTickServiceStartEvent event) {
+    if (CloudNet.instance().nodeServerProvider().localNode().head()
       && event.ticker().currentTick() % CloudNetTick.TPS == 0) {
       this.handleSmartEntries();
     }
@@ -199,28 +199,16 @@ public final class CloudNetTickListener {
     }
     // create a new service based on the task
     return this.serviceFactory().createCloudService(ServiceConfiguration.builder(task)
-      .node(server == null ? null : server.nodeInfo().uniqueId())
+      .node(server == null ? null : server.info().uniqueId())
       .build());
   }
 
   private @Nullable NodeServer selectNodeServer(@NonNull Collection<ServiceInfoSnapshot> services) {
-    // get all node servers
-    Collection<? extends NodeServer> nodeServers = this.nodeServerProvider().nodeServers().stream()
-      .filter(nodeServer -> nodeServer.available() && !nodeServer.drain())
-      .map(nodeServer -> (NodeServer) nodeServer) // looks stupid but transforms the stream type (we love generics)
-      .collect(Collectors.collectingAndThen(Collectors.toSet(), set -> {
-        // add the local node to the list if the node is not draining
-        var local = this.nodeServerProvider().selfNode();
-        if (!local.drain()) {
-          set.add(local);
-        }
-        // return the completed set
-        return set;
-      }));
     // find the node server with the least services on it
-    return nodeServers.stream()
+    return this.nodeServerProvider().nodeServers().stream()
+      .filter(nodeServer -> nodeServer.available() && !nodeServer.draining())
       .map(node -> new Pair<>(node, services.stream()
-        .filter(service -> service.serviceId().nodeUniqueId().equals(node.nodeInfo().uniqueId()))
+        .filter(service -> service.serviceId().nodeUniqueId().equals(node.info().uniqueId()))
         .count()))
       .min(Comparator.comparingLong(Pair::second))
       .map(Pair::first)
@@ -231,7 +219,7 @@ public final class CloudNetTickListener {
     return CloudNet.instance().cloudServiceProvider();
   }
 
-  private @NonNull ClusterNodeServerProvider nodeServerProvider() {
+  private @NonNull NodeServerProvider nodeServerProvider() {
     return CloudNet.instance().nodeServerProvider();
   }
 

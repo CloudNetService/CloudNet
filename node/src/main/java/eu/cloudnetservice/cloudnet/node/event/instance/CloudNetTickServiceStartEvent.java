@@ -14,23 +14,21 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.node.event.network;
+package eu.cloudnetservice.cloudnet.node.event.instance;
 
-import eu.cloudnetservice.cloudnet.driver.event.events.network.NetworkEvent;
-import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
-import eu.cloudnetservice.cloudnet.node.cluster.NodeServer;
+import eu.cloudnetservice.cloudnet.driver.event.events.DriverEvent;
+import eu.cloudnetservice.cloudnet.node.CloudNetTick;
 import lombok.NonNull;
 
-public final class NetworkClusterNodeAuthSuccessEvent extends NetworkEvent {
+public class CloudNetTickServiceStartEvent extends DriverEvent {
 
-  private final NodeServer node;
+  private final CloudNetTick ticker;
 
-  public NetworkClusterNodeAuthSuccessEvent(@NonNull NodeServer node, @NonNull NetworkChannel channel) {
-    super(channel);
-    this.node = node;
+  public CloudNetTickServiceStartEvent(@NonNull CloudNetTick ticker) {
+    this.ticker = ticker;
   }
 
-  public @NonNull NodeServer node() {
-    return this.node;
+  public @NonNull CloudNetTick ticker() {
+    return this.ticker;
   }
 }

@@ -72,7 +72,7 @@ public interface NodeInfoProvider {
   /**
    * @return all nodes from the config of the node where the method is called on
    */
-  @NonNull NetworkClusterNode[] nodes();
+  @NonNull Collection<NetworkClusterNode> nodes();
 
   /**
    * @param uniqueId the uniqueId of the target node
@@ -84,7 +84,7 @@ public interface NodeInfoProvider {
   /**
    * @return all {@link NetworkClusterNodeInfoSnapshot} of nodes that are still connected
    */
-  @NonNull NetworkClusterNodeInfoSnapshot[] nodeInfoSnapshots();
+  @NonNull Collection<NetworkClusterNodeInfoSnapshot> nodeInfoSnapshots();
 
   /**
    * @param uniqueId the uniqueId of the target node
@@ -145,7 +145,7 @@ public interface NodeInfoProvider {
   /**
    * @return all nodes from the config of the node where the method is called on
    */
-  default @NonNull Task<NetworkClusterNode[]> nodesAsync() {
+  default @NonNull Task<Collection<NetworkClusterNode>> nodesAsync() {
     return CompletableTask.supply(this::nodes);
   }
 
@@ -161,7 +161,7 @@ public interface NodeInfoProvider {
   /**
    * @return all {@link NetworkClusterNodeInfoSnapshot} of nodes that are still connected
    */
-  default @NonNull Task<NetworkClusterNodeInfoSnapshot[]> nodeInfoSnapshotsAsync() {
+  default @NonNull Task<Collection<NetworkClusterNodeInfoSnapshot>> nodeInfoSnapshotsAsync() {
     return CompletableTask.supply(this::nodeInfoSnapshots);
   }
 

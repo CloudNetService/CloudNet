@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 import lombok.NonNull;
 import org.javers.core.Javers;
 import org.javers.core.JaversBuilder;
@@ -75,29 +76,34 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public @NonNull DataBuf.Mutable prepareClusterData(boolean force, String @NonNull ... selectedHandlers) {
     // sort the handlers for later binary searches
     Arrays.sort(selectedHandlers);
+    return this.prepareClusterData(
+      force,
+      handler -> selectedHandlers.length == 0 || Arrays.binarySearch(selectedHandlers, handler.key()) >= 0);
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public @NonNull DataBuf.Mutable prepareClusterData(boolean force, @NonNull Predicate<DataSyncHandler<?>> filter) {
     // the result data
     var result = DataBuf.empty().writeBoolean(force);
     // append all handler content to the buf
     for (var handler : this.handlers.values()) {
-      // check if we should include the handler
-      if (selectedHandlers.length > 0 && Arrays.binarySearch(selectedHandlers, handler.key()) < 0) {
-        continue;
-      }
-      // extract the whole content from the handler
-      var data = (Collection<Object>) handler.data();
-      // check if there is data
-      if (!data.isEmpty()) {
-        // check if there is only one argument to write
-        if (data.size() == 1) {
-          this.serializeData(data.iterator().next(), handler, result);
-        } else {
-          // serialize the whole result
-          for (var obj : data) {
-            this.serializeData(obj, handler, result);
+      if (filter.test(handler)) {
+        // extract the whole content from the handler
+        var data = (Collection<Object>) handler.data();
+        // check if there is data
+        if (!data.isEmpty()) {
+          // check if there is only one argument to write
+          if (data.size() == 1) {
+            this.serializeData(data.iterator().next(), handler, result);
+          } else {
+            // serialize the whole result
+            for (var obj : data) {
+              this.serializeData(obj, handler, result);
+            }
           }
         }
       }
