@@ -77,7 +77,7 @@ public final class CommandTemplate {
   public ServiceTemplate defaultServiceTemplateParser(CommandContext<CommandSource> $, Queue<String> input) {
     var template = ServiceTemplate.parse(input.remove());
     if (template == null || template.knownStorage() == null) {
-      throw new ArgumentNotAvailableException(I18n.trans("ca-question-list-invalid-template"));
+      throw new ArgumentNotAvailableException(I18n.trans("command-template-not-valid"));
     }
     return template;
   }
@@ -201,7 +201,7 @@ public final class CommandTemplate {
     var resolvedExecutable = executable == null ? "java" : executable;
     var javaVersion = JavaVersionResolver.resolveFromJavaExecutable(resolvedExecutable);
     if (javaVersion == null) {
-      source.sendMessage(I18n.trans("ca-question-list-invalid-java-executable"));
+      source.sendMessage(I18n.trans("command-tasks-setup-question-javacommand-invalid"));
       return;
     }
 
