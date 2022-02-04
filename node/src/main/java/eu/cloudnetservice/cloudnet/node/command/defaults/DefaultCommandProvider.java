@@ -255,6 +255,13 @@ public class DefaultCommandProvider implements CommandProvider {
     // register the command that is used for confirmations
     this.commandManager.command(this.commandManager.commandBuilder("confirm")
       .handler(confirmationManager.createConfirmationExecutionHandler()));
+    this.registeredCommands.put(this.getClass().getClassLoader(),
+      new CommandInfo(
+        "confirm",
+        Set.of(),
+        "cloudnet.command.confirm",
+        "Confirms command execution of certain commands",
+        Collections.emptyList()));
   }
 
   /**
