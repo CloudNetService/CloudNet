@@ -43,9 +43,11 @@ import java.util.logging.Level;
 import java.util.regex.Pattern;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 public class V2HttpAuthentication {
 
+  protected static final Logger LOGGER = LogManager.logger(V2HttpAuthentication.class);
   protected static final String ISSUER = "CloudNet " + CloudNet.instance().componentName();
 
   protected static final Key SIGN_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
@@ -61,8 +63,6 @@ public class V2HttpAuthentication {
   protected static final LoginResult<PermissionUser> ERROR_HANDLING_BASIC_LOGIN = LoginResult.failure(
     "No matching user for provided basic login credentials");
 
-  protected static final Logger LOGGER = LogManager.logger(V2HttpAuthentication.class);
-
   protected final WebSocketTicketManager webSocketTicketManager;
   protected final Map<String, HttpSession> sessions = new ConcurrentHashMap<>();
 
@@ -70,12 +70,13 @@ public class V2HttpAuthentication {
     this(WebSocketTicketManager.memoryCached());
   }
 
-  public V2HttpAuthentication(WebSocketTicketManager webSocketTicketManager) {
+  public V2HttpAuthentication(@NonNull WebSocketTicketManager webSocketTicketManager) {
     this.webSocketTicketManager = webSocketTicketManager;
   }
 
   public @NonNull String createJwt(@NonNull PermissionUser subject, long sessionTimeMillis) {
-    var session = this.sessions().computeIfAbsent(subject.uniqueId().toString(),
+    var session = this.sessions().computeIfAbsent(
+      subject.uniqueId().toString(),
       userUniqueId -> new DefaultHttpSession(System.currentTimeMillis() + sessionTimeMillis, subject.uniqueId()));
     return this.generateJwt(subject, session);
   }
@@ -88,12 +89,11 @@ public class V2HttpAuthentication {
 
     var matcher = BASIC_LOGIN_PATTERN.matcher(authenticationHeader);
     if (matcher.matches()) {
-      var credentials = new String(Base64.getDecoder().decode(matcher.group(1)), StandardCharsets.UTF_8)
-        .split(":");
-      if (credentials.length == 2) {
-        var users = CloudNetDriver.instance().permissionManagement().usersByName(credentials[0]);
+      var auth = new String(Base64.getDecoder().decode(matcher.group(1)), StandardCharsets.UTF_8).split(":");
+      if (auth.length == 2) {
+        var users = CloudNetDriver.instance().permissionManagement().usersByName(auth[0]);
         for (var user : users) {
-          if (user.checkPassword(credentials[1])) {
+          if (user.checkPassword(auth[1])) {
             return LoginResult.success(user);
           }
         }
@@ -207,7 +207,7 @@ public class V2HttpAuthentication {
     return this.webSocketTicketManager;
   }
 
-  public record LoginResult<T>(@Nullable T result, @Nullable String errorMessage) {
+  public record LoginResult<T>(@UnknownNullability T result, @UnknownNullability String errorMessage) {
 
     private static final LoginResult<?> UNDEFINED_RESULT = LoginResult.failure(null);
 

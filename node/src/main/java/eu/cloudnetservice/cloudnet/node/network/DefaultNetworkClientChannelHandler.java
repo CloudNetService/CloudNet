@@ -30,6 +30,7 @@ import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.network.def.PacketClientAuthorization;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.cluster.NodeServerState;
 import eu.cloudnetservice.cloudnet.node.network.listener.PacketServerAuthorizationResponseListener;
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.NonNull;
@@ -53,10 +54,9 @@ public final class DefaultNetworkClientChannelHandler implements NetworkChannelH
           .writeUniqueId(CloudNet.instance().config().clusterConfig().clusterId())
           .writeObject(CloudNet.instance().config().identity())));
 
-      LOGGER.fine(
-        I18n.trans("client-network-channel-init",
-          channel.serverAddress(),
-          channel.clientAddress().host()));
+      LOGGER.fine(I18n.trans("client-network-channel-init",
+        channel.serverAddress(),
+        channel.clientAddress().host()));
     } else {
       channel.close();
     }
@@ -74,14 +74,13 @@ public final class DefaultNetworkClientChannelHandler implements NetworkChannelH
       new NetworkChannelCloseEvent(channel, ChannelType.CLIENT_CHANNEL));
     CONNECTION_COUNTER.decrementAndGet();
 
-    LOGGER.fine(
-      I18n.trans("client-network-channel-close",
-        channel.serverAddress(),
-        channel.clientAddress()));
+    LOGGER.fine(I18n.trans("client-network-channel-close",
+      channel.serverAddress(),
+      channel.clientAddress()));
 
-    var clusterNodeServer = CloudNet.instance().nodeServerProvider().nodeServer(channel);
-    if (clusterNodeServer != null) {
-      NodeNetworkUtil.closeNodeServer(clusterNodeServer);
+    var clusterNodeServer = CloudNet.instance().nodeServerProvider().node(channel);
+    if (clusterNodeServer != null && clusterNodeServer.state() != NodeServerState.DISCONNECTED) {
+      clusterNodeServer.close();
     }
   }
 }

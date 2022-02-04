@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.netty.http;
 
-import eu.cloudnetservice.cloudnet.common.collection.Pair;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
@@ -48,8 +47,8 @@ public class NettyHttpServer extends NettySslServer implements HttpServer {
 
   private static final Logger LOGGER = LogManager.logger(NettyHttpServer.class);
 
+  protected final Map<HostAndPort, ChannelFuture> channelFutures = new ConcurrentHashMap<>();
   protected final Collection<HttpHandlerEntry> registeredHandlers = new ConcurrentLinkedQueue<>();
-  protected final Map<Integer, Pair<HostAndPort, ChannelFuture>> channelFutures = new ConcurrentHashMap<>();
 
   protected final EventLoopGroup bossGroup = NettyUtil.newEventLoopGroup(1);
   protected final EventLoopGroup workerGroup = NettyUtil.newEventLoopGroup(0);
@@ -106,8 +105,8 @@ public class NettyHttpServer extends NettySslServer implements HttpServer {
   @Override
   public boolean addListener(@NonNull HostAndPort hostAndPort) {
     try {
-      if (!this.channelFutures.containsKey(hostAndPort.port())) {
-        return this.channelFutures.putIfAbsent(hostAndPort.port(), new Pair<>(hostAndPort, new ServerBootstrap()
+      if (!this.channelFutures.containsKey(hostAndPort)) {
+        this.channelFutures.putIfAbsent(hostAndPort, new ServerBootstrap()
           .group(this.bossGroup, this.workerGroup)
           .channelFactory(NettyUtil.serverChannelFactory())
           .childHandler(new NettyHttpServerInitializer(this, hostAndPort))
@@ -123,7 +122,8 @@ public class NettyHttpServer extends NettySslServer implements HttpServer {
 
           .sync()
           .channel()
-          .closeFuture())) == null;
+          .closeFuture());
+        return true;
       }
     } catch (InterruptedException exception) {
       LOGGER.severe("Exception while binding http server to %s", exception, hostAndPort);
@@ -229,7 +229,7 @@ public class NettyHttpServer extends NettySslServer implements HttpServer {
   @Override
   public void close() {
     for (var entry : this.channelFutures.values()) {
-      entry.second().cancel(true);
+      entry.cancel(true);
     }
 
     this.bossGroup.shutdownGracefully();

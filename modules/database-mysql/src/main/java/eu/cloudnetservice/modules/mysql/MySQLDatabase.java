@@ -27,13 +27,8 @@ import org.jetbrains.annotations.Nullable;
 
 public final class MySQLDatabase extends SQLDatabase {
 
-  public MySQLDatabase(
-    @NonNull SQLDatabaseProvider databaseProvider,
-    @NonNull String name,
-    long cacheRemovalDelay,
-    @NonNull ExecutorService executorService
-  ) {
-    super(databaseProvider, name, cacheRemovalDelay, executorService);
+  public MySQLDatabase(@NonNull SQLDatabaseProvider provider, @NonNull String name, @NonNull ExecutorService executor) {
+    super(provider, name, executor);
   }
 
   @Override
@@ -55,6 +50,7 @@ public final class MySQLDatabase extends SQLDatabase {
 
         return result.isEmpty() ? null : result;
       },
+      null,
       beginIndex, beginIndex + chunkSize
     );
   }

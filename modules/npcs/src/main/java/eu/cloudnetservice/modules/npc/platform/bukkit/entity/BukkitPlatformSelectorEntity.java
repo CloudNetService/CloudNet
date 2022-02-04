@@ -261,6 +261,11 @@ public abstract class BukkitPlatformSelectorEntity
   }
 
   @Override
+  public void executeAction(@NonNull Player player, @NonNull ClickAction action) {
+    this.handleClickAction(player, action);
+  }
+
+  @Override
   public void handleRightClickAction(@NonNull Player player) {
     this.handleClickAction(player, this.npc.rightClickAction());
   }

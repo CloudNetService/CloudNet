@@ -146,14 +146,9 @@ public class CloudNetNPCModule extends DriverModule {
   }
 
   private @NonNull eu.cloudnetservice.modules.npc.configuration.NPCConfiguration loadConfig() {
-    if (Files.notExists(this.configPath())) {
-      JsonDocument
-        .newDocument(eu.cloudnetservice.modules.npc.configuration.NPCConfiguration.builder().build())
-        .write(this.configPath());
-    }
-    // load the config
-    return JsonDocument.newDocument(this.configPath())
-      .toInstanceOf(eu.cloudnetservice.modules.npc.configuration.NPCConfiguration.class);
+    return this.readConfig(
+      eu.cloudnetservice.modules.npc.configuration.NPCConfiguration.class,
+      () -> eu.cloudnetservice.modules.npc.configuration.NPCConfiguration.builder().build());
   }
 
   private @NonNull ItemLayout convertItemLayout(

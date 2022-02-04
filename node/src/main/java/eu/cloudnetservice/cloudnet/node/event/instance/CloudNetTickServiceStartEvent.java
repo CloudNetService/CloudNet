@@ -14,11 +14,21 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.mysql.util;
+package eu.cloudnetservice.cloudnet.node.event.instance;
 
-import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
+import eu.cloudnetservice.cloudnet.driver.event.events.DriverEvent;
+import eu.cloudnetservice.cloudnet.node.CloudNetTick;
 import lombok.NonNull;
 
-public record MySQLConnectionEndpoint(boolean useSsl, @NonNull String database, @NonNull HostAndPort address) {
+public class CloudNetTickServiceStartEvent extends DriverEvent {
 
+  private final CloudNetTick ticker;
+
+  public CloudNetTickServiceStartEvent(@NonNull CloudNetTick ticker) {
+    this.ticker = ticker;
+  }
+
+  public @NonNull CloudNetTick ticker() {
+    return this.ticker;
+  }
 }

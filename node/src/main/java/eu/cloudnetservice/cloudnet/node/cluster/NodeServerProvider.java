@@ -16,44 +16,53 @@
 
 package eu.cloudnetservice.cloudnet.node.cluster;
 
+import eu.cloudnetservice.cloudnet.common.concurrent.Task;
+import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
+import eu.cloudnetservice.cloudnet.driver.network.chunk.TransferStatus;
+import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkCluster;
+import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNode;
+import eu.cloudnetservice.cloudnet.driver.network.protocol.PacketSender;
+import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
+import java.io.Closeable;
+import java.io.InputStream;
 import java.util.Collection;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnmodifiableView;
 
-public interface NodeServerProvider<T extends NodeServer> {
+public interface NodeServerProvider extends PacketSender, Closeable {
 
-  /**
-   * Returns the represented nodes that are configured on the application. The nodes may be online, but they don't have
-   * to
-   */
-  @UnmodifiableView
-  @NonNull Collection<T> nodeServers();
+  @NonNull Collection<NodeServer> nodeServers();
 
-  /**
-   * Returns the node with the specific uniqueId that is configured
-   *
-   * @param uniqueId the uniqueId from the node, that should retrieve
-   * @return the IClusterNodeServer instance or null if the node doesn't registered
-   */
-  @Nullable T nodeServer(@NonNull String uniqueId);
+  @NonNull Collection<NodeServer> availableNodeServers();
 
-  /**
-   * Gets the current head node of the cluster, may be the local node.
-   *
-   * @return the current head node of the cluster.
-   */
-  @NonNull NodeServer headnode();
+  @NonNull Collection<NetworkChannel> connectedNodeChannels();
 
-  /**
-   * Get the jvm static local node server implementation.
-   *
-   * @return the jvm static local node server implementation.
-   */
-  @NonNull LocalNodeServer selfNode();
+  @NonNull NodeServer headNode();
 
-  /**
-   * Re-calculates the head node of the current cluster.
-   */
-  void refreshHeadNode();
+  @NonNull NodeServer localNode();
+
+  @Nullable NodeServer node(@NonNull String uniqueId);
+
+  @Nullable NodeServer node(@NonNull NetworkChannel channel);
+
+  void syncDataIntoCluster();
+
+  void registerNodes(@NonNull NetworkCluster cluster);
+
+  void registerNode(@NonNull NetworkClusterNode clusterNode);
+
+  void selectHeadNode();
+
+  @NonNull Task<TransferStatus> deployTemplateToCluster(
+    @NonNull ServiceTemplate template,
+    @NonNull InputStream stream,
+    boolean overwrite);
+
+  @NonNull Task<TransferStatus> deployStaticServiceToCluster(
+    @NonNull String name,
+    @NonNull InputStream stream,
+    boolean overwrite);
+
+  @Override
+  void close();
 }

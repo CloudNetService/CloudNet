@@ -86,6 +86,7 @@ public class ConsoleProgressAnimation extends AbstractConsoleAnimation {
   public static @NonNull ConsoleProgressAnimation createDefault(
     @NonNull String task,
     @NonNull String unitName,
+    int unitSize,
     long maximum
   ) {
     return new ConsoleProgressAnimation(
@@ -96,7 +97,7 @@ public class ConsoleProgressAnimation extends AbstractConsoleAnimation {
       ']',
       task + " (%ratio%): %percent%  ",
       " %speed% (%elapsed%/%eta%)",
-      1,
+      unitSize,
       unitName,
       new DecimalFormat("#.0"),
       maximum);

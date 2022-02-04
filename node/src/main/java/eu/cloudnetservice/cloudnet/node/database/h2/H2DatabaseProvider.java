@@ -18,6 +18,7 @@ package eu.cloudnetservice.cloudnet.node.database.h2;
 
 import eu.cloudnetservice.cloudnet.common.function.ThrowableFunction;
 import eu.cloudnetservice.cloudnet.common.io.FileUtil;
+import eu.cloudnetservice.cloudnet.node.database.LocalDatabase;
 import eu.cloudnetservice.cloudnet.node.database.sql.SQLDatabaseProvider;
 import java.nio.file.Path;
 import java.sql.Connection;
@@ -26,15 +27,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import lombok.NonNull;
 import org.h2.Driver;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 public final class H2DatabaseProvider extends SQLDatabaseProvider {
-
-  private static final long NEW_CREATION_DELAY = 600_000;
 
   static {
     Driver.load();
@@ -61,25 +61,20 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public @NonNull H2Database database(@NonNull String name) {
-    this.removedOutdatedEntries();
-    return (H2Database) this.cachedDatabaseInstances.computeIfAbsent(name,
-      $ -> new H2Database(this, name, NEW_CREATION_DELAY, super.executorService));
+  public @NonNull LocalDatabase database(@NonNull String name) {
+    return this.databaseCache.get(
+      name,
+      $ -> new H2Database(this, name, super.executorService));
   }
 
   @Override
   public boolean deleteDatabase(@NonNull String name) {
-    if (!this.containsDatabase(name)) {
-      return false;
-    }
-
-    this.cachedDatabaseInstances.remove(name);
     return this.executeUpdate("DROP TABLE IF EXISTS `" + name + "`") != -1;
   }
 
   @Override
   public @NonNull Collection<String> databaseNames() {
-    var tableNames = this.executeQuery(
+    return this.executeQuery(
       "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA='PUBLIC'",
       resultSet -> {
         Collection<String> collection = new ArrayList<>();
@@ -88,8 +83,7 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
         }
 
         return collection;
-      });
-    return tableNames == null ? Collections.emptyList() : tableNames;
+      }, Set.of());
   }
 
   @Override
@@ -111,6 +105,7 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
     return this.connection;
   }
 
+  @Override
   public int executeUpdate(@NonNull String query, @NonNull Object... objects) {
     try (var preparedStatement = this.connection().prepareStatement(query)) {
       for (var i = 0; i < objects.length; i++) {
@@ -124,9 +119,11 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
     }
   }
 
-  public @Nullable <T> T executeQuery(
+  @Override
+  public @UnknownNullability <T> T executeQuery(
     @NonNull String query,
     @NonNull ThrowableFunction<ResultSet, T, SQLException> callback,
+    @Nullable T def,
     @NonNull Object... objects
   ) {
     try (var preparedStatement = this.connection().prepareStatement(query)) {

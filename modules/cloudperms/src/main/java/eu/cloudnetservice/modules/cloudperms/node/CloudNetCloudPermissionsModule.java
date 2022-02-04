@@ -16,14 +16,15 @@
 
 package eu.cloudnetservice.modules.cloudperms.node;
 
+import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
 import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.modules.cloudperms.node.config.CloudPermissionConfig;
-import eu.cloudnetservice.modules.cloudperms.node.config.CloudPermissionConfigHelper;
 import eu.cloudnetservice.modules.cloudperms.node.listener.IncludePluginListener;
+import java.util.List;
 import lombok.NonNull;
 
 public final class CloudNetCloudPermissionsModule extends DriverModule {
@@ -38,13 +39,15 @@ public final class CloudNetCloudPermissionsModule extends DriverModule {
       .currentGetter($ -> this.permissionsConfig)
       .singletonCollector(() -> this.permissionsConfig)
       .nameExtractor(cloudPermissionsConfig -> "Permission Config")
-      .writer(config -> CloudPermissionConfigHelper.write(config, this.configPath()))
+      .writer(config -> this.writeConfig(JsonDocument.newDocument(config)))
       .build());
   }
 
   @ModuleTask(order = 126, event = ModuleLifeCycle.STARTED)
   public void initConfig() {
-    this.permissionsConfig = CloudPermissionConfigHelper.read(this.configPath());
+    this.permissionsConfig = this.readConfig(
+      CloudPermissionConfig.class,
+      () -> new CloudPermissionConfig(true, List.of()));
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)

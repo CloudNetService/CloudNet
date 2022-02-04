@@ -74,9 +74,10 @@ public final class CommandService {
     .column(service -> service.serviceId().uniqueId())
     .build();
   private static final RowBasedFormatter<ServiceInfoSnapshot> SERVICES = RowBasedFormatter.<ServiceInfoSnapshot>builder()
-    .defaultFormatter(ColumnFormatter.builder().columnTitles("Name", "Lifecycle", "Node", "State").build())
+    .defaultFormatter(ColumnFormatter.builder().columnTitles("Name", "Lifecycle", "Address", "Node", "State").build())
     .column(ServiceInfoSnapshot::name)
     .column(ServiceInfoSnapshot::lifeCycle)
+    .column(ServiceInfoSnapshot::address)
     .column(service -> service.serviceId().nodeUniqueId())
     .column(service -> service.connected() ? "Connected" : "Not connected")
     .build();

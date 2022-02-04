@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 
 public record LabyModServiceDisplay(boolean enabled, @Nullable String format) {
 
-  public @Nullable String getDisplay(@Nullable ServiceInfoSnapshot serviceInfoSnapshot) {
+  public @Nullable String display(@Nullable ServiceInfoSnapshot serviceInfoSnapshot) {
     if (serviceInfoSnapshot == null || this.format == null || !this.enabled) {
       return null;
     } else {

@@ -29,6 +29,7 @@ import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.cluster.NodeServerState;
 import eu.cloudnetservice.cloudnet.node.network.listener.PacketClientAuthorizationListener;
 import eu.cloudnetservice.cloudnet.node.service.CloudService;
 import lombok.NonNull;
@@ -51,10 +52,9 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
         NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL,
         new PacketClientAuthorizationListener());
 
-      LOGGER.fine(
-        I18n.trans("server-network-channel-init",
-          channel.serverAddress(),
-          channel.clientAddress()));
+      LOGGER.fine(I18n.trans("server-network-channel-init",
+        channel.serverAddress(),
+        channel.clientAddress()));
     } else {
       channel.close();
     }
@@ -71,10 +71,9 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
     CloudNetDriver.instance().eventManager().callEvent(
       new NetworkChannelCloseEvent(channel, ChannelType.SERVER_CHANNEL));
 
-    LOGGER.fine(
-      I18n.trans("server-network-channel-close",
-        channel.serverAddress(),
-        channel.clientAddress()));
+    LOGGER.fine(I18n.trans("server-network-channel-close",
+      channel.serverAddress(),
+      channel.clientAddress()));
 
     var cloudService = CloudNet.instance()
       .cloudServiceProvider()
@@ -88,9 +87,9 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
       return;
     }
 
-    var clusterNodeServer = CloudNet.instance().nodeServerProvider().nodeServer(channel);
-    if (clusterNodeServer != null) {
-      NodeNetworkUtil.closeNodeServer(clusterNodeServer);
+    var nodeServer = CloudNet.instance().nodeServerProvider().node(channel);
+    if (nodeServer != null && nodeServer.state() != NodeServerState.DISCONNECTED) {
+      nodeServer.close();
     }
   }
 

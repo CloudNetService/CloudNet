@@ -24,11 +24,12 @@ import eu.cloudnetservice.cloudnet.driver.event.EventListener;
 import eu.cloudnetservice.cloudnet.driver.event.EventManager;
 import eu.cloudnetservice.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
+import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
-import eu.cloudnetservice.cloudnet.node.cluster.ClusterNodeServerProvider;
+import eu.cloudnetservice.cloudnet.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.cloudnet.node.event.cluster.NetworkClusterNodeInfoUpdateEvent;
 import lombok.NonNull;
@@ -39,12 +40,12 @@ public final class NodeChannelMessageListener {
 
   private final EventManager eventManager;
   private final DataSyncRegistry dataSyncRegistry;
-  private final ClusterNodeServerProvider nodeServerProvider;
+  private final NodeServerProvider nodeServerProvider;
 
   public NodeChannelMessageListener(
     @NonNull EventManager eventManager,
     @NonNull DataSyncRegistry dataSyncRegistry,
-    @NonNull ClusterNodeServerProvider nodeServerProvider
+    @NonNull NodeServerProvider nodeServerProvider
   ) {
     this.eventManager = eventManager;
     this.dataSyncRegistry = dataSyncRegistry;
@@ -59,9 +60,9 @@ public final class NodeChannelMessageListener {
         case "update_node_info_snapshot" -> {
           var snapshot = event.content().readObject(NetworkClusterNodeInfoSnapshot.class);
           // get the associated node server
-          var server = this.nodeServerProvider.nodeServer(snapshot.node().uniqueId());
+          var server = this.nodeServerProvider.node(snapshot.node().uniqueId());
           if (server != null) {
-            server.nodeInfoSnapshot(snapshot);
+            server.updateNodeInfoSnapshot(snapshot);
             this.eventManager.callEvent(new NetworkClusterNodeInfoUpdateEvent(event.networkChannel(), snapshot));
           }
         }
@@ -110,12 +111,21 @@ public final class NodeChannelMessageListener {
 
         // request of the full cluster data set
         case "request_initial_cluster_data" -> {
-          var server = this.nodeServerProvider.nodeServer(event.networkChannel());
+          var server = this.nodeServerProvider.node(event.networkChannel());
           if (server != null) {
             // do not force the sync - the user can decide which changes should be used
             server.syncClusterData(CloudNet.instance().config().forceInitialClusterDataSync());
           }
         }
+
+        // execute a command
+        case "send_command_line" -> {
+          var response = this.nodeServerProvider.localNode().sendCommandLine(event.content().readString());
+          event.binaryResponse(DataBuf.empty().writeObject(response));
+        }
+
+        // change the local draining state
+        case "change_draining_state" -> this.nodeServerProvider.localNode().drain(event.content().readBoolean());
 
         // none of our business
         default -> {

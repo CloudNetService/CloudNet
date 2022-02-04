@@ -26,9 +26,9 @@ import eu.cloudnetservice.cloudnet.node.console.handler.ConsoleTabCompleteHandle
 import eu.cloudnetservice.cloudnet.node.console.handler.Toggleable;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -40,8 +40,9 @@ import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
-import org.jline.reader.Completer;
 import org.jline.reader.LineReader;
+import org.jline.reader.LineReader.Option;
+import org.jline.reader.LineReader.SuggestionType;
 import org.jline.reader.impl.LineReaderImpl;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
@@ -51,8 +52,9 @@ import org.jline.utils.WCWidth;
 public final class JLine3Console implements Console {
 
   private static final String USER = System.getProperty("user.name");
-  private static final String VERSION = CloudNet.class.getPackage().getImplementationVersion();
   private static final Logger LOGGER = LogManager.logger(JLine3Console.class);
+  private static final String VERSION = CloudNet.class.getPackage().getImplementationVersion();
+  private static final String HISTORY_FILE = System.getProperty("cloudnet.history.file", "local/.consolehistory");
 
   private final Map<UUID, ConsoleInputHandler> consoleInputHandler = new ConcurrentHashMap<>();
   private final Map<UUID, ConsoleTabCompleteHandler> tabCompleteHandler = new ConcurrentHashMap<>();
@@ -79,11 +81,23 @@ public final class JLine3Console implements Console {
     }
 
     this.terminal = TerminalBuilder.builder().system(true).encoding(StandardCharsets.UTF_8).build();
-    this.lineReader = new InternalLineReaderBuilder(this.terminal)
-      .completer(new JLine3Completer(this))
-      .option(LineReader.Option.DISABLE_EVENT_EXPANSION, true)
-      .variable(LineReader.BELL_STYLE, "off")
-      .build();
+    this.lineReader = new InternalLineReader(this.terminal);
+
+    this.lineReader.setAutosuggestion(SuggestionType.COMPLETER);
+    this.lineReader.setCompleter(new JLine3Completer(this));
+
+    this.lineReader.option(Option.AUTO_GROUP, false);
+    this.lineReader.option(Option.AUTO_MENU_LIST, true);
+    this.lineReader.option(Option.AUTO_FRESH_LINE, true);
+    this.lineReader.option(Option.EMPTY_WORD_OPTIONS, false);
+    this.lineReader.option(Option.HISTORY_TIMESTAMPED, false);
+    this.lineReader.option(Option.DISABLE_EVENT_EXPANSION, true);
+
+    this.lineReader.variable(LineReader.BELL_STYLE, "none");
+    this.lineReader.variable(LineReader.HISTORY_SIZE, 500);
+    this.lineReader.variable(LineReader.HISTORY_FILE_SIZE, 2500);
+    this.lineReader.variable(LineReader.HISTORY_FILE, Path.of(HISTORY_FILE));
+    this.lineReader.variable(LineReader.COMPLETION_STYLE_LIST_BACKGROUND, "inverse");
 
     this.updatePrompt();
     this.consoleReadThread.start();
@@ -395,8 +409,8 @@ public final class JLine3Console implements Console {
 
   private final class InternalLineReader extends LineReaderImpl {
 
-    private InternalLineReader(Terminal terminal, String appName, Map<String, Object> variables) {
-      super(terminal, appName, variables);
+    private InternalLineReader(@NonNull Terminal terminal) {
+      super(terminal, "CloudNet-Console", null);
     }
 
     @Override
@@ -435,46 +449,6 @@ public final class JLine3Console implements Console {
     @Override
     protected boolean downLineOrSearch() {
       return this.historySearchForward();
-    }
-  }
-
-  private final class InternalLineReaderBuilder {
-
-    private final Terminal terminal;
-    private final Map<String, Object> variables = new HashMap<>();
-    private final Map<LineReader.Option, Boolean> options = new HashMap<>();
-    private Completer completer;
-
-    private InternalLineReaderBuilder(@NonNull Terminal terminal) {
-      this.terminal = terminal;
-    }
-
-    public @NonNull InternalLineReaderBuilder variable(@NonNull String name, @NonNull Object value) {
-      this.variables.put(name, value);
-      return this;
-    }
-
-    public @NonNull InternalLineReaderBuilder option(@NonNull LineReader.Option option, boolean value) {
-      this.options.put(option, value);
-      return this;
-    }
-
-    public @NonNull InternalLineReaderBuilder completer(@NonNull Completer completer) {
-      this.completer = completer;
-      return this;
-    }
-
-    public @NonNull InternalLineReader build() {
-      var reader = new InternalLineReader(this.terminal, "CloudNet-Console", this.variables);
-      if (this.completer != null) {
-        reader.setCompleter(this.completer);
-      }
-
-      for (var e : this.options.entrySet()) {
-        reader.option(e.getKey(), e.getValue());
-      }
-
-      return reader;
     }
   }
 }

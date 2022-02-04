@@ -53,7 +53,7 @@ public final class NodeSetupListener {
       .findFirst()
       .ifPresent(entry -> entry.answerType().thenAccept(($, environment) -> {
         if (!event.setup().hasResult("generateDefaultNPCConfigurationEntry")
-          && ServiceEnvironmentType.isMinecraftServer((ServiceEnvironmentType) environment)) {
+          && ServiceEnvironmentType.minecraftServer((ServiceEnvironmentType) environment)) {
           event.setup().addEntries(CREATE_ENTRY_QUESTION_LIST);
         }
       }));

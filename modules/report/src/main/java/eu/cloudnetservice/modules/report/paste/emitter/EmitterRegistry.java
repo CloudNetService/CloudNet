@@ -20,7 +20,6 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import eu.cloudnetservice.cloudnet.node.service.CloudService;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import lombok.NonNull;
@@ -63,9 +62,14 @@ public class EmitterRegistry {
    * @param emitter the emitters for the given class appending data
    * @param <T>     the type of the report, currently {@link CloudService} & {@link NetworkClusterNodeInfoSnapshot} are
    *                supported
+   * @return the same emitter registry, for chaining
    */
-  public <T> void registerDataEmitter(@NonNull Class<T> clazz, @NonNull ReportDataEmitter<T>... emitter) {
-    this.emitters.putAll(clazz, Arrays.asList(emitter));
+  public <T> @NonNull EmitterRegistry registerDataEmitter(
+    @NonNull Class<T> clazz,
+    @NonNull ReportDataEmitter<T> emitter
+  ) {
+    this.emitters.put(clazz, emitter);
+    return this;
   }
 
   /**

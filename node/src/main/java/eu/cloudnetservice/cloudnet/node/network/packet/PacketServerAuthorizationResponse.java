@@ -19,10 +19,16 @@ package eu.cloudnetservice.cloudnet.node.network.packet;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.BasePacket;
+import org.jetbrains.annotations.Nullable;
 
 public final class PacketServerAuthorizationResponse extends BasePacket {
 
-  public PacketServerAuthorizationResponse(boolean success) {
-    super(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL, DataBuf.empty().writeBoolean(success));
+  public PacketServerAuthorizationResponse(boolean success, boolean reconnect, @Nullable DataBuf extraData) {
+    super(
+      NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL,
+      DataBuf.empty()
+        .writeBoolean(success)
+        .writeBoolean(reconnect)
+        .writeObject(extraData));
   }
 }

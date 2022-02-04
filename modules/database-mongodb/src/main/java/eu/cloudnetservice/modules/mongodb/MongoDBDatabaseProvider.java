@@ -24,29 +24,26 @@ import eu.cloudnetservice.cloudnet.node.database.LocalDatabase;
 import eu.cloudnetservice.modules.mongodb.config.MongoDBConnectionConfig;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 public class MongoDBDatabaseProvider extends AbstractDatabaseProvider {
 
   protected final MongoDBConnectionConfig config;
   protected final ExecutorService executorService;
   protected final boolean autoShutdownExecutorService;
-  protected final Map<String, LocalDatabase> cachedDatabaseInstances;
 
   protected MongoClient mongoClient;
   protected MongoDatabase mongoDatabase;
 
-  public MongoDBDatabaseProvider(MongoDBConnectionConfig config) {
+  public MongoDBDatabaseProvider(@NonNull MongoDBConnectionConfig config) {
     this(config, null);
   }
 
-  public MongoDBDatabaseProvider(MongoDBConnectionConfig config, ExecutorService executorService) {
+  public MongoDBDatabaseProvider(@NonNull MongoDBConnectionConfig config, @Nullable ExecutorService executorService) {
     this.config = config;
-    this.cachedDatabaseInstances = new ConcurrentHashMap<>();
     this.autoShutdownExecutorService = executorService == null;
     this.executorService = executorService == null ? Executors.newCachedThreadPool() : executorService;
   }
@@ -61,7 +58,7 @@ public class MongoDBDatabaseProvider extends AbstractDatabaseProvider {
 
   @Override
   public @NonNull LocalDatabase database(@NonNull String name) {
-    return this.cachedDatabaseInstances.computeIfAbsent(name, $ -> {
+    return this.databaseCache.get(name, $ -> {
       var collection = this.mongoDatabase.getCollection(name);
       return new MongoDBDatabase(name, collection, this.executorService, this);
     });
@@ -74,7 +71,7 @@ public class MongoDBDatabaseProvider extends AbstractDatabaseProvider {
 
   @Override
   public boolean deleteDatabase(@NonNull String name) {
-    this.cachedDatabaseInstances.remove(name);
+    this.databaseCache.invalidate(name);
     this.mongoDatabase.getCollection(name).drop();
 
     return true;
@@ -86,9 +83,9 @@ public class MongoDBDatabaseProvider extends AbstractDatabaseProvider {
   }
 
   @Override
-  public void close() {
+  public void close() throws Exception {
+    super.close();
     this.mongoClient.close();
-    this.cachedDatabaseInstances.clear();
 
     if (this.autoShutdownExecutorService) {
       this.executorService.shutdownNow();

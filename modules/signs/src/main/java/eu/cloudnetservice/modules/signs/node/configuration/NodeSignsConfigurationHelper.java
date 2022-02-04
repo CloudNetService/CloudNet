@@ -50,11 +50,6 @@ public final class NodeSignsConfigurationHelper {
   public static SignsConfiguration read(@NonNull Path path) {
     JsonDocument configurationDocument = JsonDocument.newDocument(path);
     if (configurationDocument.contains("config")) {
-      // old document - run conversation now
-      LOGGER
-        .warning("Detected old signs configuration file, running conversation...");
-      // save old configuration as a backup before backup
-      configurationDocument.write(path.getParent().resolve("config.json.old"));
       // write the new configuration file
       var configuration = convertOldConfiguration(configurationDocument, path);
       write(configuration, path);

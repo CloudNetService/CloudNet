@@ -294,7 +294,7 @@ public final class CommandModules {
     // load the module
     var wrapper = this.provider.loadModule(target);
     if (wrapper == null) {
-      source.sendMessage(I18n.trans("command-modules-module-already-loaded"));
+      source.sendMessage(I18n.trans("command-modules-module-already-loaded", target));
       return;
     }
 

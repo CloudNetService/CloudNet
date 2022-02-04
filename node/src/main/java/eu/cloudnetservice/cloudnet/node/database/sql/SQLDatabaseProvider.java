@@ -23,12 +23,11 @@ import eu.cloudnetservice.cloudnet.node.database.AbstractDatabaseProvider;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 public abstract class SQLDatabaseProvider extends AbstractDatabaseProvider {
 
@@ -36,17 +35,14 @@ public abstract class SQLDatabaseProvider extends AbstractDatabaseProvider {
 
   protected final ExecutorService executorService;
   protected final boolean autoShutdownExecutorService;
-  protected final Map<String, SQLDatabase> cachedDatabaseInstances;
 
   public SQLDatabaseProvider(@Nullable ExecutorService executorService) {
-    this.cachedDatabaseInstances = new ConcurrentHashMap<>();
     this.autoShutdownExecutorService = executorService == null;
     this.executorService = executorService == null ? Executors.newCachedThreadPool() : executorService;
   }
 
   @Override
   public boolean containsDatabase(@NonNull String name) {
-    this.removedOutdatedEntries();
     for (var database : this.databaseNames()) {
       if (database.equalsIgnoreCase(name)) {
         return true;
@@ -56,16 +52,9 @@ public abstract class SQLDatabaseProvider extends AbstractDatabaseProvider {
     return false;
   }
 
-  protected void removedOutdatedEntries() {
-    for (var entry : this.cachedDatabaseInstances.entrySet()) {
-      if (entry.getValue().cacheTimeoutTime < System.currentTimeMillis()) {
-        this.cachedDatabaseInstances.remove(entry.getKey());
-      }
-    }
-  }
-
   @Override
   public void close() throws Exception {
+    super.close();
     if (this.autoShutdownExecutorService) {
       this.executorService.shutdownNow();
     }
@@ -75,8 +64,9 @@ public abstract class SQLDatabaseProvider extends AbstractDatabaseProvider {
 
   public abstract int executeUpdate(@NonNull String query, @NonNull Object... objects);
 
-  public abstract <T> @Nullable T executeQuery(
+  public abstract <T> @UnknownNullability T executeQuery(
     @NonNull String query,
     @NonNull ThrowableFunction<ResultSet, T, SQLException> callback,
+    @Nullable T def,
     @NonNull Object... objects);
 }

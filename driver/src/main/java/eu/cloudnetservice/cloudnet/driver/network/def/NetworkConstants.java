@@ -34,6 +34,7 @@ public final class NetworkConstants {
   public static final int CHANNEL_MESSAGING_CHANNEL = 1;
   public static final int CHUNKED_PACKET_COM_CHANNEL = 2;
   public static final int INTERNAL_AUTHORIZATION_CHANNEL = 3;
+  public static final int INTERNAL_SERVICE_SYNC_ACK_CHANNEL = 4;
 
   // channel message channels
   public static final String INTERNAL_MSG_CHANNEL = "cloudnet:internal";

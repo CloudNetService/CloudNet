@@ -43,7 +43,7 @@ public final class HeaderReader {
       Objects.requireNonNull(HeaderReader.class.getClassLoader().getResourceAsStream("header.txt")),
       StandardCharsets.UTF_8
     )) {
-      for (var line : CharStreams.toString(reader).split(System.lineSeparator())) {
+      for (var line : CharStreams.readLines(reader)) {
         console.forceWriteLine(line.replace("%codename%", codename).replace("%version%", version));
       }
     } catch (IOException exception) {

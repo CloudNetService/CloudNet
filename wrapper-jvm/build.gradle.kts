@@ -17,7 +17,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
-  id("com.github.johnrengelman.shadow") version Versions.shadow
+  alias(libs.plugins.shadow)
 }
 
 tasks.withType<ShadowJar> {

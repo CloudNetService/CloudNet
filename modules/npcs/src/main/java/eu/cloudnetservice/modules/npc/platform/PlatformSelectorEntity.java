@@ -18,6 +18,7 @@ package eu.cloudnetservice.modules.npc.platform;
 
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.npc.NPC;
+import eu.cloudnetservice.modules.npc.NPC.ClickAction;
 import java.util.Set;
 import lombok.NonNull;
 
@@ -36,6 +37,8 @@ public interface PlatformSelectorEntity<L, P, M, I> {
   void handleRightClickAction(@NonNull P player);
 
   void handleLeftClickAction(@NonNull P player);
+
+  void executeAction(@NonNull P player, @NonNull ClickAction action);
 
   @NonNull I selectorInventory();
 

@@ -37,7 +37,6 @@ import eu.cloudnetservice.modules.bridge.node.command.CommandBridge;
 import eu.cloudnetservice.modules.bridge.node.http.V2HttpHandlerBridge;
 import eu.cloudnetservice.modules.bridge.rpc.ComponentObjectSerializer;
 import eu.cloudnetservice.modules.bridge.rpc.TitleObjectSerializer;
-import java.nio.file.Files;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -184,12 +183,6 @@ public final class CloudNetBridgeModule extends DriverModule {
   }
 
   private @NonNull BridgeConfiguration loadConfiguration() {
-    var configuration = this.readConfig().toInstanceOf(BridgeConfiguration.class);
-    if (configuration == null || Files.notExists(this.configPath())) {
-      // create a new configuration
-      configuration = new BridgeConfiguration();
-      this.writeConfig(JsonDocument.newDocument(configuration));
-    }
-    return configuration;
+    return this.readConfig(BridgeConfiguration.class, BridgeConfiguration::new);
   }
 }
