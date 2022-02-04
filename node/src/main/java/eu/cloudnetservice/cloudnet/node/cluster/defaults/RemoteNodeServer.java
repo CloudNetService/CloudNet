@@ -231,8 +231,10 @@ public class RemoteNodeServer implements NodeServer {
   @Override
   public void close() {
     // disconnect the node from the network
-    this.channel.close();
-    this.channel = null;
+    if (this.channel != null) {
+      this.channel.close();
+      this.channel = null;
+    }
     // reset the node info snapshot & mark as removed
     this.updateNodeInfoSnapshot(null);
     this.state(NodeServerState.UNAVAILABLE);
