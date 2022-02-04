@@ -25,12 +25,11 @@ import eu.cloudnetservice.modules.influx.publish.Publisher;
 import eu.cloudnetservice.modules.influx.util.PointUtil;
 import java.util.Collection;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import lombok.NonNull;
 
 public final class ConnectedNodeInfoPublisher implements Publisher {
 
-  private final NodeServerProvider<? extends NodeServer> nodeServerProvider;
+  private final NodeServerProvider nodeServerProvider;
 
   public ConnectedNodeInfoPublisher() {
     this.nodeServerProvider = CloudNet.instance().nodeServerProvider();
@@ -42,11 +41,7 @@ public final class ConnectedNodeInfoPublisher implements Publisher {
       .map(NodeServer::nodeInfoSnapshot)
       .filter(Objects::nonNull)
       .map(this::createPoint)
-      .collect(Collectors.collectingAndThen(Collectors.toList(), list -> {
-        // add a point for the local node which is not part of the list
-        list.add(this.createPoint(this.nodeServerProvider.selfNode().nodeInfoSnapshot()));
-        return list;
-      }));
+      .toList();
   }
 
   private @NonNull Point createPoint(@NonNull NetworkClusterNodeInfoSnapshot snapshot) {
