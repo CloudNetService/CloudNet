@@ -122,11 +122,11 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
       .defaultProcessArguments(type.defaultProcessArguments());
   }
 
-  public static boolean isMinecraftProxy(@NonNull ServiceEnvironmentType type) {
+  public static boolean minecraftProxy(@NonNull ServiceEnvironmentType type) {
     return JAVA_PROXY.get(type.properties()) || PE_PROXY.get(type.properties());
   }
 
-  public static boolean isMinecraftServer(@NonNull ServiceEnvironmentType type) {
+  public static boolean minecraftServer(@NonNull ServiceEnvironmentType type) {
     return JAVA_SERVER.get(type.properties()) || PE_SERVER.get(type.properties());
   }
 

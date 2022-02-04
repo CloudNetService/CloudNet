@@ -26,6 +26,7 @@ import eu.cloudnetservice.cloudnet.node.cluster.defaults.LocalNodeServer;
 import eu.cloudnetservice.cloudnet.node.http.HttpSession;
 import eu.cloudnetservice.cloudnet.node.http.V2HttpHandler;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 public class V2HttpHandlerCluster extends V2HttpHandler {
 
@@ -61,7 +62,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
   }
 
   protected void handleNodeRequest(HttpContext context) {
-    var server = this.getNodeServer(context);
+    var server = this.nodeServer(context);
     if (server != null) {
       this.ok(context)
         .body(this.success().append("node", this.createNodeInfoDocument(server)).toString())
@@ -90,7 +91,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
   }
 
   protected void handleNodeCommandRequest(HttpContext context) {
-    var nodeServer = this.getNodeServer(context);
+    var nodeServer = this.nodeServer(context);
     var commandLine = this.body(context.request()).getString("command");
     if (commandLine == null || nodeServer == null) {
       this.badRequest(context)
@@ -219,7 +220,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
       .append("nodeInfoSnapshot", node.nodeInfoSnapshot());
   }
 
-  protected NodeServer getNodeServer(HttpContext context) {
+  protected @Nullable NodeServer nodeServer(HttpContext context) {
     var nodeName = context.request().pathParameters().get("node");
     return this.nodeProvider().node(nodeName);
   }

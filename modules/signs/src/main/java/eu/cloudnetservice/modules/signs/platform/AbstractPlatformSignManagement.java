@@ -124,9 +124,9 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
   @Override
   public void handleServiceUpdate(@NonNull ServiceInfoSnapshot snapshot) {
     if (this.shouldAssign(snapshot)) {
-      var handlingSign = this.getSignOf(snapshot);
+      var handlingSign = this.signOf(snapshot);
       if (handlingSign == null) {
-        handlingSign = this.getNextFreeSign(snapshot);
+        handlingSign = this.nextFreeSign(snapshot);
         // in all cases we need to remove the old waiting assignment
         this.waitingAssignments.removeIf(s -> s.name().equals(snapshot.name()));
         if (handlingSign == null) {
@@ -143,7 +143,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
   @Override
   public void handleServiceRemove(@NonNull ServiceInfoSnapshot snapshot) {
     if (this.shouldAssign(snapshot)) {
-      var handlingSign = this.getSignOf(snapshot);
+      var handlingSign = this.signOf(snapshot);
       if (handlingSign != null) {
         handlingSign.currentTarget(null);
         this.updateSign(handlingSign);
@@ -234,10 +234,10 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
 
   protected void tryAssign(@NonNull ServiceInfoSnapshot snapshot) {
     // check if the service is already assigned to a sign
-    var sign = this.getSignOf(snapshot);
+    var sign = this.signOf(snapshot);
     if (sign == null) {
       // check if there is a free sign to handle the service
-      sign = this.getNextFreeSign(snapshot);
+      sign = this.nextFreeSign(snapshot);
       if (sign == null) {
         // no free sign, add to the waiting services
         this.waitingAssignments.add(snapshot);
@@ -290,7 +290,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
 
       if (!this.waitingAssignments.isEmpty()) {
         for (var waitingAssignment : this.waitingAssignments) {
-          var freeSign = this.getNextFreeSign(waitingAssignment);
+          var freeSign = this.nextFreeSign(waitingAssignment);
           if (freeSign != null) {
             this.waitingAssignments.remove(waitingAssignment);
 
@@ -302,7 +302,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
     }
   }
 
-  protected @Nullable Sign getNextFreeSign(@NonNull ServiceInfoSnapshot snapshot) {
+  protected @Nullable Sign nextFreeSign(@NonNull ServiceInfoSnapshot snapshot) {
     var entry = this.applicableSignConfigurationEntry();
     var servicePriority = PriorityUtil.priority(snapshot, entry);
 
@@ -351,7 +351,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
     }
   }
 
-  protected @Nullable Sign getSignOf(@NonNull ServiceInfoSnapshot snapshot) {
+  protected @Nullable Sign signOf(@NonNull ServiceInfoSnapshot snapshot) {
     for (var value : this.signs.values()) {
       if (value.currentTarget() != null && value.currentTarget().name().equals(snapshot.name())) {
         return value;

@@ -76,7 +76,7 @@ public class LabyModPermissions {
       return this;
     }
 
-    public @NonNull Builder addPermission(@NonNull String permission, @NonNull Boolean enabled) {
+    public @NonNull Builder addPermission(@NonNull String permission, boolean enabled) {
       this.permissions.put(permission, enabled);
       return this;
     }

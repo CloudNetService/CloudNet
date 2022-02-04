@@ -308,7 +308,7 @@ public class NodePlayerManager implements PlayerManager {
     var networkService = networkPlayerProxyInfo.networkService();
     var cloudPlayer = this.selectPlayerForLogin(networkPlayerProxyInfo, networkPlayerServerInfo);
     // check if the login service is a proxy and set the proxy as the login service if so
-    if (ServiceEnvironmentType.isMinecraftProxy(networkService.serviceId().environment())) {
+    if (ServiceEnvironmentType.minecraftProxy(networkService.serviceId().environment())) {
       // a proxy should be able to change the login service
       cloudPlayer.loginService(networkService);
     }
@@ -404,17 +404,17 @@ public class NodePlayerManager implements PlayerManager {
           var loginService = registeredPlayer.loginService();
           // check if we already know the same service
           if (!Objects.equals(newLoginService, loginService)
-            && ServiceEnvironmentType.isMinecraftProxy(newLoginService.environment())
-            && (loginService == null || !ServiceEnvironmentType.isMinecraftProxy(loginService.environment()))) {
+            && ServiceEnvironmentType.minecraftProxy(newLoginService.environment())
+            && (loginService == null || !ServiceEnvironmentType.minecraftProxy(loginService.environment()))) {
             cloudPlayer.loginService(newLoginService);
             needsUpdate = true;
           }
         }
         // check if the player has a known connected service which is not a proxy
         if (cloudPlayer.connectedService() != null
-          && ServiceEnvironmentType.isMinecraftProxy(cloudPlayer.connectedService().environment())) {
+          && ServiceEnvironmentType.minecraftProxy(cloudPlayer.connectedService().environment())) {
           var connectedService = registeredPlayer.connectedService();
-          if (connectedService != null && ServiceEnvironmentType.isMinecraftServer(connectedService.environment())) {
+          if (connectedService != null && ServiceEnvironmentType.minecraftServer(connectedService.environment())) {
             cloudPlayer.connectedService(connectedService);
             needsUpdate = true;
           }

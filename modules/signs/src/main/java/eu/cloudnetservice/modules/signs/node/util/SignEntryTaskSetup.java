@@ -50,7 +50,7 @@ public final class SignEntryTaskSetup {
     @NonNull ServiceEnvironmentType type
   ) {
     if (!animation.hasResult("generateDefaultSignConfigurationEntry")
-      && ServiceEnvironmentType.isMinecraftServer(type)) {
+      && ServiceEnvironmentType.minecraftServer(type)) {
       animation.addEntries(CREATE_ENTRY_QUESTION_LIST);
     }
   }

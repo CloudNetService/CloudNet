@@ -102,7 +102,7 @@ public class CommandPlayers {
   public List<String> suggestPlayerService(CommandContext<CommandSource> $, String input) {
     return CloudNet.instance().cloudServiceProvider().services()
       .stream()
-      .filter(snapshot -> ServiceEnvironmentType.isMinecraftServer(snapshot.serviceId().environment()))
+      .filter(snapshot -> ServiceEnvironmentType.minecraftServer(snapshot.serviceId().environment()))
       .map(Nameable::name)
       .toList();
   }
