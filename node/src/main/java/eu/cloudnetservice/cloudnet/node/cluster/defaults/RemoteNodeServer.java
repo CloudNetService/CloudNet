@@ -196,8 +196,9 @@ public class RemoteNodeServer implements NodeServer {
       this.lastSnapshot = null;
       this.currentSnapshot = null;
     } else if (this.currentSnapshot == null) {
-      // no snapshot is available
+      // no snapshot is available, first time connection
       this.currentSnapshot = this.lastSnapshot = snapshot;
+      this.provider.selectHeadNode();
     } else {
       // pre-move the current snapshot to the last snapshot
       this.lastSnapshot = this.currentSnapshot;

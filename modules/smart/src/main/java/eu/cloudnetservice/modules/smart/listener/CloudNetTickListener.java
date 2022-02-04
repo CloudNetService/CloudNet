@@ -27,7 +27,7 @@ import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.CloudNetTick;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServer;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServerProvider;
-import eu.cloudnetservice.cloudnet.node.event.instance.CloudNetTickEvent;
+import eu.cloudnetservice.cloudnet.node.event.instance.CloudNetTickServiceStartEvent;
 import eu.cloudnetservice.cloudnet.node.service.CloudServiceManager;
 import eu.cloudnetservice.modules.bridge.BridgeServiceProperties;
 import eu.cloudnetservice.modules.smart.CloudNetSmartModule;
@@ -57,7 +57,7 @@ public final class CloudNetTickListener {
   }
 
   @EventListener
-  public void handleTick(@NonNull CloudNetTickEvent event) {
+  public void handleTick(@NonNull CloudNetTickServiceStartEvent event) {
     if (CloudNet.instance().nodeServerProvider().localNode().head()
       && event.ticker().currentTick() % CloudNetTick.TPS == 0) {
       this.handleSmartEntries();

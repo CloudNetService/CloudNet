@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.node.cluster.task;
 
+import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServerProvider;
@@ -30,7 +31,7 @@ public record NodeDisconnectTrackerTask(@NonNull NodeServerProvider provider) im
   private static final Logger LOGGER = LogManager.logger(NodeDisconnectTrackerTask.class);
 
   private static final long SOFT_DISCONNECT_MS_DELAY = Long.getLong("cloudnet.max.node.idle.millis", 30_000);
-  private static final long HARD_DISCONNECT_MS_DELAY = Long.getLong("cloudnet.max.node.disconnect.millis", 180_000);
+  private static final long HARD_DISCONNECT_MS_DELAY = Long.getLong("cloudnet.max.node.disconnect.millis", 0);
 
   @Override
   public void run() {
@@ -53,6 +54,8 @@ public record NodeDisconnectTrackerTask(@NonNull NodeServerProvider provider) im
           if (this.provider.headNode() == server) {
             this.provider.selectHeadNode();
           }
+          // warn about that
+          LOGGER.warning(I18n.trans("cluster-server-soft-disconnect", server.name(), updateDelay));
         }
       }
 
@@ -67,6 +70,11 @@ public record NodeDisconnectTrackerTask(@NonNull NodeServerProvider provider) im
         if (disconnectMs >= HARD_DISCONNECT_MS_DELAY) {
           // close hard
           server.close();
+          LOGGER.warning(I18n.trans(
+            "cluster-server-hard-disconnect",
+            server.name(),
+            HARD_DISCONNECT_MS_DELAY,
+            disconnectMs));
         } else {
           // check if we need to reconnect or if the other node is responsible to reconnect
           if (local.nodeInfoSnapshot().startupMillis() > server.nodeInfoSnapshot().startupMillis()) {
