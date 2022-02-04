@@ -7,8 +7,8 @@ shadow = "7.1.2"
 blossom = "1.3.0"
 juppiter = "0.3.0"
 licenser = "0.6.1"
-versions = "0.41.0"
-fabricLoom = "0.11.27"
+versions = "0.42.0"
+fabricLoom = "0.11.29"
 
 # google libs
 gson = "2.8.9"
@@ -17,7 +17,7 @@ guava = "31.0.1-jre"
 # testing
 junit = "5.8.2"
 mockito = "4.3.1"
-tyrusClient = "2.0.1"
+tyrusClient = "2.0.2"
 minaSshdServer = "2.8.0"
 
 # compile time processing
@@ -40,9 +40,9 @@ asm = "9.2"
 sshj = "0.32.0"
 jjwt = "0.11.2"
 slf4j = "1.7.32"
-javers = "6.6.1"
+javers = "6.6.2"
 caffeine = "3.0.5"
-awsSdk = "2.17.121"
+awsSdk = "2.17.123"
 dockerJava = "3.2.12"
 unirest = "4.0.0-RC2"
 netty = "4.1.73.Final"
@@ -67,7 +67,7 @@ npcLib = "development-SNAPSHOT"
 
 # fabric platform special dependencies
 minecraft = "1.18.1"
-fabricLoader = "0.12.12"
+fabricLoader = "0.13.0"
 
 
 [libraries]
