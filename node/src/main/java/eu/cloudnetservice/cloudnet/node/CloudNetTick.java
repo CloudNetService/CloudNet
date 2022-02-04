@@ -153,10 +153,9 @@ public final class CloudNetTick {
           // check if we should start a service now
           if (this.cloudNet.nodeServerProvider().localNode().head() && tick % TPS == 0) {
             // ensure that there are no idling node servers before we start any service to prevent duplicates
-            var idlingNodeCount = this.cloudNet.nodeServerProvider().nodeServers().stream()
-              .filter(server -> server.state() == NodeServerState.DISCONNECTED)
-              .count();
-            if (idlingNodeCount == 0) {
+            var idlingNode = this.cloudNet.nodeServerProvider().nodeServers().stream()
+              .noneMatch(server -> server.state() == NodeServerState.DISCONNECTED);
+            if (idlingNode) {
               this.startService();
               this.cloudNet.eventManager().callEvent(this.serviceTickStartEvent);
             }
