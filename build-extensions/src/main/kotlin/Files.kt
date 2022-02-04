@@ -41,6 +41,7 @@ object Files {
   const val report = "cloudnet-report.jar"
   const val storageSftp = "cloudnet-sftp.jar"
   const val storageS3 = "cloudnet-s3.jar"
+  const val influx = "cloudnet-influx.jar"
   const val node = "cloudnet.jar"
   const val nodeCnl = "cloudnet.cnl"
 }

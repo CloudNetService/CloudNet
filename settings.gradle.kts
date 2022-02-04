@@ -53,7 +53,8 @@ initializeSubProjects("modules",
   "labymod",
   "npcs",
   "storage-s3",
-  "dockerized-services")
+  "dockerized-services",
+  "influx")
 // launcher
 initializeSubProjects("launcher", "java8", "java17", "patcher")
 

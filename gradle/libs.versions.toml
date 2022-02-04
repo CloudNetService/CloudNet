@@ -47,6 +47,7 @@ dockerJava = "3.2.12"
 unirest = "4.0.0-RC2"
 netty = "4.1.73.Final"
 annotations = "23.0.0"
+influxClient = "4.1.0"
 nettyIoUring = "0.0.12.Final"
 
 # platform api versions
@@ -126,6 +127,7 @@ javers = { group = "org.javers", name = "javers-core", version.ref = "javers" }
 awsSdk = { group = "software.amazon.awssdk", name = "s3", version.ref = "awsSdk" }
 annotations = { group = "org.jetbrains", name = "annotations", version.ref = "annotations" }
 caffeine = { group = "com.github.ben-manes.caffeine", name = "caffeine", version.ref = "caffeine" }
+influxClient = { group = "com.influxdb", name = "influxdb-client-java", version.ref = "influxClient" }
 
 # databases
 h2 = { group = "com.h2database", name = "h2", version.ref = "h2" }

@@ -135,7 +135,7 @@ public final class CloudNetTick {
         if (this.tickPauseRequests.get() <= 0) {
           // execute all scheduled tasks for this tick
           for (var task : this.processQueue) {
-            if (task.execute(tick)) {
+            if (task.isCancelled() || task.execute(tick)) {
               this.processQueue.remove(task);
             }
           }
