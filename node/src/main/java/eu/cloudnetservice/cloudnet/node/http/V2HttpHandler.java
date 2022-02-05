@@ -162,19 +162,19 @@ public abstract class V2HttpHandler implements HttpHandler {
       .header("Access-Control-Allow-Methods", this.requestMethodsString);
   }
 
-  protected HttpResponse ok(@NonNull HttpContext context) {
+  protected @NonNull HttpResponse ok(@NonNull HttpContext context) {
     return this.response(context, HttpResponseCode.OK);
   }
 
-  protected HttpResponse badRequest(@NonNull HttpContext context) {
+  protected @NonNull HttpResponse badRequest(@NonNull HttpContext context) {
     return this.response(context, HttpResponseCode.BAD_REQUEST);
   }
 
-  protected HttpResponse notFound(@NonNull HttpContext context) {
+  protected @NonNull HttpResponse notFound(@NonNull HttpContext context) {
     return this.response(context, HttpResponseCode.NOT_FOUND);
   }
 
-  protected HttpResponse response(@NonNull HttpContext context, @NonNull HttpResponseCode statusCode) {
+  protected @NonNull HttpResponse response(@NonNull HttpContext context, @NonNull HttpResponseCode statusCode) {
     return context.response()
       .status(statusCode)
       .header("Content-Type", "application/json")

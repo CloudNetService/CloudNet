@@ -24,16 +24,20 @@ import eu.cloudnetservice.cloudnet.node.http.V2HttpHandler;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 public class V2HttpHandlerTemplateStorages extends V2HttpHandler {
 
-  public V2HttpHandlerTemplateStorages(String requiredPermission) {
+  public V2HttpHandlerTemplateStorages(@Nullable String requiredPermission) {
     super(requiredPermission, "GET");
   }
 
   @Override
-  protected void handleBearerAuthorized(@NonNull String path, @NonNull HttpContext context,
-    @NonNull HttpSession session) {
+  protected void handleBearerAuthorized(
+    @NonNull String path,
+    @NonNull HttpContext context,
+    @NonNull HttpSession session
+  ) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.endsWith("/templatestorage")) {
         this.handleStorageListRequest(context);
@@ -43,7 +47,7 @@ public class V2HttpHandlerTemplateStorages extends V2HttpHandler {
     }
   }
 
-  protected void handleStorageListRequest(HttpContext context) {
+  protected void handleStorageListRequest(@NonNull HttpContext context) {
     this.ok(context)
       .body(this.success().append("storages", this.node().availableTemplateStorages().stream()
         .map(Nameable::name).collect(Collectors.toList())).toString())
@@ -52,7 +56,7 @@ public class V2HttpHandlerTemplateStorages extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleTemplateListRequest(HttpContext context) {
+  protected void handleTemplateListRequest(@NonNull HttpContext context) {
     this.handleWithStorageContext(context, templateStorage -> this.ok(context)
       .body(this.success().append("templates", templateStorage.templates()).toString())
       .context()
@@ -60,7 +64,7 @@ public class V2HttpHandlerTemplateStorages extends V2HttpHandler {
       .cancelNext());
   }
 
-  protected void handleWithStorageContext(HttpContext context, Consumer<TemplateStorage> handler) {
+  protected void handleWithStorageContext(@NonNull HttpContext context, @NonNull Consumer<TemplateStorage> handler) {
     var storage = context.request().pathParameters().get("storage");
     if (storage == null) {
       this.badRequest(context)

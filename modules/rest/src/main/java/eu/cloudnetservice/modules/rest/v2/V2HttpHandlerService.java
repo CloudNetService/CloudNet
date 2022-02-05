@@ -40,10 +40,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
 
-  public V2HttpHandlerService(String requiredPermission) {
+  public V2HttpHandlerService(@Nullable String requiredPermission) {
     super(
       requiredPermission,
       (context, path) -> context.request().method().equalsIgnoreCase("GET") && path.endsWith("/livelog"),
@@ -52,8 +53,11 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(@NonNull String path, @NonNull HttpContext context,
-    @NonNull HttpSession session) {
+  protected void handleBearerAuthorized(
+    @NonNull String path,
+    @NonNull HttpContext context,
+    @NonNull HttpSession session
+  ) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.endsWith("/service")) {
         this.handleListServicesRequest(context);
@@ -84,12 +88,15 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
   }
 
   @Override
-  protected void handleTicketAuthorizedRequest(@NonNull String path, @NonNull HttpContext context,
-    @NonNull HttpSession session) {
+  protected void handleTicketAuthorizedRequest(
+    @NonNull String path,
+    @NonNull HttpContext context,
+    @NonNull HttpSession session
+  ) {
     this.handleLiveLogRequest(context);
   }
 
-  protected void handleListServicesRequest(HttpContext context) {
+  protected void handleListServicesRequest(@NonNull HttpContext context) {
     this.ok(context)
       .body(this.success().append("services", this.generalServiceProvider().services()).toString())
       .context()
@@ -97,7 +104,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleServiceRequest(HttpContext context) {
+  protected void handleServiceRequest(@NonNull HttpContext context) {
     this.handleWithServiceContext(context, service -> this.ok(context)
       .body(this.success().append("snapshot", service).toString())
       .context()
@@ -106,7 +113,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     );
   }
 
-  protected void handleServiceStateUpdateRequest(HttpContext context) {
+  protected void handleServiceStateUpdateRequest(@NonNull HttpContext context) {
     this.handleWithServiceContext(context, service -> {
       var targetState = RestUtil.first(context.request().queryParameters().get("target"));
       if (targetState == null) {
@@ -137,7 +144,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     });
   }
 
-  protected void handleServiceCommandRequest(HttpContext context) {
+  protected void handleServiceCommandRequest(@NonNull HttpContext context) {
     this.handleWithServiceContext(context, service -> {
       var commandLine = this.body(context.request()).getString("command");
       if (commandLine == null) {
@@ -153,7 +160,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     });
   }
 
-  protected void handleIncludeRequest(HttpContext context) {
+  protected void handleIncludeRequest(@NonNull HttpContext context) {
     this.handleWithServiceContext(context, service -> {
       var type = RestUtil.first(context.request().queryParameters().get("type"));
       if (type != null) {
@@ -181,7 +188,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     });
   }
 
-  protected void handleDeployResourcesRequest(HttpContext context) {
+  protected void handleDeployResourcesRequest(@NonNull HttpContext context) {
     this.handleWithServiceContext(context, service -> {
       var removeDeployments = Boolean
         .getBoolean(RestUtil.first(context.request().queryParameters().get("remove"), "true"));
@@ -191,7 +198,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     });
   }
 
-  protected void handleLogLinesRequest(HttpContext context) {
+  protected void handleLogLinesRequest(@NonNull HttpContext context) {
     this.handleWithServiceContext(context, service -> this.ok(context)
       .body(this.success().append("lines", service.provider().cachedLogMessages()).toString())
       .context()
@@ -200,7 +207,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     );
   }
 
-  protected void handleLiveLogRequest(HttpContext context) {
+  protected void handleLiveLogRequest(@NonNull HttpContext context) {
     this.handleWithServiceContext(context, service -> {
       var cloudService = this.node().cloudServiceProvider()
         .localCloudService(service.serviceId().uniqueId());
@@ -280,7 +287,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     }
   }
 
-  protected void handleAddRequest(HttpContext context) {
+  protected void handleAddRequest(@NonNull HttpContext context) {
     this.handleWithServiceContext(context, service -> {
       var type = RestUtil.first(context.request().queryParameters().get("type"), null);
       if (type == null) {
@@ -353,14 +360,17 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     });
   }
 
-  protected void handleServiceDeleteRequest(HttpContext context) {
+  protected void handleServiceDeleteRequest(@NonNull HttpContext context) {
     this.handleWithServiceContext(context, service -> {
       service.provider().delete();
       this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
     });
   }
 
-  protected void handleWithServiceContext(HttpContext context, Consumer<ServiceInfoSnapshot> handler) {
+  protected void handleWithServiceContext(
+    @NonNull HttpContext context,
+    @NonNull Consumer<ServiceInfoSnapshot> handler
+  ) {
     var identifier = context.request().pathParameters().get("identifier");
     if (identifier == null) {
       this.badRequest(context)
@@ -392,7 +402,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     handler.accept(serviceInfoSnapshot);
   }
 
-  protected void sendInvalidServiceConfigurationResponse(HttpContext context) {
+  protected void sendInvalidServiceConfigurationResponse(@NonNull HttpContext context) {
     this.badRequest(context)
       .body(this.failure().append("reason", "Missing parameters for service creation").toString())
       .context()
@@ -400,19 +410,19 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
       .cancelNext();
   }
 
-  protected GeneralCloudServiceProvider generalServiceProvider() {
+  protected @NonNull GeneralCloudServiceProvider generalServiceProvider() {
     return this.node().cloudServiceProvider();
   }
 
-  protected CloudServiceFactory serviceFactory() {
+  protected @NonNull CloudServiceFactory serviceFactory() {
     return this.node().cloudServiceFactory();
   }
 
-  protected ServiceInfoSnapshot serviceByName(String name) {
+  protected @Nullable ServiceInfoSnapshot serviceByName(String name) {
     return this.generalServiceProvider().serviceByName(name);
   }
 
-  protected ServiceInfoSnapshot serviceById(UUID uniqueID) {
+  protected @Nullable ServiceInfoSnapshot serviceById(UUID uniqueID) {
     return this.generalServiceProvider().service(uniqueID);
   }
 
@@ -422,8 +432,11 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     protected final ServiceConsoleLogCache logCache;
     protected final ServiceConsoleLineHandler watchingHandler;
 
-    public ConsoleHandlerWebSocketListener(CloudService service,
-      ServiceConsoleLogCache logCache, ServiceConsoleLineHandler watchingHandler) {
+    public ConsoleHandlerWebSocketListener(
+      @NonNull CloudService service,
+      @NonNull ServiceConsoleLogCache logCache,
+      @NonNull ServiceConsoleLineHandler watchingHandler
+    ) {
       this.service = service;
       this.logCache = logCache;
       this.watchingHandler = watchingHandler;

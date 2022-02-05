@@ -39,10 +39,11 @@ import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 import java.util.stream.Collectors;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
 
-  public V2HttpHandlerNode(String requiredPermission) {
+  public V2HttpHandlerNode(@Nullable String requiredPermission) {
     super(
       requiredPermission,
       (context, path) -> context.request().method().equalsIgnoreCase("GET") && path.endsWith("/liveconsole"),

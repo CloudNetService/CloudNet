@@ -50,8 +50,11 @@ public class V2HttpHandlerAuthorization extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(@NonNull String path, @NonNull HttpContext context,
-    @NonNull HttpSession session) {
+  protected void handleBearerAuthorized(
+    @NonNull String path,
+    @NonNull HttpContext context,
+    @NonNull HttpSession session
+  ) {
     this.ok(context)
       .body(this.success().append("id", session.user().uniqueId()).toString())
       .context()

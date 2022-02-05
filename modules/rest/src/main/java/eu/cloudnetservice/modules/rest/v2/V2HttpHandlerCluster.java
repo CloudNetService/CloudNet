@@ -30,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class V2HttpHandlerCluster extends V2HttpHandler {
 
-  public V2HttpHandlerCluster(String requiredPermission) {
+  public V2HttpHandlerCluster(@Nullable String requiredPermission) {
     super(requiredPermission, "GET", "POST", "DELETE", "PUT");
   }
 
@@ -61,7 +61,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
     }
   }
 
-  protected void handleNodeRequest(HttpContext context) {
+  protected void handleNodeRequest(@NonNull HttpContext context) {
     var server = this.nodeServer(context);
     if (server != null) {
       this.ok(context)
@@ -78,7 +78,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
     }
   }
 
-  protected void handleNodeListRequest(HttpContext context) {
+  protected void handleNodeListRequest(@NonNull HttpContext context) {
     var nodes = this.nodeProvider().nodeServers().stream()
       .map(this::createNodeInfoDocument)
       .toList();
@@ -90,7 +90,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleNodeCommandRequest(HttpContext context) {
+  protected void handleNodeCommandRequest(@NonNull HttpContext context) {
     var nodeServer = this.nodeServer(context);
     var commandLine = this.body(context.request()).getString("command");
     if (commandLine == null || nodeServer == null) {
@@ -111,7 +111,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleNodeCreateRequest(HttpContext context) {
+  protected void handleNodeCreateRequest(@NonNull HttpContext context) {
     var server = this.body(context.request()).toInstanceOf(NetworkClusterNode.class);
     if (server == null) {
       this.badRequest(context)
@@ -144,7 +144,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleNodeDeleteRequest(HttpContext context) {
+  protected void handleNodeDeleteRequest(@NonNull HttpContext context) {
     var uniqueId = context.request().pathParameters().get("node");
     if (uniqueId == null) {
       this.badRequest(context)
@@ -175,7 +175,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
     }
   }
 
-  protected void handleNodeUpdateRequest(HttpContext context) {
+  protected void handleNodeUpdateRequest(@NonNull HttpContext context) {
     var server = this.body(context.request()).toInstanceOf(NetworkClusterNode.class);
     if (server == null) {
       this.badRequest(context)
@@ -212,7 +212,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
     }
   }
 
-  protected JsonDocument createNodeInfoDocument(NodeServer node) {
+  protected @NonNull JsonDocument createNodeInfoDocument(@NonNull NodeServer node) {
     return JsonDocument.newDocument("node", node.info())
       .append("state", node.state())
       .append("head", node.head())
@@ -220,7 +220,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
       .append("nodeInfoSnapshot", node.nodeInfoSnapshot());
   }
 
-  protected @Nullable NodeServer nodeServer(HttpContext context) {
+  protected @Nullable NodeServer nodeServer(@NonNull HttpContext context) {
     var nodeName = context.request().pathParameters().get("node");
     return this.nodeProvider().node(nodeName);
   }

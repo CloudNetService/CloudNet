@@ -26,10 +26,11 @@ import eu.cloudnetservice.cloudnet.node.http.V2HttpHandler;
 import java.util.UUID;
 import java.util.function.Consumer;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 public class V2HttpHandlerPermission extends V2HttpHandler {
 
-  public V2HttpHandlerPermission(String requiredPermission) {
+  public V2HttpHandlerPermission(@Nullable String requiredPermission) {
     super(requiredPermission, "GET", "POST", "DELETE");
   }
 
@@ -66,7 +67,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
     }
   }
 
-  protected void handlePermissionGroupList(HttpContext context) {
+  protected void handlePermissionGroupList(@NonNull HttpContext context) {
     this.ok(context)
       .body(this.success().append("groups", this.permissionManagement().groups()).toString())
       .context()
@@ -74,7 +75,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handlePermissionGroupExistsRequest(HttpContext context) {
+  protected void handlePermissionGroupExistsRequest(@NonNull HttpContext context) {
     this.handleWithPermissionGroupContext(context, true, group -> this.ok(context)
       .body(this.success().append("result", group != null).toString())
       .context()
@@ -83,7 +84,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
     );
   }
 
-  protected void handlePermissionGroupRequest(HttpContext context) {
+  protected void handlePermissionGroupRequest(@NonNull HttpContext context) {
     this.handleWithPermissionGroupContext(context, false, group -> this.ok(context)
       .body(this.success().append("group", group).toString())
       .context()
@@ -91,7 +92,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
       .cancelNext());
   }
 
-  protected void handleCreatePermissionGroupRequest(HttpContext context) {
+  protected void handleCreatePermissionGroupRequest(@NonNull HttpContext context) {
     var permissionGroup = this.body(context.request()).toInstanceOf(PermissionGroup.class);
     if (permissionGroup == null) {
       this.badRequest(context)
@@ -110,7 +111,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleDeletePermissionGroupRequest(HttpContext context) {
+  protected void handleDeletePermissionGroupRequest(@NonNull HttpContext context) {
     this.handleWithPermissionGroupContext(context, false, group -> {
       this.permissionManagement().deletePermissionGroup(group);
       this.ok(context)
@@ -121,7 +122,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
     });
   }
 
-  protected void handlePermissionUserExistsRequest(HttpContext context) {
+  protected void handlePermissionUserExistsRequest(@NonNull HttpContext context) {
     this.handleWithPermissionUserContext(context, true, user -> this.ok(context)
       .body(this.success().append("result", user != null).toString())
       .context()
@@ -130,7 +131,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
     );
   }
 
-  protected void handlePermissionUserRequest(HttpContext context) {
+  protected void handlePermissionUserRequest(@NonNull HttpContext context) {
     this.handleWithPermissionUserContext(context, false, user -> this.ok(context)
       .body(this.success().append("user", user).toString())
       .context()
@@ -138,7 +139,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
       .cancelNext());
   }
 
-  protected void handleCreatePermissionUserRequest(HttpContext context) {
+  protected void handleCreatePermissionUserRequest(@NonNull HttpContext context) {
     var permissionUser = this.body(context.request()).toInstanceOf(PermissionUser.class);
     if (permissionUser == null) {
       this.badRequest(context)
@@ -157,7 +158,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleDeletePermissionUserRequest(HttpContext context) {
+  protected void handleDeletePermissionUserRequest(@NonNull HttpContext context) {
     this.handleWithPermissionUserContext(context, false, user -> {
       this.permissionManagement().deletePermissionUser(user);
       this.ok(context)
@@ -169,9 +170,9 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
   }
 
   protected void handleWithPermissionGroupContext(
-    HttpContext context,
+    @NonNull HttpContext context,
     boolean mayBeNull,
-    Consumer<PermissionGroup> handler
+    @NonNull Consumer<PermissionGroup> handler
   ) {
     var groupName = context.request().pathParameters().get("group");
     if (groupName == null) {
@@ -197,9 +198,9 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
   }
 
   protected void handleWithPermissionUserContext(
-    HttpContext context,
+    @NonNull HttpContext context,
     boolean mayBeNull,
-    Consumer<PermissionUser> handler
+    @NonNull Consumer<PermissionUser> handler
   ) {
     var identifier = context.request().pathParameters().get("user");
     if (identifier == null) {
@@ -232,7 +233,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
     handler.accept(user);
   }
 
-  protected PermissionManagement permissionManagement() {
+  protected @NonNull PermissionManagement permissionManagement() {
     return this.node().permissionManagement();
   }
 
