@@ -238,9 +238,11 @@ public class CloudNet extends CloudNetDriver {
     // execute the installation setup and load the config things after it
     this.installation.executeFirstStartSetup(this.console);
 
-    // register all nodes from the config
+    // initialize the node server provider
     this.nodeServerProvider.registerNodes(this.configuration.clusterConfig());
+    this.nodeServerProvider.localNode().updateLocalSnapshot();
     this.nodeServerProvider.localNode().state(NodeServerState.READY);
+    this.nodeServerProvider.selectHeadNode();
 
     // network server init
     LOGGER.info(I18n.trans("network-selected-transport", NettyUtil.selectedNettyTransport().displayName()));
@@ -257,6 +259,11 @@ public class CloudNet extends CloudNetDriver {
     // network client init
     Set<CompletableFuture<Void>> futures = new HashSet<>(); // all futures of connections
     for (var node : this.nodeServerProvider.nodeServers()) {
+      // skip all node servers which are already available (normally only the local node)
+      if (node.available()) {
+        continue;
+      }
+
       LOGGER.info(I18n.trans("start-node-connection-try", node.info().uniqueId()));
       if (node.connect()) {
         // register a future that waits for the node to become available

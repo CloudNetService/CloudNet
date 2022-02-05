@@ -72,7 +72,7 @@ public class LocalNodeServer implements NodeServer {
 
   @Override
   public boolean available() {
-    return true;
+    return this.state == NodeServerState.READY;
   }
 
   @Override

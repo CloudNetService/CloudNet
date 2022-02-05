@@ -73,9 +73,6 @@ public class DefaultNodeServerProvider implements NodeServerProvider {
       this));
     this.executor.scheduleAtFixedRate(new LocalNodeUpdateTask(this), 1, 1, TimeUnit.SECONDS);
     this.executor.scheduleAtFixedRate(new NodeDisconnectTrackerTask(this), 5, 5, TimeUnit.SECONDS);
-
-    // set the head node initially
-    this.selectHeadNode();
   }
 
   @Override
