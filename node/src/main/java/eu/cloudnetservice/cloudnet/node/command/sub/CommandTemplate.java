@@ -82,14 +82,6 @@ public final class CommandTemplate {
     return template;
   }
 
-  @Parser
-  public ServiceEnvironmentType defaultServiceEnvironmentTypeParser(CommandContext<?> $, Queue<String> input) {
-    var env = input.remove();
-    return CloudNet.instance().serviceVersionProvider().getEnvironmentType(env)
-      .orElseThrow(() ->
-        new ArgumentNotAvailableException(I18n.trans("command-template-environment-not-found", env)));
-  }
-
   @Suggestions("serviceTemplate")
   public List<String> suggestServiceTemplate(CommandContext<CommandSource> $, String input) {
     return CloudNet.instance().localTemplateStorage().templates()
@@ -147,6 +139,19 @@ public final class CommandTemplate {
       .filter(ServiceVersion::canRun)
       .map(Nameable::name)
       .toList();
+  }
+
+  @Parser(suggestions = "serviceEnvironments")
+  public ServiceEnvironmentType defaultServiceEnvironmentTypeParser(CommandContext<?> $, Queue<String> input) {
+    var env = input.remove();
+    return CloudNet.instance().serviceVersionProvider().getEnvironmentType(env)
+      .orElseThrow(() ->
+        new ArgumentNotAvailableException(I18n.trans("command-template-environment-not-found", env)));
+  }
+
+  @Suggestions("serviceEnvironments")
+  public List<String> suggestServiceEnvironments(CommandContext<CommandSource> context, String input) {
+    return List.copyOf(CloudNet.instance().serviceVersionProvider().knownEnvironments().keySet());
   }
 
   @CommandMethod("template|t list [storage]")

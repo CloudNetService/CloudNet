@@ -268,7 +268,7 @@ public final class CommandModules {
   public void installModule(
     CommandSource source,
     @Argument(value = "module", parserName = "availableModule") @Greedy ModuleEntry entry,
-    @Flag(value = "noChecksumValidation", aliases = "ncv") boolean noChecksumValidation
+    @Flag(value = "noChecksumValidation") boolean noChecksumValidation
   ) {
     // check if all modules the module is depending on are present
     var missingModules = entry.dependingModules().stream()

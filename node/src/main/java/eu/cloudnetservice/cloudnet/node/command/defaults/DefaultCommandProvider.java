@@ -97,13 +97,12 @@ public class DefaultCommandProvider implements CommandProvider {
     this.annotationParser.registerBuilderModifier(CommandAlias.class,
       (alias, builder) -> builder.meta(ALIAS_KEY, new HashSet<>(Arrays.asList(alias.value()))));
     // handle our @Description annotation and apply the found description for the help command
-    this.annotationParser.registerBuilderModifier(Description.class,
-      (description, builder) -> {
-        if (!description.value().trim().isEmpty()) {
-          return builder.meta(DESCRIPTION_KEY, description.value());
-        }
-        return builder;
-      });
+    this.annotationParser.registerBuilderModifier(Description.class, (description, builder) -> {
+      if (!description.value().trim().isEmpty()) {
+        return builder.meta(DESCRIPTION_KEY, description.value());
+      }
+      return builder;
+    });
     // register pre- and post-processor to call our events
     this.commandManager.registerCommandPreProcessor(new DefaultCommandPreProcessor());
     this.commandManager.registerCommandPostProcessor(new DefaultCommandPostProcessor());
