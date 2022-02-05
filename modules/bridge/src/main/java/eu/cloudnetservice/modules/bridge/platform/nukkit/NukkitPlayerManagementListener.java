@@ -28,7 +28,7 @@ import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.helper.ServerPlatformHelper;
 import lombok.NonNull;
 
-final class NukkitPlayerManagementListener implements Listener {
+public final class NukkitPlayerManagementListener implements Listener {
 
   private final Plugin plugin;
   private final PlatformBridgeManagement<?, ?> management;

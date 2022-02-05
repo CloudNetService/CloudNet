@@ -42,7 +42,7 @@ import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.event.EventHandler;
 
-final class BungeeCordPlayerManagementListener implements Listener {
+public final class BungeeCordPlayerManagementListener implements Listener {
 
   private final Plugin plugin;
   private final PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> management;

@@ -30,7 +30,7 @@ import org.bukkit.event.player.PlayerLoginEvent.Result;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 
-final class BukkitPlayerManagementListener implements Listener {
+public final class BukkitPlayerManagementListener implements Listener {
 
   private final Plugin plugin;
   private final PlatformBridgeManagement<?, ?> management;

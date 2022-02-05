@@ -46,7 +46,7 @@ import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.translation.GlobalTranslator;
 
-final class VelocityPlayerManagementListener {
+public final class VelocityPlayerManagementListener {
 
   private final ProxyServer proxyServer;
   private final PlatformBridgeManagement<Player, NetworkPlayerProxyInfo> management;
