@@ -15,6 +15,14 @@
  */
 
 plugins {
-  id("net.kyori.indra")
-  id("cloudnet.base-publish-conventions")
+  id("net.kyori.indra.publishing")
+}
+
+indra {
+  apache2License()
+  github("CloudNetService", "CloudNet-v3") {
+    ci(true)
+    scm(true)
+    issues(true)
+  }
 }

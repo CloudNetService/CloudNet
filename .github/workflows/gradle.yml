@@ -51,6 +51,13 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           MESSAGE: 'Update launcher meta for {target-branch} (commit: {sha})'
 
+      - name: Publish to Sonatype
+# TODO        if: ${{ github.event_name == 'push' }}
+        run: ./gradlew publish
+        env:
+          ORG_GRADLE_PROJECT_sonatypeUsername: "${{ secrets.SONATYPE_USER }}"
+          ORG_GRADLE_PROJECT_sonatypePassword: "${{ secrets.SONATYPE_KEY }}"
+
       - name: Prepare artifacts zip
         if: ${{ github.event_name == 'push' }}
         run: |

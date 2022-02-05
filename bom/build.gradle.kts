@@ -16,6 +16,13 @@
 
 plugins {
   id("java-platform")
+  id("cloudnet.base-publish-conventions")
+}
+
+indra {
+  configurePublications {
+    from(components["javaPlatform"])
+  }
 }
 
 dependencies {

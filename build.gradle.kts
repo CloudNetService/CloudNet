@@ -27,6 +27,7 @@ defaultTasks("build", "checkLicenses", "test", "shadowJar")
 allprojects {
   version = Versions.cloudNet
   group = "eu.cloudnetservice.cloudnet"
+  description = "The alternative Minecraft Java and Bedrock server management solution"
 
   repositories {
     mavenCentral()
@@ -88,11 +89,6 @@ subprojects {
     maxErrors = 0
     maxWarnings = 0
     configFile = rootProject.file("checkstyle.xml")
-  }
-
-  extensions.configure<JavaPluginExtension> {
-    // withSourcesJar()
-    // withJavadocJar()
   }
 
   extensions.configure<CheckstyleExtension> {
