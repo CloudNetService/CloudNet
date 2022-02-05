@@ -19,6 +19,7 @@ package eu.cloudnetservice.cloudnet.node.command.sub;
 import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
+import cloud.commandframework.annotations.Flag;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.specifier.Greedy;
 import cloud.commandframework.annotations.specifier.Quoted;
@@ -266,7 +267,8 @@ public final class CommandModules {
   @CommandMethod("modules|module install <module>")
   public void installModule(
     CommandSource source,
-    @Argument(value = "module", parserName = "availableModule") @Greedy ModuleEntry entry
+    @Argument(value = "module", parserName = "availableModule") @Greedy ModuleEntry entry,
+    @Flag(value = "noChecksumValidation", aliases = "ncv") boolean noChecksumValidation
   ) {
     // check if all modules the module is depending on are present
     var missingModules = entry.dependingModules().stream()
@@ -286,9 +288,20 @@ public final class CommandModules {
     // validate the downloaded file
     var checksum = ChecksumUtil.fileShaSum(target);
     if (!CloudNet.instance().dev() && !checksum.equals(entry.sha3256())) {
-      FileUtil.delete(target);
-      source.sendMessage(I18n.trans("cloudnet-install-modules-invalid-checksum", entry.name()));
-      return;
+      // the checksum validation skip is only available for official modules
+      if (entry.official() && noChecksumValidation) {
+        source.sendMessage(I18n.trans("command-module-skipping-checksum-fail", entry.name()));
+      } else {
+        // remove the suspicious file
+        FileUtil.delete(target);
+        // send a message that the validation can be skipped if the module is official
+        if (entry.official()) {
+          source.sendMessage(I18n.trans("command-modules-checksum-validation-skippable", entry.name()));
+        } else {
+          source.sendMessage(I18n.trans("cloudnet-install-modules-invalid-checksum", entry.name()));
+        }
+        return;
+      }
     }
 
     // load the module

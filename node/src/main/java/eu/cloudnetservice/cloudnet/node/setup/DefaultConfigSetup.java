@@ -21,7 +21,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import eu.cloudnetservice.cloudnet.common.io.FileUtil;
-import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.driver.module.DefaultModuleProvider;
 import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNode;
@@ -157,10 +156,10 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
               Unirest.get(entry.url()).asFile(targetPath.toString(), StandardCopyOption.REPLACE_EXISTING);
               // validate the downloaded file
               var checksum = ChecksumUtil.fileShaSum(targetPath);
-              if (!checksum.equals(entry.sha3256()) && !CloudNet.instance().dev()) {
-                // remove the file and fail hard
+              if (!checksum.equals(entry.sha3256()) && !CloudNet.instance().dev() && !entry.official()) {
+                // remove the file
                 FileUtil.delete(targetPath);
-                throw new IllegalStateException(I18n.trans("cloudnet-install-modules-invalid-checksum", entry.name()));
+                return;
               }
               // load the module
               CloudNet.instance().moduleProvider().loadModule(targetPath);
