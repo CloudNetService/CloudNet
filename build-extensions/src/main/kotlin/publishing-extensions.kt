@@ -18,6 +18,7 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.signing.Sign
@@ -39,7 +40,7 @@ fun Project.configurePublishing(publishedComponent: String, withJavadocAndSource
           description.set(project.description)
           url.set("https://cloudnetservice.eu")
 
-          developers  {
+          developers {
             developer {
               id.set("derklaro")
               email.set("git@derklaro.dev")
@@ -96,4 +97,35 @@ fun Project.configurePublishing(publishedComponent: String, withJavadocAndSource
       !rootProject.version.toString().endsWith("-SNAPSHOT")
     }
   }
+
+  // depend on the javadoc and sources task if requested
+  if (withJavadocAndSource) {
+    afterEvaluate {
+      tasks.named("generateMetadataFileForMavenPublication") {
+        dependsOn(tasks.withType(Jar::class.java))
+      }
+
+      // ugly hack to prevent gradle from whining
+      tasks.findByName("shadowJar")?.run {
+        configurations.getByName("runtimeClasspath").resolvedConfiguration.lenientConfiguration.allModuleDependencies
+          .filter { it.moduleGroup.equals(this@configurePublishing.group) }
+          .mapNotNull { tryFindProject(this@configurePublishing.gradle.rootProject, it.moduleName) }
+          .forEach {
+            dependsOn("${it.path}:javadocJar", "${it.path}:sourcesJar")
+          }
+      }
+    }
+  }
+}
+
+// hacky method to find a project by its name
+fun tryFindProject(project: Project, name: String): Project? {
+  // try to find the project
+  val resolvedProject = project.subprojects.firstOrNull { it.name == name }
+  if (resolvedProject != null) {
+    return resolvedProject
+  }
+
+  // check subprojects of subprojects (if there are any)
+  return project.subprojects.mapNotNull { tryFindProject(it, name) }.firstOrNull()
 }

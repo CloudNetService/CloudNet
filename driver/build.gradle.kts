@@ -32,7 +32,7 @@ tasks.withType<ShadowJar> {
 }
 
 tasks.withType<Test> {
-  dependsOn(":cloudnet-common:jar")
+  dependsOn(":cloudnet-common:jar", ":cloudnet-common:javadocJar", ":cloudnet-common:sourcesJar")
 }
 
 extensions.configure<JavaPluginExtension> {

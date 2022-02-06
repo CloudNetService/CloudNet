@@ -32,6 +32,10 @@ tasks.withType<Jar> {
   from(projects.cloudnetCommon.sourceSets()["main"].output)
 }
 
+tasks.withType<Test> {
+  dependsOn(":cloudnet-common:jar", ":cloudnet-common:javadocJar", ":cloudnet-common:sourcesJar")
+}
+
 dependencies {
   "api"(projects.cloudnetDriver)
   "api"(projects.cloudnetExt.updater)
@@ -49,6 +53,8 @@ dependencies {
   "api"(libs.bundles.jjwt)
   // commands
   "api"(libs.bundles.cloud)
+  // nobody understands why gradle needs this
+  "testImplementation"(projects.cloudnetCommon.dependencyProject.sourceSets()["main"].output)
 }
 
 applyJarMetadata("eu.cloudnetservice.cloudnet.node.BootLogic", "eu.cloudnetservice.cloudnet")
