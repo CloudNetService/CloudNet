@@ -39,11 +39,7 @@ allprojects {
 
 subprojects {
   // these are top level projects which are configured separately
-  if (name == "cloudnet-modules"
-    || name == "cloudnet-plugins"
-    || name == "cloudnet-ext"
-    || name == "cloudnet-launcher"
-  ) {
+  if (name == "modules" || name == "plugins" || name == "ext" || name == "launcher") {
     return@subprojects
   }
 
@@ -54,7 +50,7 @@ subprojects {
   // skip further applying to bom - this project is a bit special as we're not allowed to
   // apply the java plugin to it (that's why we need to stop here, but we need to publish
   // at well (that's why we're applying the publish plugin)
-  if (name == "cloudnet-bom") {
+  if (name == "bom") {
     return@subprojects
   }
 

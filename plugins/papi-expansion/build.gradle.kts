@@ -25,8 +25,8 @@ repositories {
 dependencies {
   compileOnly(libs.spigot)
   compileOnly(libs.placeholderApi)
-  compileOnly(projects.cloudnetWrapperJvm)
-  compileOnly(projects.cloudnetModules.bridge)
+  compileOnly(projects.wrapperJvm)
+  compileOnly(projects.modules.bridge)
 }
 
 configure<net.kyori.blossom.BlossomExtension> {
