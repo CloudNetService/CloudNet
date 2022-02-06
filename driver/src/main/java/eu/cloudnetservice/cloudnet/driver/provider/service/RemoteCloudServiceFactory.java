@@ -17,7 +17,6 @@
 package eu.cloudnetservice.cloudnet.driver.provider.service;
 
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
-import eu.cloudnetservice.cloudnet.driver.network.NetworkComponent;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceConfiguration;
@@ -33,11 +32,10 @@ public class RemoteCloudServiceFactory implements CloudServiceFactory {
 
   public RemoteCloudServiceFactory(
     @NonNull Supplier<NetworkChannel> channelSupplier,
-    @NonNull NetworkComponent defaultComponent,
     @NonNull RPCFactory factory
   ) {
     this.channelSupplier = channelSupplier;
-    this.rpcSender = factory.providerForClass(defaultComponent, CloudServiceFactory.class);
+    this.rpcSender = factory.providerForClass(null, CloudServiceFactory.class);
   }
 
   @Override

@@ -35,7 +35,7 @@ public final class IncludePluginListener {
   @EventListener
   public void handleLifecycleUpdate(@NonNull CloudServicePreProcessStartEvent event) {
     var service = event.service();
-    if (!ServiceEnvironmentType.isMinecraftProxy(service.serviceId().environment())) {
+    if (!ServiceEnvironmentType.minecraftProxy(service.serviceId().environment())) {
       return;
     }
 

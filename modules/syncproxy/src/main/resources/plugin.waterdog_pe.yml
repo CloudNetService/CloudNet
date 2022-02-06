@@ -2,4 +2,4 @@ name: CloudNet-SyncProxy
 version: "{project.build.version}"
 author: CloudNetService
 
-main: eu.cloudnetservice.cloudnet.ext.syncproxy.platform.velocity.VelocitySyncProxyPlugin
+main: eu.cloudnetservice.modules.syncproxy.platform.waterdog.WaterDogPESyncProxyPlugin

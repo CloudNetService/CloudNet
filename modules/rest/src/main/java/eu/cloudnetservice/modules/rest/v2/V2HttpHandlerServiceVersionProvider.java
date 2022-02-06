@@ -24,16 +24,20 @@ import eu.cloudnetservice.cloudnet.node.template.install.ServiceVersionType;
 import eu.cloudnetservice.modules.rest.RestUtil;
 import java.io.IOException;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
 
-  public V2HttpHandlerServiceVersionProvider(String requiredPermission) {
+  public V2HttpHandlerServiceVersionProvider(@Nullable String requiredPermission) {
     super(requiredPermission, "GET", "POST");
   }
 
   @Override
-  protected void handleBearerAuthorized(@NonNull String path, @NonNull HttpContext context,
-    @NonNull HttpSession session) {
+  protected void handleBearerAuthorized(
+    @NonNull String path,
+    @NonNull HttpContext context,
+    @NonNull HttpSession session
+  ) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.endsWith("/serviceversion")) {
         this.handleVersionListRequest(context);
@@ -47,7 +51,7 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
     }
   }
 
-  protected void handleVersionListRequest(HttpContext context) {
+  protected void handleVersionListRequest(@NonNull HttpContext context) {
     this.ok(context)
       .body(this.success().append("versions", this.versionProvider().serviceVersionTypes()).toString())
       .context()
@@ -55,7 +59,7 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleVersionRequest(HttpContext context) {
+  protected void handleVersionRequest(@NonNull HttpContext context) {
     var version = context.request().pathParameters().get("version");
     if (version == null) {
       this.badRequest(context)
@@ -83,7 +87,7 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleVersionLoadRequest(HttpContext context) {
+  protected void handleVersionLoadRequest(@NonNull HttpContext context) {
     var url = RestUtil.first(context.request().queryParameters().get("url"), null);
     if (url == null) {
       this.versionProvider().loadDefaultVersionTypes();
@@ -110,7 +114,7 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
     this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
   }
 
-  protected void handleVersionAddRequest(HttpContext context) {
+  protected void handleVersionAddRequest(@NonNull HttpContext context) {
     var type = this.body(context.request()).toInstanceOf(ServiceVersionType.class);
     if (type == null) {
       this.badRequest(context)
@@ -129,7 +133,7 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected ServiceVersionProvider versionProvider() {
+  protected @NonNull ServiceVersionProvider versionProvider() {
     return this.node().serviceVersionProvider();
   }
 }

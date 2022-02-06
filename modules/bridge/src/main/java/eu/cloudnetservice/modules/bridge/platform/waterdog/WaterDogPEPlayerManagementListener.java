@@ -30,7 +30,7 @@ import java.util.Locale;
 import lombok.NonNull;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
-final class WaterDogPEPlayerManagementListener {
+public final class WaterDogPEPlayerManagementListener {
 
   private final PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> management;
 

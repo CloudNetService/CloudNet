@@ -16,48 +16,62 @@
 
 package eu.cloudnetservice.cloudnet.node.cluster;
 
+import eu.cloudnetservice.cloudnet.common.Nameable;
+import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
-import eu.cloudnetservice.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import eu.cloudnetservice.cloudnet.driver.provider.service.CloudServiceFactory;
 import eu.cloudnetservice.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
+import java.io.Closeable;
+import java.time.Instant;
 import java.util.Collection;
+import java.util.UUID;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
-import org.jetbrains.annotations.UnmodifiableView;
 
-@RPCValidation
-public interface NodeServer extends AutoCloseable {
+public interface NodeServer extends Nameable, Closeable {
 
-  @NonNull NodeServerProvider<? extends NodeServer> provider();
-
-  boolean headNode();
+  boolean head();
 
   boolean available();
 
-  boolean drain();
+  void shutdown();
 
-  void drain(boolean drain);
+  boolean connect();
 
-  @NonNull NetworkClusterNode nodeInfo();
+  boolean draining();
 
-  @Internal
-  void nodeInfo(@NonNull NetworkClusterNode nodeInfo);
+  void drain(boolean doDrain);
+
+  void syncClusterData(boolean force);
+
+  @NonNull NetworkClusterNode info();
+
+  @NonNull NodeServerProvider provider();
+
+  @NonNull NodeServerState state();
+
+  void state(@NonNull NodeServerState state);
+
+  @NonNull Instant lastStateChangeStamp();
+
+  @UnknownNullability NetworkChannel channel();
+
+  void channel(@Nullable NetworkChannel channel);
 
   @UnknownNullability NetworkClusterNodeInfoSnapshot nodeInfoSnapshot();
 
-  @Internal
-  void nodeInfoSnapshot(@NonNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot);
-
   @UnknownNullability NetworkClusterNodeInfoSnapshot lastNodeInfoSnapshot();
 
-  @NonNull
-  @UnmodifiableView Collection<String> sendCommandLine(@NonNull String commandLine);
+  void updateNodeInfoSnapshot(@Nullable NetworkClusterNodeInfoSnapshot snapshot);
 
-  @NonNull CloudServiceFactory cloudServiceFactory();
+  @NonNull CloudServiceFactory serviceFactory();
 
-  @Nullable SpecificCloudServiceProvider cloudServiceProvider(@NonNull ServiceInfoSnapshot serviceInfoSnapshot);
+  @Nullable SpecificCloudServiceProvider serviceProvider(@NonNull UUID uniqueId);
+
+  @NonNull Collection<String> sendCommandLine(@NonNull String commandLine);
+
+  @Override
+  void close();
 }

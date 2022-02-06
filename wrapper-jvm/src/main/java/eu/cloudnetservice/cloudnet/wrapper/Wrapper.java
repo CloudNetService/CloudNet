@@ -150,10 +150,7 @@ public class Wrapper extends CloudNetDriver {
     this.eventManager.registerListener(new GroupChannelMessageListener(this.eventManager));
     this.eventManager.registerListener(new ServiceChannelMessageListener(this.eventManager));
 
-    super.cloudServiceFactory = new RemoteCloudServiceFactory(
-      this.networkClient::firstChannel,
-      this.networkClient,
-      this.rpcFactory);
+    super.cloudServiceFactory = new RemoteCloudServiceFactory(this.networkClient::firstChannel, this.rpcFactory);
 
     super.moduleProvider.moduleProviderHandler(new DefaultModuleProviderHandler());
     super.moduleProvider.moduleDirectoryPath(Path.of(".wrapper", "modules"));

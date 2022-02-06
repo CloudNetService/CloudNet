@@ -24,10 +24,11 @@ import eu.cloudnetservice.cloudnet.node.http.HttpSession;
 import eu.cloudnetservice.cloudnet.node.http.V2HttpHandler;
 import java.util.function.Consumer;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 public class V2HttpHandlerTasks extends V2HttpHandler {
 
-  public V2HttpHandlerTasks(String requiredPermission) {
+  public V2HttpHandlerTasks(@Nullable String requiredPermission) {
     super(requiredPermission, "GET", "POST", "DELETE");
   }
 
@@ -48,7 +49,7 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
     }
   }
 
-  protected void handleTaskListRequest(HttpContext context) {
+  protected void handleTaskListRequest(@NonNull HttpContext context) {
     this.ok(context)
       .body(this.success().append("tasks", this.taskProvider().permanentServiceTasks()).toString())
       .context()
@@ -56,7 +57,7 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleTaskExistsRequest(HttpContext context) {
+  protected void handleTaskExistsRequest(@NonNull HttpContext context) {
     this.handleWithTaskContext(context, task -> this.ok(context)
       .body(this.success().append("result", this.taskProvider().serviceTaskPresent(task)).toString())
       .context()
@@ -65,7 +66,7 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
     );
   }
 
-  protected void handleTaskRequest(HttpContext context) {
+  protected void handleTaskRequest(@NonNull HttpContext context) {
     this.handleWithTaskContext(context, task -> {
       var serviceTask = this.taskProvider().serviceTask(task);
       if (serviceTask == null) {
@@ -84,7 +85,7 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
     });
   }
 
-  protected void handleTaskCreateRequest(HttpContext context) {
+  protected void handleTaskCreateRequest(@NonNull HttpContext context) {
     var serviceTask = this.body(context.request()).toInstanceOf(ServiceTask.class);
     if (serviceTask == null) {
       this.badRequest(context)
@@ -103,7 +104,7 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
     }
   }
 
-  protected void handleTaskDeleteRequest(HttpContext context) {
+  protected void handleTaskDeleteRequest(@NonNull HttpContext context) {
     this.handleWithTaskContext(context, task -> {
       var serviceTask = this.taskProvider().serviceTask(task);
       if (serviceTask != null) {
@@ -123,7 +124,7 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
     });
   }
 
-  protected void handleWithTaskContext(HttpContext context, Consumer<String> handler) {
+  protected void handleWithTaskContext(@NonNull HttpContext context, @NonNull Consumer<String> handler) {
     var taskName = context.request().pathParameters().get("task");
     if (taskName == null) {
       this.badRequest(context)
@@ -136,7 +137,7 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
     }
   }
 
-  protected ServiceTaskProvider taskProvider() {
+  protected @NonNull ServiceTaskProvider taskProvider() {
     return this.node().serviceTaskProvider();
   }
 }

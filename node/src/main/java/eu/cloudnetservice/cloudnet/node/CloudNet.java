@@ -40,8 +40,8 @@ import eu.cloudnetservice.cloudnet.driver.network.netty.server.NettyNetworkServe
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
 import eu.cloudnetservice.cloudnet.driver.template.TemplateStorage;
-import eu.cloudnetservice.cloudnet.node.cluster.ClusterNodeServerProvider;
-import eu.cloudnetservice.cloudnet.node.cluster.DefaultClusterNodeServerProvider;
+import eu.cloudnetservice.cloudnet.node.cluster.NodeServerState;
+import eu.cloudnetservice.cloudnet.node.cluster.defaults.DefaultNodeServerProvider;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DefaultDataSyncRegistry;
 import eu.cloudnetservice.cloudnet.node.command.CommandProvider;
@@ -88,7 +88,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -111,8 +110,8 @@ public class CloudNet extends CloudNetDriver {
   private final NetworkClient networkClient;
   private final NetworkServer networkServer;
 
+  private final DefaultNodeServerProvider nodeServerProvider;
   private final ServiceVersionProvider serviceVersionProvider;
-  private final DefaultClusterNodeServerProvider nodeServerProvider;
 
   private final ModulesHolder modulesHolder;
   private final UpdaterRegistry<ModuleUpdaterContext, ModulesHolder> moduleUpdaterRegistry;
@@ -149,7 +148,7 @@ public class CloudNet extends CloudNetDriver {
 
     this.configuration = JsonConfiguration.loadFromFile(this);
 
-    this.nodeServerProvider = new DefaultClusterNodeServerProvider(this);
+    this.nodeServerProvider = new DefaultNodeServerProvider(this);
 
     this.nodeInfoProvider = new NodeNodeInfoProvider(this);
     this.generalCloudServiceProvider = new DefaultCloudServiceManager(this);
@@ -239,10 +238,11 @@ public class CloudNet extends CloudNetDriver {
     // execute the installation setup and load the config things after it
     this.installation.executeFirstStartSetup(this.console);
 
-    // init the local node server
-    this.nodeServerProvider.clusterServers(this.configuration.clusterConfig());
-    this.nodeServerProvider.selfNode().nodeInfo(this.configuration.identity());
-    this.nodeServerProvider.selfNode().publishNodeInfoSnapshotUpdate();
+    // initialize the node server provider
+    this.nodeServerProvider.registerNodes(this.configuration.clusterConfig());
+    this.nodeServerProvider.localNode().updateLocalSnapshot();
+    this.nodeServerProvider.localNode().state(NodeServerState.READY);
+    this.nodeServerProvider.selectHeadNode();
 
     // network server init
     LOGGER.info(I18n.trans("network-selected-transport", NettyUtil.selectedNettyTransport().displayName()));
@@ -259,26 +259,24 @@ public class CloudNet extends CloudNetDriver {
     // network client init
     Set<CompletableFuture<Void>> futures = new HashSet<>(); // all futures of connections
     for (var node : this.nodeServerProvider.nodeServers()) {
-      var listeners = node.nodeInfo().listeners();
-      // check if there are any listeners
-      if (!listeners.isEmpty()) {
-        // get a random listener of the node
-        var listener = listeners.get(ThreadLocalRandom.current().nextInt(0, listeners.size()));
-        LOGGER.info(I18n.trans("start-node-connection-try", node.nodeInfo().uniqueId(), listener));
-        // try to connect
-        if (this.networkClient.connect(listener)) {
-          // register a future that waits for the node to become available
-          futures.add(CompletableFuture.runAsync(() -> {
-            while (!node.available()) {
-              try {
-                //noinspection BusyWait
-                Thread.sleep(10);
-              } catch (InterruptedException exception) {
-                Thread.currentThread().interrupt();
-              }
+      // skip all node servers which are already available (normally only the local node)
+      if (node.available()) {
+        continue;
+      }
+
+      LOGGER.info(I18n.trans("start-node-connection-try", node.info().uniqueId()));
+      if (node.connect()) {
+        // register a future that waits for the node to become available
+        futures.add(CompletableFuture.runAsync(() -> {
+          while (!node.available()) {
+            try {
+              //noinspection BusyWait
+              Thread.sleep(10);
+            } catch (InterruptedException exception) {
+              Thread.currentThread().interrupt();
             }
-          }));
-        }
+          }
+        }));
       }
     }
 
@@ -293,12 +291,12 @@ public class CloudNet extends CloudNetDriver {
     }
 
     // we are now connected to all nodes - request the full cluster data set if the head node is not the current one
-    if (!this.nodeServerProvider.headnode().equals(this.nodeServerProvider.selfNode())) {
+    if (!this.nodeServerProvider.localNode().head()) {
       LOGGER.info(I18n.trans("start-requesting-data"));
       ChannelMessage.builder()
         .message("request_initial_cluster_data")
         .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-        .targetNode(this.nodeServerProvider.headnode().nodeInfo().uniqueId())
+        .targetNode(this.nodeServerProvider.headNode().info().uniqueId())
         .build()
         .send();
     }
@@ -464,7 +462,7 @@ public class CloudNet extends CloudNetDriver {
     this.configuration = configuration;
   }
 
-  public @NonNull ClusterNodeServerProvider nodeServerProvider() {
+  public @NonNull DefaultNodeServerProvider nodeServerProvider() {
     return this.nodeServerProvider;
   }
 

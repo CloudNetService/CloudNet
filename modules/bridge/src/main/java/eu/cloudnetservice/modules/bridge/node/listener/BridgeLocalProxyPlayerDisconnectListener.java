@@ -40,7 +40,7 @@ public final class BridgeLocalProxyPlayerDisconnectListener {
   public void handleServiceUpdate(@NonNull CloudServiceUpdateEvent event) {
     var info = event.serviceInfo();
     if (info.serviceId().nodeUniqueId().equals(CloudNetDriver.instance().componentName())
-      && ServiceEnvironmentType.isMinecraftProxy(info.serviceId().environment())) {
+      && ServiceEnvironmentType.minecraftProxy(info.serviceId().environment())) {
       // get all the players which are connected to the proxy
       var players = info.property(BridgeServiceProperties.PLAYERS).orElse(null);
       if (players == null) {
@@ -73,7 +73,7 @@ public final class BridgeLocalProxyPlayerDisconnectListener {
   }
 
   private void handleCloudServiceRemove(@NonNull ServiceInfoSnapshot snapshot) {
-    if (ServiceEnvironmentType.isMinecraftProxy(snapshot.serviceId().environment())) {
+    if (ServiceEnvironmentType.minecraftProxy(snapshot.serviceId().environment())) {
       // test if any player has the stopped service as the login service
       for (var value : this.playerManager.players().values()) {
         if (value.loginService().serviceId().uniqueId().equals(snapshot.serviceId().uniqueId())) {

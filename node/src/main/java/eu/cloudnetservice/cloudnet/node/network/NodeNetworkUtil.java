@@ -16,8 +16,6 @@
 
 package eu.cloudnetservice.cloudnet.node.network;
 
-import eu.cloudnetservice.cloudnet.common.log.LogManager;
-import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.driver.event.events.network.ChannelType;
 import eu.cloudnetservice.cloudnet.driver.event.events.network.NetworkChannelInitEvent;
@@ -28,29 +26,17 @@ import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.PacketListenerRegistry;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.listener.RPCPacketListener;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
-import eu.cloudnetservice.cloudnet.node.cluster.ClusterNodeServer;
 import eu.cloudnetservice.cloudnet.node.network.listener.PacketServerChannelMessageListener;
 import lombok.NonNull;
 
 public final class NodeNetworkUtil {
-
-  private static final Logger LOGGER = LogManager.logger(NodeNetworkUtil.class);
 
   private NodeNetworkUtil() {
     throw new UnsupportedOperationException();
   }
 
   static boolean shouldInitializeChannel(@NonNull NetworkChannel channel, @NonNull ChannelType type) {
-    return !CloudNetDriver.instance().eventManager().callEvent(
-      new NetworkChannelInitEvent(channel, type)).cancelled();
-  }
-
-  public static void closeNodeServer(@NonNull ClusterNodeServer clusterNodeServer) {
-    try {
-      clusterNodeServer.close();
-    } catch (Exception exception) {
-      LOGGER.severe("Exception while closing service", exception);
-    }
+    return !CloudNetDriver.instance().eventManager().callEvent(new NetworkChannelInitEvent(channel, type)).cancelled();
   }
 
   public static void addDefaultPacketListeners(@NonNull PacketListenerRegistry registry, @NonNull CloudNet node) {

@@ -21,7 +21,9 @@ import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceLifeCycle;
+import eu.cloudnetservice.cloudnet.node.cluster.NodeServerState;
 import eu.cloudnetservice.cloudnet.node.event.instance.CloudNetTickEvent;
+import eu.cloudnetservice.cloudnet.node.event.instance.CloudNetTickServiceStartEvent;
 import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -39,7 +41,9 @@ public final class CloudNetTick {
 
   private final CloudNet cloudNet;
   private final AtomicInteger tickPauseRequests = new AtomicInteger();
+
   private final CloudNetTickEvent tickEvent = new CloudNetTickEvent(this);
+  private final CloudNetTickServiceStartEvent serviceTickStartEvent = new CloudNetTickServiceStartEvent(this);
 
   private final AtomicLong currentTick = new AtomicLong();
   private final Queue<ScheduledTask<?>> processQueue = new ConcurrentLinkedQueue<>();
@@ -131,23 +135,30 @@ public final class CloudNetTick {
         if (this.tickPauseRequests.get() <= 0) {
           // execute all scheduled tasks for this tick
           for (var task : this.processQueue) {
-            if (task.execute(tick)) {
+            if (task.isCancelled() || task.execute(tick)) {
               this.processQueue.remove(task);
             }
           }
 
           // check if the node is marked for draining
-          if (this.cloudNet.nodeServerProvider().selfNode().drain()) {
+          if (this.cloudNet.nodeServerProvider().localNode().draining()) {
             // check if there are no services on the node
             if (this.cloudNet.cloudServiceProvider().localCloudServices().isEmpty()) {
               // stop the node as it's marked for draining
               this.cloudNet.stop();
+              return;
             }
           }
 
           // check if we should start a service now
-          if (this.cloudNet.nodeServerProvider().selfNode().headNode() && tick % TPS == 0) {
-            this.startService();
+          if (this.cloudNet.nodeServerProvider().localNode().head() && tick % TPS == 0) {
+            // ensure that there are no idling node servers before we start any service to prevent duplicates
+            var idlingNode = this.cloudNet.nodeServerProvider().nodeServers().stream()
+              .noneMatch(server -> server.state() == NodeServerState.DISCONNECTED);
+            if (idlingNode) {
+              this.startService();
+              this.cloudNet.eventManager().callEvent(this.serviceTickStartEvent);
+            }
           }
 
           this.cloudNet.eventManager().callEvent(this.tickEvent);

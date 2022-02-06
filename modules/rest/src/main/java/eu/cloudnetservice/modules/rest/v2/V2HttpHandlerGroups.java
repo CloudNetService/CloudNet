@@ -24,10 +24,11 @@ import eu.cloudnetservice.cloudnet.node.http.HttpSession;
 import eu.cloudnetservice.cloudnet.node.http.V2HttpHandler;
 import java.util.function.Consumer;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 public class V2HttpHandlerGroups extends V2HttpHandler {
 
-  public V2HttpHandlerGroups(String requiredPermission) {
+  public V2HttpHandlerGroups(@Nullable String requiredPermission) {
     super(requiredPermission, "GET", "POST", "DELETE");
   }
 
@@ -48,7 +49,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
     }
   }
 
-  protected void handleGroupListRequest(HttpContext context) {
+  protected void handleGroupListRequest(@NonNull HttpContext context) {
     this.ok(context)
       .body(this.success().append("groups", this.groupProvider().groupConfigurations()).toString())
       .context()
@@ -56,7 +57,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleGroupExistsRequest(HttpContext context) {
+  protected void handleGroupExistsRequest(@NonNull HttpContext context) {
     this.handleWithGroupContext(context, name -> this.ok(context)
       .body(this.success().append("result", this.groupProvider().groupConfigurationPresent(name)).toString())
       .context()
@@ -65,7 +66,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
     );
   }
 
-  protected void handleGroupRequest(HttpContext context) {
+  protected void handleGroupRequest(@NonNull HttpContext context) {
     this.handleWithGroupContext(context, name -> {
       var configuration = this.groupProvider().groupConfiguration(name);
       if (configuration == null) {
@@ -84,7 +85,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
     });
   }
 
-  protected void handleCreateGroupRequest(HttpContext context) {
+  protected void handleCreateGroupRequest(@NonNull HttpContext context) {
     var configuration = this.body(context.request()).toInstanceOf(GroupConfiguration.class);
     if (configuration == null) {
       this.badRequest(context)
@@ -103,7 +104,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleDeleteGroupRequest(HttpContext context) {
+  protected void handleDeleteGroupRequest(@NonNull HttpContext context) {
     this.handleWithGroupContext(context, name -> {
       if (this.groupProvider().groupConfigurationPresent(name)) {
         this.groupProvider().removeGroupConfigurationByName(name);
@@ -122,7 +123,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
     });
   }
 
-  protected void handleWithGroupContext(HttpContext context, Consumer<String> handler) {
+  protected void handleWithGroupContext(@NonNull HttpContext context, @NonNull Consumer<String> handler) {
     var groupName = context.request().pathParameters().get("group");
     if (groupName == null) {
       this.badRequest(context)
@@ -135,7 +136,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
     }
   }
 
-  protected GroupConfigurationProvider groupProvider() {
+  protected @NonNull GroupConfigurationProvider groupProvider() {
     return this.node().groupConfigurationProvider();
   }
 }

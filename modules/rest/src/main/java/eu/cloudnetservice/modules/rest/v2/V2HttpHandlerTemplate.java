@@ -33,7 +33,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class V2HttpHandlerTemplate extends V2HttpHandler {
 
-  public V2HttpHandlerTemplate(String requiredPermission) {
+  public V2HttpHandlerTemplate(@Nullable String requiredPermission) {
     super(requiredPermission, "GET", "POST", "DELETE");
   }
 
@@ -82,7 +82,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     }
   }
 
-  protected void handleDownloadRequest(HttpContext context) {
+  protected void handleDownloadRequest(@NonNull HttpContext context) {
     this.handleWithTemplateContext(context, (template, storage) -> {
       var stream = storage.zipTemplateAsync().get();
       if (stream == null) {
@@ -103,7 +103,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     });
   }
 
-  protected void handleFileDownloadRequest(HttpContext context) {
+  protected void handleFileDownloadRequest(@NonNull HttpContext context) {
     this.handleWithFileTemplateContext(context, (template, storage, path) -> {
       var stream = storage.newInputStreamAsync(path).get();
       if (stream == null) {
@@ -125,7 +125,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     });
   }
 
-  protected void handleFileInfoRequest(HttpContext context) {
+  protected void handleFileInfoRequest(@NonNull HttpContext context) {
     this.handleWithFileTemplateContext(context, (template, storage, path) -> {
       var info = storage.fileInfoAsync(path).get();
       if (info == null) {
@@ -144,7 +144,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     });
   }
 
-  protected void handleFileExistsRequest(HttpContext context) {
+  protected void handleFileExistsRequest(@NonNull HttpContext context) {
     this.handleWithFileTemplateContext(context, (template, storage, path) -> {
       boolean status = storage.hasFileAsync(path).get();
       this.ok(context)
@@ -155,7 +155,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     });
   }
 
-  protected void handleFileListRequest(HttpContext context) {
+  protected void handleFileListRequest(@NonNull HttpContext context) {
     this.handleWithTemplateContext(context, (template, storage) -> {
       var dir = RestUtil.first(context.request().queryParameters().get("directory"), "");
       var deep = Boolean.parseBoolean(RestUtil.first(context.request().queryParameters().get("deep"), "false"));
@@ -169,7 +169,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     });
   }
 
-  protected void handleCreateRequest(HttpContext context) {
+  protected void handleCreateRequest(@NonNull HttpContext context) {
     this.handleWithTemplateContext(context, (template, storage) -> {
       boolean status = storage.createAsync().fireExceptionOnFailure().get();
       this.ok(context)
@@ -180,7 +180,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     });
   }
 
-  protected void handleDeployRequest(HttpContext context) {
+  protected void handleDeployRequest(@NonNull HttpContext context) {
     var stream = context.request().bodyStream();
     if (stream == null) {
       this.badRequest(context)
@@ -201,7 +201,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     });
   }
 
-  protected void handleFileDeleteRequest(HttpContext context) {
+  protected void handleFileDeleteRequest(@NonNull HttpContext context) {
     this.handleWithFileTemplateContext(context, (template, storage, path) -> {
       boolean status = storage.deleteFileAsync(path).get();
       this.ok(context)
@@ -212,7 +212,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     });
   }
 
-  protected void handleTemplateDeleteRequest(HttpContext context) {
+  protected void handleTemplateDeleteRequest(@NonNull HttpContext context) {
     this.handleWithTemplateContext(context, (template, storage) -> {
       boolean status = storage.deleteAsync().get();
       this.ok(context)
@@ -223,7 +223,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     });
   }
 
-  protected void handleInstallationRequest(HttpContext context) {
+  protected void handleInstallationRequest(@NonNull HttpContext context) {
     this.handleWithTemplateContext(context, (template, storage) -> {
       var body = this.body(context.request());
 
@@ -273,7 +273,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     });
   }
 
-  protected void handleFileWriteRequest(HttpContext context, boolean append) {
+  protected void handleFileWriteRequest(@NonNull HttpContext context, boolean append) {
     var content = context.request().bodyStream();
     if (content == null) {
       this.badRequest(context)
@@ -304,7 +304,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     });
   }
 
-  protected void handleDirectoryCreateRequest(HttpContext context) {
+  protected void handleDirectoryCreateRequest(@NonNull HttpContext context) {
     this.handleWithFileTemplateContext(context, (template, storage, path) -> {
       boolean status = storage.createDirectoryAsync(path).get();
       this.ok(context)
@@ -316,8 +316,8 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
   }
 
   protected void handleWithTemplateContext(
-    HttpContext context,
-    ThrowableBiConsumer<ServiceTemplate, SpecificTemplateStorage, Exception> handler
+    @NonNull HttpContext context,
+    @NonNull ThrowableBiConsumer<ServiceTemplate, SpecificTemplateStorage, Exception> handler
   ) {
     var storage = context.request().pathParameters().get("storage");
     var prefix = context.request().pathParameters().get("prefix");
@@ -352,8 +352,8 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
   }
 
   protected void handleWithFileTemplateContext(
-    HttpContext context,
-    ThrowableTriConsumer<ServiceTemplate, SpecificTemplateStorage, String, Exception> handler
+    @NonNull HttpContext context,
+    @NonNull ThrowableTriConsumer<ServiceTemplate, SpecificTemplateStorage, String, Exception> handler
   ) {
     this.handleWithTemplateContext(context, (template, storage) -> {
       var fileName = RestUtil.first(context.request().queryParameters().get("path"), null);
@@ -370,7 +370,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     });
   }
 
-  protected void notifyException(HttpContext context, Exception exception) {
+  protected void notifyException(@NonNull HttpContext context, @NonNull Exception exception) {
     LOGGER.fine("Exception handling template request", exception);
     this.response(context, HttpResponseCode.INTERNAL_SERVER_ERROR)
       .body(this.failure().append("reason", "Exception processing request").toString())
@@ -379,14 +379,14 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected HttpResponse ok(@NonNull HttpContext context, @NonNull String contentType) {
+  protected @NonNull HttpResponse ok(@NonNull HttpContext context, @NonNull String contentType) {
     return context.response()
       .status(HttpResponseCode.OK)
       .header("Content-Type", contentType)
       .header("Access-Control-Allow-Origin", this.accessControlConfiguration.corsPolicy());
   }
 
-  protected @Nullable String guessFileName(String path) {
+  protected @Nullable String guessFileName(@NonNull String path) {
     var index = path.lastIndexOf('/');
     if (index == -1 || index + 1 == path.length()) {
       return null;

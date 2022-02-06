@@ -20,16 +20,20 @@ import eu.cloudnetservice.cloudnet.driver.network.http.HttpContext;
 import eu.cloudnetservice.cloudnet.node.http.HttpSession;
 import eu.cloudnetservice.cloudnet.node.http.V2HttpHandler;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 public class V2HttpHandlerWebSocketTicket extends V2HttpHandler {
 
-  public V2HttpHandlerWebSocketTicket(String requiredPermission) {
+  public V2HttpHandlerWebSocketTicket(@Nullable String requiredPermission) {
     super(requiredPermission, "POST");
   }
 
   @Override
-  protected void handleBearerAuthorized(@NonNull String path, @NonNull HttpContext context,
-    @NonNull HttpSession session) {
+  protected void handleBearerAuthorized(
+    @NonNull String path,
+    @NonNull HttpContext context,
+    @NonNull HttpSession session
+  ) {
     var ticket = this.authentication.webSocketTicketManager().issueTicket(context.request(), session);
     this.ok(context)
       .body(

@@ -25,16 +25,20 @@ import eu.cloudnetservice.cloudnet.node.http.V2HttpHandler;
 import eu.cloudnetservice.modules.rest.RestUtil;
 import java.util.function.BiConsumer;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 public class V2HttpHandlerDatabase extends V2HttpHandler {
 
-  public V2HttpHandlerDatabase(String requiredPermission) {
+  public V2HttpHandlerDatabase(@Nullable String requiredPermission) {
     super(requiredPermission, "GET", "POST", "PUT", "DELETE");
   }
 
   @Override
-  protected void handleBearerAuthorized(@NonNull String path, @NonNull HttpContext context,
-    @NonNull HttpSession session) {
+  protected void handleBearerAuthorized(
+    @NonNull String path,
+    @NonNull HttpContext context,
+    @NonNull HttpSession session
+  ) {
     if (context.request().method().equals("GET")) {
       if (path.endsWith("/contains")) {
         // contains in a specific database
@@ -66,7 +70,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
     }
   }
 
-  protected void handleNamesRequest(HttpContext context) {
+  protected void handleNamesRequest(@NonNull HttpContext context) {
     this.ok(context)
       .body(this.success().append("names", this.databaseProvider().databaseNames()).toString())
       .context()
@@ -74,7 +78,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleClearRequest(HttpContext context) {
+  protected void handleClearRequest(@NonNull HttpContext context) {
     var database = this.database(context);
     if (database == null) {
       this.sendInvalidDatabaseName(context);
@@ -88,7 +92,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleContainsRequest(HttpContext context) {
+  protected void handleContainsRequest(@NonNull HttpContext context) {
     var database = this.database(context);
     if (database == null) {
       this.sendInvalidDatabaseName(context);
@@ -111,7 +115,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
     }
   }
 
-  protected void handleGetRequest(HttpContext context) {
+  protected void handleGetRequest(@NonNull HttpContext context) {
     var database = this.database(context);
     if (database == null) {
       this.sendInvalidDatabaseName(context);
@@ -129,7 +133,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleKeysRequest(HttpContext context) {
+  protected void handleKeysRequest(@NonNull HttpContext context) {
     var database = this.database(context);
     if (database == null) {
       this.sendInvalidDatabaseName(context);
@@ -144,7 +148,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
 
   }
 
-  protected void handleCountRequest(HttpContext context) {
+  protected void handleCountRequest(@NonNull HttpContext context) {
     var database = this.database(context);
     if (database == null) {
       this.sendInvalidDatabaseName(context);
@@ -158,7 +162,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleInsertRequest(HttpContext context) {
+  protected void handleInsertRequest(@NonNull HttpContext context) {
     var database = this.database(context);
     if (database == null) {
       this.sendInvalidDatabaseName(context);
@@ -182,7 +186,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
     });
   }
 
-  protected void handleDeleteRequest(HttpContext context) {
+  protected void handleDeleteRequest(@NonNull HttpContext context) {
     var database = this.database(context);
     if (database == null) {
       this.sendInvalidDatabaseName(context);
@@ -205,7 +209,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
     }
   }
 
-  protected void withContextData(HttpContext context, BiConsumer<String, JsonDocument> handler) {
+  protected void withContextData(@NonNull HttpContext context, @NonNull BiConsumer<String, JsonDocument> handler) {
     var body = this.body(context.request());
     var key = body.getString("key");
     var data = body.getDocument("document");
@@ -222,7 +226,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
     handler.accept(key, data);
   }
 
-  protected void sendInvalidDatabaseName(HttpContext context) {
+  protected void sendInvalidDatabaseName(@NonNull HttpContext context) {
     this.badRequest(context)
       .body(this.failure().append("reason", "No such database").toString())
       .context()
@@ -230,16 +234,16 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected DatabaseProvider databaseProvider() {
+  protected @NonNull  DatabaseProvider databaseProvider() {
     return this.node().databaseProvider();
   }
 
-  protected Database database(HttpContext context) {
+  protected @Nullable Database database(@NonNull HttpContext context) {
     var name = context.request().pathParameters().get("name");
     return name == null ? null : this.database(name);
   }
 
-  protected Database database(String name) {
+  protected @NonNull Database database(@NonNull String name) {
     return this.databaseProvider().database(name);
   }
 }

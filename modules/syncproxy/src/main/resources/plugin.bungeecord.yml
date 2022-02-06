@@ -5,4 +5,4 @@ description: 'CloudNet extension which serves proxy utils with CloudNet support'
 depends: [ CloudNet-Bridge ]
 softdepends: [ CloudNet-CloudPerms ]
 
-main: 'eu.cloudnetservice.cloudnet.ext.syncproxy.platform.velocity.VelocitySyncProxyPlugin'
+main: 'eu.cloudnetservice.modules.syncproxy.platform.bungee.BungeeCordSyncProxyPlugin'

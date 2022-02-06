@@ -33,7 +33,7 @@ public record LabyModDiscordRPC(boolean enabled, @NonNull Collection<String> exc
       .excludedGroups(discordRPC.excludedGroups());
   }
 
-  public boolean isEnabled(@NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
+  public boolean enabled(@NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
     for (var excludedGroup : this.excludedGroups) {
       if (serviceInfoSnapshot.configuration().groups().contains(excludedGroup)) {
         return false;

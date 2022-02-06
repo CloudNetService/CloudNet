@@ -60,8 +60,15 @@ var cloudnet.logging.defaultlevel INFO
 #var cloudnet.persistable.services.path local/services
 # Sets the path to the version cache
 #var cloudnet.versioncache.path local/versioncache
-# Sets the timeout until a node gets force disconnected from the current node when no updates are sent by the other node
+# Sets the timeout until a node gets marked as disconnected from the local node. This does not mean that the node will
+# be removed completely from the system, there is a grace period for the node to reconnect to this node (see the following
+# setting for this)
 #var cloudnet.max.node.idle.millis 30000
+# Sets the timeout until a node gets force disconnected from the current node after getting marked as disconnected (see
+# the previous setting). This defaults to 0 as we want a node to get disconnected instantly. Increasing this timeout might
+# lead to unexpected cluster behaviour, such as registered players which are already disconnected or registered services
+# which were already stopped during the disconnect time. USE THIS SETTING AT YOUR OWN RISK!
+#var cloudnet.max.node.disconnect.millis 0
 # Sets the path to the directory in which the local xodus database file is located
 #var cloudnet.database.xodus.path local/database/xodus
 # Sets the path in which the local templates are stored

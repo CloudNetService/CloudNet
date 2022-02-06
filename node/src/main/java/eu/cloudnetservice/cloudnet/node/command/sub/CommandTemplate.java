@@ -77,17 +77,9 @@ public final class CommandTemplate {
   public ServiceTemplate defaultServiceTemplateParser(CommandContext<CommandSource> $, Queue<String> input) {
     var template = ServiceTemplate.parse(input.remove());
     if (template == null || template.knownStorage() == null) {
-      throw new ArgumentNotAvailableException(I18n.trans("ca-question-list-invalid-template"));
+      throw new ArgumentNotAvailableException(I18n.trans("command-template-not-valid"));
     }
     return template;
-  }
-
-  @Parser
-  public ServiceEnvironmentType defaultServiceEnvironmentTypeParser(CommandContext<?> $, Queue<String> input) {
-    var env = input.remove();
-    return CloudNet.instance().serviceVersionProvider().getEnvironmentType(env)
-      .orElseThrow(() ->
-        new ArgumentNotAvailableException(I18n.trans("command-template-environment-not-found", env)));
   }
 
   @Suggestions("serviceTemplate")
@@ -149,6 +141,19 @@ public final class CommandTemplate {
       .toList();
   }
 
+  @Parser(suggestions = "serviceEnvironments")
+  public ServiceEnvironmentType defaultServiceEnvironmentTypeParser(CommandContext<?> $, Queue<String> input) {
+    var env = input.remove();
+    return CloudNet.instance().serviceVersionProvider().getEnvironmentType(env)
+      .orElseThrow(() ->
+        new ArgumentNotAvailableException(I18n.trans("command-template-environment-not-found", env)));
+  }
+
+  @Suggestions("serviceEnvironments")
+  public List<String> suggestServiceEnvironments(CommandContext<CommandSource> context, String input) {
+    return List.copyOf(CloudNet.instance().serviceVersionProvider().knownEnvironments().keySet());
+  }
+
   @CommandMethod("template|t list [storage]")
   public void displayTemplates(CommandSource source, @Argument("storage") TemplateStorage templateStorage) {
     Collection<ServiceTemplate> templates;
@@ -201,7 +206,7 @@ public final class CommandTemplate {
     var resolvedExecutable = executable == null ? "java" : executable;
     var javaVersion = JavaVersionResolver.resolveFromJavaExecutable(resolvedExecutable);
     if (javaVersion == null) {
-      source.sendMessage(I18n.trans("ca-question-list-invalid-java-executable"));
+      source.sendMessage(I18n.trans("command-tasks-setup-question-javacommand-invalid"));
       return;
     }
 

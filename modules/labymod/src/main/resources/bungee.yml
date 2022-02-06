@@ -4,4 +4,4 @@ author: 'CloudNetService'
 depends: [ 'CloudNet-Bridge' ]
 description: 'Displays LabyMod DiscordRPC information when playing on cloudnet a server'
 
-main: 'eu.cloudnetservice.cloudnet.modules.labymod.platform.bungeecord.BungeeCordLabyModPlugin'
+main: 'eu.cloudnetservice.modules.labymod.platform.bungeecord.BungeeCordLabyModPlugin'

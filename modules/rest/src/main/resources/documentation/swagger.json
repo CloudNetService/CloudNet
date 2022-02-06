@@ -3690,13 +3690,18 @@
             "node" : {
               "$ref" : "#/components/schemas/NetworkClusterNode"
             },
-            "available" : {
-              "type" : "boolean",
-              "example" : true
+            "state" : {
+              "type" : "string",
+              "enum" : [ "UNAVAILABLE", "SYNCING", "READY", "DISCONNECTED" ],
+              "example" : "READY"
             },
             "head" : {
               "type" : "boolean",
               "example" : false
+            },
+            "local" : {
+              "type" : "boolean",
+              "example" : true
             },
             "nodeInfoSnapshot" : {
               "type" : "object",

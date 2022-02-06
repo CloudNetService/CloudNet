@@ -34,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class V2HttpHandlerModule extends V2HttpHandler {
 
-  public V2HttpHandlerModule(String requiredPermission) {
+  public V2HttpHandlerModule(@Nullable String requiredPermission) {
     super(requiredPermission, "GET", "POST");
   }
 
@@ -63,7 +63,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
     }
   }
 
-  protected void handleReloadRequest(HttpContext context) {
+  protected void handleReloadRequest(@NonNull HttpContext context) {
     this.node().moduleProvider().reloadAll();
 
     this.ok(context)
@@ -73,7 +73,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleModuleListRequest(HttpContext context) {
+  protected void handleModuleListRequest(@NonNull HttpContext context) {
     this.ok(context).body(this.success().append("modules", this.moduleProvider().modules().stream()
         .map(module -> JsonDocument.newDocument("lifecycle", module.moduleLifeCycle())
           .append("configuration", module.moduleConfiguration()))
@@ -82,11 +82,11 @@ public class V2HttpHandlerModule extends V2HttpHandler {
     ).context().closeAfter(true).cancelNext();
   }
 
-  protected void handleModuleRequest(HttpContext context) {
+  protected void handleModuleRequest(@NonNull HttpContext context) {
     this.handleWithModuleContext(context, module -> this.showModule(context, module));
   }
 
-  protected void handleModuleReloadRequest(HttpContext context) {
+  protected void handleModuleReloadRequest(@NonNull HttpContext context) {
     this.handleWithModuleContext(context, module -> {
       module.reloadModule();
 
@@ -98,7 +98,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
     });
   }
 
-  protected void handleModuleUnloadRequest(HttpContext context) {
+  protected void handleModuleUnloadRequest(@NonNull HttpContext context) {
     this.handleWithModuleContext(context, module -> {
       module.unloadModule();
       this.ok(context)
@@ -109,7 +109,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
     });
   }
 
-  protected void handleModuleLoadRequest(HttpContext context) {
+  protected void handleModuleLoadRequest(@NonNull HttpContext context) {
     var moduleStream = context.request().bodyStream();
     if (moduleStream == null) {
       this.badRequest(context)
@@ -148,7 +148,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
     this.showModule(context, this.moduleProvider().loadModule(moduleTarget));
   }
 
-  protected void handleModuleConfigRequest(HttpContext context) {
+  protected void handleModuleConfigRequest(@NonNull HttpContext context) {
     this.handleWithModuleContext(context, module -> {
       if (module.module() instanceof DriverModule) {
         var config = ((DriverModule) module.module()).readConfig();
@@ -167,7 +167,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
     });
   }
 
-  protected void handleConfigUpdateRequest(HttpContext context) {
+  protected void handleConfigUpdateRequest(@NonNull HttpContext context) {
     this.handleWithModuleContext(context, module -> {
       if (module.module() instanceof DriverModule) {
         var stream = context.request().bodyStream();
@@ -197,7 +197,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
     });
   }
 
-  protected void showModule(HttpContext context, @Nullable ModuleWrapper wrapper) {
+  protected void showModule(@NonNull HttpContext context, @Nullable ModuleWrapper wrapper) {
     if (wrapper == null) {
       this.ok(context)
         .body(this.failure().toString())
@@ -214,7 +214,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
     }
   }
 
-  protected void handleWithModuleContext(HttpContext context, Consumer<ModuleWrapper> handler) {
+  protected void handleWithModuleContext(@NonNull HttpContext context, @NonNull Consumer<ModuleWrapper> handler) {
     var name = context.request().pathParameters().get("name");
     if (name == null) {
       this.badRequest(context)
@@ -238,7 +238,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
     handler.accept(wrapper);
   }
 
-  protected ModuleProvider moduleProvider() {
+  protected @NonNull ModuleProvider moduleProvider() {
     return this.node().moduleProvider();
   }
 }

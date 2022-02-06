@@ -20,6 +20,7 @@ import java.util.Collection;
 import lombok.NonNull;
 
 public record ModuleEntry(
+  boolean official,
   @NonNull String name,
   @NonNull String website,
   @NonNull String version,

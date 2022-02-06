@@ -20,6 +20,7 @@ import eu.cloudnetservice.modules.bridge.platform.bungeecord.PendingConnectionPr
 import java.util.Arrays;
 import java.util.UUID;
 import lombok.NonNull;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.ServerPing.PlayerInfo;
 import net.md_5.bungee.api.ServerPing.Players;
@@ -75,7 +76,8 @@ public final class BungeeCordSyncProxyListener implements Listener {
 
       response.setPlayers(players);
       response.setDescriptionComponent(new TextComponent(TextComponent.fromLegacyText(
-        motd.format(motd.firstLine() + "\n" + motd.secondLine(), onlinePlayers, maxPlayers))));
+        motd.format(ChatColor.translateAlternateColorCodes('&', motd.firstLine() + "\n" + motd.secondLine()),
+          onlinePlayers, maxPlayers))));
 
       event.setResponse(response);
     }
@@ -95,7 +97,7 @@ public final class BungeeCordSyncProxyListener implements Listener {
       if (this.syncProxyManagement.checkPlayerMaintenance(player)) {
         return;
       }
-      event.setCancelReason(TextComponent.fromLegacyText(
+      event.setCancelReason(this.syncProxyManagement.asComponent(
         this.syncProxyManagement.configuration().message("player-login-not-whitelisted", null)));
       event.setCancelled(true);
 
@@ -104,7 +106,7 @@ public final class BungeeCordSyncProxyListener implements Listener {
     // check if the proxy is full and if the player is allowed to join or not
     if (this.syncProxyManagement.onlinePlayerCount() >= loginConfiguration.maxPlayers()
       && !player.hasPermission("cloudnet.syncproxy.fulljoin")) {
-      event.setCancelReason(TextComponent.fromLegacyText(
+      event.setCancelReason(this.syncProxyManagement.asComponent(
         this.syncProxyManagement.configuration().message("player-login-full-server", null)));
       event.setCancelled(true);
     }

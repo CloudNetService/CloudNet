@@ -40,7 +40,7 @@ public class V2HttpHandlerSession extends V2HttpHandler {
     }
   }
 
-  protected void handleRefresh(HttpContext context, HttpSession session) {
+  protected void handleRefresh(@NonNull HttpContext context, @NonNull HttpSession session) {
     var jwt = this.authentication.refreshJwt(session, TimeUnit.HOURS.toMillis(1));
     this.ok(context)
       .body(this.success().append("token", jwt).append("uniqueId", session.user().uniqueId()).toString())
@@ -49,7 +49,7 @@ public class V2HttpHandlerSession extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleLogout(HttpContext context, HttpSession session) {
+  protected void handleLogout(@NonNull HttpContext context, @NonNull HttpSession session) {
     if (this.authentication.expireSession(session)) {
       this.ok(context)
         .body(this.success().toString())

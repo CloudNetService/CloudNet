@@ -34,6 +34,9 @@ import lombok.NonNull;
 public final class ConsoleProgressWrappers {
 
   private static final Logger LOGGER = LogManager.logger(ConsoleProgressWrappers.class);
+  // the log
+  private static final double LOG_10_FILE_SIZE_BASE = 3.010299956639812;
+  private static final String[] FILE_SIZE_UNIT_NAMES = new String[]{"B", "KB", "MB", "GB", "TB", "PB", "EB"};
 
   private ConsoleProgressWrappers() {
     throw new UnsupportedOperationException();
@@ -77,14 +80,18 @@ public final class ConsoleProgressWrappers {
           var contentLength = Longs.tryParse(rawResponse.getHeaders().getFirst("Content-Length"));
 
           try {
+            // gets the unit multiplier, 1 represents kb, 2 mb etc
+            var contentSize = contentLength == null ? stream.available() : contentLength;
+            var unitMultiplier = (int) (Math.log10(contentSize) / LOG_10_FILE_SIZE_BASE);
+
             streamHandler.accept(console.animationRunning() ? stream : new WrappedInputStream(
               stream,
               console,
               ConsoleProgressAnimation.createDefault(
                 "Downloading",
-                "MB",
-                1024 * 1024,
-                contentLength == null ? stream.available() : contentLength)));
+                FILE_SIZE_UNIT_NAMES[unitMultiplier],
+                (int) Math.pow(1024, unitMultiplier),
+                contentSize)));
           } catch (IOException exception) {
             LOGGER.severe("Exception downloading file from %s", exception, url);
           }

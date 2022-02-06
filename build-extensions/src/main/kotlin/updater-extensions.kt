@@ -69,6 +69,7 @@ private fun updateModuleInformation() {
   // append the information of all internal modules to the object
   internalModules.forEach {
     moduleJsonFile.add(JsonObject().apply {
+      addProperty("official", true)
       addProperty("name", it.second.get("name").asString)
       addProperty("website", it.second.get("website").asString)
       addProperty("version", it.second.get("version").asString)

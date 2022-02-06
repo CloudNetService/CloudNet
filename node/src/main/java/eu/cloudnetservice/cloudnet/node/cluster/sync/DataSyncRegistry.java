@@ -17,6 +17,7 @@
 package eu.cloudnetservice.cloudnet.node.cluster.sync;
 
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
+import java.util.function.Predicate;
 import lombok.NonNull;
 import org.jetbrains.annotations.UnknownNullability;
 
@@ -33,6 +34,8 @@ public interface DataSyncRegistry {
   boolean hasHandler(@NonNull String handlerKey);
 
   @NonNull DataBuf.Mutable prepareClusterData(boolean force, String @NonNull ... selectedHandlers);
+
+  @NonNull DataBuf.Mutable prepareClusterData(boolean force, @NonNull Predicate<DataSyncHandler<?>> handlerFilter);
 
   @UnknownNullability DataBuf handle(@NonNull DataBuf input, boolean force);
 }

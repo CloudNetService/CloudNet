@@ -18,19 +18,19 @@ package eu.cloudnetservice.cloudnet.node.event.network;
 
 import eu.cloudnetservice.cloudnet.driver.event.events.network.NetworkEvent;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
-import eu.cloudnetservice.cloudnet.node.cluster.ClusterNodeServer;
+import eu.cloudnetservice.cloudnet.node.cluster.NodeServer;
 import lombok.NonNull;
 
 public final class NetworkClusterNodeAuthSuccessEvent extends NetworkEvent {
 
-  private final ClusterNodeServer node;
+  private final NodeServer node;
 
-  public NetworkClusterNodeAuthSuccessEvent(@NonNull ClusterNodeServer node, @NonNull NetworkChannel channel) {
+  public NetworkClusterNodeAuthSuccessEvent(@NonNull NodeServer node, @NonNull NetworkChannel channel) {
     super(channel);
     this.node = node;
   }
 
-  public @NonNull ClusterNodeServer node() {
+  public @NonNull NodeServer node() {
     return this.node;
   }
 }

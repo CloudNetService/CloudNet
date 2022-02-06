@@ -69,8 +69,9 @@ public final class CommandProviderTest {
     var source = new DriverCommandSource();
 
     var rootSuggestions = commandProvider.suggest(source, "tests");
-    Assertions.assertEquals(2, rootSuggestions.size());
-    Assertions.assertEquals(Arrays.asList("help", "tests"), rootSuggestions);
+    // confirm is registered by default
+    Assertions.assertEquals(3, rootSuggestions.size());
+    Assertions.assertEquals(Arrays.asList("help", "tests", "confirm"), rootSuggestions);
 
     var subSuggestions = commandProvider.suggest(source, "tests ");
     Assertions.assertEquals(1, subSuggestions.size());
@@ -99,7 +100,8 @@ public final class CommandProviderTest {
 
   @Test
   public void testCommandUnregister() {
-    Assertions.assertEquals(2, commandProvider.commands().size());
+    // the confirmation command is always registered so there are 3 commands
+    Assertions.assertEquals(3, commandProvider.commands().size());
     commandProvider.unregister(this.getClass().getClassLoader());
     Assertions.assertEquals(0, commandProvider.commands().size());
   }

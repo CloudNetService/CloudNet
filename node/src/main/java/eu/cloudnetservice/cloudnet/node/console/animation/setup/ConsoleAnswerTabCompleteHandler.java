@@ -32,7 +32,16 @@ final class ConsoleAnswerTabCompleteHandler extends ConsoleTabCompleteHandler {
   public @NonNull Collection<String> completeInput(@NonNull String line) {
     if (line.trim().isEmpty()) {
       return this.possibleResults;
+    } else if (line.contains(" ")) {
+      // get the last query string
+      var parts = line.split(" ");
+      var tabCompleteQuery = parts[parts.length - 1];
+      // filter the entries to find the best match for the query
+      return this.possibleResults.stream()
+        .filter(result -> result.regionMatches(true, 0, tabCompleteQuery, 0, tabCompleteQuery.length()))
+        .toList();
     } else {
+      // just do a full search through all responses
       return this.possibleResults.stream()
         .filter(result -> result.regionMatches(true, 0, line, 0, line.length()))
         .toList();
