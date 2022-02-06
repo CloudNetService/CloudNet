@@ -109,8 +109,28 @@ subprojects {
     header(rootProject.file("LICENSE_HEADER"))
   }
 
+  tasks.register<Jar>("javadocJar") {
+    archiveClassifier.set("javadoc")
+    from(tasks.getByName("javadoc"))
+  }
+
+  tasks.register<Jar>("sourcesJar") {
+    archiveClassifier.set("sources")
+    from(project.sourceSets()["main"].allJava)
+  }
+
+  tasks.withType<Javadoc> {
+    val options = options as? StandardJavadocDocletOptions ?: return@withType
+
+    // options
+    options.encoding = "UTF-8"
+    options.memberLevel = JavadocMemberLevel.PRIVATE
+    options.addStringOption("-html5")
+    options.addBooleanOption("Xdoclint:none", true) // TODO: enable when we're done with javadocs
+  }
+
   // all these projects are publishing their java artifacts
-  configurePublishing("java")
+  configurePublishing("java", true)
 }
 
 tasks.register("globalJavaDoc", Javadoc::class) {

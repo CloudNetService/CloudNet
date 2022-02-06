@@ -22,11 +22,16 @@ import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.signing.Sign
 import org.gradle.plugins.signing.SigningExtension
 
-fun Project.configurePublishing(publishedComponent: String) {
+fun Project.configurePublishing(publishedComponent: String, withJavadocAndSource: Boolean = false) {
   extensions.configure<PublishingExtension> {
     publications.apply {
       create("maven", MavenPublication::class.java).apply {
         from(components.getByName(publishedComponent))
+
+        if (withJavadocAndSource) {
+          artifact(tasks.getByName("sourcesJar"))
+          artifact(tasks.getByName("javadocJar"))
+        }
 
         pom.apply {
           name.set(project.name)
