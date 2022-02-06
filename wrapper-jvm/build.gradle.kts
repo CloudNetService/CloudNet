@@ -21,8 +21,6 @@ plugins {
 }
 
 tasks.withType<ShadowJar> {
-  dependsOn(":cloudnet-common:jar", ":cloudnet-common:javadocJar", ":cloudnet-common:sourcesJar")
-
   archiveFileName.set(Files.wrapper)
   archiveVersion.set(null as String?)
 

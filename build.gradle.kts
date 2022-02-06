@@ -109,12 +109,12 @@ subprojects {
     header(rootProject.file("LICENSE_HEADER"))
   }
 
-  tasks.register<Jar>("javadocJar") {
+  tasks.register<org.gradle.jvm.tasks.Jar>("javadocJar") {
     archiveClassifier.set("javadoc")
     from(tasks.getByName("javadoc"))
   }
 
-  tasks.register<Jar>("sourcesJar") {
+  tasks.register<org.gradle.jvm.tasks.Jar>("sourcesJar") {
     archiveClassifier.set("sources")
     from(project.sourceSets()["main"].allJava)
   }

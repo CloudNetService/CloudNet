@@ -18,7 +18,6 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.signing.Sign
@@ -95,15 +94,6 @@ fun Project.configurePublishing(publishedComponent: String, withJavadocAndSource
   tasks.withType<Sign> {
     onlyIf {
       !rootProject.version.toString().endsWith("-SNAPSHOT")
-    }
-  }
-
-  // depend on the javadoc and sources task if requested
-  if (withJavadocAndSource) {
-    afterEvaluate {
-      tasks.named("generateMetadataFileForMavenPublication") {
-        dependsOn(tasks.withType(Jar::class.java))
-      }
     }
   }
 }
