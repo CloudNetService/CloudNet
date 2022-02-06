@@ -15,6 +15,7 @@
  */
 
 import org.gradle.api.Project
+import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.kotlin.dsl.configure
@@ -38,7 +39,7 @@ fun Project.configurePublishing(publishedComponent: String, withJavadocAndSource
           description.set(project.description)
           url.set("https://cloudnetservice.eu")
 
-          developers {
+          developers  {
             developer {
               id.set("derklaro")
               email.set("git@derklaro.dev")
@@ -68,6 +69,17 @@ fun Project.configurePublishing(publishedComponent: String, withJavadocAndSource
           ciManagement {
             system.set("GitHub Actions")
             url.set("https://github.com/CloudNetService/CloudNet-v3/actions")
+          }
+
+          withXml {
+            val repositories = asNode().appendNode("repositories")
+            project.repositories.forEach {
+              if (it is MavenArtifactRepository && it.url.toString().startsWith("https://")) {
+                val repo = repositories.appendNode("repository")
+                repo.appendNode("id", it.name)
+                repo.appendNode("url", it.url.toString())
+              }
+            }
           }
         }
       }
