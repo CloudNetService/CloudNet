@@ -31,7 +31,7 @@ subprojects {
     filter {
       it
         .replace("{project.build.version}", project.version.toString())
-        .replace("{project.perms.build.version}", projects.cloudnetModules.cloudperms.version.toString())
+        .replace("{project.perms.build.version}", projects.modules.cloudperms.version.toString())
     }
   }
 }

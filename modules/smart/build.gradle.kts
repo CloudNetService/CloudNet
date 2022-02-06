@@ -21,7 +21,7 @@ tasks.withType<Jar> {
 }
 
 dependencies {
-  "compileOnly"(projects.cloudnetModules.bridge)
+  "compileOnly"(projects.modules.bridge)
 }
 
 moduleJson {

@@ -9,6 +9,7 @@ juppiter = "0.3.0"
 licenser = "0.6.1"
 versions = "0.42.0"
 fabricLoom = "0.11.29"
+nexusPublish = "1.1.0"
 
 # google libs
 gson = "2.8.9"
@@ -185,3 +186,4 @@ licenser = { id = "org.cadixdev.licenser", version.ref = "licenser" }
 shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
 juppiter = { id = "eu.cloudnetservice.juppiter", version.ref = "juppiter" }
 versions = { id = "com.github.ben-manes.versions", version.ref = "versions" }
+nexusPublish = { id = "io.github.gradle-nexus.publish-plugin", version.ref = "nexusPublish" }

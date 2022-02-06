@@ -29,13 +29,13 @@ configurations {
 }
 
 dependencies {
-  "compileOnly"(projects.cloudnetWrapperJvm)
+  "compileOnly"(projects.wrapperJvm)
   "compileOnly"(libs.bundles.proxyPlatform)
   "compileOnly"(libs.bundles.serverPlatform)
 
   "annotationProcessor"(libs.velocity)
   "runtimeImpl"(libs.bundles.adventure)
-  "runtimeImpl"(projects.cloudnetExt.adventureHelper)
+  "runtimeImpl"(projects.ext.adventureHelper)
 
   "minecraft"(libs.minecraft)
   "modImplementation"(libs.fabricLoader)
@@ -44,7 +44,7 @@ dependencies {
 
 tasks.withType<RemapJarTask> {
   // depend on adventure helper jar task
-  dependsOn(":cloudnet-ext:adventure-helper:jar")
+  dependsOn(":ext:adventure-helper:jar")
   // base setup
   archiveFileName.set(Files.bridge)
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE

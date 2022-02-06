@@ -15,7 +15,7 @@
  */
 
 tasks.withType<Jar> {
-  dependsOn(":cloudnet-wrapper-jvm:shadowJar")
+  dependsOn(":wrapper-jvm:shadowJar")
 
   archiveFileName.set(Files.node)
 
@@ -28,13 +28,13 @@ tasks.withType<Jar> {
     from(exportLanguageFileInformation())
   }
 
-  from(projects.cloudnetDriver.sourceSets()["main"].output)
-  from(projects.cloudnetCommon.sourceSets()["main"].output)
+  from(projects.driver.sourceSets()["main"].output)
+  from(projects.common.sourceSets()["main"].output)
 }
 
 dependencies {
-  "api"(projects.cloudnetDriver)
-  "api"(projects.cloudnetExt.updater)
+  "api"(projects.driver)
+  "api"(projects.ext.updater)
   // console
   "api"(libs.jline)
   "api"(libs.jansi)

@@ -23,8 +23,8 @@ tasks.withType<Jar> {
 }
 
 dependencies {
-  "compileOnly"(projects.cloudnetWrapperJvm)
+  "compileOnly"(projects.wrapperJvm)
   "compileOnly"(libs.bundles.serverPlatform)
 
-  "implementation"(projects.cloudnetExt.adventureHelper)
+  "implementation"(projects.ext.adventureHelper)
 }

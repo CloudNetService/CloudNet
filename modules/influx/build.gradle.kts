@@ -22,7 +22,7 @@ tasks.withType<Jar> {
 
 dependencies {
   "moduleLibrary"(libs.influxClient)
-  "compileOnly"(projects.cloudnetModules.bridge)
+  "compileOnly"(projects.modules.bridge)
 }
 
 moduleJson {

@@ -20,6 +20,7 @@ plugins {
   id("cloudnet.parent-build-logic")
   alias(libs.plugins.versions)
   alias(libs.plugins.licenser)
+  alias(libs.plugins.nexusPublish)
 }
 
 defaultTasks("build", "checkLicenses", "test", "shadowJar")
@@ -27,6 +28,7 @@ defaultTasks("build", "checkLicenses", "test", "shadowJar")
 allprojects {
   version = Versions.cloudNet
   group = "eu.cloudnetservice.cloudnet"
+  description = "The alternative Minecraft Java and Bedrock server management solution"
 
   repositories {
     mavenCentral()
@@ -37,19 +39,23 @@ allprojects {
 
 subprojects {
   // these are top level projects which are configured separately
-  if (name == "cloudnet-modules"
-    || name == "cloudnet-plugins"
-    || name == "cloudnet-ext"
-    || name == "cloudnet-launcher"
-    || name == "cloudnet-bom"
-  ) {
+  if (name == "modules" || name == "plugins" || name == "ext" || name == "launcher") {
     return@subprojects
   }
 
-  apply(plugin = "java")
+  // these are the plugins which we need to apply to all projects
+  apply(plugin = "signing")
+  apply(plugin = "maven-publish")
+
+  // skip further applying to bom - this project is a bit special as we're not allowed to
+  // apply the java plugin to it (that's why we need to stop here, but we need to publish
+  // at well (that's why we're applying the publish plugin)
+  if (name == "bom") {
+    return@subprojects
+  }
+
   apply(plugin = "checkstyle")
   apply(plugin = "java-library")
-  apply(plugin = "maven-publish")
   apply(plugin = "org.cadixdev.licenser")
 
   dependencies {
@@ -90,11 +96,6 @@ subprojects {
     configFile = rootProject.file("checkstyle.xml")
   }
 
-  extensions.configure<JavaPluginExtension> {
-    // withSourcesJar()
-    // withJavadocJar()
-  }
-
   extensions.configure<CheckstyleExtension> {
     toolVersion = Versions.checkstyleTools
   }
@@ -103,6 +104,29 @@ subprojects {
     include("**/*.java")
     header(rootProject.file("LICENSE_HEADER"))
   }
+
+  tasks.register<org.gradle.jvm.tasks.Jar>("javadocJar") {
+    archiveClassifier.set("javadoc")
+    from(tasks.getByName("javadoc"))
+  }
+
+  tasks.register<org.gradle.jvm.tasks.Jar>("sourcesJar") {
+    archiveClassifier.set("sources")
+    from(project.sourceSets()["main"].allJava)
+  }
+
+  tasks.withType<Javadoc> {
+    val options = options as? StandardJavadocDocletOptions ?: return@withType
+
+    // options
+    options.encoding = "UTF-8"
+    options.memberLevel = JavadocMemberLevel.PRIVATE
+    options.addStringOption("-html5")
+    options.addBooleanOption("Xdoclint:none", true) // TODO: enable when we're done with javadocs
+  }
+
+  // all these projects are publishing their java artifacts
+  configurePublishing("java", true)
 }
 
 tasks.register("globalJavaDoc", Javadoc::class) {
@@ -120,6 +144,20 @@ tasks.register("globalJavaDoc", Javadoc::class) {
   val sources = subprojects.filter { it.plugins.hasPlugin("java") }.map { it.path }
   source(files(sources.flatMap { project(it).sourceSets()["main"].allJava }))
   classpath = files(sources.flatMap { project(it).sourceSets()["main"].compileClasspath })
+}
+
+nexusPublishing {
+  repositories {
+    sonatype {
+      nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+      snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+
+      username.set(System.getenv("sonatypeUsername"))
+      password.set(System.getenv("sonatypePassword"))
+    }
+  }
+
+  useStaging.set(!project.version.toString().endsWith("-SNAPSHOT"))
 }
 
 gradle.projectsEvaluated {

@@ -3,7 +3,7 @@ name: "Build"
 on:
   push:
     branches: "**"
-    tags-ignore: ["**"]
+    tags-ignore: [ "**" ]
   pull_request:
 
 jobs:
@@ -50,6 +50,21 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           MESSAGE: 'Update launcher meta for {target-branch} (commit: {sha})'
+
+      - name: Set version type in GitHub environment
+        run: |
+          if [ "$(./gradlew properties | awk '/^version:/ { print $2; }' | grep '\-SNAPSHOT')" ]; then
+            echo "STATUS=snapshot" >> $GITHUB_ENV
+          else
+            echo "STATUS=release" >> $GITHUB_ENV
+          fi
+
+      - name: Publish to Sonatype
+        if: ${{ github.event_name == 'push' && env.STATUS != 'release' && startsWith(github.ref, 'refs/heads/dev') }}
+        run: ./gradlew publish
+        env:
+          sonatypeUsername: "${{ secrets.SONATYPE_USER }}"
+          sonatypePassword: "${{ secrets.SONATYPE_KEY }}"
 
       - name: Prepare artifacts zip
         if: ${{ github.event_name == 'push' }}

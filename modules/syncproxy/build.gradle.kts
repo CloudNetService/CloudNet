@@ -26,11 +26,11 @@ tasks.withType<Jar> {
 
 dependencies {
   "compileOnly"(libs.bundles.proxyPlatform)
-  "compileOnly"(projects.cloudnetWrapperJvm)
-  "compileOnly"(projects.cloudnetModules.bridge)
+  "compileOnly"(projects.wrapperJvm)
+  "compileOnly"(projects.modules.bridge)
 
   "annotationProcessor"(libs.velocity)
-  "implementation"(projects.cloudnetExt.adventureHelper)
+  "implementation"(projects.ext.adventureHelper)
 }
 
 moduleJson {

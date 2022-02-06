@@ -23,8 +23,8 @@ tasks.withType<Jar> {
 }
 
 dependencies {
-  "implementation"(projects.cloudnetExt.updater)
-  "implementation"(projects.cloudnetLauncher.java8)
+  "implementation"(projects.ext.updater)
+  "implementation"(projects.launcher.java8)
 }
 
 applyJarMetadata("eu.cloudnetservice.launcher.java8.Launcher", "eu.cloudnetservice.launcher")
