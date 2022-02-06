@@ -20,6 +20,7 @@ plugins {
   id("cloudnet.parent-build-logic")
   alias(libs.plugins.versions)
   alias(libs.plugins.licenser)
+  alias(libs.plugins.nexusPublish)
 }
 
 defaultTasks("build", "checkLicenses", "test", "shadowJar")
@@ -42,15 +43,23 @@ subprojects {
     || name == "cloudnet-plugins"
     || name == "cloudnet-ext"
     || name == "cloudnet-launcher"
-    || name == "cloudnet-bom"
   ) {
     return@subprojects
   }
 
-  apply(plugin = "java")
+  // these are the plugins which we need to apply to all projects
+  apply(plugin = "signing")
+  apply(plugin = "maven-publish")
+
+  // skip further applying to bom - this project is a bit special as we're not allowed to
+  // apply the java plugin to it (that's why we need to stop here, but we need to publish
+  // at well (that's why we're applying the publish plugin)
+  if (name == "cloudnet-bom") {
+    return@subprojects
+  }
+
   apply(plugin = "checkstyle")
   apply(plugin = "java-library")
-  apply(plugin = "maven-publish")
   apply(plugin = "org.cadixdev.licenser")
 
   dependencies {
@@ -99,6 +108,9 @@ subprojects {
     include("**/*.java")
     header(rootProject.file("LICENSE_HEADER"))
   }
+
+  // all these projects are publishing their java artifacts
+  configurePublishing("java")
 }
 
 tasks.register("globalJavaDoc", Javadoc::class) {
@@ -116,6 +128,20 @@ tasks.register("globalJavaDoc", Javadoc::class) {
   val sources = subprojects.filter { it.plugins.hasPlugin("java") }.map { it.path }
   source(files(sources.flatMap { project(it).sourceSets()["main"].allJava }))
   classpath = files(sources.flatMap { project(it).sourceSets()["main"].compileClasspath })
+}
+
+nexusPublishing {
+  repositories {
+    sonatype {
+      nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+      snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+
+      username.set(System.getenv("sonatypeUsername"))
+      password.set(System.getenv("sonatypePassword"))
+    }
+  }
+
+  useStaging.set(!project.version.toString().endsWith("-SNAPSHOT"))
 }
 
 gradle.projectsEvaluated {
