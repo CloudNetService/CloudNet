@@ -29,7 +29,7 @@ import eu.cloudnetservice.cloudnet.driver.event.events.service.CloudServiceLogEn
 import eu.cloudnetservice.cloudnet.driver.event.events.service.CloudServiceUpdateEvent;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
-import eu.cloudnetservice.cloudnet.driver.provider.service.CloudServiceFactory;
+import eu.cloudnetservice.cloudnet.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceLifeCycle;

@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.cloudnet.driver.service;
 
-import eu.cloudnetservice.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
-import eu.cloudnetservice.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
+import eu.cloudnetservice.cloudnet.driver.provider.GeneralCloudServiceProvider;
+import eu.cloudnetservice.cloudnet.driver.provider.SpecificCloudServiceProvider;
 import java.util.Arrays;
 import java.util.UUID;
 import lombok.NonNull;

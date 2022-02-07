@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.driver.provider;
+package eu.cloudnetservice.cloudnet.driver.provider.defaults;
 
 import com.google.common.collect.Iterables;
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
+import eu.cloudnetservice.cloudnet.driver.provider.CloudMessenger;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 

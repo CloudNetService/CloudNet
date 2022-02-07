@@ -18,9 +18,9 @@ package eu.cloudnetservice.cloudnet.wrapper.provider;
 
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCSender;
-import eu.cloudnetservice.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
-import eu.cloudnetservice.cloudnet.driver.provider.service.RemoteSpecificCloudServiceProvider;
-import eu.cloudnetservice.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
+import eu.cloudnetservice.cloudnet.driver.provider.GeneralCloudServiceProvider;
+import eu.cloudnetservice.cloudnet.driver.provider.SpecificCloudServiceProvider;
+import eu.cloudnetservice.cloudnet.driver.provider.defaults.RemoteSpecificCloudServiceProvider;
 import java.util.UUID;
 import java.util.function.Supplier;
 import lombok.NonNull;

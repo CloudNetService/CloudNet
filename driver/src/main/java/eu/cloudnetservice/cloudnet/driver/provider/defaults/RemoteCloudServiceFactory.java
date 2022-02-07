@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.driver.provider.service;
+package eu.cloudnetservice.cloudnet.driver.provider.defaults;
 
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCSender;
+import eu.cloudnetservice.cloudnet.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import java.util.function.Supplier;

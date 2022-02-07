@@ -32,11 +32,11 @@ import eu.cloudnetservice.cloudnet.driver.network.netty.client.NettyNetworkClien
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.generation.GenerationContext;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
+import eu.cloudnetservice.cloudnet.driver.provider.GeneralCloudServiceProvider;
 import eu.cloudnetservice.cloudnet.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.cloudnet.driver.provider.NodeInfoProvider;
 import eu.cloudnetservice.cloudnet.driver.provider.ServiceTaskProvider;
-import eu.cloudnetservice.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
-import eu.cloudnetservice.cloudnet.driver.provider.service.RemoteCloudServiceFactory;
+import eu.cloudnetservice.cloudnet.driver.provider.defaults.RemoteCloudServiceFactory;
 import eu.cloudnetservice.cloudnet.driver.service.ProcessSnapshot;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceId;

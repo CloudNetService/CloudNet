@@ -36,11 +36,11 @@ import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.handler.DefaultRP
 import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
 import eu.cloudnetservice.cloudnet.driver.provider.CloudMessenger;
+import eu.cloudnetservice.cloudnet.driver.provider.CloudServiceFactory;
+import eu.cloudnetservice.cloudnet.driver.provider.GeneralCloudServiceProvider;
 import eu.cloudnetservice.cloudnet.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.cloudnet.driver.provider.NodeInfoProvider;
 import eu.cloudnetservice.cloudnet.driver.provider.ServiceTaskProvider;
-import eu.cloudnetservice.cloudnet.driver.provider.service.CloudServiceFactory;
-import eu.cloudnetservice.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import eu.cloudnetservice.cloudnet.driver.service.ProcessSnapshot;
 import eu.cloudnetservice.cloudnet.driver.template.TemplateStorage;
 import java.time.Instant;
