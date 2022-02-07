@@ -26,19 +26,32 @@ import java.util.function.Supplier;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * A cloud service factory implementation which sends the creation requests to the channel supplied by the given
+ * supplier via rpc.
+ *
+ * @since 4.0
+ */
 public class RemoteCloudServiceFactory implements CloudServiceFactory {
 
   private final RPCSender rpcSender;
   private final Supplier<NetworkChannel> channelSupplier;
 
-  public RemoteCloudServiceFactory(
-    @NonNull Supplier<NetworkChannel> channelSupplier,
-    @NonNull RPCFactory factory
-  ) {
+  /**
+   * Constructs a new remote cloud service factory instance.
+   *
+   * @param channelSupplier the supplier of the channel to send the creation requests to.
+   * @param factory         the rpc factory used by the current environment to obtain a rpc sender.
+   * @throws NullPointerException if either the given channel supplier or rpc factory is null.
+   */
+  public RemoteCloudServiceFactory(@NonNull Supplier<NetworkChannel> channelSupplier, @NonNull RPCFactory factory) {
     this.channelSupplier = channelSupplier;
     this.rpcSender = factory.providerForClass(null, CloudServiceFactory.class);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable ServiceInfoSnapshot createCloudService(@NonNull ServiceConfiguration config) {
     return this.rpcSender.invokeMethod("createCloudService", config).fireSync(this.channelSupplier.get());

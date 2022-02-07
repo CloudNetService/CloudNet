@@ -22,8 +22,16 @@ import eu.cloudnetservice.cloudnet.driver.provider.CloudMessenger;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * An abstract helper implementation of the cloud messenger which can be shared over all further implementations.
+ *
+ * @since 4.0
+ */
 public abstract class DefaultMessenger implements CloudMessenger {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable ChannelMessage sendSingleChannelMessageQuery(@NonNull ChannelMessage channelMessage) {
     return Iterables.getFirst(this.sendChannelMessageQuery(channelMessage), null);
