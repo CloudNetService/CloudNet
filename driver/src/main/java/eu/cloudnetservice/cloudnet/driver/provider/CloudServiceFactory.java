@@ -25,24 +25,69 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * This class provides methods to create and prepare services in the network.
+ * The main factory class to create cloud services based on a given service configuration. This factory is designed to
+ * automatically run all needed checks against the given configuration and ensures that services are split in the best
+ * way onto all nodes in the cluster, while respecting all settings made to the service configuration (for example if
+ * the service configuration already has the node set to start the service on, the factory will think about on which
+ * node it should start the service).
+ * <p>
+ * The taken input configurations are always cloned before being used, so there is no need to do this manually. This is
+ * due to the fact, that
+ * <ol>
+ *   <li>there might be changes made by the system to the given configuration which should not get reflected to the
+ *   later created services based on the configuration.
+ *   <li>changes made to the configuration should not get reflected into the service, this might lead to unexpected
+ *   behaviour of the system.
+ * </ol>
+ * <p>
+ * A method call to any of the create methods will always generate a different result if the service was created
+ * successfully, even if the same configuration was used multiple times. You can safely assume, that a service created
+ * by this factory is <strong>ALWAYS</strong> unique.
+ * <p>
+ * All factory methods are thread safe, calling them with the same configuration across multiple threads will not lead
+ * to duplicate service results.
+ *
+ * @since 4.0
  */
 @RPCValidation
 public interface CloudServiceFactory {
 
   /**
-   * Creates and prepares a new cloud service
+   * Creates and prepares a new cloud service based on the given configuration. This method can be called with the same
+   * configuration multiple times and will always (if the service was created successfully) in a different result.
+   * <p>
+   * This method will return null if the service could not get created. This can happen (for example) if:
+   * <ol>
+   *   <li>no node in the cluster can currently pick up the service (for example if all nodes are draining).
+   *   <li>the configured node in the configuration is not connected or draining.
+   *   <li>the selected node to start the service did not respond within a given time (uncommon).
+   * </ol>
+   * This list only includes some common reasons for the service not getting created. Not that there is never a
+   * guarantee that the method returns a (non-null) service result.
    *
-   * @param serviceConfiguration the configuration for the new service
-   * @return the info of the created service or null if the service couldn't be created
+   * @param serviceConfiguration the configuration to base the newly created service on.
+   * @return a snapshot of the newly created service, can be null if the service was not created successfully.
+   * @throws NullPointerException if the given service configuration is null.
    */
   @Nullable ServiceInfoSnapshot createCloudService(@NonNull ServiceConfiguration serviceConfiguration);
 
   /**
-   * Creates and prepares a new cloud service
+   * Creates and prepares a new cloud service based on the given configuration. This method can be called with the same
+   * configuration multiple times and will always (if the service was created successfully) in a different result.
+   * <p>
+   * This method will return a task completed with null if the service could not get created. This can happen (for
+   * example) if:
+   * <ol>
+   *   <li>no node in the cluster can currently pick up the service (for example if all nodes are draining).
+   *   <li>the configured node in the configuration is not connected or draining.
+   *   <li>the selected node to start the service did not respond within a given time (uncommon).
+   * </ol>
+   * This list only includes some common reasons for the service not getting created. Not that there is never a
+   * guarantee that the method returns a (non-null) service result.
    *
-   * @param configuration the configuration for the new service
-   * @return the info of the created service or null if the service couldn't be created
+   * @param configuration the configuration to base the newly created service on.
+   * @return a task completed with a snapshot of the newly created service or null if the service was not created.
+   * @throws NullPointerException if the given service configuration is null.
    */
   default @NonNull Task<ServiceInfoSnapshot> createCloudServiceAsync(@NonNull ServiceConfiguration configuration) {
     return CompletableTask.supply(() -> this.createCloudService(configuration));
