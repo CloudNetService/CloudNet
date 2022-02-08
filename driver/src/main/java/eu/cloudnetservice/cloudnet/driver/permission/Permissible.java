@@ -127,7 +127,7 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
    * @throws NullPointerException if the given permission is null.
    */
   default void addPermission(@NonNull String permission) {
-    this.addPermission(permission, 0);
+    this.addPermission(Permission.of(permission));
   }
 
   /**
@@ -143,33 +143,6 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
   void addPermission(@NonNull String group, @NonNull Permission permission);
 
   /**
-   * Adds the given permission with the potency to this permissible. If a permission with the same name already exists
-   * the permission is replaced with the given one.
-   * <p>
-   * After adding the permission an update is required.
-   *
-   * @param value      if the permission should have a positive or negative potency.
-   * @param permission the permission to add.
-   * @throws NullPointerException if the given permission is null.
-   */
-  default void addPermission(@NonNull String permission, boolean value) {
-    this.addPermission(Permission.builder().name(permission).potency(value ? 1 : -1).build());
-  }
-
-  /**
-   * Adds the given permission with the given potency to this permissible. If a permission with the same name already
-   * exists the permission is replaced with the given one. Every integer value is a valid potency.
-   * <p>
-   * After adding the permission an update is required.
-   *
-   * @param permission the permission to add.
-   * @throws NullPointerException if the given permission is null.
-   */
-  default void addPermission(@NonNull String permission, int potency) {
-    this.addPermission(Permission.builder().name(permission).potency(potency).build());
-  }
-
-  /**
    * Adds the given permission to this permissible for the specified target group, the potency is set to 0. If a
    * permission with the same name already exists the permission is replaced with the given one.
    * <p>
@@ -180,22 +153,7 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
    * @throws NullPointerException if the given group or permission is null.
    */
   default void addPermission(@NonNull String group, @NonNull String permission) {
-    this.addPermission(group, permission, 0);
-  }
-
-  /**
-   * Adds the given permission with the specified potency to this permissible for the specified target group. If a
-   * permission with the same name already exists the permission is replaced with the given one.
-   * <p>
-   * After adding the permission an update is required.
-   *
-   * @param group      the group to add the permission for.
-   * @param permission the permission to add.
-   * @param potency    the potency to set for the permission.
-   * @throws NullPointerException if the given group or permission is null.
-   */
-  default void addPermission(@NonNull String group, @NonNull String permission, int potency) {
-    this.addPermission(group, Permission.builder().name(permission).potency(potency).build());
+    this.addPermission(group, Permission.of(permission));
   }
 
   /**

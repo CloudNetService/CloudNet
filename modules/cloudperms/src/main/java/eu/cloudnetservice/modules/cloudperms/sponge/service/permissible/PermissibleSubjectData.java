@@ -91,7 +91,8 @@ public abstract class PermissibleSubjectData<T extends Permissible> implements S
       if (value == Tristate.UNDEFINED) {
         this.permissible.removePermission(permission);
       } else {
-        this.permissible.addPermission(permission, value.asBoolean());
+        this.permissible.addPermission(
+          Permission.builder().name(permission).potency(value.asBoolean() ? 1 : -1).build());
       }
       // update
       this.updateIfEnabled(this.permissible);
@@ -103,7 +104,8 @@ public abstract class PermissibleSubjectData<T extends Permissible> implements S
   public CompletableFuture<Boolean> setPermissions(Set<Context> $, Map<String, Boolean> perms, TransferMethod $1) {
     return CompletableFuture.supplyAsync(() -> {
       // set each permission
-      perms.forEach(this.permissible::addPermission);
+      perms.forEach((perm, value) -> this.permissible.addPermission(
+        Permission.builder().name(perm).potency(value ? 1 : -1).build()));
       this.updateIfEnabled(this.permissible);
       return true;
     });

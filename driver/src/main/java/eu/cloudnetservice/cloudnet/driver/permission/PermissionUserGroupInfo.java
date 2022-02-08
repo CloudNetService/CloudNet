@@ -76,8 +76,10 @@ public class PermissionUserGroupInfo extends JsonDocPropertyHolder {
   }
 
   /**
-   * Gets the timeout timestamp for this user group info. A timeout below 1 indicates that there is no timeout for this
-   * group.
+   * Gets the expiry timeout for this group.
+   * <p>
+   * The timeout is a unix timestamp, which specifies at which absolute time the given permission should expire. A
+   * timeout less than 1 indicated that this group does not expire.
    *
    * @return the timeout timestamp.
    */
@@ -104,7 +106,7 @@ public class PermissionUserGroupInfo extends JsonDocPropertyHolder {
     }
 
     /**
-     * Sets the given millis as time-out millis for this user group.
+     * Sets the given milliseconds to the absolute time at which this permission should expire.
      *
      * @param timeOutMillis the time-out for this user group.
      * @return the same instance for chaining.
@@ -115,8 +117,8 @@ public class PermissionUserGroupInfo extends JsonDocPropertyHolder {
     }
 
     /**
-     * Sets the time-out for this group info. The time-out is added to the current time millis {@link
-     * System#currentTimeMillis()}.
+     * Sets the given time-out to the absolute time at which this permission should expire. The time-out is added to the
+     * current time millis {@link System#currentTimeMillis()}.
      *
      * @param timeout the time-out for this group info.
      * @param unit    the unit of the given time out.
@@ -124,7 +126,7 @@ public class PermissionUserGroupInfo extends JsonDocPropertyHolder {
      * @throws NullPointerException if the given unit is null.
      */
     public @NonNull Builder timeOut(long timeout, @NonNull TimeUnit unit) {
-      this.timeOutMillis = unit.toMillis(timeout);
+      this.timeOutMillis = System.currentTimeMillis() + unit.toMillis(timeout);
       return this;
     }
 

@@ -103,7 +103,7 @@ public record Permission(
     }
 
     /**
-     * Sets the given millis as time-out millis for this permission.
+     * Sets the given milliseconds to the absolute time at which this permission should expire.
      *
      * @param timeOutMillis the time-out for this permission.
      * @return the same instance for chaining.
@@ -114,8 +114,8 @@ public record Permission(
     }
 
     /**
-     * Sets the time-out for this permission. The time-out is added to the current time millis {@link
-     * System#currentTimeMillis()}.
+     * Sets the given time-out to the absolute time at which this permission should expire. The time-out is added to the
+     * current time millis {@link System#currentTimeMillis()}.
      *
      * @param unit    the unit of the given time out.
      * @param timeOut the time-out for this permission.
