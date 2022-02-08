@@ -213,7 +213,7 @@ public class RemoteNodeServer implements NodeServer {
 
   @Override
   public @Nullable SpecificCloudServiceProvider serviceProvider(@NonNull UUID uniqueId) {
-    return this.node.cloudServiceProvider().specificProvider(uniqueId);
+    return this.node.cloudServiceProvider().serviceProvider(uniqueId);
   }
 
   @Override

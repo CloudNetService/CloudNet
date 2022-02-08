@@ -203,7 +203,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
       case ENVIRONMENT -> {
         // lookup all services of the given environment
         return this.filterChannels(
-          this.cloudServiceManager.servicesByEnvironment(target.environment()),
+          this.cloudServiceManager.servicesByEnvironment(target.environment().name()),
           allowClusterRedirect);
       }
       case GROUP -> {

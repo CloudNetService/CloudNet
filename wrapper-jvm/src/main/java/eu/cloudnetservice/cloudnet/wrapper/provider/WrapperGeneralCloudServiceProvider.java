@@ -36,12 +36,12 @@ public abstract class WrapperGeneralCloudServiceProvider implements GeneralCloud
   }
 
   @Override
-  public @NonNull SpecificCloudServiceProvider specificProvider(@NonNull UUID serviceUniqueId) {
+  public @NonNull SpecificCloudServiceProvider serviceProvider(@NonNull UUID serviceUniqueId) {
     return new RemoteSpecificCloudServiceProvider(this, this.rpcSender, this.channelSupplier, serviceUniqueId);
   }
 
   @Override
-  public @NonNull SpecificCloudServiceProvider specificProviderByName(@NonNull String serviceName) {
+  public @NonNull SpecificCloudServiceProvider serviceProviderByName(@NonNull String serviceName) {
     return new RemoteSpecificCloudServiceProvider(this, this.rpcSender, this.channelSupplier, serviceName);
   }
 }

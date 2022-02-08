@@ -19,7 +19,6 @@ package eu.cloudnetservice.cloudnet.driver.provider;
 import eu.cloudnetservice.cloudnet.common.concurrent.CompletableTask;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.annotation.RPCValidation;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import java.util.Collection;
 import java.util.UUID;
@@ -28,7 +27,16 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
 /**
- * This class provides methods to get information to the services in the cluster.
+ * The main api point for accessing and managing services running in the cluster. This provider contains some common
+ * methods which are widely used by developers which are working with CloudNet. Some methods are still required to be
+ * implemented by you, because they are exceeding the normal range of methods.
+ * <p>
+ * There are two main ways to access a service running in the cluster. You can either get a snapshot of them, which
+ * represents the state of the service at a given time, or a provider which then allows you to execute further actions
+ * which will directly impact the service. No methods in here are available to create services, for this purpose use
+ * {@link CloudServiceFactory} instead.
+ *
+ * @since 4.0
  */
 @RPCValidation
 public interface GeneralCloudServiceProvider {
@@ -36,228 +44,257 @@ public interface GeneralCloudServiceProvider {
   /**
    * Gets a provider for the specific service snapshot with the given unique id. No check is made if the service this
    * provider was created for actually exists. If a provider gets created for a not-existing service, then calling any
-   * method will result in a dummy return value and do nothing. Any service which will be created with the given unique
-   * id at any time can be managed with the created provider.
+   * method will result in a dummy return value and will execute no action on any service.
+   * <p>
+   * Note: creating a provider with a unique id of a service which will be created in the future might work but is not
+   * required to work. Getting a clean instance after knowing that the service actually exists is recommended over
+   * pre-getting a provider.
+   * <p>
+   * There is no need to update a provider when obtained once. An update of the provider should be done however, if a
+   * new service with the same unique id was created (after the current target stopped)  as that will most likely not
+   * change the target of the provider to the new service and tries to execute requested actions on the old,
+   * unregistered service.
    *
    * @param serviceUniqueId the unique id of the service to get the provider for.
-   * @return a {@link SpecificCloudServiceProvider} to manage the service with the given unique id.
-   * @since 3.5
+   * @return an operational or no-op provider for a service, depending on whether the requested service exists.
+   * @throws NullPointerException if the given service unique id is null.
    */
-  @NonNull SpecificCloudServiceProvider specificProvider(@NonNull UUID serviceUniqueId);
+  @NonNull SpecificCloudServiceProvider serviceProvider(@NonNull UUID serviceUniqueId);
 
   /**
-   * Gets a provider for the specific service snapshot with the given name. A service name is unique within a CloudNet
-   * cluster. No check is made if the service this provider was created for actually exists. If a provider gets created
-   * for a not-existing service, then calling any method will result in a dummy return value and do nothing. Any service
-   * which will be created with the given name at any time can be managed with the created provider.
+   * Gets a provider for the specific service snapshot with the given name. No check is made if the service this
+   * provider was created for actually exists. If a provider gets created for a not-existing service, then calling any
+   * method will result in a dummy return value and will execute no action on any service.
+   * <p>
+   * Note: creating a provider with a name of a service which will be created in the future might work but is not
+   * required to work. Getting a clean instance after knowing that the service actually exists is recommended over
+   * pre-getting a provider.
+   * <p>
+   * There is no need to update a provider when obtained once. An update of the provider should be done however, if a
+   * new service with the same name was created (after the current target stopped) as that will most likely not change
+   * the target of the provider to the new service and tries to execute requested actions on the old, unregistered
+   * service.
    *
    * @param serviceName the name of the service to get the provider for.
-   * @return a {@link SpecificCloudServiceProvider} to manage the service with the given name.
-   * @since 3.5
+   * @return an operational or no-op provider for a service, depending on whether the requested service exists.
+   * @throws NullPointerException if the service name is null.
    */
-  @NonNull SpecificCloudServiceProvider specificProviderByName(@NonNull String serviceName);
+  @NonNull SpecificCloudServiceProvider serviceProviderByName(@NonNull String serviceName);
 
   /**
-   * Gets a list with the uniqueIds of all services in the cloud
+   * Gets all services which are currently registered in the cluster. Modifications to the returned collections are not
+   * possible nor will they have any effect.
    *
-   * @return a list containing the uniqueIds of every service in the whole cloud
-   */
-  @UnmodifiableView
-  @NonNull Collection<UUID> servicesAsUniqueId();
-
-  /**
-   * Gets a list with the infos of all services in the cloud
-   *
-   * @return a list containing the infos of every service in the whole cloud
+   * @return all services which are registered in the cluster.
    */
   @UnmodifiableView
   @NonNull Collection<ServiceInfoSnapshot> services();
 
   /**
-   * Gets a list with the infos of all started services in the cloud
+   * Gets all services which are currently registered and running in the cluster. Modifications to the returned
+   * collections are not possible nor will they have any effect.
    *
-   * @return a list containing the infos of every started service in the whole cloud
+   * @return all services which are registered and running in the cluster.
    */
   @UnmodifiableView
   @NonNull Collection<ServiceInfoSnapshot> runningServices();
 
   /**
-   * Gets a list with the infos of all services in the cloud that are from the given task
+   * Gets all services which are currently registered in the cluster and belong to the given task. Modifications to the
+   * returned collections are not possible nor will they have any effect.
    *
-   * @param taskName the case-insensitive name of the task every service in the list should have
-   * @return a list containing the infos of every service with the given task in the whole cloud
+   * @param taskName the case-sensitive name of the task to get the services of.
+   * @return all services which are currently registered in the cluster and belong to the given task.
+   * @throws NullPointerException if the given task name is null.
    */
   @UnmodifiableView
   @NonNull Collection<ServiceInfoSnapshot> servicesByTask(@NonNull String taskName);
 
   /**
-   * Gets a list with the infos of all services in the cloud that have the given environment
+   * Gets all services which are currently registered in the cluster and belong to the given environment. Modifications
+   * to the returned collections are not possible nor will they have any effect.
    *
-   * @param environment the environment every service in the list should have
-   * @return a list containing the infos of every service with the given environment in the whole cloud
+   * @param environment the case-sensitive name of the environment to get the services of.
+   * @return all services which are currently registered in the cluster and belong to the given environment.
+   * @throws NullPointerException if the given environment is null.
    */
   @UnmodifiableView
-  @NonNull Collection<ServiceInfoSnapshot> servicesByEnvironment(@NonNull ServiceEnvironmentType environment);
+  @NonNull Collection<ServiceInfoSnapshot> servicesByEnvironment(@NonNull String environment);
 
   /**
-   * Gets a list with the infos of all services in the cloud that have the given group
+   * Gets all services which are currently registered in the cluster and belong to the given group. Modifications to the
+   * returned collections are not possible nor will they have any effect.
    *
-   * @param group the case-insensitive name of the task every service in the list should have
-   * @return a list containing the infos of every service with the given group in the whole cloud
+   * @param group the case-sensitive name of the group to get the services of.
+   * @return all services which are currently registered in the cluster and belong to the given group.
+   * @throws NullPointerException if the given group name is null.
    */
   @UnmodifiableView
   @NonNull Collection<ServiceInfoSnapshot> servicesByGroup(@NonNull String group);
 
   /**
-   * Gets the amount of services in the cloud
+   * Gets the amount of services which are currently registered within the cluster.
    *
-   * @return an integer for the amount of services in the whole cloud
+   * @return the amount of services which are currently registered within the cluster.
    */
   int serviceCount();
 
   /**
-   * Gets the amount of services by the given group in the cloud
+   * Get the amount of services which are currently registered within the cluster and belong to the given group.
    *
-   * @param group the group every service counting should have
-   * @return an integer for the amount of services in the whole cloud
+   * @param group the name of the group the services to count must be in.
+   * @return the amount of services which are currently registered within the cluster and in the given group.
+   * @throws NullPointerException if the given group name is null.
    */
   int serviceCountByGroup(@NonNull String group);
 
   /**
-   * Gets the amount of services by the given task in the cloud
+   * Get the amount of services which are currently registered within the cluster and belong to the given task.
    *
-   * @param taskName the task every service counting should have
-   * @return an integer for the amount of services in the whole cloud
+   * @param taskName the name of the task the services to count must belong.
+   * @return the amount of services which are currently registered within the cluster and belong to the given task.
+   * @throws NullPointerException if the given task name is null.
    */
   int serviceCountByTask(@NonNull String taskName);
 
   /**
-   * Gets the info of a cloud service by its name
+   * Gets the current snapshot of the service with the given name. This method returns null if no service with the given
+   * name is currently registered within the cluster.
+   * <p>
+   * This method does not update the service info before returning it, use the force update methods from the specific
+   * service provider if you need an up-to-date version of a service snapshot.
    *
-   * @param name the name of the service
-   * @return the info of the service or null if the service doesn't exist
+   * @param name the name of the service to get the snapshot of.
+   * @return the current snapshot of the service with the given name or null if the service is not registered.
+   * @throws NullPointerException if the given service name is null.
    */
   @Nullable ServiceInfoSnapshot serviceByName(@NonNull String name);
 
   /**
-   * Gets the info of a cloud service by its uniqueId
+   * Gets the current snapshot of the service with the given unique id. This method returns null if no service with the
+   * given unique id is currently registered within the cluster.
+   * <p>
+   * This method does not update the service info before returning it, use the force update methods from the specific
+   * service provider if you need an up-to-date version of a service snapshot.
    *
-   * @param uniqueId the uniqueId of the service
-   * @return the info of the service or null if the service doesn't exist
+   * @param uniqueId the unique id of the service to get the snapshot of.
+   * @return the current snapshot of the service with the given unique id or null if the service is not registered.
+   * @throws NullPointerException if the given service unique id is null.
    */
   @Nullable ServiceInfoSnapshot service(@NonNull UUID uniqueId);
 
-  default @NonNull Task<SpecificCloudServiceProvider> specificProviderAsync(@NonNull UUID serviceUniqueId) {
-    return CompletableTask.supply(() -> this.specificProvider(serviceUniqueId));
-  }
-
-  default @NonNull Task<SpecificCloudServiceProvider> specificProviderByNameAsync(@NonNull String serviceName) {
-    return CompletableTask.supply(() -> this.specificProviderByName(serviceName));
-  }
-
   /**
-   * Gets a list with the uniqueIds of all services in the cloud
+   * Gets all services which are currently registered in the cluster. Modifications to the returned collections are not
+   * possible nor will they have any effect.
    *
-   * @return a list containing the uniqueIds of every service in the whole cloud
-   */
-  default @NonNull Task<Collection<UUID>> servicesAsUniqueIdAsync() {
-    return CompletableTask.supply(this::servicesAsUniqueId);
-  }
-
-  /**
-   * Gets a list with the infos of all services in the cloud
-   *
-   * @return a list containing the infos of every service in the whole cloud
+   * @return a task completed with all services which are registered in the cluster.
    */
   default @NonNull Task<Collection<ServiceInfoSnapshot>> servicesAsync() {
     return CompletableTask.supply(this::services);
   }
 
   /**
-   * Gets a list with the infos of all started services in the cloud
+   * Gets all services which are currently registered and running in the cluster. Modifications to the returned
+   * collections are not possible nor will they have any effect.
    *
-   * @return a list containing the infos of every started service in the whole cloud
+   * @return a task completed with all services which are registered and running in the cluster.
    */
   default @NonNull Task<Collection<ServiceInfoSnapshot>> runningServicesAsync() {
     return CompletableTask.supply(this::runningServices);
   }
 
   /**
-   * Gets a list with the infos of all services in the cloud that are from the given task
+   * Gets all services which are currently registered in the cluster and belong to the given task. Modifications to the
+   * returned collections are not possible nor will they have any effect.
    *
-   * @param taskName the name of the task every service in the list should have
-   * @return a list containing the infos of every service with the given task in the whole cloud
+   * @param taskName the case-sensitive name of the task to get the services of.
+   * @return a task completed with all services currently registered in the cluster and belonging to the given task.
+   * @throws NullPointerException if the given task name is null.
    */
   default @NonNull Task<Collection<ServiceInfoSnapshot>> servicesByTaskAsync(@NonNull String taskName) {
     return CompletableTask.supply(() -> this.servicesByTask(taskName));
   }
 
   /**
-   * Gets a list with the infos of all services in the cloud that have the given environment
+   * Gets all services which are currently registered in the cluster and belong to the given environment. Modifications
+   * to the returned collections are not possible nor will they have any effect.
    *
-   * @param environmentType the environment every service in the list should have
-   * @return a list containing the infos of every service with the given environment in the whole cloud
+   * @param environment the case-sensitive name of the environment to get the services of.
+   * @return a task completed with all services currently registered in the cluster, belonging to the given environment.
+   * @throws NullPointerException if the given environment is null.
    */
-  default @NonNull Task<Collection<ServiceInfoSnapshot>> servicesByEnvironmentAsync(
-    @NonNull ServiceEnvironmentType environmentType
-  ) {
-    return CompletableTask.supply(() -> this.servicesByEnvironment(environmentType));
+  default @NonNull Task<Collection<ServiceInfoSnapshot>> servicesByEnvironmentAsync(@NonNull String environment) {
+    return CompletableTask.supply(() -> this.servicesByEnvironment(environment));
   }
 
   /**
-   * Gets a list with the infos of all services in the cloud that have the given group
+   * Gets all services which are currently registered in the cluster and belong to the given group. Modifications to the
+   * returned collections are not possible nor will they have any effect.
    *
-   * @param group the name of the task every service in the list should have
-   * @return a list containing the infos of every service with the given group in the whole cloud
+   * @param group the case-sensitive name of the group to get the services of.
+   * @return a task completed with all services currently registered in the cluster and belonging to the given group.
+   * @throws NullPointerException if the given group name is null.
    */
   default @NonNull Task<Collection<ServiceInfoSnapshot>> servicesByGroupAsync(@NonNull String group) {
     return CompletableTask.supply(() -> this.servicesByGroup(group));
   }
 
   /**
-   * Gets the amount of services in the cloud
+   * Gets the amount of services which are currently registered within the cluster.
    *
-   * @return an integer for the amount of services in the whole cloud
+   * @return a task completed with the amount of services which are currently registered within the cluster.
    */
   default @NonNull Task<Integer> serviceCountAsync() {
     return CompletableTask.supply(this::serviceCount);
   }
 
   /**
-   * Gets the amount of services by the given group in the cloud
+   * Get the amount of services which are currently registered within the cluster and belong to the given group.
    *
-   * @param group the group every service counting should have
-   * @return an integer for the amount of services in the whole cloud
+   * @param group the name of the group the services to count must be in.
+   * @return a task completed with the amount of services currently registered, belonging the given group.
+   * @throws NullPointerException if the given group name is null.
    */
   default @NonNull Task<Integer> serviceCountByGroupAsync(@NonNull String group) {
     return CompletableTask.supply(() -> this.serviceCountByGroup(group));
   }
 
   /**
-   * Gets the amount of services by the given task in the cloud
+   * Get the amount of services which are currently registered within the cluster and belong to the given task.
    *
-   * @param taskName the task every service counting should have
-   * @return an integer for the amount of services in the whole cloud
+   * @param taskName the name of the task the services to count must belong.
+   * @return a task completed with the amount of services currently registered, belonging the given task.
+   * @throws NullPointerException if the given task name is null.
    */
   default @NonNull Task<Integer> serviceCountByTaskAsync(@NonNull String taskName) {
     return CompletableTask.supply(() -> this.serviceCountByTask(taskName));
   }
 
   /**
-   * Gets the info of a cloud service by its name
+   * Gets the current snapshot of the service with the given name. This method returns null if no service with the given
+   * name is currently registered within the cluster.
+   * <p>
+   * This method does not update the service info before returning it, use the force update methods from the specific
+   * service provider if you need an up-to-date version of a service snapshot.
    *
-   * @param name the name of the service
-   * @return the info of the service or null if the service doesn't exist
+   * @param name the name of the service to get the snapshot of.
+   * @return a task completed with the current snapshot of the service or null if the service is not registered.
+   * @throws NullPointerException if the given service name is null.
    */
   default @NonNull Task<ServiceInfoSnapshot> serviceByNameAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.serviceByName(name));
   }
 
   /**
-   * Gets the info of a cloud service by its uniqueId
+   * Gets the current snapshot of the service with the given unique id. This method returns null if no service with the
+   * given unique id is currently registered within the cluster.
+   * <p>
+   * This method does not update the service info before returning it, use the force update methods from the specific
+   * service provider if you need an up-to-date version of a service snapshot.
    *
-   * @param uniqueId the uniqueId of the service
-   * @return the info of the service or null if the service doesn't exist
+   * @param uniqueId the unique id of the service to get the snapshot of.
+   * @return a task completed with the current snapshot of the service or null if the service is not registered.
+   * @throws NullPointerException if the given service unique id is null.
    */
   default @NonNull Task<ServiceInfoSnapshot> serviceAsync(@NonNull UUID uniqueId) {
     return CompletableTask.supply(() -> this.service(uniqueId));

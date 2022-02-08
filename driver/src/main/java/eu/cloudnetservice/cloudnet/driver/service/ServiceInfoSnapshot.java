@@ -117,7 +117,7 @@ public class ServiceInfoSnapshot extends JsonDocPropertyHolder
   public @NonNull SpecificCloudServiceProvider provider() {
     return CloudNetDriver.instance()
       .cloudServiceProvider()
-      .specificProvider(this.serviceId().uniqueId());
+      .serviceProvider(this.serviceId().uniqueId());
   }
 
   public <T> @NonNull Optional<T> property(@NonNull ServiceProperty<T> property) {

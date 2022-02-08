@@ -112,7 +112,7 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
             this.handleServiceUpdate(ser, node.channel());
           }
         })
-        .currentGetter(group -> this.specificProviderByName(group.name()).serviceInfo())
+        .currentGetter(group -> this.serviceProviderByName(group.name()).serviceInfo())
         .build());
     // schedule the updating of the local service log cache
     nodeInstance.mainThread().scheduleTask(() -> {
@@ -135,25 +135,17 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
   }
 
   @Override
-  public @NonNull SpecificCloudServiceProvider specificProvider(@NonNull UUID serviceUniqueId) {
+  public @NonNull SpecificCloudServiceProvider serviceProvider(@NonNull UUID serviceUniqueId) {
     return this.knownServices.getOrDefault(serviceUniqueId, EmptySpecificCloudServiceProvider.INSTANCE);
   }
 
   @Override
-  public @NonNull SpecificCloudServiceProvider specificProviderByName(@NonNull String serviceName) {
+  public @NonNull SpecificCloudServiceProvider serviceProviderByName(@NonNull String serviceName) {
     return this.knownServices.values().stream()
       .filter(provider -> provider.serviceInfo() != null)
       .filter(provider -> provider.serviceInfo().serviceId().name().equals(serviceName))
       .findFirst()
       .orElse(EmptySpecificCloudServiceProvider.INSTANCE);
-  }
-
-  @Override
-  public @UnmodifiableView @NonNull Collection<UUID> servicesAsUniqueId() {
-    return this.knownServices.values().stream()
-      .filter(provider -> provider.serviceInfo() != null)
-      .map(provider -> provider.serviceInfo().serviceId().uniqueId())
-      .toList();
   }
 
   @Override
@@ -183,13 +175,11 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
   }
 
   @Override
-  public @UnmodifiableView @NonNull Collection<ServiceInfoSnapshot> servicesByEnvironment(
-    @NonNull ServiceEnvironmentType environment
-  ) {
+  public @UnmodifiableView @NonNull Collection<ServiceInfoSnapshot> servicesByEnvironment(@NonNull String environment) {
     return this.knownServices.values().stream()
       .map(SpecificCloudServiceProvider::serviceInfo)
       .filter(Objects::nonNull)
-      .filter(snapshot -> snapshot.serviceId().environment().equals(environment))
+      .filter(snapshot -> snapshot.serviceId().environmentName().equals(environment))
       .toList();
   }
 
@@ -219,12 +209,12 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
 
   @Override
   public @Nullable ServiceInfoSnapshot serviceByName(@NonNull String name) {
-    return this.specificProviderByName(name).serviceInfo();
+    return this.serviceProviderByName(name).serviceInfo();
   }
 
   @Override
   public @Nullable ServiceInfoSnapshot service(@NonNull UUID uniqueId) {
-    return this.specificProvider(uniqueId).serviceInfo();
+    return this.serviceProvider(uniqueId).serviceInfo();
   }
 
   @Override
@@ -305,7 +295,7 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
 
   @Override
   public @Nullable CloudService localCloudService(@NonNull String name) {
-    var provider = this.specificProviderByName(name);
+    var provider = this.serviceProviderByName(name);
     return provider instanceof CloudService ? (CloudService) provider : null;
   }
 
