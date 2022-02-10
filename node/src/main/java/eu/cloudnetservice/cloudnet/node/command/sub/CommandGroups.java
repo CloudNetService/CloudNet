@@ -75,7 +75,7 @@ public final class CommandGroups {
 
   @CommandMethod("groups create <name>")
   public void createGroup(CommandSource source, @Argument("name") String groupName) {
-    if (this.groupProvider().groupConfigurationPresent(groupName)) {
+    if (this.groupProvider().groupConfiguration(groupName) != null) {
       source.sendMessage(I18n.trans("command-groups-group-already-existing"));
     } else {
       this.updateGroup(GroupConfiguration.builder().name(groupName).build());

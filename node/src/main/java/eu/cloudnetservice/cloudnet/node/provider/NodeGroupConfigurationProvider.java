@@ -95,26 +95,8 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
   }
 
   @Override
-  public void groupConfigurations(@NonNull Collection<GroupConfiguration> groupConfigurations) {
-    this.groupConfigurationSilently(groupConfigurations);
-    // publish the change to the cluster
-    ChannelMessage.builder()
-      .targetNodes()
-      .message("set_group_configurations")
-      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .buffer(DataBuf.empty().writeObject(groupConfigurations))
-      .build()
-      .send();
-  }
-
-  @Override
   public @Nullable GroupConfiguration groupConfiguration(@NonNull String name) {
     return this.groupConfigurations.get(name);
-  }
-
-  @Override
-  public boolean groupConfigurationPresent(@NonNull String name) {
-    return this.groupConfigurations.containsKey(name);
   }
 
   @Override
@@ -167,14 +149,6 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
     this.groupConfigurations.remove(groupConfiguration.name());
     // remove the local file
     FileUtil.delete(this.groupFile(groupConfiguration));
-  }
-
-  public void groupConfigurationSilently(@NonNull Collection<GroupConfiguration> groupConfigurations) {
-    // update the local cache
-    this.groupConfigurations.clear();
-    groupConfigurations.forEach(config -> this.groupConfigurations.put(config.name(), config));
-    // save the group files
-    this.writeAllGroupConfigurations();
   }
 
   private void upgrade() {

@@ -48,12 +48,6 @@ public final class GroupChannelMessageListener {
   public void handleChannelMessage(@NonNull ChannelMessageReceiveEvent event) {
     if (event.channel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
       switch (event.message()) {
-        // set groups
-        case "set_group_configurations" -> {
-          Collection<GroupConfiguration> groups = event.content().readObject(GROUPS);
-          this.groupProvider.groupConfigurationSilently(groups);
-        }
-
         // add group
         case "add_group_configuration" -> {
           var configuration = event.content().readObject(GroupConfiguration.class);
