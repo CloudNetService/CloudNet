@@ -28,8 +28,17 @@ import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * The main api point for accessing and managing permissions, permission users and permission groups. This management
+ * contains some helpful methods to check a permissible for a certain permission and removing outdated permissions.
+ * Updating the permissible is handled by the permission management too.
+ *
+ * @see Permissible
+ * @see PermissionUser
+ * @see PermissionGroup
+ * @since 4.0
+ */
 @RPCValidation
-@SuppressWarnings("unused")
 public interface PermissionManagement {
 
   /**

@@ -27,7 +27,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-//TODO: header
+/**
+ * This management extends the default implementation of the permission management by implementing all methods needed
+ * for caching of both permission users and groups. The caches are backed by Caffeine and expire after 5 minutes without
+ * any access or locks on the specific permissible.
+ *
+ * @see eu.cloudnetservice.cloudnet.driver.permission.CachedPermissionManagement
+ * @since 4.0
+ */
 public abstract class DefaultCachedPermissionManagement extends DefaultPermissionManagement
   implements CachedPermissionManagement {
 

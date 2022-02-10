@@ -20,18 +20,30 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * //TODO: header
+ * The permission check results represents a tristate for a permission of permissible.
+ * <p>
+ * Possible values:
+ * <ul>
+ * <li>{@link #ALLOWED} - a positive permission</li>
+ * <li>{@link #DENIED} - a not existent permission</li>
+ * <li>{@link #FORBIDDEN} - a negative permission</li>
+ * </ul>
+ *
+ * @see PermissionManagement
+ * @see Permissible
+ * @since 4.0
  */
 public enum PermissionCheckResult {
 
   /**
    * This check result indicates that the permissible has the permission and the potency of the permission is not
-   * negative.
+   * negative. Therefore, the permission is granted.
    */
   ALLOWED(true),
 
   /**
-   * This check result indicates that the permissible does not have the permission.
+   * This check result indicates that the permissible does not have the permission. Therefore, the permission is
+   * denied.
    */
   DENIED(false),
 

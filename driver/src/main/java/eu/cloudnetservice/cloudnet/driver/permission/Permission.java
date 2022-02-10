@@ -21,6 +21,20 @@ import eu.cloudnetservice.cloudnet.common.Nameable;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 
+/**
+ * This permission record represents a permission for a permission group or user.
+ *
+ * @param name          the permission to represent with this record.
+ * @param potency       the potency of this permission. The potency determines if a permission is added or subtracted
+ *                      from other permissions with the same name. If the resulting potency is negative the permission
+ *                      is not granted.
+ * @param timeOutMillis the milliseconds to the absolute time at which this permission should expire. A timeout lower
+ *                      than 1 indicates a permission to be permanent.
+ * @see PermissionUser
+ * @see PermissionGroup
+ * @see PermissionManagement
+ * @since 4.0
+ */
 public record Permission(
   @NonNull String name,
   int potency,

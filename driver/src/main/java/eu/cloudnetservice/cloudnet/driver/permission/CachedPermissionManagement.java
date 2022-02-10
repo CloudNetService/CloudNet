@@ -21,7 +21,14 @@ import java.util.UUID;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-// TODO: header
+/**
+ * The cached permission management does not differ that much from the permission management. This management is
+ * responsible for the caching and removing of cached permission users and permission groups while also allowing
+ * permanent caching if desired.
+ *
+ * @see eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement
+ * @since 4.0
+ */
 public interface CachedPermissionManagement extends PermissionManagement {
 
   /**

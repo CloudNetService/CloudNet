@@ -29,7 +29,12 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * //TODO: header
+ * This abstract default permission management represents the implementation for the permission management. Methods
+ * doing the calculation for permissions and their result are already implemented and there is no need to implement
+ * those yourself.
+ *
+ * @see eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement
+ * @since 4.0
  */
 public abstract class DefaultPermissionManagement implements PermissionManagement {
 
