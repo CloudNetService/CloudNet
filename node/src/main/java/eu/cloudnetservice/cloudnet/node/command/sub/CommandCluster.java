@@ -103,7 +103,7 @@ public final class CommandCluster {
   @Parser(suggestions = "networkClusterNode")
   public NetworkClusterNode defaultNetworkClusterNodeParser(CommandContext<CommandSource> $, Queue<String> input) {
     var nodeId = input.remove();
-    var clusterNode = CloudNet.instance().nodeInfoProvider().node(nodeId);
+    var clusterNode = CloudNet.instance().clusterNodeProvider().node(nodeId);
     if (clusterNode == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-cluster-node-not-found"));
     }
@@ -183,13 +183,13 @@ public final class CommandCluster {
     @Argument(value = "nodeId", parserName = "noNodeId") String nodeId,
     @Argument("host") HostAndPort hostAndPort
   ) {
-    CloudNet.instance().nodeInfoProvider().addNode(new NetworkClusterNode(nodeId, Lists.newArrayList(hostAndPort)));
-    source.sendMessage(I18n.trans("command-cluster-add-node-success", nodeId, hostAndPort.host()));
+    CloudNet.instance().clusterNodeProvider().addNode(new NetworkClusterNode(nodeId, Lists.newArrayList(hostAndPort)));
+    source.sendMessage(I18n.trans("command-cluster-add-node-success", nodeId));
   }
 
   @CommandMethod("cluster|clu remove <nodeId>")
   public void removeNodeFromCluster(CommandSource source, @Argument("nodeId") NetworkClusterNode node) {
-    CloudNet.instance().nodeInfoProvider().removeNode(node.uniqueId());
+    CloudNet.instance().clusterNodeProvider().removeNode(node.uniqueId());
     source.sendMessage(I18n.trans("command-cluster-remove-node-success", node.uniqueId()));
   }
 

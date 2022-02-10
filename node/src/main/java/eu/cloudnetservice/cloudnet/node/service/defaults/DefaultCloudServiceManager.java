@@ -23,7 +23,7 @@ import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCSender;
-import eu.cloudnetservice.cloudnet.driver.provider.GeneralCloudServiceProvider;
+import eu.cloudnetservice.cloudnet.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.cloudnet.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
@@ -80,9 +80,9 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
   public DefaultCloudServiceManager(@NonNull CloudNet nodeInstance) {
     this.clusterNodeServerProvider = nodeInstance.nodeServerProvider();
     // rpc init
-    this.sender = nodeInstance.rpcProviderFactory().providerForClass(null, GeneralCloudServiceProvider.class);
+    this.sender = nodeInstance.rpcProviderFactory().providerForClass(null, CloudServiceProvider.class);
     nodeInstance.rpcProviderFactory()
-      .newHandler(GeneralCloudServiceProvider.class, this)
+      .newHandler(CloudServiceProvider.class, this)
       .registerToDefaultRegistry();
     nodeInstance.rpcProviderFactory()
       .newHandler(SpecificCloudServiceProvider.class, null)

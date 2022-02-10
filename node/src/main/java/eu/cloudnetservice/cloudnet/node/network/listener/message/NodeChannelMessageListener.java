@@ -30,7 +30,7 @@ import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.cloudnet.node.event.cluster.NetworkClusterNodeInfoUpdateEvent;
-import eu.cloudnetservice.cloudnet.node.provider.NodeNodeInfoProvider;
+import eu.cloudnetservice.cloudnet.node.provider.NodeClusterNodeProvider;
 import lombok.NonNull;
 
 public final class NodeChannelMessageListener {
@@ -39,13 +39,13 @@ public final class NodeChannelMessageListener {
 
   private final EventManager eventManager;
   private final DataSyncRegistry dataSyncRegistry;
-  private final NodeNodeInfoProvider nodeInfoProvider;
+  private final NodeClusterNodeProvider nodeInfoProvider;
   private final NodeServerProvider nodeServerProvider;
 
   public NodeChannelMessageListener(
     @NonNull EventManager eventManager,
     @NonNull DataSyncRegistry dataSyncRegistry,
-    @NonNull NodeNodeInfoProvider nodeInfoProvider,
+    @NonNull NodeClusterNodeProvider nodeInfoProvider,
     @NonNull NodeServerProvider nodeServerProvider
   ) {
     this.eventManager = eventManager;
@@ -86,7 +86,6 @@ public final class NodeChannelMessageListener {
 
           // inform the user
           LOGGER.info(I18n.trans("command-cluster-add-node-success", node.uniqueId()));
-
         }
 
         // handle the removal of a cluster node from other nodes

@@ -47,7 +47,7 @@ public final class BungeeCordCloudCommand extends Command {
     // skip the permission check if the source is the console
     if (sender instanceof ProxiedPlayer) {
       // get the command info
-      var command = CloudNetDriver.instance().nodeInfoProvider().consoleCommand(commandLine);
+      var command = CloudNetDriver.instance().clusterNodeProvider().consoleCommand(commandLine);
       // check if the sender has the required permission to execute the command
       if (command != null) {
         if (!sender.hasPermission(command.permission())) {
@@ -60,7 +60,7 @@ public final class BungeeCordCloudCommand extends Command {
       }
     }
     // execute the command
-    CloudNetDriver.instance().nodeInfoProvider().sendCommandLineAsync(commandLine).onComplete(messages -> {
+    CloudNetDriver.instance().clusterNodeProvider().sendCommandLineAsync(commandLine).onComplete(messages -> {
       for (var line : messages) {
         sender.sendMessage(fromLegacyText(this.management.configuration().prefix() + line));
       }

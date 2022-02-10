@@ -20,7 +20,7 @@ import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessageSender;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPC;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCSender;
-import eu.cloudnetservice.cloudnet.driver.provider.GeneralCloudServiceProvider;
+import eu.cloudnetservice.cloudnet.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.cloudnet.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceDeployment;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -49,7 +49,7 @@ public class RemoteSpecificCloudServiceProvider implements SpecificCloudServiceP
   private final RPCSender thisProviderSender;
   private final Supplier<NetworkChannel> channelSupplier;
   // provider
-  private final GeneralCloudServiceProvider provider;
+  private final CloudServiceProvider provider;
 
   /**
    * Constructs a new remote cloud service provider based on the given unique id.
@@ -61,7 +61,7 @@ public class RemoteSpecificCloudServiceProvider implements SpecificCloudServiceP
    * @throws NullPointerException if one of the given parameter is null.
    */
   public RemoteSpecificCloudServiceProvider(
-    @NonNull GeneralCloudServiceProvider provider,
+    @NonNull CloudServiceProvider provider,
     @NonNull RPCSender providerSender,
     @NonNull Supplier<NetworkChannel> channelSupplier,
     @NonNull UUID id
@@ -90,7 +90,7 @@ public class RemoteSpecificCloudServiceProvider implements SpecificCloudServiceP
    * @throws NullPointerException if one of the given parameter is null.
    */
   public RemoteSpecificCloudServiceProvider(
-    @NonNull GeneralCloudServiceProvider provider,
+    @NonNull CloudServiceProvider provider,
     @NonNull RPCSender providerSender,
     @NonNull Supplier<NetworkChannel> channelSupplier,
     @NonNull String id

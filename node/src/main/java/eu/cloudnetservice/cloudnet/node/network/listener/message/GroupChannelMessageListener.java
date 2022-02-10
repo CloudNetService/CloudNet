@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.cloudnet.node.network.listener.message;
 
-import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.cloudnet.driver.event.EventListener;
 import eu.cloudnetservice.cloudnet.driver.event.EventManager;
 import eu.cloudnetservice.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
@@ -25,13 +24,9 @@ import eu.cloudnetservice.cloudnet.driver.event.events.group.GroupConfigurationR
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.service.GroupConfiguration;
 import eu.cloudnetservice.cloudnet.node.provider.NodeGroupConfigurationProvider;
-import java.lang.reflect.Type;
-import java.util.Collection;
 import lombok.NonNull;
 
 public final class GroupChannelMessageListener {
-
-  private static final Type GROUPS = TypeToken.getParameterized(Collection.class, GroupConfiguration.class).getType();
 
   private final EventManager eventManager;
   private final NodeGroupConfigurationProvider groupProvider;

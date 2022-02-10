@@ -22,7 +22,7 @@ import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
-import eu.cloudnetservice.cloudnet.driver.provider.NodeInfoProvider;
+import eu.cloudnetservice.cloudnet.driver.provider.ClusterNodeProvider;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServer;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServerProvider;
@@ -33,17 +33,17 @@ import java.util.Objects;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public class NodeNodeInfoProvider implements NodeInfoProvider {
+public class NodeClusterNodeProvider implements ClusterNodeProvider {
 
   private final CloudNet nodeInstance;
   private final NodeServerProvider clusterNodeServerProvider;
 
-  public NodeNodeInfoProvider(@NonNull CloudNet nodeInstance) {
+  public NodeClusterNodeProvider(@NonNull CloudNet nodeInstance) {
     this.nodeInstance = nodeInstance;
     this.clusterNodeServerProvider = nodeInstance.nodeServerProvider();
 
     // rpc init
-    nodeInstance.rpcProviderFactory().newHandler(NodeInfoProvider.class, this).registerToDefaultRegistry();
+    nodeInstance.rpcProviderFactory().newHandler(ClusterNodeProvider.class, this).registerToDefaultRegistry();
   }
 
   @Override

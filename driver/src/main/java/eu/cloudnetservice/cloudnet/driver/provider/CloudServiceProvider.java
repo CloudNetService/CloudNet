@@ -39,7 +39,7 @@ import org.jetbrains.annotations.UnmodifiableView;
  * @since 4.0
  */
 @RPCValidation
-public interface GeneralCloudServiceProvider {
+public interface CloudServiceProvider {
 
   /**
    * Gets a provider for the specific service snapshot with the given unique id. No check is made if the service this

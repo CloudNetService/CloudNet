@@ -17,7 +17,7 @@
 package eu.cloudnetservice.cloudnet.node.service;
 
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
-import eu.cloudnetservice.cloudnet.driver.provider.GeneralCloudServiceProvider;
+import eu.cloudnetservice.cloudnet.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.cloudnet.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
@@ -33,7 +33,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.UnmodifiableView;
 
-public interface CloudServiceManager extends GeneralCloudServiceProvider {
+public interface CloudServiceManager extends CloudServiceProvider {
 
   @NonNull Collection<CloudServiceFactory> cloudServiceFactories();
 

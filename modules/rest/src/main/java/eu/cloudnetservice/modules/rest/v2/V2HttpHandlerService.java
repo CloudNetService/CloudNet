@@ -21,7 +21,7 @@ import eu.cloudnetservice.cloudnet.driver.network.http.websocket.WebSocketChanne
 import eu.cloudnetservice.cloudnet.driver.network.http.websocket.WebSocketFrameType;
 import eu.cloudnetservice.cloudnet.driver.network.http.websocket.WebSocketListener;
 import eu.cloudnetservice.cloudnet.driver.provider.CloudServiceFactory;
-import eu.cloudnetservice.cloudnet.driver.provider.GeneralCloudServiceProvider;
+import eu.cloudnetservice.cloudnet.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceDeployment;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -410,7 +410,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
       .cancelNext();
   }
 
-  protected @NonNull GeneralCloudServiceProvider generalServiceProvider() {
+  protected @NonNull CloudServiceProvider generalServiceProvider() {
     return this.node().cloudServiceProvider();
   }
 

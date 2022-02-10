@@ -65,7 +65,7 @@ public final class CloudNetTickListener {
   }
 
   private void handleSmartEntries() {
-    CloudNet.instance().serviceTaskProvider().permanentServiceTasks().forEach(task -> {
+    CloudNet.instance().serviceTaskProvider().serviceTasks().forEach(task -> {
       var config = this.module.smartConfig(task);
       if (config != null && config.enabled()) {
         // get all services of the task

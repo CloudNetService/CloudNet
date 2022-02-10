@@ -206,7 +206,7 @@ public class DefaultTaskSetup implements DefaultSetup {
     Pair<ServiceVersionType, ServiceVersion> version = animation.result(resultPrefix + "Version");
     // create the task
     var template = ServiceTemplate.builder().prefix(taskName).name("default").build();
-    CloudNet.instance().serviceTaskProvider().addPermanentServiceTask(ServiceTask.builder()
+    CloudNet.instance().serviceTaskProvider().addServiceTask(ServiceTask.builder()
       .name(taskName)
       .minServiceCount(1)
       .autoDeleteOnStop(true)

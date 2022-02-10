@@ -39,7 +39,7 @@ import org.jetbrains.annotations.UnmodifiableView;
  * @since 4.0
  */
 @RPCValidation
-public interface NodeInfoProvider {
+public interface ClusterNodeProvider {
 
   /**
    * Get all commands which are registered on the current node. Additions and removals to the returned collection are

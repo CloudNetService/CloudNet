@@ -18,19 +18,19 @@ package eu.cloudnetservice.cloudnet.wrapper.provider;
 
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCSender;
-import eu.cloudnetservice.cloudnet.driver.provider.GeneralCloudServiceProvider;
+import eu.cloudnetservice.cloudnet.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.cloudnet.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.cloudnet.driver.provider.defaults.RemoteSpecificCloudServiceProvider;
 import java.util.UUID;
 import java.util.function.Supplier;
 import lombok.NonNull;
 
-public abstract class WrapperGeneralCloudServiceProvider implements GeneralCloudServiceProvider {
+public abstract class WrapperCloudServiceProvider implements CloudServiceProvider {
 
   private final RPCSender rpcSender;
   private final Supplier<NetworkChannel> channelSupplier;
 
-  public WrapperGeneralCloudServiceProvider(@NonNull RPCSender sender) {
+  public WrapperCloudServiceProvider(@NonNull RPCSender sender) {
     this.rpcSender = sender;
     this.channelSupplier = sender.associatedComponent()::firstChannel;
   }

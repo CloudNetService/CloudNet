@@ -51,7 +51,7 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
 
   protected void handleTaskListRequest(@NonNull HttpContext context) {
     this.ok(context)
-      .body(this.success().append("tasks", this.taskProvider().permanentServiceTasks()).toString())
+      .body(this.success().append("tasks", this.taskProvider().serviceTasks()).toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -59,7 +59,7 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
 
   protected void handleTaskExistsRequest(@NonNull HttpContext context) {
     this.handleWithTaskContext(context, task -> this.ok(context)
-      .body(this.success().append("result", this.taskProvider().serviceTaskPresent(task)).toString())
+      .body(this.success().append("result", this.taskProvider().serviceTask(task) != null).toString())
       .context()
       .closeAfter(true)
       .cancelNext()
@@ -96,7 +96,7 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
       return;
     }
 
-    if (this.taskProvider().addPermanentServiceTask(serviceTask)) {
+    if (this.taskProvider().addServiceTask(serviceTask)) {
       this.response(context, HttpResponseCode.CREATED).body(this.success().toString()).context()
         .closeAfter(true).cancelNext();
     } else {
@@ -108,7 +108,7 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
     this.handleWithTaskContext(context, task -> {
       var serviceTask = this.taskProvider().serviceTask(task);
       if (serviceTask != null) {
-        this.taskProvider().removePermanentServiceTask(serviceTask);
+        this.taskProvider().removeServiceTask(serviceTask);
         this.ok(context)
           .body(this.success().toString())
           .context()

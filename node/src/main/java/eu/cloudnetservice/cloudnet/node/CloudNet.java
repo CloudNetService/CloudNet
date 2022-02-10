@@ -68,9 +68,9 @@ import eu.cloudnetservice.cloudnet.node.network.chunk.FileDeployCallbackListener
 import eu.cloudnetservice.cloudnet.node.permission.DefaultDatabasePermissionManagement;
 import eu.cloudnetservice.cloudnet.node.permission.DefaultPermissionManagementHandler;
 import eu.cloudnetservice.cloudnet.node.permission.NodePermissionManagement;
+import eu.cloudnetservice.cloudnet.node.provider.NodeClusterNodeProvider;
 import eu.cloudnetservice.cloudnet.node.provider.NodeGroupConfigurationProvider;
 import eu.cloudnetservice.cloudnet.node.provider.NodeMessenger;
-import eu.cloudnetservice.cloudnet.node.provider.NodeNodeInfoProvider;
 import eu.cloudnetservice.cloudnet.node.provider.NodeServiceTaskProvider;
 import eu.cloudnetservice.cloudnet.node.service.CloudServiceManager;
 import eu.cloudnetservice.cloudnet.node.service.defaults.DefaultCloudServiceManager;
@@ -150,8 +150,8 @@ public class CloudNet extends CloudNetDriver {
 
     this.nodeServerProvider = new DefaultNodeServerProvider(this);
 
-    this.nodeInfoProvider = new NodeNodeInfoProvider(this);
-    this.generalCloudServiceProvider = new DefaultCloudServiceManager(this);
+    this.clusterNodeProvider = new NodeClusterNodeProvider(this);
+    this.cloudServiceProvider = new DefaultCloudServiceManager(this);
 
     this.messenger = new NodeMessenger(this);
     this.cloudServiceFactory = new NodeCloudServiceFactory(this);

@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.service;
 
-import eu.cloudnetservice.cloudnet.driver.provider.GeneralCloudServiceProvider;
+import eu.cloudnetservice.cloudnet.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.cloudnet.driver.provider.SpecificCloudServiceProvider;
 import java.util.Arrays;
 import java.util.UUID;
@@ -45,7 +45,7 @@ public enum ServiceLifeCycle {
   STOPPED(0, 3),
   /**
    * This is the state after STOPPED. When this state is set, the service is no more registered in the cloud and methods
-   * like {@link GeneralCloudServiceProvider#service(UUID)} won't return this service anymore.
+   * like {@link CloudServiceProvider#service(UUID)} won't return this service anymore.
    */
   DELETED;
 

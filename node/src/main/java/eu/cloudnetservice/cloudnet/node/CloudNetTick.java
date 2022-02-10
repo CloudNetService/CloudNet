@@ -170,7 +170,7 @@ public final class CloudNetTick {
   }
 
   private void startService() {
-    for (var task : this.cloudNet.serviceTaskProvider().permanentServiceTasks()) {
+    for (var task : this.cloudNet.serviceTaskProvider().serviceTasks()) {
       if (!task.maintenance()) {
         // get the count of running services
         var runningServiceCount = this.cloudNet.cloudServiceProvider().servicesByTask(task.name())
