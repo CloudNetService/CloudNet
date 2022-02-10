@@ -51,6 +51,8 @@ public interface NodeServerProvider extends PacketSender, Closeable {
 
   void registerNode(@NonNull NetworkClusterNode clusterNode);
 
+  void unregisterNode(@NonNull String uniqueId);
+
   void selectHeadNode();
 
   @NonNull Task<TransferStatus> deployTemplateToCluster(
