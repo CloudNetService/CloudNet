@@ -42,9 +42,9 @@ import org.jetbrains.annotations.UnmodifiableView;
 public interface CloudServiceProvider {
 
   /**
-   * Gets a provider for the specific service snapshot with the given unique id. No check is made if the service this
-   * provider was created for actually exists. If a provider gets created for a not-existing service, then calling any
-   * method will result in a dummy return value and will execute no action on any service.
+   * Gets a provider for the specific service with the given unique id. No check is made if the service this provider
+   * was created for actually exists. If a provider gets created for a not-existing service, then calling any method
+   * will result in a dummy return value and will execute no action on any service.
    * <p>
    * Note: creating a provider with a unique id of a service which will be created in the future might work but is not
    * required to work. Getting a clean instance after knowing that the service actually exists is recommended over
@@ -62,9 +62,9 @@ public interface CloudServiceProvider {
   @NonNull SpecificCloudServiceProvider serviceProvider(@NonNull UUID serviceUniqueId);
 
   /**
-   * Gets a provider for the specific service snapshot with the given name. No check is made if the service this
-   * provider was created for actually exists. If a provider gets created for a not-existing service, then calling any
-   * method will result in a dummy return value and will execute no action on any service.
+   * Gets a provider for the specific service with the given name. No check is made if the service this provider was
+   * created for actually exists. If a provider gets created for a not-existing service, then calling any method will
+   * result in a dummy return value and will execute no action on any service.
    * <p>
    * Note: creating a provider with a name of a service which will be created in the future might work but is not
    * required to work. Getting a clean instance after knowing that the service actually exists is recommended over

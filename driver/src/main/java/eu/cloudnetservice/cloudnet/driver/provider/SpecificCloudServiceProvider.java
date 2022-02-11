@@ -110,7 +110,7 @@ public interface SpecificCloudServiceProvider {
 
   /**
    * Adds the given service deployment to the queue. This does not mean that the deployment gets executed directly. It
-   * wil be executed when:
+   * will be executed when:
    * <ol>
    *   <li>the service stops, for example when deleting it.
    *   <li>the deployments get executed via the associated methods in this provider.

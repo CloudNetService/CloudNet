@@ -65,7 +65,7 @@ public interface ClusterNodeProvider {
    * Gets all tab complete results for the next argument in the provided command line. An empty command line will list
    * all root command names. This method resolves all tab completion results which are allowed to be executed via a
    * console command source. This does not mean that the api is actually able to execute the command. For example, if
-   * the input is {@code task} one suggestion might be {@code setup} (which will start the task console setup
+   * the input is {@code tasks} one suggestion might be {@code setup} (which will start the task console setup
    * animation), the api is not allowed to execute that command but the result will be listed anyway.
    *
    * @param commandLine the current command line input to start the tab completion based on.
@@ -88,8 +88,8 @@ public interface ClusterNodeProvider {
   /**
    * Gets all nodes which are currently registered on the current node. As per the CloudNet cluster contract, each node
    * must know all other nodes in the cluster. Therefore, the returned collection is not synced with the cluster.
-   * Additions and removals to the returned collection are not possible will not have a result, use the add/remove node
-   * methods for that purpose.
+   * Additions and removals to the returned collection are not possible and will not have a result, use the add/remove
+   * node methods for that purpose.
    *
    * @return all nodes which are registered on the current node.
    */
