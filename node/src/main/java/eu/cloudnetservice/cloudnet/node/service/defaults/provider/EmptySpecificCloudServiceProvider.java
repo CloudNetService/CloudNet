@@ -23,7 +23,6 @@ import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceRemoteInclusion;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
-import java.util.Collections;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingDeque;
 import lombok.NonNull;
