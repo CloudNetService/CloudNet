@@ -20,6 +20,7 @@ import com.github.juliarn.npc.profile.Profile;
 import com.google.common.base.Enums;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Ints;
+import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.driver.service.GroupConfiguration;
 import eu.cloudnetservice.ext.bukkitcommands.BaseTabExecutor;
@@ -36,7 +37,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
+import kong.unirest.Unirest;
 import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -346,9 +350,7 @@ public final class NPCCommand extends BaseTabExecutor {
         }
 
         // set if the npc name tag should be hidden
-        case "hen", "hideentityname" -> {
-          updatedNpc = NPC.builder(npc).hideEntityName(this.parseBoolean(args[2])).build();
-        }
+        case "hn", "hideentityname" -> updatedNpc = NPC.builder(npc).hideEntityName(this.parseBoolean(args[2])).build();
 
         // sets if the npc should "fly" with an elytra
         case "fwe", "flyingwithelytra" -> {
@@ -482,6 +484,52 @@ public final class NPCCommand extends BaseTabExecutor {
           }
         }
 
+        // change the profile based on an image url
+        case "urlprofile", "up" -> {
+          sender.sendMessage("§7Trying to get texture data based on the given texture url...");
+          Unirest.post("https://api.mineskin.org/generate/url")
+            .connectTimeout(10000)
+            .contentType("application/json")
+            .header("User-Agent", "CloudNet-NPCs")
+            .body(JsonDocument.newDocument().append("url", args[2]).toString())
+            .asStringAsync()
+            .thenAccept(response -> {
+              // check for success
+              if (response.isSuccess()) {
+                // extract the data we need from the body
+                var textures = JsonDocument.fromJsonString(response.getBody())
+                  .getDocument("data")
+                  .getDocument("texture");
+                if (textures.empty()) {
+                  // no data supplied by the api?
+                  sender.sendMessage("§cApi request was successful but no data was submitted in the response!");
+                  return;
+                }
+                // update & notify
+                this.management.createNPC(NPC.builder(npc).profileProperties(Set.of(new ProfileProperty(
+                  "textures",
+                  textures.getString("value"),
+                  textures.getString("signature")
+                ))).build());
+                sender.sendMessage(String.format(
+                  "§7The option §6%s §7was updated §asuccessfully§7! It may take a few seconds for the change to become visible.",
+                  args[1].toLowerCase()));
+              } else {
+                // invalid response
+                sender.sendMessage("§cUnable to convert the given string url to actual texture data!");
+              }
+            })
+            .exceptionally(throwable -> {
+              // send a message and log the exception
+              sender.sendMessage(String.format("§cException while getting skin data: %s", throwable.getMessage()));
+              this.plugin.getLogger().log(Level.SEVERE, "Exception getting mineskin response", throwable);
+              // yep
+              return null;
+            });
+          // async handling
+          return true;
+        }
+
         // change the entity type (will force-set the entity type to entity)
         case "et", "entitytype" -> {
           var entityType = Enums.getIfPresent(EntityType.class, args[2].toUpperCase()).orNull();
@@ -574,14 +622,15 @@ public final class NPCCommand extends BaseTabExecutor {
           "infolines",
           "profile",
           "entitytype",
-          "targetgroup");
+          "targetgroup",
+          "urlprofile");
       }
       // value options
       if (args.length == 3) {
         return switch (args[1].toLowerCase()) {
           // true-false options
           case "lap", "lookatplayer", "ip", "imitateplayer", "ups", "useplayerskin",
-            "hen", "hideentityname", "fwe", "flyingwithelytra" -> TRUE_FALSE;
+            "hn", "hideentityname", "fwe", "flyingwithelytra" -> TRUE_FALSE;
           // click action options
           case "lca", "leftclickaction", "rca", "rightclickaction" -> CLICK_ACTIONS;
           // color options
@@ -598,6 +647,8 @@ public final class NPCCommand extends BaseTabExecutor {
             .toList();
           // npc skin profile
           case "profile" -> Arrays.asList("derklaro", "juliarn", "0utplayyyy");
+          // npc skin profile based on a texture url
+          case "urlprofile", "up" -> List.of("https://i.nmc1.net/23f502a9f94379f1.png");
           // target group
           case "tg", "targetgroup" -> CloudNetDriver.instance().groupConfigurationProvider()
             .groupConfigurations().stream()
