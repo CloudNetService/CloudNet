@@ -67,9 +67,10 @@ public interface GroupConfigurationProvider {
    * already exists. There are no checks made if there is a diff before updating the configuration.
    *
    * @param groupConfiguration the group configuration to create or update.
+   * @return true if the group configuration was registered or updated, false otherwise.
    * @throws NullPointerException if the given group configuration is null.
    */
-  void addGroupConfiguration(@NonNull GroupConfiguration groupConfiguration);
+  boolean addGroupConfiguration(@NonNull GroupConfiguration groupConfiguration);
 
   /**
    * Deletes the group configuration with the given name on the local node and all other nodes in the cluster by
@@ -132,10 +133,10 @@ public interface GroupConfigurationProvider {
    * already exists. There are no checks made if there is a diff before updating the configuration.
    *
    * @param groupConfiguration the group configuration to create or update.
-   * @return a task completed when the given group configuration was added or updated.
+   * @return a task completed with true if the group configuration was added or updated, false otherwise.
    * @throws NullPointerException if the given group configuration is null.
    */
-  default @NonNull Task<Void> addGroupConfigurationAsync(@NonNull GroupConfiguration groupConfiguration) {
+  default @NonNull Task<Boolean> addGroupConfigurationAsync(@NonNull GroupConfiguration groupConfiguration) {
     return CompletableTask.supply(() -> this.addGroupConfiguration(groupConfiguration));
   }
 

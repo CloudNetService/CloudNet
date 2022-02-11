@@ -100,7 +100,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
   }
 
   @Override
-  public void addGroupConfiguration(@NonNull GroupConfiguration groupConfiguration) {
+  public boolean addGroupConfiguration(@NonNull GroupConfiguration groupConfiguration) {
     if (!this.eventManager.callEvent(new LocalGroupConfigurationAddEvent(groupConfiguration)).cancelled()) {
       this.addGroupConfigurationSilently(groupConfiguration);
       // publish the change to the cluster
@@ -111,7 +111,9 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
         .buffer(DataBuf.empty().writeObject(groupConfiguration))
         .build()
         .send();
+      return true;
     }
+    return false;
   }
 
   @Override
