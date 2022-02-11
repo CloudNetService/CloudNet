@@ -23,6 +23,7 @@ import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceRemoteInclusion;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
+import java.util.Collections;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingDeque;
 import lombok.NonNull;
@@ -63,7 +64,7 @@ public final class EmptySpecificCloudServiceProvider implements SpecificCloudSer
   }
 
   @Override
-  public Queue<String> cachedLogMessages() {
+  public @NonNull Queue<String> cachedLogMessages() {
     return new LinkedBlockingDeque<>();
   }
 

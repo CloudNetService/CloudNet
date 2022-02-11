@@ -171,7 +171,7 @@ public class RemoteSpecificCloudServiceProvider implements SpecificCloudServiceP
    * {@inheritDoc}
    */
   @Override
-  public Queue<String> cachedLogMessages() {
+  public @NonNull Queue<String> cachedLogMessages() {
     return this.baseRPC()
       .join(this.thisProviderSender.invokeMethod("cachedLogMessages"))
       .fireSync(this.channelSupplier.get());
