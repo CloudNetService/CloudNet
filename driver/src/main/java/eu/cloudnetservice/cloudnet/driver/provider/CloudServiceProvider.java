@@ -51,7 +51,7 @@ public interface CloudServiceProvider {
    * pre-getting a provider.
    * <p>
    * There is no need to update a provider when obtained once. An update of the provider should be done however, if a
-   * new service with the same unique id was created (after the current target stopped)  as that will most likely not
+   * new service with the same unique id was created (after the current target stopped) as that will most likely not
    * change the target of the provider to the new service and tries to execute requested actions on the old,
    * unregistered service.
    *
