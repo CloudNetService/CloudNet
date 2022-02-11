@@ -28,6 +28,7 @@ import eu.cloudnetservice.cloudnet.node.cluster.NodeServer;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
 import eu.cloudnetservice.cloudnet.node.command.source.DriverCommandSource;
+import eu.cloudnetservice.cloudnet.node.network.listener.message.NodeChannelMessageListener;
 import java.util.Collection;
 import java.util.Objects;
 import lombok.NonNull;
@@ -42,7 +43,12 @@ public class NodeClusterNodeProvider implements ClusterNodeProvider {
     this.nodeInstance = nodeInstance;
     this.clusterNodeServerProvider = nodeInstance.nodeServerProvider();
 
-    // rpc init
+    // init
+    nodeInstance.eventManager().registerListener(new NodeChannelMessageListener(
+      nodeInstance.eventManager(),
+      nodeInstance.dataSyncRegistry(),
+      this,
+      nodeInstance.nodeServerProvider()));
     nodeInstance.rpcProviderFactory().newHandler(ClusterNodeProvider.class, this).registerToDefaultRegistry();
   }
 

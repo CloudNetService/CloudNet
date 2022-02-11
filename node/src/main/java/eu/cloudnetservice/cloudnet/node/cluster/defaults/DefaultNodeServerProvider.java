@@ -33,8 +33,6 @@ import eu.cloudnetservice.cloudnet.node.cluster.NodeServer;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.cloudnet.node.cluster.task.LocalNodeUpdateTask;
 import eu.cloudnetservice.cloudnet.node.cluster.task.NodeDisconnectTrackerTask;
-import eu.cloudnetservice.cloudnet.node.network.listener.message.NodeChannelMessageListener;
-import eu.cloudnetservice.cloudnet.node.provider.NodeClusterNodeProvider;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.Collections;
@@ -67,12 +65,7 @@ public class DefaultNodeServerProvider implements NodeServerProvider {
     this.localNode = new LocalNodeServer(node, this);
     this.nodeServers.add(this.localNode);
 
-    // register everything we need to work properly
-    node.eventManager().registerListener(new NodeChannelMessageListener(
-      node.eventManager(),
-      node.dataSyncRegistry(),
-      (NodeClusterNodeProvider) node.clusterNodeProvider(),
-      this));
+    // start all update tasks
     this.executor.scheduleAtFixedRate(new LocalNodeUpdateTask(this), 1, 1, TimeUnit.SECONDS);
     this.executor.scheduleAtFixedRate(new NodeDisconnectTrackerTask(this), 5, 5, TimeUnit.SECONDS);
   }
