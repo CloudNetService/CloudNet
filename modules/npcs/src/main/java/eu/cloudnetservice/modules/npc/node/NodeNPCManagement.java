@@ -51,7 +51,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
     this.configurationPath = configPath;
 
     // load all existing npcs
-    this.database.documentsAsync().onComplete(jsonDocuments -> {
+    this.database.documentsAsync().thenAccept(jsonDocuments -> {
       for (var document : jsonDocuments) {
         var npc = document.toInstanceOf(NPC.class);
         this.npcs.put(npc.location(), npc);

@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.rpc;
 
-import eu.cloudnetservice.cloudnet.common.concurrent.CompletedTask;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
@@ -176,13 +175,13 @@ public class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
     // send query if result is needed
     if (this.headRPC.expectsResult()) {
       // now send the query and read the response
-      return component
+      return Task.wrapFuture(component
         .sendQueryAsync(new RPCRequestPacket(dataBuf))
-        .map(new RPCResultMapper<>(this.headRPC.expectedResultType(), this.objectMapper));
+        .thenApply(new RPCResultMapper<>(this.headRPC.expectedResultType(), this.objectMapper)));
     } else {
       // just send the method invocation request
       component.sendPacket(new RPCRequestPacket(dataBuf));
-      return CompletedTask.done(null);
+      return Task.completedTask(null);
     }
   }
 

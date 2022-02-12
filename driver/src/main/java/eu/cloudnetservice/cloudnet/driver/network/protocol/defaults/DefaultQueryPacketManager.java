@@ -20,7 +20,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.RemovalListener;
 import com.github.benmanes.caffeine.cache.Scheduler;
-import eu.cloudnetservice.cloudnet.common.concurrent.CompletableTask;
+import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.QueryPacketManager;
@@ -44,7 +44,7 @@ public class DefaultQueryPacketManager implements QueryPacketManager {
 
   private final Duration queryTimeout;
   private final NetworkChannel networkChannel;
-  private final Cache<UUID, CompletableTask<Packet>> waitingHandlers;
+  private final Cache<UUID, Task<Packet>> waitingHandlers;
 
   /**
    * Constructs a new query manager for the given network channel and a timeout of 30 seconds for each query.
@@ -94,7 +94,7 @@ public class DefaultQueryPacketManager implements QueryPacketManager {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull @UnmodifiableView Map<UUID, CompletableTask<Packet>> waitingHandlers() {
+  public @NonNull @UnmodifiableView Map<UUID, Task<Packet>> waitingHandlers() {
     return Collections.unmodifiableMap(this.waitingHandlers.asMap());
   }
 
@@ -119,7 +119,7 @@ public class DefaultQueryPacketManager implements QueryPacketManager {
    * {@inheritDoc}
    */
   @Override
-  public @Nullable CompletableTask<Packet> waitingHandler(@NonNull UUID queryUniqueId) {
+  public @Nullable Task<Packet> waitingHandler(@NonNull UUID queryUniqueId) {
     var task = this.waitingHandlers.getIfPresent(queryUniqueId);
     if (task != null) {
       this.waitingHandlers.invalidate(queryUniqueId);
@@ -131,7 +131,7 @@ public class DefaultQueryPacketManager implements QueryPacketManager {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull CompletableTask<Packet> sendQueryPacket(@NonNull Packet packet) {
+  public @NonNull Task<Packet> sendQueryPacket(@NonNull Packet packet) {
     return this.sendQueryPacket(packet, UUID.randomUUID());
   }
 
@@ -139,9 +139,9 @@ public class DefaultQueryPacketManager implements QueryPacketManager {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull CompletableTask<Packet> sendQueryPacket(@NonNull Packet packet, @NonNull UUID queryUniqueId) {
+  public @NonNull Task<Packet> sendQueryPacket(@NonNull Packet packet, @NonNull UUID queryUniqueId) {
     // create & register the result handler
-    var task = new CompletableTask<Packet>();
+    var task = new Task<Packet>();
     this.waitingHandlers.put(queryUniqueId, task);
     // set the unique id of the packet and send
     packet.uniqueId(queryUniqueId);
@@ -156,7 +156,7 @@ public class DefaultQueryPacketManager implements QueryPacketManager {
    *
    * @return a new removal listeners for unanswered packet future completion.
    */
-  protected @NonNull RemovalListener<UUID, CompletableTask<Packet>> newRemovalListener() {
+  protected @NonNull RemovalListener<UUID, Task<Packet>> newRemovalListener() {
     return ($, value, cause) -> {
       if (cause.wasEvicted() && value != null) {
         value.completeExceptionally(new TimeoutException());

@@ -16,12 +16,12 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.rpc;
 
-import eu.cloudnetservice.cloudnet.common.function.ThrowableFunction;
+import com.google.common.util.concurrent.UncheckedTimeoutException;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.handler.util.ExceptionalResultUtil;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.object.ObjectMapper;
 import java.lang.reflect.Type;
-import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
 import lombok.NonNull;
 import org.jetbrains.annotations.UnknownNullability;
 
@@ -35,13 +35,13 @@ import org.jetbrains.annotations.UnknownNullability;
 record RPCResultMapper<T>(
   @NonNull Type expectedResultType,
   @NonNull ObjectMapper objectMapper
-) implements ThrowableFunction<Packet, T, Throwable> {
+) implements Function<Packet, T> {
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public @UnknownNullability T apply(@UnknownNullability Packet response) throws Throwable {
+  public @UnknownNullability T apply(@UnknownNullability Packet response) {
     // check if the query timed out before trying to read from the buffer
     if (response.readable()) {
       // the remote execution responded - check if the execution was successful or resulted in an exception
@@ -56,7 +56,7 @@ record RPCResultMapper<T>(
       }
     } else {
       // the query timed out - just cover that case in a nice exception wrapper :(
-      throw new TimeoutException("Query future was completed before rpc was able to respond");
+      throw new UncheckedTimeoutException("Query future was completed before rpc was able to respond");
     }
   }
 }

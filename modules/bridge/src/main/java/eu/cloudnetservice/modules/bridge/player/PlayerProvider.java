@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.bridge.player;
 
-import eu.cloudnetservice.cloudnet.common.concurrent.CompletableTask;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import java.util.Collection;
@@ -54,27 +53,27 @@ public interface PlayerProvider {
    * @return all players as {@link CloudPlayer}
    */
   default @NonNull Task<Collection<? extends CloudPlayer>> playersAsync() {
-    return CompletableTask.supply(this::players);
+    return Task.supply(this::players);
   }
 
   /**
    * @return the uniqueIds of all players
    */
   default @NonNull Task<Collection<UUID>> uniqueIdsAsync() {
-    return CompletableTask.supply(this::uniqueIds);
+    return Task.supply(this::uniqueIds);
   }
 
   /**
    * @return the names of all players
    */
   default @NonNull Task<Collection<String>> namesAsync() {
-    return CompletableTask.supply(this::names);
+    return Task.supply(this::names);
   }
 
   /**
    * @return the player count
    */
   default @NonNull Task<Integer> countAsync() {
-    return CompletableTask.supply(this::count);
+    return Task.supply(this::count);
   }
 }

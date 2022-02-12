@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.protocol;
 
-import eu.cloudnetservice.cloudnet.common.concurrent.CompletableTask;
+import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import java.time.Duration;
 import java.util.Map;
@@ -54,7 +54,7 @@ public interface QueryPacketManager {
    * @return all waiting queries.
    */
   @NonNull
-  @UnmodifiableView Map<UUID, CompletableTask<Packet>> waitingHandlers();
+  @UnmodifiableView Map<UUID, Task<Packet>> waitingHandlers();
 
   /**
    * Checks if a waiting handler is registered (and therefore still waiting for a result) for the given unique id.
@@ -82,7 +82,7 @@ public interface QueryPacketManager {
    * @return the waiting handler associated with the given unique id, null if no handler with that id is waiting.
    * @throws NullPointerException if the given unique id is null.
    */
-  @Nullable CompletableTask<Packet> waitingHandler(@NonNull UUID queryUniqueId);
+  @Nullable Task<Packet> waitingHandler(@NonNull UUID queryUniqueId);
 
   /**
    * Sends a query packet to the associated network channel, automatically selecting a query id for the packet and
@@ -93,7 +93,7 @@ public interface QueryPacketManager {
    * @return a future completed with either the response to the packet or an empty packet if the waiting time expires.
    * @throws NullPointerException if the given packet is null.
    */
-  @NonNull CompletableTask<Packet> sendQueryPacket(@NonNull Packet packet);
+  @NonNull Task<Packet> sendQueryPacket(@NonNull Packet packet);
 
   /**
    * Sends a query packet to the associated network channel, automatically setting the id in the packet. An existing
@@ -104,5 +104,5 @@ public interface QueryPacketManager {
    * @return a future completed with either the response to the packet or an empty packet if the waiting time expires.
    * @throws NullPointerException if either the given packet or unique id is null.
    */
-  @NonNull CompletableTask<Packet> sendQueryPacket(@NonNull Packet packet, @NonNull UUID queryUniqueId);
+  @NonNull Task<Packet> sendQueryPacket(@NonNull Packet packet, @NonNull UUID queryUniqueId);
 }

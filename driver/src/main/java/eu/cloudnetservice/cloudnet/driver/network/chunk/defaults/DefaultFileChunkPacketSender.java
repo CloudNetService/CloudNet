@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.chunk.defaults;
 
-import eu.cloudnetservice.cloudnet.common.concurrent.CompletableTask;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.driver.network.chunk.ChunkedPacketSender;
 import eu.cloudnetservice.cloudnet.driver.network.chunk.TransferStatus;
@@ -82,7 +81,7 @@ public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider i
    */
   @Override
   public @NonNull Task<TransferStatus> transferChunkedData() {
-    return CompletableTask.supply(() -> {
+    return Task.supply(() -> {
       var readCalls = 0;
       var backingArray = new byte[this.chunkSessionInformation.chunkSize()];
 

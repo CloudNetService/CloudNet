@@ -47,7 +47,7 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
     this.configurationFilePath = configurationFilePath;
     this.database = database;
 
-    this.database.documentsAsync().onComplete(jsonDocuments -> {
+    this.database.documentsAsync().thenAccept(jsonDocuments -> {
       for (var document : jsonDocuments) {
         var sign = document.toInstanceOf(Sign.class);
         this.signs.put(sign.location(), sign);

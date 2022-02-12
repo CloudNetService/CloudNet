@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.rpc;
 
-import eu.cloudnetservice.cloudnet.common.concurrent.CompletedTask;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBufFactory;
@@ -214,13 +213,13 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
     // send query if result is needed
     if (this.resultExpectation) {
       // now send the query and read the response
-      return component
+      return Task.wrapFuture(component
         .sendQueryAsync(new RPCRequestPacket(dataBuf))
-        .map(new RPCResultMapper<>(this.expectedResultType, this.objectMapper));
+        .thenApply(new RPCResultMapper<>(this.expectedResultType, this.objectMapper)));
     } else {
       // just send the method invocation request
       component.sendPacket(new RPCRequestPacket(dataBuf));
-      return CompletedTask.done(null);
+      return Task.completedTask(null);
     }
   }
 }

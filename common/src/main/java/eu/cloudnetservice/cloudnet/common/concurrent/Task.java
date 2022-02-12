@@ -16,70 +16,85 @@
 
 package eu.cloudnetservice.cloudnet.common.concurrent;
 
-import eu.cloudnetservice.cloudnet.common.function.ThrowableFunction;
-import java.util.Collection;
-import java.util.concurrent.Future;
+import eu.cloudnetservice.cloudnet.common.function.ThrowableSupplier;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
+import java.util.concurrent.TimeoutException;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
-import org.jetbrains.annotations.UnmodifiableView;
 
-public interface Task<V> extends Future<V> {
+public class Task<V> extends CompletableFuture<V> {
 
-  @NonNull Task<V> addListener(@NonNull TaskListener<V> listener);
+  private static final ExecutorService SERVICE = Executors.newCachedThreadPool();
 
-  @NonNull Task<V> clearListeners();
+  public static <V> @NonNull Task<V> supply(@NonNull Runnable runnable) {
+    return supply(() -> {
+      runnable.run();
+      return null;
+    });
+  }
 
-  @UnmodifiableView
-  @NonNull Collection<TaskListener<V>> listeners();
+  public static <V> @NonNull Task<V> supply(@NonNull ThrowableSupplier<V, Throwable> supplier) {
+    var task = new Task<V>();
+    SERVICE.execute(() -> {
+      try {
+        task.complete(supplier.get());
+      } catch (Throwable throwable) {
+        task.completeExceptionally(throwable);
+      }
+    });
+    return task;
+  }
 
-  default @UnknownNullability V getOrNull() {
+  public static <V> @NonNull Task<V> wrapFuture(@NonNull CompletableFuture<V> future) {
+    var task = new Task<V>();
+    future.whenComplete((result, exception) -> {
+      // uni push either the exception or the result, the exception is unwrapped already
+      if (exception == null) {
+        task.complete(result);
+      } else {
+        task.completeExceptionally(exception);
+      }
+    });
+    return task;
+  }
+
+  @SuppressWarnings("unchecked") // it's fine
+  public static <V> @NonNull Task<V> completedTask(@Nullable Object result) {
+    var future = new Task<V>();
+    // complete exceptionally if an exception was given
+    if (result instanceof Throwable throwable) {
+      future.completeExceptionally(throwable);
+    } else {
+      future.complete((V) result);
+    }
+    // instantly completed when returning
+    return future;
+  }
+
+  public @UnknownNullability V getOrNull() {
     return this.getDef(null);
   }
 
-  @UnknownNullability V getDef(@Nullable V def);
-
-  @UnknownNullability V get(long time, @NonNull TimeUnit timeUnit, @Nullable V def);
-
-  @NonNull <T> Task<T> map(@NonNull ThrowableFunction<V, T, Throwable> mapper);
-
-  default @NonNull Task<V> onComplete(@NonNull Consumer<V> consumer) {
-    return this.addListener(new TaskListener<>() {
-      @Override
-      public void onComplete(@NonNull Task<V> task, @Nullable V v) {
-        consumer.accept(v);
-      }
-    });
+  public @UnknownNullability V getDef(@Nullable V def) {
+    try {
+      return this.join();
+    } catch (CancellationException | CompletionException exception) {
+      return def;
+    }
   }
 
-  default @NonNull Task<V> onFailure(@NonNull Consumer<Throwable> consumer) {
-    return this.addListener(new TaskListener<>() {
-      @Override
-      public void onFailure(@NonNull Task<V> task, @NonNull Throwable th) {
-        consumer.accept(th);
-      }
-    });
-  }
-
-  default @NonNull Task<V> onCancelled(@NonNull Consumer<Task<V>> consumer) {
-    return this.addListener(new TaskListener<>() {
-      @Override
-      public void onCancelled(@NonNull Task<V> task) {
-        consumer.accept(task);
-      }
-    });
-  }
-
-  default @NonNull Task<V> then(@NonNull Consumer<V> handler) {
-    return this
-      .onComplete(handler)
-      .onCancelled($ -> handler.accept(null))
-      .onFailure($ -> handler.accept(null));
-  }
-
-  default @NonNull Task<V> fireExceptionOnFailure() {
-    return this.onFailure(Throwable::printStackTrace);
+  public @UnknownNullability V get(long time, @NonNull TimeUnit timeUnit, @Nullable V def) {
+    try {
+      return this.get(time, timeUnit);
+    } catch (CancellationException | ExecutionException | InterruptedException | TimeoutException exception) {
+      return def;
+    }
   }
 }

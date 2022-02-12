@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.bridge.player;
 
-import eu.cloudnetservice.cloudnet.common.concurrent.CompletableTask;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
@@ -172,7 +171,7 @@ public interface PlayerManager {
    * @return the online count as an int
    */
   default @NonNull Task<Integer> onlineCountAsync() {
-    return CompletableTask.supply(this::onlineCount);
+    return Task.supply(this::onlineCount);
   }
 
   /**
@@ -181,7 +180,7 @@ public interface PlayerManager {
    * @return the registered player count as an int
    */
   default @NonNull Task<Long> registeredCountAsync() {
-    return CompletableTask.supply(this::registeredCount);
+    return Task.supply(this::registeredCount);
   }
 
   /**
@@ -191,7 +190,7 @@ public interface PlayerManager {
    * @return the player if he is online or null if not
    */
   default @NonNull Task<? extends CloudPlayer> onlinePlayerAsync(@NonNull UUID uniqueId) {
-    return CompletableTask.supply(() -> this.onlinePlayer(uniqueId));
+    return Task.supply(() -> this.onlinePlayer(uniqueId));
   }
 
   /**
@@ -202,7 +201,7 @@ public interface PlayerManager {
    * with that name online
    */
   default @NonNull Task<CloudPlayer> firstOnlinePlayerAsync(@NonNull String name) {
-    return CompletableTask.supply(() -> this.firstOnlinePlayer(name));
+    return Task.supply(() -> this.firstOnlinePlayer(name));
   }
 
   /**
@@ -212,7 +211,7 @@ public interface PlayerManager {
    * @return a list containing all online players in the cloud with the given name
    */
   default @NonNull Task<List<? extends CloudPlayer>> onlinePlayerAsync(@NonNull String name) {
-    return CompletableTask.supply(() -> this.onlinePlayers(name));
+    return Task.supply(() -> this.onlinePlayers(name));
   }
 
   /**
@@ -222,7 +221,7 @@ public interface PlayerManager {
    * @return a list containing all players that are online on the given environment
    */
   default @NonNull Task<List<? extends CloudPlayer>> onlinePlayerAsync(@NonNull ServiceEnvironmentType env) {
-    return CompletableTask.supply(() -> this.environmentOnlinePlayers(env));
+    return Task.supply(() -> this.environmentOnlinePlayers(env));
   }
 
   /**
@@ -231,7 +230,7 @@ public interface PlayerManager {
    * @return a list containing all players that are online on the network
    */
   default @NonNull Task<CloudOfflinePlayer> offlinePlayerAsync(@NonNull UUID uniqueId) {
-    return CompletableTask.supply(() -> this.offlinePlayer(uniqueId));
+    return Task.supply(() -> this.offlinePlayer(uniqueId));
   }
 
   /**
@@ -242,7 +241,7 @@ public interface PlayerManager {
    * player with that name registered
    */
   default @NonNull Task<CloudOfflinePlayer> firstOfflinePlayerAsync(@NonNull String name) {
-    return CompletableTask.supply(() -> this.firstOnlinePlayer(name));
+    return Task.supply(() -> this.firstOnlinePlayer(name));
   }
 
   /**
@@ -252,7 +251,7 @@ public interface PlayerManager {
    * @return a list containing all players registered in the cloud with the given name
    */
   default @NonNull Task<List<? extends CloudOfflinePlayer>> offlinePlayerAsync(@NonNull String name) {
-    return CompletableTask.supply(() -> this.offlinePlayers(name));
+    return Task.supply(() -> this.offlinePlayers(name));
   }
 
   /**
@@ -261,7 +260,7 @@ public interface PlayerManager {
    * @param cloudOfflinePlayer the player to be deleted
    */
   default @NonNull Task<Void> deleteCloudOfflinePlayerAsync(@NonNull CloudOfflinePlayer cloudOfflinePlayer) {
-    return CompletableTask.supply(() -> this.deleteCloudOfflinePlayer(cloudOfflinePlayer));
+    return Task.supply(() -> this.deleteCloudOfflinePlayer(cloudOfflinePlayer));
   }
 
   /**
@@ -270,7 +269,7 @@ public interface PlayerManager {
    * @param cloudOfflinePlayer the player to be updated
    */
   default @NonNull Task<Void> updateOfflinePlayerAsync(@NonNull CloudOfflinePlayer cloudOfflinePlayer) {
-    return CompletableTask.supply(() -> this.updateOfflinePlayer(cloudOfflinePlayer));
+    return Task.supply(() -> this.updateOfflinePlayer(cloudOfflinePlayer));
   }
 
   /**
@@ -279,7 +278,7 @@ public interface PlayerManager {
    * @param cloudPlayer the player to be updated
    */
   default @NonNull Task<Void> updateOnlinePlayerAsync(@NonNull CloudPlayer cloudPlayer) {
-    return CompletableTask.supply(() -> this.updateOnlinePlayer(cloudPlayer));
+    return Task.supply(() -> this.updateOnlinePlayer(cloudPlayer));
   }
 
   /**

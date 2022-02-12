@@ -42,9 +42,9 @@ public final class PacketServerChannelMessageListener implements PacketListener 
     if (packet.uniqueId() != null) {
       // wait for the future if a response was supplied
       if (response != null) {
-        response.then(queryResponse -> {
+        response.whenComplete((queryResponse, throwable) -> {
           // respond with nothing if no result was set
-          if (queryResponse == null) {
+          if (throwable != null || queryResponse == null) {
             channel.sendPacket(packet.constructResponse(DataBuf.empty()));
           } else {
             // serialize the single response

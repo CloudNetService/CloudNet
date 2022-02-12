@@ -50,9 +50,9 @@ public final class BridgeServiceHelper {
       var taskName = Wrapper.instance().serviceId().taskName();
       CloudNetDriver.instance().serviceTaskProvider()
         .serviceTaskAsync(taskName)
-        .map(task -> ServiceConfiguration.builder(task).build())
-        .map(config -> CloudNetDriver.instance().cloudServiceFactory().createCloudService(config))
-        .onComplete(service -> service.provider().start());
+        .thenApply(task -> ServiceConfiguration.builder(task).build())
+        .thenApply(config -> CloudNetDriver.instance().cloudServiceFactory().createCloudService(config))
+        .thenAccept(service -> service.provider().start());
     }
   }
 
