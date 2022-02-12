@@ -160,12 +160,15 @@ public class DockerizedService extends JVMService {
       // we need to expose the port of the service we're starting as well
       exposedPorts.add(new ExposedPort(this.serviceConfiguration.port(), InternetProtocol.TCP));
 
-      try {
-        // pull the requested image
-        this.buildPullCommand(image).start().awaitCompletion();
-      } catch (Exception exception) {
-        LOGGER.severe("Unable to pull image " + image.imageName() + " from docker registry", exception);
-        return;
+      // only pull the image if we need to, remote pulls will always be slower than local imports
+      if (this.needsImagePull(image)) {
+        try {
+          // pull the requested image
+          this.buildPullCommand(image).start().awaitCompletion();
+        } catch (Exception exception) {
+          LOGGER.severe("Unable to pull image " + image.imageName() + " from docker registry", exception);
+          return;
+        }
       }
 
       // we do override the java command set by either the task config or the node configuration as the container has
@@ -288,6 +291,17 @@ public class DockerizedService extends JVMService {
   protected @NonNull <T> Optional<T> readFromTaskConfig(@NonNull Function<TaskDockerConfig, T> reader) {
     var config = this.serviceConfiguration.properties().get("docker", TaskDockerConfig.class);
     return config == null ? Optional.empty() : Optional.ofNullable(reader.apply(config));
+  }
+
+  protected boolean needsImagePull(@NonNull DockerImage image) {
+    try {
+      // check if the image is already available
+      this.dockerClient.inspectImageCmd(image.imageName()).exec();
+      return false;
+    } catch (NotFoundException exception) {
+      // the image does not exist
+      return true;
+    }
   }
 
   protected @NonNull PullImageCmd buildPullCommand(@NonNull DockerImage image) {
