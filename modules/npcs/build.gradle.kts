@@ -25,9 +25,9 @@ tasks.withType<Jar> {
 }
 
 dependencies {
-  "compileOnly"(projects.cloudnetWrapperJvm)
-  "compileOnly"(projects.cloudnetModules.bridge)
-  "implementation"(projects.cloudnetExt.bukkitCommand)
+  "compileOnly"(projects.wrapperJvm)
+  "compileOnly"(projects.modules.bridge)
+  "implementation"(projects.ext.bukkitCommand)
 
   "compileOnly"(libs.bundles.serverPlatform)
 

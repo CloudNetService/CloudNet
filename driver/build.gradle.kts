@@ -21,8 +21,6 @@ plugins {
 }
 
 tasks.withType<ShadowJar> {
-  dependsOn(":cloudnet-common:jar")
-
   archiveFileName.set(Files.driver)
   dependencies {
     exclude {
@@ -32,7 +30,7 @@ tasks.withType<ShadowJar> {
 }
 
 tasks.withType<Test> {
-  dependsOn(":cloudnet-common:jar")
+  dependsOn(":common:jar")
 }
 
 extensions.configure<JavaPluginExtension> {
@@ -42,8 +40,8 @@ extensions.configure<JavaPluginExtension> {
 }
 
 dependencies {
-  "api"(projects.cloudnetCommon)
-  "api"(projects.cloudnetExt.updater)
+  "api"(projects.common)
+  "api"(projects.ext.updater)
 
   "api"(libs.asm)
   "api"(libs.caffeine)
@@ -58,5 +56,5 @@ dependencies {
   "annotationProcessor"(project.sourceSets()["ap"].output)
 
   "testImplementation"(libs.tyrus)
-  "testImplementation"(projects.cloudnetCommon.dependencyProject.sourceSets()["main"].output)
+  "testImplementation"(projects.common.dependencyProject.sourceSets()["main"].output)
 }

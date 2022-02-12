@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-enableFeaturePreview("VERSION_CATALOGS")
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
@@ -31,7 +30,7 @@ pluginManagement {
 rootProject.name = "cloudnet-root"
 
 // top level projects
-initializeProjects("bom", "ext", "common", "driver", "node", "wrapper-jvm", "launcher", "modules", "plugins")
+include("bom", "ext", "common", "driver", "node", "wrapper-jvm", "launcher", "modules", "plugins")
 
 // external lib helpers
 initializeSubProjects("ext", "modlauncher", "adventure-helper", "bukkit-command", "updater")
@@ -58,18 +57,11 @@ initializeSubProjects("modules",
 // launcher
 initializeSubProjects("launcher", "java8", "java17", "patcher")
 
-fun initializeProjects(vararg names: String) {
-  names.forEach {
-    include("cloudnet-$it")
-    project(":cloudnet-$it").projectDir = file(it)
-  }
-}
-
 fun initializeSubProjects(rootProject: String, vararg names: String) {
   names.forEach {
-    include("cloudnet-$rootProject:$it")
+    include("$rootProject:$it")
     // update the project properties
-    project(":cloudnet-$rootProject:$it").name = it
-    project(":cloudnet-$rootProject:$it").projectDir = file(rootProject).resolve(it)
+    project(":$rootProject:$it").name = it
+    project(":$rootProject:$it").projectDir = file(rootProject).resolve(it)
   }
 }

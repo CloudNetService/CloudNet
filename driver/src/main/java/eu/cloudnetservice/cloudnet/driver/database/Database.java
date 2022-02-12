@@ -35,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
  * <p>
  * Furthermore, there is no guarantee that writes to a database are synced directly into the cluster. You can verify if
  * an operation will be directly visible to all nodes by calling {@link #synced()}. If the method returns false either
- * the server owner should consider changing to a solution which syncs instantly in the cluster are you might run into
+ * the server owner should consider changing to a solution which syncs instantly in the cluster, or you might run into
  * synchronization problems when operating on the same data from different nodes.
  * <p>
  * Warning: In normal cases it is not recommended using the CloudNet database system for all of your data. The system

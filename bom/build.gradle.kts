@@ -34,3 +34,5 @@ fun collectSubProjects(root: Project, paths: MutableList<String>): List<String> 
   // just to make it look cleaner :)
   return paths
 }
+
+configurePublishing("javaPlatform")
