@@ -50,7 +50,7 @@ public final class VelocityCloudCommand implements SimpleCommand {
     // skip the permission check if the source is the console
     if (!(invocation.source() instanceof ConsoleCommandSource)) {
       // get the command info
-      var command = CloudNetDriver.instance().nodeInfoProvider().consoleCommand(commandLine);
+      var command = CloudNetDriver.instance().clusterNodeProvider().consoleCommand(commandLine);
       // check if the sender has the required permission to execute the command
       if (command != null) {
         if (!invocation.source().hasPermission(command.permission())) {
@@ -65,7 +65,7 @@ public final class VelocityCloudCommand implements SimpleCommand {
       }
     }
     // execute the command
-    CloudNetDriver.instance().nodeInfoProvider().sendCommandLineAsync(commandLine).onComplete(messages -> {
+    CloudNetDriver.instance().clusterNodeProvider().sendCommandLineAsync(commandLine).onComplete(messages -> {
       for (var line : messages) {
         invocation.source().sendMessage(serialize(this.management.configuration().prefix() + line));
       }
@@ -75,7 +75,7 @@ public final class VelocityCloudCommand implements SimpleCommand {
   @Override
   public @NonNull CompletableFuture<List<String>> suggestAsync(@NonNull Invocation invocation) {
     return CompletableFuture.supplyAsync(() -> List.copyOf(CloudNetDriver.instance()
-      .nodeInfoProvider()
+      .clusterNodeProvider()
       .consoleTabCompleteResults(String.join(" ", invocation.arguments()))));
   }
 

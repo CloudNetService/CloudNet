@@ -17,7 +17,7 @@
 package eu.cloudnetservice.cloudnet.node.service;
 
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
-import eu.cloudnetservice.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
+import eu.cloudnetservice.cloudnet.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceDeployment;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceId;

@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.cloudnet.node.network.listener.message;
 
-import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.cloudnet.driver.event.EventListener;
 import eu.cloudnetservice.cloudnet.driver.event.EventManager;
 import eu.cloudnetservice.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
@@ -25,13 +24,9 @@ import eu.cloudnetservice.cloudnet.driver.event.events.task.ServiceTaskRemoveEve
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTask;
 import eu.cloudnetservice.cloudnet.node.provider.NodeServiceTaskProvider;
-import java.lang.reflect.Type;
-import java.util.Collection;
 import lombok.NonNull;
 
 public final class TaskChannelMessageListener {
-
-  private static final Type COL_TASKS = TypeToken.getParameterized(Collection.class, ServiceTask.class).getType();
 
   private final EventManager eventManager;
   private final NodeServiceTaskProvider taskProvider;
@@ -48,12 +43,6 @@ public final class TaskChannelMessageListener {
   public void handleChannelMessage(@NonNull ChannelMessageReceiveEvent event) {
     if (event.channel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
       switch (event.message()) {
-        // set tasks
-        case "set_service_tasks" -> {
-          Collection<ServiceTask> tasks = event.content().readObject(COL_TASKS);
-          this.taskProvider.permanentServiceTasksSilently(tasks);
-        }
-
         // add task
         case "add_service_task" -> {
           var task = event.content().readObject(ServiceTask.class);

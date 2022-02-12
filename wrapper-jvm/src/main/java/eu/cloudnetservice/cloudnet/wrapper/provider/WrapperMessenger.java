@@ -21,7 +21,7 @@ import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkComponent;
 import eu.cloudnetservice.cloudnet.driver.network.def.PacketServerChannelMessage;
 import eu.cloudnetservice.cloudnet.driver.provider.CloudMessenger;
-import eu.cloudnetservice.cloudnet.driver.provider.DefaultMessenger;
+import eu.cloudnetservice.cloudnet.driver.provider.defaults.DefaultMessenger;
 import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
 import java.lang.reflect.Type;
 import java.util.Collection;

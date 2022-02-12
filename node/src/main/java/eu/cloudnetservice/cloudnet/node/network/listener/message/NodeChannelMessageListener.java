@@ -16,14 +16,12 @@
 
 package eu.cloudnetservice.cloudnet.node.network.listener.message;
 
-import com.google.common.collect.Lists;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.driver.event.EventListener;
 import eu.cloudnetservice.cloudnet.driver.event.EventManager;
 import eu.cloudnetservice.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
-import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
@@ -32,6 +30,7 @@ import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.cloudnet.node.event.cluster.NetworkClusterNodeInfoUpdateEvent;
+import eu.cloudnetservice.cloudnet.node.provider.NodeClusterNodeProvider;
 import lombok.NonNull;
 
 public final class NodeChannelMessageListener {
@@ -40,15 +39,18 @@ public final class NodeChannelMessageListener {
 
   private final EventManager eventManager;
   private final DataSyncRegistry dataSyncRegistry;
+  private final NodeClusterNodeProvider nodeInfoProvider;
   private final NodeServerProvider nodeServerProvider;
 
   public NodeChannelMessageListener(
     @NonNull EventManager eventManager,
     @NonNull DataSyncRegistry dataSyncRegistry,
+    @NonNull NodeClusterNodeProvider nodeInfoProvider,
     @NonNull NodeServerProvider nodeServerProvider
   ) {
     this.eventManager = eventManager;
     this.dataSyncRegistry = dataSyncRegistry;
+    this.nodeInfoProvider = nodeInfoProvider;
     this.nodeServerProvider = nodeServerProvider;
   }
 
@@ -78,32 +80,22 @@ public final class NodeChannelMessageListener {
 
         // handle adding a new cluster node on other nodes
         case "register_known_node" -> {
-          var nodeId = event.content().readString();
-          var hostAndPort = event.content().readObject(HostAndPort.class);
-          var nodeConfig = CloudNet.instance().config();
-          // add the new node to the configuration
-          if (nodeConfig.clusterConfig().nodes().add(new NetworkClusterNode(nodeId, Lists.newArrayList(hostAndPort)))) {
-            // save and notify as the new node was registered successfully
-            nodeConfig.save();
-            LOGGER.info(I18n.trans("command-cluster-add-node-success", nodeId, hostAndPort.host()));
-          }
+          // register the node
+          var node = event.content().readObject(NetworkClusterNode.class);
+          this.nodeInfoProvider.addNodeSilently(node);
+
+          // inform the user
+          LOGGER.info(I18n.trans("command-cluster-add-node-success", node.uniqueId()));
         }
 
         // handle the removal of a cluster node from other nodes
         case "remove_known_node" -> {
-          var nodeId = event.content().readString();
-          var hostAndPort = event.content().readObject(HostAndPort.class);
-          var nodeConfig = CloudNet.instance().config();
-          // remove the node from the configuration
-          nodeConfig.clusterConfig().nodes().stream()
-            .filter(node -> node.uniqueId().equals(nodeId) && node.listeners().stream().anyMatch(hostAndPort::equals))
-            .forEach(node -> {
-              // this will remove duplicates as well (even if there should never be a duplicate)
-              nodeConfig.clusterConfig().nodes().remove(node);
-              // save and notify about the change directly
-              nodeConfig.save();
-              LOGGER.info(I18n.trans("command-cluster-remove-node-success", nodeId, hostAndPort.host()));
-            });
+          // unregister the node
+          var node = event.content().readObject(NetworkClusterNode.class);
+          this.nodeInfoProvider.removeNodeSilently(node);
+
+          // remove the node
+          LOGGER.info(I18n.trans("command-cluster-remove-node-success", node.uniqueId()));
         }
 
         // handles the shutdown of a cluster node

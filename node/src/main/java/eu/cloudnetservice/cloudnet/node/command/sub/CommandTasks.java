@@ -158,14 +158,14 @@ public final class CommandTasks {
 
   @Suggestions("serviceTask")
   public List<String> suggestTask(CommandContext<CommandSource> $, String input) {
-    return this.taskProvider().permanentServiceTasks().stream().map(Nameable::name).toList();
+    return this.taskProvider().serviceTasks().stream().map(Nameable::name).toList();
   }
 
   @Parser(suggestions = "serviceTask")
   public Collection<ServiceTask> wildcardTaskParser(CommandContext<CommandSource> $, Queue<String> input) {
     var name = input.remove();
     var matchedTasks = WildcardUtil.filterWildcard(
-      this.taskProvider().permanentServiceTasks(),
+      this.taskProvider().serviceTasks(),
       name);
     if (matchedTasks.isEmpty()) {
       throw new ArgumentNotAvailableException(I18n.trans("command-tasks-task-not-found"));
@@ -225,14 +225,14 @@ public final class CommandTasks {
   @CommandMethod("tasks delete <name>")
   public void deleteTask(CommandSource source, @Argument("name") Collection<ServiceTask> serviceTasks) {
     for (var serviceTask : serviceTasks) {
-      this.taskProvider().removePermanentServiceTask(serviceTask);
+      this.taskProvider().removeServiceTask(serviceTask);
       source.sendMessage(I18n.trans("command-tasks-delete-task"));
     }
   }
 
   @CommandMethod("tasks list")
   public void listTasks(CommandSource source) {
-    source.sendMessage(TASK_LIST_FORMATTER.format(this.taskProvider().permanentServiceTasks()));
+    source.sendMessage(TASK_LIST_FORMATTER.format(this.taskProvider().serviceTasks()));
   }
 
   @CommandMethod("tasks create <name> <environment>")
@@ -240,7 +240,7 @@ public final class CommandTasks {
     @Argument("name") String taskName,
     @Argument("environment") ServiceEnvironmentType environmentType
   ) {
-    if (this.taskProvider().serviceTaskPresent(taskName)) {
+    if (this.taskProvider().serviceTask(taskName) != null) {
       source.sendMessage(I18n.trans("command-tasks-task-already-existing"));
       return;
     }
@@ -254,7 +254,7 @@ public final class CommandTasks {
       .maxHeapMemory(512)
       .startPort(environmentType.defaultStartPort())
       .build();
-    this.taskProvider().addPermanentServiceTask(serviceTask);
+    this.taskProvider().addServiceTask(serviceTask);
     source.sendMessage(I18n.trans("command-tasks-create-task"));
   }
 
@@ -638,7 +638,7 @@ public final class CommandTasks {
   }
 
   private void updateTask(@NonNull ServiceTask task) {
-    this.taskProvider().addPermanentServiceTask(task);
+    this.taskProvider().addServiceTask(task);
   }
 
   private void updateTask(@NonNull ServiceTask task, @NonNull Consumer<ServiceTask.Builder> consumer) {

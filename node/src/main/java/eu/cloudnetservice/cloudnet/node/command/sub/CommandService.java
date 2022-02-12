@@ -37,7 +37,7 @@ import eu.cloudnetservice.cloudnet.common.unsafe.CPUUsageResolver;
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessageSender;
 import eu.cloudnetservice.cloudnet.driver.event.EventListener;
 import eu.cloudnetservice.cloudnet.driver.event.events.service.CloudServiceLogEntryEvent;
-import eu.cloudnetservice.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
+import eu.cloudnetservice.cloudnet.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceDeployment;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceRemoteInclusion;

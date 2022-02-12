@@ -69,7 +69,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
         .nameExtractor(Nameable::name)
         .convertObject(ServiceTask.class)
         .writer(this::addPermanentServiceTaskSilently)
-        .dataCollector(this::permanentServiceTasks)
+        .dataCollector(this::serviceTasks)
         .currentGetter(task -> this.serviceTask(task.name()))
         .build());
 
@@ -90,21 +90,8 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   }
 
   @Override
-  public @NonNull Collection<ServiceTask> permanentServiceTasks() {
+  public @NonNull Collection<ServiceTask> serviceTasks() {
     return Collections.unmodifiableCollection(this.serviceTasks.values());
-  }
-
-  @Override
-  public void permanentServiceTasks(@NonNull Collection<ServiceTask> serviceTasks) {
-    this.permanentServiceTasksSilently(serviceTasks);
-    // notify the cluster
-    ChannelMessage.builder()
-      .targetNodes()
-      .message("set_service_tasks")
-      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .buffer(DataBuf.empty().writeObject(serviceTasks))
-      .build()
-      .send();
   }
 
   @Override
@@ -113,12 +100,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   }
 
   @Override
-  public boolean serviceTaskPresent(@NonNull String name) {
-    return this.serviceTasks.containsKey(name);
-  }
-
-  @Override
-  public boolean addPermanentServiceTask(@NonNull ServiceTask serviceTask) {
+  public boolean addServiceTask(@NonNull ServiceTask serviceTask) {
     if (!this.eventManager.callEvent(new LocalServiceTaskAddEvent(serviceTask)).cancelled()) {
       this.addPermanentServiceTaskSilently(serviceTask);
       // notify the cluster
@@ -135,15 +117,15 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   }
 
   @Override
-  public void removePermanentServiceTaskByName(@NonNull String name) {
+  public void removeServiceTaskByName(@NonNull String name) {
     var task = this.serviceTask(name);
     if (task != null) {
-      this.removePermanentServiceTask(task);
+      this.removeServiceTask(task);
     }
   }
 
   @Override
-  public void removePermanentServiceTask(@NonNull ServiceTask serviceTask) {
+  public void removeServiceTask(@NonNull ServiceTask serviceTask) {
     if (!this.eventManager.callEvent(new LocalServiceTaskRemoveEvent(serviceTask)).cancelled()) {
       this.removePermanentServiceTaskSilently(serviceTask);
       // notify the whole network
@@ -170,35 +152,12 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     FileUtil.delete(this.taskFile(serviceTask));
   }
 
-  public void permanentServiceTasksSilently(@NonNull Collection<ServiceTask> serviceTasks) {
-    // update the cache
-    this.serviceTasks.clear();
-    serviceTasks.forEach(task -> this.serviceTasks.put(task.name(), task));
-    // store all tasks
-    this.writeAllServiceTasks();
-  }
-
   protected @NonNull Path taskFile(@NonNull ServiceTask task) {
     return TASKS_DIRECTORY.resolve(task.name() + ".json");
   }
 
   protected void writeServiceTask(@NonNull ServiceTask serviceTask) {
     JsonDocument.newDocument(serviceTask).write(this.taskFile(serviceTask));
-  }
-
-  protected void writeAllServiceTasks() {
-    // write all service tasks
-    for (var serviceTask : this.serviceTasks.values()) {
-      this.writeServiceTask(serviceTask);
-    }
-    // delete all service task files which do not exist anymore
-    FileUtil.walkFileTree(TASKS_DIRECTORY, ($, file) -> {
-      // check if we know the file name
-      var taskName = file.getFileName().toString().replace(".json", "");
-      if (!this.serviceTasks.containsKey(taskName)) {
-        FileUtil.delete(file);
-      }
-    }, false, "*.json");
   }
 
   protected void loadServiceTasks() {
@@ -215,10 +174,11 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
       // Wrap the command to a path and unwrap it again to ensure that the command is os specific
       // This allows for example Windows users to use '/' in the task file which is way easier as there
       // is no need to escape. ('\' must be escaped)
-      if (task.javaCommand() != null && !task.javaCommand().equals("java")) {
-        var command = Path.of(task.javaCommand()).toAbsolutePath().normalize().toString();
+      var javaCommand = task.javaCommand();
+      if (javaCommand != null && !javaCommand.equals("java")) {
+        var command = Path.of(javaCommand).toAbsolutePath().normalize().toString();
         // validate if the task java command needs an update
-        if (!task.javaCommand().equals(command)) {
+        if (!javaCommand.equals(command)) {
           task = ServiceTask.builder(task).javaCommand(command).build();
         }
 
@@ -232,7 +192,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
       }
 
       // cache the task
-      this.addPermanentServiceTask(task);
+      this.addServiceTask(task);
     }, false, "*.json");
   }
 }

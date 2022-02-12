@@ -16,28 +16,40 @@
 
 package eu.cloudnetservice.cloudnet.node.provider;
 
+import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
 import eu.cloudnetservice.cloudnet.driver.command.CommandInfo;
+import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
-import eu.cloudnetservice.cloudnet.driver.provider.NodeInfoProvider;
+import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
+import eu.cloudnetservice.cloudnet.driver.provider.ClusterNodeProvider;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServer;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
 import eu.cloudnetservice.cloudnet.node.command.source.DriverCommandSource;
+import eu.cloudnetservice.cloudnet.node.network.listener.message.NodeChannelMessageListener;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Objects;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public class NodeNodeInfoProvider implements NodeInfoProvider {
+public class NodeClusterNodeProvider implements ClusterNodeProvider {
 
+  private final CloudNet nodeInstance;
   private final NodeServerProvider clusterNodeServerProvider;
 
-  public NodeNodeInfoProvider(@NonNull CloudNet nodeInstance) {
+  public NodeClusterNodeProvider(@NonNull CloudNet nodeInstance) {
+    this.nodeInstance = nodeInstance;
     this.clusterNodeServerProvider = nodeInstance.nodeServerProvider();
-    nodeInstance.rpcProviderFactory().newHandler(NodeInfoProvider.class, this).registerToDefaultRegistry();
+
+    // init
+    nodeInstance.eventManager().registerListener(new NodeChannelMessageListener(
+      nodeInstance.eventManager(),
+      nodeInstance.dataSyncRegistry(),
+      this,
+      nodeInstance.nodeServerProvider()));
+    nodeInstance.rpcProviderFactory().newHandler(ClusterNodeProvider.class, this).registerToDefaultRegistry();
   }
 
   @Override
@@ -58,6 +70,45 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
       .filter(nodeInfo -> nodeInfo.uniqueId().equals(uniqueId))
       .findFirst()
       .orElse(null);
+  }
+
+  @Override
+  public boolean addNode(@NonNull NetworkClusterNode node) {
+    // prevent duplicate node registrations
+    if (this.node(node.uniqueId()) == null) {
+      this.addNodeSilently(node);
+      // send the update to all nodes
+      ChannelMessage.builder()
+        .targetNodes()
+        .message("register_known_node")
+        .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+        .buffer(DataBuf.empty().writeObject(node))
+        .build()
+        .send();
+      return true;
+    }
+    // the node is already present
+    return false;
+  }
+
+  @Override
+  public boolean removeNode(@NonNull String uniqueId) {
+    // check if the node is still registered
+    var clusterNode = this.node(uniqueId);
+    if (clusterNode != null) {
+      this.removeNodeSilently(clusterNode);
+      // send the update to all nodes
+      ChannelMessage.builder()
+        .targetNodes()
+        .message("remove_known_node")
+        .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+        .buffer(DataBuf.empty().writeObject(clusterNode))
+        .build()
+        .send();
+      return true;
+    }
+    // the node is not present
+    return false;
   }
 
   @Override
@@ -87,17 +138,6 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
   }
 
   @Override
-  public @NonNull Collection<String> sendCommandLineToNode(@NonNull String nodeUniqueId, @NonNull String commandLine) {
-    // find the node server and execute the command on there
-    var clusterNodeServer = this.clusterNodeServerProvider.node(nodeUniqueId);
-    if (clusterNodeServer != null && clusterNodeServer.available()) {
-      return clusterNodeServer.sendCommandLine(commandLine);
-    }
-    // unable to execute the command
-    return Collections.emptyList();
-  }
-
-  @Override
   public @Nullable CommandInfo consoleCommand(@NonNull String commandLine) {
     return CloudNet.instance().commandProvider().command(commandLine);
   }
@@ -105,5 +145,29 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
   @Override
   public @NonNull Collection<String> consoleTabCompleteResults(@NonNull String commandLine) {
     return CloudNet.instance().commandProvider().suggest(CommandSource.console(), commandLine);
+  }
+
+  public void addNodeSilently(@NonNull NetworkClusterNode node) {
+    // register the node
+    var config = this.nodeInstance.config();
+    config.clusterConfig().nodes().add(node);
+    // register all hosts
+    node.listeners().forEach(hostAndPort -> config.ipWhitelist().add(hostAndPort.host()));
+    config.save();
+
+    // register the node to the provider
+    this.clusterNodeServerProvider.registerNode(node);
+  }
+
+  public void removeNodeSilently(@NonNull NetworkClusterNode node) {
+    // unregister the node
+    var config = this.nodeInstance.config();
+    config.clusterConfig().nodes().remove(node);
+    // unregister all hosts
+    node.listeners().forEach(hostAndPort -> config.ipWhitelist().remove(hostAndPort.host()));
+    config.save();
+
+    // unregister the node from the provider
+    this.clusterNodeServerProvider.unregisterNode(node.uniqueId());
   }
 }
