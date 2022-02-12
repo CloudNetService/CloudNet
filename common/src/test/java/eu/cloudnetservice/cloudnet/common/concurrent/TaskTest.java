@@ -51,7 +51,7 @@ public class TaskTest {
       }
     });
 
-    Assertions.assertEquals(5f, then.getNow(0f));
+    Assertions.assertEquals(5f, then.join());
     Assertions.assertTrue(then.isDone());
   }
 
