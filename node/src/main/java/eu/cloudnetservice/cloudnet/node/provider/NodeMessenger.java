@@ -26,7 +26,7 @@ import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessageTarget;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.def.PacketServerChannelMessage;
 import eu.cloudnetservice.cloudnet.driver.provider.CloudMessenger;
-import eu.cloudnetservice.cloudnet.driver.provider.DefaultMessenger;
+import eu.cloudnetservice.cloudnet.driver.provider.defaults.DefaultMessenger;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServerProvider;
@@ -203,7 +203,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
       case ENVIRONMENT -> {
         // lookup all services of the given environment
         return this.filterChannels(
-          this.cloudServiceManager.servicesByEnvironment(target.environment()),
+          this.cloudServiceManager.servicesByEnvironment(target.environment().name()),
           allowClusterRedirect);
       }
       case GROUP -> {

@@ -26,140 +26,150 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
 /**
- * This class provides access to the tasks of the cloud (tasks folder)
+ * The main api which allows read and write access to task configurations. This provider directly represents the holder
+ * of the configurations as well, therefore every lookup made through this class should not require a cluster wide
+ * lookup.
+ * <p>
+ * All tasks which are manageable via this provider are permanent. While a task a service is based on can be temporarily
+ * registered in the system, this provider will <strong>never</strong> return these tasks. A service holds the same
+ * configuration as a task, therefore no lookup of the task should be required. This does also mean that services could
+ * be based on a task but the task was unregistered while the service is running.
+ *
+ * @since 4.0
  */
 @RPCValidation
 public interface ServiceTaskProvider {
 
   /**
-   * Reloads all tasks
+   * Reloads this provider by clearing the backing task cache and re-reading all task configurations in the associated
+   * directory. Note that this method will not trigger a cluster re-sync of the task configurations.
    */
   void reload();
 
   /**
-   * Gets all tasks that are registered in the cloud
+   * Get all task configurations which are registered within the cluster. The backing collection will be updated if a
+   * group configuration was added via the api endpoint of any node in the cluster. Additions and removals to the
+   * returned collection are not possible and will not have any effect.
    *
-   * @return a list containing the task configurations of all tasks
+   * @return all registered task configurations within the cluster.
    */
   @UnmodifiableView
-  @NonNull Collection<ServiceTask> permanentServiceTasks();
+  @NonNull Collection<ServiceTask> serviceTasks();
 
   /**
-   * Clears all existing service tasks and sets the given collection as the new service tasks
+   * Get a task configuration which has the given name and is registered within the cluster. This method returns null if
+   * no task with the given name is registered.
    *
-   * @param serviceTasks the new service tasks
-   */
-  void permanentServiceTasks(@NonNull Collection<ServiceTask> serviceTasks);
-
-  /**
-   * Gets a specific task by its name
-   *
-   * @param name the name of the task
-   * @return the task or null if no task with that name exists
+   * @param name the name of the task to get.
+   * @return the task configuration which has the given name or null if no task with the given name is registered.
+   * @throws NullPointerException if the given name is null.
    */
   @Nullable ServiceTask serviceTask(@NonNull String name);
 
   /**
-   * Checks whether the task with a specific name exists
+   * Adds a new task configuration by caching the given object, creating the task file and syncing the change to all
+   * other nodes which are currently connected in the cluster. This method either creates the task or updates it if it
+   * already exists. There are no checks made if there is a diff before updating the configuration.
    *
-   * @param name the name of the task
-   * @return true if the task exists or false otherwise
+   * @param serviceTask the task configuration to create or update.
+   * @return true if the service task was registered or updated, false otherwise.
+   * @throws NullPointerException if the given task configuration is null.
    */
-  boolean serviceTaskPresent(@NonNull String name);
+  boolean addServiceTask(@NonNull ServiceTask serviceTask);
 
   /**
-   * Adds a new task to the cloud
+   * Deletes the task configuration with the given name on the local node and all other nodes in the cluster by removing
+   * it from the backing collection and deleting the associated file.
+   * <p>
+   * This method does nothing if no task configuration with the given name exists.
    *
-   * @param serviceTask the task to be added
+   * @param name the name of the task configuration to remove.
+   * @throws NullPointerException if the given task name is null.
    */
-  boolean addPermanentServiceTask(@NonNull ServiceTask serviceTask);
+  void removeServiceTaskByName(@NonNull String name);
 
   /**
-   * Removes a task from the cloud
+   * Deletes the task configuration with the given name on the local node and all other nodes in the cluster by removing
+   * it from the backing collection and deleting the associated file.
+   * <p>
+   * This method does nothing if no task configuration with the given name exists.
    *
-   * @param name the name of the task to be removed
+   * @param serviceTask the service task to remove.
+   * @throws NullPointerException if the given task name is null.
    */
-  void removePermanentServiceTaskByName(@NonNull String name);
+  void removeServiceTask(@NonNull ServiceTask serviceTask);
 
   /**
-   * Removes a task from the cloud
+   * Reloads this provider by clearing the backing task cache and re-reading all task configurations in the associated
+   * directory. Note that this method will not trigger a cluster re-sync of the task configurations.
    *
-   * @param serviceTask the task to be removed (the only thing that matters in this object is the name, the rest is
-   *                    ignored)
-   */
-  void removePermanentServiceTask(@NonNull ServiceTask serviceTask);
-
-  /**
-   * Reloads all tasks
+   * @return a task completed when the provider was reloaded successfully.
    */
   default @NonNull Task<Void> reloadAsync() {
     return CompletableTask.supply(this::reload);
   }
 
   /**
-   * Gets all tasks that are registered in the cloud
+   * Get all task configurations which are registered within the cluster. The backing collection will be updated if a
+   * group configuration was added via the api endpoint of any node in the cluster. Additions and removals to the
+   * returned collection are not possible and will not have any effect.
    *
-   * @return a list containing the task configurations of all tasks
+   * @return a task completed with all registered task configurations within the cluster.
    */
-  default @NonNull Task<Collection<ServiceTask>> permanentServiceTasksAsync() {
-    return CompletableTask.supply(() -> this.permanentServiceTasks());
+  default @NonNull Task<Collection<ServiceTask>> serviceTasksAsync() {
+    return CompletableTask.supply(this::serviceTasks);
   }
 
   /**
-   * Clears all existing service tasks and sets the given collection as the new service tasks
+   * Get a task configuration which has the given name and is registered within the cluster. This method returns null if
+   * no task with the given name is registered.
    *
-   * @param serviceTasks the new service tasks
-   */
-  default @NonNull Task<Void> permanentServiceTasksAsync(@NonNull Collection<ServiceTask> serviceTasks) {
-    return CompletableTask.supply(() -> this.permanentServiceTasks(serviceTasks));
-  }
-
-  /**
-   * Gets a specific task by its name
-   *
-   * @param name the name of the task
-   * @return the task or null if no task with that name exists
+   * @param name the name of the task to get.
+   * @return a task completed with the task configuration which has the given name or null if such task exists.
+   * @throws NullPointerException if the given name is null.
    */
   default @NonNull Task<ServiceTask> serviceTaskAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.serviceTask(name));
   }
 
   /**
-   * Checks whether the task with a specific name exists
+   * Adds a new task configuration by caching the given object, creating the task file and syncing the change to all
+   * other nodes which are currently connected in the cluster. This method either creates the task or updates it if it
+   * already exists. There are no checks made if there is a diff before updating the configuration.
    *
-   * @param name the name of the task
-   * @return true if the task exists or false otherwise
+   * @param serviceTask the task configuration to create or update.
+   * @return a task completed with true if the task configuration was registered or updated, false otherwise.
+   * @throws NullPointerException if the given task configuration is null.
    */
-  default @NonNull Task<Boolean> isServiceTaskPresentAsync(@NonNull String name) {
-    return CompletableTask.supply(() -> this.serviceTaskPresent(name));
+  default @NonNull Task<Boolean> addServiceTaskAsync(@NonNull ServiceTask serviceTask) {
+    return CompletableTask.supply(() -> this.addServiceTask(serviceTask));
   }
 
   /**
-   * Adds a new task to the cloud
+   * Deletes the task configuration with the given name on the local node and all other nodes in the cluster by removing
+   * it from the backing collection and deleting the associated file.
+   * <p>
+   * This method does nothing if no task configuration with the given name exists.
    *
-   * @param serviceTask the task to be added
+   * @param name the name of the task configuration to remove.
+   * @return a task completed when the service task with the given name was removed.
+   * @throws NullPointerException if the given task name is null.
    */
-  default @NonNull Task<Boolean> addPermanentServiceTaskAsync(@NonNull ServiceTask serviceTask) {
-    return CompletableTask.supply(() -> this.addPermanentServiceTask(serviceTask));
+  default @NonNull Task<Void> removeServiceTaskByNameAsync(@NonNull String name) {
+    return CompletableTask.supply(() -> this.removeServiceTaskByName(name));
   }
 
   /**
-   * Removes a task from the cloud
+   * Deletes the task configuration with the given name on the local node and all other nodes in the cluster by removing
+   * it from the backing collection and deleting the associated file.
+   * <p>
+   * This method does nothing if no task configuration with the given name exists.
    *
-   * @param name the name of the task to be removed
+   * @param serviceTask the service task to remove.
+   * @return a task completed when the given service task was removed.
+   * @throws NullPointerException if the given task name is null.
    */
-  default @NonNull Task<Void> removePermanentServiceTaskByNameAsync(@NonNull String name) {
-    return CompletableTask.supply(() -> this.removePermanentServiceTaskByName(name));
+  default @NonNull Task<Void> removeServiceTaskAsync(@NonNull ServiceTask serviceTask) {
+    return CompletableTask.supply(() -> this.removeServiceTask(serviceTask));
   }
-
-  /**
-   * Removes a task from the cloud
-   *
-   * @param serviceTask the task to be removed (the only thing that matters in this object is the name, the rest is
-   *                    ignored)
-   */
-  default @NonNull Task<Void> removePermanentServiceTaskAsync(@NonNull ServiceTask serviceTask) {
-    return this.removePermanentServiceTaskByNameAsync(serviceTask.name());
-  }
-
 }

@@ -134,7 +134,7 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
       .addTemplate(defaultTemplate)
       .nameSplitter(animation.result("taskNameSplitter"))
       .build();
-    CloudNet.instance().serviceTaskProvider().addPermanentServiceTask(task);
+    CloudNet.instance().serviceTaskProvider().addServiceTask(task);
     // create a group with the same name
     var groupConfiguration = GroupConfiguration.builder().name(name).build();
     CloudNet.instance().groupConfigurationProvider().addGroupConfiguration(groupConfiguration);

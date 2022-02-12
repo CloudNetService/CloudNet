@@ -17,7 +17,7 @@
 package eu.cloudnetservice.cloudnet.driver.event.events.service;
 
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessageSender;
-import eu.cloudnetservice.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
+import eu.cloudnetservice.cloudnet.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import lombok.NonNull;
 

@@ -26,137 +26,143 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
 /**
- * This class provides access to the groups of the cloud (groups.json file).
+ * The main api which allows read and write access to group configurations. This provider directly represents the holder
+ * of the configurations as well, therefore every lookup made through this class should not require a cluster wide
+ * lookup.
+ *
+ * @since 4.0
  */
 @RPCValidation
 public interface GroupConfigurationProvider {
 
   /**
-   * Reloads the groups.json file
+   * Reloads this provider by clearing the backing group cache and re-reading all group configurations in the associated
+   * directory. Note that this method will not trigger a cluster re-sync of the group configurations.
    */
   void reload();
 
   /**
-   * Gets all groups that are registered in the cloud
+   * Get all group configurations which are registered within the cluster. The backing collection will be updated if a
+   * group configuration was added via the api endpoint of any node in the cluster. Additions and removals to the
+   * returned collection are not possible and will not have any effect.
    *
-   * @return a list containing the group configurations of all groups
+   * @return all registered group configurations within the cluster.
    */
   @NonNull
   @UnmodifiableView Collection<GroupConfiguration> groupConfigurations();
 
   /**
-   * Clears all existing groups and sets the given collection as the new groups
+   * Get a group configuration which has the given name and is registered within the cluster. This method returns null
+   * if no group with the given name is registered.
    *
-   * @param groupConfigurations the new groups
-   */
-  void groupConfigurations(@NonNull Collection<GroupConfiguration> groupConfigurations);
-
-  /**
-   * Gets a specific group by its name
-   *
-   * @param name the name of the group
-   * @return the group or null if no group with that name exists
+   * @param name the name of the group to get.
+   * @return the group configuration which has the given name or null if no group with the given name is registered.
+   * @throws NullPointerException if the given name is null.
    */
   @Nullable GroupConfiguration groupConfiguration(@NonNull String name);
 
   /**
-   * Checks whether the group with a specific name exists
+   * Adds a new group configuration by caching the given object, creating the group file and syncing the change to all
+   * other nodes which are currently connected in the cluster. This method either creates the group or updates it if it
+   * already exists. There are no checks made if there is a diff before updating the configuration.
    *
-   * @param name the name of the group
-   * @return true if the group exists or false otherwise
+   * @param groupConfiguration the group configuration to create or update.
+   * @return true if the group configuration was registered or updated, false otherwise.
+   * @throws NullPointerException if the given group configuration is null.
    */
-  boolean groupConfigurationPresent(@NonNull String name);
+  boolean addGroupConfiguration(@NonNull GroupConfiguration groupConfiguration);
 
   /**
-   * Adds a new group to the cloud
+   * Deletes the group configuration with the given name on the local node and all other nodes in the cluster by
+   * removing it from the backing collection and deleting the associated file.
+   * <p>
+   * This method does nothing if no group configuration with the given name exists.
    *
-   * @param groupConfiguration the group to be added
-   */
-  void addGroupConfiguration(@NonNull GroupConfiguration groupConfiguration);
-
-  /**
-   * Removes a group from the cloud
-   *
-   * @param name the name of the group to be removed
+   * @param name the name of the group configuration to remove.
+   * @throws NullPointerException if the given group name is null.
    */
   void removeGroupConfigurationByName(@NonNull String name);
 
   /**
-   * Removes a group from the cloud
+   * Deletes the group configuration with the given name on the local node and all other nodes in the cluster by
+   * removing it from the backing collection and deleting the associated file.
+   * <p>
+   * This method does nothing if no group configuration with the given name exists.
    *
-   * @param groupConfiguration the group to be removed (the only thing that matters in this object is the name, the rest
-   *                           is ignored)
+   * @param groupConfiguration the group configuration to remove.
+   * @throws NullPointerException if the given group configuration is null.
    */
   void removeGroupConfiguration(@NonNull GroupConfiguration groupConfiguration);
 
   /**
-   * Reloads the groups.json file
+   * Reloads this provider by clearing the backing group cache and re-reading all group configurations in the associated
+   * directory. Note that this method will not trigger a cluster re-sync of the group configurations.
+   *
+   * @return a task completed if the group configurations were reloaded.
    */
   default @NonNull Task<Void> reloadAsync() {
     return CompletableTask.supply(this::reload);
   }
 
   /**
-   * Gets all groups that are registered in the cloud
+   * Get all group configurations which are registered within the cluster. The backing collection will be updated if a
+   * group configuration was added via the api endpoint of any node in the cluster. Additions and removals to the
+   * returned collection are not possible and will not have any effect.
    *
-   * @return a list containing the group configurations of all groups
+   * @return a task completed with all registered group configurations within the cluster.
    */
   default @NonNull Task<Collection<GroupConfiguration>> groupConfigurationsAsync() {
-    return CompletableTask.supply(() -> this.groupConfigurations());
+    return CompletableTask.supply(this::groupConfigurations);
   }
 
   /**
-   * Clears all existing groups and sets the given collection as the new groups
+   * Get a group configuration which has the given name and is registered within the cluster. This method returns null
+   * if no group with the given name is registered.
    *
-   * @param groupConfigurations the new groups
-   */
-  default @NonNull Task<Void> groupConfigurationsAsync(@NonNull Collection<GroupConfiguration> groupConfigurations) {
-    return CompletableTask.supply(() -> this.groupConfigurations(groupConfigurations));
-  }
-
-  /**
-   * Gets a specific group by its name
-   *
-   * @param name the name of the group
-   * @return the group or null if no group with that name exists
+   * @param name the name of the group to get.
+   * @return a task completed with the group which has the given name or null if no such group with is registered.
+   * @throws NullPointerException if the given name is null.
    */
   default @NonNull Task<GroupConfiguration> groupConfigurationAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.groupConfiguration(name));
   }
 
   /**
-   * Checks whether the group with a specific name exists
+   * Adds a new group configuration by caching the given object, creating the group file and syncing the change to all
+   * other nodes which are currently connected in the cluster. This method either creates the group or updates it if it
+   * already exists. There are no checks made if there is a diff before updating the configuration.
    *
-   * @param name the name of the group
-   * @return true if the group exists or false otherwise
+   * @param groupConfiguration the group configuration to create or update.
+   * @return a task completed with true if the group configuration was added or updated, false otherwise.
+   * @throws NullPointerException if the given group configuration is null.
    */
-  default @NonNull Task<Boolean> groupConfigurationPresentAsync(@NonNull String name) {
-    return CompletableTask.supply(() -> this.groupConfigurationPresent(name));
-  }
-
-  /**
-   * Adds a new group to the cloud
-   *
-   * @param groupConfiguration the group to be added
-   */
-  default @NonNull Task<Void> addGroupConfigurationAsync(@NonNull GroupConfiguration groupConfiguration) {
+  default @NonNull Task<Boolean> addGroupConfigurationAsync(@NonNull GroupConfiguration groupConfiguration) {
     return CompletableTask.supply(() -> this.addGroupConfiguration(groupConfiguration));
   }
 
   /**
-   * Removes a group from the cloud
+   * Deletes the group configuration with the given name on the local node and all other nodes in the cluster by
+   * removing it from the backing collection and deleting the associated file.
+   * <p>
+   * This method does nothing if no group configuration with the given name exists.
    *
-   * @param name the name of the group to be removed
+   * @param name the name of the group configuration to remove.
+   * @return a task completed when the group configuration with the given name was removed.
+   * @throws NullPointerException if the given group name is null.
    */
   default @NonNull Task<Void> removeGroupConfigurationByNameAsync(@NonNull String name) {
     return CompletableTask.supply(() -> this.removeGroupConfigurationByName(name));
   }
 
   /**
-   * Removes a group from the cloud
+   * Deletes the group configuration with the given name on the local node and all other nodes in the cluster by
+   * removing it from the backing collection and deleting the associated file.
+   * <p>
+   * This method does nothing if no group configuration with the given name exists.
    *
-   * @param groupConfiguration the group to be removed (the only thing that matters in this object is the name, the rest
-   *                           is ignored)
+   * @param groupConfiguration the group configuration to remove.
+   * @return a task completed when the given group configuration was removed.
+   * @throws NullPointerException if the given group configuration is null.
    */
   default @NonNull Task<Void> removeGroupConfigurationAsync(@NonNull GroupConfiguration groupConfiguration) {
     return CompletableTask.supply(() -> this.removeGroupConfiguration(groupConfiguration));

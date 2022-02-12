@@ -23,7 +23,6 @@ import cloud.commandframework.annotations.Flag;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import eu.cloudnetservice.cloudnet.common.column.ColumnFormatter;
@@ -33,12 +32,9 @@ import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.common.unsafe.CPUUsageResolver;
-import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
 import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
-import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.chunk.TransferStatus;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNode;
-import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServer;
@@ -107,7 +103,7 @@ public final class CommandCluster {
   @Parser(suggestions = "networkClusterNode")
   public NetworkClusterNode defaultNetworkClusterNodeParser(CommandContext<CommandSource> $, Queue<String> input) {
     var nodeId = input.remove();
-    var clusterNode = CloudNet.instance().nodeInfoProvider().node(nodeId);
+    var clusterNode = CloudNet.instance().clusterNodeProvider().node(nodeId);
     if (clusterNode == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-cluster-node-not-found"));
     }
@@ -187,33 +183,13 @@ public final class CommandCluster {
     @Argument(value = "nodeId", parserName = "noNodeId") String nodeId,
     @Argument("host") HostAndPort hostAndPort
   ) {
-    var nodeConfig = CloudNet.instance().config();
-    // only add the new network node if we have a change to the underlying set
-    if (nodeConfig.clusterConfig().nodes().add(new NetworkClusterNode(nodeId, Lists.newArrayList(hostAndPort)))) {
-      // add the ip to the ip whitelist to allow a connection
-      nodeConfig.ipWhitelist().add(hostAndPort.host());
-      // write the changes to the file
-      nodeConfig.save();
-      // notify other nodes about this change and add the node there too
-      this.updateClusterNodes("register_known_node", nodeId, hostAndPort);
-    }
-    source.sendMessage(I18n.trans("command-cluster-add-node-success", nodeId, hostAndPort.host()));
+    CloudNet.instance().clusterNodeProvider().addNode(new NetworkClusterNode(nodeId, Lists.newArrayList(hostAndPort)));
+    source.sendMessage(I18n.trans("command-cluster-add-node-success", nodeId));
   }
 
   @CommandMethod("cluster|clu remove <nodeId>")
   public void removeNodeFromCluster(CommandSource source, @Argument("nodeId") NetworkClusterNode node) {
-    var nodeConfig = CloudNet.instance().config();
-    // try to remove the node from the cluster config
-    if (nodeConfig.clusterConfig().nodes().remove(node)) {
-      var listener = Iterables.getFirst(node.listeners(), null);
-      if (listener != null) {
-        // notify other nodes about this change and remove the node
-        this.updateClusterNodes("remove_known_node", node.uniqueId(), listener);
-      }
-      // write the node config
-      nodeConfig.save();
-    }
-
+    CloudNet.instance().clusterNodeProvider().removeNode(node.uniqueId());
     source.sendMessage(I18n.trans("command-cluster-remove-node-success", node.uniqueId()));
   }
 
@@ -380,19 +356,5 @@ public final class CommandCluster {
       ));
     }
     source.sendMessage(list);
-  }
-
-  private void updateClusterNodes(
-    @NonNull String messageKey,
-    @NonNull String nodeId,
-    @NonNull HostAndPort hostAndPort
-  ) {
-    ChannelMessage.builder()
-      .targetNodes()
-      .message(messageKey)
-      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .buffer(DataBuf.empty().writeString(nodeId).writeObject(hostAndPort))
-      .build()
-      .send();
   }
 }

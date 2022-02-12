@@ -20,8 +20,8 @@ import eu.cloudnetservice.cloudnet.common.concurrent.CompletedTask;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCSender;
-import eu.cloudnetservice.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
-import eu.cloudnetservice.cloudnet.driver.provider.service.RemoteSpecificCloudServiceProvider;
+import eu.cloudnetservice.cloudnet.driver.provider.CloudServiceProvider;
+import eu.cloudnetservice.cloudnet.driver.provider.defaults.RemoteSpecificCloudServiceProvider;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import java.util.function.Supplier;
 import lombok.NonNull;
@@ -31,7 +31,7 @@ public class RemoteNodeCloudServiceProvider extends RemoteSpecificCloudServicePr
   private volatile ServiceInfoSnapshot snapshot;
 
   public RemoteNodeCloudServiceProvider(
-    @NonNull GeneralCloudServiceProvider provider,
+    @NonNull CloudServiceProvider provider,
     @NonNull RPCSender providerSender,
     @NonNull Supplier<NetworkChannel> channelSupplier,
     @NonNull ServiceInfoSnapshot snapshot

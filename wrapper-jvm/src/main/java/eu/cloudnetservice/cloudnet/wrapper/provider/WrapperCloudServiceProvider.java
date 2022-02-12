@@ -18,30 +18,30 @@ package eu.cloudnetservice.cloudnet.wrapper.provider;
 
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCSender;
-import eu.cloudnetservice.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
-import eu.cloudnetservice.cloudnet.driver.provider.service.RemoteSpecificCloudServiceProvider;
-import eu.cloudnetservice.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
+import eu.cloudnetservice.cloudnet.driver.provider.CloudServiceProvider;
+import eu.cloudnetservice.cloudnet.driver.provider.SpecificCloudServiceProvider;
+import eu.cloudnetservice.cloudnet.driver.provider.defaults.RemoteSpecificCloudServiceProvider;
 import java.util.UUID;
 import java.util.function.Supplier;
 import lombok.NonNull;
 
-public abstract class WrapperGeneralCloudServiceProvider implements GeneralCloudServiceProvider {
+public abstract class WrapperCloudServiceProvider implements CloudServiceProvider {
 
   private final RPCSender rpcSender;
   private final Supplier<NetworkChannel> channelSupplier;
 
-  public WrapperGeneralCloudServiceProvider(@NonNull RPCSender sender) {
+  public WrapperCloudServiceProvider(@NonNull RPCSender sender) {
     this.rpcSender = sender;
     this.channelSupplier = sender.associatedComponent()::firstChannel;
   }
 
   @Override
-  public @NonNull SpecificCloudServiceProvider specificProvider(@NonNull UUID serviceUniqueId) {
+  public @NonNull SpecificCloudServiceProvider serviceProvider(@NonNull UUID serviceUniqueId) {
     return new RemoteSpecificCloudServiceProvider(this, this.rpcSender, this.channelSupplier, serviceUniqueId);
   }
 
   @Override
-  public @NonNull SpecificCloudServiceProvider specificProviderByName(@NonNull String serviceName) {
+  public @NonNull SpecificCloudServiceProvider serviceProviderByName(@NonNull String serviceName) {
     return new RemoteSpecificCloudServiceProvider(this, this.rpcSender, this.channelSupplier, serviceName);
   }
 }

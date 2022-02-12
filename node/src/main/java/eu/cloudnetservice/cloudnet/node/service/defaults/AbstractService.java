@@ -440,7 +440,7 @@ public abstract class AbstractService implements CloudService {
   }
 
   @Override
-  public Queue<String> cachedLogMessages() {
+  public @NonNull Queue<String> cachedLogMessages() {
     return this.serviceConsoleLogCache().cachedLogMessages();
   }
 

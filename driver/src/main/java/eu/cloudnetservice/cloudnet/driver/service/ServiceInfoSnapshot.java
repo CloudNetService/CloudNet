@@ -22,7 +22,7 @@ import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.common.document.property.JsonDocPropertyHolder;
 import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
-import eu.cloudnetservice.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
+import eu.cloudnetservice.cloudnet.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.cloudnet.driver.service.property.ServiceProperty;
 import java.util.Optional;
 import lombok.EqualsAndHashCode;
@@ -117,7 +117,7 @@ public class ServiceInfoSnapshot extends JsonDocPropertyHolder
   public @NonNull SpecificCloudServiceProvider provider() {
     return CloudNetDriver.instance()
       .cloudServiceProvider()
-      .specificProvider(this.serviceId().uniqueId());
+      .serviceProvider(this.serviceId().uniqueId());
   }
 
   public <T> @NonNull Optional<T> property(@NonNull ServiceProperty<T> property) {

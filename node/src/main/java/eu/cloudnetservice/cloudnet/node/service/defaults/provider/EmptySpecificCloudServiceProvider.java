@@ -17,7 +17,7 @@
 package eu.cloudnetservice.cloudnet.node.service.defaults.provider;
 
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessageSender;
-import eu.cloudnetservice.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
+import eu.cloudnetservice.cloudnet.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceDeployment;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceLifeCycle;
@@ -63,7 +63,7 @@ public final class EmptySpecificCloudServiceProvider implements SpecificCloudSer
   }
 
   @Override
-  public Queue<String> cachedLogMessages() {
+  public @NonNull Queue<String> cachedLogMessages() {
     return new LinkedBlockingDeque<>();
   }
 
