@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.cloudnet.node.service.defaults.provider;
 
-import eu.cloudnetservice.cloudnet.common.concurrent.CompletedTask;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCSender;
@@ -47,7 +46,7 @@ public class RemoteNodeCloudServiceProvider extends RemoteSpecificCloudServicePr
 
   @Override
   public @NonNull Task<ServiceInfoSnapshot> serviceInfoAsync() {
-    return CompletedTask.done(this.snapshot);
+    return Task.completedTask(this.snapshot);
   }
 
   public void snapshot(@NonNull ServiceInfoSnapshot snapshot) {

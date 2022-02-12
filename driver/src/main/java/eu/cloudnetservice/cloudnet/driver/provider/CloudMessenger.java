@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.cloudnet.driver.provider;
 
-import eu.cloudnetservice.cloudnet.common.concurrent.CompletableTask;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.annotation.RPCValidation;
@@ -92,7 +91,7 @@ public interface CloudMessenger {
    * @throws NullPointerException if the given channel message is null.
    */
   default @NonNull Task<Void> sendChannelMessageAsync(@NonNull ChannelMessage channelMessage) {
-    return CompletableTask.supply(() -> this.sendChannelMessage(channelMessage));
+    return Task.supply(() -> this.sendChannelMessage(channelMessage));
   }
 
   /**
@@ -104,7 +103,7 @@ public interface CloudMessenger {
    * @throws NullPointerException if the given channel message is null.
    */
   default @NonNull Task<Collection<ChannelMessage>> sendChannelMessageQueryAsync(@NonNull ChannelMessage message) {
-    return CompletableTask.supply(() -> this.sendChannelMessageQuery(message));
+    return Task.supply(() -> this.sendChannelMessageQuery(message));
   }
 
   /**
@@ -117,6 +116,6 @@ public interface CloudMessenger {
    * @throws NullPointerException if the given channel message is null.
    */
   default @NonNull Task<ChannelMessage> sendSingleChannelMessageQueryAsync(@NonNull ChannelMessage channelMessage) {
-    return CompletableTask.supply(() -> this.sendSingleChannelMessageQuery(channelMessage));
+    return Task.supply(() -> this.sendSingleChannelMessageQuery(channelMessage));
   }
 }

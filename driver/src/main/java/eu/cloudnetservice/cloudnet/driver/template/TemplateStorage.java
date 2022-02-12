@@ -17,7 +17,6 @@
 package eu.cloudnetservice.cloudnet.driver.template;
 
 import eu.cloudnetservice.cloudnet.common.Nameable;
-import eu.cloudnetservice.cloudnet.common.concurrent.CompletableTask;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
@@ -247,7 +246,7 @@ public interface TemplateStorage extends AutoCloseable, Nameable {
     @NonNull ServiceTemplate target,
     @Nullable Predicate<Path> fileFilter
   ) {
-    return CompletableTask.supply(() -> this.deployDirectory(directory, target, fileFilter));
+    return Task.supply(() -> this.deployDirectory(directory, target, fileFilter));
   }
 
   /**
@@ -269,7 +268,7 @@ public interface TemplateStorage extends AutoCloseable, Nameable {
    * @return whether it was copied successfully
    */
   default @NonNull Task<Boolean> deployAsync(@NonNull InputStream inputStream, @NonNull ServiceTemplate target) {
-    return CompletableTask.supply(() -> this.deploy(inputStream, target));
+    return Task.supply(() -> this.deploy(inputStream, target));
   }
 
   /**
@@ -280,7 +279,7 @@ public interface TemplateStorage extends AutoCloseable, Nameable {
    * @return whether it was copied successfully
    */
   default @NonNull Task<Boolean> copyAsync(@NonNull ServiceTemplate template, @NonNull Path directory) {
-    return CompletableTask.supply(() -> this.copy(template, directory));
+    return Task.supply(() -> this.copy(template, directory));
   }
 
   /**
@@ -290,8 +289,10 @@ public interface TemplateStorage extends AutoCloseable, Nameable {
    * @return a new {@link ZipInputStream} or null if it the template doesn't exist
    */
   default @NonNull Task<ZipInputStream> asZipInputStreamAsync(@NonNull ServiceTemplate template) {
-    return this.zipTemplateAsync(template)
-      .map(inputStream -> inputStream == null ? null : new ZipInputStream(inputStream));
+    return Task.supply(() -> {
+      var stream = this.zipTemplate(template);
+      return stream == null ? null : new ZipInputStream(stream);
+    });
   }
 
   /**
@@ -301,7 +302,7 @@ public interface TemplateStorage extends AutoCloseable, Nameable {
    * @return a new {@link InputStream} or null if it the template doesn't exist
    */
   default @NonNull Task<InputStream> zipTemplateAsync(@NonNull ServiceTemplate template) {
-    return CompletableTask.supply(() -> this.zipTemplate(template));
+    return Task.supply(() -> this.zipTemplate(template));
   }
 
   /**
@@ -311,7 +312,7 @@ public interface TemplateStorage extends AutoCloseable, Nameable {
    * @return whether the template was successfully deleted, false if it doesn't exists
    */
   default @NonNull Task<Boolean> deleteAsync(@NonNull ServiceTemplate template) {
-    return CompletableTask.supply(() -> this.delete(template));
+    return Task.supply(() -> this.delete(template));
   }
 
   /**
@@ -321,7 +322,7 @@ public interface TemplateStorage extends AutoCloseable, Nameable {
    * @return whether the template was successfully created, false if it already exists
    */
   default @NonNull Task<Boolean> createAsync(@NonNull ServiceTemplate template) {
-    return CompletableTask.supply(() -> this.create(template));
+    return Task.supply(() -> this.create(template));
   }
 
   /**
@@ -331,7 +332,7 @@ public interface TemplateStorage extends AutoCloseable, Nameable {
    * @return whether the template exists or not
    */
   default @NonNull Task<Boolean> hasAsync(@NonNull ServiceTemplate template) {
-    return CompletableTask.supply(() -> this.has(template));
+    return Task.supply(() -> this.has(template));
   }
 
   /**
@@ -344,7 +345,7 @@ public interface TemplateStorage extends AutoCloseable, Nameable {
    * @return a new {@link OutputStream} or null if it couldn't be opened
    */
   default @NonNull Task<OutputStream> appendOutputStreamAsync(@NonNull ServiceTemplate template, @NonNull String path) {
-    return CompletableTask.supply(() -> this.appendOutputStream(template, path));
+    return Task.supply(() -> this.appendOutputStream(template, path));
   }
 
   /**
@@ -357,7 +358,7 @@ public interface TemplateStorage extends AutoCloseable, Nameable {
    * @return a new {@link OutputStream} or null if it couldn't be opened
    */
   default @NonNull Task<OutputStream> newOutputStreamAsync(@NonNull ServiceTemplate template, @NonNull String path) {
-    return CompletableTask.supply(() -> this.newOutputStream(template, path));
+    return Task.supply(() -> this.newOutputStream(template, path));
   }
 
   /**
@@ -368,7 +369,7 @@ public interface TemplateStorage extends AutoCloseable, Nameable {
    * @return whether the file was created successfully, false if it already exists
    */
   default @NonNull Task<Boolean> createFileAsync(@NonNull ServiceTemplate template, @NonNull String path) {
-    return CompletableTask.supply(() -> this.createFile(template, path));
+    return Task.supply(() -> this.createFile(template, path));
   }
 
   /**
@@ -379,7 +380,7 @@ public interface TemplateStorage extends AutoCloseable, Nameable {
    * @return whether the directory was created successfully, false if it already exists
    */
   default @NonNull Task<Boolean> createDirectoryAsync(@NonNull ServiceTemplate template, @NonNull String path) {
-    return CompletableTask.supply(() -> this.createDirectory(template, path));
+    return Task.supply(() -> this.createDirectory(template, path));
   }
 
   /**
@@ -391,7 +392,7 @@ public interface TemplateStorage extends AutoCloseable, Nameable {
    * @return whether the file exists
    */
   default @NonNull Task<Boolean> hasFileAsync(@NonNull ServiceTemplate template, @NonNull String path) {
-    return CompletableTask.supply(() -> this.hasFile(template, path));
+    return Task.supply(() -> this.hasFile(template, path));
   }
 
   /**
@@ -402,7 +403,7 @@ public interface TemplateStorage extends AutoCloseable, Nameable {
    * @return whether the file was deleted successfully, false if it already exists
    */
   default @NonNull Task<Boolean> deleteFileAsync(@NonNull ServiceTemplate template, @NonNull String path) {
-    return CompletableTask.supply(() -> this.deleteFile(template, path));
+    return Task.supply(() -> this.deleteFile(template, path));
   }
 
   /**
@@ -413,7 +414,7 @@ public interface TemplateStorage extends AutoCloseable, Nameable {
    * @return the new {@link InputStream} or null if the file doesn't exist/is a directory
    */
   default @NonNull Task<InputStream> newInputStreamAsync(@NonNull ServiceTemplate template, @NonNull String path) {
-    return CompletableTask.supply(() -> this.newInputStream(template, path));
+    return Task.supply(() -> this.newInputStream(template, path));
   }
 
   /**
@@ -424,7 +425,7 @@ public interface TemplateStorage extends AutoCloseable, Nameable {
    * @return the {@link FileInfo} or null if the file/directory doesn't exist
    */
   default @NonNull Task<FileInfo> fileInfoAsync(@NonNull ServiceTemplate template, @NonNull String path) {
-    return CompletableTask.supply(() -> this.fileInfo(template, path));
+    return Task.supply(() -> this.fileInfo(template, path));
   }
 
   /**
@@ -440,7 +441,7 @@ public interface TemplateStorage extends AutoCloseable, Nameable {
     @NonNull String dir,
     boolean deep
   ) {
-    return CompletableTask.supply(() -> this.listFiles(template, dir, deep));
+    return Task.supply(() -> this.listFiles(template, dir, deep));
   }
 
   /**
@@ -449,7 +450,7 @@ public interface TemplateStorage extends AutoCloseable, Nameable {
    * @return a list of all templates
    */
   default @NonNull Task<Collection<ServiceTemplate>> templatesAsync() {
-    return CompletableTask.supply(this::templates);
+    return Task.supply(this::templates);
   }
 
   /**
@@ -457,7 +458,7 @@ public interface TemplateStorage extends AutoCloseable, Nameable {
    * errors.
    */
   default @NonNull Task<Void> closeAsync() {
-    return CompletableTask.supply(() -> {
+    return Task.supply(() -> {
       this.close();
       return null;
     });

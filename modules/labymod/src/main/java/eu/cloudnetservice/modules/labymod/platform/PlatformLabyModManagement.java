@@ -156,7 +156,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
   protected void handleDiscordRPC(@NonNull CloudPlayer cloudPlayer, @NonNull JsonDocument jsonData) {
     var joinSecret = jsonData.get("joinSecret", UUID.class);
     if (joinSecret != null) {
-      this.playerByJoinSecret(joinSecret).onComplete(player -> {
+      this.playerByJoinSecret(joinSecret).thenAccept(player -> {
         if (player != null && player.connectedService() != null) {
           var playerOptions = this.parsePlayerOptions(player);
           // check if the player is using labymod and has its options
@@ -178,7 +178,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
       });
     } else {
       var spectateSecret = jsonData.get("spectateSecret", UUID.class);
-      this.playerBySpectateSecret(spectateSecret).onComplete(player -> {
+      this.playerBySpectateSecret(spectateSecret).thenAccept(player -> {
         if (player != null && player.connectedService() != null) {
           var playerOptions = this.parsePlayerOptions(player);
           // check if the player is using labymod and has its options
@@ -270,26 +270,26 @@ public class PlatformLabyModManagement implements LabyModManagement {
   }
 
   protected @NonNull Task<@Nullable CloudPlayer> playerByJoinSecret(@NonNull UUID joinSecret) {
-    return this.playerManager.onlinePlayers().playersAsync().map(players -> {
-      for (var player : players) {
+    return Task.supply(() -> {
+      var players = this.playerManager.onlinePlayers().players();
+      return players.stream().filter(player -> {
+        // get the player options if present
         var playerOptions = this.parsePlayerOptions(player);
-        if (playerOptions != null && joinSecret.equals(playerOptions.joinSecret())) {
-          return player;
-        }
-      }
-      return null;
+        return playerOptions != null && joinSecret.equals(playerOptions.joinSecret());
+        // not present
+      }).findFirst().orElse(null);
     });
   }
 
   protected @NonNull Task<CloudPlayer> playerBySpectateSecret(@NonNull UUID spectateSecret) {
-    return this.playerManager.onlinePlayers().playersAsync().map(players -> {
-      for (var player : players) {
+    return Task.supply(() -> {
+      var players = this.playerManager.onlinePlayers().players();
+      return players.stream().filter(player -> {
+        // get the player options if present
         var playerOptions = this.parsePlayerOptions(player);
-        if (playerOptions != null && spectateSecret.equals(playerOptions.spectateSecret())) {
-          return player;
-        }
-      }
-      return null;
+        return playerOptions != null && spectateSecret.equals(playerOptions.spectateSecret());
+        // not present
+      }).findFirst().orElse(null);
     });
   }
 

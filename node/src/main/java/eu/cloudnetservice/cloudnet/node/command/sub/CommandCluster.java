@@ -265,7 +265,7 @@ public final class CommandCluster {
     source.sendMessage(I18n.trans("command-cluster-push-static-service-starting"));
     // deploy the static service into the cluster
     CloudNet.instance().nodeServerProvider().deployStaticServiceToCluster(serviceName, stream, true)
-      .onComplete(transferStatus -> {
+      .thenAccept(transferStatus -> {
         if (transferStatus == TransferStatus.FAILURE) {
           // the transfer failed
           source.sendMessage(I18n.trans("command-cluster-push-static-service-failed"));
@@ -287,7 +287,7 @@ public final class CommandCluster {
       if (inputStream != null) {
         // deploy the template into the cluster
         CloudNet.instance().nodeServerProvider().deployTemplateToCluster(template, inputStream, true)
-          .onComplete(transferStatus -> {
+          .thenAccept(transferStatus -> {
             if (transferStatus == TransferStatus.FAILURE) {
               // the transfer failed
               source.sendMessage(I18n.trans("command-cluster-push-template-failed", templateName));

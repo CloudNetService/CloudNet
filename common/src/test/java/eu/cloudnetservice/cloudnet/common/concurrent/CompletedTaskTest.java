@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.common.concurrent;
 
-import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -26,61 +26,34 @@ public class CompletedTaskTest {
 
   @Test
   void testFutureCompletedNormally() {
-    Task<Integer> task = CompletedTask.done(12345);
+    Task<Integer> task = Task.completedTask(12345);
 
     Assertions.assertTrue(task.isDone());
     Assertions.assertEquals(12345, task.getDef(null));
     Assertions.assertDoesNotThrow((ThrowingSupplier<Integer>) task::get);
 
-    var then = task.map(i -> i == 12345 ? "Hello World" : "No world");
+    var then = task.thenApply(i -> i == 12345 ? "Hello World" : "No world");
     Assertions.assertTrue(then.isDone());
-    Assertions.assertEquals("Hello World", then.getDef(null));
+    Assertions.assertEquals("Hello World", then.getNow(null));
     Assertions.assertDoesNotThrow((ThrowingSupplier<String>) then::get);
 
-    Task<Double> thenThen = then.map(s -> {
+    var thenThen = then.thenApply(s -> {
       throw new RuntimeException(s.equals("Hello World") ? "Google" : "Bing");
     });
     Assertions.assertTrue(thenThen.isDone());
-    Assertions.assertNull(thenThen.getDef(null));
+    Assertions.assertNull(thenThen.exceptionally($ -> null).join());
 
     this.validateExceptionalResult(thenThen, RuntimeException.class, "Google");
   }
 
-  @Test
-  void testFutureCompletedCancelled() {
-    Task<Integer> task = CompletedTask.cancelled();
-
-    Assertions.assertTrue(task.isDone());
-    Assertions.assertTrue(task.isCancelled());
-    Assertions.assertEquals(123, task.getDef(123));
-    Assertions.assertThrows(CancellationException.class, task::get);
-
-    var then = task.map(i -> i == 12345 ? "Hello World" : "No world");
-    Assertions.assertTrue(then.isDone());
-    Assertions.assertTrue(then.isCancelled());
-    Assertions.assertEquals("Hello World 1234", then.getDef("Hello World 1234"));
-    Assertions.assertThrows(CancellationException.class, then::get);
-  }
-
-  @Test
-  void testFutureCompletedExceptionally() {
-    Task<Float> task = CompletedTask.exceptionally(new UnsupportedOperationException("Hello World"));
-
-    Assertions.assertTrue(task.isDone());
-    this.validateExceptionalResult(task, UnsupportedOperationException.class, "Hello World");
-
-    Task<Void> then = task.map(r -> null);
-    this.validateExceptionalResult(then, UnsupportedOperationException.class, "Hello World");
-  }
-
-  private void validateExceptionalResult(Task<?> task, Class<? extends Throwable> expected, String expectedMessage) {
+  private void validateExceptionalResult(CompletableFuture<?> task, Class<? extends Throwable> type, String message) {
     try {
       task.get();
       Assertions.fail();
     } catch (ExecutionException | InterruptedException exception) {
       Assertions.assertInstanceOf(ExecutionException.class, exception);
-      Assertions.assertInstanceOf(expected, exception.getCause());
-      Assertions.assertEquals(expectedMessage, exception.getCause().getMessage());
+      Assertions.assertInstanceOf(type, exception.getCause());
+      Assertions.assertEquals(message, exception.getCause().getMessage());
     }
   }
 }

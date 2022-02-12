@@ -65,7 +65,7 @@ public final class VelocityCloudCommand implements SimpleCommand {
       }
     }
     // execute the command
-    CloudNetDriver.instance().clusterNodeProvider().sendCommandLineAsync(commandLine).onComplete(messages -> {
+    CloudNetDriver.instance().clusterNodeProvider().sendCommandLineAsync(commandLine).thenAccept(messages -> {
       for (var line : messages) {
         invocation.source().sendMessage(serialize(this.management.configuration().prefix() + line));
       }

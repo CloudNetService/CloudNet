@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.cloudnet.driver.provider;
 
-import eu.cloudnetservice.cloudnet.common.concurrent.CompletableTask;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import eu.cloudnetservice.cloudnet.driver.service.GroupConfiguration;
@@ -101,7 +100,7 @@ public interface GroupConfigurationProvider {
    * @return a task completed if the group configurations were reloaded.
    */
   default @NonNull Task<Void> reloadAsync() {
-    return CompletableTask.supply(this::reload);
+    return Task.supply(this::reload);
   }
 
   /**
@@ -112,7 +111,7 @@ public interface GroupConfigurationProvider {
    * @return a task completed with all registered group configurations within the cluster.
    */
   default @NonNull Task<Collection<GroupConfiguration>> groupConfigurationsAsync() {
-    return CompletableTask.supply(this::groupConfigurations);
+    return Task.supply(this::groupConfigurations);
   }
 
   /**
@@ -124,7 +123,7 @@ public interface GroupConfigurationProvider {
    * @throws NullPointerException if the given name is null.
    */
   default @NonNull Task<GroupConfiguration> groupConfigurationAsync(@NonNull String name) {
-    return CompletableTask.supply(() -> this.groupConfiguration(name));
+    return Task.supply(() -> this.groupConfiguration(name));
   }
 
   /**
@@ -137,7 +136,7 @@ public interface GroupConfigurationProvider {
    * @throws NullPointerException if the given group configuration is null.
    */
   default @NonNull Task<Boolean> addGroupConfigurationAsync(@NonNull GroupConfiguration groupConfiguration) {
-    return CompletableTask.supply(() -> this.addGroupConfiguration(groupConfiguration));
+    return Task.supply(() -> this.addGroupConfiguration(groupConfiguration));
   }
 
   /**
@@ -151,7 +150,7 @@ public interface GroupConfigurationProvider {
    * @throws NullPointerException if the given group name is null.
    */
   default @NonNull Task<Void> removeGroupConfigurationByNameAsync(@NonNull String name) {
-    return CompletableTask.supply(() -> this.removeGroupConfigurationByName(name));
+    return Task.supply(() -> this.removeGroupConfigurationByName(name));
   }
 
   /**
@@ -165,6 +164,6 @@ public interface GroupConfigurationProvider {
    * @throws NullPointerException if the given group configuration is null.
    */
   default @NonNull Task<Void> removeGroupConfigurationAsync(@NonNull GroupConfiguration groupConfiguration) {
-    return CompletableTask.supply(() -> this.removeGroupConfiguration(groupConfiguration));
+    return Task.supply(() -> this.removeGroupConfiguration(groupConfiguration));
   }
 }

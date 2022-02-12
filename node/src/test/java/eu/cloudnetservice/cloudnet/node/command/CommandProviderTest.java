@@ -92,7 +92,7 @@ public final class CommandProviderTest {
     var source = new DriverCommandSource();
 
     try {
-      commandProvider.execute(source, "non existing command").fireExceptionOnFailure().getOrNull();
+      commandProvider.execute(source, "non existing command").getOrNull();
     } catch (CompletionException exception) {
       Assertions.assertEquals(NoSuchCommandException.class, exception.getCause().getClass());
     }

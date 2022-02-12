@@ -16,36 +16,34 @@
 
 package eu.cloudnetservice.cloudnet.common.concurrent;
 
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-public class CompletableTaskTest {
+public class TaskTest {
 
   @Test
   @Timeout(10)
   void testFutureCompletedNormally() {
     var result = new AtomicInteger();
-    var then = CompletableTask.supply(() -> {
+    var then = Task.supply(() -> {
       if (result.getAndIncrement() != 0) {
         throw new RuntimeException("Bing");
       }
       return "Google";
-    }).map(r -> {
+    }).thenApply(r -> {
       if (r.equals("Google")) {
         return result.incrementAndGet();
       } else {
         throw new IllegalStateException("Bing2");
       }
-    }).map(r -> {
+    }).thenApply(r -> {
       if (r != 2) {
         throw new UnsupportedOperationException("Bing3");
       } else {
@@ -53,14 +51,14 @@ public class CompletableTaskTest {
       }
     });
 
-    Assertions.assertEquals(5f, then.getDef(0f));
+    Assertions.assertEquals(5f, then.getNow(0f));
     Assertions.assertTrue(then.isDone());
   }
 
   @Test
   @Timeout(10)
   void testFutureCompletion() {
-    var future = new CompletableTask<String>();
+    var future = new Task<String>();
     Assertions.assertFalse(future.isDone());
     Assertions.assertNull(future.getNow(null));
 
@@ -71,29 +69,14 @@ public class CompletableTaskTest {
 
   @Test
   @Timeout(10)
-  void testFutureCancellation() {
-    var listenerCalled = new AtomicBoolean();
-
-    var future = new CompletableTask<String>();
-    future.onCancelled($ -> listenerCalled.set(true));
-
-    Assertions.assertFalse(future.isDone());
-    Assertions.assertNull(future.getNow(null));
-
-    future.cancel(true);
-    Assertions.assertTrue(future.isDone());
-    Assertions.assertTrue(future.isCancelled());
-    Assertions.assertTrue(listenerCalled.get());
-    Assertions.assertThrows(CancellationException.class, future::get);
-  }
-
-  @Test
-  @Timeout(10)
   void testFutureExceptionalCompletion() {
     var listenerResult = new AtomicReference<Throwable>();
 
-    var future = new CompletableTask<String>();
-    future.onFailure(listenerResult::set);
+    var future = new Task<String>();
+    future.exceptionally(throwable -> {
+      listenerResult.set(throwable);
+      return null;
+    });
 
     Assertions.assertFalse(future.isDone());
     Assertions.assertNull(future.getNow(null));
@@ -110,31 +93,22 @@ public class CompletableTaskTest {
   @Test
   @Timeout(10)
   void testCompletableFutureWrapping() throws InterruptedException {
-    var result = new CountDownLatch(3);
+    var result = new CountDownLatch(2);
     var executor = Executors.newCachedThreadPool();
 
-    var futureA = CompletableTask.wrapFuture(CompletableFuture.supplyAsync(() -> 5, executor));
-    futureA.onComplete($ -> result.countDown());
+    var futureA = Task.wrapFuture(CompletableFuture.supplyAsync(() -> 5, executor));
+    futureA.thenAccept($ -> result.countDown());
 
-    var futureB = CompletableTask.wrapFuture(CompletableFuture.supplyAsync(() -> {
+    var futureB = Task.wrapFuture(CompletableFuture.supplyAsync(() -> {
       throw new RuntimeException();
     }, executor));
-    futureB.onFailure(ex -> result.countDown());
-
-    var completableFutureC = CompletableFuture.supplyAsync(() -> {
-      try {
-        Thread.sleep(5000);
-      } catch (InterruptedException ignored) {
-      }
-      throw new RuntimeException();
-    }, executor);
-    var futureC = CompletableTask.wrapFuture(completableFutureC);
-    futureC.onCancelled($ -> result.countDown());
-    futureC.cancel(true);
+    futureB.exceptionally(ex -> {
+      result.countDown();
+      return null;
+    });
 
     futureA.getOrNull();
     futureB.getOrNull();
-    futureC.getOrNull();
 
     result.await();
     executor.shutdown();

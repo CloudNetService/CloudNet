@@ -60,7 +60,7 @@ public final class BungeeCordCloudCommand extends Command {
       }
     }
     // execute the command
-    CloudNetDriver.instance().clusterNodeProvider().sendCommandLineAsync(commandLine).onComplete(messages -> {
+    CloudNetDriver.instance().clusterNodeProvider().sendCommandLineAsync(commandLine).thenAccept(messages -> {
       for (var line : messages) {
         sender.sendMessage(fromLegacyText(this.management.configuration().prefix() + line));
       }

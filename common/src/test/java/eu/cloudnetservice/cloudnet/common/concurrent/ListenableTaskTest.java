@@ -27,14 +27,14 @@ public class ListenableTaskTest {
   void testTaskRunAndReset() {
     var handlerCalled = new AtomicBoolean();
 
-    var task = new ListenableTask<String>(() -> "Hello World");
-    task.onComplete($ -> handlerCalled.set(true));
+    var task = new ListenableTask<>(() -> "Hello World");
+    task.thenAccept($ -> handlerCalled.set(true));
 
-    task.runAndReset();
+    task.run(false);
     Assertions.assertFalse(task.isDone());
     Assertions.assertFalse(handlerCalled.get());
 
-    task.run();
+    task.run(true);
     Assertions.assertTrue(task.isDone());
     Assertions.assertEquals("Hello World", task.getDef(null));
     Assertions.assertTrue(handlerCalled.get());
@@ -47,9 +47,12 @@ public class ListenableTaskTest {
     var task = new ListenableTask<String>(() -> {
       throw new RuntimeException("Hello World");
     });
-    task.onFailure(handlerResult::set);
+    task.exceptionally(th -> {
+      handlerResult.set(th);
+      return null;
+    });
 
-    task.runAndReset();
+    task.run(false);
     Assertions.assertTrue(task.isDone());
     Assertions.assertNotNull(handlerResult.get());
     Assertions.assertInstanceOf(RuntimeException.class, handlerResult.get());

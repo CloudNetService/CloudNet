@@ -63,7 +63,7 @@ public final class PacketServerChannelMessageListener implements PacketListener 
       message.content().redoTransaction();
       // wait for the response to become available if given before resuming
       if (responseTask != null) {
-        responseTask.then(response -> this.resumeHandling(packet, channel, message, response, comesFromWrapper));
+        responseTask.thenAccept(response -> this.resumeHandling(packet, channel, message, response, comesFromWrapper));
         return;
       }
     }

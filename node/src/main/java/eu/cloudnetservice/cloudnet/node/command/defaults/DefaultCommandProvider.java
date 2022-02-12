@@ -24,7 +24,6 @@ import cloud.commandframework.meta.SimpleCommandMeta;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
-import eu.cloudnetservice.cloudnet.common.concurrent.CompletableTask;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.driver.command.CommandInfo;
@@ -125,7 +124,7 @@ public class DefaultCommandProvider implements CommandProvider {
    */
   @Override
   public @NonNull Task<?> execute(@NonNull CommandSource source, @NonNull String input) {
-    return CompletableTask.wrapFuture(this.commandManager.executeCommand(source, input).exceptionally(exception -> {
+    return Task.wrapFuture(this.commandManager.executeCommand(source, input).exceptionally(exception -> {
       this.exceptionHandler.handleCommandExceptions(source, exception);
       // ensure that the new future still holds the exception
       throw exception instanceof CompletionException cex ? cex : new CompletionException(exception);

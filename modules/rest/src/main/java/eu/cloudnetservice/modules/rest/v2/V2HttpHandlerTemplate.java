@@ -171,7 +171,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
   protected void handleCreateRequest(@NonNull HttpContext context) {
     this.handleWithTemplateContext(context, (template, storage) -> {
-      boolean status = storage.createAsync().fireExceptionOnFailure().get();
+      boolean status = storage.createAsync().get();
       this.ok(context)
         .body(status ? this.success().toString() : this.failure().toString())
         .context()

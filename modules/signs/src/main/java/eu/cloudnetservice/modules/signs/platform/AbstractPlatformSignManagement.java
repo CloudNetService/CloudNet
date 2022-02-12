@@ -189,7 +189,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
       }, 0, 1000 / TPS, TimeUnit.MILLISECONDS);
       this.startKnockbackTask();
 
-      CloudNetDriver.instance().cloudServiceProvider().servicesAsync().onComplete(services -> {
+      CloudNetDriver.instance().cloudServiceProvider().servicesAsync().thenAccept(services -> {
         for (var service : services) {
           this.handleServiceAdd(service);
         }

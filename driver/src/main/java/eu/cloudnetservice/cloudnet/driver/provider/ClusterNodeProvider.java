@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.cloudnet.driver.provider;
 
-import eu.cloudnetservice.cloudnet.common.concurrent.CompletableTask;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.driver.command.CommandInfo;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNode;
@@ -164,7 +163,7 @@ public interface ClusterNodeProvider {
    * @return a task completed with all registered commands.
    */
   default @NonNull Task<Collection<CommandInfo>> consoleCommandsAsync() {
-    return CompletableTask.supply(this::consoleCommands);
+    return Task.supply(this::consoleCommands);
   }
 
   /**
@@ -176,7 +175,7 @@ public interface ClusterNodeProvider {
    * @throws NullPointerException if the given command name is null.
    */
   default @NonNull Task<CommandInfo> consoleCommandAsync(@NonNull String name) {
-    return CompletableTask.supply(() -> this.consoleCommand(name));
+    return Task.supply(() -> this.consoleCommand(name));
   }
 
   /**
@@ -191,7 +190,7 @@ public interface ClusterNodeProvider {
    * @throws NullPointerException if the given command line is null.
    */
   default @NonNull Task<Collection<String>> consoleTabCompleteResultsAsync(@NonNull String commandLine) {
-    return CompletableTask.supply(() -> this.consoleTabCompleteResults(commandLine));
+    return Task.supply(() -> this.consoleTabCompleteResults(commandLine));
   }
 
   /**
@@ -204,7 +203,7 @@ public interface ClusterNodeProvider {
    * @throws NullPointerException if the given command line is null.
    */
   default @NonNull Task<Collection<String>> sendCommandLineAsync(@NonNull String commandLine) {
-    return CompletableTask.supply(() -> this.sendCommandLine(commandLine));
+    return Task.supply(() -> this.sendCommandLine(commandLine));
   }
 
   /**
@@ -216,7 +215,7 @@ public interface ClusterNodeProvider {
    * @return a task completed with all nodes which are registered on the current node.
    */
   default @NonNull Task<Collection<NetworkClusterNode>> nodesAsync() {
-    return CompletableTask.supply(this::nodes);
+    return Task.supply(this::nodes);
   }
 
   /**
@@ -228,7 +227,7 @@ public interface ClusterNodeProvider {
    * @throws NullPointerException if the given unique id is null.
    */
   default @NonNull Task<NetworkClusterNode> nodeAsync(@NonNull String uniqueId) {
-    return CompletableTask.supply(() -> this.node(uniqueId));
+    return Task.supply(() -> this.node(uniqueId));
   }
 
   /**
@@ -244,7 +243,7 @@ public interface ClusterNodeProvider {
    * @throws NullPointerException if the given node to register is null.
    */
   default @NonNull Task<Boolean> addNodeAsync(@NonNull NetworkClusterNode node) {
-    return CompletableTask.supply(() -> this.addNode(node));
+    return Task.supply(() -> this.addNode(node));
   }
 
   /**
@@ -260,7 +259,7 @@ public interface ClusterNodeProvider {
    * @throws NullPointerException if the given node unique id is null.
    */
   default @NonNull Task<Boolean> removeNodeAsync(@NonNull String uniqueId) {
-    return CompletableTask.supply(() -> this.removeNode(uniqueId));
+    return Task.supply(() -> this.removeNode(uniqueId));
   }
 
   /**
@@ -273,7 +272,7 @@ public interface ClusterNodeProvider {
    * @return a task completed with the snapshot of all nodes which are currently connected to the current node.
    */
   default @NonNull Task<Collection<NetworkClusterNodeInfoSnapshot>> nodeInfoSnapshotsAsync() {
-    return CompletableTask.supply(this::nodeInfoSnapshots);
+    return Task.supply(this::nodeInfoSnapshots);
   }
 
   /**
@@ -286,6 +285,6 @@ public interface ClusterNodeProvider {
    * @throws NullPointerException if the given node unique id is null.
    */
   default @NonNull Task<NetworkClusterNodeInfoSnapshot> nodeInfoSnapshotAsync(@NonNull String uniqueId) {
-    return CompletableTask.supply(() -> this.nodeInfoSnapshot(uniqueId));
+    return Task.supply(() -> this.nodeInfoSnapshot(uniqueId));
   }
 }

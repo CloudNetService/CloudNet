@@ -17,7 +17,6 @@
 package eu.cloudnetservice.cloudnet.driver;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.cloudnet.common.concurrent.CompletableTask;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.common.registry.DefaultServicesRegistry;
 import eu.cloudnetservice.cloudnet.common.registry.ServicesRegistry;
@@ -216,7 +215,7 @@ public abstract class CloudNetDriver {
   public abstract @NonNull Collection<TemplateStorage> availableTemplateStorages();
 
   public @NonNull Task<Collection<TemplateStorage>> availableTemplateStoragesAsync() {
-    return CompletableTask.supply(this::availableTemplateStorages);
+    return Task.supply(this::availableTemplateStorages);
   }
 
   public @NonNull DatabaseProvider databaseProvider() {

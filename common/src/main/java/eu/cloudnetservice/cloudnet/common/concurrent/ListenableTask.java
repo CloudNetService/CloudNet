@@ -16,117 +16,42 @@
 
 package eu.cloudnetservice.cloudnet.common.concurrent;
 
-import eu.cloudnetservice.cloudnet.common.function.ThrowableFunction;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Objects;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnknownNullability;
-import org.jetbrains.annotations.UnmodifiableView;
 
-public class ListenableTask<V> extends FutureTask<V> implements Task<V> {
+public class ListenableTask<V> extends Task<V> {
 
-  private volatile Collection<TaskListener<V>> listeners;
+  protected static final int STATE_NEW = 0;
+  protected static final int STATE_RUN = 1;
+  protected static final int STATE_DONE = 2;
+
+  private final Callable<V> callable;
+  private final AtomicInteger state = new AtomicInteger(STATE_NEW);
 
   public ListenableTask(@NonNull Callable<V> callable) {
-    super(callable);
+    this.callable = callable;
   }
 
-  @Override
-  protected void done() {
-    // check if we have listeners
-    if (this.listeners == null) {
-      return;
-    }
-    // check if the task was cancelled
-    if (this.isCancelled()) {
-      for (var listener : this.listeners) {
-        listener.onCancelled(this);
-      }
-    } else {
-      // populate the result that get() gives us
+  public void run(boolean setResult) {
+    // check if we can run the task now
+    if (this.state.compareAndSet(STATE_NEW, STATE_RUN)) {
       try {
-        var result = this.get();
-        for (var listener : this.listeners) {
-          listener.onComplete(this, result);
+        // execute the callable
+        var result = this.callable.call();
+        if (setResult) {
+          // complete and mark as done to never run again
+          this.complete(result);
+          this.state.setRelease(STATE_DONE);
+        } else {
+          // reset for further runs
+          this.state.set(STATE_NEW);
         }
-      } catch (InterruptedException | ExecutionException exception) {
-        // we know that the task is done - it can only be a ExecutionException wrapping the original exception
-        for (var listener : this.listeners) {
-          listener.onFailure(this, exception.getCause());
-        }
+      } catch (Throwable throwable) {
+        // complete exceptionally and mark as done to never run again
+        this.completeExceptionally(throwable);
+        this.state.setRelease(STATE_DONE);
       }
     }
-    // remove all listeners
-    this.depopulateListeners();
-  }
-
-  @Override
-  public @NonNull Task<V> addListener(@NonNull TaskListener<V> listener) {
-    this.initListeners().add(listener);
-    return this;
-  }
-
-  @Override
-  public @NonNull Task<V> clearListeners() {
-    // we don't need to initialize the listeners field here
-    if (this.listeners != null) {
-      this.listeners.clear();
-    }
-
-    return this;
-  }
-
-  @Override
-  public @UnmodifiableView @NonNull Collection<TaskListener<V>> listeners() {
-    return this.listeners == null ? Collections.emptyList() : Collections.unmodifiableCollection(this.listeners);
-  }
-
-  @Override
-  public @UnknownNullability V getDef(@Nullable V def) {
-    try {
-      return this.get();
-    } catch (InterruptedException | ExecutionException | CancellationException exception) {
-      return def;
-    }
-  }
-
-  @Override
-  public @UnknownNullability V get(long time, @NonNull TimeUnit timeUnit, @Nullable V def) {
-    try {
-      return this.get(time, TimeUnit.SECONDS);
-    } catch (InterruptedException | ExecutionException | TimeoutException | CancellationException exception) {
-      return def;
-    }
-  }
-
-  @Override
-  public @NonNull <T> Task<T> map(@NonNull ThrowableFunction<V, T, Throwable> mapper) {
-    return CompletableTask.supply(() -> mapper.apply(this.get()));
-  }
-
-  @Override
-  public boolean runAndReset() {
-    return super.runAndReset();
-  }
-
-  protected @NonNull Collection<TaskListener<V>> initListeners() {
-    // ConcurrentLinkedQueue gives us O(1) insertion using CAS - results under moderate
-    // load in the fastest insert and read times
-    return Objects.requireNonNullElseGet(this.listeners, () -> this.listeners = new ConcurrentLinkedQueue<>());
-  }
-
-  protected void depopulateListeners() {
-    // ensures a better gc
-    this.listeners.clear();
-    this.listeners = null;
   }
 }
