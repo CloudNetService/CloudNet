@@ -94,6 +94,7 @@
                     LITERAL_DO, LITERAL_ELSE, LITERAL_FINALLY, LITERAL_FOR, LITERAL_IF,
                     LITERAL_SWITCH, LITERAL_SYNCHRONIZED, LITERAL_TRY, LITERAL_WHILE, METHOD_DEF,
                     OBJBLOCK, STATIC_INIT, RECORD_DEF, COMPACT_CTOR_DEF"/>
+      <property name="ignoreEnums" value="false"/>
     </module>
     <module name="RightCurly">
       <property name="id" value="RightCurlySame"/>
@@ -295,7 +296,7 @@
     <module name="AtclauseOrder">
       <property name="tagOrder" value="@param, @return, @throws, @deprecated"/>
       <property name="target"
-        value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF, METHOD_DEF, CTOR_DEF, VARIABLE_DEF"/>
+        value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF, METHOD_DEF, CTOR_DEF, VARIABLE_DEF, RECORD_DEF, COMPACT_CTOR_DEF"/>
     </module>
     <module name="JavadocMethod">
       <property name="accessModifiers" value="public"/>
@@ -322,6 +323,12 @@
         value="${org.checkstyle.google.suppressionxpathfilter.config}"/>
       <property name="optional" value="true"/>
     </module>
+    <module name="AnonInnerLength"/>
+    <module name="AvoidDoubleBraceInitialization"/>
+    <module name="AvoidNoArgumentSuperConstructorCall"/>
+    <module name="ConstantName"/>
+    <module name="EmptyStatement"/>
+    <module name="MissingOverride"/>
   </module>
   <property name="fileExtensions" value="java, properties, xml"/>
   <property name="charset" value="UTF-8"/>
