@@ -16,10 +16,8 @@
 
 package eu.cloudnetservice.modules.signs.platform.bukkit;
 
-import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.signs.Sign;
-import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.configuration.SignLayout;
 import eu.cloudnetservice.modules.signs.platform.AbstractPlatformSignManagement;
 import java.util.Set;
@@ -41,11 +39,6 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
 
   protected BukkitSignManagement(Plugin plugin) {
     this.plugin = plugin;
-  }
-
-  public static BukkitSignManagement defaultInstance() {
-    return (BukkitSignManagement) CloudNetDriver.instance().servicesRegistry()
-      .firstService(SignManagement.class);
   }
 
   @Override

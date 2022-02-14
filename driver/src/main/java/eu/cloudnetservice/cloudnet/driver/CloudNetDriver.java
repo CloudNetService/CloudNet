@@ -18,8 +18,6 @@ package eu.cloudnetservice.cloudnet.driver;
 
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
-import eu.cloudnetservice.cloudnet.common.registry.DefaultServicesRegistry;
-import eu.cloudnetservice.cloudnet.common.registry.ServicesRegistry;
 import eu.cloudnetservice.cloudnet.driver.database.DatabaseProvider;
 import eu.cloudnetservice.cloudnet.driver.event.DefaultEventManager;
 import eu.cloudnetservice.cloudnet.driver.event.EventManager;
@@ -40,6 +38,8 @@ import eu.cloudnetservice.cloudnet.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.cloudnet.driver.provider.ClusterNodeProvider;
 import eu.cloudnetservice.cloudnet.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.cloudnet.driver.provider.ServiceTaskProvider;
+import eu.cloudnetservice.cloudnet.driver.registry.DefaultServicesRegistry;
+import eu.cloudnetservice.cloudnet.driver.registry.ServicesRegistry;
 import eu.cloudnetservice.cloudnet.driver.service.ProcessSnapshot;
 import eu.cloudnetservice.cloudnet.driver.template.TemplateStorage;
 import java.time.Instant;

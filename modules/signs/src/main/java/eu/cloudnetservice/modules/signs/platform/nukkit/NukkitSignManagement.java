@@ -28,10 +28,8 @@ import cn.nukkit.plugin.Plugin;
 import cn.nukkit.utils.Faceable;
 import cn.nukkit.utils.TextFormat;
 import com.google.common.primitives.Ints;
-import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.signs.Sign;
-import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.configuration.SignLayout;
 import eu.cloudnetservice.modules.signs.platform.AbstractPlatformSignManagement;
 import java.util.Set;
@@ -44,11 +42,6 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
 
   public NukkitSignManagement(Plugin plugin) {
     this.plugin = plugin;
-  }
-
-  public static NukkitSignManagement defaultInstance() {
-    return (NukkitSignManagement) CloudNetDriver.instance().servicesRegistry()
-      .firstService(SignManagement.class);
   }
 
   @Override

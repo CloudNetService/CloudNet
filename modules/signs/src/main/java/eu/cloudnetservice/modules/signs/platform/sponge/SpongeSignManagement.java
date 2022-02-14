@@ -16,11 +16,9 @@
 
 package eu.cloudnetservice.modules.signs.platform.sponge;
 
-import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.signs.Sign;
-import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.configuration.SignLayout;
 import eu.cloudnetservice.modules.signs.platform.AbstractPlatformSignManagement;
 import java.util.Set;
@@ -49,11 +47,6 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
   public SpongeSignManagement(@NonNull PluginContainer plugin) {
     this.plugin = plugin;
     this.syncExecutor = Sponge.server().scheduler().executor(plugin);
-  }
-
-  public static SpongeSignManagement defaultInstance() {
-    return (SpongeSignManagement) CloudNetDriver.instance().servicesRegistry()
-      .firstService(SignManagement.class);
   }
 
   @Override
