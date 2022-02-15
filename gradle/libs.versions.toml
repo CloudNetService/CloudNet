@@ -43,8 +43,8 @@ jjwt = "0.11.2"
 slf4j = "1.7.32"
 javers = "6.6.2"
 caffeine = "3.0.5"
-awsSdk = "2.17.129"
-dockerJava = "3.2.12"
+awsSdk = "2.17.130"
+dockerJava = "3.2.13"
 unirest = "4.0.0-RC2"
 netty = "4.1.74.Final"
 annotations = "23.0.0"
@@ -53,23 +53,23 @@ nettyIoUring = "0.0.12.Final"
 
 # platform api versions
 velocity = "3.1.0"
+waterdogpe = "1.1.6"
 nukkitX = "1.0-SNAPSHOT"
 sponge = "9.0.0-SNAPSHOT"
-waterdogpe = "1.1.5"
 spigot = "1.8.8-R0.1-SNAPSHOT"
 bungeecord = "1.18-R0.1-SNAPSHOT"
 
 # platform extensions
 vault = "1.7.1"
 adventure = "4.9.3"
-modlauncher = "8.0.9"
+modlauncher = "8.1.3"
 placeholderApi = "2.11.1"
 protocolLib = "master-SNAPSHOT"
 npcLib = "development-SNAPSHOT"
 
 # fabric platform special dependencies
 minecraft = "1.18.1"
-fabricLoader = "0.13.0"
+fabricLoader = "0.13.2"
 
 
 [libraries]
