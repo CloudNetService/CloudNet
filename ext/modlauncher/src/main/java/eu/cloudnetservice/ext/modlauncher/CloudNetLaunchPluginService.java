@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.ext.modlauncher;
 
-import cpw.mods.modlauncher.Launcher;
 import cpw.mods.modlauncher.TransformingClassLoader;
 import cpw.mods.modlauncher.serviceapi.ILaunchPluginService;
 import java.nio.file.Path;
@@ -39,12 +38,12 @@ public final class CloudNetLaunchPluginService implements ILaunchPluginService {
     "eu.cloudnetservice.cloudnet.driver.");
 
   @Override
-  public String name() {
+  public @NonNull String name() {
     return "wrapper-tweaker";
   }
 
   @Override
-  public EnumSet<Phase> handlesClass(Type classType, boolean isEmpty) {
+  public @NonNull EnumSet<Phase> handlesClass(Type classType, boolean isEmpty) {
     return EnumSet.noneOf(Phase.class);
   }
 
@@ -55,18 +54,12 @@ public final class CloudNetLaunchPluginService implements ILaunchPluginService {
 
   @Override
   public void initializeLaunch(ITransformerLoader transformerLoader, Path[] specialPaths) {
-    // at this point the transforming class loader should be available - get it
-    this.transformingLoader().addTargetPackageFilter(
-      pkg -> EXCLUDED_PACKAGE_STARTS.stream().noneMatch(pkg::startsWith));
-  }
-
-  private @NonNull TransformingClassLoader transformingLoader() {
-    try {
-      var field = Launcher.class.getDeclaredField("classLoader");
-      field.setAccessible(true);
-      return (TransformingClassLoader) field.get(Launcher.INSTANCE);
-    } catch (NoSuchFieldException | IllegalAccessException exception) {
-      throw new IllegalStateException("Unable to retrieve transforming class loader", exception);
+    // at this point the transforming class loader should be the context class loader
+    // we fail here if it's not there as this will cause problems later on when classes were loaded twice
+    if (Thread.currentThread().getContextClassLoader() instanceof TransformingClassLoader loader) {
+      loader.addTargetPackageFilter(pkg -> EXCLUDED_PACKAGE_STARTS.stream().noneMatch(pkg::startsWith));
+    } else {
+      throw new IllegalStateException("Thread context class loader should be an instance of TransformingClassLoader");
     }
   }
 }
