@@ -190,7 +190,6 @@
           "name": "1.11.2",
           "url": "https://papermc.io/api/v2/projects/paper/versions/1.11.2/builds/1106/downloads/paper-1.11.2-1106.jar",
           "deprecated": true,
-          "maxJavaVersion": 8,
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
@@ -204,7 +203,6 @@
           "name": "1.10.2",
           "url": "https://papermc.io/api/v2/projects/paper/versions/1.10.2/builds/918/downloads/paper-1.10.2-918.jar",
           "deprecated": true,
-          "maxJavaVersion": 8,
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
@@ -218,7 +216,6 @@
           "name": "1.9.4",
           "url": "https://papermc.io/api/v2/projects/paper/versions/1.9.4/builds/775/downloads/paper-1.9.4-775.jar",
           "deprecated": true,
-          "maxJavaVersion": 8,
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
@@ -229,7 +226,6 @@
           "name": "1.8.8",
           "url": "https://papermc.io/api/v2/projects/paper/versions/1.8.8/builds/445/downloads/paper-1.8.8-445.jar",
           "deprecated": true,
-          "maxJavaVersion": 8,
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
@@ -346,26 +342,22 @@
         {
           "name": "1.11.2",
           "url": "https://cdn.getbukkit.org/spigot/spigot-1.11.2.jar",
-          "deprecated": true,
-          "maxJavaVersion": 8
+          "deprecated": true
         },
         {
           "name": "1.10.2",
           "url": "https://cdn.getbukkit.org/spigot/spigot-1.10.2-R0.1-SNAPSHOT-latest.jar",
-          "deprecated": true,
-          "maxJavaVersion": 8
+          "deprecated": true
         },
         {
           "name": "1.9.4",
           "url": "https://cdn.getbukkit.org/spigot/spigot-1.9.4-R0.1-SNAPSHOT-latest.jar",
-          "deprecated": true,
-          "maxJavaVersion": 8
+          "deprecated": true
         },
         {
           "name": "1.8.8",
           "url": "https://cdn.getbukkit.org/spigot/spigot-1.8.8-R0.1-SNAPSHOT-latest.jar",
-          "deprecated": true,
-          "maxJavaVersion": 8
+          "deprecated": true
         }
       ]
     },
@@ -413,7 +405,7 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://repo.spongepowered.org/repository/maven-public/org/spongepowered/spongevanilla/1.17.1-9.0.0-RC955/spongevanilla-1.17.1-9.0.0-RC955-universal.jar",
+          "url": "https://repo.spongepowered.org/repository/maven-releases/org/spongepowered/spongevanilla/1.18.1-9.0.0-RC1063/spongevanilla-1.18.1-9.0.0-RC1063-universal.jar",
           "cacheFiles": false,
           "properties": {
             "copy": {
@@ -424,8 +416,8 @@
           }
         },
         {
-          "name": "1.17.1",
-          "url": "https://repo.spongepowered.org/repository/maven-public/org/spongepowered/spongevanilla/1.17.1-9.0.0-RC955/spongevanilla-1.17.1-9.0.0-RC955-universal.jar",
+          "name": "1.18.1",
+          "url": "https://repo.spongepowered.org/repository/maven-releases/org/spongepowered/spongevanilla/1.18.1-9.0.0-RC1063/spongevanilla-1.18.1-9.0.0-RC1063-universal.jar",
           "properties": {
             "copy": {
               "libraries/.*": "/",
@@ -436,62 +428,13 @@
         },
         {
           "name": "1.16.5",
-          "url": "https://repo.spongepowered.org/repository/maven-public/org/spongepowered/spongevanilla/1.16.5-8.0.0-RC964/spongevanilla-1.16.5-8.0.0-RC964-universal.jar",
+          "url": "https://repo.spongepowered.org/repository/maven-releases/org/spongepowered/spongevanilla/1.16.5-8.0.0-RC1073/spongevanilla-1.16.5-8.0.0-RC1073-universal.jar",
           "properties": {
             "copy": {
               "libraries/.*": "/",
               "launcher\\.conf": "/",
               "spongevanilla\\.jar": "/"
             }
-          }
-        }
-      ]
-    },
-    {
-      "name": "spongeforge",
-      "environmentType": "MINECRAFT_SERVER",
-      "installSteps": [
-        "DOWNLOAD",
-        "BUILD",
-        "COPY_FILTER"
-      ],
-      "website": "https://spongepowered.org / https://minecraftforge.net",
-      "versions": [
-        {
-          "name": "latest",
-          "url": "https://maven.minecraftforge.net/net/minecraftforge/forge/1.16.5-36.2.20/forge-1.16.5-36.2.20-installer.jar",
-          "maxJavaVersion": 8,
-          "cacheFiles": false,
-          "properties": {
-            "copy": {
-              "libraries/.*": "/",
-              "forge-.*\\.jar": "/",
-              "minecraft_server.*\\.jar": "/"
-            },
-            "parameters": [
-              "--installServer"
-            ]
-          },
-          "additionalDownloads": {
-            "mods/spongeforge.jar": "https://repo.spongepowered.org/repository/maven-public/org/spongepowered/spongeforge/1.16.5-36.2.5-8.0.0-RC964/spongeforge-1.16.5-36.2.5-8.0.0-RC964-universal.jar"
-          }
-        },
-        {
-          "name": "1.16.5",
-          "url": "https://maven.minecraftforge.net/net/minecraftforge/forge/1.16.5-36.2.20/forge-1.16.5-36.2.20-installer.jar",
-          "maxJavaVersion": 8,
-          "properties": {
-            "copy": {
-              "libraries/.*": "/",
-              "forge-.*\\.jar": "/",
-              "minecraft_server.*\\.jar": "/"
-            },
-            "parameters": [
-              "--installServer"
-            ]
-          },
-          "additionalDownloads": {
-            "mods/spongeforge.jar": "https://repo.spongepowered.org/repository/maven-public/org/spongepowered/spongeforge/1.16.5-36.2.5-8.0.0-RC964/spongeforge-1.16.5-36.2.5-8.0.0-RC964-universal.jar"
           }
         }
       ]
@@ -621,8 +564,7 @@
         {
           "name": "latest",
           "url": "https://ci.nukkitx.com/job/NukkitX/job/Nukkit/job/master/lastSuccessfulBuild/artifact/target/nukkit-1.0-SNAPSHOT.jar",
-          "cacheFiles": false,
-          "maxJavaVersion": 11
+          "cacheFiles": false
         }
       ]
     }
