@@ -1,17 +1,17 @@
-# Number of days of inactivity before an issue becomes stale
-daysUntilStale: 60
-# Number of days of inactivity before a stale issue is closed
-daysUntilClose: 7
-# Issues with these labels will never be considered stale
+daysUntilStale: 15
+daysUntilClose: 5
+staleLabel: "r: stale"
 exemptLabels:
-  - pinned
-  - security
-# Label to use when marking an issue as stale
-staleLabel: stale
-# Comment to post when marking an issue as stale. Set to `false` to disable
+  - "pinned"
+  - "t: bug"
+  - "t: security"
+  - "t: new platform"
+
 markComment: >
   This issue has been automatically marked as stale because it has not had
   recent activity. It will be closed if no further activity occurs. Thank you
   for your contributions.
-# Comment to post when closing a stale issue. Set to `false` to disable
-closeComment: true
+closeComment: >
+  This issue has been automatically closed because it had no activity since the
+  last call. If the issue still applies to the most recent supported
+  version, please open a new issue referencing this original issue.

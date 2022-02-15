@@ -1,6 +1,6 @@
 name: Bug report
 description: Report exceptions, crashes or any bug you encounter while using CloudNet.
-labels: [ "status: needs triage", "bug" ]
+labels: [ "s: needs triage", "t: bug" ]
 body:
   - type: markdown
     attributes:

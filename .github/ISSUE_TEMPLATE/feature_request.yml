@@ -1,6 +1,6 @@
 name: Feature request
 description: Suggest an idea for CloudNet
-labels: [ "status: needs triage", "feature_request" ]
+labels: [ "s: needs triage", "t: feature request" ]
 body:
   - type: markdown
     attributes:
