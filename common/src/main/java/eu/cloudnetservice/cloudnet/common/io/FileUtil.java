@@ -62,6 +62,7 @@ public final class FileUtil {
 
   private static final Logger LOGGER = LogManager.logger(FileUtil.class);
   private static final DirectoryStream.Filter<Path> ACCEPTING_FILTER = $ -> true;
+  private static final boolean IS_WINDOWS = System.getProperty("os.name").contains("windows");
 
   private static final Map<String, String> ZIP_FILE_SYSTEM_PROPERTIES = Map.of(
     "create", "false", "encoding", "UTF-8");
@@ -249,9 +250,9 @@ public final class FileUtil {
     @NonNull ZipEntry zipEntry,
     @NonNull Path targetDirectory
   ) throws IOException {
-    // get the target path and ensure that there is no path traversal
+    // checks first if the zip entry name is malicious before extracting
+    ensureSafeZipEntryName(zipEntry.getName());
     var file = targetDirectory.resolve(zipEntry.getName());
-    ensureChild(targetDirectory, file);
 
     if (zipEntry.isDirectory()) {
       FileUtil.createDirectory(file);
@@ -327,6 +328,16 @@ public final class FileUtil {
 
     if (childNormal.getNameCount() <= rootNormal.getNameCount() || !childNormal.startsWith(rootNormal)) {
       throw new IllegalStateException("Child " + childNormal + " is not in root path " + rootNormal);
+    }
+  }
+
+  public static void ensureSafeZipEntryName(@NonNull String name) {
+    if (name.isEmpty()
+      || name.startsWith("/")
+      || name.startsWith("\\")
+      || name.contains("..")
+      || (name.contains(":") && IS_WINDOWS)) {
+      throw new IllegalStateException(String.format("zip entry name %s contains unsafe characters", name));
     }
   }
 
