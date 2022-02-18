@@ -34,7 +34,6 @@ import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.configuration.SignLayout;
 import eu.cloudnetservice.modules.signs.platform.AbstractPlatformSignManagement;
-import java.util.Set;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,7 +51,7 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
   }
 
   @Override
-  protected void pushUpdates(@NonNull Set<Sign> signs, @NonNull SignLayout layout) {
+  protected void pushUpdates(@NonNull Sign[] signs, @NonNull SignLayout layout) {
     if (Server.getInstance().isPrimaryThread()) {
       this.pushUpdates0(signs, layout);
     } else if (this.plugin.isEnabled()) {
@@ -60,7 +59,7 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
     }
   }
 
-  protected void pushUpdates0(@NonNull Set<Sign> signs, @NonNull SignLayout layout) {
+  protected void pushUpdates0(@NonNull Sign[] signs, @NonNull SignLayout layout) {
     for (var sign : signs) {
       this.pushUpdate(sign, layout);
     }
@@ -78,9 +77,9 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
   protected void pushUpdate0(@NonNull Sign sign, @NonNull SignLayout layout) {
     var location = this.locationFromWorldPosition(sign.location());
     if (location != null && location.getLevel().isChunkLoaded(location.getChunkX(), location.getChunkZ())) {
+      // change the content and back block of the sign at the location if it is a sign
       var blockEntity = location.getLevel().getBlockEntity(location);
       if (blockEntity instanceof BlockEntitySign entitySign) {
-
         var lines = this.replaceLines(sign, layout);
         if (lines != null) {
           for (var i = 0; i < 4; i++) {
@@ -157,26 +156,24 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
     Server.getInstance().getScheduler().scheduleDelayedRepeatingTask(this.plugin, () -> {
       var entry = this.applicableSignConfigurationEntry();
       if (entry != null) {
-        var configuration = entry.knockbackConfiguration();
-        if (configuration.validAndEnabled()) {
-          var distance = configuration.distance();
-
+        var conf = entry.knockbackConfiguration();
+        if (conf.validAndEnabled()) {
           for (var value : this.signs.values()) {
             var location = this.locationFromWorldPosition(value.location());
-            if (location != null && location.getLevel().isChunkLoaded(location.getChunkX(), location.getChunkZ())
+            if (location != null
+              && location.getLevel().isChunkLoaded(location.getChunkX(), location.getChunkZ())
               && location.getLevel().getBlockEntity(location) instanceof BlockEntitySign) {
-              var axisAlignedBB = new SimpleAxisAlignedBB(location, location)
-                .expand(distance, distance, distance);
+              var distance = conf.distance();
+              var bb = new SimpleAxisAlignedBB(location, location).expand(distance, distance, distance);
 
-              for (var entity : location.getLevel().getNearbyEntities(axisAlignedBB)) {
-                if (entity instanceof Player && (configuration.bypassPermission() == null
-                  || !((Player) entity).hasPermission(configuration.bypassPermission()))) {
-                  var vector = entity.getPosition()
+              for (var entity : location.getLevel().getNearbyEntities(bb)) {
+                if (entity instanceof Player player
+                  && (conf.bypassPermission() == null || !player.hasPermission(conf.bypassPermission()))) {
+                  entity.setMotion(entity.getPosition()
                     .subtract(location)
                     .normalize()
-                    .multiply(configuration.strength());
-                  vector.y = 0.2D;
-                  entity.setMotion(vector);
+                    .multiply(conf.strength())
+                    .setY(0.2));
                 }
               }
             }

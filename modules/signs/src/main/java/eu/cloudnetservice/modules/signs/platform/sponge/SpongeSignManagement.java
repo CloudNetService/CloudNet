@@ -23,7 +23,6 @@ import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.configuration.SignLayout;
 import eu.cloudnetservice.modules.signs.platform.AbstractPlatformSignManagement;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -57,7 +56,7 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
   }
 
   @Override
-  protected void pushUpdates(@NonNull Set<Sign> signs, @NonNull SignLayout layout) {
+  protected void pushUpdates(@NonNull Sign[] signs, @NonNull SignLayout layout) {
     if (Sponge.server().onMainThread()) {
       this.pushUpdates0(signs, layout);
     } else {
@@ -65,7 +64,7 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
     }
   }
 
-  protected void pushUpdates0(@NonNull Set<Sign> signs, @NonNull SignLayout layout) {
+  protected void pushUpdates0(@NonNull Sign[] signs, @NonNull SignLayout layout) {
     for (var sign : signs) {
       this.pushUpdate(sign, layout);
     }
@@ -86,7 +85,6 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
       // no need if the chunk is loaded - the tile entity is not available if the chunk is unloaded
       var entity = location.blockEntity().orElse(null);
       if (entity instanceof org.spongepowered.api.block.entity.Sign tileSign) {
-
         var lines = this.replaceLines(sign, layout);
         if (lines != null) {
           for (var i = 0; i < 4; i++) {
@@ -164,21 +162,21 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
     this.syncExecutor.scheduleAtFixedRate(() -> {
       var entry = this.applicableSignConfigurationEntry();
       if (entry != null) {
-        var configuration = entry.knockbackConfiguration();
-        if (configuration.validAndEnabled()) {
-          var distance = configuration.distance();
-
+        var conf = entry.knockbackConfiguration();
+        if (conf.validAndEnabled()) {
           for (var position : this.signs.keySet()) {
             var location = this.locationFromWorldPosition(position);
             if (location != null) {
-              for (Entity entity : location.world().nearbyEntities(location.position(), distance)) {
-                if (entity instanceof ServerPlayer && (configuration.bypassPermission() == null
-                  || !((ServerPlayer) entity).hasPermission(configuration.bypassPermission()))) {
+              var distance = conf.distance();
+              var locationVec = location.position();
+              for (Entity entity : location.world().nearbyEntities(locationVec, distance)) {
+                if (entity instanceof ServerPlayer player
+                  && (conf.bypassPermission() == null || !player.hasPermission(conf.bypassPermission()))) {
                   var vector = entity.location()
                     .position()
-                    .sub(location.position())
+                    .sub(locationVec)
                     .normalize()
-                    .mul(configuration.strength());
+                    .mul(conf.strength());
                   entity.velocity().set(new Vector3d(vector.x(), 0.2D, vector.z()));
                 }
               }

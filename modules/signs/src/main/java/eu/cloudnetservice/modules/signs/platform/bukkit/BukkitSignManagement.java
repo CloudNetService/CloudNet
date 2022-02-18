@@ -22,7 +22,6 @@ import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.configuration.SignLayout;
 import eu.cloudnetservice.modules.signs.platform.AbstractPlatformSignManagement;
-import java.util.Set;
 import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -49,7 +48,7 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
   }
 
   @Override
-  protected void pushUpdates(@NonNull Set<Sign> signs, @NonNull SignLayout layout) {
+  protected void pushUpdates(@NonNull Sign[] signs, @NonNull SignLayout layout) {
     if (Bukkit.isPrimaryThread()) {
       this.pushUpdates0(signs, layout);
     } else if (this.plugin.isEnabled()) {
@@ -57,7 +56,7 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
     }
   }
 
-  protected void pushUpdates0(@NonNull Set<Sign> signs, @NonNull SignLayout layout) {
+  protected void pushUpdates0(@NonNull Sign[] signs, @NonNull SignLayout layout) {
     for (var sign : signs) {
       this.pushUpdate(sign, layout);
     }
@@ -77,12 +76,14 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
     if (location != null) {
       var chunkX = NumberConversions.floor(location.getX()) >> 4;
       var chunkZ = NumberConversions.floor(location.getZ()) >> 4;
-
+      // check if the chunk of the sign is loaded to prevent unnecessary chunk loads
       if (location.getWorld().isChunkLoaded(chunkX, chunkZ)) {
+        // check if the target block is still a sign
         var block = location.getBlock();
         if (block.getState() instanceof org.bukkit.block.Sign bukkitSign) {
           BukkitCompatibility.signGlowing(bukkitSign, layout);
 
+          // update the sign content
           var replaced = this.replaceLines(sign, layout);
           if (replaced != null) {
             for (var i = 0; i < 4; i++) {
@@ -90,9 +91,8 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
             }
 
             bukkitSign.update();
+            this.changeBlock(block, layout);
           }
-
-          this.changeBlock(block, layout);
         }
       }
     }
@@ -168,27 +168,29 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
     Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
       var entry = this.applicableSignConfigurationEntry();
       if (entry != null) {
-        var configuration = entry.knockbackConfiguration();
-        if (configuration.validAndEnabled()) {
-          var distance = configuration.distance();
-
+        var conf = entry.knockbackConfiguration();
+        if (conf.validAndEnabled()) {
           for (var value : this.signs.values()) {
             var location = this.worldPositionToLocation(value.location());
             if (location != null) {
-              var chunkX = (int) Math.floor(location.getX()) >> 4;
-              var chunkZ = (int) Math.floor(location.getZ()) >> 4;
+              var chunkX = NumberConversions.floor(location.getX()) >> 4;
+              var chunkZ = NumberConversions.floor(location.getZ()) >> 4;
 
               if (location.getWorld().isChunkLoaded(chunkX, chunkZ)
                 && location.getBlock().getState() instanceof org.bukkit.block.Sign) {
-                location.getWorld()
-                  .getNearbyEntities(location, distance, distance, distance)
-                  .stream()
-                  .filter(entity -> entity instanceof Player && (configuration.bypassPermission() == null
-                    || !entity.hasPermission(configuration.bypassPermission())))
-                  .forEach(entity -> entity.setVelocity(entity.getLocation().toVector()
-                    .subtract(location.toVector())
-                    .normalize()
-                    .multiply(configuration.strength())));
+                var distance = conf.distance();
+                var locationVec = location.toVector();
+                // filter all entities we need to knock back
+                for (var entity : location.getWorld().getNearbyEntities(location, distance, distance, distance)) {
+                  if (entity instanceof Player player
+                    && (conf.bypassPermission() == null || !player.hasPermission(conf.bypassPermission()))) {
+                    entity.setVelocity(entity.getLocation().toVector()
+                      .subtract(locationVec)
+                      .normalize()
+                      .multiply(conf.strength())
+                      .setY(0.2));
+                  }
+                }
               }
             }
           }

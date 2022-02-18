@@ -19,7 +19,6 @@ package eu.cloudnetservice.modules.signs.platform;
 import static eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType.JAVA_SERVER;
 import static eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType.PE_SERVER;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.MapMaker;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
@@ -64,6 +63,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
   public static final String SIGN_BULK_DELETE = "signs_sign_bulk_delete";
 
   protected static final int TPS = 20;
+  protected static final Sign[] EMPTY_SIGN_ARRAY = new Sign[0];
   protected static final Logger LOGGER = LogManager.logger(AbstractPlatformSignManagement.class);
 
   protected final Lock updatingLock = new ReentrantLock();
@@ -155,10 +155,11 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
 
   @Override
   public boolean canConnect(@NonNull Sign sign, @NonNull Function<String, Boolean> permissionChecker) {
-    if (sign.currentTarget() == null) {
+    var target = sign.currentTarget();
+    if (target == null) {
       return false;
     } else {
-      var state = BridgeServiceHelper.guessStateFromServiceInfoSnapshot(sign.currentTarget());
+      var state = BridgeServiceHelper.guessStateFromServiceInfoSnapshot(target);
       return state == ServiceInfoState.EMPTY_ONLINE
         || state == ServiceInfoState.ONLINE
         || state == ServiceInfoState.FULL_ONLINE;
@@ -211,7 +212,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
 
   protected @NonNull String[] replaceLines(@NonNull Sign sign, @NonNull SignLayout layout) {
     var lines = layout.lines();
-    if (lines != null && lines.length == 4) {
+    if (lines.length == 4) {
       var replacedLines = new String[4];
       for (var i = 0; i < 4; i++) {
         replacedLines[i] = BridgeServiceHelper.fillCommonPlaceholders(
@@ -274,6 +275,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
     var ownEntry = this.applicableSignConfigurationEntry();
     if (ownEntry != null) {
       for (var value : this.signs.values()) {
+        // tick all sign layouts which we need to tick in the current tick
         var holder = LayoutUtil.layoutHolder(ownEntry, value, value.currentTarget());
         if (holder.hasLayouts() && holder.animationsPerSecond() > 0
           && (this.currentTick.get() % 20) % Math.round(20D / holder.animationsPerSecond()) == 0) {
@@ -283,17 +285,22 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
       }
 
       for (var entry : signsNeedingTicking.entrySet()) {
-        this.pushUpdates(ImmutableSet.copyOf(entry.getValue()), entry.getKey().releaseTickBlock().currentLayout());
-        // remove updated sign from the map
+        // push out all sign changes we recorded previously
+        // we need to copy all entries of the set into a new array in case we have a thread de-sync (for example async
+        // tick but sync update) as we need to clear the underlying set after the call to prevent double ticks
+        this.pushUpdates(entry.getValue().toArray(EMPTY_SIGN_ARRAY), entry.getKey().releaseTickBlock().currentLayout());
         entry.getValue().clear();
       }
 
+      // check if we have waiting services which are not yet assigned - try to assign them to a sign
       if (!this.waitingAssignments.isEmpty()) {
         for (var waitingAssignment : this.waitingAssignments) {
+          // get the next free sign to which can assign the service
           var freeSign = this.nextFreeSign(waitingAssignment);
           if (freeSign != null) {
+            // remove instantly
             this.waitingAssignments.remove(waitingAssignment);
-
+            // assign the service to the sign and update it
             freeSign.currentTarget(waitingAssignment);
             this.updateSign(freeSign);
           }
@@ -319,7 +326,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
             bestChoice = sign;
             break;
           } else {
-            // get the priority depending if we found a sign yet
+            // get the priority of the sign depending on the current sign choice (if any)
             var signPriority = sign.priority(entry);
             var priority = bestChoice == null ? servicePriority : bestChoice.priority(entry);
             // check if the service/sign we found has a higher priority than the sign
@@ -327,8 +334,8 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
               // yes it has, use the sign with the lower priority
               bestChoice = sign;
             } else if (priority == signPriority && bestChoice != null) {
-              // no it has the same priority as the found best choice, check if we get a better template
-              // path match than using the best choice
+              // no it has the same priority as the best choice
+              // check if we get a better template path match than the current selected sign
               if (bestChoice.templatePath() == null && sign.templatePath() != null) {
                 // yes the sign has a better template path match than the previous choice
                 bestChoice = sign;
@@ -339,9 +346,8 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
       }
 
       if (bestChoice != null && bestChoice.currentTarget() != null) {
-        // enqueue the current target of the sign
+        // enqueue and reset the current target of the sign
         this.waitingAssignments.add(bestChoice.currentTarget());
-        // reset the signs target
         bestChoice.currentTarget(null);
       }
 
@@ -353,14 +359,15 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
 
   protected @Nullable Sign signOf(@NonNull ServiceInfoSnapshot snapshot) {
     for (var value : this.signs.values()) {
-      if (value.currentTarget() != null && value.currentTarget().name().equals(snapshot.name())) {
+      var target = value.currentTarget();
+      if (target != null && target.name().equals(snapshot.name())) {
         return value;
       }
     }
     return null;
   }
 
-  protected abstract void pushUpdates(@NonNull Set<Sign> signs, @NonNull SignLayout layout);
+  protected abstract void pushUpdates(@NonNull Sign[] signs, @NonNull SignLayout layout);
 
   protected abstract void pushUpdate(@NonNull Sign sign, @NonNull SignLayout layout);
 }
