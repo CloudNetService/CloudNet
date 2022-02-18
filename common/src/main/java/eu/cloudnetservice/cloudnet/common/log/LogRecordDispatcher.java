@@ -19,7 +19,21 @@ package eu.cloudnetservice.cloudnet.common.log;
 import java.util.logging.LogRecord;
 import lombok.NonNull;
 
+/**
+ * Represents a dispatcher for log records. This dispatcher is meant to pre-process log records if needed and then post
+ * them to all registered dispatchers of a logger, for example from an asynchronous context.
+ *
+ * @since 4.0
+ */
+@FunctionalInterface
 public interface LogRecordDispatcher {
 
-  void dispatchRecord(@NonNull LogRecord record);
+  /**
+   * Called when a log record needs to be dispatched for a logger.
+   *
+   * @param logger the logger from which the log event came.
+   * @param record the record which needs to be dispatched.
+   * @throws NullPointerException if either the given logger or record is null.
+   */
+  void dispatchRecord(@NonNull Logger logger, @NonNull LogRecord record);
 }

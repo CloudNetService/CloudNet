@@ -16,42 +16,61 @@
 
 package eu.cloudnetservice.cloudnet.common.log.defaults;
 
+import eu.cloudnetservice.cloudnet.common.log.AbstractHandler;
 import java.util.function.Consumer;
 import java.util.logging.Formatter;
-import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import lombok.NonNull;
 
-public final class AcceptingLogHandler extends Handler {
+/**
+ * A log handler which automatically formats the given log record and notifies the provided message handler.
+ *
+ * @since 4.0
+ */
+public final class AcceptingLogHandler extends AbstractHandler {
 
-  private final Consumer<String> accepter;
+  private final Consumer<String> handler;
 
-  private AcceptingLogHandler(Consumer<String> accepter) {
-    this.accepter = accepter;
+  /**
+   * Constructs a new accepting log handler instance.
+   *
+   * @param handler the consumer to post loggable, formatted log records to.
+   * @throws NullPointerException if the given handler is null.
+   */
+  private AcceptingLogHandler(@NonNull Consumer<String> handler) {
+    this.handler = handler;
     // default options
     this.setLevel(Level.ALL);
   }
 
-  public static @NonNull AcceptingLogHandler newInstance(@NonNull Consumer<String> accepter) {
-    return new AcceptingLogHandler(accepter);
+  /**
+   * Constructs a new accepting log handler instance.
+   *
+   * @param handler the consumer to post loggable, formatted log records to.
+   * @throws NullPointerException if the given handler is null.
+   */
+  public static @NonNull AcceptingLogHandler newInstance(@NonNull Consumer<String> handler) {
+    return new AcceptingLogHandler(handler);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void publish(LogRecord record) {
     if (super.isLoggable(record)) {
-      this.accepter.accept(super.getFormatter().format(record));
+      this.handler.accept(super.getFormatter().format(record));
     }
   }
 
-  @Override
-  public void flush() {
-  }
-
-  @Override
-  public void close() throws SecurityException {
-  }
-
+  /**
+   * Sets the formatter of this handler and returns the same instance as used to call the method, for chaining.
+   *
+   * @param formatter the formatter to use for this handler.
+   * @return the same instance as used to call the method, for chaining.
+   * @throws NullPointerException if the given formatter is null.
+   */
   public @NonNull AcceptingLogHandler withFormatter(@NonNull Formatter formatter) {
     super.setFormatter(formatter);
     return this;

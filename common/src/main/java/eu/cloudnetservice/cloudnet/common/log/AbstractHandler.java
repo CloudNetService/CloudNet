@@ -18,12 +18,24 @@ package eu.cloudnetservice.cloudnet.common.log;
 
 import java.util.logging.Handler;
 
+/**
+ * An abstract handler implementation which only requires the extending class to overwrite {@code publish} instead of
+ * implementing the (mostly) unused methods flush and close as well.
+ *
+ * @since 4.0
+ */
 public abstract class AbstractHandler extends Handler {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void flush() {
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void close() throws SecurityException {
   }
