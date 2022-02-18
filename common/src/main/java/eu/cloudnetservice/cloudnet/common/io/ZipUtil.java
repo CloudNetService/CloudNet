@@ -28,6 +28,7 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Locale;
 import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -38,7 +39,7 @@ import org.jetbrains.annotations.Nullable;
 public final class ZipUtil {
 
   private static final Logger LOGGER = LogManager.logger(ZipUtil.class);
-  private static final boolean IS_WINDOWS = System.getProperty("os.name").contains("windows");
+  private static final boolean IS_WINDOWS = System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows");
 
   public static @NonNull InputStream zipToStream(@NonNull Path directory) {
     return zipToStream(directory, null);
