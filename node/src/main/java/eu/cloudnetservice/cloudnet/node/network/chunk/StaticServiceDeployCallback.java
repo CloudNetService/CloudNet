@@ -17,6 +17,7 @@
 package eu.cloudnetservice.cloudnet.node.network.chunk;
 
 import eu.cloudnetservice.cloudnet.common.io.FileUtil;
+import eu.cloudnetservice.cloudnet.common.io.ZipUtil;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
@@ -59,7 +60,7 @@ final class StaticServiceDeployCallback implements Callback {
       // recreate the directory
       FileUtil.createDirectory(servicePath);
       // extract the received data to the given path of the service
-      FileUtil.extract(dataInput, servicePath);
+      ZipUtil.extract(dataInput, servicePath);
       LOGGER.info(I18n.trans("command-cluster-push-static-service-received-success", service));
     } else {
       LOGGER.severe(I18n.trans("command-cluster-push-static-service-running-remote", service));

@@ -17,6 +17,7 @@
 package eu.cloudnetservice.cloudnet.node.template;
 
 import eu.cloudnetservice.cloudnet.common.io.FileUtil;
+import eu.cloudnetservice.cloudnet.common.io.ZipUtil;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
@@ -75,7 +76,7 @@ public class LocalTemplateStorage implements TemplateStorage {
 
   @Override
   public boolean deploy(@NonNull InputStream inputStream, @NonNull ServiceTemplate target) {
-    FileUtil.extractZipStream(new ZipInputStream(inputStream), this.getTemplatePath(target));
+    ZipUtil.extractZipStream(new ZipInputStream(inputStream), this.getTemplatePath(target));
     return true;
   }
 
@@ -90,7 +91,7 @@ public class LocalTemplateStorage implements TemplateStorage {
     if (this.has(template)) {
       // create a new temp file
       var temp = FileUtil.createTempFile();
-      var zippedFile = FileUtil.zipToFile(this.getTemplatePath(template), temp);
+      var zippedFile = ZipUtil.zipToFile(this.getTemplatePath(template), temp);
       // open a stream to the file if possible
       if (zippedFile != null) {
         return Files.newInputStream(zippedFile, StandardOpenOption.DELETE_ON_CLOSE, LinkOption.NOFOLLOW_LINKS);

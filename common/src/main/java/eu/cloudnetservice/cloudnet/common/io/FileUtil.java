@@ -23,59 +23,38 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.CopyOption;
-import java.nio.file.DirectoryStream;
+import java.nio.file.DirectoryStream.Filter;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.BiConsumer;
-import java.util.function.Predicate;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * The FileUtils class has a lot of utility methods, for
- * <ol>
- * <li>Byte Streams IO</li>
- * <li>File IO (Coping, Deleting)</li>
- * <li>Zip IO</li>
- * </ol>
- */
 @Internal
 public final class FileUtil {
 
   public static final Path TEMP_DIR = Path.of(System.getProperty("cloudnet.tempDir", "temp"));
 
   private static final Logger LOGGER = LogManager.logger(FileUtil.class);
-  private static final DirectoryStream.Filter<Path> ACCEPTING_FILTER = $ -> true;
-  private static final boolean IS_WINDOWS = System.getProperty("os.name").contains("windows");
-
-  private static final Map<String, String> ZIP_FILE_SYSTEM_PROPERTIES = Map.of(
-    "create", "false", "encoding", "UTF-8");
+  private static final Filter<Path> ACCEPTING_FILTER = $ -> true;
+  private static final Map<String, String> ZIP_FILE_SYSTEM_PROPERTIES = Map.of("create", "false", "encoding", "UTF-8");
 
   private FileUtil() {
     throw new UnsupportedOperationException();
   }
 
-  public static void openZipFileSystem(@NonNull Path zip, @NonNull ThrowableConsumer<FileSystem, Exception> consumer) {
-    try (var fs = FileSystems.newFileSystem(URI.create("jar:" + zip.toUri()), ZIP_FILE_SYSTEM_PROPERTIES)) {
+  public static void openJarFileSystem(@NonNull Path jar, @NonNull ThrowableConsumer<FileSystem, Exception> consumer) {
+    try (var fs = FileSystems.newFileSystem(URI.create("jar:" + jar.toUri()), ZIP_FILE_SYSTEM_PROPERTIES)) {
       consumer.accept(fs);
     } catch (Exception throwable) {
-      LOGGER.severe("Exception while opening file", throwable);
+      LOGGER.severe("Exception opening jar file system on %s", throwable, jar);
     }
   }
 
@@ -83,7 +62,7 @@ public final class FileUtil {
     try {
       Files.move(from, to, options);
     } catch (IOException exception) {
-      LOGGER.severe("Unable to move file " + from + " to " + to, exception);
+      LOGGER.severe("Exception moving file from %s to %s", exception, from, to);
     }
   }
 
@@ -92,18 +71,18 @@ public final class FileUtil {
       try {
         inputStream.transferTo(outputStream);
       } catch (IOException exception) {
-        LOGGER.severe("Exception copying InputStream to OutputStream", exception);
+        LOGGER.severe("Exception copying input stream to output stream", exception);
       }
     }
   }
 
   public static void copy(@Nullable InputStream inputStream, @Nullable Path target) {
     if (inputStream != null && target != null) {
-      FileUtil.createDirectory(target.getParent());
+      createDirectory(target.getParent());
       try (var out = Files.newOutputStream(target)) {
         FileUtil.copy(inputStream, out);
       } catch (IOException exception) {
-        LOGGER.severe("Exception copying InputStream to Path", exception);
+        LOGGER.severe("Exception copying input stream to %s", exception, target);
       }
     }
   }
@@ -114,7 +93,7 @@ public final class FileUtil {
       createDirectory(to.getParent());
       Files.copy(from, to, StandardCopyOption.REPLACE_EXISTING);
     } catch (IOException exception) {
-      LOGGER.severe("Exception copying file from " + from + " to " + to, exception);
+      LOGGER.severe("Exception copying file from %s to %s", exception, from, to);
     }
   }
 
@@ -122,7 +101,7 @@ public final class FileUtil {
     copyDirectory(from, to, null);
   }
 
-  public static void copyDirectory(Path from, Path to, DirectoryStream.Filter<Path> filter) {
+  public static void copyDirectory(@NonNull Path from, @NonNull Path to, @Nullable Filter<Path> filter) {
     walkFileTree(from, ($, current) -> {
       if (!Files.isDirectory(current)) {
         FileUtil.copy(current, to.resolve(from.relativize(current)));
@@ -136,8 +115,9 @@ public final class FileUtil {
       if (Files.isDirectory(path)) {
         walkFileTree(path, ($, current) -> FileUtil.delete(current));
       }
-      // remove the directory or the file
+
       try {
+        // remove the directory or the file
         Files.delete(path);
       } catch (IOException ignored) {
         // ignore these exceptions
@@ -146,122 +126,8 @@ public final class FileUtil {
   }
 
   public static @NonNull Path createTempFile() {
-    if (Files.notExists(TEMP_DIR)) {
-      createDirectory(TEMP_DIR);
-    }
-
+    createDirectory(TEMP_DIR);
     return TEMP_DIR.resolve(UUID.randomUUID().toString());
-  }
-
-  public static @NonNull InputStream zipToStream(@NonNull Path directory) {
-    return zipToStream(directory, null);
-  }
-
-  public static @NonNull InputStream zipToStream(@NonNull Path directory, @Nullable Predicate<Path> fileFilter) {
-    var target = createTempFile();
-    zipToFile(
-      directory,
-      target,
-      path -> !target.equals(path) && (fileFilter == null || fileFilter.test(path)));
-
-    try {
-      return Files.newInputStream(target, StandardOpenOption.DELETE_ON_CLOSE, LinkOption.NOFOLLOW_LINKS);
-    } catch (IOException exception) {
-      throw new IllegalStateException("Unable to open input stream to zip file " + target, exception);
-    }
-  }
-
-  public static @Nullable Path zipToFile(@NonNull Path directory, @NonNull Path target) {
-    return zipToFile(directory, target, null);
-  }
-
-  public static @Nullable Path zipToFile(@NonNull Path dir, @NonNull Path target, @Nullable Predicate<Path> filter) {
-    if (Files.exists(dir)) {
-      try (var out = new ZipOutputStream(Files.newOutputStream(target), StandardCharsets.UTF_8)) {
-        zipDir(out, dir, filter);
-        return target;
-      } catch (IOException exception) {
-        LOGGER.severe("Exception while processing new zip entry from directory " + dir, exception);
-      }
-    }
-
-    return null;
-  }
-
-  private static void zipDir(
-    @NonNull ZipOutputStream out,
-    @NonNull Path dir,
-    @Nullable Predicate<Path> filter
-  ) throws IOException {
-    Files.walkFileTree(
-      dir,
-      new SimpleFileVisitor<>() {
-        @Override
-        public FileVisitResult visitFile(@NonNull Path file, @NonNull BasicFileAttributes attrs) throws IOException {
-          if (filter == null || filter.test(file)) {
-            try {
-              out.putNextEntry(new ZipEntry(dir.relativize(file).toString().replace("\\", "/")));
-              Files.copy(file, out);
-            } finally {
-              out.closeEntry();
-            }
-          }
-          // continue search
-          return FileVisitResult.CONTINUE;
-        }
-      }
-    );
-  }
-
-  public static @Nullable Path extract(@NonNull Path zipPath, @NonNull Path targetDirectory) {
-    if (Files.exists(zipPath)) {
-      try (var inputStream = Files.newInputStream(zipPath)) {
-        return extract(inputStream, targetDirectory);
-      } catch (IOException exception) {
-        LOGGER.severe("Unable to extract zip from " + zipPath + " to " + targetDirectory, exception);
-      }
-    }
-    return null;
-  }
-
-  public static @Nullable Path extract(@NonNull InputStream in, @NonNull Path targetDirectory) {
-    return extractZipStream(
-      in instanceof ZipInputStream ? (ZipInputStream) in : new ZipInputStream(in, StandardCharsets.UTF_8),
-      targetDirectory);
-  }
-
-  public static @Nullable Path extractZipStream(@NonNull ZipInputStream zipInputStream, @NonNull Path targetDirectory) {
-    try {
-      ZipEntry zipEntry;
-      while ((zipEntry = zipInputStream.getNextEntry()) != null) {
-        extractEntry(zipInputStream, zipEntry, targetDirectory);
-        zipInputStream.closeEntry();
-      }
-
-      return targetDirectory;
-    } catch (IOException exception) {
-      LOGGER.severe("Exception unzipping zip file to " + targetDirectory, exception);
-      return null;
-    }
-  }
-
-  private static void extractEntry(
-    @NonNull ZipInputStream in,
-    @NonNull ZipEntry zipEntry,
-    @NonNull Path targetDirectory
-  ) throws IOException {
-    // checks first if the zip entry name is malicious before extracting
-    ensureSafeZipEntryName(zipEntry.getName());
-    var file = targetDirectory.resolve(zipEntry.getName());
-
-    if (zipEntry.isDirectory()) {
-      FileUtil.createDirectory(file);
-    } else {
-      FileUtil.createDirectory(file.getParent());
-      try (var outputStream = Files.newOutputStream(file)) {
-        copy(in, outputStream);
-      }
-    }
   }
 
   public static void walkFileTree(@NonNull Path root, @NonNull BiConsumer<Path, Path> consumer) {
@@ -289,7 +155,7 @@ public final class FileUtil {
     @NonNull Path root,
     @NonNull BiConsumer<Path, Path> consumer,
     boolean visitDirectories,
-    @NonNull DirectoryStream.Filter<Path> filter
+    @NonNull Filter<Path> filter
   ) {
     if (Files.exists(root)) {
       try (var stream = Files.newDirectoryStream(root, filter)) {
@@ -300,14 +166,14 @@ public final class FileUtil {
             if (visitDirectories) {
               walkFileTree(path, consumer, true, filter);
             } else {
-              return;
+              continue;
             }
           }
           // accepts all files and directories
           consumer.accept(root, path);
         }
       } catch (IOException exception) {
-        LOGGER.severe("Exception walking directory tree from " + root, exception);
+        LOGGER.severe("Exception walking down directory tree starting at %s", exception, root);
       }
     }
   }
@@ -317,7 +183,7 @@ public final class FileUtil {
       try {
         Files.createDirectories(directoryPath);
       } catch (IOException exception) {
-        LOGGER.severe("Exception while creating directory", exception);
+        LOGGER.severe("Exception creating directory at %s", exception, directoryPath);
       }
     }
   }
@@ -328,16 +194,6 @@ public final class FileUtil {
 
     if (childNormal.getNameCount() <= rootNormal.getNameCount() || !childNormal.startsWith(rootNormal)) {
       throw new IllegalStateException("Child " + childNormal + " is not in root path " + rootNormal);
-    }
-  }
-
-  public static void ensureSafeZipEntryName(@NonNull String name) {
-    if (name.isEmpty()
-      || name.startsWith("/")
-      || name.startsWith("\\")
-      || name.contains("..")
-      || (name.contains(":") && IS_WINDOWS)) {
-      throw new IllegalStateException(String.format("zip entry name %s contains unsafe characters", name));
     }
   }
 

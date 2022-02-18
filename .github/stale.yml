@@ -6,6 +6,9 @@ exemptLabels:
   - "t: bug"
   - "t: security"
   - "t: new platform"
+  - "s: blocked"
+  - "s: needs triage"
+  - "s: we need to go deeper"
 
 markComment: >
   This issue has been automatically marked as stale because it has not had

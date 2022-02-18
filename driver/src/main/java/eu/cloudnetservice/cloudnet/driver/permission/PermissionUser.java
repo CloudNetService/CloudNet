@@ -18,7 +18,7 @@ package eu.cloudnetservice.cloudnet.driver.permission;
 
 import com.google.common.base.Verify;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.common.encrypt.EncryptTo;
+import eu.cloudnetservice.cloudnet.common.hash.HashUtil;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
@@ -79,7 +79,7 @@ public class PermissionUser extends AbstractPermissible {
   public boolean checkPassword(@Nullable String password) {
     return this.hashedPassword != null
       && password != null
-      && this.hashedPassword.equals(Base64.getEncoder().encodeToString(EncryptTo.encryptToSHA256(password)));
+      && this.hashedPassword.equals(Base64.getEncoder().encodeToString(HashUtil.toSha256(password)));
   }
 
   public @NonNull UUID uniqueId() {
@@ -158,7 +158,7 @@ public class PermissionUser extends AbstractPermissible {
     }
 
     public @NonNull Builder password(@NonNull String password) {
-      this.hashedPassword = Base64.getEncoder().encodeToString(EncryptTo.encryptToSHA256(password));
+      this.hashedPassword = Base64.getEncoder().encodeToString(HashUtil.toSha256(password));
       return this;
     }
 
