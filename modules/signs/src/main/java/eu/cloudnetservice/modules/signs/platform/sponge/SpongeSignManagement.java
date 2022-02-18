@@ -166,7 +166,8 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
         if (conf.validAndEnabled()) {
           for (var position : this.signs.keySet()) {
             var location = this.locationFromWorldPosition(position);
-            if (location != null) {
+            // we check if the chunk at the position is loaded, but we skip empty chunks as they are not yet loaded
+            if (location != null && location.world().isChunkLoaded(location.chunkPosition(), false)) {
               var distance = conf.distance();
               var locationVec = location.position();
               for (Entity entity : location.world().nearbyEntities(locationVec, distance)) {
