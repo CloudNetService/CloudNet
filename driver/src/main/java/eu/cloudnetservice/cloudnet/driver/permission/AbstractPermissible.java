@@ -40,6 +40,7 @@ public abstract class AbstractPermissible extends JsonDocPropertyHolder implemen
   protected Map<String, Set<Permission>> groupPermissions;
 
   public AbstractPermissible() {
+    super(JsonDocument.newDocument());
     this.createdTime = System.currentTimeMillis();
     this.permissions = new HashSet<>();
     this.groupPermissions = new HashMap<>();
@@ -53,12 +54,12 @@ public abstract class AbstractPermissible extends JsonDocPropertyHolder implemen
     @NonNull Map<String, Set<Permission>> groupPermissions,
     @NonNull JsonDocument properties
   ) {
+    super(properties);
     this.name = name;
     this.potency = potency;
     this.createdTime = createdTime;
     this.permissions = permissions;
     this.groupPermissions = groupPermissions;
-    this.properties = properties;
   }
 
   private boolean addPermission(@NonNull Collection<Permission> permissions, @Nullable Permission permission) {

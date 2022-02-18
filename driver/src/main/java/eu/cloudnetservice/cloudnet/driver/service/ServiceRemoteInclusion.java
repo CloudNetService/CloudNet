@@ -28,10 +28,10 @@ public class ServiceRemoteInclusion extends JsonDocPropertyHolder implements Clo
   private final String url;
   private final String destination;
 
-  protected ServiceRemoteInclusion(String url, String destination, JsonDocument properties) {
+  protected ServiceRemoteInclusion(String url, String destination, @NonNull JsonDocument properties) {
+    super(properties);
     this.url = url;
     this.destination = destination;
-    this.properties = properties;
   }
 
   public static @NonNull Builder builder() {

@@ -436,7 +436,8 @@ public class NodePlayerManager implements PlayerManager {
         proxyInfo.name(),
         System.currentTimeMillis(),
         System.currentTimeMillis(),
-        proxyInfo);
+        proxyInfo,
+        JsonDocument.newDocument());
       this.offlinePlayerCache.put(proxyInfo.uniqueId(), Optional.of(cloudOfflinePlayer));
     }
     // the selected player

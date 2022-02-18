@@ -39,10 +39,10 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
     @NonNull Set<ServiceRemoteInclusion> includes,
     @NonNull JsonDocument properties
   ) {
+    super(properties);
     this.templates = templates;
     this.deployments = deployments;
     this.includes = includes;
-    this.properties = properties;
   }
 
   public abstract @NonNull Collection<String> jvmOptions();

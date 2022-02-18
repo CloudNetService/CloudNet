@@ -33,9 +33,9 @@ public class PermissionUserGroupInfo extends JsonDocPropertyHolder {
   private final long timeOutMillis;
 
   protected PermissionUserGroupInfo(@NonNull String group, long timeOutMillis, @NonNull JsonDocument properties) {
+    super(properties);
     this.group = group;
     this.timeOutMillis = timeOutMillis;
-    this.properties = properties;
   }
 
   public static @NonNull Builder builder() {

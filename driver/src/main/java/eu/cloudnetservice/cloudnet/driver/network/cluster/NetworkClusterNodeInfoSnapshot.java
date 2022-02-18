@@ -88,6 +88,7 @@ public class NetworkClusterNodeInfoSnapshot extends JsonDocPropertyHolder {
     @NonNull Collection<ModuleConfiguration> modules,
     @NonNull JsonDocument properties
   ) {
+    super(properties);
     this.creationTime = creationTime;
     this.startupMillis = startupMillis;
     this.maxMemory = maxMemory;
@@ -100,7 +101,6 @@ public class NetworkClusterNodeInfoSnapshot extends JsonDocPropertyHolder {
     this.processSnapshot = processSnapshot;
     this.maxCPUUsageToStartServices = maxCPUUsageToStartServices;
     this.modules = modules;
-    this.properties = properties;
   }
 
   /**

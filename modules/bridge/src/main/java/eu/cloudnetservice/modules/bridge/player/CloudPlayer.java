@@ -48,14 +48,13 @@ public class CloudPlayer extends CloudOfflinePlayer {
     @NonNull NetworkPlayerProxyInfo lastNetworkPlayerProxyInfo,
     @NonNull JsonDocument properties
   ) {
-    super(name, firstLoginTimeMillis, lastLoginTimeMillis, lastNetworkPlayerProxyInfo);
+    super(name, firstLoginTimeMillis, lastLoginTimeMillis, lastNetworkPlayerProxyInfo, properties);
 
     this.loginService = loginService;
     this.connectedService = connectedService;
     this.networkPlayerProxyInfo = networkPlayerProxyInfo;
     this.networkPlayerServerInfo = networkPlayerServerInfo;
     this.onlineProperties = onlineProperties;
-    this.properties = properties;
   }
 
   public NetworkServiceInfo loginService() {
