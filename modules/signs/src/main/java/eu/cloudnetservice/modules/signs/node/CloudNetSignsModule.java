@@ -22,7 +22,9 @@ import eu.cloudnetservice.cloudnet.driver.database.Database;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
 import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
+import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.module.listener.PluginIncludeListener;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.signs.GlobalChannelMessageListener;
 import eu.cloudnetservice.modules.signs.Sign;
@@ -57,6 +59,12 @@ public class CloudNetSignsModule extends DriverModule {
     management.registerToServiceRegistry();
 
     this.registerListener(new GlobalChannelMessageListener(management), new NodeSignsListener(management));
+    this.registerListener(new PluginIncludeListener(
+      "cloudnet-signs",
+      CloudNetSignsModule.class,
+      service -> ServiceEnvironmentType.minecraftServer(service.serviceId().environment())
+        && this.configuration.configurationEntries().stream()
+        .anyMatch(entry -> service.serviceConfiguration().groups().contains(entry.targetGroup()))));
   }
 
   @Deprecated

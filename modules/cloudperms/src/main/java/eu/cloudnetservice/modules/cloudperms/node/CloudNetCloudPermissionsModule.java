@@ -22,8 +22,9 @@ import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
 import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncHandler;
+import eu.cloudnetservice.cloudnet.node.module.listener.PluginIncludeListener;
 import eu.cloudnetservice.modules.cloudperms.node.config.CloudPermissionConfig;
-import eu.cloudnetservice.modules.cloudperms.node.listener.IncludePluginListener;
+import java.util.Collections;
 import java.util.List;
 import lombok.NonNull;
 
@@ -57,7 +58,11 @@ public final class CloudNetCloudPermissionsModule extends DriverModule {
 
   @ModuleTask(order = 124, event = ModuleLifeCycle.STARTED)
   public void registerListeners() {
-    this.registerListener(new IncludePluginListener(this));
+    this.registerListener(new PluginIncludeListener(
+      "cloudnet-cloudperms",
+      CloudNetCloudPermissionsModule.class,
+      service -> this.permissionsConfig.enabled()
+        && Collections.disjoint(this.permissionsConfig.excludedGroups(), service.serviceConfiguration().groups())));
   }
 
   public @NonNull CloudPermissionConfig permissionsConfig() {
