@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.bridge.platform.bungeecord;
 
 import com.google.common.collect.Iterables;
-import eu.cloudnetservice.cloudnet.common.registry.ServicesRegistry;
+import eu.cloudnetservice.cloudnet.driver.registry.ServicesRegistry;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.wrapper.Wrapper;

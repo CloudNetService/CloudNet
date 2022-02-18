@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.common.registry;
+package eu.cloudnetservice.cloudnet.driver.registry;
 
 import com.google.common.collect.Iterables;
+import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
 import java.util.Collection;
 import lombok.NonNull;
 import org.jetbrains.annotations.UnknownNullability;
@@ -27,6 +28,19 @@ import org.jetbrains.annotations.UnmodifiableView;
  * order to make them dynamically retrievable.
  */
 public interface ServicesRegistry {
+
+  /**
+   * Returns the implementation of the given service from the default service registry.
+   *
+   * @param clazz the class that was used to register the service in the registry.
+   * @param <T>   the interface or class type of the registered service.
+   * @return the current service instance of the given class or null if none was registered.
+   * @throws NullPointerException if the given class is null.
+   * @see CloudNetDriver#servicesRegistry()
+   */
+  static <T> @UnknownNullability T first(@NonNull Class<T> clazz) {
+    return CloudNetDriver.instance().servicesRegistry().firstService(clazz);
+  }
 
   /**
    * Registers a new service from the basic parent class. and can get with the following key
@@ -44,7 +58,7 @@ public interface ServicesRegistry {
     @NonNull E service);
 
   /**
-   * Unregister a all services which class equals the E type of the registered services
+   * Unregister all services which class equals the E type of the registered services
    *
    * @param clazz   the interface class, which should the provider of the service
    * @param service the class, of the services which should unregister
@@ -55,7 +69,7 @@ public interface ServicesRegistry {
   @NonNull <T, E extends T> ServicesRegistry unregisterService(@NonNull Class<T> clazz, @NonNull Class<E> service);
 
   /**
-   * Unregister a all services which instance is equals one of this services that are already registered
+   * Unregister all services which instance is equals one of this services that are already registered
    *
    * @param clazz   the interface class, which should the provider of the service
    * @param service the instance

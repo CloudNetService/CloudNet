@@ -19,7 +19,7 @@ package eu.cloudnetservice.modules.bridge.platform.nukkit;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.permission.Permissible;
-import eu.cloudnetservice.cloudnet.common.registry.ServicesRegistry;
+import eu.cloudnetservice.cloudnet.driver.registry.ServicesRegistry;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;

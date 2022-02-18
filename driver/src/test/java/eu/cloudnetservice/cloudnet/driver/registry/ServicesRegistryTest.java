@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.common.registry;
+package eu.cloudnetservice.cloudnet.driver.registry;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

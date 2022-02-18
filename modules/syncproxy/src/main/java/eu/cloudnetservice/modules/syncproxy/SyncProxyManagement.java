@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.modules.syncproxy;
 
-import eu.cloudnetservice.cloudnet.common.registry.ServicesRegistry;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.annotation.RPCValidation;
+import eu.cloudnetservice.cloudnet.driver.registry.ServicesRegistry;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
 import lombok.NonNull;
 

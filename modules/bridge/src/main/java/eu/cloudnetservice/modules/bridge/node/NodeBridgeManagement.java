@@ -17,11 +17,11 @@
 package eu.cloudnetservice.modules.bridge.node;
 
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.common.registry.ServicesRegistry;
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
 import eu.cloudnetservice.cloudnet.driver.event.EventManager;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.cloudnet.driver.registry.ServicesRegistry;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.cloudnet.node.module.listener.PluginIncludeListener;

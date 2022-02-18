@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.common.registry;
+package eu.cloudnetservice.cloudnet.driver.registry;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
