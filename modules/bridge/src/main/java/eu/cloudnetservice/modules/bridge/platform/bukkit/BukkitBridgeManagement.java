@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.platform.bukkit;
 
-import eu.cloudnetservice.cloudnet.driver.registry.ServicesRegistry;
+import eu.cloudnetservice.cloudnet.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
@@ -58,9 +58,9 @@ final class BukkitBridgeManagement extends PlatformBridgeManagement<Player, Netw
   }
 
   @Override
-  public void registerServices(@NonNull ServicesRegistry registry) {
-    registry.registerService(PlayerManager.class, "PlayerManager", this.playerManager);
-    registry.registerService(PlatformBridgeManagement.class, "BukkitBridgeManagement", this);
+  public void registerServices(@NonNull ServiceRegistry registry) {
+    registry.registerProvider(PlayerManager.class, "PlayerManager", this.playerManager);
+    registry.registerProvider(PlatformBridgeManagement.class, "BukkitBridgeManagement", this);
   }
 
   @Override

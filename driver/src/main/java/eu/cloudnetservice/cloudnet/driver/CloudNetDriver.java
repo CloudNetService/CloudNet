@@ -38,8 +38,8 @@ import eu.cloudnetservice.cloudnet.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.cloudnet.driver.provider.ClusterNodeProvider;
 import eu.cloudnetservice.cloudnet.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.cloudnet.driver.provider.ServiceTaskProvider;
-import eu.cloudnetservice.cloudnet.driver.registry.DefaultServicesRegistry;
-import eu.cloudnetservice.cloudnet.driver.registry.ServicesRegistry;
+import eu.cloudnetservice.cloudnet.driver.registry.DefaultServiceRegistry;
+import eu.cloudnetservice.cloudnet.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.cloudnet.driver.service.ProcessSnapshot;
 import eu.cloudnetservice.cloudnet.driver.template.TemplateStorage;
 import java.time.Instant;
@@ -61,7 +61,7 @@ public abstract class CloudNetDriver {
 
   protected final EventManager eventManager = new DefaultEventManager();
   protected final ModuleProvider moduleProvider = new DefaultModuleProvider();
-  protected final ServicesRegistry servicesRegistry = new DefaultServicesRegistry();
+  protected final ServiceRegistry serviceRegistry = new DefaultServiceRegistry();
   protected final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
 
   protected final RPCHandlerRegistry rpcHandlerRegistry = new DefaultRPCHandlerRegistry();
@@ -239,8 +239,8 @@ public abstract class CloudNetDriver {
     return ProcessSnapshot.ownPID();
   }
 
-  public @NonNull ServicesRegistry servicesRegistry() {
-    return this.servicesRegistry;
+  public @NonNull ServiceRegistry serviceRegistry() {
+    return this.serviceRegistry;
   }
 
   public @NonNull EventManager eventManager() {

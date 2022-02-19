@@ -51,7 +51,7 @@ public final class VelocityBridgePlugin {
   public void handleProxyInit(@NonNull ProxyInitializeEvent event) {
     // init the bridge management
     PlatformBridgeManagement<Player, NetworkPlayerProxyInfo> management = new VelocityBridgeManagement(this.proxy);
-    management.registerServices(CloudNetDriver.instance().servicesRegistry());
+    management.registerServices(CloudNetDriver.instance().serviceRegistry());
     management.postInit();
     // register the player listeners
     this.proxy.getEventManager().register(this, new VelocityPlayerManagementListener(this.proxy, management));

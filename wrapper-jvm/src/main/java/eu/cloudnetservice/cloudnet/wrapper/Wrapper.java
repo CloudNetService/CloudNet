@@ -210,7 +210,7 @@ public class Wrapper extends CloudNetDriver {
 
     this.scheduler.shutdownNow();
     this.moduleProvider.unloadAll();
-    this.servicesRegistry.unregisterAll();
+    this.serviceRegistry.unregisterAll();
   }
 
   /**

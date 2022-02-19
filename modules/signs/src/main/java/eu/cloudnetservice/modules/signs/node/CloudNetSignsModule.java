@@ -81,7 +81,7 @@ public class CloudNetSignsModule extends DriverModule {
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)
   public void handleReload() {
-    var management = this.serviceRegistry().firstService(SignManagement.class);
+    var management = this.serviceRegistry().firstProvider(SignManagement.class);
     if (management != null) {
       management.signsConfiguration(NodeSignsConfigurationHelper.read(this.configPath()));
     }
@@ -103,7 +103,7 @@ public class CloudNetSignsModule extends DriverModule {
         SignConstants.COLLECTION_SIGNS);
       if (oldSigns != null) {
         // convert the old sign entries
-        var management = CloudNet.instance().servicesRegistry().firstService(SignManagement.class);
+        var management = CloudNet.instance().serviceRegistry().firstProvider(SignManagement.class);
         for (var oldSign : oldSigns) {
           management.createSign(new Sign(
             oldSign.getTargetGroup(),

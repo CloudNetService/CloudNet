@@ -18,7 +18,7 @@ package eu.cloudnetservice.modules.signs.platform.sponge;
 
 import com.google.inject.Inject;
 import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
-import eu.cloudnetservice.cloudnet.driver.registry.ServicesRegistry;
+import eu.cloudnetservice.cloudnet.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.signs.GlobalChannelMessageListener;
 import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.platform.AbstractPlatformSignManagement;
@@ -65,7 +65,7 @@ public class SpongeSignsPlugin {
 
   @Listener
   public void handleShutdown(@NonNull StoppingEngineEvent<Server> event) {
-    ServicesRegistry.first(SignManagement.class).unregisterFromServiceRegistry();
+    ServiceRegistry.first(SignManagement.class).unregisterFromServiceRegistry();
     CloudNetDriver.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
   }
 

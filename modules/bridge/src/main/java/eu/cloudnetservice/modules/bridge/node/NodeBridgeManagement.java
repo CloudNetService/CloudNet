@@ -21,7 +21,7 @@ import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
 import eu.cloudnetservice.cloudnet.driver.event.EventManager;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCFactory;
-import eu.cloudnetservice.cloudnet.driver.registry.ServicesRegistry;
+import eu.cloudnetservice.cloudnet.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.cloudnet.node.module.listener.PluginIncludeListener;
@@ -91,9 +91,9 @@ public class NodeBridgeManagement implements BridgeManagement {
   }
 
   @Override
-  public void registerServices(@NonNull ServicesRegistry registry) {
-    registry.registerService(BridgeManagement.class, "NodeBridgeManagement", this);
-    registry.registerService(PlayerManager.class, "NodePlayerManager", this.playerManager);
+  public void registerServices(@NonNull ServiceRegistry registry) {
+    registry.registerProvider(BridgeManagement.class, "NodeBridgeManagement", this);
+    registry.registerProvider(PlayerManager.class, "NodePlayerManager", this.playerManager);
   }
 
   @Override

@@ -70,12 +70,12 @@ public abstract class AbstractNPCManagement implements NPCManagement {
 
   @Override
   public void registerToServiceRegistry() {
-    CloudNetDriver.instance().servicesRegistry().registerService(NPCManagement.class, "NPCManagement", this);
+    CloudNetDriver.instance().serviceRegistry().registerProvider(NPCManagement.class, "NPCManagement", this);
   }
 
   @Override
   public void unregisterFromServiceRegistry() {
-    CloudNetDriver.instance().servicesRegistry().unregisterService(NPCManagement.class, "NPCManagement");
+    CloudNetDriver.instance().serviceRegistry().unregisterProvider(NPCManagement.class, "NPCManagement");
   }
 
   @Override

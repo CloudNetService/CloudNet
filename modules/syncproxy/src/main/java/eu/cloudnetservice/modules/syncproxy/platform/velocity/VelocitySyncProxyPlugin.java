@@ -53,7 +53,7 @@ public final class VelocitySyncProxyPlugin {
   public void handleProxyInit(@NonNull ProxyInitializeEvent event) {
     this.management = new VelocitySyncProxyManagement(this.proxyServer, this);
     // register the SyncProxyManagement in our service registry
-    this.management.registerService(Wrapper.instance().servicesRegistry());
+    this.management.registerService(Wrapper.instance().serviceRegistry());
     // register the event listener to handle service updates
     Wrapper.instance().eventManager().registerListener(new SyncProxyCloudListener<>(this.management));
     // register the velocity ping & join listener
@@ -66,7 +66,7 @@ public final class VelocitySyncProxyPlugin {
     Wrapper.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
     Wrapper.instance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
     // remove the service from the registry
-    this.management.unregisterService(Wrapper.instance().servicesRegistry());
+    this.management.unregisterService(Wrapper.instance().serviceRegistry());
   }
 
 }

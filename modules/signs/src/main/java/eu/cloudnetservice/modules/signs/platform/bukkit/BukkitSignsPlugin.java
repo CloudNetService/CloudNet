@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.signs.platform.bukkit;
 
 import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
-import eu.cloudnetservice.cloudnet.driver.registry.ServicesRegistry;
+import eu.cloudnetservice.cloudnet.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.signs.GlobalChannelMessageListener;
 import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
@@ -51,7 +51,7 @@ public class BukkitSignsPlugin extends JavaPlugin {
 
   @Override
   public void onDisable() {
-    ServicesRegistry.first(SignManagement.class).unregisterFromServiceRegistry();
+    ServiceRegistry.first(SignManagement.class).unregisterFromServiceRegistry();
     CloudNetDriver.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
   }
 }

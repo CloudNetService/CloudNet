@@ -94,8 +94,8 @@ public class CloudPlayer extends CloudOfflinePlayer {
   }
 
   public @NonNull PlayerExecutor playerExecutor() {
-    return CloudNetDriver.instance().servicesRegistry()
-      .firstService(PlayerManager.class)
+    return CloudNetDriver.instance().serviceRegistry()
+      .firstProvider(PlayerManager.class)
       .playerExecutor(this.uniqueId());
   }
 }

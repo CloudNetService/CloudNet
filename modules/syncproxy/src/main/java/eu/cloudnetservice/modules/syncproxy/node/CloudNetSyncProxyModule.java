@@ -87,7 +87,7 @@ public final class CloudNetSyncProxyModule extends DriverModule {
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)
   public void handleReload() {
-    var management = this.serviceRegistry().firstService(SyncProxyManagement.class);
+    var management = this.serviceRegistry().firstProvider(SyncProxyManagement.class);
     if (management != null) {
       management.configuration(this.loadConfiguration());
     }

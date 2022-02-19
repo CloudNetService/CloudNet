@@ -176,7 +176,7 @@ public final class CloudNetBridgeModule extends DriverModule {
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)
   public void handleReload() {
-    var management = this.serviceRegistry().firstService(BridgeManagement.class);
+    var management = this.serviceRegistry().firstProvider(BridgeManagement.class);
     if (management != null) {
       management.configuration(this.loadConfiguration());
     }

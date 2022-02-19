@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.platform.sponge;
 
-import eu.cloudnetservice.cloudnet.driver.registry.ServicesRegistry;
+import eu.cloudnetservice.cloudnet.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
@@ -55,9 +55,9 @@ final class SpongeBridgeManagement extends PlatformBridgeManagement<ServerPlayer
   }
 
   @Override
-  public void registerServices(@NonNull ServicesRegistry registry) {
-    registry.registerService(PlayerManager.class, "PlayerManager", this.playerManager);
-    registry.registerService(PlatformBridgeManagement.class, "SpongeBridgeManagement", this);
+  public void registerServices(@NonNull ServiceRegistry registry) {
+    registry.registerProvider(PlayerManager.class, "PlayerManager", this.playerManager);
+    registry.registerProvider(PlatformBridgeManagement.class, "SpongeBridgeManagement", this);
   }
 
   @Override

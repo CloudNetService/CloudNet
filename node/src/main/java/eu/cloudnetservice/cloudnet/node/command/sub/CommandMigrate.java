@@ -47,8 +47,8 @@ public final class CommandMigrate {
 
   @Parser(suggestions = "databaseProvider")
   public AbstractDatabaseProvider defaultDatabaseProviderParser(CommandContext<CommandSource> $, Queue<String> input) {
-    var abstractDatabaseProvider = CloudNet.instance().servicesRegistry()
-      .service(AbstractDatabaseProvider.class, input.remove());
+    var abstractDatabaseProvider = CloudNet.instance().serviceRegistry()
+      .provider(AbstractDatabaseProvider.class, input.remove());
 
     if (abstractDatabaseProvider == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-migrate-unknown-database-provider"));
@@ -58,7 +58,7 @@ public final class CommandMigrate {
 
   @Suggestions("databaseProvider")
   public List<String> suggestDatabaseProvider(CommandContext<CommandSource> $, String input) {
-    return CloudNet.instance().servicesRegistry().services(AbstractDatabaseProvider.class)
+    return CloudNet.instance().serviceRegistry().providers(AbstractDatabaseProvider.class)
       .stream()
       .map(Nameable::name)
       .toList();

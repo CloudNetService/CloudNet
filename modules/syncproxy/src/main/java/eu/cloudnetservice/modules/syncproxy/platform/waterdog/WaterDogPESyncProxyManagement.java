@@ -18,7 +18,7 @@ package eu.cloudnetservice.modules.syncproxy.platform.waterdog;
 
 import dev.waterdog.waterdogpe.ProxyServer;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
-import eu.cloudnetservice.cloudnet.driver.registry.ServicesRegistry;
+import eu.cloudnetservice.cloudnet.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.syncproxy.platform.PlatformSyncProxyManagement;
 import java.util.Collection;
 import java.util.UUID;
@@ -36,13 +36,13 @@ public final class WaterDogPESyncProxyManagement extends PlatformSyncProxyManage
   }
 
   @Override
-  public void registerService(@NonNull ServicesRegistry registry) {
-    registry.registerService(PlatformSyncProxyManagement.class, "WaterDogPESyncProxyManagement", this);
+  public void registerService(@NonNull ServiceRegistry registry) {
+    registry.registerProvider(PlatformSyncProxyManagement.class, "WaterDogPESyncProxyManagement", this);
   }
 
   @Override
-  public void unregisterService(@NonNull ServicesRegistry registry) {
-    registry.unregisterService(PlatformSyncProxyManagement.class, "WaterDogPESyncProxyManagement");
+  public void unregisterService(@NonNull ServiceRegistry registry) {
+    registry.unregisterProvider(PlatformSyncProxyManagement.class, "WaterDogPESyncProxyManagement");
   }
 
   @Override

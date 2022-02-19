@@ -36,7 +36,7 @@ public final class S3TemplateStorageModule extends DriverModule {
     this.config = this.readConfig(S3TemplateStorageConfig.class, S3TemplateStorageConfig::new);
     // init the storage
     this.storage = new S3TemplateStorage(this);
-    this.serviceRegistry().registerService(TemplateStorage.class, config.name(), this.storage);
+    this.serviceRegistry().registerProvider(TemplateStorage.class, config.name(), this.storage);
     // register the cluster sync handler
     CloudNet.instance().dataSyncRegistry().registerHandler(DataSyncHandler.<S3TemplateStorageConfig>builder()
       .key("s3-storage-config")
@@ -51,7 +51,7 @@ public final class S3TemplateStorageModule extends DriverModule {
   @ModuleTask(event = ModuleLifeCycle.STOPPED)
   public void handleStop() {
     this.storage.close();
-    this.serviceRegistry().unregisterService(TemplateStorage.class, this.storage.name());
+    this.serviceRegistry().unregisterProvider(TemplateStorage.class, this.storage.name());
   }
 
   public void writeConfig(@NonNull S3TemplateStorageConfig config) {

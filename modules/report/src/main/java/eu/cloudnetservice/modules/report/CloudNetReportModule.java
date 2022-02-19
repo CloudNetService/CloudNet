@@ -83,7 +83,7 @@ public final class CloudNetReportModule extends DriverModule {
       .registerDataEmitter(NetworkClusterNodeInfoSnapshot.class, new ModuleEmitter());
     // register our listener to handle stopping and deleted services
     this.registerListener(new RecordReportListener(this));
-    this.serviceRegistry().registerService(EmitterRegistry.class, "EmitterRegistry", this.registry);
+    this.serviceRegistry().registerProvider(EmitterRegistry.class, "EmitterRegistry", this.registry);
     // register the command of the module at the node
     CloudNet.instance().commandProvider().register(new CommandReport(this));
   }

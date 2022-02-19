@@ -139,7 +139,7 @@ public class CloudNetNPCModule extends DriverModule {
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)
   public void handleReload() {
-    var management = this.serviceRegistry().firstService(NPCManagement.class);
+    var management = this.serviceRegistry().firstProvider(NPCManagement.class);
     if (management != null) {
       management.npcConfiguration(this.loadConfig());
     }

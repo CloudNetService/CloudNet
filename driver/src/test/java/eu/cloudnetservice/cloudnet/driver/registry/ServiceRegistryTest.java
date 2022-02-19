@@ -19,37 +19,37 @@ package eu.cloudnetservice.cloudnet.driver.registry;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public final class ServicesRegistryTest {
+public final class ServiceRegistryTest {
 
   @Test
   public void testDefaultRegistry() {
-    ServicesRegistry registry = new DefaultServicesRegistry();
+    ServiceRegistry registry = new DefaultServiceRegistry();
 
     registry
-      .registerService(A.class, "b", new B())
-      .registerService(A.class, "c", new C());
+      .registerProvider(A.class, "b", new B())
+      .registerProvider(A.class, "c", new C());
 
-    Assertions.assertEquals(2, registry.services(A.class).size());
-    Assertions.assertEquals(10, registry.service(A.class, "b").value());
-    Assertions.assertEquals(21, registry.service(A.class, "c").value());
+    Assertions.assertEquals(2, registry.providers(A.class).size());
+    Assertions.assertEquals(10, registry.provider(A.class, "b").value());
+    Assertions.assertEquals(21, registry.provider(A.class, "c").value());
 
-    registry.unregisterService(A.class, "b");
+    registry.unregisterProvider(A.class, "b");
 
-    Assertions.assertEquals(1, registry.services(A.class).size());
-    Assertions.assertTrue(registry.containsService(A.class, "c"));
-    Assertions.assertFalse(registry.containsService(A.class, "b"));
+    Assertions.assertEquals(1, registry.providers(A.class).size());
+    Assertions.assertTrue(registry.hasProvider(A.class, "c"));
+    Assertions.assertFalse(registry.hasProvider(A.class, "b"));
 
     registry.unregisterAll();
 
     Assertions.assertEquals(0, registry.providedServices().size());
 
     var b = new B();
-    registry.registerService(A.class, "b", b);
+    registry.registerProvider(A.class, "b", b);
 
-    Assertions.assertEquals(1, registry.services(A.class).size());
-    registry.unregisterAll(ServicesRegistryTest.class.getClassLoader());
+    Assertions.assertEquals(1, registry.providers(A.class).size());
+    registry.unregisterAll(ServiceRegistryTest.class.getClassLoader());
 
-    Assertions.assertEquals(0, registry.services(A.class).size());
+    Assertions.assertEquals(0, registry.providers(A.class).size());
     registry.unregisterAll();
   }
 

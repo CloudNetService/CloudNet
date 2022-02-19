@@ -113,7 +113,7 @@ public class DefaultModuleProviderHandler implements ModuleProviderHandler {
    */
   @Override
   public void handlePostModuleStop(@NonNull ModuleWrapper moduleWrapper) {
-    CloudNetDriver.instance().servicesRegistry().unregisterAll(moduleWrapper.classLoader());
+    CloudNetDriver.instance().serviceRegistry().unregisterAll(moduleWrapper.classLoader());
     CloudNetDriver.instance().eventManager().unregisterListeners(moduleWrapper.classLoader());
 
     this.callEvent(new ModulePostStopEvent(this.moduleProvider(), moduleWrapper));
