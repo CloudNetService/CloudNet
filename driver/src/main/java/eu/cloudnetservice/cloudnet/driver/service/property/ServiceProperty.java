@@ -22,26 +22,67 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * This class helps getting/modifying properties in {@link ServiceInfoSnapshot}s.
+ * Represents a property which can be written and read from a service info snapshot, for example the amount of online
+ * players, the state of the service or other custom properties appended by a plugin. This simplifies accessing these
+ * properties by making a common wrapper once.
+ * <p>
+ * The old code might look like this:
+ * <pre>
+ * {@code
+ *  public final class GameListener implement Listener {
+ *    public void handleJoin(PlayerLoginEvent event) {
+ *      ServiceInfoSnapshot snapshot = this.manager.currentSnapshot();
+ *      GameState state = snapshot.properties().get("state", GameState.class);
  *
- * @param <T> the type of the value for this property
+ *      if (state == GameState.STARTED) {
+ *        event.setResult(PlayerLoginEvent.Result.DENIED);
+ *      }
+ *    }
+ *  }
+ * }
+ * </pre>
+ * <p>
+ * All the property read code can now be replaced by a simple static field like this:
+ * <pre>
+ * {@code
+ *  public final class GameListener implement Listener {
+ *    public static final ServiceProperty&#60;GameState&#62; STATE
+ *      = JsonServiceProperty.createFromClass("state", GameState.class);
+ *
+ *    public void handleJoin(PlayerLoginEvent event) {
+ *      GameState state = STATE.read(this.manager.currentSnapshot());
+ *
+ *      if (state == GameState.STARTED) {
+ *        event.setResult(PlayerLoginEvent.Result.DENIED);
+ *      }
+ *    }
+ *  }
+ * }
+ * </pre>
+ *
+ * @param <T> the type which gets read/written by this property.
+ * @since 4.0
  */
 public interface ServiceProperty<T> {
 
   /**
-   * Gets a property out of the properties of the given {@link ServiceInfoSnapshot}.
+   * Reads the target property from the given service info snapshot.
    *
-   * @param serviceInfoSnapshot the serviceInfoSnapshot to get the property
-   * @return an optional with the value, might be empty
+   * @param serviceInfoSnapshot the service snapshot to get the property from.
+   * @return an optional holding the wrapped value if present, an empty optional otherwise.
+   * @throws NullPointerException          if the given service snapshot is null.
+   * @throws UnsupportedOperationException if reading from this property is not supported.
    */
   @NonNull Optional<T> read(@NonNull ServiceInfoSnapshot serviceInfoSnapshot);
 
   /**
-   * Sets a property into the properties of the given {@link ServiceInfoSnapshot}. Some properties might not support
-   * this. An update of the service might be necessary.
+   * Sets the given property value in the service info snapshot. This method will not automatically update the service
+   * snapshot, meaning that an update might be necessary to make the change visible to all other services.
    *
-   * @param serviceInfoSnapshot the serviceInfoSnapshot to modify the property in
-   * @param value               the value to set or null to remove the property
+   * @param serviceInfoSnapshot the service snapshot to write the given value to.
+   * @param value               the actual value to write into the snapshot, can be null which writes a null value.
+   * @throws NullPointerException          if the given service snapshot is null.
+   * @throws UnsupportedOperationException if writing to this property is not supported.
    */
   void write(@NonNull ServiceInfoSnapshot serviceInfoSnapshot, @Nullable T value);
 }
