@@ -21,13 +21,27 @@ import eu.cloudnetservice.cloudnet.common.unsafe.CPUUsageResolver;
 import java.lang.management.ClassLoadingMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
+import java.lang.management.ThreadMXBean;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Set;
 import lombok.NonNull;
 
 /**
- * A snapshot of a process in the Cloud which provides information about the cpu and memory usage, the running threads
- * and the pid.
+ * A snapshot of the process resources at a specific time. It holds the most useful information for displaying or
+ * storing statistics about a service / node (or anything else).
+ *
+ * @param pid                     the process id of component which created the snapshot.
+ * @param cpuUsage                the recent usage (in percent) of the cpu usage associated with the component process.
+ * @param systemCpuUsage          the recent usage (in percent) of the hosts' system cpu the process is running on.
+ * @param maxHeapMemory           the maximum heap memory space the associated process is allowed to use.
+ * @param heapUsageMemory         the heap memory of all pools which the associated process is currently using.
+ * @param noHeapUsageMemory       the off-heap memory of all pools which the associated process is currently using.
+ * @param unloadedClassCount      the amount of classes the associated process unloaded since starting.
+ * @param totalLoadedClassCount   the amount of classes which were loaded since the associated process was started.
+ * @param currentLoadedClassCount the amount of classes which are currently loaded by the associated process.
+ * @param threads                 a snapshot of all threads which are currently known to the associated process.
+ * @since 4.0
  */
 public record ProcessSnapshot(
   long pid,
@@ -42,28 +56,29 @@ public record ProcessSnapshot(
   @NonNull Collection<ThreadSnapshot> threads
 ) implements Cloneable {
 
-  // init them here to reduce lookup load
+  // init them here to reduce lookup load as the get calls will trigger a full re-scan for the bean
   public static final MemoryMXBean MEMORY_MX_BEAN = ManagementFactory.getMemoryMXBean();
+  public static final ThreadMXBean THREAD_MX_BEAN = ManagementFactory.getThreadMXBean();
   public static final ClassLoadingMXBean CLASS_LOADING_MX_BEAN = ManagementFactory.getClassLoadingMXBean();
   public static final OperatingSystemMXBean OS_BEAN = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
 
   private static final long OWN_PID = ProcessHandle.current().pid();
   private static final ProcessSnapshot EMPTY = new ProcessSnapshot(
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, Collections.emptyList());
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, Set.of());
 
   /**
-   * Gets an empty snapshot without any information about the process.
+   * Get a jvm static process snapshot which holds no information about any process.
    *
-   * @return an empty constant {@link ProcessSnapshot}
+   * @return an empty static process snapshot.
    */
   public static @NonNull ProcessSnapshot empty() {
     return EMPTY;
   }
 
   /**
-   * Creates a new snapshot with information about the current process.
+   * Creates a new process snapshot info filled with information about the current process.
    *
-   * @return a new {@link ProcessSnapshot}
+   * @return a process snapshot holding information about the current process.
    */
   public static @NonNull ProcessSnapshot self() {
     return new ProcessSnapshot(
@@ -76,16 +91,21 @@ public record ProcessSnapshot(
       CLASS_LOADING_MX_BEAN.getUnloadedClassCount(),
       CLASS_LOADING_MX_BEAN.getTotalLoadedClassCount(),
       CLASS_LOADING_MX_BEAN.getLoadedClassCount(),
-      Thread.getAllStackTraces().keySet().stream().map(ThreadSnapshot::from).toList());
+      Arrays.stream(THREAD_MX_BEAN.dumpAllThreads(false, false, 0)).map(ThreadSnapshot::from).toList());
   }
 
   /**
-   * Gets the PID of the current process or -1 if it couldn't be fetched.
+   * Gets the jvm static, one-time initialized id of the current process.
+   *
+   * @return the current process id.
    */
   public static long ownPID() {
     return ProcessSnapshot.OWN_PID;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull ProcessSnapshot clone() {
     try {

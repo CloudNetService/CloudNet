@@ -18,6 +18,7 @@ package eu.cloudnetservice.cloudnet.driver.service;
 
 import eu.cloudnetservice.cloudnet.common.Nameable;
 import java.lang.Thread.State;
+import java.lang.management.ThreadInfo;
 import lombok.NonNull;
 
 /**
@@ -38,6 +39,15 @@ public record ThreadSnapshot(
       thread.isDaemon(),
       thread.getName(),
       thread.getState());
+  }
+
+  public static @NonNull ThreadSnapshot from(@NonNull ThreadInfo info) {
+    return new ThreadSnapshot(
+      info.getThreadId(),
+      info.getPriority(),
+      info.isDaemon(),
+      info.getThreadName(),
+      info.getThreadState());
   }
 
   @Override
