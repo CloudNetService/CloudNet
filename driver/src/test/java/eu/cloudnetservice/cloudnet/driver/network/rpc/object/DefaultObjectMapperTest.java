@@ -125,7 +125,7 @@ public class DefaultObjectMapperTest {
         new HostAndPort("127.0.1.1", 45678),
         ProcessSnapshot.self(),
         ServiceConfiguration.builder()
-          .task("Lobby")
+          .taskName("Lobby")
           .environment(ServiceEnvironmentType.BUNGEECORD)
           .maxHeapMemory(512)
           .startPort(1234)

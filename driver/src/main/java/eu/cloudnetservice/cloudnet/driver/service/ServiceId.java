@@ -17,6 +17,7 @@
 package eu.cloudnetservice.cloudnet.driver.service;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Verify;
 import eu.cloudnetservice.cloudnet.common.Nameable;
 import java.util.Collection;
 import java.util.HashSet;
@@ -138,6 +139,7 @@ public class ServiceId implements Nameable {
     }
 
     public @NonNull Builder taskName(@NonNull String taskName) {
+      Verify.verify(ServiceTask.NAMING_PATTERN.matcher(taskName).matches(), "Invalid task name given");
       this.taskName = taskName;
       return this;
     }

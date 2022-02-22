@@ -284,17 +284,16 @@ public abstract class AbstractService implements CloudService {
     ServiceRemoteInclusion inclusion;
     while ((inclusion = this.waitingRemoteInclusions.poll()) != null) {
       // prepare the connection from which we load the inclusion
-      var getRequest = Unirest.get(inclusion.url());
+      var req = Unirest.get(inclusion.url());
       // put the given http headers
       if (inclusion.properties().contains("httpHeaders")) {
         var headers = inclusion.properties().getDocument("httpHeaders");
         for (var key : headers.keys()) {
-          getRequest.header(key, headers.get(key).toString());
+          req.header(key, headers.get(key).toString());
         }
       }
       // check if we should load the inclusion
-      if (!this.eventManager.callEvent(new CloudServicePreLoadInclusionEvent(this, inclusion, getRequest))
-        .cancelled()) {
+      if (!this.eventManager.callEvent(new CloudServicePreLoadInclusionEvent(this, inclusion, req)).cancelled()) {
         // get a target path based on the download url
         var destination = INCLUSION_TEMP_DIR.resolve(
           Base64.getEncoder().encodeToString(inclusion.url().getBytes(StandardCharsets.UTF_8)).replace('/', '_'));
@@ -302,7 +301,7 @@ public abstract class AbstractService implements CloudService {
         if (Files.notExists(destination)) {
           try {
             // we only support success codes for downloading the file
-            getRequest.asFile(destination.toString());
+            req.asFile(destination.toString());
           } catch (UnirestException exception) {
             LOGGER.severe("Unable to download inclusion from %s to %s", exception.getCause(), inclusion.url(),
               destination);
@@ -500,7 +499,12 @@ public abstract class AbstractService implements CloudService {
 
   protected void doRemoveFilesAfterStop() {
     for (var file : this.serviceConfiguration.deletedFilesAfterStop()) {
-      FileUtil.delete(this.serviceDirectory.resolve(file));
+      // ensure that nobody deletes files outside the service directory
+      var filePath = this.serviceDirectory.resolve(file);
+      FileUtil.ensureChild(this.serviceDirectory, filePath);
+
+      // save to delete now
+      FileUtil.delete(filePath);
     }
   }
 

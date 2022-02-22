@@ -91,8 +91,8 @@ public record ProcessConfiguration(
     protected Set<String> processParameters = new HashSet<>();
 
     /**
-     * Sets the maximum amount of heap memory (in mb) the service is allowed to use. There given heap memory size must
-     * be at least 50 MB (less heap memory makes no sense when running a service).
+     * Sets the maximum amount of heap memory (in mb) the service is allowed to use. The given heap memory size must be
+     * at least 50 MB (less heap memory makes no sense when running a service).
      *
      * @param maxHeapMemorySize the maximum heap memory a service is allowed to use.
      * @return the same instance as used to call the method, for chaining.
@@ -158,12 +158,12 @@ public record ProcessConfiguration(
      * Duplicate options will be omitted by this method directly. <strong>HOWEVER,</strong> adding the same option twice
      * with a changed value to it will most likely result in the jvm to crash, beware!
      *
-     * @param jvmOption the jvm option to add to the configuration.
+     * @param jvmOptions the jvm options to add to the configuration.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given options collection is null.
      */
-    public @NonNull Builder addJvmOptions(@NonNull Collection<String> jvmOption) {
-      this.jvmOptions.addAll(jvmOption);
+    public @NonNull Builder addJvmOptions(@NonNull Collection<String> jvmOptions) {
+      this.jvmOptions.addAll(jvmOptions);
       return this;
     }
 

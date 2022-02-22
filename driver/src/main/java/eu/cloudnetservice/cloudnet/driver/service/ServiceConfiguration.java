@@ -21,7 +21,7 @@ import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.common.document.property.JsonDocPropertyHolder;
 import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
-import eu.cloudnetservice.cloudnet.driver.provider.SpecificCloudServiceProvider;
+import eu.cloudnetservice.cloudnet.driver.provider.CloudServiceFactory;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -32,6 +32,85 @@ import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
+/**
+ * The configuration based on which a service gets created. This configuration is completely lose from any service task
+ * or group configuration and only softly includes them. This means that creating a service without having to create a
+ * task first is completely possible and supported. One example use case are private servers which don't require a task
+ * to be created.
+ * <p>
+ * Example usage to create a service based on a task:
+ * <pre>
+ * {@code
+ *  public final class ServiceCreateHelper {
+ *    public void createService() {
+ *      ServiceTask task = serviceTaskProvider.serviceTask("Lobby");
+ *      ServiceConfiguration config = ServiceConfiguration.builder(task).build();
+ *      ServiceInfoSnapshot createdService = config.createNewService();
+ *
+ *      if (createdService == null) {
+ *        // for example not enough heap memory was free to start the service
+ *        System.out.println("Unable to create the service");
+ *      } else {
+ *        // prints for example "Lobby-1"
+ *        System.out.println(createdService.name());
+ *      }
+ *    }
+ *  }
+ * }
+ * </pre>
+ * <p>
+ * Example of changing the task name of the service, this change will show up in the service name:
+ * <pre>
+ * {@code
+ *  public final class ServiceCreateHelper {
+ *    public void createService() {
+ *      ServiceTask task = serviceTaskProvider.serviceTask("Lobby");
+ *      ServiceConfiguration config = ServiceConfiguration.builder(task)
+ *        .taskName("HelloWorld")
+ *        .build();
+ *      ServiceInfoSnapshot createdService = config.createNewService();
+ *
+ *      if (createdService == null) {
+ *        // for example not enough heap memory was free to start the service
+ *        System.out.println("Unable to create the service");
+ *      } else {
+ *        // prints for example "HelloWorld-1" because we changed the name of the task
+ *        System.out.println(createdService.name());
+ *      }
+ *    }
+ *  }
+ * }
+ * </pre>
+ * <p>
+ * But you can also create a service without any task, configured as we want it to be. It's required to set the task and
+ * environment name to create a service that way. Example:
+ * <pre>
+ * {@code
+ *  public final class ServiceCreateHelper {
+ *    public void createService() {
+ *      ServiceConfiguration config = ServiceConfiguration.builder()
+ *        .nameSplitter("#")
+ *        .maxHeapMemory(1024)
+ *        .taskName("HelloWorld")
+ *        .environment("MINECRAFT_SERVER")
+ *        .build();
+ *      ServiceInfoSnapshot createdService = config.createNewService();
+ *
+ *      if (createdService == null) {
+ *        // for example not enough heap memory was free to start the service
+ *        System.out.println("Unable to create the service");
+ *      } else {
+ *        // prints for example "HelloWorld#1" because
+ *        // we set the task name and name splitter to these values
+ *        System.out.println(createdService.name());
+ *      }
+ *    }
+ *  }
+ * }
+ * </pre>
+ *
+ * @since 4.0
+ */
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class ServiceConfiguration extends JsonDocPropertyHolder implements Cloneable {
@@ -53,6 +132,24 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
   protected final Set<ServiceDeployment> deployments;
   protected final Set<ServiceRemoteInclusion> includes;
 
+  /**
+   * Constructs a new service configuration instance.
+   *
+   * @param serviceId             the id of the service to create based on the configuration.
+   * @param processConfig         the process configuration of the service which gets created.
+   * @param port                  the port of the service to start with, might get increased when already taken.
+   * @param runtime               the runtime of the service to create it based on, for example {@code jvm}.
+   * @param javaCommand           the java command to use when starting a service.
+   * @param autoDeleteOnStop      if the service should get deleted when stopping.
+   * @param staticService         if the service which gets created should be static (no file deletion when stopping).
+   * @param groups                the names of the group configurations to include before starting the service.
+   * @param deletedFilesAfterStop all files which should get deleted when stopping a service based on this config.
+   * @param templates             the templates to include before starting a service based on this config.
+   * @param deployments           the deployments to execute when stopping a service based on this config.
+   * @param includes              the inclusions to include before starting a service based on this configuration.
+   * @param properties            the properties which should get copied onto the service before starting.
+   * @throws NullPointerException if one of the given parameters is null.
+   */
   protected ServiceConfiguration(
     @NonNull ServiceId serviceId,
     @NonNull ProcessConfiguration processConfig,
@@ -69,6 +166,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     @NonNull JsonDocument properties
   ) {
     super(properties);
+
     this.serviceId = serviceId;
     this.port = port;
     this.runtime = runtime;
@@ -83,14 +181,63 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     this.includes = includes;
   }
 
+  /**
+   * Constructs a new builder instance for a service configuration.
+   *
+   * @return a new service configuration builder.
+   */
   public static @NonNull Builder builder() {
     return new Builder();
   }
 
+  /**
+   * Creates a new builder instance for a service configuration which has the same options set as the given service
+   * task. Note: the properties of the task will not get copied into the configuration as they don't explicitly belong
+   * to the service. If you do want the properties in the task anyway, make sure to set them manually in the builder.
+   * <p>
+   * Changes made to the given service task will not reflect into the created builder and vice-versa.
+   *
+   * @param task the task to copy the options of.
+   * @return a new builder instance initialized with the options set in the given task.
+   * @throws NullPointerException if the given task is null.
+   */
   public static @NonNull Builder builder(@NonNull ServiceTask task) {
-    return builder().task(task);
+    return builder()
+      .taskName(task.name())
+
+      .runtime(task.runtime())
+      .javaCommand(task.javaCommand())
+      .nameSplitter(task.nameSplitter())
+
+      .autoDeleteOnStop(task.autoDeleteOnStop())
+      .staticService(task.staticServices())
+
+      .allowedNodes(task.associatedNodes())
+      .groups(task.groups())
+      .deletedFilesAfterStop(task.deletedFilesAfterStop())
+
+      .templates(task.templates())
+      .deployments(task.deployments())
+      .inclusions(task.includes())
+
+      .environment(task.processConfiguration().environment())
+      .maxHeapMemory(task.processConfiguration().maxHeapMemorySize())
+      .jvmOptions(task.processConfiguration().jvmOptions())
+      .processParameters(task.processConfiguration().processParameters())
+      .startPort(task.startPort());
   }
 
+  /**
+   * Creates a new service configuration builder which has the same options set as the given service configuration.
+   * Changes made to the given configuration will not reflect into the new builder and vice-versa.
+   * <p>
+   * When calling build directly after creating the builder based on the given service configuration it will return a
+   * service configuration which is equal to the given one, but not identical.
+   *
+   * @param configuration the configuration to copy the set options of.
+   * @return a new builder instance which has the same options set as the given configuration.
+   * @throws NullPointerException if the given configuration is null.
+   */
   public static @NonNull Builder builder(@NonNull ServiceConfiguration configuration) {
     return builder()
       .serviceId(ServiceId.builder(configuration.serviceId()))
@@ -108,62 +255,169 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
       .properties(configuration.properties());
   }
 
+  /**
+   * Get the base service id all services created based on this configuration will use. However, pre-create checks might
+   * change the configuration if needed, for example increasing the service id if it is already taken or setting the
+   * node on which the service will start when it is not set already. These changes will not reflect into the service id
+   * object returned by this object.
+   *
+   * @return the base service id for services created using this configuration.
+   */
   public @NonNull ServiceId serviceId() {
     return this.serviceId;
   }
 
+  /**
+   * Get if services should be deleted when stopping the service. This does only mean that the service gets unregistered
+   * and is no longer available for starting, but does not mean that all service files get deleted when the service is
+   * static.
+   * <p>
+   * If this option is false the service will be stopped and then go back to the prepared state, ready to get started
+   * again.
+   *
+   * @return if the service should get unregistered when stopping it.
+   */
   public boolean autoDeleteOnStop() {
     return this.autoDeleteOnStop;
   }
 
+  /**
+   * Get if services which get created based on this configuration are static. Files of static services will not get
+   * deleted when deleting the service. That means that starting the exact service after it was deleted, will result in
+   * the same service files to be present.
+   * <p>
+   * <strong>NOTE:</strong> static services are not automatically synced between nodes, therefore a specific node to
+   * start the service on should be present, else it might result in a different configuration (or world) than
+   * expected.
+   *
+   * @return if services created based on this configuration should be static.
+   */
   public boolean staticService() {
     return this.staticService;
   }
 
+  /**
+   * Get the java command to use when starting a service. This can for example be used to use different java distros or
+   * versions on services. If no java command is set the java command configured in the node that is picking up the
+   * service will be used.
+   *
+   * @return the java command to use when starting services based on this configuration.
+   */
   public @Nullable String javaCommand() {
     return this.javaCommand;
   }
 
+  /**
+   * Get the runtime to use when services gets created based on this configuration. Runtimes are there to allow
+   * different types of configuration for running in different environments, for example inside a docker container. The
+   * given runtime must be registered on the node which picks up the service, if not it will result in an error.
+   *
+   * @return the runtime to use when creating a service based on this configuration.
+   */
   public @NonNull String runtime() {
     return this.runtime;
   }
 
+  /**
+   * Get the names of the groups whose configuration should get included when starting a service based on this
+   * configuration. Each configuration is only included when it is present on the node starting the service, if not it
+   * will silently be ignored. Note that groups targeting the same environment as this configuration will get included
+   * automatically.
+   *
+   * @return the names of the group configurations to include their configurations before starting.
+   */
   public @NonNull Set<String> groups() {
     return this.groups;
   }
 
+  /**
+   * Get the files (or directories) which should get deleted when stopping the service (before deployments are
+   * executed). Trying to delete files outside the service directory will result in an exception.
+   *
+   * @return a set of path to files/directories which should get deleted when stopping a service based on this config.
+   */
   public @NonNull Set<String> deletedFilesAfterStop() {
     return this.deletedFilesAfterStop;
   }
 
+  /**
+   * Get all templates that should get copied onto services created based on this configuration when preparing.
+   * Templates of configured groups and groups targeting the environment of this configuration will be included
+   * automatically.
+   * <p>
+   * <strong>NOTE:</strong> the returned set is not yet sorted, sorting will be made when actually including the
+   * templates. The sorting changes will not reflect into this configuration.
+   *
+   * @return all templates to include when preparing a service based on this configuration.
+   */
   public @NonNull Set<ServiceTemplate> templates() {
     return this.templates;
   }
 
+  /**
+   * Get all deployments that should be added initially to services created based on this configuration. These
+   * deployments will not get executed directly, you need to execute them for each service individually using the
+   * service provider.
+   *
+   * @return all deployments which should get added initially when preparing a service.
+   */
   public @NonNull Set<ServiceDeployment> deployments() {
     return this.deployments;
   }
 
+  /**
+   * Get all includes which should be added initially to services created based on this configuration. These inclusions
+   * are downloaded and included either when explicitly requested or before starting the service.
+   *
+   * @return all inclusions which should get added initially to services created based on this configuration.
+   */
   public @NonNull Set<ServiceRemoteInclusion> includes() {
     return this.includes;
   }
 
+  /**
+   * Get the process configuration to apply to all services which get created based on this configuration.
+   *
+   * @return the process configuration to apply to all services.
+   */
   public @NonNull ProcessConfiguration processConfig() {
     return this.processConfig;
   }
 
+  /**
+   * The port of the service to start on. If the given port is already taken it will be counted up until it reaches the
+   * port limit (65535) or one of the ports in between is free to be taken. Port changes because of counting up will not
+   * be reflected into this configuration and vice-versa.
+   *
+   * @return the port number to start the service on, might be counted up when the port is already taken.
+   */
   public @Range(from = 0, to = 65535) int port() {
     return this.port;
   }
 
+  /**
+   * Creates and prepares a service based on this configuration using the default cloud service factory.
+   *
+   * @return a service snapshot of a service created based on this configuration, can be null.
+   * @see CloudServiceFactory#createCloudService(ServiceConfiguration)
+   */
   public @Nullable ServiceInfoSnapshot createNewService() {
     return CloudNetDriver.instance().cloudServiceFactory().createCloudService(this);
   }
 
+  /**
+   * Creates and prepares a service based on this configuration using the default cloud service factory.
+   *
+   * @return a task completed with a service snapshot of a service created based on this configuration.
+   * @see CloudServiceFactory#createCloudServiceAsync(ServiceConfiguration)
+   */
   public @NonNull Task<ServiceInfoSnapshot> createNewServiceAsync() {
     return CloudNetDriver.instance().cloudServiceFactory().createCloudServiceAsync(this);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull ServiceConfiguration clone() {
     try {
@@ -174,25 +428,9 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
   }
 
   /**
-   * Builder for the creation of new services. All required parameters are:
-   * <ul>
-   *     <li>{@link #task(String)}</li>
-   *     <li>{@link #environment(ServiceEnvironmentType)}</li>
-   *     <li>{@link #maxHeapMemory(int)}</li>
-   * </ul>
-   * You can create a new service with this example:
-   * <p>
-   * <code>
-   *   ServiceConfiguration
-   *    .builder()
-   *    .task("Lobby")
-   *    .environment(ServiceEnvironmentType.MINECRAFT_SERVER)
-   *    .maxHeapMemory(512)
-   *    .build()
-   *    .createNewService();
-   * </code>
-   * <p>
-   * this will return the newly created {@link ServiceInfoSnapshot} or null if the service couldn't be created.
+   * Represents a builder for a service configuration.
+   *
+   * @since 4.0
    */
   public static class Builder {
 
@@ -216,67 +454,57 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     protected Set<ServiceRemoteInclusion> includes = new HashSet<>();
 
     /**
-     * Applies every option of the given {@link ServiceTask} object except for the Properties. This will override every
-     * previously set option of this builder.
-     */
-    public @NonNull Builder task(@NonNull ServiceTask task) {
-      return this
-        .task(task.name())
-        .properties(task.properties())
-
-        .runtime(task.runtime())
-        .javaCommand(task.javaCommand())
-        .nameSplitter(task.nameSplitter())
-
-        .autoDeleteOnStop(task.autoDeleteOnStop())
-        .staticService(task.staticServices())
-
-        .allowedNodes(task.associatedNodes())
-        .groups(task.groups())
-        .deletedFilesAfterStop(task.deletedFilesAfterStop())
-
-        .templates(task.templates())
-        .deployments(task.deployments())
-        .inclusions(task.includes())
-
-        .environment(task.processConfiguration().environment())
-        .maxHeapMemory(task.processConfiguration().maxHeapMemorySize())
-        .jvmOptions(task.processConfiguration().jvmOptions())
-        .processParameters(task.processConfiguration().processParameters())
-        .startPort(task.startPort());
-    }
-
-    /**
-     * The complete {@link ServiceId} for the new service. Calling this method will override all the following method
-     * calls:
-     * <ul>
-     *     <li>{@link #task(String)}</li>
-     *     <li>{@link #taskId(int)}</li>
-     *     <li>{@link #uniqueId(UUID)}</li>
-     *     <li>{@link #environment(ServiceEnvironmentType)}</li>
-     *     <li>{@link #node(String)}</li>
-     *     <li>{@link #allowedNodes(String...)} / {@link #allowedNodes(Collection)}</li>
-     * </ul>
+     * Sets the service id builder of this builder. Further calls might overwrite changes in the given builder, for
+     * example when setting the environment of the configuration via this builder.
+     *
+     * @param serviceId the new service id builder to use.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given service id builder is null.
      */
     public @NonNull Builder serviceId(@NonNull ServiceId.Builder serviceId) {
       this.serviceId = serviceId;
       return this;
     }
 
+    /**
+     * Sets the process configuration builder of this builder. Further calls might overwrite changes in the given
+     * builder, for example when setting the max heap memory services are allowed to use.
+     *
+     * @param processConfig the new process configuration to use.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given process configuration builder is null.
+     */
     public @NonNull Builder processConfig(@NonNull ProcessConfiguration.Builder processConfig) {
       this.processConfig = processConfig;
       return this;
     }
 
     /**
-     * The task for the new service. No permanent task with that name has to exist. This will NOT use any options of the
-     * given task, to do that use {@link #task(ServiceTask)}.
+     * Sets the task name to use for the created services. This method will not change any other option than the task
+     * name, so if a task with the given name exists it has no effect when calling this method as nothing will be copied
+     * from that task into this builder.
+     * <p>
+     * <strong>NOTE:</strong> the given task name must still match the defined pattern for a task name.
+     *
+     * @param taskName a task name, no task with that name must exist.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException                   if the given task name is null.
+     * @throws com.google.common.base.VerifyException if the given task name doesn't follow the task naming policy.
      */
-    public @NonNull Builder task(@NonNull String task) {
-      this.serviceId.taskName(task);
+    public @NonNull Builder taskName(@NonNull String taskName) {
+      this.serviceId.taskName(taskName);
       return this;
     }
 
+    /**
+     * Sets the name of the environment to use for services created based on the service configuration. The environment
+     * will be resolved when creating the service and decides for example which application file gets used and which
+     * configuration files are updated for the environment.
+     *
+     * @param environment the name of the environment to use for services created based on the service configuration.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given environment name is null.
+     */
     public @NonNull Builder environment(@NonNull String environment) {
       this.serviceId.environment(environment);
       this.processConfig.environment(environment);
@@ -284,7 +512,12 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     }
 
     /**
-     * The environment for the new service.
+     * Sets the environment to use for services created based on the service configuration. The environment decides for
+     * example which application file gets used and which configuration files are updated for the environment.
+     *
+     * @param environment the environment to use for services created based on the service configuration.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given environment is null.
      */
     public @NonNull Builder environment(@NonNull ServiceEnvironmentType environment) {
       this.serviceId.environment(environment);
@@ -293,7 +526,18 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     }
 
     /**
-     * The task id for the new service (For example Lobby-1 would have the task id 1).
+     * Sets the base task id for services created based on the service configuration. Services which have the same task
+     * name will <strong>never</strong> have the same task id twice. If the given task id is already taken it will get
+     * counted up until either it finds a free task id or the integer limit is reached.
+     * <p>
+     * Note: the given task id must be either
+     * <ol>
+     *   <li>-1 for automatic detection of the lowest free task id.
+     *   <li>positive (excluding 0) to start counting at the given task id.
+     * </ol>
+     *
+     * @param taskId the base task id to count up from when creating services based on the configuration.
+     * @return the same instance as used to call the method, for chaining.
      */
     public @NonNull Builder taskId(int taskId) {
       this.serviceId.taskServiceId(taskId);
@@ -301,7 +545,12 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     }
 
     /**
-     * The uniqueId for the new service.
+     * Sets the unique id of the any service created based on the service configuration. A random uuid will be chosen if
+     * the set unique id is already taken by any other service.
+     *
+     * @param uniqueId the base unique id for services created based on the service configuration.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given unique id is null.
      */
     public @NonNull Builder uniqueId(@NonNull UUID uniqueId) {
       this.serviceId.uniqueId(uniqueId);
@@ -309,21 +558,41 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     }
 
     /**
-     * the java command to start the service with if this is null the default value from the config.json will be used
+     * Sets the java command to use when starting a service based on the service configuration. If no java command is
+     * set in the configuration, the configured command from the node which picked up the service will be used.
+     *
+     * @param javaCommand the java command to use when starting service based on the service configuration.
+     * @return the same instance as used to call the method, for chaining.
      */
     public @NonNull Builder javaCommand(@Nullable String javaCommand) {
       this.javaCommand = javaCommand;
       return this;
     }
 
+    /**
+     * Sets the name splitter for services based on the service configuration. The name splitter will be set between the
+     * task name and the service name. For example if the name splitter is set to #, the task name to Lobby and the task
+     * id is 1, the full service name will be Lobby#1.
+     *
+     * @param nameSplitter the name splitter to use for services created based on the service configuration.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given name splitter is null.
+     */
     public @NonNull Builder nameSplitter(@NonNull String nameSplitter) {
       this.serviceId.nameSplitter(nameSplitter);
       return this;
     }
 
     /**
-     * The node where the new service will start. If the service cannot be created on this node or the node doesn't
-     * exist, it will NOT be created and {@link ServiceConfiguration#createNewService()} will return null.
+     * Sets the node on which services based on the service configuration should get created and started. If the given
+     * node is either unknown or unable to start services, service creation requests will not work and there will be no
+     * tries to move the service onto another node.
+     * <p>
+     * Note: this configuration option is most likely needed when trying to start a previously stored static service as
+     * they are not synced in the cluster automatically.
+     *
+     * @param nodeUniqueId the unique id of the node which should pick up the services.
+     * @return the same instance as used to call the method, for chaining.
      */
     public @NonNull Builder node(@Nullable String nodeUniqueId) {
       this.serviceId.nodeUniqueId(nodeUniqueId);
@@ -331,8 +600,14 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     }
 
     /**
-     * A list of all allowed nodes. CloudNet will choose the node with the most free resources. If a node is provided
-     * using {@link #node(String)}, this option will be ignored.
+     * Sets the names of the nodes which are allowed to pick up services created based on the service configuration. If
+     * an empty collection is given all nodes are allowed to start the service. If specific nodes are selected the one
+     * with the lowest resource usage (in percent) will be chosen to start the service. This setting has no effect if
+     * one specific node was selected to start the services.
+     *
+     * @param allowedNodes the nodes which are allowed to start the services, an empty collection for all nodes.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given node name collection is null.
      */
     public @NonNull Builder allowedNodes(@NonNull Collection<String> allowedNodes) {
       this.serviceId.allowedNodes(allowedNodes);
@@ -340,8 +615,16 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     }
 
     /**
-     * The runtime of the service. If none is provided, the default "jvm" is used. By default, CloudNet only provides
-     * the "jvm" runtime, you can add your own with custom modules.
+     * Sets the runtime to use for the service. The runtime decides which factory is used for the service to be started
+     * and in which way. An example for an external runtime (other than the default, build-in jvm runtime) is the
+     * docker-jvm runtime which starts services in a docker container.
+     * <p>
+     * Note: if no runtime with the given name exists on the node which is picking up the service it will result in an
+     * error.
+     *
+     * @param runtime the runtime to use for services based on the service configuration.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given runtime is null.
      */
     public @NonNull Builder runtime(@NonNull String runtime) {
       this.runtime = runtime;
@@ -349,8 +632,15 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     }
 
     /**
-     * Whether this service should be deleted on stop (doesn't affect files of a static service) or the life cycle
-     * should be changed to {@link ServiceLifeCycle#PREPARED}.
+     * Sets whether services created based on the service configuration should get deleted after being stopped. This
+     * does only mean that the service gets unregistered and is no longer available for starting, but does not mean that
+     * all service files get deleted when the service is static.
+     * <p>
+     * If this option is false the service will be stopped and then go back to the prepared state, ready to get started
+     * again.
+     *
+     * @param autoDeleteOnStop if services should get deleted (unregistered) when stopping them.
+     * @return the same instance as used to call the method, for chaining.
      */
     public @NonNull Builder autoDeleteOnStop(boolean autoDeleteOnStop) {
       this.autoDeleteOnStop = autoDeleteOnStop;
@@ -358,14 +648,15 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     }
 
     /**
-     * Alias for autoDeleteOnStop(true).
-     */
-    public @NonNull Builder autoDeleteOnStop() {
-      return this.autoDeleteOnStop(true);
-    }
-
-    /**
-     * Whether the files should be deleted or saved on deletion of the service.
+     * Sets whether services created based on the service configuration should be static or not. Static services will
+     * never be deleted, meaning that when stopping the service the same state can be launched again without any need to
+     * deploy the current service state to a template.
+     * <p>
+     * Note: static services are not automatically synced between nodes, you should take care of starting the service
+     * either always on the same node or ensure that the service state gets synced when it's being stopped.
+     *
+     * @param staticService if services created based on the configuration should be static or dynamic.
+     * @return the same instance as used to call the method, for chaining.
      */
     public @NonNull Builder staticService(boolean staticService) {
       this.staticService = staticService;
@@ -373,29 +664,55 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     }
 
     /**
-     * Alias for staticService(true).
-     */
-    public @NonNull Builder staticService() {
-      return this.staticService(true);
-    }
-
-    /**
-     * The groups for the new service. CloudNet will apply every template, deployment and inclusion of the given groups
-     * to the new service.
+     * Sets the names of the groups which should get included onto any service created based on the service
+     * configuration. All groups targeting the environment of the builder will automatically get included onto all
+     * services without the need of explicitly defining them. If a group gets specified which is not known to the node
+     * picking up the service it will silently be ignored.
+     * <p>
+     * This method overrides all previously added groups. The given collection will get copied into this builder,
+     * meaning that changes made to the collection after the method call will not reflect into the builder and
+     * vice-versa.
+     *
+     * @param groups the names of the groups to include on all services.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given group name collection is null.
      */
     public @NonNull Builder groups(@NonNull Collection<String> groups) {
       this.groups = new HashSet<>(groups);
       return this;
     }
 
+    /**
+     * Adds the names of the groups which should get included onto any service created based on the service
+     * configuration. All groups targeting the environment of the builder will automatically get included onto all
+     * services without the need of explicitly defining them. If a group gets specified which is not known to the node
+     * picking up the service it will silently be ignored.
+     * <p>
+     * The given collection will get copied into this builder, meaning that changes made to the collection after the
+     * method call will not reflect into the builder and vice-versa.
+     *
+     * @param groups the names of the groups to add to the included groups.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given group name collection is null.
+     */
     public @NonNull Builder addGroups(@NonNull Collection<String> groups) {
       this.groups.addAll(groups);
       return this;
     }
 
     /**
-     * The inclusions for the new service. They will be copied into the service directory before the service is started
-     * or by calling {@link SpecificCloudServiceProvider#includeWaitingServiceInclusions()}.
+     * Sets all inclusions which should get loaded onto a service created based on the service configuration before it
+     * starts. Inclusions get cached based on their download url. If you need a clean copy of your inclusion you should
+     * change the download url of it. If the node is unable to download an inclusion based on the given url it will be
+     * ignored and a warning gets printed into the console.
+     * <p>
+     * This method overrides all previously added inclusions. The given collection will be copied into this builder,
+     * meaning that changes made to the collection after the method call will not reflect into the builder and
+     * vice-versa.
+     *
+     * @param inclusions the inclusions to include on all services created based on the configuration.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given inclusion collection is null.
      */
     public @NonNull Builder inclusions(@NonNull Collection<ServiceRemoteInclusion> inclusions) {
       this.includes = new HashSet<>(inclusions);
@@ -403,8 +720,17 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     }
 
     /**
-     * The inclusions for the new service. They will be copied into the service directory before the service is started
-     * or by calling {@link SpecificCloudServiceProvider#includeWaitingServiceInclusions()}.
+     * Adds all inclusions which should get loaded onto a service created based on the service configuration before it
+     * starts. Inclusions get cached based on their download url. If you need a clean copy of your inclusion you should
+     * change the download url of it. If the node is unable to download an inclusion based on the given url it will be
+     * ignored and a warning gets printed into the console.
+     * <p>
+     * The given collection will be copied into this builder, meaning that changes made to the collection after the
+     * method call will not reflect into the builder and vice-versa.
+     *
+     * @param inclusions the inclusions to add include to the previously set inclusions.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given inclusion collection is null.
      */
     public @NonNull Builder addInclusions(@NonNull Collection<ServiceRemoteInclusion> inclusions) {
       this.includes.addAll(inclusions);
@@ -412,35 +738,85 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     }
 
     /**
-     * The templates for the new service. They will be copied into the service directory before the service is started
-     * or by calling {@link SpecificCloudServiceProvider#includeWaitingServiceTemplates()}.
+     * Sets all templates which should get loaded onto a service before it starts. The given collection sorting is
+     * ignored and the templates will get re-sorted based on their priority. Templates will override existing files from
+     * any source if they are present in them, make sure to use an appropriate order for them.
+     * <p>
+     * This method will override all previously added templates. The given collection will be copied into this builder,
+     * meaning that changes made to the collection after the method call will not reflect into the builder and
+     * vice-versa.
+     *
+     * @param templates the templates to include onto all services before starting them.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given template collection is null.
      */
     public @NonNull Builder templates(@NonNull Collection<ServiceTemplate> templates) {
       this.templates = new HashSet<>(templates);
       return this;
     }
 
+    /**
+     * Adds all templates which should get loaded onto a service before it starts. The given collection sorting is
+     * ignored and the templates will get re-sorted based on their priority. Templates will override existing files from
+     * any source if they are present in them, make sure to use an appropriate order for them.
+     * <p>
+     * The given collection will be copied into this builder, meaning that changes made to the collection after the
+     * method call will not reflect into the builder and vice-versa.
+     *
+     * @param templates the templates to include onto all services before starting them.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given template collection is null.
+     */
     public @NonNull Builder addTemplates(@NonNull Collection<ServiceTemplate> templates) {
       this.templates.addAll(templates);
       return this;
     }
 
     /**
-     * The deployments for the new service. They will be copied into the template after the service is stopped or by
-     * calling {@link SpecificCloudServiceProvider#removeAndExecuteDeployments()}.
+     * Sets the deployments to execute when a service based on the configuration gets stopped or when explicitly
+     * requested by calling the associated method on the service provider.
+     * <p>
+     * This method will override all previously added deployments. The given collection will be copied into this
+     * builder, meaning that changes made to the collection after the method call will not reflect into the builder and
+     * vice-versa.
+     *
+     * @param deployments the deployments to add to every service created based on the configuration.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given deployment collection is null.
      */
     public @NonNull Builder deployments(@NonNull Collection<ServiceDeployment> deployments) {
       this.deployments = new HashSet<>(deployments);
       return this;
     }
 
+    /**
+     * Adds the deployments to execute when a service based on the configuration gets stopped or when explicitly
+     * requested by calling the associated method on the service provider.
+     * <p>
+     * The given collection will be copied into this builder, meaning that changes made to the collection after the
+     * method call will not reflect into the builder and vice-versa.
+     *
+     * @param deployments the deployments to add to every service created based on the configuration.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given deployment collection is null.
+     */
     public @NonNull Builder addDeployments(@NonNull Collection<ServiceDeployment> deployments) {
       this.deployments.addAll(deployments);
       return this;
     }
 
     /**
-     * The files that should be deleted after the service has been stopped.
+     * Sets the files which should get deleted when stopping a service created based on the configuration. Any path in
+     * the given collection can either represent a single file or directory, but must be inside the service directory.
+     * Path traversal to leave the service directory will result in an exception.
+     * <p>
+     * This method will override all previously added file deletions. The given collection will be copied into this
+     * builder, meaning that changes made to the collection after the method call will not reflect into the builder and
+     * vice-versa.
+     *
+     * @param deletedFilesAfterStop the files to delete when a service based on the configuration gets stopped.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given file name collection is null.
      */
     public @NonNull Builder deletedFilesAfterStop(@NonNull Collection<String> deletedFilesAfterStop) {
       this.deletedFilesAfterStop = new HashSet<>(deletedFilesAfterStop);
@@ -448,7 +824,16 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     }
 
     /**
-     * The files that should be deleted after the service has been stopped.
+     * Adds the files which should get deleted when stopping a service created based on the configuration. Any path in
+     * the given collection can either represent a single file or directory, but must be inside the service directory.
+     * Path traversal to leave the service directory will result in an exception.
+     * <p>
+     * The given collection will be copied into this builder, meaning that changes made to the collection after the
+     * method call will not reflect into the builder and vice-versa.
+     *
+     * @param deletedFilesAfterStop the files to delete when a service based on the configuration gets stopped.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given file name collection is null.
      */
     public @NonNull Builder addDeletedFilesAfterStop(@NonNull Collection<String> deletedFilesAfterStop) {
       this.deletedFilesAfterStop.addAll(deletedFilesAfterStop);
@@ -456,7 +841,12 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     }
 
     /**
-     * The max heap memory for the new service.
+     * Sets the maximum heap memory (in MB) a service based on this configuration is allowed to allocate. The given heap
+     * memory size must be at least 50 MB (less heap memory makes no sense when running a service).
+     *
+     * @param maxHeapMemory the maximum heap memory a service is allowed to use.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws com.google.common.base.VerifyException if the given memory size is less than 50 mb.
      */
     public @NonNull Builder maxHeapMemory(int maxHeapMemory) {
       this.processConfig.maxHeapMemorySize(maxHeapMemory);
@@ -464,8 +854,17 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     }
 
     /**
-     * The jvm options for the new service. They will be added directly before the "-Xmx" parameter in the startup
-     * command.
+     * Sets the jvm options which should get applied to the service command line. JVM options are there to configure the
+     * behaviour of the jvm, for example the garbage collector.
+     * <p>
+     * The XmX and XmS options will always get appended based on the configured maximum heap memory size.
+     * <p>
+     * This method will override all previously added jvm options. Furthermore, the given collection will be copied into
+     * this builder, meaning that changes to it will not reflect into the builder after the method call.
+     *
+     * @param jvmOptions the jvm options of the configuration.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given options collection is null.
      */
     public @NonNull Builder jvmOptions(@NonNull Collection<String> jvmOptions) {
       this.processConfig.jvmOptions(jvmOptions);
@@ -473,8 +872,17 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     }
 
     /**
-     * The jvm options for the new service. They will be added directly before the "-Xmx" parameter in the startup
-     * command.
+     * Adds the given jvm options to this builder. JVM options are there to configure the behaviour of the jvm, for
+     * example the garbage collector.
+     * <p>
+     * The XmX and XmS options will always get appended based on the configured maximum heap memory size.
+     * <p>
+     * Duplicate options will be omitted by this method directly. <strong>HOWEVER,</strong> adding the same option twice
+     * with a changed value to it will most likely result in the jvm to crash, beware!
+     *
+     * @param jvmOptions the jvm options to add to the configuration.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given options collection is null.
      */
     public @NonNull Builder addJvmOptions(@NonNull Collection<String> jvmOptions) {
       this.processConfig.addJvmOptions(jvmOptions);
@@ -482,36 +890,77 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     }
 
     /**
-     * The process parameters for the new service. This will be the last parameters that will be added to the command.
+     * Sets the process parameters which should get appended to the command line. Process parameters are there to
+     * configure the application, for example setting an option like --online-mode=true.
+     * <p>
+     * This method will override all previously added process parameters options. Furthermore, the given collection will
+     * be copied into this builder, meaning that changes to it will not reflect into the builder after the method call.
+     *
+     * @param processParameters the process parameters of the configuration.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given parameters' collection is null.
      */
     public @NonNull Builder processParameters(@NonNull Collection<String> processParameters) {
       this.processConfig.processParameters(processParameters);
       return this;
     }
 
+    /**
+     * Adds the process parameters which should get appended to the command line. Process parameters are there to
+     * configure the application, for example setting an option like --online-mode=true.
+     * <p>
+     * This method will override all previously added process parameters options. Furthermore, the given collection will
+     * be copied into this builder, meaning that changes to it will not reflect into the builder after the method call.
+     * Duplicate parameters will get omitted by this method directly.
+     *
+     * @param processParameters the process parameters to add to the configuration.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given parameters' collection is null.
+     */
     public @NonNull Builder addProcessParameters(@NonNull Collection<String> processParameters) {
       this.processConfig.addProcessParameters(processParameters);
       return this;
     }
 
     /**
-     * The start port for the new service. CloudNet will test whether the port is used or not, it will count up 1 while
-     * the port is used.
+     * Sets the start port for services created based on the configuration. If the given port is already taken by any
+     * other process it gets counted up until it either reaches the port limit (65535) or finds a free port to start the
+     * service on. If no free port was found an exception is thrown and the service will not start.
+     *
+     * @param startPort the port to start services upwards from.
+     * @return the same instance as used to call the method, for chaining.
      */
-    public @NonNull Builder startPort(int startPort) {
+    public @NonNull Builder startPort(@Range(from = 0, to = 65535) int startPort) {
       this.port = startPort;
       return this;
     }
 
     /**
-     * The default properties of the new service. CloudNet itself completely ignores them, but they can be useful if you
-     * want to transport data from the component that has created the service to the new service.
+     * The properties to apply to all services based on the configuration. These properties will get appended by default
+     * to all services and can contain any data you want or need, for example the configuration of a plugin, the owner
+     * unique id of a private server or anything else.
+     * <p>
+     * Note: some plugins might override certain properties, for example the bridge plugin overrides the online count
+     * property if set. There is no way to prevent this, as it ensures that CloudNet can run correctly. Just make sure
+     * that your property names differ from them CloudNet uses by default.
+     *
+     * @param properties the properties to apply by default to all services.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given properties document is null.
      */
     public @NonNull Builder properties(@NonNull JsonDocument properties) {
       this.properties = properties.clone();
       return this;
     }
 
+    /**
+     * Builds a service configuration based on all previously supplied properties. <strong>NOTE:</strong> further
+     * changes to this builder might reflect into the service configuration build from it. Do not re-use a builder,
+     * always use a new one.
+     *
+     * @return a new service configuration based on this builder.
+     * @throws com.google.common.base.VerifyException if one of the required properties is either not set or invalid.
+     */
     public @NonNull ServiceConfiguration build() {
       Verify.verify(this.port > 0 && this.port <= 65535, "invalid port provided");
       return new ServiceConfiguration(
