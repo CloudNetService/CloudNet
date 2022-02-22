@@ -21,7 +21,7 @@ import dev.waterdog.waterdogpe.WaterdogPE;
 import dev.waterdog.waterdogpe.command.CommandSender;
 import dev.waterdog.waterdogpe.network.serverinfo.BedrockServerInfo;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
-import eu.cloudnetservice.cloudnet.common.registry.ServicesRegistry;
+import eu.cloudnetservice.cloudnet.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
@@ -71,9 +71,9 @@ final class WaterDogPEBridgeManagement extends PlatformBridgeManagement<ProxiedP
   }
 
   @Override
-  public void registerServices(@NonNull ServicesRegistry registry) {
-    registry.registerService(PlayerManager.class, "PlayerManager", this.playerManager);
-    registry.registerService(PlatformBridgeManagement.class, "WaterDogPEBridgeManagement", this);
+  public void registerServices(@NonNull ServiceRegistry registry) {
+    registry.registerProvider(PlayerManager.class, "PlayerManager", this.playerManager);
+    registry.registerProvider(PlatformBridgeManagement.class, "WaterDogPEBridgeManagement", this);
   }
 
   @Override

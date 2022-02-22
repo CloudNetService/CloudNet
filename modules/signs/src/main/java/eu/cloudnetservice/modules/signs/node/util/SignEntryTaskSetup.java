@@ -24,7 +24,6 @@ import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.QuestionL
 import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.node.configuration.SignConfigurationType;
-import java.util.Collections;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
@@ -69,7 +68,7 @@ public final class SignEntryTaskSetup {
         && environment != null
         && generateSignsConfig != null
         && generateSignsConfig
-        && !SignPluginInclusion.hasConfigurationEntry(Collections.singleton(taskName), configuration)
+        && !configuration.hasEntry(taskName)
       ) {
         var entry = ServiceEnvironmentType.JAVA_SERVER.get(environment.properties())
           ? SignConfigurationType.JAVA.createEntry(taskName)

@@ -99,4 +99,8 @@ public class SignsConfiguration {
   public void configurationEntries(Collection<SignConfigurationEntry> configurationEntries) {
     this.configurationEntries = configurationEntries;
   }
+
+  public boolean hasEntry(@NonNull String group) {
+    return this.configurationEntries.stream().anyMatch(entry -> entry.targetGroup().equals(group));
+  }
 }

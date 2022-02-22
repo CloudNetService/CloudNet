@@ -23,7 +23,6 @@ import eu.cloudnetservice.cloudnet.driver.event.EventListener;
 import eu.cloudnetservice.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
-import eu.cloudnetservice.cloudnet.node.event.service.CloudServicePreProcessStartEvent;
 import eu.cloudnetservice.cloudnet.node.event.setup.SetupCompleteEvent;
 import eu.cloudnetservice.cloudnet.node.event.setup.SetupInitiateEvent;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
@@ -32,7 +31,6 @@ import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.node.util.SignEntryTaskSetup;
-import eu.cloudnetservice.modules.signs.node.util.SignPluginInclusion;
 import eu.cloudnetservice.modules.signs.platform.AbstractPlatformSignManagement;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
 import java.lang.reflect.Type;
@@ -65,11 +63,6 @@ public class NodeSignsListener {
       event.setup(),
       this.signManagement.signsConfiguration(),
       this.signManagement);
-  }
-
-  @EventListener
-  public void includePluginIfNecessary(@NonNull CloudServicePreProcessStartEvent event) {
-    SignPluginInclusion.includePluginTo(event.service(), this.signManagement.signsConfiguration());
   }
 
   @EventListener

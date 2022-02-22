@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.cloudnet.driver.provider;
 
-import eu.cloudnetservice.cloudnet.common.concurrent.CompletableTask;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTask;
@@ -106,7 +105,7 @@ public interface ServiceTaskProvider {
    * @return a task completed when the provider was reloaded successfully.
    */
   default @NonNull Task<Void> reloadAsync() {
-    return CompletableTask.supply(this::reload);
+    return Task.supply(this::reload);
   }
 
   /**
@@ -117,7 +116,7 @@ public interface ServiceTaskProvider {
    * @return a task completed with all registered task configurations within the cluster.
    */
   default @NonNull Task<Collection<ServiceTask>> serviceTasksAsync() {
-    return CompletableTask.supply(this::serviceTasks);
+    return Task.supply(this::serviceTasks);
   }
 
   /**
@@ -129,7 +128,7 @@ public interface ServiceTaskProvider {
    * @throws NullPointerException if the given name is null.
    */
   default @NonNull Task<ServiceTask> serviceTaskAsync(@NonNull String name) {
-    return CompletableTask.supply(() -> this.serviceTask(name));
+    return Task.supply(() -> this.serviceTask(name));
   }
 
   /**
@@ -142,7 +141,7 @@ public interface ServiceTaskProvider {
    * @throws NullPointerException if the given task configuration is null.
    */
   default @NonNull Task<Boolean> addServiceTaskAsync(@NonNull ServiceTask serviceTask) {
-    return CompletableTask.supply(() -> this.addServiceTask(serviceTask));
+    return Task.supply(() -> this.addServiceTask(serviceTask));
   }
 
   /**
@@ -156,7 +155,7 @@ public interface ServiceTaskProvider {
    * @throws NullPointerException if the given task name is null.
    */
   default @NonNull Task<Void> removeServiceTaskByNameAsync(@NonNull String name) {
-    return CompletableTask.supply(() -> this.removeServiceTaskByName(name));
+    return Task.supply(() -> this.removeServiceTaskByName(name));
   }
 
   /**
@@ -170,6 +169,6 @@ public interface ServiceTaskProvider {
    * @throws NullPointerException if the given task name is null.
    */
   default @NonNull Task<Void> removeServiceTaskAsync(@NonNull ServiceTask serviceTask) {
-    return CompletableTask.supply(() -> this.removeServiceTask(serviceTask));
+    return Task.supply(() -> this.removeServiceTask(serviceTask));
   }
 }

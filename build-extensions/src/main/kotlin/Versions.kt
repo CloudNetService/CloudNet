@@ -21,5 +21,5 @@ object Versions {
   const val cloudNetCodeName = "Blizzard"
 
   // external tools
-  const val checkstyleTools = "9.2.1"
+  const val checkstyleTools = "9.3"
 }

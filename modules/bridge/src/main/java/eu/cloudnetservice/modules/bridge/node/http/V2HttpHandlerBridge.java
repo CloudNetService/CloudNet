@@ -151,7 +151,7 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
   }
 
   protected PlayerManager playerManager() {
-    return this.node().servicesRegistry().firstService(PlayerManager.class);
+    return this.node().serviceRegistry().firstProvider(PlayerManager.class);
   }
 
 }

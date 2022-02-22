@@ -82,6 +82,6 @@ public class SignInteractListener {
   }
 
   protected @NonNull PlayerManager playerManager() {
-    return CloudNetDriver.instance().servicesRegistry().firstService(PlayerManager.class);
+    return CloudNetDriver.instance().serviceRegistry().firstProvider(PlayerManager.class);
   }
 }

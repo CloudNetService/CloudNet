@@ -18,6 +18,7 @@ package eu.cloudnetservice.modules.s3;
 
 import eu.cloudnetservice.cloudnet.common.function.ThrowableConsumer;
 import eu.cloudnetservice.cloudnet.common.io.FileUtil;
+import eu.cloudnetservice.cloudnet.common.io.ZipUtil;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.common.stream.ListeningOutputStream;
@@ -132,7 +133,7 @@ public class S3TemplateStorage implements TemplateStorage {
     @NonNull InputStream inputStream,
     @NonNull ServiceTemplate target
   ) {
-    var temp = FileUtil.extract(inputStream, FileUtil.createTempFile());
+    var temp = ZipUtil.extract(inputStream, FileUtil.createTempFile());
     if (temp != null) {
       try {
         return this.deployDirectory(temp, target, null);
@@ -172,7 +173,7 @@ public class S3TemplateStorage implements TemplateStorage {
   public @Nullable InputStream zipTemplate(@NonNull ServiceTemplate template) {
     var localTarget = FileUtil.createTempFile();
     if (this.copy(template, localTarget)) {
-      return FileUtil.zipToStream(localTarget);
+      return ZipUtil.zipToStream(localTarget);
     } else {
       return null;
     }

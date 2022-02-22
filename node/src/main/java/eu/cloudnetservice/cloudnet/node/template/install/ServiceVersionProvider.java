@@ -203,7 +203,7 @@ public class ServiceVersionProvider {
       }
 
       for (var entry : information.serviceVersion().additionalDownloads().entrySet()) {
-        ConsoleProgressWrappers.wrapDownload(entry.getKey(), stream -> {
+        ConsoleProgressWrappers.wrapDownload(entry.getValue(), stream -> {
           try (var out = information.templateStorage().newOutputStream(entry.getKey())) {
             FileUtil.copy(stream, out);
           }

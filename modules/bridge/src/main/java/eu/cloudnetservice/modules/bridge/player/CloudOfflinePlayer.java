@@ -17,6 +17,7 @@
 package eu.cloudnetservice.modules.bridge.player;
 
 import eu.cloudnetservice.cloudnet.common.Nameable;
+import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.common.document.property.JsonDocPropertyHolder;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;
@@ -38,8 +39,10 @@ public class CloudOfflinePlayer extends JsonDocPropertyHolder implements Cloneab
     @NonNull String name,
     long firstLoginTimeMillis,
     long lastLoginTimeMillis,
-    @NonNull NetworkPlayerProxyInfo proxyInfo
+    @NonNull NetworkPlayerProxyInfo proxyInfo,
+    @NonNull JsonDocument properties
   ) {
+    super(properties);
     this.name = name;
     this.firstLoginTimeMillis = firstLoginTimeMillis;
     this.lastLoginTimeMillis = lastLoginTimeMillis;
@@ -51,7 +54,8 @@ public class CloudOfflinePlayer extends JsonDocPropertyHolder implements Cloneab
       onlineVariant.name(),
       onlineVariant.firstLoginTimeMillis(),
       onlineVariant.lastLoginTimeMillis(),
-      onlineVariant.networkPlayerProxyInfo().clone());
+      onlineVariant.networkPlayerProxyInfo().clone(),
+      onlineVariant.properties.clone());
   }
 
   public @NonNull UUID uniqueId() {

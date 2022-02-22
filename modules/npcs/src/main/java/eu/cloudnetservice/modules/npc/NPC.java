@@ -82,6 +82,7 @@ public class NPC extends JsonDocPropertyHolder {
     @NonNull Map<Integer, String> items,
     @NonNull JsonDocument properties
   ) {
+    super(properties);
     this.npcType = npcType;
     this.targetGroup = targetGroup;
     this.displayName = displayName;
@@ -98,7 +99,6 @@ public class NPC extends JsonDocPropertyHolder {
     this.leftClickAction = leftClickAction;
     this.rightClickAction = rightClickAction;
     this.items = items;
-    this.properties = properties;
   }
 
   public static @NonNull Builder builder() {

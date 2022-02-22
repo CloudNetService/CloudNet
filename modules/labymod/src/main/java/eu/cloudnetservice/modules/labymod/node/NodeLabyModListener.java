@@ -16,12 +16,8 @@
 
 package eu.cloudnetservice.modules.labymod.node;
 
-import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.driver.event.EventListener;
 import eu.cloudnetservice.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
-import eu.cloudnetservice.cloudnet.driver.util.DefaultModuleHelper;
-import eu.cloudnetservice.cloudnet.node.event.service.CloudServicePreProcessStartEvent;
 import eu.cloudnetservice.modules.labymod.LabyModManagement;
 import eu.cloudnetservice.modules.labymod.config.LabyModConfiguration;
 import lombok.NonNull;
@@ -45,28 +41,6 @@ public class NodeLabyModListener {
       var configuration = event.content().readObject(LabyModConfiguration.class);
       // write the configuration silently to the file
       this.labyModManagement.configurationSilently(configuration);
-    }
-  }
-
-  @EventListener
-  public void handle(@NonNull CloudServicePreProcessStartEvent event) {
-    var service = event.service();
-    if (!ServiceEnvironmentType.minecraftProxy(service.serviceId().environment())) {
-      return;
-    }
-
-    var pluginsFolder = event.service().directory().resolve("plugins");
-    FileUtil.createDirectory(pluginsFolder);
-
-    var targetFile = pluginsFolder.resolve("cloudnet-labymod.jar");
-    FileUtil.delete(targetFile);
-
-    if (DefaultModuleHelper.copyCurrentModuleInstanceFromClass(NodeLabyModListener.class, targetFile)) {
-      DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(
-        NodeLabyModListener.class,
-        event.service().serviceId().environment(),
-        targetFile
-      );
     }
   }
 }

@@ -19,12 +19,13 @@ package eu.cloudnetservice.modules.syncproxy.node;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
 import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
+import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncHandler;
+import eu.cloudnetservice.cloudnet.node.module.listener.PluginIncludeListener;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyManagement;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
 import eu.cloudnetservice.modules.syncproxy.node.command.CommandSyncProxy;
-import eu.cloudnetservice.modules.syncproxy.node.listener.IncludePluginListener;
 import eu.cloudnetservice.modules.syncproxy.node.listener.NodeSyncProxyChannelMessageListener;
 import java.nio.file.Files;
 import lombok.NonNull;
@@ -66,8 +67,16 @@ public final class CloudNetSyncProxyModule extends DriverModule {
   @ModuleTask(order = 64, event = ModuleLifeCycle.LOADED)
   public void initListeners() {
     // register the listeners
-    this.registerListener(new IncludePluginListener(this.nodeSyncProxyManagement),
-      new NodeSyncProxyChannelMessageListener(this.nodeSyncProxyManagement, this.eventManager()));
+    this.registerListener(new NodeSyncProxyChannelMessageListener(this.nodeSyncProxyManagement, this.eventManager()));
+    this.registerListener(new PluginIncludeListener(
+      "cloudnet-syncproxy",
+      CloudNetSyncProxyModule.class,
+      service -> ServiceEnvironmentType.minecraftProxy(service.serviceId().environment())
+        && (this.nodeSyncProxyManagement.configuration().loginConfigurations().stream()
+        .anyMatch(config -> service.serviceConfiguration().groups().contains(config.targetGroup()))
+        || this.nodeSyncProxyManagement.configuration().tabListConfigurations().stream()
+        .anyMatch(config -> service.serviceConfiguration().groups().contains(config.targetGroup())))
+    ));
   }
 
   @ModuleTask(order = 60, event = ModuleLifeCycle.LOADED)
@@ -78,7 +87,7 @@ public final class CloudNetSyncProxyModule extends DriverModule {
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)
   public void handleReload() {
-    var management = this.serviceRegistry().firstService(SyncProxyManagement.class);
+    var management = this.serviceRegistry().firstProvider(SyncProxyManagement.class);
     if (management != null) {
       management.configuration(this.loadConfiguration());
     }

@@ -74,7 +74,7 @@ while
 do
   ls=$(ls -ld "$app_path")
   link=${ls#*' -> '}
-  case $link in #(
+  case $link in         #(
   /*) app_path=$link ;; #(
   *) app_path=$APP_HOME$link ;;
   esac
@@ -107,9 +107,9 @@ cygwin=false
 msys=false
 darwin=false
 nonstop=false
-case "$(uname)" in #(
-CYGWIN*) cygwin=true ;; #(
-Darwin*) darwin=true ;; #(
+case "$(uname)" in           #(
+CYGWIN*) cygwin=true ;;      #(
+Darwin*) darwin=true ;;      #(
 MSYS* | MINGW*) msys=true ;; #(
 NONSTOP*) nonstop=true ;;
 esac

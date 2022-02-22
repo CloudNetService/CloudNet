@@ -45,8 +45,7 @@ public class NetworkClusterNode extends JsonDocPropertyHolder {
    * @throws NullPointerException if either the id or listener array is null.
    */
   public NetworkClusterNode(@NonNull String uniqueId, @NonNull List<HostAndPort> listeners) {
-    this.uniqueId = uniqueId;
-    this.listeners = listeners;
+    this(uniqueId, listeners, JsonDocument.newDocument());
   }
 
   /**
@@ -62,9 +61,9 @@ public class NetworkClusterNode extends JsonDocPropertyHolder {
     @NonNull List<HostAndPort> listeners,
     @NonNull JsonDocument properties
   ) {
+    super(properties);
     this.uniqueId = uniqueId;
     this.listeners = listeners;
-    this.properties = properties;
   }
 
   /**

@@ -58,7 +58,7 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
       .providerForClass(wrapper.networkClient(), SyncProxyManagement.class);
     this.eventManager = wrapper.eventManager();
     // cache all services that are already started
-    wrapper.cloudServiceProvider().servicesAsync().onComplete(services -> {
+    wrapper.cloudServiceProvider().servicesAsync().thenAccept(services -> {
       for (var service : services) {
         this.cacheServiceInfoSnapshot(service);
       }

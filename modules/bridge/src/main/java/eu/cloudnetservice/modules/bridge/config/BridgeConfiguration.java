@@ -62,6 +62,7 @@ public final class BridgeConfiguration extends JsonDocPropertyHolder {
   private final Collection<ProxyFallbackConfiguration> fallbackConfigurations;
 
   public BridgeConfiguration() {
+    super(JsonDocument.newDocument());
     this.prefix = "&7Cloud &8| &b";
     this.localizedMessages = new HashMap<>(DEFAULT_MESSAGES);
     this.logPlayerConnections = true;
@@ -82,13 +83,13 @@ public final class BridgeConfiguration extends JsonDocPropertyHolder {
     @NonNull Collection<ProxyFallbackConfiguration> fallbackConfigurations,
     @NonNull JsonDocument properties
   ) {
+    super(properties);
     this.prefix = prefix;
     this.localizedMessages = localizedMessages;
     this.logPlayerConnections = logPlayerConnections;
     this.excludedGroups = excludedGroups;
     this.hubCommandNames = hubCommandNames;
     this.fallbackConfigurations = fallbackConfigurations;
-    this.properties = properties;
   }
 
   public @NonNull String prefix() {

@@ -17,19 +17,21 @@
 package eu.cloudnetservice.modules.bridge.node;
 
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.common.registry.ServicesRegistry;
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
 import eu.cloudnetservice.cloudnet.driver.event.EventManager;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.cloudnet.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncRegistry;
+import eu.cloudnetservice.cloudnet.node.module.listener.PluginIncludeListener;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.config.BridgeConfiguration;
 import eu.cloudnetservice.modules.bridge.event.BridgeConfigurationUpdateEvent;
 import eu.cloudnetservice.modules.bridge.node.network.NodeBridgeChannelMessageListener;
 import eu.cloudnetservice.modules.bridge.node.player.NodePlayerManager;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
+import java.util.Collections;
 import lombok.NonNull;
 
 public class NodeBridgeManagement implements BridgeManagement {
@@ -52,8 +54,12 @@ public class NodeBridgeManagement implements BridgeManagement {
     this.configuration = configuration;
     // init the player manager
     this.playerManager = new NodePlayerManager(BRIDGE_PLAYER_DB_NAME, eventManager, registry, providerFactory, this);
-    // register the listener
+    // register the listeners
     eventManager.registerListener(new NodeBridgeChannelMessageListener(this, eventManager));
+    eventManager.registerListener(new PluginIncludeListener(
+      "cloudnet-bridge",
+      NodeBridgeManagement.class,
+      service -> Collections.disjoint(this.configuration.excludedGroups(), service.serviceConfiguration().groups())));
     // register the rpc handler
     providerFactory.newHandler(BridgeManagement.class, this).registerToDefaultRegistry();
   }
@@ -85,9 +91,9 @@ public class NodeBridgeManagement implements BridgeManagement {
   }
 
   @Override
-  public void registerServices(@NonNull ServicesRegistry registry) {
-    registry.registerService(BridgeManagement.class, "NodeBridgeManagement", this);
-    registry.registerService(PlayerManager.class, "NodePlayerManager", this.playerManager);
+  public void registerServices(@NonNull ServiceRegistry registry) {
+    registry.registerProvider(BridgeManagement.class, "NodeBridgeManagement", this);
+    registry.registerProvider(PlayerManager.class, "NodePlayerManager", this.playerManager);
   }
 
   @Override

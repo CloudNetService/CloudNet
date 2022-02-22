@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.cloudnet.node.console;
 
-import eu.cloudnetservice.cloudnet.common.concurrent.CompletableTask;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,7 +25,7 @@ import org.jline.reader.UserInterruptException;
 public class ConsoleReadThread extends Thread {
 
   private final JLine3Console console;
-  private CompletableTask<String> currentTask;
+  private Task<String> currentTask;
 
   public ConsoleReadThread(JLine3Console console) {
     this.console = console;
@@ -66,7 +65,7 @@ public class ConsoleReadThread extends Thread {
 
   protected @NonNull Task<String> currentTask() {
     if (this.currentTask == null) {
-      this.currentTask = new CompletableTask<>();
+      this.currentTask = new Task<>();
     }
 
     return this.currentTask;

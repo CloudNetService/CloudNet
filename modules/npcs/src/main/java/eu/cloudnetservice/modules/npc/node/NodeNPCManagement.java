@@ -17,28 +17,35 @@
 package eu.cloudnetservice.modules.npc.node;
 
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
+import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.driver.database.Database;
 import eu.cloudnetservice.cloudnet.driver.event.EventManager;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
+import eu.cloudnetservice.cloudnet.node.console.animation.progressbar.ConsoleProgressWrappers;
+import eu.cloudnetservice.cloudnet.node.module.listener.PluginIncludeListener;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.npc.AbstractNPCManagement;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import eu.cloudnetservice.modules.npc.node.listeners.NodeChannelMessageListener;
-import eu.cloudnetservice.modules.npc.node.listeners.NodePluginIncludeListener;
 import eu.cloudnetservice.modules.npc.node.listeners.NodeSetupListener;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 
 public final class NodeNPCManagement extends AbstractNPCManagement {
 
+  private static final Path PROTOCOL_LIB_CACHE_PATH = FileUtil.TEMP_DIR.resolve("caches/ProtocolLib.jar");
+
   private final Database database;
   private final Path configurationPath;
+  private final AtomicBoolean protocolLibAvailable;
 
   public NodeNPCManagement(
     @NonNull NPCConfiguration npcConfiguration,
@@ -49,18 +56,41 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
     super(npcConfiguration);
     this.database = database;
     this.configurationPath = configPath;
+    this.protocolLibAvailable = new AtomicBoolean();
 
     // load all existing npcs
-    this.database.documentsAsync().onComplete(jsonDocuments -> {
+    this.database.documentsAsync().thenAccept(jsonDocuments -> {
       for (var document : jsonDocuments) {
         var npc = document.toInstanceOf(NPC.class);
         this.npcs.put(npc.location(), npc);
       }
     });
 
+    // download protocol lib
+    ConsoleProgressWrappers.wrapDownload(
+      "https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/target/ProtocolLib.jar",
+      stream -> {
+        FileUtil.copy(stream, PROTOCOL_LIB_CACHE_PATH);
+        this.protocolLibAvailable.set(true);
+      }
+    );
+
+    // listener register
     eventManager.registerListener(new NodeSetupListener(this));
-    eventManager.registerListener(new NodePluginIncludeListener(this));
     eventManager.registerListener(new NodeChannelMessageListener(this));
+    eventManager.registerListener(new PluginIncludeListener(
+      "cloudnet-npcs",
+      CloudNetNPCModule.class,
+      service -> this.protocolLibAvailable.get()
+        && ServiceEnvironmentType.minecraftServer(service.serviceId().environment())
+        && this.npcConfiguration
+        .entries()
+        .stream()
+        .anyMatch(entry -> service.serviceConfiguration().groups().contains(entry.targetGroup())),
+      (service, $) -> {
+        var protocolLibPath = service.pluginDirectory().resolve("ProtocolLib.jar");
+        FileUtil.copy(PROTOCOL_LIB_CACHE_PATH, protocolLibPath);
+      }));
   }
 
   static @NonNull String documentKey(@NonNull WorldPosition position) {

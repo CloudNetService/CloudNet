@@ -279,7 +279,9 @@ public class NettyImmutableDataBuf implements DataBuf {
   }
 
   /**
-   * {@inheritDoc}
+   * Get the wrapped netty byte buf of this buffer, for internal use only.
+   *
+   * @return the wrapped netty byte buf.
    */
   @Internal
   public @NonNull ByteBuf byteBuf() {

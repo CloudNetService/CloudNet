@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.rpc.generation;
 
-import eu.cloudnetservice.cloudnet.common.concurrent.CompletedTask;
+import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPC;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.generation.ApiImplementationGenerator;
@@ -34,7 +34,7 @@ public class RPCImplementationGeneratorTest {
 
     var immediateRpc = Mockito.mock(RPC.class);
     Mockito.when(immediateRpc.fireSync()).thenReturn(true);
-    Mockito.when(immediateRpc.fire()).thenReturn(CompletedTask.done(true));
+    Mockito.when(immediateRpc.fire()).thenReturn(Task.completedTask(true));
 
     var sender = Mockito.mock(RPCSender.class);
     Mockito.when(sender.invokeMethod(Mockito.anyString(), Mockito.any())).then(invocation -> {

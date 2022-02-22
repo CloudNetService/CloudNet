@@ -17,7 +17,7 @@
 package eu.cloudnetservice.cloudnet.node.http.ticket;
 
 import eu.cloudnetservice.cloudnet.common.StringUtil;
-import eu.cloudnetservice.cloudnet.common.encrypt.EncryptTo;
+import eu.cloudnetservice.cloudnet.common.hash.HashUtil;
 import eu.cloudnetservice.cloudnet.driver.network.http.HttpRequest;
 import eu.cloudnetservice.cloudnet.node.http.HttpSession;
 import java.nio.charset.StandardCharsets;
@@ -81,7 +81,7 @@ public class MemoryWebSocketTicketManager implements WebSocketTicketManager {
   }
 
   private @NonNull String convertTicketId(@NonNull String tickedId) {
-    return new String(EncryptTo.encryptToSHA256(tickedId), StandardCharsets.UTF_8);
+    return new String(HashUtil.toSha256(tickedId), StandardCharsets.UTF_8);
   }
 
   private void removeOutdatedEntries() {

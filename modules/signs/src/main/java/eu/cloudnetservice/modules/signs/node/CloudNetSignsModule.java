@@ -22,7 +22,9 @@ import eu.cloudnetservice.cloudnet.driver.database.Database;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
 import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
+import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.module.listener.PluginIncludeListener;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.signs.GlobalChannelMessageListener;
 import eu.cloudnetservice.modules.signs.Sign;
@@ -57,6 +59,12 @@ public class CloudNetSignsModule extends DriverModule {
     management.registerToServiceRegistry();
 
     this.registerListener(new GlobalChannelMessageListener(management), new NodeSignsListener(management));
+    this.registerListener(new PluginIncludeListener(
+      "cloudnet-signs",
+      CloudNetSignsModule.class,
+      service -> ServiceEnvironmentType.minecraftServer(service.serviceId().environment())
+        && this.configuration.configurationEntries().stream()
+        .anyMatch(entry -> service.serviceConfiguration().groups().contains(entry.targetGroup()))));
   }
 
   @Deprecated
@@ -73,7 +81,7 @@ public class CloudNetSignsModule extends DriverModule {
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)
   public void handleReload() {
-    var management = this.serviceRegistry().firstService(SignManagement.class);
+    var management = this.serviceRegistry().firstProvider(SignManagement.class);
     if (management != null) {
       management.signsConfiguration(NodeSignsConfigurationHelper.read(this.configPath()));
     }
@@ -95,7 +103,7 @@ public class CloudNetSignsModule extends DriverModule {
         SignConstants.COLLECTION_SIGNS);
       if (oldSigns != null) {
         // convert the old sign entries
-        var management = CloudNet.instance().servicesRegistry().firstService(SignManagement.class);
+        var management = CloudNet.instance().serviceRegistry().firstProvider(SignManagement.class);
         for (var oldSign : oldSigns) {
           management.createSign(new Sign(
             oldSign.getTargetGroup(),

@@ -38,7 +38,6 @@ import eu.cloudnetservice.modules.bridge.event.BridgeUpdateCloudOfflinePlayerEve
 import eu.cloudnetservice.modules.bridge.event.BridgeUpdateCloudPlayerEvent;
 import eu.cloudnetservice.modules.bridge.node.command.CommandPlayers;
 import eu.cloudnetservice.modules.bridge.node.listener.BridgeLocalProxyPlayerDisconnectListener;
-import eu.cloudnetservice.modules.bridge.node.listener.BridgePluginIncludeListener;
 import eu.cloudnetservice.modules.bridge.node.network.NodePlayerChannelMessageListener;
 import eu.cloudnetservice.modules.bridge.player.CloudOfflinePlayer;
 import eu.cloudnetservice.modules.bridge.player.CloudPlayer;
@@ -93,7 +92,6 @@ public class NodePlayerManager implements PlayerManager {
     this.databaseName = databaseName;
     this.eventManager = eventManager;
     // register the listeners which are required to run
-    eventManager.registerListener(new BridgePluginIncludeListener(bridgeManagement));
     eventManager.registerListener(new BridgeLocalProxyPlayerDisconnectListener(this));
     eventManager.registerListener(new NodePlayerChannelMessageListener(eventManager, this, bridgeManagement));
     // register the players command
@@ -438,7 +436,8 @@ public class NodePlayerManager implements PlayerManager {
         proxyInfo.name(),
         System.currentTimeMillis(),
         System.currentTimeMillis(),
-        proxyInfo);
+        proxyInfo,
+        JsonDocument.newDocument());
       this.offlinePlayerCache.put(proxyInfo.uniqueId(), Optional.of(cloudOfflinePlayer));
     }
     // the selected player

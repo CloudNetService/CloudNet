@@ -33,7 +33,7 @@ public class CloudNetMongoDatabaseModule extends DriverModule {
 
   @ModuleTask(order = 125, event = ModuleLifeCycle.LOADED)
   public void registerDatabaseProvider() {
-    this.serviceRegistry().registerService(
+    this.serviceRegistry().registerProvider(
       AbstractDatabaseProvider.class,
       this.config.databaseServiceName(),
       new MongoDBDatabaseProvider(this.config));
@@ -41,6 +41,6 @@ public class CloudNetMongoDatabaseModule extends DriverModule {
 
   @ModuleTask(order = 127, event = ModuleLifeCycle.STOPPED)
   public void unregisterDatabaseProvider() {
-    this.serviceRegistry().unregisterService(AbstractDatabaseProvider.class, this.config.databaseServiceName());
+    this.serviceRegistry().unregisterProvider(AbstractDatabaseProvider.class, this.config.databaseServiceName());
   }
 }

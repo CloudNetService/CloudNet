@@ -42,9 +42,9 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
     @NonNull Collection<String> excludes,
     @NonNull JsonDocument properties
   ) {
+    super(properties);
     this.template = template;
     this.excludes = excludes;
-    this.properties = properties;
   }
 
   public static @NonNull Builder builder() {

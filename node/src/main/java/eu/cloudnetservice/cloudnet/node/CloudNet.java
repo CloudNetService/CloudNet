@@ -194,12 +194,12 @@ public class CloudNet extends CloudNetDriver {
     this.serviceVersionProvider.loadDefaultVersionTypes();
     LOGGER.info(I18n.trans("start-version-provider", this.serviceVersionProvider.serviceVersionTypes().size()));
     // init the default services
-    this.servicesRegistry.registerService(
+    this.serviceRegistry.registerProvider(
       TemplateStorage.class,
       "local",
       new LocalTemplateStorage(Path.of(System.getProperty("cloudnet.storage.local", "local/templates"))));
     // init the default database providers
-    this.servicesRegistry.registerService(
+    this.serviceRegistry.registerProvider(
       AbstractDatabaseProvider.class,
       "xodus",
       new XodusDatabaseProvider(
@@ -210,7 +210,7 @@ public class CloudNet extends CloudNetDriver {
     this.convertDatabase();
 
     // initialize the default database provider
-    this.databaseProvider(this.servicesRegistry.service(
+    this.databaseProvider(this.serviceRegistry.provider(
       AbstractDatabaseProvider.class,
       this.configuration.properties().getString("database_provider", "xodus")));
 
@@ -225,7 +225,7 @@ public class CloudNet extends CloudNetDriver {
 
     // check if there is a database provider or initialize the default one
     if (this.databaseProvider == null || !this.databaseProvider.init()) {
-      this.databaseProvider(this.servicesRegistry.service(AbstractDatabaseProvider.class, "xodus"));
+      this.databaseProvider(this.serviceRegistry.provider(AbstractDatabaseProvider.class, "xodus"));
       if (this.databaseProvider == null || !this.databaseProvider.init()) {
         // unable to start without a database
         throw new IllegalStateException("No database provider selected for startup - Unable to proceed");
@@ -394,12 +394,12 @@ public class CloudNet extends CloudNetDriver {
 
   @Override
   public @Nullable TemplateStorage templateStorage(@NonNull String storage) {
-    return this.servicesRegistry.service(TemplateStorage.class, storage);
+    return this.serviceRegistry.provider(TemplateStorage.class, storage);
   }
 
   @Override
   public @NonNull Collection<TemplateStorage> availableTemplateStorages() {
-    return this.servicesRegistry.services(TemplateStorage.class);
+    return this.serviceRegistry.providers(TemplateStorage.class);
   }
 
   @Override
@@ -523,7 +523,7 @@ public class CloudNet extends CloudNetDriver {
       var h2Provider = new H2DatabaseProvider(System.getProperty("cloudnet.database.h2.path", "local/database/h2"));
       h2Provider.init();
       // initialize the provider for our new xodus database
-      var xodusProvider = this.servicesRegistry.service(AbstractDatabaseProvider.class, "xodus");
+      var xodusProvider = this.serviceRegistry.provider(AbstractDatabaseProvider.class, "xodus");
       xodusProvider.init();
       // run the migration on all tables in the h2 database
       for (var databaseName : h2Provider.databaseNames()) {

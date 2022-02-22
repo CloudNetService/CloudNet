@@ -61,7 +61,7 @@ public abstract class MinecraftServerMixin implements BridgedServer {
   public void beforeTickLoopStart(CallbackInfo callbackInfo) {
     // the server now booted completely
     this.management = new FabricBridgeManagement(this);
-    management.registerServices(Wrapper.instance().servicesRegistry());
+    management.registerServices(Wrapper.instance().serviceRegistry());
     management.postInit();
   }
 

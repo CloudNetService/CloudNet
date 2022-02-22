@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.cloudnet.node.cluster.defaults;
 
-import eu.cloudnetservice.cloudnet.common.concurrent.CompletedTask;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
@@ -171,7 +170,7 @@ public class DefaultNodeServerProvider implements NodeServerProvider {
         .transferChunkedData();
     }
     // if there are no channels we "pseudo" completed the transfer
-    return CompletedTask.done(TransferStatus.SUCCESS);
+    return Task.completedTask(TransferStatus.SUCCESS);
   }
 
   @Override
@@ -193,7 +192,7 @@ public class DefaultNodeServerProvider implements NodeServerProvider {
         .transferChunkedData();
     }
     // if there are no channels we "pseudo" completed the transfer
-    return CompletedTask.done(TransferStatus.SUCCESS);
+    return Task.completedTask(TransferStatus.SUCCESS);
   }
 
   @Override

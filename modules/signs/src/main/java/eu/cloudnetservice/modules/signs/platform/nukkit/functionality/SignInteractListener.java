@@ -62,6 +62,6 @@ public class SignInteractListener implements Listener {
   }
 
   protected PlayerManager playerManager() {
-    return CloudNetDriver.instance().servicesRegistry().firstService(PlayerManager.class);
+    return CloudNetDriver.instance().serviceRegistry().firstProvider(PlayerManager.class);
   }
 }

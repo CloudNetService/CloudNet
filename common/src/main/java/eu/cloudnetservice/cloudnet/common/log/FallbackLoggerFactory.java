@@ -21,10 +21,20 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.LogManager;
 import lombok.NonNull;
 
-final class FallbackLoggingFactory implements LoggerFactory {
+/**
+ * The fallback logger factory which creates the loggers based on java.util.logging loggers which get wrapped into
+ * custom loggers. This factory caches the logger instances which means that demanding a logger with the same name twice
+ * results in the same logger instance each time.
+ *
+ * @since 4.0
+ */
+final class FallbackLoggerFactory implements LoggerFactory {
 
   private final Map<String, Logger> createdLoggers = new ConcurrentHashMap<>();
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Logger logger(@NonNull String name) {
     var registered = LogManager.getLogManager().getLogger(name);

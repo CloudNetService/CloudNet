@@ -68,6 +68,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     @NonNull Set<ServiceRemoteInclusion> includes,
     @NonNull JsonDocument properties
   ) {
+    super(properties);
     this.serviceId = serviceId;
     this.port = port;
     this.runtime = runtime;
@@ -80,7 +81,6 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     this.templates = templates;
     this.deployments = deployments;
     this.includes = includes;
-    this.properties = properties;
   }
 
   public static @NonNull Builder builder() {

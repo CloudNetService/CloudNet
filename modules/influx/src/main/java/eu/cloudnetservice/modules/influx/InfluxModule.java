@@ -44,7 +44,7 @@ public final class InfluxModule extends DriverModule {
       conf.bucket());
     // create an influx publisher registry based on that
     var reg = new DefaultPublisherRegistry(influxClient);
-    this.driver().servicesRegistry().registerService(PublisherRegistry.class, "InfluxPublishers", reg);
+    this.driver().serviceRegistry().registerProvider(PublisherRegistry.class, "InfluxPublishers", reg);
     // register all default publishers
     reg
       .registerPublisher(new ConnectedNodeInfoPublisher())

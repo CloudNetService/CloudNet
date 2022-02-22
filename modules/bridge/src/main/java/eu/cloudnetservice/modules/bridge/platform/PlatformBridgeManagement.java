@@ -300,7 +300,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     // publish a service update to append all property information
     Wrapper.instance().publishServiceInfoUpdate();
     // load all services and cache the ones which are matching the cache policy
-    CloudNetDriver.instance().cloudServiceProvider().servicesAsync().onComplete(services -> {
+    CloudNetDriver.instance().cloudServiceProvider().servicesAsync().thenAccept(services -> {
       for (var service : services) {
         this.handleServiceUpdate(service);
       }

@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.platform.fabric;
 
-import eu.cloudnetservice.cloudnet.common.registry.ServicesRegistry;
+import eu.cloudnetservice.cloudnet.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
@@ -54,9 +54,9 @@ public final class FabricBridgeManagement extends PlatformBridgeManagement<Serve
   }
 
   @Override
-  public void registerServices(@NonNull ServicesRegistry registry) {
-    registry.registerService(PlayerManager.class, "PlayerManager", this.playerManager);
-    registry.registerService(PlatformBridgeManagement.class, "FabricBridgeManagement", this);
+  public void registerServices(@NonNull ServiceRegistry registry) {
+    registry.registerProvider(PlayerManager.class, "PlayerManager", this.playerManager);
+    registry.registerProvider(PlatformBridgeManagement.class, "FabricBridgeManagement", this);
   }
 
   @Override

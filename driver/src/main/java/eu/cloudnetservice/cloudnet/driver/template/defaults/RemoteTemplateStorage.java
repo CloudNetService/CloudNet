@@ -17,6 +17,7 @@
 package eu.cloudnetservice.cloudnet.driver.template.defaults;
 
 import eu.cloudnetservice.cloudnet.common.io.FileUtil;
+import eu.cloudnetservice.cloudnet.common.io.ZipUtil;
 import eu.cloudnetservice.cloudnet.common.stream.ListeningOutputStream;
 import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
@@ -67,7 +68,7 @@ public class RemoteTemplateStorage implements TemplateStorage {
     @NonNull ServiceTemplate target,
     @Nullable Predicate<Path> fileFilter
   ) {
-    try (var inputStream = FileUtil.zipToStream(directory, fileFilter)) {
+    try (var inputStream = ZipUtil.zipToStream(directory, fileFilter)) {
       return this.deploy(inputStream, target);
     } catch (IOException exception) {
       return false;

@@ -21,7 +21,9 @@ import cn.nukkit.blockentity.BlockEntitySign;
 import cn.nukkit.command.PluginCommand;
 import cn.nukkit.plugin.PluginBase;
 import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
+import eu.cloudnetservice.cloudnet.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.signs.GlobalChannelMessageListener;
+import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
 import eu.cloudnetservice.modules.signs.platform.SignsPlatformListener;
 import eu.cloudnetservice.modules.signs.platform.nukkit.functionality.CommandSigns;
@@ -48,7 +50,7 @@ public class NukkitSignsPlugin extends PluginBase {
 
   @Override
   public void onDisable() {
-    NukkitSignManagement.defaultInstance().unregisterFromServiceRegistry();
+    ServiceRegistry.first(SignManagement.class).unregisterFromServiceRegistry();
     CloudNetDriver.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
   }
 }

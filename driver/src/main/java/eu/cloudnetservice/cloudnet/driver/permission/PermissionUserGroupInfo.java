@@ -41,9 +41,9 @@ public class PermissionUserGroupInfo extends JsonDocPropertyHolder {
    * @param properties    extra properties for the group info.
    */
   protected PermissionUserGroupInfo(@NonNull String group, long timeOutMillis, @NonNull JsonDocument properties) {
+    super(properties);
     this.group = group;
     this.timeOutMillis = timeOutMillis;
-    this.properties = properties;
   }
 
   /**

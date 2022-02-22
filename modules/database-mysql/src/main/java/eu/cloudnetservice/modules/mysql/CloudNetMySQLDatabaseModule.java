@@ -54,7 +54,7 @@ public final class CloudNetMySQLDatabaseModule extends DriverModule {
       List.of(new MySQLConnectionEndpoint(false, "cloudnet", new HostAndPort("127.0.0.1", 3306)))
     ));
 
-    this.serviceRegistry().registerService(
+    this.serviceRegistry().registerProvider(
       AbstractDatabaseProvider.class,
       this.configuration.databaseServiceName(),
       new MySQLDatabaseProvider(this.configuration, null));
@@ -62,6 +62,6 @@ public final class CloudNetMySQLDatabaseModule extends DriverModule {
 
   @ModuleTask(order = 127, event = ModuleLifeCycle.STOPPED)
   public void unregisterDatabaseProvider() {
-    this.serviceRegistry().unregisterService(AbstractDatabaseProvider.class, this.configuration.databaseServiceName());
+    this.serviceRegistry().unregisterProvider(AbstractDatabaseProvider.class, this.configuration.databaseServiceName());
   }
 }

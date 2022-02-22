@@ -25,11 +25,11 @@ import lombok.NonNull;
 public class ServicePlayer extends JsonDocPropertyHolder implements Comparable<ServicePlayer>, Nameable {
 
   public ServicePlayer(@NonNull UUID uniqueId, @NonNull String name) {
-    this.properties = JsonDocument.newDocument().append("uniqueId", uniqueId).append("name", name);
+    super(JsonDocument.newDocument().append("uniqueId", uniqueId).append("name", name));
   }
 
   public ServicePlayer(@NonNull JsonDocument properties) {
-    this.properties = properties;
+    super(properties);
   }
 
   public @NonNull UUID uniqueId() {

@@ -19,7 +19,7 @@ package eu.cloudnetservice.cloudnet.common.concurrent;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.jetbrains.annotations.Nullable;
 
-public class CountingTask<V> extends CompletableTask<V> implements Task<V> {
+public class CountingTask<V> extends Task<V> {
 
   private final V resultValue;
   private final AtomicInteger count;

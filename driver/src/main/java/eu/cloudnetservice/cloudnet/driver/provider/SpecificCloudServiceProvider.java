@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.cloudnet.driver.provider;
 
-import eu.cloudnetservice.cloudnet.common.concurrent.CompletableTask;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessageSender;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.annotation.RPCValidation;
@@ -240,7 +239,7 @@ public interface SpecificCloudServiceProvider {
    * @return a task completed with the last reported snapshot of the service, can be null as described above.
    */
   default @NonNull Task<ServiceInfoSnapshot> serviceInfoAsync() {
-    return CompletableTask.supply(this::serviceInfo);
+    return Task.supply(this::serviceInfo);
   }
 
   /**
@@ -253,7 +252,7 @@ public interface SpecificCloudServiceProvider {
    * @return a task completed with true if this provider is still valid, false otherwise.
    */
   default @NonNull Task<Boolean> validAsync() {
-    return CompletableTask.supply(this::valid);
+    return Task.supply(this::valid);
   }
 
   /**
@@ -268,7 +267,7 @@ public interface SpecificCloudServiceProvider {
    * @return a task completed with a newly created service snapshot, can be null as described above.
    */
   default @NonNull Task<ServiceInfoSnapshot> forceUpdateServiceInfoAsync() {
-    return CompletableTask.supply(this::forceUpdateServiceInfo);
+    return Task.supply(this::forceUpdateServiceInfo);
   }
 
   /**
@@ -284,7 +283,7 @@ public interface SpecificCloudServiceProvider {
    * @throws NullPointerException if the given service template is null.
    */
   default @NonNull Task<Void> addServiceTemplateAsync(@NonNull ServiceTemplate serviceTemplate) {
-    return CompletableTask.supply(() -> this.addServiceTemplate(serviceTemplate));
+    return Task.supply(() -> this.addServiceTemplate(serviceTemplate));
   }
 
   /**
@@ -300,7 +299,7 @@ public interface SpecificCloudServiceProvider {
    * @throws NullPointerException if the given inclusion is null.
    */
   default @NonNull Task<Void> addServiceRemoteInclusionAsync(@NonNull ServiceRemoteInclusion serviceRemoteInclusion) {
-    return CompletableTask.supply(() -> this.addServiceRemoteInclusion(serviceRemoteInclusion));
+    return Task.supply(() -> this.addServiceRemoteInclusion(serviceRemoteInclusion));
   }
 
   /**
@@ -316,7 +315,7 @@ public interface SpecificCloudServiceProvider {
    * @throws NullPointerException if the given deployment is null.
    */
   default @NonNull Task<Void> addServiceDeploymentAsync(@NonNull ServiceDeployment serviceDeployment) {
-    return CompletableTask.supply(() -> this.addServiceDeployment(serviceDeployment));
+    return Task.supply(() -> this.addServiceDeployment(serviceDeployment));
   }
 
   /**
@@ -329,7 +328,7 @@ public interface SpecificCloudServiceProvider {
    * @return a task completed with all cached service log messages on the node the service is running on.
    */
   default @NonNull Task<Queue<String>> cachedLogMessagesAsync() {
-    return CompletableTask.supply(this::cachedLogMessages);
+    return Task.supply(this::cachedLogMessages);
   }
 
   /**
@@ -344,7 +343,7 @@ public interface SpecificCloudServiceProvider {
    * @throws NullPointerException if either the given message sender or channel is null.
    */
   default @NonNull Task<Boolean> toggleScreenEventsAsync(@NonNull ChannelMessageSender sender, @NonNull String chan) {
-    return CompletableTask.supply(() -> this.toggleScreenEvents(sender, chan));
+    return Task.supply(() -> this.toggleScreenEvents(sender, chan));
   }
 
   /**
@@ -381,7 +380,7 @@ public interface SpecificCloudServiceProvider {
    * @return a task completed when the service was restarted.
    */
   default @NonNull Task<Void> restartAsync() {
-    return CompletableTask.supply(this::restart);
+    return Task.supply(this::restart);
   }
 
   /**
@@ -393,7 +392,7 @@ public interface SpecificCloudServiceProvider {
    * @throws NullPointerException if the given lifecycle is null.
    */
   default @NonNull Task<Void> updateLifecycleAsync(@NonNull ServiceLifeCycle lifeCycle) {
-    return CompletableTask.supply(() -> this.updateLifecycle(lifeCycle));
+    return Task.supply(() -> this.updateLifecycle(lifeCycle));
   }
 
   /**
@@ -406,7 +405,7 @@ public interface SpecificCloudServiceProvider {
    * @return a task completed when the service files were deleted.
    */
   default @NonNull Task<Void> deleteFilesAsync() {
-    return CompletableTask.supply(this::deleteFiles);
+    return Task.supply(this::deleteFiles);
   }
 
   /**
@@ -417,7 +416,7 @@ public interface SpecificCloudServiceProvider {
    * @throws NullPointerException if the given command line is null.
    */
   default @NonNull Task<Void> runCommandAsync(@NonNull String command) {
-    return CompletableTask.supply(() -> this.runCommand(command));
+    return Task.supply(() -> this.runCommand(command));
   }
 
   /**
@@ -427,7 +426,7 @@ public interface SpecificCloudServiceProvider {
    * @return a task completed when the waiting service templates were included.
    */
   default @NonNull Task<Void> includeWaitingServiceTemplatesAsync() {
-    return CompletableTask.supply(this::includeWaitingServiceTemplates);
+    return Task.supply(this::includeWaitingServiceTemplates);
   }
 
   /**
@@ -437,7 +436,7 @@ public interface SpecificCloudServiceProvider {
    * @return a task completed when the waiting service inclusions were included.
    */
   default @NonNull Task<Void> includeWaitingServiceInclusionsAsync() {
-    return CompletableTask.supply(this::includeWaitingServiceInclusions);
+    return Task.supply(this::includeWaitingServiceInclusions);
   }
 
   /**
@@ -448,7 +447,7 @@ public interface SpecificCloudServiceProvider {
    * @return a task completed when all waiting service deployments were executed.
    */
   default @NonNull Task<Void> deployResourcesAsync(boolean removeDeployments) {
-    return CompletableTask.supply(() -> this.deployResources(removeDeployments));
+    return Task.supply(() -> this.deployResources(removeDeployments));
   }
 
   /**

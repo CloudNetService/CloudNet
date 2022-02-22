@@ -27,7 +27,11 @@ import org.jetbrains.annotations.UnknownNullability;
 @EqualsAndHashCode
 public class JsonDocPropertyHolder implements DocPropertyHolder {
 
-  protected JsonDocument properties = JsonDocument.newDocument();
+  protected final JsonDocument properties;
+
+  protected JsonDocPropertyHolder(@NonNull JsonDocument properties) {
+    this.properties = properties;
+  }
 
   @Override
   public @NonNull <E> DocPropertyHolder property(@NonNull DocProperty<E> docProperty, @Nullable E val) {

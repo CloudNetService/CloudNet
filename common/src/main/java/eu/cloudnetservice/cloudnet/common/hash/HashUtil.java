@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.common.encrypt;
+package eu.cloudnetservice.cloudnet.common.hash;
 
 import com.google.common.hash.Hashing;
+import java.nio.charset.StandardCharsets;
 import lombok.NonNull;
 
 /**
  * Shortcut class to guava hashing methods.
  */
-public final class EncryptTo {
+public final class HashUtil {
 
-  private EncryptTo() {
+  private HashUtil() {
     throw new UnsupportedOperationException();
   }
 
@@ -34,8 +35,8 @@ public final class EncryptTo {
    * @param text the text to hash.
    * @return the same input text hashed with the sha256 algorithm.
    */
-  public static byte @NonNull [] encryptToSHA256(@NonNull String text) {
-    return Hashing.sha256().hashUnencodedChars(text).asBytes();
+  public static byte @NonNull [] toSha256(@NonNull String text) {
+    return Hashing.sha256().hashString(text, StandardCharsets.UTF_8).asBytes();
   }
 
   /**
@@ -44,7 +45,7 @@ public final class EncryptTo {
    * @param bytes the following bytes which should encrypt
    * @return the output SHA-256 hash
    */
-  public static byte @NonNull [] encryptToSHA256(byte @NonNull [] bytes) {
+  public static byte @NonNull [] toSha256(byte @NonNull [] bytes) {
     return Hashing.sha256().hashBytes(bytes).asBytes();
   }
 }

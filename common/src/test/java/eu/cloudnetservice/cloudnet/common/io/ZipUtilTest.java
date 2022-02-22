@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public final class FileUtilTest {
+public final class ZipUtilTest {
 
   private static final Path TEST_DIR = Path.of("build", "testDirectory");
 
@@ -47,12 +47,12 @@ public final class FileUtilTest {
 
     try (
       var out = Files.newOutputStream(zipFilePath);
-      var is = FileUtilTest.class.getClassLoader().getResourceAsStream("empty_zip_file.zip")
+      var is = ZipUtilTest.class.getClassLoader().getResourceAsStream("empty_zip_file.zip")
     ) {
       FileUtil.copy(is, out);
     }
 
-    FileUtil.openZipFileSystem(zipFilePath, fileSystem -> {
+    FileUtil.openJarFileSystem(zipFilePath, fileSystem -> {
       var zipEntryInfoFile = fileSystem.getPath("info.txt");
 
       try (
@@ -84,12 +84,12 @@ public final class FileUtilTest {
 
     try (
       var outputStream = Files.newOutputStream(zipFilePath);
-      var is = FileUtilTest.class.getClassLoader().getResourceAsStream("file_utils_resources.zip")
+      var is = ZipUtilTest.class.getClassLoader().getResourceAsStream("file_utils_resources.zip")
     ) {
       FileUtil.copy(is, outputStream);
     }
 
-    FileUtil.extract(zipFilePath, TEST_DIR);
+    ZipUtil.extract(zipFilePath, TEST_DIR);
 
     Assertions.assertTrue(Files.exists(TEST_DIR));
     Assertions.assertTrue(Files.exists(TEST_DIR.resolve("bungee/config.yml")));

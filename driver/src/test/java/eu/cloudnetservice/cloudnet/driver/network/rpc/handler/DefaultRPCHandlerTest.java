@@ -18,7 +18,7 @@ package eu.cloudnetservice.cloudnet.driver.network.rpc.handler;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import eu.cloudnetservice.cloudnet.common.concurrent.CompletableTask;
+import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkComponent;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBufFactory;
@@ -68,7 +68,7 @@ public class DefaultRPCHandlerTest {
     registry.registerHandler(handlerNested);
     registry.registerHandler(veryHandlerNested);
     // networking mocks
-    var resultListener = new AtomicReference<CompletableTask<Packet>>(new CompletableTask<>());
+    var resultListener = new AtomicReference<Task<Packet>>(new Task<>());
     // receiver
     // we need a query manager for the listener
     var manager = Mockito.mock(QueryPacketManager.class);
@@ -116,7 +116,7 @@ public class DefaultRPCHandlerTest {
       .difference(ImmutableMap.of("test1", "test2", "test3", "test4"), result.get(key))
       .areEqual());
     // nested call test
-    resultListener.set(new CompletableTask<>());
+    resultListener.set(new Task<>());
     // with correct argument
     result = sender
       .invokeMethod("nestedClass", "Test1234")
@@ -124,7 +124,7 @@ public class DefaultRPCHandlerTest {
       .fireSync();
     Assertions.assertNull(result);
     // with a correct call to get a result
-    resultListener.set(new CompletableTask<>());
+    resultListener.set(new Task<>());
     result = sender
       .invokeMethod("nestedClass", "Test123")
       .join(nestedSender.invokeMethod("handleProcessSnapshot1", snapshot, integers, 187))
@@ -136,7 +136,7 @@ public class DefaultRPCHandlerTest {
       .difference(ImmutableMap.of("test1", "test2", "test3", "test4"), result.get(key))
       .areEqual());
     // with a correct call to get a result & but with an invalid to handleProcessSnapshot1 (should result in an exception)
-    resultListener.set(new CompletableTask<>());
+    resultListener.set(new Task<>());
     try {
       sender
         .invokeMethod("nestedClass", "Test123")
@@ -152,7 +152,7 @@ public class DefaultRPCHandlerTest {
       )));
     }
     // triple join :)
-    resultListener.set(new CompletableTask<>());
+    resultListener.set(new Task<>());
     result = sender
       .invokeMethod("nestedClass", "Test123")
       .join(nestedSender.invokeMethod("toVeryNested", 1234))

@@ -58,6 +58,7 @@ public class ServiceInfoSnapshot extends JsonDocPropertyHolder
     @NonNull ServiceLifeCycle lifeCycle,
     @NonNull JsonDocument properties
   ) {
+    super(properties);
     this.creationTime = creationTime;
     this.connectedTime = connectedTime;
     this.address = address;
@@ -65,7 +66,6 @@ public class ServiceInfoSnapshot extends JsonDocPropertyHolder
     this.lifeCycle = lifeCycle;
     this.processSnapshot = processSnapshot;
     this.configuration = configuration;
-    this.properties = properties;
   }
 
   public long creationTime() {

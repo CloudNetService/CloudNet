@@ -176,7 +176,7 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
       this.trackedEntities.put(value.location(), this.createSelectorEntity(value));
     }
     // initialize the services now
-    CloudNetDriver.instance().cloudServiceProvider().servicesAsync().onComplete(services -> {
+    CloudNetDriver.instance().cloudServiceProvider().servicesAsync().thenAccept(services -> {
       for (var service : services) {
         if (this.shouldTrack(service)) {
           this.handleServiceUpdate(service);

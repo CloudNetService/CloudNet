@@ -60,16 +60,6 @@ public final class CPUUsageResolver {
     return toPercentage(OS_BEAN.getProcessCpuLoad());
   }
 
-  /**
-   * For encapsulation and easy operation of the operating systemMXBean its getTotalPhysicalMemorySize() method.
-   *
-   * @return the system configured memory in bytes
-   * @see com.sun.management.OperatingSystemMXBean
-   */
-  public static long systemMemory() {
-    return OS_BEAN.getTotalMemorySize();
-  }
-
   private static double toPercentage(double input) {
     return input < 0 ? -1 : input * 100;
   }

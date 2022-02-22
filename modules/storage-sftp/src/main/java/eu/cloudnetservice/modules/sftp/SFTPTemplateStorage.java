@@ -18,6 +18,7 @@ package eu.cloudnetservice.modules.sftp;
 
 import eu.cloudnetservice.cloudnet.common.function.ThrowableFunction;
 import eu.cloudnetservice.cloudnet.common.io.FileUtil;
+import eu.cloudnetservice.cloudnet.common.io.ZipUtil;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
@@ -130,7 +131,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
     @NonNull InputStream inputStream,
     @NonNull ServiceTemplate target
   ) {
-    var temp = FileUtil.extract(inputStream, FileUtil.createTempFile());
+    var temp = ZipUtil.extract(inputStream, FileUtil.createTempFile());
     if (temp != null) {
       try {
         return this.deployDirectory(temp, target, null);
@@ -154,7 +155,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
     return this.executeWithClient(client -> {
       var localTarget = FileUtil.createTempFile();
       if (this.copy(template, localTarget)) {
-        return FileUtil.zipToStream(localTarget);
+        return ZipUtil.zipToStream(localTarget);
       } else {
         return null;
       }

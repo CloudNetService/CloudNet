@@ -40,7 +40,7 @@ public final class SpongeBridgePlugin {
   @Listener
   public void handle(@NonNull StartedEngineEvent<Server> event) {
     PlatformBridgeManagement<?, ?> management = new SpongeBridgeManagement();
-    management.registerServices(Wrapper.instance().servicesRegistry());
+    management.registerServices(Wrapper.instance().serviceRegistry());
     management.postInit();
     // register the listener
     Sponge.eventManager().registerListeners(this.plugin, new SpongePlayerManagementListener(this.plugin, management));

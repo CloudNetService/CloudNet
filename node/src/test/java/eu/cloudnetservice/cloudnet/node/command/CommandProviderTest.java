@@ -40,25 +40,25 @@ import org.mockito.internal.util.collections.Iterables;
 
 public final class CommandProviderTest {
 
-  private static final CommandProvider commandProvider = new DefaultCommandProvider(Mockito.mock(Console.class));
+  private static final CommandProvider COMMAND_PROVIDER = new DefaultCommandProvider(Mockito.mock(Console.class));
 
   @BeforeAll
   public static void initNode() {
     var node = NodeTestUtility.mockAndSetDriverInstance();
-    Mockito.when(node.commandProvider()).thenReturn(commandProvider);
+    Mockito.when(node.commandProvider()).thenReturn(COMMAND_PROVIDER);
     Mockito.when(node.eventManager()).thenReturn(new DefaultEventManager());
-    commandProvider.register(new CommandTest());
-    commandProvider.register(new CommandHelpTest());
+    COMMAND_PROVIDER.register(new CommandTest());
+    COMMAND_PROVIDER.register(new CommandHelpTest());
   }
 
   @Test
   public void testCommandRegistration() {
-    var testCommand = commandProvider.command("tests");
+    var testCommand = COMMAND_PROVIDER.command("tests");
     Assertions.assertNotNull(testCommand);
     Assertions.assertEquals(1, testCommand.usage().size());
     Assertions.assertEquals("tests test <user>", Iterables.firstOf(testCommand.usage()));
 
-    var testCommandByAlias = commandProvider.command("test1");
+    var testCommandByAlias = COMMAND_PROVIDER.command("test1");
     Assertions.assertNotNull(testCommandByAlias);
     Assertions.assertNotEquals("test1", testCommand.name());
     Assertions.assertEquals(testCommandByAlias, testCommandByAlias);
@@ -68,12 +68,12 @@ public final class CommandProviderTest {
   public void testStaticCommandSuggestions() {
     var source = new DriverCommandSource();
 
-    var rootSuggestions = commandProvider.suggest(source, "tests");
+    var rootSuggestions = COMMAND_PROVIDER.suggest(source, "tests");
     // confirm is registered by default
     Assertions.assertEquals(3, rootSuggestions.size());
     Assertions.assertEquals(Arrays.asList("help", "tests", "confirm"), rootSuggestions);
 
-    var subSuggestions = commandProvider.suggest(source, "tests ");
+    var subSuggestions = COMMAND_PROVIDER.suggest(source, "tests ");
     Assertions.assertEquals(1, subSuggestions.size());
     Assertions.assertEquals("test", Iterables.firstOf(subSuggestions));
   }
@@ -82,7 +82,7 @@ public final class CommandProviderTest {
   public void testDynamicCommandSuggestions() {
     var source = new DriverCommandSource();
 
-    var suggestions = commandProvider.suggest(source, "tests test ");
+    var suggestions = COMMAND_PROVIDER.suggest(source, "tests test ");
     Assertions.assertEquals(3, suggestions.size());
     Assertions.assertEquals(Arrays.asList("alice", "bob", "clyde"), suggestions);
   }
@@ -92,7 +92,7 @@ public final class CommandProviderTest {
     var source = new DriverCommandSource();
 
     try {
-      commandProvider.execute(source, "non existing command").fireExceptionOnFailure().getOrNull();
+      COMMAND_PROVIDER.execute(source, "non existing command").getOrNull();
     } catch (CompletionException exception) {
       Assertions.assertEquals(NoSuchCommandException.class, exception.getCause().getClass());
     }
@@ -101,9 +101,9 @@ public final class CommandProviderTest {
   @Test
   public void testCommandUnregister() {
     // the confirmation command is always registered so there are 3 commands
-    Assertions.assertEquals(3, commandProvider.commands().size());
-    commandProvider.unregister(this.getClass().getClassLoader());
-    Assertions.assertEquals(0, commandProvider.commands().size());
+    Assertions.assertEquals(3, COMMAND_PROVIDER.commands().size());
+    COMMAND_PROVIDER.unregister(this.getClass().getClassLoader());
+    Assertions.assertEquals(0, COMMAND_PROVIDER.commands().size());
   }
 
   public static final class CommandHelpTest {

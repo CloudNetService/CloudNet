@@ -104,10 +104,10 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
     @NonNull Set<String> defaultProcessArguments,
     @NonNull JsonDocument properties
   ) {
+    super(properties);
     this.name = name;
     this.defaultServiceStartPort = defaultServiceStartPort;
     this.defaultProcessArguments = defaultProcessArguments;
-    this.properties = properties;
   }
 
   public static @NonNull Builder builder() {

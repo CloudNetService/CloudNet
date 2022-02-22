@@ -21,8 +21,10 @@ import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
 import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
+import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncHandler;
+import eu.cloudnetservice.cloudnet.node.module.listener.PluginIncludeListener;
 import eu.cloudnetservice.modules.labymod.config.LabyModBanner;
 import eu.cloudnetservice.modules.labymod.config.LabyModConfiguration;
 import eu.cloudnetservice.modules.labymod.config.LabyModDiscordRPC;
@@ -92,6 +94,11 @@ public class CloudNetLabyModModule extends DriverModule {
   public void initListeners() {
     // register the listeners
     this.registerListener(new NodeLabyModListener(this.labyModManagement));
+    this.registerListener(new PluginIncludeListener(
+      "cloudnet-labymod",
+      CloudNetLabyModModule.class,
+      service -> this.labyModManagement.configuration().enabled()
+        && ServiceEnvironmentType.minecraftProxy(service.serviceId().environment())));
   }
 
   private @NonNull LabyModServiceDisplay convertDisplayEntry(@NonNull JsonDocument entry) {

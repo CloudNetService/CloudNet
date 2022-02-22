@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.cloudnet.driver.provider;
 
-import eu.cloudnetservice.cloudnet.common.concurrent.CompletableTask;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceConfiguration;
@@ -90,6 +89,6 @@ public interface CloudServiceFactory {
    * @throws NullPointerException if the given service configuration is null.
    */
   default @NonNull Task<ServiceInfoSnapshot> createCloudServiceAsync(@NonNull ServiceConfiguration configuration) {
-    return CompletableTask.supply(() -> this.createCloudService(configuration));
+    return Task.supply(() -> this.createCloudService(configuration));
   }
 }

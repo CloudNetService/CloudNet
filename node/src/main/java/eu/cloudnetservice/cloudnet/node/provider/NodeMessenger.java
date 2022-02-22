@@ -18,7 +18,6 @@ package eu.cloudnetservice.cloudnet.node.provider;
 
 import com.google.common.collect.Iterables;
 import com.google.gson.reflect.TypeToken;
-import eu.cloudnetservice.cloudnet.common.concurrent.CompletableTask;
 import eu.cloudnetservice.cloudnet.common.concurrent.CountingTask;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
@@ -75,7 +74,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     }
   }
 
-  public @NonNull CompletableTask<Collection<ChannelMessage>> sendChannelMessageQueryAsync(
+  public @NonNull Task<Collection<ChannelMessage>> sendChannelMessageQueryAsync(
     @NonNull ChannelMessage message,
     boolean allowClusterRedirect
   ) {
@@ -86,11 +85,11 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     var task = new CountingTask<Collection<ChannelMessage>>(result, channels.size());
     // send the packet to each channel
     for (var channel : channels) {
-      channel.sendQueryAsync(new PacketServerChannelMessage(message, false)).onComplete(resultPacket -> {
+      channel.sendQueryAsync(new PacketServerChannelMessage(message, false)).whenComplete((packet, th) -> {
         // check if we got an actual result from the request
-        if (resultPacket.readable()) {
+        if (th == null && packet.readable()) {
           // add all resulting messages we got
-          result.addAll(resultPacket.content().readObject(COL_MSG));
+          result.addAll(packet.content().readObject(COL_MSG));
         }
         // count down - one channel responded
         task.countDown();

@@ -18,12 +18,12 @@ package eu.cloudnetservice.cloudnet.driver.module.driver;
 
 import com.google.gson.JsonSyntaxException;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.common.registry.ServicesRegistry;
 import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.driver.event.EventManager;
 import eu.cloudnetservice.cloudnet.driver.module.DefaultModule;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleWrapper;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.cloudnet.driver.registry.ServiceRegistry;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Supplier;
@@ -117,13 +117,13 @@ public class DriverModule extends DefaultModule {
   }
 
   /**
-   * Gets the {@link ServicesRegistry} of the driver.
+   * Gets the {@link ServiceRegistry} of the driver.
    *
    * @return the ServiceRegistry.
-   * @see CloudNetDriver#servicesRegistry()
+   * @see CloudNetDriver#serviceRegistry()
    */
-  public final @NonNull ServicesRegistry serviceRegistry() {
-    return this.driver().servicesRegistry();
+  public final @NonNull ServiceRegistry serviceRegistry() {
+    return this.driver().serviceRegistry();
   }
 
   /**

@@ -37,7 +37,6 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
@@ -225,8 +224,9 @@ public class RemoteNodeServer implements NodeServer {
       .buffer(DataBuf.empty().writeString(commandLine))
       .build()
       .sendSingleQueryAsync()
-      .map(message -> message.content().<Collection<String>>readObject(COLLECTION_STRING))
-      .get(5, TimeUnit.SECONDS, Set.of());
+      .thenApply(message -> message.content().<Collection<String>>readObject(COLLECTION_STRING))
+      .exceptionally($ -> Set.of())
+      .join();
   }
 
   @Override

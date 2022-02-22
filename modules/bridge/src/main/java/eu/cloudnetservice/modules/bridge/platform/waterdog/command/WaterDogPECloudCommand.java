@@ -64,7 +64,7 @@ public final class WaterDogPECloudCommand extends Command {
       }
     }
     // execute the command
-    CloudNetDriver.instance().clusterNodeProvider().sendCommandLineAsync(commandLine).onComplete(messages -> {
+    CloudNetDriver.instance().clusterNodeProvider().sendCommandLineAsync(commandLine).thenAccept(messages -> {
       for (var line : messages) {
         sender.sendMessage(new TextContainer(this.management.configuration().prefix() + line));
       }

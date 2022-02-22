@@ -47,18 +47,14 @@ public final class PriorityUtil {
     // Get the state of the service
     var state = BridgeServiceHelper.guessStateFromServiceInfoSnapshot(snapshot);
     return switch (state) {
-      case FULL_ONLINE ->
-        // full (premium) service are preferred
-        lowerFullToSearching ? 1 : 4;
-      case ONLINE ->
-        // online has the second-highest priority as full is preferred
-        3;
-      case EMPTY_ONLINE ->
-        // empty services are not the first choice for a sign wall
-        2;
-      case STARTING, STOPPED ->
-        // this sign should only be on the wall when there is no other service
-        1;
+      // full (premium) service are preferred
+      case FULL_ONLINE -> lowerFullToSearching ? 1 : 4;
+      // online has the second-highest priority as full is preferred
+      case ONLINE -> 3;
+      // empty services are not the first choice for a sign wall
+      case EMPTY_ONLINE -> 2;
+      // this sign should only be on the wall when there is no other service
+      case STARTING, STOPPED -> 1;
     };
   }
 }

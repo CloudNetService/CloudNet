@@ -54,7 +54,7 @@ public final class LayoutUtil {
     @NonNull Sign sign,
     @Nullable ServiceInfoSnapshot snapshot
   ) {
-    // check if no snapshot is used for the check process - return the searchig layout in that case
+    // check if no snapshot is used for the check process - return the searching layout in that case
     if (snapshot == null) {
       return entry.searchingLayout();
     }

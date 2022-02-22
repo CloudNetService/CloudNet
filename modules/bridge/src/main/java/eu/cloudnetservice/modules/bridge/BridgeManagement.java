@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.modules.bridge;
 
-import eu.cloudnetservice.cloudnet.common.registry.ServicesRegistry;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.annotation.RPCValidation;
+import eu.cloudnetservice.cloudnet.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.bridge.config.BridgeConfiguration;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import lombok.NonNull;
@@ -37,7 +37,7 @@ public interface BridgeManagement {
 
   @NonNull PlayerManager playerManager();
 
-  void registerServices(@NonNull ServicesRegistry registry);
+  void registerServices(@NonNull ServiceRegistry registry);
 
   void postInit();
 }

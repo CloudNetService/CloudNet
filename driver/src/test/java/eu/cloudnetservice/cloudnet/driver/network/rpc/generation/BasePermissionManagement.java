@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.rpc.generation;
 
-import eu.cloudnetservice.cloudnet.common.concurrent.CompletedTask;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionUser;
@@ -33,6 +32,6 @@ public abstract class BasePermissionManagement implements PermissionManagement {
 
   @Override
   public Task<PermissionUser> userAsync(UUID uniqueId) {
-    return CompletedTask.done(VAL);
+    return Task.completedTask(VAL);
   }
 }
