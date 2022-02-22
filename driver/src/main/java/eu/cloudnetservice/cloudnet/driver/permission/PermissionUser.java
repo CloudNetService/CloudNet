@@ -33,6 +33,15 @@ import lombok.NonNull;
 import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * The permission user extends the permissible in that way that it has its own personal permissions. A permission user
+ * can belong to several permission groups and inherits the permissions of those groups.
+ *
+ * @see Permissible
+ * @see PermissionGroup
+ * @see PermissionManagement
+ * @since 4.0
+ */
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class PermissionUser extends AbstractPermissible {
@@ -126,7 +135,7 @@ public class PermissionUser extends AbstractPermissible {
   }
 
   /**
-   * Gets all groups of the permission user.
+   * Gets all groups that the user belongs to.
    *
    * @return all groups of the user.
    */

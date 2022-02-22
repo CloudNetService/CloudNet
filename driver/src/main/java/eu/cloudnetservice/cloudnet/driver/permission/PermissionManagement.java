@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.cloudnet.driver.permission;
 
-import eu.cloudnetservice.cloudnet.common.concurrent.CompletableTask;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.common.function.ThrowableSupplier;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.annotation.RPCValidation;
@@ -484,7 +483,7 @@ public interface PermissionManagement {
    * @return a task containing all found groups.
    */
   default @NonNull Task<Collection<PermissionGroup>> groupsOfAsync(@Nullable Permissible permissible) {
-    return CompletableTask.supply(() -> this.groupsOf(permissible));
+    return Task.supply(() -> this.groupsOf(permissible));
   }
 
   /**
@@ -496,7 +495,7 @@ public interface PermissionManagement {
    * @throws NullPointerException if the given user is null.
    */
   default @NonNull Task<PermissionUser> addPermissionUserAsync(@NonNull PermissionUser permissionUser) {
-    return CompletableTask.supply(() -> this.addPermissionUser(permissionUser));
+    return Task.supply(() -> this.addPermissionUser(permissionUser));
   }
 
   /**
@@ -510,7 +509,7 @@ public interface PermissionManagement {
    * @throws NullPointerException if the given name or password is null.
    */
   default @NonNull Task<PermissionUser> addUserAsync(@NonNull String name, @NonNull String password, int potency) {
-    return CompletableTask.supply(() -> this.addPermissionUser(name, password, potency));
+    return Task.supply(() -> this.addPermissionUser(name, password, potency));
   }
 
   /**
@@ -522,7 +521,7 @@ public interface PermissionManagement {
    * @throws NullPointerException if the given user is null.
    */
   default @NonNull Task<Void> updateUserAsync(@NonNull PermissionUser permissionUser) {
-    return CompletableTask.supply(() -> this.updateUser(permissionUser));
+    return Task.supply(() -> this.updateUser(permissionUser));
   }
 
   /**
@@ -533,7 +532,7 @@ public interface PermissionManagement {
    * @throws NullPointerException if the given name is null.
    */
   default @NonNull Task<Boolean> deleteUserAsync(@NonNull String name) {
-    return CompletableTask.supply(() -> this.deleteUser(name));
+    return Task.supply(() -> this.deleteUser(name));
   }
 
   /**
@@ -544,7 +543,7 @@ public interface PermissionManagement {
    * @throws NullPointerException if the given user is null.
    */
   default @NonNull Task<Boolean> deletePermissionUserAsync(@NonNull PermissionUser permissionUser) {
-    return CompletableTask.supply(() -> this.deletePermissionUser(permissionUser));
+    return Task.supply(() -> this.deletePermissionUser(permissionUser));
   }
 
   /**
@@ -555,7 +554,7 @@ public interface PermissionManagement {
    * @throws NullPointerException if the given unique id is null.
    */
   default @NonNull Task<Boolean> containsUserAsync(@NonNull UUID uniqueId) {
-    return CompletableTask.supply(() -> this.containsUser(uniqueId));
+    return Task.supply(() -> this.containsUser(uniqueId));
   }
 
   /**
@@ -566,7 +565,7 @@ public interface PermissionManagement {
    * @throws NullPointerException if the given name is null.
    */
   default @NonNull Task<Boolean> containsOneUserAsync(@NonNull String name) {
-    return CompletableTask.supply(() -> this.containsOneUser(name));
+    return Task.supply(() -> this.containsOneUser(name));
   }
 
   /**
@@ -577,7 +576,7 @@ public interface PermissionManagement {
    * @throws NullPointerException if the given unique id is null.
    */
   default @NonNull Task<PermissionUser> userAsync(@NonNull UUID uniqueId) {
-    return CompletableTask.supply(() -> this.user(uniqueId));
+    return Task.supply(() -> this.user(uniqueId));
   }
 
   /**
@@ -592,7 +591,7 @@ public interface PermissionManagement {
    * @throws NullPointerException if the given unique id or name is null.
    */
   default @NonNull Task<PermissionUser> getOrCreateUserAsync(@NonNull UUID uniqueId, @NonNull String name) {
-    return CompletableTask.supply(() -> this.getOrCreateUser(uniqueId, name));
+    return Task.supply(() -> this.getOrCreateUser(uniqueId, name));
   }
 
   /**
@@ -603,7 +602,7 @@ public interface PermissionManagement {
    * @throws NullPointerException if the given name is null.
    */
   default @NonNull Task<List<PermissionUser>> usersByNameAsync(@NonNull String name) {
-    return CompletableTask.supply(() -> this.usersByName(name));
+    return Task.supply(() -> this.usersByName(name));
   }
 
   /**
@@ -614,7 +613,7 @@ public interface PermissionManagement {
    * @throws NullPointerException if the given name is null.
    */
   default @NonNull Task<PermissionUser> firstUserAsync(String name) {
-    return CompletableTask.supply(() -> this.firstUser(name));
+    return Task.supply(() -> this.firstUser(name));
   }
 
   /**
@@ -627,7 +626,7 @@ public interface PermissionManagement {
    */
   @Experimental
   default @NonNull Task<Collection<PermissionUser>> usersAsync() {
-    return CompletableTask.supply(this::users);
+    return Task.supply(this::users);
   }
 
   /**
@@ -640,7 +639,7 @@ public interface PermissionManagement {
    * @throws NullPointerException if the given group is null.
    */
   default @NonNull Task<Collection<PermissionUser>> usersByGroupAsync(@NonNull String group) {
-    return CompletableTask.supply(() -> this.usersByGroup(group));
+    return Task.supply(() -> this.usersByGroup(group));
   }
 
   /**
@@ -652,7 +651,7 @@ public interface PermissionManagement {
    * @throws NullPointerException if the given permission group is null.
    */
   default @NonNull Task<PermissionGroup> addPermissionGroupAsync(@NonNull PermissionGroup permissionGroup) {
-    return CompletableTask.supply(() -> this.addPermissionGroup(permissionGroup));
+    return Task.supply(() -> this.addPermissionGroup(permissionGroup));
   }
 
   /**
@@ -665,7 +664,7 @@ public interface PermissionManagement {
    * @throws NullPointerException if the given name is null.
    */
   default @NonNull Task<PermissionGroup> addGroupAsync(@NonNull String name, int potency) {
-    return CompletableTask.supply(() -> this.addPermissionGroup(name, potency));
+    return Task.supply(() -> this.addPermissionGroup(name, potency));
   }
 
   /**
@@ -676,7 +675,7 @@ public interface PermissionManagement {
    * @throws NullPointerException if the given permission group is null.
    */
   default @NonNull Task<Void> updateGroupAsync(@NonNull PermissionGroup permissionGroup) {
-    return CompletableTask.supply(() -> this.updateGroup(permissionGroup));
+    return Task.supply(() -> this.updateGroup(permissionGroup));
   }
 
   /**
@@ -687,7 +686,7 @@ public interface PermissionManagement {
    * @throws NullPointerException if the given name is null.
    */
   default @NonNull Task<Boolean> deleteGroupAsync(@NonNull String name) {
-    return CompletableTask.supply(() -> this.deleteGroup(name));
+    return Task.supply(() -> this.deleteGroup(name));
   }
 
   /**
@@ -698,7 +697,7 @@ public interface PermissionManagement {
    * @throws NullPointerException if the given group is null.
    */
   default @NonNull Task<Boolean> deletePermissionGroupAsync(@NonNull PermissionGroup permissionGroup) {
-    return CompletableTask.supply(() -> this.deletePermissionGroup(permissionGroup));
+    return Task.supply(() -> this.deletePermissionGroup(permissionGroup));
   }
 
   /**
@@ -709,7 +708,7 @@ public interface PermissionManagement {
    * @throws NullPointerException if the given group is null.
    */
   default @NonNull Task<Boolean> containsGroupAsync(@NonNull String group) {
-    return CompletableTask.supply(() -> this.containsGroup(group));
+    return Task.supply(() -> this.containsGroup(group));
   }
 
   /**
@@ -720,7 +719,7 @@ public interface PermissionManagement {
    * @throws NullPointerException if the given name is null.
    */
   default @NonNull Task<PermissionGroup> groupAsync(@NonNull String name) {
-    return CompletableTask.supply(() -> this.group(name));
+    return Task.supply(() -> this.group(name));
   }
 
   /**
@@ -730,7 +729,7 @@ public interface PermissionManagement {
    * @return a task containing the default permission group, null if no group is marked as default.
    */
   default @NonNull Task<PermissionGroup> defaultPermissionGroupAsync() {
-    return CompletableTask.supply(this::defaultPermissionGroup);
+    return Task.supply(this::defaultPermissionGroup);
   }
 
   /**
@@ -739,7 +738,7 @@ public interface PermissionManagement {
    * @return a task containing all permissions groups.
    */
   default @NonNull Task<Collection<PermissionGroup>> groupsAsync() {
-    return CompletableTask.supply((ThrowableSupplier<Collection<PermissionGroup>, Throwable>) this::groups);
+    return Task.supply((ThrowableSupplier<Collection<PermissionGroup>, Throwable>) this::groups);
   }
 
   /**
@@ -750,7 +749,7 @@ public interface PermissionManagement {
    * @return a task that completes after the groups were replaced.
    */
   default @NonNull Task<Void> groupsAsync(@Nullable Collection<? extends PermissionGroup> groups) {
-    return CompletableTask.supply(() -> this.groups(groups));
+    return Task.supply(() -> this.groups(groups));
   }
 
   /**
@@ -766,7 +765,7 @@ public interface PermissionManagement {
     @NonNull String name,
     @NonNull BiConsumer<PermissionGroup, PermissionGroup.Builder> modifier
   ) {
-    return CompletableTask.supply(() -> this.modifyGroup(name, modifier));
+    return Task.supply(() -> this.modifyGroup(name, modifier));
   }
 
   /**
@@ -782,7 +781,7 @@ public interface PermissionManagement {
     @NonNull UUID uniqueId,
     @NonNull BiConsumer<PermissionUser, PermissionUser.Builder> modifier
   ) {
-    return CompletableTask.supply(() -> this.modifyUser(uniqueId, modifier));
+    return Task.supply(() -> this.modifyUser(uniqueId, modifier));
   }
 
   /**
@@ -798,7 +797,7 @@ public interface PermissionManagement {
     @NonNull String name,
     @NonNull BiConsumer<PermissionUser, PermissionUser.Builder> modifier
   ) {
-    return CompletableTask.supply(() -> this.modifyUsers(name, modifier));
+    return Task.supply(() -> this.modifyUsers(name, modifier));
   }
 
   /**
@@ -814,6 +813,6 @@ public interface PermissionManagement {
     @NonNull PermissionUser user,
     @NonNull String commandLine
   ) {
-    return CompletableTask.supply(() -> this.sendCommandLine(user, commandLine));
+    return Task.supply(() -> this.sendCommandLine(user, commandLine));
   }
 }

@@ -25,6 +25,13 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 
+/**
+ * The permission user group info specifies the time-out of a permission group for a permission user.
+ *
+ * @see PermissionUser
+ * @see PermissionGroup
+ * @since 4.0
+ */
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class PermissionUserGroupInfo extends JsonDocPropertyHolder {

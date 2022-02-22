@@ -26,7 +26,14 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 
-//TODO: header
+/**
+ * This abstract permissible represents a base implementation of the permissible.
+ *
+ * @see Permissible
+ * @see PermissionUser
+ * @see PermissionGroup
+ * @since 4.0
+ */
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public abstract class AbstractPermissible extends JsonDocPropertyHolder implements Permissible {
@@ -57,17 +64,17 @@ public abstract class AbstractPermissible extends JsonDocPropertyHolder implemen
     @NonNull Map<String, Set<Permission>> groupPermissions,
     @NonNull JsonDocument properties
   ) {
+    super(properties);
     this.name = name;
     this.potency = potency;
     this.createdTime = createdTime;
     this.permissions = permissions;
     this.groupPermissions = groupPermissions;
-    this.properties = properties;
   }
 
   /**
-   * Adds the given permission into the set of permissions. If the collection contains a permission with the same
-   * name it is removed before adding the new permission.
+   * Adds the given permission into the set of permissions. If the collection contains a permission with the same name
+   * it is removed before adding the new permission.
    *
    * @param permissions the set of permissions to add the given permission to.
    * @param permission  the permission to add to the other permissions.

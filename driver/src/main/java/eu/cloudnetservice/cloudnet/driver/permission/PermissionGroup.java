@@ -28,7 +28,13 @@ import java.util.Set;
 import lombok.NonNull;
 
 /**
- * //TODO: header
+ * A permission group is an implementation of the permissible that extends the permissible in the sense that it adds
+ * cosmetic options that can be used by other systems. The permission group allows permission inheritance by specifying
+ * the parents using {@link #groupNames()}.
+ *
+ * @see Permissible
+ * @see PermissionManagement
+ * @since 4.0
  */
 public class PermissionGroup extends AbstractPermissible {
 

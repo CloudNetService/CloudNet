@@ -26,11 +26,20 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
-//TODO: header
+/**
+ * The permissible represents the base for any permission holding object. The permissible is mutable, but any changes to
+ * the permissible itself do not have any effect without updating the permissible using the permission management.
+ *
+ * @see PermissionUser
+ * @see PermissionGroup
+ * @see PermissionManagement
+ * @since 4.0
+ */
 public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Permissible> {
 
   /**
-   * Gets the potency of this permissible. The potency is used for comparison of permissibles.
+   * Gets the potency of this permissible. The potency is used for comparison of permissibles. A higher potency results
+   * in higher significance.
    *
    * @return the potency of this permissible.
    * @see Permissible#compareTo(Permissible)
@@ -63,6 +72,8 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
 
   /**
    * Gets all global permissions of this permissible. Specific group permissions are not included.
+   * <p>
+   * Modifications to this collection are possible, but still require an update using the permission management.
    *
    * @return all global permissions.
    */
@@ -70,6 +81,8 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
 
   /**
    * Gets all group specific permissions. Global permissions are not included.
+   * <p>
+   * Modifications to this map are possible, but still require an update using the permission management.
    *
    * @return all group specific permissions.
    */
@@ -77,6 +90,8 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
 
   /**
    * Collects all group names of this permissible.
+   * <p>
+   * Modifications to this collection are possible, but still require an update using the permission management.
    *
    * @return all groups names.
    */
