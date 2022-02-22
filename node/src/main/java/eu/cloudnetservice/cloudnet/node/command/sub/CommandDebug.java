@@ -36,5 +36,4 @@ public final class CommandDebug {
       rootLogger.setLevel(Level.FINEST);
     }
   }
-
 }

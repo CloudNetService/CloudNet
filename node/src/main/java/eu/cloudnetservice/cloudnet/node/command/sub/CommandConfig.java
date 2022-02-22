@@ -40,7 +40,7 @@ import lombok.NonNull;
 public final class CommandConfig {
 
   @Parser(name = "ip")
-  public String ipParser(CommandContext<CommandSource> $, Queue<String> input) {
+  public @NonNull String ipParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var address = input.remove();
 
     if (!InetAddresses.isInetAddress(address)) {
@@ -51,7 +51,7 @@ public final class CommandConfig {
   }
 
   @CommandMethod("config reload")
-  public void reloadConfigs(CommandSource source) {
+  public void reloadConfigs(@NonNull CommandSource source) {
     CloudNet.instance().config(JsonConfiguration.loadFromFile(CloudNet.instance()));
     CloudNet.instance().serviceTaskProvider().reload();
     CloudNet.instance().groupConfigurationProvider().reload();
@@ -60,13 +60,16 @@ public final class CommandConfig {
   }
 
   @CommandMethod("config node reload")
-  public void reloadNodeConfig(CommandSource source) {
+  public void reloadNodeConfig(@NonNull CommandSource source) {
     CloudNet.instance().config(JsonConfiguration.loadFromFile(CloudNet.instance()));
     source.sendMessage(I18n.trans("command-config-node-reload-config"));
   }
 
   @CommandMethod("config node add ip <ip>")
-  public void addIpWhitelist(CommandSource source, @Argument(value = "ip", parserName = "ip") String ip) {
+  public void addIpWhitelist(
+    @NonNull CommandSource source,
+    @NonNull @Argument(value = "ip", parserName = "ip") String ip
+  ) {
     var ipWhitelist = this.nodeConfig().ipWhitelist();
     // check if the collection changes after we add the ip
     if (ipWhitelist.add(ip)) {
@@ -77,7 +80,7 @@ public final class CommandConfig {
   }
 
   @CommandMethod("config node remove ip <ip>")
-  public void removeIpWhitelist(CommandSource source, @Argument(value = "ip") String ip) {
+  public void removeIpWhitelist(@NonNull CommandSource source, @NonNull @Argument(value = "ip") String ip) {
     var ipWhitelist = this.nodeConfig().ipWhitelist();
     // check if the collection changes after we remove the given ip
     if (ipWhitelist.remove(ip)) {
@@ -88,7 +91,7 @@ public final class CommandConfig {
   }
 
   @CommandMethod("config node set maxMemory <maxMemory>")
-  public void setMaxMemory(CommandSource source, @Argument("maxMemory") @Range(min = "0") int maxMemory) {
+  public void setMaxMemory(@NonNull CommandSource source, @Argument("maxMemory") @Range(min = "0") int maxMemory) {
     this.nodeConfig().maxMemory(maxMemory);
     this.nodeConfig().save();
     source.sendMessage(I18n.trans("command-config-node-max-memory-set", maxMemory));
@@ -96,8 +99,8 @@ public final class CommandConfig {
 
   @CommandMethod("config node set javaCommand <executable>")
   public void setJavaCommand(
-    CommandSource source,
-    @Argument(value = "executable", parserName = "javaCommand") Pair<String, JavaVersion> executable
+    @NonNull CommandSource source,
+    @NonNull @Argument(value = "executable", parserName = "javaCommand") Pair<String, JavaVersion> executable
   ) {
     this.nodeConfig().javaCommand(executable.first());
     this.nodeConfig().save();
@@ -109,5 +112,4 @@ public final class CommandConfig {
   private @NonNull Configuration nodeConfig() {
     return CloudNet.instance().config();
   }
-
 }

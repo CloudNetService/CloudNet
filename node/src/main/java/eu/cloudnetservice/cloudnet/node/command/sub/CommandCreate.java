@@ -39,8 +39,8 @@ public final class CommandCreate {
 
   @CommandMethod("create by <task> <amount>")
   public void createByTask(
-    CommandSource source,
-    @Argument("task") ServiceTask task,
+    @NonNull CommandSource source,
+    @NonNull @Argument("task") ServiceTask task,
     @Argument("amount") @Range(min = "1") int amount,
     @Flag("start") boolean startService,
     @Flag("id") Integer id,
