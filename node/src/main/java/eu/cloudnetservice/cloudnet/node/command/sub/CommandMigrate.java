@@ -46,7 +46,10 @@ public final class CommandMigrate {
   private static final Logger LOGGER = LogManager.logger(CommandMigrate.class);
 
   @Parser(suggestions = "databaseProvider")
-  public AbstractDatabaseProvider defaultDatabaseProviderParser(CommandContext<CommandSource> $, Queue<String> input) {
+  public @NonNull AbstractDatabaseProvider defaultDatabaseProviderParser(
+    @NonNull CommandContext<?> $,
+    @NonNull Queue<String> input
+  ) {
     var abstractDatabaseProvider = CloudNet.instance().serviceRegistry()
       .provider(AbstractDatabaseProvider.class, input.remove());
 
@@ -57,7 +60,7 @@ public final class CommandMigrate {
   }
 
   @Suggestions("databaseProvider")
-  public List<String> suggestDatabaseProvider(CommandContext<CommandSource> $, String input) {
+  public @NonNull List<String> suggestDatabaseProvider(@NonNull CommandContext<?> $, @NonNull String input) {
     return CloudNet.instance().serviceRegistry().providers(AbstractDatabaseProvider.class)
       .stream()
       .map(Nameable::name)
@@ -66,9 +69,9 @@ public final class CommandMigrate {
 
   @CommandMethod(value = "migrate database|db <database-from> <database-to>", requiredSender = ConsoleCommandSource.class)
   public void migrateDatabase(
-    CommandSource source,
-    @Argument("database-from") AbstractDatabaseProvider sourceDatabaseProvider,
-    @Argument("database-to") AbstractDatabaseProvider targetDatabaseProvider,
+    @NonNull CommandSource source,
+    @NonNull @Argument("database-from") AbstractDatabaseProvider sourceDatabaseProvider,
+    @NonNull @Argument("database-to") AbstractDatabaseProvider targetDatabaseProvider,
     @Flag("chunk-size") Integer chunkSize
   ) {
     if (sourceDatabaseProvider.equals(targetDatabaseProvider)) {
@@ -108,8 +111,10 @@ public final class CommandMigrate {
       targetDatabaseProvider.name()));
   }
 
-  private boolean executeIfNotCurrentProvider(@NonNull AbstractDatabaseProvider sourceProvider,
-    @NonNull ThrowableConsumer<AbstractDatabaseProvider, ?> handler) {
+  private boolean executeIfNotCurrentProvider(
+    @NonNull AbstractDatabaseProvider sourceProvider,
+    @NonNull ThrowableConsumer<AbstractDatabaseProvider, ?> handler
+  ) {
     if (!CloudNet.instance().databaseProvider().equals(sourceProvider)) {
       try {
         handler.accept(sourceProvider);
@@ -120,5 +125,4 @@ public final class CommandMigrate {
     }
     return true;
   }
-
 }

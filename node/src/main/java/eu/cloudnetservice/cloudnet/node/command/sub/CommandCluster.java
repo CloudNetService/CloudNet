@@ -83,7 +83,10 @@ public final class CommandCluster {
     .build();
 
   @Parser(suggestions = "clusterNodeServer")
-  public NodeServer defaultClusterNodeServerParser(CommandContext<CommandSource> $, Queue<String> input) {
+  public @NonNull NodeServer defaultClusterNodeServerParser(
+    @NonNull CommandContext<?> $,
+    @NonNull Queue<String> input
+  ) {
     var nodeServer = CloudNet.instance().nodeServerProvider().node(input.remove());
     if (nodeServer == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-cluster-node-not-found"));
@@ -93,7 +96,7 @@ public final class CommandCluster {
   }
 
   @Suggestions("clusterNodeServer")
-  public List<String> suggestClusterNodeServer(CommandContext<CommandSource> $, String input) {
+  public @NonNull List<String> suggestClusterNodeServer(@NonNull CommandContext<?> $, @NonNull String input) {
     return CloudNet.instance().nodeServerProvider().nodeServers()
       .stream()
       .map(clusterNodeServer -> clusterNodeServer.info().uniqueId())
@@ -101,7 +104,10 @@ public final class CommandCluster {
   }
 
   @Parser(suggestions = "networkClusterNode")
-  public NetworkClusterNode defaultNetworkClusterNodeParser(CommandContext<CommandSource> $, Queue<String> input) {
+  public @NonNull NetworkClusterNode defaultNetworkClusterNodeParser(
+    @NonNull CommandContext<?> $,
+    @NonNull Queue<String> input
+  ) {
     var nodeId = input.remove();
     var clusterNode = CloudNet.instance().clusterNodeProvider().node(nodeId);
     if (clusterNode == null) {
@@ -112,7 +118,7 @@ public final class CommandCluster {
   }
 
   @Suggestions("networkClusterNode")
-  public List<String> suggestNetworkClusterNode(CommandContext<CommandSource> $, String input) {
+  public @NonNull List<String> suggestNetworkClusterNode(@NonNull CommandContext<?> $, @NonNull String input) {
     return CloudNet.instance().config().clusterConfig().nodes()
       .stream()
       .map(NetworkClusterNode::uniqueId)
@@ -120,7 +126,7 @@ public final class CommandCluster {
   }
 
   @Parser
-  public HostAndPort defaultHostAndPortParser(CommandContext<CommandSource> $, Queue<String> input) {
+  public @NonNull HostAndPort defaultHostAndPortParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var address = input.remove();
     try {
       // create an uri with the tpc protocol
@@ -140,7 +146,7 @@ public final class CommandCluster {
   }
 
   @Parser(name = "noNodeId", suggestions = "clusterNode")
-  public String noClusterNodeParser(CommandContext<CommandSource> $, Queue<String> input) {
+  public @NonNull String noClusterNodeParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var nodeId = input.remove();
     for (var node : CloudNet.instance().config().clusterConfig().nodes()) {
       if (node.uniqueId().equals(nodeId)) {
@@ -152,7 +158,7 @@ public final class CommandCluster {
   }
 
   @Parser(name = "staticService", suggestions = "staticService")
-  public String staticServiceParser(CommandContext<CommandSource> $, Queue<String> input) {
+  public @NonNull String staticServiceParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var name = input.remove();
     var manager = CloudNet.instance().cloudServiceProvider();
     if (manager.serviceByName(name) != null) {
@@ -165,12 +171,12 @@ public final class CommandCluster {
   }
 
   @Suggestions("staticService")
-  public List<String> suggestNotStartedStaticServices(CommandContext<CommandSource> $, String input) {
+  public @NonNull List<String> suggestNotStartedStaticServices(@NonNull CommandContext<?> $, @NonNull String input) {
     return this.resolveAllStaticServices();
   }
 
   @CommandMethod("cluster|clu shutdown")
-  public void shutdownCluster(CommandSource source) {
+  public void shutdownCluster(@NonNull CommandSource $) {
     for (var nodeServer : CloudNet.instance().nodeServerProvider().nodeServers()) {
       nodeServer.shutdown();
     }
@@ -179,34 +185,37 @@ public final class CommandCluster {
 
   @CommandMethod("cluster|clu add <nodeId> <host>")
   public void addNodeToCluster(
-    CommandSource source,
-    @Argument(value = "nodeId", parserName = "noNodeId") String nodeId,
-    @Argument("host") HostAndPort hostAndPort
+    @NonNull CommandSource source,
+    @NonNull @Argument(value = "nodeId", parserName = "noNodeId") String nodeId,
+    @NonNull @Argument("host") HostAndPort hostAndPort
   ) {
     CloudNet.instance().clusterNodeProvider().addNode(new NetworkClusterNode(nodeId, Lists.newArrayList(hostAndPort)));
     source.sendMessage(I18n.trans("command-cluster-add-node-success", nodeId));
   }
 
   @CommandMethod("cluster|clu remove <nodeId>")
-  public void removeNodeFromCluster(CommandSource source, @Argument("nodeId") NetworkClusterNode node) {
+  public void removeNodeFromCluster(
+    @NonNull CommandSource source,
+    @NonNull @Argument("nodeId") NetworkClusterNode node
+  ) {
     CloudNet.instance().clusterNodeProvider().removeNode(node.uniqueId());
     source.sendMessage(I18n.trans("command-cluster-remove-node-success", node.uniqueId()));
   }
 
   @CommandMethod("cluster|clu nodes")
-  public void listNodes(CommandSource source) {
+  public void listNodes(@NonNull CommandSource source) {
     source.sendMessage(FORMATTER.format(CloudNet.instance().nodeServerProvider().nodeServers()));
   }
 
   @CommandMethod("cluster|clu node <nodeId>")
-  public void listNode(CommandSource source, @Argument("nodeId") NodeServer nodeServer) {
+  public void listNode(@NonNull CommandSource source, @NonNull @Argument("nodeId") NodeServer nodeServer) {
     this.displayNode(source, nodeServer);
   }
 
   @CommandMethod("cluster|clu node <nodeId> set drain <enabled>")
   public void drainNode(
-    CommandSource source,
-    @Argument(value = "nodeId") NodeServer nodeServer,
+    @NonNull CommandSource source,
+    @NonNull @Argument(value = "nodeId") NodeServer nodeServer,
     @Argument("enabled") boolean enabled
   ) {
     nodeServer.drain(enabled);
@@ -214,14 +223,14 @@ public final class CommandCluster {
   }
 
   @CommandMethod("cluster|clu sync")
-  public void sync(CommandSource source) {
+  public void sync(@NonNull CommandSource source) {
     source.sendMessage(I18n.trans("command-cluster-start-sync"));
     // perform a cluster sync that takes care of tasks, groups and more
     CloudNet.instance().nodeServerProvider().syncDataIntoCluster();
   }
 
   @CommandMethod("cluster|clu push templates [template]")
-  public void pushTemplates(CommandSource source, @Argument("template") ServiceTemplate template) {
+  public void pushTemplates(@NonNull CommandSource source, @Argument("template") ServiceTemplate template) {
     // check if we need to push all templates or just a specific one
     if (template == null) {
       var localStorage = CloudNet.instance().localTemplateStorage();
@@ -237,7 +246,7 @@ public final class CommandCluster {
 
   @CommandMethod("cluster|clu push staticServices [service]")
   public void pushStaticServices(
-    CommandSource source,
+    @NonNull CommandSource source,
     @Argument(value = "service", parserName = "staticService") String service,
     @Flag("overwrite") boolean overwrite
   ) {
@@ -246,25 +255,26 @@ public final class CommandCluster {
     if (service == null) {
       // resolve all existing static services, that are not running and push them
       for (var serviceName : this.resolveAllStaticServices()) {
-        this.pushStaticService(source, staticServicePath.resolve(serviceName), serviceName);
+        this.pushStaticService(source, staticServicePath.resolve(serviceName), serviceName, overwrite);
       }
     } else {
       // only push the specific static service that was given
-      this.pushStaticService(source, staticServicePath.resolve(service), service);
+      this.pushStaticService(source, staticServicePath.resolve(service), service, overwrite);
     }
   }
 
   private void pushStaticService(
     @NonNull CommandSource source,
     @NonNull Path servicePath,
-    @NonNull String serviceName
+    @NonNull String serviceName,
+    boolean overwrite
   ) {
     // zip the whole directory into a stream
     var stream = ZipUtil.zipToStream(servicePath);
     // notify the source about the deployment
     source.sendMessage(I18n.trans("command-cluster-push-static-service-starting"));
     // deploy the static service into the cluster
-    CloudNet.instance().nodeServerProvider().deployStaticServiceToCluster(serviceName, stream, true)
+    CloudNet.instance().nodeServerProvider().deployStaticServiceToCluster(serviceName, stream, overwrite)
       .thenAccept(transferStatus -> {
         if (transferStatus == TransferStatus.FAILURE) {
           // the transfer failed

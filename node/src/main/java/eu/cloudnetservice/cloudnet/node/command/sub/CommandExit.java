@@ -33,5 +33,4 @@ public final class CommandExit {
   public void exit() {
     CloudNet.instance().stop();
   }
-
 }

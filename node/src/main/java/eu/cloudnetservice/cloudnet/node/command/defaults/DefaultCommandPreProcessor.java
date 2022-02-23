@@ -42,7 +42,6 @@ final class DefaultCommandPreProcessor implements CommandPreprocessor<CommandSou
     }
 
     var firstArgument = commandContext.getRawInput().getFirst();
-
     var commandInfo = CloudNet.instance().commandProvider()
       .command(firstArgument);
     // if there is no command, the command was unregistered, ignore confirm as the command is not registered.

@@ -49,5 +49,4 @@ public class ArgumentNotAvailableException extends RuntimeException {
   public @NonNull Throwable fillInStackTrace() {
     return this;
   }
-
 }

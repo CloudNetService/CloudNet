@@ -56,7 +56,10 @@ public final class CommandPermissions {
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
   @Parser
-  public PermissionUser defaultPermissionUserParser(CommandContext<CommandSource> $, Queue<String> input) {
+  public @NonNull PermissionUser defaultPermissionUserParser(
+    @NonNull CommandContext<?> $,
+    @NonNull Queue<String> input
+  ) {
     var user = input.remove();
 
     PermissionUser permissionUser;
@@ -75,7 +78,10 @@ public final class CommandPermissions {
   }
 
   @Parser
-  public PermissionGroup defaultPermissionGroupParser(CommandContext<CommandSource> $, Queue<String> input) {
+  public @NonNull PermissionGroup defaultPermissionGroupParser(
+    @NonNull CommandContext<?> $,
+    @NonNull Queue<String> input
+  ) {
     var name = input.remove();
 
     var group = CloudNet.instance().permissionManagement().group(name);
@@ -87,22 +93,22 @@ public final class CommandPermissions {
   }
 
   @Suggestions("permissionGroup")
-  public List<String> suggestPermissionGroup(CommandContext<CommandSource> $, String input) {
+  public @NonNull List<String> suggestPermissionGroup(@NonNull CommandContext<?> $, @NonNull String input) {
     return this.permissionManagement().groups().stream().map(Nameable::name).toList();
   }
 
   @CommandMethod("permissions|perms reload")
-  public void reloadPermissionSystem(CommandSource source) {
+  public void reloadPermissionSystem(@NonNull CommandSource source) {
     this.permissionManagement().reload();
     source.sendMessage(I18n.trans("command-permissions-reload-permissions-success"));
   }
 
   @CommandMethod("permissions|perms create user <name> <password> <potency>")
   public void createUser(
-    CommandSource source,
-    @Argument("name") String name,
-    @Argument("password") String password,
-    @Argument("potency") Integer potency
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") String name,
+    @NonNull @Argument("password") String password,
+    @Argument("potency") int potency
   ) {
     if (this.permissionManagement().firstUser(name) != null) {
       source.sendMessage(I18n.trans("command-permissions-create-user-already-exists"));
@@ -114,9 +120,9 @@ public final class CommandPermissions {
 
   @CommandMethod("permissions|perms create group <name> <potency>")
   public void createGroup(
-    CommandSource source,
-    @Argument("name") String name,
-    @Argument("potency") Integer potency
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") String name,
+    @Argument("potency") int potency
   ) {
     if (this.permissionManagement().group(name) != null) {
       source.sendMessage(I18n.trans("command-permissions-create-group-already-exists"));
@@ -127,7 +133,7 @@ public final class CommandPermissions {
   }
 
   @CommandMethod("permissions|perms delete user <name>")
-  public void deleteUser(CommandSource source, @Argument("name") PermissionUser user) {
+  public void deleteUser(@NonNull CommandSource source, @NonNull @Argument("name") PermissionUser user) {
     if (this.permissionManagement().deletePermissionUser(user)) {
       source.sendMessage(I18n.trans("command-permissions-delete-user-successful", user.name()));
     } else {
@@ -136,7 +142,7 @@ public final class CommandPermissions {
   }
 
   @CommandMethod("permissions|perms delete group <name>")
-  public void deleteGroup(CommandSource source, @Argument("name") PermissionGroup group) {
+  public void deleteGroup(@NonNull CommandSource source, @NonNull @Argument("name") PermissionGroup group) {
     if (this.permissionManagement().deletePermissionGroup(group)) {
       source.sendMessage(I18n.trans("command-permissions-delete-group-successful", group.name()));
     } else {
@@ -145,12 +151,12 @@ public final class CommandPermissions {
   }
 
   @CommandMethod("permissions|perms user <user>")
-  public void displayUserInformation(CommandSource source, @Argument("user") PermissionUser permissionUser) {
-    source.sendMessage(permissionUser.uniqueId() + ":" + permissionUser.name());
-    source.sendMessage("Potency: " + permissionUser.potency());
+  public void displayUserInformation(@NonNull CommandSource source, @NonNull @Argument("user") PermissionUser user) {
+    source.sendMessage(user.uniqueId() + ":" + user.name());
+    source.sendMessage("Potency: " + user.potency());
     source.sendMessage("Groups:");
 
-    for (var group : permissionUser.groups()) {
+    for (var group : user.groups()) {
       var timeout = "LIFETIME";
       if (group.timeOutMillis() > 0) {
         timeout = DATE_FORMAT.format(group.timeOutMillis());
@@ -158,21 +164,21 @@ public final class CommandPermissions {
       source.sendMessage("- " + group.group() + ": " + timeout);
     }
 
-    if (permissionUser.groups().isEmpty()) {
+    if (user.groups().isEmpty()) {
       var defaultGroup = this.permissionManagement().defaultPermissionGroup();
       if (defaultGroup != null) {
         source.sendMessage(defaultGroup.name() + ": LIFETIME");
       }
     }
 
-    this.displayPermission(source, permissionUser);
+    this.displayPermission(source, user);
   }
 
   @CommandMethod("permissions|perms user <user> rename <name>")
   public void renameUser(
-    CommandSource source,
-    @Argument("user") PermissionUser permissionUser,
-    @Argument("name") String newName
+    @NonNull CommandSource source,
+    @NonNull @Argument("user") PermissionUser permissionUser,
+    @NonNull @Argument("name") String newName
   ) {
     this.updateUser(permissionUser, user -> user.name(newName));
     source.sendMessage(I18n.trans("command-permissions-user-rename-success", permissionUser.name(), newName));
@@ -180,9 +186,9 @@ public final class CommandPermissions {
 
   @CommandMethod("permissions|perms user <user> changePassword <password>")
   public void changeUserPassword(
-    CommandSource source,
-    @Argument("user") PermissionUser permissionUser,
-    @Argument("password") String password
+    @NonNull CommandSource source,
+    @NonNull @Argument("user") PermissionUser permissionUser,
+    @NonNull @Argument("password") String password
   ) {
     this.updateUser(permissionUser, user -> user.password(password));
     source.sendMessage(I18n.trans("command-permissions-user-change-password-success", permissionUser.name()));
@@ -190,9 +196,9 @@ public final class CommandPermissions {
 
   @CommandMethod("permissions|perms user <user> check <password>")
   public void checkUserPassword(
-    CommandSource source,
-    @Argument("user") PermissionUser permissionUser,
-    @Argument("password") String password
+    @NonNull CommandSource source,
+    @NonNull @Argument("user") PermissionUser permissionUser,
+    @NonNull @Argument("password") String password
   ) {
     source.sendMessage(I18n.trans("command-permissions-user-check-password", permissionUser.name(),
       permissionUser.checkPassword(password) ? 1 : 0));
@@ -200,10 +206,10 @@ public final class CommandPermissions {
 
   @CommandMethod("permissions|perms user <user> add group <name> [duration]")
   public void addGroupToUser(
-    CommandSource source,
-    @Argument("user") PermissionUser permissionUser,
-    @Argument("name") PermissionGroup permissionGroup,
-    @Argument(value = "duration") Duration time
+    @NonNull CommandSource source,
+    @NonNull @Argument("user") PermissionUser permissionUser,
+    @NonNull @Argument("name") PermissionGroup permissionGroup,
+    @Nullable @Argument("duration") Duration time
   ) {
     this.updateUser(permissionUser, user -> user.addGroup(PermissionUserGroupInfo.builder()
       .group(permissionGroup.name())
@@ -216,12 +222,12 @@ public final class CommandPermissions {
 
   @CommandMethod("permissions|perms user <user> add permission <permission> [potency] [targetGroup] [duration]")
   public void addUserPermission(
-    CommandSource source,
-    @Argument("user") PermissionUser permissionUser,
-    @Argument("permission") String rawPermission,
-    @Argument("potency") Integer potency,
-    @Argument(value = "duration") Duration timeOut,
-    @Argument("targetGroup") GroupConfiguration targetGroup
+    @NonNull CommandSource source,
+    @NonNull @Argument("user") PermissionUser permissionUser,
+    @NonNull @Argument("permission") String rawPermission,
+    @Nullable @Argument("potency") Integer potency,
+    @Nullable @Argument(value = "duration") Duration timeOut,
+    @Nullable @Argument("targetGroup") GroupConfiguration targetGroup
   ) {
     this.addPermission(permissionUser, rawPermission, potency, timeOut, targetGroup);
     source.sendMessage(I18n.trans("command-permissions-user-add-permission-successful",
@@ -231,10 +237,10 @@ public final class CommandPermissions {
 
   @CommandMethod("permissions|perms user <user> remove permission <permission> [targetGroup]")
   public void removeUserPermission(
-    CommandSource source,
-    @Argument("user") PermissionUser permissionUser,
-    @Argument("permission") String rawPermission,
-    @Argument("targetGroup") GroupConfiguration groupConfiguration
+    @NonNull CommandSource source,
+    @NonNull @Argument("user") PermissionUser permissionUser,
+    @NonNull @Argument("permission") String rawPermission,
+    @Nullable @Argument("targetGroup") GroupConfiguration groupConfiguration
   ) {
     this.removePermission(permissionUser, rawPermission, groupConfiguration);
     source.sendMessage(I18n.trans("command-permissions-user-remove-permission-successful",
@@ -244,9 +250,9 @@ public final class CommandPermissions {
 
   @CommandMethod("permissions|perms user <user> remove group <group>")
   public void removeGroupFromUser(
-    CommandSource source,
-    @Argument("user") PermissionUser permissionUser,
-    @Argument("group") PermissionGroup permissionGroup
+    @NonNull CommandSource source,
+    @NonNull @Argument("user") PermissionUser permissionUser,
+    @NonNull @Argument("group") PermissionGroup permissionGroup
   ) {
     this.updateUserDirect(permissionUser, user -> user.removeGroup(permissionGroup.name()));
     source.sendMessage(I18n.trans("command-permissions-user-remove-group-successful",
@@ -255,7 +261,7 @@ public final class CommandPermissions {
   }
 
   @CommandMethod("permissions|perms group")
-  public void displayGroupInformation(CommandSource source) {
+  public void displayGroupInformation(@NonNull CommandSource source) {
     for (var group : this.permissionManagement().groups()) {
       this.displayGroup(source, group);
       source.sendMessage(" ");
@@ -263,14 +269,17 @@ public final class CommandPermissions {
   }
 
   @CommandMethod("permissions|perms group <group>")
-  public void displayGroupInformation(CommandSource source, @Argument("group") PermissionGroup permissionGroup) {
+  public void displayGroupInformation(
+    @NonNull CommandSource source,
+    @NonNull @Argument("group") PermissionGroup permissionGroup
+  ) {
     this.displayGroup(source, permissionGroup);
   }
 
   @CommandMethod("permissions|perms group <group> set sortId <sortId>")
   public void setSortId(
-    CommandSource source,
-    @Argument("group") PermissionGroup permissionGroup,
+    @NonNull CommandSource source,
+    @NonNull @Argument("group") PermissionGroup permissionGroup,
     @Argument("sortId") int sortId
   ) {
     this.updateGroup(permissionGroup, group -> group.sortId(sortId));
@@ -282,9 +291,9 @@ public final class CommandPermissions {
 
   @CommandMethod("permissions|perms group <group> set display <display>")
   public void setDisplay(
-    CommandSource source,
-    @Argument("group") PermissionGroup permissionGroup,
-    @Quoted @Argument("display") String display
+    @NonNull CommandSource source,
+    @NonNull @Argument("group") PermissionGroup permissionGroup,
+    @NonNull @Quoted @Argument("display") String display
   ) {
     this.updateGroup(permissionGroup, group -> group.display(display));
     source.sendMessage(I18n.trans("command-permissions-group-set-property",
@@ -295,9 +304,9 @@ public final class CommandPermissions {
 
   @CommandMethod("permissions|perms group <group> set prefix <prefix>")
   public void setPrefix(
-    CommandSource source,
-    @Argument("group") PermissionGroup permissionGroup,
-    @Quoted @Argument("prefix") String prefix
+    @NonNull CommandSource source,
+    @NonNull @Argument("group") PermissionGroup permissionGroup,
+    @NonNull @Quoted @Argument("prefix") String prefix
   ) {
     this.updateGroup(permissionGroup, group -> group.prefix(prefix));
     source.sendMessage(I18n.trans("command-permissions-group-set-property",
@@ -308,9 +317,9 @@ public final class CommandPermissions {
 
   @CommandMethod("permissions|perms group <group> set suffix <suffix>")
   public void setSuffix(
-    CommandSource source,
-    @Argument("group") PermissionGroup permissionGroup,
-    @Quoted @Argument("suffix") String suffix
+    @NonNull CommandSource source,
+    @NonNull @Argument("group") PermissionGroup permissionGroup,
+    @NonNull @Quoted @Argument("suffix") String suffix
   ) {
     this.updateGroup(permissionGroup, group -> group.suffix(suffix));
     source.sendMessage(I18n.trans("command-permissions-group-set-property",
@@ -321,9 +330,9 @@ public final class CommandPermissions {
 
   @CommandMethod("permissions|perms group <group> set color <color>")
   public void setColor(
-    CommandSource source,
-    @Argument("group") PermissionGroup permissionGroup,
-    @Quoted @Argument("color") String color
+    @NonNull CommandSource source,
+    @NonNull @Argument("group") PermissionGroup permissionGroup,
+    @NonNull @Quoted @Argument("color") String color
   ) {
     this.updateGroup(permissionGroup, group -> group.color(color));
     source.sendMessage(I18n.trans("command-permissions-group-set-property", "color", permissionGroup.name(), color));
@@ -331,8 +340,8 @@ public final class CommandPermissions {
 
   @CommandMethod("permissions|perms group <group> set defaultGroup <defaultGroup>")
   public void setDefaultGroup(
-    CommandSource source,
-    @Argument("group") PermissionGroup permissionGroup,
+    @NonNull CommandSource source,
+    @NonNull @Argument("group") PermissionGroup permissionGroup,
     @Argument("defaultGroup") boolean defaultGroup
   ) {
     this.updateGroup(permissionGroup, group -> group.defaultGroup(defaultGroup));
@@ -344,9 +353,9 @@ public final class CommandPermissions {
 
   @CommandMethod("permissions|perms group <group> add group <name>")
   public void addInheritGroup(
-    CommandSource source,
-    @Argument("group") PermissionGroup permissionGroup,
-    @Argument("name") PermissionGroup targetGroup
+    @NonNull CommandSource source,
+    @NonNull @Argument("group") PermissionGroup permissionGroup,
+    @NonNull @Argument("name") PermissionGroup targetGroup
   ) {
     this.updateGroup(permissionGroup, group -> group.addGroup(targetGroup));
     source.sendMessage(I18n.trans("command-permissions-group-add-group-successful",
@@ -356,25 +365,25 @@ public final class CommandPermissions {
 
   @CommandMethod("permissions|perms group <group> add permission <permission> [potency] [targetGroup] [duration]")
   public void addGroupPermission(
-    CommandSource source,
-    @Argument("group") PermissionGroup permissionGroup,
-    @Argument("permission") String rawPermission,
-    @Argument("potency") Integer potency,
-    @Argument(value = "duration") Duration timeOut,
-    @Argument("targetGroup") GroupConfiguration targetGroup
+    @NonNull CommandSource source,
+    @NonNull @Argument("group") PermissionGroup permissionGroup,
+    @NonNull @Argument("permission") String rawPermission,
+    @Nullable @Argument("potency") Integer potency,
+    @Nullable @Argument(value = "duration") Duration timeOut,
+    @Nullable @Argument("targetGroup") GroupConfiguration targetGroup
   ) {
     this.addPermission(permissionGroup, rawPermission, potency, timeOut, targetGroup);
     source.sendMessage(I18n.trans("command-permissions-group-add-permission-successful",
-      permissionGroup.name(),
-      targetGroup.name()));
+      rawPermission,
+      permissionGroup.name()));
   }
 
   @CommandMethod("permissions|perms group <group> remove permission <permission> [targetGroup]")
   public void removeGroupPermission(
-    CommandSource source,
-    @Argument("group") PermissionGroup permissionGroup,
-    @Argument("permission") String rawPermission,
-    @Argument("targetGroup") GroupConfiguration groupConfiguration
+    @NonNull CommandSource source,
+    @NonNull @Argument("group") PermissionGroup permissionGroup,
+    @NonNull @Argument("permission") String rawPermission,
+    @Nullable @Argument("targetGroup") GroupConfiguration groupConfiguration
   ) {
     this.removePermission(permissionGroup, rawPermission, groupConfiguration);
     source.sendMessage(I18n.trans("command-permissions-group-remove-permission-successful",
@@ -384,9 +393,9 @@ public final class CommandPermissions {
 
   @CommandMethod("permissions|perms group <group> remove group <name>")
   public void removeInheritGroup(
-    CommandSource source,
-    @Argument("group") PermissionGroup permissionGroup,
-    @Argument("name") PermissionGroup targetGroup
+    @NonNull CommandSource source,
+    @NonNull @Argument("group") PermissionGroup permissionGroup,
+    @NonNull @Argument("name") PermissionGroup targetGroup
   ) {
     this.updateGroupDirect(permissionGroup, group -> group.groupNames().remove(targetGroup.name()));
     source.sendMessage(I18n.trans("command-permissions-group-remove-group-successful",
@@ -511,5 +520,4 @@ public final class CommandPermissions {
   private @NonNull PermissionManagement permissionManagement() {
     return CloudNet.instance().permissionManagement();
   }
-
 }
