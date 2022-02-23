@@ -366,11 +366,11 @@ public final class CommandService {
     list.add("* Lifecycle: " + service.lifeCycle());
     list.add("* Groups: " + String.join(", ", service.configuration().groups()));
 
-    if (!service.configuration().includes().isEmpty()) {
+    if (!service.configuration().inclusions().isEmpty()) {
       list.add(" ");
       list.add("* Includes:");
 
-      for (var inclusion : service.configuration().includes()) {
+      for (var inclusion : service.configuration().inclusions()) {
         list.add("- " + inclusion.url() + " => " + inclusion.destination());
       }
     }

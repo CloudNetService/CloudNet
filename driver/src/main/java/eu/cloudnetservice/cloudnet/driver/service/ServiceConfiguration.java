@@ -19,7 +19,6 @@ package eu.cloudnetservice.cloudnet.driver.service;
 import com.google.common.base.Verify;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.common.document.property.JsonDocPropertyHolder;
 import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.driver.provider.CloudServiceFactory;
 import java.util.Collection;
@@ -113,7 +112,7 @@ import org.jetbrains.annotations.Range;
  */
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class ServiceConfiguration extends JsonDocPropertyHolder implements Cloneable {
+public class ServiceConfiguration extends ServiceConfigurationBase implements Cloneable {
 
   protected final ServiceId serviceId;
   protected final ProcessConfiguration processConfig;
@@ -127,10 +126,6 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
 
   protected final Set<String> groups;
   protected final Set<String> deletedFilesAfterStop;
-
-  protected final Set<ServiceTemplate> templates;
-  protected final Set<ServiceDeployment> deployments;
-  protected final Set<ServiceRemoteInclusion> includes;
 
   /**
    * Constructs a new service configuration instance.
@@ -165,7 +160,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     @NonNull Set<ServiceRemoteInclusion> includes,
     @NonNull JsonDocument properties
   ) {
-    super(properties);
+    super(templates, deployments, includes, properties);
 
     this.serviceId = serviceId;
     this.port = port;
@@ -176,9 +171,6 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     this.processConfig = processConfig;
     this.groups = groups;
     this.deletedFilesAfterStop = deletedFilesAfterStop;
-    this.templates = templates;
-    this.deployments = deployments;
-    this.includes = includes;
   }
 
   /**
@@ -218,7 +210,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
 
       .templates(task.templates())
       .deployments(task.deployments())
-      .inclusions(task.includes())
+      .inclusions(task.inclusions())
 
       .environment(task.processConfiguration().environment())
       .maxHeapMemory(task.processConfiguration().maxHeapMemorySize())
@@ -251,7 +243,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
       .deletedFilesAfterStop(configuration.deletedFilesAfterStop())
       .templates(configuration.templates())
       .deployments(configuration.deployments())
-      .inclusions(configuration.includes())
+      .inclusions(configuration.inclusions())
       .properties(configuration.properties());
   }
 
@@ -341,41 +333,6 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
   }
 
   /**
-   * Get all templates that should get copied onto services created based on this configuration when preparing.
-   * Templates of configured groups and groups targeting the environment of this configuration will be included
-   * automatically.
-   * <p>
-   * <strong>NOTE:</strong> the returned set is not yet sorted, sorting will be made when actually including the
-   * templates. The sorting changes will not reflect into this configuration.
-   *
-   * @return all templates to include when preparing a service based on this configuration.
-   */
-  public @NonNull Set<ServiceTemplate> templates() {
-    return this.templates;
-  }
-
-  /**
-   * Get all deployments that should be added initially to services created based on this configuration. These
-   * deployments will not get executed directly, you need to execute them for each service individually using the
-   * service provider.
-   *
-   * @return all deployments which should get added initially when preparing a service.
-   */
-  public @NonNull Set<ServiceDeployment> deployments() {
-    return this.deployments;
-  }
-
-  /**
-   * Get all includes which should be added initially to services created based on this configuration. These inclusions
-   * are downloaded and included either when explicitly requested or before starting the service.
-   *
-   * @return all inclusions which should get added initially to services created based on this configuration.
-   */
-  public @NonNull Set<ServiceRemoteInclusion> includes() {
-    return this.includes;
-  }
-
-  /**
    * Get the process configuration to apply to all services which get created based on this configuration.
    *
    * @return the process configuration to apply to all services.
@@ -393,6 +350,22 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
    */
   public @Range(from = 0, to = 65535) int port() {
     return this.port;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull Collection<String> jvmOptions() {
+    return this.processConfig.jvmOptions();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull Collection<String> processParameters() {
+    return this.processConfig.processParameters();
   }
 
   /**
@@ -432,7 +405,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
    *
    * @since 4.0
    */
-  public static class Builder {
+  public static class Builder extends ServiceConfigurationBase.Builder<ServiceConfiguration, Builder> {
 
     protected ServiceId.Builder serviceId = ServiceId.builder();
     protected ProcessConfiguration.Builder processConfig = ProcessConfiguration.builder();
@@ -444,14 +417,9 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     protected boolean autoDeleteOnStop = true;
 
     protected int port = 44955;
-    protected JsonDocument properties = JsonDocument.newDocument();
 
     protected Set<String> groups = new HashSet<>();
     protected Set<String> deletedFilesAfterStop = new HashSet<>();
-
-    protected Set<ServiceTemplate> templates = new HashSet<>();
-    protected Set<ServiceDeployment> deployments = new HashSet<>();
-    protected Set<ServiceRemoteInclusion> includes = new HashSet<>();
 
     /**
      * Sets the service id builder of this builder. Further calls might overwrite changes in the given builder, for
@@ -701,111 +669,6 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     }
 
     /**
-     * Sets all inclusions which should get loaded onto a service created based on the service configuration before it
-     * starts. Inclusions get cached based on their download url. If you need a clean copy of your inclusion you should
-     * change the download url of it. If the node is unable to download an inclusion based on the given url it will be
-     * ignored and a warning gets printed into the console.
-     * <p>
-     * This method overrides all previously added inclusions. The given collection will be copied into this builder,
-     * meaning that changes made to the collection after the method call will not reflect into the builder and
-     * vice-versa.
-     *
-     * @param inclusions the inclusions to include on all services created based on the configuration.
-     * @return the same instance as used to call the method, for chaining.
-     * @throws NullPointerException if the given inclusion collection is null.
-     */
-    public @NonNull Builder inclusions(@NonNull Collection<ServiceRemoteInclusion> inclusions) {
-      this.includes = new HashSet<>(inclusions);
-      return this;
-    }
-
-    /**
-     * Adds all inclusions which should get loaded onto a service created based on the service configuration before it
-     * starts. Inclusions get cached based on their download url. If you need a clean copy of your inclusion you should
-     * change the download url of it. If the node is unable to download an inclusion based on the given url it will be
-     * ignored and a warning gets printed into the console.
-     * <p>
-     * The given collection will be copied into this builder, meaning that changes made to the collection after the
-     * method call will not reflect into the builder and vice-versa.
-     *
-     * @param inclusions the inclusions to add include to the previously set inclusions.
-     * @return the same instance as used to call the method, for chaining.
-     * @throws NullPointerException if the given inclusion collection is null.
-     */
-    public @NonNull Builder addInclusions(@NonNull Collection<ServiceRemoteInclusion> inclusions) {
-      this.includes.addAll(inclusions);
-      return this;
-    }
-
-    /**
-     * Sets all templates which should get loaded onto a service before it starts. The given collection sorting is
-     * ignored and the templates will get re-sorted based on their priority. Templates will override existing files from
-     * any source if they are present in them, make sure to use an appropriate order for them.
-     * <p>
-     * This method will override all previously added templates. The given collection will be copied into this builder,
-     * meaning that changes made to the collection after the method call will not reflect into the builder and
-     * vice-versa.
-     *
-     * @param templates the templates to include onto all services before starting them.
-     * @return the same instance as used to call the method, for chaining.
-     * @throws NullPointerException if the given template collection is null.
-     */
-    public @NonNull Builder templates(@NonNull Collection<ServiceTemplate> templates) {
-      this.templates = new HashSet<>(templates);
-      return this;
-    }
-
-    /**
-     * Adds all templates which should get loaded onto a service before it starts. The given collection sorting is
-     * ignored and the templates will get re-sorted based on their priority. Templates will override existing files from
-     * any source if they are present in them, make sure to use an appropriate order for them.
-     * <p>
-     * The given collection will be copied into this builder, meaning that changes made to the collection after the
-     * method call will not reflect into the builder and vice-versa.
-     *
-     * @param templates the templates to include onto all services before starting them.
-     * @return the same instance as used to call the method, for chaining.
-     * @throws NullPointerException if the given template collection is null.
-     */
-    public @NonNull Builder addTemplates(@NonNull Collection<ServiceTemplate> templates) {
-      this.templates.addAll(templates);
-      return this;
-    }
-
-    /**
-     * Sets the deployments to execute when a service based on the configuration gets stopped or when explicitly
-     * requested by calling the associated method on the service provider.
-     * <p>
-     * This method will override all previously added deployments. The given collection will be copied into this
-     * builder, meaning that changes made to the collection after the method call will not reflect into the builder and
-     * vice-versa.
-     *
-     * @param deployments the deployments to add to every service created based on the configuration.
-     * @return the same instance as used to call the method, for chaining.
-     * @throws NullPointerException if the given deployment collection is null.
-     */
-    public @NonNull Builder deployments(@NonNull Collection<ServiceDeployment> deployments) {
-      this.deployments = new HashSet<>(deployments);
-      return this;
-    }
-
-    /**
-     * Adds the deployments to execute when a service based on the configuration gets stopped or when explicitly
-     * requested by calling the associated method on the service provider.
-     * <p>
-     * The given collection will be copied into this builder, meaning that changes made to the collection after the
-     * method call will not reflect into the builder and vice-versa.
-     *
-     * @param deployments the deployments to add to every service created based on the configuration.
-     * @return the same instance as used to call the method, for chaining.
-     * @throws NullPointerException if the given deployment collection is null.
-     */
-    public @NonNull Builder addDeployments(@NonNull Collection<ServiceDeployment> deployments) {
-      this.deployments.addAll(deployments);
-      return this;
-    }
-
-    /**
      * Sets the files which should get deleted when stopping a service created based on the configuration. Any path in
      * the given collection can either represent a single file or directory, but must be inside the service directory.
      * Path traversal to leave the service directory will result in an exception.
@@ -866,6 +729,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given options collection is null.
      */
+    @Override
     public @NonNull Builder jvmOptions(@NonNull Collection<String> jvmOptions) {
       this.processConfig.jvmOptions(jvmOptions);
       return this;
@@ -884,6 +748,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given options collection is null.
      */
+    @Override
     public @NonNull Builder addJvmOptions(@NonNull Collection<String> jvmOptions) {
       this.processConfig.addJvmOptions(jvmOptions);
       return this;
@@ -900,6 +765,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given parameters' collection is null.
      */
+    @Override
     public @NonNull Builder processParameters(@NonNull Collection<String> processParameters) {
       this.processConfig.processParameters(processParameters);
       return this;
@@ -917,6 +783,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given parameters' collection is null.
      */
+    @Override
     public @NonNull Builder addProcessParameters(@NonNull Collection<String> processParameters) {
       this.processConfig.addProcessParameters(processParameters);
       return this;
@@ -936,20 +803,10 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     }
 
     /**
-     * The properties to apply to all services based on the configuration. These properties will get appended by default
-     * to all services and can contain any data you want or need, for example the configuration of a plugin, the owner
-     * unique id of a private server or anything else.
-     * <p>
-     * Note: some plugins might override certain properties, for example the bridge plugin overrides the online count
-     * property if set. There is no way to prevent this, as it ensures that CloudNet can run correctly. Just make sure
-     * that your property names differ from them CloudNet uses by default.
-     *
-     * @param properties the properties to apply by default to all services.
-     * @return the same instance as used to call the method, for chaining.
-     * @throws NullPointerException if the given properties document is null.
+     * {@inheritDoc}
      */
-    public @NonNull Builder properties(@NonNull JsonDocument properties) {
-      this.properties = properties.clone();
+    @Override
+    protected @NonNull Builder self() {
       return this;
     }
 
@@ -961,6 +818,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
      * @return a new service configuration based on this builder.
      * @throws com.google.common.base.VerifyException if one of the required properties is either not set or invalid.
      */
+    @Override
     public @NonNull ServiceConfiguration build() {
       Verify.verify(this.port > 0 && this.port <= 65535, "invalid port provided");
       return new ServiceConfiguration(

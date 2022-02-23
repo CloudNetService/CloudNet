@@ -172,7 +172,7 @@ public final class CommandGroups {
   ) {
     var inclusion = ServiceRemoteInclusion.builder().url(url).destination(path).build();
 
-    group.includes().add(inclusion);
+    group.inclusions().add(inclusion);
     this.updateGroup(group);
     source.sendMessage(I18n.trans("command-groups-add-collection-property",
       "inclusion",
@@ -270,7 +270,7 @@ public final class CommandGroups {
   ) {
     var inclusion = ServiceRemoteInclusion.builder().url(url).destination(path).build();
 
-    group.includes().remove(inclusion);
+    group.inclusions().remove(inclusion);
     this.updateGroup(group);
     source.sendMessage(I18n.trans("command-groups-remove-collection-property",
       "inclusion",

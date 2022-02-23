@@ -592,7 +592,7 @@ public abstract class AbstractService implements CloudService {
     // add all components
     this.waitingTemplates.addAll(this.serviceConfiguration.templates());
     this.waitingDeployments.addAll(this.serviceConfiguration.deployments());
-    this.waitingRemoteInclusions.addAll(this.serviceConfiguration.includes());
+    this.waitingRemoteInclusions.addAll(this.serviceConfiguration.inclusions());
     // load the inclusions
     this.includeWaitingServiceInclusions();
     // check if we should load the templates of the service

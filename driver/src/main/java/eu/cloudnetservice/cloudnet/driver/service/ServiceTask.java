@@ -115,7 +115,7 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
       .processParameters(serviceTask.processParameters())
       .templates(serviceTask.templates())
       .deployments(serviceTask.deployments())
-      .includes(serviceTask.includes())
+      .inclusions(serviceTask.inclusions())
 
       .startPort(serviceTask.startPort())
       .minServiceCount(serviceTask.minServiceCount())

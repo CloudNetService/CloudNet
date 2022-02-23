@@ -102,7 +102,7 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
       .targetEnvironments(group.targetEnvironments())
       .templates(group.templates())
       .deployments(group.deployments())
-      .includes(group.includes());
+      .inclusions(group.inclusions());
   }
 
   /**
