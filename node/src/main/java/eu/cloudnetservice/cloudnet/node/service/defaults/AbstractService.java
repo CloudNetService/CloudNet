@@ -99,7 +99,9 @@ public abstract class AbstractService implements CloudService {
   protected final Queue<ServiceRemoteInclusion> waitingRemoteInclusions = new ConcurrentLinkedQueue<>();
 
   protected ServiceConsoleLogCache logCache;
+
   protected volatile NetworkChannel networkChannel;
+  protected volatile long connectionTimestamp = -1;
 
   protected volatile ServiceInfoSnapshot lastServiceInfo;
   protected volatile ServiceInfoSnapshot currentServiceInfo;
@@ -408,12 +410,13 @@ public abstract class AbstractService implements CloudService {
     // close the channel if the new channel is null
     if (this.networkChannel != null) {
       this.networkChannel.close();
-      this.currentServiceInfo.connectedTime(0);
+      this.connectionTimestamp = -1;
     } else {
-      this.currentServiceInfo.connectedTime(System.currentTimeMillis());
+      this.connectionTimestamp = System.currentTimeMillis();
     }
     // set the new channel
     this.networkChannel = channel;
+    this.pushServiceInfoSnapshotUpdate(this.lastServiceInfo.lifeCycle(), false);
   }
 
   @Override
@@ -513,6 +516,10 @@ public abstract class AbstractService implements CloudService {
   }
 
   protected void pushServiceInfoSnapshotUpdate(@NonNull ServiceLifeCycle lifeCycle) {
+    this.pushServiceInfoSnapshotUpdate(lifeCycle, true);
+  }
+
+  protected void pushServiceInfoSnapshotUpdate(@NonNull ServiceLifeCycle lifeCycle, boolean sendUpdate) {
     // save the current service info
     this.lastServiceInfo = this.currentServiceInfo;
     // update the current info
@@ -522,23 +529,26 @@ public abstract class AbstractService implements CloudService {
       this.lastServiceInfo.connectAddress(),
       this.alive() ? this.lastServiceInfo.processSnapshot() : ProcessSnapshot.empty(),
       this.lastServiceInfo.configuration(),
-      this.networkChannel == null ? -1 : this.lastServiceInfo.connectedTime(),
+      this.connectionTimestamp,
       lifeCycle,
       this.lastServiceInfo.properties());
     // remove the service in the local manager if the service was deleted
     if (lifeCycle == ServiceLifeCycle.DELETED) {
       this.cloudServiceManager.unregisterLocalService(this);
     }
-    // call the lifecycle change event
-    this.eventManager.callEvent(new CloudServicePostLifecycleEvent(this, lifeCycle));
-    // publish the change to all services and nodes
-    ChannelMessage.builder()
-      .targetAll()
-      .message("update_service_lifecycle")
-      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .buffer(DataBuf.empty().writeObject(this.lastServiceInfo.lifeCycle()).writeObject(this.currentServiceInfo))
-      .build()
-      .send();
+
+    if (sendUpdate) {
+      // call the lifecycle change event
+      this.eventManager.callEvent(new CloudServicePostLifecycleEvent(this, lifeCycle));
+      // publish the change to all services and nodes
+      ChannelMessage.builder()
+        .targetAll()
+        .message("update_service_lifecycle")
+        .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+        .buffer(DataBuf.empty().writeObject(this.lastServiceInfo.lifeCycle()).writeObject(this.currentServiceInfo))
+        .build()
+        .send();
+    }
   }
 
   protected boolean canStartNow() {

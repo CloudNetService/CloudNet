@@ -545,6 +545,7 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
      * @param nameSplitter the name splitter to use for services created based on the service configuration.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given name splitter is null.
+     * @throws com.google.common.base.VerifyException if the given name splitter does not follow the naming pattern.
      */
     public @NonNull Builder nameSplitter(@NonNull String nameSplitter) {
       this.serviceId.nameSplitter(nameSplitter);

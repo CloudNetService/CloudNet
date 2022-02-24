@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
@@ -116,7 +117,7 @@ public class DefaultObjectMapperTest {
         .taskName("Lobby")
         .nameSplitter("hello")
         .taskServiceId(156)
-        .addAllowedNode("Node-245")
+        .addAllowedNodes(Set.of("Node-245"))
         .environment(ServiceEnvironmentType.WATERDOG_PE)
         .build()),
       Arguments.of(new ServiceInfoSnapshot(

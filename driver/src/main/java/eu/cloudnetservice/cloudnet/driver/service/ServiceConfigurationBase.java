@@ -26,7 +26,10 @@ import lombok.NonNull;
 import lombok.ToString;
 
 /**
- * The base class for configuration
+ * The base configuration class for everything which can configure a service in any way. It holds the most common
+ * information which every component managing a service should provide to a user.
+ *
+ * @since 4.0
  */
 @ToString
 @EqualsAndHashCode(callSuper = false)
@@ -36,6 +39,15 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
   protected final Set<ServiceDeployment> deployments;
   protected final Set<ServiceRemoteInclusion> includes;
 
+  /**
+   * Constructs a new service configuration base instance.
+   *
+   * @param templates   the templates which should be loaded to all services created based on the configuration.
+   * @param deployments the deployment which should be added to all services created based on the configuration.
+   * @param includes    the includes which should be loaded to all services created based on the configuration.
+   * @param properties  the properties of the configuration.
+   * @throws NullPointerException if one of the constructor parameters are null.
+   */
   protected ServiceConfigurationBase(
     @NonNull Set<ServiceTemplate> templates,
     @NonNull Set<ServiceDeployment> deployments,
@@ -48,8 +60,20 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
     this.includes = includes;
   }
 
+  /**
+   * Get the jvm options which should get applied to the service command line. JVM options are there to configure the
+   * behaviour of the jvm, for example the garbage collector.
+   *
+   * @return the jvm options to set for services created based on this configuration.
+   */
   public abstract @NonNull Collection<String> jvmOptions();
 
+  /**
+   * Get the process parameters which should get appended to the command line. Process parameters are there to configure
+   * the application, for example setting an option like --online-mode=true.
+   *
+   * @return the process parameters to set for services created based on this configuration.
+   */
   public abstract @NonNull Collection<String> processParameters();
 
   /**
@@ -87,6 +111,13 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
     return this.deployments;
   }
 
+  /**
+   * The base builder class for everything which is a service configuration.
+   *
+   * @param <T> the type which gets build by the builder.
+   * @param <B> the builder instance from the type which gets build, for proper chaining purposes.
+   * @since 4.0
+   */
   public abstract static class Builder<T extends ServiceConfigurationBase, B extends Builder<T, B>> {
 
     protected JsonDocument properties = JsonDocument.newDocument();
@@ -108,7 +139,7 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
      * @throws NullPointerException if the given properties document is null.
      */
     public @NonNull B properties(@NonNull JsonDocument properties) {
-      this.properties = properties;
+      this.properties = properties.clone();
       return this.self();
     }
 
@@ -286,8 +317,18 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
       return this.self();
     }
 
+    /**
+     * Get the current instance of the builder, this removes the need for unchecked generics which are annoying.
+     *
+     * @return the current instance of this builder.
+     */
     protected abstract @NonNull B self();
 
+    /**
+     * Builds an instance of the service configuration type this builder is targeting.
+     *
+     * @return the build service configuration.
+     */
     public abstract @NonNull T build();
   }
 }
