@@ -5,6 +5,10 @@ on:
   schedule:
     - cron: '00 2 * * *'
 
+concurrency:
+  group: build-${{ github.event.pull_request.number || github.job }}
+  cancel-in-progress: true
+
 jobs:
   analyze:
     name: Analyze
