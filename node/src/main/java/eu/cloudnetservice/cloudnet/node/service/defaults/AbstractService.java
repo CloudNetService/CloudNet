@@ -288,11 +288,9 @@ public abstract class AbstractService implements CloudService {
       // prepare the connection from which we load the inclusion
       var req = Unirest.get(inclusion.url());
       // put the given http headers
-      if (inclusion.properties().contains("httpHeaders")) {
-        var headers = inclusion.properties().getDocument("httpHeaders");
-        for (var key : headers.keys()) {
-          req.header(key, headers.get(key).toString());
-        }
+      var headers = inclusion.property(ServiceRemoteInclusion.HEADERS);
+      for (var key : headers.keys()) {
+        req.header(key, headers.get(key).toString());
       }
       // check if we should load the inclusion
       if (!this.eventManager.callEvent(new CloudServicePreLoadInclusionEvent(this, inclusion, req)).cancelled()) {

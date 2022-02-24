@@ -20,20 +20,23 @@ import com.google.common.base.Verify;
 import eu.cloudnetservice.cloudnet.common.Nameable;
 import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.driver.template.SpecificTemplateStorage;
-import java.util.Arrays;
-import java.util.Objects;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
 /**
- * Defines the location of a template for services that can either be copied into a service or filled from a service by
- * using a {@link ServiceDeployment}. CloudNet's default storage is "local".
+ * A service template holds all files which can be copied onto a service. They are building the base structure of any
+ * dynamic service and can be included on them dynamically as well.
+ *
+ * @since 4.0
  */
 @EqualsAndHashCode
 public class ServiceTemplate implements Nameable, Comparable<ServiceTemplate>, Cloneable {
 
+  /**
+   * The name of the local template storage.
+   */
   public static final String LOCAL_STORAGE = "local";
 
   private final String prefix;
@@ -43,6 +46,16 @@ public class ServiceTemplate implements Nameable, Comparable<ServiceTemplate>, C
   private final int priority;
   private final boolean alwaysCopyToStaticServices;
 
+  /**
+   * Constructs a new service template instance.
+   *
+   * @param prefix                     the prefix of the template.
+   * @param name                       the actual name of the template.
+   * @param storage                    the storage in which the template is stored.
+   * @param priority                   the inclusion priority of the template.
+   * @param alwaysCopyToStaticServices if the template should always get copied onto static services.
+   * @throws NullPointerException if one of the given parameters is null.
+   */
   protected ServiceTemplate(
     @NonNull String prefix,
     @NonNull String name,
@@ -57,10 +70,25 @@ public class ServiceTemplate implements Nameable, Comparable<ServiceTemplate>, C
     this.alwaysCopyToStaticServices = alwaysCopyToStaticServices;
   }
 
+  /**
+   * Constructs a new builder instance for a service template.
+   *
+   * @return a new service template builder.
+   */
   public static @NonNull Builder builder() {
     return new Builder();
   }
 
+  /**
+   * Constructs a new builder for a service template which has all properties of the given template already set.
+   * <p>
+   * When calling build directly after constructing a builder using this method, it will result in a service template
+   * which is equal but not the same as the given one.
+   *
+   * @param template the template to copy the properties of.
+   * @return a builder for a service template which has the properties of the given template already set.
+   * @throws NullPointerException if the given service template is null.
+   */
   public static @NonNull Builder builder(@NonNull ServiceTemplate template) {
     return builder()
       .name(template.name())
@@ -71,13 +99,18 @@ public class ServiceTemplate implements Nameable, Comparable<ServiceTemplate>, C
   }
 
   /**
-   * Parses a template out of a string in the following format: storage:prefix/name "storage:" is optional, only
-   * "prefix/name" needs to be provided
+   * Parses a service template from the given input string if possible. The input template must be in the form
+   * <ol>
+   *   <li>storage:prefix/name
+   *   <li>prefix/name (in this case the storage of the template will be the local storage)
+   * </ol>
    * <p>
-   * alwaysCopyToStaticServices will always be false in the returned ServiceTemplate.
+   * Note: the returned service template only contains data actually given to the method, therefore the priority of the
+   * template will always be 0 and alwaysCopyToStaticServices false.
    *
-   * @param template the template in the specified format
-   * @return the parsed ServiceTemplate or null if the format was invalid
+   * @param template the input string to parse if possible.
+   * @return the parsed service template from the given input, null if parsing was not possible.
+   * @throws NullPointerException if the given input string is null.
    */
   public static @Nullable ServiceTemplate parse(@NonNull String template) {
     // check if the template contains a storage-name splitter
@@ -87,7 +120,7 @@ public class ServiceTemplate implements Nameable, Comparable<ServiceTemplate>, C
     }
     // read the storage and name path
     var path = parts.length == 2 ? parts[1] : parts[0];
-    var storage = parts.length == 2 ? parts[0] : "local";
+    var storage = parts.length == 2 ? parts[0] : LOCAL_STORAGE;
     // validate the name path
     var splitPath = path.split("/");
     if (splitPath.length != 2) {
@@ -102,80 +135,103 @@ public class ServiceTemplate implements Nameable, Comparable<ServiceTemplate>, C
   }
 
   /**
-   * Parses multiple templates out of a string in the format specified for {@link #parse(String)} split by ";".
-   *
-   * @param templates the templates in the specified format
-   * @return an array of the parsed templates, this will not contain any null elements if any format is wrong
+   * {@inheritDoc}
    */
-  public static ServiceTemplate @NonNull [] parseArray(@NonNull String templates) {
-    return Arrays.stream(templates.split(";"))
-      .map(ServiceTemplate::parse)
-      .filter(Objects::nonNull)
-      .toArray(ServiceTemplate[]::new);
-  }
-
   @Override
   public @NonNull String name() {
     return this.name;
   }
 
+  /**
+   * Get the prefix of the template. The prefix is used to group templates together, for example for a service task.
+   *
+   * @return the prefix of the template.
+   */
   public @NonNull String prefix() {
     return this.prefix;
   }
 
+  /**
+   * Get the name of the storage in which the template is located.
+   *
+   * @return the storage of the template.
+   */
   public @NonNull String storageName() {
     return this.storage;
   }
 
   /**
-   * This priority is used to determine in which order the template should be installed e.g. a Template with a priority
-   * of 10 (high prio) is installed after Templates with a lower prio (e.g. 1) are installed to prevent that Templates
-   * with lower priorities overwrite Templates with a higher one
+   * This priority is used to determine in which order the template should be loaded onto a service. For example a
+   * template with a priority of 10 (high priority) is installed after templates with a lower priority (for example 1).
+   * This can for example be used to control the order of file copies, for example when they potentially override each
+   * other.
    *
-   * @return the priority of the template
+   * @return the priority of the template.
    */
   public int priority() {
     return this.priority;
   }
 
+  /**
+   * Get if this template should always be copied onto static services. By default, a template is only copied onto a
+   * static service when it starts for the first time. Note that if enabled file from this template can override files
+   * which were created by the static service.
+   *
+   * @return true if this template should always be copied onto static services, false otherwise.
+   */
   public boolean alwaysCopyToStaticServices() {
     return this.alwaysCopyToStaticServices;
   }
 
+  /**
+   * Get the full name of the template without the storage prefix. If you need a name with storage, use toString
+   * instead.
+   *
+   * @return the full name of the template in the format: prefix/name.
+   */
   public @NonNull String fullName() {
     return this.prefix + '/' + this.name;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull String toString() {
     return this.storage + ':' + this.prefix + '/' + this.name;
   }
 
   /**
-   * Creates a new {@link SpecificTemplateStorage} for this template.
+   * Constructs a new template storage which can be used to specifically manage files in this template.
    *
-   * @return a new instance of the {@link SpecificTemplateStorage}
-   * @throws IllegalArgumentException if the storage in this template doesn't exist
+   * @return a template storage targeting this template.
+   * @throws com.google.common.base.VerifyException if the storage used in this template is unknown.
    */
   public @NonNull SpecificTemplateStorage storage() {
     return SpecificTemplateStorage.of(this);
   }
 
   /**
-   * Creates a new {@link SpecificTemplateStorage} for the given template.
+   * Constructs a new template storage which can be used to specifically manage files in this template.
    *
-   * @return a new instance of the {@link SpecificTemplateStorage} or null if the storage doesn't exist
+   * @return a template storage targeting this template, null if the storage of this template is unknown.
    */
-  public @Nullable SpecificTemplateStorage knownStorage() {
+  public @Nullable SpecificTemplateStorage findStorage() {
     var storage = CloudNetDriver.instance().templateStorage(this.storage);
     return storage != null ? SpecificTemplateStorage.of(this, storage) : null;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Range(from = -1, to = 1) int compareTo(@NonNull ServiceTemplate serviceTemplate) {
     return Integer.compare(this.priority, serviceTemplate.priority);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public ServiceTemplate clone() {
     try {
@@ -185,6 +241,11 @@ public class ServiceTemplate implements Nameable, Comparable<ServiceTemplate>, C
     }
   }
 
+  /**
+   * A builder for a template storage.
+   *
+   * @since 4.0
+   */
   public static class Builder {
 
     private String name;
@@ -194,31 +255,76 @@ public class ServiceTemplate implements Nameable, Comparable<ServiceTemplate>, C
     private int priority;
     private boolean alwaysCopyToStaticServices;
 
+    /**
+     * Sets the name of the template. The name is the main identification point of the template and can be for example
+     * 2x2 if you want to name a map for 4 players.
+     *
+     * @param name the name of the template.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given name is null.
+     */
     public @NonNull Builder name(@NonNull String name) {
       this.name = name;
       return this;
     }
 
+    /**
+     * Sets the prefix of the template. This can be used to group templates together, for example all templates for
+     * BedWars. The names of the templates would be the map sized (for example 2x2 or 3x3), grouped by the prefix of the
+     * template, BedWars.
+     *
+     * @param prefix the prefix of the template.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given prefix is null.
+     */
     public @NonNull Builder prefix(@NonNull String prefix) {
       this.prefix = prefix;
       return this;
     }
 
+    /**
+     * Sets the storage of the template. No check is made if the storage given to this method actually exists.
+     *
+     * @param storage the storage of the template.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given storage name is null.
+     */
     public @NonNull Builder storage(@NonNull String storage) {
       this.storage = storage;
       return this;
     }
 
+    /**
+     * Sets the priority of the template. The priority is used to control the order in which templates get loaded onto a
+     * service to prevent for example accidental overrides of files which are located in multiple templates. The
+     * template with the highest priority will be loaded at the end.
+     *
+     * @param priority the priority of the template.
+     * @return the same instance as used to call the method, for chaining.
+     */
     public @NonNull Builder priority(int priority) {
       this.priority = priority;
       return this;
     }
 
+    /**
+     * Sets the if the template should always get copied onto static services. By default, all templates will only get
+     * copied once at the initial startup of the static service.
+     *
+     * @param alwaysCopyToStaticServices if the template should always be copied onto static services.
+     * @return the same instance as used to call the method, for chaining.
+     */
     public @NonNull Builder alwaysCopyToStaticServices(boolean alwaysCopyToStaticServices) {
       this.alwaysCopyToStaticServices = alwaysCopyToStaticServices;
       return this;
     }
 
+    /**
+     * Builds the service template based on this builder.
+     *
+     * @return the created service template.
+     * @throws com.google.common.base.VerifyException if no name or prefix was given.
+     */
     public @NonNull ServiceTemplate build() {
       Verify.verifyNotNull(this.name, "no name given");
       Verify.verifyNotNull(this.prefix, "no prefix given");

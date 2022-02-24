@@ -22,7 +22,16 @@ import java.lang.management.ThreadInfo;
 import lombok.NonNull;
 
 /**
- * The information of a thread running on any process in the Cloud.
+ * Contains some basic information about a thread which is known to the jvm. The thread snapshot will not update the
+ * information about the associated thread and only contains its data at a specific point of time. Make sure to get the
+ * thread information again if an updated version of it is required.
+ *
+ * @param id          the numeric id of the running thread.
+ * @param priority    the priority of the thread.
+ * @param daemon      if the thread is a daemon thread.
+ * @param name        the name of the thread.
+ * @param threadState the current state of the thread.
+ * @since 4.0
  */
 public record ThreadSnapshot(
   long id,
@@ -32,6 +41,13 @@ public record ThreadSnapshot(
   @NonNull State threadState
 ) implements Nameable, Cloneable {
 
+  /**
+   * Creates a thread snapshot from the given thread.
+   *
+   * @param thread the thread to create the snapshot for.
+   * @return the created thread snapshot for the given thread.
+   * @throws NullPointerException if the given thread is null.
+   */
   public static @NonNull ThreadSnapshot from(@NonNull Thread thread) {
     return new ThreadSnapshot(
       thread.getId(),
@@ -41,6 +57,13 @@ public record ThreadSnapshot(
       thread.getState());
   }
 
+  /**
+   * Creates a thread snapshot from the given thread info.
+   *
+   * @param info the thread info to create the thread snapshot for.
+   * @return the created thread snapshot based on the given thread info.
+   * @throws NullPointerException if the given thread info is null.
+   */
   public static @NonNull ThreadSnapshot from(@NonNull ThreadInfo info) {
     return new ThreadSnapshot(
       info.getThreadId(),
@@ -50,6 +73,9 @@ public record ThreadSnapshot(
       info.getThreadState());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull ThreadSnapshot clone() {
     try {

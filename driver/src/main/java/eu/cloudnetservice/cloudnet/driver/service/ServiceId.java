@@ -92,8 +92,8 @@ public class ServiceId implements Nameable {
   /**
    * Constructs a new builder for a service id which has the same properties set as the given service id.
    * <p>
-   * When calling build directly after constructing a builder using this method, it will result in an service id which
-   * is equal but not the same as the given one.
+   * When calling build directly after constructing a builder using this method, it will result in a service id which is
+   * equal but not the same as the given one.
    *
    * @param serviceId the service id to copy the properties of.
    * @return a new builder for a service id with the properties of the given one already set.

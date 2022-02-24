@@ -333,7 +333,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     }
 
     var template = ServiceTemplate.builder().prefix(prefix).name(name).storage(storage).build();
-    var templateStorage = template.knownStorage();
+    var templateStorage = template.findStorage();
 
     if (templateStorage == null) {
       this.ok(context)
