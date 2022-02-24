@@ -43,7 +43,7 @@ jjwt = "0.11.2"
 slf4j = "1.7.32"
 javers = "6.6.2"
 caffeine = "3.0.5"
-awsSdk = "2.17.132"
+awsSdk = "2.17.136"
 dockerJava = "3.2.13"
 unirest = "4.0.0-RC2"
 netty = "4.1.74.Final"
@@ -69,7 +69,7 @@ npcLib = "development-SNAPSHOT"
 
 # fabric platform special dependencies
 minecraft = "1.18.1"
-fabricLoader = "0.13.2"
+fabricLoader = "0.13.3"
 
 
 [libraries]
