@@ -49,8 +49,6 @@ public final class NettyPacketLengthSerializer extends MessageToByteEncoder<Byte
   protected ByteBuf allocateBuffer(@NonNull ChannelHandlerContext ctx, @NonNull ByteBuf msg, boolean preferDirect) {
     // only pre-allocate exactly the amount of bytes we're needing to write the message prefixed by the length of it.
     var initialSize = NettyUtil.varIntByteAmount(msg.readableBytes()) + msg.readableBytes();
-    return preferDirect
-      ? ctx.alloc().heapBuffer(initialSize)
-      : ctx.alloc().directBuffer(initialSize);
+    return ctx.alloc().directBuffer(initialSize);
   }
 }
