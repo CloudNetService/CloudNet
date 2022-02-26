@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 
@@ -213,7 +214,7 @@ public class DefaultTaskSetup implements DefaultSetup {
       .maxHeapMemory(maxHeapMemory)
       .javaCommand(javaCommand.first())
       .serviceEnvironmentType(environment)
-      .groups(Collections.singletonList(groupName))
+      .groups(Set.of(groupName, taskName))
       .startPort(environment.defaultStartPort())
       .templates(Collections.singletonList(template))
       .build());
