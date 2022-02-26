@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.platform.bungeecord;
 
+import static eu.cloudnetservice.modules.bridge.platform.bungeecord.BungeeCordHelper.translateToComponent;
 import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
 
 import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
@@ -65,7 +66,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
       // check if maintenance is activated
       if (task.maintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
         event.setCancelled(true);
-        event.setCancelReason(TextComponent.fromLegacyText(this.management.configuration().message(
+        event.setCancelReason(translateToComponent(this.management.configuration().message(
           Locale.ENGLISH,
           "proxy-join-cancel-because-maintenance")));
         return;
@@ -74,7 +75,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
       var permission = task.properties().getString("requiredPermission");
       if (permission != null && !player.hasPermission(permission)) {
         event.setCancelled(true);
-        event.setCancelReason(TextComponent.fromLegacyText(this.management.configuration().message(
+        event.setCancelReason(translateToComponent(this.management.configuration().message(
           Locale.ENGLISH,
           "proxy-join-cancel-because-permission")));
         return;
@@ -129,12 +130,12 @@ public final class BungeeCordPlayerManagementListener implements Listener {
           .replace("%server%", event.getKickedFrom().getName())
           .replace("%reason%", ComponentSerializer.toString(event.getKickReasonComponent()));
         // send the player the reason for the disconnect
-        event.getPlayer().sendMessage(TextComponent.fromLegacyText(baseMessage));
+        event.getPlayer().sendMessage(translateToComponent(baseMessage));
       } else {
         // no lobby server - the player will disconnect
         event.setCancelled(false);
         event.setCancelServer(null);
-        event.setKickReasonComponent(TextComponent.fromLegacyText(this.management.configuration().message(
+        event.setKickReasonComponent(translateToComponent(this.management.configuration().message(
           event.getPlayer().getLocale(),
           "proxy-join-disconnect-because-no-hub")));
       }

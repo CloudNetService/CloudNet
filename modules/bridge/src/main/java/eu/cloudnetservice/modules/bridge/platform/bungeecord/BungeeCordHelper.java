@@ -17,6 +17,7 @@
 package eu.cloudnetservice.modules.bridge.platform.bungeecord;
 
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.net.InetSocketAddress;
@@ -24,9 +25,11 @@ import java.util.function.Consumer;
 import lombok.NonNull;
 import net.md_5.bungee.api.ProxyConfig;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 
-final class BungeeCordServerHelper {
+public final class BungeeCordHelper {
 
   static final Consumer<ServiceInfoSnapshot> SERVER_REGISTER_HANDLER;
   static final Consumer<ServiceInfoSnapshot> SERVER_UNREGISTER_HANDLER;
@@ -79,8 +82,12 @@ final class BungeeCordServerHelper {
     SERVER_UNREGISTER_HANDLER = serverUnregisterHandler;
   }
 
-  private BungeeCordServerHelper() {
+  private BungeeCordHelper() {
     throw new UnsupportedOperationException();
+  }
+
+  public static @NonNull BaseComponent[] translateToComponent(@NonNull String input) {
+    return TextComponent.fromLegacyText(AdventureSerializerUtil.serializeToString(input));
   }
 
   private static @NonNull ServerInfo constructServerInfo(@NonNull ServiceInfoSnapshot snapshot) {

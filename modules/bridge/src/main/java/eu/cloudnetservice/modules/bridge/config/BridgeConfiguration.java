@@ -63,7 +63,7 @@ public final class BridgeConfiguration extends JsonDocPropertyHolder {
 
   public BridgeConfiguration() {
     super(JsonDocument.newDocument());
-    this.prefix = "&7Cloud &8| &b";
+    this.prefix = "§7Cloud §8| §b";
     this.localizedMessages = new HashMap<>(DEFAULT_MESSAGES);
     this.logPlayerConnections = true;
     this.excludedGroups = new ArrayList<>();
