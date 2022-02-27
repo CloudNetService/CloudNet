@@ -29,6 +29,7 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -40,7 +41,6 @@ import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
-import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
 
@@ -129,7 +129,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
         Locale playerLocale = event.getPlayer().getLocale();
         var baseMessage = this.management.configuration().message(playerLocale, "error-connecting-to-server")
           .replace("%server%", event.getKickedFrom().getName())
-          .replace("%reason%", ComponentSerializer.toString(event.getKickReasonComponent()));
+          .replace("%reason%", BaseComponent.toLegacyText(event.getKickReasonComponent()));
         // send the player the reason for the disconnect
         event.getPlayer().sendMessage(translateToComponent(baseMessage));
       } else {
