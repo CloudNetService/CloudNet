@@ -42,6 +42,7 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.event.EventHandler;
+import net.md_5.bungee.event.EventPriority;
 
 public final class BungeeCordPlayerManagementListener implements Listener {
 
@@ -97,7 +98,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
     }
   }
 
-  @EventHandler
+  @EventHandler(priority = EventPriority.LOWEST)
   public void handle(@NonNull ServerConnectEvent event) {
     // initial connect reasons, LOBBY_FALLBACK will be used if the initial fallback is not present
     if (event.getReason() == Reason.JOIN_PROXY || event.getReason() == Reason.LOBBY_FALLBACK) {
@@ -114,7 +115,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
     }
   }
 
-  @EventHandler
+  @EventHandler(priority = EventPriority.LOWEST)
   public void handle(@NonNull ServerKickEvent event) {
     if (event.getPlayer().isConnected()) {
       ServerInfo target = this.management.fallback(event.getPlayer(), event.getKickedFrom().getName())
