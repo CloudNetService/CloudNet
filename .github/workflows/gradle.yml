@@ -32,12 +32,7 @@ jobs:
           distribution: 'temurin'
           java-version: 17
           check-latest: true
-
-      - name: Initialize gradle caching
-        uses: burrunan/gradle-cache-action@v1
-        with:
-          job-id: jdk17
-          concurrent: true
+          cache: 'gradle'
 
       - name: Run build lifecycle
         run: ./gradlew build checkLicenses test shadowJar genUpdaterInformation --no-daemon --stacktrace

@@ -24,12 +24,7 @@ jobs:
           distribution: 'temurin'
           java-version: 17
           check-latest: true
-
-      - name: Initialize gradle caching
-        uses: burrunan/gradle-cache-action@v1
-        with:
-          job-id: jdk17
-          concurrent: true
+          cache: 'gradle'
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v1
