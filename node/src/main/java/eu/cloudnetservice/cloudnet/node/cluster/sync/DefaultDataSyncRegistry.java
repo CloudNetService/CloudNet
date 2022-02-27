@@ -177,7 +177,7 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
           continue;
         }
       } catch (Exception exception) {
-        LOGGER.severe("Exception reading data for key %s while syncing", null, key);
+        LOGGER.severe("Exception reading data for key %s while syncing", exception, key);
       }
       // no handler for the result
       LOGGER.fine("No handler for key %s to sync data", null, key);
