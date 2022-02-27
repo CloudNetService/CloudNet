@@ -41,6 +41,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -144,7 +145,7 @@ public class DefaultObjectMapperTest {
   @ParameterizedTest
   @MethodSource("nonNestedTypesProvider")
   void testNonNestedTypes(Object o, Type type) {
-    ObjectMapper mapper = new DefaultObjectMapper();
+    var mapper = new DefaultObjectMapper();
     var buf = DataBuf.empty();
 
     mapper.writeObject(buf, o);
@@ -155,7 +156,7 @@ public class DefaultObjectMapperTest {
   @ParameterizedTest
   @MethodSource("enumDataProvider")
   void testEnumSerialization(Enum<?> constant) {
-    ObjectMapper mapper = new DefaultObjectMapper();
+    var mapper = new DefaultObjectMapper();
     var buf = DataBuf.empty();
 
     mapper.writeObject(buf, constant);
@@ -166,7 +167,7 @@ public class DefaultObjectMapperTest {
   @ParameterizedTest
   @MethodSource("arrayDataProvider")
   <T> void testArraySerialization(T[] array) {
-    ObjectMapper mapper = new DefaultObjectMapper();
+    var mapper = new DefaultObjectMapper();
     var buf = DataBuf.empty();
 
     mapper.writeObject(buf, array);
@@ -177,7 +178,7 @@ public class DefaultObjectMapperTest {
   @ParameterizedTest
   @MethodSource("listDataProvider")
   <T> void testListSerialization(List<T> list, Type parameterType) {
-    ObjectMapper mapper = new DefaultObjectMapper();
+    var mapper = new DefaultObjectMapper();
     var buf = DataBuf.empty();
 
     mapper.writeObject(buf, list);
@@ -191,7 +192,7 @@ public class DefaultObjectMapperTest {
   @ParameterizedTest
   @MethodSource("mapDataProvider")
   <K, V> void testMapSerialization(Map<K, V> map, Type keyType, Type valueType) {
-    ObjectMapper mapper = new DefaultObjectMapper();
+    var mapper = new DefaultObjectMapper();
     var buf = DataBuf.empty();
 
     mapper.writeObject(buf, map);
@@ -206,7 +207,7 @@ public class DefaultObjectMapperTest {
   @MethodSource("optionalDataProvider")
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   <T> void testOptionalSerialization(Optional<T> o, Type parameterType) {
-    ObjectMapper mapper = new DefaultObjectMapper();
+    var mapper = new DefaultObjectMapper();
     var buf = DataBuf.empty();
 
     mapper.writeObject(buf, o);
@@ -221,7 +222,7 @@ public class DefaultObjectMapperTest {
   @ParameterizedTest
   @MethodSource("dataClassProvider")
   void testDataClassSerialization(Object o) {
-    ObjectMapper mapper = new DefaultObjectMapper();
+    var mapper = new DefaultObjectMapper();
     var buf = DataBuf.empty();
 
     mapper.writeObject(buf, o);
@@ -229,5 +230,21 @@ public class DefaultObjectMapperTest {
 
     Assertions.assertNotNull(result);
     Assertions.assertEquals(o, result);
+  }
+
+  @Test
+  @Order(70)
+  void testByteArrayWriting() {
+    // special case which needs a separate test
+    var bytes = new byte[]{0x25, 0x26, 0x0F, 0x3F, 0x4F, 0x64};
+
+    var mapper = new DefaultObjectMapper();
+    var buf = DataBuf.empty();
+
+    mapper.writeObject(buf, bytes);
+    byte[] result = mapper.readObject(buf, byte[].class);
+
+    Assertions.assertNotNull(result);
+    Assertions.assertArrayEquals(bytes, result);
   }
 }
