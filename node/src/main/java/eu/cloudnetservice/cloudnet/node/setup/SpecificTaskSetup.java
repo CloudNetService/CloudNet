@@ -31,6 +31,7 @@ import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.QuestionL
 import eu.cloudnetservice.cloudnet.node.template.install.InstallInformation;
 import eu.cloudnetservice.cloudnet.node.template.install.ServiceVersion;
 import eu.cloudnetservice.cloudnet.node.template.install.ServiceVersionType;
+import java.util.Set;
 import lombok.NonNull;
 
 public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup {
@@ -124,6 +125,7 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
 
     var task = ServiceTask.builder()
       .name(name)
+      .groups(Set.of(name))
       .maxHeapMemory(animation.result("taskMemory"))
       .maintenance(animation.result("taskMaintenance"))
       .staticServices(animation.result("taskStaticServices"))

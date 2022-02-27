@@ -214,7 +214,7 @@ public class DefaultTaskSetup implements DefaultSetup {
       .maxHeapMemory(maxHeapMemory)
       .javaCommand(javaCommand.first())
       .serviceEnvironmentType(environment)
-      .groups(Set.of(groupName, taskName))
+      .groups(Set.of(taskName))
       .startPort(environment.defaultStartPort())
       .templates(Collections.singletonList(template))
       .build());
