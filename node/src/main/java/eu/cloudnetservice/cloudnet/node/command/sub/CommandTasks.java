@@ -58,6 +58,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 import java.util.function.Consumer;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -103,7 +104,7 @@ public final class CommandTasks {
 
     messages.add("Includes:");
 
-    for (var inclusion : configurationBase.includes()) {
+    for (var inclusion : configurationBase.inclusions()) {
       messages.add("- " + inclusion.url() + " => " + inclusion.destination());
     }
 
@@ -256,7 +257,7 @@ public final class CommandTasks {
     }
 
     var serviceTask = ServiceTask.builder()
-      .addTemplate(ServiceTemplate.builder().prefix(taskName).name("default").build())
+      .addTemplates(Set.of(ServiceTemplate.builder().prefix(taskName).name("default").build()))
       .name(taskName)
       .autoDeleteOnStop(true)
       .groups(Collections.singletonList(taskName))
@@ -487,7 +488,7 @@ public final class CommandTasks {
       .excludes(this.parseExcludes(excludes))
       .build();
     for (var serviceTask : serviceTasks) {
-      this.updateTask(serviceTask, builder -> builder.addDeployment(deployment));
+      this.updateTask(serviceTask, builder -> builder.addDeployments(Set.of(deployment)));
       source.sendMessage(I18n.trans("command-tasks-add-collection-property",
         "deployment",
         deployment.template(),
@@ -502,7 +503,7 @@ public final class CommandTasks {
     @NonNull @Argument("template") ServiceTemplate template
   ) {
     for (var serviceTask : serviceTasks) {
-      this.updateTask(serviceTask, task -> task.addTemplate(template));
+      this.updateTask(serviceTask, task -> task.addTemplates(Set.of(template)));
       source.sendMessage(I18n.trans("command-tasks-add-collection-property",
         "template",
         template,
@@ -520,7 +521,7 @@ public final class CommandTasks {
     var inclusion = ServiceRemoteInclusion.builder().url(url).destination(path).build();
 
     for (var serviceTask : serviceTasks) {
-      this.updateTask(serviceTask, task -> task.addInclude(inclusion));
+      this.updateTask(serviceTask, task -> task.addInclusions(Set.of(inclusion)));
       source.sendMessage(I18n.trans("command-tasks-add-collection-property",
         "inclusion",
         inclusion,
@@ -607,7 +608,7 @@ public final class CommandTasks {
     var inclusion = ServiceRemoteInclusion.builder().url(url).destination(path).build();
 
     for (var serviceTask : serviceTasks) {
-      this.updateTaskDirect(serviceTask, task -> task.includes().remove(inclusion));
+      this.updateTaskDirect(serviceTask, task -> task.inclusions().remove(inclusion));
       source.sendMessage(I18n.trans("command-tasks-remove-collection-property",
         "inclusion",
         inclusion,

@@ -40,7 +40,6 @@ import eu.cloudnetservice.cloudnet.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.cloudnet.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.cloudnet.driver.registry.DefaultServiceRegistry;
 import eu.cloudnetservice.cloudnet.driver.registry.ServiceRegistry;
-import eu.cloudnetservice.cloudnet.driver.service.ProcessSnapshot;
 import eu.cloudnetservice.cloudnet.driver.template.TemplateStorage;
 import java.time.Instant;
 import java.util.Collection;
@@ -228,15 +227,6 @@ public abstract class CloudNetDriver {
 
   public @NonNull NetworkClient networkClient() {
     return this.networkClient;
-  }
-
-  /**
-   * Fetches the PID of this process.
-   *
-   * @return the PID as an int or -1, if it couldn't be fetched
-   */
-  public long ownPID() {
-    return ProcessSnapshot.ownPID();
   }
 
   public @NonNull ServiceRegistry serviceRegistry() {

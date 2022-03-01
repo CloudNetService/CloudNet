@@ -81,7 +81,7 @@ public final class CommandTemplate {
     @NonNull Queue<String> input
   ) {
     var template = ServiceTemplate.parse(input.remove());
-    if (template == null || template.knownStorage() == null) {
+    if (template == null || template.findStorage() == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-template-not-valid"));
     }
     return template;

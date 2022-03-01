@@ -184,7 +184,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
       if (config != null) {
         output
           // components
-          .addInclusions(config.includes())
+          .addInclusions(config.inclusions())
           .addTemplates(config.templates())
           .addDeployments(config.deployments())
           // append process configuration settings

@@ -357,8 +357,16 @@ public class Wrapper extends CloudNetDriver {
         throw new IllegalStateException("Unable to authorize wrapper with node");
       }
 
-      // set connected time
-      this.currentServiceInfoSnapshot.connectedTime(System.currentTimeMillis());
+      // set a new current snapshot with the connected time
+      this.currentServiceInfoSnapshot = new ServiceInfoSnapshot(
+        System.currentTimeMillis(),
+        this.currentServiceInfoSnapshot.address(),
+        this.currentServiceInfoSnapshot.connectAddress(),
+        ProcessSnapshot.self(),
+        this.serviceConfiguration(),
+        System.currentTimeMillis(),
+        ServiceLifeCycle.RUNNING,
+        this.currentServiceInfoSnapshot.properties());
 
       // remove the auth listener
       this.networkClient.packetRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);

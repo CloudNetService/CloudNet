@@ -26,16 +26,35 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 
+/**
+ * Represents a group configuration. A group is used to combine multiple tasks and/or environments together and allows
+ * including shared jvm options, process parameters, templates, deployments and includes.
+ *
+ * @since 4.0
+ */
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
 public class GroupConfiguration extends ServiceConfigurationBase implements Cloneable, Nameable {
 
-  protected String name;
+  protected final String name;
 
-  protected Set<String> jvmOptions;
-  protected Set<String> processParameters;
-  protected Set<String> targetEnvironments;
+  protected final Set<String> jvmOptions;
+  protected final Set<String> processParameters;
+  protected final Set<String> targetEnvironments;
 
+  /**
+   * Constructs a new group configuration instance.
+   *
+   * @param name               the name of the group.
+   * @param jvmOptions         the jvm options of the group to apply to all services inheriting from it.
+   * @param processParameters  the process parameters of the group to apply to all services inheriting from it.
+   * @param targetEnvironments the environments to apply this group configuration to.
+   * @param templates          the templates of the group to apply to all services inheriting from it.
+   * @param deployments        the deployments of the group to apply to all services inheriting from it.
+   * @param includes           the includes of the group to apply to all services inheriting from it.
+   * @param properties         the properties for extra information to store.
+   * @throws NullPointerException if one of the given parameters is null.
+   */
   protected GroupConfiguration(
     @NonNull String name,
     @NonNull Set<String> jvmOptions,
@@ -54,10 +73,27 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
     this.targetEnvironments = targetEnvironments;
   }
 
+  /**
+   * Constructs a new builder instance to create a group configuration.
+   *
+   * @return a new builder for a group.
+   */
   public static @NonNull Builder builder() {
     return new Builder();
   }
 
+  /**
+   * Constructs a new builder which inherits the properties of the given group configuration, allowing to change certain
+   * properties of a group. This is useful if you have a group which already exists and just want to change a specific
+   * option of it.
+   * <p>
+   * Calling the build method right after creating the builder will result in a new group which is identical to the
+   * given group.
+   *
+   * @param group the group to copy the properties of.
+   * @return a new builder which holds the same properties as the given group.
+   * @throws NullPointerException if the given group configuration is null.
+   */
   public static @NonNull Builder builder(@NonNull GroupConfiguration group) {
     return builder()
       .name(group.name())
@@ -66,28 +102,47 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
       .targetEnvironments(group.targetEnvironments())
       .templates(group.templates())
       .deployments(group.deployments())
-      .includes(group.includes());
+      .inclusions(group.inclusions());
   }
 
-  @Override
-  public @NonNull Collection<String> jvmOptions() {
-    return this.jvmOptions;
-  }
-
-  @Override
-  public @NonNull Collection<String> processParameters() {
-    return this.processParameters;
-  }
-
-  public @NonNull Collection<String> targetEnvironments() {
-    return this.targetEnvironments;
-  }
-
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull String name() {
     return this.name;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull Collection<String> jvmOptions() {
+    return this.jvmOptions;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull Collection<String> processParameters() {
+    return this.processParameters;
+  }
+
+  /**
+   * Get the environments to which this group configuration will always be applied, even if the base task of a service
+   * does not implement the group directly. An example use case is a global template which should be applied to all
+   * proxies.
+   *
+   * @return the environments to apply this group configuration always to.
+   */
+  public @NonNull Collection<String> targetEnvironments() {
+    return this.targetEnvironments;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull GroupConfiguration clone() {
     try {
@@ -97,31 +152,71 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
     }
   }
 
+  /**
+   * Represents a builder for a group configuration.
+   *
+   * @since 4.0
+   */
   public static class Builder extends ServiceConfigurationBase.Builder<GroupConfiguration, Builder> {
 
     protected String name;
     protected Set<String> targetEnvironments = new HashSet<>();
 
+    /**
+     * Sets the name of the newly created group configuration. This property is required in order to build a
+     * configuration.
+     *
+     * @param name the name of the new group.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given name is null.
+     */
     public @NonNull Builder name(@NonNull String name) {
       this.name = name;
       return this;
     }
 
+    /**
+     * Sets the target environments of the group configuration. This configuration will automatically be applied to all
+     * given environments, even if the base task of a service does not implement them.
+     * <p>
+     * This method overwrites all previously set environments. Furthermore, changes to the given collection after the
+     * method call will not get reflected into this builder.
+     *
+     * @param targetEnvironments the environments to always apply the group configuration to.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given environment collection is null.
+     */
     public @NonNull Builder targetEnvironments(@NonNull Collection<String> targetEnvironments) {
       this.targetEnvironments = new HashSet<>(targetEnvironments);
       return this;
     }
 
+    /**
+     * Adds a target environment to the group configuration. The group configuration will always be applied to all
+     * services having the given environment, even if the base task of them does not implement the group.
+     *
+     * @param environmentType the environment to add.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given environment is null.
+     */
     public @NonNull Builder addTargetEnvironment(@NonNull String environmentType) {
       this.targetEnvironments.add(environmentType);
       return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected @NonNull Builder self() {
       return this;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @throws com.google.common.base.VerifyException if this builder has no name given.
+     */
     @Override
     public @NonNull GroupConfiguration build() {
       Verify.verifyNotNull(this.name, "no name given");

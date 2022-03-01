@@ -133,7 +133,7 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
       .serviceEnvironmentType(environment)
       .startPort(animation.result("taskStartPort"))
       .javaCommand(javaVersion.first())
-      .addTemplate(defaultTemplate)
+      .addTemplates(Set.of(defaultTemplate))
       .nameSplitter(animation.result("taskNameSplitter"))
       .build();
     CloudNet.instance().serviceTaskProvider().addServiceTask(task);

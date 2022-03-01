@@ -16,16 +16,16 @@
 
 package eu.cloudnetservice.modules.bridge;
 
-import static eu.cloudnetservice.cloudnet.driver.service.property.DefaultJsonServiceProperty.createFromClass;
-import static eu.cloudnetservice.cloudnet.driver.service.property.DefaultJsonServiceProperty.createFromType;
+import static eu.cloudnetservice.cloudnet.driver.service.property.JsonServiceProperty.createFromClass;
+import static eu.cloudnetservice.cloudnet.driver.service.property.JsonServiceProperty.createFromType;
 
 import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceLifeCycle;
-import eu.cloudnetservice.cloudnet.driver.service.property.DefaultFunctionalServiceProperty;
-import eu.cloudnetservice.cloudnet.driver.service.property.DefaultModifiableServiceProperty;
+import eu.cloudnetservice.cloudnet.driver.service.property.FunctionalServiceProperty;
 import eu.cloudnetservice.cloudnet.driver.service.property.ServiceProperty;
+import eu.cloudnetservice.cloudnet.driver.service.property.TransformingServiceProperty;
 import eu.cloudnetservice.modules.bridge.player.ServicePlayer;
 import java.util.Collection;
 import lombok.NonNull;
@@ -69,27 +69,27 @@ public final class BridgeServiceProperties {
   /**
    * Property to check whether a service is in game or not.
    */
-  public static final ServiceProperty<Boolean> IS_IN_GAME = DefaultFunctionalServiceProperty.<Boolean>create()
+  public static final ServiceProperty<Boolean> IS_IN_GAME = FunctionalServiceProperty.<Boolean>create()
     .reader(BridgeServiceProperties::inGameService);
   /**
    * Property to check whether a service is starting or not.
    */
-  public static final ServiceProperty<Boolean> IS_STARTING = DefaultFunctionalServiceProperty.<Boolean>create()
+  public static final ServiceProperty<Boolean> IS_STARTING = FunctionalServiceProperty.<Boolean>create()
     .reader(BridgeServiceProperties::startingService);
   /**
    * Property to check whether a service is empty (no players) or not.
    */
-  public static final ServiceProperty<Boolean> IS_EMPTY = DefaultFunctionalServiceProperty.<Boolean>create()
+  public static final ServiceProperty<Boolean> IS_EMPTY = FunctionalServiceProperty.<Boolean>create()
     .reader(BridgeServiceProperties::emptyService);
   /**
    * Property to check whether a service is full (online count &gt;= max players) or not.
    */
-  public static final ServiceProperty<Boolean> IS_FULL = DefaultFunctionalServiceProperty.<Boolean>create()
+  public static final ServiceProperty<Boolean> IS_FULL = FunctionalServiceProperty.<Boolean>create()
     .reader(BridgeServiceProperties::fullService);
   /**
    * Property to get all online players on a service.
    */
-  public static final ServiceProperty<Collection<ServicePlayer>> PLAYERS = DefaultModifiableServiceProperty
+  public static final ServiceProperty<Collection<ServicePlayer>> PLAYERS = TransformingServiceProperty
     .<Collection<JsonDocument>, Collection<ServicePlayer>>wrap(
       createFromType("Players", new TypeToken<Collection<JsonDocument>>() {
       }.getType()))

@@ -226,7 +226,7 @@ public class DefaultTaskSetup implements DefaultSetup {
     var groupConfiguration = GroupConfiguration.builder()
       .name(groupName)
       .addTargetEnvironment(environment.name())
-      .addTemplate(groupTemplate);
+      .addTemplates(Set.of(groupTemplate));
 
     // check if we are executing the step for the "Global-Server" group
     if (GLOBAL_SERVER_GROUP_NAME.equals(groupName)) {
@@ -238,7 +238,7 @@ public class DefaultTaskSetup implements DefaultSetup {
     // create a group specifically for the task
     CloudNet.instance().groupConfigurationProvider().addGroupConfiguration(GroupConfiguration.builder()
       .name(taskName)
-      .addTemplate(template)
+      .addTemplates(Set.of(template))
       .build());
 
     // install the service template

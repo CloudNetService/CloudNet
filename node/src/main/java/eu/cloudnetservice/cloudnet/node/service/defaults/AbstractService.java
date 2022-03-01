@@ -99,7 +99,9 @@ public abstract class AbstractService implements CloudService {
   protected final Queue<ServiceRemoteInclusion> waitingRemoteInclusions = new ConcurrentLinkedQueue<>();
 
   protected ServiceConsoleLogCache logCache;
+
   protected volatile NetworkChannel networkChannel;
+  protected volatile long connectionTimestamp = -1;
 
   protected volatile ServiceInfoSnapshot lastServiceInfo;
   protected volatile ServiceInfoSnapshot currentServiceInfo;
@@ -284,17 +286,14 @@ public abstract class AbstractService implements CloudService {
     ServiceRemoteInclusion inclusion;
     while ((inclusion = this.waitingRemoteInclusions.poll()) != null) {
       // prepare the connection from which we load the inclusion
-      var getRequest = Unirest.get(inclusion.url());
+      var req = Unirest.get(inclusion.url());
       // put the given http headers
-      if (inclusion.properties().contains("httpHeaders")) {
-        var headers = inclusion.properties().getDocument("httpHeaders");
-        for (var key : headers.keys()) {
-          getRequest.header(key, headers.get(key).toString());
-        }
+      var headers = inclusion.property(ServiceRemoteInclusion.HEADERS);
+      for (var key : headers.keys()) {
+        req.header(key, headers.get(key).toString());
       }
       // check if we should load the inclusion
-      if (!this.eventManager.callEvent(new CloudServicePreLoadInclusionEvent(this, inclusion, getRequest))
-        .cancelled()) {
+      if (!this.eventManager.callEvent(new CloudServicePreLoadInclusionEvent(this, inclusion, req)).cancelled()) {
         // get a target path based on the download url
         var destination = INCLUSION_TEMP_DIR.resolve(
           Base64.getEncoder().encodeToString(inclusion.url().getBytes(StandardCharsets.UTF_8)).replace('/', '_'));
@@ -302,7 +301,7 @@ public abstract class AbstractService implements CloudService {
         if (Files.notExists(destination)) {
           try {
             // we only support success codes for downloading the file
-            getRequest.asFile(destination.toString());
+            req.asFile(destination.toString());
           } catch (UnirestException exception) {
             LOGGER.severe("Unable to download inclusion from %s to %s", exception.getCause(), inclusion.url(),
               destination);
@@ -409,12 +408,13 @@ public abstract class AbstractService implements CloudService {
     // close the channel if the new channel is null
     if (this.networkChannel != null) {
       this.networkChannel.close();
-      this.currentServiceInfo.connectedTime(0);
+      this.connectionTimestamp = -1;
     } else {
-      this.currentServiceInfo.connectedTime(System.currentTimeMillis());
+      this.connectionTimestamp = System.currentTimeMillis();
     }
     // set the new channel
     this.networkChannel = channel;
+    this.pushServiceInfoSnapshotUpdate(this.lastServiceInfo.lifeCycle(), false);
   }
 
   @Override
@@ -500,7 +500,12 @@ public abstract class AbstractService implements CloudService {
 
   protected void doRemoveFilesAfterStop() {
     for (var file : this.serviceConfiguration.deletedFilesAfterStop()) {
-      FileUtil.delete(this.serviceDirectory.resolve(file));
+      // ensure that nobody deletes files outside the service directory
+      var filePath = this.serviceDirectory.resolve(file);
+      FileUtil.ensureChild(this.serviceDirectory, filePath);
+
+      // save to delete now
+      FileUtil.delete(filePath);
     }
   }
 
@@ -509,6 +514,10 @@ public abstract class AbstractService implements CloudService {
   }
 
   protected void pushServiceInfoSnapshotUpdate(@NonNull ServiceLifeCycle lifeCycle) {
+    this.pushServiceInfoSnapshotUpdate(lifeCycle, true);
+  }
+
+  protected void pushServiceInfoSnapshotUpdate(@NonNull ServiceLifeCycle lifeCycle, boolean sendUpdate) {
     // save the current service info
     this.lastServiceInfo = this.currentServiceInfo;
     // update the current info
@@ -518,23 +527,26 @@ public abstract class AbstractService implements CloudService {
       this.lastServiceInfo.connectAddress(),
       this.alive() ? this.lastServiceInfo.processSnapshot() : ProcessSnapshot.empty(),
       this.lastServiceInfo.configuration(),
-      this.networkChannel == null ? -1 : this.lastServiceInfo.connectedTime(),
+      this.connectionTimestamp,
       lifeCycle,
       this.lastServiceInfo.properties());
     // remove the service in the local manager if the service was deleted
     if (lifeCycle == ServiceLifeCycle.DELETED) {
       this.cloudServiceManager.unregisterLocalService(this);
     }
-    // call the lifecycle change event
-    this.eventManager.callEvent(new CloudServicePostLifecycleEvent(this, lifeCycle));
-    // publish the change to all services and nodes
-    ChannelMessage.builder()
-      .targetAll()
-      .message("update_service_lifecycle")
-      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .buffer(DataBuf.empty().writeObject(this.lastServiceInfo.lifeCycle()).writeObject(this.currentServiceInfo))
-      .build()
-      .send();
+
+    if (sendUpdate) {
+      // call the lifecycle change event
+      this.eventManager.callEvent(new CloudServicePostLifecycleEvent(this, lifeCycle));
+      // publish the change to all services and nodes
+      ChannelMessage.builder()
+        .targetAll()
+        .message("update_service_lifecycle")
+        .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+        .buffer(DataBuf.empty().writeObject(this.lastServiceInfo.lifeCycle()).writeObject(this.currentServiceInfo))
+        .build()
+        .send();
+    }
   }
 
   protected boolean canStartNow() {
@@ -588,7 +600,7 @@ public abstract class AbstractService implements CloudService {
     // add all components
     this.waitingTemplates.addAll(this.serviceConfiguration.templates());
     this.waitingDeployments.addAll(this.serviceConfiguration.deployments());
-    this.waitingRemoteInclusions.addAll(this.serviceConfiguration.includes());
+    this.waitingRemoteInclusions.addAll(this.serviceConfiguration.inclusions());
     // load the inclusions
     this.includeWaitingServiceInclusions();
     // check if we should load the templates of the service
