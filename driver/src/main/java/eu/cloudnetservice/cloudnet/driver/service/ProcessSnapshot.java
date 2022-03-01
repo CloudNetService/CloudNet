@@ -31,7 +31,7 @@ import lombok.NonNull;
  * A snapshot of the process resources at a specific time. It holds the most useful information for displaying or
  * storing statistics about a service / node (or anything else).
  *
- * @param pid                     the process id of component which created the snapshot.
+ * @param pid                     the process id of the component which created the snapshot.
  * @param cpuUsage                the recent usage (in percent) of the cpu usage associated with the component process.
  * @param systemCpuUsage          the recent usage (in percent) of the hosts' system cpu the process is running on.
  * @param maxHeapMemory           the maximum heap memory space the associated process is allowed to use.
