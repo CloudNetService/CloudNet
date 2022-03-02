@@ -29,7 +29,6 @@ import lombok.ToString;
 /**
  * This abstract permissible represents a base implementation of the permissible.
  *
- * @see Permissible
  * @see PermissionUser
  * @see PermissionGroup
  * @since 4.0

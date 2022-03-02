@@ -32,14 +32,14 @@ import org.jetbrains.annotations.Nullable;
 public interface CachedPermissionManagement extends PermissionManagement {
 
   /**
-   * Gets a map with all cached permission users mapped by their uuid.
+   * Gets a map with all cached permission users mapped to their uuid.
    *
    * @return all cached permission users.
    */
   @NonNull Map<UUID, PermissionUser> cachedPermissionUsers();
 
   /**
-   * Gets a map with all cached permission groups mapped by their name.
+   * Gets a map with all cached permission groups mapped to their name.
    *
    * @return all cached permission groups.
    */
@@ -49,7 +49,7 @@ public interface CachedPermissionManagement extends PermissionManagement {
    * Searches the permission user cache for a permission user with the given unique id.
    *
    * @param uniqueId the unique id associated with the permission user.
-   * @return the cached permission user for the given unique id, null if no user was found.
+   * @return the cached permission user for the given unique id, null if no user was found in the cache.
    * @throws NullPointerException if the given unique id is null.
    */
   @Nullable PermissionUser cachedUser(@NonNull UUID uniqueId);
@@ -58,15 +58,16 @@ public interface CachedPermissionManagement extends PermissionManagement {
    * Searches the permission group cache for a permission group with the given name.
    *
    * @param name the name associated with the permission group.
-   * @return the cached permission group for the given name, null if no group was found.
+   * @return the cached permission group for the given name, null if no group was found in the cache.
    * @throws NullPointerException if the given name is null.
    */
   @Nullable PermissionGroup cachedGroup(@NonNull String name);
 
   /**
-   * Acquires a lock for the permission user. The lock ensures that the user stays cached.
+   * Acquires a lock for the permission user. The lock ensures that the user stays in cache.
    * <p>
-   * Each method call results in a new lock for the user.
+   * Each method call results in incrementing the lock count of the user. The user stays in cache until the lock count
+   * is down to 0.
    *
    * @param user the user to acquire the lock for.
    * @throws NullPointerException if the given user is null.
@@ -74,9 +75,10 @@ public interface CachedPermissionManagement extends PermissionManagement {
   void acquireLock(@NonNull PermissionUser user);
 
   /**
-   * Acquires a lock for the permission group. The lock ensures that the group stays cached.
+   * Acquires a lock for the permission group. The lock ensures that the group stays in cache.
    * <p>
-   * Each method call results in a new lock for the group.
+   * Each method call results in incrementing the lock count of the group. The group stays in cache until the lock count
+   * is down to 0.
    *
    * @param group the group to acquire the lock for.
    * @throws NullPointerException if the given group is null.
@@ -87,7 +89,7 @@ public interface CachedPermissionManagement extends PermissionManagement {
    * Checks if the given user has any locks locking the user in the cache.
    *
    * @param user the user to check for locks.
-   * @return true if there are no locks for the given user, false otherwise.
+   * @return true if there are any locks for the given user, false otherwise.
    * @throws NullPointerException if the given user is null.
    */
   boolean locked(@NonNull PermissionUser user);
@@ -96,14 +98,14 @@ public interface CachedPermissionManagement extends PermissionManagement {
    * Checks if the given group has any locks locking the group in the cache.
    *
    * @param group the group to check for locks.
-   * @return true if there are no locks for the given group, false otherwise.
+   * @return true if there are any locks for the given group, false otherwise.
    * @throws NullPointerException if the given group is null.
    */
   boolean locked(@NonNull PermissionGroup group);
 
   /**
-   * Removes exactly one lock of the user. If there are no remaining locks the user is removed from the cache after a
-   * maximum of 5 minutes.
+   * Removes exactly one lock of the user. If the user does not have any locks no changes are made. If there are no
+   * remaining locks the user is removed from the cache after a maximum of 5 minutes.
    *
    * @param user the user to remove a lock for.
    * @throws NullPointerException if the given user is null.
@@ -111,8 +113,8 @@ public interface CachedPermissionManagement extends PermissionManagement {
   void unlock(@NonNull PermissionUser user);
 
   /**
-   * Removes exactly one lock of the group. If there are no remaining locks the group is removed from the cache after a
-   * maximum of 5 minutes.
+   * Removes exactly one lock of the group. If the group does not have any locks no changes are made. If there are no
+   * remaining locks the group is removed from the cache after a maximum of 5 minutes.
    *
    * @param group the group to remove a lock for.
    * @throws NullPointerException if the given group is null.
