@@ -52,7 +52,7 @@ public class MethodInformation {
    * @param sourceInstance the original instance the method was located in or null if not bound.
    * @param definingClass  the class in which the method is located.
    * @param generator      the generator to use to make a method invoker or null if no method invoker is needed.
-   * @throws NullPointerException if one of the required constrcutor paramters is null.
+   * @throws NullPointerException if one of the required constructor parameters is null.
    */
   protected MethodInformation(
     @NonNull String name,
