@@ -35,7 +35,7 @@ public final class ModuleUpdaterRegistry extends DefaultUpdaterRegistry<ModuleUp
     Map<Path, String> moduleNames = new HashMap<>();
     FileUtil.walkFileTree(DefaultModuleProvider.DEFAULT_MODULE_DIR, ($, file) -> {
       // open the jar file
-      FileUtil.openJarFileSystem(file, fs -> {
+      FileUtil.openZipFile(file, fs -> {
         var moduleJson = fs.getPath("module.json");
         if (Files.exists(moduleJson)) {
           // read the file

@@ -52,7 +52,7 @@ public final class ZipUtilTest {
       FileUtil.copy(is, out);
     }
 
-    FileUtil.openJarFileSystem(zipFilePath, fileSystem -> {
+    FileUtil.openZipFile(zipFilePath, fileSystem -> {
       var zipEntryInfoFile = fileSystem.getPath("info.txt");
 
       try (

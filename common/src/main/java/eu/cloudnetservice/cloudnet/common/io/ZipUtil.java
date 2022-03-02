@@ -36,15 +36,40 @@ import java.util.zip.ZipOutputStream;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * This zip utility class makes the process of zipping files and directories as well as extracting from zips easier and
+ * prevents malicious zip names.
+ *
+ * @since 4.0
+ */
 public final class ZipUtil {
 
   private static final Logger LOGGER = LogManager.logger(ZipUtil.class);
   private static final boolean IS_WINDOWS = System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows");
 
+  /**
+   * Zips the given directory into an input stream without filtering any files and returns it. This method is equivalent
+   * to {@code ZipUtil.zipToStream(directory, null)}.
+   *
+   * @param directory the directory to zip.
+   * @return the new input stream for the zip.
+   * @throws NullPointerException  if the given directory is null.
+   * @throws IllegalStateException if the opening of the zip file failed.
+   */
   public static @NonNull InputStream zipToStream(@NonNull Path directory) {
     return zipToStream(directory, null);
   }
 
+  /**
+   * Zips the given directory into a zip input stream while filtering with the given filter and returning the new input
+   * stream.
+   *
+   * @param directory  the directory to zip.
+   * @param fileFilter the filter to filter against.
+   * @return the new input stream for the zip.
+   * @throws NullPointerException  if the given directory is null.
+   * @throws IllegalStateException if the opening of the zip file failed.
+   */
   public static @NonNull InputStream zipToStream(@NonNull Path directory, @Nullable Predicate<Path> fileFilter) {
     var target = FileUtil.createTempFile();
     zipToFile(
@@ -59,10 +84,28 @@ public final class ZipUtil {
     }
   }
 
-  public static @Nullable Path zipToFile(@NonNull Path directory, @NonNull Path target) {
-    return zipToFile(directory, target, null);
+  /**
+   * Walks the file tree of the given directory and copies all files and directories without any filtering into a new
+   * zip output stream at the given target destination. This method is equivalent to {@code ZipUtil.zipToFile(dir,
+   * target, null)}.
+   *
+   * @param dir    the directory to zip.
+   * @param target the destination of the zip file.
+   * @return the target destination on success, null if the input directory does not exist.
+   */
+  public static @Nullable Path zipToFile(@NonNull Path dir, @NonNull Path target) {
+    return zipToFile(dir, target, null);
   }
 
+  /**
+   * Walks the file tree of the given directory and copies all files and directories that match the filter into a new
+   * zip output stream at the given target destination.
+   *
+   * @param dir    the directory to zip.
+   * @param target the destination of the zip file.
+   * @param filter the filter to filter against.
+   * @return the target destination on success, null if the input directory does not exist.
+   */
   public static @Nullable Path zipToFile(@NonNull Path dir, @NonNull Path target, @Nullable Predicate<Path> filter) {
     if (Files.exists(dir)) {
       try (var out = new ZipOutputStream(Files.newOutputStream(target), StandardCharsets.UTF_8)) {
@@ -76,6 +119,16 @@ public final class ZipUtil {
     return null;
   }
 
+  /**
+   * Walks the file tree of the given directory and copies all files and directories that match the filter into the zip
+   * output stream.
+   *
+   * @param out    the stream to copy the individual zip entries to.
+   * @param dir    the directory to zip.
+   * @param filter the filter to filter against.
+   * @throws IOException          if the writing process of the new zip entry fails.
+   * @throws NullPointerException if the zip output stream or the directory is null.
+   */
   private static void zipDir(
     @NonNull ZipOutputStream out,
     @NonNull Path dir,
@@ -101,6 +154,15 @@ public final class ZipUtil {
     );
   }
 
+  /**
+   * Extracts all entries from the zip file at the given zip path to the given target directory while catching all
+   * occurring exceptions and redirecting them into the debug log.
+   *
+   * @param zipPath         the path to the zip file.
+   * @param targetDirectory the destination to extract to.
+   * @return the given target directory, null if the zip path does not exist or the extraction failed.
+   * @throws NullPointerException if the given zip or directory path is null.
+   */
   public static @Nullable Path extract(@NonNull Path zipPath, @NonNull Path targetDirectory) {
     if (Files.exists(zipPath)) {
       try (var inputStream = Files.newInputStream(zipPath)) {
@@ -112,12 +174,32 @@ public final class ZipUtil {
     return null;
   }
 
+  /**
+   * Extracts all entries from the given input stream to the given target directory while catching all occurring
+   * exceptions and redirecting them into the debug log.
+   * <p>
+   * Note: If the given input stream is not a zip input stream, the stream is wrapped into one.
+   *
+   * @param in              the input stream to extract from.
+   * @param targetDirectory the destination to extract to.
+   * @return the given target directory on success, null if the extraction failed.
+   * @throws NullPointerException if the given input stream or directory is null.
+   */
   public static @Nullable Path extract(@NonNull InputStream in, @NonNull Path targetDirectory) {
     return extractZipStream(
       in instanceof ZipInputStream ? (ZipInputStream) in : new ZipInputStream(in, StandardCharsets.UTF_8),
       targetDirectory);
   }
 
+  /**
+   * Extracts all entries from the zip stream to the given target directory while catching all occurring exceptions and
+   * redirecting them into the debug log.
+   *
+   * @param zipInputStream  the input stream to extract from.
+   * @param targetDirectory the destination to extract to.
+   * @return the given target directory on success, null if the extraction failed.
+   * @throws NullPointerException if the given zip input stream or directory is null.
+   */
   public static @Nullable Path extractZipStream(@NonNull ZipInputStream zipInputStream, @NonNull Path targetDirectory) {
     try {
       ZipEntry zipEntry;
@@ -133,6 +215,18 @@ public final class ZipUtil {
     }
   }
 
+  /**
+   * Extracts the zip entry from the given zip input stream and copies it to the given destination.
+   * <p>
+   * Note: If the zip entry is a directory the content of the directory is not extracted.
+   *
+   * @param in              the zip input stream to extract the entry from.
+   * @param zipEntry        the entry to extract from the zip stream.
+   * @param targetDirectory the target destination of the extracted entry.
+   * @throws IOException           if the creation of the output stream for the entry fails.
+   * @throws IllegalStateException if the zip entry has a malicious name.
+   * @throws NullPointerException  if the given input stream, zip entry or target directory is null.
+   */
   private static void extractEntry(
     @NonNull ZipInputStream in,
     @NonNull ZipEntry zipEntry,
@@ -152,6 +246,14 @@ public final class ZipUtil {
     }
   }
 
+  /**
+   * Ensures that the given name does not contain any characters that might lead to path traversal or other malicious
+   * behavior.
+   *
+   * @param name the name to check.
+   * @throws NullPointerException  if the given name is null.
+   * @throws IllegalStateException if the name contains an illegal character.
+   */
   private static void ensureSafeZipEntryName(@NonNull String name) {
     if (name.isEmpty()
       || name.startsWith("/")

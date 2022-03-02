@@ -70,7 +70,7 @@ public final class I18n {
    */
   public static void loadFromLangPath(@NonNull Class<?> clazzSource) {
     var resourcePath = Path.of(ResourceResolver.resolveURIFromResourceByClass(clazzSource));
-    FileUtil.openJarFileSystem(resourcePath, fs -> {
+    FileUtil.openZipFile(resourcePath, fs -> {
       // get the language directory
       var langDir = fs.getPath("lang/");
       if (Files.notExists(langDir) || !Files.isDirectory(langDir)) {
