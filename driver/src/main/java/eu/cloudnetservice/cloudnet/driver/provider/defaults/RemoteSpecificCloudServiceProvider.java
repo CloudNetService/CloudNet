@@ -268,7 +268,7 @@ public class RemoteSpecificCloudServiceProvider implements SpecificCloudServiceP
    */
   protected @NonNull RPC baseRPC() {
     return this.uniqueId != null
-      ? this.providerSender.invokeMethod("specificProvider", this.uniqueId)
-      : this.providerSender.invokeMethod("specificProviderByName", this.name);
+      ? this.providerSender.invokeMethod("serviceProvider", this.uniqueId)
+      : this.providerSender.invokeMethod("serviceProviderByName", this.name);
   }
 }

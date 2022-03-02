@@ -16,45 +16,44 @@
 
 package eu.cloudnetservice.cloudnet.driver.service;
 
-import eu.cloudnetservice.cloudnet.driver.provider.CloudServiceProvider;
-import eu.cloudnetservice.cloudnet.driver.provider.SpecificCloudServiceProvider;
 import java.util.Arrays;
-import java.util.UUID;
 import lombok.NonNull;
 
 /**
- * The current state of a service.
+ * Represents the state in which a service can be.
+ *
+ * @since 4.0
  */
 public enum ServiceLifeCycle {
 
   /**
-   * This is the state directly after DEFINED or after STOPPED (only if autoDeleteOnStop is disabled for the service).
-   * It will be prepared until it is changed to RUNNING by {@link SpecificCloudServiceProvider#start()}.
+   * Represents the prepared state. If a service is in this state it can be started, stopped and deleted. It is also the
+   * state into which a service changes if it was stopped and auto delete on stop is disabled.
    */
   PREPARED(1, 2, 3),
   /**
-   * This is the state after PREPARED. It is invoked by {@link SpecificCloudServiceProvider#start()}. It will be running
-   * until the process of the service has exited.
+   * The service is running. This does not mean that the service is connected or ready to accept connections from
+   * players, it does only mean that the service process was started.
    */
   RUNNING(2, 3),
   /**
-   * This is the state after RUNNING. It is invoked by exiting the process. This will only be for a very short time
-   * after the process has exited. There are two possibilities for the next state: - If autoDeleteOnStop is enabled, the
-   * state will be switched to DELETED. - If autoDeleteOnStop is disabled, the state will be switched to PREPARED.
+   * The service was stopped. This is more of a marker state as the service will never actually be in that state, it is
+   * only used to either the state of the service (which will then publish an update which has the stopped state as the
+   * target) or the service will change into the prepared state (if auto delete on stop is disabled) or change in the
+   * deleted state (if auto delete on stop is enabled).
    */
   STOPPED(0, 3),
   /**
-   * This is the state after STOPPED. When this state is set, the service is no more registered in the cloud and methods
-   * like {@link CloudServiceProvider#service(UUID)} won't return this service anymore.
+   * The service was removed from the system and is no longer accessible.
    */
   DELETED;
 
   private final int[] possibleChangeTargetOrdinals;
 
   /**
-   * Creates a new service lifecycle enum constant instance.
+   * Creates a new service lifecycle instance.
    *
-   * @param possibleChangeTargetOrdinals all ordinal indexes of other lifecycles this lifecycle can be changed to.
+   * @param possibleChangeTargetOrdinals all ordinal indexes of other lifecycles the lifecycle can change to.
    */
   ServiceLifeCycle(int... possibleChangeTargetOrdinals) {
     this.possibleChangeTargetOrdinals = possibleChangeTargetOrdinals;
@@ -62,10 +61,11 @@ public enum ServiceLifeCycle {
   }
 
   /**
-   * Checks if a service can change from this state to the given target.
+   * Checks if this lifecycle can be changed to the given target lifecycle.
    *
-   * @param target the target state the service want's to change to.
-   * @return If the service can change from the current into the target state.
+   * @param target the target lifecycle to check.
+   * @return true if the change from this lifecycle to the given one is acceptable, false otherwise.
+   * @throws NullPointerException if the given target lifecycle is null.
    */
   public boolean canChangeTo(@NonNull ServiceLifeCycle target) {
     return Arrays.binarySearch(this.possibleChangeTargetOrdinals, target.ordinal()) >= 0;

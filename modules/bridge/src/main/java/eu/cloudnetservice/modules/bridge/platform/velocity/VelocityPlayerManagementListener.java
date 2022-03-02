@@ -18,6 +18,7 @@ package eu.cloudnetservice.modules.bridge.platform.velocity;
 
 import static eu.cloudnetservice.ext.adventure.AdventureSerializerUtil.serialize;
 
+import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.ResultedEvent.ComponentResult;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
@@ -88,7 +89,7 @@ public final class VelocityPlayerManagementListener {
     }
   }
 
-  @Subscribe
+  @Subscribe(order = PostOrder.FIRST)
   public void handleInitialServerChoose(@NonNull PlayerChooseInitialServerEvent event) {
     // filter the next fallback
     event.setInitialServer(this.management.fallback(event.getPlayer())
@@ -96,7 +97,7 @@ public final class VelocityPlayerManagementListener {
       .orElse(null));
   }
 
-  @Subscribe
+  @Subscribe(order = PostOrder.FIRST)
   public void handleServerKick(@NonNull KickedFromServerEvent event) {
     // check if the player is still active
     if (event.getPlayer().isActive()) {

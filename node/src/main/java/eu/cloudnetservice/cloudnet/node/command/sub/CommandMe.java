@@ -43,7 +43,7 @@ public final class CommandMe {
   private static final String UPDATE_REPO = System.getProperty("cloudnet.updateRepo", "CloudNetService/launchermeta");
 
   @CommandMethod("me|info")
-  public void me(CommandSource commandSource, @Flag("showClusterId") boolean showFullClusterId) {
+  public void me(@NonNull CommandSource source, @Flag("showClusterId") boolean showFullClusterId) {
     var cloudNet = CloudNet.instance();
     var memoryMXBean = ManagementFactory.getMemoryMXBean();
     var nodeInfoSnapshot = cloudNet.nodeServerProvider().localNode().nodeInfoSnapshot();
@@ -54,7 +54,7 @@ public final class CommandMe {
       clusterId = this.removeUUIDParts(cloudNet.config().clusterConfig().clusterId());
     }
 
-    commandSource.sendMessage(List.of(
+    source.sendMessage(List.of(
       " ",
       CloudNet.instance().version() + " created by Dytanic, maintained by the CloudNet Community",
       "Discord: <https://discord.cloudnetservice.eu/>",

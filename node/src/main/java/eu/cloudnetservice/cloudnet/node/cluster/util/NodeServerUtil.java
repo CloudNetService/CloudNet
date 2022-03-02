@@ -24,6 +24,8 @@ import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessageTarget.Type;
 import eu.cloudnetservice.cloudnet.driver.event.events.service.CloudServiceLifecycleChangeEvent;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
+import eu.cloudnetservice.cloudnet.driver.service.ProcessSnapshot;
+import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServer;
@@ -42,21 +44,29 @@ public final class NodeServerUtil {
   public static void handleNodeServerClose(@NonNull NodeServer server) {
     for (var snapshot : CloudNet.instance().cloudServiceProvider().services()) {
       if (snapshot.serviceId().nodeUniqueId().equalsIgnoreCase(server.name())) {
-        // store the last lifecycle for the update event
+        // rebuild the service snapshot with a DELETED state
         var lifeCycle = snapshot.lifeCycle();
-        // mark the service as deleted
-        snapshot.lifeCycle(ServiceLifeCycle.DELETED);
+        var newSnapshot = new ServiceInfoSnapshot(
+          System.currentTimeMillis(),
+          snapshot.address(),
+          snapshot.connectAddress(),
+          ProcessSnapshot.empty(),
+          snapshot.configuration(),
+          -1,
+          ServiceLifeCycle.DELETED,
+          snapshot.properties());
+
         // publish the update to the local service manager
-        CloudNet.instance().cloudServiceProvider().handleServiceUpdate(snapshot, null);
+        CloudNet.instance().cloudServiceProvider().handleServiceUpdate(newSnapshot, null);
         // call the local change event
-        CloudNet.instance().eventManager().callEvent(new CloudServiceLifecycleChangeEvent(lifeCycle, snapshot));
+        CloudNet.instance().eventManager().callEvent(new CloudServiceLifecycleChangeEvent(lifeCycle, newSnapshot));
         // send the change to all service - all other nodes will handle the close as well (if there are any)
         var localServices = CloudNet.instance().cloudServiceProvider().localCloudServices();
         if (!localServices.isEmpty()) {
           targetServices(localServices)
             .message("update_service_lifecycle")
             .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-            .buffer(DataBuf.empty().writeObject(lifeCycle).writeObject(snapshot))
+            .buffer(DataBuf.empty().writeObject(lifeCycle).writeObject(newSnapshot))
             .build()
             .send();
         }

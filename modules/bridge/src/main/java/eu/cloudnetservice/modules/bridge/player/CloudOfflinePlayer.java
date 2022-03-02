@@ -55,7 +55,7 @@ public class CloudOfflinePlayer extends JsonDocPropertyHolder implements Cloneab
       onlineVariant.firstLoginTimeMillis(),
       onlineVariant.lastLoginTimeMillis(),
       onlineVariant.networkPlayerProxyInfo().clone(),
-      onlineVariant.properties.clone());
+      onlineVariant.properties().clone());
   }
 
   public @NonNull UUID uniqueId() {

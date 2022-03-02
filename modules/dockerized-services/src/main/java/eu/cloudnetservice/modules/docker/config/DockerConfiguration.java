@@ -33,7 +33,8 @@ public record DockerConfiguration(
   @Nullable String registryUsername,
   @Nullable String registryEmail,
   @Nullable String registryPassword,
-  @Nullable String registryUrl
+  @Nullable String registryUrl,
+  @Nullable String user
 ) {
 
 }

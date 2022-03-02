@@ -49,6 +49,7 @@ public class NodeLabyModManagement implements LabyModManagement {
     this.configurationSilently(configuration);
 
     ChannelMessage.builder()
+      .targetAll()
       .channel(LabyModManagement.LABYMOD_MODULE_CHANNEL)
       .message(LabyModManagement.LABYMOD_UPDATE_CONFIG)
       .buffer(DataBuf.empty().writeObject(configuration))

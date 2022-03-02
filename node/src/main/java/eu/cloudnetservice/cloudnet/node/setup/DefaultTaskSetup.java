@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 
@@ -213,7 +214,7 @@ public class DefaultTaskSetup implements DefaultSetup {
       .maxHeapMemory(maxHeapMemory)
       .javaCommand(javaCommand.first())
       .serviceEnvironmentType(environment)
-      .groups(Collections.singletonList(groupName))
+      .groups(Set.of(taskName))
       .startPort(environment.defaultStartPort())
       .templates(Collections.singletonList(template))
       .build());
@@ -225,7 +226,7 @@ public class DefaultTaskSetup implements DefaultSetup {
     var groupConfiguration = GroupConfiguration.builder()
       .name(groupName)
       .addTargetEnvironment(environment.name())
-      .addTemplate(groupTemplate);
+      .addTemplates(Set.of(groupTemplate));
 
     // check if we are executing the step for the "Global-Server" group
     if (GLOBAL_SERVER_GROUP_NAME.equals(groupName)) {
@@ -237,7 +238,7 @@ public class DefaultTaskSetup implements DefaultSetup {
     // create a group specifically for the task
     CloudNet.instance().groupConfigurationProvider().addGroupConfiguration(GroupConfiguration.builder()
       .name(taskName)
-      .addTemplate(template)
+      .addTemplates(Set.of(template))
       .build());
 
     // install the service template

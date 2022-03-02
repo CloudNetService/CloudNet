@@ -66,5 +66,4 @@ public interface CommandSource extends Nameable {
    * @throws NullPointerException if permission is null.
    */
   boolean checkPermission(@NonNull String permission);
-
 }

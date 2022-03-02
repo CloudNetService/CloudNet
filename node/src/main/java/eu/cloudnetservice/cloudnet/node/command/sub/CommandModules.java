@@ -50,6 +50,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 @CommandAlias("module")
 @CommandPermission("cloudnet.commands.modules")
@@ -80,7 +81,7 @@ public final class CommandModules {
   private final ModulesHolder availableModules = CloudNet.instance().modulesHolder();
 
   @Parser(name = "modulePath", suggestions = "modulePath")
-  public Path modulePathParser(CommandContext<?> $, Queue<String> input) {
+  public @NonNull Path modulePathParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var fileName = input.remove();
     // resolve the path to the module
     var path = this.provider.moduleDirectoryPath().resolve(fileName);
@@ -93,7 +94,7 @@ public final class CommandModules {
   }
 
   @Suggestions("modulePath")
-  public List<String> suggestModulePath(CommandContext<?> $, String input) {
+  public @NonNull List<String> suggestModulePath(@NonNull CommandContext<?> $, @NonNull String input) {
     var moduleDirectory = this.provider.moduleDirectoryPath();
     try {
       return Files.walk(moduleDirectory, 1)
@@ -108,7 +109,7 @@ public final class CommandModules {
   }
 
   @Parser(name = "existingModule", suggestions = "existingModule")
-  public ModuleWrapper existingModuleParser(CommandContext<?> $, Queue<String> input) {
+  public @NonNull ModuleWrapper existingModuleParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var moduleName = input.remove();
     var wrapper = this.provider.module(moduleName);
     if (wrapper == null) {
@@ -119,7 +120,7 @@ public final class CommandModules {
   }
 
   @Suggestions("existingModule")
-  public List<String> suggestExistingModule(CommandContext<?> $, String input) {
+  public @NonNull List<String> suggestExistingModule(@NonNull CommandContext<?> $, @NonNull String input) {
     return this.provider.modules()
       .stream()
       .map(module -> module.module().name())
@@ -127,7 +128,7 @@ public final class CommandModules {
   }
 
   @Parser(name = "toStartModule", suggestions = "toStartModule")
-  public ModuleWrapper loadedModuleParser(CommandContext<?> $, Queue<String> input) {
+  public @NonNull ModuleWrapper loadedModuleParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var moduleName = input.remove();
     var wrapper = this.provider.module(moduleName);
     if (wrapper == null || !wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.STARTED)) {
@@ -138,7 +139,7 @@ public final class CommandModules {
   }
 
   @Suggestions("toStartModule")
-  public List<String> suggestStartModule(CommandContext<?> $, String input) {
+  public @NonNull List<String> suggestStartModule(@NonNull CommandContext<?> $, @NonNull String input) {
     return this.provider.modules().stream()
       .filter(wrapper -> wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.STARTED))
       .map(wrapper -> wrapper.module().name())
@@ -146,7 +147,7 @@ public final class CommandModules {
   }
 
   @Parser(name = "toReloadModule", suggestions = "toReloadModule")
-  public ModuleWrapper reloadedModuleParser(CommandContext<?> $, Queue<String> input) {
+  public @NonNull ModuleWrapper reloadedModuleParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var moduleName = input.remove();
     var wrapper = this.provider.module(moduleName);
     if (wrapper == null || !wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.RELOADING)) {
@@ -162,7 +163,7 @@ public final class CommandModules {
   }
 
   @Suggestions("toReloadModule")
-  public List<String> suggestReloadModule(CommandContext<?> $, String input) {
+  public @NonNull List<String> suggestReloadModule(@NonNull CommandContext<?> $, @NonNull String input) {
     return this.provider.modules().stream()
       .filter(wrapper -> wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.RELOADING))
       .filter(wrapper -> !wrapper.moduleConfiguration().runtimeModule())
@@ -171,7 +172,7 @@ public final class CommandModules {
   }
 
   @Parser(name = "toStopModule", suggestions = "toStopModule")
-  public ModuleWrapper stoppedModuleParser(CommandContext<?> $, Queue<String> input) {
+  public @NonNull ModuleWrapper stoppedModuleParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var moduleName = input.remove();
     var wrapper = this.provider.module(moduleName);
     if (wrapper == null || !wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.STOPPED)) {
@@ -182,7 +183,7 @@ public final class CommandModules {
   }
 
   @Suggestions("toStopModule")
-  public List<String> suggestStopModule(CommandContext<?> $, String input) {
+  public @NonNull List<String> suggestStopModule(@NonNull CommandContext<?> $, @NonNull String input) {
     return this.provider.modules().stream()
       .filter(wrapper -> wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.STOPPED))
       .map(wrapper -> wrapper.module().name())
@@ -190,7 +191,7 @@ public final class CommandModules {
   }
 
   @Parser(name = "toUnloadModule", suggestions = "toUnloadModule")
-  public ModuleWrapper unloadedModuleParser(CommandContext<?> $, Queue<String> input) {
+  public @NonNull ModuleWrapper unloadedModuleParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var moduleName = input.remove();
     var wrapper = this.provider.module(moduleName);
     if (wrapper == null || !wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.UNLOADED)) {
@@ -206,7 +207,7 @@ public final class CommandModules {
   }
 
   @Suggestions("toUnloadModule")
-  public List<String> suggestUnloadModule(CommandContext<?> $, String input) {
+  public @NonNull List<String> suggestUnloadModule(@NonNull CommandContext<?> $, @NonNull String input) {
     return this.provider.modules().stream()
       .filter(wrapper -> wrapper.moduleLifeCycle().canChangeTo(ModuleLifeCycle.UNLOADED))
       .filter(wrapper -> !wrapper.moduleConfiguration().runtimeModule())
@@ -215,7 +216,7 @@ public final class CommandModules {
   }
 
   @Parser(name = "availableModule", suggestions = "availableModules")
-  public ModuleEntry availableModuleParser(CommandContext<?> $, Queue<String> input) {
+  public @NonNull ModuleEntry availableModuleParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var name = input.remove();
     return this.availableModules
       .findByName(name)
@@ -224,14 +225,14 @@ public final class CommandModules {
   }
 
   @Suggestions("availableModules")
-  public List<String> suggestAvailableModules(CommandContext<?> $, String input) {
+  public @NonNull List<String> suggestAvailableModules(@NonNull CommandContext<?> $, @NonNull String input) {
     return this.availableModules.entries().stream().map(ModuleEntry::name).toList();
   }
 
   @CommandMethod("modules|module info <module>")
   public void moduleInfo(
-    CommandSource source,
-    @Argument(value = "module", parserName = "existingModule") ModuleWrapper module
+    @NonNull CommandSource source,
+    @NonNull @Argument(value = "module", parserName = "existingModule") ModuleWrapper module
   ) {
     this.printBasicModuleInfos(source, module);
     source.sendMessage(" - Dependencies: ");
@@ -242,19 +243,19 @@ public final class CommandModules {
   }
 
   @CommandMethod("modules|module list")
-  public void listModules(CommandSource source) {
+  public void listModules(@NonNull CommandSource source) {
     source.sendMessage(MODULES_FORMATTER.format(this.provider.modules()));
   }
 
   @CommandMethod("modules|module available")
-  public void listAvailableModules(CommandSource source) {
+  public void listAvailableModules(@NonNull CommandSource source) {
     source.sendMessage(MODULE_ENTRY_FORMATTER.format(this.availableModules.entries()));
   }
 
   @CommandMethod("modules|module load <module>")
   public void loadModule(
-    CommandSource source,
-    @Argument(value = "module", parserName = "modulePath") @Quoted Path path
+    @NonNull CommandSource source,
+    @NonNull @Argument(value = "module", parserName = "modulePath") @Quoted Path path
   ) {
     // try to load the module
     var wrapper = this.provider.loadModule(path);
@@ -266,8 +267,8 @@ public final class CommandModules {
 
   @CommandMethod("modules|module install <module>")
   public void installModule(
-    CommandSource source,
-    @Argument(value = "module", parserName = "availableModule") @Greedy ModuleEntry entry,
+    @NonNull CommandSource source,
+    @NonNull @Argument(value = "module", parserName = "availableModule") @Greedy ModuleEntry entry,
     @Flag(value = "noChecksumValidation") boolean noChecksumValidation
   ) {
     // check if all modules the module is depending on are present
@@ -318,16 +319,16 @@ public final class CommandModules {
 
   @CommandMethod("modules|module start <module>")
   public void startModule(
-    CommandSource source,
-    @Argument(value = "module", parserName = "toStartModule") ModuleWrapper wrapper
+    @NonNull CommandSource source,
+    @NonNull @Argument(value = "module", parserName = "toStartModule") ModuleWrapper wrapper
   ) {
     wrapper.startModule();
   }
 
   @CommandMethod("modules|module reload [module]")
   public void reloadModule(
-    CommandSource source,
-    @Argument(value = "module", parserName = "toReloadModule") ModuleWrapper wrapper
+    @NonNull CommandSource source,
+    @Nullable @Argument(value = "module", parserName = "toReloadModule") ModuleWrapper wrapper
   ) {
     if (wrapper != null) {
       wrapper.reloadModule();
@@ -338,16 +339,16 @@ public final class CommandModules {
 
   @CommandMethod("modules|module stop <module>")
   public void stopModule(
-    CommandSource source,
-    @Argument(value = "module", parserName = "toStopModule") ModuleWrapper wrapper
+    @NonNull CommandSource source,
+    @NonNull @Argument(value = "module", parserName = "toStopModule") ModuleWrapper wrapper
   ) {
     wrapper.stopModule();
   }
 
   @CommandMethod("modules|module unload <module>")
   public void unloadModule(
-    CommandSource source,
-    @Argument(value = "module", parserName = "toUnloadModule") ModuleWrapper wrapper
+    @NonNull CommandSource source,
+    @NonNull @Argument(value = "module", parserName = "toUnloadModule") ModuleWrapper wrapper
   ) {
     wrapper.unloadModule();
   }

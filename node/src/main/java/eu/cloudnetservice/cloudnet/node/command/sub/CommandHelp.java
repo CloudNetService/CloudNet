@@ -52,7 +52,7 @@ public final class CommandHelp {
   }
 
   @Parser
-  public CommandInfo defaultCommandInfoParser(CommandContext<CommandSource> $, Queue<String> input) {
+  public @NonNull CommandInfo defaultCommandInfoParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var command = input.remove();
     var commandInfo = this.commandProvider.command(command);
     if (commandInfo == null) {
@@ -63,12 +63,12 @@ public final class CommandHelp {
   }
 
   @CommandMethod("help|ask|?")
-  public void displayHelp(CommandSource source) {
+  public void displayHelp(@NonNull CommandSource source) {
     source.sendMessage(HELP_LIST_FORMATTER.format(this.commandProvider.commands()));
   }
 
   @CommandMethod("help|ask|? <command>")
-  public void displaySpecificHelp(CommandSource source, @Argument("command") CommandInfo command) {
+  public void displaySpecificHelp(@NonNull CommandSource source, @NonNull @Argument("command") CommandInfo command) {
     source.sendMessage(" ");
 
     source.sendMessage("Names: " + command.joinNameToAliases(", "));

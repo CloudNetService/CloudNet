@@ -98,6 +98,8 @@ public class DefaultObjectMapper implements ObjectMapper {
     .put(Character.class, FunctionalObjectSerializer.of(DataBuf::readChar, DataBuf.Mutable::writeChar))
     // string
     .put(String.class, FunctionalObjectSerializer.of(DataBuf::readString, DataBuf.Mutable::writeString))
+    // special case for byte arrays, just write them directly
+    .put(byte[].class, FunctionalObjectSerializer.of(DataBuf::readByteArray, DataBuf.Mutable::writeByteArray))
     // uuid
     .put(UUID.class, new UUIDObjectSerializer())
     //    ==== nested types ====

@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.platform.bungeecord.command;
 
-import static net.md_5.bungee.api.chat.TextComponent.fromLegacyText;
+import static eu.cloudnetservice.modules.bridge.platform.bungeecord.BungeeCordHelper.translateToComponent;
 
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import lombok.NonNull;
@@ -45,7 +45,7 @@ public final class BungeeCordHubCommand extends Command {
     if (sender instanceof ProxiedPlayer player) {
       // check if the player is on a fallback already
       if (this.management.isOnAnyFallbackInstance(player)) {
-        player.sendMessage(fromLegacyText(this.management.configuration().message(
+        player.sendMessage(translateToComponent(this.management.configuration().message(
           player.getLocale(),
           "command-hub-already-in-hub")));
       } else {
@@ -58,13 +58,13 @@ public final class BungeeCordHubCommand extends Command {
           player.connect(hub, (result, ex) -> {
             // check if the connection was successful
             if (result && ex == null) {
-              player.sendMessage(fromLegacyText(this.management.configuration().message(
+              player.sendMessage(translateToComponent(this.management.configuration().message(
                 player.getLocale(),
                 "command-hub-success-connect"
               ).replace("%server%", hub.getName())));
             } else {
               // the connection was not successful
-              player.sendMessage(fromLegacyText(this.management.configuration().message(
+              player.sendMessage(translateToComponent(this.management.configuration().message(
                 player.getLocale(),
                 "command-hub-no-server-found")));
             }

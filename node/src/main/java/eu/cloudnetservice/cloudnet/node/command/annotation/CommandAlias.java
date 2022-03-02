@@ -40,5 +40,4 @@ public @interface CommandAlias {
    * @return all aliases for the commands of a class.
    */
   String[] value();
-
 }

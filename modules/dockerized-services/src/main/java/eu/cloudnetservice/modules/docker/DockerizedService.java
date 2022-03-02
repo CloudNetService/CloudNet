@@ -52,6 +52,7 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -149,6 +150,9 @@ public class DockerizedService extends JVMService {
     @NonNull Path applicationFilePath
   ) {
     if (this.containerId == null) {
+      // the user to run the container, we use an empty string to indicate that docker should auto-detect the user
+      var user = Objects.requireNonNullElse(this.configuration.user(), "");
+
       // get the task specific options
       var image = this.readFromTaskConfig(TaskDockerConfig::javaImage).orElse(this.configuration.javaImage());
       var taskExposedPorts = this.readFromTaskConfig(TaskDockerConfig::exposedPorts).orElse(Set.of());
@@ -177,6 +181,7 @@ public class DockerizedService extends JVMService {
 
       // create the container and store the container id
       this.containerId = this.dockerClient.createContainerCmd(image.imageName())
+        .withUser(user)
         .withTty(false)
         .withStdinOpen(true)
         .withStdInOnce(false)

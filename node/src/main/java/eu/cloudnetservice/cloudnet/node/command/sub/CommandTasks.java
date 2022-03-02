@@ -58,6 +58,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 import java.util.function.Consumer;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -97,12 +98,13 @@ public final class CommandTasks {
 
   public static void applyServiceConfigurationDisplay(
     @NonNull Collection<String> messages,
-    @NonNull ServiceConfigurationBase configurationBase) {
+    @NonNull ServiceConfigurationBase configurationBase
+  ) {
     messages.add(" ");
 
     messages.add("Includes:");
 
-    for (var inclusion : configurationBase.includes()) {
+    for (var inclusion : configurationBase.inclusions()) {
       messages.add("- " + inclusion.url() + " => " + inclusion.destination());
     }
 
@@ -146,7 +148,7 @@ public final class CommandTasks {
   }
 
   @Parser(suggestions = "serviceTask")
-  public ServiceTask defaultTaskParser(CommandContext<CommandSource> $, Queue<String> input) {
+  public @NonNull ServiceTask defaultTaskParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var name = input.remove();
     var task = CloudNet.instance().serviceTaskProvider().serviceTask(name);
     if (task == null) {
@@ -157,12 +159,15 @@ public final class CommandTasks {
   }
 
   @Suggestions("serviceTask")
-  public List<String> suggestTask(CommandContext<CommandSource> $, String input) {
+  public @NonNull List<String> suggestTask(@NonNull CommandContext<?> $, @NonNull String input) {
     return this.taskProvider().serviceTasks().stream().map(Nameable::name).toList();
   }
 
   @Parser(suggestions = "serviceTask")
-  public Collection<ServiceTask> wildcardTaskParser(CommandContext<CommandSource> $, Queue<String> input) {
+  public @NonNull Collection<ServiceTask> wildcardTaskParser(
+    @NonNull CommandContext<?> $,
+    @NonNull Queue<String> input
+  ) {
     var name = input.remove();
     var matchedTasks = WildcardUtil.filterWildcard(
       this.taskProvider().serviceTasks(),
@@ -175,7 +180,10 @@ public final class CommandTasks {
   }
 
   @Parser(name = "javaCommand")
-  public Pair<String, JavaVersion> javaCommandParser(CommandContext<CommandSource> $, Queue<String> input) {
+  public @NonNull Pair<String, JavaVersion> javaCommandParser(
+    @NonNull CommandContext<?> $,
+    @NonNull Queue<String> input
+  ) {
     var command = String.join(" ", input);
     var version = JavaVersionResolver.resolveFromJavaExecutable(command);
     if (version == null) {
@@ -187,19 +195,18 @@ public final class CommandTasks {
   }
 
   @Parser(name = "nodeId", suggestions = "clusterNode")
-  public String defaultClusterNodeParser(CommandContext<CommandSource> $, Queue<String> input) {
+  public @NonNull String defaultClusterNodeParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var nodeId = input.remove();
     for (var node : CloudNet.instance().config().clusterConfig().nodes()) {
       if (node.uniqueId().equals(nodeId)) {
         return nodeId;
       }
     }
-
     throw new ArgumentNotAvailableException(I18n.trans("command-tasks-node-not-found"));
   }
 
   @Suggestions("clusterNode")
-  public List<String> suggestNode(CommandContext<CommandSource> $, String input) {
+  public @NonNull List<String> suggestNode(@NonNull CommandContext<CommandSource> $, @NonNull String input) {
     return CloudNet.instance().config().clusterConfig().nodes()
       .stream()
       .map(NetworkClusterNode::uniqueId)
@@ -207,7 +214,7 @@ public final class CommandTasks {
   }
 
   @CommandMethod(value = "tasks setup", requiredSender = ConsoleCommandSource.class)
-  public void taskSetup(CommandSource source) {
+  public void taskSetup(@NonNull CommandSource source) {
     var setup = new SpecificTaskSetup();
     setup.applyQuestions(TASK_SETUP);
 
@@ -217,13 +224,16 @@ public final class CommandTasks {
   }
 
   @CommandMethod("tasks reload")
-  public void reloadTasks(CommandSource source) {
+  public void reloadTasks(@NonNull CommandSource source) {
     this.taskProvider().reload();
     source.sendMessage(I18n.trans("command-tasks-reload-success"));
   }
 
   @CommandMethod("tasks delete <name>")
-  public void deleteTask(CommandSource source, @Argument("name") Collection<ServiceTask> serviceTasks) {
+  public void deleteTask(
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks
+  ) {
     for (var serviceTask : serviceTasks) {
       this.taskProvider().removeServiceTask(serviceTask);
       source.sendMessage(I18n.trans("command-tasks-delete-task"));
@@ -231,14 +241,15 @@ public final class CommandTasks {
   }
 
   @CommandMethod("tasks list")
-  public void listTasks(CommandSource source) {
+  public void listTasks(@NonNull CommandSource source) {
     source.sendMessage(TASK_LIST_FORMATTER.format(this.taskProvider().serviceTasks()));
   }
 
   @CommandMethod("tasks create <name> <environment>")
-  public void createTask(CommandSource source,
-    @Argument("name") String taskName,
-    @Argument("environment") ServiceEnvironmentType environmentType
+  public void createTask(
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") String taskName,
+    @NonNull @Argument("environment") ServiceEnvironmentType environmentType
   ) {
     if (this.taskProvider().serviceTask(taskName) != null) {
       source.sendMessage(I18n.trans("command-tasks-task-already-existing"));
@@ -246,7 +257,7 @@ public final class CommandTasks {
     }
 
     var serviceTask = ServiceTask.builder()
-      .addTemplate(ServiceTemplate.builder().prefix(taskName).name("default").build())
+      .addTemplates(Set.of(ServiceTemplate.builder().prefix(taskName).name("default").build()))
       .name(taskName)
       .autoDeleteOnStop(true)
       .groups(Collections.singletonList(taskName))
@@ -259,7 +270,10 @@ public final class CommandTasks {
   }
 
   @CommandMethod("tasks task <name>")
-  public void displayTask(CommandSource source, @Argument("name") Collection<ServiceTask> serviceTasks) {
+  public void displayTask(
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks
+  ) {
     for (var serviceTask : serviceTasks) {
       Collection<String> messages = new ArrayList<>();
       messages.add("Name: " + serviceTask.name());
@@ -284,9 +298,9 @@ public final class CommandTasks {
 
   @CommandMethod("tasks task <name> set minServiceCount <amount>")
   public void setMinServiceCount(
-    CommandSource source,
-    @Argument("name") Collection<ServiceTask> serviceTasks,
-    @Argument("amount") @Range(min = "0") Integer amount
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
+    @Argument("amount") @Range(min = "0") int amount
   ) {
     for (var task : serviceTasks) {
       this.updateTask(task, builder -> builder.minServiceCount(amount));
@@ -299,8 +313,8 @@ public final class CommandTasks {
 
   @CommandMethod("tasks task <name> set maintenance <enabled>")
   public void setMaintenance(
-    CommandSource source,
-    @Argument("name") Collection<ServiceTask> serviceTasks,
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
     @Argument("enabled") @Liberal boolean enabled
   ) {
     for (var task : serviceTasks) {
@@ -314,9 +328,9 @@ public final class CommandTasks {
 
   @CommandMethod("tasks task <name> set maxHeapMemory <amount>")
   public void setMaxHeapMemory(
-    CommandSource source,
-    @Argument("name") Collection<ServiceTask> serviceTasks,
-    @Argument("amount") @Range(min = "0") Integer amount
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
+    @Argument("amount") @Range(min = "0") int amount
   ) {
     for (var task : serviceTasks) {
       this.updateTask(task, builder -> builder.maxHeapMemory(amount));
@@ -326,9 +340,9 @@ public final class CommandTasks {
 
   @CommandMethod("tasks task <name> set startPort <amount>")
   public void setStartPort(
-    CommandSource source,
-    @Argument("name") Collection<ServiceTask> serviceTasks,
-    @Argument("amount") @Range(min = "0") Integer amount
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
+    @Argument("amount") @Range(min = "0") int amount
   ) {
     for (var task : serviceTasks) {
       this.updateTask(task, builder -> builder.startPort(amount));
@@ -338,8 +352,8 @@ public final class CommandTasks {
 
   @CommandMethod("tasks task <name> set staticServices|static|staticService <enabled>")
   public void setStaticServices(
-    CommandSource source,
-    @Argument("name") Collection<ServiceTask> serviceTasks,
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
     @Argument("enabled") @Liberal boolean enabled
   ) {
     for (var task : serviceTasks) {
@@ -350,8 +364,8 @@ public final class CommandTasks {
 
   @CommandMethod("tasks task <name> set environment <environment>")
   public void setEnvironment(
-    CommandSource source,
-    @Argument("name") Collection<ServiceTask> serviceTasks,
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
     @Argument("environment") ServiceEnvironmentType environmentType
   ) {
     for (var task : serviceTasks) {
@@ -365,34 +379,40 @@ public final class CommandTasks {
 
   @CommandMethod("tasks task <name> set disableIpRewrite <enabled>")
   public void setDisableIpRewrite(
-    CommandSource source,
-    @Argument("name") Collection<ServiceTask> serviceTasks,
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
     @Argument("enabled") @Liberal boolean enabled
   ) {
     for (var task : serviceTasks) {
       this.updateTask(task, builder -> builder.disableIpRewrite(enabled));
-      source.sendMessage(I18n.trans("command-tasks-set-property-success", "disableIpRewrite", task.name(), enabled));
+      source.sendMessage(I18n.trans("command-tasks-set-property-success",
+        "disableIpRewrite",
+        task.name(),
+        enabled));
     }
   }
 
   @CommandMethod("tasks task <name> set javaCommand <executable>")
   public void setJavaCommand(
-    CommandSource source,
-    @Argument("name") Collection<ServiceTask> serviceTasks,
-    @Argument(value = "executable", parserName = "javaCommand") @Quoted Pair<String, JavaVersion> executable
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
+    @NonNull @Argument(value = "executable", parserName = "javaCommand") @Quoted Pair<String, JavaVersion> executable
   ) {
     for (var task : serviceTasks) {
       this.updateTask(task, builder -> builder.javaCommand(executable.first()));
       source.sendMessage(
-        I18n.trans("command-tasks-set-property-success", "javaCommand", task.name(), executable.first()));
+        I18n.trans("command-tasks-set-property-success",
+          "javaCommand",
+          task.name(),
+          executable.first()));
     }
   }
 
   @CommandMethod("tasks task <name> add node <uniqueId>")
   public void addNode(
-    CommandSource source,
-    @Argument("name") Collection<ServiceTask> serviceTasks,
-    @Argument(value = "uniqueId", parserName = "nodeId") String node
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
+    @NonNull @Argument(value = "uniqueId", parserName = "nodeId") String node
   ) {
     for (var task : serviceTasks) {
       if (task.associatedNodes().contains(node)) {
@@ -400,15 +420,18 @@ public final class CommandTasks {
       }
 
       this.updateTask(task, builder -> builder.addAssociatedNode(node));
-      source.sendMessage(I18n.trans("command-tasks-add-collection-property", "node", node, task.name()));
+      source.sendMessage(I18n.trans("command-tasks-add-collection-property",
+        "node",
+        node,
+        task.name()));
     }
   }
 
   @CommandMethod("tasks task <name> add group <group>")
   public void addGroup(
-    CommandSource source,
-    @Argument("name") Collection<ServiceTask> serviceTasks,
-    @Argument("group") GroupConfiguration group
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
+    @NonNull @Argument("group") GroupConfiguration group
   ) {
     for (var task : serviceTasks) {
       if (task.groups().contains(group.name())) {
@@ -416,39 +439,48 @@ public final class CommandTasks {
       }
 
       this.updateTask(task, builder -> builder.addGroup(group.name()));
-      source.sendMessage(I18n.trans("command-tasks-add-collection-property", "group", group.name(), task.name()));
+      source.sendMessage(I18n.trans("command-tasks-add-collection-property",
+        "group",
+        group.name(),
+        task.name()));
     }
   }
 
   @CommandMethod("tasks task <name> remove node <uniqueId>")
   public void removeNode(
-    CommandSource source,
-    @Argument("name") Collection<ServiceTask> serviceTasks,
-    @Argument("uniqueId") String node
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
+    @NonNull @Argument("uniqueId") String node
   ) {
     for (var task : serviceTasks) {
       this.updateTaskDirect(task, serviceTask -> serviceTask.associatedNodes().remove(node));
-      source.sendMessage(I18n.trans("command-tasks-remove-collection-property", "node", node, task.name()));
+      source.sendMessage(I18n.trans("command-tasks-remove-collection-property",
+        "node",
+        node,
+        task.name()));
     }
   }
 
   @CommandMethod("tasks task <name> remove group <group>")
   public void removeGroup(
-    CommandSource source,
-    @Argument("name") Collection<ServiceTask> serviceTasks,
-    @Argument("group") String group
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
+    @NonNull @Argument("group") String group
   ) {
     for (var task : serviceTasks) {
       this.updateTaskDirect(task, serviceTask -> serviceTask.groups().remove(group));
-      source.sendMessage(I18n.trans("command-tasks-remove-collection-property", "group", group, task.name()));
+      source.sendMessage(I18n.trans("command-tasks-remove-collection-property",
+        "group",
+        group,
+        task.name()));
     }
   }
 
   @CommandMethod("tasks task <name> add deployment <deployment>")
   public void addDeployment(
-    CommandSource source,
-    @Argument("name") Collection<ServiceTask> serviceTasks,
-    @Argument("deployment") ServiceTemplate template,
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
+    @NonNull @Argument("deployment") ServiceTemplate template,
     @Flag("excludes") @Quoted String excludes
   ) {
     var deployment = ServiceDeployment.builder()
@@ -456,7 +488,7 @@ public final class CommandTasks {
       .excludes(this.parseExcludes(excludes))
       .build();
     for (var serviceTask : serviceTasks) {
-      this.updateTask(serviceTask, builder -> builder.addDeployment(deployment));
+      this.updateTask(serviceTask, builder -> builder.addDeployments(Set.of(deployment)));
       source.sendMessage(I18n.trans("command-tasks-add-collection-property",
         "deployment",
         deployment.template(),
@@ -466,27 +498,30 @@ public final class CommandTasks {
 
   @CommandMethod("tasks task <name> add template <template>")
   public void addTemplate(
-    CommandSource source,
-    @Argument("name") Collection<ServiceTask> serviceTasks,
-    @Argument("template") ServiceTemplate template
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
+    @NonNull @Argument("template") ServiceTemplate template
   ) {
     for (var serviceTask : serviceTasks) {
-      this.updateTask(serviceTask, task -> task.addTemplate(template));
-      source.sendMessage(I18n.trans("command-tasks-add-collection-property", "template", template, serviceTask.name()));
+      this.updateTask(serviceTask, task -> task.addTemplates(Set.of(template)));
+      source.sendMessage(I18n.trans("command-tasks-add-collection-property",
+        "template",
+        template,
+        serviceTask.name()));
     }
   }
 
   @CommandMethod("tasks task <name> add inclusion <url> <path>")
   public void addInclusion(
-    CommandSource source,
-    @Argument("name") Collection<ServiceTask> serviceTasks,
-    @Argument("url") String url,
-    @Argument("path") String path
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
+    @NonNull @Argument("url") String url,
+    @NonNull @Argument("path") String path
   ) {
     var inclusion = ServiceRemoteInclusion.builder().url(url).destination(path).build();
 
     for (var serviceTask : serviceTasks) {
-      this.updateTask(serviceTask, task -> task.addInclude(inclusion));
+      this.updateTask(serviceTask, task -> task.addInclusions(Set.of(inclusion)));
       source.sendMessage(I18n.trans("command-tasks-add-collection-property",
         "inclusion",
         inclusion,
@@ -496,9 +531,9 @@ public final class CommandTasks {
 
   @CommandMethod("tasks task <name> add jvmOption <options>")
   public void addJvmOption(
-    CommandSource source,
-    @Argument("name") Collection<ServiceTask> serviceTasks,
-    @Greedy @Argument("options") String jvmOptions
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
+    @NonNull @Greedy @Argument("options") String jvmOptions
   ) {
     Collection<String> splittedOptions = Arrays.asList(jvmOptions.split(" "));
     for (var serviceTask : serviceTasks) {
@@ -513,9 +548,9 @@ public final class CommandTasks {
 
   @CommandMethod("tasks task <name> add processParameter <options>")
   public void addProcessParameter(
-    CommandSource source,
-    @Argument("name") Collection<ServiceTask> serviceTasks,
-    @Greedy @Argument("options") String processParameters
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
+    @NonNull @Greedy @Argument("options") String processParameters
   ) {
     Collection<String> splittedOptions = Arrays.asList(processParameters.split(" "));
     for (var serviceTask : serviceTasks) {
@@ -530,9 +565,9 @@ public final class CommandTasks {
 
   @CommandMethod("tasks task <name> remove deployment <deployment>")
   public void removeDeployment(
-    CommandSource source,
-    @Argument("name") Collection<ServiceTask> serviceTasks,
-    @Argument("deployment") ServiceTemplate template,
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
+    @NonNull @Argument("deployment") ServiceTemplate template,
     @Flag("excludes") @Quoted String excludes
   ) {
     var deployment = ServiceDeployment.builder()
@@ -550,9 +585,9 @@ public final class CommandTasks {
 
   @CommandMethod("tasks task <name> remove template <template>")
   public void removeTemplate(
-    CommandSource source,
-    @Argument("name") Collection<ServiceTask> serviceTasks,
-    @Argument("template") ServiceTemplate template
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
+    @NonNull @Argument("template") ServiceTemplate template
   ) {
     for (var serviceTask : serviceTasks) {
       this.updateTaskDirect(serviceTask, task -> task.templates().remove(template));
@@ -565,15 +600,15 @@ public final class CommandTasks {
 
   @CommandMethod("tasks task <name> remove inclusion <url> <path>")
   public void removeInclusion(
-    CommandSource source,
-    @Argument("name") Collection<ServiceTask> serviceTasks,
-    @Argument("url") String url,
-    @Argument("path") String path
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
+    @NonNull @Argument("url") String url,
+    @NonNull @Argument("path") String path
   ) {
     var inclusion = ServiceRemoteInclusion.builder().url(url).destination(path).build();
 
     for (var serviceTask : serviceTasks) {
-      this.updateTaskDirect(serviceTask, task -> task.includes().remove(inclusion));
+      this.updateTaskDirect(serviceTask, task -> task.inclusions().remove(inclusion));
       source.sendMessage(I18n.trans("command-tasks-remove-collection-property",
         "inclusion",
         inclusion,
@@ -583,9 +618,9 @@ public final class CommandTasks {
 
   @CommandMethod("tasks task <name> remove jvmOption <options>")
   public void removeJvmOption(
-    CommandSource source,
-    @Argument("name") Collection<ServiceTask> serviceTasks,
-    @Greedy @Argument("options") String jvmOptions
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
+    @NonNull @Greedy @Argument("options") String jvmOptions
   ) {
     Collection<String> splittedOptions = Arrays.asList(jvmOptions.split(" "));
     for (var serviceTask : serviceTasks) {
@@ -600,13 +635,13 @@ public final class CommandTasks {
 
   @CommandMethod("tasks task <name> remove processParameter <options>")
   public void removeProcessParameter(
-    CommandSource source,
-    @Argument("name") Collection<ServiceTask> serviceTasks,
-    @Greedy @Argument("options") String processParameters
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
+    @NonNull @Greedy @Argument("options") String processParameters
   ) {
-    Collection<String> splittedOptions = Arrays.asList(processParameters.split(" "));
+    Collection<String> splitOptions = Arrays.asList(processParameters.split(" "));
     for (var serviceTask : serviceTasks) {
-      serviceTask.processParameters().removeAll(splittedOptions);
+      serviceTask.processParameters().removeAll(splitOptions);
       this.updateTask(serviceTask);
       source.sendMessage(I18n.trans("command-tasks-remove-collection-property",
         "processParamter",
@@ -616,7 +651,10 @@ public final class CommandTasks {
   }
 
   @CommandMethod("tasks task <name> clear jvmOptions")
-  public void clearJvmOptions(CommandSource source, @Argument("name") Collection<ServiceTask> serviceTasks) {
+  public void clearJvmOptions(
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks
+  ) {
     for (var serviceTask : serviceTasks) {
       this.updateTaskDirect(serviceTask, task -> task.jvmOptions().clear());
       source.sendMessage(I18n.trans("command-service-base-clear-property",
@@ -627,7 +665,10 @@ public final class CommandTasks {
   }
 
   @CommandMethod("tasks task <name> clear processParameters")
-  public void clearProcessParameter(CommandSource source, @Argument("name") Collection<ServiceTask> serviceTasks) {
+  public void clearProcessParameter(
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks
+  ) {
     for (var serviceTask : serviceTasks) {
       this.updateTaskDirect(serviceTask, task -> task.processParameters().clear());
       source.sendMessage(I18n.trans("command-service-base-clear-property",

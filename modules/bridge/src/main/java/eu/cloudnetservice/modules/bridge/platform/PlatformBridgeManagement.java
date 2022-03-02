@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.bridge.platform;
 
-import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.common.collection.Pair;
 import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.driver.event.EventManager;
@@ -183,8 +182,13 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     @Nullable String virtualHost,
     @NonNull Function<String, Boolean> permissionTester
   ) {
-    // get the currently applying fallback config
-    var config = Preconditions.checkNotNull(this.currentFallbackConfiguration);
+    // get the currently applying fallback config, if no config applies to the current group then we don't need to filter
+    // out a fallback for the player
+    var config = this.currentFallbackConfiguration;
+    if (config == null) {
+      return Optional.empty();
+    }
+
     // get the fallback profile for the player
     var profile = this.fallbackProfiles.computeIfAbsent(playerId, $ -> new FallbackProfile());
     // search for the best fallback
@@ -222,8 +226,12 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     @Nullable String virtualHost,
     @NonNull Function<String, Boolean> permissionTester
   ) {
-    // get the currently applying fallback config
-    var config = Preconditions.checkNotNull(this.currentFallbackConfiguration);
+    // get the currently applying fallback config, if none is present for the group then do nothing
+    var config = this.currentFallbackConfiguration;
+    if (config == null) {
+      return Stream.empty();
+    }
+
     // get all groups of the service the player is currently on
     var currentGroups = this.cachedService(service -> service.name().equals(currentServerName))
       .map(service -> service.configuration().groups())
@@ -244,8 +252,12 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     @Nullable String virtualHost,
     @NonNull Function<String, Boolean> permissionTester
   ) {
-    // get the currently applying fallback config
-    var config = Preconditions.checkNotNull(this.currentFallbackConfiguration);
+    // get the currently applying fallback config, if it is null return false as we don't know if the player is on a fallback
+    var config = this.currentFallbackConfiguration;
+    if (config == null) {
+      return false;
+    }
+
     // check if the current server of the player is given
     return this.cachedService(service -> service.name().equals(currentServerName))
       .map(service -> {

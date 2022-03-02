@@ -49,6 +49,8 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Queue;
+import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 @CommandAlias("t")
 @CommandPermission("cloudnet.command.templates")
@@ -74,16 +76,19 @@ public final class CommandTemplate {
       .build();
 
   @Parser(suggestions = "serviceTemplate")
-  public ServiceTemplate defaultServiceTemplateParser(CommandContext<CommandSource> $, Queue<String> input) {
+  public @NonNull ServiceTemplate defaultServiceTemplateParser(
+    @NonNull CommandContext<?> $,
+    @NonNull Queue<String> input
+  ) {
     var template = ServiceTemplate.parse(input.remove());
-    if (template == null || template.knownStorage() == null) {
+    if (template == null || template.findStorage() == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-template-not-valid"));
     }
     return template;
   }
 
   @Suggestions("serviceTemplate")
-  public List<String> suggestServiceTemplate(CommandContext<CommandSource> $, String input) {
+  public @NonNull List<String> suggestServiceTemplate(@NonNull CommandContext<?> $, @NonNull String input) {
     return CloudNet.instance().localTemplateStorage().templates()
       .stream()
       .map(ServiceTemplate::toString)
@@ -91,7 +96,10 @@ public final class CommandTemplate {
   }
 
   @Parser
-  public TemplateStorage defaultTemplateStorageParser(CommandContext<CommandSource> $, Queue<String> input) {
+  public @NonNull TemplateStorage defaultTemplateStorageParser(
+    @NonNull CommandContext<?> $,
+    @NonNull Queue<String> input
+  ) {
     var storage = input.remove();
     var templateStorage = CloudNet.instance().templateStorage(storage);
     if (templateStorage == null) {
@@ -102,7 +110,7 @@ public final class CommandTemplate {
   }
 
   @Suggestions("templateStorage")
-  public List<String> suggestTemplateStorage(CommandContext<CommandSource> $, String input) {
+  public @NonNull List<String> suggestTemplateStorage(@NonNull CommandContext<?> $, @NonNull String input) {
     return CloudNet.instance().availableTemplateStorages()
       .stream()
       .map(Nameable::name)
@@ -110,7 +118,10 @@ public final class CommandTemplate {
   }
 
   @Parser(suggestions = "serviceVersionType")
-  public ServiceVersionType defaultVersionTypeParser(CommandContext<CommandSource> $, Queue<String> input) {
+  public @NonNull ServiceVersionType defaultVersionTypeParser(
+    @NonNull CommandContext<?> $,
+    @NonNull Queue<String> input
+  ) {
     var versionTypeName = input.remove().toLowerCase();
     return CloudNet.instance().serviceVersionProvider().getServiceVersionType(versionTypeName)
       .orElseThrow(() -> new ArgumentNotAvailableException(
@@ -118,12 +129,18 @@ public final class CommandTemplate {
   }
 
   @Suggestions("serviceVersionType")
-  public List<String> suggestServiceVersionType(CommandContext<CommandSource> $, String input) {
+  public @NonNull List<String> suggestServiceVersionType(
+    @NonNull CommandContext<?> $,
+    @NonNull String input
+  ) {
     return new ArrayList<>(CloudNet.instance().serviceVersionProvider().serviceVersionTypes().keySet());
   }
 
   @Parser(suggestions = "version")
-  public ServiceVersion defaultVersionParser(CommandContext<CommandSource> context, Queue<String> input) {
+  public @NonNull ServiceVersion defaultVersionParser(
+    @NonNull CommandContext<?> context,
+    @NonNull Queue<String> input
+  ) {
     var version = input.remove();
     ServiceVersionType type = context.get("versionType");
 
@@ -132,7 +149,7 @@ public final class CommandTemplate {
   }
 
   @Suggestions("version")
-  public List<String> suggestVersions(CommandContext<CommandSource> context, String input) {
+  public @NonNull List<String> suggestVersions(@NonNull CommandContext<?> context, @NonNull String input) {
     ServiceVersionType type = context.get("versionType");
     return type.versions()
       .stream()
@@ -142,7 +159,10 @@ public final class CommandTemplate {
   }
 
   @Parser(suggestions = "serviceEnvironments")
-  public ServiceEnvironmentType defaultServiceEnvironmentTypeParser(CommandContext<?> $, Queue<String> input) {
+  public @NonNull ServiceEnvironmentType defaultServiceEnvironmentTypeParser(
+    @NonNull CommandContext<?> $,
+    @NonNull Queue<String> input
+  ) {
     var env = input.remove();
     return CloudNet.instance().serviceVersionProvider().getEnvironmentType(env)
       .orElseThrow(() ->
@@ -150,12 +170,15 @@ public final class CommandTemplate {
   }
 
   @Suggestions("serviceEnvironments")
-  public List<String> suggestServiceEnvironments(CommandContext<CommandSource> context, String input) {
+  public @NonNull List<String> suggestServiceEnvironments(@NonNull CommandContext<?> context, @NonNull String input) {
     return List.copyOf(CloudNet.instance().serviceVersionProvider().knownEnvironments().keySet());
   }
 
   @CommandMethod("template|t list [storage]")
-  public void displayTemplates(CommandSource source, @Argument("storage") TemplateStorage templateStorage) {
+  public void displayTemplates(
+    @NonNull CommandSource source,
+    @Nullable @Argument("storage") TemplateStorage templateStorage
+  ) {
     Collection<ServiceTemplate> templates;
     // get all templates if no specific template is given
     if (templateStorage == null) {
@@ -170,7 +193,10 @@ public final class CommandTemplate {
   }
 
   @CommandMethod("template|t versions|v [versionType]")
-  public void displayTemplateVersions(CommandSource source, @Argument("versionType") ServiceVersionType versionType) {
+  public void displayTemplateVersions(
+    @NonNull CommandSource source,
+    @Nullable @Argument("versionType") ServiceVersionType versionType
+  ) {
     Collection<Pair<ServiceVersionType, ServiceVersion>> versions;
     if (versionType == null) {
       versions = CloudNet.instance().serviceVersionProvider()
@@ -195,13 +221,13 @@ public final class CommandTemplate {
 
   @CommandMethod("template|t install <template> <versionType> <version>")
   public void installTemplate(
-    CommandSource source,
-    @Argument("template") ServiceTemplate serviceTemplate,
-    @Argument("versionType") ServiceVersionType versionType,
-    @Argument("version") ServiceVersion serviceVersion,
+    @NonNull CommandSource source,
+    @NonNull @Argument("template") ServiceTemplate serviceTemplate,
+    @NonNull @Argument("versionType") ServiceVersionType versionType,
+    @NonNull @Argument("version") ServiceVersion serviceVersion,
     @Flag("force") boolean forceInstall,
     @Flag("no-cache") boolean noCache,
-    @Flag("executable") @Quoted String executable
+    @Nullable @Flag("executable") @Quoted String executable
   ) {
     var resolvedExecutable = executable == null ? "java" : executable;
     var javaVersion = JavaVersionResolver.resolveFromJavaExecutable(resolvedExecutable);
@@ -244,7 +270,7 @@ public final class CommandTemplate {
   }
 
   @CommandMethod("template|t delete|rm|del <template>")
-  public void deleteTemplate(CommandSource source, @Argument("template") ServiceTemplate template) {
+  public void deleteTemplate(@NonNull CommandSource source, @NonNull @Argument("template") ServiceTemplate template) {
     var templateStorage = template.storage();
     if (!templateStorage.exists()) {
       source.sendMessage(I18n.trans("command-template-delete-template-not-found",
@@ -259,9 +285,9 @@ public final class CommandTemplate {
 
   @CommandMethod("template|t create <template> <environment>")
   public void createTemplate(
-    CommandSource source,
-    @Argument("template") ServiceTemplate template,
-    @Argument("environment") ServiceEnvironmentType environmentType
+    @NonNull CommandSource source,
+    @NonNull @Argument("template") ServiceTemplate template,
+    @NonNull @Argument("environment") ServiceEnvironmentType environmentType
   ) {
     var templateStorage = template.storage();
     if (templateStorage.exists()) {
@@ -280,9 +306,9 @@ public final class CommandTemplate {
 
   @CommandMethod("template|t copy|cp <sourceTemplate> <targetTemplate>")
   public void copyTemplate(
-    CommandSource source,
-    @Argument("sourceTemplate") ServiceTemplate sourceTemplate,
-    @Argument("targetTemplate") ServiceTemplate targetTemplate
+    @NonNull CommandSource source,
+    @NonNull @Argument("sourceTemplate") ServiceTemplate sourceTemplate,
+    @NonNull @Argument("targetTemplate") ServiceTemplate targetTemplate
   ) {
     if (sourceTemplate.equals(targetTemplate)) {
       source.sendMessage(I18n.trans("command-template-copy-same-source-and-target"));
