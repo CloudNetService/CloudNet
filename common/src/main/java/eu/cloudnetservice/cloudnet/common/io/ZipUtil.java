@@ -47,6 +47,10 @@ public final class ZipUtil {
   private static final Logger LOGGER = LogManager.logger(ZipUtil.class);
   private static final boolean IS_WINDOWS = System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows");
 
+  private ZipUtil() {
+    throw new UnsupportedOperationException();
+  }
+
   /**
    * Zips the given directory into an input stream without filtering any files and returns it. This method is equivalent
    * to {@code ZipUtil.zipToStream(directory, null)}.

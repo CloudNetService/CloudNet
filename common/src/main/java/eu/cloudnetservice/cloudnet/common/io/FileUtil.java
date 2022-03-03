@@ -52,11 +52,6 @@ public final class FileUtil {
   private static final Filter<Path> ACCEPTING_FILTER = $ -> true;
   private static final Map<String, String> ZIP_FILE_SYSTEM_PROPERTIES = Map.of("create", "false", "encoding", "UTF-8");
 
-  /**
-   * Creating an instance of this helper class is not allowed, results in {@link UnsupportedOperationException}.
-   *
-   * @throws UnsupportedOperationException on invocation.
-   */
   private FileUtil() {
     throw new UnsupportedOperationException();
   }
