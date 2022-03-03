@@ -135,8 +135,9 @@ final class NettyHttpServerContext implements HttpContext {
         WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(this.nettyChannel);
         return null;
       } else {
-        // remove the http handler from the pipeline, gets replaced with the websocket one.
+        // remove the http handler from the pipeline, gets replaced with the websocket one
         this.nettyChannel.pipeline().remove("http-server-handler");
+        this.nettyChannel.pipeline().remove("read-timeout-handler");
 
         // try to greet the client, block until the operation is done
         try {

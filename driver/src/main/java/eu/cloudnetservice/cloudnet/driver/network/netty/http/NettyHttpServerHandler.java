@@ -33,6 +33,7 @@ import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.stream.ChunkedStream;
+import io.netty.handler.timeout.ReadTimeoutException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -93,7 +94,7 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
    */
   @Override
   public void exceptionCaught(@NonNull ChannelHandlerContext ctx, @NonNull Throwable cause) {
-    if (!(cause instanceof IOException)) {
+    if (!(cause instanceof IOException) && !(cause instanceof ReadTimeoutException)) {
       LOGGER.severe("Exception caught during processing of http request", cause);
     }
   }

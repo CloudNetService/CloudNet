@@ -59,6 +59,7 @@ final class NettyHttpServerInitializer extends ChannelInitializer<Channel> {
     }
 
     ch.pipeline()
+      .addLast("read-timeout-handler", new NettyIdleStateHandler(30))
       .addLast("http-request-decoder", new HttpRequestDecoder())
       .addLast("http-object-aggregator", new HttpObjectAggregator(Short.MAX_VALUE))
       .addLast("http-response-encoder", new HttpResponseEncoder())
