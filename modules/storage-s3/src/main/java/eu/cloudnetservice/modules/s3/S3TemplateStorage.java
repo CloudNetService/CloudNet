@@ -163,6 +163,11 @@ public class S3TemplateStorage implements TemplateStorage {
         // exception when pulling the ProtocolLib jar file as we would try to put it "into" a file.
         // This check technically might break some structures as it will prioritize directories over files, but it's the
         // best solution we have... Aside from just uploading files correctly :)
+        if (Files.exists(target) && Files.isDirectory(target)) {
+          return;
+        }
+
+        // check if the parent file already exists and is not a directory
         var parent = target.getParent();
         if (parent != null && Files.exists(parent) && !Files.isDirectory(parent)) {
           FileUtil.delete(parent);
