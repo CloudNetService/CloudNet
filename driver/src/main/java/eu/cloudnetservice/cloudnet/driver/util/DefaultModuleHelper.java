@@ -88,7 +88,7 @@ public final class DefaultModuleHelper {
     @NonNull ServiceEnvironmentType type,
     @NonNull Path file
   ) {
-    FileUtil.openJarFileSystem(file, fileSystem -> {
+    FileUtil.openZipFile(file, fileSystem -> {
       // check if there is a plugin.yml file already - delete if it exists
       var pluginPath = fileSystem.getPath("plugin.yml");
       if (Files.exists(pluginPath)) {

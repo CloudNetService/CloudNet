@@ -37,6 +37,12 @@ import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * This file utility class wraps convenient non-blocking-io methods that use checked exceptions into methods that catch
+ * those exceptions and redirect them into the error log.
+ *
+ * @since 4.0
+ */
 @Internal
 public final class FileUtil {
 
@@ -50,14 +56,32 @@ public final class FileUtil {
     throw new UnsupportedOperationException();
   }
 
-  public static void openJarFileSystem(@NonNull Path jar, @NonNull ThrowableConsumer<FileSystem, Exception> consumer) {
-    try (var fs = FileSystems.newFileSystem(URI.create("jar:" + jar.toUri()), ZIP_FILE_SYSTEM_PROPERTIES)) {
+  /**
+   * Opens the given zip into a {@link FileSystem} and passes it into the given consumer. The file system is closed
+   * automatically after all operations are done.
+   *
+   * @param zip      the path to open as zip file system.
+   * @param consumer the consumer accepting the file system.
+   * @throws NullPointerException if the given zip path or consumer is null.
+   */
+  public static void openZipFile(@NonNull Path zip, @NonNull ThrowableConsumer<FileSystem, Exception> consumer) {
+    try (var fs = FileSystems.newFileSystem(URI.create("jar:" + zip.toUri()), ZIP_FILE_SYSTEM_PROPERTIES)) {
       consumer.accept(fs);
     } catch (Exception throwable) {
-      LOGGER.severe("Exception opening jar file system on %s", throwable, jar);
+      LOGGER.severe("Exception opening zip file system on %s", throwable, zip);
     }
   }
 
+  /**
+   * Moves the file at the source path to the given destination path. Use the copy options to specify the behavior when
+   * moving. This method is equivalent with {@code Files.move(from, to, options...)} but catches the thrown exceptions
+   * and just prints them into the error log.
+   *
+   * @param from    the file to move.
+   * @param to      the destination path.
+   * @param options options that specify the moving behavior.
+   * @throws NullPointerException if the given paths are null or null values for the options are passed.
+   */
   public static void move(@NonNull Path from, @NonNull Path to, CopyOption @NonNull ... options) {
     try {
       Files.move(from, to, options);
@@ -66,6 +90,13 @@ public final class FileUtil {
     }
   }
 
+  /**
+   * Copies the input stream to the output stream. This method is equivalent with {@code
+   * inputStream.transferTo(outputStream)} but catches the thrown exceptions and just prints them into the error log.
+   *
+   * @param inputStream  the input stream to copy from.
+   * @param outputStream the target output stream.
+   */
   public static void copy(@Nullable InputStream inputStream, @Nullable OutputStream outputStream) {
     if (inputStream != null && outputStream != null) {
       try {
@@ -76,6 +107,14 @@ public final class FileUtil {
     }
   }
 
+  /**
+   * Copies the input stream to given target path. This method creates all needed parent directories first and then uses
+   * {@code FileUtil.copy(inputStream, out)} to copy to the destination, by converting the path into a new output
+   * stream.
+   *
+   * @param inputStream the input stream to copy from.
+   * @param target      the destination path.
+   */
   public static void copy(@Nullable InputStream inputStream, @Nullable Path target) {
     if (inputStream != null && target != null) {
       createDirectory(target.getParent());
@@ -87,6 +126,15 @@ public final class FileUtil {
     }
   }
 
+  /**
+   * Copies the source file to the given destination. This method creates all needed parent directories first and then
+   * uses {@code Files.copy(from, to, StandardCopyOption.REPLACE_EXISTING)} to copy the file, therefore existing files
+   * are replaced. All thrown I/O exceptions are caught and redirected into the error log.
+   *
+   * @param from the source path.
+   * @param to   the destination path.
+   * @throws NullPointerException if any of the given paths is null.
+   */
   public static void copy(@NonNull Path from, @NonNull Path to) {
     try {
       // create the parent directory first
@@ -97,10 +145,29 @@ public final class FileUtil {
     }
   }
 
+  /**
+   * Copies the target directory to the given destination and creates all needed parent directories. It walks the whole
+   * file tree and copies every file and subdirectory without any filtering. This method is equivalent to {@code
+   * FileUtil.copyDirectory(from, to, null)}.
+   *
+   * @param from the source path.
+   * @param to   the destination path.
+   * @throws NullPointerException if any of the given paths is null.
+   */
   public static void copyDirectory(@NonNull Path from, @NonNull Path to) {
     copyDirectory(from, to, null);
   }
 
+  /**
+   * Copies the target directory to the given destination and creates all needed parent directories. It walks the whole
+   * file tree and copies every file and subdirectory. If the given filter is null no filtering is done, otherwise the
+   * filter is applied while walking the file tree.
+   *
+   * @param from   the source path.
+   * @param to     the destination path.
+   * @param filter the filter to use while walking the file tree.
+   * @throws NullPointerException if any of the given paths is null.
+   */
   public static void copyDirectory(@NonNull Path from, @NonNull Path to, @Nullable Filter<Path> filter) {
     walkFileTree(from, ($, current) -> {
       if (!Files.isDirectory(current)) {
@@ -109,6 +176,13 @@ public final class FileUtil {
     }, true, filter == null ? ACCEPTING_FILTER : filter);
   }
 
+  /**
+   * Deletes the file or directory at the given path. If the path points to a file it is deleted using {@code
+   * Files.delete(path)} occurring exceptions are ignored here, otherwise if the path points to a directory this walks
+   * the file tree and deletes the files and directories recursively.
+   *
+   * @param path the target to delete.
+   */
   public static void delete(@Nullable Path path) {
     if (path != null && Files.exists(path)) {
       // delete all files in the directory
@@ -125,19 +199,54 @@ public final class FileUtil {
     }
   }
 
+  /**
+   * Resolves a random path in the temp directory of the cloud and creates all needed parents directories for a
+   * temporary file including the {@link FileUtil#TEMP_DIR}.
+   *
+   * @return the path to the temporary file.
+   */
   public static @NonNull Path createTempFile() {
     createDirectory(TEMP_DIR);
     return TEMP_DIR.resolve(UUID.randomUUID().toString());
   }
 
+  /**
+   * Walks the file tree, while visiting directories too, starting at the given path and passes the root directory
+   * together with the next file or directory into the bi consumer. This method is equivalent to {@code
+   * FileUtil.walkFileTree(root, consumer, true)}.
+   *
+   * @param root     the root path to start at.
+   * @param consumer the consumer accepting all files and directories.
+   * @throws NullPointerException if the given path or consumer is null.
+   */
   public static void walkFileTree(@NonNull Path root, @NonNull BiConsumer<Path, Path> consumer) {
     walkFileTree(root, consumer, true);
   }
 
+  /**
+   * Walks the file tree, but only visits directories if specified, starting at the given path and passes the root
+   * directory together with the next file or directory into the bi consumer. This method is equivalent to {@code
+   * FileUtil.walkFileTree(root, consumer, visitDirs, "*")}.
+   *
+   * @param root      the root path to start at.
+   * @param consumer  the consumer accepting all files and directories.
+   * @param visitDirs whether to visit subdirectories too or not.
+   * @throws NullPointerException if the given path or consumer is null.
+   */
   public static void walkFileTree(@NonNull Path root, @NonNull BiConsumer<Path, Path> consumer, boolean visitDirs) {
     walkFileTree(root, consumer, visitDirs, "*");
   }
 
+  /**
+   * Walks the file tree while filtering for the given glob and only visiting directories if specified. This starts at
+   * the given root path and passes the root directory together with the next file or directory into the bi consumer.
+   *
+   * @param root             the root path to start at.
+   * @param consumer         the consumer accepting all files and directories.
+   * @param visitDirectories whether to visit subdirectories too or not.
+   * @param glob             the glob pattern that each file has to match, use {@code "*"} to match everything.
+   * @throws NullPointerException if the given path, consumer or glob is null.
+   */
   public static void walkFileTree(
     @NonNull Path root,
     @NonNull BiConsumer<Path, Path> consumer,
@@ -151,6 +260,17 @@ public final class FileUtil {
     }
   }
 
+  /**
+   * Walks the file tree while filtering with the given filter and only visiting directories if specified. This starts
+   * at the given root path and passes the root directory together with the next file or directory into the bi
+   * consumer.
+   *
+   * @param root             the root path to start at.
+   * @param consumer         the consumer accepting all files and directories.
+   * @param visitDirectories whether to visit subdirectories too or not.
+   * @param filter           the filter to filter against.
+   * @throws NullPointerException if the given path, consumer or glob is null.
+   */
   public static void walkFileTree(
     @NonNull Path root,
     @NonNull BiConsumer<Path, Path> consumer,
@@ -178,6 +298,13 @@ public final class FileUtil {
     }
   }
 
+  /**
+   * Creates all needed parent directories and the given directory only if the given path does not exist already. This
+   * method is equivalent to {@code Files.createDirectories(directoryPath)} but catches thrown exceptions and just
+   * prints them into the error log.
+   *
+   * @param directoryPath the directory to create.
+   */
   public static void createDirectory(@Nullable Path directoryPath) {
     if (directoryPath != null && Files.notExists(directoryPath)) {
       try {
@@ -188,6 +315,14 @@ public final class FileUtil {
     }
   }
 
+  /**
+   * Ensures that the given child path is a child path of the given root path and throwing an exception otherwise.
+   *
+   * @param root  the root path.
+   * @param child the child path to check.
+   * @throws IllegalStateException if the child is not an actual child of the root path.
+   * @throws NullPointerException  if the given root or child path is null.
+   */
   public static void ensureChild(@NonNull Path root, @NonNull Path child) {
     var rootNormal = root.normalize().toAbsolutePath();
     var childNormal = child.normalize().toAbsolutePath();
@@ -197,6 +332,15 @@ public final class FileUtil {
     }
   }
 
+  /**
+   * Resolves the given array for the base path and returns the final path after all children are resolved one after
+   * another.
+   *
+   * @param base the base path to start at.
+   * @param more all children to resolve onto the base path.
+   * @return the resolved path.
+   * @throws NullPointerException if the base path or of the children is null.
+   */
   public static @NonNull Path resolve(@NonNull Path base, String @NonNull ... more) {
     for (var child : more) {
       base = base.resolve(child);
