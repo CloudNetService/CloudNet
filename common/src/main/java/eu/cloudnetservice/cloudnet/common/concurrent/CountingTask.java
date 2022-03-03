@@ -19,11 +19,23 @@ package eu.cloudnetservice.cloudnet.common.concurrent;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * The counting task is a task that starts at a specified count and is capable of counting both up and down. The task is
+ * not completed until the count is 0 or less. Once the task is completed it is not usable anymore.
+ *
+ * @param <V> the generic type of the task.
+ */
 public class CountingTask<V> extends Task<V> {
 
   private final V resultValue;
   private final AtomicInteger count;
 
+  /**
+   * Constructs a new counting task with a starting count and a value to complete after counting to 0.
+   *
+   * @param resultValue  the result value to complete this task with.
+   * @param initialCount the initial count to start counting from.
+   */
   public CountingTask(@Nullable V resultValue, int initialCount) {
     if (initialCount <= 0) {
       this.complete(resultValue);
@@ -36,28 +48,47 @@ public class CountingTask<V> extends Task<V> {
     }
   }
 
+  /**
+   * Increments the count of this task by one and publishes the count change.
+   */
   public void countUp() {
     this.count.incrementAndGet();
     this.publishCountChange();
   }
 
+  /**
+   * Decrements the count of this task by one and publishes the count change. If the count is 0 or less this task is
+   * completed with the given result value.
+   */
   public void countDown() {
     this.count.decrementAndGet();
     this.publishCountChange();
   }
 
+  /**
+   * Sets the count of this counting task to the given one and publishes the count change.
+   *
+   * @param target the value to count to.
+   */
   public void countTo(int target) {
     this.count.set(target);
     this.publishCountChange();
   }
 
-  public void addToCount(int count) {
-    this.count.addAndGet(count);
-    this.publishCountChange();
+  /**
+   * Gets the current count of this task.
+   *
+   * @return the count of this task.
+   */
+  public int count() {
+    return this.count.get();
   }
 
+  /**
+   * Checks if the count of this task is 0 or less if that is the case this task is completed with its result value.
+   */
   protected void publishCountChange() {
-    if (this.count.get() <= 0) {
+    if (this.count() <= 0) {
       this.complete(this.resultValue);
     }
   }
