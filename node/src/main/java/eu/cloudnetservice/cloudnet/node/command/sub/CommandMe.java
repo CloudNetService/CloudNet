@@ -20,6 +20,7 @@ import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.Flag;
 import eu.cloudnetservice.cloudnet.common.unsafe.CPUUsageResolver;
+import eu.cloudnetservice.cloudnet.driver.service.ProcessSnapshot;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.cloudnet.node.command.annotation.Description;
@@ -73,7 +74,7 @@ public final class CommandMe {
         + nodeInfoSnapshot.reservedMemory()
         + "/"
         + nodeInfoSnapshot.maxMemory() + " MB",
-      "Threads: " + Thread.getAllStackTraces().keySet().size(),
+      "Threads: " + ProcessSnapshot.THREAD_MX_BEAN.getThreadCount(),
       "Heap usage: "
         + (memoryMXBean.getHeapMemoryUsage().getUsed() / (1024 * 1024))
         + "/"
