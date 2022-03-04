@@ -26,11 +26,11 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.18.1"
+            "versionGroup": "1.18.2"
           }
         },
         {
-          "name": "1.18.1",
+          "name": "1.18.2",
           "minJavaVersion": 17,
           "properties": {
             "copy": {
@@ -42,21 +42,21 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.18.1"
+            "versionGroup": "1.18.2"
           }
         },
         {
           "name": "1.17.1",
           "minJavaVersion": 16,
+          "url": "https://papermc.io/api/v2/projects/paper/versions/1.17.1/builds/409/downloads/paper-1.17.1-409.jar",
+          "deprecated": true,
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ],
-            "fetchOverPaperApi": true,
-            "versionGroup": "1.17.1"
+            ]
           }
         },
         {
@@ -66,7 +66,10 @@
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
-            }
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ]
           }
         },
         {
@@ -270,12 +273,12 @@
             },
             "parameters": [
               "--rev",
-              "1.18.1"
+              "1.18.2"
             ]
           }
         },
         {
-          "name": "1.18.1",
+          "name": "1.18.2",
           "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
           "minJavaVersion": 17,
           "properties": {
