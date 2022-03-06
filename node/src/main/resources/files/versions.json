@@ -80,7 +80,6 @@
         {
           "name": "latest",
           "cacheFiles": false,
-          "minJavaVersion": 17,
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -91,12 +90,11 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.18.1"
+            "versionGroup": "1.18.2"
           }
         },
         {
-          "name": "1.18.1",
-          "minJavaVersion": 17,
+          "name": "1.18.2",
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -107,21 +105,17 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.18.1"
+            "versionGroup": "1.18.2"
           }
         },
         {
           "name": "1.17.1",
-          "minJavaVersion": 16,
+          "url": "https://papermc.io/api/v2/projects/paper/versions/1.17.1/builds/409/downloads/paper-1.17.1-409.jar",
+          "deprecated": true,
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
-            },
-            "jvmOptions": [
-              "-Dpaperclip.patchonly=true"
-            ],
-            "fetchOverPaperApi": true,
-            "versionGroup": "1.17.1"
+            }
           }
         },
         {
@@ -246,8 +240,7 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://api.pl3x.net/v2/purpur/1.18.1/latest/download",
-          "minJavaVersion": 17,
+          "url": "https://api.pl3x.net/v2/purpur/1.18.2/latest/download",
           "cacheFiles": false,
           "properties": {
             "copy": {
@@ -261,9 +254,8 @@
           }
         },
         {
-          "name": "1.18.1",
-          "url": "https://api.pl3x.net/v2/purpur/1.18.1/latest/download",
-          "minJavaVersion": 17,
+          "name": "1.18.2",
+          "url": "https://api.pl3x.net/v2/purpur/1.18.2/latest/download",
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -278,7 +270,7 @@
         {
           "name": "1.17.1",
           "url": "https://api.pl3x.net/v2/purpur/1.17.1/latest/download",
-          "minJavaVersion": 17,
+          "deprecated": true,
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "purpur.jar"
@@ -301,18 +293,15 @@
         {
           "name": "latest",
           "url": "https://download.getbukkit.org/spigot/spigot-1.18.1.jar",
-          "cacheFiles": false,
-          "minJavaVersion": 17
+          "cacheFiles": false
         },
         {
           "name": "1.18.1",
-          "url": "https://download.getbukkit.org/spigot/spigot-1.18.1.jar",
-          "minJavaVersion": 17
+          "url": "https://download.getbukkit.org/spigot/spigot-1.18.1.jar"
         },
         {
           "name": "1.17.1",
-          "url": "https://download.getbukkit.org/spigot/spigot-1.17.1.jar",
-          "minJavaVersion": 16
+          "url": "https://download.getbukkit.org/spigot/spigot-1.17.1.jar"
         },
         {
           "name": "1.16.5",
@@ -375,7 +364,6 @@
         {
           "name": "latest",
           "cacheFiles": false,
-          "minJavaVersion": 17,
           "properties": {
             "copy": {
               "fabric-server-launch\\.jar": "fabric.jar",
@@ -405,7 +393,7 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://repo.spongepowered.org/repository/maven-releases/org/spongepowered/spongevanilla/1.18.1-9.0.0-RC1063/spongevanilla-1.18.1-9.0.0-RC1063-universal.jar",
+          "url": "https://repo.spongepowered.org/repository/maven-releases/org/spongepowered/spongevanilla/1.18.1-9.0.0-RC1087/spongevanilla-1.18.1-9.0.0-RC1087-universal.jar",
           "cacheFiles": false,
           "properties": {
             "copy": {
@@ -417,7 +405,7 @@
         },
         {
           "name": "1.18.1",
-          "url": "https://repo.spongepowered.org/repository/maven-releases/org/spongepowered/spongevanilla/1.18.1-9.0.0-RC1063/spongevanilla-1.18.1-9.0.0-RC1063-universal.jar",
+          "url": "https://repo.spongepowered.org/repository/maven-releases/org/spongepowered/spongevanilla/1.18.1-9.0.0-RC1087/spongevanilla-1.18.1-9.0.0-RC1087-universal.jar",
           "properties": {
             "copy": {
               "libraries/.*": "/",
@@ -428,7 +416,7 @@
         },
         {
           "name": "1.16.5",
-          "url": "https://repo.spongepowered.org/repository/maven-releases/org/spongepowered/spongevanilla/1.16.5-8.0.0-RC1073/spongevanilla-1.16.5-8.0.0-RC1073-universal.jar",
+          "url": "https://repo.spongepowered.org/repository/maven-releases/org/spongepowered/spongevanilla/1.16.5-8.0.0-RC1085/spongevanilla-1.16.5-8.0.0-RC1085-universal.jar",
           "properties": {
             "copy": {
               "libraries/.*": "/",
@@ -449,12 +437,12 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://github.com/GlowstoneMC/Glowstone/releases/download/2018.9.0/glowstone.jar",
+          "url": "https://github.com/GlowstoneMC/Glowstone/releases/download/2021.8.0/glowstone.jar",
           "cacheFiles": false
         },
         {
           "name": "1.12.2",
-          "url": "https://github.com/GlowstoneMC/Glowstone/releases/download/2018.9.0/glowstone.jar"
+          "url": "https://github.com/GlowstoneMC/Glowstone/releases/download/2021.8.0/glowstone.jar"
         },
         {
           "name": "1.8.9",
@@ -473,8 +461,7 @@
         {
           "name": "latest",
           "url": "https://jenkins.waterdog.dev/job/Waterdog/job/WaterdogPE/job/master/lastSuccessfulBuild/artifact/target/Waterdog.jar",
-          "cacheFiles": false,
-          "minJavaVersion": 11
+          "cacheFiles": false
         }
       ]
     },
@@ -539,17 +526,18 @@
         {
           "name": "latest",
           "cacheFiles": false,
-          "minJavaVersion": 11,
           "properties": {
             "fetchOverPaperApi": true,
-            "versionGroup": "3.1.0"
+            "versionGroup": "3.1.1"
           }
         },
         {
           "name": "development",
-          "url": "https://versions.velocitypowered.com/download/3.0.x-SNAPSHOT.jar",
           "cacheFiles": false,
-          "minJavaVersion": 11
+          "properties": {
+            "fetchOverPaperApi": true,
+            "versionGroup": "3.1.2-SNAPSHOT"
+          }
         }
       ]
     },
