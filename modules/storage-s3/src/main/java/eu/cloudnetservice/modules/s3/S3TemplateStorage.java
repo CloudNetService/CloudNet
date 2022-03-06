@@ -153,7 +153,29 @@ public class S3TemplateStorage implements TemplateStorage {
       return this.listAllObjects(templatePath, null, content -> {
         // filter the content key
         var target = directory.resolve(content.key().substring(templatePath.length() + 1));
-        FileUtil.createDirectory(target.getParent());
+
+        // this prevents accidental exceptions created due to dum s3 guis which are creating "directories". As we all
+        // know s3 has no directories but the guis just create an object on the s3 and put further objects on the
+        // storage by just setting the file as an object. This results in responses like:
+        //   - Lobby/default/plugins
+        //   - Lobby/default/plugins/ProtocolLib.jar
+        // As all objects are handled as files, and the first call would create a new file this will result in an
+        // exception when pulling the ProtocolLib jar file as we would try to put it "into" a file.
+        // This check technically might break some structures as it will prioritize directories over files, but it's the
+        // best solution we have... Aside from just uploading files correctly :)
+        if (Files.exists(target) && Files.isDirectory(target)) {
+          return;
+        }
+
+        // check if the parent file already exists and is not a directory
+        var parent = target.getParent();
+        if (parent != null && Files.exists(parent) && !Files.isDirectory(parent)) {
+          FileUtil.delete(parent);
+        }
+
+        // now we can just create the parent as a directory (if we need to)
+        FileUtil.createDirectory(parent);
+
         // get the file
         var req = GetObjectRequest.builder()
           .key(content.key())
