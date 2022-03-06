@@ -41,7 +41,7 @@ public record NodeDisconnectTrackerTask(@NonNull NodeServerProvider provider) im
       for (var server : this.provider.nodeServers()) {
         // ignore the local node and all nodes which are not yet ready (these nodes do nothing which can lead to errors in
         // the cluster anyway)
-        if (server == local || server.available()) {
+        if (server == local || !server.available()) {
           continue;
         }
         // check if the server has been idling for too long
