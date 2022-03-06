@@ -89,7 +89,7 @@ public class MongoDBDatabase extends AbstractDatabase {
   @Override
   public JsonDocument get(@NonNull String key) {
     var document = this.collection.find(Filters.eq(KEY_NAME, key)).first();
-    return document == null ? null : JsonDocument.newDocument(document.get(VALUE_NAME, Document.class).toJson());
+    return document == null ? null : JsonDocument.fromJsonString(document.get(VALUE_NAME, Document.class).toJson());
   }
 
   @Override
@@ -97,7 +97,7 @@ public class MongoDBDatabase extends AbstractDatabase {
     List<JsonDocument> documents = new ArrayList<>();
     try (var cursor = this.collection.find(this.valueEq(fieldName, fieldValue)).iterator()) {
       while (cursor.hasNext()) {
-        documents.add(JsonDocument.newDocument(cursor.next().get(VALUE_NAME, Document.class).toJson()));
+        documents.add(JsonDocument.fromJsonString(cursor.next().get(VALUE_NAME, Document.class).toJson()));
       }
     }
     return documents;
@@ -114,7 +114,7 @@ public class MongoDBDatabase extends AbstractDatabase {
     List<JsonDocument> documents = new ArrayList<>();
     try (var cursor = this.collection.find(Filters.and(bsonFilters)).iterator()) {
       while (cursor.hasNext()) {
-        documents.add(JsonDocument.newDocument(cursor.next().get(VALUE_NAME, Document.class).toJson()));
+        documents.add(JsonDocument.fromJsonString(cursor.next().get(VALUE_NAME, Document.class).toJson()));
       }
     }
     return documents;
@@ -136,7 +136,7 @@ public class MongoDBDatabase extends AbstractDatabase {
     Collection<JsonDocument> documents = new ArrayList<>();
     try (var cursor = this.collection.find().iterator()) {
       while (cursor.hasNext()) {
-        documents.add(JsonDocument.newDocument(cursor.next().get(VALUE_NAME, Document.class).toJson()));
+        documents.add(JsonDocument.fromJsonString(cursor.next().get(VALUE_NAME, Document.class).toJson()));
       }
     }
     return documents;
@@ -154,7 +154,7 @@ public class MongoDBDatabase extends AbstractDatabase {
       while (cursor.hasNext()) {
         var document = cursor.next();
         var key = document.getString(KEY_NAME);
-        var value = JsonDocument.newDocument(document.get(VALUE_NAME, Document.class).toJson());
+        var value = JsonDocument.fromJsonString(document.get(VALUE_NAME, Document.class).toJson());
 
         if (predicate.test(key, value)) {
           entries.put(key, value);
@@ -191,7 +191,7 @@ public class MongoDBDatabase extends AbstractDatabase {
       while (cursor.hasNext()) {
         var document = cursor.next();
         var key = document.getString(KEY_NAME);
-        var value = JsonDocument.newDocument(document.get(VALUE_NAME, Document.class).toJson());
+        var value = JsonDocument.fromJsonString(document.get(VALUE_NAME, Document.class).toJson());
 
         result.put(key, value);
       }
