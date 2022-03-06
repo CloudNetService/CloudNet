@@ -80,7 +80,7 @@ public class RemoteNodeServer implements NodeServer {
 
   @Override
   public boolean available() {
-    return this.channel != null && this.state == NodeServerState.READY;
+    return this.channel != null && this.currentSnapshot != null && this.state == NodeServerState.READY;
   }
 
   @Override
