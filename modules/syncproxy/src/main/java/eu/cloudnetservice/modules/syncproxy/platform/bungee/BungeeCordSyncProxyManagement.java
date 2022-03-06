@@ -109,6 +109,6 @@ public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManage
 
     return input
       .replace("%ping%", String.valueOf(player.getPing()))
-      .replace("%server%", player.getServer().getInfo().getName());
+      .replace("%server%", player.getServer() == null ? "UNAVAILABLE" : player.getServer().getInfo().getName());
   }
 }
