@@ -231,6 +231,8 @@ public class CloudNet extends CloudNetDriver {
         throw new IllegalStateException("No database provider selected for startup - Unable to proceed");
       }
     }
+    // notify the user about the selected database
+    LOGGER.info(I18n.trans("start-connect-database", this.databaseProvider.name()));
 
     // init the permission management
     this.permissionManagement.init();
