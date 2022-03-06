@@ -22,7 +22,6 @@ import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
-import eu.cloudnetservice.cloudnet.node.cluster.NodeServer;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServerState;
 import eu.cloudnetservice.cloudnet.node.cluster.defaults.DefaultNodeServerProvider;
 import lombok.NonNull;
@@ -44,8 +43,11 @@ public record LocalNodeUpdateTask(@NonNull DefaultNodeServerProvider provider) i
         // we include all remote nodes which are available and not the local node
         // we do this to explicitly trigger the disconnect handling on the other node if needed
         var targetNodes = nodes.stream()
-          .filter(NodeServer::available)
           .filter(server -> server != localNode)
+          // we can not use NodeServer#available here as it also verifies that the node has already
+          // exchanged a node snapshot which must not be the case (as this task will trigger the
+          // initial exchange of a node snapshot)
+          .filter(server -> server.state() == NodeServerState.READY)
           .map(server -> server.info().uniqueId())
           .toList();
         if (!targetNodes.isEmpty()) {

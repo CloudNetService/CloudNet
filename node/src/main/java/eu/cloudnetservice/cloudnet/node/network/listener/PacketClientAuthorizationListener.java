@@ -69,6 +69,9 @@ public final class PacketClientAuthorizationListener implements PacketListener {
                   true,
                   DataSyncHandler::alwaysForceApply);
                 channel.sendPacket(new PacketServerAuthorizationResponse(true, true, data));
+                channel.packetRegistry().addListener(
+                  NetworkConstants.INTERNAL_SERVICE_SYNC_ACK_CHANNEL,
+                  new PacketClientServiceSyncAckListener());
                 // reset the state of the server
                 server.state(NodeServerState.SYNCING);
                 // call the node reconnect success event
