@@ -414,7 +414,7 @@ public abstract class AbstractService implements CloudService {
     }
     // set the new channel
     this.networkChannel = channel;
-    this.pushServiceInfoSnapshotUpdate(this.lastServiceInfo.lifeCycle(), false);
+    this.pushServiceInfoSnapshotUpdate(this.currentServiceInfo.lifeCycle(), false);
   }
 
   @Override
