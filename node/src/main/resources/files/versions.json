@@ -115,7 +115,10 @@
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
-            }
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ]
           }
         },
         {
@@ -125,7 +128,10 @@
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
-            }
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ]
           }
         },
         {
