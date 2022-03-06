@@ -115,7 +115,7 @@ public final class VelocitySyncProxyManagement extends PlatformSyncProxyManageme
   private String replaceTabPlaceholder(@NonNull String input, @NonNull Player player) {
     var server = player.getCurrentServer()
       .map(serverConnection -> serverConnection.getServerInfo().getName())
-      .orElse("");
+      .orElse("UNAVAILABLE");
 
     return input
       .replace("%ping%", String.valueOf(player.getPing()))
