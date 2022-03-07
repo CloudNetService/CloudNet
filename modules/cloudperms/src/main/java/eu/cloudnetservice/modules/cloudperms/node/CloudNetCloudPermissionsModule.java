@@ -20,6 +20,7 @@ import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
 import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
+import eu.cloudnetservice.cloudnet.driver.permission.PermissionGroup;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.cloudnet.node.module.listener.PluginIncludeListener;
@@ -42,9 +43,18 @@ public final class CloudNetCloudPermissionsModule extends DriverModule {
       .nameExtractor(cloudPermissionsConfig -> "Permission Config")
       .writer(config -> this.writeConfig(JsonDocument.newDocument(config)))
       .build());
+    CloudNet.instance().dataSyncRegistry().registerHandler(DataSyncHandler.<PermissionGroup>builder()
+      .alwaysForce()
+      .key("cloudperms-groups")
+      .nameExtractor(PermissionGroup::name)
+      .convertObject(PermissionGroup.class)
+      .dataCollector(() -> CloudNet.instance().permissionManagement().groups())
+      .writer(group -> CloudNet.instance().permissionManagement().addGroupSilently(group))
+      .currentGetter(group -> CloudNet.instance().permissionManagement().group(group.name()))
+      .build());
   }
 
-  @ModuleTask(order = 126, event = ModuleLifeCycle.STARTED)
+  @ModuleTask(order = 126, event = ModuleLifeCycle.LOADED)
   public void initConfig() {
     this.permissionsConfig = this.readConfig(
       CloudPermissionConfig.class,
