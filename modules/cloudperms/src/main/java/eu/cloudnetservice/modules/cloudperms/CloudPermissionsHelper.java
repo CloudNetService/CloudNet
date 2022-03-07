@@ -63,9 +63,8 @@ public final class CloudPermissionsHelper {
       return;
     }
 
-    var management = asCachedPermissionManagement(permissionsManagement);
-    if (management != null) {
-      management.acquireLock(permissionUser);
+    if (permissionsManagement instanceof CachedPermissionManagement cached) {
+      cached.acquireLock(permissionUser);
     }
 
     if (shouldUpdateName && !name.equals(permissionUser.name())) {
@@ -74,18 +73,11 @@ public final class CloudPermissionsHelper {
   }
 
   public static void handlePlayerQuit(@Nullable PermissionManagement permissionsManagement, @NonNull UUID uniqueId) {
-    var management = asCachedPermissionManagement(permissionsManagement);
-    if (management != null) {
-      var cachedUser = management.cachedUser(uniqueId);
+    if (permissionsManagement instanceof CachedPermissionManagement cached) {
+      var cachedUser = cached.cachedUser(uniqueId);
       if (cachedUser != null) {
-        management.unlock(cachedUser);
+        cached.unlock(cachedUser);
       }
     }
-  }
-
-  public static @Nullable CachedPermissionManagement asCachedPermissionManagement(
-    @Nullable PermissionManagement management
-  ) {
-    return management instanceof CachedPermissionManagement ? (CachedPermissionManagement) management : null;
   }
 }

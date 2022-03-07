@@ -17,9 +17,9 @@
 package eu.cloudnetservice.modules.cloudperms.sponge.service.permissible.user;
 
 import com.google.common.base.Verify;
+import eu.cloudnetservice.cloudnet.driver.permission.CachedPermissionManagement;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionUser;
-import eu.cloudnetservice.modules.cloudperms.CloudPermissionsHelper;
 import eu.cloudnetservice.modules.cloudperms.sponge.service.permissible.AbstractSubjectCollection;
 import java.util.Collection;
 import java.util.Collections;
@@ -55,10 +55,8 @@ public final class CloudUserCollection extends AbstractSubjectCollection {
 
   @Override
   public Optional<? extends Subject> subject(String identifier) {
-    var management = CloudPermissionsHelper.asCachedPermissionManagement(this.management);
-    // if the permission management support caches try to load the user from the cache
-    if (management != null) {
-      var user = management.cachedUser(UUIDUtil.parseFromString(identifier));
+    if (this.management instanceof CachedPermissionManagement cached) {
+      var user = cached.cachedUser(UUIDUtil.parseFromString(identifier));
       if (user != null) {
         return Optional.of(new PermissionUserSubject(identifier, this, user, this.management));
       }
