@@ -49,7 +49,7 @@ public final class HttpUtil {
     var request = HttpRequest.newBuilder()
       .GET()
       .uri(url)
-      .timeout(Duration.ofSeconds(20))
+      .timeout(Duration.ofMinutes(1))
       .header("user-agent", USER_AGENT)
       .build();
     return HTTP_CLIENT.send(request, body);
