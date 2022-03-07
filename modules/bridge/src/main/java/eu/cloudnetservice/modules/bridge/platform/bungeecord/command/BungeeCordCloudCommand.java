@@ -24,8 +24,9 @@ import lombok.NonNull;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
+import net.md_5.bungee.api.plugin.TabExecutor;
 
-public final class BungeeCordCloudCommand extends Command {
+public final class BungeeCordCloudCommand extends Command implements TabExecutor {
 
   private final PlatformBridgeManagement<?, ?> management;
 
@@ -65,5 +66,10 @@ public final class BungeeCordCloudCommand extends Command {
         sender.sendMessage(translateToComponent(this.management.configuration().prefix() + line));
       }
     });
+  }
+
+  @Override
+  public Iterable<String> onTabComplete(CommandSender sender, String[] args) {
+    return CloudNetDriver.instance().clusterNodeProvider().consoleTabCompleteResults(String.join(" ", args));
   }
 }
