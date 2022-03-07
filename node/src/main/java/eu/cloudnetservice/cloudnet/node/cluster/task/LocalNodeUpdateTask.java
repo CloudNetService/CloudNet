@@ -34,7 +34,7 @@ public record LocalNodeUpdateTask(@NonNull DefaultNodeServerProvider provider) i
   public void run() {
     try {
       var localNode = this.provider.localNode();
-      var nodes = this.provider.availableNodeServers();
+      var nodes = this.provider.nodeServers();
       // only publish the update if the local node is ready
       if (localNode.state() == NodeServerState.READY) {
         // update the local snapshot
