@@ -207,7 +207,7 @@ public final class CommandTasks {
 
   @Suggestions("clusterNode")
   public @NonNull List<String> suggestNode(@NonNull CommandContext<CommandSource> $, @NonNull String input) {
-    return CloudNet.instance().config().clusterConfig().nodes()
+    return CloudNet.instance().clusterNodeProvider().nodes()
       .stream()
       .map(NetworkClusterNode::uniqueId)
       .toList();
