@@ -16,23 +16,25 @@
 
 package eu.cloudnetservice.cloudnet.common;
 
-import eu.cloudnetservice.cloudnet.common.log.LogManager;
-import eu.cloudnetservice.cloudnet.common.log.Logger;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.VisibleForTesting;
 
 /**
- * Util for RegEx pattern matching and pattern fixing
+ * Small utility class which supports pattern based searching through given input collections and tries to fix mistakes
+ * in the given pattern input. Mostly used to match stuff based on (sometimes) invalid user supplied pattern input.
+ *
+ * @since 4.0
  */
 public final class WildcardUtil {
 
-  private static final Logger LOGGER = LogManager.logger(WildcardUtil.class);
+  // all "group" chars which are supported by regex. This array is sorted!
+  private static final char[] GROUP_CHARS = new char[]{'(', ')', '[', ']', '{', '}'};
 
   private WildcardUtil() {
     throw new UnsupportedOperationException();
@@ -45,9 +47,9 @@ public final class WildcardUtil {
    * @param regex       the regex to use for searching.
    * @param <T>         the type of the input values.
    * @return all input values matching the given pattern.
-   * @see #filterWildcard(Collection, String, boolean)
+   * @throws NullPointerException if the given input collection or regex string is null.
    */
-  public static <T extends Nameable> @NonNull Collection<T> filterWildcard(
+  public static <T extends Nameable> @NonNull @Unmodifiable Collection<T> filterWildcard(
     @NonNull Collection<T> inputValues,
     @NonNull String regex
   ) {
@@ -60,22 +62,24 @@ public final class WildcardUtil {
    * @param values the values to search trough.
    * @param regex  the regex to use for searching.
    * @return true if any of the values matches the given regex, false otherwise.
-   * @see #anyMatch(Collection, String, boolean)
+   * @throws NullPointerException if the given value collection or regex string is null.
    */
   public static boolean anyMatch(@NonNull Collection<? extends Nameable> values, @NonNull String regex) {
     return anyMatch(values, regex, true);
   }
 
   /**
-   * Filters all values out of the given inputValues which are matching the given pattern.
+   * Filters all values out of the given inputValues which are matching the given pattern. If the given regex input
+   * cannot be parsed the given literal string will be used for matching instead.
    *
    * @param inputValues   the input values to search trough.
    * @param regex         the regex to use for searching.
    * @param caseSensitive if the search should be case-sensitive.
    * @param <T>           the type of the input values.
    * @return all input values matching the given pattern.
+   * @throws NullPointerException if the given input collection or regex string is null.
    */
-  public static <T extends Nameable> @NonNull Collection<T> filterWildcard(
+  public static <T extends Nameable> @NonNull @Unmodifiable Collection<T> filterWildcard(
     @NonNull Collection<T> inputValues,
     @NonNull String regex,
     boolean caseSensitive
@@ -83,20 +87,20 @@ public final class WildcardUtil {
     if (inputValues.isEmpty()) {
       return inputValues;
     } else {
-      var pattern = prepare(regex, caseSensitive);
-      return pattern == null ? new ArrayList<>() : inputValues.stream()
-        .filter(t -> pattern.matcher(t.name()).matches())
-        .collect(Collectors.toList());
+      var compiledPattern = prepare(regex, caseSensitive);
+      return inputValues.stream().filter(data -> matches(regex, compiledPattern, data, caseSensitive)).toList();
     }
   }
 
   /**
-   * Checks if any of the given values matches the given regex.
+   * Checks if any of the given values matches the given regex. If the given regex input cannot be parsed the given
+   * literal string will be used for matching instead.
    *
    * @param values        the values to search trough.
    * @param regex         the regex to use for searching.
    * @param caseSensitive if the search should be case-sensitive.
    * @return true if any of the values matches the given regex, false otherwise.
+   * @throws NullPointerException if the given input collection or regex string is null.
    */
   public static boolean anyMatch(
     @NonNull Collection<? extends Nameable> values,
@@ -106,31 +110,35 @@ public final class WildcardUtil {
     if (values.isEmpty()) {
       return false;
     } else {
-      var pattern = prepare(regex, caseSensitive);
-      return pattern != null && values.stream()
-        .anyMatch(t -> pattern.matcher(t.name()).matches());
+      var compiledPattern = prepare(regex, caseSensitive);
+      return values.stream().anyMatch(data -> matches(regex, compiledPattern, data, caseSensitive));
     }
   }
 
   /**
-   * Prepares the given regex string, grouping every {@literal *} in the provided string to a separate regex group.
+   * Prepares the given regex input by replacing all wildcard characters with pattern-syntax wildcard chars. This method
+   * will then try to compile the regex and automatically fix syntax errors in it. Null is returned when the given input
+   * can neither be compiled nor fixed.
    *
    * @param regex         the regex string to prepare and compile.
-   * @param caseSensitive if the pattern should be case-insensitive
-   * @return the compiled pattern or null if the compilation failed
+   * @param caseSensitive if the pattern should be case-insensitive.
+   * @return the compiled pattern or null if the compilation failed.
+   * @throws NullPointerException if the given regex string is null.
    */
-  private static @Nullable Pattern prepare(@NonNull String regex, boolean caseSensitive) {
-    regex = regex.replace("*", "(.*)");
+  @VisibleForTesting
+  static @Nullable Pattern prepare(@NonNull String regex, boolean caseSensitive) {
+    regex = regex.replace("*", ".*");
     return tryCompile(regex, caseSensitive);
   }
 
   /**
-   * Tries to compile the given pattern string and tries to automatically fix it if the input pattern is not
-   * compilable.
+   * Compiles the given pattern string and (when needed) tries to automatically fix syntax errors in it. This method
+   * returns null if the given input could not be parsed nor fixed.
    *
-   * @param pattern       the pattern string to compile
-   * @param caseSensitive if the pattern should be case-insensitive
-   * @return the compiled pattern or null if the compilation failed
+   * @param pattern       the pattern string to compile.
+   * @param caseSensitive if the pattern should be case-insensitive.
+   * @return the compiled pattern or null if the compilation failed.
+   * @throws NullPointerException if the given pattern string is null.
    */
   private static @Nullable Pattern tryCompile(@NonNull String pattern, boolean caseSensitive) {
     try {
@@ -145,61 +153,71 @@ public final class WildcardUtil {
   /**
    * Tries to automatically fix a pattern based on the given exception.
    *
-   * @param exception     the exception occurred during the compile of the pattern string
-   * @param caseSensitive if the pattern check should be case-insensitive
-   * @return a fixed, compiled version of the pattern or null if the given exception is unclear
+   * @param exception     the exception occurred during compilation of the pattern string.
+   * @param caseSensitive if the pattern check should be case-insensitive.
+   * @return a fixed, compiled version of the pattern or null if the given exception is unclear.
+   * @throws NullPointerException if the given syntax exception is null.
    */
   private static @Nullable Pattern tryFixPattern(@NonNull PatternSyntaxException exception, boolean caseSensitive) {
     if (exception.getPattern() != null && exception.getIndex() != -1) {
+      // check if we can fix the pattern by inserting a backslash
+      // if we are at the last char of the group this will most likely not work
       var pattern = exception.getPattern();
-      if (pattern.length() > exception.getIndex()) {
+      if (exception.getDescription() != null && exception.getDescription().startsWith("Unclosed")) {
+        // try to fix some unclosed stuff based on the given index in the exception
+        var fixerResult = fixUnclosedGroups(pattern, exception.getIndex());
+        if (fixerResult != null) {
+          return tryCompile(fixerResult, caseSensitive);
+        }
+      } else if (pattern.length() > (exception.getIndex() + 1)) {
         // index represents the char before the failed to parsed char index
         var firstPart = pattern.substring(0, exception.getIndex() + 1);
         var secondPart = pattern.substring(exception.getIndex() + 1);
         // escape the specific character which caused the failure using a \ and retry
         return tryCompile(firstPart + '\\' + secondPart, caseSensitive);
-      } else if (exception.getDescription() != null
-        && exception.getDescription().equals("Unclosed group")
-        && exception.getIndex() == pattern.length()) {
-        // an unclosed group is a special case which can only occur at the end of the string
-        // meaning that a group was opened but not closed, we need to filter that out and escape
-        // the group start
-        return tryCompile(fixUnclosedGroups(pattern), caseSensitive);
       }
     }
-    LOGGER.severe("Unable to fix pattern input " + exception.getPattern(), exception);
     return null;
   }
 
   /**
-   * Searches for unclosed groups in the given patternInput and replaces the group openers {@literal (} with an escaped
-   * {@literal \(} while taking care of completed groups.
+   * Searches for unclosed group chars based on the given error description.
    *
    * @param patternInput the pattern to check.
-   * @return the same pattern as given but with fixed groups.
+   * @return the same pattern as given but with fixed groups, null if fixing the group input was not possible.
+   * @throws NullPointerException if the given pattern input or error description is null.
    */
   @VisibleForTesting
-  static @NonNull String fixUnclosedGroups(@NonNull String patternInput) {
+  static @Nullable String fixUnclosedGroups(@NonNull String patternInput, int idx) {
+    if (idx < 0) {
+      // nothing we can do
+      return null;
+    }
+
+    var done = false;
     var result = new StringBuilder();
     var content = patternInput.toCharArray();
-    // we need to record the group closings to actually find the group opening which is not escaped
-    var metGroupClosings = 0;
     // we loop reversed over it as we know that the group start must be before the group end, and we
     // are searching for it
     for (var index = content.length - 1; index >= 0; index--) {
       var c = content[index];
-      if (c == ')' && isPartOfPattern(content, index)) {
-        metGroupClosings++;
-      } else if (c == '(' && isPartOfPattern(content, index) && --metGroupClosings < 0) {
-        // we found an unclosed start of a group, escape it!
-        // as we are looping backwards we first need to append the actual char and then the escaping backslash
-        result.append(c).append("\\");
-        metGroupClosings = 0;
+      // just append until we met the specified index
+      if (index > idx || done) {
+        result.append(c);
         continue;
       }
-      result.append(c);
+
+      // check if the current char is one of the chars we should escape
+      if (Arrays.binarySearch(GROUP_CHARS, c) >= 0 && isPartOfPattern(content, index)) {
+        // do not search further
+        done = true;
+        result.append(c).append("\\");
+      } else {
+        // nothing special, just append
+        result.append(c);
+      }
     }
-    // we looped backwards over the string so we need to reverse it to get it back in the correct sequence
+    // we looped backwards over the string, so we need to reverse it to get it back in the correct sequence
     return result.reverse().toString();
   }
 
@@ -212,5 +230,31 @@ public final class WildcardUtil {
    */
   private static boolean isPartOfPattern(char[] content, int index) {
     return index <= 0 || content[--index] != '\\';
+  }
+
+  /**
+   * Tries to match the given data name using the compiled pattern, falling back to a direct equal check if the given
+   * compiled pattern is null.
+   *
+   * @param patternInput  the input to create the pattern, used for raw checking if needed.
+   * @param compiled      the compiled pattern from the given input, null if not able to compile.
+   * @param data          the data to check if it matches the given regex.
+   * @param caseSensitive if the match check should be case-sensitive.
+   * @return true if the given data name matches the given regex, false otherwise.
+   * @throws NullPointerException if the given pattern input or data is null.
+   */
+  private static boolean matches(
+    @NonNull String patternInput,
+    @Nullable Pattern compiled,
+    @NonNull Nameable data,
+    boolean caseSensitive
+  ) {
+    if (compiled == null) {
+      // no compiled pattern, match based on the given pattern input
+      return caseSensitive ? patternInput.equals(data.name()) : patternInput.equalsIgnoreCase(data.name());
+    } else {
+      // compiled pattern present - match based on it
+      return compiled.matcher(data.name()).matches();
+    }
   }
 }

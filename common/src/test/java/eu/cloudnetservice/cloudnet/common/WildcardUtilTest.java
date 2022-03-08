@@ -32,17 +32,24 @@ public class WildcardUtilTest {
     new NameableThing("Lobby-789")
   );
 
-  private static final String INVALID_PATTERN = "Lobby-)56*(";
+  private static final String INVALID_PATTERN = "Lobby-)5{6*([}";
   private static final Collection<? extends Nameable> INVALID_NAMEABLES = Arrays.asList(
     new NameableThing("Lobby-1"),
     new NameableThing("Lobby-)56("),
     new NameableThing("Lobby-(567"),
+    new NameableThing("Lobby-(789"),
     new NameableThing("lOBBY-)5636("),
-    new NameableThing("Lobby-(789")
+    new NameableThing("Lobby-)5{6*([}"),
+    new NameableThing("Lobby-)5{6Hello([}"),
+    new NameableThing("lobby-)5{6World([}"),
+    new NameableThing("lobBY-)5{66789]([}"),
+    new NameableThing("loBBy-)5{6World([}")
   );
 
   @Test
   public void testValidSuppliedPattern() {
+    Assertions.assertNotNull(WildcardUtil.prepare(VALID_PATTERN, true));
+
     Assertions.assertTrue(WildcardUtil.anyMatch(VALID_NAMEABLES, VALID_PATTERN));
     Assertions.assertTrue(WildcardUtil.anyMatch(VALID_NAMEABLES, VALID_PATTERN, false));
 
@@ -52,19 +59,13 @@ public class WildcardUtilTest {
 
   @Test
   public void testInvalidSuppliedPattern() {
+    Assertions.assertNotNull(WildcardUtil.prepare(INVALID_PATTERN, true));
+
     Assertions.assertTrue(WildcardUtil.anyMatch(INVALID_NAMEABLES, INVALID_PATTERN));
     Assertions.assertTrue(WildcardUtil.anyMatch(INVALID_NAMEABLES, INVALID_PATTERN, false));
 
-    Assertions.assertEquals(1, WildcardUtil.filterWildcard(INVALID_NAMEABLES, INVALID_PATTERN).size());
-    Assertions.assertEquals(2, WildcardUtil.filterWildcard(INVALID_NAMEABLES, INVALID_PATTERN, false).size());
-  }
-
-  @Test
-  public void testFixUnclosedGroups() {
-    Assertions.assertEquals("Lobby-\\(56(.*)(.)$",
-      WildcardUtil.fixUnclosedGroups("Lobby-(56(.*)(.)$"));
-    Assertions.assertEquals("Lobby-\\(56\\(.*(.)\\(\\d+(\\D)",
-      WildcardUtil.fixUnclosedGroups("Lobby-(56(.*(.)(\\d+(\\D)"));
+    Assertions.assertEquals(2, WildcardUtil.filterWildcard(INVALID_NAMEABLES, INVALID_PATTERN).size());
+    Assertions.assertEquals(5, WildcardUtil.filterWildcard(INVALID_NAMEABLES, INVALID_PATTERN, false).size());
   }
 
   private record NameableThing(String name) implements Nameable {
