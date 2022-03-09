@@ -1,6 +1,7 @@
 {
   "extends": [
-    "config:base"
+    "config:base",
+    ":rebaseStalePrs"
   ],
   "labels": [
     "t: dependencies"
@@ -32,8 +33,9 @@
     },
     {
       "description": "Version is based on the latest push to a git repo and never needs updates",
-      "matchPackagePatterns": [
-        ".*:.*:master-SNAPSHOT"
+      "matchPackagePrefixes": [
+        "com.github.juliarn:",
+        "com.github.dmulloy2:"
       ],
       "enabled": false
     }
