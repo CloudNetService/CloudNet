@@ -111,6 +111,8 @@ public record SyncProxyConfiguration(
     }
 
     public @NonNull Builder addLoginConfiguration(@NonNull SyncProxyLoginConfiguration configuration) {
+      // as the configuration is identified by the name we have to remove it to really do an update
+      this.loginConfigurations.remove(configuration);
       this.loginConfigurations.add(configuration);
       return this;
     }
@@ -121,6 +123,8 @@ public record SyncProxyConfiguration(
     }
 
     public @NonNull Builder addTabListConfiguration(@NonNull SyncProxyTabListConfiguration configuration) {
+      // as the configuration is identified by the name we have to remove it to really do an update
+      this.tabListConfigurations.remove(configuration);
       this.tabListConfigurations.add(configuration);
       return this;
     }

@@ -106,7 +106,8 @@ public record SyncProxyMotd(
       Verify.verifyNotNull(this.firstLine, "Missing first line");
       Verify.verifyNotNull(this.secondLine, "Missing second line");
 
-      return new SyncProxyMotd(this.firstLine,
+      return new SyncProxyMotd(
+        this.firstLine,
         this.secondLine,
         this.autoSlot,
         this.autoSlotMaxPlayersDistance,

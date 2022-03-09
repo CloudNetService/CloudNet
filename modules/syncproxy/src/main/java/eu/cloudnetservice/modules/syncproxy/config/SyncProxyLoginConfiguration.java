@@ -144,7 +144,8 @@ public record SyncProxyLoginConfiguration(
     public @NonNull SyncProxyLoginConfiguration build() {
       Verify.verifyNotNull(this.targetGroup, "Missing targetGroup");
 
-      return new SyncProxyLoginConfiguration(this.targetGroup,
+      return new SyncProxyLoginConfiguration(
+        this.targetGroup,
         this.maintenance,
         this.maxPlayers,
         this.whitelist,
