@@ -10,7 +10,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Validate gradle wrapper
         uses: gradle/wrapper-validation-action@v1
@@ -27,7 +27,7 @@ jobs:
         run: ./gradlew dependencyUpdates --stacktrace
 
       - name: Upload report
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: report.txt
           path: build/dependencyUpdates/report.txt
