@@ -25,7 +25,6 @@ import lombok.NonNull;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.title.Title.Times;
-import org.jetbrains.annotations.Nullable;
 
 public final class TitleObjectSerializer implements ObjectSerializer<Title> {
 
@@ -51,13 +50,13 @@ public final class TitleObjectSerializer implements ObjectSerializer<Title> {
   }
 
   @Override
-  public @Nullable Object read(
+  public @NonNull Object read(
     @NonNull DataBuf source,
     @NonNull Type type,
     @NonNull ObjectMapper caller
   ) {
     // read the times
-    var times = Times.of(
+    var times = Times.times(
       Duration.ofMillis(source.readLong()),
       Duration.ofMillis(source.readLong()),
       Duration.ofMillis(source.readLong()));
