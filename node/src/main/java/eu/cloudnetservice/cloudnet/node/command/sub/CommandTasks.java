@@ -197,7 +197,7 @@ public final class CommandTasks {
   @Parser(name = "nodeId", suggestions = "clusterNode")
   public @NonNull String defaultClusterNodeParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var nodeId = input.remove();
-    for (var node : CloudNet.instance().config().clusterConfig().nodes()) {
+    for (var node : CloudNet.instance().clusterNodeProvider().nodes()) {
       if (node.uniqueId().equals(nodeId)) {
         return nodeId;
       }
