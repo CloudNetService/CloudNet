@@ -29,6 +29,13 @@
         "com.h2database:"
       ],
       "enabled": false
+    },
+    {
+      "description": "Version is based on the latest push to a git repo and never needs updates",
+      "matchPackagePatterns": [
+        ".*:.*:master-SNAPSHOT"
+      ],
+      "enabled": false
     }
   ],
   "vulnerabilityAlerts": {
