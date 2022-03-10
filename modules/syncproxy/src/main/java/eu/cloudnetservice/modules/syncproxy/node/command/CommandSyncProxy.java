@@ -114,9 +114,10 @@ public final class CommandSyncProxy {
     var loginConfiguration = SyncProxyLoginConfiguration.createDefault(name);
     var tabListConfiguration = SyncProxyTabListConfiguration.createDefault(name);
 
-    this.syncProxyManagement.configuration().loginConfigurations().add(loginConfiguration);
-    this.syncProxyManagement.configuration().tabListConfigurations().add(tabListConfiguration);
-    this.updateSyncProxyConfiguration();
+    this.syncProxyManagement.configuration(SyncProxyConfiguration.builder(this.syncProxyManagement.configuration())
+      .addLoginConfiguration(loginConfiguration)
+      .addTabListConfiguration(tabListConfiguration)
+      .build());
 
     source.sendMessage(I18n.trans("module-syncproxy-command-create-entry-success"));
   }
@@ -139,7 +140,7 @@ public final class CommandSyncProxy {
       .maxPlayers(amount)
       .build();
 
-    this.syncProxyManagement.configurationSilently(
+    this.syncProxyManagement.configuration(
       SyncProxyConfiguration.builder(this.syncProxyManagement.configuration())
         .addLoginConfiguration(updatedLoginConfiguration)
         .build());
@@ -155,8 +156,11 @@ public final class CommandSyncProxy {
     @Argument("targetGroup") SyncProxyLoginConfiguration loginConfiguration,
     @Argument("name") String name
   ) {
-    loginConfiguration.whitelist().add(name);
-    this.updateSyncProxyConfiguration();
+    this.syncProxyManagement.configuration(SyncProxyConfiguration.builder(this.syncProxyManagement.configuration())
+      .addLoginConfiguration(SyncProxyLoginConfiguration.builder(loginConfiguration)
+        .addWhitelist(name)
+        .build())
+      .build());
 
     source.sendMessage(I18n.trans("module-syncproxy-command-add-whitelist-entry",
       name,
@@ -170,7 +174,7 @@ public final class CommandSyncProxy {
     @Argument("name") String name
   ) {
     if (loginConfiguration.whitelist().remove(name)) {
-      this.updateSyncProxyConfiguration();
+      this.syncProxyManagement.configuration(this.syncProxyManagement.configuration());
     }
 
     source.sendMessage(I18n.trans("module-syncproxy-command-remove-whitelist-entry",
@@ -188,7 +192,7 @@ public final class CommandSyncProxy {
       .maintenance(enabled)
       .build();
 
-    this.syncProxyManagement.configurationSilently(
+    this.syncProxyManagement.configuration(
       SyncProxyConfiguration.builder(this.syncProxyManagement.configuration())
         .addLoginConfiguration(updatedLoginConfiguration)
         .build());
@@ -196,10 +200,6 @@ public final class CommandSyncProxy {
     source.sendMessage(I18n.trans("module-syncproxy-command-set-maintenance",
       loginConfiguration.targetGroup(),
       enabled));
-  }
-
-  private void updateSyncProxyConfiguration() {
-    this.syncProxyManagement.configuration(this.syncProxyManagement.configuration());
   }
 
   private void displayListConfiguration(
