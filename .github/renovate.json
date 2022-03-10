@@ -1,0 +1,59 @@
+{
+  "extends": [
+    "config:base",
+    ":rebaseStalePrs"
+  ],
+  "labels": [
+    "t: dependencies"
+  ],
+  "packageRules": [
+    {
+      "description": "Correct Guava version handling",
+      "matchPackagePrefixes": [
+        "com.google.guava:"
+      ],
+      "versioning": "regex:^(?<major>\\d+)(\\.(?<minor>\\d+))?(\\.(?<patch>\\d+))?(-(?<compatibility>.*))?$"
+    },
+    {
+      "description": "Disabled until sponge updates to v9",
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "matchPackagePrefixes": [
+        "cpw.mods:"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Breaks old databases so we don't need updates",
+      "matchPackagePrefixes": [
+        "com.h2database:"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Version is based on the latest push to a git repo and never needs updates",
+      "matchPackagePrefixes": [
+        "com.github.juliarn:",
+        "com.github.dmulloy2:"
+      ],
+      "enabled": false
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "addLabels": [
+      "t: security"
+    ],
+    "assignees": [
+      "@derklaro"
+    ]
+  },
+  "timezone": "Europe/Berlin",
+  "schedule": [
+    "before 6:00am"
+  ],
+  "prHourlyLimit": 10,
+  "rebaseLabel": "s: rebase",
+  "stopUpdatingLabel": "s: stop updates",
+  "commitMessagePrefix": "chore(deps): "
+}
