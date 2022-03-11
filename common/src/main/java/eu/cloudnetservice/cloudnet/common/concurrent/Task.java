@@ -29,6 +29,12 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
+/**
+ * This task is a {@link java.util.concurrent.Future} which can be completed at any time in the future and provides some
+ * useful shortcuts for completable futures.
+ *
+ * @param <V> the generic type of the value to complete.
+ */
 public class Task<V> extends CompletableFuture<V> {
 
   private static final ExecutorService SERVICE = Executors.newCachedThreadPool();
