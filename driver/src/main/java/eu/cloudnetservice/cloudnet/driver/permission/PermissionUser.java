@@ -37,9 +37,6 @@ import org.jetbrains.annotations.Nullable;
  * The permission user extends the permissible in that way that it has its own personal permissions. A permission user
  * can belong to several permission groups and inherits the permissions of those groups.
  *
- * @see Permissible
- * @see PermissionGroup
- * @see PermissionManagement
  * @since 4.0
  */
 @ToString

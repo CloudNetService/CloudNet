@@ -29,8 +29,6 @@ import org.jetbrains.annotations.Nullable;
  * <li>{@link #FORBIDDEN} - a negative permission</li>
  * </ul>
  *
- * @see PermissionManagement
- * @see Permissible
  * @since 4.0
  */
 public enum PermissionCheckResult {

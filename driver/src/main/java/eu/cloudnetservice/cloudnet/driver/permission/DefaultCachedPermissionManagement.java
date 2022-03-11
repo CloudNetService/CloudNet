@@ -134,7 +134,7 @@ public abstract class DefaultCachedPermissionManagement extends DefaultPermissio
     var lockCount = this.permissionUserLocks.get(user.uniqueId());
     if (lockCount != null) {
       // only decrement the count if we are above 0
-      lockCount.updateAndGet(count -> count > 0 ? count - 1 : 0);
+      lockCount.updateAndGet(count -> Math.max(0, count - 1));
     }
   }
 
@@ -146,7 +146,7 @@ public abstract class DefaultCachedPermissionManagement extends DefaultPermissio
     var lockCount = this.permissionGroupLocks.get(group.name());
     if (lockCount != null) {
       // only decrement the count if we are above 0
-      lockCount.updateAndGet(count -> count > 0 ? count - 1 : 0);
+      lockCount.updateAndGet(count -> Math.max(0, count - 1));
     }
   }
 

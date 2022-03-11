@@ -32,9 +32,6 @@ import org.jetbrains.annotations.Nullable;
  * contains some helpful methods to check a permissible for a certain permission and removing outdated permissions.
  * Updating the permissible is handled by the permission management too.
  *
- * @see Permissible
- * @see PermissionUser
- * @see PermissionGroup
  * @since 4.0
  */
 @RPCValidation

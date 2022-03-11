@@ -30,9 +30,6 @@ import org.jetbrains.annotations.Unmodifiable;
  * The permissible represents the base for any permission holding object. The permissible is mutable, but any changes to
  * the permissible itself do not have any effect without updating the permissible using the permission management.
  *
- * @see PermissionUser
- * @see PermissionGroup
- * @see PermissionManagement
  * @since 4.0
  */
 public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Permissible> {

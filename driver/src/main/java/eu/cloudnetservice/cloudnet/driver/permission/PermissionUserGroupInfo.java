@@ -133,8 +133,7 @@ public class PermissionUserGroupInfo extends JsonDocPropertyHolder {
      * @throws NullPointerException if the given unit is null.
      */
     public @NonNull Builder timeOut(long timeout, @NonNull TimeUnit unit) {
-      this.timeOutMillis = System.currentTimeMillis() + unit.toMillis(timeout);
-      return this;
+      return this.timeOutMillis(System.currentTimeMillis() + unit.toMillis(timeout));
     }
 
     /**
@@ -146,8 +145,7 @@ public class PermissionUserGroupInfo extends JsonDocPropertyHolder {
      * @throws NullPointerException if the given duration is null.
      */
     public @NonNull Builder timeOut(@NonNull Duration duration) {
-      this.timeOutMillis = System.currentTimeMillis() + duration.toMillis();
-      return this;
+      return this.timeOutMillis(System.currentTimeMillis() + duration.toMillis());
     }
 
     /**
