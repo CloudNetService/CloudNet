@@ -33,7 +33,7 @@ allprojects {
   repositories {
     mavenCentral()
     maven("https://jitpack.io/")
-    maven("https://repo.incendo.org/content/repositories/snapshots/")
+    maven("https://oss.sonatype.org/content/repositories/snapshots/")
   }
 }
 
