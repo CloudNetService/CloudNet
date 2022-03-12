@@ -16,12 +16,10 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.netty.codec;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
-import java.util.ArrayList;
-import java.util.List;
+import eu.cloudnetservice.cloudnet.driver.network.netty.NettyUtil;
+import io.netty5.buffer.api.Buffer;
+import io.netty5.channel.Channel;
+import io.netty5.channel.ChannelHandlerContext;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.RepeatedTest;
 import org.mockito.Mockito;
@@ -30,35 +28,43 @@ public class NettyPacketLengthCodecTest {
 
   @RepeatedTest(30)
   void testPacketLengthCodec() {
-    // dummy write
-    var input = Unpooled.buffer()
-      .writeBoolean(true)
-      .writeInt(1234)
+    // dummy buffer
+    var input = NettyUtil.allocator().allocate((Long.BYTES * 2) + Double.BYTES)
+      .writeLong(12345678)
+      .writeLong(87654321)
       .writeDouble(5D);
-    var output = Unpooled.buffer();
 
-    var serializer = new NettyPacketLengthSerializer();
-    serializer.encode(Mockito.mock(ChannelHandlerContext.class), input, output);
+    var outCtx = Mockito.mock(ChannelHandlerContext.class);
+    Mockito.when(outCtx.bufferAllocator()).thenReturn(NettyUtil.allocator());
+    Mockito.when(outCtx.write(Mockito.any(Buffer.class))).then(invocation -> {
+      Buffer buffer = invocation.getArgument(0);
+      Assertions.assertTrue(buffer.readableBytes() > 0);
 
-    Assertions.assertTrue(output.readableBytes() > 0);
+      // test deserialize
+      var channel = Mockito.mock(Channel.class);
+      Mockito.when(channel.isActive()).thenReturn(true);
 
-    // test read
-    var channel = Mockito.mock(Channel.class);
-    Mockito.when(channel.isActive()).thenReturn(true);
+      var inCtx = Mockito.mock(ChannelHandlerContext.class);
+      Mockito.when(inCtx.channel()).thenReturn(channel);
+      Mockito.when(inCtx.fireChannelRead(Mockito.any(Buffer.class))).then(inv -> {
+        Buffer buf = inv.getArgument(0);
+        Assertions.assertEquals(12345678, buf.readLong());
+        Assertions.assertEquals(87654321, buf.readLong());
+        Assertions.assertEquals(5D, buf.readDouble());
 
-    var ctx = Mockito.mock(ChannelHandlerContext.class);
-    Mockito.when(ctx.channel()).thenReturn(channel);
+        // whatever
+        return null;
+      });
 
-    List<Object> results = new ArrayList<>();
-    var deserializer = new NettyPacketLengthDeserializer();
-    deserializer.decode(ctx, output, results);
+      // deserialize again
+      var deserializer = new NettyPacketLengthDeserializer();
+      deserializer.decode(inCtx, buffer);
 
-    Assertions.assertEquals(1, results.size());
-    Assertions.assertTrue(((ByteBuf) results.get(0)).readBoolean());
-    Assertions.assertEquals(1234, ((ByteBuf) results.get(0)).readInt());
-    Assertions.assertEquals(5D, ((ByteBuf) results.get(0)).readDouble());
+      // whatever
+      return null;
+    });
 
-    input.release();
-    output.release();
+    // encode the buffer
+    NettyPacketLengthSerializer.INSTANCE.write(outCtx, input);
   }
 }

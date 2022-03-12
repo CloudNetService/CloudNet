@@ -27,15 +27,15 @@ import eu.cloudnetservice.cloudnet.driver.network.http.HttpRequest;
 import eu.cloudnetservice.cloudnet.driver.network.http.HttpResponse;
 import eu.cloudnetservice.cloudnet.driver.network.http.HttpServer;
 import eu.cloudnetservice.cloudnet.driver.network.http.websocket.WebSocketChannel;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.cookie.Cookie;
-import io.netty.handler.codec.http.cookie.DefaultCookie;
-import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
-import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
-import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
+import eu.cloudnetservice.cloudnet.driver.network.netty.NettyUtil;
+import io.netty5.channel.Channel;
+import io.netty5.handler.codec.http.DefaultFullHttpResponse;
+import io.netty5.handler.codec.http.HttpResponseStatus;
+import io.netty5.handler.codec.http.cookie.Cookie;
+import io.netty5.handler.codec.http.cookie.DefaultCookie;
+import io.netty5.handler.codec.http.cookie.ServerCookieDecoder;
+import io.netty5.handler.codec.http.cookie.ServerCookieEncoder;
+import io.netty5.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -58,7 +58,7 @@ final class NettyHttpServerContext implements HttpContext {
   final NettyHttpServerResponse httpServerResponse;
 
   private final Channel nettyChannel;
-  private final io.netty.handler.codec.http.HttpRequest httpRequest;
+  private final io.netty5.handler.codec.http.HttpRequest httpRequest;
 
   private final NettyHttpChannel channel;
   private final NettyHttpServer nettyHttpServer;
@@ -89,7 +89,7 @@ final class NettyHttpServerContext implements HttpContext {
     @NonNull NettyHttpChannel channel,
     @NonNull URI uri,
     @NonNull Map<String, String> pathParameters,
-    @NonNull io.netty.handler.codec.http.HttpRequest httpRequest
+    @NonNull io.netty5.handler.codec.http.HttpRequest httpRequest
   ) {
     this.nettyHttpServer = nettyHttpServer;
     this.channel = channel;
@@ -146,7 +146,7 @@ final class NettyHttpServerContext implements HttpContext {
           this.nettyChannel.writeAndFlush(new DefaultFullHttpResponse(
             this.httpRequest.protocolVersion(),
             HttpResponseStatus.OK,
-            Unpooled.wrappedBuffer("Unable to upgrade connection".getBytes())
+            NettyUtil.allocator().copyOf("Unable to upgrade connection".getBytes())
           ));
           LOGGER.severe("Exception during websocket handshake", exception);
           return null;

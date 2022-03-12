@@ -17,12 +17,10 @@
 package eu.cloudnetservice.cloudnet.driver.network.netty.codec;
 
 import eu.cloudnetservice.cloudnet.driver.network.exception.SilentDecoderException;
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.ByteToMessageDecoder;
-import io.netty.util.ByteProcessor;
-import java.util.List;
-import lombok.NonNull;
+import io.netty5.buffer.api.Buffer;
+import io.netty5.channel.ChannelHandlerContext;
+import io.netty5.handler.codec.ByteToMessageDecoderForBuffer;
+import io.netty5.util.ByteProcessor;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.VisibleForTesting;
 
@@ -34,7 +32,7 @@ import org.jetbrains.annotations.VisibleForTesting;
  * @since 4.0
  */
 @Internal
-public final class NettyPacketLengthDeserializer extends ByteToMessageDecoder {
+public final class NettyPacketLengthDeserializer extends ByteToMessageDecoderForBuffer {
 
   private static final SilentDecoderException BAD_LENGTH = new SilentDecoderException("Bad packet length");
   private static final SilentDecoderException INVALID_VAR_INT = new SilentDecoderException("Invalid decoder var int");
@@ -43,23 +41,23 @@ public final class NettyPacketLengthDeserializer extends ByteToMessageDecoder {
    * {@inheritDoc}
    */
   @Override
-  protected void decode(@NonNull ChannelHandlerContext ctx, @NonNull ByteBuf in, @NonNull List<Object> out) {
+  protected void decode(ChannelHandlerContext ctx, Buffer in) throws Exception {
     // ensure that the channel we're reading from is still open
     if (!ctx.channel().isActive()) {
-      in.clear();
+      in.close();
       return;
     }
 
     // try to read the var int from the input buffer
     var processor = new VarIntByteProcessor();
-    var varIntByteEnding = in.forEachByte(processor);
+    var varIntByteEnding = in.openCursor().process(processor);
 
     // sanely handle the result of the decoding process
     // -1 indicates us that an overflow happened (we've tried to iterate beyond the ending of the buffer)
     if (varIntByteEnding == -1) {
       // skip packets which are just zeroes, do not clear the buffer elsewhere as we want to continue reading
       if (processor.result == ProcessingResult.ZERO) {
-        in.clear();
+        in.close();
       }
       return;
     }
@@ -67,7 +65,7 @@ public final class NettyPacketLengthDeserializer extends ByteToMessageDecoder {
     // if the buffer int only persists of zeroes there is a chance that the next var int starts and the end of the
     // current read result, continue there
     if (processor.result == ProcessingResult.ZERO) {
-      in.readerIndex(varIntByteEnding);
+      in.readerOffset(varIntByteEnding);
       return;
     }
 
@@ -78,21 +76,21 @@ public final class NettyPacketLengthDeserializer extends ByteToMessageDecoder {
 
       // the length of the packet might not be less than 0, hard fail there
       if (varInt < 0) {
-        in.clear();
+        in.close();
         throw BAD_LENGTH;
       }
 
       // skip empty packets silently
       if (varInt == 0) {
-        in.readerIndex(varIntByteEnding + 1);
+        in.readerOffset(varIntByteEnding + 1);
         return;
       }
 
       // check if the packet data supplied in the buffer is actually at least the transmitted size
       var minBytes = byteAmount + varInt;
-      if (in.isReadable(minBytes)) {
-        out.add(in.retainedSlice(varIntByteEnding + 1, varInt));
-        in.skipBytes(minBytes);
+      if (in.readableBytes() >= minBytes) {
+        ctx.fireChannelRead(in.copy(varIntByteEnding + 1, varInt));
+        in.skipReadable(minBytes);
       }
 
       // stop here
@@ -101,7 +99,7 @@ public final class NettyPacketLengthDeserializer extends ByteToMessageDecoder {
 
     // an invalid (too large) var int was supplied, hard stop here
     if (processor.result == ProcessingResult.TOO_BIG) {
-      in.clear();
+      in.close();
       throw INVALID_VAR_INT;
     }
   }
@@ -156,7 +154,7 @@ public final class NettyPacketLengthDeserializer extends ByteToMessageDecoder {
      * {@inheritDoc}
      */
     @Override
-    public boolean process(byte value) throws Exception {
+    public boolean process(byte value) {
       // check if the current byte is 0. If so, and we've read no byte before this means either that the encoded var int
       // is encoded weirdly or that the next coming bytes are only zeroes. Continue anyway as there might be a chance that
       // there are still valid bytes following

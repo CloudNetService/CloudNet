@@ -21,8 +21,8 @@ import eu.cloudnetservice.cloudnet.driver.network.netty.codec.NettyPacketDecoder
 import eu.cloudnetservice.cloudnet.driver.network.netty.codec.NettyPacketEncoder;
 import eu.cloudnetservice.cloudnet.driver.network.netty.codec.NettyPacketLengthDeserializer;
 import eu.cloudnetservice.cloudnet.driver.network.netty.codec.NettyPacketLengthSerializer;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelInitializer;
+import io.netty5.channel.Channel;
+import io.netty5.channel.ChannelInitializer;
 import lombok.NonNull;
 
 /**
@@ -55,15 +55,16 @@ public class NettyNetworkServerInitializer extends ChannelInitializer<Channel> {
    */
   @Override
   protected void initChannel(@NonNull Channel ch) {
+    /*TODO
     if (this.networkServer.sslContext != null) {
       ch.pipeline().addLast("ssl-handler", this.networkServer.sslContext.newHandler(ch.alloc()));
-    }
+    }*/
 
     ch.pipeline()
       .addLast("packet-length-deserializer", new NettyPacketLengthDeserializer())
       .addLast("packet-decoder", new NettyPacketDecoder())
-      .addLast("packet-length-serializer", new NettyPacketLengthSerializer())
-      .addLast("packet-encoder", new NettyPacketEncoder())
+      .addLast("packet-length-serializer", NettyPacketLengthSerializer.INSTANCE)
+      .addLast("packet-encoder", NettyPacketEncoder.INSTANCE)
       .addLast("network-server-handler", new NettyNetworkServerHandler(this.networkServer, this.serverLocalAddress));
   }
 }

@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.exception;
 
-import io.netty.handler.codec.DecoderException;
+import io.netty5.handler.codec.DecoderException;
 import lombok.NonNull;
 
 /**

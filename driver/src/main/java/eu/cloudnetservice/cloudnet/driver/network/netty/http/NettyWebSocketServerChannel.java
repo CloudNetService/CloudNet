@@ -20,14 +20,14 @@ import eu.cloudnetservice.cloudnet.driver.network.http.HttpChannel;
 import eu.cloudnetservice.cloudnet.driver.network.http.websocket.WebSocketChannel;
 import eu.cloudnetservice.cloudnet.driver.network.http.websocket.WebSocketFrameType;
 import eu.cloudnetservice.cloudnet.driver.network.http.websocket.WebSocketListener;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import eu.cloudnetservice.cloudnet.driver.network.netty.NettyUtil;
+import io.netty5.channel.Channel;
+import io.netty5.channel.ChannelFutureListeners;
+import io.netty5.handler.codec.http.websocketx.BinaryWebSocketFrame;
+import io.netty5.handler.codec.http.websocketx.CloseWebSocketFrame;
+import io.netty5.handler.codec.http.websocketx.PingWebSocketFrame;
+import io.netty5.handler.codec.http.websocketx.PongWebSocketFrame;
+import io.netty5.handler.codec.http.websocketx.TextWebSocketFrame;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
@@ -121,13 +121,13 @@ final class NettyWebSocketServerChannel implements WebSocketChannel {
   @Override
   public @NonNull WebSocketChannel sendWebSocketFrame(@NonNull WebSocketFrameType webSocketFrameType, byte[] bytes) {
     var webSocketFrame = switch (webSocketFrameType) {
-      case PING -> new PingWebSocketFrame(Unpooled.buffer(bytes.length).writeBytes(bytes));
-      case PONG -> new PongWebSocketFrame(Unpooled.buffer(bytes.length).writeBytes(bytes));
-      case TEXT -> new TextWebSocketFrame(Unpooled.buffer(bytes.length).writeBytes(bytes));
-      default -> new BinaryWebSocketFrame(Unpooled.buffer(bytes.length).writeBytes(bytes));
+      case PING -> new PingWebSocketFrame(NettyUtil.allocator().copyOf(bytes));
+      case PONG -> new PongWebSocketFrame(NettyUtil.allocator().copyOf(bytes));
+      case TEXT -> new TextWebSocketFrame(NettyUtil.allocator().copyOf(bytes));
+      default -> new BinaryWebSocketFrame(NettyUtil.allocator().copyOf(bytes));
     };
 
-    this.channel.writeAndFlush(webSocketFrame).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
+    this.channel.writeAndFlush(webSocketFrame);
     return this;
   }
 
@@ -144,16 +144,16 @@ final class NettyWebSocketServerChannel implements WebSocketChannel {
    */
   @Override
   public void close(int statusCode, @Nullable String reasonText) {
-    var statusCodeReference = new AtomicInteger(statusCode);
+    var statusReference = new AtomicInteger(statusCode);
     var reasonTextReference = new AtomicReference<>(reasonText);
 
     for (var listener : this.webSocketListeners) {
-      listener.handleClose(this, statusCodeReference, reasonTextReference);
+      listener.handleClose(this, statusReference, reasonTextReference);
     }
 
     this.channel
-      .writeAndFlush(new CloseWebSocketFrame(statusCodeReference.get(), reasonTextReference.get()))
-      .addListener(ChannelFutureListener.CLOSE);
+      .writeAndFlush(new CloseWebSocketFrame(NettyUtil.allocator(), statusReference.get(), reasonTextReference.get()))
+      .addListener(this.channel, ChannelFutureListeners.CLOSE);
   }
 
   /**

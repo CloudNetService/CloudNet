@@ -19,15 +19,14 @@ package eu.cloudnetservice.cloudnet.driver.network.netty;
 import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.driver.DriverEnvironment;
 import eu.cloudnetservice.cloudnet.driver.network.exception.SilentDecoderException;
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFactory;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.ServerChannel;
-import io.netty.util.ReferenceCounted;
-import io.netty.util.ResourceLeakDetector;
-import io.netty.util.internal.logging.InternalLoggerFactory;
-import io.netty.util.internal.logging.JdkLoggerFactory;
+import io.netty5.buffer.api.Buffer;
+import io.netty5.buffer.api.BufferAllocator;
+import io.netty5.channel.Channel;
+import io.netty5.channel.ChannelFactory;
+import io.netty5.channel.EventLoopGroup;
+import io.netty5.channel.ServerChannel;
+import io.netty5.channel.ServerChannelFactory;
+import io.netty5.util.ResourceLeakDetector;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
@@ -45,6 +44,8 @@ import org.jetbrains.annotations.Range;
 @Internal
 public final class NettyUtil {
 
+  // buffer
+  private static final BufferAllocator ALLOCATOR = BufferAllocator.offHeapPooled();
   // transport
   private static final boolean NO_NATIVE_TRANSPORT = Boolean.getBoolean("cloudnet.no-native");
   private static final NettyTransport CURR_NETTY_TRANSPORT = NettyTransport.availableTransport(NO_NATIVE_TRANSPORT);
@@ -55,12 +56,9 @@ public final class NettyUtil {
   private static final RejectedExecutionHandler DEFAULT_REJECT_HANDLER = new ThreadPoolExecutor.CallerRunsPolicy();
 
   static {
-    // use jdk logger to prevent issues with older slf4j versions
-    // like them bundled in spigot 1.8
-    InternalLoggerFactory.setDefaultFactory(JdkLoggerFactory.INSTANCE);
     // check if the leak detection level is set before overriding it
     // may be useful for debugging of the network
-    if (System.getProperty("io.netty.leakDetection.level") == null) {
+    if (System.getProperty("io.netty5.leakDetection.level") == null) {
       ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
     }
 
@@ -125,58 +123,87 @@ public final class NettyUtil {
    *
    * @return a new channel factory for network servers based on the epoll availability.
    */
-  public static @NonNull ChannelFactory<? extends ServerChannel> serverChannelFactory() {
+  public static @NonNull ServerChannelFactory<? extends ServerChannel> serverChannelFactory() {
     return CURR_NETTY_TRANSPORT.serverChannelFactory();
   }
 
   /**
    * Writes the given integer value as a var int into the buffer.
    *
-   * @param byteBuf the buffer to write to.
-   * @param value   the value to write into the buffer.
+   * @param buffer the buffer to write to.
+   * @param value  the value to write into the buffer.
    * @return the buffer used to call the method, for chaining.
    * @throws NullPointerException if the given byte buf is null.
    */
-  public static @NonNull ByteBuf writeVarInt(@NonNull ByteBuf byteBuf, int value) {
+  public static @NonNull Buffer writeVarInt(@NonNull Buffer buffer, int value) {
     if ((value & -128) == 0) {
-      byteBuf.writeByte(value);
+      buffer.ensureWritable(Byte.BYTES);
+      buffer.writeByte((byte) value);
     } else if ((value & -16384) == 0) {
       var shortValue = (value & 0x7F | 0x80) << 8 | (value >>> 7);
-      byteBuf.writeShort(shortValue);
+
+      buffer.ensureWritable(Short.BYTES);
+      buffer.writeShort((short) shortValue);
     } else {
+      // pre-allocate a new size of +5 on the buffer to prevent multiple allocations during the iteration
+      buffer.ensureWritable(Byte.BYTES * 5);
+
       while (true) {
         if ((value & -128) == 0) {
-          byteBuf.writeByte(value);
-          return byteBuf;
+          buffer.writeByte((byte) value);
+          return buffer;
         }
 
-        byteBuf.writeByte(value & 0x7F | 0x80);
+        buffer.writeByte((byte) (value & 0x7F | 0x80));
         value >>>= 7;
       }
     }
 
-    return byteBuf;
+    return buffer;
   }
 
   /**
    * Reads a var int from the given buffer.
    *
-   * @param byteBuf the buffer to read from.
+   * @param buffer the buffer to read from.
    * @return the var int read from the buffer.
    * @throws SilentDecoderException if the buf current position has no var int.
    * @throws NullPointerException   if the given buffer to read from is null.
    */
-  public static int readVarInt(@NonNull ByteBuf byteBuf) {
+  public static int readVarInt(@NonNull Buffer buffer) {
     var i = 0;
-    var maxRead = Math.min(5, byteBuf.readableBytes());
+    var maxRead = Math.min(5, buffer.readableBytes());
     for (var j = 0; j < maxRead; j++) {
-      int nextByte = byteBuf.readByte();
+      int nextByte = buffer.readByte();
       i |= (nextByte & 0x7F) << j * 7;
       if ((nextByte & 0x80) != 128) {
         return i;
       }
     }
     throw INVALID_VAR_INT;
+  }
+
+  /**
+   * Writes the given boolean into the given buffer, ensuring the buffer is large enough to fit the boolean.
+   *
+   * @param buffer the buffer to write the boolean to.
+   * @param b      the boolean to write.
+   * @throws NullPointerException if the given buffer is null.
+   */
+  public static void writeBoolean(@NonNull Buffer buffer, boolean b) {
+    buffer.ensureWritable(Byte.BYTES);
+    buffer.writeByte((byte) (b ? 1 : 0));
+  }
+
+  /**
+   * Reads a boolean from the current reader offset of the given buffer.
+   *
+   * @param buffer the buffer to read the boolean from.
+   * @return the boolean at current reader offset.
+   * @throws NullPointerException if the given buffer is null.
+   */
+  public static boolean readBoolean(@NonNull Buffer buffer) {
+    return buffer.readByte() > 0;
   }
 
   /**
@@ -190,16 +217,26 @@ public final class NettyUtil {
   }
 
   /**
-   * Releases the given link reference counted object with a pre-check if the reference count is still more than 0
-   * before releasing the message.
+   * Extracts the raw bytes from the given buffer.
    *
-   * @param counted the object to safe release.
-   * @throws NullPointerException if the given reference counted object is null.
+   * @param buffer the buffer to read the bytes of.
+   * @return the raw bytes of the given buffer.
+   * @throws NullPointerException if the given buffer is null.
    */
-  public static void safeRelease(@NonNull ReferenceCounted counted) {
-    if (counted.refCnt() > 0) {
-      counted.release(counted.refCnt());
-    }
+  public static byte[] extractBytes(@NonNull Buffer buffer) {
+    var bytes = new byte[buffer.readableBytes()];
+    buffer.copyInto(0, bytes, 0, bytes.length);
+    return bytes;
+  }
+
+  /**
+   * Get the buffer allocator instance used for all buffer operations made. This is (by default) a pooled heap buffer
+   * allocator.
+   *
+   * @return the buffer allocator used for all buffer allocations.
+   */
+  public static @NonNull BufferAllocator allocator() {
+    return ALLOCATOR;
   }
 
   /**

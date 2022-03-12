@@ -17,12 +17,7 @@
 package eu.cloudnetservice.cloudnet.driver.network.netty;
 
 import eu.cloudnetservice.cloudnet.driver.network.ssl.SSLConfiguration;
-import io.netty.handler.ssl.ClientAuth;
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
-import io.netty.handler.ssl.util.SelfSignedCertificate;
-import java.nio.file.Files;
+import io.netty5.handler.ssl.SslContext;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,6 +50,7 @@ public abstract class NettySslServer {
    * @throws Exception if any exception occurs during reading of the certificates.
    */
   protected void init() throws Exception {
+    /*TODO
     if (this.sslConfiguration != null && this.sslConfiguration.enabled()) {
       if (this.sslConfiguration.certificatePath() != null && this.sslConfiguration.privateKeyPath() != null) {
         try (var cert = Files.newInputStream(this.sslConfiguration.certificatePath());
@@ -80,6 +76,6 @@ public abstract class NettySslServer {
           .trustManager(InsecureTrustManagerFactory.INSTANCE)
           .build();
       }
-    }
+    }*/
   }
 }

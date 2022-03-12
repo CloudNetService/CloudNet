@@ -26,18 +26,11 @@ import eu.cloudnetservice.cloudnet.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.PacketListenerRegistry;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.defaults.DefaultPacketListenerRegistry;
 import eu.cloudnetservice.cloudnet.driver.network.ssl.SSLConfiguration;
-import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.WriteBufferWaterMark;
-import io.netty.handler.ssl.ClientAuth;
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
-import io.netty.handler.ssl.util.SelfSignedCertificate;
-import java.nio.file.Files;
+import io.netty5.bootstrap.Bootstrap;
+import io.netty5.channel.ChannelOption;
+import io.netty5.channel.EventLoopGroup;
+import io.netty5.channel.WriteBufferWaterMark;
+import io.netty5.handler.ssl.SslContext;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.Callable;
@@ -123,13 +116,12 @@ public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClien
         .option(ChannelOption.AUTO_READ, true)
         .option(ChannelOption.TCP_NODELAY, true)
         .option(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK)
-        .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+        .option(ChannelOption.RCVBUF_ALLOCATOR_USE_BUFFER, true)
+        .option(ChannelOption.BUFFER_ALLOCATOR, NettyUtil.allocator())
         .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECTION_TIMEOUT_MILLIS);
+
       // connect to the server
-      bootstrap.connect(hostAndPort.host(), hostAndPort.port())
-        .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
-        .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
-        .syncUninterruptibly();
+      bootstrap.connect(hostAndPort.host(), hostAndPort.port()).awaitUninterruptibly();
 
       return true;
     } catch (Exception exception) {
@@ -187,6 +179,7 @@ public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClien
    * @throws Exception if any exception occurs during the creation of the ssl context.
    */
   private void init() throws Exception {
+    /* TODO - not yet implemented in netty5
     if (this.sslConfiguration != null && this.sslConfiguration.enabled()) {
       if (this.sslConfiguration.certificatePath() != null && this.sslConfiguration.privateKeyPath() != null) {
         var builder = SslContextBuilder.forClient();
@@ -213,6 +206,6 @@ public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClien
           .keyManager(selfSignedCertificate.certificate(), selfSignedCertificate.privateKey())
           .build();
       }
-    }
+    }*/
   }
 }

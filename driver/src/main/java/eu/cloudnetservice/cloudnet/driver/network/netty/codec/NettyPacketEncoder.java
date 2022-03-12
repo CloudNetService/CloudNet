@@ -19,10 +19,9 @@ package eu.cloudnetservice.cloudnet.driver.network.netty.codec;
 import eu.cloudnetservice.cloudnet.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.cloudnet.driver.network.netty.buffer.NettyImmutableDataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.MessageToByteEncoder;
-import lombok.NonNull;
+import io.netty5.channel.ChannelHandlerAdapter;
+import io.netty5.channel.ChannelHandlerContext;
+import io.netty5.util.concurrent.Future;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
 /**
@@ -38,34 +37,60 @@ import org.jetbrains.annotations.ApiStatus.Internal;
  * @since 4.0
  */
 @Internal
-public final class NettyPacketEncoder extends MessageToByteEncoder<Packet> {
+public final class NettyPacketEncoder extends ChannelHandlerAdapter {
+
+  public static final NettyPacketEncoder INSTANCE = new NettyPacketEncoder();
+
+  /**
+   * Constructs a new netty packet encoder instance.
+   */
+  private NettyPacketEncoder() {
+    // singleton
+  }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  protected void encode(@NonNull ChannelHandlerContext ctx, @NonNull Packet packet, @NonNull ByteBuf buf) {
-    // channel
-    NettyUtil.writeVarInt(buf, packet.channel());
-    // packet priority
-    buf.writeBoolean(packet.prioritized());
-    // query id (if present)
-    var queryUniqueId = packet.uniqueId();
-    buf.writeBoolean(queryUniqueId != null);
-    if (queryUniqueId != null) {
-      buf
-        .writeLong(queryUniqueId.getMostSignificantBits())
-        .writeLong(queryUniqueId.getLeastSignificantBits());
+  public Future<Void> write(ChannelHandlerContext ctx, Object msg) {
+    if (msg instanceof Packet packet) {
+      var buf = ctx.bufferAllocator().allocate(0);
+      // general info
+      NettyUtil.writeVarInt(buf, packet.channel());
+      NettyUtil.writeBoolean(buf, packet.prioritized());
+      // query id (if present)
+      var queryUniqueId = packet.uniqueId();
+      NettyUtil.writeBoolean(buf, queryUniqueId != null);
+      if (queryUniqueId != null) {
+        buf
+          .ensureWritable(Long.BYTES * 2)
+          .writeLong(queryUniqueId.getMostSignificantBits())
+          .writeLong(queryUniqueId.getLeastSignificantBits());
+      }
+      // body
+      // we only support netty buf
+      var content = ((NettyImmutableDataBuf) packet.content()).buffer();
+      // write information to buffer
+      var length = content.readableBytes();
+      NettyUtil.writeVarInt(buf, length);
+      content.copyInto(0, buf.ensureWritable(length), buf.writerOffset(), length);
+      // release the content of the packet now, don't use the local field to respect if releasing was disabled in the
+      // original buffer.
+      packet.content().release();
+
+      // write the serialized packet to the pipeline
+      return ctx.write(buf);
+    } else {
+      // this should not happen, but whatever
+      return ctx.write(msg);
     }
-    // body
-    // we only support netty buf
-    var content = ((NettyImmutableDataBuf) packet.content()).byteBuf();
-    // write information to buffer
-    var length = content.readableBytes();
-    NettyUtil.writeVarInt(buf, length);
-    buf.writeBytes(content, 0, length);
-    // release the content of the packet now, don't use the local field to respect if releasing was disabled in the
-    // original buffer.
-    packet.content().release();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean isSharable() {
+    return true;
   }
 }

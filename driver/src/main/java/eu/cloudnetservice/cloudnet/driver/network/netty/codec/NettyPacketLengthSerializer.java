@@ -17,10 +17,10 @@
 package eu.cloudnetservice.cloudnet.driver.network.netty.codec;
 
 import eu.cloudnetservice.cloudnet.driver.network.netty.NettyUtil;
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.MessageToByteEncoder;
-import lombok.NonNull;
+import io.netty5.buffer.api.Buffer;
+import io.netty5.channel.ChannelHandlerAdapter;
+import io.netty5.channel.ChannelHandlerContext;
+import io.netty5.util.concurrent.Future;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
 /**
@@ -29,26 +29,47 @@ import org.jetbrains.annotations.ApiStatus.Internal;
  * @since 4.0
  */
 @Internal
-public final class NettyPacketLengthSerializer extends MessageToByteEncoder<ByteBuf> {
+public final class NettyPacketLengthSerializer extends ChannelHandlerAdapter {
+
+  public static final NettyPacketLengthSerializer INSTANCE = new NettyPacketLengthSerializer();
 
   /**
-   * {@inheritDoc}
+   * Constructs a new netty packet length serializer instance.
    */
-  @Override
-  protected void encode(@NonNull ChannelHandlerContext ctx, @NonNull ByteBuf in, @NonNull ByteBuf out) {
-    // write the var int before other content into the buffer, there is no need to expand the buffer as the buffer
-    // is always large enough due to the overridden allocateBuffer method.
-    NettyUtil.writeVarInt(out, in.readableBytes());
-    out.writeBytes(in);
+  private NettyPacketLengthSerializer() {
+    // singleton
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  protected ByteBuf allocateBuffer(@NonNull ChannelHandlerContext ctx, @NonNull ByteBuf msg, boolean preferDirect) {
-    // only pre-allocate exactly the amount of bytes we're needing to write the message prefixed by the length of it.
-    var initialSize = NettyUtil.varIntByteAmount(msg.readableBytes()) + msg.readableBytes();
-    return ctx.alloc().directBuffer(initialSize);
+  public Future<Void> write(ChannelHandlerContext ctx, Object msg) {
+    if (msg instanceof Buffer buffer) {
+      try (buffer) {
+        // the buffer we're actually going to send out
+        var initialSize = NettyUtil.varIntByteAmount(buffer.readableBytes()) + buffer.readableBytes();
+        var out = ctx.bufferAllocator().allocate(initialSize);
+
+        // put in the length information
+        NettyUtil.writeVarInt(out, buffer.readableBytes());
+        out.writeBytes(buffer);
+        //buffer.copyInto(0, out, out.writerOffset(), buffer.readableBytes());
+
+        // send out the buffer
+        return ctx.write(out);
+      }
+    } else {
+      // this should not happen...
+      return ctx.write(msg);
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean isSharable() {
+    return true;
   }
 }

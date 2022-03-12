@@ -24,12 +24,10 @@ import eu.cloudnetservice.cloudnet.driver.network.http.HttpServer;
 import eu.cloudnetservice.cloudnet.driver.network.netty.NettySslServer;
 import eu.cloudnetservice.cloudnet.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.cloudnet.driver.network.ssl.SSLConfiguration;
-import io.netty.bootstrap.ServerBootstrap;
-import io.netty.buffer.ByteBufAllocator;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty5.bootstrap.ServerBootstrap;
+import io.netty5.channel.ChannelOption;
+import io.netty5.channel.EventLoopGroup;
+import io.netty5.util.concurrent.Future;
 import java.net.SocketAddress;
 import java.util.Collection;
 import java.util.Map;
@@ -47,7 +45,7 @@ public class NettyHttpServer extends NettySslServer implements HttpServer {
 
   private static final Logger LOGGER = LogManager.logger(NettyHttpServer.class);
 
-  protected final Map<HostAndPort, ChannelFuture> channelFutures = new ConcurrentHashMap<>();
+  protected final Map<HostAndPort, Future<Void>> channelFutures = new ConcurrentHashMap<>();
   protected final Collection<HttpHandlerEntry> registeredHandlers = new ConcurrentLinkedQueue<>();
 
   protected final EventLoopGroup bossGroup = NettyUtil.newEventLoopGroup(1);
@@ -114,14 +112,12 @@ public class NettyHttpServer extends NettySslServer implements HttpServer {
           .childOption(ChannelOption.IP_TOS, 24)
           .childOption(ChannelOption.AUTO_READ, true)
           .childOption(ChannelOption.TCP_NODELAY, true)
-          .childOption(ChannelOption.ALLOCATOR, ByteBufAllocator.DEFAULT)
+          .childOption(ChannelOption.BUFFER_ALLOCATOR, NettyUtil.allocator())
+          .childOption(ChannelOption.RCVBUF_ALLOCATOR_USE_BUFFER, true)
 
           .bind(hostAndPort.host(), hostAndPort.port())
-          .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
-          .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
-
           .sync()
-          .channel()
+          .getNow()
           .closeFuture());
         return true;
       }
@@ -229,7 +225,7 @@ public class NettyHttpServer extends NettySslServer implements HttpServer {
   @Override
   public void close() {
     for (var entry : this.channelFutures.values()) {
-      entry.cancel(true);
+      entry.cancel();
     }
 
     this.bossGroup.shutdownGracefully();

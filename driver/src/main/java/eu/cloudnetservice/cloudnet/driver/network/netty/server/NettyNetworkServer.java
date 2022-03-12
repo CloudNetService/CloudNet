@@ -27,12 +27,11 @@ import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.PacketListenerRegistry;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.defaults.DefaultPacketListenerRegistry;
 import eu.cloudnetservice.cloudnet.driver.network.ssl.SSLConfiguration;
-import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.WriteBufferWaterMark;
+import io.netty5.bootstrap.ServerBootstrap;
+import io.netty5.channel.ChannelOption;
+import io.netty5.channel.EventLoopGroup;
+import io.netty5.channel.WriteBufferWaterMark;
+import io.netty5.util.concurrent.Future;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -56,7 +55,7 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
   protected final EventLoopGroup workerEventLoopGroup = NettyUtil.newEventLoopGroup(0);
 
   protected final Collection<NetworkChannel> channels = new ConcurrentLinkedQueue<>();
-  protected final Map<HostAndPort, ChannelFuture> channelFutures = new ConcurrentHashMap<>();
+  protected final Map<HostAndPort, Future<Void>> channelFutures = new ConcurrentHashMap<>();
 
   protected final Executor packetDispatcher = NettyUtil.newPacketDispatcher();
   protected final PacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
@@ -129,15 +128,15 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
           .childOption(ChannelOption.TCP_NODELAY, true)
           .childOption(ChannelOption.SO_KEEPALIVE, true)
           .childOption(ChannelOption.SO_REUSEADDR, true)
-          .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK);
+          .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK)
+          .childOption(ChannelOption.BUFFER_ALLOCATOR, NettyUtil.allocator())
+          .childOption(ChannelOption.RCVBUF_ALLOCATOR_USE_BUFFER, true);
+
         // register the server and bind it
         this.channelFutures.putIfAbsent(hostAndPort, bootstrap
           .bind(hostAndPort.host(), hostAndPort.port())
-          .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
-          .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
-
           .sync()
-          .channel()
+          .getNow()
           .closeFuture());
         return true;
       } catch (InterruptedException exception) {
@@ -156,7 +155,7 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
     this.closeChannels();
 
     for (var entry : this.channelFutures.values()) {
-      entry.cancel(true);
+      entry.cancel();
     }
 
     this.bossEventLoopGroup.shutdownGracefully();

@@ -16,10 +16,10 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.netty.buffer;
 
-import com.google.common.base.Verify;
+import com.google.common.base.VerifyException;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBufFactory;
-import io.netty.buffer.Unpooled;
+import eu.cloudnetservice.cloudnet.driver.network.netty.NettyUtil;
 import lombok.NonNull;
 
 /**
@@ -45,15 +45,7 @@ public class NettyDataBufFactory implements DataBufFactory {
    */
   @Override
   public @NonNull DataBuf.Mutable createEmpty() {
-    return new NettyMutableDataBuf(Unpooled.buffer());
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @NonNull DataBuf createReadOnly() {
-    return new NettyImmutableDataBuf(Unpooled.EMPTY_BUFFER);
+    return new NettyMutableDataBuf(NettyUtil.allocator().allocate(0));
   }
 
   /**
@@ -61,7 +53,7 @@ public class NettyDataBufFactory implements DataBufFactory {
    */
   @Override
   public @NonNull DataBuf createOf(byte @NonNull [] bytes) {
-    return new NettyImmutableDataBuf(Unpooled.wrappedBuffer(bytes));
+    return new NettyImmutableDataBuf(NettyUtil.allocator().copyOf(bytes));
   }
 
   /**
@@ -69,8 +61,12 @@ public class NettyDataBufFactory implements DataBufFactory {
    */
   @Override
   public @NonNull DataBuf copyOf(@NonNull DataBuf dataBuf) {
-    Verify.verify(dataBuf instanceof NettyImmutableDataBuf, "Factory only supports netty data buf copy");
-    return new NettyImmutableDataBuf(Unpooled.copiedBuffer(((NettyImmutableDataBuf) dataBuf).byteBuf));
+    if (!(dataBuf instanceof NettyImmutableDataBuf buf)) {
+      throw new VerifyException("Factory only supports netty data buf copy");
+    }
+
+    var buffer = buf.buffer();
+    return new NettyImmutableDataBuf(buffer.copy(0, buffer.capacity()));
   }
 
   /**
@@ -78,8 +74,12 @@ public class NettyDataBufFactory implements DataBufFactory {
    */
   @Override
   public @NonNull DataBuf.Mutable mutableCopyOf(@NonNull DataBuf dataBuf) {
-    Verify.verify(dataBuf instanceof NettyImmutableDataBuf, "Factory only supports netty data buf copy");
-    return new NettyMutableDataBuf(Unpooled.copiedBuffer(((NettyImmutableDataBuf) dataBuf).byteBuf));
+    if (!(dataBuf instanceof NettyImmutableDataBuf buf)) {
+      throw new VerifyException("Factory only supports netty data buf copy");
+    }
+
+    var buffer = buf.buffer();
+    return new NettyMutableDataBuf(buffer.copy(0, buffer.capacity()));
   }
 
   /**
@@ -87,6 +87,6 @@ public class NettyDataBufFactory implements DataBufFactory {
    */
   @Override
   public @NonNull DataBuf.Mutable createWithExpectedSize(int byteSize) {
-    return new NettyMutableDataBuf(Unpooled.buffer(byteSize));
+    return new NettyMutableDataBuf(NettyUtil.allocator().allocate(byteSize));
   }
 }

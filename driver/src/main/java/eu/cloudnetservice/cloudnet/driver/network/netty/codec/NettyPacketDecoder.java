@@ -21,12 +21,10 @@ import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.cloudnet.driver.network.netty.buffer.NettyImmutableDataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.BasePacket;
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.ByteToMessageDecoder;
-import java.util.List;
+import io.netty5.buffer.api.Buffer;
+import io.netty5.channel.ChannelHandlerContext;
+import io.netty5.handler.codec.ByteToMessageDecoderForBuffer;
 import java.util.UUID;
-import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
 /**
@@ -44,7 +42,7 @@ import org.jetbrains.annotations.ApiStatus.Internal;
  * @since 4.0
  */
 @Internal
-public final class NettyPacketDecoder extends ByteToMessageDecoder {
+public final class NettyPacketDecoder extends ByteToMessageDecoderForBuffer {
 
   private static final Logger LOGGER = LogManager.logger(NettyPacketDecoder.class);
 
@@ -52,27 +50,29 @@ public final class NettyPacketDecoder extends ByteToMessageDecoder {
    * {@inheritDoc}
    */
   @Override
-  protected void decode(@NonNull ChannelHandlerContext ctx, @NonNull ByteBuf buf, @NonNull List<Object> out) {
+  protected void decode(ChannelHandlerContext ctx, Buffer buf) throws Exception {
     // validates that the channel associated to this decoder call is still active and actually transferred data before
     // beginning to read.
-    if (!ctx.channel().isActive() || !buf.isReadable()) {
-      buf.clear();
+    if (!ctx.channel().isActive() || buf.readableBytes() <= 0) {
+      buf.close();
       return;
     }
 
     try {
       // read the required base data from the buffer
       var channel = NettyUtil.readVarInt(buf);
-      var prioritized = buf.readBoolean();
-      var queryUniqueId = buf.readBoolean() ? new UUID(buf.readLong(), buf.readLong()) : null;
-      var body = new NettyImmutableDataBuf(buf.readBytes(NettyUtil.readVarInt(buf)));
+      var prioritized = NettyUtil.readBoolean(buf);
+      var queryUniqueId = NettyUtil.readBoolean(buf) ? new UUID(buf.readLong(), buf.readLong()) : null;
+
+      var bodyLength = NettyUtil.readVarInt(buf);
+      var body = new NettyImmutableDataBuf(buf.copy(buf.readerOffset(), bodyLength));
 
       // construct the packet
       var packet = new BasePacket(channel, prioritized, body);
       packet.uniqueId(queryUniqueId);
 
-      // register the packet for further downstream handling
-      out.add(packet);
+      // handle the message down the pipeline
+      ctx.fireChannelRead(packet);
     } catch (Exception exception) {
       LOGGER.severe("Exception while decoding packet", exception);
     }

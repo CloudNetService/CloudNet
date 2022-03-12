@@ -18,12 +18,12 @@ package eu.cloudnetservice.cloudnet.driver.network.netty.codec;
 
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBufFactory;
+import eu.cloudnetservice.cloudnet.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.BasePacket;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
-import java.util.ArrayList;
-import java.util.List;
+import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
+import io.netty5.buffer.api.Buffer;
+import io.netty5.channel.Channel;
+import io.netty5.channel.ChannelHandlerContext;
 import java.util.concurrent.ThreadLocalRandom;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -40,30 +40,40 @@ public class NettyPacketCodecTest {
       .writeInt(1234)
       .writeDouble(5D);
 
-    var output = Unpooled.buffer();
+    var outCtx = Mockito.mock(ChannelHandlerContext.class);
+    Mockito.when(outCtx.bufferAllocator()).thenReturn(NettyUtil.allocator());
+    Mockito.when(outCtx.write(Mockito.any(Buffer.class))).then(invocation -> {
+      // called from within the encoder call
+      Buffer buffer = invocation.getArgument(0);
+      Assertions.assertTrue(buffer.readableBytes() > 0);
 
-    var encoder = new NettyPacketEncoder();
-    encoder.encode(Mockito.mock(ChannelHandlerContext.class), new BasePacket(packetChannel, dataBuf), output);
+      // test deserialize
+      var inChannel = Mockito.mock(Channel.class);
+      Mockito.when(inChannel.isActive()).thenReturn(true);
 
-    Assertions.assertTrue(output.readableBytes() > 0);
+      var inCtx = Mockito.mock(ChannelHandlerContext.class);
+      Mockito.when(inCtx.channel()).thenReturn(inChannel);
+      Mockito.when(inCtx.fireChannelRead(Mockito.any(Packet.class))).then(inv -> {
+        Packet packet = inv.getArgument(0);
+        // validate
+        Assertions.assertEquals(packetChannel, packet.channel());
+        Assertions.assertTrue(packet.content().readBoolean());
+        Assertions.assertEquals(1234, packet.content().readInt());
+        Assertions.assertEquals(5D, packet.content().readDouble());
 
-    // test read
-    var channel = Mockito.mock(Channel.class);
-    Mockito.when(channel.isActive()).thenReturn(true);
+        // whatever
+        return null;
+      });
 
-    var ctx = Mockito.mock(ChannelHandlerContext.class);
-    Mockito.when(ctx.channel()).thenReturn(channel);
+      // decode the packet again
+      var decoder = new NettyPacketDecoder();
+      decoder.decode(inCtx, buffer);
 
-    List<Object> results = new ArrayList<>();
-    var decoder = new NettyPacketDecoder();
-    decoder.decode(ctx, output, results);
+      // whatever
+      return null;
+    });
 
-    Assertions.assertEquals(1, results.size());
-    Assertions.assertEquals(packetChannel, ((BasePacket) results.get(0)).channel());
-    Assertions.assertTrue(((BasePacket) results.get(0)).content().readBoolean());
-    Assertions.assertEquals(1234, ((BasePacket) results.get(0)).content().readInt());
-    Assertions.assertEquals(5D, ((BasePacket) results.get(0)).content().readDouble());
-
-    output.release();
+    // encode the packet
+    NettyPacketEncoder.INSTANCE.write(outCtx, new BasePacket(packetChannel, dataBuf));
   }
 }

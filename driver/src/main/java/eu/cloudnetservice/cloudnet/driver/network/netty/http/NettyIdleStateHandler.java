@@ -16,10 +16,10 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.netty.http;
 
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.timeout.IdleStateEvent;
-import io.netty.handler.timeout.IdleStateHandler;
-import io.netty.handler.timeout.ReadTimeoutException;
+import io.netty5.channel.ChannelHandlerContext;
+import io.netty5.handler.timeout.IdleStateEvent;
+import io.netty5.handler.timeout.IdleStateHandler;
+import io.netty5.handler.timeout.ReadTimeoutException;
 import java.util.concurrent.TimeUnit;
 
 /**

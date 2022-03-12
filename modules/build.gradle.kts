@@ -25,11 +25,9 @@ subprojects {
 
   repositories {
     maven("https://jitpack.io/")
-    maven("https://repo.spongepowered.org/maven/")
     maven("https://repo.md-5.net/repository/releases/")
     maven("https://repo.waterdog.dev/artifactory/main/")
     maven("https://repo.opencollab.dev/maven-snapshots/")
-    maven("https://oss.sonatype.org/content/repositories/snapshots/")
     maven("https://nexus.velocitypowered.com/repository/maven-public/")
     maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
   }

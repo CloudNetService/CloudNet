@@ -20,7 +20,7 @@ import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.netty.NettyNetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.netty.NettyNetworkHandler;
-import io.netty.channel.ChannelHandlerContext;
+import io.netty5.channel.ChannelHandlerContext;
 import java.util.Collection;
 import java.util.concurrent.Executor;
 import lombok.NonNull;

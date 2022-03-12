@@ -19,14 +19,15 @@ package eu.cloudnetservice.cloudnet.driver.network.netty.http;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.driver.network.http.websocket.WebSocketFrameType;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import eu.cloudnetservice.cloudnet.driver.network.netty.NettyUtil;
+import io.netty5.channel.ChannelHandlerContext;
+import io.netty5.channel.SimpleChannelInboundHandler;
+import io.netty5.handler.codec.http.websocketx.BinaryWebSocketFrame;
+import io.netty5.handler.codec.http.websocketx.CloseWebSocketFrame;
+import io.netty5.handler.codec.http.websocketx.PingWebSocketFrame;
+import io.netty5.handler.codec.http.websocketx.PongWebSocketFrame;
+import io.netty5.handler.codec.http.websocketx.TextWebSocketFrame;
+import io.netty5.handler.codec.http.websocketx.WebSocketFrame;
 import java.io.IOException;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
@@ -85,7 +86,7 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
    * {@inheritDoc}
    */
   @Override
-  protected void channelRead0(@NonNull ChannelHandlerContext ctx, @NonNull WebSocketFrame webSocketFrame) {
+  protected void messageReceived(ChannelHandlerContext ctx, WebSocketFrame webSocketFrame) {
     if (webSocketFrame instanceof PingWebSocketFrame) {
       this.invoke0(WebSocketFrameType.PING, webSocketFrame);
     }
@@ -115,7 +116,7 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
    * @throws NullPointerException if either the given type of frame is null.
    */
   private void invoke0(@NonNull WebSocketFrameType type, @NonNull WebSocketFrame webSocketFrame) {
-    var bytes = this.readContentFromWebSocketFrame(webSocketFrame);
+    var bytes = NettyUtil.extractBytes(webSocketFrame.binaryData());
     for (var listener : this.webSocketServerChannel.listeners()) {
       try {
         listener.handle(this.webSocketServerChannel, type, bytes);
@@ -123,18 +124,5 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
         LOGGER.severe("Exception while invoking handle", exception);
       }
     }
-  }
-
-  /**
-   * Converts the body of a web socket frame to a byte array.
-   *
-   * @param frame the received frame to read the body from.
-   * @return the body of the frame, in bytes.
-   * @throws NullPointerException if the given frame is null.
-   */
-  private byte[] readContentFromWebSocketFrame(@NonNull WebSocketFrame frame) {
-    var bytes = new byte[frame.content().readableBytes()];
-    frame.content().getBytes(frame.content().readerIndex(), bytes);
-    return bytes;
   }
 }
