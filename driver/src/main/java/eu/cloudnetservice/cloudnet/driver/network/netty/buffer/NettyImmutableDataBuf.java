@@ -154,7 +154,7 @@ public class NettyImmutableDataBuf implements DataBuf {
       var buffer = new NettyImmutableDataBuf(buf.copy(buf.readerOffset(), dataLength));
 
       // we need to move the reader offset manually as copy didn't do it for us
-      buf.readerOffset(buf.readerOffset() + dataLength);
+      buf.skipReadable(dataLength);
       return buffer;
     });
   }

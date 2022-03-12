@@ -54,7 +54,6 @@ public final class NettyPacketLengthSerializer extends ChannelHandlerAdapter {
         // put in the length information
         NettyUtil.writeVarInt(out, buffer.readableBytes());
         out.writeBytes(buffer);
-        //buffer.copyInto(0, out, out.writerOffset(), buffer.readableBytes());
 
         // send out the buffer
         return ctx.write(out);
