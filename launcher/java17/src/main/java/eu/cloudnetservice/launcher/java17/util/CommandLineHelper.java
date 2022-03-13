@@ -56,6 +56,13 @@ public final class CommandLineHelper {
       System.setProperty("cloudnet." + key, value);
       return value;
     }
+    // try to get the value from the environment
+    value = System.getenv("cloudnet." + key);
+    if (value != null) {
+      // set the value as a system property to allow later reads of it
+      System.setProperty("cloudnet." + key, value);
+      return value;
+    }
     // try to get the value from a system property
     value = System.getProperty("cloudnet." + key);
     if (value == null) {
