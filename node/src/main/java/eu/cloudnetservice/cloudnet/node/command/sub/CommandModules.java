@@ -29,6 +29,8 @@ import eu.cloudnetservice.cloudnet.common.column.ColumnFormatter;
 import eu.cloudnetservice.cloudnet.common.column.RowBasedFormatter;
 import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
+import eu.cloudnetservice.cloudnet.common.log.LogManager;
+import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleProvider;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleWrapper;
@@ -56,6 +58,8 @@ import org.jetbrains.annotations.Nullable;
 @CommandPermission("cloudnet.commands.modules")
 @Description("Manages all available modules and loading new modules after the start")
 public final class CommandModules {
+
+  private static final Logger LOGGER = LogManager.logger(CommandModules.class);
 
   private static final RowBasedFormatter<ModuleWrapper> MODULES_FORMATTER = RowBasedFormatter.<ModuleWrapper>builder()
     .defaultFormatter(ColumnFormatter.builder()
@@ -351,6 +355,22 @@ public final class CommandModules {
     @NonNull @Argument(value = "module", parserName = "toUnloadModule") ModuleWrapper wrapper
   ) {
     wrapper.unloadModule();
+  }
+
+  @CommandMethod("modules|module uninstall <module>")
+  public void uninstallModule(
+    @NonNull CommandSource source,
+    @NonNull @Argument(value = "module", parserName = "existingModule") ModuleWrapper wrapper
+  ) {
+    wrapper.stopModule();
+    wrapper.unloadModule();
+    try {
+      Files.delete(Path.of(wrapper.uri()));
+      source.sendMessage(I18n.trans("command-modules-module-uninstall", wrapper.module().name()));
+    } catch (IOException exception) {
+      source.sendMessage(I18n.trans("command-modules-module-uninstall-failed", wrapper.module().name()));
+      LOGGER.severe("Exception while uninstalling module %s", exception, wrapper.module().name());
+    }
   }
 
   private boolean canLoadModule(@NonNull Path path) {
