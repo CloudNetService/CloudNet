@@ -100,7 +100,7 @@ final class SpongeDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
   }
 
   @Override
-  public void dispatchProxyCommand(@NonNull String command) {
+  public void spoofChatInput(@NonNull String command) {
     // no-op
   }
 }

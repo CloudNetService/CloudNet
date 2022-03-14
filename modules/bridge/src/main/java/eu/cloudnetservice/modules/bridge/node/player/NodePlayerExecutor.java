@@ -144,7 +144,7 @@ public class NodePlayerExecutor implements PlayerExecutor {
   }
 
   @Override
-  public void dispatchProxyCommand(@NonNull String command) {
+  public void spoofChatInput(@NonNull String command) {
     this.toProxy()
       .message("dispatch_proxy_command")
       .buffer(DataBuf.empty().writeUniqueId(this.targetUniqueId).writeString(command))
