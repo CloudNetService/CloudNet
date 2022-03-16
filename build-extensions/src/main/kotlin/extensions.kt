@@ -71,7 +71,7 @@ fun Project.exportLanguageFileInformation(): String {
   return file.absolutePath
 }
 
-fun Project.exportCnlFile(fileName: String): String {
+fun Project.exportCnlFile(fileName: String, ignoredDependencyGroups: Array<String> = arrayOf()): String {
   val stringBuilder = StringBuilder("# CloudNet ${Versions.cloudNetCodeName} ${Versions.cloudNet}\n\n")
     .append("# repositories\n")
   // add all repositories
@@ -82,8 +82,11 @@ fun Project.exportCnlFile(fileName: String): String {
   // add all dependencies
   stringBuilder.append("\n\n# dependencies\n")
   configurations.getByName("runtimeClasspath").resolvedConfiguration.resolvedArtifacts.forEach {
-    // get the module version from the artifact
+    // get the module version from the artifact, stop if the dependency is ignored
     val id = it.moduleVersion.id
+    if (ignoredDependencyGroups.contains(id.group)) {
+      return@forEach
+    }
     // check if the dependency is a snapshot version - in this case we need to use another artifact url
     var version = id.version
     if (id.version.endsWith("-SNAPSHOT") && it.id.componentIdentifier is MavenUniqueSnapshotComponentIdentifier) {

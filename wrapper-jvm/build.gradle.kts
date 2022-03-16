@@ -24,6 +24,14 @@ tasks.withType<ShadowJar> {
   archiveFileName.set(Files.wrapper)
   archiveVersion.set(null as String?)
 
+  // do not shade dependencies which we don't need to shade
+  val ignoredGroupIds = arrayOf("io.netty", "io.netty.incubator", "com.google.guava", "com.google.code.gson", "org.ow2.asm")
+  dependencies {
+    exclude {
+      it.moduleGroup != project.group && !ignoredGroupIds.contains(it.moduleGroup)
+    }
+  }
+
   // netty relocation
   relocate("io.netty", "eu.cloudnetservice.relocate.io.netty")
   relocate("META-INF/native/netty", "META-INF/native/eu_cloudnetservice_relocate_netty")
@@ -33,15 +41,16 @@ tasks.withType<ShadowJar> {
   relocate("com.google.gson", "eu.cloudnetservice.relocate.gson")
   relocate("com.google.common", "eu.cloudnetservice.relocate.guava")
 
-  // asm relocation to fix forge discovery:
-  // https://github.com/MinecraftForge/MinecraftForge/blob/1.16.x/src/fmllauncher/java/net/minecraftforge/fml/loading/LibraryFinder.java#L39
-  relocate("org.objectweb.asm.Opcodes", "eu.cloudnetservice.relocate.asm.Opcodes")
+  // asm lib relocation
+  relocate("org.objectweb.asm", "eu.cloudnetservice.relocate.asm")
 
   // drop unused classes which are making the jar bigger
   minimize()
 
   doFirst {
+    // Note: included dependencies will not be resolved, they must be available from the node resolution already
     from(exportLanguageFileInformation())
+    from(exportCnlFile("wrapper.cnl", ignoredGroupIds))
   }
 }
 
