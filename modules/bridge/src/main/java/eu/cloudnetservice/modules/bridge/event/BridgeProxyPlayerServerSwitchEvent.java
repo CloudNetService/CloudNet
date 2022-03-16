@@ -25,6 +25,8 @@ import lombok.NonNull;
  * Called after the cloud player switched its downstream service to another one. At this point {@link
  * CloudPlayer#connectedService()} returns the new service. This event is called both on all nodes in the cluster and all
  * services running the bridge.
+ *
+ * @since 4.0
  */
 public final class BridgeProxyPlayerServerSwitchEvent extends DriverEvent {
 

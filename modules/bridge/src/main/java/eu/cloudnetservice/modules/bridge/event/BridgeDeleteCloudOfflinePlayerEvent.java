@@ -23,6 +23,8 @@ import lombok.NonNull;
 /**
  * Called after a cloud offline player was deleted from the database and the cache was flushed. This event is called
  * both on all nodes in the cluster and all services running the bridge.
+ *
+ * @since 4.0
  */
 public final class BridgeDeleteCloudOfflinePlayerEvent extends DriverEvent {
 

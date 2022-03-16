@@ -24,6 +24,8 @@ import lombok.NonNull;
 /**
  * Called when a cloud player disconnects from any downstream service but before the player connected to a new service.
  * This event is called both on all nodes in the cluster and all services running the bridge.
+ *
+ * @since 4.0
  */
 public final class BridgeServerPlayerDisconnectEvent extends DriverEvent {
 

@@ -23,6 +23,8 @@ import lombok.NonNull;
 /**
  * Called when the bridge configuration was updated. This event is called both on all nodes in the cluster and all
  * services running the bridge.
+ *
+ * @since 4.0
  */
 public final class BridgeConfigurationUpdateEvent extends DriverEvent {
 

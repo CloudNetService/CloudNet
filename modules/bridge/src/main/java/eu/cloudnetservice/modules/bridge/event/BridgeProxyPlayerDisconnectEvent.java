@@ -23,6 +23,8 @@ import lombok.NonNull;
 /**
  * Called after a cloud player has disconnected from the proxy he was connected to. This event is called both on all
  * nodes in the cluster and all services running the bridge.
+ *
+ * @since 4.0
  */
 public final class BridgeProxyPlayerDisconnectEvent extends DriverEvent {
 

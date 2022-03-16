@@ -23,6 +23,8 @@ import lombok.NonNull;
 /**
  * Called after the cloud player connected to the proxy <strong>AND</strong> connected successfully to a downstream
  * server. This event is called both on all nodes in the cluster and all services running the bridge.
+ *
+ * @since 4.0
  */
 public final class BridgeProxyPlayerLoginEvent extends DriverEvent {
 

@@ -27,6 +27,8 @@ import org.jetbrains.annotations.UnknownNullability;
  * Called before the login of a player is processed and therefore allows determining the outcome of the login process.
  * <p>
  * Note: This event is <strong>ONLY</strong> called on the node the proxy is running on.
+ *
+ * @since 4.0
  */
 public final class LocalPlayerPreLoginEvent extends DriverEvent {
 

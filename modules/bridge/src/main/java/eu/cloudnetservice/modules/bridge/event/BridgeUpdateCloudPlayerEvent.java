@@ -23,6 +23,8 @@ import lombok.NonNull;
 /**
  * Called after a cloud player was updated in both the database and all caches. This event is called both on all nodes
  * in the cluster and all services running the bridge.
+ *
+ * @since 4.0
  */
 public final class BridgeUpdateCloudPlayerEvent extends DriverEvent {
 
