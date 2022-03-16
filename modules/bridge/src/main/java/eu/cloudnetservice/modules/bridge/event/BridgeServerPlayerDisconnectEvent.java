@@ -21,20 +21,42 @@ import eu.cloudnetservice.modules.bridge.player.CloudPlayer;
 import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;
 import lombok.NonNull;
 
+/**
+ * Called when a cloud player disconnects from any downstream service but before the player connected to a new service.
+ * This event is called both on all nodes in the cluster and all services running the bridge.
+ */
 public final class BridgeServerPlayerDisconnectEvent extends DriverEvent {
 
   private final CloudPlayer cloudPlayer;
   private final NetworkServiceInfo serviceInfo;
 
+  /**
+   * Constructs a new player server disconnect event for the given cloud player and the service the player disconnected
+   * from.
+   *
+   * @param cloudPlayer the player that disconnected.
+   * @param serviceInfo the service the player disconnected from.
+   * @throws NullPointerException if the given player or service info is null.
+   */
   public BridgeServerPlayerDisconnectEvent(@NonNull CloudPlayer cloudPlayer, @NonNull NetworkServiceInfo serviceInfo) {
     this.cloudPlayer = cloudPlayer;
     this.serviceInfo = serviceInfo;
   }
 
+  /**
+   * Gets the player that disconnected from a downstream service.
+   *
+   * @return the player that disconnected.
+   */
   public @NonNull CloudPlayer cloudPlayer() {
     return this.cloudPlayer;
   }
 
+  /**
+   * Gets the network service info of the service the player disconnected from.
+   *
+   * @return the network service info of the service.
+   */
   public @NonNull NetworkServiceInfo service() {
     return this.serviceInfo;
   }

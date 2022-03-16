@@ -20,14 +20,29 @@ import eu.cloudnetservice.cloudnet.driver.event.events.DriverEvent;
 import eu.cloudnetservice.modules.bridge.config.BridgeConfiguration;
 import lombok.NonNull;
 
+/**
+ * Called when the bridge configuration was updated. This event is called both on all nodes in the cluster and all
+ * services running the bridge.
+ */
 public final class BridgeConfigurationUpdateEvent extends DriverEvent {
 
   private final BridgeConfiguration bridgeConfiguration;
 
+  /**
+   * Constructs a new configuration update event with the given configuration.
+   *
+   * @param bridgeConfiguration the updated configuration.
+   * @throws NullPointerException if the given configuration is null.
+   */
   public BridgeConfigurationUpdateEvent(@NonNull BridgeConfiguration bridgeConfiguration) {
     this.bridgeConfiguration = bridgeConfiguration;
   }
 
+  /**
+   * Gets the updated configuration that was received on this component.
+   *
+   * @return the updated configuration.
+   */
   public @NonNull BridgeConfiguration bridgeConfiguration() {
     return this.bridgeConfiguration;
   }

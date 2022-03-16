@@ -23,27 +23,59 @@ import net.kyori.adventure.text.TextComponent;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
+/**
+ * Called before the login of a player is processed and therefore allows determining the outcome of the login process.
+ * <p>
+ * Note: This event is <strong>ONLY</strong> called on the node the proxy is running on.
+ */
 public final class LocalPlayerPreLoginEvent extends DriverEvent {
 
   private final NetworkPlayerProxyInfo playerInfo;
   private Result result = Result.allowed();
 
+  /**
+   * Constructs a new player pre login event with the given player proxy info.
+   *
+   * @param playerInfo the player info of the player connecting.
+   * @throws NullPointerException if the player proxy info is null.
+   */
   public LocalPlayerPreLoginEvent(@NonNull NetworkPlayerProxyInfo playerInfo) {
     this.playerInfo = playerInfo;
   }
 
+  /**
+   * Gets the player proxy info for the player requesting a login.
+   *
+   * @return the player proxy info.
+   */
   public @NonNull NetworkPlayerProxyInfo playerInfo() {
     return this.playerInfo;
   }
 
+  /**
+   * Gets the result of the login process. If {@link Result#permitLogin()} is true the player is allowed to log in and
+   * denied otherwise.
+   *
+   * @return the result of the login process.
+   */
   public @NonNull Result result() {
     return this.result;
   }
 
+  /**
+   * Sets the result of the login process. To deny a login use {@link Result#denied(TextComponent)} and {@link
+   * Result#allowed()} to allow the login.
+   *
+   * @param result the result to set for the login.
+   * @throws NullPointerException if the result is null.
+   */
   public void result(@NonNull Result result) {
     this.result = result;
   }
 
+  /**
+   * Represents the outcome of the login event.
+   */
   public static final class Result {
 
     private static final Result ALLOWED = new Result(true, null);
@@ -51,23 +83,50 @@ public final class LocalPlayerPreLoginEvent extends DriverEvent {
     private final boolean allowed;
     private final TextComponent result;
 
+    /**
+     * Constructs a new result for the player pre login event.
+     *
+     * @param allowed whether the player is allowed to connect or not.
+     * @param result  the reason for denying the login.
+     */
     private Result(boolean allowed, @Nullable TextComponent result) {
       this.allowed = allowed;
       this.result = result;
     }
 
+    /**
+     * Gets a jvm static result that allows the login.
+     *
+     * @return an allowing result.
+     */
     public static @NonNull Result allowed() {
       return ALLOWED;
     }
 
+    /**
+     * Creates a new result that denies the login of the player and sets the given reason.
+     *
+     * @param reason the reason for denying the login.
+     * @return the new result denying the login.
+     */
     public static @NonNull Result denied(@Nullable TextComponent reason) {
       return new Result(false, reason);
     }
 
+    /**
+     * Gets whether this result allows the login or not.
+     *
+     * @return true if the login is allowed, false otherwise.
+     */
     public boolean permitLogin() {
       return this.allowed;
     }
 
+    /**
+     * Gets the text component that is displayed to the player if the login is denied.
+     *
+     * @return the reason to display to the player, might be null if the component is not set.
+     */
     public @UnknownNullability TextComponent result() {
       return this.result;
     }

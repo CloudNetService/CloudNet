@@ -20,14 +20,29 @@ import eu.cloudnetservice.cloudnet.driver.event.events.DriverEvent;
 import eu.cloudnetservice.modules.bridge.player.CloudPlayer;
 import lombok.NonNull;
 
+/**
+ * Called after a cloud player has disconnected from the proxy he was connected to. This event is called both on all
+ * nodes in the cluster and all services running the bridge.
+ */
 public final class BridgeProxyPlayerDisconnectEvent extends DriverEvent {
 
   private final CloudPlayer cloudPlayer;
 
+  /**
+   * Constructs a new proxy disconnect event with the given cloud player.
+   *
+   * @param cloudPlayer the cloud player that disconnected.
+   * @throws NullPointerException if the given player is null.
+   */
   public BridgeProxyPlayerDisconnectEvent(@NonNull CloudPlayer cloudPlayer) {
     this.cloudPlayer = cloudPlayer;
   }
 
+  /**
+   * Gets the cloud player that disconnected from a proxy.
+   *
+   * @return the player that disconnected.
+   */
   public @NonNull CloudPlayer cloudPlayer() {
     return this.cloudPlayer;
   }

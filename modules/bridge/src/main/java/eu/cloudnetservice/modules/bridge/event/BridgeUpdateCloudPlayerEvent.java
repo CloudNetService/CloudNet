@@ -20,14 +20,29 @@ import eu.cloudnetservice.cloudnet.driver.event.events.DriverEvent;
 import eu.cloudnetservice.modules.bridge.player.CloudPlayer;
 import lombok.NonNull;
 
+/**
+ * Called after a cloud player was updated in both the database and all caches. This event is called both on all nodes
+ * in the cluster and all services running the bridge.
+ */
 public final class BridgeUpdateCloudPlayerEvent extends DriverEvent {
 
   private final CloudPlayer cloudPlayer;
 
+  /**
+   * Constructs a new cloud player update event with the given cloud player.
+   *
+   * @param cloudPlayer the cloud player that was updated.
+   * @throws NullPointerException if the given cloud player is null.
+   */
   public BridgeUpdateCloudPlayerEvent(@NonNull CloudPlayer cloudPlayer) {
     this.cloudPlayer = cloudPlayer;
   }
 
+  /**
+   * Gets the cloud player that was updated.
+   *
+   * @return the updated cloud player.
+   */
   public @NonNull CloudPlayer cloudPlayer() {
     return this.cloudPlayer;
   }
