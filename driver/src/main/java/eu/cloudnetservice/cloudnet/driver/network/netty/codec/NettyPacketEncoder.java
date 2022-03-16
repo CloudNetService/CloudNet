@@ -57,10 +57,11 @@ public final class NettyPacketEncoder extends ChannelHandlerAdapter {
       var buf = ctx.bufferAllocator().allocate(0);
       // general info
       NettyUtil.writeVarInt(buf, packet.channel());
-      NettyUtil.writeBoolean(buf, packet.prioritized());
       // query id (if present)
       var queryUniqueId = packet.uniqueId();
-      NettyUtil.writeBoolean(buf, queryUniqueId != null);
+      buf.ensureWritable(Byte.BYTES * 2)
+        .writeBoolean(packet.prioritized())
+        .writeBoolean(queryUniqueId != null);
       if (queryUniqueId != null) {
         buf
           .ensureWritable(Long.BYTES * 2)

@@ -184,29 +184,6 @@ public final class NettyUtil {
   }
 
   /**
-   * Writes the given boolean into the given buffer, ensuring the buffer is large enough to fit the boolean.
-   *
-   * @param buffer the buffer to write the boolean to.
-   * @param b      the boolean to write.
-   * @throws NullPointerException if the given buffer is null.
-   */
-  public static void writeBoolean(@NonNull Buffer buffer, boolean b) {
-    buffer.ensureWritable(Byte.BYTES);
-    buffer.writeByte((byte) (b ? 1 : 0));
-  }
-
-  /**
-   * Reads a boolean from the current reader offset of the given buffer.
-   *
-   * @param buffer the buffer to read the boolean from.
-   * @return the boolean at current reader offset.
-   * @throws NullPointerException if the given buffer is null.
-   */
-  public static boolean readBoolean(@NonNull Buffer buffer) {
-    return buffer.readByte() > 0;
-  }
-
-  /**
    * Get the amount of bytes the given integer will consume when converted to a var int.
    *
    * @param varInt the var int to write.

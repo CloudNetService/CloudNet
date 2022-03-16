@@ -50,7 +50,7 @@ public class NettyMutableDataBuf extends NettyImmutableDataBuf implements Mutabl
   @Override
   public @NonNull DataBuf.Mutable writeBoolean(boolean b) {
     this.buffer.ensureWritable(Byte.BYTES);
-    this.buffer.writeByte((byte) (b ? 1 : 0));
+    this.buffer.writeBoolean(b);
 
     return this;
   }

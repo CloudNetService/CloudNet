@@ -57,7 +57,7 @@ public class NettyImmutableDataBuf implements DataBuf {
    */
   @Override
   public boolean readBoolean() {
-    return this.hotRead(buf -> buf.readByte() > 0);
+    return this.hotRead(Buffer::readBoolean);
   }
 
   /**
@@ -200,10 +200,7 @@ public class NettyImmutableDataBuf implements DataBuf {
    */
   @Override
   public <T> T readNullable(@NonNull Function<DataBuf, T> readerWhenNonNull, T valueWhenNull) {
-    return this.hotRead(buf -> {
-      var isNonNull = buf.readByte() > 0;
-      return isNonNull ? readerWhenNonNull.apply(this) : valueWhenNull;
-    });
+    return this.hotRead(buf -> buf.readBoolean() ? readerWhenNonNull.apply(this) : valueWhenNull);
   }
 
   /**
