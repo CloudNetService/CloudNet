@@ -108,6 +108,6 @@ public interface PlayerExecutor {
    *
    * @param command the command to dispatch
    */
-  void dispatchProxyCommand(@NonNull String command);
+  void spoofChatInput(@NonNull String command);
 
 }

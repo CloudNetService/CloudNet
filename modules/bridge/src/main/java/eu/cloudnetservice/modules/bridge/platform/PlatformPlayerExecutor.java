@@ -94,7 +94,7 @@ final class PlatformPlayerExecutor implements PlayerExecutor {
   }
 
   @Override
-  public void dispatchProxyCommand(@NonNull String command) {
+  public void spoofChatInput(@NonNull String command) {
     this.baseRPC.join(this.sender.invokeMethod("dispatchProxyCommand", command)).fireSync();
   }
 }

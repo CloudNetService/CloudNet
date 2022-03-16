@@ -191,7 +191,7 @@ public class CommandPlayers {
     source.sendMessage(I18n.trans("module-bridge-command-players-delete-player", player.name(), player.uniqueId()));
   }
 
-  @CommandMethod("players player <player> kick [reason]")
+  @CommandMethod("players online <player> kick [reason]")
   public void kickPlayer(
     @NonNull CommandSource source,
     @NonNull @Argument("player") CloudPlayer player,
@@ -201,7 +201,9 @@ public class CommandPlayers {
     var reasonComponent = reason == null ? Component.empty() : AdventureSerializerUtil.serialize(reason);
     player.playerExecutor().kick(reasonComponent);
 
-    source.sendMessage(I18n.trans("module-bridge-command-players-kick-player", player.name(), player.uniqueId(),
+    source.sendMessage(I18n.trans("module-bridge-command-players-kick-player",
+      player.name(),
+      player.uniqueId(),
       reason == null ? "No reason given" : reason));
 
     if (force) {
@@ -211,7 +213,7 @@ public class CommandPlayers {
     }
   }
 
-  @CommandMethod("players player <player> message <message>")
+  @CommandMethod("players online <player> message <message>")
   public void messagePlayer(
     @NonNull CommandSource source,
     @NonNull @Argument("player") CloudPlayer player,
@@ -222,7 +224,7 @@ public class CommandPlayers {
       I18n.trans("module-bridge-command-players-send-player-message", player.name(), player.uniqueId()));
   }
 
-  @CommandMethod("players player <player> connect <server>")
+  @CommandMethod("players online <player> connect <server>")
   public void connectPlayer(
     @NonNull CommandSource source,
     @NonNull @Argument("player") CloudPlayer player,

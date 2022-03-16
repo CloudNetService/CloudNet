@@ -103,7 +103,7 @@ public final class FabricDirectPlayerExecutor extends PlatformPlayerExecutorAdap
   }
 
   @Override
-  public void dispatchProxyCommand(@NonNull String command) {
+  public void spoofChatInput(@NonNull String command) {
     this.players.get().forEach(player -> player.connection.handleCommand(command));
   }
 }

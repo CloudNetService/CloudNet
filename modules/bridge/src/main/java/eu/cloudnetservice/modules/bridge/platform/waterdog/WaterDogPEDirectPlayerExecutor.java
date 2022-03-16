@@ -129,7 +129,7 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
   }
 
   @Override
-  public void dispatchProxyCommand(@NonNull String command) {
+  public void spoofChatInput(@NonNull String command) {
     this.playerSupplier.get().forEach(player -> player.chat(command));
   }
 }
