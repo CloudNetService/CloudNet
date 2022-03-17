@@ -39,6 +39,7 @@ import eu.cloudnetservice.cloudnet.node.event.service.CloudServicePreProcessStar
 import eu.cloudnetservice.cloudnet.node.service.CloudServiceManager;
 import eu.cloudnetservice.cloudnet.node.service.ServiceConfigurationPreparer;
 import eu.cloudnetservice.cloudnet.node.service.defaults.log.ProcessServiceLogCache;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -60,13 +61,15 @@ public class JVMService extends AbstractService {
 
   protected static final Logger LOGGER = LogManager.logger(JVMService.class);
   protected static final Pattern FILE_NUMBER_PATTERN = Pattern.compile("(\\d+).*");
-  protected static final Path WRAPPER_TEMP_FILE = FileUtil.TEMP_DIR.resolve("caches").resolve("wrapper.jar");
   protected static final Collection<String> DEFAULT_JVM_SYSTEM_PROPERTIES = Arrays.asList(
     "-Dfile.encoding=UTF-8",
     "-Dclient.encoding.override=UTF-8",
     "-DIReallyKnowWhatIAmDoingISwear=true",
     "-Djline.terminal=jline.UnsupportedTerminal",
     "-Dlog4j2.formatMsgNoLookups=true");
+
+  protected static final Path LIB_PATH = Path.of("launcher", "libs");
+  protected static final Path WRAPPER_TEMP_FILE = FileUtil.TEMP_DIR.resolve("caches").resolve("wrapper.jar");
 
   protected volatile Process process;
 
@@ -110,6 +113,12 @@ public class JVMService extends AbstractService {
       agentClass = applicationInformation.second().mainAttributes().getValue("Launcher-Agent-Class");
     }
 
+    // prepare the full wrapper class path
+    var classPath = String.format(
+      "%s%s",
+      this.computeWrapperClassPath(wrapperInformation.first()),
+      wrapperInformation.first().toAbsolutePath());
+
     // prepare the service startup
     List<String> arguments = new ArrayList<>();
 
@@ -130,7 +139,7 @@ public class JVMService extends AbstractService {
 
     // add the class path and the main class of the wrapper
     arguments.add("-cp");
-    arguments.add(wrapperInformation.first().toAbsolutePath().toString());
+    arguments.add(classPath);
     arguments.add(wrapperInformation.second().getValue("Main-Class")); // the main class we want to invoke first
 
     // add all internal process parameters (they will be removed by the wrapper before starting the application)
@@ -334,6 +343,33 @@ public class JVMService extends AbstractService {
       LOGGER.severe("Unable to open wrapper file at %s for reading: ", exception, jarFilePath);
       return null;
     }
+  }
+
+  protected @NonNull String computeWrapperClassPath(@NonNull Path wrapperPath) {
+    var builder = new StringBuilder();
+    FileUtil.openZipFile(wrapperPath, fs -> {
+      // get the wrapper cnl file and check if it is available
+      var wrapperCnl = fs.getPath("wrapper.cnl");
+      if (Files.exists(wrapperCnl)) {
+        Files.lines(wrapperCnl)
+          .filter(line -> line.startsWith("include "))
+          .map(line -> line.split(" "))
+          .filter(parts -> parts.length == 6 || parts.length == 7)
+          .map(parts -> {
+            // <group>/<name>/<version>/<name>-<version>.jar
+            var path = String.format(
+              "%s/%s/%s/%s-%s.jar",
+              parts[2].replace('.', '/'),
+              parts[3],
+              parts[4],
+              parts[3],
+              parts[5]);
+            return LIB_PATH.resolve(path);
+          }).forEach(path -> builder.append(path.toAbsolutePath()).append(File.pathSeparatorChar));
+      }
+    });
+    // contains all paths we need now
+    return builder.toString();
   }
 
   protected record ApplicationStartupInformation(boolean preloadJarContent, @NonNull Attributes mainAttributes) {
