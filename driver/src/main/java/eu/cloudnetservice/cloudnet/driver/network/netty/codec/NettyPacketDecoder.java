@@ -67,6 +67,9 @@ public final class NettyPacketDecoder extends ByteToMessageDecoderForBuffer {
       var bodyLength = NettyUtil.readVarInt(buf);
       var body = new NettyImmutableDataBuf(buf.copy(buf.readerOffset(), bodyLength));
 
+      // move the reader index according the bytes we copied
+      buf.skipReadable(bodyLength);
+
       // construct the packet
       var packet = new BasePacket(channel, prioritized, body);
       packet.uniqueId(queryUniqueId);

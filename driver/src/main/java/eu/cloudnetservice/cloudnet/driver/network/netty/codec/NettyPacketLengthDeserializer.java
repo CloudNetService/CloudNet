@@ -50,11 +50,11 @@ public final class NettyPacketLengthDeserializer extends ByteToMessageDecoderFor
 
     // try to read the var int from the input buffer
     var processor = new VarIntByteProcessor();
-    var varIntByteEnding = in.openCursor().process(processor);
+    var processedBytes = in.openCursor().process(processor);
 
     // sanely handle the result of the decoding process
     // -1 indicates us that an overflow happened (we've tried to iterate beyond the ending of the buffer)
-    if (varIntByteEnding == -1) {
+    if (processedBytes == -1) {
       // skip packets which are just zeroes, do not clear the buffer elsewhere as we want to continue reading
       if (processor.result == ProcessingResult.ZERO) {
         in.close();
@@ -62,6 +62,7 @@ public final class NettyPacketLengthDeserializer extends ByteToMessageDecoderFor
       return;
     }
 
+    var varIntByteEnding = in.readerOffset() + processedBytes;
     // if the buffer int only persists of zeroes there is a chance that the next var int starts and the end of the
     // current read result, continue there
     if (processor.result == ProcessingResult.ZERO) {

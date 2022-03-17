@@ -68,13 +68,15 @@ public final class NettyPacketEncoder extends ChannelHandlerAdapter {
           .writeLong(queryUniqueId.getMostSignificantBits())
           .writeLong(queryUniqueId.getLeastSignificantBits());
       }
-      // body
+
       // we only support netty buf
       var content = ((NettyImmutableDataBuf) packet.content()).buffer();
       // write information to buffer
       var length = content.readableBytes();
       NettyUtil.writeVarInt(buf, length);
+      // copy the packet content into the outbound buffer and move the writer index to the last written byte
       content.copyInto(0, buf.ensureWritable(length), buf.writerOffset(), length);
+      buf.skipWritable(length);
       // release the content of the packet now, don't use the local field to respect if releasing was disabled in the
       // original buffer.
       packet.content().release();
