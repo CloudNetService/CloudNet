@@ -66,7 +66,7 @@ public class NettyDataBufFactory implements DataBufFactory {
     }
 
     var buffer = buf.buffer();
-    return new NettyImmutableDataBuf(buffer.copy(0, buffer.capacity()));
+    return new NettyImmutableDataBuf(buffer.copy(0, buffer.writerOffset()));
   }
 
   /**
@@ -79,7 +79,7 @@ public class NettyDataBufFactory implements DataBufFactory {
     }
 
     var buffer = buf.buffer();
-    return new NettyMutableDataBuf(buffer.copy(0, buffer.capacity()));
+    return new NettyMutableDataBuf(buffer.copy(0, buffer.writerOffset()));
   }
 
   /**
