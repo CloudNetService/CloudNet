@@ -16,6 +16,7 @@
 
 import net.kyori.indra.git.IndraGitExtension
 import org.gradle.api.Project
+import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.internal.artifacts.repositories.resolver.MavenUniqueSnapshotComponentIdentifier
@@ -26,6 +27,7 @@ import org.gradle.kotlin.dsl.attributes
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.the
+import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -71,7 +73,7 @@ fun Project.exportLanguageFileInformation(): String {
   return file.absolutePath
 }
 
-fun Project.exportCnlFile(fileName: String, ignoredDependencyGroups: Array<String> = arrayOf()): String {
+fun Project.exportCnlFile(fileName: String, ignoredDependencyGroups: Array<String> = arrayOf(), resolveRepos: Boolean = true): String {
   val stringBuilder = StringBuilder("# CloudNet ${Versions.cloudNetCodeName} ${Versions.cloudNet}\n\n")
     .append("# repositories\n")
   // add all repositories
@@ -87,19 +89,24 @@ fun Project.exportCnlFile(fileName: String, ignoredDependencyGroups: Array<Strin
     if (ignoredDependencyGroups.contains(id.group)) {
       return@forEach
     }
+
     // check if the dependency is a snapshot version - in this case we need to use another artifact url
     var version = id.version
     if (id.version.endsWith("-SNAPSHOT") && it.id.componentIdentifier is MavenUniqueSnapshotComponentIdentifier) {
       // little hack to get the timestamped ("snapshot") version of the identifier
       version = (it.id.componentIdentifier as MavenUniqueSnapshotComponentIdentifier).timestampedVersion
     }
-    // try to find the repository associated with the module
-    resolveRepository(
-      "${id.group.replace('.', '/')}/${id.name}/${id.version}/${id.name}-$version.jar",
-      mavenRepositories()
-    )?.run {
-      val cs = ChecksumHelper.fileShaSum(it.file)
-      stringBuilder.append("include $name ${id.group} ${id.name} ${id.version} $version $cs ${it.classifier ?: ""}\n")
+
+    // append the dependency to the builder, either with or without the resolved repository
+    if (resolveRepos) {
+      resolveRepository(
+        "${id.group.replace('.', '/')}/${id.name}/${id.version}/${id.name}-$version.jar",
+        mavenRepositories()
+      )?.run {
+        appendDependency(stringBuilder, it.file, version, name, it.classifier, id)
+      }
+    } else {
+      appendDependency(stringBuilder, it.file, version, "<unresolved>", it.classifier, id)
     }
   }
 
@@ -130,4 +137,16 @@ private fun resolveRepository(
       responseCode == 200
     }
   }
+}
+
+private fun appendDependency(
+  builder: StringBuilder,
+  file: File,
+  version: String,
+  repo: String,
+  classifier: String?,
+  ver: ModuleVersionIdentifier
+) {
+  val cs = ChecksumHelper.fileShaSum(file)
+  builder.append("include $repo ${ver.group} ${ver.name} ${ver.version} $version $cs ${classifier ?: ""}\n")
 }

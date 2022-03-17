@@ -45,7 +45,7 @@ tasks.withType<ShadowJar> {
   doFirst {
     // Note: included dependencies will not be resolved, they must be available from the node resolution already
     from(exportLanguageFileInformation())
-    from(exportCnlFile("wrapper.cnl", ignoredGroupIds))
+    from(exportCnlFile("wrapper.cnl", ignoredGroupIds, false))
   }
 }
 
