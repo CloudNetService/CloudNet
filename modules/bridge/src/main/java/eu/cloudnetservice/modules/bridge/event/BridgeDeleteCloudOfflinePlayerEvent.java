@@ -20,14 +20,31 @@ import eu.cloudnetservice.cloudnet.driver.event.events.DriverEvent;
 import eu.cloudnetservice.modules.bridge.player.CloudOfflinePlayer;
 import lombok.NonNull;
 
+/**
+ * Called after a cloud offline player was deleted from the database and the cache was flushed. This event is called
+ * both on all nodes in the cluster and all services running the bridge.
+ *
+ * @since 4.0
+ */
 public final class BridgeDeleteCloudOfflinePlayerEvent extends DriverEvent {
 
   private final CloudOfflinePlayer cloudPlayer;
 
+  /**
+   * Constructs a cloud player delete event with the given cloud player.
+   *
+   * @param cloudPlayer the player that was deleted.
+   * @throws NullPointerException if the given player is null.
+   */
   public BridgeDeleteCloudOfflinePlayerEvent(@NonNull CloudOfflinePlayer cloudPlayer) {
     this.cloudPlayer = cloudPlayer;
   }
 
+  /**
+   * Gets the cloud offline player that was deleted.
+   *
+   * @return the deleted offline player.
+   */
   public @NonNull CloudOfflinePlayer cloudOfflinePlayer() {
     return this.cloudPlayer;
   }

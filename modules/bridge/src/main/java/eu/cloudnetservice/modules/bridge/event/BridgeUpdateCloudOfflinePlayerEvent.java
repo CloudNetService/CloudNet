@@ -20,14 +20,31 @@ import eu.cloudnetservice.cloudnet.driver.event.events.DriverEvent;
 import eu.cloudnetservice.modules.bridge.player.CloudOfflinePlayer;
 import lombok.NonNull;
 
+/**
+ * Called after a cloud offline player was updated in both the database and all caches. This event is called both on all
+ * nodes in the cluster and all services running the bridge.
+ *
+ * @since 4.0
+ */
 public final class BridgeUpdateCloudOfflinePlayerEvent extends DriverEvent {
 
   private final CloudOfflinePlayer cloudOfflinePlayer;
 
+  /**
+   * Constructs a new cloud offline player update event with the given cloud offline player.
+   *
+   * @param cloudOfflinePlayer the cloud offline player that was updated.
+   * @throws NullPointerException if the given cloud offline player is null.
+   */
   public BridgeUpdateCloudOfflinePlayerEvent(@NonNull CloudOfflinePlayer cloudOfflinePlayer) {
     this.cloudOfflinePlayer = cloudOfflinePlayer;
   }
 
+  /**
+   * Gets the cloud offline player that was updated.
+   *
+   * @return the updated cloud offline player.
+   */
   public @NonNull CloudOfflinePlayer cloudOfflinePlayer() {
     return this.cloudOfflinePlayer;
   }

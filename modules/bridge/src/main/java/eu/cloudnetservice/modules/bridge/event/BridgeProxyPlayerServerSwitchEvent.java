@@ -21,11 +21,25 @@ import eu.cloudnetservice.modules.bridge.player.CloudPlayer;
 import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;
 import lombok.NonNull;
 
+/**
+ * Called after the cloud player switched its downstream service to another one. At this point {@link
+ * CloudPlayer#connectedService()} returns the new service. This event is called both on all nodes in the cluster and all
+ * services running the bridge.
+ *
+ * @since 4.0
+ */
 public final class BridgeProxyPlayerServerSwitchEvent extends DriverEvent {
 
   private final CloudPlayer cloudPlayer;
   private final NetworkServiceInfo previous;
 
+  /**
+   * Constructs a new server switch event with the given cloud player and the previous service.
+   *
+   * @param player the cloud player that switched the server.
+   * @param previous the network service the player was connected to previously.
+   * @throws NullPointerException if the given player or service info is null.
+   */
   public BridgeProxyPlayerServerSwitchEvent(
     @NonNull CloudPlayer player,
     @NonNull NetworkServiceInfo previous
@@ -34,14 +48,29 @@ public final class BridgeProxyPlayerServerSwitchEvent extends DriverEvent {
     this.previous = previous;
   }
 
+  /**
+   * Gets the cloud player that switched servers.
+   *
+   * @return the player that switched servers.
+   */
   public @NonNull CloudPlayer cloudPlayer() {
     return this.cloudPlayer;
   }
 
+  /**
+   * Gets the network service info that the cloud player is now connected to.
+   *
+   * @return the target network service info.
+   */
   public @NonNull NetworkServiceInfo target() {
     return this.cloudPlayer.connectedService();
   }
 
+  /**
+   * Gets the network service info that the cloud player was connected to previously.
+   *
+   * @return the previous network service info.
+   */
   public @NonNull NetworkServiceInfo previous() {
     return this.previous;
   }
