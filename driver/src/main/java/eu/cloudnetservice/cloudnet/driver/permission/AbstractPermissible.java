@@ -27,10 +27,8 @@ import lombok.NonNull;
 import lombok.ToString;
 
 /**
- * This abstract permissible represents a base implementation of the permissible.
+ * An abstract implementation of a permissible for shared usage.
  *
- * @see PermissionUser
- * @see PermissionGroup
  * @since 4.0
  */
 @ToString
@@ -45,7 +43,7 @@ public abstract class AbstractPermissible extends JsonDocPropertyHolder implemen
   protected Map<String, Set<Permission>> groupPermissions;
 
   /**
-   * Constructs a new abstract permissible which is the underlying base for a permission group or user.
+   * Constructs a new abstract permissible instance.
    *
    * @param name             the name of the permissible.
    * @param potency          the potency of the permissible.
@@ -132,11 +130,10 @@ public abstract class AbstractPermissible extends JsonDocPropertyHolder implemen
   }
 
   /**
-   * Gets the creation time as unix timestamp of this permissible.
-   *
-   * @return the creation time of this permissible.
+   * {@inheritDoc}
    */
-  public long createdTime() {
+  @Override
+  public long creationTime() {
     return this.createdTime;
   }
 

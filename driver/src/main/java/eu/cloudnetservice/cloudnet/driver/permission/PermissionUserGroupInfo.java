@@ -94,6 +94,11 @@ public class PermissionUserGroupInfo extends JsonDocPropertyHolder {
     return this.timeOutMillis;
   }
 
+  /**
+   * A builder for permission user group infos.
+   *
+   * @since 4.0
+   */
   public static final class Builder {
 
     private String group;
@@ -104,7 +109,7 @@ public class PermissionUserGroupInfo extends JsonDocPropertyHolder {
      * Sets the group of this group info.
      *
      * @param group the name of the group info.
-     * @return the same instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given group is null.
      */
     public @NonNull Builder group(@NonNull String group) {
@@ -116,7 +121,7 @@ public class PermissionUserGroupInfo extends JsonDocPropertyHolder {
      * Sets the given milliseconds to the absolute time at which this permission should expire.
      *
      * @param timeOutMillis the time-out for this user group.
-     * @return the same instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      */
     public @NonNull Builder timeOutMillis(long timeOutMillis) {
       this.timeOutMillis = timeOutMillis;
@@ -129,7 +134,7 @@ public class PermissionUserGroupInfo extends JsonDocPropertyHolder {
      *
      * @param timeout the time-out for this group info.
      * @param unit    the unit of the given time out.
-     * @return the same instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given unit is null.
      */
     public @NonNull Builder timeOut(long timeout, @NonNull TimeUnit unit) {
@@ -141,7 +146,7 @@ public class PermissionUserGroupInfo extends JsonDocPropertyHolder {
      * System#currentTimeMillis()}.
      *
      * @param duration the duration the group lasts for.
-     * @return the same instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given duration is null.
      */
     public @NonNull Builder timeOut(@NonNull Duration duration) {
@@ -152,7 +157,7 @@ public class PermissionUserGroupInfo extends JsonDocPropertyHolder {
      * Sets the properties of the new permission user.
      *
      * @param properties the properties for the new user.
-     * @return the same builder instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given properties are null.
      */
     public @NonNull Builder properties(@NonNull JsonDocument properties) {

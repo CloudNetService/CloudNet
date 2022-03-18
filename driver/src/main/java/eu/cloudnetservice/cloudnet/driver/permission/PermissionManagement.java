@@ -51,7 +51,7 @@ public interface PermissionManagement {
    *
    * @return if overriding is allowed.
    */
-  boolean canBeOverwritten();
+  boolean allowsOverride();
 
   /**
    * Initializes this permission management.

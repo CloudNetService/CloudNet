@@ -177,6 +177,9 @@ public class PermissionGroup extends AbstractPermissible {
 
   /**
    * Gets whether this group is the default group or not.
+   * <p>
+   * Note: There might be multiple default groups, but always the first one is chosen as default group without being
+   * deterministic.
    *
    * @return whether this group is the default group or not.
    */
@@ -194,6 +197,11 @@ public class PermissionGroup extends AbstractPermissible {
     return this.groups;
   }
 
+  /**
+   * A builder for permission groups.
+   *
+   * @since 4.0
+   */
   public static final class Builder {
 
     private String name;
@@ -217,7 +225,7 @@ public class PermissionGroup extends AbstractPermissible {
      * Sets the required name of the permission group.
      *
      * @param name the name of the new group.
-     * @return the same builder instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given name is null.
      */
     public @NonNull Builder name(@NonNull String name) {
@@ -229,7 +237,7 @@ public class PermissionGroup extends AbstractPermissible {
      * Sets the potency of the permission group.
      *
      * @param potency the potency of the new group.
-     * @return the same builder instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      */
     public @NonNull Builder potency(int potency) {
       this.potency = potency;
@@ -240,7 +248,7 @@ public class PermissionGroup extends AbstractPermissible {
      * Sets the color of the permission group.
      *
      * @param color the color of the new group.
-     * @return the same builder instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given color is null.
      */
     public @NonNull Builder color(@NonNull String color) {
@@ -252,7 +260,7 @@ public class PermissionGroup extends AbstractPermissible {
      * Sets the prefix of the permission group.
      *
      * @param prefix the prefix of the new group.
-     * @return the same builder instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given prefix is null.
      */
     public @NonNull Builder prefix(@NonNull String prefix) {
@@ -264,7 +272,7 @@ public class PermissionGroup extends AbstractPermissible {
      * Sets the suffix of the permission group.
      *
      * @param suffix the suffix of the new group.
-     * @return the same builder instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given suffix is null.
      */
     public @NonNull Builder suffix(@NonNull String suffix) {
@@ -276,7 +284,7 @@ public class PermissionGroup extends AbstractPermissible {
      * Sets the display of the permission group.
      *
      * @param display the display of the new group.
-     * @return the same builder instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given display is null.
      */
     public @NonNull Builder display(@NonNull String display) {
@@ -288,7 +296,7 @@ public class PermissionGroup extends AbstractPermissible {
      * Sets the sort id of the permission group.
      *
      * @param sortId the sort id of the new group.
-     * @return the same builder instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      */
     public @NonNull Builder sortId(int sortId) {
       this.sortId = sortId;
@@ -299,7 +307,7 @@ public class PermissionGroup extends AbstractPermissible {
      * Sets whether the permission group is the default group or not.
      *
      * @param defaultGroup whether the permission group is the default group or not.
-     * @return the same builder instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      */
     public @NonNull Builder defaultGroup(boolean defaultGroup) {
       this.defaultGroup = defaultGroup;
@@ -310,7 +318,7 @@ public class PermissionGroup extends AbstractPermissible {
      * Adds the given group to the parent groups of the permission group.
      *
      * @param group the parent group to add.
-     * @return the same builder instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given group is null.
      */
     public @NonNull Builder addGroup(@NonNull PermissionGroup group) {
@@ -322,7 +330,7 @@ public class PermissionGroup extends AbstractPermissible {
      * Sets the parent groups of the permission group.
      *
      * @param groups the parent groups of the new group.
-     * @return the same builder instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given group collection is null.
      */
     public @NonNull Builder groups(@NonNull Collection<String> groups) {
@@ -334,7 +342,7 @@ public class PermissionGroup extends AbstractPermissible {
      * Adds the given permission to the permissions of the group.
      *
      * @param permission the permission to add.
-     * @return the same builder instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given permission is null.
      */
     public @NonNull Builder addPermission(@NonNull Permission permission) {
@@ -346,7 +354,7 @@ public class PermissionGroup extends AbstractPermissible {
      * Sets the permissions of the permission group.
      *
      * @param permissions the permissions of the new group.
-     * @return the same builder instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given permissions are null.
      */
     public @NonNull Builder permissions(@NonNull Collection<Permission> permissions) {
@@ -358,7 +366,7 @@ public class PermissionGroup extends AbstractPermissible {
      * Sets the group permissions of the permission group.
      *
      * @param groupPermissions the group permissions for the new group.
-     * @return the same builder instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given group permissions are null.
      */
     public @NonNull Builder groupPermissions(@NonNull Map<String, Set<Permission>> groupPermissions) {
@@ -370,7 +378,7 @@ public class PermissionGroup extends AbstractPermissible {
      * Sets the properties of the permission group.
      *
      * @param properties the properties of the new group.
-     * @return the same builder instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given properties are null.
      */
     public @NonNull Builder properties(@NonNull JsonDocument properties) {

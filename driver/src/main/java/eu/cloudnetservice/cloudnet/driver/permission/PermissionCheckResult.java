@@ -24,9 +24,9 @@ import org.jetbrains.annotations.Nullable;
  * <p>
  * Possible values:
  * <ul>
- * <li>{@link #ALLOWED} - a positive permission</li>
- * <li>{@link #DENIED} - a not existent permission</li>
- * <li>{@link #FORBIDDEN} - a negative permission</li>
+ *   <li>{@link #ALLOWED} - a positive permission
+ *   <li>{@link #DENIED} - a not existent permission
+ *   <li>{@link #FORBIDDEN} - a negative permission
  * </ul>
  *
  * @since 4.0

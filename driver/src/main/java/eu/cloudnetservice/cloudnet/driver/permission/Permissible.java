@@ -69,8 +69,6 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
 
   /**
    * Gets all global permissions of this permissible. Specific group permissions are not included.
-   * <p>
-   * Modifications to this collection are possible, but still require an update using the permission management.
    *
    * @return all global permissions.
    */
@@ -78,8 +76,6 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
 
   /**
    * Gets all group specific permissions. Global permissions are not included.
-   * <p>
-   * Modifications to this map are possible, but still require an update using the permission management.
    *
    * @return all group specific permissions.
    */
@@ -87,8 +83,6 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
 
   /**
    * Collects all group names of this permissible.
-   * <p>
-   * Modifications to this collection are possible, but still require an update using the permission management.
    *
    * @return all groups names.
    */
@@ -117,6 +111,13 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
   default boolean isPermissionSet(@NonNull String name) {
     return this.permissions().stream().anyMatch(permission -> permission.name().equalsIgnoreCase(name));
   }
+
+  /**
+   * Gets the creation time as unix timestamp of this permissible.
+   *
+   * @return the creation time of this permissible.
+   */
+  long creationTime();
 
   /**
    * Adds the given permission to this permissible. If a permission with the same name already exists the permission is
@@ -174,9 +175,7 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
    * @return all global permissions
    */
   default @Unmodifiable @NonNull Collection<String> permissionNames() {
-    return this.permissions().stream()
-      .map(Nameable::name)
-      .toList();
+    return this.permissions().stream().map(Nameable::name).toList();
   }
 
   /**

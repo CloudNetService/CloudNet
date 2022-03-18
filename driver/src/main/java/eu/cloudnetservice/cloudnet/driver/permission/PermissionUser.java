@@ -246,6 +246,11 @@ public class PermissionUser extends AbstractPermissible {
     return this.groups().stream().anyMatch(info -> info.group().equalsIgnoreCase(group));
   }
 
+  /**
+   * A builder for permission users.
+   *
+   * @since 4.0
+   */
   public static final class Builder {
 
     private String name;
@@ -263,7 +268,7 @@ public class PermissionUser extends AbstractPermissible {
      * Sets the name of the new permission user.
      *
      * @param name the name for the new user.
-     * @return the same builder instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given name is null.
      */
     public @NonNull Builder name(@NonNull String name) {
@@ -275,7 +280,7 @@ public class PermissionUser extends AbstractPermissible {
      * Sets the unique id of the new permission user.
      *
      * @param uniqueId the unique id for the new user.
-     * @return the same builder instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given unique id is null.
      */
     public @NonNull Builder uniqueId(@NonNull UUID uniqueId) {
@@ -288,7 +293,7 @@ public class PermissionUser extends AbstractPermissible {
      * Base64.
      *
      * @param password the password for the new user.
-     * @return the same builder instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given password is null.
      */
     public @NonNull Builder password(@NonNull String password) {
@@ -301,7 +306,7 @@ public class PermissionUser extends AbstractPermissible {
      * encoded using Base64.
      *
      * @param hashedPassword the hashed password for the new user.
-     * @return the same builder instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given hashed password is null.
      */
     public @NonNull Builder hashedPassword(@Nullable String hashedPassword) {
@@ -313,7 +318,7 @@ public class PermissionUser extends AbstractPermissible {
      * Sets the potency of the new permission user.
      *
      * @param potency the potency for the new user.
-     * @return the same builder instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      */
     public @NonNull Builder potency(int potency) {
       this.potency = potency;
@@ -324,7 +329,7 @@ public class PermissionUser extends AbstractPermissible {
      * Sets the permissions of the new permission user.
      *
      * @param permissions the permissions for the new user.
-     * @return the same builder instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given permission collection is null.
      */
     public @NonNull Builder permissions(@NonNull Collection<Permission> permissions) {
@@ -336,7 +341,7 @@ public class PermissionUser extends AbstractPermissible {
      * Adds the given permission to the permissions of the new user.
      *
      * @param permission the permission to add to the new user.
-     * @return the same builder instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given permission is null.
      */
     public @NonNull Builder addPermission(@NonNull Permission permission) {
@@ -348,7 +353,7 @@ public class PermissionUser extends AbstractPermissible {
      * Sets the groups of the new permission user.
      *
      * @param groups the groups for the new user.
-     * @return the same builder instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given group collection is null.
      */
     public @NonNull Builder groups(@NonNull Collection<PermissionUserGroupInfo> groups) {
@@ -360,7 +365,7 @@ public class PermissionUser extends AbstractPermissible {
      * Adds the given group to the groups of the new user.
      *
      * @param group the group to add to the new user.
-     * @return the same builder instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given group is null.
      */
     public @NonNull Builder addGroup(@NonNull PermissionUserGroupInfo group) {
@@ -372,7 +377,7 @@ public class PermissionUser extends AbstractPermissible {
      * Sets the group permissions of the new permission user.
      *
      * @param groupPermissions the group specific permissions for the new user.
-     * @return the same builder instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given group permissions are null.
      */
     public @NonNull Builder groupPermissions(@NonNull Map<String, Set<Permission>> groupPermissions) {
@@ -384,7 +389,7 @@ public class PermissionUser extends AbstractPermissible {
      * Sets the properties of the new permission user.
      *
      * @param properties the properties for the new user.
-     * @return the same builder instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given properties are null.
      */
     public @NonNull Builder properties(@NonNull JsonDocument properties) {

@@ -50,13 +50,10 @@ public abstract class DefaultPermissionManagement implements PermissionManagemen
   }
 
   /**
-   * Gets if the permission management can be overwritten. The default implementation of the permission management is
-   * replaceable.
-   *
-   * @return true
+   * {@inheritDoc}
    */
   @Override
-  public boolean canBeOverwritten() {
+  public boolean allowsOverride() {
     return true;
   }
 

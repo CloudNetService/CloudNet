@@ -76,7 +76,7 @@ public record Permission(
   }
 
   /**
-   * Compares the potency of this permission with the potency of the given permission.
+   * Compares the absolute potency of this permission with the absolute potency of the given permission.
    *
    * @param other the permission to compare this one to.
    * @return {@link Integer#compare(int, int)} with both potencies.
@@ -87,6 +87,11 @@ public record Permission(
     return Integer.compare(Math.abs(this.potency()), Math.abs(other.potency()));
   }
 
+  /**
+   * A builder for a Permission.
+   *
+   * @since 4.0
+   */
   public static class Builder {
 
     private String name;
@@ -97,7 +102,7 @@ public record Permission(
      * Sets the name of this permission.
      *
      * @param name the name of the permission.
-     * @return the same instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given name is null.
      */
     public @NonNull Builder name(@NonNull String name) {
@@ -109,7 +114,7 @@ public record Permission(
      * Sets the potency of this permission.
      *
      * @param potency the potency of this permission
-     * @return the same instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      */
     public @NonNull Builder potency(int potency) {
       this.potency = potency;
@@ -120,7 +125,7 @@ public record Permission(
      * Sets the given milliseconds to the absolute time at which this permission should expire.
      *
      * @param timeOutMillis the time-out for this permission.
-     * @return the same instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      */
     public @NonNull Builder timeOutMillis(long timeOutMillis) {
       this.timeOutMillis = timeOutMillis;
@@ -133,7 +138,7 @@ public record Permission(
      *
      * @param unit    the unit of the given time out.
      * @param timeOut the time-out for this permission.
-     * @return the same instance for chaining.
+     * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given unit is null.
      */
     public @NonNull Builder timeOutMillis(@NonNull TimeUnit unit, long timeOut) {

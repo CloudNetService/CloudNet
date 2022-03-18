@@ -186,7 +186,7 @@ public abstract class WrapperPermissionManagement extends DefaultCachedPermissio
   }
 
   @Override
-  public boolean canBeOverwritten() {
+  public boolean allowsOverride() {
     return true;
   }
 

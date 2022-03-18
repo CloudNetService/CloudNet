@@ -22,9 +22,8 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * The cached permission management does not differ that much from the permission management. This management is
- * responsible for the caching and removing of cached permission users and permission groups while also allowing
- * permanent caching if desired.
+ * Represents a permission management instance which maintains a cache for permission users and groups internally to
+ * allow faster loading times (for example looking up the user in the cache rather than the database).
  *
  * @see eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement
  * @since 4.0
@@ -66,8 +65,9 @@ public interface CachedPermissionManagement extends PermissionManagement {
   /**
    * Acquires a lock for the permission user. The lock ensures that the user stays in cache.
    * <p>
-   * Each method call results in incrementing the lock count of the user. The user stays in cache until the lock count
-   * is down to 0.
+   * Each method call results in incrementing the lock count of the user. It's ensured that the user stays in the cache
+   * until the lock count is decreased again and reaches 0. After that event the normal cache invalidation rules of the
+   * permission management take effect again.
    *
    * @param user the user to acquire the lock for.
    * @throws NullPointerException if the given user is null.
@@ -77,8 +77,9 @@ public interface CachedPermissionManagement extends PermissionManagement {
   /**
    * Acquires a lock for the permission group. The lock ensures that the group stays in cache.
    * <p>
-   * Each method call results in incrementing the lock count of the group. The group stays in cache until the lock count
-   * is down to 0.
+   * Each method call results in incrementing the lock count of the group. It's ensured that the group stays in the
+   * cache until the lock count is decreased again and reaches 0. After that event the normal cache invalidation rules
+   * of the permission management take effect again.
    *
    * @param group the group to acquire the lock for.
    * @throws NullPointerException if the given group is null.
@@ -104,8 +105,9 @@ public interface CachedPermissionManagement extends PermissionManagement {
   boolean locked(@NonNull PermissionGroup group);
 
   /**
-   * Removes exactly one lock of the user. If the user does not have any locks no changes are made. If there are no
-   * remaining locks the user is removed from the cache after a maximum of 5 minutes.
+   * Removes exactly one lock of the user. If the user does not have any locks no changes are made. It's ensured that
+   * the user stays in the cache until the lock count is decreased again and reaches 0. After that event the normal
+   * cache invalidation rules of the permission management take effect again.
    *
    * @param user the user to remove a lock for.
    * @throws NullPointerException if the given user is null.
@@ -113,8 +115,9 @@ public interface CachedPermissionManagement extends PermissionManagement {
   void unlock(@NonNull PermissionUser user);
 
   /**
-   * Removes exactly one lock of the group. If the group does not have any locks no changes are made. If there are no
-   * remaining locks the group is removed from the cache after a maximum of 5 minutes.
+   * Removes exactly one lock of the group. If the group does not have any locks no changes are made. It's ensured that
+   * the group stays in the cache until the lock count is decreased again and reaches 0. After that event the normal
+   * cache invalidation rules of the permission management take effect again.
    *
    * @param group the group to remove a lock for.
    * @throws NullPointerException if the given group is null.
@@ -122,8 +125,8 @@ public interface CachedPermissionManagement extends PermissionManagement {
   void unlock(@NonNull PermissionGroup group);
 
   /**
-   * Removes all locks that the given user has. The user is removed from the cache after a maximum timeout of 5
-   * minutes.
+   * Removes all locks that the given user has. After that event the normal cache invalidation rules of the permission
+   * management take effect again.
    *
    * @param user the user to unlock completely.
    * @throws NullPointerException if the given user is null.
@@ -131,8 +134,8 @@ public interface CachedPermissionManagement extends PermissionManagement {
   void unlockFully(@NonNull PermissionUser user);
 
   /**
-   * Removes all locks that the given group has. The group is removed from the cache after a maximum timeout of 5
-   * minutes.
+   * Removes all locks that the given group has. After that event the normal cache invalidation rules of the permission
+   * management take effect again.
    *
    * @param group the group to unlock completely.
    * @throws NullPointerException if the given group is null.
