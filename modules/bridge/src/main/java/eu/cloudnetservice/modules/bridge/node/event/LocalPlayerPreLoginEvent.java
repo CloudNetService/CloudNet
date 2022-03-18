@@ -77,6 +77,8 @@ public final class LocalPlayerPreLoginEvent extends DriverEvent {
 
   /**
    * Represents the outcome of the login event.
+   *
+   * @since 4.0
    */
   public static final class Result {
 
