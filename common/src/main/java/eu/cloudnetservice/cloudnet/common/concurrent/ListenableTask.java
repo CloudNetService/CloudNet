@@ -26,6 +26,7 @@ import lombok.NonNull;
  * anymore, and it switches into the done state.
  *
  * @param <V> the generic type of the task.
+ * @since 4.0
  */
 public class ListenableTask<V> extends Task<V> {
 

@@ -24,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
  * not completed until the count is 0 or less. Once the task is completed it is not usable anymore.
  *
  * @param <V> the generic type of the task.
+ * @since 4.0
  */
 public class CountingTask<V> extends Task<V> {
 

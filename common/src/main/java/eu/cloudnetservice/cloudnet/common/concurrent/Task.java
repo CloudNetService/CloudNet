@@ -34,6 +34,7 @@ import org.jetbrains.annotations.UnknownNullability;
  * useful shortcuts for completable futures.
  *
  * @param <V> the generic type of the value to complete.
+ * @since 4.0
  */
 public class Task<V> extends CompletableFuture<V> {
 
@@ -119,8 +120,8 @@ public class Task<V> extends CompletableFuture<V> {
   }
 
   /**
-   * This blocks the calling thread for this task to complete its result. If any exception occurs during the execution
-   * of the task or the task is cancelled null is returned as result. This method is equivalent to {@code
+   * This blocks the calling thread until the result of the task is available. If any exception occurs during the
+   * execution of the task or the task is cancelled null is returned as result. This method is equivalent to {@code
    * task.getDef(null)}.
    *
    * @return the completed result of this task, null if any exception occurred.
@@ -130,8 +131,8 @@ public class Task<V> extends CompletableFuture<V> {
   }
 
   /**
-   * This blocks the calling thread for this task to complete its result. If any exception occurs during the execution
-   * of the task or the task is cancelled the given default value is returned.
+   * This blocks the calling thread until the result of the task is available. If any exception occurs during the
+   * execution of the task or the task is cancelled the given default value is returned.
    *
    * @param def the default value returned on failure.
    * @return the completed result of this task or the default value if any exception occurred.
@@ -145,9 +146,9 @@ public class Task<V> extends CompletableFuture<V> {
   }
 
   /**
-   * This blocks the calling thread for this task to complete its result. If any exception occurs during the execution
-   * of the task or the task is cancelled the given default value is returned. This will also return the default value
-   * if the task did not complete the result within the given time-out.
+   * This blocks the calling thread until the result of the task is available. If any exception occurs during the
+   * execution of the task or the task is cancelled the given default value is returned. This will also return the
+   * default value if the task did not complete the result within the given time-out.
    *
    * @param time     the time to wait for the completion of the result.
    * @param timeUnit the time unit of the time.
