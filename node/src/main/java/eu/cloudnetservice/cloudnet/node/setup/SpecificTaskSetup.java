@@ -136,11 +136,6 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
       .addTemplates(Set.of(defaultTemplate))
       .nameSplitter(animation.result("taskNameSplitter"))
       .build();
-    CloudNet.instance().serviceTaskProvider().addServiceTask(task);
-    // create a group with the same name
-    var groupConfiguration = GroupConfiguration.builder().name(name).build();
-    CloudNet.instance().groupConfigurationProvider().addGroupConfiguration(groupConfiguration);
-
     // create the default template for the task
     this.initializeTemplate(defaultTemplate, environment, true);
     // check if the user chose to install a version
@@ -153,6 +148,11 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
         .executable(javaVersion.first())
         .build(), false);
     }
+    // add the task after the template is created
+    CloudNet.instance().serviceTaskProvider().addServiceTask(task);
+    // create a group with the same name
+    var groupConfiguration = GroupConfiguration.builder().name(name).build();
+    CloudNet.instance().groupConfigurationProvider().addGroupConfiguration(groupConfiguration);
     LOGGER.info(I18n.trans("command-tasks-setup-create-success", task.name()));
   }
 }
