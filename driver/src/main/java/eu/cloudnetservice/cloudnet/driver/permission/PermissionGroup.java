@@ -28,7 +28,13 @@ import java.util.Set;
 import lombok.NonNull;
 
 /**
- * This interfaces provides access to the properties of a permission group
+ * A permission group is an implementation of the permissible that extends the permissible in the sense that it adds
+ * cosmetic options that can be used by other systems. The permission group allows permission inheritance by specifying
+ * the parents using {@link #groupNames()}.
+ *
+ * @see Permissible
+ * @see PermissionManagement
+ * @since 4.0
  */
 public class PermissionGroup extends AbstractPermissible {
 
@@ -44,6 +50,25 @@ public class PermissionGroup extends AbstractPermissible {
 
   private final Set<String> groups;
 
+  /**
+   * Constructs a new permission group. The group is not saved or updated in any way before {@link
+   * PermissionManagement#addPermissionGroup(PermissionGroup)} is called.
+   *
+   * @param color            the color of the group.
+   * @param prefix           the prefix of the group.
+   * @param suffix           the suffix of the group.
+   * @param display          the chat display of the group.
+   * @param sortId           the sort id of the group.
+   * @param defaultGroup     whether the group is the default group or not.
+   * @param groups           the parent groups used for permission inheritance.
+   * @param name             the name of the group.
+   * @param potency          the potency of the group.
+   * @param createdTime      the timestamp at the creation.
+   * @param permissions      all permissions the group has.
+   * @param groupPermissions all group specific permissions the group has.
+   * @param properties       extra properties for the group.
+   * @throws NullPointerException if one of the given parameters is null.
+   */
   protected PermissionGroup(
     @NonNull String color,
     @NonNull String prefix,
@@ -69,10 +94,22 @@ public class PermissionGroup extends AbstractPermissible {
     this.groups = groups;
   }
 
+  /**
+   * Creates a new permission group builder instance with all default values.
+   *
+   * @return the new builder instance.
+   */
   public static @NonNull Builder builder() {
     return new Builder();
   }
 
+  /**
+   * Creates a new permission group builder instance and copies all values from the given permission group.
+   *
+   * @param group the group to copy from.
+   * @return the new builder instance.
+   * @throws NullPointerException if the given group is null.
+   */
   public static @NonNull Builder builder(@NonNull PermissionGroup group) {
     return builder()
       .name(group.name())
@@ -93,35 +130,78 @@ public class PermissionGroup extends AbstractPermissible {
       .groupPermissions(group.groupPermissions());
   }
 
+  /**
+   * Gets the prefix of the group.
+   *
+   * @return the prefix of the group.
+   */
   public @NonNull String prefix() {
     return this.prefix;
   }
 
+  /**
+   * Gets the color of the group.
+   *
+   * @return the color of the group.
+   */
   public @NonNull String color() {
     return this.color;
   }
 
+  /**
+   * Gets the suffix of the group.
+   *
+   * @return the suffix of the group.
+   */
   public @NonNull String suffix() {
     return this.suffix;
   }
 
+  /**
+   * Gets the display of the group.
+   *
+   * @return the display of the group.
+   */
   public @NonNull String display() {
     return this.display;
   }
 
+  /**
+   * Gets the prefix of the group.
+   *
+   * @return the prefix of the group.
+   */
   public int sortId() {
     return this.sortId;
   }
 
+  /**
+   * Gets whether this group is the default group or not.
+   * <p>
+   * Note: There might be multiple default groups, but always the first one is chosen as default group without being
+   * deterministic.
+   *
+   * @return whether this group is the default group or not.
+   */
   public boolean defaultGroup() {
     return this.defaultGroup;
   }
 
+  /**
+   * Gets all parent groups of this group. This group inherits all permissions of the parent groups.
+   *
+   * @return all parent groups.
+   */
   @Override
   public @NonNull Collection<String> groupNames() {
     return this.groups;
   }
 
+  /**
+   * A builder for permission groups.
+   *
+   * @since 4.0
+   */
   public static final class Builder {
 
     private String name;
@@ -141,76 +221,177 @@ public class PermissionGroup extends AbstractPermissible {
     private JsonDocument properties = JsonDocument.newDocument();
     private Map<String, Set<Permission>> groupPermissions = new HashMap<>();
 
+    /**
+     * Sets the required name of the permission group.
+     *
+     * @param name the name of the new group.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given name is null.
+     */
     public @NonNull Builder name(@NonNull String name) {
       this.name = name;
       return this;
     }
 
+    /**
+     * Sets the potency of the permission group.
+     *
+     * @param potency the potency of the new group.
+     * @return the same instance as used to call the method, for chaining.
+     */
     public @NonNull Builder potency(int potency) {
       this.potency = potency;
       return this;
     }
 
+    /**
+     * Sets the color of the permission group.
+     *
+     * @param color the color of the new group.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given color is null.
+     */
     public @NonNull Builder color(@NonNull String color) {
       this.color = color;
       return this;
     }
 
+    /**
+     * Sets the prefix of the permission group.
+     *
+     * @param prefix the prefix of the new group.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given prefix is null.
+     */
     public @NonNull Builder prefix(@NonNull String prefix) {
       this.prefix = prefix;
       return this;
     }
 
+    /**
+     * Sets the suffix of the permission group.
+     *
+     * @param suffix the suffix of the new group.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given suffix is null.
+     */
     public @NonNull Builder suffix(@NonNull String suffix) {
       this.suffix = suffix;
       return this;
     }
 
+    /**
+     * Sets the display of the permission group.
+     *
+     * @param display the display of the new group.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given display is null.
+     */
     public @NonNull Builder display(@NonNull String display) {
       this.display = display;
       return this;
     }
 
+    /**
+     * Sets the sort id of the permission group.
+     *
+     * @param sortId the sort id of the new group.
+     * @return the same instance as used to call the method, for chaining.
+     */
     public @NonNull Builder sortId(int sortId) {
       this.sortId = sortId;
       return this;
     }
 
+    /**
+     * Sets whether the permission group is the default group or not.
+     *
+     * @param defaultGroup whether the permission group is the default group or not.
+     * @return the same instance as used to call the method, for chaining.
+     */
     public @NonNull Builder defaultGroup(boolean defaultGroup) {
       this.defaultGroup = defaultGroup;
       return this;
     }
 
-    public @NonNull Builder groups(@NonNull Collection<String> groups) {
-      this.groups = new HashSet<>(groups);
-      return this;
-    }
-
-    public @NonNull Builder permissions(@NonNull Collection<Permission> permissions) {
-      this.permissions = new HashSet<>(permissions);
-      return this;
-    }
-
-    public @NonNull Builder addPermission(@NonNull Permission permission) {
-      this.permissions.add(permission);
-      return this;
-    }
-
-    public @NonNull Builder groupPermissions(@NonNull Map<String, Set<Permission>> groupPermissions) {
-      this.groupPermissions = new HashMap<>(groupPermissions);
-      return this;
-    }
-
+    /**
+     * Adds the given group to the parent groups of the permission group.
+     *
+     * @param group the parent group to add.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given group is null.
+     */
     public @NonNull Builder addGroup(@NonNull PermissionGroup group) {
       this.groups.add(group.name());
       return this;
     }
 
+    /**
+     * Sets the parent groups of the permission group.
+     *
+     * @param groups the parent groups of the new group.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given group collection is null.
+     */
+    public @NonNull Builder groups(@NonNull Collection<String> groups) {
+      this.groups = new HashSet<>(groups);
+      return this;
+    }
+
+    /**
+     * Adds the given permission to the permissions of the group.
+     *
+     * @param permission the permission to add.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given permission is null.
+     */
+    public @NonNull Builder addPermission(@NonNull Permission permission) {
+      this.permissions.add(permission);
+      return this;
+    }
+
+    /**
+     * Sets the permissions of the permission group.
+     *
+     * @param permissions the permissions of the new group.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given permissions are null.
+     */
+    public @NonNull Builder permissions(@NonNull Collection<Permission> permissions) {
+      this.permissions = new HashSet<>(permissions);
+      return this;
+    }
+
+    /**
+     * Sets the group permissions of the permission group.
+     *
+     * @param groupPermissions the group permissions for the new group.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given group permissions are null.
+     */
+    public @NonNull Builder groupPermissions(@NonNull Map<String, Set<Permission>> groupPermissions) {
+      this.groupPermissions = new HashMap<>(groupPermissions);
+      return this;
+    }
+
+    /**
+     * Sets the properties of the permission group.
+     *
+     * @param properties the properties of the new group.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given properties are null.
+     */
     public @NonNull Builder properties(@NonNull JsonDocument properties) {
       this.properties = properties.clone();
       return this;
     }
 
+    /**
+     * Constructs the new permission group from this builder.
+     *
+     * @return the new permission group.
+     * @throws com.google.common.base.VerifyException if the name is missing.
+     */
     public @NonNull PermissionGroup build() {
       Verify.verifyNotNull(this.name, "No name given");
       return new PermissionGroup(

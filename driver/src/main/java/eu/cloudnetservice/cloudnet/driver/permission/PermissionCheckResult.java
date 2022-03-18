@@ -20,45 +20,75 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * A response, if a permissible has to check his permission that contains and allow and element
+ * The permission check results represents a tristate for a permission of permissible.
+ * <p>
+ * Possible values:
+ * <ul>
+ *   <li>{@link #ALLOWED} - a positive permission
+ *   <li>{@link #DENIED} - a not existent permission
+ *   <li>{@link #FORBIDDEN} - a negative permission
+ * </ul>
+ *
+ * @since 4.0
  */
 public enum PermissionCheckResult {
 
   /**
-   * The permissible has the following permission or the privileges to has the permission
+   * This check result indicates that the permissible has the permission and the potency of the permission is not
+   * negative. Therefore, the permission is granted.
    */
   ALLOWED(true),
 
   /**
-   * The following permission is not defined or the potency from permissible or from the defined permission is not high
-   * enough
+   * This check result indicates that the permissible does not have the permission. Therefore, the permission is
+   * denied.
    */
   DENIED(false),
 
   /**
-   * The following permission is set on permissible, but the potency is set to -1 and doesn't allow to has the
-   * permission
+   * This check result indicates that the permissible has the permission but the potency is negative and therefore the
+   * permission is forbidden.
    */
   FORBIDDEN(false);
 
   private final boolean value;
 
+  /**
+   * Constructs a new check result.
+   *
+   * @param value if the permission is present (allowed) or not.
+   */
   PermissionCheckResult(boolean value) {
     this.value = value;
   }
 
-  public static @NonNull PermissionCheckResult fromBoolean(@Nullable Boolean result) {
-    return result == null ? DENIED : result ? ALLOWED : FORBIDDEN;
+  /**
+   * Converts the nullable boolean into a permission check result. If the given boolean is null the result is {@code
+   * DENIED}, if the boolean is true then {@code ALLOWED}, {@code FORBIDDEN} otherwise.
+   *
+   * @param value the boolean to convert
+   * @return the converted check result.
+   */
+  public static @NonNull PermissionCheckResult fromBoolean(@Nullable Boolean value) {
+    return value == null ? DENIED : value ? ALLOWED : FORBIDDEN;
   }
 
+  /**
+   * Converts the given permission into a permission check result. If the permission is null the result is {@code
+   * DENIED}, a potency that is not negative results in a {@code ALLOWED}, {@code FORBIDDEN} otherwise.
+   *
+   * @param permission the permission to convert.
+   * @return the converted check result.
+   */
   public static @NonNull PermissionCheckResult fromPermission(@Nullable Permission permission) {
     return fromBoolean(permission == null ? null : permission.potency() >= 0);
   }
 
   /**
-   * Returns the result as boolean
+   * Returns the check result as a boolean. {@code ALLOWED} results in true, {@code DENIED} & {@code FORBIDDEN} in
+   * false.
    *
-   * @return the result as boolean
+   * @return the result as boolean.
    */
   public boolean asBoolean() {
     return this.value;

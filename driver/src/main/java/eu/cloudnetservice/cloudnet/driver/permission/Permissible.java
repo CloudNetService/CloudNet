@@ -22,92 +22,77 @@ import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
+/**
+ * The permissible represents the base for any permission holding object. The permissible is mutable, but any changes to
+ * the permissible itself do not have any effect without updating the permissible using the permission management.
+ *
+ * @since 4.0
+ */
 public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Permissible> {
 
-  @NonNull Collection<String> groupNames();
-
   /**
-   * Gets the potency of this permissible. If this permissible is an {@link PermissionGroup}, {@link
-   * PermissionManagement#highestPermissionGroup(PermissionUser)} is sorted by the potency. If this permissible is an
-   * {@link PermissionUser}, in CloudNet it has no specific meaning, but of course you can use it for whatever you
-   * want.
+   * Gets the potency of this permissible. The potency is used for comparison of permissibles. A higher potency results
+   * in higher significance.
    *
-   * @return the potency of this permissible
+   * @return the potency of this permissible.
+   * @see Permissible#compareTo(Permissible)
    */
   int potency();
 
   /**
-   * Adds a new permission to this permissible and updates it if a permission with that name already exists.
+   * Removes the given permission from this permissible. This only removes global permissions, not group specific ones.
    * <p>
-   * An update via {@link PermissionManagement#updateGroup(PermissionGroup)} or {@link
-   * PermissionManagement#updateGroup(PermissionGroup)} is required.
+   * After removing the permission an update is required.
    *
-   * @param permission the permission
-   * @return true if the permission has been added successfully or false if the given permission was null
-   */
-  boolean addPermission(@NonNull Permission permission);
-
-  /**
-   * Adds a new permission to this permissible and updates it if a permission with that name already exists. This
-   * permission will be only effective on servers which have the specified group.
-   * <p>
-   * An update via {@link PermissionManagement#updateGroup(PermissionGroup)} or {@link
-   * PermissionManagement#updateGroup(PermissionGroup)} is required.
-   *
-   * @param group      the group where this permission should be effective
-   * @param permission the permission
-   * @return true if the permission has been added successfully or false if the given permission was null
-   */
-  boolean addPermission(@NonNull String group, @NonNull Permission permission);
-
-  /**
-   * Removes a permission out of this permissible.
-   * <p>
-   * An update via {@link PermissionManagement#updateGroup(PermissionGroup)} or {@link
-   * PermissionManagement#updateGroup(PermissionGroup)} is required.
-   *
-   * @param permission the permission
-   * @return true if the permission has been removed successfully or false if the given permission doesn't exist
+   * @param permission the permission to remove.
+   * @return true if any permission was removed, false otherwise.
+   * @throws NullPointerException if the given permission is null.
    */
   boolean removePermission(@NonNull String permission);
 
   /**
-   * Removes a permission for a specific group out of this permissible.
+   * Removes the given permission from this permissible and the given target group. This only removes group specific
+   * permissions, not global ones.
    * <p>
-   * An update via {@link PermissionManagement#updateGroup(PermissionGroup)} or {@link
-   * PermissionManagement#updateGroup(PermissionGroup)} is required.
+   * After removing the permission an update is required.
    *
-   * @param group      the group where this permission is effective
-   * @param permission the permission
-   * @return true if the permission has been removed successfully or false if the given permission doesn't exist
+   * @param group      the target group to remove the permission from.
+   * @param permission the permission to remove.
+   * @return true if any permission was removed, false otherwise.
+   * @throws NullPointerException if the given group or permission is null.
    */
   boolean removePermission(@NonNull String group, @NonNull String permission);
 
   /**
-   * Gets all effective global permissions. Permissions which are only effective on specific groups are not included.
+   * Gets all global permissions of this permissible. Specific group permissions are not included.
    *
-   * @return a mutable list of all permissions
+   * @return all global permissions.
    */
   @NonNull Collection<Permission> permissions();
 
   /**
-   * Gets all effective permissions on a specific group. Global permissions are not included.
+   * Gets all group specific permissions. Global permissions are not included.
    *
-   * @return a mutable map containing mutable lists of permissions
+   * @return all group specific permissions.
    */
   @NonNull Map<String, Set<Permission>> groupPermissions();
 
   /**
+   * Collects all group names of this permissible.
+   *
+   * @return all groups names.
+   */
+  @NonNull Collection<String> groupNames();
+
+  /**
    * Gets a permission of this permissible by its name.
    *
-   * @param name the case-insensitive name of the permission
-   * @return the {@link Permission} if the permission exists or null if the permission doesn't exist in this permissible
-   * or the name is null
+   * @param name the name of the permission.
+   * @return the permission with the given name or null if the name is null or no permission was found.
    */
   default @Nullable Permission permission(@Nullable String name) {
     return name == null ? null : this.permissions().stream()
@@ -117,143 +102,89 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
   }
 
   /**
-   * Checks if a permission exists in this permissible by its name.
+   * Checks if the permission has the given permission.
    *
-   * @param name the case-insensitive name of the permission
-   * @return true if the permission exists or false if the permission doesn't exist in this permissible or this name is
-   * null
+   * @param name the case-insensitive name of the permission.
+   * @return true if the permissible has the given permission, false otherwise.
+   * @throws NullPointerException if the given name is null.
    */
   default boolean isPermissionSet(@NonNull String name) {
     return this.permissions().stream().anyMatch(permission -> permission.name().equalsIgnoreCase(name));
   }
 
   /**
-   * Adds a new permission to this permissible and updates it if a permission with that name already exists.
-   * <p>
-   * An update via {@link PermissionManagement#updateGroup(PermissionGroup)} or {@link
-   * PermissionManagement#updateGroup(PermissionGroup)} is required.
-   * <p>
-   * Equivalent to {@code #addPermission(permission, 0)}
+   * Gets the creation time as unix timestamp of this permissible.
    *
-   * @param permission the permission
-   * @return true if the permission has been added successfully or false if the given permission was null
+   * @return the creation time of this permissible.
    */
-  default boolean addPermission(@NonNull String permission) {
-    return this.addPermission(permission, 0);
+  long creationTime();
+
+  /**
+   * Adds the given permission to this permissible. If a permission with the same name already exists the permission is
+   * replaced with the given one.
+   * <p>
+   * After adding the permission an update is required.
+   *
+   * @param permission the permission to add.
+   * @throws NullPointerException if the given permission is null.
+   */
+  void addPermission(@NonNull Permission permission);
+
+  /**
+   * Adds the given permission with a potency of 0 to this permissible. If a permission with the same name already
+   * exists the permission is replaced with the given one.
+   * <p>
+   * After adding the permission an update is required.
+   *
+   * @param permission the permission to add.
+   * @throws NullPointerException if the given permission is null.
+   */
+  default void addPermission(@NonNull String permission) {
+    this.addPermission(Permission.of(permission));
   }
 
   /**
-   * Adds a new permission to this permissible and updates it if a permission with that name already exists.
+   * Adds the given permission to this permissible for the specified target group. If a permission with the same name
+   * already exists the permission is replaced with the given one.
    * <p>
-   * An update via {@link PermissionManagement#updateGroup(PermissionGroup)} or {@link
-   * PermissionManagement#updateGroup(PermissionGroup)} is required.
-   * <p>
-   * Equivalent to {@code #addPermission(permission, value ? 1 : -1)}
+   * After adding the permission an update is required.
    *
-   * @param permission the permission
-   * @param value      whether this permission should be applied or not
-   * @return true if the permission has been added successfully or false if the given permission was null
+   * @param group      the group to add the permission for.
+   * @param permission the permission to add.
+   * @throws NullPointerException if the given group or permission is null.
    */
-  default boolean addPermission(@NonNull String permission, boolean value) {
-    return this.addPermission(Permission.builder().name(permission).potency(value ? 1 : -1).build());
+  void addPermission(@NonNull String group, @NonNull Permission permission);
+
+  /**
+   * Adds the given permission to this permissible for the specified target group, the potency is set to 0. If a
+   * permission with the same name already exists the permission is replaced with the given one.
+   * <p>
+   * After adding the permission an update is required.
+   *
+   * @param group      the group to add the permission for.
+   * @param permission the permission to add.
+   * @throws NullPointerException if the given group or permission is null.
+   */
+  default void addPermission(@NonNull String group, @NonNull String permission) {
+    this.addPermission(group, Permission.of(permission));
   }
 
   /**
-   * Adds a new permission to this permissible and updates it if a permission with that name already exists.
-   * <p>
-   * An update via {@link PermissionManagement#updateGroup(PermissionGroup)} or {@link
-   * PermissionManagement#updateGroup(PermissionGroup)} is required.
-   * <p>
-   * Equivalent to {@code #addPermission(new Permission(permission, potency))}
+   * Gets an unmodifiable collection of all global permission names.
    *
-   * @param permission the permission
-   * @param potency    the potency of the permission
-   * @return true if the permission has been added successfully or false if the given permission was null
+   * @return all global permissions
    */
-  default boolean addPermission(@NonNull String permission, int potency) {
-    return this.addPermission(Permission.builder().name(permission).potency(potency).build());
+  default @Unmodifiable @NonNull Collection<String> permissionNames() {
+    return this.permissions().stream().map(Nameable::name).toList();
   }
 
   /**
-   * Adds a new permission to this permissible and updates it if a permission with that name already exists.
-   * <p>
-   * An update via {@link PermissionManagement#updateGroup(PermissionGroup)} or {@link
-   * PermissionManagement#updateGroup(PermissionGroup)} is required.
-   * <p>
-   * Equivalent to {@code #addPermission(group, permission, 0)}
+   * Checks if the collection of given permissions contains a permission that matches the given permission.
    *
-   * @param group      the group where this permission should be effective
-   * @param permission the permission
-   * @return true if the permission has been added successfully or false if the given permission was null
-   */
-  default boolean addPermission(@NonNull String group, @NonNull String permission) {
-    return this.addPermission(group, permission, 0);
-  }
-
-  /**
-   * Adds a new permission to this permissible and updates it if a permission with that name already exists.
-   * <p>
-   * An update via {@link PermissionManagement#updateGroup(PermissionGroup)} or {@link
-   * PermissionManagement#updateGroup(PermissionGroup)} is required.
-   * <p>
-   * Equivalent to {@code #addPermission(group, permission, 0)}
-   *
-   * @param group      the group where this permission should be effective
-   * @param permission the permission
-   * @param potency    the potency of the permission
-   * @return true if the permission has been added successfully or false if the given permission was null
-   */
-  default boolean addPermission(@NonNull String group, @NonNull String permission, int potency) {
-    return this.addPermission(group, Permission.builder().name(permission).potency(potency).build());
-  }
-
-  /**
-   * Adds a new permission to this permissible and updates it if a permission with that name already exists.
-   * <p>
-   * An update via {@link PermissionManagement#updateGroup(PermissionGroup)} or {@link
-   * PermissionManagement#updateGroup(PermissionGroup)} is required.
-   * <p>
-   * Equivalent to {@code #addPermission(group, new Permission(permission, potency, (System.currentTimeMillis() +
-   * millis.toMillis(time))))}
-   *
-   * @param group      the group where this permission should be effective
-   * @param permission the permission
-   * @param potency    the potency of the permission
-   * @param time       the time when this permission should expire
-   * @param unit       the time unit of the time param
-   * @return true if the permission has been added successfully or false if the given permission was null
-   */
-  default boolean addPermission(
-    @NonNull String group,
-    @NonNull String permission,
-    int potency,
-    long time,
-    @NonNull TimeUnit unit
-  ) {
-    return this.addPermission(group, new Permission(
-      permission,
-      potency,
-      System.currentTimeMillis() + unit.toMillis(time)));
-  }
-
-  /**
-   * Gets a list of the names of all global permissions of this permissible. Modifications to this list are not
-   * possible.
-   *
-   * @return a mutable list of all names of the permissions
-   */
-  default @Unmodifiable Collection<String> permissionNames() {
-    return this.permissions().stream()
-      .map(Permission::name)
-      .toList();
-  }
-
-  /**
-   * Checks whether the given permission is allowed in the given list of permissions.
-   *
-   * @param permissions the list of available permissions
-   * @param permission  the permission to check
-   * @return the result of this check
+   * @param permissions the permissions to search in.
+   * @param permission  the permission to check for.
+   * @return the result of the permission search.
+   * @throws NullPointerException if the given permissions or permission is null.
    */
   default @NonNull PermissionCheckResult hasPermission(
     @NonNull Collection<Permission> permissions,
@@ -268,7 +199,9 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
    *
    * @param permissions the permission to check for.
    * @param permission  the initial permission to check against.
-   * @return the logic permission which has the highest potency.
+   * @return the logic permission which has the highest potency, null if none matches.
+   * @throws NullPointerException if the given permissions or permission is null.
+   * @see PermissionManagement#findHighestPermission(Collection, Permission)
    */
   default @Nullable Permission findMatchingPermission(
     @NonNull Collection<Permission> permissions,
@@ -278,12 +211,13 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
   }
 
   /**
-   * Checks whether the given permission is allowed in the list of permissions for the specified group in this
-   * permissible.
+   * Checks if this permissible has the given permission for the specified target group. Only group permissions are
+   * included in this check, global permissions don't have any effect.
    *
-   * @param group      the group to get the available permissions from
-   * @param permission the permission to check for
-   * @return the result of this check
+   * @param group      the target group of the permission.
+   * @param permission the permission to check for.
+   * @return the result of the permission check.
+   * @throws NullPointerException if the given group or permission is null.
    */
   default @NonNull PermissionCheckResult hasPermission(@NonNull String group, @NonNull Permission permission) {
     return this.groupPermissions().containsKey(group)
@@ -292,22 +226,23 @@ public interface Permissible extends Nameable, DocPropertyHolder, Comparable<Per
   }
 
   /**
-   * Checks whether the given permission is allowed in the list of global permissions in this permissible.
+   * Checks if this permissible has the given permission. Only global permissions are included in this check.
    *
-   * @param permission the permission to check for
-   * @return the result of this check
+   * @param permission the permission to check for.
+   * @return the result of the permission check.
+   * @throws NullPointerException if the given permission is null.
    */
   default @NonNull PermissionCheckResult hasPermission(@NonNull Permission permission) {
     return this.hasPermission(this.permissions(), permission);
   }
 
   /**
-   * Checks whether the given permission is allowed in the list of global permissions in this permissible.
-   * <p>
-   * Equivalent to #hasPermission(new Permission(permission, 0)
+   * Checks if this permissible has the given permission with a potency of 0. Only global permissions are included in
+   * this check.
    *
-   * @param permission the permission to check for
-   * @return the result of this check
+   * @param permission the permission to check for.
+   * @return the result of the permission check.
+   * @throws NullPointerException if the given permission is null.
    */
   default @NonNull PermissionCheckResult hasPermission(@NonNull String permission) {
     return this.hasPermission(Permission.of(permission));

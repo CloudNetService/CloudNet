@@ -25,6 +25,13 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 
+/**
+ * The permission user group info specifies the time-out of a permission group for a permission user.
+ *
+ * @see PermissionUser
+ * @see PermissionGroup
+ * @since 4.0
+ */
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class PermissionUserGroupInfo extends JsonDocPropertyHolder {
@@ -32,61 +39,140 @@ public class PermissionUserGroupInfo extends JsonDocPropertyHolder {
   private final String group;
   private final long timeOutMillis;
 
+  /**
+   * Creates a new permission user group info, that creates a relation between a permission user and a permission
+   * group.
+   *
+   * @param group         the name of the group.
+   * @param timeOutMillis the timestamp for the timeout of the group.
+   * @param properties    extra properties for the group info.
+   */
   protected PermissionUserGroupInfo(@NonNull String group, long timeOutMillis, @NonNull JsonDocument properties) {
     super(properties);
     this.group = group;
     this.timeOutMillis = timeOutMillis;
   }
 
+  /**
+   * Creates a new permission group info builder instance with all default values.
+   *
+   * @return the new builder instance.
+   */
   public static @NonNull Builder builder() {
     return new Builder();
   }
 
+  /**
+   * Creates a new permission group info builder instance and copies all values from the given permission group info.
+   *
+   * @param info the group info to copy from.
+   * @return the new builder instance.
+   * @throws NullPointerException if the given info is null.
+   */
   public static @NonNull Builder builder(@NonNull PermissionUserGroupInfo info) {
     return builder().group(info.group()).timeOutMillis(info.timeOutMillis()).properties(info.properties());
   }
 
+  /**
+   * Gets the name of the permission user group info.
+   *
+   * @return the group name.
+   */
   public @NonNull String group() {
     return this.group;
   }
 
+  /**
+   * Gets the expiry timeout for this group.
+   * <p>
+   * The timeout is a unix timestamp, which specifies at which absolute time the given permission should expire. A
+   * timeout less than 1 indicated that this group does not expire.
+   *
+   * @return the timeout timestamp.
+   */
   public long timeOutMillis() {
     return this.timeOutMillis;
   }
 
+  /**
+   * A builder for permission user group infos.
+   *
+   * @since 4.0
+   */
   public static final class Builder {
 
     private String group;
     private long timeOutMillis = 0;
     private JsonDocument properties = JsonDocument.newDocument();
 
+    /**
+     * Sets the group of this group info.
+     *
+     * @param group the name of the group info.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given group is null.
+     */
     public @NonNull Builder group(@NonNull String group) {
       this.group = group;
       return this;
     }
 
+    /**
+     * Sets the given milliseconds to the absolute time at which this permission should expire.
+     *
+     * @param timeOutMillis the time-out for this user group.
+     * @return the same instance as used to call the method, for chaining.
+     */
     public @NonNull Builder timeOutMillis(long timeOutMillis) {
       this.timeOutMillis = timeOutMillis;
       return this;
     }
 
+    /**
+     * Sets the given time-out to the absolute time at which this permission should expire. The time-out is added to the
+     * current time millis {@link System#currentTimeMillis()}.
+     *
+     * @param timeout the time-out for this group info.
+     * @param unit    the unit of the given time out.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given unit is null.
+     */
     public @NonNull Builder timeOut(long timeout, @NonNull TimeUnit unit) {
-      this.timeOutMillis = unit.toMillis(timeout);
-      return this;
+      return this.timeOutMillis(System.currentTimeMillis() + unit.toMillis(timeout));
     }
 
+    /**
+     * Sets the time-out for this group info. The time-out is added to the current time millis {@link
+     * System#currentTimeMillis()}.
+     *
+     * @param duration the duration the group lasts for.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given duration is null.
+     */
     public @NonNull Builder timeOut(@NonNull Duration duration) {
-      this.timeOutMillis = System.currentTimeMillis() + duration.toMillis();
-      return this;
+      return this.timeOutMillis(System.currentTimeMillis() + duration.toMillis());
     }
 
+    /**
+     * Sets the properties of the new permission user.
+     *
+     * @param properties the properties for the new user.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if the given properties are null.
+     */
     public @NonNull Builder properties(@NonNull JsonDocument properties) {
       this.properties = properties;
       return this;
     }
 
+    /**
+     * Constructs the new permission user group info from this builder.
+     *
+     * @return the new user group info.
+     * @throws com.google.common.base.VerifyException if the group name is missing.
+     */
     public @NonNull PermissionUserGroupInfo build() {
-      Verify.verifyNotNull(this.group, "Group must be given");
+      Verify.verifyNotNull(this.group, "Missing group");
       return new PermissionUserGroupInfo(this.group, this.timeOutMillis, this.properties);
     }
   }

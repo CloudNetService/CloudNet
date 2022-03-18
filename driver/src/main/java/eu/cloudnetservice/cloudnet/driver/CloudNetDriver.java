@@ -170,7 +170,7 @@ public abstract class CloudNetDriver {
   public void permissionManagement(@NonNull PermissionManagement management) {
     // if there is no old permission management or the old permission management can be overridden
     // we can just set the new one
-    if (this.permissionManagement == null || this.permissionManagement.canBeOverwritten()) {
+    if (this.permissionManagement == null || this.permissionManagement.allowsOverride()) {
       // close the old permission management
       if (this.permissionManagement != null) {
         this.permissionManagement.close();

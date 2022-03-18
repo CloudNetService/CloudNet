@@ -62,7 +62,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   }
 
   @Override
-  public @Nullable PermissionUser firstUser(String name) {
+  public @Nullable PermissionUser firstUser(@NonNull String name) {
     return Iterables.getFirst(this.usersByName(name), null);
   }
 
@@ -101,7 +101,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   }
 
   @Override
-  public @NonNull PermissionUser addUser(@NonNull String name, @NonNull String password, int potency) {
+  public @NonNull PermissionUser addPermissionUser(@NonNull String name, @NonNull String password, int potency) {
     return this.addPermissionUser(PermissionUser.builder()
       .name(name)
       .uniqueId(UUID.randomUUID())
@@ -111,8 +111,8 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   }
 
   @Override
-  public @NonNull PermissionGroup addGroup(@NonNull String role, int potency) {
-    return this.addPermissionGroup(PermissionGroup.builder().name(role).potency(potency).build());
+  public @NonNull PermissionGroup addPermissionGroup(@NonNull String name, int potency) {
+    return this.addPermissionGroup(PermissionGroup.builder().name(name).potency(potency).build());
   }
 
   @Override

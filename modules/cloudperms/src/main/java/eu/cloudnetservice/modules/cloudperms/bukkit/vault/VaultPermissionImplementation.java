@@ -67,10 +67,10 @@ public class VaultPermissionImplementation extends Permission {
     var optionalPermissionUser = this.permissionUserByName(player);
 
     return optionalPermissionUser.map(permissionUser -> {
-      var success = permissionUser.addPermission(permission);
+      permissionUser.addPermission(permission);
       this.permissionManagement.updateUser(permissionUser);
 
-      return success;
+      return true;
     }).orElse(false);
   }
 
@@ -98,10 +98,10 @@ public class VaultPermissionImplementation extends Permission {
     var optionalPermissionGroup = this.permissionGroupByName(group);
 
     return optionalPermissionGroup.map(permissionGroup -> {
-      var success = permissionGroup.addPermission(permission);
+      permissionGroup.addPermission(permission);
       this.permissionManagement.updateGroup(permissionGroup);
 
-      return success;
+      return true;
     }).orElse(false);
   }
 

@@ -28,18 +28,38 @@ import java.util.function.Predicate;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * This abstract default permission management represents the implementation for the permission management. Methods
+ * doing the calculation for permissions and their result are already implemented and there is no need to implement
+ * those yourself.
+ *
+ * @see eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement
+ * @since 4.0
+ */
 public abstract class DefaultPermissionManagement implements PermissionManagement {
 
+  /**
+   * Gets the child permission management. The default implementation does not allow a child permission management,
+   * therefore it's always null.
+   *
+   * @return the child management, by default null.
+   */
   @Override
   public PermissionManagement childPermissionManagement() {
     return null;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public boolean canBeOverwritten() {
+  public boolean allowsOverride() {
     return true;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public PermissionGroup highestPermissionGroup(@NonNull PermissionUser permissionUser) {
     PermissionGroup permissionGroup = null;
@@ -58,6 +78,9 @@ public abstract class DefaultPermissionManagement implements PermissionManagemen
     return permissionGroup != null ? permissionGroup : this.defaultPermissionGroup();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean testPermissionUser(@Nullable PermissionUser permissionUser) {
     if (permissionUser == null) {
@@ -68,6 +91,9 @@ public abstract class DefaultPermissionManagement implements PermissionManagemen
       groupInfo -> groupInfo.timeOutMillis() > 0 && groupInfo.timeOutMillis() < System.currentTimeMillis());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean testPermissible(@Nullable Permissible permissible) {
     if (permissible == null) {
@@ -85,9 +111,11 @@ public abstract class DefaultPermissionManagement implements PermissionManagemen
     return result;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  @NonNull
-  public Collection<PermissionGroup> groupsOf(@Nullable Permissible permissible) {
+  public @NonNull Collection<PermissionGroup> groupsOf(@Nullable Permissible permissible) {
     List<PermissionGroup> permissionGroups = new ArrayList<>();
 
     if (permissible == null) {
@@ -108,6 +136,9 @@ public abstract class DefaultPermissionManagement implements PermissionManagemen
     return permissionGroups;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull PermissionCheckResult permissionResult(
     @NonNull Permissible permissible,
@@ -117,6 +148,9 @@ public abstract class DefaultPermissionManagement implements PermissionManagemen
       this.findHighestPermission(this.collectAllPermissions(permissible, null), permission));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull PermissionCheckResult groupPermissionResult(
     @NonNull Permissible permissible,
@@ -126,6 +160,9 @@ public abstract class DefaultPermissionManagement implements PermissionManagemen
     return this.groupsPermissionResult(permissible, new String[]{group}, permission);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull PermissionCheckResult groupsPermissionResult(@NonNull Permissible permissible,
     @NonNull String[] groups,
@@ -134,6 +171,9 @@ public abstract class DefaultPermissionManagement implements PermissionManagemen
       .fromPermission(this.findHighestPermission(this.collectAllPermissions(permissible, groups), permission));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   @Nullable
   public Permission findHighestPermission(@NonNull Collection<Permission> permissions, @NonNull Permission permission) {
@@ -162,22 +202,52 @@ public abstract class DefaultPermissionManagement implements PermissionManagemen
     return lastMatch;
   }
 
-  protected Collection<Permission> collectAllPermissions(@NonNull Permissible permissible, @Nullable String[] groups) {
+  protected @NonNull Collection<Permission> collectAllPermissions(
+    @NonNull Permissible permissible,
+    @Nullable String[] groups
+  ) {
     return this.collectAllPermissionsTo(new HashSet<>(), permissible, groups);
   }
 
-  protected Collection<Permission> collectAllPermissionsTo(@NonNull Collection<Permission> target,
+  /**
+   * Collects all permissions for the given permissible into the given target collection. If the groups array is not
+   * null group specific permissions are included in the collection.
+   *
+   * @param target      the target to collect to.
+   * @param permissible the permissible to collect for.
+   * @param groups      the groups to collect group permissions for.
+   * @return all collected permissions.
+   * @throws NullPointerException if the given target or permissible is null.
+   */
+  protected @NonNull Collection<Permission> collectAllPermissionsTo(
+    @NonNull Collection<Permission> target,
     @NonNull Permissible permissible,
-    @Nullable String[] groups) {
+    @Nullable String[] groups
+  ) {
     this.collectPermissionsInto(target, permissible, groups);
     this.collectAllGroupPermissionsInto(target, this.groupsOf(permissible), groups, new HashSet<>());
 
     return target;
   }
 
-  protected void collectAllGroupPermissionsInto(@NonNull Collection<Permission> target,
+  /**
+   * Collects all permissions into the given target collection by travelling recursively through every of the given
+   * group and the parents of the groups. If task groups are given the group permissions are included too. The travelled
+   * group collection is used to prevent infinite recursion, the collection is passed down while travelling to the next
+   * group.
+   *
+   * @param target          the collection to collect into.
+   * @param groups          the groups to collect the permissions for.
+   * @param taskGroups      the groups to collect group permissions for.
+   * @param travelledGroups all already visited groups.
+   * @throws NullPointerException if the given target, group or travelled group collection is null.
+   */
+  protected void collectAllGroupPermissionsInto(
+    @NonNull Collection<Permission> target,
     @NonNull Collection<PermissionGroup> groups,
-    @Nullable String[] taskGroups, @NonNull Collection<String> travelledGroups) {
+    @Nullable String[] taskGroups,
+    @NonNull Collection<String> travelledGroups
+  ) {
     for (var permissionGroup : groups) {
       if (permissionGroup != null && travelledGroups.add(permissionGroup.name())) {
         this.collectPermissionsInto(target, permissionGroup, taskGroups);
@@ -186,8 +256,20 @@ public abstract class DefaultPermissionManagement implements PermissionManagemen
     }
   }
 
-  protected void collectPermissionsInto(@NonNull Collection<Permission> permissions, @NonNull Permissible permissible,
-    @Nullable String[] groups) {
+  /**
+   * Collects all permissions of the given permissible into the given permission collection. If the groups array is not
+   * null group permissions are included too.
+   *
+   * @param permissions the collection to collect into.
+   * @param permissible the permissible to collect for.
+   * @param groups      optional target groups to collect for.
+   * @throws NullPointerException if the given permissions or permissible is null.
+   */
+  protected void collectPermissionsInto(
+    @NonNull Collection<Permission> permissions,
+    @NonNull Permissible permissible,
+    @Nullable String[] groups
+  ) {
     permissions.addAll(permissible.permissions());
     if (groups != null) {
       for (var group : groups) {
@@ -196,11 +278,17 @@ public abstract class DefaultPermissionManagement implements PermissionManagemen
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Collection<Permission> allPermissions(@NonNull Permissible permissible) {
     return this.allGroupPermissions(permissible, null);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Collection<Permission> allGroupPermissions(@NonNull Permissible permissible, String group) {
     Collection<Permission> permissions = new ArrayList<>(permissible.permissions());
@@ -213,6 +301,9 @@ public abstract class DefaultPermissionManagement implements PermissionManagemen
     return permissions;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable PermissionGroup modifyGroup(
     @NonNull String name,
@@ -229,6 +320,9 @@ public abstract class DefaultPermissionManagement implements PermissionManagemen
     return group;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable PermissionUser modifyUser(
     @NonNull UUID uniqueId,
@@ -245,6 +339,9 @@ public abstract class DefaultPermissionManagement implements PermissionManagemen
     return user;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull List<PermissionUser> modifyUsers(
     @NonNull String name,
