@@ -23,6 +23,10 @@ subprojects {
   apply(plugin = "net.kyori.blossom")
   apply(plugin = "eu.cloudnetservice.juppiter")
 
+  configurations {
+    getByName("testImplementation").extendsFrom(getByName("moduleLibrary"))
+  }
+
   repositories {
     maven("https://jitpack.io/")
     maven("https://repo.md-5.net/repository/releases/")

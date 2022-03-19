@@ -39,19 +39,21 @@ public final class MySQLDatabase extends SQLDatabase {
   @Override
   public @Nullable Map<String, JsonDocument> readChunk(long beginIndex, int chunkSize) {
     return this.databaseProvider.executeQuery(
-      String.format("SELECT * FROM `%s` WHERE ROW_NUMBER() BETWEEN ? AND ?;", this.name),
+      String.format(
+        "SELECT * FROM `%s` ORDER BY %s LIMIT %d OFFSET %d;",
+        this.name,
+        TABLE_COLUMN_KEY,
+        chunkSize,
+        beginIndex),
       resultSet -> {
         Map<String, JsonDocument> result = new HashMap<>();
         while (resultSet.next()) {
           var key = resultSet.getString(TABLE_COLUMN_KEY);
-          var document = JsonDocument.newDocument(resultSet.getString(TABLE_COLUMN_VAL));
+          var document = JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VAL));
           result.put(key, document);
         }
 
         return result.isEmpty() ? null : result;
-      },
-      null,
-      beginIndex, beginIndex + chunkSize
-    );
+      }, null);
   }
 }

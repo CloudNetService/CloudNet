@@ -19,6 +19,7 @@ junit = "5.8.2"
 mockito = "4.4.0"
 tyrusClient = "2.0.2"
 minaSshdServer = "2.8.0"
+testcontainers = "1.16.3"
 
 # compile time processing
 lombok = "1.18.22"
@@ -104,6 +105,10 @@ mockito = { group = "org.mockito", name = "mockito-junit-jupiter", version.ref =
 minaSshdServer = { group = "org.apache.sshd", name = "sshd-sftp", version.ref = "minaSshdServer" }
 tyrus = { group = "org.glassfish.tyrus.bundles", name = "tyrus-standalone-client", version.ref = "tyrusClient" }
 
+# testcontainers
+testContainers = { group = "org.testcontainers", name = "testcontainers", version.ref = "testcontainers" }
+testContainersJunit = { group = "org.testcontainers", name = "junit-jupiter", version.ref = "testcontainers" }
+
 # unirest
 unirest = { group = "com.konghq", name = "unirest-java", version.ref = "unirest" }
 unirestGson = { group = "com.konghq", name = "unirest-object-mappers-gson", version.ref = "unirest" }
@@ -171,6 +176,7 @@ netty = ["nettyHandler", "nettyCodecHttp"]
 jjwt = ["jjwtApi", "jjwtImpl", "jjwtGson"]
 junit = ["junitApi", "junitParams", "junitEngine"]
 dockerJava = ["dockerJavaApi", "dockerJavaHttpclient5"]
+testContainers = ["testContainers", "testContainersJunit"]
 adventure = ["adventureApi", "adventureSerializerGson", "adventureSerializerLegacy"]
 
 serverPlatform = ["spigot", "sponge", "nukkitX"]

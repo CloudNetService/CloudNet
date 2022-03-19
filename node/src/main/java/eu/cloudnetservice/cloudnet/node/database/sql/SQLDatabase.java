@@ -103,7 +103,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
     return this.databaseProvider.executeUpdate(
       String.format("DELETE FROM `%s` WHERE %s = ?", this.name, TABLE_COLUMN_KEY),
       key
-    ) != -1;
+    ) > 0;
   }
 
   @Override

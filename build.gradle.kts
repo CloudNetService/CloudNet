@@ -68,6 +68,7 @@ subprojects {
     // testing
     "testImplementation"(rootProject.libs.bundles.junit)
     "testImplementation"(rootProject.libs.bundles.mockito)
+    "testImplementation"(rootProject.libs.bundles.testContainers)
   }
 
   tasks.withType<Jar> {
