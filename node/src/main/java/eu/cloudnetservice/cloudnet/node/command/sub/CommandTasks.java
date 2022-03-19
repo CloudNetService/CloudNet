@@ -657,9 +657,8 @@ public final class CommandTasks {
   ) {
     for (var serviceTask : serviceTasks) {
       this.updateTaskDirect(serviceTask, task -> task.jvmOptions().clear());
-      source.sendMessage(I18n.trans("command-service-base-clear-property",
+      source.sendMessage(I18n.trans("command-tasks-clear-property",
         "jvmOptions",
-        "task",
         serviceTask.name()));
     }
   }
@@ -671,9 +670,8 @@ public final class CommandTasks {
   ) {
     for (var serviceTask : serviceTasks) {
       this.updateTaskDirect(serviceTask, task -> task.processParameters().clear());
-      source.sendMessage(I18n.trans("command-service-base-clear-property",
+      source.sendMessage(I18n.trans("command-tasks-clear-property",
         "processParameters",
-        "task",
         serviceTask.name()));
     }
   }

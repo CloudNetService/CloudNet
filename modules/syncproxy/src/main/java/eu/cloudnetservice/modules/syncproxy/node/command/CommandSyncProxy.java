@@ -199,7 +199,7 @@ public final class CommandSyncProxy {
 
     source.sendMessage(I18n.trans("module-syncproxy-command-set-maintenance",
       loginConfiguration.targetGroup(),
-      enabled));
+      enabled ? 1 : 0));
   }
 
   private void displayListConfiguration(

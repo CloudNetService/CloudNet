@@ -314,9 +314,8 @@ public final class CommandGroups {
   public void clearJvmOptions(@NonNull CommandSource source, @NonNull @Argument("name") GroupConfiguration group) {
     group.jvmOptions().clear();
     this.updateGroup(group);
-    source.sendMessage(I18n.trans("command-service-base-clear-property",
+    source.sendMessage(I18n.trans("command-groups-clear-property",
       "jvmOptions",
-      "group",
       group.name()));
   }
 
@@ -327,9 +326,8 @@ public final class CommandGroups {
   ) {
     group.processParameters().clear();
     this.updateGroup(group);
-    source.sendMessage(I18n.trans("command-service-base-clear-property",
+    source.sendMessage(I18n.trans("command-groups-clear-property",
       "processParameters",
-      "group",
       group.name()));
   }
 
