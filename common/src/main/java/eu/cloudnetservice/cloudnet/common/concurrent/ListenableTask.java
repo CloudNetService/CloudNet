@@ -20,6 +20,14 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.NonNull;
 
+/**
+ * The listenable task is a task that is allowed to be executed over and over again. The task wraps a callable and calls
+ * it on each run of the task. Once the result of the task is completed using {@code task.run(true)} the task cannot run
+ * anymore, and it switches into the done state.
+ *
+ * @param <V> the generic type of the task.
+ * @since 4.0
+ */
 public class ListenableTask<V> extends Task<V> {
 
   protected static final int STATE_NEW = 0;
@@ -29,10 +37,22 @@ public class ListenableTask<V> extends Task<V> {
   private final Callable<V> callable;
   private final AtomicInteger state = new AtomicInteger(STATE_NEW);
 
+  /**
+   * Constructs a new listenable task with the given callable
+   *
+   * @param callable the callable to call on each run.
+   * @throws NullPointerException if the given callable is null.
+   */
   public ListenableTask(@NonNull Callable<V> callable) {
     this.callable = callable;
   }
 
+  /**
+   * Runs the callable provided to this listenable task. This task supports running it over and over again until the
+   * result it set and the task completed with that result.
+   *
+   * @param setResult whether the result of the callable should be set as result of this task.
+   */
   public void run(boolean setResult) {
     // check if we can run the task now
     if (this.state.compareAndSet(STATE_NEW, STATE_RUN)) {
