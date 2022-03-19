@@ -18,7 +18,6 @@ import org.cadixdev.gradle.licenser.LicenseExtension
 
 plugins {
   id("cloudnet.parent-build-logic")
-  alias(libs.plugins.versions)
   alias(libs.plugins.licenser)
   alias(libs.plugins.nexusPublish)
 }

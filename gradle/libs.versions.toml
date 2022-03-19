@@ -7,7 +7,6 @@ shadow = "7.1.2"
 blossom = "1.3.0"
 juppiter = "0.3.1"
 licenser = "0.6.1"
-versions = "0.42.0"
 fabricLoom = "0.12.4"
 nexusPublish = "1.1.0"
 
@@ -185,5 +184,4 @@ fabricLoom = { id = "fabric-loom", version.ref = "fabricLoom" }
 licenser = { id = "org.cadixdev.licenser", version.ref = "licenser" }
 shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
 juppiter = { id = "eu.cloudnetservice.juppiter", version.ref = "juppiter" }
-versions = { id = "com.github.ben-manes.versions", version.ref = "versions" }
 nexusPublish = { id = "io.github.gradle-nexus.publish-plugin", version.ref = "nexusPublish" }
