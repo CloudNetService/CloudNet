@@ -30,14 +30,12 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-@Testcontainers
 @TestMethodOrder(OrderAnnotation.class)
-@EnabledIfSystemProperty(named = "cn.runDockerizedTests", matches = "true")
+@Testcontainers(disabledWithoutDocker = true)
 public final class SFTPTemplateStorageTest {
 
   private static final ServiceTemplate TEMPLATE = ServiceTemplate.builder()

@@ -49,8 +49,6 @@ public final class MySQLDatabase extends SQLDatabase {
         }
 
         return result.isEmpty() ? null : result;
-      },
-      null,
-      TABLE_COLUMN_KEY, chunkSize, beginIndex);
+      }, null, TABLE_COLUMN_KEY, chunkSize, beginIndex);
   }
 }
