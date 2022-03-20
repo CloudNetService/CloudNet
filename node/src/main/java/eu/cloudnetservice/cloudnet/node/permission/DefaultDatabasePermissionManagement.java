@@ -23,6 +23,7 @@ import eu.cloudnetservice.cloudnet.driver.permission.PermissionGroup;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionUser;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.cloudnet.node.database.LocalDatabase;
 import eu.cloudnetservice.cloudnet.node.network.listener.message.PermissionChannelMessageListener;
 import eu.cloudnetservice.cloudnet.node.permission.command.PermissionUserCommandSource;
@@ -59,6 +60,16 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
     this.nodeInstance = nodeInstance;
     this.groups = new ConcurrentHashMap<>();
     this.networkListener = new PermissionChannelMessageListener(nodeInstance.eventManager(), this);
+    // sync permission groups into the cluster
+    CloudNet.instance().dataSyncRegistry().registerHandler(DataSyncHandler.<PermissionGroup>builder()
+      .alwaysForce()
+      .key("perms-groups")
+      .nameExtractor(PermissionGroup::name)
+      .convertObject(PermissionGroup.class)
+      .dataCollector(() -> CloudNet.instance().permissionManagement().groups())
+      .writer(group -> CloudNet.instance().permissionManagement().addGroupSilently(group))
+      .currentGetter(group -> CloudNet.instance().permissionManagement().group(group.name()))
+      .build());
   }
 
   @Override
