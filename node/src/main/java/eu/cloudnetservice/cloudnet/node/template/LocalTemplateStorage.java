@@ -222,9 +222,9 @@ public class LocalTemplateStorage implements TemplateStorage {
     boolean deep
   ) {
     List<FileInfo> out = new ArrayList<>();
-    var root = this.getTemplatePath(template).resolve(dir);
+    var root = this.getTemplatePath(template);
     // walk over all files
-    FileUtil.walkFileTree(root, (parent, file) -> {
+    FileUtil.walkFileTree(root.resolve(dir), (parent, file) -> {
       try {
         out.add(FileInfo.of(file, root.relativize(file)));
       } catch (IOException ignored) {

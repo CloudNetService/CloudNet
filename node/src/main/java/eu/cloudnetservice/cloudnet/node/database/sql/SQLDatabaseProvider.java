@@ -31,6 +31,7 @@ import org.jetbrains.annotations.UnknownNullability;
 
 public abstract class SQLDatabaseProvider extends AbstractDatabaseProvider {
 
+  protected static final String[] TABLE_TYPE = new String[]{"TABLE"};
   protected static final Logger LOGGER = LogManager.logger(SQLDatabaseProvider.class);
 
   protected final ExecutorService executorService;

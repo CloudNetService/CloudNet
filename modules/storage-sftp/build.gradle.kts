@@ -20,9 +20,6 @@ tasks.withType<Jar> {
 
 dependencies {
   "moduleLibrary"(libs.sshj)
-
-  "testImplementation"(libs.sshj)
-  "testImplementation"(libs.minaSshdServer)
 }
 
 moduleJson {

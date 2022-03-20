@@ -27,6 +27,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import lombok.NonNull;
@@ -74,16 +75,17 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
 
   @Override
   public @NonNull Collection<String> databaseNames() {
-    return this.executeQuery(
-      "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA='PUBLIC'",
-      resultSet -> {
-        Collection<String> collection = new ArrayList<>();
-        while (resultSet.next()) {
-          collection.add(resultSet.getString("table_name"));
-        }
-
-        return collection;
-      }, Set.of());
+    try (var meta = this.connection.getMetaData().getTables(null, null, null, TABLE_TYPE)) {
+      // now we just need to extract the name from of the tables from the result set
+      Collection<String> names = new ArrayList<>();
+      while (meta.next()) {
+        names.add(meta.getString("table_name").toLowerCase(Locale.ROOT));
+      }
+      return names;
+    } catch (SQLException exception) {
+      LOGGER.severe("Exception listing tables", exception);
+      return Set.of();
+    }
   }
 
   @Override

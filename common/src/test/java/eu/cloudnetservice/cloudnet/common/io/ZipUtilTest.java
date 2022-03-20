@@ -43,7 +43,7 @@ public final class ZipUtilTest {
 
   @Test
   void testZipUtils() throws Exception {
-    var zipFilePath = TEST_DIR.resolve("test.zip");
+    var zipFilePath = TEST_DIR.resolve("test.zip").toAbsolutePath();
 
     try (
       var out = Files.newOutputStream(zipFilePath);

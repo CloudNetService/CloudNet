@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.sftp;
+package eu.cloudnetservice.modules.s3;
 
-import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
-import eu.cloudnetservice.cloudnet.driver.template.FileInfo;
-import eu.cloudnetservice.modules.sftp.config.SFTPTemplateStorageConfig;
+import eu.cloudnetservice.modules.s3.config.S3TemplateStorageConfig;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -30,49 +29,58 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.mockito.Mockito;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @TestMethodOrder(OrderAnnotation.class)
 @Testcontainers(disabledWithoutDocker = true)
-public final class SFTPTemplateStorageTest {
+class S3TemplateStorageTest {
 
+  // default localstack port, maps all services to that port
+  private static final int PORT = 4566;
   private static final ServiceTemplate TEMPLATE = ServiceTemplate.builder()
     .prefix("global")
     .name("proxy")
-    .storage("sftp")
+    .storage("s3")
     .build();
 
   @Container
-  private static final GenericContainer<?> SFTP = new GenericContainer<>("atmoz/sftp:latest")
-    .withExposedPorts(22)
-    .withCommand("cloud:secret:::templates");
+  private static final GenericContainer<?> S3 = new GenericContainer<>("localstack/localstack:latest")
+    .withExposedPorts(PORT)
+    .withEnv("SERVICES", "s3")
+    .waitingFor(Wait.forLogMessage(".*Ready\\.\n", 1));
 
-  private static SFTPTemplateStorage storage;
+  private static S3TemplateStorage storage;
 
   @BeforeAll
-  static void setupStorage() {
-    storage = new SFTPTemplateStorage(new SFTPTemplateStorageConfig(
-      new HostAndPort(SFTP.getHost(), SFTP.getFirstMappedPort()),
-      "sftp",
-      "cloud",
-      "secret",
-      null,
-      null,
-      null,
-      "templates",
-      1));
+  @SuppressWarnings("HttpUrlsUsage")
+  static void setupServer() throws UnknownHostException {
+    var runningAddress = InetAddress.getByName(S3.getHost()).getHostAddress();
+
+    var module = Mockito.mock(S3TemplateStorageModule.class);
+    Mockito.when(module.config()).thenReturn(new S3TemplateStorageConfig(
+      "s3",
+      "cn-testing",
+      "us-east-1",
+      false,
+      "accesskey",
+      "secretkey",
+      String.format("http://%s:%d", runningAddress, S3.getMappedPort(PORT))));
+
+    storage = new S3TemplateStorage(module);
   }
 
   @AfterAll
-  static void closeStorage() throws Exception {
+  static void closeStorage() {
     storage.close();
   }
 
   @Test
   @Order(0)
-  void testTemplateCreation() {
+  void testTemplateCreation() throws IOException {
     Assertions.assertTrue(storage.create(TEMPLATE));
     Assertions.assertTrue(storage.createFile(TEMPLATE, "spigot.yml"));
     Assertions.assertTrue(storage.hasFile(TEMPLATE, "spigot.yml"));
@@ -85,7 +93,7 @@ public final class SFTPTemplateStorageTest {
     Assertions.assertFalse(storage.has(ServiceTemplate.builder()
       .prefix("hello")
       .name("world")
-      .storage("sftp")
+      .storage("s3")
       .build()));
   }
 
@@ -140,14 +148,14 @@ public final class SFTPTemplateStorageTest {
 
   @Test
   @Order(60)
-  void testDeleteFile() {
+  void testDeleteFile() throws IOException {
     Assertions.assertTrue(storage.deleteFile(TEMPLATE, "spigot.yml"));
     Assertions.assertFalse(storage.hasFile(TEMPLATE, "spigot.yml"));
   }
 
   @Test
   @Order(70)
-  void testCreateDirectory() {
+  void testCreateDirectory() throws IOException {
     Assertions.assertTrue(storage.createDirectory(TEMPLATE, "hello"));
     Assertions.assertTrue(storage.createFile(TEMPLATE, "hello/test.txt"));
     Assertions.assertTrue(storage.hasFile(TEMPLATE, "hello/test.txt"));
@@ -169,12 +177,7 @@ public final class SFTPTemplateStorageTest {
   void testFileListingDeep() {
     var files = storage.listFiles(TEMPLATE, "", true);
     Assertions.assertNotNull(files);
-    Assertions.assertEquals(3, files.length);
-
-    // there must be one directory
-    var dir = Arrays.stream(files).filter(FileInfo::directory).findFirst().orElse(null);
-    Assertions.assertNotNull(dir);
-    Assertions.assertEquals("hello", dir.name());
+    Assertions.assertEquals(2, files.length);
   }
 
   @Test
@@ -187,7 +190,7 @@ public final class SFTPTemplateStorageTest {
 
   @Test
   @Order(110)
-  void testTemplateDelete() {
+  void testTemplateDelete() throws IOException {
     Assertions.assertTrue(storage.delete(TEMPLATE));
     Assertions.assertFalse(storage.has(TEMPLATE));
     Assertions.assertFalse(storage.hasFile(TEMPLATE, "test.txt"));
