@@ -16,14 +16,12 @@
 
 package eu.cloudnetservice.modules.sftp;
 
-import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
 import eu.cloudnetservice.cloudnet.driver.template.FileInfo;
 import eu.cloudnetservice.modules.sftp.config.SFTPTemplateStorageConfig;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.util.Arrays;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -40,7 +38,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @TestMethodOrder(OrderAnnotation.class)
 public final class SFTPTemplateStorageTest {
 
-  private static final Path HOME_PATH = Path.of("build", "tmp", "sftp");
   private static final ServiceTemplate TEMPLATE = ServiceTemplate.builder()
     .prefix("global")
     .name("proxy")
@@ -56,7 +53,6 @@ public final class SFTPTemplateStorageTest {
 
   @BeforeAll
   static void setupStorage() {
-    FileUtil.createDirectory(HOME_PATH);
     storage = new SFTPTemplateStorage(new SFTPTemplateStorageConfig(
       new HostAndPort(SFTP.getHost(), SFTP.getFirstMappedPort()),
       "sftp",
