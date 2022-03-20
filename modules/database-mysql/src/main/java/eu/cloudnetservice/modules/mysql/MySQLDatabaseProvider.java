@@ -95,7 +95,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   @Override
   public @NonNull Collection<String> databaseNames() {
     try (var connection = this.hikariDataSource.getConnection();
-      var meta = connection.getMetaData().getTables(null, null, null, new String[]{"TABLE"})) {
+      var meta = connection.getMetaData().getTables(null, null, null, TABLE_TYPE)) {
       // now we just need to extract the name from of the tables from the result set
       Collection<String> names = new ArrayList<>();
       while (meta.next()) {
