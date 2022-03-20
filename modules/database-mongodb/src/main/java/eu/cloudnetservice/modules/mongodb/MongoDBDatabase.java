@@ -58,6 +58,8 @@ public class MongoDBDatabase extends AbstractDatabase {
 
   @Override
   public boolean insert(@NonNull String key, @NonNull JsonDocument document) {
+    this.databaseProvider.databaseHandler().handleInsert(this, key, document);
+
     return this.insertOrUpdate(key, document);
   }
 
@@ -79,6 +81,8 @@ public class MongoDBDatabase extends AbstractDatabase {
 
   @Override
   public boolean delete(@NonNull String key) {
+    this.databaseProvider.databaseHandler().handleDelete(this, key);
+
     return this.delete0(key);
   }
 
@@ -174,6 +178,8 @@ public class MongoDBDatabase extends AbstractDatabase {
 
   @Override
   public void clear() {
+    this.databaseProvider.databaseHandler().handleClear(this);
+
     this.collection.deleteMany(new Document());
   }
 
