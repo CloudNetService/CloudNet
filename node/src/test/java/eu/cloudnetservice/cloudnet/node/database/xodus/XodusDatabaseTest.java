@@ -30,14 +30,12 @@ import org.mockito.Mockito;
 
 class XodusDatabaseTest {
 
+  private static final Path BASE_DIRECTORY = Path.of("build", "tmp", "xodus").toAbsolutePath();
   private XodusDatabaseProvider databaseProvider;
 
   @BeforeEach
   void setup() {
-    var baseDirectory = Path.of("build", "tmp", "xodus");
-    FileUtil.delete(baseDirectory);
-
-    this.databaseProvider = new XodusDatabaseProvider(baseDirectory.toFile(), false, null);
+    this.databaseProvider = new XodusDatabaseProvider(BASE_DIRECTORY.toFile(), false, null);
     this.databaseProvider.databaseHandler(Mockito.mock(DatabaseHandler.class));
     this.databaseProvider.init();
   }
@@ -45,6 +43,7 @@ class XodusDatabaseTest {
   @AfterEach
   void closeEnvironment() throws Exception {
     this.databaseProvider.close();
+    FileUtil.delete(BASE_DIRECTORY);
   }
 
   @Test

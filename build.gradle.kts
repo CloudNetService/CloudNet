@@ -15,6 +15,7 @@
  */
 
 import org.cadixdev.gradle.licenser.LicenseExtension
+import org.gradle.internal.impldep.com.google.common.collect.Maps
 
 plugins {
   id("cloudnet.parent-build-logic")
@@ -81,6 +82,8 @@ subprojects {
     testLogging {
       events("started", "passed", "skipped", "failed")
     }
+    // always pass down all given system properties
+    systemProperties(System.getProperties().mapKeys { it.key.toString() })
   }
 
   tasks.withType<JavaCompile> {
