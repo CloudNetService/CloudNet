@@ -17,32 +17,20 @@
 package eu.cloudnetservice.modules.cloudperms.nukkit;
 
 import cn.nukkit.Player;
+import dev.derklaro.reflexion.FieldAccessor;
+import dev.derklaro.reflexion.Reflexion;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
 import lombok.NonNull;
 
 public final class NukkitPermissionInjectionHelper {
 
-  private static final MethodHandle SET_PERM_FIELD;
+  private static final FieldAccessor PERM_FIELD_ACCESSOR = Reflexion.on(Player.class).findField("perm").orElse(null);
 
-  static {
-    try {
-      // get the perm field
-      var permField = Player.class.getDeclaredField("perm");
-      permField.setAccessible(true);
-      // un reflect the permissible field
-      SET_PERM_FIELD = MethodHandles.lookup().unreflectSetter(permField);
-    } catch (NoSuchFieldException | IllegalAccessException exception) {
-      throw new ExceptionInInitializerError(exception);
-    }
+  private NukkitPermissionInjectionHelper() {
+    throw new UnsupportedOperationException();
   }
 
   public static void injectPermissible(@NonNull Player player, PermissionManagement management) {
-    try {
-      SET_PERM_FIELD.invoke(player, new NukkitCloudPermissionsPermissible(player, management));
-    } catch (Throwable throwable) {
-      throw new RuntimeException("Unable to inject permissible", throwable);
-    }
+    PERM_FIELD_ACCESSOR.setValue(player, new NukkitCloudPermissionsPermissible(player, management));
   }
 }

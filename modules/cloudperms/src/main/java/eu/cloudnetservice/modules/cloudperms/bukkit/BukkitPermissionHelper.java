@@ -16,27 +16,28 @@
 
 package eu.cloudnetservice.modules.cloudperms.bukkit;
 
-import eu.cloudnetservice.cloudnet.common.log.LogManager;
-import eu.cloudnetservice.cloudnet.common.log.Logger;
+import static dev.derklaro.reflexion.matcher.FieldMatcher.newMatcher;
+
+import dev.derklaro.reflexion.FieldAccessor;
+import dev.derklaro.reflexion.MethodAccessor;
+import dev.derklaro.reflexion.Reflexion;
 import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
+import java.util.NoSuchElementException;
 import java.util.regex.Pattern;
 import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.Permissible;
 
 public final class BukkitPermissionHelper {
 
   private static final Pattern PACKAGE_VERSION_PATTERN = Pattern
     .compile("^org\\.bukkit\\.craftbukkit\\.(\\w+)\\.CraftServer$");
-  private static final Logger LOGGER = LogManager.logger(BukkitPermissionHelper.class);
 
   private static final String SERVER_PACKAGE_VERSION;
-  private static final MethodHandle PERMISSIBLE_SETTER;
-  private static final MethodHandle UPDATE_COMMAND_TREE;
+  private static final FieldAccessor PERMISSIBLE_ACCESSOR;
+  private static final MethodAccessor<?> UPDATE_COMMAND_TREE_ACCESSOR;
 
   static {
     // load server version
@@ -49,60 +50,36 @@ public final class BukkitPermissionHelper {
       SERVER_PACKAGE_VERSION = ".";
     }
 
-    // find the permissible field
-    try {
-      Field permissibleField;
-      try {
-        // bukkit
-        permissibleField = Class.forName("org.bukkit.craftbukkit" + SERVER_PACKAGE_VERSION + "entity.CraftHumanEntity")
-          .getDeclaredField("perm");
-        permissibleField.setAccessible(true);
-      } catch (Exception e) {
-        // glowstone
-        permissibleField = Class.forName("net.glowstone.entity.GlowHumanEntity").getDeclaredField("permissions");
-        permissibleField.setAccessible(true);
-      }
+    // accessor to set the permissible of a player
+    PERMISSIBLE_ACCESSOR = Reflexion.findAny(
+        "org.bukkit.craftbukkit" + SERVER_PACKAGE_VERSION + "entity.CraftHumanEntity",
+        "net.glowstone.entity.GlowHumanEntity"
+      )
+      .flatMap(reflexion -> reflexion.findField(newMatcher().derivedType(Field::getType, Permissible.class)))
+      .orElseThrow(() -> new NoSuchElementException("Unable to resolve permissible field of player"));
 
-      PERMISSIBLE_SETTER = MethodHandles.lookup().unreflectSetter(permissibleField);
-    } catch (final ClassNotFoundException | NoSuchFieldException | IllegalAccessException exception) {
-      throw new ExceptionInInitializerError(exception);
-    }
-
-    // find the updateCommands method
-    MethodHandle updateCommands;
-    try {
-      updateCommands = MethodHandles.publicLookup().findVirtual(
-        Player.class,
-        "updateCommands",
-        MethodType.methodType(void.class));
-    } catch (NoSuchMethodException | IllegalAccessException exception) {
-      updateCommands = null;
-    }
-    // assign the static field
-    UPDATE_COMMAND_TREE = updateCommands;
+    // accessor to re-send the command tree to a player
+    UPDATE_COMMAND_TREE_ACCESSOR = Reflexion.on(Player.class).findMethod("updateCommands").orElse(null);
   }
 
   private BukkitPermissionHelper() {
     throw new UnsupportedOperationException();
   }
 
-  public static void injectPlayer(@NonNull Player player) throws Throwable {
-    PERMISSIBLE_SETTER.invoke(
+  public static void injectPlayer(@NonNull Player player) {
+    PERMISSIBLE_ACCESSOR.setValue(
       player,
       new BukkitCloudPermissionsPermissible(player, CloudNetDriver.instance().permissionManagement()));
   }
 
   public static void resendCommandTree(@NonNull Player player) {
-    if (UPDATE_COMMAND_TREE != null) {
-      try {
-        UPDATE_COMMAND_TREE.invoke(player);
-      } catch (Throwable throwable) {
-        LOGGER.severe("Exception resending player command tree", throwable);
-      }
+    if (UPDATE_COMMAND_TREE_ACCESSOR != null) {
+      // just invoke and ignore the thrown exceptions
+      UPDATE_COMMAND_TREE_ACCESSOR.invoke(player);
     }
   }
 
   public static boolean canUpdateCommandTree() {
-    return UPDATE_COMMAND_TREE != null;
+    return UPDATE_COMMAND_TREE_ACCESSOR != null;
   }
 }

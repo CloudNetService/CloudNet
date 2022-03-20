@@ -16,9 +16,8 @@
 
 package eu.cloudnetservice.modules.npc.platform.bukkit.util;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
+import dev.derklaro.reflexion.MethodAccessor;
+import dev.derklaro.reflexion.Reflexion;
 import java.util.regex.Pattern;
 import lombok.NonNull;
 import org.bukkit.Bukkit;
@@ -84,48 +83,34 @@ public final class ReflectionUtil {
       "No nms class named " + String.join(", ", names) + " in " + CRAFT_BUKKIT_PACKAGE);
   }
 
-  public static @NonNull MethodHandle findMethod(
+  public static @NonNull MethodAccessor<?> findMethod(
     @NonNull Class<?> clazz,
     @NonNull Class<?>[] pts,
     String @NonNull ... names
   ) {
     for (var name : names) {
-      var handle = findMethod(clazz, name, pts);
-      if (handle != null) {
-        return handle;
+      var accessor = findMethod(clazz, name, pts);
+      if (accessor != null) {
+        return accessor;
       }
     }
     throw new IllegalArgumentException("No method with name " + String.join(", ", names) + " in " + clazz);
   }
 
-  public static @NonNull MethodHandle findConstructor(Class<?> clazz, Class<?> @NonNull ... argumentTypes) {
-    try {
-      return MethodHandles.lookup().findConstructor(clazz, MethodType.methodType(void.class, argumentTypes));
-    } catch (NoSuchMethodException | IllegalAccessException exception) {
-      throw new IllegalArgumentException("Unable to resolve constructor of class " + clazz, exception);
-    }
+  public static @NonNull MethodAccessor<?> findConstructor(Class<?> clazz, Class<?> @NonNull ... argumentTypes) {
+    return Reflexion.on(clazz).findConstructor(argumentTypes).orElseThrow();
   }
 
-  public static @Nullable MethodHandle findMethod(
+  public static @Nullable MethodAccessor<?> findMethod(
     @NonNull Class<?> clazz,
     @NonNull String name,
     Class<?> @NonNull ... pts
   ) {
-    try {
-      var method = clazz.getDeclaredMethod(name, pts);
-      return MethodHandles.publicLookup().unreflect(method);
-    } catch (NoSuchMethodException | IllegalAccessException exception) {
-      return null;
-    }
+    return Reflexion.on(clazz).findMethod(name, pts).orElse(null);
   }
 
   @SuppressWarnings("unchecked")
   public static @Nullable <T> T staticFieldValue(@NonNull Class<?> origin, @NonNull String name) {
-    try {
-      var field = origin.getDeclaredField(name);
-      return (T) field.get(null);
-    } catch (ReflectiveOperationException exception) {
-      return null;
-    }
+    return (T) Reflexion.on(origin).findField(name).map(acc -> acc.getValue().getOrElse(null)).orElse(null);
   }
 }

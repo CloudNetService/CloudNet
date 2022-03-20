@@ -45,6 +45,7 @@ dependencies {
 
   "api"(libs.asm)
   "api"(libs.caffeine)
+  "api"(libs.reflexion)
   "implementation"(libs.bundles.netty)
 
   // native transports
