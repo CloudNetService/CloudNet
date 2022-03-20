@@ -15,7 +15,6 @@
  */
 
 import org.cadixdev.gradle.licenser.LicenseExtension
-import org.gradle.internal.impldep.com.google.common.collect.Maps
 
 plugins {
   id("cloudnet.parent-build-logic")
