@@ -18,7 +18,6 @@ guava = "31.1-jre"
 junit = "5.8.2"
 mockito = "4.4.0"
 tyrusClient = "2.0.2"
-minaSshdServer = "2.8.0"
 testcontainers = "1.16.3"
 
 # compile time processing
@@ -102,7 +101,6 @@ junitEngine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", vers
 # general testing
 mockitoInline = { group = "org.mockito", name = "mockito-inline", version.ref = "mockito" }
 mockito = { group = "org.mockito", name = "mockito-junit-jupiter", version.ref = "mockito" }
-minaSshdServer = { group = "org.apache.sshd", name = "sshd-sftp", version.ref = "minaSshdServer" }
 tyrus = { group = "org.glassfish.tyrus.bundles", name = "tyrus-standalone-client", version.ref = "tyrusClient" }
 
 # testcontainers

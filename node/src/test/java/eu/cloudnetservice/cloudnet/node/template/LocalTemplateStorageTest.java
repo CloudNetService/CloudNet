@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.sftp;
+package eu.cloudnetservice.cloudnet.node.template;
 
 import eu.cloudnetservice.cloudnet.common.io.FileUtil;
-import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
 import eu.cloudnetservice.cloudnet.driver.template.FileInfo;
-import eu.cloudnetservice.modules.sftp.config.SFTPTemplateStorageConfig;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -32,51 +30,33 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
-@Testcontainers
 @TestMethodOrder(OrderAnnotation.class)
-public final class SFTPTemplateStorageTest {
+class LocalTemplateStorageTest {
 
-  private static final Path HOME_PATH = Path.of("build", "tmp", "sftp");
+  private static final Path HOME_PATH = Path.of("build", "tmp", "local_ts");
   private static final ServiceTemplate TEMPLATE = ServiceTemplate.builder()
     .prefix("global")
     .name("proxy")
-    .storage("sftp")
+    .storage("local")
     .build();
 
-  @Container
-  private static final GenericContainer<?> SFTP = new GenericContainer<>("atmoz/sftp:latest")
-    .withExposedPorts(22)
-    .withCommand("cloud:secret:::templates");
-
-  private static SFTPTemplateStorage storage;
+  private static LocalTemplateStorage storage;
 
   @BeforeAll
   static void setupStorage() {
-    FileUtil.createDirectory(HOME_PATH);
-    storage = new SFTPTemplateStorage(new SFTPTemplateStorageConfig(
-      new HostAndPort(SFTP.getHost(), SFTP.getFirstMappedPort()),
-      "sftp",
-      "cloud",
-      "secret",
-      null,
-      null,
-      null,
-      "templates",
-      1));
+    storage = new LocalTemplateStorage(HOME_PATH);
   }
 
   @AfterAll
-  static void closeStorage() throws Exception {
+  static void closeStorage() {
     storage.close();
+    FileUtil.delete(HOME_PATH);
   }
 
   @Test
   @Order(0)
-  void testTemplateCreation() {
+  void testTemplateCreation() throws IOException {
     Assertions.assertTrue(storage.create(TEMPLATE));
     Assertions.assertTrue(storage.createFile(TEMPLATE, "spigot.yml"));
     Assertions.assertTrue(storage.hasFile(TEMPLATE, "spigot.yml"));
@@ -134,7 +114,7 @@ public final class SFTPTemplateStorageTest {
 
   @Test
   @Order(50)
-  void testFileGetFileInfo() {
+  void testFileGetFileInfo() throws IOException {
     var info = storage.fileInfo(TEMPLATE, "spigot.yml");
     Assertions.assertNotNull(info);
     Assertions.assertEquals(0, info.size());
@@ -144,14 +124,14 @@ public final class SFTPTemplateStorageTest {
 
   @Test
   @Order(60)
-  void testDeleteFile() {
+  void testDeleteFile() throws IOException {
     Assertions.assertTrue(storage.deleteFile(TEMPLATE, "spigot.yml"));
     Assertions.assertFalse(storage.hasFile(TEMPLATE, "spigot.yml"));
   }
 
   @Test
   @Order(70)
-  void testCreateDirectory() {
+  void testCreateDirectory() throws IOException {
     Assertions.assertTrue(storage.createDirectory(TEMPLATE, "hello"));
     Assertions.assertTrue(storage.createFile(TEMPLATE, "hello/test.txt"));
     Assertions.assertTrue(storage.hasFile(TEMPLATE, "hello/test.txt"));

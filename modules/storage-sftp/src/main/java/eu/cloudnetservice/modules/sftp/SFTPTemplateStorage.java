@@ -165,8 +165,13 @@ public class SFTPTemplateStorage implements TemplateStorage {
   @Override
   public boolean delete(@NonNull ServiceTemplate template) {
     return this.executeWithClient(client -> {
-      if (client.statExistence(this.constructRemotePath(template)) != null) {
-        this.deleteDir(client, this.constructRemotePath(template));
+      var templatePath = this.constructRemotePath(template);
+      var attributes = client.statExistence(templatePath);
+      // checks if the remote directory actually exists
+      if (attributes != null && attributes.getType() == Type.DIRECTORY) {
+        // now we are sure that the template exists and can remove it
+        this.deleteDir(client, templatePath);
+        client.rmdir(templatePath);
         return true;
       } else {
         return false;

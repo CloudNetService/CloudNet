@@ -297,7 +297,7 @@ public class S3TemplateStorage implements TemplateStorage {
   public boolean createFile(@NonNull ServiceTemplate template, @NonNull String path) {
     try {
       var request = PutObjectRequest.builder()
-        .bucket(this.getBucketPath(template, path))
+        .bucket(this.config().bucket())
         .key(this.getBucketPath(template, path))
         .contentLength(0L)
         .contentType("text/plain")
