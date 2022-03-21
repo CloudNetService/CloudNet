@@ -20,10 +20,10 @@ import static eu.cloudnetservice.modules.npc.platform.bukkit.util.ReflectionUtil
 import static eu.cloudnetservice.modules.npc.platform.bukkit.util.ReflectionUtil.staticFieldValue;
 
 import com.google.errorprone.annotations.concurrent.LazyInit;
+import dev.derklaro.reflexion.MethodAccessor;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
 import eu.cloudnetservice.modules.npc.platform.bukkit.util.ReflectionUtil;
-import java.lang.invoke.MethodHandle;
 import lombok.NonNull;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -42,12 +42,12 @@ public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEn
   protected static final Class<?> NBT = ReflectionUtil.findNmsClass("nbt.NBTTagCompound", "NBTTagCompound");
   protected static final Class<?> CRAFT_ENTITY = ReflectionUtil.findCraftBukkitClass("entity.CraftEntity");
 
-  protected static final MethodHandle GET_HANDLE = findMethod(CRAFT_ENTITY, "getHandle");
-  protected static final MethodHandle LOAD = findMethod(ENTITY, new Class[]{NBT}, "g", "f", "load");
-  protected static final MethodHandle SAVE = findMethod(ENTITY, new Class[]{NBT}, "e", "save");
-  protected static final MethodHandle SET = findMethod(NBT, new Class[]{String.class, int.class}, "setInt", "a");
+  protected static final MethodAccessor<?> GET_HANDLE = findMethod(CRAFT_ENTITY, "getHandle");
+  protected static final MethodAccessor<?> LOAD = findMethod(ENTITY, new Class[]{NBT}, "g", "f", "load");
+  protected static final MethodAccessor<?> SAVE = findMethod(ENTITY, new Class[]{NBT}, "e", "save");
+  protected static final MethodAccessor<?> SET = findMethod(NBT, new Class[]{String.class, int.class}, "setInt", "a");
 
-  protected static final MethodHandle NEW_NBT = ReflectionUtil.findConstructor(NBT);
+  protected static final MethodAccessor<?> NEW_NBT = ReflectionUtil.findConstructor(NBT);
 
   @LazyInit
   protected static PotionEffect glowingEffect;
@@ -95,16 +95,18 @@ public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEn
     // uhhh nms reflection :(
     try {
       // create a new nbt tag compound
-      var compound = NEW_NBT.invoke();
+      var compound = NEW_NBT.invoke().getOrElse(null);
       // get the nms entity
-      var nmsEntity = GET_HANDLE.invoke(this.entity);
+      var nmsEntity = GET_HANDLE.invoke(this.entity).getOrElse(null);
       // save the entity data to the compound
-      SAVE.invoke(nmsEntity, compound);
-      // rewrite NoAi and Silent values
-      SET.invoke(compound, "NoAI", 1);
-      SET.invoke(compound, "Silent", 1);
-      // load the entity data from the compound again
-      LOAD.invoke(nmsEntity, compound);
+      if (compound != null && nmsEntity != null) {
+        SAVE.invoke(nmsEntity, compound);
+        // rewrite NoAi and Silent values
+        SET.invoke(compound, "NoAI", 1);
+        SET.invoke(compound, "Silent", 1);
+        // load the entity data from the compound again
+        LOAD.invoke(nmsEntity, compound);
+      }
     } catch (Throwable throwable) {
       throw new RuntimeException("Unable to use bleeding reflections on nms entity:", throwable);
     }

@@ -16,32 +16,15 @@
 
 package eu.cloudnetservice.plugins.simplenametags.bukkit;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
+import dev.derklaro.reflexion.MethodAccessor;
+import dev.derklaro.reflexion.Reflexion;
 import lombok.NonNull;
 import org.bukkit.ChatColor;
 import org.bukkit.scoreboard.Team;
 
 final class BukkitCompatibility {
 
-  private static final MethodHandle SET_COLOR;
-
-  static {
-    MethodHandle setColor;
-    // the method will only be available for 1.13+ server
-    try {
-      setColor = MethodHandles.lookup().findVirtual(
-        Team.class,
-        "setColor",
-        MethodType.methodType(void.class, ChatColor.class));
-    } catch (NoSuchMethodException | IllegalAccessException expected) {
-      // 1.8 to 1.12 server
-      setColor = null;
-    }
-    // set the delegate holding field
-    SET_COLOR = setColor;
-  }
+  private static final MethodAccessor<?> SET_COLOR = Reflexion.on(Team.class).findMethod("setColor").orElse(null);
 
   private BukkitCompatibility() {
     throw new UnsupportedOperationException();
@@ -51,11 +34,7 @@ final class BukkitCompatibility {
     // check if the method is available
     if (SET_COLOR != null) {
       // set the team color
-      try {
-        SET_COLOR.invoke(team, color);
-      } catch (Throwable throwable) {
-        throw new IllegalStateException("Team#setColor must succeed on 1.13+ servers", throwable);
-      }
+      SET_COLOR.invoke(team, color);
     }
   }
 }

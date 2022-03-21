@@ -16,6 +16,8 @@
 
 package eu.cloudnetservice.modules.npc.platform.bukkit.entity;
 
+import dev.derklaro.reflexion.MethodAccessor;
+import dev.derklaro.reflexion.Reflexion;
 import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
@@ -27,8 +29,6 @@ import eu.cloudnetservice.modules.npc.configuration.InventoryConfiguration;
 import eu.cloudnetservice.modules.npc.configuration.ItemLayout;
 import eu.cloudnetservice.modules.npc.platform.PlatformSelectorEntity;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
-import eu.cloudnetservice.modules.npc.platform.bukkit.util.ReflectionUtil;
-import java.lang.invoke.MethodHandle;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -58,10 +58,7 @@ import org.jetbrains.annotations.Nullable;
 public abstract class BukkitPlatformSelectorEntity
   implements PlatformSelectorEntity<Location, Player, ItemStack, Inventory> {
 
-  protected static final MethodHandle SET_COLOR = ReflectionUtil.findMethod(
-    Team.class,
-    "setColor",
-    ChatColor.class);
+  protected static final MethodAccessor<?> SET_COLOR = Reflexion.on(Team.class).findMethod("setColor").orElse(null);
 
   protected final NPC npc;
   protected final Plugin plugin;
@@ -114,11 +111,7 @@ public abstract class BukkitPlatformSelectorEntity
         // try to set the team color
         var color = ChatColor.getByChar(this.npc.glowingColor());
         if (color != null) {
-          try {
-            SET_COLOR.invoke(team, color);
-          } catch (Throwable throwable) {
-            throw new IllegalStateException("Unable to set team color", throwable);
-          }
+          SET_COLOR.invoke(team, color);
         }
         // let the entity glow!
         this.addGlowingEffect();

@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.cloudnet.driver.util.define;
 
+import dev.derklaro.reflexion.Reflexion;
 import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.invoke.MethodHandles.Lookup.ClassOption;
-import java.lang.reflect.Field;
 import lombok.NonNull;
 
 /**
@@ -33,32 +33,9 @@ final class LookupClassDefiner implements ClassDefiner {
    * The jvm trusted lookup instance. It allows access to every lookup even if the access to these classes is denied for
    * the current module.
    */
-  private static final Lookup TRUSTED_LOOKUP;
-
-  static {
-    Lookup trustedLookup = null;
-
-    if (UnsafeAccess.available()) {
-      try {
-        // get the trusted lookup field
-        var implLookup = Lookup.class.getDeclaredField("IMPL_LOOKUP");
-        // get the lookup base and offset
-        var base = UnsafeAccess.UNSAFE_CLASS
-          .getMethod("staticFieldBase", Field.class)
-          .invoke(UnsafeAccess.THE_UNSAFE_INSTANCE, implLookup);
-        var offset = (long) UnsafeAccess.UNSAFE_CLASS
-          .getMethod("staticFieldOffset", Field.class)
-          .invoke(UnsafeAccess.THE_UNSAFE_INSTANCE, implLookup);
-        // get the trusted lookup from the field
-        trustedLookup = (Lookup) UnsafeAccess.UNSAFE_CLASS
-          .getMethod("getObject", Object.class, long.class)
-          .invoke(UnsafeAccess.THE_UNSAFE_INSTANCE, base, offset);
-      } catch (Throwable ignored) {
-      }
-    }
-    // set the static final fields
-    TRUSTED_LOOKUP = trustedLookup;
-  }
+  private static final Lookup TRUSTED_LOOKUP = Reflexion.on(Lookup.class).findField("IMPL_LOOKUP")
+    .map(accessor -> accessor.<Lookup>getValue().getOrElse(null))
+    .orElse(null);
 
   /**
    * Get if the lookup class definer requirements are met to use the definer in the current jvm.
