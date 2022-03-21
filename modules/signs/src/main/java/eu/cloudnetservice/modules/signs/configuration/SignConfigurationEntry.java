@@ -25,6 +25,7 @@ import org.jetbrains.annotations.Nullable;
 
 public record SignConfigurationEntry(
   @NonNull String targetGroup,
+  boolean switchToSearchingWhenServiceIsFull,
   @NonNull eu.cloudnetservice.modules.signs.configuration.SignConfigurationEntry.KnockbackConfiguration knockbackConfiguration,
   @NonNull List<SignGroupConfiguration> groupConfigurations,
   @NonNull SignLayoutsHolder searchingLayout,
@@ -38,6 +39,7 @@ public record SignConfigurationEntry(
     String fullBlockType, String startingBlock, String searchingBlock) {
     return new SignConfigurationEntry(
       targetGroup,
+      false,
       KnockbackConfiguration.DEFAULT,
       new ArrayList<>(Collections.singleton(new SignGroupConfiguration(
         "Target_Group",
@@ -130,6 +132,7 @@ public record SignConfigurationEntry(
     } catch (CloneNotSupportedException e) {
       return new SignConfigurationEntry(
         this.targetGroup,
+        this.switchToSearchingWhenServiceIsFull,
         this.knockbackConfiguration,
         new ArrayList<>(this.groupConfigurations),
         this.searchingLayout,

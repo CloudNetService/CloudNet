@@ -61,7 +61,7 @@ public final class LayoutUtil {
         }
       }
     }
-    return false;
+    return entry != null && entry.switchToSearchingWhenServiceIsFull();
   }
 
   public static SignLayoutsHolder layoutHolder(

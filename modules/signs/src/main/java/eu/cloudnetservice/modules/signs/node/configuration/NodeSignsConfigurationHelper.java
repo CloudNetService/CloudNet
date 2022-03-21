@@ -78,6 +78,7 @@ public final class NodeSignsConfigurationHelper {
       convertMessages(oldConfiguration.getMessages()),
       oldConfiguration.getConfigurations().stream().map(oldEntry -> new SignConfigurationEntry(
         oldEntry.getTargetGroup(),
+        oldEntry.isSwitchToSearchingWhenServiceIsFull(),
         new SignConfigurationEntry.KnockbackConfiguration(
           oldEntry.getKnockbackDistance() > 0 && oldEntry.getKnockbackStrength() > 0,
           oldEntry.getKnockbackDistance(),
