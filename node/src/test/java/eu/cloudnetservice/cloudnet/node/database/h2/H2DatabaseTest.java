@@ -20,6 +20,8 @@ import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.node.database.DatabaseHandler;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
@@ -138,10 +140,14 @@ class H2DatabaseTest {
 
     // fill in some data
     var entries = 1235;
+    List<String> keys = new ArrayList<>();
     var expectedReadCounts = (int) Math.ceil(entries / 50D);
 
     for (int i = 0; i < entries; i++) {
-      database.insert(UUID.randomUUID().toString(), JsonDocument.newDocument("this_is", "a_world_test"));
+      var key = UUID.randomUUID().toString();
+
+      keys.add(key);
+      database.insert(key, JsonDocument.newDocument("this_is", "a_world_test"));
     }
 
     Assertions.assertEquals(entries, database.documentCount());
@@ -155,8 +161,10 @@ class H2DatabaseTest {
       readsCalled++;
 
       Assertions.assertFalse(currentChunk.size() > 50);
+      Assertions.assertTrue(keys.removeAll(currentChunk.keySet()));
     }
 
     Assertions.assertEquals(expectedReadCounts, readsCalled);
+    Assertions.assertTrue(keys.isEmpty());
   }
 }
