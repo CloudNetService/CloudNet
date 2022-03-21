@@ -213,6 +213,10 @@ public abstract class AbstractService implements CloudService {
 
   @Override
   public void updateLifecycle(@NonNull ServiceLifeCycle lifeCycle) {
+    this.updateLifecycle(lifeCycle, this.serviceConfiguration().autoDeleteOnStop());
+  }
+
+  protected void updateLifecycle(@NonNull ServiceLifeCycle lifeCycle, boolean switchToDeletedOnStop) {
     try {
       // prevent multiple service updates at the same time
       this.lifecycleLock.lock();
@@ -247,7 +251,7 @@ public abstract class AbstractService implements CloudService {
         case STOPPED -> {
           if (this.preLifecycleChange(ServiceLifeCycle.STOPPED)) {
             // check if we should delete the service when stopping
-            if (this.serviceConfiguration().autoDeleteOnStop()) {
+            if (switchToDeletedOnStop) {
               this.doDelete();
               // update the current service info
               this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.DELETED);
@@ -263,7 +267,6 @@ public abstract class AbstractService implements CloudService {
         // cannot be set - just ignore
         case PREPARED -> LOGGER.info(I18n.trans("cloudnet-service-post-prepared-message", this.serviceReplacement()));
         default -> throw new IllegalStateException("Unhandled ServiceLifeCycle: " + lifeCycle);
-
       }
     } finally {
       this.lifecycleLock.unlock();
@@ -272,8 +275,8 @@ public abstract class AbstractService implements CloudService {
 
   @Override
   public void restart() {
-    this.stop();
-    this.start();
+    this.updateLifecycle(ServiceLifeCycle.STOPPED, false);
+    this.updateLifecycle(ServiceLifeCycle.RUNNING);
   }
 
   @Override
