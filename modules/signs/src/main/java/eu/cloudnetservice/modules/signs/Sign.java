@@ -110,7 +110,10 @@ public class Sign implements Comparable<Sign> {
    * @return the priority of the sign to be on the sign wall
    */
   public int priority(@Nullable SignConfigurationEntry entry) {
-    return this.priority(entry != null && entry.switchToSearchingWhenServiceIsFull());
+    // check if the service has a snapshot
+    var target = this.currentTarget();
+    // no target has the lowest priority
+    return target == null ? 0 : PriorityUtil.priority(target, entry);
   }
 
   /**

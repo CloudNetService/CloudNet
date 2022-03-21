@@ -25,14 +25,11 @@ import lombok.ToString;
 @ToString
 public class SignLayoutsHolder {
 
-  protected int animationsPerSecond;
-  protected List<SignLayout> signLayouts;
+  private final int animationsPerSecond;
+  private final List<SignLayout> signLayouts;
 
-  protected transient AtomicBoolean tickBlocked;
-  protected transient AtomicInteger currentAnimation;
-
-  public SignLayoutsHolder() {
-  }
+  private final transient AtomicBoolean tickBlocked = new AtomicBoolean();
+  private final transient AtomicInteger currentAnimation = new AtomicInteger(-1);
 
   public SignLayoutsHolder(int animationsPerSecond, List<SignLayout> signLayouts) {
     this.animationsPerSecond = animationsPerSecond;
@@ -43,16 +40,8 @@ public class SignLayoutsHolder {
     return this.animationsPerSecond;
   }
 
-  public void animationsPerSecond(int animationsPerSecond) {
-    this.animationsPerSecond = animationsPerSecond;
-  }
-
   public List<SignLayout> signLayouts() {
     return this.signLayouts;
-  }
-
-  public void signLayouts(List<SignLayout> signLayouts) {
-    this.signLayouts = signLayouts;
   }
 
   public boolean hasLayouts() {
@@ -60,20 +49,15 @@ public class SignLayoutsHolder {
   }
 
   public boolean tickBlocked() {
-    return this.tickBlocked != null && this.tickBlocked.get();
+    return this.tickBlocked.get();
   }
 
   public void enableTickBlock() {
-    if (this.tickBlocked == null) {
-      this.tickBlocked = new AtomicBoolean();
-    }
     this.tickBlocked.set(true);
   }
 
   public SignLayoutsHolder releaseTickBlock() {
-    if (this.tickBlocked != null) {
-      this.tickBlocked.set(false);
-    }
+    this.tickBlocked.set(false);
     return this;
   }
 
@@ -83,9 +67,8 @@ public class SignLayoutsHolder {
 
   public SignLayoutsHolder tick() {
     if (!this.tickBlocked()) {
-      var currentIndex = this.currentAnimationIndexOrInit();
-      if (currentIndex.incrementAndGet() >= this.signLayouts.size()) {
-        currentIndex.set(0);
+      if (this.currentAnimation.incrementAndGet() >= this.signLayouts.size()) {
+        this.currentAnimation.set(0);
       }
     }
     return this;
@@ -93,9 +76,5 @@ public class SignLayoutsHolder {
 
   public int currentAnimation() {
     return this.currentAnimation == null ? 0 : this.currentAnimation.get();
-  }
-
-  protected AtomicInteger currentAnimationIndexOrInit() {
-    return Objects.requireNonNullElseGet(this.currentAnimation, () -> this.currentAnimation = new AtomicInteger(-1));
   }
 }

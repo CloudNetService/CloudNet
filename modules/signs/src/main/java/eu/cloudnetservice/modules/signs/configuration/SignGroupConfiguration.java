@@ -16,51 +16,12 @@
 
 package eu.cloudnetservice.modules.signs.configuration;
 
-public class SignGroupConfiguration implements Cloneable {
+import lombok.NonNull;
 
-  protected String targetGroup;
-
-  protected SignLayoutsHolder emptyLayout;
-  protected SignLayoutsHolder onlineLayout;
-  protected SignLayoutsHolder fullLayout;
-
-  public SignGroupConfiguration() {
-  }
-
-  public SignGroupConfiguration(
-    String targetGroup,
-    SignLayoutsHolder emptyLayout,
-    SignLayoutsHolder onlineLayout,
-    SignLayoutsHolder fullLayout
-  ) {
-    this.targetGroup = targetGroup;
-    this.emptyLayout = emptyLayout;
-    this.onlineLayout = onlineLayout;
-    this.fullLayout = fullLayout;
-  }
-
-  public String targetGroup() {
-    return this.targetGroup;
-  }
-
-  public SignLayoutsHolder emptyLayout() {
-    return this.emptyLayout;
-  }
-
-  public SignLayoutsHolder onlineLayout() {
-    return this.onlineLayout;
-  }
-
-  public SignLayoutsHolder fullLayout() {
-    return this.fullLayout;
-  }
-
-  @Override
-  public SignGroupConfiguration clone() {
-    try {
-      return (SignGroupConfiguration) super.clone();
-    } catch (CloneNotSupportedException e) {
-      return new SignGroupConfiguration(this.targetGroup, this.emptyLayout, this.onlineLayout, this.fullLayout);
-    }
-  }
+public record SignGroupConfiguration(
+  @NonNull String targetGroup,
+  boolean switchToSearchingWhenServiceIsFull,
+  @NonNull SignLayoutsHolder emptyLayout,
+  @NonNull SignLayoutsHolder onlineLayout,
+  @NonNull SignLayoutsHolder fullLayout) {
 }

@@ -21,48 +21,27 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
-public class SignConfigurationEntry implements Cloneable {
-
-  protected String targetGroup;
-  protected boolean switchToSearchingWhenServiceIsFull;
-  protected KnockbackConfiguration knockbackConfiguration;
-
-  protected List<SignGroupConfiguration> groupConfigurations;
-
-  protected SignLayoutsHolder searchingLayout;
-  protected SignLayoutsHolder startingLayout;
-  protected SignLayoutsHolder emptyLayout;
-  protected SignLayoutsHolder onlineLayout;
-  protected SignLayoutsHolder fullLayout;
-
-  public SignConfigurationEntry() {
-  }
-
-  public SignConfigurationEntry(String targetGroup, boolean switchToSearchingWhenServiceIsFull,
-    KnockbackConfiguration knockbackConfiguration,
-    List<SignGroupConfiguration> groupConfigurations, SignLayoutsHolder searchingLayout,
-    SignLayoutsHolder startingLayout,
-    SignLayoutsHolder emptyLayout, SignLayoutsHolder onlineLayout, SignLayoutsHolder fullLayout) {
-    this.targetGroup = targetGroup;
-    this.switchToSearchingWhenServiceIsFull = switchToSearchingWhenServiceIsFull;
-    this.knockbackConfiguration = knockbackConfiguration;
-    this.groupConfigurations = groupConfigurations;
-    this.searchingLayout = searchingLayout;
-    this.startingLayout = startingLayout;
-    this.emptyLayout = emptyLayout;
-    this.onlineLayout = onlineLayout;
-    this.fullLayout = fullLayout;
-  }
+public record SignConfigurationEntry(
+  @NonNull String targetGroup,
+  @NonNull eu.cloudnetservice.modules.signs.configuration.SignConfigurationEntry.KnockbackConfiguration knockbackConfiguration,
+  @NonNull List<SignGroupConfiguration> groupConfigurations,
+  @NonNull SignLayoutsHolder searchingLayout,
+  @NonNull SignLayoutsHolder startingLayout,
+  @NonNull SignLayoutsHolder emptyLayout,
+  @NonNull SignLayoutsHolder onlineLayout,
+  @NonNull SignLayoutsHolder fullLayout
+) implements Cloneable {
 
   public static @NonNull SignConfigurationEntry createDefault(String targetGroup, String onlineBlockType,
     String fullBlockType, String startingBlock, String searchingBlock) {
     return new SignConfigurationEntry(
       targetGroup,
-      false,
-      new KnockbackConfiguration(1, 0.8),
+      KnockbackConfiguration.DEFAULT,
       new ArrayList<>(Collections.singleton(new SignGroupConfiguration(
         "Target_Group",
+        false,
         new SignLayoutsHolder(1, new ArrayList<>(Collections.singleton(new SignLayout(
           new String[]{
             "&7Lobby &0- &7%task_id%",
@@ -134,7 +113,7 @@ public class SignConfigurationEntry implements Cloneable {
     );
   }
 
-  protected static @NonNull SignLayout createLayout(String firstLine, String block, int amount) {
+  private static @NonNull SignLayout createLayout(String firstLine, String block, int amount) {
     return new SignLayout(
       new String[]{
         "",
@@ -144,88 +123,14 @@ public class SignConfigurationEntry implements Cloneable {
       }, block, -1, null);
   }
 
-  public String targetGroup() {
-    return this.targetGroup;
-  }
-
-  public void targetGroup(String targetGroup) {
-    this.targetGroup = targetGroup;
-  }
-
-  public boolean switchToSearchingWhenServiceIsFull() {
-    return this.switchToSearchingWhenServiceIsFull;
-  }
-
-  public void switchToSearchingWhenServiceIsFull(boolean switchToSearchingWhenServiceIsFull) {
-    this.switchToSearchingWhenServiceIsFull = switchToSearchingWhenServiceIsFull;
-  }
-
-  public KnockbackConfiguration knockbackConfiguration() {
-    return this.knockbackConfiguration;
-  }
-
-  public void knockbackConfiguration(KnockbackConfiguration knockbackConfiguration) {
-    this.knockbackConfiguration = knockbackConfiguration;
-  }
-
-  public List<SignGroupConfiguration> groupConfigurations() {
-    return this.groupConfigurations;
-  }
-
-  public void groupConfigurations(List<SignGroupConfiguration> groupConfigurations) {
-    this.groupConfigurations = groupConfigurations;
-  }
-
-  public SignLayoutsHolder searchingLayout() {
-    return this.searchingLayout;
-  }
-
-  public void searchingLayout(SignLayoutsHolder searchingLayout) {
-    this.searchingLayout = searchingLayout;
-  }
-
-  public SignLayoutsHolder startingLayout() {
-    return this.startingLayout;
-  }
-
-  public void startingLayout(SignLayoutsHolder startingLayout) {
-    this.startingLayout = startingLayout;
-  }
-
-  public SignLayoutsHolder emptyLayout() {
-    return this.emptyLayout;
-  }
-
-  public void emptyLayout(SignLayoutsHolder emptyLayout) {
-    this.emptyLayout = emptyLayout;
-  }
-
-  public SignLayoutsHolder onlineLayout() {
-    return this.onlineLayout;
-  }
-
-  public void onlineLayout(SignLayoutsHolder onlineLayout) {
-    this.onlineLayout = onlineLayout;
-  }
-
-  public SignLayoutsHolder fullLayout() {
-    return this.fullLayout;
-  }
-
-  public void fullLayout(SignLayoutsHolder fullLayout) {
-    this.fullLayout = fullLayout;
-  }
-
   @Override
   public SignConfigurationEntry clone() {
     try {
-      var clone = (SignConfigurationEntry) super.clone();
-      return clone;
+      return (SignConfigurationEntry) super.clone();
     } catch (CloneNotSupportedException e) {
       return new SignConfigurationEntry(
         this.targetGroup,
-        this.switchToSearchingWhenServiceIsFull,
-        this.knockbackConfiguration.clone(),
+        this.knockbackConfiguration,
         new ArrayList<>(this.groupConfigurations),
         this.searchingLayout,
         this.startingLayout,
@@ -236,78 +141,18 @@ public class SignConfigurationEntry implements Cloneable {
     }
   }
 
-  public static class KnockbackConfiguration implements Cloneable {
+  public record KnockbackConfiguration(
+    boolean enabled,
+    double distance,
+    double strength,
+    @Nullable String bypassPermission
+  )  {
 
-    protected static final KnockbackConfiguration DEFAULT = new KnockbackConfiguration(true, 1,
+    public static final KnockbackConfiguration DEFAULT = new KnockbackConfiguration(true, 1,
       0.8, "cloudnet.signs.knockback.bypass");
-    protected static final KnockbackConfiguration DISABLED = new KnockbackConfiguration(false, 1, 0.8);
-
-    protected boolean enabled;
-    protected double distance;
-    protected double strength;
-    protected String bypassPermission;
-
-    public KnockbackConfiguration() {
-    }
-
-    public KnockbackConfiguration(double distance, double strength) {
-      this(true, distance, strength);
-    }
-
-    public KnockbackConfiguration(boolean enabled, double distance, double strength) {
-      this(enabled, distance, strength, "cloudnet.signs.knockback.bypass");
-    }
-
-    public KnockbackConfiguration(boolean enabled, double distance, double strength, String bypassPermission) {
-      this.enabled = enabled;
-      this.distance = distance;
-      this.strength = strength;
-      this.bypassPermission = bypassPermission;
-    }
-
-    public boolean enabled() {
-      return this.enabled;
-    }
-
-    public void enabled(boolean enabled) {
-      this.enabled = enabled;
-    }
-
-    public double distance() {
-      return this.distance;
-    }
-
-    public void distance(double distance) {
-      this.distance = distance;
-    }
-
-    public double strength() {
-      return this.strength;
-    }
-
-    public void strength(double strength) {
-      this.strength = strength;
-    }
-
-    public String bypassPermission() {
-      return this.bypassPermission;
-    }
-
-    public void bypassPermission(String bypassPermission) {
-      this.bypassPermission = bypassPermission;
-    }
 
     public boolean validAndEnabled() {
       return this.enabled && this.strength > 0 && this.distance > 0;
-    }
-
-    @Override
-    public KnockbackConfiguration clone() {
-      try {
-        return (KnockbackConfiguration) super.clone();
-      } catch (CloneNotSupportedException exception) {
-        return new KnockbackConfiguration(this.enabled, this.distance, this.strength, this.bypassPermission);
-      }
     }
   }
 }

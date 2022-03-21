@@ -39,8 +39,7 @@ public final class PriorityUtil {
   }
 
   public static int priority(@NonNull ServiceInfoSnapshot snapshot, @Nullable SignConfigurationEntry entry) {
-    // Get the state of the service
-    return priority(snapshot, entry != null && entry.switchToSearchingWhenServiceIsFull());
+    return priority(snapshot, LayoutUtil.switchToSearching(snapshot, entry));
   }
 
   public static int priority(@NonNull ServiceInfoSnapshot snapshot, boolean lowerFullToSearching) {
