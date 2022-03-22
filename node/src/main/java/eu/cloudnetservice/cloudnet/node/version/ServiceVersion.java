@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.node.template.install;
+package eu.cloudnetservice.cloudnet.node.version;
 
 import eu.cloudnetservice.cloudnet.common.JavaVersion;
 import eu.cloudnetservice.cloudnet.common.Nameable;

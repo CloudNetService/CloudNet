@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.node.template.install.execute.defaults;
+package eu.cloudnetservice.cloudnet.node.version.execute.defaults;
 
 import eu.cloudnetservice.cloudnet.node.console.animation.progressbar.ConsoleProgressWrappers;
-import eu.cloudnetservice.cloudnet.node.template.install.InstallInformation;
-import eu.cloudnetservice.cloudnet.node.template.install.execute.InstallStepExecutor;
+import eu.cloudnetservice.cloudnet.node.version.execute.InstallStepExecutor;
+import eu.cloudnetservice.cloudnet.node.version.information.VersionInstaller;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,15 +32,14 @@ public class DownloadStepExecutor implements InstallStepExecutor {
 
   @Override
   public @NonNull Set<Path> execute(
-    @NonNull InstallInformation installInformation,
+    @NonNull VersionInstaller installer,
     @NonNull Path workingDirectory,
     @NonNull Set<Path> inputPaths
   ) throws IOException {
-    var targetPath = workingDirectory.resolve(
-      Path.of(installInformation.serviceVersionType().name() + ".jar"));
+    var targetPath = workingDirectory.resolve(installer.serviceVersionType().name() + ".jar");
 
     ConsoleProgressWrappers.wrapDownload(
-      installInformation.serviceVersion().url(),
+      installer.serviceVersion().url(),
       stream -> Files.copy(stream, targetPath, StandardCopyOption.REPLACE_EXISTING));
     return new HashSet<>(Collections.singleton(targetPath));
   }

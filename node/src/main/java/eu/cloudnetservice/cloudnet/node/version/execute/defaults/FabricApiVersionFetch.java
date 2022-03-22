@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.node.template.install.execute.defaults;
+package eu.cloudnetservice.cloudnet.node.version.execute.defaults;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import eu.cloudnetservice.cloudnet.node.template.install.InstallInformation;
-import eu.cloudnetservice.cloudnet.node.template.install.execute.InstallStepExecutor;
+import eu.cloudnetservice.cloudnet.node.version.execute.InstallStepExecutor;
+import eu.cloudnetservice.cloudnet.node.version.information.VersionInstaller;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -34,12 +34,12 @@ public class FabricApiVersionFetch implements InstallStepExecutor {
 
   @Override
   public @NonNull Set<Path> execute(
-    @NonNull InstallInformation info,
+    @NonNull VersionInstaller installer,
     @NonNull Path workingDirectory,
     @NonNull Set<Path> files
   ) throws IOException {
     // check if we need the fabric api to fetch the version
-    var enabled = info.serviceVersion().properties().getBoolean("fetchOverFabricApi");
+    var enabled = installer.serviceVersion().properties().getBoolean("fetchOverFabricApi");
     if (enabled) {
       var element = this.makeRequest();
       if (element == null) {
@@ -52,7 +52,7 @@ public class FabricApiVersionFetch implements InstallStepExecutor {
         // only allow stable fabric versions
         if (jsonObject.get("stable").getAsBoolean()) {
           // set the fabric loader download url
-          info.serviceVersion().url(jsonObject.get("url").getAsString());
+          installer.serviceVersion().url(jsonObject.get("url").getAsString());
           // we don't have any paths
           return Collections.emptySet();
         }

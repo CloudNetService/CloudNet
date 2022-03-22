@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.node.template.install.execute.defaults;
+package eu.cloudnetservice.cloudnet.node.version.execute.defaults;
 
 import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.cloudnet.common.collection.Pair;
-import eu.cloudnetservice.cloudnet.node.template.install.InstallInformation;
-import eu.cloudnetservice.cloudnet.node.template.install.execute.InstallStepExecutor;
+import eu.cloudnetservice.cloudnet.node.version.execute.InstallStepExecutor;
+import eu.cloudnetservice.cloudnet.node.version.information.VersionInstaller;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
@@ -37,16 +37,15 @@ public class CopyFilterStepExecutor implements InstallStepExecutor {
 
   @Override
   public @NonNull Set<Path> execute(
-    @NonNull InstallInformation installInformation,
+    @NonNull VersionInstaller installer,
     @NonNull Path workingDirectory,
     @NonNull Set<Path> inputPaths
   ) throws IOException {
-    Map<String, String> copy = installInformation.serviceVersion().properties().get("copy", STRING_MAP);
-
+    Map<String, String> copy = installer.serviceVersion().properties().get("copy", STRING_MAP);
     if (copy == null) {
       throw new IllegalStateException(String.format(
         "Missing copy property on service version %s!",
-        installInformation.serviceVersion().name()));
+        installer.serviceVersion().name()));
     }
 
     var patterns = copy.entrySet().stream()

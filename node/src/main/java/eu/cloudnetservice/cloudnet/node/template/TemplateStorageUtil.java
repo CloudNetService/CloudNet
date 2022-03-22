@@ -22,7 +22,6 @@ import eu.cloudnetservice.cloudnet.driver.template.SpecificTemplateStorage;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.event.template.ServiceTemplateInstallEvent;
 import java.io.IOException;
-import java.nio.file.Path;
 import lombok.NonNull;
 
 /**
@@ -32,14 +31,6 @@ public final class TemplateStorageUtil {
 
   private TemplateStorageUtil() {
     throw new UnsupportedOperationException();
-  }
-
-  public static @NonNull LocalTemplateStorage localTemplateStorage() {
-    return (LocalTemplateStorage) CloudNet.instance().localTemplateStorage();
-  }
-
-  public static @NonNull Path localPathInTemplate(@NonNull ServiceTemplate serviceTemplate, @NonNull String path) {
-    return localTemplateStorage().getTemplatePath(serviceTemplate).resolve(path).normalize();
   }
 
   public static boolean createAndPrepareTemplate(

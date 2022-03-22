@@ -19,14 +19,10 @@ package eu.cloudnetservice.cloudnet.node.command.sub;
 import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
-import cloud.commandframework.annotations.Flag;
 import cloud.commandframework.annotations.parsers.Parser;
-import cloud.commandframework.annotations.specifier.Quoted;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
-import eu.cloudnetservice.cloudnet.common.JavaVersion;
 import eu.cloudnetservice.cloudnet.common.Nameable;
-import eu.cloudnetservice.cloudnet.common.collection.Pair;
 import eu.cloudnetservice.cloudnet.common.column.ColumnFormatter;
 import eu.cloudnetservice.cloudnet.common.column.RowBasedFormatter;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
@@ -39,14 +35,10 @@ import eu.cloudnetservice.cloudnet.node.command.annotation.Description;
 import eu.cloudnetservice.cloudnet.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
 import eu.cloudnetservice.cloudnet.node.template.TemplateStorageUtil;
-import eu.cloudnetservice.cloudnet.node.template.install.InstallInformation;
-import eu.cloudnetservice.cloudnet.node.template.install.ServiceVersion;
-import eu.cloudnetservice.cloudnet.node.template.install.ServiceVersionType;
-import eu.cloudnetservice.cloudnet.node.util.JavaVersionResolver;
+import eu.cloudnetservice.cloudnet.node.version.ServiceVersion;
+import eu.cloudnetservice.cloudnet.node.version.ServiceVersionType;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Queue;
 import lombok.NonNull;
@@ -63,17 +55,6 @@ public final class CommandTemplate {
     .column(ServiceTemplate::prefix)
     .column(ServiceTemplate::name)
     .build();
-  private static final RowBasedFormatter<Pair<ServiceVersionType, ServiceVersion>> VERSIONS =
-    RowBasedFormatter.<Pair<ServiceVersionType, ServiceVersion>>builder()
-      .defaultFormatter(ColumnFormatter.builder()
-        .columnTitles("Target", "Name", "Deprecated", "Min Java", "Max Java")
-        .build())
-      .column(pair -> pair.first().name())
-      .column(pair -> pair.second().name())
-      .column(pair -> pair.second().deprecated())
-      .column(pair -> pair.second().minJavaVersion().orElse(JavaVersion.JAVA_8).name())
-      .column(pair -> pair.second().maxJavaVersion().map(JavaVersion::name).orElse("No maximum"))
-      .build();
 
   @Parser(suggestions = "serviceTemplate")
   public @NonNull ServiceTemplate defaultServiceTemplateParser(
@@ -115,25 +96,6 @@ public final class CommandTemplate {
       .stream()
       .map(Nameable::name)
       .toList();
-  }
-
-  @Parser(suggestions = "serviceVersionType")
-  public @NonNull ServiceVersionType defaultVersionTypeParser(
-    @NonNull CommandContext<?> $,
-    @NonNull Queue<String> input
-  ) {
-    var versionTypeName = input.remove().toLowerCase();
-    return CloudNet.instance().serviceVersionProvider().getServiceVersionType(versionTypeName)
-      .orElseThrow(() -> new ArgumentNotAvailableException(
-        I18n.trans("command-template-invalid-version-type")));
-  }
-
-  @Suggestions("serviceVersionType")
-  public @NonNull List<String> suggestServiceVersionType(
-    @NonNull CommandContext<?> $,
-    @NonNull String input
-  ) {
-    return new ArrayList<>(CloudNet.instance().serviceVersionProvider().serviceVersionTypes().keySet());
   }
 
   @Parser(suggestions = "version")
@@ -190,83 +152,6 @@ public final class CommandTemplate {
     }
 
     source.sendMessage(LIST_FORMATTER.format(templates));
-  }
-
-  @CommandMethod("template|t versions|v [versionType]")
-  public void displayTemplateVersions(
-    @NonNull CommandSource source,
-    @Nullable @Argument("versionType") ServiceVersionType versionType
-  ) {
-    Collection<Pair<ServiceVersionType, ServiceVersion>> versions;
-    if (versionType == null) {
-      versions = CloudNet.instance().serviceVersionProvider()
-        .serviceVersionTypes()
-        .values().stream()
-        .flatMap(type -> type.versions().stream()
-          .sorted(Comparator.comparing(ServiceVersion::name))
-          .map(version -> new Pair<>(type, version)))
-        .toList();
-    } else {
-      versions = CloudNet.instance().serviceVersionProvider().serviceVersionTypes()
-        .get(versionType.name().toLowerCase())
-        .versions()
-        .stream()
-        .sorted(Comparator.comparing(ServiceVersion::name))
-        .map(version -> new Pair<>(versionType, version))
-        .toList();
-    }
-
-    source.sendMessage(VERSIONS.format(versions));
-  }
-
-  @CommandMethod("template|t install <template> <versionType> <version>")
-  public void installTemplate(
-    @NonNull CommandSource source,
-    @NonNull @Argument("template") ServiceTemplate serviceTemplate,
-    @NonNull @Argument("versionType") ServiceVersionType versionType,
-    @NonNull @Argument("version") ServiceVersion serviceVersion,
-    @Flag("force") boolean forceInstall,
-    @Flag("no-cache") boolean noCache,
-    @Nullable @Flag("executable") @Quoted String executable
-  ) {
-    var resolvedExecutable = executable == null ? "java" : executable;
-    var javaVersion = JavaVersionResolver.resolveFromJavaExecutable(resolvedExecutable);
-    if (javaVersion == null) {
-      source.sendMessage(I18n.trans("command-tasks-setup-question-javacommand-invalid"));
-      return;
-    }
-
-    var fullVersionName = versionType.name() + "-" + serviceVersion.name();
-
-    if (!versionType.canInstall(serviceVersion, javaVersion)) {
-      source.sendMessage(I18n.trans("command-template-install-wrong-java",
-        fullVersionName,
-        javaVersion.name()));
-      if (!forceInstall) {
-        return;
-      }
-    }
-
-    CloudNet.instance().mainThread().runTask(() -> {
-      source.sendMessage(I18n.trans("command-template-install-try",
-        fullVersionName,
-        serviceTemplate));
-
-      var installInformation = InstallInformation.builder()
-        .serviceVersionType(versionType)
-        .serviceVersion(serviceVersion)
-        .cacheFiles(!noCache)
-        .toTemplate(serviceTemplate)
-        .executable(resolvedExecutable.equals("java") ? null : resolvedExecutable)
-        .build();
-
-      if (CloudNet.instance().serviceVersionProvider().installServiceVersion(installInformation, forceInstall)) {
-        source.sendMessage(I18n.trans("command-template-install-success", fullVersionName, serviceTemplate));
-      } else {
-        source.sendMessage(I18n.trans("command-template-install-failed", fullVersionName, serviceTemplate));
-      }
-    });
-
   }
 
   @CommandMethod("template|t delete|rm|del <template>")

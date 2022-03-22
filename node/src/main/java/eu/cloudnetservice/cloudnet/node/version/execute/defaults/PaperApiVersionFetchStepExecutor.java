@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.node.template.install.execute.defaults;
+package eu.cloudnetservice.cloudnet.node.version.execute.defaults;
 
 import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.node.template.install.InstallInformation;
-import eu.cloudnetservice.cloudnet.node.template.install.ServiceVersionType;
-import eu.cloudnetservice.cloudnet.node.template.install.execute.InstallStepExecutor;
+import eu.cloudnetservice.cloudnet.node.version.ServiceVersionType;
+import eu.cloudnetservice.cloudnet.node.version.execute.InstallStepExecutor;
+import eu.cloudnetservice.cloudnet.node.version.information.VersionInstaller;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -36,16 +36,16 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
 
   @Override
   public @NonNull Set<Path> execute(
-    @NonNull InstallInformation installInformation,
+    @NonNull VersionInstaller installer,
     @NonNull Path workingDirectory,
     @NonNull Set<Path> inputPaths
   ) {
     // check if we need to fetch using the paper api
-    var enabled = installInformation.serviceVersion().properties().getBoolean("fetchOverPaperApi");
-    var versionGroup = installInformation.serviceVersion().properties().getString("versionGroup");
+    var enabled = installer.serviceVersion().properties().getBoolean("fetchOverPaperApi");
+    var versionGroup = installer.serviceVersion().properties().getString("versionGroup");
     if (enabled && versionGroup != null) {
       // resolve the project name we should use for the api request
-      var project = this.decideApiProjectName(installInformation.serviceVersionType());
+      var project = this.decideApiProjectName(installer.serviceVersionType());
       var versionInformation = this.makeRequest(String.format(VERSION_LIST_URL, project, versionGroup));
       // check if there are any builds for the version
       if (versionInformation.contains("builds")) {
@@ -57,7 +57,7 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
         if (newestBuild.isPresent()) {
           // set the download url of the service version required in the download step
           int build = newestBuild.get();
-          installInformation.serviceVersion()
+          installer.serviceVersion()
             .url(String.format(DOWNLOAD_URL, project, versionGroup, build, project, versionGroup, build));
         } else {
           throw new IllegalStateException(

@@ -77,7 +77,7 @@ import eu.cloudnetservice.cloudnet.node.service.defaults.DefaultCloudServiceMana
 import eu.cloudnetservice.cloudnet.node.service.defaults.NodeCloudServiceFactory;
 import eu.cloudnetservice.cloudnet.node.setup.DefaultInstallation;
 import eu.cloudnetservice.cloudnet.node.template.LocalTemplateStorage;
-import eu.cloudnetservice.cloudnet.node.template.install.ServiceVersionProvider;
+import eu.cloudnetservice.cloudnet.node.version.ServiceVersionProvider;
 import eu.cloudnetservice.ext.updater.UpdaterRegistry;
 import java.io.File;
 import java.nio.file.Path;
