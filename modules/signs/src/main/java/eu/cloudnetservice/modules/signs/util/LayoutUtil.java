@@ -49,6 +49,21 @@ public final class LayoutUtil {
     return layoutHolder(entry, sign, snapshot).tick().currentLayout();
   }
 
+  public static boolean switchToSearching(
+    @NonNull ServiceInfoSnapshot snapshot,
+    @Nullable SignConfigurationEntry entry
+  ) {
+    if (entry != null) {
+      for (var groupConfiguration : entry.groupConfigurations()) {
+        if (snapshot.configuration().groups().contains(groupConfiguration.targetGroup())
+          && groupConfiguration.switchToSearchingWhenServiceIsFull()) {
+          return true;
+        }
+      }
+    }
+    return entry != null && entry.switchToSearchingWhenServiceIsFull();
+  }
+
   public static SignLayoutsHolder layoutHolder(
     @NonNull SignConfigurationEntry entry,
     @NonNull Sign sign,
@@ -68,12 +83,7 @@ public final class LayoutUtil {
       // check for an overriding group configuration
       SignGroupConfiguration groupConfiguration = null;
       for (var configuration : entry.groupConfigurations()) {
-        if (configuration.targetGroup() != null
-          && configuration.targetGroup().equals(sign.targetGroup())
-          && configuration.emptyLayout() != null
-          && configuration.onlineLayout() != null
-          && configuration.fullLayout() != null
-        ) {
+        if (configuration.targetGroup().equals(sign.targetGroup())) {
           groupConfiguration = configuration;
           break;
         }
@@ -82,7 +92,7 @@ public final class LayoutUtil {
       return switch (state) {
         case EMPTY_ONLINE -> groupConfiguration == null ? entry.emptyLayout() : groupConfiguration.emptyLayout();
         case ONLINE -> groupConfiguration == null ? entry.onlineLayout() : groupConfiguration.onlineLayout();
-        case FULL_ONLINE -> entry.switchToSearchingWhenServiceIsFull()
+        case FULL_ONLINE -> switchToSearching(snapshot, entry)
           ? entry.searchingLayout()
           : groupConfiguration == null ? entry.fullLayout() : groupConfiguration.fullLayout();
         default -> throw new IllegalStateException("Unexpected service state: " + state);

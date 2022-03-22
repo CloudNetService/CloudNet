@@ -82,10 +82,12 @@ public final class NodeSignsConfigurationHelper {
         new SignConfigurationEntry.KnockbackConfiguration(
           oldEntry.getKnockbackDistance() > 0 && oldEntry.getKnockbackStrength() > 0,
           oldEntry.getKnockbackDistance(),
-          oldEntry.getKnockbackStrength()
+          oldEntry.getKnockbackStrength(),
+          null
         ),
         oldEntry.getTaskLayouts().stream().map(oldTaskEntry -> new SignGroupConfiguration(
           oldTaskEntry.getTask(),
+          oldEntry.isSwitchToSearchingWhenServiceIsFull(),
           convertSingleToMany(oldTaskEntry.getEmptyLayout()),
           convertSingleToMany(oldTaskEntry.getOnlineLayout()),
           convertSingleToMany(oldTaskEntry.getFullLayout())
