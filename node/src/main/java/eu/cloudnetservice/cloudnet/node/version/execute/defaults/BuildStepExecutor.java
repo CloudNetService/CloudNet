@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.node.template.install.execute.defaults;
+package eu.cloudnetservice.cloudnet.node.version.execute.defaults;
 
 import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
-import eu.cloudnetservice.cloudnet.node.template.install.InstallInformation;
-import eu.cloudnetservice.cloudnet.node.template.install.execute.InstallStepExecutor;
+import eu.cloudnetservice.cloudnet.node.version.execute.InstallStepExecutor;
+import eu.cloudnetservice.cloudnet.node.version.information.VersionInstaller;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,11 +51,11 @@ public class BuildStepExecutor implements InstallStepExecutor {
 
   @Override
   public @NonNull Set<Path> execute(
-    @NonNull InstallInformation information,
+    @NonNull VersionInstaller installer,
     @NonNull Path workDir,
     @NonNull Set<Path> paths
   ) throws IOException {
-    var version = information.serviceVersion();
+    var version = installer.serviceVersion();
 
     Collection<String> jvmOptions = version.properties().get("jvmOptions", STRING_LIST_TYPE);
     List<String> parameters = version.properties().get("parameters", STRING_LIST_TYPE, new ArrayList<>());
@@ -63,7 +63,7 @@ public class BuildStepExecutor implements InstallStepExecutor {
     for (var path : paths) {
       List<String> arguments = new ArrayList<>();
 
-      arguments.add(information.installerExecCommand().orElse(CloudNet.instance().config().javaCommand()));
+      arguments.add(installer.installerExecutable().orElse(CloudNet.instance().config().javaCommand()));
       if (jvmOptions != null) {
         arguments.addAll(jvmOptions);
       }

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.node.template.install.execute;
+package eu.cloudnetservice.cloudnet.node.version.execute;
 
-import eu.cloudnetservice.cloudnet.node.template.install.InstallInformation;
+import eu.cloudnetservice.cloudnet.node.version.information.VersionInstaller;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Set;
@@ -29,7 +29,7 @@ import lombok.NonNull;
 public interface InstallStepExecutor {
 
   @NonNull Set<Path> execute(
-    @NonNull InstallInformation info,
+    @NonNull VersionInstaller installer,
     @NonNull Path workingDirectory,
     @NonNull Set<Path> files) throws IOException;
 

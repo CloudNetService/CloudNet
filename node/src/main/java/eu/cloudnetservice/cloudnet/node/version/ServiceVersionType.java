@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.node.template.install;
+package eu.cloudnetservice.cloudnet.node.version;
 
 import eu.cloudnetservice.cloudnet.common.JavaVersion;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironment;
-import eu.cloudnetservice.cloudnet.node.template.install.execute.InstallStep;
+import eu.cloudnetservice.cloudnet.node.version.execute.InstallStep;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;

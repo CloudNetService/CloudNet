@@ -28,9 +28,9 @@ import eu.cloudnetservice.cloudnet.node.console.animation.setup.ConsoleSetupAnim
 import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.Parsers;
 import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.QuestionAnswerType;
 import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.QuestionListEntry;
-import eu.cloudnetservice.cloudnet.node.template.install.InstallInformation;
-import eu.cloudnetservice.cloudnet.node.template.install.ServiceVersion;
-import eu.cloudnetservice.cloudnet.node.template.install.ServiceVersionType;
+import eu.cloudnetservice.cloudnet.node.version.ServiceVersion;
+import eu.cloudnetservice.cloudnet.node.version.ServiceVersionType;
+import eu.cloudnetservice.cloudnet.node.version.information.TemplateVersionInstaller;
 import java.util.Set;
 import lombok.NonNull;
 
@@ -141,7 +141,7 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
     // check if the user chose to install a version
     if (version != null) {
       // install the chosen version
-      CloudNet.instance().serviceVersionProvider().installServiceVersion(InstallInformation.builder()
+      CloudNet.instance().serviceVersionProvider().installServiceVersion(TemplateVersionInstaller.builder()
         .serviceVersionType(version.first())
         .serviceVersion(version.second())
         .toTemplate(defaultTemplate)

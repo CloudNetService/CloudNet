@@ -23,9 +23,9 @@ import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
 import eu.cloudnetservice.cloudnet.driver.template.SpecificTemplateStorage;
 import eu.cloudnetservice.cloudnet.node.http.HttpSession;
 import eu.cloudnetservice.cloudnet.node.http.V2HttpHandler;
-import eu.cloudnetservice.cloudnet.node.template.install.InstallInformation;
-import eu.cloudnetservice.cloudnet.node.template.install.ServiceVersion;
-import eu.cloudnetservice.cloudnet.node.template.install.ServiceVersionType;
+import eu.cloudnetservice.cloudnet.node.version.ServiceVersion;
+import eu.cloudnetservice.cloudnet.node.version.ServiceVersionType;
+import eu.cloudnetservice.cloudnet.node.version.information.TemplateVersionInstaller;
 import eu.cloudnetservice.modules.rest.RestUtil;
 import java.io.IOException;
 import lombok.NonNull;
@@ -257,15 +257,14 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
       var forceInstall = body.getBoolean("force", false);
       var cacheFiles = body.getBoolean("caches", version.cacheFiles());
 
-      var installInformation = InstallInformation.builder()
+      var installer = TemplateVersionInstaller.builder()
         .serviceVersion(version)
         .serviceVersionType(versionType)
         .cacheFiles(cacheFiles)
         .toTemplate(template)
         .build();
 
-      if (this.node().serviceVersionProvider()
-        .installServiceVersion(installInformation, forceInstall)) {
+      if (this.node().serviceVersionProvider().installServiceVersion(installer, forceInstall)) {
         this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
       } else {
         this.ok(context).body(this.failure().toString()).context().closeAfter(true).cancelNext();

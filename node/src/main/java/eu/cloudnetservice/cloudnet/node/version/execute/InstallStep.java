@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.node.template.install.execute;
+package eu.cloudnetservice.cloudnet.node.version.execute;
 
-import eu.cloudnetservice.cloudnet.node.template.install.InstallInformation;
-import eu.cloudnetservice.cloudnet.node.template.install.execute.defaults.BuildStepExecutor;
-import eu.cloudnetservice.cloudnet.node.template.install.execute.defaults.CopyFilterStepExecutor;
-import eu.cloudnetservice.cloudnet.node.template.install.execute.defaults.DeployStepExecutor;
-import eu.cloudnetservice.cloudnet.node.template.install.execute.defaults.DownloadStepExecutor;
-import eu.cloudnetservice.cloudnet.node.template.install.execute.defaults.FabricApiVersionFetch;
-import eu.cloudnetservice.cloudnet.node.template.install.execute.defaults.PaperApiVersionFetchStepExecutor;
-import eu.cloudnetservice.cloudnet.node.template.install.execute.defaults.UnzipStepExecutor;
+import eu.cloudnetservice.cloudnet.node.version.execute.defaults.BuildStepExecutor;
+import eu.cloudnetservice.cloudnet.node.version.execute.defaults.CopyFilterStepExecutor;
+import eu.cloudnetservice.cloudnet.node.version.execute.defaults.DeployStepExecutor;
+import eu.cloudnetservice.cloudnet.node.version.execute.defaults.DownloadStepExecutor;
+import eu.cloudnetservice.cloudnet.node.version.execute.defaults.FabricApiVersionFetch;
+import eu.cloudnetservice.cloudnet.node.version.execute.defaults.PaperApiVersionFetchStepExecutor;
+import eu.cloudnetservice.cloudnet.node.version.execute.defaults.UnzipStepExecutor;
+import eu.cloudnetservice.cloudnet.node.version.information.VersionInstaller;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Set;
@@ -46,11 +46,11 @@ public enum InstallStep {
   }
 
   public @NonNull Set<Path> execute(
-    @NonNull InstallInformation installInformation,
+    @NonNull VersionInstaller versionInstaller,
     @NonNull Path workingDirectory,
     @NonNull Set<Path> inputPaths
   ) throws IOException {
-    return this.executor.execute(installInformation, workingDirectory, inputPaths);
+    return this.executor.execute(versionInstaller, workingDirectory, inputPaths);
   }
 
   public void interrupt() {

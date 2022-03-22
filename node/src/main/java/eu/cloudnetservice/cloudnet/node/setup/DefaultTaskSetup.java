@@ -36,10 +36,10 @@ import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.Parsers;
 import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.QuestionAnswerType;
 import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.QuestionListEntry;
 import eu.cloudnetservice.cloudnet.node.template.TemplateStorageUtil;
-import eu.cloudnetservice.cloudnet.node.template.install.InstallInformation;
-import eu.cloudnetservice.cloudnet.node.template.install.ServiceVersion;
-import eu.cloudnetservice.cloudnet.node.template.install.ServiceVersionProvider;
-import eu.cloudnetservice.cloudnet.node.template.install.ServiceVersionType;
+import eu.cloudnetservice.cloudnet.node.version.ServiceVersion;
+import eu.cloudnetservice.cloudnet.node.version.ServiceVersionProvider;
+import eu.cloudnetservice.cloudnet.node.version.ServiceVersionType;
+import eu.cloudnetservice.cloudnet.node.version.information.TemplateVersionInstaller;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -245,7 +245,7 @@ public class DefaultTaskSetup implements DefaultSetup {
     this.initializeTemplate(template, environment, true);
     // check if the user chose to install a version
     if (version != null) {
-      CloudNet.instance().serviceVersionProvider().installServiceVersion(InstallInformation.builder()
+      CloudNet.instance().serviceVersionProvider().installServiceVersion(TemplateVersionInstaller.builder()
         .serviceVersion(version.second())
         .serviceVersionType(version.first())
         .toTemplate(template)

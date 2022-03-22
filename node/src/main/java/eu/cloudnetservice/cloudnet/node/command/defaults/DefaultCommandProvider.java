@@ -47,6 +47,7 @@ import eu.cloudnetservice.cloudnet.node.command.sub.CommandPermissions;
 import eu.cloudnetservice.cloudnet.node.command.sub.CommandService;
 import eu.cloudnetservice.cloudnet.node.command.sub.CommandTasks;
 import eu.cloudnetservice.cloudnet.node.command.sub.CommandTemplate;
+import eu.cloudnetservice.cloudnet.node.command.sub.CommandVersion;
 import eu.cloudnetservice.cloudnet.node.console.Console;
 import eu.cloudnetservice.cloudnet.node.console.handler.ConsoleInputHandler;
 import eu.cloudnetservice.cloudnet.node.console.handler.ConsoleTabCompleteHandler;
@@ -197,6 +198,7 @@ public class DefaultCommandProvider implements CommandProvider {
   @Override
   public void registerDefaultCommands() {
     this.register(new CommandTemplate());
+    this.register(new CommandVersion());
     this.register(new CommandExit());
     this.register(new CommandGroups());
     this.register(new CommandTasks(this.console));

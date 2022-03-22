@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.node.template.install;
+package eu.cloudnetservice.cloudnet.node.version;
 
 import static com.google.gson.reflect.TypeToken.getParameterized;
 
@@ -26,11 +26,11 @@ import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.driver.event.EventManager;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironment;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.node.console.animation.progressbar.ConsoleProgressWrappers;
-import eu.cloudnetservice.cloudnet.node.template.install.execute.InstallStep;
 import eu.cloudnetservice.cloudnet.node.template.listener.TemplatePrepareListener;
+import eu.cloudnetservice.cloudnet.node.version.execute.InstallStep;
+import eu.cloudnetservice.cloudnet.node.version.information.VersionInstaller;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
@@ -141,14 +141,14 @@ public class ServiceVersionProvider {
     return Optional.ofNullable(this.serviceEnvironmentTypes.get(name.toUpperCase()));
   }
 
-  public boolean installServiceVersion(@NonNull InstallInformation information, boolean force) {
+  public boolean installServiceVersion(@NonNull VersionInstaller installer, boolean force) {
     var fullVersionIdentifier = String.format("%s-%s",
-      information.serviceVersionType().name(),
-      information.serviceVersion().name());
+      installer.serviceVersionType().name(),
+      installer.serviceVersion().name());
 
     if (!force
-      && information.installerExecCommand().isEmpty()
-      && !information.serviceVersionType().canInstall(information.serviceVersion())
+      && installer.installerExecutable().isEmpty()
+      && !installer.serviceVersionType().canInstall(installer.serviceVersion())
     ) {
       throw new IllegalArgumentException(String.format(
         "Cannot run %s on %s",
@@ -156,21 +156,13 @@ public class ServiceVersionProvider {
         JavaVersion.runtimeVersion().name()));
     }
 
-    if (information.serviceVersion().deprecated()) {
+    if (installer.serviceVersion().deprecated()) {
       LOGGER.warning(I18n.trans("versions-installer-deprecated-version"));
     }
 
     try {
       // delete all old application files to prevent that they are used to start the service
-      for (var file : information.templateStorage().listFiles("", false)) {
-        if (file != null) {
-          for (ServiceEnvironment environment : this.serviceVersionTypes.values()) {
-            if (file.name().toLowerCase().contains(environment.name()) && file.name().endsWith(".jar")) {
-              information.templateStorage().deleteFile(file.path());
-            }
-          }
-        }
-      }
+      installer.removeServiceVersions(this.serviceVersionTypes.values());
     } catch (IOException exception) {
       LOGGER.severe("Exception while deleting old application files", exception);
     }
@@ -179,20 +171,20 @@ public class ServiceVersionProvider {
     var cachedFilePath = VERSION_CACHE_PATH.resolve(fullVersionIdentifier);
 
     try {
-      if (information.cacheFiles() && Files.exists(cachedFilePath)) {
-        InstallStep.DEPLOY.execute(information, cachedFilePath, Files.walk(cachedFilePath).collect(Collectors.toSet()));
+      if (installer.cacheFiles() && Files.exists(cachedFilePath)) {
+        InstallStep.DEPLOY.execute(installer, cachedFilePath, Files.walk(cachedFilePath).collect(Collectors.toSet()));
       } else {
         Files.createDirectories(workingDirectory);
 
-        List<InstallStep> installSteps = new ArrayList<>(information.serviceVersionType().installSteps());
+        List<InstallStep> installSteps = new ArrayList<>(installer.serviceVersionType().installSteps());
         installSteps.add(InstallStep.DEPLOY);
 
         Set<Path> lastStepResult = new HashSet<>();
         for (var installStep : installSteps) {
-          lastStepResult = installStep.execute(information, workingDirectory, lastStepResult);
+          lastStepResult = installStep.execute(installer, workingDirectory, lastStepResult);
         }
 
-        if (information.serviceVersion().cacheFiles()) {
+        if (installer.serviceVersion().cacheFiles()) {
           for (var path : lastStepResult) {
             var targetPath = cachedFilePath.resolve(workingDirectory.relativize(path));
             Files.createDirectories(targetPath.getParent());
@@ -202,12 +194,8 @@ public class ServiceVersionProvider {
         }
       }
 
-      for (var entry : information.serviceVersion().additionalDownloads().entrySet()) {
-        ConsoleProgressWrappers.wrapDownload(entry.getValue(), stream -> {
-          try (var out = information.templateStorage().newOutputStream(entry.getKey())) {
-            FileUtil.copy(stream, out);
-          }
-        });
+      for (var entry : installer.serviceVersion().additionalDownloads().entrySet()) {
+        ConsoleProgressWrappers.wrapDownload(entry.getValue(), in -> installer.deployFile(in, entry.getKey()));
       }
 
       return true;
