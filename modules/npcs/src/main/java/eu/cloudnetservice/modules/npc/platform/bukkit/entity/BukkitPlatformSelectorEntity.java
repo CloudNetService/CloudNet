@@ -58,7 +58,9 @@ import org.jetbrains.annotations.Nullable;
 public abstract class BukkitPlatformSelectorEntity
   implements PlatformSelectorEntity<Location, Player, ItemStack, Inventory> {
 
-  protected static final MethodAccessor<?> SET_COLOR = Reflexion.on(Team.class).findMethod("setColor").orElse(null);
+  protected static final MethodAccessor<?> SET_COLOR = Reflexion.on(Team.class)
+    .findMethod("setColor", ChatColor.class)
+    .orElse(null);
 
   protected final NPC npc;
   protected final Plugin plugin;

@@ -50,8 +50,8 @@ public final class BukkitCompatibility {
     GET_BLOCK_DATA = Reflexion.on(BlockState.class).findMethod("getBlockData").orElse(null);
 
     // glowing lookup
-    SET_DYE_COLOR = Reflexion.on(Colorable.class).findMethod("setColor").orElse(null);
-    SET_GLOWING = Reflexion.on(org.bukkit.block.Sign.class).findMethod("setGlowingText").orElse(null);
+    SET_DYE_COLOR = Reflexion.on(Colorable.class).findMethod("setColor", DyeColor.class).orElse(null);
+    SET_GLOWING = Reflexion.on(org.bukkit.block.Sign.class).findMethod("setGlowingText", boolean.class).orElse(null);
   }
 
   private BukkitCompatibility() {

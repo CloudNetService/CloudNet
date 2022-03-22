@@ -24,7 +24,9 @@ import org.bukkit.scoreboard.Team;
 
 final class BukkitCompatibility {
 
-  private static final MethodAccessor<?> SET_COLOR = Reflexion.on(Team.class).findMethod("setColor").orElse(null);
+  private static final MethodAccessor<?> SET_COLOR = Reflexion.on(Team.class)
+    .findMethod("setColor", ChatColor.class)
+    .orElse(null);
 
   private BukkitCompatibility() {
     throw new UnsupportedOperationException();

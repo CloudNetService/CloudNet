@@ -93,22 +93,18 @@ public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEn
       ((Villager) this.entity).setProfession(Profession.FARMER);
     }
     // uhhh nms reflection :(
-    try {
-      // create a new nbt tag compound
-      var compound = NEW_NBT.invoke().getOrElse(null);
-      // get the nms entity
-      var nmsEntity = GET_HANDLE.invoke(this.entity).getOrElse(null);
-      // save the entity data to the compound
-      if (compound != null && nmsEntity != null) {
-        SAVE.invoke(nmsEntity, compound);
-        // rewrite NoAi and Silent values
-        SET.invoke(compound, "NoAI", 1);
-        SET.invoke(compound, "Silent", 1);
-        // load the entity data from the compound again
-        LOAD.invoke(nmsEntity, compound);
-      }
-    } catch (Throwable throwable) {
-      throw new RuntimeException("Unable to use bleeding reflections on nms entity:", throwable);
+    // create a new nbt tag compound
+    var compound = NEW_NBT.invoke().getOrElse(null);
+    // get the nms entity
+    var nmsEntity = GET_HANDLE.invoke(this.entity).getOrElse(null);
+    // save the entity data to the compound
+    if (compound != null && nmsEntity != null) {
+      SAVE.invoke(nmsEntity, compound);
+      // rewrite NoAi and Silent values
+      SET.invoke(compound, "NoAI", 1);
+      SET.invoke(compound, "Silent", 1);
+      // load the entity data from the compound again
+      LOAD.invoke(nmsEntity, compound);
     }
   }
 
