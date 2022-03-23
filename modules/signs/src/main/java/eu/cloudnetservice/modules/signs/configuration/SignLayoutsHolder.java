@@ -28,8 +28,8 @@ public class SignLayoutsHolder {
   private final int animationsPerSecond;
   private final List<SignLayout> signLayouts;
 
-  private transient AtomicBoolean tickBlocked = new AtomicBoolean();
-  private transient AtomicInteger currentAnimation = new AtomicInteger(-1);
+  private final transient AtomicBoolean tickBlocked = new AtomicBoolean();
+  private final transient AtomicInteger currentAnimation = new AtomicInteger(-1);
 
   public SignLayoutsHolder(int animationsPerSecond, @NonNull List<SignLayout> signLayouts) {
     this.animationsPerSecond = animationsPerSecond;
