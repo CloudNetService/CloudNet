@@ -79,6 +79,6 @@ public class SignLayoutsHolder {
   }
 
   public int currentAnimation() {
-    return this.currentAnimation.updateAndGet(i -> Math.max(0, i));
+    return Math.max(0, this.currentAnimation.get());
   }
 }
