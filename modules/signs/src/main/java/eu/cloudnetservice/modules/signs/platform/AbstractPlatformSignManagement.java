@@ -39,7 +39,9 @@ import eu.cloudnetservice.modules.signs.configuration.SignLayoutsHolder;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.util.LayoutUtil;
 import eu.cloudnetservice.modules.signs.util.PriorityUtil;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -210,15 +212,12 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
     }
   }
 
-  protected @NonNull String[] replaceLines(@NonNull Sign sign, @NonNull SignLayout layout) {
+  protected @Nullable List<String> replaceLines(@NonNull Sign sign, @NonNull SignLayout layout) {
     var lines = layout.lines();
-    if (lines.length == 4) {
-      var replacedLines = new String[4];
-      for (var i = 0; i < 4; i++) {
-        replacedLines[i] = BridgeServiceHelper.fillCommonPlaceholders(
-          lines[i],
-          sign.targetGroup(),
-          sign.currentTarget());
+    if (lines.size() == 4) {
+      List<String> replacedLines = new ArrayList<>(4);
+      for (var line : lines) {
+        replacedLines.add(BridgeServiceHelper.fillCommonPlaceholders(line, sign.targetGroup(), sign.currentTarget()));
       }
       return replacedLines;
     }

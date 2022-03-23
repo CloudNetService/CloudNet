@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableList;
 import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.driver.service.GroupConfiguration;
 import eu.cloudnetservice.ext.bukkitcommands.BaseTabExecutor;
+import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
 import java.util.Arrays;
 import java.util.Collection;
@@ -48,7 +49,8 @@ public class CommandSigns extends BaseTabExecutor {
 
     var entry = this.signManagement.applicableSignConfigurationEntry();
     if (entry == null) {
-      this.signManagement.signsConfiguration().sendMessage("command-cloudsign-no-entry", sender::sendMessage);
+      this.signManagement.signsConfiguration();
+      SignsConfiguration.sendMessage("command-cloudsign-no-entry", sender::sendMessage);
       return true;
     }
 
@@ -59,7 +61,7 @@ public class CommandSigns extends BaseTabExecutor {
         // validate that the sign isn't existing already
         var sign = this.signManagement.signAt(state, entry.targetGroup());
         if (sign != null) {
-          this.signManagement.signsConfiguration().sendMessage(
+          SignsConfiguration.sendMessage(
             "command-cloudsign-sign-already-exist",
             player::sendMessage, m -> m.replace("%group%", sign.targetGroup()));
           return true;
@@ -72,20 +74,19 @@ public class CommandSigns extends BaseTabExecutor {
           args.length == 3 ? args[2] : null);
         if (createdSign != null) {
           // success
-          this.signManagement.signsConfiguration().sendMessage(
+          SignsConfiguration.sendMessage(
             "command-cloudsign-create-success",
             player::sendMessage, m -> m.replace("%group%", createdSign.targetGroup()));
         }
       } else {
-        this.signManagement.signsConfiguration()
-          .sendMessage("command-cloudsign-not-looking-at-sign", player::sendMessage);
+        SignsConfiguration.sendMessage("command-cloudsign-not-looking-at-sign", player::sendMessage);
       }
 
       return true;
     } else if (args.length == 1 && args[0].equalsIgnoreCase("cleanup")) {
       // removes all signs on which location is not a sign anymore
       var removed = this.signManagement.removeMissingSigns();
-      this.signManagement.signsConfiguration().sendMessage(
+      SignsConfiguration.sendMessage(
         "command-cloudsign-cleanup-success",
         player::sendMessage,
         m -> m.replace("%amount%", Integer.toString(removed)));
@@ -93,7 +94,7 @@ public class CommandSigns extends BaseTabExecutor {
     } else if (args.length == 1 && args[0].equalsIgnoreCase("removeall")) {
       // deletes all signs
       var removed = this.signManagement.deleteAllSigns();
-      this.signManagement.signsConfiguration().sendMessage(
+      SignsConfiguration.sendMessage(
         "command-cloudsign-bulk-remove-success",
         player::sendMessage,
         m -> m.replace("%amount%", Integer.toString(removed)));
@@ -105,19 +106,18 @@ public class CommandSigns extends BaseTabExecutor {
         // check if the sign exists
         var sign = this.signManagement.signAt(state, entry.targetGroup());
         if (sign == null) {
-          this.signManagement.signsConfiguration().sendMessage(
+          SignsConfiguration.sendMessage(
             "command-cloudsign-remove-not-existing",
             player::sendMessage);
         } else {
           // remove the sign
           this.signManagement.deleteSign(sign);
-          this.signManagement.signsConfiguration().sendMessage(
+          SignsConfiguration.sendMessage(
             "command-cloudsign-remove-success",
             player::sendMessage);
         }
       } else {
-        this.signManagement.signsConfiguration()
-          .sendMessage("command-cloudsign-not-looking-at-sign", player::sendMessage);
+        SignsConfiguration.sendMessage("command-cloudsign-not-looking-at-sign", player::sendMessage);
       }
 
       return true;

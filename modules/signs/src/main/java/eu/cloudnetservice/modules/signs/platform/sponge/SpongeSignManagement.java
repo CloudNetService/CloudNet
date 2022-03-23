@@ -81,7 +81,7 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
         var lines = this.replaceLines(sign, layout);
         if (lines != null) {
           for (var i = 0; i < 4; i++) {
-            tileSign.lines().set(i, AdventureSerializerUtil.serialize(lines[i]));
+            tileSign.lines().set(i, AdventureSerializerUtil.serialize(lines.get(i)));
           }
 
           this.changeBlock(entity, layout);

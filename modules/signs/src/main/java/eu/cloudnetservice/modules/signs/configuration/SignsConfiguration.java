@@ -17,21 +17,17 @@
 package eu.cloudnetservice.modules.signs.configuration;
 
 import com.google.common.collect.ImmutableMap;
-import eu.cloudnetservice.modules.signs.node.configuration.SignConfigurationType;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public class SignsConfiguration {
+public record SignsConfiguration(@NonNull List<SignConfigurationEntry> entries) {
 
-  public static final Map<String, String> DEFAULT_MESSAGES = ImmutableMap.<String, String>builder()
-    .put("server-connecting-message", "§7You will be moved to §c%server%§7...")
+  public static final Map<String, String> MESSAGES = ImmutableMap.<String, String>builder()
     .put("command-cloudsign-no-entry", "§7No configuration entry found for any group the wrapper belongs to.")
     .put("command-cloudsign-not-looking-at-sign", "§7You are not facing a sign...")
     .put("command-cloudsign-create-success",
@@ -44,63 +40,57 @@ public class SignsConfiguration {
     .put("command-cloudsign-cleanup-success", "§6%amount% §7non-existing signs were removed successfully.")
     .build();
 
-  protected Map<String, String> messages;
-  protected Collection<SignConfigurationEntry> configurationEntries;
-
-  public SignsConfiguration() {
+  public static void sendMessage(@NonNull String key, @NonNull Consumer<String> sender) {
+    sendMessage(key, sender, null);
   }
 
-  public SignsConfiguration(Map<String, String> messages, Collection<SignConfigurationEntry> configurationEntries) {
-    this.messages = messages;
-    this.configurationEntries = configurationEntries;
-  }
-
-  public static SignsConfiguration createDefaultJava(@NonNull String group) {
-    return new SignsConfiguration(
-      new HashMap<>(DEFAULT_MESSAGES),
-      new ArrayList<>(Collections.singleton(SignConfigurationType.JAVA.createEntry(group)))
-    );
-  }
-
-  public static SignsConfiguration createDefaultBedrock(@NonNull String group) {
-    return new SignsConfiguration(
-      new HashMap<>(DEFAULT_MESSAGES),
-      new ArrayList<>(Collections.singleton(SignConfigurationType.BEDROCK.createEntry(group)))
-    );
-  }
-
-  public Map<String, String> messages() {
-    return this.messages;
-  }
-
-  public void messages(Map<String, String> messages) {
-    this.messages = messages;
-  }
-
-  public void sendMessage(@NonNull String key, @NonNull Consumer<String> messageSender) {
-    this.sendMessage(key, messageSender, null);
-  }
-
-  public void sendMessage(@NonNull String key, @NonNull Consumer<String> messageSender,
-    @Nullable Function<String, String> modifier) {
-    var message = this.messages().getOrDefault(key, DEFAULT_MESSAGES.get(key));
+  public static void sendMessage(
+    @NonNull String key,
+    @NonNull Consumer<String> sender,
+    @Nullable Function<String, String> modifier
+  ) {
+    var message = MESSAGES.get(key);
     if (message != null) {
       if (modifier != null) {
-        message = modifier.apply(message);
+        modifier.apply(message);
       }
-      messageSender.accept(message);
+      sender.accept(message);
     }
   }
 
-  public Collection<SignConfigurationEntry> configurationEntries() {
-    return this.configurationEntries;
+  public static @NonNull Builder builder() {
+    return new Builder();
   }
 
-  public void configurationEntries(Collection<SignConfigurationEntry> configurationEntries) {
-    this.configurationEntries = configurationEntries;
+  public static @NonNull Builder builder(@NonNull SignsConfiguration configuration) {
+    return builder().entries(configuration.entries());
   }
 
   public boolean hasEntry(@NonNull String group) {
-    return this.configurationEntries.stream().anyMatch(entry -> entry.targetGroup().equals(group));
+    return this.entries.stream().anyMatch(entry -> entry.targetGroup().equals(group));
+  }
+
+  public static class Builder {
+
+    private List<SignConfigurationEntry> entries = new ArrayList<>();
+
+    public @NonNull Builder entries(@NonNull List<SignConfigurationEntry> entries) {
+      this.entries = new ArrayList<>(entries);
+      return this;
+    }
+
+    public @NonNull Builder addEntry(@NonNull SignConfigurationEntry entry) {
+      this.entries.add(entry);
+      return this;
+    }
+
+    public @NonNull Builder removeEntry(@NonNull SignConfigurationEntry entry) {
+      this.entries.remove(entry);
+      return this;
+    }
+
+    public @NonNull SignsConfiguration build() {
+      return new SignsConfiguration(this.entries);
+    }
   }
 }

@@ -187,7 +187,7 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
    * @return a sign configuration entry from the sign configuration which targets a group the wrapper belongs to.
    */
   public @Nullable SignConfigurationEntry applicableSignConfigurationEntry() {
-    for (var entry : this.signsConfiguration.configurationEntries()) {
+    for (var entry : this.signsConfiguration.entries()) {
       if (Wrapper.instance().serviceConfiguration().groups().contains(entry.targetGroup())) {
         return entry;
       }

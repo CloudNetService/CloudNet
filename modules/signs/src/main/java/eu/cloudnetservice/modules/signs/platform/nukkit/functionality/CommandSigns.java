@@ -21,6 +21,7 @@ import cn.nukkit.blockentity.BlockEntitySign;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandExecutor;
 import cn.nukkit.command.CommandSender;
+import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
 
 public class CommandSigns implements CommandExecutor {
@@ -40,7 +41,7 @@ public class CommandSigns implements CommandExecutor {
 
     var entry = this.signManagement.applicableSignConfigurationEntry();
     if (entry == null) {
-      this.signManagement.signsConfiguration().sendMessage("command-cloudsign-no-entry", sender::sendMessage);
+      SignsConfiguration.sendMessage("command-cloudsign-no-entry", sender::sendMessage);
       return true;
     }
 
@@ -50,7 +51,7 @@ public class CommandSigns implements CommandExecutor {
       if (blockEntity instanceof BlockEntitySign entitySign) {
         var sign = this.signManagement.signAt(entitySign, entry.targetGroup());
         if (sign != null) {
-          this.signManagement.signsConfiguration().sendMessage("command-cloudsign-sign-already-exist",
+          SignsConfiguration.sendMessage("command-cloudsign-sign-already-exist",
             player::sendMessage, m -> m.replace("%group%", sign.targetGroup()));
           return true;
         }
@@ -60,24 +61,22 @@ public class CommandSigns implements CommandExecutor {
           args[1], args.length == 3 ? args[2] : null
         );
         if (createdSign != null) {
-          this.signManagement.signsConfiguration().sendMessage("command-cloudsign-create-success",
+          SignsConfiguration.sendMessage("command-cloudsign-create-success",
             player::sendMessage, m -> m.replace("%group%", createdSign.targetGroup()));
         }
       } else {
-        this.signManagement.signsConfiguration()
-          .sendMessage("command-cloudsign-not-looking-at-sign", player::sendMessage);
+        SignsConfiguration.sendMessage("command-cloudsign-not-looking-at-sign", player::sendMessage);
       }
 
       return true;
     } else if (args.length == 1 && args[0].equalsIgnoreCase("cleanup")) {
       var removed = this.signManagement.removeMissingSigns();
-      this.signManagement.signsConfiguration().sendMessage("command-cloudsign-cleanup-success", player::sendMessage,
+      SignsConfiguration.sendMessage("command-cloudsign-cleanup-success", player::sendMessage,
         m -> m.replace("%amount%", Integer.toString(removed)));
       return true;
     } else if (args.length == 1 && args[0].equalsIgnoreCase("removeall")) {
       var removed = this.signManagement.deleteAllSigns();
-      this.signManagement.signsConfiguration()
-        .sendMessage("command-cloudsign-bulk-remove-success", player::sendMessage,
+      SignsConfiguration.sendMessage("command-cloudsign-bulk-remove-success", player::sendMessage,
           m -> m.replace("%amount%", Integer.toString(removed)));
       return true;
     } else if (args.length == 1 && args[0].equalsIgnoreCase("remove")) {
@@ -86,16 +85,13 @@ public class CommandSigns implements CommandExecutor {
       if (blockEntity instanceof BlockEntitySign entitySign) {
         var sign = this.signManagement.signAt(entitySign, entry.targetGroup());
         if (sign == null) {
-          this.signManagement.signsConfiguration()
-            .sendMessage("command-cloudsign-remove-not-existing", player::sendMessage);
+          SignsConfiguration.sendMessage("command-cloudsign-remove-not-existing", player::sendMessage);
         } else {
           this.signManagement.deleteSign(sign);
-          this.signManagement.signsConfiguration()
-            .sendMessage("command-cloudsign-remove-success", player::sendMessage);
+          SignsConfiguration.sendMessage("command-cloudsign-remove-success", player::sendMessage);
         }
       } else {
-        this.signManagement.signsConfiguration()
-          .sendMessage("command-cloudsign-not-looking-at-sign", player::sendMessage);
+        SignsConfiguration.sendMessage("command-cloudsign-not-looking-at-sign", player::sendMessage);
       }
 
       return true;

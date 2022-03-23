@@ -32,7 +32,7 @@ public final class SignEntryTaskSetup {
 
   private static final QuestionListEntry<Boolean> CREATE_ENTRY_QUESTION_LIST = QuestionListEntry.<Boolean>builder()
     .key("generateDefaultSignConfigurationEntry")
-    .translatedQuestion("module-signs-tasks-setup-generate-default-config")
+    .translatedQuestion("module-sign-tasks-setup-generate-default-config")
     .answerType(QuestionAnswerType.<Boolean>builder()
       .parser(Parsers.bool())
       .recommendation("no")
@@ -73,7 +73,7 @@ public final class SignEntryTaskSetup {
         var entry = ServiceEnvironmentType.JAVA_SERVER.get(environment.properties())
           ? SignConfigurationType.JAVA.createEntry(taskName)
           : SignConfigurationType.BEDROCK.createEntry(taskName);
-        configuration.configurationEntries().add(entry);
+        configuration.entries().add(entry);
         signManagement.signsConfiguration(configuration);
       }
     }

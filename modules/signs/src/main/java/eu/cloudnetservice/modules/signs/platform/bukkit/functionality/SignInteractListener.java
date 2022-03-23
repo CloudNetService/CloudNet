@@ -16,10 +16,11 @@
 
 package eu.cloudnetservice.modules.signs.platform.bukkit.functionality;
 
-import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
+import eu.cloudnetservice.cloudnet.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
 import eu.cloudnetservice.modules.signs.platform.bukkit.event.BukkitCloudSignInteractEvent;
+import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Sign;
 import org.bukkit.event.EventHandler;
@@ -51,8 +52,6 @@ public class SignInteractListener implements Listener {
 
         if (!interactEvent.isCancelled()) {
           interactEvent.target().ifPresent(service -> {
-            this.signManagement.signsConfiguration().sendMessage("server-connecting-message",
-              event.getPlayer()::sendMessage, m -> m.replace("%server%", service.name()));
             this.playerManager().playerExecutor(event.getPlayer().getUniqueId()).connect(service.name());
           });
         }
@@ -60,7 +59,7 @@ public class SignInteractListener implements Listener {
     }
   }
 
-  protected PlayerManager playerManager() {
-    return CloudNetDriver.instance().serviceRegistry().firstProvider(PlayerManager.class);
+  protected @NonNull PlayerManager playerManager() {
+    return ServiceRegistry.first(PlayerManager.class);
   }
 }

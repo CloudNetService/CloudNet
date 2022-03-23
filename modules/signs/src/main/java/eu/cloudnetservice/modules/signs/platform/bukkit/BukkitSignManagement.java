@@ -80,7 +80,7 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
           var replaced = this.replaceLines(sign, layout);
           if (replaced != null) {
             for (var i = 0; i < 4; i++) {
-              bukkitSign.setLine(i, ChatColor.translateAlternateColorCodes('&', replaced[i]));
+              bukkitSign.setLine(i, ChatColor.translateAlternateColorCodes('&', replaced.get(i)));
             }
 
             bukkitSign.update();

@@ -22,6 +22,7 @@ import eu.cloudnetservice.cloudnet.driver.database.Database;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
 import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
+import eu.cloudnetservice.cloudnet.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.module.listener.PluginIncludeListener;
@@ -55,15 +56,16 @@ public class CloudNetSignsModule extends DriverModule {
 
   @ModuleTask(order = 30)
   public void handleInitialization() {
-    SignManagement management = new NodeSignManagement(this.configuration, this.configPath(), this.database);
+    var management = new NodeSignManagement(this.configuration, this.configPath(), this.database);
     management.registerToServiceRegistry();
 
+    CloudNet.instance().commandProvider().register(new CommandSign(management));
     this.registerListener(new GlobalChannelMessageListener(management), new NodeSignsListener(management));
     this.registerListener(new PluginIncludeListener(
       "cloudnet-signs",
       CloudNetSignsModule.class,
       service -> ServiceEnvironmentType.minecraftServer(service.serviceId().environment())
-        && this.configuration.configurationEntries().stream()
+        && this.configuration.entries().stream()
         .anyMatch(entry -> service.serviceConfiguration().groups().contains(entry.targetGroup()))));
   }
 
@@ -81,7 +83,7 @@ public class CloudNetSignsModule extends DriverModule {
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)
   public void handleReload() {
-    var management = this.serviceRegistry().firstProvider(SignManagement.class);
+    var management = ServiceRegistry.first(SignManagement.class);
     if (management != null) {
       management.signsConfiguration(NodeSignsConfigurationHelper.read(this.configPath()));
     }
@@ -103,7 +105,7 @@ public class CloudNetSignsModule extends DriverModule {
         SignConstants.COLLECTION_SIGNS);
       if (oldSigns != null) {
         // convert the old sign entries
-        var management = CloudNet.instance().serviceRegistry().firstProvider(SignManagement.class);
+        var management = ServiceRegistry.first(SignManagement.class);
         for (var oldSign : oldSigns) {
           management.createSign(new Sign(
             oldSign.getTargetGroup(),
