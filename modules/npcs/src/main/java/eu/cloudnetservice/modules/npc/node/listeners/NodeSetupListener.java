@@ -32,7 +32,7 @@ public final class NodeSetupListener {
 
   private static final QuestionListEntry<Boolean> CREATE_ENTRY_QUESTION_LIST = QuestionListEntry.<Boolean>builder()
     .key("generateDefaultNPCConfigurationEntry")
-    .translatedQuestion("module-npcs-tasks-setup-generate-default-config")
+    .translatedQuestion("module-npc-tasks-setup-generate-default-config")
     .answerType(QuestionAnswerType.<Boolean>builder()
       .parser(Parsers.bool())
       .recommendation("no")

@@ -75,11 +75,8 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
       if (blockEntity instanceof BlockEntitySign entitySign) {
         var lines = this.replaceLines(sign, layout);
         if (lines != null) {
-          for (var i = 0; i < 4; i++) {
-            lines[i] = TextFormat.colorize('&', lines[i]);
-          }
-
-          entitySign.setText(lines);
+          lines.replaceAll(s -> TextFormat.colorize('&', s));
+          entitySign.setText(lines.toArray(new String[4]));
           this.changeBlock(entitySign.getBlock(), layout);
         }
       }

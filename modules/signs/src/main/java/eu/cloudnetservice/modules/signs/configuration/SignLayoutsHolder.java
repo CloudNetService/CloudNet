@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.signs.configuration;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import lombok.NonNull;
 import lombok.ToString;
 
 @ToString
@@ -30,16 +31,20 @@ public class SignLayoutsHolder {
   private final transient AtomicBoolean tickBlocked = new AtomicBoolean();
   private final transient AtomicInteger currentAnimation = new AtomicInteger(-1);
 
-  public SignLayoutsHolder(int animationsPerSecond, List<SignLayout> signLayouts) {
+  public SignLayoutsHolder(int animationsPerSecond, @NonNull List<SignLayout> signLayouts) {
     this.animationsPerSecond = animationsPerSecond;
     this.signLayouts = signLayouts;
+  }
+
+  public static @NonNull SignLayoutsHolder singleLayout(@NonNull SignLayout layout) {
+    return new SignLayoutsHolder(1, List.of(layout));
   }
 
   public int animationsPerSecond() {
     return this.animationsPerSecond;
   }
 
-  public List<SignLayout> signLayouts() {
+  public @NonNull List<SignLayout> signLayouts() {
     return this.signLayouts;
   }
 
@@ -55,16 +60,16 @@ public class SignLayoutsHolder {
     this.tickBlocked.set(true);
   }
 
-  public SignLayoutsHolder releaseTickBlock() {
+  public @NonNull SignLayoutsHolder releaseTickBlock() {
     this.tickBlocked.set(false);
     return this;
   }
 
-  public SignLayout currentLayout() {
+  public @NonNull SignLayout currentLayout() {
     return this.signLayouts().get(this.currentAnimation());
   }
 
-  public SignLayoutsHolder tick() {
+  public @NonNull SignLayoutsHolder tick() {
     if (!this.tickBlocked()) {
       if (this.currentAnimation.incrementAndGet() >= this.signLayouts.size()) {
         this.currentAnimation.set(0);
@@ -74,6 +79,6 @@ public class SignLayoutsHolder {
   }
 
   public int currentAnimation() {
-    return this.currentAnimation == null ? 0 : this.currentAnimation.get();
+    return Math.max(0, this.currentAnimation.get());
   }
 }

@@ -27,10 +27,6 @@ import eu.cloudnetservice.modules.signs.configuration.SignLayout;
 import eu.cloudnetservice.modules.signs.configuration.SignLayoutsHolder;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
@@ -48,7 +44,7 @@ public final class NodeSignsConfigurationHelper {
   }
 
   public static SignsConfiguration read(@NonNull Path path) {
-    JsonDocument configurationDocument = JsonDocument.newDocument(path);
+    var configurationDocument = JsonDocument.newDocument(path);
     if (configurationDocument.contains("config")) {
       // write the new configuration file
       var configuration = convertOldConfiguration(configurationDocument, path);
@@ -61,7 +57,9 @@ public final class NodeSignsConfigurationHelper {
     // check if the configuration file already exists
     if (configurationDocument.empty()) {
       // create a new configuration entry
-      var configuration = SignsConfiguration.createDefaultJava("Lobby");
+      var configuration = SignsConfiguration.builder()
+        .addEntry(SignConfigurationType.JAVA.createEntry("Lobby"))
+        .build();
       write(configuration, path);
       return configuration;
     }
@@ -75,7 +73,6 @@ public final class NodeSignsConfigurationHelper {
     var oldConfiguration = SignConfigurationReaderAndWriter.read(document, path);
     // create new configuration from it
     return new SignsConfiguration(
-      convertMessages(oldConfiguration.getMessages()),
       oldConfiguration.getConfigurations().stream().map(oldEntry -> new SignConfigurationEntry(
         oldEntry.getTargetGroup(),
         oldEntry.isSwitchToSearchingWhenServiceIsFull(),
@@ -103,8 +100,13 @@ public final class NodeSignsConfigurationHelper {
 
   @Contract("_ -> new")
   private static @NonNull SignLayout convertSignLayout(
-    @NonNull eu.cloudnetservice.modules.signs._deprecated.SignLayout oldLayout) {
-    return new SignLayout(oldLayout.getLines(), oldLayout.getBlockType(), oldLayout.getSubId(), null);
+    @NonNull eu.cloudnetservice.modules.signs._deprecated.SignLayout oldLayout
+  ) {
+    return SignLayout.builder()
+      .lines(oldLayout.getLines())
+      .blockMaterial(oldLayout.getBlockType())
+      .blockSubId(oldLayout.getSubId())
+      .build();
   }
 
   @Contract("_ -> new")
@@ -118,14 +120,6 @@ public final class NodeSignsConfigurationHelper {
   private static @NonNull SignLayoutsHolder convertSingleToMany(
     @NonNull eu.cloudnetservice.modules.signs._deprecated.SignLayout oldLayout
   ) {
-    return new SignLayoutsHolder(1, new ArrayList<>(Collections.singleton(convertSignLayout(oldLayout))));
-  }
-
-  private static @NonNull Map<String, String> convertMessages(@NonNull Map<String, String> oldMessages) {
-    Map<String, String> messages = new HashMap<>(SignsConfiguration.DEFAULT_MESSAGES);
-    for (var entry : oldMessages.entrySet()) {
-      messages.put(entry.getKey(), entry.getValue().replace('&', '§'));
-    }
-    return messages;
+    return SignLayoutsHolder.singleLayout(convertSignLayout(oldLayout));
   }
 }

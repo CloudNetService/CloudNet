@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.signs.configuration;
 
+import com.google.common.base.Verify;
 import lombok.NonNull;
 
 public record SignGroupConfiguration(
@@ -24,4 +25,65 @@ public record SignGroupConfiguration(
   @NonNull SignLayoutsHolder emptyLayout,
   @NonNull SignLayoutsHolder onlineLayout,
   @NonNull SignLayoutsHolder fullLayout) {
+
+  public static @NonNull Builder builder() {
+    return new Builder();
+  }
+
+  public static @NonNull Builder builder(@NonNull SignGroupConfiguration groupConfiguration) {
+    return builder()
+      .targetGroup(groupConfiguration.targetGroup())
+      .switchToSearchingWhenServiceIsFull(groupConfiguration.switchToSearchingWhenServiceIsFull())
+      .emptyLayout(groupConfiguration.emptyLayout())
+      .onlineLayout(groupConfiguration.onlineLayout())
+      .fullLayout(groupConfiguration.fullLayout());
+  }
+
+  public static class Builder {
+
+    private String targetGroup;
+    private boolean switchToSearchingWhenServiceIsFull = false;
+    private SignLayoutsHolder emptyLayout;
+    private SignLayoutsHolder onlineLayout;
+    private SignLayoutsHolder fullLayout;
+
+    public @NonNull Builder targetGroup(@NonNull String targetGroup) {
+      this.targetGroup = targetGroup;
+      return this;
+    }
+
+    public @NonNull Builder switchToSearchingWhenServiceIsFull(boolean switchToSearchingWhenServiceIsFull) {
+      this.switchToSearchingWhenServiceIsFull = switchToSearchingWhenServiceIsFull;
+      return this;
+    }
+
+    public @NonNull Builder emptyLayout(@NonNull SignLayoutsHolder emptyLayout) {
+      this.emptyLayout = emptyLayout;
+      return this;
+    }
+
+    public @NonNull Builder onlineLayout(@NonNull SignLayoutsHolder onlineLayout) {
+      this.onlineLayout = onlineLayout;
+      return this;
+    }
+
+    public @NonNull Builder fullLayout(@NonNull SignLayoutsHolder fullLayout) {
+      this.fullLayout = fullLayout;
+      return this;
+    }
+
+    public @NonNull SignGroupConfiguration build() {
+      Verify.verifyNotNull(this.targetGroup, "Missing target group");
+      Verify.verifyNotNull(this.emptyLayout, "Missing empty sign layout");
+      Verify.verifyNotNull(this.onlineLayout, "Missing online sign layout");
+      Verify.verifyNotNull(this.fullLayout, "Missing full sign layout");
+
+      return new SignGroupConfiguration(
+        this.targetGroup,
+        this.switchToSearchingWhenServiceIsFull,
+        this.emptyLayout,
+        this.onlineLayout,
+        this.fullLayout);
+    }
+  }
 }

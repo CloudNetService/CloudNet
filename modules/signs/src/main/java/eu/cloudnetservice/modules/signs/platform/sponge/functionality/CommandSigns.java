@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.signs.platform.sponge.functionality;
 
+import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
 import java.util.Optional;
 import lombok.NonNull;
@@ -54,7 +55,7 @@ public class CommandSigns implements CommandExecutor {
 
     var entry = this.signManagement.applicableSignConfigurationEntry();
     if (entry == null) {
-      this.signManagement.signsConfiguration().sendMessage(
+      SignsConfiguration.sendMessage(
         "command-cloudsign-no-entry",
         message -> player.sendMessage(Component.text(message)));
       return CommandResult.success();
@@ -75,7 +76,7 @@ public class CommandSigns implements CommandExecutor {
           (org.spongepowered.api.block.entity.Sign) hit.get().selectedObject(),
           entry.targetGroup());
         if (sign != null) {
-          this.signManagement.signsConfiguration().sendMessage(
+          SignsConfiguration.sendMessage(
             "command-cloudsign-sign-already-exist",
             message -> player.sendMessage(Component.text(message)));
         } else {
@@ -84,7 +85,7 @@ public class CommandSigns implements CommandExecutor {
             targetGroup,
             targetTemplatePath);
           if (createdSign != null) {
-            this.signManagement.signsConfiguration().sendMessage(
+            SignsConfiguration.sendMessage(
               "command-cloudsign-create-success",
               m -> player.sendMessage(Component.text(m)),
               m -> m.replace("%group%", createdSign.targetGroup()));
@@ -94,14 +95,14 @@ public class CommandSigns implements CommandExecutor {
         return CommandResult.success();
       } else if (type.equalsIgnoreCase("cleanup")) {
         var removed = this.signManagement.removeMissingSigns();
-        this.signManagement.signsConfiguration().sendMessage(
+        SignsConfiguration.sendMessage(
           "command-cloudsign-cleanup-success",
           m -> player.sendMessage(Component.text(m)),
           m -> m.replace("%amount%", Integer.toString(removed)));
         return CommandResult.success();
       } else if (type.equalsIgnoreCase("removeall")) {
         var removed = this.signManagement.deleteAllSigns();
-        this.signManagement.signsConfiguration().sendMessage(
+        SignsConfiguration.sendMessage(
           "command-cloudsign-bulk-remove-success",
           m -> player.sendMessage(Component.text(m)),
           m -> m.replace("%amount%", Integer.toString(removed)));
@@ -117,11 +118,11 @@ public class CommandSigns implements CommandExecutor {
           entry.targetGroup());
         if (sign != null) {
           this.signManagement.deleteSign(sign);
-          this.signManagement.signsConfiguration().sendMessage(
+          SignsConfiguration.sendMessage(
             "command-cloudsign-remove-success",
             m -> player.sendMessage(Component.text(m)));
         } else {
-          this.signManagement.signsConfiguration().sendMessage(
+          SignsConfiguration.sendMessage(
             "command-cloudsign-remove-not-existing",
             m -> player.sendMessage(Component.text(m)));
         }
@@ -148,7 +149,7 @@ public class CommandSigns implements CommandExecutor {
       .execute();
     // check if the player is facing a sign
     if (result.isEmpty() || !(result.get().selectedObject() instanceof org.spongepowered.api.block.entity.Sign)) {
-      this.signManagement.signsConfiguration().sendMessage(
+      SignsConfiguration.sendMessage(
         "command-cloudsign-not-looking-at-sign",
         message -> player.sendMessage(Component.text(message)));
       return Optional.empty();

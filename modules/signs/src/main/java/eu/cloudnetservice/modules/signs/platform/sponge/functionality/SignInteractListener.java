@@ -16,8 +16,7 @@
 
 package eu.cloudnetservice.modules.signs.platform.sponge.functionality;
 
-import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
-import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
+import eu.cloudnetservice.cloudnet.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
 import eu.cloudnetservice.modules.signs.platform.sponge.event.SpongeCloudSignInteractEvent;
@@ -69,10 +68,6 @@ public class SignInteractListener {
 
           if (!interactEvent.isCancelled()) {
             interactEvent.target().ifPresent(service -> {
-              this.signManagement.signsConfiguration().sendMessage(
-                "server-connecting-message",
-                m -> player.sendMessage(AdventureSerializerUtil.serialize(m)),
-                m -> m.replace("%server%", service.name()));
               this.playerManager().playerExecutor(player.uniqueId()).connect(service.name());
             });
           }
@@ -82,6 +77,6 @@ public class SignInteractListener {
   }
 
   protected @NonNull PlayerManager playerManager() {
-    return CloudNetDriver.instance().serviceRegistry().firstProvider(PlayerManager.class);
+    return ServiceRegistry.first(PlayerManager.class);
   }
 }
