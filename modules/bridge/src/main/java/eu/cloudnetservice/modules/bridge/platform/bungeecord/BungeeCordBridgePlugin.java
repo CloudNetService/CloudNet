@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.bridge.platform.bungeecord;
 import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.bungeecord.command.BungeeCordCloudCommand;
+import eu.cloudnetservice.modules.bridge.platform.bungeecord.command.BungeeCordFakeReloadCommand;
 import eu.cloudnetservice.modules.bridge.platform.bungeecord.command.BungeeCordHubCommand;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
 import java.util.Arrays;
@@ -39,6 +40,7 @@ public final class BungeeCordBridgePlugin extends Plugin {
       this,
       new BungeeCordPlayerManagementListener(this, management));
     // register the cloud command
+    ProxyServer.getInstance().getPluginManager().registerCommand(this, new BungeeCordFakeReloadCommand());
     ProxyServer.getInstance().getPluginManager().registerCommand(this, new BungeeCordCloudCommand(management));
     // register the hub command if requested
     if (!management.configuration().hubCommandNames().isEmpty()) {
