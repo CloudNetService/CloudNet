@@ -52,7 +52,7 @@ public record SignsConfiguration(@NonNull List<SignConfigurationEntry> entries) 
     var message = MESSAGES.get(key);
     if (message != null) {
       if (modifier != null) {
-        modifier.apply(message);
+        message = modifier.apply(message);
       }
       sender.accept(message);
     }

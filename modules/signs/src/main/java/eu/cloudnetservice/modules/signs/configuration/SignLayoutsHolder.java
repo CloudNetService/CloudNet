@@ -28,8 +28,8 @@ public class SignLayoutsHolder {
   private final int animationsPerSecond;
   private final List<SignLayout> signLayouts;
 
-  private final transient AtomicBoolean tickBlocked = new AtomicBoolean();
-  private final transient AtomicInteger currentAnimation = new AtomicInteger(-1);
+  private transient AtomicBoolean tickBlocked = new AtomicBoolean();
+  private transient AtomicInteger currentAnimation = new AtomicInteger(-1);
 
   public SignLayoutsHolder(int animationsPerSecond, @NonNull List<SignLayout> signLayouts) {
     this.animationsPerSecond = animationsPerSecond;
@@ -79,6 +79,6 @@ public class SignLayoutsHolder {
   }
 
   public int currentAnimation() {
-    return this.currentAnimation == null ? 0 : this.currentAnimation.get();
+    return this.currentAnimation.updateAndGet(i -> Math.max(0, i));
   }
 }
