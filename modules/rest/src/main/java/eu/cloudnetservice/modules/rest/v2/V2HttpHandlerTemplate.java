@@ -20,7 +20,7 @@ import eu.cloudnetservice.cloudnet.driver.network.http.HttpContext;
 import eu.cloudnetservice.cloudnet.driver.network.http.HttpResponse;
 import eu.cloudnetservice.cloudnet.driver.network.http.HttpResponseCode;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
-import eu.cloudnetservice.cloudnet.driver.template.SpecificTemplateStorage;
+import eu.cloudnetservice.cloudnet.driver.template.TemplateStorage;
 import eu.cloudnetservice.cloudnet.node.http.HttpSession;
 import eu.cloudnetservice.cloudnet.node.http.V2HttpHandler;
 import eu.cloudnetservice.cloudnet.node.version.ServiceVersion;
@@ -84,7 +84,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
   protected void handleDownloadRequest(@NonNull HttpContext context) {
     this.handleWithTemplateContext(context, (template, storage) -> {
-      var stream = storage.zipTemplateAsync().get();
+      var stream = storage.zipTemplateAsync(template).get();
       if (stream == null) {
         this.notFound(context)
           .body(this.failure().append("reason", "Unable to zip template").toString())
@@ -105,7 +105,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
   protected void handleFileDownloadRequest(@NonNull HttpContext context) {
     this.handleWithFileTemplateContext(context, (template, storage, path) -> {
-      var stream = storage.newInputStreamAsync(path).get();
+      var stream = storage.newInputStreamAsync(template, path).get();
       if (stream == null) {
         this.notFound(context)
           .body(this.failure().append("reason", "Missing file or path is directory").toString())
@@ -127,7 +127,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
   protected void handleFileInfoRequest(@NonNull HttpContext context) {
     this.handleWithFileTemplateContext(context, (template, storage, path) -> {
-      var info = storage.fileInfoAsync(path).get();
+      var info = storage.fileInfoAsync(template, path).get();
       if (info == null) {
         this.notFound(context)
           .body(this.failure().append("reason", "Unknown file or directory").toString())
@@ -146,7 +146,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
   protected void handleFileExistsRequest(@NonNull HttpContext context) {
     this.handleWithFileTemplateContext(context, (template, storage, path) -> {
-      boolean status = storage.hasFileAsync(path).get();
+      boolean status = storage.hasFileAsync(template, path).get();
       this.ok(context)
         .body(this.success().append("exists", status).toString())
         .context()
@@ -160,7 +160,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
       var dir = RestUtil.first(context.request().queryParameters().get("directory"), "");
       var deep = Boolean.parseBoolean(RestUtil.first(context.request().queryParameters().get("deep"), "false"));
 
-      var files = storage.listFilesAsync(dir, deep).get();
+      var files = storage.listFilesAsync(template, dir, deep).get();
       this.ok(context)
         .body(this.success().append("files", files).toString())
         .context()
@@ -171,7 +171,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
   protected void handleCreateRequest(@NonNull HttpContext context) {
     this.handleWithTemplateContext(context, (template, storage) -> {
-      boolean status = storage.createAsync().get();
+      boolean status = storage.createAsync(template).get();
       this.ok(context)
         .body(status ? this.success().toString() : this.failure().toString())
         .context()
@@ -192,7 +192,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     }
 
     this.handleWithTemplateContext(context, (template, storage) -> {
-      boolean status = storage.deployAsync(stream).get();
+      boolean status = storage.deployAsync(template, stream).get();
       this.ok(context)
         .body(status ? this.success().toString() : this.failure().toString())
         .context()
@@ -203,7 +203,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
   protected void handleFileDeleteRequest(@NonNull HttpContext context) {
     this.handleWithFileTemplateContext(context, (template, storage, path) -> {
-      boolean status = storage.deleteFileAsync(path).get();
+      boolean status = storage.deleteFileAsync(template, path).get();
       this.ok(context)
         .body(status ? this.success().toString() : this.failure().toString())
         .context()
@@ -214,7 +214,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
   protected void handleTemplateDeleteRequest(@NonNull HttpContext context) {
     this.handleWithTemplateContext(context, (template, storage) -> {
-      boolean status = storage.deleteAsync().get();
+      boolean status = storage.deleteAsync(template).get();
       this.ok(context)
         .body(status ? this.success().toString() : this.failure().toString())
         .context()
@@ -284,7 +284,9 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     }
 
     this.handleWithFileTemplateContext(context, (template, storage, path) -> {
-      var task = append ? storage.appendOutputStreamAsync(path) : storage.newOutputStreamAsync(path);
+      var task = append
+        ? storage.appendOutputStreamAsync(template, path)
+        : storage.newOutputStreamAsync(template, path);
       var stream = task.get();
       if (stream == null) {
         this.notFound(context)
@@ -305,7 +307,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
   protected void handleDirectoryCreateRequest(@NonNull HttpContext context) {
     this.handleWithFileTemplateContext(context, (template, storage, path) -> {
-      boolean status = storage.createDirectoryAsync(path).get();
+      boolean status = storage.createDirectoryAsync(template, path).get();
       this.ok(context)
         .body(status ? this.success().toString() : this.failure().toString())
         .context()
@@ -316,7 +318,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
   protected void handleWithTemplateContext(
     @NonNull HttpContext context,
-    @NonNull ThrowableBiConsumer<ServiceTemplate, SpecificTemplateStorage, Exception> handler
+    @NonNull ThrowableBiConsumer<ServiceTemplate, TemplateStorage, Exception> handler
   ) {
     var storage = context.request().pathParameters().get("storage");
     var prefix = context.request().pathParameters().get("prefix");
@@ -352,7 +354,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
   protected void handleWithFileTemplateContext(
     @NonNull HttpContext context,
-    @NonNull ThrowableTriConsumer<ServiceTemplate, SpecificTemplateStorage, String, Exception> handler
+    @NonNull ThrowableTriConsumer<ServiceTemplate, TemplateStorage, String, Exception> handler
   ) {
     this.handleWithTemplateContext(context, (template, storage) -> {
       var fileName = RestUtil.first(context.request().queryParameters().get("path"), null);

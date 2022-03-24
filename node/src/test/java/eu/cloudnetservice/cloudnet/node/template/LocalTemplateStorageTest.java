@@ -22,7 +22,6 @@ import eu.cloudnetservice.cloudnet.driver.template.FileInfo;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.Arrays;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -56,7 +55,7 @@ class LocalTemplateStorageTest {
 
   @Test
   @Order(0)
-  void testTemplateCreation() throws IOException {
+  void testTemplateCreation() {
     Assertions.assertTrue(storage.create(TEMPLATE));
     Assertions.assertTrue(storage.createFile(TEMPLATE, "spigot.yml"));
     Assertions.assertTrue(storage.hasFile(TEMPLATE, "spigot.yml"));
@@ -65,8 +64,8 @@ class LocalTemplateStorageTest {
   @Test
   @Order(10)
   void testHasTemplate() {
-    Assertions.assertTrue(storage.has(TEMPLATE));
-    Assertions.assertFalse(storage.has(ServiceTemplate.builder()
+    Assertions.assertTrue(storage.contains(TEMPLATE));
+    Assertions.assertFalse(storage.contains(ServiceTemplate.builder()
       .prefix("hello")
       .name("world")
       .storage("sftp")
@@ -142,10 +141,12 @@ class LocalTemplateStorageTest {
   void testFileListingNonDeep() {
     var files = storage.listFiles(TEMPLATE, "hello", false);
     Assertions.assertNotNull(files);
-    Assertions.assertEquals(1, files.length);
-    Assertions.assertEquals(0, files[0].size());
-    Assertions.assertEquals("test.txt", files[0].name());
-    Assertions.assertTrue(files[0].path().endsWith("hello/test.txt"));
+    Assertions.assertEquals(1, files.size());
+
+    var info = files.iterator().next();
+    Assertions.assertEquals(0, info.size());
+    Assertions.assertEquals("test.txt", info.name());
+    Assertions.assertTrue(info.path().endsWith("hello/test.txt"));
   }
 
   @Test
@@ -153,10 +154,10 @@ class LocalTemplateStorageTest {
   void testFileListingDeep() {
     var files = storage.listFiles(TEMPLATE, "", true);
     Assertions.assertNotNull(files);
-    Assertions.assertEquals(3, files.length);
+    Assertions.assertEquals(3, files.size());
 
     // there must be one directory
-    var dir = Arrays.stream(files).filter(FileInfo::directory).findFirst().orElse(null);
+    var dir = files.stream().filter(FileInfo::directory).findFirst().orElse(null);
     Assertions.assertNotNull(dir);
     Assertions.assertEquals("hello", dir.name());
   }
@@ -173,7 +174,7 @@ class LocalTemplateStorageTest {
   @Order(110)
   void testTemplateDelete() {
     Assertions.assertTrue(storage.delete(TEMPLATE));
-    Assertions.assertFalse(storage.has(TEMPLATE));
+    Assertions.assertFalse(storage.contains(TEMPLATE));
     Assertions.assertFalse(storage.hasFile(TEMPLATE, "test.txt"));
   }
 }

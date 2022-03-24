@@ -100,9 +100,9 @@ public class S3TemplateStorage implements TemplateStorage {
 
   @Override
   public boolean deployDirectory(
-    @NonNull Path directory,
     @NonNull ServiceTemplate target,
-    @Nullable Predicate<Path> fileFilter
+    @NonNull Path directory,
+    @Nullable Predicate<Path> filter
   ) {
     var result = new AtomicBoolean(true);
     // walk down the file tree
@@ -124,19 +124,16 @@ public class S3TemplateStorage implements TemplateStorage {
           result.set(false);
         }
       }
-    }, true, fileFilter == null ? path -> true : fileFilter::test);
+    }, true, filter == null ? path -> true : filter::test);
     return result.get();
   }
 
   @Override
-  public boolean deploy(
-    @NonNull InputStream inputStream,
-    @NonNull ServiceTemplate target
-  ) {
+  public boolean deploy(@NonNull ServiceTemplate target, @NonNull InputStream inputStream) {
     var temp = ZipUtil.extract(inputStream, FileUtil.createTempFile());
     if (temp != null) {
       try {
-        return this.deployDirectory(temp, target, null);
+        return this.deployDirectory(target, temp, null);
       } finally {
         FileUtil.delete(temp);
       }
@@ -145,7 +142,7 @@ public class S3TemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public boolean copy(@NonNull ServiceTemplate template, @NonNull Path directory) {
+  public boolean pull(@NonNull ServiceTemplate template, @NonNull Path directory) {
     try {
       // get the repo path
       var templatePath = this.getBucketPath(template);
@@ -194,7 +191,7 @@ public class S3TemplateStorage implements TemplateStorage {
   @Override
   public @Nullable InputStream zipTemplate(@NonNull ServiceTemplate template) {
     var localTarget = FileUtil.createTempFile();
-    if (this.copy(template, localTarget)) {
+    if (this.pull(template, localTarget)) {
       return ZipUtil.zipToStream(localTarget);
     } else {
       return null;
@@ -231,7 +228,7 @@ public class S3TemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public boolean has(@NonNull ServiceTemplate template) {
+  public boolean contains(@NonNull ServiceTemplate template) {
     try {
       // check if we can get at least one object
       var request = ListObjectsV2Request.builder()
@@ -316,7 +313,7 @@ public class S3TemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public boolean hasFile(@NonNull ServiceTemplate template, @NonNull String path) throws IOException {
+  public boolean hasFile(@NonNull ServiceTemplate template, @NonNull String path) {
     try {
       var request = GetObjectRequest.builder()
         .bucket(this.config().bucket())
@@ -325,7 +322,7 @@ public class S3TemplateStorage implements TemplateStorage {
       this.client.getObject(request).close();
       // the file was present
       return true;
-    } catch (NoSuchKeyException exception) {
+    } catch (NoSuchKeyException | IOException exception) {
       return false;
     }
   }
@@ -386,7 +383,11 @@ public class S3TemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public @Nullable FileInfo[] listFiles(@NonNull ServiceTemplate template, @NonNull String dir, boolean deep) {
+  public @Nullable Collection<FileInfo> listFiles(
+    @NonNull ServiceTemplate template,
+    @NonNull String dir,
+    boolean deep
+  ) {
     // get the initial data we need to strip off
     var initialStrip = this.getBucketPath(template).length();
     // collect all files
@@ -404,7 +405,7 @@ public class S3TemplateStorage implements TemplateStorage {
         object.size()));
     });
     // finish the collection
-    return files.toArray(new FileInfo[0]);
+    return files;
   }
 
   @Override

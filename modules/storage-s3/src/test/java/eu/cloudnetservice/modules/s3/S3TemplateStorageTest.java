@@ -80,7 +80,7 @@ class S3TemplateStorageTest {
 
   @Test
   @Order(0)
-  void testTemplateCreation() throws IOException {
+  void testTemplateCreation() {
     Assertions.assertTrue(storage.create(TEMPLATE));
     Assertions.assertTrue(storage.createFile(TEMPLATE, "spigot.yml"));
     Assertions.assertTrue(storage.hasFile(TEMPLATE, "spigot.yml"));
@@ -89,8 +89,8 @@ class S3TemplateStorageTest {
   @Test
   @Order(10)
   void testHasTemplate() {
-    Assertions.assertTrue(storage.has(TEMPLATE));
-    Assertions.assertFalse(storage.has(ServiceTemplate.builder()
+    Assertions.assertTrue(storage.contains(TEMPLATE));
+    Assertions.assertFalse(storage.contains(ServiceTemplate.builder()
       .prefix("hello")
       .name("world")
       .storage("s3")
@@ -148,14 +148,14 @@ class S3TemplateStorageTest {
 
   @Test
   @Order(60)
-  void testDeleteFile() throws IOException {
+  void testDeleteFile() {
     Assertions.assertTrue(storage.deleteFile(TEMPLATE, "spigot.yml"));
     Assertions.assertFalse(storage.hasFile(TEMPLATE, "spigot.yml"));
   }
 
   @Test
   @Order(70)
-  void testCreateDirectory() throws IOException {
+  void testCreateDirectory() {
     Assertions.assertTrue(storage.createDirectory(TEMPLATE, "hello"));
     Assertions.assertTrue(storage.createFile(TEMPLATE, "hello/test.txt"));
     Assertions.assertTrue(storage.hasFile(TEMPLATE, "hello/test.txt"));
@@ -166,10 +166,12 @@ class S3TemplateStorageTest {
   void testFileListingNonDeep() {
     var files = storage.listFiles(TEMPLATE, "hello", false);
     Assertions.assertNotNull(files);
-    Assertions.assertEquals(1, files.length);
-    Assertions.assertEquals(0, files[0].size());
-    Assertions.assertEquals("test.txt", files[0].name());
-    Assertions.assertTrue(files[0].path().endsWith("hello/test.txt"));
+    Assertions.assertEquals(1, files.size());
+
+    var info = files.iterator().next();
+    Assertions.assertEquals(0, info.size());
+    Assertions.assertEquals("test.txt", info.name());
+    Assertions.assertTrue(info.path().endsWith("hello/test.txt"));
   }
 
   @Test
@@ -177,7 +179,7 @@ class S3TemplateStorageTest {
   void testFileListingDeep() {
     var files = storage.listFiles(TEMPLATE, "", true);
     Assertions.assertNotNull(files);
-    Assertions.assertEquals(2, files.length);
+    Assertions.assertEquals(2, files.size());
   }
 
   @Test
@@ -190,9 +192,9 @@ class S3TemplateStorageTest {
 
   @Test
   @Order(110)
-  void testTemplateDelete() throws IOException {
+  void testTemplateDelete() {
     Assertions.assertTrue(storage.delete(TEMPLATE));
-    Assertions.assertFalse(storage.has(TEMPLATE));
+    Assertions.assertFalse(storage.contains(TEMPLATE));
     Assertions.assertFalse(storage.hasFile(TEMPLATE, "test.txt"));
   }
 }

@@ -18,7 +18,7 @@ package eu.cloudnetservice.cloudnet.node.template;
 
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
-import eu.cloudnetservice.cloudnet.driver.template.SpecificTemplateStorage;
+import eu.cloudnetservice.cloudnet.driver.template.TemplateStorage;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.event.template.ServiceTemplateInstallEvent;
 import java.io.IOException;
@@ -35,7 +35,7 @@ public final class TemplateStorageUtil {
 
   public static boolean createAndPrepareTemplate(
     @NonNull ServiceTemplate template,
-    @NonNull SpecificTemplateStorage storage,
+    @NonNull TemplateStorage storage,
     @NonNull ServiceEnvironmentType env
   ) throws IOException {
     return createAndPrepareTemplate(template, storage, env, true);
@@ -43,13 +43,13 @@ public final class TemplateStorageUtil {
 
   public static boolean createAndPrepareTemplate(
     @NonNull ServiceTemplate template,
-    @NonNull SpecificTemplateStorage storage,
+    @NonNull TemplateStorage storage,
     @NonNull ServiceEnvironmentType env,
     boolean installDefaultFiles
   ) throws IOException {
-    if (!storage.exists()) {
-      storage.create();
-      storage.createDirectory("plugins");
+    if (!storage.contains(template)) {
+      storage.create(template);
+      storage.createDirectory(template, "plugins");
 
       // call the installation event if the default installation process should be executed
       if (installDefaultFiles) {

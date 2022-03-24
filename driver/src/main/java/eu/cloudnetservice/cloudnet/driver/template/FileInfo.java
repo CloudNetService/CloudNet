@@ -24,6 +24,19 @@ import java.nio.file.attribute.BasicFileAttributes;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents a file which is stored on any file system which is accessible.
+ *
+ * @param path         the relative of path of the file on the current file system.
+ * @param name         the name of the file.
+ * @param directory    if this information represents a directory.
+ * @param hidden       if the file or directory is hidden.
+ * @param creationTime a unix timestamp which represents the creation time of the file.
+ * @param lastModified a unix timestamp which represents the last time the file was changed.
+ * @param lastAccess   a unix timestamp which represents the last time the file was accessed.
+ * @param size         the size of the file, in bytes.
+ * @since 4.0
+ */
 public record FileInfo(
   @NonNull String path,
   @NonNull String name,
@@ -35,19 +48,56 @@ public record FileInfo(
   long size
 ) {
 
+  /**
+   * Constructs a new file information for the given path.
+   *
+   * @param path the path to the file to construct the info for.
+   * @return the created file information based on the given path.
+   * @throws IOException          if an i/o error occurs while accessing the file attributes of the given path.
+   * @throws NullPointerException if the given path is null.
+   */
   public static @NonNull FileInfo of(@NonNull Path path) throws IOException {
     return of(path, (Path) null);
   }
 
-  public static @NonNull FileInfo of(@NonNull Path fullPath, @NonNull BasicFileAttributes attributes)
-    throws IOException {
-    return of(fullPath, null, attributes);
+  /**
+   * Constructs a new file information for the given path and the given file attributes.
+   *
+   * @param path       the path to the file to construct the info for.
+   * @param attributes the attributes of the file to use when constructing the file info.
+   * @return the created file information based on the given path and file attributes.
+   * @throws IOException          if an i/o error occurs while accessing the file attributes of the given path.
+   * @throws NullPointerException if either the given path or file attribute information is null.
+   */
+  public static @NonNull FileInfo of(@NonNull Path path, @NonNull BasicFileAttributes attributes) throws IOException {
+    return of(path, null, attributes);
   }
 
+  /**
+   * Constructs a new file information for the given path. The file path in the resulting information will be relative
+   * if the relative path is given.
+   *
+   * @param path         the full path of the file to create the information for.
+   * @param relativePath the relative path to the file to create the information for.
+   * @return the created file information based on the given path and relative path (if present).
+   * @throws IOException          if an i/o error occurs while accessing the file attributes of the given path.
+   * @throws NullPointerException if the given file path is null.
+   */
   public static @NonNull FileInfo of(@NonNull Path path, @Nullable Path relativePath) throws IOException {
     return of(path, relativePath, Files.readAttributes(path, BasicFileAttributes.class));
   }
 
+  /**
+   * Creates a new file information for the given path and the given file attributes. If the given relative path is
+   * present it will be used as the path in the created file information.
+   *
+   * @param fullPath     the full path to the file to create the information for.
+   * @param relativePath the relative path to the file to create the information for.
+   * @param attributes   the attributes of the file to use when constructing the file info.
+   * @return the created file information based on the given file path, file attributes and the relative path.
+   * @throws IOException          if an i/o error occurs while accessing the file attributes of the given path.
+   * @throws NullPointerException if either the given file path or file attribute information is null.
+   */
   public static @NonNull FileInfo of(
     @NonNull Path fullPath,
     @Nullable Path relativePath,
@@ -67,9 +117,4 @@ public record FileInfo(
       attributes.lastAccessTime().toMillis(),
       attributes.size());
   }
-
-  public static @NonNull FileInfo of(@NonNull File file) throws IOException {
-    return of(file.toPath(), file.toPath());
-  }
 }
-
