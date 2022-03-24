@@ -28,7 +28,7 @@ var cloudnet.updateRepo CloudNetService/launchermeta
 #  - 'beta':        All bleeding edge but newest features of the system. DO NOT USE IN PRODUCTION. Your network is not
 #                   safe and something might break. Good for testing purposes or developers which want to use the latest
 #                   features available. (Use this branch at your own risk!)
-var cloudnet.updateBranch release
+var cloudnet.updateBranch unstable/rewrite
 
 # available default log levels: OFF, SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST, ALL
 # each level includes all messages for levels lower than itself (in the above list: left to right) too
