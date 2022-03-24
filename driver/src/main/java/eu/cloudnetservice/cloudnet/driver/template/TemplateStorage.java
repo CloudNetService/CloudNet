@@ -132,7 +132,7 @@ public interface TemplateStorage extends AutoCloseable, Nameable {
   boolean delete(@NonNull ServiceTemplate template);
 
   /**
-   * Creates the given in this template storage if it doesn't exist already.
+   * Creates the given template in this template storage if it doesn't exist already.
    *
    * @param template the template to create.
    * @return true if the template was created successfully, false otherwise.
@@ -378,7 +378,7 @@ public interface TemplateStorage extends AutoCloseable, Nameable {
   }
 
   /**
-   * Creates the given in this template storage if it doesn't exist already.
+   * Creates the given template in this template storage if it doesn't exist already.
    *
    * @param template the template to create.
    * @return a task completed with true if the template was created successfully, false otherwise.
