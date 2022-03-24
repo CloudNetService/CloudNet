@@ -157,14 +157,14 @@ public final class CommandTemplate {
   @CommandMethod("template|t delete|rm|del <template>")
   public void deleteTemplate(@NonNull CommandSource source, @NonNull @Argument("template") ServiceTemplate template) {
     var templateStorage = template.storage();
-    if (!templateStorage.exists()) {
+    if (!templateStorage.contains(template)) {
       source.sendMessage(I18n.trans("command-template-delete-template-not-found",
         template.fullName(),
         template.storageName()));
       return;
     }
 
-    templateStorage.delete();
+    templateStorage.delete(template);
     source.sendMessage(I18n.trans("command-template-delete-success", template.toString(), templateStorage.name()));
   }
 
@@ -175,7 +175,7 @@ public final class CommandTemplate {
     @NonNull @Argument("environment") ServiceEnvironmentType environmentType
   ) {
     var templateStorage = template.storage();
-    if (templateStorage.exists()) {
+    if (templateStorage.contains(template)) {
       source.sendMessage(I18n.trans("command-template-create-template-already-exists"));
       return;
     }
@@ -206,15 +206,15 @@ public final class CommandTemplate {
     CloudNet.instance().mainThread().runTask(() -> {
       source.sendMessage(I18n.trans("command-template-copy", sourceTemplate, targetTemplate));
 
-      targetStorage.delete();
-      targetStorage.create();
-      try (var stream = sourceStorage.asZipInputStream()) {
+      targetStorage.delete(targetTemplate);
+      targetStorage.create(targetTemplate);
+      try (var stream = sourceStorage.openZipInputStream(sourceTemplate)) {
         if (stream == null) {
           source.sendMessage(I18n.trans("command-template-copy-failed"));
           return;
         }
 
-        targetStorage.deploy(stream);
+        targetStorage.deploy(targetTemplate, stream);
         source.sendMessage(I18n.trans("command-template-copy-success", sourceTemplate, targetTemplate));
       } catch (IOException exception) {
         source.sendMessage(I18n.trans("command-template-copy-failed"));

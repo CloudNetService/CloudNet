@@ -19,7 +19,7 @@ package eu.cloudnetservice.cloudnet.node.version.information;
 import com.google.common.base.Verify;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironment;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
-import eu.cloudnetservice.cloudnet.driver.template.SpecificTemplateStorage;
+import eu.cloudnetservice.cloudnet.driver.template.TemplateStorage;
 import eu.cloudnetservice.cloudnet.node.version.ServiceVersion;
 import eu.cloudnetservice.cloudnet.node.version.ServiceVersionType;
 import java.io.IOException;
@@ -31,7 +31,7 @@ import org.jetbrains.annotations.Nullable;
 public final class TemplateVersionInstaller extends VersionInstaller {
 
   private final ServiceTemplate serviceTemplate;
-  private final SpecificTemplateStorage templateStorage;
+  private final TemplateStorage templateStorage;
 
   public TemplateVersionInstaller(
     @NonNull ServiceVersion serviceVersion,
@@ -39,7 +39,7 @@ public final class TemplateVersionInstaller extends VersionInstaller {
     boolean cacheFiles,
     @Nullable String installerExecutable,
     @NonNull ServiceTemplate serviceTemplate,
-    @NonNull SpecificTemplateStorage templateStorage
+    @NonNull TemplateStorage templateStorage
   ) {
     super(serviceVersion, serviceVersionType, cacheFiles, installerExecutable);
 
@@ -53,7 +53,7 @@ public final class TemplateVersionInstaller extends VersionInstaller {
 
   @Override
   public void deployFile(@NonNull InputStream source, @NonNull String target) throws IOException {
-    try (var output = this.templateStorage.newOutputStream(target)) {
+    try (var output = this.templateStorage.newOutputStream(this.serviceTemplate, target)) {
       if (output != null) {
         source.transferTo(output);
       }
@@ -61,12 +61,12 @@ public final class TemplateVersionInstaller extends VersionInstaller {
   }
 
   @Override
-  public void removeServiceVersions(@NonNull Collection<ServiceVersionType> knownTypes) throws IOException {
-    for (var file : this.templateStorage.listFiles("", false)) {
+  public void removeServiceVersions(@NonNull Collection<ServiceVersionType> knownTypes) {
+    for (var file : this.templateStorage.listFiles(this.serviceTemplate, "", false)) {
       if (file != null) {
         for (ServiceEnvironment environment : knownTypes) {
           if (file.name().toLowerCase().contains(environment.name()) && file.name().endsWith(".jar")) {
-            this.templateStorage.deleteFile(file.path());
+            this.templateStorage.deleteFile(this.serviceTemplate, file.path());
           }
         }
       }
@@ -76,7 +76,7 @@ public final class TemplateVersionInstaller extends VersionInstaller {
   public static final class Builder extends VersionInstaller.Builder<TemplateVersionInstaller, Builder> {
 
     private ServiceTemplate serviceTemplate;
-    private SpecificTemplateStorage templateStorage;
+    private TemplateStorage templateStorage;
 
     public @NonNull Builder toTemplate(@NonNull ServiceTemplate template) {
       this.serviceTemplate = template;
@@ -85,7 +85,7 @@ public final class TemplateVersionInstaller extends VersionInstaller {
       return this;
     }
 
-    public @NonNull Builder storage(@NonNull SpecificTemplateStorage storage) {
+    public @NonNull Builder storage(@NonNull TemplateStorage storage) {
       this.templateStorage = storage;
       return this;
     }

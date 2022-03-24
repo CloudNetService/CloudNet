@@ -19,7 +19,7 @@ package eu.cloudnetservice.cloudnet.driver.service;
 import com.google.common.base.Verify;
 import eu.cloudnetservice.cloudnet.common.Nameable;
 import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
-import eu.cloudnetservice.cloudnet.driver.template.SpecificTemplateStorage;
+import eu.cloudnetservice.cloudnet.driver.template.TemplateStorage;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -202,23 +202,26 @@ public class ServiceTemplate implements Nameable, Comparable<ServiceTemplate>, C
   }
 
   /**
-   * Constructs a new template storage which can be used to specifically manage files in this template.
+   * Get the template storage in which this template is stored, throwing an exception if the template doesn't exist.
    *
-   * @return a template storage targeting this template.
+   * @return the template storage in which this template is stored.
    * @throws com.google.common.base.VerifyException if the storage used in this template is unknown.
    */
-  public @NonNull SpecificTemplateStorage storage() {
-    return SpecificTemplateStorage.of(this);
+  public @NonNull TemplateStorage storage() {
+    var storage = this.findStorage();
+    Verify.verifyNotNull(storage, "the storage of this template does not exist");
+
+    return storage;
   }
 
   /**
-   * Constructs a new template storage which can be used to specifically manage files in this template.
+   * Tries to find the storage in which this template is stored. This method returns null rather than throwing an
+   * exception if the storage doesn't exist.
    *
-   * @return a template storage targeting this template, null if the storage of this template is unknown.
+   * @return the template storage in which this template is stored, null if the template doesn't exist.
    */
-  public @Nullable SpecificTemplateStorage findStorage() {
-    var storage = CloudNetDriver.instance().templateStorage(this.storage);
-    return storage != null ? SpecificTemplateStorage.of(this, storage) : null;
+  public @Nullable TemplateStorage findStorage() {
+    return CloudNetDriver.instance().templateStorage(this.storage);
   }
 
   /**

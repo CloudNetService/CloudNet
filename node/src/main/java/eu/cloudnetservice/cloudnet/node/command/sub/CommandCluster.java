@@ -292,7 +292,7 @@ public final class CommandCluster {
       source.sendMessage(
         I18n.trans("command-cluster-push-template-compress", templateName));
       // compress the template and create an InputStream
-      var inputStream = template.storage().zipTemplate();
+      var inputStream = template.storage().zipTemplate(template);
       // check if the template really exists in the given storage
       if (inputStream != null) {
         // deploy the template into the cluster

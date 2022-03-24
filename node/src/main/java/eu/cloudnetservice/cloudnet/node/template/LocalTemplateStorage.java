@@ -18,8 +18,6 @@ package eu.cloudnetservice.cloudnet.node.template;
 
 import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.common.io.ZipUtil;
-import eu.cloudnetservice.cloudnet.common.log.LogManager;
-import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
 import eu.cloudnetservice.cloudnet.driver.template.FileInfo;
 import eu.cloudnetservice.cloudnet.driver.template.TemplateStorage;
@@ -44,7 +42,6 @@ import org.jetbrains.annotations.Nullable;
 public class LocalTemplateStorage implements TemplateStorage {
 
   public static final String LOCAL_TEMPLATE_STORAGE = "local";
-  protected static final Logger LOGGER = LogManager.logger(LocalTemplateStorage.class);
 
   private final Path storageDirectory;
 
@@ -60,35 +57,35 @@ public class LocalTemplateStorage implements TemplateStorage {
 
   @Override
   public boolean deployDirectory(
-    @NonNull Path directory,
     @NonNull ServiceTemplate target,
-    @Nullable Predicate<Path> fileFilter
+    @NonNull Path directory,
+    @Nullable Predicate<Path> filter
   ) {
     if (Files.exists(directory)) {
       FileUtil.copyDirectory(
         directory,
         this.getTemplatePath(target),
-        fileFilter == null ? null : fileFilter::test);
+        filter == null ? null : filter::test);
       return true;
     }
     return false;
   }
 
   @Override
-  public boolean deploy(@NonNull InputStream inputStream, @NonNull ServiceTemplate target) {
+  public boolean deploy(@NonNull ServiceTemplate target, @NonNull InputStream inputStream) {
     ZipUtil.extractZipStream(new ZipInputStream(inputStream), this.getTemplatePath(target));
     return true;
   }
 
   @Override
-  public boolean copy(@NonNull ServiceTemplate template, @NonNull Path directory) {
+  public boolean pull(@NonNull ServiceTemplate template, @NonNull Path directory) {
     FileUtil.copyDirectory(this.getTemplatePath(template), directory);
     return true;
   }
 
   @Override
   public @Nullable InputStream zipTemplate(@NonNull ServiceTemplate template) throws IOException {
-    if (this.has(template)) {
+    if (this.contains(template)) {
       // create a new temp file
       var temp = FileUtil.createTempFile();
       var zippedFile = ZipUtil.zipToFile(this.getTemplatePath(template), temp);
@@ -123,7 +120,7 @@ public class LocalTemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public boolean has(@NonNull ServiceTemplate template) {
+  public boolean contains(@NonNull ServiceTemplate template) {
     return Files.exists(this.getTemplatePath(template));
   }
 
@@ -154,30 +151,28 @@ public class LocalTemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public boolean createFile(
-    @NonNull ServiceTemplate template,
-    @NonNull String path
-  ) throws IOException {
+  public boolean createFile(@NonNull ServiceTemplate template, @NonNull String path) {
     var filePath = this.getTemplatePath(template).resolve(path);
     if (Files.exists(filePath)) {
       return false;
     } else {
-      Files.createDirectories(filePath.getParent());
-      Files.createFile(filePath);
-      return true;
+      try {
+        Files.createDirectories(filePath.getParent());
+        Files.createFile(filePath);
+        return true;
+      } catch (IOException exception) {
+        return false;
+      }
     }
   }
 
   @Override
-  public boolean createDirectory(
-    @NonNull ServiceTemplate template,
-    @NonNull String path
-  ) throws IOException {
+  public boolean createDirectory(@NonNull ServiceTemplate template, @NonNull String path) {
     var dirPath = this.getTemplatePath(template).resolve(path);
     if (Files.exists(dirPath)) {
       return false;
     } else {
-      Files.createDirectories(dirPath);
+      FileUtil.createDirectory(dirPath);
       return true;
     }
   }
@@ -188,12 +183,13 @@ public class LocalTemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public boolean deleteFile(@NonNull ServiceTemplate template, @NonNull String path) throws IOException {
+  public boolean deleteFile(@NonNull ServiceTemplate template, @NonNull String path) {
     var filePath = this.getTemplatePath(template).resolve(path);
-    if (Files.exists(filePath)) {
-      Files.delete(filePath);
+    if (Files.exists(filePath) && !Files.isDirectory(filePath)) {
+      FileUtil.delete(filePath);
       return true;
     }
+
     return false;
   }
 
@@ -207,16 +203,17 @@ public class LocalTemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public @Nullable FileInfo fileInfo(
-    @NonNull ServiceTemplate template,
-    @NonNull String path
-  ) throws IOException {
-    var filePath = this.getTemplatePath(template).resolve(path);
-    return Files.exists(filePath) ? FileInfo.of(filePath, Path.of(path)) : null;
+  public @Nullable FileInfo fileInfo(@NonNull ServiceTemplate template, @NonNull String path) {
+    try {
+      var filePath = this.getTemplatePath(template).resolve(path);
+      return Files.exists(filePath) ? FileInfo.of(filePath, Path.of(path)) : null;
+    } catch (IOException exception) {
+      return null;
+    }
   }
 
   @Override
-  public @Nullable FileInfo[] listFiles(
+  public @Nullable Collection<FileInfo> listFiles(
     @NonNull ServiceTemplate template,
     @NonNull String dir,
     boolean deep
@@ -231,7 +228,7 @@ public class LocalTemplateStorage implements TemplateStorage {
       }
     }, deep, $ -> true);
     // collect to an array
-    return out.toArray(new FileInfo[0]);
+    return out;
   }
 
   @Override
@@ -257,7 +254,6 @@ public class LocalTemplateStorage implements TemplateStorage {
         })
         .collect(Collectors.toSet());
     } catch (IOException exception) {
-      LOGGER.severe("Unable to collect templates in local template storage", exception);
       return Collections.emptyList();
     }
   }

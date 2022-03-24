@@ -43,12 +43,24 @@ import java.util.function.Predicate;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public class RemoteTemplateStorage implements TemplateStorage {
+/**
+ * The default implementation of a template storage which pulls its information from a remote provider.
+ *
+ * @since 4.0
+ */
+public final class RemoteTemplateStorage implements TemplateStorage {
 
   private final String name;
   private final RPC baseRPC;
   private final RPCSender sender;
 
+  /**
+   * Constructs a new remote template storage instance.
+   *
+   * @param name    the name of the storage which was created.
+   * @param baseRPC the base rpc to obtain an instance of the template storage.
+   * @throws NullPointerException if the given name or base rpc is null.
+   */
   public RemoteTemplateStorage(@NonNull String name, @NonNull RPC baseRPC) {
     this.name = name;
     this.baseRPC = baseRPC;
@@ -57,26 +69,35 @@ public class RemoteTemplateStorage implements TemplateStorage {
       TemplateStorage.class);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull String name() {
     return this.name;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean deployDirectory(
-    @NonNull Path directory,
     @NonNull ServiceTemplate target,
-    @Nullable Predicate<Path> fileFilter
+    @NonNull Path directory,
+    @Nullable Predicate<Path> filter
   ) {
-    try (var inputStream = ZipUtil.zipToStream(directory, fileFilter)) {
-      return this.deploy(inputStream, target);
+    try (var inputStream = ZipUtil.zipToStream(directory, filter)) {
+      return this.deploy(target, inputStream);
     } catch (IOException exception) {
       return false;
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public boolean deploy(@NonNull InputStream inputStream, @NonNull ServiceTemplate target) {
+  public boolean deploy(@NonNull ServiceTemplate target, @NonNull InputStream inputStream) {
     return ChunkedPacketSender.forFileTransfer()
       .source(inputStream)
       .transferChannel("deploy_service_template")
@@ -87,11 +108,17 @@ public class RemoteTemplateStorage implements TemplateStorage {
       .get(5, TimeUnit.MINUTES, TransferStatus.FAILURE) == TransferStatus.SUCCESS;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public boolean copy(@NonNull ServiceTemplate template, @NonNull Path directory) {
+  public boolean pull(@NonNull ServiceTemplate template, @NonNull Path directory) {
     return this.baseRPC.join(this.sender.invokeMethod("copy", template, directory)).fireSync();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable InputStream zipTemplate(@NonNull ServiceTemplate template) throws IOException {
     // send a request for the template to the node
@@ -111,38 +138,65 @@ public class RemoteTemplateStorage implements TemplateStorage {
     return Files.newInputStream(FileUtil.TEMP_DIR.resolve(responseId.toString()), StandardOpenOption.DELETE_ON_CLOSE);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean delete(@NonNull ServiceTemplate template) {
     return this.baseRPC.join(this.sender.invokeMethod("delete", template)).fireSync();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean create(@NonNull ServiceTemplate template) {
     return this.baseRPC.join(this.sender.invokeMethod("create", template)).fireSync();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public boolean has(@NonNull ServiceTemplate template) {
+  public boolean contains(@NonNull ServiceTemplate template) {
     return this.baseRPC.join(this.sender.invokeMethod("has", template)).fireSync();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public @Nullable OutputStream appendOutputStream(
+  public @NonNull OutputStream appendOutputStream(
     @NonNull ServiceTemplate template,
     @NonNull String path
   ) throws IOException {
     return this.openLocalOutputStream(template, path, FileUtil.createTempFile(), true);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public @Nullable OutputStream newOutputStream(
+  public @NonNull OutputStream newOutputStream(
     @NonNull ServiceTemplate template,
     @NonNull String path
   ) throws IOException {
     return this.openLocalOutputStream(template, path, FileUtil.createTempFile(), false);
   }
 
-  protected @NonNull OutputStream openLocalOutputStream(
+  /**
+   * Opens a new output stream to a temporary local file which will be deployed to the remote component once the stream
+   * was closed.
+   *
+   * @param template  the template in which the file to open the stream for is located.
+   * @param path      the path to the file in the given template for which the stream was opened.
+   * @param localPath the local path to the file which should be used as a temporary location to write to.
+   * @param append    if the stream should append to the content in the remote file.
+   * @return a new output stream which writes to a local temp files and deploys its data once closed.
+   * @throws IOException          if an I/O error occurs while opening the stream.
+   * @throws NullPointerException if one of the given parameters is null.
+   */
+  private @NonNull OutputStream openLocalOutputStream(
     @NonNull ServiceTemplate template,
     @NonNull String path,
     @NonNull Path localPath,
@@ -161,26 +215,41 @@ public class RemoteTemplateStorage implements TemplateStorage {
         .get(5, TimeUnit.MINUTES, null));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean createFile(@NonNull ServiceTemplate template, @NonNull String path) {
     return this.baseRPC.join(this.sender.invokeMethod("createFile", template, path)).fireSync();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public boolean createDirectory(@NonNull ServiceTemplate template, @NonNull String path) throws IOException {
+  public boolean createDirectory(@NonNull ServiceTemplate template, @NonNull String path) {
     return this.baseRPC.join(this.sender.invokeMethod("createDirectory", template, path)).fireSync();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean hasFile(@NonNull ServiceTemplate template, @NonNull String path) {
     return this.baseRPC.join(this.sender.invokeMethod("hasFile", template, path)).fireSync();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean deleteFile(@NonNull ServiceTemplate template, @NonNull String path) {
     return this.baseRPC.join(this.sender.invokeMethod("deleteFile", template, path)).fireSync();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable InputStream newInputStream(
     @NonNull ServiceTemplate template,
@@ -203,21 +272,37 @@ public class RemoteTemplateStorage implements TemplateStorage {
     return Files.newInputStream(FileUtil.TEMP_DIR.resolve(responseId.toString()), StandardOpenOption.DELETE_ON_CLOSE);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable FileInfo fileInfo(@NonNull ServiceTemplate template, @NonNull String path) {
     return this.baseRPC.join(this.sender.invokeMethod("fileInfo", template, path)).fireSync();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public @Nullable FileInfo[] listFiles(@NonNull ServiceTemplate template, @NonNull String dir, boolean deep) {
+  public @Nullable Collection<FileInfo> listFiles(
+    @NonNull ServiceTemplate template,
+    @NonNull String dir,
+    boolean deep
+  ) {
     return this.baseRPC.join(this.sender.invokeMethod("listFiles", template, dir, deep)).fireSync();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Collection<ServiceTemplate> templates() {
     return this.baseRPC.join(this.sender.invokeMethod("templates")).fireSync();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void close() throws IOException {
     this.baseRPC.join(this.sender.invokeMethod("close")).fireSync();

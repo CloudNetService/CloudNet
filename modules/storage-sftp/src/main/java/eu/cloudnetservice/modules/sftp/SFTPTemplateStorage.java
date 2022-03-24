@@ -87,12 +87,13 @@ public class SFTPTemplateStorage implements TemplateStorage {
       this.client.setConnectTimeout(5000);
       this.client.setRemoteCharset(StandardCharsets.UTF_8);
       // load the known hosts file if given
-      if (config.knownHostFile() == null) {
+      var knownHosts = config.knownHostFile();
+      if (knownHosts == null) {
         // always trust the server
         this.client.addHostKeyVerifier(new PromiscuousVerifier());
       } else {
         // load the known hosts file
-        this.client.loadKnownHosts(config.knownHostFile().toFile());
+        this.client.loadKnownHosts(knownHosts.toFile());
       }
       // connect to the server
       this.client.connect(config.address().host(), config.address().port());
@@ -116,25 +117,22 @@ public class SFTPTemplateStorage implements TemplateStorage {
 
   @Override
   public boolean deployDirectory(
-    @NonNull Path directory,
     @NonNull ServiceTemplate target,
-    @Nullable Predicate<Path> fileFilter
+    @NonNull Path directory,
+    @Nullable Predicate<Path> filter
   ) {
     return this.executeWithClient(client -> {
-      client.put(new FilteringLocalFileSource(directory, fileFilter), this.constructRemotePath(target));
+      client.put(new FilteringLocalFileSource(directory, filter), this.constructRemotePath(target));
       return true;
     }, false);
   }
 
   @Override
-  public boolean deploy(
-    @NonNull InputStream inputStream,
-    @NonNull ServiceTemplate target
-  ) {
+  public boolean deploy(@NonNull ServiceTemplate target, @NonNull InputStream inputStream) {
     var temp = ZipUtil.extract(inputStream, FileUtil.createTempFile());
     if (temp != null) {
       try {
-        return this.deployDirectory(temp, target, null);
+        return this.deployDirectory(target, temp, null);
       } finally {
         FileUtil.delete(temp);
       }
@@ -143,7 +141,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public boolean copy(@NonNull ServiceTemplate template, @NonNull Path directory) {
+  public boolean pull(@NonNull ServiceTemplate template, @NonNull Path directory) {
     return this.executeWithClient(client -> {
       client.get(this.constructRemotePath(template), new FileSystemFile(directory.toFile()));
       return true;
@@ -154,7 +152,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
   public @Nullable InputStream zipTemplate(@NonNull ServiceTemplate template) {
     return this.executeWithClient(client -> {
       var localTarget = FileUtil.createTempFile();
-      if (this.copy(template, localTarget)) {
+      if (this.pull(template, localTarget)) {
         return ZipUtil.zipToStream(localTarget);
       } else {
         return null;
@@ -200,7 +198,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public boolean has(@NonNull ServiceTemplate template) {
+  public boolean contains(@NonNull ServiceTemplate template) {
     return this.executeWithClient(client -> {
       var attr = client.statExistence(this.constructRemotePath(template));
       return attr != null && attr.getType() == Type.DIRECTORY;
@@ -293,11 +291,15 @@ public class SFTPTemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public @Nullable FileInfo[] listFiles(@NonNull ServiceTemplate template, @NonNull String dir, boolean deep) {
+  public @Nullable Collection<FileInfo> listFiles(
+    @NonNull ServiceTemplate template,
+    @NonNull String dir,
+    boolean deep
+  ) {
     return this.executeWithClient(client -> {
       Set<FileInfo> result = new HashSet<>();
       this.ls(client, result, template, dir, deep);
-      return result.toArray(new FileInfo[0]);
+      return result;
     }, null);
   }
 

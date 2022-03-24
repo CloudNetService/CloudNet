@@ -19,18 +19,18 @@ package eu.cloudnetservice.cloudnet.node.event.template;
 import eu.cloudnetservice.cloudnet.driver.event.Event;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
-import eu.cloudnetservice.cloudnet.driver.template.SpecificTemplateStorage;
+import eu.cloudnetservice.cloudnet.driver.template.TemplateStorage;
 import lombok.NonNull;
 
 public class ServiceTemplateInstallEvent extends Event {
 
   private final ServiceTemplate template;
-  private final SpecificTemplateStorage storage;
+  private final TemplateStorage storage;
   private final ServiceEnvironmentType environmentType;
 
   public ServiceTemplateInstallEvent(
     @NonNull ServiceTemplate template,
-    @NonNull SpecificTemplateStorage storage,
+    @NonNull TemplateStorage storage,
     @NonNull ServiceEnvironmentType environmentType
   ) {
     this.template = template;
@@ -42,7 +42,7 @@ public class ServiceTemplateInstallEvent extends Event {
     return this.template;
   }
 
-  public @NonNull SpecificTemplateStorage storage() {
+  public @NonNull TemplateStorage storage() {
     return this.storage;
   }
 

@@ -50,7 +50,7 @@ final class TemplateDeployCallback implements Callback {
           storage.delete(template);
         }
         // deploy the data into the template
-        storage.deploy(dataInput, template);
+        storage.deploy(template, dataInput);
       } finally {
         // resume the main thread execution
         CloudNet.instance().mainThread().resume();

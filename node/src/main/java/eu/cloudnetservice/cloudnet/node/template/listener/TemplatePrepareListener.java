@@ -19,7 +19,8 @@ package eu.cloudnetservice.cloudnet.node.template.listener;
 import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.driver.event.EventListener;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
-import eu.cloudnetservice.cloudnet.driver.template.SpecificTemplateStorage;
+import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
+import eu.cloudnetservice.cloudnet.driver.template.TemplateStorage;
 import eu.cloudnetservice.cloudnet.node.event.template.ServiceTemplateInstallEvent;
 import eu.cloudnetservice.cloudnet.node.template.TemplateStorageUtil;
 import java.io.IOException;
@@ -33,50 +34,50 @@ public final class TemplatePrepareListener {
   public void handle(@NonNull ServiceTemplateInstallEvent event) throws IOException {
     if (event.environmentType().equals(ServiceEnvironmentType.BUNGEECORD)) {
       // config.yml & server icon
-      this.prepareProxyTemplate(event.storage(), "config.yml", "files/bungee/config.yml");
+      this.prepareProxyTemplate(event.storage(), event.template(), "config.yml", "files/bungee/config.yml");
     } else if (event.environmentType().equals(ServiceEnvironmentType.VELOCITY)) {
       // velocity.toml & server icon
-      this.prepareProxyTemplate(event.storage(), "velocity.toml", "files/velocity/velocity.toml");
+      this.prepareProxyTemplate(event.storage(), event.template(), "velocity.toml", "files/velocity/velocity.toml");
     } else if (event.environmentType().equals(ServiceEnvironmentType.NUKKIT)) {
       // server.properties & nukkit.yml
-      try (var out = event.storage().newOutputStream("server.properties");
+      try (var out = event.storage().newOutputStream(event.template(), "server.properties");
         var in = resourceStream("files/nukkit/server.properties")) {
         FileUtil.copy(in, out);
       }
 
-      try (var out = event.storage().newOutputStream("nukkit.yml");
+      try (var out = event.storage().newOutputStream(event.template(), "nukkit.yml");
         var in = resourceStream("files/nukkit/nukkit.yml")) {
         FileUtil.copy(in, out);
       }
     } else if (event.environmentType().equals(ServiceEnvironmentType.MINECRAFT_SERVER)) {
       // server.properties, bukkit.yml, spigot.yml & sponge.conf
-      try (var out = event.storage().newOutputStream("server.properties");
+      try (var out = event.storage().newOutputStream(event.template(), "server.properties");
         var in = resourceStream("files/nms/server.properties")) {
         FileUtil.copy(in, out);
       }
 
-      try (var out = event.storage().newOutputStream("bukkit.yml");
+      try (var out = event.storage().newOutputStream(event.template(), "bukkit.yml");
         var in = resourceStream("files/nms/bukkit.yml")) {
         FileUtil.copy(in, out);
       }
 
-      try (var out = event.storage().newOutputStream("spigot.yml");
+      try (var out = event.storage().newOutputStream(event.template(), "spigot.yml");
         var in = resourceStream("files/nms/spigot.yml")) {
         FileUtil.copy(in, out);
       }
 
-      try (var out = event.storage().newOutputStream("config/sponge/sponge.conf");
+      try (var out = event.storage().newOutputStream(event.template(), "config/sponge/sponge.conf");
         var in = resourceStream("files/nms/sponge.conf")) {
         FileUtil.copy(in, out);
       }
     } else if (event.environmentType().equals(ServiceEnvironmentType.MODDED_MINECRAFT_SERVER)) {
-      try (var out = event.storage().newOutputStream("server.properties")) {
+      try (var out = event.storage().newOutputStream(event.template(), "server.properties")) {
         var in = resourceStream("files/nms/server.properties");
         FileUtil.copy(in, out);
       }
     } else if (event.environmentType().equals(ServiceEnvironmentType.GLOWSTONE)) {
       // glowstone.yml
-      try (var out = event.storage().newOutputStream("config/glowstone.yml");
+      try (var out = event.storage().newOutputStream(event.template(), "config/glowstone.yml");
         var in = resourceStream("files/glowstone/glowstone.yml")) {
         FileUtil.copy(in, out);
       }
@@ -84,15 +85,16 @@ public final class TemplatePrepareListener {
   }
 
   private void prepareProxyTemplate(
-    @NonNull SpecificTemplateStorage storage,
+    @NonNull TemplateStorage storage,
+    @NonNull ServiceTemplate template,
     @NonNull String target,
     @NonNull String internalPath
   ) throws IOException {
-    try (var out = storage.newOutputStream(target); var in = this.resourceStream(internalPath)) {
+    try (var out = storage.newOutputStream(template, target); var in = this.resourceStream(internalPath)) {
       FileUtil.copy(in, out);
     }
 
-    try (var out = storage.newOutputStream("server-icon.png");
+    try (var out = storage.newOutputStream(template, "server-icon.png");
       var in = resourceStream("files/server-icon.png")) {
       FileUtil.copy(in, out);
     }
