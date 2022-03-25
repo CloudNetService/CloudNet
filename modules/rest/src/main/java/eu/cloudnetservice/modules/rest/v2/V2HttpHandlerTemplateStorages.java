@@ -16,13 +16,11 @@
 
 package eu.cloudnetservice.modules.rest.v2;
 
-import eu.cloudnetservice.cloudnet.common.Nameable;
 import eu.cloudnetservice.cloudnet.driver.network.http.HttpContext;
 import eu.cloudnetservice.cloudnet.driver.template.TemplateStorage;
 import eu.cloudnetservice.cloudnet.node.http.HttpSession;
 import eu.cloudnetservice.cloudnet.node.http.V2HttpHandler;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -49,8 +47,9 @@ public class V2HttpHandlerTemplateStorages extends V2HttpHandler {
 
   protected void handleStorageListRequest(@NonNull HttpContext context) {
     this.ok(context)
-      .body(this.success().append("storages", this.node().availableTemplateStorages().stream()
-        .map(Nameable::name).collect(Collectors.toList())).toString())
+      .body(this.success()
+        .append("storages", this.node().templateStorageProvider().availableTemplateStorages())
+        .toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -75,7 +74,7 @@ public class V2HttpHandlerTemplateStorages extends V2HttpHandler {
       return;
     }
 
-    var templateStorage = this.node().templateStorage(storage);
+    var templateStorage = this.node().templateStorageProvider().templateStorage(storage);
     if (templateStorage == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Unknown template storage").toString())

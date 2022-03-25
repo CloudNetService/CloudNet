@@ -383,7 +383,7 @@ public class S3TemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public @Nullable Collection<FileInfo> listFiles(
+  public @NonNull Collection<FileInfo> listFiles(
     @NonNull ServiceTemplate template,
     @NonNull String dir,
     boolean deep

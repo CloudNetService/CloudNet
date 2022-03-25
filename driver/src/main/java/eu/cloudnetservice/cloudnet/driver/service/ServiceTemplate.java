@@ -221,7 +221,7 @@ public class ServiceTemplate implements Nameable, Comparable<ServiceTemplate>, C
    * @return the template storage in which this template is stored, null if the template doesn't exist.
    */
   public @Nullable TemplateStorage findStorage() {
-    return CloudNetDriver.instance().templateStorage(this.storage);
+    return CloudNetDriver.instance().templateStorageProvider().templateStorage(this.storage);
   }
 
   /**

@@ -70,7 +70,7 @@ public final class CommandTemplate {
 
   @Suggestions("serviceTemplate")
   public @NonNull List<String> suggestServiceTemplate(@NonNull CommandContext<?> $, @NonNull String input) {
-    return CloudNet.instance().localTemplateStorage().templates()
+    return CloudNet.instance().templateStorageProvider().localTemplateStorage().templates()
       .stream()
       .map(ServiceTemplate::toString)
       .toList();
@@ -82,7 +82,7 @@ public final class CommandTemplate {
     @NonNull Queue<String> input
   ) {
     var storage = input.remove();
-    var templateStorage = CloudNet.instance().templateStorage(storage);
+    var templateStorage = CloudNet.instance().templateStorageProvider().templateStorage(storage);
     if (templateStorage == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-template-storage-not-found", storage));
     }
@@ -92,10 +92,7 @@ public final class CommandTemplate {
 
   @Suggestions("templateStorage")
   public @NonNull List<String> suggestTemplateStorage(@NonNull CommandContext<?> $, @NonNull String input) {
-    return CloudNet.instance().availableTemplateStorages()
-      .stream()
-      .map(Nameable::name)
-      .toList();
+    return List.copyOf(CloudNet.instance().templateStorageProvider().availableTemplateStorages());
   }
 
   @Parser(suggestions = "version")

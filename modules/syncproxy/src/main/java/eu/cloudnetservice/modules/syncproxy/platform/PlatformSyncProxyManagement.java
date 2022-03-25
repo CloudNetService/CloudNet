@@ -54,7 +54,7 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
   protected PlatformSyncProxyManagement() {
     var wrapper = Wrapper.instance();
 
-    this.rpcSender = wrapper.rpcProviderFactory()
+    this.rpcSender = wrapper.rpcFactory()
       .providerForClass(wrapper.networkClient(), SyncProxyManagement.class);
     this.eventManager = wrapper.eventManager();
     // cache all services that are already started

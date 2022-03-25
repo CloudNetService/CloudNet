@@ -44,7 +44,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
   private LabyModConfiguration configuration;
 
   public PlatformLabyModManagement() {
-    this.rpcSender = Wrapper.instance().rpcProviderFactory().providerForClass(
+    this.rpcSender = Wrapper.instance().rpcFactory().providerForClass(
       Wrapper.instance().networkClient(),
       LabyModManagement.class);
     this.playerManager = Wrapper.instance().serviceRegistry().firstProvider(PlayerManager.class);

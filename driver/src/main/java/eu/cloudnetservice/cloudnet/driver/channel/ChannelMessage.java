@@ -297,7 +297,7 @@ public record ChannelMessage(
      * @see ChannelMessageTarget#of(Type, String)
      */
     public @NonNull Builder target(@NonNull DriverEnvironment environment, @Nullable String name) {
-      return this.target(environment == DriverEnvironment.CLOUDNET
+      return this.target(environment == DriverEnvironment.NODE
         ? ChannelMessageTarget.Type.NODE
         : ChannelMessageTarget.Type.SERVICE, name);
     }

@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.wrapper;
 
+import com.google.common.collect.Lists;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
@@ -29,7 +30,6 @@ import eu.cloudnetservice.cloudnet.driver.network.chunk.defaults.factory.EventCh
 import eu.cloudnetservice.cloudnet.driver.network.chunk.network.ChunkedPacketListener;
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.network.netty.client.NettyNetworkClient;
-import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.generation.GenerationContext;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
 import eu.cloudnetservice.cloudnet.driver.provider.CloudServiceProvider;
@@ -42,9 +42,7 @@ import eu.cloudnetservice.cloudnet.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceId;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceLifeCycle;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
-import eu.cloudnetservice.cloudnet.driver.template.TemplateStorage;
-import eu.cloudnetservice.cloudnet.driver.template.defaults.RemoteTemplateStorage;
+import eu.cloudnetservice.cloudnet.driver.template.TemplateStorageProvider;
 import eu.cloudnetservice.cloudnet.wrapper.configuration.DocumentWrapperConfiguration;
 import eu.cloudnetservice.cloudnet.wrapper.configuration.WrapperConfiguration;
 import eu.cloudnetservice.cloudnet.wrapper.database.DefaultWrapperDatabaseProvider;
@@ -61,6 +59,7 @@ import eu.cloudnetservice.cloudnet.wrapper.network.listener.message.TaskChannelM
 import eu.cloudnetservice.cloudnet.wrapper.permission.WrapperPermissionManagement;
 import eu.cloudnetservice.cloudnet.wrapper.provider.WrapperCloudServiceProvider;
 import eu.cloudnetservice.cloudnet.wrapper.provider.WrapperMessenger;
+import eu.cloudnetservice.cloudnet.wrapper.provider.WrapperTemplateStorageProvider;
 import eu.cloudnetservice.cloudnet.wrapper.transform.TransformerRegistry;
 import eu.cloudnetservice.cloudnet.wrapper.transform.bukkit.BukkitCommodoreTransformer;
 import eu.cloudnetservice.cloudnet.wrapper.transform.bukkit.BukkitJavaVersionCheckTransformer;
@@ -71,17 +70,13 @@ import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.jar.JarFile;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.UnmodifiableView;
 
 /**
  * This class is the main class of the application wrapper, which performs the basic driver functions and the setup of
@@ -102,8 +97,6 @@ public class Wrapper extends CloudNetDriver {
    */
   private final WrapperConfiguration config = DocumentWrapperConfiguration.load();
 
-  private final RPCSender rpcSender;
-
   /**
    * The single task thread of the scheduler of the wrapper application
    */
@@ -117,15 +110,11 @@ public class Wrapper extends CloudNetDriver {
   private ServiceInfoSnapshot currentServiceInfoSnapshot = this.config.serviceInfoSnapshot();
 
   protected Wrapper(@NonNull String[] args) {
-    super(new ArrayList<>(Arrays.asList(args)));
+    super(CloudNetVersion.fromPackage(Wrapper.class.getPackage()), Lists.newArrayList(args), DriverEnvironment.WRAPPER);
 
     instance(this);
 
-    this.cloudNetVersion = CloudNetVersion.fromClassInformation(Wrapper.class.getPackage());
-
     super.networkClient = new NettyNetworkClient(NetworkClientChannelHandler::new, this.config.sslConfiguration());
-    this.rpcSender = this.rpcFactory.providerForClass(this.networkClient, CloudNetDriver.class);
-
     super.messenger = new WrapperMessenger(this);
 
     // auto generated providers
@@ -136,6 +125,10 @@ public class Wrapper extends CloudNetDriver {
       this.networkClient);
 
     // these cannot be auto generated directly as we need to depend on some overridden methods for the wrapper
+    super.templateStorageProvider = this.rpcFactory.generateRPCBasedApi(
+      TemplateStorageProvider.class,
+      GenerationContext.forClass(WrapperTemplateStorageProvider.class).build(),
+      this.networkClient);
     super.databaseProvider = this.rpcFactory.generateRPCBasedApi(
       DatabaseProvider.class,
       GenerationContext.forClass(DefaultWrapperDatabaseProvider.class).build(),
@@ -160,16 +153,14 @@ public class Wrapper extends CloudNetDriver {
       GenerationContext.forClass(WrapperPermissionManagement.class).build(),
       this.networkClient);
     super.permissionManagement(management);
-
-    super.driverEnvironment = DriverEnvironment.WRAPPER;
   }
 
   public static @NonNull Wrapper instance() {
-    return (Wrapper) CloudNetDriver.instance();
+    return CloudNetDriver.instance();
   }
 
   @Override
-  public void start(@NonNull Instant startInstant) throws Exception {
+  protected void start(@NonNull Instant startInstant) throws Exception {
     // load & enable the modules
     this.moduleProvider.loadAll().startAll();
 
@@ -221,30 +212,12 @@ public class Wrapper extends CloudNetDriver {
     return this.serviceId().name();
   }
 
-  @Override
-  public @NonNull TemplateStorage localTemplateStorage() {
-    return this.templateStorage(ServiceTemplate.LOCAL_STORAGE);
-  }
-
   /**
    * {@inheritDoc}
    */
   @Override
   public @NonNull String nodeUniqueId() {
     return this.serviceId().nodeUniqueId();
-  }
-
-  @Override
-  public @NonNull TemplateStorage templateStorage(@NonNull String storage) {
-    return new RemoteTemplateStorage(storage, this.rpcSender.invokeMethod("templateStorage", storage));
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @NonNull Collection<TemplateStorage> availableTemplateStorages() {
-    return this.rpcSender.invokeMethod("availableTemplateStorages").fireSync();
   }
 
   /**
@@ -439,11 +412,6 @@ public class Wrapper extends CloudNetDriver {
 
   public @NonNull Path workingDirectory() {
     return WORKING_DIRECTORY;
-  }
-
-  @UnmodifiableView
-  public @NonNull List<String> commandLineArguments() {
-    return Collections.unmodifiableList(this.commandLineArguments);
   }
 
   public @NonNull Thread mainThread() {

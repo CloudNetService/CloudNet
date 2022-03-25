@@ -16,28 +16,23 @@
 
 package eu.cloudnetservice.cloudnet.driver;
 
-/**
- * Represents the current environment of the currently running CloudNet driver implementation. By default, every running
- * instance is marked as {@link #EMBEDDED}. A {@link #CLOUDNET} representation is every implementation which is capable
- * of managing services like the default node implementation. A {@link #WRAPPER} implementation on the other hand means
- * that CloudNet manages a service process like a Paper server software instance.
- *
- * @see CloudNetDriver#environment()
- */
-public enum DriverEnvironment {
+import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
+import eu.cloudnetservice.cloudnet.common.document.property.JsonDocPropertyHolder;
+import lombok.NonNull;
 
-  /**
-   * A CloudNet implementation which is capable of managing services.
-   */
-  CLOUDNET,
+public final class DriverEnvironment extends JsonDocPropertyHolder {
 
-  /**
-   * A CloudNet implementation which manages a service process like a Paper server software instance.
-   */
-  WRAPPER,
+  public static final DriverEnvironment NODE = new DriverEnvironment("node", JsonDocument.newDocument());
+  public static final DriverEnvironment WRAPPER = new DriverEnvironment("wrapper", JsonDocument.newDocument());
 
-  /**
-   * The default environment when running embedded in another environment.
-   */
-  EMBEDDED
+  private final String name;
+
+  public DriverEnvironment(@NonNull String name, @NonNull JsonDocument document) {
+    super(document);
+    this.name = name;
+  }
+
+  public @NonNull String name() {
+    return this.name;
+  }
 }

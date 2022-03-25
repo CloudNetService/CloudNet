@@ -17,7 +17,6 @@
 package eu.cloudnetservice.cloudnet.driver;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.driver.database.DatabaseProvider;
 import eu.cloudnetservice.cloudnet.driver.event.DefaultEventManager;
 import eu.cloudnetservice.cloudnet.driver.event.EventManager;
@@ -40,23 +39,30 @@ import eu.cloudnetservice.cloudnet.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.cloudnet.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.cloudnet.driver.registry.DefaultServiceRegistry;
 import eu.cloudnetservice.cloudnet.driver.registry.ServiceRegistry;
-import eu.cloudnetservice.cloudnet.driver.template.TemplateStorage;
+import eu.cloudnetservice.cloudnet.driver.template.TemplateStorageProvider;
 import java.time.Instant;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.jetbrains.annotations.VisibleForTesting;
 
+/**
+ * The main entrypoint to work with the CloudNet api. Each component which is supported and represents a driver instance
+ * will extend this class and provide a singleton instance to use for developers.
+ *
+ * @since 4.0
+ */
 public abstract class CloudNetDriver {
 
-  private static CloudNetDriver instance;
+  @VisibleForTesting
+  static CloudNetDriver instance;
 
+  protected final CloudNetVersion cloudNetVersion;
   protected final List<String> commandLineArguments;
+  protected final DriverEnvironment driverEnvironment;
 
   protected final EventManager eventManager = new DefaultEventManager();
   protected final ModuleProvider moduleProvider = new DefaultModuleProvider();
@@ -68,92 +74,306 @@ public abstract class CloudNetDriver {
     DefaultObjectMapper.DEFAULT_MAPPER,
     DataBufFactory.defaultFactory());
 
-  protected CloudNetVersion cloudNetVersion;
   protected PermissionManagement permissionManagement;
 
   protected NetworkClient networkClient;
-  protected CloudServiceFactory cloudServiceFactory;
 
   protected CloudMessenger messenger;
+  protected CloudServiceFactory cloudServiceFactory;
+
   protected DatabaseProvider databaseProvider;
   protected ClusterNodeProvider clusterNodeProvider;
   protected ServiceTaskProvider serviceTaskProvider;
   protected CloudServiceProvider cloudServiceProvider;
+  protected TemplateStorageProvider templateStorageProvider;
   protected GroupConfigurationProvider groupConfigurationProvider;
 
-  protected DriverEnvironment driverEnvironment = DriverEnvironment.EMBEDDED;
-
-  protected CloudNetDriver(@NonNull List<String> args) {
+  /**
+   * Constructs a new CloudNet driver instance. This constructor shouldn't be used directly and is only accessible for
+   * any class which provides a custom implementation of CloudNet. Use {@link #instance()} to obtain the current driver
+   * instance of the environment instead.
+   *
+   * @param version     the version of the cloud which is currently running.
+   * @param args        the command line arguments which were supplied to the launcher when starting.
+   * @param environment the environment in which the driver is currently running.
+   * @throws NullPointerException if the given version, command line args or environment is null.
+   */
+  protected CloudNetDriver(
+    @NonNull CloudNetVersion version,
+    @NonNull List<String> args,
+    @NonNull DriverEnvironment environment
+  ) {
+    this.cloudNetVersion = version;
     this.commandLineArguments = args;
+    this.driverEnvironment = environment;
   }
 
   /**
-   * @return a singleton instance of the CloudNetDriver
+   * Get the singleton instance of the current environment of the CloudNet driver. This instance is initialized once
+   * when starting the current environment and will never change during the lifetime of the jvm. Therefore, the instance
+   * of the environment can be safely cached.
+   * <p>
+   * This method uses a generic to support easier accessibility. So instead of writing
+   * <pre>
+   * {@code
+   *  public static final Wrapper WRAPPER = Wrapper.instance();
+   * }
+   * </pre>
+   * You can also use
+   * <pre>
+   * {@code
+   *  public static final Wrapper WRAPPER = CloudNetDriver.instance();
+   * }
+   * </pre>
+   * Keep in mind that requesting a wrong type of instance (for example a wrapper instance in the node environment) this
+   * method will result in an exception.
+   *
+   * @return the current, jvm static instance of the current environment.
    */
-  public static @NonNull CloudNetDriver instance() {
-    return CloudNetDriver.instance;
+  @SuppressWarnings("unchecked")
+  public static @NonNull <T extends CloudNetDriver> T instance() {
+    return (T) CloudNetDriver.instance;
   }
 
-  @VisibleForTesting
+  /**
+   * Sets the current instance of the environment. The instance of the driver is jvm static, this method call will
+   * result in an exception if the instance was already set. This prevents accidental overrides of the instance and
+   * unintended behaviours of plugins and nodes.
+   * <p>
+   * By default, there is no need to use this method ever.
+   *
+   * @param instance the instance of the CloudNet driver to use.
+   * @throws NullPointerException  if the given instance is null.
+   * @throws IllegalStateException if the instance of the driver was already set previously.
+   */
   protected static void instance(@NonNull CloudNetDriver instance) {
+    Preconditions.checkState(CloudNetDriver.instance == null, "Singleton instance can only be set once");
     CloudNetDriver.instance = instance;
   }
 
-  public abstract void start(@NonNull Instant startInstant) throws Exception;
+  /**
+   * Starts the current environment. This method is called internally after all the boot preparation was done and should
+   * not be called from the api at any point. Duplicate executions of this method will not result in an exceptions, but
+   * might lead to unexpected results in api or modules which depend on the underlying implementations.
+   *
+   * @param startInstant the instant of the actual jvm entry point invocation.
+   * @throws Exception            if any exception occurs while starting the environment.
+   * @throws NullPointerException if the given start instant is null.
+   */
+  protected abstract void start(@NonNull Instant startInstant) throws Exception;
 
+  /**
+   * Stops the current environment and frees all resources which are associated with it. Further, calls to any api in
+   * this class might result in exceptions or unexpected results. Duplicate invocation of this method should not execute
+   * the shutdown lifecycle twice.
+   */
   public abstract void stop();
 
   /**
-   * Returns the name of this component. (e.g. Node-1, Lobby-1)
+   * Returns the name of the component associated with the current environment. This will (by default) either be the
+   * current id of the node, or the name of the service. This information is static during the component lifetime and
+   * can be cached safely.
+   *
+   * @return the name of the component.
    */
   public abstract @NonNull String componentName();
 
   /**
-   * Gets the component name if it is called on a node and the name of the node that the service is started on if called
-   * on the wrapper
+   * Gets the unique id of the node which is associated with the current component. This will (by default) return the
+   * unique id of the current node if called on a node and the unique id of the node the process is running on if called
+   * from a service. This information is static during the component lifetime and can be cached safely.
    *
-   * @return the uniqueId of the current node
+   * @return the uniqueId of the node which is associated with the current component.
    */
   public abstract @NonNull String nodeUniqueId();
 
   /**
-   * @return the set {@link CloudServiceFactory} for creating new services in the cloud
+   * Get the current cloud service factory to create new services. This information is static during the component
+   * lifetime and can be cached safely.
+   *
+   * @return the current cloud service factory.
    */
   public @NonNull CloudServiceFactory cloudServiceFactory() {
     return this.cloudServiceFactory;
   }
 
   /**
-   * @return the set {@link ServiceTaskProvider} for the management of service tasks
+   * Get the current provider for service tasks. This information is static during the component lifetime and can be
+   * cached safely.
+   *
+   * @return the current service task provider.
    */
   public @NonNull ServiceTaskProvider serviceTaskProvider() {
     return this.serviceTaskProvider;
   }
 
   /**
-   * @return the set {@link ClusterNodeProvider} which provides access to the local node or nodes in the cluster.
+   * Get the current cluster node server provider. This information is static during the component lifetime and can be
+   * cached safely.
+   *
+   * @return the current cluster node server provider.
    */
   public @NonNull ClusterNodeProvider clusterNodeProvider() {
     return this.clusterNodeProvider;
   }
 
   /**
-   * @return the set {@link GroupConfigurationProvider} which manages the services groups
+   * Get the current group configuration provider. This information is static during the component lifetime and can be
+   * cached safely.
+   *
+   * @return the current group configuration provider.
    */
   public @NonNull GroupConfigurationProvider groupConfigurationProvider() {
     return this.groupConfigurationProvider;
   }
 
   /**
-   * @return the set {@link CloudMessenger} to communicate between services and nodes
+   * Get the current template storage provider. This information is static during the component lifetime and can be
+   * cached safely.
+   *
+   * @return the current template storage provider.
+   */
+  public @NonNull TemplateStorageProvider templateStorageProvider() {
+    return this.templateStorageProvider;
+  }
+
+  /**
+   * Get the current cloud messenger. This information is static during the component lifetime and can be cached
+   * safely.
+   *
+   * @return the current cloud messenger.
    */
   public @NonNull CloudMessenger messenger() {
     return this.messenger;
   }
 
   /**
-   * @return the current {@link PermissionManagement}
-   * @throws NullPointerException if there is no PermissionManagement available
+   * Get the current database provider.  This information is static during the component lifetime and can be cached
+   * safely.
+   *
+   * @return the current database provider.
+   */
+  public @NonNull DatabaseProvider databaseProvider() {
+    return this.databaseProvider;
+  }
+
+  /**
+   * Get the current cloud service provider. This information is static during the component lifetime and can be cached
+   * safely.
+   *
+   * @return the current cloud service provider.
+   */
+  public @NonNull CloudServiceProvider cloudServiceProvider() {
+    return this.cloudServiceProvider;
+  }
+
+  /**
+   * Get the current network client. This information is static during the component lifetime and can be cached safely.
+   *
+   * @return the current network client.
+   */
+  public @NonNull NetworkClient networkClient() {
+    return this.networkClient;
+  }
+
+  /**
+   * Get the current service registry. This information is static during the component lifetime and can be cached
+   * safely.
+   *
+   * @return the current service registry.
+   */
+  public @NonNull ServiceRegistry serviceRegistry() {
+    return this.serviceRegistry;
+  }
+
+  /**
+   * Get the current event manager instance. This information is static during the component lifetime and can be cached
+   * safely.
+   *
+   * @return the current event manager.
+   */
+  public @NonNull EventManager eventManager() {
+    return this.eventManager;
+  }
+
+  /**
+   * Get the current module provider instance. This information is static during the component lifetime and can be
+   * cached safely.
+   *
+   * @return the current module provider.
+   */
+  public @NonNull ModuleProvider moduleProvider() {
+    return this.moduleProvider;
+  }
+
+  /**
+   * Get the current task executor instance. This information is static during the component lifetime and can be cached
+   * safely. When this component stops all tasks in that scheduler will be terminated as well.
+   *
+   * @return the current task executor.
+   */
+  public @NonNull ScheduledExecutorService taskExecutor() {
+    return this.scheduler;
+  }
+
+  /**
+   * Get the current rpc factory instance. This information is static during the component lifetime and can be cached
+   * safely.
+   *
+   * @return the current rpc factory.
+   */
+  public @NonNull RPCFactory rpcFactory() {
+    return this.rpcFactory;
+  }
+
+  /**
+   * Get the current registry for rpc handlers. This information is static during the component lifetime and can be
+   * cached safely.
+   *
+   * @return the current rpc handler registry.
+   */
+  public @NonNull RPCHandlerRegistry rpcHandlerRegistry() {
+    return this.rpcHandlerRegistry;
+  }
+
+  /**
+   * Get the current environment in which this driver implementation runs. This information is static during the
+   * component lifetime and can be cached safely.
+   *
+   * @return the current driver environment.
+   */
+  public @NonNull DriverEnvironment environment() {
+    return this.driverEnvironment;
+  }
+
+  /**
+   * Get the current version of this driver implementation. This information is static during the component lifetime and
+   * can be cached safely.
+   *
+   * @return the current version of this driver.
+   */
+  public @NonNull CloudNetVersion version() {
+    return this.cloudNetVersion;
+  }
+
+  /**
+   * Get the supplied command line arguments to the initial jvm entry point. This information is static during the
+   * component lifetime and can be cached safely.
+   *
+   * @return the supplied command line options.
+   */
+  @UnmodifiableView
+  public @NonNull List<String> commandLineArguments() {
+    return Collections.unmodifiableList(this.commandLineArguments);
+  }
+
+  /**
+   * Get the current permission management of this driver instance. This information is not static during the component
+   * lifetime and might change. This method throws an exception when no permission management is set instead of
+   * returning null.
+   *
+   * @return the current permission management of this driver instance.
+   * @throws NullPointerException if no permission management was set in this instance.
    */
   public @NonNull PermissionManagement permissionManagement() {
     Preconditions.checkNotNull(this.permissionManagement, "no permission management available");
@@ -161,11 +381,16 @@ public abstract class CloudNetDriver {
   }
 
   /**
-   * Sets an {@link PermissionManagement} as current PermissionManagement.
+   * Sets the given permission management as the current permission management. This method throws an exception if the
+   * new permission management cannot override the current permission management because it is either
+   * <ol>
+   *   <li>no overridable.
+   *   <li>not assignable to the new permission management.
+   * </ol>
    *
-   * @param management the {@link PermissionManagement} to be set
-   * @throws IllegalStateException if the current {@link PermissionManagement} does not allow overwriting it and the
-   *                               class names are not the same
+   * @param management the new permission management to use.
+   * @throws NullPointerException     if the given permission management is null.
+   * @throws IllegalArgumentException if the given permission management cannot override the current one.
    */
   public void permissionManagement(@NonNull PermissionManagement management) {
     // if there is no old permission management or the old permission management can be overridden
@@ -194,75 +419,5 @@ public abstract class CloudNetDriver {
       "Permission management %s does not meet the requirements to override the current permission management %s",
       management,
       this.permissionManagement));
-  }
-
-  /**
-   * Returns the local {@link TemplateStorage} of the Node.
-   *
-   * @return the local {@link TemplateStorage}
-   * @throws IllegalStateException if the TemplateStorage is not present
-   */
-
-  public abstract @NonNull TemplateStorage localTemplateStorage();
-
-  /**
-   * @param storage the name of the storage
-   * @return the registered {@link TemplateStorage}, null if the storage does not exist
-   */
-  public abstract @Nullable TemplateStorage templateStorage(@NonNull String storage);
-
-  public abstract @NonNull Collection<TemplateStorage> availableTemplateStorages();
-
-  public @NonNull Task<Collection<TemplateStorage>> availableTemplateStoragesAsync() {
-    return Task.supply(this::availableTemplateStorages);
-  }
-
-  public @NonNull DatabaseProvider databaseProvider() {
-    return this.databaseProvider;
-  }
-
-  public @NonNull CloudServiceProvider cloudServiceProvider() {
-    return this.cloudServiceProvider;
-  }
-
-  public @NonNull NetworkClient networkClient() {
-    return this.networkClient;
-  }
-
-  public @NonNull ServiceRegistry serviceRegistry() {
-    return this.serviceRegistry;
-  }
-
-  public @NonNull EventManager eventManager() {
-    return this.eventManager;
-  }
-
-  public @NonNull ModuleProvider moduleProvider() {
-    return this.moduleProvider;
-  }
-
-  public @NonNull ScheduledExecutorService taskExecutor() {
-    return this.scheduler;
-  }
-
-  public @NonNull RPCFactory rpcProviderFactory() {
-    return this.rpcFactory;
-  }
-
-  public @NonNull RPCHandlerRegistry rpcHandlerRegistry() {
-    return this.rpcHandlerRegistry;
-  }
-
-  public @NonNull DriverEnvironment environment() {
-    return this.driverEnvironment;
-  }
-
-  public @NonNull CloudNetVersion version() {
-    return this.cloudNetVersion;
-  }
-
-  @UnmodifiableView
-  public @NonNull List<String> commandLineArguments() {
-    return Collections.unmodifiableList(this.commandLineArguments);
   }
 }

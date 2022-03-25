@@ -17,6 +17,7 @@
 package eu.cloudnetservice.cloudnet.node;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
@@ -38,7 +39,6 @@ import eu.cloudnetservice.cloudnet.driver.network.netty.client.NettyNetworkClien
 import eu.cloudnetservice.cloudnet.driver.network.netty.http.NettyHttpServer;
 import eu.cloudnetservice.cloudnet.driver.network.netty.server.NettyNetworkServer;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
 import eu.cloudnetservice.cloudnet.driver.template.TemplateStorage;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServerState;
 import eu.cloudnetservice.cloudnet.node.cluster.defaults.DefaultNodeServerProvider;
@@ -77,14 +77,13 @@ import eu.cloudnetservice.cloudnet.node.service.defaults.DefaultCloudServiceMana
 import eu.cloudnetservice.cloudnet.node.service.defaults.NodeCloudServiceFactory;
 import eu.cloudnetservice.cloudnet.node.setup.DefaultInstallation;
 import eu.cloudnetservice.cloudnet.node.template.LocalTemplateStorage;
+import eu.cloudnetservice.cloudnet.node.template.NodeTemplateStorageProvider;
 import eu.cloudnetservice.cloudnet.node.version.ServiceVersionProvider;
 import eu.cloudnetservice.ext.updater.UpdaterRegistry;
 import java.io.File;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -126,7 +125,7 @@ public class CloudNet extends CloudNetDriver {
   private volatile AbstractDatabaseProvider databaseProvider;
 
   protected CloudNet(@NonNull String[] args, @NonNull Console console, @NonNull Logger rootLogger) {
-    super(Arrays.asList(args));
+    super(CloudNetVersion.fromPackage(CloudNet.class.getPackage()), Lists.newArrayList(args), DriverEnvironment.NODE);
 
     instance(this);
 
@@ -143,11 +142,10 @@ public class CloudNet extends CloudNetDriver {
     this.moduleUpdaterRegistry = new ModuleUpdaterRegistry();
     this.moduleUpdaterRegistry.registerUpdater(new ModuleUpdater());
 
+    this.templateStorageProvider = new NodeTemplateStorageProvider(this);
     this.serviceVersionProvider = new ServiceVersionProvider(this.eventManager);
-    this.cloudNetVersion = CloudNetVersion.fromClassInformation(CloudNet.class.getPackage());
 
     this.configuration = JsonConfiguration.loadFromFile(this);
-
     this.nodeServerProvider = new DefaultNodeServerProvider(this);
 
     this.clusterNodeProvider = new NodeClusterNodeProvider(this);
@@ -179,16 +177,14 @@ public class CloudNet extends CloudNetDriver {
     this.rpcFactory.newHandler(Database.class, null).registerToDefaultRegistry();
     this.rpcFactory.newHandler(CloudNetDriver.class, this).registerToDefaultRegistry();
     this.rpcFactory.newHandler(TemplateStorage.class, null).registerToDefaultRegistry();
-
-    this.driverEnvironment = DriverEnvironment.CLOUDNET;
   }
 
   public static @NonNull CloudNet instance() {
-    return (CloudNet) CloudNetDriver.instance();
+    return CloudNetDriver.instance();
   }
 
   @Override
-  public void start(@NonNull Instant startInstant) throws Exception {
+  protected void start(@NonNull Instant startInstant) throws Exception {
     HeaderReader.readAndPrintHeader(this.console);
     // load the service versions
     this.serviceVersionProvider.loadDefaultVersionTypes();
@@ -384,27 +380,6 @@ public class CloudNet extends CloudNetDriver {
   }
 
   @Override
-  public @NonNull TemplateStorage localTemplateStorage() {
-    var localStorage = this.templateStorage(ServiceTemplate.LOCAL_STORAGE);
-    if (localStorage == null) {
-      // this should never happen
-      throw new UnsupportedOperationException("Local template storage is not present");
-    }
-
-    return localStorage;
-  }
-
-  @Override
-  public @Nullable TemplateStorage templateStorage(@NonNull String storage) {
-    return this.serviceRegistry.provider(TemplateStorage.class, storage);
-  }
-
-  @Override
-  public @NonNull Collection<TemplateStorage> availableTemplateStorages() {
-    return this.serviceRegistry.providers(TemplateStorage.class);
-  }
-
-  @Override
   public @NonNull AbstractDatabaseProvider databaseProvider() {
     return this.databaseProvider;
   }
@@ -435,14 +410,12 @@ public class CloudNet extends CloudNetDriver {
   }
 
   @Override
-  public @NonNull
-  CloudServiceManager cloudServiceProvider() {
+  public @NonNull CloudServiceManager cloudServiceProvider() {
     return (CloudServiceManager) super.cloudServiceProvider();
   }
 
   @Override
-  public @NonNull
-  NodePermissionManagement permissionManagement() {
+  public @NonNull NodePermissionManagement permissionManagement() {
     return (NodePermissionManagement) super.permissionManagement();
   }
 

@@ -40,7 +40,7 @@ public class NettyUtilTest {
   void testNodeThreadAmount() {
     Mockito
       .when(DriverTestUtil.mockAndSetDriverInstance().environment())
-      .thenReturn(DriverEnvironment.CLOUDNET);
+      .thenReturn(DriverEnvironment.NODE);
 
     Assertions.assertTrue(NettyUtil.threadAmount() >= 8);
   }

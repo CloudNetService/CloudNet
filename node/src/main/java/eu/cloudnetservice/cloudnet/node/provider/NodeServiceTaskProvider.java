@@ -61,7 +61,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     this.eventManager.registerListener(new TaskChannelMessageListener(this.eventManager, this));
 
     // rpc
-    nodeInstance.rpcProviderFactory().newHandler(ServiceTaskProvider.class, this).registerToDefaultRegistry();
+    nodeInstance.rpcFactory().newHandler(ServiceTaskProvider.class, this).registerToDefaultRegistry();
     // cluster data sync
     nodeInstance.dataSyncRegistry().registerHandler(
       DataSyncHandler.<ServiceTask>builder()

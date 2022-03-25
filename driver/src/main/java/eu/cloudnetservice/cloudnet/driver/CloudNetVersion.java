@@ -30,7 +30,7 @@ public record CloudNetVersion(
 
   private static final Pattern VERSION_PATTERN = Pattern.compile("(\\d+).(\\d+).(\\d+)(.*)");
 
-  public static @NonNull CloudNetVersion fromClassInformation(@NonNull Package source) {
+  public static @NonNull CloudNetVersion fromPackage(@NonNull Package source) {
     // read the version title
     var title = source.getImplementationTitle();
     // read the version

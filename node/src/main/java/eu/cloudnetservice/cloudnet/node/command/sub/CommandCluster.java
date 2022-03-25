@@ -233,7 +233,7 @@ public final class CommandCluster {
   public void pushTemplates(@NonNull CommandSource source, @Argument("template") ServiceTemplate template) {
     // check if we need to push all templates or just a specific one
     if (template == null) {
-      var localStorage = CloudNet.instance().localTemplateStorage();
+      var localStorage = CloudNet.instance().templateStorageProvider().localTemplateStorage();
       // resolve and push all local templates
       for (var localTemplate : localStorage.templates()) {
         this.pushTemplate(source, localTemplate);

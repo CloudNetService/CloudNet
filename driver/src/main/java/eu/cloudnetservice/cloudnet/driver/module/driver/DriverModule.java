@@ -140,10 +140,10 @@ public class DriverModule extends DefaultModule {
    * Gets the {@link RPCFactory} of the driver.
    *
    * @return the RPCProviderFactory.
-   * @see CloudNetDriver#rpcProviderFactory()
+   * @see CloudNetDriver#rpcFactory()
    */
   public final @NonNull RPCFactory rpcFactory() {
-    return this.driver().rpcProviderFactory();
+    return this.driver().rpcFactory();
   }
 
   /**
