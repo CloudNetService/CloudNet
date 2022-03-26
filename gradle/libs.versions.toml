@@ -31,7 +31,7 @@ cloud = "1.7.0-SNAPSHOT"
 # databases
 h2 = "1.4.197" # do not update, leads to database incompatibility
 xodus = "1.3.232"
-mongodb = "4.5.0"
+mongodb = "4.5.1"
 hikariCp = "5.0.1"
 mysqlConnector = "8.0.28"
 
@@ -42,7 +42,7 @@ jjwt = "0.11.2"
 slf4j = "1.7.36"
 javers = "6.6.3"
 caffeine = "3.0.6"
-awsSdk = "2.17.155"
+awsSdk = "2.17.157"
 reflexion = "1.0.0"
 dockerJava = "3.2.13"
 unirest = "4.0.0-RC2"
