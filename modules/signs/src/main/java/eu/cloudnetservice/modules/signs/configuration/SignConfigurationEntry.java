@@ -182,11 +182,11 @@ public record SignConfigurationEntry(
     @Nullable String bypassPermission
   ) {
 
-    public static Builder builder() {
+    public static @NonNull Builder builder() {
       return new Builder();
     }
 
-    public static Builder builder(@NonNull KnockbackConfiguration configuration) {
+    public static @NonNull Builder builder(@NonNull KnockbackConfiguration configuration) {
       return builder()
         .enabled(configuration.enabled())
         .distance(configuration.distance())

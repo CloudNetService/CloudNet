@@ -43,7 +43,9 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
         .key("taskName")
         .translatedQuestion("command-tasks-setup-question-name")
         .answerType(QuestionAnswerType.<String>builder()
-          .parser(Parsers.nonExistingTask()))
+          .parser(Parsers.allOf(
+            Parsers.nonExistingTask(),
+            Parsers.regex(ServiceTask.NAMING_PATTERN))))
         .build(),
       QuestionListEntry.<Integer>builder()
         .key("taskMemory")

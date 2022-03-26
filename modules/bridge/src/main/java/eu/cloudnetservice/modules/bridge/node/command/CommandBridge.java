@@ -24,14 +24,17 @@ import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import eu.cloudnetservice.cloudnet.common.Nameable;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
+import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.cloudnet.driver.service.GroupConfiguration;
+import eu.cloudnetservice.cloudnet.driver.service.ServiceTask;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.command.annotation.Description;
 import eu.cloudnetservice.cloudnet.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.config.ProxyFallbackConfiguration;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
@@ -90,5 +93,22 @@ public class CommandBridge {
     // save and update the configuration
     this.bridgeManagement.configuration(configuration);
     source.sendMessage(I18n.trans("module-bridge-command-create-entry-success"));
+  }
+
+  @CommandMethod("bridge task <task> set requiredPermission <permission>")
+  public void setRequiredPermission(
+    @NonNull CommandSource source,
+    @NonNull @Argument("task") Collection<ServiceTask> serviceTasks,
+    @NonNull @Argument("permission") String permission
+  ) {
+    for (var task : serviceTasks) {
+      CloudNetDriver.instance().serviceTaskProvider().addServiceTask(ServiceTask.builder(task)
+        .properties(task.properties().append("requiredPermission", permission))
+        .build());
+      source.sendMessage(I18n.trans("command-tasks-set-property-success",
+        "requiredPermission",
+        task.name(),
+        permission));
+    }
   }
 }

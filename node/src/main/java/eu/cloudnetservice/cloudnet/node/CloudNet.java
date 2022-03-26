@@ -299,14 +299,12 @@ public class CloudNet extends CloudNetDriver {
         .send();
     }
 
-    // start modules
-    this.moduleProvider.startAll();
-
     // enable console command handling
     LOGGER.info(I18n.trans("start-commands"));
     this.commandProvider.registerDefaultCommands();
     this.commandProvider.registerConsoleHandler(this.console);
-
+    // start modules
+    this.moduleProvider.startAll();
     // register listeners & post node startup finish
     this.eventManager.registerListener(new FileDeployCallbackListener());
     this.eventManager.callEvent(new CloudNetNodePostInitializationEvent(this));

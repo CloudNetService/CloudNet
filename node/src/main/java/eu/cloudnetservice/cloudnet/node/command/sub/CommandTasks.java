@@ -20,6 +20,7 @@ import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.Flag;
+import cloud.commandframework.annotations.Regex;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.specifier.Greedy;
 import cloud.commandframework.annotations.specifier.Liberal;
@@ -169,9 +170,7 @@ public final class CommandTasks {
     @NonNull Queue<String> input
   ) {
     var name = input.remove();
-    var matchedTasks = WildcardUtil.filterWildcard(
-      this.taskProvider().serviceTasks(),
-      name);
+    var matchedTasks = WildcardUtil.filterWildcard(this.taskProvider().serviceTasks(), name);
     if (matchedTasks.isEmpty()) {
       throw new ArgumentNotAvailableException(I18n.trans("command-tasks-task-not-found"));
     }
@@ -248,7 +247,7 @@ public final class CommandTasks {
   @CommandMethod("tasks create <name> <environment>")
   public void createTask(
     @NonNull CommandSource source,
-    @NonNull @Argument("name") String taskName,
+    @NonNull @Regex(ServiceTask.NAMING_REGEX) @Argument("name") String taskName,
     @NonNull @Argument("environment") ServiceEnvironmentType environmentType
   ) {
     if (this.taskProvider().serviceTask(taskName) != null) {
@@ -257,10 +256,10 @@ public final class CommandTasks {
     }
 
     var serviceTask = ServiceTask.builder()
-      .addTemplates(Set.of(ServiceTemplate.builder().prefix(taskName).name("default").build()))
+      .templates(Set.of(ServiceTemplate.builder().prefix(taskName).name("default").build()))
       .name(taskName)
       .autoDeleteOnStop(true)
-      .groups(Collections.singletonList(taskName))
+      .groups(List.of(taskName))
       .serviceEnvironmentType(environmentType)
       .maxHeapMemory(512)
       .startPort(environmentType.defaultStartPort())
@@ -277,6 +276,7 @@ public final class CommandTasks {
     for (var serviceTask : serviceTasks) {
       Collection<String> messages = new ArrayList<>();
       messages.add("Name: " + serviceTask.name());
+      messages.add("Splitter: " + serviceTask.nameSplitter());
       messages.add("Groups: " + Arrays.toString(serviceTask.groups().toArray()));
       messages.add("Max heap memory: " + serviceTask.processConfiguration().maxHeapMemorySize());
       messages.add("Maintenance: " + serviceTask.maintenance());
@@ -293,6 +293,21 @@ public final class CommandTasks {
 
       applyServiceConfigurationDisplay(messages, serviceTask);
       source.sendMessage(messages);
+    }
+  }
+
+  @CommandMethod("tasks task <name> set nameSplitter <splitter>")
+  public void setNameSplitter(
+    @NonNull CommandSource source,
+    @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
+    @NonNull @Regex(ServiceTask.NAMING_REGEX) @Argument("splitter") String splitter
+  ) {
+    for (var task : serviceTasks) {
+      this.updateTask(task, builder -> builder.nameSplitter(splitter));
+      source.sendMessage(I18n.trans("command-tasks-set-property-success",
+        "nameSplitter",
+        task.name(),
+        splitter));
     }
   }
 

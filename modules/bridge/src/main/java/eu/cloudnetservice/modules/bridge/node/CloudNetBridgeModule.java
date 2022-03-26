@@ -28,6 +28,7 @@ import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
 import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
 import eu.cloudnetservice.cloudnet.driver.network.http.HttpHandler;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
+import eu.cloudnetservice.cloudnet.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.cloudnet.node.CloudNet;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
@@ -164,8 +165,6 @@ public final class CloudNetBridgeModule extends DriverModule {
       .singletonCollector(management::configuration)
       .currentGetter($ -> management.configuration())
       .build());
-    // register the bridge command
-    CloudNet.instance().commandProvider().register(new CommandBridge(management));
     // register the bridge rest handler
     CloudNet.instance().httpServer()
       .registerHandler("/api/v2/player", new V2HttpHandlerBridge("http.v2.bridge"))
@@ -174,9 +173,15 @@ public final class CloudNetBridgeModule extends DriverModule {
         new V2HttpHandlerBridge("http.v2.bridge"));
   }
 
+  @ModuleTask(event = ModuleLifeCycle.STARTED)
+  public void registerCommand() {
+    // register the bridge command
+    CloudNet.instance().commandProvider().register(new CommandBridge(ServiceRegistry.first(BridgeManagement.class)));
+  }
+
   @ModuleTask(event = ModuleLifeCycle.RELOADING)
   public void handleReload() {
-    var management = this.serviceRegistry().firstProvider(BridgeManagement.class);
+    var management = ServiceRegistry.first(BridgeManagement.class);
     if (management != null) {
       management.configuration(this.loadConfiguration());
     }

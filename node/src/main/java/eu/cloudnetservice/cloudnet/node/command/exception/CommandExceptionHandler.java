@@ -19,6 +19,7 @@ package eu.cloudnetservice.cloudnet.node.command.exception;
 import cloud.commandframework.arguments.CommandArgument;
 import cloud.commandframework.arguments.compound.FlagArgument;
 import cloud.commandframework.arguments.compound.FlagArgument.FlagParseException;
+import cloud.commandframework.arguments.preprocessor.RegexPreprocessor;
 import cloud.commandframework.exceptions.ArgumentParseException;
 import cloud.commandframework.exceptions.InvalidCommandSenderException;
 import cloud.commandframework.exceptions.InvalidSyntaxException;
@@ -53,6 +54,7 @@ import org.jetbrains.annotations.Nullable;
  *   <li> {@link ArgumentParseException}
  *   <li> {@link ArgumentNotAvailableException}
  *   <li> {@link FlagParseException}
+ *   <li> {@link cloud.commandframework.arguments.preprocessor.RegexPreprocessor.RegexValidationException}
  * </ul>
  *
  * @since 4.0
@@ -86,22 +88,24 @@ public class CommandExceptionHandler {
     }
 
     // determine the cause type and apply the specific handler
-    if (cause instanceof InvalidSyntaxException) {
-      this.handleInvalidSyntaxException(source, (InvalidSyntaxException) cause);
-    } else if (cause instanceof NoPermissionException) {
-      this.handleNoPermissionException(source, (NoPermissionException) cause);
-    } else if (cause instanceof NoSuchCommandException) {
-      this.handleNoSuchCommandException(source, (NoSuchCommandException) cause);
-    } else if (cause instanceof InvalidCommandSenderException) {
-      this.handleInvalidCommandSourceException(source, (InvalidCommandSenderException) cause);
-    } else if (cause instanceof ArgumentParseException) {
+    if (cause instanceof InvalidSyntaxException syntax) {
+      this.handleInvalidSyntaxException(source, syntax);
+    } else if (cause instanceof NoPermissionException permissionException) {
+      this.handleNoPermissionException(source, permissionException);
+    } else if (cause instanceof NoSuchCommandException commandException) {
+      this.handleNoSuchCommandException(source, commandException);
+    } else if (cause instanceof InvalidCommandSenderException invalidSenderException) {
+      this.handleInvalidCommandSourceException(source, invalidSenderException);
+    } else if (cause instanceof ArgumentParseException argumentParseException) {
       var deepCause = cause.getCause();
-      if (deepCause instanceof ArgumentNotAvailableException) {
-        this.handleArgumentNotAvailableException(source, (ArgumentNotAvailableException) deepCause);
-      } else if (deepCause instanceof FlagArgument.FlagParseException) {
-        this.handleFlagParseException(source, (FlagParseException) deepCause);
+      if (deepCause instanceof ArgumentNotAvailableException argumentNotAvailableException) {
+        this.handleArgumentNotAvailableException(source, argumentNotAvailableException);
+      } else if (deepCause instanceof FlagArgument.FlagParseException flagParseException) {
+        this.handleFlagParseException(source, flagParseException);
+      } else if (deepCause instanceof RegexPreprocessor.RegexValidationException regexException) {
+        this.handleRegexValidationException(source, regexException);
       } else {
-        this.handleArgumentParseException(source, (ArgumentParseException) cause);
+        this.handleArgumentParseException(source, argumentParseException);
       }
     } else {
       LOGGER.severe("Exception during command execution", cause);
@@ -112,7 +116,7 @@ public class CommandExceptionHandler {
     @NonNull CommandSource source,
     @NonNull ArgumentParseException exception
   ) {
-    source.sendMessage(exception.getMessage());
+    LOGGER.severe("Exception during command argument parsing", exception);
   }
 
   protected void handleFlagParseException(
@@ -120,6 +124,13 @@ public class CommandExceptionHandler {
     @NonNull FlagParseException flagParseException
   ) {
     // we just ignore this as we can't really handle this due to cloud
+  }
+
+  protected void handleRegexValidationException(
+    @NonNull CommandSource source,
+    @NonNull RegexPreprocessor.RegexValidationException exception
+  ) {
+    source.sendMessage(I18n.trans("command-invalid-regex", exception.getFailedString(), exception.getPattern()));
   }
 
   protected void handleArgumentNotAvailableException(
