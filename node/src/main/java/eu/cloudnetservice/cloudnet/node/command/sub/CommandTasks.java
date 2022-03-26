@@ -247,7 +247,7 @@ public final class CommandTasks {
   @CommandMethod("tasks create <name> <environment>")
   public void createTask(
     @NonNull CommandSource source,
-    @NonNull @Argument("name") String taskName,
+    @NonNull @Regex(ServiceTask.NAMING_REGEX) @Argument("name") String taskName,
     @NonNull @Argument("environment") ServiceEnvironmentType environmentType
   ) {
     if (this.taskProvider().serviceTask(taskName) != null) {
@@ -256,10 +256,10 @@ public final class CommandTasks {
     }
 
     var serviceTask = ServiceTask.builder()
-      .addTemplates(Set.of(ServiceTemplate.builder().prefix(taskName).name("default").build()))
+      .templates(Set.of(ServiceTemplate.builder().prefix(taskName).name("default").build()))
       .name(taskName)
       .autoDeleteOnStop(true)
-      .groups(Collections.singletonList(taskName))
+      .groups(List.of(taskName))
       .serviceEnvironmentType(environmentType)
       .maxHeapMemory(512)
       .startPort(environmentType.defaultStartPort())
