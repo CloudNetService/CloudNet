@@ -45,8 +45,7 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
         .answerType(QuestionAnswerType.<String>builder()
           .parser(Parsers.allOf(
             Parsers.nonExistingTask(),
-            Parsers.regex(ServiceTask.NAMING_PATTERN),
-            Parsers.limitedStr(128))))
+            Parsers.regex(ServiceTask.NAMING_PATTERN))))
         .build(),
       QuestionListEntry.<Integer>builder()
         .key("taskMemory")
