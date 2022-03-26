@@ -21,7 +21,6 @@ import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
 import eu.cloudnetservice.cloudnet.driver.template.TemplateStorage;
 import eu.cloudnetservice.cloudnet.driver.template.TemplateStorageProvider;
 import eu.cloudnetservice.cloudnet.driver.template.defaults.RemoteTemplateStorage;
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,8 +28,8 @@ public abstract class WrapperTemplateStorageProvider implements TemplateStorageP
 
   private final RPCSender rpcSender;
 
-  public WrapperTemplateStorageProvider(@NonNull Wrapper wrapper) {
-    this.rpcSender = wrapper.rpcFactory().providerForClass(wrapper.networkClient(), TemplateStorageProvider.class);
+  public WrapperTemplateStorageProvider(@NonNull RPCSender sender) {
+    this.rpcSender = sender;
   }
 
   @Override
