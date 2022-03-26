@@ -87,7 +87,7 @@ public abstract class V2HttpHandler implements HttpHandler {
           }
           return;
         } else if (session.hasErrorMessage()) {
-          this.send403(context, session.errorMessage());
+          this.send401(context, session.errorMessage());
           return;
         }
         // try the basic auth method
@@ -100,11 +100,11 @@ public abstract class V2HttpHandler implements HttpHandler {
           }
           return;
         } else if (basic.hasErrorMessage()) {
-          this.send403(context, basic.errorMessage());
+          this.send401(context, basic.errorMessage());
           return;
         }
         // send an unauthorized response
-        this.send403(context, "No supported authentication method provided. Supported: Basic, Bearer");
+        this.send401(context, "No supported authentication method provided. Supported: Basic, Bearer");
       } else {
         // there was no authorization given, try without one
         this.handleUnauthorized(path, context);
@@ -113,7 +113,7 @@ public abstract class V2HttpHandler implements HttpHandler {
   }
 
   protected void handleUnauthorized(@NonNull String path, @NonNull HttpContext context) throws Exception {
-    this.send403(context, "Authentication required");
+    this.send401(context, "Authentication required");
   }
 
   protected void handleBasicAuthorized(
@@ -142,6 +142,14 @@ public abstract class V2HttpHandler implements HttpHandler {
 
   protected void send403(@NonNull HttpContext context, @NonNull String reason) {
     this.response(context, HttpResponseCode.FORBIDDEN)
+      .body(this.failure().append("reason", reason).toString().getBytes(StandardCharsets.UTF_8))
+      .context()
+      .closeAfter(true)
+      .cancelNext();
+  }
+
+  protected void send401(@NonNull HttpContext context, @NonNull String reason) {
+    this.response(context, HttpResponseCode.UNAUTHORIZED)
       .body(this.failure().append("reason", reason).toString().getBytes(StandardCharsets.UTF_8))
       .context()
       .closeAfter(true)
