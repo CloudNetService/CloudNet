@@ -37,7 +37,7 @@ final class PlatformPlayerManager implements PlayerManager {
   private final PlayerExecutor globalPlayerExecutor;
 
   public PlatformPlayerManager(@NonNull Wrapper wrapper) {
-    this.sender = wrapper.rpcProviderFactory().providerForClass(wrapper.networkClient(), PlayerManager.class);
+    this.sender = wrapper.rpcFactory().providerForClass(wrapper.networkClient(), PlayerManager.class);
     // init the static player utils
     this.globalPlayerExecutor = this.playerExecutor(PlayerExecutor.GLOBAL_UNIQUE_ID);
     this.allPlayers = new PlatformPlayerProvider(this.sender.invokeMethod("onlinePlayers"));

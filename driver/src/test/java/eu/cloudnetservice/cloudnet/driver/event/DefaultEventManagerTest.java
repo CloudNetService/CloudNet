@@ -39,7 +39,7 @@ public class DefaultEventManagerTest {
   public static void initDriver() {
     var driver = DriverTestUtil.mockAndSetDriverInstance();
     Mockito.when(driver.componentName()).thenReturn("Node-1");
-    Mockito.when(driver.environment()).thenReturn(DriverEnvironment.CLOUDNET);
+    Mockito.when(driver.environment()).thenReturn(DriverEnvironment.NODE);
   }
 
   @Test

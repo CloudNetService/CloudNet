@@ -28,9 +28,8 @@ public final class NodeTestUtility {
    */
   public static CloudNet mockAndSetDriverInstance() {
     var driver = Mockito.mock(CloudNet.class);
-    CloudNetDriver.instance(driver);
+    CloudNetDriver.instance = driver;
 
     return driver;
   }
-
 }

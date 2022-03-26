@@ -93,7 +93,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
       .registerBinding(Component.class, new ComponentObjectSerializer(), false);
     // init the player manager once
     this.playerManager = new PlatformPlayerManager(wrapper);
-    this.sender = wrapper.rpcProviderFactory().providerForClass(wrapper.networkClient(), BridgeManagement.class);
+    this.sender = wrapper.rpcFactory().providerForClass(wrapper.networkClient(), BridgeManagement.class);
     // create the network service info of this service
     this.ownNetworkServiceInfo = BridgeServiceHelper.createServiceInfo(wrapper.currentServiceInfo());
     // load the configuration using rpc - all updates will be received from the channel message

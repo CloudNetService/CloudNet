@@ -80,11 +80,11 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
   public DefaultCloudServiceManager(@NonNull CloudNet nodeInstance) {
     this.clusterNodeServerProvider = nodeInstance.nodeServerProvider();
     // rpc init
-    this.sender = nodeInstance.rpcProviderFactory().providerForClass(null, CloudServiceProvider.class);
-    nodeInstance.rpcProviderFactory()
+    this.sender = nodeInstance.rpcFactory().providerForClass(null, CloudServiceProvider.class);
+    nodeInstance.rpcFactory()
       .newHandler(CloudServiceProvider.class, this)
       .registerToDefaultRegistry();
-    nodeInstance.rpcProviderFactory()
+    nodeInstance.rpcFactory()
       .newHandler(SpecificCloudServiceProvider.class, null)
       .registerToDefaultRegistry();
     // register the default factory

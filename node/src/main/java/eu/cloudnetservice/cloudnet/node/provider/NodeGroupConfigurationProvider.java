@@ -60,7 +60,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
     this.eventManager.registerListener(new GroupChannelMessageListener(this.eventManager, this));
 
     // rpc
-    nodeInstance.rpcProviderFactory().newHandler(GroupConfigurationProvider.class, this).registerToDefaultRegistry();
+    nodeInstance.rpcFactory().newHandler(GroupConfigurationProvider.class, this).registerToDefaultRegistry();
     // cluster data sync
     nodeInstance.dataSyncRegistry().registerHandler(
       DataSyncHandler.<GroupConfiguration>builder()

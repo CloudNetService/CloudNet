@@ -87,7 +87,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
     }
 
     this.nodeInstance.eventManager().registerListener(this.networkListener);
-    this.nodeInstance.rpcProviderFactory().newHandler(PermissionManagement.class, this).registerToDefaultRegistry();
+    this.nodeInstance.rpcFactory().newHandler(PermissionManagement.class, this).registerToDefaultRegistry();
   }
 
   @Override

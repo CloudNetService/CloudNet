@@ -65,7 +65,7 @@ public class RemoteNodeServer implements NodeServer {
     this.node = node;
     this.info = info;
     this.provider = provider;
-    this.serviceFactory = new RemoteCloudServiceFactory(this::channel, node.rpcProviderFactory());
+    this.serviceFactory = new RemoteCloudServiceFactory(this::channel, node.rpcFactory());
   }
 
   @Override

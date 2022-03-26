@@ -49,7 +49,7 @@ public class NodeClusterNodeProvider implements ClusterNodeProvider {
       nodeInstance.dataSyncRegistry(),
       this,
       nodeInstance.nodeServerProvider()));
-    nodeInstance.rpcProviderFactory().newHandler(ClusterNodeProvider.class, this).registerToDefaultRegistry();
+    nodeInstance.rpcFactory().newHandler(ClusterNodeProvider.class, this).registerToDefaultRegistry();
   }
 
   @Override

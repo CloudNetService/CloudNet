@@ -211,7 +211,7 @@ public final class NettyUtil {
    */
   public static @Range(from = 2, to = Integer.MAX_VALUE) int threadAmount() {
     var environment = CloudNetDriver.instance().environment();
-    return environment == DriverEnvironment.CLOUDNET ? Math.max(8, Runtime.getRuntime().availableProcessors() * 2) : 4;
+    return environment == DriverEnvironment.NODE ? Math.max(8, Runtime.getRuntime().availableProcessors() * 2) : 4;
   }
 
   /**

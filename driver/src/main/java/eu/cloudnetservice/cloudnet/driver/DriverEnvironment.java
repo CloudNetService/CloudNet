@@ -16,28 +16,50 @@
 
 package eu.cloudnetservice.cloudnet.driver;
 
+import eu.cloudnetservice.cloudnet.common.Nameable;
+import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
+import eu.cloudnetservice.cloudnet.common.document.property.JsonDocPropertyHolder;
+import lombok.NonNull;
+
 /**
- * Represents the current environment of the currently running CloudNet driver implementation. By default, every running
- * instance is marked as {@link #EMBEDDED}. A {@link #CLOUDNET} representation is every implementation which is capable
- * of managing services like the default node implementation. A {@link #WRAPPER} implementation on the other hand means
- * that CloudNet manages a service process like a Paper server software instance.
+ * Represents the current environment in which the driver is running. There are currently two default environments, the
+ * node and wrapper which are statically represented in this class.
+ * <p>
+ * A driver environment can hold additional information in its json properties, these are however never persisted
+ * anywhere.
  *
- * @see CloudNetDriver#environment()
+ * @since 4.0
  */
-public enum DriverEnvironment {
+public final class DriverEnvironment extends JsonDocPropertyHolder implements Nameable {
 
   /**
-   * A CloudNet implementation which is capable of managing services.
+   * The jvm-static representation of the node environment.
    */
-  CLOUDNET,
+  public static final DriverEnvironment NODE = new DriverEnvironment("node", JsonDocument.newDocument());
+  /**
+   * The jvm-static representation of the wrapper environment.
+   */
+  public static final DriverEnvironment WRAPPER = new DriverEnvironment("wrapper", JsonDocument.newDocument());
+
+  private final String name;
 
   /**
-   * A CloudNet implementation which manages a service process like a Paper server software instance.
+   * Constructs a new driver environment instance.
+   *
+   * @param name       the name of the environment.
+   * @param properties the properties of the environment.
+   * @throws NullPointerException if the given name or properties are null.
    */
-  WRAPPER,
+  public DriverEnvironment(@NonNull String name, @NonNull JsonDocument properties) {
+    super(properties);
+    this.name = name;
+  }
 
   /**
-   * The default environment when running embedded in another environment.
+   * {@inheritDoc}
    */
-  EMBEDDED
+  @Override
+  public @NonNull String name() {
+    return this.name;
+  }
 }

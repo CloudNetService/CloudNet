@@ -284,7 +284,7 @@ public final class RemoteTemplateStorage implements TemplateStorage {
    * {@inheritDoc}
    */
   @Override
-  public @Nullable Collection<FileInfo> listFiles(
+  public @NonNull Collection<FileInfo> listFiles(
     @NonNull ServiceTemplate template,
     @NonNull String dir,
     boolean deep

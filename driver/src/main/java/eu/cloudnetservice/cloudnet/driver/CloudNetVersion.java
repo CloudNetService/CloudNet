@@ -19,6 +19,17 @@ package eu.cloudnetservice.cloudnet.driver;
 import java.util.regex.Pattern;
 import lombok.NonNull;
 
+/**
+ * Represents the current version specification which the associated CloudNet component is running on.
+ *
+ * @param major        the current major version of CloudNet.
+ * @param minor        the current minor version of CloudNet.
+ * @param patch        the current patch number of the current CloudNet minor version.
+ * @param revision     the git revision CloudNet is running on, empty if unknown.
+ * @param versionType  the current version type of CloudNet (for example snapshot).
+ * @param versionTitle the current release title of CloudNet.
+ * @since 4.0
+ */
 public record CloudNetVersion(
   int major,
   int minor,
@@ -30,7 +41,19 @@ public record CloudNetVersion(
 
   private static final Pattern VERSION_PATTERN = Pattern.compile("(\\d+).(\\d+).(\\d+)(.*)");
 
-  public static @NonNull CloudNetVersion fromClassInformation(@NonNull Package source) {
+  /**
+   * Reads and tries to parse the CloudNet version from the information provided by the specified package. This method
+   * throws an exception if the given package does not contain valid version information. The version of the package
+   * must at least match the semver specification, MAJOR.MINOR.PATCH. If any additional information is supplied this
+   * method will try to parse the remaining information from it (revision, version type). The version title is
+   * determined by the package implementation title.
+   *
+   * @param source the package to parse the CloudNet version from.
+   * @return the parsed CloudNet version instance from the given package.
+   * @throws NullPointerException     if the given package is null.
+   * @throws IllegalArgumentException if the given package doesn't contain parseable data.
+   */
+  public static @NonNull CloudNetVersion fromPackage(@NonNull Package source) {
     // read the version title
     var title = source.getImplementationTitle();
     // read the version
@@ -69,9 +92,18 @@ public record CloudNetVersion(
       return new CloudNetVersion(major, minor, patch, "", "custom", title);
     }
     // unable to determine version information
-    throw new RuntimeException("Unable to determine version from " + source.getImplementationVersion());
+    throw new IllegalArgumentException("Unable to determine version from " + source.getImplementationVersion());
   }
 
+  /**
+   * Converts this version back to a human-readable string. The returned version string always follows the schema:
+   * <pre>
+   * CloudNet &lt;VersionTitle&gt; &lt;major&gt;.&lt;minor&gt;.&lt;patch&gt;-&lt;VersionType&gt; [revision]
+   * </pre>
+   * The revision is only appended if present (not empty).
+   *
+   * @return the stringified, human-readable representation of this version.
+   */
   @Override
   public String toString() {
     // CloudNet Blizzard 3.5.0-SNAPSHOT

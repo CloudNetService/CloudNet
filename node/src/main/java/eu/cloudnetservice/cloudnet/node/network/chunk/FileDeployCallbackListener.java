@@ -74,7 +74,7 @@ public final class FileDeployCallbackListener {
     var template = event.content().readObject(ServiceTemplate.class);
     var responseId = event.content().readUniqueId();
     // get the storage
-    var storage = CloudNet.instance().templateStorage(storageName);
+    var storage = CloudNet.instance().templateStorageProvider().templateStorage(storageName);
     if (storage == null) {
       // missing storage - no result
       event.binaryResponse(DataBuf.empty().writeBoolean(false));

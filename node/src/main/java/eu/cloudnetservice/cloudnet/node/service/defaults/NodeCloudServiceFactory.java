@@ -53,7 +53,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
       nodeInstance.eventManager(),
       this.serviceManager,
       this));
-    nodeInstance.rpcProviderFactory().newHandler(CloudServiceFactory.class, this).registerToDefaultRegistry();
+    nodeInstance.rpcFactory().newHandler(CloudServiceFactory.class, this).registerToDefaultRegistry();
   }
 
   @Override
