@@ -112,6 +112,7 @@ public class CloudNet extends CloudNetDriver {
   private final DefaultNodeServerProvider nodeServerProvider;
   private final ServiceVersionProvider serviceVersionProvider;
 
+  private final Configuration configuration;
   private final ModulesHolder modulesHolder;
   private final UpdaterRegistry<ModuleUpdaterContext, ModulesHolder> moduleUpdaterRegistry;
 
@@ -121,7 +122,6 @@ public class CloudNet extends CloudNetDriver {
   private final DataSyncRegistry dataSyncRegistry = new DefaultDataSyncRegistry();
   private final QueuedConsoleLogHandler logHandler = new QueuedConsoleLogHandler();
 
-  private volatile Configuration configuration;
   private volatile AbstractDatabaseProvider databaseProvider;
 
   protected CloudNet(@NonNull String[] args, @NonNull Console console, @NonNull Logger rootLogger) {
@@ -431,8 +431,8 @@ public class CloudNet extends CloudNetDriver {
     return this.configuration;
   }
 
-  public void config(@NonNull Configuration configuration) {
-    this.configuration = configuration;
+  public void reloadConfigFrom(@NonNull Configuration configuration) {
+    this.configuration.reloadFrom(configuration.save());
   }
 
   public @NonNull DefaultNodeServerProvider nodeServerProvider() {

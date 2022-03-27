@@ -52,7 +52,7 @@ public final class CommandConfig {
 
   @CommandMethod("config reload")
   public void reloadConfigs(@NonNull CommandSource source) {
-    CloudNet.instance().config(JsonConfiguration.loadFromFile(CloudNet.instance()));
+    CloudNet.instance().reloadConfigFrom(JsonConfiguration.loadFromFile(CloudNet.instance()));
     CloudNet.instance().serviceTaskProvider().reload();
     CloudNet.instance().groupConfigurationProvider().reload();
     CloudNet.instance().permissionManagement().reload();
@@ -61,7 +61,7 @@ public final class CommandConfig {
 
   @CommandMethod("config node reload")
   public void reloadNodeConfig(@NonNull CommandSource source) {
-    CloudNet.instance().config(JsonConfiguration.loadFromFile(CloudNet.instance()));
+    CloudNet.instance().reloadConfigFrom(JsonConfiguration.loadFromFile(CloudNet.instance()));
     source.sendMessage(I18n.trans("command-config-node-reload-config"));
   }
 
