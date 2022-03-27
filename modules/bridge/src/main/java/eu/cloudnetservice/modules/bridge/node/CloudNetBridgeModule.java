@@ -95,16 +95,13 @@ public final class CloudNetBridgeModule extends DriverModule {
     var playerDb = CloudNet.instance().databaseProvider().database(BRIDGE_PLAYER_DB_NAME);
     // read the first player from the database - if the first player is valid we don't need to take a look at the other
     // players in the database as they were already converted
-    var first = playerDb.readChunk(101, 1);
+    var first = playerDb.readChunk(0, 1);
     if (first != null && !first.isEmpty()) {
       var document = Iterables.getOnlyElement(first.values());
       // validate the offline player
-      var serviceId = document
-        .getDocument("lastNetworkPlayerProxyInfo")
-        .getDocument("networkService")
-        .getDocument("serviceId");
-      // check if the environment name is set
-      if (serviceId.getString("environmentName") == null) {
+      var lastNetworkPlayerProxyInfo = document.getDocument("lastNetworkPlayerProxyInfo");
+      // check if the document is empty, if so it indicates an old database format
+      if (lastNetworkPlayerProxyInfo.empty()) {
         LOGGER.warning("Converting the offline player database, this may take a few seconds...");
 
         var convertedPlayers = 0;
@@ -113,10 +110,11 @@ public final class CloudNetBridgeModule extends DriverModule {
         while ((chunkData = playerDb.readChunk(convertedPlayers, 100)) != null) {
           for (var entry : chunkData.entrySet()) {
             // get all the required path
-            var lastProxyInfo = entry.getValue().getDocument("lastNetworkPlayerProxyInfo");
+            var lastProxyInfo = entry.getValue().getDocument("lastNetworkConnectionInfo");
             var networkService = lastProxyInfo.getDocument("networkService");
-            serviceId = networkService.getDocument("serviceId");
+
             // rewrite the name of the environment
+            JsonDocument serviceId = networkService.getDocument("serviceId");
             var environment = serviceId.getString("environment", "");
             serviceId.append("environmentName", environment);
             // try to set the new environment
@@ -124,11 +122,21 @@ public final class CloudNetBridgeModule extends DriverModule {
               .getEnvironmentType(environment)
               .orElse(null);
             serviceId.append("environment", env);
+
+            // rewrite smaller changes
+            lastProxyInfo.remove("legacy");
+            lastProxyInfo.append("xBoxId", entry.getValue().getString("xBoxId"));
+
             // rewrite all paths of the document
             networkService.append("serviceId", serviceId);
             lastProxyInfo.append("networkService", networkService);
-            entry.getValue().append("name", lastProxyInfo.get("name"));
             entry.getValue().append("lastNetworkPlayerProxyInfo", lastProxyInfo);
+
+            // remove the outdated info
+            entry.getValue().remove("xBoxId");
+            entry.getValue().remove("uniqueId");
+            entry.getValue().remove("lastNetworkConnectionInfo");
+
             // update the entry
             playerDb.insert(entry.getKey(), entry.getValue());
           }
