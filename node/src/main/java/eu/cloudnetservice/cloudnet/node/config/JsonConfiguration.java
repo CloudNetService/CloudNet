@@ -291,6 +291,39 @@ public final class JsonConfiguration implements Configuration {
   }
 
   @Override
+  public void reloadFrom(@NonNull Configuration configuration) {
+    // supported identity changes
+    this.identity.properties().append(configuration.identity().properties());
+
+    // collection configurations
+    this.identity.listeners().clear();
+    this.identity.listeners().addAll(configuration.identity().listeners());
+
+    this.ipWhitelist.clear();
+    this.ipWhitelist.addAll(configuration.ipWhitelist());
+
+    this.clusterConfig.nodes().clear();
+    this.clusterConfig.nodes().addAll(configuration.clusterConfig().nodes());
+
+    // general configuration
+    this.maxMemory = configuration.maxMemory();
+    this.maxCPUUsageToStartServices = configuration.maxCPUUsageToStartServices();
+    this.maxServiceConsoleLogCacheSize = configuration.maxServiceConsoleLogCacheSize();
+    this.processTerminationTimeoutSeconds = configuration.processTerminationTimeoutSeconds();
+
+    this.forceInitialClusterDataSync = configuration.forceInitialClusterDataSync();
+    this.printErrorStreamLinesFromServices = configuration.printErrorStreamLinesFromServices();
+    this.runBlockedServiceStartTryLaterAutomatic = configuration.runBlockedServiceStartTryLaterAutomatic();
+
+    this.jvmCommand = configuration.javaCommand();
+    this.hostAddress = configuration.hostAddress();
+    this.connectHostAddress = configuration.connectHostAddress();
+
+    this.properties = configuration.properties();
+    this.accessControlConfiguration = configuration.accessControlConfig();
+  }
+
+  @Override
   public @NonNull NetworkClusterNode identity() {
     return this.identity;
   }

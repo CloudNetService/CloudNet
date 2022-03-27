@@ -164,7 +164,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
   }
 
   protected void reloadConfig() {
-    this.node().config(this.node().config().load());
+    this.node().reloadConfigFrom(JsonConfiguration.loadFromFile(this.node()));
     this.node().serviceTaskProvider().reload();
     this.node().groupConfigurationProvider().reload();
     this.node().permissionManagement().reload();

@@ -32,6 +32,8 @@ public interface Configuration {
 
   @NonNull Configuration save();
 
+  void reloadFrom(@NonNull Configuration configuration);
+
   @NonNull String hostAddress();
 
   void hostAddress(@NonNull String hostAddress);
