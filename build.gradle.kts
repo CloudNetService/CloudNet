@@ -71,6 +71,11 @@ subprojects {
     "testImplementation"(rootProject.libs.bundles.testContainers)
   }
 
+  configurations.all {
+    // unsure why but every project loves them, and they literally have an import for every letter I type - beware
+    exclude("org.checkerframework", "checker-qual")
+  }
+
   tasks.withType<Jar> {
     from(rootProject.file("LICENSE"))
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
@@ -91,6 +96,8 @@ subprojects {
     // options
     options.encoding = "UTF-8"
     options.isIncremental = true
+    // we are aware that those are there, but we only do that if there is no other way we can use - so please keep the terminal clean!
+    options.compilerArgs = mutableListOf("-Xlint:none", "-Xlint:-deprecation", "-Xlint:-unchecked")
   }
 
   tasks.withType<Checkstyle> {

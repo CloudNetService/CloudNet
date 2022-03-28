@@ -23,7 +23,7 @@ import cloud.commandframework.meta.CommandMeta;
 import cloud.commandframework.meta.SimpleCommandMeta;
 import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
 import java.util.concurrent.Executors;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import lombok.NonNull;
 
 /**
  * {@inheritDoc}
