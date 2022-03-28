@@ -119,9 +119,9 @@ public final class JLine3Console implements Console {
       animation.run();
       // remove the animation - then post the result for other animations in the finish handlers to run
       this.runningAnimations.remove(uniqueId);
-      animation.handleDone();
       // animation done - reset the console
       animation.resetConsole();
+      animation.handleDone();
     });
   }
 
