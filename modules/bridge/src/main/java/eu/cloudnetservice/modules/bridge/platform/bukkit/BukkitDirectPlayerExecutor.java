@@ -100,6 +100,6 @@ final class BukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Pla
 
   @Override
   public void spoofCommandExecution(@NonNull String command) {
-    this.forEach(player -> player.chat(command));
+    this.forEach(player -> player.chat('/' + command));
   }
 }
