@@ -33,32 +33,24 @@ import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
 
-final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
+final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<ProxiedPlayer> {
 
-  private final UUID uniqueId;
   private final PlatformBridgeManagement<ProxiedPlayer, ?> management;
-  private final Supplier<Collection<? extends ProxiedPlayer>> playerSupplier;
 
   public WaterDogPEDirectPlayerExecutor(
     @NonNull UUID uniqueId,
     @NonNull PlatformBridgeManagement<ProxiedPlayer, ?> management,
     @NonNull Supplier<Collection<? extends ProxiedPlayer>> playerSupplier
   ) {
-    this.uniqueId = uniqueId;
+    super(uniqueId, playerSupplier);
     this.management = management;
-    this.playerSupplier = playerSupplier;
-  }
-
-  @Override
-  public @NonNull UUID uniqueId() {
-    return this.uniqueId;
   }
 
   @Override
   public void connect(@NonNull String serviceName) {
     var serverInfo = ProxyServer.getInstance().getServerInfo(serviceName);
     if (serverInfo != null) {
-      this.playerSupplier.get().forEach(player -> player.connect(serverInfo));
+      this.forEach(player -> player.connect(serverInfo));
     }
   }
 
@@ -69,12 +61,13 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
       .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
       .filter(Objects::nonNull)
       .findFirst()
-      .ifPresent(server -> this.playerSupplier.get().forEach(player -> player.connect(server)));
+      .ifPresent(server -> this.forEach(player -> player.connect(server)));
   }
 
   @Override
   public void connectToFallback() {
     this.playerSupplier.get().stream()
+      .filter(Objects::nonNull)
       .map(player -> new Pair<>(player, this.management.fallback(player)))
       .filter(pair -> pair.second().isPresent())
       .map(p -> new Pair<>(p.first(), ProxyServer.getInstance().getServerInfo(p.second().get().name())))
@@ -89,7 +82,7 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
       .sorted(selectorType.comparator())
       .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
       .filter(Objects::nonNull)
-      .forEach(server -> this.playerSupplier.get().forEach(player -> player.connect(server)));
+      .forEach(server -> this.forEach(player -> player.connect(server)));
   }
 
   @Override
@@ -99,24 +92,22 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
       .sorted(selectorType.comparator())
       .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
       .filter(Objects::nonNull)
-      .forEach(server -> this.playerSupplier.get().forEach(player -> player.connect(server)));
+      .forEach(server -> this.forEach(player -> player.connect(server)));
   }
 
   @Override
   public void kick(@NonNull Component message) {
-    this.playerSupplier.get()
-      .forEach(player -> player.disconnect(new TextContainer(legacySection().serialize(message))));
+    this.forEach(player -> player.disconnect(new TextContainer(legacySection().serialize(message))));
   }
 
   @Override
   public void sendMessage(@NonNull Component message) {
-    this.playerSupplier.get()
-      .forEach(player -> player.sendMessage(new TextContainer(legacySection().serialize(message))));
+    this.forEach(player -> player.sendMessage(new TextContainer(legacySection().serialize(message))));
   }
 
   @Override
   public void sendChatMessage(@NonNull Component message, @Nullable String permission) {
-    this.playerSupplier.get().forEach(player -> {
+    this.forEach(player -> {
       if (permission == null || player.hasPermission(permission)) {
         player.sendMessage(new TextContainer(legacySection().serialize(message)));
       }
@@ -129,7 +120,7 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
   }
 
   @Override
-  public void spoofChatInput(@NonNull String command) {
-    this.playerSupplier.get().forEach(player -> player.chat(command));
+  public void spoofCommandExecution(@NonNull String command) {
+    this.forEach(player -> player.chat(command));
   }
 }

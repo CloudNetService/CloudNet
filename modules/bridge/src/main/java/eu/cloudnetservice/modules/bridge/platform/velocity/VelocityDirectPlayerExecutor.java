@@ -24,6 +24,7 @@ import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.PlatformPlayerExecutorAdapter;
 import eu.cloudnetservice.modules.bridge.player.executor.ServerSelectorType;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -32,12 +33,10 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.jetbrains.annotations.Nullable;
 
-final class VelocityDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
+final class VelocityDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Player> {
 
-  private final UUID uniqueId;
   private final ProxyServer proxyServer;
   private final PlatformBridgeManagement<Player, ?> management;
-  private final Supplier<Collection<? extends Player>> playerSupplier;
 
   public VelocityDirectPlayerExecutor(
     @NonNull UUID uniqueId,
@@ -45,21 +44,16 @@ final class VelocityDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
     @NonNull PlatformBridgeManagement<Player, ?> management,
     @NonNull Supplier<Collection<? extends Player>> playerSupplier
   ) {
-    this.uniqueId = uniqueId;
+    super(uniqueId, playerSupplier);
+
     this.proxyServer = proxyServer;
     this.management = management;
-    this.playerSupplier = playerSupplier;
-  }
-
-  @Override
-  public @NonNull UUID uniqueId() {
-    return this.uniqueId;
   }
 
   @Override
   public void connect(@NonNull String serviceName) {
     this.proxyServer.getServer(serviceName).ifPresent(
-      server -> this.playerSupplier.get().forEach(player -> player.createConnectionRequest(server).fireAndForget()));
+      server -> this.forEach(player -> player.createConnectionRequest(server).fireAndForget()));
   }
 
   @Override
@@ -70,13 +64,13 @@ final class VelocityDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
       .filter(Optional::isPresent)
       .map(Optional::get)
       .findFirst()
-      .ifPresent(
-        server -> this.playerSupplier.get().forEach(player -> player.createConnectionRequest(server).fireAndForget()));
+      .ifPresent(server -> this.forEach(player -> player.createConnectionRequest(server).fireAndForget()));
   }
 
   @Override
   public void connectToFallback() {
     this.playerSupplier.get().stream()
+      .filter(Objects::nonNull)
       .map(player -> new Pair<>(player, this.management.fallback(player)))
       .filter(pair -> pair.second().isPresent())
       .map(pair -> new Pair<>(pair.first(), this.proxyServer.getServer(pair.second().get().name())))
@@ -92,8 +86,7 @@ final class VelocityDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
       .map(service -> this.proxyServer.getServer(service.name()))
       .filter(Optional::isPresent)
       .map(Optional::get)
-      .forEach(
-        server -> this.playerSupplier.get().forEach(player -> player.createConnectionRequest(server).fireAndForget()));
+      .forEach(server -> this.forEach(player -> player.createConnectionRequest(server).fireAndForget()));
   }
 
   @Override
@@ -104,28 +97,27 @@ final class VelocityDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
       .map(service -> this.proxyServer.getServer(service.name()))
       .filter(Optional::isPresent)
       .map(Optional::get)
-      .forEach(
-        server -> this.playerSupplier.get().forEach(player -> player.createConnectionRequest(server).fireAndForget()));
+      .forEach(server -> this.forEach(player -> player.createConnectionRequest(server).fireAndForget()));
   }
 
   @Override
   public void kick(@NonNull Component message) {
-    this.playerSupplier.get().forEach(player -> player.disconnect(message));
+    this.forEach(player -> player.disconnect(message));
   }
 
   @Override
   public void sendTitle(@NonNull Title title) {
-    this.playerSupplier.get().forEach(player -> player.showTitle(title));
+    this.forEach(player -> player.showTitle(title));
   }
 
   @Override
   public void sendMessage(@NonNull Component message) {
-    this.playerSupplier.get().forEach(player -> player.sendMessage(message));
+    this.forEach(player -> player.sendMessage(message));
   }
 
   @Override
   public void sendChatMessage(@NonNull Component message, @Nullable String permission) {
-    this.playerSupplier.get().forEach(player -> {
+    this.forEach(player -> {
       if (permission == null || player.hasPermission(permission)) {
         player.sendMessage(message);
       }
@@ -134,11 +126,11 @@ final class VelocityDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
 
   @Override
   public void sendPluginMessage(@NonNull String tag, byte[] data) {
-    this.playerSupplier.get().forEach(player -> player.sendPluginMessage(MinecraftChannelIdentifier.from(tag), data));
+    this.forEach(player -> player.sendPluginMessage(MinecraftChannelIdentifier.from(tag), data));
   }
 
   @Override
-  public void spoofChatInput(@NonNull String command) {
-    this.playerSupplier.get().forEach(player -> player.spoofChatInput(command));
+  public void spoofCommandExecution(@NonNull String command) {
+    this.forEach(player -> player.spoofChatInput(command));
   }
 }
