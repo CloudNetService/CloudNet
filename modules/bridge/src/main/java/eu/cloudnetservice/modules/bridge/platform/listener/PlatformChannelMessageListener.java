@@ -183,7 +183,7 @@ public final class PlatformChannelMessageListener {
           event.content().readByteArray());
 
         // sends a chat message like when a player does type into the chat
-        case "dispatch_proxy_command" -> executor.spoofChatInput(event.content().readString());
+        case "dispatch_proxy_command" -> executor.spoofCommandExecution(event.content().readString());
 
         // unable to handle
         default -> {

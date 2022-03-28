@@ -29,25 +29,17 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
 
-final class BukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
+final class BukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Player> {
 
   private final Plugin plugin;
-  private final UUID targetUniqueId;
-  private final Supplier<Collection<? extends Player>> playerSupplier;
 
   public BukkitDirectPlayerExecutor(
     @NonNull Plugin plugin,
     @NonNull UUID target,
     @NonNull Supplier<Collection<? extends Player>> playerSupplier
   ) {
+    super(target, playerSupplier);
     this.plugin = plugin;
-    this.targetUniqueId = target;
-    this.playerSupplier = playerSupplier;
-  }
-
-  @Override
-  public @NonNull UUID uniqueId() {
-    return this.targetUniqueId;
   }
 
   @Override
@@ -77,24 +69,24 @@ final class BukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
 
   @Override
   public void kick(@NonNull Component message) {
-    this.playerSupplier.get().forEach(player -> player.kickPlayer(legacySection().serialize(message)));
+    this.forEach(player -> player.kickPlayer(legacySection().serialize(message)));
   }
 
   @Override
   protected void sendTitle(@NonNull Component title, @NonNull Component subtitle, int fadeIn, int stay, int fadeOut) {
-    this.playerSupplier.get().forEach(player -> player.sendTitle(
+    this.forEach(player -> player.sendTitle(
       legacySection().serialize(title),
       legacySection().serialize(subtitle)));
   }
 
   @Override
   public void sendMessage(@NonNull Component message) {
-    this.playerSupplier.get().forEach(player -> player.sendMessage(legacySection().serialize(message)));
+    this.forEach(player -> player.sendMessage(legacySection().serialize(message)));
   }
 
   @Override
   public void sendChatMessage(@NonNull Component message, @Nullable String permission) {
-    this.playerSupplier.get().forEach(player -> {
+    this.forEach(player -> {
       if (permission == null || player.hasPermission(permission)) {
         player.sendMessage(legacySection().serialize(message));
       }
@@ -103,11 +95,11 @@ final class BukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
 
   @Override
   public void sendPluginMessage(@NonNull String tag, byte[] data) {
-    this.playerSupplier.get().forEach(player -> player.sendPluginMessage(this.plugin, tag, data));
+    this.forEach(player -> player.sendPluginMessage(this.plugin, tag, data));
   }
 
   @Override
-  public void spoofChatInput(@NonNull String command) {
-    this.playerSupplier.get().forEach(player -> player.chat(command));
+  public void spoofCommandExecution(@NonNull String command) {
+    this.forEach(player -> player.chat(command));
   }
 }

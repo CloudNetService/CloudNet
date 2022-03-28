@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.bridge.platform.nukkit;
 import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 import eu.cloudnetservice.modules.bridge.platform.PlatformPlayerExecutorAdapter;
 import eu.cloudnetservice.modules.bridge.player.executor.ServerSelectorType;
 import java.util.Collection;
@@ -28,22 +29,13 @@ import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
 
-final class NukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
-
-  private final UUID targetUniqueId;
-  private final Supplier<Collection<? extends Player>> playerSupplier;
+final class NukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Player> {
 
   public NukkitDirectPlayerExecutor(
     @NonNull UUID targetUniqueId,
     @NonNull Supplier<Collection<? extends Player>> playerSupplier
   ) {
-    this.targetUniqueId = targetUniqueId;
-    this.playerSupplier = playerSupplier;
-  }
-
-  @Override
-  public @NonNull UUID uniqueId() {
-    return this.targetUniqueId;
+    super(targetUniqueId, playerSupplier);
   }
 
   @Override
@@ -73,12 +65,12 @@ final class NukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
 
   @Override
   public void kick(@NonNull Component message) {
-    this.playerSupplier.get().forEach(player -> player.kick(legacySection().serialize(message)));
+    this.forEach(player -> player.kick(legacySection().serialize(message)));
   }
 
   @Override
   protected void sendTitle(@NonNull Component title, @NonNull Component subtitle, int fadeIn, int stay, int fadeOut) {
-    this.playerSupplier.get().forEach(player -> player.sendTitle(
+    this.forEach(player -> player.sendTitle(
       legacySection().serialize(title),
       legacySection().serialize(subtitle),
       fadeIn,
@@ -88,12 +80,12 @@ final class NukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
 
   @Override
   public void sendMessage(@NonNull Component message) {
-    this.playerSupplier.get().forEach(player -> player.sendMessage(legacySection().serialize(message)));
+    this.forEach(player -> player.sendMessage(legacySection().serialize(message)));
   }
 
   @Override
   public void sendChatMessage(@NonNull Component message, @Nullable String permission) {
-    this.playerSupplier.get().forEach(player -> {
+    this.forEach(player -> {
       if (permission == null || player.hasPermission(permission)) {
         player.sendMessage(legacySection().serialize(message));
       }
@@ -106,7 +98,7 @@ final class NukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
   }
 
   @Override
-  public void spoofChatInput(@NonNull String command) {
-    this.playerSupplier.get().forEach(player -> player.chat(command));
+  public void spoofCommandExecution(@NonNull String command) {
+    this.forEach(player -> Server.getInstance().dispatchCommand(player, command));
   }
 }

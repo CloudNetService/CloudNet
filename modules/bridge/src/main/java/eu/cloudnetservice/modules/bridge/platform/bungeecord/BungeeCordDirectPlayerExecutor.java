@@ -35,32 +35,24 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ServerConnectEvent.Reason;
 import org.jetbrains.annotations.Nullable;
 
-final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
+final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<ProxiedPlayer> {
 
-  private final UUID uniqueId;
   private final PlatformBridgeManagement<ProxiedPlayer, ?> management;
-  private final Supplier<Collection<? extends ProxiedPlayer>> playerSupplier;
 
   public BungeeCordDirectPlayerExecutor(
     @NonNull UUID uniqueId,
     @NonNull PlatformBridgeManagement<ProxiedPlayer, ?> management,
     @NonNull Supplier<Collection<? extends ProxiedPlayer>> playerSupplier
   ) {
-    this.uniqueId = uniqueId;
+    super(uniqueId, playerSupplier);
     this.management = management;
-    this.playerSupplier = playerSupplier;
-  }
-
-  @Override
-  public @NonNull UUID uniqueId() {
-    return this.uniqueId;
   }
 
   @Override
   public void connect(@NonNull String serviceName) {
     ServerInfo serverInfo = ProxyServer.getInstance().getServerInfo(serviceName);
     if (serverInfo != null) {
-      this.playerSupplier.get().forEach(player -> player.connect(serverInfo, Reason.PLUGIN));
+      this.forEach(player -> player.connect(serverInfo, Reason.PLUGIN));
     }
   }
 
@@ -71,12 +63,13 @@ final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
       .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
       .filter(Objects::nonNull)
       .findFirst()
-      .ifPresent(server -> this.playerSupplier.get().forEach(player -> player.connect(server, Reason.PLUGIN)));
+      .ifPresent(server -> this.forEach(player -> player.connect(server, Reason.PLUGIN)));
   }
 
   @Override
   public void connectToFallback() {
     this.playerSupplier.get().stream()
+      .filter(Objects::nonNull)
       .map(player -> new Pair<>(player, this.management.fallback(player)))
       .filter(pair -> pair.second().isPresent())
       .map(p -> new Pair<>(p.first(), ProxyServer.getInstance().getServerInfo(p.second().get().name())))
@@ -91,7 +84,7 @@ final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
       .sorted(selectorType.comparator())
       .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
       .filter(Objects::nonNull)
-      .forEach(server -> this.playerSupplier.get().forEach(player -> player.connect(server, Reason.PLUGIN)));
+      .forEach(server -> this.forEach(player -> player.connect(server, Reason.PLUGIN)));
   }
 
   @Override
@@ -101,17 +94,17 @@ final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
       .sorted(selectorType.comparator())
       .map(service -> ProxyServer.getInstance().getServerInfo(service.name()))
       .filter(Objects::nonNull)
-      .forEach(server -> this.playerSupplier.get().forEach(player -> player.connect(server, Reason.PLUGIN)));
+      .forEach(server -> this.forEach(player -> player.connect(server, Reason.PLUGIN)));
   }
 
   @Override
   public void kick(@NonNull Component message) {
-    this.playerSupplier.get().forEach(player -> player.disconnect(fromLegacyText(legacySection().serialize(message))));
+    this.forEach(player -> player.disconnect(fromLegacyText(legacySection().serialize(message))));
   }
 
   @Override
   protected void sendTitle(@NonNull Component title, @NonNull Component subtitle, int fadeIn, int stay, int fadeOut) {
-    this.playerSupplier.get().forEach(player -> ProxyServer.getInstance().createTitle()
+    this.forEach(player -> ProxyServer.getInstance().createTitle()
       .title(fromLegacyText(legacySection().serialize(title)))
       .subTitle(fromLegacyText(legacySection().serialize(subtitle)))
       .fadeIn(fadeIn)
@@ -122,12 +115,12 @@ final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
 
   @Override
   public void sendMessage(@NonNull Component message) {
-    this.playerSupplier.get().forEach(player -> player.sendMessage(fromLegacyText(legacySection().serialize(message))));
+    this.forEach(player -> player.sendMessage(fromLegacyText(legacySection().serialize(message))));
   }
 
   @Override
   public void sendChatMessage(@NonNull Component message, @Nullable String permission) {
-    this.playerSupplier.get().forEach(player -> {
+    this.forEach(player -> {
       if (permission == null || player.hasPermission(permission)) {
         player.sendMessage(fromLegacyText(legacySection().serialize(message)));
       }
@@ -136,11 +129,11 @@ final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
 
   @Override
   public void sendPluginMessage(@NonNull String tag, byte[] data) {
-    this.playerSupplier.get().forEach(player -> player.sendData(tag, data));
+    this.forEach(player -> player.sendData(tag, data));
   }
 
   @Override
-  public void spoofChatInput(@NonNull String command) {
-    this.playerSupplier.get().forEach(player -> player.chat(command));
+  public void spoofCommandExecution(@NonNull String command) {
+    this.forEach(player -> player.chat(command));
   }
 }

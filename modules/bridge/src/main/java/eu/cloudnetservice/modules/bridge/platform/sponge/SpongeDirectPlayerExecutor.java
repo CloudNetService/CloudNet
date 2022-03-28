@@ -25,24 +25,19 @@ import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.api.ResourceKey;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.exception.CommandException;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import org.spongepowered.api.network.channel.raw.RawDataChannel;
 
-final class SpongeDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
-
-  private final UUID targetUniqueId;
-  private final Supplier<Collection<? extends ServerPlayer>> playerSupplier;
+final class SpongeDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<ServerPlayer> {
 
   public SpongeDirectPlayerExecutor(
     @NonNull UUID targetUniqueId,
     @NonNull Supplier<Collection<? extends ServerPlayer>> playerSupplier
   ) {
-    this.targetUniqueId = targetUniqueId;
-    this.playerSupplier = playerSupplier;
-  }
-
-  @Override
-  public @NonNull UUID uniqueId() {
-    return this.targetUniqueId;
+    super(targetUniqueId, playerSupplier);
   }
 
   @Override
@@ -72,22 +67,22 @@ final class SpongeDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
 
   @Override
   public void kick(@NonNull Component message) {
-    // no-op
+    this.forEach(player -> player.kick(message));
   }
 
   @Override
   public void sendTitle(@NonNull Title title) {
-    this.playerSupplier.get().forEach(player -> player.showTitle(title));
+    this.forEach(player -> player.showTitle(title));
   }
 
   @Override
   public void sendMessage(@NonNull Component message) {
-    this.playerSupplier.get().forEach(player -> player.sendMessage(message));
+    this.forEach(player -> player.sendMessage(message));
   }
 
   @Override
   public void sendChatMessage(@NonNull Component message, @Nullable String permission) {
-    this.playerSupplier.get().forEach(player -> {
+    this.forEach(player -> {
       if (permission == null || player.hasPermission(permission)) {
         player.sendMessage(message);
       }
@@ -96,11 +91,18 @@ final class SpongeDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
 
   @Override
   public void sendPluginMessage(@NonNull String tag, byte[] data) {
-    // no-op
+    var playChannel = Sponge.channelManager().ofType(ResourceKey.resolve(tag), RawDataChannel.class).play();
+    this.forEach(player -> playChannel.sendTo(player, buffer -> buffer.writeByteArray(data)));
   }
 
   @Override
-  public void spoofChatInput(@NonNull String command) {
-    // no-op
+  public void spoofCommandExecution(@NonNull String command) {
+    this.forEach(player -> {
+      try {
+        Sponge.server().commandManager().process(player, command);
+      } catch (CommandException ignored) {
+        // ignore
+      }
+    });
   }
 }

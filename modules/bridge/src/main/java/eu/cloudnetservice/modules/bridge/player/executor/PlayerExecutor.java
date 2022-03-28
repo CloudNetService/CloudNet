@@ -108,6 +108,5 @@ public interface PlayerExecutor {
    *
    * @param command the command to dispatch
    */
-  void spoofChatInput(@NonNull String command);
-
+  void spoofCommandExecution(@NonNull String command);
 }

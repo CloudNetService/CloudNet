@@ -17,11 +17,31 @@
 package eu.cloudnetservice.modules.bridge.platform;
 
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
+import java.util.Collection;
+import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 
-public abstract class PlatformPlayerExecutorAdapter implements PlayerExecutor {
+public abstract class PlatformPlayerExecutorAdapter<T> implements PlayerExecutor {
+
+  protected final UUID uniqueId;
+  protected final Supplier<? extends Collection<? extends T>> playerSupplier;
+
+  public PlatformPlayerExecutorAdapter(
+    @NonNull UUID uniqueId,
+    @NonNull Supplier<? extends Collection<? extends T>> supplier
+  ) {
+    this.uniqueId = uniqueId;
+    this.playerSupplier = supplier;
+  }
+
+  @Override
+  public @NonNull UUID uniqueId() {
+    return this.uniqueId;
+  }
 
   @Override
   public void sendTitle(@NonNull Title title) {
@@ -41,5 +61,13 @@ public abstract class PlatformPlayerExecutorAdapter implements PlayerExecutor {
 
   protected void sendTitle(@NonNull Component title, @NonNull Component subtitle, int fadeIn, int stay, int fadeOut) {
     // no-op
+  }
+
+  protected void forEach(@NonNull Consumer<T> consumer) {
+    this.playerSupplier.get().forEach(player -> {
+      if (player != null) {
+        consumer.accept(player);
+      }
+    });
   }
 }

@@ -33,22 +33,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.Nullable;
 
-public final class FabricDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
-
-  private final UUID uniqueId;
-  private final Supplier<? extends Collection<ServerPlayer>> players;
+public final class FabricDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<ServerPlayer> {
 
   public FabricDirectPlayerExecutor(
     @NonNull UUID uniqueId,
     @NonNull Supplier<? extends Collection<ServerPlayer>> players
   ) {
-    this.uniqueId = uniqueId;
-    this.players = players;
-  }
-
-  @Override
-  public @NonNull UUID uniqueId() {
-    return this.uniqueId;
+    super(uniqueId, players);
   }
 
   @Override
@@ -79,13 +70,13 @@ public final class FabricDirectPlayerExecutor extends PlatformPlayerExecutorAdap
   @Override
   public void kick(@NonNull Component message) {
     var reason = new TextComponent(LegacyComponentSerializer.legacySection().serialize(message));
-    this.players.get().forEach(player -> player.connection.disconnect(reason));
+    this.forEach(player -> player.connection.disconnect(reason));
   }
 
   @Override
   public void sendMessage(@NonNull Component message) {
     var text = new TextComponent(LegacyComponentSerializer.legacySection().serialize(message));
-    this.players.get().forEach(player -> player.sendMessage(text, Util.NIL_UUID));
+    this.forEach(player -> player.sendMessage(text, Util.NIL_UUID));
   }
 
   @Override
@@ -97,13 +88,13 @@ public final class FabricDirectPlayerExecutor extends PlatformPlayerExecutorAdap
   @Override
   public void sendPluginMessage(@NonNull String tag, byte[] data) {
     var identifier = new ResourceLocation(tag);
-    this.players.get().forEach(player -> player.connection.send(new ClientboundCustomPayloadPacket(
+    this.forEach(player -> player.connection.send(new ClientboundCustomPayloadPacket(
       identifier,
       new FriendlyByteBuf(Unpooled.wrappedBuffer(data)))));
   }
 
   @Override
-  public void spoofChatInput(@NonNull String command) {
-    this.players.get().forEach(player -> player.connection.handleCommand(command));
+  public void spoofCommandExecution(@NonNull String command) {
+    this.forEach(player -> player.connection.handleCommand(command));
   }
 }
