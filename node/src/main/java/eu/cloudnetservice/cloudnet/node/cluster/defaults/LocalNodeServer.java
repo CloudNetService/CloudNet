@@ -25,7 +25,7 @@ import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNodeInfo
 import eu.cloudnetservice.cloudnet.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.cloudnet.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.cloudnet.driver.service.ProcessSnapshot;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServer;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServerState;
@@ -41,7 +41,7 @@ import org.jetbrains.annotations.UnknownNullability;
 
 public class LocalNodeServer implements NodeServer {
 
-  private final CloudNet node;
+  private final Node node;
   private final NodeServerProvider provider;
 
   private final long creationMillis = System.currentTimeMillis();
@@ -55,7 +55,7 @@ public class LocalNodeServer implements NodeServer {
   private volatile NetworkClusterNodeInfoSnapshot currentSnapshot;
   private volatile NetworkClusterNodeInfoSnapshot lastSnapshot;
 
-  public LocalNodeServer(@NonNull CloudNet node, @NonNull NodeServerProvider provider) {
+  public LocalNodeServer(@NonNull Node node, @NonNull NodeServerProvider provider) {
     this.node = node;
     this.provider = provider;
   }

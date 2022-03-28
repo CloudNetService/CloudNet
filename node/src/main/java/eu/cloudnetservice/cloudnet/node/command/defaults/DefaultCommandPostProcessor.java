@@ -18,7 +18,7 @@ package eu.cloudnetservice.cloudnet.node.command.defaults;
 
 import cloud.commandframework.execution.postprocessor.CommandPostprocessingContext;
 import cloud.commandframework.execution.postprocessor.CommandPostprocessor;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
 import eu.cloudnetservice.cloudnet.node.event.command.CommandPostProcessEvent;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -36,7 +36,7 @@ final class DefaultCommandPostProcessor implements CommandPostprocessor<CommandS
     var commandContext = context.getCommandContext();
     var source = commandContext.getSender();
 
-    CloudNet.instance().eventManager()
+    Node.instance().eventManager()
       .callEvent(new CommandPostProcessEvent(commandContext.getRawInputJoined(), source));
   }
 }

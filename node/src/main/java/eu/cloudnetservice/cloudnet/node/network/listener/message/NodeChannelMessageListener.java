@@ -26,7 +26,7 @@ import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.cloudnet.node.event.cluster.NetworkClusterNodeInfoUpdateEvent;
@@ -99,14 +99,14 @@ public final class NodeChannelMessageListener {
         }
 
         // handles the shutdown of a cluster node
-        case "cluster_node_shutdown" -> CloudNet.instance().stop();
+        case "cluster_node_shutdown" -> Node.instance().stop();
 
         // request of the full cluster data set
         case "request_initial_cluster_data" -> {
           var server = this.nodeServerProvider.node(event.networkChannel());
           if (server != null) {
             // do not force the sync - the user can decide which changes should be used
-            server.syncClusterData(CloudNet.instance().config().forceInitialClusterDataSync());
+            server.syncClusterData(Node.instance().config().forceInitialClusterDataSync());
           }
         }
 

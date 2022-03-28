@@ -20,7 +20,7 @@ import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
 import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.cloudnet.node.module.listener.PluginIncludeListener;
 import eu.cloudnetservice.modules.cloudperms.node.config.CloudPermissionConfig;
@@ -34,7 +34,7 @@ public final class CloudNetCloudPermissionsModule extends DriverModule {
 
   @ModuleTask(order = 127, event = ModuleLifeCycle.LOADED)
   public void init() {
-    CloudNet.instance().dataSyncRegistry().registerHandler(DataSyncHandler.<CloudPermissionConfig>builder()
+    Node.instance().dataSyncRegistry().registerHandler(DataSyncHandler.<CloudPermissionConfig>builder()
       .key("cloudperms-config")
       .convertObject(CloudPermissionConfig.class)
       .currentGetter($ -> this.permissionsConfig)

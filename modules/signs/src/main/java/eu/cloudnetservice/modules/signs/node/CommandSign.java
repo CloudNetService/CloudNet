@@ -26,7 +26,7 @@ import cloud.commandframework.context.CommandContext;
 import eu.cloudnetservice.cloudnet.common.column.ColumnFormatter;
 import eu.cloudnetservice.cloudnet.common.column.RowBasedFormatter;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.cloudnet.node.command.annotation.Description;
 import eu.cloudnetservice.cloudnet.node.command.exception.ArgumentNotAvailableException;
@@ -59,7 +59,7 @@ public class CommandSign {
   @Parser(name = "newConfiguration", suggestions = "newConfiguration")
   public String newConfigurationParser(@NonNull CommandContext<CommandSource> $, @NonNull Queue<String> input) {
     var name = input.remove();
-    var configuration = CloudNet.instance().groupConfigurationProvider()
+    var configuration = Node.instance().groupConfigurationProvider()
       .groupConfiguration(name);
     if (configuration == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-general-group-does-not-exist"));

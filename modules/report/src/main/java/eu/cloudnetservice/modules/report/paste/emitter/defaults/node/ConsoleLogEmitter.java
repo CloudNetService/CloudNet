@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.report.paste.emitter.defaults.node;
 
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.modules.report.paste.emitter.ReportDataEmitter;
 import lombok.NonNull;
 
@@ -25,7 +25,7 @@ public class ConsoleLogEmitter implements ReportDataEmitter<NetworkClusterNodeIn
 
   @Override
   public void emitData(@NonNull StringBuilder builder, @NonNull NetworkClusterNodeInfoSnapshot context) {
-    for (var logLine : CloudNet.instance().logHandler().formattedCachedLogLines()) {
+    for (var logLine : Node.instance().logHandler().formattedCachedLogLines()) {
       builder.append(logLine).append("\n");
     }
     builder.append("\n");

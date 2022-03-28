@@ -30,8 +30,8 @@ import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTask;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
-import eu.cloudnetservice.cloudnet.node.CloudNetTick;
+import eu.cloudnetservice.cloudnet.node.Node;
+import eu.cloudnetservice.cloudnet.node.TickLoop;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.cloudnet.node.event.service.CloudServicePreForceStopEvent;
@@ -77,7 +77,7 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
   protected final Map<String, CloudServiceFactory> cloudServiceFactories = new ConcurrentHashMap<>();
   protected final Map<ServiceEnvironmentType, ServiceConfigurationPreparer> preparers = new ConcurrentHashMap<>();
 
-  public DefaultCloudServiceManager(@NonNull CloudNet nodeInstance) {
+  public DefaultCloudServiceManager(@NonNull Node nodeInstance) {
     this.clusterNodeServerProvider = nodeInstance.nodeServerProvider();
     // rpc init
     this.sender = nodeInstance.rpcFactory().providerForClass(null, CloudServiceProvider.class);
@@ -131,7 +131,7 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
         }
       }
       return null;
-    }, CloudNetTick.TPS);
+    }, TickLoop.TPS);
   }
 
   @Override
@@ -417,7 +417,7 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
       return prepared.first().provider();
     } else {
       // create a new service
-      var service = CloudNet.instance()
+      var service = Node.instance()
         .cloudServiceFactory()
         .createCloudService(ServiceConfiguration.builder(task).build());
       return service == null ? EmptySpecificCloudServiceProvider.INSTANCE : service.provider();

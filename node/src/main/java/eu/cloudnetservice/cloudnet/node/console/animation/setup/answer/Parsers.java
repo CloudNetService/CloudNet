@@ -23,7 +23,7 @@ import eu.cloudnetservice.cloudnet.common.JavaVersion;
 import eu.cloudnetservice.cloudnet.common.collection.Pair;
 import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.QuestionAnswerType.Parser;
 import eu.cloudnetservice.cloudnet.node.util.JavaVersionResolver;
 import eu.cloudnetservice.cloudnet.node.version.ServiceVersion;
@@ -93,7 +93,7 @@ public final class Parsers {
         throw ParserException.INSTANCE;
       }
       // get the type and version
-      var type = CloudNet.instance().serviceVersionProvider()
+      var type = Node.instance().serviceVersionProvider()
         .getServiceVersionType(result[0])
         .orElseThrow(() -> ParserException.INSTANCE);
       var version = type.version(result[1]).orElseThrow(() -> ParserException.INSTANCE);
@@ -103,14 +103,14 @@ public final class Parsers {
   }
 
   public static @NonNull QuestionAnswerType.Parser<ServiceEnvironmentType> serviceEnvironmentType() {
-    return input -> CloudNet.instance().serviceVersionProvider()
+    return input -> Node.instance().serviceVersionProvider()
       .getEnvironmentType(input)
       .orElseThrow(() -> ParserException.INSTANCE);
   }
 
   public static @NonNull QuestionAnswerType.Parser<String> nonExistingTask() {
     return input -> {
-      var task = CloudNet.instance().serviceTaskProvider().serviceTask(input);
+      var task = Node.instance().serviceTaskProvider().serviceTask(input);
       if (task != null) {
         throw ParserException.INSTANCE;
       }

@@ -22,15 +22,15 @@ import eu.cloudnetservice.cloudnet.driver.module.ModuleProviderHandler;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleWrapper;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import java.util.Collection;
 import lombok.NonNull;
 
 public final class NodeModuleProviderHandler extends DefaultModuleProviderHandler implements ModuleProviderHandler {
 
-  private final CloudNet nodeInstance;
+  private final Node nodeInstance;
 
-  public NodeModuleProviderHandler(@NonNull CloudNet nodeInstance) {
+  public NodeModuleProviderHandler(@NonNull Node nodeInstance) {
     this.nodeInstance = nodeInstance;
   }
 

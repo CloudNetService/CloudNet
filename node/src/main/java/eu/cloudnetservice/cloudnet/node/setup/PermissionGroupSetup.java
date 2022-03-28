@@ -18,7 +18,7 @@ package eu.cloudnetservice.cloudnet.node.setup;
 
 import eu.cloudnetservice.cloudnet.driver.permission.Permission;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionGroup;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.console.animation.setup.ConsoleSetupAnimation;
 import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.Parsers;
 import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.QuestionAnswerType;
@@ -65,8 +65,8 @@ public class PermissionGroupSetup implements DefaultSetup {
         .sortId(99)
         .build();
 
-      CloudNet.instance().permissionManagement().addPermissionGroup(adminGroup);
-      CloudNet.instance().permissionManagement().addPermissionGroup(defaultGroup);
+      Node.instance().permissionManagement().addPermissionGroup(adminGroup);
+      Node.instance().permissionManagement().addPermissionGroup(defaultGroup);
     }
   }
 }

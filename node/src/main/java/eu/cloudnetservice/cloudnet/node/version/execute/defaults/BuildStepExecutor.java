@@ -19,7 +19,7 @@ package eu.cloudnetservice.cloudnet.node.version.execute.defaults;
 import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.version.execute.InstallStepExecutor;
 import eu.cloudnetservice.cloudnet.node.version.information.VersionInstaller;
 import java.io.BufferedReader;
@@ -63,7 +63,7 @@ public class BuildStepExecutor implements InstallStepExecutor {
     for (var path : paths) {
       List<String> arguments = new ArrayList<>();
 
-      arguments.add(installer.installerExecutable().orElse(CloudNet.instance().config().javaCommand()));
+      arguments.add(installer.installerExecutable().orElse(Node.instance().config().javaCommand()));
       if (jvmOptions != null) {
         arguments.addAll(jvmOptions);
       }

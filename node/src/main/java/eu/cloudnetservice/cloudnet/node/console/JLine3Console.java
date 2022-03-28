@@ -19,7 +19,7 @@ package eu.cloudnetservice.cloudnet.node.console;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.console.animation.AbstractConsoleAnimation;
 import eu.cloudnetservice.cloudnet.node.console.handler.ConsoleInputHandler;
 import eu.cloudnetservice.cloudnet.node.console.handler.ConsoleTabCompleteHandler;
@@ -53,7 +53,7 @@ public final class JLine3Console implements Console {
 
   private static final String USER = System.getProperty("user.name");
   private static final Logger LOGGER = LogManager.logger(JLine3Console.class);
-  private static final String VERSION = CloudNet.class.getPackage().getImplementationVersion();
+  private static final String VERSION = Node.class.getPackage().getImplementationVersion();
   private static final String HISTORY_FILE = System.getProperty("cloudnet.history.file", "local/.consolehistory");
 
   private final Map<UUID, ConsoleInputHandler> consoleInputHandler = new ConcurrentHashMap<>();

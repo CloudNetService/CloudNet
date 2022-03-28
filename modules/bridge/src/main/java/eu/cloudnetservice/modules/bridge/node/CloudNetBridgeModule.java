@@ -29,7 +29,7 @@ import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
 import eu.cloudnetservice.cloudnet.driver.network.http.HttpHandler;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import eu.cloudnetservice.cloudnet.driver.registry.ServiceRegistry;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.config.BridgeConfiguration;
@@ -92,7 +92,7 @@ public final class CloudNetBridgeModule extends DriverModule {
 
   @ModuleTask(event = ModuleLifeCycle.STARTED)
   public void convertOldDatabaseEntries() {
-    var playerDb = CloudNet.instance().databaseProvider().database(BRIDGE_PLAYER_DB_NAME);
+    var playerDb = Node.instance().databaseProvider().database(BRIDGE_PLAYER_DB_NAME);
     // read the first player from the database - if the first player is valid we don't need to take a look at the other
     // players in the database as they were already converted
     var first = playerDb.readChunk(0, 1);
@@ -118,7 +118,7 @@ public final class CloudNetBridgeModule extends DriverModule {
             var environment = serviceId.getString("environment", "");
             serviceId.append("environmentName", environment);
             // try to set the new environment
-            var env = CloudNet.instance().serviceVersionProvider()
+            var env = Node.instance().serviceVersionProvider()
               .getEnvironmentType(environment)
               .orElse(null);
             serviceId.append("environment", env);
@@ -160,12 +160,12 @@ public final class CloudNetBridgeModule extends DriverModule {
       this,
       this.loadConfiguration(),
       this.eventManager(),
-      CloudNet.instance().dataSyncRegistry(),
+      Node.instance().dataSyncRegistry(),
       this.rpcFactory());
     management.registerServices(this.serviceRegistry());
     management.postInit();
     // register the cluster sync handler
-    CloudNet.instance().dataSyncRegistry().registerHandler(DataSyncHandler.<BridgeConfiguration>builder()
+    Node.instance().dataSyncRegistry().registerHandler(DataSyncHandler.<BridgeConfiguration>builder()
       .key("bridge-config")
       .nameExtractor($ -> "Bridge Config")
       .convertObject(BridgeConfiguration.class)
@@ -174,7 +174,7 @@ public final class CloudNetBridgeModule extends DriverModule {
       .currentGetter($ -> management.configuration())
       .build());
     // register the bridge rest handler
-    CloudNet.instance().httpServer()
+    Node.instance().httpServer()
       .registerHandler("/api/v2/player", new V2HttpHandlerBridge("http.v2.bridge"))
       .registerHandler("/api/v2/player/{identifier}", new V2HttpHandlerBridge("http.v2.bridge"))
       .registerHandler("/api/v2/player/{identifier}/exists", HttpHandler.PRIORITY_LOW,
@@ -184,7 +184,7 @@ public final class CloudNetBridgeModule extends DriverModule {
   @ModuleTask(event = ModuleLifeCycle.STARTED)
   public void registerCommand() {
     // register the bridge command
-    CloudNet.instance().commandProvider().register(new CommandBridge(ServiceRegistry.first(BridgeManagement.class)));
+    Node.instance().commandProvider().register(new CommandBridge(ServiceRegistry.first(BridgeManagement.class)));
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)

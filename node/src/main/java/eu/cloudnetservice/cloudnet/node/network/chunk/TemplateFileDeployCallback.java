@@ -20,7 +20,7 @@ import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.driver.network.chunk.ChunkedPacketHandler.Callback;
 import eu.cloudnetservice.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import java.io.IOException;
 import java.io.InputStream;
 import lombok.NonNull;
@@ -43,7 +43,7 @@ final class TemplateFileDeployCallback implements Callback {
     var path = information.transferInformation().readString();
     var append = information.transferInformation().readBoolean();
     // get the storage for the template
-    var storage = CloudNet.instance().templateStorageProvider().templateStorage(storageName);
+    var storage = Node.instance().templateStorageProvider().templateStorage(storageName);
     if (storage != null) {
       // open the stream and write the data to it
       try (var out = append

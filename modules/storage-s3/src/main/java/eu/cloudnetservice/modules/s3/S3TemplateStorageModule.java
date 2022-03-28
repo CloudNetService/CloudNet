@@ -21,7 +21,7 @@ import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
 import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
 import eu.cloudnetservice.cloudnet.driver.template.TemplateStorage;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.modules.s3.config.S3TemplateStorageConfig;
 import lombok.NonNull;
@@ -38,7 +38,7 @@ public final class S3TemplateStorageModule extends DriverModule {
     this.storage = new S3TemplateStorage(this);
     this.serviceRegistry().registerProvider(TemplateStorage.class, config.name(), this.storage);
     // register the cluster sync handler
-    CloudNet.instance().dataSyncRegistry().registerHandler(DataSyncHandler.<S3TemplateStorageConfig>builder()
+    Node.instance().dataSyncRegistry().registerHandler(DataSyncHandler.<S3TemplateStorageConfig>builder()
       .key("s3-storage-config")
       .nameExtractor($ -> "S3 Template Storage Config")
       .convertObject(S3TemplateStorageConfig.class)

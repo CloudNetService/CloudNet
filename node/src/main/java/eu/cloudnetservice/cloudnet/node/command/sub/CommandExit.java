@@ -19,7 +19,7 @@ package eu.cloudnetservice.cloudnet.node.command.sub;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.Confirmation;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.cloudnet.node.command.annotation.Description;
 
@@ -31,6 +31,6 @@ public final class CommandExit {
   @Confirmation
   @CommandMethod("exit|shutdown|stop")
   public void exit() {
-    CloudNet.instance().stop();
+    Node.instance().stop();
   }
 }

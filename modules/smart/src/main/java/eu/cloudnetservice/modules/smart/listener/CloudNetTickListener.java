@@ -23,8 +23,8 @@ import eu.cloudnetservice.cloudnet.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTask;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
-import eu.cloudnetservice.cloudnet.node.CloudNetTick;
+import eu.cloudnetservice.cloudnet.node.Node;
+import eu.cloudnetservice.cloudnet.node.TickLoop;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServer;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.cloudnet.node.event.instance.CloudNetTickServiceStartEvent;
@@ -58,14 +58,14 @@ public final class CloudNetTickListener {
 
   @EventListener
   public void handleTick(@NonNull CloudNetTickServiceStartEvent event) {
-    if (CloudNet.instance().nodeServerProvider().localNode().head()
-      && event.ticker().currentTick() % CloudNetTick.TPS == 0) {
+    if (Node.instance().nodeServerProvider().localNode().head()
+      && event.ticker().currentTick() % TickLoop.TPS == 0) {
       this.handleSmartEntries();
     }
   }
 
   private void handleSmartEntries() {
-    CloudNet.instance().serviceTaskProvider().serviceTasks().forEach(task -> {
+    Node.instance().serviceTaskProvider().serviceTasks().forEach(task -> {
       var config = this.module.smartConfig(task);
       if (config != null && config.enabled()) {
         // get all services of the task
@@ -216,14 +216,14 @@ public final class CloudNetTickListener {
   }
 
   private @NonNull CloudServiceManager serviceManager() {
-    return CloudNet.instance().cloudServiceProvider();
+    return Node.instance().cloudServiceProvider();
   }
 
   private @NonNull NodeServerProvider nodeServerProvider() {
-    return CloudNet.instance().nodeServerProvider();
+    return Node.instance().nodeServerProvider();
   }
 
   private @NonNull CloudServiceFactory serviceFactory() {
-    return CloudNet.instance().cloudServiceFactory();
+    return Node.instance().cloudServiceFactory();
   }
 }

@@ -29,7 +29,7 @@ import eu.cloudnetservice.cloudnet.common.Nameable;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.cloudnet.node.command.annotation.Description;
 import eu.cloudnetservice.cloudnet.node.command.exception.ArgumentNotAvailableException;
@@ -83,7 +83,7 @@ public final class CommandReport {
   @Parser(suggestions = "cloudService")
   public CloudService singleServiceParser(CommandContext<CommandSource> $, Queue<String> input) {
     var name = input.remove();
-    var cloudService = CloudNet.instance().cloudServiceProvider().localCloudService(name);
+    var cloudService = Node.instance().cloudServiceProvider().localCloudService(name);
     if (cloudService == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-service-service-not-found"));
     }
@@ -92,7 +92,7 @@ public final class CommandReport {
 
   @Suggestions("cloudService")
   public List<String> suggestService(CommandContext<CommandSource> $, String input) {
-    return CloudNet.instance().cloudServiceProvider().localCloudServices()
+    return Node.instance().cloudServiceProvider().localCloudServices()
       .stream()
       .map(service -> service.serviceId().name())
       .toList();
@@ -101,7 +101,7 @@ public final class CommandReport {
   @CommandMethod("report|paste node [pasteService]")
   public void pasteNode(CommandSource source, @Argument("pasteService") PasteService pasteService) {
     var pasteCreator = new PasteCreator(this.fallbackPasteService(pasteService), this.reportModule.emitterRegistry());
-    var selfNode = CloudNet.instance().nodeServerProvider().localNode().nodeInfoSnapshot();
+    var selfNode = Node.instance().nodeServerProvider().localNode().nodeInfoSnapshot();
 
     var response = pasteCreator.createNodePaste(selfNode);
     if (response == null) {

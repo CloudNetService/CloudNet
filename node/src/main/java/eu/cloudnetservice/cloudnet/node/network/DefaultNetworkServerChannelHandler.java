@@ -28,7 +28,7 @@ import eu.cloudnetservice.cloudnet.driver.network.NetworkChannelHandler;
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceLifeCycle;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServerState;
 import eu.cloudnetservice.cloudnet.node.network.listener.PacketClientAuthorizationListener;
 import eu.cloudnetservice.cloudnet.node.service.CloudService;
@@ -75,7 +75,7 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
       channel.serverAddress(),
       channel.clientAddress()));
 
-    var cloudService = CloudNet.instance()
+    var cloudService = Node.instance()
       .cloudServiceProvider()
       .localCloudServices()
       .stream()
@@ -87,7 +87,7 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
       return;
     }
 
-    var nodeServer = CloudNet.instance().nodeServerProvider().node(channel);
+    var nodeServer = Node.instance().nodeServerProvider().node(channel);
     if (nodeServer != null && nodeServer.state() != NodeServerState.DISCONNECTED) {
       nodeServer.close();
     }
@@ -107,7 +107,7 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
   }
 
   private boolean shouldDenyConnection(@NonNull NetworkChannel channel) {
-    return CloudNet.instance().config().ipWhitelist()
+    return Node.instance().config().ipWhitelist()
       .stream()
       .noneMatch(channel.clientAddress().host()::equals);
   }

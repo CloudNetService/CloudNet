@@ -18,7 +18,7 @@ package eu.cloudnetservice.cloudnet.node.service.defaults.factory;
 
 import eu.cloudnetservice.cloudnet.driver.event.EventManager;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceConfiguration;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.service.CloudService;
 import eu.cloudnetservice.cloudnet.node.service.CloudServiceManager;
 import eu.cloudnetservice.cloudnet.node.service.defaults.JVMService;
@@ -26,10 +26,10 @@ import lombok.NonNull;
 
 public class JVMServiceFactory extends AbstractServiceFactory {
 
-  private final CloudNet nodeInstance;
+  private final Node nodeInstance;
   private final EventManager eventManager;
 
-  public JVMServiceFactory(@NonNull CloudNet nodeInstance, @NonNull EventManager eventManager) {
+  public JVMServiceFactory(@NonNull Node nodeInstance, @NonNull EventManager eventManager) {
     this.nodeInstance = nodeInstance;
     this.eventManager = eventManager;
   }

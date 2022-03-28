@@ -44,7 +44,7 @@ import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceRemoteInclusion;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTask;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.command.annotation.Description;
 import eu.cloudnetservice.cloudnet.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
@@ -151,7 +151,7 @@ public final class CommandTasks {
   @Parser(suggestions = "serviceTask")
   public @NonNull ServiceTask defaultTaskParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var name = input.remove();
-    var task = CloudNet.instance().serviceTaskProvider().serviceTask(name);
+    var task = Node.instance().serviceTaskProvider().serviceTask(name);
     if (task == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-tasks-task-not-found"));
     }
@@ -196,7 +196,7 @@ public final class CommandTasks {
   @Parser(name = "nodeId", suggestions = "clusterNode")
   public @NonNull String defaultClusterNodeParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var nodeId = input.remove();
-    for (var node : CloudNet.instance().clusterNodeProvider().nodes()) {
+    for (var node : Node.instance().clusterNodeProvider().nodes()) {
       if (node.uniqueId().equals(nodeId)) {
         return nodeId;
       }
@@ -206,7 +206,7 @@ public final class CommandTasks {
 
   @Suggestions("clusterNode")
   public @NonNull List<String> suggestNode(@NonNull CommandContext<CommandSource> $, @NonNull String input) {
-    return CloudNet.instance().clusterNodeProvider().nodes()
+    return Node.instance().clusterNodeProvider().nodes()
       .stream()
       .map(NetworkClusterNode::uniqueId)
       .toList();
@@ -714,7 +714,7 @@ public final class CommandTasks {
   }
 
   private @NonNull ServiceTaskProvider taskProvider() {
-    return CloudNet.instance().serviceTaskProvider();
+    return Node.instance().serviceTaskProvider();
   }
 
 }

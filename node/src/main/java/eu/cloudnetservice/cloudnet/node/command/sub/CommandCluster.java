@@ -36,7 +36,7 @@ import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
 import eu.cloudnetservice.cloudnet.driver.network.chunk.TransferStatus;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServer;
 import eu.cloudnetservice.cloudnet.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.cloudnet.node.command.annotation.Description;
@@ -87,7 +87,7 @@ public final class CommandCluster {
     @NonNull CommandContext<?> $,
     @NonNull Queue<String> input
   ) {
-    var nodeServer = CloudNet.instance().nodeServerProvider().node(input.remove());
+    var nodeServer = Node.instance().nodeServerProvider().node(input.remove());
     if (nodeServer == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-cluster-node-not-found"));
     }
@@ -97,7 +97,7 @@ public final class CommandCluster {
 
   @Suggestions("clusterNodeServer")
   public @NonNull List<String> suggestClusterNodeServer(@NonNull CommandContext<?> $, @NonNull String input) {
-    return CloudNet.instance().nodeServerProvider().nodeServers()
+    return Node.instance().nodeServerProvider().nodeServers()
       .stream()
       .map(clusterNodeServer -> clusterNodeServer.info().uniqueId())
       .toList();
@@ -109,7 +109,7 @@ public final class CommandCluster {
     @NonNull Queue<String> input
   ) {
     var nodeId = input.remove();
-    var clusterNode = CloudNet.instance().clusterNodeProvider().node(nodeId);
+    var clusterNode = Node.instance().clusterNodeProvider().node(nodeId);
     if (clusterNode == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-cluster-node-not-found"));
     }
@@ -119,7 +119,7 @@ public final class CommandCluster {
 
   @Suggestions("networkClusterNode")
   public @NonNull List<String> suggestNetworkClusterNode(@NonNull CommandContext<?> $, @NonNull String input) {
-    return CloudNet.instance().config().clusterConfig().nodes()
+    return Node.instance().config().clusterConfig().nodes()
       .stream()
       .map(NetworkClusterNode::uniqueId)
       .toList();
@@ -148,7 +148,7 @@ public final class CommandCluster {
   @Parser(name = "noNodeId", suggestions = "clusterNode")
   public @NonNull String noClusterNodeParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var nodeId = input.remove();
-    for (var node : CloudNet.instance().config().clusterConfig().nodes()) {
+    for (var node : Node.instance().config().clusterConfig().nodes()) {
       if (node.uniqueId().equals(nodeId)) {
         throw new ArgumentNotAvailableException(I18n.trans("command-tasks-node-not-found"));
       }
@@ -160,7 +160,7 @@ public final class CommandCluster {
   @Parser(name = "staticService", suggestions = "staticService")
   public @NonNull String staticServiceParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var name = input.remove();
-    var manager = CloudNet.instance().cloudServiceProvider();
+    var manager = Node.instance().cloudServiceProvider();
     if (manager.serviceByName(name) != null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-cluster-push-static-service-running"));
     }
@@ -177,10 +177,10 @@ public final class CommandCluster {
 
   @CommandMethod("cluster|clu shutdown")
   public void shutdownCluster(@NonNull CommandSource $) {
-    for (var nodeServer : CloudNet.instance().nodeServerProvider().nodeServers()) {
+    for (var nodeServer : Node.instance().nodeServerProvider().nodeServers()) {
       nodeServer.shutdown();
     }
-    CloudNet.instance().stop();
+    Node.instance().stop();
   }
 
   @CommandMethod("cluster|clu add <nodeId> <host>")
@@ -189,7 +189,7 @@ public final class CommandCluster {
     @NonNull @Argument(value = "nodeId", parserName = "noNodeId") String nodeId,
     @NonNull @Argument("host") HostAndPort hostAndPort
   ) {
-    CloudNet.instance().clusterNodeProvider().addNode(new NetworkClusterNode(nodeId, Lists.newArrayList(hostAndPort)));
+    Node.instance().clusterNodeProvider().addNode(new NetworkClusterNode(nodeId, Lists.newArrayList(hostAndPort)));
     source.sendMessage(I18n.trans("command-cluster-add-node-success", nodeId));
   }
 
@@ -198,13 +198,13 @@ public final class CommandCluster {
     @NonNull CommandSource source,
     @NonNull @Argument("nodeId") NetworkClusterNode node
   ) {
-    CloudNet.instance().clusterNodeProvider().removeNode(node.uniqueId());
+    Node.instance().clusterNodeProvider().removeNode(node.uniqueId());
     source.sendMessage(I18n.trans("command-cluster-remove-node-success", node.uniqueId()));
   }
 
   @CommandMethod("cluster|clu nodes")
   public void listNodes(@NonNull CommandSource source) {
-    source.sendMessage(FORMATTER.format(CloudNet.instance().nodeServerProvider().nodeServers()));
+    source.sendMessage(FORMATTER.format(Node.instance().nodeServerProvider().nodeServers()));
   }
 
   @CommandMethod("cluster|clu node <nodeId>")
@@ -226,14 +226,14 @@ public final class CommandCluster {
   public void sync(@NonNull CommandSource source) {
     source.sendMessage(I18n.trans("command-cluster-start-sync"));
     // perform a cluster sync that takes care of tasks, groups and more
-    CloudNet.instance().nodeServerProvider().syncDataIntoCluster();
+    Node.instance().nodeServerProvider().syncDataIntoCluster();
   }
 
   @CommandMethod("cluster|clu push templates [template]")
   public void pushTemplates(@NonNull CommandSource source, @Argument("template") ServiceTemplate template) {
     // check if we need to push all templates or just a specific one
     if (template == null) {
-      var localStorage = CloudNet.instance().templateStorageProvider().localTemplateStorage();
+      var localStorage = Node.instance().templateStorageProvider().localTemplateStorage();
       // resolve and push all local templates
       for (var localTemplate : localStorage.templates()) {
         this.pushTemplate(source, localTemplate);
@@ -250,7 +250,7 @@ public final class CommandCluster {
     @Argument(value = "service", parserName = "staticService") String service,
     @Flag("overwrite") boolean overwrite
   ) {
-    var staticServicePath = CloudNet.instance().cloudServiceProvider().persistentServicesDirectory();
+    var staticServicePath = Node.instance().cloudServiceProvider().persistentServicesDirectory();
     // check if we need to push all static services or just a specific one
     if (service == null) {
       // resolve all existing static services, that are not running and push them
@@ -274,7 +274,7 @@ public final class CommandCluster {
     // notify the source about the deployment
     source.sendMessage(I18n.trans("command-cluster-push-static-service-starting"));
     // deploy the static service into the cluster
-    CloudNet.instance().nodeServerProvider().deployStaticServiceToCluster(serviceName, stream, overwrite)
+    Node.instance().nodeServerProvider().deployStaticServiceToCluster(serviceName, stream, overwrite)
       .thenAccept(transferStatus -> {
         if (transferStatus == TransferStatus.FAILURE) {
           // the transfer failed
@@ -296,7 +296,7 @@ public final class CommandCluster {
       // check if the template really exists in the given storage
       if (inputStream != null) {
         // deploy the template into the cluster
-        CloudNet.instance().nodeServerProvider().deployTemplateToCluster(template, inputStream, true)
+        Node.instance().nodeServerProvider().deployTemplateToCluster(template, inputStream, true)
           .thenAccept(transferStatus -> {
             if (transferStatus == TransferStatus.FAILURE) {
               // the transfer failed
@@ -315,7 +315,7 @@ public final class CommandCluster {
   }
 
   private @NonNull List<String> resolveAllStaticServices() {
-    var manager = CloudNet.instance().cloudServiceProvider();
+    var manager = Node.instance().cloudServiceProvider();
     try {
       // walk through the static service directory
       return Files.walk(manager.persistentServicesDirectory(), 1)

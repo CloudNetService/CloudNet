@@ -21,7 +21,7 @@ import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.Flag;
 import eu.cloudnetservice.cloudnet.common.unsafe.CPUUsageResolver;
 import eu.cloudnetservice.cloudnet.driver.service.ProcessSnapshot;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.cloudnet.node.command.annotation.Description;
 import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
@@ -45,7 +45,7 @@ public final class CommandMe {
 
   @CommandMethod("me|info")
   public void me(@NonNull CommandSource source, @Flag("showClusterId") boolean showFullClusterId) {
-    var cloudNet = CloudNet.instance();
+    var cloudNet = Node.instance();
     var memoryMXBean = ManagementFactory.getMemoryMXBean();
     var nodeInfoSnapshot = cloudNet.nodeServerProvider().localNode().nodeInfoSnapshot();
 
@@ -57,7 +57,7 @@ public final class CommandMe {
 
     source.sendMessage(List.of(
       " ",
-      CloudNet.instance().version() + " created by Dytanic, maintained by the CloudNet Community",
+      Node.instance().version() + " created by Dytanic, maintained by the CloudNet Community",
       "Discord: <https://discord.cloudnetservice.eu/>",
       " ",
       "ClusterId: " + clusterId,

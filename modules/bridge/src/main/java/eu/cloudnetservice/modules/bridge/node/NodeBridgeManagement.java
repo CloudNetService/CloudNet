@@ -22,7 +22,7 @@ import eu.cloudnetservice.cloudnet.driver.event.EventManager;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.cloudnet.driver.registry.ServiceRegistry;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.cloudnet.node.module.listener.PluginIncludeListener;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
@@ -98,11 +98,11 @@ public class NodeBridgeManagement implements BridgeManagement {
 
   @Override
   public void postInit() {
-    for (var task : CloudNet.instance().serviceTaskProvider().serviceTasks()) {
+    for (var task : Node.instance().serviceTaskProvider().serviceTasks()) {
       // check if the required permission is set
       if (!task.properties().contains("requiredPermission")) {
         task.properties().appendNull("requiredPermission");
-        CloudNet.instance().serviceTaskProvider().addServiceTask(task);
+        Node.instance().serviceTaskProvider().addServiceTask(task);
       }
     }
   }

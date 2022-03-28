@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.node.service.defaults.config;
 
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.service.CloudService;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,7 +26,7 @@ import lombok.NonNull;
 public class NukkitConfigurationPreparer extends AbstractServiceConfigurationPreparer {
 
   @Override
-  public void configure(@NonNull CloudNet nodeInstance, @NonNull CloudService cloudService) {
+  public void configure(@NonNull Node nodeInstance, @NonNull CloudService cloudService) {
     // check if we should run now
     if (this.shouldRewriteIp(nodeInstance, cloudService)) {
       // copy the default file

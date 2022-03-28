@@ -23,7 +23,7 @@ import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
 import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.modules.cloudflare.CloudflareConfigurationEntry.AuthenticationMethod;
 import eu.cloudnetservice.modules.cloudflare.cloudflare.CloudFlareAPI;
 import eu.cloudnetservice.modules.cloudflare.dns.DNSType;
@@ -82,7 +82,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
 
   @ModuleTask(order = 125, event = ModuleLifeCycle.STARTED)
   public void addedDefaultCloudflareDNSServices() {
-    var cloudConfig = CloudNet.instance().config();
+    var cloudConfig = Node.instance().config();
 
     for (var entry : this.cloudFlareConfiguration().entries()) {
       if (entry.enabled()) {

@@ -27,7 +27,7 @@ import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServer;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.cloudnet.node.cluster.task.LocalNodeUpdateTask;
@@ -46,7 +46,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class DefaultNodeServerProvider implements NodeServerProvider {
 
-  private final CloudNet node;
+  private final Node node;
   private final LocalNodeServer localNode;
   private final Collection<NodeServer> nodeServers;
 
@@ -57,7 +57,7 @@ public class DefaultNodeServerProvider implements NodeServerProvider {
 
   private volatile NodeServer headNode;
 
-  public DefaultNodeServerProvider(@NonNull CloudNet node) {
+  public DefaultNodeServerProvider(@NonNull Node node) {
     this.node = node;
     this.nodeServers = new HashSet<>();
     // create and register the local node server

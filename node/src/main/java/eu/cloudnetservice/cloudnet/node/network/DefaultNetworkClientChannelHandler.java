@@ -29,7 +29,7 @@ import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.network.def.PacketClientAuthorization;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServerState;
 import eu.cloudnetservice.cloudnet.node.network.listener.PacketServerAuthorizationResponseListener;
 import java.util.concurrent.atomic.AtomicLong;
@@ -51,8 +51,8 @@ public final class DefaultNetworkClientChannelHandler implements NetworkChannelH
       channel.sendPacket(new PacketClientAuthorization(
         PacketClientAuthorization.PacketAuthorizationType.NODE_TO_NODE,
         DataBuf.empty()
-          .writeUniqueId(CloudNet.instance().config().clusterConfig().clusterId())
-          .writeObject(CloudNet.instance().config().identity())));
+          .writeUniqueId(Node.instance().config().clusterConfig().clusterId())
+          .writeObject(Node.instance().config().identity())));
 
       LOGGER.fine(I18n.trans("client-network-channel-init",
         channel.serverAddress(),
@@ -78,7 +78,7 @@ public final class DefaultNetworkClientChannelHandler implements NetworkChannelH
       channel.serverAddress(),
       channel.clientAddress()));
 
-    var clusterNodeServer = CloudNet.instance().nodeServerProvider().node(channel);
+    var clusterNodeServer = Node.instance().nodeServerProvider().node(channel);
     if (clusterNodeServer != null && clusterNodeServer.state() != NodeServerState.DISCONNECTED) {
       clusterNodeServer.close();
     }

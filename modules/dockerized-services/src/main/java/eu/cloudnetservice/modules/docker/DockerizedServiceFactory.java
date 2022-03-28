@@ -19,7 +19,7 @@ package eu.cloudnetservice.modules.docker;
 import com.github.dockerjava.api.DockerClient;
 import eu.cloudnetservice.cloudnet.driver.event.EventManager;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceConfiguration;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.service.CloudService;
 import eu.cloudnetservice.cloudnet.node.service.CloudServiceManager;
 import eu.cloudnetservice.cloudnet.node.service.defaults.factory.AbstractServiceFactory;
@@ -28,13 +28,13 @@ import lombok.NonNull;
 
 public class DockerizedServiceFactory extends AbstractServiceFactory {
 
-  protected final CloudNet nodeInstance;
+  protected final Node nodeInstance;
   protected final EventManager eventManager;
   protected final DockerClient dockerClient;
   protected final DockerConfiguration configuration;
 
   public DockerizedServiceFactory(
-    @NonNull CloudNet nodeInstance,
+    @NonNull Node nodeInstance,
     @NonNull EventManager eventManager,
     @NonNull DockerClient dockerClient,
     @NonNull DockerConfiguration configuration

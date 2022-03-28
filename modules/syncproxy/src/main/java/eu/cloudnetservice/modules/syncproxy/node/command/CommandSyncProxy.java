@@ -25,7 +25,7 @@ import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import eu.cloudnetservice.cloudnet.common.Nameable;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.cloudnet.node.command.annotation.Description;
 import eu.cloudnetservice.cloudnet.node.command.exception.ArgumentNotAvailableException;
@@ -73,7 +73,7 @@ public final class CommandSyncProxy {
   @Parser(name = "newConfiguration", suggestions = "newConfiguration")
   public String newConfigurationParser(CommandContext<CommandSource> $, Queue<String> input) {
     var name = input.remove();
-    var configuration = CloudNet.instance().groupConfigurationProvider()
+    var configuration = Node.instance().groupConfigurationProvider()
       .groupConfiguration(name);
     if (configuration == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-general-group-does-not-exist"));
@@ -95,7 +95,7 @@ public final class CommandSyncProxy {
 
   @Suggestions("newConfiguration")
   public List<String> suggestNewLoginConfigurations(CommandContext<CommandSource> $, String input) {
-    return CloudNet.instance().groupConfigurationProvider().groupConfigurations()
+    return Node.instance().groupConfigurationProvider().groupConfigurations()
       .stream()
       .map(Nameable::name)
       .toList();

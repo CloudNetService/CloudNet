@@ -22,7 +22,7 @@ import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
 import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.modules.docker.config.DockerConfiguration;
 import eu.cloudnetservice.modules.docker.config.DockerImage;
 import java.time.Duration;
@@ -69,10 +69,10 @@ public class DockerizedServicesModule extends DriverModule {
       .build();
     // create the client and instantiate the service factory based on the information
     var dockerClient = DockerClientImpl.getInstance(clientConfig, dockerHttpClient);
-    CloudNet.instance().cloudServiceProvider().addCloudServiceFactory(
+    Node.instance().cloudServiceProvider().addCloudServiceFactory(
       this.configuration.factoryName(),
       new DockerizedServiceFactory(
-        CloudNet.instance(),
+        Node.instance(),
         this.eventManager(),
         dockerClient,
         this.configuration));
@@ -80,6 +80,6 @@ public class DockerizedServicesModule extends DriverModule {
 
   @ModuleTask(event = ModuleLifeCycle.STOPPED)
   public void unregisterServiceFactory() {
-    CloudNet.instance().cloudServiceProvider().removeCloudServiceFactory(this.configuration.factoryName());
+    Node.instance().cloudServiceProvider().removeCloudServiceFactory(this.configuration.factoryName());
   }
 }

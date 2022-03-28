@@ -19,7 +19,7 @@ package eu.cloudnetservice.cloudnet.node.network.chunk;
 import eu.cloudnetservice.cloudnet.driver.network.chunk.ChunkedPacketHandler.Callback;
 import eu.cloudnetservice.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import java.io.InputStream;
 import lombok.NonNull;
 
@@ -40,10 +40,10 @@ final class TemplateDeployCallback implements Callback {
     var template = information.transferInformation().readObject(ServiceTemplate.class);
     var overrideTemplate = information.transferInformation().readBoolean();
     // get the storage of the template if present
-    var storage = CloudNet.instance().templateStorageProvider().templateStorage(storageName);
+    var storage = Node.instance().templateStorageProvider().templateStorage(storageName);
     if (storage != null) {
       // pause the ticking of CloudNet before writing the file into the template
-      CloudNet.instance().mainThread().pause();
+      Node.instance().mainThread().pause();
       try {
         // delete the template if requested
         if (overrideTemplate) {
@@ -53,7 +53,7 @@ final class TemplateDeployCallback implements Callback {
         storage.deploy(template, dataInput);
       } finally {
         // resume the main thread execution
-        CloudNet.instance().mainThread().resume();
+        Node.instance().mainThread().resume();
       }
     }
   }

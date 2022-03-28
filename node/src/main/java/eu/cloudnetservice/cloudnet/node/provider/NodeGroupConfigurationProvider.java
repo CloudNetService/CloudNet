@@ -26,7 +26,7 @@ import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.cloudnet.driver.service.GroupConfiguration;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.cloudnet.node.event.group.LocalGroupConfigurationAddEvent;
 import eu.cloudnetservice.cloudnet.node.event.group.LocalGroupConfigurationRemoveEvent;
@@ -55,7 +55,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
   private final EventManager eventManager;
   private final Map<String, GroupConfiguration> groupConfigurations = new ConcurrentHashMap<>();
 
-  public NodeGroupConfigurationProvider(@NonNull CloudNet nodeInstance) {
+  public NodeGroupConfigurationProvider(@NonNull Node nodeInstance) {
     this.eventManager = nodeInstance.eventManager();
     this.eventManager.registerListener(new GroupChannelMessageListener(this.eventManager, this));
 

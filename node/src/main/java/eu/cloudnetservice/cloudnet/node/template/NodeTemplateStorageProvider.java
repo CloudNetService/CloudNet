@@ -20,18 +20,18 @@ import eu.cloudnetservice.cloudnet.common.Nameable;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
 import eu.cloudnetservice.cloudnet.driver.template.TemplateStorage;
 import eu.cloudnetservice.cloudnet.driver.template.TemplateStorageProvider;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import java.util.Collection;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class NodeTemplateStorageProvider implements TemplateStorageProvider {
 
-  private final CloudNet cloudNet;
+  private final Node node;
 
-  public NodeTemplateStorageProvider(@NonNull CloudNet cloudNet) {
-    this.cloudNet = cloudNet;
-    this.cloudNet.rpcFactory()
+  public NodeTemplateStorageProvider(@NonNull Node node) {
+    this.node = node;
+    this.node.rpcFactory()
       .newHandler(TemplateStorageProvider.class, this)
       .registerToDefaultRegistry();
   }
@@ -48,11 +48,11 @@ public class NodeTemplateStorageProvider implements TemplateStorageProvider {
 
   @Override
   public @Nullable TemplateStorage templateStorage(@NonNull String storage) {
-    return this.cloudNet.serviceRegistry().provider(TemplateStorage.class, storage);
+    return this.node.serviceRegistry().provider(TemplateStorage.class, storage);
   }
 
   @Override
   public @NonNull Collection<String> availableTemplateStorages() {
-    return this.cloudNet.serviceRegistry().providers(TemplateStorage.class).stream().map(Nameable::name).toList();
+    return this.node.serviceRegistry().providers(TemplateStorage.class).stream().map(Nameable::name).toList();
   }
 }

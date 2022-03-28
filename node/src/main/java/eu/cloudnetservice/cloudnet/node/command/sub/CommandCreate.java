@@ -26,7 +26,7 @@ import eu.cloudnetservice.cloudnet.common.collection.Pair;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTask;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.command.annotation.Description;
 import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
 import eu.cloudnetservice.cloudnet.node.console.animation.progressbar.ConsoleProgressAnimation;
@@ -88,8 +88,8 @@ public final class CommandCreate {
   ) {
     source.sendMessage(I18n.trans("command-create-by-task-starting", configuration.serviceId().taskName(), amount));
     // start the progress animation if needed
-    if (animation != null && !CloudNet.instance().console().animationRunning()) {
-      CloudNet.instance().console().startAnimation(animation);
+    if (animation != null && !Node.instance().console().animationRunning()) {
+      Node.instance().console().startAnimation(animation);
     }
     // try to start the provided amount of services based on the configuration
     for (var i = 0; i < amount; i++) {

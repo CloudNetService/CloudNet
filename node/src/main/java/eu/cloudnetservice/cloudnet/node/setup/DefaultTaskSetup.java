@@ -30,7 +30,7 @@ import eu.cloudnetservice.cloudnet.driver.service.GroupConfiguration;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTask;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.console.animation.setup.ConsoleSetupAnimation;
 import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.Parsers;
 import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.QuestionAnswerType;
@@ -207,7 +207,7 @@ public class DefaultTaskSetup implements DefaultSetup {
     Pair<ServiceVersionType, ServiceVersion> version = animation.result(resultPrefix + "Version");
     // create the task
     var template = ServiceTemplate.builder().prefix(taskName).name("default").build();
-    CloudNet.instance().serviceTaskProvider().addServiceTask(ServiceTask.builder()
+    Node.instance().serviceTaskProvider().addServiceTask(ServiceTask.builder()
       .name(taskName)
       .minServiceCount(1)
       .autoDeleteOnStop(true)
@@ -234,9 +234,9 @@ public class DefaultTaskSetup implements DefaultSetup {
       groupConfiguration.jvmOptions(AIKAR_FLAGS);
     }
     // register the group
-    CloudNet.instance().groupConfigurationProvider().addGroupConfiguration(groupConfiguration.build());
+    Node.instance().groupConfigurationProvider().addGroupConfiguration(groupConfiguration.build());
     // create a group specifically for the task
-    CloudNet.instance().groupConfigurationProvider().addGroupConfiguration(GroupConfiguration.builder()
+    Node.instance().groupConfigurationProvider().addGroupConfiguration(GroupConfiguration.builder()
       .name(taskName)
       .addTemplates(Set.of(template))
       .build());
@@ -245,7 +245,7 @@ public class DefaultTaskSetup implements DefaultSetup {
     this.initializeTemplate(template, environment, true);
     // check if the user chose to install a version
     if (version != null) {
-      CloudNet.instance().serviceVersionProvider().installServiceVersion(TemplateVersionInstaller.builder()
+      Node.instance().serviceVersionProvider().installServiceVersion(TemplateVersionInstaller.builder()
         .serviceVersion(version.second())
         .serviceVersionType(version.first())
         .toTemplate(template)
@@ -288,6 +288,6 @@ public class DefaultTaskSetup implements DefaultSetup {
 
   protected @NonNull
   ServiceVersionProvider versionProvider() {
-    return CloudNet.instance().serviceVersionProvider();
+    return Node.instance().serviceVersionProvider();
   }
 }

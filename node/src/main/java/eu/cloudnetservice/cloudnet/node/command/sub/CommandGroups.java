@@ -33,7 +33,7 @@ import eu.cloudnetservice.cloudnet.driver.service.ServiceDeployment;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceRemoteInclusion;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.command.annotation.Description;
 import eu.cloudnetservice.cloudnet.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
@@ -69,7 +69,7 @@ public final class CommandGroups {
 
   @CommandMethod("groups delete <name>")
   public void deleteGroup(@NonNull CommandSource source, @NonNull @Argument("name") GroupConfiguration configuration) {
-    CloudNet.instance().groupConfigurationProvider().removeGroupConfiguration(configuration);
+    Node.instance().groupConfigurationProvider().removeGroupConfiguration(configuration);
     source.sendMessage(I18n.trans("command-groups-delete-group"));
   }
 
@@ -85,13 +85,13 @@ public final class CommandGroups {
 
   @CommandMethod("groups reload")
   public void reloadGroups(@NonNull CommandSource source) {
-    CloudNet.instance().groupConfigurationProvider().reload();
+    Node.instance().groupConfigurationProvider().reload();
     source.sendMessage(I18n.trans("command-groups-reload-success"));
   }
 
   @CommandMethod("groups list")
   public void listGroups(@NonNull CommandSource source) {
-    var groups = CloudNet.instance().groupConfigurationProvider()
+    var groups = Node.instance().groupConfigurationProvider()
       .groupConfigurations();
     if (groups.isEmpty()) {
       return;
@@ -336,7 +336,7 @@ public final class CommandGroups {
   }
 
   private @NonNull GroupConfigurationProvider groupProvider() {
-    return CloudNet.instance().groupConfigurationProvider();
+    return Node.instance().groupConfigurationProvider();
   }
 
   private @NonNull Collection<String> parseExcludes(@Nullable String excludes) {

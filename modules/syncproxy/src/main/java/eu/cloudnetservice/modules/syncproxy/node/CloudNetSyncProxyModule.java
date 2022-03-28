@@ -20,7 +20,7 @@ import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
 import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.cloudnet.node.module.listener.PluginIncludeListener;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyManagement;
@@ -53,7 +53,7 @@ public final class CloudNetSyncProxyModule extends DriverModule {
     // register the SyncProxyManagement to the ServiceRegistry
     this.nodeSyncProxyManagement.registerService(this.serviceRegistry());
     // sync the config of the module into the cluster
-    CloudNet.instance().dataSyncRegistry().registerHandler(
+    Node.instance().dataSyncRegistry().registerHandler(
       DataSyncHandler.<SyncProxyConfiguration>builder()
         .key("syncproxy-config")
         .nameExtractor($ -> "SyncProxy Config")
@@ -82,7 +82,7 @@ public final class CloudNetSyncProxyModule extends DriverModule {
   @ModuleTask(order = 60, event = ModuleLifeCycle.LOADED)
   public void registerCommands() {
     // register the syncproxy command to provide config management
-    CloudNet.instance().commandProvider().register(new CommandSyncProxy(this.nodeSyncProxyManagement));
+    Node.instance().commandProvider().register(new CommandSyncProxy(this.nodeSyncProxyManagement));
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)

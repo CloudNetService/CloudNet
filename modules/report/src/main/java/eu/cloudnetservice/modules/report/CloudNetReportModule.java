@@ -22,7 +22,7 @@ import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
 import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.service.CloudService;
 import eu.cloudnetservice.modules.report.command.CommandReport;
 import eu.cloudnetservice.modules.report.config.PasteService;
@@ -85,7 +85,7 @@ public final class CloudNetReportModule extends DriverModule {
     this.registerListener(new RecordReportListener(this));
     this.serviceRegistry().registerProvider(EmitterRegistry.class, "EmitterRegistry", this.registry);
     // register the command of the module at the node
-    CloudNet.instance().commandProvider().register(new CommandReport(this));
+    Node.instance().commandProvider().register(new CommandReport(this));
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)

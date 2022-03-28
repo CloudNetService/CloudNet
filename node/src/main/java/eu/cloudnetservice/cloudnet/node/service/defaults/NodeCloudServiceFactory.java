@@ -25,7 +25,7 @@ import eu.cloudnetservice.cloudnet.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.cloudnet.driver.service.GroupConfiguration;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServer;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.cloudnet.node.network.listener.message.ServiceChannelMessageListener;
@@ -45,7 +45,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
 
   private final Lock serviceCreationLock = new ReentrantLock(true);
 
-  public NodeCloudServiceFactory(@NonNull CloudNet nodeInstance) {
+  public NodeCloudServiceFactory(@NonNull Node nodeInstance) {
     this.serviceManager = nodeInstance.cloudServiceProvider();
     this.nodeServerProvider = nodeInstance.nodeServerProvider();
 
@@ -167,7 +167,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     @NonNull ServiceConfiguration.Builder output
   ) {
     // include all groups which are matching the service configuration
-    var groups = CloudNet.instance().groupConfigurationProvider().groupConfigurations().stream()
+    var groups = Node.instance().groupConfigurationProvider().groupConfigurations().stream()
       .filter(group -> group.targetEnvironments().contains(input.serviceId().environmentName()))
       .map(GroupConfiguration::name)
       .collect(Collectors.collectingAndThen(Collectors.toSet(), set -> {
@@ -179,7 +179,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     // include each group component in the service configuration
     for (var group : groups) {
       // get the group
-      var config = CloudNet.instance().groupConfigurationProvider().groupConfiguration(group);
+      var config = Node.instance().groupConfigurationProvider().groupConfiguration(group);
       // check if the config is available - add all components if so
       if (config != null) {
         output

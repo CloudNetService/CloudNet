@@ -27,7 +27,7 @@ import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.service.ProcessSnapshot;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceLifeCycle;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServer;
 import eu.cloudnetservice.cloudnet.node.service.CloudService;
 import java.util.Collection;
@@ -42,7 +42,7 @@ public final class NodeServerUtil {
   }
 
   public static void handleNodeServerClose(@NonNull NodeServer server) {
-    for (var snapshot : CloudNet.instance().cloudServiceProvider().services()) {
+    for (var snapshot : Node.instance().cloudServiceProvider().services()) {
       if (snapshot.serviceId().nodeUniqueId().equalsIgnoreCase(server.name())) {
         // rebuild the service snapshot with a DELETED state
         var lifeCycle = snapshot.lifeCycle();
@@ -57,11 +57,11 @@ public final class NodeServerUtil {
           snapshot.properties());
 
         // publish the update to the local service manager
-        CloudNet.instance().cloudServiceProvider().handleServiceUpdate(newSnapshot, null);
+        Node.instance().cloudServiceProvider().handleServiceUpdate(newSnapshot, null);
         // call the local change event
-        CloudNet.instance().eventManager().callEvent(new CloudServiceLifecycleChangeEvent(lifeCycle, newSnapshot));
+        Node.instance().eventManager().callEvent(new CloudServiceLifecycleChangeEvent(lifeCycle, newSnapshot));
         // send the change to all service - all other nodes will handle the close as well (if there are any)
-        var localServices = CloudNet.instance().cloudServiceProvider().localCloudServices();
+        var localServices = Node.instance().cloudServiceProvider().localCloudServices();
         if (!localServices.isEmpty()) {
           targetServices(localServices)
             .message("update_service_lifecycle")

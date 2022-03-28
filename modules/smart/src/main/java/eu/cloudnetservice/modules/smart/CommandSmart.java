@@ -26,7 +26,7 @@ import cloud.commandframework.context.CommandContext;
 import eu.cloudnetservice.cloudnet.common.Nameable;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTask;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.command.annotation.Description;
 import eu.cloudnetservice.cloudnet.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
@@ -43,7 +43,7 @@ public class CommandSmart {
 
   @Parser(name = "smartTask", suggestions = "smartTask")
   public @NonNull ServiceTask smartTaskParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
-    var task = CloudNet.instance().serviceTaskProvider().serviceTask(input.remove());
+    var task = Node.instance().serviceTaskProvider().serviceTask(input.remove());
     if (task == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-tasks-task-not-found"));
     }
@@ -56,7 +56,7 @@ public class CommandSmart {
 
   @Suggestions("smartTask")
   public @NonNull List<String> suggestSmartTasks(@NonNull CommandContext<?> $, @NonNull String input) {
-    return CloudNet.instance().serviceTaskProvider().serviceTasks()
+    return Node.instance().serviceTaskProvider().serviceTasks()
       .stream()
       .filter(serviceTask -> serviceTask.properties().contains("smartConfig"))
       .map(Nameable::name)
@@ -245,6 +245,6 @@ public class CommandSmart {
       .properties(serviceTask.properties()
         .append("smartConfig", modifier.apply(SmartServiceTaskConfig.builder(property)).build()))
       .build();
-    CloudNet.instance().serviceTaskProvider().addServiceTask(task);
+    Node.instance().serviceTaskProvider().addServiceTask(task);
   }
 }

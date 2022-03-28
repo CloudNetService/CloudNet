@@ -22,7 +22,7 @@ import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
 import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.cloudnet.node.module.listener.PluginIncludeListener;
 import eu.cloudnetservice.modules.labymod.config.LabyModBanner;
@@ -74,7 +74,7 @@ public class CloudNetLabyModModule extends DriverModule {
   public void initManagement() {
     this.labyModManagement = new NodeLabyModManagement(this, this.loadConfiguration(), this.rpcFactory());
     // sync the config of the module into the cluster
-    CloudNet.instance().dataSyncRegistry().registerHandler(
+    Node.instance().dataSyncRegistry().registerHandler(
       DataSyncHandler.<LabyModConfiguration>builder()
         .key("labymod-config")
         .nameExtractor($ -> "LabyMod Config")

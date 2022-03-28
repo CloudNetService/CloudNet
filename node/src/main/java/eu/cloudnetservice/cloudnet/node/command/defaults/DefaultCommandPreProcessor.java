@@ -19,7 +19,7 @@ package eu.cloudnetservice.cloudnet.node.command.defaults;
 import cloud.commandframework.execution.preprocessor.CommandPreprocessingContext;
 import cloud.commandframework.execution.preprocessor.CommandPreprocessor;
 import cloud.commandframework.services.types.ConsumerService;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
 import eu.cloudnetservice.cloudnet.node.event.command.CommandPreProcessEvent;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -42,14 +42,14 @@ final class DefaultCommandPreProcessor implements CommandPreprocessor<CommandSou
     }
 
     var firstArgument = commandContext.getRawInput().getFirst();
-    var commandInfo = CloudNet.instance().commandProvider()
+    var commandInfo = Node.instance().commandProvider()
       .command(firstArgument);
     // if there is no command, the command was unregistered, ignore confirm as the command is not registered.
     if (commandInfo == null && !firstArgument.equalsIgnoreCase("confirm")) {
       return;
     }
 
-    var preProcessEvent = CloudNet.instance().eventManager()
+    var preProcessEvent = Node.instance().eventManager()
       .callEvent(new CommandPreProcessEvent(commandContext.getRawInputJoined(), source));
     if (preProcessEvent.cancelled()) {
       ConsumerService.interrupt();

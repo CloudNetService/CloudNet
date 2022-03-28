@@ -50,7 +50,7 @@ public final class BootLogic {
     initLoggerAndConsole(console, LogManager.rootLogger());
 
     // boot CloudNet
-    var nodeInstance = new CloudNet(args, console, LogManager.rootLogger());
+    var nodeInstance = new Node(args, console, LogManager.rootLogger());
     nodeInstance.start(startInstant);
   }
 

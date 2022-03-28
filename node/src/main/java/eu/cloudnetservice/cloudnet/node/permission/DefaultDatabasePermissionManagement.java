@@ -22,7 +22,7 @@ import eu.cloudnetservice.cloudnet.driver.permission.DefaultPermissionManagement
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionGroup;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionUser;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.cloudnet.node.database.LocalDatabase;
 import eu.cloudnetservice.cloudnet.node.network.listener.message.PermissionChannelMessageListener;
@@ -50,25 +50,25 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   private static final Path GROUPS_FILE = Path.of(
     System.getProperty("cloudnet.permissions.json.path", "local/permissions.json"));
 
-  protected final CloudNet nodeInstance;
+  protected final Node nodeInstance;
   protected final Map<String, PermissionGroup> groups;
   protected final PermissionChannelMessageListener networkListener;
 
   protected volatile PermissionManagementHandler handler = PermissionManagementHandlerAdapter.NO_OP;
 
-  public DefaultDatabasePermissionManagement(@NonNull CloudNet nodeInstance) {
+  public DefaultDatabasePermissionManagement(@NonNull Node nodeInstance) {
     this.nodeInstance = nodeInstance;
     this.groups = new ConcurrentHashMap<>();
     this.networkListener = new PermissionChannelMessageListener(nodeInstance.eventManager(), this);
     // sync permission groups into the cluster
-    CloudNet.instance().dataSyncRegistry().registerHandler(DataSyncHandler.<PermissionGroup>builder()
+    Node.instance().dataSyncRegistry().registerHandler(DataSyncHandler.<PermissionGroup>builder()
       .alwaysForce()
       .key("perms-groups")
       .nameExtractor(PermissionGroup::name)
       .convertObject(PermissionGroup.class)
-      .dataCollector(() -> CloudNet.instance().permissionManagement().groups())
-      .writer(group -> CloudNet.instance().permissionManagement().addGroupSilently(group))
-      .currentGetter(group -> CloudNet.instance().permissionManagement().group(group.name()))
+      .dataCollector(() -> Node.instance().permissionManagement().groups())
+      .writer(group -> Node.instance().permissionManagement().addGroupSilently(group))
+      .currentGetter(group -> Node.instance().permissionManagement().group(group.name()))
       .build());
   }
 
@@ -324,7 +324,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   @Override
   public @NonNull Collection<String> sendCommandLine(@NonNull PermissionUser user, @NonNull String commandLine) {
     var source = new PermissionUserCommandSource(user, this);
-    CloudNet.instance().commandProvider().execute(source, commandLine).getOrNull();
+    Node.instance().commandProvider().execute(source, commandLine).getOrNull();
     return source.messages();
   }
 

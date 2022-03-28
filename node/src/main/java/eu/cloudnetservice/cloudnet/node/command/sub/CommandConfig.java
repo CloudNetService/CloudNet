@@ -26,7 +26,7 @@ import com.google.common.net.InetAddresses;
 import eu.cloudnetservice.cloudnet.common.JavaVersion;
 import eu.cloudnetservice.cloudnet.common.collection.Pair;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.command.annotation.Description;
 import eu.cloudnetservice.cloudnet.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
@@ -52,16 +52,16 @@ public final class CommandConfig {
 
   @CommandMethod("config reload")
   public void reloadConfigs(@NonNull CommandSource source) {
-    CloudNet.instance().reloadConfigFrom(JsonConfiguration.loadFromFile(CloudNet.instance()));
-    CloudNet.instance().serviceTaskProvider().reload();
-    CloudNet.instance().groupConfigurationProvider().reload();
-    CloudNet.instance().permissionManagement().reload();
+    Node.instance().reloadConfigFrom(JsonConfiguration.loadFromFile(Node.instance()));
+    Node.instance().serviceTaskProvider().reload();
+    Node.instance().groupConfigurationProvider().reload();
+    Node.instance().permissionManagement().reload();
     source.sendMessage(I18n.trans("command-config-node-reload-config"));
   }
 
   @CommandMethod("config node reload")
   public void reloadNodeConfig(@NonNull CommandSource source) {
-    CloudNet.instance().reloadConfigFrom(JsonConfiguration.loadFromFile(CloudNet.instance()));
+    Node.instance().reloadConfigFrom(JsonConfiguration.loadFromFile(Node.instance()));
     source.sendMessage(I18n.trans("command-config-node-reload-config"));
   }
 
@@ -110,6 +110,6 @@ public final class CommandConfig {
   }
 
   private @NonNull Configuration nodeConfig() {
-    return CloudNet.instance().config();
+    return Node.instance().config();
   }
 }

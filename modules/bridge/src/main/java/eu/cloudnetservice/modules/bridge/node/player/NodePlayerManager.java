@@ -26,7 +26,7 @@ import eu.cloudnetservice.cloudnet.driver.event.EventManager;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncRegistry;
 import eu.cloudnetservice.cloudnet.node.database.LocalDatabase;
@@ -95,7 +95,7 @@ public class NodePlayerManager implements PlayerManager {
     eventManager.registerListener(new BridgeLocalProxyPlayerDisconnectListener(this));
     eventManager.registerListener(new NodePlayerChannelMessageListener(eventManager, this, bridgeManagement));
     // register the players command
-    CloudNet.instance().commandProvider().register(new CommandPlayers(this));
+    Node.instance().commandProvider().register(new CommandPlayers(this));
     // register the rpc listeners
     providerFactory.newHandler(PlayerManager.class, this).registerToDefaultRegistry();
     providerFactory.newHandler(PlayerExecutor.class, null).registerToDefaultRegistry();
@@ -278,7 +278,7 @@ public class NodePlayerManager implements PlayerManager {
   }
 
   protected @NonNull LocalDatabase database() {
-    return CloudNet.instance().databaseProvider().database(this.databaseName);
+    return Node.instance().databaseProvider().database(this.databaseName);
   }
 
   public @NonNull Map<UUID, CloudPlayer> players() {

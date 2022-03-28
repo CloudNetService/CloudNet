@@ -27,7 +27,7 @@ import eu.cloudnetservice.cloudnet.driver.network.http.HttpResponse;
 import eu.cloudnetservice.cloudnet.driver.network.http.HttpResponseCode;
 import eu.cloudnetservice.cloudnet.driver.permission.Permission;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionUser;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.config.AccessControlConfiguration;
 import eu.cloudnetservice.cloudnet.node.config.Configuration;
 import java.nio.charset.StandardCharsets;
@@ -48,7 +48,7 @@ public abstract class V2HttpHandler implements HttpHandler {
   protected final AccessControlConfiguration accessControlConfiguration;
 
   public V2HttpHandler(@Nullable String requiredPermission, @NonNull String... requestMethods) {
-    this(requiredPermission, DEFAULT_AUTH, CloudNet.instance().config().accessControlConfig(), requestMethods);
+    this(requiredPermission, DEFAULT_AUTH, Node.instance().config().accessControlConfig(), requestMethods);
   }
 
   public V2HttpHandler(
@@ -201,8 +201,8 @@ public abstract class V2HttpHandler implements HttpHandler {
     return JsonDocument.newDocument("success", false);
   }
 
-  protected @NonNull CloudNet node() {
-    return CloudNet.instance();
+  protected @NonNull Node node() {
+    return Node.instance();
   }
 
   protected @NonNull Configuration configuration() {

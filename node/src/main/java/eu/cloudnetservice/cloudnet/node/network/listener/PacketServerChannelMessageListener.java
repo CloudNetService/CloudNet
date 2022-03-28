@@ -23,7 +23,7 @@ import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.PacketListener;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.provider.NodeMessenger;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -49,7 +49,7 @@ public final class PacketServerChannelMessageListener implements PacketListener 
     // check if we should handle the message locally
     var handleLocally = message.targets().stream().anyMatch(target -> switch (target.type()) {
       case ALL -> true;
-      case NODE -> target.name() == null || target.name().equals(CloudNet.instance().componentName());
+      case NODE -> target.name() == null || target.name().equals(Node.instance().componentName());
       default -> false;
     });
     if (handleLocally) {

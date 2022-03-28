@@ -22,7 +22,7 @@ import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.driver.network.http.HttpRequest;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionUser;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.http.ticket.WebSocketTicketManager;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -48,7 +48,7 @@ import org.jetbrains.annotations.UnknownNullability;
 public class V2HttpAuthentication {
 
   protected static final Logger LOGGER = LogManager.logger(V2HttpAuthentication.class);
-  protected static final String ISSUER = "CloudNet " + CloudNet.instance().componentName();
+  protected static final String ISSUER = "CloudNet " + Node.instance().componentName();
 
   protected static final Key SIGN_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
   protected static final JwtParser PARSER = Jwts.parserBuilder().setSigningKey(SIGN_KEY).requireIssuer(ISSUER).build();

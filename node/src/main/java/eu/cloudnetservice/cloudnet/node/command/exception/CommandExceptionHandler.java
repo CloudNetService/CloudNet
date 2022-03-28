@@ -29,7 +29,7 @@ import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.driver.command.CommandInfo;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.command.defaults.DefaultCommandProvider;
 import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
 import eu.cloudnetservice.cloudnet.node.command.source.ConsoleCommandSource;
@@ -148,7 +148,7 @@ public class CommandExceptionHandler {
       return;
     }
 
-    var invalidSyntaxEvent = CloudNet.instance().eventManager().callEvent(
+    var invalidSyntaxEvent = Node.instance().eventManager().callEvent(
       new CommandInvalidSyntaxEvent(
         source,
         exception.getCorrectSyntax(),
@@ -170,7 +170,7 @@ public class CommandExceptionHandler {
     @NonNull CommandSource source,
     @NonNull NoSuchCommandException exception
   ) {
-    var notFoundEvent = CloudNet.instance().eventManager().callEvent(
+    var notFoundEvent = Node.instance().eventManager().callEvent(
       new CommandNotFoundEvent(
         source,
         exception.getSuppliedCommand(),

@@ -34,7 +34,7 @@ import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleProvider;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleWrapper;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.cloudnet.node.command.annotation.Description;
 import eu.cloudnetservice.cloudnet.node.command.exception.ArgumentNotAvailableException;
@@ -81,8 +81,8 @@ public final class CommandModules {
     .column(ModuleEntry::website)
     .build();
 
-  private final ModuleProvider provider = CloudNet.instance().moduleProvider();
-  private final ModulesHolder availableModules = CloudNet.instance().modulesHolder();
+  private final ModuleProvider provider = Node.instance().moduleProvider();
+  private final ModulesHolder availableModules = Node.instance().modulesHolder();
 
   @Parser(name = "modulePath", suggestions = "modulePath")
   public @NonNull Path modulePathParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
@@ -292,7 +292,7 @@ public final class CommandModules {
 
     // validate the downloaded file
     var checksum = ChecksumUtil.fileShaSum(target);
-    if (!CloudNet.instance().dev() && !checksum.equals(entry.sha3256())) {
+    if (!Node.instance().dev() && !checksum.equals(entry.sha3256())) {
       // the checksum validation skip is only available for official modules
       if (entry.official() && noChecksumValidation) {
         source.sendMessage(I18n.trans("command-module-skipping-checksum-fail", entry.name()));
