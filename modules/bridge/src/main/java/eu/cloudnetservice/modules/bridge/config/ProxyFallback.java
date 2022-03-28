@@ -16,65 +16,77 @@
 
 package eu.cloudnetservice.modules.bridge.config;
 
+import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.Collection;
-import lombok.EqualsAndHashCode;
 import lombok.NonNull;
-import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
 
-@ToString
-@EqualsAndHashCode
-public final class ProxyFallback implements Comparable<ProxyFallback> {
+public record ProxyFallback(
+  int priority,
+  @NonNull String task,
+  @Nullable String permission,
+  @Nullable String forcedHost,
+  @NonNull Collection<String> availableOnGroups
+) implements Comparable<ProxyFallback> {
 
-  private final int priority;
-
-  private final String task;
-  private final String permission;
-  private final String forcedHost;
-
-  private final Collection<String> availableOnGroups;
-
-  public ProxyFallback(int priority, @NonNull String task, @Nullable String permission, @Nullable String forcedHost) {
-    this(priority, task, permission, forcedHost, new ArrayList<>());
+  public static @NonNull Builder builder() {
+    return new Builder();
   }
 
-  public ProxyFallback(
-    int priority,
-    @NonNull String task,
-    @Nullable String permission,
-    @Nullable String forcedHost,
-    @NonNull Collection<String> availableOnGroups
-  ) {
-    this.priority = priority;
-    this.task = task;
-    this.permission = permission;
-    this.forcedHost = forcedHost;
-    this.availableOnGroups = availableOnGroups;
-  }
-
-  public @NonNull String task() {
-    return this.task;
-  }
-
-  public @Nullable String permission() {
-    return this.permission;
-  }
-
-  public @NonNull Collection<String> availableOnGroups() {
-    return this.availableOnGroups;
-  }
-
-  public @Nullable String forcedHost() {
-    return this.forcedHost;
-  }
-
-  public int priority() {
-    return this.priority;
+  public static @NonNull Builder builder(@NonNull ProxyFallback fallback) {
+    return builder()
+      .priority(fallback.priority())
+      .task(fallback.task())
+      .permission(fallback.permission())
+      .forcedHost(fallback.forcedHost())
+      .availableOnGroups(fallback.availableOnGroups());
   }
 
   @Override
   public int compareTo(@NonNull ProxyFallback o) {
     return Integer.compare(o.priority, this.priority);
+  }
+
+  public static class Builder {
+
+    private int priority;
+
+    private String task;
+    private String permission;
+    private String forcedHost;
+
+    private Collection<String> availableOnGroups = new ArrayList<>();
+
+    public @NonNull Builder priority(int priority) {
+      this.priority = priority;
+      return this;
+    }
+
+    public @NonNull Builder task(@NonNull String task) {
+      this.task = task;
+      return this;
+    }
+
+    public @NonNull Builder permission(@Nullable String permission) {
+      this.permission = permission;
+      return this;
+    }
+
+    public @NonNull Builder forcedHost(@Nullable String forcedHost) {
+      this.forcedHost = forcedHost;
+      return this;
+    }
+
+    public @NonNull Builder availableOnGroups(@NonNull Collection<String> availableOnGroups) {
+      this.availableOnGroups = new ArrayList<>(availableOnGroups);
+      return this;
+    }
+
+    public @NonNull ProxyFallback build() {
+      Preconditions.checkNotNull(this.task, "Missing task");
+
+      return new ProxyFallback(this.priority, this.task, this.permission, this.forcedHost, this.availableOnGroups);
+    }
   }
 }
