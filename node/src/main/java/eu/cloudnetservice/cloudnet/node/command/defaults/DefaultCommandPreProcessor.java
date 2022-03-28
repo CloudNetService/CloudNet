@@ -22,7 +22,7 @@ import cloud.commandframework.services.types.ConsumerService;
 import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
 import eu.cloudnetservice.cloudnet.node.event.command.CommandPreProcessEvent;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import lombok.NonNull;
 
 /**
  * {@inheritDoc}

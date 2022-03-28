@@ -25,7 +25,7 @@ import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import lombok.NonNull;
 
 /**
  * {@inheritDoc}
