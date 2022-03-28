@@ -148,6 +148,10 @@ public class Node extends CloudNetDriver {
     this.configuration = JsonConfiguration.loadFromFile(this);
     this.nodeServerProvider = new DefaultNodeServerProvider(this);
 
+    // language management init
+    I18n.loadFromLangPath(Node.class);
+    I18n.language(this.configuration.language());
+
     this.clusterNodeProvider = new NodeClusterNodeProvider(this);
     this.cloudServiceProvider = new DefaultCloudServiceManager(this);
 

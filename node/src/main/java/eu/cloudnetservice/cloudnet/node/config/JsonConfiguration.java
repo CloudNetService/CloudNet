@@ -58,6 +58,8 @@ public final class JsonConfiguration implements Configuration {
     return null;
   };
 
+  private String language;
+
   private NetworkClusterNode identity;
   private NetworkCluster clusterConfig;
 
@@ -117,6 +119,12 @@ public final class JsonConfiguration implements Configuration {
 
   @Override
   public @NonNull Configuration load() {
+    if (this.language == null) {
+      this.language = ConfigurationUtil.get(
+        "cloudnet.config.language",
+        "en_US");
+    }
+
     if (this.identity == null) {
       this.identity = new NetworkClusterNode(
         ConfigurationUtil.get(
@@ -321,6 +329,16 @@ public final class JsonConfiguration implements Configuration {
 
     this.properties = configuration.properties();
     this.accessControlConfiguration = configuration.accessControlConfig();
+  }
+
+  @Override
+  public @NonNull String language() {
+    return this.language;
+  }
+
+  @Override
+  public void language(@NonNull String language) {
+    this.language = language;
   }
 
   @Override

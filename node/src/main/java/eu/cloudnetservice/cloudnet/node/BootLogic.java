@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.cloudnet.node;
 
-import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.common.log.LoggingUtil;
@@ -40,10 +39,6 @@ public final class BootLogic {
 
   public static void main(String[] args) throws Throwable {
     var startInstant = Instant.now();
-
-    // language management init
-    I18n.loadFromLangPath(BootLogic.class);
-    I18n.language(System.getProperty("cloudnet.messages.language", "en_US"));
 
     // init logger and console
     Console console = new JLine3Console();

@@ -188,14 +188,14 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
       var answers = I18n.trans("ca-question-list-possible-answers-list",
         String.join(", ", answerType.possibleAnswers()));
       // write the answers to the console
-      for (var line : this.updateCursor("&r" + entry.question() + " &r> &e" + answers)) {
+      for (var line : this.updateCursor("&r" + entry.question().get() + " &r> &e" + answers)) {
         super.console().forceWriteLine(line);
       }
     } else {
       // clear the history
       this.console.commandHistory(null);
       // just write the question into the console
-      for (var line : this.updateCursor("&r" + entry.question())) {
+      for (var line : this.updateCursor("&r" + entry.question().get())) {
         super.console().forceWriteLine(line);
       }
     }
@@ -254,7 +254,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
       // re-draw the question line, add the given response to it
       this.console.writeRaw(this.eraseLines(Ansi.ansi().reset(), this.currentCursor + 1)
         .a("&r") // reset of the colors
-        .a(entry.question()) // the question
+        .a(entry.question().get()) // the question
         .a(" &r=> &a") // separator between the question and the answer
         .a(input) // the given result
         .a(System.lineSeparator()) // jump to next line

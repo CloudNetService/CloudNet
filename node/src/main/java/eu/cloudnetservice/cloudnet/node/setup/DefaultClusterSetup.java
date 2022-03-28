@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.cloudnet.node.setup;
 
-import static eu.cloudnetservice.cloudnet.common.language.I18n.trans;
 import static eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.Parsers.andThen;
 import static eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.Parsers.bool;
 import static eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.Parsers.nonEmptyStr;
@@ -81,7 +80,7 @@ public class DefaultClusterSetup implements DefaultSetup {
                     .addResultListener((___, nodes) -> animation.addEntriesFirst(nodes.stream()
                       .map(node -> QuestionListEntry.<HostAndPort>builder()
                         .key("nodeHost-" + node)
-                        .question(trans("cloudnet-init-setup-cluster-node-host", node))
+                        .translatedQuestion("cloudnet-init-setup-cluster-node-host", node)
                         .answerType(QuestionAnswerType.<HostAndPort>builder()
                           .parser(validatedHostAndPort(true))))
                       .map(Builder::build)

@@ -32,8 +32,8 @@ public class I18nTest {
     var properties = new Properties();
     properties.put("test_message", "Test_Message");
 
-    I18n.language("en");
     I18n.addLanguageFile("en", properties, loader);
+    I18n.language("en");
 
     Assertions.assertNotNull(I18n.trans("test_message"));
     Assertions.assertEquals("Test_Message", I18n.trans("test_message"));

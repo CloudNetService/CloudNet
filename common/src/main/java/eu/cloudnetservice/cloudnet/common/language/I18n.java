@@ -30,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
@@ -203,14 +204,29 @@ public final class I18n {
   }
 
   /**
+   * Gets all the names of the known languages to this translation manager.
+   *
+   * @return the names of all known languages.
+   */
+  public static @NonNull Collection<String> knownLanguages() {
+    return I18n.REGISTERED_ENTRIES.keys();
+  }
+
+  /**
    * Sets the current message to which all messages should get translated. There is no check made if any message is
    * registered for the given language.
+   * <p>
+   * This method doesn't change to the given language silently if the language is not associated with a translation
+   * file.
    *
    * @param language the language this manager should use.
    * @throws NullPointerException if the given language is null.
    */
   public static void language(@NonNull String language) {
-    I18n.CURRENT_LANGUAGE.set(language);
+    // validate that the language is known before changing it
+    if (REGISTERED_ENTRIES.containsKey(language)) {
+      I18n.CURRENT_LANGUAGE.set(language);
+    }
   }
 
   /**

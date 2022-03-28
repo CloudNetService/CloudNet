@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import eu.cloudnetservice.cloudnet.common.io.FileUtil;
+import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.driver.module.DefaultModuleProvider;
 import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNode;
@@ -57,6 +58,22 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
     Collection<String> addresses = NetworkUtil.availableIPAddresses();
     // apply the questions
     animation.addEntries(
+      // language
+      QuestionListEntry.<String>builder()
+        .key("language")
+        .question(() -> "Welcome to the CloudNet Setup! Please choose the language you want to use")
+        .answerType(QuestionAnswerType.<String>builder()
+          .recommendation(I18n.language())
+          .possibleResults(I18n.knownLanguages())
+          .parser(input -> {
+            if (I18n.knownLanguages().contains(input)) {
+              return input;
+            } else {
+              throw ParserException.INSTANCE;
+            }
+          })
+          .addResultListener((__, language) -> I18n.language(language)))
+        .build(),
       // eula agreement
       QuestionListEntry.<Boolean>builder()
         .key("eula")
@@ -174,6 +191,9 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
   @Override
   public void handleResults(@NonNull ConsoleSetupAnimation animation) {
     var config = Node.instance().config();
+    // language
+    config.language(animation.result("language"));
+
     // init the local node identity
     HostAndPort host = animation.result("internalHost");
     config.identity(new NetworkClusterNode(

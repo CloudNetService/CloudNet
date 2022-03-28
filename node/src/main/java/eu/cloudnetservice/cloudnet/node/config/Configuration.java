@@ -34,6 +34,10 @@ public interface Configuration {
 
   void reloadFrom(@NonNull Configuration configuration);
 
+  @NonNull String language();
+
+  void language(@NonNull String language);
+
   @NonNull String hostAddress();
 
   void hostAddress(@NonNull String hostAddress);

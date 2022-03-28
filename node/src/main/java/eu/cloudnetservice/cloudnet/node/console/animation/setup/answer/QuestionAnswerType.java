@@ -140,7 +140,7 @@ public record QuestionAnswerType<T>(
     }
 
     public @NonNull Builder<T> translatedInvalidInputMessage(@NonNull String messageTranslationKey) {
-      return this.invalidInputMessage(I18n.trans(messageTranslationKey));
+      return this.invalidInputHandler((__, ___) -> I18n.trans(messageTranslationKey));
     }
 
     public @NonNull QuestionAnswerType<T> build() {
