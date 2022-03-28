@@ -43,7 +43,7 @@ import eu.cloudnetservice.cloudnet.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceRemoteInclusion;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTask;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.config.Configuration;
 import eu.cloudnetservice.cloudnet.node.event.service.CloudServiceCreateEvent;
 import eu.cloudnetservice.cloudnet.node.event.service.CloudServiceDeploymentEvent;
@@ -86,7 +86,7 @@ public abstract class AbstractService implements CloudService {
   protected final String connectionKey;
   protected final Path serviceDirectory;
   protected final Path pluginDirectory;
-  protected final CloudNet nodeInstance;
+  protected final Node nodeInstance;
   protected final CloudServiceManager cloudServiceManager;
   protected final ServiceConfiguration serviceConfiguration;
   protected final ServiceConfigurationPreparer serviceConfigurationPreparer;
@@ -110,7 +110,7 @@ public abstract class AbstractService implements CloudService {
     @NonNull ServiceConfiguration configuration,
     @NonNull CloudServiceManager manager,
     @NonNull EventManager eventManager,
-    @NonNull CloudNet nodeInstance,
+    @NonNull Node nodeInstance,
     @NonNull ServiceConfigurationPreparer serviceConfigurationPreparer
   ) {
     this.eventManager = eventManager;
@@ -559,7 +559,7 @@ public abstract class AbstractService implements CloudService {
       >= this.nodeConfiguration().maxMemory()) {
       // schedule a retry
       if (this.nodeConfiguration().runBlockedServiceStartTryLaterAutomatic()) {
-        CloudNet.instance().mainThread().runTask(this::start);
+        Node.instance().mainThread().runTask(this::start);
       } else {
         LOGGER.info(I18n.trans("cloudnet-service-manager-max-memory-error"));
       }
@@ -570,7 +570,7 @@ public abstract class AbstractService implements CloudService {
     if (CPUUsageResolver.systemCPUUsage() >= this.nodeConfiguration().maxCPUUsageToStartServices()) {
       // schedule a retry
       if (this.nodeConfiguration().runBlockedServiceStartTryLaterAutomatic()) {
-        CloudNet.instance().mainThread().runTask(this::start);
+        Node.instance().mainThread().runTask(this::start);
       } else {
         LOGGER.info(I18n.trans("cloudnet-service-manager-cpu-usage-to-high-error"));
       }

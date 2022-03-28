@@ -36,7 +36,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import eu.cloudnetservice.cloudnet.driver.event.EventManager;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceConfiguration;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.service.CloudServiceManager;
 import eu.cloudnetservice.cloudnet.node.service.ServiceConfigurationPreparer;
 import eu.cloudnetservice.cloudnet.node.service.defaults.JVMService;
@@ -94,7 +94,7 @@ public class DockerizedService extends JVMService {
     @NonNull ServiceConfiguration configuration,
     @NonNull CloudServiceManager manager,
     @NonNull EventManager eventManager,
-    @NonNull CloudNet nodeInstance,
+    @NonNull Node nodeInstance,
     @NonNull ServiceConfigurationPreparer serviceConfigurationPreparer,
     @NonNull DockerClient dockerClient,
     @NonNull DockerConfiguration dockerConfiguration

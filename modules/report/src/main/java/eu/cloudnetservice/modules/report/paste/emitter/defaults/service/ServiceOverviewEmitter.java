@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.report.paste.emitter.defaults.service;
 
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.service.CloudService;
 import eu.cloudnetservice.modules.report.paste.emitter.ReportDataEmitter;
 import lombok.NonNull;
@@ -25,7 +25,7 @@ public class ServiceOverviewEmitter implements ReportDataEmitter<CloudService> {
 
   @Override
   public void emitData(@NonNull StringBuilder builder, @NonNull CloudService service) {
-    var services = CloudNet.instance().cloudServiceProvider().services();
+    var services = Node.instance().cloudServiceProvider().services();
     builder.append(" - Other Services - \n");
     builder.append("Total services: ").append(services.size()).append("\n");
 

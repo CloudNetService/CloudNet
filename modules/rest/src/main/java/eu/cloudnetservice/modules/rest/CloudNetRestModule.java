@@ -22,7 +22,7 @@ import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
 import eu.cloudnetservice.cloudnet.driver.network.http.HttpHandler;
 import eu.cloudnetservice.cloudnet.driver.network.http.content.ContentStreamProvider;
 import eu.cloudnetservice.cloudnet.driver.network.http.content.StaticContentHttpHandler;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerAuthorization;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerCluster;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerDatabase;
@@ -42,7 +42,7 @@ public final class CloudNetRestModule extends DriverModule {
 
   @ModuleTask(order = 120, event = ModuleLifeCycle.STARTED)
   public void initHttpHandlers() {
-    CloudNet.instance().httpServer()
+    Node.instance().httpServer()
       // v2 openapi specification
       .registerHandler("/api/v2/documentation", HttpHandler.PRIORITY_NORMAL, new StaticContentHttpHandler(
         ContentStreamProvider.classLoader(this.classLoader(), "documentation")

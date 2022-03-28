@@ -19,7 +19,7 @@ package eu.cloudnetservice.modules.report.paste.emitter.defaults.node;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.modules.report.paste.emitter.ReportDataEmitter;
 import lombok.NonNull;
 
@@ -32,7 +32,7 @@ public class ModuleEmitter implements ReportDataEmitter<NetworkClusterNodeInfoSn
       .append(context.modules().size())
       .append(" - \n\n");
 
-    for (var module : CloudNet.instance().moduleProvider().modules()) {
+    for (var module : Node.instance().moduleProvider().modules()) {
       builder
         .append(" - Module ")
         .append(module.module().name())

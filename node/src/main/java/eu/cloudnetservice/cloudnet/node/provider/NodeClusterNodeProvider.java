@@ -23,7 +23,7 @@ import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.provider.ClusterNodeProvider;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServer;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
@@ -36,10 +36,10 @@ import org.jetbrains.annotations.Nullable;
 
 public class NodeClusterNodeProvider implements ClusterNodeProvider {
 
-  private final CloudNet nodeInstance;
+  private final Node nodeInstance;
   private final NodeServerProvider clusterNodeServerProvider;
 
-  public NodeClusterNodeProvider(@NonNull CloudNet nodeInstance) {
+  public NodeClusterNodeProvider(@NonNull Node nodeInstance) {
     this.nodeInstance = nodeInstance;
     this.clusterNodeServerProvider = nodeInstance.nodeServerProvider();
 
@@ -54,7 +54,7 @@ public class NodeClusterNodeProvider implements ClusterNodeProvider {
 
   @Override
   public @NonNull Collection<CommandInfo> consoleCommands() {
-    return CloudNet.instance().commandProvider().commands();
+    return Node.instance().commandProvider().commands();
   }
 
   @Override
@@ -133,18 +133,18 @@ public class NodeClusterNodeProvider implements ClusterNodeProvider {
   @Override
   public @NonNull Collection<String> sendCommandLine(@NonNull String commandLine) {
     var driverCommandSource = new DriverCommandSource();
-    CloudNet.instance().commandProvider().execute(driverCommandSource, commandLine).getOrNull();
+    Node.instance().commandProvider().execute(driverCommandSource, commandLine).getOrNull();
     return driverCommandSource.messages();
   }
 
   @Override
   public @Nullable CommandInfo consoleCommand(@NonNull String commandLine) {
-    return CloudNet.instance().commandProvider().command(commandLine);
+    return Node.instance().commandProvider().command(commandLine);
   }
 
   @Override
   public @NonNull Collection<String> consoleTabCompleteResults(@NonNull String commandLine) {
-    return CloudNet.instance().commandProvider().suggest(CommandSource.console(), commandLine);
+    return Node.instance().commandProvider().suggest(CommandSource.console(), commandLine);
   }
 
   public void addNodeSilently(@NonNull NetworkClusterNode node) {

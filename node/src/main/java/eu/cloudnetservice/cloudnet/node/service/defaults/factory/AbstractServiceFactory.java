@@ -17,7 +17,7 @@
 package eu.cloudnetservice.cloudnet.node.service.defaults.factory;
 
 import eu.cloudnetservice.cloudnet.driver.service.ServiceConfiguration;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.service.CloudServiceFactory;
 import eu.cloudnetservice.cloudnet.node.service.CloudServiceManager;
 import eu.cloudnetservice.cloudnet.node.util.NetworkUtil;
@@ -31,11 +31,11 @@ public abstract class AbstractServiceFactory implements CloudServiceFactory {
   ) {
     var configurationBuilder = ServiceConfiguration.builder(configuration);
     // set the node unique id
-    configurationBuilder.node(CloudNet.instance().nodeUniqueId());
+    configurationBuilder.node(Node.instance().nodeUniqueId());
 
     // set the environment type
     if (configuration.serviceId().environment() == null) {
-      var env = CloudNet.instance().serviceVersionProvider()
+      var env = Node.instance().serviceVersionProvider()
         .getEnvironmentType(configuration.serviceId().environmentName())
         .orElseThrow(() -> new IllegalArgumentException(
           "Unknown environment type " + configuration.serviceId().environmentName()));

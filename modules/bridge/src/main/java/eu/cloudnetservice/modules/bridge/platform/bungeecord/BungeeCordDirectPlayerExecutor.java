@@ -134,6 +134,6 @@ final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
 
   @Override
   public void spoofCommandExecution(@NonNull String command) {
-    this.forEach(player -> player.chat(command));
+    this.forEach(player -> player.chat('/' + command));
   }
 }

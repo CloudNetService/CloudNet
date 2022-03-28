@@ -33,7 +33,7 @@ import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironment;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.event.service.CloudServicePostProcessStartEvent;
 import eu.cloudnetservice.cloudnet.node.event.service.CloudServicePreProcessStartEvent;
 import eu.cloudnetservice.cloudnet.node.service.CloudServiceManager;
@@ -77,7 +77,7 @@ public class JVMService extends AbstractService {
     @NonNull ServiceConfiguration configuration,
     @NonNull CloudServiceManager manager,
     @NonNull EventManager eventManager,
-    @NonNull CloudNet nodeInstance,
+    @NonNull Node nodeInstance,
     @NonNull ServiceConfigurationPreparer serviceConfigurationPreparer
   ) {
     super(configuration, manager, eventManager, nodeInstance, serviceConfigurationPreparer);

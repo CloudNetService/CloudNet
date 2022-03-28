@@ -21,7 +21,7 @@ import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.console.Console;
 import java.util.Arrays;
 import java.util.Collection;
@@ -148,7 +148,7 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
             // print out the possibilities the user has now
             LOGGER.info(I18n.trans("cluster-sync-change-decision-question"));
             // wait for the decision and apply
-            switch (this.waitForCorrectMergeInput(CloudNet.instance().console())) {
+            switch (this.waitForCorrectMergeInput(Node.instance().console())) {
               case 1 -> {
                 // accept theirs - write the change
                 handler.write(data);

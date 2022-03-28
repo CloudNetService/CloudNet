@@ -27,7 +27,7 @@ import eu.cloudnetservice.cloudnet.driver.network.def.PacketServerChannelMessage
 import eu.cloudnetservice.cloudnet.driver.provider.CloudMessenger;
 import eu.cloudnetservice.cloudnet.driver.provider.defaults.DefaultMessenger;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.cloudnet.node.service.CloudService;
 import eu.cloudnetservice.cloudnet.node.service.CloudServiceManager;
@@ -48,7 +48,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
   protected final NodeServerProvider nodeServerProvider;
   protected final CloudServiceManager cloudServiceManager;
 
-  public NodeMessenger(@NonNull CloudNet nodeInstance) {
+  public NodeMessenger(@NonNull Node nodeInstance) {
     this.nodeServerProvider = nodeInstance.nodeServerProvider();
     this.cloudServiceManager = nodeInstance.cloudServiceProvider();
   }

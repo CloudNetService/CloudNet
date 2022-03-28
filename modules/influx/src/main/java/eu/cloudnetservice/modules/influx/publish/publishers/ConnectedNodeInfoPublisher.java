@@ -18,7 +18,7 @@ package eu.cloudnetservice.modules.influx.publish.publishers;
 
 import com.influxdb.client.write.Point;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServer;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.modules.influx.publish.Publisher;
@@ -32,7 +32,7 @@ public final class ConnectedNodeInfoPublisher implements Publisher {
   private final NodeServerProvider nodeServerProvider;
 
   public ConnectedNodeInfoPublisher() {
-    this.nodeServerProvider = CloudNet.instance().nodeServerProvider();
+    this.nodeServerProvider = Node.instance().nodeServerProvider();
   }
 
   @Override

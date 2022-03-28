@@ -20,7 +20,7 @@ import com.influxdb.client.InfluxDBClientFactory;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
 import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
 import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
-import eu.cloudnetservice.cloudnet.node.CloudNetTick;
+import eu.cloudnetservice.cloudnet.node.TickLoop;
 import eu.cloudnetservice.modules.influx.publish.PublisherRegistry;
 import eu.cloudnetservice.modules.influx.publish.defaults.DefaultPublisherRegistry;
 import eu.cloudnetservice.modules.influx.publish.publishers.ConnectedNodeInfoPublisher;
@@ -50,6 +50,6 @@ public final class InfluxModule extends DriverModule {
       .registerPublisher(new ConnectedNodeInfoPublisher())
       .registerPublisher(new RunningServiceProcessSnapshotPublisher());
     // start the emitting task
-    reg.scheduleTask(conf.publishDelaySeconds() * CloudNetTick.TPS);
+    reg.scheduleTask(conf.publishDelaySeconds() * TickLoop.TPS);
   }
 }

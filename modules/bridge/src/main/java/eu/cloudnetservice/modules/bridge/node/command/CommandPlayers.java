@@ -28,7 +28,7 @@ import eu.cloudnetservice.cloudnet.common.Nameable;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.cloudnet.node.command.annotation.Description;
 import eu.cloudnetservice.cloudnet.node.command.exception.ArgumentNotAvailableException;
@@ -90,7 +90,7 @@ public class CommandPlayers {
   @Parser(suggestions = "playerService")
   public ServiceInfoSnapshot playerServiceParser(CommandContext<CommandSource> $, Queue<String> input) {
     var name = input.remove();
-    var serviceInfoSnapshot = CloudNet.instance().cloudServiceProvider()
+    var serviceInfoSnapshot = Node.instance().cloudServiceProvider()
       .serviceByName(name);
     if (serviceInfoSnapshot == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-service-service-not-found"));
@@ -100,7 +100,7 @@ public class CommandPlayers {
 
   @Suggestions("playerService")
   public List<String> suggestPlayerService(CommandContext<CommandSource> $, String input) {
-    return CloudNet.instance().cloudServiceProvider().services()
+    return Node.instance().cloudServiceProvider().services()
       .stream()
       .filter(snapshot -> ServiceEnvironmentType.minecraftServer(snapshot.serviceId().environment()))
       .map(Nameable::name)

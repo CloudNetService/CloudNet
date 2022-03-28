@@ -21,7 +21,7 @@ import com.influxdb.client.WriteApiBlocking;
 import com.influxdb.exceptions.InfluxException;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.modules.influx.publish.Publisher;
 import eu.cloudnetservice.modules.influx.publish.PublisherRegistry;
 import java.util.Collection;
@@ -89,7 +89,7 @@ public class DefaultPublisherRegistry implements PublisherRegistry {
 
   @Override
   public void scheduleTask(int delayTicks) {
-    this.publishFuture = CloudNet.instance().mainThread().scheduleTask(() -> {
+    this.publishFuture = Node.instance().mainThread().scheduleTask(() -> {
       this.publishData();
       return null;
     }, delayTicks);

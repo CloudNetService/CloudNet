@@ -16,11 +16,11 @@
 
 package eu.cloudnetservice.cloudnet.node.service;
 
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import lombok.NonNull;
 
 @FunctionalInterface
 public interface ServiceConfigurationPreparer {
 
-  void configure(@NonNull CloudNet nodeInstance, @NonNull CloudService cloudService);
+  void configure(@NonNull Node nodeInstance, @NonNull CloudService cloudService);
 }

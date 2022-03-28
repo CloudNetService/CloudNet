@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.docker;
 
 import com.github.dockerjava.api.model.Frame;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.service.CloudService;
 import eu.cloudnetservice.cloudnet.node.service.ServiceConsoleLogCache;
 import eu.cloudnetservice.cloudnet.node.service.defaults.log.AbstractServiceLogCache;
@@ -26,8 +26,8 @@ import lombok.NonNull;
 
 public class DockerizedServiceLogCache extends AbstractServiceLogCache {
 
-  public DockerizedServiceLogCache(@NonNull CloudNet cloudNet, @NonNull CloudService service) {
-    super(cloudNet, service);
+  public DockerizedServiceLogCache(@NonNull Node node, @NonNull CloudService service) {
+    super(node, service);
   }
 
   @Override

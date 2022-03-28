@@ -27,7 +27,7 @@ import eu.cloudnetservice.cloudnet.driver.network.chunk.defaults.DefaultFileChun
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
 import eu.cloudnetservice.cloudnet.driver.template.TemplateStorage;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
@@ -74,7 +74,7 @@ public final class FileDeployCallbackListener {
     var template = event.content().readObject(ServiceTemplate.class);
     var responseId = event.content().readUniqueId();
     // get the storage
-    var storage = CloudNet.instance().templateStorageProvider().templateStorage(storageName);
+    var storage = Node.instance().templateStorageProvider().templateStorage(storageName);
     if (storage == null) {
       // missing storage - no result
       event.binaryResponse(DataBuf.empty().writeBoolean(false));

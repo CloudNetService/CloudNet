@@ -24,7 +24,7 @@ import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
 import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
 import eu.cloudnetservice.cloudnet.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.module.listener.PluginIncludeListener;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.signs.GlobalChannelMessageListener;
@@ -46,7 +46,7 @@ public class CloudNetSignsModule extends DriverModule {
 
   @ModuleTask(order = 50)
   public void initialize() {
-    this.database = CloudNet.instance().databaseProvider().database(DATABASE_NAME);
+    this.database = Node.instance().databaseProvider().database(DATABASE_NAME);
   }
 
   @ModuleTask(order = 40)
@@ -59,7 +59,7 @@ public class CloudNetSignsModule extends DriverModule {
     var management = new NodeSignManagement(this.configuration, this.configPath(), this.database);
     management.registerToServiceRegistry();
 
-    CloudNet.instance().commandProvider().register(new CommandSign(management));
+    Node.instance().commandProvider().register(new CommandSign(management));
     this.registerListener(new GlobalChannelMessageListener(management), new NodeSignsListener(management));
     this.registerListener(new PluginIncludeListener(
       "cloudnet-signs",
@@ -78,7 +78,7 @@ public class CloudNetSignsModule extends DriverModule {
   @ModuleTask(order = 40, event = ModuleLifeCycle.STOPPED)
   public void handleStopping() throws Exception {
     this.database.close();
-    CloudNet.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
+    Node.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)
@@ -92,7 +92,7 @@ public class CloudNetSignsModule extends DriverModule {
   @Deprecated
   private void convertDatabaseIfNecessary() {
     // load old database document
-    var database = CloudNet.instance().databaseProvider().database("cloudNet_module_configuration");
+    var database = Node.instance().databaseProvider().database("cloudNet_module_configuration");
     var document = database.get("signs_store");
     // when the document is null the conversation already happened
     if (document != null) {

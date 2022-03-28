@@ -20,7 +20,7 @@ import com.google.common.primitives.Longs;
 import eu.cloudnetservice.cloudnet.common.function.ThrowableConsumer;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.console.Console;
 import eu.cloudnetservice.cloudnet.node.console.animation.progressbar.wrapper.WrappedInputStream;
 import eu.cloudnetservice.cloudnet.node.console.animation.progressbar.wrapper.WrappedIterator;
@@ -47,7 +47,7 @@ public final class ConsoleProgressWrappers {
     @NonNull String task,
     @NonNull String unitName
   ) {
-    return wrapIterator(collection, CloudNet.instance().console(), task, unitName);
+    return wrapIterator(collection, Node.instance().console(), task, unitName);
   }
 
   public static @NonNull <T> Iterator<T> wrapIterator(
@@ -63,7 +63,7 @@ public final class ConsoleProgressWrappers {
   }
 
   public static void wrapDownload(@NonNull String url, @NonNull ThrowableConsumer<InputStream, IOException> handler) {
-    wrapDownload(url, CloudNet.instance().console(), handler);
+    wrapDownload(url, Node.instance().console(), handler);
   }
 
   public static void wrapDownload(

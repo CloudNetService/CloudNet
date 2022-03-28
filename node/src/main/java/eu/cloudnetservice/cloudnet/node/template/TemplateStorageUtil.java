@@ -19,7 +19,7 @@ package eu.cloudnetservice.cloudnet.node.template;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
 import eu.cloudnetservice.cloudnet.driver.template.TemplateStorage;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.event.template.ServiceTemplateInstallEvent;
 import java.io.IOException;
 import lombok.NonNull;
@@ -53,7 +53,7 @@ public final class TemplateStorageUtil {
 
       // call the installation event if the default installation process should be executed
       if (installDefaultFiles) {
-        CloudNet.instance().eventManager().callEvent(new ServiceTemplateInstallEvent(template, storage, env));
+        Node.instance().eventManager().callEvent(new ServiceTemplateInstallEvent(template, storage, env));
       }
 
       return true;

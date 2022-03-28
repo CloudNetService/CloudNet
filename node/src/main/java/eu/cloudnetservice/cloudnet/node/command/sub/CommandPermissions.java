@@ -32,7 +32,7 @@ import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionUser;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionUserGroupInfo;
 import eu.cloudnetservice.cloudnet.driver.service.GroupConfiguration;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.cloudnet.node.command.annotation.Description;
 import eu.cloudnetservice.cloudnet.node.command.exception.ArgumentNotAvailableException;
@@ -84,7 +84,7 @@ public final class CommandPermissions {
   ) {
     var name = input.remove();
 
-    var group = CloudNet.instance().permissionManagement().group(name);
+    var group = Node.instance().permissionManagement().group(name);
     if (group == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-permissions-group-not-found"));
     }
@@ -518,6 +518,6 @@ public final class CommandPermissions {
   }
 
   private @NonNull PermissionManagement permissionManagement() {
-    return CloudNet.instance().permissionManagement();
+    return Node.instance().permissionManagement();
   }
 }

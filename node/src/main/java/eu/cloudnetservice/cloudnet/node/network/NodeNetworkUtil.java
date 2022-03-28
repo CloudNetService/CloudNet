@@ -25,7 +25,7 @@ import eu.cloudnetservice.cloudnet.driver.network.chunk.network.ChunkedPacketLis
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.PacketListenerRegistry;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.listener.RPCPacketListener;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.network.listener.PacketServerChannelMessageListener;
 import lombok.NonNull;
 
@@ -39,7 +39,7 @@ public final class NodeNetworkUtil {
     return !CloudNetDriver.instance().eventManager().callEvent(new NetworkChannelInitEvent(channel, type)).cancelled();
   }
 
-  public static void addDefaultPacketListeners(@NonNull PacketListenerRegistry registry, @NonNull CloudNet node) {
+  public static void addDefaultPacketListeners(@NonNull PacketListenerRegistry registry, @NonNull Node node) {
     registry.addListener(
       NetworkConstants.CHANNEL_MESSAGING_CHANNEL,
       new PacketServerChannelMessageListener(node.messenger(), node.eventManager()));

@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.cloudflare.dns;
 
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.modules.cloudflare.CloudflareConfigurationEntry;
 import eu.cloudnetservice.modules.cloudflare.CloudflareGroupConfiguration;
 import lombok.NonNull;
@@ -67,7 +67,7 @@ public class SRVRecord extends DNSRecord {
         configuration.priority(),
         configuration.weight(),
         port,
-        CloudNet.instance().config().identity().uniqueId(),
+        Node.instance().config().identity().uniqueId(),
         entry.domainName()
       ),
       "_minecraft",
@@ -76,7 +76,7 @@ public class SRVRecord extends DNSRecord {
       configuration.priority(),
       configuration.weight(),
       port,
-      CloudNet.instance().config().identity().uniqueId() + "." + entry.domainName()
+      Node.instance().config().identity().uniqueId() + "." + entry.domainName()
     );
   }
 }

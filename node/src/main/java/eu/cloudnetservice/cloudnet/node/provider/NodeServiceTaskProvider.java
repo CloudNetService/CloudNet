@@ -29,7 +29,7 @@ import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTask;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.cloudnet.node.event.task.LocalServiceTaskAddEvent;
 import eu.cloudnetservice.cloudnet.node.event.task.LocalServiceTaskRemoveEvent;
@@ -56,7 +56,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   private final EventManager eventManager;
   private final Map<String, ServiceTask> serviceTasks = new ConcurrentHashMap<>();
 
-  public NodeServiceTaskProvider(@NonNull CloudNet nodeInstance) {
+  public NodeServiceTaskProvider(@NonNull Node nodeInstance) {
     this.eventManager = nodeInstance.eventManager();
     this.eventManager.registerListener(new TaskChannelMessageListener(this.eventManager, this));
 

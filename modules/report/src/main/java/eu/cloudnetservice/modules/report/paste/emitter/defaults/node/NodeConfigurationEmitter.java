@@ -18,7 +18,7 @@ package eu.cloudnetservice.modules.report.paste.emitter.defaults.node;
 
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.modules.report.paste.emitter.ReportDataEmitter;
 import lombok.NonNull;
 
@@ -30,7 +30,7 @@ public class NodeConfigurationEmitter implements ReportDataEmitter<NetworkCluste
       .append(" - Node Configuration ")
       .append(context.node().uniqueId())
       .append(" - \n")
-      .append(JsonDocument.newDocument(CloudNet.instance().config()).toPrettyJson())
+      .append(JsonDocument.newDocument(Node.instance().config()).toPrettyJson())
       .append("\n")
       .append(" - Node Configuration END - \n");
   }

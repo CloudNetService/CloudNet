@@ -16,18 +16,18 @@
 
 package eu.cloudnetservice.cloudnet.driver;
 
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import org.mockito.Mockito;
 
 public final class NodeTestUtility {
 
   /**
-   * Mocks the {@link CloudNet} class and sets the instance of the CloudNet driver to the mocked one.
+   * Mocks the {@link Node} class and sets the instance of the CloudNet driver to the mocked one.
    *
    * @return the mocked node instance.
    */
-  public static CloudNet mockAndSetDriverInstance() {
-    var driver = Mockito.mock(CloudNet.class);
+  public static Node mockAndSetDriverInstance() {
+    var driver = Mockito.mock(Node.class);
     CloudNetDriver.instance = driver;
 
     return driver;

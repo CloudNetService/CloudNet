@@ -31,7 +31,7 @@ import eu.cloudnetservice.cloudnet.common.column.RowBasedFormatter;
 import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.cloudnet.node.command.annotation.Description;
 import eu.cloudnetservice.cloudnet.node.command.exception.ArgumentNotAvailableException;
@@ -75,19 +75,19 @@ public final class CommandVersion {
   @Parser(suggestions = "serviceVersionType")
   public @NonNull ServiceVersionType parseVersionType(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var versionTypeName = input.remove().toLowerCase();
-    return CloudNet.instance().serviceVersionProvider().getServiceVersionType(versionTypeName)
+    return Node.instance().serviceVersionProvider().getServiceVersionType(versionTypeName)
       .orElseThrow(() -> new ArgumentNotAvailableException(I18n.trans("command-template-invalid-version-type")));
   }
 
   @Suggestions("serviceVersionType")
   public @NonNull List<String> suggestVersionType(@NonNull CommandContext<?> $, @NonNull String input) {
-    return new ArrayList<>(CloudNet.instance().serviceVersionProvider().serviceVersionTypes().keySet());
+    return new ArrayList<>(Node.instance().serviceVersionProvider().serviceVersionTypes().keySet());
   }
 
   @Parser(name = "staticServiceDirectory", suggestions = "staticServices")
   public @NonNull Path parseStaticServiceDirectory(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var suppliedName = input.remove();
-    var baseDirectory = CloudNet.instance().cloudServiceProvider().persistentServicesDirectory();
+    var baseDirectory = Node.instance().cloudServiceProvider().persistentServicesDirectory();
 
     // check for path traversal
     var serviceDirectory = baseDirectory.resolve(suppliedName);
@@ -106,7 +106,7 @@ public final class CommandVersion {
     @NonNull CommandContext<?> $,
     @NonNull String input
   ) throws IOException {
-    var baseDirectory = CloudNet.instance().cloudServiceProvider().persistentServicesDirectory();
+    var baseDirectory = Node.instance().cloudServiceProvider().persistentServicesDirectory();
     return Files.walk(baseDirectory, 1)
       .filter(Files::isDirectory)
       .filter(path -> !path.equals(baseDirectory)) // prevents the base directory to show up in the suggestions
@@ -122,7 +122,7 @@ public final class CommandVersion {
   ) {
     Collection<Pair<ServiceVersionType, ServiceVersion>> versions;
     if (versionType == null) {
-      versions = CloudNet.instance().serviceVersionProvider()
+      versions = Node.instance().serviceVersionProvider()
         .serviceVersionTypes()
         .values().stream()
         .flatMap(type -> type.versions().stream()
@@ -130,7 +130,7 @@ public final class CommandVersion {
           .map(version -> new Pair<>(type, version)))
         .toList();
     } else {
-      versions = CloudNet.instance().serviceVersionProvider().serviceVersionTypes()
+      versions = Node.instance().serviceVersionProvider().serviceVersionTypes()
         .get(versionType.name().toLowerCase())
         .versions()
         .stream()
@@ -229,10 +229,10 @@ public final class CommandVersion {
   }
 
   private void executeInstallation(@NonNull CommandSource source, @NonNull VersionInstaller installer, boolean force) {
-    CloudNet.instance().mainThread().runTask(() -> {
+    Node.instance().mainThread().runTask(() -> {
       source.sendMessage(I18n.trans("command-version-install-try"));
 
-      if (CloudNet.instance().serviceVersionProvider().installServiceVersion(installer, force)) {
+      if (Node.instance().serviceVersionProvider().installServiceVersion(installer, force)) {
         source.sendMessage(I18n.trans("command-version-install-success"));
       } else {
         source.sendMessage(I18n.trans("command-version-install-failed"));

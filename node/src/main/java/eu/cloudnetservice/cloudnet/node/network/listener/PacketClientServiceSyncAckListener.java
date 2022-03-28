@@ -21,7 +21,7 @@ import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNodeInfo
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.PacketListener;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServerState;
 import eu.cloudnetservice.cloudnet.node.cluster.util.QueuedNetworkChannel;
 import lombok.NonNull;
@@ -34,12 +34,12 @@ public final class PacketClientServiceSyncAckListener implements PacketListener 
     var snapshot = packet.content().readObject(NetworkClusterNodeInfoSnapshot.class);
     var syncData = packet.content().readDataBuf();
     // select the node server and validate that it is in the right state for the packet
-    var server = CloudNet.instance().nodeServerProvider().node(snapshot.node().uniqueId());
+    var server = Node.instance().nodeServerProvider().node(snapshot.node().uniqueId());
     if (server != null && server.state() == NodeServerState.SYNCING) {
       // remove this listener
       channel.packetRegistry().removeListeners(NetworkConstants.INTERNAL_SERVICE_SYNC_ACK_CHANNEL);
       // sync the data between the nodes
-      CloudNet.instance().dataSyncRegistry().handle(syncData, syncData.readBoolean());
+      Node.instance().dataSyncRegistry().handle(syncData, syncData.readBoolean());
       if (server.channel() instanceof QueuedNetworkChannel queuedChannel) {
         queuedChannel.drainPacketQueue(channel);
       }
@@ -53,7 +53,7 @@ public final class PacketClientServiceSyncAckListener implements PacketListener 
       server.updateNodeInfoSnapshot(snapshot);
       server.state(NodeServerState.READY);
       // re-select the head node
-      CloudNet.instance().nodeServerProvider().selectHeadNode();
+      Node.instance().nodeServerProvider().selectHeadNode();
     }
   }
 }

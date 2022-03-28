@@ -28,7 +28,7 @@ import eu.cloudnetservice.cloudnet.common.function.ThrowableConsumer;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.command.annotation.Description;
 import eu.cloudnetservice.cloudnet.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
@@ -50,7 +50,7 @@ public final class CommandMigrate {
     @NonNull CommandContext<?> $,
     @NonNull Queue<String> input
   ) {
-    var abstractDatabaseProvider = CloudNet.instance().serviceRegistry()
+    var abstractDatabaseProvider = Node.instance().serviceRegistry()
       .provider(AbstractDatabaseProvider.class, input.remove());
 
     if (abstractDatabaseProvider == null) {
@@ -61,7 +61,7 @@ public final class CommandMigrate {
 
   @Suggestions("databaseProvider")
   public @NonNull List<String> suggestDatabaseProvider(@NonNull CommandContext<?> $, @NonNull String input) {
-    return CloudNet.instance().serviceRegistry().providers(AbstractDatabaseProvider.class)
+    return Node.instance().serviceRegistry().providers(AbstractDatabaseProvider.class)
       .stream()
       .map(Nameable::name)
       .toList();
@@ -115,7 +115,7 @@ public final class CommandMigrate {
     @NonNull AbstractDatabaseProvider sourceProvider,
     @NonNull ThrowableConsumer<AbstractDatabaseProvider, ?> handler
   ) {
-    if (!CloudNet.instance().databaseProvider().equals(sourceProvider)) {
+    if (!Node.instance().databaseProvider().equals(sourceProvider)) {
       try {
         handler.accept(sourceProvider);
       } catch (Throwable throwable) {

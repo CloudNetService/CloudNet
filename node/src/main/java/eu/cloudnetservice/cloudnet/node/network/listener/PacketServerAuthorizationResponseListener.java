@@ -25,7 +25,7 @@ import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.Packet;
 import eu.cloudnetservice.cloudnet.driver.network.protocol.PacketListener;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServerState;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.cloudnet.node.cluster.util.QueuedNetworkChannel;
@@ -46,9 +46,9 @@ public final class PacketServerAuthorizationResponseListener implements PacketLi
     // check if the auth was successful
     if (packet.content().readBoolean()) {
       // search for the node to which the auth succeeded
-      var server = CloudNet.instance().config().clusterConfig().nodes().stream()
+      var server = Node.instance().config().clusterConfig().nodes().stream()
         .filter(node -> node.listeners().stream().anyMatch(host -> channel.serverAddress().equals(host)))
-        .map(node -> CloudNet.instance().nodeServerProvider().node(node.uniqueId()))
+        .map(node -> Node.instance().nodeServerProvider().node(node.uniqueId()))
         .filter(Objects::nonNull)
         .findFirst()
         .orElse(null);
@@ -57,7 +57,7 @@ public final class PacketServerAuthorizationResponseListener implements PacketLi
         if (packet.content().readBoolean()) {
           // handle the data sync
           var syncData = packet.content().readDataBuf();
-          CloudNet.instance().dataSyncRegistry().handle(syncData, syncData.readBoolean());
+          Node.instance().dataSyncRegistry().handle(syncData, syncData.readBoolean());
 
           // check if there are pending packets for the node
           if (server.channel() instanceof QueuedNetworkChannel queuedChannel) {
@@ -65,11 +65,11 @@ public final class PacketServerAuthorizationResponseListener implements PacketLi
           }
 
           // update the current local snapshot
-          var local = CloudNet.instance().nodeServerProvider().localNode();
+          var local = Node.instance().nodeServerProvider().localNode();
           local.updateLocalSnapshot();
 
           // acknowledge the packet
-          var data = CloudNet.instance().dataSyncRegistry().prepareClusterData(
+          var data = Node.instance().dataSyncRegistry().prepareClusterData(
             true,
             DataSyncHandler::alwaysForceApply);
           channel.sendPacketSync(new PacketServerServiceSyncAckPacket(local.nodeInfoSnapshot(), data));
@@ -84,7 +84,7 @@ public final class PacketServerAuthorizationResponseListener implements PacketLi
         server.state(NodeServerState.READY);
         // add the packet listeners
         channel.packetRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
-        NodeNetworkUtil.addDefaultPacketListeners(channel.packetRegistry(), CloudNet.instance());
+        NodeNetworkUtil.addDefaultPacketListeners(channel.packetRegistry(), Node.instance());
         // we are good to go :)
         return;
       }

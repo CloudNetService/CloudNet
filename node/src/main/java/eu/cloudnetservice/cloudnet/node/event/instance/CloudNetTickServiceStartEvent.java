@@ -17,18 +17,18 @@
 package eu.cloudnetservice.cloudnet.node.event.instance;
 
 import eu.cloudnetservice.cloudnet.driver.event.events.DriverEvent;
-import eu.cloudnetservice.cloudnet.node.CloudNetTick;
+import eu.cloudnetservice.cloudnet.node.TickLoop;
 import lombok.NonNull;
 
 public class CloudNetTickServiceStartEvent extends DriverEvent {
 
-  private final CloudNetTick ticker;
+  private final TickLoop ticker;
 
-  public CloudNetTickServiceStartEvent(@NonNull CloudNetTick ticker) {
+  public CloudNetTickServiceStartEvent(@NonNull TickLoop ticker) {
     this.ticker = ticker;
   }
 
-  public @NonNull CloudNetTick ticker() {
+  public @NonNull TickLoop ticker() {
     return this.ticker;
   }
 }

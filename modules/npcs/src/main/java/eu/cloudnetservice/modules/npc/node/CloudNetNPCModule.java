@@ -23,7 +23,7 @@ import eu.cloudnetservice.cloudnet.driver.database.Database;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
 import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.NPC.ClickAction;
 import eu.cloudnetservice.modules.npc.NPC.ProfileProperty;
@@ -90,7 +90,7 @@ public class CloudNetNPCModule extends DriverModule {
     }
 
     // convert the old database
-    Database db = CloudNet.instance().databaseProvider().database("cloudNet_module_configuration");
+    Database db = Node.instance().databaseProvider().database("cloudNet_module_configuration");
     var npcStore = db.get("npc_store");
     if (npcStore != null) {
       Collection<CloudNPC> theOldOnes = npcStore.get("npcs", NPCConstants.NPC_COLLECTION_TYPE);
@@ -98,7 +98,7 @@ public class CloudNetNPCModule extends DriverModule {
       db.delete("npc_store");
       if (theOldOnes != null) {
         // get the new database
-        Database target = CloudNet.instance().databaseProvider().database(DATABASE_NAME);
+        Database target = Node.instance().databaseProvider().database(DATABASE_NAME);
         // convert the old entries
         theOldOnes.stream()
           .map(npc -> NPC.builder()
@@ -125,16 +125,16 @@ public class CloudNetNPCModule extends DriverModule {
   @ModuleTask
   public void initModule() {
     var config = this.loadConfig();
-    Database database = CloudNet.instance().databaseProvider().database(DATABASE_NAME);
+    Database database = Node.instance().databaseProvider().database(DATABASE_NAME);
     // management init
     var management = new NodeNPCManagement(
       config,
       database,
       this.configPath(),
-      CloudNet.instance().eventManager());
+      Node.instance().eventManager());
     management.registerToServiceRegistry();
     // register the npc module command
-    CloudNet.instance().commandProvider().register(new CommandNPC(management));
+    Node.instance().commandProvider().register(new CommandNPC(management));
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)

@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.node.service.defaults.log;
 
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.service.CloudService;
 import eu.cloudnetservice.cloudnet.node.service.ServiceConsoleLogCache;
 import java.io.IOException;
@@ -34,10 +34,10 @@ public class ProcessServiceLogCache extends AbstractServiceLogCache {
 
   public ProcessServiceLogCache(
     @NonNull Supplier<Process> processSupplier,
-    @NonNull CloudNet cloudNet,
+    @NonNull Node node,
     @NonNull CloudService service
   ) {
-    super(cloudNet, service);
+    super(node, service);
     this.processSupplier = processSupplier;
   }
 

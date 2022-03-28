@@ -18,7 +18,7 @@ package eu.cloudnetservice.cloudnet.node.command.sub;
 
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.command.annotation.Description;
 
 @CommandPermission("cloudnet.command.clear")
@@ -27,6 +27,6 @@ public final class CommandClear {
 
   @CommandMethod("clear")
   public void clearConsole() {
-    CloudNet.instance().console().clearScreen();
+    Node.instance().console().clearScreen();
   }
 }

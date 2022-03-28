@@ -26,7 +26,7 @@ import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.cloudnet.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.cloudnet.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.cloudnet.driver.provider.defaults.RemoteCloudServiceFactory;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServer;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServerState;
@@ -45,7 +45,7 @@ public class RemoteNodeServer implements NodeServer {
 
   private static final Type COLLECTION_STRING = TypeToken.getParameterized(Set.class, String.class).getType();
 
-  private final CloudNet node;
+  private final Node node;
   private final NetworkClusterNode info;
   private final NodeServerProvider provider;
   private final CloudServiceFactory serviceFactory;
@@ -58,7 +58,7 @@ public class RemoteNodeServer implements NodeServer {
   private volatile NetworkClusterNodeInfoSnapshot lastSnapshot;
 
   public RemoteNodeServer(
-    @NonNull CloudNet node,
+    @NonNull Node node,
     @NonNull NetworkClusterNode info,
     @NonNull NodeServerProvider provider
   ) {

@@ -23,7 +23,7 @@ import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
 import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
 import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
 import eu.cloudnetservice.cloudnet.driver.template.TemplateStorage;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.modules.sftp.config.SFTPTemplateStorageConfig;
 import java.io.IOException;
@@ -67,7 +67,7 @@ public final class SFTPTemplateStorageModule extends DriverModule {
     this.storage = new SFTPTemplateStorage(this.config);
     this.serviceRegistry().registerProvider(TemplateStorage.class, this.storage.name(), this.storage);
     // register the cluster sync handler
-    CloudNet.instance().dataSyncRegistry().registerHandler(DataSyncHandler.<SFTPTemplateStorageConfig>builder()
+    Node.instance().dataSyncRegistry().registerHandler(DataSyncHandler.<SFTPTemplateStorageConfig>builder()
       .key("sftp-storage-config")
       .nameExtractor($ -> "SFTP Template Storage Config")
       .convertObject(SFTPTemplateStorageConfig.class)

@@ -23,7 +23,7 @@ import eu.cloudnetservice.cloudnet.driver.service.GroupConfiguration;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTask;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.console.animation.setup.ConsoleSetupAnimation;
 import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.Parsers;
 import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.QuestionAnswerType;
@@ -80,7 +80,7 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
         .translatedQuestion("command-tasks-setup-question-environment")
         .answerType(QuestionAnswerType.<ServiceEnvironmentType>builder()
           .parser(Parsers.serviceEnvironmentType())
-          .possibleResults(CloudNet.instance().serviceVersionProvider().knownEnvironments().keySet()))
+          .possibleResults(Node.instance().serviceVersionProvider().knownEnvironments().keySet()))
         .build(),
       QuestionListEntry.<Integer>builder()
         .key("taskStartPort")
@@ -143,7 +143,7 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
     // check if the user chose to install a version
     if (version != null) {
       // install the chosen version
-      CloudNet.instance().serviceVersionProvider().installServiceVersion(TemplateVersionInstaller.builder()
+      Node.instance().serviceVersionProvider().installServiceVersion(TemplateVersionInstaller.builder()
         .serviceVersionType(version.first())
         .serviceVersion(version.second())
         .toTemplate(defaultTemplate)
@@ -151,10 +151,10 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
         .build(), false);
     }
     // add the task after the template is created
-    CloudNet.instance().serviceTaskProvider().addServiceTask(task);
+    Node.instance().serviceTaskProvider().addServiceTask(task);
     // create a group with the same name
     var groupConfiguration = GroupConfiguration.builder().name(name).build();
-    CloudNet.instance().groupConfigurationProvider().addGroupConfiguration(groupConfiguration);
+    Node.instance().groupConfigurationProvider().addGroupConfiguration(groupConfiguration);
     LOGGER.info(I18n.trans("command-tasks-setup-create-success", task.name()));
   }
 }

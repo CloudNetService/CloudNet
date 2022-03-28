@@ -28,7 +28,7 @@ import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.cloudnet.driver.service.GroupConfiguration;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTask;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.command.annotation.Description;
 import eu.cloudnetservice.cloudnet.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
@@ -49,7 +49,7 @@ public class CommandBridge {
 
   public CommandBridge(@NonNull BridgeManagement bridgeManagement) {
     this.bridgeManagement = bridgeManagement;
-    this.groupConfigurationProvider = CloudNet.instance().groupConfigurationProvider();
+    this.groupConfigurationProvider = Node.instance().groupConfigurationProvider();
   }
 
   @Parser(name = "bridgeGroups", suggestions = "bridgeGroups")

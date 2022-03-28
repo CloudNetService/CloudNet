@@ -25,7 +25,7 @@ import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkCluster;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.cloudnet.driver.network.ssl.SSLConfiguration;
 import eu.cloudnetservice.cloudnet.driver.service.ProcessSnapshot;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.setup.DefaultConfigSetup;
 import eu.cloudnetservice.cloudnet.node.util.NetworkUtil;
 import java.nio.file.Files;
@@ -100,7 +100,7 @@ public final class JsonConfiguration implements Configuration {
     }
   }
 
-  public static @NonNull Configuration loadFromFile(@NonNull CloudNet nodeInstance) {
+  public static @NonNull Configuration loadFromFile(@NonNull Node nodeInstance) {
     if (Files.notExists(CONFIG_FILE_PATH)) {
       // register the setup if the file does not exists
       nodeInstance.installation().registerSetup(new DefaultConfigSetup());

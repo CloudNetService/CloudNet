@@ -23,7 +23,7 @@ import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.driver.network.chunk.ChunkedPacketHandler.Callback;
 import eu.cloudnetservice.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import java.io.InputStream;
 import java.nio.file.Files;
 import lombok.NonNull;
@@ -46,7 +46,7 @@ final class StaticServiceDeployCallback implements Callback {
     var service = information.transferInformation().readString();
     var overwriteService = information.transferInformation().readBoolean();
 
-    var serviceManager = CloudNet.instance().cloudServiceProvider();
+    var serviceManager = Node.instance().cloudServiceProvider();
     // only copy the static service running with the same name
     if (serviceManager.localCloudService(service) == null) {
       var servicePath = serviceManager.persistentServicesDirectory().resolve(service);

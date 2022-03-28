@@ -25,7 +25,7 @@ import eu.cloudnetservice.cloudnet.driver.module.DefaultModuleProvider;
 import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
 import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.cloudnet.driver.service.ProcessSnapshot;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.console.animation.setup.ConsoleSetupAnimation;
 import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.Parsers;
 import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.Parsers.ParserException;
@@ -124,14 +124,14 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
             Set<ModuleEntry> result = new HashSet<>();
             for (var entry : entries) {
               // get the associated entry
-              var moduleEntry = CloudNet.instance().modulesHolder()
+              var moduleEntry = Node.instance().modulesHolder()
                 .findByName(entry)
                 .orElseThrow(() -> ParserException.INSTANCE);
               // check for depending on modules
               if (!moduleEntry.dependingModules().isEmpty()) {
                 moduleEntry.dependingModules().forEach(module -> {
                   // resolve and add the depending on module
-                  var dependEntry = CloudNet.instance().modulesHolder()
+                  var dependEntry = Node.instance().modulesHolder()
                     .findByName(module)
                     .orElseThrow(() -> ParserException.INSTANCE);
                   result.add(dependEntry);
@@ -142,7 +142,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
             }
             return result;
           })
-          .possibleResults(CloudNet.instance().modulesHolder().entries().stream()
+          .possibleResults(Node.instance().modulesHolder().entries().stream()
             .map(ModuleEntry::name)
             .toList())
           .recommendation("CloudNet-Bridge CloudNet-Signs")
@@ -156,13 +156,13 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
               Unirest.get(entry.url()).asFile(targetPath.toString(), StandardCopyOption.REPLACE_EXISTING);
               // validate the downloaded file
               var checksum = ChecksumUtil.fileShaSum(targetPath);
-              if (!checksum.equals(entry.sha3256()) && !CloudNet.instance().dev() && !entry.official()) {
+              if (!checksum.equals(entry.sha3256()) && !Node.instance().dev() && !entry.official()) {
                 // remove the file
                 FileUtil.delete(targetPath);
                 return;
               }
               // load the module
-              CloudNet.instance().moduleProvider().loadModule(targetPath);
+              Node.instance().moduleProvider().loadModule(targetPath);
             });
           }))
         .build()
@@ -173,7 +173,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
 
   @Override
   public void handleResults(@NonNull ConsoleSetupAnimation animation) {
-    var config = CloudNet.instance().config();
+    var config = Node.instance().config();
     // init the local node identity
     HostAndPort host = animation.result("internalHost");
     config.identity(new NetworkClusterNode(

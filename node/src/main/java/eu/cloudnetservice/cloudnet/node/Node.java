@@ -96,9 +96,9 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Represents the implementation of the {@link CloudNetDriver} for nodes.
  */
-public class CloudNet extends CloudNetDriver {
+public class Node extends CloudNetDriver {
 
-  private static final Logger LOGGER = LogManager.logger(CloudNet.class);
+  private static final Logger LOGGER = LogManager.logger(Node.class);
   private static final boolean DEV_MODE = Boolean.getBoolean("cloudnet.dev");
   private static final Path LAUNCHER_DIR = Path.of(System.getProperty("cloudnet.launcherdir", "launcher"));
 
@@ -116,7 +116,7 @@ public class CloudNet extends CloudNetDriver {
   private final ModulesHolder modulesHolder;
   private final UpdaterRegistry<ModuleUpdaterContext, ModulesHolder> moduleUpdaterRegistry;
 
-  private final CloudNetTick mainThread = new CloudNetTick(this);
+  private final TickLoop mainThread = new TickLoop(this);
   private final AtomicBoolean running = new AtomicBoolean(true);
   private final DefaultInstallation installation = new DefaultInstallation();
   private final DataSyncRegistry dataSyncRegistry = new DefaultDataSyncRegistry();
@@ -124,8 +124,8 @@ public class CloudNet extends CloudNetDriver {
 
   private volatile AbstractDatabaseProvider databaseProvider;
 
-  protected CloudNet(@NonNull String[] args, @NonNull Console console, @NonNull Logger rootLogger) {
-    super(CloudNetVersion.fromPackage(CloudNet.class.getPackage()), Lists.newArrayList(args), DriverEnvironment.NODE);
+  protected Node(@NonNull String[] args, @NonNull Console console, @NonNull Logger rootLogger) {
+    super(CloudNetVersion.fromPackage(Node.class.getPackage()), Lists.newArrayList(args), DriverEnvironment.NODE);
 
     instance(this);
 
@@ -179,7 +179,7 @@ public class CloudNet extends CloudNetDriver {
     this.rpcFactory.newHandler(TemplateStorage.class, null).registerToDefaultRegistry();
   }
 
-  public static @NonNull CloudNet instance() {
+  public static @NonNull Node instance() {
     return CloudNetDriver.instance();
   }
 
@@ -439,7 +439,7 @@ public class CloudNet extends CloudNetDriver {
     return this.nodeServerProvider;
   }
 
-  public @NonNull CloudNetTick mainThread() {
+  public @NonNull TickLoop mainThread() {
     return this.mainThread;
   }
 

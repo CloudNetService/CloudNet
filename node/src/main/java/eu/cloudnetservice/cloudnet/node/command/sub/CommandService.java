@@ -42,7 +42,7 @@ import eu.cloudnetservice.cloudnet.driver.service.ServiceDeployment;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceRemoteInclusion;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.cloudnet.node.command.annotation.Description;
 import eu.cloudnetservice.cloudnet.node.command.exception.ArgumentNotAvailableException;
@@ -83,12 +83,12 @@ public final class CommandService {
     .build();
 
   public CommandService() {
-    CloudNet.instance().eventManager().registerListener(this);
+    Node.instance().eventManager().registerListener(this);
   }
 
   @Suggestions("service")
   public @NonNull List<String> suggestService(@NonNull CommandContext<?> $, @NonNull String input) {
-    return CloudNet.instance().cloudServiceProvider().services()
+    return Node.instance().cloudServiceProvider().services()
       .stream()
       .map(Nameable::name)
       .toList();
@@ -100,7 +100,7 @@ public final class CommandService {
     @NonNull Queue<String> input
   ) {
     var name = input.remove();
-    var knownServices = CloudNet.instance().cloudServiceProvider().services();
+    var knownServices = Node.instance().cloudServiceProvider().services();
     var matchedServices = WildcardUtil.filterWildcard(knownServices, name);
     if (matchedServices.isEmpty()) {
       throw new ArgumentNotAvailableException(I18n.trans("command-service-service-not-found"));
@@ -117,7 +117,7 @@ public final class CommandService {
     @Nullable @Flag("group") String groupName,
     @Flag("names") boolean useNamesOnly
   ) {
-    Collection<ServiceInfoSnapshot> services = CloudNet.instance().cloudServiceProvider().services()
+    Collection<ServiceInfoSnapshot> services = Node.instance().cloudServiceProvider().services()
       .stream()
       .filter(service -> id == null || service.serviceId().taskServiceId() == id)
       .filter(service -> taskName == null || service.serviceId().taskName().equalsIgnoreCase(taskName))

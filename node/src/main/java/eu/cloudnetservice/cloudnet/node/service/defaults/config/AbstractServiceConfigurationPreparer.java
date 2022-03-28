@@ -19,7 +19,7 @@ package eu.cloudnetservice.cloudnet.node.service.defaults.config;
 import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.service.CloudService;
 import eu.cloudnetservice.cloudnet.node.service.ServiceConfigurationPreparer;
 import java.io.IOException;
@@ -35,7 +35,7 @@ public abstract class AbstractServiceConfigurationPreparer implements ServiceCon
 
   protected static final Logger LOGGER = LogManager.logger(ServiceConfigurationPreparer.class);
 
-  protected boolean shouldRewriteIp(@NonNull CloudNet nodeInstance, @NonNull CloudService service) {
+  protected boolean shouldRewriteIp(@NonNull Node nodeInstance, @NonNull CloudService service) {
     var task = nodeInstance.serviceTaskProvider().serviceTask(service.serviceId().taskName());
     return task == null || !task.disableIpRewrite();
   }

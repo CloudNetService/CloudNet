@@ -21,7 +21,7 @@ import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.def.NetworkConstants;
-import eu.cloudnetservice.cloudnet.node.CloudNet;
+import eu.cloudnetservice.cloudnet.node.Node;
 import eu.cloudnetservice.cloudnet.node.cluster.NodeServerState;
 import eu.cloudnetservice.cloudnet.node.cluster.defaults.DefaultNodeServerProvider;
 import lombok.NonNull;
@@ -55,7 +55,7 @@ public record LocalNodeUpdateTask(@NonNull DefaultNodeServerProvider provider) i
             .message("update_node_info_snapshot")
             .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
             .buffer(DataBuf.empty().writeObject(localNode.nodeInfoSnapshot()))
-            .prioritized(CloudNet.instance().mainThread().currentTick() % 10 == 0);
+            .prioritized(Node.instance().mainThread().currentTick() % 10 == 0);
           // add all targets
           targetNodes.forEach(message::targetNode);
           // send the update to all active nodes
