@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.npc.configuration;
 
+import com.google.common.base.Preconditions;
 import lombok.NonNull;
 
 public record NPCConfigurationEntry(

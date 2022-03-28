@@ -18,6 +18,7 @@ package eu.cloudnetservice.modules.npc.platform.bukkit;
 
 import com.github.juliarn.npc.NPCPool;
 import com.github.juliarn.npc.modifier.LabyModModifier.LabyModAction;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceLifeCycle;

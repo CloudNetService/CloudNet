@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.config;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.common.document.property.JsonDocPropertyHolder;

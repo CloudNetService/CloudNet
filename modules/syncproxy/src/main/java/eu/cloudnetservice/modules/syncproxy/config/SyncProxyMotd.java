@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.syncproxy.config;
 
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
 import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
