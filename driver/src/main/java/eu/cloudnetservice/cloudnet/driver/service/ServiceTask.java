@@ -640,7 +640,7 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
      *
      * @param maxHeapMemory the maximum heap memory a service is allowed to use.
      * @return the same instance as used to call the method, for chaining.
-     * @throws NullPointerException if the given memory size is less than 50 mb.
+     * @throws IllegalArgumentException if the given memory size is less than 50 mb.
      */
     public @NonNull Builder maxHeapMemory(int maxHeapMemory) {
       this.processConfiguration.maxHeapMemorySize(maxHeapMemory);

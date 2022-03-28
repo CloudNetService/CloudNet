@@ -253,8 +253,8 @@ public class ServiceId implements Nameable {
      *
      * @param taskName the name of the task to use for the service id.
      * @return the same instance as used to call the method, for chaining.
-     * @throws NullPointerException if the given task name is null.
-     * @throws NullPointerException if the given task does not match the task naming pattern.
+     * @throws NullPointerException     if the given task name is null.
+     * @throws IllegalArgumentException if the given task does not match the task naming pattern.
      */
     public @NonNull Builder taskName(@NonNull String taskName) {
       Preconditions.checkArgument(ServiceTask.NAMING_PATTERN.matcher(taskName).matches(), "Invalid task name given");
@@ -295,8 +295,8 @@ public class ServiceId implements Nameable {
      *
      * @param nameSplitter the name splitter to use for services using the created id.
      * @return the same instance as used to call the method, for chaining.
-     * @throws NullPointerException if the given name splitter is null.
-     * @throws NullPointerException if the given name splitter does not follow the naming pattern.
+     * @throws NullPointerException     if the given name splitter is null.
+     * @throws IllegalArgumentException if the given name splitter does not follow the naming pattern.
      */
     public @NonNull Builder nameSplitter(@NonNull String nameSplitter) {
       Preconditions.checkArgument(ServiceTask.NAMING_PATTERN.matcher(nameSplitter).matches(),

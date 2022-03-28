@@ -110,12 +110,12 @@ public abstract class AbstractConsoleAnimation implements Runnable {
   }
 
   public void console(@NonNull Console console) {
-    Preconditions.checkArgument(this.console == null, "Cannot set console of animation twice");
+    Preconditions.checkState(this.console == null, "Cannot set console of animation twice");
     this.console = console;
   }
 
   public void resetConsole() {
-    Preconditions.checkArgument(this.console != null, "Console is not set");
+    Preconditions.checkState(this.console != null, "Console is not set");
     this.console = null;
   }
 }

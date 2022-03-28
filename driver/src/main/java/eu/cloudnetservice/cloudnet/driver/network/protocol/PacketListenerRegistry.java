@@ -48,8 +48,8 @@ public interface PacketListenerRegistry {
    *
    * @param channel   the channel the listener wants to listen to.
    * @param listeners the listeners to register for the channel.
-   * @throws NullPointerException                   if the given listeners are null.
-   * @throws NullPointerException if the given channel id is invalid.
+   * @throws NullPointerException     if the given listeners are null.
+   * @throws IllegalArgumentException if the given channel id is invalid.
    */
   void addListener(int channel, @NonNull PacketListener... listeners);
 

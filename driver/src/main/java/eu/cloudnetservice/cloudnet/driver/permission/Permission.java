@@ -152,7 +152,7 @@ public record Permission(
      * @throws NullPointerException if the name of the permission is missing.
      */
     public @NonNull Permission build() {
-      Preconditions.checkNotNull(this.name, "Missing name");
+      Preconditions.checkNotNull(this.name, "No name given");
 
       return new Permission(this.name, this.potency, this.timeOutMillis);
     }
