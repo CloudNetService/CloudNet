@@ -78,11 +78,13 @@ public class CloudNetSmartModule extends DriverModule {
   }
 
   @ModuleTask(event = ModuleLifeCycle.STARTED)
-  public void registerListeners() {
+  public void start() {
     this.registerListener(
       new CloudNetTickListener(this),
       new CloudNetLocalServiceTaskListener(),
       new CloudNetLocalServiceListener(this));
+
+    CloudNet.instance().commandProvider().register(new CommandSmart());
   }
 
   public @Nullable SmartServiceTaskConfig smartConfig(@NonNull ServiceTask task) {
