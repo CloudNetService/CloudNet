@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.node.version.information;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironment;
 import eu.cloudnetservice.cloudnet.node.version.ServiceVersion;
@@ -81,7 +81,7 @@ public final class FileSystemVersionInstaller extends VersionInstaller {
 
     @Override
     protected @NonNull FileSystemVersionInstaller doBuild() {
-      Verify.verifyNotNull(this.workingDirectory, "working directory must be given");
+      Preconditions.checkNotNull(this.workingDirectory, "working directory must be given");
       return new FileSystemVersionInstaller(
         this.serviceVersion,
         this.serviceVersionType,

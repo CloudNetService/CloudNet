@@ -16,8 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.network;
 
-import com.google.common.base.Verify;
-import com.google.common.base.VerifyException;
+import com.google.common.base.Preconditions;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.UnixDomainSocketAddress;
@@ -40,10 +39,10 @@ public record HostAndPort(@NonNull String host, int port) {
    * @param host the host of the address.
    * @param port the port of the address, or -1 if no port is given.
    * @throws NullPointerException if the given host is null.
-   * @throws VerifyException      if the given port exceeds the port range.
+   * @throws IllegalArgumentException      if the given port exceeds the port range.
    */
   public HostAndPort {
-    Verify.verify(this.port() >= -1 && this.port() <= 65535, "invalid port given");
+    Preconditions.checkArgument(this.port() >= -1 && this.port() <= 65535, "invalid port given");
   }
 
   /**

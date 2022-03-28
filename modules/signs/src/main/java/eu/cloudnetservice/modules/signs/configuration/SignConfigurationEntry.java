@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.signs.configuration;
 
-import com.google.common.base.Verify;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.NonNull;
@@ -155,12 +154,12 @@ public record SignConfigurationEntry(
     }
 
     public @NonNull SignConfigurationEntry build() {
-      Verify.verifyNotNull(this.targetGroup, "Missing target group");
-      Verify.verifyNotNull(this.searchingLayout, "Missing searching layout");
-      Verify.verifyNotNull(this.startingLayout, "Missing starting layout");
-      Verify.verifyNotNull(this.emptyLayout, "Missing empty layout");
-      Verify.verifyNotNull(this.onlineLayout, "Missing online layout");
-      Verify.verifyNotNull(this.fullLayout, "Missing full layout");
+      Preconditions.checkNotNull(this.targetGroup, "Missing target group");
+      Preconditions.checkNotNull(this.searchingLayout, "Missing searching layout");
+      Preconditions.checkNotNull(this.startingLayout, "Missing starting layout");
+      Preconditions.checkNotNull(this.emptyLayout, "Missing empty layout");
+      Preconditions.checkNotNull(this.onlineLayout, "Missing online layout");
+      Preconditions.checkNotNull(this.fullLayout, "Missing full layout");
 
       return new SignConfigurationEntry(
         this.targetGroup,

@@ -18,7 +18,6 @@ package eu.cloudnetservice.modules.npc.platform.bukkit;
 
 import com.github.juliarn.npc.NPCPool;
 import com.github.juliarn.npc.modifier.LabyModModifier.LabyModAction;
-import com.google.common.base.Verify;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceLifeCycle;
@@ -139,7 +138,7 @@ public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location,
 
   @Override
   public @NonNull WorldPosition toWorldPosition(@NonNull Location location, @NonNull String group) {
-    Verify.verifyNotNull(location.getWorld(), "world unloaded");
+    Preconditions.checkNotNull(location.getWorld(), "world unloaded");
     return new WorldPosition(
       location.getX(),
       location.getY(),

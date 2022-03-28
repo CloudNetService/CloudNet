@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.service;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.common.Nameable;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.common.document.property.DocProperty;
@@ -338,11 +338,12 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
      * Builds a service environment type instance based on the properties supplied to this builder.
      *
      * @return a new service environment type.
-     * @throws com.google.common.base.VerifyException if no name was given or the default port is out of range.
+     * @throws NullPointerException if no name was given.
+     * @throws IllegalArgumentException if the given default port is out of range.
      */
     public @NonNull ServiceEnvironmentType build() {
-      Verify.verifyNotNull(this.name, "no name given");
-      Verify.verify(this.defaultServiceStartPort >= 0 && this.defaultServiceStartPort <= 65535, "invalid default port");
+      Preconditions.checkNotNull(this.name, "no name given");
+      Preconditions.checkArgument(this.defaultServiceStartPort >= 0 && this.defaultServiceStartPort <= 65535, "invalid default port");
 
       return new ServiceEnvironmentType(
         this.name,

@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.node.console.animation.setup.answer;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -144,7 +144,7 @@ public record QuestionAnswerType<T>(
     }
 
     public @NonNull QuestionAnswerType<T> build() {
-      Verify.verifyNotNull(this.parser, "no parser given");
+      Preconditions.checkNotNull(this.parser, "no parser given");
       return new QuestionAnswerType<>(
         this.parser,
         this.recommendation,

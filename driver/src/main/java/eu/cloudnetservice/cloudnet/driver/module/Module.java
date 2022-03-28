@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.cloudnet.driver.module;
 
-import com.google.common.base.VerifyException;
 import eu.cloudnetservice.cloudnet.common.Nameable;
 import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
 import lombok.NonNull;
@@ -39,7 +38,7 @@ public interface Module extends Nameable {
    * @param loader  the class loader used to load all dependencies and the main class of the module.
    * @param wrapper the created module wrapper which wraps this module.
    * @param config  the deserialized module configuration located in the module file.
-   * @throws VerifyException      if this module instance is already initialized.
+   * @throws IllegalArgumentException      if this module instance is already initialized.
    * @throws NullPointerException if the provided loader, wrapper or module config is null.
    */
   void init(@NonNull ClassLoader loader, @NonNull ModuleWrapper wrapper, @NonNull ModuleConfiguration config);

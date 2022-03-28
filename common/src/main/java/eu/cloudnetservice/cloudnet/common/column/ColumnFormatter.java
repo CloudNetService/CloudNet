@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.common.column;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.common.StringUtil;
 import java.util.Arrays;
 import java.util.Collection;
@@ -201,7 +201,7 @@ public class ColumnFormatter {
     }
 
     public @NonNull ColumnFormatter build() {
-      Verify.verify(!this.columnTitles.isEmpty(), "At least one title must be given");
+      Preconditions.checkArgument(!this.columnTitles.isEmpty(), "At least one title must be given");
       return new ColumnFormatter(
         this.leftSpacer,
         this.rightSpacer,

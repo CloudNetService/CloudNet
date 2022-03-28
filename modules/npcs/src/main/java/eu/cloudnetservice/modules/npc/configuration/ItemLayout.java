@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.npc.configuration;
 
-import com.google.common.base.Verify;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.NonNull;
@@ -68,8 +67,8 @@ public record ItemLayout(
     }
 
     public ItemLayout build() {
-      Verify.verifyNotNull(this.material, "no material given");
-      Verify.verifyNotNull(this.displayName, "no display name given");
+      Preconditions.checkNotNull(this.material, "no material given");
+      Preconditions.checkNotNull(this.displayName, "no display name given");
 
       return new ItemLayout(material, subId, displayName, lore);
     }

@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.node.version.information;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironment;
 import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
 import eu.cloudnetservice.cloudnet.driver.template.TemplateStorage;
@@ -92,8 +92,8 @@ public final class TemplateVersionInstaller extends VersionInstaller {
 
     @Override
     protected @NonNull TemplateVersionInstaller doBuild() {
-      Verify.verifyNotNull(this.serviceTemplate, "no service template given");
-      Verify.verifyNotNull(this.templateStorage, "no template storage given");
+      Preconditions.checkNotNull(this.serviceTemplate, "no service template given");
+      Preconditions.checkNotNull(this.templateStorage, "no template storage given");
 
       return new TemplateVersionInstaller(
         this.serviceVersion,

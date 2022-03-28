@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.docker.config;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -64,7 +64,7 @@ public record DockerImage(
     }
 
     public @NonNull DockerImage build() {
-      Verify.verifyNotNull(this.repository, "no repository given");
+      Preconditions.checkNotNull(this.repository, "no repository given");
       return new DockerImage(this.repository, this.tag, this.registry, this.platform);
     }
   }

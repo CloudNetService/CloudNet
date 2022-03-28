@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.service;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.common.document.property.JsonDocPropertyHolder;
 import java.util.Collection;
@@ -188,10 +188,10 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
      * Builds a new service deployment instances based on this builder.
      *
      * @return a service deployment from this builder.
-     * @throws com.google.common.base.VerifyException if no template was set in this builder.
+     * @throws NullPointerException if no template was set in this builder.
      */
     public @NonNull ServiceDeployment build() {
-      Verify.verifyNotNull(this.template, "no target template given");
+      Preconditions.checkNotNull(this.template, "no target template given");
       return new ServiceDeployment(this.template, this.excludes, this.properties);
     }
   }

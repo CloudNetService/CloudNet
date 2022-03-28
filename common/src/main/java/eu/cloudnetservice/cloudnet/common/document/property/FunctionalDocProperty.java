@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.common.document.property;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.common.document.Document;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -92,10 +92,10 @@ public record FunctionalDocProperty<E>(
     }
 
     public @NonNull DocProperty<E> build() {
-      Verify.verifyNotNull(this.reader, "no reader given");
-      Verify.verifyNotNull(this.writer, "no writer given");
-      Verify.verifyNotNull(this.reader, "no remover given");
-      Verify.verifyNotNull(this.containsTester, "no contains tester given");
+      Preconditions.checkNotNull(this.reader, "no reader given");
+      Preconditions.checkNotNull(this.writer, "no writer given");
+      Preconditions.checkNotNull(this.reader, "no remover given");
+      Preconditions.checkNotNull(this.containsTester, "no contains tester given");
 
       return new FunctionalDocProperty<>(
         this.reader,

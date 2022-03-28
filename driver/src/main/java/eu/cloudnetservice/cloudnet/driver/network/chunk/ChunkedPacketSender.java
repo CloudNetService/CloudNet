@@ -179,8 +179,8 @@ public interface ChunkedPacketSender extends ChunkedPacketProvider {
      * Builds the chunked packet sender based on the supplied information in this builder.
      *
      * @return the instance build from the information.
-     * @throws com.google.common.base.VerifyException if no source, splitter or channel were given, or the chunk size is
-     *                                                not greater than 0.
+     * @throws NullPointerException if no source, splitter or channel were given.
+     * @throws IllegalArgumentException if the chunk size is not greater than 0.
      */
     @NonNull ChunkedPacketSender build();
   }

@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.cloudperms.sponge.service.permissible.group;
 
-import com.google.common.base.Verify;
 import eu.cloudnetservice.cloudnet.driver.permission.Permission;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionGroup;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
@@ -42,7 +41,7 @@ public final class CloudGroupCollection extends AbstractSubjectCollection {
   public CompletableFuture<? extends Subject> loadSubject(String identifier) {
     return CompletableFuture.supplyAsync(() -> {
       var group = this.management.group(identifier);
-      Verify.verifyNotNull(group, "No group identified by " + identifier);
+      Preconditions.checkNotNull(group, "No group identified by " + identifier);
       return new PermissionGroupSubject(identifier, this, group, this.management);
     });
   }

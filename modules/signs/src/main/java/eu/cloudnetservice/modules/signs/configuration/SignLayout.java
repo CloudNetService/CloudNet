@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.signs.configuration;
 
-import com.google.common.base.Verify;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -74,8 +73,8 @@ public record SignLayout(
     }
 
     public @NonNull SignLayout build() {
-      Verify.verifyNotNull(this.lines, "Missing lines");
-      Verify.verifyNotNull(this.blockMaterial, "Missing block material");
+      Preconditions.checkNotNull(this.lines, "Missing lines");
+      Preconditions.checkNotNull(this.blockMaterial, "Missing block material");
 
       return new SignLayout(this.lines, this.blockMaterial, this.blockSubId, this.glowingColor);
     }

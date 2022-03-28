@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.labymod.config;
 
-import com.google.common.base.Verify;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.Map;
@@ -82,7 +81,7 @@ public class LabyModPermissions {
     }
 
     public @NonNull LabyModPermissions build() {
-      Verify.verifyNotNull(this.permissions, "Missing permissions");
+      Preconditions.checkNotNull(this.permissions, "Missing permissions");
 
       return new LabyModPermissions(this.enabled, this.permissions);
     }

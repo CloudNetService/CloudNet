@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.handler.context;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCInvocationContext;
@@ -122,9 +122,9 @@ public class DefaultRPCInvocationContextBuilder implements Builder {
   @Override
   public @NonNull RPCInvocationContext build() {
     // validate the context
-    Verify.verifyNotNull(this.arguments, "No arguments supplied");
-    Verify.verifyNotNull(this.channel, "No source channel supplied");
-    Verify.verifyNotNull(this.methodName, "No method name supplied");
+    Preconditions.checkNotNull(this.arguments, "No arguments supplied");
+    Preconditions.checkNotNull(this.channel, "No source channel supplied");
+    Preconditions.checkNotNull(this.methodName, "No method name supplied");
     // create the context
     return new DefaultRPCInvocationContext(
       this.argumentCount,

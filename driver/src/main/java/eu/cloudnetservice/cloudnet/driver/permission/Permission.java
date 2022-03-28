@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.permission;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.common.Nameable;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
@@ -149,10 +149,10 @@ public record Permission(
      * Builds the new permission with all previously set options.
      *
      * @return the new permission.
-     * @throws com.google.common.base.VerifyException if the name of the permission is missing.
+     * @throws NullPointerException if the name of the permission is missing.
      */
     public @NonNull Permission build() {
-      Verify.verifyNotNull(this.name, "Missing name");
+      Preconditions.checkNotNull(this.name, "Missing name");
 
       return new Permission(this.name, this.potency, this.timeOutMillis);
     }

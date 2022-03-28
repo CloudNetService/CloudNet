@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.report.config;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -84,9 +84,9 @@ public record ReportConfiguration(
     }
 
     public @NonNull ReportConfiguration build() {
-      Verify.verifyNotNull(this.recordDestination, "No recordDestination provided");
-      Verify.verifyNotNull(this.dateFormat, "No dateFormat provided");
-      Verify.verifyNotNull(this.pasteServers, "No pasteServers provided");
+      Preconditions.checkNotNull(this.recordDestination, "No recordDestination provided");
+      Preconditions.checkNotNull(this.dateFormat, "No dateFormat provided");
+      Preconditions.checkNotNull(this.pasteServers, "No pasteServers provided");
 
       return new ReportConfiguration(
         this.saveRecords,

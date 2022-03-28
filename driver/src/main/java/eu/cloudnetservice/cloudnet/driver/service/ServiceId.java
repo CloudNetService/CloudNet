@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.service;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.common.Nameable;
 import java.util.Collection;
 import java.util.HashSet;
@@ -253,11 +253,11 @@ public class ServiceId implements Nameable {
      *
      * @param taskName the name of the task to use for the service id.
      * @return the same instance as used to call the method, for chaining.
-     * @throws NullPointerException                   if the given task name is null.
-     * @throws com.google.common.base.VerifyException if the given task does not match the task naming pattern.
+     * @throws NullPointerException if the given task name is null.
+     * @throws NullPointerException if the given task does not match the task naming pattern.
      */
     public @NonNull Builder taskName(@NonNull String taskName) {
-      Verify.verify(ServiceTask.NAMING_PATTERN.matcher(taskName).matches(), "Invalid task name given");
+      Preconditions.checkArgument(ServiceTask.NAMING_PATTERN.matcher(taskName).matches(), "Invalid task name given");
       this.taskName = taskName;
       return this;
     }
@@ -295,11 +295,12 @@ public class ServiceId implements Nameable {
      *
      * @param nameSplitter the name splitter to use for services using the created id.
      * @return the same instance as used to call the method, for chaining.
-     * @throws NullPointerException                   if the given name splitter is null.
-     * @throws com.google.common.base.VerifyException if the given name splitter does not follow the naming pattern.
+     * @throws NullPointerException if the given name splitter is null.
+     * @throws NullPointerException if the given name splitter does not follow the naming pattern.
      */
     public @NonNull Builder nameSplitter(@NonNull String nameSplitter) {
-      Verify.verify(ServiceTask.NAMING_PATTERN.matcher(nameSplitter).matches(), "Invalid name splitter given");
+      Preconditions.checkArgument(ServiceTask.NAMING_PATTERN.matcher(nameSplitter).matches(),
+        "Invalid name splitter given");
       this.nameSplitter = nameSplitter;
       return this;
     }
@@ -371,12 +372,13 @@ public class ServiceId implements Nameable {
      * Builds a new service id instance based on this builder.
      *
      * @return the created service id.
-     * @throws com.google.common.base.VerifyException if no task or environment was given or the task id is invalid.
+     * @throws NullPointerException     if no task or environment was given.
+     * @throws IllegalArgumentException if the task id is invalid.
      */
     public @NonNull ServiceId build() {
-      Verify.verifyNotNull(this.taskName, "no task name given");
-      Verify.verifyNotNull(this.environmentName, "no environment given");
-      Verify.verify(this.taskServiceId == -1 || this.taskServiceId > 0, "taskServiceId <= 0");
+      Preconditions.checkNotNull(this.taskName, "no task name given");
+      Preconditions.checkNotNull(this.environmentName, "no environment given");
+      Preconditions.checkArgument(this.taskServiceId == -1 || this.taskServiceId > 0, "taskServiceId <= 0");
 
       return new ServiceId(
         this.taskName,

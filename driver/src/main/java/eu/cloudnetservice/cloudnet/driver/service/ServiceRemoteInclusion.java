@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.service;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.common.document.Document;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.common.document.property.DocProperty;
@@ -181,11 +181,11 @@ public class ServiceRemoteInclusion extends JsonDocPropertyHolder implements Clo
      * Builds a service remote inclusion instance based on this builder.
      *
      * @return the service remote inclusion.
-     * @throws com.google.common.base.VerifyException if no url or destination was given.
+     * @throws NullPointerException if no url or destination was given.
      */
     public @NonNull ServiceRemoteInclusion build() {
-      Verify.verifyNotNull(this.url, "no url given");
-      Verify.verifyNotNull(this.destination, "no destination given");
+      Preconditions.checkNotNull(this.url, "no url given");
+      Preconditions.checkNotNull(this.destination, "no destination given");
 
       return new ServiceRemoteInclusion(this.url, this.destination, this.properties);
     }

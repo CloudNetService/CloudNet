@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.permission;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.common.document.property.JsonDocPropertyHolder;
 import java.time.Duration;
@@ -169,10 +169,10 @@ public class PermissionUserGroupInfo extends JsonDocPropertyHolder {
      * Constructs the new permission user group info from this builder.
      *
      * @return the new user group info.
-     * @throws com.google.common.base.VerifyException if the group name is missing.
+     * @throws NullPointerException if the group name is missing.
      */
     public @NonNull PermissionUserGroupInfo build() {
-      Verify.verifyNotNull(this.group, "Missing group");
+      Preconditions.checkNotNull(this.group, "Missing group");
       return new PermissionUserGroupInfo(this.group, this.timeOutMillis, this.properties);
     }
   }

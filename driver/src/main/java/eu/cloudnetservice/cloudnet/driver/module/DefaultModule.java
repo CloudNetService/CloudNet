@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.module;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import lombok.NonNull;
 
 /**
@@ -37,7 +37,7 @@ public class DefaultModule implements Module {
   @Override
   public void init(@NonNull ClassLoader loader, @NonNull ModuleWrapper wrapper, @NonNull ModuleConfiguration config) {
     // ensure that this is not initialized
-    Verify.verify(this.classLoader == null || this.moduleWrapper == null || this.moduleConfig == null,
+    Preconditions.checkArgument(this.classLoader == null || this.moduleWrapper == null || this.moduleConfig == null,
       "Cannot call init twice on a module wrapper");
 
     this.classLoader = loader;

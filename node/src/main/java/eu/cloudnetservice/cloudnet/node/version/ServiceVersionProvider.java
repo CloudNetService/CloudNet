@@ -18,7 +18,7 @@ package eu.cloudnetservice.cloudnet.node.version;
 
 import static com.google.gson.reflect.TypeToken.getParameterized;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.common.JavaVersion;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.common.io.FileUtil;
@@ -120,7 +120,7 @@ public class ServiceVersionProvider {
 
   public void registerServiceVersionType(@NonNull ServiceVersionType versionType) {
     // ensure that we know the target environment for the service version
-    Verify.verify(
+    Preconditions.checkArgument(
       this.getEnvironmentType(versionType.environmentType()).isPresent(),
       "Missing environment %s for service version %s",
       versionType.environmentType(),

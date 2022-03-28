@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.syncproxy.config;
 
-import com.google.common.base.Verify;
 import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyConstants;
@@ -90,8 +89,8 @@ public record SyncProxyTabList(@NonNull String header, @NonNull String footer) {
     }
 
     public @NonNull SyncProxyTabList build() {
-      Verify.verifyNotNull(this.header, "Missing header");
-      Verify.verifyNotNull(this.footer, "Missing footer");
+      Preconditions.checkNotNull(this.header, "Missing header");
+      Preconditions.checkNotNull(this.footer, "Missing footer");
 
       return new SyncProxyTabList(this.header, this.footer);
     }

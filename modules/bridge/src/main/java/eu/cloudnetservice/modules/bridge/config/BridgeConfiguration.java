@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.bridge.config;
 
-import com.google.common.base.Verify;
 import com.google.common.collect.ImmutableMap;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.common.document.property.JsonDocPropertyHolder;
@@ -117,7 +116,7 @@ public final class BridgeConfiguration extends JsonDocPropertyHolder {
     var messages = this.localizedMessages.get(locale == null ? "default" : locale.getLanguage());
     if (messages == null) {
       // get the default locale (they have to be present)
-      messages = Verify.verifyNotNull(this.localizedMessages.get("default"));
+      messages = Preconditions.checkNotNull(this.localizedMessages.get("default"));
     }
     // get the message from the map
     return String.format("%s%s", withPrefix ? this.prefix : "", messages.get(key));

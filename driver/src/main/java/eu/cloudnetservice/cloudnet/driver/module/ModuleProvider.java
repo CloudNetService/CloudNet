@@ -128,7 +128,7 @@ public interface ModuleProvider {
    * @throws ModuleConfigurationNotFoundException         if the file associated with the url doesn't contain a
    *                                                      module.json.
    * @throws ModuleConfigurationPropertyNotFoundException if a required property is missing in the module.json file.
-   * @throws com.google.common.base.VerifyException       if required properties are missing in dependency or repository
+   * @throws NullPointerException       if required properties are missing in dependency or repository
    *                                                      information.
    * @throws AssertionError                               if any exception occurs during the load of the module.
    * @throws NullPointerException                         if url is null.
@@ -143,7 +143,7 @@ public interface ModuleProvider {
    * @throws ModuleConfigurationNotFoundException         if the file associated with the url doesn't contain a
    *                                                      module.json.
    * @throws ModuleConfigurationPropertyNotFoundException if a required property is missing in the module.json file.
-   * @throws com.google.common.base.VerifyException       if required properties are missing in dependency or repository
+   * @throws NullPointerException       if required properties are missing in dependency or repository
    *                                                      information.
    * @throws AssertionError                               if any exception occurs during the load of the module.
    * @throws NullPointerException                         if path is null.
