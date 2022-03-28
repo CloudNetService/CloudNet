@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.rpc;
 
-import com.google.common.base.VerifyException;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.handler.context.DefaultRPCInvocationContextBuilder;
@@ -183,7 +182,7 @@ public interface RPCInvocationContext {
      * Builds a new invocation context based on the arguments supplied to this builder.
      *
      * @return a new invocation context from this builder.
-     * @throws VerifyException if either the channel, method name or argument buffer was not supplied.
+     * @throws NullPointerException if either the channel, method name or argument buffer was not supplied.
      */
     @NonNull RPCInvocationContext build();
   }

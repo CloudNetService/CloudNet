@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.service;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.common.Nameable;
 import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.driver.template.TemplateStorage;
@@ -205,11 +205,11 @@ public class ServiceTemplate implements Nameable, Comparable<ServiceTemplate>, C
    * Get the template storage in which this template is stored, throwing an exception if the template doesn't exist.
    *
    * @return the template storage in which this template is stored.
-   * @throws com.google.common.base.VerifyException if the storage used in this template is unknown.
+   * @throws NullPointerException if the storage used in this template is unknown.
    */
   public @NonNull TemplateStorage storage() {
     var storage = this.findStorage();
-    Verify.verifyNotNull(storage, "the storage of this template does not exist");
+    Preconditions.checkNotNull(storage, "the storage of this template does not exist");
 
     return storage;
   }
@@ -326,11 +326,11 @@ public class ServiceTemplate implements Nameable, Comparable<ServiceTemplate>, C
      * Builds the service template based on this builder.
      *
      * @return the created service template.
-     * @throws com.google.common.base.VerifyException if no name or prefix was given.
+     * @throws NullPointerException if no name or prefix was given.
      */
     public @NonNull ServiceTemplate build() {
-      Verify.verifyNotNull(this.name, "no name given");
-      Verify.verifyNotNull(this.prefix, "no prefix given");
+      Preconditions.checkNotNull(this.name, "no name given");
+      Preconditions.checkNotNull(this.prefix, "no prefix given");
 
       return new ServiceTemplate(this.prefix, this.name, this.storage, this.priority, this.alwaysCopyToStaticServices);
     }

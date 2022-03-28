@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.chunk.defaults.builder;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.chunk.ChunkedPacketSender;
@@ -124,11 +124,11 @@ public abstract class DefaultChunkedPacketSenderBuilder implements ChunkedPacket
    */
   @Override
   public @NonNull ChunkedPacketSender build() {
-    Verify.verifyNotNull(this.source, "no source given to send");
-    Verify.verifyNotNull(this.packetSplitter, "no packet splitter provided");
-    Verify.verifyNotNull(this.transferChannel, "no transfer channel provided");
-    Verify.verifyNotNull(this.sessionUniqueId, "no session unique id provided");
-    Verify.verify(this.chunkSize > 0, "chunk size must be more than 0");
+    Preconditions.checkNotNull(this.source, "no source given to send");
+    Preconditions.checkNotNull(this.packetSplitter, "no packet splitter provided");
+    Preconditions.checkNotNull(this.transferChannel, "no transfer channel provided");
+    Preconditions.checkNotNull(this.sessionUniqueId, "no session unique id provided");
+    Preconditions.checkArgument(this.chunkSize > 0, "chunk size must be more than 0");
 
     return this.doBuild();
   }
@@ -139,7 +139,7 @@ public abstract class DefaultChunkedPacketSenderBuilder implements ChunkedPacket
    * method should, but must not be assertion free).
    *
    * @return the sender instance build based on the information supplied to this builder.
-   * @throws com.google.common.base.VerifyException if any assertions must be made separately and fails.
+   * @throws NullPointerException if any assertions must be made separately and fails.
    */
   protected abstract @NonNull ChunkedPacketSender doBuild();
 }

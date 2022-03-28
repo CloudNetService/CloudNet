@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.protocol.defaults;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
@@ -76,7 +76,7 @@ public class DefaultPacketListenerRegistry implements PacketListenerRegistry {
   @Override
   public void addListener(int channel, @NonNull PacketListener... listeners) {
     // validate that the user is not trying to listen to a reserved channel
-    Verify.verify(channel != -1, "Tried to register listeners to forbidden channel id -1");
+    Preconditions.checkArgument(channel != -1, "Tried to register listeners to forbidden channel id -1");
     this.listeners.putAll(channel, List.of(listeners));
   }
 

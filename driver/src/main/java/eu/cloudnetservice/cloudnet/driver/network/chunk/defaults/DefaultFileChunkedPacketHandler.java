@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.chunk.defaults;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.common.io.FileUtil;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.chunk.ChunkedPacketHandler;
@@ -105,7 +105,7 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
       return false;
     }
     // validate that this is still in the running state when receiving the packet
-    Verify.verify(this.transferStatus == TransferStatus.RUNNING, "Received transfer part after success");
+    Preconditions.checkState(this.transferStatus == TransferStatus.RUNNING, "Received transfer part after success");
     // extract some information from the body
     var isFinalPacket = dataBuf.readBoolean();
     if (isFinalPacket) {

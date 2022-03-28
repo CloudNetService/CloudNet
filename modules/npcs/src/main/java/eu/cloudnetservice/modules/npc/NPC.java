@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.npc;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.common.document.property.JsonDocPropertyHolder;
@@ -132,12 +132,12 @@ public class NPC extends JsonDocPropertyHolder {
   }
 
   public @NonNull String entityType() {
-    Verify.verify(this.npcType == NPCType.ENTITY, "type must be entity to get the entity type");
+    Preconditions.checkState(this.npcType == NPCType.ENTITY, "type must be entity to get the entity type");
     return this.properties.getString("entityType");
   }
 
   public @NonNull Set<ProfileProperty> profileProperties() {
-    Verify.verify(this.npcType == NPCType.PLAYER, "type must be player to the profile properties");
+    Preconditions.checkState(this.npcType == NPCType.PLAYER, "type must be player to the profile properties");
     return this.properties.get("profileProperties", PROPERTIES);
   }
 
@@ -338,10 +338,10 @@ public class NPC extends JsonDocPropertyHolder {
     }
 
     public @NonNull NPC build() {
-      Verify.verifyNotNull(this.npcType, "unable to determine npc type");
-      Verify.verifyNotNull(this.targetGroup, "no target group given");
-      Verify.verifyNotNull(this.displayName, "no display name given");
-      Verify.verifyNotNull(this.location, "no location given");
+      Preconditions.checkNotNull(this.npcType, "unable to determine npc type");
+      Preconditions.checkNotNull(this.targetGroup, "no target group given");
+      Preconditions.checkNotNull(this.displayName, "no display name given");
+      Preconditions.checkNotNull(this.location, "no location given");
 
       return new NPC(
         this.npcType,

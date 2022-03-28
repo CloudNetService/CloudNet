@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.service;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -96,10 +96,10 @@ public record ProcessConfiguration(
      *
      * @param maxHeapMemorySize the maximum heap memory a service is allowed to use.
      * @return the same instance as used to call the method, for chaining.
-     * @throws com.google.common.base.VerifyException if the given memory size is less than 50 mb.
+     * @throws IllegalArgumentException if the given memory size is less than 50 mb.
      */
     public @NonNull Builder maxHeapMemorySize(@Range(from = 50, to = Integer.MAX_VALUE) int maxHeapMemorySize) {
-      Verify.verify(maxHeapMemorySize > 50, "Max heap memory must be at least 50 mb");
+      Preconditions.checkArgument(maxHeapMemorySize > 50, "Max heap memory must be at least 50 mb");
 
       this.maxHeapMemorySize = maxHeapMemorySize;
       return this;
@@ -204,10 +204,10 @@ public record ProcessConfiguration(
      * Builds the process configuration based on the configuration of this builder.
      *
      * @return the created process configuration.
-     * @throws com.google.common.base.VerifyException if no environment is specified for the configuration.
+     * @throws NullPointerException if no environment is specified for the configuration.
      */
     public @NonNull ProcessConfiguration build() {
-      Verify.verifyNotNull(this.environment, "no environment given");
+      Preconditions.checkNotNull(this.environment, "no environment given");
 
       return new ProcessConfiguration(
         this.environment,

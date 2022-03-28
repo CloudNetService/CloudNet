@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.object.serializers;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.object.ObjectMapper;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.object.ObjectSerializer;
@@ -45,7 +45,7 @@ public class EnumObjectSerializer implements ObjectSerializer<Enum<?>> {
     @NonNull ObjectMapper caller
   ) {
     // ensure that the method was called using a class as the type
-    Verify.verify(type instanceof Class<?>, "Called enum read method without proving a class as type");
+    Preconditions.checkState(type instanceof Class<?>, "Called enum read method without proving a class as type");
     // get the cached enum constants of the class
     var enumConstants = this.enumConstantCache.computeIfAbsent(type, $ -> ((Class<?>) type).getEnumConstants());
     // get the constant associated with the ordinal index

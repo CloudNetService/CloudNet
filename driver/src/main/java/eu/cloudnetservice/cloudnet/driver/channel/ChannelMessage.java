@@ -16,8 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.channel;
 
-import com.google.common.base.Verify;
-import com.google.common.base.VerifyException;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.driver.DriverEnvironment;
@@ -391,13 +390,14 @@ public record ChannelMessage(
      * Builds a channel message from this builder within the contract given in the Builder class java docs.
      *
      * @return the created channel message from this builder.
-     * @throws VerifyException if message or channel is null or no target was specified.
+     * @throws NullPointerException     if no message or channel is provided.
+     * @throws IllegalArgumentException if no target was specified.
      */
     @Contract(" -> new")
     public @NonNull ChannelMessage build() {
-      Verify.verifyNotNull(this.channel, "No channel provided");
-      Verify.verifyNotNull(this.message, "No message provided");
-      Verify.verify(!this.targets.isEmpty(), "No targets provided");
+      Preconditions.checkNotNull(this.channel, "No channel provided");
+      Preconditions.checkNotNull(this.message, "No message provided");
+      Preconditions.checkArgument(!this.targets.isEmpty(), "No targets provided");
 
       return new ChannelMessage(
         this.prioritized,

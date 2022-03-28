@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.common.column;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -91,8 +91,8 @@ public record RowBasedFormatter<T>(
     }
 
     public @NonNull RowBasedFormatter<T> build() {
-      Verify.verifyNotNull(this.defaultFormatter, "no default formatter given");
-      Verify.verify(!this.columns.isEmpty(), "at least one column must be given");
+      Preconditions.checkNotNull(this.defaultFormatter, "no default formatter given");
+      Preconditions.checkArgument(!this.columns.isEmpty(), "at least one column must be given");
 
       return new RowBasedFormatter<>(this.defaultFormatter, this.columns);
     }

@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.labymod.config;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import java.util.UUID;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -84,7 +84,7 @@ public record LabyModPlayerOptions(
     }
 
     public @NonNull LabyModPlayerOptions build() {
-      Verify.verifyNotNull(this.version, "Missing version");
+      Preconditions.checkNotNull(this.version, "Missing version");
 
       return new LabyModPlayerOptions(
         this.version,

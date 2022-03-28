@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.object.data;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.object.ObjectMapper;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.object.ObjectSerializer;
@@ -51,7 +51,7 @@ public class DataClassSerializer implements ObjectSerializer<Object> {
     @NonNull ObjectMapper caller
   ) {
     // ensure that the given type is a class & unwrap
-    Verify.verify(type instanceof Class<?>, "Cannot call data class serializer on non-class");
+    Preconditions.checkState(type instanceof Class<?>, "Cannot call data class serializer on non-class");
     var clazz = (Class<?>) type;
     // check if the type is an array
     if (clazz.isArray()) {
@@ -73,7 +73,7 @@ public class DataClassSerializer implements ObjectSerializer<Object> {
     @NonNull ObjectMapper caller
   ) {
     // ensure that the given type is a class & unwrap
-    Verify.verify(type instanceof Class<?>, "Cannot call data class serializer on non-class");
+    Preconditions.checkState(type instanceof Class<?>, "Cannot call data class serializer on non-class");
     var clazz = (Class<?>) type;
     // check if the type is an array
     if (clazz.isArray()) {

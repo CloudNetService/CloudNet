@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.module;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -160,12 +160,12 @@ public class ModuleDependency {
   /**
    * Asserts that the required properties (group, name, version) are present.
    *
-   * @throws com.google.common.base.VerifyException if one of required properties is not set.
+   * @throws NullPointerException if one of required properties is not set.
    */
   public void assertDefaultPropertiesSet() {
-    Verify.verifyNotNull(this.group, "Missing group of module dependency");
-    Verify.verifyNotNull(this.name, "Missing name of module dependency");
-    Verify.verifyNotNull(this.version, "Missing version of module dependency");
+    Preconditions.checkNotNull(this.group, "Missing group of module dependency");
+    Preconditions.checkNotNull(this.name, "Missing name of module dependency");
+    Preconditions.checkNotNull(this.version, "Missing version of module dependency");
   }
 
   /**

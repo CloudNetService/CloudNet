@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.module;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.common.Nameable;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -79,10 +79,10 @@ public class ModuleRepository implements Nameable {
   /**
    * Asserts that the required properties (name, url) are present.
    *
-   * @throws com.google.common.base.VerifyException if one of required properties is not set.
+   * @throws NullPointerException if one of required properties is not set.
    */
   public void assertComplete() {
-    Verify.verifyNotNull(this.name, "Missing repository name");
-    Verify.verifyNotNull(this.url, "Missing repository url");
+    Preconditions.checkNotNull(this.name, "Missing repository name");
+    Preconditions.checkNotNull(this.url, "Missing repository url");
   }
 }

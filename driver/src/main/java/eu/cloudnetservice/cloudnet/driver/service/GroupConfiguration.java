@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.service;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.common.Nameable;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import java.util.Collection;
@@ -215,11 +215,11 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
     /**
      * {@inheritDoc}
      *
-     * @throws com.google.common.base.VerifyException if this builder has no name given.
+     * @throws NullPointerException if this builder has no name given.
      */
     @Override
     public @NonNull GroupConfiguration build() {
-      Verify.verifyNotNull(this.name, "no name given");
+      Preconditions.checkNotNull(this.name, "no name given");
       return new GroupConfiguration(
         this.name,
         this.jvmOptions,

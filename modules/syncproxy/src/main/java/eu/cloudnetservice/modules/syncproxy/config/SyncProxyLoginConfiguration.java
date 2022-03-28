@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.syncproxy.config;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -142,7 +142,7 @@ public record SyncProxyLoginConfiguration(
     }
 
     public @NonNull SyncProxyLoginConfiguration build() {
-      Verify.verifyNotNull(this.targetGroup, "Missing targetGroup");
+      Preconditions.checkNotNull(this.targetGroup, "Missing targetGroup");
 
       return new SyncProxyLoginConfiguration(
         this.targetGroup,

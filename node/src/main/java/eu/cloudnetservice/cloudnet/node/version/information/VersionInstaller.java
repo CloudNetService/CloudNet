@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.node.version.information;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.node.version.ServiceVersion;
 import eu.cloudnetservice.cloudnet.node.version.ServiceVersionType;
 import java.io.IOException;
@@ -100,8 +100,8 @@ public abstract class VersionInstaller {
     }
 
     public @NonNull R build() {
-      Verify.verifyNotNull(this.serviceVersion, "No service version specified");
-      Verify.verifyNotNull(this.serviceVersionType, "No version type specified");
+      Preconditions.checkNotNull(this.serviceVersion, "No service version specified");
+      Preconditions.checkNotNull(this.serviceVersionType, "No version type specified");
 
       return this.doBuild();
     }

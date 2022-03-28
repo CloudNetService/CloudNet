@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.service;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
@@ -456,8 +456,8 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
      *
      * @param taskName a task name, no task with that name must exist.
      * @return the same instance as used to call the method, for chaining.
-     * @throws NullPointerException                   if the given task name is null.
-     * @throws com.google.common.base.VerifyException if the given task name doesn't follow the task naming policy.
+     * @throws NullPointerException     if the given task name is null.
+     * @throws IllegalArgumentException if the given task name doesn't follow the task naming policy.
      */
     public @NonNull Builder taskName(@NonNull String taskName) {
       this.serviceId.taskName(taskName);
@@ -544,8 +544,8 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
      *
      * @param nameSplitter the name splitter to use for services created based on the service configuration.
      * @return the same instance as used to call the method, for chaining.
-     * @throws NullPointerException if the given name splitter is null.
-     * @throws com.google.common.base.VerifyException if the given name splitter does not follow the naming pattern.
+     * @throws NullPointerException     if the given name splitter is null.
+     * @throws IllegalArgumentException if the given name splitter does not follow the naming pattern.
      */
     public @NonNull Builder nameSplitter(@NonNull String nameSplitter) {
       this.serviceId.nameSplitter(nameSplitter);
@@ -710,7 +710,7 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
      *
      * @param maxHeapMemory the maximum heap memory a service is allowed to use.
      * @return the same instance as used to call the method, for chaining.
-     * @throws com.google.common.base.VerifyException if the given memory size is less than 50 mb.
+     * @throws IllegalArgumentException if the given memory size is less than 50 mb.
      */
     public @NonNull Builder maxHeapMemory(int maxHeapMemory) {
       this.processConfig.maxHeapMemorySize(maxHeapMemory);
@@ -817,11 +817,12 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
      * always use a new one.
      *
      * @return a new service configuration based on this builder.
-     * @throws com.google.common.base.VerifyException if one of the required properties is either not set or invalid.
+     * @throws NullPointerException     if one of the required properties is either not set or invalid.
+     * @throws IllegalArgumentException if the given port is out of range.
      */
     @Override
     public @NonNull ServiceConfiguration build() {
-      Verify.verify(this.port > 0 && this.port <= 65535, "invalid port provided");
+      Preconditions.checkArgument(this.port > 0 && this.port <= 65535, "invalid port provided");
       return new ServiceConfiguration(
         this.serviceId.build(),
         this.processConfig.build(),

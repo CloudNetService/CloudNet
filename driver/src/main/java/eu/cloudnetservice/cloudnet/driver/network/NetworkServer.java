@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.cloudnet.driver.network;
 
-import com.google.common.base.VerifyException;
 import lombok.NonNull;
 
 /**
@@ -32,7 +31,7 @@ public interface NetworkServer extends NetworkComponent, AutoCloseable {
    *
    * @param port the port to which the listener should get bound.
    * @return true if the listener was added to the given port, false otherwise.
-   * @throws VerifyException if the given port exceeds the port range.
+   * @throws IllegalArgumentException if the given port exceeds the port range.
    */
   boolean addListener(int port);
 

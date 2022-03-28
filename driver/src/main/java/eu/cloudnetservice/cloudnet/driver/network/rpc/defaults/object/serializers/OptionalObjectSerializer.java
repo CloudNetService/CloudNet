@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.object.serializers;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.object.ObjectMapper;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.object.ObjectSerializer;
@@ -47,7 +47,7 @@ public class OptionalObjectSerializer implements ObjectSerializer<Optional<?>> {
     var isPresent = source.startTransaction().readBoolean();
     if (isPresent) {
       // ensure that the given type is parametrized
-      Verify.verify(type instanceof ParameterizedType, "Optional rpc read called without parameterized type");
+      Preconditions.checkState(type instanceof ParameterizedType, "Optional rpc read called without parameterized type");
       // read the argument type
       var argumentType = ((ParameterizedType) type).getActualTypeArguments()[0];
       // read the value of the buffer at the last index

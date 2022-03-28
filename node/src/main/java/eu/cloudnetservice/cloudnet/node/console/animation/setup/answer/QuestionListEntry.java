@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.node.console.animation.setup.answer;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.common.language.I18n;
 import java.util.function.Supplier;
 import lombok.NonNull;
@@ -61,9 +61,9 @@ public record QuestionListEntry<T>(
     }
 
     public @NonNull QuestionListEntry<T> build() {
-      Verify.verifyNotNull(this.key, "no key given");
-      Verify.verifyNotNull(this.question, "no question given");
-      Verify.verifyNotNull(this.answerType, "no answer type given");
+      Preconditions.checkNotNull(this.key, "no key given");
+      Preconditions.checkNotNull(this.question, "no question given");
+      Preconditions.checkNotNull(this.answerType, "no answer type given");
 
       return new QuestionListEntry<>(this.key, this.question, this.answerType);
     }

@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.permission;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.common.hash.HashUtil;
 import java.util.Base64;
@@ -401,11 +401,11 @@ public class PermissionUser extends AbstractPermissible {
      * Constructs the new permission user from this builder.
      *
      * @return the new permission user.
-     * @throws com.google.common.base.VerifyException if the name or unique id is missing.
+     * @throws NullPointerException if the name or unique id is missing.
      */
     public @NonNull PermissionUser build() {
-      Verify.verifyNotNull(this.name, "Name must be given");
-      Verify.verifyNotNull(this.uniqueId, "Unique id must be given");
+      Preconditions.checkNotNull(this.name, "Name must be given");
+      Preconditions.checkNotNull(this.uniqueId, "Unique id must be given");
 
       return new PermissionUser(
         this.uniqueId,

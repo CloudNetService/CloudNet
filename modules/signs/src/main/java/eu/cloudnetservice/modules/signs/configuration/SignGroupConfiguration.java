@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.signs.configuration;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import lombok.NonNull;
 
 public record SignGroupConfiguration(
@@ -73,10 +73,10 @@ public record SignGroupConfiguration(
     }
 
     public @NonNull SignGroupConfiguration build() {
-      Verify.verifyNotNull(this.targetGroup, "Missing target group");
-      Verify.verifyNotNull(this.emptyLayout, "Missing empty sign layout");
-      Verify.verifyNotNull(this.onlineLayout, "Missing online sign layout");
-      Verify.verifyNotNull(this.fullLayout, "Missing full sign layout");
+      Preconditions.checkNotNull(this.targetGroup, "Missing target group");
+      Preconditions.checkNotNull(this.emptyLayout, "Missing empty sign layout");
+      Preconditions.checkNotNull(this.onlineLayout, "Missing online sign layout");
+      Preconditions.checkNotNull(this.fullLayout, "Missing full sign layout");
 
       return new SignGroupConfiguration(
         this.targetGroup,

@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.netty.buffer;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBufFactory;
 import io.netty.buffer.Unpooled;
@@ -69,7 +69,7 @@ public class NettyDataBufFactory implements DataBufFactory {
    */
   @Override
   public @NonNull DataBuf copyOf(@NonNull DataBuf dataBuf) {
-    Verify.verify(dataBuf instanceof NettyImmutableDataBuf, "Factory only supports netty data buf copy");
+    Preconditions.checkArgument(dataBuf instanceof NettyImmutableDataBuf, "Factory only supports netty data buf copy");
     return new NettyImmutableDataBuf(Unpooled.copiedBuffer(((NettyImmutableDataBuf) dataBuf).byteBuf));
   }
 
@@ -78,7 +78,7 @@ public class NettyDataBufFactory implements DataBufFactory {
    */
   @Override
   public @NonNull DataBuf.Mutable mutableCopyOf(@NonNull DataBuf dataBuf) {
-    Verify.verify(dataBuf instanceof NettyImmutableDataBuf, "Factory only supports netty data buf copy");
+    Preconditions.checkArgument(dataBuf instanceof NettyImmutableDataBuf, "Factory only supports netty data buf copy");
     return new NettyMutableDataBuf(Unpooled.copiedBuffer(((NettyImmutableDataBuf) dataBuf).byteBuf));
   }
 

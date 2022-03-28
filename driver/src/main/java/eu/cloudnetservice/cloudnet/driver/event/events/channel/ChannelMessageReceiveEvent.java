@@ -16,8 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.event.events.channel;
 
-import com.google.common.base.Verify;
-import com.google.common.base.VerifyException;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
 import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessageSender;
@@ -151,8 +150,8 @@ public final class ChannelMessageReceiveEvent extends NetworkEvent {
    * of it.
    *
    * @param dataBuf the content of the channel message to respond with.
-   * @throws NullPointerException if the given content is null.
-   * @throws VerifyException      if the received channel message is not expecting a response.
+   * @throws NullPointerException     if the given content is null.
+   * @throws IllegalArgumentException if the received channel message is not expecting a response.
    */
   public void binaryResponse(@NonNull DataBuf dataBuf) {
     this.queryResponse(ChannelMessage.buildResponseFor(this.channelMessage).buffer(dataBuf).build());
@@ -173,11 +172,11 @@ public final class ChannelMessageReceiveEvent extends NetworkEvent {
    * value, representing that there will be no response to the channel message.
    *
    * @param queryResponse the response to the received channel message.
-   * @throws NullPointerException if the given response is null.
-   * @throws VerifyException      if the received channel message is not expecting a response.
+   * @throws NullPointerException     if the given response is null.
+   * @throws IllegalArgumentException if the received channel message is not expecting a response.
    */
   public void queryResponse(@Nullable ChannelMessage queryResponse) {
-    Verify.verify(this.query, "Cannot set query response of no query");
+    Preconditions.checkArgument(this.query, "Cannot set query response of no query");
     this.queryResponse(queryResponse == null ? null : Task.completedTask(queryResponse));
   }
 
@@ -187,11 +186,11 @@ public final class ChannelMessageReceiveEvent extends NetworkEvent {
    * the given task to compute a response but will resume the calling thread.
    *
    * @param queryResponse a future completed with the query response to the received channel message.
-   * @throws NullPointerException if the given response future is null.
-   * @throws VerifyException      if the received channel message is not expecting a response.
+   * @throws NullPointerException     if the given response future is null.
+   * @throws IllegalArgumentException if the received channel message is not expecting a response.
    */
   public void queryResponse(@Nullable CompletableFuture<ChannelMessage> queryResponse) {
-    Verify.verify(this.query, "Cannot set query response of no query");
+    Preconditions.checkArgument(this.query, "Cannot set query response of no query");
     this.queryResponse = queryResponse;
   }
 }

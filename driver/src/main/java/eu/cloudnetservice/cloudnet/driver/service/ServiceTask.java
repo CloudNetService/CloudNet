@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.service;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.common.Nameable;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import java.util.Collection;
@@ -640,7 +640,7 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
      *
      * @param maxHeapMemory the maximum heap memory a service is allowed to use.
      * @return the same instance as used to call the method, for chaining.
-     * @throws com.google.common.base.VerifyException if the given memory size is less than 50 mb.
+     * @throws IllegalArgumentException if the given memory size is less than 50 mb.
      */
     public @NonNull Builder maxHeapMemory(int maxHeapMemory) {
       this.processConfiguration.maxHeapMemorySize(maxHeapMemory);
@@ -674,12 +674,13 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
     /**
      * {@inheritDoc}
      *
-     * @throws com.google.common.base.VerifyException if no task name is given or the start port is invalid.
+     * @throws NullPointerException     if no task name is given.
+     * @throws IllegalArgumentException if the start port is invalid.
      */
     @Override
     public @NonNull ServiceTask build() {
-      Verify.verifyNotNull(this.name, "no name given");
-      Verify.verify(this.startPort > 0 && this.startPort <= 65535, "Invalid start port given");
+      Preconditions.checkNotNull(this.name, "no name given");
+      Preconditions.checkArgument(this.startPort > 0 && this.startPort <= 65535, "Invalid start port given");
 
       return new ServiceTask(
         this.name,

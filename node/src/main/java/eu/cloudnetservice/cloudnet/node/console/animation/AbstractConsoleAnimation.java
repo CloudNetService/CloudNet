@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.node.console.animation;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.common.log.LogManager;
 import eu.cloudnetservice.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.node.console.Console;
@@ -110,12 +110,12 @@ public abstract class AbstractConsoleAnimation implements Runnable {
   }
 
   public void console(@NonNull Console console) {
-    Verify.verify(this.console == null, "Cannot set console of animation twice");
+    Preconditions.checkState(this.console == null, "Cannot set console of animation twice");
     this.console = console;
   }
 
   public void resetConsole() {
-    Verify.verify(this.console != null, "Console is not set");
+    Preconditions.checkState(this.console != null, "Console is not set");
     this.console = null;
   }
 }

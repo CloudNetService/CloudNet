@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.node.cluster.sync;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -138,12 +138,12 @@ public record DataSyncHandler<T>(
     }
 
     public @NonNull DataSyncHandler<T> build() {
-      Verify.verifyNotNull(this.key, "no key given");
-      Verify.verifyNotNull(this.writer, "no writer given");
-      Verify.verifyNotNull(this.converter, "no converter given");
-      Verify.verifyNotNull(this.dataCollector, "no data collector given");
-      Verify.verifyNotNull(this.nameExtractor, "no name extractor given");
-      Verify.verifyNotNull(this.currentGetter, "no current value getter given");
+      Preconditions.checkNotNull(this.key, "no key given");
+      Preconditions.checkNotNull(this.writer, "no writer given");
+      Preconditions.checkNotNull(this.converter, "no converter given");
+      Preconditions.checkNotNull(this.dataCollector, "no data collector given");
+      Preconditions.checkNotNull(this.nameExtractor, "no name extractor given");
+      Preconditions.checkNotNull(this.currentGetter, "no current value getter given");
 
       return new DataSyncHandler<>(
         this.key,

@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.cloudperms.sponge.service.permissible.user;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.driver.permission.CachedPermissionManagement;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
 import eu.cloudnetservice.cloudnet.driver.permission.PermissionUser;
@@ -48,7 +48,7 @@ public final class CloudUserCollection extends AbstractSubjectCollection {
   public CompletableFuture<? extends Subject> loadSubject(String identifier) {
     return CompletableFuture.supplyAsync(() -> {
       var user = this.management.user(UUIDUtil.parseFromString(identifier));
-      Verify.verifyNotNull(user, "No user with identifier " + identifier);
+      Preconditions.checkNotNull(user, "No user with identifier " + identifier);
       return new PermissionUserSubject(identifier, this, user, this.management);
     });
   }

@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.object.serializers;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.object.ObjectMapper;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.object.ObjectSerializer;
@@ -75,7 +75,7 @@ public class CollectionObjectSerializer implements ObjectSerializer<Collection<?
       return collection;
     }
     // ensure that the type is parameterized
-    Verify.verify(type instanceof ParameterizedType, "Collection rpc read called without parameterized type");
+    Preconditions.checkState(type instanceof ParameterizedType, "Collection rpc read called without parameterized type");
     // read the parameter type of the collection
     var parameterType = ((ParameterizedType) type).getActualTypeArguments()[0];
     // read the collection content

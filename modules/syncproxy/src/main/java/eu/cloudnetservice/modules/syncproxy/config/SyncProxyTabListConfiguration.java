@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.syncproxy.config;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -130,7 +130,7 @@ public class SyncProxyTabListConfiguration {
     }
 
     public @NonNull SyncProxyTabListConfiguration build() {
-      Verify.verifyNotNull(this.targetGroup, "Missing targetGroup");
+      Preconditions.checkNotNull(this.targetGroup, "Missing targetGroup");
 
       return new SyncProxyTabListConfiguration(this.targetGroup, this.entries, this.animationsPerSecond);
     }

@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.syncproxy.config;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
 import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
@@ -103,8 +103,8 @@ public record SyncProxyMotd(
     }
 
     public @NonNull SyncProxyMotd build() {
-      Verify.verifyNotNull(this.firstLine, "Missing first line");
-      Verify.verifyNotNull(this.secondLine, "Missing second line");
+      Preconditions.checkNotNull(this.firstLine, "Missing first line");
+      Preconditions.checkNotNull(this.secondLine, "Missing second line");
 
       return new SyncProxyMotd(
         this.firstLine,

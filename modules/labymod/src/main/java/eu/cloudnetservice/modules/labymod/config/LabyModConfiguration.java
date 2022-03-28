@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.labymod.config;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import lombok.NonNull;
 
 public record LabyModConfiguration(
@@ -105,13 +105,13 @@ public record LabyModConfiguration(
     }
 
     public @NonNull LabyModConfiguration build() {
-      Verify.verifyNotNull(this.discordRPC, "Missing discord rpc");
-      Verify.verifyNotNull(this.gameModeSwitch, "Missing gamemode switch");
-      Verify.verifyNotNull(this.discordJoinMatch, "Missing discord join match");
-      Verify.verifyNotNull(this.discordSpectateMatch, "Missing discord spectate match");
-      Verify.verifyNotNull(this.loginDomain, "Missing login domain");
-      Verify.verifyNotNull(this.banner, "Missing banner");
-      Verify.verifyNotNull(this.permissions, "Missing permissions");
+      Preconditions.checkNotNull(this.discordRPC, "Missing discord rpc");
+      Preconditions.checkNotNull(this.gameModeSwitch, "Missing gamemode switch");
+      Preconditions.checkNotNull(this.discordJoinMatch, "Missing discord join match");
+      Preconditions.checkNotNull(this.discordSpectateMatch, "Missing discord spectate match");
+      Preconditions.checkNotNull(this.loginDomain, "Missing login domain");
+      Preconditions.checkNotNull(this.banner, "Missing banner");
+      Preconditions.checkNotNull(this.permissions, "Missing permissions");
 
       return new LabyModConfiguration(
         this.enabled,

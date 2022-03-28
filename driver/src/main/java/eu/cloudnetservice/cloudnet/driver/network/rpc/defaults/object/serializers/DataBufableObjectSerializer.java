@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.object.serializers;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBufable;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.handler.invoker.MethodInvoker;
@@ -53,7 +53,7 @@ public class DataBufableObjectSerializer implements ObjectSerializer<DataBufable
     @NonNull ObjectMapper caller
   ) {
     // ensure that the type is a class
-    Verify.verify(type instanceof Class<?>, "Call to data buf reader as non-class");
+    Preconditions.checkState(type instanceof Class<?>, "Call to data buf reader as non-class");
     // try to read the data from into class
     var clazz = (Class<?>) type;
     // find a no-args constructor method invoker of the class

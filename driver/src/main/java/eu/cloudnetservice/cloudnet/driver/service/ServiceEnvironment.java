@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.service;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.cloudnet.common.Nameable;
 import lombok.NonNull;
 
@@ -151,11 +151,11 @@ public class ServiceEnvironment implements Nameable, Cloneable {
      * Builds a service environment instance based on this builder.
      *
      * @return the created service environment.
-     * @throws com.google.common.base.VerifyException if no name or parent environment type was given.
+     * @throws NullPointerException if no name or parent environment type was given.
      */
     public @NonNull ServiceEnvironment build() {
-      Verify.verifyNotNull(this.name, "no name given");
-      Verify.verifyNotNull(this.environmentType, "no environment type given");
+      Preconditions.checkNotNull(this.name, "no name given");
+      Preconditions.checkNotNull(this.environmentType, "no environment type given");
 
       return new ServiceEnvironment(this.name, this.environmentType);
     }

@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.permission;
 
-import com.google.common.base.Verify;
+import com.google.common.base.Preconditions;
 import com.google.gson.reflect.TypeToken;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import java.lang.reflect.Type;
@@ -390,10 +390,10 @@ public class PermissionGroup extends AbstractPermissible {
      * Constructs the new permission group from this builder.
      *
      * @return the new permission group.
-     * @throws com.google.common.base.VerifyException if the name is missing.
+     * @throws NullPointerException if the name is missing.
      */
     public @NonNull PermissionGroup build() {
-      Verify.verifyNotNull(this.name, "No name given");
+      Preconditions.checkNotNull(this.name, "No name given");
       return new PermissionGroup(
         this.color,
         this.prefix,
