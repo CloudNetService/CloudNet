@@ -23,8 +23,8 @@ import eu.cloudnetservice.cloudnet.common.document.property.JsonDocPropertyHolde
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import lombok.EqualsAndHashCode;
@@ -68,10 +68,10 @@ public final class BridgeConfiguration extends JsonDocPropertyHolder {
     this.logPlayerConnections = true;
     this.excludedGroups = new ArrayList<>();
     this.hubCommandNames = Arrays.asList("hub", "lobby", "leave", "l");
-    this.fallbackConfigurations = new ArrayList<>(Collections.singleton(new ProxyFallbackConfiguration(
-      "Proxy",
-      "Lobby",
-      new ArrayList<>())));
+    this.fallbackConfigurations = new ArrayList<>(List.of(ProxyFallbackConfiguration.builder()
+      .targetGroup("Proxy")
+      .defaultFallbackTask("Lobby")
+      .build()));
   }
 
   public BridgeConfiguration(
