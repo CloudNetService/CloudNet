@@ -74,7 +74,7 @@ public interface DataBufFactory {
    * @param dataBuf the buffer to copy.
    * @return a copied variant of the given buffer.
    * @throws IllegalArgumentException if the buffer cannot be copied.
-   * @throws NullPointerException if the given buffer is null.
+   * @throws NullPointerException     if the given buffer is null.
    */
   @NonNull DataBuf copyOf(@NonNull DataBuf dataBuf);
 
@@ -88,7 +88,7 @@ public interface DataBufFactory {
    *
    * @param dataBuf the buffer to copy.
    * @return a copied variant of the given buffer.
-   * @throws IllegalArgumentException if the buffer cannot be copied
+   * @throws IllegalArgumentException if the buffer cannot be copied.
    * @throws NullPointerException     if the given buffer is null.
    */
   @NonNull DataBuf.Mutable mutableCopyOf(@NonNull DataBuf dataBuf);
