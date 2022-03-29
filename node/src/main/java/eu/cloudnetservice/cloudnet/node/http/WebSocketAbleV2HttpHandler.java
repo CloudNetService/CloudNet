@@ -18,7 +18,7 @@ package eu.cloudnetservice.cloudnet.node.http;
 
 import com.google.common.collect.Iterables;
 import eu.cloudnetservice.cloudnet.driver.network.http.HttpContext;
-import eu.cloudnetservice.cloudnet.node.config.AccessControlConfiguration;
+import eu.cloudnetservice.cloudnet.node.config.RestConfiguration;
 import java.util.function.BiPredicate;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -39,11 +39,11 @@ public abstract class WebSocketAbleV2HttpHandler extends V2HttpHandler {
   public WebSocketAbleV2HttpHandler(
     @Nullable String requiredPermission,
     @NonNull V2HttpAuthentication authentication,
-    @NonNull AccessControlConfiguration accessControlConfiguration,
+    @NonNull RestConfiguration restConfiguration,
     @NonNull BiPredicate<HttpContext, String> handlingTester,
     @NonNull String... supportedRequestMethods
   ) {
-    super(requiredPermission, authentication, accessControlConfiguration, supportedRequestMethods);
+    super(requiredPermission, authentication, restConfiguration, supportedRequestMethods);
     this.handlingTester = handlingTester;
   }
 

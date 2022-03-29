@@ -79,8 +79,8 @@ public final class JsonConfiguration implements Configuration {
   private String hostAddress;
   private String connectHostAddress;
 
+  private RestConfiguration restConfiguration;
   private Collection<HostAndPort> httpListeners;
-  private AccessControlConfiguration accessControlConfiguration;
 
   private SSLConfiguration clientSslConfig;
   private SSLConfiguration serverSslConfig;
@@ -232,14 +232,14 @@ public final class JsonConfiguration implements Configuration {
         ConfigurationUtil.HOST_AND_PORT_PARSER);
     }
 
-    if (this.accessControlConfiguration == null) {
-      this.accessControlConfiguration = ConfigurationUtil.get(
+    if (this.restConfiguration == null) {
+      this.restConfiguration = ConfigurationUtil.get(
         "cloudnet.config.accessControlConfiguration",
-        new AccessControlConfiguration("*", 3600),
+        new RestConfiguration("*", "*", "Content-Encoding", 3600),
         value -> {
           var parts = value.split(";");
-          if (parts.length == 2) {
-            return new AccessControlConfiguration(parts[0], Integer.parseInt(parts[1]));
+          if (parts.length == 4) {
+            return new RestConfiguration(parts[0], parts[1], parts[2], Integer.parseInt(parts[3]));
           }
           // unable to parse
           return null;
@@ -328,7 +328,7 @@ public final class JsonConfiguration implements Configuration {
     this.connectHostAddress = configuration.connectHostAddress();
 
     this.properties = configuration.properties();
-    this.accessControlConfiguration = configuration.accessControlConfig();
+    this.restConfiguration = configuration.restConfiguration();
   }
 
   @Override
@@ -442,13 +442,13 @@ public final class JsonConfiguration implements Configuration {
   }
 
   @Override
-  public @NonNull AccessControlConfiguration accessControlConfig() {
-    return this.accessControlConfiguration;
+  public @NonNull RestConfiguration restConfiguration() {
+    return this.restConfiguration;
   }
 
   @Override
-  public void accessControlConfig(@NonNull AccessControlConfiguration configuration) {
-    this.accessControlConfiguration = configuration;
+  public void restConfiguration(@NonNull RestConfiguration configuration) {
+    this.restConfiguration = configuration;
   }
 
   @Override

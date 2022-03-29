@@ -63,9 +63,9 @@ public interface Configuration {
 
   void httpListeners(@NonNull Collection<HostAndPort> httpListeners);
 
-  @NonNull AccessControlConfiguration accessControlConfig();
+  @NonNull RestConfiguration restConfiguration();
 
-  void accessControlConfig(@NonNull AccessControlConfiguration configuration);
+  void restConfiguration(@NonNull RestConfiguration configuration);
 
   @NonNull SSLConfiguration clientSSLConfig();
 

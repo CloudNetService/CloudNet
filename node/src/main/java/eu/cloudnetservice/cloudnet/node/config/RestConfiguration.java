@@ -18,6 +18,11 @@ package eu.cloudnetservice.cloudnet.node.config;
 
 import lombok.NonNull;
 
-public record AccessControlConfiguration(@NonNull String corsPolicy, int accessControlMaxAge) {
+public record RestConfiguration(
+  @NonNull String corsPolicy,
+  @NonNull String allowedHeaders,
+  @NonNull String exposedHeaders,
+  int accessControlMaxAge
+) {
 
 }
