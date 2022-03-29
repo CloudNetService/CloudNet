@@ -17,8 +17,6 @@
 package eu.cloudnetservice.cloudnet.driver.network.netty.codec;
 
 import eu.cloudnetservice.cloudnet.driver.network.netty.NettyUtil;
-import eu.cloudnetservice.cloudnet.driver.network.netty.codec.NettyPacketLengthDeserializer.ProcessingResult;
-import eu.cloudnetservice.cloudnet.driver.network.netty.codec.NettyPacketLengthDeserializer.VarIntByteProcessor;
 import io.netty.buffer.Unpooled;
 import java.util.Random;
 import org.junit.jupiter.api.Assertions;
@@ -41,30 +39,6 @@ public class VarIntCodecTest {
 
       // reset
       buffer.clear();
-    }
-  }
-
-  @Test
-  void testVarIntByteDecoderWriteRead() {
-    var random = new Random();
-    var processor = new VarIntByteProcessor();
-    var buffer = Unpooled.buffer(5);
-
-    for (int curr = 1; curr < 5_000_000; curr += 31) {
-      // write an extra long to try trick the deserializer
-      NettyUtil.writeVarInt(buffer, curr);
-      buffer.writeLong(random.nextLong());
-
-      // read
-      buffer.forEachByte(processor);
-      Assertions.assertEquals(curr, processor.varInt);
-      Assertions.assertEquals(ProcessingResult.OK, processor.result);
-
-      // reset
-      buffer.clear();
-      processor.varInt = 0;
-      processor.bytesRead = 0;
-      processor.result = ProcessingResult.TOO_SHORT;
     }
   }
 }
