@@ -49,7 +49,6 @@ public final class NettyUtil {
   private static final boolean NO_NATIVE_TRANSPORT = Boolean.getBoolean("cloudnet.no-native");
   private static final NettyTransport CURR_NETTY_TRANSPORT = NettyTransport.availableTransport(NO_NATIVE_TRANSPORT);
   // var int codec
-  private static final int[] VAR_INT_LENGTHS = new int[33];
   private static final SilentDecoderException INVALID_VAR_INT = new SilentDecoderException("Invalid var int");
   // packet thread handling
   private static final RejectedExecutionHandler DEFAULT_REJECT_HANDLER = new ThreadPoolExecutor.CallerRunsPolicy();
@@ -63,13 +62,6 @@ public final class NettyUtil {
     if (System.getProperty("io.netty.leakDetection.level") == null) {
       ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
     }
-
-    // initializes the length of each var int which removes the need for that later
-    for (int i = 0; i <= 32; ++i) {
-      VAR_INT_LENGTHS[i] = (int) Math.ceil(31D - (i - 1) / 7D);
-    }
-    // 0 is always one byte long
-    VAR_INT_LENGTHS[32] = 1;
   }
 
   private NettyUtil() {
@@ -138,24 +130,15 @@ public final class NettyUtil {
    * @throws NullPointerException if the given byte buf is null.
    */
   public static @NonNull ByteBuf writeVarInt(@NonNull ByteBuf byteBuf, int value) {
-    if ((value & -128) == 0) {
-      byteBuf.writeByte(value);
-    } else if ((value & -16384) == 0) {
-      var shortValue = (value & 0x7F | 0x80) << 8 | (value >>> 7);
-      byteBuf.writeShort(shortValue);
-    } else {
-      while (true) {
-        if ((value & -128) == 0) {
-          byteBuf.writeByte(value);
-          return byteBuf;
-        }
-
-        byteBuf.writeByte(value & 0x7F | 0x80);
+    while (true) {
+      if ((value & ~0x7F) == 0) {
+        byteBuf.writeByte(value);
+        return byteBuf;
+      } else {
+        byteBuf.writeByte((value & 0x7F) | 0x80);
         value >>>= 7;
       }
     }
-
-    return byteBuf;
   }
 
   /**
@@ -177,16 +160,6 @@ public final class NettyUtil {
       }
     }
     throw INVALID_VAR_INT;
-  }
-
-  /**
-   * Get the amount of bytes the given integer will consume when converted to a var int.
-   *
-   * @param varInt the var int to write.
-   * @return the number of bytes the given var int takes when serializing.
-   */
-  public static int varIntByteAmount(int varInt) {
-    return VAR_INT_LENGTHS[Integer.numberOfLeadingZeros(varInt)];
   }
 
   /**
