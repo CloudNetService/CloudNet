@@ -35,6 +35,9 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Supplier;
 import lombok.NonNull;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
@@ -56,6 +59,8 @@ public final class JLine3Console implements Console {
   private static final String VERSION = Node.class.getPackage().getImplementationVersion();
   private static final String HISTORY_FILE = System.getProperty("cloudnet.history.file", "local/.consolehistory");
 
+  private final Lock printLock = new ReentrantLock(true);
+
   private final Map<UUID, ConsoleInputHandler> consoleInputHandler = new ConcurrentHashMap<>();
   private final Map<UUID, ConsoleTabCompleteHandler> tabCompleteHandler = new ConcurrentHashMap<>();
 
@@ -67,8 +72,8 @@ public final class JLine3Console implements Console {
   private final Terminal terminal;
   private final LineReaderImpl lineReader;
 
-  private String prompt = System.getProperty("cloudnet.console.prompt", "&c%user%&r@&7%screen% &f=> &r");
-  private String screenName = VERSION;
+  private String prompt = System.getProperty("cloudnet.console.prompt", "&c%user%&r@&7%version% &f=> &r");
+
   private boolean printingEnabled = true;
   private boolean matchingHistorySearch = true;
 
@@ -228,12 +233,14 @@ public final class JLine3Console implements Console {
   }
 
   @Override
-  public @NonNull Console write(@NonNull String text) {
-    if (this.printingEnabled) {
-      this.forceWrite(text);
+  public @NonNull Console writeRaw(@NonNull Supplier<String> rawText) {
+    this.printLock.lock();
+    try {
+      this.print(ConsoleColor.toColouredString('&', rawText.get()));
+      return this;
+    } finally {
+      this.printLock.unlock();
     }
-
-    return this;
   }
 
   @Override
@@ -246,28 +253,24 @@ public final class JLine3Console implements Console {
   }
 
   @Override
-  public @NonNull Console forceWrite(@NonNull String text) {
-    return this.writeRaw(Ansi.ansi().eraseLine(Ansi.Erase.ALL).toString() + '\r' + text + ConsoleColor.DEFAULT);
-  }
-
-  @Override
-  public @NonNull Console writeRaw(@NonNull String rawText) {
-    this.print(ConsoleColor.toColouredString('&', rawText));
-    return this;
-  }
-
-  @Override
   public @NonNull Console forceWriteLine(@NonNull String text) {
-    text = ConsoleColor.toColouredString('&', text);
-    if (!text.endsWith(System.lineSeparator())) {
-      text += System.lineSeparator();
-    }
-
-    this.print(Ansi.ansi().eraseLine(Ansi.Erase.ALL).toString() + '\r' + text + Ansi.ansi().reset().toString());
-    if (!this.runningAnimations.isEmpty()) {
-      for (var animation : this.runningAnimations.values()) {
-        animation.addToCursor(1);
+    this.printLock.lock();
+    try {
+      // ensure that the given text is formatted properly
+      text = ConsoleColor.toColouredString('&', text);
+      if (!text.endsWith(System.lineSeparator())) {
+        text += System.lineSeparator();
       }
+
+      this.print(Ansi.ansi().eraseLine(Ansi.Erase.ALL).toString() + '\r' + text + Ansi.ansi().reset().toString());
+      // increases the amount of lines the running animations is off the current printed lines
+      if (!this.runningAnimations.isEmpty()) {
+        for (var animation : this.runningAnimations.values()) {
+          animation.addToCursor(1);
+        }
+      }
+    } finally {
+      this.printLock.unlock();
     }
 
     return this;
@@ -290,7 +293,7 @@ public final class JLine3Console implements Console {
 
   @Override
   public void resetPrompt() {
-    this.prompt = System.getProperty("cloudnet.console.prompt", "&c%user%&r@&7%screen% &f=> &r");
+    this.prompt = System.getProperty("cloudnet.console.prompt", "&c%user%&r@&7%version% &f=> &r");
     this.updatePrompt();
   }
 
@@ -336,16 +339,6 @@ public final class JLine3Console implements Console {
   }
 
   @Override
-  public @NonNull String screenName() {
-    return this.screenName;
-  }
-
-  @Override
-  public void screenName(@NonNull String screenName) {
-    this.screenName = screenName;
-  }
-
-  @Override
   public int width() {
     return this.terminal.getWidth();
   }
@@ -355,7 +348,7 @@ public final class JLine3Console implements Console {
     var result = 0;
     // count for the length of each char in the string
     for (var i = 0; i < string.length(); i++) {
-      result += Math.max(WCWidth.wcwidth(string.charAt(i)), 0);
+      result += Math.max(0, WCWidth.wcwidth(string.charAt(i)));
     }
     return result;
   }
@@ -363,32 +356,31 @@ public final class JLine3Console implements Console {
   private void updatePrompt() {
     this.prompt = ConsoleColor.toColouredString('&', this.prompt)
       .replace("%version%", VERSION)
-      .replace("%user%", USER)
-      .replace("%screen%", this.screenName);
+      .replace("%user%", USER);
     this.lineReader.setPrompt(this.prompt);
   }
 
   private void print(@NonNull String text) {
+    // print out the raw given line
     this.lineReader.getTerminal().puts(InfoCmp.Capability.carriage_return);
     this.lineReader.getTerminal().puts(InfoCmp.Capability.clr_eol);
     this.lineReader.getTerminal().writer().print(text);
     this.lineReader.getTerminal().writer().flush();
 
+    // re-displays the prompt to ensure everything is lined up
     this.redisplay();
   }
 
   private void redisplay() {
-    if (!this.lineReader.isReading()) {
-      return;
+    if (this.lineReader.isReading()) {
+      this.lineReader.callWidget(LineReader.REDRAW_LINE);
+      this.lineReader.callWidget(LineReader.REDISPLAY);
     }
-
-    this.lineReader.callWidget(LineReader.REDRAW_LINE);
-    this.lineReader.callWidget(LineReader.REDISPLAY);
   }
 
-  private void toggleHandlers(boolean enabled, @NonNull Collection<?> handlers) {
-    for (Object handler : handlers) {
-      ((Toggleable) handler).enabled(enabled);
+  private void toggleHandlers(boolean enabled, @NonNull Collection<? extends Toggleable> handlers) {
+    for (var handler : handlers) {
+      handler.enabled(enabled);
     }
   }
 

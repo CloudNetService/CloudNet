@@ -22,6 +22,7 @@ import eu.cloudnetservice.cloudnet.node.console.handler.ConsoleInputHandler;
 import eu.cloudnetservice.cloudnet.node.console.handler.ConsoleTabCompleteHandler;
 import java.util.Collection;
 import java.util.UUID;
+import java.util.function.Supplier;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
@@ -74,13 +75,9 @@ public interface Console extends AutoCloseable {
 
   void removeTabCompleteHandler(@NonNull UUID uniqueId);
 
-  @NonNull Console writeRaw(@NonNull String rawText);
-
-  @NonNull Console forceWrite(@NonNull String text);
+  @NonNull Console writeRaw(@NonNull Supplier<String> rawText);
 
   @NonNull Console forceWriteLine(@NonNull String text);
-
-  @NonNull Console write(@NonNull String text);
 
   @NonNull Console writeLine(@NonNull String text);
 
@@ -101,10 +98,6 @@ public interface Console extends AutoCloseable {
   void emptyPrompt();
 
   void clearScreen();
-
-  @NonNull String screenName();
-
-  void screenName(@NonNull String name);
 
   int width();
 

@@ -55,17 +55,19 @@ public abstract class AbstractConsoleAnimation implements Runnable {
 
   protected void print(String @NonNull ... input) {
     if (input.length != 0) {
-      var ansi = Ansi.ansi().saveCursorPosition().cursorUp(this.cursorUp).eraseLine(Ansi.Erase.ALL);
-      for (var a : input) {
-        ansi.a(a);
-      }
+      this.console.writeRaw(() -> {
+        var ansi = Ansi.ansi().saveCursorPosition().cursorUp(this.cursorUp).eraseLine(Ansi.Erase.ALL);
+        for (var a : input) {
+          ansi.a(a);
+        }
 
-      this.console.forceWrite(ansi.restoreCursorPosition().toString());
+        return ansi.restoreCursorPosition().toString();
+      });
     }
   }
 
   protected void eraseLastLine() {
-    this.console.writeRaw(Ansi.ansi().reset().cursorUp(1).eraseLine().toString());
+    this.console.writeRaw(() -> Ansi.ansi().reset().cursorUp(1).eraseLine().toString());
   }
 
   /**

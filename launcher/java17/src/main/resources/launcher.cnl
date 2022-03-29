@@ -47,7 +47,7 @@ var cloudnet.logging.defaultlevel INFO
 # Sets the config file location of the node configuration.
 #var cloudnet.config.json.path config.json
 # Sets the console prompt which is displayed on the left side of the command line
-#var cloudnet.console.prompt &c%user%&r@&7%screen% &f=> &r
+#var cloudnet.console.prompt &c%user%&r@&7%version% &f=> &r
 # Sets the path to the permissions.json file in which all permission groups are saved.
 #var cloudnet.permissions.json.path local/permissions.json
 # Sets the path to the directory in which all task groups are saved.

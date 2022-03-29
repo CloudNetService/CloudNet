@@ -252,7 +252,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
       // call the event
       Node.instance().eventManager().callEvent(new SetupResponseEvent(this, entry, result));
       // re-draw the question line, add the given response to it
-      this.console.writeRaw(this.eraseLines(Ansi.ansi().reset(), this.currentCursor + 1)
+      this.console.writeRaw(() -> this.eraseLines(Ansi.ansi().reset(), this.currentCursor + 1)
         .a("&r") // reset of the colors
         .a(entry.question().get()) // the question
         .a(" &r=> &a") // separator between the question and the answer
@@ -272,7 +272,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
       // wait a short period of time for the user to read
       Thread.sleep(1500);
       // erase the invalid lines again
-      this.console().writeRaw(this.eraseLines(Ansi.ansi().reset(), messageLines.length).toString());
+      this.console().writeRaw(() -> this.eraseLines(Ansi.ansi().reset(), messageLines.length).toString());
       // reset the console history
       this.console().commandHistory(answerType.possibleAnswers());
       // continue with the current question
