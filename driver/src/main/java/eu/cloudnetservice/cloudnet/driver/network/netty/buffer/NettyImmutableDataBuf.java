@@ -20,6 +20,7 @@ import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import io.netty.buffer.ByteBuf;
+import io.netty.util.ReferenceCountUtil;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
@@ -265,8 +266,8 @@ public class NettyImmutableDataBuf implements DataBuf {
    */
   @Override
   public void release() {
-    if (this.releasable) {
-      NettyUtil.safeRelease(this.byteBuf);
+    if (this.releasable && this.byteBuf.refCnt() > 0) {
+      ReferenceCountUtil.safeRelease(this.byteBuf);
     }
   }
 

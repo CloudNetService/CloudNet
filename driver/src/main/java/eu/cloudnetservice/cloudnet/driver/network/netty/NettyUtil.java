@@ -24,7 +24,6 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFactory;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ServerChannel;
-import io.netty.util.ReferenceCounted;
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.JdkLoggerFactory;
@@ -160,19 +159,6 @@ public final class NettyUtil {
       }
     }
     throw INVALID_VAR_INT;
-  }
-
-  /**
-   * Releases the given link reference counted object with a pre-check if the reference count is still more than 0
-   * before releasing the message.
-   *
-   * @param counted the object to safe release.
-   * @throws NullPointerException if the given reference counted object is null.
-   */
-  public static void safeRelease(@NonNull ReferenceCounted counted) {
-    if (counted.refCnt() > 0) {
-      counted.release(counted.refCnt());
-    }
   }
 
   /**
