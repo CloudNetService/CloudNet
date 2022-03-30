@@ -106,7 +106,7 @@ public class NettyHttpServer extends NettySslServer implements HttpServer {
   public boolean addListener(@NonNull HostAndPort hostAndPort) {
     try {
       if (!this.channelFutures.containsKey(hostAndPort)) {
-        this.channelFutures.putIfAbsent(hostAndPort, new ServerBootstrap()
+        this.channelFutures.put(hostAndPort, new ServerBootstrap()
           .group(this.bossGroup, this.workerGroup)
           .channelFactory(NettyUtil.serverChannelFactory())
           .childHandler(new NettyHttpServerInitializer(this, hostAndPort))
