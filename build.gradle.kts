@@ -90,14 +90,14 @@ subprojects {
     systemProperties(System.getProperties().mapKeys { it.key.toString() })
   }
 
-  tasks.withType<JavaCompile> {
+  tasks.withType<JavaCompile>().configureEach {
     sourceCompatibility = JavaVersion.VERSION_17.toString()
     targetCompatibility = JavaVersion.VERSION_17.toString()
     // options
     options.encoding = "UTF-8"
     options.isIncremental = true
     // we are aware that those are there, but we only do that if there is no other way we can use - so please keep the terminal clean!
-    options.compilerArgs = mutableListOf("-Xlint:none", "-Xlint:-deprecation", "-Xlint:-unchecked")
+    options.compilerArgs = mutableListOf("-Xlint:-deprecation,-unchecked")
   }
 
   tasks.withType<Checkstyle> {
