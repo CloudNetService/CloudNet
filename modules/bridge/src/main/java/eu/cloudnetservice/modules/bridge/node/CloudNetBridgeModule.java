@@ -81,7 +81,6 @@ public final class CloudNetBridgeModule extends DriverModule {
       JsonDocument.newDocument(new BridgeConfiguration(
         config.getString("prefix"),
         messages,
-        config.getBoolean("logPlayerConnections"),
         excludedGroups,
         hubCommands,
         fallbacks,
