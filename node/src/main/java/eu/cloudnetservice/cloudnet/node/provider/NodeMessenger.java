@@ -70,7 +70,11 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
 
   public void sendChannelMessage(@NonNull ChannelMessage message, boolean allowClusterRedirect) {
     for (var channel : this.findChannels(message.targets(), allowClusterRedirect)) {
-      channel.sendPacket(new PacketServerChannelMessage(message, false));
+      if (message.sendSync()) {
+        channel.sendPacketSync(new PacketServerChannelMessage(message, false));
+      } else {
+        channel.sendPacket(new PacketServerChannelMessage(message, false));
+      }
     }
   }
 

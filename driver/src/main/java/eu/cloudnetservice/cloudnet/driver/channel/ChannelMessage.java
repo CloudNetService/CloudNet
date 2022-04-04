@@ -55,6 +55,7 @@ import org.jetbrains.annotations.Nullable;
  * <p>
  * The actual constructor of this class shouldn't get used. Use {@link #builder()} instead.
  *
+ * @param sendSync    whether sending the message should block the current thread until the message is flushed.
  * @param prioritized whether this channel message should be handled with priority over other channel messages.
  * @param channel     the channel to which the channel message gets sent. Mostly for identification reasons.
  * @param message     the message key of this channel message. Mostly for identification reasons.
@@ -67,6 +68,7 @@ import org.jetbrains.annotations.Nullable;
  * @since 4.0
  */
 public record ChannelMessage(
+  boolean sendSync,
   boolean prioritized,
   @NonNull String channel,
   @NonNull String message,
@@ -188,6 +190,7 @@ public record ChannelMessage(
     private String channel;
     private String message;
 
+    private boolean sendSync;
     private boolean prioritized;
 
     private DataBuf content;
@@ -229,6 +232,18 @@ public record ChannelMessage(
      */
     public @NonNull Builder message(@NonNull String message) {
       this.message = message;
+      return this;
+    }
+
+    /**
+     * Sets if the channel message should get send sync, blocking the sending thread until the message was written and
+     * flushed through the network layer.
+     *
+     * @param sync if the message should get send sync.
+     * @return the same builder as used to call the method, for chaining.
+     */
+    public @NonNull Builder sendSync(boolean sync) {
+      this.sendSync = sync;
       return this;
     }
 
@@ -400,6 +415,7 @@ public record ChannelMessage(
       Preconditions.checkArgument(!this.targets.isEmpty(), "No targets provided");
 
       return new ChannelMessage(
+        this.sendSync,
         this.prioritized,
         this.channel,
         this.message,

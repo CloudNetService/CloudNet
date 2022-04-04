@@ -39,7 +39,11 @@ public class WrapperMessenger extends DefaultMessenger implements CloudMessenger
 
   @Override
   public void sendChannelMessage(@NonNull ChannelMessage channelMessage) {
-    this.component.sendPacket(new PacketServerChannelMessage(channelMessage, true));
+    if (channelMessage.sendSync()) {
+      this.component.sendPacketSync(new PacketServerChannelMessage(channelMessage, true));
+    } else {
+      this.component.sendPacket(new PacketServerChannelMessage(channelMessage, true));
+    }
   }
 
   @Override
