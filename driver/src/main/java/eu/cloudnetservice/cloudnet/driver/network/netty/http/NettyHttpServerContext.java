@@ -16,8 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.netty.http;
 
-import eu.cloudnetservice.cloudnet.common.log.LogManager;
-import eu.cloudnetservice.cloudnet.common.log.Logger;
+import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.driver.network.http.HttpChannel;
 import eu.cloudnetservice.cloudnet.driver.network.http.HttpComponent;
 import eu.cloudnetservice.cloudnet.driver.network.http.HttpContext;
@@ -52,8 +51,6 @@ import org.jetbrains.annotations.Nullable;
  */
 @Internal
 final class NettyHttpServerContext implements HttpContext {
-
-  private static final Logger LOGGER = LogManager.logger(NettyHttpServerContext.class);
 
   final NettyHttpServerResponse httpServerResponse;
 
@@ -120,7 +117,7 @@ final class NettyHttpServerContext implements HttpContext {
    * {@inheritDoc}
    */
   @Override
-  public @Nullable WebSocketChannel upgrade() {
+  public @NonNull Task<WebSocketChannel> upgrade() {
     if (this.webSocketServerChannel == null) {
       // not upgraded yet, build a new handshaker based on the given information
       var handshaker = new WebSocketServerHandshakerFactory(
@@ -133,39 +130,44 @@ final class NettyHttpServerContext implements HttpContext {
       // no handshaker (as per the netty docs) means that the websocket version of the request is unsupported.
       if (handshaker == null) {
         WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(this.nettyChannel);
-        return null;
+        return Task.completedTask(new IllegalStateException("Unsupported web socket version"));
       } else {
         // remove the http handler from the pipeline, gets replaced with the websocket one
         this.nettyChannel.pipeline().remove("http-server-handler");
         this.nettyChannel.pipeline().remove("read-timeout-handler");
 
-        // try to greet the client, block until the operation is done
-        try {
-          handshaker.handshake(this.nettyChannel, this.httpRequest).syncUninterruptibly();
-        } catch (Exception exception) {
-          this.nettyChannel.writeAndFlush(new DefaultFullHttpResponse(
-            this.httpRequest.protocolVersion(),
-            HttpResponseStatus.OK,
-            Unpooled.wrappedBuffer("Unable to upgrade connection".getBytes())
-          ));
-          LOGGER.severe("Exception during websocket handshake", exception);
-          return null;
-        }
+        // cancel the next request and the response send to the client by the handler to do our processing
+        this.cancelNext(true);
+        this.closeAfter(false);
+        this.cancelSendResponse = true;
+
+        // try to greet the client
+        Task<WebSocketChannel> task = new Task<>();
+        handshaker.handshake(this.nettyChannel, this.httpRequest).addListener(future -> {
+          if (future.isSuccess()) {
+            // successfully greeted the client, setup everything we need
+            this.webSocketServerChannel = new NettyWebSocketServerChannel(this.channel, this.nettyChannel);
+            this.nettyChannel.pipeline().addLast(
+              "websocket-server-channel-handler",
+              new NettyWebSocketServerChannelHandler(this.webSocketServerChannel));
+
+            // done :)
+            task.complete(this.webSocketServerChannel);
+          } else {
+            // something went wrong...
+            this.nettyChannel.writeAndFlush(new DefaultFullHttpResponse(
+              this.httpRequest.protocolVersion(),
+              HttpResponseStatus.OK,
+              Unpooled.wrappedBuffer("Unable to upgrade connection".getBytes())
+            ));
+            task.completeExceptionally(future.cause());
+          }
+        });
+        return task;
       }
-
-      // upgrading done, add the handler to the pipeline
-      this.webSocketServerChannel = new NettyWebSocketServerChannel(this.channel, this.nettyChannel);
-      this.nettyChannel.pipeline().addLast(
-        "websocket-server-channel-handler",
-        new NettyWebSocketServerChannelHandler(this.webSocketServerChannel));
-
-      // cancel the next request and the response send to the client by the handler
-      this.cancelNext(true);
-      this.closeAfter(false);
-      this.cancelSendResponse = true;
+    } else {
+      return Task.completedTask(this.webSocketServerChannel);
     }
-
-    return this.webSocketServerChannel;
   }
 
   /**

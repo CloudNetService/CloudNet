@@ -209,21 +209,19 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
 
   protected void handleLiveLogRequest(@NonNull HttpContext context) {
     this.handleWithServiceContext(context, service -> {
-      var cloudService = this.node().cloudServiceProvider()
-        .localCloudService(service.serviceId().uniqueId());
+      var cloudService = this.node().cloudServiceProvider().localCloudService(service.serviceId().uniqueId());
       if (cloudService != null) {
-        var webSocketChannel = context.upgrade();
-        if (webSocketChannel == null) {
-          return;
-        }
+        context.upgrade().thenAccept(channel -> {
+          ServiceConsoleLineHandler handler = (console, line, stderr) -> channel.sendWebSocketFrame(
+            WebSocketFrameType.TEXT,
+            line);
+          cloudService.serviceConsoleLogCache().addHandler(handler);
 
-        ServiceConsoleLineHandler handler = (console, line, stderr) ->
-          webSocketChannel.sendWebSocketFrame(WebSocketFrameType.TEXT, line);
-        cloudService.serviceConsoleLogCache().addHandler(handler);
-
-        webSocketChannel
-          .addListener(
-            new ConsoleHandlerWebSocketListener(cloudService, cloudService.serviceConsoleLogCache(), handler));
+          channel.addListener(new ConsoleHandlerWebSocketListener(
+            cloudService,
+            cloudService.serviceConsoleLogCache(),
+            handler));
+        });
       } else {
         this.badRequest(context)
           .body(this.failure().append("reason", "Service is unknown or not running on this node").toString())

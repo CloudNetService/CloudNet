@@ -154,13 +154,11 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
   }
 
   protected void handleLiveConsoleRequest(HttpContext context, HttpSession session) {
-    var channel = context.upgrade();
-    if (channel != null) {
+    context.upgrade().thenAccept(channel -> {
       var handler = new WebSocketLogHandler(session, channel, DefaultLogFormatter.END_LINE_SEPARATOR);
-
       channel.addListener(handler);
       LogManager.rootLogger().addHandler(handler);
-    }
+    });
   }
 
   protected void reloadConfig() {
