@@ -22,6 +22,7 @@ import com.github.dockerjava.api.async.ResultCallback.Adapter;
 import com.github.dockerjava.api.command.PullImageCmd;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.exception.NotModifiedException;
+import com.github.dockerjava.api.model.AccessMode;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Capability;
 import com.github.dockerjava.api.model.ExposedPort;
@@ -271,14 +272,16 @@ public class DockerizedService extends JVMService {
     Set<Bind> binds = new HashSet<>();
 
     // allow the container full access to the work directory and the wrapper file
-    binds.add(this.bindFromPath(wrapperFilePath.toAbsolutePath().toString()));
-    binds.add(this.bindFromPath(this.serviceDirectory.toAbsolutePath().toString()));
+    // but only read access to the class path
+    binds.add(this.bindFromPath(LIB_PATH.toAbsolutePath().toString(), AccessMode.ro));
+    binds.add(this.bindFromPath(wrapperFilePath.toAbsolutePath().toString(), AccessMode.ro));
+    binds.add(this.bindFromPath(this.serviceDirectory.toAbsolutePath().toString(), AccessMode.rw));
 
     // get the task specific volumes and concat them with the default volumes
     var taskBinds = this.readFromTaskConfig(TaskDockerConfig::binds).orElse(Set.of());
     binds.addAll(Stream.concat(taskBinds.stream(), this.configuration.binds().stream())
       .map(path -> this.serviceDirectory.resolve(path).toAbsolutePath().toString())
-      .map(this::bindFromPath)
+      .map(path -> this.bindFromPath(path, AccessMode.rw))
       .toList());
 
     // uses array instead of list to ensure that there are no duplicate binds
@@ -326,8 +329,8 @@ public class DockerizedService extends JVMService {
     return cmd;
   }
 
-  protected @NonNull Bind bindFromPath(@NonNull String path) {
-    return new Bind(path, new Volume(path));
+  protected @NonNull Bind bindFromPath(@NonNull String path, @NonNull AccessMode accessMode) {
+    return new Bind(path, new Volume(path), accessMode);
   }
 
   public final class ServiceLogCacheAdapter extends Adapter<Frame> {
