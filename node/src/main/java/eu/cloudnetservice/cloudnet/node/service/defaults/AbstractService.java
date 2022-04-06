@@ -17,6 +17,7 @@
 package eu.cloudnetservice.cloudnet.node.service.defaults;
 
 import com.google.common.base.Preconditions;
+import com.google.common.net.InetAddresses;
 import eu.cloudnetservice.cloudnet.common.StringUtil;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.common.io.FileUtil;
@@ -55,12 +56,14 @@ import eu.cloudnetservice.cloudnet.node.service.CloudService;
 import eu.cloudnetservice.cloudnet.node.service.CloudServiceManager;
 import eu.cloudnetservice.cloudnet.node.service.ServiceConfigurationPreparer;
 import eu.cloudnetservice.cloudnet.node.service.ServiceConsoleLogCache;
+import java.net.Inet6Address;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -587,13 +590,13 @@ public abstract class AbstractService implements CloudService {
     FileUtil.createDirectory(this.serviceDirectory);
     FileUtil.createDirectory(this.pluginDirectory);
     // write the configuration file for the service
-    var listeners = this.nodeConfiguration().identity().listeners();
+    var listener = this.selectConnectListener(this.nodeConfiguration().identity().listeners());
     JsonDocument.newDocument()
+      .append("targetListener", listener)
       .append("connectionKey", this.connectionKey())
       .append("serviceInfoSnapshot", this.currentServiceInfo)
       .append("serviceConfiguration", this.serviceConfiguration())
       .append("sslConfiguration", this.nodeConfiguration().serverSSLConfig())
-      .append("targetListener", listeners.get(ThreadLocalRandom.current().nextInt(listeners.size())))
       .write(this.serviceDirectory.resolve(WRAPPER_CONFIG_PATH));
     // load the ssl configuration if enabled
     var sslConfiguration = this.nodeConfiguration().serverSSLConfig();
@@ -610,6 +613,23 @@ public abstract class AbstractService implements CloudService {
     this.includeWaitingServiceTemplates(firstStartup);
     // update the service configuration
     this.serviceConfigurationPreparer.configure(this.nodeInstance, this);
+  }
+
+  protected @NonNull HostAndPort selectConnectListener(@NonNull List<HostAndPort> listeners) {
+    // select a listener for the service to connect to, randomly
+    var listener = listeners.get(ThreadLocalRandom.current().nextInt(listeners.size()));
+    // rewrite 0.0.0.0 to 127.0.0.1 (or ::0 to ::1) to prevent unexpected connection issues (wrapper to node connection)
+    // if InetAddresses.forString throws an exception that is OK as the connection will fail anyway then
+    var address = InetAddresses.forString(listener.host());
+    if (address.isAnyLocalAddress()) {
+      // rewrites ipv6 to an ipv6 local address
+      return address instanceof Inet6Address
+        ? new HostAndPort("::1", listener.port())
+        : new HostAndPort("127.0.0.1", listener.port());
+    } else {
+      // no need to change anything
+      return listener;
+    }
   }
 
   protected void copySslConfiguration(@NonNull SSLConfiguration configuration) {
