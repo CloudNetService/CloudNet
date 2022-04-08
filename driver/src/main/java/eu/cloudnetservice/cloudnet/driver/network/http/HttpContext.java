@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.driver.network.http;
 
+import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.driver.network.http.websocket.WebSocketChannel;
 import java.util.Collection;
 import lombok.NonNull;
@@ -48,10 +49,14 @@ public interface HttpContext {
    *   <li>Wire protocol version 08 (draft version 07 of the hybi specification)
    *   <li>Wire protocol version 08 (draft version 00 of the hybi specification), fallback when no version is specified
    * </ol>
+   * <p>
+   * If the upgrade fails this method returns a task which is completed exceptionally and sends a response to the client
+   * indicating the reason for the failure. After that, the connection is still able to send out http requests but will
+   * no longer accept / handle these.
    *
-   * @return the upgraded web socket channel or null if the upgrade was not possible.
+   * @return a task completed with the upgraded web socket channel or an exception if the upgrade was not possible.
    */
-  @Nullable WebSocketChannel upgrade();
+  @NonNull Task<WebSocketChannel> upgrade();
 
   /**
    * Get the web socket channel to which this request was upgraded. If the request was not upgraded, or the upgrade was

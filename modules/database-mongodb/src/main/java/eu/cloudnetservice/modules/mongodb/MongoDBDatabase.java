@@ -97,7 +97,7 @@ public class MongoDBDatabase extends AbstractDatabase {
   }
 
   @Override
-  public @NonNull List<JsonDocument> get(@NonNull String fieldName, Object fieldValue) {
+  public @NonNull List<JsonDocument> find(@NonNull String fieldName, Object fieldValue) {
     List<JsonDocument> documents = new ArrayList<>();
     try (var cursor = this.collection.find(this.valueEq(fieldName, fieldValue)).iterator()) {
       while (cursor.hasNext()) {
@@ -108,7 +108,7 @@ public class MongoDBDatabase extends AbstractDatabase {
   }
 
   @Override
-  public @NonNull List<JsonDocument> get(@NonNull JsonDocument filters) {
+  public @NonNull List<JsonDocument> find(@NonNull JsonDocument filters) {
     // the easiest way to prevent issues with json-to-json conversion is to use the in-build document of mongodb and
     // then reconvert the values as we need them
     Collection<Bson> bsonFilters = new ArrayList<>();

@@ -17,6 +17,7 @@
 package eu.cloudnetservice.cloudnet.driver.database;
 
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
+import eu.cloudnetservice.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import java.util.Collection;
 import lombok.NonNull;
 
@@ -43,6 +44,7 @@ import lombok.NonNull;
  * @see Database
  * @since 4.0
  */
+@RPCValidation
 public interface DatabaseProvider {
 
   /**

@@ -49,7 +49,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
 
   @Test
   @Order(0)
-  void testHttpHandlerRegister() throws Exception {
+  void testHttpHandlerRegister() {
     HttpServer server = new NettyHttpServer();
 
     server.registerHandler("/users/info", ($, $1) -> {
@@ -67,7 +67,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
 
   @Test
   @Order(10)
-  void testDuplicateServerBind() throws Exception {
+  void testDuplicateServerBind() {
     var port = this.randomFreePort();
     HttpServer server = new NettyHttpServer();
 
@@ -97,9 +97,6 @@ public class NettyHttpServerTest extends NetworkTestCase {
 
     for (var supportedMethod : SUPPORTED_METHODS) {
       var connection = this.connectTo(port, "test", con -> con.setRequestMethod(supportedMethod));
-
-      connection.setRequestMethod(supportedMethod);
-
       connection.connect();
       Assertions.assertEquals(200, connection.getResponseCode());
     }
@@ -324,21 +321,20 @@ public class NettyHttpServerTest extends NetworkTestCase {
 
     server.registerHandler(
       "/test",
-      ($, context) -> context.upgrade().addListener((channel, type, content) -> {
-        switch (type) {
-          case TEXT -> {
-            Assertions.assertEquals("request", new String(content, StandardCharsets.UTF_8));
-            channel.sendWebSocketFrame(WebSocketFrameType.TEXT, "response");
-          }
-          case PING -> channel.sendWebSocketFrame(WebSocketFrameType.PONG, "response2");
-          case BINARY -> {
-            Assertions.assertArrayEquals(new byte[]{0, 5, 6}, content);
-            channel.close(1001, "Successful close");
-          }
-          default -> Assertions.fail("Unexpected frame type " + type);
+      ($, context) -> context.upgrade().thenAccept(ch -> {
+          ch.addListener((channel, type, content) -> {
+            switch (type) {
+              case PING -> channel.sendWebSocketFrame(WebSocketFrameType.PONG, "response2");
+              case BINARY -> {
+                Assertions.assertArrayEquals(new byte[]{0, 5, 6}, content);
+                channel.close(1001, "Successful close");
+              }
+              default -> Assertions.fail("Unexpected frame type " + type);
+            }
+          });
+          ch.sendWebSocketFrame(WebSocketFrameType.TEXT, "hello");
         }
-      })
-    );
+      ));
     Assertions.assertTrue(server.addListener(port));
 
     var session = ClientManager.createClient().connectToServer(
@@ -346,6 +342,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
       URI.create(String.format("ws://127.0.0.1:%d/test", port)));
 
     while (session.isOpen()) {
+      //noinspection BusyWait
       Thread.sleep(50);
     }
   }

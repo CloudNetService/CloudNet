@@ -31,10 +31,6 @@ import io.netty.channel.kqueue.KQueueSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.incubator.channel.uring.IOUring;
-import io.netty.incubator.channel.uring.IOUringEventLoopGroup;
-import io.netty.incubator.channel.uring.IOUringServerSocketChannel;
-import io.netty.incubator.channel.uring.IOUringSocketChannel;
 import java.util.function.Function;
 import lombok.NonNull;
 
@@ -45,14 +41,14 @@ import lombok.NonNull;
  */
 public enum NettyTransport {
 
-  IO_URING(
+  /*IO_URING(
     "io_uring",
     IOUring.isAvailable(),
     true,
     IOUringEventLoopGroup::new,
     IOUringSocketChannel::new,
     IOUringServerSocketChannel::new
-  ),
+  ),*/
   EPOLL(
     "epoll",
     Epoll.isAvailable(),

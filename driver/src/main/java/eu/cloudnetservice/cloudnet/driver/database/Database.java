@@ -19,6 +19,7 @@ package eu.cloudnetservice.cloudnet.driver.database;
 import eu.cloudnetservice.cloudnet.common.Nameable;
 import eu.cloudnetservice.cloudnet.common.concurrent.Task;
 import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
+import eu.cloudnetservice.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import java.util.Collection;
 import java.util.Map;
 import lombok.NonNull;
@@ -51,6 +52,7 @@ import org.jetbrains.annotations.Nullable;
  * @see DatabaseProvider
  * @since 4.0
  */
+@RPCValidation
 public interface Database extends Nameable, AutoCloseable {
 
   /**
@@ -102,7 +104,7 @@ public interface Database extends Nameable, AutoCloseable {
    * @return all documents in the database which contain the given field mapped to the given field value.
    * @throws NullPointerException if fieldName is null.
    */
-  @NonNull Collection<JsonDocument> get(@NonNull String fieldName, @Nullable Object fieldValue);
+  @NonNull Collection<JsonDocument> find(@NonNull String fieldName, @Nullable Object fieldValue);
 
   /**
    * Searches for all entries in the database which contain each entry of the given filters document mapped to each
@@ -114,7 +116,7 @@ public interface Database extends Nameable, AutoCloseable {
    * @return all documents in the database which contain all key-value mappings of the filter document.
    * @throws NullPointerException if filters is null.
    */
-  @NonNull Collection<JsonDocument> get(@NonNull JsonDocument filters);
+  @NonNull Collection<JsonDocument> find(@NonNull JsonDocument filters);
 
   /**
    * Get all keys which are currently stored and mapped to a document in the database. This operation might be heavy
@@ -238,8 +240,8 @@ public interface Database extends Nameable, AutoCloseable {
    * @return a future completed with all documents matching the given field key/value.
    * @throws NullPointerException if fieldName is null.
    */
-  default @NonNull Task<Collection<JsonDocument>> getAsync(@NonNull String fieldName, @Nullable Object fieldValue) {
-    return Task.supply(() -> this.get(fieldName, fieldValue));
+  default @NonNull Task<Collection<JsonDocument>> findAsync(@NonNull String fieldName, @Nullable Object fieldValue) {
+    return Task.supply(() -> this.find(fieldName, fieldValue));
   }
 
   /**
@@ -256,8 +258,8 @@ public interface Database extends Nameable, AutoCloseable {
    * @return a future completed with all documents matching the given filters.
    * @throws NullPointerException if filters is null.
    */
-  default @NonNull Task<Collection<JsonDocument>> getAsync(@NonNull JsonDocument filters) {
-    return Task.supply(() -> this.get(filters));
+  default @NonNull Task<Collection<JsonDocument>> findAsync(@NonNull JsonDocument filters) {
+    return Task.supply(() -> this.find(filters));
   }
 
   /**

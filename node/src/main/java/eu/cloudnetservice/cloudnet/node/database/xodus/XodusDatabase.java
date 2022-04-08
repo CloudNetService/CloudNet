@@ -94,7 +94,7 @@ public class XodusDatabase extends AbstractDatabase {
   }
 
   @Override
-  public @NonNull List<JsonDocument> get(@NonNull String fieldName, Object fieldValue) {
+  public @NonNull List<JsonDocument> find(@NonNull String fieldName, Object fieldValue) {
     var like = JsonDocument.GSON.toJsonTree(fieldValue);
     return this.handleWithCursor(($, document) -> {
       if (document.contains(fieldName) && document.get(fieldName).equals(like)) {
@@ -105,7 +105,7 @@ public class XodusDatabase extends AbstractDatabase {
   }
 
   @Override
-  public @NonNull List<JsonDocument> get(@NonNull JsonDocument filters) {
+  public @NonNull List<JsonDocument> find(@NonNull JsonDocument filters) {
     Map<String, Object> filterObjects = new HashMap<>();
     if (!filters.empty()) {
       for (var key : filters) {

@@ -21,7 +21,6 @@ import jakarta.websocket.CloseReason;
 import jakarta.websocket.CloseReason.CloseCodes;
 import jakarta.websocket.OnClose;
 import jakarta.websocket.OnMessage;
-import jakarta.websocket.OnOpen;
 import jakarta.websocket.PongMessage;
 import jakarta.websocket.Session;
 import java.io.IOException;
@@ -36,23 +35,17 @@ public class WebSocketClientEndpoint {
 
   private final AtomicInteger eventCounter = new AtomicInteger();
 
-  @OnOpen
-  public void onOpen(Session session) {
-    Assertions.assertEquals(0, this.eventCounter.getAndIncrement());
-    session.getAsyncRemote().sendText("request");
-  }
-
   @OnMessage
   public void onStringMessage(Session session, String message) throws IOException {
-    Assertions.assertEquals(1, WebSocketClientEndpoint.this.eventCounter.getAndIncrement());
-    Assertions.assertEquals("response", message);
+    Assertions.assertEquals(0, this.eventCounter.getAndIncrement());
+    Assertions.assertEquals("hello", message);
 
     session.getAsyncRemote().sendPing(null);
   }
 
   @OnMessage
   public void onPongMessage(Session session, PongMessage message) {
-    Assertions.assertEquals(2, WebSocketClientEndpoint.this.eventCounter.getAndIncrement());
+    Assertions.assertEquals(1, this.eventCounter.getAndIncrement());
 
     var content = new String(Utils.getRemainingArray(message.getApplicationData()), StandardCharsets.UTF_8);
     Assertions.assertEquals("response2", content);
@@ -62,7 +55,7 @@ public class WebSocketClientEndpoint {
 
   @OnClose
   public void onClose(CloseReason closeReason) {
-    Assertions.assertEquals(3, this.eventCounter.get());
+    Assertions.assertEquals(2, this.eventCounter.get());
     Assertions.assertEquals(CloseCodes.GOING_AWAY, closeReason.getCloseCode());
     Assertions.assertEquals("Successful close", closeReason.getReasonPhrase());
   }

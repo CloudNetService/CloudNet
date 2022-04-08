@@ -102,11 +102,11 @@ class XodusDatabaseTest {
     var entry3 = database.get("122334");
     Assertions.assertNull(entry3);
 
-    var entry4 = database.get("hello", "world");
+    var entry4 = database.find("hello", "world");
     Assertions.assertEquals(1, entry4.size());
     Assertions.assertEquals("world", entry4.iterator().next().getString("hello"));
 
-    var entry5 = database.get(JsonDocument.newDocument("hello", "world2"));
+    var entry5 = database.find(JsonDocument.newDocument("hello", "world2"));
     Assertions.assertEquals(1, entry5.size());
     Assertions.assertEquals("world2", entry5.iterator().next().getString("hello"));
 

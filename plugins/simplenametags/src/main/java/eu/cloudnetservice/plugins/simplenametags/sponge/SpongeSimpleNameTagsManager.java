@@ -77,7 +77,7 @@ final class SpongeSimpleNameTagsManager extends SimpleNameTagsManager<ServerPlay
     team.setPrefix(AdventureSerializerUtil.serialize(group.prefix()));
     team.setSuffix(AdventureSerializerUtil.serialize(group.suffix()));
     // set the team color if possible
-    var teamColor = NamedTextColor.ofExact(this.getColorChar(group));
+    var teamColor = NamedTextColor.namedColor(this.getColorChar(group));
     if (teamColor != null) {
       team.setColor(teamColor);
     }
