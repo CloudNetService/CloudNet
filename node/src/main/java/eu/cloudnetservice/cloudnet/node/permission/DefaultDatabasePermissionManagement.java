@@ -214,7 +214,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
 
   @Override
   public @NonNull List<PermissionUser> usersByName(@NonNull String name) {
-    return this.userDatabaseTable().get("name", name).stream()
+    return this.userDatabaseTable().find("name", name).stream()
       .map(userData -> {
         // deserialize the permission user
         var user = userData.toInstanceOf(PermissionUser.class);

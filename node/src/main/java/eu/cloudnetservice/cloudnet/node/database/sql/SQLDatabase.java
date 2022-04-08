@@ -117,7 +117,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
   }
 
   @Override
-  public @NonNull List<JsonDocument> get(@NonNull String fieldName, Object fieldValue) {
+  public @NonNull List<JsonDocument> find(@NonNull String fieldName, Object fieldValue) {
     return this.databaseProvider.executeQuery(
       String.format("SELECT %s FROM `%s` WHERE %s LIKE ? ESCAPE '$'", TABLE_COLUMN_VAL, this.name, TABLE_COLUMN_VAL),
       resultSet -> {
@@ -134,7 +134,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
   }
 
   @Override
-  public @NonNull List<JsonDocument> get(@NonNull JsonDocument filters) {
+  public @NonNull List<JsonDocument> find(@NonNull JsonDocument filters) {
     var stringBuilder = new StringBuilder("SELECT ")
       .append(TABLE_COLUMN_VAL).append(" FROM `")
       .append(this.name).append('`');

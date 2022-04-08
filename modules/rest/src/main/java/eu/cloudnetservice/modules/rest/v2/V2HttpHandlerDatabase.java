@@ -125,7 +125,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
     var body = this.body(context.request());
     var filter = body.getDocument("filter");
 
-    var result = database.get(filter);
+    var result = database.find(filter);
     this.ok(context)
       .body(this.success().append("result", result).toString())
       .context()
