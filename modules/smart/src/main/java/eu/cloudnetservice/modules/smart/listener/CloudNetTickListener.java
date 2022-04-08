@@ -150,7 +150,7 @@ public final class CloudNetTickListener {
       }
     }
     // check if the auto-start based on the player count is enabled
-    if (config.percentOfPlayersToCheckShouldStopTheService() < 0) {
+    if (config.percentOfPlayersForANewServiceByInstance() < 0) {
       return;
     }
     // validate that we can start a service now
