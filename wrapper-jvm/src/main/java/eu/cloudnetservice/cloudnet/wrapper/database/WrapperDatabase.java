@@ -65,12 +65,12 @@ public class WrapperDatabase implements Database {
 
   @Override
   public @NonNull List<JsonDocument> find(@NonNull String fieldName, Object fieldValue) {
-    return this.baseRPC.join(this.sender.invokeMethod("get", fieldName, fieldValue)).fireSync();
+    return this.baseRPC.join(this.sender.invokeMethod("find", fieldName, fieldValue)).fireSync();
   }
 
   @Override
   public @NonNull List<JsonDocument> find(@NonNull JsonDocument filters) {
-    return this.baseRPC.join(this.sender.invokeMethod("get", filters)).fireSync();
+    return this.baseRPC.join(this.sender.invokeMethod("find", filters)).fireSync();
   }
 
   @Override

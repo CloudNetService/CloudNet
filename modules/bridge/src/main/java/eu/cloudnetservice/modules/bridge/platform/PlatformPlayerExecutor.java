@@ -50,7 +50,7 @@ final class PlatformPlayerExecutor implements PlayerExecutor {
 
   @Override
   public void connectSelecting(@NonNull ServerSelectorType selectorType) {
-    this.baseRPC.join(this.sender.invokeMethod("connect", selectorType)).fireSync();
+    this.baseRPC.join(this.sender.invokeMethod("connectSelecting", selectorType)).fireSync();
   }
 
   @Override
@@ -80,7 +80,7 @@ final class PlatformPlayerExecutor implements PlayerExecutor {
 
   @Override
   public void sendMessage(@NonNull Component message) {
-    this.baseRPC.join(this.sender.invokeMethod("sendChatMessage", message)).fireSync();
+    this.baseRPC.join(this.sender.invokeMethod("sendMessage", message)).fireSync();
   }
 
   @Override
@@ -95,6 +95,6 @@ final class PlatformPlayerExecutor implements PlayerExecutor {
 
   @Override
   public void spoofCommandExecution(@NonNull String command) {
-    this.baseRPC.join(this.sender.invokeMethod("dispatchProxyCommand", command)).fireSync();
+    this.baseRPC.join(this.sender.invokeMethod("spoofCommandExecution", command)).fireSync();
   }
 }
