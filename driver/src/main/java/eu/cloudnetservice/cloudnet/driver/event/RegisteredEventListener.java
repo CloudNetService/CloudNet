@@ -78,7 +78,6 @@ public interface RegisteredEventListener extends Comparable<RegisteredEventListe
    */
   @Override
   default int compareTo(@NonNull RegisteredEventListener other) {
-    var compareResult = this.priority().compareTo(other.priority());
-    return compareResult == 0 ? 1 : compareResult;
+    return other.priority().compareTo(this.priority());
   }
 }
