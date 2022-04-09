@@ -18,7 +18,6 @@ package eu.cloudnetservice.modules.bridge.platform.sponge;
 
 import com.google.inject.Inject;
 import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
-import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import lombok.NonNull;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
@@ -39,7 +38,7 @@ public final class SpongeBridgePlugin {
 
   @Listener
   public void handle(@NonNull StartedEngineEvent<Server> event) {
-    PlatformBridgeManagement<?, ?> management = new SpongeBridgeManagement();
+    var management = new SpongeBridgeManagement();
     management.registerServices(Wrapper.instance().serviceRegistry());
     management.postInit();
     // register the listener

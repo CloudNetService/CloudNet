@@ -145,18 +145,20 @@ public final class BungeeCordPlayerManagementListener implements Listener {
 
   @EventHandler
   public void handle(@NonNull ServerConnectedEvent event) {
+    var joinedServiceInfo = this.management
+      .cachedService(service -> service.name().equals(event.getServer().getInfo().getName()))
+      .map(BridgeServiceHelper::createServiceInfo)
+      .orElse(null);
     // check if the player connection was initial
     if (event.getPlayer().getServer() == null) {
-      ProxyPlatformHelper.sendChannelMessageLoginSuccess(this.management.createPlayerInformation(event.getPlayer()));
+      ProxyPlatformHelper.sendChannelMessageLoginSuccess(
+        this.management.createPlayerInformation(event.getPlayer()),
+        joinedServiceInfo);
       // update the service info
       Wrapper.instance().publishServiceInfoUpdate();
-    } else {
-      // server switch
+    } else if (joinedServiceInfo != null) {
       // the player switched the service
-      this.management
-        .cachedService(service -> service.name().equals(event.getServer().getInfo().getName()))
-        .map(BridgeServiceHelper::createServiceInfo)
-        .ifPresent(info -> ProxyPlatformHelper.sendChannelMessageServiceSwitch(event.getPlayer().getUniqueId(), info));
+      ProxyPlatformHelper.sendChannelMessageServiceSwitch(event.getPlayer().getUniqueId(), joinedServiceInfo);
     }
     // publish the player connection to the handler
     this.management.handleFallbackConnectionSuccess(event.getPlayer());

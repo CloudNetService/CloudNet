@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.bridge.platform.sponge;
 import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.helper.ServerPlatformHelper;
+import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
@@ -35,11 +36,11 @@ import org.spongepowered.plugin.PluginContainer;
 public final class SpongePlayerManagementListener {
 
   private final TaskExecutorService executorService;
-  private final PlatformBridgeManagement<?, ?> management;
+  private final PlatformBridgeManagement<ServerPlayer, NetworkPlayerServerInfo> management;
 
   public SpongePlayerManagementListener(
     @NonNull PluginContainer plugin,
-    @NonNull PlatformBridgeManagement<?, ?> management
+    @NonNull PlatformBridgeManagement<ServerPlayer, NetworkPlayerServerInfo> management
   ) {
     this.management = management;
     this.executorService = Sponge.server().scheduler().executor(plugin);
@@ -73,7 +74,7 @@ public final class SpongePlayerManagementListener {
   public void handle(@NonNull ServerSideConnectionEvent.Join event, @First @NonNull ServerPlayer player) {
     ServerPlatformHelper.sendChannelMessageLoginSuccess(
       player.uniqueId(),
-      this.management.ownNetworkServiceInfo());
+      this.management.createPlayerInformation(player));
     // update service info
     this.executorService.schedule(() -> Wrapper.instance().publishServiceInfoUpdate(), 50, TimeUnit.MILLISECONDS);
   }

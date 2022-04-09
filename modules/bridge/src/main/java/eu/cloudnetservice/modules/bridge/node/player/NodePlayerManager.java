@@ -42,7 +42,7 @@ import eu.cloudnetservice.modules.bridge.node.network.NodePlayerChannelMessageLi
 import eu.cloudnetservice.modules.bridge.player.CloudOfflinePlayer;
 import eu.cloudnetservice.modules.bridge.player.CloudPlayer;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
-import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
+import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.bridge.player.PlayerProvider;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
@@ -287,13 +287,13 @@ public class NodePlayerManager implements PlayerManager {
 
   public void loginPlayer(
     @NonNull NetworkPlayerProxyInfo networkPlayerProxyInfo,
-    @Nullable NetworkPlayerServerInfo networkPlayerServerInfo
+    @Nullable NetworkServiceInfo joinedServiceInfo
   ) {
     var loginLock = this.playerReadWriteLocks.get(networkPlayerProxyInfo.uniqueId());
     try {
       // ensure that we handle only one login message at a time
       loginLock.lock();
-      this.loginPlayer0(networkPlayerProxyInfo, networkPlayerServerInfo);
+      this.loginPlayer0(networkPlayerProxyInfo, joinedServiceInfo);
     } finally {
       loginLock.unlock();
     }
@@ -301,33 +301,20 @@ public class NodePlayerManager implements PlayerManager {
 
   protected void loginPlayer0(
     @NonNull NetworkPlayerProxyInfo networkPlayerProxyInfo,
-    @Nullable NetworkPlayerServerInfo networkPlayerServerInfo
+    @Nullable NetworkServiceInfo joinedServiceInfo
   ) {
     var networkService = networkPlayerProxyInfo.networkService();
-    var cloudPlayer = this.selectPlayerForLogin(networkPlayerProxyInfo, networkPlayerServerInfo);
-    // check if the login service is a proxy and set the proxy as the login service if so
-    if (ServiceEnvironmentType.minecraftProxy(networkService.serviceId().environment())) {
-      // a proxy should be able to change the login service
-      cloudPlayer.loginService(networkService);
-    }
-    // Set more information according to the server information which the proxy can't provide
-    if (networkPlayerServerInfo != null) {
-      cloudPlayer.networkPlayerServerInfo(networkPlayerServerInfo);
-      cloudPlayer.connectedService(networkPlayerServerInfo.networkService());
-
-      if (cloudPlayer.loginService() == null) {
-        cloudPlayer.loginService(networkPlayerServerInfo.networkService());
-      }
-    }
+    var cloudPlayer = this.selectPlayerForLogin(networkPlayerProxyInfo, joinedServiceInfo);
+    // set the service information of the services which requested the login
+    cloudPlayer.loginService(networkService);
+    cloudPlayer.connectedService(joinedServiceInfo);
     // update the player into the database and notify the other nodes
-    if (networkPlayerServerInfo == null) {
-      this.processLogin(cloudPlayer);
-    }
+    this.processLogin(cloudPlayer);
   }
 
   protected @NonNull CloudPlayer selectPlayerForLogin(
     @NonNull NetworkPlayerProxyInfo connectionInfo,
-    @Nullable NetworkPlayerServerInfo serverInfo
+    @Nullable NetworkServiceInfo joinedServiceInfo
   ) {
     // check if the player is already loaded
     var cloudPlayer = this.onlinePlayer(connectionInfo.uniqueId());
@@ -348,9 +335,9 @@ public class NodePlayerManager implements PlayerManager {
         // convert the offline player to an online version using all provided information
         cloudPlayer = new CloudPlayer(
           connectionInfo.networkService(),
-          serverInfo == null ? connectionInfo.networkService() : serverInfo.networkService(),
+          joinedServiceInfo == null ? connectionInfo.networkService() : joinedServiceInfo,
           connectionInfo,
-          serverInfo,
+          null,
           JsonDocument.newDocument(),
           connectionInfo.name(),
           cloudOfflinePlayer.firstLoginTimeMillis(),

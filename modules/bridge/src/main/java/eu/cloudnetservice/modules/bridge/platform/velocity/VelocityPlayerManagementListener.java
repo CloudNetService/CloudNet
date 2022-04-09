@@ -124,18 +124,22 @@ public final class VelocityPlayerManagementListener {
 
   @Subscribe
   public void handleServiceConnected(@NonNull ServerPostConnectEvent event) {
+    var joinedServiceInfo = event.getPlayer().getCurrentServer()
+      .flatMap(server -> this.management
+        .cachedService(service -> server.getServerInfo().getName().equals(service.name()))
+        .map(BridgeServiceHelper::createServiceInfo))
+      .orElse(null);
+    // check if the connection was initial
     if (event.getPreviousServer() == null) {
       // the player logged in successfully if he is now connected to a service for the first time
-      ProxyPlatformHelper.sendChannelMessageLoginSuccess(this.management.createPlayerInformation(event.getPlayer()));
+      ProxyPlatformHelper.sendChannelMessageLoginSuccess(
+        this.management.createPlayerInformation(event.getPlayer()),
+        joinedServiceInfo);
       // update the service info
       Wrapper.instance().publishServiceInfoUpdate();
-    } else {
+    } else if (joinedServiceInfo != null) {
       // the player switched the service
-      event.getPlayer().getCurrentServer()
-        .flatMap(server -> this.management
-          .cachedService(service -> server.getServerInfo().getName().equals(service.name()))
-          .map(BridgeServiceHelper::createServiceInfo))
-        .ifPresent(info -> ProxyPlatformHelper.sendChannelMessageServiceSwitch(event.getPlayer().getUniqueId(), info));
+      ProxyPlatformHelper.sendChannelMessageServiceSwitch(event.getPlayer().getUniqueId(), joinedServiceInfo);
     }
     // notify the management that the player successfully connected to a service
     this.management.handleFallbackConnectionSuccess(event.getPlayer());

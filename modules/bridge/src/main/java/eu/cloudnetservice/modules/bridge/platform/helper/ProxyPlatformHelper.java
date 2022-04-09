@@ -20,13 +20,13 @@ import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
-import eu.cloudnetservice.modules.bridge.node.event.LocalPlayerPreLoginEvent;
 import eu.cloudnetservice.modules.bridge.node.event.LocalPlayerPreLoginEvent.Result;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
 import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;
 import java.util.UUID;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.Nullable;
 
 @Internal
 public final class ProxyPlatformHelper {
@@ -35,8 +35,7 @@ public final class ProxyPlatformHelper {
     throw new UnsupportedOperationException();
   }
 
-  public static @NonNull LocalPlayerPreLoginEvent.Result sendChannelMessagePreLogin(
-    @NonNull NetworkPlayerProxyInfo playerInfo) {
+  public static @NonNull Result sendChannelMessagePreLogin(@NonNull NetworkPlayerProxyInfo playerInfo) {
     var result = toCurrentNode()
       .message("proxy_player_pre_login")
       .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
@@ -46,11 +45,14 @@ public final class ProxyPlatformHelper {
     return result == null ? Result.allowed() : result.content().readObject(Result.class);
   }
 
-  public static void sendChannelMessageLoginSuccess(@NonNull NetworkPlayerProxyInfo info) {
+  public static void sendChannelMessageLoginSuccess(
+    @NonNull NetworkPlayerProxyInfo proxyInfo,
+    @Nullable NetworkServiceInfo joinServiceInfo
+  ) {
     toCurrentNode()
       .message("proxy_player_login")
       .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
-      .buffer(DataBuf.empty().writeObject(info))
+      .buffer(DataBuf.empty().writeObject(proxyInfo).writeObject(joinServiceInfo))
       .build()
       .send();
   }
