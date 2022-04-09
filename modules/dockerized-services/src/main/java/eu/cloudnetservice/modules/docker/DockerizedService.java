@@ -297,7 +297,7 @@ public class DockerizedService extends JVMService {
   }
 
   protected @NonNull <T> Optional<T> readFromTaskConfig(@NonNull Function<TaskDockerConfig, T> reader) {
-    var config = this.serviceConfiguration.properties().get("docker", TaskDockerConfig.class);
+    var config = this.serviceConfiguration.properties().get("dockerConfig", TaskDockerConfig.class);
     return config == null ? Optional.empty() : Optional.ofNullable(reader.apply(config));
   }
 
