@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.util;
 
-import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
+import eu.cloudnetservice.driver.network.HostAndPort;
 import io.netty.channel.local.LocalAddress;
 import io.netty.channel.unix.DomainSocketAddress;
 import java.net.InetSocketAddress;

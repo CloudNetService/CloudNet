@@ -16,16 +16,16 @@
 
 package eu.cloudnetservice.modules.bridge;
 
-import static eu.cloudnetservice.cloudnet.driver.service.property.JsonServiceProperty.createFromClass;
-import static eu.cloudnetservice.cloudnet.driver.service.property.JsonServiceProperty.createFromType;
+import static eu.cloudnetservice.driver.service.property.JsonServiceProperty.createFromClass;
+import static eu.cloudnetservice.driver.service.property.JsonServiceProperty.createFromType;
 
 import com.google.gson.reflect.TypeToken;
-import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceLifeCycle;
-import eu.cloudnetservice.cloudnet.driver.service.property.FunctionalServiceProperty;
-import eu.cloudnetservice.cloudnet.driver.service.property.ServiceProperty;
-import eu.cloudnetservice.cloudnet.driver.service.property.TransformingServiceProperty;
+import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.driver.service.ServiceLifeCycle;
+import eu.cloudnetservice.driver.service.property.FunctionalServiceProperty;
+import eu.cloudnetservice.driver.service.property.ServiceProperty;
+import eu.cloudnetservice.driver.service.property.TransformingServiceProperty;
 import eu.cloudnetservice.modules.bridge.player.ServicePlayer;
 import java.util.Collection;
 import lombok.NonNull;

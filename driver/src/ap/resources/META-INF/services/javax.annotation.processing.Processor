@@ -14,4 +14,4 @@
 # limitations under the License.
 #
 
-eu.cloudnetservice.cloudnet.ap.RPCValidationProcessor
+eu.cloudnetservice.driver.ap.RPCValidationProcessor

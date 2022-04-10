@@ -18,7 +18,7 @@ package eu.cloudnetservice.modules.bridge.platform.bungeecord.command;
 
 import static eu.cloudnetservice.modules.bridge.platform.bungeecord.BungeeCordHelper.translateToComponent;
 
-import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import lombok.NonNull;
 import net.md_5.bungee.api.CommandSender;

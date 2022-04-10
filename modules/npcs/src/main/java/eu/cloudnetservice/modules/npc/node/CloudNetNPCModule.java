@@ -17,13 +17,12 @@
 package eu.cloudnetservice.modules.npc.node;
 
 import com.google.common.collect.ImmutableMap;
-import eu.cloudnetservice.cloudnet.common.collection.Pair;
-import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.driver.database.Database;
-import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
-import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
-import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
-import eu.cloudnetservice.cloudnet.node.Node;
+import eu.cloudnetservice.common.collection.Pair;
+import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.database.Database;
+import eu.cloudnetservice.driver.module.ModuleLifeCycle;
+import eu.cloudnetservice.driver.module.ModuleTask;
+import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.NPC.ClickAction;
 import eu.cloudnetservice.modules.npc.NPC.ProfileProperty;
@@ -36,6 +35,7 @@ import eu.cloudnetservice.modules.npc.configuration.InventoryConfiguration.ItemL
 import eu.cloudnetservice.modules.npc.configuration.ItemLayout;
 import eu.cloudnetservice.modules.npc.configuration.LabyModEmoteConfiguration;
 import eu.cloudnetservice.modules.npc.configuration.NPCPoolOptions;
+import eu.cloudnetservice.node.Node;
 import java.nio.file.Files;
 import java.util.Collection;
 import java.util.Collections;

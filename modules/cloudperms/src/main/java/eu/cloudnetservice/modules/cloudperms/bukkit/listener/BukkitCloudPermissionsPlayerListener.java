@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.cloudperms.bukkit.listener;
 
-import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.modules.cloudperms.CloudPermissionsHelper;
 import eu.cloudnetservice.modules.cloudperms.bukkit.BukkitPermissionHelper;
 import java.util.logging.Level;

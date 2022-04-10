@@ -16,12 +16,12 @@
 
 package eu.cloudnetservice.modules.bridge.node.http;
 
-import eu.cloudnetservice.cloudnet.driver.network.http.HttpContext;
-import eu.cloudnetservice.cloudnet.driver.network.http.HttpResponseCode;
-import eu.cloudnetservice.cloudnet.node.http.HttpSession;
-import eu.cloudnetservice.cloudnet.node.http.V2HttpHandler;
+import eu.cloudnetservice.driver.network.http.HttpContext;
+import eu.cloudnetservice.driver.network.http.HttpResponseCode;
 import eu.cloudnetservice.modules.bridge.player.CloudOfflinePlayer;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
+import eu.cloudnetservice.node.http.HttpSession;
+import eu.cloudnetservice.node.http.V2HttpHandler;
 import java.util.UUID;
 import java.util.function.Consumer;
 import lombok.NonNull;

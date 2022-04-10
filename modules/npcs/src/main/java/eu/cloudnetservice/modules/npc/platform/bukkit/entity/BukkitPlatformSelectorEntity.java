@@ -18,8 +18,8 @@ package eu.cloudnetservice.modules.npc.platform.bukkit.entity;
 
 import dev.derklaro.reflexion.MethodAccessor;
 import dev.derklaro.reflexion.Reflexion;
-import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.bridge.BridgeServiceProperties;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;

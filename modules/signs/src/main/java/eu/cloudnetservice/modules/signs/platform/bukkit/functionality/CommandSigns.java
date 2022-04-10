@@ -17,8 +17,8 @@
 package eu.cloudnetservice.modules.signs.platform.bukkit.functionality;
 
 import com.google.common.collect.ImmutableList;
-import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
-import eu.cloudnetservice.cloudnet.driver.service.GroupConfiguration;
+import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.service.GroupConfiguration;
 import eu.cloudnetservice.ext.bukkitcommands.BaseTabExecutor;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;

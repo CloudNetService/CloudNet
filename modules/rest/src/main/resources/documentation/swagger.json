@@ -4506,7 +4506,7 @@
           },
           "main" : {
             "type" : "string",
-            "example" : "eu.cloudnetservice.cloudnet.modules.CloudNetCloudflareModule"
+            "example" : "eu.cloudnetservice.modules.cloudflare.CloudNetCloudflareModule"
           },
           "description" : {
             "type" : "string",

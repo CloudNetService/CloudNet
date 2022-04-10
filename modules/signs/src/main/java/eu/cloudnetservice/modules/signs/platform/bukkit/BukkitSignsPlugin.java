@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.modules.signs.platform.bukkit;
 
-import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
-import eu.cloudnetservice.cloudnet.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.signs.GlobalChannelMessageListener;
 import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;

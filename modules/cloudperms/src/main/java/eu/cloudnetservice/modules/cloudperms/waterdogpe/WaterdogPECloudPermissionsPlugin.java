@@ -17,8 +17,8 @@
 package eu.cloudnetservice.modules.cloudperms.waterdogpe;
 
 import dev.waterdog.waterdogpe.plugin.Plugin;
-import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
+import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.wrapper.Wrapper;
 
 public class WaterdogPECloudPermissionsPlugin extends Plugin {
 

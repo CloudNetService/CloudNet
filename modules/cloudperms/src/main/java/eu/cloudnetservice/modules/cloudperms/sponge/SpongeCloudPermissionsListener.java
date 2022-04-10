@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.cloudperms.sponge;
 
-import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.modules.cloudperms.CloudPermissionsHelper;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;

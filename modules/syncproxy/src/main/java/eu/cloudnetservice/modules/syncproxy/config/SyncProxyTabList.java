@@ -17,9 +17,9 @@
 package eu.cloudnetservice.modules.syncproxy.config;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
+import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyConstants;
+import eu.cloudnetservice.wrapper.Wrapper;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.UUID;

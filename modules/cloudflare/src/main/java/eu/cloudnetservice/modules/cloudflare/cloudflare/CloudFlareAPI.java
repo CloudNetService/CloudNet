@@ -18,12 +18,12 @@ package eu.cloudnetservice.modules.cloudflare.cloudflare;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
-import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.common.log.LogManager;
-import eu.cloudnetservice.cloudnet.common.log.Logger;
-import eu.cloudnetservice.cloudnet.node.service.CloudService;
+import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.common.log.LogManager;
+import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.modules.cloudflare.CloudflareConfigurationEntry;
 import eu.cloudnetservice.modules.cloudflare.dns.DNSRecord;
+import eu.cloudnetservice.node.service.CloudService;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.UUID;

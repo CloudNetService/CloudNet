@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.sftp.config;
 
-import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
+import eu.cloudnetservice.driver.network.HostAndPort;
 import java.nio.file.Path;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;

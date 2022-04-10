@@ -18,7 +18,7 @@ package eu.cloudnetservice.modules.syncproxy.platform.waterdog;
 
 import dev.waterdog.waterdogpe.ProxyServer;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
-import eu.cloudnetservice.cloudnet.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.syncproxy.platform.PlatformSyncProxyManagement;
 import java.util.Collection;
 import java.util.UUID;

@@ -16,13 +16,13 @@
 
 package eu.cloudnetservice.modules.rest.v2;
 
-import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.driver.database.Database;
-import eu.cloudnetservice.cloudnet.driver.database.DatabaseProvider;
-import eu.cloudnetservice.cloudnet.driver.network.http.HttpContext;
-import eu.cloudnetservice.cloudnet.node.http.HttpSession;
-import eu.cloudnetservice.cloudnet.node.http.V2HttpHandler;
+import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.database.Database;
+import eu.cloudnetservice.driver.database.DatabaseProvider;
+import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.modules.rest.RestUtil;
+import eu.cloudnetservice.node.http.HttpSession;
+import eu.cloudnetservice.node.http.V2HttpHandler;
 import java.util.function.BiConsumer;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -234,7 +234,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
       .cancelNext();
   }
 
-  protected @NonNull  DatabaseProvider databaseProvider() {
+  protected @NonNull DatabaseProvider databaseProvider() {
     return this.node().databaseProvider();
   }
 

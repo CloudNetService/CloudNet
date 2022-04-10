@@ -18,8 +18,8 @@ package eu.cloudnetservice.modules.bridge.config;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
-import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.common.document.property.JsonDocPropertyHolder;
+import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.common.document.property.JsonDocPropertyHolder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;

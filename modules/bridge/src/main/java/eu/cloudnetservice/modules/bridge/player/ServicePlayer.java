@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.modules.bridge.player;
 
-import eu.cloudnetservice.cloudnet.common.Nameable;
-import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.common.document.property.JsonDocPropertyHolder;
+import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.common.document.property.JsonDocPropertyHolder;
 import java.util.UUID;
 import lombok.NonNull;
 

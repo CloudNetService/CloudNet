@@ -23,8 +23,8 @@ import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.modules.syncproxy.platform.listener.SyncProxyCloudListener;
+import eu.cloudnetservice.wrapper.Wrapper;
 import lombok.NonNull;
 
 @Plugin(

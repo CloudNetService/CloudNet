@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.npc.platform;
 
-import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.NPC.ClickAction;
 import java.util.Set;

@@ -18,7 +18,7 @@ package eu.cloudnetservice.modules.syncproxy.platform.velocity;
 
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
-import eu.cloudnetservice.cloudnet.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
 import eu.cloudnetservice.modules.syncproxy.platform.PlatformSyncProxyManagement;
 import java.util.Collection;

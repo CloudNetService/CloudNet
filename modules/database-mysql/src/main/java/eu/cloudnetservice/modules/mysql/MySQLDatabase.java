@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.modules.mysql;
 
-import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.node.database.sql.SQLDatabase;
-import eu.cloudnetservice.cloudnet.node.database.sql.SQLDatabaseProvider;
+import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.node.database.sql.SQLDatabase;
+import eu.cloudnetservice.node.database.sql.SQLDatabaseProvider;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;

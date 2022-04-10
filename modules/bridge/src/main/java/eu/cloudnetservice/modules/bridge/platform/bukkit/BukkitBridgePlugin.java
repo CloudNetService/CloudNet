@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.platform.bukkit;
 
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
+import eu.cloudnetservice.wrapper.Wrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 

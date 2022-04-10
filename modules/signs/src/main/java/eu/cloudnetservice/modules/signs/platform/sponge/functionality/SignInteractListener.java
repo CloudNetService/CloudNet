@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.signs.platform.sponge.functionality;
 
-import eu.cloudnetservice.cloudnet.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
 import eu.cloudnetservice.modules.signs.platform.sponge.event.SpongeCloudSignInteractEvent;

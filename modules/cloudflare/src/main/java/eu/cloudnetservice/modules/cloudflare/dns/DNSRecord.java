@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.cloudflare.dns;
 
-import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
+import eu.cloudnetservice.common.document.gson.JsonDocument;
 
 public class DNSRecord {
 

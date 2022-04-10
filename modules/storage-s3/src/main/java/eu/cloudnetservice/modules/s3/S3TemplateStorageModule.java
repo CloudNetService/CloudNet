@@ -16,14 +16,14 @@
 
 package eu.cloudnetservice.modules.s3;
 
-import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
-import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
-import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
-import eu.cloudnetservice.cloudnet.driver.template.TemplateStorage;
-import eu.cloudnetservice.cloudnet.node.Node;
-import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncHandler;
+import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.module.ModuleLifeCycle;
+import eu.cloudnetservice.driver.module.ModuleTask;
+import eu.cloudnetservice.driver.module.driver.DriverModule;
+import eu.cloudnetservice.driver.template.TemplateStorage;
 import eu.cloudnetservice.modules.s3.config.S3TemplateStorageConfig;
+import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
 import lombok.NonNull;
 
 public final class S3TemplateStorageModule extends DriverModule {

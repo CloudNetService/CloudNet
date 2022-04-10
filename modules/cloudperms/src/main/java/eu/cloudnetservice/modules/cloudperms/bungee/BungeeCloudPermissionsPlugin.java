@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.modules.cloudperms.bungee;
 
-import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
+import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.wrapper.Wrapper;
 import net.md_5.bungee.api.plugin.Plugin;
 
 public final class BungeeCloudPermissionsPlugin extends Plugin {

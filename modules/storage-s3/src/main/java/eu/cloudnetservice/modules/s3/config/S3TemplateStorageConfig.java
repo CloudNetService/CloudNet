@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.modules.s3.config;
 
-import eu.cloudnetservice.cloudnet.common.log.LogManager;
-import eu.cloudnetservice.cloudnet.common.log.Logger;
+import eu.cloudnetservice.common.log.LogManager;
+import eu.cloudnetservice.common.log.Logger;
 import java.net.URI;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;

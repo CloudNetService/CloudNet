@@ -24,10 +24,10 @@ import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.messages.LegacyChannelIdentifier;
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.modules.labymod.LabyModManagement;
 import eu.cloudnetservice.modules.labymod.platform.PlatformLabyModListener;
 import eu.cloudnetservice.modules.labymod.platform.PlatformLabyModManagement;
+import eu.cloudnetservice.wrapper.Wrapper;
 import lombok.NonNull;
 
 @Plugin(

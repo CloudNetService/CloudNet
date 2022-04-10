@@ -16,11 +16,11 @@
 
 package eu.cloudnetservice.modules.mysql;
 
-import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
-import eu.cloudnetservice.cloudnet.node.database.DatabaseHandler;
+import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.modules.mysql.config.MySQLConfiguration;
 import eu.cloudnetservice.modules.mysql.config.MySQLConnectionEndpoint;
+import eu.cloudnetservice.node.database.DatabaseHandler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

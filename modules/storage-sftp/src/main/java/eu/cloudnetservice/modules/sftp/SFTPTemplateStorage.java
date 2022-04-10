@@ -16,14 +16,14 @@
 
 package eu.cloudnetservice.modules.sftp;
 
-import eu.cloudnetservice.cloudnet.common.function.ThrowableFunction;
-import eu.cloudnetservice.cloudnet.common.io.FileUtil;
-import eu.cloudnetservice.cloudnet.common.io.ZipUtil;
-import eu.cloudnetservice.cloudnet.common.log.LogManager;
-import eu.cloudnetservice.cloudnet.common.log.Logger;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
-import eu.cloudnetservice.cloudnet.driver.template.FileInfo;
-import eu.cloudnetservice.cloudnet.driver.template.TemplateStorage;
+import eu.cloudnetservice.common.function.ThrowableFunction;
+import eu.cloudnetservice.common.io.FileUtil;
+import eu.cloudnetservice.common.io.ZipUtil;
+import eu.cloudnetservice.common.log.LogManager;
+import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.driver.service.ServiceTemplate;
+import eu.cloudnetservice.driver.template.FileInfo;
+import eu.cloudnetservice.driver.template.TemplateStorage;
 import eu.cloudnetservice.modules.sftp.config.SFTPTemplateStorageConfig;
 import eu.cloudnetservice.modules.sftp.sshj.FilteringLocalFileSource;
 import java.io.IOException;

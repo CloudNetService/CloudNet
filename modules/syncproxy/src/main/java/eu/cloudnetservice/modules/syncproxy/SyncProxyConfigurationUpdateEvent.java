@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.syncproxy;
 
-import eu.cloudnetservice.cloudnet.driver.event.Event;
+import eu.cloudnetservice.driver.event.Event;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
 import lombok.NonNull;
 

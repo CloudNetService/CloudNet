@@ -16,14 +16,14 @@
 
 package eu.cloudnetservice.modules.bridge.platform;
 
-import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCSender;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
+import eu.cloudnetservice.driver.network.rpc.RPCSender;
+import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.modules.bridge.player.CloudOfflinePlayer;
 import eu.cloudnetservice.modules.bridge.player.CloudPlayer;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.bridge.player.PlayerProvider;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
+import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.List;
 import java.util.UUID;
 import lombok.NonNull;

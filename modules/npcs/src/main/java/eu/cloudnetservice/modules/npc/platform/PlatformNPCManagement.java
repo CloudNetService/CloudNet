@@ -16,13 +16,12 @@
 
 package eu.cloudnetservice.modules.npc.platform;
 
-import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
-import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
-import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage.Builder;
-import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessageTarget.Type;
-import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
+import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.channel.ChannelMessage;
+import eu.cloudnetservice.driver.channel.ChannelMessage.Builder;
+import eu.cloudnetservice.driver.channel.ChannelMessageTarget.Type;
+import eu.cloudnetservice.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.npc.AbstractNPCManagement;
 import eu.cloudnetservice.modules.npc.NPC;
@@ -30,6 +29,7 @@ import eu.cloudnetservice.modules.npc.configuration.InventoryConfiguration;
 import eu.cloudnetservice.modules.npc.configuration.LabyModEmoteConfiguration;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfigurationEntry;
+import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;

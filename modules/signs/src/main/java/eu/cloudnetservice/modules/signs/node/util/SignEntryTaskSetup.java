@@ -16,14 +16,14 @@
 
 package eu.cloudnetservice.modules.signs.node.util;
 
-import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
-import eu.cloudnetservice.cloudnet.node.console.animation.setup.ConsoleSetupAnimation;
-import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.Parsers;
-import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.QuestionAnswerType;
-import eu.cloudnetservice.cloudnet.node.console.animation.setup.answer.QuestionListEntry;
+import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.node.configuration.SignConfigurationType;
+import eu.cloudnetservice.node.console.animation.setup.ConsoleSetupAnimation;
+import eu.cloudnetservice.node.console.animation.setup.answer.Parsers;
+import eu.cloudnetservice.node.console.animation.setup.answer.QuestionAnswerType;
+import eu.cloudnetservice.node.console.animation.setup.answer.QuestionListEntry;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
 

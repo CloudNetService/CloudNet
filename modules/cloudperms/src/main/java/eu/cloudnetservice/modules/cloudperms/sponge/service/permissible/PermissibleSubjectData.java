@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.modules.cloudperms.sponge.service.permissible;
 
-import eu.cloudnetservice.cloudnet.driver.permission.Permissible;
-import eu.cloudnetservice.cloudnet.driver.permission.Permission;
-import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
+import eu.cloudnetservice.driver.permission.Permissible;
+import eu.cloudnetservice.driver.permission.Permission;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;

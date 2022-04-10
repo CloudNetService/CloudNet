@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.modules.signs;
 
-import eu.cloudnetservice.cloudnet.driver.event.EventListener;
-import eu.cloudnetservice.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
+import eu.cloudnetservice.driver.event.EventListener;
+import eu.cloudnetservice.driver.event.events.channel.ChannelMessageReceiveEvent;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import java.util.Collection;

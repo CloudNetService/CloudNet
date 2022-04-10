@@ -19,7 +19,7 @@ package eu.cloudnetservice.modules.bridge.platform.velocity;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
-import eu.cloudnetservice.cloudnet.common.collection.Pair;
+import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.PlatformPlayerExecutorAdapter;
 import eu.cloudnetservice.modules.bridge.player.executor.ServerSelectorType;

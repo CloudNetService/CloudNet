@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.modules.syncproxy.node;
 
-import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCFactory;
-import eu.cloudnetservice.cloudnet.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyConfigurationUpdateEvent;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyManagement;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;

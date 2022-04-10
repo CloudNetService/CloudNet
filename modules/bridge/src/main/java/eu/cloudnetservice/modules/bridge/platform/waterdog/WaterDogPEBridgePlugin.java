@@ -19,11 +19,11 @@ package eu.cloudnetservice.modules.bridge.platform.waterdog;
 import dev.waterdog.waterdogpe.ProxyServer;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
 import dev.waterdog.waterdogpe.plugin.Plugin;
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.waterdog.command.WaterDogPECloudCommand;
 import eu.cloudnetservice.modules.bridge.platform.waterdog.command.WaterDogPEHubCommand;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
+import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.Arrays;
 
 public final class WaterDogPEBridgePlugin extends Plugin {

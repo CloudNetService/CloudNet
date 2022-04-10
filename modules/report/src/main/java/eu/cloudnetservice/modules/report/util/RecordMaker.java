@@ -16,14 +16,14 @@
 
 package eu.cloudnetservice.modules.report.util;
 
-import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.common.io.FileUtil;
-import eu.cloudnetservice.cloudnet.common.language.I18n;
-import eu.cloudnetservice.cloudnet.common.log.LogManager;
-import eu.cloudnetservice.cloudnet.common.log.Logger;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
-import eu.cloudnetservice.cloudnet.node.service.CloudService;
+import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.common.io.FileUtil;
+import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.common.log.LogManager;
+import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
+import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.node.service.CloudService;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

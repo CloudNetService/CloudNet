@@ -18,7 +18,7 @@ package eu.cloudnetservice.modules.bridge.platform.nukkit;
 
 import cn.nukkit.Server;
 import cn.nukkit.plugin.PluginBase;
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
+import eu.cloudnetservice.wrapper.Wrapper;
 
 public final class NukkitBridgePlugin extends PluginBase {
 

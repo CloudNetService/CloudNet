@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.bridge.platform.sponge;
 
 import com.google.inject.Inject;
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
+import eu.cloudnetservice.wrapper.Wrapper;
 import lombok.NonNull;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;

@@ -16,10 +16,10 @@
 
 package eu.cloudnetservice.modules.report.paste.emitter.defaults.service;
 
-import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.node.Node;
-import eu.cloudnetservice.cloudnet.node.service.CloudService;
+import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.modules.report.paste.emitter.ReportDataEmitter;
+import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.service.CloudService;
 import lombok.NonNull;
 
 public class ServiceTaskEmitter implements ReportDataEmitter<CloudService> {

@@ -16,10 +16,10 @@
 
 package eu.cloudnetservice.modules.cloudperms;
 
-import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
-import eu.cloudnetservice.cloudnet.driver.event.EventListener;
-import eu.cloudnetservice.cloudnet.driver.event.events.permission.PermissionUpdateGroupEvent;
-import eu.cloudnetservice.cloudnet.driver.event.events.permission.PermissionUpdateUserEvent;
+import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.event.EventListener;
+import eu.cloudnetservice.driver.event.events.permission.PermissionUpdateGroupEvent;
+import eu.cloudnetservice.driver.event.events.permission.PermissionUpdateUserEvent;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.Executor;

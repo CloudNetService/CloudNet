@@ -16,10 +16,10 @@
 
 package eu.cloudnetservice.modules.cloudflare.dns;
 
-import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.node.Node;
+import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.modules.cloudflare.CloudflareConfigurationEntry;
 import eu.cloudnetservice.modules.cloudflare.CloudflareGroupConfiguration;
+import eu.cloudnetservice.node.Node;
 import lombok.NonNull;
 
 /**

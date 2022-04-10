@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.modules.bridge.player;
 
-import eu.cloudnetservice.cloudnet.common.concurrent.Task;
-import eu.cloudnetservice.cloudnet.driver.network.rpc.annotation.RPCValidation;
+import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.driver.network.rpc.annotation.RPCValidation;
 import java.util.Collection;
 import java.util.UUID;
 import lombok.NonNull;

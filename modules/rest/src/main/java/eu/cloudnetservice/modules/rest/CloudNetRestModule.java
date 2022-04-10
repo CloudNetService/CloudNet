@@ -16,13 +16,12 @@
 
 package eu.cloudnetservice.modules.rest;
 
-import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
-import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
-import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
-import eu.cloudnetservice.cloudnet.driver.network.http.HttpHandler;
-import eu.cloudnetservice.cloudnet.driver.network.http.content.ContentStreamProvider;
-import eu.cloudnetservice.cloudnet.driver.network.http.content.StaticContentHttpHandler;
-import eu.cloudnetservice.cloudnet.node.Node;
+import eu.cloudnetservice.driver.module.ModuleLifeCycle;
+import eu.cloudnetservice.driver.module.ModuleTask;
+import eu.cloudnetservice.driver.module.driver.DriverModule;
+import eu.cloudnetservice.driver.network.http.HttpHandler;
+import eu.cloudnetservice.driver.network.http.content.ContentStreamProvider;
+import eu.cloudnetservice.driver.network.http.content.StaticContentHttpHandler;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerAuthorization;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerCluster;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerDatabase;
@@ -37,6 +36,7 @@ import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerTasks;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerTemplate;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerTemplateStorages;
 import eu.cloudnetservice.modules.rest.v2.V2HttpHandlerWebSocketTicket;
+import eu.cloudnetservice.node.Node;
 
 public final class CloudNetRestModule extends DriverModule {
 

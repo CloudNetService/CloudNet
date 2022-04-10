@@ -17,14 +17,14 @@
 package eu.cloudnetservice.modules.mysql;
 
 import com.google.gson.reflect.TypeToken;
-import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
-import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
-import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
-import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
-import eu.cloudnetservice.cloudnet.node.database.AbstractDatabaseProvider;
+import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.module.ModuleLifeCycle;
+import eu.cloudnetservice.driver.module.ModuleTask;
+import eu.cloudnetservice.driver.module.driver.DriverModule;
+import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.modules.mysql.config.MySQLConfiguration;
 import eu.cloudnetservice.modules.mysql.config.MySQLConnectionEndpoint;
+import eu.cloudnetservice.node.database.AbstractDatabaseProvider;
 import java.util.List;
 
 public final class CloudNetMySQLDatabaseModule extends DriverModule {

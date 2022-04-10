@@ -19,10 +19,10 @@ package eu.cloudnetservice.modules.cloudperms.nukkit;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.plugin.PluginBase;
-import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
+import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.modules.cloudperms.PermissionsUpdateListener;
 import eu.cloudnetservice.modules.cloudperms.nukkit.listener.NukkitCloudPermissionsPlayerListener;
+import eu.cloudnetservice.wrapper.Wrapper;
 
 public final class NukkitCloudPermissionsPlugin extends PluginBase {
 

@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.cloudperms.sponge.service;
 
-import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.modules.cloudperms.sponge.service.CloudPermissionDescription.CloudPermissionDescriptionBuilder;
 import eu.cloudnetservice.modules.cloudperms.sponge.service.memory.InMemorySubjectCollection;
 import eu.cloudnetservice.modules.cloudperms.sponge.service.permissible.group.CloudGroupCollection;

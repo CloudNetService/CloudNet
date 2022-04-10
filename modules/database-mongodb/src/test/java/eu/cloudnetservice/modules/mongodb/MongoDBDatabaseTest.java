@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.modules.mongodb;
 
-import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.node.database.DatabaseHandler;
+import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.modules.mongodb.config.MongoDBConnectionConfig;
+import eu.cloudnetservice.node.database.DatabaseHandler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

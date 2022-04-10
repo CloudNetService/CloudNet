@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.modules.signs.platform;
 
-import eu.cloudnetservice.cloudnet.driver.event.EventListener;
-import eu.cloudnetservice.cloudnet.driver.event.events.service.CloudServiceLifecycleChangeEvent;
-import eu.cloudnetservice.cloudnet.driver.event.events.service.CloudServiceUpdateEvent;
+import eu.cloudnetservice.driver.event.EventListener;
+import eu.cloudnetservice.driver.event.events.service.CloudServiceLifecycleChangeEvent;
+import eu.cloudnetservice.driver.event.events.service.CloudServiceUpdateEvent;
 import lombok.NonNull;
 
 public class SignsPlatformListener {

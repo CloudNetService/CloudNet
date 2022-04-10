@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.modules.sftp;
 
-import eu.cloudnetservice.cloudnet.common.log.LogManager;
-import eu.cloudnetservice.cloudnet.common.log.Logger;
+import eu.cloudnetservice.common.log.LogManager;
+import eu.cloudnetservice.common.log.Logger;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.Callable;

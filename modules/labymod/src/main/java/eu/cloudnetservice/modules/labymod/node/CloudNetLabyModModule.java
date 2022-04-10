@@ -17,19 +17,19 @@
 package eu.cloudnetservice.modules.labymod.node;
 
 import com.google.gson.reflect.TypeToken;
-import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
-import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
-import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
-import eu.cloudnetservice.cloudnet.node.Node;
-import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncHandler;
-import eu.cloudnetservice.cloudnet.node.module.listener.PluginIncludeListener;
+import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.module.ModuleLifeCycle;
+import eu.cloudnetservice.driver.module.ModuleTask;
+import eu.cloudnetservice.driver.module.driver.DriverModule;
+import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.modules.labymod.config.LabyModBanner;
 import eu.cloudnetservice.modules.labymod.config.LabyModConfiguration;
 import eu.cloudnetservice.modules.labymod.config.LabyModDiscordRPC;
 import eu.cloudnetservice.modules.labymod.config.LabyModPermissions;
 import eu.cloudnetservice.modules.labymod.config.LabyModServiceDisplay;
+import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
+import eu.cloudnetservice.node.module.listener.PluginIncludeListener;
 import java.nio.file.Files;
 import java.util.Collection;
 import java.util.Map;

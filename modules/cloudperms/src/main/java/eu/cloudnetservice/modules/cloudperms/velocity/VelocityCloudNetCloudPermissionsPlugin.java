@@ -23,9 +23,9 @@ import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
-import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
+import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.modules.cloudperms.velocity.listener.VelocityCloudPermissionsPlayerListener;
+import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

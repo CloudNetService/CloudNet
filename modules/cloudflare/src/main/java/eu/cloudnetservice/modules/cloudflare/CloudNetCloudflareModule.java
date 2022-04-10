@@ -16,19 +16,19 @@
 
 package eu.cloudnetservice.modules.cloudflare;
 
-import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.common.language.I18n;
-import eu.cloudnetservice.cloudnet.common.log.LogManager;
-import eu.cloudnetservice.cloudnet.common.log.Logger;
-import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
-import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
-import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
-import eu.cloudnetservice.cloudnet.node.Node;
+import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.common.log.LogManager;
+import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.driver.module.ModuleLifeCycle;
+import eu.cloudnetservice.driver.module.ModuleTask;
+import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.modules.cloudflare.CloudflareConfigurationEntry.AuthenticationMethod;
 import eu.cloudnetservice.modules.cloudflare.cloudflare.CloudFlareAPI;
 import eu.cloudnetservice.modules.cloudflare.dns.DNSType;
 import eu.cloudnetservice.modules.cloudflare.dns.DefaultDNSRecord;
 import eu.cloudnetservice.modules.cloudflare.listener.CloudflareStartAndStopListener;
+import eu.cloudnetservice.node.Node;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;

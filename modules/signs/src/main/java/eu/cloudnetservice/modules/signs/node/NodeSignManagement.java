@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.modules.signs.node;
 
-import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.driver.database.Database;
-import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.database.Database;
+import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.signs.AbstractSignManagement;
 import eu.cloudnetservice.modules.signs.Sign;

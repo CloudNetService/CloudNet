@@ -22,7 +22,7 @@ import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
-import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.velocity.commands.VelocityCloudCommand;
 import eu.cloudnetservice.modules.bridge.platform.velocity.commands.VelocityHubCommand;

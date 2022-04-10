@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.report.paste.emitter;
 
-import eu.cloudnetservice.cloudnet.node.service.CloudService;
+import eu.cloudnetservice.node.service.CloudService;
 import lombok.NonNull;
 
 /**

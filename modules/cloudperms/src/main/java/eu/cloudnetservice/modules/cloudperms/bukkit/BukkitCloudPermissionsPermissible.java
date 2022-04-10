@@ -16,10 +16,10 @@
 
 package eu.cloudnetservice.modules.cloudperms.bukkit;
 
-import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
-import eu.cloudnetservice.cloudnet.driver.permission.PermissionCheckResult;
-import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
+import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.permission.PermissionCheckResult;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -108,14 +108,14 @@ public final class BukkitCloudPermissionsPermissible extends PermissibleBase {
           // default permissions are always active if not explicitly forbidden
           var result = this.permissionsManagement.permissionResult(
             user,
-            eu.cloudnetservice.cloudnet.driver.permission.Permission.of(inName));
+            eu.cloudnetservice.driver.permission.Permission.of(inName));
           return result == PermissionCheckResult.DENIED || result.asBoolean();
         }
       }
 
       var result = this.permissionsManagement.permissionResult(
         user,
-        eu.cloudnetservice.cloudnet.driver.permission.Permission.of(inName));
+        eu.cloudnetservice.driver.permission.Permission.of(inName));
       if (result != PermissionCheckResult.DENIED) {
         return result.asBoolean();
       }
@@ -124,7 +124,7 @@ public final class BukkitCloudPermissionsPermissible extends PermissibleBase {
         inName,
         perm -> this.permissionsManagement.permissionResult(
           user,
-          eu.cloudnetservice.cloudnet.driver.permission.Permission.of(perm.getName())));
+          eu.cloudnetservice.driver.permission.Permission.of(perm.getName())));
     } catch (Exception ex) {
       this.player.getServer().getLogger().log(Level.SEVERE, "Exception while checking permissions", ex);
       return false;

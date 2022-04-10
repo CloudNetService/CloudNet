@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.modules.cloudperms.bungee;
 
-import eu.cloudnetservice.cloudnet.driver.permission.Permission;
-import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
+import eu.cloudnetservice.driver.permission.Permission;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.modules.cloudperms.CloudPermissionsHelper;
 import java.util.UUID;
 import lombok.NonNull;

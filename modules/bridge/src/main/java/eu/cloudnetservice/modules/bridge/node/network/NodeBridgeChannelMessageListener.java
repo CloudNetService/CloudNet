@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.modules.bridge.node.network;
 
-import eu.cloudnetservice.cloudnet.driver.event.EventListener;
-import eu.cloudnetservice.cloudnet.driver.event.EventManager;
-import eu.cloudnetservice.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
+import eu.cloudnetservice.driver.event.EventListener;
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.event.events.channel.ChannelMessageReceiveEvent;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.config.BridgeConfiguration;
 import eu.cloudnetservice.modules.bridge.event.BridgeConfigurationUpdateEvent;

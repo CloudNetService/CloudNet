@@ -24,15 +24,15 @@ import cloud.commandframework.annotations.specifier.Greedy;
 import cloud.commandframework.annotations.specifier.Quoted;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.InternetProtocol;
-import eu.cloudnetservice.cloudnet.common.language.I18n;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceTask;
-import eu.cloudnetservice.cloudnet.node.Node;
-import eu.cloudnetservice.cloudnet.node.command.annotation.Description;
-import eu.cloudnetservice.cloudnet.node.command.source.CommandSource;
+import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.modules.docker.config.DockerConfiguration;
 import eu.cloudnetservice.modules.docker.config.DockerImage;
 import eu.cloudnetservice.modules.docker.config.TaskDockerConfig;
 import eu.cloudnetservice.modules.docker.config.TaskDockerConfig.Builder;
+import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.command.annotation.Description;
+import eu.cloudnetservice.node.command.source.CommandSource;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -303,7 +303,7 @@ public record DockerCommand(@NonNull DockerizedServicesModule module) {
     var taskConfig = serviceTask.properties().get(
       "dockerConfig",
       TaskDockerConfig.class,
-      new TaskDockerConfig(null, Set.of(), Set.of(), Set.of()));
+      TaskDockerConfig.builder().build());
     var property = modifier.apply(taskConfig, TaskDockerConfig.builder(taskConfig));
     // rewrite the config and update it in the cluster
     var task = ServiceTask.builder(serviceTask)

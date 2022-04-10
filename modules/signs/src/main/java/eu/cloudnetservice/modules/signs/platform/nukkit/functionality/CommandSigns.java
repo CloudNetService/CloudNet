@@ -77,7 +77,7 @@ public class CommandSigns implements CommandExecutor {
     } else if (args.length == 1 && args[0].equalsIgnoreCase("removeall")) {
       var removed = this.signManagement.deleteAllSigns();
       SignsConfiguration.sendMessage("command-cloudsign-bulk-remove-success", player::sendMessage,
-          m -> m.replace("%amount%", Integer.toString(removed)));
+        m -> m.replace("%amount%", Integer.toString(removed)));
       return true;
     } else if (args.length == 1 && args[0].equalsIgnoreCase("remove")) {
       var targetBlock = player.getTargetBlock(15);

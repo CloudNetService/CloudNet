@@ -16,15 +16,15 @@
 
 package eu.cloudnetservice.modules.s3;
 
-import eu.cloudnetservice.cloudnet.common.function.ThrowableConsumer;
-import eu.cloudnetservice.cloudnet.common.io.FileUtil;
-import eu.cloudnetservice.cloudnet.common.io.ZipUtil;
-import eu.cloudnetservice.cloudnet.common.log.LogManager;
-import eu.cloudnetservice.cloudnet.common.log.Logger;
-import eu.cloudnetservice.cloudnet.common.stream.ListeningOutputStream;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
-import eu.cloudnetservice.cloudnet.driver.template.FileInfo;
-import eu.cloudnetservice.cloudnet.driver.template.TemplateStorage;
+import eu.cloudnetservice.common.function.ThrowableConsumer;
+import eu.cloudnetservice.common.io.FileUtil;
+import eu.cloudnetservice.common.io.ZipUtil;
+import eu.cloudnetservice.common.log.LogManager;
+import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.common.stream.ListeningOutputStream;
+import eu.cloudnetservice.driver.service.ServiceTemplate;
+import eu.cloudnetservice.driver.template.FileInfo;
+import eu.cloudnetservice.driver.template.TemplateStorage;
 import eu.cloudnetservice.modules.s3.config.S3TemplateStorageConfig;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

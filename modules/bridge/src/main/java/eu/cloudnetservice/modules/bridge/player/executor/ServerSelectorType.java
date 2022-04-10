@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.player.executor;
 
-import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.BridgeServiceProperties;
 import java.util.Comparator;
 import java.util.concurrent.ThreadLocalRandom;

@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.modules.smart.listener;
 
-import eu.cloudnetservice.cloudnet.driver.event.EventListener;
-import eu.cloudnetservice.cloudnet.node.event.task.LocalServiceTaskAddEvent;
+import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.modules.smart.SmartServiceTaskConfig;
+import eu.cloudnetservice.node.event.task.LocalServiceTaskAddEvent;
 import lombok.NonNull;
 
 public final class CloudNetLocalServiceTaskListener {

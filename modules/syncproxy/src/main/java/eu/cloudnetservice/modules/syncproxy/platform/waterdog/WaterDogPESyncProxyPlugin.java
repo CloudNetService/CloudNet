@@ -17,8 +17,8 @@
 package eu.cloudnetservice.modules.syncproxy.platform.waterdog;
 
 import dev.waterdog.waterdogpe.plugin.Plugin;
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.modules.syncproxy.platform.listener.SyncProxyCloudListener;
+import eu.cloudnetservice.wrapper.Wrapper;
 
 public final class WaterDogPESyncProxyPlugin extends Plugin {
 

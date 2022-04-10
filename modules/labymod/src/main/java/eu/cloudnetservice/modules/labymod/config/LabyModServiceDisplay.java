@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.labymod.config;
 
-import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import org.jetbrains.annotations.Nullable;
 

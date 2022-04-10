@@ -21,7 +21,7 @@ import static eu.cloudnetservice.ext.adventure.AdventureSerializerUtil.serialize
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.ConsoleCommandSource;
 import com.velocitypowered.api.proxy.Player;
-import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import java.util.List;
 import java.util.Locale;

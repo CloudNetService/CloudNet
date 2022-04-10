@@ -19,12 +19,12 @@ package eu.cloudnetservice.modules.bridge.platform.bungeecord;
 import static eu.cloudnetservice.modules.bridge.platform.bungeecord.BungeeCordHelper.translateToComponent;
 import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
 
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.helper.ProxyPlatformHelper;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
 import eu.cloudnetservice.modules.bridge.util.BridgeHostAndPortUtil;
+import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;

@@ -17,9 +17,9 @@
 package eu.cloudnetservice.modules.cloudperms.sponge.service.permissible.group;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.cloudnet.driver.permission.Permission;
-import eu.cloudnetservice.cloudnet.driver.permission.PermissionGroup;
-import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
+import eu.cloudnetservice.driver.permission.Permission;
+import eu.cloudnetservice.driver.permission.PermissionGroup;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.modules.cloudperms.sponge.service.permissible.AbstractSubjectCollection;
 import java.util.Collection;
 import java.util.Map;

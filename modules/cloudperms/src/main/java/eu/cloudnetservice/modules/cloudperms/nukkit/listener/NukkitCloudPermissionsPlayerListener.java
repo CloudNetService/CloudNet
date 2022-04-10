@@ -23,7 +23,7 @@ import cn.nukkit.event.Listener;
 import cn.nukkit.event.player.PlayerAsyncPreLoginEvent;
 import cn.nukkit.event.player.PlayerLoginEvent;
 import cn.nukkit.event.player.PlayerQuitEvent;
-import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.modules.cloudperms.CloudPermissionsHelper;
 import eu.cloudnetservice.modules.cloudperms.nukkit.NukkitPermissionInjectionHelper;
 import lombok.NonNull;
