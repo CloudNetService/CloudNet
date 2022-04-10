@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.docker;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientImpl;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
+import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
 import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
@@ -27,6 +28,7 @@ import eu.cloudnetservice.modules.docker.config.DockerConfiguration;
 import eu.cloudnetservice.modules.docker.config.DockerImage;
 import java.time.Duration;
 import java.util.Set;
+import lombok.NonNull;
 
 public class DockerizedServicesModule extends DriverModule {
 
@@ -78,8 +80,22 @@ public class DockerizedServicesModule extends DriverModule {
         this.configuration));
   }
 
+  @ModuleTask(event = ModuleLifeCycle.STARTED)
+  public void registerComponents() {
+    Node.instance().commandProvider().register(new DockerCommand(this));
+  }
+
   @ModuleTask(event = ModuleLifeCycle.STOPPED)
   public void unregisterServiceFactory() {
     Node.instance().cloudServiceProvider().removeCloudServiceFactory(this.configuration.factoryName());
+  }
+
+  public @NonNull DockerConfiguration config() {
+    return configuration;
+  }
+
+  public void config(@NonNull DockerConfiguration configuration) {
+    this.configuration = configuration;
+    this.writeConfig(JsonDocument.newDocument(configuration));
   }
 }

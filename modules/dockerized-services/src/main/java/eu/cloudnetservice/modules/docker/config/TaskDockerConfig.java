@@ -63,11 +63,6 @@ public record TaskDockerConfig(
       return this;
     }
 
-    public @NonNull Builder removeVolume(@NonNull String volume) {
-      this.volumes.remove(volume);
-      return this;
-    }
-
     public @NonNull Builder addBind(@NonNull String bind) {
       this.binds.add(bind);
       return this;
@@ -75,11 +70,6 @@ public record TaskDockerConfig(
 
     public @NonNull Builder binds(@NonNull Set<String> binds) {
       this.binds = new HashSet<>(binds);
-      return this;
-    }
-
-    public @NonNull Builder removeBind(@NonNull String bind) {
-      this.binds.remove(bind);
       return this;
     }
 
@@ -93,14 +83,8 @@ public record TaskDockerConfig(
       return this;
     }
 
-    public @NonNull Builder removeExposedPort(@NonNull ExposedPort port) {
-      this.exposedPorts.remove(port);
-      return this;
-    }
-
     public @NonNull TaskDockerConfig build() {
       return new TaskDockerConfig(this.javaImage, this.volumes, this.binds, this.exposedPorts);
     }
   }
-
 }
