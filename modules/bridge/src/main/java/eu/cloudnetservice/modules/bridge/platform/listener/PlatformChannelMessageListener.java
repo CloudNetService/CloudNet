@@ -33,6 +33,7 @@ import eu.cloudnetservice.modules.bridge.event.BridgeUpdateCloudPlayerEvent;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.player.CloudOfflinePlayer;
 import eu.cloudnetservice.modules.bridge.player.CloudPlayer;
+import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
 import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;
 import eu.cloudnetservice.modules.bridge.player.executor.ServerSelectorType;
 import lombok.NonNull;
@@ -121,7 +122,7 @@ public final class PlatformChannelMessageListener {
         case "cloud_player_server_login" -> {
           // read the information
           var player = event.content().readObject(CloudPlayer.class);
-          var serviceInfo = event.content().readObject(NetworkServiceInfo.class);
+          var serviceInfo = event.content().readObject(NetworkPlayerServerInfo.class);
           // fire the event
           this.eventManager.callEvent(new BridgeServerPlayerLoginEvent(player, serviceInfo));
         }

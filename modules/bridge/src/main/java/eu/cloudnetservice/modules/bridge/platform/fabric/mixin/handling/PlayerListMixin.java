@@ -57,7 +57,7 @@ public final class PlayerListMixin {
   public void onJoin(@NonNull Connection con, @NonNull ServerPlayer player, @NonNull CallbackInfo info) {
     ServerPlatformHelper.sendChannelMessageLoginSuccess(
       player.getUUID(),
-      ((BridgedServer) this.server).management().ownNetworkServiceInfo());
+      ((BridgedServer) this.server).management().createPlayerInformation(player));
     // update the service info instantly as the player is registered now
     Wrapper.instance().publishServiceInfoUpdate();
   }

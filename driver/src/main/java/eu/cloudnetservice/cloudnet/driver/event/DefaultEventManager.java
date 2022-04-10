@@ -16,20 +16,22 @@
 
 package eu.cloudnetservice.cloudnet.driver.event;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
 import eu.cloudnetservice.cloudnet.driver.event.invoker.ListenerInvokerGenerator;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Predicate;
 import lombok.NonNull;
 
 public class DefaultEventManager implements EventManager {
 
-  protected final ReadWriteLock lock = new ReentrantReadWriteLock();
-  protected final ListMultimap<Class<?>, RegisteredEventListener> listeners = ArrayListMultimap.create();
+  protected final Lock bakeLock = new ReentrantLock(true);
+  protected final Map<Class<?>, List<RegisteredEventListener>> listeners = new HashMap<>();
 
   @Override
   public @NonNull EventManager unregisterListeners(@NonNull ClassLoader classLoader) {
@@ -48,30 +50,25 @@ public class DefaultEventManager implements EventManager {
 
   @Override
   public <T extends Event> @NonNull T callEvent(@NonNull String channel, @NonNull T event) {
-    this.lock.readLock().lock();
-    try {
-      // get all registered listeners of the event
-      var listeners = this.listeners.get(event.getClass());
-      if (!listeners.isEmpty()) {
-        // check if there is only one listener
-        if (listeners.size() == 1) {
-          var listener = listeners.get(0);
+    // get all registered listeners of the event
+    var listeners = this.listeners.get(event.getClass());
+    if (listeners != null && !listeners.isEmpty()) {
+      // check if there is only one listener
+      if (listeners.size() == 1) {
+        var listener = listeners.get(0);
+        // check if the event gets called on the same channel as the listener is listening to
+        if (listener.channel().equals(channel)) {
+          listener.fireEvent(event);
+        }
+      } else {
+        // post the event to the listeners
+        for (var listener : listeners) {
           // check if the event gets called on the same channel as the listener is listening to
           if (listener.channel().equals(channel)) {
             listener.fireEvent(event);
           }
-        } else {
-          // post the event to the listeners
-          for (var listener : listeners) {
-            // check if the event gets called on the same channel as the listener is listening to
-            if (listener.channel().equals(channel)) {
-              listener.fireEvent(event);
-            }
-          }
         }
       }
-    } finally {
-      this.lock.readLock().unlock();
     }
     // for chaining
     return event;
@@ -100,15 +97,16 @@ public class DefaultEventManager implements EventManager {
           eventClass,
           annotation,
           ListenerInvokerGenerator.generate(listener, method, eventClass));
-        // bake an event listener from the information
-        this.lock.writeLock().lock();
+
+        this.bakeLock.lock();
         try {
-          var listeners = this.listeners.get(eventClass);
+          // bake an event listener from the information
+          var listeners = this.listeners.computeIfAbsent(eventClass, $ -> new CopyOnWriteArrayList<>());
           listeners.add(eventListener);
           // sort now - we don't need to sort lather then
           Collections.sort(listeners);
         } finally {
-          this.lock.writeLock().unlock();
+          this.bakeLock.unlock();
         }
       }
     }
@@ -117,12 +115,20 @@ public class DefaultEventManager implements EventManager {
   }
 
   protected void safeRemove(@NonNull Predicate<RegisteredEventListener> predicate) {
-    this.lock.writeLock().lock();
+    this.bakeLock.lock();
     try {
-      // prevents concurrency issues
-      this.listeners.values().removeIf(predicate);
+      var iterator = this.listeners.values().iterator();
+      while (iterator.hasNext()) {
+        // remove all listeners which are matching the predicate
+        var entry = iterator.next();
+        entry.removeIf(predicate);
+        // check if the entry is still needed
+        if (entry.isEmpty()) {
+          iterator.remove();
+        }
+      }
     } finally {
-      this.lock.writeLock().unlock();
+      this.bakeLock.unlock();
     }
   }
 }

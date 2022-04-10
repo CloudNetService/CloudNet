@@ -19,9 +19,11 @@ package eu.cloudnetservice.modules.bridge.platform.bukkit;
 import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.helper.ServerPlatformHelper;
+import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
 import java.util.Locale;
 import lombok.NonNull;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -33,9 +35,12 @@ import org.bukkit.plugin.Plugin;
 public final class BukkitPlayerManagementListener implements Listener {
 
   private final Plugin plugin;
-  private final PlatformBridgeManagement<?, ?> management;
+  private final PlatformBridgeManagement<Player, NetworkPlayerServerInfo> management;
 
-  public BukkitPlayerManagementListener(@NonNull Plugin plugin, @NonNull PlatformBridgeManagement<?, ?> management) {
+  public BukkitPlayerManagementListener(
+    @NonNull Plugin plugin,
+    @NonNull PlatformBridgeManagement<Player, NetworkPlayerServerInfo> management
+  ) {
     this.plugin = plugin;
     this.management = management;
   }
@@ -68,7 +73,7 @@ public final class BukkitPlayerManagementListener implements Listener {
   public void handle(@NonNull PlayerJoinEvent event) {
     ServerPlatformHelper.sendChannelMessageLoginSuccess(
       event.getPlayer().getUniqueId(),
-      this.management.ownNetworkServiceInfo());
+      this.management.createPlayerInformation(event.getPlayer()));
     // update the service info in the next tick
     Bukkit.getScheduler().runTask(this.plugin, () -> Wrapper.instance().publishServiceInfoUpdate());
   }

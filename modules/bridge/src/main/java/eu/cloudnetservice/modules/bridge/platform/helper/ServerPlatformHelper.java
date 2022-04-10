@@ -20,6 +20,7 @@ import static eu.cloudnetservice.modules.bridge.platform.helper.ProxyPlatformHel
 
 import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
+import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
 import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;
 import java.util.UUID;
 import lombok.NonNull;
@@ -30,7 +31,10 @@ public final class ServerPlatformHelper {
     throw new UnsupportedOperationException();
   }
 
-  public static void sendChannelMessageLoginSuccess(@NonNull UUID playerUniqueId, @NonNull NetworkServiceInfo info) {
+  public static void sendChannelMessageLoginSuccess(
+    @NonNull UUID playerUniqueId,
+    @NonNull NetworkPlayerServerInfo info
+  ) {
     toCurrentNode()
       .message("server_player_login")
       .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)

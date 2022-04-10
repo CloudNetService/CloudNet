@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.platform.nukkit;
 
+import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
@@ -26,14 +27,18 @@ import cn.nukkit.plugin.Plugin;
 import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.helper.ServerPlatformHelper;
+import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
 import lombok.NonNull;
 
 public final class NukkitPlayerManagementListener implements Listener {
 
   private final Plugin plugin;
-  private final PlatformBridgeManagement<?, ?> management;
+  private final PlatformBridgeManagement<Player, NetworkPlayerServerInfo> management;
 
-  public NukkitPlayerManagementListener(@NonNull Plugin plugin, @NonNull PlatformBridgeManagement<?, ?> management) {
+  public NukkitPlayerManagementListener(
+    @NonNull Plugin plugin,
+    @NonNull PlatformBridgeManagement<Player, NetworkPlayerServerInfo> management
+  ) {
     this.plugin = plugin;
     this.management = management;
   }
@@ -66,7 +71,7 @@ public final class NukkitPlayerManagementListener implements Listener {
   public void handle(@NonNull PlayerJoinEvent event) {
     ServerPlatformHelper.sendChannelMessageLoginSuccess(
       event.getPlayer().getUniqueId(),
-      this.management.ownNetworkServiceInfo());
+      this.management.createPlayerInformation(event.getPlayer()));
     // update the service info in the next tick
     Server.getInstance().getScheduler().scheduleTask(this.plugin, Wrapper.instance()::publishServiceInfoUpdate);
   }

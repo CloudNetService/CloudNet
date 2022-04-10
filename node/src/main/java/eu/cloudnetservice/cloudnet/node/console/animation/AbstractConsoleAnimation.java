@@ -97,6 +97,8 @@ public abstract class AbstractConsoleAnimation implements Runnable {
     for (var runnable : this.finishHandler) {
       runnable.run();
     }
+    // clear all finish handlers after the setup is done
+    this.finishHandler.clear();
   }
 
   public boolean staticCursor() {

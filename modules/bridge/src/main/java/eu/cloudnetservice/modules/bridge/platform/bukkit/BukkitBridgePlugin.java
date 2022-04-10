@@ -17,7 +17,6 @@
 package eu.cloudnetservice.modules.bridge.platform.bukkit;
 
 import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
-import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -26,7 +25,7 @@ public final class BukkitBridgePlugin extends JavaPlugin {
   @Override
   public void onEnable() {
     // init the bridge management
-    PlatformBridgeManagement<?, ?> management = new BukkitBridgeManagement(this);
+    var management = new BukkitBridgeManagement(this);
     management.registerServices(Wrapper.instance().serviceRegistry());
     management.postInit();
     // register the bukkit listener
