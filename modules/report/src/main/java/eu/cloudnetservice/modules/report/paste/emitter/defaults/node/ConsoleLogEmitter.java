@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.modules.report.paste.emitter.defaults.node;
 
-import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
-import eu.cloudnetservice.cloudnet.node.Node;
+import eu.cloudnetservice.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import eu.cloudnetservice.modules.report.paste.emitter.ReportDataEmitter;
+import eu.cloudnetservice.node.Node;
 import lombok.NonNull;
 
 public class ConsoleLogEmitter implements ReportDataEmitter<NetworkClusterNodeInfoSnapshot> {

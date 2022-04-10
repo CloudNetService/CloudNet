@@ -16,17 +16,17 @@
 
 package eu.cloudnetservice.modules.rest.v2;
 
-import eu.cloudnetservice.cloudnet.driver.network.http.HttpContext;
-import eu.cloudnetservice.cloudnet.driver.network.http.HttpResponse;
-import eu.cloudnetservice.cloudnet.driver.network.http.HttpResponseCode;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
-import eu.cloudnetservice.cloudnet.driver.template.TemplateStorage;
-import eu.cloudnetservice.cloudnet.node.http.HttpSession;
-import eu.cloudnetservice.cloudnet.node.http.V2HttpHandler;
-import eu.cloudnetservice.cloudnet.node.version.ServiceVersion;
-import eu.cloudnetservice.cloudnet.node.version.ServiceVersionType;
-import eu.cloudnetservice.cloudnet.node.version.information.TemplateVersionInstaller;
+import eu.cloudnetservice.driver.network.http.HttpContext;
+import eu.cloudnetservice.driver.network.http.HttpResponse;
+import eu.cloudnetservice.driver.network.http.HttpResponseCode;
+import eu.cloudnetservice.driver.service.ServiceTemplate;
+import eu.cloudnetservice.driver.template.TemplateStorage;
 import eu.cloudnetservice.modules.rest.RestUtil;
+import eu.cloudnetservice.node.http.HttpSession;
+import eu.cloudnetservice.node.http.V2HttpHandler;
+import eu.cloudnetservice.node.version.ServiceVersion;
+import eu.cloudnetservice.node.version.ServiceVersionType;
+import eu.cloudnetservice.node.version.information.TemplateVersionInstaller;
 import java.io.IOException;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;

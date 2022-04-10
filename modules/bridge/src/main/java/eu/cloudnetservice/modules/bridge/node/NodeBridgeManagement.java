@@ -16,21 +16,21 @@
 
 package eu.cloudnetservice.modules.bridge.node;
 
-import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
-import eu.cloudnetservice.cloudnet.driver.event.EventManager;
-import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCFactory;
-import eu.cloudnetservice.cloudnet.driver.registry.ServiceRegistry;
-import eu.cloudnetservice.cloudnet.node.Node;
-import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncRegistry;
-import eu.cloudnetservice.cloudnet.node.module.listener.PluginIncludeListener;
+import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.driver.channel.ChannelMessage;
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.config.BridgeConfiguration;
 import eu.cloudnetservice.modules.bridge.event.BridgeConfigurationUpdateEvent;
 import eu.cloudnetservice.modules.bridge.node.network.NodeBridgeChannelMessageListener;
 import eu.cloudnetservice.modules.bridge.node.player.NodePlayerManager;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
+import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
+import eu.cloudnetservice.node.module.listener.PluginIncludeListener;
 import java.util.Collections;
 import lombok.NonNull;
 

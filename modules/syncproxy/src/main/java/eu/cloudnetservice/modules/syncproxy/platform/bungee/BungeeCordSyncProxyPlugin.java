@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.modules.syncproxy.platform.bungee;
 
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.modules.syncproxy.platform.listener.SyncProxyCloudListener;
+import eu.cloudnetservice.wrapper.Wrapper;
 import net.md_5.bungee.api.plugin.Plugin;
 
 public final class BungeeCordSyncProxyPlugin extends Plugin {

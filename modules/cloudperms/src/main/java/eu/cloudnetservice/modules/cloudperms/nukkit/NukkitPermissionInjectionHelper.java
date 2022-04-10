@@ -19,7 +19,7 @@ package eu.cloudnetservice.modules.cloudperms.nukkit;
 import cn.nukkit.Player;
 import dev.derklaro.reflexion.FieldAccessor;
 import dev.derklaro.reflexion.Reflexion;
-import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
 import lombok.NonNull;
 
 public final class NukkitPermissionInjectionHelper {

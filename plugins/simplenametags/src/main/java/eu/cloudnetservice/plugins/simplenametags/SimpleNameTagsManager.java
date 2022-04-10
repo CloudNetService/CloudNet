@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.plugins.simplenametags;
 
-import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
-import eu.cloudnetservice.cloudnet.driver.permission.PermissionGroup;
+import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.permission.PermissionGroup;
 import eu.cloudnetservice.plugins.simplenametags.event.PrePlayerPrefixSetEvent;
 import java.util.Collection;
 import java.util.UUID;

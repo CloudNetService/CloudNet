@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.modules.bridge.player;
 
-import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceId;
+import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
+import eu.cloudnetservice.driver.service.ServiceId;
 import java.util.Set;
 import java.util.UUID;
 import lombok.NonNull;

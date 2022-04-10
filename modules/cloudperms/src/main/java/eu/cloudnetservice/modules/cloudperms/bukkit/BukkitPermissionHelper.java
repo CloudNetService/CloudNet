@@ -21,7 +21,7 @@ import static dev.derklaro.reflexion.matcher.FieldMatcher.newMatcher;
 import dev.derklaro.reflexion.FieldAccessor;
 import dev.derklaro.reflexion.MethodAccessor;
 import dev.derklaro.reflexion.Reflexion;
-import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.CloudNetDriver;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.NoSuchElementException;

@@ -18,7 +18,7 @@ package eu.cloudnetservice.modules.bridge.platform.helper;
 
 import static eu.cloudnetservice.modules.bridge.platform.helper.ProxyPlatformHelper.toCurrentNode;
 
-import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
 import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;

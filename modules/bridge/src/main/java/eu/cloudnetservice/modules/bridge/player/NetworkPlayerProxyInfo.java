@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.player;
 
-import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
+import eu.cloudnetservice.driver.network.HostAndPort;
 import java.util.UUID;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;

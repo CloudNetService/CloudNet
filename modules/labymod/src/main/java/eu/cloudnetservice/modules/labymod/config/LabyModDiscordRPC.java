@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.labymod.config;
 
-import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import java.util.ArrayList;
 import java.util.Collection;
 import lombok.NonNull;

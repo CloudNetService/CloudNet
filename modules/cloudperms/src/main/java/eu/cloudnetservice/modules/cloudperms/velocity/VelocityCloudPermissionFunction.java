@@ -18,8 +18,8 @@ package eu.cloudnetservice.modules.cloudperms.velocity;
 
 import com.velocitypowered.api.permission.PermissionFunction;
 import com.velocitypowered.api.permission.Tristate;
-import eu.cloudnetservice.cloudnet.driver.permission.Permission;
-import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
+import eu.cloudnetservice.driver.permission.Permission;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
 import java.util.UUID;
 
 final class VelocityCloudPermissionFunction implements PermissionFunction {

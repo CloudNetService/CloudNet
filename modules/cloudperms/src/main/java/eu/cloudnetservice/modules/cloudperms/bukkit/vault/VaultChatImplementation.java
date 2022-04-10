@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.modules.cloudperms.bukkit.vault;
 
-import eu.cloudnetservice.cloudnet.driver.permission.PermissionGroup;
-import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
-import eu.cloudnetservice.cloudnet.driver.permission.PermissionUser;
+import eu.cloudnetservice.driver.permission.PermissionGroup;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.driver.permission.PermissionUser;
 import java.util.Optional;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.permission.Permission;

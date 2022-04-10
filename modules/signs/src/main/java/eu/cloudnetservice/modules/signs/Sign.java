@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.signs;
 
 import com.google.gson.reflect.TypeToken;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.signs.configuration.SignConfigurationEntry;
 import eu.cloudnetservice.modules.signs.util.PriorityUtil;

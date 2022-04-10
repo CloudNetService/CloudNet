@@ -16,11 +16,10 @@
 
 package eu.cloudnetservice.modules.syncproxy.platform;
 
-import eu.cloudnetservice.cloudnet.driver.event.EventManager;
-import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCSender;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.network.rpc.RPCSender;
+import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
+import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.BridgeServiceProperties;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyConfigurationUpdateEvent;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyManagement;
@@ -29,6 +28,7 @@ import eu.cloudnetservice.modules.syncproxy.config.SyncProxyLoginConfiguration;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyMotd;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyTabList;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyTabListConfiguration;
+import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Random;

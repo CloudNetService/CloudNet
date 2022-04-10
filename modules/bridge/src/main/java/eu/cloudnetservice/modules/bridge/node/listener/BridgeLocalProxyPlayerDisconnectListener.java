@@ -17,15 +17,15 @@
 package eu.cloudnetservice.modules.bridge.node.listener;
 
 import com.google.common.collect.Iterables;
-import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
-import eu.cloudnetservice.cloudnet.driver.event.EventListener;
-import eu.cloudnetservice.cloudnet.driver.event.events.service.CloudServiceUpdateEvent;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceLifeCycle;
-import eu.cloudnetservice.cloudnet.node.event.service.CloudServicePostLifecycleEvent;
+import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.event.EventListener;
+import eu.cloudnetservice.driver.event.events.service.CloudServiceUpdateEvent;
+import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
+import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.modules.bridge.BridgeServiceProperties;
 import eu.cloudnetservice.modules.bridge.node.player.NodePlayerManager;
+import eu.cloudnetservice.node.event.service.CloudServicePostLifecycleEvent;
 import lombok.NonNull;
 
 public final class BridgeLocalProxyPlayerDisconnectListener {

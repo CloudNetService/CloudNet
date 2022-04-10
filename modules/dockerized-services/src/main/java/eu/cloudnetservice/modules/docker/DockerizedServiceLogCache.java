@@ -17,10 +17,10 @@
 package eu.cloudnetservice.modules.docker;
 
 import com.github.dockerjava.api.model.Frame;
-import eu.cloudnetservice.cloudnet.node.Node;
-import eu.cloudnetservice.cloudnet.node.service.CloudService;
-import eu.cloudnetservice.cloudnet.node.service.ServiceConsoleLogCache;
-import eu.cloudnetservice.cloudnet.node.service.defaults.log.AbstractServiceLogCache;
+import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.service.CloudService;
+import eu.cloudnetservice.node.service.ServiceConsoleLogCache;
+import eu.cloudnetservice.node.service.defaults.log.AbstractServiceLogCache;
 import java.nio.charset.StandardCharsets;
 import lombok.NonNull;
 

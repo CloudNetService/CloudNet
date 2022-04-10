@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.node.event;
 
-import eu.cloudnetservice.cloudnet.driver.event.events.DriverEvent;
+import eu.cloudnetservice.driver.event.events.DriverEvent;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
 import lombok.NonNull;
 import net.kyori.adventure.text.TextComponent;

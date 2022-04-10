@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.modules.bridge.player;
 
-import eu.cloudnetservice.cloudnet.common.concurrent.Task;
-import eu.cloudnetservice.cloudnet.driver.network.rpc.annotation.RPCValidation;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
+import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.driver.network.rpc.annotation.RPCValidation;
+import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import java.util.List;
 import java.util.UUID;

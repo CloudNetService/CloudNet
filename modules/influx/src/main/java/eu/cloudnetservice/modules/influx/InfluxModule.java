@@ -17,14 +17,14 @@
 package eu.cloudnetservice.modules.influx;
 
 import com.influxdb.client.InfluxDBClientFactory;
-import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
-import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
-import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
-import eu.cloudnetservice.cloudnet.node.TickLoop;
+import eu.cloudnetservice.driver.module.ModuleTask;
+import eu.cloudnetservice.driver.module.driver.DriverModule;
+import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.modules.influx.publish.PublisherRegistry;
 import eu.cloudnetservice.modules.influx.publish.defaults.DefaultPublisherRegistry;
 import eu.cloudnetservice.modules.influx.publish.publishers.ConnectedNodeInfoPublisher;
 import eu.cloudnetservice.modules.influx.publish.publishers.RunningServiceProcessSnapshotPublisher;
+import eu.cloudnetservice.node.TickLoop;
 
 public final class InfluxModule extends DriverModule {
 

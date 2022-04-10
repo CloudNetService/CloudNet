@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.influx;
 
-import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
+import eu.cloudnetservice.driver.network.HostAndPort;
 import lombok.NonNull;
 
 public record InfluxConfiguration(

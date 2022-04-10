@@ -16,13 +16,13 @@
 
 package eu.cloudnetservice.modules.bridge.platform.helper;
 
-import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
-import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
+import eu.cloudnetservice.driver.channel.ChannelMessage;
+import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.node.event.LocalPlayerPreLoginEvent.Result;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
 import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;
+import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.UUID;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;

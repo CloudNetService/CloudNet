@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.cloudperms.sponge.service.permissible;
 
-import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;

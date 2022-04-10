@@ -16,18 +16,17 @@
 
 package eu.cloudnetservice.modules.signs.platform;
 
-import static eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType.JAVA_SERVER;
-import static eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType.PE_SERVER;
+import static eu.cloudnetservice.driver.service.ServiceEnvironmentType.JAVA_SERVER;
+import static eu.cloudnetservice.driver.service.ServiceEnvironmentType.PE_SERVER;
 
 import com.google.common.collect.MapMaker;
-import eu.cloudnetservice.cloudnet.common.log.LogManager;
-import eu.cloudnetservice.cloudnet.common.log.Logger;
-import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
-import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
-import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf.Mutable;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
+import eu.cloudnetservice.common.log.LogManager;
+import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.channel.ChannelMessage;
+import eu.cloudnetservice.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.driver.network.buffer.DataBuf.Mutable;
+import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper.ServiceInfoState;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
@@ -39,6 +38,7 @@ import eu.cloudnetservice.modules.signs.configuration.SignLayoutsHolder;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.util.LayoutUtil;
 import eu.cloudnetservice.modules.signs.util.PriorityUtil;
+import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;

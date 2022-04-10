@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.modules.signs.node.configuration;
 
-import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.common.log.LogManager;
-import eu.cloudnetservice.cloudnet.common.log.Logger;
+import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.common.log.LogManager;
+import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.modules.signs._deprecated.configuration.SignConfigurationReaderAndWriter;
 import eu.cloudnetservice.modules.signs._deprecated.configuration.entry.SignLayoutConfiguration;
 import eu.cloudnetservice.modules.signs.configuration.SignConfigurationEntry;

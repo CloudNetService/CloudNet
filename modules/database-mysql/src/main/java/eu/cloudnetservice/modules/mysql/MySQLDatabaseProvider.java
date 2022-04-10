@@ -18,10 +18,10 @@ package eu.cloudnetservice.modules.mysql;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import eu.cloudnetservice.cloudnet.common.function.ThrowableFunction;
-import eu.cloudnetservice.cloudnet.node.database.LocalDatabase;
-import eu.cloudnetservice.cloudnet.node.database.sql.SQLDatabaseProvider;
+import eu.cloudnetservice.common.function.ThrowableFunction;
 import eu.cloudnetservice.modules.mysql.config.MySQLConfiguration;
+import eu.cloudnetservice.node.database.LocalDatabase;
+import eu.cloudnetservice.node.database.sql.SQLDatabaseProvider;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;

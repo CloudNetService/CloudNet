@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.labymod;
 
-import eu.cloudnetservice.cloudnet.driver.network.rpc.annotation.RPCValidation;
+import eu.cloudnetservice.driver.network.rpc.annotation.RPCValidation;
 import eu.cloudnetservice.modules.labymod.config.LabyModConfiguration;
 import lombok.NonNull;
 

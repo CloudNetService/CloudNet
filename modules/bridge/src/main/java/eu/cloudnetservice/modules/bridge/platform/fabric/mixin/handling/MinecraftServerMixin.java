@@ -16,11 +16,11 @@
 
 package eu.cloudnetservice.modules.bridge.platform.fabric.mixin.handling;
 
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.fabric.FabricBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.fabric.util.BridgedServer;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
+import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.Collection;
 import java.util.UUID;
 import lombok.NonNull;

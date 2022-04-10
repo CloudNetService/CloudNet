@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.modules.sftp;
 
-import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
-import eu.cloudnetservice.cloudnet.driver.template.FileInfo;
+import eu.cloudnetservice.driver.network.HostAndPort;
+import eu.cloudnetservice.driver.service.ServiceTemplate;
+import eu.cloudnetservice.driver.template.FileInfo;
 import eu.cloudnetservice.modules.sftp.config.SFTPTemplateStorageConfig;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

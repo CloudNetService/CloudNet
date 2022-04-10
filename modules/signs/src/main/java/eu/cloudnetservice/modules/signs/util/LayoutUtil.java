@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.signs.util;
 
-import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper.ServiceInfoState;
 import eu.cloudnetservice.modules.signs.Sign;

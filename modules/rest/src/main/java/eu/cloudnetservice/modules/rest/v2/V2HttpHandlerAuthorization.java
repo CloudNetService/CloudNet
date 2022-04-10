@@ -16,11 +16,11 @@
 
 package eu.cloudnetservice.modules.rest.v2;
 
-import eu.cloudnetservice.cloudnet.driver.network.http.HttpContext;
-import eu.cloudnetservice.cloudnet.driver.network.http.HttpResponseCode;
-import eu.cloudnetservice.cloudnet.driver.permission.PermissionUser;
-import eu.cloudnetservice.cloudnet.node.http.HttpSession;
-import eu.cloudnetservice.cloudnet.node.http.V2HttpHandler;
+import eu.cloudnetservice.driver.network.http.HttpContext;
+import eu.cloudnetservice.driver.network.http.HttpResponseCode;
+import eu.cloudnetservice.driver.permission.PermissionUser;
+import eu.cloudnetservice.node.http.HttpSession;
+import eu.cloudnetservice.node.http.V2HttpHandler;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 

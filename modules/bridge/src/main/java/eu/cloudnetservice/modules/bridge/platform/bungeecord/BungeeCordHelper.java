@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.platform.bungeecord;
 
-import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;

@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.cloudperms.sponge;
 
 import com.google.inject.Inject;
-import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.modules.cloudperms.PermissionsUpdateListener;
 import eu.cloudnetservice.modules.cloudperms.sponge.service.CloudPermsPermissionService;
 import lombok.NonNull;

@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.mysql.config;
 
-import eu.cloudnetservice.cloudnet.driver.network.HostAndPort;
+import eu.cloudnetservice.driver.network.HostAndPort;
 import lombok.NonNull;
 
 public record MySQLConnectionEndpoint(boolean useSsl, @NonNull String database, @NonNull HostAndPort address) {

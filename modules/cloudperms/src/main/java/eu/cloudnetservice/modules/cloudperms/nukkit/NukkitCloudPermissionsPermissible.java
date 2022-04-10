@@ -20,8 +20,8 @@ import cn.nukkit.Player;
 import cn.nukkit.permission.PermissibleBase;
 import cn.nukkit.permission.Permission;
 import cn.nukkit.permission.PermissionAttachmentInfo;
-import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -85,7 +85,7 @@ public final class NukkitCloudPermissionsPermissible extends PermissibleBase {
     var permissionUser = this.permissionsManagement.user(this.player.getUniqueId());
     return permissionUser != null && this.permissionsManagement.hasPermission(
       permissionUser,
-      eu.cloudnetservice.cloudnet.driver.permission.Permission.of(inName));
+      eu.cloudnetservice.driver.permission.Permission.of(inName));
   }
 
   public Player player() {

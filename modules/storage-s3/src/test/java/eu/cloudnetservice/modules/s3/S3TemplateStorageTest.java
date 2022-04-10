@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.s3;
 
-import eu.cloudnetservice.cloudnet.driver.service.ServiceTemplate;
+import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.modules.s3.config.S3TemplateStorageConfig;
 import java.io.IOException;
 import java.net.InetAddress;

@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.modules.report.config;
 
-import eu.cloudnetservice.cloudnet.common.Nameable;
-import eu.cloudnetservice.cloudnet.common.log.LogManager;
-import eu.cloudnetservice.cloudnet.common.log.Logger;
+import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.log.LogManager;
+import eu.cloudnetservice.common.log.Logger;
 import kong.unirest.Unirest;
 import kong.unirest.UnirestException;
 import lombok.NonNull;

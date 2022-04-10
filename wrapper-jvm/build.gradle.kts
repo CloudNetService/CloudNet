@@ -60,6 +60,6 @@ dependencies {
 }
 
 applyJarMetadata(
-  "eu.cloudnetservice.cloudnet.wrapper.Main",
+  "eu.cloudnetservice.wrapper.Main",
   "eu.cloudnetservice.wrapper",
-  "eu.cloudnetservice.cloudnet.wrapper.Premain")
+  "eu.cloudnetservice.wrapper.Premain")

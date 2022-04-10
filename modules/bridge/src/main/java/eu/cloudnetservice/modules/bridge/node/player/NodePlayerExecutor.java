@@ -17,9 +17,9 @@
 package eu.cloudnetservice.modules.bridge.node.player;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
-import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
+import eu.cloudnetservice.driver.channel.ChannelMessage;
+import eu.cloudnetservice.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;

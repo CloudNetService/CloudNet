@@ -16,12 +16,12 @@
 
 package eu.cloudnetservice.modules.bridge.platform.bungeecord;
 
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.bungeecord.command.BungeeCordCloudCommand;
 import eu.cloudnetservice.modules.bridge.platform.bungeecord.command.BungeeCordFakeReloadCommand;
 import eu.cloudnetservice.modules.bridge.platform.bungeecord.command.BungeeCordHubCommand;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
+import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.Arrays;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;

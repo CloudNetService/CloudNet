@@ -21,8 +21,8 @@ import dev.waterdog.waterdogpe.event.EventPriority;
 import dev.waterdog.waterdogpe.event.defaults.PlayerDisconnectEvent;
 import dev.waterdog.waterdogpe.event.defaults.PlayerLoginEvent;
 import dev.waterdog.waterdogpe.event.defaults.PlayerPermissionCheckEvent;
-import eu.cloudnetservice.cloudnet.driver.permission.Permission;
-import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
+import eu.cloudnetservice.driver.permission.Permission;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.modules.cloudperms.CloudPermissionsHelper;
 
 final class WaterdogPECloudPermissionsPlayerListener {

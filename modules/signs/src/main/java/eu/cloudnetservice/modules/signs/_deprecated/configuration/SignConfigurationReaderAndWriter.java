@@ -18,7 +18,7 @@ package eu.cloudnetservice.modules.signs._deprecated.configuration;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
-import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
+import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.modules.signs._deprecated.configuration.entry.SignConfigurationEntryType;
 import java.nio.file.Path;
 import java.util.ArrayList;

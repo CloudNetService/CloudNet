@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.modules.labymod.platform.bungeecord;
 
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.modules.labymod.platform.PlatformLabyModListener;
 import eu.cloudnetservice.modules.labymod.platform.PlatformLabyModManagement;
+import eu.cloudnetservice.wrapper.Wrapper;
 import net.md_5.bungee.api.plugin.Plugin;
 
 public class BungeeCordLabyModPlugin extends Plugin {

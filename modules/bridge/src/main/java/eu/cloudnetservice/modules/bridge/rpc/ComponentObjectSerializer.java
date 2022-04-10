@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.modules.bridge.rpc;
 
-import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.cloudnet.driver.network.rpc.object.ObjectMapper;
-import eu.cloudnetservice.cloudnet.driver.network.rpc.object.ObjectSerializer;
+import eu.cloudnetservice.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
+import eu.cloudnetservice.driver.network.rpc.object.ObjectSerializer;
 import java.lang.reflect.Type;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;

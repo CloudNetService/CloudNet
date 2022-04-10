@@ -21,7 +21,7 @@ import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializ
 import dev.waterdog.waterdogpe.ProxyServer;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
 import dev.waterdog.waterdogpe.utils.types.TextContainer;
-import eu.cloudnetservice.cloudnet.common.collection.Pair;
+import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.PlatformPlayerExecutorAdapter;
 import eu.cloudnetservice.modules.bridge.player.executor.ServerSelectorType;

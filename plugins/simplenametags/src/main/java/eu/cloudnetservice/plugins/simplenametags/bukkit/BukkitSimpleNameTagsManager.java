@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.plugins.simplenametags.bukkit;
 
-import eu.cloudnetservice.cloudnet.driver.permission.PermissionGroup;
+import eu.cloudnetservice.driver.permission.PermissionGroup;
 import eu.cloudnetservice.plugins.simplenametags.SimpleNameTagsManager;
 import java.util.Collection;
 import java.util.UUID;

@@ -16,20 +16,20 @@
 
 package eu.cloudnetservice.modules.npc.node;
 
-import eu.cloudnetservice.cloudnet.common.document.gson.JsonDocument;
-import eu.cloudnetservice.cloudnet.common.io.FileUtil;
-import eu.cloudnetservice.cloudnet.driver.database.Database;
-import eu.cloudnetservice.cloudnet.driver.event.EventManager;
-import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
-import eu.cloudnetservice.cloudnet.node.console.animation.progressbar.ConsoleProgressWrappers;
-import eu.cloudnetservice.cloudnet.node.module.listener.PluginIncludeListener;
+import eu.cloudnetservice.common.document.gson.JsonDocument;
+import eu.cloudnetservice.common.io.FileUtil;
+import eu.cloudnetservice.driver.database.Database;
+import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.npc.AbstractNPCManagement;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import eu.cloudnetservice.modules.npc.node.listeners.NodeChannelMessageListener;
 import eu.cloudnetservice.modules.npc.node.listeners.NodeSetupListener;
+import eu.cloudnetservice.node.console.animation.progressbar.ConsoleProgressWrappers;
+import eu.cloudnetservice.node.module.listener.PluginIncludeListener;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;

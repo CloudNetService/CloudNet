@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.modules.bridge.platform;
 
-import eu.cloudnetservice.cloudnet.driver.network.rpc.RPC;
-import eu.cloudnetservice.cloudnet.driver.network.rpc.RPCSender;
+import eu.cloudnetservice.driver.network.rpc.RPC;
+import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import eu.cloudnetservice.modules.bridge.player.executor.ServerSelectorType;
 import java.util.UUID;

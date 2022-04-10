@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.plugins.simplenametags.event;
 
-import eu.cloudnetservice.cloudnet.driver.event.Event;
-import eu.cloudnetservice.cloudnet.driver.permission.PermissionGroup;
+import eu.cloudnetservice.driver.event.Event;
+import eu.cloudnetservice.driver.permission.PermissionGroup;
 import lombok.NonNull;
 
 public class PrePlayerPrefixSetEvent<P> extends Event {

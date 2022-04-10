@@ -33,9 +33,9 @@ import org.objectweb.asm.tree.ClassNode;
 public final class CloudNetLaunchPluginService implements ILaunchPluginService {
 
   private static final Collection<String> EXCLUDED_PACKAGE_STARTS = Arrays.asList(
-    "eu.cloudnetservice.cloudnet.wrapper.",
-    "eu.cloudnetservice.cloudnet.common.",
-    "eu.cloudnetservice.cloudnet.driver.");
+    "eu.cloudnetservice.wrapper.",
+    "eu.cloudnetservice.common.",
+    "eu.cloudnetservice.driver.");
 
   @Override
   public @NonNull String name() {

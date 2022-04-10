@@ -17,10 +17,10 @@
 package eu.cloudnetservice.modules.syncproxy.config;
 
 import com.google.common.collect.ImmutableMap;
-import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
-import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
+import eu.cloudnetservice.driver.channel.ChannelMessage;
+import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyConstants;
+import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;

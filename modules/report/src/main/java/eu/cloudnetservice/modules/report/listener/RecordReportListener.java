@@ -16,16 +16,16 @@
 
 package eu.cloudnetservice.modules.report.listener;
 
-import eu.cloudnetservice.cloudnet.common.log.LogManager;
-import eu.cloudnetservice.cloudnet.common.log.Logger;
-import eu.cloudnetservice.cloudnet.driver.event.EventListener;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceLifeCycle;
-import eu.cloudnetservice.cloudnet.node.event.service.CloudServicePreForceStopEvent;
-import eu.cloudnetservice.cloudnet.node.event.service.CloudServicePreLifecycleEvent;
-import eu.cloudnetservice.cloudnet.node.event.service.CloudServicePreProcessStartEvent;
-import eu.cloudnetservice.cloudnet.node.service.CloudService;
+import eu.cloudnetservice.common.log.LogManager;
+import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.driver.event.EventListener;
+import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.modules.report.CloudNetReportModule;
 import eu.cloudnetservice.modules.report.util.RecordMaker;
+import eu.cloudnetservice.node.event.service.CloudServicePreForceStopEvent;
+import eu.cloudnetservice.node.event.service.CloudServicePreLifecycleEvent;
+import eu.cloudnetservice.node.event.service.CloudServicePreProcessStartEvent;
+import eu.cloudnetservice.node.service.CloudService;
 import lombok.NonNull;
 
 public final class RecordReportListener {

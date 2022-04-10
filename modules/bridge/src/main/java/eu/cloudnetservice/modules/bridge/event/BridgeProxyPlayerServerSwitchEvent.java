@@ -16,15 +16,15 @@
 
 package eu.cloudnetservice.modules.bridge.event;
 
-import eu.cloudnetservice.cloudnet.driver.event.events.DriverEvent;
+import eu.cloudnetservice.driver.event.events.DriverEvent;
 import eu.cloudnetservice.modules.bridge.player.CloudPlayer;
 import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;
 import lombok.NonNull;
 
 /**
  * Called after the cloud player switched its downstream service to another one. At this point {@link
- * CloudPlayer#connectedService()} returns the new service. This event is called both on all nodes in the cluster and all
- * services running the bridge.
+ * CloudPlayer#connectedService()} returns the new service. This event is called both on all nodes in the cluster and
+ * all services running the bridge.
  *
  * @since 4.0
  */
@@ -36,7 +36,7 @@ public final class BridgeProxyPlayerServerSwitchEvent extends DriverEvent {
   /**
    * Constructs a new server switch event with the given cloud player and the previous service.
    *
-   * @param player the cloud player that switched the server.
+   * @param player   the cloud player that switched the server.
    * @param previous the network service the player was connected to previously.
    * @throws NullPointerException if the given player or service info is null.
    */

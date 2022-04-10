@@ -16,10 +16,10 @@
 
 package eu.cloudnetservice.modules.bridge.platform.bukkit;
 
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.helper.ServerPlatformHelper;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
+import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.Locale;
 import lombok.NonNull;
 import org.bukkit.Bukkit;

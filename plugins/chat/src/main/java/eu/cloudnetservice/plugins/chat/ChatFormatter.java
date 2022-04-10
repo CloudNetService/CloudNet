@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.plugins.chat;
 
-import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.CloudNetDriver;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;

@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.plugins.papi;
 
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
+import eu.cloudnetservice.wrapper.Wrapper;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;

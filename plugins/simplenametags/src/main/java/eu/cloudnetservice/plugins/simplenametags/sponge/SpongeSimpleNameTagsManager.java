@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.plugins.simplenametags.sponge;
 
-import eu.cloudnetservice.cloudnet.driver.permission.PermissionGroup;
+import eu.cloudnetservice.driver.permission.PermissionGroup;
 import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
 import eu.cloudnetservice.plugins.simplenametags.SimpleNameTagsManager;
 import java.util.Collection;

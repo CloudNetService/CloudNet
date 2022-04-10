@@ -16,13 +16,13 @@
 
 package eu.cloudnetservice.modules.bridge.platform.listener;
 
-import eu.cloudnetservice.cloudnet.driver.event.EventListener;
-import eu.cloudnetservice.cloudnet.driver.event.events.service.CloudServiceLifecycleChangeEvent;
-import eu.cloudnetservice.cloudnet.driver.event.events.service.CloudServiceUpdateEvent;
-import eu.cloudnetservice.cloudnet.driver.event.events.task.ServiceTaskAddEvent;
-import eu.cloudnetservice.cloudnet.driver.event.events.task.ServiceTaskRemoveEvent;
-import eu.cloudnetservice.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
+import eu.cloudnetservice.driver.event.EventListener;
+import eu.cloudnetservice.driver.event.events.service.CloudServiceLifecycleChangeEvent;
+import eu.cloudnetservice.driver.event.events.service.CloudServiceUpdateEvent;
+import eu.cloudnetservice.driver.event.events.task.ServiceTaskAddEvent;
+import eu.cloudnetservice.driver.event.events.task.ServiceTaskRemoveEvent;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
+import eu.cloudnetservice.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
 import lombok.NonNull;
 
 public final class PlatformInformationListener {

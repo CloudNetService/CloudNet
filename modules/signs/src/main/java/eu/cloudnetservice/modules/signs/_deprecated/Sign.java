@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.signs._deprecated;
 
-import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;

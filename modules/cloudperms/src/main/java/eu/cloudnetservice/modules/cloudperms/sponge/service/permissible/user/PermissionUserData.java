@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.modules.cloudperms.sponge.service.permissible.user;
 
-import eu.cloudnetservice.cloudnet.driver.permission.PermissionManagement;
-import eu.cloudnetservice.cloudnet.driver.permission.PermissionUser;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.driver.permission.PermissionUser;
 import eu.cloudnetservice.modules.cloudperms.sponge.service.permissible.PermissibleSubjectData;
 import java.util.List;
 import java.util.Set;

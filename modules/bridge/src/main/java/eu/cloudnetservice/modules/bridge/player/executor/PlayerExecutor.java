@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.player.executor;
 
-import eu.cloudnetservice.cloudnet.driver.network.rpc.annotation.RPCValidation;
+import eu.cloudnetservice.driver.network.rpc.annotation.RPCValidation;
 import java.util.UUID;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;

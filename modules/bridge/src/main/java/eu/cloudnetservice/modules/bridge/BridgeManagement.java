@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.modules.bridge;
 
-import eu.cloudnetservice.cloudnet.driver.network.rpc.annotation.RPCValidation;
-import eu.cloudnetservice.cloudnet.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.driver.network.rpc.annotation.RPCValidation;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.bridge.config.BridgeConfiguration;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import lombok.NonNull;

@@ -16,17 +16,17 @@
 
 package eu.cloudnetservice.modules.syncproxy.node;
 
-import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
-import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
-import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceEnvironmentType;
-import eu.cloudnetservice.cloudnet.node.Node;
-import eu.cloudnetservice.cloudnet.node.cluster.sync.DataSyncHandler;
-import eu.cloudnetservice.cloudnet.node.module.listener.PluginIncludeListener;
+import eu.cloudnetservice.driver.module.ModuleLifeCycle;
+import eu.cloudnetservice.driver.module.ModuleTask;
+import eu.cloudnetservice.driver.module.driver.DriverModule;
+import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyManagement;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
 import eu.cloudnetservice.modules.syncproxy.node.command.CommandSyncProxy;
 import eu.cloudnetservice.modules.syncproxy.node.listener.NodeSyncProxyChannelMessageListener;
+import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
+import eu.cloudnetservice.node.module.listener.PluginIncludeListener;
 import java.nio.file.Files;
 import lombok.NonNull;
 

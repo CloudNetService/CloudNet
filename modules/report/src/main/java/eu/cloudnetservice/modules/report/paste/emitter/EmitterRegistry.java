@@ -18,8 +18,8 @@ package eu.cloudnetservice.modules.report.paste.emitter;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import eu.cloudnetservice.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
-import eu.cloudnetservice.cloudnet.node.service.CloudService;
+import eu.cloudnetservice.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
+import eu.cloudnetservice.node.service.CloudService;
 import java.util.Collection;
 import java.util.Collections;
 import lombok.NonNull;

@@ -16,11 +16,11 @@
 
 package eu.cloudnetservice.modules.mongodb;
 
-import eu.cloudnetservice.cloudnet.driver.module.ModuleLifeCycle;
-import eu.cloudnetservice.cloudnet.driver.module.ModuleTask;
-import eu.cloudnetservice.cloudnet.driver.module.driver.DriverModule;
-import eu.cloudnetservice.cloudnet.node.database.AbstractDatabaseProvider;
+import eu.cloudnetservice.driver.module.ModuleLifeCycle;
+import eu.cloudnetservice.driver.module.ModuleTask;
+import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.modules.mongodb.config.MongoDBConnectionConfig;
+import eu.cloudnetservice.node.database.AbstractDatabaseProvider;
 
 public class CloudNetMongoDatabaseModule extends DriverModule {
 

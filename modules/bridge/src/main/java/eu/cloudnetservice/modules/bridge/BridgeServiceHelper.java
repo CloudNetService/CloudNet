@@ -16,13 +16,13 @@
 
 package eu.cloudnetservice.modules.bridge;
 
-import eu.cloudnetservice.cloudnet.common.unsafe.CPUUsageResolver;
-import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceConfiguration;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceInfoSnapshot;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceLifeCycle;
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
+import eu.cloudnetservice.common.unsafe.CPUUsageResolver;
+import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.service.ServiceConfiguration;
+import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;
+import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.NonNull;

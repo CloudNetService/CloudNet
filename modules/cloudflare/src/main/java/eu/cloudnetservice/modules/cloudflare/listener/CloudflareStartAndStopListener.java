@@ -16,17 +16,17 @@
 
 package eu.cloudnetservice.modules.cloudflare.listener;
 
-import eu.cloudnetservice.cloudnet.common.language.I18n;
-import eu.cloudnetservice.cloudnet.common.log.LogManager;
-import eu.cloudnetservice.cloudnet.common.log.Logger;
-import eu.cloudnetservice.cloudnet.driver.event.EventListener;
-import eu.cloudnetservice.cloudnet.driver.service.ServiceLifeCycle;
-import eu.cloudnetservice.cloudnet.node.event.service.CloudServicePostLifecycleEvent;
-import eu.cloudnetservice.cloudnet.node.service.CloudService;
+import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.common.log.LogManager;
+import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.driver.event.EventListener;
+import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.modules.cloudflare.CloudNetCloudflareModule;
 import eu.cloudnetservice.modules.cloudflare.CloudflareConfigurationEntry;
 import eu.cloudnetservice.modules.cloudflare.CloudflareGroupConfiguration;
 import eu.cloudnetservice.modules.cloudflare.dns.SRVRecord;
+import eu.cloudnetservice.node.event.service.CloudServicePostLifecycleEvent;
+import eu.cloudnetservice.node.service.CloudService;
 import java.util.function.BiConsumer;
 import lombok.NonNull;
 

@@ -16,11 +16,11 @@
 
 package eu.cloudnetservice.modules.cloudperms.bukkit;
 
-import eu.cloudnetservice.cloudnet.driver.CloudNetDriver;
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
+import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.modules.cloudperms.PermissionsUpdateListener;
 import eu.cloudnetservice.modules.cloudperms.bukkit.listener.BukkitCloudPermissionsPlayerListener;
 import eu.cloudnetservice.modules.cloudperms.bukkit.vault.VaultSupport;
+import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.logging.Level;
 import lombok.NonNull;
 import org.bukkit.Bukkit;

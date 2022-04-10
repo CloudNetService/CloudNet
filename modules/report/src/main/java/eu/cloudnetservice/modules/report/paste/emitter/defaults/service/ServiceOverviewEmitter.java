@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.modules.report.paste.emitter.defaults.service;
 
-import eu.cloudnetservice.cloudnet.node.Node;
-import eu.cloudnetservice.cloudnet.node.service.CloudService;
 import eu.cloudnetservice.modules.report.paste.emitter.ReportDataEmitter;
+import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.service.CloudService;
 import lombok.NonNull;
 
 public class ServiceOverviewEmitter implements ReportDataEmitter<CloudService> {

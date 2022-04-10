@@ -16,13 +16,13 @@
 
 package eu.cloudnetservice.modules.labymod.platform;
 
-import eu.cloudnetservice.cloudnet.driver.event.EventListener;
-import eu.cloudnetservice.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
-import eu.cloudnetservice.cloudnet.wrapper.Wrapper;
+import eu.cloudnetservice.driver.event.EventListener;
+import eu.cloudnetservice.driver.event.events.channel.ChannelMessageReceiveEvent;
 import eu.cloudnetservice.modules.bridge.event.BridgeProxyPlayerServerSwitchEvent;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.labymod.LabyModManagement;
 import eu.cloudnetservice.modules.labymod.config.LabyModConfiguration;
+import eu.cloudnetservice.wrapper.Wrapper;
 import lombok.NonNull;
 
 public class PlatformLabyModListener {
