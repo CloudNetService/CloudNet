@@ -16,16 +16,12 @@
 
 package eu.cloudnetservice.cloudnet.driver.event;
 
+import com.google.common.collect.Iterables;
 import eu.cloudnetservice.cloudnet.driver.DriverEnvironment;
 import eu.cloudnetservice.cloudnet.driver.DriverTestUtil;
-import eu.cloudnetservice.cloudnet.driver.channel.ChannelMessage;
-import eu.cloudnetservice.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import eu.cloudnetservice.cloudnet.driver.event.events.service.CloudServiceLifecycleChangeEvent;
-import eu.cloudnetservice.cloudnet.driver.network.NetworkChannel;
-import eu.cloudnetservice.cloudnet.driver.network.buffer.DataBuf;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -52,55 +48,45 @@ public class DefaultEventManagerTest {
   @Order(0)
   void testListenerRegistration() {
     var eventManager = new DefaultEventManager();
-    eventManager.registerListeners(new TestListener());
+    eventManager.registerListeners(TestListener.INSTANCE);
 
     Assertions.assertEquals(2, eventManager.listeners.size());
 
-    Assertions.assertNotNull(eventManager.listeners.get(ChannelMessageReceiveEvent.class));
-    Assertions.assertEquals(1, eventManager.listeners.get(ChannelMessageReceiveEvent.class).size());
+    Assertions.assertNotNull(eventManager.listeners.get(TestEvent.class));
+    Assertions.assertEquals(3, eventManager.listeners.get(TestEvent.class).size());
 
-    Assertions.assertEquals(
-      EventPriority.HIGH,
-      eventManager.listeners.get(ChannelMessageReceiveEvent.class).iterator().next().priority());
+    var iterator = eventManager.listeners.get(TestEvent.class).iterator();
+
+    Assertions.assertEquals(EventPriority.LOW, iterator.next().priority());
+    Assertions.assertEquals(EventPriority.LOW, iterator.next().priority());
+    Assertions.assertEquals(EventPriority.HIGH, iterator.next().priority());
+
     Assertions.assertEquals(
       EventPriority.NORMAL,
-      eventManager.listeners.get(CloudServiceLifecycleChangeEvent.class).iterator().next().priority());
+      Iterables.getOnlyElement(eventManager.listeners.get(CloudServiceLifecycleChangeEvent.class)).priority());
 
     Assertions.assertEquals("*",
-      eventManager.listeners.get(ChannelMessageReceiveEvent.class).iterator().next().channel());
+      eventManager.listeners.get(TestEvent.class).iterator().next().channel());
     Assertions.assertEquals("123",
       eventManager.listeners.get(CloudServiceLifecycleChangeEvent.class).iterator().next().channel());
   }
 
   @Test
   @Order(10)
-  @Disabled("https://github.com/raphw/byte-buddy/issues/1175 & https://gitlab.ow2.org/asm/asm/-/issues/317959")
   void testEventCall() {
     EventManager eventManager = new DefaultEventManager();
-    eventManager.registerListener(new TestListener());
+    eventManager.registerListener(TestListener.INSTANCE);
 
-    var channelMessage = Mockito.mock(ChannelMessage.class);
-    Mockito.when(channelMessage.channel()).thenReturn("passed");
-
-    var event = new ChannelMessageReceiveEvent(
-      channelMessage,
-      Mockito.mock(NetworkChannel.class),
-      true);
-
+    var event = new TestEvent(123);
     Assertions.assertSame(event, eventManager.callEvent(event));
-
-    Assertions.assertNotNull(event.queryResponse());
-    Assertions.assertEquals("abc", event.queryResponse().join().channel());
-
-    Assertions.assertNotNull(event.queryResponse().join().content());
-    Assertions.assertEquals("passed", event.queryResponse().join().content().readString());
+    Assertions.assertEquals(5678, event.number);
   }
 
   @Test
   @Order(20)
   void testUnregisterListenerByInstance() {
     var eventManager = this.newEventManagerWithListener();
-    eventManager.unregisterListener(new TestListener());
+    eventManager.unregisterListener(TestListener.INSTANCE);
 
     Assertions.assertEquals(0, eventManager.listeners.size());
   }
@@ -117,7 +103,7 @@ public class DefaultEventManagerTest {
   private DefaultEventManager newEventManagerWithListener() {
     var eventManager = new DefaultEventManager();
 
-    eventManager.registerListener(new TestListener());
+    eventManager.registerListener(TestListener.INSTANCE);
     Assertions.assertEquals(2, eventManager.listeners.size());
 
     return eventManager;
@@ -125,22 +111,45 @@ public class DefaultEventManagerTest {
 
   private static final class TestListener {
 
+    private static final TestListener INSTANCE = new TestListener();
+
     @EventListener(priority = EventPriority.HIGH)
-    public void listenerA(ChannelMessageReceiveEvent event) {
-      event.queryResponse(ChannelMessage.builder()
-        .channel("abc")
-        .targetAll()
-        .buffer(DataBuf.empty().writeString(event.channel()))
-        .build());
+    public void listenerA(TestEvent event) {
+      Assertions.assertEquals(2, event.counter);
+      Assertions.assertEquals(4567, event.number);
+      event.number = 5678;
+    }
+
+    @EventListener(priority = EventPriority.LOW)
+    public void listenerB(TestEvent event) {
+      Assertions.assertTrue(event.counter == 0 || event.counter == 1);
+      event.counter++;
+      event.number = 4567;
+    }
+
+    @EventListener(priority = EventPriority.LOW)
+    public void listenerC(TestEvent event) {
+      Assertions.assertTrue(event.counter == 0 || event.counter == 1);
+      event.counter++;
     }
 
     @EventListener(channel = "123")
-    private void listenerB(CloudServiceLifecycleChangeEvent event) {
+    private void listenerD(CloudServiceLifecycleChangeEvent event) {
     }
 
     @Override
     public boolean equals(Object obj) {
       return super.equals(obj) || (obj != null && obj.getClass() == this.getClass());
+    }
+  }
+
+  private static final class TestEvent extends Event {
+
+    private int number;
+    private int counter;
+
+    private TestEvent(int number) {
+      this.number = number;
     }
   }
 }

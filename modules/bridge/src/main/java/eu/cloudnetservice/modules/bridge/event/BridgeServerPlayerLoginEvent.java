@@ -18,7 +18,7 @@ package eu.cloudnetservice.modules.bridge.event;
 
 import eu.cloudnetservice.cloudnet.driver.event.events.DriverEvent;
 import eu.cloudnetservice.modules.bridge.player.CloudPlayer;
-import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;
+import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
 import lombok.NonNull;
 
 /**
@@ -30,18 +30,18 @@ import lombok.NonNull;
 public final class BridgeServerPlayerLoginEvent extends DriverEvent {
 
   private final CloudPlayer cloudPlayer;
-  private final NetworkServiceInfo serviceInfo;
+  private final NetworkPlayerServerInfo serverInfo;
 
   /**
    * Constructs a new player server login event for the given cloud player and the service the player connected to.
    *
    * @param cloudPlayer the player that disconnected.
-   * @param serviceInfo the service the player connected to.
+   * @param serverInfo  the service the player connected to.
    * @throws NullPointerException if the given player or service info is null.
    */
-  public BridgeServerPlayerLoginEvent(@NonNull CloudPlayer cloudPlayer, @NonNull NetworkServiceInfo serviceInfo) {
+  public BridgeServerPlayerLoginEvent(@NonNull CloudPlayer cloudPlayer, @NonNull NetworkPlayerServerInfo serverInfo) {
     this.cloudPlayer = cloudPlayer;
-    this.serviceInfo = serviceInfo;
+    this.serverInfo = serverInfo;
   }
 
   /**
@@ -58,7 +58,7 @@ public final class BridgeServerPlayerLoginEvent extends DriverEvent {
    *
    * @return the network service info of the service.
    */
-  public @NonNull NetworkServiceInfo service() {
-    return this.serviceInfo;
+  public @NonNull NetworkPlayerServerInfo service() {
+    return this.serverInfo;
   }
 }

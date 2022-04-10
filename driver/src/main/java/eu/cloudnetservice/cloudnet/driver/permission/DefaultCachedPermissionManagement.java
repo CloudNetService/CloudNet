@@ -176,7 +176,7 @@ public abstract class DefaultCachedPermissionManagement extends DefaultPermissio
    * @throws NullPointerException if the given key, user or cause is null.
    */
   protected void handleUserRemove(@NonNull UUID key, @NonNull PermissionUser user, @NonNull RemovalCause cause) {
-    if (cause != RemovalCause.REPLACED && this.locked(user)) {
+    if (cause.wasEvicted() && this.locked(user)) {
       this.permissionUserCache.put(key, user);
     }
   }
@@ -191,7 +191,7 @@ public abstract class DefaultCachedPermissionManagement extends DefaultPermissio
    * @throws NullPointerException if the given key, group or cause is null.
    */
   protected void handleGroupRemove(@NonNull String key, @NonNull PermissionGroup group, @NonNull RemovalCause cause) {
-    if (cause != RemovalCause.REPLACED && this.locked(group)) {
+    if (cause.wasEvicted() && this.locked(group)) {
       this.permissionGroupCache.put(key, group);
     }
   }

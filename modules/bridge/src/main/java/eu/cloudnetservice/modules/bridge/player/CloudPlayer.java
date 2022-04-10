@@ -87,6 +87,7 @@ public class CloudPlayer extends CloudOfflinePlayer {
 
   public void networkPlayerServerInfo(NetworkPlayerServerInfo networkPlayerServerInfo) {
     this.networkPlayerServerInfo = networkPlayerServerInfo;
+    this.connectedService = networkPlayerServerInfo.networkService();
   }
 
   public @NonNull JsonDocument onlineProperties() {

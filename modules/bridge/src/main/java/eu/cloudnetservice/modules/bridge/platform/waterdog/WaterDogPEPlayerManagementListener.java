@@ -76,17 +76,21 @@ public final class WaterDogPEPlayerManagementListener {
   }
 
   private void handleTransfer(@NonNull TransferCompleteEvent event) {
+    var joinedServiceInfo = this.management
+      .cachedService(service -> service.name().equals(event.getNewClient().getServerInfo().getServerName()))
+      .map(BridgeServiceHelper::createServiceInfo)
+      .orElse(null);
+    // check if the connection was initial
     if (event.getOldClient() == null) {
       // the player logged in successfully if he is now connected to a service for the first time
-      ProxyPlatformHelper.sendChannelMessageLoginSuccess(this.management.createPlayerInformation(event.getPlayer()));
+      ProxyPlatformHelper.sendChannelMessageLoginSuccess(
+        this.management.createPlayerInformation(event.getPlayer()),
+        joinedServiceInfo);
       // update the service info
       Wrapper.instance().publishServiceInfoUpdate();
-    } else {
+    } else if (joinedServiceInfo != null) {
       // the player switched the service
-      this.management
-        .cachedService(service -> service.name().equals(event.getNewClient().getServerInfo().getServerName()))
-        .map(BridgeServiceHelper::createServiceInfo)
-        .ifPresent(info -> ProxyPlatformHelper.sendChannelMessageServiceSwitch(event.getPlayer().getUniqueId(), info));
+      ProxyPlatformHelper.sendChannelMessageServiceSwitch(event.getPlayer().getUniqueId(), joinedServiceInfo);
     }
     // notify the management that the player successfully connected to a service
     this.management.handleFallbackConnectionSuccess(event.getPlayer());
