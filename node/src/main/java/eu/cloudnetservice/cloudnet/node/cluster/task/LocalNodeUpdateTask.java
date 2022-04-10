@@ -52,6 +52,7 @@ public record LocalNodeUpdateTask(@NonNull DefaultNodeServerProvider provider) i
           .toList();
         if (!targetNodes.isEmpty()) {
           var message = ChannelMessage.builder()
+            .sendSync(true) // ensure that we don't schedule too many updates while other are still waiting
             .message("update_node_info_snapshot")
             .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
             .buffer(DataBuf.empty().writeObject(localNode.nodeInfoSnapshot()))

@@ -86,6 +86,7 @@ public class RemoteNodeServer implements NodeServer {
   @Override
   public void shutdown() {
     ChannelMessage.builder()
+      .sendSync(true)
       .message("cluster_node_shutdown")
       .targetNode(this.info.uniqueId())
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
