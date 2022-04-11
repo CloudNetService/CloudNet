@@ -24,12 +24,24 @@ import java.net.SocketAddress;
 import java.net.UnixDomainSocketAddress;
 import lombok.NonNull;
 
+/**
+ * This host and port helper provides util methods to create a host and port from socket addresses.
+ *
+ * @since 4.0
+ */
 public final class BridgeHostAndPortUtil {
 
   private BridgeHostAndPortUtil() {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Parses a socket address to a new host and port.
+   *
+   * @param address the socket address to parse.
+   * @return the new host and port from the given socket address.
+   * @throws IllegalArgumentException if the socket address type is unsupported.
+   */
   public static @NonNull HostAndPort fromSocketAddress(@NonNull SocketAddress address) {
     // default java.net addresses are supported by default
     if (address instanceof InetSocketAddress || address instanceof UnixDomainSocketAddress) {

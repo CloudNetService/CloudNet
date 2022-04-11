@@ -26,8 +26,16 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.title.Title.Times;
 
+/**
+ * A serializer to write titles to a data buf.
+ *
+ * @since 4.0
+ */
 public final class TitleObjectSerializer implements ObjectSerializer<Title> {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void write(
     @NonNull DataBuf.Mutable dataBuf,
@@ -49,6 +57,9 @@ public final class TitleObjectSerializer implements ObjectSerializer<Title> {
     dataBuf.writeObject(object.subtitle());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull Object read(
     @NonNull DataBuf source,
