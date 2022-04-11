@@ -105,7 +105,7 @@ public final class ReportCommand {
 
     var response = pasteCreator.createNodePaste(selfNode);
     if (response == null) {
-      source.sendMessage(I18n.trans("module-report-command-paste-failed", pasteService.serviceUrl()));
+      source.sendMessage(I18n.trans("module-report-command-paste-failed", pasteCreator.pasteService().serviceUrl()));
     } else {
       source.sendMessage(I18n.trans("module-report-command-paste-success", response));
     }
@@ -122,7 +122,7 @@ public final class ReportCommand {
 
     var response = pasteCreator.createServicePaste(service);
     if (response == null) {
-      source.sendMessage(I18n.trans("module-report-command-paste-failed", pasteService.serviceUrl()));
+      source.sendMessage(I18n.trans("module-report-command-paste-failed", pasteCreator.pasteService().serviceUrl()));
     } else {
       source.sendMessage(I18n.trans("module-report-command-paste-success", response));
     }
