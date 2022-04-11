@@ -47,8 +47,8 @@ public final class CommandProviderTest {
     var node = NodeTestUtility.mockAndSetDriverInstance();
     Mockito.when(node.commandProvider()).thenReturn(COMMAND_PROVIDER);
     Mockito.when(node.eventManager()).thenReturn(new DefaultEventManager());
-    COMMAND_PROVIDER.register(new CommandTest());
-    COMMAND_PROVIDER.register(new CommandHelpTest());
+    COMMAND_PROVIDER.register(new TestCommand());
+    COMMAND_PROVIDER.register(new HelpTestCommand());
   }
 
   @Test
@@ -106,7 +106,7 @@ public final class CommandProviderTest {
     Assertions.assertEquals(0, COMMAND_PROVIDER.commands().size());
   }
 
-  public static final class CommandHelpTest {
+  public static final class HelpTestCommand {
 
     @CommandMethod("help")
     public void testHelpCommand(CommandSource source) {
@@ -115,7 +115,7 @@ public final class CommandProviderTest {
   }
 
   @CommandAlias("test1")
-  public static final class CommandTest {
+  public static final class TestCommand {
 
     @Suggestions("UserSuggestions")
     public List<String> suggestUsers(CommandContext<CommandSource> $, String input) {

@@ -57,9 +57,9 @@ import org.jetbrains.annotations.Nullable;
 @CommandAlias("module")
 @CommandPermission("cloudnet.commands.modules")
 @Description("Manages all available modules and loading new modules after the start")
-public final class CommandModules {
+public final class ModulesCommand {
 
-  private static final Logger LOGGER = LogManager.logger(CommandModules.class);
+  private static final Logger LOGGER = LogManager.logger(ModulesCommand.class);
 
   private static final RowBasedFormatter<ModuleWrapper> MODULES_FORMATTER = RowBasedFormatter.<ModuleWrapper>builder()
     .defaultFormatter(ColumnFormatter.builder()

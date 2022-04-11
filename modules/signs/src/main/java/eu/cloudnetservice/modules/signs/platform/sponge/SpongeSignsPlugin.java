@@ -23,7 +23,7 @@ import eu.cloudnetservice.modules.signs.GlobalChannelMessageListener;
 import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.platform.AbstractPlatformSignManagement;
 import eu.cloudnetservice.modules.signs.platform.SignsPlatformListener;
-import eu.cloudnetservice.modules.signs.platform.sponge.functionality.CommandSigns;
+import eu.cloudnetservice.modules.signs.platform.sponge.functionality.SignsCommand;
 import eu.cloudnetservice.modules.signs.platform.sponge.functionality.SignInteractListener;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
@@ -77,11 +77,11 @@ public class SpongeSignsPlugin {
         .shortDescription(Component.text("Management of the signs"))
         .permission("cloudnet.command.cloudsign")
         .addParameters(
-          Parameter.string().key(CommandSigns.ACTION).build(),
-          Parameter.string().key(CommandSigns.TARGET_GROUP).optional().build(),
-          Parameter.string().key(CommandSigns.TARGET_TEMPLATE).optional().build()
+          Parameter.string().key(SignsCommand.ACTION).build(),
+          Parameter.string().key(SignsCommand.TARGET_GROUP).optional().build(),
+          Parameter.string().key(SignsCommand.TARGET_TEMPLATE).optional().build()
         )
-        .executor(new CommandSigns(this.signManagement))
+        .executor(new SignsCommand(this.signManagement))
         .build(),
       "cloudsigns",
       "cs", "signs", "cloudsign");

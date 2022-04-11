@@ -62,9 +62,9 @@ import org.jetbrains.annotations.Nullable;
 @CommandAlias("ser")
 @CommandPermission("cloudnet.command.service")
 @Description("Manages all services in the cluster")
-public final class CommandService {
+public final class ServiceCommand {
 
-  private static final Logger LOGGER = LogManager.logger(CommandService.class);
+  private static final Logger LOGGER = LogManager.logger(ServiceCommand.class);
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
   // there are different ways to display the services
@@ -82,7 +82,7 @@ public final class CommandService {
     .column(service -> service.connected() ? "Connected" : "Not connected")
     .build();
 
-  public CommandService() {
+  public ServiceCommand() {
     Node.instance().eventManager().registerListener(this);
   }
 

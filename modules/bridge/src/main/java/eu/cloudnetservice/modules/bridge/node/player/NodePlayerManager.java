@@ -32,7 +32,7 @@ import eu.cloudnetservice.modules.bridge.event.BridgeProxyPlayerDisconnectEvent;
 import eu.cloudnetservice.modules.bridge.event.BridgeProxyPlayerLoginEvent;
 import eu.cloudnetservice.modules.bridge.event.BridgeUpdateCloudOfflinePlayerEvent;
 import eu.cloudnetservice.modules.bridge.event.BridgeUpdateCloudPlayerEvent;
-import eu.cloudnetservice.modules.bridge.node.command.CommandPlayers;
+import eu.cloudnetservice.modules.bridge.node.command.PlayersCommand;
 import eu.cloudnetservice.modules.bridge.node.listener.BridgeLocalProxyPlayerDisconnectListener;
 import eu.cloudnetservice.modules.bridge.node.network.NodePlayerChannelMessageListener;
 import eu.cloudnetservice.modules.bridge.player.CloudOfflinePlayer;
@@ -95,7 +95,7 @@ public class NodePlayerManager implements PlayerManager {
     eventManager.registerListener(new BridgeLocalProxyPlayerDisconnectListener(this));
     eventManager.registerListener(new NodePlayerChannelMessageListener(eventManager, this, bridgeManagement));
     // register the players command
-    Node.instance().commandProvider().register(new CommandPlayers(this));
+    Node.instance().commandProvider().register(new PlayersCommand(this));
     // register the rpc listeners
     providerFactory.newHandler(PlayerManager.class, this).registerToDefaultRegistry();
     providerFactory.newHandler(PlayerExecutor.class, null).registerToDefaultRegistry();

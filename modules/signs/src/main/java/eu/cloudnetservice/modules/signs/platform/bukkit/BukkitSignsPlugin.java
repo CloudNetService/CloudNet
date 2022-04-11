@@ -22,7 +22,7 @@ import eu.cloudnetservice.modules.signs.GlobalChannelMessageListener;
 import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
 import eu.cloudnetservice.modules.signs.platform.SignsPlatformListener;
-import eu.cloudnetservice.modules.signs.platform.bukkit.functionality.CommandSigns;
+import eu.cloudnetservice.modules.signs.platform.bukkit.functionality.SignsCommand;
 import eu.cloudnetservice.modules.signs.platform.bukkit.functionality.SignInteractListener;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Sign;
@@ -38,7 +38,7 @@ public class BukkitSignsPlugin extends JavaPlugin {
     // bukkit command
     var pluginCommand = this.getCommand("cloudsign");
     if (pluginCommand != null) {
-      var commandSigns = new CommandSigns(signManagement);
+      var commandSigns = new SignsCommand(signManagement);
       pluginCommand.setExecutor(commandSigns);
       pluginCommand.setTabCompleter(commandSigns);
     }

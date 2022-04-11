@@ -47,7 +47,7 @@ import org.jetbrains.annotations.Nullable;
 @CommandAlias("t")
 @CommandPermission("cloudnet.command.templates")
 @Description("Manages the templates and allows installation of application files")
-public final class CommandTemplate {
+public final class TemplateCommand {
 
   private static final RowBasedFormatter<ServiceTemplate> LIST_FORMATTER = RowBasedFormatter.<ServiceTemplate>builder()
     .defaultFormatter(ColumnFormatter.builder().columnTitles("Storage", "Prefix", "Name").build())

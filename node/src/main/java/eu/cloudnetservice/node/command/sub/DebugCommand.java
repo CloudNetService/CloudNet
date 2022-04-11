@@ -25,7 +25,7 @@ import java.util.logging.Level;
 
 @Description("Toggle the global debug mode")
 @CommandPermission("cloudnet.command.debug")
-public final class CommandDebug {
+public final class DebugCommand {
 
   @CommandMethod("debug")
   public void debug() {

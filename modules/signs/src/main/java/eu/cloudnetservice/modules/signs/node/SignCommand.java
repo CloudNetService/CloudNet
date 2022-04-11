@@ -14,19 +14,22 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.npc.node;
+package eu.cloudnetservice.modules.signs.node;
 
 import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
+import cloud.commandframework.annotations.Flag;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import eu.cloudnetservice.common.column.ColumnFormatter;
 import eu.cloudnetservice.common.column.RowBasedFormatter;
 import eu.cloudnetservice.common.language.I18n;
-import eu.cloudnetservice.modules.npc.NPCManagement;
-import eu.cloudnetservice.modules.npc.configuration.NPCConfigurationEntry;
+import eu.cloudnetservice.modules.signs.SignManagement;
+import eu.cloudnetservice.modules.signs.configuration.SignConfigurationEntry;
+import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
+import eu.cloudnetservice.modules.signs.node.configuration.SignConfigurationType;
 import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
@@ -36,21 +39,21 @@ import java.util.List;
 import java.util.Queue;
 import lombok.NonNull;
 
-@CommandAlias("npcs")
-@CommandPermission("cloudnet.command.npc")
-@Description("Create new npc configurations")
-public class CommandNPC {
+@CommandAlias("signs")
+@CommandPermission("cloudnet.command.sign")
+@Description("Create new sign configurations")
+public class SignCommand {
 
-  private static final RowBasedFormatter<NPCConfigurationEntry> ENTRY_LIST_FORMATTER = RowBasedFormatter.<NPCConfigurationEntry>
+  private static final RowBasedFormatter<SignConfigurationEntry> ENTRY_LIST_FORMATTER = RowBasedFormatter.<SignConfigurationEntry>
       builder()
     .defaultFormatter(ColumnFormatter.builder().columnTitles("targetGroup").build())
-    .column(NPCConfigurationEntry::targetGroup)
+    .column(SignConfigurationEntry::targetGroup)
     .build();
 
-  private final NPCManagement npcManagement;
+  private final SignManagement signManagement;
 
-  public CommandNPC(@NonNull NPCManagement npcManagement) {
-    this.npcManagement = npcManagement;
+  public SignCommand(@NonNull SignManagement signManagement) {
+    this.signManagement = signManagement;
   }
 
   @Parser(name = "newConfiguration", suggestions = "newConfiguration")
@@ -62,29 +65,38 @@ public class CommandNPC {
       throw new ArgumentNotAvailableException(I18n.trans("command-general-group-does-not-exist"));
     }
 
-    if (this.npcManagement.npcConfiguration().entries()
+    if (this.signManagement.signsConfiguration().entries()
       .stream()
       .anyMatch(entry -> entry.targetGroup().equalsIgnoreCase(name))) {
-      throw new ArgumentNotAvailableException(I18n.trans("module-npc-command-create-entry-group-already-exists"));
+      throw new ArgumentNotAvailableException(I18n.trans("module-sign-command-create-entry-group-already-exists"));
     }
     return name;
   }
 
   @Suggestions("newConfiguration")
   public List<String> suggestNewConfigurations(@NonNull CommandContext<CommandSource> $, @NonNull String input) {
-    return this.npcManagement.npcConfiguration().entries().stream().map(NPCConfigurationEntry::targetGroup).toList();
+    return this.signManagement.signsConfiguration().entries().stream().map(SignConfigurationEntry::targetGroup)
+      .toList();
   }
 
-  @CommandMethod("npc|npcs list|l")
+  @CommandMethod("sign|signs list|l")
   public void listConfiguration(@NonNull CommandSource source) {
-    source.sendMessage(ENTRY_LIST_FORMATTER.format(this.npcManagement.npcConfiguration().entries()));
+    source.sendMessage(ENTRY_LIST_FORMATTER.format(this.signManagement.signsConfiguration().entries()));
   }
 
-  @CommandMethod("npc|npcs create entry <targetGroup>")
-  public void createEntry(@NonNull CommandSource source, @NonNull @Argument("targetGroup") String targetGroup) {
-    var entry = NPCConfigurationEntry.builder().targetGroup(targetGroup).build();
-    this.npcManagement.npcConfiguration().entries().add(entry);
-    this.npcManagement.npcConfiguration(this.npcManagement.npcConfiguration());
-    source.sendMessage(I18n.trans("module-npc-command-create-entry-success"));
+  @CommandMethod("sign|signs create entry <targetGroup>")
+  public void createEntry(
+    @NonNull CommandSource source,
+    @NonNull @Argument("targetGroup") String targetGroup,
+    @Flag("nukkit") boolean nukkit
+  ) {
+    var entry = nukkit
+      ? SignConfigurationType.BEDROCK.createEntry(targetGroup)
+      : SignConfigurationType.JAVA.createEntry(targetGroup);
+    this.signManagement.signsConfiguration(SignsConfiguration.builder(this.signManagement.signsConfiguration())
+      .addEntry(entry)
+      .build());
+    source.sendMessage(I18n.trans("module-sign-command-create-entry-success"));
   }
+
 }

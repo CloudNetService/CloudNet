@@ -134,7 +134,7 @@ public class CloudNetNPCModule extends DriverModule {
       Node.instance().eventManager());
     management.registerToServiceRegistry();
     // register the npc module command
-    Node.instance().commandProvider().register(new CommandNPC(management));
+    Node.instance().commandProvider().register(new NPCCommand(management));
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)

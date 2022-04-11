@@ -26,7 +26,7 @@ import eu.cloudnetservice.modules.signs.GlobalChannelMessageListener;
 import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
 import eu.cloudnetservice.modules.signs.platform.SignsPlatformListener;
-import eu.cloudnetservice.modules.signs.platform.nukkit.functionality.CommandSigns;
+import eu.cloudnetservice.modules.signs.platform.nukkit.functionality.SignsCommand;
 import eu.cloudnetservice.modules.signs.platform.nukkit.functionality.SignInteractListener;
 
 public class NukkitSignsPlugin extends PluginBase {
@@ -39,7 +39,7 @@ public class NukkitSignsPlugin extends PluginBase {
     // command
     var pluginCommand = (PluginCommand<?>) this.getCommand("cloudsign");
     if (pluginCommand != null) {
-      pluginCommand.setExecutor(new CommandSigns(signManagement));
+      pluginCommand.setExecutor(new SignsCommand(signManagement));
     }
     // nukkit listeners
     Server.getInstance().getPluginManager().registerEvents(new SignInteractListener(signManagement), this);

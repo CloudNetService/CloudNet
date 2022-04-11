@@ -36,7 +36,7 @@ import lombok.NonNull;
 @CommandAlias({"ask", "?"})
 @CommandPermission("cloudnet.command.help")
 @Description("Shows all commands and their description")
-public final class CommandHelp {
+public final class HelpCommand {
 
   private static final RowBasedFormatter<CommandInfo> HELP_LIST_FORMATTER = RowBasedFormatter.<CommandInfo>builder()
     .defaultFormatter(ColumnFormatter.builder().columnTitles("Name(s)", "Description", "Permission").build())
@@ -47,7 +47,7 @@ public final class CommandHelp {
 
   private final CommandProvider commandProvider;
 
-  public CommandHelp(@NonNull CommandProvider commandProvider) {
+  public HelpCommand(@NonNull CommandProvider commandProvider) {
     this.commandProvider = commandProvider;
   }
 

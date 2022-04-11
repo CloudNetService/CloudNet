@@ -84,7 +84,7 @@ public class CloudNetSmartModule extends DriverModule {
       new CloudNetLocalServiceTaskListener(),
       new CloudNetLocalServiceListener(this));
 
-    Node.instance().commandProvider().register(new CommandSmart());
+    Node.instance().commandProvider().register(new SmartCommand());
   }
 
   public @Nullable SmartServiceTaskConfig smartConfig(@NonNull ServiceTask task) {

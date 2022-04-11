@@ -26,7 +26,7 @@ import eu.cloudnetservice.node.command.annotation.Description;
 @CommandAlias({"shutdown", "stop"})
 @CommandPermission("cloudnet.command.exit")
 @Description("Stops the program and all managed subprocesses")
-public final class CommandExit {
+public final class ExitCommand {
 
   @Confirmation
   @CommandMethod("exit|shutdown|stop")

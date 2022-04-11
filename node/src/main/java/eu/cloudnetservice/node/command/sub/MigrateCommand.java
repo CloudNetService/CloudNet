@@ -40,10 +40,10 @@ import lombok.NonNull;
 
 @CommandPermission("cloudnet.command.migrate")
 @Description("Migrate the database and other things that cloudnet uses")
-public final class CommandMigrate {
+public final class MigrateCommand {
 
   private static final int DEFAULT_CHUNK_SIZE = 100;
-  private static final Logger LOGGER = LogManager.logger(CommandMigrate.class);
+  private static final Logger LOGGER = LogManager.logger(MigrateCommand.class);
 
   @Parser(suggestions = "databaseProvider")
   public @NonNull AbstractDatabaseProvider defaultDatabaseProviderParser(

@@ -42,12 +42,12 @@ import lombok.NonNull;
 
 @CommandPermission("cloudnet.command.bridge")
 @Description("Management for the config of the bridge module")
-public class CommandBridge {
+public class BridgeCommand {
 
   private final BridgeManagement bridgeManagement;
   private final GroupConfigurationProvider groupConfigurationProvider;
 
-  public CommandBridge(@NonNull BridgeManagement bridgeManagement) {
+  public BridgeCommand(@NonNull BridgeManagement bridgeManagement) {
     this.bridgeManagement = bridgeManagement;
     this.groupConfigurationProvider = Node.instance().groupConfigurationProvider();
   }

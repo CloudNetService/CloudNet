@@ -34,7 +34,7 @@ import lombok.NonNull;
 @CommandAlias("info")
 @CommandPermission("cloudnet.command.me")
 @Description("Displays all important information about this process and the JVM")
-public final class CommandMe {
+public final class MeCommand {
 
   private static final Pattern UUID_REPLACE = Pattern.compile("-\\w{4}-");
   private static final String VM_NAME = System.getProperty("java.vm.name");

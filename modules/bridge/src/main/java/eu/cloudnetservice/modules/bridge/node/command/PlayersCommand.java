@@ -50,13 +50,13 @@ import org.jetbrains.annotations.Nullable;
 @CommandAlias({"pl", "player"})
 @CommandPermission("cloudnet.command.players")
 @Description("Management for online and offline cloud players")
-public class CommandPlayers {
+public class PlayersCommand {
 
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
   private final NodePlayerManager playerManager;
 
-  public CommandPlayers(@NonNull NodePlayerManager playerManager) {
+  public PlayersCommand(@NonNull NodePlayerManager playerManager) {
     this.playerManager = playerManager;
   }
 

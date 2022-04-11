@@ -32,22 +32,22 @@ import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.CommandExceptionHandler;
 import eu.cloudnetservice.node.command.source.CommandSource;
-import eu.cloudnetservice.node.command.sub.CommandClear;
-import eu.cloudnetservice.node.command.sub.CommandCluster;
-import eu.cloudnetservice.node.command.sub.CommandConfig;
-import eu.cloudnetservice.node.command.sub.CommandCreate;
-import eu.cloudnetservice.node.command.sub.CommandDebug;
-import eu.cloudnetservice.node.command.sub.CommandExit;
-import eu.cloudnetservice.node.command.sub.CommandGroups;
-import eu.cloudnetservice.node.command.sub.CommandHelp;
-import eu.cloudnetservice.node.command.sub.CommandMe;
-import eu.cloudnetservice.node.command.sub.CommandMigrate;
-import eu.cloudnetservice.node.command.sub.CommandModules;
-import eu.cloudnetservice.node.command.sub.CommandPermissions;
-import eu.cloudnetservice.node.command.sub.CommandService;
-import eu.cloudnetservice.node.command.sub.CommandTasks;
-import eu.cloudnetservice.node.command.sub.CommandTemplate;
-import eu.cloudnetservice.node.command.sub.CommandVersion;
+import eu.cloudnetservice.node.command.sub.ClearCommand;
+import eu.cloudnetservice.node.command.sub.ClusterCommand;
+import eu.cloudnetservice.node.command.sub.ConfigCommand;
+import eu.cloudnetservice.node.command.sub.CreateCommand;
+import eu.cloudnetservice.node.command.sub.DebugCommand;
+import eu.cloudnetservice.node.command.sub.ExitCommand;
+import eu.cloudnetservice.node.command.sub.GroupsCommand;
+import eu.cloudnetservice.node.command.sub.HelpCommand;
+import eu.cloudnetservice.node.command.sub.MeCommand;
+import eu.cloudnetservice.node.command.sub.MigrateCommand;
+import eu.cloudnetservice.node.command.sub.ModulesCommand;
+import eu.cloudnetservice.node.command.sub.PermissionsCommand;
+import eu.cloudnetservice.node.command.sub.ServiceCommand;
+import eu.cloudnetservice.node.command.sub.TasksCommand;
+import eu.cloudnetservice.node.command.sub.TemplateCommand;
+import eu.cloudnetservice.node.command.sub.VersionCommand;
 import eu.cloudnetservice.node.console.Console;
 import eu.cloudnetservice.node.console.handler.ConsoleInputHandler;
 import eu.cloudnetservice.node.console.handler.ConsoleTabCompleteHandler;
@@ -197,22 +197,22 @@ public class DefaultCommandProvider implements CommandProvider {
    */
   @Override
   public void registerDefaultCommands() {
-    this.register(new CommandTemplate());
-    this.register(new CommandVersion());
-    this.register(new CommandExit());
-    this.register(new CommandGroups());
-    this.register(new CommandTasks(this.console));
-    this.register(new CommandCreate());
-    this.register(new CommandMe());
-    this.register(new CommandService());
-    this.register(new CommandPermissions());
-    this.register(new CommandClear());
-    this.register(new CommandDebug());
-    this.register(new CommandMigrate());
-    this.register(new CommandCluster());
-    this.register(new CommandConfig());
-    this.register(new CommandModules());
-    this.register(new CommandHelp(this));
+    this.register(new TemplateCommand());
+    this.register(new VersionCommand());
+    this.register(new ExitCommand());
+    this.register(new GroupsCommand());
+    this.register(new TasksCommand(this.console));
+    this.register(new CreateCommand());
+    this.register(new MeCommand());
+    this.register(new ServiceCommand());
+    this.register(new PermissionsCommand());
+    this.register(new ClearCommand());
+    this.register(new DebugCommand());
+    this.register(new MigrateCommand());
+    this.register(new ClusterCommand());
+    this.register(new ConfigCommand());
+    this.register(new ModulesCommand());
+    this.register(new HelpCommand(this));
   }
 
   /**

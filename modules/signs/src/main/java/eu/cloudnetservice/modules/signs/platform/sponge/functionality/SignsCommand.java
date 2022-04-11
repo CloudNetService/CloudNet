@@ -34,7 +34,7 @@ import org.spongepowered.api.util.blockray.RayTrace;
 import org.spongepowered.api.util.blockray.RayTraceResult;
 import org.spongepowered.api.world.LocatableBlock;
 
-public class CommandSigns implements CommandExecutor {
+public class SignsCommand implements CommandExecutor {
 
   public static final Key<String> ACTION = Parameter.key("action", String.class);
   public static final Key<String> TARGET_GROUP = Parameter.key("target_group", String.class);
@@ -42,7 +42,7 @@ public class CommandSigns implements CommandExecutor {
 
   protected final PlatformSignManagement<Sign> signManagement;
 
-  public CommandSigns(@NonNull PlatformSignManagement<org.spongepowered.api.block.entity.Sign> signManagement) {
+  public SignsCommand(@NonNull PlatformSignManagement<org.spongepowered.api.block.entity.Sign> signManagement) {
     this.signManagement = signManagement;
   }
 

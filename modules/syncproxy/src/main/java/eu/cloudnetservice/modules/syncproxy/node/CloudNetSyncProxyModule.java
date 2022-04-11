@@ -22,7 +22,7 @@ import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyManagement;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyConfiguration;
-import eu.cloudnetservice.modules.syncproxy.node.command.CommandSyncProxy;
+import eu.cloudnetservice.modules.syncproxy.node.command.SyncProxyCommand;
 import eu.cloudnetservice.modules.syncproxy.node.listener.NodeSyncProxyChannelMessageListener;
 import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
@@ -82,7 +82,7 @@ public final class CloudNetSyncProxyModule extends DriverModule {
   @ModuleTask(order = 60, event = ModuleLifeCycle.LOADED)
   public void registerCommands() {
     // register the syncproxy command to provide config management
-    Node.instance().commandProvider().register(new CommandSyncProxy(this.nodeSyncProxyManagement));
+    Node.instance().commandProvider().register(new SyncProxyCommand(this.nodeSyncProxyManagement));
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)

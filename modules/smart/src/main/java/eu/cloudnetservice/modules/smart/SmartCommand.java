@@ -39,7 +39,7 @@ import lombok.NonNull;
 
 @CommandPermission("cloudnet.command.smart")
 @Description("Administration for the smart config of each task")
-public class CommandSmart {
+public class SmartCommand {
 
   @Parser(name = "smartTask", suggestions = "smartTask")
   public @NonNull ServiceTask smartTaskParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {

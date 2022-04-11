@@ -43,11 +43,11 @@ import lombok.NonNull;
 @CommandAlias("sp")
 @CommandPermission("cloudnet.command.syncproxy")
 @Description("")
-public final class CommandSyncProxy {
+public final class SyncProxyCommand {
 
   private final NodeSyncProxyManagement syncProxyManagement;
 
-  public CommandSyncProxy(@NonNull NodeSyncProxyManagement syncProxyManagement) {
+  public SyncProxyCommand(@NonNull NodeSyncProxyManagement syncProxyManagement) {
     this.syncProxyManagement = syncProxyManagement;
   }
 

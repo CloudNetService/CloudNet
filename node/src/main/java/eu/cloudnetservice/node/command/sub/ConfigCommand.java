@@ -37,7 +37,7 @@ import lombok.NonNull;
 
 @Description("")
 @CommandPermission("cloudnet.command.config")
-public final class CommandConfig {
+public final class ConfigCommand {
 
   @Parser(name = "ip")
   public @NonNull String ipParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {

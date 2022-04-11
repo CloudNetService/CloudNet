@@ -59,9 +59,9 @@ import lombok.NonNull;
 @CommandAlias("clu")
 @CommandPermission("cloudnet.command.cluster")
 @Description("Manages the cluster and provides information about it")
-public final class CommandCluster {
+public final class ClusterCommand {
 
-  private static final Logger LOGGER = LogManager.logger(CommandCluster.class);
+  private static final Logger LOGGER = LogManager.logger(ClusterCommand.class);
   private static final DateFormat DEFAULT_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
   private static final RowBasedFormatter<NodeServer> FORMATTER = RowBasedFormatter.<NodeServer>builder()
     .defaultFormatter(ColumnFormatter.builder().columnTitles("Name", "State", "Listeners", "Extra").build())

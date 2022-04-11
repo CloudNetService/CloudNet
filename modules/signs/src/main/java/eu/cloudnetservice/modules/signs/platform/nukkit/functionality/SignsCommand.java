@@ -24,11 +24,11 @@ import cn.nukkit.command.CommandSender;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
 
-public class CommandSigns implements CommandExecutor {
+public class SignsCommand implements CommandExecutor {
 
   private final PlatformSignManagement<BlockEntitySign> signManagement;
 
-  public CommandSigns(PlatformSignManagement<BlockEntitySign> signManagement) {
+  public SignsCommand(PlatformSignManagement<BlockEntitySign> signManagement) {
     this.signManagement = signManagement;
   }
 

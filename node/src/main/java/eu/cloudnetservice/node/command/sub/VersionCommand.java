@@ -58,7 +58,7 @@ import org.jetbrains.annotations.Nullable;
 @CommandAlias("v")
 @CommandPermission("cloudnet.command.version")
 @Description("Manage service versions in templates or on static services")
-public final class CommandVersion {
+public final class VersionCommand {
 
   private static final RowBasedFormatter<Pair<ServiceVersionType, ServiceVersion>> VERSIONS =
     RowBasedFormatter.<Pair<ServiceVersionType, ServiceVersion>>builder()

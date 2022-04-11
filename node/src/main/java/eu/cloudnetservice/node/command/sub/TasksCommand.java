@@ -66,7 +66,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandPermission("cloudnet.command.tasks")
 @Description("Administers the configurations of all persistent tasks")
-public final class CommandTasks {
+public final class TasksCommand {
 
   // Task Setup ASCII
   private static final ConsoleSetupAnimation TASK_SETUP = new ConsoleSetupAnimation(
@@ -93,7 +93,7 @@ public final class CommandTasks {
 
   private final Console console;
 
-  public CommandTasks(@NonNull Console console) {
+  public TasksCommand(@NonNull Console console) {
     this.console = console;
   }
 

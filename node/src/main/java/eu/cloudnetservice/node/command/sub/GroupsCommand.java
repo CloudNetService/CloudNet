@@ -48,7 +48,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandPermission("cloudnet.command.groups")
 @Description("Administers the configurations of all persistent groups")
-public final class CommandGroups {
+public final class GroupsCommand {
 
   @Parser(suggestions = "groupConfiguration")
   public @NonNull GroupConfiguration defaultGroupParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
@@ -110,7 +110,7 @@ public final class CommandGroups {
     messages.add("Name: " + group.name());
     messages.add("Environments:" + Arrays.toString(group.targetEnvironments().toArray()));
 
-    CommandTasks.applyServiceConfigurationDisplay(messages, group);
+    TasksCommand.applyServiceConfigurationDisplay(messages, group);
     source.sendMessage(messages);
   }
 

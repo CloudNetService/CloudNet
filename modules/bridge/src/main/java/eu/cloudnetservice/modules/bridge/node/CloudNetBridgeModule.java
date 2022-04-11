@@ -32,7 +32,7 @@ import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.config.BridgeConfiguration;
 import eu.cloudnetservice.modules.bridge.config.ProxyFallbackConfiguration;
-import eu.cloudnetservice.modules.bridge.node.command.CommandBridge;
+import eu.cloudnetservice.modules.bridge.node.command.BridgeCommand;
 import eu.cloudnetservice.modules.bridge.node.http.V2HttpHandlerBridge;
 import eu.cloudnetservice.modules.bridge.rpc.ComponentObjectSerializer;
 import eu.cloudnetservice.modules.bridge.rpc.TitleObjectSerializer;
@@ -183,7 +183,7 @@ public final class CloudNetBridgeModule extends DriverModule {
   @ModuleTask(event = ModuleLifeCycle.STARTED)
   public void registerCommand() {
     // register the bridge command
-    Node.instance().commandProvider().register(new CommandBridge(ServiceRegistry.first(BridgeManagement.class)));
+    Node.instance().commandProvider().register(new BridgeCommand(ServiceRegistry.first(BridgeManagement.class)));
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)

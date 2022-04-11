@@ -32,11 +32,11 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class CommandSigns extends BaseTabExecutor {
+public class SignsCommand extends BaseTabExecutor {
 
   protected final PlatformSignManagement<Sign> signManagement;
 
-  public CommandSigns(PlatformSignManagement<org.bukkit.block.Sign> signManagement) {
+  public SignsCommand(PlatformSignManagement<org.bukkit.block.Sign> signManagement) {
     this.signManagement = signManagement;
   }
 
