@@ -45,7 +45,7 @@ public final class DefaultFileHandler extends FileHandler {
    * @param append  if the handler should append to the selected log file.
    * @throws IOException              if an I/O error occurs while opening the log files.
    * @throws NullPointerException     if the given naming pattern is null.
-   * @throws IllegalArgumentException if pattern is empty, limit < 0 or count < 1.
+   * @throws IllegalArgumentException if pattern is empty, limit &lt; 0 or count &lt; 1.
    */
   private DefaultFileHandler(@NonNull String pattern, int limit, int count, boolean append) throws IOException {
     super(pattern, limit, count, append);
@@ -63,7 +63,7 @@ public final class DefaultFileHandler extends FileHandler {
    * @return the created file handler.
    * @throws IllegalStateException    if an I/O error occurs while opening the log files.
    * @throws NullPointerException     if the given naming pattern is null.
-   * @throws IllegalArgumentException if pattern is empty, limit < 0 or count < 1.
+   * @throws IllegalArgumentException if pattern is empty, limit &lt; 0 or count &lt; 1.
    */
   public static @NonNull DefaultFileHandler newInstance(@NonNull String pattern, boolean append) {
     return DefaultFileHandler.newInstance(pattern, DEFAULT_LIMIT, DEFAULT_COUNT, append);
@@ -79,7 +79,7 @@ public final class DefaultFileHandler extends FileHandler {
    * @return the created file handler.
    * @throws IllegalStateException    if an I/O error occurs while opening the log files.
    * @throws NullPointerException     if the given naming pattern is null.
-   * @throws IllegalArgumentException if pattern is empty, limit < 0 or count < 1.
+   * @throws IllegalArgumentException if pattern is empty, limit &lt; 0 or count &lt; 1.
    */
   public static @NonNull DefaultFileHandler newInstance(@NonNull String pattern, int limit, int count, boolean append) {
     return DefaultFileHandler.newInstance(Path.of(pattern), limit, count, append);
@@ -94,7 +94,7 @@ public final class DefaultFileHandler extends FileHandler {
    * @return the created file handler.
    * @throws IllegalStateException    if an I/O error occurs while opening the log files.
    * @throws NullPointerException     if the given naming pattern is null.
-   * @throws IllegalArgumentException if pattern is empty, limit < 0 or count < 1.
+   * @throws IllegalArgumentException if pattern is empty, limit &lt; 0 or count &lt; 1.
    */
   public static @NonNull DefaultFileHandler newInstance(@NonNull Path pattern, boolean append) {
     return DefaultFileHandler.newInstance(pattern, DEFAULT_LIMIT, DEFAULT_COUNT, append);
@@ -110,7 +110,7 @@ public final class DefaultFileHandler extends FileHandler {
    * @return the created file handler.
    * @throws IllegalStateException    if an I/O error occurs while opening the log files.
    * @throws NullPointerException     if the given naming pattern is null.
-   * @throws IllegalArgumentException if pattern is empty, limit < 0 or count < 1.
+   * @throws IllegalArgumentException if pattern is empty, limit &lt; 0 or count &lt; 1.
    */
   public static @NonNull DefaultFileHandler newInstance(@NonNull Path pattern, int limit, int count, boolean append) {
     try {

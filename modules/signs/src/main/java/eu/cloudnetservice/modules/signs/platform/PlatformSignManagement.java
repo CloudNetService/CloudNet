@@ -47,7 +47,9 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
   public static final String SIGN_GET_SIGNS_BY_GROUPS = "signs_get_signs_by_groups";
 
   /**
-   * {@inheritDoc}
+   * Constructs a new platform sign management.
+   *
+   * @param signsConfiguration the sign configuration to use.
    */
   protected PlatformSignManagement(SignsConfiguration signsConfiguration) {
     super(signsConfiguration);

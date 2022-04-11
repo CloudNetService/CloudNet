@@ -85,8 +85,7 @@ public enum PermissionCheckResult {
   }
 
   /**
-   * Returns the check result as a boolean. {@code ALLOWED} results in true, {@code DENIED} & {@code FORBIDDEN} in
-   * false.
+   * Returns the check result as a boolean indicating whether the permission should be granted or not.
    *
    * @return the result as boolean.
    */

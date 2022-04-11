@@ -132,7 +132,7 @@ subprojects {
     options.encoding = "UTF-8"
     options.memberLevel = JavadocMemberLevel.PRIVATE
     options.addStringOption("-html5")
-    options.addBooleanOption("Xdoclint:none", true) // TODO: enable when we're done with javadocs
+    options.addBooleanOption("Xdoclint:-missing", true)
   }
 
   // all these projects are publishing their java artifacts
@@ -149,7 +149,7 @@ tasks.register("globalJavaDoc", Javadoc::class) {
   options.windowTitle = "CloudNet JavaDocs"
   options.memberLevel = JavadocMemberLevel.PRIVATE
   options.addStringOption("-html5")
-  options.addBooleanOption("Xdoclint:none", true) // TODO: enable when we're done with javadocs
+  options.addBooleanOption("Xdoclint:-missing", true)
   // set the sources
   val sources = subprojects.filter { it.plugins.hasPlugin("java") }.map { it.path }
   source(files(sources.flatMap { project(it).sourceSets()["main"].allJava }))
