@@ -43,10 +43,10 @@ public final class CreateCommand {
     @NonNull @Argument("task") ServiceTask task,
     @Argument("amount") @Range(min = "1") int amount,
     @Flag("start") boolean startService,
-    @Flag("id") Integer id,
-    @Flag(value = "javaCommand", parserName = "javaCommand") Pair<String, JavaVersion> javaCommand,
-    @Flag("node") String nodeId,
-    @Flag("memory") Integer memory
+    @Nullable @Flag("id") Integer id,
+    @Nullable @Flag(value = "javaCommand", parserName = "javaCommand") Pair<String, JavaVersion> javaCommand,
+    @Nullable @Flag("node") String nodeId,
+    @Nullable @Flag("memory") Integer memory
   ) {
     var configurationBuilder = ServiceConfiguration.builder(task);
     if (id != null) {

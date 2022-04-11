@@ -55,6 +55,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 @CommandAlias("clu")
 @CommandPermission("cloudnet.command.cluster")
@@ -230,7 +231,7 @@ public final class ClusterCommand {
   }
 
   @CommandMethod("cluster|clu push templates [template]")
-  public void pushTemplates(@NonNull CommandSource source, @Argument("template") ServiceTemplate template) {
+  public void pushTemplates(@NonNull CommandSource source, @Nullable @Argument("template") ServiceTemplate template) {
     // check if we need to push all templates or just a specific one
     if (template == null) {
       var localStorage = Node.instance().templateStorageProvider().localTemplateStorage();
@@ -247,7 +248,7 @@ public final class ClusterCommand {
   @CommandMethod("cluster|clu push staticServices [service]")
   public void pushStaticServices(
     @NonNull CommandSource source,
-    @Argument(value = "service", parserName = "staticService") String service,
+    @Nullable @Argument(value = "service", parserName = "staticService") String service,
     @Flag("overwrite") boolean overwrite
   ) {
     var staticServicePath = Node.instance().cloudServiceProvider().persistentServicesDirectory();

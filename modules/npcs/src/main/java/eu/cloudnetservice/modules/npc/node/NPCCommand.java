@@ -54,7 +54,10 @@ public class NPCCommand {
   }
 
   @Parser(name = "newConfiguration", suggestions = "newConfiguration")
-  public String newConfigurationParser(@NonNull CommandContext<CommandSource> $, @NonNull Queue<String> input) {
+  public @NonNull String newConfigurationParser(
+    @NonNull CommandContext<CommandSource> $,
+    @NonNull Queue<String> input
+  ) {
     var name = input.remove();
     var configuration = Node.instance().groupConfigurationProvider()
       .groupConfiguration(name);
@@ -71,7 +74,10 @@ public class NPCCommand {
   }
 
   @Suggestions("newConfiguration")
-  public List<String> suggestNewConfigurations(@NonNull CommandContext<CommandSource> $, @NonNull String input) {
+  public @NonNull List<String> suggestNewConfigurations(
+    @NonNull CommandContext<CommandSource> $,
+    @NonNull String input
+  ) {
     return this.npcManagement.npcConfiguration().entries().stream().map(NPCConfigurationEntry::targetGroup).toList();
   }
 

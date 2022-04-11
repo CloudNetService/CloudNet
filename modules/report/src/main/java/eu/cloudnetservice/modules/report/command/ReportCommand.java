@@ -57,12 +57,15 @@ public final class ReportCommand {
 
   private final CloudNetReportModule reportModule;
 
-  public ReportCommand(CloudNetReportModule reportModule) {
+  public ReportCommand(@NonNull CloudNetReportModule reportModule) {
     this.reportModule = reportModule;
   }
 
   @Parser(suggestions = "pasteService")
-  public PasteService defaultPasteServiceParser(CommandContext<CommandSource> $, Queue<String> input) {
+  public @NonNull PasteService defaultPasteServiceParser(
+    @NonNull CommandContext<CommandSource> $,
+    @NonNull Queue<String> input
+  ) {
     var name = input.remove();
     return this.reportModule.reportConfiguration().pasteServers()
       .stream()
@@ -73,7 +76,7 @@ public final class ReportCommand {
   }
 
   @Suggestions("pasteService")
-  public List<String> suggestPasteService(CommandContext<CommandSource> $, String input) {
+  public @NonNull List<String> suggestPasteService(@NonNull CommandContext<CommandSource> $, @NonNull String input) {
     return this.reportModule.reportConfiguration().pasteServers()
       .stream()
       .map(Nameable::name)
@@ -81,7 +84,10 @@ public final class ReportCommand {
   }
 
   @Parser(suggestions = "cloudService")
-  public CloudService singleServiceParser(CommandContext<CommandSource> $, Queue<String> input) {
+  public @NonNull CloudService singleServiceParser(
+    @NonNull CommandContext<CommandSource> $,
+    @NonNull Queue<String> input
+  ) {
     var name = input.remove();
     var cloudService = Node.instance().cloudServiceProvider().localCloudService(name);
     if (cloudService == null) {
@@ -91,7 +97,7 @@ public final class ReportCommand {
   }
 
   @Suggestions("cloudService")
-  public List<String> suggestService(CommandContext<CommandSource> $, String input) {
+  public @NonNull List<String> suggestService(@NonNull CommandContext<CommandSource> $, @NonNull String input) {
     return Node.instance().cloudServiceProvider().localCloudServices()
       .stream()
       .map(service -> service.serviceId().name())
@@ -99,7 +105,7 @@ public final class ReportCommand {
   }
 
   @CommandMethod("report|paste node [pasteService]")
-  public void pasteNode(CommandSource source, @Argument("pasteService") PasteService pasteService) {
+  public void pasteNode(@NonNull CommandSource source, @Nullable @Argument("pasteService") PasteService pasteService) {
     var pasteCreator = new PasteCreator(this.fallbackPasteService(pasteService), this.reportModule.emitterRegistry());
     var selfNode = Node.instance().nodeServerProvider().localNode().nodeInfoSnapshot();
 
@@ -113,9 +119,9 @@ public final class ReportCommand {
 
   @CommandMethod("report|paste service <service> [pasteService]")
   public void pasteServices(
-    CommandSource source,
-    @Argument("pasteService") PasteService pasteService,
-    @Argument("service") CloudService service
+    @NonNull CommandSource source,
+    @NonNull @Argument("service") CloudService service,
+    @Nullable @Argument("pasteService") PasteService pasteService
   ) {
     var pasteCreator = new PasteCreator(this.fallbackPasteService(pasteService),
       this.reportModule.emitterRegistry());
@@ -129,7 +135,7 @@ public final class ReportCommand {
   }
 
   @CommandMethod("report|paste thread-dump")
-  public void reportThreadDump(CommandSource source) {
+  public void reportThreadDump(@NonNull CommandSource source) {
     var file = this.reportModule.currentRecordDirectory().resolve(System.currentTimeMillis() + "-threaddump.txt");
 
     if (this.createThreadDump(file)) {
@@ -141,7 +147,7 @@ public final class ReportCommand {
   }
 
   @CommandMethod("report|paste heap-dump")
-  public void reportHeapDump(CommandSource source, @Flag("live") boolean live) {
+  public void reportHeapDump(@NonNull CommandSource source, @Flag("live") boolean live) {
     var file = this.reportModule.currentRecordDirectory().resolve(System.currentTimeMillis() + "-heapdump.hprof");
 
     if (this.createHeapDump(file, live)) {
@@ -187,8 +193,6 @@ public final class ReportCommand {
     if (service != null) {
       return service;
     }
-
     return Iterables.getFirst(this.reportModule.reportConfiguration().pasteServers(), PasteService.FALLBACK);
   }
-
 }

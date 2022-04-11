@@ -61,7 +61,10 @@ public class PlayersCommand {
   }
 
   @Parser(suggestions = "onlinePlayers")
-  public CloudPlayer defaultCloudPlayerParser(CommandContext<?> $, Queue<String> input) {
+  public @NonNull CloudPlayer defaultCloudPlayerParser(
+    @NonNull CommandContext<?> $,
+    @NonNull Queue<String> input
+  ) {
     var identifier = input.remove();
     CloudPlayer player;
 
@@ -81,14 +84,17 @@ public class PlayersCommand {
   }
 
   @Suggestions("onlinePlayers")
-  public List<String> suggestOnlinePlayers(CommandContext<?> $, String input) {
+  public @NonNull List<String> suggestOnlinePlayers(@NonNull CommandContext<?> $, @NonNull String input) {
     return this.playerManager.players().values().stream()
       .map(Nameable::name)
       .toList();
   }
 
   @Parser(suggestions = "playerService")
-  public ServiceInfoSnapshot playerServiceParser(CommandContext<CommandSource> $, Queue<String> input) {
+  public @NonNull ServiceInfoSnapshot playerServiceParser(
+    @NonNull CommandContext<CommandSource> $,
+    @NonNull Queue<String> input
+  ) {
     var name = input.remove();
     var serviceInfoSnapshot = Node.instance().cloudServiceProvider()
       .serviceByName(name);
@@ -99,7 +105,7 @@ public class PlayersCommand {
   }
 
   @Suggestions("playerService")
-  public List<String> suggestPlayerService(CommandContext<CommandSource> $, String input) {
+  public @NonNull List<String> suggestPlayerService(@NonNull CommandContext<CommandSource> $, @NonNull String input) {
     return Node.instance().cloudServiceProvider().services()
       .stream()
       .filter(snapshot -> ServiceEnvironmentType.minecraftServer(snapshot.serviceId().environment()))
@@ -108,7 +114,10 @@ public class PlayersCommand {
   }
 
   @Parser(name = "offlinePlayer")
-  public CloudOfflinePlayer defaultCloudOfflinePlayerParser(CommandContext<?> $, Queue<String> input) {
+  public @NonNull CloudOfflinePlayer defaultCloudOfflinePlayerParser(
+    @NonNull CommandContext<?> $,
+    @NonNull Queue<String> input
+  ) {
     var identifier = input.remove();
     CloudOfflinePlayer player;
 
