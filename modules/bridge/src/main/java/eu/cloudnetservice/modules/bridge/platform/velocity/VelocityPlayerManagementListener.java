@@ -108,10 +108,10 @@ public final class VelocityPlayerManagementListener {
           var curServer = event.getPlayer().getCurrentServer().map(ServerConnection::getServerInfo).orElse(null);
           if (event.kickedDuringServerConnect() && curServer != null && curServer.equals(server.getServerInfo())) {
             // send the player a nice message - velocity will keep the connection to the current server
-            return Notify.create(this.getReasonComponent(event));
+            return Notify.create(this.reasonComponent(event));
           } else {
             // send the player a reason message
-            event.getPlayer().sendMessage(Identity.nil(), this.getReasonComponent(event));
+            event.getPlayer().sendMessage(Identity.nil(), this.reasonComponent(event));
             // redirect the player to the next available hub server
             return RedirectPlayer.create(server);
           }
@@ -159,7 +159,7 @@ public final class VelocityPlayerManagementListener {
     this.management.removeFallbackProfile(event.getPlayer());
   }
 
-  private @NonNull Component getReasonComponent(@NonNull KickedFromServerEvent event) {
+  private @NonNull Component reasonComponent(@NonNull KickedFromServerEvent event) {
     var playerLocale = event.getPlayer().getEffectiveLocale();
     var message = event.getServerKickReason().orElse(null);
     // use the current result if it is Notify - velocity already created a friendly reason for us
