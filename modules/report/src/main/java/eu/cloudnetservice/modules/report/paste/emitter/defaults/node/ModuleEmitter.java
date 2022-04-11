@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.modules.report.paste.emitter.defaults.node;
 
-import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import eu.cloudnetservice.modules.report.paste.emitter.ReportDataEmitter;
@@ -36,9 +35,7 @@ public class ModuleEmitter implements ReportDataEmitter<NetworkClusterNodeInfoSn
       builder
         .append(" - Module ")
         .append(module.module().name())
-        .append(" loaded.\n\n")
-        .append(JsonDocument.newDocument(module.moduleConfiguration()).toPrettyJson())
-        .append("\n");
+        .append(" loaded.\n\n");
       if (!module.moduleConfiguration().storesSensitiveData()) {
         builder.append("Configuration: \n")
           .append(((DriverModule) module.module()).readConfig().toPrettyJson())

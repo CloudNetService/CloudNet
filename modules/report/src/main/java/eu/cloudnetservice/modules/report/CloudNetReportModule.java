@@ -29,9 +29,9 @@ import eu.cloudnetservice.modules.report.listener.RecordReportListener;
 import eu.cloudnetservice.modules.report.paste.emitter.EmitterRegistry;
 import eu.cloudnetservice.modules.report.paste.emitter.defaults.node.ConsoleLogEmitter;
 import eu.cloudnetservice.modules.report.paste.emitter.defaults.node.ModuleEmitter;
-import eu.cloudnetservice.modules.report.paste.emitter.defaults.node.NodeAllocationEmitter;
 import eu.cloudnetservice.modules.report.paste.emitter.defaults.node.NodeConfigurationEmitter;
 import eu.cloudnetservice.modules.report.paste.emitter.defaults.node.NodeSnapshotEmitter;
+import eu.cloudnetservice.modules.report.paste.emitter.defaults.node.NodeStateEmitter;
 import eu.cloudnetservice.modules.report.paste.emitter.defaults.service.ServiceInfoSnapshotEmitter;
 import eu.cloudnetservice.modules.report.paste.emitter.defaults.service.ServiceLogEmitter;
 import eu.cloudnetservice.modules.report.paste.emitter.defaults.service.ServiceOverviewEmitter;
@@ -45,7 +45,6 @@ import lombok.NonNull;
 
 public final class CloudNetReportModule extends DriverModule {
 
-  private Path recordDirectory;
   private EmitterRegistry registry;
   private ReportConfiguration configuration;
 
@@ -77,7 +76,7 @@ public final class CloudNetReportModule extends DriverModule {
       .registerDataEmitter(CloudService.class, new ServiceTaskEmitter());
     // register all emitters that are used for the Node report
     this.registry.registerDataEmitter(NetworkClusterNodeInfoSnapshot.class, new ConsoleLogEmitter())
-      .registerDataEmitter(NetworkClusterNodeInfoSnapshot.class, new NodeAllocationEmitter())
+      .registerDataEmitter(NetworkClusterNodeInfoSnapshot.class, new NodeStateEmitter())
       .registerDataEmitter(NetworkClusterNodeInfoSnapshot.class, new NodeSnapshotEmitter())
       .registerDataEmitter(NetworkClusterNodeInfoSnapshot.class, new NodeConfigurationEmitter())
       .registerDataEmitter(NetworkClusterNodeInfoSnapshot.class, new ModuleEmitter());
@@ -107,7 +106,7 @@ public final class CloudNetReportModule extends DriverModule {
     var dir = this.moduleWrapper.dataDirectory().resolve(this.configuration.recordDestination()).resolve(date);
     // create the directory if it does not yet exist
     FileUtil.createDirectory(dir);
-    return this.recordDirectory = dir;
+    return dir;
   }
 
   private void reloadConfiguration() {

@@ -19,10 +19,12 @@ package eu.cloudnetservice.modules.report.paste.emitter.defaults.node;
 import eu.cloudnetservice.common.unsafe.CPUUsageResolver;
 import eu.cloudnetservice.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import eu.cloudnetservice.modules.report.paste.emitter.ReportDataEmitter;
+import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.command.sub.ClusterCommand;
 import java.lang.management.ManagementFactory;
 import lombok.NonNull;
 
-public class NodeAllocationEmitter implements ReportDataEmitter<NetworkClusterNodeInfoSnapshot> {
+public class NodeStateEmitter implements ReportDataEmitter<NetworkClusterNodeInfoSnapshot> {
 
   @Override
   public void emitData(@NonNull StringBuilder builder, @NonNull NetworkClusterNodeInfoSnapshot context) {
@@ -47,6 +49,12 @@ public class NodeAllocationEmitter implements ReportDataEmitter<NetworkClusterNo
       .append('/')
       .append(memoryMXBean.getHeapMemoryUsage().getMax() / (1024 * 1024))
       .append("MB")
-      .append("\n\n");
+      .append("\n")
+      .append("Cluster:")
+      .append("\n");
+    for (var line : ClusterCommand.FORMATTER.format(Node.instance().nodeServerProvider().nodeServers())) {
+      builder.append(line).append("\n");
+    }
+    builder.append("\n");
   }
 }
