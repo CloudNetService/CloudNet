@@ -235,11 +235,16 @@ public final class JsonConfiguration implements Configuration {
     if (this.restConfiguration == null) {
       this.restConfiguration = ConfigurationUtil.get(
         "cloudnet.config.accessControlConfiguration",
-        new RestConfiguration("*", "*", "Content-Encoding", 3600),
+        new RestConfiguration("*", "*", "Content-Encoding", 3600, 60),
         value -> {
           var parts = value.split(";");
-          if (parts.length == 4) {
-            return new RestConfiguration(parts[0], parts[1], parts[2], Integer.parseInt(parts[3]));
+          if (parts.length == 5) {
+            return new RestConfiguration(
+              parts[0],
+              parts[1],
+              parts[2],
+              Integer.parseInt(parts[3]),
+              Integer.parseInt(parts[4]));
           }
           // unable to parse
           return null;

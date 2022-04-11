@@ -22,7 +22,8 @@ public record RestConfiguration(
   @NonNull String corsPolicy,
   @NonNull String allowedHeaders,
   @NonNull String exposedHeaders,
-  int accessControlMaxAge
+  int accessControlMaxAge,
+  int jwtValidTimeMinutes
 ) {
 
 }

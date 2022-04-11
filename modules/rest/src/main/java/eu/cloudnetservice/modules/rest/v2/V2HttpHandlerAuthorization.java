@@ -41,7 +41,9 @@ public class V2HttpHandlerAuthorization extends V2HttpHandler {
 
   @Override
   protected void handleBasicAuthorized(@NonNull String path, @NonNull HttpContext con, @NonNull PermissionUser user) {
-    var jwt = this.authentication.createJwt(user, TimeUnit.HOURS.toMillis(1)); // todo: configurable
+    var jwt = this.authentication.createJwt(
+      user,
+      TimeUnit.MINUTES.toMillis(this.restConfiguration.jwtValidTimeMinutes()));
     this.ok(con)
       .body(this.success().append("token", jwt).append("id", user.uniqueId()).toString())
       .context()
