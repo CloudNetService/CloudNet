@@ -28,6 +28,7 @@ import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.cluster.LocalNodeServer;
 import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.task.LocalNodeUpdateTask;
@@ -61,7 +62,7 @@ public class DefaultNodeServerProvider implements NodeServerProvider {
     this.node = node;
     this.nodeServers = new HashSet<>();
     // create and register the local node server
-    this.localNode = new LocalNodeServer(node, this);
+    this.localNode = new DefaultLocalNodeServer(node, this);
     this.nodeServers.add(this.localNode);
 
     // start all update tasks

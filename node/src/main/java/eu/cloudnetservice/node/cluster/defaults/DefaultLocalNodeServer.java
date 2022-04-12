@@ -26,7 +26,7 @@ import eu.cloudnetservice.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.driver.service.ProcessSnapshot;
 import eu.cloudnetservice.node.Node;
-import eu.cloudnetservice.node.cluster.NodeServer;
+import eu.cloudnetservice.node.cluster.LocalNodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
 import eu.cloudnetservice.node.command.source.DriverCommandSource;
@@ -39,7 +39,7 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
-public class LocalNodeServer implements NodeServer {
+public class DefaultLocalNodeServer implements LocalNodeServer {
 
   private final Node node;
   private final NodeServerProvider provider;
@@ -55,7 +55,7 @@ public class LocalNodeServer implements NodeServer {
   private volatile NetworkClusterNodeInfoSnapshot currentSnapshot;
   private volatile NetworkClusterNodeInfoSnapshot lastSnapshot;
 
-  public LocalNodeServer(@NonNull Node node, @NonNull NodeServerProvider provider) {
+  public DefaultLocalNodeServer(@NonNull Node node, @NonNull NodeServerProvider provider) {
     this.node = node;
     this.provider = provider;
   }
@@ -179,6 +179,7 @@ public class LocalNodeServer implements NodeServer {
     this.shutdown();
   }
 
+  @Override
   public void updateLocalSnapshot() {
     var snapshot = new NetworkClusterNodeInfoSnapshot(
       System.currentTimeMillis(),

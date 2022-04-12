@@ -39,7 +39,7 @@ public interface NodeServerProvider extends PacketSender, Closeable {
 
   @NonNull NodeServer headNode();
 
-  @NonNull NodeServer localNode();
+  @NonNull LocalNodeServer localNode();
 
   @Nullable NodeServer node(@NonNull String uniqueId);
 
