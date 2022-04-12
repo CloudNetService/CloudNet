@@ -22,10 +22,7 @@ var cloudnet.updateRepo CloudNetService/launchermeta
 # branches are:
 #  - 'release':     Always contains the latest release version. This is the best version you can choose for a network
 #                   running in production.
-#  - 'pre-release': Contains the newest features of the system which are partly tested and out for community testing.
-#                   These features might still be broken but shouldn't break your network. Changes to these features are
-#                   still possible and your configuration you did might break when the feature gets out of testing.
-#  - 'beta':        All bleeding edge but newest features of the system. DO NOT USE IN PRODUCTION. Your network is not
+#  - 'nightly':     All bleeding edge but newest features of the system. DO NOT USE IN PRODUCTION. Your network is not
 #                   safe and something might break. Good for testing purposes or developers which want to use the latest
 #                   features available. (Use this branch at your own risk!)
 var cloudnet.updateBranch release
