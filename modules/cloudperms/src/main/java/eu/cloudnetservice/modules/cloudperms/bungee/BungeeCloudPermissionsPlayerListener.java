@@ -59,8 +59,8 @@ public final class BungeeCloudPermissionsPlayerListener implements Listener {
   @EventHandler
   public void handle(@NonNull PermissionCheckEvent event) {
     CommandSender sender = event.getSender();
-    if (sender instanceof ProxiedPlayer) {
-      UUID uniqueId = ((ProxiedPlayer) sender).getUniqueId(); // must not be set ¯\_(ツ)_/¯
+    if (sender instanceof ProxiedPlayer player) {
+      UUID uniqueId = player.getUniqueId(); // must not be set ¯\_(ツ)_/¯
       if (uniqueId != null) {
         var permissionUser = this.permissionsManagement.user(uniqueId);
         if (permissionUser != null) {

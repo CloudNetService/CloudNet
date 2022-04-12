@@ -64,9 +64,9 @@ public final class BukkitFunctionalityListener implements Listener {
 
   @EventHandler(ignoreCancelled = true)
   public void handle(@NonNull EntityDamageByEntityEvent event) {
-    if (event.getDamager() instanceof Player) {
+    if (event.getDamager() instanceof Player damager) {
       this.handleClick(
-        (Player) event.getDamager(),
+        damager,
         event,
         event.getEntity().getEntityId(),
         true);
@@ -121,7 +121,7 @@ public final class BukkitFunctionalityListener implements Listener {
   }
 
   private void handleClick(@NonNull Player player, @Nullable Cancellable cancellable, int entityId, boolean left) {
-    management.trackedEntities().values().stream()
+    this.management.trackedEntities().values().stream()
       .filter(npc -> npc.entityId() == entityId)
       .findFirst()
       .ifPresent(entity -> {
