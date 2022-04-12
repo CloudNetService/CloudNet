@@ -77,7 +77,7 @@ public final class PermissionsCommand {
     return permissionUser;
   }
 
-  @Parser
+  @Parser(suggestions = "permissionGroup")
   public @NonNull PermissionGroup defaultPermissionGroupParser(
     @NonNull CommandContext<?> $,
     @NonNull Queue<String> input
@@ -252,12 +252,12 @@ public final class PermissionsCommand {
   public void removeGroupFromUser(
     @NonNull CommandSource source,
     @NonNull @Argument("user") PermissionUser permissionUser,
-    @NonNull @Argument("group") PermissionGroup permissionGroup
+    @NonNull @Argument(value = "group", suggestions = "permissionGroup") @Quoted String permissionGroup
   ) {
-    this.updateUserDirect(permissionUser, user -> user.removeGroup(permissionGroup.name()));
+    this.updateUserDirect(permissionUser, user -> user.removeGroup(permissionGroup));
     source.sendMessage(I18n.trans("command-permissions-user-remove-group-successful",
       permissionUser.name(),
-      permissionGroup.name()));
+      permissionGroup));
   }
 
   @CommandMethod("permissions|perms group")
@@ -395,11 +395,11 @@ public final class PermissionsCommand {
   public void removeInheritGroup(
     @NonNull CommandSource source,
     @NonNull @Argument("group") PermissionGroup permissionGroup,
-    @NonNull @Argument("name") PermissionGroup targetGroup
+    @NonNull @Argument(value = "name", suggestions = "permissionGroup") @Quoted String targetGroup
   ) {
-    this.updateGroupDirect(permissionGroup, group -> group.groupNames().remove(targetGroup.name()));
+    this.updateGroupDirect(permissionGroup, group -> group.groupNames().remove(targetGroup));
     source.sendMessage(I18n.trans("command-permissions-group-remove-group-successful",
-      targetGroup.name(),
+      targetGroup,
       permissionGroup.name()));
   }
 
