@@ -589,15 +589,6 @@ public abstract class AbstractService implements CloudService {
     var firstStartup = Files.notExists(this.serviceDirectory);
     FileUtil.createDirectory(this.serviceDirectory);
     FileUtil.createDirectory(this.pluginDirectory);
-    // write the configuration file for the service
-    var listener = this.selectConnectListener(this.nodeConfiguration().identity().listeners());
-    JsonDocument.newDocument()
-      .append("targetListener", listener)
-      .append("connectionKey", this.connectionKey())
-      .append("serviceInfoSnapshot", this.currentServiceInfo)
-      .append("serviceConfiguration", this.serviceConfiguration())
-      .append("sslConfiguration", this.nodeConfiguration().serverSSLConfig())
-      .write(this.serviceDirectory.resolve(WRAPPER_CONFIG_PATH));
     // load the ssl configuration if enabled
     var sslConfiguration = this.nodeConfiguration().serverSSLConfig();
     if (sslConfiguration.enabled()) {
@@ -613,6 +604,15 @@ public abstract class AbstractService implements CloudService {
     this.includeWaitingServiceTemplates(firstStartup);
     // update the service configuration
     this.serviceConfigurationPreparer.configure(this.nodeInstance, this);
+    // write the configuration file for the service
+    var listener = this.selectConnectListener(this.nodeConfiguration().identity().listeners());
+    JsonDocument.newDocument()
+      .append("targetListener", listener)
+      .append("connectionKey", this.connectionKey())
+      .append("serviceInfoSnapshot", this.currentServiceInfo)
+      .append("serviceConfiguration", this.serviceConfiguration())
+      .append("sslConfiguration", this.nodeConfiguration().serverSSLConfig())
+      .write(this.serviceDirectory.resolve(WRAPPER_CONFIG_PATH));
   }
 
   protected @NonNull HostAndPort selectConnectListener(@NonNull List<HostAndPort> listeners) {

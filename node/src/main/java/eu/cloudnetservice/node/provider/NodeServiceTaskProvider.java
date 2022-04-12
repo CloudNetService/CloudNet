@@ -162,8 +162,15 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
   protected void loadServiceTasks() {
     FileUtil.walkFileTree(TASKS_DIRECTORY, ($, file) -> {
+      var document = JsonDocument.newDocument(file);
+
+      // TODO: remove in 4.1
+      // check if the task has a name splitter
+      if (!document.contains("nameSplitter")) {
+        document.append("nameSplitter", "-");
+      }
       // load the service task
-      var task = JsonDocument.newDocument(file).toInstanceOf(ServiceTask.class);
+      var task = document.toInstanceOf(ServiceTask.class);
       // check if the file name is still up-to-date
       var taskName = file.getFileName().toString().replace(".json", "");
       if (!taskName.equals(task.name())) {

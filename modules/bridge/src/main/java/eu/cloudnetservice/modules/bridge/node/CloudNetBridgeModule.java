@@ -113,7 +113,7 @@ public final class CloudNetBridgeModule extends DriverModule {
             var networkService = lastProxyInfo.getDocument("networkService");
 
             // rewrite the name of the environment
-            JsonDocument serviceId = networkService.getDocument("serviceId");
+            var serviceId = networkService.getDocument("serviceId");
             var environment = serviceId.getString("environment", "");
             serviceId.append("environmentName", environment);
             // try to set the new environment
@@ -121,6 +121,8 @@ public final class CloudNetBridgeModule extends DriverModule {
               .getEnvironmentType(environment)
               .orElse(null);
             serviceId.append("environment", env);
+            // rewrite the name splitter of the task
+            serviceId.append("nameSplitter", "-");
 
             // rewrite smaller changes
             lastProxyInfo.remove("legacy");
