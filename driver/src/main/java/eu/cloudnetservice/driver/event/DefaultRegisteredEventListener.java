@@ -55,7 +55,7 @@ record DefaultRegisteredEventListener(
   }
 
   @Override
-  public @NonNull EventPriority priority() {
-    return this.eventListener.priority();
+  public @NonNull InvocationOrder order() {
+    return this.eventListener.order();
   }
 }

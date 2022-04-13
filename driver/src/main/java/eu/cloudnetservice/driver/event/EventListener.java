@@ -54,14 +54,15 @@ public @interface EventListener {
    * <p>
    * First priority to the last executed:
    * <ol>
-   *   <li>LOWEST
-   *   <li>LOW
+   *   <li>FIRST
+   *   <li>EARLY
    *   <li>NORMAL
-   *   <li>HIGH
-   *   <li>HIGHEST
+   *   <li>LATE
+   *   <li>LAST
+   *   <li>MONITOR
    * </ol>
    *
    * @return the priority of the listener.
    */
-  EventPriority priority() default EventPriority.NORMAL;
+  InvocationOrder order() default InvocationOrder.NORMAL;
 }

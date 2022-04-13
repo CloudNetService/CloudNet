@@ -57,13 +57,13 @@ public class DefaultEventManagerTest {
 
     var iterator = eventManager.listeners.get(TestEvent.class).iterator();
 
-    Assertions.assertEquals(EventPriority.LOW, iterator.next().priority());
-    Assertions.assertEquals(EventPriority.LOW, iterator.next().priority());
-    Assertions.assertEquals(EventPriority.HIGH, iterator.next().priority());
+    Assertions.assertEquals(InvocationOrder.EARLY, iterator.next().order());
+    Assertions.assertEquals(InvocationOrder.EARLY, iterator.next().order());
+    Assertions.assertEquals(InvocationOrder.LATE, iterator.next().order());
 
     Assertions.assertEquals(
-      EventPriority.NORMAL,
-      Iterables.getOnlyElement(eventManager.listeners.get(CloudServiceLifecycleChangeEvent.class)).priority());
+      InvocationOrder.NORMAL,
+      Iterables.getOnlyElement(eventManager.listeners.get(CloudServiceLifecycleChangeEvent.class)).order());
 
     Assertions.assertEquals("*",
       eventManager.listeners.get(TestEvent.class).iterator().next().channel());
@@ -113,21 +113,21 @@ public class DefaultEventManagerTest {
 
     private static final TestListener INSTANCE = new TestListener();
 
-    @EventListener(priority = EventPriority.HIGH)
+    @EventListener(order = InvocationOrder.LATE)
     public void listenerA(TestEvent event) {
       Assertions.assertEquals(2, event.counter);
       Assertions.assertEquals(4567, event.number);
       event.number = 5678;
     }
 
-    @EventListener(priority = EventPriority.LOW)
+    @EventListener(order = InvocationOrder.EARLY)
     public void listenerB(TestEvent event) {
       Assertions.assertTrue(event.counter == 0 || event.counter == 1);
       event.counter++;
       event.number = 4567;
     }
 
-    @EventListener(priority = EventPriority.LOW)
+    @EventListener(order = InvocationOrder.EARLY)
     public void listenerC(TestEvent event) {
       Assertions.assertTrue(event.counter == 0 || event.counter == 1);
       event.counter++;
