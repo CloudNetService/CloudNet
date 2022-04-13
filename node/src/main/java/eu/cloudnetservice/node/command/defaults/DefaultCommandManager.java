@@ -38,6 +38,7 @@ final class DefaultCommandManager extends CommandManager<CommandSource> {
     super(AsynchronousCommandExecutionCoordinator.<CommandSource>newBuilder()
         .withExecutor(Executors.newFixedThreadPool(4)).build(),
       CommandRegistrationHandler.nullCommandRegistrationHandler());
+    this.setCaptionRegistry(new I18nCaptionRegistry());
   }
 
   /**

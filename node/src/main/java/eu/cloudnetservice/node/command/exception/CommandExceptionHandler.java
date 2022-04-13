@@ -20,11 +20,13 @@ import cloud.commandframework.arguments.CommandArgument;
 import cloud.commandframework.arguments.compound.FlagArgument;
 import cloud.commandframework.arguments.compound.FlagArgument.FlagParseException;
 import cloud.commandframework.arguments.preprocessor.RegexPreprocessor;
+import cloud.commandframework.captions.CaptionRegistry;
 import cloud.commandframework.exceptions.ArgumentParseException;
 import cloud.commandframework.exceptions.InvalidCommandSenderException;
 import cloud.commandframework.exceptions.InvalidSyntaxException;
 import cloud.commandframework.exceptions.NoPermissionException;
 import cloud.commandframework.exceptions.NoSuchCommandException;
+import cloud.commandframework.exceptions.parsing.ParserException;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
@@ -65,9 +67,14 @@ public class CommandExceptionHandler {
   protected static final Logger LOGGER = LogManager.logger(CommandExceptionHandler.class);
 
   private final DefaultCommandProvider commandProvider;
+  private final CaptionRegistry<CommandSource> registry;
 
-  public CommandExceptionHandler(DefaultCommandProvider commandProvider) {
+  public CommandExceptionHandler(
+    @NonNull DefaultCommandProvider commandProvider,
+    @NonNull CaptionRegistry<CommandSource> registry
+  ) {
     this.commandProvider = commandProvider;
+    this.registry = registry;
   }
 
   /**
@@ -101,10 +108,10 @@ public class CommandExceptionHandler {
       var deepCause = cause.getCause();
       if (deepCause instanceof ArgumentNotAvailableException argumentNotAvailableException) {
         this.handleArgumentNotAvailableException(source, argumentNotAvailableException);
-      } else if (deepCause instanceof FlagArgument.FlagParseException flagParseException) {
-        this.handleFlagParseException(source, flagParseException);
       } else if (deepCause instanceof RegexPreprocessor.RegexValidationException regexException) {
         this.handleRegexValidationException(source, regexException);
+      } else if (deepCause instanceof ParserException parserException) {
+        LOGGER.info(parserException.getMessage());
       } else {
         this.handleArgumentParseException(source, argumentParseException);
       }
@@ -118,13 +125,6 @@ public class CommandExceptionHandler {
     @NonNull ArgumentParseException exception
   ) {
     LOGGER.severe("Exception during command argument parsing", exception);
-  }
-
-  protected void handleFlagParseException(
-    @NonNull CommandSource source,
-    @NonNull FlagParseException flagParseException
-  ) {
-    // we just ignore this as we can't really handle this due to cloud
   }
 
   protected void handleRegexValidationException(

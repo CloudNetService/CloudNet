@@ -18,6 +18,8 @@ package eu.cloudnetservice.node.command.defaults;
 
 import cloud.commandframework.CommandManager;
 import cloud.commandframework.annotations.AnnotationParser;
+import cloud.commandframework.captions.FactoryDelegatingCaptionRegistry;
+import cloud.commandframework.captions.StandardCaptionKeys;
 import cloud.commandframework.extra.confirmation.CommandConfirmationManager;
 import cloud.commandframework.meta.CommandMeta.Key;
 import cloud.commandframework.meta.SimpleCommandMeta;
@@ -109,7 +111,7 @@ public class DefaultCommandProvider implements CommandProvider {
     this.commandManager.setCommandSuggestionProcessor(new DefaultSuggestionProcessor(this));
     // register the command confirmation handling
     this.registerCommandConfirmation();
-    this.exceptionHandler = new CommandExceptionHandler(this);
+    this.exceptionHandler = new CommandExceptionHandler(this, this.commandManager.getCaptionRegistry());
   }
 
   /**
