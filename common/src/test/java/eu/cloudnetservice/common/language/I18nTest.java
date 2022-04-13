@@ -18,6 +18,7 @@ package eu.cloudnetservice.common.language;
 
 import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.io.FileUtil;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 import org.junit.jupiter.api.Assertions;
@@ -51,7 +52,8 @@ public class I18nTest {
 
   @Test
   void testMessageFormatting() {
-    var directory = Path.of("../node/src/main/resources/lang");
+    var directory = Path.of("node/src/main/resources/lang");
+    Assertions.assertTrue(Files.exists(directory));
     // walk the lang directory and try to parse all translations to check if there are no unclosed formatting characters
     FileUtil.walkFileTree(
       directory,
