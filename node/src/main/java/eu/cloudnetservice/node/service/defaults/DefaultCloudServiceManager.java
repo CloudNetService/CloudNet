@@ -288,7 +288,7 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
   @Override
   public @NonNull @UnmodifiableView Collection<CloudService> localCloudServices() {
     return this.knownServices.values().stream()
-      .filter(provider -> provider instanceof CloudService) // -> ICloudService => local service
+      .filter(provider -> provider instanceof CloudService) // -> CloudService => local service
       .map(provider -> (CloudService) provider)
       .toList();
   }
