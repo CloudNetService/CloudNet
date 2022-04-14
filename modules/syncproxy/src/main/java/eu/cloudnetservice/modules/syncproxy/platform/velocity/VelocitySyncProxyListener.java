@@ -17,6 +17,7 @@
 package eu.cloudnetservice.modules.syncproxy.platform.velocity;
 
 import static eu.cloudnetservice.ext.adventure.AdventureSerializerUtil.serialize;
+import static eu.cloudnetservice.ext.adventure.AdventureSerializerUtil.serializeToString;
 
 import com.velocitypowered.api.event.ResultedEvent.ComponentResult;
 import com.velocitypowered.api.event.Subscribe;
@@ -26,9 +27,9 @@ import com.velocitypowered.api.proxy.server.ServerPing;
 import com.velocitypowered.api.proxy.server.ServerPing.SamplePlayer;
 import com.velocitypowered.api.proxy.server.ServerPing.Version;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.UUID;
 import lombok.NonNull;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public final class VelocitySyncProxyListener {
 
@@ -62,7 +63,7 @@ public final class VelocitySyncProxyListener {
       var version = event.getPing().getVersion();
       // check if a protocol text is specified in the config
       if (protocolText != null) {
-        version = new Version(1, protocolText);
+        version = new Version(1, serializeToString(protocolText));
       }
 
       var builder = ServerPing.builder()
@@ -72,12 +73,12 @@ public final class VelocitySyncProxyListener {
         // map the playerInfo from the config to ServerPing.SamplePlayer to display other information
         .samplePlayers(motd.playerInfo() != null ?
           Arrays.stream(motd.playerInfo())
+            .filter(Objects::nonNull)
             .map(s -> new SamplePlayer(
               s.replace("&", "§"),
               UUID.randomUUID()
             )).toArray(SamplePlayer[]::new) : new SamplePlayer[0])
-        .description(PlainTextComponentSerializer.plainText()
-          .deserialize(motd.format(motd.firstLine() + "\n" + motd.secondLine(), onlinePlayers, maxPlayers)));
+        .description(serialize(motd.format(motd.firstLine() + "\n" + motd.secondLine(), onlinePlayers, maxPlayers)));
 
       event.getPing().getFavicon().ifPresent(builder::favicon);
       event.getPing().getModinfo().ifPresent(builder::mods);

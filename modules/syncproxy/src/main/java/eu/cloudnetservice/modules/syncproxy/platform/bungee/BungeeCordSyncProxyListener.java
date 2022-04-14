@@ -16,17 +16,18 @@
 
 package eu.cloudnetservice.modules.syncproxy.platform.bungee;
 
+import static net.md_5.bungee.api.ChatColor.translateAlternateColorCodes;
+
 import eu.cloudnetservice.modules.bridge.platform.bungeecord.PendingConnectionProxiedPlayer;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.UUID;
 import lombok.NonNull;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.ServerPing.PlayerInfo;
 import net.md_5.bungee.api.ServerPing.Players;
 import net.md_5.bungee.api.ServerPing.Protocol;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.ProxyPingEvent;
 import net.md_5.bungee.api.plugin.Listener;
@@ -66,17 +67,20 @@ public final class BungeeCordSyncProxyListener implements Listener {
       var protocolText = motd.format(motd.protocolText(), onlinePlayers, maxPlayers);
       // check if there is a protocol text in the config
       if (protocolText != null) {
-        response.setVersion(new Protocol(protocolText, 1));
+        response.setVersion(new Protocol(translateAlternateColorCodes('&', protocolText), 1));
       }
 
       // map the playerInfo from the config to ServerPing.Players to display other information
-      var players = new Players(maxPlayers, onlinePlayers,
-        Arrays.stream(motd.playerInfo()).map(s -> new PlayerInfo(s.replace("&", "§"),
-          UUID.randomUUID())).toArray(PlayerInfo[]::new));
+      var players = new Players(maxPlayers, onlinePlayers, motd.playerInfo() != null ?
+        Arrays.stream(motd.playerInfo())
+          .filter(Objects::nonNull)
+          .map(s ->
+            new PlayerInfo(translateAlternateColorCodes('&', s),
+              UUID.randomUUID())).toArray(PlayerInfo[]::new) : new PlayerInfo[0]);
 
       response.setPlayers(players);
       response.setDescriptionComponent(new TextComponent(TextComponent.fromLegacyText(
-        motd.format(ChatColor.translateAlternateColorCodes('&', motd.firstLine() + "\n" + motd.secondLine()),
+        motd.format(translateAlternateColorCodes('&', motd.firstLine() + "\n" + motd.secondLine()),
           onlinePlayers, maxPlayers))));
 
       event.setResponse(response);
@@ -90,7 +94,7 @@ public final class BungeeCordSyncProxyListener implements Listener {
       return;
     }
 
-    ProxiedPlayer player = new PendingConnectionProxiedPlayer(event.getConnection());
+    var player = new PendingConnectionProxiedPlayer(event.getConnection());
 
     if (loginConfiguration.maintenance()) {
       // the player is either whitelisted or has the permission to join during maintenance, ignore him

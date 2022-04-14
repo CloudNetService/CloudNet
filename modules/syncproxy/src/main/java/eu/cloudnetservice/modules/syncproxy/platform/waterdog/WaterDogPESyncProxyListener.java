@@ -19,9 +19,12 @@ package eu.cloudnetservice.modules.syncproxy.platform.waterdog;
 import dev.waterdog.waterdogpe.ProxyServer;
 import dev.waterdog.waterdogpe.event.defaults.PlayerLoginEvent;
 import dev.waterdog.waterdogpe.event.defaults.ProxyPingEvent;
+import java.util.function.Function;
 import lombok.NonNull;
 
 public final class WaterDogPESyncProxyListener {
+
+  private static final Function<String, String> REPLACER = s -> s.replace('&', '§');
 
   private final WaterDogPESyncProxyManagement syncProxyManagement;
 
@@ -59,8 +62,8 @@ public final class WaterDogPESyncProxyListener {
       event.setMaximumPlayerCount(maxPlayers);
 
       // bedrock has just to lines that are separated  from each other
-      var mainMotd = motd.format(motd.firstLine(), onlinePlayers, maxPlayers);
-      var subMotd = motd.format(motd.secondLine(), onlinePlayers, maxPlayers);
+      var mainMotd = motd.format(motd.firstLine(), onlinePlayers, maxPlayers).replace('&', '§');
+      var subMotd = motd.format(motd.secondLine(), onlinePlayers, maxPlayers).replace('&', '§');
 
       event.setMotd(mainMotd);
       event.setSubMotd(subMotd);
@@ -79,8 +82,7 @@ public final class WaterDogPESyncProxyListener {
       if (this.syncProxyManagement.checkPlayerMaintenance(proxiedPlayer)) {
         return;
       }
-      event.setCancelReason(
-        this.syncProxyManagement.configuration().message("player-login-not-whitelisted", null));
+      event.setCancelReason(this.syncProxyManagement.configuration().message("player-login-not-whitelisted", REPLACER));
       event.setCancelled(true);
 
       return;
@@ -88,7 +90,7 @@ public final class WaterDogPESyncProxyListener {
     // check if the proxy is full and if the player is allowed to join or not
     if (this.syncProxyManagement.onlinePlayerCount() >= loginConfiguration.maxPlayers()
       && !proxiedPlayer.hasPermission("cloudnet.syncproxy.fulljoin")) {
-      event.setCancelReason(this.syncProxyManagement.configuration().message("player-login-full-server", null));
+      event.setCancelReason(this.syncProxyManagement.configuration().message("player-login-full-server", REPLACER));
       event.setCancelled(true);
     }
   }

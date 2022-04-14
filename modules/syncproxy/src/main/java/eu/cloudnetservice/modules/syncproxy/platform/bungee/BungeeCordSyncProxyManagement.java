@@ -94,7 +94,7 @@ public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManage
     return player.hasPermission(permission);
   }
 
-  @Nullable BaseComponent[] asComponent(@Nullable String message) {
+  public @Nullable BaseComponent[] asComponent(@Nullable String message) {
     if (message == null) {
       return null;
     }

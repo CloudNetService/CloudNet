@@ -112,7 +112,7 @@ public final class VelocitySyncProxyManagement extends PlatformSyncProxyManageme
     return AdventureSerializerUtil.serialize(message);
   }
 
-  private String replaceTabPlaceholder(@NonNull String input, @NonNull Player player) {
+  private @NonNull String replaceTabPlaceholder(@NonNull String input, @NonNull Player player) {
     var server = player.getCurrentServer()
       .map(serverConnection -> serverConnection.getServerInfo().getName())
       .orElse("UNAVAILABLE");
