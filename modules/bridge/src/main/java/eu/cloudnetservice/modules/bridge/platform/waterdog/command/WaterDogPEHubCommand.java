@@ -16,12 +16,13 @@
 
 package eu.cloudnetservice.modules.bridge.platform.waterdog.command;
 
+import static eu.cloudnetservice.ext.adventure.AdventureSerializerUtil.serializeToString;
+
 import dev.waterdog.waterdogpe.ProxyServer;
 import dev.waterdog.waterdogpe.command.Command;
 import dev.waterdog.waterdogpe.command.CommandSender;
 import dev.waterdog.waterdogpe.command.CommandSettings;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
-import dev.waterdog.waterdogpe.utils.types.TextContainer;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import java.util.Locale;
 import lombok.NonNull;
@@ -44,7 +45,7 @@ public final class WaterDogPEHubCommand extends Command {
     if (sender instanceof ProxiedPlayer player) {
       // check if the player is on a fallback already
       if (this.management.isOnAnyFallbackInstance(player)) {
-        player.sendMessage(new TextContainer(this.management.configuration().message(
+        player.sendMessage(serializeToString(this.management.configuration().message(
           Locale.ENGLISH,
           "command-hub-already-in-hub")));
       } else {
@@ -55,7 +56,7 @@ public final class WaterDogPEHubCommand extends Command {
         // check if a fallback was found
         if (hub != null) {
           player.connect(hub);
-          player.sendMessage(new TextContainer(this.management.configuration().message(
+          player.sendMessage(serializeToString(this.management.configuration().message(
             Locale.ENGLISH,
             "command-hub-success-connect"
           ).replace("%server%", hub.getServerName())));

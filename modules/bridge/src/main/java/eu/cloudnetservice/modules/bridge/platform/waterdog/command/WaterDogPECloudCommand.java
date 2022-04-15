@@ -16,15 +16,17 @@
 
 package eu.cloudnetservice.modules.bridge.platform.waterdog.command;
 
+import static eu.cloudnetservice.ext.adventure.AdventureSerializerUtil.serializeToString;
+
 import dev.waterdog.waterdogpe.command.Command;
 import dev.waterdog.waterdogpe.command.CommandSender;
 import dev.waterdog.waterdogpe.command.CommandSettings;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
-import dev.waterdog.waterdogpe.utils.types.TextContainer;
 import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import java.util.Locale;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class WaterDogPECloudCommand extends Command {
 
@@ -39,11 +41,11 @@ public final class WaterDogPECloudCommand extends Command {
   }
 
   @Override
-  public boolean onExecute(@NonNull CommandSender sender, @NonNull String alias, String @NonNull [] args) {
+  public boolean onExecute(@NonNull CommandSender sender, @Nullable String alias, String @NonNull [] args) {
     // check if any arguments are provided
     if (args.length == 0) {
       // <prefix> /cloudnet <command>
-      sender.sendMessage(new TextContainer(this.management.configuration().prefix() + "/cloudnet <command>"));
+      sender.sendMessage(serializeToString(this.management.configuration().prefix() + "/cloudnet <command>"));
       return true;
     }
     // get the full command line
@@ -55,7 +57,7 @@ public final class WaterDogPECloudCommand extends Command {
       // check if the sender has the required permission to execute the command
       if (command != null) {
         if (!sender.hasPermission(command.permission())) {
-          sender.sendMessage(new TextContainer(this.management.configuration().message(
+          sender.sendMessage(serializeToString(this.management.configuration().message(
             Locale.ENGLISH,
             "command-cloud-sub-command-no-permission"
           ).replace("%command%", command.name())));
@@ -66,7 +68,7 @@ public final class WaterDogPECloudCommand extends Command {
     // execute the command
     CloudNetDriver.instance().clusterNodeProvider().sendCommandLineAsync(commandLine).thenAccept(messages -> {
       for (var line : messages) {
-        sender.sendMessage(new TextContainer(this.management.configuration().prefix() + line));
+        sender.sendMessage(serializeToString(this.management.configuration().prefix() + line));
       }
     });
     return true;

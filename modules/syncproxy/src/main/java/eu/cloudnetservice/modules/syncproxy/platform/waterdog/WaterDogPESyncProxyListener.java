@@ -50,10 +50,9 @@ public final class WaterDogPESyncProxyListener {
     // only display a motd if there is one in the config
     if (motd != null) {
       var onlinePlayers = this.syncProxyManagement.onlinePlayerCount();
-      int maxPlayers;
-
       event.setPlayerCount(onlinePlayers);
 
+      int maxPlayers;
       if (motd.autoSlot()) {
         maxPlayers = Math.min(loginConfiguration.maxPlayers(), onlinePlayers + motd.autoSlotMaxPlayersDistance());
       } else {

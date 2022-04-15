@@ -16,11 +16,11 @@
 
 package eu.cloudnetservice.modules.bridge.platform.waterdog;
 
+import static eu.cloudnetservice.ext.adventure.AdventureSerializerUtil.serializeToString;
 import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
 
 import dev.waterdog.waterdogpe.ProxyServer;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
-import dev.waterdog.waterdogpe.utils.types.TextContainer;
 import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.PlatformPlayerExecutorAdapter;
@@ -97,19 +97,19 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
 
   @Override
   public void kick(@NonNull Component message) {
-    this.forEach(player -> player.disconnect(new TextContainer(legacySection().serialize(message))));
+    this.forEach(player -> player.disconnect(serializeToString(legacySection().serialize(message))));
   }
 
   @Override
   public void sendMessage(@NonNull Component message) {
-    this.forEach(player -> player.sendMessage(new TextContainer(legacySection().serialize(message))));
+    this.forEach(player -> player.sendMessage(serializeToString(legacySection().serialize(message))));
   }
 
   @Override
   public void sendChatMessage(@NonNull Component message, @Nullable String permission) {
     this.forEach(player -> {
       if (permission == null || player.hasPermission(permission)) {
-        player.sendMessage(new TextContainer(legacySection().serialize(message)));
+        player.sendMessage(serializeToString(legacySection().serialize(message)));
       }
     });
   }

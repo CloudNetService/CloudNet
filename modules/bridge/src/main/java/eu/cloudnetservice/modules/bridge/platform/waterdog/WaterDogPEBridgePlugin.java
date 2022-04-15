@@ -35,7 +35,7 @@ public final class WaterDogPEBridgePlugin extends Plugin {
     management.registerServices(Wrapper.instance().serviceRegistry());
     management.postInit();
     // register the listeners (registered during the instance creation due to the weird event system)
-    new WaterDogPEPlayerManagementListener(management);
+    new WaterDogPEPlayerManagementListener(this.getProxy(), management);
     // register the WaterDog handlers
     var handlers = new WaterDogPEHandlers(management);
     ProxyServer.getInstance().setReconnectHandler(handlers);

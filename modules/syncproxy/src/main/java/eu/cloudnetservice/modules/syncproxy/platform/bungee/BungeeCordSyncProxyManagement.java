@@ -82,11 +82,9 @@ public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManage
 
   @Override
   public void messagePlayer(@NonNull ProxiedPlayer player, @Nullable String message) {
-    if (message == null) {
-      return;
+    if (message != null) {
+      player.sendMessage(this.asComponent(message));
     }
-
-    player.sendMessage(this.asComponent(message));
   }
 
   @Override
@@ -95,11 +93,11 @@ public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManage
   }
 
   public @Nullable BaseComponent[] asComponent(@Nullable String message) {
-    if (message == null) {
+    if (message != null) {
+      return TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', message));
+    } else {
       return null;
     }
-
-    return TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', message));
   }
 
   private @Nullable String replaceTabPlaceholder(@Nullable String input, @NonNull ProxiedPlayer player) {
