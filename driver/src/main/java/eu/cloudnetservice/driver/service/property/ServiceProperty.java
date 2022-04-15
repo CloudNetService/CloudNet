@@ -46,7 +46,7 @@ import org.jetbrains.annotations.Nullable;
  * <pre>
  * {@code
  *  public final class GameListener implement Listener {
- *    public static final ServiceProperty&#60;GameState&#62; STATE
+ *    public static final ServiceProperty<GameState> STATE
  *      = JsonServiceProperty.createFromClass("state", GameState.class);
  *
  *    public void handleJoin(PlayerLoginEvent event) {

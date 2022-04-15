@@ -28,7 +28,9 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
 /**
- * The player manager is the main api point to access cloud offline and online players.
+ * The player manager is the main api point to access cloud offline and online players. Accessing the player manager is
+ * possible using either {@code ServiceRegistry.first(PlayerManager.class)} or
+ * {@code bridgeManagement.playerManager()}.
  *
  * @since 4.0
  */

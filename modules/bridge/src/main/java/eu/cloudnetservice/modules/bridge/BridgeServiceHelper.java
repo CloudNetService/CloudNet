@@ -21,13 +21,16 @@ import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
-import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;
 import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ *
+ * @since 4.0
+ */
 public final class BridgeServiceHelper {
 
   public static final AtomicInteger MAX_PLAYERS = new AtomicInteger();
@@ -40,10 +43,22 @@ public final class BridgeServiceHelper {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Sets the state of the service this bridge instance is running on to {@code ingame} and starts a new service of the
+   * task. The method is equivalent to calling {@code BridgeServiceHelper.changeToIngame(true)}.
+   */
   public static void changeToIngame() {
     changeToIngame(true);
   }
 
+  /**
+   * Sets the state of the service this bridge instance is running on to {@code ingame}. A new service from the same
+   * task is started if the given auto start option is true.
+   * <p>
+   * Note: The service is started asynchronously.
+   *
+   * @param autoStartService whether a new service should be started or not.
+   */
   public static void changeToIngame(boolean autoStartService) {
     if (!STATE.getAndSet("INGAME").equalsIgnoreCase("ingame") && autoStartService) {
       // start a new service based on the task name
@@ -56,6 +71,23 @@ public final class BridgeServiceHelper {
     }
   }
 
+  /**
+   * Tries to guess the {@link ServiceInfoState} from the lifecycle and {@link BridgeServiceProperties} of the given
+   * service.
+   * <ol>
+   *   <li>If the service is not running or not in-game {@link ServiceInfoState#STOPPED} is guessed.</li>
+   *   <li>If the service is empty {@link ServiceInfoState#EMPTY_ONLINE} is guessed.</li>
+   *   <li>If the service is full {@link ServiceInfoState#FULL_ONLINE} is guessed.</li>
+   *   <li>If the service is starting {@link ServiceInfoState#STARTING} is guessed.</li>
+   *   <li>If the service is just connected {@link ServiceInfoState#ONLINE} is guessed.</li>
+   *   <li>If none of the above apply {@link ServiceInfoState#STOPPED} is used as fallback.</li>
+   * </ol>
+   *
+   * @param service the service to guess the state for.
+   * @return the guessed service info state.
+   * @throws NullPointerException if the given service is null.
+   * @see BridgeServiceProperties
+   */
   public static @NonNull ServiceInfoState guessStateFromServiceInfoSnapshot(@NonNull ServiceInfoSnapshot service) {
     // convert not running or ingame services to STOPPED
     if (service.lifeCycle() != ServiceLifeCycle.RUNNING
@@ -77,11 +109,20 @@ public final class BridgeServiceHelper {
     // check if the service is connected
     if (service.connected()) {
       return ServiceInfoState.ONLINE;
-    } else {
-      return ServiceInfoState.STOPPED;
     }
+    return ServiceInfoState.STOPPED;
   }
 
+  /**
+   * Replaces commonly used placeholders in the given value using the given service as source. If no service is given
+   * only the group is replaced.
+   *
+   * @param value   the string to replace the placeholders in.
+   * @param group   the group to replace {@literal %group%} with.
+   * @param service the service to use as source for the placeholder values.
+   * @return the string with the placeholders replaced.
+   * @throws NullPointerException if the given value is null.
+   */
   public static @NonNull String fillCommonPlaceholders(
     @NonNull String value,
     @Nullable String group,
@@ -125,15 +166,30 @@ public final class BridgeServiceHelper {
     return value;
   }
 
-  public static @NonNull NetworkServiceInfo createServiceInfo(@NonNull ServiceInfoSnapshot snapshot) {
-    return new NetworkServiceInfo(snapshot.configuration().groups(), snapshot.serviceId());
-  }
-
+  /**
+   * The service info state represents the state of any service. While also taking connected players into
+   * consideration.
+   */
   public enum ServiceInfoState {
+    /**
+     * This state represents a service that is stopped.
+     */
     STOPPED,
+    /**
+     * This state represents a service that is starting currently.
+     */
     STARTING,
+    /**
+     * This state represents a service that is started and online but is empty.
+     */
     EMPTY_ONLINE,
+    /**
+     * This state represents a service that is started, online and full.
+     */
     FULL_ONLINE,
+    /**
+     * This state represents a service that is started and online but neither empty nor full.
+     */
     ONLINE
   }
 }

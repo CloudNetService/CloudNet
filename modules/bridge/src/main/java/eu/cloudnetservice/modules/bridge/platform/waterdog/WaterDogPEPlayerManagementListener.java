@@ -21,10 +21,10 @@ import dev.waterdog.waterdogpe.event.defaults.PlayerDisconnectEvent;
 import dev.waterdog.waterdogpe.event.defaults.PlayerLoginEvent;
 import dev.waterdog.waterdogpe.event.defaults.TransferCompleteEvent;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
-import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.helper.ProxyPlatformHelper;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
+import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;
 import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.Locale;
 import lombok.NonNull;
@@ -78,7 +78,7 @@ public final class WaterDogPEPlayerManagementListener {
   private void handleTransfer(@NonNull TransferCompleteEvent event) {
     var joinedServiceInfo = this.management
       .cachedService(service -> service.name().equals(event.getNewClient().getServerInfo().getServerName()))
-      .map(BridgeServiceHelper::createServiceInfo)
+      .map(NetworkServiceInfo::of)
       .orElse(null);
     // check if the connection was initial
     if (event.getOldClient() == null) {
