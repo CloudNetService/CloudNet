@@ -98,7 +98,7 @@ final class NukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Pla
   }
 
   @Override
-  public void spoofCommandExecution(@NonNull String command) {
+  public void spoofCommandExecution(@NonNull String command, boolean redirectToServer) {
     this.forEach(player -> Server.getInstance().dispatchCommand(player, command));
   }
 }
