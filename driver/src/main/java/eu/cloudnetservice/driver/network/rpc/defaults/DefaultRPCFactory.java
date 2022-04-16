@@ -16,16 +16,22 @@
 
 package eu.cloudnetservice.driver.network.rpc.defaults;
 
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import eu.cloudnetservice.driver.network.NetworkComponent;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCHandler;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.driver.network.rpc.defaults.generation.ApiImplementationGenerator;
+import eu.cloudnetservice.driver.network.rpc.defaults.generation.ChainedApiImplementationGenerator;
 import eu.cloudnetservice.driver.network.rpc.defaults.handler.DefaultRPCHandler;
 import eu.cloudnetservice.driver.network.rpc.defaults.sender.DefaultRPCSender;
+import eu.cloudnetservice.driver.network.rpc.generation.ChainInstanceFactory;
 import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
+import java.lang.StackWalker.StackFrame;
+import java.util.Objects;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,6 +44,7 @@ public class DefaultRPCFactory implements RPCFactory {
 
   protected final ObjectMapper defaultObjectMapper;
   protected final DataBufFactory defaultDataBufFactory;
+  protected final Table<Class<?>, String, ChainInstanceFactory<?>> factoryCache = HashBasedTable.create();
 
   /**
    * Constructs a new default rpc provider factory instance.
@@ -95,40 +102,42 @@ public class DefaultRPCFactory implements RPCFactory {
    * {@inheritDoc}
    */
   @Override
-  public <T> @NonNull T generateRPCBasedApi(@NonNull Class<T> baseClass, @Nullable NetworkComponent component) {
-    return this.generateRPCBasedApi(baseClass, GenerationContext.forClass(baseClass).build(), component);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public <T> @NonNull T generateRPCBasedApi(
-    @NonNull Class<T> baseClass,
-    @NonNull GenerationContext context,
-    @Nullable NetworkComponent component
-  ) {
-    return this.generateRPCBasedApi(
-      baseClass,
-      context,
-      component,
-      this.defaultObjectMapper,
-      this.defaultDataBufFactory);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public <T> @NonNull T generateRPCBasedApi(
-    @NonNull Class<T> baseClass,
-    @NonNull GenerationContext context,
-    @Nullable NetworkComponent component,
-    @NonNull ObjectMapper objectMapper,
-    @NonNull DataBufFactory dataBufFactory
-  ) {
-    var sender = this.providerForClass(component, baseClass, objectMapper, dataBufFactory);
+  public <T> @NonNull T generateRPCBasedApi(@NonNull Class<T> baseClass, @NonNull GenerationContext context) {
+    var sender = this.senderFromGenerationContext(context, baseClass);
     return ApiImplementationGenerator.generateApiImplementation(baseClass, context, sender);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  @SuppressWarnings("unchecked")
+  public @NonNull <T> ChainInstanceFactory<T> generateRPCChainBasedApi(
+    @NonNull RPCSender baseSender,
+    @NonNull Class<T> chainBaseClass,
+    @NonNull GenerationContext context,
+    @NonNull Object... baseArgs
+  ) {
+    var sender = this.senderFromGenerationContext(context, chainBaseClass);
+    var callingMethod = StackWalker.getInstance().walk(stream -> stream
+      .skip(1)
+      .map(StackFrame::getMethodName)
+      .findFirst()
+      .orElseThrow());
+
+    // generate the instance factory if we need to
+    var factory = (ChainInstanceFactory<T>) this.factoryCache.get(chainBaseClass, callingMethod);
+    if (factory == null) {
+      // not yet generated, generate and add it
+      factory = ChainedApiImplementationGenerator.generateApiImplementation(
+        chainBaseClass,
+        context,
+        sender,
+        args -> baseSender.invokeMethod(callingMethod, args));
+      this.factoryCache.put(chainBaseClass, callingMethod, factory);
+    }
+    // return the cached or generated factory
+    return factory;
   }
 
   /**
@@ -150,5 +159,12 @@ public class DefaultRPCFactory implements RPCFactory {
     @NonNull DataBufFactory dataBufFactory
   ) {
     return new DefaultRPCHandler(clazz, binding, objectMapper, dataBufFactory);
+  }
+
+  private @NonNull RPCSender senderFromGenerationContext(@NonNull GenerationContext context, @NonNull Class<?> base) {
+    var objectMapper = Objects.requireNonNullElse(context.objectMapper(), this.defaultObjectMapper);
+    var dataBufFactory = Objects.requireNonNullElse(context.dataBufFactory(), this.defaultDataBufFactory);
+    // construct the sender
+    return this.providerForClass(context.component(), base, objectMapper, dataBufFactory);
   }
 }

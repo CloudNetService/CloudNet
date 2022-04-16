@@ -21,6 +21,9 @@ import lombok.NonNull;
 @FunctionalInterface
 public interface ChainInstanceFactory<T> {
 
-  @NonNull T newInstance(@NonNull Object... args);
+  default @NonNull T newInstance(@NonNull Object... args) {
+    return this.newInstance(args, args);
+  }
 
+  @NonNull T newInstance(@NonNull Object[] constructorArgs, @NonNull Object[] rpcArgs);
 }

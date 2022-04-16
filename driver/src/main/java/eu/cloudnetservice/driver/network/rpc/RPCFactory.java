@@ -19,6 +19,7 @@ package eu.cloudnetservice.driver.network.rpc;
 import eu.cloudnetservice.driver.network.NetworkComponent;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.rpc.exception.ClassCreationException;
+import eu.cloudnetservice.driver.network.rpc.generation.ChainInstanceFactory;
 import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import lombok.NonNull;
@@ -89,85 +90,19 @@ public interface RPCFactory {
    * different implementation classes and instances!
    *
    * @param baseClass the base class to generate the class methods based on.
-   * @param component the associated network component, or null if not associated.
+   * @param context   the context of the class generation, holding the options for it.
    * @param <T>       the type which gets generated.
    * @return an implementation of the given class which has all abstract methods rpc based implemented.
-   * @throws NullPointerException   if the given base class is null.
+   * @throws NullPointerException   if the given base class or generation context is null.
    * @throws ClassCreationException if the generator is unable to generate an implementation of the class.
    */
-  @NonNull <T> T generateRPCBasedApi(
-    @NonNull Class<T> baseClass,
-    @Nullable NetworkComponent component);
+  @NonNull <T> T generateRPCBasedApi(@NonNull Class<T> baseClass, @NonNull GenerationContext context);
 
-  /**
-   * Generates an api implementation for the given base class, invoking all of its method using rpc. This method uses
-   * the passed generation context for determination which methods should get overridden and which classes should get
-   * extended/implemented. This means that the given base class <strong>is NOT</strong> part of the generated class
-   * hierarchy by default, it is there for the result instance determination, some kind of the result class should
-   * therefore be declared in the context tree.
-   * <p>
-   * If you want to generate only based on the base class use {@link #generateRPCBasedApi(Class, NetworkComponent)}
-   * instead.
-   * <p>
-   * The given base class must define one of the following constructors:
-   * <ol>
-   *   <li>A constructor with no arguments, or
-   *   <li>A constructor taking exactly one argument, a rpc sender instance.
-   * </ol>
-   * Note: the constructor taking the rpc sender instance is preferred by the generator over the no args constructor.
-   * <p>
-   * Note: This method will not cache the result of the generation. Calling this method twice will generate two
-   * different implementation classes and instances!
-   *
-   * @param baseClass the base class to generate the class methods based on.
-   * @param context   the context of the class generation, holding the options for it.
-   * @param component the associated network component, or null if not associated.
-   * @param <T>       the type which gets generated.
-   * @return an implementation of the given class which has all requested methods rpc based implemented.
-   * @throws NullPointerException   if the given base class or context is null.
-   * @throws ClassCreationException if the generator is unable to generate an implementation of the class.
-   */
-  @NonNull <T> T generateRPCBasedApi(
-    @NonNull Class<T> baseClass,
+  @NonNull <T> ChainInstanceFactory<T> generateRPCChainBasedApi(
+    @NonNull RPCSender baseSender,
+    @NonNull Class<T> chainBaseClass,
     @NonNull GenerationContext context,
-    @Nullable NetworkComponent component);
-
-  /**
-   * Generates an api implementation for the given base class, invoking all of its method using rpc. This method uses
-   * the passed generation context for determination which methods should get overridden and which classes should get
-   * extended/implemented. This means that the given base class <strong>is NOT</strong> part of the generated class
-   * hierarchy by default, it is there for the result instance determination, some kind of the result class should
-   * therefore be declared in the context tree.
-   * <p>
-   * If you want to generate only based on the base class use {@link #generateRPCBasedApi(Class, NetworkComponent)}
-   * instead.
-   * <p>
-   * The given base class must define one of the following constructors:
-   * <ol>
-   *   <li>A constructor with no arguments, or
-   *   <li>A constructor taking exactly one argument, a rpc sender instance.
-   * </ol>
-   * Note: the constructor taking the rpc sender instance is preferred by the generator over the no args constructor.
-   * <p>
-   * Note: This method will not cache the result of the generation. Calling this method twice will generate two
-   * different implementation classes and instances!
-   *
-   * @param baseClass      the base class to generate the class methods based on.
-   * @param context        the context of the class generation, holding the options for it.
-   * @param component      the associated network component, or null if not associated.
-   * @param objectMapper   the object mapper to use for argument (de-) serialization.
-   * @param dataBufFactory the data buf factory to use for buffer allocation.
-   * @param <T>            the type which gets generated.
-   * @return an implementation of the given class which has all requested methods rpc based implemented.
-   * @throws NullPointerException   if the given base class, context, object mapper or buffer factory is null.
-   * @throws ClassCreationException if the generator is unable to generate an implementation of the class.
-   */
-  @NonNull <T> T generateRPCBasedApi(
-    @NonNull Class<T> baseClass,
-    @NonNull GenerationContext context,
-    @Nullable NetworkComponent component,
-    @NonNull ObjectMapper objectMapper,
-    @NonNull DataBufFactory dataBufFactory);
+    @NonNull Object... baseArgs);
 
   /**
    * Constructs a new rpc handler for the given class.

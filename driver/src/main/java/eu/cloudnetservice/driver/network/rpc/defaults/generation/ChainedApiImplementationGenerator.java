@@ -34,25 +34,23 @@ import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
 
+import com.google.common.collect.ObjectArrays;
+import dev.derklaro.reflexion.Reflexion;
+import dev.derklaro.reflexion.matcher.ConstructorMatcher;
 import eu.cloudnetservice.common.StringUtil;
-import eu.cloudnetservice.driver.network.rpc.ChainableRPC;
 import eu.cloudnetservice.driver.network.rpc.RPC;
 import eu.cloudnetservice.driver.network.rpc.RPCChain;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.driver.network.rpc.exception.ClassCreationException;
 import eu.cloudnetservice.driver.network.rpc.generation.ChainInstanceFactory;
 import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
-import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
-import eu.cloudnetservice.driver.service.ServiceId;
+import eu.cloudnetservice.driver.util.define.ClassDefiners;
 import java.lang.reflect.Constructor;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 import java.util.function.BinaryOperator;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -60,23 +58,24 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
-public class ChainedApiImplementationGenerator {
+public final class ChainedApiImplementationGenerator {
 
-  private static final String RPC_DESC = Type.getDescriptor(RPC.class);
   private static final Type RPC_TYPE = Type.getType(RPC.class);
-  private static final Type CHAIN_RPC_TYPE = Type.getType(RPCChain.class);
-  private static final String CHAIN_RPC_DESC = Type.getMethodDescriptor(CHAIN_RPC_TYPE, RPC_TYPE);
-  private static final String CHAIN_RPC_NAME = Type.getInternalName(ChainableRPC.class);
+  private static final Type RPC_CHAIN_TYPE = Type.getType(RPCChain.class);
+  private static final String RPC_DESC = RPC_TYPE.getDescriptor();
+  private static final String RPC_CHAIN_NAME = RPC_CHAIN_TYPE.getInternalName();
+  private static final String RPC_JOIN_METHOD_DESC = Type.getMethodDescriptor(RPC_CHAIN_TYPE, RPC_TYPE);
 
   private ChainedApiImplementationGenerator() {
     throw new UnsupportedOperationException();
   }
 
+  @SuppressWarnings("unchecked")
   public static @NonNull <T> ChainInstanceFactory<T> generateApiImplementation(
     @NonNull Class<T> baseClass,
     @NonNull GenerationContext context,
-    @NonNull RPC baseRPC,
-    @NonNull RPCSender classSender
+    @NonNull RPCSender classSender,
+    @NonNull Function<Object[], RPC> rpcFactory
   ) {
     try {
       var className = String.format(
@@ -98,11 +97,12 @@ public class ChainedApiImplementationGenerator {
         null,
         superName,
         context.interfaces().stream().map(Type::getInternalName).toArray(String[]::new));
-      // add the base rpc field
+
+      // add the base rpc and class sender field
       cw.visitField(ACC_PRIVATE | ACC_FINAL, "base", RPC_DESC, null, null).visitEnd();
-      // add the sender field
       cw.visitField(ACC_PRIVATE | ACC_FINAL, "sender", SENDER_DESC, null, null).visitEnd();
 
+      // generate the constructor
       MethodVisitor mv;
       {
         // generate the constructor
@@ -128,28 +128,12 @@ public class ChainedApiImplementationGenerator {
         mv.visitVarInsn(ALOAD, 2);
         mv.visitFieldInsn(PUTFIELD, className, "sender", SENDER_DESC);
 
-        // call the super "<init>" method*
+        // call the super "<init>" method
         mv.visitVarInsn(ALOAD, 0);
         for (int i = 0; i < types.size(); i++) {
-          var type = types.get(i);
-          var wrappedType = Type.getType(type);
-          // first two arguments are special, we allow them to be the sender or base rpc as well
-          if ((i == 0 || i == 1)) {
-            // check for the base rpc
-            if (type.equals(RPC.class)) {
-              mv.visitVarInsn(ALOAD, 1);
-              continue;
-            }
-
-            // check for the sender
-            if (type.equals(RPCSender.class)) {
-              mv.visitVarInsn(ALOAD, 2);
-              continue;
-            }
-          }
-
-          // visit the corresponding type index
-          mv.visitVarInsn(wrappedType.getOpcode(ILOAD), 3 + i);
+          // loads and passes the correct arguments to the super constructor
+          var type = Type.getType(types.get(i));
+          mv.visitVarInsn(type.getOpcode(ILOAD), 3 + i);
         }
         mv.visitMethodInsn(INVOKESPECIAL, superName, "<init>", '(' + superDesc + ")V", false);
 
@@ -165,16 +149,15 @@ public class ChainedApiImplementationGenerator {
         for (var method : methods) {
           mv = cw.visitMethod(ACC_PUBLIC | ACC_FINAL, method.getName(), Type.getMethodDescriptor(method), null, null);
           mv.visitCode();
-          // generate the join on the base rpc
+
+          // get the base rpc field we want to join on
           mv.visitVarInsn(ALOAD, 0);
           mv.visitFieldInsn(GETFIELD, className, "base", RPC_DESC);
-
-          // generate the invoke method
+          // generate the invoke method (the method we want to invoke)
           visitInvokeMethod(className, method, mv);
-
-          mv.visitMethodInsn(INVOKEVIRTUAL, CHAIN_RPC_NAME, "join", CHAIN_RPC_DESC, false);
-
-          // we cannot ignore the return type if not void
+          // actually visit the join method, taking the base rpc as the argument
+          mv.visitMethodInsn(INVOKEVIRTUAL, RPC_CHAIN_NAME, "join", RPC_JOIN_METHOD_DESC, false);
+          // fires the rpc
           visitFireMethod(method, mv);
 
           // finish the method
@@ -184,22 +167,26 @@ public class ChainedApiImplementationGenerator {
       }
       // finish the class
       cw.visitEnd();
+
       // define & select the correct constructor for the class
-      /**var constructor = ClassDefiners.current()
-       .defineClass(className, baseClass, cw.toByteArray())
-       .getDeclaredConstructor(RPCSender.class);
-       constructor.setAccessible(true);
-       // instantiate the new class
-       return (T) constructor.newInstance(sender);*/
+      var definedClass = ClassDefiners.current().defineClass(className, baseClass, cw.toByteArray());
+      var constructorMatcher = ConstructorMatcher.newMatcher()
+        .exactType(Constructor::getDeclaringClass, definedClass)
+        .exactTypeAt(Constructor::getParameterTypes, RPC.class, 0)
+        .exactTypeAt(Constructor::getParameterTypes, RPCSender.class, 1);
 
-      var constructorTypes =
-
-
-
-
-      Files.write(Path.of("test.class"), cw.toByteArray());
-
-
+      // create the factory to create the rpc instance
+      return Reflexion
+        .on(definedClass)
+        .findConstructor(constructorMatcher)
+        .map(accessor -> (ChainInstanceFactory<T>) (constructorArgs, rpcArgs) -> {
+          // collect the arguments for the invocation
+          var baseRPC = rpcFactory.apply(rpcArgs);
+          var arguments = ObjectArrays.concat(new Object[]{baseRPC, classSender}, constructorArgs, Object.class);
+          // construct the new class instance
+          return (T) accessor.invokeWithArgs(arguments).getOrThrow();
+        })
+        .orElseThrow();
     } catch (Exception exception) {
       throw new ClassCreationException(String.format(
         "Unable to generate api class implementation for class %s",
@@ -217,27 +204,5 @@ public class ChainedApiImplementationGenerator {
       .map(Constructor::getParameterTypes)
       .map(List::of)
       .orElse(List.of());
-  }
-
-  public static class TestAbc extends ServiceId {
-
-    /**
-     * Creates a new service identity instance.
-     *
-     * @param taskName        the name of the task this service is based on.
-     * @param nameSplitter    the splitter of the service name, to put between the task name and task service id.
-     * @param allowedNodes    the nodes which are allowed to start the service.
-     * @param uniqueId        the unique id (version 4) of the service, there is never a duplicate within CloudNet.
-     * @param taskServiceId   the numeric id of the service within the task.
-     * @param nodeUniqueId    the unique id of the node which picked up the service, null if not yet elected.
-     * @param environmentName the name of the environment type of the service.
-     * @param environment     the resolved environment type, null if not yet resolved.
-     * @throws NullPointerException if any given parameter is null, except for the resolved environment type and node.
-     */
-    protected TestAbc(String taskName, String nameSplitter, Set<String> allowedNodes,
-      UUID uniqueId, int taskServiceId, String nodeUniqueId, String environmentName,
-      ServiceEnvironmentType environment) {
-      super(taskName, nameSplitter, allowedNodes, uniqueId, taskServiceId, nodeUniqueId, environmentName, environment);
-    }
   }
 }

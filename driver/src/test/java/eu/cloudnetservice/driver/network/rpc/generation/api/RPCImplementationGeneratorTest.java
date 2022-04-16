@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.driver.network.rpc.generation;
+package eu.cloudnetservice.driver.network.rpc.generation.api;
 
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.network.rpc.RPC;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.driver.network.rpc.defaults.generation.ApiImplementationGenerator;
+import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
