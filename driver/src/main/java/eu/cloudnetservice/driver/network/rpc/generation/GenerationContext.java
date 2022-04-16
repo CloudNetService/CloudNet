@@ -16,6 +16,9 @@
 
 package eu.cloudnetservice.driver.network.rpc.generation;
 
+import eu.cloudnetservice.driver.network.NetworkComponent;
+import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
+import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -31,6 +34,9 @@ import org.jetbrains.annotations.Nullable;
  * @since 4.0
  */
 public record GenerationContext(
+  @Nullable NetworkComponent component,
+  @Nullable ObjectMapper objectMapper,
+  @Nullable DataBufFactory dataBufFactory,
   @Nullable Class<?> extendingClass,
   @NonNull Set<Class<?>> interfaces,
   boolean implementAllMethods
@@ -67,10 +73,27 @@ public record GenerationContext(
    */
   public static final class Builder {
 
+    private NetworkComponent component;
+    private ObjectMapper objectMapper;
+    private DataBufFactory dataBufFactory;
     private Class<?> extendingClass;
-
     private boolean implementAllMethods = false;
     private Set<Class<?>> interfaces = new HashSet<>();
+
+    public @NonNull Builder component(@NonNull NetworkComponent component) {
+      this.component = component;
+      return this;
+    }
+
+    public @NonNull Builder objectMapper(@NonNull ObjectMapper objectMapper) {
+      this.objectMapper = objectMapper;
+      return this;
+    }
+
+    public @NonNull Builder dataBufFactory(@NonNull DataBufFactory dataBufFactory) {
+      this.dataBufFactory = dataBufFactory;
+      return this;
+    }
 
     /**
      * Sets the class the generated classes based on the build context should extend.
@@ -125,7 +148,13 @@ public record GenerationContext(
      * @return a new generation context based on this builder.
      */
     public @NonNull GenerationContext build() {
-      return new GenerationContext(this.extendingClass, this.interfaces, this.implementAllMethods);
+      return new GenerationContext(
+        this.component,
+        this.objectMapper,
+        this.dataBufFactory,
+        this.extendingClass,
+        this.interfaces,
+        this.implementAllMethods);
     }
   }
 }
