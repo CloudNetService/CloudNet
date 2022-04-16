@@ -147,7 +147,7 @@ public final class BungeeCordPlayerManagementListener implements Listener {
   public void handle(@NonNull ServerConnectedEvent event) {
     var joinedServiceInfo = this.management
       .cachedService(service -> service.name().equals(event.getServer().getInfo().getName()))
-      .map(NetworkServiceInfo::of)
+      .map(NetworkServiceInfo::fromServiceInfoSnapshot)
       .orElse(null);
     // check if the player connection was initial
     if (event.getPlayer().getServer() == null) {

@@ -127,7 +127,7 @@ public final class VelocityPlayerManagementListener {
     var joinedServiceInfo = event.getPlayer().getCurrentServer()
       .flatMap(server -> this.management
         .cachedService(service -> server.getServerInfo().getName().equals(service.name()))
-        .map(NetworkServiceInfo::of))
+        .map(NetworkServiceInfo::fromServiceInfoSnapshot))
       .orElse(null);
     // check if the connection was initial
     if (event.getPreviousServer() == null) {

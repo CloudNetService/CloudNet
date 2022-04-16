@@ -40,7 +40,7 @@ public record NetworkServiceInfo(@NonNull Set<String> groups, @NonNull ServiceId
    * @return the new network service info for the given service info.
    * @throws NullPointerException if the given snapshot is null.
    */
-  public static @NonNull NetworkServiceInfo of(@NonNull ServiceInfoSnapshot snapshot) {
+  public static @NonNull NetworkServiceInfo fromServiceInfoSnapshot(@NonNull ServiceInfoSnapshot snapshot) {
     return new NetworkServiceInfo(snapshot.configuration().groups(), snapshot.serviceId());
   }
 
