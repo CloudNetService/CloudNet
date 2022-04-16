@@ -46,14 +46,14 @@ public final class BungeeCordCloudCommand extends Command implements TabExecutor
     // get the full command line
     var commandLine = String.join(" ", args);
     // skip the permission check if the source is the console
-    if (sender instanceof ProxiedPlayer) {
+    if (sender instanceof ProxiedPlayer player) {
       // get the command info
       var command = CloudNetDriver.instance().clusterNodeProvider().consoleCommand(commandLine);
       // check if the sender has the required permission to execute the command
       if (command != null) {
         if (!sender.hasPermission(command.permission())) {
           sender.sendMessage(translateToComponent(this.management.configuration().message(
-            ((ProxiedPlayer) sender).getLocale(),
+            player.getLocale(),
             "command-cloud-sub-command-no-permission"
           ).replace("%command%", command.name())));
           return;

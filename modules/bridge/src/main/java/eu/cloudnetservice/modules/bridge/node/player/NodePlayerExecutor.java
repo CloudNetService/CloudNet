@@ -144,10 +144,10 @@ public class NodePlayerExecutor implements PlayerExecutor {
   }
 
   @Override
-  public void spoofCommandExecution(@NonNull String command) {
+  public void spoofCommandExecution(@NonNull String command, boolean redirectToServer) {
     this.toProxy()
       .message("spoof_command_execution")
-      .buffer(DataBuf.empty().writeUniqueId(this.targetUniqueId).writeString(command))
+      .buffer(DataBuf.empty().writeUniqueId(this.targetUniqueId).writeString(command).writeBoolean(redirectToServer))
       .build()
       .send();
   }

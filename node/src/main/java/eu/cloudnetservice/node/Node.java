@@ -41,6 +41,7 @@ import eu.cloudnetservice.driver.network.netty.server.NettyNetworkServer;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.driver.template.TemplateStorage;
 import eu.cloudnetservice.ext.updater.UpdaterRegistry;
+import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
 import eu.cloudnetservice.node.cluster.defaults.DefaultNodeServerProvider;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
@@ -439,7 +440,7 @@ public class Node extends CloudNetDriver {
     this.configuration.reloadFrom(configuration.save());
   }
 
-  public @NonNull DefaultNodeServerProvider nodeServerProvider() {
+  public @NonNull NodeServerProvider nodeServerProvider() {
     return this.nodeServerProvider;
   }
 

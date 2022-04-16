@@ -288,21 +288,19 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
   @Override
   public @NonNull @UnmodifiableView Collection<CloudService> localCloudServices() {
     return this.knownServices.values().stream()
-      .filter(provider -> provider instanceof CloudService) // -> ICloudService => local service
+      .filter(provider -> provider instanceof CloudService) // -> CloudService => local service
       .map(provider -> (CloudService) provider)
       .toList();
   }
 
   @Override
   public @Nullable CloudService localCloudService(@NonNull String name) {
-    var provider = this.serviceProviderByName(name);
-    return provider instanceof CloudService ? (CloudService) provider : null;
+    return this.serviceProviderByName(name) instanceof CloudService service ? service : null;
   }
 
   @Override
   public @Nullable CloudService localCloudService(@NonNull UUID uniqueId) {
-    var provider = this.knownServices.get(uniqueId);
-    return provider instanceof CloudService ? (CloudService) provider : null;
+    return this.knownServices.get(uniqueId) instanceof CloudService service ? service : null;
   }
 
   @Override
@@ -351,14 +349,14 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
           snapshot.serviceId().uniqueId(),
           new RemoteNodeCloudServiceProvider(this, this.sender, () -> source, snapshot));
         LOGGER.fine("Registered remote service %s", null, snapshot.serviceId());
-      } else if (provider instanceof RemoteNodeCloudServiceProvider) {
+      } else if (provider instanceof RemoteNodeCloudServiceProvider remoteProvider) {
         // update the provider if possible - we need only to handle remote node providers as local providers will update
         // the snapshot directly "in" them
-        ((RemoteNodeCloudServiceProvider) provider).snapshot(snapshot);
+        remoteProvider.snapshot(snapshot);
         LOGGER.fine("Updated service snapshot of %s to %s", null, snapshot.serviceId(), snapshot);
-      } else if (provider instanceof CloudService) {
+      } else if (provider instanceof CloudService localService) {
         // just set the service information locally - no further processing
-        ((CloudService) provider).updateServiceInfoSnapshot(snapshot);
+        localService.updateServiceInfoSnapshot(snapshot);
       }
     }
   }

@@ -37,7 +37,7 @@ public interface CommandSource extends Nameable {
   /**
    * @return the console command source instance
    */
-  static CommandSource console() {
+  static @NonNull CommandSource console() {
     return ConsoleCommandSource.INSTANCE;
   }
 

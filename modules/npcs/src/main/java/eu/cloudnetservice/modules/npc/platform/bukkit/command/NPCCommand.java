@@ -129,8 +129,8 @@ public final class NPCCommand extends BaseTabExecutor {
           .profileProperties(profile.getProperties().stream()
             .map(property -> new ProfileProperty(property.getName(), property.getValue(), property.getSignature()))
             .collect(Collectors.toSet()))
-          .displayName(displayName)
           .targetGroup(targetGroup)
+          .displayName(ChatColor.translateAlternateColorCodes('&', displayName))
           .location(this.management.toWorldPosition(player.getLocation(), entry.targetGroup()))
           .build();
         this.management.createNPC(npc);
@@ -148,8 +148,8 @@ public final class NPCCommand extends BaseTabExecutor {
         // create the npc
         var npc = NPC.builder()
           .entityType(entityType.name())
-          .displayName(displayName)
           .targetGroup(targetGroup)
+          .displayName(ChatColor.translateAlternateColorCodes('&', displayName))
           .location(this.management.toWorldPosition(player.getLocation(), entry.targetGroup()))
           .build();
         this.management.createNPC(npc);

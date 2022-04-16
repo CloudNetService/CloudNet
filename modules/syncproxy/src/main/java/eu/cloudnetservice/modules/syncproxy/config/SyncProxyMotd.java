@@ -17,6 +17,7 @@
 package eu.cloudnetservice.modules.syncproxy.config;
 
 import com.google.common.base.Preconditions;
+import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.wrapper.Wrapper;
 import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
@@ -27,7 +28,7 @@ public record SyncProxyMotd(
   @NonNull String secondLine,
   boolean autoSlot,
   int autoSlotMaxPlayersDistance,
-  @NonNull String[] playerInfo,
+  @Nullable String[] playerInfo,
   @Nullable String protocolText
 ) {
 
@@ -50,15 +51,9 @@ public record SyncProxyMotd(
     if (input == null) {
       return null;
     }
-
-    return input
-      .replace("%proxy%", Wrapper.instance().serviceId().name())
-      .replace("%proxy_uniqueId%", String.valueOf(Wrapper.instance().serviceId().uniqueId()))
-      .replace("%task%", Wrapper.instance().serviceId().taskName())
-      .replace("%node%", Wrapper.instance().serviceId().nodeUniqueId())
+    return BridgeServiceHelper.fillCommonPlaceholders(input
       .replace("%online_players%", String.valueOf(onlinePlayers))
-      .replace("%max_players%", String.valueOf(maxPlayers))
-      .replace("&", "§");
+      .replace("%max_players%", String.valueOf(maxPlayers)), null, Wrapper.instance().currentServiceInfo());
   }
 
   public static class Builder {
@@ -92,7 +87,7 @@ public record SyncProxyMotd(
       return this;
     }
 
-    public @NonNull Builder playerInfo(String @NonNull [] playerInfo) {
+    public @NonNull Builder playerInfo(@Nullable String[] playerInfo) {
       this.playerInfo = playerInfo;
       return this;
     }

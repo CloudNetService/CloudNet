@@ -96,7 +96,7 @@ final class SpongeDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Ser
   }
 
   @Override
-  public void spoofCommandExecution(@NonNull String command) {
+  public void spoofCommandExecution(@NonNull String command, boolean redirectToServer) {
     this.forEach(player -> {
       try {
         Sponge.server().commandManager().process(player, command);

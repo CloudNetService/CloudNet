@@ -49,7 +49,10 @@ public final class AdventureSerializerUtil {
         // check if the current char is a legacy text char
         if (chars[i] == LEGACY_CHAR) {
           // check if the next char is a legacy color char
-          if ((next >= '0' && next <= '9') || (next >= 'a' && next <= 'f') || next == 'r') {
+          if ((next >= '0' && next <= '9')
+            || (next >= 'a' && next <= 'f')
+            || (next >= 'k' && next <= 'o')
+            || next == 'r') {
             result.append(COLOR_CHAR);
             continue;
           }

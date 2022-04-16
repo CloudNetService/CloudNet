@@ -50,7 +50,7 @@ public interface RegisteredEventListener extends Comparable<RegisteredEventListe
    *
    * @return the priority of the underlying event listener.
    */
-  @NonNull EventPriority priority();
+  @NonNull InvocationOrder order();
 
   /**
    * Get the channel this event is listening to. Defaults to * meaning that the listener listens to all channels.
@@ -78,6 +78,6 @@ public interface RegisteredEventListener extends Comparable<RegisteredEventListe
    */
   @Override
   default int compareTo(@NonNull RegisteredEventListener other) {
-    return other.priority().compareTo(this.priority());
+    return this.order().compareTo(other.order());
   }
 }

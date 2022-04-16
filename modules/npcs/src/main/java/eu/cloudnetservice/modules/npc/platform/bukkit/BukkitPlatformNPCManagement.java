@@ -103,16 +103,16 @@ public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location,
                       // apply the velocity
                       player.setVelocity(vector);
                       // check if we should send a labymod emote
-                      if (value instanceof NPCBukkitPlatformSelector) {
+                      if (value instanceof NPCBukkitPlatformSelector npcSelector) {
                         if (emoteId == -1) {
                           var emote = labyModEmotes[ThreadLocalRandom.current().nextInt(0, labyModEmotes.length)];
-                          ((NPCBukkitPlatformSelector) value).handleNPC()
+                          npcSelector.handleNPC()
                             .labymod()
                             .queue(LabyModAction.EMOTE, emote)
                             .send(player);
                         } else {
                           // use the selected emote
-                          ((NPCBukkitPlatformSelector) value).handleNPC()
+                          npcSelector.handleNPC()
                             .labymod()
                             .queue(LabyModAction.EMOTE, emoteId)
                             .send(player);

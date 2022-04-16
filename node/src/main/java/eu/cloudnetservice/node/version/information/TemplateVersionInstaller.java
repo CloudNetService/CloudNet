@@ -17,7 +17,6 @@
 package eu.cloudnetservice.node.version.information;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.driver.service.ServiceEnvironment;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.TemplateStorage;
 import eu.cloudnetservice.node.version.ServiceVersion;
@@ -64,7 +63,7 @@ public final class TemplateVersionInstaller extends VersionInstaller {
   public void removeServiceVersions(@NonNull Collection<ServiceVersionType> knownTypes) {
     for (var file : this.templateStorage.listFiles(this.serviceTemplate, "", false)) {
       if (file != null) {
-        for (ServiceEnvironment environment : knownTypes) {
+        for (var environment : knownTypes) {
           if (file.name().toLowerCase().contains(environment.name()) && file.name().endsWith(".jar")) {
             this.templateStorage.deleteFile(this.serviceTemplate, file.path());
           }

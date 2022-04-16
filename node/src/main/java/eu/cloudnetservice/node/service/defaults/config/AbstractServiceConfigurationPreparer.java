@@ -27,7 +27,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.Collection;
 import java.util.function.UnaryOperator;
 import lombok.NonNull;
 
@@ -56,7 +55,7 @@ public abstract class AbstractServiceConfigurationPreparer implements ServiceCon
   protected void rewriteFile(@NonNull Path filePath, @NonNull UnaryOperator<String> mapper) {
     try {
       // collect the new lines rewritten by the given mapper
-      Collection<String> newLines = Files.readAllLines(filePath)
+      var newLines = Files.readAllLines(filePath)
         .stream()
         .map(mapper)
         .toList();

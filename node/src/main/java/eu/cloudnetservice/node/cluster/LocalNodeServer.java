@@ -14,24 +14,10 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.driver.event;
+package eu.cloudnetservice.node.cluster;
 
-import java.util.Arrays;
-import java.util.Collections;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.RepeatedTest;
+public interface LocalNodeServer extends NodeServer {
 
-public class EventPriorityTest {
+  void updateLocalSnapshot();
 
-  @RepeatedTest(15)
-  public void testEventPriorityComparator() {
-    var eventPriorities = Arrays.asList(EventPriority.values());
-
-    Collections.shuffle(eventPriorities);
-    Collections.sort(eventPriorities);
-
-    for (var i = 0; i < EventPriority.values().length; i++) {
-      Assertions.assertSame(EventPriority.values()[i], eventPriorities.get(i));
-    }
-  }
 }

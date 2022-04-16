@@ -103,10 +103,15 @@ public interface PlayerExecutor {
    */
   void sendPluginMessage(@NonNull String tag, byte[] data);
 
+  default void spoofCommandExecution(@NonNull String command) {
+    this.spoofCommandExecution(command, true);
+  }
+
   /**
    * Dispatches a command on the proxy the player is connected with as the player.
    *
-   * @param command the command to dispatch
+   * @param command          the command to dispatch
+   * @param redirectToServer if the command execution should be redirected to the server if unknown to the proxy.
    */
-  void spoofCommandExecution(@NonNull String command);
+  void spoofCommandExecution(@NonNull String command, boolean redirectToServer);
 }

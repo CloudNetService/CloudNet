@@ -94,7 +94,7 @@ final class PlatformPlayerExecutor implements PlayerExecutor {
   }
 
   @Override
-  public void spoofCommandExecution(@NonNull String command) {
-    this.baseRPC.join(this.sender.invokeMethod("spoofCommandExecution", command)).fireSync();
+  public void spoofCommandExecution(@NonNull String command, boolean redirectToServer) {
+    this.baseRPC.join(this.sender.invokeMethod("spoofCommandExecution", command, redirectToServer)).fireSync();
   }
 }
