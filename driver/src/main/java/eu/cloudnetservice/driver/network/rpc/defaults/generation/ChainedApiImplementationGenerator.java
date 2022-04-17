@@ -23,7 +23,6 @@ import static eu.cloudnetservice.driver.network.rpc.defaults.generation.ApiImple
 import static eu.cloudnetservice.driver.network.rpc.defaults.generation.ApiImplementationGenerator.collectMethodsToVisit;
 import static eu.cloudnetservice.driver.network.rpc.defaults.generation.ApiImplementationGenerator.visitFireMethod;
 import static eu.cloudnetservice.driver.network.rpc.defaults.generation.ApiImplementationGenerator.visitInvokeMethod;
-import static eu.cloudnetservice.driver.network.rpc.defaults.generation.ApiImplementationGenerator.visitNetworkChannelSupplier;
 import static org.objectweb.asm.Opcodes.ACC_FINAL;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
@@ -107,7 +106,7 @@ public final class ChainedApiImplementationGenerator {
       // add the base rpc and class sender field
       cw.visitField(ACC_PRIVATE | ACC_FINAL, "base", RPC_DESC, null, null).visitEnd();
       cw.visitField(ACC_PRIVATE | ACC_FINAL, "sender", SENDER_DESC, null, null).visitEnd();
-      visitNetworkChannelSupplier(cw);
+      cw.visitField(ACC_PRIVATE | ACC_FINAL, "channelSupplier", SUPPLIER_DESC, null, null).visitEnd();
 
       // generate the constructor
       MethodVisitor mv;

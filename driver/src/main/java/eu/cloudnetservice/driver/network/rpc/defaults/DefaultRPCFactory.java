@@ -31,7 +31,10 @@ import eu.cloudnetservice.driver.network.rpc.generation.ChainInstanceFactory;
 import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import java.lang.StackWalker.StackFrame;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,7 +47,9 @@ public class DefaultRPCFactory implements RPCFactory {
 
   protected final ObjectMapper defaultObjectMapper;
   protected final DataBufFactory defaultDataBufFactory;
-  protected final Table<Class<?>, String, ChainInstanceFactory<?>> factoryCache = HashBasedTable.create();
+
+  protected final Map<GenerationContext, Supplier<Object>> generatedApiCache = new HashMap<>();
+  protected final Table<String, GenerationContext, ChainInstanceFactory<?>> chainFactoryCache = HashBasedTable.create();
 
   /**
    * Constructs a new default rpc provider factory instance.
@@ -102,9 +107,12 @@ public class DefaultRPCFactory implements RPCFactory {
    * {@inheritDoc}
    */
   @Override
+  @SuppressWarnings("unchecked")
   public <T> @NonNull T generateRPCBasedApi(@NonNull Class<T> baseClass, @NonNull GenerationContext context) {
-    var sender = this.senderFromGenerationContext(context, baseClass);
-    return ApiImplementationGenerator.generateApiImplementation(baseClass, context, sender);
+    return (T) this.generatedApiCache.computeIfAbsent(context, $ -> {
+      var sender = this.senderFromGenerationContext(context, baseClass);
+      return ApiImplementationGenerator.generateApiImplementation(baseClass, context, sender);
+    }).get();
   }
 
   /**
@@ -136,7 +144,7 @@ public class DefaultRPCFactory implements RPCFactory {
     @NonNull GenerationContext context
   ) {
     // generate the instance factory if we need to
-    var factory = (ChainInstanceFactory<T>) this.factoryCache.get(chainBaseClass, baseCallerMethod);
+    var factory = (ChainInstanceFactory<T>) this.chainFactoryCache.get(baseCallerMethod, context);
     if (factory == null) {
       // not yet generated, generate and add it
       factory = ChainedApiImplementationGenerator.generateApiImplementation(
@@ -144,7 +152,7 @@ public class DefaultRPCFactory implements RPCFactory {
         context,
         this.senderFromGenerationContext(context, chainBaseClass),
         args -> baseSender.invokeMethod(baseCallerMethod, args));
-      this.factoryCache.put(chainBaseClass, baseCallerMethod, factory);
+      this.chainFactoryCache.put(baseCallerMethod, context, factory);
     }
     // return the cached or generated factory
     return factory;

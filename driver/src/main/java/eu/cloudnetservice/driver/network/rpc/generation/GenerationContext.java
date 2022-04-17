@@ -30,6 +30,10 @@ import org.jetbrains.annotations.Nullable;
 /**
  * A context for the generation of a class which implements some kind of api which only calls methods using rpc.
  *
+ * @param component           the network component to use when firing the rpc.
+ * @param channelSupplier     the supplier for the network component invoked when firing the rpc.
+ * @param objectMapper        the object mapper mapping the databuf back to an object.
+ * @param dataBufFactory      the databuf factory to use when creating databufs for the generation factory.
  * @param extendingClass      the class the generated class should extend, null for none.
  * @param interfaces          the interfaces the generated class should implement.
  * @param implementAllMethods if all methods or only abstract methods should get implemented.
@@ -84,22 +88,46 @@ public record GenerationContext(
     private boolean implementAllMethods = false;
     private Set<Class<?>> interfaces = new HashSet<>();
 
-    public @NonNull Builder component(@NonNull NetworkComponent component) {
+    /**
+     * Sets the network component to use when firing rpc.
+     *
+     * @param component the component used to fire.
+     * @return the same instance of the builder, for chaining.
+     */
+    public @NonNull Builder component(@Nullable NetworkComponent component) {
       this.component = component;
       return this;
     }
 
+    /**
+     * Sets the supplier for the network component that is used when firing rpc.
+     *
+     * @param channelSupplier the supplier used to fire.
+     * @return the same instance of the builder, for chaining.
+     */
     public @NonNull Builder channelSupplier(@Nullable Supplier<NetworkChannel> channelSupplier) {
       this.channelSupplier = channelSupplier;
       return this;
     }
 
-    public @NonNull Builder objectMapper(@NonNull ObjectMapper objectMapper) {
+    /**
+     * Sets the object mapper responsible for mapping a databuf back to an object.
+     *
+     * @param objectMapper the object mapper for mapping.
+     * @return the same instance of the builder, for chaining.
+     */
+    public @NonNull Builder objectMapper(@Nullable ObjectMapper objectMapper) {
       this.objectMapper = objectMapper;
       return this;
     }
 
-    public @NonNull Builder dataBufFactory(@NonNull DataBufFactory dataBufFactory) {
+    /**
+     * Sets the databuf factory to use when creating databufs for the generation.
+     *
+     * @param dataBufFactory the databuf factory for the generation.
+     * @return the same instance of the builder, for chaining.
+     */
+    public @NonNull Builder dataBufFactory(@Nullable DataBufFactory dataBufFactory) {
       this.dataBufFactory = dataBufFactory;
       return this;
     }

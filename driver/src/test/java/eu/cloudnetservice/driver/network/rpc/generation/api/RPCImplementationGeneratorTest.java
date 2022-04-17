@@ -50,10 +50,11 @@ public class RPCImplementationGeneratorTest {
     });
 
     // we're using direct generation for easier testing with the sender
-    var management = ApiImplementationGenerator.generateApiImplementation(
+    var management = (PermissionManagement) ApiImplementationGenerator.generateApiImplementation(
       PermissionManagement.class,
       GenerationContext.forClass(PermissionManagement.class).implementAllMethods(true).build(),
-      sender);
+      sender
+    ).get();
 
     var result = management.containsUser(uuid);
     Assertions.assertTrue(result);
@@ -65,10 +66,11 @@ public class RPCImplementationGeneratorTest {
 
   @Test
   void testExpectationOfExistingMethods() {
-    var management = ApiImplementationGenerator.generateApiImplementation(
+    var management = (PermissionManagement) ApiImplementationGenerator.generateApiImplementation(
       PermissionManagement.class,
       GenerationContext.forClass(BasePermissionManagement.class).build(),
-      Mockito.mock(RPCSender.class));
+      Mockito.mock(RPCSender.class)
+    ).get();
 
     var user = management.user(UUID.randomUUID());
     Assertions.assertSame(BasePermissionManagement.VAL, user);
@@ -84,7 +86,8 @@ public class RPCImplementationGeneratorTest {
     var management = ApiImplementationGenerator.generateApiImplementation(
       PermissionManagement.class,
       GenerationContext.forClass(SenderNeedingManagement.class).build(),
-      sender);
+      sender
+    ).get();
 
     Assertions.assertInstanceOf(SenderNeedingManagement.class, management);
     Assertions.assertSame(((SenderNeedingManagement) management).sender, sender);

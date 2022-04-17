@@ -34,6 +34,7 @@ import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
 
+import dev.derklaro.reflexion.Reflexion;
 import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.network.NetworkChannel;
@@ -120,13 +121,13 @@ public final class ApiImplementationGenerator {
    * @param context   the generation context.
    * @param sender    the rpc sender to use for the class.
    * @param <T>       the type which gets generated.
-   * @return an implementation of the given class which has all requested methods rpc based implemented.
+   * @return a supplier to create an instance of the class which has all requested methods rpc based implemented.
    * @throws NullPointerException   if the given base class, context or rpc sender is null.
    * @throws ClassCreationException if the generator is unable to generate an implementation of the class.
    */
   // Suppresses ConstantConditions as IJ is dumb
   @SuppressWarnings({"unchecked"})
-  public static @NonNull <T> T generateApiImplementation(
+  public static @NonNull <T> Supplier<Object> generateApiImplementation(
     @NonNull Class<T> baseClass,
     @NonNull GenerationContext context,
     @NonNull RPCSender sender
@@ -149,15 +150,36 @@ public final class ApiImplementationGenerator {
         superName,
         context.interfaces().stream().map(Type::getInternalName).toArray(String[]::new));
       // add the sender field
-      cw
-        .visitField(ACC_PRIVATE | ACC_FINAL, "sender", SENDER_DESC, null, null)
-        .visitEnd();
-      visitNetworkChannelSupplier(cw);
+      cw.visitField(ACC_PRIVATE | ACC_FINAL, "sender", SENDER_DESC, null, null).visitEnd();
+      cw.visitField(ACC_PRIVATE | ACC_FINAL, "channelSupplier", SUPPLIER_DESC, null, null).visitEnd();
       // generate the constructor
       MethodVisitor mv;
       mv = cw.visitMethod(ACC_PUBLIC, "<init>", String.format("(%s%s)V", SENDER_DESC, SUPPLIER_DESC), null, null);
       // generate the constructor
-      visitConstructor(mv, context, superName, className);
+      // check if the class has a constructor with a rpc sender instance, use that prioritized
+      boolean useSenderConstructor = false;
+      if (context.extendingClass() != null) {
+        try {
+          context.extendingClass().getDeclaredConstructor(RPCSender.class);
+          useSenderConstructor = true;
+        } catch (NoSuchMethodException ignored) {
+          // proceed as the class has only a no-args constructor
+        }
+      }
+
+      mv.visitCode();
+      // visit super
+      mv.visitVarInsn(ALOAD, 0);
+      if (useSenderConstructor) {
+        mv.visitVarInsn(ALOAD, 1);
+        mv.visitMethodInsn(INVOKESPECIAL, superName, "<init>", CONSTRUCTOR_SENDER_DESC, false);
+      } else {
+        mv.visitMethodInsn(INVOKESPECIAL, superName, "<init>", "()V", false);
+      }
+      // write the sender field
+      mv.visitVarInsn(ALOAD, 0);
+      mv.visitVarInsn(ALOAD, 1);
+      mv.visitFieldInsn(PUTFIELD, className, "sender", SENDER_DESC);
       // finish
       mv.visitInsn(RETURN);
       mv.visitMaxs(0, 0);
@@ -181,12 +203,12 @@ public final class ApiImplementationGenerator {
       // finish the class
       cw.visitEnd();
       // define & select the correct constructor for the class
-      var constructor = ClassDefiners.current()
-        .defineClass(className, parentClass, cw.toByteArray())
-        .getDeclaredConstructor(RPCSender.class, Supplier.class);
-      constructor.setAccessible(true);
+      var accessor = Reflexion
+        .on(ClassDefiners.current().defineClass(className, parentClass, cw.toByteArray()))
+        .findConstructor(RPCSender.class, Supplier.class)
+        .orElseThrow();
       // instantiate the new class
-      return (T) constructor.newInstance(sender, context.channelSupplier());
+      return () -> (T) accessor.invokeWithArgs(sender, context.channelSupplier()).getOrThrow();
     } catch (Exception exception) {
       throw new ClassCreationException(String.format(
         "Unable to generate api class implementation for class %s",
@@ -194,6 +216,14 @@ public final class ApiImplementationGenerator {
     }
   }
 
+  /**
+   * Generates the {@link RPCSender#invokeMethod(String)} method to gather the rpc result.
+   *
+   * @param className the name of the class owning the method.
+   * @param method    the method to generate the invoke method in.
+   * @param mv        the method visitor for the method.
+   * @throws NullPointerException if the given class name, method or method visitor is null.
+   */
   static void visitInvokeMethod(@NonNull String className, @NonNull Method method, @NonNull MethodVisitor mv) {
     // get the sender field
     mv.visitVarInsn(ALOAD, 0);
@@ -224,6 +254,16 @@ public final class ApiImplementationGenerator {
     mv.visitMethodInsn(INVOKEINTERFACE, SENDER_TYPE, "invokeMethod", INVOKE_METHOD_DESC, true);
   }
 
+  /**
+   * Decides which {@link RPC#fire()} method is appropriate to call for the return type of this method and generates the
+   * call on the {@link RPC} that was generated previously.
+   *
+   * @param method    the method to invoke using the rpc.
+   * @param mv        the method visitor for the current method.
+   * @param className the name of the class owning the method.
+   * @param context   the generation context for this generation step.
+   * @throws NullPointerException if the given method, method visitor, class name or context is null.
+   */
   @SuppressWarnings("ConstantConditions")
   static void visitFireMethod(
     @NonNull Method method,
@@ -288,43 +328,6 @@ public final class ApiImplementationGenerator {
         true);
       mv.visitInsn(RETURN);
     }
-  }
-
-  static void visitConstructor(
-    @NonNull MethodVisitor mv,
-    @NonNull GenerationContext context,
-    @NonNull String superName,
-    @NonNull String className
-  ) {
-    // check if the class has a constructor with a rpc sender instance, use that prioritized
-    boolean useSenderConstructor = false;
-    if (context.extendingClass() != null) {
-      try {
-        context.extendingClass().getDeclaredConstructor(RPCSender.class);
-        useSenderConstructor = true;
-      } catch (NoSuchMethodException ignored) {
-        // proceed as the class has only a no-args constructor
-      }
-    }
-
-    mv.visitCode();
-    // visit super
-    mv.visitVarInsn(ALOAD, 0);
-    if (useSenderConstructor) {
-      mv.visitVarInsn(ALOAD, 1);
-      mv.visitMethodInsn(INVOKESPECIAL, superName, "<init>", CONSTRUCTOR_SENDER_DESC, false);
-    } else {
-      mv.visitMethodInsn(INVOKESPECIAL, superName, "<init>", "()V", false);
-    }
-    // write the sender field
-    mv.visitVarInsn(ALOAD, 0);
-    mv.visitVarInsn(ALOAD, 1);
-    mv.visitFieldInsn(PUTFIELD, className, "sender", SENDER_DESC);
-  }
-
-  static void visitNetworkChannelSupplier(@NonNull ClassWriter cw) {
-    // add the channel supplier field
-    cw.visitField(ACC_PRIVATE | ACC_FINAL, "channelSupplier", SUPPLIER_DESC, null, null).visitEnd();
   }
 
   /**

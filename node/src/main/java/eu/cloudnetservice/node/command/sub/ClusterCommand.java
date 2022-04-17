@@ -179,7 +179,9 @@ public final class ClusterCommand {
   @CommandMethod("cluster|clu shutdown")
   public void shutdownCluster(@NonNull CommandSource $) {
     for (var nodeServer : Node.instance().nodeServerProvider().nodeServers()) {
-      nodeServer.shutdown();
+      if (nodeServer.channel() != null) {
+        nodeServer.shutdown();
+      }
     }
     Node.instance().stop();
   }
