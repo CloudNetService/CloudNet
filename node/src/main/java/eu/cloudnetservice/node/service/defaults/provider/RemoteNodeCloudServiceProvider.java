@@ -17,25 +17,15 @@
 package eu.cloudnetservice.node.service.defaults.provider;
 
 import eu.cloudnetservice.common.concurrent.Task;
-import eu.cloudnetservice.driver.network.NetworkChannel;
-import eu.cloudnetservice.driver.network.rpc.RPCSender;
-import eu.cloudnetservice.driver.provider.CloudServiceProvider;
-import eu.cloudnetservice.driver.provider.defaults.RemoteSpecificCloudServiceProvider;
+import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
-import java.util.function.Supplier;
 import lombok.NonNull;
 
-public class RemoteNodeCloudServiceProvider extends RemoteSpecificCloudServiceProvider {
+public abstract class RemoteNodeCloudServiceProvider implements SpecificCloudServiceProvider {
 
   private volatile ServiceInfoSnapshot snapshot;
 
-  public RemoteNodeCloudServiceProvider(
-    @NonNull CloudServiceProvider provider,
-    @NonNull RPCSender providerSender,
-    @NonNull Supplier<NetworkChannel> channelSupplier,
-    @NonNull ServiceInfoSnapshot snapshot
-  ) {
-    super(provider, providerSender, channelSupplier, snapshot.serviceId().uniqueId());
+  public RemoteNodeCloudServiceProvider(@NonNull ServiceInfoSnapshot snapshot) {
     this.snapshot = snapshot;
   }
 

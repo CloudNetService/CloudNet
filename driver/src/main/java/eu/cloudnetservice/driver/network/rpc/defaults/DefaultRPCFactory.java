@@ -111,30 +111,40 @@ public class DefaultRPCFactory implements RPCFactory {
    * {@inheritDoc}
    */
   @Override
-  @SuppressWarnings("unchecked")
   public @NonNull <T> ChainInstanceFactory<T> generateRPCChainBasedApi(
     @NonNull RPCSender baseSender,
     @NonNull Class<T> chainBaseClass,
-    @NonNull GenerationContext context,
-    @NonNull Object... baseArgs
+    @NonNull GenerationContext context
   ) {
-    var sender = this.senderFromGenerationContext(context, chainBaseClass);
-    var callingMethod = StackWalker.getInstance().walk(stream -> stream
-      .skip(1)
-      .map(StackFrame::getMethodName)
-      .findFirst()
-      .orElseThrow());
+    return this.generateRPCChainBasedApi(
+      baseSender,
+      StackWalker.getInstance().walk(stream -> stream
+        .skip(1)
+        .map(StackFrame::getMethodName)
+        .findFirst()
+        .orElseThrow()),
+      chainBaseClass,
+      context);
+  }
 
+  @Override
+  @SuppressWarnings("unchecked")
+  public @NonNull <T> ChainInstanceFactory<T> generateRPCChainBasedApi(
+    @NonNull RPCSender baseSender,
+    @NonNull String baseCallerMethod,
+    @NonNull Class<T> chainBaseClass,
+    @NonNull GenerationContext context
+  ) {
     // generate the instance factory if we need to
-    var factory = (ChainInstanceFactory<T>) this.factoryCache.get(chainBaseClass, callingMethod);
+    var factory = (ChainInstanceFactory<T>) this.factoryCache.get(chainBaseClass, baseCallerMethod);
     if (factory == null) {
       // not yet generated, generate and add it
       factory = ChainedApiImplementationGenerator.generateApiImplementation(
         chainBaseClass,
         context,
-        sender,
-        args -> baseSender.invokeMethod(callingMethod, args));
-      this.factoryCache.put(chainBaseClass, callingMethod, factory);
+        this.senderFromGenerationContext(context, chainBaseClass),
+        args -> baseSender.invokeMethod(baseCallerMethod, args));
+      this.factoryCache.put(chainBaseClass, baseCallerMethod, factory);
     }
     // return the cached or generated factory
     return factory;

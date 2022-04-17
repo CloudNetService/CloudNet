@@ -16,12 +16,14 @@
 
 package eu.cloudnetservice.driver.network.rpc.generation;
 
+import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.NetworkComponent;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Supplier;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,6 +37,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public record GenerationContext(
   @Nullable NetworkComponent component,
+  @Nullable Supplier<NetworkChannel> channelSupplier,
   @Nullable ObjectMapper objectMapper,
   @Nullable DataBufFactory dataBufFactory,
   @Nullable Class<?> extendingClass,
@@ -74,6 +77,7 @@ public record GenerationContext(
   public static final class Builder {
 
     private NetworkComponent component;
+    private Supplier<NetworkChannel> channelSupplier;
     private ObjectMapper objectMapper;
     private DataBufFactory dataBufFactory;
     private Class<?> extendingClass;
@@ -82,6 +86,11 @@ public record GenerationContext(
 
     public @NonNull Builder component(@NonNull NetworkComponent component) {
       this.component = component;
+      return this;
+    }
+
+    public @NonNull Builder channelSupplier(@Nullable Supplier<NetworkChannel> channelSupplier) {
+      this.channelSupplier = channelSupplier;
       return this;
     }
 
@@ -150,6 +159,7 @@ public record GenerationContext(
     public @NonNull GenerationContext build() {
       return new GenerationContext(
         this.component,
+        this.channelSupplier,
         this.objectMapper,
         this.dataBufFactory,
         this.extendingClass,

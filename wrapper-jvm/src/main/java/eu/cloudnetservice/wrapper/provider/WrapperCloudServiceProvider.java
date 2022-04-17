@@ -18,9 +18,9 @@ package eu.cloudnetservice.wrapper.provider;
 
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
+import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
-import eu.cloudnetservice.driver.provider.defaults.RemoteSpecificCloudServiceProvider;
 import java.util.UUID;
 import java.util.function.Supplier;
 import lombok.NonNull;
@@ -37,11 +37,19 @@ public abstract class WrapperCloudServiceProvider implements CloudServiceProvide
 
   @Override
   public @NonNull SpecificCloudServiceProvider serviceProvider(@NonNull UUID serviceUniqueId) {
-    return new RemoteSpecificCloudServiceProvider(this, this.rpcSender, this.channelSupplier, serviceUniqueId);
+    return this.rpcSender.factory().generateRPCChainBasedApi(
+      this.rpcSender,
+      SpecificCloudServiceProvider.class,
+      GenerationContext.forClass(SpecificCloudServiceProvider.class).channelSupplier(this.channelSupplier).build()
+    ).newRPCOnlyInstance(serviceUniqueId);
   }
 
   @Override
   public @NonNull SpecificCloudServiceProvider serviceProviderByName(@NonNull String serviceName) {
-    return new RemoteSpecificCloudServiceProvider(this, this.rpcSender, this.channelSupplier, serviceName);
+    return this.rpcSender.factory().generateRPCChainBasedApi(
+      this.rpcSender,
+      SpecificCloudServiceProvider.class,
+      GenerationContext.forClass(SpecificCloudServiceProvider.class).channelSupplier(this.channelSupplier).build()
+    ).newRPCOnlyInstance(serviceName);
   }
 }

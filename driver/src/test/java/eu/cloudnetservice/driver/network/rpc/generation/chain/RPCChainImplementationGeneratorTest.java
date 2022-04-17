@@ -17,25 +17,19 @@
 package eu.cloudnetservice.driver.network.rpc.generation.chain;
 
 import eu.cloudnetservice.common.concurrent.Task;
-import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
-import eu.cloudnetservice.driver.network.rpc.RPCSender;
-import eu.cloudnetservice.driver.network.rpc.defaults.DefaultRPCFactory;
-import eu.cloudnetservice.driver.network.rpc.defaults.object.DefaultObjectMapper;
-import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 public class RPCChainImplementationGeneratorTest {
 
   @Test
   public void testGeneration() {
-    var factory = new DefaultRPCFactory(new DefaultObjectMapper(), DataBufFactory.defaultFactory());
+   /* var factory = new DefaultRPCFactory(new DefaultObjectMapper(), DataBufFactory.defaultFactory());
     var s = factory.generateRPCChainBasedApi(
       Mockito.mock(RPCSender.class),
       Test123.class,
-      GenerationContext.forClass(Test123.class).build(),
+      GenerationContext.forClass(Test123.class).channelSupplier(() -> null).build(),
       "world"
-    ).newInstance("test", 123, "xdd");
+    ).newInstance("test", 123, "xdd");*/
   }
 
   public abstract static class Test123 {

@@ -101,8 +101,13 @@ public interface RPCFactory {
   @NonNull <T> ChainInstanceFactory<T> generateRPCChainBasedApi(
     @NonNull RPCSender baseSender,
     @NonNull Class<T> chainBaseClass,
-    @NonNull GenerationContext context,
-    @NonNull Object... baseArgs);
+    @NonNull GenerationContext context);
+
+  @NonNull <T> ChainInstanceFactory<T> generateRPCChainBasedApi(
+    @NonNull RPCSender baseSender,
+    @NonNull String baseCallerMethod,
+    @NonNull Class<T> chainBaseClass,
+    @NonNull GenerationContext context);
 
   /**
    * Constructs a new rpc handler for the given class.

@@ -36,7 +36,7 @@ import static org.objectweb.asm.Opcodes.V1_8;
 
 import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.concurrent.Task;
-import eu.cloudnetservice.driver.network.NetworkComponent;
+import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.rpc.RPC;
 import eu.cloudnetservice.driver.network.rpc.RPCExecutable;
 import eu.cloudnetservice.driver.network.rpc.RPCFactory;
@@ -52,8 +52,10 @@ import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.ClassWriter;
@@ -63,12 +65,18 @@ import org.objectweb.asm.Type;
 /**
  * The generator for api implementations based on rpc.
  *
- * @see RPCFactory#generateRPCBasedApi(Class, NetworkComponent)
+ * @see RPCFactory#generateRPCBasedApi(Class, GenerationContext)
  * @since 4.0
  */
 public final class ApiImplementationGenerator {
 
   static final String DEFAULT_SUPER = "java/lang/Object";
+  // network channel supplier
+  static final Type CHANNEL_TYPE = Type.getType(NetworkChannel.class);
+  static final String NET_CHANNEL_TYPE = CHANNEL_TYPE.getInternalName();
+  static final String SUPPLIER_DESC = Type.getDescriptor(Supplier.class);
+  static final String SUPPLIER_TYPE = Type.getInternalName(Supplier.class);
+  static final String GET_METHOD_DESC = Type.getMethodDescriptor(Type.getType(Object.class));
   // sender stuff
   static final String SENDER_DESC = Type.getDescriptor(RPCSender.class);
   static final String SENDER_TYPE = Type.getInternalName(RPCSender.class);
@@ -84,6 +92,10 @@ public final class ApiImplementationGenerator {
   static final String EXECUTABLE_FIRE_FORGET = Type.getMethodDescriptor(Type.VOID_TYPE);
   static final String EXECUTABLE_FIRE = Type.getMethodDescriptor(Type.getType(Task.class));
   static final String EXECUTABLE_FIRE_SYNC = Type.getMethodDescriptor(Type.getType(Object.class));
+  // executable with channel
+  static final String EXECUTABLE_FIRE_FORGET_CHANNEL = Type.getMethodDescriptor(Type.VOID_TYPE, CHANNEL_TYPE);
+  static final String EXECUTABLE_FIRE_CHANNEL = Type.getMethodDescriptor(Type.getType(Task.class), CHANNEL_TYPE);
+  static final String EXECUTABLE_FIRE_SYNC_CHANNEL = Type.getMethodDescriptor(Type.getType(Object.class), CHANNEL_TYPE);
   // information regarding the generated class
   static final String GENERATED_CLASS_NAME_FORMAT = "%s$Impl_%s";
   // the main checker function if a method should be overridden or not, only applying the base checks
@@ -120,9 +132,10 @@ public final class ApiImplementationGenerator {
     @NonNull RPCSender sender
   ) {
     try {
+      var parentClass = Objects.requireNonNullElse(context.extendingClass(), baseClass);
       var className = String.format(
         GENERATED_CLASS_NAME_FORMAT,
-        Type.getInternalName(baseClass),
+        Type.getInternalName(parentClass),
         StringUtil.generateRandomString(10));
       var superName = context.extendingClass() == null ? DEFAULT_SUPER : Type.getInternalName(context.extendingClass());
 
@@ -139,9 +152,10 @@ public final class ApiImplementationGenerator {
       cw
         .visitField(ACC_PRIVATE | ACC_FINAL, "sender", SENDER_DESC, null, null)
         .visitEnd();
+      visitNetworkChannelSupplier(cw);
       // generate the constructor
       MethodVisitor mv;
-      mv = cw.visitMethod(ACC_PUBLIC, "<init>", "(" + SENDER_DESC + ")V", null, null);
+      mv = cw.visitMethod(ACC_PUBLIC, "<init>", String.format("(%s%s)V", SENDER_DESC, SUPPLIER_DESC), null, null);
       // generate the constructor
       visitConstructor(mv, context, superName, className);
       // finish
@@ -158,7 +172,7 @@ public final class ApiImplementationGenerator {
           // generate the invoke method
           visitInvokeMethod(className, method, mv);
           // we cannot ignore the return type if not void
-          visitFireMethod(method, mv);
+          visitFireMethod(method, mv, className, context);
           // finish the method
           mv.visitMaxs(0, 0);
           mv.visitEnd();
@@ -168,11 +182,11 @@ public final class ApiImplementationGenerator {
       cw.visitEnd();
       // define & select the correct constructor for the class
       var constructor = ClassDefiners.current()
-        .defineClass(className, baseClass, cw.toByteArray())
-        .getDeclaredConstructor(RPCSender.class);
+        .defineClass(className, parentClass, cw.toByteArray())
+        .getDeclaredConstructor(RPCSender.class, Supplier.class);
       constructor.setAccessible(true);
       // instantiate the new class
-      return (T) constructor.newInstance(sender);
+      return (T) constructor.newInstance(sender, context.channelSupplier());
     } catch (Exception exception) {
       throw new ClassCreationException(String.format(
         "Unable to generate api class implementation for class %s",
@@ -211,16 +225,41 @@ public final class ApiImplementationGenerator {
   }
 
   @SuppressWarnings("ConstantConditions")
-  static void visitFireMethod(@NonNull Method method, @NonNull MethodVisitor mv) {
+  static void visitFireMethod(
+    @NonNull Method method,
+    @NonNull MethodVisitor mv,
+    @NonNull String className,
+    @NonNull GenerationContext context
+  ) {
+    var hasChannelSupplier = context.channelSupplier() != null;
+    // load the network channel we want to send the request to onto the stack if needed
+    if (hasChannelSupplier) {
+      mv.visitVarInsn(ALOAD, 0);
+      mv.visitFieldInsn(GETFIELD, className, "channelSupplier", SUPPLIER_DESC);
+      mv.visitMethodInsn(INVOKEINTERFACE, SUPPLIER_TYPE, "get", GET_METHOD_DESC, true);
+      mv.visitTypeInsn(CHECKCAST, NET_CHANNEL_TYPE);
+    }
+
+    // visit the actual fire method
     var voidMethod = method.getReturnType().equals(void.class);
     if (!voidMethod || !method.isAnnotationPresent(RPCNoResult.class)) {
       // fire async if the result type is a completable future
       if (Task.class.isAssignableFrom(method.getReturnType())) {
         // fire the rpc async
-        mv.visitMethodInsn(INVOKEINTERFACE, EXECUTABLE_NAME, "fire", EXECUTABLE_FIRE, true);
+        mv.visitMethodInsn(
+          INVOKEINTERFACE,
+          EXECUTABLE_NAME,
+          "fire",
+          hasChannelSupplier ? EXECUTABLE_FIRE_CHANNEL : EXECUTABLE_FIRE,
+          true);
       } else {
         // fire the rpc sync
-        mv.visitMethodInsn(INVOKEINTERFACE, EXECUTABLE_NAME, "fireSync", EXECUTABLE_FIRE_SYNC, true);
+        mv.visitMethodInsn(
+          INVOKEINTERFACE,
+          EXECUTABLE_NAME,
+          "fireSync",
+          hasChannelSupplier ? EXECUTABLE_FIRE_SYNC_CHANNEL : EXECUTABLE_FIRE_SYNC,
+          true);
         // unwrap primitive types
         if (!voidMethod) {
           if (method.getReturnType().isPrimitive()) {
@@ -241,7 +280,12 @@ public final class ApiImplementationGenerator {
       }
     } else {
       // just send
-      mv.visitMethodInsn(INVOKEINTERFACE, EXECUTABLE_NAME, "fireAndForget", EXECUTABLE_FIRE_FORGET, true);
+      mv.visitMethodInsn(
+        INVOKEINTERFACE,
+        EXECUTABLE_NAME,
+        "fireAndForget",
+        hasChannelSupplier ? EXECUTABLE_FIRE_FORGET_CHANNEL : EXECUTABLE_FIRE_FORGET,
+        true);
       mv.visitInsn(RETURN);
     }
   }
@@ -276,6 +320,11 @@ public final class ApiImplementationGenerator {
     mv.visitVarInsn(ALOAD, 0);
     mv.visitVarInsn(ALOAD, 1);
     mv.visitFieldInsn(PUTFIELD, className, "sender", SENDER_DESC);
+  }
+
+  static void visitNetworkChannelSupplier(@NonNull ClassWriter cw) {
+    // add the channel supplier field
+    cw.visitField(ACC_PRIVATE | ACC_FINAL, "channelSupplier", SUPPLIER_DESC, null, null).visitEnd();
   }
 
   /**

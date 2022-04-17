@@ -32,11 +32,11 @@ import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.network.netty.client.NettyNetworkClient;
 import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.provider.ClusterNodeProvider;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
-import eu.cloudnetservice.driver.provider.defaults.RemoteCloudServiceFactory;
 import eu.cloudnetservice.driver.service.ProcessSnapshot;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceId;
@@ -127,6 +127,9 @@ public class Wrapper extends CloudNetDriver {
     super.groupConfigurationProvider = this.rpcFactory.generateRPCBasedApi(
       GroupConfigurationProvider.class,
       GenerationContext.forClass(GroupConfigurationProvider.class).component(this.networkClient).build());
+    super.cloudServiceFactory = this.rpcFactory().generateRPCBasedApi(
+      CloudServiceFactory.class,
+      GenerationContext.forClass(CloudServiceFactory.class).component(this.networkClient).build());
 
     // these contain some methods which we cannot auto generate directly
     super.templateStorageProvider = this.rpcFactory.generateRPCBasedApi(
@@ -143,8 +146,6 @@ public class Wrapper extends CloudNetDriver {
     this.eventManager.registerListener(new TaskChannelMessageListener(this.eventManager));
     this.eventManager.registerListener(new GroupChannelMessageListener(this.eventManager));
     this.eventManager.registerListener(new ServiceChannelMessageListener(this.eventManager));
-
-    super.cloudServiceFactory = new RemoteCloudServiceFactory(this.networkClient::firstChannel, this.rpcFactory);
 
     super.moduleProvider.moduleProviderHandler(new DefaultModuleProviderHandler());
     super.moduleProvider.moduleDirectoryPath(Path.of(".wrapper", "modules"));

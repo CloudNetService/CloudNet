@@ -104,7 +104,9 @@ public class RPCPacketListener implements PacketListener {
     }
     // check if we need to send a result
     if (result != null && packet.uniqueId() != null) {
-      channel.queryPacketManager().sendQueryPacket(new BasePacket(-1, result), packet.uniqueId());
+      var response = new BasePacket(-1, result);
+      response.uniqueId(packet.uniqueId());
+      channel.sendPacket(response);
     }
   }
 

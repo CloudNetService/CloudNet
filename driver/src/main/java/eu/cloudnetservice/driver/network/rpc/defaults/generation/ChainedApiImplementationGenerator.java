@@ -19,17 +19,19 @@ package eu.cloudnetservice.driver.network.rpc.defaults.generation;
 import static eu.cloudnetservice.driver.network.rpc.defaults.generation.ApiImplementationGenerator.DEFAULT_SUPER;
 import static eu.cloudnetservice.driver.network.rpc.defaults.generation.ApiImplementationGenerator.GENERATED_CLASS_NAME_FORMAT;
 import static eu.cloudnetservice.driver.network.rpc.defaults.generation.ApiImplementationGenerator.SENDER_DESC;
+import static eu.cloudnetservice.driver.network.rpc.defaults.generation.ApiImplementationGenerator.SUPPLIER_DESC;
 import static eu.cloudnetservice.driver.network.rpc.defaults.generation.ApiImplementationGenerator.collectMethodsToVisit;
 import static eu.cloudnetservice.driver.network.rpc.defaults.generation.ApiImplementationGenerator.visitFireMethod;
 import static eu.cloudnetservice.driver.network.rpc.defaults.generation.ApiImplementationGenerator.visitInvokeMethod;
+import static eu.cloudnetservice.driver.network.rpc.defaults.generation.ApiImplementationGenerator.visitNetworkChannelSupplier;
 import static org.objectweb.asm.Opcodes.ACC_FINAL;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.ILOAD;
+import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
-import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
@@ -38,6 +40,7 @@ import com.google.common.collect.ObjectArrays;
 import dev.derklaro.reflexion.Reflexion;
 import dev.derklaro.reflexion.matcher.ConstructorMatcher;
 import eu.cloudnetservice.common.StringUtil;
+import eu.cloudnetservice.driver.network.rpc.ChainableRPC;
 import eu.cloudnetservice.driver.network.rpc.RPC;
 import eu.cloudnetservice.driver.network.rpc.RPCChain;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
@@ -49,6 +52,7 @@ import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -61,9 +65,10 @@ import org.objectweb.asm.Type;
 public final class ChainedApiImplementationGenerator {
 
   private static final Type RPC_TYPE = Type.getType(RPC.class);
-  private static final Type RPC_CHAIN_TYPE = Type.getType(RPCChain.class);
   private static final String RPC_DESC = RPC_TYPE.getDescriptor();
-  private static final String RPC_CHAIN_NAME = RPC_CHAIN_TYPE.getInternalName();
+
+  private static final Type RPC_CHAIN_TYPE = Type.getType(RPCChain.class);
+  private static final String CHAINABLE_RPC_NAME = Type.getInternalName(ChainableRPC.class);
   private static final String RPC_JOIN_METHOD_DESC = Type.getMethodDescriptor(RPC_CHAIN_TYPE, RPC_TYPE);
 
   private ChainedApiImplementationGenerator() {
@@ -78,9 +83,10 @@ public final class ChainedApiImplementationGenerator {
     @NonNull Function<Object[], RPC> rpcFactory
   ) {
     try {
+      var parentClass = Objects.requireNonNullElse(context.extendingClass(), baseClass);
       var className = String.format(
         GENERATED_CLASS_NAME_FORMAT,
-        Type.getInternalName(baseClass),
+        Type.getInternalName(parentClass),
         StringUtil.generateRandomString(10));
       var superName = context.extendingClass() == null ? DEFAULT_SUPER : Type.getInternalName(context.extendingClass());
 
@@ -101,6 +107,7 @@ public final class ChainedApiImplementationGenerator {
       // add the base rpc and class sender field
       cw.visitField(ACC_PRIVATE | ACC_FINAL, "base", RPC_DESC, null, null).visitEnd();
       cw.visitField(ACC_PRIVATE | ACC_FINAL, "sender", SENDER_DESC, null, null).visitEnd();
+      visitNetworkChannelSupplier(cw);
 
       // generate the constructor
       MethodVisitor mv;
@@ -110,9 +117,10 @@ public final class ChainedApiImplementationGenerator {
           ACC_PUBLIC,
           "<init>",
           String.format(
-            "(%s%s%s)V",
+            "(%s%s%s%s)V",
             RPC_DESC,
             SENDER_DESC,
+            SUPPLIER_DESC,
             superDesc),
           null,
           null);
@@ -128,12 +136,17 @@ public final class ChainedApiImplementationGenerator {
         mv.visitVarInsn(ALOAD, 2);
         mv.visitFieldInsn(PUTFIELD, className, "sender", SENDER_DESC);
 
+        // assign the supplier field if present
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitVarInsn(ALOAD, 3);
+        mv.visitFieldInsn(PUTFIELD, className, "channelSupplier", SUPPLIER_DESC);
+
         // call the super "<init>" method
         mv.visitVarInsn(ALOAD, 0);
         for (int i = 0; i < types.size(); i++) {
           // loads and passes the correct arguments to the super constructor
           var type = Type.getType(types.get(i));
-          mv.visitVarInsn(type.getOpcode(ILOAD), 3 + i);
+          mv.visitVarInsn(type.getOpcode(ILOAD), 4 + i);
         }
         mv.visitMethodInsn(INVOKESPECIAL, superName, "<init>", '(' + superDesc + ")V", false);
 
@@ -156,9 +169,9 @@ public final class ChainedApiImplementationGenerator {
           // generate the invoke method (the method we want to invoke)
           visitInvokeMethod(className, method, mv);
           // actually visit the join method, taking the base rpc as the argument
-          mv.visitMethodInsn(INVOKEVIRTUAL, RPC_CHAIN_NAME, "join", RPC_JOIN_METHOD_DESC, false);
+          mv.visitMethodInsn(INVOKEINTERFACE, CHAINABLE_RPC_NAME, "join", RPC_JOIN_METHOD_DESC, true);
           // fires the rpc
-          visitFireMethod(method, mv);
+          visitFireMethod(method, mv, className, context);
 
           // finish the method
           mv.visitMaxs(0, 0);
@@ -169,7 +182,7 @@ public final class ChainedApiImplementationGenerator {
       cw.visitEnd();
 
       // define & select the correct constructor for the class
-      var definedClass = ClassDefiners.current().defineClass(className, baseClass, cw.toByteArray());
+      var definedClass = ClassDefiners.current().defineClass(className, parentClass, cw.toByteArray());
       var constructorMatcher = ConstructorMatcher.newMatcher()
         .exactType(Constructor::getDeclaringClass, definedClass)
         .exactTypeAt(Constructor::getParameterTypes, RPC.class, 0)
@@ -182,7 +195,11 @@ public final class ChainedApiImplementationGenerator {
         .map(accessor -> (ChainInstanceFactory<T>) (constructorArgs, rpcArgs) -> {
           // collect the arguments for the invocation
           var baseRPC = rpcFactory.apply(rpcArgs);
-          var arguments = ObjectArrays.concat(new Object[]{baseRPC, classSender}, constructorArgs, Object.class);
+          var arguments = new Object[]{baseRPC, classSender, context.channelSupplier()};
+          // check if we need to add specific constructor args
+          if (constructorArgs != null) {
+            arguments = ObjectArrays.concat(arguments, constructorArgs, Object.class);
+          }
           // construct the new class instance
           return (T) accessor.invokeWithArgs(arguments).getOrThrow();
         })

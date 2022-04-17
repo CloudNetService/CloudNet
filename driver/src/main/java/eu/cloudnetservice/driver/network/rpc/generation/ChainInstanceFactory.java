@@ -17,6 +17,7 @@
 package eu.cloudnetservice.driver.network.rpc.generation;
 
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 @FunctionalInterface
 public interface ChainInstanceFactory<T> {
@@ -25,5 +26,9 @@ public interface ChainInstanceFactory<T> {
     return this.newInstance(args, args);
   }
 
-  @NonNull T newInstance(@NonNull Object[] constructorArgs, @NonNull Object[] rpcArgs);
+  default @NonNull T newRPCOnlyInstance(@NonNull Object... rpcArgs) {
+    return this.newInstance(null, rpcArgs);
+  }
+
+  @NonNull T newInstance(@Nullable Object[] constructorArgs, @NonNull Object[] rpcArgs);
 }
