@@ -25,10 +25,7 @@ import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.chunk.ChunkedPacketSender;
 import eu.cloudnetservice.driver.network.chunk.TransferStatus;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
-import eu.cloudnetservice.driver.network.rpc.RPC;
-import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
-import eu.cloudnetservice.driver.template.FileInfo;
 import eu.cloudnetservice.driver.template.TemplateStorage;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,7 +33,6 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
@@ -48,25 +44,18 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
-public final class RemoteTemplateStorage implements TemplateStorage {
+public abstract class RemoteTemplateStorage implements TemplateStorage {
 
   private final String name;
-  private final RPC baseRPC;
-  private final RPCSender sender;
 
   /**
    * Constructs a new remote template storage instance.
    *
-   * @param name    the name of the storage which was created.
-   * @param baseRPC the base rpc to obtain an instance of the template storage.
-   * @throws NullPointerException if the given name or base rpc is null.
+   * @param name the name of the storage which was created.
+   * @throws NullPointerException if the given name is null.
    */
-  public RemoteTemplateStorage(@NonNull String name, @NonNull RPC baseRPC) {
+  public RemoteTemplateStorage(@NonNull String name) {
     this.name = name;
-    this.baseRPC = baseRPC;
-    this.sender = baseRPC.sender().factory().providerForClass(
-      baseRPC.sender().associatedComponent(),
-      TemplateStorage.class);
   }
 
   /**
@@ -112,14 +101,6 @@ public final class RemoteTemplateStorage implements TemplateStorage {
    * {@inheritDoc}
    */
   @Override
-  public boolean pull(@NonNull ServiceTemplate template, @NonNull Path directory) {
-    return this.baseRPC.join(this.sender.invokeMethod("copy", template, directory)).fireSync();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public @Nullable InputStream zipTemplate(@NonNull ServiceTemplate template) throws IOException {
     // send a request for the template to the node
     var responseId = UUID.randomUUID();
@@ -136,30 +117,6 @@ public final class RemoteTemplateStorage implements TemplateStorage {
     }
     // the file is transferred and should be readable
     return Files.newInputStream(FileUtil.TEMP_DIR.resolve(responseId.toString()), StandardOpenOption.DELETE_ON_CLOSE);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean delete(@NonNull ServiceTemplate template) {
-    return this.baseRPC.join(this.sender.invokeMethod("delete", template)).fireSync();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean create(@NonNull ServiceTemplate template) {
-    return this.baseRPC.join(this.sender.invokeMethod("create", template)).fireSync();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean contains(@NonNull ServiceTemplate template) {
-    return this.baseRPC.join(this.sender.invokeMethod("has", template)).fireSync();
   }
 
   /**
@@ -219,38 +176,6 @@ public final class RemoteTemplateStorage implements TemplateStorage {
    * {@inheritDoc}
    */
   @Override
-  public boolean createFile(@NonNull ServiceTemplate template, @NonNull String path) {
-    return this.baseRPC.join(this.sender.invokeMethod("createFile", template, path)).fireSync();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean createDirectory(@NonNull ServiceTemplate template, @NonNull String path) {
-    return this.baseRPC.join(this.sender.invokeMethod("createDirectory", template, path)).fireSync();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean hasFile(@NonNull ServiceTemplate template, @NonNull String path) {
-    return this.baseRPC.join(this.sender.invokeMethod("hasFile", template, path)).fireSync();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean deleteFile(@NonNull ServiceTemplate template, @NonNull String path) {
-    return this.baseRPC.join(this.sender.invokeMethod("deleteFile", template, path)).fireSync();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public @Nullable InputStream newInputStream(
     @NonNull ServiceTemplate template,
     @NonNull String path
@@ -270,41 +195,5 @@ public final class RemoteTemplateStorage implements TemplateStorage {
     }
     // the file is transferred and should be readable
     return Files.newInputStream(FileUtil.TEMP_DIR.resolve(responseId.toString()), StandardOpenOption.DELETE_ON_CLOSE);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @Nullable FileInfo fileInfo(@NonNull ServiceTemplate template, @NonNull String path) {
-    return this.baseRPC.join(this.sender.invokeMethod("fileInfo", template, path)).fireSync();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @NonNull Collection<FileInfo> listFiles(
-    @NonNull ServiceTemplate template,
-    @NonNull String dir,
-    boolean deep
-  ) {
-    return this.baseRPC.join(this.sender.invokeMethod("listFiles", template, dir, deep)).fireSync();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @NonNull Collection<ServiceTemplate> templates() {
-    return this.baseRPC.join(this.sender.invokeMethod("templates")).fireSync();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void close() throws IOException {
-    this.baseRPC.join(this.sender.invokeMethod("close")).fireSync();
   }
 }

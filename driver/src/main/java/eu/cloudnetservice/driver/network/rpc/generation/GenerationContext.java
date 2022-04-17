@@ -16,21 +16,34 @@
 
 package eu.cloudnetservice.driver.network.rpc.generation;
 
+import eu.cloudnetservice.driver.network.NetworkChannel;
+import eu.cloudnetservice.driver.network.NetworkComponent;
+import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
+import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Supplier;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * A context for the generation of a class which implements some kind of api which only calls methods using rpc.
  *
+ * @param component           the network component to use when firing the rpc.
+ * @param channelSupplier     the supplier for the network component invoked when firing the rpc.
+ * @param objectMapper        the object mapper mapping the databuf back to an object.
+ * @param dataBufFactory      the databuf factory to use when creating databufs for the generation factory.
  * @param extendingClass      the class the generated class should extend, null for none.
  * @param interfaces          the interfaces the generated class should implement.
  * @param implementAllMethods if all methods or only abstract methods should get implemented.
  * @since 4.0
  */
 public record GenerationContext(
+  @Nullable NetworkComponent component,
+  @Nullable Supplier<NetworkChannel> channelSupplier,
+  @Nullable ObjectMapper objectMapper,
+  @Nullable DataBufFactory dataBufFactory,
   @Nullable Class<?> extendingClass,
   @NonNull Set<Class<?>> interfaces,
   boolean implementAllMethods
@@ -67,10 +80,57 @@ public record GenerationContext(
    */
   public static final class Builder {
 
+    private NetworkComponent component;
+    private Supplier<NetworkChannel> channelSupplier;
+    private ObjectMapper objectMapper;
+    private DataBufFactory dataBufFactory;
     private Class<?> extendingClass;
-
     private boolean implementAllMethods = false;
     private Set<Class<?>> interfaces = new HashSet<>();
+
+    /**
+     * Sets the network component to use when firing rpc.
+     *
+     * @param component the component used to fire.
+     * @return the same instance of the builder, for chaining.
+     */
+    public @NonNull Builder component(@Nullable NetworkComponent component) {
+      this.component = component;
+      return this;
+    }
+
+    /**
+     * Sets the supplier for the network component that is used when firing rpc.
+     *
+     * @param channelSupplier the supplier used to fire.
+     * @return the same instance of the builder, for chaining.
+     */
+    public @NonNull Builder channelSupplier(@Nullable Supplier<NetworkChannel> channelSupplier) {
+      this.channelSupplier = channelSupplier;
+      return this;
+    }
+
+    /**
+     * Sets the object mapper responsible for mapping a databuf back to an object.
+     *
+     * @param objectMapper the object mapper for mapping.
+     * @return the same instance of the builder, for chaining.
+     */
+    public @NonNull Builder objectMapper(@Nullable ObjectMapper objectMapper) {
+      this.objectMapper = objectMapper;
+      return this;
+    }
+
+    /**
+     * Sets the databuf factory to use when creating databufs for the generation.
+     *
+     * @param dataBufFactory the databuf factory for the generation.
+     * @return the same instance of the builder, for chaining.
+     */
+    public @NonNull Builder dataBufFactory(@Nullable DataBufFactory dataBufFactory) {
+      this.dataBufFactory = dataBufFactory;
+      return this;
+    }
 
     /**
      * Sets the class the generated classes based on the build context should extend.
@@ -125,7 +185,14 @@ public record GenerationContext(
      * @return a new generation context based on this builder.
      */
     public @NonNull GenerationContext build() {
-      return new GenerationContext(this.extendingClass, this.interfaces, this.implementAllMethods);
+      return new GenerationContext(
+        this.component,
+        this.channelSupplier,
+        this.objectMapper,
+        this.dataBufFactory,
+        this.extendingClass,
+        this.interfaces,
+        this.implementAllMethods);
     }
   }
 }

@@ -23,9 +23,9 @@ import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
+import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
-import eu.cloudnetservice.driver.provider.defaults.RemoteCloudServiceFactory;
 import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
@@ -65,7 +65,9 @@ public class RemoteNodeServer implements NodeServer {
     this.node = node;
     this.info = info;
     this.provider = provider;
-    this.serviceFactory = new RemoteCloudServiceFactory(this::channel, node.rpcFactory());
+    this.serviceFactory = node.rpcFactory().generateRPCBasedApi(
+      CloudServiceFactory.class,
+      GenerationContext.forClass(CloudServiceFactory.class).channelSupplier(this::channel).build());
   }
 
   @Override
