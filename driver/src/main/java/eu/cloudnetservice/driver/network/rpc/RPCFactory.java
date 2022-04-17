@@ -79,15 +79,15 @@ public interface RPCFactory {
    * which has all methods which need to be processed locally already done, no rpc based method implementation will be
    * generated for the class.
    * <p>
-   * The given base class must define one of the following constructors:
+   * The defined base class in the context must define one of the following constructors:
    * <ol>
    *   <li>A constructor with no arguments, or
    *   <li>A constructor taking exactly one argument, a rpc sender instance.
    * </ol>
    * Note: the constructor taking the rpc sender instance is preferred by the generator over the no args constructor.
    * <p>
-   * Note: This method will not cache the result of the generation. Calling this method twice will generate two
-   * different implementation classes and instances!
+   * This method will cache the result of the generation, calling this method twice will only result in two different
+   * instances in the same class, but only if the given generation context did not change between the calls.
    *
    * @param baseClass the base class to generate the class methods based on.
    * @param context   the context of the class generation, holding the options for it.
@@ -98,11 +98,60 @@ public interface RPCFactory {
    */
   @NonNull <T> T generateRPCBasedApi(@NonNull Class<T> baseClass, @NonNull GenerationContext context);
 
+  /**
+   * Generates an api implementation for the given base class, invoking all of its method using a chained rpc call. The
+   * base rpc is discovered using the given rpc sender and the name of the method which called the method. The invoker
+   * of the method must be direct (1 up in the local stack trace). If the method name cannot be determined by the stack,
+   * use {@link #generateRPCChainBasedApi(RPCSender, String, Class, GenerationContext)} to supply the name of the method
+   * to use instead. This method only overrides methods which are abstract in the given class tree. In other words, if
+   * you're passing an implementation which has all methods which need to be processed locally already done, no rpc
+   * based method implementation will be generated for the class.
+   * <p>
+   * If the base class defined in the invocation context needs arguments to be supplied, they must get passed to the
+   * created instance factory. Note: the constructor parameters are not required to match the parameters supplied to the
+   * base rpc call.
+   * <p>
+   * This method will cache the result of the generation, calling this method twice will only result in two different
+   * instances in the same class, but only if the given generation context and the calling method name did not change
+   * between the calls.
+   *
+   * @param baseSender     the rpc sender for the base class from which the chain should start.
+   * @param chainBaseClass the base class from which methods one step into the chain should get called.
+   * @param context        the context of the class generation, holding the options for it.
+   * @param <T>            the type which gets generated.
+   * @return a factory which is capable to create new instances of the given chain base class, for rpc chain calls.
+   * @throws NullPointerException   if the given base sender, chain base class or generation context is null.
+   * @throws ClassCreationException if the generator is unable to generate an implementation of the class.
+   */
   @NonNull <T> ChainInstanceFactory<T> generateRPCChainBasedApi(
     @NonNull RPCSender baseSender,
     @NonNull Class<T> chainBaseClass,
     @NonNull GenerationContext context);
 
+  /**
+   * Generates an api implementation for the given base class, invoking all of its method using a chained rpc call. The
+   * base rpc is discovered using the given rpc sender and the given method name. This method only overrides methods
+   * which are abstract in the given class tree. In other words, if you're passing an implementation which has all
+   * methods which need to be processed locally already done, no rpc based method implementation will be generated for
+   * the class.
+   * <p>
+   * If the base class defined in the invocation context needs arguments to be supplied, they must get passed to the
+   * created instance factory. Note: the constructor parameters are not required to match the parameters supplied to the
+   * base rpc call.
+   * <p>
+   * This method will cache the result of the generation, calling this method twice will only result in two different
+   * instances in the same class, but only if the given generation context and the calling method name did not change
+   * between the calls.
+   *
+   * @param baseSender       the rpc sender for the base class from which the chain should start.
+   * @param baseCallerMethod the name of the method to use to obtain the base instance to call the chain on.
+   * @param chainBaseClass   the base class from which methods one step into the chain should get called.
+   * @param context          the context of the class generation, holding the options for it.
+   * @param <T>              the type which gets generated.
+   * @return a factory which is capable to create new instances of the given chain base class, for rpc chain calls.
+   * @throws NullPointerException   if the given base sender, method, chain base class or generation context is null.
+   * @throws ClassCreationException if the generator is unable to generate an implementation of the class.
+   */
   @NonNull <T> ChainInstanceFactory<T> generateRPCChainBasedApi(
     @NonNull RPCSender baseSender,
     @NonNull String baseCallerMethod,

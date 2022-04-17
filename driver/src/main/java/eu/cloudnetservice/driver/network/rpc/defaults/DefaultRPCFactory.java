@@ -135,6 +135,9 @@ public class DefaultRPCFactory implements RPCFactory {
       context);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   @SuppressWarnings("unchecked")
   public @NonNull <T> ChainInstanceFactory<T> generateRPCChainBasedApi(
@@ -179,6 +182,15 @@ public class DefaultRPCFactory implements RPCFactory {
     return new DefaultRPCHandler(clazz, binding, objectMapper, dataBufFactory);
   }
 
+  /**
+   * Constructs a new rpc sender for the given base class and using the options supplied by the given generation
+   * context.
+   *
+   * @param context the context to take out the needed options from.
+   * @param base    the base class in which the new sender should call the methods.
+   * @return a new rpc sender instance.
+   * @throws NullPointerException if the given context or base class is null.
+   */
   private @NonNull RPCSender senderFromGenerationContext(@NonNull GenerationContext context, @NonNull Class<?> base) {
     var objectMapper = Objects.requireNonNullElse(context.objectMapper(), this.defaultObjectMapper);
     var dataBufFactory = Objects.requireNonNullElse(context.dataBufFactory(), this.defaultDataBufFactory);
