@@ -22,6 +22,20 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
+/**
+ * A network player proxy info represents the proxy service a cloud player is connected to.
+ *
+ * @param uniqueId       the unique id of the player.
+ * @param name           the name of the player.
+ * @param xBoxId         the xbox id of the player, null if the player does not have a xbox id.
+ * @param version        the protocol version used by the player to connect to the proxy.
+ * @param address        the host address of the player used to connect to the proxy.
+ * @param listener       the host address the proxy is bound to.
+ * @param onlineMode     the online mode of the player, true if the player is authenticated with mojang services.
+ * @param networkService the service info of the proxy the player is connected to.
+ * @see NetworkServiceInfo
+ * @since 4.0
+ */
 public record NetworkPlayerProxyInfo(
   @NonNull UUID uniqueId,
   @NonNull String name,

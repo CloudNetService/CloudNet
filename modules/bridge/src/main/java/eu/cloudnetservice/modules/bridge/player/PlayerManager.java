@@ -54,7 +54,9 @@ public interface PlayerManager {
   long registeredCount();
 
   /**
-   * Gets an online cloud player by its unique id.
+   * Gets an online cloud player by its unique id from the cache on the node.
+   * <p>
+   * The player stays in cache while being online and is removed when leaving.
    *
    * @param uniqueId the unique id of the player.
    * @return the online cloud player or null if the player is not online.
@@ -101,7 +103,8 @@ public interface PlayerManager {
   @NonNull PlayerExecutor globalPlayerExecutor();
 
   /**
-   * Creates a new player executor for the player associated with the given unique id.
+   * Creates a new player executor for the player associated with the given unique id. The player executor is created
+   * even if there is no online player with the given unique id.
    *
    * @param uniqueId the unique id of the player for the new player executor.
    * @return the player executor for the given player.
@@ -138,6 +141,9 @@ public interface PlayerManager {
 
   /**
    * Gets the offline player associated with the given unique id. The player must have been previously connected.
+   * <p>
+   * The cloud offline player is cached on the node and retrieved from the cache if present otherwise loaded from the
+   * database.
    *
    * @param uniqueId the unique id of the offline player.
    * @return the offline player with the given unique id or null if there is no player.

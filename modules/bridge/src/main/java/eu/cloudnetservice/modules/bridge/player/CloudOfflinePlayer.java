@@ -79,10 +79,6 @@ public class CloudOfflinePlayer extends JsonDocPropertyHolder implements Cloneab
     return this.lastLoginTimeMillis;
   }
 
-  public void lastLoginTimeMillis(long lastLoginTimeMillis) {
-    this.lastLoginTimeMillis = lastLoginTimeMillis;
-  }
-
   public @NonNull NetworkPlayerProxyInfo lastNetworkPlayerProxyInfo() {
     return this.lastNetworkPlayerProxyInfo;
   }
