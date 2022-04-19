@@ -17,6 +17,7 @@
 package eu.cloudnetservice.wrapper.provider;
 
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
+import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
 import eu.cloudnetservice.driver.service.ServiceTemplate;
 import eu.cloudnetservice.driver.template.TemplateStorage;
 import eu.cloudnetservice.driver.template.TemplateStorageProvider;
@@ -44,6 +45,10 @@ public abstract class WrapperTemplateStorageProvider implements TemplateStorageP
 
   @Override
   public @Nullable TemplateStorage templateStorage(@NonNull String storage) {
-    return new RemoteTemplateStorage(storage, this.rpcSender.invokeMethod("templateStorage", storage));
+    return this.rpcSender.factory().generateRPCChainBasedApi(
+      this.rpcSender,
+      TemplateStorage.class,
+      GenerationContext.forClass(RemoteTemplateStorage.class).build()
+    ).newInstance(storage);
   }
 }

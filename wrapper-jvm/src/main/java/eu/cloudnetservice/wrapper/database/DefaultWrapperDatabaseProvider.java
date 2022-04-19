@@ -19,6 +19,7 @@ package eu.cloudnetservice.wrapper.database;
 import eu.cloudnetservice.driver.database.Database;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
+import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
 import lombok.NonNull;
 
 public abstract class DefaultWrapperDatabaseProvider implements DatabaseProvider {
@@ -31,6 +32,10 @@ public abstract class DefaultWrapperDatabaseProvider implements DatabaseProvider
 
   @Override
   public @NonNull Database database(@NonNull String name) {
-    return new WrapperDatabase(name, this.rpcSender.invokeMethod("database", name));
+    return this.rpcSender.factory().generateRPCChainBasedApi(
+      this.rpcSender,
+      Database.class,
+      GenerationContext.forClass(WrapperDatabase.class).build()
+    ).newInstance(name);
   }
 }

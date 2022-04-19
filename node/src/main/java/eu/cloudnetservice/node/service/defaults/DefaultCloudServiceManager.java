@@ -23,6 +23,7 @@ import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
+import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
@@ -347,7 +348,12 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
       if (provider == null) {
         this.knownServices.putIfAbsent(
           snapshot.serviceId().uniqueId(),
-          new RemoteNodeCloudServiceProvider(this, this.sender, () -> source, snapshot));
+          this.sender.factory().generateRPCChainBasedApi(
+            this.sender,
+            "serviceProvider",
+            SpecificCloudServiceProvider.class,
+            GenerationContext.forClass(RemoteNodeCloudServiceProvider.class).channelSupplier(() -> source).build()
+          ).newInstance(new Object[]{snapshot}, new Object[]{snapshot.serviceId().uniqueId()}));
         LOGGER.fine("Registered remote service %s", null, snapshot.serviceId());
       } else if (provider instanceof RemoteNodeCloudServiceProvider remoteProvider) {
         // update the provider if possible - we need only to handle remote node providers as local providers will update

@@ -21,6 +21,7 @@ import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.DefaultObjectMapper;
+import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.driver.service.ServiceTask;
@@ -92,7 +93,9 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
       .registerBinding(Title.class, new TitleObjectSerializer(), false)
       .registerBinding(Component.class, new ComponentObjectSerializer(), false);
     // init the player manager once
-    this.playerManager = new PlatformPlayerManager(wrapper);
+    this.playerManager = wrapper.rpcFactory().generateRPCBasedApi(
+      PlayerManager.class,
+      GenerationContext.forClass(PlatformPlayerManager.class).build());
     this.sender = wrapper.rpcFactory().providerForClass(wrapper.networkClient(), BridgeManagement.class);
     // create the network service info of this service
     this.ownNetworkServiceInfo = NetworkServiceInfo.fromServiceInfoSnapshot(wrapper.currentServiceInfo());

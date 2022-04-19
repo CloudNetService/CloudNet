@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.driver.network.rpc.generation;
+package eu.cloudnetservice.driver.network.rpc.generation.api;
 
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.network.rpc.RPC;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import eu.cloudnetservice.driver.network.rpc.defaults.generation.ApiImplementationGenerator;
+import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
@@ -49,10 +50,11 @@ public class RPCImplementationGeneratorTest {
     });
 
     // we're using direct generation for easier testing with the sender
-    var management = ApiImplementationGenerator.generateApiImplementation(
+    var management = (PermissionManagement) ApiImplementationGenerator.generateApiImplementation(
       PermissionManagement.class,
       GenerationContext.forClass(PermissionManagement.class).implementAllMethods(true).build(),
-      sender);
+      sender
+    ).get();
 
     var result = management.containsUser(uuid);
     Assertions.assertTrue(result);
@@ -64,10 +66,11 @@ public class RPCImplementationGeneratorTest {
 
   @Test
   void testExpectationOfExistingMethods() {
-    var management = ApiImplementationGenerator.generateApiImplementation(
+    var management = (PermissionManagement) ApiImplementationGenerator.generateApiImplementation(
       PermissionManagement.class,
       GenerationContext.forClass(BasePermissionManagement.class).build(),
-      Mockito.mock(RPCSender.class));
+      Mockito.mock(RPCSender.class)
+    ).get();
 
     var user = management.user(UUID.randomUUID());
     Assertions.assertSame(BasePermissionManagement.VAL, user);
@@ -83,7 +86,8 @@ public class RPCImplementationGeneratorTest {
     var management = ApiImplementationGenerator.generateApiImplementation(
       PermissionManagement.class,
       GenerationContext.forClass(SenderNeedingManagement.class).build(),
-      sender);
+      sender
+    ).get();
 
     Assertions.assertInstanceOf(SenderNeedingManagement.class, management);
     Assertions.assertSame(((SenderNeedingManagement) management).sender, sender);

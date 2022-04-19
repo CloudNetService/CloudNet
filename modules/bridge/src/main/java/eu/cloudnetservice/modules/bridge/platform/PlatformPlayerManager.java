@@ -17,110 +17,34 @@
 package eu.cloudnetservice.modules.bridge.platform;
 
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
-import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
-import eu.cloudnetservice.modules.bridge.player.CloudOfflinePlayer;
-import eu.cloudnetservice.modules.bridge.player.CloudPlayer;
+import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.bridge.player.PlayerProvider;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
-import eu.cloudnetservice.wrapper.Wrapper;
-import java.util.List;
 import java.util.UUID;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Range;
 
-final class PlatformPlayerManager implements PlayerManager {
+abstract class PlatformPlayerManager implements PlayerManager {
 
   private final RPCSender sender;
   private final PlayerProvider allPlayers;
   private final PlayerExecutor globalPlayerExecutor;
 
-  public PlatformPlayerManager(@NonNull Wrapper wrapper) {
-    this.sender = wrapper.rpcFactory().providerForClass(wrapper.networkClient(), PlayerManager.class);
+  public PlatformPlayerManager(@NonNull RPCSender sender) {
+    this.sender = sender;
     // init the static player utils
     this.globalPlayerExecutor = this.playerExecutor(PlayerExecutor.GLOBAL_UNIQUE_ID);
-    this.allPlayers = new PlatformPlayerProvider(this.sender.invokeMethod("onlinePlayers"));
-  }
-
-  @Override
-  public @Range(from = 0, to = Integer.MAX_VALUE) int onlineCount() {
-    return this.sender.invokeMethod("onlineCount").fireSync();
-  }
-
-  @Override
-  public @Range(from = 0, to = Long.MAX_VALUE) long registeredCount() {
-    return this.sender.invokeMethod("registeredCount").fireSync();
-  }
-
-  @Override
-  public @Nullable CloudPlayer onlinePlayer(@NonNull UUID uniqueId) {
-    return this.sender.invokeMethod("onlinePlayer", uniqueId).fireSync();
-  }
-
-  @Override
-  public @Nullable CloudPlayer firstOnlinePlayer(@NonNull String name) {
-    return this.sender.invokeMethod("firstOnlinePlayer", name).fireSync();
-  }
-
-  @Override
-  public @NonNull List<? extends CloudPlayer> onlinePlayers(@NonNull String name) {
-    return this.sender.invokeMethod("onlinePlayers", name).fireSync();
-  }
-
-  @Override
-  public @NonNull List<? extends CloudPlayer> environmentOnlinePlayers(@NonNull ServiceEnvironmentType environment) {
-    return this.sender.invokeMethod("environmentOnlinePlayers", environment).fireSync();
+    this.allPlayers = sender.factory().generateRPCChainBasedApi(
+      sender,
+      "onlinePlayers",
+      PlayerProvider.class,
+      GenerationContext.forClass(PlayerProvider.class).build()
+    ).newInstance();
   }
 
   @Override
   public @NonNull PlayerProvider onlinePlayers() {
     return this.allPlayers;
-  }
-
-  @Override
-  public @NonNull PlayerProvider taskOnlinePlayers(@NonNull String task) {
-    return new PlatformPlayerProvider(this.sender.invokeMethod("taskOnlinePlayers", task));
-  }
-
-  @Override
-  public @NonNull PlayerProvider groupOnlinePlayers(@NonNull String group) {
-    return new PlatformPlayerProvider(this.sender.invokeMethod("groupOnlinePlayers", group));
-  }
-
-  @Override
-  public @Nullable CloudOfflinePlayer offlinePlayer(@NonNull UUID uniqueId) {
-    return this.sender.invokeMethod("offlinePlayer", uniqueId).fireSync();
-  }
-
-  @Override
-  public @Nullable CloudOfflinePlayer firstOfflinePlayer(@NonNull String name) {
-    return this.sender.invokeMethod("firstOfflinePlayer", name).fireSync();
-  }
-
-  @Override
-  public @NonNull List<? extends CloudOfflinePlayer> offlinePlayers(@NonNull String name) {
-    return this.sender.invokeMethod("offlinePlayers", name).fireSync();
-  }
-
-  @Override
-  public @NonNull List<? extends CloudOfflinePlayer> registeredPlayers() {
-    return this.sender.invokeMethod("registeredPlayers").fireSync();
-  }
-
-  @Override
-  public void updateOfflinePlayer(@NonNull CloudOfflinePlayer cloudOfflinePlayer) {
-    this.sender.invokeMethod("updateOfflinePlayer", cloudOfflinePlayer).fireSync();
-  }
-
-  @Override
-  public void updateOnlinePlayer(@NonNull CloudPlayer cloudPlayer) {
-    this.sender.invokeMethod("updateOnlinePlayer", cloudPlayer).fireSync();
-  }
-
-  @Override
-  public void deleteCloudOfflinePlayer(@NonNull CloudOfflinePlayer cloudOfflinePlayer) {
-    this.sender.invokeMethod("deleteCloudOfflinePlayer", cloudOfflinePlayer).fireSync();
   }
 
   @Override
@@ -130,6 +54,10 @@ final class PlatformPlayerManager implements PlayerManager {
 
   @Override
   public @NonNull PlayerExecutor playerExecutor(@NonNull UUID uniqueId) {
-    return new PlatformPlayerExecutor(this.sender.invokeMethod("playerExecutor", uniqueId), uniqueId);
+    return this.sender.factory().generateRPCChainBasedApi(
+      this.sender,
+      PlayerExecutor.class,
+      GenerationContext.forClass(PlatformPlayerExecutor.class).build()
+    ).newInstance(uniqueId);
   }
 }
