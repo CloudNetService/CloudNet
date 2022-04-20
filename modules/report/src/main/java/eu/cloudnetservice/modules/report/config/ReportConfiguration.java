@@ -16,18 +16,11 @@
 
 package eu.cloudnetservice.modules.report.config;
 
-import com.google.common.base.Preconditions;
-import java.nio.file.Path;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import lombok.NonNull;
 
 public record ReportConfiguration(
-  boolean saveRecords,
-  boolean saveOnCrashOnly,
-  @NonNull Path recordDestination,
-  long serviceLifetime,
-  @NonNull SimpleDateFormat dateFormat,
+  @NonNull RecordConfiguration records,
   @NonNull List<PasteService> pasteServers
 ) {
 
@@ -37,64 +30,27 @@ public record ReportConfiguration(
 
   public static @NonNull Builder builder(@NonNull ReportConfiguration configuration) {
     return builder()
-      .saveRecords(configuration.saveRecords())
-      .saveOnCrashOnly(configuration.saveOnCrashOnly())
-      .recordDestination(configuration.recordDestination())
-      .dateFormat(configuration.dateFormat())
+      .records(configuration.records())
       .pasteServers(configuration.pasteServers());
   }
 
   public static final class Builder {
 
-    private boolean saveRecords = true;
-    private boolean saveOnCrashOnly = true;
-    private Path recordDestination = Path.of("records");
-    private long serviceLifetime = 5000L;
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private RecordConfiguration records = RecordConfiguration.builder().build();
     private List<PasteService> pasteServers = List.of(new PasteService("default", "https://just-paste.it"));
-
-    public @NonNull Builder saveRecords(boolean saveRecords) {
-      this.saveRecords = saveRecords;
-      return this;
-    }
-
-    public @NonNull Builder saveOnCrashOnly(boolean saveOnCrashOnly) {
-      this.saveOnCrashOnly = saveOnCrashOnly;
-      return this;
-    }
-
-    public @NonNull Builder recordDestination(@NonNull Path recordDestination) {
-      this.recordDestination = recordDestination;
-      return this;
-    }
-
-    public @NonNull Builder serviceLifetime(long serviceLifetime) {
-      this.serviceLifetime = serviceLifetime;
-      return this;
-    }
-
-    public @NonNull Builder dateFormat(@NonNull SimpleDateFormat dateFormat) {
-      this.dateFormat = dateFormat;
-      return this;
-    }
 
     public @NonNull Builder pasteServers(@NonNull List<PasteService> pasteServers) {
       this.pasteServers = List.copyOf(pasteServers);
       return this;
     }
 
-    public @NonNull ReportConfiguration build() {
-      Preconditions.checkNotNull(this.recordDestination, "No recordDestination provided");
-      Preconditions.checkNotNull(this.dateFormat, "No dateFormat provided");
-      Preconditions.checkNotNull(this.pasteServers, "No pasteServers provided");
+    public @NonNull Builder records(@NonNull RecordConfiguration records) {
+      this.records = records;
+      return this;
+    }
 
-      return new ReportConfiguration(
-        this.saveRecords,
-        this.saveOnCrashOnly,
-        this.recordDestination,
-        this.serviceLifetime,
-        this.dateFormat,
-        this.pasteServers);
+    public @NonNull ReportConfiguration build() {
+      return new ReportConfiguration(this.records, this.pasteServers);
     }
   }
 }

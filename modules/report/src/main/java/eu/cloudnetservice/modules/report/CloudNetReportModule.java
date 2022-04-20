@@ -23,7 +23,7 @@ import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import eu.cloudnetservice.modules.report.command.ReportCommand;
-import eu.cloudnetservice.modules.report.config.PasteService;
+import eu.cloudnetservice.modules.report.config.RecordConfiguration;
 import eu.cloudnetservice.modules.report.config.ReportConfiguration;
 import eu.cloudnetservice.modules.report.listener.RecordReportListener;
 import eu.cloudnetservice.modules.report.paste.emitter.EmitterRegistry;
@@ -39,8 +39,6 @@ import eu.cloudnetservice.modules.report.paste.emitter.defaults.service.ServiceT
 import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.service.CloudService;
 import java.nio.file.Path;
-import java.text.SimpleDateFormat;
-import java.util.List;
 import lombok.NonNull;
 
 public final class CloudNetReportModule extends DriverModule {
@@ -52,14 +50,15 @@ public final class CloudNetReportModule extends DriverModule {
   public void convertConfig() {
     var config = this.readConfig();
     if (config.contains("savingRecords")) {
-      this.writeConfig(JsonDocument.newDocument(new ReportConfiguration(
-        config.getBoolean("savingRecords"),
-        true,
-        config.get("recordDestinationDirectory", Path.class, Path.of("records")),
-        config.getLong("serviceLifetimeLogPrint", 5000L),
-        new SimpleDateFormat("yyyy-MM-dd"),
-        List.of(new PasteService("default", config.getString("pasteServerUrl", "https://just-paste.it")))
-      )));
+      this.writeConfig(JsonDocument.newDocument(
+        ReportConfiguration.builder()
+          .records(RecordConfiguration.builder()
+            .saveRecords(config.getBoolean("savingRecords"))
+            .recordDestination(config.get("recordDestinationDirectory", Path.class, Path.of("records")))
+            .serviceLifetime(config.getLong("serviceLifetimeLogPrint", 5000L))
+            .build()
+          ).build()
+      ));
     }
   }
 
@@ -102,8 +101,9 @@ public final class CloudNetReportModule extends DriverModule {
 
   public @NonNull Path currentRecordDirectory() {
     // resolve the target record directory
-    var date = this.configuration.dateFormat().format(System.currentTimeMillis());
-    var dir = this.moduleWrapper.dataDirectory().resolve(this.configuration.recordDestination()).resolve(date);
+    var recordConfig = this.configuration.records();
+    var date = recordConfig.dateFormat().format(System.currentTimeMillis());
+    var dir = this.moduleWrapper.dataDirectory().resolve(recordConfig.recordDestination()).resolve(date);
     // create the directory if it does not yet exist
     FileUtil.createDirectory(dir);
     return dir;
