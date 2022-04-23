@@ -24,7 +24,7 @@ import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.channel.ChannelMessageReceiveEvent;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
-import eu.cloudnetservice.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
+import eu.cloudnetservice.driver.network.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
@@ -60,7 +60,7 @@ public final class NodeChannelMessageListener {
       switch (event.message()) {
         // update a single node info snapshot
         case "update_node_info_snapshot" -> {
-          var snapshot = event.content().readObject(NetworkClusterNodeInfoSnapshot.class);
+          var snapshot = event.content().readObject(NodeInfoSnapshot.class);
           // get the associated node server
           var server = this.nodeServerProvider.node(snapshot.node().uniqueId());
           if (server != null) {

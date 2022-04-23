@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.report.paste;
 
 import eu.cloudnetservice.common.document.gson.JsonDocument;
-import eu.cloudnetservice.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
+import eu.cloudnetservice.driver.network.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.modules.report.config.PasteService;
 import eu.cloudnetservice.modules.report.paste.emitter.EmitterRegistry;
 import eu.cloudnetservice.node.service.CloudService;
@@ -44,8 +44,8 @@ public record PasteCreator(@NonNull PasteService pasteService, @NonNull EmitterR
    * @return the resulting url after uploading the collected content.
    * @throws NullPointerException if the given node snapshot is null.
    */
-  public @Nullable String createNodePaste(@NonNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot) {
-    return this.pasteContent(this.collectData(NetworkClusterNodeInfoSnapshot.class, nodeInfoSnapshot));
+  public @Nullable String createNodePaste(@NonNull NodeInfoSnapshot nodeInfoSnapshot) {
+    return this.pasteContent(this.collectData(NodeInfoSnapshot.class, nodeInfoSnapshot));
   }
 
   /**

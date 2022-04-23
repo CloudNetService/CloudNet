@@ -19,7 +19,7 @@ package eu.cloudnetservice.node.cluster;
 import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
-import eu.cloudnetservice.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
+import eu.cloudnetservice.driver.network.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
 import java.io.Closeable;
@@ -60,11 +60,11 @@ public interface NodeServer extends Nameable, Closeable {
 
   void channel(@Nullable NetworkChannel channel);
 
-  @UnknownNullability NetworkClusterNodeInfoSnapshot nodeInfoSnapshot();
+  @UnknownNullability NodeInfoSnapshot nodeInfoSnapshot();
 
-  @UnknownNullability NetworkClusterNodeInfoSnapshot lastNodeInfoSnapshot();
+  @UnknownNullability NodeInfoSnapshot lastNodeInfoSnapshot();
 
-  void updateNodeInfoSnapshot(@Nullable NetworkClusterNodeInfoSnapshot snapshot);
+  void updateNodeInfoSnapshot(@Nullable NodeInfoSnapshot snapshot);
 
   @NonNull CloudServiceFactory serviceFactory();
 

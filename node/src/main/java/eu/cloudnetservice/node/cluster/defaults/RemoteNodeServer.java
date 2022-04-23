@@ -21,7 +21,7 @@ import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
-import eu.cloudnetservice.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
+import eu.cloudnetservice.driver.network.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
@@ -54,8 +54,8 @@ public class RemoteNodeServer implements NodeServer {
   private volatile Instant lastStateChange = Instant.now();
   private volatile NodeServerState state = NodeServerState.UNAVAILABLE;
 
-  private volatile NetworkClusterNodeInfoSnapshot currentSnapshot;
-  private volatile NetworkClusterNodeInfoSnapshot lastSnapshot;
+  private volatile NodeInfoSnapshot currentSnapshot;
+  private volatile NodeInfoSnapshot lastSnapshot;
 
   public RemoteNodeServer(
     @NonNull Node node,
@@ -182,17 +182,17 @@ public class RemoteNodeServer implements NodeServer {
   }
 
   @Override
-  public @UnknownNullability NetworkClusterNodeInfoSnapshot nodeInfoSnapshot() {
+  public @UnknownNullability NodeInfoSnapshot nodeInfoSnapshot() {
     return this.currentSnapshot;
   }
 
   @Override
-  public @UnknownNullability NetworkClusterNodeInfoSnapshot lastNodeInfoSnapshot() {
+  public @UnknownNullability NodeInfoSnapshot lastNodeInfoSnapshot() {
     return this.lastSnapshot;
   }
 
   @Override
-  public void updateNodeInfoSnapshot(@Nullable NetworkClusterNodeInfoSnapshot snapshot) {
+  public void updateNodeInfoSnapshot(@Nullable NodeInfoSnapshot snapshot) {
     if (snapshot == null) {
       // reset the snapshot, for example a disconnect
       this.lastSnapshot = null;

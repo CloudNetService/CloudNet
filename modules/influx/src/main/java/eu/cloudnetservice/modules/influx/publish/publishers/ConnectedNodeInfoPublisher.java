@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.influx.publish.publishers;
 
 import com.influxdb.client.write.Point;
-import eu.cloudnetservice.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
+import eu.cloudnetservice.driver.network.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.modules.influx.publish.Publisher;
 import eu.cloudnetservice.modules.influx.util.PointUtil;
 import eu.cloudnetservice.node.Node;
@@ -44,7 +44,7 @@ public final class ConnectedNodeInfoPublisher implements Publisher {
       .toList();
   }
 
-  private @NonNull Point createPoint(@NonNull NetworkClusterNodeInfoSnapshot snapshot) {
+  private @NonNull Point createPoint(@NonNull NodeInfoSnapshot snapshot) {
     return PointUtil.point("nodes")
       .addTag("name", snapshot.node().uniqueId())
       .addField("ServiceMaxMemory", snapshot.maxMemory())

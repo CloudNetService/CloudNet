@@ -21,7 +21,7 @@ import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
-import eu.cloudnetservice.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
+import eu.cloudnetservice.driver.network.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.modules.report.command.ReportCommand;
 import eu.cloudnetservice.modules.report.config.RecordConfiguration;
 import eu.cloudnetservice.modules.report.config.ReportConfiguration;
@@ -74,11 +74,11 @@ public final class CloudNetReportModule extends DriverModule {
       .registerDataEmitter(CloudService.class, new ServiceOverviewEmitter())
       .registerDataEmitter(CloudService.class, new ServiceTaskEmitter());
     // register all emitters that are used for the Node report
-    this.registry.registerDataEmitter(NetworkClusterNodeInfoSnapshot.class, new ConsoleLogEmitter())
-      .registerDataEmitter(NetworkClusterNodeInfoSnapshot.class, new NodeStateEmitter())
-      .registerDataEmitter(NetworkClusterNodeInfoSnapshot.class, new NodeSnapshotEmitter())
-      .registerDataEmitter(NetworkClusterNodeInfoSnapshot.class, new NodeConfigurationEmitter())
-      .registerDataEmitter(NetworkClusterNodeInfoSnapshot.class, new ModuleEmitter());
+    this.registry.registerDataEmitter(NodeInfoSnapshot.class, new ConsoleLogEmitter())
+      .registerDataEmitter(NodeInfoSnapshot.class, new NodeStateEmitter())
+      .registerDataEmitter(NodeInfoSnapshot.class, new NodeSnapshotEmitter())
+      .registerDataEmitter(NodeInfoSnapshot.class, new NodeConfigurationEmitter())
+      .registerDataEmitter(NodeInfoSnapshot.class, new ModuleEmitter());
     // register our listener to handle stopping and deleted services
     this.registerListener(new RecordReportListener(this));
     this.serviceRegistry().registerProvider(EmitterRegistry.class, "EmitterRegistry", this.registry);

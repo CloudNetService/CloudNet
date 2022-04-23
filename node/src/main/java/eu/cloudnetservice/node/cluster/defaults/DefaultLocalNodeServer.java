@@ -21,7 +21,7 @@ import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.module.ModuleWrapper;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
-import eu.cloudnetservice.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
+import eu.cloudnetservice.driver.network.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.driver.service.ProcessSnapshot;
@@ -52,8 +52,8 @@ public class DefaultLocalNodeServer implements LocalNodeServer {
   private volatile NodeServerState state = NodeServerState.UNAVAILABLE;
 
   // node info
-  private volatile NetworkClusterNodeInfoSnapshot currentSnapshot;
-  private volatile NetworkClusterNodeInfoSnapshot lastSnapshot;
+  private volatile NodeInfoSnapshot currentSnapshot;
+  private volatile NodeInfoSnapshot lastSnapshot;
 
   public DefaultLocalNodeServer(@NonNull Node node, @NonNull NodeServerProvider provider) {
     this.node = node;
@@ -139,17 +139,17 @@ public class DefaultLocalNodeServer implements LocalNodeServer {
   }
 
   @Override
-  public @UnknownNullability NetworkClusterNodeInfoSnapshot nodeInfoSnapshot() {
+  public @UnknownNullability NodeInfoSnapshot nodeInfoSnapshot() {
     return this.currentSnapshot;
   }
 
   @Override
-  public @UnknownNullability NetworkClusterNodeInfoSnapshot lastNodeInfoSnapshot() {
+  public @UnknownNullability NodeInfoSnapshot lastNodeInfoSnapshot() {
     return this.lastSnapshot;
   }
 
   @Override
-  public void updateNodeInfoSnapshot(@Nullable NetworkClusterNodeInfoSnapshot snapshot) {
+  public void updateNodeInfoSnapshot(@Nullable NodeInfoSnapshot snapshot) {
     Preconditions.checkNotNull(snapshot, "Local node cannot accept null snapshots");
     // pre-move the current snapshot to the last snapshot
     this.lastSnapshot = this.currentSnapshot;
@@ -181,7 +181,7 @@ public class DefaultLocalNodeServer implements LocalNodeServer {
 
   @Override
   public void updateLocalSnapshot() {
-    var snapshot = new NetworkClusterNodeInfoSnapshot(
+    var snapshot = new NodeInfoSnapshot(
       System.currentTimeMillis(),
       this.creationMillis,
       this.node.config().maxMemory(),

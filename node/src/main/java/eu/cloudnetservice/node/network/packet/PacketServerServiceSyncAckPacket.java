@@ -17,14 +17,14 @@
 package eu.cloudnetservice.node.network.packet;
 
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
+import eu.cloudnetservice.driver.network.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.network.protocol.BasePacket;
 import lombok.NonNull;
 
 public final class PacketServerServiceSyncAckPacket extends BasePacket {
 
-  public PacketServerServiceSyncAckPacket(@NonNull NetworkClusterNodeInfoSnapshot info, @NonNull DataBuf localData) {
+  public PacketServerServiceSyncAckPacket(@NonNull NodeInfoSnapshot info, @NonNull DataBuf localData) {
     super(
       NetworkConstants.INTERNAL_SERVICE_SYNC_ACK_CHANNEL,
       DataBuf.empty()

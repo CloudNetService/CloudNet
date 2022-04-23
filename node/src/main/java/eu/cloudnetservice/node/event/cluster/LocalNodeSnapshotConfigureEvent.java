@@ -17,18 +17,18 @@
 package eu.cloudnetservice.node.event.cluster;
 
 import eu.cloudnetservice.driver.event.events.DriverEvent;
-import eu.cloudnetservice.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
+import eu.cloudnetservice.driver.network.cluster.NodeInfoSnapshot;
 import lombok.NonNull;
 
 public final class LocalNodeSnapshotConfigureEvent extends DriverEvent {
 
-  private final NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot;
+  private final NodeInfoSnapshot nodeInfoSnapshot;
 
-  public LocalNodeSnapshotConfigureEvent(@NonNull NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot) {
-    this.networkClusterNodeInfoSnapshot = networkClusterNodeInfoSnapshot;
+  public LocalNodeSnapshotConfigureEvent(@NonNull NodeInfoSnapshot nodeInfoSnapshot) {
+    this.nodeInfoSnapshot = nodeInfoSnapshot;
   }
 
-  public @NonNull NetworkClusterNodeInfoSnapshot snapshot() {
-    return this.networkClusterNodeInfoSnapshot;
+  public @NonNull NodeInfoSnapshot snapshot() {
+    return this.nodeInfoSnapshot;
   }
 }

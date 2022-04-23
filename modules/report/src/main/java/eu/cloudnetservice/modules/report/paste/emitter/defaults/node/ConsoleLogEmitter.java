@@ -16,15 +16,15 @@
 
 package eu.cloudnetservice.modules.report.paste.emitter.defaults.node;
 
-import eu.cloudnetservice.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
+import eu.cloudnetservice.driver.network.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.modules.report.paste.emitter.ReportDataEmitter;
 import eu.cloudnetservice.node.Node;
 import lombok.NonNull;
 
-public class ConsoleLogEmitter implements ReportDataEmitter<NetworkClusterNodeInfoSnapshot> {
+public class ConsoleLogEmitter implements ReportDataEmitter<NodeInfoSnapshot> {
 
   @Override
-  public void emitData(@NonNull StringBuilder builder, @NonNull NetworkClusterNodeInfoSnapshot context) {
+  public void emitData(@NonNull StringBuilder builder, @NonNull NodeInfoSnapshot context) {
     for (var logLine : Node.instance().logHandler().cachedLogEntries()) {
       builder.append(logLine.getMessage()).append("\n");
     }

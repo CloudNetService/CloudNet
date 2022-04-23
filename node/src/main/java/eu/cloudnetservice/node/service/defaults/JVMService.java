@@ -224,7 +224,7 @@ public class JVMService extends AbstractService {
         if (logTarget.first().equals(ChannelMessageSender.self().toTarget())) {
           // the current target is the node this service is running on, print it directly here
           this.eventManager.callEvent(logTarget.second(), new CloudServiceLogEntryEvent(
-            this.lastServiceInfo,
+            this.currentServiceInfo,
             line,
             stderr ? StreamType.STDERR : StreamType.STDOUT));
         } else {

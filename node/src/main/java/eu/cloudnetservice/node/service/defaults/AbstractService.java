@@ -453,8 +453,7 @@ public abstract class AbstractService implements CloudService {
 
   @Override
   public boolean toggleScreenEvents(@NonNull ChannelMessageSender channelMessageSender, @NonNull String channel) {
-    var target = channelMessageSender.toTarget();
-    var pair = new Pair<>(target, channel);
+    var pair = new Pair<>(channelMessageSender.toTarget(), channel);
     if (this.logTargets.remove(pair)) {
       return false;
     }
