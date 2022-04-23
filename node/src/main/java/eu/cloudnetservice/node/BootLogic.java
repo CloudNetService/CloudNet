@@ -41,7 +41,7 @@ public final class BootLogic {
     var startInstant = Instant.now();
 
     // init logger and console
-    Console console = new JLine3Console();
+    var console = new JLine3Console();
     initLoggerAndConsole(console, LogManager.rootLogger());
 
     // boot CloudNet

@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -50,6 +51,7 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
   protected SyncProxyConfiguration configuration;
   protected SyncProxyLoginConfiguration currentLoginConfiguration;
   protected SyncProxyTabListConfiguration currentTabListConfiguration;
+  protected ScheduledFuture<?> currentUpdateTask;
 
   protected PlatformSyncProxyManagement() {
     var wrapper = Wrapper.instance();
@@ -182,14 +184,20 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
   }
 
   protected void scheduleTabListUpdate() {
+    if (this.currentUpdateTask != null) {
+      this.currentUpdateTask.cancel(true);
+      this.currentUpdateTask = null;
+    }
+
     if (this.currentTabListConfiguration != null && !this.currentTabListConfiguration.entries().isEmpty()) {
-      var tabList = this.currentTabListConfiguration.tick();
-
-      this.schedule(this::scheduleTabListUpdate,
-        (long) (1000D / this.currentTabListConfiguration.animationsPerSecond()),
+      this.currentUpdateTask = Wrapper.instance().taskExecutor().scheduleWithFixedDelay(
+        () -> {
+          var tabList = this.currentTabListConfiguration.tick();
+          this.updateTabList(tabList);
+        },
+        0,
+        (long) (1000 / this.currentTabListConfiguration.animationsPerSecond()),
         TimeUnit.MILLISECONDS);
-
-      this.updateTabList(tabList);
     }
   }
 
@@ -243,8 +251,6 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
 
     return this.checkPlayerPermission(player, "cloudnet.syncproxy.maintenance");
   }
-
-  public abstract void schedule(@NonNull Runnable runnable, long time, @NonNull TimeUnit unit);
 
   public abstract @NonNull Collection<P> onlinePlayers();
 

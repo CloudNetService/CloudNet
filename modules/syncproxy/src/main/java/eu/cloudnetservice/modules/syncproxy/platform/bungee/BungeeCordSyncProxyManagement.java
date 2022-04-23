@@ -20,7 +20,6 @@ import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.syncproxy.platform.PlatformSyncProxyManagement;
 import java.util.Collection;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -46,11 +45,6 @@ public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManage
   @Override
   public void unregisterService(@NonNull ServiceRegistry registry) {
     registry.unregisterProvider(PlatformSyncProxyManagement.class, "BungeeCordSyncProxyManagement");
-  }
-
-  @Override
-  public void schedule(@NonNull Runnable runnable, long time, @NonNull TimeUnit unit) {
-    this.plugin.getProxy().getScheduler().schedule(this.plugin, runnable, time, unit);
   }
 
   @Override
