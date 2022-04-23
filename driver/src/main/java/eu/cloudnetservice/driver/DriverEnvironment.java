@@ -19,7 +19,9 @@ package eu.cloudnetservice.driver;
 import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.document.property.JsonDocPropertyHolder;
+import lombok.EqualsAndHashCode;
 import lombok.NonNull;
+import lombok.ToString;
 
 /**
  * Represents the current environment in which the driver is running. There are currently two default environments, the
@@ -30,6 +32,8 @@ import lombok.NonNull;
  *
  * @since 4.0
  */
+@ToString
+@EqualsAndHashCode(callSuper = true)
 public final class DriverEnvironment extends JsonDocPropertyHolder implements Nameable {
 
   /**

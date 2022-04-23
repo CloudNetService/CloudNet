@@ -220,22 +220,22 @@ public class JVMService extends AbstractService {
 
   protected void initLogHandler() {
     super.logCache.addHandler(($, line, stderr) -> {
-      for (var logTarget : super.logTargets.entrySet()) {
-        if (logTarget.getKey().equals(ChannelMessageSender.self().toTarget())) {
+      for (var logTarget : super.logTargets) {
+        if (logTarget.first().equals(ChannelMessageSender.self().toTarget())) {
           // the current target is the node this service is running on, print it directly here
-          this.eventManager.callEvent(logTarget.getValue(), new CloudServiceLogEntryEvent(
+          this.eventManager.callEvent(logTarget.second(), new CloudServiceLogEntryEvent(
             this.lastServiceInfo,
             line,
             stderr ? StreamType.STDERR : StreamType.STDOUT));
         } else {
           // the listener is listening remotely, send the line to the network component
           ChannelMessage.builder()
-            .target(logTarget.getKey())
+            .target(logTarget.first())
             .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
             .message("screen_new_line")
             .buffer(DataBuf.empty()
-              .writeObject(this.lastServiceInfo)
-              .writeString(logTarget.getValue())
+              .writeObject(this.currentServiceInfo)
+              .writeString(logTarget.second())
               .writeString(line)
               .writeBoolean(stderr))
             .build()

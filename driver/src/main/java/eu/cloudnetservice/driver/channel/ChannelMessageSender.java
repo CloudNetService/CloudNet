@@ -74,7 +74,7 @@ public record ChannelMessageSender(@NonNull String name, @NonNull DriverEnvironm
    * @throws NullPointerException if the given snapshot is null.
    */
   public boolean is(@NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
-    return this.type == DriverEnvironment.WRAPPER && this.name.equals(serviceInfoSnapshot.name());
+    return this.type.equals(DriverEnvironment.WRAPPER) && this.name.equals(serviceInfoSnapshot.name());
   }
 
   /**
@@ -85,7 +85,7 @@ public record ChannelMessageSender(@NonNull String name, @NonNull DriverEnvironm
    * @throws NullPointerException if the given input is null.
    */
   public boolean is(@NonNull NetworkClusterNode node) {
-    return this.type == DriverEnvironment.NODE && this.name.equals(node.uniqueId());
+    return this.type.equals(DriverEnvironment.NODE) && this.name.equals(node.uniqueId());
   }
 
   /**
@@ -95,7 +95,7 @@ public record ChannelMessageSender(@NonNull String name, @NonNull DriverEnvironm
    * @return a new {@link ChannelMessageTarget} based on the information of this sender.
    */
   public @NonNull ChannelMessageTarget toTarget() {
-    var type = this.type == DriverEnvironment.NODE ? Type.NODE : Type.SERVICE;
+    var type = this.type.equals(DriverEnvironment.NODE) ? Type.NODE : Type.SERVICE;
     return new ChannelMessageTarget(type, this.name);
   }
 }
