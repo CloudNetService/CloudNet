@@ -49,8 +49,9 @@ public class NettyNetworkServerClientTest extends NetworkTestCase {
     NetworkClient client = new NettyNetworkClient(this::newDummyHandler);
 
     Assertions.assertTrue(server.addListener(networkPort));
-    Assertions.assertTrue(client.connect(HostAndPort.fromSocketAddress(
-      new InetSocketAddress(InetAddress.getLoopbackAddress(), networkPort))));
+    Assertions.assertDoesNotThrow(() -> client.connect(
+      HostAndPort.fromSocketAddress(new InetSocketAddress(InetAddress.getLoopbackAddress(), networkPort))
+    ).join());
 
     client.close();
     server.close();

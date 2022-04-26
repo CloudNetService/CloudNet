@@ -17,6 +17,7 @@
 package eu.cloudnetservice.node.cluster.defaults;
 
 import com.google.gson.reflect.TypeToken;
+import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
@@ -97,11 +98,11 @@ public class RemoteNodeServer implements NodeServer {
   }
 
   @Override
-  public boolean connect() {
+  public @NonNull Task<Void> connect() {
     // check if the node has any listeners
     var listeners = this.info.listeners();
     if (listeners.isEmpty()) {
-      return false;
+      return Task.completedTask(new IllegalStateException("No listeners registered for the node"));
     }
     // select a random listener and try to connect to it
     var listener = listeners.get(ThreadLocalRandom.current().nextInt(0, listeners.size()));

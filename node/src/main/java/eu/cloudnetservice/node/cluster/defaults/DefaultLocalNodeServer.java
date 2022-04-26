@@ -17,6 +17,7 @@
 package eu.cloudnetservice.node.cluster.defaults;
 
 import com.google.common.base.Preconditions;
+import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.module.ModuleWrapper;
 import eu.cloudnetservice.driver.network.NetworkChannel;
@@ -81,8 +82,8 @@ public class DefaultLocalNodeServer implements LocalNodeServer {
   }
 
   @Override
-  public boolean connect() {
-    return true; // yes we are connected to us now :)
+  public @NonNull Task<Void> connect() {
+    return Task.completedTask(null); // yes we are connected to us now :)
   }
 
   @Override

@@ -17,6 +17,7 @@
 package eu.cloudnetservice.node.cluster;
 
 import eu.cloudnetservice.common.Nameable;
+import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
 import eu.cloudnetservice.driver.network.cluster.NodeInfoSnapshot;
@@ -38,7 +39,7 @@ public interface NodeServer extends Nameable, Closeable {
 
   void shutdown();
 
-  boolean connect();
+  @NonNull Task<Void> connect();
 
   boolean draining();
 
