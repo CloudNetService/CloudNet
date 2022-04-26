@@ -27,6 +27,7 @@ import eu.cloudnetservice.common.JavaVersion;
 import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
@@ -35,8 +36,9 @@ import eu.cloudnetservice.node.config.JsonConfiguration;
 import java.util.Queue;
 import lombok.NonNull;
 
-@Description("")
+@CommandAlias("cfg")
 @CommandPermission("cloudnet.command.config")
+@Description("Administration of the cloudnet node configuration")
 public final class ConfigCommand {
 
   @Parser(name = "ip")
@@ -50,7 +52,7 @@ public final class ConfigCommand {
     return address;
   }
 
-  @CommandMethod("config reload")
+  @CommandMethod("config|cfg reload")
   public void reloadConfigs(@NonNull CommandSource source) {
     Node.instance().reloadConfigFrom(JsonConfiguration.loadFromFile(Node.instance()));
     Node.instance().serviceTaskProvider().reload();
@@ -59,13 +61,13 @@ public final class ConfigCommand {
     source.sendMessage(I18n.trans("command-config-node-reload-config"));
   }
 
-  @CommandMethod("config node reload")
+  @CommandMethod("config|cfg node reload")
   public void reloadNodeConfig(@NonNull CommandSource source) {
     Node.instance().reloadConfigFrom(JsonConfiguration.loadFromFile(Node.instance()));
     source.sendMessage(I18n.trans("command-config-node-reload-config"));
   }
 
-  @CommandMethod("config node add ip <ip>")
+  @CommandMethod("config|cfg node add ip <ip>")
   public void addIpWhitelist(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "ip", parserName = "ip") String ip
@@ -79,7 +81,7 @@ public final class ConfigCommand {
     source.sendMessage(I18n.trans("command-config-node-add-ip-whitelist", ip));
   }
 
-  @CommandMethod("config node remove ip <ip>")
+  @CommandMethod("config|cfg node remove ip <ip>")
   public void removeIpWhitelist(@NonNull CommandSource source, @NonNull @Argument(value = "ip") String ip) {
     var ipWhitelist = this.nodeConfig().ipWhitelist();
     // check if the collection changes after we remove the given ip
@@ -90,14 +92,14 @@ public final class ConfigCommand {
     source.sendMessage(I18n.trans("command-config-node-remove-ip-whitelist", ip));
   }
 
-  @CommandMethod("config node set maxMemory <maxMemory>")
+  @CommandMethod("config|cfg node set maxMemory <maxMemory>")
   public void setMaxMemory(@NonNull CommandSource source, @Argument("maxMemory") @Range(min = "0") int maxMemory) {
     this.nodeConfig().maxMemory(maxMemory);
     this.nodeConfig().save();
     source.sendMessage(I18n.trans("command-config-node-max-memory-set", maxMemory));
   }
 
-  @CommandMethod("config node set javaCommand <executable>")
+  @CommandMethod("config|cfg node set javaCommand <executable>")
   public void setJavaCommand(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "executable", parserName = "javaCommand") Pair<String, JavaVersion> executable
@@ -113,3 +115,4 @@ public final class ConfigCommand {
     return Node.instance().config();
   }
 }
+

@@ -95,7 +95,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     // init the player manager once
     this.playerManager = wrapper.rpcFactory().generateRPCBasedApi(
       PlayerManager.class,
-      GenerationContext.forClass(PlatformPlayerManager.class).build());
+      GenerationContext.forClass(PlatformPlayerManager.class).component(wrapper.networkClient()).build());
     this.sender = wrapper.rpcFactory().providerForClass(wrapper.networkClient(), BridgeManagement.class);
     // create the network service info of this service
     this.ownNetworkServiceInfo = NetworkServiceInfo.fromServiceInfoSnapshot(wrapper.currentServiceInfo());

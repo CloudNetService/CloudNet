@@ -40,7 +40,7 @@ public final class RecordReportListener {
   @EventListener
   public void handleServicePreStop(@NonNull CloudServicePreProcessStartEvent event) {
     var configuration = this.reportModule.reportConfiguration();
-    var serviceLifetimeSetting = configuration.serviceLifetime();
+    var serviceLifetimeSetting = configuration.records().serviceLifetime();
     // -1 is used to disable the log printing.
     if (serviceLifetimeSetting == -1L) {
       return;
@@ -59,7 +59,7 @@ public final class RecordReportListener {
   @EventListener
   public void handleServiceCrash(@NonNull CloudServicePreForceStopEvent event) {
     // check if the user disabled records
-    if (!this.reportModule.reportConfiguration().saveRecords()) {
+    if (!this.reportModule.reportConfiguration().records().saveRecords()) {
       return;
     }
     // we have to create the record
@@ -73,12 +73,13 @@ public final class RecordReportListener {
       && event.targetLifecycle() != ServiceLifeCycle.STOPPED) {
       return;
     }
+    var recordConfiguration = this.reportModule.reportConfiguration().records();
     // check if the user disabled records
-    if (!this.reportModule.reportConfiguration().saveRecords()) {
+    if (!recordConfiguration.saveRecords()) {
       return;
     }
     // check if the user only wants to save reports for crashed services
-    if (this.reportModule.reportConfiguration().saveOnCrashOnly()) {
+    if (recordConfiguration.saveOnForceStopOnly()) {
       return;
     }
     // create the record
@@ -87,15 +88,18 @@ public final class RecordReportListener {
 
   private void createRecord(@NonNull CloudService cloudService) {
     // we need to check and create the record directory as it's time based.
-    var recordCreator = RecordMaker.forService(this.reportModule.currentRecordDirectory(), cloudService);
+    var recordMaker = RecordMaker.forService(this.reportModule.currentRecordDirectory(), cloudService);
     // unable to create records as the directory already exists
-    if (recordCreator == null) {
+    if (recordMaker == null) {
       return;
     }
     // copy and create our files
-    recordCreator.copyLogFiles();
-    recordCreator.writeCachedConsoleLog();
-    recordCreator.writeServiceInfoSnapshot();
-    recordCreator.notifySuccess();
+    recordMaker.copyLogFiles();
+    recordMaker.writeCachedConsoleLog();
+    recordMaker.writeServiceInfoSnapshot();
+    // only notify about the success if desired
+    if (this.reportModule.reportConfiguration().records().logRecordCreation()) {
+      recordMaker.notifySuccess();
+    }
   }
 }

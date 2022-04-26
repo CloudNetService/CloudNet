@@ -22,6 +22,7 @@ import cloud.commandframework.annotations.Confirmation;
 import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
+import eu.cloudnetservice.node.command.source.ConsoleCommandSource;
 
 @CommandAlias({"shutdown", "stop"})
 @CommandPermission("cloudnet.command.exit")
@@ -29,7 +30,7 @@ import eu.cloudnetservice.node.command.annotation.Description;
 public final class ExitCommand {
 
   @Confirmation
-  @CommandMethod("exit|shutdown|stop")
+  @CommandMethod(value = "exit|shutdown|stop", requiredSender = ConsoleCommandSource.class)
   public void exit() {
     Node.instance().stop();
   }

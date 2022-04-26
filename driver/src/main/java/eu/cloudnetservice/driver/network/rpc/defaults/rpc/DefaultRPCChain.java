@@ -74,7 +74,7 @@ public class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
 
     this.rootRPC = rootRPC;
     this.headRPC = headRPC;
-    this.rpcChain = List.copyOf(rpcChain);
+    this.rpcChain = new LinkedList<>(rpcChain);
   }
 
   /**

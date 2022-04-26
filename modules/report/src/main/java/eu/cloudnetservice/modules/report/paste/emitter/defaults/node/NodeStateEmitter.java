@@ -17,17 +17,17 @@
 package eu.cloudnetservice.modules.report.paste.emitter.defaults.node;
 
 import eu.cloudnetservice.common.unsafe.CPUUsageResolver;
-import eu.cloudnetservice.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
+import eu.cloudnetservice.driver.network.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.modules.report.paste.emitter.ReportDataEmitter;
 import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.command.sub.ClusterCommand;
 import java.lang.management.ManagementFactory;
 import lombok.NonNull;
 
-public class NodeStateEmitter implements ReportDataEmitter<NetworkClusterNodeInfoSnapshot> {
+public class NodeStateEmitter implements ReportDataEmitter<NodeInfoSnapshot> {
 
   @Override
-  public void emitData(@NonNull StringBuilder builder, @NonNull NetworkClusterNodeInfoSnapshot context) {
+  public void emitData(@NonNull StringBuilder builder, @NonNull NodeInfoSnapshot context) {
     var memoryMXBean = ManagementFactory.getMemoryMXBean();
 
     builder.append("CPU usage: (P/S) ")

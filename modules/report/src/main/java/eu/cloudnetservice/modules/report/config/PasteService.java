@@ -29,16 +29,24 @@ public record PasteService(@NonNull String name, @NonNull String serviceUrl) imp
   public static final PasteService FALLBACK = new PasteService("fallback", "https://just-paste.it");
   private static final Logger LOGGER = LogManager.logger(PasteService.class);
 
+  /**
+   * Constructs a new paste service with the given name and url. Trailing slashes of the service url are removed.
+   *
+   * @param name the name of the paste service.
+   * @param serviceUrl the url to the paste service.
+   * @throws NullPointerException if the given name or service url is null.
+   */
   public PasteService(@NonNull String name, @NonNull String serviceUrl) {
     this.name = name;
     this.serviceUrl = serviceUrl.endsWith("/") ? serviceUrl.substring(0, serviceUrl.length() - 1) : serviceUrl;
   }
 
   /**
-   * Uploads the given content to this paste services
+   * Uploads the given content to this paste services.
    *
-   * @param content the content to upload to this service
-   * @return the result of the upload - null if the content is empty or the upload failed
+   * @param content the content to upload to this service.
+   * @return the result of the upload - null if the content is empty or the upload failed.
+   * @throws NullPointerException if the given content is null.
    */
   public @Nullable String pasteToService(@NonNull String content) {
     if (content.trim().isEmpty()) {

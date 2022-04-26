@@ -30,7 +30,7 @@ import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.command.CommandInfo;
 import eu.cloudnetservice.node.Node;
-import eu.cloudnetservice.node.command.defaults.DefaultCommandProvider;
+import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.command.source.ConsoleCommandSource;
 import eu.cloudnetservice.node.command.source.DriverCommandSource;
@@ -64,9 +64,9 @@ public class CommandExceptionHandler {
 
   protected static final Logger LOGGER = LogManager.logger(CommandExceptionHandler.class);
 
-  private final DefaultCommandProvider commandProvider;
+  private final CommandProvider commandProvider;
 
-  public CommandExceptionHandler(DefaultCommandProvider commandProvider) {
+  public CommandExceptionHandler(@NonNull CommandProvider commandProvider) {
     this.commandProvider = commandProvider;
   }
 

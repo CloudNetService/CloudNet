@@ -322,7 +322,15 @@ public class Wrapper extends CloudNetDriver {
       var listener = new PacketAuthorizationResponseListener(lock, condition);
       // register the listener to the packet registry and connect to the target listener
       this.networkClient.packetRegistry().addListener(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL, listener);
-      this.networkClient.connect(this.config.targetListener());
+      this.networkClient
+        .connect(this.config.targetListener())
+        .exceptionally(ex -> {
+          // log and exit, we're not connected
+          LOGGER.severe("Unable to connect", ex);
+          System.exit(-1);
+          // returns void
+          return null;
+        }).join();
 
       // wait for the authentication response
       var wasDone = condition.await(30, TimeUnit.SECONDS);

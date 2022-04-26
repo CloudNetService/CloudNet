@@ -23,7 +23,6 @@ import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
 import eu.cloudnetservice.modules.syncproxy.platform.PlatformSyncProxyManagement;
 import java.util.Collection;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,11 +43,6 @@ public final class WaterDogPESyncProxyManagement extends PlatformSyncProxyManage
   @Override
   public void unregisterService(@NonNull ServiceRegistry registry) {
     registry.unregisterProvider(PlatformSyncProxyManagement.class, "WaterDogPESyncProxyManagement");
-  }
-
-  @Override
-  public void schedule(@NonNull Runnable runnable, long time, @NonNull TimeUnit unit) {
-    this.proxyServer.getScheduler().scheduleDelayed(runnable, (int) (unit.toSeconds(time) / 20));
   }
 
   @Override

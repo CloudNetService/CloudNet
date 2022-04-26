@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.network.netty.client;
 
-import com.google.common.base.Preconditions;
+import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.network.DefaultNetworkComponent;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.NetworkChannel;
@@ -110,33 +110,33 @@ public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClien
    * {@inheritDoc}
    */
   @Override
-  public boolean connect(@NonNull HostAndPort hostAndPort) {
-    Preconditions.checkNotNull(hostAndPort.host());
+  public @NonNull Task<Void> connect(@NonNull HostAndPort hostAndPort) {
+    Task<Void> result = new Task<>();
+    new Bootstrap()
+      .group(this.eventLoopGroup)
+      .channelFactory(NettyUtil.clientChannelFactory())
+      .handler(new NettyNetworkClientInitializer(hostAndPort, this))
 
-    try {
-      var bootstrap = new Bootstrap()
-        .group(this.eventLoopGroup)
-        .channelFactory(NettyUtil.clientChannelFactory())
-        .handler(new NettyNetworkClientInitializer(hostAndPort, this))
+      .option(ChannelOption.IP_TOS, 0x18)
+      .option(ChannelOption.AUTO_READ, true)
+      .option(ChannelOption.TCP_NODELAY, true)
+      .option(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK)
+      .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+      .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECTION_TIMEOUT_MILLIS)
 
-        .option(ChannelOption.IP_TOS, 0x18)
-        .option(ChannelOption.AUTO_READ, true)
-        .option(ChannelOption.TCP_NODELAY, true)
-        .option(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK)
-        .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECTION_TIMEOUT_MILLIS);
-      // connect to the server
-      bootstrap.connect(hostAndPort.host(), hostAndPort.port())
-        .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
-        .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
-        .syncUninterruptibly();
+      .connect(hostAndPort.host(), hostAndPort.port())
+      .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
+      .addListener(future -> {
+        if (future.isSuccess()) {
+          // ok, we connected successfully
+          result.complete(null);
+        } else {
+          // something went wrong
+          result.completeExceptionally(future.cause());
+        }
+      });
 
-      return true;
-    } catch (Exception exception) {
-      LOGGER.severe(String.format("Exception while opening network connection to %s", hostAndPort), exception);
-    }
-
-    return false;
+    return result;
   }
 
   /**

@@ -24,6 +24,7 @@ import eu.cloudnetservice.node.cluster.NodeServerState;
 import eu.cloudnetservice.node.cluster.util.QueuedNetworkChannel;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 
 public record NodeDisconnectTrackerTask(@NonNull NodeServerProvider provider) implements Runnable {
@@ -79,7 +80,7 @@ public record NodeDisconnectTrackerTask(@NonNull NodeServerProvider provider) im
           // check if we need to reconnect or if the other node is responsible to reconnect
           if (local.nodeInfoSnapshot().startupMillis() > server.nodeInfoSnapshot().startupMillis()) {
             // try to connect to the node server
-            server.connect();
+            server.connect().get(5, TimeUnit.SECONDS, null);
           }
         }
       }
