@@ -33,7 +33,7 @@ h2 = "1.4.197" # do not update, leads to database incompatibility
 xodus = "2.0.1"
 mongodb = "4.6.0"
 hikariCp = "5.0.1"
-mysqlConnector = "8.0.28"
+mysqlConnector = "8.0.29"
 
 # general
 asm = "9.3"
@@ -42,7 +42,7 @@ jjwt = "0.11.3"
 slf4j = "1.7.36"
 javers = "6.6.5"
 caffeine = "3.0.6"
-awsSdk = "2.17.176"
+awsSdk = "2.17.177"
 reflexion = "1.2.0"
 dockerJava = "3.2.13"
 unirest = "4.0.0-RC2"
@@ -53,9 +53,9 @@ nettyIoUring = "0.0.13.Final"
 
 # platform api versions
 velocity = "3.1.0"
+waterdogpe = "1.1.7"
 nukkitX = "1.0-SNAPSHOT"
 sponge = "9.0.0-SNAPSHOT"
-waterdogpe = "1.1.6-SNAPSHOT"
 spigot = "1.8.8-R0.1-SNAPSHOT"
 bungeecord = "1.18-R0.1-SNAPSHOT"
 
@@ -69,7 +69,7 @@ npcLib = "development-SNAPSHOT"
 
 # fabric platform special dependencies
 minecraft = "1.18.2"
-fabricLoader = "0.14.2"
+fabricLoader = "0.14.3"
 
 
 [libraries]
