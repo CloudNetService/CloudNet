@@ -177,7 +177,7 @@ public class NodePlayerManager implements PlayerManager {
   }
 
   @Override
-  public CloudOfflinePlayer offlinePlayer(@NonNull UUID uniqueId) {
+  public @Nullable CloudOfflinePlayer offlinePlayer(@NonNull UUID uniqueId) {
     return this.offlinePlayerCache.get(uniqueId).orElse(null);
   }
 

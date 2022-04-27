@@ -27,6 +27,7 @@ import java.util.UUID;
 import java.util.function.Supplier;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 final class NukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Player> {
@@ -79,11 +80,6 @@ final class NukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Pla
   }
 
   @Override
-  public void sendMessage(@NonNull Component message) {
-    this.forEach(player -> player.sendMessage(legacySection().serialize(message)));
-  }
-
-  @Override
   public void sendChatMessage(@NonNull Component message, @Nullable String permission) {
     this.forEach(player -> {
       if (permission == null || player.hasPermission(permission)) {
@@ -93,7 +89,7 @@ final class NukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Pla
   }
 
   @Override
-  public void sendPluginMessage(@NonNull String tag, byte[] data) {
+  public void sendPluginMessage(@NonNull String channel, byte @NotNull [] data) {
     // no-op
   }
 

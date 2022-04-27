@@ -56,7 +56,7 @@ public interface PlayerManager {
   /**
    * Gets an online cloud player by its unique id from the cache on the node.
    * <p>
-   * The player stays in cache while being online and is removed when leaving.
+   * The online player is cached on the node until the player disconnects.
    *
    * @param uniqueId the unique id of the player.
    * @return the online cloud player or null if the player is not online.
@@ -66,6 +66,8 @@ public interface PlayerManager {
 
   /**
    * Gets the first cloud player that is online and has the given case-insensitive name.
+   * <p>
+   * All online players are cached on the node while they are online.
    *
    * @param name the name of the cloud player.
    * @return the first cloud player with the given name, null if no player was found.
@@ -78,6 +80,8 @@ public interface PlayerManager {
 
   /**
    * Gets all online cloud players that have the given case-insensitive name.
+   * <p>
+   * All online players are cached on the node while they are online.
    *
    * @param name the name of the cloud players.
    * @return a list of all online players with the given name.
@@ -87,6 +91,8 @@ public interface PlayerManager {
 
   /**
    * Gets all online cloud players that are connected to a service of given service environment.
+   * <p>
+   * All online players are cached on the node while they are online.
    *
    * @param environment the environment to get all players for.
    * @return a list of all cloud players connected to a service of the given service environment.
@@ -231,6 +237,8 @@ public interface PlayerManager {
 
   /**
    * Gets an online cloud player by its unique id asynchronously.
+   * <p>
+   * The online player is cached on the node until the player disconnects.
    *
    * @param uniqueId the unique id of the player.
    * @return a task containing the online cloud player or an empty task if the player is not online.
@@ -242,6 +250,8 @@ public interface PlayerManager {
 
   /**
    * Gets the first cloud player that is online and has the given case-insensitive name asynchronously.
+   * <p>
+   * All online players are cached on the node while they are online.
    *
    * @param name the name of the cloud player.
    * @return a task containing the first cloud player with the given name.
@@ -253,6 +263,8 @@ public interface PlayerManager {
 
   /**
    * Gets all online cloud players that have the given case-insensitive name asynchronously.
+   * <p>
+   * All online players are cached on the node while they are online.
    *
    * @param name the name of the cloud players.
    * @return a task containing a list of all online players with the given name.
@@ -264,6 +276,8 @@ public interface PlayerManager {
 
   /**
    * Gets all online cloud players that are connected to a service of given service environment asynchronously.
+   * <p>
+   * All online players are cached on the node while they are online.
    *
    * @param env the environment to get all players for.
    * @return a task containing a list of all cloud players connected to a service of the given service environment.
@@ -276,6 +290,9 @@ public interface PlayerManager {
   /**
    * Gets the offline player associated with the given unique id asynchronously. The player must have been previously
    * connected.
+   * <p>
+   * The cloud offline player is cached on the node and retrieved from the cache if present otherwise loaded from the
+   * database.
    *
    * @param uniqueId the unique id of the offline player.
    * @return a task containing the offline player with the given unique id.

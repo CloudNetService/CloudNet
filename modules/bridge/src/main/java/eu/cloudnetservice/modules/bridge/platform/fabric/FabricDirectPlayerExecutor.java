@@ -31,6 +31,7 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class FabricDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<ServerPlayer> {
@@ -74,20 +75,15 @@ public final class FabricDirectPlayerExecutor extends PlatformPlayerExecutorAdap
   }
 
   @Override
-  public void sendMessage(@NonNull Component message) {
+  public void sendChatMessage(@NonNull Component message, @Nullable String permission) {
+    // we're unable to check the permission for the player
     var text = new TextComponent(LegacyComponentSerializer.legacySection().serialize(message));
     this.forEach(player -> player.sendMessage(text, Util.NIL_UUID));
   }
 
   @Override
-  public void sendChatMessage(@NonNull Component message, @Nullable String permission) {
-    // we're unable to check the permission for the player
-    this.sendMessage(message);
-  }
-
-  @Override
-  public void sendPluginMessage(@NonNull String tag, byte[] data) {
-    var identifier = new ResourceLocation(tag);
+  public void sendPluginMessage(@NonNull String channel, byte @NotNull [] data) {
+    var identifier = new ResourceLocation(channel);
     this.forEach(player -> player.connection.send(new ClientboundCustomPayloadPacket(
       identifier,
       new FriendlyByteBuf(Unpooled.wrappedBuffer(data)))));

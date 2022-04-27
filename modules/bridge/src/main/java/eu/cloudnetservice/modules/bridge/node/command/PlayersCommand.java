@@ -228,7 +228,7 @@ public class PlayersCommand {
     @NonNull @Argument("player") CloudPlayer player,
     @NonNull @Greedy @Argument("message") String message
   ) {
-    player.playerExecutor().sendMessage(AdventureSerializerUtil.serialize(message));
+    player.playerExecutor().sendChatMessage(AdventureSerializerUtil.serialize(message));
     source.sendMessage(
       I18n.trans("module-bridge-command-players-send-player-message", player.name(), player.uniqueId()));
   }
