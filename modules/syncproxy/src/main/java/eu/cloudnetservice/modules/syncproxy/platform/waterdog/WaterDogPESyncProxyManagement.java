@@ -67,7 +67,7 @@ public final class WaterDogPESyncProxyManagement extends PlatformSyncProxyManage
 
   @Override
   public void disconnectPlayer(@NonNull ProxiedPlayer player, @NonNull String message) {
-    player.disconnect(message);
+    player.disconnect(AdventureSerializerUtil.serializeToString(message));
   }
 
   @Override

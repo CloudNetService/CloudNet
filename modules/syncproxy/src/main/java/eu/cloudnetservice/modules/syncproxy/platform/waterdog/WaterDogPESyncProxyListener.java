@@ -78,23 +78,21 @@ public final class WaterDogPESyncProxyListener {
     var proxiedPlayer = event.getPlayer();
     if (loginConfiguration.maintenance()) {
       // the player is either whitelisted or has the permission to join during maintenance, ignore him
-      if (this.syncProxyManagement.checkPlayerMaintenance(proxiedPlayer)) {
-        return;
+      if (!this.syncProxyManagement.checkPlayerMaintenance(proxiedPlayer)) {
+        event.setCancelReason(this.syncProxyManagement.configuration().message(
+          "player-login-not-whitelisted",
+          LEGACY_COLOR_REPLACER));
+        event.setCancelled(true);
       }
-      event.setCancelReason(this.syncProxyManagement.configuration().message(
-        "player-login-not-whitelisted",
-        LEGACY_COLOR_REPLACER));
-      event.setCancelled(true);
-
-      return;
-    }
-    // check if the proxy is full and if the player is allowed to join or not
-    if (this.syncProxyManagement.onlinePlayerCount() >= loginConfiguration.maxPlayers()
-      && !proxiedPlayer.hasPermission("cloudnet.syncproxy.fulljoin")) {
-      event.setCancelReason(this.syncProxyManagement.configuration().message(
-        "player-login-full-server",
-        LEGACY_COLOR_REPLACER));
-      event.setCancelled(true);
+    } else {
+      // check if the proxy is full and if the player is allowed to join or not
+      if (this.syncProxyManagement.onlinePlayerCount() >= loginConfiguration.maxPlayers()
+        && !proxiedPlayer.hasPermission("cloudnet.syncproxy.fulljoin")) {
+        event.setCancelReason(this.syncProxyManagement.configuration().message(
+          "player-login-full-server",
+          LEGACY_COLOR_REPLACER));
+        event.setCancelled(true);
+      }
     }
   }
 }

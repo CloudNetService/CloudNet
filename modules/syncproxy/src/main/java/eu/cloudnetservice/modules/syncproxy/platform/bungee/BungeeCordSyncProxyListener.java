@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.NonNull;
-import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.ServerPing.PlayerInfo;
 import net.md_5.bungee.api.ServerPing.Players;
 import net.md_5.bungee.api.ServerPing.Protocol;
@@ -62,7 +61,7 @@ public final class BungeeCordSyncProxyListener implements Listener {
         maxPlayers = loginConfiguration.maxPlayers();
       }
 
-      ServerPing response = event.getResponse();
+      var response = event.getResponse();
 
       var protocolText = motd.format(motd.protocolText(), onlinePlayers, maxPlayers);
       // check if there is a protocol text in the config
@@ -98,21 +97,20 @@ public final class BungeeCordSyncProxyListener implements Listener {
 
     if (loginConfiguration.maintenance()) {
       // the player is either whitelisted or has the permission to join during maintenance, ignore him
-      if (this.syncProxyManagement.checkPlayerMaintenance(player)) {
-        return;
+      if (!this.syncProxyManagement.checkPlayerMaintenance(player)) {
+        event.setCancelReason(this.syncProxyManagement.asComponent(
+          this.syncProxyManagement.configuration().message("player-login-not-whitelisted", null)));
+        event.setCancelled(true);
       }
-      event.setCancelReason(this.syncProxyManagement.asComponent(
-        this.syncProxyManagement.configuration().message("player-login-not-whitelisted", null)));
-      event.setCancelled(true);
+    } else {
+      // check if the proxy is full and if the player is allowed to join or not
+      if (this.syncProxyManagement.onlinePlayerCount() >= loginConfiguration.maxPlayers()
+        && !player.hasPermission("cloudnet.syncproxy.fulljoin")) {
+        event.setCancelReason(this.syncProxyManagement.asComponent(
+          this.syncProxyManagement.configuration().message("player-login-full-server", null)));
+        event.setCancelled(true);
+      }
+    }
 
-      return;
-    }
-    // check if the proxy is full and if the player is allowed to join or not
-    if (this.syncProxyManagement.onlinePlayerCount() >= loginConfiguration.maxPlayers()
-      && !player.hasPermission("cloudnet.syncproxy.fulljoin")) {
-      event.setCancelReason(this.syncProxyManagement.asComponent(
-        this.syncProxyManagement.configuration().message("player-login-full-server", null)));
-      event.setCancelled(true);
-    }
   }
 }

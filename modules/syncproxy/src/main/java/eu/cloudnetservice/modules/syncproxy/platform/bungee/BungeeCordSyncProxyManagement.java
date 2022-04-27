@@ -65,8 +65,8 @@ public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManage
   @Override
   public void playerTabList(@NonNull ProxiedPlayer player, @Nullable String header, @Nullable String footer) {
     player.setTabHeader(
-      this.asComponent(this.replaceTabPlaceholder(header, player)),
-      this.asComponent(this.replaceTabPlaceholder(footer, player)));
+      header != null ? this.asComponent(this.replaceTabPlaceholder(header, player)) : null,
+      footer != null ? this.asComponent(this.replaceTabPlaceholder(footer, player)) : null);
   }
 
   @Override
@@ -86,19 +86,11 @@ public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManage
     return player.hasPermission(permission);
   }
 
-  public @Nullable BaseComponent[] asComponent(@Nullable String message) {
-    if (message != null) {
-      return TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', message));
-    } else {
-      return null;
-    }
+  public @NonNull BaseComponent[] asComponent(@NonNull String message) {
+    return TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', message));
   }
 
-  private @Nullable String replaceTabPlaceholder(@Nullable String input, @NonNull ProxiedPlayer player) {
-    if (input == null) {
-      return null;
-    }
-
+  private @NonNull String replaceTabPlaceholder(@NonNull String input, @NonNull ProxiedPlayer player) {
     return input
       .replace("%ping%", String.valueOf(player.getPing()))
       .replace("%server%", player.getServer() == null ? "UNAVAILABLE" : player.getServer().getInfo().getName());
