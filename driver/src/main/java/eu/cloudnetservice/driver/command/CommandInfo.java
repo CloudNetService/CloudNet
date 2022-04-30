@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a command information object which holds all information for a single command that is registered on a
@@ -35,6 +36,7 @@ import lombok.NonNull;
  * @param aliases     all aliases of the root command.
  * @param permission  the permission that is needed to execute the command.
  * @param description the description of the command which is used for the help command.
+ * @param docsUrl     the url to the documentation of the command.
  * @param usage       the correct syntax usages for each sub command.
  * @since 4.0
  */
@@ -43,6 +45,7 @@ public record CommandInfo(
   @NonNull Set<String> aliases,
   @NonNull String permission,
   @NonNull String description,
+  @Nullable String docsUrl,
   @NonNull List<String> usage
 ) implements Nameable {
 

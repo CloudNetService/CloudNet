@@ -21,6 +21,7 @@ import eu.cloudnetservice.node.permission.command.PermissionUserCommandSource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Objects;
 import lombok.NonNull;
 
 /**
@@ -83,5 +84,21 @@ public class DriverCommandSource implements CommandSource {
    */
   public @NonNull Collection<String> messages() {
     return this.messages;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof DriverCommandSource that)) {
+      return false;
+    }
+    return that.name().equals(this.name());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(this.name());
   }
 }

@@ -20,7 +20,9 @@ import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.parsers.Parser;
+import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
+import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.column.ColumnFormatter;
 import eu.cloudnetservice.common.column.RowBasedFormatter;
 import eu.cloudnetservice.common.language.I18n;
@@ -30,6 +32,7 @@ import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
+import java.util.List;
 import java.util.Queue;
 import lombok.NonNull;
 
@@ -51,15 +54,20 @@ public final class HelpCommand {
     this.commandProvider = commandProvider;
   }
 
-  @Parser
+  @Parser(suggestions = "commands")
   public @NonNull CommandInfo defaultCommandInfoParser(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
     var command = input.remove();
     var commandInfo = this.commandProvider.command(command);
     if (commandInfo == null) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-not-found"));
+      throw new ArgumentNotAvailableException(I18n.trans("no-such-command"));
     }
 
     return commandInfo;
+  }
+
+  @Suggestions("commands")
+  public @NonNull List<String> suggestCommands(@NonNull CommandContext<?> $, @NonNull String input) {
+    return this.commandProvider.commands().stream().map(Nameable::name).toList();
   }
 
   @CommandMethod("help|ask|?")
@@ -69,13 +77,20 @@ public final class HelpCommand {
 
   @CommandMethod("help|ask|? <command>")
   public void displaySpecificHelp(@NonNull CommandSource source, @NonNull @Argument("command") CommandInfo command) {
-    source.sendMessage(" ");
-
     source.sendMessage("Names: " + command.joinNameToAliases(", "));
     source.sendMessage("Description: " + command.description());
     source.sendMessage("Usage: ");
     for (var usage : command.usage()) {
       source.sendMessage(" - " + usage);
+    }
+  }
+
+  @CommandMethod("help|ask|? docs <command>")
+  public void displayCommandDocs(@NonNull CommandSource source, @NonNull @Argument("command") CommandInfo commandInfo) {
+    if (commandInfo.docsUrl() == null) {
+      source.sendMessage(I18n.trans("command-help-docs-no-url", commandInfo.name()));
+    } else {
+      source.sendMessage(I18n.trans("command-help-docs", commandInfo.name(), commandInfo.docsUrl()));
     }
   }
 
