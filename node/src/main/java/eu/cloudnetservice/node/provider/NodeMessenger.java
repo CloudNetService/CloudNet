@@ -159,7 +159,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
         // check if a specific service was requested
         if (target.name() == null) {
           // if no specific name is given just get all local channels
-          Collection<NetworkChannel> channels = this.cloudServiceManager.localCloudServices().stream()
+          var channels = this.cloudServiceManager.localCloudServices().stream()
             .map(CloudService::networkChannel)
             .filter(Objects::nonNull)
             .collect(Collectors.toSet());

@@ -184,7 +184,9 @@ public final class PlatformChannelMessageListener {
           event.content().readByteArray());
 
         // dispatches the given input string as a command
-        case "spoof_command_execution" -> executor.spoofCommandExecution(event.content().readString());
+        case "spoof_command_execution" -> executor.spoofCommandExecution(
+          event.content().readString(),
+          event.content().readBoolean());
 
         // unable to handle
         default -> {

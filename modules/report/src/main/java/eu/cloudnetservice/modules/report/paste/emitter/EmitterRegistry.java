@@ -43,7 +43,8 @@ public class EmitterRegistry {
    *
    * @param clazz the class the emitters are registered for.
    * @param <T>   the type of the data needed to generate the report.
-   * @return an unmodifiable collection of all emitters for the given class
+   * @return an unmodifiable collection of all emitters for the given class.
+   * @throws NullPointerException if the given class is null.
    */
   @UnmodifiableView
   @SuppressWarnings("unchecked")
@@ -60,7 +61,8 @@ public class EmitterRegistry {
    * @param clazz   the class to register the emitter for.
    * @param emitter the emitters for the given class appending data.
    * @param <T>     the type of the data needed to generate a report.
-   * @return the same emitter registry, for chaining
+   * @return the same emitter registry, for chaining.
+   * @throws NullPointerException if the given class or emitter is null.
    */
   public <T> @NonNull EmitterRegistry registerDataEmitter(
     @NonNull Class<T> clazz,
@@ -73,8 +75,9 @@ public class EmitterRegistry {
   /**
    * Unregisters all emitters that are registered in this registry using the given class.
    *
-   * @param clazz the class that was used to register the emitters
-   * @param <T>   the type of the registered emitters
+   * @param clazz the class that was used to register the emitters.
+   * @param <T>   the type of the registered emitters.
+   * @throws NullPointerException if the given class is null.
    */
   public <T> void unregisterByClass(@NonNull Class<T> clazz) {
     this.emitters.removeAll(clazz);

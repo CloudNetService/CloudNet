@@ -16,8 +16,12 @@
 
 package eu.cloudnetservice.driver.network.rpc.defaults.object;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
+import com.github.benmanes.caffeine.cache.Scheduler;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.reflect.TypeToken;
+import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.buffer.DataBufable;
@@ -37,6 +41,7 @@ import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectSerializer;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -133,8 +138,18 @@ public class DefaultObjectMapper implements ObjectMapper {
     DEFAULT_MAPPER = new DefaultObjectMapper();
   }
 
-  private final Map<Type, TypeToken<?>> typeTokenCache = new ConcurrentHashMap<>();
   private final Map<Type, ObjectSerializer<?>> registeredSerializers = new ConcurrentHashMap<>();
+  private final LoadingCache<Type, Collection<Pair<Type, Type>>> typeCache = Caffeine.newBuilder()
+    .expireAfterAccess(Duration.ofDays(1))
+    .scheduler(Scheduler.systemScheduler())
+    .build(key -> {
+      // extract all types from the given key, map them to the actual and raw type
+      Collection<Pair<Type, Type>> types = new LinkedList<>();
+      for (var type : TypeToken.of(key).getTypes()) {
+        types.add(new Pair<>(type.getType(), type.getRawType()));
+      }
+      return types;
+    });
 
   /**
    * Constructs a new default object mapper instance with all default object serializers already registered. This call
@@ -161,11 +176,11 @@ public class DefaultObjectMapper implements ObjectMapper {
   @Override
   public @NonNull ObjectMapper unregisterBinding(@NonNull Type type, boolean superTypes) {
     if (superTypes) {
-      var typeToken = this.typeTokenCache.computeIfAbsent(type, TypeToken::of);
+      var subTypes = this.typeCache.get(type);
       // unregister all subtypes of the type
-      for (TypeToken<?> subType : typeToken.getTypes()) {
-        this.registeredSerializers.remove(subType.getType());
-        this.registeredSerializers.remove(subType.getRawType());
+      for (var subType : subTypes) {
+        this.registeredSerializers.remove(subType.first());
+        this.registeredSerializers.remove(subType.second());
       }
     } else {
       // we don't need to unregister the subtypes of the type, skip the lookup
@@ -198,11 +213,11 @@ public class DefaultObjectMapper implements ObjectMapper {
     boolean superTypes
   ) {
     if (superTypes) {
-      var typeToken = this.typeTokenCache.computeIfAbsent(type, TypeToken::of);
+      var subTypes = this.typeCache.get(type);
       // register all subtypes of the type
-      for (TypeToken<?> token : typeToken.getTypes()) {
-        this.registeredSerializers.putIfAbsent(token.getType(), serializer);
-        this.registeredSerializers.putIfAbsent(token.getRawType(), serializer);
+      for (var subType : subTypes) {
+        this.registeredSerializers.putIfAbsent(subType.first(), serializer);
+        this.registeredSerializers.putIfAbsent(subType.second(), serializer);
       }
     } else {
       // we don't need to register the subtypes of the type, skip the lookup
@@ -215,15 +230,14 @@ public class DefaultObjectMapper implements ObjectMapper {
    * {@inheritDoc}
    */
   @Override
-  @SuppressWarnings("unchecked")
   public @NonNull <T> DataBuf.Mutable writeObject(@NonNull DataBuf.Mutable dataBuf, @Nullable T object) {
     return dataBuf.writeNullable(object, (buffer, obj) -> {
       // Get the type token of the type
-      var typeToken = (TypeToken<T>) this.typeTokenCache.computeIfAbsent(obj.getClass(), TypeToken::of);
+      var subTypes = this.typeCache.get(obj.getClass());
       // get the registered serializer for the type
       ObjectSerializer<T> serializer = null;
-      for (TypeToken<?> type : typeToken.getTypes()) {
-        serializer = this.serializerForType(type);
+      for (var subType : subTypes) {
+        serializer = this.serializerForType(subType);
         if (serializer != null && serializer.preWriteCheckAccepts(obj, this)) {
           break;
         }
@@ -245,10 +259,10 @@ public class DefaultObjectMapper implements ObjectMapper {
   public <T> @Nullable T readObject(@NonNull DataBuf dataBuf, @NonNull Type type) {
     return dataBuf.readNullable(buffer -> {
       // Get the type token of the type
-      var typeToken = this.typeTokenCache.computeIfAbsent(type, TypeToken::of);
+      var subTypes = this.typeCache.get(type);
       // get the registered serializer for the type
       ObjectSerializer<?> serializer = null;
-      for (TypeToken<?> subType : typeToken.getTypes()) {
+      for (var subType : subTypes) {
         serializer = this.serializerForType(subType);
         if (serializer != null && serializer.preReadCheckAccepts(type, this)) {
           break;
@@ -267,14 +281,14 @@ public class DefaultObjectMapper implements ObjectMapper {
    * Finds the best matching serializer for the given type. The method first tries to get the serializer by the exact
    * type of the supplied type token, then by the raw type.
    *
-   * @param typeToken the type token of the type to get.
-   * @param <T>       the generic type of the object serializer to get.
+   * @param typePair the mapping pair of the actual type (first) and the raw type (second) of the serializer to get.
+   * @param <T>      the generic type of the object serializer to get.
    * @return the best matching object serializer for the given type.
    * @throws NullPointerException if the given type token is null.
    */
   @SuppressWarnings("unchecked")
-  protected @Nullable <T> ObjectSerializer<T> serializerForType(@NonNull TypeToken<?> typeToken) {
-    var byType = (ObjectSerializer<T>) this.registeredSerializers.get(typeToken.getType());
-    return byType == null ? (ObjectSerializer<T>) this.registeredSerializers.get(typeToken.getRawType()) : byType;
+  protected @Nullable <T> ObjectSerializer<T> serializerForType(@NonNull Pair<Type, Type> typePair) {
+    var byType = (ObjectSerializer<T>) this.registeredSerializers.get(typePair.first());
+    return byType == null ? (ObjectSerializer<T>) this.registeredSerializers.get(typePair.second()) : byType;
   }
 }

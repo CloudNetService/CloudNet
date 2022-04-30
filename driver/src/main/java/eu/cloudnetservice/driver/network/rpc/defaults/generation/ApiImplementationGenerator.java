@@ -34,9 +34,10 @@ import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
 
+import dev.derklaro.reflexion.Reflexion;
 import eu.cloudnetservice.common.StringUtil;
 import eu.cloudnetservice.common.concurrent.Task;
-import eu.cloudnetservice.driver.network.NetworkComponent;
+import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.rpc.RPC;
 import eu.cloudnetservice.driver.network.rpc.RPCExecutable;
 import eu.cloudnetservice.driver.network.rpc.RPCFactory;
@@ -52,8 +53,10 @@ import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.ClassWriter;
@@ -63,16 +66,22 @@ import org.objectweb.asm.Type;
 /**
  * The generator for api implementations based on rpc.
  *
- * @see RPCFactory#generateRPCBasedApi(Class, NetworkComponent)
+ * @see RPCFactory#generateRPCBasedApi(Class, GenerationContext)
  * @since 4.0
  */
 public final class ApiImplementationGenerator {
 
-  private static final String DEFAULT_SUPER = "java/lang/Object";
+  static final String DEFAULT_SUPER = "java/lang/Object";
+  // network channel supplier
+  static final Type CHANNEL_TYPE = Type.getType(NetworkChannel.class);
+  static final String NET_CHANNEL_TYPE = CHANNEL_TYPE.getInternalName();
+  static final String SUPPLIER_DESC = Type.getDescriptor(Supplier.class);
+  static final String SUPPLIER_TYPE = Type.getInternalName(Supplier.class);
+  static final String GET_METHOD_DESC = Type.getMethodDescriptor(Type.getType(Object.class));
   // sender stuff
-  private static final String SENDER_DESC = Type.getDescriptor(RPCSender.class);
-  private static final String SENDER_TYPE = Type.getInternalName(RPCSender.class);
-  private static final String INVOKE_METHOD_DESC = Type.getMethodDescriptor(
+  static final String SENDER_DESC = Type.getDescriptor(RPCSender.class);
+  static final String SENDER_TYPE = Type.getInternalName(RPCSender.class);
+  static final String INVOKE_METHOD_DESC = Type.getMethodDescriptor(
     Type.getType(RPC.class),
     Type.getType(String.class),
     Type.getType(Object[].class));
@@ -80,15 +89,19 @@ public final class ApiImplementationGenerator {
     Type.VOID_TYPE,
     Type.getType(RPCSender.class));
   // executable stuff
-  private static final String EXECUTABLE_NAME = Type.getInternalName(RPCExecutable.class);
-  private static final String EXECUTABLE_FIRE_FORGET = Type.getMethodDescriptor(Type.VOID_TYPE);
-  private static final String EXECUTABLE_FIRE = Type.getMethodDescriptor(Type.getType(Task.class));
-  private static final String EXECUTABLE_FIRE_SYNC = Type.getMethodDescriptor(Type.getType(Object.class));
+  static final String EXECUTABLE_NAME = Type.getInternalName(RPCExecutable.class);
+  static final String EXECUTABLE_FIRE_FORGET = Type.getMethodDescriptor(Type.VOID_TYPE);
+  static final String EXECUTABLE_FIRE = Type.getMethodDescriptor(Type.getType(Task.class));
+  static final String EXECUTABLE_FIRE_SYNC = Type.getMethodDescriptor(Type.getType(Object.class));
+  // executable with channel
+  static final String EXECUTABLE_FIRE_FORGET_CHANNEL = Type.getMethodDescriptor(Type.VOID_TYPE, CHANNEL_TYPE);
+  static final String EXECUTABLE_FIRE_CHANNEL = Type.getMethodDescriptor(Type.getType(Task.class), CHANNEL_TYPE);
+  static final String EXECUTABLE_FIRE_SYNC_CHANNEL = Type.getMethodDescriptor(Type.getType(Object.class), CHANNEL_TYPE);
   // information regarding the generated class
-  private static final String GENERATED_CLASS_NAME_FORMAT = "%s$Impl_%s";
+  static final String GENERATED_CLASS_NAME_FORMAT = "%s$Impl_%s";
   // the main checker function if a method should be overridden or not, only applying the base checks
   // this checks if the applied method is public, not static, not a bridge, not final and isn't annotated with @RPCIgnore
-  private static final Predicate<Method> SHOULD_GENERATE_IMPL = method -> {
+  static final Predicate<Method> SHOULD_GENERATE_IMPL = method -> {
     var mod = method.getModifiers();
     return Modifier.isPublic(mod)
       && !Modifier.isStatic(mod)
@@ -108,33 +121,25 @@ public final class ApiImplementationGenerator {
    * @param context   the generation context.
    * @param sender    the rpc sender to use for the class.
    * @param <T>       the type which gets generated.
-   * @return an implementation of the given class which has all requested methods rpc based implemented.
+   * @return a supplier to create an instance of the class which has all requested methods rpc based implemented.
    * @throws NullPointerException   if the given base class, context or rpc sender is null.
    * @throws ClassCreationException if the generator is unable to generate an implementation of the class.
    */
   // Suppresses ConstantConditions as IJ is dumb
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
-  public static @NonNull <T> T generateApiImplementation(
+  @SuppressWarnings({"unchecked"})
+  public static @NonNull <T> Supplier<Object> generateApiImplementation(
     @NonNull Class<T> baseClass,
     @NonNull GenerationContext context,
     @NonNull RPCSender sender
   ) {
     try {
+      var parentClass = Objects.requireNonNullElse(context.extendingClass(), baseClass);
       var className = String.format(
         GENERATED_CLASS_NAME_FORMAT,
-        Type.getInternalName(baseClass),
+        Type.getInternalName(parentClass),
         StringUtil.generateRandomString(10));
       var superName = context.extendingClass() == null ? DEFAULT_SUPER : Type.getInternalName(context.extendingClass());
-      // check if the class has a constructor with a rpc sender instance, use that prioritized
-      boolean useSenderConstructor = false;
-      if (context.extendingClass() != null) {
-        try {
-          context.extendingClass().getDeclaredConstructor(RPCSender.class);
-          useSenderConstructor = true;
-        } catch (NoSuchMethodException ignored) {
-          // proceed as the clas has only a no-args constructor
-        }
-      }
+
       // a new impl writer based on the given contextual information
       var cw = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
       cw.visit(
@@ -145,31 +150,40 @@ public final class ApiImplementationGenerator {
         superName,
         context.interfaces().stream().map(Type::getInternalName).toArray(String[]::new));
       // add the sender field
-      cw
-        .visitField(ACC_PRIVATE | ACC_FINAL, "sender", SENDER_DESC, null, null)
-        .visitEnd();
+      cw.visitField(ACC_PRIVATE | ACC_FINAL, "sender", SENDER_DESC, null, null).visitEnd();
+      cw.visitField(ACC_PRIVATE | ACC_FINAL, "channelSupplier", SUPPLIER_DESC, null, null).visitEnd();
       // generate the constructor
       MethodVisitor mv;
-      {
-        mv = cw.visitMethod(ACC_PUBLIC, "<init>", "(" + SENDER_DESC + ")V", null, null);
-        mv.visitCode();
-        // visit super
-        mv.visitVarInsn(ALOAD, 0);
-        if (useSenderConstructor) {
-          mv.visitVarInsn(ALOAD, 1);
-          mv.visitMethodInsn(INVOKESPECIAL, superName, "<init>", CONSTRUCTOR_SENDER_DESC, false);
-        } else {
-          mv.visitMethodInsn(INVOKESPECIAL, superName, "<init>", "()V", false);
+      mv = cw.visitMethod(ACC_PUBLIC, "<init>", String.format("(%s%s)V", SENDER_DESC, SUPPLIER_DESC), null, null);
+      // generate the constructor
+      // check if the class has a constructor with a rpc sender instance, use that prioritized
+      boolean useSenderConstructor = false;
+      if (context.extendingClass() != null) {
+        try {
+          context.extendingClass().getDeclaredConstructor(RPCSender.class);
+          useSenderConstructor = true;
+        } catch (NoSuchMethodException ignored) {
+          // proceed as the class has only a no-args constructor
         }
-        // write the sender field
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitVarInsn(ALOAD, 1);
-        mv.visitFieldInsn(PUTFIELD, className, "sender", SENDER_DESC);
-        // finish
-        mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
       }
+
+      mv.visitCode();
+      // visit super
+      mv.visitVarInsn(ALOAD, 0);
+      if (useSenderConstructor) {
+        mv.visitVarInsn(ALOAD, 1);
+        mv.visitMethodInsn(INVOKESPECIAL, superName, "<init>", CONSTRUCTOR_SENDER_DESC, false);
+      } else {
+        mv.visitMethodInsn(INVOKESPECIAL, superName, "<init>", "()V", false);
+      }
+      // write the sender field
+      mv.visitVarInsn(ALOAD, 0);
+      mv.visitVarInsn(ALOAD, 1);
+      mv.visitFieldInsn(PUTFIELD, className, "sender", SENDER_DESC);
+      // finish
+      mv.visitInsn(RETURN);
+      mv.visitMaxs(0, 0);
+      mv.visitEnd();
 
       // implement all methods
       {
@@ -177,66 +191,10 @@ public final class ApiImplementationGenerator {
         for (var method : methods) {
           mv = cw.visitMethod(ACC_PUBLIC | ACC_FINAL, method.getName(), Type.getMethodDescriptor(method), null, null);
           mv.visitCode();
-          // get the sender field
-          mv.visitVarInsn(ALOAD, 0);
-          mv.visitFieldInsn(GETFIELD, className, "sender", SENDER_DESC);
-          // the name of the remote method to execute (the current method)
-          mv.visitLdcInsn(method.getName());
-          // create a new object array (will later hold all argument of the invocation)
-          var params = method.getParameterTypes();
-          AsmHelper.pushInt(mv, params.length);
-          mv.visitTypeInsn(ANEWARRAY, DEFAULT_SUPER);
-          // add each parameter to the array
-          for (int i = 0; i < params.length; i++) {
-            var type = params[i];
-            var intType = Type.getType(type);
-            // dup the array on the stack and push the target index we want to add the object to
-            mv.visitInsn(DUP);
-            AsmHelper.pushInt(mv, i);
-            // load the parameter
-            mv.visitVarInsn(intType.getOpcode(ILOAD), i + 1);
-            // we need to wrap a primitive type to the wrapper type
-            if (type.isPrimitive()) {
-              AsmHelper.primitiveToWrapper(mv, type);
-            }
-            // store the element
-            mv.visitInsn(AASTORE);
-          }
-          // invoke the send method
-          mv.visitMethodInsn(INVOKEINTERFACE, SENDER_TYPE, "invokeMethod", INVOKE_METHOD_DESC, true);
+          // generate the invoke method
+          visitInvokeMethod(className, method, mv);
           // we cannot ignore the return type if not void
-          var voidMethod = method.getReturnType().equals(void.class);
-          if (!voidMethod || !method.isAnnotationPresent(RPCNoResult.class)) {
-            // fire async if the result type is a completable future
-            if (Task.class.isAssignableFrom(method.getReturnType())) {
-              // fire the rpc async
-              mv.visitMethodInsn(INVOKEINTERFACE, EXECUTABLE_NAME, "fire", EXECUTABLE_FIRE, true);
-            } else {
-              // fire the rpc sync
-              mv.visitMethodInsn(INVOKEINTERFACE, EXECUTABLE_NAME, "fireSync", EXECUTABLE_FIRE_SYNC, true);
-              // unwrap primitive types
-              if (!voidMethod) {
-                if (method.getReturnType().isPrimitive()) {
-                  // convert the wrapper to the primitive value
-                  AsmHelper.wrapperToPrimitive(mv, method.getReturnType());
-                } else {
-                  mv.visitTypeInsn(CHECKCAST, Type.getInternalName(method.getReturnType()));
-                }
-              }
-            }
-            // if no result was expected pop the result, else return it
-            if (voidMethod) {
-              mv.visitInsn(POP);
-              mv.visitInsn(RETURN);
-            } else {
-              var rt = Type.getType(method.getReturnType());
-              mv.visitInsn(rt.getOpcode(IRETURN));
-            }
-          } else {
-            // just send
-            mv.visitMethodInsn(INVOKEINTERFACE, EXECUTABLE_NAME, "fireAndForget", EXECUTABLE_FIRE_FORGET, true);
-            mv.visitInsn(RETURN);
-          }
+          visitFireMethod(method, mv, className, context);
           // finish the method
           mv.visitMaxs(0, 0);
           mv.visitEnd();
@@ -245,16 +203,130 @@ public final class ApiImplementationGenerator {
       // finish the class
       cw.visitEnd();
       // define & select the correct constructor for the class
-      var constructor = ClassDefiners.current()
-        .defineClass(className, baseClass, cw.toByteArray())
-        .getDeclaredConstructor(RPCSender.class);
-      constructor.setAccessible(true);
+      var accessor = Reflexion
+        .on(ClassDefiners.current().defineClass(className, parentClass, cw.toByteArray()))
+        .findConstructor(RPCSender.class, Supplier.class)
+        .orElseThrow();
       // instantiate the new class
-      return (T) constructor.newInstance(sender);
+      return () -> (T) accessor.invokeWithArgs(sender, context.channelSupplier()).getOrThrow();
     } catch (Exception exception) {
       throw new ClassCreationException(String.format(
         "Unable to generate api class implementation for class %s",
         baseClass.getName()), exception);
+    }
+  }
+
+  /**
+   * Generates the {@link RPCSender#invokeMethod(String)} method to gather the rpc result.
+   *
+   * @param className the name of the class owning the method.
+   * @param method    the method to generate the invoke method in.
+   * @param mv        the method visitor for the method.
+   * @throws NullPointerException if the given class name, method or method visitor is null.
+   */
+  static void visitInvokeMethod(@NonNull String className, @NonNull Method method, @NonNull MethodVisitor mv) {
+    // get the sender field
+    mv.visitVarInsn(ALOAD, 0);
+    mv.visitFieldInsn(GETFIELD, className, "sender", SENDER_DESC);
+    // the name of the remote method to execute (the current method)
+    mv.visitLdcInsn(method.getName());
+    // create a new object array (will later hold all argument of the invocation)
+    var params = method.getParameterTypes();
+    AsmHelper.pushInt(mv, params.length);
+    mv.visitTypeInsn(ANEWARRAY, DEFAULT_SUPER);
+    // add each parameter to the array
+    for (int i = 0; i < params.length; i++) {
+      var type = params[i];
+      var intType = Type.getType(type);
+      // dup the array on the stack and push the target index we want to add the object to
+      mv.visitInsn(DUP);
+      AsmHelper.pushInt(mv, i);
+      // load the parameter
+      mv.visitVarInsn(intType.getOpcode(ILOAD), i + 1);
+      // we need to wrap a primitive type to the wrapper type
+      if (type.isPrimitive()) {
+        AsmHelper.primitiveToWrapper(mv, type);
+      }
+      // store the element
+      mv.visitInsn(AASTORE);
+    }
+    // invoke the send method
+    mv.visitMethodInsn(INVOKEINTERFACE, SENDER_TYPE, "invokeMethod", INVOKE_METHOD_DESC, true);
+  }
+
+  /**
+   * Decides which {@link RPC#fire()} method is appropriate to call for the return type of this method and generates the
+   * call on the {@link RPC} that was generated previously.
+   *
+   * @param method    the method to invoke using the rpc.
+   * @param mv        the method visitor for the current method.
+   * @param className the name of the class owning the method.
+   * @param context   the generation context for this generation step.
+   * @throws NullPointerException if the given method, method visitor, class name or context is null.
+   */
+  @SuppressWarnings("ConstantConditions")
+  static void visitFireMethod(
+    @NonNull Method method,
+    @NonNull MethodVisitor mv,
+    @NonNull String className,
+    @NonNull GenerationContext context
+  ) {
+    var hasChannelSupplier = context.channelSupplier() != null;
+    // load the network channel we want to send the request to onto the stack if needed
+    if (hasChannelSupplier) {
+      mv.visitVarInsn(ALOAD, 0);
+      mv.visitFieldInsn(GETFIELD, className, "channelSupplier", SUPPLIER_DESC);
+      mv.visitMethodInsn(INVOKEINTERFACE, SUPPLIER_TYPE, "get", GET_METHOD_DESC, true);
+      mv.visitTypeInsn(CHECKCAST, NET_CHANNEL_TYPE);
+    }
+
+    // visit the actual fire method
+    var voidMethod = method.getReturnType().equals(void.class);
+    if (!voidMethod || !method.isAnnotationPresent(RPCNoResult.class)) {
+      // fire async if the result type is a completable future
+      if (Task.class.isAssignableFrom(method.getReturnType())) {
+        // fire the rpc async
+        mv.visitMethodInsn(
+          INVOKEINTERFACE,
+          EXECUTABLE_NAME,
+          "fire",
+          hasChannelSupplier ? EXECUTABLE_FIRE_CHANNEL : EXECUTABLE_FIRE,
+          true);
+      } else {
+        // fire the rpc sync
+        mv.visitMethodInsn(
+          INVOKEINTERFACE,
+          EXECUTABLE_NAME,
+          "fireSync",
+          hasChannelSupplier ? EXECUTABLE_FIRE_SYNC_CHANNEL : EXECUTABLE_FIRE_SYNC,
+          true);
+        // unwrap primitive types
+        if (!voidMethod) {
+          if (method.getReturnType().isPrimitive()) {
+            // convert the wrapper to the primitive value
+            AsmHelper.wrapperToPrimitive(mv, method.getReturnType());
+          } else {
+            mv.visitTypeInsn(CHECKCAST, Type.getInternalName(method.getReturnType()));
+          }
+        }
+      }
+      // if no result was expected pop the result, else return it
+      if (voidMethod) {
+        mv.visitInsn(POP);
+        mv.visitInsn(RETURN);
+      } else {
+        var rt = Type.getType(method.getReturnType());
+        mv.visitInsn(rt.getOpcode(IRETURN));
+      }
+    } else {
+      // just send
+      mv.visitMethodInsn(
+        INVOKEINTERFACE,
+        EXECUTABLE_NAME,
+        "fireAndForget",
+        hasChannelSupplier ? EXECUTABLE_FIRE_FORGET_CHANNEL : EXECUTABLE_FIRE_FORGET,
+        true);
+      mv.visitInsn(RETURN);
     }
   }
 
@@ -265,7 +337,7 @@ public final class ApiImplementationGenerator {
    * @return all methods which need to get implemented.
    * @throws NullPointerException if the given context is null.
    */
-  private static @NotNull Collection<Method> collectMethodsToVisit(@NotNull GenerationContext context) {
+  static @NotNull Collection<Method> collectMethodsToVisit(@NotNull GenerationContext context) {
     Map<String, Method> visitedMethods = new HashMap<>();
     // first travel the class we should extend (if given)
     if (context.extendingClass() != null) {

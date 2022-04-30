@@ -20,7 +20,6 @@ import com.google.common.io.CharStreams;
 import eu.cloudnetservice.common.JavaVersion;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 import org.jetbrains.annotations.Nullable;
@@ -52,7 +51,7 @@ public final class JavaVersionResolver {
 
     try {
       var process = Runtime.getRuntime().exec(new String[]{input, "-version"});
-      try (Reader reader = new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8)) {
+      try (var reader = new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8)) {
         var matcher = JAVA_REGEX.matcher(CharStreams.toString(reader));
         if (matcher.matches()) {
           var majorVersion = matcher.group(1);

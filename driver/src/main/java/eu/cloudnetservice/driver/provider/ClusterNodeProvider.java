@@ -19,7 +19,7 @@ package eu.cloudnetservice.driver.provider;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.command.CommandInfo;
 import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
-import eu.cloudnetservice.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
+import eu.cloudnetservice.driver.network.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCValidation;
 import java.util.Collection;
 import lombok.NonNull;
@@ -142,7 +142,7 @@ public interface ClusterNodeProvider {
    *
    * @return the snapshot information of all nodes which are currently connected to the current node.
    */
-  @NonNull Collection<NetworkClusterNodeInfoSnapshot> nodeInfoSnapshots();
+  @NonNull Collection<NodeInfoSnapshot> nodeInfoSnapshots();
 
   /**
    * Get the network cluster node snapshot of the node with the given unique id. This method returns null either if no
@@ -153,7 +153,7 @@ public interface ClusterNodeProvider {
    * @return the snapshot of the node or null if no node with the given id is registered or the node is not connected.
    * @throws NullPointerException if the given node unique id is null.
    */
-  @Nullable NetworkClusterNodeInfoSnapshot nodeInfoSnapshot(@NonNull String uniqueId);
+  @Nullable NodeInfoSnapshot nodeInfoSnapshot(@NonNull String uniqueId);
 
   /**
    * Get all commands which are registered on the current node. Additions and removals to the returned collection are
@@ -271,7 +271,7 @@ public interface ClusterNodeProvider {
    *
    * @return a task completed with the snapshot of all nodes which are currently connected to the current node.
    */
-  default @NonNull Task<Collection<NetworkClusterNodeInfoSnapshot>> nodeInfoSnapshotsAsync() {
+  default @NonNull Task<Collection<NodeInfoSnapshot>> nodeInfoSnapshotsAsync() {
     return Task.supply(this::nodeInfoSnapshots);
   }
 
@@ -284,7 +284,7 @@ public interface ClusterNodeProvider {
    * @return a task completed with the snapshot of the node or null if the node is not registered or connected.
    * @throws NullPointerException if the given node unique id is null.
    */
-  default @NonNull Task<NetworkClusterNodeInfoSnapshot> nodeInfoSnapshotAsync(@NonNull String uniqueId) {
+  default @NonNull Task<NodeInfoSnapshot> nodeInfoSnapshotAsync(@NonNull String uniqueId) {
     return Task.supply(() -> this.nodeInfoSnapshot(uniqueId));
   }
 }

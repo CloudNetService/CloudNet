@@ -14,19 +14,24 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.driver.network.rpc.generation;
+package eu.cloudnetservice.driver.network.rpc.generation.api;
 
-import eu.cloudnetservice.driver.network.rpc.RPCSender;
+import eu.cloudnetservice.common.concurrent.Task;
+import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.driver.permission.PermissionUser;
+import java.util.UUID;
 
-public abstract class SenderNeedingManagement extends BasePermissionManagement {
+public abstract class BasePermissionManagement implements PermissionManagement {
 
-  public final RPCSender sender;
+  static final PermissionUser VAL = PermissionUser.builder().name("Testing1234").uniqueId(UUID.randomUUID()).build();
 
-  public SenderNeedingManagement() {
-    this(null);
+  @Override
+  public PermissionUser user(UUID uniqueId) {
+    return VAL;
   }
 
-  public SenderNeedingManagement(RPCSender sender) {
-    this.sender = sender;
+  @Override
+  public Task<PermissionUser> userAsync(UUID uniqueId) {
+    return Task.completedTask(VAL);
   }
 }

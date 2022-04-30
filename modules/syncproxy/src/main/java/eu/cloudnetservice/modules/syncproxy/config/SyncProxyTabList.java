@@ -18,6 +18,7 @@ package eu.cloudnetservice.modules.syncproxy.config;
 
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyConstants;
 import eu.cloudnetservice.wrapper.Wrapper;
 import java.text.DateFormat;
@@ -45,13 +46,10 @@ public record SyncProxyTabList(@NonNull String header, @NonNull String footer) {
     int onlinePlayers,
     int maxPlayers
   ) {
-    input = input
-      .replace("%proxy%", Wrapper.instance().serviceId().name())
-      .replace("%proxy_uniqueId%", Wrapper.instance().serviceId().uniqueId().toString())
-      .replace("%proxy_task_name%", Wrapper.instance().serviceId().taskName())
+    input = BridgeServiceHelper.fillCommonPlaceholders(input
       .replace("%time%", DATE_FORMAT.format(System.currentTimeMillis()))
       .replace("%online_players%", String.valueOf(onlinePlayers))
-      .replace("%max_players%", String.valueOf(maxPlayers));
+      .replace("%max_players%", String.valueOf(maxPlayers)), null, Wrapper.instance().currentServiceInfo());
 
     if (SyncProxyConstants.CLOUD_PERMS_ENABLED) {
       var permissionManagement = CloudNetDriver.instance().permissionManagement();
@@ -71,7 +69,7 @@ public record SyncProxyTabList(@NonNull String header, @NonNull String footer) {
       }
     }
 
-    return input.replace("&", "§");
+    return input;
   }
 
   public static class Builder {

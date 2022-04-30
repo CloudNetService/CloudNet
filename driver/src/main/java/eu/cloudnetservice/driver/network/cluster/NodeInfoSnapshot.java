@@ -34,7 +34,7 @@ import lombok.ToString;
  */
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class NetworkClusterNodeInfoSnapshot extends JsonDocPropertyHolder {
+public class NodeInfoSnapshot extends JsonDocPropertyHolder {
 
   protected final long creationTime;
   protected final long startupMillis;
@@ -73,7 +73,7 @@ public class NetworkClusterNodeInfoSnapshot extends JsonDocPropertyHolder {
    * @param properties                 the properties of this node, mainly for developers.
    * @throws NullPointerException if either the given node, version, process snapshot, modules or properties are null.
    */
-  public NetworkClusterNodeInfoSnapshot(
+  public NodeInfoSnapshot(
     long creationTime,
     long startupMillis,
     int maxMemory,
@@ -219,6 +219,6 @@ public class NetworkClusterNodeInfoSnapshot extends JsonDocPropertyHolder {
    * @return a rounded percentage of the memory the associated node is currently using.
    */
   public int memoryUsagePercentage() {
-    return (int) (this.reservedMemory() / this.maxMemory() * 100D);
+    return (this.reservedMemory() * 100) / this.maxMemory();
   }
 }

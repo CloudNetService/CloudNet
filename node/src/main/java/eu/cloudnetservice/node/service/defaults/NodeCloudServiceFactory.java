@@ -146,9 +146,16 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
         return allowedNodes.isEmpty() || allowedNodes.contains(server.info().uniqueId());
       })
       .min((left, right) -> {
-        // begin by comparing the heap memory usage
-        var chain = ComparisonChain.start()
-          .compare(left.nodeInfoSnapshot().memoryUsagePercentage(), right.nodeInfoSnapshot().memoryUsagePercentage());
+        // calculate the reserved memory amount based on the cached service information on this node
+        // this is the better way to do this, as newly created services on other nodes will get cached instantly, rather
+        // than us needing to wait for the updated node info to be sent by the associated node. In normal scenarios
+        // that is not a big problem, however when many start requests are coming in, that can lead to one node picking
+        // up a lot of services until (only a few ms later) the updated snapshot is present.
+        var leftReservedMemory = this.calculateReservedMemoryPercentage(left);
+        var rightReservedMemory = this.calculateReservedMemoryPercentage(right);
+
+        // we elevate the used heap memory percentage over the cpu usage, as it's varying much more
+        var chain = ComparisonChain.start().compare(leftReservedMemory, rightReservedMemory);
         // only include the cpu usage if both nodes can provide a value
         if (left.nodeInfoSnapshot().processSnapshot().systemCpuUsage() >= 0
           && right.nodeInfoSnapshot().processSnapshot().systemCpuUsage() >= 0) {
@@ -224,5 +231,15 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     }
     // set the new unique id
     output.uniqueId(uniqueId);
+  }
+
+  protected int calculateReservedMemoryPercentage(@NonNull NodeServer server) {
+    // get the reserved memory on the given node based on the services which are running on it and sum it up
+    var reservedMemory = this.serviceManager.services().stream()
+      .filter(info -> info.serviceId().nodeUniqueId().equals(server.name()))
+      .mapToInt(info -> info.configuration().processConfig().maxHeapMemorySize())
+      .sum();
+    // convert to a percentage
+    return (reservedMemory * 100) / server.nodeInfoSnapshot().maxMemory();
   }
 }

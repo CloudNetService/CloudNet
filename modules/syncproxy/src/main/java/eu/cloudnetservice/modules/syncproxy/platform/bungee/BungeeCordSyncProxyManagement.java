@@ -20,7 +20,6 @@ import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.syncproxy.platform.PlatformSyncProxyManagement;
 import java.util.Collection;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -49,11 +48,6 @@ public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManage
   }
 
   @Override
-  public void schedule(@NonNull Runnable runnable, long time, @NonNull TimeUnit unit) {
-    this.plugin.getProxy().getScheduler().schedule(this.plugin, runnable, time, unit);
-  }
-
-  @Override
   public @NonNull Collection<ProxiedPlayer> onlinePlayers() {
     return this.plugin.getProxy().getPlayers();
   }
@@ -71,8 +65,8 @@ public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManage
   @Override
   public void playerTabList(@NonNull ProxiedPlayer player, @Nullable String header, @Nullable String footer) {
     player.setTabHeader(
-      this.asComponent(this.replaceTabPlaceholder(header, player)),
-      this.asComponent(this.replaceTabPlaceholder(footer, player)));
+      header != null ? this.asComponent(this.replaceTabPlaceholder(header, player)) : null,
+      footer != null ? this.asComponent(this.replaceTabPlaceholder(footer, player)) : null);
   }
 
   @Override
@@ -82,11 +76,9 @@ public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManage
 
   @Override
   public void messagePlayer(@NonNull ProxiedPlayer player, @Nullable String message) {
-    if (message == null) {
-      return;
+    if (message != null) {
+      player.sendMessage(this.asComponent(message));
     }
-
-    player.sendMessage(this.asComponent(message));
   }
 
   @Override
@@ -94,19 +86,11 @@ public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManage
     return player.hasPermission(permission);
   }
 
-  @Nullable BaseComponent[] asComponent(@Nullable String message) {
-    if (message == null) {
-      return null;
-    }
-
+  public @NonNull BaseComponent[] asComponent(@NonNull String message) {
     return TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', message));
   }
 
-  private @Nullable String replaceTabPlaceholder(@Nullable String input, @NonNull ProxiedPlayer player) {
-    if (input == null) {
-      return null;
-    }
-
+  private @NonNull String replaceTabPlaceholder(@NonNull String input, @NonNull ProxiedPlayer player) {
     return input
       .replace("%ping%", String.valueOf(player.getPing()))
       .replace("%server%", player.getServer() == null ? "UNAVAILABLE" : player.getServer().getInfo().getName());

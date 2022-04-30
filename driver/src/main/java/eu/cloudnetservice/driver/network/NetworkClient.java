@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.driver.network;
 
+import eu.cloudnetservice.common.concurrent.Task;
 import lombok.NonNull;
 
 /**
@@ -29,8 +30,8 @@ public interface NetworkClient extends NetworkComponent, AutoCloseable {
    * Connects this network client to the network server running at the given host and port.
    *
    * @param hostAndPort the target host and port to which the client should get connected.
-   * @return true if the connection was established successfully, false otherwise.
+   * @return a task completed successfully, or with the exception thrown during the connection process.
    * @throws NullPointerException if the given host and port is null.
    */
-  boolean connect(@NonNull HostAndPort hostAndPort);
+  @NonNull Task<Void> connect(@NonNull HostAndPort hostAndPort);
 }

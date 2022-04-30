@@ -66,7 +66,8 @@ public class DockerizedService extends JVMService {
   protected static final Map<String, String> LOGGING_OPTIONS = Map.of(
     "max-file", "1",
     "max-size", "5m",
-    "compress", "false");
+    "compress", "false",
+    "mode", "non-blocking");
   // drop some kernel capabilities which no normal minecraft server could ever need for anything
   protected static final Capability[] DROPPED_CAPABILITIES = EnumSet.of(
     Capability.MKNOD,
@@ -197,7 +198,7 @@ public class DockerizedService extends JVMService {
           .withCapDrop(DROPPED_CAPABILITIES)
           .withRestartPolicy(RestartPolicy.noRestart())
           .withNetworkMode(this.configuration.network())
-          .withLogConfig(new LogConfig(LoggingType.JSON_FILE, LOGGING_OPTIONS)))
+          .withLogConfig(new LogConfig(LoggingType.LOCAL, LOGGING_OPTIONS)))
         .withLabels(Map.of(
           "Service", "CloudNet",
           "Name", this.serviceId().name(),

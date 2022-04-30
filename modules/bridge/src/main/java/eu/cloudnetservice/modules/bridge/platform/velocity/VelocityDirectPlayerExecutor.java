@@ -130,7 +130,11 @@ final class VelocityDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<P
   }
 
   @Override
-  public void spoofCommandExecution(@NonNull String command) {
-    this.forEach(player -> player.spoofChatInput('/' + command));
+  public void spoofCommandExecution(@NonNull String command, boolean redirectToServer) {
+    this.forEach(player -> this.proxyServer.getCommandManager().executeAsync(player, command).thenAccept(success -> {
+      if (!success && redirectToServer) {
+        player.spoofChatInput('/' + command);
+      }
+    }));
   }
 }

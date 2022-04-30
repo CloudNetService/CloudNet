@@ -16,27 +16,23 @@
 
 package eu.cloudnetservice.modules.syncproxy.platform.velocity;
 
+import static eu.cloudnetservice.ext.adventure.AdventureSerializerUtil.serialize;
+
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
-import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
 import eu.cloudnetservice.modules.syncproxy.platform.PlatformSyncProxyManagement;
 import java.util.Collection;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
-import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 public final class VelocitySyncProxyManagement extends PlatformSyncProxyManagement<Player> {
 
   private final ProxyServer proxyServer;
-  private final VelocitySyncProxyPlugin plugin;
 
-  public VelocitySyncProxyManagement(@NonNull ProxyServer proxyServer, @NonNull VelocitySyncProxyPlugin plugin) {
+  public VelocitySyncProxyManagement(@NonNull ProxyServer proxyServer) {
     this.proxyServer = proxyServer;
-    this.plugin = plugin;
     this.init();
   }
 
@@ -48,13 +44,6 @@ public final class VelocitySyncProxyManagement extends PlatformSyncProxyManageme
   @Override
   public void unregisterService(@NonNull ServiceRegistry registry) {
     registry.unregisterProvider(PlatformSyncProxyManagement.class, "VelocitySyncProxyManagement");
-  }
-
-  @Override
-  public void schedule(@NonNull Runnable runnable, long time, @NonNull TimeUnit unit) {
-    this.proxyServer.getScheduler().buildTask(this.plugin, runnable)
-      .delay(time, unit)
-      .schedule();
   }
 
   @Override
@@ -80,22 +69,20 @@ public final class VelocitySyncProxyManagement extends PlatformSyncProxyManageme
     }
 
     player.sendPlayerListHeaderAndFooter(
-      this.asComponent(this.replaceTabPlaceholder(header, player)),
-      this.asComponent(this.replaceTabPlaceholder(footer, player)));
+      serialize(this.replaceTabPlaceholder(header, player)),
+      serialize(this.replaceTabPlaceholder(footer, player)));
   }
 
   @Override
   public void disconnectPlayer(@NonNull Player player, @NonNull String message) {
-    player.disconnect(this.asComponent(message));
+    player.disconnect(serialize(message));
   }
 
   @Override
   public void messagePlayer(@NonNull Player player, @Nullable String message) {
-    if (message == null) {
-      return;
+    if (message != null) {
+      player.sendMessage(serialize(message));
     }
-
-    player.sendMessage(this.asComponent(message));
   }
 
   @Override
@@ -103,16 +90,7 @@ public final class VelocitySyncProxyManagement extends PlatformSyncProxyManageme
     return player.hasPermission(permission);
   }
 
-  @Contract("null -> null; !null -> !null")
-  private @Nullable Component asComponent(@Nullable String message) {
-    if (message == null) {
-      return null;
-    }
-
-    return AdventureSerializerUtil.serialize(message);
-  }
-
-  private String replaceTabPlaceholder(@NonNull String input, @NonNull Player player) {
+  private @NonNull String replaceTabPlaceholder(@NonNull String input, @NonNull Player player) {
     var server = player.getCurrentServer()
       .map(serverConnection -> serverConnection.getServerInfo().getName())
       .orElse("UNAVAILABLE");

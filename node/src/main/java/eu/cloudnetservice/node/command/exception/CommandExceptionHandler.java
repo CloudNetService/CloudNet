@@ -49,9 +49,7 @@ public class CommandExceptionHandler {
 
   private final CommandProvider commandProvider;
 
-  public CommandExceptionHandler(
-    @NonNull CommandProvider commandProvider
-  ) {
+  public CommandExceptionHandler(@NonNull CommandProvider commandProvider) {
     this.commandProvider = commandProvider;
   }
 

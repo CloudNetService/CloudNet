@@ -32,11 +32,11 @@ import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.network.netty.client.NettyNetworkClient;
 import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
+import eu.cloudnetservice.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.provider.ClusterNodeProvider;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
-import eu.cloudnetservice.driver.provider.defaults.RemoteCloudServiceFactory;
 import eu.cloudnetservice.driver.service.ProcessSnapshot;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceId;
@@ -118,40 +118,41 @@ public class Wrapper extends CloudNetDriver {
     super.messenger = new WrapperMessenger(this);
 
     // auto generated providers
-    super.clusterNodeProvider = this.rpcFactory.generateRPCBasedApi(ClusterNodeProvider.class, this.networkClient);
-    super.serviceTaskProvider = this.rpcFactory.generateRPCBasedApi(ServiceTaskProvider.class, this.networkClient);
+    super.clusterNodeProvider = this.rpcFactory.generateRPCBasedApi(
+      ClusterNodeProvider.class,
+      GenerationContext.forClass(ClusterNodeProvider.class).component(this.networkClient).build());
+    super.serviceTaskProvider = this.rpcFactory.generateRPCBasedApi(
+      ServiceTaskProvider.class,
+      GenerationContext.forClass(ServiceTaskProvider.class).component(this.networkClient).build());
     super.groupConfigurationProvider = this.rpcFactory.generateRPCBasedApi(
       GroupConfigurationProvider.class,
-      this.networkClient);
+      GenerationContext.forClass(GroupConfigurationProvider.class).component(this.networkClient).build());
+    super.cloudServiceFactory = this.rpcFactory().generateRPCBasedApi(
+      CloudServiceFactory.class,
+      GenerationContext.forClass(CloudServiceFactory.class).component(this.networkClient).build());
 
-    // these cannot be auto generated directly as we need to depend on some overridden methods for the wrapper
+    // these contain some methods which we cannot auto generate directly
     super.templateStorageProvider = this.rpcFactory.generateRPCBasedApi(
       TemplateStorageProvider.class,
-      GenerationContext.forClass(WrapperTemplateStorageProvider.class).build(),
-      this.networkClient);
+      GenerationContext.forClass(WrapperTemplateStorageProvider.class).component(this.networkClient).build());
     super.databaseProvider = this.rpcFactory.generateRPCBasedApi(
       DatabaseProvider.class,
-      GenerationContext.forClass(DefaultWrapperDatabaseProvider.class).build(),
-      this.networkClient);
+      GenerationContext.forClass(DefaultWrapperDatabaseProvider.class).component(this.networkClient).build());
     super.cloudServiceProvider = this.rpcFactory.generateRPCBasedApi(
       CloudServiceProvider.class,
-      GenerationContext.forClass(WrapperCloudServiceProvider.class).build(),
-      this.networkClient);
+      GenerationContext.forClass(WrapperCloudServiceProvider.class).component(this.networkClient).build());
 
     // channel message listeners for downstream event calls
     this.eventManager.registerListener(new TaskChannelMessageListener(this.eventManager));
     this.eventManager.registerListener(new GroupChannelMessageListener(this.eventManager));
     this.eventManager.registerListener(new ServiceChannelMessageListener(this.eventManager));
 
-    super.cloudServiceFactory = new RemoteCloudServiceFactory(this.networkClient::firstChannel, this.rpcFactory);
-
     super.moduleProvider.moduleProviderHandler(new DefaultModuleProviderHandler());
     super.moduleProvider.moduleDirectoryPath(Path.of(".wrapper", "modules"));
 
     var management = this.rpcFactory.generateRPCBasedApi(
       PermissionManagement.class,
-      GenerationContext.forClass(WrapperPermissionManagement.class).build(),
-      this.networkClient);
+      GenerationContext.forClass(WrapperPermissionManagement.class).component(this.networkClient).build());
     super.permissionManagement(management);
   }
 
@@ -321,7 +322,15 @@ public class Wrapper extends CloudNetDriver {
       var listener = new PacketAuthorizationResponseListener(lock, condition);
       // register the listener to the packet registry and connect to the target listener
       this.networkClient.packetRegistry().addListener(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL, listener);
-      this.networkClient.connect(this.config.targetListener());
+      this.networkClient
+        .connect(this.config.targetListener())
+        .exceptionally(ex -> {
+          // log and exit, we're not connected
+          LOGGER.severe("Unable to connect", ex);
+          System.exit(-1);
+          // returns void
+          return null;
+        }).join();
 
       // wait for the authentication response
       var wasDone = condition.await(30, TimeUnit.SECONDS);

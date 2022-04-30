@@ -55,7 +55,7 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 @CommandAlias("module")
-@CommandPermission("cloudnet.commands.modules")
+@CommandPermission("cloudnet.command.modules")
 @Description("Manages all available modules and loading new modules after the start")
 public final class ModulesCommand {
 

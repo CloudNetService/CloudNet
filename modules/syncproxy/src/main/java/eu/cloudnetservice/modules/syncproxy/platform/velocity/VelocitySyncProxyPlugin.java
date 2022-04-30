@@ -51,7 +51,7 @@ public final class VelocitySyncProxyPlugin {
 
   @Subscribe
   public void handleProxyInit(@NonNull ProxyInitializeEvent event) {
-    this.management = new VelocitySyncProxyManagement(this.proxyServer, this);
+    this.management = new VelocitySyncProxyManagement(this.proxyServer);
     // register the SyncProxyManagement in our service registry
     this.management.registerService(Wrapper.instance().serviceRegistry());
     // register the event listener to handle service updates

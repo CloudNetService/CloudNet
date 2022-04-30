@@ -150,7 +150,7 @@ public class PlayersCommand {
     return player;
   }
 
-  @CommandMethod("players online")
+  @CommandMethod("players|player|pl online")
   public void displayOnlinePlayers(@NonNull CommandSource source) {
     for (var player : this.playerManager.players().values()) {
       source.sendMessage(
@@ -162,12 +162,12 @@ public class PlayersCommand {
     source.sendMessage("=> Online players " + this.playerManager.onlineCount());
   }
 
-  @CommandMethod("players registered")
+  @CommandMethod("players|player|pl registered")
   public void displayRegisteredCount(@NonNull CommandSource source) {
     source.sendMessage("=> Registered players " + this.playerManager.registeredCount());
   }
 
-  @CommandMethod("players player <player>")
+  @CommandMethod("players|player|pl player <player>")
   public void displayPlayerInformation(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "player", parserName = "offlinePlayer") CloudOfflinePlayer offlinePlayer
@@ -191,7 +191,7 @@ public class PlayersCommand {
     }
   }
 
-  @CommandMethod("players player <player> delete")
+  @CommandMethod("players|player|pl player <player> delete")
   public void deletePlayer(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "player", parserName = "offlinePlayer") CloudOfflinePlayer player
@@ -200,7 +200,7 @@ public class PlayersCommand {
     source.sendMessage(I18n.trans("module-bridge-command-players-delete-player", player.name(), player.uniqueId()));
   }
 
-  @CommandMethod("players online <player> kick [reason]")
+  @CommandMethod("players|player|pl online <player> kick [reason]")
   public void kickPlayer(
     @NonNull CommandSource source,
     @NonNull @Argument("player") CloudPlayer player,
@@ -222,7 +222,7 @@ public class PlayersCommand {
     }
   }
 
-  @CommandMethod("players online <player> message <message>")
+  @CommandMethod("players|player|pl online <player> message <message>")
   public void messagePlayer(
     @NonNull CommandSource source,
     @NonNull @Argument("player") CloudPlayer player,
@@ -233,7 +233,7 @@ public class PlayersCommand {
       I18n.trans("module-bridge-command-players-send-player-message", player.name(), player.uniqueId()));
   }
 
-  @CommandMethod("players online <player> connect <server>")
+  @CommandMethod("players|player|pl online <player> connect <server>")
   public void connectPlayer(
     @NonNull CommandSource source,
     @NonNull @Argument("player") CloudPlayer player,

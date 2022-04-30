@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.driver.network.netty;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.DriverEnvironment;
 import eu.cloudnetservice.driver.network.exception.SilentDecoderException;
@@ -28,6 +29,7 @@ import io.netty.util.ResourceLeakDetector;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.JdkLoggerFactory;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -83,12 +85,17 @@ public final class NettyUtil {
     // a cached pool with a thread idle-lifetime of 30 seconds
     // rejected tasks will be executed on the calling thread (See ThreadPoolExecutor.CallerRunsPolicy)
     // at least one thread is always idling in this executor
+    var maximumPoolSize = threadAmount();
     return new ThreadPoolExecutor(
-      1,
-      threadAmount(),
+      maximumPoolSize,
+      maximumPoolSize,
       30L,
       TimeUnit.SECONDS,
       new LinkedBlockingQueue<>(),
+      new ThreadFactoryBuilder()
+        .setNameFormat("Packet-Dispatcher-%d")
+        .setThreadFactory(Executors.defaultThreadFactory())
+        .build(),
       DEFAULT_REJECT_HANDLER);
   }
 
@@ -170,7 +177,7 @@ public final class NettyUtil {
    */
   public static @Range(from = 2, to = Integer.MAX_VALUE) int threadAmount() {
     var environment = CloudNetDriver.instance().environment();
-    return environment == DriverEnvironment.NODE ? Math.max(8, Runtime.getRuntime().availableProcessors() * 2) : 4;
+    return environment.equals(DriverEnvironment.NODE) ? Math.max(8, Runtime.getRuntime().availableProcessors() * 2) : 4;
   }
 
   /**

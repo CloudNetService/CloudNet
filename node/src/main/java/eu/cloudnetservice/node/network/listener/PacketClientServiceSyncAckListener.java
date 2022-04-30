@@ -17,7 +17,7 @@
 package eu.cloudnetservice.node.network.listener;
 
 import eu.cloudnetservice.driver.network.NetworkChannel;
-import eu.cloudnetservice.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
+import eu.cloudnetservice.driver.network.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.PacketListener;
@@ -31,7 +31,7 @@ public final class PacketClientServiceSyncAckListener implements PacketListener 
   @Override
   public void handle(@NonNull NetworkChannel channel, @NonNull Packet packet) throws Exception {
     // read the cluster node snapshot
-    var snapshot = packet.content().readObject(NetworkClusterNodeInfoSnapshot.class);
+    var snapshot = packet.content().readObject(NodeInfoSnapshot.class);
     var syncData = packet.content().readDataBuf();
     // select the node server and validate that it is in the right state for the packet
     var server = Node.instance().nodeServerProvider().node(snapshot.node().uniqueId());

@@ -19,6 +19,7 @@ package eu.cloudnetservice.node.service.defaults;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 import eu.cloudnetservice.common.StringUtil;
+import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.language.I18n;
@@ -64,8 +65,8 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadLocalRandom;
@@ -95,7 +96,7 @@ public abstract class AbstractService implements CloudService {
   protected final ServiceConfigurationPreparer serviceConfigurationPreparer;
 
   protected final Lock lifecycleLock = new ReentrantLock(true);
-  protected final Map<ChannelMessageTarget, String> logTargets = new ConcurrentHashMap<>();
+  protected final Set<Pair<ChannelMessageTarget, String>> logTargets = ConcurrentHashMap.newKeySet();
 
   protected final Queue<ServiceTemplate> waitingTemplates = new ConcurrentLinkedQueue<>();
   protected final Queue<ServiceDeployment> waitingDeployments = new ConcurrentLinkedQueue<>();
@@ -452,12 +453,12 @@ public abstract class AbstractService implements CloudService {
 
   @Override
   public boolean toggleScreenEvents(@NonNull ChannelMessageSender channelMessageSender, @NonNull String channel) {
-    var target = channelMessageSender.toTarget();
-    if (this.logTargets.remove(target) != null) {
+    var pair = new Pair<>(channelMessageSender.toTarget(), channel);
+    if (this.logTargets.remove(pair)) {
       return false;
     }
     // this returns always true, just to inline it.
-    return this.logTargets.put(target, channel) == null;
+    return this.logTargets.add(pair);
   }
 
   protected @NonNull Configuration nodeConfiguration() {

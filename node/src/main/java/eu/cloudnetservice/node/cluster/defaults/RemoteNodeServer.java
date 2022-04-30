@@ -17,15 +17,16 @@
 package eu.cloudnetservice.node.cluster.defaults;
 
 import com.google.gson.reflect.TypeToken;
+import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
-import eu.cloudnetservice.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
+import eu.cloudnetservice.driver.network.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
+import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
-import eu.cloudnetservice.driver.provider.defaults.RemoteCloudServiceFactory;
 import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
@@ -54,8 +55,8 @@ public class RemoteNodeServer implements NodeServer {
   private volatile Instant lastStateChange = Instant.now();
   private volatile NodeServerState state = NodeServerState.UNAVAILABLE;
 
-  private volatile NetworkClusterNodeInfoSnapshot currentSnapshot;
-  private volatile NetworkClusterNodeInfoSnapshot lastSnapshot;
+  private volatile NodeInfoSnapshot currentSnapshot;
+  private volatile NodeInfoSnapshot lastSnapshot;
 
   public RemoteNodeServer(
     @NonNull Node node,
@@ -65,7 +66,9 @@ public class RemoteNodeServer implements NodeServer {
     this.node = node;
     this.info = info;
     this.provider = provider;
-    this.serviceFactory = new RemoteCloudServiceFactory(this::channel, node.rpcFactory());
+    this.serviceFactory = node.rpcFactory().generateRPCBasedApi(
+      CloudServiceFactory.class,
+      GenerationContext.forClass(CloudServiceFactory.class).channelSupplier(this::channel).build());
   }
 
   @Override
@@ -95,11 +98,11 @@ public class RemoteNodeServer implements NodeServer {
   }
 
   @Override
-  public boolean connect() {
+  public @NonNull Task<Void> connect() {
     // check if the node has any listeners
     var listeners = this.info.listeners();
     if (listeners.isEmpty()) {
-      return false;
+      return Task.completedTask(new IllegalStateException("No listeners registered for the node"));
     }
     // select a random listener and try to connect to it
     var listener = listeners.get(ThreadLocalRandom.current().nextInt(0, listeners.size()));
@@ -180,17 +183,17 @@ public class RemoteNodeServer implements NodeServer {
   }
 
   @Override
-  public @UnknownNullability NetworkClusterNodeInfoSnapshot nodeInfoSnapshot() {
+  public @UnknownNullability NodeInfoSnapshot nodeInfoSnapshot() {
     return this.currentSnapshot;
   }
 
   @Override
-  public @UnknownNullability NetworkClusterNodeInfoSnapshot lastNodeInfoSnapshot() {
+  public @UnknownNullability NodeInfoSnapshot lastNodeInfoSnapshot() {
     return this.lastSnapshot;
   }
 
   @Override
-  public void updateNodeInfoSnapshot(@Nullable NetworkClusterNodeInfoSnapshot snapshot) {
+  public void updateNodeInfoSnapshot(@Nullable NodeInfoSnapshot snapshot) {
     if (snapshot == null) {
       // reset the snapshot, for example a disconnect
       this.lastSnapshot = null;

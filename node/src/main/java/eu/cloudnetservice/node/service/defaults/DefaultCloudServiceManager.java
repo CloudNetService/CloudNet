@@ -23,6 +23,7 @@ import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
+import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
 import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
@@ -32,6 +33,7 @@ import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.TickLoop;
+import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.sync.DataSyncHandler;
 import eu.cloudnetservice.node.event.service.CloudServicePreForceStopEvent;
@@ -56,6 +58,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
@@ -142,8 +146,10 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
   @Override
   public @NonNull SpecificCloudServiceProvider serviceProviderByName(@NonNull String serviceName) {
     return this.knownServices.values().stream()
-      .filter(provider -> provider.serviceInfo() != null)
-      .filter(provider -> provider.serviceInfo().serviceId().name().equals(serviceName))
+      .filter(provider -> {
+        var serviceInfo = provider.serviceInfo();
+        return serviceInfo != null && serviceInfo.serviceId().name().equals(serviceName);
+      })
       .findFirst()
       .orElse(EmptySpecificCloudServiceProvider.INSTANCE);
   }
@@ -288,7 +294,7 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
   @Override
   public @NonNull @UnmodifiableView Collection<CloudService> localCloudServices() {
     return this.knownServices.values().stream()
-      .filter(provider -> provider instanceof CloudService) // -> ICloudService => local service
+      .filter(provider -> provider instanceof CloudService) // -> CloudService => local service
       .map(provider -> (CloudService) provider)
       .toList();
   }
@@ -347,7 +353,12 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
       if (provider == null) {
         this.knownServices.putIfAbsent(
           snapshot.serviceId().uniqueId(),
-          new RemoteNodeCloudServiceProvider(this, this.sender, () -> source, snapshot));
+          this.sender.factory().generateRPCChainBasedApi(
+            this.sender,
+            "serviceProvider",
+            SpecificCloudServiceProvider.class,
+            GenerationContext.forClass(RemoteNodeCloudServiceProvider.class).channelSupplier(() -> source).build()
+          ).newInstance(new Object[]{snapshot}, new Object[]{snapshot.serviceId().uniqueId()}));
         LOGGER.fine("Registered remote service %s", null, snapshot.serviceId());
       } else if (provider instanceof RemoteNodeCloudServiceProvider remoteProvider) {
         // update the provider if possible - we need only to handle remote node providers as local providers will update
@@ -374,26 +385,34 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
 
   @Override
   public @NonNull SpecificCloudServiceProvider selectOrCreateService(@NonNull ServiceTask task) {
+    // filter out all nodes which are able to start a service of the given task
+    var nodes = this.clusterNodeServerProvider.nodeServers().stream()
+      .filter(NodeServer::available)
+      .filter(nodeServer -> !nodeServer.nodeInfoSnapshot().draining())
+      .filter(server -> {
+        var allowedNodes = task.associatedNodes();
+        return allowedNodes.isEmpty() || allowedNodes.contains(server.info().uniqueId());
+      })
+      .filter(server -> {
+        var snapshot = server.nodeInfoSnapshot();
+        return snapshot.usedMemory() + task.processConfiguration().maxHeapMemorySize() <= snapshot.maxMemory();
+      })
+      .collect(Collectors.toMap(NodeServer::name, Function.identity()));
+    // if there are no nodes which can pick up the service then do nothing
+    if (nodes.isEmpty()) {
+      return EmptySpecificCloudServiceProvider.INSTANCE;
+    }
+
     // get all services of the given task, map it to its node unique id
     var prepared = this.servicesByTask(task.name())
       .stream()
       .filter(taskService -> taskService.lifeCycle() == ServiceLifeCycle.PREPARED)
       .map(service -> {
-        // get the node server associated with the node
-        var nodeServer = this.clusterNodeServerProvider.node(service.serviceId().nodeUniqueId());
-        // the server should never be null - just to be sure
+        // get the node server associated with the node, if the server is null it has not enough memory to start a service
+        var nodeServer = nodes.get(service.serviceId().nodeUniqueId());
         return nodeServer == null ? null : new Pair<>(service, nodeServer);
       })
       .filter(Objects::nonNull)
-      .filter(pair -> !pair.second().draining())
-      .filter(pair -> pair.second().available())
-      .filter(pair -> {
-        // filter out all nodes which are not able to start the service
-        var nodeInfoSnapshot = pair.second().nodeInfoSnapshot();
-        var maxHeapMemory = pair.first().configuration().processConfig().maxHeapMemorySize();
-        // used + heap_of_service <= max
-        return nodeInfoSnapshot.usedMemory() + maxHeapMemory <= nodeInfoSnapshot.maxMemory();
-      })
       .min((left, right) -> {
         // begin by comparing the heap memory usage
         var chain = ComparisonChain.start().compare(

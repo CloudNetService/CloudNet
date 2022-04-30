@@ -146,7 +146,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   @Override
   public boolean deleteUser(@NonNull String name) {
     // get all users with the name
-    Collection<PermissionUser> users = this.usersByName(name);
+    var users = this.usersByName(name);
     // delete all the users if there are any
     if (!users.isEmpty()) {
       var success = false;

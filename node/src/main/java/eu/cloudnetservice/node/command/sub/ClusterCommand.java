@@ -42,6 +42,7 @@ import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
+import eu.cloudnetservice.node.command.source.ConsoleCommandSource;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
@@ -176,10 +177,12 @@ public final class ClusterCommand {
     return this.resolveAllStaticServices();
   }
 
-  @CommandMethod("cluster|clu shutdown")
+  @CommandMethod(value = "cluster|clu shutdown", requiredSender = ConsoleCommandSource.class)
   public void shutdownCluster(@NonNull CommandSource $) {
     for (var nodeServer : Node.instance().nodeServerProvider().nodeServers()) {
-      nodeServer.shutdown();
+      if (nodeServer.channel() != null) {
+        nodeServer.shutdown();
+      }
     }
     Node.instance().stop();
   }

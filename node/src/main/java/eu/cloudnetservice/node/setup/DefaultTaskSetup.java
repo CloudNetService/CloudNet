@@ -23,7 +23,6 @@ import static eu.cloudnetservice.driver.service.ServiceEnvironmentType.PE_SERVER
 
 import eu.cloudnetservice.common.JavaVersion;
 import eu.cloudnetservice.common.collection.Pair;
-import eu.cloudnetservice.common.document.Document;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
@@ -105,7 +104,7 @@ public class DefaultTaskSetup implements DefaultSetup {
                     .parser(Parsers.serviceEnvironmentType())
                     .possibleResults(this.versionProvider().knownEnvironments().values().stream()
                       .filter(type -> {
-                        Document<?> properties = type.properties();
+                        var properties = type.properties();
                         return JAVA_PROXY.get(properties) || PE_PROXY.get(properties);
                       })
                       .map(ServiceEnvironmentType::name)
@@ -152,7 +151,7 @@ public class DefaultTaskSetup implements DefaultSetup {
                     .parser(Parsers.serviceEnvironmentType())
                     .possibleResults(this.versionProvider().knownEnvironments().values().stream()
                       .filter(type -> {
-                        Document<?> properties = type.properties();
+                        var properties = type.properties();
                         return JAVA_SERVER.get(properties) || PE_SERVER.get(properties);
                       })
                       .map(ServiceEnvironmentType::name)
@@ -286,8 +285,7 @@ public class DefaultTaskSetup implements DefaultSetup {
       }));
   }
 
-  protected @NonNull
-  ServiceVersionProvider versionProvider() {
+  protected @NonNull ServiceVersionProvider versionProvider() {
     return Node.instance().serviceVersionProvider();
   }
 }

@@ -24,7 +24,6 @@ import eu.cloudnetservice.driver.network.NetworkComponent;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.PacketListener;
-import eu.cloudnetservice.driver.network.protocol.QueryPacketManager;
 import eu.cloudnetservice.driver.network.rpc.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.network.rpc.defaults.DefaultRPCFactory;
@@ -70,15 +69,15 @@ public class DefaultRPCHandlerTest {
     // networking mocks
     var resultListener = new AtomicReference<Task<Packet>>(new Task<>());
     // receiver
-    // we need a query manager for the listener
-    var manager = Mockito.mock(QueryPacketManager.class);
-    Mockito.when(manager.sendQueryPacket(Mockito.any(), Mockito.any())).then(invocation -> {
-      resultListener.get().complete(invocation.getArgument(0));
-      return null;
-    });
     // the channel to which the result should be sent
     var resultChannel = Mockito.mock(NetworkChannel.class);
-    Mockito.when(resultChannel.queryPacketManager()).thenReturn(manager);
+    Mockito
+      .doAnswer(invocation -> {
+        resultListener.get().complete(invocation.getArgument(0));
+        return null;
+      })
+      .when(resultChannel)
+      .sendPacket(Mockito.any(Packet.class));
     // sender
     var channel = Mockito.mock(NetworkChannel.class);
     Mockito

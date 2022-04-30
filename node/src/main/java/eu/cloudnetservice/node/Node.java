@@ -18,6 +18,7 @@ package eu.cloudnetservice.node;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.common.io.FileUtil;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
@@ -88,8 +89,8 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Phaser;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -259,39 +260,8 @@ public class Node extends CloudNetDriver {
       LOGGER.info(I18n.trans("http-listener-bound", listener));
     }
 
-    // network client init
-    Set<CompletableFuture<Void>> futures = new HashSet<>(); // all futures of connections
-    for (var node : this.nodeServerProvider.nodeServers()) {
-      // skip all node servers which are already available (normally only the local node)
-      if (node.available()) {
-        continue;
-      }
-
-      LOGGER.info(I18n.trans("start-node-connection-try", node.info().uniqueId()));
-      if (node.connect()) {
-        // register a future that waits for the node to become available
-        futures.add(CompletableFuture.runAsync(() -> {
-          while (!node.available()) {
-            try {
-              //noinspection BusyWait
-              Thread.sleep(10);
-            } catch (InterruptedException exception) {
-              Thread.currentThread().interrupt();
-            }
-          }
-        }));
-      }
-    }
-
-    // now we can wait for all nodes to become available (if needed)
-    if (!futures.isEmpty()) {
-      try {
-        LOGGER.info(I18n.trans("start-node-connection-waiting", futures.size()));
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get(7, TimeUnit.SECONDS);
-      } catch (TimeoutException ignored) {
-        // auth failed to a node in the cluster - ignore
-      }
-    }
+    // connect to the other node servers
+    this.establishNodeConnections();
 
     // we are now connected to all nodes - request the full cluster data set if the head node is not the current one
     if (!this.nodeServerProvider.localNode().head()) {
@@ -490,6 +460,56 @@ public class Node extends CloudNetDriver {
 
   public boolean running() {
     return this.running.get();
+  }
+
+  private void establishNodeConnections() {
+    // network client init
+    var nodeConnections = new Phaser(1);
+    Set<CompletableFuture<Void>> futures = new HashSet<>(); // all futures of connections
+    for (var node : this.nodeServerProvider.nodeServers()) {
+      // skip all node servers which are already available (normally only the local node)
+      if (node.available()) {
+        continue;
+      }
+
+      // register the connection attempt
+      nodeConnections.register();
+
+      // try to connect to the node
+      LOGGER.info(I18n.trans("start-node-connection-try", node.info().uniqueId()));
+      node.connect().whenComplete(($, exception) -> {
+        if (exception != null) {
+          // the connection couldn't be established
+          LOGGER.warning(I18n.trans("start-node-connection-failure", node.info().uniqueId(), exception.getMessage()));
+        } else {
+          // wait for the node connection to become available
+          futures.add(Task.supply(() -> {
+            // wait for the connection to establish, max 7 seconds
+            for (int i = 0; i < 140 && !node.available(); i++) {
+              //noinspection BusyWait
+              Thread.sleep(50);
+            }
+            return null;
+          }));
+        }
+
+        // count down by one arrival
+        nodeConnections.arriveAndDeregister();
+      });
+    }
+
+    // wait for all connections to establish (or fail during connect)
+    nodeConnections.arriveAndAwaitAdvance();
+
+    // now we can wait for all nodes to become available (if needed)
+    if (!futures.isEmpty()) {
+      try {
+        LOGGER.info(I18n.trans("start-node-connection-waiting", futures.size()));
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get(7, TimeUnit.SECONDS);
+      } catch (Exception ignored) {
+        // auth failed to a node in the cluster - ignore
+      }
+    }
   }
 
   // TODO: remove in 4.1

@@ -20,7 +20,7 @@ import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.command.CommandInfo;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.cluster.NetworkClusterNode;
-import eu.cloudnetservice.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
+import eu.cloudnetservice.driver.network.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.provider.ClusterNodeProvider;
 import eu.cloudnetservice.node.Node;
@@ -112,7 +112,7 @@ public class NodeClusterNodeProvider implements ClusterNodeProvider {
   }
 
   @Override
-  public @NonNull Collection<NetworkClusterNodeInfoSnapshot> nodeInfoSnapshots() {
+  public @NonNull Collection<NodeInfoSnapshot> nodeInfoSnapshots() {
     return this.clusterNodeServerProvider.nodeServers().stream()
       .map(NodeServer::nodeInfoSnapshot)
       .filter(Objects::nonNull)
@@ -120,7 +120,7 @@ public class NodeClusterNodeProvider implements ClusterNodeProvider {
   }
 
   @Override
-  public @Nullable NetworkClusterNodeInfoSnapshot nodeInfoSnapshot(@NonNull String uniqueId) {
+  public @Nullable NodeInfoSnapshot nodeInfoSnapshot(@NonNull String uniqueId) {
     // find the node we are looking for
     return this.clusterNodeServerProvider.nodeServers().stream()
       .filter(nodeServer -> nodeServer.info().uniqueId().equals(uniqueId))
