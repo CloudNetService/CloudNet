@@ -21,13 +21,14 @@ import com.velocitypowered.api.permission.Tristate;
 import eu.cloudnetservice.driver.permission.Permission;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import java.util.UUID;
+import lombok.NonNull;
 
 final class VelocityCloudPermissionFunction implements PermissionFunction {
 
   private final UUID uniqueId;
   private final PermissionManagement permissionsManagement;
 
-  public VelocityCloudPermissionFunction(UUID uniqueId, PermissionManagement permissionsManagement) {
+  public VelocityCloudPermissionFunction(@NonNull UUID uniqueId, @NonNull PermissionManagement permissionsManagement) {
     this.uniqueId = uniqueId;
     this.permissionsManagement = permissionsManagement;
   }
@@ -39,12 +40,12 @@ final class VelocityCloudPermissionFunction implements PermissionFunction {
     }
 
     var permissionUser = this.permissionsManagement.user(this.uniqueId);
-    return
-      (permissionUser != null && this.permissionsManagement.hasPermission(permissionUser, Permission.of(permission))) ?
-        Tristate.TRUE : Tristate.FALSE;
-  }
+    if (permissionUser == null) {
+      return Tristate.FALSE;
+    }
 
-  public UUID uniqueId() {
-    return this.uniqueId;
+    return this.permissionsManagement.hasPermission(permissionUser, Permission.of(permission))
+      ? Tristate.TRUE
+      : Tristate.FALSE;
   }
 }

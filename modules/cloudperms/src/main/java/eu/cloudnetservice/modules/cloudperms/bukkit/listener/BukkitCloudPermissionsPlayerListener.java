@@ -19,7 +19,6 @@ package eu.cloudnetservice.modules.cloudperms.bukkit.listener;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.modules.cloudperms.CloudPermissionsHelper;
 import eu.cloudnetservice.modules.cloudperms.bukkit.BukkitPermissionHelper;
-import java.util.logging.Level;
 import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -29,15 +28,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.plugin.Plugin;
 
 public final class BukkitCloudPermissionsPlayerListener implements Listener {
 
-  private final Plugin plugin;
   private final PermissionManagement permissionsManagement;
 
-  public BukkitCloudPermissionsPlayerListener(Plugin plugin, PermissionManagement permissionsManagement) {
-    this.plugin = plugin;
+  public BukkitCloudPermissionsPlayerListener(@NonNull PermissionManagement permissionsManagement) {
     this.permissionsManagement = permissionsManagement;
   }
 
@@ -58,15 +54,8 @@ public final class BukkitCloudPermissionsPlayerListener implements Listener {
 
   @EventHandler(priority = EventPriority.LOWEST)
   public void handle(@NonNull PlayerLoginEvent event) {
-    if (event.getResult() != PlayerLoginEvent.Result.ALLOWED) {
-      return;
-    }
-
-    try {
+    if (event.getResult() == PlayerLoginEvent.Result.ALLOWED) {
       BukkitPermissionHelper.injectPlayer(event.getPlayer());
-    } catch (Throwable exception) {
-      this.plugin.getLogger().log(Level.SEVERE, "Error while injecting permissible", exception);
-      event.setResult(PlayerLoginEvent.Result.KICK_OTHER);
     }
   }
 
