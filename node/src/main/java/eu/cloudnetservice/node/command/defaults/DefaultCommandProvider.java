@@ -109,7 +109,7 @@ public class DefaultCommandProvider implements CommandProvider {
     // handle our @Documentation annotation
     this.annotationParser.registerBuilderModifier(Documentation.class, (documentation, builder) -> {
       if (!documentation.value().trim().isEmpty()) {
-        return builder.meta(DESCRIPTION_KEY, documentation.value());
+        return builder.meta(DOCUMENTATION_KEY, documentation.value());
       }
       return builder;
     });
