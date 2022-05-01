@@ -23,9 +23,9 @@ import lombok.NonNull;
 
 public class SignsPlatformListener {
 
-  protected final PlatformSignManagement<?> signManagement;
+  protected final PlatformSignManagement<?, ?> signManagement;
 
-  public SignsPlatformListener(PlatformSignManagement<?> signManagement) {
+  public SignsPlatformListener(@NonNull PlatformSignManagement<?, ?> signManagement) {
     this.signManagement = signManagement;
   }
 

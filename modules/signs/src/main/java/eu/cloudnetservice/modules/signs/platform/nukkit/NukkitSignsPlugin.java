@@ -17,14 +17,12 @@
 package eu.cloudnetservice.modules.signs.platform.nukkit;
 
 import cn.nukkit.Server;
-import cn.nukkit.blockentity.BlockEntitySign;
 import cn.nukkit.command.PluginCommand;
 import cn.nukkit.plugin.PluginBase;
 import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.signs.SharedChannelMessageListener;
 import eu.cloudnetservice.modules.signs.SignManagement;
-import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
 import eu.cloudnetservice.modules.signs.platform.SignsPlatformListener;
 import eu.cloudnetservice.modules.signs.platform.nukkit.functionality.SignInteractListener;
 import eu.cloudnetservice.modules.signs.platform.nukkit.functionality.SignsCommand;
@@ -33,7 +31,7 @@ public class NukkitSignsPlugin extends PluginBase {
 
   @Override
   public void onEnable() {
-    PlatformSignManagement<BlockEntitySign> signManagement = new NukkitSignManagement(this);
+    var signManagement = new NukkitSignManagement(this);
     signManagement.initialize();
     signManagement.registerToServiceRegistry();
     // command
@@ -45,7 +43,8 @@ public class NukkitSignsPlugin extends PluginBase {
     Server.getInstance().getPluginManager().registerEvents(new SignInteractListener(signManagement), this);
     // cloudnet listener
     CloudNetDriver.instance().eventManager().registerListeners(
-      new SharedChannelMessageListener(signManagement), new SignsPlatformListener(signManagement));
+      new SharedChannelMessageListener(signManagement),
+      new SignsPlatformListener(signManagement));
   }
 
   @Override

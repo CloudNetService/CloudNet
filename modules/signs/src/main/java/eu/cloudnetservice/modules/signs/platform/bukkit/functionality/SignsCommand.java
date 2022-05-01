@@ -41,6 +41,7 @@ public class SignsCommand extends BaseTabExecutor {
   }
 
   @Override
+  @SuppressWarnings("DuplicatedCode") // nukkit is too similar
   public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
     if (!(sender instanceof Player player)) {
       sender.sendMessage("Only players may execute this command");
