@@ -22,7 +22,7 @@ import cn.nukkit.command.PluginCommand;
 import cn.nukkit.plugin.PluginBase;
 import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
-import eu.cloudnetservice.modules.signs.GlobalChannelMessageListener;
+import eu.cloudnetservice.modules.signs.SharedChannelMessageListener;
 import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
 import eu.cloudnetservice.modules.signs.platform.SignsPlatformListener;
@@ -45,7 +45,7 @@ public class NukkitSignsPlugin extends PluginBase {
     Server.getInstance().getPluginManager().registerEvents(new SignInteractListener(signManagement), this);
     // cloudnet listener
     CloudNetDriver.instance().eventManager().registerListeners(
-      new GlobalChannelMessageListener(signManagement), new SignsPlatformListener(signManagement));
+      new SharedChannelMessageListener(signManagement), new SignsPlatformListener(signManagement));
   }
 
   @Override

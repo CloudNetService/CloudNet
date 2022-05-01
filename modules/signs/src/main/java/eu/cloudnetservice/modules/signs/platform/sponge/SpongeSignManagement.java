@@ -20,7 +20,7 @@ import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignLayout;
-import eu.cloudnetservice.modules.signs.platform.AbstractPlatformSignManagement;
+import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -38,7 +38,7 @@ import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.math.vector.Vector3d;
 import org.spongepowered.plugin.PluginContainer;
 
-public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spongepowered.api.block.entity.Sign> {
+public class SpongeSignManagement extends PlatformSignManagement<org.spongepowered.api.block.entity.Sign> {
 
   protected final PluginContainer plugin;
   protected final TaskExecutorService syncExecutor;

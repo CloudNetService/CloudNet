@@ -25,7 +25,7 @@ import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
-import eu.cloudnetservice.modules.signs.GlobalChannelMessageListener;
+import eu.cloudnetservice.modules.signs.SharedChannelMessageListener;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs._deprecated.SignConstants;
@@ -60,7 +60,7 @@ public class CloudNetSignsModule extends DriverModule {
     management.registerToServiceRegistry();
 
     Node.instance().commandProvider().register(new SignCommand(management));
-    this.registerListener(new GlobalChannelMessageListener(management), new NodeSignsListener(management));
+    this.registerListener(new SharedChannelMessageListener(management), new NodeSignsListener(management));
     this.registerListener(new PluginIncludeListener(
       "cloudnet-signs",
       CloudNetSignsModule.class,

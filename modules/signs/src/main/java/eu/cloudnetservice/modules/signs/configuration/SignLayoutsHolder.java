@@ -19,10 +19,12 @@ package eu.cloudnetservice.modules.signs.configuration;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 
 @ToString
+@EqualsAndHashCode
 public class SignLayoutsHolder {
 
   private final int animationsPerSecond;

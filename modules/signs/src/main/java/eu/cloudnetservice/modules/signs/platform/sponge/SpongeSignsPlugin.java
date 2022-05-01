@@ -19,9 +19,9 @@ package eu.cloudnetservice.modules.signs.platform.sponge;
 import com.google.inject.Inject;
 import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
-import eu.cloudnetservice.modules.signs.GlobalChannelMessageListener;
+import eu.cloudnetservice.modules.signs.SharedChannelMessageListener;
 import eu.cloudnetservice.modules.signs.SignManagement;
-import eu.cloudnetservice.modules.signs.platform.AbstractPlatformSignManagement;
+import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
 import eu.cloudnetservice.modules.signs.platform.SignsPlatformListener;
 import eu.cloudnetservice.modules.signs.platform.sponge.functionality.SignInteractListener;
 import eu.cloudnetservice.modules.signs.platform.sponge.functionality.SignsCommand;
@@ -43,7 +43,7 @@ import org.spongepowered.plugin.builtin.jvm.Plugin;
 public class SpongeSignsPlugin {
 
   private final PluginContainer plugin;
-  private AbstractPlatformSignManagement<Sign> signManagement;
+  private PlatformSignManagement<Sign> signManagement;
 
   @Inject
   public SpongeSignsPlugin(@NonNull PluginContainer plugin) {
@@ -59,7 +59,7 @@ public class SpongeSignsPlugin {
     Sponge.eventManager().registerListeners(this.plugin, new SignInteractListener(this.plugin, this.signManagement));
     // cloudnet events
     CloudNetDriver.instance().eventManager().registerListeners(
-      new GlobalChannelMessageListener(this.signManagement),
+      new SharedChannelMessageListener(this.signManagement),
       new SignsPlatformListener(this.signManagement));
   }
 

@@ -31,11 +31,11 @@ import com.google.common.primitives.Ints;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignLayout;
-import eu.cloudnetservice.modules.signs.platform.AbstractPlatformSignManagement;
+import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEntitySign> {
+public class NukkitSignManagement extends PlatformSignManagement<BlockEntitySign> {
 
   protected final Plugin plugin;
 
