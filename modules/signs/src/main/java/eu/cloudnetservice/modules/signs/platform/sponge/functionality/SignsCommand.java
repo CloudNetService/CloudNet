@@ -22,7 +22,6 @@ import java.util.Optional;
 import lombok.NonNull;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
-import org.spongepowered.api.block.entity.Sign;
 import org.spongepowered.api.command.CommandExecutor;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.parameter.CommandContext;
@@ -33,6 +32,7 @@ import org.spongepowered.api.registry.RegistryTypes;
 import org.spongepowered.api.util.blockray.RayTrace;
 import org.spongepowered.api.util.blockray.RayTraceResult;
 import org.spongepowered.api.world.LocatableBlock;
+import org.spongepowered.api.world.server.ServerLocation;
 
 public class SignsCommand implements CommandExecutor {
 
@@ -40,9 +40,9 @@ public class SignsCommand implements CommandExecutor {
   public static final Key<String> TARGET_GROUP = Parameter.key("target_group", String.class);
   public static final Key<String> TARGET_TEMPLATE = Parameter.key("target_template_path", String.class);
 
-  protected final PlatformSignManagement<Sign> signManagement;
+  protected final PlatformSignManagement<?, ServerLocation> signManagement;
 
-  public SignsCommand(@NonNull PlatformSignManagement<org.spongepowered.api.block.entity.Sign> signManagement) {
+  public SignsCommand(@NonNull PlatformSignManagement<?, ServerLocation> signManagement) {
     this.signManagement = signManagement;
   }
 
@@ -72,24 +72,22 @@ public class SignsCommand implements CommandExecutor {
           return CommandResult.success();
         }
 
-        var sign = this.signManagement.signAt(
-          (org.spongepowered.api.block.entity.Sign) hit.get().selectedObject(),
-          entry.targetGroup());
+        var loc = this.signManagement.convertPosition(hit.get().selectedObject().serverLocation());
+        var sign = this.signManagement.platformSignAt(loc);
         if (sign != null) {
           SignsConfiguration.sendMessage(
             "command-cloudsign-sign-already-exist",
             message -> player.sendMessage(Component.text(message)));
         } else {
-          var createdSign = this.signManagement.createSign(
-            (org.spongepowered.api.block.entity.Sign) hit.get().selectedObject(),
+          //noinspection ConstantConditions
+          this.signManagement.createSign(new eu.cloudnetservice.modules.signs.Sign(
             targetGroup,
-            targetTemplatePath);
-          if (createdSign != null) {
-            SignsConfiguration.sendMessage(
-              "command-cloudsign-create-success",
-              m -> player.sendMessage(Component.text(m)),
-              m -> m.replace("%group%", createdSign.targetGroup()));
-          }
+            targetTemplatePath,
+            loc));
+          SignsConfiguration.sendMessage(
+            "command-cloudsign-create-success",
+            m -> player.sendMessage(Component.text(m)),
+            m -> m.replace("%group%", targetGroup));
         }
 
         return CommandResult.success();
@@ -113,11 +111,10 @@ public class SignsCommand implements CommandExecutor {
           return CommandResult.success();
         }
 
-        var sign = this.signManagement.signAt(
-          (org.spongepowered.api.block.entity.Sign) hit.get().selectedObject(),
-          entry.targetGroup());
-        if (sign != null) {
-          this.signManagement.deleteSign(sign);
+        var loc = this.signManagement.convertPosition(hit.get().selectedObject().serverLocation());
+        var sign = this.signManagement.platformSignAt(loc);
+        if (sign != null && loc != null) {
+          this.signManagement.deleteSign(loc);
           SignsConfiguration.sendMessage(
             "command-cloudsign-remove-success",
             m -> player.sendMessage(Component.text(m)));

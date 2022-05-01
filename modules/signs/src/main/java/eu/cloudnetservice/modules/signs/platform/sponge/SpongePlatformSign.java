@@ -1,0 +1,128 @@
+/*
+ * Copyright 2019-2022 CloudNetService team & contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package eu.cloudnetservice.modules.signs.platform.sponge;
+
+import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
+import eu.cloudnetservice.modules.signs.Sign;
+import eu.cloudnetservice.modules.signs.configuration.SignLayout;
+import eu.cloudnetservice.modules.signs.platform.PlatformSign;
+import eu.cloudnetservice.modules.signs.platform.sponge.event.SpongeCloudSignInteractEvent;
+import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
+import org.spongepowered.api.ResourceKey;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.data.Keys;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import org.spongepowered.api.event.Cause;
+import org.spongepowered.api.event.EventContext;
+import org.spongepowered.api.event.EventContextKeys;
+import org.spongepowered.api.registry.RegistryTypes;
+import org.spongepowered.api.world.server.ServerLocation;
+
+final class SpongePlatformSign extends PlatformSign<ServerPlayer> {
+
+  // lazy initialized once available
+  private ServerLocation signLocation;
+
+  public SpongePlatformSign(@NonNull Sign base) {
+    super(base);
+  }
+
+  @Override
+  public boolean exists() {
+    // check if the location associated with the sign is available
+    var location = this.signLocation();
+    if (location == null) {
+      return false;
+    }
+
+    // get the block at the given location
+    var block = location.blockEntity().orElse(null);
+    return block instanceof org.spongepowered.api.block.entity.Sign;
+  }
+
+  @Override
+  public boolean needsUpdates() {
+    // check if the location associated with the sign is available
+    var location = this.signLocation();
+    if (location == null) {
+      return false;
+    }
+
+    return location.isAvailable() && location.world().isChunkLoaded(location.chunkPosition(), false);
+  }
+
+  @Override
+  public void updateSign(@NonNull SignLayout layout) {
+    // check if the location associated with the sign is available
+    var location = this.signLocation();
+    if (location == null) {
+      return;
+    }
+
+    // get the block at the given location
+    var entity = location.blockEntity().orElse(null);
+    if (entity instanceof org.spongepowered.api.block.entity.Sign sign) {
+      // set the glowing status if needed
+      sign.glowingText().set(layout.glowingColor() != null);
+
+      // set the sign lines
+      for (int i = 0; i < Math.min(4, layout.lines().size()); i++) {
+        sign.lines().set(i, AdventureSerializerUtil.serialize(layout.lines().get(i)));
+      }
+
+      // change the block behind the sign
+      var type = Sponge.game()
+        .registry(RegistryTypes.BLOCK_TYPE)
+        .findValue(ResourceKey.resolve(layout.blockMaterial()))
+        .orElse(null);
+      var direction = entity.get(Keys.DIRECTION).orElse(null);
+      if (type != null && direction != null) {
+        entity.serverLocation().relativeToBlock(direction).setBlockType(type);
+      }
+    }
+  }
+
+  @Override
+  public @Nullable ServiceInfoSnapshot callSignInteractEvent(@NonNull ServerPlayer player) {
+    var event = new SpongeCloudSignInteractEvent(
+      Cause.of(
+        EventContext.builder().add(EventContextKeys.PLAYER, player).build(),
+        player),
+      player,
+      this);
+    return Sponge.eventManager().post(event) ? null : event.target();
+  }
+
+  public @Nullable ServerLocation signLocation() {
+    // check if the location is already available
+    if (this.signLocation != null) {
+      return this.signLocation;
+    }
+
+    // check if the world associated with the sign is available
+    var loc = this.base.location();
+    var world = Sponge.server().worldManager().world(ResourceKey.resolve(loc.world())).orElse(null);
+    if (world == null) {
+      return null;
+    }
+
+    // initialize and return the location
+    return this.signLocation = ServerLocation.of(world, loc.x(), loc.y(), loc.z());
+  }
+}

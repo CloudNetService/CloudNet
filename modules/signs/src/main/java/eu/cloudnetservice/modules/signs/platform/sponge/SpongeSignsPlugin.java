@@ -29,13 +29,14 @@ import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.block.entity.Sign;
 import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.parameter.Parameter;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
 import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
 import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
+import org.spongepowered.api.world.server.ServerLocation;
 import org.spongepowered.plugin.PluginContainer;
 import org.spongepowered.plugin.builtin.jvm.Plugin;
 
@@ -43,7 +44,7 @@ import org.spongepowered.plugin.builtin.jvm.Plugin;
 public class SpongeSignsPlugin {
 
   private final PluginContainer plugin;
-  private PlatformSignManagement<Sign> signManagement;
+  private PlatformSignManagement<ServerPlayer, ServerLocation> signManagement;
 
   @Inject
   public SpongeSignsPlugin(@NonNull PluginContainer plugin) {
@@ -52,7 +53,7 @@ public class SpongeSignsPlugin {
 
   @Listener
   public void handleStart(@NonNull ConstructPluginEvent event) {
-    this.signManagement = new SpongeSignManagement(this.plugin);
+    this.signManagement = SpongeSignManagement.newInstance(this.plugin);
     this.signManagement.initialize();
     this.signManagement.registerToServiceRegistry();
     // sponge events
