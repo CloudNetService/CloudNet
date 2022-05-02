@@ -25,19 +25,19 @@ import cn.nukkit.level.Location;
 import cn.nukkit.math.BlockFace;
 import cn.nukkit.utils.Faceable;
 import cn.nukkit.utils.TextFormat;
-import com.google.common.base.Joiner;
 import com.google.common.primitives.Ints;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignLayout;
 import eu.cloudnetservice.modules.signs.platform.PlatformSign;
 import eu.cloudnetservice.modules.signs.platform.nukkit.event.NukkitCloudSignInteractEvent;
+import java.util.Arrays;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public class NukkitPlatformSign extends PlatformSign<Player> {
 
-  private static final Joiner TEXT_JOINER = Joiner.on('\n').useForNull("");
+  private final String[] lineBuffer = new String[4];
 
   private Location signLocation;
 
@@ -84,16 +84,17 @@ public class NukkitPlatformSign extends PlatformSign<Player> {
       // set the glowing status if needed
       sign.setGlowing(layout.glowingColor() != null);
 
+      // remove all old sign lines from the lines buffer
+      // this is not thread safe at all, but updates to the sign should only be made from the server primary thread
+      // anyway which makes this somewhat reliable to do
+      var lines = this.lineBuffer;
+      Arrays.fill(lines, "");
+
       // set the sign lines
-      var lines = new String[4];
       for (int i = 0; i < Math.min(4, layout.lines().size()); i++) {
         lines[i] = TextFormat.colorize(layout.lines().get(i));
       }
-
-      // this is a bit hacky as the nukkit api is just not allowing us to make is easier
-      sign.namedTag.putString("Text", TEXT_JOINER.join(lines));
-      sign.setDirty();
-      sign.spawnToAll();
+      sign.setText(lines);
 
       // change the block behind the sign
       var block = sign.getBlock();
