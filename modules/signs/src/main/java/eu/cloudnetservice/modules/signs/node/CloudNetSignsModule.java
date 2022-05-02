@@ -65,7 +65,7 @@ public class CloudNetSignsModule extends DriverModule {
       "cloudnet-signs",
       CloudNetSignsModule.class,
       service -> ServiceEnvironmentType.minecraftServer(service.serviceId().environment())
-        && this.configuration.entries().stream()
+        && management.signsConfiguration().entries().stream()
         .anyMatch(entry -> service.serviceConfiguration().groups().contains(entry.targetGroup()))));
   }
 
