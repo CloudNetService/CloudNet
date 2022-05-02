@@ -22,7 +22,6 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
 
 public final class VelocityHubCommand implements SimpleCommand {
@@ -70,7 +69,7 @@ public final class VelocityHubCommand implements SimpleCommand {
   }
 
   @Override
-  public @NonNull CompletableFuture<List<String>> suggestAsync(@NonNull Invocation invocation) {
-    return CompletableFuture.completedFuture(List.copyOf(this.management.configuration().hubCommandNames()));
+  public @NonNull List<String> suggest(@NonNull Invocation invocation) {
+    return List.copyOf(this.management.configuration().hubCommandNames());
   }
 }
