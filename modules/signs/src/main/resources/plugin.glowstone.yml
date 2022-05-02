@@ -1,5 +1,5 @@
 name: CloudNet-Signs
-version: '2.0'
+version: "{project.build.version}"
 author: CloudNetService
 website: https://cloudnetservice.eu
 description: Bukkit extension for the CloudNet runtime which adds sign connector support

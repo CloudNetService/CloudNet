@@ -1,5 +1,5 @@
 name: CloudNet-Signs
-version: '2.0'
+version: "{project.build.version}"
 api: [ '1.0.5' ]
 author: CloudNetService
 website: https://cloudnetservice.eu

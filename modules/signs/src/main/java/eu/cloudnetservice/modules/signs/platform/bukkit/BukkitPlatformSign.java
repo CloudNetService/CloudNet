@@ -27,7 +27,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.material.MaterialData;
 import org.bukkit.util.NumberConversions;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,9 +47,11 @@ final class BukkitPlatformSign extends PlatformSign<Player> {
       return false;
     }
 
-    // get the block at the given location
-    var state = location.getBlock().getState();
-    return state instanceof org.bukkit.block.Sign;
+    // checks if the type of the block at the sign location is a sign. The material name check is not the safest way
+    // of doing that, but the safe way would be to use "getBlockState" which always captures a new state of the block
+    // and is extremely heavy when executed often, so this way is much more lightweight for that task
+    var type = location.getBlock().getType();
+    return type.name().contains("SIGN");
   }
 
   @Override
@@ -94,14 +95,14 @@ final class BukkitPlatformSign extends PlatformSign<Player> {
       if (material != null && material.isBlock()) {
         var facing = BukkitCompatibility.facing(sign);
         if (facing != null) {
-          var behind = state.getBlock().getRelative(facing).getState();
-          if (layout.blockSubId() >= 0) {
-            behind.setData(new MaterialData(material, (byte) layout.blockSubId()));
-          } else {
-            behind.setType(material);
-          }
+          // set the type of the block behind the sign
+          var behind = state.getBlock().getRelative(facing.getOppositeFace());
+          behind.setType(material);
 
-          behind.update();
+          // set the block sub id if needed
+          if (layout.blockSubId() >= 0) {
+            behind.setData((byte) layout.blockSubId());
+          }
         }
       }
     }

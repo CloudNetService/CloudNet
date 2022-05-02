@@ -93,7 +93,7 @@ final class SpongePlatformSign extends PlatformSign<ServerPlayer> {
         .orElse(null);
       var direction = entity.get(Keys.DIRECTION).orElse(null);
       if (type != null && direction != null) {
-        entity.serverLocation().relativeToBlock(direction).setBlockType(type);
+        entity.serverLocation().relativeToBlock(direction.opposite()).setBlockType(type);
       }
     }
   }
