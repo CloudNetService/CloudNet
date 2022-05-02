@@ -33,8 +33,8 @@ import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.parameter.Parameter;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
 import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
 import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
 import org.spongepowered.api.world.server.ServerLocation;
 import org.spongepowered.plugin.PluginContainer;
@@ -52,7 +52,7 @@ public class SpongeSignsPlugin {
   }
 
   @Listener
-  public void handleStart(@NonNull ConstructPluginEvent event) {
+  public void handleStart(@NonNull StartedEngineEvent<Server> event) {
     this.signManagement = SpongeSignManagement.newInstance(this.plugin);
     this.signManagement.initialize();
     this.signManagement.registerToServiceRegistry();
@@ -82,7 +82,7 @@ public class SpongeSignsPlugin {
           Parameter.string().key(SignsCommand.TARGET_GROUP).optional().build(),
           Parameter.string().key(SignsCommand.TARGET_TEMPLATE).optional().build()
         )
-        .executor(new SignsCommand(this.signManagement))
+        .executor(new SignsCommand(() -> this.signManagement))
         .build(),
       "cloudsigns",
       "cs", "signs", "cloudsign");

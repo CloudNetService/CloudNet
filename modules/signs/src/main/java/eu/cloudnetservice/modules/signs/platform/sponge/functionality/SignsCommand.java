@@ -19,9 +19,11 @@ package eu.cloudnetservice.modules.signs.platform.sponge.functionality;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
 import java.util.Optional;
+import java.util.function.Supplier;
 import lombok.NonNull;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
+import org.spongepowered.api.block.entity.Sign;
 import org.spongepowered.api.command.CommandExecutor;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.parameter.CommandContext;
@@ -30,8 +32,6 @@ import org.spongepowered.api.command.parameter.Parameter.Key;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.registry.RegistryTypes;
 import org.spongepowered.api.util.blockray.RayTrace;
-import org.spongepowered.api.util.blockray.RayTraceResult;
-import org.spongepowered.api.world.LocatableBlock;
 import org.spongepowered.api.world.server.ServerLocation;
 
 public class SignsCommand implements CommandExecutor {
@@ -40,9 +40,9 @@ public class SignsCommand implements CommandExecutor {
   public static final Key<String> TARGET_GROUP = Parameter.key("target_group", String.class);
   public static final Key<String> TARGET_TEMPLATE = Parameter.key("target_template_path", String.class);
 
-  protected final PlatformSignManagement<?, ServerLocation> signManagement;
+  protected final Supplier<PlatformSignManagement<?, ServerLocation>> signManagement;
 
-  public SignsCommand(@NonNull PlatformSignManagement<?, ServerLocation> signManagement) {
+  public SignsCommand(@NonNull Supplier<PlatformSignManagement<?, ServerLocation>> signManagement) {
     this.signManagement = signManagement;
   }
 
@@ -53,7 +53,7 @@ public class SignsCommand implements CommandExecutor {
       return CommandResult.success();
     }
 
-    var entry = this.signManagement.applicableSignConfigurationEntry();
+    var entry = this.signManagement.get().applicableSignConfigurationEntry();
     if (entry == null) {
       SignsConfiguration.sendMessage(
         "command-cloudsign-no-entry",
@@ -72,15 +72,15 @@ public class SignsCommand implements CommandExecutor {
           return CommandResult.success();
         }
 
-        var loc = this.signManagement.convertPosition(hit.get().selectedObject().serverLocation());
-        var sign = this.signManagement.platformSignAt(loc);
+        var loc = this.signManagement.get().convertPosition(hit.get().serverLocation());
+        var sign = this.signManagement.get().platformSignAt(loc);
         if (sign != null) {
           SignsConfiguration.sendMessage(
             "command-cloudsign-sign-already-exist",
             message -> player.sendMessage(Component.text(message)));
         } else {
           //noinspection ConstantConditions
-          this.signManagement.createSign(new eu.cloudnetservice.modules.signs.Sign(
+          this.signManagement.get().createSign(new eu.cloudnetservice.modules.signs.Sign(
             targetGroup,
             targetTemplatePath,
             loc));
@@ -92,14 +92,14 @@ public class SignsCommand implements CommandExecutor {
 
         return CommandResult.success();
       } else if (type.equalsIgnoreCase("cleanup")) {
-        var removed = this.signManagement.removeMissingSigns();
+        var removed = this.signManagement.get().removeMissingSigns();
         SignsConfiguration.sendMessage(
           "command-cloudsign-cleanup-success",
           m -> player.sendMessage(Component.text(m)),
           m -> m.replace("%amount%", Integer.toString(removed)));
         return CommandResult.success();
       } else if (type.equalsIgnoreCase("removeall")) {
-        var removed = this.signManagement.deleteAllSigns();
+        var removed = this.signManagement.get().deleteAllSigns();
         SignsConfiguration.sendMessage(
           "command-cloudsign-bulk-remove-success",
           m -> player.sendMessage(Component.text(m)),
@@ -111,10 +111,10 @@ public class SignsCommand implements CommandExecutor {
           return CommandResult.success();
         }
 
-        var loc = this.signManagement.convertPosition(hit.get().selectedObject().serverLocation());
-        var sign = this.signManagement.platformSignAt(loc);
+        var loc = this.signManagement.get().convertPosition(hit.get().serverLocation());
+        var sign = this.signManagement.get().platformSignAt(loc);
         if (sign != null && loc != null) {
-          this.signManagement.deleteSign(loc);
+          this.signManagement.get().deleteSign(loc);
           SignsConfiguration.sendMessage(
             "command-cloudsign-remove-success",
             m -> player.sendMessage(Component.text(m)));
@@ -136,16 +136,18 @@ public class SignsCommand implements CommandExecutor {
     return CommandResult.success();
   }
 
-  protected @NonNull Optional<RayTraceResult<LocatableBlock>> getTargetBlock(@NonNull ServerPlayer player) {
+  protected @NonNull Optional<Sign> getTargetBlock(@NonNull ServerPlayer player) {
     var result = RayTrace.block()
       .limit(15)
       .world(player.world())
       .sourceEyePosition(player)
       .direction(player.direction())
       .select(block -> block.blockState().type().key(RegistryTypes.BLOCK_TYPE).formatted().endsWith("_sign"))
-      .execute();
+      .execute()
+      .flatMap(hit -> hit.selectedObject().location().blockEntity())
+      .map(entity -> entity instanceof Sign sign ? sign : null);
     // check if the player is facing a sign
-    if (result.isEmpty() || !(result.get().selectedObject() instanceof org.spongepowered.api.block.entity.Sign)) {
+    if (result.isEmpty()) {
       SignsConfiguration.sendMessage(
         "command-cloudsign-not-looking-at-sign",
         message -> player.sendMessage(Component.text(message)));

@@ -399,7 +399,7 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://repo.spongepowered.org/repository/maven-releases/org/spongepowered/spongevanilla/1.18.1-9.0.0-RC1117/spongevanilla-1.18.1-9.0.0-RC1117-universal.jar",
+          "url": "https://repo.spongepowered.org/repository/maven-releases/org/spongepowered/spongevanilla/1.18.1-9.0.0-RC1119/spongevanilla-1.18.1-9.0.0-RC1119-universal.jar",
           "cacheFiles": false,
           "properties": {
             "copy": {
@@ -411,7 +411,7 @@
         },
         {
           "name": "1.18.1",
-          "url": "https://repo.spongepowered.org/repository/maven-releases/org/spongepowered/spongevanilla/1.18.1-9.0.0-RC1117/spongevanilla-1.18.1-9.0.0-RC1117-universal.jar",
+          "url": "https://repo.spongepowered.org/repository/maven-releases/org/spongepowered/spongevanilla/1.18.1-9.0.0-RC1119/spongevanilla-1.18.1-9.0.0-RC1119-universal.jar",
           "properties": {
             "copy": {
               "libraries/.*": "/",
@@ -422,7 +422,7 @@
         },
         {
           "name": "1.16.5",
-          "url": "https://repo.spongepowered.org/repository/maven-releases/org/spongepowered/spongevanilla/1.16.5-8.0.0-RC1115/spongevanilla-1.16.5-8.0.0-RC1115-universal.jar",
+          "url": "https://repo.spongepowered.org/repository/maven-releases/org/spongepowered/spongevanilla/1.16.5-8.0.0-RC1118/spongevanilla-1.16.5-8.0.0-RC1118-universal.jar",
           "properties": {
             "copy": {
               "libraries/.*": "/",
