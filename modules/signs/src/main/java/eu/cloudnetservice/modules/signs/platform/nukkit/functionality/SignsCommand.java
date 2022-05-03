@@ -21,18 +21,22 @@ import cn.nukkit.blockentity.BlockEntitySign;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandExecutor;
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.level.Location;
+import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
+import lombok.NonNull;
 
 public class SignsCommand implements CommandExecutor {
 
-  private final PlatformSignManagement<BlockEntitySign> signManagement;
+  private final PlatformSignManagement<?, Location> signManagement;
 
-  public SignsCommand(PlatformSignManagement<BlockEntitySign> signManagement) {
+  public SignsCommand(@NonNull PlatformSignManagement<?, Location> signManagement) {
     this.signManagement = signManagement;
   }
 
   @Override
+  @SuppressWarnings("DuplicatedCode") // bukkit is too similar
   public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
     if (!(sender instanceof Player player)) {
       sender.sendMessage("Only players may execute this command");
@@ -48,22 +52,23 @@ public class SignsCommand implements CommandExecutor {
     if ((args.length == 2 || args.length == 3) && args[0].equalsIgnoreCase("create")) {
       var targetBlock = player.getTargetBlock(15);
       var blockEntity = targetBlock.getLevel().getBlockEntity(targetBlock.getLocation());
-      if (blockEntity instanceof BlockEntitySign entitySign) {
-        var sign = this.signManagement.signAt(entitySign, entry.targetGroup());
+      if (blockEntity instanceof BlockEntitySign) {
+        var pos = this.signManagement.convertPosition(targetBlock.getLocation());
+        var sign = this.signManagement.platformSignAt(pos);
         if (sign != null) {
-          SignsConfiguration.sendMessage("command-cloudsign-sign-already-exist",
-            player::sendMessage, m -> m.replace("%group%", sign.targetGroup()));
+          SignsConfiguration.sendMessage(
+            "command-cloudsign-sign-already-exist",
+            player::sendMessage,
+            m -> m.replace("%group%", sign.base().targetGroup()));
           return true;
         }
 
-        var createdSign = this.signManagement.createSign(
-          (BlockEntitySign) blockEntity,
-          args[1], args.length == 3 ? args[2] : null
-        );
-        if (createdSign != null) {
-          SignsConfiguration.sendMessage("command-cloudsign-create-success",
-            player::sendMessage, m -> m.replace("%group%", createdSign.targetGroup()));
-        }
+        //noinspection ConstantConditions
+        this.signManagement.createSign(new Sign(args[1], args.length == 3 ? args[2] : null, pos));
+        SignsConfiguration.sendMessage(
+          "command-cloudsign-create-success",
+          player::sendMessage,
+          m -> m.replace("%group%", args[1]));
       } else {
         SignsConfiguration.sendMessage("command-cloudsign-not-looking-at-sign", player::sendMessage);
       }
@@ -82,12 +87,13 @@ public class SignsCommand implements CommandExecutor {
     } else if (args.length == 1 && args[0].equalsIgnoreCase("remove")) {
       var targetBlock = player.getTargetBlock(15);
       var blockEntity = targetBlock.getLevel().getBlockEntity(targetBlock.getLocation());
-      if (blockEntity instanceof BlockEntitySign entitySign) {
-        var sign = this.signManagement.signAt(entitySign, entry.targetGroup());
+      if (blockEntity instanceof BlockEntitySign) {
+        var pos = this.signManagement.convertPosition(targetBlock.getLocation());
+        var sign = this.signManagement.platformSignAt(pos);
         if (sign == null) {
           SignsConfiguration.sendMessage("command-cloudsign-remove-not-existing", player::sendMessage);
         } else {
-          this.signManagement.deleteSign(sign);
+          this.signManagement.deleteSign(sign.base());
           SignsConfiguration.sendMessage("command-cloudsign-remove-success", player::sendMessage);
         }
       } else {

@@ -46,7 +46,7 @@ public abstract class AbstractSignManagement implements SignManagement {
    *
    * @param signsConfiguration the sign configuration to use.
    */
-  protected AbstractSignManagement(@NonNull SignsConfiguration signsConfiguration) {
+  protected AbstractSignManagement(@Nullable SignsConfiguration signsConfiguration) {
     this.signsConfiguration = signsConfiguration;
   }
 

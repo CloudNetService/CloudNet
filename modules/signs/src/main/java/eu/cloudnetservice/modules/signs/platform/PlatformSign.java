@@ -1,0 +1,107 @@
+/*
+ * Copyright 2019-2022 CloudNetService team & contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package eu.cloudnetservice.modules.signs.platform;
+
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
+import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
+import eu.cloudnetservice.modules.bridge.BridgeServiceHelper.ServiceInfoState;
+import eu.cloudnetservice.modules.bridge.player.PlayerManager;
+import eu.cloudnetservice.modules.signs.Sign;
+import eu.cloudnetservice.modules.signs.configuration.SignConfigurationEntry;
+import eu.cloudnetservice.modules.signs.configuration.SignLayout;
+import eu.cloudnetservice.modules.signs.util.PriorityUtil;
+import java.util.UUID;
+import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
+
+public abstract class PlatformSign<P> implements Comparable<PlatformSign<P>> {
+
+  private static final PlayerManager PLAYER_MANAGER = ServiceRegistry.first(PlayerManager.class);
+
+  protected final Sign base;
+  protected volatile ServiceInfoSnapshot target;
+
+  public PlatformSign(@NonNull Sign base) {
+    this.base = base;
+  }
+
+  public @NonNull Sign base() {
+    return this.base;
+  }
+
+  public @Nullable ServiceInfoSnapshot currentTarget() {
+    return this.target;
+  }
+
+  public void currentTarget(@Nullable ServiceInfoSnapshot snapshot) {
+    this.target = snapshot;
+  }
+
+  public void handleInteract(@NonNull UUID playerUniqueId, @NonNull P playerInstance) {
+    // keep a local copy of the target as the view might change due to concurrent update calls
+    var target = this.target;
+    if (target == null) {
+      return;
+    }
+
+    // get the current state from the service snapshot, ignore if the target is not yet ready to accept players
+    var state = BridgeServiceHelper.guessStateFromServiceInfoSnapshot(target);
+    if (state == ServiceInfoState.STOPPED || state == ServiceInfoState.STARTING) {
+      return;
+    }
+
+    // get the target to connect the player to, null indicates that the event was cancelled
+    target = this.callSignInteractEvent(playerInstance);
+    if (target == null) {
+      return;
+    }
+
+    PLAYER_MANAGER.playerExecutor(playerUniqueId).connect(target.name());
+  }
+
+  public int priority() {
+    return this.priority(false);
+  }
+
+  public int priority(@Nullable SignConfigurationEntry entry) {
+    // check if the service has a snapshot
+    var target = this.currentTarget();
+    // no target has the lowest priority
+    return target == null ? 0 : PriorityUtil.priority(target, entry);
+  }
+
+  public int priority(boolean lowerFullToSearching) {
+    // check if the service has a snapshot
+    var target = this.currentTarget();
+    // no target has the lowest priority
+    return target == null ? 0 : PriorityUtil.priority(target, lowerFullToSearching);
+  }
+
+  @Override
+  public int compareTo(@NonNull PlatformSign<P> sign) {
+    return Integer.compare(this.priority(), sign.priority());
+  }
+
+  public abstract boolean exists();
+
+  public abstract boolean needsUpdates();
+
+  public abstract void updateSign(@NonNull SignLayout layout);
+
+  public abstract @Nullable ServiceInfoSnapshot callSignInteractEvent(@NonNull P player);
+}

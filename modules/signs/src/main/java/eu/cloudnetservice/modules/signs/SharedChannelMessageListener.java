@@ -23,11 +23,11 @@ import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import java.util.Collection;
 import lombok.NonNull;
 
-public class GlobalChannelMessageListener {
+public final class SharedChannelMessageListener {
 
-  protected final SignManagement signManagement;
+  private final SignManagement signManagement;
 
-  public GlobalChannelMessageListener(SignManagement signManagement) {
+  public SharedChannelMessageListener(@NonNull SignManagement signManagement) {
     this.signManagement = signManagement;
   }
 
@@ -35,18 +35,27 @@ public class GlobalChannelMessageListener {
   public void handleChannelMessage(@NonNull ChannelMessageReceiveEvent event) {
     if (event.channel().equals(AbstractSignManagement.SIGN_CHANNEL_NAME)) {
       switch (event.message()) {
+        // as sign was created
         case AbstractSignManagement.SIGN_CREATED -> this.signManagement.handleInternalSignCreate(
           event.content().readObject(Sign.class));
+
+        // a sign was deleted
         case AbstractSignManagement.SIGN_DELETED -> this.signManagement.handleInternalSignRemove(
           event.content().readObject(WorldPosition.class));
+
+        // a bulk of signs gets deleted
         case AbstractSignManagement.SIGN_BULK_DELETE -> {
           Collection<WorldPosition> positions = event.content().readObject(WorldPosition.COL_TYPE);
           for (var position : positions) {
             this.signManagement.handleInternalSignRemove(position);
           }
         }
+
+        // the sign configuration was updated
         case AbstractSignManagement.SIGN_CONFIGURATION_UPDATE -> this.signManagement.handleInternalSignConfigUpdate(
           event.content().readObject(SignsConfiguration.class));
+
+        // unknown message
         default -> {
         }
       }

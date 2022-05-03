@@ -17,8 +17,7 @@
 package eu.cloudnetservice.modules.signs.platform.sponge.event;
 
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
-import eu.cloudnetservice.modules.signs.Sign;
-import java.util.Optional;
+import eu.cloudnetservice.modules.signs.platform.PlatformSign;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
@@ -31,29 +30,32 @@ public class SpongeCloudSignInteractEvent implements Event, Cancellable {
   protected final Cause cause;
   protected final ServerPlayer player;
 
-  protected final Sign sign;
+  protected final PlatformSign<ServerPlayer> sign;
 
   protected boolean cancelled;
   protected ServiceInfoSnapshot target;
 
-  public SpongeCloudSignInteractEvent(Cause cause, ServerPlayer player, Sign sign, boolean cancelled) {
+  public SpongeCloudSignInteractEvent(
+    @NonNull Cause cause,
+    @NonNull ServerPlayer player,
+    @NonNull PlatformSign<ServerPlayer> sign
+  ) {
     this.cause = cause;
     this.player = player;
     this.sign = sign;
     this.target = sign.currentTarget();
-    this.cancelled = cancelled;
   }
 
   public @NonNull ServerPlayer player() {
     return this.player;
   }
 
-  public @NonNull Sign sign() {
+  public @NonNull PlatformSign<ServerPlayer> sign() {
     return this.sign;
   }
 
-  public @NonNull Optional<ServiceInfoSnapshot> target() {
-    return Optional.ofNullable(this.target);
+  public @Nullable ServiceInfoSnapshot target() {
+    return this.target;
   }
 
   public void target(@Nullable ServiceInfoSnapshot target) {

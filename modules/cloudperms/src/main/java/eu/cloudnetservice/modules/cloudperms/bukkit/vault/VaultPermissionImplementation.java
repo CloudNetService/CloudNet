@@ -20,23 +20,23 @@ import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.driver.permission.PermissionGroup;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.driver.permission.PermissionUser;
-import eu.cloudnetservice.driver.permission.PermissionUserGroupInfo;
 import java.util.Optional;
+import lombok.NonNull;
 import net.milkbowl.vault.permission.Permission;
 
 public class VaultPermissionImplementation extends Permission {
 
   private final PermissionManagement permissionManagement;
 
-  public VaultPermissionImplementation(PermissionManagement permissionManagement) {
+  public VaultPermissionImplementation(@NonNull PermissionManagement permissionManagement) {
     this.permissionManagement = permissionManagement;
   }
 
-  private Optional<PermissionUser> permissionUserByName(String name) {
-    return this.permissionManagement.usersByName(name).stream().findFirst();
+  private @NonNull Optional<PermissionUser> permissionUserByName(@NonNull String name) {
+    return Optional.ofNullable(this.permissionManagement.firstUser(name));
   }
 
-  private Optional<PermissionGroup> permissionGroupByName(String name) {
+  private @NonNull Optional<PermissionGroup> permissionGroupByName(@NonNull String name) {
     return Optional.ofNullable(this.permissionManagement.group(name));
   }
 
@@ -57,120 +57,102 @@ public class VaultPermissionImplementation extends Permission {
 
   @Override
   public boolean playerHas(String world, String player, String permission) {
-    var optionalPermissionUser = this.permissionUserByName(player);
-
-    return optionalPermissionUser.isPresent() && optionalPermissionUser.get().hasPermission(permission).asBoolean();
+    return this.permissionUserByName(player).map(user -> user.hasPermission(permission).asBoolean()).orElse(false);
   }
 
   @Override
   public boolean playerAdd(String world, String player, String permission) {
-    var optionalPermissionUser = this.permissionUserByName(player);
-
-    return optionalPermissionUser.map(permissionUser -> {
-      permissionUser.addPermission(permission);
-      this.permissionManagement.updateUser(permissionUser);
-
-      return true;
-    }).orElse(false);
+    return this.permissionUserByName(player)
+      .map(user -> {
+        user.addPermission(permission);
+        this.permissionManagement.updateUser(user);
+        return true;
+      }).orElse(false);
   }
 
   @Override
   public boolean playerRemove(String world, String player, String permission) {
-    var optionalPermissionUser = this.permissionUserByName(player);
-
-    return optionalPermissionUser.map(permissionUser -> {
-      var success = permissionUser.removePermission(permission);
-      this.permissionManagement.updateUser(permissionUser);
-
-      return success;
-    }).orElse(false);
+    return this.permissionUserByName(player)
+      .map(user -> {
+        if (user.removePermission(permission)) {
+          this.permissionManagement.updateUser(user);
+          return true;
+        } else {
+          return false;
+        }
+      }).orElse(false);
   }
 
   @Override
   public boolean groupHas(String world, String group, String permission) {
-    var optionalPermissionGroup = this.permissionGroupByName(group);
-
-    return optionalPermissionGroup.isPresent() && optionalPermissionGroup.get().hasPermission(permission).asBoolean();
+    return this.permissionGroupByName(group)
+      .map(permissionGroup -> permissionGroup.hasPermission(permission).asBoolean())
+      .orElse(false);
   }
 
   @Override
   public boolean groupAdd(String world, String group, String permission) {
-    var optionalPermissionGroup = this.permissionGroupByName(group);
-
-    return optionalPermissionGroup.map(permissionGroup -> {
-      permissionGroup.addPermission(permission);
-      this.permissionManagement.updateGroup(permissionGroup);
-
-      return true;
-    }).orElse(false);
+    return this.permissionGroupByName(group)
+      .map(permissionGroup -> {
+        permissionGroup.addPermission(permission);
+        this.permissionManagement.updateGroup(permissionGroup);
+        return true;
+      }).orElse(false);
   }
 
   @Override
   public boolean groupRemove(String world, String group, String permission) {
-    var optionalPermissionGroup = this.permissionGroupByName(group);
-
-    return optionalPermissionGroup.map(permissionGroup -> {
-      var success = permissionGroup.removePermission(permission);
-      this.permissionManagement.updateGroup(permissionGroup);
-
-      return success;
-    }).orElse(false);
+    return this.permissionGroupByName(group)
+      .map(permissionGroup -> {
+        if (permissionGroup.removePermission(permission)) {
+          this.permissionManagement.updateGroup(permissionGroup);
+          return true;
+        } else {
+          return false;
+        }
+      }).orElse(false);
   }
 
   @Override
   public boolean playerInGroup(String world, String player, String group) {
-    var optionalPermissionUser = this.permissionUserByName(player);
-
-    return optionalPermissionUser.isPresent() && optionalPermissionUser.get().inGroup(group);
+    return this.permissionUserByName(player).map(user -> user.inGroup(group)).orElse(false);
   }
 
   @Override
   public boolean playerAddGroup(String world, String player, String group) {
-    var optionalPermissionUser = this.permissionUserByName(player);
-
-    if (optionalPermissionUser.isPresent()) {
-      var permissionUser = optionalPermissionUser.get();
-
-      permissionUser.addGroup(group);
-      this.permissionManagement.updateUser(permissionUser);
-
-      return true;
-    }
-
-    return false;
+    return this.permissionUserByName(player)
+      .map(user -> {
+        this.permissionManagement.updateUser(user.addGroup(group));
+        return true;
+      }).orElse(false);
   }
 
   @Override
   public boolean playerRemoveGroup(String world, String player, String group) {
-    var optionalPermissionUser = this.permissionUserByName(player);
-
-    if (optionalPermissionUser.isPresent()) {
-      var permissionUser = optionalPermissionUser.get();
-
-      permissionUser.removeGroup(group);
-      this.permissionManagement.updateUser(permissionUser);
-
-      return true;
-    }
-
-    return false;
+    return this.permissionUserByName(player)
+      .map(user -> {
+        if (user.removeGroup(group)) {
+          this.permissionManagement.updateUser(user);
+          return true;
+        } else {
+          return false;
+        }
+      }).orElse(false);
   }
 
   @Override
   public String[] getPlayerGroups(String world, String player) {
-    var optionalPermissionUser = this.permissionUserByName(player);
-
-    return optionalPermissionUser.map(permissionUser ->
-        permissionUser.groups().stream().map(PermissionUserGroupInfo::group).toArray(String[]::new))
+    return this.permissionUserByName(player)
+      .map(user -> user.groupNames().toArray(String[]::new))
       .orElse(new String[0]);
   }
 
   @Override
   public String getPrimaryGroup(String world, String player) {
-    var optionalPermissionUser = this.permissionUserByName(player);
-
-    return optionalPermissionUser.map(permissionUser ->
-      this.permissionManagement.highestPermissionGroup(permissionUser).name()).orElse(null);
+    return this.permissionUserByName(player)
+      .map(this.permissionManagement::highestPermissionGroup)
+      .map(PermissionGroup::name)
+      .orElse(null);
   }
 
   @Override
@@ -182,5 +164,4 @@ public class VaultPermissionImplementation extends Permission {
   public boolean hasGroupSupport() {
     return true;
   }
-
 }

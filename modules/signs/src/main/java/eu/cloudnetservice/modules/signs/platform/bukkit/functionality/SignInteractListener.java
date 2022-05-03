@@ -16,13 +16,10 @@
 
 package eu.cloudnetservice.modules.signs.platform.bukkit.functionality;
 
-import eu.cloudnetservice.driver.registry.ServiceRegistry;
-import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
-import eu.cloudnetservice.modules.signs.platform.bukkit.event.BukkitCloudSignInteractEvent;
 import lombok.NonNull;
-import org.bukkit.Bukkit;
-import org.bukkit.block.Sign;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -30,36 +27,26 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 public class SignInteractListener implements Listener {
 
-  protected final PlatformSignManagement<Sign> signManagement;
+  protected final PlatformSignManagement<Player, Location> signManagement;
 
-  public SignInteractListener(PlatformSignManagement<org.bukkit.block.Sign> signManagement) {
+  public SignInteractListener(@NonNull PlatformSignManagement<Player, Location> signManagement) {
     this.signManagement = signManagement;
   }
 
   @EventHandler
   public void handle(PlayerInteractEvent event) {
-    var entry = this.signManagement.applicableSignConfigurationEntry();
-    if (entry != null
-      && event.getAction() == Action.RIGHT_CLICK_BLOCK
+    if (event.getAction() == Action.RIGHT_CLICK_BLOCK
       && event.getClickedBlock() != null
-      && event.getClickedBlock().getState() instanceof org.bukkit.block.Sign state) {
-      var sign = this.signManagement.signAt(state, entry.targetGroup());
+      && event.getClickedBlock().getState() instanceof org.bukkit.block.Sign) {
+      // get the sign at the given position
+      var pos = this.signManagement.convertPosition(event.getClickedBlock().getLocation());
+      var sign = this.signManagement.platformSignAt(pos);
+
+      // execute the interact action if the sign is registered
       if (sign != null) {
-        var canConnect = this.signManagement.canConnect(sign, event.getPlayer()::hasPermission);
-
-        var interactEvent = new BukkitCloudSignInteractEvent(event.getPlayer(), sign, !canConnect);
-        Bukkit.getPluginManager().callEvent(interactEvent);
-
-        if (!interactEvent.isCancelled()) {
-          interactEvent.target().ifPresent(service -> {
-            this.playerManager().playerExecutor(event.getPlayer().getUniqueId()).connect(service.name());
-          });
-        }
+        event.setCancelled(true);
+        sign.handleInteract(event.getPlayer().getUniqueId(), event.getPlayer());
       }
     }
-  }
-
-  protected @NonNull PlayerManager playerManager() {
-    return ServiceRegistry.first(PlayerManager.class);
   }
 }

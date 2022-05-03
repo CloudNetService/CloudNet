@@ -41,19 +41,17 @@ public final class BungeeCloudPermissionsPlayerListener implements Listener {
     this.permissionsManagement = permissionsManagement;
   }
 
-  @EventHandler(priority = EventPriority.LOW)
+  @EventHandler(priority = EventPriority.LOWEST)
   public void handle(@NonNull LoginEvent event) {
-    if (!event.isCancelled()) {
-      CloudPermissionsHelper.initPermissionUser(
-        this.permissionsManagement,
-        event.getConnection().getUniqueId(),
-        event.getConnection().getName(),
-        message -> {
-          event.setCancelled(true);
-          event.setCancelReason(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', message)));
-        },
-        ProxyServer.getInstance().getConfig().isOnlineMode());
-    }
+    CloudPermissionsHelper.initPermissionUser(
+      this.permissionsManagement,
+      event.getConnection().getUniqueId(),
+      event.getConnection().getName(),
+      message -> {
+        event.setCancelled(true);
+        event.setCancelReason(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', message)));
+      },
+      ProxyServer.getInstance().getConfig().isOnlineMode());
   }
 
   @EventHandler

@@ -16,8 +16,11 @@
 
 package eu.cloudnetservice.modules.cloudperms.velocity.listener;
 
+import com.velocitypowered.api.event.PostOrder;
+import com.velocitypowered.api.event.ResultedEvent.ComponentResult;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
+import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.event.permission.PermissionsSetupEvent;
 import com.velocitypowered.api.permission.PermissionProvider;
 import com.velocitypowered.api.proxy.Player;
@@ -43,19 +46,22 @@ public final class VelocityCloudPermissionsPlayerListener {
     this.permissionsManagement = permissionsManagement;
   }
 
+  @Subscribe(order = PostOrder.FIRST)
+  public void handle(@NonNull LoginEvent event) {
+    CloudPermissionsHelper.initPermissionUser(
+      this.permissionsManagement,
+      event.getPlayer().getUniqueId(),
+      event.getPlayer().getUsername(),
+      message -> {
+        var reasonComponent = LegacyComponentSerializer.legacySection().deserialize(message.replace("&", "§"));
+        event.setResult(ComponentResult.denied(reasonComponent));
+      },
+      this.proxyServer.getConfiguration().isOnlineMode());
+  }
+
   @Subscribe
   public void handle(@NonNull PermissionsSetupEvent event) {
-    if (event.getSubject() instanceof Player player) {
-      // create the permission user
-      CloudPermissionsHelper.initPermissionUser(
-        this.permissionsManagement,
-        player.getUniqueId(),
-        player.getUsername(),
-        message -> {
-          var reasonComponent = LegacyComponentSerializer.legacySection().deserialize(message.replace("&", "§"));
-          player.disconnect(reasonComponent);
-        },
-        this.proxyServer.getConfiguration().isOnlineMode());
+    if (event.getSubject() instanceof Player) {
       event.setProvider(this.permissionProvider);
     }
   }

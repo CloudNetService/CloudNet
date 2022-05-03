@@ -61,8 +61,9 @@ public final class CloudNetCloudPermissionsModule extends DriverModule {
     this.registerListener(new PluginIncludeListener(
       "cloudnet-cloudperms",
       CloudNetCloudPermissionsModule.class,
-      service -> this.permissionsConfig.enabled()
-        && Collections.disjoint(this.permissionsConfig.excludedGroups(), service.serviceConfiguration().groups())));
+      service -> this.permissionsConfig.enabled() && Collections.disjoint(
+        this.permissionsConfig.excludedGroups(),
+        service.serviceConfiguration().groups())));
   }
 
   public @NonNull CloudPermissionConfig permissionsConfig() {

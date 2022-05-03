@@ -50,7 +50,7 @@ public final class BootLogic {
   }
 
   private static void initLoggerAndConsole(@NonNull Console console, @NonNull Logger logger) {
-    var logFilePattern = Path.of("local", "logs", "cloudnet.%g.log");
+    var logFilePattern = Path.of(System.getProperty("cloudnet.log.path", "local/logs"), "cloudnet.%g.log");
     var consoleFormatter = console.hasColorSupport() ? new ColouredLogFormatter() : DefaultLogFormatter.END_CLEAN;
 
     LoggingUtil.removeHandlers(logger);

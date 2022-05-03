@@ -41,44 +41,44 @@ public final class TemplatePrepareListener {
     } else if (event.environmentType().equals(ServiceEnvironmentType.NUKKIT)) {
       // server.properties & nukkit.yml
       try (var out = event.storage().newOutputStream(event.template(), "server.properties");
-        var in = resourceStream("files/nukkit/server.properties")) {
+        var in = this.resourceStream("files/nukkit/server.properties")) {
         FileUtil.copy(in, out);
       }
 
       try (var out = event.storage().newOutputStream(event.template(), "nukkit.yml");
-        var in = resourceStream("files/nukkit/nukkit.yml")) {
+        var in = this.resourceStream("files/nukkit/nukkit.yml")) {
         FileUtil.copy(in, out);
       }
     } else if (event.environmentType().equals(ServiceEnvironmentType.MINECRAFT_SERVER)) {
       // server.properties, bukkit.yml, spigot.yml & sponge.conf
       try (var out = event.storage().newOutputStream(event.template(), "server.properties");
-        var in = resourceStream("files/nms/server.properties")) {
+        var in = this.resourceStream("files/nms/server.properties")) {
         FileUtil.copy(in, out);
       }
 
       try (var out = event.storage().newOutputStream(event.template(), "bukkit.yml");
-        var in = resourceStream("files/nms/bukkit.yml")) {
+        var in = this.resourceStream("files/nms/bukkit.yml")) {
         FileUtil.copy(in, out);
       }
 
       try (var out = event.storage().newOutputStream(event.template(), "spigot.yml");
-        var in = resourceStream("files/nms/spigot.yml")) {
+        var in = this.resourceStream("files/nms/spigot.yml")) {
         FileUtil.copy(in, out);
       }
 
       try (var out = event.storage().newOutputStream(event.template(), "config/sponge/sponge.conf");
-        var in = resourceStream("files/nms/sponge.conf")) {
+        var in = this.resourceStream("files/nms/sponge.conf")) {
         FileUtil.copy(in, out);
       }
     } else if (event.environmentType().equals(ServiceEnvironmentType.MODDED_MINECRAFT_SERVER)) {
       try (var out = event.storage().newOutputStream(event.template(), "server.properties")) {
-        var in = resourceStream("files/nms/server.properties");
+        var in = this.resourceStream("files/nms/server.properties");
         FileUtil.copy(in, out);
       }
     } else if (event.environmentType().equals(ServiceEnvironmentType.GLOWSTONE)) {
       // glowstone.yml
       try (var out = event.storage().newOutputStream(event.template(), "config/glowstone.yml");
-        var in = resourceStream("files/glowstone/glowstone.yml")) {
+        var in = this.resourceStream("files/glowstone/glowstone.yml")) {
         FileUtil.copy(in, out);
       }
     }
@@ -95,7 +95,7 @@ public final class TemplatePrepareListener {
     }
 
     try (var out = storage.newOutputStream(template, "server-icon.png");
-      var in = resourceStream("files/server-icon.png")) {
+      var in = this.resourceStream("files/server-icon.png")) {
       FileUtil.copy(in, out);
     }
   }

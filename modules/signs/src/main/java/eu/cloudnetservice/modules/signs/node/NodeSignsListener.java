@@ -29,7 +29,6 @@ import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.node.util.SignEntryTaskSetup;
-import eu.cloudnetservice.modules.signs.platform.AbstractPlatformSignManagement;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
 import eu.cloudnetservice.node.event.setup.SetupCompleteEvent;
 import eu.cloudnetservice.node.event.setup.SetupInitiateEvent;
@@ -70,32 +69,32 @@ public class NodeSignsListener {
     if (event.channel().equals(AbstractSignManagement.SIGN_CHANNEL_NAME)) {
       switch (event.message()) {
         // config request
-        case AbstractPlatformSignManagement.REQUEST_CONFIG -> event.binaryResponse(
+        case PlatformSignManagement.REQUEST_CONFIG -> event.binaryResponse(
           DataBuf.empty().writeObject(this.signManagement.signsConfiguration()));
 
         // delete all signs
-        case AbstractPlatformSignManagement.SIGN_ALL_DELETE -> {
+        case PlatformSignManagement.SIGN_ALL_DELETE -> {
           Collection<WorldPosition> positions = event.content().readObject(WorldPosition.COL_TYPE);
           for (var position : positions) {
             this.signManagement.deleteSign(position);
           }
         }
         // create a new sign
-        case AbstractPlatformSignManagement.SIGN_CREATE -> this.signManagement.createSign(
+        case PlatformSignManagement.SIGN_CREATE -> this.signManagement.createSign(
           event.content().readObject(Sign.class));
 
         // delete an existing sign
-        case AbstractPlatformSignManagement.SIGN_DELETE -> this.signManagement.deleteSign(
+        case PlatformSignManagement.SIGN_DELETE -> this.signManagement.deleteSign(
           event.content().readObject(WorldPosition.class));
 
         // delete all signs
-        case AbstractPlatformSignManagement.SIGN_BULK_DELETE -> {
+        case PlatformSignManagement.SIGN_BULK_DELETE -> {
           var deleted = this.signManagement
             .deleteAllSigns(event.content().readString(), event.content().readNullable(DataBuf::readString));
           event.binaryResponse(DataBuf.empty().writeInt(deleted));
         }
         // set the sign config
-        case AbstractPlatformSignManagement.SET_SIGN_CONFIG -> this.signManagement.signsConfiguration(
+        case PlatformSignManagement.SET_SIGN_CONFIG -> this.signManagement.signsConfiguration(
           event.content().readObject(SignsConfiguration.class));
 
         // get all signs of a group

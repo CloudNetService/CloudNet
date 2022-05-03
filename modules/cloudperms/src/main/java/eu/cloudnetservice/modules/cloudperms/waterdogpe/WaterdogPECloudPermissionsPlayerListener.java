@@ -24,25 +24,26 @@ import dev.waterdog.waterdogpe.event.defaults.PlayerPermissionCheckEvent;
 import eu.cloudnetservice.driver.permission.Permission;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.modules.cloudperms.CloudPermissionsHelper;
+import lombok.NonNull;
 
 final class WaterdogPECloudPermissionsPlayerListener {
 
-  public WaterdogPECloudPermissionsPlayerListener(PermissionManagement permissionManagement) {
+  public WaterdogPECloudPermissionsPlayerListener(@NonNull PermissionManagement permissionManagement) {
     var eventManager = ProxyServer.getInstance().getEventManager();
 
-    eventManager.subscribe(PlayerLoginEvent.class, event -> {
-      if (!event.isCancelled()) {
-        CloudPermissionsHelper.initPermissionUser(
-          permissionManagement,
-          event.getPlayer().getUniqueId(),
-          event.getPlayer().getName(),
-          message -> {
-            event.setCancelled(true);
-            event.setCancelReason(message.replace('&', '§'));
-          }
-        );
-      }
-    }, EventPriority.LOW);
+    eventManager.subscribe(
+      PlayerLoginEvent.class,
+      event -> CloudPermissionsHelper.initPermissionUser(
+        permissionManagement,
+        event.getPlayer().getUniqueId(),
+        event.getPlayer().getName(),
+        message -> {
+          event.setCancelled(true);
+          event.setCancelReason(message.replace('&', '§'));
+        },
+        ProxyServer.getInstance().getConfiguration().isOnlineMode()
+      ),
+      EventPriority.LOW);
 
     eventManager.subscribe(PlayerPermissionCheckEvent.class, event -> {
       var permissionUser = permissionManagement.user(event.getPlayer().getUniqueId());
@@ -52,7 +53,8 @@ final class WaterdogPECloudPermissionsPlayerListener {
       }
     });
 
-    eventManager.subscribe(PlayerDisconnectEvent.class,
+    eventManager.subscribe(
+      PlayerDisconnectEvent.class,
       event -> CloudPermissionsHelper.handlePlayerQuit(permissionManagement, event.getPlayer().getUniqueId()));
   }
 }

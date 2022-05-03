@@ -21,24 +21,20 @@ import eu.cloudnetservice.modules.cloudperms.PermissionsUpdateListener;
 import eu.cloudnetservice.modules.cloudperms.bukkit.listener.BukkitCloudPermissionsPlayerListener;
 import eu.cloudnetservice.modules.cloudperms.bukkit.vault.VaultSupport;
 import eu.cloudnetservice.wrapper.Wrapper;
-import java.util.logging.Level;
-import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.ApiStatus.Internal;
 
 public final class BukkitCloudPermissionsPlugin extends JavaPlugin {
 
   @Override
   public void onEnable() {
     this.checkForVault();
-    Bukkit.getOnlinePlayers().forEach(this::injectCloudPermissible);
+    Bukkit.getOnlinePlayers().forEach(BukkitPermissionHelper::injectPlayer);
 
-    this.getServer().getPluginManager().registerEvents(new BukkitCloudPermissionsPlayerListener(
-      this,
-      CloudNetDriver.instance().permissionManagement()
-    ), this);
+    this.getServer().getPluginManager().registerEvents(
+      new BukkitCloudPermissionsPlayerListener(CloudNetDriver.instance().permissionManagement()),
+      this);
 
     // register the update listener if the server can update the command tree to the player
     if (BukkitPermissionHelper.canUpdateCommandTree()) {
@@ -55,15 +51,6 @@ public final class BukkitCloudPermissionsPlugin extends JavaPlugin {
   public void onDisable() {
     CloudNetDriver.instance().eventManager().unregisterListeners(this.getClass().getClassLoader());
     Wrapper.instance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
-  }
-
-  @Internal
-  public void injectCloudPermissible(@NonNull Player player) {
-    try {
-      BukkitPermissionHelper.injectPlayer(player);
-    } catch (Throwable exception) {
-      this.getLogger().log(Level.SEVERE, "Exception while injecting cloud permissible", exception);
-    }
   }
 
   private void checkForVault() {

@@ -62,8 +62,7 @@ public class SignCommand {
     @NonNull Queue<String> input
   ) {
     var name = input.remove();
-    var configuration = Node.instance().groupConfigurationProvider()
-      .groupConfiguration(name);
+    var configuration = Node.instance().groupConfigurationProvider().groupConfiguration(name);
     if (configuration == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-general-group-does-not-exist"));
     }
@@ -73,6 +72,7 @@ public class SignCommand {
       .anyMatch(entry -> entry.targetGroup().equalsIgnoreCase(name))) {
       throw new ArgumentNotAvailableException(I18n.trans("module-sign-command-create-entry-group-already-exists"));
     }
+
     return name;
   }
 
@@ -81,7 +81,9 @@ public class SignCommand {
     @NonNull CommandContext<CommandSource> $,
     @NonNull String input
   ) {
-    return this.signManagement.signsConfiguration().entries().stream().map(SignConfigurationEntry::targetGroup)
+    return this.signManagement.signsConfiguration().entries()
+      .stream()
+      .map(SignConfigurationEntry::targetGroup)
       .toList();
   }
 
@@ -104,5 +106,4 @@ public class SignCommand {
       .build());
     source.sendMessage(I18n.trans("module-sign-command-create-entry-success"));
   }
-
 }
