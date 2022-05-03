@@ -18,127 +18,35 @@ package eu.cloudnetservice.modules.signs.platform.nukkit;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
-import cn.nukkit.block.Block;
-import cn.nukkit.block.BlockWallSign;
-import cn.nukkit.blockentity.BlockEntitySign;
 import cn.nukkit.level.Location;
-import cn.nukkit.math.BlockFace;
 import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.plugin.Plugin;
-import cn.nukkit.utils.Faceable;
-import cn.nukkit.utils.TextFormat;
-import com.google.common.primitives.Ints;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.signs.Sign;
-import eu.cloudnetservice.modules.signs.configuration.SignLayout;
-import eu.cloudnetservice.modules.signs.platform.AbstractPlatformSignManagement;
+import eu.cloudnetservice.modules.signs.platform.PlatformSign;
+import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
 import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEntitySign> {
+public class NukkitSignManagement extends PlatformSignManagement<Player, Location> {
 
   protected final Plugin plugin;
 
-  public NukkitSignManagement(Plugin plugin) {
+  protected NukkitSignManagement(@NonNull Plugin plugin) {
+    super(runnable -> {
+      if (Server.getInstance().isPrimaryThread()) {
+        runnable.run();
+      } else {
+        Server.getInstance().getScheduler().scheduleTask(plugin, runnable);
+      }
+    });
     this.plugin = plugin;
   }
 
   @Override
-  protected void pushUpdates(@NonNull Sign[] signs, @NonNull SignLayout layout) {
-    if (Server.getInstance().isPrimaryThread()) {
-      this.pushUpdates0(signs, layout);
-    } else if (this.plugin.isEnabled()) {
-      Server.getInstance().getScheduler().scheduleTask(this.plugin, () -> this.pushUpdates0(signs, layout));
-    }
-  }
-
-  protected void pushUpdates0(@NonNull Sign[] signs, @NonNull SignLayout layout) {
-    for (var sign : signs) {
-      this.pushUpdate(sign, layout);
-    }
-  }
-
-  @Override
-  protected void pushUpdate(@NonNull Sign sign, @NonNull SignLayout layout) {
-    if (Server.getInstance().isPrimaryThread()) {
-      this.pushUpdate0(sign, layout);
-    } else if (this.plugin.isEnabled()) {
-      Server.getInstance().getScheduler().scheduleTask(this.plugin, () -> this.pushUpdate0(sign, layout));
-    }
-  }
-
-  protected void pushUpdate0(@NonNull Sign sign, @NonNull SignLayout layout) {
-    var location = this.locationFromWorldPosition(sign.location());
-    if (location != null && location.getLevel().isChunkLoaded(location.getChunkX(), location.getChunkZ())) {
-      // change the content and back block of the sign at the location if it is a sign
-      var blockEntity = location.getLevel().getBlockEntity(location);
-      if (blockEntity instanceof BlockEntitySign entitySign) {
-        var lines = this.replaceLines(sign, layout);
-        if (lines != null) {
-          lines.replaceAll(s -> TextFormat.colorize('&', s));
-          entitySign.setText(lines.toArray(new String[4]));
-          this.changeBlock(entitySign.getBlock(), layout);
-        }
-      }
-    }
-  }
-
-  protected void changeBlock(@NonNull Block block, @NonNull SignLayout layout) {
-    var itemId = Ints.tryParse(layout.blockMaterial());
-    if (itemId != null && block instanceof Faceable) {
-      var face =
-        block instanceof BlockWallSign ? ((Faceable) block).getBlockFace().getOpposite() : BlockFace.DOWN;
-
-      var backLocation = block.getSide(face).getLocation();
-      backLocation.getLevel()
-        .setBlock(backLocation, Block.get((int) itemId, Math.max(0, layout.blockSubId())), true, true);
-    }
-  }
-
-  @Override
-  public @Nullable Sign signAt(@NonNull BlockEntitySign blockEntitySign, @NonNull String group) {
-    return this.signAt(this.locationToWorldPosition(blockEntitySign.getLocation(), group));
-  }
-
-  @Override
-  public @Nullable Sign createSign(@NonNull BlockEntitySign blockEntitySign, @NonNull String group) {
-    return this.createSign(blockEntitySign, group, null);
-  }
-
-  @Override
-  public @Nullable Sign createSign(
-    @NonNull BlockEntitySign blockEntitySign,
-    @NonNull String group,
-    @Nullable String templatePath
-  ) {
-    var entry = this.applicableSignConfigurationEntry();
-    if (entry != null) {
-      var sign = new Sign(
-        group,
-        templatePath,
-        this.locationToWorldPosition(blockEntitySign.getLocation(), entry.targetGroup()));
-      this.createSign(sign);
-      return sign;
-    }
-    return null;
-  }
-
-  @Override
-  public void deleteSign(@NonNull BlockEntitySign blockEntitySign, @NonNull String group) {
-    this.deleteSign(this.locationToWorldPosition(blockEntitySign.getLocation(), group));
-  }
-
-  @Override
-  public int removeMissingSigns() {
-    var removed = 0;
-    for (var position : this.signs.keySet()) {
-      var location = this.locationFromWorldPosition(position);
-      if (location == null || !(location.getLevel().getBlockEntity(location) instanceof BlockEntitySign)) {
-        this.deleteSign(position);
-        removed++;
-      }
-    }
-    return removed;
+  protected int tps() {
+    return 20;
   }
 
   @Override
@@ -148,22 +56,22 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
       if (entry != null) {
         var conf = entry.knockbackConfiguration();
         if (conf.validAndEnabled()) {
-          for (var value : this.signs.values()) {
-            var location = this.locationFromWorldPosition(value.location());
-            if (location != null
-              && location.getLevel().isChunkLoaded(location.getChunkX(), location.getChunkZ())
-              && location.getLevel().getBlockEntity(location) instanceof BlockEntitySign) {
-              var distance = conf.distance();
-              var bb = new SimpleAxisAlignedBB(location, location).expand(distance, distance, distance);
-
-              for (var entity : location.getLevel().getNearbyEntities(bb)) {
-                if (entity instanceof Player player
-                  && (conf.bypassPermission() == null || !player.hasPermission(conf.bypassPermission()))) {
-                  entity.setMotion(entity.getPosition()
-                    .subtract(location)
-                    .normalize()
-                    .multiply(conf.strength())
-                    .setY(0.2));
+          var distance = conf.distance();
+          // find all signs which need to knock back the player
+          for (var sign : this.platformSigns.values()) {
+            if (sign.needsUpdates() && sign.exists() && sign instanceof NukkitPlatformSign nukkitSign) {
+              var location = nukkitSign.signLocation();
+              if (location != null) {
+                var bb = new SimpleAxisAlignedBB(location, location).expand(distance, distance, distance);
+                for (var entity : location.getLevel().getNearbyEntities(bb)) {
+                  if (entity instanceof Player player
+                    && (conf.bypassPermission() == null || !player.hasPermission(conf.bypassPermission()))) {
+                    entity.setMotion(entity.getPosition()
+                      .subtract(location)
+                      .normalize()
+                      .multiply(conf.strength())
+                      .setY(0.2));
+                  }
                 }
               }
             }
@@ -173,7 +81,13 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
     }, 0, 5);
   }
 
-  protected @NonNull WorldPosition locationToWorldPosition(@NonNull Location location, @NonNull String group) {
+  @Override
+  public @Nullable WorldPosition convertPosition(@NotNull Location location) {
+    var entry = this.applicableSignConfigurationEntry();
+    if (entry == null) {
+      return null;
+    }
+
     return new WorldPosition(
       location.getX(),
       location.getY(),
@@ -181,11 +95,11 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
       0,
       0,
       location.getLevel().getName(),
-      group);
+      entry.targetGroup());
   }
 
-  protected @Nullable Location locationFromWorldPosition(@NonNull WorldPosition position) {
-    var level = Server.getInstance().getLevelByName(position.world());
-    return level == null ? null : new Location(position.x(), position.y(), position.z(), level);
+  @Override
+  protected @NonNull PlatformSign<Player> createPlatformSign(@NonNull Sign base) {
+    return new NukkitPlatformSign(base);
   }
 }

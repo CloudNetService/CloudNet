@@ -16,51 +16,38 @@
 
 package eu.cloudnetservice.modules.signs.platform.nukkit.functionality;
 
-import cn.nukkit.Server;
+import cn.nukkit.Player;
 import cn.nukkit.blockentity.BlockEntitySign;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.player.PlayerInteractEvent;
-import eu.cloudnetservice.driver.registry.ServiceRegistry;
-import eu.cloudnetservice.modules.bridge.player.PlayerManager;
+import cn.nukkit.level.Location;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
-import eu.cloudnetservice.modules.signs.platform.nukkit.event.NukkitCloudSignInteractEvent;
 import lombok.NonNull;
 
 public class SignInteractListener implements Listener {
 
-  protected final PlatformSignManagement<BlockEntitySign> signManagement;
+  protected final PlatformSignManagement<Player, Location> signManagement;
 
-  public SignInteractListener(PlatformSignManagement<BlockEntitySign> signManagement) {
+  public SignInteractListener(@NonNull PlatformSignManagement<Player, Location> signManagement) {
     this.signManagement = signManagement;
   }
 
   @EventHandler
   public void handle(PlayerInteractEvent event) {
-    var entry = this.signManagement.applicableSignConfigurationEntry();
-    if (entry != null
-      && event.getAction() == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK
-      && event.getBlock() != null) {
+    if (event.getAction() == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK && event.getBlock() != null) {
       var blockEntity = event.getBlock().getLevel().getBlockEntity(event.getBlock().getLocation());
-      if (blockEntity instanceof BlockEntitySign entitySign) {
-        var sign = this.signManagement.signAt(entitySign, entry.targetGroup());
+      if (blockEntity instanceof BlockEntitySign) {
+        // get the sign at the given position
+        var pos = this.signManagement.convertPosition(event.getBlock().getLocation());
+        var sign = this.signManagement.platformSignAt(pos);
+
+        // execute the interact action if the sign is registered
         if (sign != null) {
-          var canConnect = this.signManagement.canConnect(sign, event.getPlayer()::hasPermission);
-
-          var interactEvent = new NukkitCloudSignInteractEvent(event.getPlayer(), sign, !canConnect);
-          Server.getInstance().getPluginManager().callEvent(interactEvent);
-
-          if (!interactEvent.isCancelled()) {
-            interactEvent.target().ifPresent(service -> {
-              this.playerManager().playerExecutor(event.getPlayer().getUniqueId()).connect(service.name());
-            });
-          }
+          event.setCancelled(true);
+          sign.handleInteract(event.getPlayer().getUniqueId(), event.getPlayer());
         }
       }
     }
-  }
-
-  protected @NonNull PlayerManager playerManager() {
-    return ServiceRegistry.first(PlayerManager.class);
   }
 }

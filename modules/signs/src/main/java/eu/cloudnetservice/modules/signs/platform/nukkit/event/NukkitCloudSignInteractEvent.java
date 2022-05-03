@@ -21,33 +21,36 @@ import cn.nukkit.event.Cancellable;
 import cn.nukkit.event.HandlerList;
 import cn.nukkit.event.player.PlayerEvent;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
-import eu.cloudnetservice.modules.signs.Sign;
-import java.util.Optional;
+import eu.cloudnetservice.modules.signs.platform.PlatformSign;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 public class NukkitCloudSignInteractEvent extends PlayerEvent implements Cancellable {
 
   private static final HandlerList HANDLER_LIST = new HandlerList();
 
-  protected final Sign sign;
+  protected final PlatformSign<Player> sign;
   protected ServiceInfoSnapshot target;
 
-  public NukkitCloudSignInteractEvent(@NonNull Player who, @NonNull Sign sign, boolean cancelled) {
+  public NukkitCloudSignInteractEvent(@NonNull Player who, @NonNull PlatformSign<Player> sign) {
     this.player = who;
     this.sign = sign;
     this.target = sign.currentTarget();
-    this.setCancelled(cancelled);
   }
 
   public static HandlerList getHandlers() {
     return HANDLER_LIST;
   }
 
-  public Sign sign() {
+  public @NonNull PlatformSign<Player> sign() {
     return this.sign;
   }
 
-  public Optional<ServiceInfoSnapshot> target() {
-    return Optional.ofNullable(this.target);
+  public @Nullable ServiceInfoSnapshot target() {
+    return this.target;
+  }
+
+  public void target(@Nullable ServiceInfoSnapshot target) {
+    this.target = target;
   }
 }

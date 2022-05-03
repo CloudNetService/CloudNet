@@ -16,30 +16,24 @@
 
 package eu.cloudnetservice.modules.signs.platform.sponge.functionality;
 
-import eu.cloudnetservice.driver.registry.ServiceRegistry;
-import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
-import eu.cloudnetservice.modules.signs.platform.sponge.event.SpongeCloudSignInteractEvent;
 import lombok.NonNull;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.entity.Sign;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
-import org.spongepowered.api.event.Cause;
-import org.spongepowered.api.event.EventContext;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.filter.cause.First;
-import org.spongepowered.api.registry.RegistryTypes;
+import org.spongepowered.api.world.server.ServerLocation;
 import org.spongepowered.plugin.PluginContainer;
 
 public class SignInteractListener {
 
   protected final PluginContainer plugin;
-  protected final PlatformSignManagement<Sign> signManagement;
+  protected final PlatformSignManagement<ServerPlayer, ServerLocation> signManagement;
 
   public SignInteractListener(
     @NonNull PluginContainer plugin,
-    @NonNull PlatformSignManagement<org.spongepowered.api.block.entity.Sign> signManagement
+    @NonNull PlatformSignManagement<ServerPlayer, ServerLocation> signManagement
   ) {
     this.plugin = plugin;
     this.signManagement = signManagement;
@@ -47,36 +41,20 @@ public class SignInteractListener {
 
   @Listener
   public void handle(@NonNull InteractBlockEvent.Secondary event, @First ServerPlayer player) {
-    // easy hack to allow all sign types like acacia_sign, birch_wall_sign etc.
-    var entry = this.signManagement.applicableSignConfigurationEntry();
-    var key = event.block().state().type().findKey(RegistryTypes.BLOCK_TYPE).orElse(null);
-    if (entry != null && key != null && key.formatted().endsWith("_sign")) {
-      if (event.block().location().isPresent()
-        && event.block().location().get().blockEntity().isPresent()
-        && event.block().location().get().blockEntity().get() instanceof org.spongepowered.api.block.entity.Sign) {
-        // get the cloud sign at the position
-        var sign = this.signManagement.signAt(
-          (org.spongepowered.api.block.entity.Sign) event.block().location().get().blockEntity().get(),
-          entry.targetGroup());
+    event.block().location().ifPresent(location -> {
+      // check if a sign is at the given position
+      var blockEntity = location.blockEntity().orElse(null);
+      if (blockEntity instanceof Sign) {
+        // get the registered sign at the given position
+        var position = this.signManagement.convertPosition(location);
+        var sign = this.signManagement.platformSignAt(position);
+
+        // execute the interact action if the sign is present
         if (sign != null) {
-          var canConnect = this.signManagement.canConnect(sign, player::hasPermission);
-
-          var interactEvent = new SpongeCloudSignInteractEvent(
-            Cause.of(EventContext.builder().from(event.context()).build(), this.plugin),
-            player, sign, !canConnect);
-          Sponge.eventManager().post(interactEvent);
-
-          if (!interactEvent.isCancelled()) {
-            interactEvent.target().ifPresent(service -> {
-              this.playerManager().playerExecutor(player.uniqueId()).connect(service.name());
-            });
-          }
+          event.setCancelled(true);
+          sign.handleInteract(player.uniqueId(), player);
         }
       }
-    }
-  }
-
-  protected @NonNull PlayerManager playerManager() {
-    return ServiceRegistry.first(PlayerManager.class);
+    });
   }
 }

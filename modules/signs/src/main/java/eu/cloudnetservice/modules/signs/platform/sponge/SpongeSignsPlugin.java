@@ -19,9 +19,9 @@ package eu.cloudnetservice.modules.signs.platform.sponge;
 import com.google.inject.Inject;
 import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
-import eu.cloudnetservice.modules.signs.GlobalChannelMessageListener;
+import eu.cloudnetservice.modules.signs.SharedChannelMessageListener;
 import eu.cloudnetservice.modules.signs.SignManagement;
-import eu.cloudnetservice.modules.signs.platform.AbstractPlatformSignManagement;
+import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
 import eu.cloudnetservice.modules.signs.platform.SignsPlatformListener;
 import eu.cloudnetservice.modules.signs.platform.sponge.functionality.SignInteractListener;
 import eu.cloudnetservice.modules.signs.platform.sponge.functionality.SignsCommand;
@@ -29,13 +29,14 @@ import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.block.entity.Sign;
 import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.parameter.Parameter;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
 import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
 import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
+import org.spongepowered.api.world.server.ServerLocation;
 import org.spongepowered.plugin.PluginContainer;
 import org.spongepowered.plugin.builtin.jvm.Plugin;
 
@@ -43,7 +44,7 @@ import org.spongepowered.plugin.builtin.jvm.Plugin;
 public class SpongeSignsPlugin {
 
   private final PluginContainer plugin;
-  private AbstractPlatformSignManagement<Sign> signManagement;
+  private PlatformSignManagement<ServerPlayer, ServerLocation> signManagement;
 
   @Inject
   public SpongeSignsPlugin(@NonNull PluginContainer plugin) {
@@ -51,15 +52,15 @@ public class SpongeSignsPlugin {
   }
 
   @Listener
-  public void handleStart(@NonNull ConstructPluginEvent event) {
-    this.signManagement = new SpongeSignManagement(this.plugin);
+  public void handleStart(@NonNull StartedEngineEvent<Server> event) {
+    this.signManagement = SpongeSignManagement.newInstance(this.plugin);
     this.signManagement.initialize();
     this.signManagement.registerToServiceRegistry();
     // sponge events
     Sponge.eventManager().registerListeners(this.plugin, new SignInteractListener(this.plugin, this.signManagement));
     // cloudnet events
     CloudNetDriver.instance().eventManager().registerListeners(
-      new GlobalChannelMessageListener(this.signManagement),
+      new SharedChannelMessageListener(this.signManagement),
       new SignsPlatformListener(this.signManagement));
   }
 
@@ -81,7 +82,7 @@ public class SpongeSignsPlugin {
           Parameter.string().key(SignsCommand.TARGET_GROUP).optional().build(),
           Parameter.string().key(SignsCommand.TARGET_TEMPLATE).optional().build()
         )
-        .executor(new SignsCommand(this.signManagement))
+        .executor(new SignsCommand(() -> this.signManagement))
         .build(),
       "cloudsigns",
       "cs", "signs", "cloudsign");

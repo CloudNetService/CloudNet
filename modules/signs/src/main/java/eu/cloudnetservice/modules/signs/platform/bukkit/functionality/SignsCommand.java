@@ -26,21 +26,22 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 import lombok.NonNull;
+import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class SignsCommand extends BaseTabExecutor {
 
-  protected final PlatformSignManagement<Sign> signManagement;
+  protected final PlatformSignManagement<?, Location> signManagement;
 
-  public SignsCommand(PlatformSignManagement<org.bukkit.block.Sign> signManagement) {
+  public SignsCommand(@NonNull PlatformSignManagement<?, Location> signManagement) {
     this.signManagement = signManagement;
   }
 
   @Override
+  @SuppressWarnings("DuplicatedCode") // nukkit is too similar
   public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
     if (!(sender instanceof Player player)) {
       sender.sendMessage("Only players may execute this command");
@@ -49,7 +50,6 @@ public class SignsCommand extends BaseTabExecutor {
 
     var entry = this.signManagement.applicableSignConfigurationEntry();
     if (entry == null) {
-      this.signManagement.signsConfiguration();
       SignsConfiguration.sendMessage("command-cloudsign-no-entry", sender::sendMessage);
       return true;
     }
@@ -57,27 +57,26 @@ public class SignsCommand extends BaseTabExecutor {
     if ((args.length == 2 || args.length == 3) && args[0].equalsIgnoreCase("create")) {
       var targetBlock = player.getTargetBlock((Set<Material>) null, 15);
       // check if the block the player is facing is a sign
-      if (targetBlock.getState() instanceof org.bukkit.block.Sign state) {
+      if (targetBlock.getState() instanceof org.bukkit.block.Sign) {
         // validate that the sign isn't existing already
-        var sign = this.signManagement.signAt(state, entry.targetGroup());
+        var loc = this.signManagement.convertPosition(targetBlock.getLocation());
+        var sign = this.signManagement.platformSignAt(loc);
         if (sign != null) {
           SignsConfiguration.sendMessage(
             "command-cloudsign-sign-already-exist",
-            player::sendMessage, m -> m.replace("%group%", sign.targetGroup()));
+            player::sendMessage, m -> m.replace("%group%", sign.base().targetGroup()));
           return true;
         }
 
         // create the sign
-        var createdSign = this.signManagement.createSign(
-          (org.bukkit.block.Sign) targetBlock.getState(),
+        //noinspection ConstantConditions
+        this.signManagement.createSign(new eu.cloudnetservice.modules.signs.Sign(
           args[1],
-          args.length == 3 ? args[2] : null);
-        if (createdSign != null) {
-          // success
-          SignsConfiguration.sendMessage(
-            "command-cloudsign-create-success",
-            player::sendMessage, m -> m.replace("%group%", createdSign.targetGroup()));
-        }
+          args.length == 3 ? args[2] : null,
+          loc));
+        SignsConfiguration.sendMessage(
+          "command-cloudsign-create-success",
+          player::sendMessage, m -> m.replace("%group%", args[1]));
       } else {
         SignsConfiguration.sendMessage("command-cloudsign-not-looking-at-sign", player::sendMessage);
       }
@@ -102,16 +101,17 @@ public class SignsCommand extends BaseTabExecutor {
     } else if (args.length == 1 && args[0].equalsIgnoreCase("remove")) {
       // check if the player is facing a sign
       var targetBlock = player.getTargetBlock((Set<Material>) null, 15);
-      if (targetBlock.getState() instanceof org.bukkit.block.Sign state) {
+      if (targetBlock.getState() instanceof org.bukkit.block.Sign) {
         // check if the sign exists
-        var sign = this.signManagement.signAt(state, entry.targetGroup());
+        var loc = this.signManagement.convertPosition(targetBlock.getLocation());
+        var sign = this.signManagement.platformSignAt(loc);
         if (sign == null) {
           SignsConfiguration.sendMessage(
             "command-cloudsign-remove-not-existing",
             player::sendMessage);
         } else {
           // remove the sign
-          this.signManagement.deleteSign(sign);
+          this.signManagement.deleteSign(sign.base());
           SignsConfiguration.sendMessage(
             "command-cloudsign-remove-success",
             player::sendMessage);
@@ -122,6 +122,7 @@ public class SignsCommand extends BaseTabExecutor {
 
       return true;
     }
+
     // unknown command
     sender.sendMessage("§7/cloudsigns create <targetGroup> [templatePath]");
     sender.sendMessage("§7/cloudsigns remove");
