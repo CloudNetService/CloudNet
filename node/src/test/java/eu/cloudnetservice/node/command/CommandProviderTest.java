@@ -40,13 +40,15 @@ import org.mockito.internal.util.collections.Iterables;
 
 public final class CommandProviderTest {
 
-  private static final CommandProvider COMMAND_PROVIDER = new DefaultCommandProvider(Mockito.mock(Console.class));
+  private static CommandProvider COMMAND_PROVIDER;
 
   @BeforeAll
   public static void initNode() {
     var node = NodeTestUtility.mockAndSetDriverInstance();
-    Mockito.when(node.commandProvider()).thenReturn(COMMAND_PROVIDER);
     Mockito.when(node.eventManager()).thenReturn(new DefaultEventManager());
+    COMMAND_PROVIDER = new DefaultCommandProvider(Mockito.mock(Console.class));
+    Mockito.when(node.commandProvider()).thenReturn(COMMAND_PROVIDER);
+    // register two test commands
     COMMAND_PROVIDER.register(new TestCommand());
     COMMAND_PROVIDER.register(new HelpTestCommand());
   }

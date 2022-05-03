@@ -26,7 +26,7 @@ import cloud.commandframework.exceptions.NoSuchCommandException;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.command.CommandInfo;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.event.command.CommandInvalidSyntaxEvent;
@@ -48,9 +48,11 @@ public class CommandExceptionHandler {
   protected static final Logger LOGGER = LogManager.logger(CommandExceptionHandler.class);
 
   private final CommandProvider commandProvider;
+  private final EventManager eventManager;
 
-  public CommandExceptionHandler(@NonNull CommandProvider commandProvider) {
+  public CommandExceptionHandler(@NonNull CommandProvider commandProvider, @NonNull EventManager eventManager) {
     this.commandProvider = commandProvider;
+    this.eventManager = eventManager;
   }
 
   /**
@@ -75,15 +77,18 @@ public class CommandExceptionHandler {
     if (cause instanceof CommandException) {
       if (cause instanceof InvalidSyntaxException invalidSyntaxException) {
         // call the event to allow an own response
-        var event = Node.instance().eventManager().callEvent(
-          new CommandInvalidSyntaxEvent(source, invalidSyntaxException.getCorrectSyntax(),
-            this.collectCommandHelp(invalidSyntaxException.getCurrentChain())));
+        var event = this.eventManager.callEvent(new CommandInvalidSyntaxEvent(
+          source,
+          invalidSyntaxException.getCorrectSyntax(),
+          this.collectCommandHelp(invalidSyntaxException.getCurrentChain())));
         // send the response of the event
         source.sendMessage(event.response());
       } else if (cause instanceof NoSuchCommandException noSuchCommandException) {
         // call the command not found event for own responses
-        var event = Node.instance().eventManager().callEvent(
-          new CommandNotFoundEvent(source, noSuchCommandException.getSuppliedCommand(), cause.getMessage()));
+        var event = this.eventManager.callEvent(new CommandNotFoundEvent(
+          source,
+          noSuchCommandException.getSuppliedCommand(),
+          cause.getMessage()));
         // send the response of the event
         source.sendMessage(event.response());
       } else {
@@ -119,9 +124,7 @@ public class CommandExceptionHandler {
    * @return a list containing the response for the source.
    * @throws NullPointerException if the current chain is null.
    */
-  protected @NonNull List<String> collectCommandHelp(
-    @NonNull List<CommandArgument<?, ?>> currentChain
-  ) {
+  protected @NonNull List<String> collectCommandHelp(@NonNull List<CommandArgument<?, ?>> currentChain) {
     if (currentChain.isEmpty()) {
       // the command chain is empty, let the user handle the response
       return List.of();
