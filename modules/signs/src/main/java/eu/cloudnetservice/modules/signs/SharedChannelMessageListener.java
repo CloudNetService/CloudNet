@@ -27,7 +27,7 @@ public final class SharedChannelMessageListener {
 
   private final SignManagement signManagement;
 
-  public SharedChannelMessageListener(SignManagement signManagement) {
+  public SharedChannelMessageListener(@NonNull SignManagement signManagement) {
     this.signManagement = signManagement;
   }
 
