@@ -23,7 +23,7 @@ import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
-import org.jetbrains.annotations.UnknownNullability;
+import org.jetbrains.annotations.Nullable;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
@@ -35,6 +35,16 @@ public class CloudOfflinePlayer extends JsonDocPropertyHolder implements Cloneab
   protected long lastLoginTimeMillis;
   protected NetworkPlayerProxyInfo lastNetworkPlayerProxyInfo;
 
+  /**
+   * Constructs a new cloud offline player.
+   *
+   * @param name                 the name of the cloud player
+   * @param firstLoginTimeMillis the time-stamp the player connected the first time.
+   * @param lastLoginTimeMillis  the time-stamp the player connected the last time.
+   * @param proxyInfo            the player proxy info given information about the last connection to the proxy.
+   * @param properties           properties belonging to the player.
+   * @throws NullPointerException if the given name, proxy info or properties is null.
+   */
   public CloudOfflinePlayer(
     @NonNull String name,
     long firstLoginTimeMillis,
@@ -49,6 +59,13 @@ public class CloudOfflinePlayer extends JsonDocPropertyHolder implements Cloneab
     this.lastNetworkPlayerProxyInfo = proxyInfo;
   }
 
+  /**
+   * Creates an offline copy from the given cloud online player.
+   *
+   * @param onlineVariant the online player to create a copy from.
+   * @return the new offline player copy.
+   * @throws NullPointerException if the given online player is null.
+   */
   public static @NonNull CloudOfflinePlayer offlineCopy(@NonNull CloudPlayer onlineVariant) {
     return new CloudOfflinePlayer(
       onlineVariant.name(),
@@ -58,31 +75,67 @@ public class CloudOfflinePlayer extends JsonDocPropertyHolder implements Cloneab
       onlineVariant.properties().clone());
   }
 
+  /**
+   * Gets the unique id of this cloud player from the last proxy info.
+   *
+   * @return the unique id of the player.
+   */
   public @NonNull UUID uniqueId() {
     return this.lastNetworkPlayerProxyInfo.uniqueId();
   }
 
+  /**
+   * Gets the name of this cloud player.
+   *
+   * @return the name of the player.
+   */
   @Override
   public @NonNull String name() {
     return this.name;
   }
 
-  public @UnknownNullability String xBoxId() {
+  /**
+   * Gets the xbox id of the player, null if the player does not have a xbox id.
+   *
+   * @return the xbox id of the player, null no xbox id was found.
+   */
+  public @Nullable String xBoxId() {
     return this.lastNetworkPlayerProxyInfo.xBoxId();
   }
 
+  /**
+   * Gets the time-stamp when the player connected for the first time.
+   *
+   * @return the time-stamp for the fist connection.
+   */
   public long firstLoginTimeMillis() {
     return this.firstLoginTimeMillis;
   }
 
+  /**
+   * Gets the time-stamp when the player connected for the last time.
+   *
+   * @return the time-stamp for the last connection.
+   */
   public long lastLoginTimeMillis() {
     return this.lastLoginTimeMillis;
   }
 
+  /**
+   * Gets the last known proxy player info for this player.
+   *
+   * @return the proxy player info for this player.
+   */
   public @NonNull NetworkPlayerProxyInfo lastNetworkPlayerProxyInfo() {
     return this.lastNetworkPlayerProxyInfo;
   }
 
+  /**
+   * Sets the last known proxy player info of this player.
+   *
+   * @param lastNetworkPlayerProxyInfo the proxy info to set.
+   * @throws NullPointerException if the given proxy info is null.
+   */
   public void lastNetworkPlayerProxyInfo(@NonNull NetworkPlayerProxyInfo lastNetworkPlayerProxyInfo) {
     this.lastNetworkPlayerProxyInfo = lastNetworkPlayerProxyInfo;
   }

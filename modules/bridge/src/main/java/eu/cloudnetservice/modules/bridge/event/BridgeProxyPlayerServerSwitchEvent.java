@@ -20,11 +20,12 @@ import eu.cloudnetservice.driver.event.events.DriverEvent;
 import eu.cloudnetservice.modules.bridge.player.CloudPlayer;
 import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * Called after the cloud player switched its downstream service to another one. At this point {@link
- * CloudPlayer#connectedService()} returns the new service. This event is called both on all nodes in the cluster and
- * all services running the bridge.
+ * Called after the cloud player switched its downstream service to another one. At this point
+ * {@link CloudPlayer#connectedService()} returns the new service. This event is called both on all nodes in the cluster
+ * and all services running the bridge.
  *
  * @since 4.0
  */
@@ -38,11 +39,11 @@ public final class BridgeProxyPlayerServerSwitchEvent extends DriverEvent {
    *
    * @param player   the cloud player that switched the server.
    * @param previous the network service the player was connected to previously.
-   * @throws NullPointerException if the given player or service info is null.
+   * @throws NullPointerException if the given player is null.
    */
   public BridgeProxyPlayerServerSwitchEvent(
     @NonNull CloudPlayer player,
-    @NonNull NetworkServiceInfo previous
+    @Nullable NetworkServiceInfo previous
   ) {
     this.cloudPlayer = player;
     this.previous = previous;
@@ -60,18 +61,19 @@ public final class BridgeProxyPlayerServerSwitchEvent extends DriverEvent {
   /**
    * Gets the network service info that the cloud player is now connected to.
    *
-   * @return the target network service info.
+   * @return the target network service info
    */
   public @NonNull NetworkServiceInfo target() {
+    //noinspection ConstantConditions
     return this.cloudPlayer.connectedService();
   }
 
   /**
    * Gets the network service info that the cloud player was connected to previously.
    *
-   * @return the previous network service info.
+   * @return the previous network service info, null if the player was not connected to service previous.
    */
-  public @NonNull NetworkServiceInfo previous() {
+  public @Nullable NetworkServiceInfo previous() {
     return this.previous;
   }
 }

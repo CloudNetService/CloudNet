@@ -148,10 +148,8 @@ public class NodePlayerManager implements PlayerManager {
   public @NonNull List<? extends CloudPlayer> environmentOnlinePlayers(@NonNull ServiceEnvironmentType environment) {
     return this.onlinePlayers.values()
       .stream()
-      .filter(cloudPlayer ->
-        (cloudPlayer.loginService() != null && cloudPlayer.loginService().environment() == environment)
-          || (cloudPlayer.connectedService() != null
-          && cloudPlayer.connectedService().environment() == environment))
+      .filter(cloudPlayer -> cloudPlayer.loginService().environment().equals(environment)
+        || (cloudPlayer.connectedService() != null && cloudPlayer.connectedService().environment().equals(environment)))
       .collect(Collectors.toList());
   }
 
@@ -164,8 +162,9 @@ public class NodePlayerManager implements PlayerManager {
   public @NonNull PlayerProvider taskOnlinePlayers(@NonNull String task) {
     return new NodePlayerProvider(() -> this.onlinePlayers.values()
       .stream()
-      .filter(cloudPlayer -> cloudPlayer.connectedService().taskName().equalsIgnoreCase(task)
-        || cloudPlayer.loginService().taskName().equalsIgnoreCase(task)));
+      .filter(cloudPlayer ->
+        (cloudPlayer.connectedService() != null && cloudPlayer.connectedService().taskName().equalsIgnoreCase(task))
+          || cloudPlayer.loginService().taskName().equalsIgnoreCase(task)));
   }
 
   @Override
@@ -321,11 +320,11 @@ public class NodePlayerManager implements PlayerManager {
     if (cloudPlayer == null) {
       // try to load the player using the name and the login service
       for (var player : this.players().values()) {
-        if (player.name().equals(connectionInfo.name())
-          && player.loginService() != null
-          && player.loginService().uniqueId().equals(connectionInfo.networkService().uniqueId())) {
-          cloudPlayer = player;
-          break;
+        if (player.name().equals(connectionInfo.name())) {
+          if (player.loginService().uniqueId().equals(connectionInfo.networkService().uniqueId())) {
+            cloudPlayer = player;
+            break;
+          }
         }
       }
       // there is no loaded player, so try to load it using the offline association
@@ -384,16 +383,13 @@ public class NodePlayerManager implements PlayerManager {
       } else {
         var needsUpdate = false;
         // check if the player has a known login service
-        if (cloudPlayer.loginService() != null) {
-          var newLoginService = cloudPlayer.loginService();
-          var loginService = registeredPlayer.loginService();
-          // check if we already know the same service
-          if (!Objects.equals(newLoginService, loginService)
-            && ServiceEnvironmentType.minecraftProxy(newLoginService.environment())
-            && (loginService == null || !ServiceEnvironmentType.minecraftProxy(loginService.environment()))) {
-            cloudPlayer.loginService(newLoginService);
-            needsUpdate = true;
-          }
+        var newLoginService = cloudPlayer.loginService();
+        var loginService = registeredPlayer.loginService();
+        // check if we already know the same service
+        if (!Objects.equals(newLoginService, loginService) && ServiceEnvironmentType.minecraftProxy(
+          newLoginService.environment()) && !ServiceEnvironmentType.minecraftProxy(loginService.environment())) {
+          cloudPlayer.loginService(newLoginService);
+          needsUpdate = true;
         }
         // check if the player has a known connected service which is not a proxy
         if (cloudPlayer.connectedService() != null

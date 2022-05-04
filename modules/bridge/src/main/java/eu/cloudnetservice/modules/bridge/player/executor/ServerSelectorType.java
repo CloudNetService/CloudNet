@@ -32,10 +32,21 @@ public enum ServerSelectorType {
 
   private final Comparator<ServiceInfoSnapshot> comparator;
 
+  /**
+   * Creates a new server selector type enum constant with the given service comparator.
+   *
+   * @param comparator the comparator to apply to the services.
+   * @throws NullPointerException if the comparator is null.
+   */
   ServerSelectorType(@NonNull Comparator<ServiceInfoSnapshot> comparator) {
     this.comparator = comparator;
   }
 
+  /**
+   * Gets the comparator used to sort the services infos according to the server selector type.
+   *
+   * @return the comparator for the server selector.
+   */
   public @NonNull Comparator<ServiceInfoSnapshot> comparator() {
     return this.comparator;
   }
