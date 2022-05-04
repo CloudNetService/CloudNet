@@ -104,36 +104,27 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
   }
 
   public @Nullable SyncProxyMotd randomMotd() {
-    if (this.currentLoginConfiguration == null) {
-      return null;
+    if (this.currentLoginConfiguration != null) {
+      var motds =
+        this.currentLoginConfiguration.maintenance()
+          ? this.currentLoginConfiguration.maintenanceMotds()
+          : this.currentLoginConfiguration.motds();
+      if (!motds.isEmpty()) {
+        return motds.get(RANDOM.nextInt(motds.size()));
+      }
     }
-
-    var motds =
-      this.currentLoginConfiguration.maintenance()
-        ? this.currentLoginConfiguration.maintenanceMotds()
-        : this.currentLoginConfiguration.motds();
-
-    if (motds.isEmpty()) {
-      return null;
-    }
-
-    return motds.get(RANDOM.nextInt(motds.size()));
+    // we dont have any motd
+    return null;
   }
 
   public void applyWhitelist() {
     // check if there is a configuration for this targetGroup
-    if (this.currentLoginConfiguration == null) {
-      return;
-    }
-    // check if the maintenance is enabled, if not we dont need to apply anything
-    if (!this.currentLoginConfiguration.maintenance()) {
-      return;
-    }
-
-    for (var onlinePlayer : this.onlinePlayers()) {
-      // check if the player is allowed to join
-      if (!this.checkPlayerMaintenance(onlinePlayer)) {
-        this.disconnectPlayer(onlinePlayer, this.configuration.message("player-login-not-whitelisted", null));
+    if (this.currentLoginConfiguration != null && this.currentLoginConfiguration.maintenance()) {
+      for (var onlinePlayer : this.onlinePlayers()) {
+        // check if the player is allowed to join
+        if (!this.checkPlayerMaintenance(onlinePlayer)) {
+          this.disconnectPlayer(onlinePlayer, this.configuration.message("player-login-not-whitelisted", null));
+        }
       }
     }
   }
@@ -243,6 +234,7 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
     if (this.currentLoginConfiguration == null) {
       return false;
     }
+    // check if the player is explicitly whitelisted
     var whitelist = this.currentLoginConfiguration.whitelist();
     if (whitelist.contains(this.playerName(player))
       || whitelist.contains(this.playerUniqueId(player).toString())) {

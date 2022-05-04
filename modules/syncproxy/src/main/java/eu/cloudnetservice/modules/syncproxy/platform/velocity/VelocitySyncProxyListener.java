@@ -90,28 +90,24 @@ public final class VelocitySyncProxyListener {
   @Subscribe
   public void handlePlayerLogin(@NonNull LoginEvent event) {
     var loginConfiguration = this.syncProxyManagement.currentLoginConfiguration();
-    if (loginConfiguration == null) {
-      return;
-    }
-
-    var player = event.getPlayer();
-
-    if (loginConfiguration.maintenance()) {
-      // the player is either whitelisted or has the permission to join during maintenance, ignore him
-      if (this.syncProxyManagement.checkPlayerMaintenance(player)) {
-        return;
+    if (loginConfiguration != null) {
+      var player = event.getPlayer();
+      if (loginConfiguration.maintenance()) {
+        // the player is either whitelisted or has the permission to join during maintenance, ignore him
+        if (!this.syncProxyManagement.checkPlayerMaintenance(player)) {
+          var reason = serialize(
+            this.syncProxyManagement.configuration().message("player-login-not-whitelisted", null));
+          event.setResult(ComponentResult.denied(reason));
+        }
+      } else {
+        // check if the proxy is full and if the player is allowed to join or not
+        if (this.syncProxyManagement.onlinePlayerCount() >= loginConfiguration.maxPlayers()
+          && !player.hasPermission("cloudnet.syncproxy.fulljoin")) {
+          var reason = serialize(
+            this.syncProxyManagement.configuration().message("player-login-full-server", null));
+          event.setResult(ComponentResult.denied(reason));
+        }
       }
-      var reason = serialize(
-        this.syncProxyManagement.configuration().message("player-login-not-whitelisted", null));
-      event.setResult(ComponentResult.denied(reason));
-      return;
-    }
-    // check if the proxy is full and if the player is allowed to join or not
-    if (this.syncProxyManagement.onlinePlayerCount() >= loginConfiguration.maxPlayers()
-      && !player.hasPermission("cloudnet.syncproxy.fulljoin")) {
-      var reason = serialize(
-        this.syncProxyManagement.configuration().message("player-login-full-server", null));
-      event.setResult(ComponentResult.denied(reason));
     }
   }
 }

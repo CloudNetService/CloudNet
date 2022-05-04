@@ -17,38 +17,38 @@
 package eu.cloudnetservice.modules.signs.platform.bukkit.event;
 
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
-import eu.cloudnetservice.modules.signs.Sign;
-import java.util.Optional;
+import eu.cloudnetservice.modules.signs.platform.PlatformSign;
+import lombok.NonNull;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerEvent;
+import org.jetbrains.annotations.Nullable;
 
 public class BukkitCloudSignInteractEvent extends PlayerEvent implements Cancellable {
 
   public static final HandlerList HANDLER_LIST = new HandlerList();
 
-  private final Sign clickedSign;
+  private final PlatformSign<Player> clickedSign;
 
   private boolean cancelled;
   private ServiceInfoSnapshot target;
 
-  public BukkitCloudSignInteractEvent(Player who, Sign clickedSign, boolean cancelled) {
+  public BukkitCloudSignInteractEvent(@NonNull Player who, @NonNull PlatformSign<Player> clickedSign) {
     super(who);
     this.clickedSign = clickedSign;
-    this.cancelled = cancelled;
     this.target = clickedSign.currentTarget();
   }
 
-  public Sign clickedSign() {
+  public @NonNull PlatformSign<Player> clickedSign() {
     return this.clickedSign;
   }
 
-  public Optional<ServiceInfoSnapshot> target() {
-    return Optional.ofNullable(this.target);
+  public @Nullable ServiceInfoSnapshot target() {
+    return this.target;
   }
 
-  public void target(ServiceInfoSnapshot target) {
+  public void target(@Nullable ServiceInfoSnapshot target) {
     this.target = target;
   }
 

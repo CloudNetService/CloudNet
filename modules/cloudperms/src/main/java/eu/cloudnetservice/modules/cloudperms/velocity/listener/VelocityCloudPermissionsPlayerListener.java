@@ -17,7 +17,7 @@
 package eu.cloudnetservice.modules.cloudperms.velocity.listener;
 
 import com.velocitypowered.api.event.PostOrder;
-import com.velocitypowered.api.event.ResultedEvent;
+import com.velocitypowered.api.event.ResultedEvent.ComponentResult;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.connection.LoginEvent;
@@ -28,7 +28,6 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
 import eu.cloudnetservice.modules.cloudperms.CloudPermissionsHelper;
 import lombok.NonNull;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public final class VelocityCloudPermissionsPlayerListener {
@@ -47,19 +46,17 @@ public final class VelocityCloudPermissionsPlayerListener {
     this.permissionsManagement = permissionsManagement;
   }
 
-  @Subscribe(order = PostOrder.LAST)
+  @Subscribe(order = PostOrder.FIRST)
   public void handle(@NonNull LoginEvent event) {
-    if (event.getResult().isAllowed()) {
-      CloudPermissionsHelper.initPermissionUser(
-        this.permissionsManagement,
-        event.getPlayer().getUniqueId(),
-        event.getPlayer().getUsername(),
-        message -> {
-          Component reasonComponent = LegacyComponentSerializer.legacySection().deserialize(message.replace("&", "§"));
-          event.setResult(ResultedEvent.ComponentResult.denied(reasonComponent));
-        },
-        this.proxyServer.getConfiguration().isOnlineMode());
-    }
+    CloudPermissionsHelper.initPermissionUser(
+      this.permissionsManagement,
+      event.getPlayer().getUniqueId(),
+      event.getPlayer().getUsername(),
+      message -> {
+        var reasonComponent = LegacyComponentSerializer.legacySection().deserialize(message.replace("&", "§"));
+        event.setResult(ComponentResult.denied(reasonComponent));
+      },
+      this.proxyServer.getConfiguration().isOnlineMode());
   }
 
   @Subscribe

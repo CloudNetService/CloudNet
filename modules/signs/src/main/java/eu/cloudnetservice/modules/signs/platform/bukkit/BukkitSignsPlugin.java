@@ -18,21 +18,19 @@ package eu.cloudnetservice.modules.signs.platform.bukkit;
 
 import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
-import eu.cloudnetservice.modules.signs.GlobalChannelMessageListener;
+import eu.cloudnetservice.modules.signs.SharedChannelMessageListener;
 import eu.cloudnetservice.modules.signs.SignManagement;
-import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
 import eu.cloudnetservice.modules.signs.platform.SignsPlatformListener;
 import eu.cloudnetservice.modules.signs.platform.bukkit.functionality.SignInteractListener;
 import eu.cloudnetservice.modules.signs.platform.bukkit.functionality.SignsCommand;
 import org.bukkit.Bukkit;
-import org.bukkit.block.Sign;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class BukkitSignsPlugin extends JavaPlugin {
 
   @Override
   public void onEnable() {
-    PlatformSignManagement<Sign> signManagement = new BukkitSignManagement(this);
+    var signManagement = new BukkitSignManagement(this);
     signManagement.initialize();
     signManagement.registerToServiceRegistry();
     // bukkit command
@@ -46,7 +44,8 @@ public class BukkitSignsPlugin extends JavaPlugin {
     Bukkit.getPluginManager().registerEvents(new SignInteractListener(signManagement), this);
     // cloudnet listeners
     CloudNetDriver.instance().eventManager().registerListeners(
-      new GlobalChannelMessageListener(signManagement), new SignsPlatformListener(signManagement));
+      new SharedChannelMessageListener(signManagement),
+      new SignsPlatformListener(signManagement));
   }
 
   @Override

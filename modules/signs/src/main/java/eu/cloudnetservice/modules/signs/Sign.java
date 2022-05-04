@@ -17,13 +17,9 @@
 package eu.cloudnetservice.modules.signs;
 
 import com.google.gson.reflect.TypeToken;
-import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
-import eu.cloudnetservice.modules.signs.configuration.SignConfigurationEntry;
-import eu.cloudnetservice.modules.signs.util.PriorityUtil;
 import java.lang.reflect.Type;
 import java.util.Collection;
-import java.util.concurrent.atomic.AtomicReference;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
@@ -34,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
  */
 @ToString
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Sign implements Comparable<Sign> {
+public class Sign {
 
   public static final Type COLLECTION_TYPE = new TypeToken<Collection<Sign>>() {
   }.getType();
@@ -44,8 +40,6 @@ public class Sign implements Comparable<Sign> {
 
   @EqualsAndHashCode.Include
   protected final WorldPosition worldPosition;
-
-  protected transient AtomicReference<ServiceInfoSnapshot> currentTarget;
 
   /**
    * Creates a new sign object
@@ -80,57 +74,5 @@ public class Sign implements Comparable<Sign> {
 
   public @NonNull WorldPosition location() {
     return this.worldPosition;
-  }
-
-  public @Nullable ServiceInfoSnapshot currentTarget() {
-    return this.currentTarget == null ? null : this.currentTarget.get();
-  }
-
-  public void currentTarget(@Nullable ServiceInfoSnapshot currentTarget) {
-    if (this.currentTarget == null) {
-      this.currentTarget = new AtomicReference<>(currentTarget);
-    } else {
-      this.currentTarget.lazySet(currentTarget);
-    }
-  }
-
-  /**
-   * Get the priority of the sign to be on the sign wall
-   *
-   * @return the priority of the sign to be on the sign wall
-   */
-  public int priority() {
-    return this.priority(false);
-  }
-
-  /**
-   * Get the priority of the sign to be on the sign wall
-   *
-   * @param entry the signs configuration entry to get additional configuration from
-   * @return the priority of the sign to be on the sign wall
-   */
-  public int priority(@Nullable SignConfigurationEntry entry) {
-    // check if the service has a snapshot
-    var target = this.currentTarget();
-    // no target has the lowest priority
-    return target == null ? 0 : PriorityUtil.priority(target, entry);
-  }
-
-  /**
-   * Get the priority of the sign to be on the sign wall
-   *
-   * @param lowerFullToSearching If true the priority of a full service will be synced to the of a searching sign
-   * @return the priority of the sign to be on the sign wall
-   */
-  public int priority(boolean lowerFullToSearching) {
-    // check if the service has a snapshot
-    var target = this.currentTarget();
-    // no target has the lowest priority
-    return target == null ? 0 : PriorityUtil.priority(target, lowerFullToSearching);
-  }
-
-  @Override
-  public int compareTo(@NonNull Sign sign) {
-    return Integer.compare(this.priority(), sign.priority());
   }
 }

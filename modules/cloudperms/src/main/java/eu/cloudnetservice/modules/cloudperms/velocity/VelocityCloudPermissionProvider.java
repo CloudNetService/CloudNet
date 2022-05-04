@@ -21,18 +21,19 @@ import com.velocitypowered.api.permission.PermissionProvider;
 import com.velocitypowered.api.permission.PermissionSubject;
 import com.velocitypowered.api.proxy.Player;
 import eu.cloudnetservice.driver.permission.PermissionManagement;
-import org.checkerframework.checker.optional.qual.MaybePresent;
+import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 final class VelocityCloudPermissionProvider implements PermissionProvider {
 
   private final PermissionManagement permissionsManagement;
 
-  public VelocityCloudPermissionProvider(PermissionManagement permissionsManagement) {
+  public VelocityCloudPermissionProvider(@NonNull PermissionManagement permissionsManagement) {
     this.permissionsManagement = permissionsManagement;
   }
 
   @Override
-  public @MaybePresent PermissionFunction createFunction(@MaybePresent PermissionSubject subject) {
+  public @Nullable PermissionFunction createFunction(@Nullable PermissionSubject subject) {
     return subject instanceof Player player
       ? new VelocityCloudPermissionFunction(player.getUniqueId(), this.permissionsManagement)
       : null;

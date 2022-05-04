@@ -16,178 +16,239 @@
 
 package eu.cloudnetservice.modules.signs.platform;
 
+import static eu.cloudnetservice.driver.service.ServiceEnvironmentType.JAVA_SERVER;
+import static eu.cloudnetservice.driver.service.ServiceEnvironmentType.PE_SERVER;
+
+import eu.cloudnetservice.common.log.LogManager;
+import eu.cloudnetservice.common.log.Logger;
+import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
-import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
+import eu.cloudnetservice.driver.channel.ChannelMessageTarget.Type;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
+import eu.cloudnetservice.driver.network.buffer.DataBuf.Mutable;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.signs.AbstractSignManagement;
 import eu.cloudnetservice.modules.signs.Sign;
-import eu.cloudnetservice.modules.signs.SignManagement;
 import eu.cloudnetservice.modules.signs.configuration.SignConfigurationEntry;
 import eu.cloudnetservice.modules.signs.configuration.SignLayoutsHolder;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
+import eu.cloudnetservice.modules.signs.util.LayoutUtil;
+import eu.cloudnetservice.modules.signs.util.PriorityUtil;
 import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
-import java.util.function.Function;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * An abstract sign management shared between the platform implementations.
- *
- * @param <T> the type of the platform dependant sign extend.
- */
-public abstract class PlatformSignManagement<T> extends AbstractSignManagement implements SignManagement {
+public abstract class PlatformSignManagement<P, L> extends AbstractSignManagement {
 
+  public static final String REQUEST_CONFIG = "signs_request_config";
+  public static final String SET_SIGN_CONFIG = "signs_update_sign_config";
+  public static final String SIGN_CREATE = "signs_sign_create";
+  public static final String SIGN_DELETE = "signs_sign_delete";
+  public static final String SIGN_ALL_DELETE = "signs_sign_delete_all";
+  public static final String SIGN_BULK_DELETE = "signs_sign_bulk_delete";
   public static final String SIGN_GET_SIGNS_BY_GROUPS = "signs_get_signs_by_groups";
 
-  /**
-   * Constructs a new platform sign management.
-   *
-   * @param signsConfiguration the sign configuration to use.
-   */
-  protected PlatformSignManagement(SignsConfiguration signsConfiguration) {
-    super(signsConfiguration);
+  protected static final Logger LOGGER = LogManager.logger(PlatformSignManagement.class);
+
+  protected final Executor mainThreadExecutor;
+  protected final Lock updatingLock = new ReentrantLock();
+  protected final AtomicInteger currentTick = new AtomicInteger();
+  protected final Map<WorldPosition, PlatformSign<P>> platformSigns = new ConcurrentHashMap<>();
+  protected final Queue<ServiceInfoSnapshot> waitingAssignments = new ConcurrentLinkedQueue<>();
+
+  protected PlatformSignManagement(@NonNull Executor mainThreadExecutor) {
+    super(loadSignsConfiguration());
+    this.mainThreadExecutor = mainThreadExecutor;
     // get the signs for the current group
     var groups = Wrapper.instance().serviceConfiguration().groups();
     for (var sign : this.signs(groups)) {
       this.signs.put(sign.location(), sign);
     }
+    // register the listeners
+    CloudNetDriver.instance().eventManager().registerListener(new SignsPlatformListener(this));
   }
 
-  /**
-   * Adds a new service to the signs.
-   *
-   * @param snapshot the service to handle
-   */
-  public abstract void handleServiceAdd(@NonNull ServiceInfoSnapshot snapshot);
+  protected static @Nullable SignsConfiguration loadSignsConfiguration() {
+    var response = ChannelMessage.builder()
+      .channel(AbstractSignManagement.SIGN_CHANNEL_NAME)
+      .message(REQUEST_CONFIG)
+      .targetNode(Wrapper.instance().nodeUniqueId())
+      .build()
+      .sendSingleQuery();
+    return response == null ? null : response.content().readObject(SignsConfiguration.class);
+  }
 
-  /**
-   * Updates the service on the signs.
-   *
-   * @param snapshot the service to handle
-   */
-  public abstract void handleServiceUpdate(@NonNull ServiceInfoSnapshot snapshot);
-
-  /**
-   * Removes the service from the signs.
-   *
-   * @param snapshot the service to handle
-   */
-  public abstract void handleServiceRemove(@NonNull ServiceInfoSnapshot snapshot);
-
-  /**
-   * Get the sign at the given platform sign extend location.
-   *
-   * @param t the sign type extend
-   * @return The sign at the given location or null if there is no sign at the given location.
-   * @see #signAt(WorldPosition)
-   */
-  public abstract @Nullable Sign signAt(@NonNull T t, @NonNull String group);
-
-  /**
-   * Creates a sign at the given platform sign extend location.
-   *
-   * @param t     the sign type extend.
-   * @param group the group the sign is targeting.
-   * @return the created sign or null if the sign couldn't be created.
-   * @see #createSign(Object, String, String)
-   */
-  public abstract @Nullable Sign createSign(@NonNull T t, @NonNull String group);
-
-  /**
-   * Creates a sign at the given platform sign extend location.
-   *
-   * @param t            the sign type extend.
-   * @param group        the group the sign is targeting.
-   * @param templatePath the template path the sign is targeting or null if none.
-   * @return the created sign or null if the sign couldn't be created.
-   */
-  public abstract @Nullable Sign createSign(@NonNull T t, @NonNull String group, @Nullable String templatePath);
-
-  /**
-   * Deletes the sign at the given platform sign extend location.
-   *
-   * @param t the sign type extend
-   * @see #deleteSign(WorldPosition)
-   */
-  public abstract void deleteSign(@NonNull T t, @NonNull String group);
-
-  /**
-   * Removes all signs where there is no sign block at this position
-   *
-   * @return the amount of removed signs
-   */
-  public abstract int removeMissingSigns();
-
-  /**
-   * Checks if the given permissible can connect to the sign.
-   *
-   * @param sign              the sign to check.
-   * @param permissionChecker a function which checks if the supplied string is set as a permission.
-   * @return true if the permissible can connect using the sign, false otherwise
-   */
-  public abstract boolean canConnect(@NonNull Sign sign, @NonNull Function<String, Boolean> permissionChecker);
-
-  @Internal
-  public abstract void initialize();
-
-  @Internal
-  public abstract void initialize(@NonNull Map<SignLayoutsHolder, Set<Sign>> signsNeedingTicking);
-
-  @Internal
-  protected abstract void startKnockbackTask();
-
-  /**
-   * Get the signs of all groups the wrapper belongs to.
-   *
-   * @return the signs of all groups the wrapper belongs to.
-   */
   @Override
-  public @NonNull Collection<Sign> signs() {
-    return super.signs();
+  public void createSign(@NonNull Sign sign) {
+    this.channelMessage(SIGN_CREATE)
+      .buffer(DataBuf.empty().writeObject(sign))
+      .build().send();
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  @Override
+  public void deleteSign(@NonNull WorldPosition position) {
+    this.channelMessage(SIGN_DELETE)
+      .buffer(DataBuf.empty().writeObject(position))
+      .build().send();
+  }
+
+  @Override
+  public int deleteAllSigns(@NonNull String group, @Nullable String templatePath) {
+    var response = this.channelMessage(SIGN_BULK_DELETE)
+      .buffer(DataBuf.empty().writeString(group).writeNullable(templatePath, Mutable::writeString))
+      .build().sendSingleQuery();
+    return response == null ? 0 : response.content().readInt();
+  }
+
+  @Override
+  public int deleteAllSigns() {
+    this.channelMessage(SIGN_ALL_DELETE)
+      .buffer(DataBuf.empty().writeObject(this.signs.keySet()))
+      .build().send();
+    return this.signs.size();
+  }
+
   @Override
   public @NonNull Collection<Sign> signs(@NonNull Collection<String> groups) {
     var response = this.channelMessage(SIGN_GET_SIGNS_BY_GROUPS)
       .buffer(DataBuf.empty().writeObject(groups))
       .build()
       .sendSingleQuery();
-    return response == null ? Collections.emptySet() : response.content().readObject(Sign.COLLECTION_TYPE);
+    return response == null ? Set.of() : response.content().readObject(Sign.COLLECTION_TYPE);
+  }
+
+  @Override
+  public void signsConfiguration(@NonNull SignsConfiguration signsConfiguration) {
+    this.channelMessage(SET_SIGN_CONFIG)
+      .buffer(DataBuf.empty().writeObject(signsConfiguration))
+      .build().send();
   }
 
   @Override
   public void handleInternalSignCreate(@NonNull Sign sign) {
     if (Wrapper.instance().serviceConfiguration().groups().contains(sign.location().group())) {
+      var newSign = this.createPlatformSign(sign);
+      var oldSign = this.platformSigns.remove(sign.location());
+
+      // set the old target in the new sign if needed
+      if (oldSign != null) {
+        newSign.currentTarget(oldSign.currentTarget());
+      }
+
+      // register the sign
+      this.platformSigns.put(sign.location(), newSign);
       super.handleInternalSignCreate(sign);
     }
   }
 
-  /**
-   * Creates a channel message which is targeting the node the wrapper was started by.
-   *
-   * @param message the message of the channel message.
-   * @return the channel message builder for further configuration.
-   */
   @Override
-  protected @NonNull ChannelMessage.Builder channelMessage(@NonNull String message) {
-    return super.channelMessage(message).target(ChannelMessageTarget.Type.NODE, Wrapper.instance().nodeUniqueId());
+  public void handleInternalSignRemove(@NonNull WorldPosition position) {
+    if (Wrapper.instance().serviceConfiguration().groups().contains(position.group())) {
+      var sign = this.platformSigns.remove(position);
+      if (sign != null && sign.currentTarget() != null) {
+        this.waitingAssignments.add(sign.currentTarget());
+      }
+
+      super.handleInternalSignRemove(position);
+    }
   }
 
-  /**
-   * Get a sign configuration entry from the sign configuration which targets a group the wrapper belongs to.
-   *
-   * @return a sign configuration entry from the sign configuration which targets a group the wrapper belongs to.
-   */
+  @Override
+  protected @NonNull ChannelMessage.Builder channelMessage(@NonNull String message) {
+    return super.channelMessage(message).target(Type.NODE, Wrapper.instance().nodeUniqueId());
+  }
+
+  public int removeMissingSigns() {
+    var removed = 0;
+    for (var sign : this.platformSigns.values()) {
+      if (!sign.exists()) {
+        this.deleteSign(sign.base());
+        removed++;
+      }
+    }
+
+    return removed;
+  }
+
+  public void handleServiceAdd(@NonNull ServiceInfoSnapshot snapshot) {
+    if (this.shouldAssign(snapshot)) {
+      this.tryAssign(snapshot);
+    }
+  }
+
+  public void handleServiceUpdate(@NonNull ServiceInfoSnapshot snapshot) {
+    if (this.shouldAssign(snapshot)) {
+      var handlingSign = this.signOf(snapshot);
+      if (handlingSign == null) {
+        handlingSign = this.nextFreeSign(snapshot);
+        // in all cases we need to remove the old waiting assignment
+        this.waitingAssignments.removeIf(s -> s.serviceId().uniqueId().equals(snapshot.serviceId().uniqueId()));
+        if (handlingSign == null) {
+          this.waitingAssignments.add(snapshot);
+          return;
+        }
+      }
+
+      handlingSign.currentTarget(snapshot);
+    }
+  }
+
+  public void handleServiceRemove(@NonNull ServiceInfoSnapshot snapshot) {
+    if (this.shouldAssign(snapshot)) {
+      var handlingSign = this.signOf(snapshot);
+      if (handlingSign != null) {
+        handlingSign.currentTarget(null);
+      } else {
+        this.waitingAssignments.removeIf(s -> s.serviceId().uniqueId().equals(snapshot.serviceId().uniqueId()));
+      }
+    }
+  }
+
+  public void initialize() {
+    this.initialize(new HashMap<>());
+  }
+
+  public void initialize(@NonNull Map<SignLayoutsHolder, Set<PlatformSign<P>>> signsNeedingTicking) {
+    if (this.signsConfiguration != null) {
+      // initialize the platform signs
+      for (var value : this.signs.values()) {
+        this.platformSigns.put(value.location(), this.createPlatformSign(value));
+      }
+
+      // start the needed tasks
+      CloudNetDriver.instance().taskExecutor().scheduleWithFixedDelay(() -> {
+        try {
+          this.tick(signsNeedingTicking);
+        } catch (Throwable throwable) {
+          LOGGER.severe("Exception ticking signs");
+        }
+      }, 0, 1000 / this.tps(), TimeUnit.MILLISECONDS);
+      this.startKnockbackTask();
+
+      // load and register all services
+      CloudNetDriver.instance().cloudServiceProvider().servicesAsync().thenAccept(services -> {
+        for (var service : services) {
+          this.handleServiceAdd(service);
+        }
+      });
+    }
+  }
+
   public @Nullable SignConfigurationEntry applicableSignConfigurationEntry() {
     for (var entry : this.signsConfiguration.entries()) {
       if (Wrapper.instance().serviceConfiguration().groups().contains(entry.targetGroup())) {
@@ -196,4 +257,170 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
     }
     return null;
   }
+
+  protected boolean shouldAssign(@NonNull ServiceInfoSnapshot snapshot) {
+    var currentEnv = Wrapper.instance().serviceId().environment();
+    var serviceEnv = snapshot.serviceId().environment();
+
+    return (JAVA_SERVER.get(currentEnv.properties()) && JAVA_SERVER.get(serviceEnv.properties()))
+      || PE_SERVER.get(currentEnv.properties()) && PE_SERVER.get(serviceEnv.properties());
+  }
+
+  protected void tryAssign(@NonNull ServiceInfoSnapshot snapshot) {
+    // check if the service is already assigned to a sign
+    var sign = this.signOf(snapshot);
+    if (sign == null) {
+      // check if there is a free sign to handle the service
+      sign = this.nextFreeSign(snapshot);
+      if (sign == null) {
+        // no free sign, add to the waiting services
+        this.waitingAssignments.add(snapshot);
+        return;
+      }
+    }
+    // assign the service to the sign
+    sign.currentTarget(snapshot);
+  }
+
+  protected boolean checkTemplatePath(@NonNull ServiceInfoSnapshot snapshot, @NonNull Sign sign) {
+    for (var template : snapshot.configuration().templates()) {
+      if (template.toString().equals(sign.templatePath())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @Internal
+  protected void tick(@NonNull Map<SignLayoutsHolder, Set<PlatformSign<P>>> signsNeedingTicking) {
+    this.currentTick.incrementAndGet();
+
+    var ownEntry = this.applicableSignConfigurationEntry();
+    if (ownEntry != null) {
+      // marker if there are any updates we need to do - if there are no updates there is no need to schedule them
+      // which saves server resources
+      var hasUpdates = false;
+      for (var value : this.platformSigns.values()) {
+        // tick all sign layouts which we need to tick in the current tick
+        var holder = LayoutUtil.layoutHolder(ownEntry, value.base(), value.currentTarget());
+        if (holder.hasLayouts() && holder.animationsPerSecond() > 0
+          && this.currentTick.get() % (this.tps() / holder.animationsPerSecond()) == 0) {
+          // tick the holder, then block the tick
+          holder.tick().enableTickBlock();
+          // register the sign for updates if we need to
+          if (value.needsUpdates()) {
+            hasUpdates = true;
+            signsNeedingTicking.computeIfAbsent(holder, $ -> new HashSet<>()).add(value);
+          }
+        }
+      }
+
+      // execute updates if there are any
+      if (hasUpdates) {
+        this.mainThreadExecutor.execute(() -> {
+          for (var entry : signsNeedingTicking.entrySet()) {
+            var layout = entry.getKey().releaseTickBlock().currentLayout();
+            // push out all sign changes we recorded previously
+            // we need to copy all entries of the set into a new array in case we have a thread de-sync (for example async
+            // tick but sync update) as we need to clear the underlying set after the call to prevent double ticks
+            var iterator = entry.getValue().iterator();
+            while (iterator.hasNext()) {
+              // update the sign, at this point the sign must be loaded - we can just push the change and unregister it
+              iterator.next().updateSign(layout);
+              iterator.remove();
+            }
+          }
+        });
+      }
+
+      // check if we have waiting services which are not yet assigned - try to assign them to a sign
+      if (!this.waitingAssignments.isEmpty()) {
+        for (var waitingAssignment : this.waitingAssignments) {
+          // get the next free sign to which can assign the service
+          var freeSign = this.nextFreeSign(waitingAssignment);
+          if (freeSign != null) {
+            // remove instantly
+            this.waitingAssignments.remove(waitingAssignment);
+            // assign the service to the sign, the layout of it will be updated within the next second
+            // we could directly update the layout but there is no need to do that
+            freeSign.currentTarget(waitingAssignment);
+          }
+        }
+      }
+    }
+
+    // reset the tick counter if we reached the max tps
+    this.currentTick.compareAndSet(this.tps(), 0);
+  }
+
+  protected @Nullable PlatformSign<P> nextFreeSign(@NonNull ServiceInfoSnapshot snapshot) {
+    var entry = this.applicableSignConfigurationEntry();
+    var servicePriority = PriorityUtil.priority(snapshot, entry);
+
+    // ensure that we only assign the snapshot to a sign that has no target yet
+    this.updatingLock.lock();
+    try {
+      PlatformSign<P> bestChoice = null;
+      for (var platformSign : this.platformSigns.values()) {
+        var sign = platformSign.base();
+        if (snapshot.configuration().groups().contains(sign.targetGroup())
+          && (sign.templatePath() == null || this.checkTemplatePath(snapshot, sign))) {
+          // the service could be assigned to the sign
+          if (platformSign.currentTarget() == null) {
+            // the sign has no target yet, best choice
+            bestChoice = platformSign;
+            break;
+          } else {
+            // get the priority of the sign depending on the current sign choice (if any)
+            var signPriority = platformSign.priority(entry);
+            var priority = bestChoice == null ? servicePriority : bestChoice.priority(entry);
+            // check if the service/sign we found has a higher priority than the sign
+            if (priority > signPriority) {
+              // yes it has, use the sign with the lower priority
+              bestChoice = platformSign;
+            } else if (priority == signPriority && bestChoice != null) {
+              // no it has the same priority as the best choice
+              // check if we get a better template path match than the current selected sign
+              if (bestChoice.base().templatePath() == null && sign.templatePath() != null) {
+                // yes the sign has a better template path match than the previous choice
+                bestChoice = platformSign;
+              }
+            }
+          }
+        }
+      }
+
+      if (bestChoice != null && bestChoice.currentTarget() != null) {
+        // enqueue and reset the current target of the sign
+        this.waitingAssignments.add(bestChoice.currentTarget());
+        bestChoice.currentTarget(null);
+      }
+
+      return bestChoice;
+    } finally {
+      this.updatingLock.unlock();
+    }
+  }
+
+  protected @Nullable PlatformSign<P> signOf(@NonNull ServiceInfoSnapshot snapshot) {
+    for (var value : this.platformSigns.values()) {
+      var target = value.currentTarget();
+      if (target != null && target.name().equals(snapshot.name())) {
+        return value;
+      }
+    }
+    return null;
+  }
+
+  public @Nullable PlatformSign<P> platformSignAt(@Nullable WorldPosition position) {
+    return position == null ? null : this.platformSigns.get(position);
+  }
+
+  protected abstract int tps();
+
+  protected abstract void startKnockbackTask();
+
+  public abstract @Nullable WorldPosition convertPosition(@NonNull L location);
+
+  protected abstract @NonNull PlatformSign<P> createPlatformSign(@NonNull Sign base);
 }

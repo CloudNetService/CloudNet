@@ -25,7 +25,7 @@ tasks.withType<ShadowJar> {
   archiveVersion.set(null as String?)
 
   // do not shade dependencies which we don't need to shade
-  val ignoredGroupIds = arrayOf("io.netty", "io.netty.incubator", "com.google.guava", "com.google.code.gson", "org.ow2.asm")
+  val ignoredGroupIds = arrayOf("io.netty", "io.netty.incubator", "com.google.guava", "com.google.code.gson")
   dependencies {
     exclude {
       it.moduleGroup != project.group && !ignoredGroupIds.contains(it.moduleGroup)
@@ -41,8 +41,9 @@ tasks.withType<ShadowJar> {
   relocate("com.google.gson", "eu.cloudnetservice.relocate.gson")
   relocate("com.google.common", "eu.cloudnetservice.relocate.guava")
 
-  // asm lib relocation
-  relocate("org.objectweb.asm", "eu.cloudnetservice.relocate.asm")
+  // asm relocation to fix forge discovery:
+  // https://github.com/MinecraftForge/MinecraftForge/blob/1.16.x/src/fmllauncher/java/net/minecraftforge/fml/loading/LibraryFinder.java#L39
+  relocate("org.objectweb.asm.Opcodes", "eu.cloudnetservice.relocate.asm.Opcodes")
 
   // drop unused classes which are making the jar bigger
   minimize()

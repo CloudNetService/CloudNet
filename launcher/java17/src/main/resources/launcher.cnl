@@ -55,6 +55,8 @@ var cloudnet.logging.defaultlevel INFO
 #var cloudnet.persistable.services.path local/services
 # Sets the path to the version cache
 #var cloudnet.versioncache.path local/versioncache
+# Sets the path to the cloudnet log directory
+#var cloudnet.log.path local/logs
 # Sets the timeout until a node gets marked as disconnected from the local node. This does not mean that the node will
 # be removed completely from the system, there is a grace period for the node to reconnect to this node (see the following
 # setting for this)

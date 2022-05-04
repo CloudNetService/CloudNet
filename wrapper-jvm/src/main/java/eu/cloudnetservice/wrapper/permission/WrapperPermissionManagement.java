@@ -150,9 +150,12 @@ public abstract class WrapperPermissionManagement extends DefaultCachedPermissio
     if (permissionUser != null) {
       return permissionUser;
     }
-
+    // get the permission user from the node
     permissionUser = this.rpcSender.invokeMethod("user", uniqueId).fireSync();
-    this.permissionUserCache.put(permissionUser.uniqueId(), permissionUser);
+    if (permissionUser != null) {
+      // only cache the permission user if the user exists
+      this.permissionUserCache.put(permissionUser.uniqueId(), permissionUser);
+    }
 
     return permissionUser;
   }

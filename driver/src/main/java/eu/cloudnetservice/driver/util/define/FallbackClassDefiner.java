@@ -40,7 +40,7 @@ final class FallbackClassDefiner implements ClassDefiner {
    */
   @Override
   public @NonNull Class<?> defineClass(@NonNull String name, @NonNull Class<?> parent, byte[] bytecode) {
-    return this.cache.computeIfAbsent(parent.getClassLoader(), DefiningClassLoader::new).defineClass(name, bytecode);
+    return this.cache.computeIfAbsent(parent.getClassLoader(), DefiningClassLoader::new).defineClass(bytecode);
   }
 
   /**
@@ -63,12 +63,11 @@ final class FallbackClassDefiner implements ClassDefiner {
      * An exposed method which allows converting the given bytecode into an instance of class delegating the call to
      * {@link ClassLoader#defineClass(String, byte[], int, int)}.
      *
-     * @param name     the expected name of the class.
      * @param byteCode the bytecode of the class to define.
      * @return the constructed class object from the given bytecode.
      */
-    public @NonNull Class<?> defineClass(@NonNull String name, byte[] byteCode) {
-      return super.defineClass(name, byteCode, 0, byteCode.length);
+    public @NonNull Class<?> defineClass(byte[] byteCode) {
+      return super.defineClass(null, byteCode, 0, byteCode.length, null);
     }
   }
 }

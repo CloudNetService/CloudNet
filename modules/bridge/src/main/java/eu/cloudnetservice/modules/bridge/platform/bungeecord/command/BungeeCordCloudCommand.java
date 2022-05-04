@@ -36,7 +36,7 @@ public final class BungeeCordCloudCommand extends Command implements TabExecutor
   }
 
   @Override
-  public void execute(@NonNull CommandSender sender, String @NonNull [] args) {
+  public void execute(@NonNull CommandSender sender, @NonNull String[] args) {
     // check if any arguments are provided
     if (args.length == 0) {
       // <prefix> /cloudnet <command>
@@ -48,28 +48,33 @@ public final class BungeeCordCloudCommand extends Command implements TabExecutor
     // skip the permission check if the source is the console
     if (sender instanceof ProxiedPlayer player) {
       // get the command info
-      var command = CloudNetDriver.instance().clusterNodeProvider().consoleCommand(commandLine);
-      // check if the sender has the required permission to execute the command
-      if (command != null) {
-        if (!sender.hasPermission(command.permission())) {
+      CloudNetDriver.instance().clusterNodeProvider().consoleCommandAsync(args[0]).thenAcceptAsync(info -> {
+        // check if the player has the required permission
+        if (info == null || !sender.hasPermission(info.permission())) {
+          // no permission
           sender.sendMessage(translateToComponent(this.management.configuration().message(
             player.getLocale(),
             "command-cloud-sub-command-no-permission"
-          ).replace("%command%", command.name())));
-          return;
+          ).replace("%command%", args[0])));
+        } else {
+          // execute command
+          this.executeNow(sender, commandLine);
         }
-      }
+      });
+    } else {
+      // just execute
+      this.executeNow(sender, commandLine);
     }
-    // execute the command
-    CloudNetDriver.instance().clusterNodeProvider().sendCommandLineAsync(commandLine).thenAccept(messages -> {
-      for (var line : messages) {
-        sender.sendMessage(translateToComponent(this.management.configuration().prefix() + line));
-      }
-    });
+  }
+
+  private void executeNow(@NonNull CommandSender sender, @NonNull String commandLine) {
+    for (var output : CloudNetDriver.instance().clusterNodeProvider().sendCommandLine(commandLine)) {
+      sender.sendMessage(translateToComponent(this.management.configuration().prefix() + output));
+    }
   }
 
   @Override
-  public Iterable<String> onTabComplete(CommandSender sender, String[] args) {
+  public @NonNull Iterable<String> onTabComplete(@NonNull CommandSender sender, @NonNull String[] args) {
     return CloudNetDriver.instance().clusterNodeProvider().consoleTabCompleteResults(String.join(" ", args));
   }
 }

@@ -41,15 +41,6 @@ public final class CloudPermissionsHelper {
     @NonNull PermissionManagement permissionsManagement,
     @NonNull UUID uniqueId,
     @NonNull String name,
-    @NonNull Consumer<String> disconnectHandler
-  ) {
-    initPermissionUser(permissionsManagement, uniqueId, name, disconnectHandler, true);
-  }
-
-  public static void initPermissionUser(
-    @NonNull PermissionManagement permissionsManagement,
-    @NonNull UUID uniqueId,
-    @NonNull String name,
     @NonNull Consumer<String> disconnectHandler,
     boolean shouldUpdateName
   ) {

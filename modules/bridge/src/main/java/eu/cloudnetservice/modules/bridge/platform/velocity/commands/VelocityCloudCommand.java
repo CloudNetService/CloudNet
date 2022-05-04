@@ -18,6 +18,7 @@ package eu.cloudnetservice.modules.bridge.platform.velocity.commands;
 
 import static eu.cloudnetservice.ext.adventure.AdventureSerializerUtil.serialize;
 
+import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.ConsoleCommandSource;
 import com.velocitypowered.api.proxy.Player;
@@ -39,44 +40,50 @@ public final class VelocityCloudCommand implements SimpleCommand {
   @Override
   public void execute(@NonNull Invocation invocation) {
     // check if any arguments are provided
-    if (invocation.arguments().length == 0) {
+    var arguments = invocation.arguments();
+    if (arguments.length == 0) {
       // <prefix> /cloudnet <command>
-      invocation.source()
-        .sendMessage(serialize(this.management.configuration().prefix() + "/cloudnet <command>"));
+      invocation.source().sendMessage(serialize(this.management.configuration().prefix() + "/cloudnet <command>"));
       return;
     }
     // get the full command line
-    var commandLine = String.join(" ", invocation.arguments());
+    var commandLine = String.join(" ", arguments);
     // skip the permission check if the source is the console
-    if (!(invocation.source() instanceof ConsoleCommandSource)) {
+    if (invocation.source() instanceof ConsoleCommandSource) {
+      // execute the command
+      this.executeNow(invocation.source(), commandLine);
+    } else {
       // get the command info
-      var command = CloudNetDriver.instance().clusterNodeProvider().consoleCommand(commandLine);
-      // check if the sender has the required permission to execute the command
-      if (command != null) {
-        if (!invocation.source().hasPermission(command.permission())) {
+      CloudNetDriver.instance().clusterNodeProvider().consoleCommandAsync(arguments[0]).thenAcceptAsync(info -> {
+        // check if the sender has the required permission to execute the command
+        if (info == null || !invocation.source().hasPermission(info.permission())) {
+          // no permission to execute the command
           invocation.source().sendMessage(serialize(this.management.configuration().message(
             invocation.source() instanceof Player
               ? ((Player) invocation.source()).getEffectiveLocale()
               : Locale.ENGLISH,
             "command-cloud-sub-command-no-permission"
-          ).replace("%command%", command.name())));
-          return;
+          ).replace("%command%", arguments[0])));
+        } else {
+          // execute the command
+          this.executeNow(invocation.source(), commandLine);
         }
-      }
+      });
     }
-    // execute the command
-    CloudNetDriver.instance().clusterNodeProvider().sendCommandLineAsync(commandLine).thenAccept(messages -> {
-      for (var line : messages) {
-        invocation.source().sendMessage(serialize(this.management.configuration().prefix() + line));
-      }
-    });
+  }
+
+  private void executeNow(@NonNull CommandSource source, @NonNull String commandLine) {
+    for (var output : CloudNetDriver.instance().clusterNodeProvider().sendCommandLine(commandLine)) {
+      source.sendMessage(serialize(this.management.configuration().prefix() + output));
+    }
   }
 
   @Override
   public @NonNull CompletableFuture<List<String>> suggestAsync(@NonNull Invocation invocation) {
-    return CompletableFuture.supplyAsync(() -> List.copyOf(CloudNetDriver.instance()
+    return CloudNetDriver.instance()
       .clusterNodeProvider()
-      .consoleTabCompleteResults(String.join(" ", invocation.arguments()))));
+      .consoleTabCompleteResultsAsync(String.join(" ", invocation.arguments()))
+      .thenApply(List::copyOf);
   }
 
   @Override

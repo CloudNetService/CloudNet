@@ -34,8 +34,8 @@ public final class VaultSupport {
     try {
       var services = plugin.getServer().getServicesManager();
 
-      Permission vaultPermissions = new VaultPermissionImplementation(management);
-      Chat vaultChat = new VaultChatImplementation(vaultPermissions, management);
+      var vaultPermissions = new VaultPermissionImplementation(management);
+      var vaultChat = new VaultChatImplementation(vaultPermissions, management);
 
       services.register(Permission.class, vaultPermissions, plugin, ServicePriority.High);
       services.register(Chat.class, vaultChat, plugin, ServicePriority.High);
