@@ -27,7 +27,7 @@ import com.google.common.collect.SetMultimap;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.command.CommandInfo;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
@@ -90,7 +90,7 @@ public class DefaultCommandProvider implements CommandProvider {
    * @param console the console the provider is handling.
    * @throws NullPointerException if console is null.
    */
-  public DefaultCommandProvider(@NonNull Console console) {
+  public DefaultCommandProvider(@NonNull Console console, @NonNull EventManager eventManager) {
     this.console = console;
     this.commandManager = new DefaultCommandManager();
     this.commandManager.captionVariableReplacementHandler(
@@ -121,7 +121,7 @@ public class DefaultCommandProvider implements CommandProvider {
     this.commandManager.setCommandSuggestionProcessor(new DefaultSuggestionProcessor(this));
     // register the command confirmation handling
     this.registerCommandConfirmation();
-    this.exceptionHandler = new CommandExceptionHandler(this, Node.instance().eventManager());
+    this.exceptionHandler = new CommandExceptionHandler(this, eventManager);
   }
 
   /**
