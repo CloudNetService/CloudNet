@@ -18,18 +18,19 @@ package eu.cloudnetservice.node.event.command;
 
 import eu.cloudnetservice.driver.event.Event;
 import eu.cloudnetservice.node.command.source.CommandSource;
+import java.util.List;
 import lombok.NonNull;
 
 public class CommandInvalidSyntaxEvent extends Event {
 
   private final CommandSource source;
   private final String correctSyntax;
-  private String response;
+  private List<String> response;
 
   public CommandInvalidSyntaxEvent(
     @NonNull CommandSource source,
     @NonNull String correctSyntax,
-    @NonNull String response
+    @NonNull List<String> response
   ) {
     this.source = source;
     this.correctSyntax = correctSyntax;
@@ -53,7 +54,7 @@ public class CommandInvalidSyntaxEvent extends Event {
   /**
    * @return the translated invalid syntax message that is the user will receive
    */
-  public @NonNull String response() {
+  public @NonNull List<String> response() {
     return this.response;
   }
 
@@ -62,7 +63,7 @@ public class CommandInvalidSyntaxEvent extends Event {
    *
    * @param response the message that the user will receive
    */
-  public void response(@NonNull String response) {
+  public void response(@NonNull List<String> response) {
     this.response = response;
   }
 }

@@ -138,7 +138,7 @@ public class Node extends CloudNetDriver {
     rootLogger.addHandler(this.logHandler);
 
     this.console = console;
-    this.commandProvider = new DefaultCommandProvider(console);
+    this.commandProvider = new DefaultCommandProvider(console, this.eventManager);
 
     this.modulesHolder = ModuleJsonReader.read(LAUNCHER_DIR);
     this.moduleUpdaterRegistry = new ModuleUpdaterRegistry();
