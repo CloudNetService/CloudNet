@@ -53,8 +53,8 @@ public class V2HttpAuthentication {
   protected static final Key SIGN_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
   protected static final JwtParser PARSER = Jwts.parserBuilder().setSigningKey(SIGN_KEY).requireIssuer(ISSUER).build();
 
-  protected static final Pattern BASIC_LOGIN_PATTERN = Pattern.compile("Basic ([a-zA-Z0-9=]+)$");
-  protected static final Pattern BEARER_LOGIN_PATTERN = Pattern.compile("Bearer ([a-zA-Z0-9-_.]+)$");
+  protected static final Pattern BASIC_LOGIN_PATTERN = Pattern.compile("Basic ([a-zA-Z\\d=]+)$");
+  protected static final Pattern BEARER_LOGIN_PATTERN = Pattern.compile("Bearer ([a-zA-Z\\d-_.]+)$");
 
   protected static final LoginResult<HttpSession> ERROR_HANDLING_BEARER_LOGIN = LoginResult.failure(
     "Unable to process bearer login");

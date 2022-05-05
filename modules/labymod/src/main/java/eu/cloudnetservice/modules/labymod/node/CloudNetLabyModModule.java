@@ -39,7 +39,7 @@ public class CloudNetLabyModModule extends DriverModule {
 
   private NodeLabyModManagement labyModManagement;
 
-  @ModuleTask(order = 32, event = ModuleLifeCycle.LOADED)
+  @ModuleTask(event = ModuleLifeCycle.LOADED)
   public void convertConfig() {
     if (Files.exists(this.configPath())) {
       var config = this.readConfig().getDocument("config");

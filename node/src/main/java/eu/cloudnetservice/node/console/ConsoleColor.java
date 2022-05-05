@@ -82,7 +82,7 @@ public enum ConsoleColor {
   }
 
   private static @NonNull StringBuffer convertRGBColors(char triggerChar, @NonNull String input) {
-    var matcher = Pattern.compile(triggerChar + "#([0-9a-fA-F]){6}").matcher(input);
+    var matcher = Pattern.compile(triggerChar + "#([\\da-fA-F]){6}").matcher(input);
     var stringBuffer = new StringBuffer();
 
     while (matcher.find()) {
@@ -112,7 +112,7 @@ public enum ConsoleColor {
   }
 
   private static @NonNull StringBuffer stripRGBColors(char triggerChar, @NonNull String input) {
-    var matcher = Pattern.compile(triggerChar + "#([0-9a-fA-F]){6}").matcher(input);
+    var matcher = Pattern.compile(triggerChar + "#([\\da-fA-F]){6}").matcher(input);
     var stringBuffer = new StringBuffer();
 
     while (matcher.find()) {

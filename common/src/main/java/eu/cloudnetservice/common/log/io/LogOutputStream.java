@@ -35,8 +35,8 @@ import lombok.NonNull;
  */
 public final class LogOutputStream extends ByteArrayOutputStream {
 
-  public static boolean DEFAULT_AUTO_FLUSH = true;
-  public static Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
+  public static final boolean DEFAULT_AUTO_FLUSH = true;
+  public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
   private final Level level;
   private final Logger logger;

@@ -71,7 +71,7 @@ public record CloudNetVersion(
         // which equals for a full version string: 3.4.6-alpha-dev-556hfz4
         // this should result in versionType: 'alpha-dev', revision: '556hfz4'
         var lastSplit = extraInformation.lastIndexOf('-');
-        if (lastSplit != -1 && lastSplit < extraInformation.length()) {
+        if (lastSplit != -1) {
           // extract extra information
           var revision = extraInformation.substring(lastSplit + 1);
           // extract the version type
