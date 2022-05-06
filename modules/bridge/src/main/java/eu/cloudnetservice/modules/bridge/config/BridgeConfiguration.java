@@ -115,6 +115,9 @@ public final class BridgeConfiguration extends JsonDocPropertyHolder {
       messages = Preconditions.checkNotNull(this.localizedMessages.get("default"));
     }
     // get the message from the map
-    return String.format("%s%s", withPrefix ? this.prefix : "", messages.get(key));
+    return String.format(
+      "%s%s",
+      withPrefix ? this.prefix : "",
+      messages.getOrDefault(key, DEFAULT_MESSAGES.get("default").get(key)));
   }
 }

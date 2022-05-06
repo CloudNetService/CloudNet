@@ -40,7 +40,6 @@ import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
 import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.Locale;
 import lombok.NonNull;
-import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
@@ -110,10 +109,8 @@ public final class VelocityPlayerManagementListener {
             // send the player a nice message - velocity will keep the connection to the current server
             return Notify.create(this.extractReasonComponent(event));
           } else {
-            // send the player a reason message
-            event.getPlayer().sendMessage(Identity.nil(), this.extractReasonComponent(event));
             // redirect the player to the next available hub server
-            return RedirectPlayer.create(server);
+            return RedirectPlayer.create(server, this.extractReasonComponent(event));
           }
         })
         .orElse(DisconnectPlayer.create(serialize(this.management.configuration().message(
