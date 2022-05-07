@@ -239,7 +239,7 @@ public class PlayersCommand {
     @NonNull @Argument("player") CloudPlayer player,
     @NonNull @Argument("server") ServiceInfoSnapshot server
   ) {
-    if (BridgeServiceProperties.IS_ONLINE.read(server).orElse(false)) {
+    if (BridgeServiceProperties.IS_ONLINE.readOr(server, false)) {
       player.playerExecutor().connect(server.name());
 
       source.sendMessage(

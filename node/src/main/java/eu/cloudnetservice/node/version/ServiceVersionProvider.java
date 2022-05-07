@@ -43,12 +43,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import kong.unirest.Unirest;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
 public class ServiceVersionProvider {
@@ -120,8 +120,8 @@ public class ServiceVersionProvider {
 
   public void registerServiceVersionType(@NonNull ServiceVersionType versionType) {
     // ensure that we know the target environment for the service version
-    Preconditions.checkArgument(
-      this.getEnvironmentType(versionType.environmentType()).isPresent(),
+    Preconditions.checkNotNull(
+      this.getEnvironmentType(versionType.environmentType()),
       "Missing environment %s for service version %s",
       versionType.environmentType(),
       versionType.name());
@@ -129,16 +129,16 @@ public class ServiceVersionProvider {
     this.serviceVersionTypes.put(versionType.name().toLowerCase(), versionType);
   }
 
-  public @NonNull Optional<ServiceVersionType> getServiceVersionType(@NonNull String name) {
-    return Optional.ofNullable(this.serviceVersionTypes.get(name.toLowerCase()));
+  public @Nullable ServiceVersionType getServiceVersionType(@NonNull String name) {
+    return this.serviceVersionTypes.get(name.toLowerCase());
   }
 
   public void registerServiceEnvironmentType(@NonNull ServiceEnvironmentType environmentType) {
     this.serviceEnvironmentTypes.put(environmentType.name().toUpperCase(), environmentType);
   }
 
-  public @NonNull Optional<ServiceEnvironmentType> getEnvironmentType(@NonNull String name) {
-    return Optional.ofNullable(this.serviceEnvironmentTypes.get(name.toUpperCase()));
+  public @Nullable ServiceEnvironmentType getEnvironmentType(@NonNull String name) {
+    return this.serviceEnvironmentTypes.get(name.toUpperCase());
   }
 
   public boolean installServiceVersion(@NonNull VersionInstaller installer, boolean force) {
@@ -147,7 +147,7 @@ public class ServiceVersionProvider {
       installer.serviceVersion().name());
 
     if (!force
-      && installer.installerExecutable().isEmpty()
+      && installer.installerExecutable() == null
       && !installer.serviceVersionType().canInstall(installer.serviceVersion())
     ) {
       throw new IllegalArgumentException(String.format(

@@ -92,20 +92,32 @@ public final class Parsers {
       if (result.length != 2) {
         throw ParserException.INSTANCE;
       }
-      // get the type and version
-      var type = Node.instance().serviceVersionProvider()
-        .getServiceVersionType(result[0])
-        .orElseThrow(() -> ParserException.INSTANCE);
-      var version = type.version(result[1]).orElseThrow(() -> ParserException.INSTANCE);
+      // get the type
+      var type = Node.instance().serviceVersionProvider().getServiceVersionType(result[0]);
+      if (type == null) {
+        throw ParserException.INSTANCE;
+      }
+
+      // get the version
+      var version = type.version(result[1]);
+      if (version == null) {
+        throw ParserException.INSTANCE;
+      }
+
       // combine the result
       return new Pair<>(type, version);
     };
   }
 
   public static @NonNull QuestionAnswerType.Parser<ServiceEnvironmentType> serviceEnvironmentType() {
-    return input -> Node.instance().serviceVersionProvider()
-      .getEnvironmentType(input)
-      .orElseThrow(() -> ParserException.INSTANCE);
+    return input -> {
+      var type = Node.instance().serviceVersionProvider().getEnvironmentType(input);
+      if (type != null) {
+        return type;
+      }
+
+      throw ParserException.INSTANCE;
+    };
   }
 
   public static @NonNull QuestionAnswerType.Parser<String> nonExistingTask() {

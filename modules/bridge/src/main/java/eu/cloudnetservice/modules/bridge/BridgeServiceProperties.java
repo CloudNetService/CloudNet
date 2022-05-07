@@ -101,29 +101,26 @@ public final class BridgeServiceProperties {
 
   private static boolean emptyService(@NonNull ServiceInfoSnapshot service) {
     return service.connected()
-      && service.property(IS_ONLINE).orElse(false)
-      && service.property(ONLINE_COUNT).isPresent()
-      && service.property(ONLINE_COUNT).orElse(0) == 0;
+      && service.propertyOr(IS_ONLINE, false)
+      && service.propertyOr(ONLINE_COUNT, -1) == 0;
   }
 
   private static boolean fullService(@NonNull ServiceInfoSnapshot service) {
     return service.connected()
-      && service.property(IS_ONLINE).orElse(false)
-      && service.property(ONLINE_COUNT).isPresent()
-      && service.property(MAX_PLAYERS).isPresent()
-      && service.property(ONLINE_COUNT).orElse(0) >= service.property(MAX_PLAYERS).orElse(0);
+      && service.propertyOr(IS_ONLINE, false)
+      && service.propertyOr(ONLINE_COUNT, -1) >= service.propertyOr(MAX_PLAYERS, 0);
   }
 
   private static boolean startingService(@NonNull ServiceInfoSnapshot service) {
-    return service.lifeCycle() == ServiceLifeCycle.RUNNING && !service.property(IS_ONLINE).orElse(false);
+    return service.lifeCycle() == ServiceLifeCycle.RUNNING && !service.propertyOr(IS_ONLINE, false);
   }
 
   private static boolean inGameService(@NonNull ServiceInfoSnapshot service) {
     return service.lifeCycle() == ServiceLifeCycle.RUNNING && service.connected()
-      && service.property(IS_ONLINE).orElse(false)
-      && (service.property(MOTD).map(BridgeServiceProperties::matchesInGameString).orElse(false) ||
-      service.property(EXTRA).map(BridgeServiceProperties::matchesInGameString).orElse(false) ||
-      service.property(STATE).map(BridgeServiceProperties::matchesInGameString).orElse(false));
+      && service.propertyOr(IS_ONLINE, false)
+      && (matchesInGameString(service.propertyOr(MOTD, ""))
+      || matchesInGameString(service.propertyOr(EXTRA, ""))
+      || matchesInGameString(service.propertyOr(STATE, "")));
   }
 
   private static boolean matchesInGameString(@NonNull String value) {

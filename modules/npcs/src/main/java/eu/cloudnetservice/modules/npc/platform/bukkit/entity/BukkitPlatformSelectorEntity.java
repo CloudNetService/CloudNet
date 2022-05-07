@@ -324,14 +324,14 @@ public abstract class BukkitPlatformSelectorEntity
       case DIRECT_CONNECT_LOWEST_PLAYERS: {
         this.serviceItems.values().stream()
           .map(ServiceItemWrapper::service)
-          .min(Comparator.comparingInt(service -> BridgeServiceProperties.ONLINE_COUNT.read(service).orElse(0)))
+          .min(Comparator.comparingInt(service -> BridgeServiceProperties.ONLINE_COUNT.readOr(service, 0)))
           .ifPresent(ser -> this.playerManager().playerExecutor(player.getUniqueId()).connect(ser.name()));
       }
       break;
       case DIRECT_CONNECT_HIGHEST_PLAYERS: {
         this.serviceItems.values().stream()
           .map(ServiceItemWrapper::service)
-          .max(Comparator.comparingInt(service -> BridgeServiceProperties.ONLINE_COUNT.read(service).orElse(0)))
+          .max(Comparator.comparingInt(service -> BridgeServiceProperties.ONLINE_COUNT.readOr(service, 0)))
           .ifPresent(ser -> this.playerManager().playerExecutor(player.getUniqueId()).connect(ser.name()));
       }
       break;
@@ -467,11 +467,11 @@ public abstract class BukkitPlatformSelectorEntity
       // general info
       var onlinePlayers = Integer.toString(tracked.stream()
         .map(ServiceItemWrapper::service)
-        .mapToInt(snapshot -> BridgeServiceProperties.ONLINE_COUNT.read(snapshot).orElse(0))
+        .mapToInt(snapshot -> BridgeServiceProperties.ONLINE_COUNT.readOr(snapshot, 0))
         .sum());
       var maxPlayers = Integer.toString(tracked.stream()
         .map(ServiceItemWrapper::service)
-        .mapToInt(snapshot -> BridgeServiceProperties.MAX_PLAYERS.read(snapshot).orElse(0))
+        .mapToInt(snapshot -> BridgeServiceProperties.MAX_PLAYERS.readOr(snapshot, 0))
         .sum());
       var onlineServers = Integer.toString(tracked.size());
       // rebuild the info line

@@ -33,6 +33,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
@@ -63,7 +64,9 @@ public class BuildStepExecutor implements InstallStepExecutor {
     for (var path : paths) {
       List<String> arguments = new ArrayList<>();
 
-      arguments.add(installer.installerExecutable().orElse(Node.instance().config().javaCommand()));
+      arguments.add(Objects.requireNonNullElse(
+        installer.installerExecutable(),
+        Node.instance().config().javaCommand()));
       if (jvmOptions != null) {
         arguments.addAll(jvmOptions);
       }

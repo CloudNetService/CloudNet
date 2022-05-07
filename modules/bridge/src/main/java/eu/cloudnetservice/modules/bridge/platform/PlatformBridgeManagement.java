@@ -63,7 +63,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
 
   protected static final Predicate<ServiceInfoSnapshot> CONNECTED_SERVICE_TESTER = service -> service.connected()
     && service.lifeCycle() == ServiceLifeCycle.RUNNING
-    && BridgeServiceProperties.IS_ONLINE.read(service).orElse(false);
+    && BridgeServiceProperties.IS_ONLINE.readOr(service, false);
 
   protected final RPCSender sender;
   protected final EventManager eventManager;
@@ -286,13 +286,13 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
       // check if the player failed to connect to that fallback during the current iteration
       .filter(service -> !profile.hasTried(service.name()))
       // check if the service is marked as joinable
-      .filter(service -> service.connected() && BridgeServiceProperties.IS_ONLINE.read(service).orElse(false))
+      .filter(service -> service.connected() && BridgeServiceProperties.IS_ONLINE.readOr(service, false))
       // check if the player is not currently connected to that service
       .filter(service -> currentServerName == null || !service.name().equals(currentServerName))
       // find the service with the lowest player count known to use
       .min((optionA, optionB) -> {
-        int playersOnOptionA = BridgeServiceProperties.ONLINE_COUNT.read(optionA).orElse(0);
-        int playersOnOptionB = BridgeServiceProperties.ONLINE_COUNT.read(optionB).orElse(0);
+        int playersOnOptionA = BridgeServiceProperties.ONLINE_COUNT.readOr(optionA, 0);
+        int playersOnOptionB = BridgeServiceProperties.ONLINE_COUNT.readOr(optionB, 0);
         // compare the player count
         return Integer.compare(playersOnOptionA, playersOnOptionB);
       });

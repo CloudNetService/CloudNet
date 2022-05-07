@@ -17,7 +17,6 @@
 package eu.cloudnetservice.driver.service.property;
 
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
-import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import lombok.NonNull;
@@ -73,12 +72,12 @@ public final class FunctionalServiceProperty<T> implements ServiceProperty<T> {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull Optional<T> read(@NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
+  public @Nullable T read(@NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
     if (this.getFunction == null) {
       throw new UnsupportedOperationException("Reading is not supported for this property");
     }
 
-    return Optional.ofNullable(this.getFunction.apply(serviceInfoSnapshot));
+    return this.getFunction.apply(serviceInfoSnapshot);
   }
 
   /**

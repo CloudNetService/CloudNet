@@ -21,8 +21,8 @@ import eu.cloudnetservice.driver.service.ServiceEnvironment;
 import eu.cloudnetservice.node.version.execute.InstallStep;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 public class ServiceVersionType extends ServiceEnvironment {
 
@@ -41,10 +41,11 @@ public class ServiceVersionType extends ServiceEnvironment {
     this.versions = versions;
   }
 
-  public @NonNull Optional<ServiceVersion> version(@NonNull String name) {
+  public @Nullable ServiceVersion version(@NonNull String name) {
     return this.versions.stream()
       .filter(serviceVersion -> serviceVersion.name().equalsIgnoreCase(name))
-      .findFirst();
+      .findFirst()
+      .orElse(null);
   }
 
   public boolean canInstall(@NonNull ServiceVersion serviceVersion) {

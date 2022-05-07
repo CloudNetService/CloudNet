@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -48,8 +47,8 @@ public class PermissionUser extends AbstractPermissible {
   private final Set<PermissionUserGroupInfo> groups;
 
   /**
-   * Constructs a new permission group. The group is not saved or updated in any way before {@link
-   * PermissionManagement#addPermissionUser(PermissionUser)} is called.
+   * Constructs a new permission group. The group is not saved or updated in any way before
+   * {@link PermissionManagement#addPermissionUser(PermissionUser)} is called.
    *
    * @param uniqueId         the unique id of the user.
    * @param hashedPassword   the hashed password of the user.
@@ -160,20 +159,21 @@ public class PermissionUser extends AbstractPermissible {
   }
 
   /**
-   * Searches for any of the users groups with the given name and returns it wrapped in an optional.
+   * Searches for any of the users groups with the given name.
    *
    * @param group the group to search for.
-   * @return the found group wrapped in an optional. The content of the optional is null if no group was found.
+   * @return the information about the assigned group, null if not assigned to this user.
    * @throws NullPointerException if the given group is null.
    */
-  public @NonNull Optional<PermissionUserGroupInfo> findAssignedGroup(@NonNull String group) {
-    return this.groups.stream().filter(info -> info.group().equalsIgnoreCase(group)).findFirst();
+  public @Nullable PermissionUserGroupInfo findAssignedGroup(@NonNull String group) {
+    return this.groups.stream().filter(info -> info.group().equalsIgnoreCase(group)).findFirst().orElse(null);
   }
 
   /**
    * Adds the given group without any time-out to this permission user.
    * <p>
-   * Note: No update is done until the user is manually updated using {@link PermissionManagement#updateUser(PermissionUser)}.
+   * Note: No update is done until the user is manually updated using
+   * {@link PermissionManagement#updateUser(PermissionUser)}.
    *
    * @param group the group to add to the user.
    * @return the same user instance for chaining.
@@ -187,7 +187,8 @@ public class PermissionUser extends AbstractPermissible {
    * Adds the given group with the given time-out to this permission user. The given time-out should be a unix timestamp
    * in the future or any negative int if the group should not expire.
    * <p>
-   * Note: No update is done until the user is manually updated using {@link PermissionManagement#updateUser(PermissionUser)}.
+   * Note: No update is done until the user is manually updated using
+   * {@link PermissionManagement#updateUser(PermissionUser)}.
    *
    * @param group         the group to add to the user.
    * @param timeOutMillis the timestamp for the group expiry.
@@ -202,7 +203,8 @@ public class PermissionUser extends AbstractPermissible {
    * Adds the given group user info to this permission user. Other groups with the same name are replaced by the given
    * group info.
    * <p>
-   * Note: No update is done until the user is manually updated using {@link PermissionManagement#updateUser(PermissionUser)}.
+   * Note: No update is done until the user is manually updated using
+   * {@link PermissionManagement#updateUser(PermissionUser)}.
    *
    * @param groupInfo the group info of the new group for the user.
    * @return the same user instance for chaining.
@@ -225,7 +227,8 @@ public class PermissionUser extends AbstractPermissible {
   /**
    * Removes every group that has the given name.
    * <p>
-   * Note: No update is done until the user is manually updated using {@link PermissionManagement#updateUser(PermissionUser)}.
+   * Note: No update is done until the user is manually updated using
+   * {@link PermissionManagement#updateUser(PermissionUser)}.
    *
    * @param group the group to remove.
    * @return true if any group was removed, false otherwise.

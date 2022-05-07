@@ -21,6 +21,7 @@ import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.service.CloudServiceFactory;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.util.NetworkUtil;
+import java.util.Objects;
 import lombok.NonNull;
 
 public abstract class AbstractServiceFactory implements CloudServiceFactory {
@@ -35,10 +36,9 @@ public abstract class AbstractServiceFactory implements CloudServiceFactory {
 
     // set the environment type
     if (configuration.serviceId().environment() == null) {
-      var env = Node.instance().serviceVersionProvider()
-        .getEnvironmentType(configuration.serviceId().environmentName())
-        .orElseThrow(() -> new IllegalArgumentException(
-          "Unknown environment type " + configuration.serviceId().environmentName()));
+      var env = Objects.requireNonNull(
+        Node.instance().serviceVersionProvider().getEnvironmentType(configuration.serviceId().environmentName()),
+        "Unknown environment type " + configuration.serviceId().environmentName());
       // set the environment type
       configurationBuilder.environment(env);
     }

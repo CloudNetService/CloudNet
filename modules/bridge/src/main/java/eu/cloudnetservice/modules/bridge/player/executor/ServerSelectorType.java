@@ -24,10 +24,10 @@ import lombok.NonNull;
 
 public enum ServerSelectorType {
 
-  HIGHEST_PLAYERS(Comparator.comparingInt(o -> o.property(BridgeServiceProperties.ONLINE_COUNT).orElse(0))),
+  HIGHEST_PLAYERS(Comparator.comparingInt(o -> o.propertyOr(BridgeServiceProperties.ONLINE_COUNT, 0))),
   LOWEST_PLAYERS((o1, o2) -> Integer.compare(
-    o2.property(BridgeServiceProperties.ONLINE_COUNT).orElse(0),
-    o1.property(BridgeServiceProperties.ONLINE_COUNT).orElse(0))),
+    o2.propertyOr(BridgeServiceProperties.ONLINE_COUNT, 0),
+    o1.propertyOr(BridgeServiceProperties.ONLINE_COUNT, 0))),
   RANDOM(Comparator.comparingInt(value -> ThreadLocalRandom.current().nextInt(2) - 1));
 
   private final Comparator<ServiceInfoSnapshot> comparator;

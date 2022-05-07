@@ -24,12 +24,12 @@ import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.provider.SpecificCloudServiceProvider;
 import eu.cloudnetservice.driver.service.property.ServiceProperty;
-import java.util.Optional;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 /**
  * Represents the state of a service at the snapshot creation time. A service snapshot (once created) will never change
@@ -188,11 +188,24 @@ public class ServiceInfoSnapshot extends JsonDocPropertyHolder
    *
    * @param property the property to read.
    * @param <T>      the type which gets read by the given property.
-   * @return an optional containing the value of the property if set in this snapshot, an empty optional otherwise.
+   * @return the value of the property assigned to this snapshot, null if no value is associated.
    * @throws NullPointerException if the given property is null.
    */
-  public <T> @NonNull Optional<T> property(@NonNull ServiceProperty<T> property) {
+  public <T> @Nullable T property(@NonNull ServiceProperty<T> property) {
     return property.read(this);
+  }
+
+  /**
+   * Tries to read the given service property from the properties set in this snapshot.
+   *
+   * @param property the property to read.
+   * @param <T>      the type which gets read by the given property.
+   * @param def      the value to return if the given property is not set in this snapshot.
+   * @return the value of the property assigned to this snapshot, the given default value if no value is associated.
+   * @throws NullPointerException if the given property is null.
+   */
+  public <T> @UnknownNullability T propertyOr(@NonNull ServiceProperty<T> property, @Nullable T def) {
+    return property.readOr(this, def);
   }
 
   /**

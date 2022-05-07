@@ -22,7 +22,6 @@ import eu.cloudnetservice.node.version.ServiceVersionType;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
-import java.util.Optional;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,8 +44,8 @@ public abstract class VersionInstaller {
     this.installerExecutable = installerExecutable;
   }
 
-  public @NonNull Optional<String> installerExecutable() {
-    return Optional.ofNullable(this.installerExecutable);
+  public @Nullable String installerExecutable() {
+    return this.installerExecutable;
   }
 
   public @NonNull ServiceVersion serviceVersion() {

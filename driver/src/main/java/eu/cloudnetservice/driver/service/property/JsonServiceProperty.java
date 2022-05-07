@@ -18,8 +18,8 @@ package eu.cloudnetservice.driver.service.property;
 
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import java.lang.reflect.Type;
-import java.util.Optional;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a service property which writes the value of it directly into the json document of the target service info
@@ -90,8 +90,8 @@ public final class JsonServiceProperty<T> implements ServiceProperty<T> {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull Optional<T> read(@NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
-    return Optional.ofNullable(serviceInfoSnapshot.properties().get(this.key, this.type));
+  public @Nullable T read(@NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
+    return serviceInfoSnapshot.properties().get(this.key, this.type);
   }
 
   /**

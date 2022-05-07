@@ -54,11 +54,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 public class DockerizedService extends JVMService {
 
@@ -156,8 +156,12 @@ public class DockerizedService extends JVMService {
       var user = Objects.requireNonNullElse(this.configuration.user(), "");
 
       // get the task specific options
-      var image = this.readFromTaskConfig(TaskDockerConfig::javaImage).orElse(this.configuration.javaImage());
-      var taskExposedPorts = this.readFromTaskConfig(TaskDockerConfig::exposedPorts).orElse(Set.of());
+      var image = Objects.requireNonNullElse(
+        this.readFromTaskConfig(TaskDockerConfig::javaImage),
+        this.configuration.javaImage());
+      var taskExposedPorts = Objects.requireNonNullElse(
+        this.readFromTaskConfig(TaskDockerConfig::exposedPorts),
+        Set.<ExposedPort>of());
 
       // combine the task options with the global options
       var volumes = this.collectVolumes();
@@ -279,7 +283,7 @@ public class DockerizedService extends JVMService {
     binds.add(this.bindFromPath(this.serviceDirectory.toAbsolutePath().toString(), AccessMode.rw));
 
     // get the task specific volumes and concat them with the default volumes
-    var taskBinds = this.readFromTaskConfig(TaskDockerConfig::binds).orElse(Set.of());
+    var taskBinds = Objects.requireNonNullElse(this.readFromTaskConfig(TaskDockerConfig::binds), Set.<String>of());
     binds.addAll(Stream.concat(taskBinds.stream(), this.configuration.binds().stream())
       .map(path -> this.serviceDirectory.resolve(path).toAbsolutePath().toString())
       .map(path -> this.bindFromPath(path, AccessMode.rw))
@@ -290,16 +294,16 @@ public class DockerizedService extends JVMService {
   }
 
   protected @NonNull Volume[] collectVolumes() {
-    var taskVolumes = this.readFromTaskConfig(TaskDockerConfig::volumes).orElse(Set.of());
+    var taskVolumes = Objects.requireNonNullElse(this.readFromTaskConfig(TaskDockerConfig::volumes), Set.<String>of());
     return Stream.concat(this.configuration.volumes().stream(), taskVolumes.stream())
       .map(Volume::new)
       .distinct()
       .toArray(Volume[]::new);
   }
 
-  protected @NonNull <T> Optional<T> readFromTaskConfig(@NonNull Function<TaskDockerConfig, T> reader) {
+  protected @Nullable <T> T readFromTaskConfig(@NonNull Function<TaskDockerConfig, T> reader) {
     var config = this.serviceConfiguration.properties().get("dockerConfig", TaskDockerConfig.class);
-    return config == null ? Optional.empty() : Optional.ofNullable(reader.apply(config));
+    return config == null ? null : reader.apply(config);
   }
 
   protected boolean needsImagePull(@NonNull DockerImage image) {

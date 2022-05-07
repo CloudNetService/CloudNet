@@ -19,7 +19,6 @@ package eu.cloudnetservice.driver.network.rpc.defaults.handler.context;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.RPCInvocationContext;
-import java.util.Optional;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -135,7 +134,7 @@ public class DefaultRPCInvocationContext implements RPCInvocationContext {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull Optional<Object> workingInstance() {
-    return Optional.ofNullable(this.workingInstance);
+  public @Nullable Object workingInstance() {
+    return this.workingInstance;
   }
 }

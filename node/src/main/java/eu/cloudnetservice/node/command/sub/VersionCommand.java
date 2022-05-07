@@ -74,9 +74,12 @@ public final class VersionCommand {
 
   @Parser(suggestions = "serviceVersionType")
   public @NonNull ServiceVersionType parseVersionType(@NonNull CommandContext<?> $, @NonNull Queue<String> input) {
-    var versionTypeName = input.remove().toLowerCase();
-    return Node.instance().serviceVersionProvider().getServiceVersionType(versionTypeName)
-      .orElseThrow(() -> new ArgumentNotAvailableException(I18n.trans("command-template-invalid-version-type")));
+    var versionType = Node.instance().serviceVersionProvider().getServiceVersionType(input.remove());
+    if (versionType != null) {
+      return versionType;
+    }
+
+    throw new ArgumentNotAvailableException(I18n.trans("command-template-invalid-version-type"));
   }
 
   @Suggestions("serviceVersionType")

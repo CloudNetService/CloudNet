@@ -39,22 +39,22 @@ public enum JavaVersion {
   private static final JavaVersion[] JAVA_VERSIONS = JavaVersion.values();
 
   private final int version;
-  private final double versionId;
+  private final double classFileVersion;
   private final String name;
 
-  JavaVersion(int version, double versionId, @NonNull String name) {
+  JavaVersion(int version, double classFileVersion, @NonNull String name) {
     this.version = version;
-    this.versionId = versionId;
+    this.classFileVersion = classFileVersion;
     this.name = name;
   }
 
   public static @NonNull JavaVersion runtimeVersion() {
-    var versionId = Double.parseDouble(System.getProperty("java.class.version"));
-    return fromVersionId(versionId).orElse(UNKNOWN);
+    var classVersion = Double.parseDouble(System.getProperty("java.class.version"));
+    return fromClassFileVersion(classVersion).orElse(UNKNOWN);
   }
 
-  public static @NonNull Optional<JavaVersion> fromVersionId(double versionId) {
-    return Arrays.stream(JAVA_VERSIONS).filter(javaVersion -> javaVersion.versionId == versionId).findFirst();
+  public static @NonNull Optional<JavaVersion> fromClassFileVersion(double versionId) {
+    return Arrays.stream(JAVA_VERSIONS).filter(javaVersion -> javaVersion.classFileVersion == versionId).findFirst();
   }
 
   public static @NonNull Optional<JavaVersion> fromVersion(int version) {
@@ -65,8 +65,8 @@ public enum JavaVersion {
     return this.version;
   }
 
-  public double versionId() {
-    return this.versionId;
+  public double classFileVersion() {
+    return this.classFileVersion;
   }
 
   public @NonNull String displayName() {
@@ -78,14 +78,15 @@ public enum JavaVersion {
   }
 
   public boolean isSupported(@NonNull JavaVersion minJavaVersion, @NonNull JavaVersion maxJavaVersion) {
-    return this.unknown() || this.versionId >= minJavaVersion.versionId && this.versionId <= maxJavaVersion.versionId;
+    return this.unknown() || this.classFileVersion >= minJavaVersion.classFileVersion
+      && this.classFileVersion <= maxJavaVersion.classFileVersion;
   }
 
   public boolean isSupportedByMin(@NonNull JavaVersion minRequiredJavaVersion) {
-    return this.unknown() || this.versionId >= minRequiredJavaVersion.versionId;
+    return this.unknown() || this.classFileVersion >= minRequiredJavaVersion.classFileVersion;
   }
 
   public boolean isSupportedByMax(@NonNull JavaVersion maxRequiredJavaVersion) {
-    return this.unknown() || this.versionId <= maxRequiredJavaVersion.versionId;
+    return this.unknown() || this.classFileVersion <= maxRequiredJavaVersion.classFileVersion;
   }
 }

@@ -229,8 +229,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
       var versionType = body.get("type", ServiceVersionType.class);
       if (versionType == null) {
-        versionType = this.node().serviceVersionProvider()
-          .getServiceVersionType(body.getString("typeName", "")).orElse(null);
+        versionType = this.node().serviceVersionProvider().getServiceVersionType(body.getString("typeName", ""));
         if (versionType == null) {
           this.badRequest(context)
             .body(this.failure().append("reason", "No service type or type name provided").toString())
@@ -243,7 +242,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
       var version = body.get("version", ServiceVersion.class);
       if (version == null) {
-        version = versionType.version(body.getString("versionName", "")).orElse(null);
+        version = versionType.version(body.getString("versionName", ""));
         if (version == null) {
           this.badRequest(context)
             .body(this.failure().append("reason", "Missing version or version name").toString())

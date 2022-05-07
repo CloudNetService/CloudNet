@@ -88,10 +88,12 @@ public class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler 
   @Override
   public @NonNull HandlingResult handle(@NonNull RPCInvocationContext context) {
     // get the working instance
-    var instance = context
-      .workingInstance()
-      .orElse(context.strictInstanceUsage() ? null : this.bindingInstance);
+    var inst = context.workingInstance();
+    if (inst == null) {
+      inst = context.strictInstanceUsage() ? null : this.bindingInstance;
+    }
     // now we try to find the associated method information to the given method name or try to read it
+    var instance = inst; // pail
     var information = this.methodCache.computeIfAbsent(
       String.format("%d@%s", instance == null ? -1 : instance.hashCode(), context.methodName()),
       $ -> MethodInformation.find(

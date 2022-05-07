@@ -70,7 +70,7 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
       return;
     }
 
-    var serviceVersion = this.versionProvider().getServiceVersionType(version).orElse(null);
+    var serviceVersion = this.versionProvider().getServiceVersionType(version);
     if (serviceVersion == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Unknown service version").toString())
