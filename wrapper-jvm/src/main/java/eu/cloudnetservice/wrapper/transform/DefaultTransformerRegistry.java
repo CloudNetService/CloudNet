@@ -46,7 +46,7 @@ public final class DefaultTransformerRegistry implements TransformerRegistry {
       }
       // check the class name
       var lastSlash = name.lastIndexOf('/');
-      if (lastSlash != -1 && name.length() > lastSlash) {
+      if (lastSlash != -1) {
         var simpleName = name.substring(lastSlash + 1);
         return classname.equals(simpleName);
       }

@@ -40,7 +40,7 @@ public class SetupResponseEvent extends SetupEvent {
     return this.responseEntry;
   }
 
-  public @NonNull Object response() {
+  public @Nullable Object response() {
     return this.response;
   }
 }

@@ -80,7 +80,7 @@ public final class CloudNetTickListener {
           .collect(Collectors.toSet());
         // get all services which are marked as online by the bridge
         var onlineServices = runningServices.stream()
-          .filter(service -> BridgeServiceProperties.IS_ONLINE.read(service).orElse(false))
+          .filter(service -> BridgeServiceProperties.IS_ONLINE.readOr(service, false))
           .collect(Collectors.toSet());
         // handle all smart entries
         this.handleAutoStop(task, config, runningServices, onlineServices);
@@ -160,10 +160,10 @@ public final class CloudNetTickListener {
     }
     // get the overall player counts
     var onlinePlayers = onlineServices.stream()
-      .mapToDouble(service -> BridgeServiceProperties.ONLINE_COUNT.read(service).orElse(0))
+      .mapToDouble(service -> BridgeServiceProperties.ONLINE_COUNT.readOr(service, 0))
       .sum();
     var maximumPlayers = onlineServices.stream()
-      .mapToDouble(service -> BridgeServiceProperties.MAX_PLAYERS.read(service).orElse(0))
+      .mapToDouble(service -> BridgeServiceProperties.MAX_PLAYERS.readOr(service, 0))
       .sum();
     // check if we can create a percentage count
     if (onlinePlayers == 0 || maximumPlayers == 0) {

@@ -27,9 +27,11 @@ import com.google.common.collect.SetMultimap;
 import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.command.CommandInfo;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
+import eu.cloudnetservice.node.command.annotation.Documentation;
 import eu.cloudnetservice.node.command.exception.CommandExceptionHandler;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.command.sub.ClearCommand;
@@ -72,8 +74,9 @@ import org.jetbrains.annotations.Nullable;
 public class DefaultCommandProvider implements CommandProvider {
 
   private static final Key<Set<String>> ALIAS_KEY = Key.of(new TypeToken<Set<String>>() {
-  }, "alias");
+  }, "cloudnet:alias");
   private static final Key<String> DESCRIPTION_KEY = Key.of(String.class, "cloudnet:description");
+  private static final Key<String> DOCUMENTATION_KEY = Key.of(String.class, "cloudnet:documentation");
 
   private final CommandManager<CommandSource> commandManager;
   private final AnnotationParser<CommandSource> annotationParser;
@@ -87,9 +90,11 @@ public class DefaultCommandProvider implements CommandProvider {
    * @param console the console the provider is handling.
    * @throws NullPointerException if console is null.
    */
-  public DefaultCommandProvider(@NonNull Console console) {
+  public DefaultCommandProvider(@NonNull Console console, @NonNull EventManager eventManager) {
     this.console = console;
     this.commandManager = new DefaultCommandManager();
+    this.commandManager.captionVariableReplacementHandler(
+      (caption, variables) -> I18n.trans(caption.getKey(), variables));
     this.annotationParser = new AnnotationParser<>(this.commandManager, CommandSource.class,
       parameters -> SimpleCommandMeta.empty());
     this.registeredCommands = Multimaps.newSetMultimap(new ConcurrentHashMap<>(), ConcurrentHashMap::newKeySet);
@@ -103,13 +108,20 @@ public class DefaultCommandProvider implements CommandProvider {
       }
       return builder;
     });
+    // handle our @Documentation annotation
+    this.annotationParser.registerBuilderModifier(Documentation.class, (documentation, builder) -> {
+      if (!documentation.value().trim().isEmpty()) {
+        return builder.meta(DOCUMENTATION_KEY, documentation.value());
+      }
+      return builder;
+    });
     // register pre- and post-processor to call our events
     this.commandManager.registerCommandPreProcessor(new DefaultCommandPreProcessor());
     this.commandManager.registerCommandPostProcessor(new DefaultCommandPostProcessor());
     this.commandManager.setCommandSuggestionProcessor(new DefaultSuggestionProcessor(this));
     // register the command confirmation handling
     this.registerCommandConfirmation();
-    this.exceptionHandler = new CommandExceptionHandler(this);
+    this.exceptionHandler = new CommandExceptionHandler(this, eventManager);
   }
 
   /**
@@ -150,11 +162,13 @@ public class DefaultCommandProvider implements CommandProvider {
       var description = cloudCommand.getCommandMeta().getOrDefault(DESCRIPTION_KEY, "No description provided");
       // retrieve the aliases processed by the @CommandAlias annotation
       var aliases = cloudCommand.getCommandMeta().getOrDefault(ALIAS_KEY, Collections.emptySet());
+      // retrieve the documentation url processed by the @Documentation annotation
+      var documentation = cloudCommand.getCommandMeta().get(DOCUMENTATION_KEY).orElse(null);
       // get the name by using the first argument of the command
       var name = cloudCommand.getArguments().get(0).getName().toLowerCase();
       // there is no other command registered with the given name, parse usage and register the command now
       this.registeredCommands.put(cloudCommand.getClass().getClassLoader(),
-        new CommandInfo(name, aliases, permission, description, this.commandUsageOfRoot(name)));
+        new CommandInfo(name, aliases, permission, description, documentation, this.commandUsageOfRoot(name)));
     }
   }
 
@@ -261,6 +275,7 @@ public class DefaultCommandProvider implements CommandProvider {
         Set.of(),
         "cloudnet.command.confirm",
         "Confirms command execution of certain commands",
+        null,
         Collections.emptyList()));
   }
 

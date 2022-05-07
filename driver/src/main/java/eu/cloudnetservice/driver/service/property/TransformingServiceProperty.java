@@ -17,7 +17,6 @@
 package eu.cloudnetservice.driver.service.property;
 
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
-import java.util.Optional;
 import java.util.function.BiFunction;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -89,12 +88,13 @@ public final class TransformingServiceProperty<I, T> implements ServiceProperty<
    * {@inheritDoc}
    */
   @Override
-  public @NonNull Optional<T> read(@NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
+  public @Nullable T read(@NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
     if (this.getModifier == null) {
       throw new UnsupportedOperationException("Reading is not supported for this property");
     }
 
-    return this.wrapped.read(serviceInfoSnapshot).map(i -> this.getModifier.apply(serviceInfoSnapshot, i));
+    var wrappedValue = this.wrapped.read(serviceInfoSnapshot);
+    return wrappedValue == null ? null : this.getModifier.apply(serviceInfoSnapshot, wrappedValue);
   }
 
   /**

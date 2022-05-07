@@ -17,23 +17,18 @@
 package eu.cloudnetservice.node.command.exception;
 
 import cloud.commandframework.arguments.CommandArgument;
-import cloud.commandframework.arguments.compound.FlagArgument;
+import cloud.commandframework.arguments.compound.FlagArgument.FailureReason;
 import cloud.commandframework.arguments.compound.FlagArgument.FlagParseException;
-import cloud.commandframework.arguments.preprocessor.RegexPreprocessor;
 import cloud.commandframework.exceptions.ArgumentParseException;
-import cloud.commandframework.exceptions.InvalidCommandSenderException;
+import cloud.commandframework.exceptions.CommandException;
 import cloud.commandframework.exceptions.InvalidSyntaxException;
-import cloud.commandframework.exceptions.NoPermissionException;
 import cloud.commandframework.exceptions.NoSuchCommandException;
-import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.command.CommandInfo;
-import eu.cloudnetservice.node.Node;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.node.command.CommandProvider;
 import eu.cloudnetservice.node.command.source.CommandSource;
-import eu.cloudnetservice.node.command.source.ConsoleCommandSource;
-import eu.cloudnetservice.node.command.source.DriverCommandSource;
 import eu.cloudnetservice.node.event.command.CommandInvalidSyntaxEvent;
 import eu.cloudnetservice.node.event.command.CommandNotFoundEvent;
 import java.util.ArrayList;
@@ -45,18 +40,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * This exception handler provides a default handling of exceptions that can occur on command execution.
- * <p>
- * Handled exceptions:
- * <ul>
- *   <li> {@link InvalidSyntaxException}
- *   <li> {@link NoPermissionException}
- *   <li> {@link NoSuchCommandException}
- *   <li> {@link InvalidCommandSenderException}
- *   <li> {@link ArgumentParseException}
- *   <li> {@link ArgumentNotAvailableException}
- *   <li> {@link FlagParseException}
- *   <li> {@link cloud.commandframework.arguments.preprocessor.RegexPreprocessor.RegexValidationException}
- * </ul>
  *
  * @since 4.0
  */
@@ -65,9 +48,11 @@ public class CommandExceptionHandler {
   protected static final Logger LOGGER = LogManager.logger(CommandExceptionHandler.class);
 
   private final CommandProvider commandProvider;
+  private final EventManager eventManager;
 
-  public CommandExceptionHandler(@NonNull CommandProvider commandProvider) {
+  public CommandExceptionHandler(@NonNull CommandProvider commandProvider, @NonNull EventManager eventManager) {
     this.commandProvider = commandProvider;
+    this.eventManager = eventManager;
   }
 
   /**
@@ -89,153 +74,72 @@ public class CommandExceptionHandler {
     }
 
     // determine the cause type and apply the specific handler
-    if (cause instanceof InvalidSyntaxException syntax) {
-      this.handleInvalidSyntaxException(source, syntax);
-    } else if (cause instanceof NoPermissionException permissionException) {
-      this.handleNoPermissionException(source, permissionException);
-    } else if (cause instanceof NoSuchCommandException commandException) {
-      this.handleNoSuchCommandException(source, commandException);
-    } else if (cause instanceof InvalidCommandSenderException invalidSenderException) {
-      this.handleInvalidCommandSourceException(source, invalidSenderException);
-    } else if (cause instanceof ArgumentParseException argumentParseException) {
-      var deepCause = cause.getCause();
-      if (deepCause instanceof ArgumentNotAvailableException argumentNotAvailableException) {
-        this.handleArgumentNotAvailableException(source, argumentNotAvailableException);
-      } else if (deepCause instanceof FlagArgument.FlagParseException flagParseException) {
-        this.handleFlagParseException(source, flagParseException);
-      } else if (deepCause instanceof RegexPreprocessor.RegexValidationException regexException) {
-        this.handleRegexValidationException(source, regexException);
+    if (cause instanceof CommandException) {
+      if (cause instanceof InvalidSyntaxException invalidSyntaxException) {
+        // call the event to allow an own response
+        var event = this.eventManager.callEvent(new CommandInvalidSyntaxEvent(
+          source,
+          invalidSyntaxException.getCorrectSyntax(),
+          this.collectCommandHelp(invalidSyntaxException.getCurrentChain())));
+        // send the response of the event
+        source.sendMessage(event.response());
+      } else if (cause instanceof NoSuchCommandException noSuchCommandException) {
+        // call the command not found event for own responses
+        var event = this.eventManager.callEvent(new CommandNotFoundEvent(
+          source,
+          noSuchCommandException.getSuppliedCommand(),
+          cause.getMessage()));
+        // send the response of the event
+        source.sendMessage(event.response());
       } else {
-        this.handleArgumentParseException(source, argumentParseException);
+        // just send the message
+        source.sendMessage(cause.getMessage());
+      }
+    } else if (cause instanceof ArgumentParseException parseException) {
+      var deepCause = cause.getCause();
+      if (deepCause instanceof ArgumentNotAvailableException) {
+        source.sendMessage(deepCause.getMessage());
+      } else if (deepCause instanceof CommandException) {
+        // we need to handle this exception extra
+        if (deepCause instanceof FlagParseException flagParseException) {
+          // if no flag is supplied we should reply with the command tree
+          if (flagParseException.getFailureReason() == FailureReason.NO_FLAG_STARTED) {
+            source.sendMessage(this.collectCommandHelp(parseException.getCurrentChain()));
+            return;
+          }
+        }
+        source.sendMessage(deepCause.getMessage());
+      } else {
+        LOGGER.severe("Exception during command argument parsing", cause);
       }
     } else {
       LOGGER.severe("Exception during command execution", cause);
     }
   }
 
-  protected void handleArgumentParseException(
-    @NonNull CommandSource source,
-    @NonNull ArgumentParseException exception
-  ) {
-    LOGGER.severe("Exception during command argument parsing", exception);
-  }
-
-  protected void handleFlagParseException(
-    @NonNull CommandSource source,
-    @NonNull FlagParseException flagParseException
-  ) {
-    // we just ignore this as we can't really handle this due to cloud
-  }
-
-  protected void handleRegexValidationException(
-    @NonNull CommandSource source,
-    @NonNull RegexPreprocessor.RegexValidationException exception
-  ) {
-    source.sendMessage(I18n.trans("command-invalid-regex", exception.getFailedString(), exception.getPattern()));
-  }
-
-  protected void handleArgumentNotAvailableException(
-    @NonNull CommandSource source,
-    @NonNull ArgumentNotAvailableException exception
-  ) {
-    source.sendMessage(exception.getMessage());
-  }
-
-  protected void handleInvalidSyntaxException(
-    @NonNull CommandSource source,
-    @NonNull InvalidSyntaxException exception
-  ) {
-    if (this.replyWithCommandHelp(source, exception.getCurrentChain())) {
-      return;
-    }
-
-    var invalidSyntaxEvent = Node.instance().eventManager().callEvent(
-      new CommandInvalidSyntaxEvent(
-        source,
-        exception.getCorrectSyntax(),
-        I18n.trans("command-invalid-syntax", exception.getCorrectSyntax())
-      )
-    );
-    source.sendMessage(invalidSyntaxEvent.response());
-  }
-
   /**
-   * Calls the {@link CommandNotFoundEvent} when the executed command is unknown and sends the resulting message of the
-   * event to the command source.
+   * Collects the default command help for the given command chain.
    *
-   * @param source    the source causing the exception.
-   * @param exception the exception that needs to be handled.
-   * @throws NullPointerException if source or exception is null.
+   * @param currentChain the current chain of entered commands.
+   * @return a list containing the response for the source.
+   * @throws NullPointerException if the current chain is null.
    */
-  protected void handleNoSuchCommandException(
-    @NonNull CommandSource source,
-    @NonNull NoSuchCommandException exception
-  ) {
-    var notFoundEvent = Node.instance().eventManager().callEvent(
-      new CommandNotFoundEvent(
-        source,
-        exception.getSuppliedCommand(),
-        I18n.trans("command-not-found")));
-    source.sendMessage(notFoundEvent.response());
-  }
-
-  /**
-   * Sends the command source a message regarding missing permissions.
-   *
-   * @param source    the source causing the exception.
-   * @param exception the exception that needs to be handled.
-   * @throws NullPointerException if source or exception is null.
-   */
-  protected void handleNoPermissionException(@NonNull CommandSource source, @NonNull NoPermissionException exception) {
-    source.sendMessage(I18n.trans("command-sub-no-permission"));
-  }
-
-  /**
-   * This notifies the {@link CommandSource} about the fact that the command is only allowed by the {@link
-   * ConsoleCommandSource} if it is a {@link DriverCommandSource} and vice-versa.
-   *
-   * @param source    the source causing the exception.
-   * @param exception the exception that needs to be handled.
-   * @throws NullPointerException if source or exception is null.
-   */
-  protected void handleInvalidCommandSourceException(
-    @NonNull CommandSource source,
-    @NonNull InvalidCommandSenderException exception
-  ) {
-    if (exception.getRequiredSender() == ConsoleCommandSource.class) {
-      source.sendMessage(I18n.trans("command-console-only"));
-    } else {
-      source.sendMessage(I18n.trans("command-driver-only"));
-    }
-  }
-
-  /**
-   * Checks if the cloud itself can handle the help reply
-   *
-   * @param source       the source of the command
-   * @param currentChain the current chain of entered commands
-   * @return whether the cloud can handle the input or not
-   * @throws NullPointerException if source or currentChain is null.
-   */
-  protected boolean replyWithCommandHelp(
-    @NonNull CommandSource source,
-    @NonNull List<CommandArgument<?, ?>> currentChain
-  ) {
+  protected @NonNull List<String> collectCommandHelp(@NonNull List<CommandArgument<?, ?>> currentChain) {
     if (currentChain.isEmpty()) {
       // the command chain is empty, let the user handle the response
-      return false;
+      return List.of();
     }
     var root = currentChain.get(0).getName();
     var commandInfo = this.commandProvider.command(root);
     if (commandInfo == null) {
       // we can't find a matching command, let the user handle the response
-      return false;
+      return List.of();
     }
     // if the chain length is 1 we can just print usage for every sub command
+    List<String> results = new ArrayList<>();
     if (currentChain.size() == 1) {
-      this.printDefaultUsage(source, commandInfo);
+      this.collectDefaultUsage(results, commandInfo);
     } else {
-      List<String> results = new ArrayList<>();
       // rebuild the input of the user
       var commandChain = currentChain.stream().map(CommandArgument::getName).collect(Collectors.joining(" "));
       // check if we can find any chain specific usages
@@ -247,26 +151,22 @@ public class CommandExceptionHandler {
 
       if (results.isEmpty()) {
         // no results found, just print the default usages
-        this.printDefaultUsage(source, commandInfo);
-      } else {
-        // we have chain specific results
-        source.sendMessage(results);
+        this.collectDefaultUsage(results, commandInfo);
       }
     }
-
-    return true;
+    return results;
   }
 
   /**
-   * Formats and prints the command usage of the given CommandInfo
+   * Formats and collects the default command usage for the give command info.
    *
-   * @param source      the source to send the usages to
-   * @param commandInfo the command to print the usage for
-   * @throws NullPointerException if source or commandInfo is null.
+   * @param collector   the list to collect the messages to.
+   * @param commandInfo the command to print the usage for.
+   * @throws NullPointerException if collector or commandInfo is null.
    */
-  protected void printDefaultUsage(@NonNull CommandSource source, @NonNull CommandInfo commandInfo) {
+  protected void collectDefaultUsage(@NonNull List<String> collector, @NonNull CommandInfo commandInfo) {
     for (var usage : commandInfo.usage()) {
-      source.sendMessage("- " + usage);
+      collector.add("- " + usage);
     }
   }
 }

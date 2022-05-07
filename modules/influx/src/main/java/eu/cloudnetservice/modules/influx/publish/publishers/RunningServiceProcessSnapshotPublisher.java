@@ -38,13 +38,13 @@ public final class RunningServiceProcessSnapshotPublisher implements Publisher {
         .addField("MaxMemory", service.processSnapshot().maxHeapMemory())
         .addField("UsedMemory", service.processSnapshot().heapUsageMemory())
         .addField("LoadedClassCount", service.processSnapshot().currentLoadedClassCount())
-        .addField("MaxPlayers", BridgeServiceProperties.MAX_PLAYERS.read(service).orElse(0))
-        .addField("OnlinePlayers", BridgeServiceProperties.ONLINE_COUNT.read(service).orElse(0))
-        .addField("Full", BridgeServiceProperties.IS_FULL.read(service).orElse(false))
-        .addField("Empty", BridgeServiceProperties.IS_EMPTY.read(service).orElse(false))
-        .addField("Online", BridgeServiceProperties.IS_ONLINE.read(service).orElse(false))
-        .addField("Ingame", BridgeServiceProperties.IS_IN_GAME.read(service).orElse(false))
-        .addField("Starting", BridgeServiceProperties.IS_STARTING.read(service).orElse(false))
+        .addField("MaxPlayers", BridgeServiceProperties.MAX_PLAYERS.readOr(service, 0))
+        .addField("OnlinePlayers", BridgeServiceProperties.ONLINE_COUNT.readOr(service, 0))
+        .addField("Full", BridgeServiceProperties.IS_FULL.readOr(service, false))
+        .addField("Empty", BridgeServiceProperties.IS_EMPTY.readOr(service, false))
+        .addField("Online", BridgeServiceProperties.IS_ONLINE.readOr(service, false))
+        .addField("Ingame", BridgeServiceProperties.IS_IN_GAME.readOr(service, false))
+        .addField("Starting", BridgeServiceProperties.IS_STARTING.readOr(service, false))
       ).toList();
   }
 }

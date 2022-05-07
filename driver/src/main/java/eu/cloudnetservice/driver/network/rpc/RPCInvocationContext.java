@@ -19,7 +19,6 @@ package eu.cloudnetservice.driver.network.rpc;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.defaults.handler.context.DefaultRPCInvocationContextBuilder;
-import java.util.Optional;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -97,7 +96,7 @@ public interface RPCInvocationContext {
    *
    * @return the instance to use for calling the requested method (if any).
    */
-  @NonNull Optional<Object> workingInstance();
+  @Nullable Object workingInstance();
 
   /**
    * Represents the builder for a rpc invocation context.

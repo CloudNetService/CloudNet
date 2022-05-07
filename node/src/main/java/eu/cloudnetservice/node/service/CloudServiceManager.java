@@ -25,7 +25,6 @@ import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.Optional;
 import java.util.UUID;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
@@ -37,7 +36,7 @@ public interface CloudServiceManager extends CloudServiceProvider {
 
   @NonNull Collection<CloudServiceFactory> cloudServiceFactories();
 
-  @NonNull Optional<CloudServiceFactory> cloudServiceFactory(@NonNull String runtime);
+  @Nullable CloudServiceFactory cloudServiceFactory(@NonNull String runtime);
 
   void addCloudServiceFactory(@NonNull String runtime, @NonNull CloudServiceFactory factory);
 
@@ -45,7 +44,7 @@ public interface CloudServiceManager extends CloudServiceProvider {
 
   @NonNull Collection<ServiceConfigurationPreparer> servicePreparers();
 
-  @NonNull Optional<ServiceConfigurationPreparer> servicePreparer(@NonNull ServiceEnvironmentType environmentType);
+  @NonNull ServiceConfigurationPreparer servicePreparer(@NonNull ServiceEnvironmentType environmentType);
 
   void addServicePreparer(@NonNull ServiceEnvironmentType type, @NonNull ServiceConfigurationPreparer preparer);
 

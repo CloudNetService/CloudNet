@@ -91,19 +91,19 @@ public final class BridgeServiceHelper {
   public static @NonNull ServiceInfoState guessStateFromServiceInfoSnapshot(@NonNull ServiceInfoSnapshot service) {
     // convert not running or ingame services to STOPPED
     if (service.lifeCycle() != ServiceLifeCycle.RUNNING
-      || service.property(BridgeServiceProperties.IS_IN_GAME).orElse(false)) {
+      || service.propertyOr(BridgeServiceProperties.IS_IN_GAME, false)) {
       return ServiceInfoState.STOPPED;
     }
     // check if the service is empty
-    if (service.property(BridgeServiceProperties.IS_EMPTY).orElse(false)) {
+    if (service.propertyOr(BridgeServiceProperties.IS_EMPTY, false)) {
       return ServiceInfoState.EMPTY_ONLINE;
     }
     // check if the service is full
-    if (service.property(BridgeServiceProperties.IS_FULL).orElse(false)) {
+    if (service.propertyOr(BridgeServiceProperties.IS_FULL, false)) {
       return ServiceInfoState.FULL_ONLINE;
     }
     // check if the service is starting
-    if (service.property(BridgeServiceProperties.IS_STARTING).orElse(false)) {
+    if (service.propertyOr(BridgeServiceProperties.IS_STARTING, false)) {
       return ServiceInfoState.STARTING;
     }
     // check if the service is connected
@@ -152,16 +152,15 @@ public final class BridgeServiceHelper {
     value = value.replace("%max_heap_usage%", Long.toString(service.processSnapshot().maxHeapMemory()));
     value = value.replace("%cpu_usage%", CPUUsageResolver.FORMAT.format(service.processSnapshot().cpuUsage()));
     // bridge information
-    value = value.replace("%online%",
-      BridgeServiceProperties.IS_ONLINE.read(service).orElse(false) ? "Online" : "Offline");
+    value = value.replace("%online%", BridgeServiceProperties.IS_ONLINE.readOr(service, false) ? "Online" : "Offline");
     value = value.replace("%online_players%",
-      Integer.toString(BridgeServiceProperties.ONLINE_COUNT.read(service).orElse(0)));
+      Integer.toString(BridgeServiceProperties.ONLINE_COUNT.readOr(service, 0)));
     value = value.replace("%max_players%",
-      Integer.toString(BridgeServiceProperties.MAX_PLAYERS.read(service).orElse(0)));
-    value = value.replace("%motd%", BridgeServiceProperties.MOTD.read(service).orElse(""));
-    value = value.replace("%extra%", BridgeServiceProperties.EXTRA.read(service).orElse(""));
-    value = value.replace("%state%", BridgeServiceProperties.STATE.read(service).orElse(""));
-    value = value.replace("%version%", BridgeServiceProperties.VERSION.read(service).orElse(""));
+      Integer.toString(BridgeServiceProperties.MAX_PLAYERS.readOr(service, 0)));
+    value = value.replace("%motd%", BridgeServiceProperties.MOTD.readOr(service, ""));
+    value = value.replace("%extra%", BridgeServiceProperties.EXTRA.readOr(service, ""));
+    value = value.replace("%state%", BridgeServiceProperties.STATE.readOr(service, ""));
+    value = value.replace("%version%", BridgeServiceProperties.VERSION.readOr(service, ""));
     // done
     return value;
   }

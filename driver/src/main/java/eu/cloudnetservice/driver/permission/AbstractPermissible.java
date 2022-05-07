@@ -35,12 +35,12 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = false)
 public abstract class AbstractPermissible extends JsonDocPropertyHolder implements Permissible {
 
-  protected String name;
-  protected int potency;
-  protected long createdTime;
+  protected final String name;
+  protected final int potency;
+  protected final long createdTime;
 
-  protected Set<Permission> permissions;
-  protected Map<String, Set<Permission>> groupPermissions;
+  protected final Set<Permission> permissions;
+  protected final Map<String, Set<Permission>> groupPermissions;
 
   /**
    * Constructs a new abstract permissible instance.

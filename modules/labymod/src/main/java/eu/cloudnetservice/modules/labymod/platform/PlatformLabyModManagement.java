@@ -221,7 +221,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
     // used to determine if we need to send the join secret
     var sendJoinSecret = false;
     // check if joining the match is enabled
-    if (joinMatch.enabled() && joinMatch.enabled(snapshot) && !IS_IN_GAME.read(snapshot).orElse(false)) {
+    if (joinMatch.enabled() && joinMatch.enabled(snapshot) && !IS_IN_GAME.readOr(snapshot, false)) {
       // create a new join secret
       playerOptionsBuilder.joinSecret(UUID.randomUUID());
       sendJoinSecret = true;
@@ -234,7 +234,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
     // used to determine if we need to send the spectate secret
     var sendSpectateSecret = false;
     // check if spectating a match is allowed
-    if (spectateMatch.enabled() && spectateMatch.enabled(snapshot) && IS_IN_GAME.read(snapshot).orElse(false)) {
+    if (spectateMatch.enabled() && spectateMatch.enabled(snapshot) && IS_IN_GAME.readOr(snapshot, false)) {
       // create a new spectate secret
       playerOptionsBuilder.spectateSecret(UUID.randomUUID());
       sendSpectateSecret = true;

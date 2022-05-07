@@ -40,8 +40,8 @@ public final class SmartUtil {
   }
 
   public static double playerPercentage(@NonNull ServiceInfoSnapshot snapshot) {
-    int onlinePlayers = BridgeServiceProperties.ONLINE_COUNT.read(snapshot).orElse(0);
-    int maxPlayers = BridgeServiceProperties.MAX_PLAYERS.read(snapshot).orElse(1);
+    int onlinePlayers = BridgeServiceProperties.ONLINE_COUNT.readOr(snapshot, 0);
+    int maxPlayers = BridgeServiceProperties.MAX_PLAYERS.readOr(snapshot, 1);
     // get the player percentage
     return percentage(onlinePlayers, maxPlayers);
   }

@@ -103,8 +103,12 @@ public final class TemplateCommand {
     var version = input.remove();
     ServiceVersionType type = context.get("versionType");
 
-    return type.version(version).orElseThrow(
-      () -> new ArgumentNotAvailableException(I18n.trans("command-template-invalid-version")));
+    var serviceVersion = type.version(version);
+    if (serviceVersion == null) {
+      throw new ArgumentNotAvailableException(I18n.trans("command-template-invalid-version"));
+    }
+
+    return serviceVersion;
   }
 
   @Suggestions("version")
@@ -123,9 +127,12 @@ public final class TemplateCommand {
     @NonNull Queue<String> input
   ) {
     var env = input.remove();
-    return Node.instance().serviceVersionProvider().getEnvironmentType(env)
-      .orElseThrow(() ->
-        new ArgumentNotAvailableException(I18n.trans("command-template-environment-not-found", env)));
+    var type = Node.instance().serviceVersionProvider().getEnvironmentType(env);
+    if (type != null) {
+      return type;
+    }
+
+    throw new ArgumentNotAvailableException(I18n.trans("command-template-environment-not-found", env));
   }
 
   @Suggestions("serviceEnvironments")

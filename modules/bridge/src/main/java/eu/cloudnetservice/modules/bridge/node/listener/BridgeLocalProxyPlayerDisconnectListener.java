@@ -42,7 +42,7 @@ public final class BridgeLocalProxyPlayerDisconnectListener {
     if (info.serviceId().nodeUniqueId().equals(CloudNetDriver.instance().componentName())
       && ServiceEnvironmentType.minecraftProxy(info.serviceId().environment())) {
       // get all the players which are connected to the proxy
-      var players = info.property(BridgeServiceProperties.PLAYERS).orElse(null);
+      var players = info.property(BridgeServiceProperties.PLAYERS);
       if (players == null) {
         // no player property there yet, skip the check
         return;

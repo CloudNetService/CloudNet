@@ -154,7 +154,7 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
       && this.checkServiceGroup(snapshot)) {
       this.proxyOnlineCountCache.put(
         snapshot.serviceId().uniqueId(),
-        BridgeServiceProperties.ONLINE_COUNT.read(snapshot).orElse(0));
+        BridgeServiceProperties.ONLINE_COUNT.readOr(snapshot, 0));
       this.updateTabList();
     }
   }

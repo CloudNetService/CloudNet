@@ -45,7 +45,7 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
    * The jvm static pattern which validate that a task or service name is acceptable. It for example doesn't allow
    * slashes to prevent navigation out of the service directory itself (path traversal).
    */
-  public static final String NAMING_REGEX = "^[a-zA-Z0-9._\\-*]+$";
+  public static final String NAMING_REGEX = "^[a-zA-Z\\d._\\-*]+$";
   public static final Pattern NAMING_PATTERN = Pattern.compile(NAMING_REGEX);
 
   private final String name;

@@ -55,7 +55,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -71,6 +70,8 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
     System.getProperty("cloudnet.tempDir.services", "temp/services"));
   protected static final Path PERSISTENT_SERVICE_DIR = Path.of(
     System.getProperty("cloudnet.persistable.services.path", "local/services"));
+  protected static final ServiceConfigurationPreparer NO_OP_PREPARER = (nodeInstance, cloudService) -> {
+  };
 
   private static final Logger LOGGER = LogManager.logger(CloudServiceManager.class);
 
@@ -229,8 +230,8 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
   }
 
   @Override
-  public @NonNull Optional<CloudServiceFactory> cloudServiceFactory(@NonNull String runtime) {
-    return Optional.ofNullable(this.cloudServiceFactories.get(runtime));
+  public @Nullable CloudServiceFactory cloudServiceFactory(@NonNull String runtime) {
+    return this.cloudServiceFactories.get(runtime);
   }
 
   @Override
@@ -249,8 +250,8 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
   }
 
   @Override
-  public @NonNull Optional<ServiceConfigurationPreparer> servicePreparer(@NonNull ServiceEnvironmentType type) {
-    return Optional.ofNullable(this.preparers.get(type));
+  public @NonNull ServiceConfigurationPreparer servicePreparer(@NonNull ServiceEnvironmentType type) {
+    return this.preparers.getOrDefault(type, NO_OP_PREPARER);
   }
 
   @Override
@@ -375,7 +376,7 @@ public class DefaultCloudServiceManager implements CloudServiceManager {
   @Override
   public @NonNull CloudService createLocalCloudService(@NonNull ServiceConfiguration configuration) {
     // get the cloud service factory for the configuration
-    var factory = this.cloudServiceFactories.get(configuration.runtime());
+    var factory = this.cloudServiceFactory(configuration.runtime());
     if (factory == null) {
       throw new IllegalArgumentException("No service factory for runtime " + configuration.runtime());
     }

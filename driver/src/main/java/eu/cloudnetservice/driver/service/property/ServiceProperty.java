@@ -17,9 +17,9 @@
 package eu.cloudnetservice.driver.service.property;
 
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
-import java.util.Optional;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 /**
  * Represents a property which can be written and read from a service info snapshot, for example the amount of online
@@ -69,11 +69,25 @@ public interface ServiceProperty<T> {
    * Reads the target property from the given service info snapshot.
    *
    * @param serviceInfoSnapshot the service snapshot to get the property from.
-   * @return an optional holding the wrapped value if present, an empty optional otherwise.
+   * @return the value of this property wrapped in the given service info, null if not assigned.
    * @throws NullPointerException          if the given service snapshot is null.
    * @throws UnsupportedOperationException if reading from this property is not supported.
    */
-  @NonNull Optional<T> read(@NonNull ServiceInfoSnapshot serviceInfoSnapshot);
+  @Nullable T read(@NonNull ServiceInfoSnapshot serviceInfoSnapshot);
+
+  /**
+   * Reads the target property from the given service info snapshot.
+   *
+   * @param serviceInfoSnapshot the service snapshot to get the property from.
+   * @param def                 the value to return if this property is not set in the given snapshot.
+   * @return the value of this property wrapped in the given service info, the given default value if not assigned.
+   * @throws NullPointerException          if the given service snapshot is null.
+   * @throws UnsupportedOperationException if reading from this property is not supported.
+   */
+  default @UnknownNullability T readOr(@NonNull ServiceInfoSnapshot serviceInfoSnapshot, @Nullable T def) {
+    var value = this.read(serviceInfoSnapshot);
+    return value == null ? def : value;
+  }
 
   /**
    * Sets the given property value in the service info snapshot. This method will not automatically update the service
