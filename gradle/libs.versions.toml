@@ -46,10 +46,9 @@ awsSdk = "2.17.186"
 reflexion = "1.2.0"
 dockerJava = "3.2.13"
 unirest = "4.0.0-RC2"
-netty = "4.1.77.Final"
 annotations = "23.0.0"
 influxClient = "6.0.0"
-nettyIoUring = "0.0.13.Final"
+netty = "5.0.0.Alpha2-SNAPSHOT"
 
 # platform api versions
 velocity = "3.1.0"
@@ -117,11 +116,10 @@ dockerJavaApi = { group = "com.github.docker-java", name = "docker-java-core", v
 dockerJavaHttpclient5 = { group = "com.github.docker-java", name = "docker-java-transport-httpclient5", version.ref = "dockerJava" }
 
 # netty
-nettyHandler = { group = "io.netty", name = "netty-handler", version.ref = "netty" }
-nettyCodecHttp = { group = "io.netty", name = "netty-codec-http", version.ref = "netty" }
-nettyNativeEpoll = { group = "io.netty", name = "netty-transport-native-epoll", version.ref = "netty" }
-nettyNativeKqueue = { group = "io.netty", name = "netty-transport-native-kqueue", version.ref = "netty" }
-nettyNativeIoUring = { group = "io.netty.incubator", name = "netty-incubator-transport-native-io_uring", version.ref = "nettyIoUring" }
+nettyHandler = { group = "io.netty", name = "netty5-handler", version.ref = "netty" }
+nettyCodecHttp = { group = "io.netty", name = "netty5-codec-http", version.ref = "netty" }
+nettyNativeEpoll = { group = "io.netty", name = "netty5-transport-native-epoll", version.ref = "netty" }
+nettyNativeKqueue = { group = "io.netty", name = "netty5-transport-native-kqueue", version.ref = "netty" }
 
 # general
 asm = { group = "org.ow2.asm", name = "asm-tree", version.ref = "asm" }

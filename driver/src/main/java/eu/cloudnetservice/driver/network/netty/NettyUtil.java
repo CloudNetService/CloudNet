@@ -20,14 +20,13 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.DriverEnvironment;
 import eu.cloudnetservice.driver.network.exception.SilentDecoderException;
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFactory;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.ServerChannel;
-import io.netty.util.ResourceLeakDetector;
-import io.netty.util.internal.logging.InternalLoggerFactory;
-import io.netty.util.internal.logging.JdkLoggerFactory;
+import io.netty5.buffer.api.Buffer;
+import io.netty5.channel.Channel;
+import io.netty5.channel.ChannelFactory;
+import io.netty5.channel.EventLoopGroup;
+import io.netty5.channel.ServerChannel;
+import io.netty5.channel.ServerChannelFactory;
+import io.netty5.util.ResourceLeakDetector;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -46,23 +45,29 @@ import org.jetbrains.annotations.Range;
 @Internal
 public final class NettyUtil {
 
+  // pre-computed var int byte lengths
+  private static final int[] VAR_INT_BYTE_LENGTHS = new int[33];
   // transport
   private static final boolean NO_NATIVE_TRANSPORT = Boolean.getBoolean("cloudnet.no-native");
-  private static final NettyTransport CURR_NETTY_TRANSPORT = NettyTransport.availableTransport(NO_NATIVE_TRANSPORT);
   // var int codec
   private static final SilentDecoderException INVALID_VAR_INT = new SilentDecoderException("Invalid var int");
+  private static final NettyTransport CURR_NETTY_TRANSPORT = NettyTransport.availableTransport(NO_NATIVE_TRANSPORT);
   // packet thread handling
   private static final RejectedExecutionHandler DEFAULT_REJECT_HANDLER = new ThreadPoolExecutor.CallerRunsPolicy();
 
   static {
-    // use jdk logger to prevent issues with older slf4j versions
-    // like them bundled in spigot 1.8
-    InternalLoggerFactory.setDefaultFactory(JdkLoggerFactory.INSTANCE);
     // check if the leak detection level is set before overriding it
     // may be useful for debugging of the network
-    if (System.getProperty("io.netty.leakDetection.level") == null) {
+    if (System.getProperty("io.netty5.leakDetection.level") == null) {
       ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
     }
+
+    // pre-compute all var int byte lengths
+    for (int i = 0; i <= 32; ++i) {
+      VAR_INT_BYTE_LENGTHS[i] = (int) Math.ceil((31d - (i - 1)) / 7d);
+    }
+    // 0 is always one byte long
+    VAR_INT_BYTE_LENGTHS[32] = 1;
   }
 
   private NettyUtil() {
@@ -123,25 +128,25 @@ public final class NettyUtil {
    *
    * @return a new channel factory for network servers based on the epoll availability.
    */
-  public static @NonNull ChannelFactory<? extends ServerChannel> serverChannelFactory() {
+  public static @NonNull ServerChannelFactory<? extends ServerChannel> serverChannelFactory() {
     return CURR_NETTY_TRANSPORT.serverChannelFactory();
   }
 
   /**
    * Writes the given integer value as a var int into the buffer.
    *
-   * @param byteBuf the buffer to write to.
-   * @param value   the value to write into the buffer.
+   * @param buffer the buffer to write to.
+   * @param value  the value to write into the buffer.
    * @return the buffer used to call the method, for chaining.
    * @throws NullPointerException if the given byte buf is null.
    */
-  public static @NonNull ByteBuf writeVarInt(@NonNull ByteBuf byteBuf, int value) {
+  public static @NonNull Buffer writeVarInt(@NonNull Buffer buffer, int value) {
     while (true) {
       if ((value & ~0x7F) == 0) {
-        byteBuf.writeByte(value);
-        return byteBuf;
+        buffer.writeByte((byte) value);
+        return buffer;
       } else {
-        byteBuf.writeByte((value & 0x7F) | 0x80);
+        buffer.writeByte((byte) ((value & 0x7F) | 0x80));
         value >>>= 7;
       }
     }
@@ -150,22 +155,32 @@ public final class NettyUtil {
   /**
    * Reads a var int from the given buffer.
    *
-   * @param byteBuf the buffer to read from.
+   * @param buffer the buffer to read from.
    * @return the var int read from the buffer.
    * @throws SilentDecoderException if the buf current position has no var int.
    * @throws NullPointerException   if the given buffer to read from is null.
    */
-  public static int readVarInt(@NonNull ByteBuf byteBuf) {
+  public static int readVarInt(@NonNull Buffer buffer) {
     var i = 0;
-    var maxRead = Math.min(5, byteBuf.readableBytes());
+    var maxRead = Math.min(5, buffer.readableBytes());
     for (var j = 0; j < maxRead; j++) {
-      int nextByte = byteBuf.readByte();
+      var nextByte = buffer.readByte();
       i |= (nextByte & 0x7F) << j * 7;
       if ((nextByte & 0x80) != 128) {
         return i;
       }
     }
     throw INVALID_VAR_INT;
+  }
+
+  /**
+   * Gets the number of bytes that writing the given content length as a var int will take in the underlying buffer.
+   *
+   * @param contentLength the number to get the amount of bytes for.
+   * @return the number of bytes writing the given number as a var int will take.
+   */
+  public static int varIntBytes(int contentLength) {
+    return VAR_INT_BYTE_LENGTHS[Integer.numberOfLeadingZeros(contentLength)];
   }
 
   /**

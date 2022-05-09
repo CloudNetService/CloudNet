@@ -19,9 +19,9 @@ package eu.cloudnetservice.driver.network.netty.http;
 import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.HttpRequest;
 import eu.cloudnetservice.driver.network.http.HttpVersion;
-import io.netty.buffer.ByteBufInputStream;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.QueryStringDecoder;
+import io.netty5.buffer.BufferInputStream;
+import io.netty5.handler.codec.http.FullHttpRequest;
+import io.netty5.handler.codec.http.QueryStringDecoder;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -43,7 +43,7 @@ final class NettyHttpServerRequest extends NettyHttpMessage implements HttpReque
   private final NettyHttpServerContext context;
 
   private final URI uri;
-  private final io.netty.handler.codec.http.HttpRequest httpRequest;
+  private final io.netty5.handler.codec.http.HttpRequest httpRequest;
 
   private final Map<String, String> pathParameters;
   private final Map<String, List<String>> queryParameters;
@@ -61,7 +61,7 @@ final class NettyHttpServerRequest extends NettyHttpMessage implements HttpReque
    */
   public NettyHttpServerRequest(
     @NonNull NettyHttpServerContext context,
-    @NonNull io.netty.handler.codec.http.HttpRequest httpRequest,
+    @NonNull io.netty5.handler.codec.http.HttpRequest httpRequest,
     @NonNull Map<String, String> pathParameters,
     @NonNull URI uri
   ) {
@@ -214,17 +214,14 @@ final class NettyHttpServerRequest extends NettyHttpMessage implements HttpReque
    */
   @Override
   public byte[] body() {
-    if (this.httpRequest instanceof FullHttpRequest) {
+    if (this.httpRequest instanceof FullHttpRequest request) {
       if (this.body == null) {
-        var httpRequest = (FullHttpRequest) this.httpRequest;
-        var length = httpRequest.content().readableBytes();
+        // initialize the body
+        var length = request.payload().readableBytes();
+        this.body = new byte[length];
 
-        if (httpRequest.content().hasArray()) {
-          this.body = httpRequest.content().array();
-        } else {
-          this.body = new byte[length];
-          httpRequest.content().getBytes(httpRequest.content().readerIndex(), this.body);
-        }
+        // copy out the bytes of the buffer
+        request.payload().copyInto(request.payload().readableBytes(), this.body, 0, length);
       }
 
       return this.body;
@@ -263,7 +260,7 @@ final class NettyHttpServerRequest extends NettyHttpMessage implements HttpReque
   @Override
   public @Nullable InputStream bodyStream() {
     if (this.httpRequest instanceof FullHttpRequest) {
-      return new ByteBufInputStream(((FullHttpRequest) this.httpRequest).content());
+      return new BufferInputStream(((FullHttpRequest) this.httpRequest).payload().send());
     } else {
       return null;
     }
@@ -282,6 +279,6 @@ final class NettyHttpServerRequest extends NettyHttpMessage implements HttpReque
    */
   @Override
   public boolean hasBody() {
-    return this.httpRequest instanceof FullHttpRequest request && request.content().readableBytes() > 0;
+    return this.httpRequest instanceof FullHttpRequest request && request.payload().readableBytes() > 0;
   }
 }

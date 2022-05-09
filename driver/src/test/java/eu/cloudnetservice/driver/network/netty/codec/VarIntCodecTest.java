@@ -17,8 +17,8 @@
 package eu.cloudnetservice.driver.network.netty.codec;
 
 import eu.cloudnetservice.driver.network.netty.NettyUtil;
-import io.netty.buffer.Unpooled;
-import java.util.Random;
+import io.netty5.buffer.api.DefaultBufferAllocators;
+import java.util.concurrent.ThreadLocalRandom;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -26,19 +26,18 @@ public class VarIntCodecTest {
 
   @Test
   void testNettyUtilVarIntWriteRead() {
-    var random = new Random();
-    var buffer = Unpooled.buffer(5);
+    try (var buffer = DefaultBufferAllocators.onHeapAllocator().allocate(5)) {
+      for (int curr = 1; curr < 5_000_000; curr += 31) {
+        // write an extra long to try trick the deserializer
+        NettyUtil.writeVarInt(buffer, curr);
+        buffer.writeLong(ThreadLocalRandom.current().nextLong());
 
-    for (int curr = 1; curr < 5_000_000; curr += 31) {
-      // write an extra long to try trick the deserializer
-      NettyUtil.writeVarInt(buffer, curr);
-      buffer.writeLong(random.nextLong());
+        // read
+        Assertions.assertEquals(curr, NettyUtil.readVarInt(buffer));
 
-      // read
-      Assertions.assertEquals(curr, NettyUtil.readVarInt(buffer));
-
-      // reset
-      buffer.clear();
+        // reset
+        buffer.resetOffsets().fill((byte) 0);
+      }
     }
   }
 }

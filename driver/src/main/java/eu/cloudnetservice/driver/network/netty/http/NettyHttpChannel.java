@@ -18,7 +18,7 @@ package eu.cloudnetservice.driver.network.netty.http;
 
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.http.HttpChannel;
-import io.netty.channel.Channel;
+import io.netty5.channel.Channel;
 import lombok.NonNull;
 
 /**

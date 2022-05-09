@@ -18,7 +18,7 @@ package eu.cloudnetservice.driver.network.netty;
 
 import eu.cloudnetservice.driver.DriverEnvironment;
 import eu.cloudnetservice.driver.DriverTestUtil;
-import io.netty.buffer.Unpooled;
+import io.netty5.buffer.api.DefaultBufferAllocators;
 import java.util.concurrent.ThreadLocalRandom;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.RepeatedTest;
@@ -47,14 +47,11 @@ public class NettyUtilTest {
 
   @RepeatedTest(30)
   public void testVarIntCoding() {
-    var byteBuf = Unpooled.buffer();
-    var i = ThreadLocalRandom.current().nextInt();
+    try (var buffer = DefaultBufferAllocators.onHeapAllocator().allocate(0)) {
+      var i = ThreadLocalRandom.current().nextInt();
 
-    try {
-      Assertions.assertNotNull(NettyUtil.writeVarInt(byteBuf, i));
-      Assertions.assertEquals(i, NettyUtil.readVarInt(byteBuf));
-    } finally {
-      byteBuf.release();
+      Assertions.assertNotNull(NettyUtil.writeVarInt(buffer, i));
+      Assertions.assertEquals(i, NettyUtil.readVarInt(buffer));
     }
   }
 }

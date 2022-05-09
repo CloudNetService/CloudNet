@@ -17,11 +17,11 @@
 package eu.cloudnetservice.driver.network.netty;
 
 import eu.cloudnetservice.driver.network.ssl.SSLConfiguration;
-import io.netty.handler.ssl.ClientAuth;
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
-import io.netty.handler.ssl.util.SelfSignedCertificate;
+import io.netty5.handler.ssl.ClientAuth;
+import io.netty5.handler.ssl.SslContext;
+import io.netty5.handler.ssl.SslContextBuilder;
+import io.netty5.handler.ssl.util.InsecureTrustManagerFactory;
+import io.netty5.handler.ssl.util.SelfSignedCertificate;
 import java.nio.file.Files;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
@@ -59,8 +59,10 @@ public abstract class NettySslServer {
       if (this.sslConfiguration.certificatePath() != null && this.sslConfiguration.privateKeyPath() != null) {
         try (var cert = Files.newInputStream(this.sslConfiguration.certificatePath());
           var privateKey = Files.newInputStream(this.sslConfiguration.privateKeyPath())) {
+          // begin building the new ssl context building based on the certificate and private key
           var builder = SslContextBuilder.forServer(cert, privateKey);
 
+          // check if a trust certificate was given, if not just trusts all certificates
           if (this.sslConfiguration.trustCertificatePath() != null) {
             try (var stream = Files.newInputStream(this.sslConfiguration.trustCertificatePath())) {
               builder.trustManager(stream);
@@ -69,11 +71,13 @@ public abstract class NettySslServer {
             builder.trustManager(InsecureTrustManagerFactory.INSTANCE);
           }
 
+          // build the context
           this.sslContext = builder
             .clientAuth(this.sslConfiguration.clientAuth() ? ClientAuth.REQUIRE : ClientAuth.OPTIONAL)
             .build();
         }
       } else {
+        // self-sign a certificate as no certificate was provided
         var selfSignedCertificate = new SelfSignedCertificate();
         this.sslContext = SslContextBuilder
           .forServer(selfSignedCertificate.certificate(), selfSignedCertificate.privateKey())

@@ -19,7 +19,8 @@ package eu.cloudnetservice.driver.network.netty.buffer;
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
-import io.netty.buffer.Unpooled;
+import io.netty5.buffer.api.BufferAllocator;
+import io.netty5.buffer.api.DefaultBufferAllocators;
 import lombok.NonNull;
 
 /**
@@ -31,6 +32,8 @@ import lombok.NonNull;
 public class NettyDataBufFactory implements DataBufFactory {
 
   public static final NettyDataBufFactory INSTANCE = new NettyDataBufFactory();
+  // we always use off-heap as this is the preferred allocator on Java 9+ (and we required Java 17)
+  protected static final BufferAllocator ALLOCATOR = DefaultBufferAllocators.offHeapAllocator();
 
   /**
    * Creates a new instance of this factory. This method is protected to allow developers to create their own variant of
@@ -45,15 +48,7 @@ public class NettyDataBufFactory implements DataBufFactory {
    */
   @Override
   public @NonNull DataBuf.Mutable createEmpty() {
-    return new NettyMutableDataBuf(Unpooled.buffer());
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @NonNull DataBuf createReadOnly() {
-    return new NettyImmutableDataBuf(Unpooled.EMPTY_BUFFER);
+    return new NettyMutableDataBuf(ALLOCATOR.allocate(0));
   }
 
   /**
@@ -61,7 +56,7 @@ public class NettyDataBufFactory implements DataBufFactory {
    */
   @Override
   public @NonNull DataBuf createOf(byte @NonNull [] bytes) {
-    return new NettyImmutableDataBuf(Unpooled.wrappedBuffer(bytes));
+    return new NettyImmutableDataBuf(ALLOCATOR.copyOf(bytes));
   }
 
   /**
@@ -70,7 +65,10 @@ public class NettyDataBufFactory implements DataBufFactory {
   @Override
   public @NonNull DataBuf copyOf(@NonNull DataBuf dataBuf) {
     Preconditions.checkArgument(dataBuf instanceof NettyImmutableDataBuf, "Factory only supports netty data buf copy");
-    return new NettyImmutableDataBuf(Unpooled.copiedBuffer(((NettyImmutableDataBuf) dataBuf).byteBuf));
+
+    // create a full copy of the buffer
+    var buffer = ((NettyImmutableDataBuf) dataBuf).buffer();
+    return new NettyImmutableDataBuf(buffer.copy(0, buffer.readableBytes()));
   }
 
   /**
@@ -79,7 +77,10 @@ public class NettyDataBufFactory implements DataBufFactory {
   @Override
   public @NonNull DataBuf.Mutable mutableCopyOf(@NonNull DataBuf dataBuf) {
     Preconditions.checkArgument(dataBuf instanceof NettyImmutableDataBuf, "Factory only supports netty data buf copy");
-    return new NettyMutableDataBuf(Unpooled.copiedBuffer(((NettyImmutableDataBuf) dataBuf).byteBuf));
+
+    // create a full copy of the buffer
+    var buffer = ((NettyImmutableDataBuf) dataBuf).buffer();
+    return new NettyMutableDataBuf(buffer.copy(0, buffer.readableBytes()));
   }
 
   /**
@@ -87,6 +88,6 @@ public class NettyDataBufFactory implements DataBufFactory {
    */
   @Override
   public @NonNull DataBuf.Mutable createWithExpectedSize(int byteSize) {
-    return new NettyMutableDataBuf(Unpooled.buffer(byteSize));
+    return new NettyMutableDataBuf(ALLOCATOR.allocate(byteSize));
   }
 }

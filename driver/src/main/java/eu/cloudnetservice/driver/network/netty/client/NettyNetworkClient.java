@@ -26,17 +26,15 @@ import eu.cloudnetservice.driver.network.netty.NettyUtil;
 import eu.cloudnetservice.driver.network.protocol.PacketListenerRegistry;
 import eu.cloudnetservice.driver.network.protocol.defaults.DefaultPacketListenerRegistry;
 import eu.cloudnetservice.driver.network.ssl.SSLConfiguration;
-import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.WriteBufferWaterMark;
-import io.netty.handler.ssl.ClientAuth;
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
-import io.netty.handler.ssl.util.SelfSignedCertificate;
+import io.netty5.bootstrap.Bootstrap;
+import io.netty5.channel.ChannelOption;
+import io.netty5.channel.EventLoopGroup;
+import io.netty5.channel.WriteBufferWaterMark;
+import io.netty5.handler.ssl.ClientAuth;
+import io.netty5.handler.ssl.SslContext;
+import io.netty5.handler.ssl.SslContextBuilder;
+import io.netty5.handler.ssl.util.InsecureTrustManagerFactory;
+import io.netty5.handler.ssl.util.SelfSignedCertificate;
 import java.nio.file.Files;
 import java.util.Collection;
 import java.util.Collections;
@@ -121,11 +119,9 @@ public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClien
       .option(ChannelOption.AUTO_READ, true)
       .option(ChannelOption.TCP_NODELAY, true)
       .option(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK)
-      .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
       .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECTION_TIMEOUT_MILLIS)
 
       .connect(hostAndPort.host(), hostAndPort.port())
-      .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
       .addListener(future -> {
         if (future.isSuccess()) {
           // ok, we connected successfully
@@ -189,8 +185,8 @@ public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClien
   private void init() throws Exception {
     if (this.sslConfiguration != null && this.sslConfiguration.enabled()) {
       if (this.sslConfiguration.certificatePath() != null && this.sslConfiguration.privateKeyPath() != null) {
+        // assign the trust certificate to the builder, trust all certificates if no trust certificate was specified
         var builder = SslContextBuilder.forClient();
-
         if (this.sslConfiguration.trustCertificatePath() != null) {
           try (var stream = Files.newInputStream(this.sslConfiguration.trustCertificatePath())) {
             builder.trustManager(stream);
@@ -199,6 +195,7 @@ public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClien
           builder.trustManager(InsecureTrustManagerFactory.INSTANCE);
         }
 
+        // apply both certificates to the builder
         try (var cert = Files.newInputStream(this.sslConfiguration.certificatePath());
           var privateKey = Files.newInputStream(this.sslConfiguration.privateKeyPath())) {
           this.sslContext = builder
@@ -207,6 +204,7 @@ public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClien
             .build();
         }
       } else {
+        // self sign a certificate as non was given
         var selfSignedCertificate = new SelfSignedCertificate();
         this.sslContext = SslContextBuilder.forClient()
           .trustManager(InsecureTrustManagerFactory.INSTANCE)
