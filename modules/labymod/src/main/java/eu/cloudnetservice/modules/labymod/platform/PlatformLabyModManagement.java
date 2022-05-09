@@ -24,6 +24,7 @@ import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.player.CloudPlayer;
@@ -47,8 +48,8 @@ public class PlatformLabyModManagement implements LabyModManagement {
     this.rpcSender = Wrapper.instance().rpcFactory().providerForClass(
       Wrapper.instance().networkClient(),
       LabyModManagement.class);
-    this.playerManager = Wrapper.instance().serviceRegistry().firstProvider(PlayerManager.class);
-    this.bridgeManagement = Wrapper.instance().serviceRegistry().firstProvider(PlatformBridgeManagement.class);
+    this.playerManager = ServiceRegistry.first(PlayerManager.class);
+    this.bridgeManagement = ServiceRegistry.first(PlatformBridgeManagement.class);
     this.setConfigurationSilently(this.rpcSender.invokeMethod("configuration").fireSync());
   }
 

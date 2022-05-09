@@ -18,11 +18,11 @@ package eu.cloudnetservice.modules.labymod.platform;
 
 import eu.cloudnetservice.driver.event.EventListener;
 import eu.cloudnetservice.driver.event.events.channel.ChannelMessageReceiveEvent;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.bridge.event.BridgeProxyPlayerServerSwitchEvent;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.labymod.LabyModManagement;
 import eu.cloudnetservice.modules.labymod.config.LabyModConfiguration;
-import eu.cloudnetservice.wrapper.Wrapper;
 import lombok.NonNull;
 
 public class PlatformLabyModListener {
@@ -32,7 +32,7 @@ public class PlatformLabyModListener {
 
   public PlatformLabyModListener(@NonNull PlatformLabyModManagement labyModManagement) {
     this.labyModManagement = labyModManagement;
-    this.bridgeManagement = Wrapper.instance().serviceRegistry().firstProvider(PlatformBridgeManagement.class);
+    this.bridgeManagement = ServiceRegistry.first(PlatformBridgeManagement.class);
   }
 
   @EventListener

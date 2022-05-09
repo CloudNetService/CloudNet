@@ -18,7 +18,7 @@ package eu.cloudnetservice.modules.npc.platform.bukkit.entity;
 
 import dev.derklaro.reflexion.MethodAccessor;
 import dev.derklaro.reflexion.Reflexion;
-import eu.cloudnetservice.driver.CloudNetDriver;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.bridge.BridgeServiceProperties;
@@ -409,7 +409,7 @@ public abstract class BukkitPlatformSelectorEntity
   }
 
   protected @NonNull PlayerManager playerManager() {
-    return CloudNetDriver.instance().serviceRegistry().firstProvider(PlayerManager.class);
+    return ServiceRegistry.first(PlayerManager.class);
   }
 
   protected double heightAddition(int lineNumber) {
