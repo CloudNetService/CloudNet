@@ -47,7 +47,10 @@ public final class NettyPacketEncoder extends MessageToByteEncoderForBuffer<Pack
   @Override
   protected Buffer allocateBuffer(ChannelHandlerContext ctx, Packet msg) {
     // we allocate 2 booleans (prioritized and isQuery) + content length + channel in advance
-    var bufferLength = 2 + NettyUtil.varIntBytes(msg.channel()) + NettyUtil.varIntBytes(msg.content().readableBytes());
+    var bufferLength = 2
+      + msg.content().readableBytes()
+      + NettyUtil.varIntBytes(msg.channel())
+      + NettyUtil.varIntBytes(msg.content().readableBytes());
     // if the given packet has a query unique id we need two longs for that unique id as well
     if (msg.uniqueId() != null) {
       bufferLength += 16;
@@ -80,7 +83,9 @@ public final class NettyPacketEncoder extends MessageToByteEncoderForBuffer<Pack
     // write information to buffer
     var length = content.readableBytes();
     NettyUtil.writeVarInt(out, length);
+    // copy the content and move the cursor of the destination buffer
     content.copyInto(0, out, out.writerOffset(), length);
+    out.skipWritable(length);
     // release the content of the packet now, don't use the local field to respect if releasing was disabled in the
     // original buffer.
     msg.content().release();
