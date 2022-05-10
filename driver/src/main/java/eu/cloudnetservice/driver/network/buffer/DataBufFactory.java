@@ -48,20 +48,13 @@ public interface DataBufFactory {
   @NonNull DataBuf.Mutable createEmpty();
 
   /**
-   * Creates a new, readonly buffer which is always empty. Neither reads, nor writes will change the buffer in any way.
-   *
-   * @return a new, always empty buffer.
-   */
-  @NonNull DataBuf createReadOnly();
-
-  /**
    * Creates a new readonly buffer wrapping the given byte array and using it as it's data source. Modification to the
    * given bytes will be visible in the buffer.
    *
    * @param bytes the bytes to wrap.
    * @return a new buffer wrapping the given bytes.
    */
-  @NonNull DataBuf createOf(byte @NonNull [] bytes);
+  @NonNull DataBuf fromBytes(byte[] bytes);
 
   /**
    * Creates a readonly copy of the given data buffer. The copied variant of the buffer will start the read process from

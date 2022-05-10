@@ -89,7 +89,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
   }
 
   public void handleIncomingClientMessage(@NonNull UUID playerId, @Nullable String server, byte @NonNull [] bytes) {
-    var dataBuf = DataBufFactory.defaultFactory().createOf(bytes);
+    var dataBuf = DataBufFactory.defaultFactory().fromBytes(bytes);
     var dataKey = dataBuf.readString();
     var jsonData = JsonDocument.fromJsonString(dataBuf.readString());
 
