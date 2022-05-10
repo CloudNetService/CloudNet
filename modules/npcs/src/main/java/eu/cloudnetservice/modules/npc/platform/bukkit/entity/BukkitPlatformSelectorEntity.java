@@ -119,7 +119,7 @@ public abstract class BukkitPlatformSelectorEntity
         this.addGlowingEffect();
       }
       // spawn the info lines
-      for (var i = npc.infoLines().size() - 1; i >= 0; i--) {
+      for (var i = this.npc.infoLines().size() - 1; i >= 0; i--) {
         var armorStand = (ArmorStand) this.npcLocation.getWorld().spawnEntity(
           this.npcLocation.clone().add(0, this.heightAddition(i), 0),
           EntityType.ARMOR_STAND);
@@ -130,7 +130,7 @@ public abstract class BukkitPlatformSelectorEntity
         armorStand.setCanPickupItems(false);
         armorStand.setCustomNameVisible(true);
         // if it is the top info line try to spawn the item above it
-        if (i == npc.infoLines().size() - 1) {
+        if (i == this.npc.infoLines().size() - 1) {
           var materialName = this.npc.floatingItem();
           if (materialName != null) {
             var material = Material.matchMaterial(materialName);

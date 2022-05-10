@@ -54,7 +54,7 @@ public class DefaultInstallation {
         // post the finish handling to the installations
         DefaultSetup setup;
         while ((setup = this.setups.poll()) != null) {
-          setup.handleResults(animation);
+          setup.handleResults(this.animation);
         }
         // notify the monitor about the success
         LockSupport.unpark(runningThread);

@@ -183,7 +183,7 @@ public class DefaultRPCHandlerTest {
 
     public Map<Long, Map<String, String>> handleProcessSnapshot(ProcessSnapshot s, List<Integer> i, int primaryId) {
       return ImmutableMap.of(
-        eventCounter.addAndGet(calculateResult(s, i, primaryId)),
+        this.eventCounter.addAndGet(calculateResult(s, i, primaryId)),
         ImmutableMap.of("test1", "test2", "test3", "test4"));
     }
 

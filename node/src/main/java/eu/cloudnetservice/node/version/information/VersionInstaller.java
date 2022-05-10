@@ -49,15 +49,15 @@ public abstract class VersionInstaller {
   }
 
   public @NonNull ServiceVersion serviceVersion() {
-    return serviceVersion;
+    return this.serviceVersion;
   }
 
   public @NonNull ServiceVersionType serviceVersionType() {
-    return serviceVersionType;
+    return this.serviceVersionType;
   }
 
   public boolean cacheFiles() {
-    return cacheFiles;
+    return this.cacheFiles;
   }
 
   public abstract void deployFile(@NonNull InputStream source, @NonNull String target) throws IOException;

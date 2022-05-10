@@ -52,6 +52,9 @@
       <property name="message"
         value="Using System.our or System.err is forbidden. Use a proper logger to log messages into the console."/>
     </module>
+    <module name="RequireThis">
+      <property name="validateOnlyOverlapping" value="false"/>
+    </module>
     <module name="OuterTypeFilename"/>
     <module name="IllegalTokenText">
       <property name="tokens" value="STRING_LITERAL, CHAR_LITERAL"/>
