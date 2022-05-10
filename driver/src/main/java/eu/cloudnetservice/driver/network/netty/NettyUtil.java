@@ -159,7 +159,7 @@ public final class NettyUtil {
     var i = 0;
     var maxRead = Math.min(5, byteBuf.readableBytes());
     for (var j = 0; j < maxRead; j++) {
-      int nextByte = byteBuf.readByte();
+      var nextByte = byteBuf.readByte();
       i |= (nextByte & 0x7F) << j * 7;
       if ((nextByte & 0x80) != 128) {
         return i;
