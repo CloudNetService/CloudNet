@@ -54,7 +54,7 @@ public interface DataBufFactory {
    * @param bytes the bytes to wrap.
    * @return a new buffer wrapping the given bytes.
    */
-  @NonNull DataBuf createOf(byte @NonNull [] bytes);
+  @NonNull DataBuf fromBytes(byte[] bytes);
 
   /**
    * Creates a readonly copy of the given data buffer. The copied variant of the buffer will start the read process from

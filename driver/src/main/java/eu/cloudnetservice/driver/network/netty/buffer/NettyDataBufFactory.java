@@ -55,7 +55,7 @@ public class NettyDataBufFactory implements DataBufFactory {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull DataBuf createOf(byte @NonNull [] bytes) {
+  public @NonNull DataBuf fromBytes(byte[] bytes) {
     return new NettyImmutableDataBuf(ALLOCATOR.copyOf(bytes));
   }
 
