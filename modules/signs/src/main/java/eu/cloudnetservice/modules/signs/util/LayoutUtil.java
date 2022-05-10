@@ -36,12 +36,12 @@ public final class LayoutUtil {
     throw new UnsupportedOperationException();
   }
 
-  public static SignLayout layout(@NonNull SignConfigurationEntry entry, @NonNull Sign sign,
+  public static @NonNull SignLayout layout(@NonNull SignConfigurationEntry entry, @NonNull Sign sign,
     @Nullable ServiceInfoSnapshot snapshot) {
     return layoutHolder(entry, sign, snapshot).currentLayout();
   }
 
-  public static SignLayout layoutAndTick(
+  public static @NonNull SignLayout layoutAndTick(
     @NonNull SignConfigurationEntry entry,
     @NonNull Sign sign,
     @Nullable ServiceInfoSnapshot snapshot
@@ -64,7 +64,7 @@ public final class LayoutUtil {
     return entry != null && entry.switchToSearchingWhenServiceIsFull();
   }
 
-  public static SignLayoutsHolder layoutHolder(
+  public static @NonNull SignLayoutsHolder layoutHolder(
     @NonNull SignConfigurationEntry entry,
     @NonNull Sign sign,
     @Nullable ServiceInfoSnapshot snapshot

@@ -30,7 +30,7 @@ public final class RestUtil {
     return first(iterable, null);
   }
 
-  public static <T> @UnknownNullability T first(@Nullable Iterable<T> iterable, T def) {
+  public static <T> @UnknownNullability T first(@Nullable Iterable<T> iterable, @Nullable T def) {
     if (iterable == null) {
       return def;
     } else {

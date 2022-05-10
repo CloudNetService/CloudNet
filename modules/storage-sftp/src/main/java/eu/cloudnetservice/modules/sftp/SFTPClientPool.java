@@ -130,7 +130,7 @@ public class SFTPClientPool {
 
   public final class SFTPClientWrapper extends SFTPClient {
 
-    public SFTPClientWrapper(SFTPEngine engine) {
+    public SFTPClientWrapper(@NonNull SFTPEngine engine) {
       super(engine);
     }
 
