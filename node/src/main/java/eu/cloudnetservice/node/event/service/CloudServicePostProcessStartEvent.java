@@ -29,6 +29,6 @@ public final class CloudServicePostProcessStartEvent extends CloudServiceEvent {
   }
 
   public @NonNull ProcessHandle processHandle() {
-    return processHandle;
+    return this.processHandle;
   }
 }

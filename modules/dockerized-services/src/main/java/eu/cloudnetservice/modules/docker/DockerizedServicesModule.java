@@ -91,7 +91,7 @@ public class DockerizedServicesModule extends DriverModule {
   }
 
   public @NonNull DockerConfiguration config() {
-    return configuration;
+    return this.configuration;
   }
 
   public void config(@NonNull DockerConfiguration configuration) {

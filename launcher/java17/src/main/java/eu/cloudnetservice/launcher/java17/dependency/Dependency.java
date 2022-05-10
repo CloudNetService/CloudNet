@@ -30,7 +30,7 @@ public record Dependency(
 ) {
 
   public @NonNull String normalizedGroup() {
-    return group.replace('.', '/');
+    return this.group.replace('.', '/');
   }
 
   @Override

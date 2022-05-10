@@ -18,6 +18,7 @@ package eu.cloudnetservice.modules.bridge.node.http;
 
 import eu.cloudnetservice.driver.network.http.HttpContext;
 import eu.cloudnetservice.driver.network.http.HttpResponseCode;
+import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.bridge.player.CloudOfflinePlayer;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.node.http.HttpSession;
@@ -27,6 +28,8 @@ import java.util.function.Consumer;
 import lombok.NonNull;
 
 public class V2HttpHandlerBridge extends V2HttpHandler {
+
+  private final PlayerManager playerManager = ServiceRegistry.first(PlayerManager.class);
 
   public V2HttpHandlerBridge(String requiredPermission) {
     super(requiredPermission, "GET", "POST", "DELETE");
@@ -53,7 +56,7 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
 
   protected void handleOnlinePlayerCountRequest(HttpContext context) {
     this.ok(context)
-      .body(this.success().append("onlineCount", this.playerManager().onlineCount()).toString())
+      .body(this.success().append("onlineCount", this.playerManager.onlineCount()).toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -61,7 +64,7 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
 
   protected void handleRegisteredPlayerCountRequest(HttpContext context) {
     this.ok(context)
-      .body(this.success().append("registeredCount", this.playerManager().registeredCount()).toString())
+      .body(this.success().append("registeredCount", this.playerManager.registeredCount()).toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -95,7 +98,7 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
       return;
     }
 
-    this.playerManager().updateOfflinePlayer(cloudOfflinePlayer);
+    this.playerManager.updateOfflinePlayer(cloudOfflinePlayer);
     this.response(context, HttpResponseCode.CREATED)
       .body(this.success().toString())
       .context()
@@ -105,7 +108,7 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
 
   protected void handleDeleteCloudPlayerRequest(HttpContext context) {
     this.handleWithCloudPlayerContext(context, false, player -> {
-      this.playerManager().deleteCloudOfflinePlayer(player);
+      this.playerManager.deleteCloudOfflinePlayer(player);
       this.ok(context)
         .body(this.success().toString())
         .context()
@@ -133,9 +136,9 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
     try {
       // try to parse a player unique id from the string
       var uniqueId = UUID.fromString(identifier);
-      player = this.playerManager().offlinePlayer(uniqueId);
+      player = this.playerManager.offlinePlayer(uniqueId);
     } catch (Exception exception) {
-      player = this.playerManager().firstOfflinePlayer(identifier);
+      player = this.playerManager.firstOfflinePlayer(identifier);
     }
     // check if a player is present before applying to the handler
     if (player == null && !mayBeNull) {
@@ -148,10 +151,6 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
     }
     // post to handler
     handler.accept(player);
-  }
-
-  protected PlayerManager playerManager() {
-    return this.node().serviceRegistry().firstProvider(PlayerManager.class);
   }
 
 }

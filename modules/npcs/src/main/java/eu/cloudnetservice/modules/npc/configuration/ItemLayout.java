@@ -71,7 +71,7 @@ public record ItemLayout(
       Preconditions.checkNotNull(this.material, "no material given");
       Preconditions.checkNotNull(this.displayName, "no display name given");
 
-      return new ItemLayout(material, subId, displayName, lore);
+      return new ItemLayout(this.material, this.subId, this.displayName, this.lore);
     }
   }
 }

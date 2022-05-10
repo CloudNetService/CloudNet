@@ -451,7 +451,7 @@ public class Node extends CloudNetDriver {
   }
 
   public @NonNull ModulesHolder modulesHolder() {
-    return modulesHolder;
+    return this.modulesHolder;
   }
 
   public boolean dev() {
