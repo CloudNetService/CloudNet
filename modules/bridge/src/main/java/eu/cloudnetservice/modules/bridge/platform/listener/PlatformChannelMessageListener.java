@@ -180,7 +180,8 @@ public final class PlatformChannelMessageListener {
           event.content().readNullable(DataBuf::readString));
 
         // send a plugin message to the player
-        case "send_plugin_message" -> executor.sendPluginMessage(event.content().readString(),
+        case "send_plugin_message" -> executor.sendPluginMessage(
+          event.content().readString(),
           event.content().readByteArray());
 
         // dispatches the given input string as a command

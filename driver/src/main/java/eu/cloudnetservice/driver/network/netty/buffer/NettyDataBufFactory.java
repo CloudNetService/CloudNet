@@ -68,7 +68,7 @@ public class NettyDataBufFactory implements DataBufFactory {
 
     // create a full copy of the buffer
     var buffer = ((NettyImmutableDataBuf) dataBuf).buffer();
-    return new NettyImmutableDataBuf(buffer.copy(0, buffer.readableBytes()));
+    return new NettyImmutableDataBuf(buffer.copy(0, buffer.readableBytes(), true));
   }
 
   /**

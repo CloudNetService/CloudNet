@@ -153,7 +153,7 @@ public class NettyImmutableDataBuf implements DataBuf {
     return this.hotRead(buf -> {
       // copy out the data
       var length = buf.readInt();
-      var content = new NettyImmutableDataBuf(buf.copy(buf.readerOffset(), length));
+      var content = new NettyImmutableDataBuf(buf.copy(buf.readerOffset(), length, true));
 
       // skip the amount of bytes we're read and return the content
       buf.skipReadable(length);
@@ -233,7 +233,10 @@ public class NettyImmutableDataBuf implements DataBuf {
   @Override
   public @NonNull DataBuf redoTransaction() {
     this.buffer.readerOffset(this.readOffset);
-    this.buffer.writerOffset(this.writeOffset);
+    // we can only set the writer offset if the backing buffer is not read-only
+    if (!this.buffer.readOnly()) {
+      this.buffer.writerOffset(this.writeOffset);
+    }
 
     return this;
   }
@@ -243,7 +246,8 @@ public class NettyImmutableDataBuf implements DataBuf {
    */
   @Override
   public @NonNull DataBuf.Mutable asMutable() {
-    return new NettyMutableDataBuf(this.buffer);
+    // we need to copy the underlying buffer when the wrapped one is read only, if not we can just use the given buffer
+    return this.buffer.readOnly() ? new NettyMutableDataBuf(this.buffer.copy()) : new NettyMutableDataBuf(this.buffer);
   }
 
   /**
