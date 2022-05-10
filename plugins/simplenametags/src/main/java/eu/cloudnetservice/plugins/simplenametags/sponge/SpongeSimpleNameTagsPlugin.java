@@ -41,7 +41,7 @@ public final class SpongeSimpleNameTagsPlugin {
 
   @Listener
   public void handle(@NonNull StartingEngineEvent<Server> event) {
-    this.nameTagsManager = new SpongeSimpleNameTagsManager(event.engine().scheduler().executor(pluginContainer));
+    this.nameTagsManager = new SpongeSimpleNameTagsManager(event.engine().scheduler().executor(this.pluginContainer));
   }
 
   @Listener

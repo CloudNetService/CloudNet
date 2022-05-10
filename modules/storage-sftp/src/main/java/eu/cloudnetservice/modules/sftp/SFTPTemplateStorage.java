@@ -59,7 +59,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
   private final SFTPClientPool pool;
   private final SFTPTemplateStorageConfig storageConfig;
 
-  private volatile SSHClient client;
+  private volatile SSHClient sshClient;
 
   public SFTPTemplateStorage(@NonNull SFTPTemplateStorageConfig config) {
     this.storageConfig = config;
@@ -69,7 +69,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
     this.config.setKeepAliveProvider(KeepAliveProvider.HEARTBEAT);
     // init the pool
     this.pool = new SFTPClientPool(config.clientPoolSize(), () -> {
-      var client = this.client;
+      var client = this.sshClient;
       // check if the client was ever initialized
       if (client != null) {
         // check if the client is still connected
@@ -79,34 +79,34 @@ public class SFTPTemplateStorage implements TemplateStorage {
         } else {
           // the current client is not available anymore
           client.disconnect();
-          this.client = null;
+          this.sshClient = null;
         }
       }
       // create and set a new client
-      this.client = new SSHClient(this.config);
-      this.client.setConnectTimeout(5000);
-      this.client.setRemoteCharset(StandardCharsets.UTF_8);
+      this.sshClient = new SSHClient(this.config);
+      this.sshClient.setConnectTimeout(5000);
+      this.sshClient.setRemoteCharset(StandardCharsets.UTF_8);
       // load the known hosts file if given
       var knownHosts = config.knownHostFile();
       if (knownHosts == null) {
         // always trust the server
-        this.client.addHostKeyVerifier(new PromiscuousVerifier());
+        this.sshClient.addHostKeyVerifier(new PromiscuousVerifier());
       } else {
         // load the known hosts file
-        this.client.loadKnownHosts(knownHosts.toFile());
+        this.sshClient.loadKnownHosts(knownHosts.toFile());
       }
       // connect to the server
-      this.client.connect(config.address().host(), config.address().port());
+      this.sshClient.connect(config.address().host(), config.address().port());
       // authenticate the client with the correct auth method
       if (config.sshKeyPath() != null) {
-        this.client.authPublickey(
+        this.sshClient.authPublickey(
           config.username(),
-          this.client.loadKeys(config.sshKeyPath().toString(), config.sshKeyPassword()));
+          this.sshClient.loadKeys(config.sshKeyPath().toString(), config.sshKeyPassword()));
       } else {
-        this.client.authPassword(config.username(), config.password());
+        this.sshClient.authPassword(config.username(), config.password());
       }
       // return the created client
-      return this.client;
+      return this.sshClient;
     });
   }
 
@@ -341,7 +341,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
 
   @Override
   public void close() throws IOException {
-    this.client.disconnect();
+    this.sshClient.disconnect();
   }
 
   protected @NonNull String constructRemotePath(@NonNull ServiceTemplate template, String @NonNull ... parents) {

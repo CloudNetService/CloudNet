@@ -29,8 +29,8 @@ public class CountingTaskTest {
     var task = new CountingTask<>(12345, 3);
     task.thenAccept(listenerResult::set);
 
-    assertiveCountDown(task);
-    assertiveCountDown(task);
+    this.assertiveCountDown(task);
+    this.assertiveCountDown(task);
 
     task.countDown();
     Assertions.assertTrue(task.isDone());
