@@ -63,10 +63,13 @@ public class JVMService extends AbstractService {
   protected static final Pattern FILE_NUMBER_PATTERN = Pattern.compile("(\\d+).*");
   protected static final Collection<String> DEFAULT_JVM_SYSTEM_PROPERTIES = Arrays.asList(
     "-Dfile.encoding=UTF-8",
-    "-Dclient.encoding.override=UTF-8",
+    "-Dlog4j2.formatMsgNoLookups=true",
     "-DIReallyKnowWhatIAmDoingISwear=true",
     "-Djline.terminal=jline.UnsupportedTerminal",
-    "-Dlog4j2.formatMsgNoLookups=true");
+    // TODO: remove after testing
+    "-Dio.netty.allocator.smallCacheSize=0",
+    "-Dio.netty.allocator.normalCacheSize=0",
+    "-Dio.netty.allocator.maxCachedBufferCapacity=0");
 
   protected static final Path LIB_PATH = Path.of("launcher", "libs");
   protected static final Path WRAPPER_TEMP_FILE = FileUtil.TEMP_DIR.resolve("caches").resolve("wrapper.jar");
