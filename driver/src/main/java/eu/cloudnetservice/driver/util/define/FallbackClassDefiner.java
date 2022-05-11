@@ -16,8 +16,9 @@
 
 package eu.cloudnetservice.driver.util.define;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
+import java.time.Duration;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,14 +34,16 @@ final class FallbackClassDefiner implements ClassDefiner {
   /**
    * The cached defining class loaders for each class loader of the parent classes to define the class in.
    */
-  private final Map<ClassLoader, DefiningClassLoader> cache = new ConcurrentHashMap<>();
+  private final LoadingCache<ClassLoader, DefiningClassLoader> cache = Caffeine.newBuilder()
+    .expireAfterAccess(Duration.ofMinutes(30))
+    .build(DefiningClassLoader::new);
 
   /**
    * {@inheritDoc}
    */
   @Override
   public @NonNull Class<?> defineClass(@NonNull String name, @NonNull Class<?> parent, byte[] bytecode) {
-    return this.cache.computeIfAbsent(parent.getClassLoader(), DefiningClassLoader::new).defineClass(bytecode);
+    return this.cache.get(parent.getClassLoader()).defineClass(bytecode);
   }
 
   /**

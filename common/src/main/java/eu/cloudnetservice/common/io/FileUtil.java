@@ -49,10 +49,14 @@ public final class FileUtil {
 
   private static final Logger LOGGER = LogManager.logger(FileUtil.class);
   private static final Filter<Path> ACCEPTING_FILTER = $ -> true;
-  private static final Map<String, String> ZIP_FILE_SYSTEM_PROPERTIES = Map.of("create", "false", "encoding", "UTF-8");
+
   private static final FileSystemProvider JAR_FILE_SYSTEM_PROVIDER;
+  private static final Map<String, String> ZIP_FILE_SYSTEM_PROPERTIES = Map.of("create", "false", "encoding", "UTF-8");
 
   static {
+    // caching this and calling newFileSystem reduces the lookup load if multiple file systems are registered
+    // We cannot call newFileSystem using an url (simpler way via FileSystems.newFileSystem) because the zip provider
+    // does not allow the creation of multiple file systems when created via url, but when created via path that is ok
     JAR_FILE_SYSTEM_PROVIDER = FileSystemProvider.installedProviders().stream()
       .filter(prov -> prov.getScheme().equalsIgnoreCase("jar"))
       .findFirst()

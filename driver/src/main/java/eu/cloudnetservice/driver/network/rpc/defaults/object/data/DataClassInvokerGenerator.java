@@ -63,7 +63,7 @@ import org.objectweb.asm.Type;
  *
  * @since 4.0
  */
-public class DataClassInvokerGenerator {
+public final class DataClassInvokerGenerator {
 
   private static final String SUPER = "java/lang/Object";
 
@@ -95,6 +95,10 @@ public class DataClassInvokerGenerator {
   private static final String INSTANCE_CREATOR_NAME_FORMAT = "%s$InstanceCreator";
   private static final String INFORMATION_WRITE_NAME_FORMAT = "%s$InformationWriter";
 
+  private DataClassInvokerGenerator() {
+    throw new UnsupportedOperationException();
+  }
+
   /**
    * Generates an instance creator for the given class using the constructor with the given types. The constrcutor must
    * exist, no further checks will be made.
@@ -104,7 +108,7 @@ public class DataClassInvokerGenerator {
    * @return the generated instance creator for the given class.
    * @throws NullPointerException if either the given class or type array is null.
    */
-  public @NonNull DataClassInstanceCreator createInstanceCreator(
+  public static @NonNull DataClassInstanceCreator createInstanceCreator(
     @NonNull Class<?> clazz,
     @NonNull java.lang.reflect.Type[] types
   ) {
@@ -204,7 +208,10 @@ public class DataClassInvokerGenerator {
    * @return the generated class writer based on the given fields.
    * @throws NullPointerException if either the given class or field collection is null.
    */
-  public @NonNull DataClassInformationWriter createWriter(@NonNull Class<?> clazz, @NonNull Collection<Field> fields) {
+  public static @NonNull DataClassInformationWriter createWriter(
+    @NonNull Class<?> clazz,
+    @NonNull Collection<Field> fields
+  ) {
     try {
       var className = String.format(INFORMATION_WRITE_NAME_FORMAT, Type.getInternalName(clazz));
       // init the class writer for a public final class implementing the InstanceCreator
@@ -251,7 +258,7 @@ public class DataClassInvokerGenerator {
           var overriddenGetter = field.getAnnotation(RPCFieldGetter.class);
           if (overriddenGetter != null) {
             // in this case the associated getter method is given, try to find it in the methods list
-            fieldGetters.put(field, this.findGetterForField(
+            fieldGetters.put(field, findGetterForField(
               includedMethods,
               field,
               m -> m.getName().equals(overriddenGetter.value())));
@@ -261,7 +268,7 @@ public class DataClassInvokerGenerator {
             //  - getCpuUsage()
             //  - cpuUsage()
             //  - getFullCpuUsage()
-            fieldGetters.put(field, this.findGetterForField(
+            fieldGetters.put(field, findGetterForField(
               includedMethods,
               field,
               m -> StringUtil.endsWithIgnoreCase(m.getName(), field.getName())));
@@ -341,13 +348,13 @@ public class DataClassInvokerGenerator {
    * @throws NullPointerException if one of the given arguments is null.
    * @see #commonFilter(Field)
    */
-  protected @Nullable Method findGetterForField(
+  protected static @Nullable Method findGetterForField(
     @NonNull Collection<Method> methods,
     @NonNull Field field,
     @NonNull Predicate<Method> extraFilter
   ) {
     Method choice = null;
-    var fullFilter = this.commonFilter(field).and(extraFilter);
+    var fullFilter = commonFilter(field).and(extraFilter);
     // search for the best choice
     for (var method : methods) {
       if (fullFilter.test(method)) {
@@ -371,7 +378,7 @@ public class DataClassInvokerGenerator {
    * @return a filter checking if the provided method has the same return type as the field.
    * @throws NullPointerException if the given field is null.
    */
-  protected @NonNull Predicate<Method> commonFilter(@NonNull Field field) {
+  protected static @NonNull Predicate<Method> commonFilter(@NonNull Field field) {
     return method -> method.getReturnType().equals(field.getType());
   }
 

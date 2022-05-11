@@ -16,13 +16,14 @@
 
 package eu.cloudnetservice.driver.network.rpc.defaults.object.serializers;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectSerializer;
 import java.lang.reflect.Type;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.time.Duration;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,7 +34,9 @@ import org.jetbrains.annotations.Nullable;
  */
 public class EnumObjectSerializer implements ObjectSerializer<Enum<?>> {
 
-  private final Map<Type, Object[]> enumConstantCache = new ConcurrentHashMap<>();
+  private final LoadingCache<Type, Object[]> enumConstantCache = Caffeine.newBuilder()
+    .expireAfterAccess(Duration.ofMinutes(30))
+    .build(type -> ((Class<?>) type).getEnumConstants());
 
   /**
    * {@inheritDoc}
@@ -47,7 +50,7 @@ public class EnumObjectSerializer implements ObjectSerializer<Enum<?>> {
     // ensure that the method was called using a class as the type
     Preconditions.checkState(type instanceof Class<?>, "Called enum read method without proving a class as type");
     // get the cached enum constants of the class
-    var enumConstants = this.enumConstantCache.computeIfAbsent(type, $ -> ((Class<?>) type).getEnumConstants());
+    var enumConstants = this.enumConstantCache.get(type);
     // get the constant associated with the ordinal index
     var ordinal = source.readInt();
     return ordinal >= enumConstants.length ? null : (Enum<?>) enumConstants[ordinal];

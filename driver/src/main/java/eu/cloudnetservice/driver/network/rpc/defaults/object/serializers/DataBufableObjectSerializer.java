@@ -16,6 +16,8 @@
 
 package eu.cloudnetservice.driver.network.rpc.defaults.object.serializers;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.buffer.DataBufable;
@@ -25,9 +27,7 @@ import eu.cloudnetservice.driver.network.rpc.exception.MissingNoArgsConstructorE
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectSerializer;
 import java.lang.reflect.Type;
-import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,7 +41,7 @@ public class DataBufableObjectSerializer implements ObjectSerializer<DataBufable
   private static final Object[] NO_ARGS = new Object[0];
 
   private final MethodInvokerGenerator generator = new MethodInvokerGenerator();
-  private final Map<Type, MethodInvoker> cachedConstructors = new ConcurrentHashMap<>();
+  private final Cache<Type, MethodInvoker> cachedConstructors = Caffeine.newBuilder().build();
 
   /**
    * {@inheritDoc}
@@ -57,7 +57,7 @@ public class DataBufableObjectSerializer implements ObjectSerializer<DataBufable
     // try to read the data from into class
     var clazz = (Class<?>) type;
     // find a no-args constructor method invoker of the class
-    var invoker = this.cachedConstructors.computeIfAbsent(
+    var invoker = this.cachedConstructors.get(
       type,
       $ -> {
         try {

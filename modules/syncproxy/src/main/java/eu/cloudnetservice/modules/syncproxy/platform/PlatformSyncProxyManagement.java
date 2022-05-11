@@ -30,20 +30,18 @@ import eu.cloudnetservice.modules.syncproxy.config.SyncProxyTabList;
 import eu.cloudnetservice.modules.syncproxy.config.SyncProxyTabListConfiguration;
 import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagement {
 
-  private static final Random RANDOM = new Random();
-
-  protected final Map<UUID, Integer> proxyOnlineCountCache = new ConcurrentHashMap<>();
+  protected final Map<UUID, Integer> proxyOnlineCountCache = new HashMap<>();
 
   protected final RPCSender rpcSender;
   protected final EventManager eventManager;
@@ -111,7 +109,7 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
           ? this.currentLoginConfiguration.maintenanceMotds()
           : this.currentLoginConfiguration.motds();
       if (!motds.isEmpty()) {
-        return motds.get(RANDOM.nextInt(motds.size()));
+        return motds.get(ThreadLocalRandom.current().nextInt(motds.size()));
       }
     }
     // we dont have any motd

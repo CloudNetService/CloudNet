@@ -16,6 +16,8 @@
 
 package eu.cloudnetservice.driver.network.rpc.defaults.handler;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.base.Defaults;
 import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
@@ -26,8 +28,6 @@ import eu.cloudnetservice.driver.network.rpc.defaults.DefaultRPCProvider;
 import eu.cloudnetservice.driver.network.rpc.defaults.MethodInformation;
 import eu.cloudnetservice.driver.network.rpc.defaults.handler.invoker.MethodInvokerGenerator;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,7 +42,7 @@ public class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler 
   protected final Object bindingInstance;
   protected final MethodInvokerGenerator generator;
 
-  protected final Map<String, MethodInformation> methodCache = new ConcurrentHashMap<>();
+  protected final Cache<String, MethodInformation> methodCache = Caffeine.newBuilder().build();
 
   /**
    * Constructs a new default rpc handler instance.
@@ -94,7 +94,7 @@ public class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler 
     }
     // now we try to find the associated method information to the given method name or try to read it
     var instance = inst; // pail
-    var information = this.methodCache.computeIfAbsent(
+    var information = this.methodCache.get(
       String.format("%d@%s", instance == null ? -1 : instance.hashCode(), context.methodName()),
       $ -> MethodInformation.find(
         instance,
