@@ -41,14 +41,6 @@ import lombok.NonNull;
  */
 public enum NettyTransport {
 
-  /*IO_URING(
-    "io_uring",
-    IOUring.isAvailable(),
-    true,
-    IOUringEventLoopGroup::new,
-    IOUringSocketChannel::new,
-    IOUringServerSocketChannel::new
-  ),*/
   EPOLL(
     "epoll",
     Epoll.isAvailable(),
