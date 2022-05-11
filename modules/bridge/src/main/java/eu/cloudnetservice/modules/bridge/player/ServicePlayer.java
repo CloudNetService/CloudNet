@@ -23,7 +23,7 @@ import java.util.UUID;
 import lombok.NonNull;
 
 /**
- * The service player represents any player on a service started by cloudnet.
+ * The service player represents a player that is currently connected to a cloudnet service.
  *
  * @since 4.0
  */

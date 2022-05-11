@@ -24,6 +24,10 @@ import lombok.NonNull;
 import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ *
+ * @since 4.0
+ */
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class CloudPlayer extends CloudOfflinePlayer {

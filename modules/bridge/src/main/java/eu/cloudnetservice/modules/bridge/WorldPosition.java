@@ -23,7 +23,7 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- *
+ * The world position represents a position in 3 dimensional space.
  *
  * @param x     the x coordinate of the position.
  * @param y     the y coordinate of the position.

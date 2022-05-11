@@ -55,7 +55,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
@@ -141,7 +140,7 @@ public class NodePlayerManager implements PlayerManager {
   public @NonNull List<? extends CloudPlayer> onlinePlayers(@NonNull String name) {
     return this.onlinePlayers.values().stream()
       .filter(cloudPlayer -> cloudPlayer.name().equalsIgnoreCase(name))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Override
@@ -150,7 +149,7 @@ public class NodePlayerManager implements PlayerManager {
       .stream()
       .filter(cloudPlayer -> cloudPlayer.loginService().environment().equals(environment)
         || (cloudPlayer.connectedService() != null && cloudPlayer.connectedService().environment().equals(environment)))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Override
@@ -162,17 +161,17 @@ public class NodePlayerManager implements PlayerManager {
   public @NonNull PlayerProvider taskOnlinePlayers(@NonNull String task) {
     return new NodePlayerProvider(() -> this.onlinePlayers.values()
       .stream()
-      .filter(cloudPlayer ->
-        (cloudPlayer.connectedService() != null && cloudPlayer.connectedService().taskName().equalsIgnoreCase(task))
-          || cloudPlayer.loginService().taskName().equalsIgnoreCase(task)));
+      .filter(
+        player -> (player.connectedService() != null && player.connectedService().taskName().equalsIgnoreCase(task))
+          || player.loginService().taskName().equalsIgnoreCase(task)));
   }
 
   @Override
   public @NonNull PlayerProvider groupOnlinePlayers(@NonNull String group) {
     return new NodePlayerProvider(() -> this.onlinePlayers.values()
       .stream()
-      .filter(cloudPlayer -> cloudPlayer.connectedService().groups().contains(group)
-        || cloudPlayer.loginService().groups().contains(group)));
+      .filter(player -> (player.connectedService() != null && player.connectedService().groups().contains(group))
+        || player.loginService().groups().contains(group)));
   }
 
   @Override
@@ -194,7 +193,7 @@ public class NodePlayerManager implements PlayerManager {
   public @NonNull List<? extends CloudOfflinePlayer> offlinePlayers(@NonNull String name) {
     return this.database().find(JsonDocument.newDocument("name", name)).stream()
       .map(document -> document.toInstanceOf(CloudOfflinePlayer.class))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Override
@@ -202,7 +201,7 @@ public class NodePlayerManager implements PlayerManager {
     return this.database().entries().values().stream()
       .map(doc -> doc.toInstanceOf(CloudOfflinePlayer.class))
       .filter(Objects::nonNull)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Override

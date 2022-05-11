@@ -23,7 +23,16 @@ import java.util.UUID;
 import lombok.NonNull;
 
 /**
- *
+ * The player provider offers the possibility to get already filtered cloud players. In addition, not always the whole
+ * {@link CloudPlayer} object must be sent over the network, but only the really desired result, such as all unique
+ * ids.
+ * <p>
+ * Currently, there are these player providers:
+ * <ul>
+ *   <li>a player provider for all players {@link PlayerManager#onlinePlayers()}</li>
+ *   <li>a player provider for all players on a certain task {@link PlayerManager#taskOnlinePlayers(String)}</li>
+ *   <li>a player provider for all players on a certain group {@link PlayerManager#groupOnlinePlayers(String)}</li>
+ * </ul>
  *
  * @since 4.0
  */

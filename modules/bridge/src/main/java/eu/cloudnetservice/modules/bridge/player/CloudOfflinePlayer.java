@@ -25,6 +25,11 @@ import lombok.NonNull;
 import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ *
+ *
+ * @since 4.0
+ */
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class CloudOfflinePlayer extends JsonDocPropertyHolder implements Cloneable, Nameable {
