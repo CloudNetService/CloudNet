@@ -65,12 +65,11 @@ public final class VelocitySyncProxyManagement extends PlatformSyncProxyManageme
   public void playerTabList(@NonNull Player player, @Nullable String header, @Nullable String footer) {
     if (header == null || footer == null) {
       player.getTabList().clearHeaderAndFooter();
-      return;
+    } else {
+      player.sendPlayerListHeaderAndFooter(
+        serialize(this.replaceTabPlaceholder(header, player)),
+        serialize(this.replaceTabPlaceholder(footer, player)));
     }
-
-    player.sendPlayerListHeaderAndFooter(
-      serialize(this.replaceTabPlaceholder(header, player)),
-      serialize(this.replaceTabPlaceholder(footer, player)));
   }
 
   @Override

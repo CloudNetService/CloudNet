@@ -59,16 +59,17 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
     this.rpcSender = wrapper.rpcFactory()
       .providerForClass(wrapper.networkClient(), SyncProxyManagement.class);
     this.eventManager = wrapper.eventManager();
+  }
+
+  protected void init() {
+    // get the config from the node
+    this.configurationSilently(this.rpcSender.invokeMethod("configuration").fireSync());
     // cache all services that are already started
-    wrapper.cloudServiceProvider().servicesAsync().thenAccept(services -> {
+    Wrapper.instance().cloudServiceProvider().servicesAsync().thenAccept(services -> {
       for (var service : services) {
         this.cacheServiceInfoSnapshot(service);
       }
     });
-  }
-
-  protected void init() {
-    this.configurationSilently(this.rpcSender.invokeMethod("configuration").fireSync());
   }
 
   public void configurationSilently(@NonNull SyncProxyConfiguration configuration) {
@@ -150,19 +151,15 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
   }
 
   public void cacheServiceInfoSnapshot(@NonNull ServiceInfoSnapshot snapshot) {
-    if (ServiceEnvironmentType.minecraftProxy(snapshot.serviceId().environment())
-      && this.checkServiceGroup(snapshot)) {
+    if (ServiceEnvironmentType.minecraftProxy(snapshot.serviceId().environment()) && this.checkServiceGroup(snapshot)) {
       this.proxyOnlineCountCache.put(
         snapshot.serviceId().uniqueId(),
         BridgeServiceProperties.ONLINE_COUNT.readOr(snapshot, 0));
-      this.updateTabList();
     }
   }
 
   public void removeCachedServiceInfoSnapshot(@NonNull ServiceInfoSnapshot snapshot) {
-    if (this.proxyOnlineCountCache.remove(snapshot.serviceId().uniqueId()) != null) {
-      this.updateTabList();
-    }
+    this.proxyOnlineCountCache.remove(snapshot.serviceId().uniqueId());
   }
 
   public @Nullable String serviceUpdateMessage(
@@ -190,14 +187,6 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
         (long) (1000 / this.currentTabListConfiguration.animationsPerSecond()),
         TimeUnit.MILLISECONDS);
     }
-  }
-
-  public void updateTabList() {
-    if (this.currentTabListConfiguration == null || this.currentTabListConfiguration.entries().isEmpty()) {
-      return;
-    }
-
-    this.updateTabList(this.currentTabListConfiguration.currentEntry());
   }
 
   protected void updateTabList(@NonNull SyncProxyTabList tabList) {
