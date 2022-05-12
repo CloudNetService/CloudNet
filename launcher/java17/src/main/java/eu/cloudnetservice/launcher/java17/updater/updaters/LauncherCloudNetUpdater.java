@@ -25,11 +25,11 @@ import lombok.NonNull;
 public final class LauncherCloudNetUpdater implements Updater<LauncherUpdaterContext> {
 
   @Override
-  public void executeUpdates(@NonNull LauncherUpdaterContext context) throws Exception {
+  public void executeUpdates(@NonNull LauncherUpdaterContext context, boolean onlyIfRequired) throws Exception {
     var cloudNetChecksum = context.checksums().getProperty("node");
     var cloudNetFilePath = context.launcher().workingDirectory().resolve("cloudnet.jar");
     var downloadUri = GitHubUtil.buildUri(context.repo(), context.branch(), "node.jar");
-    // download the new cloudnet file
-    FileDownloadUpdateHelper.updateFile(downloadUri, cloudNetFilePath, cloudNetChecksum, "node");
+    // download the new node file
+    FileDownloadUpdateHelper.updateFile(downloadUri, cloudNetFilePath, cloudNetChecksum, "node", onlyIfRequired);
   }
 }

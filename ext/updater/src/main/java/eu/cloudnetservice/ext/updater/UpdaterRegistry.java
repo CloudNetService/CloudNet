@@ -20,7 +20,7 @@ import lombok.NonNull;
 
 public interface UpdaterRegistry<T, C> {
 
-  void runUpdater(@NonNull C context) throws Exception;
+  void runUpdater(@NonNull C context, boolean onlyRequiredUpdates) throws Exception;
 
   void registerUpdater(@NonNull Updater<T> updater);
 }

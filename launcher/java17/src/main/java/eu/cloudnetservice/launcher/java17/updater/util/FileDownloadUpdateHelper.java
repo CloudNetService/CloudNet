@@ -33,12 +33,13 @@ public final class FileDownloadUpdateHelper {
     @NonNull URI downloadUri,
     @NonNull Path target,
     @NonNull String expectedChecksum,
-    @NonNull String displayName
+    @NonNull String displayName,
+    boolean onlyIfRequired
   ) throws Exception {
     // if the target file exists we can pre-validate the checksum to determine if an update is required
     if (Files.exists(target)) {
       var currentChecksum = ChecksumUtil.fileShaSum(target);
-      if (currentChecksum.equals(expectedChecksum)) {
+      if (currentChecksum.equals(expectedChecksum) || onlyIfRequired) {
         // already using the latest file
         // CHECKSTYLE.OFF: Launcher has no proper logger
         System.out.printf("Skipping download of \"%s\" because the file is already up-to-date%n", displayName);

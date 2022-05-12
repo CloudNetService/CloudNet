@@ -25,12 +25,12 @@ import lombok.NonNull;
 public final class LauncherModuleJsonUpdater implements Updater<LauncherUpdaterContext> {
 
   @Override
-  public void executeUpdates(@NonNull LauncherUpdaterContext context) throws Exception {
+  public void executeUpdates(@NonNull LauncherUpdaterContext context, boolean onlyIfRequired) throws Exception {
     // get the new checksum of the file
     var checksum = context.checksums().getProperty("modules-json");
     var moduleJsonPath = context.launcher().workingDirectory().resolve("modules.json");
     var downloadUri = GitHubUtil.buildUri(context.repo(), context.branch(), "modules.json");
     // download the new modules.json
-    FileDownloadUpdateHelper.updateFile(downloadUri, moduleJsonPath, checksum, "modules.json");
+    FileDownloadUpdateHelper.updateFile(downloadUri, moduleJsonPath, checksum, "modules.json", onlyIfRequired);
   }
 }

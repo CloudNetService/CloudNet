@@ -77,8 +77,8 @@ public final class CommandLineHelper {
   public static @NonNull <T> T findProperty(
     @NonNull Properties properties,
     @NonNull String key,
-    @NonNull String def, @NonNull
-    Function<String, T> parser
+    @NonNull String def,
+    @NonNull Function<String, T> parser
   ) {
     return parser.apply(findProperty(properties, key, def));
   }
