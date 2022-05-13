@@ -27,7 +27,6 @@ import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.NetworkChannelHandler;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.network.protocol.Packet;
-import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.cluster.NodeServerState;
 import eu.cloudnetservice.node.network.listener.PacketClientAuthorizationListener;
@@ -79,7 +78,10 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
       .cloudServiceProvider()
       .localCloudServices()
       .stream()
-      .filter(service -> service.networkChannel() != null && service.networkChannel().equals(channel))
+      .filter(service -> {
+        var serviceNetworkChannel = service.networkChannel();
+        return serviceNetworkChannel != null && serviceNetworkChannel.equals(channel);
+      })
       .findFirst()
       .orElse(null);
     if (cloudService != null) {
@@ -96,7 +98,6 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
   private void closeAsCloudService(@NonNull CloudService cloudService, @NonNull NetworkChannel channel) {
     // reset the service channel and connection time
     cloudService.networkChannel(null);
-    cloudService.updateLifecycle(ServiceLifeCycle.STOPPED);
 
     LOGGER.info(I18n.trans("cloudnet-service-networking-disconnected",
       cloudService.serviceId().uniqueId(),
