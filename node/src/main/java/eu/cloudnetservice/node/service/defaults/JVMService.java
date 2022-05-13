@@ -357,16 +357,17 @@ public class JVMService extends AbstractService {
         Files.lines(wrapperCnl)
           .filter(line -> line.startsWith("include "))
           .map(line -> line.split(" "))
-          .filter(parts -> parts.length == 6 || parts.length == 7)
+          .filter(parts -> parts.length >= 6)
           .map(parts -> {
-            // <group>/<name>/<version>/<name>-<version>.jar
+            // <group>/<name>/<version>/<name>-<version>-<classifier>.jar
             var path = String.format(
-              "%s/%s/%s/%s-%s.jar",
+              "%s/%s/%s/%s-%s%s.jar",
               parts[2].replace('.', '/'),
               parts[3],
               parts[4],
               parts[3],
-              parts[5]);
+              parts[5],
+              parts.length == 8 ? "-" + parts[7] : "");
             return LIB_PATH.resolve(path);
           }).forEach(path -> builder.append(path.toAbsolutePath()).append(File.pathSeparatorChar));
       }
