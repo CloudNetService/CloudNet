@@ -337,7 +337,7 @@ public class DefaultModuleWrapper implements ModuleWrapper {
                   "Stopping lifecycle update to %s for %s because the task %s failed. See console log for more details.",
                   lifeCycle, this.moduleConfiguration.name(), task.fullMethodSignature()
                 ));
-                break;
+                return;
               }
             }
           }
