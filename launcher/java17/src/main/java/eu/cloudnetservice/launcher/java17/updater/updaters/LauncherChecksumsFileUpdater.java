@@ -25,7 +25,7 @@ import lombok.NonNull;
 public final class LauncherChecksumsFileUpdater implements Updater<LauncherUpdaterContext> {
 
   @Override
-  public void executeUpdates(@NonNull LauncherUpdaterContext context) throws Exception {
+  public void executeUpdates(@NonNull LauncherUpdaterContext context, boolean onlyIfRequired) throws Exception {
     try (var stream = Files.newOutputStream(Path.of("launcher", "checksums.properties"))) {
       context.checksums().store(
         stream,

@@ -28,8 +28,8 @@ import eu.cloudnetservice.common.collection.Pair;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
@@ -73,7 +73,7 @@ final class RecordTypeAdapterFactory implements TypeAdapterFactory {
       var components = originalType.getRecordComponents();
       // init the type component lookup data
       this.recordComponentTypes = new Class[components.length];
-      this.componentTypes = new ConcurrentHashMap<>(components.length);
+      this.componentTypes = new HashMap<>(components.length);
       // fill the data
       for (int i = 0; i < components.length; i++) {
         this.recordComponentTypes[i] = components[i].getType();

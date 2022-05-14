@@ -18,9 +18,9 @@ package eu.cloudnetservice.node.http;
 
 import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.permission.PermissionUser;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -37,7 +37,7 @@ public class DefaultHttpSession implements HttpSession {
   }
 
   public DefaultHttpSession(long expireTime, String uniqueId, UUID userId) {
-    this(expireTime, uniqueId, userId, new ConcurrentHashMap<>());
+    this(expireTime, uniqueId, userId, new HashMap<>());
   }
 
   public DefaultHttpSession(long expireTime, String uniqueId, UUID userId, Map<String, Object> properties) {

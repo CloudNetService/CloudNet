@@ -63,10 +63,13 @@ public class JVMService extends AbstractService {
   protected static final Pattern FILE_NUMBER_PATTERN = Pattern.compile("(\\d+).*");
   protected static final Collection<String> DEFAULT_JVM_SYSTEM_PROPERTIES = Arrays.asList(
     "-Dfile.encoding=UTF-8",
-    "-Dclient.encoding.override=UTF-8",
+    "-Dlog4j2.formatMsgNoLookups=true",
     "-DIReallyKnowWhatIAmDoingISwear=true",
     "-Djline.terminal=jline.UnsupportedTerminal",
-    "-Dlog4j2.formatMsgNoLookups=true");
+    // TODO: remove after testing
+    "-Dio.netty.allocator.smallCacheSize=0",
+    "-Dio.netty.allocator.normalCacheSize=0",
+    "-Dio.netty.allocator.maxCachedBufferCapacity=0");
 
   protected static final Path LIB_PATH = Path.of("launcher", "libs");
   protected static final Path WRAPPER_TEMP_FILE = FileUtil.TEMP_DIR.resolve("caches").resolve("wrapper.jar");
@@ -354,16 +357,17 @@ public class JVMService extends AbstractService {
         Files.lines(wrapperCnl)
           .filter(line -> line.startsWith("include "))
           .map(line -> line.split(" "))
-          .filter(parts -> parts.length == 6 || parts.length == 7)
+          .filter(parts -> parts.length >= 6)
           .map(parts -> {
-            // <group>/<name>/<version>/<name>-<version>.jar
+            // <group>/<name>/<version>/<name>-<version>-<classifier>.jar
             var path = String.format(
-              "%s/%s/%s/%s-%s.jar",
+              "%s/%s/%s/%s-%s%s.jar",
               parts[2].replace('.', '/'),
               parts[3],
               parts[4],
               parts[3],
-              parts[5]);
+              parts[5],
+              parts.length == 8 ? "-" + parts[7] : "");
             return LIB_PATH.resolve(path);
           }).forEach(path -> builder.append(path.toAbsolutePath()).append(File.pathSeparatorChar));
       }

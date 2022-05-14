@@ -7,7 +7,7 @@ shadow = "7.1.2"
 blossom = "1.3.0"
 juppiter = "0.3.1"
 licenser = "0.6.1"
-fabricLoom = "0.12.21"
+fabricLoom = "0.12.25"
 nexusPublish = "1.1.0"
 
 # google libs
@@ -42,14 +42,13 @@ jjwt = "0.11.5"
 slf4j = "1.7.36"
 javers = "6.6.5"
 caffeine = "3.1.0"
-awsSdk = "2.17.186"
+awsSdk = "2.17.190"
 reflexion = "1.2.0"
 dockerJava = "3.2.13"
 unirest = "4.0.0-RC2"
 netty = "4.1.77.Final"
 annotations = "23.0.0"
 influxClient = "6.0.0"
-nettyIoUring = "0.0.13.Final"
 
 # platform api versions
 velocity = "3.1.0"
@@ -69,7 +68,7 @@ npcLib = "development-SNAPSHOT"
 
 # fabric platform special dependencies
 minecraft = "1.18.2"
-fabricLoader = "0.14.4"
+fabricLoader = "0.14.5"
 
 
 [libraries]
@@ -121,7 +120,6 @@ nettyHandler = { group = "io.netty", name = "netty-handler", version.ref = "nett
 nettyCodecHttp = { group = "io.netty", name = "netty-codec-http", version.ref = "netty" }
 nettyNativeEpoll = { group = "io.netty", name = "netty-transport-native-epoll", version.ref = "netty" }
 nettyNativeKqueue = { group = "io.netty", name = "netty-transport-native-kqueue", version.ref = "netty" }
-nettyNativeIoUring = { group = "io.netty.incubator", name = "netty-incubator-transport-native-io_uring", version.ref = "nettyIoUring" }
 
 # general
 asm = { group = "org.ow2.asm", name = "asm-tree", version.ref = "asm" }

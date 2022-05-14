@@ -10,6 +10,12 @@
 # are developing with or for cloudnet, not cloudnet then leave this option disabled.
 var cloudnet.dev false
 
+# disables the automatic updates of the system as well as installed modules. When auto updates are disabled, the
+# checksums will still get downloaded from GitHub in case any other updating tool should get used.
+# We do not recommend to disable automatic updates as they might include security fixes / security related dependency
+# updates. Support is only provided for the latest version of CloudNet as well.
+var cloudnet.auto.update true
+
 # These are the settings for the automatic updater of cloudnet. The updater uses GitHub to download all update files from.
 # You can change the repository and branch of the updater. Changing the branch is useful if you want to load a diffrent
 # snapshot version of cloudnet. If you want to distribute your own cloudnet updating repository make sure you use the

@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.common.log;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.LogManager;
 import lombok.NonNull;
 
@@ -30,7 +30,7 @@ import lombok.NonNull;
  */
 final class FallbackLoggerFactory implements LoggerFactory {
 
-  private final Map<String, Logger> createdLoggers = new ConcurrentHashMap<>();
+  private final Map<String, Logger> createdLoggers = new HashMap<>();
 
   /**
    * {@inheritDoc}

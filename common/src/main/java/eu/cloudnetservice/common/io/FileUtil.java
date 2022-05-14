@@ -22,14 +22,13 @@ import eu.cloudnetservice.common.log.Logger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URI;
 import java.nio.file.CopyOption;
 import java.nio.file.DirectoryStream.Filter;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.spi.FileSystemProvider;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.BiConsumer;
@@ -50,7 +49,19 @@ public final class FileUtil {
 
   private static final Logger LOGGER = LogManager.logger(FileUtil.class);
   private static final Filter<Path> ACCEPTING_FILTER = $ -> true;
+
+  private static final FileSystemProvider JAR_FILE_SYSTEM_PROVIDER;
   private static final Map<String, String> ZIP_FILE_SYSTEM_PROPERTIES = Map.of("create", "false", "encoding", "UTF-8");
+
+  static {
+    // caching this and calling newFileSystem reduces the lookup load if multiple file systems are registered
+    // We cannot call newFileSystem using an url (simpler way via FileSystems.newFileSystem) because the zip provider
+    // does not allow the creation of multiple file systems when created via url, but when created via path that is ok
+    JAR_FILE_SYSTEM_PROVIDER = FileSystemProvider.installedProviders().stream()
+      .filter(prov -> prov.getScheme().equalsIgnoreCase("jar"))
+      .findFirst()
+      .orElseThrow(() -> new ExceptionInInitializerError("Unable to find a file system provider supporting jars"));
+  }
 
   private FileUtil() {
     throw new UnsupportedOperationException();
@@ -65,7 +76,7 @@ public final class FileUtil {
    * @throws NullPointerException if the given zip path or consumer is null.
    */
   public static void openZipFile(@NonNull Path zip, @NonNull ThrowableConsumer<FileSystem, Exception> consumer) {
-    try (var fs = FileSystems.newFileSystem(URI.create("jar:" + zip.toUri()), ZIP_FILE_SYSTEM_PROPERTIES)) {
+    try (var fs = JAR_FILE_SYSTEM_PROVIDER.newFileSystem(zip, ZIP_FILE_SYSTEM_PROPERTIES)) {
       consumer.accept(fs);
     } catch (Exception throwable) {
       LOGGER.severe("Exception opening zip file system on %s", throwable, zip);
@@ -91,8 +102,9 @@ public final class FileUtil {
   }
 
   /**
-   * Copies the input stream to the output stream. This method is equivalent with {@code
-   * inputStream.transferTo(outputStream)} but catches the thrown exceptions and just prints them into the error log.
+   * Copies the input stream to the output stream. This method is equivalent with
+   * {@code inputStream.transferTo(outputStream)} but catches the thrown exceptions and just prints them into the error
+   * log.
    *
    * @param inputStream  the input stream to copy from.
    * @param outputStream the target output stream.
@@ -147,8 +159,8 @@ public final class FileUtil {
 
   /**
    * Copies the target directory to the given destination and creates all needed parent directories. It walks the whole
-   * file tree and copies every file and subdirectory without any filtering. This method is equivalent to {@code
-   * FileUtil.copyDirectory(from, to, null)}.
+   * file tree and copies every file and subdirectory without any filtering. This method is equivalent to
+   * {@code FileUtil.copyDirectory(from, to, null)}.
    *
    * @param from the source path.
    * @param to   the destination path.
@@ -177,9 +189,9 @@ public final class FileUtil {
   }
 
   /**
-   * Deletes the file or directory at the given path. If the path points to a file it is deleted using {@code
-   * Files.delete(path)} occurring exceptions are ignored here, otherwise if the path points to a directory this walks
-   * the file tree and deletes the files and directories recursively.
+   * Deletes the file or directory at the given path. If the path points to a file it is deleted using
+   * {@code Files.delete(path)} occurring exceptions are ignored here, otherwise if the path points to a directory this
+   * walks the file tree and deletes the files and directories recursively.
    *
    * @param path the target to delete.
    */
@@ -212,8 +224,8 @@ public final class FileUtil {
 
   /**
    * Walks the file tree, while visiting directories too, starting at the given path and passes the root directory
-   * together with the next file or directory into the bi consumer. This method is equivalent to {@code
-   * FileUtil.walkFileTree(root, consumer, true)}.
+   * together with the next file or directory into the bi consumer. This method is equivalent to
+   * {@code FileUtil.walkFileTree(root, consumer, true)}.
    *
    * @param root     the root path to start at.
    * @param consumer the consumer accepting all files and directories.
@@ -225,8 +237,8 @@ public final class FileUtil {
 
   /**
    * Walks the file tree, but only visits directories if specified, starting at the given path and passes the root
-   * directory together with the next file or directory into the bi consumer. This method is equivalent to {@code
-   * FileUtil.walkFileTree(root, consumer, visitDirs, "*")}.
+   * directory together with the next file or directory into the bi consumer. This method is equivalent to
+   * {@code FileUtil.walkFileTree(root, consumer, visitDirs, "*")}.
    *
    * @param root      the root path to start at.
    * @param consumer  the consumer accepting all files and directories.

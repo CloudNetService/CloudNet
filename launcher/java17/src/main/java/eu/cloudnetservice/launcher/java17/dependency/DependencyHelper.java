@@ -99,7 +99,7 @@ public final class DependencyHelper {
         .resolve(dependency.normalizedGroup())
         .resolve(dependency.name())
         .resolve(dependency.originalVersion())
-        .resolve(String.format("%s-%s.jar", dependency.name(), dependency.fullVersion()));
+        .resolve(String.format("%s-%s%s.jar", dependency.name(), dependency.fullVersion(), dependency.classifier()));
       // if the file already exists, ensure that the checksum still matches
       if (Files.exists(targetFile)) {
         var checksum = ChecksumUtil.fileShaSum(targetFile);

@@ -21,5 +21,5 @@ import lombok.NonNull;
 @FunctionalInterface
 public interface Updater<T> {
 
-  void executeUpdates(@NonNull T context) throws Exception;
+  void executeUpdates(@NonNull T context, boolean onlyIfRequired) throws Exception;
 }

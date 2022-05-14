@@ -61,16 +61,12 @@ public class DataClassInformation {
    * generator in the required way. This method ensures that only fields which should get included are passed to the
    * data class generator.
    *
-   * @param clazz     the class to build the information for.
-   * @param generator the generator for creating the reader/write instance based on the collected information.
+   * @param clazz the class to build the information for.
    * @return the created data class information for the given class.
    * @throws NullPointerException               if either the given class or generator is null.
    * @throws MissingAllArgsConstructorException if no constructor with all field types exists in the given data class.
    */
-  public static @NonNull DataClassInformation createClassInformation(
-    @NonNull Class<?> clazz,
-    @NonNull DataClassInvokerGenerator generator
-  ) {
+  public static @NonNull DataClassInformation createClassInformation(@NonNull Class<?> clazz) {
     // get all types of the fields we want to include into the constructor lookup
     var includedFields = collectFields(clazz);
     // transform the included fields to the required type arrays
@@ -83,8 +79,8 @@ public class DataClassInformation {
       throw new MissingAllArgsConstructorException(clazz, arguments);
     }
     // generate the constructor invoker for the argument types
-    var instanceCreator = generator.createInstanceCreator(clazz, types);
-    var informationWriter = generator.createWriter(clazz, includedFields);
+    var instanceCreator = DataClassInvokerGenerator.createInstanceCreator(clazz, types);
+    var informationWriter = DataClassInvokerGenerator.createWriter(clazz, includedFields);
     // done
     return new DataClassInformation(instanceCreator, informationWriter);
   }

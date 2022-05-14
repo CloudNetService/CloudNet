@@ -102,6 +102,7 @@ public class Node extends CloudNetDriver {
 
   private static final Logger LOGGER = LogManager.logger(Node.class);
   private static final boolean DEV_MODE = Boolean.getBoolean("cloudnet.dev");
+  private static final boolean AUTO_UPDATE = Boolean.getBoolean("cloudnet.auto.update");
   private static final Path LAUNCHER_DIR = Path.of(System.getProperty("cloudnet.launcherdir", "launcher"));
 
   private final Console console;
@@ -214,7 +215,7 @@ public class Node extends CloudNetDriver {
     // apply all module updates if we're not running in dev mode
     if (!DEV_MODE) {
       LOGGER.info(I18n.trans("start-module-updater"));
-      this.moduleUpdaterRegistry.runUpdater(this.modulesHolder);
+      this.moduleUpdaterRegistry.runUpdater(this.modulesHolder, !AUTO_UPDATE);
     }
 
     // load the modules before proceeding for example to allow the database provider init
@@ -456,6 +457,10 @@ public class Node extends CloudNetDriver {
 
   public boolean dev() {
     return DEV_MODE;
+  }
+
+  public boolean autoUpdate() {
+    return AUTO_UPDATE;
   }
 
   public boolean running() {

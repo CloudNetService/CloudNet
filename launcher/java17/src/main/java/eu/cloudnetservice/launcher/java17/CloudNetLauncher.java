@@ -134,6 +134,11 @@ public final class CloudNetLauncher {
 
       // this path must not exist yet, the updaters are required to create it
       cloudNetJarPath = Path.of("launcher", "cloudnet.jar");
+      var autoUpdaterEnabled = CommandLineHelper.findProperty(
+        this.commandLineArguments,
+        "auto.update",
+        "true",
+        Boolean::parseBoolean);
       // register the default updaters
       this.registry.registerUpdater(new LauncherUpdater());
       this.registry.registerUpdater(new LauncherPatcherUpdater());
@@ -141,7 +146,7 @@ public final class CloudNetLauncher {
       this.registry.registerUpdater(new LauncherModuleJsonUpdater());
       this.registry.registerUpdater(new LauncherChecksumsFileUpdater());
       // run the updater - use a new object as a placeholder as we need no special context here
-      this.registry.runUpdater(new Object());
+      this.registry.runUpdater(new Object(), !autoUpdaterEnabled);
     }
     // start the application
     this.startApplication(cloudNetJarPath, DependencyHelper.loadFromLibrariesFile(cloudNetJarPath));

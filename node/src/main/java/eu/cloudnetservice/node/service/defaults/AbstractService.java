@@ -650,7 +650,9 @@ public abstract class AbstractService implements CloudService {
   }
 
   protected @NonNull Object[] serviceReplacement() {
-    return new Object[]{this.serviceId().uniqueId(), this.serviceId().taskName(),
+    return new Object[]{
+      this.serviceId().uniqueId(),
+      this.serviceId().taskName(),
       this.serviceId().name(),
       this.serviceId().nodeUniqueId()};
   }
