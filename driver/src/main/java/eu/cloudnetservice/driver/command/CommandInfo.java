@@ -27,9 +27,9 @@ import org.jetbrains.annotations.Nullable;
  * Represents a command information object which holds all information for a single command that is registered on a
  * node.
  * <p>
- * The CommandInfo has one main identification point. It's identified by the name of the command. The command
- * represented by the CommandInfo is always the root of the command. Subcommands don't have an own CommandInfo, every
- * needed information is stored in the root CommandInfo. The usage contains the syntax for every possible command, here
+ * The command info has one main identification point. It's identified by the name of the command. The command
+ * represented by the command info is always the root of the command. Subcommands don't have an own command info, every
+ * needed information is stored in the root command info. The usage contains the syntax for every possible command, here
  * are subcommands included too.
  *
  * @param name        the root name of the command.
@@ -50,7 +50,7 @@ public record CommandInfo(
 ) implements Nameable {
 
   /**
-   * Joins the name of the registered command and the specified aliases into one String seperated by the seperator.
+   * Joins the name of the registered command and the specified aliases into one String seperated by the separator.
    *
    * @param separator the separator to join with.
    * @return the joined String with the name and all aliases.

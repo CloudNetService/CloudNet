@@ -67,9 +67,15 @@ public final class ModulesCommand {
       .build())
     .column(wrapper -> wrapper.module().name())
     .column(wrapper -> wrapper.module().version())
-    .column(wrapper -> wrapper.moduleConfiguration().author())
+    .column(wrapper -> {
+      var author = wrapper.moduleConfiguration().author();
+      return author == null ? "No author provided" : author;
+    })
     .column(ModuleWrapper::moduleLifeCycle)
-    .column(wrapper -> wrapper.moduleConfiguration().description())
+    .column(wrapper -> {
+      var description = wrapper.moduleConfiguration().description();
+      return description == null ? "No description provided" : description;
+    })
     .build();
   private static final RowBasedFormatter<ModuleEntry> MODULE_ENTRY_FORMATTER = RowBasedFormatter.<ModuleEntry>builder()
     .defaultFormatter(ColumnFormatter.builder()
