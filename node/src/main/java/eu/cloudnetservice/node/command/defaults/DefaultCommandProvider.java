@@ -236,7 +236,7 @@ public class DefaultCommandProvider implements CommandProvider {
   public @Nullable CommandInfo command(@NonNull String name) {
     var lowerCaseInput = name.toLowerCase();
 
-    for (CommandInfo command : this.registeredCommands.values()) {
+    for (var command : this.registeredCommands.values()) {
       if (command.name().equals(lowerCaseInput) || command.aliases().contains(lowerCaseInput)) {
         return command;
       }
