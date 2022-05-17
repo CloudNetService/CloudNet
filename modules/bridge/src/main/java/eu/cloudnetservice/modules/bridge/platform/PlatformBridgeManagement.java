@@ -16,6 +16,8 @@
 
 package eu.cloudnetservice.modules.bridge.platform;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.event.EventManager;
@@ -42,6 +44,7 @@ import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import eu.cloudnetservice.modules.bridge.rpc.ComponentObjectSerializer;
 import eu.cloudnetservice.modules.bridge.rpc.TitleObjectSerializer;
 import eu.cloudnetservice.wrapper.Wrapper;
+import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -69,7 +72,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
   protected final EventManager eventManager;
   protected final PlayerManager playerManager;
   protected final NetworkServiceInfo ownNetworkServiceInfo;
-  protected final Map<UUID, FallbackProfile> fallbackProfiles;
+  protected final LoadingCache<UUID, FallbackProfile> fallbackProfiles;
   protected final Map<UUID, ServiceInfoSnapshot> cachedServices;
 
   protected volatile ServiceTask selfTask;
@@ -83,7 +86,9 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
   public PlatformBridgeManagement(@NonNull Wrapper wrapper) {
     this.eventManager = wrapper.eventManager();
     this.cachedServices = new ConcurrentHashMap<>();
-    this.fallbackProfiles = new ConcurrentHashMap<>();
+    this.fallbackProfiles = Caffeine.newBuilder()
+      .expireAfterAccess(Duration.ofMinutes(10))
+      .build($ -> new FallbackProfile());
     // fill the cache access with no-op stuff
     this.cacheTester = $ -> false;
     this.cacheRegisterListener = this.cacheUnregisterListener = $ -> {
@@ -193,7 +198,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     }
 
     // get the fallback profile for the player
-    var profile = this.fallbackProfiles.computeIfAbsent(playerId, $ -> new FallbackProfile());
+    var profile = this.fallbackProfiles.get(playerId);
     // search for the best fallback
     return this.possibleFallbacks(currentServerName, virtualHost, permissionTester)
       // get all services we have cached of the task
@@ -300,14 +305,14 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
 
   public void handleFallbackConnectionSuccess(@NonNull UUID uniqueId) {
     // if present clear the profile
-    var profile = this.fallbackProfiles.get(uniqueId);
+    var profile = this.fallbackProfiles.getIfPresent(uniqueId);
     if (profile != null) {
       profile.reset();
     }
   }
 
   public void removeFallbackProfile(@NonNull UUID uniqueId) {
-    this.fallbackProfiles.remove(uniqueId);
+    this.fallbackProfiles.invalidate(uniqueId);
   }
 
   @Override

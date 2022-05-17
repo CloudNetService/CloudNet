@@ -25,12 +25,12 @@ import lombok.NonNull;
 public final class LauncherPatcherUpdater implements Updater<LauncherUpdaterContext> {
 
   @Override
-  public void executeUpdates(@NonNull LauncherUpdaterContext context) throws Exception {
+  public void executeUpdates(@NonNull LauncherUpdaterContext context, boolean onlyIfRequired) throws Exception {
     // get the new checksum of the file
     var checksum = context.checksums().getProperty("launcher-patcher");
     var launcherPatcherPath = context.launcher().workingDirectory().resolve("launcher-patcher.jar");
     var downloadUri = GitHubUtil.buildUri(context.repo(), context.branch(), "launcher-patcher.jar");
     // download the new launcher patcher file
-    FileDownloadUpdateHelper.updateFile(downloadUri, launcherPatcherPath, checksum, "launcher-patcher");
+    FileDownloadUpdateHelper.updateFile(downloadUri, launcherPatcherPath, checksum, "launcher-patcher", onlyIfRequired);
   }
 }

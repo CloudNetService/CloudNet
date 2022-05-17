@@ -16,16 +16,14 @@
 
 package eu.cloudnetservice.driver.network.rpc.defaults.object.data;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectSerializer;
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,10 +34,8 @@ import org.jetbrains.annotations.Nullable;
  */
 public class DataClassSerializer implements ObjectSerializer<Object> {
 
-  private final Lock readLock = new ReentrantLock();
-
-  private final DataClassInvokerGenerator generator = new DataClassInvokerGenerator();
-  private final Map<Type, DataClassInformation> cachedClassInformation = new HashMap<>();
+  private final LoadingCache<Type, DataClassInformation> dataClassInformationCache = Caffeine.newBuilder()
+    .build(key -> DataClassInformation.createClassInformation((Class<?>) key));
 
   /**
    * {@inheritDoc}
@@ -58,8 +54,7 @@ public class DataClassSerializer implements ObjectSerializer<Object> {
       return this.readArray(source, clazz, caller);
     }
     // get the class information and deserialize the object
-    var information = this.readOrCreateInformation(type);
-    return information.instanceCreator().makeInstance(source, caller);
+    return this.dataClassInformationCache.get(type).instanceCreator().makeInstance(source, caller);
   }
 
   /**
@@ -81,8 +76,7 @@ public class DataClassSerializer implements ObjectSerializer<Object> {
       return;
     }
     // get the class information and serialize the object
-    var information = this.readOrCreateInformation(type);
-    information.informationWriter().writeInformation(dataBuf, object, caller);
+    this.dataClassInformationCache.get(type).informationWriter().writeInformation(dataBuf, object, caller);
   }
 
   /**
@@ -123,26 +117,6 @@ public class DataClassSerializer implements ObjectSerializer<Object> {
     dataBuf.writeInt(arraySize);
     for (var i = 0; i < arraySize; i++) {
       caller.writeObject(dataBuf, Array.get(object, i));
-    }
-  }
-
-  /**
-   * Gets or creates a new data class information reader for the given type.
-   *
-   * @param targetType the type of the class to create the data class information for.
-   * @return the created data class information, either computed or from cache.
-   * @throws NullPointerException if the given type is null.
-   */
-  protected @NonNull DataClassInformation readOrCreateInformation(@NonNull Type targetType) {
-    // lock to no generate a data class information twice for no reason
-    this.readLock.lock();
-    // get or generate a new class information for the given type
-    try {
-      return this.cachedClassInformation.computeIfAbsent(
-        targetType,
-        $ -> DataClassInformation.createClassInformation((Class<?>) targetType, this.generator));
-    } finally {
-      this.readLock.unlock();
     }
   }
 }

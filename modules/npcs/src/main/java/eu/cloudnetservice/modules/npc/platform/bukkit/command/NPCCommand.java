@@ -56,7 +56,7 @@ import org.jetbrains.annotations.Nullable;
 
 public final class NPCCommand extends BaseTabExecutor {
 
-  private static final Material[] MATERIALS = Material.values();
+  private static final List<String> MATERIAL_NAMES = Arrays.stream(Material.values()).map(Material::name).toList();
 
   private static final List<String> TRUE_FALSE = Arrays.asList("true", "yes", "y", "false", "no", "n");
 
@@ -659,16 +659,14 @@ public final class NPCCommand extends BaseTabExecutor {
           // info lines top level
           case "il", "infolines" -> Arrays.asList("0", "1", "2", "3", "4", "5", "6", "7", "8", "9");
           // floating item
-          case "fi", "floatingitem" -> Arrays.stream(MATERIALS)
-            .map(Material::name)
-            .toList();
+          case "fi", "floatingitem" -> MATERIAL_NAMES;
           // unknown or non-completable option
           default -> Collections.emptyList();
         };
       }
       // more...
       if (args.length == 4 && args[1].equalsIgnoreCase("items")) {
-        return Arrays.stream(MATERIALS).map(Material::name).toList();
+        return MATERIAL_NAMES;
       }
     }
     // unable to tab-complete

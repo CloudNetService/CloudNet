@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.driver.network;
 
+import eu.cloudnetservice.common.concurrent.Task;
 import lombok.NonNull;
 
 /**
@@ -30,17 +31,17 @@ public interface NetworkServer extends NetworkComponent, AutoCloseable {
    * already listening to that port.
    *
    * @param port the port to which the listener should get bound.
-   * @return true if the listener was added to the given port, false otherwise.
+   * @return a future completed exceptionally if the bind fails, normally if the bind succeeded.
    * @throws IllegalArgumentException if the given port exceeds the port range.
    */
-  boolean addListener(int port);
+  @NonNull Task<Void> addListener(int port);
 
   /**
    * Binds this network server to the given host and port if no listener is already listening on the given address.
    *
    * @param hostAndPort the address to which a listener should get bound.
-   * @return true if the listener was added to the given address, false otherwise.
+   * @return a future completed exceptionally if the bind fails, normally if the bind succeeded.
    * @throws NullPointerException if the given host and port is null.
    */
-  boolean addListener(@NonNull HostAndPort hostAndPort);
+  @NonNull Task<Void> addListener(@NonNull HostAndPort hostAndPort);
 }

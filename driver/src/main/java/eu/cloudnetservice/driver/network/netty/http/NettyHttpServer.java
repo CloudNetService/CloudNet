@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.driver.network.netty.http;
 
+import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.common.log.LogManager;
 import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.network.HostAndPort;
@@ -28,7 +29,6 @@ import io.netty5.bootstrap.ServerBootstrap;
 import io.netty5.channel.ChannelOption;
 import io.netty5.channel.EventLoopGroup;
 import io.netty5.util.concurrent.Future;
-import java.net.SocketAddress;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -85,7 +85,7 @@ public class NettyHttpServer extends NettySslServer implements HttpServer {
    * {@inheritDoc}
    */
   @Override
-  public boolean addListener(int port) {
+  public @NonNull Task<Void> addListener(int port) {
     return this.addListener(new HostAndPort("0.0.0.0", port));
   }
 
@@ -93,37 +93,31 @@ public class NettyHttpServer extends NettySslServer implements HttpServer {
    * {@inheritDoc}
    */
   @Override
-  public boolean addListener(@NonNull SocketAddress socketAddress) {
-    return this.addListener(HostAndPort.fromSocketAddress(socketAddress));
-  }
+  public @NonNull Task<Void> addListener(@NonNull HostAndPort hostAndPort) {
+    Task<Void> result = new Task<>();
+    new ServerBootstrap()
+      .group(this.bossGroup, this.workerGroup)
+      .channelFactory(NettyUtil.serverChannelFactory())
+      .childHandler(new NettyHttpServerInitializer(this, hostAndPort))
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean addListener(@NonNull HostAndPort hostAndPort) {
-    try {
-      if (!this.channelFutures.containsKey(hostAndPort)) {
-        this.channelFutures.put(hostAndPort, new ServerBootstrap()
-          .group(this.bossGroup, this.workerGroup)
-          .channelFactory(NettyUtil.serverChannelFactory())
-          .childHandler(new NettyHttpServerInitializer(this, hostAndPort))
+      .childOption(ChannelOption.IP_TOS, 24)
+      .childOption(ChannelOption.AUTO_READ, true)
+      .childOption(ChannelOption.TCP_NODELAY, true)
+      .childOption(ChannelOption.SO_REUSEADDR, true)
 
-          .childOption(ChannelOption.IP_TOS, 24)
-          .childOption(ChannelOption.AUTO_READ, true)
-          .childOption(ChannelOption.TCP_NODELAY, true)
+      .bind(hostAndPort.host(), hostAndPort.port())
+      .addListener(future -> {
+        if (future.isSuccess()) {
+          // ok, we bound successfully
+          result.complete(null);
+          this.channelFutures.put(hostAndPort, future.getNow().closeFuture());
+        } else {
+          // something went wrong
+          result.completeExceptionally(future.cause());
+        }
+      });
 
-          .bind(hostAndPort.host(), hostAndPort.port())
-          .sync()
-          .getNow()
-          .closeFuture());
-        return true;
-      }
-    } catch (Exception exception) {
-      LOGGER.severe("Exception while binding http server to %s", exception, hostAndPort);
-    }
-
-    return false;
+    return result;
   }
 
   /**

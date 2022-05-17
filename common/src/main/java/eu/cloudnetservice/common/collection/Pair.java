@@ -19,12 +19,14 @@ package eu.cloudnetservice.common.collection;
 import org.jetbrains.annotations.UnknownNullability;
 
 /**
- * This class can capture 2 references of 2 types and set or clear the data using setFirst() / getFirst() and
- * setSecond() / getSecond(). It can be used to return multiple objects of a method, or to easily capture multiple
- * objects without creating their own class.
+ * This pair wraps two values, that are allowed to have different types, into a pair allowing accessing both using
+ * {@link #first()} and {@link #second()}.
  *
- * @param <F> the first type, which you want to define
- * @param <S> the second type which you want to define
+ * @param first the first value of the pair.
+ * @param second the second value of the pair.
+ * @param <F> the type of the first value.
+ * @param <S> the type of the second value.
+ * @since 4.0
  */
 public record Pair<F, S>(@UnknownNullability F first, @UnknownNullability S second) {
 

@@ -178,8 +178,6 @@ public class DefaultModuleProvider implements ModuleProvider {
       if (moduleConfiguration == null) {
         throw new ModuleConfigurationNotFoundException(url);
       }
-      // validate that the module configuration contains all necessary information
-      moduleConfiguration.assertRequiredPropertiesSet();
       // check if the module can run on the current java version release.
       if (!moduleConfiguration.canRunOn(JavaVersion.runtimeVersion())) {
         LOGGER.warning(String.format("Unable to load module %s:%s because it only supports Java %d+",
@@ -193,7 +191,7 @@ public class DefaultModuleProvider implements ModuleProvider {
       var loader = new ModuleURLClassLoader(url, dependencies.first());
       loader.registerGlobally();
       // try to load and create the main class instance
-      var mainModuleClass = loader.loadClass(moduleConfiguration.mainClass());
+      var mainModuleClass = loader.loadClass(moduleConfiguration.main());
       // check if the main class is an instance of the IModule class
       if (!Module.class.isAssignableFrom(mainModuleClass)) {
         throw new AssertionError(String.format("Module main class %s is not assignable from %s",

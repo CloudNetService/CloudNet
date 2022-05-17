@@ -27,10 +27,10 @@ public abstract class DefaultUpdaterRegistry<T, C> implements UpdaterRegistry<T,
   protected final Deque<Updater<T>> updaters = new LinkedList<>();
 
   @Override
-  public void runUpdater(@NonNull C context) throws Exception {
+  public void runUpdater(@NonNull C context, boolean onlyRequiredUpdates) throws Exception {
     var updaterContext = this.provideContext(context);
     for (var updater : this.updaters) {
-      updater.executeUpdates(updaterContext);
+      updater.executeUpdates(updaterContext, onlyRequiredUpdates);
     }
   }
 

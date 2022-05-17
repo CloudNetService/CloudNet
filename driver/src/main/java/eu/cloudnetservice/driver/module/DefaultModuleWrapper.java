@@ -194,7 +194,7 @@ public class DefaultModuleWrapper implements ModuleWrapper {
   @Override
   public @NonNull ModuleWrapper reloadModule() {
     // runtime modules are not reloadable
-    if (this.moduleConfiguration.runtimeModule) {
+    if (this.moduleConfiguration.runtimeModule()) {
       return this;
     }
 
@@ -337,7 +337,7 @@ public class DefaultModuleWrapper implements ModuleWrapper {
                   "Stopping lifecycle update to %s for %s because the task %s failed. See console log for more details.",
                   lifeCycle, this.moduleConfiguration.name(), task.fullMethodSignature()
                 ));
-                break;
+                return;
               }
             }
           }

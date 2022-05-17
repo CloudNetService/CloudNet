@@ -16,6 +16,8 @@
 
 package eu.cloudnetservice.driver.network.rpc.defaults;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import eu.cloudnetservice.driver.network.NetworkComponent;
@@ -31,8 +33,6 @@ import eu.cloudnetservice.driver.network.rpc.generation.ChainInstanceFactory;
 import eu.cloudnetservice.driver.network.rpc.generation.GenerationContext;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import java.lang.StackWalker.StackFrame;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
 import lombok.NonNull;
@@ -48,7 +48,7 @@ public class DefaultRPCFactory implements RPCFactory {
   protected final ObjectMapper defaultObjectMapper;
   protected final DataBufFactory defaultDataBufFactory;
 
-  protected final Map<GenerationContext, Supplier<Object>> generatedApiCache = new HashMap<>();
+  protected final Cache<GenerationContext, Supplier<Object>> generatedApiCache = Caffeine.newBuilder().build();
   protected final Table<String, GenerationContext, ChainInstanceFactory<?>> chainFactoryCache = HashBasedTable.create();
 
   /**
@@ -109,7 +109,7 @@ public class DefaultRPCFactory implements RPCFactory {
   @Override
   @SuppressWarnings("unchecked")
   public <T> @NonNull T generateRPCBasedApi(@NonNull Class<T> baseClass, @NonNull GenerationContext context) {
-    return (T) this.generatedApiCache.computeIfAbsent(context, $ -> {
+    return (T) this.generatedApiCache.get(context, $ -> {
       var sender = this.senderFromGenerationContext(context, baseClass);
       return ApiImplementationGenerator.generateApiImplementation(baseClass, context, sender);
     }).get();

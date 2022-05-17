@@ -16,6 +16,8 @@
 
 package eu.cloudnetservice.driver.network.rpc.defaults.sender;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import eu.cloudnetservice.driver.network.NetworkComponent;
 import eu.cloudnetservice.driver.network.buffer.DataBufFactory;
 import eu.cloudnetservice.driver.network.rpc.RPC;
@@ -25,8 +27,6 @@ import eu.cloudnetservice.driver.network.rpc.defaults.DefaultRPCProvider;
 import eu.cloudnetservice.driver.network.rpc.defaults.MethodInformation;
 import eu.cloudnetservice.driver.network.rpc.defaults.rpc.DefaultRPC;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,7 +42,7 @@ public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
   protected final Class<?> targetClass;
   protected final RPCFactory factory;
   protected final NetworkComponent networkComponent;
-  protected final Map<String, MethodInformation> cachedMethodInformation;
+  protected final Cache<String, MethodInformation> cachedMethodInformation;
 
   /**
    * Constructs a new default rpc sender instance.
@@ -66,7 +66,7 @@ public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
     this.factory = factory;
     this.targetClass = targetClass;
     this.networkComponent = component;
-    this.cachedMethodInformation = new ConcurrentHashMap<>();
+    this.cachedMethodInformation = Caffeine.newBuilder().build();
   }
 
   /**
@@ -103,7 +103,7 @@ public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
   @Override
   public @NonNull RPC invokeMethod(@NonNull String methodName, Object... args) {
     // find the method information of the method we want to invoke
-    var information = this.cachedMethodInformation.computeIfAbsent(
+    var information = this.cachedMethodInformation.get(
       methodName,
       $ -> MethodInformation.find(null, this.targetClass, methodName, null, args.length));
     // generate the rpc from this information

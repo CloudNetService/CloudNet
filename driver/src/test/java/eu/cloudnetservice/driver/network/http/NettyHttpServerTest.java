@@ -31,6 +31,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.glassfish.tyrus.client.ClientManager;
 import org.junit.jupiter.api.Assertions;
@@ -71,8 +72,8 @@ public class NettyHttpServerTest extends NetworkTestCase {
     HttpServer server = new NettyHttpServer();
 
     Assertions.assertFalse(server.sslEnabled());
-    Assertions.assertTrue(server.addListener(port));
-    Assertions.assertFalse(server.addListener(port));
+    Assertions.assertDoesNotThrow(() -> server.addListener(port).join());
+    Assertions.assertThrows(CompletionException.class, () -> server.addListener(port).join());
 
     Assertions.assertDoesNotThrow(server::close);
   }
@@ -92,7 +93,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
       });
 
     Assertions.assertEquals(1, server.httpHandlers().size());
-    Assertions.assertTrue(server.addListener(port));
+    Assertions.assertDoesNotThrow(() -> server.addListener(port).join());
 
     for (var supportedMethod : SUPPORTED_METHODS) {
       var connection = this.connectTo(port, "test", con -> con.setRequestMethod(supportedMethod));
@@ -115,7 +116,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
       });
 
     Assertions.assertEquals(1, server.httpHandlers().size());
-    Assertions.assertTrue(server.addListener(port));
+    Assertions.assertDoesNotThrow(() -> server.addListener(port).join());
 
     Assertions.assertEquals(200, this.connectTo(port, "test/1234").getResponseCode());
     Assertions.assertEquals(404, this.connectTo(port, "test1234").getResponseCode());
@@ -136,7 +137,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
       });
 
     Assertions.assertEquals(1, server.httpHandlers().size());
-    Assertions.assertTrue(server.addListener(port));
+    Assertions.assertDoesNotThrow(() -> server.addListener(port).join());
 
     Assertions.assertEquals(200, this.connectTo(port, "test?id=1234&array=1&array=2").getResponseCode());
     Assertions.assertEquals(404, this.connectTo(port, "test1234").getResponseCode());
@@ -164,7 +165,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
     );
 
     Assertions.assertEquals(2, server.httpHandlers().size());
-    Assertions.assertTrue(server.addListener(port));
+    Assertions.assertDoesNotThrow(() -> server.addListener(port).join());
 
     Assertions.assertEquals(200, this.connectTo(port, "test1?cancelNext=true").getResponseCode());
     Assertions.assertEquals(201, this.connectTo(port, "test1?cancelNext=false").getResponseCode());
@@ -195,7 +196,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
     );
 
     Assertions.assertEquals(1, server.httpHandlers().size());
-    Assertions.assertTrue(server.addListener(port));
+    Assertions.assertDoesNotThrow(() -> server.addListener(port).join());
 
     var connection = this.connectTo(port, "test", urlConnection -> {
       urlConnection.setRequestProperty("derklaro_status", "derklaro_was_here");
@@ -249,7 +250,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
     );
 
     Assertions.assertEquals(1, server.httpHandlers().size());
-    Assertions.assertTrue(server.addListener(port));
+    Assertions.assertDoesNotThrow(() -> server.addListener(port).join());
 
     var connection = this.connectTo(port, "test", urlConnection -> {
       var cookie = new DefaultCookie("request_cookie", "request_value");
@@ -298,8 +299,8 @@ public class NettyHttpServerTest extends NetworkTestCase {
     );
 
     Assertions.assertEquals(3, server.httpHandlers().size());
-    Assertions.assertTrue(server.addListener(port));
-    Assertions.assertTrue(server.addListener(secondPort));
+    Assertions.assertDoesNotThrow(() -> server.addListener(port).join());
+    Assertions.assertDoesNotThrow(() -> server.addListener(secondPort).join());
 
     Assertions.assertEquals(201, this.connectTo(port, "global").getResponseCode());
     Assertions.assertEquals(201, this.connectTo(secondPort, "global").getResponseCode());
@@ -334,7 +335,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
           ch.sendWebSocketFrame(WebSocketFrameType.TEXT, "hello");
         }
       ));
-    Assertions.assertTrue(server.addListener(port));
+    Assertions.assertDoesNotThrow(() -> server.addListener(port).join());
 
     var session = ClientManager.createClient().connectToServer(
       WebSocketClientEndpoint.class,
