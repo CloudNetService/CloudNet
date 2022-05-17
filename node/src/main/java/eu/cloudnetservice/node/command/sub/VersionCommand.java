@@ -108,14 +108,18 @@ public final class VersionCommand {
   public @NonNull List<String> suggestStaticServices(
     @NonNull CommandContext<?> $,
     @NonNull String input
-  ) throws IOException {
+  ) {
     var baseDirectory = Node.instance().cloudServiceProvider().persistentServicesDirectory();
-    return Files.walk(baseDirectory, 1)
-      .filter(Files::isDirectory)
-      .filter(path -> !path.equals(baseDirectory)) // prevents the base directory to show up in the suggestions
-      .map(Path::getFileName)
-      .map(Path::toString)
-      .collect(Collectors.toList());
+    try {
+      return Files.walk(baseDirectory, 1)
+        .filter(Files::isDirectory)
+        .filter(path -> !path.equals(baseDirectory)) // prevents the base directory to show up in the suggestions
+        .map(Path::getFileName)
+        .map(Path::toString)
+        .collect(Collectors.toList());
+    } catch (IOException exception) {
+      return List.of();
+    }
   }
 
   @CommandMethod("version|v list [versionType]")
