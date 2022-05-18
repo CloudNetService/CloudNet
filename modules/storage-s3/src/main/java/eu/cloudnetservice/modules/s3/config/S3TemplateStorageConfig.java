@@ -22,68 +22,23 @@ import java.net.URI;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class S3TemplateStorageConfig {
+public record S3TemplateStorageConfig(
+  @NonNull String name,
+  @NonNull String bucket,
+  @NonNull String region,
+  @NonNull String accessKey,
+  @NonNull String secretKey,
+  @Nullable String endpointOverride,
+  boolean accelerateMode,
+  boolean pathStyleAccess,
+  boolean chunkedEncoding,
+  boolean checksumValidation,
+  boolean dualstackEndpointEnabled
+) {
 
   private static final Logger LOGGER = LogManager.logger(S3TemplateStorageConfig.class);
 
-  private final String name;
-  private final String bucket;
-
-  private final String region;
-  private final boolean dualstackEndpointEnabled;
-
-  private final String accessKey;
-  private final String secretKey;
-
-  private final String endpointOverride;
-
-  public S3TemplateStorageConfig() {
-    this("s3", "cloudnet", "eu-west-1", false, "secret", "more_secret", null);
-  }
-
-  public S3TemplateStorageConfig(
-    @NonNull String name,
-    @NonNull String bucket,
-    @NonNull String region,
-    boolean dualstackEndpointEnabled,
-    @NonNull String accessKey,
-    @NonNull String secretKey,
-    @Nullable String endpointOverride
-  ) {
-    this.name = name;
-    this.bucket = bucket;
-    this.region = region;
-    this.dualstackEndpointEnabled = dualstackEndpointEnabled;
-    this.accessKey = accessKey;
-    this.secretKey = secretKey;
-    this.endpointOverride = endpointOverride;
-  }
-
-  public @NonNull String name() {
-    return this.name;
-  }
-
-  public @NonNull String bucket() {
-    return this.bucket;
-  }
-
-  public @NonNull String region() {
-    return this.region;
-  }
-
-  public boolean dualstackEndpointEnabled() {
-    return this.dualstackEndpointEnabled;
-  }
-
-  public @NonNull String accessKey() {
-    return this.accessKey;
-  }
-
-  public @NonNull String secretKey() {
-    return this.secretKey;
-  }
-
-  public @Nullable URI endpointOverride() {
+  public @Nullable URI resolveEndpointOverride() {
     if (this.endpointOverride != null) {
       try {
         var uri = URI.create(this.endpointOverride);

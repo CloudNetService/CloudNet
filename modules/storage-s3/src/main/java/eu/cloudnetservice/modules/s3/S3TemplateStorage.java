@@ -46,6 +46,7 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.model.BucketAlreadyExistsException;
 import software.amazon.awssdk.services.s3.model.BucketAlreadyOwnedByYouException;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
@@ -73,11 +74,17 @@ public class S3TemplateStorage implements TemplateStorage {
     this.module = module;
     this.client = S3Client.builder()
       .region(Region.of(this.config().region()))
-      .endpointOverride(this.config().endpointOverride())
+      .endpointOverride(this.config().resolveEndpointOverride())
       .dualstackEnabled(this.config().dualstackEndpointEnabled())
       .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(
         this.config().accessKey(),
         this.config().secretKey())))
+      .serviceConfiguration(S3Configuration.builder()
+        .accelerateModeEnabled(this.config().accelerateMode())
+        .pathStyleAccessEnabled(this.config().pathStyleAccess())
+        .chunkedEncodingEnabled(this.config().chunkedEncoding())
+        .checksumValidationEnabled(this.config().checksumValidation())
+        .build())
       .build();
 
     // init the bucket
