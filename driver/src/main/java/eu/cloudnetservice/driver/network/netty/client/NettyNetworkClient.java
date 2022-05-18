@@ -27,7 +27,6 @@ import eu.cloudnetservice.driver.network.protocol.PacketListenerRegistry;
 import eu.cloudnetservice.driver.network.protocol.defaults.DefaultPacketListenerRegistry;
 import eu.cloudnetservice.driver.network.ssl.SSLConfiguration;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -121,7 +120,6 @@ public class NettyNetworkClient implements DefaultNetworkComponent, NetworkClien
       .option(ChannelOption.AUTO_READ, true)
       .option(ChannelOption.TCP_NODELAY, true)
       .option(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK)
-      .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
       .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECTION_TIMEOUT_MILLIS)
 
       .connect(hostAndPort.host(), hostAndPort.port())

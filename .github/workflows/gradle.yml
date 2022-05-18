@@ -5,6 +5,7 @@ on:
     branches: [ "**" ]
     tags-ignore: [ "**" ]
   pull_request:
+  workflow_dispatch:
 
 concurrency:
   group: build-${{ github.event.pull_request.number || github.ref }}
@@ -14,6 +15,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     name: Build and publish
+    strategy:
+      fail-fast: false
+      matrix:
+        java:
+          - 17
+          - 18
 
     steps:
       - name: Checkout repository
@@ -30,7 +37,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: 17
+          java-version: ${{ matrix.java }}
           check-latest: true
           cache: 'gradle'
 
@@ -39,7 +46,7 @@ jobs:
 
       - name: Publish updater metadata
         uses: s0/git-publish-subdir-action@develop
-        if: ${{ github.event_name == 'push' && !startsWith(github.ref, 'refs/heads/renovate/') }}
+        if: ${{ github.event_name == 'push' && !startsWith(github.ref, 'refs/heads/renovate/') && matrix.java == 17 }}
         env:
           REPO: git@github.com:CloudNetService/launchermeta.git
           BRANCH: ${{ steps.branch-name.outputs.current_branch }}
@@ -51,6 +58,7 @@ jobs:
           MESSAGE: 'Update launcher meta for {target-branch} (commit: {sha})'
 
       - name: Set version type in GitHub environment
+        if: ${{ matrix.java == 17 }}
         run: |
           if [ "$(./gradlew properties | awk '/^version:/ { print $2; }' | grep '\-SNAPSHOT')" ]; then
             echo "STATUS=snapshot" >> $GITHUB_ENV
@@ -59,14 +67,14 @@ jobs:
           fi
 
       - name: Publish to Sonatype
-        if: ${{ github.event_name == 'push' && env.STATUS != 'release' && startsWith(github.ref, 'refs/heads/dev') }}
+        if: ${{ github.event_name == 'push' && env.STATUS != 'release' && startsWith(github.ref, 'refs/heads/dev') && matrix.java == 17 }}
         run: ./gradlew publish
         env:
           sonatypeUsername: "${{ secrets.SONATYPE_USER }}"
           sonatypePassword: "${{ secrets.SONATYPE_KEY }}"
 
       - name: Prepare artifacts zip
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' && matrix.java == 17 }}
         run: |
           mkdir -p temp/;
           mkdir -p temp/plugins;
@@ -79,7 +87,7 @@ jobs:
 
       - name: Upload artifacts zip
         uses: actions/upload-artifact@v3
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' && matrix.java == 17 }}
         with:
           name: CloudNet
           path: temp/

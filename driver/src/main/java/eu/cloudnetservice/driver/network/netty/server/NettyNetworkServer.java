@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.driver.network.netty.server;
 
+import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.network.DefaultNetworkComponent;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.NetworkChannel;
@@ -106,7 +107,7 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
    * {@inheritDoc}
    */
   @Override
-  public boolean addListener(int port) {
+  public @NonNull Task<Void> addListener(int port) {
     return this.addListener(new HostAndPort("0.0.0.0", port));
   }
 
@@ -114,38 +115,33 @@ public class NettyNetworkServer extends NettySslServer implements DefaultNetwork
    * {@inheritDoc}
    */
   @Override
-  public boolean addListener(@NonNull HostAndPort hostAndPort) {
-    // check if a server is already bound to the port
-    if (!this.channelFutures.containsKey(hostAndPort)) {
-      try {
-        // create the server
-        var bootstrap = new ServerBootstrap()
-          .channelFactory(NettyUtil.serverChannelFactory())
-          .group(this.bossEventLoopGroup, this.workerEventLoopGroup)
-          .childHandler(new NettyNetworkServerInitializer(this, hostAndPort))
+  public @NonNull Task<Void> addListener(@NonNull HostAndPort hostAndPort) {
+    Task<Void> result = new Task<>();
+    new ServerBootstrap()
+      .channelFactory(NettyUtil.serverChannelFactory())
+      .group(this.bossEventLoopGroup, this.workerEventLoopGroup)
+      .childHandler(new NettyNetworkServerInitializer(this, hostAndPort))
 
-          .childOption(ChannelOption.IP_TOS, 0x18)
-          .childOption(ChannelOption.AUTO_READ, true)
-          .childOption(ChannelOption.TCP_NODELAY, true)
-          .childOption(ChannelOption.SO_KEEPALIVE, true)
-          .childOption(ChannelOption.SO_REUSEADDR, true)
-          .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK);
-        // register the server and bind it
-        this.channelFutures.putIfAbsent(hostAndPort, bootstrap
-          .bind(hostAndPort.host(), hostAndPort.port())
-          .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
-          .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
+      .childOption(ChannelOption.IP_TOS, 0x18)
+      .childOption(ChannelOption.AUTO_READ, true)
+      .childOption(ChannelOption.TCP_NODELAY, true)
+      .childOption(ChannelOption.SO_REUSEADDR, true)
+      .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK)
 
-          .sync()
-          .channel()
-          .closeFuture());
-        return true;
-      } catch (InterruptedException exception) {
-        LOGGER.severe("Exception binding network server instance to %s", exception, hostAndPort);
-      }
-    }
+      .bind(hostAndPort.host(), hostAndPort.port())
+      .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
+      .addListener((ChannelFutureListener) future -> {
+        if (future.isSuccess()) {
+          // ok, we bound successfully
+          result.complete(null);
+          this.channelFutures.put(hostAndPort, future.channel().closeFuture());
+        } else {
+          // something went wrong
+          result.completeExceptionally(future.cause());
+        }
+      });
 
-    return false;
+    return result;
   }
 
   /**

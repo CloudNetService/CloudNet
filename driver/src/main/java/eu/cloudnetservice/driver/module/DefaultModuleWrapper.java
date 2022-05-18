@@ -194,7 +194,7 @@ public class DefaultModuleWrapper implements ModuleWrapper {
   @Override
   public @NonNull ModuleWrapper reloadModule() {
     // runtime modules are not reloadable
-    if (this.moduleConfiguration.runtimeModule) {
+    if (this.moduleConfiguration.runtimeModule()) {
       return this;
     }
 

@@ -92,6 +92,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Phaser;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -215,7 +216,7 @@ public class Node extends CloudNetDriver {
     // apply all module updates if we're not running in dev mode
     if (!DEV_MODE) {
       LOGGER.info(I18n.trans("start-module-updater"));
-      this.moduleUpdaterRegistry.runUpdater(this.modulesHolder, !AUTO_UPDATE);
+      this.moduleUpdaterRegistry.runUpdater(this.modulesHolder, !this.autoUpdate());
     }
 
     // load the modules before proceeding for example to allow the database provider init
@@ -249,17 +250,11 @@ public class Node extends CloudNetDriver {
     this.nodeServerProvider.localNode().state(NodeServerState.READY);
     this.nodeServerProvider.selectHeadNode();
 
-    // network server init
+    // prints out the transport type we're going to use, more for debug reasons in normal cases
     LOGGER.info(I18n.trans("network-selected-transport", NettyUtil.selectedNettyTransport().displayName()));
-    for (var listener : this.configuration.identity().listeners()) {
-      this.networkServer.addListener(listener);
-      LOGGER.info(I18n.trans("network-listener-bound", listener));
-    }
-    // http server init
-    for (var listener : this.configuration.httpListeners()) {
-      this.httpServer.addListener(listener);
-      LOGGER.info(I18n.trans("http-listener-bound", listener));
-    }
+
+    // bind network listeners
+    this.bindNetworkListeners();
 
     // connect to the other node servers
     this.establishNodeConnections();
@@ -465,6 +460,49 @@ public class Node extends CloudNetDriver {
 
   public boolean running() {
     return this.running.get();
+  }
+
+  private void bindNetworkListeners() throws InterruptedException {
+    var connectionCounter = new AtomicInteger();
+
+    // network server init
+    for (var listener : this.configuration.identity().listeners()) {
+      this.networkServer.addListener(listener).handle(($, exception) -> {
+        // check if the bind failed
+        if (exception != null) {
+          LOGGER.info(I18n.trans("network-listener-bound-exceptionally", listener, exception.getMessage()));
+        } else {
+          connectionCounter.incrementAndGet();
+          LOGGER.info(I18n.trans("network-listener-bound", listener));
+        }
+
+        // prevent the exception from being thrown
+        return null;
+      }).join();
+    }
+
+    // we can hard stop here if no network listener was bound - the wrappers will not be able to connect to the node
+    if (connectionCounter.get() == 0) {
+      LOGGER.severe(I18n.trans("startup-failed-no-network-listener-bound"));
+      // wait a bit, then stop
+      Thread.sleep(5000);
+      System.exit(1);
+    }
+
+    // http server init
+    for (var listener : this.configuration.httpListeners()) {
+      this.httpServer.addListener(listener).handle(($, exception) -> {
+        // check if the bind failed
+        if (exception != null) {
+          LOGGER.info(I18n.trans("http-listener-bound-exceptionally", listener, exception.getMessage()));
+        } else {
+          LOGGER.info(I18n.trans("http-listener-bound", listener));
+        }
+
+        // prevent the exception from being thrown
+        return null;
+      }).join();
+    }
   }
 
   private void establishNodeConnections() {

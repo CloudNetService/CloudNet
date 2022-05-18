@@ -16,8 +16,8 @@
 
 package eu.cloudnetservice.driver.network.http;
 
+import eu.cloudnetservice.common.concurrent.Task;
 import eu.cloudnetservice.driver.network.HostAndPort;
-import java.net.SocketAddress;
 import lombok.NonNull;
 
 /**
@@ -28,28 +28,21 @@ import lombok.NonNull;
 public interface HttpServer extends HttpComponent<HttpServer> {
 
   /**
-   * Adds a listener on the given port if a listener on the port does not exist already.
+   * Binds this http server to the given port on any local address (ipv6 form: {@code ::/0}) if no other listener is
+   * already listening to that port.
    *
-   * @param port the to bind to.
-   * @return true if the bind was successful, false otherwise.
+   * @param port the port to which the listener should get bound.
+   * @return a future completed exceptionally if the bind fails, normally if the bind succeeded.
+   * @throws IllegalArgumentException if the given port exceeds the port range.
    */
-  boolean addListener(int port);
+  @NonNull Task<Void> addListener(int port);
 
   /**
-   * Adds a listener on the given socket address if the listener does not exist already.
+   * Binds this network server to the given host and port if no listener is already listening on the given address.
    *
-   * @param socketAddress the address to listen to.
-   * @return true if the bind was successful, false otherwise.
-   * @throws NullPointerException if the given socket address is null.
-   */
-  boolean addListener(@NonNull SocketAddress socketAddress);
-
-  /**
-   * Adds a listener on the given host and port if the listener does not exist already.
-   *
-   * @param hostAndPort the host and port to listen to.
-   * @return true if the bind was successful, false otherwise.
+   * @param hostAndPort the address to which a listener should get bound.
+   * @return a future completed exceptionally if the bind fails, normally if the bind succeeded.
    * @throws NullPointerException if the given host and port is null.
    */
-  boolean addListener(@NonNull HostAndPort hostAndPort);
+  @NonNull Task<Void> addListener(@NonNull HostAndPort hostAndPort);
 }

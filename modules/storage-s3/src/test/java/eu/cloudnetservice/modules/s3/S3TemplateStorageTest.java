@@ -65,10 +65,14 @@ class S3TemplateStorageTest {
       "s3",
       "cn-testing",
       "us-east-1",
-      false,
       "accesskey",
       "secretkey",
-      String.format("http://%s:%d", runningAddress, S3.getMappedPort(PORT))));
+      String.format("http://%s:%d", runningAddress, S3.getMappedPort(PORT)),
+      false,
+      false,
+      true,
+      true,
+      false));
 
     storage = new S3TemplateStorage(module);
   }

@@ -79,7 +79,10 @@ public class DefaultPublisherRegistry implements PublisherRegistry {
           try {
             this.writeApi.writePoint(point);
           } catch (InfluxException exception) {
-            LOGGER.warning("Unable to write point into influx db, possibly the config is invalid?", exception);
+            LOGGER.warning(
+              "Unable to write point into influx db, possibly the config is invalid? %s",
+              null,
+              exception.getMessage());
             break;
           }
         }
