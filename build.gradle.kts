@@ -33,7 +33,6 @@ allprojects {
     mavenCentral()
     maven("https://jitpack.io/")
     maven("https://repo.spongepowered.org/maven/")
-    maven("https://oss.sonatype.org/content/repositories/snapshots/")
   }
 }
 
