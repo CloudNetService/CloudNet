@@ -127,7 +127,6 @@ public interface ModuleProvider {
    * @return the loaded module or null if checks failed or a module from this url is already loaded.
    * @throws ModuleConfigurationNotFoundException         if the file associated with the url doesn't contain a
    *                                                      module.json.
-   * @throws ModuleConfigurationPropertyNotFoundException if a required property is missing in the module.json file.
    * @throws NullPointerException                         if required properties are missing in dependency or repository
    *                                                      information.
    * @throws AssertionError                               if any exception occurs during the load of the module.
@@ -142,7 +141,6 @@ public interface ModuleProvider {
    * @return the loaded module or null if checks failed or a module from this path is already loaded.
    * @throws ModuleConfigurationNotFoundException         if the file associated with the url doesn't contain a
    *                                                      module.json.
-   * @throws ModuleConfigurationPropertyNotFoundException if a required property is missing in the module.json file.
    * @throws NullPointerException                         if required properties are missing in dependency or repository
    *                                                      information.
    * @throws AssertionError                               if any exception occurs during the load of the module.
