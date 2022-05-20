@@ -4878,7 +4878,7 @@
           },
           "url" : {
             "type" : "string",
-            "example" : "https://papermc.io/api/v2/projects/paper/versions/1.14.4/builds/243/downloads/paper-1.14.4-243.jar"
+            "example" : "https://api.papermc.io/v2/projects/paper/versions/1.14.4/builds/243/downloads/paper-1.14.4-243.jar"
           },
           "minJavaVersion" : {
             "type" : "integer",
