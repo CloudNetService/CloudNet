@@ -31,7 +31,7 @@ public final class PermissionCacheListener {
 
   private final WrapperPermissionManagement permissionManagement;
 
-  public PermissionCacheListener(WrapperPermissionManagement permissionManagement) {
+  public PermissionCacheListener(@NonNull WrapperPermissionManagement permissionManagement) {
     this.permissionManagement = permissionManagement;
   }
 

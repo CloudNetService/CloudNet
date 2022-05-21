@@ -30,8 +30,8 @@ import lombok.NonNull;
 
 public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
 
-  private static final String VERSION_LIST_URL = "https://papermc.io/api/v2/projects/%s/versions/%s";
-  private static final String DOWNLOAD_URL = "https://papermc.io/api/v2/projects/%s/versions/%s/builds/%d/downloads/%s-%s-%d.jar";
+  private static final String VERSION_LIST_URL = "https://api.papermc.io/v2/projects/%s/versions/%s";
+  private static final String DOWNLOAD_URL = "https://api.papermc.io/v2/projects/%s/versions/%s/builds/%d/downloads/%s-%s-%d.jar";
   private static final Type INT_SET_TYPE = TypeToken.getParameterized(Set.class, Integer.class).getType();
 
   @Override

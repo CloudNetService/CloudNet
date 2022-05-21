@@ -30,9 +30,8 @@ import org.jetbrains.annotations.UnmodifiableView;
 
 public interface Console extends AutoCloseable {
 
-  @NonNull
   @UnmodifiableView
-  Collection<AbstractConsoleAnimation> runningAnimations();
+  @NonNull Collection<AbstractConsoleAnimation> runningAnimations();
 
   void startAnimation(@NonNull AbstractConsoleAnimation animation);
 

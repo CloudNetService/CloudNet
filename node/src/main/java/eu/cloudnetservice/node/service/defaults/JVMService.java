@@ -65,11 +65,7 @@ public class JVMService extends AbstractService {
     "-Dfile.encoding=UTF-8",
     "-Dlog4j2.formatMsgNoLookups=true",
     "-DIReallyKnowWhatIAmDoingISwear=true",
-    "-Djline.terminal=jline.UnsupportedTerminal",
-    // TODO: remove after testing
-    "-Dio.netty.allocator.smallCacheSize=0",
-    "-Dio.netty.allocator.normalCacheSize=0",
-    "-Dio.netty.allocator.maxCachedBufferCapacity=0");
+    "-Djline.terminal=jline.UnsupportedTerminal");
 
   protected static final Path LIB_PATH = Path.of("launcher", "libs");
   protected static final Path WRAPPER_TEMP_FILE = FileUtil.TEMP_DIR.resolve("caches").resolve("wrapper.jar");

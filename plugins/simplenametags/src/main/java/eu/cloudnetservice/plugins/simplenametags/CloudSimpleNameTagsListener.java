@@ -37,7 +37,7 @@ public final class CloudSimpleNameTagsListener<P> {
   }
 
   @EventListener
-  public void handle(PermissionUpdateUserEvent event) {
+  public void handle(@NonNull PermissionUpdateUserEvent event) {
     this.syncTaskExecutor.execute(() -> {
       // get the player if online
       var player = this.nameTagsManager.onlinePlayer(event.permissionUser().uniqueId());
@@ -49,7 +49,7 @@ public final class CloudSimpleNameTagsListener<P> {
   }
 
   @EventListener
-  public void handle(PermissionUpdateGroupEvent event) {
+  public void handle(@NonNull PermissionUpdateGroupEvent event) {
     this.syncTaskExecutor.execute(() -> {
       // find all matching players
       for (P player : this.nameTagsManager.onlinePlayers()) {
