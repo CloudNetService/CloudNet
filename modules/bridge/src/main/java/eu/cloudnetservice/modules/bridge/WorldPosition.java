@@ -22,6 +22,18 @@ import java.util.Collection;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * A world position represents a position in a platform dependent world.
+ *
+ * @param x     the x coordinate of the position.
+ * @param y     the y coordinate of the position.
+ * @param z     the z coordinate of the position.
+ * @param yaw   the yaw of the position.
+ * @param pitch the pitch of the position.
+ * @param world the world this position is located on.
+ * @param group the group this position is created for.
+ * @since 4.0
+ */
 public record WorldPosition(
   double x,
   double y,

@@ -74,20 +74,15 @@ public final class FabricDirectPlayerExecutor extends PlatformPlayerExecutorAdap
   }
 
   @Override
-  public void sendMessage(@NonNull Component message) {
+  public void sendChatMessage(@NonNull Component message, @Nullable String permission) {
+    // we're unable to check the permission for the player
     var text = new TextComponent(LegacyComponentSerializer.legacySection().serialize(message));
     this.forEach(player -> player.sendMessage(text, Util.NIL_UUID));
   }
 
   @Override
-  public void sendChatMessage(@NonNull Component message, @Nullable String permission) {
-    // we're unable to check the permission for the player
-    this.sendMessage(message);
-  }
-
-  @Override
-  public void sendPluginMessage(@NonNull String tag, byte[] data) {
-    var identifier = new ResourceLocation(tag);
+  public void sendPluginMessage(@NonNull String key, byte[] data) {
+    var identifier = new ResourceLocation(key);
     this.forEach(player -> player.connection.send(new ClientboundCustomPayloadPacket(
       identifier,
       new FriendlyByteBuf(Unpooled.wrappedBuffer(data)))));

@@ -76,11 +76,6 @@ final class SpongeDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Ser
   }
 
   @Override
-  public void sendMessage(@NonNull Component message) {
-    this.forEach(player -> player.sendMessage(message));
-  }
-
-  @Override
   public void sendChatMessage(@NonNull Component message, @Nullable String permission) {
     this.forEach(player -> {
       if (permission == null || player.hasPermission(permission)) {
@@ -90,8 +85,8 @@ final class SpongeDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Ser
   }
 
   @Override
-  public void sendPluginMessage(@NonNull String tag, byte[] data) {
-    var playChannel = Sponge.channelManager().ofType(ResourceKey.resolve(tag), RawDataChannel.class).play();
+  public void sendPluginMessage(@NonNull String key, byte[] data) {
+    var playChannel = Sponge.channelManager().ofType(ResourceKey.resolve(key), RawDataChannel.class).play();
     this.forEach(player -> playChannel.sendTo(player, buffer -> buffer.writeByteArray(data)));
   }
 

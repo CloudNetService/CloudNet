@@ -28,15 +28,19 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
 /**
- * This interfaces provides access to cloud players
+ * The player manager is the main api point to access cloud offline and online players. Accessing the player manager is
+ * possible using either {@code ServiceRegistry.first(PlayerManager.class)} or
+ * {@code bridgeManagement.playerManager()}.
+ *
+ * @since 4.0
  */
 @RPCValidation
 public interface PlayerManager {
 
   /**
-   * Gets the amount of online players on the network
+   * Gets the amount of online players connected to the cloudnet network.
    *
-   * @return the online count as an int
+   * @return the online player count.
    */
   @Range(from = 0, to = Integer.MAX_VALUE)
   int onlineCount();
@@ -44,255 +48,310 @@ public interface PlayerManager {
   /**
    * Gets the amount of registered players in the database.
    *
-   * @return the registered player count as an int
+   * @return the registered player count.
    */
   @Range(from = 0, to = Long.MAX_VALUE)
   long registeredCount();
 
   /**
-   * Gets an online player by its UUID.
+   * Gets an online cloud player by its unique id from the cache on the node.
+   * <p>
+   * The online player is cached on the node until the player disconnects.
    *
-   * @param uniqueId the UUID of the player
-   * @return the player if he is online or null if not
+   * @param uniqueId the unique id of the player.
+   * @return the online cloud player or null if the player is not online.
+   * @throws NullPointerException if the given unique id is null.
    */
   @Nullable CloudPlayer onlinePlayer(@NonNull UUID uniqueId);
 
   /**
-   * Gets the first online player found by its name.
+   * Gets the first cloud player that is online and has the given case-insensitive name.
+   * <p>
+   * All online players are cached on the node while they are online.
    *
-   * @param name the name of the player
-   * @return the online player if there is at least one player with the given name online or null if there is no player
-   * with that name online
+   * @param name the name of the cloud player.
+   * @return the first cloud player with the given name, null if no player was found.
+   * @throws NullPointerException if the given name is null.
    */
-  default @Nullable CloudPlayer firstOnlinePlayer(@NonNull String name) {
-    var players = this.onlinePlayers(name);
-    return players.isEmpty() ? null : players.get(0);
-  }
+  @Nullable CloudPlayer firstOnlinePlayer(@NonNull String name);
 
   /**
-   * Gets a list of all online players with the given name. (case-insensitive).
+   * Gets all online cloud players that have the given case-insensitive name.
+   * <p>
+   * All online players are cached on the node while they are online.
    *
-   * @param name the name of the player(s)
-   * @return a list containing all online players in the cloud with the given name
+   * @param name the name of the cloud players.
+   * @return a list of all online players with the given name.
+   * @throws NullPointerException if the given name is null.
    */
   @NonNull List<? extends CloudPlayer> onlinePlayers(@NonNull String name);
 
   /**
-   * Gets a list of all online players on a specific environment.
+   * Gets all online cloud players that are connected to a service of given service environment.
+   * <p>
+   * All online players are cached on the node while they are online.
    *
-   * @param environment the environment to get all players from
-   * @return a list containing all players that are online on the given environment
+   * @param environment the environment to get all players for.
+   * @return a list of all cloud players connected to a service of the given service environment.
+   * @throws NullPointerException if the given environment is null.
    */
   @NonNull List<? extends CloudPlayer> environmentOnlinePlayers(@NonNull ServiceEnvironmentType environment);
 
   /**
-   * Gets a PlayerProvider which returns a list of all online players on the whole network.
+   * Gets the jvm static player executor for all players that are connected to the network. All methods account for all
+   * connected players.
+   *
+   * @return the global player executor for all players.
+   */
+  @NonNull PlayerExecutor globalPlayerExecutor();
+
+  /**
+   * Creates a new player executor for the player associated with the given unique id. The player executor is created
+   * even if there is no online player with the given unique id.
+   *
+   * @param uniqueId the unique id of the player for the new player executor.
+   * @return the player executor for the given player.
+   * @throws NullPointerException if the given unique id is null.
+   */
+  @NonNull PlayerExecutor playerExecutor(@NonNull UUID uniqueId);
+
+  /**
+   * Gets a player provider that provides access to all players that are connected to the cloudnet network.
+   *
+   * @return the player provider for all online players.
    */
   @NonNull PlayerProvider onlinePlayers();
 
   /**
-   * Gets a PlayerProvider which returns a list of all online players on a specific task.
+   * Gets a player provider that provides access to all players that are connected to a service of the task with the
+   * given name.
    *
-   * @return a list containing all players that are online on that task
+   * @param task the task of the service the player has to be connected to.
+   * @return the player provider for the given task.
+   * @throws NullPointerException if the given task is null.
    */
   @NonNull PlayerProvider taskOnlinePlayers(@NonNull String task);
 
   /**
-   * Gets a PlayerProvider which returns a list of all online players on a specific group.
+   * Gets a player provider that provides access to all players that are connected to a service with the group with the
+   * given name.
+   *
+   * @param group the group of the service the player has to be connected to.
+   * @return the player provider for the given group.
+   * @throws NullPointerException if the given group is null.
    */
   @NonNull PlayerProvider groupOnlinePlayers(@NonNull String group);
 
   /**
-   * Gets a registered player by its UUID out of the cloud
+   * Gets the offline player associated with the given unique id. The player must have been previously connected.
+   * <p>
+   * The cloud offline player is cached on the node and retrieved from the cache if present otherwise loaded from the
+   * database.
    *
-   * @param uniqueId the UUID of the player
-   * @return the player if he is registered in the cloud or null if not
+   * @param uniqueId the unique id of the offline player.
+   * @return the offline player with the given unique id or null if there is no player.
+   * @throws NullPointerException if the given unique id is null.
    */
   @Nullable CloudOfflinePlayer offlinePlayer(@NonNull UUID uniqueId);
 
   /**
-   * Gets the first registered player found by its name.
+   * Gets the first registered offline player that has the given case-insensitive name. The player must have been
+   * previously connected.
    *
-   * @param name the name of the player
-   * @return the registered player if there is at least one player with the given name registered or null if there is no
-   * player with that name registered
+   * @param name the name of the registered player.
+   * @return the first offline player with the given name or null if there is no player with the name.
+   * @throws NullPointerException if the given name is null.
    */
-  default @Nullable CloudOfflinePlayer firstOfflinePlayer(@NonNull String name) {
-    var players = this.offlinePlayers(name);
-    return players.isEmpty() ? null : players.get(0);
-  }
+  @Nullable CloudOfflinePlayer firstOfflinePlayer(@NonNull String name);
 
   /**
-   * Gets a list of all registered players with the given name. (case-sensitive)
+   * Gets all registered cloud players that have the given case-insensitive name. The player must have been previously
+   * connected.
    *
-   * @param name the name of the player(s)
-   * @return a list containing all players registered in the cloud with the given name
+   * @param name the name of the registered cloud players.
+   * @return a list of all registered players with the given name.
+   * @throws NullPointerException if the given name is null.
    */
   @NonNull List<? extends CloudOfflinePlayer> offlinePlayers(@NonNull String name);
 
   /**
-   * Gets a list of all registered players in the network.
+   * Gets a list with all registered players from the database.
    * <p>
-   * Depending on the amount of registered players, this method might take a bit longer or won't even work, because it
-   * takes too much memory to keep the whole list loaded.
-   * <p>
-   * NOTE: This shouldn't be used when you have many players in your database, because it can cause major problems in
-   * the cloud
+   * This method should not be used if the database contains a lot of registered players. It can happen that the entire
+   * heap of the cloud is used up by this method and therefore errors occur.
    *
-   * @return the list with every registered player in the cloud
+   * @return a list of all registered players.
    */
   @Experimental
   @NonNull List<? extends CloudOfflinePlayer> registeredPlayers();
 
   /**
-   * Updates the given player to the database of the cloud and calls an update event on the whole network.
+   * Updates the given cloud offline player in the database, in the local cache of the node and calls the update in the
+   * cluster.
    *
-   * @param cloudOfflinePlayer the player to be updated
+   * @param cloudOfflinePlayer the offline player to update.
+   * @throws NullPointerException if the given offline player is null.
    */
   void updateOfflinePlayer(@NonNull CloudOfflinePlayer cloudOfflinePlayer);
 
   /**
-   * Updates the given player to the database of the cloud and calls the player update event.
+   * Updates the given cloud online player in the cache and calls the update in the cluster.
    *
-   * @param cloudPlayer the player to be updated
+   * @param cloudPlayer the cloud player to update.
+   * @throws NullPointerException if the given player is null.
    */
   void updateOnlinePlayer(@NonNull CloudPlayer cloudPlayer);
 
   /**
-   * Deletes the given player from the database and notifies all connected components.
+   * Deletes the given offline player from the database, the local cache of the node and calls the deletion in the
+   * cluster.
    *
-   * @param cloudOfflinePlayer the player to be deleted
+   * @param cloudOfflinePlayer the offline player to delete.
+   * @throws NullPointerException if the given offline player is null.
    */
   void deleteCloudOfflinePlayer(@NonNull CloudOfflinePlayer cloudOfflinePlayer);
 
   /**
-   * Gets the amount of online players on the network
+   * Gets the amount of online players connected to the cloudnet network asynchronously.
    *
-   * @return the online count as an int
+   * @return a task containing the online player count.
    */
   default @NonNull Task<Integer> onlineCountAsync() {
     return Task.supply(this::onlineCount);
   }
 
   /**
-   * Gets the amount of registered players in the database.
+   * Gets the amount of registered players in the database asynchronously.
    *
-   * @return the registered player count as an int
+   * @return a task containing the registered player count.
    */
   default @NonNull Task<Long> registeredCountAsync() {
     return Task.supply(this::registeredCount);
   }
 
   /**
-   * Gets an online player by its UUID.
+   * Gets an online cloud player by its unique id asynchronously.
+   * <p>
+   * The online player is cached on the node until the player disconnects.
    *
-   * @param uniqueId the UUID of the player
-   * @return the player if he is online or null if not
+   * @param uniqueId the unique id of the player.
+   * @return a task containing the online cloud player or an empty task if the player is not online.
+   * @throws NullPointerException if the given unique id is null.
    */
   default @NonNull Task<? extends CloudPlayer> onlinePlayerAsync(@NonNull UUID uniqueId) {
     return Task.supply(() -> this.onlinePlayer(uniqueId));
   }
 
   /**
-   * Gets the first online player found by its name.
+   * Gets the first cloud player that is online and has the given case-insensitive name asynchronously.
+   * <p>
+   * All online players are cached on the node while they are online.
    *
-   * @param name the name of the player
-   * @return the online player if there is at least one player with the given name online or null if there is no player
-   * with that name online
+   * @param name the name of the cloud player.
+   * @return a task containing the first cloud player with the given name.
+   * @throws NullPointerException if the given name is null.
    */
   default @NonNull Task<CloudPlayer> firstOnlinePlayerAsync(@NonNull String name) {
     return Task.supply(() -> this.firstOnlinePlayer(name));
   }
 
   /**
-   * Gets a list of all online players with the given name. (case-insensitive).
+   * Gets all online cloud players that have the given case-insensitive name asynchronously.
+   * <p>
+   * All online players are cached on the node while they are online.
    *
-   * @param name the name of the player(s)
-   * @return a list containing all online players in the cloud with the given name
+   * @param name the name of the cloud players.
+   * @return a task containing a list of all online players with the given name.
+   * @throws NullPointerException if the given name is null.
    */
   default @NonNull Task<List<? extends CloudPlayer>> onlinePlayerAsync(@NonNull String name) {
     return Task.supply(() -> this.onlinePlayers(name));
   }
 
   /**
-   * Gets a list of all online players on a specific environment.
+   * Gets all online cloud players that are connected to a service of given service environment asynchronously.
+   * <p>
+   * All online players are cached on the node while they are online.
    *
-   * @param env the environment to get all players from
-   * @return a list containing all players that are online on the given environment
+   * @param env the environment to get all players for.
+   * @return a task containing a list of all cloud players connected to a service of the given service environment.
+   * @throws NullPointerException if the given environment is null.
    */
   default @NonNull Task<List<? extends CloudPlayer>> onlinePlayerAsync(@NonNull ServiceEnvironmentType env) {
     return Task.supply(() -> this.environmentOnlinePlayers(env));
   }
 
   /**
-   * Gets a list of all online players on the whole network.
+   * Gets the offline player associated with the given unique id asynchronously. The player must have been previously
+   * connected.
+   * <p>
+   * The cloud offline player is cached on the node and retrieved from the cache if present otherwise loaded from the
+   * database.
    *
-   * @return a list containing all players that are online on the network
+   * @param uniqueId the unique id of the offline player.
+   * @return a task containing the offline player with the given unique id.
+   * @throws NullPointerException if the given unique id is null.
    */
   default @NonNull Task<CloudOfflinePlayer> offlinePlayerAsync(@NonNull UUID uniqueId) {
     return Task.supply(() -> this.offlinePlayer(uniqueId));
   }
 
   /**
-   * Gets the first registered player found by its name.
+   * Gets the first registered offline player that has the given case-insensitive name asynchronously. The player must
+   * have been previously connected.
    *
-   * @param name the name of the player
-   * @return the registered player if there is at least one player with the given name registered or null if there is no
-   * player with that name registered
+   * @param name the name of the registered player.
+   * @return a task containing the first offline player with the given name.
+   * @throws NullPointerException if the given name is null.
    */
   default @NonNull Task<CloudOfflinePlayer> firstOfflinePlayerAsync(@NonNull String name) {
     return Task.supply(() -> this.firstOnlinePlayer(name));
   }
 
   /**
-   * Gets a list of all online players with the given name. (case-insensitive)
+   * Gets all registered cloud players that have the given case-insensitive name asynchronously. The player must have
+   * been previously connected.
    *
-   * @param name the name of the player(s)
-   * @return a list containing all players registered in the cloud with the given name
+   * @param name the name of the registered cloud players.
+   * @return a task containing a list of all registered players with the given name.
+   * @throws NullPointerException if the given name is null.
    */
   default @NonNull Task<List<? extends CloudOfflinePlayer>> offlinePlayerAsync(@NonNull String name) {
     return Task.supply(() -> this.offlinePlayers(name));
   }
 
   /**
-   * Deletes the given player from the database async and notifies all connected components.
+   * Updates the given cloud offline player in the database, in the local cache of the node and calls the update in the
+   * cluster asynchronously.
    *
-   * @param cloudOfflinePlayer the player to be deleted
-   */
-  default @NonNull Task<Void> deleteCloudOfflinePlayerAsync(@NonNull CloudOfflinePlayer cloudOfflinePlayer) {
-    return Task.supply(() -> this.deleteCloudOfflinePlayer(cloudOfflinePlayer));
-  }
-
-  /**
-   * Updates the given player to the database of the cloud and calls an update event on the whole network.
-   *
-   * @param cloudOfflinePlayer the player to be updated
+   * @param cloudOfflinePlayer the offline player to update.
+   * @return a task completing after the player was updated.
+   * @throws NullPointerException if the given offline player is null.
    */
   default @NonNull Task<Void> updateOfflinePlayerAsync(@NonNull CloudOfflinePlayer cloudOfflinePlayer) {
     return Task.supply(() -> this.updateOfflinePlayer(cloudOfflinePlayer));
   }
 
   /**
-   * Updates the given player to the database of the cloud and calls the player update event.
+   * Updates the given cloud online player in the cache and calls the update in the cluster asynchronously.
    *
-   * @param cloudPlayer the player to be updated
+   * @param cloudPlayer the cloud player to update.
+   * @return a task completing after the player was updated.
+   * @throws NullPointerException if the given player is null.
    */
   default @NonNull Task<Void> updateOnlinePlayerAsync(@NonNull CloudPlayer cloudPlayer) {
     return Task.supply(() -> this.updateOnlinePlayer(cloudPlayer));
   }
 
   /**
-   * Gets the player executor which will execute the methods as every player that is online on the proxies.
+   * Deletes the given offline player from the database, the local cache of the node and calls the deletion in the
+   * cluster asynchronously.
    *
-   * @return the constant {@link PlayerExecutor}
+   * @param cloudOfflinePlayer the offline player to delete.
+   * @return a task completing after the player was deleted.
+   * @throws NullPointerException if the given offline player is null.
    */
-  @NonNull PlayerExecutor globalPlayerExecutor();
-
-  /**
-   * Creates a new player executor to interact with the given player.
-   *
-   * @param uniqueId the uniqueId of the player to interact with
-   * @return a new {@link PlayerExecutor}
-   */
-  @NonNull PlayerExecutor playerExecutor(@NonNull UUID uniqueId);
+  default @NonNull Task<Void> deleteCloudOfflinePlayerAsync(@NonNull CloudOfflinePlayer cloudOfflinePlayer) {
+    return Task.supply(() -> this.deleteCloudOfflinePlayer(cloudOfflinePlayer));
+  }
 }

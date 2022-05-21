@@ -33,10 +33,10 @@ import com.velocitypowered.api.event.player.ServerPostConnectEvent;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.ServerConnection;
-import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.platform.helper.ProxyPlatformHelper;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
+import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;
 import eu.cloudnetservice.wrapper.Wrapper;
 import java.util.Locale;
 import lombok.NonNull;
@@ -124,7 +124,7 @@ public final class VelocityPlayerManagementListener {
     var joinedServiceInfo = event.getPlayer().getCurrentServer()
       .flatMap(server -> this.management
         .cachedService(service -> server.getServerInfo().getName().equals(service.name()))
-        .map(BridgeServiceHelper::createServiceInfo))
+        .map(NetworkServiceInfo::fromServiceInfoSnapshot))
       .orElse(null);
     // check if the connection was initial
     if (event.getPreviousServer() == null) {

@@ -101,11 +101,6 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
   }
 
   @Override
-  public void sendMessage(@NonNull Component message) {
-    this.forEach(player -> player.sendMessage(serializeToString(legacySection().serialize(message))));
-  }
-
-  @Override
   public void sendChatMessage(@NonNull Component message, @Nullable String permission) {
     this.forEach(player -> {
       if (permission == null || player.hasPermission(permission)) {
@@ -115,7 +110,7 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
   }
 
   @Override
-  public void sendPluginMessage(@NonNull String tag, byte[] data) {
+  public void sendPluginMessage(@NonNull String key, byte[] data) {
     // no-op
   }
 

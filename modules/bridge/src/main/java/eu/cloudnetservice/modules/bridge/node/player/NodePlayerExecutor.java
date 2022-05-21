@@ -118,11 +118,6 @@ public class NodePlayerExecutor implements PlayerExecutor {
   }
 
   @Override
-  public void sendMessage(@NonNull Component message) {
-    this.sendChatMessage(message, null);
-  }
-
-  @Override
   public void sendChatMessage(@NonNull Component message, @Nullable String permission) {
     this.toProxy()
       .message("send_chat_message")
@@ -135,10 +130,10 @@ public class NodePlayerExecutor implements PlayerExecutor {
   }
 
   @Override
-  public void sendPluginMessage(@NonNull String tag, byte[] data) {
+  public void sendPluginMessage(@NonNull String key, byte[] data) {
     this.toProxy()
       .message("send_plugin_message")
-      .buffer(DataBuf.empty().writeUniqueId(this.targetUniqueId).writeString(tag).writeByteArray(data))
+      .buffer(DataBuf.empty().writeUniqueId(this.targetUniqueId).writeString(key).writeByteArray(data))
       .build()
       .send();
   }

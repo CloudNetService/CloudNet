@@ -21,6 +21,17 @@ import java.util.UUID;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * A network player server info represents the downstream service a cloud player is connected to.
+ *
+ * @param uniqueId       the unique id of the player.
+ * @param name           the name of the player.
+ * @param xBoxId         the xbox id of the player, null if the player does not have a xbox id.
+ * @param address        the host address of the player.
+ * @param networkService the service info of the downstream service the player is connected to.
+ * @see NetworkServiceInfo
+ * @since 4.0
+ */
 public record NetworkPlayerServerInfo(
   @NonNull UUID uniqueId,
   @NonNull String name,

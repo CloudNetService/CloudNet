@@ -31,63 +31,132 @@ import java.util.Collection;
 import lombok.NonNull;
 
 /**
- * Properties in ServiceInfos by the bridge module.
+ * The bridge service properties are there to read any properties set by the bridge module. It is important to note that
+ * not all values are set by default and most values cannot be overridden. For these values to be set, the bridge must
+ * run as a plugin on the respective service.
+ *
+ * @since 4.0
  */
 public final class BridgeServiceProperties {
 
   /**
-   * Property to get the online count of a service.
+   * This service property reads the online player count of any given {@link ServiceInfoSnapshot}. The property is only
+   * updated after the service itself was updated.
+   * <p>
+   * Note: This property is not modifiable, modifying it results in an {@link UnsupportedOperationException}.
    */
   public static final ServiceProperty<Integer> ONLINE_COUNT = createFromClass("Online-Count", Integer.class)
     .forbidModification();
   /**
-   * Property to get the max players of a service.
+   * This service property reads the max player count of any given {@link ServiceInfoSnapshot}. The property is only
+   * updated after the service itself was updated.
+   * <p>
+   * Note: This property is not modifiable, modifying it results in an {@link UnsupportedOperationException}.
    */
   public static final ServiceProperty<Integer> MAX_PLAYERS = createFromClass("Max-Players", Integer.class)
     .forbidModification();
   /**
-   * Property to get the Bukkit/Bungee/Nukkit/Velocity version of a service.
+   * This service property reads the version of any given {@link ServiceInfoSnapshot}. The property is only updated
+   * after the service itself was updated.
+   * <p>
+   * Note: This property is not modifiable, modifying it results in an {@link UnsupportedOperationException}.
    */
   public static final ServiceProperty<String> VERSION = createFromClass("Version", String.class).forbidModification();
   /**
-   * Property to get the Motd of a service.
+   * This service property reads the motd of any given {@link ServiceInfoSnapshot}. The property is only updated after
+   * the service itself was updated.
+   * <p>
+   * Note: This property is not modifiable, modifying it results in an {@link UnsupportedOperationException}.
+   * <p>
+   * Setting the state is possible using {@link BridgeServiceHelper#MOTD} on the service itself.
    */
   public static final ServiceProperty<String> MOTD = createFromClass("Motd", String.class).forbidModification();
   /**
-   * Property to get the Extra of a service.
+   * This service property reads the extra value of any given {@link ServiceInfoSnapshot}. The property is only updated
+   * after the service itself was updated.
+   * <p>
+   * Note: This property is not modifiable, modifying it results in an {@link UnsupportedOperationException}.
+   * <p>
+   * Setting the state is possible using {@link BridgeServiceHelper#EXTRA} on the service itself.
    */
   public static final ServiceProperty<String> EXTRA = createFromClass("Extra", String.class).forbidModification();
   /**
-   * Property to get the State of a service.
+   * This service property reads the state of any given {@link ServiceInfoSnapshot}. The property is only updated after
+   * the service itself was updated.
+   * <p>
+   * Note: This property is not modifiable, modifying it results in an {@link UnsupportedOperationException}.
+   * <p>
+   * Setting the state is possible using {@link BridgeServiceHelper#STATE} on the service itself.
    */
   public static final ServiceProperty<String> STATE = createFromClass("State", String.class).forbidModification();
   /**
-   * Property to check whether a service is online or not.
+   * This service property reads the online property of any given {@link ServiceInfoSnapshot}. This property is always
+   * true after the bridge plugin was enabled. The property is only updated after the service itself was updated.
+   * <p>
+   * Note: This property is not modifiable, modifying it results in an {@link UnsupportedOperationException}.
    */
   public static final ServiceProperty<Boolean> IS_ONLINE = createFromClass("Online", Boolean.class)
     .forbidModification();
   /**
-   * Property to check whether a service is in game or not.
+   * This service property checks if a service is considered being in-game. This is only the case if all following
+   * conditions apply:
+   * <ul>
+   *   <li>the lifecycle is running</li>
+   *   <li>the service is connected</li>
+   *   <li>the service is marked as online {@link #IS_ONLINE}</li>
+   *   <li>the motd, the state or the extra matches any value representing the in-game state {@link #matchesInGameString(String)}</li>
+   * </ul>
+   * Note: Writing to this property is not allowed it results in an {@link UnsupportedOperationException}.
+   * The property is only updated after the service itself was updated.
    */
   public static final ServiceProperty<Boolean> IS_IN_GAME = FunctionalServiceProperty.<Boolean>create()
     .reader(BridgeServiceProperties::inGameService);
   /**
-   * Property to check whether a service is starting or not.
+   * This service property checks if a service is considered starting. This is only the case if all following conditions
+   * apply:
+   * <ul>
+   *   <li>the lifecycle is running</li>
+   *   <li>the service is <strong>NOT</strong> marked as online {@link #IS_ONLINE}</li>
+   * </ul>
+   * Note: Writing to this property is not allowed it results in an {@link UnsupportedOperationException}.
+   * The property is only updated after the service itself was updated.
    */
   public static final ServiceProperty<Boolean> IS_STARTING = FunctionalServiceProperty.<Boolean>create()
     .reader(BridgeServiceProperties::startingService);
   /**
-   * Property to check whether a service is empty (no players) or not.
+   * This service property checks if a service is considered being empty. This is only the case if all following
+   * conditions apply:
+   * <ul>
+   *   <li>the lifecycle is running</li>
+   *   <li>the service is connected</li>
+   *   <li>the service is marked as online {@link #IS_ONLINE}</li>
+   *   <li>the service has a present online count and it is 0</li>
+   * </ul>
+   * Note: Writing to this property is not allowed it results in an {@link UnsupportedOperationException}.
+   * The property is only updated after the service itself was updated.
    */
   public static final ServiceProperty<Boolean> IS_EMPTY = FunctionalServiceProperty.<Boolean>create()
     .reader(BridgeServiceProperties::emptyService);
   /**
-   * Property to check whether a service is full (online count &gt;= max players) or not.
+   * This service property checks if a service is considered being full. This is only the case if all following
+   * conditions apply:
+   * <ul>
+   *   <li>the lifecycle is running</li>
+   *   <li>the service is connected</li>
+   *   <li>the service is marked as online {@link #IS_ONLINE}</li>
+   *   <li>the service has both an online and max player count</li>
+   *   <li>the online count is equal or higher than the max player count</li>
+   * </ul>
+   * Note: Writing to this property is not allowed it results in an {@link UnsupportedOperationException}.
+   * The property is only updated after the service itself was updated.
    */
   public static final ServiceProperty<Boolean> IS_FULL = FunctionalServiceProperty.<Boolean>create()
     .reader(BridgeServiceProperties::fullService);
   /**
-   * Property to get all online players on a service.
+   * This service property allows accessing all players that are connected to the given service. The property is only
+   * updated after the service itself was updated.
+   * <p>
+   * Note: Writing to this property is not allowed it results in an {@link UnsupportedOperationException}.
    */
   public static final ServiceProperty<Collection<ServicePlayer>> PLAYERS = TransformingServiceProperty
     .<Collection<JsonDocument>, Collection<ServicePlayer>>wrap(
@@ -99,22 +168,73 @@ public final class BridgeServiceProperties {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Checks if the given service is empty. This is only the case if all following conditions apply:
+   * <ul>
+   *   <li>the lifecycle is running</li>
+   *   <li>the service is connected</li>
+   *   <li>the service is marked as online {@link #IS_ONLINE}</li>
+   *   <li>the service has a present online count as it is 0</li>
+   * </ul>
+   *
+   * @param service the service to check.
+   * @return true if the service is empty, false otherwise.
+   * @throws NullPointerException if the given service is null.
+   */
   private static boolean emptyService(@NonNull ServiceInfoSnapshot service) {
     return service.connected()
       && service.propertyOr(IS_ONLINE, false)
       && service.propertyOr(ONLINE_COUNT, -1) == 0;
   }
 
+  /**
+   * Checks if the given service is full. This is only the case if all following conditions apply:
+   * <ul>
+   *   <li>the lifecycle is running</li>
+   *   <li>the service is connected</li>
+   *   <li>the service is marked as online {@link #IS_ONLINE}</li>
+   *   <li>the service has both an online and max player count</li>
+   *   <li>the online count is equal or higher than the max player count</li>
+   * </ul>
+   *
+   * @param service the service to check.
+   * @return true if the service is full, false otherwise.
+   * @throws NullPointerException if the given service is null.
+   */
   private static boolean fullService(@NonNull ServiceInfoSnapshot service) {
     return service.connected()
       && service.propertyOr(IS_ONLINE, false)
       && service.propertyOr(ONLINE_COUNT, -1) >= service.propertyOr(MAX_PLAYERS, 0);
   }
 
+  /**
+   * Checks if the given service is starting. This is only the case if all following conditions apply:
+   * <ul>
+   *  <li>the lifecycle is running</li>
+   *  <li>the service is <strong>NOT</strong> marked as online {@link #IS_ONLINE}</li>
+   * </ul>
+   *
+   * @param service the service to check.
+   * @return true if the service is starting, false otherwise.
+   * @throws NullPointerException if the given service is null.
+   */
   private static boolean startingService(@NonNull ServiceInfoSnapshot service) {
     return service.lifeCycle() == ServiceLifeCycle.RUNNING && !service.propertyOr(IS_ONLINE, false);
   }
 
+  /**
+   * Checks if the given service is in-game. This is only the case if all following conditions apply:
+   *  <ul>
+   *    <li>the lifecycle is running</li>
+   *    <li>the service is connected</li>
+   *    <li>the service is marked as online {@link #IS_ONLINE}</li>
+   *    <li>the motd, the state or the extra matches any value representing the in-game state {@link #matchesInGameString(String)}</li>
+   * </ul>
+   *
+   * @param service the service to check.
+   * @return true if the service is in-game, false otherwise.
+   * @throws NullPointerException if the given service is null.
+   */
   private static boolean inGameService(@NonNull ServiceInfoSnapshot service) {
     return service.lifeCycle() == ServiceLifeCycle.RUNNING && service.connected()
       && service.propertyOr(IS_ONLINE, false)
@@ -123,6 +243,13 @@ public final class BridgeServiceProperties {
       || matchesInGameString(service.propertyOr(STATE, "")));
   }
 
+  /**
+   * Checks if the given value matches either {@code ingame}, {@code running} or {@code playing}.
+   *
+   * @param value the value to check against.
+   * @return true if the value contains an in-game indicator, false otherwise.
+   * @throws NullPointerException if the given value is null.
+   */
   private static boolean matchesInGameString(@NonNull String value) {
     value = value.toLowerCase();
     return value.contains("ingame") || value.contains("running") || value.contains("playing");
