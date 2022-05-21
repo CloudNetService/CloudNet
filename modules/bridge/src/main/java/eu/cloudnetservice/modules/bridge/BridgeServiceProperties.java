@@ -90,8 +90,8 @@ public final class BridgeServiceProperties {
    */
   public static final ServiceProperty<String> STATE = createFromClass("State", String.class).forbidModification();
   /**
-   * This service property reads the online property of any given {@link ServiceInfoSnapshot}. The property is only
-   * updated after the service itself was updated.
+   * This service property reads the online property of any given {@link ServiceInfoSnapshot}. This property is always
+   * true after the bridge plugin was enabled. The property is only updated after the service itself was updated.
    * <p>
    * Note: This property is not modifiable, modifying it results in an {@link UnsupportedOperationException}.
    */
@@ -130,7 +130,7 @@ public final class BridgeServiceProperties {
    *   <li>the lifecycle is running</li>
    *   <li>the service is connected</li>
    *   <li>the service is marked as online {@link #IS_ONLINE}</li>
-   *   <li>the service has a present online count as it is 0</li>
+   *   <li>the service has a present online count and it is 0</li>
    * </ul>
    * Note: Writing to this property is not allowed it results in an {@link UnsupportedOperationException}.
    * The property is only updated after the service itself was updated.

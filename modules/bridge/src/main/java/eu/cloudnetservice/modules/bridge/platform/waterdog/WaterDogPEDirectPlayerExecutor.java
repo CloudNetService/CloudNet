@@ -31,7 +31,6 @@ import java.util.UUID;
 import java.util.function.Supplier;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<ProxiedPlayer> {
@@ -111,7 +110,7 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
   }
 
   @Override
-  public void sendPluginMessage(@NonNull String channel, byte @NotNull [] data) {
+  public void sendPluginMessage(@NonNull String key, byte[] data) {
     // no-op
   }
 

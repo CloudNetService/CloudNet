@@ -23,7 +23,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import lombok.NonNull;
 
 /**
- * The server selector type provides several constants to compare services based on the number of players.
+ * The server selector type provides several constants to compare services based conditions.
  *
  * @since 4.0
  */

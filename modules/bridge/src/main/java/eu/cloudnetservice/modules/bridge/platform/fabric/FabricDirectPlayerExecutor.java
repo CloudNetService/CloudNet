@@ -31,7 +31,6 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class FabricDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<ServerPlayer> {
@@ -82,8 +81,8 @@ public final class FabricDirectPlayerExecutor extends PlatformPlayerExecutorAdap
   }
 
   @Override
-  public void sendPluginMessage(@NonNull String channel, byte @NotNull [] data) {
-    var identifier = new ResourceLocation(channel);
+  public void sendPluginMessage(@NonNull String key, byte[] data) {
+    var identifier = new ResourceLocation(key);
     this.forEach(player -> player.connection.send(new ClientboundCustomPayloadPacket(
       identifier,
       new FriendlyByteBuf(Unpooled.wrappedBuffer(data)))));

@@ -31,7 +31,6 @@ import java.util.function.Supplier;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 final class VelocityDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Player> {
@@ -121,8 +120,8 @@ final class VelocityDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<P
   }
 
   @Override
-  public void sendPluginMessage(@NonNull String channel, byte @NotNull [] data) {
-    this.forEach(player -> player.sendPluginMessage(MinecraftChannelIdentifier.from(channel), data));
+  public void sendPluginMessage(@NonNull String key, byte[] data) {
+    this.forEach(player -> player.sendPluginMessage(MinecraftChannelIdentifier.from(key), data));
   }
 
   @Override

@@ -24,7 +24,6 @@ import java.util.function.Supplier;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.Sponge;
@@ -86,8 +85,8 @@ final class SpongeDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Ser
   }
 
   @Override
-  public void sendPluginMessage(@NonNull String channel, byte @NotNull [] data) {
-    var playChannel = Sponge.channelManager().ofType(ResourceKey.resolve(channel), RawDataChannel.class).play();
+  public void sendPluginMessage(@NonNull String key, byte[] data) {
+    var playChannel = Sponge.channelManager().ofType(ResourceKey.resolve(key), RawDataChannel.class).play();
     this.forEach(player -> playChannel.sendTo(player, buffer -> buffer.writeByteArray(data)));
   }
 

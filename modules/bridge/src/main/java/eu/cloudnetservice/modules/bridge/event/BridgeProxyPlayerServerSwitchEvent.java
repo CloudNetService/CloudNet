@@ -71,7 +71,7 @@ public final class BridgeProxyPlayerServerSwitchEvent extends DriverEvent {
   /**
    * Gets the network service info that the cloud player was connected to previously.
    *
-   * @return the previous network service info, null if the player was not connected to service previous.
+   * @return the previous network service info, null if the player was not connected to any service previously.
    */
   public @Nullable NetworkServiceInfo previous() {
     return this.previous;

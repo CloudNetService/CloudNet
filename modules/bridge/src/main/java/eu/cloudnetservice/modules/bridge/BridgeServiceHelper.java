@@ -91,7 +91,7 @@ public final class BridgeServiceHelper {
    *   <li>If none of the above apply {@link ServiceInfoState#STOPPED} is used as fallback.</li>
    * </ol>
    *
-   * @param service the service to guess the state for.
+   * @param service the service to guess the state of.
    * @return the guessed service info state.
    * @throws NullPointerException if the given service is null.
    * @see BridgeServiceProperties
@@ -122,14 +122,14 @@ public final class BridgeServiceHelper {
   }
 
   /**
-   * Replaces commonly used placeholders in the given value using the given service as source. If no service is given
-   * only the group is replaced.
+   * Replaces commonly used placeholders in the given input string using the given service as the information source. If
+   * no service is given only the group property is replaced.
    *
    * @param value   the string to replace the placeholders in.
    * @param group   the group to replace {@literal %group%} with.
    * @param service the service to use as source for the placeholder values.
-   * @return the string with the placeholders replaced.
-   * @throws NullPointerException if the given value is null.
+   * @return the String with the placeholders replaced.
+   * @throws NullPointerException if the given input string is null.
    */
   public static @NonNull String fillCommonPlaceholders(
     @NonNull String value,
@@ -174,22 +174,21 @@ public final class BridgeServiceHelper {
   }
 
   /**
-   * The service info state represents the state of any service. While also taking connected players into
-   * consideration.
+   * The service info state allows a better separation of a service state than a service lifecycle.
    *
    * @since 4.0
    */
   public enum ServiceInfoState {
     /**
-     * This state represents a service that is stopped.
+     * This state represents a service that is stopped or does not match any other state.
      */
     STOPPED,
     /**
-     * This state represents a service that is starting currently.
+     * This state represents a service that is currently starting.
      */
     STARTING,
     /**
-     * This state represents a service that is started and online but is empty.
+     * This state represents a service that is started and online but no players are connected to it.
      */
     EMPTY_ONLINE,
     /**

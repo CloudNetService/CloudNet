@@ -121,7 +121,7 @@ public class CloudOfflinePlayer extends JsonDocPropertyHolder implements Cloneab
   }
 
   /**
-   * Gets the time-stamp when the player connected for the last time.
+   * Gets the time-stamp when the player connected last time.
    *
    * @return the time-stamp for the last connection.
    */

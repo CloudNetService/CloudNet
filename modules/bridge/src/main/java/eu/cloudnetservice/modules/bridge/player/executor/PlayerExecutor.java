@@ -138,11 +138,11 @@ public interface PlayerExecutor {
    * Sends a plugin channel message to the player associated with this player executor using the given channel and data.
    * The channel used has to be registered on the service software.
    *
-   * @param channel the channel to send the plugin message in.
+   * @param key the channel to send the plugin message in.
    * @param data    the data to send to the player.
    * @throws NullPointerException if the given channel or data is null.
    */
-  void sendPluginMessage(@NonNull String channel, byte @NonNull [] data);
+  void sendPluginMessage(@NonNull String key, byte[] data);
 
   /**
    * Spoofs the command execution for the player associated with this player executor. The given command input should
@@ -150,6 +150,8 @@ public interface PlayerExecutor {
    * <p>
    * The command is executed on the proxy and if no command was found the command is redirected to the downstream
    * service the player is connected to.
+   * <p>
+   * Note: This method is equivalent to calling {@code playerExecutor.spoofCommandExecution(command, true)}
    *
    * @param command the command to execute for the player.
    * @throws NullPointerException if the given command is null.

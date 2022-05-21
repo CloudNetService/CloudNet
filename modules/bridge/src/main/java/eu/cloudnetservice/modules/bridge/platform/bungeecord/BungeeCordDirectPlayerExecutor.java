@@ -124,8 +124,8 @@ final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
   }
 
   @Override
-  public void sendPluginMessage(@NonNull String channel, byte @NotNull [] data) {
-    this.forEach(player -> player.sendData(channel, data));
+  public void sendPluginMessage(@NonNull String key, byte @NotNull [] data) {
+    this.forEach(player -> player.sendData(key, data));
   }
 
   @Override

@@ -27,7 +27,6 @@ import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 final class BukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Player> {
@@ -90,8 +89,8 @@ final class BukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Pla
   }
 
   @Override
-  public void sendPluginMessage(@NonNull String channel, byte @NotNull [] data) {
-    this.forEach(player -> player.sendPluginMessage(this.plugin, channel, data));
+  public void sendPluginMessage(@NonNull String key, byte[] data) {
+    this.forEach(player -> player.sendPluginMessage(this.plugin, key, data));
   }
 
   @Override
