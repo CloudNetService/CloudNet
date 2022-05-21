@@ -229,6 +229,8 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
     if (!this.cancelled) {
       super.handleDone();
     }
+    // reset the cancelled state
+    this.cancelled = false;
   }
 
   protected boolean handleInput(
@@ -285,8 +287,6 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
     if (this.cancelled) {
       super.console().forceWriteLine("&c" + I18n.trans("ca-question-list-cancelled"));
       Node.instance().eventManager().callEvent(new SetupCancelledEvent(this));
-      // reset the cancelled state
-      this.cancelled = false;
     } else {
       // print the footer if supplied
       if (this.footer != null) {
