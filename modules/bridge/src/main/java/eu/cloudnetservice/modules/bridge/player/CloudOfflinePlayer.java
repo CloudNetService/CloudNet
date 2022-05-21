@@ -26,7 +26,10 @@ import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
 
 /**
- *
+ * The offline player represents a player who was either already connected on one of the proxies or was created
+ * manually.
+ * <p>
+ * Obtain an offline player using {@link PlayerManager#offlinePlayer(UUID)}.
  *
  * @since 4.0
  */

@@ -24,6 +24,7 @@ import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
 /**
+ * The bridge management is a shared management for all platform dependent bridge implementations.
  *
  * @since 4.0
  */

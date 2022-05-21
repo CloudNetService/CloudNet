@@ -19,12 +19,17 @@ package eu.cloudnetservice.modules.bridge.player;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
+import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
 
 /**
+ * The online player is a player who is currently connected to one of the proxies. The player is in the cache of each
+ * node as long as he is online.
+ * <p>
+ * Obtain an online player using {@link PlayerManager#onlinePlayer(UUID)}.
  *
  * @since 4.0
  */
@@ -159,6 +164,7 @@ public class CloudPlayer extends CloudOfflinePlayer {
    * Gets a player executor for this cloud player instance by the unique id.
    * <p>
    * The method is equivalent to calling {@code playerManager.playerExecutor(uniqueId)}.
+   *
    * @return the player executor for this player.
    */
   public @NonNull PlayerExecutor playerExecutor() {

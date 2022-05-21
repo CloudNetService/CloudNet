@@ -17,12 +17,27 @@
 package eu.cloudnetservice.modules.bridge.player.executor;
 
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCValidation;
+import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import java.util.UUID;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * The player executor is used to perform various platform dependent actions. The player executor must be distinguished
+ * in two ways:
+ * <ul>
+ *   <li> A global player executor performs the actions for all players connected to the network.
+ *   It can be recognized by the fact that it uses the {@link #GLOBAL_UNIQUE_ID} as its unique id.
+ *   The global player executor can be obtained with {@link PlayerManager#globalPlayerExecutor()}.
+ *   </li>
+ *   <li>A player executor, who executes the actions for a specific player and only as long as the player is online.
+ *   The per player executor can be obtained with {@link PlayerManager#playerExecutor(UUID)}</li>
+ * </ul>
+ *
+ * @since 4.0
+ */
 @RPCValidation
 public interface PlayerExecutor {
 

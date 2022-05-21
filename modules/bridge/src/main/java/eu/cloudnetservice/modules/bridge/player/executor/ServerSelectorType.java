@@ -22,12 +22,26 @@ import java.util.Comparator;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.NonNull;
 
+/**
+ * The server selector type provides several constants to compare services based on the number of players.
+ *
+ * @since 4.0
+ */
 public enum ServerSelectorType {
 
+  /**
+   * The service with the highest player count is preferred.
+   */
   HIGHEST_PLAYERS(Comparator.comparingInt(o -> o.propertyOr(BridgeServiceProperties.ONLINE_COUNT, 0))),
+  /**
+   * The service with the lowest player count is preferred.
+   */
   LOWEST_PLAYERS((o1, o2) -> Integer.compare(
     o2.propertyOr(BridgeServiceProperties.ONLINE_COUNT, 0),
     o1.propertyOr(BridgeServiceProperties.ONLINE_COUNT, 0))),
+  /**
+   * A random service is chosen.
+   */
   RANDOM(Comparator.comparingInt(value -> ThreadLocalRandom.current().nextInt(2) - 1));
 
   private final Comparator<ServiceInfoSnapshot> comparator;

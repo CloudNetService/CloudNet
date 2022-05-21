@@ -28,6 +28,14 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
+ * The bridge service helper is designed to facilitate working with individual states of services. In addition, these
+ * properties are stored here:
+ * <ul>
+ *   <li>{@link #MOTD}</li>
+ *   <li>{@link #EXTRA}</li>
+ *   <li>{@link #STATE}</li>
+ *   <li>{@link #MAX_PLAYERS}</li>
+ * </ul>
  *
  * @since 4.0
  */
@@ -168,6 +176,8 @@ public final class BridgeServiceHelper {
   /**
    * The service info state represents the state of any service. While also taking connected players into
    * consideration.
+   *
+   * @since 4.0
    */
   public enum ServiceInfoState {
     /**
