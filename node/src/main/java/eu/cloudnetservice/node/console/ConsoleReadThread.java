@@ -27,7 +27,7 @@ public class ConsoleReadThread extends Thread {
   private final JLine3Console console;
   private Task<String> currentTask;
 
-  public ConsoleReadThread(JLine3Console console) {
+  public ConsoleReadThread(@NonNull JLine3Console console) {
     this.console = console;
   }
 

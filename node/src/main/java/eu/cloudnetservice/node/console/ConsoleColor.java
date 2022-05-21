@@ -56,7 +56,7 @@ public enum ConsoleColor {
   private final String ansiCode;
   private final char index;
 
-  ConsoleColor(String name, char index, String ansiCode) {
+  ConsoleColor(@NonNull String name, char index, @NonNull String ansiCode) {
     this.name = name;
     this.index = index;
     this.ansiCode = ansiCode;

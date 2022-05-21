@@ -22,7 +22,6 @@ import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.node.console.Console;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import lombok.NonNull;
@@ -39,7 +38,7 @@ public final class HeaderReader {
     var version = HeaderReader.class.getPackage().getImplementationVersion();
     var codename = HeaderReader.class.getPackage().getImplementationTitle();
 
-    try (Reader reader = new InputStreamReader(
+    try (var reader = new InputStreamReader(
       Objects.requireNonNull(HeaderReader.class.getClassLoader().getResourceAsStream("header.txt")),
       StandardCharsets.UTF_8
     )) {

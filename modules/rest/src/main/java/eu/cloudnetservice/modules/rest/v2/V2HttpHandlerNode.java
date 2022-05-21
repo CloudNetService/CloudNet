@@ -84,7 +84,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
     this.handleLiveConsoleRequest(con, ses);
   }
 
-  protected void sendNodeInformation(HttpContext context) {
+  protected void sendNodeInformation(@NonNull HttpContext context) {
     var nodeServer = this.node().nodeServerProvider().localNode();
 
     var information = this.success()
@@ -98,7 +98,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
     this.ok(context).body(information.toString()).context().closeAfter(true).cancelNext();
   }
 
-  protected void handleNodeConfigRequest(HttpContext context) {
+  protected void handleNodeConfigRequest(@NonNull HttpContext context) {
     this.ok(context)
       .body(this.success().append("config", this.configuration()).toString())
       .context()
@@ -106,7 +106,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleNodeConfigUpdateRequest(HttpContext context) {
+  protected void handleNodeConfigUpdateRequest(@NonNull HttpContext context) {
     var configuration = this.body(context.request()).toInstanceOf(JsonConfiguration.class);
     if (configuration == null) {
       this.badRequest(context)
@@ -128,7 +128,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleReloadRequest(HttpContext context) {
+  protected void handleReloadRequest(@NonNull HttpContext context) {
     var type = RestUtil.first(context.request().queryParameters().get("type"), "all").toLowerCase();
     switch (type) {
       case "all" -> {
@@ -153,7 +153,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
       .cancelNext();
   }
 
-  protected void handleLiveConsoleRequest(HttpContext context, HttpSession session) {
+  protected void handleLiveConsoleRequest(@NonNull HttpContext context, @NonNull HttpSession session) {
     context.upgrade().thenAccept(channel -> {
       var handler = new WebSocketLogHandler(session, channel, DefaultLogFormatter.END_LINE_SEPARATOR);
       channel.addListener(handler);
@@ -173,15 +173,18 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
     protected final HttpSession httpSession;
     protected final WebSocketChannel channel;
 
-    public WebSocketLogHandler(HttpSession session, WebSocketChannel channel, Formatter formatter) {
+    public WebSocketLogHandler(
+      @NonNull HttpSession session,
+      @NonNull WebSocketChannel channel,
+      @NonNull Formatter formatter
+    ) {
       super.setFormatter(formatter);
       this.httpSession = session;
       this.channel = channel;
     }
 
     @Override
-    public void handle(@NonNull WebSocketChannel channel, @NonNull WebSocketFrameType type, byte[] bytes)
-      throws Exception {
+    public void handle(@NonNull WebSocketChannel channel, @NonNull WebSocketFrameType type, byte[] bytes) {
       var user = this.httpSession.user();
       if (type == WebSocketFrameType.TEXT && user != null) {
         var commandLine = new String(bytes, StandardCharsets.UTF_8);
@@ -205,7 +208,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
     }
 
     @Override
-    public void publish(LogRecord record) {
+    public void publish(@NonNull LogRecord record) {
       this.channel.sendWebSocketFrame(WebSocketFrameType.TEXT, super.getFormatter().format(record));
     }
   }

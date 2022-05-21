@@ -137,7 +137,7 @@ public class NPC extends JsonDocPropertyHolder {
   }
 
   public @NonNull Set<ProfileProperty> profileProperties() {
-    Preconditions.checkState(this.npcType == NPCType.PLAYER, "type must be player to the profile properties");
+    Preconditions.checkState(this.npcType == NPCType.PLAYER, "type must be player to get the profile properties");
     return this.properties.get("profileProperties", PROPERTIES);
   }
 

@@ -86,7 +86,7 @@ public class XodusDatabase extends AbstractDatabase {
   }
 
   @Override
-  public JsonDocument get(@NonNull String key) {
+  public @Nullable JsonDocument get(@NonNull String key) {
     return this.environment.computeInReadonlyTransaction(txn -> {
       var entry = this.store().get(txn, StringBinding.stringToEntry(key));
       return entry == null ? null : JsonDocument.fromJsonBytes(entry.getBytesUnsafe());

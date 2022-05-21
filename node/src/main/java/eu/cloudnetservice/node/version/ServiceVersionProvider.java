@@ -90,7 +90,7 @@ public class ServiceVersionProvider {
     this.loadVersionsFromInputStream(this.getClass().getClassLoader().getResourceAsStream("files/versions.json"));
   }
 
-  private boolean loadVersionsFromInputStream(InputStream inputStream) {
+  private boolean loadVersionsFromInputStream(@Nullable InputStream inputStream) {
     if (inputStream == null) {
       return false;
     }
