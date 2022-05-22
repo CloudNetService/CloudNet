@@ -523,7 +523,7 @@
     {
       "name": "velocity",
       "environmentType": "VELOCITY",
-      "website": "https://velocitypowered.com",
+      "website": "https://docs.papermc.io/velocity",
       "installSteps": [
         "PAPER_API",
         "DOWNLOAD"
