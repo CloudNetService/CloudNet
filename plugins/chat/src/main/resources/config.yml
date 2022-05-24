@@ -5,7 +5,7 @@
 # %suffix%   - the suffix of the highest permission group of the player
 # %color%    - the color of the highest permission group of the player
 # %name%     - the name of the player
-# %uniqueId% - the uniqueIid of the player
+# %uniqueId% - the unique id of the player
 # %message%  - the message sent by the player
 
 # permission to use "&" in messages for color: cloudnet.chat.color
