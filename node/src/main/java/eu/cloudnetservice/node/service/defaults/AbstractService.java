@@ -61,7 +61,6 @@ import java.net.Inet6Address;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
@@ -84,7 +83,7 @@ public abstract class AbstractService implements CloudService {
 
   protected static final Path INCLUSION_TEMP_DIR = FileUtil.TEMP_DIR.resolve("inclusions");
   protected static final Path WRAPPER_CONFIG_PATH = Path.of(".wrapper", "wrapper.json");
-  protected static final Collection<String> DEFAULT_DEPLOYMENT_EXCLUSIONS = Arrays.asList("wrapper.jar", ".wrapper/");
+  protected static final Collection<String> DEFAULT_DEPLOYMENT_EXCLUSIONS = Set.of("wrapper.jar", ".wrapper/");
 
   protected final EventManager eventManager;
 
