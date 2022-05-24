@@ -72,6 +72,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Predicate;
 import kong.unirest.Unirest;
 import kong.unirest.UnirestException;
 import lombok.NonNull;
@@ -498,15 +499,16 @@ public abstract class AbstractService implements CloudService {
         var fileName = Files.isDirectory(path)
           ? path.getFileName().toString() + '/'
           : path.getFileName().toString();
-
+        // file matcher escaping asterix chars for regex
+        Predicate<String> fileMatcher = input -> fileName.matches(input.replace("*", "(.*)"));
         // if we have inclusions we just handle them, exclusions otherwise
         if (deployment.includes().isEmpty()) {
           // check if the file is excluded
-          return deployment.excludes().stream().noneMatch(pattern -> fileName.matches(pattern.replace("*", "(.*)")))
+          return deployment.excludes().stream().noneMatch(fileMatcher)
             && !DEFAULT_DEPLOYMENT_EXCLUSIONS.contains(fileName);
         } else {
           // we have inclusions so check if any matches
-          return deployment.includes().stream().anyMatch(pattern -> fileName.matches(pattern.replace("*", "(.*)")));
+          return deployment.includes().stream().anyMatch(fileMatcher);
         }
       });
     }
