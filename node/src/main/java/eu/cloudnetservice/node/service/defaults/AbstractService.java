@@ -498,9 +498,16 @@ public abstract class AbstractService implements CloudService {
         var fileName = Files.isDirectory(path)
           ? path.getFileName().toString() + '/'
           : path.getFileName().toString();
-        // check if the file is ignored
-        return deployment.excludes().stream().noneMatch(pattern -> fileName.matches(pattern.replace("*", "(.*)")))
-          && !DEFAULT_DEPLOYMENT_EXCLUSIONS.contains(fileName);
+
+        // if we have inclusions we just handle them, exclusions otherwise
+        if (deployment.includes().isEmpty()) {
+          // check if the file is excluded
+          return deployment.excludes().stream().noneMatch(pattern -> fileName.matches(pattern.replace("*", "(.*)")))
+            && !DEFAULT_DEPLOYMENT_EXCLUSIONS.contains(fileName);
+        } else {
+          // we have inclusions so check if any matches
+          return deployment.includes().stream().anyMatch(pattern -> fileName.matches(pattern.replace("*", "(.*)")));
+        }
       });
     }
   }

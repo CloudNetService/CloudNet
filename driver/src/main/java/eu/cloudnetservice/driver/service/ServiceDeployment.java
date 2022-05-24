@@ -38,6 +38,7 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
 
   protected final ServiceTemplate template;
   protected final Collection<String> excludes;
+  protected final Collection<String> includes;
 
   /**
    * Constructs a new service deployment instance.
@@ -50,11 +51,13 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
   protected ServiceDeployment(
     @NonNull ServiceTemplate template,
     @NonNull Collection<String> excludes,
+    @NonNull Collection<String> includes,
     @NonNull JsonDocument properties
   ) {
     super(properties);
     this.template = template;
     this.excludes = excludes;
+    this.includes = includes;
   }
 
   /**
@@ -81,6 +84,7 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
     return builder()
       .template(deployment.template())
       .excludes(deployment.excludes())
+      .includes(deployment.includes())
       .properties(deployment.properties().clone());
   }
 
@@ -104,6 +108,16 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
   }
 
   /**
+   * Get a collection of file names (in a regular expression format) which should be included in a deployment.
+   * Directories must be suffixed with a {@literal /}.
+   *
+   * @return the regular expressions of file names which should be included in a deployment.
+   */
+  public @NonNull Collection<String> includes() {
+    return this.includes;
+  }
+
+  /**
    * {@inheritDoc}
    */
   @Override
@@ -124,6 +138,7 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
 
     protected ServiceTemplate template;
     protected Collection<String> excludes = new HashSet<>();
+    protected Collection<String> includes = new HashSet<>();
     protected JsonDocument properties = JsonDocument.newDocument();
 
     /**
@@ -172,6 +187,38 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
     }
 
     /**
+     * Sets the file names (in a regular expression form) which should be included when deploying a service. Directories
+     * must be suffixed with a {@literal /}.
+     * <p>
+     * The given includes collection will get copied into the builder, meaning that further modification of it will not
+     * reflect into the builder and vice-versa.
+     *
+     * @param includes the includes of the deployment.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if then given includes collection is null.
+     */
+    public @NonNull Builder includes(@NonNull Collection<String> includes) {
+      this.includes = new HashSet<>(includes);
+      return this;
+    }
+
+    /**
+     * Adds the file names (in a regular expression form) which should be included when deploying a service. Directories
+     * must be suffixed with a {@literal /}.
+     * <p>
+     * The given includes collection will get copied into the builder, meaning that further modification of it will not
+     * reflect into the builder and vice-versa.
+     *
+     * @param includes the includes to add to the deployment.
+     * @return the same instance as used to call the method, for chaining.
+     * @throws NullPointerException if then given includes collection is null.
+     */
+    public @NonNull Builder addIncludes(@NonNull Collection<String> includes) {
+      this.includes.addAll(includes);
+      return this;
+    }
+
+    /**
      * Sets the properties of the deployment. These properties will not be used internally and are mainly there for
      * different implementation and/or identification by modules or plugins if needed.
      *
@@ -192,7 +239,7 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
      */
     public @NonNull ServiceDeployment build() {
       Preconditions.checkNotNull(this.template, "no target template given");
-      return new ServiceDeployment(this.template, this.excludes, this.properties);
+      return new ServiceDeployment(this.template, this.excludes, this.includes, this.properties);
     }
   }
 }
