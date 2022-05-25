@@ -24,13 +24,24 @@ import java.util.regex.Pattern;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * An object serializer which can write and read a pattern from/to a buffer.
+ *
+ * @since 4.0
+ */
 public class PatternObjectSerializer implements ObjectSerializer<Pattern> {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable Object read(@NonNull DataBuf source, @NonNull Type type, @NonNull ObjectMapper caller) {
     return Pattern.compile(source.readString());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void write(
     @NonNull DataBuf.Mutable dataBuf,
