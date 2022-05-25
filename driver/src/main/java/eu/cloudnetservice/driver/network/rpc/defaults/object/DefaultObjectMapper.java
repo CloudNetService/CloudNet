@@ -35,6 +35,7 @@ import eu.cloudnetservice.driver.network.rpc.defaults.object.serializers.JsonDoc
 import eu.cloudnetservice.driver.network.rpc.defaults.object.serializers.MapObjectSerializer;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.serializers.OptionalObjectSerializer;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.serializers.PathObjectSerializer;
+import eu.cloudnetservice.driver.network.rpc.defaults.object.serializers.PatternObjectSerializer;
 import eu.cloudnetservice.driver.network.rpc.defaults.object.serializers.UUIDObjectSerializer;
 import eu.cloudnetservice.driver.network.rpc.exception.MissingObjectSerializerException;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
@@ -64,6 +65,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.regex.Pattern;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -107,6 +109,8 @@ public class DefaultObjectMapper implements ObjectMapper {
     .put(byte[].class, FunctionalObjectSerializer.of(DataBuf::readByteArray, DataBuf.Mutable::writeByteArray))
     // uuid
     .put(UUID.class, new UUIDObjectSerializer())
+    // pattern
+    .put(Pattern.class, new PatternObjectSerializer())
     //    ==== nested types ====
     // optional
     .put(Optional.class, new OptionalObjectSerializer())

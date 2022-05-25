@@ -56,13 +56,11 @@ import eu.cloudnetservice.node.util.JavaVersionResolver;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.function.Consumer;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 
 @CommandPermission("cloudnet.command.tasks")
 @Description("Administers the configurations of all persistent tasks")
@@ -496,11 +494,15 @@ public final class TasksCommand {
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
     @NonNull @Argument("deployment") ServiceTemplate template,
-    @Flag("excludes") @Quoted String excludes
+    @Flag("excludes") @Quoted String excludes,
+    @Flag("includes") @Quoted String includes,
+    @Flag("case-sensitive") boolean caseSensitive
   ) {
     var deployment = ServiceDeployment.builder()
       .template(template)
-      .excludes(this.parseExcludes(excludes))
+      .excludes(ServiceCommand.parseDeploymentPatterns(excludes, caseSensitive))
+      .includes(ServiceCommand.parseDeploymentPatterns(includes, caseSensitive))
+      .withDefaultExclusions()
       .build();
     for (var serviceTask : serviceTasks) {
       this.updateTask(serviceTask, builder -> builder.addDeployments(Set.of(deployment)));
@@ -583,11 +585,15 @@ public final class TasksCommand {
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
     @NonNull @Argument("deployment") ServiceTemplate template,
-    @Flag("excludes") @Quoted String excludes
+    @Flag("excludes") @Quoted String excludes,
+    @Flag("includes") @Quoted String includes,
+    @Flag("case-sensitive") boolean caseSensitive
   ) {
     var deployment = ServiceDeployment.builder()
       .template(template)
-      .excludes(this.parseExcludes(excludes))
+      .excludes(ServiceCommand.parseDeploymentPatterns(excludes, caseSensitive))
+      .includes(ServiceCommand.parseDeploymentPatterns(includes, caseSensitive))
+      .withDefaultExclusions()
       .build();
     for (var serviceTask : serviceTasks) {
       this.updateTaskDirect(serviceTask, task -> task.deployments().remove(deployment));
@@ -703,14 +709,6 @@ public final class TasksCommand {
 
   private void updateTaskDirect(@NonNull ServiceTask task, @NonNull Consumer<ServiceTask> consumer) {
     consumer.andThen(this::updateTask).accept(task);
-  }
-
-  private @NonNull Collection<String> parseExcludes(@Nullable String excludes) {
-    if (excludes == null) {
-      return Collections.emptyList();
-    }
-
-    return Arrays.asList(excludes.split(";"));
   }
 
   private @NonNull ServiceTaskProvider taskProvider() {

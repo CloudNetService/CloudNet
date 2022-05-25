@@ -35,6 +35,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.regex.Pattern;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
@@ -53,6 +54,7 @@ public class JsonDocument implements Document<JsonDocument> {
     .disableHtmlEscaping()
     .registerTypeAdapterFactory(new RecordTypeAdapterFactory())
     .registerTypeHierarchyAdapter(Path.class, new PathTypeAdapter())
+    .registerTypeHierarchyAdapter(Pattern.class, new PatternTypeAdapter())
     .registerTypeHierarchyAdapter(SimpleDateFormat.class, new SimpleDateFormatTypeAdapter())
     .registerTypeHierarchyAdapter(JsonDocument.class, new JsonDocumentTypeAdapter())
     .create();
