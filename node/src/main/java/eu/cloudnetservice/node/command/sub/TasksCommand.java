@@ -61,6 +61,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.function.Consumer;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 @CommandPermission("cloudnet.command.tasks")
 @Description("Administers the configurations of all persistent tasks")
@@ -494,8 +495,8 @@ public final class TasksCommand {
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
     @NonNull @Argument("deployment") ServiceTemplate template,
-    @Flag("excludes") @Quoted String excludes,
-    @Flag("includes") @Quoted String includes,
+    @Nullable @Flag("excludes") @Quoted String excludes,
+    @Nullable @Flag("includes") @Quoted String includes,
     @Flag("case-sensitive") boolean caseSensitive
   ) {
     var deployment = ServiceDeployment.builder()
@@ -585,8 +586,8 @@ public final class TasksCommand {
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
     @NonNull @Argument("deployment") ServiceTemplate template,
-    @Flag("excludes") @Quoted String excludes,
-    @Flag("includes") @Quoted String includes,
+    @Nullable @Flag("excludes") @Quoted String excludes,
+    @Nullable @Flag("includes") @Quoted String includes,
     @Flag("case-sensitive") boolean caseSensitive
   ) {
     var deployment = ServiceDeployment.builder()

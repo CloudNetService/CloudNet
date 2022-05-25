@@ -43,6 +43,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Queue;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 @CommandPermission("cloudnet.command.groups")
 @Description("Administers the configurations of all persistent groups")
@@ -132,8 +133,8 @@ public final class GroupsCommand {
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
     @NonNull @Argument("deployment") ServiceTemplate template,
-    @Flag("excludes") @Quoted String excludes,
-    @Flag("includes") @Quoted String includes,
+    @Nullable @Flag("excludes") @Quoted String excludes,
+    @Nullable @Flag("includes") @Quoted String includes,
     @Flag("case-sensitive") boolean caseSensitive
   ) {
     var deployment = ServiceDeployment.builder()
@@ -234,8 +235,8 @@ public final class GroupsCommand {
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
     @NonNull @Argument("deployment") ServiceTemplate template,
-    @Flag("excludes") @Quoted String excludes,
-    @Flag("includes") @Quoted String includes,
+    @Nullable @Flag("excludes") @Quoted String excludes,
+    @Nullable @Flag("includes") @Quoted String includes,
     @Flag("case-sensitive") boolean caseSensitive
   ) {
     var deployment = ServiceDeployment.builder()

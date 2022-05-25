@@ -91,7 +91,7 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
       .template(deployment.template())
       .excludes(deployment.excludes())
       .includes(deployment.includes())
-      .properties(deployment.properties().clone());
+      .properties(deployment.properties());
   }
 
   /**
@@ -164,6 +164,9 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
      * Sets the file names (in a regular expression form) which should be ignored when deploying a service. Directories
      * must be suffixed with a {@literal /}.
      * <p>
+     * Any exclusion overrides an explicit inclusion, for example an exclusion of {@code plugins/*} overrides the
+     * explicit inclusion of {@code plugins/cloudnet-bridge.jar}.
+     * <p>
      * The given exclusion collection will get copied into the builder, meaning that further modification of it will not
      * reflect into the builder and vice-versa.
      *
@@ -179,6 +182,9 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
     /**
      * Adds the file name (in a regular expression form) which should be ignored when deploying a service. Directories
      * must be suffixed with a {@literal /}.
+     * <p>
+     * Any exclusion overrides an explicit inclusion, for example an exclusion of {@code plugins/*} overrides the
+     * explicit inclusion of {@code plugins/cloudnet-bridge.jar}.
      *
      * @param exclude the exclusion to add to the deployment.
      * @return the same instance as used to call the method, for chaining.
@@ -208,6 +214,9 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
      * Sets the file names (in a regular expression form) which should be included when deploying a service. Directories
      * must be suffixed with a {@literal /}.
      * <p>
+     * Any exclusion overrides an explicit inclusion, for example an exclusion of {@code plugins/*} overrides the
+     * explicit inclusion of {@code plugins/cloudnet-bridge.jar}.
+     * <p>
      * The given includes collection will get copied into the builder, meaning that further modification of it will not
      * reflect into the builder and vice-versa.
      *
@@ -223,6 +232,9 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
     /**
      * Adds the file name (in a regular expression form) which should be included when deploying a service. Directories
      * must be suffixed with a {@literal /}.
+     * <p>
+     * Any exclusion overrides an explicit inclusion, for example an exclusion of {@code plugins/*} overrides the
+     * explicit inclusion of {@code plugins/cloudnet-bridge.jar}.
      *
      * @param include the inclusion to add to the deployment.
      * @return the same instance as used to call the method, for chaining.
@@ -254,11 +266,7 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
      */
     public @NonNull ServiceDeployment build() {
       Preconditions.checkNotNull(this.template, "no target template given");
-      return new ServiceDeployment(
-        this.template,
-        this.excludes,
-        this.includes,
-        this.properties);
+      return new ServiceDeployment(this.template, this.excludes, this.includes, this.properties);
     }
   }
 }
