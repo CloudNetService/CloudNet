@@ -61,9 +61,7 @@ import java.net.Inet6Address;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Base64;
-import java.util.Collection;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
@@ -72,6 +70,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.BiPredicate;
+import java.util.regex.Pattern;
 import kong.unirest.Unirest;
 import kong.unirest.UnirestException;
 import lombok.NonNull;
@@ -83,7 +83,8 @@ public abstract class AbstractService implements CloudService {
 
   protected static final Path INCLUSION_TEMP_DIR = FileUtil.TEMP_DIR.resolve("inclusions");
   protected static final Path WRAPPER_CONFIG_PATH = Path.of(".wrapper", "wrapper.json");
-  protected static final Collection<String> DEFAULT_DEPLOYMENT_EXCLUSIONS = Arrays.asList("wrapper.jar", ".wrapper/");
+  protected static final BiPredicate<String, Pattern> FILE_MATCHER_PREDICATE =
+    (fileName, pattern) -> pattern.matcher(fileName).matches();
 
   protected final EventManager eventManager;
 
@@ -495,14 +496,29 @@ public abstract class AbstractService implements CloudService {
       // execute the deployment
       storage.deployDirectory(deployment.template(), this.serviceDirectory, path -> {
         // normalize the name of the path
-        var fileName = Files.isDirectory(path)
-          ? path.getFileName().toString() + '/'
-          : path.getFileName().toString();
-        // check if the file is ignored
-        return deployment.excludes().stream().noneMatch(pattern -> fileName.matches(pattern.replace("*", "(.*)")))
-          && !DEFAULT_DEPLOYMENT_EXCLUSIONS.contains(fileName);
+        var fileName = this.relativizePath(path);
+
+        // check if we have any exclusions and the path matches one of them -> exclude the file
+        var excludes = deployment.excludes();
+        if (!excludes.isEmpty() && excludes.stream().anyMatch(input -> FILE_MATCHER_PREDICATE.test(fileName, input))) {
+          return false;
+        }
+
+        // check if the includes are empty or the file is included explicitly -> include the file
+        var includes = deployment.includes();
+        return includes.isEmpty() || includes.stream().anyMatch(input -> FILE_MATCHER_PREDICATE.test(fileName, input));
       });
     }
+  }
+
+  protected @NonNull String relativizePath(@NonNull Path input) {
+    // ensures that we get a file name which is equivalent on all operating systems
+    var fileName = this.serviceDirectory.relativize(input).toString().replace('\\', '/');
+    if (Files.isDirectory(input) && !fileName.endsWith("/")) {
+      fileName += '/';
+    }
+
+    return fileName;
   }
 
   protected void doRemoveFilesAfterStop() {

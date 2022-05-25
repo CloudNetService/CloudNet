@@ -48,7 +48,7 @@ public class WildcardUtilTest {
 
   @Test
   public void testValidSuppliedPattern() {
-    Assertions.assertNotNull(WildcardUtil.prepare(VALID_PATTERN, true));
+    Assertions.assertNotNull(WildcardUtil.fixPattern(VALID_PATTERN, true));
 
     Assertions.assertTrue(WildcardUtil.anyMatch(VALID_NAMEABLES, VALID_PATTERN));
     Assertions.assertTrue(WildcardUtil.anyMatch(VALID_NAMEABLES, VALID_PATTERN, false));
@@ -59,7 +59,7 @@ public class WildcardUtilTest {
 
   @Test
   public void testInvalidSuppliedPattern() {
-    Assertions.assertNotNull(WildcardUtil.prepare(INVALID_PATTERN, true));
+    Assertions.assertNotNull(WildcardUtil.fixPattern(INVALID_PATTERN, true));
 
     Assertions.assertTrue(WildcardUtil.anyMatch(INVALID_NAMEABLES, INVALID_PATTERN));
     Assertions.assertTrue(WildcardUtil.anyMatch(INVALID_NAMEABLES, INVALID_PATTERN, false));

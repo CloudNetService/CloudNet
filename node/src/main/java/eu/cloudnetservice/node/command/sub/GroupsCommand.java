@@ -40,7 +40,6 @@ import eu.cloudnetservice.node.command.source.CommandSource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import lombok.NonNull;
@@ -134,11 +133,15 @@ public final class GroupsCommand {
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
     @NonNull @Argument("deployment") ServiceTemplate template,
-    @Flag("excludes") @Quoted String excludes
+    @Nullable @Flag("excludes") @Quoted String excludes,
+    @Nullable @Flag("includes") @Quoted String includes,
+    @Flag("case-sensitive") boolean caseSensitive
   ) {
     var deployment = ServiceDeployment.builder()
       .template(template)
-      .excludes(this.parseExcludes(excludes))
+      .excludes(ServiceCommand.parseDeploymentPatterns(excludes, caseSensitive))
+      .includes(ServiceCommand.parseDeploymentPatterns(includes, caseSensitive))
+      .withDefaultExclusions()
       .build();
 
     group.deployments().add(deployment);
@@ -232,11 +235,15 @@ public final class GroupsCommand {
     @NonNull CommandSource source,
     @NonNull @Argument("name") GroupConfiguration group,
     @NonNull @Argument("deployment") ServiceTemplate template,
-    @Flag("excludes") @Quoted String excludes
+    @Nullable @Flag("excludes") @Quoted String excludes,
+    @Nullable @Flag("includes") @Quoted String includes,
+    @Flag("case-sensitive") boolean caseSensitive
   ) {
     var deployment = ServiceDeployment.builder()
       .template(template)
-      .excludes(this.parseExcludes(excludes))
+      .excludes(ServiceCommand.parseDeploymentPatterns(excludes, caseSensitive))
+      .includes(ServiceCommand.parseDeploymentPatterns(includes, caseSensitive))
+      .withDefaultExclusions()
       .build();
 
     group.deployments().remove(deployment);
@@ -337,12 +344,5 @@ public final class GroupsCommand {
 
   private @NonNull GroupConfigurationProvider groupProvider() {
     return Node.instance().groupConfigurationProvider();
-  }
-
-  private @NonNull Collection<String> parseExcludes(@Nullable String excludes) {
-    if (excludes == null) {
-      return Collections.emptyList();
-    }
-    return Arrays.asList(excludes.split(";"));
   }
 }

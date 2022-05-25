@@ -87,7 +87,7 @@ public final class WildcardUtil {
     if (inputValues.isEmpty()) {
       return inputValues;
     } else {
-      var compiledPattern = prepare(regex, caseSensitive);
+      var compiledPattern = fixPattern(regex, caseSensitive);
       return inputValues.stream().filter(data -> matches(regex, compiledPattern, data, caseSensitive)).toList();
     }
   }
@@ -110,7 +110,7 @@ public final class WildcardUtil {
     if (values.isEmpty()) {
       return false;
     } else {
-      var compiledPattern = prepare(regex, caseSensitive);
+      var compiledPattern = fixPattern(regex, caseSensitive);
       return values.stream().anyMatch(data -> matches(regex, compiledPattern, data, caseSensitive));
     }
   }
@@ -125,8 +125,7 @@ public final class WildcardUtil {
    * @return the compiled pattern or null if the compilation failed.
    * @throws NullPointerException if the given regex string is null.
    */
-  @VisibleForTesting
-  static @Nullable Pattern prepare(@NonNull String regex, boolean caseSensitive) {
+  public static @Nullable Pattern fixPattern(@NonNull String regex, boolean caseSensitive) {
     regex = regex.replace("*", ".*");
     return tryCompile(regex, caseSensitive);
   }
