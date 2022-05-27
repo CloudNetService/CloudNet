@@ -55,9 +55,9 @@ sponge = "9.0.0"
 velocity = "3.1.1"
 waterdogpe = "1.1.7"
 nukkitX = "1.0-SNAPSHOT"
+minestom = "master-SNAPSHOT"
 spigot = "1.8.8-R0.1-SNAPSHOT"
 bungeecord = "1.18-R0.1-SNAPSHOT"
-minestom = "master-SNAPSHOT"
 
 # platform extensions
 vault = "1.7.1"

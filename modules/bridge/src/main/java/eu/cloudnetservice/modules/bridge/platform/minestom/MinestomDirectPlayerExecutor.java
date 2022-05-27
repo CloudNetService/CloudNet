@@ -27,7 +27,7 @@ import net.kyori.adventure.title.Title;
 import net.minestom.server.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
-public class MinestomDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Player> {
+final class MinestomDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Player> {
 
   public MinestomDirectPlayerExecutor(
     @NonNull UUID uniqueId,

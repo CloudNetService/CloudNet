@@ -22,7 +22,7 @@ import net.minestom.server.extras.MojangAuth;
 import net.minestom.server.extras.bungee.BungeeCordProxy;
 import net.minestom.server.extras.velocity.VelocityProxy;
 
-public class MinestomBridgeExtension extends Extension {
+public final class MinestomBridgeExtension extends Extension {
 
   @Override
   public void initialize() {
@@ -38,6 +38,7 @@ public class MinestomBridgeExtension extends Extension {
       BungeeCordProxy.enable();
     }
 
+    // using bungeecord and mojang auth will not work, we can't do anything about it. Just send a warning
     if (!VelocityProxy.isEnabled() && MojangAuth.isEnabled()) {
       this.getLogger().warn(
         "Be aware that using BungeeCord player info forwarding in combination with Mojang authentication will not work!");

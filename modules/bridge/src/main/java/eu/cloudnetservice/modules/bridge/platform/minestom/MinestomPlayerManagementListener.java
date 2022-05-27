@@ -30,7 +30,7 @@ import net.minestom.server.event.player.AsyncPlayerPreLoginEvent;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
 
-public class MinestomPlayerManagementListener {
+public final class MinestomPlayerManagementListener {
 
   private final PlatformBridgeManagement<Player, NetworkPlayerServerInfo> management;
 
@@ -85,5 +85,4 @@ public class MinestomPlayerManagementListener {
     // update the service info
     Wrapper.instance().publishServiceInfoUpdate();
   }
-
 }

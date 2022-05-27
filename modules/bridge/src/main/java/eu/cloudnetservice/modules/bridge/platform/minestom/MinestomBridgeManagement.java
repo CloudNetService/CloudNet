@@ -39,7 +39,7 @@ import net.minestom.server.event.server.ServerListPingEvent;
 import net.minestom.server.ping.ServerListPingType;
 import org.jetbrains.annotations.Nullable;
 
-public class MinestomBridgeManagement extends PlatformBridgeManagement<Player, NetworkPlayerServerInfo> {
+public final class MinestomBridgeManagement extends PlatformBridgeManagement<Player, NetworkPlayerServerInfo> {
 
   private static final BiFunction<Player, String, Boolean> PERM_FUNCTION = Player::hasPermission;
 
@@ -47,13 +47,16 @@ public class MinestomBridgeManagement extends PlatformBridgeManagement<Player, N
 
   public MinestomBridgeManagement() {
     super(Wrapper.instance());
+    // init fields
     this.directGlobalExecutor = new MinestomDirectPlayerExecutor(
       PlayerExecutor.GLOBAL_UNIQUE_ID,
       MinecraftServer.getConnectionManager()::getOnlinePlayers);
 
+    // send a ping event to gather the max players and the motd of the server
     var pingEvent = new ServerListPingEvent(ServerListPingType.MODERN_FULL_RGB);
     MinecraftServer.getGlobalEventHandler().call(pingEvent);
 
+    // init the bridge properties
     BridgeServiceHelper.MOTD.set(legacySection().serialize(pingEvent.getResponseData().getDescription()));
     BridgeServiceHelper.MAX_PLAYERS.set(pingEvent.getResponseData().getMaxPlayer());
   }
