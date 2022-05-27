@@ -136,6 +136,10 @@ public class JVMService extends AbstractService {
     arguments.add("-javaagent:" + wrapperInformation.first().toAbsolutePath());
     arguments.add("-Dcloudnet.wrapper.messages.language=" + I18n.language());
 
+    // set the used host and port as system property
+    arguments.add("-Dservice.bind.host=" + this.nodeInstance.config().hostAddress());
+    arguments.add("-Dservice.bind.port=" + this.serviceConfiguration().port());
+
     // add the class path and the main class of the wrapper
     arguments.add("-cp");
     arguments.add(classPath);

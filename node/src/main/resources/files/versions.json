@@ -23,6 +23,15 @@
       }
     },
     {
+      "name": "MINESTOM",
+      "defaultServiceStartPort": 44955,
+      "defaultProcessArguments": [],
+      "properties": {
+        "isJavaServer": true,
+        "pluginDir": "extensions"
+      }
+    },
+    {
       "name": "GLOWSTONE",
       "defaultServiceStartPort": 44955,
       "defaultProcessArguments": [],
