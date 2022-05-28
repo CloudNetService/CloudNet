@@ -38,14 +38,12 @@ public final class MinestomPlayerManagementListener {
     @NonNull PlatformBridgeManagement<Player, NetworkPlayerServerInfo> management
   ) {
     this.management = management;
-
+    // listen on these events and redirect them into the methods
     var node = EventNode.type("cloudnet-bridge", EventFilter.PLAYER);
-
-    node.addListener(AsyncPlayerPreLoginEvent.class, this::handleLogin)
+    MinecraftServer.getGlobalEventHandler().addChild(node
+      .addListener(AsyncPlayerPreLoginEvent.class, this::handleLogin)
       .addListener(PlayerSpawnEvent.class, this::handleJoin)
-      .addListener(PlayerDisconnectEvent.class, this::handleDisconnect);
-
-    MinecraftServer.getGlobalEventHandler().addChild(node);
+      .addListener(PlayerDisconnectEvent.class, this::handleDisconnect));
   }
 
   private void handleLogin(@NonNull AsyncPlayerPreLoginEvent event) {
