@@ -28,7 +28,6 @@ import lombok.NonNull;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Villager;
-import org.bukkit.entity.Villager.Profession;
 import org.bukkit.entity.Wither;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
@@ -90,7 +89,7 @@ public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEn
     this.entity.setCustomNameVisible(!this.npc.hideEntityName());
     // set the profession of the villager to prevent inconsistency
     if (this.entity instanceof Villager) {
-      ((Villager) this.entity).setProfession(Profession.FARMER);
+      ((Villager) this.entity).setProfession(Villager.Profession.FARMER);
     }
     // uhhh nms reflection :(
     // create a new nbt tag compound

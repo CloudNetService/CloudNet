@@ -27,7 +27,7 @@ import io.netty.handler.codec.ByteToMessageDecoder;
 import java.util.List;
 import java.util.UUID;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * An internal implementation of the packet decoder used for client to server communication. This decoder reverses the
@@ -43,7 +43,7 @@ import org.jetbrains.annotations.ApiStatus.Internal;
  *
  * @since 4.0
  */
-@Internal
+@ApiStatus.Internal
 public final class NettyPacketDecoder extends ByteToMessageDecoder {
 
   private static final Logger LOGGER = LogManager.logger(NettyPacketDecoder.class);

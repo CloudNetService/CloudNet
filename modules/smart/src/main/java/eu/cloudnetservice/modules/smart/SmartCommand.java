@@ -26,8 +26,6 @@ import cloud.commandframework.context.CommandContext;
 import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.service.ServiceTask;
-import eu.cloudnetservice.modules.smart.SmartServiceTaskConfig.Builder;
-import eu.cloudnetservice.modules.smart.SmartServiceTaskConfig.TemplateInstaller;
 import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
@@ -167,7 +165,7 @@ public class SmartCommand {
   public void templateInstaller(
     @NonNull CommandSource source,
     @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
-    @NonNull @Argument("installer") TemplateInstaller installer
+    @NonNull @Argument("installer") SmartServiceTaskConfig.TemplateInstaller installer
   ) {
     this.updateSmart(task, config -> config.templateInstaller(installer));
     source.sendMessage(I18n.trans(
@@ -235,7 +233,7 @@ public class SmartCommand {
 
   private void updateSmart(
     @NonNull ServiceTask serviceTask,
-    @NonNull Function<Builder, Builder> modifier
+    @NonNull Function<SmartServiceTaskConfig.Builder, SmartServiceTaskConfig.Builder> modifier
   ) {
     // read the smart config from the task
     var property = serviceTask.properties().get("smartConfig", SmartServiceTaskConfig.class);

@@ -43,7 +43,7 @@ import net.schmizz.sshj.Config;
 import net.schmizz.sshj.DefaultConfig;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.sftp.FileAttributes;
-import net.schmizz.sshj.sftp.FileMode.Type;
+import net.schmizz.sshj.sftp.FileMode;
 import net.schmizz.sshj.sftp.OpenMode;
 import net.schmizz.sshj.sftp.SFTPClient;
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
@@ -166,7 +166,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
       var templatePath = this.constructRemotePath(template);
       var attributes = client.statExistence(templatePath);
       // checks if the remote directory actually exists
-      if (attributes != null && attributes.getType() == Type.DIRECTORY) {
+      if (attributes != null && attributes.getType() == FileMode.Type.DIRECTORY) {
         // now we are sure that the template exists and can remove it
         this.deleteDir(client, templatePath);
         client.rmdir(templatePath);
@@ -201,7 +201,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
   public boolean contains(@NonNull ServiceTemplate template) {
     return this.executeWithClient(client -> {
       var attr = client.statExistence(this.constructRemotePath(template));
-      return attr != null && attr.getType() == Type.DIRECTORY;
+      return attr != null && attr.getType() == FileMode.Type.DIRECTORY;
     }, false);
   }
 
@@ -359,7 +359,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
     return new FileInfo(
       path,
       parts.length == 0 ? path : parts[parts.length - 1],
-      attributes.getType() == Type.DIRECTORY,
+      attributes.getType() == FileMode.Type.DIRECTORY,
       false,
       attributes.getMtime(),
       attributes.getMtime(),

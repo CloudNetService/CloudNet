@@ -25,9 +25,6 @@ import eu.cloudnetservice.driver.CloudNetDriver;
 import eu.cloudnetservice.driver.service.GroupConfiguration;
 import eu.cloudnetservice.ext.bukkitcommands.BaseTabExecutor;
 import eu.cloudnetservice.modules.npc.NPC;
-import eu.cloudnetservice.modules.npc.NPC.ClickAction;
-import eu.cloudnetservice.modules.npc.NPC.NPCType;
-import eu.cloudnetservice.modules.npc.NPC.ProfileProperty;
 import eu.cloudnetservice.modules.npc.platform.PlatformSelectorEntity;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
 import java.util.ArrayList;
@@ -60,10 +57,10 @@ public final class NPCCommand extends BaseTabExecutor {
 
   private static final List<String> TRUE_FALSE = Arrays.asList("true", "yes", "y", "false", "no", "n");
 
-  private static final List<String> NPC_TYPES = Arrays.stream(NPCType.values())
+  private static final List<String> NPC_TYPES = Arrays.stream(NPC.NPCType.values())
     .map(Enum::name)
     .toList();
-  private static final List<String> CLICK_ACTIONS = Arrays.stream(ClickAction.values())
+  private static final List<String> CLICK_ACTIONS = Arrays.stream(NPC.ClickAction.values())
     .map(Enum::name)
     .toList();
   private static final Map<String, Integer> VALID_ITEM_SLOTS = ImmutableMap.<String, Integer>builder()
@@ -105,7 +102,7 @@ public final class NPCCommand extends BaseTabExecutor {
       // 0: target group
       var targetGroup = args[1];
       // 1: mob type
-      var npcType = Enums.getIfPresent(NPCType.class, args[2].toUpperCase()).orNull();
+      var npcType = Enums.getIfPresent(NPC.NPCType.class, args[2].toUpperCase()).orNull();
       if (npcType == null) {
         sender.sendMessage("§cNo such NPC type, use one of: " + String.join(", ", NPC_TYPES));
         return true;
@@ -117,7 +114,7 @@ public final class NPCCommand extends BaseTabExecutor {
         return true;
       }
       // 2: skin owner or entity type, depends on 1
-      if (npcType == NPCType.PLAYER) {
+      if (npcType == NPC.NPCType.PLAYER) {
         // load the profile
         var profile = new Profile(args[3]);
         if (!profile.complete()) {
@@ -127,7 +124,7 @@ public final class NPCCommand extends BaseTabExecutor {
         // create the npc
         var npc = NPC.builder()
           .profileProperties(profile.getProperties().stream()
-            .map(property -> new ProfileProperty(property.getName(), property.getValue(), property.getSignature()))
+            .map(property -> new NPC.ProfileProperty(property.getName(), property.getValue(), property.getSignature()))
             .collect(Collectors.toSet()))
           .targetGroup(targetGroup)
           .displayName(ChatColor.translateAlternateColorCodes('&', displayName))
@@ -261,7 +258,7 @@ public final class NPCCommand extends BaseTabExecutor {
               "§8> §6\"%s\" §8@ §7%s§8/§7%s §8- §7%d, %d, %d in \"%s\"",
               npc.displayName(),
               npc.npcType(),
-              npc.npcType() == NPCType.ENTITY ? npc.entityType() : "props: " + npc.profileProperties().size(),
+              npc.npcType() == NPC.NPCType.ENTITY ? npc.entityType() : "props: " + npc.profileProperties().size(),
               (int) npc.location().x(),
               (int) npc.location().y(),
               (int) npc.location().z(),
@@ -386,7 +383,7 @@ public final class NPCCommand extends BaseTabExecutor {
 
         // the left click action
         case "lca", "leftclickaction" -> {
-          var action = Enums.getIfPresent(ClickAction.class, args[2].toUpperCase()).orNull();
+          var action = Enums.getIfPresent(NPC.ClickAction.class, args[2].toUpperCase()).orNull();
           if (action == null) {
             sender.sendMessage(String.format(
               "§cNo such click action. Use one of: §6%s§c.",
@@ -399,7 +396,7 @@ public final class NPCCommand extends BaseTabExecutor {
 
         // the right click action
         case "rca", "rightclickaction" -> {
-          var action = Enums.getIfPresent(ClickAction.class, args[2].toUpperCase()).orNull();
+          var action = Enums.getIfPresent(NPC.ClickAction.class, args[2].toUpperCase()).orNull();
           if (action == null) {
             sender.sendMessage(String.format(
               "§cNo such click action. Use one of: §6%s§c.",
@@ -478,7 +475,10 @@ public final class NPCCommand extends BaseTabExecutor {
             return true;
           } else {
             updatedNpc = NPC.builder(npc).profileProperties(profile.getProperties().stream()
-                .map(property -> new ProfileProperty(property.getName(), property.getValue(), property.getSignature()))
+                .map(property -> new NPC.ProfileProperty(
+                  property.getName(),
+                  property.getValue(),
+                  property.getSignature()))
                 .collect(Collectors.toSet()))
               .build();
           }
@@ -506,7 +506,7 @@ public final class NPCCommand extends BaseTabExecutor {
                   return;
                 }
                 // update & notify
-                this.management.createNPC(NPC.builder(npc).profileProperties(Set.of(new ProfileProperty(
+                this.management.createNPC(NPC.builder(npc).profileProperties(Set.of(new NPC.ProfileProperty(
                   "textures",
                   textures.getString("value"),
                   textures.getString("signature")
@@ -584,9 +584,9 @@ public final class NPCCommand extends BaseTabExecutor {
           return NPC_TYPES;
         case 4: {
           // try to give a suggestion based on the previous input
-          var type = Enums.getIfPresent(NPCType.class, args[2].toUpperCase()).orNull();
+          var type = Enums.getIfPresent(NPC.NPCType.class, args[2].toUpperCase()).orNull();
           if (type != null) {
-            if (type == NPCType.ENTITY) {
+            if (type == NPC.NPCType.ENTITY) {
               return Arrays.stream(EntityType.values())
                 .filter(EntityType::isAlive)
                 .filter(EntityType::isSpawnable)
@@ -688,7 +688,7 @@ public final class NPCCommand extends BaseTabExecutor {
   }
 
   private boolean canChangeSetting(@NonNull CommandSender sender, @NonNull NPC npc) {
-    if (npc.npcType() != NPCType.PLAYER) {
+    if (npc.npcType() != NPC.NPCType.PLAYER) {
       sender.sendMessage(String.format("§cThis option is not available for the npc type §6%s§c!", npc.entityType()));
       return false;
     }

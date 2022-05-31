@@ -19,13 +19,11 @@ package eu.cloudnetservice.modules.syncproxy.platform.velocity;
 import static eu.cloudnetservice.ext.adventure.AdventureSerializerUtil.serialize;
 import static eu.cloudnetservice.ext.adventure.AdventureSerializerUtil.serializeToString;
 
-import com.velocitypowered.api.event.ResultedEvent.ComponentResult;
+import com.velocitypowered.api.event.ResultedEvent;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.event.proxy.ProxyPingEvent;
 import com.velocitypowered.api.proxy.server.ServerPing;
-import com.velocitypowered.api.proxy.server.ServerPing.SamplePlayer;
-import com.velocitypowered.api.proxy.server.ServerPing.Version;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
@@ -63,7 +61,7 @@ public final class VelocitySyncProxyListener {
       var version = event.getPing().getVersion();
       // check if a protocol text is specified in the config
       if (protocolText != null) {
-        version = new Version(1, serializeToString(protocolText));
+        version = new ServerPing.Version(1, serializeToString(protocolText));
       }
 
       var builder = ServerPing.builder()
@@ -74,10 +72,10 @@ public final class VelocitySyncProxyListener {
         .samplePlayers(motd.playerInfo() != null ?
           Arrays.stream(motd.playerInfo())
             .filter(Objects::nonNull)
-            .map(s -> new SamplePlayer(
+            .map(s -> new ServerPing.SamplePlayer(
               s.replace("&", "§"),
               UUID.randomUUID()
-            )).toArray(SamplePlayer[]::new) : new SamplePlayer[0])
+            )).toArray(ServerPing.SamplePlayer[]::new) : new ServerPing.SamplePlayer[0])
         .description(serialize(motd.format(motd.firstLine() + "\n" + motd.secondLine(), onlinePlayers, maxPlayers)));
 
       event.getPing().getFavicon().ifPresent(builder::favicon);
@@ -97,7 +95,7 @@ public final class VelocitySyncProxyListener {
         if (!this.syncProxyManagement.checkPlayerMaintenance(player)) {
           var reason = serialize(
             this.syncProxyManagement.configuration().message("player-login-not-whitelisted", null));
-          event.setResult(ComponentResult.denied(reason));
+          event.setResult(ResultedEvent.ComponentResult.denied(reason));
         }
       } else {
         // check if the proxy is full and if the player is allowed to join or not
@@ -105,7 +103,7 @@ public final class VelocitySyncProxyListener {
           && !player.hasPermission("cloudnet.syncproxy.fulljoin")) {
           var reason = serialize(
             this.syncProxyManagement.configuration().message("player-login-full-server", null));
-          event.setResult(ComponentResult.denied(reason));
+          event.setResult(ResultedEvent.ComponentResult.denied(reason));
         }
       }
     }

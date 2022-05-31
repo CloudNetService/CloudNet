@@ -20,7 +20,6 @@ import com.google.common.base.Preconditions;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.RPCInvocationContext;
-import eu.cloudnetservice.driver.network.rpc.RPCInvocationContext.Builder;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
  * @see RPCInvocationContext#builder()
  * @since 4.0
  */
-public class DefaultRPCInvocationContextBuilder implements Builder {
+public class DefaultRPCInvocationContextBuilder implements RPCInvocationContext.Builder {
 
   protected int argumentCount = 0;
 

@@ -24,14 +24,14 @@ import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * The default channel initializer used to initialize http server connections.
  *
  * @since 4.0
  */
-@Internal
+@ApiStatus.Internal
 final class NettyHttpServerInitializer extends ChannelInitializer<Channel> {
 
   private final NettyHttpServer nettyHttpServer;

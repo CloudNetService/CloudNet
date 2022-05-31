@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -313,7 +312,6 @@ public interface PermissionManagement {
    *
    * @return all permission users.
    */
-  @Experimental
   @NonNull Collection<PermissionUser> users();
 
   /**
@@ -622,7 +620,6 @@ public interface PermissionManagement {
    *
    * @return a task containing all permission users.
    */
-  @Experimental
   default @NonNull Task<Collection<PermissionUser>> usersAsync() {
     return Task.supply(this::users);
   }

@@ -17,8 +17,6 @@
 package eu.cloudnetservice.driver.network.rpc.defaults.object.data;
 
 import eu.cloudnetservice.driver.network.rpc.annotation.RPCIgnore;
-import eu.cloudnetservice.driver.network.rpc.defaults.object.data.DataClassInvokerGenerator.DataClassInformationWriter;
-import eu.cloudnetservice.driver.network.rpc.defaults.object.data.DataClassInvokerGenerator.DataClassInstanceCreator;
 import eu.cloudnetservice.driver.network.rpc.exception.MissingAllArgsConstructorException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -37,8 +35,8 @@ import lombok.NonNull;
  */
 public class DataClassInformation {
 
-  private final DataClassInstanceCreator instanceCreator;
-  private final DataClassInformationWriter informationWriter;
+  private final DataClassInvokerGenerator.DataClassInstanceCreator instanceCreator;
+  private final DataClassInvokerGenerator.DataClassInformationWriter informationWriter;
 
   /**
    * Constructs a new data class information instance.
@@ -48,8 +46,8 @@ public class DataClassInformation {
    * @throws NullPointerException if either the writer or creator is null.
    */
   protected DataClassInformation(
-    @NonNull DataClassInstanceCreator creator,
-    @NonNull DataClassInformationWriter writer
+    @NonNull DataClassInvokerGenerator.DataClassInstanceCreator creator,
+    @NonNull DataClassInvokerGenerator.DataClassInformationWriter writer
   ) {
     this.instanceCreator = creator;
     this.informationWriter = writer;
@@ -139,7 +137,7 @@ public class DataClassInformation {
    *
    * @return the instance creator.
    */
-  public @NonNull DataClassInstanceCreator instanceCreator() {
+  public @NonNull DataClassInvokerGenerator.DataClassInstanceCreator instanceCreator() {
     return this.instanceCreator;
   }
 
@@ -148,7 +146,7 @@ public class DataClassInformation {
    *
    * @return the instance writer.
    */
-  public @NonNull DataClassInformationWriter informationWriter() {
+  public @NonNull DataClassInvokerGenerator.DataClassInformationWriter informationWriter() {
     return this.informationWriter;
   }
 }

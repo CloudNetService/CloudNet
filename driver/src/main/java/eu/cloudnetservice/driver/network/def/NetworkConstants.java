@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.network.def;
 
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * Holds some internal constants for network communication which are shared between wrappers and nodes. The class is
@@ -26,7 +26,7 @@ import org.jetbrains.annotations.ApiStatus.Internal;
  *
  * @since 4.0
  */
-@Internal
+@ApiStatus.Internal
 public final class NetworkConstants {
 
   // reserved internal packet ids

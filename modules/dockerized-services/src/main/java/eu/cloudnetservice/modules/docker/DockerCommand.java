@@ -29,7 +29,6 @@ import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.modules.docker.config.DockerConfiguration;
 import eu.cloudnetservice.modules.docker.config.DockerImage;
 import eu.cloudnetservice.modules.docker.config.TaskDockerConfig;
-import eu.cloudnetservice.modules.docker.config.TaskDockerConfig.Builder;
 import eu.cloudnetservice.node.Node;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.source.CommandSource;
@@ -297,7 +296,7 @@ public record DockerCommand(@NonNull DockerizedServicesModule module) {
 
   private void updateTaskDockerConfig(
     @NonNull ServiceTask serviceTask,
-    @NonNull BiFunction<TaskDockerConfig, Builder, Builder> modifier
+    @NonNull BiFunction<TaskDockerConfig, TaskDockerConfig.Builder, TaskDockerConfig.Builder> modifier
   ) {
     // read the docker config from the task
     var taskConfig = serviceTask.properties().get(

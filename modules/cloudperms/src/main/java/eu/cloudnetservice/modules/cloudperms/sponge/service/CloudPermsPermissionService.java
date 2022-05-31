@@ -17,7 +17,6 @@
 package eu.cloudnetservice.modules.cloudperms.sponge.service;
 
 import eu.cloudnetservice.driver.permission.PermissionManagement;
-import eu.cloudnetservice.modules.cloudperms.sponge.service.CloudPermissionDescription.CloudPermissionDescriptionBuilder;
 import eu.cloudnetservice.modules.cloudperms.sponge.service.memory.InMemorySubjectCollection;
 import eu.cloudnetservice.modules.cloudperms.sponge.service.permissible.group.CloudGroupCollection;
 import eu.cloudnetservice.modules.cloudperms.sponge.service.permissible.user.CloudUserCollection;
@@ -31,7 +30,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import lombok.NonNull;
 import org.spongepowered.api.service.permission.PermissionDescription;
-import org.spongepowered.api.service.permission.PermissionDescription.Builder;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.SubjectCollection;
@@ -113,8 +111,8 @@ public final class CloudPermsPermissionService implements PermissionService {
   }
 
   @Override
-  public Builder newDescriptionBuilder(PluginContainer plugin) {
-    return new CloudPermissionDescriptionBuilder(plugin, this);
+  public PermissionDescription.Builder newDescriptionBuilder(PluginContainer plugin) {
+    return new CloudPermissionDescription.CloudPermissionDescriptionBuilder(plugin, this);
   }
 
   @Override

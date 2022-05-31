@@ -17,14 +17,13 @@
 package eu.cloudnetservice.modules.npc.platform.bukkit;
 
 import com.github.juliarn.npc.NPCPool;
-import com.github.juliarn.npc.modifier.LabyModModifier.LabyModAction;
+import com.github.juliarn.npc.modifier.LabyModModifier;
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.npc.NPC;
-import eu.cloudnetservice.modules.npc.NPC.NPCType;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import eu.cloudnetservice.modules.npc.platform.PlatformNPCManagement;
 import eu.cloudnetservice.modules.npc.platform.PlatformSelectorEntity;
@@ -108,13 +107,13 @@ public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location,
                           var emote = labyModEmotes[ThreadLocalRandom.current().nextInt(0, labyModEmotes.length)];
                           npcSelector.handleNPC()
                             .labymod()
-                            .queue(LabyModAction.EMOTE, emote)
+                            .queue(LabyModModifier.LabyModAction.EMOTE, emote)
                             .send(player);
                         } else {
                           // use the selected emote
                           npcSelector.handleNPC()
                             .labymod()
-                            .queue(LabyModAction.EMOTE, emoteId)
+                            .queue(LabyModModifier.LabyModAction.EMOTE, emoteId)
                             .send(player);
                         }
                       }
@@ -132,7 +131,7 @@ public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location,
   @NonNull
   @Override
   protected PlatformSelectorEntity<Location, Player, ItemStack, Inventory> createSelectorEntity(@NonNull NPC base) {
-    return base.npcType() == NPCType.ENTITY
+    return base.npcType() == NPC.NPCType.ENTITY
       ? new EntityBukkitPlatformSelectorEntity(this, this.plugin, base)
       : new NPCBukkitPlatformSelector(this, this.plugin, base, this.npcPool);
   }
@@ -208,10 +207,12 @@ public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location,
             for (var npc : this.npcPool.getNPCs()) {
               if (emoteId == -1) {
                 npc.labymod()
-                  .queue(LabyModAction.EMOTE, emotes[ThreadLocalRandom.current().nextInt(0, emotes.length)])
+                  .queue(
+                    LabyModModifier.LabyModAction.EMOTE,
+                    emotes[ThreadLocalRandom.current().nextInt(0, emotes.length)])
                   .send();
               } else {
-                npc.labymod().queue(LabyModAction.EMOTE, emoteId).send();
+                npc.labymod().queue(LabyModModifier.LabyModAction.EMOTE, emoteId).send();
               }
             }
           }

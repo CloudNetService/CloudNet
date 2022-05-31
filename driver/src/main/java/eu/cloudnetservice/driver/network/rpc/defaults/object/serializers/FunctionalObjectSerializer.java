@@ -17,7 +17,6 @@
 package eu.cloudnetservice.driver.network.rpc.defaults.object.serializers;
 
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
-import eu.cloudnetservice.driver.network.buffer.DataBuf.Mutable;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectMapper;
 import eu.cloudnetservice.driver.network.rpc.object.ObjectSerializer;
 import java.lang.reflect.Type;
@@ -46,7 +45,7 @@ public class FunctionalObjectSerializer<T> implements ObjectSerializer<T> {
    */
   protected FunctionalObjectSerializer(
     @NonNull Function<DataBuf, T> reader,
-    @NonNull BiConsumer<Mutable, T> writer
+    @NonNull BiConsumer<DataBuf.Mutable, T> writer
   ) {
     this.reader = reader;
     this.writer = writer;
@@ -62,7 +61,7 @@ public class FunctionalObjectSerializer<T> implements ObjectSerializer<T> {
    */
   public static @NonNull <T> FunctionalObjectSerializer<T> of(
     @NonNull Function<DataBuf, T> reader,
-    @NonNull BiConsumer<Mutable, T> writer
+    @NonNull BiConsumer<DataBuf.Mutable, T> writer
   ) {
     return new FunctionalObjectSerializer<>(reader, writer);
   }

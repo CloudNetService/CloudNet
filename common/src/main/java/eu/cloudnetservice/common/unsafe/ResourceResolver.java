@@ -19,12 +19,12 @@ package eu.cloudnetservice.common.unsafe;
 import java.net.URI;
 import java.net.URISyntaxException;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * A resolver for elements in the class path.
  */
-@Internal
+@ApiStatus.Internal
 public final class ResourceResolver {
 
   private ResourceResolver() {

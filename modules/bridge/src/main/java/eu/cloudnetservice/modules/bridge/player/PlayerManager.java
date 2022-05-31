@@ -23,7 +23,6 @@ import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
 import java.util.List;
 import java.util.UUID;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
@@ -182,7 +181,6 @@ public interface PlayerManager {
    *
    * @return a list of all registered players.
    */
-  @Experimental
   @NonNull List<? extends CloudOfflinePlayer> registeredPlayers();
 
   /**

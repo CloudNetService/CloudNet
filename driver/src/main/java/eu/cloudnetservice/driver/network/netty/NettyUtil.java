@@ -35,7 +35,7 @@ import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Range;
 
 /**
@@ -43,7 +43,7 @@ import org.jetbrains.annotations.Range;
  *
  * @since 4.0
  */
-@Internal
+@ApiStatus.Internal
 public final class NettyUtil {
 
   // transport

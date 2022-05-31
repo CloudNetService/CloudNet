@@ -20,7 +20,7 @@ import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import java.util.Collection;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 public interface NPCManagement {
@@ -47,18 +47,18 @@ public interface NPCManagement {
 
   // Internal methods
 
-  @Internal
+  @ApiStatus.Internal
   void registerToServiceRegistry();
 
-  @Internal
+  @ApiStatus.Internal
   void unregisterFromServiceRegistry();
 
-  @Internal
+  @ApiStatus.Internal
   void handleInternalNPCCreate(@NonNull NPC npc);
 
-  @Internal
+  @ApiStatus.Internal
   void handleInternalNPCRemove(@NonNull WorldPosition position);
 
-  @Internal
+  @ApiStatus.Internal
   void handleInternalNPCConfigUpdate(@NonNull NPCConfiguration configuration);
 }

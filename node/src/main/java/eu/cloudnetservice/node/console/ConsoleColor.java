@@ -16,36 +16,35 @@
 
 package eu.cloudnetservice.node.console;
 
+import java.awt.Color;
 import java.util.regex.Pattern;
 import lombok.NonNull;
 import org.fusesource.jansi.Ansi;
-import org.fusesource.jansi.Ansi.Attribute;
-import org.fusesource.jansi.Ansi.Color;
 import org.jetbrains.annotations.Nullable;
 
 public enum ConsoleColor {
 
-  BLACK("black", '0', Ansi.ansi().reset().fg(Color.BLACK).toString()),
-  DARK_BLUE("dark_blue", '1', Ansi.ansi().reset().fg(Color.BLUE).toString()),
-  GREEN("green", '2', Ansi.ansi().reset().fg(Color.GREEN).toString()),
-  CYAN("cyan", '3', Ansi.ansi().reset().fg(Color.CYAN).toString()),
-  DARK_RED("dark_red", '4', Ansi.ansi().reset().fg(Color.RED).toString()),
-  PURPLE("purple", '5', Ansi.ansi().reset().fg(Color.MAGENTA).toString()),
-  ORANGE("orange", '6', Ansi.ansi().reset().fg(Color.YELLOW).toString()),
-  GRAY("gray", '7', Ansi.ansi().reset().fg(Color.WHITE).toString()),
-  DARK_GRAY("dark_gray", '8', Ansi.ansi().reset().fg(Color.BLACK).bold().toString()),
-  BLUE("blue", '9', Ansi.ansi().reset().fg(Color.BLUE).bold().toString()),
-  LIGHT_GREEN("light_green", 'a', Ansi.ansi().reset().fg(Color.GREEN).bold().toString()),
-  AQUA("aqua", 'b', Ansi.ansi().reset().fg(Color.CYAN).bold().toString()),
-  RED("red", 'c', Ansi.ansi().reset().fg(Color.RED).bold().toString()),
-  PINK("pink", 'd', Ansi.ansi().reset().fg(Color.MAGENTA).bold().toString()),
-  YELLOW("yellow", 'e', Ansi.ansi().reset().fg(Color.YELLOW).bold().toString()),
-  WHITE("white", 'f', Ansi.ansi().reset().fg(Color.WHITE).bold().toString()),
-  OBFUSCATED("obfuscated", 'k', Ansi.ansi().a(Attribute.BLINK_SLOW).toString()),
-  BOLD("bold", 'l', Ansi.ansi().a(Attribute.UNDERLINE_DOUBLE).toString()),
-  STRIKETHROUGH("strikethrough", 'm', Ansi.ansi().a(Attribute.STRIKETHROUGH_ON).toString()),
-  UNDERLINE("underline", 'n', Ansi.ansi().a(Attribute.UNDERLINE).toString()),
-  ITALIC("italic", 'o', Ansi.ansi().a(Attribute.ITALIC).toString()),
+  BLACK("black", '0', Ansi.ansi().reset().fg(Ansi.Color.BLACK).toString()),
+  DARK_BLUE("dark_blue", '1', Ansi.ansi().reset().fg(Ansi.Color.BLUE).toString()),
+  GREEN("green", '2', Ansi.ansi().reset().fg(Ansi.Color.GREEN).toString()),
+  CYAN("cyan", '3', Ansi.ansi().reset().fg(Ansi.Color.CYAN).toString()),
+  DARK_RED("dark_red", '4', Ansi.ansi().reset().fg(Ansi.Color.RED).toString()),
+  PURPLE("purple", '5', Ansi.ansi().reset().fg(Ansi.Color.MAGENTA).toString()),
+  ORANGE("orange", '6', Ansi.ansi().reset().fg(Ansi.Color.YELLOW).toString()),
+  GRAY("gray", '7', Ansi.ansi().reset().fg(Ansi.Color.WHITE).toString()),
+  DARK_GRAY("dark_gray", '8', Ansi.ansi().reset().fg(Ansi.Color.BLACK).bold().toString()),
+  BLUE("blue", '9', Ansi.ansi().reset().fg(Ansi.Color.BLUE).bold().toString()),
+  LIGHT_GREEN("light_green", 'a', Ansi.ansi().reset().fg(Ansi.Color.GREEN).bold().toString()),
+  AQUA("aqua", 'b', Ansi.ansi().reset().fg(Ansi.Color.CYAN).bold().toString()),
+  RED("red", 'c', Ansi.ansi().reset().fg(Ansi.Color.RED).bold().toString()),
+  PINK("pink", 'd', Ansi.ansi().reset().fg(Ansi.Color.MAGENTA).bold().toString()),
+  YELLOW("yellow", 'e', Ansi.ansi().reset().fg(Ansi.Color.YELLOW).bold().toString()),
+  WHITE("white", 'f', Ansi.ansi().reset().fg(Ansi.Color.WHITE).bold().toString()),
+  OBFUSCATED("obfuscated", 'k', Ansi.ansi().a(Ansi.Attribute.BLINK_SLOW).toString()),
+  BOLD("bold", 'l', Ansi.ansi().a(Ansi.Attribute.UNDERLINE_DOUBLE).toString()),
+  STRIKETHROUGH("strikethrough", 'm', Ansi.ansi().a(Ansi.Attribute.STRIKETHROUGH_ON).toString()),
+  UNDERLINE("underline", 'n', Ansi.ansi().a(Ansi.Attribute.UNDERLINE).toString()),
+  ITALIC("italic", 'o', Ansi.ansi().a(Ansi.Attribute.ITALIC).toString()),
   DEFAULT("default", 'r', Ansi.ansi().reset().toString());
 
   private static final ConsoleColor[] VALUES = values();
@@ -87,7 +86,7 @@ public enum ConsoleColor {
 
     while (matcher.find()) {
       var temp = matcher.group().replace(String.valueOf(triggerChar), "");
-      var color = java.awt.Color.decode(temp);
+      var color = Color.decode(temp);
 
       matcher.appendReplacement(stringBuffer,
         String.format(RGB_ANSI, color.getRed(), color.getGreen(), color.getBlue()));

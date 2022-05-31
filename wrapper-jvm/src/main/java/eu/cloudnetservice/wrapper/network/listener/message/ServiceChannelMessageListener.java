@@ -21,7 +21,6 @@ import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.channel.ChannelMessageReceiveEvent;
 import eu.cloudnetservice.driver.event.events.service.CloudServiceLifecycleChangeEvent;
 import eu.cloudnetservice.driver.event.events.service.CloudServiceLogEntryEvent;
-import eu.cloudnetservice.driver.event.events.service.CloudServiceLogEntryEvent.StreamType;
 import eu.cloudnetservice.driver.event.events.service.CloudServiceUpdateEvent;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
@@ -66,7 +65,9 @@ public final class ServiceChannelMessageListener {
           var snapshot = event.content().readObject(ServiceInfoSnapshot.class);
           var eventChannel = event.content().readString();
           var line = event.content().readString();
-          var type = event.content().readBoolean() ? StreamType.STDERR : StreamType.STDOUT;
+          var type = event.content().readBoolean()
+            ? CloudServiceLogEntryEvent.StreamType.STDERR
+            : CloudServiceLogEntryEvent.StreamType.STDOUT;
 
           this.eventManager.callEvent(eventChannel, new CloudServiceLogEntryEvent(snapshot, line, type));
         }

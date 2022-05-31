@@ -23,7 +23,6 @@ import eu.cloudnetservice.common.log.Logger;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
-import eu.cloudnetservice.modules.cloudflare.CloudflareConfigurationEntry.AuthenticationMethod;
 import eu.cloudnetservice.modules.cloudflare.cloudflare.CloudFlareAPI;
 import eu.cloudnetservice.modules.cloudflare.dns.DNSType;
 import eu.cloudnetservice.modules.cloudflare.dns.DefaultDNSRecord;
@@ -60,7 +59,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
         new ArrayList<>(Collections.singletonList(
           new CloudflareConfigurationEntry(
             false,
-            AuthenticationMethod.GLOBAL_KEY,
+            CloudflareConfigurationEntry.AuthenticationMethod.GLOBAL_KEY,
             this.initialHostAddress(),
             "user@example.com",
             "api_token_string",

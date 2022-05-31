@@ -22,10 +22,10 @@ import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
-@Internal
+@ApiStatus.Internal
 final class JsonDocumentTypeAdapter extends TypeAdapter<JsonDocument> {
 
   @Override

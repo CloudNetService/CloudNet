@@ -22,9 +22,9 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.util.regex.Pattern;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 
-@Internal
+@ApiStatus.Internal
 final class PatternTypeAdapter extends TypeAdapter<Pattern> {
 
   @Override

@@ -76,7 +76,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.jar.JarFile;
 import lombok.NonNull;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * This class is the main class of the application wrapper, which performs the basic driver functions and the setup of
@@ -257,7 +257,7 @@ public class Wrapper extends CloudNetDriver {
       this.currentServiceInfoSnapshot.properties());
   }
 
-  @Internal
+  @ApiStatus.Internal
   public @NonNull ServiceInfoSnapshot configureServiceInfoSnapshot() {
     var serviceInfoSnapshot = this.createServiceInfoSnapshot();
     this.configureServiceInfoSnapshot(serviceInfoSnapshot);

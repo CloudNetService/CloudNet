@@ -23,7 +23,7 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import java.nio.file.Files;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -32,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
-@Internal
+@ApiStatus.Internal
 public abstract class NettySslServer {
 
   protected final SSLConfiguration sslConfiguration;

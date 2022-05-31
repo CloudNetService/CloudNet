@@ -28,7 +28,7 @@ import java.util.UUID;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 public class NodePlayerExecutor implements PlayerExecutor {
@@ -38,7 +38,7 @@ public class NodePlayerExecutor implements PlayerExecutor {
   protected final UUID targetUniqueId;
   protected final PlayerManager playerManager;
 
-  @Internal
+  @ApiStatus.Internal
   protected NodePlayerExecutor(@NonNull UUID targetUniqueId) {
     this.targetUniqueId = targetUniqueId;
     this.playerManager = null;

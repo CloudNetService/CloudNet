@@ -18,7 +18,6 @@ package eu.cloudnetservice.modules.docker;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
-import com.github.dockerjava.api.async.ResultCallback.Adapter;
 import com.github.dockerjava.api.command.PullImageCmd;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.exception.NotModifiedException;
@@ -30,7 +29,6 @@ import com.github.dockerjava.api.model.Frame;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.InternetProtocol;
 import com.github.dockerjava.api.model.LogConfig;
-import com.github.dockerjava.api.model.LogConfig.LoggingType;
 import com.github.dockerjava.api.model.RestartPolicy;
 import com.github.dockerjava.api.model.Volume;
 import com.google.common.collect.Iterables;
@@ -202,7 +200,7 @@ public class DockerizedService extends JVMService {
           .withCapDrop(DROPPED_CAPABILITIES)
           .withRestartPolicy(RestartPolicy.noRestart())
           .withNetworkMode(this.configuration.network())
-          .withLogConfig(new LogConfig(LoggingType.LOCAL, LOGGING_OPTIONS)))
+          .withLogConfig(new LogConfig(LogConfig.LoggingType.LOCAL, LOGGING_OPTIONS)))
         .withLabels(Map.of(
           "Service", "CloudNet",
           "Name", this.serviceId().name(),
@@ -338,7 +336,7 @@ public class DockerizedService extends JVMService {
     return new Bind(path, new Volume(path), accessMode);
   }
 
-  public final class ServiceLogCacheAdapter extends Adapter<Frame> {
+  public final class ServiceLogCacheAdapter extends ResultCallback.Adapter<Frame> {
 
     @Override
     public void onNext(Frame object) {

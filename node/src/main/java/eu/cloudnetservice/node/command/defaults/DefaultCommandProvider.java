@@ -19,7 +19,7 @@ package eu.cloudnetservice.node.command.defaults;
 import cloud.commandframework.CommandManager;
 import cloud.commandframework.annotations.AnnotationParser;
 import cloud.commandframework.extra.confirmation.CommandConfirmationManager;
-import cloud.commandframework.meta.CommandMeta.Key;
+import cloud.commandframework.meta.CommandMeta;
 import cloud.commandframework.meta.SimpleCommandMeta;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimaps;
@@ -73,10 +73,14 @@ import org.jetbrains.annotations.Nullable;
  */
 public class DefaultCommandProvider implements CommandProvider {
 
-  private static final Key<Set<String>> ALIAS_KEY = Key.of(new TypeToken<Set<String>>() {
+  private static final CommandMeta.Key<Set<String>> ALIAS_KEY = CommandMeta.Key.of(new TypeToken<Set<String>>() {
   }, "cloudnet:alias");
-  private static final Key<String> DESCRIPTION_KEY = Key.of(String.class, "cloudnet:description");
-  private static final Key<String> DOCUMENTATION_KEY = Key.of(String.class, "cloudnet:documentation");
+  private static final CommandMeta.Key<String> DESCRIPTION_KEY = CommandMeta.Key.of(
+    String.class,
+    "cloudnet:description");
+  private static final CommandMeta.Key<String> DOCUMENTATION_KEY = CommandMeta.Key.of(
+    String.class,
+    "cloudnet:documentation");
 
   private final CommandManager<CommandSource> commandManager;
   private final AnnotationParser<CommandSource> annotationParser;

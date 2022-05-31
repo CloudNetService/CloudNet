@@ -17,8 +17,7 @@
 package eu.cloudnetservice.node.command.exception;
 
 import cloud.commandframework.arguments.CommandArgument;
-import cloud.commandframework.arguments.compound.FlagArgument.FailureReason;
-import cloud.commandframework.arguments.compound.FlagArgument.FlagParseException;
+import cloud.commandframework.arguments.compound.FlagArgument;
 import cloud.commandframework.exceptions.ArgumentParseException;
 import cloud.commandframework.exceptions.CommandException;
 import cloud.commandframework.exceptions.InvalidSyntaxException;
@@ -101,9 +100,9 @@ public class CommandExceptionHandler {
         source.sendMessage(deepCause.getMessage());
       } else if (deepCause instanceof CommandException) {
         // we need to handle this exception extra
-        if (deepCause instanceof FlagParseException flagParseException) {
+        if (deepCause instanceof FlagArgument.FlagParseException flagParseException) {
           // if no flag is supplied we should reply with the command tree
-          if (flagParseException.getFailureReason() == FailureReason.NO_FLAG_STARTED) {
+          if (flagParseException.getFailureReason() == FlagArgument.FailureReason.NO_FLAG_STARTED) {
             source.sendMessage(this.collectCommandHelp(parseException.getCurrentChain()));
             return;
           }

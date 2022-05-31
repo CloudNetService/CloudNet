@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.driver.permission;
 
-import eu.cloudnetservice.driver.permission.PermissionGroup.Builder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -307,7 +306,7 @@ public abstract class DefaultPermissionManagement implements PermissionManagemen
   @Override
   public @Nullable PermissionGroup modifyGroup(
     @NonNull String name,
-    @NonNull BiConsumer<PermissionGroup, Builder> modifier
+    @NonNull BiConsumer<PermissionGroup, PermissionGroup.Builder> modifier
   ) {
     var group = this.group(name);
     if (group != null) {

@@ -47,6 +47,11 @@
         value="Using Throwable#printStackTrace() is forbidden. Rethrow, log or handle the exception."/>
     </module>
     <module name="RegexpSinglelineJava">
+      <property name="format" value="^import [a-z.]*\.[A-Z]\w+(\.[A-Z]\w+)+;$"/>
+      <property name="ignoreComments" value="true"/>
+      <property name="message" value="Using inner class imports is forbidden."/>
+    </module>
+    <module name="RegexpSinglelineJava">
       <property name="format" value="System\.(out|err)\..+;"/>
       <property name="ignoreComments" value="true"/>
       <property name="message"

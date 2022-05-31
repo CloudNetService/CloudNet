@@ -27,7 +27,6 @@ import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.channel.ChannelMessageSender;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.service.CloudServiceLogEntryEvent;
-import eu.cloudnetservice.driver.event.events.service.CloudServiceLogEntryEvent.StreamType;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.def.NetworkConstants;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
@@ -225,7 +224,7 @@ public class JVMService extends AbstractService {
           this.eventManager.callEvent(logTarget.second(), new CloudServiceLogEntryEvent(
             this.currentServiceInfo,
             line,
-            stderr ? StreamType.STDERR : StreamType.STDOUT));
+            stderr ? CloudServiceLogEntryEvent.StreamType.STDERR : CloudServiceLogEntryEvent.StreamType.STDOUT));
         } else {
           // the listener is listening remotely, send the line to the network component
           ChannelMessage.builder()

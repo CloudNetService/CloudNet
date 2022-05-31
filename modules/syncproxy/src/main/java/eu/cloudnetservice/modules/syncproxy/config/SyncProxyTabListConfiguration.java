@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.EqualsAndHashCode;
-import lombok.EqualsAndHashCode.Include;
 import lombok.NonNull;
 import lombok.ToString;
 
@@ -29,7 +28,7 @@ import lombok.ToString;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class SyncProxyTabListConfiguration {
 
-  @Include
+  @EqualsAndHashCode.Include
   protected final String targetGroup;
 
   protected final List<SyncProxyTabList> entries;
