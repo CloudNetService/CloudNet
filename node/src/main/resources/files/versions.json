@@ -237,7 +237,7 @@
     {
       "name": "purpur",
       "environmentType": "MINECRAFT_SERVER",
-      "website": "https://purpur.pl3x.net/",
+      "website": "https://purpurmc.org/",
       "installSteps": [
         "DOWNLOAD",
         "BUILD",
@@ -246,7 +246,7 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://api.pl3x.net/v2/purpur/1.18.2/latest/download",
+          "url": "https://api.purpurmc.org/v2/purpur/1.18.2/latest/download",
           "cacheFiles": false,
           "properties": {
             "copy": {
@@ -261,7 +261,7 @@
         },
         {
           "name": "1.18.2",
-          "url": "https://api.pl3x.net/v2/purpur/1.18.2/latest/download",
+          "url": "https://api.purpurmc.org/v2/purpur/1.18.2/latest/download",
           "properties": {
             "copy": {
               "cache/.*": "/",
@@ -275,7 +275,7 @@
         },
         {
           "name": "1.17.1",
-          "url": "https://api.pl3x.net/v2/purpur/1.17.1/latest/download",
+          "url": "https://api.purpurmc.org/v2/purpur/1.17.1/latest/download",
           "deprecated": true,
           "properties": {
             "copy": {
