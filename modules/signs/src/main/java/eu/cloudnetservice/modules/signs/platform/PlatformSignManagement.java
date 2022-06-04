@@ -53,7 +53,7 @@ import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class PlatformSignManagement<P, L> extends AbstractSignManagement {
+public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManagement {
 
   public static final String REQUEST_CONFIG = "signs_request_config";
   public static final String SET_SIGN_CONFIG = "signs_update_sign_config";
@@ -68,7 +68,7 @@ public abstract class PlatformSignManagement<P, L> extends AbstractSignManagemen
   protected final Executor mainThreadExecutor;
   protected final Lock updatingLock = new ReentrantLock();
   protected final AtomicInteger currentTick = new AtomicInteger();
-  protected final Map<WorldPosition, PlatformSign<P>> platformSigns = new ConcurrentHashMap<>();
+  protected final Map<WorldPosition, PlatformSign<P, C>> platformSigns = new ConcurrentHashMap<>();
   protected final Queue<ServiceInfoSnapshot> waitingAssignments = new ConcurrentLinkedQueue<>();
 
   protected PlatformSignManagement(@NonNull Executor mainThreadExecutor) {
@@ -223,7 +223,7 @@ public abstract class PlatformSignManagement<P, L> extends AbstractSignManagemen
     this.initialize(new HashMap<>());
   }
 
-  public void initialize(@NonNull Map<SignLayoutsHolder, Set<PlatformSign<P>>> signsNeedingTicking) {
+  public void initialize(@NonNull Map<SignLayoutsHolder, Set<PlatformSign<P, C>>> signsNeedingTicking) {
     if (this.signsConfiguration != null) {
       // initialize the platform signs
       for (var value : this.signs.values()) {
@@ -292,7 +292,7 @@ public abstract class PlatformSignManagement<P, L> extends AbstractSignManagemen
   }
 
   @Internal
-  protected void tick(@NonNull Map<SignLayoutsHolder, Set<PlatformSign<P>>> signsNeedingTicking) {
+  protected void tick(@NonNull Map<SignLayoutsHolder, Set<PlatformSign<P, C>>> signsNeedingTicking) {
     this.currentTick.incrementAndGet();
 
     var ownEntry = this.applicableSignConfigurationEntry();
@@ -353,14 +353,14 @@ public abstract class PlatformSignManagement<P, L> extends AbstractSignManagemen
     this.currentTick.compareAndSet(this.tps(), 0);
   }
 
-  protected @Nullable PlatformSign<P> nextFreeSign(@NonNull ServiceInfoSnapshot snapshot) {
+  protected @Nullable PlatformSign<P, C> nextFreeSign(@NonNull ServiceInfoSnapshot snapshot) {
     var entry = this.applicableSignConfigurationEntry();
     var servicePriority = PriorityUtil.priority(snapshot, entry);
 
     // ensure that we only assign the snapshot to a sign that has no target yet
     this.updatingLock.lock();
     try {
-      PlatformSign<P> bestChoice = null;
+      PlatformSign<P, C> bestChoice = null;
       for (var platformSign : this.platformSigns.values()) {
         var sign = platformSign.base();
         if (snapshot.configuration().groups().contains(sign.targetGroup())
@@ -402,7 +402,7 @@ public abstract class PlatformSignManagement<P, L> extends AbstractSignManagemen
     }
   }
 
-  protected @Nullable PlatformSign<P> signOf(@NonNull ServiceInfoSnapshot snapshot) {
+  protected @Nullable PlatformSign<P, C> signOf(@NonNull ServiceInfoSnapshot snapshot) {
     for (var value : this.platformSigns.values()) {
       var target = value.currentTarget();
       if (target != null && target.name().equals(snapshot.name())) {
@@ -412,7 +412,7 @@ public abstract class PlatformSignManagement<P, L> extends AbstractSignManagemen
     return null;
   }
 
-  public @Nullable PlatformSign<P> platformSignAt(@Nullable WorldPosition position) {
+  public @Nullable PlatformSign<P, C> platformSignAt(@Nullable WorldPosition position) {
     return position == null ? null : this.platformSigns.get(position);
   }
 
@@ -422,5 +422,5 @@ public abstract class PlatformSignManagement<P, L> extends AbstractSignManagemen
 
   public abstract @Nullable WorldPosition convertPosition(@NonNull L location);
 
-  protected abstract @NonNull PlatformSign<P> createPlatformSign(@NonNull Sign base);
+  protected abstract @NonNull PlatformSign<P, C> createPlatformSign(@NonNull Sign base);
 }

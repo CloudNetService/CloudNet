@@ -29,10 +29,10 @@ public class NukkitCloudSignInteractEvent extends PlayerEvent implements Cancell
 
   private static final HandlerList HANDLER_LIST = new HandlerList();
 
-  protected final PlatformSign<Player> sign;
+  protected final PlatformSign<Player, String> sign;
   protected ServiceInfoSnapshot target;
 
-  public NukkitCloudSignInteractEvent(@NonNull Player who, @NonNull PlatformSign<Player> sign) {
+  public NukkitCloudSignInteractEvent(@NonNull Player who, @NonNull PlatformSign<Player, String> sign) {
     this.player = who;
     this.sign = sign;
     this.target = sign.currentTarget();
@@ -42,7 +42,7 @@ public class NukkitCloudSignInteractEvent extends PlayerEvent implements Cancell
     return HANDLER_LIST;
   }
 
-  public @NonNull PlatformSign<Player> sign() {
+  public @NonNull PlatformSign<Player, String> sign() {
     return this.sign;
   }
 

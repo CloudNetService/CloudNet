@@ -14,34 +14,35 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.modules.signs.platform.bukkit.event;
+package eu.cloudnetservice.modules.signs.platform.minestom.event;
 
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.signs.platform.PlatformSign;
 import lombok.NonNull;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.player.PlayerEvent;
+import net.minestom.server.entity.Player;
+import net.minestom.server.event.trait.CancellableEvent;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class BukkitCloudSignInteractEvent extends PlayerEvent implements Cancellable {
+public class MinestomCloudSignInteractEvent implements CancellableEvent {
 
-  public static final HandlerList HANDLER_LIST = new HandlerList();
-
-  private final PlatformSign<Player, String> clickedSign;
+  private final Player player;
+  private final PlatformSign<Player, String> sign;
 
   private boolean cancelled;
   private ServiceInfoSnapshot target;
 
-  public BukkitCloudSignInteractEvent(@NonNull Player who, @NonNull PlatformSign<Player, String> clickedSign) {
-    super(who);
-    this.clickedSign = clickedSign;
-    this.target = clickedSign.currentTarget();
+  public MinestomCloudSignInteractEvent(@NonNull Player player, @NonNull PlatformSign<Player, String> sign) {
+    this.player = player;
+    this.sign = sign;
+  }
+
+  public @NotNull Player player() {
+    return this.player;
   }
 
   public @NonNull PlatformSign<Player, String> clickedSign() {
-    return this.clickedSign;
+    return this.sign;
   }
 
   public @Nullable ServiceInfoSnapshot target() {
@@ -50,11 +51,6 @@ public class BukkitCloudSignInteractEvent extends PlayerEvent implements Cancell
 
   public void target(@Nullable ServiceInfoSnapshot target) {
     this.target = target;
-  }
-
-  @Override
-  public HandlerList getHandlers() {
-    return HANDLER_LIST;
   }
 
   @Override

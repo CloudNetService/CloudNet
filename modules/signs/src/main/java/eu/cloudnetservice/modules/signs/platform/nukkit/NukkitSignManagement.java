@@ -29,7 +29,7 @@ import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class NukkitSignManagement extends PlatformSignManagement<Player, Location> {
+public class NukkitSignManagement extends PlatformSignManagement<Player, Location, String> {
 
   protected final Plugin plugin;
 
@@ -99,7 +99,7 @@ public class NukkitSignManagement extends PlatformSignManagement<Player, Locatio
   }
 
   @Override
-  protected @NonNull PlatformSign<Player> createPlatformSign(@NonNull Sign base) {
+  protected @NonNull PlatformSign<Player, String> createPlatformSign(@NonNull Sign base) {
     return new NukkitPlatformSign(base);
   }
 }

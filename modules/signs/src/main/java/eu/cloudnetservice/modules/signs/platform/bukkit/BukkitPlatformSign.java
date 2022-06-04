@@ -30,13 +30,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.NumberConversions;
 import org.jetbrains.annotations.Nullable;
 
-final class BukkitPlatformSign extends PlatformSign<Player> {
+final class BukkitPlatformSign extends PlatformSign<Player, String> {
 
   // lazy initialized once available
   private Location signLocation;
 
   public BukkitPlatformSign(@NonNull Sign base) {
-    super(base);
+    super(base, input -> ChatColor.translateAlternateColorCodes('&', input));
   }
 
   @Override
@@ -85,9 +85,7 @@ final class BukkitPlatformSign extends PlatformSign<Player> {
       BukkitCompatibility.signGlowing(sign, layout);
 
       // set the sign lines
-      for (int i = 0; i < Math.min(4, layout.lines().size()); i++) {
-        sign.setLine(i, ChatColor.translateAlternateColorCodes('&', layout.lines().get(i)));
-      }
+      this.changeSignLines(layout, sign::setLine);
       sign.update();
 
       // change the block behind the sign
