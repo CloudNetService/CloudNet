@@ -27,6 +27,7 @@ import lombok.NonNull;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.entity.Player;
+import net.minestom.server.entity.fakeplayer.FakePlayer;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.timer.TaskSchedule;
 import org.jetbrains.annotations.Nullable;
@@ -54,12 +55,12 @@ public class MinestomSignManagement extends PlatformSignManagement<Player, Pair<
           var distance = conf.distance();
           // find all signs which need to knock back the player
           for (var sign : this.platformSigns.values()) {
-            if (sign.needsUpdates() && sign.exists() && sign instanceof MinestomPlatformSign mineStomSign) {
-              var location = mineStomSign.signLocation();
+            if (sign.needsUpdates() && sign.exists() && sign instanceof MinestomPlatformSign minestomSigns) {
+              var location = minestomSigns.signLocation();
               if (location != null) {
                 var vec = location.first().asVec();
                 for (var entity : location.second().getNearbyEntities(location.first(), distance)) {
-                  if (entity instanceof Player player
+                  if (entity instanceof Player player && !(entity instanceof FakePlayer)
                     && (conf.bypassPermission() == null || !player.hasPermission(conf.bypassPermission()))) {
                     entity.setVelocity(entity.getPosition().asVec()
                       .sub(vec)

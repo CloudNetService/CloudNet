@@ -26,6 +26,7 @@ import java.util.UUID;
 import lombok.NonNull;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
+import net.minestom.server.entity.fakeplayer.FakePlayer;
 import org.jetbrains.annotations.Nullable;
 
 final class MinestomSimpleNameTagsManager extends SimpleNameTagsManager<Player> {
@@ -36,6 +37,11 @@ final class MinestomSimpleNameTagsManager extends SimpleNameTagsManager<Player> 
 
   @Override
   public void updateNameTagsFor(@NonNull Player player) {
+    // ignore fake players
+    if(player instanceof FakePlayer) {
+      return;
+    }
+
     this.updateNameTagsFor(player, player.getUuid(), player.getUsername());
   }
 
@@ -81,11 +87,17 @@ final class MinestomSimpleNameTagsManager extends SimpleNameTagsManager<Player> 
 
   @Override
   public @NonNull Collection<? extends Player> onlinePlayers() {
-    return MinecraftServer.getConnectionManager().getOnlinePlayers();
+    // remove all fake players in the collection
+    return MinecraftServer.getConnectionManager().getOnlinePlayers()
+      .stream()
+      .filter(player -> !(player instanceof FakePlayer))
+      .toList();
   }
 
   @Override
   public @Nullable Player onlinePlayer(@NonNull UUID uniqueId) {
-    return MinecraftServer.getConnectionManager().getPlayer(uniqueId);
+    var player = MinecraftServer.getConnectionManager().getPlayer(uniqueId);
+    // only provide real players
+    return player instanceof FakePlayer ? null : player;
   }
 }

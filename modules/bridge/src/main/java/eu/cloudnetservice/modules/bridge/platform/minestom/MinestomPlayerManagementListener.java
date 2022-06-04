@@ -24,6 +24,7 @@ import eu.cloudnetservice.wrapper.Wrapper;
 import lombok.NonNull;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
+import net.minestom.server.entity.fakeplayer.FakePlayer;
 import net.minestom.server.event.EventFilter;
 import net.minestom.server.event.EventNode;
 import net.minestom.server.event.player.AsyncPlayerPreLoginEvent;
@@ -47,6 +48,11 @@ public final class MinestomPlayerManagementListener {
   }
 
   private void handleLogin(@NonNull AsyncPlayerPreLoginEvent event) {
+    // ignore fake players
+    if(event.getPlayer() instanceof FakePlayer) {
+      return;
+    }
+
     var player = event.getPlayer();
     var task = this.management.selfTask();
     // check if the current task is present
@@ -69,6 +75,11 @@ public final class MinestomPlayerManagementListener {
   }
 
   private void handleJoin(@NonNull PlayerSpawnEvent event) {
+    // ignore fake players
+    if(event.getPlayer() instanceof FakePlayer) {
+      return;
+    }
+
     ServerPlatformHelper.sendChannelMessageLoginSuccess(
       event.getPlayer().getUuid(),
       this.management.createPlayerInformation(event.getPlayer()));
@@ -77,6 +88,11 @@ public final class MinestomPlayerManagementListener {
   }
 
   private void handleDisconnect(@NonNull PlayerDisconnectEvent event) {
+    // ignore fake players
+    if(event.getPlayer() instanceof FakePlayer) {
+      return;
+    }
+
     ServerPlatformHelper.sendChannelMessageDisconnected(
       event.getPlayer().getUuid(),
       this.management.ownNetworkServiceInfo());

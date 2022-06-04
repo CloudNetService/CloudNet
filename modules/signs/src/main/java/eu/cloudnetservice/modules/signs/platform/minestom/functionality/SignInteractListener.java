@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.signs.platform.minestom.functionality;
 import eu.cloudnetservice.modules.signs.platform.minestom.MinestomSignManagement;
 import lombok.NonNull;
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.entity.fakeplayer.FakePlayer;
 import net.minestom.server.event.player.PlayerBlockInteractEvent;
 
 public class SignInteractListener {
@@ -31,6 +32,11 @@ public class SignInteractListener {
   }
 
   private void handleSignInteract(@NonNull PlayerBlockInteractEvent event) {
+    // ignore fake players
+    if(event.getPlayer() instanceof FakePlayer) {
+      return;
+    }
+
     var block = event.getBlock();
     var instance = event.getPlayer().getInstance();
     if (block.name().contains("sign") && instance != null) {

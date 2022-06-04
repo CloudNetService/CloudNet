@@ -23,6 +23,7 @@ import eu.cloudnetservice.modules.cloudperms.minestom.listener.MinestomCloudPerm
 import eu.cloudnetservice.wrapper.Wrapper;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
+import net.minestom.server.entity.fakeplayer.FakePlayer;
 import net.minestom.server.extensions.Extension;
 
 public final class MinestomCloudPermissionsExtension extends Extension {
@@ -37,8 +38,15 @@ public final class MinestomCloudPermissionsExtension extends Extension {
       MoreExecutors.directExecutor(),
       Player::refreshCommands,
       Player::getUuid,
-      MinecraftServer.getConnectionManager()::getPlayer,
-      MinecraftServer.getConnectionManager()::getOnlinePlayers));
+      uniqueId -> {
+        var player = MinecraftServer.getConnectionManager().getPlayer(uniqueId);
+        // only provide real players
+        return player instanceof FakePlayer ? null : player;
+      },
+      () -> MinecraftServer.getConnectionManager().getOnlinePlayers()
+        .stream()
+        .filter(player -> !(player instanceof FakePlayer))
+        .toList()));
     // handle player login and disconnects
     new MinestomCloudPermissionsPlayerListener();
   }

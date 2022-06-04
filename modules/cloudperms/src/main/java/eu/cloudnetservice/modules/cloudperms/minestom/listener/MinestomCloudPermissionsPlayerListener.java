@@ -21,6 +21,7 @@ import eu.cloudnetservice.wrapper.Wrapper;
 import lombok.NonNull;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.entity.fakeplayer.FakePlayer;
 import net.minestom.server.event.EventFilter;
 import net.minestom.server.event.EventNode;
 import net.minestom.server.event.player.AsyncPlayerPreLoginEvent;
@@ -37,6 +38,11 @@ public final class MinestomCloudPermissionsPlayerListener {
   }
 
   private void handleAsyncPreLogin(@NonNull AsyncPlayerPreLoginEvent event) {
+    // ignore fake players
+    if(event.getPlayer() instanceof FakePlayer) {
+      return;
+    }
+
     var player = event.getPlayer();
     if (player.isOnline()) {
       // setup the permission user if the player wasn't kicked during the login process
@@ -50,6 +56,11 @@ public final class MinestomCloudPermissionsPlayerListener {
   }
 
   private void handleDisconnect(@NonNull PlayerDisconnectEvent event) {
+    // ignore fake players
+    if(event.getPlayer() instanceof FakePlayer) {
+      return;
+    }
+
     // remove the player from the cache
     CloudPermissionsHelper.handlePlayerQuit(Wrapper.instance().permissionManagement(), event.getPlayer().getUuid());
   }

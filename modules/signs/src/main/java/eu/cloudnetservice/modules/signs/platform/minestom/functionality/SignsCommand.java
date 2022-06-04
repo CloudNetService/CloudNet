@@ -31,6 +31,7 @@ import net.minestom.server.command.builder.arguments.ArgumentString;
 import net.minestom.server.command.builder.condition.CommandCondition;
 import net.minestom.server.command.builder.exception.ArgumentSyntaxException;
 import net.minestom.server.entity.Player;
+import net.minestom.server.entity.fakeplayer.FakePlayer;
 import org.jetbrains.annotations.NotNull;
 
 public class SignsCommand extends Command {
@@ -66,7 +67,7 @@ public class SignsCommand extends Command {
   private static final ArgumentLiteral CLEANUP_LITERAL = new ArgumentLiteral("cleanup");
 
   private static final CommandCondition DEFAULT_CONDITION = (sender, $) ->
-    sender instanceof Player && sender.hasPermission("cloudnet.command.cloudsign");
+    sender instanceof Player && !(sender instanceof FakePlayer) && sender.hasPermission("cloudnet.command.cloudsign");
 
   private final MinestomSignManagement signManagement;
 
