@@ -19,7 +19,6 @@ package eu.cloudnetservice.modules.signs.configuration;
 import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -88,7 +87,7 @@ public record SignsConfiguration(@Unmodifiable @NonNull List<SignConfigurationEn
     }
 
     public @NonNull SignsConfiguration build() {
-      return new SignsConfiguration(Collections.unmodifiableList(this.entries));
+      return new SignsConfiguration(List.copyOf(this.entries));
     }
   }
 }

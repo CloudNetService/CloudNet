@@ -19,7 +19,6 @@ package eu.cloudnetservice.driver.service;
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.common.Nameable;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -387,7 +386,7 @@ public class ServiceId implements Nameable {
       return new ServiceId(
         this.taskName,
         this.nameSplitter,
-        Collections.unmodifiableSet(this.allowedNodes),
+        Set.copyOf(this.allowedNodes),
         this.uniqueId,
         this.taskServiceId,
         this.nodeUniqueId,

@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.bridge.config;
 import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -86,7 +87,12 @@ public record ProxyFallback(
     public @NonNull ProxyFallback build() {
       Preconditions.checkNotNull(this.task, "Missing task");
 
-      return new ProxyFallback(this.priority, this.task, this.permission, this.forcedHost, this.availableOnGroups);
+      return new ProxyFallback(
+        this.priority,
+        this.task,
+        this.permission,
+        this.forcedHost,
+        List.copyOf(this.availableOnGroups));
     }
   }
 }

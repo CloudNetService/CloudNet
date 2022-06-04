@@ -18,7 +18,6 @@ package eu.cloudnetservice.driver.service;
 
 import com.google.common.base.Preconditions;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -213,8 +212,8 @@ public record ProcessConfiguration(
       return new ProcessConfiguration(
         this.environment,
         this.maxHeapMemorySize,
-        Collections.unmodifiableSet(this.jvmOptions),
-        Collections.unmodifiableSet(this.processParameters));
+        Set.copyOf(this.jvmOptions),
+        Set.copyOf(this.processParameters));
     }
   }
 }

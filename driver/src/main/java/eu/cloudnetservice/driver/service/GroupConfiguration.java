@@ -20,7 +20,6 @@ import com.google.common.base.Preconditions;
 import eu.cloudnetservice.common.Nameable;
 import eu.cloudnetservice.common.document.gson.JsonDocument;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -228,12 +227,12 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
       Preconditions.checkNotNull(this.name, "no name given");
       return new GroupConfiguration(
         this.name,
-        Collections.unmodifiableSet(this.jvmOptions),
-        Collections.unmodifiableSet(this.processParameters),
-        Collections.unmodifiableSet(this.targetEnvironments),
-        Collections.unmodifiableSet(this.templates),
-        Collections.unmodifiableSet(this.deployments),
-        Collections.unmodifiableSet(this.includes),
+        Set.copyOf(this.jvmOptions),
+        Set.copyOf(this.processParameters),
+        Set.copyOf(this.targetEnvironments),
+         Set.copyOf(this.templates),
+         Set.copyOf(this.deployments),
+         Set.copyOf(this.includes),
         this.properties);
     }
   }

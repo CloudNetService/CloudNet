@@ -21,15 +21,17 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import lombok.NonNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 public record SyncProxyLoginConfiguration(
   @NonNull String targetGroup,
   boolean maintenance,
   int maxPlayers,
-  @NonNull Set<String> whitelist,
-  @NonNull List<SyncProxyMotd> motds,
-  @NonNull List<SyncProxyMotd> maintenanceMotds
+  @Unmodifiable  @NonNull Set<String> whitelist,
+  @Unmodifiable @NonNull List<SyncProxyMotd> motds,
+  @Unmodifiable @NonNull List<SyncProxyMotd> maintenanceMotds
 ) {
 
   public static @NonNull Builder builder() {
@@ -50,12 +52,12 @@ public record SyncProxyLoginConfiguration(
     return builder()
       .targetGroup(targetGroup)
       .maxPlayers(100)
-      .addMotd(SyncProxyMotd.builder()
+      .modifyMotd(motds -> motds.add(SyncProxyMotd.builder()
         .firstLine("         &b&o■ &8┃ &3&lCloudNet &8● &cBlizzard &8&l» &7&ov4.0 &8┃ &b&o■")
         .secondLine("              &7&onext &3&l&ogeneration &7&onetwork")
         .autoSlotDistance(1)
-        .build())
-      .addMaintenanceMotd(SyncProxyMotd.builder()
+        .build()))
+      .modifyMaintenanceMotd(motds -> motds.add(SyncProxyMotd.builder()
         .firstLine("         &b&o■ &8┃ &3&lCloudNet &8● &cBlizzard &8&l» &7&ov4.0 &8┃ &b&o■")
         .secondLine("     &3&lMaintenance &8&l» &7We are still in &3&lmaintenance")
         .autoSlotDistance(1)
@@ -66,7 +68,7 @@ public record SyncProxyLoginConfiguration(
           " "
         })
         .protocolText("&8➜ &c&lMaintenance &8┃ &c✘")
-        .build())
+        .build()))
       .build();
   }
 
@@ -116,8 +118,8 @@ public record SyncProxyLoginConfiguration(
       return this;
     }
 
-    public @NonNull Builder addWhitelist(@NonNull String user) {
-      this.whitelist.add(user);
+    public @NonNull Builder modifyWhitelist(@NonNull Consumer<Set<String>> modifier) {
+      modifier.accept(this.whitelist);
       return this;
     }
 
@@ -126,8 +128,8 @@ public record SyncProxyLoginConfiguration(
       return this;
     }
 
-    public @NonNull Builder addMotd(@NonNull SyncProxyMotd motd) {
-      this.motds.add(motd);
+    public @NonNull Builder modifyMotd(@NonNull Consumer<List<SyncProxyMotd>> modifier) {
+      modifier.accept(this.motds);
       return this;
     }
 
@@ -136,8 +138,8 @@ public record SyncProxyLoginConfiguration(
       return this;
     }
 
-    public @NonNull Builder addMaintenanceMotd(@NonNull SyncProxyMotd motd) {
-      this.maintenanceMotds.add(motd);
+    public @NonNull Builder modifyMaintenanceMotd(@NonNull Consumer<List<SyncProxyMotd>> modifier) {
+      modifier.accept(this.maintenanceMotds);
       return this;
     }
 
@@ -148,9 +150,9 @@ public record SyncProxyLoginConfiguration(
         this.targetGroup,
         this.maintenance,
         this.maxPlayers,
-        this.whitelist,
-        this.motds,
-        this.maintenanceMotds);
+        Set.copyOf(this.whitelist),
+        List.copyOf(this.motds),
+        List.copyOf(this.maintenanceMotds));
     }
   }
 }
