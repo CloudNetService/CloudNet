@@ -19,13 +19,16 @@ package eu.cloudnetservice.driver.service;
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.common.Nameable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import org.jetbrains.annotations.Unmodifiable;
 
 /**
  * A service id. This holds all the information needed to identify a service and its purpose within CloudNet. This class
@@ -148,6 +151,7 @@ public class ServiceId implements Nameable {
    *
    * @return the unique ids of the nodes which are allowed to pick up and manage the underlying service.
    */
+  @Unmodifiable
   public @NonNull Collection<String> allowedNodes() {
     return this.allowedNodes;
   }
@@ -359,12 +363,12 @@ public class ServiceId implements Nameable {
      * The given collection will be copied into the builder which means that further modification after the method call
      * will not reflect into the builder and vice-versa.
      *
-     * @param allowedNodes the nodes which are allowed to pick up the service.
+     * @param modifier the nodes which are allowed to pick up the service.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given node unique id collection is null.
      */
-    public @NonNull Builder addAllowedNodes(@NonNull Collection<String> allowedNodes) {
-      this.allowedNodes.addAll(allowedNodes);
+    public @NonNull Builder modifyAllowedNodes(@NonNull Consumer<Collection<String>> modifier) {
+      modifier.accept(this.allowedNodes);
       return this;
     }
 
@@ -383,7 +387,7 @@ public class ServiceId implements Nameable {
       return new ServiceId(
         this.taskName,
         this.nameSplitter,
-        this.allowedNodes,
+        Collections.unmodifiableSet(this.allowedNodes),
         this.uniqueId,
         this.taskServiceId,
         this.nodeUniqueId,

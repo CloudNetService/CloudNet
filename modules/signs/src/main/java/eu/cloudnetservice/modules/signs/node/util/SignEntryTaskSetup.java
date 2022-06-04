@@ -73,8 +73,9 @@ public final class SignEntryTaskSetup {
         var entry = ServiceEnvironmentType.JAVA_SERVER.get(environment.properties())
           ? SignConfigurationType.JAVA.createEntry(taskName)
           : SignConfigurationType.BEDROCK.createEntry(taskName);
-        configuration.entries().add(entry);
-        signManagement.signsConfiguration(configuration);
+
+        var builder = SignsConfiguration.builder(configuration).modifyEntries(entries -> entries.add(entry));
+        signManagement.signsConfiguration(builder.build());
       }
     }
   }

@@ -18,14 +18,17 @@ package eu.cloudnetservice.modules.signs.configuration;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
-public record SignsConfiguration(@NonNull List<SignConfigurationEntry> entries) {
+public record SignsConfiguration(@Unmodifiable @NonNull List<SignConfigurationEntry> entries) {
 
   public static final Map<String, String> MESSAGES = ImmutableMap.<String, String>builder()
     .put("command-cloudsign-no-entry", "§7No configuration entry found for any group the wrapper belongs to.")
@@ -79,18 +82,13 @@ public record SignsConfiguration(@NonNull List<SignConfigurationEntry> entries) 
       return this;
     }
 
-    public @NonNull Builder addEntry(@NonNull SignConfigurationEntry entry) {
-      this.entries.add(entry);
-      return this;
-    }
-
-    public @NonNull Builder removeEntry(@NonNull SignConfigurationEntry entry) {
-      this.entries.remove(entry);
+    public @NonNull Builder modifyEntries(@NonNull Consumer<Collection<SignConfigurationEntry>> modifier) {
+      modifier.accept(this.entries);
       return this;
     }
 
     public @NonNull SignsConfiguration build() {
-      return new SignsConfiguration(this.entries);
+      return new SignsConfiguration(Collections.unmodifiableList(this.entries));
     }
   }
 }

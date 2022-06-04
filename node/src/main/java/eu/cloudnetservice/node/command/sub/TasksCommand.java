@@ -433,7 +433,7 @@ public final class TasksCommand {
         continue;
       }
 
-      this.updateTask(task, builder -> builder.addAssociatedNode(node));
+      this.updateTask(task, builder -> builder.modifyAssociatedNodes(nodes -> nodes.add(node)));
       source.sendMessage(I18n.trans("command-tasks-add-collection-property",
         "node",
         node,
@@ -452,7 +452,7 @@ public final class TasksCommand {
         continue;
       }
 
-      this.updateTask(task, builder -> builder.addGroup(group.name()));
+      this.updateTask(task, builder -> builder.modifyGroups(groups -> groups.add(group.name())));
       source.sendMessage(I18n.trans("command-tasks-add-collection-property",
         "group",
         group.name(),
@@ -467,7 +467,7 @@ public final class TasksCommand {
     @NonNull @Argument("uniqueId") String node
   ) {
     for (var task : serviceTasks) {
-      this.updateTaskDirect(task, serviceTask -> serviceTask.associatedNodes().remove(node));
+      this.updateTask(task, builder -> builder.modifyAssociatedNodes(nodes -> nodes.remove(node)));
       source.sendMessage(I18n.trans("command-tasks-remove-collection-property",
         "node",
         node,
@@ -482,7 +482,7 @@ public final class TasksCommand {
     @NonNull @Argument("group") String group
   ) {
     for (var task : serviceTasks) {
-      this.updateTaskDirect(task, serviceTask -> serviceTask.groups().remove(group));
+      this.updateTask(task, builder -> builder.modifyGroups(groups -> groups.remove(group)));
       source.sendMessage(I18n.trans("command-tasks-remove-collection-property",
         "group",
         group,
@@ -506,7 +506,7 @@ public final class TasksCommand {
       .withDefaultExclusions()
       .build();
     for (var serviceTask : serviceTasks) {
-      this.updateTask(serviceTask, builder -> builder.addDeployments(Set.of(deployment)));
+      this.updateTask(serviceTask, builder -> builder.modifyDeployments(deployments -> deployments.add(deployment)));
       source.sendMessage(I18n.trans("command-tasks-add-collection-property",
         "deployment",
         deployment.template(),
@@ -521,7 +521,7 @@ public final class TasksCommand {
     @NonNull @Argument("template") ServiceTemplate template
   ) {
     for (var serviceTask : serviceTasks) {
-      this.updateTask(serviceTask, task -> task.addTemplates(Set.of(template)));
+      this.updateTask(serviceTask, task -> task.modifyTemplates(templates -> templates.add(template)));
       source.sendMessage(I18n.trans("command-tasks-add-collection-property",
         "template",
         template,
@@ -539,7 +539,7 @@ public final class TasksCommand {
     var inclusion = ServiceRemoteInclusion.builder().url(url).destination(path).build();
 
     for (var serviceTask : serviceTasks) {
-      this.updateTask(serviceTask, task -> task.addInclusions(Set.of(inclusion)));
+      this.updateTask(serviceTask, task -> task.modifyInclusions(inclusions -> inclusions.add(inclusion)));
       source.sendMessage(I18n.trans("command-tasks-add-collection-property",
         "inclusion",
         inclusion,
@@ -553,10 +553,9 @@ public final class TasksCommand {
     @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
     @NonNull @Greedy @Argument("options") String jvmOptions
   ) {
-    Collection<String> splittedOptions = Arrays.asList(jvmOptions.split(" "));
+    var splittedOptions = Arrays.asList(jvmOptions.split(" "));
     for (var serviceTask : serviceTasks) {
-      serviceTask.jvmOptions().addAll(splittedOptions);
-      this.updateTask(serviceTask);
+      this.updateTask(serviceTask, builder -> builder.modifyJvmOptions(options -> options.addAll(splittedOptions)));
       source.sendMessage(I18n.trans("command-tasks-add-collection-property",
         "jvmOption",
         jvmOptions,
@@ -570,10 +569,12 @@ public final class TasksCommand {
     @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
     @NonNull @Greedy @Argument("options") String processParameters
   ) {
-    Collection<String> splittedOptions = Arrays.asList(processParameters.split(" "));
+    var splittedOptions = Arrays.asList(processParameters.split(" "));
     for (var serviceTask : serviceTasks) {
-      serviceTask.processParameters().addAll(splittedOptions);
-      this.updateTask(serviceTask);
+
+      this.updateTask(
+        serviceTask,
+        builder -> builder.modifyProcessParameters(parameters -> parameters.addAll(splittedOptions)));
       source.sendMessage(I18n.trans("command-tasks-add-collection-property",
         "processParameter",
         processParameters,
@@ -597,7 +598,7 @@ public final class TasksCommand {
       .withDefaultExclusions()
       .build();
     for (var serviceTask : serviceTasks) {
-      this.updateTaskDirect(serviceTask, task -> task.deployments().remove(deployment));
+      this.updateTask(serviceTask, builder -> builder.modifyDeployments(deployments -> deployments.remove(deployment)));
       source.sendMessage(I18n.trans("command-tasks-remove-collection-property",
         "deployment",
         template,
@@ -612,7 +613,7 @@ public final class TasksCommand {
     @NonNull @Argument("template") ServiceTemplate template
   ) {
     for (var serviceTask : serviceTasks) {
-      this.updateTaskDirect(serviceTask, task -> task.templates().remove(template));
+      this.updateTask(serviceTask, builder -> builder.modifyTemplates(templates -> templates.remove(template)));
       source.sendMessage(I18n.trans("command-tasks-remove-collection-property",
         "template",
         template,
@@ -630,7 +631,7 @@ public final class TasksCommand {
     var inclusion = ServiceRemoteInclusion.builder().url(url).destination(path).build();
 
     for (var serviceTask : serviceTasks) {
-      this.updateTaskDirect(serviceTask, task -> task.inclusions().remove(inclusion));
+      this.updateTask(serviceTask, builder -> builder.modifyInclusions(inclusions -> inclusions.remove(inclusion)));
       source.sendMessage(I18n.trans("command-tasks-remove-collection-property",
         "inclusion",
         inclusion,
@@ -644,10 +645,9 @@ public final class TasksCommand {
     @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
     @NonNull @Greedy @Argument("options") String jvmOptions
   ) {
-    Collection<String> splittedOptions = Arrays.asList(jvmOptions.split(" "));
+    var splittedOptions = Arrays.asList(jvmOptions.split(" "));
     for (var serviceTask : serviceTasks) {
-      serviceTask.jvmOptions().removeAll(splittedOptions);
-      this.updateTask(serviceTask);
+      this.updateTask(serviceTask, builder -> builder.modifyJvmOptions(options -> options.removeAll(splittedOptions)));
       source.sendMessage(I18n.trans("command-tasks-remove-collection-property",
         "jvmOption",
         jvmOptions,
@@ -661,10 +661,11 @@ public final class TasksCommand {
     @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
     @NonNull @Greedy @Argument("options") String processParameters
   ) {
-    Collection<String> splitOptions = Arrays.asList(processParameters.split(" "));
+    var splittedOptions = Arrays.asList(processParameters.split(" "));
     for (var serviceTask : serviceTasks) {
-      serviceTask.processParameters().removeAll(splitOptions);
-      this.updateTask(serviceTask);
+      this.updateTask(
+        serviceTask,
+        builder -> builder.modifyProcessParameters(parameters -> parameters.removeAll(splittedOptions)));
       source.sendMessage(I18n.trans("command-tasks-remove-collection-property",
         "processParamter",
         processParameters,
@@ -678,7 +679,7 @@ public final class TasksCommand {
     @NonNull @Argument("name") Collection<ServiceTask> serviceTasks
   ) {
     for (var serviceTask : serviceTasks) {
-      this.updateTaskDirect(serviceTask, task -> task.jvmOptions().clear());
+      this.updateTask(serviceTask, builder -> builder.modifyJvmOptions(Collection::clear));
       source.sendMessage(I18n.trans("command-tasks-clear-property",
         "jvmOptions",
         serviceTask.name()));
@@ -691,29 +692,20 @@ public final class TasksCommand {
     @NonNull @Argument("name") Collection<ServiceTask> serviceTasks
   ) {
     for (var serviceTask : serviceTasks) {
-      this.updateTaskDirect(serviceTask, task -> task.processParameters().clear());
+      this.updateTask(serviceTask, builder -> builder.modifyProcessParameters(Collection::clear));
       source.sendMessage(I18n.trans("command-tasks-clear-property",
         "processParameters",
         serviceTask.name()));
     }
   }
 
-  private void updateTask(@NonNull ServiceTask task) {
-    this.taskProvider().addServiceTask(task);
-  }
-
   private void updateTask(@NonNull ServiceTask task, @NonNull Consumer<ServiceTask.Builder> consumer) {
     consumer
-      .andThen(result -> this.updateTask(result.build()))
+      .andThen(result -> this.taskProvider().addServiceTask(result.build()))
       .accept(ServiceTask.builder(task));
-  }
-
-  private void updateTaskDirect(@NonNull ServiceTask task, @NonNull Consumer<ServiceTask> consumer) {
-    consumer.andThen(this::updateTask).accept(task);
   }
 
   private @NonNull ServiceTaskProvider taskProvider() {
     return Node.instance().serviceTaskProvider();
   }
-
 }

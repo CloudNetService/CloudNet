@@ -191,12 +191,12 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
       if (config != null) {
         output
           // components
-          .addInclusions(config.inclusions())
-          .addTemplates(config.templates())
-          .addDeployments(config.deployments())
+          .modifyInclusions(inclusions -> inclusions.addAll(config.inclusions()))
+          .modifyTemplates(templates -> templates.addAll(config.templates()))
+          .modifyDeployments(deployments -> deployments.addAll(config.deployments()))
           // append process configuration settings
-          .addJvmOptions(config.jvmOptions())
-          .addProcessParameters(config.processParameters());
+          .modifyJvmOptions(jvmOptions -> jvmOptions.addAll(config.jvmOptions()))
+          .modifyProcessParameters(processParameters -> processParameters.addAll(config.processParameters()));
       }
     }
   }

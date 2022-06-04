@@ -18,10 +18,13 @@ package eu.cloudnetservice.driver.service;
 
 import com.google.common.base.Preconditions;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Consumer;
 import lombok.NonNull;
 import org.jetbrains.annotations.Range;
+import org.jetbrains.annotations.Unmodifiable;
 
 /**
  * Holds the most common options to configure any process started and managed by CloudNet.
@@ -35,8 +38,8 @@ import org.jetbrains.annotations.Range;
 public record ProcessConfiguration(
   @NonNull String environment,
   int maxHeapMemorySize,
-  @NonNull Set<String> jvmOptions,
-  @NonNull Set<String> processParameters
+  @Unmodifiable @NonNull Set<String> jvmOptions,
+  @Unmodifiable @NonNull Set<String> processParameters
 ) implements Cloneable {
 
   /**
@@ -158,12 +161,12 @@ public record ProcessConfiguration(
      * Duplicate options will be omitted by this method directly. <strong>HOWEVER,</strong> adding the same option twice
      * with a changed value to it will most likely result in the jvm to crash, beware!
      *
-     * @param jvmOptions the jvm options to add to the configuration.
+     * @param modifier the jvm option modifier to apply to the collection.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given options collection is null.
      */
-    public @NonNull Builder addJvmOptions(@NonNull Collection<String> jvmOptions) {
-      this.jvmOptions.addAll(jvmOptions);
+    public @NonNull Builder modifyJvmOptions(@NonNull Consumer<Collection<String>> modifier) {
+      modifier.accept(this.jvmOptions);
       return this;
     }
 
@@ -187,16 +190,14 @@ public record ProcessConfiguration(
      * Adds the process parameters which should get appended to the command line. Process parameters are there to
      * configure the application, for example setting an option like --online-mode=true.
      * <p>
-     * This method will override all previously added process parameters options. Furthermore, the given collection will
-     * be copied into this builder, meaning that changes to it will not reflect into the builder after the method call.
      * Duplicate parameters will get omitted by this method directly.
      *
-     * @param processParameters the process parameters to add to the configuration.
+     * @param modifier the process parameter modifier to apply to the collection.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given parameters' collection is null.
      */
-    public @NonNull Builder addProcessParameters(@NonNull Collection<String> processParameters) {
-      this.processParameters.addAll(processParameters);
+    public @NonNull Builder modifyProcessParameters(@NonNull Consumer<Collection<String>> modifier) {
+      modifier.accept(this.processParameters);
       return this;
     }
 
@@ -212,8 +213,8 @@ public record ProcessConfiguration(
       return new ProcessConfiguration(
         this.environment,
         this.maxHeapMemorySize,
-        this.jvmOptions,
-        this.processParameters);
+        Collections.unmodifiableSet(this.jvmOptions),
+        Collections.unmodifiableSet(this.processParameters));
     }
   }
 }

@@ -22,6 +22,7 @@ import eu.cloudnetservice.common.document.gson.JsonDocument;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -516,16 +517,16 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
     }
 
     /**
-     * Adds the name of a node which is allowed to pick up services created based on the service configuration. If
+     * Modifies nodes which are allowed to pick up services created based on the service configuration. If
      * specific nodes are selected the one with the lowest resource usage (in percent) will be chosen to start the
      * service. This setting has no effect if one specific node was selected to start the services.
      *
-     * @param associatedNode the node which is allowed to start the services created based on this task.
+     * @param modifier the node modifier to apply to the collection.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given node name is null.
      */
-    public @NonNull Builder addAssociatedNode(@NonNull String associatedNode) {
-      this.associatedNodes.add(associatedNode);
+    public @NonNull Builder modifyAssociatedNodes(@NonNull Consumer<Collection<String>> modifier) {
+      modifier.accept(this.associatedNodes);
       return this;
     }
 
@@ -549,17 +550,17 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
     }
 
     /**
-     * Adds a names of a group which should get included onto any service created based on the service configuration.
+     * Modifies groups which should get included onto any service created based on the service configuration.
      * All groups targeting the environment of the builder will automatically get included onto all services without the
      * need of explicitly defining them. If a group gets specified which is not known to the node picking up the service
      * it will silently be ignored.
      *
-     * @param group the name of a groups to include on all services.
+     * @param modifier the group name modifier to apply to the collection.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given group name is null.
      */
-    public @NonNull Builder addGroup(@NonNull String group) {
-      this.groups.add(group);
+    public @NonNull Builder modifyGroups(@NonNull Consumer<Collection<String>> modifier) {
+      modifier.accept(this.groups);
       return this;
     }
 
@@ -586,12 +587,12 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
      * given collection can either represent a single file or directory, but must be inside the service directory. Path
      * traversal to leave the service directory will result in an exception.
      *
-     * @param deletedFileAfterStop the file to delete when a service based on the configuration gets stopped.
+     * @param modifier the file modifier to apply to the collection.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given file name collection is null.
      */
-    public @NonNull Builder addDeletedFileAfterStop(@NonNull String deletedFileAfterStop) {
-      this.deletedFilesAfterStop.add(deletedFileAfterStop);
+    public @NonNull Builder modifyDeletedFileAfterStop(@NonNull Consumer<Collection<String>> modifier) {
+      modifier.accept(this.deletedFilesAfterStop);
       return this;
     }
 

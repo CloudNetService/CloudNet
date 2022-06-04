@@ -22,6 +22,7 @@ import eu.cloudnetservice.common.document.property.JsonDocPropertyHolder;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -186,12 +187,12 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
      * Any exclusion overrides an explicit inclusion, for example an exclusion of {@code plugins/*} overrides the
      * explicit inclusion of {@code plugins/cloudnet-bridge.jar}.
      *
-     * @param exclude the exclusion to add to the deployment.
+     * @param modifier the exclusion to add to the deployment.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if then given exclusion collection is null.
      */
-    public @NonNull Builder addExclude(@NonNull Pattern exclude) {
-      this.excludes.add(exclude);
+    public @NonNull Builder modifyExcludes(@NonNull Consumer<Collection<Pattern>> modifier) {
+      modifier.accept(this.excludes);
       return this;
     }
 
@@ -201,7 +202,7 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
      * <p>
      * Overriding the excludes of the exclusion using {@link #excludes(Collection)} results in a removal of the default
      * exclusions as well, therefore setting the excludes must be done before calling this method. Later adds of
-     * excluded files or directories via {@link #addExclude(Pattern)} will keep the default exclusions.
+     * excluded files or directories via {@link #modifyExcludes(Consumer)} will keep the default exclusions.
      *
      * @return the same instance as used to call the method, for chaining.
      */
@@ -236,12 +237,12 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
      * Any exclusion overrides an explicit inclusion, for example an exclusion of {@code plugins/*} overrides the
      * explicit inclusion of {@code plugins/cloudnet-bridge.jar}.
      *
-     * @param include the inclusion to add to the deployment.
+     * @param modifier the inclusion to add to the deployment.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if then given includes collection is null.
      */
-    public @NonNull Builder addInclude(@NonNull Pattern include) {
-      this.includes.add(include);
+    public @NonNull Builder modifyIncludes(@NonNull Consumer<Collection<Pattern>> modifier) {
+      modifier.accept(this.includes);
       return this;
     }
 

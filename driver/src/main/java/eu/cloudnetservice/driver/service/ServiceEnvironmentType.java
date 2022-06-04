@@ -25,6 +25,7 @@ import eu.cloudnetservice.common.document.property.JsonDocPropertyHolder;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Consumer;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
@@ -83,7 +84,7 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
    */
   public static final ServiceEnvironmentType NUKKIT = ServiceEnvironmentType.builder()
     .name("NUKKIT")
-    .addDefaultProcessArguments(Set.of("disable-ansi"))
+    .defaultProcessArguments(Set.of("disable-ansi"))
     .properties(JsonDocument.newDocument().property(PE_SERVER, true))
     .build();
   /**
@@ -92,7 +93,7 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
    */
   public static final ServiceEnvironmentType MINECRAFT_SERVER = ServiceEnvironmentType.builder()
     .name("MINECRAFT_SERVER")
-    .addDefaultProcessArguments(Set.of("nogui"))
+    .defaultProcessArguments(Set.of("nogui"))
     .properties(JsonDocument.newDocument().property(JAVA_SERVER, true))
     .build();
   /**
@@ -101,7 +102,7 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
    */
   public static final ServiceEnvironmentType MODDED_MINECRAFT_SERVER = ServiceEnvironmentType.builder()
     .name("MODDED_MINECRAFT_SERVER")
-    .addDefaultProcessArguments(Set.of("nogui"))
+    .defaultProcessArguments(Set.of("nogui"))
     .properties(JsonDocument.newDocument().property(JAVA_SERVER, true).property(PLUGIN_DIR, "mods"))
     .build();
   /**
@@ -325,12 +326,12 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
      * The collection will be copied into this builder, meaning that changes made to the given collection after the
      * method call will not reflect into the builder and vice-versa.
      *
-     * @param defaultProcessArguments the default process arguments to apply to a service command line.
+     * @param modifier the default process arguments to apply to a service command line.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given argument collection is null.
      */
-    public @NonNull Builder addDefaultProcessArguments(@NonNull Collection<String> defaultProcessArguments) {
-      this.defaultProcessArguments.addAll(defaultProcessArguments);
+    public @NonNull Builder modifyDefaultProcessArguments(@NonNull Consumer<Collection<String>> modifier) {
+      modifier.accept(this.defaultProcessArguments);
       return this;
     }
 
