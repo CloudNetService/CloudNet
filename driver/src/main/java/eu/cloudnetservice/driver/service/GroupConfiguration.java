@@ -230,9 +230,9 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
         Set.copyOf(this.jvmOptions),
         Set.copyOf(this.processParameters),
         Set.copyOf(this.targetEnvironments),
-         Set.copyOf(this.templates),
-         Set.copyOf(this.deployments),
-         Set.copyOf(this.includes),
+        Set.copyOf(this.templates),
+        Set.copyOf(this.deployments),
+        Set.copyOf(this.includes),
         this.properties);
     }
   }

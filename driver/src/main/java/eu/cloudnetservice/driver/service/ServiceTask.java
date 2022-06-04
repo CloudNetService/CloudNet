@@ -517,9 +517,9 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
     }
 
     /**
-     * Modifies nodes which are allowed to pick up services created based on the service configuration. If
-     * specific nodes are selected the one with the lowest resource usage (in percent) will be chosen to start the
-     * service. This setting has no effect if one specific node was selected to start the services.
+     * Modifies nodes which are allowed to pick up services created based on the service configuration. If specific
+     * nodes are selected the one with the lowest resource usage (in percent) will be chosen to start the service. This
+     * setting has no effect if one specific node was selected to start the services.
      *
      * @param modifier the node modifier to apply to the collection.
      * @return the same instance as used to call the method, for chaining.
@@ -550,10 +550,10 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
     }
 
     /**
-     * Modifies groups which should get included onto any service created based on the service configuration.
-     * All groups targeting the environment of the builder will automatically get included onto all services without the
-     * need of explicitly defining them. If a group gets specified which is not known to the node picking up the service
-     * it will silently be ignored.
+     * Modifies groups which should get included onto any service created based on the service configuration. All groups
+     * targeting the environment of the builder will automatically get included onto all services without the need of
+     * explicitly defining them. If a group gets specified which is not known to the node picking up the service it will
+     * silently be ignored.
      *
      * @param modifier the group name modifier to apply to the collection.
      * @return the same instance as used to call the method, for chaining.

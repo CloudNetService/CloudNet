@@ -800,11 +800,11 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
         this.javaCommand,
         this.autoDeleteOnStop,
         this.staticService,
-         Set.copyOf(this.groups),
-         Set.copyOf(this.deletedFilesAfterStop),
-         Set.copyOf(this.templates),
-         Set.copyOf(this.deployments),
-         Set.copyOf(this.includes),
+        Set.copyOf(this.groups),
+        Set.copyOf(this.deletedFilesAfterStop),
+        Set.copyOf(this.templates),
+        Set.copyOf(this.deployments),
+        Set.copyOf(this.includes),
         this.properties);
     }
   }
