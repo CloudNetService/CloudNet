@@ -197,10 +197,10 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
     }
 
     /**
-     * Adds a target environment to the group configuration. The group configuration will always be applied to all
-     * services having the given environment, even if the base task of them does not implement the group.
+     * Modifies the target environments of this group configuration. The group configuration will always be applied to
+     * all services having the given environment, even if the base task of them does not implement the group.
      *
-     * @param modifier the environment to add.
+     * @param modifier the target environments modifier applied to the
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given environment is null.
      */
