@@ -23,7 +23,7 @@ defaultTasks 'build', 'checkLicenses', 'test', 'jar'
 
 allprojects {
 
-  def major = 3, minor = 4, patch = 4, versionType = "SNAPSHOT"
+  def major = 3, minor = 4, patch = 4, versionType = "RELEASE"
 
   group 'de.dytanic.cloudnet'
   version "$major.$minor.$patch-$versionType"
