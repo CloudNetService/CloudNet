@@ -38,7 +38,7 @@ final class MinestomSimpleNameTagsManager extends SimpleNameTagsManager<Player> 
   @Override
   public void updateNameTagsFor(@NonNull Player player) {
     // ignore fake players
-    if(player instanceof FakePlayer) {
+    if (player instanceof FakePlayer) {
       return;
     }
 

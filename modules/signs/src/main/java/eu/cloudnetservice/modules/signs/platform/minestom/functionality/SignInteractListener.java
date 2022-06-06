@@ -33,7 +33,7 @@ public class SignInteractListener {
 
   private void handleSignInteract(@NonNull PlayerBlockInteractEvent event) {
     // ignore fake players
-    if(event.getPlayer() instanceof FakePlayer) {
+    if (event.getPlayer() instanceof FakePlayer) {
       return;
     }
 

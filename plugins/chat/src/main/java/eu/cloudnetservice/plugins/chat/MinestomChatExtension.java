@@ -50,7 +50,7 @@ public class MinestomChatExtension extends Extension {
 
   private void handleChat(@NonNull PlayerChatEvent event) {
     // ignore fake players
-    if(event.getPlayer() instanceof FakePlayer) {
+    if (event.getPlayer() instanceof FakePlayer) {
       return;
     }
 

@@ -138,8 +138,8 @@ public interface PlayerExecutor {
    * Sends a plugin channel message to the player associated with this player executor using the given channel and data.
    * The channel used has to be registered on the service software.
    *
-   * @param key the channel to send the plugin message in.
-   * @param data    the data to send to the player.
+   * @param key  the channel to send the plugin message in.
+   * @param data the data to send to the player.
    * @throws NullPointerException if the given channel or data is null.
    */
   void sendPluginMessage(@NonNull String key, byte[] data);

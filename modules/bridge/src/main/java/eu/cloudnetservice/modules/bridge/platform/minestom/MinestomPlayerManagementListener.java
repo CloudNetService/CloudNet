@@ -49,7 +49,7 @@ public final class MinestomPlayerManagementListener {
 
   private void handleLogin(@NonNull AsyncPlayerPreLoginEvent event) {
     // ignore fake players
-    if(event.getPlayer() instanceof FakePlayer) {
+    if (event.getPlayer() instanceof FakePlayer) {
       return;
     }
 
@@ -76,7 +76,7 @@ public final class MinestomPlayerManagementListener {
 
   private void handleJoin(@NonNull PlayerSpawnEvent event) {
     // ignore fake players
-    if(event.getPlayer() instanceof FakePlayer) {
+    if (event.getPlayer() instanceof FakePlayer) {
       return;
     }
 
@@ -89,7 +89,7 @@ public final class MinestomPlayerManagementListener {
 
   private void handleDisconnect(@NonNull PlayerDisconnectEvent event) {
     // ignore fake players
-    if(event.getPlayer() instanceof FakePlayer) {
+    if (event.getPlayer() instanceof FakePlayer) {
       return;
     }
 

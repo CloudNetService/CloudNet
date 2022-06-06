@@ -39,7 +39,7 @@ public final class MinestomCloudPermissionsPlayerListener {
 
   private void handleAsyncPreLogin(@NonNull AsyncPlayerPreLoginEvent event) {
     // ignore fake players
-    if(event.getPlayer() instanceof FakePlayer) {
+    if (event.getPlayer() instanceof FakePlayer) {
       return;
     }
 
@@ -57,7 +57,7 @@ public final class MinestomCloudPermissionsPlayerListener {
 
   private void handleDisconnect(@NonNull PlayerDisconnectEvent event) {
     // ignore fake players
-    if(event.getPlayer() instanceof FakePlayer) {
+    if (event.getPlayer() instanceof FakePlayer) {
       return;
     }
 
