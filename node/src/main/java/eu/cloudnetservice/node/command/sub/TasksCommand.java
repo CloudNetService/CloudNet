@@ -183,13 +183,16 @@ public final class TasksCommand {
     @NonNull Queue<String> input
   ) {
     var command = String.join(" ", input);
+    // we have to clear the queue as we consumed the input using String.join
+    input.clear();
+
     var version = JavaVersionResolver.resolveFromJavaExecutable(command);
     if (version == null) {
       throw new ArgumentNotAvailableException(
         I18n.trans("command-tasks-setup-question-javacommand-invalid"));
     }
 
-    return new Pair<>(command, version);
+    return new Pair<>(command.replace("\"", ""), version);
   }
 
   @Parser(name = "nodeId", suggestions = "clusterNode")
@@ -410,7 +413,7 @@ public final class TasksCommand {
   public void setJavaCommand(
     @NonNull CommandSource source,
     @NonNull @Argument("name") Collection<ServiceTask> serviceTasks,
-    @NonNull @Argument(value = "executable", parserName = "javaCommand") @Quoted Pair<String, JavaVersion> executable
+    @NonNull @Argument(value = "executable", parserName = "javaCommand") Pair<String, JavaVersion> executable
   ) {
     for (var task : serviceTasks) {
       this.updateTask(task, builder -> builder.javaCommand(executable.first()));
