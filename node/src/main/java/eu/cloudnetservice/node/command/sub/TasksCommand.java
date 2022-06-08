@@ -192,7 +192,7 @@ public final class TasksCommand {
         I18n.trans("command-tasks-setup-question-javacommand-invalid"));
     }
 
-    return new Pair<>(command.replace("\"", ""), version);
+    return new Pair<>(command, version);
   }
 
   @Parser(name = "nodeId", suggestions = "clusterNode")
