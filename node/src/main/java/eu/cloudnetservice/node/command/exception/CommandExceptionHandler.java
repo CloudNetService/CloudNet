@@ -75,11 +75,17 @@ public class CommandExceptionHandler {
     // determine the cause type and apply the specific handler
     if (cause instanceof CommandException) {
       if (cause instanceof InvalidSyntaxException invalidSyntaxException) {
+        // build the full command tree for the given input
+        var commandTree = this.collectCommandHelp(invalidSyntaxException.getCurrentChain());
         // call the event to allow an own response
         var event = this.eventManager.callEvent(new CommandInvalidSyntaxEvent(
           source,
           invalidSyntaxException.getCorrectSyntax(),
-          this.collectCommandHelp(invalidSyntaxException.getCurrentChain())));
+          commandTree,
+          // by default, we display the whole tree if we just have one argument
+          invalidSyntaxException.getCurrentChain().size() <= 1
+            ? commandTree
+            : List.of(invalidSyntaxException.getMessage())));
         // send the response of the event
         source.sendMessage(event.response());
       } else if (cause instanceof NoSuchCommandException noSuchCommandException) {
