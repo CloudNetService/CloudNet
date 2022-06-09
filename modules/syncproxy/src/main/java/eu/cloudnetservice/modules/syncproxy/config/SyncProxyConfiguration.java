@@ -59,8 +59,8 @@ public record SyncProxyConfiguration(
 
   public static @NonNull SyncProxyConfiguration createDefault(@NonNull String targetGroup) {
     return builder()
-      .modifyLoginConfiguration(login -> login.add(SyncProxyLoginConfiguration.createDefault(targetGroup)))
-      .modifyTabListConfiguration(tabList -> tabList.add(SyncProxyTabListConfiguration.createDefault(targetGroup)))
+      .modifyLoginConfigurations(login -> login.add(SyncProxyLoginConfiguration.createDefault(targetGroup)))
+      .modifyTabListConfigurations(tabList -> tabList.add(SyncProxyTabListConfiguration.createDefault(targetGroup)))
       .messages(DEFAULT_MESSAGES)
       .ingameStartStopMessages(true)
       .build();
@@ -112,7 +112,7 @@ public record SyncProxyConfiguration(
       return this;
     }
 
-    public @NonNull Builder modifyLoginConfiguration(@NonNull Consumer<Set<SyncProxyLoginConfiguration>> modifier) {
+    public @NonNull Builder modifyLoginConfigurations(@NonNull Consumer<Set<SyncProxyLoginConfiguration>> modifier) {
       modifier.accept(this.loginConfigurations);
       return this;
     }
@@ -122,7 +122,7 @@ public record SyncProxyConfiguration(
       return this;
     }
 
-    public @NonNull Builder modifyTabListConfiguration(@NonNull Consumer<Set<SyncProxyTabListConfiguration>> modifier) {
+    public @NonNull Builder modifyTabListConfigurations(@NonNull Consumer<Set<SyncProxyTabListConfiguration>> modifier) {
       modifier.accept(this.tabListConfigurations);
       return this;
     }
@@ -132,7 +132,7 @@ public record SyncProxyConfiguration(
       return this;
     }
 
-    public @NonNull Builder modifyMessage(@NonNull Consumer<Map<String, String>> modifier) {
+    public @NonNull Builder modifyMessages(@NonNull Consumer<Map<String, String>> modifier) {
       modifier.accept(this.messages);
       return this;
     }

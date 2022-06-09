@@ -303,9 +303,6 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
      * starts. Inclusions get cached based on their download url. If you need a clean copy of your inclusion you should
      * change the download url of it. If the node is unable to download an inclusion based on the given url it will be
      * ignored and a warning gets printed into the console.
-     * <p>
-     * The given collection will be copied into this builder, meaning that changes made to the collection after the
-     * method call will not reflect into the builder and vice-versa.
      *
      * @param modifier the inclusion modifier to apply to the collection.
      * @return the same instance as used to call the method, for chaining.

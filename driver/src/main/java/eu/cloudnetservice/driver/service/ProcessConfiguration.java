@@ -152,7 +152,7 @@ public record ProcessConfiguration(
     }
 
     /**
-     * Adds the given jvm options to this builder. JVM options are there to configure the behaviour of the jvm, for
+     * Modifies the jvm options of this builder. JVM options are there to configure the behaviour of the jvm, for
      * example the garbage collector.
      * <p>
      * The XmX and XmS options will always get appended based on the configured maximum heap memory size.
@@ -160,7 +160,7 @@ public record ProcessConfiguration(
      * Duplicate options will be omitted by this method directly. <strong>HOWEVER,</strong> adding the same option twice
      * with a changed value to it will most likely result in the jvm to crash, beware!
      *
-     * @param modifier the jvm option modifier to apply to the collection.
+     * @param modifier the jvm options modifier to apply to the collection.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given options collection is null.
      */
@@ -186,12 +186,12 @@ public record ProcessConfiguration(
     }
 
     /**
-     * Adds the process parameters which should get appended to the command line. Process parameters are there to
+     * Modifies the process parameters which should get appended to the command line. Process parameters are there to
      * configure the application, for example setting an option like --online-mode=true.
      * <p>
      * Duplicate parameters will get omitted by this method directly.
      *
-     * @param modifier the process parameter modifier to apply to the collection.
+     * @param modifier the process parameters modifier to apply to the collection.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given parameters' collection is null.
      */

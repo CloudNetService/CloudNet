@@ -662,9 +662,6 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
      * configuration. All groups targeting the environment of the builder will automatically get included onto all
      * services without the need of explicitly defining them. If a group gets specified which is not known to the node
      * picking up the service it will silently be ignored.
-     * <p>
-     * The given collection will get copied into this builder, meaning that changes made to the collection after the
-     * method call will not reflect into the builder and vice-versa.
      *
      * @param modifier the name modifier to apply to the collection.
      * @return the same instance as used to call the method, for chaining.
@@ -697,9 +694,6 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
      * Modifies the files which should get deleted when stopping a service created based on the configuration. Any path
      * in the given collection can either represent a single file or directory, but must be inside the service
      * directory. Path traversal to leave the service directory will result in an exception.
-     * <p>
-     * The given collection will be copied into this builder, meaning that changes made to the collection after the
-     * method call will not reflect into the builder and vice-versa.
      *
      * @param modifier the file modifier to apply to the collection.
      * @return the same instance as used to call the method, for chaining.

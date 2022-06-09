@@ -116,8 +116,8 @@ public final class SyncProxyCommand {
     var tabListConfiguration = SyncProxyTabListConfiguration.createDefault(name);
 
     this.updateConfig(builder -> builder
-      .modifyLoginConfiguration(logins -> logins.add(loginConfiguration))
-      .modifyTabListConfiguration(tabLists -> tabLists.add(tabListConfiguration)));
+      .modifyLoginConfigurations(logins -> logins.add(loginConfiguration))
+      .modifyTabListConfigurations(tabLists -> tabLists.add(tabListConfiguration)));
 
     source.sendMessage(I18n.trans("module-syncproxy-command-create-entry-success"));
   }
@@ -136,7 +136,7 @@ public final class SyncProxyCommand {
     @Argument("targetGroup") SyncProxyLoginConfiguration loginConfiguration,
     @Argument("amount") int amount
   ) {
-    this.updateConfig(builder -> builder.modifyLoginConfiguration(logins -> {
+    this.updateConfig(builder -> builder.modifyLoginConfigurations(logins -> {
       var config = SyncProxyLoginConfiguration.builder(loginConfiguration)
         .maxPlayers(amount)
         .build();
@@ -155,7 +155,7 @@ public final class SyncProxyCommand {
     @Argument("targetGroup") SyncProxyLoginConfiguration loginConfiguration,
     @Argument("name") String name
   ) {
-    this.updateConfig(builder -> builder.modifyLoginConfiguration(logins -> {
+    this.updateConfig(builder -> builder.modifyLoginConfigurations(logins -> {
       var config = SyncProxyLoginConfiguration.builder(loginConfiguration)
         .modifyWhitelist(list -> list.add(name))
         .build();
@@ -174,7 +174,7 @@ public final class SyncProxyCommand {
     @Argument("targetGroup") SyncProxyLoginConfiguration loginConfiguration,
     @Argument("name") String name
   ) {
-    this.updateConfig(builder -> builder.modifyLoginConfiguration(logins -> {
+    this.updateConfig(builder -> builder.modifyLoginConfigurations(logins -> {
       var config = SyncProxyLoginConfiguration.builder(loginConfiguration)
         .modifyWhitelist(list -> list.remove(name))
         .build();
@@ -193,7 +193,7 @@ public final class SyncProxyCommand {
     @Argument("targetGroup") SyncProxyLoginConfiguration loginConfiguration,
     @Argument("enabled") @Liberal boolean enabled
   ) {
-    this.updateConfig(builder -> builder.modifyLoginConfiguration(logins -> {
+    this.updateConfig(builder -> builder.modifyLoginConfigurations(logins -> {
       var config = SyncProxyLoginConfiguration.builder(loginConfiguration)
         .maintenance(enabled)
         .build();

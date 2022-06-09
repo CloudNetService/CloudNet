@@ -521,7 +521,7 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
      * nodes are selected the one with the lowest resource usage (in percent) will be chosen to start the service. This
      * setting has no effect if one specific node was selected to start the services.
      *
-     * @param modifier the node modifier to apply to the collection.
+     * @param modifier the node modifier to apply to the collection of this builder.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given node name is null.
      */
@@ -555,7 +555,7 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
      * explicitly defining them. If a group gets specified which is not known to the node picking up the service it will
      * silently be ignored.
      *
-     * @param modifier the group name modifier to apply to the collection.
+     * @param modifier the group name modifier to apply to the collection of this builder.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given group name is null.
      */
@@ -583,11 +583,11 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
     }
 
     /**
-     * Adds a files which should get deleted when stopping a service created based on the configuration. Any path in the
-     * given collection can either represent a single file or directory, but must be inside the service directory. Path
-     * traversal to leave the service directory will result in an exception.
+     * Modifies the files which should get deleted when stopping a service created based on the configuration. Any path
+     * in the given collection can either represent a single file or directory, but must be inside the service
+     * directory. Path traversal to leave the service directory will result in an exception.
      *
-     * @param modifier the file modifier to apply to the collection.
+     * @param modifier the file modifier to apply to the collection of this builder.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given file name collection is null.
      */
