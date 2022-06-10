@@ -28,7 +28,6 @@ import net.fabricmc.api.Environment;
 import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
 import net.minecraft.network.protocol.login.ClientboundLoginDisconnectPacket;
 import net.minecraft.server.network.ServerHandshakePacketListenerImpl;
@@ -44,7 +43,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public final class ServerHandshakePacketListenerMixin {
 
   private static final Gson GSON = new Gson();
-  private static final Component IP_INFO_MISSING = new TextComponent(
+  private static final Component IP_INFO_MISSING = Component.literal(
     "If you wish to use IP forwarding, please enable it in your BungeeCord config as well!");
 
   @Final
