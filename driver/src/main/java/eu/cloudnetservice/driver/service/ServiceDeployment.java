@@ -187,7 +187,7 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
      * Any exclusion overrides an explicit inclusion, for example an exclusion of {@code plugins/*} overrides the
      * explicit inclusion of {@code plugins/cloudnet-bridge.jar}.
      *
-     * @param modifier the exclusion modifier to apply to the collection of this builder.
+     * @param modifier the modifier to be applied to the already added exclusions of this builder.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if then given exclusion collection is null.
      */
@@ -237,7 +237,7 @@ public class ServiceDeployment extends JsonDocPropertyHolder implements Cloneabl
      * Any exclusion overrides an explicit inclusion, for example an exclusion of {@code plugins/*} overrides the
      * explicit inclusion of {@code plugins/cloudnet-bridge.jar}.
      *
-     * @param modifier the inclusion modifier to apply to the collection of this builder.
+     * @param modifier the modifier to be applied to the already added inclusions of this builder.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if then given includes collection is null.
      */

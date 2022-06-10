@@ -326,7 +326,7 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
      * The collection will be copied into this builder, meaning that changes made to the given collection after the
      * method call will not reflect into the builder and vice-versa.
      *
-     * @param modifier the default process argument modifier to apply to the collection of this builder.
+     * @param modifier the modifier to be applied to the already added default process arguments of this builder.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given argument collection is null.
      */

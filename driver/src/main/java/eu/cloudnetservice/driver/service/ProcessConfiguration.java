@@ -160,7 +160,7 @@ public record ProcessConfiguration(
      * Duplicate options will be omitted by this method directly. <strong>HOWEVER,</strong> adding the same option twice
      * with a changed value to it will most likely result in the jvm to crash, beware!
      *
-     * @param modifier the jvm options modifier to apply to the collection.
+     * @param modifier the modifier to be applied to the already added jvm options of this builder.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given options collection is null.
      */
@@ -191,7 +191,7 @@ public record ProcessConfiguration(
      * <p>
      * Duplicate parameters will get omitted by this method directly.
      *
-     * @param modifier the process parameters modifier to apply to the collection.
+     * @param modifier the modifier to be applied to the already added process parameters of this builder.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given parameters' collection is null.
      */

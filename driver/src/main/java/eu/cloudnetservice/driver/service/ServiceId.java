@@ -362,7 +362,7 @@ public class ServiceId implements Nameable {
      * The given collection will be copied into the builder which means that further modification after the method call
      * will not reflect into the builder and vice-versa.
      *
-     * @param modifier the nodes modifier to apply to the collection of this builder.
+     * @param modifier the modifier to be applied to the already added allowed nodes of this builder.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given node unique id collection is null.
      */

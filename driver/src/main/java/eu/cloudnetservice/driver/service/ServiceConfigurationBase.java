@@ -177,7 +177,7 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
      * Duplicate options will be omitted by this method directly. <strong>HOWEVER,</strong> adding the same option twice
      * with a changed value to it will most likely result in the jvm to crash, beware!
      *
-     * @param modifier the jvm options modifier to apply to the collection.
+     * @param modifier the modifier to be applied to the already added jvm options of this builder.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given options collection is null.
      */
@@ -208,7 +208,7 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
      * <p>
      * Duplicate parameters will get omitted by this method directly.
      *
-     * @param modifier the process parameters modifier to apply to the collection.
+     * @param modifier the modifier to be applied to the already added process parameters of this builder.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given parameters' collection is null.
      */
@@ -240,7 +240,7 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
      * ignored and the templates will get re-sorted based on their priority. Templates will override existing files from
      * any source if they are present in them, make sure to use an appropriate order for them.
      *
-     * @param modifier the template modifier to apply to the collection.
+     * @param modifier the modifier to be applied to the already added templates of this builder.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given template collection is null.
      */
@@ -270,7 +270,7 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
      * Modifies the deployments to execute when a service based on the configuration gets stopped or when explicitly
      * requested by calling the associated method on the service provider.
      *
-     * @param modifier the deployment modifier to apply to the collection.
+     * @param modifier the modifier to be applied to the already added deployments of this builder.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given deployment collection is null.
      */
@@ -304,7 +304,7 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
      * change the download url of it. If the node is unable to download an inclusion based on the given url it will be
      * ignored and a warning gets printed into the console.
      *
-     * @param modifier the inclusion modifier to apply to the collection.
+     * @param modifier the modifier to be applied to the already added inclusions of this builder.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given inclusion collection is null.
      */

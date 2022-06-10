@@ -663,7 +663,7 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
      * services without the need of explicitly defining them. If a group gets specified which is not known to the node
      * picking up the service it will silently be ignored.
      *
-     * @param modifier the name modifier to apply to the collection.
+     * @param modifier the modifier to be applied to the already added groups of this builder.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given group name collection is null.
      */
@@ -695,7 +695,7 @@ public class ServiceConfiguration extends ServiceConfigurationBase implements Cl
      * in the given collection can either represent a single file or directory, but must be inside the service
      * directory. Path traversal to leave the service directory will result in an exception.
      *
-     * @param modifier the file modifier to apply to the collection.
+     * @param modifier the modifier to be applied to the already added files of this builder.
      * @return the same instance as used to call the method, for chaining.
      * @throws NullPointerException if the given file name collection is null.
      */
