@@ -19,7 +19,6 @@ package eu.cloudnetservice.modules.signs.platform.minestom;
 import com.google.common.util.concurrent.MoreExecutors;
 import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
-import eu.cloudnetservice.modules.bridge.platform.minestom.MinestomInstanceProvider;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.platform.PlatformSign;
 import eu.cloudnetservice.modules.signs.platform.PlatformSignManagement;
@@ -33,8 +32,6 @@ import net.minestom.server.timer.TaskSchedule;
 import org.jetbrains.annotations.Nullable;
 
 public class MinestomSignManagement extends PlatformSignManagement<Player, Pair<Point, Instance>, String> {
-
-  private final MinestomInstanceProvider provider = new MinestomInstanceProvider();
 
   protected MinestomSignManagement() {
     super(MoreExecutors.directExecutor());
@@ -88,13 +85,13 @@ public class MinestomSignManagement extends PlatformSignManagement<Player, Pair<
       return null;
     }
     // extract the name of the instance
-    var identifier = this.provider.extractInstanceIdentifier(instance);
+    var identifier = instance.getUniqueId().toString();
     return new WorldPosition(pos.x(), pos.y(), pos.z(), 0, 0, identifier, entry.targetGroup());
   }
 
 
   @Override
   protected @NonNull PlatformSign<Player, String> createPlatformSign(@NonNull Sign base) {
-    return new MinestomPlatformSign(base, this.provider);
+    return new MinestomPlatformSign(base);
   }
 }

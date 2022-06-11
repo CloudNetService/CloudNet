@@ -20,14 +20,15 @@ import eu.cloudnetservice.common.collection.Pair;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
 import eu.cloudnetservice.ext.adventure.AdventureTextFormatLookup;
-import eu.cloudnetservice.modules.bridge.platform.minestom.MinestomInstanceProvider;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignLayout;
 import eu.cloudnetservice.modules.signs.platform.PlatformSign;
 import eu.cloudnetservice.modules.signs.platform.minestom.event.MinestomCloudSignInteractEvent;
+import java.util.UUID;
 import lombok.NonNull;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventDispatcher;
@@ -37,18 +38,15 @@ import org.jglrxavpok.hephaistos.nbt.NBT;
 
 public class MinestomPlatformSign extends PlatformSign<Player, String> {
 
-  private final MinestomInstanceProvider provider;
   private Pair<Pos, Instance> signLocation;
 
   public MinestomPlatformSign(
-    @NonNull Sign base,
-    @NonNull MinestomInstanceProvider provider
+    @NonNull Sign base
   ) {
     super(base, input -> {
       var coloredComponent = AdventureSerializerUtil.serialize(input);
       return GsonComponentSerializer.gson().serialize(coloredComponent);
     });
-    this.provider = provider;
   }
 
   @Override
@@ -110,7 +108,7 @@ public class MinestomPlatformSign extends PlatformSign<Player, String> {
   }
 
   public @Nullable Pair<Pos, Instance> signLocation() {
-    var instance = this.provider.instanceByIdentifier(this.base.location().world());
+    var instance = MinecraftServer.getInstanceManager().getInstance(UUID.fromString(this.base.location().world()));
     if (this.signLocation != null) {
       return this.signLocation;
     }
