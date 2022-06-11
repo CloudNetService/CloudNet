@@ -51,7 +51,7 @@ public final class KnotClassDelegateTransformer implements Transformer {
       false));
     instructions.add(new JumpInsnNode(IFEQ, new LabelNode(ifDimension)));
 
-    // loads the parent class loader which holds our classes
+    // load the class from the system class loader if it's a cloudnet class
     instructions.add(new MethodInsnNode(
       INVOKESTATIC,
       Type.getInternalName(ClassLoader.class),
@@ -75,7 +75,8 @@ public final class KnotClassDelegateTransformer implements Transformer {
       if (method.name.equals("loadClass")) {
         var instructions = new InsnList();
 
-        // if checks
+        // loads the classes with an "eu.cloudnetservice.*" prefix from the system loader rather
+        // than the fabric build-in one
         insertLoadFromParent(instructions, "eu.cloudnetservice.wrapper.");
         insertLoadFromParent(instructions, "eu.cloudnetservice.common.");
         insertLoadFromParent(instructions, "eu.cloudnetservice.driver.");
