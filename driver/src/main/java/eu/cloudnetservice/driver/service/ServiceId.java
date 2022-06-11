@@ -358,9 +358,6 @@ public class ServiceId implements Nameable {
     /**
      * Modifies the nodes which are allowed to pick up and manage services using the service id. If no node of the given
      * ones is available to pick up a service, creations will fail.
-     * <p>
-     * The given collection will be copied into the builder which means that further modification after the method call
-     * will not reflect into the builder and vice-versa.
      *
      * @param modifier the modifier to be applied to the already added allowed nodes of this builder.
      * @return the same instance as used to call the method, for chaining.

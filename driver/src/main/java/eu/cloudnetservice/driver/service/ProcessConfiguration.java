@@ -157,8 +157,8 @@ public record ProcessConfiguration(
      * <p>
      * The XmX and XmS options will always get appended based on the configured maximum heap memory size.
      * <p>
-     * Duplicate options will be omitted by this method directly. <strong>HOWEVER,</strong> adding the same option twice
-     * with a changed value to it will most likely result in the jvm to crash, beware!
+     * Duplicate options will be omitted by the underlying collection. <strong>HOWEVER,</strong> adding the same option
+     * twice with a changed value to it will most likely result in the jvm to crash, beware!
      *
      * @param modifier the modifier to be applied to the already added jvm options of this builder.
      * @return the same instance as used to call the method, for chaining.
@@ -189,7 +189,7 @@ public record ProcessConfiguration(
      * Modifies the process parameters which should get appended to the command line. Process parameters are there to
      * configure the application, for example setting an option like --online-mode=true.
      * <p>
-     * Duplicate parameters will get omitted by this method directly.
+     * Duplicate parameters will get omitted by the underlying collection.
      *
      * @param modifier the modifier to be applied to the already added process parameters of this builder.
      * @return the same instance as used to call the method, for chaining.

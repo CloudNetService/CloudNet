@@ -322,9 +322,6 @@ public class ServiceEnvironmentType extends JsonDocPropertyHolder implements Nam
     /**
      * Modifies the default process arguments which should get appended to the command line of all services created
      * using the service environment type.
-     * <p>
-     * The collection will be copied into this builder, meaning that changes made to the given collection after the
-     * method call will not reflect into the builder and vice-versa.
      *
      * @param modifier the modifier to be applied to the already added default process arguments of this builder.
      * @return the same instance as used to call the method, for chaining.
